@@ -1,3 +1,7 @@
+2000-03-27  Eric Melski  <ericm@scriptics.com>
+
+	* cmdline.tcl: Fixed text in comment.
+
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* cmdline.test: Adapted tests to work with tcllib test framework.

@@ -8,7 +8,7 @@
 # Copyright (c) 1998 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.1 2000/03/01 23:26:59 ericm Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.2 2000/03/28 02:28:24 ericm Exp $
 
 package provide cmdline 1.0
 namespace eval cmdline {
@@ -23,7 +23,7 @@ namespace eval cmdline {
 #	first argument and return info on how to procede.
 #
 # Arguments:
-#	argvVar		Name of the argv array that you
+#	argvVar		Name of the argv list that you
 #			want to process.  If options are found the
 #			arg list is modified and the processed arguments
 #			are removed from the start of the list.

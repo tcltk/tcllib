@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.16 2000/03/10 23:46:07 hershey Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.17 2000/03/28 02:28:23 ericm Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -62,10 +62,12 @@ MODULES= \
 
 SHELL = @SHELL@
 
+INSTALL_ROOT =
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
-prefix = @prefix@
-exec_prefix = @exec_prefix@
+prefix = $(INSTALL_ROOT)@prefix@
+exec_prefix = $(INSTALL_ROOT)@exec_prefix@
 
 libdir = @libdir@
 mandir = @mandir@
@@ -99,7 +101,7 @@ AUTOCONF = autoconf
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 CONFIGDIR = @CONFIGDIR@
 mkinstalldirs = $(SHELL) $(CONFIGDIR)/mkinstalldirs
-CONFIG_CLEAN_FILES = mkIndex.tcl
+CONFIG_CLEAN_FILES =
 
 #========================================================================
 # Start of user-definable TARGETS section
@@ -113,7 +115,7 @@ CONFIG_CLEAN_FILES = mkIndex.tcl
 # for the BINARIES that you specified above have already been done.
 #========================================================================
 
-all: binaries libraries doc
+all: libraries doc
 
 #========================================================================
 # The binaries target builds executable programs, Windows .dll's, unix
@@ -122,13 +124,13 @@ all: binaries libraries doc
 # of the Makefile, in the "BINARIES" variable.
 #========================================================================
 
-binaries: $(BINARIES)
+binaries:
 
 libraries:
 
 doc:
 
-install: all install-binaries install-libraries
+install: all install-libraries install-doc
 
 install-binaries: 
 
@@ -148,7 +150,7 @@ install-libraries: libraries
 		done; \
 	    fi; \
 	done;
-	$(TCLSH_PROG) mkIndex.tcl $(MODULES)
+	$(TCLSH_PROG) mkIndex.tcl $(pkglibdir) tcllib $(VERSION) $(MODULES)
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
@@ -170,6 +172,28 @@ test:
 	$(TCLSH_PROG) $(srcdir)/all.tcl -modules "$(MODULES)"
 
 depend:
+
+# Make a distribution.  This includes:
+#   Code, doc's, and tests for all modules
+#   Generated installer for Windows (INSTALL.BAT) and UNIX (install.sh)
+# This all gets archived together (tcllib$(VERSION).zip or 
+# tcllib$(VERSION).tar.gz).
+dist:
+	rm -rf $(srcdir)/tcllib$(VERSION) tcllib$(VERSION).tar.gz tcllib$(VERSION).zip
+	@mkdir $(srcdir)/tcllib$(VERSION)
+	@for j in $(MODULES) ; do \
+	    mkdir $(srcdir)/tcllib$(VERSION)/$$j ; \
+	    cp $(srcdir)/modules/$$j/*.n $(srcdir)/tcllib$(VERSION)/$$j ; \
+	    cp $(srcdir)/modules/$$j/*.tcl $(srcdir)/tcllib$(VERSION)/$$j ; \
+	    cp $(srcdir)/modules/$$j/*.test $(srcdir)/tcllib$(VERSION)/$$j ; \
+	done
+	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl $(srcdir)/tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
+	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl $(srcdir)/tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
+	cd $(srcdir)
+	tar cf tcllib$(VERSION).tar tcllib$(VERSION)
+	gzip tcllib$(VERSION).tar
+	zip -r tcllib$(VERSION).zip tcllib$(VERSION)
+	rm -rf $(srcdir)/tcllib$(VERSION)
 
 #========================================================================
 # End of user-definable section

@@ -20,5 +20,4 @@ AC_PROG_INSTALL
 SC_SIMPLE_EXEEXT
 SC_PROG_TCLSH
 
-AC_OUTPUT([Makefile \
-	mkIndex.tcl])
+AC_OUTPUT([Makefile])
