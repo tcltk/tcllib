@@ -255,5 +255,6 @@ form elements. Its only argument is the name of the tree to cut down.
 
 [list_end]
 
+[see_also struct::tree]
 [keywords html parsing tree queue]
 [manpage_end]
