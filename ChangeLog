@@ -1,5 +1,11 @@
 2002-01-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* Makefile.in (install-doc): Fixed bug #500655. Using the code
+	  from the tcl "Makefile.in" as template equivalent code for
+	  tcllib was created and added to the file "Makefile.in". The
+	  modified makefile now includes the contents of "man.macros" into
+	  every installed manpage.
+
 	* html: Applied patch #484117.
 
 2001-12-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
