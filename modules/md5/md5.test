@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5.test,v 1.1 2001/04/24 23:21:44 andreas_kupries Exp $
+# RCS: @(#) $Id: md5.test,v 1.2 2001/04/25 15:30:03 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -16,10 +16,11 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 package require md5
-puts "md5 [package present md5]"
-
-#namespace import ::md5::md5
-#namespace import ::md5::hmac
+if {[catch {package present Trf}]} {
+    puts "md5 [package present md5] (pure Tcl)"
+} else {
+    puts "md5 [package present md5] (Trf based)"
+}
 
 
 test md5-1.0 {md5} {
@@ -56,6 +57,23 @@ foreach {n msg expected} {
 } {
     test md5-2.$n {md5} {
 	::md5::md5 $msg
+    } $expected ; # {}
+}
+
+foreach {n key text expected} {
+    1 ""     ""      "74e6f7298a9c2d168935f58c001bad88"
+    2 "foo"  "hello" "ef2ac8901530db30aa56929adfe5e13b"
+    3 "bar"  "world" "dfc05594b019ed51535922a1295446e8"
+    4 "key"  "text"  "d0ca6177c61c975fd2f8c07d8c6528c6"
+    5 "md5"  "hmac"  "d189f362daf86a5c8e14ba4aba91b260"
+    6 "hmac" "md5"   "480343cf0f2d5931ec4923e81059fb84"
+    7 "md5"  "md5"   "92c5fb986e345f21f181047ab939ec77"
+    8 "hmac" "hmac"  "08abbe58a55219789e3eede153808a56"
+    9 "01234567abcdefgh01234567abcdefgh01234567abcdefgh01234567abcdefgh==" "hello world"
+    "cf0237466f9b3c773858a1892b474c9e"
+} {
+    test md5-3.$n {hmac} {
+	::md5::hmac $key $text
     } $expected ; # {}
 }
 
