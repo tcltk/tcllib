@@ -1,3 +1,11 @@
+2005-02-14  Andreas Kupries <andreask@activestate.com>
+
+	* ftp.tcl (::ftp::StateHandler): Accepted patch by Keith Vetter
+	  <keithv@users.sourceforge.net> for [SF Tcllib Bug 1076923], also
+	  reported by him. This fixes a race condition where the client
+	  has sent QUIT and is waiting for response, but gets the socket
+	  closed without any.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
