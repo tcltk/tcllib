@@ -80,7 +80,7 @@ proc xcopyfile {src dest} {
 
 proc xcopy {src dest recurse {pattern *}} {
     run file mkdir $dest
-    foreach file [glob [file join $src $pattern]] {
+    foreach file [glob -nocomplain [file join $src $pattern]] {
         set base [file tail $file]
 	set sub  [file join $dest $base]
 
