@@ -7,7 +7,7 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.10 2004/10/03 23:06:55 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.11 2004/11/08 21:48:55 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -76,7 +76,7 @@ test cmdline-1.7 {cmdline::getopt, multiple letter option, no abbreviations} {
     catch {unset arg}
     set argList {-f b}
     list [cmdline::getopt argList {foo} opt arg] $argList $opt $arg
-} {-1 {-f b} f {Illegal option "f"}}
+} {-1 {-f b} f {Illegal option "-f"}}
 test cmdline-1.8 {cmdline::getopt, option with argument} {
     catch {unset opt}
     catch {unset arg}
@@ -94,7 +94,7 @@ test cmdline-1.10 {cmdline::getopt, unknown option} {
     catch {unset arg}
     set argList {-bar}
     list [cmdline::getopt argList {foo.arg} opt arg] $argList $opt $arg
-} {-1 -bar bar {Illegal option "bar"}}
+} {-1 -bar bar {Illegal option "-bar"}}
 test cmdline-1.11 {cmdline::getopt, multiple options} {
     catch {unset opt}
     catch {unset arg}
@@ -393,7 +393,7 @@ test cmdline-6.7 {cmdline::getKnownOpt, multiple letter option, no abbreviations
     catch {unset arg}
     set argList {-f b}
     list [cmdline::getKnownOpt argList {foo} opt arg] $argList $opt $arg
-} {-1 {-f b} f {Illegal option "f"}}
+} {-1 {-f b} f {Illegal option "-f"}}
 test cmdline-6.8 {cmdline::getKnownOpt, option with argument} {
     catch {unset opt}
     catch {unset arg}
@@ -411,7 +411,7 @@ test cmdline-6.10 {cmdline::getKnownOpt, unknown option} {
     catch {unset arg}
     set argList {-bar}
     list [cmdline::getKnownOpt argList {foo.arg} opt arg] $argList $opt $arg
-} {-1 -bar bar {Illegal option "bar"}}
+} {-1 -bar bar {Illegal option "-bar"}}
 test cmdline-6.11 {cmdline::getKnownOpt, multiple options} {
     catch {unset opt}
     catch {unset arg}
