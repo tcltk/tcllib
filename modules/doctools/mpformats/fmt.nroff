@@ -159,7 +159,7 @@ proc bullet {} {
     global list_state
 
     switch -exact -- $list_state(l,$list_state(level)) {
-	bullet  {return ".TP\n*"}
+	bullet  {return ".IP \\(bu"}
 	default {return -code error "Illegal use of bullet in non-bullet list"}
     }
 }
@@ -223,7 +223,7 @@ proc package {text} {strong $text}
 proc class   {text} {strong $text}
 proc var     {text} {strong $text}
 proc file    {text} {return "\"[emph $text]\""}
-proc uri     {text} {Underline $text}
+proc uri     {text} {emph $text}
 
 ################################################################
 # nroff specific commands
