@@ -1,3 +1,7 @@
+2004-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* treeql.man: Updated to deal with changes listed below.
+
 2004-10-03 Colin McCormack <coldstore@users.sourceforge.net>
 
 	* treeql.tcl,treeql84.tcl: bumped version to 1.2

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.17 2004/09/29 19:17:25 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.18 2004/10/03 23:06:55 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1262,5 +1262,4 @@ proc ::counter::Identity {x} {
     return $x
 }
 
-package provide counter 2.0.2
-
+package provide counter 2.0.3
