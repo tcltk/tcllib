@@ -1,3 +1,7 @@
+2003-05-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4.tcl: Remove frink warnings to quieten sak validate. 
+
 2003-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md4.tcl: Changed the method MD4Final uses to produce the binary
