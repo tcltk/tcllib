@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.22 2003/07/07 06:57:43 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.23 2003/07/07 07:00:30 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -1318,5 +1318,19 @@ test tree-28.1 {serialization} {
     mytree destroy
     set result
 } {{root {{0 {{3 {}} {4 {}}}} {1 {}} {2 {}}}} {4 {} 0 {} root {} 1 {} 2 {} 3 {}}}
+
+test tree-28.2 {serialization} {
+
+    tree mytree
+    mytree insert root end 0
+    mytree insert root end 1
+    mytree insert root end 2
+    mytree insert 0 end 3
+    mytree insert 0 end 4
+
+    set result [mytree serialize 0]
+    mytree destroy
+    set result
+} {{0 {{3 {}} {4 {}}}} {4 {} 0 {} 3 {}}}
 
 ::tcltest::cleanupTests
