@@ -524,7 +524,7 @@ set ::snit::typeTemplate {
 
         # NEXT, add the trace.
         trace add command $procname {rename delete} \
-            [list %TYPE%::Snit_tracer $selfns $instance]
+            [list ::snit::RT.InstanceTrace %TYPE% $selfns $instance]
     }
 
     # Snit_removetrace selfns instance
@@ -541,57 +541,7 @@ set ::snit::typeTemplate {
         # NEXT, remove any trace on this name
         catch {
             trace remove command $procname {rename delete} \
-                [list %TYPE%::Snit_tracer $selfns $win]
-        }
-    }
-
-    # Snit_tracer old new op
-    #
-    # This proc is called when the instance command is renamed.  old
-    # is the old name, new is the new name, and op is rename or delete.
-    # If op is delete, then new will always be "", so op is redundant.
-    #
-    # If the op is delete, we need to clean up the object; otherwise,
-    # we need to track the change.
-    #
-    # NOTE: In Tcl 8.4.2 there's a bug: errors in rename and delete
-    # traces aren't propagated correctly.  Instead, they silently
-    # vanish.  Add a catch to output any error message.
-
-    # TBD: Move this to Snit runtime
-    proc %TYPE%::Snit_tracer {selfns win old new op} {
-        typevariable Snit_isWidget
-
-        # Note to developers ...
-        # For Tcl 8.4.0, errors thrown in trace handlers vanish silently.
-        # Therefore we catch them here and create some output to help in
-        # debugging such problems.
-
-        if {[catch {
-            # FIRST, clean up if necessary
-            if {"" == $new} {
-                if {$Snit_isWidget} {
-                    destroy $win
-                } else {
-                    ::snit::RT.DestroyObject %TYPE% $selfns $win
-                }
-            } else {
-                # Otherwise, track the change.
-                ::variable ${selfns}::Snit_instance Snit_instance
-                set Snit_instance [uplevel namespace which -command $new]
-
-                # Also, clear the method cache, as many cached commands
-                # will be invalid.
-                unset -nocomplain -- ${selfns}::Snit_methodCache
-            }
-        } result]} {
-            global errorInfo
-            # Pop up the console on Windows wish, to enable stdout.
-            # This clobbers errorInfo unix, so save it.
-            set ei $errorInfo
-            catch {console show}
-            puts "Error in Snit_tracer $selfns $win $old $new $op:"
-            puts $ei
+                [list ::snit::RT.InstanceTrace %TYPE% $selfns $win]
         }
     }
 
@@ -1976,6 +1926,59 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
 }
 
 
+# This proc is called when the instance command is renamed.
+# If op is delete, then new will always be "", so op is redundant.
+#
+# type		The fully-qualified type name
+# selfns	The instance namespace
+# win		The original instance/tk window name.
+# old		old instance command name
+# new		new instance command name
+# op		rename or delete
+#
+# If the op is delete, we need to clean up the object; otherwise,
+# we need to track the change.
+#
+# NOTE: In Tcl 8.4.2 there's a bug: errors in rename and delete
+# traces aren't propagated correctly.  Instead, they silently
+# vanish.  Add a catch to output any error message.
+
+proc ::snit::RT.InstanceTrace {type selfns win old new op} {
+    variable ${type}::Snit_isWidget
+
+    # Note to developers ...
+    # For Tcl 8.4.0, errors thrown in trace handlers vanish silently.
+    # Therefore we catch them here and create some output to help in
+    # debugging such problems.
+
+    if {[catch {
+        # FIRST, clean up if necessary
+        if {"" == $new} {
+            if {$Snit_isWidget} {
+                destroy $win
+            } else {
+                ::snit::RT.DestroyObject $type $selfns $win
+            }
+        } else {
+            # Otherwise, track the change.
+            variable ${selfns}::Snit_instance
+            set Snit_instance [uplevel namespace which -command $new]
+            
+            # Also, clear the method cache, as many cached commands
+            # will be invalid.
+            unset -nocomplain -- ${selfns}::Snit_methodCache
+        }
+    } result]} {
+        global errorInfo
+        # Pop up the console on Windows wish, to enable stdout.
+        # This clobbers errorInfo unix, so save it.
+        set ei $errorInfo
+        catch {console show}
+        puts "Error in ::snit::RT.InstanceTrace $type $selfns $win $old $new $op:"
+        puts $ei
+    }
+}
+
 # Returns a unique command name.  
 #
 # REQUIRE: type is a fully qualified name.
@@ -2035,6 +2038,97 @@ proc ::snit::RT.OptionDbGet {type self opt} {
     return [option get $self $res $cls]
 }
 
+
+#-----------------------------------------------------------------------
+# Object Destruction
+
+# Implements the standard "destroy" method
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+
+proc ::snit::RT.method.destroy {type selfns win self} {
+    # Calls Snit_cleanup, which (among other things) calls the
+    # user's destructor.
+    ::snit::RT.DestroyObject $type $selfns $win
+}
+
+# This is the function that really cleans up; it's automatically 
+# called when any instance is destroyed, e.g., by "$object destroy"
+# for types, and by the <Destroy> event for widgets.
+#
+# type		The fully-qualified type name.
+# selfns	The instance namespace
+# win		The original instance command name.
+
+proc ::snit::RT.DestroyObject {type selfns win} {
+    variable ${type}::Snit_isWidget
+
+    # If the variable Snit_instance doesn't exist then there's no
+    # instance command for this object -- it's most likely a 
+    # widgetadaptor. Consequently, there are some things that
+    # we don't need to do.
+    if {[info exists ${selfns}::Snit_instance]} {
+        upvar ${selfns}::Snit_instance instance
+            
+        # First, remove the trace on the instance name, so that we
+        # don't call RT.DestroyObject recursively.
+        RT.RemoveInstanceTrace $type $selfns $win $instance
+            
+        # Next, call the user's destructor
+        ${type}::Snit_destructor $type $selfns $win $instance
+
+        # Next, if this isn't a widget, delete the instance command.
+        # If it is a widget, get the hull component's name, and rename
+        # it back to the widget name
+                
+        # Next, delete the hull component's instance command,
+        # if there is one.
+        if {$Snit_isWidget} {
+            set hullcmd [::snit::RT.Component $type $selfns hull]
+            
+            catch {rename $instance ""}
+
+            # Clear the bind event
+            bind Snit$type$win <Destroy> ""
+
+            if {[info command $hullcmd] != ""} {
+                rename $hullcmd ::$instance
+            }
+        } else {
+            catch {rename $instance ""}
+        }
+    }
+
+    # Next, delete the instance's namespace.  This kills any
+    # instance variables.
+    namespace delete $selfns
+}
+
+# Remove instance trace
+# 
+# type           The fully qualified type name
+# selfns         The instance namespace
+# win            The original instance name/Tk window name
+# instance       The current instance name
+
+proc ::snit::RT.RemoveInstanceTrace {type selfns win instance} {
+    variable ${type}::Snit_isWidget
+
+    if {$Snit_isWidget} {
+        set procname ::$instance
+    } else {
+        set procname $instance
+    }
+        
+    # NEXT, remove any trace on this name
+    catch {
+        trace remove command $procname {rename delete} \
+            [list ::snit::RT.InstanceTrace $type $selfns $win]
+    }
+}
 
 #-----------------------------------------------------------------------
 # Typecomponent Management and Method Caching
@@ -2379,73 +2473,6 @@ proc ::snit::RT.typemethod.destroy {type} {
     rename $type ""
 }
 
-#-----------------------------------------------------------------------
-# Object Destruction
-
-# Implements the standard "destroy" method
-#
-# type		The snit type
-# selfns        The instance's instance namespace
-# win           The instance's original name
-# self          The instance's current name
-
-proc ::snit::RT.method.destroy {type selfns win self} {
-    # Calls Snit_cleanup, which (among other things) calls the
-    # user's destructor.
-    ::snit::RT.DestroyObject $type $selfns $win
-}
-
-# This is the function that really cleans up; it's automatically 
-# called when any instance is destroyed, e.g., by "$object destroy"
-# for types, and by the <Destroy> event for widgets.
-#
-# type		The fully-qualified type name.
-# selfns	The instance namespace
-# win		The original instance command name.
-
-proc ::snit::RT.DestroyObject {type selfns win} {
-    variable ${type}::Snit_isWidget
-
-    # If the variable Snit_instance doesn't exist then there's no
-    # instance command for this object -- it's most likely a 
-    # widgetadaptor. Consequently, there are some things that
-    # we don't need to do.
-    if {[info exists ${selfns}::Snit_instance]} {
-        upvar ${selfns}::Snit_instance instance
-            
-        # First, remove the trace on the instance name, so that we
-        # don't call RT.DestroyObject recursively.
-        ${type}::Snit_removetrace $selfns $win $instance
-            
-        # Next, call the user's destructor
-        ${type}::Snit_destructor $type $selfns $win $instance
-
-        # Next, if this isn't a widget, delete the instance command.
-        # If it is a widget, get the hull component's name, and rename
-        # it back to the widget name
-                
-        # Next, delete the hull component's instance command,
-        # if there is one.
-        if {$Snit_isWidget} {
-            set hullcmd [::snit::RT.Component $type $selfns hull]
-            
-            catch {rename $instance ""}
-
-            # Clear the bind event
-            bind Snit$type$win <Destroy> ""
-
-            if {[info command $hullcmd] != ""} {
-                rename $hullcmd ::$instance
-            }
-        } else {
-            catch {rename $instance ""}
-        }
-    }
-
-    # Next, delete the instance's namespace.  This kills any
-    # instance variables.
-    namespace delete $selfns
-}
 
 
 #-----------------------------------------------------------------------
