@@ -13,9 +13,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: sum.tcl,v 1.1 2002/01/15 20:54:59 patthoyts Exp $
+# $Id: sum.tcl,v 1.2 2003/01/26 00:16:03 patthoyts Exp $
 
-namespace eval crc {
+package require Tcl 8.2;                # tcl minimum version
+
+namespace eval ::crc {
+    variable sum_version 1.0.1
     namespace export sum
 }
 
@@ -27,7 +30,7 @@ namespace eval crc {
 #  result.
 #  This is pretty dependant on using a 32 bit accumulator.
 #
-proc crc::sum-sysv {s} {
+proc ::crc::sum-sysv {s} {
     set t 0
     binary scan $s c* r
     foreach n $r {
@@ -42,7 +45,7 @@ proc crc::sum-sysv {s} {
 # Notes:
 #  Once again this depends upon a 32 bit accumulator.
 #
-proc crc::sum-bsd {s} {
+proc ::crc::sum-bsd {s} {
     set t 0
     binary scan $s c* r
     foreach n $r {
@@ -63,7 +66,7 @@ proc crc::sum-bsd {s} {
 #  -filename name - return a checksum for the specified file
 #  -format string - return the checksum using this format string
 #
-proc crc::sum {args} {
+proc ::crc::sum {args} {
     set algorithm [namespace current]::sum-bsd
     set filename {}
     set format %u
@@ -111,10 +114,12 @@ proc crc::sum {args} {
     return [format $format $r]
 }
 
-package provide sum 1.0
-    
+# -------------------------------------------------------------------------
+
+package provide sum $::crc::sum_version
+
+# -------------------------------------------------------------------------    
 # Local Variables:
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
-

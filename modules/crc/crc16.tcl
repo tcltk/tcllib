@@ -23,14 +23,15 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.3 2003/01/06 22:08:32 patthoyts Exp $
+# $Id: crc16.tcl,v 1.4 2003/01/26 00:16:03 patthoyts Exp $
 
+package require Tcl 8.2;                # tcl minimum version
 
-namespace eval crc {
+namespace eval ::crc {
     
     namespace export crc16 crc-ccitt crc-32
 
-    variable version_crc16 1.0
+    variable version_crc16 1.0.1
 
     # Standard CRC generator polynomials.
     variable polynomial
@@ -63,7 +64,7 @@ namespace eval crc {
 # CRC-16:     Crc_table 16 $crc::polynomial(crc16) 1
 # CRC16/CITT: Crc_table 16 $crc::polynomial(citt)  0
 #
-proc crc::Crc_table {width poly reflected} {
+proc ::crc::Crc_table {width poly reflected} {
     set tbl {}
     if {$width < 32} {
         set mask   [expr {(1 << $width) - 1}]
@@ -106,7 +107,7 @@ proc crc::Crc_table {width poly reflected} {
 #  reflected - a boolean indicating that the bit order is reversed.
 #              For hardware optimised CRC checks, the bits are handled
 #              in transmission order (ie: bit0, bit1, ..., bit7)
-proc crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
+proc ::crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
     upvar $table tbl
     variable signbit
     set signmask [expr {~$signbit>>7}]
@@ -138,7 +139,7 @@ proc crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
 
 # -------------------------------------------------------------------------
 # Reverse the bit ordering for 'b' bits of the input value 'v'
-proc crc::reflect {v b} {
+proc ::crc::reflect {v b} {
     set t $v
     for {set i 0} {$i < $b} {incr i} {
         set v [expr {($t & 1) ? ($v | (1<<(($b-1)-$i))) : ($v & ~(1<<(($b-1)-$i))) }]
@@ -151,7 +152,7 @@ proc crc::reflect {v b} {
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
-proc crc::Pop {varname {nth 0}} {
+proc ::crc::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -161,7 +162,7 @@ proc crc::Pop {varname {nth 0}} {
 # -------------------------------------------------------------------------
 # Specialisation of the general crc procedure to perform the standard CRC16
 # checksum
-proc crc::CRC16 {s {seed 0}} {
+proc ::crc::CRC16 {s {seed 0}} {
     variable table
     if {![info exists table(crc16)]} {
         variable polynomial
@@ -174,7 +175,7 @@ proc crc::CRC16 {s {seed 0}} {
 # -------------------------------------------------------------------------
 # Specialisation of the general crc procedure to perform the CCITT telecoms
 # flavour of the CRC16 checksum
-proc crc::CRC-CCITT {s {seed 0xFFFF}} {
+proc ::crc::CRC-CCITT {s {seed 0xFFFF}} {
     variable table
     if {![info exists table(citt)]} {
         variable polynomial
@@ -188,7 +189,7 @@ proc crc::CRC-CCITT {s {seed 0xFFFF}} {
 # Demostrates the parameters used for the 32 bit checksum CRC-32.
 # This can be used to show the algorithm is working right by comparison with
 # other crc32 implementations
-proc crc::CRC-32 {s {seed 0xFFFFFFFF}} {
+proc ::crc::CRC-32 {s {seed 0xFFFFFFFF}} {
     variable table
     if {![info exists table(crc32)]} {
         variable polynomial
@@ -200,7 +201,7 @@ proc crc::CRC-32 {s {seed 0xFFFFFFFF}} {
 
 # -------------------------------------------------------------------------
 # User level CRC command.
-proc crc::crc {args} {
+proc ::crc::crc {args} {
     array set opts [list filename {} format %u seed 0 impl [namespace origin CRC16]]
     
     while {[string match -* [lindex $args 0]]} {
@@ -242,15 +243,15 @@ proc crc::crc {args} {
 # -------------------------------------------------------------------------
 # The user commands. See 'crc'
 #
-proc crc::crc16 {args} {
+proc ::crc::crc16 {args} {
     return [eval crc -impl [namespace origin CRC16] $args]
 }
 
-proc crc::crc-ccitt {args} {
+proc ::crc::crc-ccitt {args} {
     return [eval crc -impl [namespace origin CRC-CCITT] -seed 0xFFFF $args]
 }
 
-proc crc::crc-32 {args} {
+proc ::crc::crc-32 {args} {
     return [eval crc -impl [namespace origin CRC-32] -seed 0xFFFFFFFF $args]
 }
 

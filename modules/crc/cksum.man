@@ -1,8 +1,8 @@
-[manpage_begin cksum n 1.0]
+[manpage_begin cksum n 1.0.1]
 [moddesc   {cksum}]
 [titledesc {calculate a cksum(1) compatible checksum}]
 [require Tcl 8.2]
-[require cksum [opt 1.0]]
+[require cksum [opt 1.0.1]]
 [description]
 [para]
 
