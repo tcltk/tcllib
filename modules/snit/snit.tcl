@@ -737,9 +737,11 @@ set ::snit::typeTemplate {
         set Snit_info(ivardecs) {%IVARDECS%}
 
         # Array: Public methods of this type.
-        # Index is typemethod name; value is proc name.
-        typevariable Snit_typemethods
-        array unset Snit_typemethods
+        # The index is the method name, or "*".
+        # The value is [list $pattern $componentName], where
+        # $componentName is "" for normal methods.
+        typevariable Snit_typemethodInfo
+        array unset Snit_typemethodInfo
 
         # Array: Public methods of instances of this type.
         # The index is the method name, or "*".
@@ -777,7 +779,7 @@ set ::snit::typeTemplate {
     proc %TYPE% {method args} {
         # First, if the typemethod is unknown, we'll assume that it's
         # an instance name if we can.
-        if {[catch {set %TYPE%::Snit_typeMethodCache($method)} command]} {
+        if {[catch {set %TYPE%::Snit_typemethodCache($method)} command]} {
             set command [::snit::RT.TypemethodCacheLookup %TYPE% $method]
             
             if {[llength $command] == 0} {
@@ -1364,7 +1366,9 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
     Mappend compile(defs) {
 
         # Typemethod %METHOD%
-        set  %TYPE%::Snit_typemethods(%METHOD%) Snit_typemethod%METHOD%
+        set  %TYPE%::Snit_typemethodInfo(%METHOD%) \
+            {"%t::Snit_typemethod%m %t" ""}
+
         proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
 } 
@@ -1796,8 +1800,8 @@ proc ::snit::typemethod {type method arglist body} {
         error "no such type: '$type'"
     }
 
-    upvar ${type}::Snit_info Snit_info
-    upvar ${type}::Snit_typemethods Snit_typemethods
+    upvar ${type}::Snit_info           Snit_info
+    upvar ${type}::Snit_typemethodInfo Snit_typemethodInfo
 
     CheckArgs "snit::typemethod $type $method" $arglist
 
@@ -1808,7 +1812,8 @@ proc ::snit::typemethod {type method arglist body} {
     set body "$Snit_info(tvardecs)\n$body"
 
     # Next, define it.
-    set Snit_typemethods($method) Snit_typemethod$method
+    set Snit_typemethodInfo($method) {"%t::Snit_typemethod%m %t" ""}
+    
     uplevel [list proc ${type}::Snit_typemethod$method $arglist $body]
 }
 
@@ -1981,17 +1986,39 @@ proc ::snit::RT.UniqueInstanceNamespace {countervar type} {
 # type		The type
 # method	The name of the typemethod to call.
 proc snit::RT.TypemethodCacheLookup {type method} {
-    # First, if the typemethod is unknown, we'll assume that it's
-    # an instance name if we can.
-    if {[catch {set ${type}::Snit_typemethods($method)} procname]} {
+    upvar ${type}::Snit_typemethodInfo Snit_typemethodInfo
+    upvar ${type}::Snit_typecomponents Snit_typecomponents
+    upvar ${type}::Snit_typemethodCache Snit_typemethodCache
+    
+    # FIRST, get the pattern data and the typecomponent name.
+    if {[info exists Snit_typemethodInfo($method)]} {
+        set key $method
+    } else {
+        # TBD: Eventually, we'll handle the "*" case in another
+        # branch of the if test.
         return ""
     }
     
-    upvar ${type}::Snit_typeMethodCache Snit_typeMethodCache
+    foreach {pattern compName} $Snit_typemethodInfo($key) {}
 
-    set command [concat ${type}::$procname $type]
-    set Snit_typeMethodCache($method) $command
+    # NEXT, build the substitution list
+    set subList [list \
+                     %% % \
+                     %t [list $type] \
+                     %m [list $method]]
     
+    if {$compName ne ""} {
+        if {![info exists Snit_typecomponents($compName)]} {
+            error "$type delegates '$method' to undefined typecomponent '$compName'."
+        }
+        
+        lappend subList %c [list $Snit_typecomponents($compName)]
+    }
+
+    set command [string map $subList $pattern]
+
+    set Snit_typemethodCache($method) $command
+
     return $command
 }
 

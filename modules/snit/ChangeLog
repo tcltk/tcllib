@@ -1,3 +1,15 @@
+2004-07-15  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl 	Replaced the old typemethod definition and
+			cacheLookup code with new pattern-based code, just
+			like the method definition and lookup.  The
+			cache lookup routine doesn't yet understand 
+			typemethod "*".  The next step is to implement
+			typecomponents and "delegate typemethod".
+
+	* dictionary.txt  Documented the changes related to the above
+			change. 
+
 2004-07-14  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Replaced %TYPE%::Snit_comptrace with
