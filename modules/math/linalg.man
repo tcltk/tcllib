@@ -358,8 +358,8 @@ b-vectors
 [nl]
 [call [cmd ::math::linearalgebra::eigenvectorsSVD] [arg A] [arg eps]]
 
-Determines the eigenvectors and eigenvalues of a real [emph
-symmetric] matrix, using SVD. Returns a list with the matrix of
+Determines the eigenvectors and eigenvalues of a real
+[emph symmetric] matrix, using SVD. Returns a list with the matrix of
 normalized eigenvectors and their eigenvalues.
 
 [list_begin arg]
