@@ -19,7 +19,7 @@
 package require Tcl 8.2
 package require struct 1
 package require cmdline 1.1
-package provide htmlparse 0.3
+package provide htmlparse 0.3.1
 
 namespace eval ::htmlparse {
     namespace export		\
