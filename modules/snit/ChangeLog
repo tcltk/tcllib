@@ -1,3 +1,14 @@
+2003-07-16  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.man:    Added references to bug trackers, as part of
+	* snitfaq.man: caveats. Also added note about bwidget/snit
+	               interaction.
+
+	* snit.tcl: Integrated latest (small) change to original code base
+	  (was not released yet). Removes bad trial to fix up error stack.
+	  We are now at version 0.82. Added note to developers explaining
+	  the catch in Snit_tracer.
+
 2003-07-15  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.tcl:    Imported new module into tcllib.

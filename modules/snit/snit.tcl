@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.81.1
+package provide snit 0.82
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -785,6 +785,12 @@ namespace eval ::snit:: {
 
         proc Snit_tracer {selfns win old new op} {
             typevariable Snit_isWidget
+
+	    # Note to developers ...
+	    # For Tcl 8.4.0, errors thrown in trace handlers vanish silently.
+	    # Therefore we catch them here and create some output to help in
+	    # debugging such problems.
+
             if {[catch {
                 # FIRST, clean up if necessary
                 if {"" == $new} {
@@ -855,14 +861,7 @@ namespace eval ::snit:: {
             } result]
 
             if {$errflag} {
-                # Tcl and Tk use "bad option" when an undefined
-                # subcommand is called for.  I can't leave it alone,
-                # because an option is something else, and also it's
-                # followed by the list of valid options, which is
-                # almost certain to be wrong.
-                if {[string match "bad option*" $result]} {
-                    return -code error "'$self $method' is not defined."
-                }
+		# Used to try to fix up "bad option", but did it badly.
                 
                 return -code error -errorinfo $errorInfo $result
             } else {
