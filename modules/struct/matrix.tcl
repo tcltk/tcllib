@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.4 2001/11/24 02:24:55 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.5 2001/11/27 03:19:47 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -616,7 +616,7 @@ proc ::struct::matrix::__add_rows {name n} {
 
     while {$n > 0} {
 	for {set c 0} {$c < $cols} {incr c} {
-	    set data($rows,$c) ""
+	    set data($c,$rows) ""
 	}
 	incr rows
 	incr n -1
