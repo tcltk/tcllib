@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.3 2004/05/26 20:47:35 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.4 2004/05/27 15:02:11 afaupell Exp $
 
 package provide jpeg 0.1
 
@@ -115,15 +115,13 @@ proc ::jpeg::getThumbnail {file} {
         return $thumb
     }
     set fh [openJFIF $file]
-    if {[set jfif [lsearch -inline [markers $fh] "e0 *"]] != ""} {
-        seek $fh [lindex $jfif 1] start
-        if {[read $fh 5] == "JFXX\x00"} {
-            binary scan [read $fh 1] H2 excode
-            if {$excode == "10"} {
-                set thumb [read $fh expr {$len - 8}]]
-                close $fh
-                return $thumb
-            }
+    foreach x [lsearch -inline -all [markers $fh] "e0 *"] {
+        seek $fh [lindex $x 1] start
+        binary scan [read $fh 6] a5H2 id excode
+        if {$id == "JFXX\x00" && $excode == "10"} {
+            set thumb [read $fh expr {$len - 8}]]
+            close $fh
+            return $thumb
         }
     }
     close $fh
@@ -211,37 +209,12 @@ proc ::jpeg::debug {file} {
         seek $fh [lindex $marker 1] 
         puts "marker: [lindex $marker 0] len: [lindex $marker 2]"
         switch -glob -- [lindex $marker 0] {
-            e0 {
-                set id [read $fh 5]
-                if {$id == "JFIF\x00"} {
-                    puts "  JFIF"
-                    binary scan [read $fh 9] cccSScc ver1 ver2 units xr vr xt yt
-                    puts "    Header: $ver1.$ver2 $units $xr $vr $xt $yt"
-                } elseif {$id == "JFXX\x00"} {
-                    puts "  JFXX"
-                    binary scan [read $fh 1] H2 excode
-                    puts "    Contains JFXX thumbnail: $excode"
-                }
-            }
-            ed {
-                if {[read $fh 18] == "Photoshop 3.0\0008BIM"} {
-                    puts "  Photoshop 8BIM data"
-                } else {
-                    puts "  APP13 (unknown)"
-                }
-            }
-            e[23456789abcef] {
-                puts [format "  %s%d %s" APP 0x[string index [lindex $marker 0] 1] (unknown)]
-            }
             c0 {
                 binary scan [read $fh 6] cSSc precision height width color
                 puts "  SOF (Start Of Frame)"
                 puts "    Image dimensions: $width $height"
                 puts "    Precision: $precision"
                 puts "    Color Components: $color"
-            }
-            fe {
-                puts "  Comment: [read $fh [lindex $marker 2]]"
             }
             c4 {
                 puts "  DHT (Define Huffman Table)"
@@ -261,6 +234,23 @@ proc ::jpeg::debug {file} {
                 binary scan [read $fh 2] S num
                 puts "    Interval: $num blocks"
             }
+            e0 {
+                set id [read $fh 5]
+                if {$id == "JFIF\x00"} {
+                    puts "  JFIF"
+                    binary scan [read $fh 9] cccSScc ver1 ver2 units xr vr xt yt
+                    puts "    Header: $ver1.$ver2 $units $xr $vr $xt $yt"
+                } elseif {$id == "JFXX\x00"} {
+                    puts "  JFXX"
+                    binary scan [read $fh 1] H2 excode
+                    if {$excode == "10"} { set excode "10 - JPEG thumbnail" }
+                    if {$excode == "11"} { set excode "11 - Palletized thumbnail" }
+                    if {$excode == "13"} { set excode "13 - RGB thumbnail" }
+                    puts "    Extension code: $excode"
+                } else {
+                    puts "  Unknown APP0 segment: $id"
+                }
+            }
             e1 {
                 if {[read $fh 6] == "Exif\x00\x00"} {
                     puts "  EXIF data"
@@ -275,6 +265,33 @@ proc ::jpeg::debug {file} {
                 } else {
                     puts "  APP1 (unknown)"
                 }
+            }
+            e2 {
+                if {[read $fh 12] == "ICC_PROFILE\x00"} {
+                    puts "  ICC profile"
+                } else {
+                    puts "  APP2 (unknown)"
+                }
+            }
+            ed {
+                if {[read $fh 18] == "Photoshop 3.0\0008BIM"} {
+                    puts "  Photoshop 8BIM data"
+                } else {
+                    puts "  APP13 (unknown)"
+                }
+            }
+            ee {
+                if {[read $fh 5] == "Adobe"} {
+                    puts "  Adobe metadata"
+                } else {
+                    puts "  APP14 (unknown)"
+                }
+            }
+            e[3456789abcf] {
+                puts [format "  %s%d %s" APP 0x[string index [lindex $marker 0] 1] (unknown)]
+            }
+            fe {
+                puts "  Comment: [read $fh [lindex $marker 2]]"
             }
             default {
                 puts "  Unknown"
