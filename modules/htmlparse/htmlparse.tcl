@@ -413,7 +413,10 @@ proc ::htmlparse::PrepareHtml {html} {
     # Protect characters special to tcl (braces, slashes) by
     # converting them to their escape sequences.
 
-    return [string map [list "\{" "&ob;" "\}" "&cb;" "\\" "&bsl;"] $html]
+    return [string map [list \
+		    "\{" "&#123;" \
+		    "\}" "&#125;" \
+		    "\\" "&#92;"] $html]
 }
 
 
