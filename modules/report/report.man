@@ -27,17 +27,16 @@ with an associated global Tcl command whose name is
 configuration operations on the report. It has the following general
 form:
 
-[list_begin bullet]
-[bullet]
-	[cmd reportName] [arg option] [opt "[arg "arg arg ..."]"]
-[list_end]
+[list_begin definitions]
 
-[nl]
+[call [cmd reportName] [arg option] [opt [arg "arg arg ..."]]]
 
 [arg Option] and the [arg arg]s determine the exact behavior of the
 command. See section [sectref {REPORT METHODS}] for more
 explanations. If no [strong style] is specified the report will use
 the builtin style [strong plain] as its default configuration.
+
+[list_end]
 
 [call [cmd ::report::defstyle] [arg "styleName arguments script"]]
 
