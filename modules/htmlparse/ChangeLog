@@ -1,3 +1,12 @@
+2003-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* htmlparse.test:
+	* htmlparse.man:
+	* htmlparse.tcl: Updated to use struct v2 when handling trees
+	  (Different way of accessing attributes). Bumped version number
+	  up to the next major version (1.0) for this incompatible change.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
