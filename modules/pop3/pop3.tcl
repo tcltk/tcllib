@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.15 2001/10/17 17:27:26 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.16 2001/12/11 17:58:20 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -380,6 +380,8 @@ proc ::pop3::retrieve {chan start {end -1}} {
 		    set cstate(retr_mode) slow
 		    set state($chan) [array get cstate]
 
+		    ::pop3::send $chan "RETR $index"
+
 		    # Retrieve in slow motion.
 		    set msgBuffer [RetrSlow $chan]
 		} else {
@@ -394,6 +396,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	    slow {
 		# Retrieve in slow motion.
 
+		::pop3::send $chan "RETR $index"
 		set msgBuffer [RetrSlow $chan]
 	    }
 	}
