@@ -1,3 +1,10 @@
+2004-02-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ripemd160.man:  Initial implementation of RIPEMD-160 in
+	* ripemd160.tcl:  pure-Tcl as per ripemd128.
+	* ripemd160.test:
+	* pkgIndex.tcl: 
+	
 2004-02-16  Pat Thoyts  <pat@zsplat.freeserve.co.uk>
 
 	* ripemd128.test:  Add pure-Tcl HMAC tests.
