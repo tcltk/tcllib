@@ -1,7 +1,7 @@
 [manpage_begin yencode n 1.1]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {encode/decoding a binary file}]
-[titledesc {encode/decoding a binary file}]
+[titledesc {Y-encode/decode a binary file}]
 [require Tcl 8.2]
 [require yencode [opt 1.1]]
 [description]
@@ -9,7 +9,7 @@
 
 This package provides a Tcl-only implementation of the yEnc file
 encoding. This is a recently introduced method of encoding binary
-files for transmission through usenet. This encoding packs binary data
+files for transmission through Usenet. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
 escapes characters special to the [term NNTP] posting protocols. See 
 [uri http://www.yenc.org/] for details concerning the algorithm.
