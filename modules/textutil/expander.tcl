@@ -908,4 +908,4 @@ proc ::textutil::expander::IsBracketed {macro} {
 # Provide the package only if the code above was read and executed
 # without error.
 
-package provide textutil::expander 1.0
+package provide textutil::expander 1.2
