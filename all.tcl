@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.17 2004/02/14 05:59:20 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.18 2004/08/06 01:25:12 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -192,6 +192,10 @@ foreach module $modules {
 		    [expr {[package vsatisfies [package provide Tcl] 8.3]}]
 	    ::tcltest::testConstraint tcl8.4plus \
 		    [expr {[package vsatisfies [package provide Tcl] 8.4]}]
+
+	    proc ::tcltest::queryConstraint {c} {
+		return [testConstraint $c]
+	    }
 	} else {
 	    # In tcltest1.0, a global variable needs to be set directly.
 	    set ::tcltest::testConstraints(tcl8.3only) \
@@ -200,6 +204,14 @@ foreach module $modules {
 		    [expr {[package vsatisfies [package provide Tcl] 8.3]}]
 	    set ::tcltest::testConstraints(tcl8.4plus) \
 		    [expr {[package vsatisfies [package provide Tcl] 8.4]}]
+
+	    proc ::tcltest::queryConstraint {c} {
+		if {![info exists ::tcltest::testConstraints($c)]} {
+		    # Not existing constraints are not set.
+		    return 0
+		}
+		return $::tcltest::testConstraints($c)
+	    }
 	}
     }
     interp alias $c ::tcltest::cleanupTestsHook {} \
