@@ -208,10 +208,10 @@ sequences for this expansion only.
 
 [call [arg expanderName] [method lb] [opt [arg newbracket]]]
 
-Returns the current value of the right macro expansion bracket; this
-is for use as or within a macro, when the bracket needs to be included
-in the output text.  If [arg newbracket] is specified, it becomes the
-new bracket, and is returned.
+Returns the current value of the left macro expansion bracket; this is
+for use as or within a macro, when the bracket needs to be included in
+the output text.  If [arg newbracket] is specified, it becomes the new
+bracket, and is returned.
 
 
 [call [arg expanderName] [method rb] [opt [arg newbracket]]]
