@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.14 2004/10/04 18:55:50 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.15 2004/10/05 00:59:59 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -531,7 +531,6 @@ test htmlparse-9.3 {handle empty tags, text coming before} {
     [list a     /  {} {}] \
     [list b     /  {} {}] \
     [list html  /  {} {}] ]
-
 
 # Take a look at the cache.
 #parray ::htmlparse::splitdata
