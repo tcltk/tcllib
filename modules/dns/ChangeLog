@@ -1,3 +1,11 @@
+2003-04-10  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Try to read the whole reply when using tcp. Added a 
+	catch to avoid bgerrors within the handler.
+	* dns.tcl:
+	* dns.man:
+	* pkgIndex.tcl: hiked version to 1.0.4
+	
 2003-04-11  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* dns.tcl:

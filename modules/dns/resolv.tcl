@@ -17,15 +17,15 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: resolv.tcl,v 1.2 2003/04/11 18:53:22 andreas_kupries Exp $
+# $Id: resolv.tcl,v 1.3 2003/04/12 00:22:37 patthoyts Exp $
 
 package require dns 1.0;                # tcllib 1.3
 
 namespace eval ::resolv {
     variable version 1.0
-    variable rcsid {$Id: resolv.tcl,v 1.2 2003/04/11 18:53:22 andreas_kupries Exp $}
+    variable rcsid {$Id: resolv.tcl,v 1.3 2003/04/12 00:22:37 patthoyts Exp $}
 
-    namespace export resolve init ignore
+    namespace export resolve init ignore hostname
 
     variable R
     if {![info exists R]} {
@@ -33,6 +33,7 @@ namespace eval ::resolv {
             initdone   0
             dns        ""
             dnsdefault ""
+            ourhost    ""
             search     {}
         }
     }
