@@ -129,6 +129,13 @@ proc ipackages {args} {
 
 proc ppackages {args} {
     # Determine provided packages (provide, *.tcl - pkgIndex.tcl)
+    # We cache results for a bit of speed, some stuff uses this
+    # multiple times for the same arguments.
+
+    global ppcache
+    if {[info exists ppcache($args)]} {
+	return $ppcache($args)
+    }
 
     global    p pf currentfile
     array set p {}
@@ -138,6 +145,10 @@ proc ppackages {args} {
     } else {
 	set files [modtclfiles $args]
     }
+
+    package require fileutil
+    set capout  [fileutil::tempfile] ; set capcout [open $capout w]
+    set caperr  [fileutil::tempfile] ; set capcerr [open $caperr w]
 
     foreach f $files {
 	# We ignore package indices and all files not in a module.
@@ -163,15 +174,25 @@ proc ppackages {args} {
 	interp alias $ip unknown {} xNULL
 	interp alias $ip proc    {} xNULL
 	interp alias $ip exit    {} xNULL
+
+	$ip eval {close stdout} ; interp share {} $capcout $ip
+	$ip eval {close stderr} ; interp share {} $capcerr $ip
+
 	if {[catch {$ip eval [read $fh]} msg]} {
 	    #puts "ERROR in $currentfile:\n$msg\n"
 	}
+
 	close $fh
 	interp delete $ip
     }
 
+    file delete $capout ; close $capcout
+    file delete $caperr ; close $capcerr
+
     set   pp [array get p]
     unset p
+
+    set ppcache($args) $pp
     return $pp 
 }
 
@@ -199,8 +220,10 @@ proc gendoc {fmt ext args} {
     global distribution
     global tcl_platform
 
-    set null 0
-    if {![string compare $fmt null]} {set null 1}
+    set null   0
+    set hidden 0
+    if {![string compare $fmt null]} {set null   1}
+    if {![string compare $fmt desc]} {set hidden 1}
     if {[llength $args] == 0} {set args [modules]}
 
     if {!$null} {
@@ -233,7 +256,7 @@ proc gendoc {fmt ext args} {
                     continue
                 }
 	    }
-	    puts "Gen ($fmt): $f"
+	    if {!$hidden} {puts "Gen ($fmt): $f"}
 
 	    dt configure -file $f
 	    if {$null} {
@@ -396,7 +419,8 @@ proc gd-gen-tap {} {
     package require fileutil
     global tcllib_name tcllib_version distribution tcl_platform
 
-    set modules [imodules]
+    set modules   [imodules]
+    array set pd  [getpdesc]
     set     lines [list]
     # Header
     lappend lines {format  {TclDevKit Project File}}
@@ -440,25 +464,62 @@ proc gd-gen-tap {} {
 	foreach {p v} [ppackages $m] {
 	    lappend lines "# \[[format %1d [incr n]]\]    | \"$p\""
 	}
-	lappend lines "# -------+"
-	lappend lines {}
-	lappend lines [list Package [list __$m 0.0]]
-	lappend lines "Platform *"
-	lappend lines "Desc     {Tcllib module}"
-	lappend lines Hidden
-	lappend lines "Base     @TAP_DIR@/$m"
+	if {$n > 1} {
+	    # Multiple packages. We create one hidden packages to
+	    # contain the files and let all the true packages in the
+	    # module refer to it.
 
-	foreach f [modtclfiles $m] {
-	    lappend lines "Path     [fileutil::stripN $f $strip]"
-	}
+	    array set _ {}
+	    foreach {p v} [ppackages $m] {
+		catch {set _([lindex $pd($p) 0]) .}
+	    }
+	    set desc [string trim [join [array names _] ", "] " \n\t\r,"]
+	    if {$desc == ""} {set desc {Tcllib module}}
+	    unset _
 
-	# Packages in the module ...
-	foreach {p v} [ppackages $m] {
+	    lappend lines "# -------+"
+	    lappend lines {}
+	    lappend lines [list Package [list __$m 0.0]]
+	    lappend lines "Platform *"
+	    lappend lines "Desc     \{$desc\}"
+	    lappend lines Hidden
+	    lappend lines "Base     @TAP_DIR@/$m"
+
+	    foreach f [modtclfiles $m] {
+		lappend lines "Path     [fileutil::stripN $f $strip]"
+	    }
+
+	    # Packages in the module ...
+	    foreach {p v} [ppackages $m] {
+
+		set desc ""
+		catch {set desc [string trim [lindex $pd($p) 1]]}
+		if {$desc == ""} {set desc {Tcllib package}}
+
+		lappend lines {}
+		lappend lines [list Package [list $p $v]]
+		lappend lines "See   [list __$m]"
+		lappend lines "Platform *"
+		lappend lines "Desc     \{$desc\}"
+	    }
+	} else {
+	    # A single package in the module
+
+	    foreach {p v} [ppackages $m] break
+	    set desc ""
+	    catch {set desc [string trim [lindex $pd($p) 1]]}
+	    if {$desc == ""} {set desc {Tcllib package}}
+
+	    lappend lines "# -------+"
 	    lappend lines {}
 	    lappend lines [list Package [list $p $v]]
-	    lappend lines "See   [list __$m]"
 	    lappend lines "Platform *"
-	    lappend lines "Desc     {Tcllib package}"
+	    lappend lines "Desc     \{$desc\}"
+	    lappend lines "Base     @TAP_DIR@/$m"
+
+	    foreach f [modtclfiles $m] {
+		lappend lines "Path     [fileutil::stripN $f $strip]"
+	    }
 	}
 	lappend lines {}
 	lappend lines {#}
@@ -479,11 +540,29 @@ proc gd-gen-tap {} {
     return
 }
 
+proc getpdesc  {} {
+    global argv ; if {![checkmod]} return
+
+    eval gendoc desc l $argv
+    
+    array set _ {}
+    foreach file [glob -nocomplain doc/desc/*.l] {
+        set f [open $file r]
+	foreach l [split [read $f] \n] {
+	    foreach {p sd d} $l break
+	    set _($p) [list $sd $d]
+	}
+        close $f
+    }
+    file delete -force doc/desc
+
+    return [array get _]
+}
 
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.37 2005/02/22 06:06:44 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.38 2005/02/23 05:13:48 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -842,6 +921,25 @@ proc run-procheck {args} {
     return
 }
 
+proc run-tclchecker {args} {
+    global distribution
+
+    if {[llength $args] == 0} {
+	set files [tclfiles]
+    } else {
+	set files [modtclfiles $args]
+    }
+
+    foreach f $files {
+	puts "TCLCHECKER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	puts "$f ..."
+	puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+	catch {exec tclchecker >@ stdout $f}
+    }
+    return
+}
+
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 
 proc write_out {f text} {
@@ -975,6 +1073,8 @@ proc __help {} {
 	latex ?module...?    - Generate LaTeX pages
 	dvi   ?module...?    - See latex, + conversion to dvi
 	ps    ?module...?    - See dvi,   + conversion to PostScript
+
+	desc  ?module...?    - Module/Package descriptions
 
 	/Release engineering
 	/===========================================================
@@ -1155,8 +1255,6 @@ proc __test {} {
     if {[llength $modules] == 0} {
 	set modules [modules]
     }
-
-    puts "Shell is \"[info nameofexecutable]\""
 
     puts "Shell is \"[info nameofexecutable]\""
 
@@ -1341,27 +1439,32 @@ proc _validate_all {} {
     puts "[incr i]: Static syntax check ..."
     puts "------------------------------------------------------"
 
-    set frink    [auto_execok frink]
-    set procheck [auto_execok procheck]
+    set frink      [auto_execok frink]
+    set procheck   [auto_execok procheck]
+    set tclchecker [auto_execok tclchecker]
 
-    if {$frink    == {}} {puts "  Tool 'frink'    not found, no check"}
-    if {$procheck == {}} {puts "  Tool 'procheck' not found, no check"}
-    if {($frink == {}) || ($procheck == {})} {
+    if {$frink == {}} {puts "  Tool 'frink'    not found, no check"}
+    if {($procheck == {}) || ($tclchecker == {})} {
+	puts "  Tools 'procheck'/'tclchecker' not found, no check"
+    }
+    if {($frink == {}) || ($procheck == {}) || ($tclchecker == {})} {
 	puts "------------------------------------------------------"
     }
-    if {($frink == {}) && ($procheck == {})} {
+    if {($frink == {}) && ($procheck == {}) && ($tclchecker == {})} {
 	return
     }
-    if {$frink    != {}} {
+    if {$frink != {}} {
 	run-frink
 	puts "------------------------------------------------------"
     }
-    if {$procheck    != {}} {
+    if {$tclchecker != {}} {
+	run-tclchecker
+	puts "------------------------------------------------------"
+    } elseif {$procheck != {}} {
 	run-procheck
 	puts "------------------------------------------------------"
     }
     puts ""
-
     return
 }
 
@@ -1583,6 +1686,97 @@ proc __list  {} {
     close $LIST
 
     eval file delete -force $FILES
+
+    return
+}
+
+proc __desc  {} {
+    global argv ; if {![checkmod]} return
+    array set pd [getpdesc]
+
+    package require struct::matrix
+    package require textutil
+
+    struct::matrix m
+    m add columns 3
+
+    puts {Descriptions...}
+    if {[llength $argv] == 0} {set argv [modules]}
+
+    foreach m [lsort $argv] {
+	array set _ {}
+	set pkg {}
+	foreach {p v} [ppackages $m] {
+	    catch {set _([lindex $pd($p) 0]) .}
+	    lappend pkg $p
+	}
+	set desc [string trim [join [array names _] ", "] " \n\t\r,"]
+	set desc [textutil::adjust $desc -length 20]
+	unset _
+
+	m add row [list $m $desc]
+	m add row {}
+
+	foreach p [lsort -dictionary $pkg] {
+	    set desc ""
+	    catch {set desc [lindex $pd($p) 1]}
+	    if {$desc != ""} {
+		set desc [string trim $desc]
+		set desc [textutil::adjust $desc -length 50]
+		m add row [list {} $p $desc]
+	    } else {
+		m add row [list {**} $p ]
+	    }
+	}
+	m add row {}
+    }
+
+    m format 2chan
+    puts ""
+    return
+}
+
+proc __desc/2  {} {
+    global argv ; if {![checkmod]} return
+    array set pd [getpdesc]
+
+    package require struct::matrix
+    package require textutil
+
+    puts {Descriptions...}
+    if {[llength $argv] == 0} {set argv [modules]}
+
+    foreach m [lsort $argv] {
+	struct::matrix m
+	m add columns 3
+
+	m add row {}
+
+	set pkg {}
+	foreach {p v} [ppackages $m] {lappend pkg $p}
+
+	foreach p [lsort -dictionary $pkg] {
+	    set desc ""
+	    set sdes ""
+	    catch {set desc [lindex $pd($p) 1]}
+	    catch {set sdes [lindex $pd($p) 0]}
+
+	    if {$desc != ""} {
+		set desc [string trim $desc]
+		#set desc [textutil::adjust $desc -length 50]
+	    }
+
+	    if {$desc != ""} {
+		set desc [string trim $desc]
+		#set desc [textutil::adjust $desc -length 50]
+	    }
+
+	    m add row [list $p "  $sdes" "  $desc"]
+	}
+	m format 2chan
+	puts ""
+	m destroy
+    }
 
     return
 }
