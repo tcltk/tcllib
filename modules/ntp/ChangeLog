@@ -4,6 +4,18 @@
 	* ntp_time.man: from the 1.6.1 release.
 	* pkgIndex.tcl:
 
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* time.tcl: Rel. engineering. Updated version number 
+	* time.man: of time to reflect its changes, to 1.0.3.
+	* pkgIndex.tcl:
+
 2004-04-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.tcl:     Added support for SNTP (RFC 2030).
