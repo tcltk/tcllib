@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.10 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.11 2004/02/09 04:56:31 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -17,6 +17,9 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] graph.tcl]
 namespace import ::struct::graph::graph
+
+source [file join [file dirname [info script]] list.tcl]
+namespace eval ::struct {namespace import -force list::*}
 
 catch {puts "-- cgraph [package present cgraph]"}
 
@@ -188,14 +191,14 @@ test graph-0.5 {graph errors} {
     catch {mygraph arc foo} msg
     mygraph destroy
     set msg
-} "bad option \"foo\": must be append, delete, exists, get, getall, insert, keyexists, keys, lappend, rename, set, source, target, or unset"
+} "bad option \"foo\": must be append, attr, delete, exists, get, getall, insert, keyexists, keys, lappend, rename, set, source, target, or unset"
 
 test graph-0.6 {graph errors} {
     graph mygraph
     catch {mygraph node foo} msg
     mygraph destroy
     set msg
-} "bad option \"foo\": must be append, degree, delete, exists, get, getall, insert, keyexists, keys, lappend, opposite, rename, set, or unset"
+} "bad option \"foo\": must be append, attr, degree, delete, exists, get, getall, insert, keyexists, keys, lappend, opposite, rename, set, or unset"
 
 # ---------------------------------------------------
 
@@ -529,14 +532,14 @@ test graph-10.2 {arcs} {
     catch {mygraph arcs -foo} msg
     mygraph destroy
     set msg
-} {invalid restriction "-foo": should be -in, -out, -adj, -inner, -embedding, -key or -value}
+} {invalid restriction "-foo": should be -in, -out, -adj, -inner, -embedding, -key, -value, or -filter}
 
 test graph-10.3 {arcs} {
     graph mygraph
     catch {mygraph arcs -in} msg
     mygraph destroy
     set msg
-} {no nodes specified: should be "::mygraph arcs ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"}
+} {no nodes specified: should be "::mygraph arcs ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?"}
 
 test graph-10.4 {arcs} {
     graph mygraph
@@ -554,12 +557,20 @@ test graph-10.5 {arcs} {
     mygraph node insert node5
     mygraph node insert node6
 
-    mygraph arc insert node4 node1 arcA
+    mygraph arc insert node4 node1 arcA ; mygraph arc set arcA volume 30
     mygraph arc insert node5 node2 arcB
-    mygraph arc insert node6 node3 arcC
+    mygraph arc insert node6 node3 arcC ; mygraph arc set arcC volume 50
     mygraph arc insert node3 node1 arcD
     mygraph arc insert node1 node2 arcE
     mygraph arc insert node2 node3 arcF
+
+    proc vol {g n} {
+	$g arc keyexists $n volume
+    }
+    proc vgt40 {g n} {
+	if {![$g arc keyexists $n volume]} {return 0}
+	expr {[$g arc get $n volume] > 40}
+    }
 
     set result [list \
 	    [lsort [mygraph arcs            ]] \
@@ -575,6 +586,9 @@ test graph-10.5 {arcs} {
 	    [lsort [mygraph arcs -adj       node4 node5 node6]] \
 	    [lsort [mygraph arcs -inner     node4 node5 node6]] \
 	    [lsort [mygraph arcs -embedding node4 node5 node6]] \
+	    \
+	    [lsort [mygraph arcs -filter vol]] \
+	    [lsort [mygraph arcs -filter vgt40]] \
     ]
     mygraph destroy
     set result
@@ -592,6 +606,9 @@ test graph-10.5 {arcs} {
 	{arcA arcB arcC}	\
 	{}			\
 	{arcA arcB arcC}	\
+	\
+	{arcA arcC} \
+	{arcC} \
 	]
 
 test graph-10.6 {arcs} {
@@ -1005,14 +1022,14 @@ test graph-19.2 {nodes} {
     catch {mygraph nodes -foo} msg
     mygraph destroy
     set msg
-} {invalid restriction "-foo": should be -in, -out, -adj, -inner, -embedding, -key or -value}
+} {invalid restriction "-foo": should be -in, -out, -adj, -inner, -embedding, -key, -value, or -filter}
 
 test graph-19.3 {nodes} {
     graph mygraph
     catch {mygraph nodes -in} msg
     mygraph destroy
     set msg
-} {no nodes specified: should be "::mygraph nodes ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"}
+} {no nodes specified: should be "::mygraph nodes ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?"}
 
 test graph-19.4 {nodes} {
     graph mygraph
@@ -1023,9 +1040,9 @@ test graph-19.4 {nodes} {
 
 test graph-19.5 {nodes} {
     graph mygraph
-    mygraph node insert node1
+    mygraph node insert node1 ; mygraph node set node1 volume 30
     mygraph node insert node2
-    mygraph node insert node3
+    mygraph node insert node3 ; mygraph node set node3 volume 50
     mygraph node insert node4
     mygraph node insert node5
     mygraph node insert node6
@@ -1036,6 +1053,14 @@ test graph-19.5 {nodes} {
     mygraph arc insert node3 node1 arcD
     mygraph arc insert node1 node2 arcE
     mygraph arc insert node2 node3 arcF
+
+    proc vol {g n} {
+	$g node keyexists $n volume
+    }
+    proc vgt40 {g n} {
+	if {![$g node keyexists $n volume]} {return 0}
+	expr {[$g node get $n volume] > 40}
+    }
 
     set result [list \
 	    [lsort [mygraph nodes            ]] \
@@ -1051,6 +1076,9 @@ test graph-19.5 {nodes} {
 	    [lsort [mygraph nodes -adj       node4 node5 node6]] \
 	    [lsort [mygraph nodes -inner     node4 node5 node6]] \
 	    [lsort [mygraph nodes -embedding node4 node5 node6]] \
+	    \
+	    [lsort [mygraph nodes -filter vol]] \
+	    [lsort [mygraph nodes -filter vgt40]] \
     ]
     mygraph destroy
     set result
@@ -1068,6 +1096,9 @@ test graph-19.5 {nodes} {
 	{node1 node2 node3} \
 	{} \
 	{node1 node2 node3} \
+	\
+	{node1 node3} \
+	{node3} \
 	]
 
 test graph-19.6 {nodes} {
@@ -2682,6 +2713,186 @@ test graph-47.4 {copy construction, graph} {
 
     set result
 } ok
+
+# ---------------------------------------------------  
+
+proc gengraph {g} {
+    graph $g
+
+    $g node insert %0 ; $g node set %0 volume 30
+    $g node insert %1
+    $g node insert %2
+    $g node insert %3
+    $g node insert %4
+    $g node insert %5 ; $g node set %5 volume 50
+
+    $g arc insert %0 %1 0 ; $g arc set 0 volume 30
+    $g arc insert %0 %2 1
+    $g arc insert %0 %3 2
+    $g arc insert %3 %4 3
+    $g arc insert %4 %5 4
+    $g arc insert %5 %3 5 ; $g arc set 5 volume 50
+}
+
+test graph-48.0 {attribute search} {
+    gengraph mygraph
+    catch {mygraph arc attr} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::struct::graph::__arc_attr name key args"}
+
+test graph-48.1 {attribute search} {
+    gengraph mygraph
+    catch {mygraph arc attr a b} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::mygraph arc attr key ?-arcs list|-glob pattern|-regexp pattern?"}
+
+test graph-48.2 {attribute search} {
+    gengraph mygraph
+    catch {mygraph arc attr a b c d} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::mygraph arc attr key ?-arcs list|-glob pattern|-regexp pattern?"}
+
+test graph-48.3 {attribute search} {
+    gengraph mygraph
+    catch {mygraph arc attr a b c} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::mygraph arc attr key ?-arcs list|-glob pattern|-regexp pattern?"}
+
+test graph-48.4 {attribute search} {
+    gengraph mygraph
+    set result [mygraph arc attr vol]
+    mygraph destroy
+    set result
+} {}
+
+test graph-48.5 {attribute search} {
+    gengraph mygraph
+    set result [dictsort [mygraph arc attr volume]]
+    mygraph destroy
+    set result
+} {0 30 5 50}
+
+test graph-48.6 {attribute search} {
+    gengraph mygraph
+    set result [mygraph arc attr volume -arcs {0 3}]
+    mygraph destroy
+    set result
+} {0 30}
+
+test graph-48.7 {attribute search} {
+    gengraph mygraph
+    set result [mygraph arc attr volume -glob {[0-3]}]
+    mygraph destroy
+    set result
+} {0 30}
+
+test graph-48.8 {attribute search} {
+    gengraph mygraph
+    set result [mygraph arc attr volume -regexp {[0-3]}]
+    mygraph destroy
+    set result
+} {0 30}
+
+test graph-48.9 {attribute search} {
+    gengraph mygraph
+    set result [mygraph arc attr volume -arcs {}]
+    mygraph destroy
+    set result
+} {}
+
+test graph-48.10 {attribute search} {
+    gengraph mygraph
+    mygraph arc unset 0 volume
+    mygraph arc unset 5 volume
+    set result [mygraph arc attr volume]
+    mygraph destroy
+    set result
+} {}
+
+# ---------------------------------------------------  
+
+test graph-49.0 {attribute search} {
+    gengraph mygraph
+    catch {mygraph node attr} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::struct::graph::__node_attr name key args"}
+
+test graph-49.1 {attribute search} {
+    gengraph mygraph
+    catch {mygraph node attr a b} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::mygraph node attr key ?-nodes list|-glob pattern|-regexp pattern?"}
+
+test graph-49.2 {attribute search} {
+    gengraph mygraph
+    catch {mygraph node attr a b c d} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::mygraph node attr key ?-nodes list|-glob pattern|-regexp pattern?"}
+
+test graph-49.3 {attribute search} {
+    gengraph mygraph
+    catch {mygraph node attr a b c} msg
+    mygraph destroy
+    set msg
+} {wrong # args: should be "::mygraph node attr key ?-nodes list|-glob pattern|-regexp pattern?"}
+
+test graph-49.4 {attribute search} {
+    gengraph mygraph
+    set result [mygraph node attr vol]
+    mygraph destroy
+    set result
+} {}
+
+test graph-49.5 {attribute search} {
+    gengraph mygraph
+    set result [dictsort [mygraph node attr volume]]
+    mygraph destroy
+    set result
+} {%0 30 %5 50}
+
+test graph-49.6 {attribute search} {
+    gengraph mygraph
+    set result [mygraph node attr volume -nodes {%0 %3}]
+    mygraph destroy
+    set result
+} {%0 30}
+
+test graph-49.7 {attribute search} {
+    gengraph mygraph
+    set result [mygraph node attr volume -glob {%[0-3]}]
+    mygraph destroy
+    set result
+} {%0 30}
+
+test graph-49.8 {attribute search} {
+    gengraph mygraph
+    set result [mygraph node attr volume -regexp {[0-3]}]
+    mygraph destroy
+    set result
+} {%0 30}
+
+test graph-49.9 {attribute search} {
+    gengraph mygraph
+    set result [mygraph node attr volume -nodes {}]
+    mygraph destroy
+    set result
+} {}
+
+test graph-49.10 {attribute search} {
+    gengraph mygraph
+    mygraph node unset %0 volume
+    mygraph node unset %5 volume
+    set result [mygraph node attr volume]
+    mygraph destroy
+    set result
+} {}
 
 # ---------------------------------------------------  
 ::tcltest::cleanupTests
