@@ -133,9 +133,27 @@ only change the mtime.
 
 [call [cmd ::fileutil::tempdir]]
 
-The command returns the path of the directory where the caller can
-place temporary files.
+The command returns the path of a directory where the caller can
+place temporary files, such as /tmp on Unix systems. The
+algorithm we use to find the correct directory is as follows:
 
+The directory named in the TMPDIR environment variable.
+
+The directory named in the TEMP environment variable.
+
+The directory named in the TMP environment variable.
+
+A platform specific location:
+
+On windows "C:\\TEMP" "C:\\TMP" "\\TEMP" "\\TMP" are tried in that order.
+
+On (classic) macintosh, the TRASH_FOLDER environment variable is
+used.  This is most likely not correct.
+
+On Unix, the directories /tmp /var/tmp and /usr/tmp are tried in
+that order.
+
+The algorithm utilized is that used in the Python standard library.
 
 [call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
 
