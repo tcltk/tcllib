@@ -1,3 +1,10 @@
+2005-01-12  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.tcl : Fixed bug [1099722]. New children did      
+	  logger.test: not inherit their parents loglevel if
+	  it was set prior to their creation. Added a new test 5.2
+	  for this case. Raised package version to 0.5.1.
+	  
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
