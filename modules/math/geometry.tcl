@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: geometry.tcl,v 1.1 2001/12/12 16:51:53 chdamm Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.2 2001/12/12 18:42:15 chdamm Exp $
 
 namespace eval ::math::geometry {
 }
@@ -115,7 +115,7 @@ proc ::math::geometry::calculateDistanceToLine {P line} {
 #       Result: -5.0 -5.0
 #
 proc ::math::geometry::findClosestPointOnLine {P line} {
-    ...
+    return [lindex [findClosestPointOnLineImpl $P $line] 0]
 }
 
 # ::math::geometry::findClosestPointOnLineImpl
@@ -460,7 +460,19 @@ proc ::math::geometry::angle {line} {
 #       Result: 1
 #
 proc ::math::geometry::lineSegmentsIntersect {linesegment1 linesegment2} {
-    ...
+    # Algorithm based on Sedgewick.
+    set l1x1 [lindex $linesegment1 0]
+    set l1y1 [lindex $linesegment1 1]
+    set l1x2 [lindex $linesegment1 2]
+    set l1y2 [lindex $linesegment1 3]
+    set l2x1 [lindex $linesegment2 0]
+    set l2y1 [lindex $linesegment2 1]
+    set l2x2 [lindex $linesegment2 2]
+    set l2y2 [lindex $linesegment2 3]
+    return [expr {([ccw [list $l1x1 $l1y1] [list $l1x2 $l1y2] [list $l2x1 $l2y1]]\
+	    *[ccw [list $l1x1 $l1y1] [list $l1x2 $l1y2] [list $l2x2 $l2y2]] <= 0) \
+	    && ([ccw [list $l2x1 $l2y1] [list $l2x2 $l2y2] [list $l1x1 $l1y1]]\
+	    *[ccw [list $l2x1 $l2y1] [list $l2x2 $l2y2] [list $l1x2 $l1y2]] <= 0)}]
 }
 
 # ::math::geometry::findLineSegmentIntersection
@@ -490,7 +502,45 @@ proc ::math::geometry::lineSegmentsIntersect {linesegment1 linesegment2} {
 #       Result: coincident
 #
 proc ::math::geometry::findLineSegmentIntersection {linesegment1 linesegment2} {
-    ...
+    if {[lineSegmentsIntersect $linesegment1 $linesegment2]} {
+	set lineintersect [findLineIntersection $linesegment1 $linesegment2]
+	switch -- $lineintersect {
+
+	    "coincident" {
+		# lines are coincident
+		set l1x1 [lindex $linesegment1 0]
+		set l1y1 [lindex $linesegment1 1]
+		set l1x2 [lindex $linesegment1 2]
+		set l1y2 [lindex $linesegment1 3]
+		set l2x1 [lindex $linesegment2 0]
+		set l2y1 [lindex $linesegment2 1]
+		set l2x2 [lindex $linesegment2 2]
+		set l2y2 [lindex $linesegment2 3]
+		# check if the line SEGMENTS overlap
+		# (NOT enough to check if the x-intervals overlap (vertical lines!))
+		set overlapx [intervalsOverlap $l1x1 $l1x2 $l2x1 $l2x2 0]
+		set overlapy [intervalsOverlap $l1y1 $l1y2 $l2y1 $l2y2 0]
+		if {$overlapx && $overlapy} {
+		    return "coincident"
+		} else {
+		    return "none"
+		}
+	    }
+
+	    "none" {
+		# should never happen, because we call "lineSegmentsIntersect" first
+		puts stderr "::math::geometry::findLineSegmentIntersection: suddenly no intersection?"
+		return "none"
+	    }
+
+	    default {
+		# lineintersect = the intersection point
+		return $lineintersect
+	    }
+	}
+    } else {
+	return "none"
+    }
 }
 
 # ::math::geometry::findLineIntersection {line1 line2}
@@ -518,11 +568,74 @@ proc ::math::geometry::findLineSegmentIntersection {linesegment1 linesegment2} {
 #       Result: coincident
 #     - findLineIntersection {0 0 10 10} {5 5 15 15}
 #       Result: coincident
-#     - findLineIntersection {0 0 10 10} {1 1 11 11}
+#     - findLineIntersection {0 0 10 10} {0 1 10 11}
 #       Result: none
 #
 proc ::math::geometry::findLineIntersection {line1 line2} {
-    ...
+    set l1x1 [lindex $line1 0]
+    set l1y1 [lindex $line1 1]
+    set l1x2 [lindex $line1 2]
+    set l1y2 [lindex $line1 3]
+    set l2x1 [lindex $line2 0]
+    set l2y1 [lindex $line2 1]
+    set l2x2 [lindex $line2 2]
+    set l2y2 [lindex $line2 3]
+    
+    # Is one of the lines vertical?
+    if {$l1x1==$l1x2 || $l2x1==$l2x2} {
+	# One of the lines is vertical
+	if {$l1x1==$l1x2 && $l2x1==$l2x2} {
+	    # both lines are vertical
+	    if {$l1x1==$l2x1} {
+		return "coincident"
+	    } else {
+		return "none"
+	    }
+	}
+
+	# make sure line1 is a vertical line
+	if {$l1x1!=$l1x2} {
+	    # interchange line 1 and 2
+	    set l1x1 [lindex $line2 0]
+	    set l1y1 [lindex $line2 1]
+	    set l1x2 [lindex $line2 2]
+	    set l1y2 [lindex $line2 3]
+	    set l2x1 [lindex $line1 0]
+	    set l2y1 [lindex $line1 1]
+	    set l2x2 [lindex $line1 2]
+	    set l2y2 [lindex $line1 3]
+	}
+
+	# get equation of line 2 (y=a*x+b)
+	set a [expr {1.0*($l2y2-$l2y1)/($l2x2-$l2x1)}]
+	set b [expr {$l2y1-$a*$l2x1}]
+
+	# Calculate intersection
+	set y [expr {$a*$l1x1+$b}]
+	return [list $l1x1 $y]
+    } else {
+	# None of the lines are vertical
+	# - get equation of line 1 (y=a1*x+b1)
+	set a1 [expr {(1.0*$l1y2-$l1y1)/($l1x2-$l1x1)}]
+	set b1 [expr {$l1y1-$a1*$l1x1}]
+	# - get equation of line 2 (y=a2*x+b2)
+	set a2 [expr {(1.0*$l2y2-$l2y1)/($l2x2-$l2x1)}]
+	set b2 [expr {$l2y1-$a2*$l2x1}]
+	
+	if {abs($a2-$a1) > 0.0001} {
+	    # the lines are not parallel
+	    set x [expr {($b2-$b1)/($a1-$a2)}]
+	    set y [expr {$a1*$x+$b1}]
+	    return [list $x $y]
+	} else {
+	    # the lines are parallel
+	    if {abs($b1-$b2) < 0.00001} {
+		return "coincident"
+	    } else {
+		return "none"
+	    }
+	}
+    }
 }
 
 
@@ -544,7 +657,7 @@ proc ::math::geometry::findLineIntersection {line1 line2} {
 #       Result: 0
 #
 proc ::math::geometry::polylinesIntersect {polyline1 polyline2} {
-    ...
+    return [polylinesBoundingIntersect $polyline1 $polyline2 0]
 }
 
 # ::math::geometry::polylinesBoundingIntersect
@@ -575,7 +688,52 @@ proc ::math::geometry::polylinesIntersect {polyline1 polyline2} {
 #       Result: 1
 #
 proc ::math::geometry::polylinesBoundingIntersect {polyline1 polyline2 granularity} {
-    ...
+    if {$granularity<=1} {
+	# Use perfect intersect 
+	# => first pin down where an intersection point may be, and then 
+	#    call MultilinesIntersectPerfect on those parts
+	set granularity 10 ; # optimal search granularity?
+	set perfectmatch 1
+    } else {
+	set perfectmatch 0
+    }
+    
+    # split the lines into parts consisting of $granularity points
+    set polyline1parts {}
+    for {set i 0} {$i<[llength $polyline1]} {incr i [expr {2*$granularity-2}]} {
+	lappend polyline1parts [lrange $polyline1 $i [expr {$i+2*$granularity-1}]]
+    }
+    set polyline2parts {}
+    for {set i 0} {$i<[llength $polyline2]} {incr i [expr {2*$granularity-2}]} {
+	lappend polyline2parts [lrange $polyline2 $i [expr {$i+2*$granularity-1}]]
+    }
+    
+    # do any of the parts overlap?
+    foreach part1 $polyline1parts {
+	foreach part2 $polyline2parts {
+	    set part1bbox [bbox $part1]
+	    set part2bbox [bbox $part2]
+	    if {[rectanglesOverlap [lrange $part1bbox 0 1] [lrange $part1bbox 2 3] \
+		    [lrange $part2bbox 0 1] [lrange $part2bbox 2 3] 0]} {
+		# the lines' bounding boxes intersect
+		if $perfectmatch {
+		    foreach {l1x1 l1y1} [lrange $part1 0 end-2] {l1x2 l1y2} [lrange $part1 2 end] {
+			foreach {l2x1 l2y1} [lrange $part2 0 end-2] {l2x2 l2y2} [lrange $part2 2 end] {
+			    if {[lineSegmentsIntersect [list $l1x1 $l1y1 $l1x2 $l1y2] \
+				    [list $l2x1 $l2y1 $l2x2 $l2y2]]} {
+				# two line segments overlap
+				return 1
+			    }
+			}
+		    }
+		    return 0
+		} else {
+		    return 1
+		}
+	    }
+	}
+    }
+    return 0
 }
 
 # ::math::geometry::ccw
@@ -594,10 +752,16 @@ proc ::math::geometry::polylinesBoundingIntersect {polyline1 polyline2 granulari
 #                     is CounterClockWise
 #
 proc ::math::geometry::ccw {A B C} {
-    set dx1 [expr {$p1x - $p0x}]
-    set dy1 [expr {$p1y - $p0y}]
-    set dx2 [expr {$p2x - $p0x}]
-    set dy2 [expr {$p2y - $p0y}]
+    set Ax [lindex $A 0]
+    set Ay [lindex $A 1]
+    set Bx [lindex $B 0]
+    set By [lindex $B 1]
+    set Cx [lindex $C 0]
+    set Cy [lindex $C 1]
+    set dx1 [expr {$Bx - $Ax}]
+    set dy1 [expr {$By - $Ay}]
+    set dx2 [expr {$Cx - $Ax}]
+    set dy2 [expr {$Cy - $Ay}]
     if {$dx1*$dy2 > $dy1*$dx2} {return 1}
     if {$dx1*$dy2 < $dy1*$dx2} {return -1}
     if {($dx1*$dx2 < 0) || ($dy1*$dy2 < 0)} {return -1}
@@ -721,6 +885,37 @@ proc ::math::geometry::rectanglesOverlap {P1 P2 Q1 Q2 strict} {
 
 
 
+# ::math::geometry::bbox
+#
+#       Calculate the bounding box of a polyline.
+#
+# Arguments:
+#       polyline      a polyline
+#
+# Results:
+#       x1,y1,x2,y2   four coordinates where (x1,y1) is the upper-left corner
+#                     of the bounding box, and (x2,y2) is the lower-right corner
+#
+# Examples:
+#     - bbox {0 10 4 1 6 23 -12 5}
+#       Result: -12 1 6 23
+#
+proc ::math::geometry::bbox {polyline} {
+    set minX [lindex $polyline 0]
+    set maxX $minX
+    set minY [lindex $polyline 1]
+    set maxY $minY
+    foreach {x y} $polyline {
+	if {$x < $minX} {set minX $x}
+	if {$x > $maxX} {set maxX $x}
+	if {$y < $minY} {set minY $y}
+	if {$y > $maxY} {set maxY $y}
+    }
+    return [list $minX $minY $maxX $maxY]
+}
+
+
+
 
 package provide math::geometry 1.0
 
@@ -737,7 +932,6 @@ if 0 {
     public proc middle {x1 y1 x2 y2}
 
     #
-    public proc bbox {coords}
     public proc verticallyInBbox {bbox x}
     public proc horizontallyInBbox {bbox y}
     public proc closestToWhichBboxSide {x y bbox}
