@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.11 2000/05/31 00:00:04 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.12 2000/06/16 20:15:32 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -663,7 +663,7 @@ test tree-12.3 {pre dfs is default walk} {
 } [list enter mytree root enter mytree node0 enter mytree node0.1 \
 	enter mytree node0.2 enter mytree node1 \
 	enter mytree node1.1 enter mytree node1.2]
-test tree-12.4 {walk with too few args} {
+test tree-12.4 {walk with too few args} {badTest} {
     tree mytree
     catch {mytree walk} msg
     mytree destroy

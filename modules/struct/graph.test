@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.2 2000/05/31 00:00:03 ericm Exp $
+# RCS: @(#) $Id: graph.test,v 1.3 2000/06/16 20:15:32 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -970,7 +970,7 @@ proc makegraph {} {
 }
 
 
-test graph-21.1 {walk with too few args} {
+test graph-21.1 {walk with too few args} {badTest} {
     graph mygraph
     catch {mygraph walk} msg
     mygraph destroy

@@ -1,3 +1,7 @@
+2000-06-16  Eric Melski  <ericm@ajubasolutions.com>
+
+	* uri.test: Fixed bad test, added tcltest::cleanupTests call.
+
 2000-06-13  Eric Melski  <ericm@scriptics.com>
 
 	* uri: initial import of uri package.
