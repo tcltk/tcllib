@@ -33,7 +33,7 @@ set prefix "@prefix@"
 set package @PACKAGE@
 set version @VERSION@
 
-cd [file join $prefix lib $package]
+cd [file join $prefix lib "$package$version"]
 puts "Making pkgIndex.tcl in [pwd]"
 
 set modules $argv

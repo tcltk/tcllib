@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.6 2000/03/06 18:57:54 redman Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.7 2000/03/06 21:34:53 ericm Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -62,7 +62,7 @@ mandir = @mandir@
 
 DESTDIR =
 
-pkglibdir = $(prefix)/lib/@PACKAGE@
+pkglibdir = $(prefix)/lib/@PACKAGE@@VERSION@
 
 top_builddir = .
 
@@ -148,9 +148,10 @@ install-doc: doc
 	    echo "Installing documentation for $$j" ; \
 	    for i in $(srcdir)/modules/$$j/*.n ; do \
 	        $(INSTALL_DATA) $$i $(mandir)/mann ; \
-	        chmod 444 $(mandir)/manni/$$i ; \
 	    done; \
 	done
+	chmod 444 $(mandir)/mann/*
+	$(INSTALL_DATA) man.macros $(mandir)
 
 test:
 

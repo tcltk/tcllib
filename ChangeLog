@@ -1,31 +1,43 @@
+2000-03-06  Eric Melski  <ericm@scriptics.com>
+
+	* man.macros: Moved from individual modules to toplevel tcllib
+	dir, so that it is not repeated hundreds of times.
+	
+	* Makefile.in:
+	* mkIndex.tcl.in: Added version number to installed tcllib dir.
+
+	* license.terms: Adapted license from Tcl.
+	
+	* README: Added more information about file layout in module dirs.
+
 2000-03-06  Scott Redman  <redman@scriptics.com>
 
 	* Makefile.in:  added pop3 module.
 
 2000-03-02  Eric Melski  <ericm@scriptics.com>
 
-	* mkIndex.tcl.in: Instead of probing install dir for modules, changed to
-	take module list on command line, so that users can change what goes into
-	the pkgIndex.tcl from the Makefile.
+	* mkIndex.tcl.in: Instead of probing install dir for modules,
+	changed to take module list on command line, so that users can
+	change what goes into the pkgIndex.tcl from the Makefile.
 	
-	* Makefile.in: additional work on module list and pkgIndex.tcl generation.
-	Now changing the module list changes what is installed and what is
-	put in the pkgIndex.tcl.
+	* Makefile.in: additional work on module list and pkgIndex.tcl
+	generation.  Now changing the module list changes what is
+	installed and what is put in the pkgIndex.tcl.
 
 2000-03-02  Eric Melski  <ericm@scriptics.com>
 
-    * Makefile.in: Work on install-libraries, install-doc; removed
-    references to compiled bits.
+	* Makefile.in: Work on install-libraries, install-doc; removed
+	references to compiled bits.
 
-    * mkIndex.tcl.in: Tweaked the generated pkgIndex.tcl to only
-    append the dirname if it doesn't already exist in the auto_path,
-    and to use \[file dirname \[info script\]\] instead of [pwd].
+	* mkIndex.tcl.in: Tweaked the generated pkgIndex.tcl to only
+	append the dirname if it doesn't already exist in the auto_path,
+	and to use \[file dirname \[info script\]\] instead of [pwd].
 
-    * configure:
-    * configure.in: Removed checks for compiler, and all stuff related
-    to compiling/linking (this is a tcl only extension).
+	* configure:
+	* configure.in: Removed checks for compiler, and all stuff related
+	to compiling/linking (this is a tcl only extension).
 
-    * tcl.m4: new tcl.m4 from sample extension.
+	* tcl.m4: new tcl.m4 from sample extension.
 
 2000-03-01  Eric Melski  <ericm@scriptics.com>
 
