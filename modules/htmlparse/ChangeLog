@@ -1,7 +1,8 @@
 2005-01-11  Andreas Kupries <andreask@activestate.com>
 
-	* htmlparse.tcl: Modified to load only the data structure we
-	  need, stacks, and not all eleven.
+	* htmlparse.tcl: Modified to load only the data structure we need,
+	  stacks, and not all eleven. This fixes the Tcllib SF Bug
+	  1087173, reported by Don Porter <dgp@users.sourceforge.net>.
 
 	* htmlparse.test: Ensured usage of local packages, nothing
 	  installed, and updated for the new struct usage. Updated to
