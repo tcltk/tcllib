@@ -1,3 +1,16 @@
+2001-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.tcl:
+	* expander.test:
+	* expander.ehtml:
+	* expander.html:
+	* expander.n:
+	* expander_license.txt:
+	* expander_notes.txt: Documentation, code and testsuite for
+	  expander objects; the heart of the expand macro processor by
+	  William H. Duquette <will@wjduquette.com> packaged up as a
+	  library.
+
 2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:
