@@ -1,5 +1,6 @@
 2002-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+ 	* ftp:  Fixed bug #503471.
 	* nntp: Fixed bug #502250
 
 2002-01-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
