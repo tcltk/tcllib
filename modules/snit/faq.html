@@ -1,10 +1,10 @@
 <html><head>
-    <title>Snit V0.9 Frequently Asked Questions</title>
+    <title>Snit V0.91 Frequently Asked Questions</title>
 </head>
 
 <BODY>
 
-<h1>Snit V0.9 Frequently Asked Questions</h1>
+<h1>Snit V0.91 Frequently Asked Questions</h1>
 
 
 <p><hr><p>
@@ -128,9 +128,13 @@
 <ul>
 <li><a href="#what_is_a_component">What is a component?</a>
 <li><a href="#how_do_i_create_a_component">How do I create a component?</a>
+<li><a href="#how_is_a_component_named">How is a component named?</a>
 <li><a href="#what_does_the_install_command_do">What does the install command do?</a>
 <li><a href="#are_there_any_limitations_on_component_names">Are there any limitations on component names?</a>
+<li><a href="#are_there_any_limitations_on_component_object_names">Are there any limitations on component object names?</a>
 <li><a href="#must_i_destroy_the_components_i_create">Must I destroy the components I create?</a>
+<li><a href="#can_i_expose_a_components_object_command_as_part_of_my_interface">Can I expose a component's object command as part of my interface?</a>
+<li><a href="#how_do_i_expose_a_components_object_command">How do I expose a component's object command?</a>
 </ul><p>
 <h3><a href="#delegation">DELEGATION</a></h3>
 <ul>
@@ -1796,6 +1800,21 @@ The above example shows one way to delegate the "wag" method to
 the "mytail" component; see <a href="#delegation">DELEGATION</a> for an easier
 way.<p>
 
+<h4><a name="how_is_a_component_named">How is a component named?</a></h4>
+
+
+
+A component has two names.  The first name represents the role the
+component object plays within the Snit object.  This is the component
+name proper, and is the name used to refer to the component within
+Snit code.  The second name is the name of the actual component object
+created by the Snit object's constructor.  This second name is always
+a Tcl command name, and is referred to as the component's object name.<p>
+
+In the example in the previous FAQ, the component name is "mytail";
+the "mytail" component's object name is chosen automatically by Snit
+since %AUTO% was used when the component object was created.<p>
+
 <h4><a name="what_does_the_install_command_do">What does the install command do?</a></h4>
 
 
@@ -1824,6 +1843,58 @@ the name <code>hull</code> should be used for no other purpose.<p>
 
 Component names are in fact instance variable names, and so follow the
 rules for <a href="#instance_variables">instance variables</a>.<p>
+
+<h4><a name="are_there_any_limitations_on_component_object_names">Are there any limitations on component object names?</a></h4>
+
+
+
+Yes.
+
+Component objects which are Tk widgets or megawidgets must have valid
+Tk window names.
+
+Component objects which are not widgets or megawidgets must have
+fully-qualified command names, i.e., names which include the full
+namespace of the command.  Note that Snit always creates objects with
+fully qualified names.
+
+Second, component object names must be unique.  This is no problem for
+widget components, since widget names are always unique; but consider
+the following code:
+
+<pre>    snit::type tail { ... }
+
+    snit::type dog {
+        delegate method wag to mytail
+
+        constructor {} {
+            install mytail using tail mytail
+        }
+    }</pre>
+
+This code uses the component name, "mytail", as the component object
+name.  This is not good, and here's why: Snit instance code executes
+in the Snit type's namespace.  In this case, the mytail component is
+created in the ::dog:: namespace, and will thus have the name
+::dog::mytail.<p>
+
+Now, suppose you create two dogs.  Both will have a mytail component
+called ::dog::mytail.  In other words, you've got two dogs with one
+tail between them.  This is very bad.  Here are a couple of ways to
+avoid it:<p>
+
+First, if the component type is a <code>snit::type</code> you can
+specify %AUTO% as its name, and be guaranteed to get a unique name.
+This is the safest thing to do:<p>
+
+<pre>    install mytail using tail %AUTO%</pre>
+
+If the component type isn't a <code>snit::type</code> you can base the
+component's object name on the type's name in some way:<p>
+
+<pre>     install mytail using tail $self.mytail</pre>
+
+This isn't as safe, but should usually work out okay.<p>
 
 <h4><a name="must_i_destroy_the_components_i_create">Must I destroy the components I create?</a></h4>
 
@@ -1856,6 +1927,72 @@ true whether you assign them a component name or not.<p>
 Note that this code assumes that <code>tail</code> is also a
 <code>snit::type</code>; if not, it might need to be destroyed in some
 other way.<p>
+
+<h4><a name="can_i_expose_a_components_object_command_as_part_of_my_interface">Can I expose a component's object command as part of my interface?</a></h4>
+
+
+
+Yes, and there are two ways to do it.  The most appropriate way is
+usually to use <a href="#delegation">delegation</a>.  Delegation allows you to
+pass the options and methods you specify along to particular
+components.  This effectively hides the components from the users of
+your type, and ensures good encapsulation.<p>
+
+However, there are times when it's appropriate, not to mention
+simpler, just to make the entire component part of your type's public
+interface.<p>
+
+<h4><a name="how_do_i_expose_a_components_object_command">How do I expose a component's object command?</a></h4>
+
+
+
+Use the <code>expose</code> statement.  For example, suppose you're
+creating a combobox megawidget which owns a listbox widget, and you
+want to make the listbox's entire interface public.  You can do this:<p>
+
+<pre>snit::widget combobox {
+     expose listbox
+
+     constructor {args} {
+         install listbox using listbox $win.listbox ....
+
+         #...
+     }
+
+     #...
+}
+
+combobox .mycombo
+.mycombo listbox configure -width 30</pre>
+
+The <code>expose</code> statement exposes the named component by
+defining a method of the same name.  The method's arguments are passed
+along to the component.  Thus, the above code sets the listbox
+component's "-width" to 30.<p>
+
+If called with no arguments, the method returns the component's object
+name:<p>
+
+<pre>% .mycombo listbox
+.mycombo.listbox</pre>
+
+Usually you'll let the method name be the same as the component name;
+however, you can rename it if necessary.  The code in the following
+listing exposes the same interface as the previous example:<p>
+
+<pre>snit::widget combobox {
+     expose mylistbox as listbox
+
+     constructor {args} {
+         install mylistbox using listbox $win.mylistbox ....
+
+         #...
+     }
+
+     #...
+}
+combobox .mycombo
+.mycombo listbox configure -width 30</pre>
 
 <h2><a name="delegation">DELEGATION</a></h2>
 

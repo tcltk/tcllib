@@ -12,6 +12,22 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
+Changes in V0.91
+--------------------------------------------------------------------
+
+* Bug fix: On a system with both 0.9 and 0.81 installed, 
+  "package require snit 0.9" would get snit 0.81.  Here's why: to me
+  it was clear enough that 0.9 is later than 0.81, but to Tcl the 
+  minor version number 9 is less than minor version number 81.
+  From now on, all pre-1.0 Snit version numbers will have two
+  digits.
+
+* Added the "expose" statement; this allows you to expose an entire
+  component as part of your type's public interface.  See the man page
+  and the Snit FAQ list for more information.
+
+* NOTE: V0.91 is not yet complete; there are more changes to come.
+
 Changes in V0.9
 --------------------------------------------------------------------
 
