@@ -1,0 +1,4 @@
+2004-05-07  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* New module for querying PMG images, and manipulating their
+	  comments, and timestamp.
