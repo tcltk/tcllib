@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: png.tcl,v 1.3 2004/05/20 23:00:10 afaupell Exp $
+# RCS: @(#) $Id: png.tcl,v 1.4 2004/05/23 05:47:33 andreas_kupries Exp $
 
 package provide png 0.1
 
@@ -38,8 +38,9 @@ proc ::png::validate {file} {
         if {$len < 0} { close $fh; return BADLEN }
         set r [read $fh $len]
         binary scan [read $fh 4] I crc
+	if {$crc < 0} {set crc [format %u $crc]}
         if {[eof $fh]} { close $fh; return EOF }
-        if {$num == 0 && $type != "IHDR"} { close $fh; return NOHDR }
+        if {($num == 0) && ($type != "IHDR")} { close $fh; return NOHDR }
         if {$type == "IDAT"} { set idat 1 }
         if {[::crc::crc32 $type$r] != $crc} { close $fh; return CKSUM }
         set last $type
@@ -58,6 +59,7 @@ proc ::png::imageInfo {file} {
     if {![eof $fh] && $type == "IHDR"} {
         binary scan $r IIccccc width height depth color compression filter interlace
 	binary scan [read $fh 4] I check
+	if {$check < 0} {set check [format %u $check]}
 	if {[::crc::crc32 IHDR$r] != $check} {
 	    return -code error "header checksum failed"
 	}
