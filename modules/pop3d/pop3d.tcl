@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.8 2003/04/11 20:11:26 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.9 2003/04/25 04:52:17 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -52,6 +52,7 @@ namespace eval ::pop3d {
 
     # counter is used to give a unique name for unnamed server
     variable counter 0
+    variable server  "tcllib/pop3d"
 
     # commands is the list of subcommands recognized by the server
     variable commands [list	\
@@ -61,9 +62,6 @@ namespace eval ::pop3d {
 	    "down"		\
 	    "up"		\
 	    ]
-
-    variable version ; set version 1.0.1
-    variable server  "tcllib/pop3d-$version"
 
     variable cmdMap ; array set cmdMap {
 	USER H_user
@@ -526,11 +524,12 @@ proc ::pop3d::GreetPeer {name sock} {
 
     upvar cstate cstate
     variable server
+    variable version
 
     log::log debug "pop3d $name $sock _ Greeting"
 
     Respond2Client $name $sock +OK \
-	    "[::info hostname] $server ready $cstate(id)"
+	    "[::info hostname] ${server}-${version} ready $cstate(id)"
     return
 }
 
@@ -827,6 +826,7 @@ proc ::pop3d::H_quit {name sock cmd line} {
     # Called only in places where cstate is known!
     upvar cstate cstate
     variable server
+    variable version
 
     set cstate(state) update
 
@@ -841,7 +841,7 @@ proc ::pop3d::H_quit {name sock cmd line} {
     after idle [list ::pop3d::CloseConnection $name $sock]
 
     Respond2Client $name $sock +OK \
-	    "[::info hostname] $server shutting down"
+	    "[::info hostname] ${server}-${version} shutting down"
     return
 }
 
@@ -1086,5 +1086,7 @@ log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildm
 
 ##########################
 # Module initialization
+# See devdoc/notes.txt before using the variable in the provide statement.
 
-package provide pop3d $::pop3d::version
+set ::pop3d::version  1.0.1
+package provide pop3d 1.0.1

@@ -10,11 +10,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.7 2003/04/02 21:24:11 patthoyts Exp $
+# $Id: crc32.tcl,v 1.8 2003/04/25 04:52:16 andreas_kupries Exp $
 
 namespace eval ::crc {
-    variable crc32_version 1.0.1
-
     namespace export crc32
 
     variable crc32_tbl [list 0x00000000 0x77073096 0xEE0E612C 0x990951BA \
@@ -217,8 +215,10 @@ proc ::crc::crc32 {args} {
 }
 
 # -------------------------------------------------------------------------
+# See devdoc/notes.txt before using the variable in the provide statement.
 
-package provide crc32 $::crc::crc32_version
+set ::crc::crc32_version 1.0.1
+package provide crc32    1.0.1
 
 # -------------------------------------------------------------------------
 #
