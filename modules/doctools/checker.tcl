@@ -425,9 +425,9 @@ proc uri {text} {
     if {[Is done]} {Error nodonecmd}
     fmt_uri $text
 }
-proc usage {text} {
+proc usage {args} {
     if {[Is done]} {Error nodonecmd}
-    fmt_usage $text
+    eval fmt_usage $args
 }
 proc const {text} {
     if {[Is done]} {Error nodonecmd}
