@@ -422,7 +422,7 @@ connection may be allocated to just one client request at a time.
      set maxpipes 10
      pool Pipes $maxpipes
      for {set i 0} {$i < $maxpipes} {incr i} {
-         set fd {open "|backendApplication" w+}
+         set fd [open "|backendApplication" w+]
          Pipes add $fd
      }
       
