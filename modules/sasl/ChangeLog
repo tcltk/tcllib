@@ -1,0 +1,6 @@
+2005-01-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sasl.tcl: Initial version (DIGEST-MD5, CRAM-MD5, PLAIN, LOGIN)
+	* ntlm.tcl: Implementation of Microsoft NTLM as SASL mechanism.
+	* saslclient.tcl: SMTP-SASL test harness.
+	
