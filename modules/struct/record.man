@@ -4,7 +4,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Define and create records (similar to 'C' structures)}]
 [require Tcl 8.2]
-[require struct [opt 1.2.1]]
+[require struct [opt 1.3]]
 [description]
 
 The [cmd ::struct::record] package provides a mechanism to group variables together
