@@ -7,7 +7,7 @@
 #
 
 package require Tcl 8.3
-package require mime 1.3.4
+package require mime 1.4
 package provide smtp 1.3.5
 
 #
