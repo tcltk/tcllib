@@ -9,6 +9,9 @@
 # default. The package should be simple to extend to use a TclUDP extension
 # in the future.
 #
+# Support for SPF (http://spf.pobox.com/rfcs.html) will need updating
+# if or when the proposed draft becomes accepted.
+#
 # TODO:
 #  - When using tcp we should make better use of the open connection and
 #    send multiple queries along the same connection.
@@ -18,7 +21,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.17 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.18 2004/01/22 21:28:13 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -26,8 +29,8 @@ package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
-    variable version 1.0.4
-    variable rcsid {$Id: dns.tcl,v 1.17 2004/01/15 06:36:12 andreas_kupries Exp $}
+    variable version 1.0.5
+    variable rcsid {$Id: dns.tcl,v 1.18 2004/01/22 21:28:13 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -55,7 +58,7 @@ namespace eval ::dns {
     array set types { 
         A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
         NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
-        AXFR 252  MAILB 253  MAILA 254  * 255
+        SPF 16 AXFR 252  MAILB 253  MAILA 254  * 255
     } 
 
     variable classes
@@ -232,6 +235,14 @@ proc ::dns::resolve {query args} {
             return -code error "udp support is not available, get tcludp"
         }
     }
+    
+    # Check for reverse lookups
+    if {[regexp {(?:\d{0,3}\.){3}\d{0,3}} $state(query)]} {
+        set addr [lreverse [split $state(query) .]]
+        lappend addr in-addr arpa
+        set state(query) [join $addr .]
+        set state(-type) PTR
+    }
 
     BuildMessage $token
     
@@ -264,7 +275,7 @@ proc ::dns::name {token} {
                 array set AN $answer
                 if {![info exists AN(type)]} {set AN(type) {}}
                 switch -exact -- $AN(type) {
-                    MX - NS {
+                    MX - NS - PTR {
                         if {[info exists AN(rdata)]} {lappend r $AN(rdata)}
                     }
                     default {
@@ -325,6 +336,15 @@ proc ::dns::cname {token} {
     }
     return $r
 }
+
+# Description:
+#   Return the decoded answer records. This can be used for more complex
+#   queries where the answer isn't supported byb cname/address/name.
+proc ::dns::result {token} {
+    array set reply [Decode $token]
+    return $reply(AN)
+}
+
 # -------------------------------------------------------------------------
 
 # Description:
@@ -509,8 +529,12 @@ proc ::dns::BuildMessage {token} {
                     append state(request) \
                         [binary format Sc4 4 [split $state(query) .]]
                 }
+                PTR {
+                    append state(request) \
+                        [binary format Sc4 4 [split $state(query) .]]
+                }
                 default {
-                    return -code "inverse query not supported for this type"
+                    return -code error "inverse query not supported for this type"
                 }
             }
         }
@@ -821,6 +845,17 @@ proc ::dns::Pop {varname {nth 0}} {
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
     return $r
+}
+
+# -------------------------------------------------------------------------
+# Description:
+#   Reverse a list. Code from http://wiki.tcl.tk/tcl/43
+#
+proc ::dns::lreverse {lst} {
+    set res {}
+    set i [llength $lst]
+    while {$i} {lappend res [lindex $lst [incr i -1]]}
+    return $res
 }
 
 # -------------------------------------------------------------------------
