@@ -1,0 +1,4 @@
+2005-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bibtex.tcl:   New module. Parser for BibTeX bibliography
+	* pkgIndex.tcl: files, by Neil Madden.
