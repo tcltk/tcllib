@@ -1,3 +1,8 @@
+2004-06-18  Kevin Kenny  <kennykb@acm.org>
+
+	* combinatorics.test: Kevin added the display of the math version
+	  number to the test.
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -8,7 +13,8 @@
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
+
 
 2004-02-09  Jeff Hobbs  <jeffh@ActiveState.com>
 
@@ -16,7 +22,7 @@
 	off-by-one and use of -strict in string is int|double.
 
 2003-12-22  Joe English  <jenglish@users.sourceforge.net>
-	* calculus.man (rungeKuttaStep): Add missing argument 
+	* calculus.man (rungeKuttaStep): Add missing argument
 	in function synopsis (bug report from Richard Body).
 
 2003-10-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
@@ -31,7 +37,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
@@ -69,8 +75,8 @@
 
 2003-04-18  Joe English  <jenglish@flightlab.com
 
-	* optimize.man: fix minor markup errors that doctools and tmml 
-	  were complaining about. 
+	* optimize.man: fix minor markup errors that doctools and tmml
+	  were complaining about.
 
 2003-04-16  Andreas Kupries  <andreask@activestate.com>
 
@@ -93,7 +99,7 @@
 	* fuzzy.tcl: Committed new code (see #535216), this also updates
 	  the package to version 0.2
 
-	* fuzzy.man: 
+	* fuzzy.man:
 	* fuzzy.test: New files for fuzzy comparisons, documentation and
 	  testsuite. Fixed some bugs in them. NOTE: There are failures in
 	  the testsuite.
@@ -184,7 +190,7 @@
 	
 2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
 
-	* math.tcl: 
+	* math.tcl:
 	* misc.tcl:
 	* pkgIndex.tcl:
 	* tclIndex: Reorganized so that math.tcl is a top-level 'package
@@ -202,8 +208,8 @@
 
 2000-10-06  Eric Melski  <ericm@ajubasolutions.com>
 
-	* math.test: 
-	* math.n: 
+	* math.test:
+	* math.n:
 	* math.tcl: Added ::math::fibonacci function, to compute numbers
 	in the Fibonacci sequence.
 
@@ -217,15 +223,15 @@
 
 2000-06-15  Eric Melski  <ericm@scriptics.com>
 
-	* math.n: 
-	* math.test: 
+	* math.n:
+	* math.test:
 	* math.tcl: Incorporated sigma, cov, stats, integrate functions
 	(from Philip Ehrens <pehrens@ligo.caltech.edu>). [RFE: 5060]
 
 2000-03-27  Eric Melski  <ericm@scriptics.com>
 
-	* math.n: 
-	* math.test: 
+	* math.n:
+	* math.test:
 	* math.tcl: Added sum, mean, and product functions (from Philip
 	Ehrens <pehrens@ligo.caltech.edu>).
 
