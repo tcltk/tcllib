@@ -1,3 +1,32 @@
+2004-05-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.test:    Added clean up commands to prevent tests
+	* matrix1.test:   from interfering with each other. Testsuite
+	* tree1.test:     is now passing again.
+
+	* graph.man:      Fixed the 'require' declarations in the
+	* matrix.man:     documentation to use the correct package
+	* pool.man:       names.
+	* prioqueue.man:
+	* queue.man:
+	* record.man:
+	* skiplist.man:
+	* stack.man:
+	* struct_list.man:
+	* struct_set.man:
+	* struct_tree.man:
+
+	* tree1.man:   Folded the v1 data structures back into the struct
+	* tree1.tcl:   directory, as their own packages. Recorded the old
+	* tree1.test:  v1 struct as a set of packages now as well. The
+	* graph1.man:  unchanged data structures from struct v1 have been
+	* graph1.tcl:  removed from the repository. They were duplicates.
+	* graph1.test:
+	* matrix1.man:
+	* matrix1.tcl:
+	* matrix1.test:
+	* pkgIndex.tcl:
+
 2004-05-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.tcl:     Made all data structures full packages.
