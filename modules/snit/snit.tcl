@@ -742,7 +742,7 @@ proc ::snit::Comp.statement.oncget {option body} {
     # Next, add variable declarations to body:
     set body "%TVARDECS%%IVARDECS%\n$body"
 
-    Comp.statement.method _cget$option {option} $body
+    Comp.statement.method _cget$option {_option} $body
     Comp.statement.option $option -cgetmethod _cget$option
 } 
 
@@ -766,7 +766,7 @@ proc ::snit::Comp.statement.onconfigure {option arglist body} {
     CheckArgs "onconfigure $option" $arglist
 
     # Next, add a magic reference to the option name
-    set arglist [concat option $arglist]
+    set arglist [concat _option $arglist]
 
     Comp.statement.method _configure$option $arglist $body
     Comp.statement.option $option -configuremethod _configure$option

@@ -71,8 +71,8 @@ you.
   to use for retrieving and setting the option's value.  Existing
   "oncget" and "onconfigure" handlers continue to function as
   expected, with one difference: they get a new implicit argument,
-  "option", which is the name of the option being set.  If your
-  existing handlers use "option" as a variable name, they will need
+  "_option", which is the name of the option being set.  If your
+  existing handlers use "_option" as a variable name, they will need
   to be changed.
 
 * Sundry other internal changes.
