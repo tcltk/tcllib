@@ -3,7 +3,11 @@
 exec tclsh "$0" ${1+"$@"}
 
 # --------------------------------------------------------------
-# Installer for Tcllib
+# Installer for Tcllib. The lowest version of the tcl core supported
+# by any module is 8.2. So we enforce that the installer is run with
+# at least that.
+
+package require Tcl 8.2
 
 set distribution   [file dirname [info script]]
 lappend auto_path  [file join $distribution modules]
@@ -97,6 +101,7 @@ proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 proc write_out {f text} {
     global config
     if {$config(dry)} {log "Generate $f" ; return}
+    catch {file delete -force $f}
     puts -nonewline [set of [open $f w]] $text
     close $of
 }
