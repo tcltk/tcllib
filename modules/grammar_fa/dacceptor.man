@@ -4,6 +4,8 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Create and use deterministic acceptors}]
 [require Tcl 8.4]
+[require snit]
+[require struct::set]
 [require grammar::dacceptor [opt 0.1]]
 [description]
 [keywords acceptor acceptance grammar automaton {finite automaton}]

@@ -13,7 +13,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require snit   ; # Tcllib | OO system used
+package require snit        ; # Tcllib | OO system used
+package require struct::set ; # Tcllib | Extended set operations.
 
 # ### ### ### ######### ######### #########
 ## Implementation
