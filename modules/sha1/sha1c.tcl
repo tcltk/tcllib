@@ -1,24 +1,19 @@
-# sha1c.tcl - 
+# sha1c.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Wrapper for the Secure Hashing Algorithm (SHA1)
 #
-# * SHA-1 in C
-# * By Steve Reid <steve@edmweb.com>
-# * 100% Public Domain
-#
-#
-# $Id: sha1c.tcl,v 1.1 2005/02/20 22:58:58 patthoyts Exp $
+# $Id: sha1c.tcl,v 1.2 2005/02/21 13:24:18 patthoyts Exp $
 
 package require critcl;                 # needs critcl
 package provide sha1c 2.0.0;            # 
 
-critcl::cheaders sample.h;              # The Tcl sample extension SHA1 header
-critcl::csources sample.c;              # The Tcl sample extension SHA1 C file
+critcl::cheaders sha1.h;                # NetBSD SHA1 implementation
+critcl::csources sha1.c;                # NetBSD SHA1 implementation
 
 namespace eval ::sha1 {
 
     critcl::ccode {
-        #include "sample.h"
+        #include "sha1.h"
         #include <malloc.h>
         #include <memory.h>
         #include <assert.h>
@@ -50,7 +45,7 @@ namespace eval ::sha1 {
             char* str;
             SHA1_CTX dup = *(SHA1_CTX*) obj->internalRep.otherValuePtr;
             
-            SHA1Final(&dup, buf);
+            SHA1Final(buf, &dup);
             
             /* convert via a byte array to properly handle null bytes */
             temp = Tcl_NewByteArrayObj(buf, sizeof buf);
