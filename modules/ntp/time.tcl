@@ -7,14 +7,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.3 2003/03/26 22:58:59 patthoyts Exp $
+# $Id: time.tcl,v 1.4 2003/04/24 19:52:27 andreas_kupries Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.0.0
-    variable rcsid {$Id: time.tcl,v 1.3 2003/03/26 22:58:59 patthoyts Exp $}
+    variable rcsid {$Id: time.tcl,v 1.4 2003/04/24 19:52:27 andreas_kupries Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -172,7 +172,7 @@ proc ::time::QueryTime {token} {
     } else {
         set State(sock) [socket $State(-timeserver) $State(-port)]
     }
-    
+
     # setup the timeout
     if {$State(-timeout) > 0} {
         set State(after) [after $State(-timeout) \
@@ -190,7 +190,7 @@ proc ::time::QueryTime {token} {
     if {$State(-command) == {}} {
         wait $token
     }
-    
+
     return $token
 }
 
@@ -201,7 +201,9 @@ proc ::time::unixtime {{token {}}} {
     if {$State(status) != "ok"} {
         return -code error $State(error)
     }
-    binary scan $State(data) I r
+    if {[binary scan $State(data) I r] < 1} {
+        return -code error "Unable to scan data"
+    }
     return [expr {$r - $epoch(unix)}]
 }
 
@@ -260,8 +262,10 @@ proc ::time::cleanup {token} {
 proc ::time::ClientReadEvent {token} {
     variable $token
     upvar 0 $token State
-    
-    set State(data) [read $State(sock)]
+
+    append State(data) [read $State(sock)]
+    if {[string length $State(data)] < 4} {return}
+
     #FIX ME: acquire peer data?
     set State(status) ok
     Finish $token

@@ -1,3 +1,13 @@
+2003-04-24  Andreas Kupries  <andreask@activestate.com>
+
+	* time.tcl (unixtime): [SF Bug #723426] Added code to handle
+	  possibility of failure in "binary scan". (ClientReadEvent):
+	  Changed to append partial results, allow for empty reads.
+
+	* time.test: [SF Bug #723426]. Corrected non-unique test
+	  names. Handle a missing tcltest::interpreter and fall back to
+	  [info nameofexecutable].
+
 2003-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.man:      Renamed the man page to avoid clashing with
