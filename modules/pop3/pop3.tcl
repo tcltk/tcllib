@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.23 2003/04/03 20:13:05 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.24 2003/04/09 18:46:29 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -37,6 +37,21 @@ namespace eval ::pop3 {
     variable  state
     array set state {}
 
+}
+
+# ::pop3::config --
+#
+#	Retrieve configuration of pop3 connection
+#
+# Arguments:
+#	chan      The channel, returned by ::pop3::open
+#
+# Results:
+#	A serialized array.
+
+proc ::pop3::config {chan} {
+    variable state
+    return  $state($chan)
 }
 
 # ::pop3::close --
@@ -211,6 +226,8 @@ proc ::pop3::open {args} {
     variable state
     array set cstate {msex 0 retr_mode retr}
 
+    log::log debug "pop3::open | [join $args]"
+
     while {[set err [cmdline::getopt args {msex.arg retr-mode.arg} opt arg]]} {
 	if {$err < 0} {
 	    return -code error "::pop3::open : $arg"
@@ -249,10 +266,14 @@ proc ::pop3::open {args} {
 	set port 110
     }
 
+    log::log debug "pop3::open | protocol, connect to $host $port"
+
     # Argument processing is finally complete, now open the channel
 
     set chan [socket $host $port]
     fconfigure $chan -buffering none
+
+    log::log debug "pop3::open | connect on $chan"
 
     if {$cstate(msex)} {
 	# We are talking to MS Exchange. Work around its quirks.
@@ -260,6 +281,8 @@ proc ::pop3::open {args} {
     } else {
 	fconfigure $chan -translation {binary crlf}
     }
+
+    log::log debug "pop3::open | wait for greeting"
 
     if {[catch {::pop3::send $chan {}} errorStr]} {
 	::close $chan
@@ -274,6 +297,8 @@ proc ::pop3::open {args} {
 	fconfigure $chan -translation binary
     }
 
+    log::log debug "pop3::open | authenticate $user (*password not shown*)"
+
     if {[catch {
 	::pop3::send $chan "user $user"
 	::pop3::send $chan "pass $password"
@@ -285,6 +310,8 @@ proc ::pop3::open {args} {
     # Remember the state.
 
     set state($chan) [array get cstate]
+
+    log::log debug "pop3::open | ok ($chan)"
     return $chan
 }
 
@@ -351,6 +378,8 @@ proc ::pop3::retrieve {chan start {end -1}} {
     }
     
     set result {}
+
+    ::log::log debug "pop3 $chan retrieve $start -- $end"
 
     for {set index $start} {$index <= $end} {incr index} {
 	switch -exact -- $cstate(retr_mode) {
@@ -449,9 +478,25 @@ proc ::pop3::RetrFast {chan size} {
     # Then we have to ensure to not to miss the terminator entirely.
 
     # Sometimes the gets returns nothing, need to get the real
-    # terminating "."
+    # terminating "."                                    / "
 
-    if {[string range $msgBuffer end-1 end] == "\n."} {
+    if {[string range $msgBuffer end-3 end] == "\n.\r\n"} {
+	# Complete terminator found. Remove it from the message buffer.
+
+	::log::log debug "pop3 $chan /5__"
+	set msgBuffer [string range $msgBuffer 0 end-3]
+
+    } elseif {[string range $msgBuffer end-2 end] == "\n.\r"} {
+	# Complete terminator found. Remove it from the message buffer.
+	# Also perform an empty read to remove the missing '\n' from
+	# the channel. If we don't do this all following commands will
+	# run into off-by-one (character) problems.
+
+	::log::log debug "pop3 $chan /4__"
+	set msgBuffer [string range $msgBuffer 0 end-2]
+	while {[read $chan 1] != "\n"} {}
+
+    } elseif {[string range $msgBuffer end-1 end] == "\n."} {
 	# \n. at the end of the fast buffer.
 	# Can be	\n.\r\n	 = Terminator
 	# or		\n..\r\n = dot-stuffed single .
@@ -464,7 +509,7 @@ proc ::pop3::RetrFast {chan size} {
 	    # Terminator already found. Note that we have to
 	    # remove the partial terminator sequence from the
 	    # message buffer.
-	    ::log::log debug "pop3 $chan |3__ <$line>"
+	    ::log::log debug "pop3 $chan /3__ <$line>"
 	    set msgBuffer [string range $msgBuffer 0 end-1]
 	} else {
 	    # Append line and look for the real terminator
@@ -474,15 +519,17 @@ proc ::pop3::RetrFast {chan size} {
 		::log::log debug "pop3 $chan ____ <$line>"
 		append msgBuffer $line
 	    }
-	    ::log::log debug "pop3 $chan |2__ <$line>"
+	    ::log::log debug "pop3 $chan /2__ <$line>"
 	}
     } else {
 	while {[set line [gets $chan]] != ".\r"} {
 	    ::log::log debug "pop3 $chan ____ <$line>"
 	    append msgBuffer $line
 	}
-	::log::log debug "pop3 $chan |1__ <$line>"
+	::log::log debug "pop3 $chan /1__ <$line>"
     }
+
+    ::log::log debug "pop3 $chan done"
 
     # Map both cr+lf and cr to lf to simulate auto EOL translation, then
     # unstuff .-stuffed lines.
