@@ -76,6 +76,18 @@ Euclidean norm or the max norm.
 [list_end]
 
 [nl]
+[call [cmd ::math::linearalgebra::norm_matrix] [arg matrix] [arg type]]
+
+Returns the norm of the given matrix. The type argument can be: 1,
+2, inf or max, respectively the sum of absolute values, the ordinary
+Euclidean norm or the max norm.
+
+[list_begin arg]
+[arg_def list matrix] Matrix, list of row vectors
+[arg_def string type] Type of norm (default: 2, the Euclidean norm)
+[list_end]
+
+[nl]
 [call [cmd ::math::linearalgebra::dotproduct] [arg vect1] [arg vect2]]
 
 Determine the inproduct or dot product of two vectors. These must have
