@@ -1,3 +1,9 @@
+2003-02-05  David N. Welton  <davidw@dedasys.com>
+
+	* md5.tcl (::md5::time): Used lindex instead of regexp to fish the
+	  number out of 'time' results. Not really a performance win here,
+	  but it's good style.
+
 2003-01-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5.tcl: Handle cases where Trf is available but the md5 command
