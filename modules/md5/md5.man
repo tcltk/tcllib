@@ -22,6 +22,8 @@ as a hexadecimal string.
 The command takes a key string and a text and returns the hmac of the
 text under the chosen key as a hexadecimal string.
 
+[list_end]
+
 [section EXAMPLES]
 [para]
 
