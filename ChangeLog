@@ -1,3 +1,13 @@
+2003-04-17  Andreas Kupries  <andreask@activestate.com>
+
+	* Makefile.in: Added des to the list of modules. (That is the good
+	  thing which came out of the erroneous commit, we found this
+	  error.)
+
+	* mkIndex.tcl: Reverting accidential commit of this file. The
+	  committed state works with a changed Makefile, but not with the
+	  current one.
+
 2003-04-16  Andreas Kupries  <andreask@activestate.com>
 
 	* installer.tcl: Added 'des' to list. Reworked according to
