@@ -9,6 +9,8 @@ source [file join [file dirname [info script]] matrix.tcl]
 source [file join [file dirname [info script]] pool.tcl]
 source [file join [file dirname [info script]] record.tcl]
 source [file join [file dirname [info script]] list.tcl]
+source [file join [file dirname [info script]] prioqueue.tcl]
+source [file join [file dirname [info script]] skiplist.tcl]
 
 namespace eval ::struct {
     namespace import -force graph::*
@@ -19,5 +21,7 @@ namespace eval ::struct {
     namespace import -force pool::*
     namespace import -force record::*
     namespace import -force list::*
+    namespace import -force prioqueue::*
+    namespace import -force skiplist::*
     namespace export *
 }
