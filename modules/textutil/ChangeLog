@@ -1,3 +1,13 @@
+2003-03-27  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* textutil.man:
+	* adjust.tcl:
+	* trim.tcl:
+	* textutil.tcl: New commands: blank, chop, tail, cap, uncap,
+	  indent, trimPrefix, and trimEmptyHeading. Imported from my own
+	  Pool library. Also fixed some typos in the manpage: Superfluous
+	  closing brackets.
+
 2003-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* textutil.man: Added two new commands,
