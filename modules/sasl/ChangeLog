@@ -1,3 +1,9 @@
+2005-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sasl.test:  Added some tests.
+	* sasl.tcl:   Changed namespace and package to SASL.
+	* ntlm.tcl:   
+
 2005-01-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sasl.tcl: Initial version (DIGEST-MD5, CRAM-MD5, PLAIN, LOGIN)
