@@ -1,5 +1,14 @@
-2002-02-14  Tcl Project  <akupries@shaw.ca>
+2002-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* Update of calculus. #528434
+
+	* calculus.man: New file, calculus documentation in doctools format.
+	* calculus.test: New file, beginnings of testsuite
+
+	* calculus.CHANGES:
+	* calculus.README:
+	* calculus.tcl:
+	* pkgIndex.tcl: updated to calculus 0.3
 
 2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
