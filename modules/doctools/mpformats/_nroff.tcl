@@ -30,5 +30,7 @@ proc nr_include {file}      {return ".so $file"}
 proc nr_bolds   {}          {return .BS}
 proc nr_bolde   {}          {return .BE}
 
+proc nr_section {name}      {return ".SH \"$name\""}
+
 
 ################################################################

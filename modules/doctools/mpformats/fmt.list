@@ -10,15 +10,32 @@
 # Take the null format as a base and extend it a bit.
 dt_source fmt.null
 
+global    data
+array set data {}
+
 proc fmt_numpasses   {}     {return 1}
-proc fmt_postprocess {text} {global data ; return $data}
+proc fmt_postprocess {text} {global data ; return [list manpage [array get data]]\n}
 proc fmt_plain_text  {text} {return ""}
 proc fmt_setup       {n}    {return}
 
 proc fmt_manpage_begin {title section version} {
     global data
-    set    data [list manpage $title $section $version]\n
+    set    data(title)     $title
+    set    data(section)   $section
+    set    data(version)   $version
+    set    data(file)      [dt_file]
+    set    data(fid)       [dt_fileid]
+    set    data(module)    [dt_module]
+    set    data(desc)      ""
+    set    data(shortdesc) ""
+    set    data(keywords)  [list]
+    set    data(seealso)   [list]
     return
 }
+
+proc fmt_moddesc   {desc} {global data ; set data(shortdesc) $desc}
+proc fmt_titledesc {desc} {global data ; set data(desc)      $desc}
+proc fmt_keywords  {args} {global data ; set data(keywords)  $args}
+proc fmt_see_also  {args} {global data ; set data(seealso)   $args}
 
 ################################################################

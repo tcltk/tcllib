@@ -25,10 +25,12 @@ proc fmt_initialize {} {
     return
 }
 
-proc fmt_shutdown    {}     {return}
-proc fmt_numpasses   {}     {return 2}
-proc fmt_postprocess {text} {return $text}
-proc fmt_plain_text  {text} {return $text}
+proc fmt_shutdown      {}             {return}
+proc fmt_numpasses     {}             {return 2}
+proc fmt_postprocess   {text}         {return $text}
+proc fmt_plain_text    {text}         {return $text}
+proc fmt_listvariables {}             {return {}}
+proc fmt_varset        {varname text} {return}
 
 proc fmt_setup {n} {
     # Called to setup a pass through the input.
@@ -62,6 +64,7 @@ proc c_get_title {} {
     return $state(tdesc)
 }
 
+proc c_copyrightsymbol {} {return "(c)"}
 proc c_set_copyright {text} {global state ; lappend state(copyright) $text ; return}
 proc c_get_copyright {}     {
     global state
@@ -70,7 +73,7 @@ proc c_get_copyright {}     {
     if {$cc == {}} {set cc [dt_copyright]}
     if {$cc == {}} {return {}}
 
-    return "Copyright (c) [join $cc "\nCopyright (c) "]"
+    return "Copyright [c_copyrightsymbol] [join $cc "\nCopyright [c_copyrightsymbol] "]"
 }
 
 proc c_provenance {} {

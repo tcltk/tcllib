@@ -16,7 +16,7 @@
 # Here it comes
 
 foreach __cmd {
-    initialize shutdown setup numpasses
+    initialize shutdown setup numpasses listvariables varset
 
     manpage_begin moddesc titledesc manpage_end require description
     section para list_begin list_end lst_item call bullet enum see_also

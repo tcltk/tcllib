@@ -4,15 +4,16 @@
 #
 # Copyright (c) 2001-2003 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
-# [expand] definitions to convert a tcl based manpage definition into
-# a manpage based upon HTML markup. Additional definition files allow
-# the conversion into nroff and TMML.
+# Definitions to convert a tcl based manpage definition into
+# a manpage based upon HTML markup.
 #
 ################################################################
 ################################################################
 
 dt_source _common.tcl   ; # Shared code
 dt_source _html.tcl     ; # HTML basic formatting
+
+proc c_copyrightsymbol {} {markup "&copy;"}
 
 proc bgcolor {} {return ""}
 proc border  {} {return 0}
@@ -52,6 +53,10 @@ set    liststack [list]
 set    hintstack [list]
 set    chint     ""
 set    lmark     0
+
+global seealso  ; set seealso  [list]
+global keywords ; set keywords [list]
+
 
 proc llevel {} {global liststack ; return [llength $liststack]}
 
@@ -101,6 +106,10 @@ proc fmt_plain_text {text} {
 
 c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
+    global seealso keywords
+    set seealso {}
+    set keywords {}
+
     c_cinit
     set module      [dt_module]
     set shortdesc   [c_get_module]
@@ -108,13 +117,24 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set copyright   [c_get_copyright]
 
     set     hdr ""
-    append  hdr "[markup <html><head><title>]$title - $shortdesc [markup </title></head>]\n"
+    append  hdr "[markup <html><head>]\n"
+    append  hdr "[markup <title>]$title - $shortdesc [markup </title>]\n"
+
+    # Engine parameter - insert 'meta'
+    if {[set meta [Get meta]] != {}} {append hdr [markup $meta]\n}
+
+    append  hdr "[markup </head>]\n"
     append  hdr [ht_comment [c_provenance]]\n
     if {$copyright != {}} {
 	append  hdr [ht_comment $copyright]\n
     }
     append  hdr [ht_comment "CVS: \$Id\$ $title.$section"]\n
     append  hdr \n
+    append  hdr [markup <body>]\n
+
+    # Engine parameter - insert 'header'
+    if {[set header [Get header]] != {}} {append hdr [markup $header]\n}
+
     append  hdr "[markup <h1>] [string trimleft $title :]($section) $version $module \"$shortdesc\"[markup </h1>]\n"
     append  hdr [fmt_section NAME]\n
     append  hdr "[fmt_para] $title - $description"
@@ -132,13 +152,28 @@ c_pass 2 fmt_copyright {desc} NOP
 
 c_pass 1 fmt_manpage_end {} {c_creset ; return}
 c_pass 2 fmt_manpage_end {} {
+    global seealso keywords
+
     c_creset
     set res ""
+
+    if {[llength $seealso] > 0} {
+	append res [fmt_section {SEE ALSO}] \n
+	append res [join [XrefList $seealso sa] ", "] \n
+    }
+    if {[llength $keywords] > 0} {
+	append res [fmt_section KEYWORDS] \n
+	append res [join [XrefList $keywords kw] ", "] \n
+    }
     set copyright [c_get_copyright]
     if {$copyright != {}} {
 	append res [fmt_section COPYRIGHT] \n
 	append res [join [split $copyright \n] [tag br]\n] [tag br]\n
     }
+
+    # Engine parameter - insert 'footer'
+    if {[set footer [Get footer]] != {}} {append res [markup $footer]\n}
+
     append res [markup </body></html>]
     return $res
 }
@@ -146,7 +181,7 @@ c_pass 2 fmt_manpage_end {} {
 c_pass 1 fmt_section     {name} { set ::SectionNames($name) [c_sectionId $name] }
 c_pass 2 fmt_section     {name} {
     set id [c_sectionId $name]
-    return "[markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>]"
+    return "[markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>\n<p>]"
 }
 
 proc fmt_para {} {return [markup <p>]}
@@ -237,8 +272,17 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 ################################################################
 
-proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
-proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
+proc fmt_see_also {args} {
+    global seealso
+    foreach ref $args {lappend seealso $ref}
+    return
+}
+
+proc fmt_keywords {args} {
+    global keywords
+    foreach ref $args {lappend keywords $ref}
+    return
+}
 
 proc fmt_example_begin {} {
     lsmark 0
@@ -256,7 +300,7 @@ proc fmt_nl {} {
     return [tag br][tag br]
 }
 proc fmt_arg    {text} {return "[markup "<i class='arg'>"]$text[markup </i>]" }
-proc fmt_cmd    {text} {return "[markup "<b class='cmd'>"]$text[markup </b>]" }
+proc fmt_cmd    {text} {return "[markup "<b class='cmd'>"][XrefMatch $text sa][markup </b>]" }
 
 proc fmt_emph	{text}	{ em $text }
 
@@ -274,7 +318,7 @@ proc fmt_sectref {text} {
     	return "[markup <b>]$text[markup </b>]"
     }
 }
-proc fmt_syscmd  {text} {strong $text}
+proc fmt_syscmd  {text} {strong [XrefMatch $text sa]}
 proc fmt_method  {text} {strong $text}
 proc fmt_option  {text} {strong $text}
 proc fmt_widget  {text} {strong $text}
@@ -285,7 +329,99 @@ proc fmt_class   {text} {strong $text}
 proc fmt_var     {text} {strong $text}
 proc fmt_file    {text} {return "\"[strong $text]\""}
 proc fmt_uri     {text} {return "[markup <]a href=[markup \"]$text[markup \">]$text[markup </a>]"}
-proc fmt_term    {text} {em $text}
+proc fmt_term    {text} {em [XrefMatch $text kw]}
 proc fmt_const   {text} {strong $text}
 
 ################################################################
+
+global xref ; array set xref {}
+
+global    __var
+array set __var {
+    meta   {}
+    header {}
+    footer {}
+    xref   {}
+}
+proc Get               {varname}      {global __var ; return $__var($varname)}
+proc fmt_listvariables {}             {global __var ; return [array names __var]}
+proc fmt_varset        {varname text} {
+    global __var
+    if {![info exists __var($varname)]} {return -code error "Unknown engine variable \"$varname\""}
+    set __var($varname) $text
+    return
+}
+
+################################################################
+
+proc XrefInit {} {
+    global xref __var
+    foreach item $__var(xref) {
+	foreach {pattern fname fragment} $item break
+	set fname_ref [dt_fmap $fname]
+	if {$fragment != {}} {append fname_ref #$fragment}
+	set xref($pattern) $fname_ref
+    }
+    proc XrefInit {} {}
+    return
+}
+
+proc XrefMatch {word ext} {
+    global xref
+
+    #puts_stderr "$word $ext"
+    #foreach {k v} [array get xref] {puts_stderr "$k\t $v"}
+
+    if {$ext != {}} {
+	if {[info exists xref($ext,$word)]} {
+	    return [XrefLink $xref($ext,$word) $word]
+	}
+    }
+    if {[info exists xref($word)]} {
+	return [XrefLink $xref($word) $word]
+    }
+    return $word
+}
+
+proc XrefList {list {ext {}}} {
+    XrefInit
+    set res [list]
+    foreach w $list {lappend res [XrefMatch $w $ext]}
+    return $res
+}
+
+proc XrefLink {dest label} {
+    # Ensure that the link is properly done relative to this file!
+
+    set save $dest
+
+    #puts_stderr "XrefLink $dest $label"
+
+    set here [file split [dt_fmap [dt_file]]]
+    set dest [file split $dest]
+
+    #puts_stderr "XrefLink < $here"
+    #puts_stderr "XrefLink > $dest"
+
+    while {[string equal [lindex $dest 0] [lindex $here 0]]} {
+	set dest [lrange $dest 1 end]
+	set here [lrange $here 1 end]
+	if {[llength $dest] == 0} {break}
+    }
+    set ul [llength $dest]
+    set hl [llength $here]
+
+    if {$ul == 0} {
+	set dest [lindex [file split $save] end]
+    } else {
+	while {$hl > 1} {
+	    set dest [linsert $dest 0 ..]
+	    incr hl -1
+	}
+	set dest [eval file join $dest]
+    }
+
+    #puts_stderr "XrefLink --> $dest"
+
+    return "[markup "<a href=\"$dest\">"] $label [markup </a>]" ; # "
+}
