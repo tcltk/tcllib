@@ -1,3 +1,9 @@
+2004-07-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ip.tcl:        NEW: IP address package
+	* ip.test:       tests (ipv4 and ipv6)
+	* tcllib_ip.man: Manual page
+
 2004-06-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* spf.tcl:      NEW: Implementation of SPF using our dns package.
