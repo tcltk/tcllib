@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.21 2002/10/14 19:17:23 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.22 2003/04/03 01:50:53 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -262,6 +262,7 @@ proc ::pop3::open {args} {
     }
 
     if {[catch {::pop3::send $chan {}} errorStr]} {
+	::close $chan
 	error "POP3 CONNECT ERROR: $errorStr"
     }
 
@@ -274,9 +275,10 @@ proc ::pop3::open {args} {
     }
 
     if {[catch {
-	    ::pop3::send $chan "user $user"
-	    ::pop3::send $chan "pass $password"
-        } errorStr]} {
+	::pop3::send $chan "user $user"
+	::pop3::send $chan "pass $password"
+    } errorStr]} {
+	::close $chan
 	error "POP3 LOGIN ERROR: $errorStr"
     }
 
@@ -355,6 +357,8 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	    retr {
 		set sizeStr [::pop3::send $chan "RETR $index"]
 
+		::log::log debug "pop3 $chan retrieve ($sizeStr)"
+
 		if {[scan $sizeStr {%d %s} size dummy] < 1} {
 		    # The server did not deliver the size information.
 		    # Switch our mode to "list" and use the slow
@@ -362,12 +366,16 @@ proc ::pop3::retrieve {chan start {end -1}} {
 		    # RETR to get the size information. If even that fails
 		    # the system will fall back to slow mode all the time.
 
+		    ::log::log debug "pop3 $chan retrieve - no size information, go slow"
+
 		    set cstate(retr_mode) list
 		    set state($chan) [array get cstate]
 
 		    # Retrieve in slow motion.
 		    set msgBuffer [RetrSlow $chan]
 		} else {
+		    ::log::log debug "pop3 $chan retrieve - size information present, use fast mode"
+
 		    set msgBuffer [RetrFast $chan $size]
 		}
 	    }
@@ -420,21 +428,56 @@ proc ::pop3::RetrFast {chan size} {
     set msgBuffer [read $chan $size]
 
     foreach line [split $msgBuffer \n] {
-	::log::log debug "pop3 $chan fast $line"
+	::log::log debug "pop3 $chan fast <$line>"
     }
 
-    # We might have read not enough because of .-stuffed lines.
-    # Read the possible remainder in line by line fashion!
-    #		    
-    # get the terminating "."
-    # sometimes the gets returns nothing, 
-    # need to get the real terminating "."
+    # There is a small discrepance in counting octets we have to be
+    # aware of. 'size' is #octets before transmission, i.e. can be
+    # with one eol character, CR or LF. The channel system in binary
+    # mode counts every character, and the protocol specified CRLF as
+    # eol, so for every line in the message we read that many
+    # characters _less_. Another factor which can cause a miscount is
+    # the ".-stuffing performed by the sender. I.e. what we got now is
+    # not necessarily the complete message. We have to perform slow
+    # reads to get the remainder of the message. This has another
+    # complication. We cannot simply check for a line containing the
+    # terminating signature, simply because the point where the
+    # message was broken in two might jsut be in between the dots of a
+    # "\r\n..\r\n" sequence. We have to make sure that we do not
+    # misinterpret the second part of this sequence as terminator.
+    # Another possibility: "\r\n.\r\n" is broken just after the dot.
+    # Then we have to ensure to not to miss the terminator entirely.
 
-    while {[set line [gets $chan]] != ".\r"} {
-	::log::log debug "pop3 $chan ____ $line"
-	append msgBuffer $line
+    # Sometimes the gets returns nothing, need to get the real
+    # terminating "."
+
+    if {[string range $msgBuffer end-1 end] == "\n."} {
+	# \n. at the end of the fast buffer.
+	# Can be	\n.\r\n	 = Terminator
+	# or		\n..\r\n = dot-stuffed single .
+
+	# Idle until non-empty line encountered.
+	while {[set line [gets $chan]] == ""} {}
+	if {"$line" == "\r"} {
+	    # Terminator already found
+	    ::log::log debug "pop3 $chan |___ <$line>"
+	} else {
+	    # Append line and look for the real terminator
+	    append msgBuffer $line
+	    ::log::log debug "pop3 $chan ____ <$line>"
+	    while {[set line [gets $chan]] != ".\r"} {
+		::log::log debug "pop3 $chan ____ <$line>"
+		append msgBuffer $line
+	    }
+	    ::log::log debug "pop3 $chan |___ <$line>"
+	}
+    } else {
+	while {[set line [gets $chan]] != ".\r"} {
+	    ::log::log debug "pop3 $chan ____ <$line>"
+	    append msgBuffer $line
+	}
+	::log::log debug "pop3 $chan |___ <$line>"
     }
-    ::log::log debug "pop3 $chan ____ $line"
 
     # Map both cr+lf and cr to lf to simulate auto EOL translation, then
     # unstuff .-stuffed lines.
