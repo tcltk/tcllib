@@ -15,7 +15,7 @@
 
 namespace eval ::sasl {
     variable version 1.0.0
-    variable rcsid {$Id: sasl.tcl,v 1.1 2005/02/01 02:41:00 patthoyts Exp $}
+    variable rcsid {$Id: sasl.tcl,v 1.2 2005/02/01 16:52:35 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -237,9 +237,10 @@ proc ::sasl::CRAM-MD5:server {context clientrsp args} {
 proc ::sasl::PLAIN:client {context challenge args} {
     upvar #0 $context ctx
     incr ctx(step)
+    set authzid  [eval $ctx(callback) [list $context login]]
     set username [eval $ctx(callback) [list $context username]]
     set password [eval $ctx(callback) [list $context password]]
-    set ctx(response) "\x00$username\x00$password"
+    set ctx(response) "$login\x00$username\x00$password"
     return 0
 }
 

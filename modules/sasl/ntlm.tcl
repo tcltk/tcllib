@@ -22,7 +22,7 @@ package require md4;                    # tcllib 1.4
 namespace eval ::sasl {
     namespace eval NTLM {
         variable version 1.0.0
-        variable rcsid {$Id: ntlm.tcl,v 1.1 2005/02/01 02:41:00 patthoyts Exp $}
+        variable rcsid {$Id: ntlm.tcl,v 1.2 2005/02/01 16:52:35 patthoyts Exp $}
     }
 }
 
@@ -34,25 +34,24 @@ proc ::sasl::NTLM::NTLM {context challenge args} {
     switch -exact -- $ctx(step) {
         
         1 {
-            set ctx(ntlm_realm) [eval $ctx(callback) [list $context realm]]
-            set ctx(ntlm_host)  [info host]
-            set ctx(response)   [CreateGreeting \
-                                     $ctx(ntlm_realm) $ctx(ntlm_host)]
+            set ctx(realm) [eval [linsert $ctx(callback) end $context realm]]
+            set ctx(hostname) [eval [linsert $ctx(callback) end $context hostname]]
+            set ctx(response)   [CreateGreeting $ctx(realm) $ctx(hostname)]
             set result 1
         }
 
         2 {
             array set params [Decode $challenge]
-            set user [eval $ctx(callback) [list $context username]]
-            set pass [eval $ctx(callback) [list $context password]]
+            set user [eval [linsert $ctx(callback) end $context username]]
+            set pass [eval [linsert $ctx(callback) end $context password]]
             set ctx(response) [CreateResponse \
-                                   $ctx(ntlm_realm) $ctx(ntlm_host) \
+                                   $ctx(realm) $ctx(hostname) \
                                    $user $pass $params(nonce)]
             Decode $ctx(response)
             set result 0
         }
         default {
-            return -code error ""
+            return -code error "invalid state \"$ctx(step)"
         }
     }
     return $result
