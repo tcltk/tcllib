@@ -1,3 +1,8 @@
+2003-03-31  Andreas Kupries  <andreask@activestate.com>
+
+	* cvs.tcl (scanLog): Applied fix for Bug #712951 reported by Joe
+	  English <jenglish@users.sourceforge.net>.
+
 2003-03-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.tcl (SetupFormatter): Moved error output command to the
