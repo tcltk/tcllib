@@ -2,10 +2,10 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: nntp.n,v 1.5 2001/08/02 16:38:07 andreas_kupries Exp $
+'\" RCS: @(#) $Id: nntp.n,v 1.6 2002/01/18 20:51:16 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH nntp n 0.1 nntp "Tcl NNTP Client Library"
+.TH nntp n 0.2 nntp "Tcl NNTP Client Library"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@ nntp \- Tcl client for the NNTP protocol
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require nntp ?0.1?\fR
+\fBpackage require nntp ?0.2?\fR
 .sp
 \fB::nntp::nntp\fR \fR?\fIhost\fR? \fR?\fIport\fR? \fR?\fInntpName\fR? 
 .sp

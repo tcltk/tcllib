@@ -5,10 +5,10 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.6 2002/01/16 18:48:03 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.7 2002/01/18 20:51:16 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide nntp 0.1
+package provide nntp 0.2
 
 namespace eval ::nntp {
     # The socks variable holds the handle to the server connections

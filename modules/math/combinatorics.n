@@ -1,9 +1,9 @@
 '\" Copyright (c) 2002 by Kevin B. Kenny.  All rights reserved.
 '\"
-'\" RCS: #(@) $Id: combinatorics.n,v 1.1 2002/01/12 00:55:13 kennykb Exp $
+'\" RCS: #(@) $Id: combinatorics.n,v 1.2 2002/01/18 20:51:16 andreas_kupries Exp $
 '\"
 .so man.macros
-.TH combinatorics n 1.1 math "Tcl Math Library"
+.TH combinatorics n 1.2 math "Tcl Math Library"
 .BS
 '\" Note: do not modify the .SH NAME line immediately below
 .SH NAME
@@ -11,7 +11,7 @@ combinatorics - Combinatorial functions in the Tcl Math Library
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require math 1.1\fR
+\fBpackage require math 1.2\fR
 .sp
 \fB::math::ln_Gamma\fR \fIz\fR
 .sp

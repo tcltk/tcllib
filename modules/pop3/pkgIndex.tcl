@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded pop3 1.5 [list source [file join $dir pop3.tcl]]
+package ifneeded pop3 1.5.1 [list source [file join $dir pop3.tcl]]
