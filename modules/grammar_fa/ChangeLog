@@ -1,3 +1,15 @@
+2004-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dacceptor.man: Slight renaming of a section for better
+	  understanding.
+
+	* dexec.tcl:  New package, execution of deterministic 
+	* dexec.man:  finite automatons. Executors can do only this,
+	* dexec.test: and cannot be manipulated. Added reference
+	* fa.man:     to this package to the FA documenation.
+	* tests/de_cons.test:
+	* tests/de_exec.test:
+
 2004-04-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.tcl:  New package, deterministic acceptors
