@@ -1,8 +1,8 @@
-[manpage_begin textutil n 0.6]
+[manpage_begin textutil n 0.6.1]
 [moddesc   {Texts and strings utils}]
 [titledesc {Procedures to manipulate texts and strings.}]
 [require Tcl 8.2]
-[require textutil [opt 0.6]]
+[require textutil [opt 0.6.1]]
 [description]
 
 The [package textutil] package provides commands that manipulate
