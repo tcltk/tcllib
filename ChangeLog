@@ -1,5 +1,9 @@
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
+	* install.tcl: Changed to notify the user if the directory to
+	  install is not a source distribution but a CVS snapshot. Right
+	  now a direct installation of a CVS snapshot is not possible.
+
 	* Fixed bug #614591 throughout. Numerous modules updated. Also
 	  first round of getting version number consistents, and updated
 	  for a 1.4 release of the whole.
