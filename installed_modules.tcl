@@ -34,6 +34,7 @@ foreach {m pkg doc exa} {
     ftpd	_tcl  _man _exa
     html	_tcl  _man  _null
     htmlparse	_tcl  _man  _null
+    inifile     _tcl  _man  _null
     irc		_tcl  _man _exa
     javascript	_tcl  _man  _null
     log		_tcl  _man  _null
