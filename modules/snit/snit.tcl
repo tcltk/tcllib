@@ -28,6 +28,7 @@ namespace eval ::snit:: {
 
     # If true, get a pretty, fixed-up stack trace.  Otherwise, get raw
     # stack trace.
+    # NOTE: Not Yet Implemented
     variable prettyStackTrace 1
 
     # The elements of defs are standard methods and typemethods; it's
@@ -98,6 +99,7 @@ namespace eval ::snit:: {
         }
 
         method cget {option} {
+            # TBD: Consider using a cget command cache.
             typevariable Snit_optiondefaults
             typevariable Snit_delegatedoptions
             typevariable Snit_info
@@ -120,7 +122,7 @@ namespace eval ::snit:: {
             }
             
             # Get the component's object.
-            set obj [Snit_component $selfns $comp]
+            set obj [snit::Component $type $selfns $comp]
 
             # TBD: I'll probably want to fix up certain error
             # messages, but I'm not sure how yet.
@@ -151,7 +153,7 @@ namespace eval ::snit:: {
                 }
 
                 # Get the component's object
-                set obj [Snit_component $selfns $comp]
+                set obj [snit::Component $type $selfns $comp]
                     
                 $obj configure $target $value
             }
@@ -341,7 +343,6 @@ namespace eval ::snit:: {
         typemethod create {name args} {
             typevariable Snit_info
             typevariable Snit_optiondefaults
-            typevariable Snit_optiondbspec
             typevariable Snit_isWidgetAdaptor
 
             # FIRST, if %AUTO% appears in the name, generate a unique 
@@ -398,7 +399,7 @@ namespace eval ::snit:: {
                 eval Snit_constructor %TYPE% $selfns [list $name] \
                     [list $name] $args
 
-                Snit_component $selfns hull
+                snit::Component %TYPE% $selfns hull
 
                 # Prepare to call the object's destructor when the
                 # <Destroy> event is received.  Use a Snit-specific bindtag
@@ -495,7 +496,7 @@ namespace eval ::snit:: {
                 # Next, delete the hull component's instance command,
                 # if there is one.
                 if {$Snit_isWidget} {
-                    set hullcmd [Snit_component $selfns hull]
+                    set hullcmd [snit::Component %TYPE% $selfns hull]
                 
                     catch {rename $instance ""}
 
@@ -513,18 +514,6 @@ namespace eval ::snit:: {
             # Next, delete the instance's namespace.  This kills any
             # instance variables.
             namespace delete $selfns
-        }
-
-        # Retrieves the object name given the component name.
-        proc  %TYPE%::Snit_component {selfns name} {
-            upvar ${selfns}::Snit_components Snit_components
-            upvar ${selfns}::Snit_instance self
-
-            if {![info exists Snit_components($name)]} {
-                error "component '$name' is undefined in %TYPE% $self."
-            }
-
-            return $Snit_components($name)
         }
 
         # Retrieves an option's value from the option database
@@ -2063,9 +2052,18 @@ proc ::snit::UniqueInstanceNamespace {countervar type} {
 #-----------------------------------------------------------------------
 # Component Management
 
+# Retrieves the object name given the component name.
+proc  snit::Component {type selfns name} {
+    variable ${selfns}::Snit_components
 
+    if {[catch {set Snit_components($name)} result]} {
+        variable ${selfns}::Snit_instance
 
-
+        error "component '$name' is undefined in $type $Snit_instance."
+    }
+    
+    return $result
+}
 
 #-----------------------------------------------------------------------
 # Method/Variable Name Qualification
