@@ -1,3 +1,9 @@
+2003-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/des: Imported and tcllib-ised the DES package
+	from wiki page "DES in Tcl" by Jochen Loewer. NOT added to the
+	main package list as it requires CBC/CFB/OFB modes for real use.
+
 2003-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* More doctools changes: Command [strong] is deprecated now. Added
