@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.11 2005/02/23 15:19:52 patthoyts Exp $
+# RCS: @(#) $Id: md5x.test,v 1.12 2005/02/24 03:25:49 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -32,36 +32,45 @@ if {[catch {source [file join [file dirname [info script]] md5x.tcl]} msg]} {
 # Setup any constraints
 #
 
-array set preserve [array get ::md5::accel]
-
-proc have_accel {} {
-    foreach {e v} [array get ::md5::accel] { if {$v} {return 1} }
-    return 0
-}
-
-proc set_no_accel {} {
-    foreach e [array names ::md5::accel] { set ::md5::accel($e) 0 }
-}
-
-proc reset_accel {} {
-    array set ::md5::accel [array get ::preserve]
-}
-
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {$::md5::accel(critcl)} {
+if {[::md5::LoadAccelerator critcl]} {
     puts "- md5 [package present md5] (critcl based)"
 }
-if {$::md5::accel(cryptkit)} {
+if {[::md5::LoadAccelerator cryptkit]} {
     puts "- md5 [package present md5] (cryptkit based)"
 }
-if {$::md5::accel(trf)} {
+if {[::md5::LoadAccelerator trf]} {
     puts "- md5 [package present md5] (Trf based)"
 }
 puts "- md5 [package present md5] (pure Tcl)"
 
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::md5::accel]
+
+proc implementations {} {
+    variable ::md5::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::md5::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::md5::accel
+    array set accel [array get ::preserve]
+}
 
 # -------------------------------------------------------------------------
 
@@ -100,20 +109,14 @@ set tests {
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "57EDF4A22BE3C955AC49DA2E2107B67A"
 }
-foreach {n msg expected} $tests {
-    test md5-2.$n {md5} {
-	list [catch {::md5::md5 -hex -- $msg} msg] $msg
-    } [list 0 $expected]
-}
-
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n msg expected} $tests {
-        test md5-tcl-2.$n {md5 pureTcl implementation} {
-            list [catch {::md5::md5 -hex $msg} msg] $msg
+        test md5-$impl-2.$n "md5 ($impl impl)" {
+            list [catch {::md5::md5 -hex -- $msg} msg] $msg
         } [list 0 $expected]
     }
-    reset_accel
+    reset_implementation
 }
 
 set vectors {
@@ -132,20 +135,14 @@ set vectors {
    12 "a"    "-"     "A9DD01C469578DCD4220600667DF6FFB"
 } 
 
-foreach {n key text expected} $vectors {
-    test md5-3.$n {hmac} {
-	list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
-    } [list 0 $expected]
-}
-
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n key text expected} $vectors {
-        test md5-tcl-4.$n {md5 pureTcl hmac implementation} {
+        test md5-$impl-3.$n "hmac ($impl impl)" {
             list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
         } [list 0 $expected]
     }
-    reset_accel
+    reset_implementation
 }
 
 # -------------------------------------------------------------------------
@@ -174,20 +171,14 @@ set vectors \
          "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data" \
          6F630FAD67CDA0EE1FB1F562DB3AA53E \
         ]
-foreach {n key msg hash} $vectors {
-    test md5-5.$n {RFC2202 test vectors for HMAC-MD5} {
-        ::md5::hmac -hex -key $key -- $msg
-    } $hash
-}
 
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n key msg hash} $vectors {
-        test md5-tcl-5.$n {RFC2202 test vectors for HMAC-MD5 (tcl impl)} {
+        test md5-$impl-4.$n "RFC2202 test vectors for HMAC-MD5 ($impl)" {
             ::md5::hmac -hex -key $key -- $msg
         } $hash
     }
-    reset_accel
 }
 
 # -------------------------------------------------------------------------

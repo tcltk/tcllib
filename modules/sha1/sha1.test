@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1.test,v 1.8 2005/02/23 00:55:47 patthoyts Exp $
+# RCS: @(#) $Id: sha1.test,v 1.9 2005/02/24 03:25:51 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -32,36 +32,47 @@ if {[catch {source [file join [file dirname [info script]] sha1.tcl]} msg]} {
 # Setup any constraints
 #
 
-array set preserve [array get ::sha1::extn]
-
-proc have_extn {} {
-    foreach {e v} [array get ::sha1::extn] { if {$v} {return 1} }
-    return 0
-}
-
-proc set_no_extn {} {
-    foreach e [array names ::sha1::extn] { set ::sha1::extn($e) 0 }
-}
-
-proc reset_extn {} {
-    array set ::sha1::extn [array get ::preserve]
-}
-
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {$::sha1::extn(critcl)} {
+if {[::sha1::LoadAccelerator critcl]} {
     puts "- sha1 [package present sha1] (critcl based)"
 }
-if {$::sha1::extn(cryptkit)} {
+if {[::sha1::LoadAccelerator cryptkit]} {
     puts "- sha1 [package present sha1] (cryptkit based)"
 }
-if {$::sha1::extn(trf)} {
+if {[::sha1::LoadAccelerator trf]} {
     puts "- sha1 [package present sha1] (Trf based)"
 }
 puts "- sha1 [package present sha1] (pure Tcl)"
 
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::sha1::accel]
+
+proc implementations {} {
+    variable ::sha1::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::sha1::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::sha1::accel
+    array set accel [array get ::preserve]
+}
+
+# -------------------------------------------------------------------------
 
 test sha1-1.0 {sha1} {
     catch {::sha1::sha1} result
@@ -84,22 +95,15 @@ set vectors {
     2 "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
     "84983e441c3bd26ebaae4aa1f95129e5e54670f1"
 }
-foreach {n msg expected} $vectors {
-    test sha1-2.$n {sha1} {
-	::sha1::sha1 $msg
-    } $expected ; # {}
-}
-
-if {[have_extn]} {
-    set_no_extn
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n msg expected} $vectors {
-        test sha1-tcl-2.$n {sha1 (pure tcl)} {
-            ::sha1::sha1 $msg
-        } $expected ; # {}
+        test sha1-$impl-2.$n "sha1 ($impl impl)" {
+            list [catch {::sha1::sha1 $msg} r] $r
+        } [list 0 $expected]
     }
-    reset_extn
+    reset_implementation
 }
-
 
 set vectors {
     1 ""     ""      "fbdb1d1b18aa6c08324b7d64b71fb76370690e1d"
@@ -113,20 +117,14 @@ set vectors {
     9 "01234567abcdefgh01234567abcdefgh01234567abcdefgh01234567abcdefgh==" "hello world"
     "dd80c541f75064d70e53a6b7b0a45210127f484e"
 }
-foreach {n key text expected} $vectors {
-    test sha1-3.$n {hmac} {
-	::sha1::hmac $key $text
-    } $expected ; # {}
-}
-
-if {[have_extn]} {
-    set_no_extn
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n key text expected} $vectors {
-        test sha1-tcl-3.$n {hmac (pure tcl)} {
-            ::sha1::hmac $key $text
-        } $expected ; # {}
+        test sha1-$impl-3.$n "hmac ($impl impl)" {
+            list [catch {::sha1::hmac $key $text} r] $r
+        } [list 0 $expected]
     }
-    reset_extn
+    reset_implementation
 }
 
 # -------------------------------------------------------------------------
@@ -155,21 +153,16 @@ set vectors \
          "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data" \
          e8e99d0f45237d786d6bbaa7965c7808bbff1a91 \
         ]
-foreach {n key msg hash} $vectors {
-    test sha1-4a.$n {RFC2202 test vectors for HMAC-SHA1} {
-        ::sha1::hmac $key $msg
-    } $hash
-}
 
-if {[have_extn]} {
-    set_no_extn
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n key msg hash} $vectors {
-        test sha1-tcl-4.$n {RFC2202 test vectors for HMAC-SHA1 pure-Tcl} {
-            ::sha1::hmac $key $msg
-        } $hash
+        test sha1-$impl-4a.$n "RFC2202 test vectors for HMAC-SHA1 ($impl)" {
+            list [catch {::sha1::hmac $key $msg} r] $r
+        } [list 0 $hash]
     }
-    reset_extn
-}    
+    reset_implementation
+}
 
 # -------------------------------------------------------------------------
 
