@@ -416,7 +416,7 @@ proc ncgi::value {key {default {}}} {
     variable contenttype
     if {[info exists value($key)]} {
 	if {$listRestrict} {
-	    
+
 	    # ncgi::input was called, and it already figured out if the
 	    # user wants list structure or not.
 
@@ -428,7 +428,7 @@ proc ncgi::value {key {default {}}} {
 	    set val [lindex $value($key) 0]
 	}
 	if {[string match multipart/* [ncgi::type]]} {
-	    
+
 	    # Drop the meta-data information associated with each part
 
 	    set val [lindex $val 1]
@@ -503,7 +503,15 @@ proc ncgi::setValueList {key valuelist} {
     if {![info exist value($key)]} {
 	lappend varlist $key
     }
-    set value($key) $valuelist
+
+    # This if statement is a workaround for another hack in
+    # ncgi::value that treats multipart form data
+    # differently.
+    if {[string match multipart/* [ncgi::type]]} {
+	set value($key) [list [list {} [join $valuelist]]]
+    } else {
+	set value($key) $valuelist
+    }
     return ""
 }
 
