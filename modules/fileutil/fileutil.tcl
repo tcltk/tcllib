@@ -8,9 +8,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.16 2002/10/28 17:22:34 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.17 2003/01/29 06:51:29 davidw Exp $
 
-package require Tcl 8
+package require Tcl 8.2
 package require cmdline
 package provide fileutil 1.4
 
@@ -515,7 +515,7 @@ proc ::fileutil::fileType {filename} {
         fconfigure $fid -buffersize 1024
         fconfigure $fid -buffering full
         set test [ read $fid 1024 ]
-        ::close $fid 
+        ::close $fid
     } err ] } {
         catch { ::close $fid }
         return -code error "::fileutil::fileType: $err"
@@ -532,35 +532,35 @@ proc ::fileutil::fileType {filename} {
         lappend type script $terp
     } elseif { $binary && [ regexp {^[\x7F]ELF} $test ] } {
         lappend type executable elf
-    } elseif { $binary && [ regexp {^BZh91AY\&SY} $test ] } {
+    } elseif { $binary && [string match "BZh91AY\&SY*" $test] } {
         lappend type compressed bzip
-    } elseif { $binary && [ regexp {^\x1f\x8b} $test ] } {
+    } elseif { $binary && [string match "\x1f\x8b*" $test] } {
         lappend type compressed gzip
-    } elseif { $binary && [ regexp {^GIF} $test ] } {
+    } elseif { $binary && [string match "GIF*" $test] } {
         lappend type graphic gif
-    } elseif { $binary && [ regexp {^\x89PNG} $test ] } {
+    } elseif { $binary && [string match "\x89PNG*" $test] } {
         lappend type graphic png
-    } elseif { $binary && [ regexp {^\xFF\xD8\xFF\xE0\x00\x10JFIF} $test ] } {
+    } elseif { $binary && [string match "\xFF\xD8\xFF\xE0\x00\x10JFIF*" $test] } {
         lappend type graphic jpeg
-    } elseif { $binary && [ regexp {^MM\x00\*} $test ] } {
+    } elseif { $binary && [string match "MM\x00\**" $test] } {
         lappend type graphic tiff
-    } elseif { $binary && [ regexp {^\%PDF\-} $test ] } {
+    } elseif { $binary && [string match "\%PDF\-*" $test] } {
         lappend type pdf
-    } elseif { ! $binary && [ regexp -nocase {\<html\>} $test ] } {
+    } elseif { ! $binary && [string match -nocase "*\<html\>*" $test] } {
         lappend type html
-    } elseif { [ regexp {^\%\!PS\-} $test ] } {
+    } elseif { [string match "\%\!PS\-*" $test] } {
        lappend type ps
-       if { [ regexp { EPSF\-} $test ] } {
+       if { [string match "* EPSF\-*" $test] } {
            lappend type eps
        }
-    } elseif { [ regexp -nocase {\<\?xml} $test ] } {
+    } elseif { [string match -nocase "*\<\?xml*" $test] } {
         lappend type xml
         if { [ regexp -nocase {\<\!DOCTYPE\s+(\S+)} $test -> doctype ] } {
             lappend type $doctype
         }
-    } elseif { [ regexp {BEGIN PGP MESSAGE} $test ] } {
+    } elseif { [string match {*BEGIN PGP MESSAGE*} $test] } {
         lappend type message pgp
-    } elseif { $binary && [ regexp {^IGWD} $test ] } {
+    } elseif { $binary && [string match {IGWD*} $test] } {
         lappend type gravity_wave_data_frame
     }    
     ;## lastly, is it a link?
