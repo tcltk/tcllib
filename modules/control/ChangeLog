@@ -69,6 +69,8 @@
 	* rswitch.tcl: checked in Don's usenet posted implementation
 	* rswitch.test: some tests for the rswitch.tcl command.
 
+RELEASE 0: bundled with tcllib 1.1
+
 2001-08-21  Don Porter <dgp@users.sourceforge.net>
 
 	* control.tcl:
