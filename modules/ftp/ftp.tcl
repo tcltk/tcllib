@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.4 2000/07/09 20:18:54 kuchler Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.5 2000/08/11 01:24:34 kuchler Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -1585,6 +1585,10 @@ proc ftp::Get {s source {dest ""}} {
 
     if { $dest == "" } {
         set dest $source
+    } else {
+        if {[file isdirectory $dest]} {
+            set dest [file join $dest [file tail $source]]
+        }
     }
 
     set ftp(RemoteFilename) $source
@@ -1794,11 +1798,18 @@ proc ftp::Quote {s args} {
 # 1 - 			OK
 
 proc ftp::Close {s } {
+    variable connections
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
         DisplayMsg $s "Not connected!" error
         return 0
+    }
+
+    if {[info exists \
+            connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid)]} {
+        unset connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid)
+        unset connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost))
     }
 
     set ftp(State) quit
@@ -1809,6 +1820,22 @@ proc ftp::Close {s } {
 
     catch {close $ftp(CtrlSock)}
     catch {unset ftp}
+}
+
+proc ftp::LazyClose {s } {
+    variable connections
+    upvar ::ftp::ftp$s ftp
+
+    if { ![info exists ftp(State)] } {
+        DisplayMsg $s "Not connected!" error
+        return 0
+    }
+
+    if {[info exists connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost))]} {
+        set connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid) \
+                [after 5000 [list ftp::Close $s]]
+    }
+    return
 }
 
 #############################################################################
@@ -1845,6 +1872,7 @@ proc ftp::Open {server user passwd args} {
     variable DEBUG 
     variable VERBOSE
     variable serial
+    variable connections
 
     set s $serial
     incr serial
@@ -1903,6 +1931,13 @@ proc ftp::Open {server user passwd args} {
         DisplayMsg $s "  no option"
     }
 
+    if {[info exists \
+            connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid)]} {
+        after cancel $connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid)
+        return $connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost))
+    }
+
+
     # No call of StateHandler is required at this time.
     # StateHandler at first time is called automatically
     # by a fileevent for the control channel.
@@ -1918,13 +1953,13 @@ proc ftp::Open {server user passwd args} {
     if { [WaitOrTimeout $s] } {
         # default type is binary
         Type $s binary
+        set connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost)) $s
         return $s
     } else {
         # close connection if not logged in
         Close $s
         return -1
     }
-    return $s;
 }
 
 #############################################################################
