@@ -11,8 +11,9 @@
 # lets you have trees of services, that inherit from one another.
 # This is accomplished through the use of Tcl namespaces.
 
-package provide logger 0.5
+
 package require Tcl 8.2
+package provide logger 0.5
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -23,6 +24,21 @@ namespace eval ::logger {
 
     # The log 'levels'.
     variable levels [list debug info notice warn error critical]
+}
+
+# ::logger::_nsExists --
+#
+#   Workaround for missing namespace exists in Tcl 8.2 and 8.3.
+#
+
+if {[package vcompare [package provide Tcl] 8.4] < 0} {
+    proc ::logger::_nsExists {ns} {
+        catch {namespace parent $ns}
+    }
+} else {
+    proc ::logger::_nsExists {ns} {
+        namespace exists $ns
+    }
 }
 
 # ::logger::walk --
@@ -587,10 +603,11 @@ proc ::logger::import {args} {
     } else {
         set importns ${localns}::$ns
     }    
-    
-    if {![namespace exists $importns]} {
+
+    # fake namespace exists for Tcl 8.2 - 8.3
+    if {![_nsExists $importns]} {
         namespace eval $importns {}
-    }
+    } 
 
     
     #
@@ -615,3 +632,5 @@ proc ::logger::import {args} {
         interp alias {} $target {} $source
     }
 }
+
+
