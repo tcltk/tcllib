@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.3 2003/05/16 21:47:50 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.4 2003/05/21 05:33:20 andreas_kupries Exp $}]
 [manpage_begin list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -412,7 +412,7 @@ An empty list will be returned if no [arg size] arguments are present.
 }]
 
 
-[call [cmd ::struct::list] [method dbJoin] [opt [option -inner]|[option -left]|[option -right]|[option -full]] \{[arg keycol] [arg table]\}...]
+[call [cmd ::struct::list] [method dbJoin] [opt [option -inner]|[option -left]|[option -right]|[option -full]] [opt "[option -keys] [arg varname]"] \{[arg keycol] [arg table]\}...]
 
 The method performs a table join according to relational algebra. The
 execution of any of the possible outer join operation is triggered by
@@ -421,6 +421,16 @@ the presence of either option [option -left], [option -right], or
 join will be performed. This can also be triggered by specifying
 [option -inner]. The various possible join operations are explained in
 detail in section [sectref {TABLE JOIN}].
+
+[nl]
+
+If the [option -keys] is present its argument is the name of a
+variable to store the full list of found keys into. Depending on the
+exact nature of the input table and the join mode the output table may
+not contain all the keys by default. In such a case the caller can
+declare a variable for this information and then insert it into the
+output table on its own, as she will have more information about the
+placement than this command.
 
 [nl]
 
@@ -454,7 +464,7 @@ the input [arg table]s.
 
 
 
-[call [cmd ::struct::list] [method dbJoinKeyed] [opt [option -inner]|[option -left]|[option -right]|[option -full]] [arg table]...]
+[call [cmd ::struct::list] [method dbJoinKeyed] [opt [option -inner]|[option -left]|[option -right]|[option -full]] [opt "[option -keys] [arg varname]"] [arg table]...]
 
 The operations performed by this method are the same as described
 above for [method dbJoin]. The only difference is in the specification
