@@ -1,3 +1,7 @@
+2003-10-22  David N. Welton  <davidw@dedasys.com>
+
+	* irc.tcl (network): Fixed usage of eval - thanks to Jeff Hobbs.
+
 2003-07-27 Aaron Faupell <afaupell@users.sourceforge.net>
 	* irc.tcl removed catch around socket creation
 
