@@ -1,5 +1,7 @@
 #! /bin/sh
-#
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
 # tk_smtpdMIME -Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Simple test of the mail server. All incoming messages are displayed in a 
@@ -20,12 +22,11 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the file 'license.terms' for
 # more details.
 # -------------------------------------------------------------------------
-# \
-exec wish "$0" ${1+"$@"}
 
+package require Tcl 8.3
+package require Tk
 package require smtpd
 package require mime
-package require Tk
 wm withdraw .
 set _dlgid 0
 
