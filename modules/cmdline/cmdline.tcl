@@ -8,7 +8,7 @@
 # Copyright (c) 1998 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.3 2000/04/07 16:35:43 ericm Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.4 2000/05/04 06:01:07 welch Exp $
 
 package provide cmdline 1.1
 namespace eval cmdline {
@@ -33,31 +33,32 @@ source [file join [file dirname [info script]] typedCmdline.tcl]
 #	optstring	A list of command options that the application
 #			will accept.  If the option ends in ".arg" the
 #			getopt routine will use the next argument as 
-#			an argument to the option.
-#	optVar		Upon success, the variable pointed to by optVar
+#			an argument to the option.  Otherwise the option	
+#			is a boolean that is set to 1 if present.
+#	optVar		The variable pointed to by optVar
 #			contains the option that was found (without the
-#			leading '-' and without the .arg extension).  If
-#			getopt fails the variable is filled with an error
-#			message.
-#	argVar		Upon success, the variable pointed to by argVar
-#			contains the argument for the specified option.
-#			If getopt fails, the argVar is filled with an
+#			leading '-' and without the .arg extension).
+#	valVar		Upon success, the variable pointed to by valVar
+#			contains the value for the specified option.
+#			This value comes from the command line for .arg
+#			options, otherwise the value is 1.
+#			If getopt fails, the valVar is filled with an
 #			error message.
 #
 # Results:
 # 	The getopt function returns 1 if an option was found, 0 if no more
 # 	options were found, and -1 if an error occurred.
 
-proc cmdline::getopt {argvVar optstring optVar argVar} {
+proc cmdline::getopt {argvVar optstring optVar valVar} {
     upvar 1 $argvVar argsList
 
-    upvar 1 $optVar retvar
-    upvar 1 $argVar optarg
+    upvar 1 $optVar option
+    upvar 1 $valVar value
 
     # default settings for a normal return
-    set optarg ""
-    set retvar ""
-    set retval 0
+    set value ""
+    set option ""
+    set result 0
 
     # check if we're past the end of the args list
     if {[llength $argsList] != 0} {
@@ -70,34 +71,32 @@ proc cmdline::getopt {argvVar optstring optVar argVar} {
 	    }
 
 	    "-*" {
-		set opt [string range $arg 1 end]
+		set option [string range $arg 1 end]
 
-		if {[lsearch -exact $optstring $opt] != -1} {
-		    set retvar $opt
-		    set retval 1
+		if {[lsearch -exact $optstring $option] != -1} {
+		    # Booleans are set to 1 when present
+		    set value 1
+		    set result 1
 		    set argsList [lrange $argsList 1 end]
-		} elseif {[lsearch -exact $optstring "$opt.arg"] != -1} {
-		    set retvar $opt
-		    set retval 1
+		} elseif {[lsearch -exact $optstring "$option.arg"] != -1} {
+		    set result 1
 		    set argsList [lrange $argsList 1 end]
 		    if {[llength $argsList] != 0} {
-			set optarg [lindex $argsList 0]
+			set value [lindex $argsList 0]
 			set argsList [lrange $argsList 1 end]
 		    } else {
-			set optarg "Option requires an argument -- $opt"
-			set retvar $optarg
-			set retval -1
+			set value "Option \"$option\" requires an argument"
+			set result -1
 		    }
 		} else {
-		    set optarg "Illegal option -- $opt"
-		    set retvar $optarg
-		    set retval -1
+		    set value "Illegal option \"$option\""
+		    set result -1
 		}
 	    }
 	}
     }
 
-    return $retval
+    return $result
 }
 
 # cmdline::getoptions --
@@ -133,10 +132,12 @@ proc cmdline::getoptions {arglistVar optlist {usage options:}} {
 	if {[regsub .arg$ $name {} name] == 1} {
 
 	    # Set defaults for those that take values.
-	    # Booleans are set just by being present, or not
 
 	    set default [lindex $opt 1]
 	    set result($name) $default
+	} else {
+	    # The default for booleans is false
+	    set result($name) 0
 	}
     }
     set argc [llength $argv]
