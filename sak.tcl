@@ -342,12 +342,14 @@ proc xxcopy {src dest recurse {pattern *}} {
         set base [file tail $file]
 	set sub  [file join $dest $base]
 
-	# Exclude CVS automatically, and possibly the temp hierarchy
-	# itself too.
+	# Exclude CVS, SCCS, ... automatically, and possibly the temp
+	# hierarchy itself too.
 
-	if {0 == [string compare CVS $base]} {continue}
-	if {[string match tcllib-*   $base]} {continue}
-	if {[string match *~         $base]} {continue}
+	if {0 == [string compare CVS       $base]} {continue}
+	if {0 == [string compare SCCS      $base]} {continue}
+	if {0 == [string compare BitKeeper $base]} {continue}
+	if {[string match tcllib-*         $base]} {continue}
+	if {[string match *~               $base]} {continue}
 
         if {[file isdirectory $file]} then {
 	    if {$recurse} {
@@ -469,7 +471,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.24 2004/01/25 07:29:21 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.25 2004/02/14 05:59:20 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -830,13 +832,13 @@ proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 
 
 proc gd-gen-packages {} {
-    global tcllib_version
+    global tcllib_version distribution
 
     set P [file join $distribution PACKAGES]
     file copy -force $P $P.LAST
     set f [open $P w]
-    puts "@@ RELEASE $tcllib_version"
-    puts ""
+    puts $f "@@ RELEASE $tcllib_version"
+    puts $f ""
 
     array set packages {}
     foreach {p v} [ipackages] {
@@ -951,10 +953,10 @@ proc __help {} {
         gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
         yml      - Generate a YAML description file.
 
-	release  - Marks the current state of all files as a new
-	           release. This updates all ChangeLog's, regenerates
-	           the contents of PACKAGES, and generates
-	           DESCRIPTION.txt, YAML, RPM spec, etc.
+	release name sf-user-id
+	         - Marks the current state of all files as a new
+	           release. This updates all ChangeLog's, and
+	           regenerates the contents of PACKAGES
 
 	rstatus  - Determines the status of the code base with regard
 	           to the last release.
@@ -1386,6 +1388,7 @@ proc __gendist {} {
     gd-tip55
     gd-gen-rpmspec
     gd-gen-tap
+    gd-gen-yml
     gd-assemble
     gd-gen-archives
 
@@ -1426,13 +1429,39 @@ proc __rpmspec {} {
 
 
 proc __release {} {
-    # Regenerate spec, yaml, description, ...
-    # Regenerate PACKAGES
+    # Regenerate PACKAGES, and extend
 
-    gd-tip55
-    gd-gen-rpmspec
-    gd-gen-tap
-    gd-gen-yml
+    global argv argv0 distribution tcllib_version
+
+    if {[llength $argv] != 2} {
+	puts stderr "$argv0: wrong#args: release name sf-user-id"
+	exit 1
+    }
+
+    foreach {name sfuser} $argv break
+    set email "<${sfuser}@users.sourceforge.net>"
+
+    set notice "[clock format [clock seconds] -format "%Y-%m-%d"]  $name  $email
+
+	*
+	* Released and tagged Tcllib $tcllib_version ========================
+	* 
+
+"
+
+    set logs [list [file join $distribution ChangeLog]]
+    foreach m [modules] {
+	set m [file join $distribution modules $m ChangeLog]
+	if {![file exists $m]} continue
+	lappend logs $m
+    }
+
+    foreach f $logs {
+	puts "\tAdding release notice to $f"
+	set fh [open $f r] ; set data [read $fh] ; close $fh
+	set fh [open $f w] ; puts -nonewline $fh $notice$data ; close $fh
+    }
+
     gd-gen-packages
     return
 }

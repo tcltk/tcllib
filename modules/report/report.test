@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: report.test,v 1.5 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: report.test,v 1.6 2004/02/14 05:59:21 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -51,17 +51,17 @@ test report-1.1 {styles introspection} {
 test report-2.0 {style definition errors} {
     catch {::report::defstyle} result
     set result
-} [tcltest::getErrorMessage "::report::defstyle" "styleName arguments body" 0]
+} [tcltest::wrongNumArgs "::report::defstyle" "styleName arguments body" 0]
 
 test report-2.1 {style definition error} {
     catch {::report::defstyle foo} result
     set result
-} [tcltest::getErrorMessage "::report::defstyle" "styleName arguments body" 1]
+} [tcltest::wrongNumArgs "::report::defstyle" "styleName arguments body" 1]
 
 test report-2.2 {style definition errors} {
     catch {::report::defstyle foo {}} result
     set result
-} [tcltest::getErrorMessage "::report::defstyle" "styleName arguments body" 2]
+} [tcltest::wrongNumArgs "::report::defstyle" "styleName arguments body" 2]
 
 test report-2.3 {style definition errors} {
     catch {::report::defstyle foo {} {} bla} result
@@ -96,7 +96,7 @@ test report-2.7 {style definition error} {
 test report-3.0 {style deletion errors} {
     catch {::report::rmstyle} result
     set result
-} [tcltest::getErrorMessage "::report::rmstyle" "styleName" 0]
+} [tcltest::wrongNumArgs "::report::rmstyle" "styleName" 0]
 
 test report-3.1 {style deletion errors} {
     catch {::report::rmstyle plain} result
@@ -112,7 +112,7 @@ test report-3.2 {style deletion errors} {
 test report-4.0 {style introspection error} {
     catch {::report::stylearguments} result
     set result
-} [tcltest::getErrorMessage "::report::stylearguments" "styleName" 0]
+} [tcltest::wrongNumArgs "::report::stylearguments" "styleName" 0]
 
 test report-4.1 {style introspection error} {
     catch {::report::stylearguments foo} result
@@ -122,7 +122,7 @@ test report-4.1 {style introspection error} {
 test report-4.2 {style introspection error} {
     catch {::report::stylebody} result
     set result
-} [tcltest::getErrorMessage "::report::stylebody" "styleName" 0]
+} [tcltest::wrongNumArgs "::report::stylebody" "styleName" 0]
 
 test report-4.3 {style introspection error} {
     catch {::report::stylebody foo} result
@@ -223,7 +223,7 @@ test report-5.3 {style application errors} {
     set result
 } {no value given for parameter "a" to style "foo"}
 
-# [tcltest::getErrorMessage "foo" "a b" 0]
+# [tcltest::wrongNumArgs "foo" "a b" 0]
 
 test report-5.4 {style application errors} {
     ::report::defstyle foo {a b} {}
@@ -273,7 +273,7 @@ test report-5.6 {style application} {
 test report-6.0 {report errors} {
     catch {report myreport} msg
     set msg
-} [tcltest::getErrorMessage "report" "name columns args" 1]
+} [tcltest::wrongNumArgs "report" "name columns args" 1]
 
 test report-6.1 {report errors} {
     catch {report myreport -5} msg
@@ -360,7 +360,7 @@ test report-10.0 {column sizes} {
     catch {myreport size} result
     myreport destroy
     set result
-} [tcltest::getErrorMessage "::report::_size" "name column ?size?" 1]
+} [tcltest::wrongNumArgs "::report::_size" "name column ?size?" 1]
 
 test report-10.1 {column sizes} {
     report myreport 3
@@ -482,7 +482,7 @@ test report-12.0 {padding} {
     catch {myreport pad} result
     myreport destroy
     set result
-} [tcltest::getErrorMessage "::report::_pad" "name column ?where? ?string?" 1]
+} [tcltest::wrongNumArgs "::report::_pad" "name column ?where? ?string?" 1]
 
 test report-12.1 {padding} {
     report myreport 3
@@ -537,7 +537,7 @@ test report-13.0 {justification} {
     catch {myreport justify} result
     myreport destroy
     set result
-} [tcltest::getErrorMessage "::report::_justify" "name column ?jvalue?" 1]
+} [tcltest::wrongNumArgs "::report::_justify" "name column ?jvalue?" 1]
 
 test report-13.1 {justification} {
     report myreport 3
@@ -607,7 +607,7 @@ foreach {n template} {
 	catch [list myreport $template] result
 	myreport destroy
 	set result
-    } [tcltest::getErrorMessage "::report::_tAction" "name template cmd args" 2]
+    } [tcltest::wrongNumArgs "::report::_tAction" "name template cmd args" 2]
 
     test report-$n.1 {separator templates} {
 	report myreport 1
@@ -689,7 +689,7 @@ foreach {n template} {
 	catch [list myreport $template] result
 	myreport destroy
 	set result
-    } [tcltest::getErrorMessage "::report::_tAction" "name template cmd args" 2]
+    } [tcltest::wrongNumArgs "::report::_tAction" "name template cmd args" 2]
 
     test report-$n.1 {data templates} {
 	report myreport 1
@@ -778,7 +778,7 @@ test report-27.0 {formatting errors} {
     catch {myreport printmatrix} result
     myreport destroy
     set result
-} [tcltest::getErrorMessage "::report::_printmatrix" "name matrix" 1]
+} [tcltest::wrongNumArgs "::report::_printmatrix" "name matrix" 1]
 
 test report-27.1 {formatting errors} {
     report           myreport 5
@@ -1032,7 +1032,7 @@ test report-28.0 {formatting errors} {
     catch {myreport printmatrix2channel} result
     myreport destroy
     set result
-} [tcltest::getErrorMessage "::report::_printmatrix2channel" "name matrix chan" 1]
+} [tcltest::wrongNumArgs "::report::_printmatrix2channel" "name matrix chan" 1]
 
 test report-28.1 {formatting errors} {
     report           myreport 5
@@ -1041,7 +1041,7 @@ test report-28.1 {formatting errors} {
     mymatrix destroy
     myreport destroy
     set result
-} [tcltest::getErrorMessage "::report::_printmatrix2channel" "name matrix chan" 2]
+} [tcltest::wrongNumArgs "::report::_printmatrix2channel" "name matrix chan" 2]
 
 test report-28.2 {formatting errors} {
     report           myreport 5

@@ -1,4 +1,4 @@
-# Tests for math library.
+# Tests for math library. -*- tcl -*-
 #
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.10 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.11 2004/02/14 05:59:20 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -19,20 +19,12 @@ package require math
 
 puts "math [package present math]"
 
-proc wrongNumArgs {name arglist count} {
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	set arg [lindex $arglist $count]
-	set msg "no value given for parameter \"$arg\" to \"$name\""
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
-}
+
 
 test math-1.1 {math::min, wrong num args} {
     catch {math::min} msg
     set msg
-} [wrongNumArgs math::min {val args} 0]
+} [tcltest::wrongNumArgs math::min {val args} 0]
 test math-1.2 {simple math::min} {
     math::min 1
 } 1
@@ -52,7 +44,7 @@ test math-1.6 {math::min with floating point numbers} {
 test math-2.1 {math::max, wrong num args} {
     catch {math::max} msg
     set msg
-} [wrongNumArgs math::max {val args} 0]
+} [tcltest::wrongNumArgs math::max {val args} 0]
 test math-2.2 {simple math::max} {
     math::max 1
 } 1
@@ -72,7 +64,7 @@ test math-2.6 {math::max with floating point numbers} {
 test math-3.1 {math::mean, wrong num args} {
     catch {math::mean} msg
     set msg
-} [wrongNumArgs math::mean {val args} 0]
+} [tcltest::wrongNumArgs math::mean {val args} 0]
 test math-3.2 {simple math::mean} {
     math::mean 1
 } 1.0
@@ -92,7 +84,7 @@ test math-3.6 {math::mean with floating point numbers} {
 test math-4.1 {math::sum, wrong num args} {
     catch {math::sum} msg
     set msg
-} [wrongNumArgs math::sum {val args} 0]
+} [tcltest::wrongNumArgs math::sum {val args} 0]
 test math-4.2 {math::sum} {
     math::sum 1
 } 1
@@ -109,7 +101,7 @@ test math-4.5 {math::sum} {
 test math-5.1 {math::product, wrong num args} {
     catch {math::product} msg
     set msg
-} [wrongNumArgs math::product {val args} 0]
+} [tcltest::wrongNumArgs math::product {val args} 0]
 test math-5.2 {simple math::product} {
     math::product 1
 } 1
@@ -129,11 +121,11 @@ test math-5.6 {math::product with floating point numbers} {
 test math-6.1 {math::sigma, wrong num args} {
     catch {math::sigma} msg
     set msg
-} [wrongNumArgs math::sigma {val1 val2 args} 0]
+} [tcltest::wrongNumArgs math::sigma {val1 val2 args} 0]
 test math-6.2 {simple math::sigma} {
     catch {math::sigma 1} msg
     set msg
-} [wrongNumArgs math::sigma {val1 val2 args} 1]
+} [tcltest::wrongNumArgs math::sigma {val1 val2 args} 1]
 test math-6.3 {simple math::sigma} {
     expr round([ math::sigma 100 120 ])
 } 14
@@ -150,11 +142,11 @@ test math-6.6 {math::sigma with floating point numbers} {
 test math-7.1 {math::cov, wrong num args} {
     catch {math::cov} msg
     set msg
-} [wrongNumArgs math::cov {val1 val2 args} 0]
+} [tcltest::wrongNumArgs math::cov {val1 val2 args} 0]
 test math-7.2 {simple math::cov} {
     catch {math::cov 1} msg
     set msg
-} [wrongNumArgs math::cov {val1 val2 args} 1]
+} [tcltest::wrongNumArgs math::cov {val1 val2 args} 1]
 test math-7.3 {simple math::cov} {
     math::cov 2 1
 } 100.0
@@ -172,11 +164,11 @@ test math-7.6 {math::cov with floating point numbers} {
 test math-8.1 {math::stats, wrong num of args} {
      catch { math::stats } msg
      set msg
-} [wrongNumArgs math::stats {val1 val2 args} 0]
+} [tcltest::wrongNumArgs math::stats {val1 val2 args} 0]
 test math-8.2 {math::stats, wrong num of args} {
      catch { math::stats 100 } msg
      set msg
-} [wrongNumArgs math::stats {val1 val2 args} 1]
+} [tcltest::wrongNumArgs math::stats {val1 val2 args} 1]
 test math-8.3 { simple math::stats } {
      foreach {a b c} [ math::stats 100 100 100 110 ] { break }
      set a [ expr round($a) ]

@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.5 2004/02/09 19:34:43 hobbs Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.6 2004/02/14 05:59:20 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -33,27 +33,12 @@ if { [string compare lset [info commands lset]] } {
     }
 }
 
-# Service procedure to develop the error message for "wrong # args"
 
-proc wrongNumArgs {name arglist count} {
-    # Use [package provide Tcl] instead of this buggy mess.
-    #    set ver [info patchlevel]
-    #    strip "a1", etc. designations
-    #    regsub {(a|b)[1-9]$} $ver {} ver
-    set ver [package provide Tcl]
-    if {[package vcompare $ver 8.4] < 0} {
-	set arg [lindex $arglist $count]
-	set msg "no value given for parameter \"$arg\" to \"$name\""
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
-}
 
 test combinatorics-1.1 { math::ln_Gamma, wrong num args } {
     catch { math::ln_Gamma } msg
     set msg
-} [wrongNumArgs math::ln_Gamma x 0]
+} [tcltest::wrongNumArgs math::ln_Gamma x 0]
 
 test combinatorics-1.2 { math::ln_Gamma, main line code } {
     set maxerror 0.
@@ -113,7 +98,7 @@ test combinatorics-1.6 { math::ln_Gamma, exponent overflow } {
 test combinatorics-2.1 { math::factorial, wrong num args } {
     catch { math::factorial } msg
     set msg
-} [wrongNumArgs math::factorial x 0]
+} [tcltest::wrongNumArgs math::factorial x 0]
 
 test combinatorics-2.2 { math::factorial 0 } {
     math::factorial 0
@@ -182,12 +167,12 @@ test combinatorics-2.8 { math::factorial, "" arg } {
 test combinatorics-3.1 { math::choose, wrong num args } {
     catch { math::choose } msg
     set msg
-} [wrongNumArgs math::choose {n k} 0]
+} [tcltest::wrongNumArgs math::choose {n k} 0]
 
 test combinatorics-3.2 { math::choose, wrong num args } {
     catch { math::choose 1 } msg
     set msg
-} [wrongNumArgs math::choose {n k} 1]
+} [tcltest::wrongNumArgs math::choose {n k} 1]
 
 test combinatorics-3.3 { math::choose, precomputed table and gamma evals } {
     set maxError 0
@@ -247,12 +232,12 @@ test combinatorics-3.10 { math::choose big args } {
 test combinatorics-4.1 { math::Beta, wrong num args } {
     catch { math::Beta } msg
     set msg
-} [wrongNumArgs math::Beta {z w} 0]
+} [tcltest::wrongNumArgs math::Beta {z w} 0]
 
 test combinatorics-4.2 { math::Beta, wrong num args } {
     catch { math::Beta 1 } msg
     set msg
-} [wrongNumArgs math::Beta {z w} 1]
+} [tcltest::wrongNumArgs math::Beta {z w} 1]
 
 test combinatorics-4.3 { math::Beta, bogus z } {
     catch { math::Beta bogus 1 } msg
