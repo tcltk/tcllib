@@ -24,9 +24,9 @@ command.
 [para]
 
 [emph Note:] A C-implementation of the command can be had from the
-location [uri http://physnet.uni-oldenburg.de/~schlenk/tcl/graph/].
-This implementation uses a bit less memory than the tcl version
-provided here directly, and is faster.
+location [uri http://www.purl.org/NET/schlenker/tcl/cgraph]. See also
+[uri http://wiki.tcl.tk/cgraph].  This implementation uses a bit less
+memory than the tcl version provided here directly, and is faster.
 
 
 [para]

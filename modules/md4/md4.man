@@ -38,7 +38,7 @@ return a hexadecimal encoded version of the digest.
 
 [enum]
        Rivest, R., "The MD4 Message Digest Algorithm", RFC 1320, MIT,
-       April 1992.
+       April 1992. ([uri http://www.rfc-editor.org/rfc/rfc1320.txt])
 
 [enum]
        Rivest, R., "The MD4 message digest algorithm", in A.J.  Menezes
@@ -48,10 +48,11 @@ return a hexadecimal encoded version of the digest.
 [enum]
        Rivest, R., "The MD5 Message-Digest Algorithm", RFC 1321, MIT and
        RSA Data Security, Inc, April 1992.
+	([uri http://www.rfc-editor.org/rfc/rfc1321.txt])
 
 [list_end]
 
 [see_also md5 sha1]
 
-[keywords md4 hashing message-digest security]
+[keywords md4 hashing message-digest security {rfc 1320} {rfc 1321}]
 [manpage_end]
