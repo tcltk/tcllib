@@ -368,6 +368,33 @@ that are unknown return "".
 
 [list_end]
 
+
+[section {KNOWN BUGS}]
+
+[list_begin definitions]
+[lst_item {SourceForge Tcllib Bug #447037}]
+
+This problem affects only people which are using Tcl and Mime on a
+64-bit system. The currently recommended fix for this problem is to
+upgrade to Tcl version 8.4. This version has extended 64 bit support
+and the bug does not appear anymore.
+
+[nl]
+
+The problem could have been generally solved by requiring the use of
+Tcl 8.4 for this package. We decided against this solution as it would
+force a large number of unaffected users to upgrade their Tcl
+interpreter for no reason.
+
+[nl]
+
+See [uri http://sourceforge.net/tracker/?func=detail&aid=447037&group_id=12883&atid=112883]
+for additional information.
+
+[list_end]
+
+
+
 [see_also smtp pop3 ftp http]
 [keywords mail email smtp mime {rfc 821} {rfc 822} internet net]
 [manpage_end]
