@@ -28,7 +28,7 @@ proc nr_bltn    {n text}    {return "\n.TP $n\n$text"}
 proc nr_in      {}          {return \n.RS}
 proc nr_out     {}          {return \n.RE}
 proc nr_nofill  {}          {return \n.nf}
-proc nr_fill    {}          {return .fi}
+proc nr_fill    {}          {return \n.fi}
 proc nr_title   {text}      {return "\n.TH $text"}
 proc nr_include {file}      {return "\n.so $file"}
 proc nr_bolds   {}          {return \n.BS}
