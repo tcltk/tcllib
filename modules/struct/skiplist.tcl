@@ -164,7 +164,7 @@ proc ::struct::skiplist::SkiplistProc {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::skiplist::_$cmd $name] $args
+    eval [linsert $args 0 ::struct::skiplist::_$cmd $name]
 }
 
 ## ::struct::skiplist::_destroy --

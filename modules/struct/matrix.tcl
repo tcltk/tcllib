@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.11 2003/02/25 21:12:47 davidw Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.12 2003/11/19 06:48:52 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -148,7 +148,7 @@ proc ::struct::matrix::MatrixProc {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::_$cmd $name]
 }
 
 # ::struct::matrix::_add --
@@ -176,7 +176,7 @@ proc ::struct::matrix::_add {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__add_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__add_$cmd $name]
 }
 
 # ::struct::matrix::_delete --
@@ -204,7 +204,7 @@ proc ::struct::matrix::_delete {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__delete_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__delete_$cmd $name]
 }
 
 # ::struct::matrix::_format --
@@ -232,7 +232,7 @@ proc ::struct::matrix::_format {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__format_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__format_$cmd $name]
 }
 
 # ::struct::matrix::_get --
@@ -260,7 +260,7 @@ proc ::struct::matrix::_get {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__get_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__get_$cmd $name]
 }
 
 # ::struct::matrix::_insert --
@@ -288,7 +288,7 @@ proc ::struct::matrix::_insert {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__insert_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__insert_$cmd $name]
 }
 
 # ::struct::matrix::_search --
@@ -433,7 +433,7 @@ proc ::struct::matrix::_set {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__set_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__set_$cmd $name]
 }
 
 # ::struct::matrix::_swap --
@@ -461,7 +461,7 @@ proc ::struct::matrix::_swap {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::matrix::__swap_$cmd $name] $args
+    eval [linsert $args 0 ::struct::matrix::__swap_$cmd $name]
 }
 
 # ::struct::matrix::__add_column --
