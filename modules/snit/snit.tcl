@@ -1141,6 +1141,11 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         error "$errRoot, cannot specify both 'as' and 'using'"
     }
 
+    # Make sure the pattern is a valid list.
+    if {[catch {lindex $pattern 0} result]} {
+        error "$errRoot, the -pattern, '$pattern', is not a valid list."
+    }
+
     # NEXT, define the component
     if {$component ne ""} {
         Comp.DefineTypecomponent $component $errRoot
@@ -1220,6 +1225,11 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
 
     if {$pattern ne "" && $target ne ""} {
         error "$errRoot, cannot specify both 'as' and 'using'"
+    }
+
+    # Make sure the pattern is a valid list.
+    if {[catch {lindex $pattern 0} result]} {
+        error "$errRoot, the -pattern, '$pattern', is not a valid list."
     }
 
     # NEXT, define the component.  Allow typecomponents.
@@ -2164,7 +2174,13 @@ proc ::snit::RT.MethodCacheLookup {type selfns win self method} {
         lappend subList %c [list $compCmd]
     }
 
-    set command [string map $subList $pattern]
+    # Note: The cached command will executed faster if it's
+    # already a list.
+    set command {}
+
+    foreach subpattern $pattern {
+        lappend command [string map $subList $subpattern]
+    }
     
     set Snit_methodCache($method) $command
         
