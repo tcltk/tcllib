@@ -1,3 +1,11 @@
+2004-12-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ripemd128.test: Added test cases from RFC2286 to both digests. 
+	* ripemd160.test: Also included a test with leading hyphen.
+	* ripemd128.tcl:  Removed usage of memchan in favour of the platform
+	* ripemd168.tcl:  null device. This avoids problems with name clashes
+	                  when loading in [null] or [random].
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
