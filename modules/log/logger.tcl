@@ -565,7 +565,7 @@ proc ::logger::import {args} {
                      set force 1
             }
             default {
-                return -code error "Unknown argument: \"$opt\" :\n"\
+                return -code error "Unknown argument: \"$opt\" :\n\
                         Usage: \"logger::import ?-all? ?-force?\
                         ?-prefix prefix? ?-namespace namespace? service\""
             }

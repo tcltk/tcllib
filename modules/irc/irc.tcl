@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.20 2004/01/20 21:04:39 afaupell Exp $
+# $Id: irc.tcl,v 1.21 2004/09/24 06:54:24 andreas_kupries Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -401,8 +401,8 @@ proc ::irc::connection { args } {
 	    }
 	    ${logger}::debug "Recieved: $line"
 	    if { [set pos [string first " :" $line]] > -1 } {
-		set header [string range $line 0 [expr $pos - 1]]
-		set linedata(msg) [string range $line [expr $pos + 2] end]
+		set header [string range $line 0 [expr {$pos - 1}]]
+		set linedata(msg) [string range $line [expr {$pos + 2}] end]
 	    } else {
 		set header [string trim $line]
 		set linedata(msg) {}

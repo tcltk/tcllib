@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.19 2004/09/22 04:47:43 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.20 2004/09/24 06:54:25 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -2770,7 +2770,7 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	}
 
 	foreach arcd $narcs {
-	    foreach {arc dst attr} $arcd break
+	    foreach {arc dst aattr} $arcd break
 
 	    if {[info exists arcNodes($arc)]} {
 		return -code error \
@@ -2778,13 +2778,13 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	    }
 
 	    # Attribute length ok ? Dictionary!
-	    if {[llength $attr] % 2} {
+	    if {[llength $aattr] % 2} {
 		return -code error \
 			"error in serialization: malformed arc attribute dictionary."
 	    }
 	    # Remember attribute data only for non-empty nodes
-	    if {[llength $attr]} {
-		set arcAttr($arc) $attr
+	    if {[llength $aattr]} {
+		set arcAttr($arc) $aattr
 	    }
 
 	    # Destination reference ok ?

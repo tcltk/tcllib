@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: constants.tcl,v 1.5 2004/07/05 15:33:21 kennykb Exp $
+# RCS: @(#) $Id: constants.tcl,v 1.6 2004/09/24 06:54:24 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ proc ::math::constants::find_eps { } {
     set eps 1.0
     while { [expr {1.0+$eps}] != 1.0 } {
         set prev_eps $eps
-        set eps  [expr 0.5*$eps]
+        set eps  [expr {0.5*$eps}]
     }
     return $prev_eps
 }
