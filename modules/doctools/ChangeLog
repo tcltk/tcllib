@@ -3,7 +3,7 @@
 	* mpexpand: Fixed error in checker of plain text.
 
 	* mpformats/fmt.nroff: Added newlines in front of dot commands to
-	  make sure that the formatting is correct. Superfluous newliens
+	  make sure that the formatting is correct. Superfluous newlines
 	  are stripped in the post processor of this format, so
 	  unconditionally adding them does not hurt.
 
