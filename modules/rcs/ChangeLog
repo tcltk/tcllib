@@ -1,0 +1,14 @@
+2005-01-28  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* rcs.man: Created the documentation for the package.
+
+2005-01-27  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* rcs.test: First tests.
+
+	* rcs.tcl: New module providing command related to RCS
+	  operations. Original sources from Colin McCormack's
+	  <coldstore@users.sourceforge.net> Tcl code for acessing CVS
+	  repositories, factored out by myself and rewritten for better
+	  API modularity. Many thanks to Colin for doing the initial hard
+	  work.
