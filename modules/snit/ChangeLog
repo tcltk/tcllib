@@ -1,3 +1,10 @@
+2004-07-27  Will Duquette  <will@wjduquette.com>
+
+	* snit.man      Updated the manpage to describe the new "pragma"
+	                statement.  Also, changed the SNIT acronym in the
+	                title to "Simple Now In Tcl", i.e., objects are
+	                now simple.
+
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Implemented -configuremethod and configure command
