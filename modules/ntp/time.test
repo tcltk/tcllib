@@ -2,7 +2,7 @@
 #
 # Exercise the tcllib time package.
 #
-# $Id: time.test,v 1.1 2003/03/20 00:29:41 patthoyts Exp $
+# $Id: time.test,v 1.2 2003/03/20 00:41:04 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -62,7 +62,7 @@ test time-1.1 {time::gettime} {
     list [catch {
         set f [createServerProcess]
         gets $f port
-        set token [::time::gettime -protocol tcp -port $port localhost]
+        set token [::time::gettime -protocol tcp localhost $port]
         set r {}
     } msg] $msg    
 } {0 {}}
