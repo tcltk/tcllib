@@ -1,0 +1,4 @@
+2005-02-14  Andreas Kupries <andreask@activestate.com>
+
+	* docstrip: New module, by Lars Hellstroem, to support literate programming.
+
