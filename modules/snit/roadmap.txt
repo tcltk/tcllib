@@ -27,36 +27,37 @@ Major Variable Definitions (this includes a whole lot of code)
                                 this template; then the template is
                                 evaluated as though it were sourced
                                 from a normal .tcl file.
-* Type namespace definition
-    * User's typevariable definitions
-    * proc Snit_constructor     The default constructor
-    * proc Snit_instanceVars    Initializes instance variables
-    * proc Snit_destructor      The default destructor (empty)
-    * alias typevariable
-    * alias variable
-    * alias mytypevar
-    * alias typevarname         Deprecated
-    * alias myvar
-    * alias varname             Deprecated
-    * alias myproc
-    * alias codename            Deprecated
-    * alias mymethod
-    * alias mytypemethod
-    * alias from
-    * proc installhull
-    * proc install
-    * typevariable Snit_info
-    * typevariable Snit_typemethods
-    * typevariable Snit_methodInfo
-    * typevariable Snit_optiondefaults
-    * typevariable Snit_optiondbspec
-    * typevariable Snit_delegatedoptions
-    * typevariable Snit_compoptions
-    * proc %TYPE%
-    * proc Snit_install                     Badly named
+    * Type namespace definition
+         * User's typevariable definitions
+    * Commands for use in type code
+        * alias typevariable
+        * alias variable
+        * alias mytypevar
+        * alias typevarname         Deprecated
+        * alias myvar
+        * alias varname             Deprecated
+        * alias myproc
+        * alias codename            Deprecated
+        * alias mymethod
+        * alias mytypemethod
+        * alias from
+    * Snit's internal variables
+        * typevariable Snit_info
+        * typevariable Snit_typemethods
+        * typevariable Snit_methodInfo
+        * typevariable Snit_optiondefaults
+        * typevariable Snit_optiondbspec
+        * typevariable Snit_delegatedoptions
+        * typevariable Snit_compoptions
+    * Template Code -- Stuff that gets filled in.
+        * proc %TYPE%
+        * proc Snit_instanceVars    Initializes instance variables
+        * proc Snit_typeconstructor
+    * Default Procs -- Stuff that's sometimes replaced.
+        * proc Snit_constructor     The default constructor
+        * proc Snit_destructor      The default destructor (empty)
     * %COMPILEDDEFS%
-    * proc Snit_typeconstructor defined
-    * proc Snit_typeconstructor called
+    * Call the Type Constructor
 
 * Snit compilation variables
     * compiler			The name of the slave interpreter used
@@ -116,6 +117,7 @@ rather than compile time.
 * Object Creation
 ** ::snit::RT.type.typemethod.create
 ** ::snit::RT.widget.typemethod.create
+** ::snit::RT.MakeInstance
 ** ::snit::RT.InstanceTrace
 ** ::snit::RT.UniqueName
 ** ::snit::RT.UniqueInstanceNamespace
@@ -131,6 +133,9 @@ rather than compile time.
 ** ::snit::RT.Component
 ** ::snit::RT.ComponentTrace
 ** ::snit::RT.MethodCacheLookup
+* Component Installation
+** ::snit::RT.installhull
+** ::snit::RT.install
 * Method/Variable Name Qualification
 ** ::snit::RT.variable
 ** ::snit::RT.mytypevar
