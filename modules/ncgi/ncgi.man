@@ -85,7 +85,7 @@ variable [arg cginame].  The name of the variable is [arg tclname], or
 [call [cmd ::ncgi::importAll] [arg args]]
 
 This imports several CGI variables as Tcl variables.  If [arg args] is
-empty, then every CGI vale is imported.  Otherwise each CGI variable
+empty, then every CGI value is imported.  Otherwise each CGI variable
 listed in [arg args] is imported.
 
 
