@@ -153,16 +153,21 @@ i.e. that the value was not quoted.
 [list_end]
 [para]
 
-The alternate format is activated through specification of the option
-[option -alternate] to the various split commands. Only one thing has
-changed in the alternate format: The output "" represents the empty
-string. In other words, it is assumed that it was generated out of the
-empty string by quoting it (rule 2), and not through rule 3.
+An alternate format definition mainly used by MS products specifies
+that the output string "" is an representatation of the empty
+string. In other words, it is assumed that the output was generated
+out of the empty string by quoting it (i.e. rule 2), and not through
+rule 3. This is the only difference between the regular and the
+alternate format.
 
+[para]
+
+The alternate format is activated through specification of the option
+[option -alternate] to the various split commands.
 
 [section EXAMPLE]
 
-The record
+Using the regular format the record
 
 [para]
 [example {
@@ -170,7 +175,7 @@ The record
 }]
 
 [para]
-is parsed as follows, when using the regular syntax.
+is parsed into the items
 
 [para]
 [example {
