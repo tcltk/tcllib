@@ -24,7 +24,7 @@ foreach p {
     sectref syscmd method option widget fun type package class var
     file uri term const copyright
 } {
-    proc $p {args} {return ""}
+    proc fmt_$p {args} {return ""}
 }
 
 ################################################################
