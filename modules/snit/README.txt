@@ -41,6 +41,15 @@ V0.97.
 
   This doesn't work for widgets, for obvious reasons.
 
+* Added pragma -hastypemethods.  If its value is "yes" (the
+  default), then the type has traditional Snit behavior with
+  respect to typemethods.  If its value is "no", then the type
+  has no typemethods (even if typemethods were included 
+  explicitly in the type definition).  Instead, the first argument
+  of the type proc is the name of the object to create.  As above,
+  the first argument defaults to "%AUTO%" for snit::types but not
+  for snit::widgets.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
