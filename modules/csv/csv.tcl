@@ -8,13 +8,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.11 2003/03/31 22:24:41 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.12 2003/04/23 23:18:28 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.3
 
 namespace eval ::csv {
-    namespace export join joinlist read2matrix read2queuen report 
+    namespace export join joinlist read2matrix read2queue report 
     namespace export split split2matrix split2queue writematrix writequeue
 }
 
@@ -69,7 +69,7 @@ proc ::csv::joinlist {values {sepChar ,}} {
 
 # ::csv::read2matrix --
 #
-#	A wrapper around "::csv::split2matrix" reading CSV formatted
+#	A wrapper around "Split2matrix" reading CSV formatted
 #	lines from the specified channel and adding it to the given
 #	matrix.
 #
@@ -82,14 +82,75 @@ proc ::csv::joinlist {values {sepChar ,}} {
 # Results:
 #	A list of the values in 'line'.
 
-proc ::csv::read2matrix {chan m {sepChar ,} {expand none}} {
+proc ::csv::read2matrix {args} {
     # FR #481023
     # See 'split2matrix' for the available expansion modes.
+
+    # Argument syntax:
+    #
+    #2)            chan m
+    #3)            chan m sepChar
+    #3) -alternate chan m
+    #4) -alternate chan m sepChar
+    #4)            chan m sepChar expand
+    #5) -alternate chan m sepChar expand
+
+    set alternate 0
+    set sepChar   ,
+    set expand    none
+
+    switch -exact -- [llength $args] {
+	2 {
+	    foreach {chan m} $args break
+	}
+	3 {
+	    foreach {a b c} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set chan      $b
+		set m         $c
+	    } else {
+		set chan    $a
+		set m       $b
+		set sepChar $c
+	    }
+	}
+	4 {
+	    foreach {a b c d} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set chan      $b
+		set m         $c
+		set sepChar   $d
+	    } else {
+		set chan    $a
+		set m       $b
+		set sepChar $c
+		set expand  $d
+	    }
+	}
+	4 {
+	    foreach {a b c d e} $args break
+	    if {![string equal $a "-alternate"]} {
+		return -code error "wrong#args: Should be ?-alternate? chan m ?separator? ?expand?"
+	    }
+	    set alternate 1
+
+	    set chan    $b
+	    set m       $c
+	    set sepChar $d
+	    set expand  $e
+	}
+	0 - 1 -
+	default {
+	    return -code error "wrong#args: Should be ?-alternate? chan m ?separator? ?expand?"
+	}
+    }
 
     while {![eof $chan]} {
 	if {[gets $chan line] < 0} {continue}
 	if {$line == {}} {continue}
-	split2matrix $m $line $sepChar $expand
+	Split2matrix $alternate $m $line $sepChar $expand
     }
     return
 }
@@ -108,11 +169,53 @@ proc ::csv::read2matrix {chan m {sepChar ,} {expand none}} {
 # Results:
 #	A list of the values in 'line'.
 
-proc ::csv::read2queue {chan q {sepChar ,}} {
+proc ::csv::read2queue {args} {
+    # Argument syntax:
+    #
+    #2)            chan q
+    #3)            chan q sepChar
+    #3) -alternate chan q
+    #4) -alternate chan q sepChar
+
+    set alternate 0
+    set sepChar   ,
+
+    switch -exact -- [llength $args] {
+	2 {
+	    foreach {chan q} $args break
+	}
+	3 {
+	    foreach {a b c} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set chan      $b
+		set q         $c
+	    } else {
+		set chan    $a
+		set q       $b
+		set sepChar $c
+	    }
+	}
+	4 {
+	    foreach {a b c d} $args break
+	    if {![string equal $a "-alternate"]} {
+		return -code error "wrong#args: Should be ?-alternate? chan q ?separator?"
+	    }
+	    set alternate 1
+	    set chan    $b
+	    set q       $c
+	    set sepChar $d
+	}
+	0 - 1 -
+	default {
+	    return -code error "wrong#args: Should be ?-alternate? chan q ?separator?"
+	}
+    }
+
     while {![eof $chan]} {
 	if {[gets $chan line] < 0} {continue}
 	if {$line == {}} {continue}
-	split2queue $q $line $sepChar
+	$q put [Split $alternate $line $sepChar]
     }
     return
 }
@@ -169,20 +272,88 @@ proc ::csv::report {cmd matrix args} {
 # Results:
 #	A list of the values in 'line'.
 
-proc ::csv::split {line {sepChar ,}} {
+proc ::csv::split {args} {
+    # Argument syntax:
+    #
+    #1)            line
+    #2)            line sepChar
+    #2) -alternate line
+    #3) -alternate line sepChar
+
+    set alternate 0
+    set sepChar   ,
+
+    switch -exact -- [llength $args] {
+	1 {
+	    set line [lindex $args 0]
+	}
+	2 {
+	    foreach {a b} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set line     $b
+	    } else {
+		set line    $a
+		set sepChar $b
+	    }
+	}
+	3 {
+	    foreach {a b c} $args break
+	    if {![string equal $a "-alternate"]} {
+		return -code error "wrong#args: Should be ?-alternate? line ?separator?"
+	    }
+	    set alternate 1
+	    set line    $b
+	    set sepChar $c
+	}
+	0 -
+	default {
+	    return -code error "wrong#args: Should be ?-alternate? line ?separator?"
+	}
+    }
+
+    if {[string length $sepChar] < 1} {
+	return -code error "illegal separator character \"$sepChar\", is empty"
+    } elseif {[string length $sepChar] > 1} {
+	return -code error "illegal separator character \"$sepChar\", is a string"
+    }
+
+    return [Split $alternate $line $sepChar]
+}
+
+proc ::csv::Split {alternate line sepChar} {
     # Protect the sepchar from special interpretation by
     # the regex calls below.
 
     set sepRE \\$sepChar
-    regsub -- "$sepRE\"\"$" $line $sepChar\0\"\"\0 line
-    regsub -- "^\"\"$sepRE" $line \0\"\"\0$sepChar line
-    regsub -all -- {(^\"|\"$)} $line \0 line
-    set line [string map [list \
-	    $sepChar\"\"\" $sepChar\0\" \
-	    \"\"\"$sepChar \"\0$sepChar \
-	    \"\"           \" \
-	    \"             \0 \
-	    ] $line]
+
+    if {$alternate} {
+	regsub -- "$sepRE\"\"$" $line $sepChar line
+	regsub -- "^\"\"$sepRE" $line $sepChar line
+	regsub -all -- {(^\"|\"$)} $line \0 line
+
+	set line [string map [list \
+		$sepChar\"\"\" $sepChar\0\" \
+		\"\"\"$sepChar \"\0$sepChar \
+		\
+		$sepChar\"\" $sepChar \
+		\"\"$sepChar $sepChar \
+		\
+		\"\"           \" \
+		\"             \0 \
+		] $line]
+    } else {
+	regsub -- "$sepRE\"\"$" $line $sepChar\0\"\"\0 line
+	regsub -- "^\"\"$sepRE" $line \0\"\"\0$sepChar line
+	regsub -all -- {(^\"|\"$)} $line \0 line
+
+	set line [string map [list \
+		$sepChar\"\"\" $sepChar\0\" \
+		\"\"\"$sepChar \"\0$sepChar \
+		\"\"           \" \
+		\"             \0 \
+		] $line]
+    }
     set end 0
     while {[regexp -indices -start $end -- {(\0)[^\0]*(\0)} $line \
 	    -> start end]} {
@@ -217,10 +388,76 @@ proc ::csv::split {line {sepChar ,}} {
 # Results:
 #	A list of the values in 'line', written to 'q'.
 
-proc ::csv::split2matrix {m line {sepChar ,} {expand none}} {
+proc ::csv::split2matrix {args} {
     # FR #481023
 
-    set csv [split $line $sepChar]
+    # Argument syntax:
+    #
+    #2)            m line
+    #3)            m line sepChar
+    #3) -alternate m line
+    #4) -alternate m line sepChar
+    #4)            m line sepChar expand
+    #5) -alternate m line sepChar expand
+
+    set alternate 0
+    set sepChar   ,
+    set expand    none
+
+    switch -exact -- [llength $args] {
+	2 {
+	    foreach {m line} $args break
+	}
+	3 {
+	    foreach {a b c} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set m         $b
+		set line      $c
+	    } else {
+		set m       $a
+		set line    $b
+		set sepChar $c
+	    }
+	}
+	4 {
+	    foreach {a b c d} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set m         $b
+		set line      $c
+		set sepChar   $d
+	    } else {
+		set m       $a
+		set line    $b
+		set sepChar $c
+		set expand  $d
+	    }
+	}
+	4 {
+	    foreach {a b c d e} $args break
+	    if {![string equal $a "-alternate"]} {
+		return -code error "wrong#args: Should be ?-alternate? m line ?separator? ?expand?"
+	    }
+	    set alternate 1
+
+	    set m       $b
+	    set line    $c
+	    set sepChar $d
+	    set expand  $e
+	}
+	0 - 1 -
+	default {
+	    return -code error "wrong#args: Should be ?-alternate? m line ?separator? ?expand?"
+	}
+    }
+
+    Split2matrix $alternate $m $line $sepChar $expand
+    return
+}
+
+proc ::csv::Split2matrix {alternate m line sepChar expand} {
+    set csv [Split $alternate $line $sepChar]
 
     # Expansion modes
     # - none  : default, behaviour of original implementation.
@@ -270,8 +507,51 @@ proc ::csv::split2matrix {m line {sepChar ,} {expand none}} {
 # Results:
 #	A list of the values in 'line', written to 'q'.
 
-proc ::csv::split2queue {q line {sepChar ,}} {
-    $q put [split $line $sepChar]
+proc ::csv::split2queue {args} {
+    # Argument syntax:
+    #
+    #2)            q line
+    #3)            q line sepChar
+    #3) -alternate q line
+    #4) -alternate q line sepChar
+
+    set alternate 0
+    set sepChar   ,
+
+    switch -exact -- [llength $args] {
+	2 {
+	    foreach {q line} $args break
+	}
+	3 {
+	    foreach {a b c} $args break
+	    if {[string equal $a "-alternate"]} {
+		set alternate 1
+		set q         $b
+		set line      $c
+	    } else {
+		set q       $a
+		set line    $b
+		set sepChar $c
+	    }
+	}
+	4 {
+	    foreach {a b c d} $args break
+	    if {![string equal $a "-alternate"]} {
+		return -code error "wrong#args: Should be ?-alternate? q line ?separator?"
+	    }
+	    set alternate 1
+
+	    set q       $b
+	    set line    $c
+	    set sepChar $d
+	}
+	0 - 1 -
+	default {
+	    return -code error "wrong#args: Should be ?-alternate? q line ?separator?"
+	}
+    }
+
+    $q put [Split $alternate $line $sepChar]
     return
 }
 
