@@ -1,3 +1,11 @@
+2004-09-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* urn-scheme.tcl (urn::unquote): The latest unquote used features
+	  specific to 8.3 (regexp -start), and the package claims
+	  useability with 8.2. Added a check for the version of Tcl, and
+	  for 8.2 we now provide a variant implementation of unquote for
+	  8.2 which does not use 'regexp -start', but simulates it.
+
 2004-08-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* urn-scheme.tcl: Fixed the unquote function which was broken.
