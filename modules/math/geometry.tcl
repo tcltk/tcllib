@@ -7,11 +7,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: geometry.tcl,v 1.2 2001/12/12 18:42:15 chdamm Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.3 2001/12/15 12:43:35 chdamm Exp $
 
 namespace eval ::math::geometry {
 }
 
+package require math
 
 ###
 #
@@ -357,7 +358,8 @@ proc ::math::geometry::findClosestPointOnPolyline {P polyline} {
 proc ::math::geometry::lengthOfPolyline {polyline} {
     set length 0
     foreach {x1 y1} [lrange $polyline 0 end-2] {x2 y2} [lrange $polyline 2 end] {
-	set length [expr {$length + sqrt(($x1-$x2)*($x1-$x2) + ($y1-$y2)*($y1-$y2))}]
+	set length [expr {$length + sqrt(pow($x1-$x2,2) + pow($y1-$y2,2))}]
+	#set length [expr {$length + sqrt(($x1-$x2)*($x1-$x2) + ($y1-$y2)*($y1-$y2))}]
     }
     return $length
 }
@@ -367,7 +369,7 @@ proc ::math::geometry::lengthOfPolyline {polyline} {
 
 # ::math::geometry::movePointInDirection
 #
-#       Return the point which is w units away from (x,y) in direction alpha.
+#       Move a point in a given direction.
 #
 # Arguments:
 #       P             the starting point
@@ -917,109 +919,91 @@ proc ::math::geometry::bbox {polyline} {
 
 
 
-package provide math::geometry 1.0
 
 
+# ::math::geometry::rectangleInsidePolygon
+#
+#       Determine if a rectangle is completely inside a polygon. If polygon
+#       touches the rectangle, then the rectangle is not complete inside the
+#       polygon.
+#
+# Arguments:
+#       P1            upper-left corner of the rectangle
+#       P2            lower-right corner of the rectangle
+#       polygon       a polygon
+#
+# Results:
+#       isinside      a boolean saying whether the rectangle is
+#                     completely inside the polygon or not
+#
+# Examples:
+#     - rectangleInsidePolygon {0 10} {10 0} {-10 -10 0 11 11 11 11 0}
+#       Result: 1
+#     - rectangleInsidePolygon {0 0} {0 0} {-16 14 5 -16 -16 -25 -21 16 -19 24}
+#       Result: 1
+#     - rectangleInsidePolygon {0 0} {0 0} {2 2 2 4 4 4 4 2}
+#       Result: 0
+#
+proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
+    # get coordinates of rectangle
+    set bx1 [lindex $P1 0]
+    set by1 [lindex $P1 1]
+    set bx2 [lindex $P2 0]
+    set by2 [lindex $P2 1]
 
-# Which of the following procedures are of general relevance and should
-# thus be included in the math::geometry module?
-if 0 {
-    # angle (x1 y1 x2 y2): angle from the perpendicular to the line 
-    # through (x1,y1) & (x2,y2) in radients
-    public proc vangle {x1 y1 x2 y2}
+    # if rectangle does not overlap with the bbox of polygon, then the
+    # rectangle cannot be inside the polygon (this is a quick way to
+    # get an answer in many cases)
+    set polygonBbox [bbox $polygon]
+    set polygonP1x [lindex $polygonBbox 0]
+    set polygonP1y [lindex $polygonBbox 1]
+    set polygonP2x [lindex $polygonBbox 2]
+    set polygonP2y [lindex $polygonBbox 3]
+    if {![rectanglesOverlap [list $bx1 $by1] [list $bx2 $by2] \
+	    [list $polygonP1x $polygonP1y] [list $polygonP2x $polygonP2y] 0]} {
+	return 0
+    }
     
-    # returns the point placed in the middle of (x1,y1) and (x2,y2)
-    public proc middle {x1 y1 x2 y2}
+    # if one of the points of the polygon is inside the rectangle,
+    # then the rectangle cannot be inside the polygon
+    foreach {x y} $polygon {
+	if {$bx1<$x && $x<$bx2 && $by1<$y && $y<$by2} {
+	    return 0
+	}
+    }
 
-    #
-    public proc verticallyInBbox {bbox x}
-    public proc horizontallyInBbox {bbox y}
-    public proc closestToWhichBboxSide {x y bbox}
-    public proc closestToWhichBboxSides {x y bbox}
+    # calculate closed polygon
+    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
+    
+    # if one of the line segments of the polygon intersect with the
+    # rectangle, then the rectangle cannot be inside the polygon
+    set rectanglePolyline [list $bx1 $by1 $bx2 $by1 $bx2 $by2 $bx1 $by2 $bx1 $by1]
+    if {[polylinesIntersect $closedPolygon $rectanglePolyline]} {
+	return 0
+    }
 
-    # convert a list of reals to a list of integers (floor)
-    public proc reals2integers {reallist}
+    # at this point we know that:
+    #  1. the polygon has no points inside the rectangle
+    #  2. the polygon's sides don't intersect with the rectangle
+    # therefore:
+    #  either the rectangle is (completely) inside the polygon, or
+    #  the rectangle is (completely) outside the polygon
 
-    #
-    public proc lineIsHorizontal {x1 y1 x2 y2}
-    public proc lineIsVertical   {x1 y1 x2 y2}
-
-    #
-    public proc moveby {coords dx dy}
-    public proc scaleby {coords scalex scaley}
-    public proc mapBy {coords offsetX offsetY scale}
-
-    # roundRect
-    public proc roundRect {canvas x0 y0 x3 y3 radius args}
-    # Same as roundRect, only "item" is not created by updated
-    public proc updateRoundRect {canvas item x0 y0 x3 y3 radius args}
-    # Calculates polygon coordinates for a rounded rectangle
-    public proc getRoundRectCoords {x0 y0 x3 y3 radius approximateSmoothness}
-
-    # containedInOval: takes an oval item, a canvas, and a point,
-    # and returns 1 if the point is contained in the canvas
-    public proc containedInOval {oval canvas x y}
-
-    # makeStippleLine: takes one long polyline and returns a list of small line 
-    # segments, which together forms a stippled line
-    # - solidLength: length of the individual line segments
-    # - spaceLength: length between the line segments
-    # (note: none of the numbers need to be integers)
-    public proc makeStippleLine {coords solidLength spaceLength }
-
-    # normalizeLine: splits the line segment (x1,y1)->(x2,y2) into smaller
-    # line segments, so that each line segment is max dist long.
-    public proc normalizeLine {x1 y1 x2 y2 dist}
-    # repeats normalizeLine for a polyline
-    public proc normalizePolyline {coords dist}
-
-    # returns whether x,y is inside the box defined by b1,b2
-    public proc PointInBox {x y bx1 by1 bx2 by2}
-
-    # returns the edge-point {x y} of the box (x1,y1) (top left)
-    # with width w and height h closest to (logx,logy)
-    public proc findClosestBoxEdgePoint {x1 y1 w h logx logy}
-
-    # returns the distance from (px,py) to the box (x1,y1) (top left)
-    # with width w and height h (bottom right) 
-    public proc boxEdgeDist {x1 y1 w h px py}
-
-    #
-    public proc makeBbox {p1 p2 w}
-    public proc makeLines {p1 p2 w l}
-
-    ###
-    # Logical <-> abs
-    #
-    # Supports translation between two coordinate systems, where the one coordinate
-    # system is defined by the other coordinate system + an offset point + a zoom factor
-    ###
-    public proc logical2absList {coordList logicalXStart logicalYStart zoomFactor}
-    public proc abs2logicalList {coordList logicalXStart logicalYStart zoomFactor}
-    public proc abs2logicalDistance {absdistance zoomFactor}
-    public proc logical2absDistance {distance zoomFactor}
-
-    # Do the first box contain the second box?
-    # If lessThan is false, the second box must be properly inside the first box
-    public proc boxContains {b1x1 b1y1 b1x2 b1y2 b2x1 b2y1 b2x2 b2y2 lessThan}
-
-    # Returns a point on the edge of the box: where the line intersects the box. 
-    #
-    # If the line intersects the box in more than one point, the point 
-    # closest to the end point (x2,y2) is chosen.
-    #
-    # If the line segment (x1,y1)->(x2,y2) does not intersect
-    # this class, then "none" is returned.
-    public proc findBoxIntersectionPoint {x1 y1 x2 y2 bx1 by1 w h}
-
-    # polylineIntersectsBox
-    #
-    public proc polylineIntersectsBox {polyline bx1 by1 bx2 by2}
-
-    # box inside polygon?
-    public proc boxContainedInPolyline {bx1 by1 bx2 by2 polyline}
-
-    #
-    public proc lineIntersectsWithPolyline {p1 p2 polyline}
+    # final test: consider a straight line going from a point on the rectangle to
+    # a point far away from both the rectangle and the polygon. If this
+    # line intersects with 0 of the polygon's sides, then the point on the rectangle
+    # (and therefore the rest of the rectangle) must be completely outside the
+    # polygon. Otherwise, the box must be completely inside the polygon.
+    set xFarAway [expr [::math::min $bx1 $polygonP1x] - 1]
+    set yFarAway [expr [::math::min $by1 $polygonP1y] - 1]
+    set infinityLine [list $xFarAway $yFarAway $bx1 $by1]
+    foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
+	if {[lineSegmentsIntersect $infinityLine [list $x1 $y1 $x2 $y2]]} {
+	    return 1
+	}
+    }
+    return 0
 }
 
+
+package provide math::geometry 1.0

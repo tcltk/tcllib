@@ -3,7 +3,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.2 2001/12/12 18:42:16 chdamm Exp $
+# RCS: @(#) $Id: geometry.test,v 1.3 2001/12/15 12:43:35 chdamm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -339,5 +339,30 @@ test geometry-1.1 {geometry::rectanglesOverlap, not strict, overlap} {
 test geometry-1.1 {geometry::rectanglesOverlap, not strict, no overlap} {
     math::geometry::rectanglesOverlap {0 10} {10 0} {12 10} {20 0} 0
 } 0
+
+
+###
+# rectangleInsidePolygon
+###
+test geometry-1.1 {geometry::rectangleInsidePolygon, simple} {
+    math::geometry::rectangleInsidePolygon {0 10} {10 0} {-10 -10 0 11 11 11 11 0}
+} 1
+test geometry-1.1 {geometry::rectangleInsidePolygon, random sample} {
+    math::geometry::rectangleInsidePolygon {27 69} {141 171} {32 14 16 28 2 52 -3 86 -4 128 -1 168 13 202 37 228 73 246 109 251 163 255 239 257 333 255 435 252 487 232 491 186 461 146 399 112 321 76 217 40 109 10 63 -4 49 -2 27 2 25 3}
+} 1
+test geometry-1.1 {geometry::rectangleInsidePolygon, rectangle and polygon identical} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {5 5 5 7 7 7 7 5}
+} 0
+test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with center inside rectangle} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {5 3 7 9 5 9 7 3}
+} 0
+test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with center inside rectangle} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {5 3 7 9 5 9 7 3}
+} 0
+test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass rectangle inside one of the areas} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {3 3 5 11 3 11 11 6}
+} 1
+
+
 
 ::tcltest::cleanupTests
