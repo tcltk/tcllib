@@ -143,8 +143,23 @@ set ::snit::typeTemplate {
     # Type dispatcher function.  Note: This function lives
     # in the parent of the %TYPE% namespace!  All accesses to 
     # %TYPE% variables and methods must be qualified!
-    proc %TYPE% {method args} {
-        # First, if the typemethod is unknown, we'll assume that it's
+    proc %TYPE% {{method ""} args} {
+        # First, if there's no method, and no args, and there's a create
+        # method, and this isn't a widget, then method is "create" and 
+        # "args" is %AUTO%.
+        if {$method eq "" && [llength $args] == 0} {
+            ::variable %TYPE%::Snit_info
+            ::variable %TYPE%::Snit_isWidget
+
+            if {$Snit_info(hasinstances) && !$Snit_isWidget} {
+                set method create
+                lappend args %AUTO%
+            } else {
+                error "wrong \# args: should be \"%TYPE% method args\""
+            }
+        }
+
+        # Next, if the typemethod is unknown, we'll assume that it's
         # an instance name if we can.
         if {[catch {set %TYPE%::Snit_typemethodCache($method)} command]} {
             set command [::snit::RT.CacheTypemethodCommand %TYPE% $method]
