@@ -29,7 +29,6 @@ Major Variable Definitions (this includes a whole lot of code)
                                 from a normal .tcl file.
 * Type namespace definition
     * User's typevariable definitions
-    * proc Snit_cleanup         Destroys objects, calls destructor.
     * proc Snit_constructor     The default constructor
     * proc Snit_instanceVars    Initializes instance variables
     * proc Snit_destructor      The default destructor (empty)
@@ -149,6 +148,7 @@ rather than compile time.
 ** ::snit::RT.typemethod.destroy
 * Object Destruction
 ** ::snit::RT.method.destroy
+** ::snit::RT.DestroyObject
 * Type Introspection
 ** ::snit::RT.typemethod.info
 ** ::snit::RT.typemethod.info.typevars
