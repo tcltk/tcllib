@@ -1,10 +1,11 @@
 # -*- tcl -*-
-# asn.test:  tests for the report structure.
+# asn.test:  tests for the asn BER encoding/decoding module.
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.3 2004/08/10 07:01:31 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.4 2004/12/29 01:20:27 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -87,17 +88,169 @@ foreach {n i len hex} {
     22 -8388607  03 800001
     23 -8388608  03 800000
     24 -8388609  04 FF7FFFFF
+    25 -65536    03 FF0000
 } {
     test asn-2.$n {integer} {
-	binary scan [asn::asnInteger $i] H* result
-	list $i [string toupper $result]
+    binary scan [asn::asnInteger $i] H* result
+    list $i [string toupper $result]
     } [list $i 02$len$hex] ; # {}
 
     test asn-4.$n {enum} {
-	binary scan [asn::asnEnumeration $i] H* result
-	list $i [string toupper $result]
+    binary scan [asn::asnEnumeration $i] H* result
+    list $i [string toupper $result]
     } [list $i 0A$len$hex] ; # {}
 }
+
+test asn-5.0 {boolean} {
+    catch {asn::asnBoolean} result
+    set result
+} [tcltest::wrongNumArgs {asn::asnBoolean} {bool} 0]
+
+test asn-5.1 {boolean} {
+    catch {asn::asnBoolean a b} result
+    set result
+} [tcltest::tooManyArgs {asn::asnBoolean} {bool}]
+
+test asn-5.2 {boolean} {
+    catch {asn::asnBoolean a} result
+    set result
+} {expected boolean value but got "a"}
+
+test asn-5.3 {boolean - true} {
+    binary scan [asn::asnBoolean 1] H* result
+    string toupper $result
+} {0101FF}
+
+test asn-5.4 {boolean - false} {
+    binary scan [asn::asnBoolean 0] H* result
+    string toupper $result
+} {010100}
+
+test asn-6.0 {parse boolean} {
+    catch {asn::asnGetBoolean} result
+    set result
+} [tcltest::wrongNumArgs {asn::asnGetBoolean} {data_var bool_var} 0]
+
+test asn-6.1 {parse boolean} {
+    catch {asn::asnGetBoolean a} result
+    set result
+} [tcltest::wrongNumArgs {asn::asnGetBoolean} {data_var bool_var} 1]
+
+test asn-6.2 {parse boolean} {
+    catch {asn::asnGetBoolean a b c} result
+    set result
+} [tcltest::tooManyArgs {asn::asnGetBoolean} {data_var bool_var}]
+
+test asn-6.3 {parse boolean} {
+    catch {asn::asnGetBoolean a b} result
+    set result
+} {can't read "data": no such variable}
+
+test asn-6.4 {parse boolean - wrong tag} {
+    set a \x02\x01\x00
+    catch {asn::asnGetBoolean a b} result
+    set result
+} {Expected Boolean (0x01), but got 02}
+
+test asn-6.5 {parse boolean - wrong length} {
+    set a \x01\x02\x00
+    catch {asn::asnGetBoolean a b} result
+    list $result $b
+} [list "" 0]
+
+test asn-6.6 {parse boolean - true} {
+    set a \x01\x01\xFF
+    asn::asnGetBoolean a b
+    set b
+} 1
+
+test asn-6.7 {parse boolean - true} {
+    set a \x01\x01\x01
+    asn::asnGetBoolean a b
+    set b
+} 1
+
+test asn-6.8 {parse boolean - false} {
+    set a \x01\x01\x00
+    asn::asnGetBoolean a b
+    set b
+} 0
+
+test asn-7.0 {null} {
+    catch {asn::asnNull foo} result
+    set result
+} [tcltest::tooManyArgs {asn::asnNull} {}]
+
+test asn-7.1 {null} {
+    binary scan [asn::asnNull] H* result
+    set result 
+} {0500}
+
+test asn-8.0 {parse null} {
+    catch {asn::asnGetNull} result
+    set result
+} [tcltest::wrongNumArgs asn::asnGetNull {data_var} 0]
+
+test asn-8.1 {parse null} {
+    catch {asn::asnGetNull foo bar} result
+    set result
+} [tcltest::tooManyArgs {asn::asnGetNull} {data_var}]
+
+test asn-8.2 {parse null} {
+    set wrongtag \x01\x01
+    catch {asn::asnGetNull wrongtag} result
+    set result
+} {Expected NULL (0x05), but got 01}
+
+test asn-8.3 {parse null} {
+    set wronglength \x05\x01
+    catch {asn::asnGetNull wronglength} result
+    set result
+} {}
+
+test asn-8.4 {parse null} {
+    set null \x05\x00
+    asn::asnGetNull null
+} {}
+
+package require math::bignum
+foreach {n i len hex} {
+     0  0        01 00
+     1 -1        01 FF
+     2  1        01 01
+     3  127      01 7F
+     4  128      02 0080
+     5  129      02 0081
+     6  256      02 0100
+     7 -127      01 81
+     8 -128      01 80
+     9 -129      02 FF7F
+    10  32766    02 7FFE
+    11  32767    02 7FFF
+    12  32768    03 008000
+    13  32769    03 008001
+    14 -32767    02 8001
+    15 -32768    02 8000
+    16 -32769    03 FF7FFF
+    17  65536    03 010000
+    18  8388607  03 7FFFFF
+    19  8388608  04 00800000
+    20  8388609  04 00800001
+    21  16777216 04 01000000
+    22 -8388607  03 800001
+    23 -8388608  03 800000
+    24 -8388609  04 FF7FFFFF
+    25 -65536    03 FF0000
+} {
+    test asn-9.$n {big integer} {
+    binary scan [asn::asnBigInteger [math::bignum::fromstr $i]] H* result
+    list $i [string toupper $result]
+    } [list $i 02$len$hex] ; # {}
+
+}
+
+
+
 
 # -------------------------------------------------------------------------
 ::tcltest::cleanupTests
