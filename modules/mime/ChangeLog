@@ -1,3 +1,8 @@
+2004-07-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl:     Added SASL mechanism DIGEST-MD5 authentication
+	support. Also redid md5 package version abstraction.
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl:     Updated smtp to version 1.4, to reflect the

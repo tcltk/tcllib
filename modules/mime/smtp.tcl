@@ -768,7 +768,7 @@ proc ::smtp::initialize_ehlo {token} {
             # This may still work else we'll get an unauthorised error later.
 
             set mechs [string range [lindex $response(args) $andx] 5 end]
-            foreach mech [list CRAM-MD5 LOGIN PLAIN] {
+            foreach mech [list DIGEST-MD5 CRAM-MD5 LOGIN PLAIN] {
                 if {[lsearch -exact $mechs $mech] == -1} { continue }
                 if {[info command [namespace current]::auth_$mech] != {}} {
                     if {[catch {
@@ -887,7 +887,7 @@ proc ::smtp::auth_CRAM-MD5 {token} {
     array set options $state(options)
     
     package require base64
-    set major [lindex [split [package require md5] .] 0]
+    md5_init
 
     set state(auth) 0
     set result [smtp::talk $token 300 "AUTH CRAM-MD5"]
@@ -895,16 +895,7 @@ proc ::smtp::auth_CRAM-MD5 {token} {
 
     if {$response(code) == 334} {
         set challenge [base64::decode $response(diagnostic)]
-
-	if {$major < 2} {
-	    # md5 v1, no options, and returns a hex string ready for
-	    # us.
-	    set reply [md5::hmac $options(-password) $challenge]
-	} else {
-	    # md5 v2 requires -hex to return hash as hex-encoded
-	    # non-binary string.
-	    set reply [md5::hmac -hex -key $options(-password) $challenge]
-	}
+        set reply [hmac_hex $options(-password) $challenge]
         set reply [base64::encode \
                        "$options(-username) [string tolower $reply]"]
         set result [smtp::talk $token 300 $reply]
@@ -916,6 +907,96 @@ proc ::smtp::auth_CRAM-MD5 {token} {
         return $result
     } else {
         return -code 7 $result
+    }
+}
+
+# ::smtp::auth_DIGEST-MD5
+#
+# 	Implement DIGEST-MD5 SASL mechanism (RFC2831).
+#
+# Results:
+#	Negiotiates user authentication. If successful returns the result
+#       otherwise an error is thrown
+
+proc ::smtp::auth_DIGEST-MD5 {token} {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    array set options $state(options)
+    
+    package require base64
+    md5_init
+
+    set state(auth) 0
+    set result [smtp::talk $token 300 "AUTH DIGEST-MD5"]
+    array set response $result
+
+    if {$response(code) == 334} {
+        set challenge [base64::decode $response(diagnostic)]
+
+        # RFC 2831 2.1
+        set sep "\\\]\\\[\\\\()<>@,;:\\\"\\\?=\\\{\\\} \t"
+        set tok {0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\-\|\~\!\#\$\%\&\*\+\.\^\_\`}
+        set sqot {(?:\'(?:\\.|[^\'\\])*\')}
+        set dqot {(?:\"(?:\\.|[^\"\\])*\")}
+        array set params [regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 }]
+
+        if {![info exists options(noncecount)]} {set options(noncecount) 0}
+        set nonce $params(nonce) ;#[base64::decode $params(nonce)]
+        set cnonce [md5_hex [clock seconds]:[pid]:[expr {rand()}]]]
+        set noncecount [format %08u [incr options(noncecount)]]
+        set qop auth
+        set realm "binky.home"
+        set uri "smtp/binky.home";#[lindex [fconfigure $options(sd) -peername] 1]"
+
+        set A1 [md5_bin "$options(-username):$realm:$options(-password)"]
+        set A1 [md5_hex "${A1}:$nonce:$cnonce"]
+        set A2 [md5_hex "AUTHENTICATE:$uri"]
+        set R  [md5_hex $A1:$nonce:$noncecount:$cnonce:$qop:$A2]
+
+        set reply "username=\"$options(-username)\",realm=\"$realm\",nonce=\"$nonce\",nc=\"$noncecount\",cnonce=\"$cnonce\",digest-uri=\"$uri\",response=\"$R\",qop=$qop"
+        if {$options(-debug)} {
+            puts stderr "<*- $challenge"
+            puts stderr "-*> $reply"
+            flush stderr
+        }
+
+        # The server will provide a base64 encoded string for use with
+        # subsequest authentication now. At this time we dont use this value.
+        set result [smtp::talk $token 300 [join [base64::encode $reply] {}]]
+        array set response $result
+        if {$response(code) == 334} {
+            #set authresp [base64::decode $response(diagnostic)]
+            #if {$options(-debug)} { puts stderr "-*> $authresp" }
+            set result [smtp::talk $token 300 {}]
+            array set response $result
+        }
+    }
+
+    if {$response(code) == 235} {
+        set state(auth) 1
+        return $result
+    } else {
+        return -code 7 $result
+    }
+}
+
+proc ::smtp::md5_init {} {
+    # Deal with either version of md5. We'd like version 2 but someone
+    # may have already loaded version 1.
+    set md5major [lindex [split [package require md5] .] 0]
+    if {$md5major < 2} {
+        # md5 v1, no options, and returns a hex string ready for
+        # us.
+        proc ::smtp::md5_hex {data} { return [::md5::md5 $data] }
+        proc ::smtp::md5_bin {data} { return [binary format H* [::md5::md5 $data]] }
+        proc ::smtp::hmac_hex {pass data} { return [::md5::hmac $pass $data] }
+    } else {
+        # md5 v2 requires -hex to return hash as hex-encoded
+        # non-binary string.
+        proc ::smtp::md5_hex {data} { return [string tolower [::md5::md5 -hex $data]] }
+        proc ::smtp::md5_bin {data} { return [::md5::md5 $data] }
+        proc ::smtp::hmac_hex {pass data} { return [::md5::hmac -hex -key $pass $data] }
     }
 }
 
