@@ -1,3 +1,8 @@
+2000-04-25  Eric Melski  <ericm@scriptics.com>
+
+	* Makefile.in: Tweaked dist target to include README and
+	license.terms in distributions.
+
 2000-04-24  Brent Welch  <welch@scriptics.com>
 	
 	* html/html.tcl, html.test: Cleanup of procedure names in html package.
