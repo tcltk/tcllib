@@ -1,3 +1,8 @@
+2004-07-21  Will Duquette  <will@wjduquette.com>
+
+	* README.txt 	Updated to reflect recent changes.
+	* snit.man
+
 2004-07-20  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Finished the refactoring job.  All extraneous
