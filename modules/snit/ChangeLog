@@ -1,15 +1,21 @@
-2003-10-25  Will Duquette  <will@cordelia.local.>
+2003-10-25  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:  Added the "except" clause for "delegate method *" and
 	* snit.test: "delegate option *".  This allows the user to
 	  	     explicitly exclude certain methods and options.
 		     Added appropriate tests.
 
+	* snit.html: Gave the Snit FAQ a bit of an overhaul, and added 
+	* faq.html:  information corresponding to the recent code
+	  	     changes, including a great deal of material on Snit
+		     and the Tk option database.  Updated the Snit man
+		     page to be consistent with the recent code changes.
+
 2003-10-23  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.man: Updated from Will's html doc's.
 
-2003-10-23  Will Duquette  <will@cordelia.local.>
+2003-10-23  Will Duquette  <will@wjduquette.com>
 
 	* snit.html: Added documentation for the new "hulltype",
 	  	     "widgetclass", and "install" commands.  Updated the
