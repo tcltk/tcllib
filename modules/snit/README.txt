@@ -89,6 +89,12 @@ you.
   an ensemble command (like "string" or "file") using typevariables
   and typemethods.
 
+* In the past, you could create an instance of a snit::type with the 
+  same name as an existing command; for example, you could create an
+  instance called "::info" or "::set".  This is no longer allowed, as
+  it can lead to errors that are hard to debug.  You can recover the
+  old behavior using the "-canreplace" pragma.
+
 * Sundry other internal changes.
 
 Changes in V0.93

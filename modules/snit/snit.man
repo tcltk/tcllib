@@ -624,6 +624,13 @@ definition produces an ensemble command without any extraneous
 behavior.
 
 [list_begin definitions]
+[lst_item "[const -canreplace] [arg flag]"]
+
+If false (the default) Snit will not create an instance of a
+snit::type that has the same name as an existing command; this
+prevents subtle errors.  Setting this pragma to true restores the
+behavior of Snit V0.93 and earlier versions.
+
 [lst_item "[const -hastypeinfo] [arg flag]"]
 
 If true (the default), the generated type will have a typemethod
@@ -901,6 +908,13 @@ time [const %AUTO%] is used for this type.
 By default, any arguments following the [arg name] will be a list of
 [arg option] names and their [arg value]s; however, a type's
 constructor can specify a different argument list.
+
+[nl]
+
+As of Snit V0.94, [method create] will throw an error if the [arg name]
+is the same as any existing command--note that this was always true
+for [cmd snit::widget]s and [cmd snit::widgetadaptor]s.  You can
+restore the previous behavior using the [const -canreplace] pragma.
 
 
 [call [cmd {$type}] [method {info typevars}] [opt [arg pattern]]]
