@@ -319,16 +319,34 @@ set ::snit::simpleTypeProc {
 # proc $instanceName {method args} ....
 set ::snit::nominalInstanceProc {
     set self [set %SELFNS%::Snit_instance]
-            
-    if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
-        set command [snit::RT.CacheMethodCommand %TYPE% %SELFNS% %WIN% $self $method]
+
+    while {1} {
+        if {[catch {set %SELFNS%::Snit_methodCache($method)} commandRec]} {
+            set commandRec [snit::RT.CacheMethodCommand %TYPE% %SELFNS% %WIN% $self $method]
                 
-        if {[llength $command] == 0} {
-            return -code error \
-                "\"$self $method\" is not defined"
+            if {[llength $commandRec] == 0} {
+                return -code error \
+                    "\"$self $method\" is not defined"
+            }
         }
+
+        # If we've got a real command, break.
+        if {[lindex $commandRec 0] == 0} {
+            break
+        }
+
+        # Otherwise, we need to look up again...if we can.
+        if {[llength $args] == 0} {
+            return -code error \
+                "wrong number args: should be \"$self $method method args\""
+        }
+
+        lappend method [lindex $args 0]
+        set args [lrange $args 1 end]
     }
-            
+
+    set command [lindex $commandRec 1]
+
     # Pass along the return code unchanged.
     set retval [catch {uplevel 1 $command $args} result]
 
@@ -347,7 +365,8 @@ set ::snit::nominalInstanceProc {
 }
 
 # Simplified method proc body: No delegation allowed; no support for
-# upvar or exotic return codes.  Designed for max speed for simple types.
+# upvar or exotic return codes or hierarchical methods.  Designed for 
+# max speed for simple types.
 #
 # proc $instanceName {method args} ....
 
@@ -401,6 +420,7 @@ namespace eval ::snit:: {
     # localoptions:          Names of local options.
     # delegatedoptions:      Names of delegated options.
     # localmethods:          Names of locally defined methods.
+    # methodprefixes:        Names of method prefixes
     # delegatedmethods:      Names of delegated methods (except *)
     # delegatesmethods:      no if no delegated methods, yes otherwise.
     # components:            Names of defined components.
@@ -531,6 +551,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(widgetclass) {}
     set compile(hulltype) {}
     set compile(localmethods) {}
+    set compile(methodprefixes) {}
     set compile(delegatedmethods) {}
     set compile(delegatesmethods) no
     set compile(localtypemethods) {}
@@ -574,6 +595,11 @@ proc ::snit::Comp.Compile {which type body} {
 
     if {$compile(-simpledispatch) && $compile(delegatesmethods)} {
         error "$which $type requests -simpledispatch but delegates methods."
+    }
+
+    if {$compile(-simpledispatch) && 
+        [llength $compile(methodprefixes)] > 0} {
+        error "$which $type requests -simpledispatch but defines hierarchical methods."
     }
 
     # If there are typemethods, define the standard typemethods and
@@ -1046,12 +1072,16 @@ proc ::snit::Comp.statement.method {method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedmethods)]} {
-        error "Error in \"delegate method $method...\", \"$method\" has been defined locally"
+        error "Error in \"delegate method [list $method]...\", \"$method\" has been defined locally"
     }
 
+    # Handle hierarchical case.
+    Comp.CheckPrefixes $method "Error in \"method [list $method]...\""
+
+    # Handle simple case
     lappend compile(localmethods) $method
 
-    CheckArgs "method $method" $arglist
+    CheckArgs "method [list $method]" $arglist
 
     # Next, add magic references to type and self.
     set arglist [concat type selfns win self $arglist]
@@ -1060,14 +1090,61 @@ proc ::snit::Comp.statement.method {method arglist body} {
     set body "%TVARDECS%%IVARDECS%\n$body"
 
     # Next, save the definition script.
-    Mappend compile(defs) {
+    if {[llength $method] == 1} {
+        Mappend compile(defs) {
 
-        # Method %METHOD%
-        set  %TYPE%::Snit_methodInfo(%METHOD%) \
-            {"%t::Snit_method%m %t %n %w %s" ""}
-        proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
-    } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body] 
+            # Method %METHOD%
+            set  %TYPE%::Snit_methodInfo(%METHOD%) \
+                {0 "%t::Snit_method%m %t %n %w %s" ""}
+            proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
+        } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body] 
+    } else {
+        Mappend compile(defs) {
+
+            # Method %METHOD%
+            set  %TYPE%::Snit_methodInfo([list %METHOD%]) \
+                {0 "%t::Snit_hmethod%m %t %n %w %s" ""}
+            proc %TYPE%::Snit_hmethod%JMETHOD% %ARGLIST% %BODY% 
+        } %METHOD% $method %JMETHOD% [join $method _] \
+            %ARGLIST% [list $arglist] %BODY% [list $body] 
+    }
 } 
+
+# Defines an instance method.
+proc ::snit::Comp.CheckPrefixes {method errmsg} {
+    variable compile
+
+    # Handle hierarchical case.
+    foreach prefix $compile(methodprefixes) {
+        if {$method eq $prefix} {
+            error "$errmsg, \"$method\" has submethods."
+        }
+    }
+
+    if {[llength $method] > 1} {
+        set prefix {}
+        set tokens $method
+        while {[llength $tokens] > 1} {
+            lappend prefix [lindex $tokens 0]
+            set tokens [lrange $tokens 1 end]
+
+            set methods [concat $compile(localmethods) \
+                             $compile(delegatedmethods)]
+
+            if {[Contains $prefix $methods]} {
+                error "$errmsg, \"$prefix\" has no submethods."
+            }
+
+            # Define prefix
+            lappend compile(methodprefixes) $prefix
+            
+            Mappend compile(defs) {
+                set %TYPE%::Snit_methodInfo([list %PREFIX%]) [list 1]
+            } %PREFIX% $prefix
+        }
+    }
+} 
+
 
 # Defines a typemethod method.
 proc ::snit::Comp.statement.typemethod {method arglist body} {
@@ -1535,10 +1612,12 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         error "$errRoot, \"$method\" has been defined locally"
     }
 
+    Comp.CheckPrefixes $method $errRoot
+
     Mappend compile(defs) {
         # Delegated method %METH% to %COMP%
-        set  %TYPE%::Snit_methodInfo(%METH%) \
-            {"%PATTERN%" %COMP%}
+        set  %TYPE%::Snit_methodInfo([list %METH%]) \
+            {0 "%PATTERN%" %COMP%}
     } %METH% $method %COMP% [list $component] %PATTERN% $pattern
 
     if {![string equal $method "*"]} {
@@ -1760,9 +1839,40 @@ proc ::snit::method {type method arglist body} {
 
     # FIRST, can't redefine delegated methods.
     if {[info exists Snit_methodInfo($method)] &&
-        [lindex $Snit_methodInfo($method) 1] ne ""} {
+        [lindex $Snit_methodInfo($method) 2] ne ""} {
         error "Cannot define \"$method\", it has been delegated"
     }
+
+    # NEXT, can't redefine methods with submethods.
+    if {![catch {set ${type}::Snit_methodInfo($method)} result]} {
+        # Method is known.  If it's got subcommands, throw an
+        # error.
+        if {[lindex $result 0] == 1} {
+            error "Cannot redefine \"$method\", \"$method\" has submethods."
+        }
+    }
+
+    # Handle hierarchical case.
+    if {[llength $method] > 1} {
+        set prefix {}
+        set tokens $method
+        while {[llength $tokens] > 1} {
+            lappend prefix [lindex $tokens 0]
+            set tokens [lrange $tokens 1 end]
+
+            if {![catch {set ${type}::Snit_methodInfo($prefix)} result]} {
+                # Prefix is known.  If it's not a prefix, throw an
+                # error.
+                if {[lindex $result 0] == 0} {
+                    error "Cannot define \"$method\", \"$prefix\" has no submethods."
+                }
+            }
+            
+            set ${type}::Snit_methodInfo($prefix) [list 1]
+        }
+    }
+
+    
 
     # NEXT, check the arguments
     CheckArgs "snit::method $type $method" $arglist
@@ -1774,9 +1884,15 @@ proc ::snit::method {type method arglist body} {
     set body "$Snit_info(tvardecs)$Snit_info(ivardecs)\n$body"
 
     # Next, define it.
-    set Snit_methodInfo($method) {"%t::Snit_method%m %t %n %w %s" ""}
+    if {[llength $method] == 1} {
+        set Snit_methodInfo($method) {0 "%t::Snit_method%m %t %n %w %s" ""}
+        uplevel [list proc ${type}::Snit_method$method $arglist $body]
+    } else {
+        set Snit_methodInfo($method) {0 "%t::Snit_hmethod%m %t %n %w %s" ""}
 
-    uplevel [list proc ${type}::Snit_method$method $arglist $body]
+        set suffix [join $method _]
+        uplevel [list proc ${type}::Snit_hmethod$suffix $arglist $body]
+    }
 }
 
 # Defines a proc within the compiler; this proc can call other
@@ -1849,6 +1965,21 @@ proc ::snit::Capitalize {text} {
     set rest [string range $text 1 end]
     return "[string toupper $first]$rest"
 }
+
+# Converts an arbitrary white-space-delimited string into a list
+# by splitting on white-space and deleting empty tokens.
+
+proc ::snit::Listify {str} {
+    set result {}
+    foreach token [split [string trim $str]] {
+        if {[string length $token] > 0} {
+            lappend result $token
+        }
+    }
+
+    return $result
+}
+
 
 #=======================================================================
 # Snit Runtime Library
@@ -2458,16 +2589,20 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
               [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
         set key "*"
     } else {
-        return ""
+        return [list ]
     }
 
-    foreach {pattern compName} $Snit_methodInfo($key) {}
+    foreach {flag pattern compName} $Snit_methodInfo($key) {}
+
+    if {$flag == 1} {
+        return [list 1]
+    }
 
     # NEXT, build the substitution list
     set subList [list \
                      %% % \
                      %t [list $type] \
-                     %m [list $method] \
+                     %m [join $method _] \
                      %n [list $selfns] \
                      %w [list $win] \
                      %s [list $self]]
@@ -2491,11 +2626,41 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
     foreach subpattern $pattern {
         lappend command [string map $subList $subpattern]
     }
-    
-    set Snit_methodCache($method) $command
+
+    set commandRec [list 0 $command]
+
+    set Snit_methodCache($method) $commandRec
         
-    return $command
+    return $commandRec
 }
+
+
+# Looks up a method's command.
+#
+# type:		The instance's type
+# selfns:	The instance's private namespace
+# win:          The instance's original name (a Tk widget name, for
+#               snit::widgets.
+# self:         The instance's current name.
+# method:	The name of the method to call.
+# errPrefix:    Prefix for any error method
+proc ::snit::RT.LookupMethodCommand {type selfns win self method errPrefix} {
+    set commandRec [snit::RT.CacheMethodCommand \
+                        $type $selfns $win $self \
+                        $method]
+
+
+    if {[llength $commandRec] == 0} {
+        return -code error \
+            "$errPrefix, \"$self $method\" is not defined"
+    } elseif {[lindex $commandRec 0] == 1} {
+        return -code error \
+            "$errPrefix, wrong number args: should be \"$self\" $method method args"
+    }
+
+    return  [lindex $commandRec 1]
+}
+
 
 # Clears all instance command caches
 proc ::snit::RT.ClearInstanceCaches {selfns} {
@@ -2930,9 +3095,11 @@ proc ::snit::RT.CacheCgetCommand {type selfns win self option} {
             if {$Snit_optionInfo(cget-$option) eq ""} {
                 set command [list set ${selfns}::options($option)]
             } else {
-                set command [snit::RT.CacheMethodCommand \
+                set command [snit::RT.LookupMethodCommand \
                                  $type $selfns $win $self \
-                                 $Snit_optionInfo(cget-$option)]
+                                 $Snit_optionInfo(cget-$option) \
+                                 "can't cget $option"]
+
                 lappend command $option
             }
 
@@ -3032,9 +3199,11 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
 
             # If it has a validate method, cache that for later.
             if {$Snit_optionInfo(validate-$option) ne ""} {
-                set command [snit::RT.CacheMethodCommand \
+                set command [snit::RT.LookupMethodCommand \
                                  $type $selfns $win $self \
-                                 $Snit_optionInfo(validate-$option)]
+                                 $Snit_optionInfo(validate-$option) \
+                                 "can't validate $option"]
+
                 lappend command $option
                 set Snit_validateCache($option) $command
             } else {
@@ -3047,9 +3216,11 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
             if {$Snit_optionInfo(configure-$option) eq ""} {
                 set command [list set ${selfns}::options($option)]
             } else {
-                set command [snit::RT.CacheMethodCommand \
+                set command [snit::RT.LookupMethodCommand \
                                  $type $selfns $win $self \
-                                 $Snit_optionInfo(configure-$option)]
+                                 $Snit_optionInfo(configure-$option) \
+                                 "can't configure $option"]
+
                 lappend command $option
             }
 

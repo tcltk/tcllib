@@ -997,6 +997,136 @@ test method-1.13 {method args can span multiple lines} {} {
     }
 } {::dog}
 
+#-----------------------------------------------------------------------
+# hierarchical methods
+
+test hmethod-1.1 {hierarchical method, two tokens} {} {
+    cleanup
+
+    type dog {
+        method {wag tail} {} {
+            return "$self wags tail."
+        }
+    }
+
+    dog spot
+    spot wag tail
+} {::spot wags tail.}
+
+test hmethod-1.2 {hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog {
+        method {wag tail proudly} {} {
+            return "$self wags tail proudly."
+        }
+    }
+
+    dog spot
+    spot wag tail proudly
+} {::spot wags tail proudly.}
+
+test hmethod-1.3 {hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog {
+        method {wag tail really high} {} {
+            return "$self wags tail really high."
+        }
+    }
+
+    dog spot
+    spot wag tail really high
+} {::spot wags tail really high.}
+
+test hmethod-1.4 {redefinition is OK} {} {
+    cleanup
+
+    type dog {
+        method {wag tail} {} {
+            return "$self wags tail."
+        }
+        method {wag tail} {} {
+            return "$self wags tail briskly."
+        }
+    }
+
+    dog spot
+    spot wag tail
+} {::spot wags tail briskly.}
+
+test hmethod-1.5 {proper error on missing submethod} {} {
+    cleanup
+
+    type dog {
+        method {wag tail} {} { }
+    }
+
+    dog spot
+    catch {spot wag} result
+    set result
+} {wrong number args: should be "::spot wag method args"}
+
+
+test hmethod-2.1 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            method wag {} {}
+            method {wag tail} {} {
+                return "$self wags tail."
+            }
+        }
+    } result
+
+    set result
+} {Error in "method {wag tail}...", "wag" has no submethods.}
+
+test hmethod-2.2 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            method {wag tail} {} {
+                return "$self wags tail."
+            }
+            method wag {} {}
+        }
+    } result
+
+    set result
+} {Error in "method wag...", "wag" has submethods.}
+
+test hmethod-2.3 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            method {wag tail} {} {}
+            method {wag tail proudly} {} {
+                return "$self wags tail."
+            }
+        }
+    } result
+
+    set result
+} {Error in "method {wag tail proudly}...", "wag tail" has no submethods.}
+
+test hmethod-2.4 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            method {wag tail proudly} {} {
+                return "$self wags tail."
+            }
+            method {wag tail} {} {}
+        }
+    } result
+
+    set result
+} {Error in "method {wag tail}...", "wag tail" has submethods.}
 
 #-----------------------------------------------------------------------
 # mymethod and renaming
@@ -2773,6 +2903,131 @@ test dmethod-3.1 {component names can be changed dynamically} {
     list $a $b
 } {wagged drooped}
 
+test dmethod-4.1 {hierarchical method, two tokens} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags tail"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {wag tail} to tail as wag
+    }
+
+    dog spot
+    spot wag tail
+} {wags tail}
+
+test dmethod-4.2 {hierarchical method, three tokens} {} {
+    cleanup 
+
+    type tail {
+        method wag {} {return "wags tail"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {wag tail proudly} to tail as wag
+    }
+
+    dog spot
+    spot wag tail proudly
+} {wags tail}
+
+test dmethod-4.3 {hierarchical method, three tokens} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags tail"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {wag tail really high} to tail as wag
+    }
+
+    dog spot
+    spot wag tail really high
+} {wags tail}
+
+test dmethod-4.4 {redefinition is OK} {} {
+    cleanup
+
+    type tail {
+        method {wag tail}    {} {return "wags tail"}
+        method {wag briskly} {} {return "wags tail briskly"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {wag tail} to tail as {wag tail}
+        delegate method {wag tail} to tail as {wag briskly}
+    }
+
+    dog spot
+    spot wag tail
+} {wags tail briskly}
+
+test dmethod-5.1 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate method wag to tail
+            delegate method {wag tail} to tail as wag
+        }
+    } result
+
+    set result
+} {Error in "delegate method {wag tail}...", "wag" has no submethods.}
+
+test dmethod-5.2 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate method {wag tail} to tail as wag
+            delegate method wag to tail
+        }
+    } result
+
+    set result
+} {Error in "delegate method wag...", "wag" has submethods.}
+
+test dmethod-5.3 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate method {wag tail} to tail
+            delegate method {wag tail proudly} to tail as wag
+        }
+    } result
+
+    set result
+} {Error in "delegate method {wag tail proudly}...", "wag tail" has no submethods.}
+
+test dmethod-5.4 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate method {wag tail proudly} to tail as wag
+            delegate method {wag tail} to tail
+        }
+    } result
+
+    set result
+} {Error in "delegate method {wag tail}...", "wag tail" has submethods.}
 
 #-----------------------------------------------------------------------
 # delegated options
@@ -4999,6 +5254,122 @@ test emethod-1.6 {can't define external method if no type} {
     set result
 } {no such type: "extremelyraredog"}
 
+test emethod-2.1 {external hierarchical method, two tokens} {} {
+    cleanup
+
+    type dog { }
+    method dog {wag tail} {} {
+        return "$self wags tail."
+    }
+
+    dog spot
+    spot wag tail
+} {::spot wags tail.}
+
+test emethod-2.2 {external hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog { }
+    method dog {wag tail proudly} {} {
+        return "$self wags tail proudly."
+    }
+
+    dog spot
+    spot wag tail proudly
+} {::spot wags tail proudly.}
+
+test emethod-2.3 {external hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog { }
+    method dog {wag tail really high} {} {
+        return "$self wags tail really high."
+    }
+
+    dog spot
+    spot wag tail really high
+} {::spot wags tail really high.}
+
+test emethod-2.4 {redefinition is OK} {} {
+    cleanup
+
+    type dog { }
+    method dog {wag tail} {} {
+        return "$self wags tail."
+    }
+    method dog {wag tail} {} {
+        return "$self wags tail briskly."
+    }
+
+    dog spot
+    spot wag tail
+} {::spot wags tail briskly.}
+
+test emethod-3.1 {prefix/method collision} {} {
+    cleanup
+
+    type dog { 
+        method wag {} {}
+    }
+
+    catch {
+        method dog {wag tail} {} {
+            return "$self wags tail."
+        }
+    } result
+
+    set result
+} {Cannot define "wag tail", "wag" has no submethods.}
+
+test hmethod-3.2 {prefix/method collision} {} {
+    cleanup
+
+    type dog {
+        method {wag tail} {} {
+            return "$self wags tail."
+        }
+    }
+
+    catch {
+        method dog wag {} {}
+    } result
+
+    set result
+} {Cannot redefine "wag", "wag" has submethods.}
+
+test hmethod-3.3 {prefix/method collision} {} {
+    cleanup
+
+    type dog {
+        method {wag tail} {} {}
+    }
+
+    catch {
+        method dog {wag tail proudly} {} {
+            return "$self wags tail."
+        }
+    } result
+
+    set result
+} {Cannot define "wag tail proudly", "wag tail" has no submethods.}
+
+test hmethod-3.4 {prefix/method collision} {} {
+    cleanup
+
+    type dog {
+        method {wag tail proudly} {} {
+            return "$self wags tail."
+        }
+    }
+
+    catch {
+        method dog {wag tail} {} {}
+    } result
+
+    set result
+} {Cannot redefine "wag tail", "wag tail" has submethods.}
+
+
 #-----------------------------------------------------------------------
 # Macros
 
@@ -5749,6 +6120,36 @@ test cgetcache-1.2 {Component rename invalidates cache} {
     fido cget -foo
 } {bar}
 
+test cgetcache-1.3 {Invalid -cgetmethod causes error} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -cgetmethod bogus
+    }
+
+    dog fido -foo quux
+
+    catch {fido cget -foo} result
+    set result
+} {can't cget -foo, "::fido bogus" is not defined}
+
+test cgetcache-1.3 {hierarchical -cgetmethod} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -cgetmethod {Get Opt}
+
+        method {Get Opt} {option} {
+            return Dummy
+        }
+    }
+
+    dog fido
+
+    fido cget -foo
+} {Dummy}
+
+
 
 #-----------------------------------------------------------------------
 # Configure cache
@@ -5811,6 +6212,35 @@ test configurecache-1.2 {Component rename invalidates cache} {
     fido cget -foo
 } {baz}
 
+test configurecache-1.3 {Invalid -configuremethod causes error} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -configuremethod bogus
+    }
+
+    dog fido
+    catch {fido configure -foo quux} result
+    set result
+} {can't configure -foo, "::fido bogus" is not defined}
+
+test configurecache-1.4 {hierarchical -configuremethod} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -configuremethod {Set Opt}
+
+        method {Set Opt} {option value} {
+            set options($option) Dummy
+        }
+    }
+
+    dog fido -foo NotDummy
+    fido cget -foo
+} {Dummy}
+
+
+
 #-----------------------------------------------------------------------
 # option -validatemethod
 
@@ -5837,7 +6267,7 @@ test validatemethod-1.1 {Validate method is called} {
     fido getflag
 } {1} 
 
-test validatemethod-1.1 {Validate method gets correct arguments} {
+test validatemethod-1.2 {Validate method gets correct arguments} {
     cleanup
 
     type dog {
@@ -5855,6 +6285,36 @@ test validatemethod-1.1 {Validate method gets correct arguments} {
 
     dog fido -color brown
 } {::fido} 
+
+test validatemethod-1.3 {Invalid -validatemethod causes error} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -validatemethod bogus
+    }
+
+    dog fido
+    catch {fido configure -foo quux} result
+    set result
+} {can't validate -foo, "::fido bogus" is not defined}
+
+test validatemethod-1.4 {hierarchical -validatemethod} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -validatemethod {Val Opt}
+
+        method {Val Opt} {option value} {
+            error "Dummy"
+        }
+    }
+
+    catch {dog fido -foo value} result
+    
+    set result
+} {Error in constructor: Dummy}
+
+
 
 #-----------------------------------------------------------------------
 # option -readonly semantics
@@ -6255,6 +6715,20 @@ test simpledispatch-1.5 {destroy method works with simpledispatch.} {
     set b [info commands ::spot]
     list $a $b
 } {::spot {}} 
+
+test simpledispatch-1.6 {no hierarchical methods with simpledispatch.} {
+    catch {cleanup}
+
+    catch {
+        type dog {
+            pragma -simpledispatch yes
+            
+            method {wag tail} {} {}
+        }
+    } result
+
+    set result
+} {type ::dog requests -simpledispatch but defines hierarchical methods.} 
 
 #-----------------------------------------------------------------------
 # Exotic return codes

@@ -1,3 +1,9 @@
+2004-09-10  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Added support for hierarchical methods: methods
+	* snit.test     with submethods.  The documentation has not yet
+	* README.txt    been updated.
+
 2004-09-04  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Bug fix: read-only options were read-only only
