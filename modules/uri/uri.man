@@ -99,6 +99,7 @@ regular expressions relevant to the scheme. At least the variable
 [strong schemepart] has to be declared as that one is used to extend
 the variables keeping track of the registered schemes.
 
+[list_end]
 
 [section  SCHEMES]
 

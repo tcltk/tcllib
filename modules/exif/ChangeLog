@@ -1,3 +1,7 @@
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* exif.man: Fixed formatting errors in the doctools manpage.
+
 2002-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>  
 
 	* Added module on behalf of Darren New.
