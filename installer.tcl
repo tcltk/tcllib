@@ -15,6 +15,7 @@ lappend auto_path  [file join $distribution modules]
 
 source [file join $distribution tcllib_version.tcl]    ; # Get version information.
 source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
+source [file join $distribution install_actions.tcl]   ; # Get list of installed modules.
 
 # --------------------------------------------------------------
 # Low-level commands of the installation engine.
@@ -67,6 +68,12 @@ if {![package vsatisfies [package provide Tcl] 8.0]} {return}
     return
 }
 
+proc xcopyfile {src dest} {
+    # dest can be dir or file
+    run file copy -force $src $dest
+    return
+}
+
 proc xcopy {src dest recurse {pattern *}} {
     run file mkdir $dest
     foreach file [glob [file join $src $pattern]] {
@@ -81,54 +88,9 @@ proc xcopy {src dest recurse {pattern *}} {
 		xcopy $file $sub $recurse $pattern
 	    }
         } else {
-            run file copy -force $file $sub
+            xcopyfile $file $sub
         }
     }
-}
-
-# --------------------------------------------------------------
-# Module specific commands
-
-proc _null {args} {}
-
-proc _tcl {module libdir} {
-    global distribution
-    xcopy \
-	    [file join $distribution modules $module] \
-	    [file join $libdir $module] \
-	    0 *.tcl
-    return
-}
-
-proc _doc {module libdir} {
-    global distribution
-
-    _tcl $module $libdir
-    xcopy \
-	    [file join $distribution modules $module mpformats] \
-	    [file join $libdir $module mpformats] \
-	    1
-    return
-}
-
-proc _tex {module libdir} {
-    global distribution
-
-    _tcl $module $libdir
-    xcopy \
-	    [file join $distribution modules $module] \
-	    [file join $libdir $module] \
-	    0 *.tex
-    return
-}
-
-proc _tci {module libdir} {
-    global distribution
-
-    _tcl $module $libdir
-    file copy -force [file join $distribution modules $module tclIndex] \
-	    [file join $libdir $module]
-    return
 }
 
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
@@ -139,52 +101,6 @@ proc write_out {f text} {
     close $of
 }
 
-proc _man {module format ext docdir} {
-    global distribution argv argc argv0 config
-
-    package require doctools
-    ::doctools::new dt -format $format -module $module
-
-    foreach f [glob -nocomplain [file join $distribution modules $module *.man]] {
-
-	set out [file join $docdir [file rootname [file tail $f]]].$ext
-
-	log "Generating $out"
-	if {$config(dry)} {continue}
-
-	dt configure -file $f
-	file mkdir [file dirname $out]
-
-	set data [dt format [get_input $f]]
-	switch -exact -- $format {
-	    nroff {
-		set data [string map \
-			[list \
-			{.so man.macros} \
-			$config(man.macros)] \
-			$data]
-	    }
-	    html {}
-	}
-	write_out $out $data
-
-	set warnings [dt warnings]
-	if {[llength $warnings] > 0} {
-	    log [join $warnings \n]
-	}
-    }
-    dt destroy
-    return
-}
-
-proc _exa {module exadir} {
-    global distribution
-    xcopy \
-	    [file join $distribution examples $module] \
-	    [file join $exadir $module] \
-	    1
-    return
-}
 
 # --------------------------------------------------------------
 # Use configuration to perform installation
