@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.87 2003/04/14 04:07:23 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.88 2003/04/15 21:29:55 patthoyts Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -52,6 +52,9 @@ JAVASCRIPT=javascript
 
 # Math functions
 MATH=math
+
+# MD4 hash digest
+MD4=md4
 
 # MD5 hash digest
 MD5=md5
@@ -146,6 +149,7 @@ MODULES= \
 	$(HTML)         \
 	$(IRC)          \
 	$(MATH)		\
+	$(MD4)		\
 	$(MD5)		\
 	$(MIME)		\
 	$(NCGI)		\
