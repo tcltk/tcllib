@@ -1,0 +1,109 @@
+'\" uuencode.n - Copyright (c) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" 
+'\" -------------------------------------------------------------------------
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\" -------------------------------------------------------------------------
+'\" RCS: @(#) $Id: uuencode.n,v 1.1 2002/01/17 23:09:40 patthoyts Exp $
+'\" 
+.so man.macros
+.TH "uuencode" n 1.0 tcllib "uuencode"
+.BS
+'\" Note: do not modify the .SH NAME line immediately below!
+.SH NAME
+uuencode::uuencode, uuencode::uudecode \- encode/decode a binary file
+.sp
+uuencode::encode, uuencode::decode \- encode/decode a tcl string
+.sp
+.SH "SYNOPSIS"
+\fBpackage require Tcl 8.2\fR
+.sp
+\fBpackage require uuencode ?1.0?\fR
+.sp
+\fB::uuencode::encode\fR \fIstring\fR
+.sp
+\fB::uuencode::decode\fR \fIstring\fR
+.sp
+\fB::uuencode::uuencode\fR \fI?-name string?\fR \fI?-mode octal?\fR \fI-file
+filename\fR | \fI?--?\fR \fIstring\fR
+.sp
+\fB::uuencode::uudecode\fR \fI-file filename\fR | \fI?--?\fR \fIstring\fR
+.sp
+.BE
+.SH "DESCRIPTION"
+.PP
+This package provides a Tcl-only implementation of the uuencode(1) and
+uudecode(1) commands. This encoding packs binary data into printable ASCII
+characters.
+.SH "COMMANDS"
+.TP
+\fB::uuencode::encode\fR \fIstring\fR
+returns the uuencoded data. This will encode all the data passed in
+even if this is longer than the uuencode maximum line length. If the
+number of input bytes is not a multiple of 3 then additional 0 bytes
+are added to pad the string.
+.TP
+\fB::uuencode::decode\fR \fIstring\fR
+Decodes the given encoded data. This will return any padding
+characters as well and it is the callers responsibility to deal with
+handling the actual length of the encoded data. (see uuencode).
+.TP
+\fB::uuencode::uuencode\fR \fI?-name string?\fR \fI?-mode octal?\fR \fI-file
+filename\fR | \fI?--?\fR \fIstring\fR
+.TP
+\fB::uuencode::uudecode\fR \fI-file filename\fR | \fI?--?\fR \fIstring\fR
+UUDecode a file or block of data. A file may contain more than one
+embedded file so the result is a list where each element is a three
+element list of filename, mode value and data.
+.SH "OPTIONS"
+.TP
+\fI-filename name\fR
+Cause the uuencode or uudecode commands to read their data from the
+named file rather that taking a string parameter.
+.TP
+\fI-name string\fR
+The uuencoded data header line contains the suggested file name to be
+used when unpacking the data. Use this option to change this from the
+default of "data.dat".
+.TP
+\fI-mode octal\fR
+The uuencoded data header line contains a suggested permissions bit
+pattern expressed as an octal string. To change the default of 0644
+you can set this option. For instance, 0755 would be suitable for an
+executable. See chmod(1).
+.SH "EXAMPLES"
+.PP
+.CS
+\fB% set d [uuencode::encode "Hello World!"]\fR
+2&5L;&\\@5V]R;&0A
+.CE
+.PP
+.CS
+\fB% uuencode::uudecode $d\fR
+Hello World!
+.CE
+.PP
+.CS
+\fB% set d [uuencode::uuencode -name hello.txt "Hello World"]\fR
+begin 644 hello.txt
++2&5L;&\@5V]R;&0`
+`
+end
+.CE
+.PP
+.CS
+\fB% uuencode::uudecode $d\fR
+{hello.txt 644 {Hello World}}
+.CE
+.SH "SEE ALSO"
+uuencode(1), uudecode(1), uuencode(5), ascii(7), base64(n)
+
+.SH "AUTHORS"
+Pat Thoyts
+
+.SH "KEYWORDS"
+uuencode, ascii, base64, encoding
+'\"
+'\" Local Variables:
+'\"   mode: nroff
+'\" End:
