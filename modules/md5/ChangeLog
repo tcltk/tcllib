@@ -1,3 +1,11 @@
+2002-02-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* Version up to 1.4.2 to differentiate development from the
+	  version in the tcllib 1.2 release.
+
+	* md5.tcl: Adding -- to hex/md5 commands to prevent
+	  misinterpretation of data if starting with -.
+
 2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* md5.n:

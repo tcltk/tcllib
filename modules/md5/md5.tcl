@@ -31,7 +31,7 @@ if {![catch {package require Trf 2.0}]} {
     # in terms of calls to Trf for speed.
 
     proc ::md5::md5 {msg} {
-	string tolower [::hex -mode encode [::md5 $msg]]
+	string tolower [::hex -mode encode -- [::md5 -- $msg]]
     }
 
     # hmac: hash for message authentication
@@ -48,7 +48,7 @@ if {![catch {package require Trf 2.0}]} {
 	set keyLen [string length $key]
 	if {$keyLen > 64} {
 	    #old: set key [binary format H32 [md5 $key]]
-	    set key [::md5 $key]
+	    set key [::md5 -- $key]
 	    set keyLen [string length $key]
 	}
     
@@ -70,11 +70,11 @@ if {![catch {package require Trf 2.0}]} {
 	# Perform inner md5, appending its results to the outer key
 	append k_ipad $text
 	#old: append k_opad [binary format H* [md5 $k_ipad]]
-	append k_opad [::md5 $k_ipad]
+	append k_opad [::md5 -- $k_ipad]
 
 	# Perform outer md5
 	#old: md5 $k_opad
-	string tolower [::hex -mode encode [::md5 $k_opad]]
+	string tolower [::hex -mode encode -- [::md5 -- $k_opad]]
     }
 
 } else {
@@ -449,5 +449,5 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide md5 1.4.1
+package provide md5 1.4.2
 
