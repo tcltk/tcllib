@@ -1451,7 +1451,7 @@ proc ::snit::Type.Proc {type proc arglist body} {
 
     append compile(defs) "
 
-        # Proc [list $proc $arglist]
+        # Proc $proc
         proc [list %TYPE%::$proc $arglist $body]
     "
 } 

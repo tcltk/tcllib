@@ -433,6 +433,23 @@ test creation-1.6 {weird names are OK} {} {
     spot meow
 } {::spot meows.}
 
+#-----------------------------------------------------------------------
+# procs
+
+test proc-1.1 {proc args can span multiple lines} {} {
+    cleanup
+
+    # This case caused an error at definition time in 0.9 because the
+    # arguments were included in a comment in the compile script, and 
+    # the subsequent lines weren't commented.
+    type dog { 
+        proc foo {
+            a  
+            b
+        } { }
+    }
+} {::dog}
+
 
 #-----------------------------------------------------------------------
 # methods
