@@ -41,7 +41,17 @@ you.
   "variable" for declaring components explicitly, and has two nifty 
   options, "-public" and "-inherit".
 
-* Sundry internal changes.
+* Reimplemented the "delegate method" and "delegate option"
+  statements; among other things, they now have more descriptive error
+  messages.
+
+* Added the "using" clause to the "delegate method" statement.  The
+  "using" clause allows the programmer to specify an arbitrary command
+  prefix into which the component and method names (among other
+  things) can be automatically substituted.  It's now possible to
+  delegate a method just about any way you'd like.
+
+* Sundry other internal changes.
 
 Changes in V0.93
 --------------------------------------------------------------------

@@ -1605,45 +1605,50 @@ proc ::snit::DelegatedMethod {method arglist} {
     set component ""
     set target ""
     set exceptions {}
+    set pattern ""
 
     foreach {opt value} $arglist {
         switch -exact $opt {
             to     { set component $value  }
             as     { set target $value     }
             except { set exceptions $value }
+            using  { set pattern $value    }
             default {
                 error "$errRoot, unknown delegation option '$opt'."
             }
         }
     }
 
-    if {$component eq ""} {
-        error "$errRoot, missing '-to'."
+    if {$component eq "" && $pattern eq ""} {
+        error "$errRoot, missing 'to'."
     }
 
     if {$method eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify '-as' with method '*'"
+        error "$errRoot, cannot specify 'as' with method '*'"
     }
 
     if {$method ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify '-except' with method '*'" 
+        error "$errRoot, can only specify 'except' with method '*'" 
+    }
+
+    if {$pattern ne "" && $target ne ""} {
+        error "$errRoot, cannot specify both 'as' and 'using'"
     }
 
     # NEXT, define the component
-    DefineComponent $component
-
-    # NEXT, define the pattern.
-    if {$method eq "*"} {
-        set pattern "%c %m"
-    } elseif {$target ne ""} {
-        set pattern "%c $target"
-    } else {
-        set pattern "%c %m"
+    if {$component ne ""} {
+        DefineComponent $component
     }
 
-    if {![string equal $method "*"] &&
-        [string equal $target ""]} {
-        set target $method
+    # NEXT, define the pattern.
+    if {$pattern eq ""} {
+        if {$method eq "*"} {
+            set pattern "%c %m"
+        } elseif {$target ne ""} {
+            set pattern "%c $target"
+        } else {
+            set pattern "%c %m"
+        }
     }
 
     if {[Contains $method $compile(localmethods)]} {
@@ -1655,7 +1660,7 @@ proc ::snit::DelegatedMethod {method arglist} {
         set  %TYPE%::Snit_methodInfo(%METH%) \
             {"%PATTERN%" %COMP%}
         proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
-    } %METH% $method %COMP% $component %TARGET% $target %PATTERN% $pattern
+    } %METH% $method %COMP% [list $component] %PATTERN% $pattern
 
     if {![string equal $method "*"]} {
         lappend compile(delegatedmethods) $method
@@ -1700,15 +1705,15 @@ proc ::snit::DelegatedOption {optionDef arglist} {
     }
 
     if {$component eq ""} {
-        error "$errRoot, missing '-to'."
+        error "$errRoot, missing 'to'."
     }
 
     if {$option eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify '-as' with 'delegate option *'"
+        error "$errRoot, cannot specify 'as' with 'delegate option *'"
     }
 
     if {$option ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify '-except' with 'delegate option *'" 
+        error "$errRoot, can only specify 'except' with 'delegate option *'" 
     }
 
     # Next, validate the option name
@@ -1807,17 +1812,7 @@ proc ::snit::Type.Component {component args} {
 
     # NEXT, if -public specified, define the method.  
     if {$publicMethod ne ""} {
-        # TBD: For now, define a normal method; once the new delegate
-        # syntax is in place, just delegate it.
-
-        Type.Method $publicMethod args [Expand {
-            if {[string equal $%COMPONENT% ""]} {
-                error "undefined component '%COMPONENT%'"
-            }
-
-            set cmd [linsert $args 0 $%COMPONENT%]
-            return [uplevel 1 $cmd]
-        } %COMPONENT% $component]
+        Type.Delegate method $publicMethod to $component using {%c}
     }
 
     # NEXT, if -inherit is specified, delegate method/option * to 
