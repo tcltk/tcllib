@@ -1,3 +1,14 @@
+2001-11-03  Don Porter <dgp@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* control.tcl: Addition of rswitch means bump 0.0 -> 0.1.
+	
+	* genIndex (new file):
+	* index.tcl (deleted file): renamed index.tcl -> genIndex so
+	it won't be mistakenly installed anymore.  Purpose of genIndex
+	is to regenerate the tclIndex file.
+	* tclIndex: Generated.
+
 2001-11-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* rswitch.tcl: checked in Don's usenet posted implementation
