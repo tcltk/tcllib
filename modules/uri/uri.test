@@ -6,14 +6,14 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.5 2000/09/07 06:09:51 welch Exp $
+# RCS: @(#) $Id: uri.test,v 1.6 2001/10/23 03:44:06 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 set dirname [file dirname [info script]]
-source [file join $dirname uri.tcl]
+source      [file join $dirname uri.tcl]
 package require uri
 
 # Take a key-value list and return list sorted by key, 
@@ -89,9 +89,7 @@ test uri-3.6 {uri::resolve - absolute URL} {
 
 test uri-4.1 {uri::geturl} {
     set token [uri::geturl file://[file join [pwd] ${::dirname} pkgIndex.tcl]]
-    # Add one because the pkgIndex.tcl file has a trailing newline, which is
-    # not included in the data field (I think)
-    expr {[string length [lindex [array get $token data] 1]]+1}
+    expr {[string length [lindex [array get $token data] 1]]}
 } [file size [file join [pwd] $::dirname pkgIndex.tcl]]
 
 test uri-5.1 {uri::canonicalize} {

@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.15 2001/10/17 17:27:26 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.16 2001/10/23 03:44:06 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -271,8 +271,10 @@ proc ftp::StateHandler {s {sock ""}} {
             catch {unset ftp(State)}
             catch {close $ftp(CtrlSock); unset ftp(CtrlSock)}
             return
-        }
-	
+        } else {
+	    # Fix SF bug #466746: Incomplete line, do nothing.
+	    return	   
+	}
     } 
 	
     if { $DEBUG } {

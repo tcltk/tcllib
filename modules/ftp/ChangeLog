@@ -1,10 +1,16 @@
-2001-10-16  Andreas Kupries  <andreask@pliers.activestate.com>
+2001-10-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.tcl: Fixed bug #466746. Reporter of bug unknown, provided
+	  fix too. Problem was incomplete handling of [gets] return
+	  values. Value -1 signaling an incomplete line was not handled.
+
+2001-10-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.n:
 	* ftp.tcl:
 	* pkgIndex.tcl: Version up to 2.2.1.
 
-2001-09-17 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+2001-09-17  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* example/hpupdate.tcl: Some cleanups in the example code,
 	  provided by Larry Virden <lvirden@users.sourceforge.net>. This
