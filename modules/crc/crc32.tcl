@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.3 2002/01/16 17:48:41 patthoyts Exp $
+# $Id: crc32.tcl,v 1.4 2002/09/26 22:50:24 patthoyts Exp $
 
 namespace eval crc {
     
@@ -188,11 +188,26 @@ proc crc::crc32 {args} {
     }
 
     if {$filename != {}} {
+        set r $seed
         set f [open $filename r]
         fconfigure $f -translation binary
-        set data [read $f]
+        # If we are using Trf - we cannot chunk
+        if {[package provide Trf] != {} \
+                && [string match [namespace origin Crc32] $impl]} {
+            set data [read $f]
+            set r [$impl $data $r]
+        } else {
+            # Process the chunks. We need to undo the final xor
+            # to obtain the seed for the following chunk. Then re-apply
+            # for the final result.
+            while {![eof $f]} {
+                set data [read $f 4096]
+                set r [$impl $data $r]
+                set r [expr {$r ^ 0xFFFFFFFF}]
+            }
+            set r [expr {$r ^ 0xFFFFFFFF}]
+        }
         close $f
-        set r [$impl $data $seed]
     } else {
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be \
