@@ -2,7 +2,7 @@
 
 	* do.tcl: 
 	* do.test:
-	* control.n Extended [control::do] to allow ommitting the 2nd and
+	* control.n: Extended [control::do] to allow ommitting the 2nd and
 	3rd argument. Added tests and changed the manpage to reflect this.
 
 2001-11-30  Don Porter <dgp@users.sourceforge.net>
