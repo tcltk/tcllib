@@ -887,7 +887,7 @@ proc ::smtp::auth_CRAM-MD5 {token} {
     array set options $state(options)
     
     package require base64
-    package require md5 2
+    set major [lindex [split [package require md5] .] 0]
 
     set state(auth) 0
     set result [smtp::talk $token 300 "AUTH CRAM-MD5"]
@@ -895,7 +895,16 @@ proc ::smtp::auth_CRAM-MD5 {token} {
 
     if {$response(code) == 334} {
         set challenge [base64::decode $response(diagnostic)]
-        set reply [md5::hmac -hex -key $options(-password) $challenge]
+
+	if {$major < 2} {
+	    # md5 v1, no options, and returns a hex string ready for
+	    # us.
+	    set reply [md5::hmac $options(-password) $challenge]
+	} else {
+	    # md5 v2 requires -hex to return hash as hex-encoded
+	    # non-binary string.
+	    set reply [md5::hmac -hex -key $options(-password) $challenge]
+	}
         set reply [base64::encode \
                        "$options(-username) [string tolower $reply]"]
         set result [smtp::talk $token 300 $reply]
