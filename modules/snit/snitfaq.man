@@ -1,13 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin snitfaq n 0.97]
 [copyright {2003-2004, by William H. Duquette}]
-[moddesc {Snit}]
+[moddesc {Simple Now In Tcl, OO system}]
 [titledesc   {Snit Frequently Asked Questions}]
-[require Tcl 8.4]
-[require snit [opt 0.97]]
 [description]
 [para]
-
 
 [section OVERVIEW]
 

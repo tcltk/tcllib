@@ -1,5 +1,5 @@
 [manpage_begin ripemd128 n 1.0.2]
-[moddesc   {ripemd128}]
+[moddesc   {RIPEMD Message-Digest Algorithm}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {RIPEMD-128 Message-Digest Algorithm}]
 [require Tcl 8.2]
