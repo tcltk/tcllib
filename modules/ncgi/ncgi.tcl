@@ -67,6 +67,34 @@ namespace eval ncgi {
     namespace export *
 }
 
+# ncgi::reset
+#
+#	This resets the state of the CGI input processor.  This is primarily
+#	used for tests, although it is also designed so that TclHttpd can
+#	call this with the current query data
+#	so the ncgi package can be shared among TclHttpd and CGI scripts.
+#
+# Arguments:
+#	newquery	(optional) The raw query.  If this is specified it
+#			indicates this is either a testing situation or use
+#			within a web server context instead of external CGI.
+#
+# Side Effects:
+#	Resets the cached query data and wipes any environment variables
+#	associated with CGI inputs (like QUERY_STRING)
+
+proc ncgi::reset {{newquery {}}} {
+    global env
+    variable query
+    if {[string length $newquery] == 0} {
+	if {[info exist query]} {
+	    unset query
+	}
+    } else {
+	set query $newquery
+    }
+}
+
 # ncgi::query
 #
 #	This reads the query data from the appropriate location, which depends
@@ -84,9 +112,8 @@ proc ncgi::query {{fakeinput {}}} {
     global env
     variable query
 
-    if {0 && [info exist query]} {
+    if {[info exist query]} {
 	# This ensures you can call ncgi::query more than once 
-	# but it caused trouble with the test suite 
 	return $query
     }
 

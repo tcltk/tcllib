@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: ncgi.test,v 1.2 2000/03/10 19:54:36 ericm Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.3 2000/03/15 22:39:25 welch Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -17,27 +17,41 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 set auto_path [linsert $auto_path 0 [file dirname [info script]]]
 package require ncgi 1.0
 
-test ncgi-1.1 {ncgi::query fake query data} {
+test ncgi-1.1 {ncgi::reset} {
+    ncgi::reset
+    info exist ncgi::query
+} 0
+
+test ncgi-1.1 {ncgi::reset} {
+    ncgi::reset query=reset
+    set ncgi::query
+} query=reset
+
+test ncgi-2.1 {ncgi::query fake query data} {
+    ncgi::reset
     catch {unset env(REQUEST_METHOD)}
     ncgi::query "fake=query"
     set ncgi::query
 } "fake=query"
 
-test ncgi-1.2 {ncgi::query GET} {
+test ncgi-2.2 {ncgi::query GET} {
+    ncgi::reset
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) name=value
     ncgi::query "fake=query"
     set ncgi::query
 } "name=value"
 
-test ncgi-1.3 {ncgi::query HEAD} {
+test ncgi-2.3 {ncgi::query HEAD} {
+    ncgi::reset
     set env(REQUEST_METHOD) HEAD
     catch {unset env(QUERY_STRING)}
     ncgi::query "fake=query"
     set ncgi::query
 } ""
 
-test ncgi-1.4 {ncgi::query POST} {
+test ncgi-2.4 {ncgi::query POST} {
+    ncgi::reset
     catch {unset env(QUERY_STRING)}
     set env(REQUEST_METHOD) POST
     set env(CONTENT_LENGTH) 10
@@ -53,124 +67,127 @@ test ncgi-1.4 {ncgi::query POST} {
     set line
 } "name=value"
 
-test ncgi-2.1 {ncgi::decode} {
+test ncgi-3.1 {ncgi::decode} {
     ncgi::decode abcdef0123
 } abcdef0123
 
-test ncgi-2.2 {ncgi::decode} {
+test ncgi-3.2 {ncgi::decode} {
     ncgi::decode {[abc]def$0123\x}
 } {[abc]def$0123\x}
 
-test ncgi-2.3 {ncgi::decode} {
+test ncgi-3.3 {ncgi::decode} {
     ncgi::decode {[a%25c]def$01%7E3\x%3D}
 } {[a%c]def$01~3\x=}
 
-test ncgi-3.1 {ncgi::encode} {
+test ncgi-4.1 {ncgi::encode} {
     ncgi::encode abcdef0123
 } abcdef0123
 
-test ncgi-3.2 {ncgi::encode} {
+test ncgi-4.2 {ncgi::encode} {
     ncgi::encode "\[abc\]def\$0123\\x"
 } {%5Babc%5Ddef%240123%5Cx}
 
-test ncgi-3.3 {ncgi::encode} {
+test ncgi-4.3 {ncgi::encode} {
     ncgi::encode {hello world}
 } {hello+world}
 
-test ncgi-3.4 {ncgi::encode} {
+test ncgi-4.4 {ncgi::encode} {
     ncgi::encode "hello\nworld\r\tbar"
 } {hello%0D%0Aworld%0D%09bar}
 
-test ncgi-4.1 {ncgi::list} {
+test ncgi-5.1 {ncgi::list} {
+    ncgi::reset
     catch {unset env(REQUEST_METHOD)}
     ncgi::list "name=hello+world&name2=%7ewelch"
 } {name {hello world} name2 ~welch}
 
-test ncgi-4.2 {ncgi::list} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::list "name=&name2"
+test ncgi-5.2 {ncgi::list} {
+    ncgi::reset  "name=&name2"
+    ncgi::list
 } {name {} anonymous name2}
 
-test ncgi-5.1 {ncgi::parse} {
+test ncgi-6.1 {ncgi::parse} {
+    ncgi::reset
     catch {unset env(REQUEST_METHOD)}
     ncgi::parse "name=&name2"
 } {name anonymous}
 
-test ncgi-5.2 {ncgi::parse} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::parse "name=value&name=value2"
+test ncgi-6.2 {ncgi::parse} {
+    ncgi::reset "name=value&name=value2"
+    ncgi::parse 
 } {name}
 
-test ncgi-6.1 {ncgi::input} {
+test ncgi-7.1 {ncgi::input} {
+    ncgi::reset
     catch {unset env(REQUEST_METHOD)}
     ncgi::input "name=value&name2=value2"
 } {name name2}
 
-test ncgi-6.2 {ncgi::input} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::input "nameList=value1+stuff&nameList=value2+more"
+test ncgi-7.2 {ncgi::input} {
+    ncgi::reset "nameList=value1+stuff&nameList=value2+more"
+    ncgi::input
     set ncgi::value(nameList)
 } {{value1 stuff} {value2 more}}
 
-test ncgi-6.3 {ncgi::input} {
-    catch {unset env(REQUEST_METHOD)}
-    catch {ncgi::input "name=value&name=value2"} err
+test ncgi-7.3 {ncgi::input} {
+    ncgi::reset "name=value&name=value2"
+    catch {ncgi::input} err
     set err
 } {Multiple definitions of name encountered in input. If you're trying to do this intentionally (such as with select), the variable must have a "List" suffix.}
 
-test ncgi-7.1 {ncgi::value} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::input "nameList=val+ue&nameList=value2"
+test ncgi-8.1 {ncgi::value} {
+    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::input
     ncgi::value nameList
 } {{val ue} value2}
 
-test ncgi-7.2 {ncgi::value} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::parse "name=val+ue&name=value2"
+test ncgi-8.2 {ncgi::value} {
+    ncgi::reset "name=val+ue&name=value2"
+    ncgi::parse
     ncgi::value name
 } {val ue}
 
-test ncgi-7.3 {ncgi::value} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::parse "name=val+ue&name=value2"
+test ncgi-8.3 {ncgi::value} {
+    ncgi::reset "name=val+ue&name=value2"
+    ncgi::parse
     ncgi::value noname
 } {}
 
-test ncgi-8.1 {ncgi::valuelist} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::parse "name=val+ue&name=value2"
+test ncgi-9.1 {ncgi::valuelist} {
+    ncgi::reset "name=val+ue&name=value2"
+    ncgi::parse
     ncgi::valuelist name
 } {{val ue} value2}
 
-test ncgi-8.2 {ncgi::value} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::parse "name=val+ue&name=value2"
+test ncgi-9.2 {ncgi::value} {
+    ncgi::reset "name=val+ue&name=value2"
+    ncgi::parse
     ncgi::value noname
 } {}
 
-test ncgi-9.1 {ncgi::import} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::input "nameList=val+ue&nameList=value2"
+test ncgi-10.1 {ncgi::import} {
+    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::input
     ncgi::import nameList
     set nameList
 } {{val ue} value2}
 
-test ncgi-9.2 {ncgi::import} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::input "nameList=val+ue&nameList=value2"
+test ncgi-10.2 {ncgi::import} {
+    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::input
     ncgi::import nameList myx
     set myx
 } {{val ue} value2}
 
-test ncgi-9.1 {ncgi::import} {
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::input "nameList=val+ue&nameList=value2"
+test ncgi-10.1 {ncgi::import} {
+    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::input
     ncgi::import noname
     set noname
 } {}
 
 set URL http://www.tcltk.com/index.html
-test ncgi-10.1 {ncgi::redirect} {
+test ncgi-11.1 {ncgi::redirect} {
     set env(REQUEST_URI) http://www.scriptics.com/cgi-bin/test.cgi
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) {}
@@ -190,7 +207,7 @@ test ncgi-10.1 {ncgi::redirect} {
 
 set URL /elsewhere/foo.html
 set URL2 http://www.scriptics.com/elsewhere/foo.html
-test ncgi-10.2 {ncgi::redirect} {
+test ncgi-11.2 {ncgi::redirect} {
     set env(REQUEST_URI) http://www.scriptics.com/cgi-bin/test.cgi
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) {}
@@ -210,7 +227,7 @@ test ncgi-10.2 {ncgi::redirect} {
 
 set URL foo.html
 set URL2 http://www.scriptics.com/cgi-bin/foo.html
-test ncgi-10.3 {ncgi::redirect} {
+test ncgi-11.3 {ncgi::redirect} {
     set env(REQUEST_URI) http://www.scriptics.com/cgi-bin/test.cgi
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) {}
@@ -230,7 +247,7 @@ test ncgi-10.3 {ncgi::redirect} {
 
 set URL foo.html
 set URL2 http://www.scriptics.com/cgi-bin/foo.html
-test ncgi-10.4 {ncgi::redirect} {
+test ncgi-11.4 {ncgi::redirect} {
     set env(REQUEST_URI) /cgi-bin/test.cgi
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) {}
@@ -250,7 +267,7 @@ test ncgi-10.4 {ncgi::redirect} {
 
 set URL foo.html
 set URL2 http://www.scriptics.com:8000/cgi-bin/foo.html
-test ncgi-10.5 {ncgi::redirect} {
+test ncgi-11.5 {ncgi::redirect} {
     set env(REQUEST_URI) /cgi-bin/test.cgi
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) {}
@@ -270,7 +287,7 @@ test ncgi-10.5 {ncgi::redirect} {
 
 set URL foo.html
 set URL2 https://www.scriptics.com/cgi-bin/foo.html
-test ncgi-10.6 {ncgi::redirect} {
+test ncgi-11.6 {ncgi::redirect} {
     set env(REQUEST_URI) /cgi-bin/test.cgi
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) {}
@@ -289,7 +306,7 @@ test ncgi-10.6 {ncgi::redirect} {
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
-test ncgi-11.1 {ncgi::header} {
+test ncgi-12.1 {ncgi::header} {
     makeFile {
 	if {[catch {
 	source ncgi.tcl
@@ -302,7 +319,7 @@ test ncgi-11.1 {ncgi::header} {
     read $f
 } "Content-Type: text/html\n\n"
 
-test ncgi-11.1 {ncgi::header} {
+test ncgi-12.2 {ncgi::header} {
     makeFile {
 	if {[catch {
 	source ncgi.tcl
@@ -315,7 +332,7 @@ test ncgi-11.1 {ncgi::header} {
     read $f
 } "Content-Type: text/plain\n\n"
 
-test ncgi-11.1 {ncgi::header} {
+test ncgi-12.3 {ncgi::header} {
     makeFile {
 	if {[catch {
 	source ncgi.tcl
