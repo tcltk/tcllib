@@ -8,4 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded stats 1.0 [list source [file join $dir stats.tcl]]
+package    ifneeded stats 1.0 [list error "The stats package is deprecated, use counter instead"]
+## package ifneeded stats 1.0 [list source [file join $dir stats.tcl]]
