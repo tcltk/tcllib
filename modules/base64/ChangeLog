@@ -1,3 +1,7 @@
+2000-03-09  Eric Melski  <ericm@scriptics.com>
+
+	* base64.test: Adapted tests to work in tcllib test framework.
+
 2000-03-04  Eric Melski  <ericm@scriptics.com>
 
 	* base64.test: Added tests for decoding data that was padded with ='s
