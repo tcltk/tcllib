@@ -7,74 +7,90 @@
 [require doctools::toc [opt 1.0]]
 [description]
 
-This package provides objects which can be used to convert text
-written in the doctoc format as specified in [syscmd doctoc_fmt] into
-any output format X, assuming that a formatting engine for X is
-available and provides the interface specified in [syscmd doctoc_api].
+This package provides objects for the conversion of text written in
+the [term doctoc] format into any output format X, assuming that a
+formatting engine for X is available.
+
+[para]
+
+This document has two companions.
+
+The first, [term doctoc_fmt], is the formal specification of the
+[term doctoc] format; the other, [term doctoc_api], is the formal
+specification of the interface between the objects provided here and
+the formatting engines they require.
+
 
 [section {PUBLIC API}]
 [subsection {PACKAGE COMMANDS}]
 
 [list_begin definitions]
 
-[call [cmd ::doctools::toc::new] [arg objectName] [opt [arg "option value"]...]]
+[call [cmd ::doctools::toc::new] [arg objectName] [opt "[option -option] [arg value] ..."]]
 
-Creates a new doctoc object with an associated global Tcl command
-whose name is [arg objectName]. This command is explained in full
-detail in the sections [sectref {OBJECT COMMAND}] and
-
-[sectref {OBJECT METHODS}].
+This command creates a new doctoc object with an associated Tcl
+command whose name is [arg objectName]. This [term object] command is
+explained in full detail in the sections [sectref {OBJECT COMMAND}]
+and [sectref {OBJECT METHODS}]. The object command will be created
+under the current namespace if the [arg objectName] is not fully
+qualified, and in the specified namespace otherwise.
 
 [nl]
 
-The list of options and values coming after the name of the object is
+The options and their values coming after the name of the object are
 used to set the initial configuration of the object.
+
 
 [call [cmd ::doctools::toc::help]]
 
-This is a convenience command for applications which want to provide
-their user with a reminder of the available formatting commands and
-their meanings. It returns a string containing a standard help for
-this purpose.
+This is a convenience command for applications wishing to provide
+their user with a short description of the available formatting
+commands and their meanings. It returns a string containing a standard
+help text.
 
 
 [call [cmd ::doctools::toc::search] [arg path]]
 
-Whenever the package has to map the name of a format to the file
-containing the code for its formatting engine it will search the file
-in a number of directories. Three such directories are declared by the
-package itself.
+Whenever an object created by this the package has to map the name of
+a format to the file containing the code for its formatting engine it
+will search for the file in a number of directories stored in a
+list. See section [sectref {FORMAT MAPPING}] for more explanations.
 
 [nl]
 
-However the list is extensible by the user of the package and the
-command above is the means to do so. When given a [arg path] to an
+This list not only contains three default directories which are
+declared by the package itself, but is also extensible user of the
+package.
+
+This command is the means to do so. When given a [arg path] to an
 existing and readable directory it will prepend that directory to the
-existing list. This means that the path added last is searched through
-first.
+list of directories to search. This means that the [arg path] added
+last is later searched through first.
 
 [nl]
 
-An error will be thrown if the [arg path] either does not excist, is
+An error will be thrown if the [arg path] either does not exist, is
 not a directory, or is not readable.
 
 [list_end]
 
+
 [subsection {OBJECT COMMAND}]
 
 All commands created by [cmd ::doctools::toc::new] have the following
-general form and may be used to invoke various operations on the
-object they are associated with.
+general form and may be used to invoke various operations on their
+doctoc converter object.
 
 [list_begin definitions]
 
-[call [cmd objectName] [arg option] [opt [arg "arg arg ..."]]]
+[call [cmd objectName] [method method] [opt [arg "arg arg ..."]]]
 
-The [arg option] and its [arg arg]s determine the exact behavior of
-the command. See section [sectref {OBJECT METHODS}] for more
-explanations.
+The method [method method] and its [arg arg]'uments determine the exact
+behavior of the command. See section [sectref {OBJECT METHODS}] for
+the detailed specifications.
 
 [list_end]
+
 
 [subsection {OBJECT METHODS}]
 
@@ -82,28 +98,33 @@ explanations.
 
 [call [arg objectName] [method configure]]
 
-When called without argument this method returns a list of all known
-options and their current values.
+The method returns a list of all known options and their current
+values when called without any arguments.
+
 
 [call [arg objectName] [method configure] [arg option]]
 
-When called with a single argument this method behaves like
-[method cget].
+The method behaves like the method [method cget] when called with a
+single argument and returns the value of the option specified by said
+argument.
 
-[call [arg objectName] [method configure] [arg "option value"]...]
 
-When called with more than one argument the method reconfigures the
-object using the [arg option]s and [arg value]s given to it.
+[call [arg objectName] [method configure] [option -option] [arg value]...]
+
+The method reconfigures the specified [option option]s of the object,
+setting them to the associated [arg value]s, when called with an even
+number of arguments, at least two.
 
 [nl]
 
-The legal configuration options are described in section
+The legal options are described in the section
 [sectref {OBJECT CONFIGURATION}].
 
-[call [arg objectName] [method cget] [arg option]]
 
-This method expects a legal configuration option as argument and
-returns the current value of that option for the object the method was
+[call [arg objectName] [method cget] [option -option]]
+
+This method expects a legal configuration option as argument and will
+return the current value of that option for the object the method was
 invoked for.
 
 [nl]
@@ -111,169 +132,169 @@ invoked for.
 The legal configuration options are described in section
 [sectref {OBJECT CONFIGURATION}].
 
+
 [call [arg objectName] [method destroy]]
 
-Destroys the object it is invoked for.
+This method destroys the object it is invoked for.
+
 
 [call [arg objectName] [method format] [arg text]]
 
-Takes the [arg text] and runs it through the configured formatting
-engine. The resulting string is returned as the result of this
-method. An error will be thrown if no [option -format] was configured
-for the object.
+This method runs the [arg text] through the configured formatting
+engine and returns the generated string as its result. An error will
+be thrown if no [option -format] was configured for the object.
 
 [nl]
 
-The method assumes that the [arg text] is in doctoc format as
-specified in [cmd dtformat(n)]. Errors will be thrown otherwise.
+The method assumes that the [arg text] is in [term doctoc] format as
+specified in the companion document [term doctoc_fmt]. Errors will be
+thrown otherwise.
 
 
 [call [arg objectName] [method map] [arg symbolic] [arg actual]]
 
-This methods extends the per-object mapping from a
-[arg symbolic] filename to the [arg actual] uri.
+This methods add one entry to the per-object mapping from
+[arg symbolic] filenames to the [arg actual] uris.
 
-The object itself just stores the mapping and does nothing with
-it. However the engine for the configured format can query the mapping
-through the command [cmd dt_fmap] (see [syscmd doctoc_api])
+The object just stores this mapping and makes it available to the
+configured formatting engine through the command [cmd dt_fmap].
+
+This command is described in more detail in the companion document
+[term doctoc_api] which specifies the API between the object and
+toc formatting engines.
 
 
 [call [arg objectName] [method parameters]]
 
-Returns a list containing the names of all parameters supported by the
-engine for the format the object is configured for. Returns an empty
-list if the object is not yet configured for a specific format.
+This method returns a list containing the names of all engine
+parameters provided by the configured formatting engine. It will
+return an empty list if the object is not yet configured for a
+specific format.
 
 
 [call [arg objectName] [method search] [arg path]]
 
-This method extends the per-object list of paths searched for
-formatting engines. See also [cmd ::doctools::toc::search] on how to extend
-the global (per-package) list of paths.
+This method extends the per-object list of paths searched for toc
+formatting engines. See also the command [cmd ::doctools::toc::search]
+on how to extend the per-package list of paths. Note that the path
+entered last will be searched first.
 
-[nl]
-
-The path entered last is searched through first.
+For more details see section [sectref {FORMAT MAPPING}].
 
 
 [call [arg objectName] [method setparam] [arg name] [arg value]]
 
-Sets the [arg name]d engine parameter to the given [arg value]. Throws
-an error if the object is not yet configured for a specific
-format. Also throws an error if the configured format does not know a
-parameter with the specified [arg name]. The list of known parameter
-names can be retrieved via method [method parameters].
+This method sets the [arg name]d engine parameter to the specified
+[arg value].
+
+It will throw an error if the object is either not yet configured for
+a specific format, or if the formatting engine for the configured
+format does not provide a parameter with the given [arg name].
+
+The list of parameters provided by the configured formatting engine
+can be retrieved through the method [method parameters].
 
 
 [call [arg objectName] [method warnings]]
 
-Returns a list containing all the warnings generated by the engine
-during the last invocation of method [method format].
+This method returns a list containing all the warnings which were
+generated by the configured formatting engine during the last
+invocation of the method [method format].
 
 [list_end]
 
-[section {OBJECT CONFIGURATION}]
+
+[subsection {OBJECT CONFIGURATION}]
 
 All doctoc objects understand the following configuration options:
 
-[list_begin definitions]
+[list_begin opt]
 
-[lst_item "[option -file] [arg file]"]
+[opt_def -file [arg file]]
 
-The argument of this option is stored in the object and can be
-retrieved by the formatting engine via the command [cmd dt_file] (see
-[cmd dtformatter(n)]). Its default value is the empty string.
+The argument of this option is stored in the object and made available
+to the configured formatting engine through the command [cmd dt_file].
 
-[nl]
-
-It will be interpreted as the name of the file containing the text
-currently processed by the engine.
-
-[lst_item "[option -module] [arg text]"]
-
-The argument of this option is stored in the object and can be
-retrieved by the formatting engine via the command [cmd dt_module]
-(see [cmd dtformatter(n)]). Its default value is the empty string.
+This command is described in more detail in the companion document
+[term doctoc_api] which specifies the API between the object and
+formatting engines.
 
 [nl]
 
-It will be interpreted as the name of the module the file containing
-the text currently processed by the engine belongs to.
-
-[lst_item "[option -format] [arg text]"]
-
-The argument of this option specifies the format and thus the engine
-to use when converting text via [method format]. Its default value is
-the empty string. No formatting is possible if this
-option is not set at least once.
+The default value of this option is the empty string.
 
 [nl]
 
-The package will immediately try to map the name of the format to a
-file containing the implementation of the engine for that format. An
-error will be thrown if this mapping fails and a previously configured
-format is left untouched.
+The configured formatting engine should interpret the value as the
+name of the file containing the document which is currently processed.
+
+
+[opt_def -format [arg text]]
+
+The argument of this option specifies the format to generate and by
+implication the formatting engine to use when converting text via the
+method [method format]. Its default value is the empty string. The
+method [method format] cannot be used if this option is not set to a
+valid value at least once.
 
 [nl]
 
-Section [sectref {FORMAT MAPPING}] explains how
-the package looks for engine implementations.
+The package will immediately try to map the given name to a file
+containing the code for a formatting engine generating that format. An
+error will be thrown if this mapping fails. In that case a previously
+configured format is left untouched.
 
-[lst_item "[option -deprecated] [arg boolean]"]
+[nl]
 
-This option is a flag. If set the object will generate warnings when
-formatting a text containing the deprecated markup command [cmd strong]
-Its default value is [const FALSE]. In other words, no warnings will
-be generated.
+The section [sectref {FORMAT MAPPING}] explains in detail how the
+package and object will look for engine implementations.
 
 [list_end]
 
-[section {FORMAT MAPPING}]
 
-When trying to map a format name [term foo] to the file containing
-the implementation of formatting engine for [term foo] the package
-will perform the following algorithm:
+[subsection {FORMAT MAPPING}]
+
+The package and object will perform the following algorithm when
+trying to map a format name [term foo] to a file containing an
+implementation of a formatting engine for [term foo]:
 
 [list_begin enum]
 [enum]
 
-If [term foo] is the name of an existing file this file is directly
-taken as the implementation.
+If [term foo] is the name of an existing file then this file is
+directly taken as the implementation.
 
 [enum]
 
 If not, the list of per-object search paths is searched. For each
 directory in the list the package checks if that directory contains a
-file [file fmt.[term foo]]. If yes, that file is taken as the
+file [file toc.[term foo]]. If yes, then that file is taken as the
 implementation.
 
 [nl]
 
-This list of paths is initially empty and can be extended through the
-object method [method search].
+Note that this list of paths is initially empty and can be extended
+through the object method [method search].
 
 [enum]
 
-If not, the list of global (package) paths is searched. For each
-directory in the list the package checks if that directory contains a
-file [file toc.[term foo]]. If yes, that file is taken as the
-implementation.
+If not, the list of package paths is searched.
+
+For each directory in the list the package checks if that directory
+contains a file [file toc.[term foo]]. If yes, then that file is taken
+as the implementation.
 
 [nl]
 
-This list of paths contains initially one path and can be extended
+This list of paths can be extended
 through the command [cmd ::doctools::toc::search].
 
-[nl]
-
-The initial (standard) path is the sub directory [file mpformats] of
+It contains initially one path, the subdirectory [file mpformats] of
 the directory the package itself is located in. In other words, if the
-package implementation [file doctoc.tcl] is installed in the
-directory [file /usr/local/lib/tcllib/doctools] then it will by
-default search the directory
-
-[file /usr/local/lib/tcllib/doctools/mpformats] for format
-implementations.
+package implementation [file doctoc.tcl] is installed in the directory
+[file /usr/local/lib/tcllib/doctools] then it will by default search
+the directory [file /usr/local/lib/tcllib/doctools/mpformats] for
+format implementations.
 
 [enum]
 
@@ -284,9 +305,9 @@ The mapping fails.
 
 [section {PREDEFINED ENGINES}]
 
-The package provides predefined engines for the following
-formats. Some of the engines support parameters. These will be
-explained below as well.
+The package provides predefined formatting engines for the following
+formats. Some of the formatting engines support engine
+parameters. These will be explicitly highlighted.
 
 [list_begin definitions]
 [lst_item html]
@@ -372,6 +393,8 @@ Wippler's [syscmd wikit] application.
 
 [list_end]
 
-[see_also doctoc_api doctoc_fmt]
-[keywords doctoc toc {table of contents} index documentation manpage TMML HTML nroff conversion markup]
+
+[see_also doctools doctoc_api doctoc_fmt]
+[keywords doctoc toc {table of contents} documentation manpage]
+[keywords TMML HTML nroff latex wiki conversion markup]
 [manpage_end]
