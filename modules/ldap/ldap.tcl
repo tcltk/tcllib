@@ -36,6 +36,20 @@
 #
 #
 #   $Log: ldap.tcl,v $
+#   Revision 1.2  2004/06/17 03:47:04  andreas_kupries
+#   Removed question in comments, issue is resolved.
+#
+#   New module, partial ASN.1 de- and encoder.
+#
+#   Added log command for hex output (when dealing with binary
+#   data).
+#
+#   Import of Arjen's changes, adding bessel functions to math,
+#   also complex numbers.
+#
+#   Import of my changes, detection of doctools documentation
+#   files, also doctoc and docidx.
+#
 #   Revision 1.1  2004/04/27 19:45:35  andreas_kupries
 #
 #   	* installed_modules.tcl: Added new module.
@@ -972,7 +986,7 @@ proc ldap::asnOctetString { string } {
 
 
 #-----------------------------------------------------------------------------
-#    asnGetResponse
+#    asnGetResponse - LDAP specific ?
 #
 #-----------------------------------------------------------------------------
 proc ldap::asnGetResponse { sock data_var } {
