@@ -1,3 +1,15 @@
+2005-02-09  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* asn.tcl:
+	* asn.man:
+	* asn.test: Fixed incorrect length encoding and decoding .
+	  Added 64-bit support for length encoding/decoding,
+	  Added 64-bit support for integers. 
+	  Added tests for length encoding/decoding (10.x-11.x).
+	  Added tests for 64-bit integers.
+	  Bumped version number to 0.4
+	  The package now needs Tcl 8.4 for wide() support.
+	  
 2004-12-29  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* asn.tcl: 
