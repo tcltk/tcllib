@@ -1,9 +1,9 @@
-[manpage_begin ntp_time n 1.0.2]
+[manpage_begin ntp_time n 1.0.3]
 [copyright {2002, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {ntp}]
 [titledesc {Tcl Time Service Client}]
 [require Tcl 8.2]
-[require time [opt 1.0.2]]
+[require time [opt 1.0.3]]
 [description]
 [para]
 

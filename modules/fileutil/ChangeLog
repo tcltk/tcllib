@@ -1,5 +1,17 @@
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Rel. engineering. Updated version number 
+	* fileutil.man: of fileutil to reflect its changes, to 1.6.1.
+	* pkgIndex.tcl:
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* fileutil.test: Cleaning up after Aaron. Updated the test
 	  filetype-1.12 to look for the extended return value of fileType
 	  when applied to jpeg images. The last checkin changed this, but

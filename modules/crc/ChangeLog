@@ -1,7 +1,19 @@
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* crc32.tcl: Rel. engineering. Updated version number 
+	* crc32.man: of crc32 to reflect its changes, to 1.1.1.
+	* pkgIndex.tcl:
+
 2004-04-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.tcl: Cope with data begining with hyphen when using
-	Trf (SF bug #914278)
+	  Trf (SF bug #914278)
 
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
