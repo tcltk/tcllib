@@ -4003,6 +4003,133 @@ test error-1.6 {oncget errors propagate properly} {
     list $result [string match "*bogusInfo*" $errorInfo] $errorCode
 } {bogusError 1 bogusCode}
 
+#-----------------------------------------------------------------------
+# Externally defined typemethods
+
+test etypemethod-1.1 {external typemethods can be called as expected.} {
+    cleanup
+
+    type dog { }
+    typemethod dog foo {a} {return "+$a+"}
+    
+    dog foo bar
+} {+bar+}
+
+test etypemethod-1.2 {external typemethods can use typevariables} {
+    cleanup
+
+    type dog { 
+        typevariable somevar "Howdy"
+    }
+    typemethod dog getvar {} {return $somevar}
+
+    dog getvar
+} {Howdy}
+
+test etypemethod-1.3 {typemethods can be redefined dynamically} {
+    cleanup
+
+    type dog { 
+        typemethod foo {} { return "foo" }
+    }
+    set a [dog foo]
+    
+    typemethod dog foo {} { return "bar"}
+        
+    set b [dog foo]
+        
+    list $a $b
+} {foo bar}
+
+test etypemethod-1.4 {can't define external typemethod if no type} {
+    cleanup
+
+    catch {
+        typemethod extremelyraredog foo {} { return "bar"}
+    } result 
+
+    set result
+} {no such type: 'extremelyraredog'}
+
+#-----------------------------------------------------------------------
+# Externally defined methods
+
+test emethod-1.1 {external methods can be called as expected.} {
+    cleanup
+
+    type dog { }
+    method dog bark {a} {return "+$a+"}
+    
+    dog spot
+    spot bark woof
+} {+woof+}
+
+test emethod-1.2 {external methods can use typevariables} {
+    cleanup
+
+    type dog { 
+        typevariable somevar "Hello"
+    }
+    method dog getvar {} {return $somevar}
+
+    dog spot
+    spot getvar
+} {Hello}
+
+test emethod-1.3 {external methods can use variables} {
+    cleanup
+
+    type dog { 
+        variable somevar "Greetings"
+    }
+    method dog getvar {} {return $somevar}
+
+    dog spot
+    spot getvar
+} {Greetings}
+
+test emethod-1.4 {methods can be redefined dynamically} {
+    cleanup
+
+    type dog { 
+        method bark {} { return "woof" }
+    }
+
+    dog spot
+
+    set a [spot bark]
+    
+    method dog bark {} { return "arf"}
+        
+    set b [spot bark]
+        
+    list $a $b
+} {woof arf}
+
+test emethod-1.5 {delegated methods can't be redefined} {
+    cleanup
+
+    type dog { 
+        delegate method bark to someotherdog
+    }
+
+    catch {
+        method dog bark {} { return "arf"}
+    } result
+        
+    set result
+} {Cannot define 'bark', it has been delegated.}
+
+test emethod-1.6 {can't define external method if no type} {
+    cleanup
+
+    catch {
+        method extremelyraredog foo {} { return "bar"}
+    } result 
+
+    set result
+} {no such type: 'extremelyraredog'}
+
 
 #---------------------------------------------------------------------
 # Clean up
