@@ -27,7 +27,9 @@ package require Tcl 8.3
 package require Tk
 package require smtpd
 package require mime
-wm withdraw .
+
+#wm withdraw .
+wm title . "Tcllib SMTPD sample."
 set _dlgid 0
 
 # Handle new mail by raising a message dialog for each recipient.
@@ -62,7 +64,7 @@ proc display {title mail} {
     pack $frm -side top -fill both -expand 1
     pack $but -side bottom
     wm title $dlg $title
-    $txt insert 0.0 $mail
+    $txt insert 0.0 [string map {\r\n \n} $mail]
 }
 
 # Accept everyone except those spammers on 192.168.1.* :)
@@ -117,6 +119,11 @@ if {$tcl_interactive } {
         set port [lindex $argv 1]
     }
         
+    set b1 [button .b -text "Stop Mail server" \
+                -command [list ::smtpd::stop]]
+    set b2 [button .b -text "Start Mail server" \
+                -command [list ::smtpd::start $iface $port]]
+    pack -side top $b1 $b2
     smtpd::start $iface $port
 }
 
