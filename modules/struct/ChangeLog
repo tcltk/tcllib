@@ -1,3 +1,12 @@
+2004-09-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.test:  Fixed [Tcllib SF Bug 1007396]. Multiple use
+	* graph.tcl:   of the various restrictions is not allowed.
+	* graph.man:   Added to code, test suite, and documentation.
+	* graph1.test:
+	* graph1.tcl:
+	* graph1.man:
+
 2004-08-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stack.tcl: Corrected typo in constructor error message,

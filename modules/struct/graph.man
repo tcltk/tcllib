@@ -376,12 +376,15 @@ from the result list before it is returned to the caller.
 
 The restrictions imposed by either [option -in], [option -out],
 [option -adj], [option -inner], or [option -embedded] are applied
-first.
+first. Specifying more than one of them is illegal.
 
 After that the restrictions set via [option -key]
 (and [option -value]) are applied.
+Specifying more than one [option -key] (and [option -value]) is
+illegal.
 
-Any restriction set through [option -filter] is applied last.
+Any restriction set through [option -filter] is applied
+last. Specifying more than one [option -filter] is illegal.
 
 
 [call [arg graphName] [method lappend] [arg key] [arg value]]
