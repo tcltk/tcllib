@@ -1,3 +1,10 @@
+2002-08-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* nntp.man: Added example, updated reference from rfc 850 to rfc
+	  1036. See Tcllib SF #597102, by Jussi Kuosa
+	  <Jussi.Kuosa@tellabs.com>.
+	* nntp.n: Out of date. Deprecated.
+
 2002-03-25  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* nntp.man: New file, doctools manpage.
