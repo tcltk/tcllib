@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.6 2001/11/08 06:26:41 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.7 2001/12/06 21:53:52 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -88,12 +88,12 @@ test find-2.1 {find by pattern} {
 } {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}
 
 test find-2.2 {find by pattern} {
-    lsort [::fileutil::findByPattern $dir -glob {fil*}]
+    lsort [::fileutil::findByPattern [file join $dir find1] -glob {fil*}]
 } [list [file join $dir find1 file1] [file join $dir find1 find2 file2]]
 
 test find-2.3 {find by pattern} {
-    lsort [::fileutil::findByPattern $dir -regexp {.*1$}]
-} [list [file join $dir find1] [file join $dir find1 file1]]
+    lsort [::fileutil::findByPattern [file join $dir find1] -regexp {.*1$}]
+} [list [file join $dir find1 file1]]
 
 
 catch {removeDirectory grepTest} ; # start with a clean structure!
