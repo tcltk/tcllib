@@ -1,14 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment { $Id: multiplexer.man,v 1.2 2003/05/19 13:40:22 davidw Exp $ }]
+[comment { $Id: multiplexer.man,v 1.3 2003/05/20 23:01:47 andreas_kupries Exp $ }]
 [manpage_begin multiplexer n 0.2]
-[moddesc   {One-to-many comunication with sockets.}]
-[titledesc {One-to-many comunication with sockets.}]
+[moddesc   {One-to-many communication with sockets.}]
+[titledesc {One-to-many communication with sockets.}]
 [require Tcl]
 [require logger]
 [description]
 
-The multiplexer package provides a generic system for one-to-many
-comunication utilizing sockets.  For example, think of a chat system
+The [package multiplexer] package provides a generic system for one-to-many
+communication utilizing sockets.  For example, think of a chat system
 where one user sends a message which is then broadcast to all the
 other connected users.
 
@@ -33,57 +33,94 @@ This starts the multiplexer listening on the specified port.
 
 [call [cmd \${multiplexer_instance}::Config] [arg key] [arg value]]
 
-Use [cmd Config] to configure the multiplexer instance.  Configuration options currently include:
+Use [cmd Config] to configure the multiplexer instance.  Configuration
+options currently include:
 
 [list_begin opt]
 
-[opt_def sendtoorigin]: If 1, the sender receives a copy of the sent
-message.  Defaults to 0.
+[opt_def sendtoorigin]
 
-[opt_def debuglevel]: Sets the debug level to use for the multiplexer
-instance, according to those specified by the [package logger] package (debug,
-info, notice, warn, error, critical).
+A boolean flag. If [const true], the sender will receive a copy of the
+sent message.  Defaults to [const false].
+
+[opt_def debuglevel]
+
+Sets the debug level to use for the multiplexer instance, according to
+those specified by the [package logger] package (debug, info, notice,
+warn, error, critical).
 
 [list_end]
 
-[call [cmd \${multiplexer_instance}::AddFilter] [arg data] [arg chan] [arg clientaddress] [arg clientport]]
+[call [cmd \${multiplexer_instance}::AddFilter] [arg cmdprefix]]
 
-Command to add a filter for data that passes through the multiplexer.
-The filter proc is called like this:
+Command to add a filter for data that passes through the multiplexer
+instance. 
 
-[example {Filter data chan clientaddress clientport}]
+The registered [arg cmdprefix] is called when data arrives at a
+multiplexer instance. If there is more than one filter command
+registered at the instance they will be called in the order of
+registristation, and each filter will get the result of the preceding
+filter as its argument. The first filter gets the incoming data as its
+argument. The result returned by the last filter is the data which
+will be broadcast to all clients of the multiplexer instance.
 
-Arguments:
+The command prefix is called as
 
-function: proc to filter data that arrives to the multiplexer.  Takes
-data, chan, clientaddress, and clientport arguments.  Returns filtered
-version of data.
+[list_begin definitions]
+[call [cmd cmdprefix] [arg data] [arg chan] [arg clientaddress] [arg clientport]]
 
-[call [cmd \${multiplexer_instance}::AddAccessFilter] [arg data] [arg chan] [arg clientaddress] [arg clientport]]
+Takes the incoming [arg data], modifies it, and returns that as its
+result. The last three arguments contain information about the client
+which sent the data to filter: The channel connecting us to the
+client, its ip-address, and its ip-port.
 
-Command to add an access filter that will be called like so:
+[list_end]
 
-[example {AccessFilter chan clientaddress clientport}]
 
-Arguments:
+[call [cmd \${multiplexer_instance}::AddAccessFilter] [arg cmdprefix]]
 
-function: proc to filter access to the multiplexer.  Takes chan,
-clientaddress and clientport arguments.  Returns 0 on success, -1 on
-failure.
+Command to add an access filter.
 
-[call [cmd \${multiplexer_instance}::AddExitFilter] [arg chan] [arg clientaddress] [arg clientport]]
+The registered [arg cmdprefix] is called when a new client socket
+tries to connect to the multixer instance. If there is more than one
+access filter command registered at the instance they will be called
+in the order of registristation. If any of the called commands returns
+[const -1] the access to the multiplexer instance is denied and the
+client channel is closed immediately. Any other result grants the
+client access to the multiplexer instance.
+
+The command prefix is called as
+
+[list_begin definitions]
+[call [cmd cmdprefix] [arg chan] [arg clientaddress] [arg clientport]]
+
+The arguments contain information about the client which tries to
+connected to the instance: The channel connecting us to the client,
+its ip-address, and its ip-port.
+
+[list_end]
+
+
+[call [cmd \${multiplexer_instance}::AddExitFilter] [arg cmdprefix]]
 
 Adds filter to be run when client socket generates an EOF condition.
-ExitFilter functions look like the following:
 
-ExitFilter chan clientaddress clientport
+The registered [arg cmdprefix] is called when a client socket of the
+multixer signals EOF. If there is more than one exit filter command
+registered at the instance they will be called in the order of
+registristation. Errors thrown by an exit filter are ignored, but
+logged. Any result returned by an exit filter is ignored.
 
-Arguments:
+The command prefix is called as
 
-function: hook to be run when clients exit by generating an EOF.
-Takes chan, clientaddress and clientport arguments, and returns
-nothing.
+[list_begin definitions]
+[call [cmd cmdprefix] [arg chan] [arg clientaddress] [arg clientport]]
 
+The arguments contain information about the client which signaled the
+EOF: The channel connecting us to the client, its ip-address, and its
+ip-port.
+
+[list_end]
 [list_end]
 
 [keywords multiplexer chat]
