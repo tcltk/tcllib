@@ -1,3 +1,8 @@
+2004-05-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns-url.txt: Updated the dns-url document to -09 version. This
+	implementation is still valid so no changes to the uri code.
+
 2004-05-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Fix issue setting the log level properly.
