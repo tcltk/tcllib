@@ -9,6 +9,9 @@ exec tclsh "$0" ${1+"$@"}
 #
 #
 #   $Log: ldapquery,v $
+#   Revision 1.2  2004/04/27 21:15:02  andreas_kupries
+#   Fixed buglet. (Typo of varname).
+#
 #   Revision 1.1  2004/04/27 19:45:35  andreas_kupries
 #
 #   	* installed_modules.tcl: Added new module.
@@ -55,7 +58,7 @@ foreach {server base query} [lrange $argv 0 2] break
 set fields [lrange $argv 3 end]
 
 
-set potr 389
+set port 389
 regexp {([^:]*):([0-9]*)} $server --> server port
 
 set handle [ldap::connect $server $port]
