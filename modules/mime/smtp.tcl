@@ -86,6 +86,9 @@ if {[catch {package require Trf  2.0}]} {
 #                          request.
 #             -ports       A list of SMTP ports to use for each SMTP server
 #                          specified
+#             -maxsecs     Maximum number of seconds to allow the SMTP server
+#                          to accept the message. If not specified, the default
+#                          is 120 seconds.
 #
 # Results:
 #	Message is sent.  On success, return "".  On failure, throw an
@@ -104,6 +107,7 @@ proc smtp::sendmessage {part args} {
     set debugP 0
     set origP 0
     set queueP 0
+    set maxsecs 120
     set originator ""
     set recipients ""
     set servers [list localhost]
@@ -129,6 +133,7 @@ proc smtp::sendmessage {part args} {
             -atleastone {set aloP   [smtp::boolean $value]}
             -debug      {set debugP [smtp::boolean $value]}
             -queue      {set queueP [smtp::boolean $value]}
+	    -maxsecs    {set maxsecs [expr {$value < 0 ? 0 : $value}]}
             -header {
                 if {[llength $value] != 2} {
                     error "-header expects a key and a value, not $value"
@@ -379,6 +384,7 @@ proc smtp::sendmessage {part args} {
     # Create smtp token, which essentially means begin talking to the SMTP
     # server.
     set token [smtp::initialize -debug $debugP -client $client \
+		                -maxsecs $maxsecs \
                                 -multiple $bccP -queue $queueP \
                                 -servers $servers -ports $ports]
 
@@ -568,7 +574,7 @@ proc smtp::initialize {args} {
 
     array set state [list afterID "" options "" readable 0]
     array set options [list -debug 0 -client localhost -multiple 1 \
-                            -queue 0 -servers localhost -ports 25]
+                            -maxsecs 120 -queue 0 -servers localhost -ports 25]
     array set options $args
     set state(options) [array get options]
 
@@ -846,7 +852,7 @@ proc smtp::wtext {token part} {
         return -code 7 [list code 400 diagnostic $result]
     }
 
-    set secs [expr {(($state(size)>>10)+1)*3600}]
+    set secs $options(-maxsecs)
 
     set result [smtp::talk $token $secs .]
     array set response $result

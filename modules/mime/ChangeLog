@@ -1,5 +1,15 @@
 2002-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* smtp.tcl: Applied patch SF #557520/2 (== SF #558132) supplied by
+	  Todd Coram <tcoram@users.sourceforge.net>on behalf of Marshall
+	  Rose <mrose@users.sourceforge.net>. This patch dispenses with
+	  the automatic calculation of a timeout value and goes with a
+	  user-supplied value (new option -maxsecs) instead. Default for
+	  this option is 120 secs. This fixes bug SF #557040.
+
+	* performance.tcl: New file. Script supplied by Pascal Scheffers
+	  (see below) to test the performance of the mime package.
+
 	* mime.tcl: Applied patch SF #585455 supplied by Pascal Scheffers
 	  <pascalscheffers@users.sourceforge.net> on behalf of Marshall
 	  Rose <mrose@users.sourceforge.net>. This patch speeds up MIME
