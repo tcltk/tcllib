@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.21 2001/11/19 21:02:19 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.22 2002/01/16 19:00:57 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -1960,6 +1960,9 @@ proc ftp::Get {s args} {
 		set dest [file join $dest [file tail $source]]
 	    }
 	}
+	if {![file exists [file dirname $dest]]} {
+	    return -code error "ftp::Get, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
+	}
 	set ftp(LocalFilename) $dest
     }
 
@@ -2030,6 +2033,9 @@ proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
 
     if { $dest == "" } {
         set dest $source
+    }
+    if {![file exists [file dirname $dest]]} {
+	return -code error "ftp::Reget, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
     }
 
     set ftp(RemoteFilename) $source
@@ -2117,6 +2123,9 @@ proc ftp::Newer {s source {dest ""}} {
 
     if { $dest == "" } {
         set dest $source
+    }
+    if {![file exists [file dirname $dest]]} {
+	return -code error "ftp::Newer, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
     }
 
     set ftp(RemoteFilename) $source

@@ -1,3 +1,14 @@
+2002-01-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.tcl: Fix for bug #503471. The commands Get, Reget, and Newer
+	  now check if the directory the local file is to be placed in
+	  does exist. They now immediately throw an error if the directory
+	  does not exist instead of starting the download and getting
+	  confused.
+
+	* ftp.n: Typo fix. Updates in the descriptions of Get, Reget, and
+	  Newer explaining the new behaviour, s.a.
+
 2001-11-20  Joe English <jenglish@users.sourceforge.net>
 	* ftp.n: (r1.6 -> r1.8) Update for bug report #474999 
 	  "ftp man page description typo" -- attempt to clarify
