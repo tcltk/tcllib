@@ -12,3 +12,4 @@ set auto_index(::control::assert::enabled) [list source [file join $dir assert.t
 set auto_index(::control::assert::callback) [list source [file join $dir assert.tcl]]
 set auto_index(::control::AssertSwitch) [list source [file join $dir assert.tcl]]
 set auto_index(::control::assert) [list source [file join $dir assert.tcl]]
+set auto_index(::control::rswitch) [list source [file join $dir rswitch.tcl]]
