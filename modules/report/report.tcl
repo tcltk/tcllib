@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: report.tcl,v 1.2 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: report.tcl,v 1.3 2001/07/10 20:39:47 andreas_kupries Exp $
 
 package provide report 0.1
 
@@ -532,7 +532,7 @@ proc ::report::ReportProc {name {cmd ""} args} {
 proc ::report::CheckColumn {columns column} {
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub {end-} $column {} column
+	    regsub -- {end-} $column {} column
 	    set cc [expr {$columns - 1 - $column}]
 	    if {($cc < 0) || ($cc >= $columns)} {
 		return -code error "column: index \"end-$column\" out of range"

@@ -1,8 +1,12 @@
+2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* html.tcl: Frink 2.2 run, fixed dubious code.
+
 2001-06-19  Melissa Chawla <melissachawla@yahoo.com>
 
 	* modules/html/html.tcl: Added set and eval commands to this
  	package.  These commands have the same syntax as those built in to
- 	Tcl, but they are reworked return "" so they blend into HTML
+ 	Tcl, but they are reworked to return "" so they blend into HTML
  	template files without appending unwanted results.  The html::set
  	command must take two arguments.
 

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.2 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.3 2001/07/10 20:39:46 andreas_kupries Exp $
 
 package provide csv 0.1
 
@@ -160,7 +160,7 @@ proc ::csv::report {cmd matrix args} {
 #	A list of the values in 'line'.
 
 proc ::csv::split {line {sepChar ,}} {
-    regsub -all {(\A\"|\"\Z)} $line \0 line
+    regsub -all -- {(\A\"|\"\Z)} $line \0 line
     set line [string map [list $sepChar\"\"\" $sepChar\0\" \
 	    \"\"\"$sepChar \"\0$sepChar \
 	    \"\" \" \" \0 ] $line]

@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.5 2001/06/22 15:29:18 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.6 2001/07/10 20:39:47 andreas_kupries Exp $
 
 package provide uri 1.0
 
@@ -305,7 +305,7 @@ proc uri::split {url} {
 	error "unknown scheme '$scheme' in '$url'"
     }
 
-    regsub "^${scheme}:" $url {} url
+    regsub -- "^${scheme}:" $url {} url
 
     set       parts(scheme) $scheme
     array set parts [Split[string totitle $scheme] $url]
@@ -475,7 +475,7 @@ proc uri::JoinHttpInner {scheme defport args} {
 	set query ?$components(query)
     }
 
-    regsub {^/} $components(path) {} components(path)
+    regsub -- {^/} $components(path) {} components(path)
 
     return $scheme://$components(host)$port/$components(path)$query
 }
@@ -821,15 +821,15 @@ proc uri::canonicalize uri {
     # Remove double dots (..) => gobble previous segment of path
 
     while {[regexp -- {/\./} $uri]} {
-        regsub -all {/\./} $uri {/} uri
+        regsub -all -- {/\./} $uri {/} uri
     }
     while {[regexp -- {/\.\./} $uri]} {
-	if {![regsub {/[^./]*/\.\./} $uri {/} uri]} {
+	if {![regsub -- {/[^./]*/\.\./} $uri {/} uri]} {
 	    # The regexp found 'foo://bar.com/../baz', but this
 	    # cannot be handled by the regsub. Simply remove the
 	    # dots, as is done for the singles to break out of
 	    # infinity.
-	    regsub {/\.\./} $uri {/} uri
+	    regsub -- {/\.\./} $uri {/} uri
 	}
     }
 

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.15 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.16 2001/07/10 20:39:47 andreas_kupries Exp $
 
 package provide stats 1.0
 
@@ -576,7 +576,7 @@ proc stats::countNames {} {
     foreach v [info vars ::stats::T-*] {
 	if {[info exist $v]} {
 	    # Declared arrays might not exist, yet
-	    regsub ::stats::T- $v {} v
+	    regsub -- ::stats::T- $v {} v
 	    lappend result $v
 	}
     }

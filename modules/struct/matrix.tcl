@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.2 2001/05/20 11:22:09 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.3 2001/07/10 20:39:47 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -1557,7 +1557,7 @@ proc ::struct::matrix::ChkColumnIndex {name column} {
 
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub {end-} $column {} column
+	    regsub -- {end-} $column {} column
 	    set cc [expr {$c - 1 - $column}]
 	    if {($cc < 0) || ($cc >= $c)} {
 		return -code error "bad column index end-$column, column does not exist"
@@ -1601,7 +1601,7 @@ proc ::struct::matrix::ChkRowIndex {name row} {
 
     switch -regex -- $row {
 	{end-[0-9]+} {
-	    regsub {end-} $row {} row
+	    regsub -- {end-} $row {} row
 	    set rr [expr {$r - 1 - $row}]
 	    if {($rr < 0) || ($rr >= $r)} {
 		return -code error "bad row index end-$row, row does not exist"
@@ -1646,7 +1646,7 @@ proc ::struct::matrix::ChkColumnIndexNeg {name column} {
 
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub {end-} $column {} column
+	    regsub -- {end-} $column {} column
 	    set cc [expr {$c - 1 - $column}]
 	    if {$cc >= $c} {
 		return -code error "bad column index end-$column, column does not exist"
@@ -1688,7 +1688,7 @@ proc ::struct::matrix::ChkRowIndexNeg {name row} {
 
     switch -regex -- $row {
 	{end-[0-9]+} {
-	    regsub {end-} $row {} row
+	    regsub -- {end-} $row {} row
 	    set rr [expr {$r - 1 - $row}]
 	    if {$rr >= $r} {
 		return -code error "bad row index end-$row, row does not exist"
@@ -1729,7 +1729,7 @@ proc ::struct::matrix::ChkColumnIndexAll {name column} {
 
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub {end-} $column {} column
+	    regsub -- {end-} $column {} column
 	    set cc [expr {$c - 1 - $column}]
 	    return $cc
 	}
@@ -1764,7 +1764,7 @@ proc ::struct::matrix::ChkRowIndexAll {name row} {
 
     switch -regex -- $row {
 	{end-[0-9]+} {
-	    regsub {end-} $row {} row
+	    regsub -- {end-} $row {} row
 	    set rr [expr {$r - 1 - $row}]
 	    return $rr
 	}

@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.3 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.4 2001/07/10 20:39:46 andreas_kupries Exp $
 
 package provide nntp 0.1
 
@@ -793,7 +793,7 @@ proc ::nntp::msgid {name} {
 
     set result ""
     if {[::nntp::okprint $name] && \
-            [regsub {\s+<[^>]+>} $data(mesg) {} result]} {
+            [regsub -- {\s+<[^>]+>} $data(mesg) {} result]} {
         return $result
     } else {
         return ""
@@ -825,12 +825,12 @@ proc ::nntp::fetch {name} {
     set result [list ]
     while {![eof $sock]} {
         gets $sock line
-        regsub {\015?\012$} $line $data(eol) line
+        regsub -- {\015?\012$} $line $data(eol) line
 
         if {[regexp -- {^\.$} $line]} {
             break
         }
-        regsub {^\.\.} $line {.} line
+        regsub -- {^\.\.} $line {.} line
         lappend result $line
     }
     return $result
@@ -851,7 +851,7 @@ proc ::nntp::response {name} {
         error "nntp: unexpected EOF on $sock\n"
     }
 
-    regsub {\015?\012$} $line "" line
+    regsub -- {\015?\012$} $line "" line
 
     set result [regexp -- {^((\d\d)(\d))\s*(.*)} $line match \
             data(code) val1 val2 data(mesg)]
@@ -907,7 +907,7 @@ proc ::nntp::squirt {name {body ""}} {
     foreach line $body {
         # Print each line, possibly prepending a dot for lines
         # starting with a dot and trimming any trailing \n.
-        regsub {^\.} $line {..} line
+        regsub -- {^\.} $line {..} line
         puts $data(sock) $line
     }
     puts $data(sock) "."

@@ -274,7 +274,7 @@ proc ::htmlparse::parse {args} {
     set w " \t\r\n"	;# white space
     set exp <(/?)([CClass ^$w>]+)[CClass $w]*([CClass ^>]*)>
     set sub "\}\n$cmd {\\2} {\\1} {\\3} \{"
-    regsub -all $exp $html $sub html
+    regsub -all -- $exp $html $sub html
 
     # The value of queue now determines wether we process the HTML by
     # ourselves (queue is empty) or if we generate a list of  scripts
@@ -303,8 +303,8 @@ proc ::htmlparse::parse {args} {
 
 		append group "a$i c$i d$i e$i f$i\n"
 	    }
-	    regsub -all {(a[0-9]+)}          $group    {{$\1} \\\\win\\\\} subgroup
-	    regsub -all {([b-z_0-9]+[0-9]+)} $subgroup {{$\1}}             subgroup
+	    regsub -all -- {(a[0-9]+)}          $group    {{$\1} \\\\win\\\\} subgroup
+	    regsub -all -- {([b-z_0-9]+[0-9]+)} $subgroup {{$\1}}             subgroup
 
 	    set splitdata($key) [list $group $subgroup]
 	}
@@ -342,16 +342,16 @@ proc ::htmlparse::PrepareHtml {html} {
 
     set html [string map [list \r \n] $html]
 
-    regsub "^.*<!DOCTYPE\[^>\]*>"       $html {}     html
+    regsub -- "^.*<!DOCTYPE\[^>\]*>"       $html {}     html
     regsub -all -- "-->"                $html "\001" html
-    regsub -all    "<!--\[^\001\]*\001" $html {}     html
+    regsub -all -- "<!--\[^\001\]*\001" $html {}     html
 
     # Protect characters special to tcl (braces, slashes) by
     # converting them to their escape sequences.
 
-    regsub -all \{   $html {\&ob;}  html
-    regsub -all \}   $html {\&cb;}  html
-    regsub -all \\\\ $html {\&bsl;} html
+    regsub -all -- \{   $html {\&ob;}  html
+    regsub -all -- \}   $html {\&cb;}  html
+    regsub -all -- \\\\ $html {\&bsl;} html
 
     return $html
 }
@@ -423,9 +423,9 @@ proc ::htmlparse::mapEscapes {html} {
 	return $html
     }
 
-    regsub -all {([][$\\])} $html {\\\1} new
-    regsub -all {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d tmp;set tmp]]} new
-    regsub -all {&([a-zA-Z]+);?} $new {[DoMap \1]} new
+    regsub -all -- {([][$\\])} $html {\\\1} new
+    regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d tmp;set tmp]]} new
+    regsub -all -- {&([a-zA-Z]+);?} $new {[DoMap \1]} new
     return [subst $new]
 }
 

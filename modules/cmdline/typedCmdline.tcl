@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: typedCmdline.tcl,v 1.3 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.tcl,v 1.4 2001/07/10 20:39:46 andreas_kupries Exp $
 
 namespace eval cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -321,17 +321,17 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
     set opts {? help}
     foreach opt $optlist {
         set name [lindex $opt 0]
-        if {[regsub {\.secret$} $name {} name] == 1} {
+        if {[regsub -- {\.secret$} $name {} name] == 1} {
             # Remove this extension before passing to typedGetopt.
         }
-        if {[regsub {\.multi$} $name {} name] == 1} {
+        if {[regsub -- {\.multi$} $name {} name] == 1} {
             # Remove this extension before passing to typedGetopt.
 
-            regsub {\..*$} $name {} temp
+            regsub -- {\..*$} $name {} temp
             set multi($temp) 1
         }
         lappend opts $name
-        if {[regsub "\\.(arg|$charclasses|\\(.+).?\$" $name {} name] == 1} {
+        if {[regsub -- "\\.(arg|$charclasses|\\(.+).?\$" $name {} name] == 1} {
             # Set defaults for those that take values.
             # Booleans are set just by being present, or not
 
@@ -392,17 +392,17 @@ proc cmdline::typedUsage {optlist {usage {options:}}} {
     foreach opt [concat $optlist \
             {{help "Print this message"} {? "Print this message"}}] {
         set name [lindex $opt 0]
-        if {[regsub {\.secret$} $name {} name] == 1} {
+        if {[regsub -- {\.secret$} $name {} name] == 1} {
             # Hidden option
 
         } else {
-            if {[regsub {\.multi$} $name {} name] == 1} {
+            if {[regsub -- {\.multi$} $name {} name] == 1} {
                 # Display something about multiple options
             }
 
             if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass]
                     || [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]} {
-                   regsub "\\..+\$" $name {} name
+                   regsub -- "\\..+\$" $name {} name
                 set comment [lindex $opt 2]
                 set default "<[lindex $opt 1]>"
                 if {$default == "<>"} {

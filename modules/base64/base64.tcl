@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.10 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.11 2001/07/10 20:39:46 andreas_kupries Exp $
 
 # Version 1.0 implemented Base64_Encode, Bae64_Decode
 # Version 2.0 uses the base64 namespace
@@ -78,7 +78,7 @@ if {![catch {package require Trf 2.0}]} {
 
 	set string [lindex $args end]
 	set result [::base64 -mode encode -- $string]
-	regsub -all \n $result {} result
+	regsub -all -- \n $result {} result
 
 	if {$maxlen > 0} {
 	    set res ""
