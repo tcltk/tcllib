@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.5 2001/11/27 03:19:47 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.6 2002/02/01 21:51:42 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -312,7 +312,7 @@ proc ::struct::matrix::_search {name args} {
 	2 - 3 - 4 - 6 - 7 {}
 	default {
 	    return -code error \
-		"wrong # args: should be \"$name search ?option? (row row|column col|rect c r c r) pattern\""
+		"wrong # args: should be \"$name search ?option? (all|row row|column col|rect c r c r) pattern\""
 	}
     }
     switch -glob -- [lindex $args 0] {
@@ -321,7 +321,7 @@ proc ::struct::matrix::_search {name args} {
 	    set args [lrange $args 1 end]
 	}
 	-* {
-	    return -code error "invalid pattern option \"[lindex $args 0]\""
+	    return -code error "invalid pattern option \"[lindex $args 0]\": should be -exact, -glob, or -regexp"
 	}
 	default {
 	    set mode exact
@@ -362,7 +362,7 @@ proc ::struct::matrix::_search {name args} {
 	    }
 	}
 	default {
-	    return -code error "invalid range spec \"$range\""
+	    return -code error "invalid range spec \"$range\": should be all, column, row, or rect"
 	}
     }
 
@@ -1208,7 +1208,7 @@ proc ::struct::matrix::__insert_row {name row {values {}}} {
 proc ::struct::matrix::_link {name args} {
     switch -exact -- [llength $args] {
 	0 {
-	    return -code error "wrong # args: link ?-transpose? arrayvariable"
+	    return -code error "$name: wrong # args: link ?-transpose? arrayvariable"
 	}
 	1 {
 	    set transpose 0
@@ -1251,8 +1251,24 @@ proc ::struct::matrix::_link {name args} {
     }
 
     trace variable array wu [list ::struct::matrix::MatTraceIn  $variable $name]
-    trace variable date  w  [list ::struct::matrix::MatTraceOut $variable $name]
+    trace variable data  w  [list ::struct::matrix::MatTraceOut $variable $name]
     return
+}
+
+# ::struct::matrix::_links --
+#
+#	Retrieves the names of all array variable the matrix is
+#	officialy linked to.
+#
+# Arguments:
+#	name	Name of the matrix object.
+#
+# Results:
+#	List of variables the matrix is linked to.
+
+proc ::struct::matrix::_links {name} {
+    upvar ::struct::matrix::matrix${name}::link link
+    return [array names link]
 }
 
 # ::struct::matrix::_rowheight --
@@ -1465,7 +1481,7 @@ proc ::struct::matrix::__set_rect {name column row values} {
 	if {$l > $cols} {
 	    set line [lrange $line 0 [expr {$cols - $column - 1}]]
 	} elseif {$l < [expr {$cols - $firstcol}]} {
-	    # We have to take the offeset into the line intou account
+	    # We have to take the offset into the line into account
 	    # or we add fillers we don't need, overwriting part of the
 	    # data array we shouldn't.
 

@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.4 2001/11/19 23:32:48 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.5 2002/02/01 21:51:42 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -45,6 +45,20 @@ test graph-0.4 {graph errors} {
     catch {graph set} msg
     set msg
 } "command \"set\" already exists, unable to create graph"
+
+test graph-0.5 {graph errors} {
+    graph mygraph
+    catch {mygraph arc foo} msg
+    mygraph destroy
+    set msg
+} "bad option \"foo\": must be delete, exists, get, insert, set, source, target, or unset"
+
+test graph-0.6 {graph errors} {
+    graph mygraph
+    catch {mygraph node foo} msg
+    mygraph destroy
+    set msg
+} "bad option \"foo\": must be degree, delete, exists, get, insert, opposite, set, or unset"
 
 # ---------------------------------------------------
 
@@ -366,6 +380,17 @@ test graph-9.3 {arc unset removes a keyed value from a arc} {
     set msg
 } "invalid key \"foobar\" for arc \"arc0\""
 
+test graph-9.4 {arc unset requires -key} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    mygraph arc        set arc0 -key foobar foobar
+    catch {mygraph arc unset arc0 flaboozle foobar} msg
+    mygraph destroy
+    set msg
+} "invalid option \"flaboozle\": should be \"mygraph arc unset arc0 ?-key key?\""
+
 # ---------------------------------------------------
 
 test graph-10.1 {arcs} {
@@ -447,6 +472,17 @@ test graph-10.5 {arcs} {
 
 test graph-10.6 {arcs} {
     graph mygraph
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph arc insert node1 node2 arcE
+    mygraph arc insert node2 node1 arcF
+    set result [lsort [mygraph arcs -adj node1 node2]]
+    mygraph destroy
+    set result
+} {arcE arcF}
+
+test graph-10.7 {arcs} {
+    graph mygraph
     mygraph node insert n0
     mygraph node insert n1
     mygraph arc insert n0 n1 a1
@@ -458,7 +494,7 @@ test graph-10.6 {arcs} {
     set msg
 } {a1}
 
-test graph-10.7 {arcs} {
+test graph-10.8 {arcs} {
     graph mygraph
     mygraph node insert n0
     mygraph node insert n1
@@ -478,14 +514,14 @@ test graph-11.1 {node degree} {
     catch {mygraph node degree} msg
     mygraph destroy
     set msg
-} "wrong # args: should be \"mygraph node degree ?-in|-out| node\""
+} "wrong # args: should be \"mygraph node degree ?-in|-out? node\""
 
 test graph-11.2 {node degree} {
     graph mygraph
     catch {mygraph node degree foo bar baz} msg
     mygraph destroy
     set msg
-} "wrong # args: should be \"mygraph node degree ?-in|-out| node\""
+} "wrong # args: should be \"mygraph node degree ?-in|-out? node\""
 
 test graph-11.3 {node degree} {
     graph mygraph
@@ -581,6 +617,22 @@ test graph-12.3 {node delete} {
     mygraph destroy
     set result
 } {0 1 0}
+
+test graph-12.4 {node delete} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    mygraph node delete node1
+
+    set result [list \
+	    [mygraph node exists node0] \
+	    [mygraph node exists node1] \
+	    [mygraph arc exists arc0]	\
+	    ]
+    mygraph destroy
+    set result
+} {1 0 0}
 
 # ---------------------------------------------------
 
@@ -813,6 +865,15 @@ test graph-18.3 {node unset removes a keyed value from a node} {
     set msg
 } "invalid key \"foobar\" for node \"node0\""
 
+test graph-18.4 {unset requires -key} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node set node0 -key foobar foobar
+    catch {mygraph node unset node0 flaboozle foobar} msg
+    mygraph destroy
+    set msg
+} "invalid option \"flaboozle\": should be \"mygraph node unset node0 ?-key key?\""
+
 # ---------------------------------------------------
 
 test graph-19.1 {nodes} {
@@ -892,7 +953,24 @@ test graph-19.5 {nodes} {
 	{node1 node2 node3} \
 	]
 
-test graph-19.6 {arcs} {
+test graph-19.6 {nodes} {
+    graph mygraph
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph node insert node3
+
+    mygraph arc insert node1 node2 arcE
+    mygraph arc insert node1 node2 arcD
+    mygraph arc insert node2 node3 arcF
+    mygraph arc insert node2 node3 arcG
+
+    set result [lsort [mygraph nodes -embedding node1 node3]]
+    mygraph destroy
+    set result
+} {node2}
+
+
+test graph-19.7 {nodes} {
     graph mygraph
     mygraph node insert n0
     mygraph node insert n1
@@ -903,7 +981,7 @@ test graph-19.6 {arcs} {
     set msg
 } {n0}
 
-test graph-19.7 {arcs} {
+test graph-19.8 {nodes} {
     graph mygraph
     mygraph node insert n0
     mygraph node insert n1
@@ -985,6 +1063,29 @@ test graph-20.5 {swap swaps node relationships correctly} {
     mygraph destroy
     set result
 } {{} {node0.1 node0.2}}
+
+test graph-20.6 {swap swaps node relationships correctly} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node0.1
+    mygraph node insert node0.2
+    mygraph node insert node0.1.1
+    mygraph node insert node0.1.2
+
+    mygraph arc insert node0 node0.1     a1
+    mygraph arc insert node0 node0.2     a2
+    mygraph arc insert node0.1 node0.1.1 a3
+    mygraph arc insert node0.1 node0.1.2 a4
+
+    mygraph swap node0.1 node0
+
+    set result [list \
+	    [lsort [mygraph nodes -out node0]]   \
+	    [lsort [mygraph nodes -out node0.1]] \
+	    ]
+    mygraph destroy
+    set result
+} {{node0.1.1 node0.1.2} {node0 node0.2}}
 
 # ---------------------------------------------------
 
@@ -1184,6 +1285,140 @@ test graph-21.17 {backward both-order dfs walk} {
 	leave mygraph viii leave mygraph   i leave mygraph   ix	\
 	]
 
+test graph-21.18 {walk, option without value} {
+    makegraph
+    catch {mygraph walk ix -type dfs -order} msg
+    mygraph destroy
+    set msg
+} "value for \"-order\" missing: should be \"mygraph walk ix ?-dir forward|backward? ?-order pre|post|both? ?-type {bfs|dfs}? -command cmd\""
+
+test graph-21.19 {forward post-order bfs walk not implemented} {
+    makegraph
+    catch {mygraph walk i -order post -type bfs -command {lappend t}} msg
+    mygraph destroy
+    set msg
+} {unable to do a post-order breadth first walk}
+
+test graph-21.20 {forward both-order bfs walk not implemented} {
+    makegraph
+    catch {mygraph walk i -order both -type bfs -command {lappend t}} msg
+    mygraph destroy
+    set msg
+} {unable to do a both-order breadth first walk}
+
+test graph-21.21 {backward post-order bfs walk not implemented} {
+    makegraph
+    catch {mygraph walk i -dir backward -order post -type bfs -command {lappend t}} msg
+    mygraph destroy
+    set msg
+} {unable to do a post-order breadth first walk}
+
+test graph-21.22 {backward both-order bfs walk not implemented} {
+    makegraph
+    catch {mygraph walk i -dir backward -order both -type bfs -command {lappend t}} msg
+    mygraph destroy
+    set msg
+} {unable to do a both-order breadth first walk}
+
+
 # ---------------------------------------------------
+
+test graph-22.1 {get gives error on bogus key} {
+    graph mygraph
+    catch {mygraph get -key bogus} msg
+    mygraph destroy
+    set msg
+} "invalid key \"bogus\" for graph \"mygraph\""
+
+test graph-22.2 {get uses data as default key} {
+    graph mygraph
+    mygraph set foobar
+    set result [mygraph get]
+    mygraph destroy
+    set result
+} "foobar"
+
+test graph-22.3 {get respects -key flag} {
+    graph mygraph
+    mygraph set -key boom foobar
+    set result [mygraph get -key boom]
+    mygraph destroy
+    set result
+} "foobar"
+
+# ---------------------------------------------------
+
+test graph-23.1 {set alone gets/sets "data" value} {
+    graph mygraph
+    mygraph set foobar
+    set result [mygraph set]
+    mygraph destroy
+    set result
+} "foobar"
+
+test graph-23.2 {set with key gets/sets key value} {
+    graph mygraph
+    mygraph set -key baz foobar
+    set result [list [mygraph set] [mygraph set -key baz]]
+    mygraph destroy
+    set result
+} [list "" "foobar"]
+
+test graph-23.3 {set with too many args gives error} {
+    graph mygraph
+    catch {mygraph set foo bar baz boo} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph set ?-key key? ?value?\""
+
+test graph-23.4 {set with bad args} {
+    graph mygraph
+    catch {mygraph set foo bar} msg
+    mygraph destroy
+    set msg
+} "invalid option \"foo\": should be key"
+
+test graph-23.5 {set with bad args} {
+    graph mygraph
+    catch {mygraph set foo bar baz} msg
+    mygraph destroy
+    set msg
+} "invalid option \"foo\": should be key"
+
+test graph-23.6 {set with bad key gives error} {
+    graph mygraph
+    catch {mygraph set -key foo} msg
+    mygraph destroy
+    set msg
+} "invalid key \"foo\" for graph \"mygraph\""
+
+# ---------------------------------------------------
+
+test graph-24.1 {unset does not give error on bogus key} {
+    graph mygraph
+    set result [catch {mygraph unset -key bogus}]
+    mygraph destroy
+    set result
+} 0
+
+test graph-24.2 {unset removes a keyed value} {
+    graph mygraph
+    mygraph set -key foobar foobar
+    mygraph unset -key foobar
+    catch {mygraph get -key foobar} msg
+    mygraph destroy
+    set msg
+} "invalid key \"foobar\" for graph \"mygraph\""
+
+test graph-24.3 {unset requires -key} {
+    graph mygraph
+    mygraph set -key foobar foobar
+    catch {mygraph unset flaboozle foobar} msg
+    mygraph destroy
+    set msg
+} "invalid option \"flaboozle\": should be \"mygraph unset ?-key key?\""
+
+# ---------------------------------------------------
+
   
 ::tcltest::cleanupTests
