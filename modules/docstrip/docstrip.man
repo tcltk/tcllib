@@ -71,6 +71,7 @@ want to know more about it may consult the following sources.
   Addison-Wesley, 2004; ISBN 0-201-36299-6.
 [list_end]
 
+
 [section {File format}]
 
 The basic unit [syscmd docstrip] operates on are the [emph lines] of
@@ -351,6 +352,7 @@ The package defines two commands.
   [option -metaprefix] is set to '#', all other [cmd extract]
   options have their default values.
 [list_end]
+
 
 [section {Document structure}]
 
