@@ -23,6 +23,9 @@
 # repeated.  The names and values are encoded, and this module takes care
 # of decoding them.
 
+# We use newer string routines
+package require Tcl 8.1
+
 package provide ncgi 1.1
 
 namespace eval ncgi {
@@ -231,17 +234,15 @@ proc ncgi::type {} {
 #	The decoded value
 
 proc ncgi::decode {str} {
-    # Replace + with space
-    regsub -all -- {\+} $str { } str
+    # rewrite "+" back to space
+    # protect \ from quoting another '\'
+    set str [string map [list + { } "\\" "\\\\"] $str]
 
-    # Protect Tcl special chars
-    regsub -all -- {[][\\\$]} $str {\\&} str
+    # prepare to process all %-escapes
+    regsub -all -- {%([A-Fa-f0-9][A-Fa-f0-9])} $str {\\u00\1} str
 
-    # Replace %xx sequences with a format command
-    regsub -all -- {%([0-9a-fA-F][0-9a-fA-F])} $str {[format %c 0x\1]} str
-
-    # Replace the format commands with their result
-    return [subst $str]
+    # process \u unicode mapped chars
+    return [subst -novar -nocommand $str]
 }
 
 # ncgi::encode
@@ -263,14 +264,9 @@ proc ncgi::encode {string} {
     # 4 "subst" the result, doing all the array substitutions
 
     regsub -all -- \[^a-zA-Z0-9\] $string {$map(&)} string
-    if {0} {
-	# These lines seem totally bogus - am I missing something?
-	regsub -all -- \n $string {\\n} string
-	regsub -all -- \t $string {\\t} string
-    }
-    # This quotes cases like $map([) or $map($)
+    # This quotes cases like $map([) or $map($) => $map(\[) ...
     regsub -all -- {[][{})\\]\)} $string {\\&} string
-    return [subst $string]
+    return [subst -nocommand $string]
 }
 
 
