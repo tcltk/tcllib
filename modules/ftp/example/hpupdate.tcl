@@ -1,13 +1,13 @@
 #!/bin/sh
 # the next line restarts using wish \
-exec wish8.0 "$0" -- "$@"
+exec wish8.3 "$0" -- "$@"
 #
 #  - homepage update program using FTP -
 #
-#   Required:   tcl/tk8.0x
+#   Required:   tcl/tk8.2
 #
 #   Created:    12/96 
-#   Changed:    12/98 
+#   Changed:    7/2000
 #   Version:    2.0
 #
 #   Copyright (C) 1998 Steffen Traeger
@@ -31,7 +31,7 @@ exec wish8.0 "$0" -- "$@"
 ########################################################################
 
 # load required FTP package library 
-package require FTP 1.2
+package require ftp 2.0
 
 # LED Colors
 set status(off) "#006666"
@@ -214,10 +214,9 @@ global ftp
 }
 
 # messages
-proc FTP::DisplayMsg {msg {state normal}} {
+proc ftp::DisplayMsg {s msg {state normal}} {
 global status
 
-#	puts "$msg"
 	switch $state {
 	  data	        {return}
 	  control       {return}
@@ -261,7 +260,7 @@ proc BusyCommand {args} {
 		catch {grab release [lindex $w 0]}
 		catch {[lindex $w 0] config -cursor [lindex $w 1]}
 	}
-	if !$error {
+	if { !$error } {
 		return $g
 	} else {
 		bgerror $g
@@ -272,7 +271,7 @@ proc BusyCommand {args} {
 proc GetRemoteTree {{dir ""}} {
 global ftp
 
-	foreach i [FTP::List $dir] {
+	foreach i [ftp::List $ftp(conn) $dir] {
 		set rc [scan $i "%s %s %s %s %s %s %s %s %s" perm l u g size d1 d2 d3 name]
 		if {$rc == "9"} {
 		
@@ -311,7 +310,8 @@ proc ReadRemoteDir {} {
 global ftp opt
 
 	# connected?
-	if ![info exists FTP::ftp(State)] {
+	if {(![info exists ftp(conn)]) ||
+            (![info exists ftp::ftp${ftp(conn)}(State)])} {
 		.view.remote.list delete 0 end
 		return
 	}
@@ -372,25 +372,25 @@ global status
 	}
 }
 
-# connect to FTP server
+# connect to ftp server
 proc Connect {} {
-global opt
-	FTP::DisplayMsg " ftp> Trying connect to FTP server..."
+global ftp opt
+	ftp::DisplayMsg "" " ftp> Trying connect to ftp server..."
 	Blink on
-	if {![FTP::Open $opt(Server) $opt(Username) $opt(Password) -progress {ProgressBar update} ]} {
+	if {[set ftp(conn) [ftp::Open $opt(Server) $opt(Username) $opt(Password) -progress {ProgressBar update} ]] == -1} {
 		Blink off
 		ShowStatus
 		return
 	}
 
 	# remote homepage directory
-	if {![FTP::Cd $opt(remoteDir)]} {
-		tk_messageBox -parent . -title INFO -message "Directory $opt(remoteDir) on remote FTP server not found!" -type ok
+	if {![ftp::Cd $ftp(conn) $opt(remoteDir)]} {
+		tk_messageBox -parent . -title INFO -message "Directory $opt(remoteDir) on remote ftp server not found!" -type ok
 		Disconnect
 		return
 	}
 
-	FTP::DisplayMsg "Connected to FTP service on $opt(Server)!" 
+	ftp::DisplayMsg $ftp(conn) "Connected to ftp service on $opt(Server)!" 
 	ReadRemoteDir
 	.view.local.buttons.transfer configure -state normal
 	.view.remote.buttons.delete configure -state normal
@@ -404,10 +404,14 @@ proc Disconnect {} {
 global ftp
 
 	# connected?
-	if {[info exists FTP::ftp(State)]} {
-		FTP::Close
-		FTP::DisplayMsg "Connection closed!"
+	if {([info exists ftp(conn)]) &&
+            ([info exists ftp::ftp${ftp(conn)}(State)])} {
+		ftp::Close $ftp(conn)
+		ftp::DisplayMsg "" "Connection closed!"
 	}
+        if {[info exists ftp(conn)]} {
+            unset ftp(conn)
+        }
 	set ftp(remoteSizeList) {}
 	.view.remote.list delete 0 end
 	.view.local.buttons.transfer configure -state disabled
@@ -422,7 +426,8 @@ global ftp
 # Anzeige des Verbindungsstatus
 proc ShowStatus {} {
 global status
-	if [info exist FTP::ftp(State)] {
+	if {([info exists ftp(conn)]) &&
+            ([info exist ftp::ftp${ftp(conn)}(State)])} {
 		.view.conn.led1 configure -bg $status(on) 
 		.view.conn.lab1 configure -text "connected"
 		update idletasks
@@ -441,14 +446,14 @@ global ftp
 		incr sum $i
 	}
 
-#	if { $sum > [ expr 1024 * 1024] } {
+#	if { $sum > [ expr {1024 * 1024}] } {
 #	        set color #ff0000
 #	} else {
 #	        set color #0000ff
 #	}
 
 	set color #0000ff
-	.view.$mode.status.use configure -text "[expr round($sum / 1024.0)] KB" -fg $color
+	.view.$mode.status.use configure -text "[expr {round($sum / 1024.0)}] KB" -fg $color
 	update idletasks
 }
 
@@ -463,7 +468,7 @@ global ftp
 			incr count
 		}
 	}
-	.view.$mode.status.mark configure -text  "[expr round($sum / 1024.0)] KB \[$count\]"
+	.view.$mode.status.mark configure -text  "[expr {round($sum / 1024.0)}] KB \[$count\]"
 	update idletasks
 }
 
@@ -536,7 +541,8 @@ global opt ftp
 		}
 
 		# if not exist at remote machine then mark to upload 
-		if [info exist FTP::ftp(State)] {
+		if {([info exists ftp(conn)]) &&
+                    ([info exists ftp::ftp${ftp(conn)}(State)])} {
 			set index [lsearch -regexp [.view.remote.list get 0 end] "^$name "]
 			if { $index == "-1" } {
 				.view.local.list selection set end end
@@ -553,7 +559,8 @@ proc DeleteRemoteFiles {} {
 global ftp
 
 	# connected?
-	if ![info exists FTP::ftp(State)] {
+	if {(![info exists ftp(conn)]) ||
+            (![info exists ftp::ftp${ftp(conn)}(State)])} {
 		tk_messageBox -parent . -title INFO -message "No connection!" -type ok
 		return
 	}
@@ -579,12 +586,12 @@ global ftp
 		# file or directory?
 		set index [lsearch -exact $ftp(remoteDirList) $filename]
 		if { $index == "-1" } {
-			set command "FTP::Delete"
+			set command "ftp::Delete"
 		} else {
-			set command "FTP::RmDir"
+			set command "ftp::RmDir"
 		}
 		
-		if {[eval $command $filename]} {
+		if {[eval $command $ftp(conn) $filename]} {
 			.view.remote.list selection clear $i
 			update idletasks
 			set ftp(remoteSizeList) [lreplace $ftp(remoteSizeList) $i $i 0]
@@ -638,8 +645,8 @@ global ftp
 
 		wm withdraw $w
 		update idletasks
-		set x [expr [winfo x .] + ([winfo width .] / 3) - ([winfo reqwidth $w] / 2)]
-		set y [expr [winfo y .] + ([winfo height .] / 3) - ([winfo reqheight $w] / 2)]
+		set x [expr {[winfo x .] + ([winfo width .] / 3) - ([winfo reqwidth $w] / 2)}]
+		set y [expr {[winfo y .] + ([winfo height .] / 3) - ([winfo reqheight $w] / 2)}]
 		wm geometry $w +$x+$y
 		wm deiconify $w
 		update idletasks
@@ -662,8 +669,8 @@ global ftp
 
 	  update {
 		if {![winfo exist $w]} {return}  
-		set ftp(ProgressProz) "[expr round( $bytes * 100 / $ftp(progress_sum))]%"
-		set cur_width [expr round($bytes * 200 / $ftp(progress_sum))]
+		set ftp(ProgressProz) "[expr {round( $bytes * 100 / $ftp(progress_sum))}]%"
+		set cur_width [expr {round($bytes * 200 / $ftp(progress_sum))}]
 		$w.frame.bar.pbar configure -width $cur_width -bg #000080
 		focus $w.buttons.esc
 		update idletasks
@@ -692,12 +699,13 @@ global ftp
 proc UpdateRemoteFiles {} {
 global ftp opt status
 	# connected?
-	if ![info exists FTP::ftp(State)] {
+	if {(![info exists ftp(conn)]) ||
+            (![info exists ftp::ftp${ftp(conn)}(State)]) } {
 		tk_messageBox -parent . -title INFO -message "No connection!" -type ok
 		return
 	}
 	
-	# nothoing selected 
+	# nothing selected 
 	if { [.view.local.list curselection] == {} } {
 		return
 	}
@@ -723,7 +731,7 @@ global ftp opt status
 	focus .view.local.list
 
 	# binary type for all files
-	FTP::Type binary
+	ftp::Type $ftp(conn) binary
 
 	# upload files
 	set ftp(escaped) 0
@@ -738,18 +746,18 @@ global ftp opt status
 		# file or directory?
 		set index [lsearch -exact $ftp(localDirList) $filename]
 		if { $index == "-1" } {
-			set command "FTP::Put"
+			set command "ftp::Put"
 		} else {
 		
 			# directory already exists
 			if { [lsearch -exact $ftp(remoteDirList) $filename] != "-1" } {
 				continue
 			}
-			set command "FTP::MkDir"
+			set command "ftp::MkDir"
 		}
 
 		ProgressBar reset 0 $filename
-		if {[eval $command $filename]} {
+		if {[eval $command $ftp(conn) $filename]} {
 			incr ftp(ProgressCount)
 			if {$ftp(escaped)} {
 				ProgressBar escape
@@ -769,7 +777,7 @@ global ftp opt status
 	Touch $opt(TsFile)
 	set opt(Timestamp) [file mtime $opt(TsFile)]
 	Refresh
-	set status(header) " last update: [clock format $opt(Timestamp) -format %d.%m.%y\ %H:%M:%S\ Uhr -gmt 0]"
+	set status(header) " last update: [clock format $opt(Timestamp) -format %d.%m.%Y\ %H:%M:%S\ Uhr -gmt 0]"
 }
 
 # Refresh
@@ -820,7 +828,7 @@ global opt ftp
 	
 	# get local homepage direction
 	set dir [$w.mask.local.entry get]
-	if ![file isdir $dir] {
+	if { ![file isdir $dir] } {
 		tk_messageBox -parent . -title ERROR -message "Directory \"$dir\" not found!" -type ok
 		return
 	}
@@ -854,7 +862,7 @@ global opt
 
 	frame $w.mask.server -bd 1
 	  pack $w.mask.server -in $w.mask -side top -expand 1 -fill both -padx 3m -pady 3m
-	label $w.mask.server.label -text "FTP server name:" -under 0 -anchor w
+	label $w.mask.server.label -text "ftp server name:" -under 0 -anchor w
 	  pack $w.mask.server.label -in $w.mask.server -side top -fill x
 	entry $w.mask.server.entry -width 40
 	  pack $w.mask.server.entry -in $w.mask.server -expand 1 -side left -fill x
@@ -896,8 +904,8 @@ global opt
 	# arrange window
 	wm withdraw $w
 	update idletasks
-	set x [expr [winfo x .] + ([winfo width .] / 3) - ([winfo reqwidth $w] / 2)]
-	set y [expr [winfo y .] + ([winfo height .] / 3) - ([winfo reqheight $w] / 2)]
+	set x [expr {[winfo x .] + ([winfo width .] / 3) - ([winfo reqwidth $w] / 2)}]
+	set y [expr {[winfo y .] + ([winfo height .] / 3) - ([winfo reqheight $w] / 2)}]
 	wm geometry $w +$x+$y
 	wm deiconify $w
 
@@ -984,7 +992,7 @@ installation instructions.
 
 Start up hpupdate and change the prefered options in option menu.
 	
-"FTP Server Name" 	- remote FTP server hostname
+"ftp Server Name" 	- remote FTP server hostname
 "User"			- valid username
 "Password"		- valid password for user
 "Remote Directory"	- remote root for homepage or empty (destination)
@@ -1111,8 +1119,8 @@ set help(about) {
 	  pack $w.ftp.text -in $w.ftp -side left  -expand 1 -fill both
 	wm withdraw $w
 	update idletasks
-	set x [expr [winfo x .] + ([winfo width .] / 3) - ([winfo reqwidth $w] / 2)]
-	set y [expr [winfo y .] + ([winfo height .] / 3) - ([winfo reqheight $w] / 2)]
+	set x [expr {[winfo x .] + ([winfo width .] / 3) - ([winfo reqwidth $w] / 2)}]
+	set y [expr {[winfo y .] + ([winfo height .] / 3) - ([winfo reqheight $w] / 2)}]
  	wm geometry $w +$x+$y
 	wm deiconify $w
 	$w.ftp.text insert 0.0 $help($mode)
@@ -1145,19 +1153,19 @@ set opt(ConfigFile)     $env(HOME)/hpupdate.cnf
 set opt(TsFile)         $env(HOME)/hpupdate.ts
 
 # load configuration file
-if [file exist $opt(ConfigFile)] {
+if { [file exist $opt(ConfigFile)] } {
 	set file [open $opt(ConfigFile) r]
 	array set opt [read $file]
 	close $file
 } 
-set FTP::DEBUG 0
-set FTP::VERBOSE 0
+set ftp::DEBUG 0
+set ftp::VERBOSE 0
 
 # to compare older and newer files hpupdate creates
 # a new timesstamp on file "hpupdate.ts" after every update
-if ![file exist $opt(TsFile)] {Touch $opt(TsFile)}
+if { ![file exist $opt(TsFile)] } {Touch $opt(TsFile)}
 set opt(Timestamp) [file mtime $opt(TsFile)]
-set status(header) " last update: [clock format $opt(Timestamp) -format %d.%m.%y\ %H:%M:%S\ Uhr -gmt 0]"
+set status(header) " last update: [clock format $opt(Timestamp) -format %d.%m.%Y\ %H:%M:%S\ Uhr -gmt 0]"
 
 BusyCommand Refresh
 

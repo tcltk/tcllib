@@ -1,6 +1,8 @@
-#!/usr/local/bin/tclsh8.0
+#!/bin/sh
+# the next line restarts using tclsh \
+exec tclsh8.3 "$0" -- "$@"
 
-package require FTP 1.2
+package require ftp 2.0
 
 # user configuration
 set server noname
@@ -13,9 +15,9 @@ proc ProgressBar {bytes} {
 }
 
 # recursive file transfer 
-proc GetTree {{dir ""}} {
+proc GetTree {conn {dir ""}} {
     catch {file mkdir $dir}
-    foreach line [FTP::List $dir] {
+    foreach line [ftp::List $conn $dir] {
     	set rc [scan $line "%s %s %s %s %s %s %s %s %s %s %s" \
             perm l u g size d1 d2 d3 name link linksource]
 	if { ($name == ".") || ($name == "..") } {continue}
@@ -24,15 +26,15 @@ proc GetTree {{dir ""}} {
         switch -- $type {
             d {GetTree $name}
             l {catch {exec ln -s $linksource $name} msg}
-            - {FTP::Get $name}
+            - {ftp::Get $conn $name}
         }
     }
 }
 
 # main	
-if [FTP::Open $server $username $passwd -progress ProgressBar] {
-    GetTree
-    FTP::Close 
+if {[set conn [ftp::Open $server $username $passwd -progress ProgressBar]] != -1} {
+    GetTree $conn
+    ftp::Close $conn
     puts "OK!"
 }
 

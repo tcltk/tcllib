@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>FTP Library Package 1.1 for Tcl/Tk help file</title>
+<title>ftp Library Package 2.0 for Tcl/Tk help file</title>
 </head>
 <body bgcolor="#ffffff" text="#000000">
 <body>
@@ -8,16 +8,16 @@
 <p>
 <dl>
   <dd>
-    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>FTP Library Package 1.1 for Tcl/Tk Manual Pages</b></font></p>
+    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>FTP Library Package 2.0 for Tcl/Tk Manual Pages</b></font></p>
   </dd>
 
   <dd><font face="Arial,Helvetica" size="+1"><b>COMMAND</b></font></dd>
   <dd><dl>  
-    <dd><b>FTP::MkDir</b>&nbsp; <em>directory</em></dd>
+    <dd><b>ftp::MkDir</b><em>&nbsp; handle&nbsp; directory</em></dd>
     <dd>&nbsp;</dd>
     <dd>
 
-	The <b>FTP::MkDir</b> causes the directory specified in directory to
+	The <b>ftp::MkDir</b> causes the directory specified in directory to
 	be created as a directory (if the directory is absolute) or as
 	a subdirectory of the current working directory (if directory
 	is relative).
@@ -32,11 +32,11 @@
   <dd><dl>
     <dd>
 	<pre># create directory
-FTP::MkDir /incoming/newdir
+ftp::MkDir $conn /incoming/newdir
 
 # or
-FTP::Cd /incoming
-FTP::MkDir newdir
+ftp::Cd $conn /incoming
+ftp::MkDir $conn newdir
 	</pre>
 		
     </dd> 
@@ -45,8 +45,8 @@ FTP::MkDir newdir
 </p>
 <p>
 [<a href="index.html">Contents</a>]&nbsp;
-[<b>Previous:</b> <a href="fhelp15.html">FTP::Newer</a>]&nbsp;
-[<b>Next:</b> <a href="fhelp17.html">FTP::RmDir</a>]
+[<b>Previous:</b> <a href="fhelp15.html">ftp::Newer</a>]&nbsp;
+[<b>Next:</b> <a href="fhelp17.html">ftp::RmDir</a>]
 </p>
 <p align="left"><hr noshade size="1"><font face="Arial,Helvetica" size="-1">&copy; 1999 <a href="mailto:Steffen.Traeger@t-online.de">Steffen Traeger</a></font></p>
 </body>

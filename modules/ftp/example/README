@@ -1,5 +1,5 @@
 =======================
-ftp_lib examples README
+ftp examples README
 =======================
 
 Example #1 - Directory Mirror
@@ -17,15 +17,17 @@ Example #2 - Software Update
 
 The script newer.tcl is used to detect whether a new release of
 Brent Welch's phantastic tcl-httpd is present at scriptics ftp
-server. If FTP::Newer detects a newer file then it causes the
+server. If ftp::Newer detects a newer file then it causes the
 upload process and sends me (as root) an email to inform about. 
-
+The file name for the remote copy of tclhttpd may have changed,
+and the script needs a local copy of tclhttpd's source to do
+the comparison.
 
 Example #3 - Homepage Update
 ----------------------------
 
 Quite a few people must have to keep permanent updating their
-homepages on a ISP server. Hpupdate.tcl is a tk-program for
+homepages on a ISP server. hpupdate.tcl is a tk-program for
 the interactive comparsion of the homepage directory on the local
 computer with the same directories on the remote homepage server. 
 
@@ -47,13 +49,13 @@ Brief overview:
 Example #4 - TkCon command line ftp client
 ------------------------------------------
 
-Loading the FTP Library Package into Jeffrey Hobbs' TkCon rovides
+Loading the ftp Library Package into Jeffrey Hobbs' TkCon rovides
 a simple ftp command line utility with command history. TkCon is a
 replacement for the standard console that comes with Tk. It must be
 started with the "package" option: 
 
-      tkcon -package FTP
+      tkcon -package ftp
 
-to load ftp_lib automatically. TkCon is available at
+to load ftp automatically. TkCon is available at
 
 	http://www.purl.org/net/hobbs/tcl/script/tkcon

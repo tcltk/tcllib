@@ -1,13 +1,13 @@
 #!/bin/sh
 # the next line restarts using wish \
-exec wish8.0 "$0" "$@"
+exec wish8.3 "$0" "$@"
 #
 #   - simple tcl/tk test script for FTP library package -
 #
-#   Required:	tcl/tk8.0
+#   Required:	tcl/tk8.3
 #
 #   Created:	07/97 
-#   Changed:	04/99 
+#   Changed:	07/00 
 #   Version:    1.1
 #
 #   Copyright (C) 1997,1998 Steffen Traeger
@@ -22,8 +22,7 @@ exec wish8.0 "$0" "$@"
 #
 ########################################################################
 
-package require ftp 1.2
-#source ftp_lib.tcl
+package require ftp 2.0
 
 # set palette under X
 if { [string range [winfo server .] 0 0] == "X" } {
@@ -45,7 +44,7 @@ if { [string range [winfo server .] 0 0] == "X" } {
 }   
 
 # main window
-wm title . "ftp_lib Test"
+wm title . "ftp Test"
 wm iconname . ftptest
 wm minsize . 1 1
 
@@ -127,9 +126,9 @@ radiobutton .op.f.f2.passive -anchor w -text "Passive" -variable test(mode) -val
 ### debugging  
 label .op.f.f2.l1 -borderwidth 2 -anchor w -text "Debugging:" 
   pack .op.f.f2.l1 -in .op.f.f2 -side top -fill x 
-checkbutton .op.f.f2.debug -anchor w -text "Debug" -variable FTP::DEBUG
+checkbutton .op.f.f2.debug -anchor w -text "Debug" -variable ftp::DEBUG
   pack .op.f.f2.debug -in .op.f.f2 -side top -fill x  -padx 15
-checkbutton .op.f.f2.verbose -anchor w -text "Verbose" -variable FTP::VERBOSE
+checkbutton .op.f.f2.verbose -anchor w -text "Verbose" -variable ftp::VERBOSE
   pack .op.f.f2.verbose -in .op.f.f2 -side top -fill x -padx 15
 
 #Iterations
@@ -249,9 +248,9 @@ button .but.f.f1.save -text "Save Options" -width 12 -state normal -command "Sav
 
 ################ procedures ####################################################################
 
-# overwrite default ftp_lib display message procedure
-namespace eval FTP {
-proc DisplayMsg {msg {state ""}} {
+# overwrite default ftp display message procedure
+namespace eval ftp {
+proc DisplayMsg {s msg {state ""}} {
 global test
 	.msg.f.f2.text configure -state normal
 	
@@ -311,7 +310,7 @@ global test
 
 
 # new tracing InitDataConn command
-namespace eval FTP {
+namespace eval ftp {
 rename InitDataConn ftpInitDataConn 
 proc InitDataConn {args} {
 global test
@@ -355,8 +354,8 @@ global progress
 
 		wm withdraw $w
 		update idletasks
-		set x [expr [winfo x .] + ([winfo width .] / 2) - ([winfo reqwidth $w] / 2)]
-		set y [expr [winfo y .] + ([winfo height .] / 2) - ([winfo reqheight $w] / 2)]
+		set x [expr {[winfo x .] + ([winfo width .] / 2) - ([winfo reqwidth $w] / 2)}]
+		set y [expr {[winfo y .] + ([winfo height .] / 2) - ([winfo reqheight $w] / 2)}]
 		wm geometry $w +$x+$y
 		update idletasks
 		wm deiconify $w
@@ -367,8 +366,8 @@ global progress
  		if {![winfo exist $w]} {return}  
 		set cur_width 250
 		catch {
-			set progress(percent) "[expr round($bytes) * 100 / $progress(total)]%";
-			set cur_width [expr round($bytes * 250 / $progress(total))]
+			set progress(percent) "[expr {round($bytes) * 100 / $progress(total)}]%";
+			set cur_width [expr {round($bytes * 250 / $progress(total))}]
 		} msg
 		$w.frame.bar.pbar configure -width $cur_width -bg #000080
 		update idletasks
@@ -391,9 +390,9 @@ global test
 	# check if enabled
 	if {!$test(list)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.1 (long directory listing)  ***" header
-	set remote_list [FTP::List]		
-	FTP::DisplayMsg "[llength $remote_list] directory lines!"
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.1 (long directory listing)  ***" header
+	set remote_list [ftp::List $test(conn)]		
+	ftp::DisplayMsg $test(conn) "[llength $remote_list] directory lines!"
 }
 
 #
@@ -405,9 +404,9 @@ global test
 	# check if enabled
 	if {!$test(nlist)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.2 (short directory listing) ***" header
-	set remote_list [FTP::NList]
-	FTP::DisplayMsg "[llength $remote_list] directory entries!"
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.2 (short directory listing) ***" header
+	set remote_list [ftp::NList $test(conn)]
+	ftp::DisplayMsg $test(conn) "[llength $remote_list] directory entries!" 
 }
 
 
@@ -423,14 +422,14 @@ global test
 
 	# check if enabled
 	if {!$test(dir)} {return}
-	FTP::DisplayMsg "*** TEST $loop.3 (directory commands cd,mkdir,rmdir) ***" header
-	FTP::Pwd
-	FTP::MkDir foo$test(pid)
-	FTP::Cd foo$test(pid)
-	FTP::Pwd
-	FTP::Cd ..
-	FTP::Pwd
-	FTP::RmDir foo$test(pid)
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.3 (directory commands cd,mkdir,rmdir) ***" header
+	ftp::Pwd $test(conn)
+	ftp::MkDir $test(conn) foo$test(pid)
+	ftp::Cd $test(conn) foo$test(pid)
+	ftp::Pwd $test(conn)
+	ftp::Cd $test(conn) ..
+	ftp::Pwd $test(conn)
+	ftp::RmDir $test(conn) foo$test(pid)
 }
 
 #
@@ -449,23 +448,23 @@ global test
 	# check if enabled
 	if {!$test(afile)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.4 (put/get ascii files) ***" header
-	set ascii_file ftp_lib.tcl
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.4 (put/get ascii files) ***" header
+	set ascii_file ftp.tcl
 	set lsize [file size $ascii_file]
-	FTP::Type ascii	
-	FTP::Put $ascii_file ignore$test(pid).tmp
+	ftp::Type $test(conn) ascii	
+	ftp::Put $test(conn) $ascii_file ignore$test(pid).tmp
 
 	# FileSize only works proper in binary mode
-	FTP::Type binary
-	set rsize [FTP::FileSize ignore$test(pid).tmp]
-	FTP::Type ascii	
-	FTP::Get ignore$test(pid).tmp
-	FTP::Delete ignore$test(pid).tmp
+	ftp::Type $test(conn) binary
+	set rsize [ftp::FileSize $test(conn) ignore$test(pid).tmp]
+	ftp::Type $test(conn) ascii	
+	ftp::Get $test(conn) ignore$test(pid).tmp
+	ftp::Delete $test(conn) ignore$test(pid).tmp
 
 	catch {
-	  	FTP::DisplayMsg "Original File:\t$lsize bytes"
-		FTP::DisplayMsg "Stored File:\t$rsize bytes"
-  		FTP::DisplayMsg "Retrieved File:\t[file size ignore$test(pid).tmp] bytes"
+	  	ftp::DisplayMsg $test(conn) "Original File:\t$lsize bytes"
+		ftp::DisplayMsg $test(conn) "Stored File:\t$rsize bytes"
+  		ftp::DisplayMsg $test(conn) "Retrieved File:\t[file size ignore$test(pid).tmp] bytes"
 		file delete ignore$test(pid).tmp	}
 
 }
@@ -484,31 +483,31 @@ global test tk_library
 	# check if enabled
 	if {!$test(bfile)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.5 (put/get binary files) ***" header
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.5 (put/get binary files) ***" header
 	set bin_file $tk_library/demos/images/teapot.ppm
 	set lsize [file size $bin_file]
-	FTP::Type binary
+	ftp::Type $test(conn) binary
 
 	# Put with ProgressBar
 	#   - ProgressBar init ...
-	#   - ProgressBar update ... callback defined in ftp_lib!
+	#   - ProgressBar update ... callback defined in ftp!
 	#   - ProgressBar done
 	ProgressBar init 0 $lsize teapot.ppm
-	FTP::Put $bin_file ignore$test(pid).tmp
+	ftp::Put $test(conn) $bin_file ignore$test(pid).tmp
 	ProgressBar done
 	
 	# Put with ProgressBar
-	set rsize [FTP::FileSize ignore$test(pid).tmp]
+	set rsize [ftp::FileSize $test(conn) ignore$test(pid).tmp]
 	ProgressBar init 0 $rsize ignore$test(pid).tmp
-	FTP::Get ignore$test(pid).tmp
+	ftp::Get $test(conn) ignore$test(pid).tmp
 	ProgressBar done
 	
-	FTP::Delete ignore$test(pid).tmp
+	ftp::Delete $test(conn) ignore$test(pid).tmp
 
 	catch {
-		FTP::DisplayMsg "Original File:\t$lsize bytes"
-		FTP::DisplayMsg "Stored File:\t$rsize bytes"
-		FTP::DisplayMsg "Retrieved File:\t[file size ignore$test(pid).tmp] bytes"
+		ftp::DisplayMsg $test(conn) "Original File:\t$lsize bytes"
+		ftp::DisplayMsg $test(conn) "Stored File:\t$rsize bytes"
+		ftp::DisplayMsg $test(conn) "Retrieved File:\t[file size ignore$test(pid).tmp] bytes"
 		file delete ignore$test(pid).tmp
 	}
 	
@@ -524,12 +523,12 @@ global test tk_library
 	# check if enabled
 	if {!$test(ren)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.6 (renaming remote files) ***" header
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.6 (renaming remote files) ***" header
 	set bin_file $tk_library/demos/images/earth.gif
-	FTP::Type binary
-	FTP::Put $bin_file ignore$test(pid).tmp
-	FTP::Rename ignore$test(pid).tmp renamed$test(pid).tmp 
-	FTP::Delete renamed$test(pid).tmp	
+	ftp::Type $test(conn) binary
+	ftp::Put $test(conn) $bin_file ignore$test(pid).tmp
+	ftp::Rename $test(conn) ignore$test(pid).tmp renamed$test(pid).tmp 
+	ftp::Delete $test(conn) renamed$test(pid).tmp	
 
 }
 #
@@ -549,18 +548,18 @@ global test tk_library
 	# check if enabled
 	if {!$test(append)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.7 (append ascii file) ***" header
-	set ascii_file ftp_lib.tcl
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.7 (append ascii file) ***" header
+	set ascii_file ftp.tcl
 	set lsize [file size $ascii_file]
-	FTP::Type ascii	
-	FTP::Append $ascii_file ignore$test(pid).tmp
-	FTP::Append $ascii_file ignore$test(pid).tmp
-	FTP::Get ignore$test(pid).tmp
-	FTP::Delete ignore$test(pid).tmp
+	ftp::Type $test(conn) ascii	
+	ftp::Append $test(conn) $ascii_file ignore$test(pid).tmp
+	ftp::Append $test(conn) $ascii_file ignore$test(pid).tmp
+	ftp::Get $test(conn) ignore$test(pid).tmp
+	ftp::Delete $test(conn) ignore$test(pid).tmp
 
 	catch {
-	  	FTP::DisplayMsg "Original File:\t$lsize bytes ( * 2 = [expr $lsize * 2])"
-  		FTP::DisplayMsg "Appended File:\t[file size ignore$test(pid).tmp] bytes"
+	  	ftp::DisplayMsg $test(conn) "Original File:\t$lsize bytes ( * 2 = [expr {$lsize * 2}])"
+  		ftp::DisplayMsg $test(conn) "Appended File:\t[file size ignore$test(pid).tmp] bytes"
 		file delete ignore$test(pid).tmp	}
 
 }
@@ -578,29 +577,29 @@ global test tk_library
 	# check if enabled
 	if {!$test(new)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.8 (newer) ***" header
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.8 (newer) ***" header
 	set bin_file $tk_library/demos/images/earth.gif
-	FTP::Type binary
+	ftp::Type $test(conn) binary
 
 	file copy $bin_file ignore$test(pid).tmp
-	FTP::Put $bin_file ignore$test(pid).tmp
-	set datestr "%m/%d/%y, %H:%M"
+	ftp::Put $test(conn) $bin_file ignore$test(pid).tmp
+	set datestr "%m/%d/%Y, %H:%M"
 
 	set out {}
 	catch {
 	 	append out "Local File:\t[clock format [file mtime ignore$test(pid).tmp] -format $datestr -gmt 1]" \n
-		append out "Remote File:\t[clock format [FTP::ModTime ignore$test(pid).tmp] -format $datestr -gmt 1]" \n
+		append out "Remote File:\t[clock format [ftp::ModTime $test(conn) ignore$test(pid).tmp] -format $datestr -gmt 1]" \n
 	}
 
-	FTP::Newer ignore$test(pid).tmp	
+	ftp::Newer $test(conn) ignore$test(pid).tmp	
 	
 	catch {	
-		append out "Local File:\t[clock format [file mtime ignore$test(pid).tmp] -format $datestr -gmt 1] (after FTP::Newer)" 
+		append out "Local File:\t[clock format [file mtime ignore$test(pid).tmp] -format $datestr -gmt 1] (after ftp::Newer)" 
 	}
 
-	FTP::Delete ignore$test(pid).tmp
+	ftp::Delete $test(conn) ignore$test(pid).tmp
 	catch {file delete ignore$test(pid).tmp}
-	FTP::DisplayMsg $out
+	ftp::DisplayMsg $test(conn) $out
 
 }
 
@@ -616,19 +615,19 @@ global test tk_library
 	# check if enabled
 	if {!$test(reget)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.9 (reget command) ***" header
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.9 (reget command) ***" header
 	set bin_file $tk_library/demos/images/earth.gif
-	FTP::Type binary
-	FTP::Put $bin_file ignore$test(pid).tmp
+	ftp::Type $test(conn) binary
+	ftp::Put $test(conn) $bin_file ignore$test(pid).tmp
 	set f [open ignore$test(pid).tmp w]
 	puts -nonewline $f "123456"
 	close $f
-	FTP::Reget ignore$test(pid).tmp
-	FTP::Delete ignore$test(pid).tmp
+	ftp::Reget $test(conn) ignore$test(pid).tmp
+	ftp::Delete $test(conn) ignore$test(pid).tmp
 
 	catch {
-		FTP::DisplayMsg "Original File:\t\t[file size $bin_file]"
-		FTP::DisplayMsg "Transfered  File:\t[file size ignore$test(pid).tmp]"
+		ftp::DisplayMsg $test(conn) "Original File:\t\t[file size $bin_file]"
+		ftp::DisplayMsg $test(conn) "Transfered  File:\t[file size ignore$test(pid).tmp]"
 		file delete ignore$test(pid).tmp
 	}
 }
@@ -646,18 +645,18 @@ global test tk_library
 	# check if enabled
 	if {!$test(notfound)} {return}
 
-	FTP::DisplayMsg "*** TEST $loop.10 (not existing file/directory) ***" header
-	FTP::NList filenotfound		
-	FTP::FileSize filenotfound		
-	FTP::ModTime filenotfound		
-	FTP::Rename filenotfound filenotfound
-	FTP::Delete filenotfound
-	FTP::Cd filenotfound
-	FTP::RmDir filenotfound
-	FTP::Put filenotfound
-	FTP::Get filenotfound
-	FTP::Reget filenotfound
-	FTP::Newer filenotfound
+	ftp::DisplayMsg $test(conn) "*** TEST $loop.10 (not existing file/directory) ***" header
+	ftp::NList $test(conn) filenotfound		
+	ftp::FileSize $test(conn) filenotfound		
+	ftp::ModTime $test(conn) filenotfound		
+	ftp::Rename $test(conn) filenotfound filenotfound
+	ftp::Delete $test(conn) filenotfound
+	ftp::Cd $test(conn) filenotfound
+	ftp::RmDir $test(conn) filenotfound
+	ftp::Put $test(conn) filenotfound
+	ftp::Get $test(conn) filenotfound
+	ftp::Reget $test(conn) filenotfound
+	ftp::Newer $test(conn) filenotfound
 }
 
 # save preferences
@@ -670,8 +669,8 @@ global cnf
 	set cnf(password) [.op.f.f1.password.e get]
 	set cnf(directory) [.op.f.f1.directory.e get]
 	set cnf(loops) [.op.f.f2.loops.e get]
-	set cnf(debug) $FTP::DEBUG
-	set cnf(verbose) $FTP::VERBOSE
+	set cnf(debug) $ftp::DEBUG
+	set cnf(verbose) $ftp::VERBOSE
 
 	set f [open $cnf(configfile) w]
 	puts $f  [array get cnf]	
@@ -692,7 +691,7 @@ global cnf
 	set cnf(debug) 0
 	set cnf(verbose) 1
 	
-	if [file exist $cnf(configfile)] {
+	if {[file exist $cnf(configfile)]} {
 		set f [open $cnf(configfile) r]
 		array set cnf [read $f]
 		close $f
@@ -710,8 +709,8 @@ global cnf
 	.op.f.f1.directory.e insert 0 $cnf(directory)
 	.op.f.f2.loops.e delete 0 end
 	.op.f.f2.loops.e insert 0 $cnf(loops)
-	set ::FTP::DEBUG $cnf(debug)
-	set ::FTP::VERBOSE $cnf(verbose)
+	set ::ftp::DEBUG $cnf(debug)
+	set ::ftp::VERBOSE $cnf(verbose)
 }
 
 # stop the test
@@ -738,27 +737,28 @@ global test
 	set passwd [.op.f.f1.password.e get]
 	set dir [.op.f.f1.directory.e get]
 
-	# open a FTP server connection
+	# open a ftp server connection
 	set test(errors) 0
 	set test(open) {}
 	set test(pid) [pid]
 	set start_time [clock seconds]
- 	FTP::DisplayMsg "*** Test started at [clock format [clock seconds]  -format %d.%m.%y\ %H:%M:%S ] ..." header
-	if [FTP::Open $server $username $passwd -port $port -progress {ProgressBar update} -mode $test(mode) -blocksize 8196 -timeout 60] {
+ 	ftp::DisplayMsg "" "*** Test started at [clock format [clock seconds]  -format %d.%m.%Y\ %H:%M:%S ] ..." header
+	if {[set conn [ftp::Open $server $username $passwd -port $port -progress {ProgressBar update} -mode $test(mode) -blocksize 8196 -timeout 60]] >= 0} {
 
 		if {$test(quote)} {
-			FTP::DisplayMsg [FTP::Quote syst]
-    			FTP::DisplayMsg [FTP::Quote site umask 022]
-    			FTP::DisplayMsg [FTP::Quote help]
+			ftp::DisplayMsg $conn [ftp::Quote $conn syst]
+    			ftp::DisplayMsg $conn [ftp::Quote $conn site umask 022]
+    			ftp::DisplayMsg $conn [ftp::Quote $conn help]
     		}
     		   
     		   
 		if { $dir != "" } {
-			FTP::Cd $dir
+			ftp::Cd $conn $dir
 		}
 		
     		# begin test loop
     		set test(break) 0
+                set test(conn) $conn
     		for {set test(loop) 1} {$test(loop) <= $loops} {incr test(loop)} {
     			if {$test(break)} {break}
 			foreach test(proc) [lsort [info proc test*]] {
@@ -772,18 +772,18 @@ global test
 			}
     		}
     		if {$test(break)} {
-    			FTP::DisplayMsg "... user break!" error
+    			ftp::DisplayMsg "... user break!" error
     		} else {
 			incr test(loop) -1
 		}
 		
-    		FTP::Close
+    		ftp::Close $conn
 		set stop_time [clock seconds]
-		set elapsed [expr $stop_time - $start_time]
+		set elapsed [expr {$stop_time - $start_time}]
 		if { $elapsed == 0 } { set elapsed 1}
-    		FTP::DisplayMsg "************************* THE END *************************" header
-    		FTP::DisplayMsg "=> $loops iterations takes $elapsed seconds" 
- 		FTP::DisplayMsg "=> $test(errors) error(s) occured" 
+    		ftp::DisplayMsg "" "************************* THE END *************************" header
+    		ftp::DisplayMsg "" "=> $loops iterations takes $elapsed seconds" 
+ 		ftp::DisplayMsg "" "=> $test(errors) error(s) occured" 
 	}
 	.but.f.f1.stop configure -state disabled
 	.but.f.f1.start configure -state normal
@@ -795,8 +795,8 @@ proc Help {} {
 	.msg.f.f2.text delete 1.0 end
 	.msg.f.f2.text insert 1.0 "          **** CONFIGURATION HELP *****
 	
-Ftp_demo is the simple user interface to the ftp_lib test program. It
-checks all FTP commands of the FTP library package against an
+Ftp_demo is the simple user interface to the ftp test program. It
+checks all ftp commands of the FTP library package against an
 existing FTP server. It requires some configuration entries specified
 in the form below.
 
@@ -814,14 +814,14 @@ toggles enhanced output:
 2. Verbose ... Forces to show all responses from the FTP server 
 
 Active or passive file transfer mode is selected in the upper frame.
-When ftp_demo uses the active mode it waits for the server to open
+When ftpdemo uses the active mode it waits for the server to open
 a connection to transfer files or get file listings. In passive mode
-the server waits for ftp_demo to open a connection to transfer files
+the server waits for ftpdemo to open a connection to transfer files
 or get file listings. Passive mode is normally a requirement when
 accessing sites via a firewall.
 
 Press \"Save Options\" to save these options in a configuration file. 
-Options will be restored next time you start the ftp_demo program.
+Options will be restored next time you start the ftpdemo program.
 Check marked test commands and start test by pressing \"Start test\"
 button. Any time the test program can be canceled by pressing the
 \"Stop test\" button.
@@ -842,7 +842,7 @@ A USEFUL FTP USER INTERFACE. FEEL FREE TO USE IT.
 set test(mode) active
 
 # Configuration file
-set cnf(configfile) "ftp_demo.cnf"
+set cnf(configfile) "ftpdemo.cnf"
 LoadConfig
 
 Help

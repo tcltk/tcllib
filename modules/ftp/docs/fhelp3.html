@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>FTP Library Package 1.1 for Tcl/Tk help file</title>
+<title>ftp Library Package 2.0 for Tcl/Tk help file</title>
 </head>
 <body bgcolor="#ffffff" text="#000000">
 <body>
@@ -8,16 +8,16 @@
 <p>
 <dl>
   <dd>
-    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>FTP Library Package 1.1 for Tcl/Tk Manual Pages</b></font></p>
+    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>ftp Library Package 2.0 for Tcl/Tk Manual Pages</b></font></p>
   </dd>
 
   <dd><font face="Arial,Helvetica" size="+1"><b>COMMAND</b></font></dd>
   <dd><dl>  
-    <dd><b>FTP::CD</b>&nbsp; <em>directory</em></dd>
+    <dd><b>ftp::CD</b>&nbsp; <em>handle</em> <em>directory</em></dd>
     <dd>&nbsp;</dd>
     <dd>
     
-	The <b>FTP::Cd</b> command changes the current working directory on
+	The <b>ftp::Cd</b> command changes the current working directory on
 	the ftp server to a specified target directory. This target
 	directory can be a subdirectory of the current directory, ".."
 	(for the parent directory) or a fully qualified path to a new
@@ -33,8 +33,8 @@
   <dd><dl>
     <dd>
 	<pre># change directory
-FTP::Cd pub/tcl
-FTP::Cd ..
+ftp::Cd $conn pub/tcl
+ftp::Cd $conn ..
 
 	</pre>
 		
@@ -46,8 +46,8 @@ FTP::Cd ..
 
 <p>
 [<a href="index.html">Contents</a>]&nbsp;
-[<b>Previous:</b> <a href="fhelp2.html">FTP::Close</a>]&nbsp;
-[<b>Next:</b> <a href="fhelp4.html">FTP::Pwd</a>]
+[<b>Previous:</b> <a href="fhelp2.html">ftp::Close</a>]&nbsp;
+[<b>Next:</b> <a href="fhelp4.html">ftp::Pwd</a>]
 </p>
 <p align="left"><hr noshade size="1"><font face="Arial,Helvetica" size="-1">&copy; 1999 <a href="mailto:Steffen.Traeger@t-online.de">Steffen Traeger</a></font></p>
 </body>

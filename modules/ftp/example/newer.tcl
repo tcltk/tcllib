@@ -1,11 +1,13 @@
-#!/usr/local/bin/tclsh8.0
+#!/bin/sh
+# the next line restarts using tclsh \
+exec tclsh8.3 "$0" -- "$@"
 
-package require FTP 1.2
+package require ftp 2.0
 
-if [FTP::Open ftp.scriptics.com  anonymous xxxx] {
-    	if {[FTP::Newer /pub/tcl/httpd/tclhttpd.tar.gz /usr/local/src/tclhttpd.tgz]} {
+if { [set conn [ftp::Open ftp.scriptics.com  anonymous xxxx]] != -1} {
+    	if {[ftp::Newer $conn /pub/tcl/httpd/tclhttpd.tar.gz /usr/local/src/tclhttpd.tgz]} {
 		exec echo "New httpd arrived!" | mailx -s ANNOUNCE root
 	}
-	FTP::Close 
+	ftp::Close $conn
 }
 

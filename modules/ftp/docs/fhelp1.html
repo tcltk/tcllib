@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>FTP Library Package 1.1 for Tcl/Tk help file</title>
+<title>ftp Library Package 2.0 for Tcl/Tk help file</title>
 </head>
 <body bgcolor="#ffffff" text="#000000">
 <body>
@@ -8,22 +8,22 @@
 <p>
 <dl>
   <dd>
-    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>FTP Library Package 1.1 for Tcl/Tk Manual Pages</b></font></p>
+    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>ftp Library Package 2.0 for Tcl/Tk Manual Pages</b></font></p>
   </dd>
 
   <dd><font face="Arial,Helvetica" size="+1"><b>COMMAND</b></font></dd>
   <dd><dl>  
-    <dd><b>FTP::Open</b>&nbsp; <em>server&nbsp; user&nbsp; passwd&nbsp; ?options?</em></dd>
+    <dd><b>ftp::Open</b>&nbsp; <em>server&nbsp; user&nbsp; passwd&nbsp; ?options?</em></dd>
     <dd>&nbsp;</dd>
     <dd>
-	The <b>FTP::Open</b> command is used to start the FTP session by 
+	The <b>ftp::Open</b> command is used to start the FTP session by 
 	establishing a control connection to the FTP server. If no 
 	options are specified, then the defaults are used. 
 
-	<p>The <b>FTP::Open</b> command takes a host name <em>server</em>, a user name
+	<p>The <b>ftp::Open</b> command takes a host name <em>server</em>, a user name
 	<em>user</em> and a password <em>password</em> as its parameters and returns
-	"1" if the connections is successfully established, otherwise it
-	returns "0".<br>
+	a session handle that is an integer greater than or equal to 0 if the
+        connection is successfully established, otherwise it returns "-1".<br>
 	The <em>server</em> parameter must be the name or internet address (in dotted decimal
 	notation) of the ftp server. The <em>user</em> and <em>passwd</em> parameters must contain a
 	valid user name and password to complete the login process.</p>
@@ -37,7 +37,7 @@
 	The default value for this option is 4096.</dd></dl></p>
 
 	<p><b>-timeout seconds</b><dl><dd>
-	If <em>seconds</em> is non-zero, then <b>FTP::Open</b> sets up a timeout
+	If <em>seconds</em> is non-zero, then <b>ftp::Open</b> sets up a timeout
 	to occur after the specified number of seconds. The default value is 600.</dd></dl></p>
 
 	<p><b>-port number</b><dl><dd>
@@ -82,16 +82,16 @@ proc Progress {total} {
 }
 
 # open a new connection
-if {![FTP::Open $server $user $passwd -progress Progress -blocksize 1024 -mode passive]} {
+if {[set conn [ftp::Open $server $user $passwd -progress Progress -blocksize 1024 -mode passive]] == -1} {
 	puts "Connection refused!"
 	exit 1
 }
 
 # get a file
-FTP::Get index.html
+ftp::Get $conn index.html
 
 # close connection
-FTP::Close
+ftp::Close $conn
 	</pre>
 		
     </dd> 
@@ -101,7 +101,7 @@ FTP::Close
 </p>
 <p>
 [<a href="index.html">Contents</a>]&nbsp;
-[<b>Next:</b> <a href="fhelp2.html">FTP::Close</a>]
+[<b>Next:</b> <a href="fhelp2.html">ftp::Close</a>]
 </p>
 
 <p align="left"><hr noshade size="1"><font face="Arial,Helvetica" size="-1">&copy; 1999 <a href="mailto:Steffen.Traeger@t-online.de">Steffen Traeger</a></font></p>

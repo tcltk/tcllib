@@ -1,3 +1,19 @@
+2000-07-08  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+        * README
+        * ftp.tcl
+        * ftpdemo.tcl
+        * pkgIndex.tcl
+        * example/README
+        * example/hpupdate.tcl
+        * example/mirror.tcl
+        * example/newer.tcl
+        * docs/*.html: Updated for the change of ftp_lib.tcl -> ftp.tcl, for
+        the change of ftp_demo.tcl to ftpdemo.tcl, and for the FTP namespace
+        change.  Made lots of fixes to complete the partially done work to
+        make ftp handle multiple concurrent ftps at the same time. Updated the
+        version in the docs, examples, source, and pkgIndex to be version 2.0
+
 2000-06-02  Eric Melski  <ericm@scriptics.com>
 
 	* ftp.tcl: Changed namespace to ftp (from FTP).  Updated license
