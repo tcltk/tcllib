@@ -1,3 +1,8 @@
+2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* mpformats/fmt.nroff: Accepted patch for bug #556509, both by Joe
+	  English <jenglish@users.sourceforge.net>.
+
 2002-05-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* This completes the implementation of SF tcllib item #534334.

@@ -28,15 +28,11 @@ proc manpage_begin {title section version} {
     cpush mp
     set     hdr ""
     append  hdr "[nr_comment {}]\n"
-    append  hdr "[nr_comment "Generated from [mp_file] by tcllib/doctools/mpexpand with [this]"]\n"
-    append  hdr "[nr_comment "Copyright (c) [clock format [clock seconds] -format %Y] $::tcl_platform(user)"]\n"
-    append  hdr "[nr_comment {All right reserved}]\n"
-    append  hdr "[nr_comment "CVS: \$Id\$ $title.$section"]\n"
+    append  hdr "[nr_comment "Generated from [mp_file] by mpexpand with [this]"]\n"
     append  hdr "[nr_comment {}]\n"
     append  hdr ".so man.macros\n"
     append  hdr ".TH \"[string trimleft $title :]\" $section $version $module \"$shortdesc\"\n"
     append  hdr ".BS\n"
-    append  hdr "[nr_comment {Note: do not modify the .SH NAME line immediately below!}]\n"
     append  hdr ".SH NAME\n"
     append  hdr "$title \\- $description"
     return $hdr
