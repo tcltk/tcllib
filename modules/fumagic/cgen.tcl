@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cgen.tcl,v 1.1 2005/02/10 17:34:16 andreas_kupries Exp $
+# RCS: @(#) $Id: cgen.tcl,v 1.2 2005/02/11 06:07:31 andreas_kupries Exp $
 
 #####
 #
@@ -28,6 +28,8 @@ package require Tcl 8.4
 package require fileutil::magic::rt ; # Runtime core, for Access to the typemap
 package require struct::list        ; # Our data structures.
 package require struct::tree        ; #
+
+package provide fileutil::magic::cgen 1.0
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -130,7 +132,8 @@ proc ::fileutil::magic::cgen::tree_el {tree parent file line type qual comp offs
     foreach key {line type qual comp offset val message file otype} {
    	if {[catch {
    	    $tree set $node $key [set $key]
-   	} result eo]} {
+   	} result]} {
+	    upvar ::errorInfo eo
    	    puts "Tree: $eo - $file $line $type"
    	}
     }
@@ -191,7 +194,7 @@ proc ::fileutil::magic::cgen::sortRegion {r1 r2} {
    		set cmp [expr {[lindex $r1 1] - [lindex $r2 1]}]
    	    }
    	}
-    } result eo]} {
+    } result]} {
    	set cmp [string compare $r1 $r2]
     }
     return $cmp
@@ -454,6 +457,4 @@ proc ::fileutil::magic::cgen::treegen1 {tree node} {
 
 # ### ### ### ######### ######### #########
 ## Ready for use.
-
-package provide fileutil::magic::cgen 1.0
 # EOF
