@@ -1,3 +1,8 @@
+2004-07-25  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl 	Renamed some procs for clarity, and repaired some
+	* roadmap.txt   omissions in roadmap.txt.
+
 2004-07-24  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      (::snit::RT.MethodCacheLookup): The cached command

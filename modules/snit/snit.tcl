@@ -195,7 +195,7 @@ set ::snit::typeTemplate {
         # First, if the typemethod is unknown, we'll assume that it's
         # an instance name if we can.
         if {[catch {set %TYPE%::Snit_typemethodCache($method)} command]} {
-            set command [::snit::RT.TypemethodCacheLookup %TYPE% $method]
+            set command [::snit::RT.CacheTypemethodCommand %TYPE% $method]
             
             if {[llength $command] == 0} {
                 return -code error  "\"%TYPE% $method\" is not defined"
@@ -1772,7 +1772,7 @@ proc ::snit::RT.MakeInstance {type selfns instance} {
         set self [set %SELFNS%::Snit_instance]
             
         if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
-            set command [snit::RT.MethodCacheLookup %TYPE% %SELFNS% %WIN% $self $method]
+            set command [snit::RT.CacheMethodCommand %TYPE% %SELFNS% %WIN% $self $method]
                 
             if {[llength $command] == 0} {
                 return -code error \
@@ -2018,7 +2018,7 @@ proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
 #
 # type		The type
 # method	The name of the typemethod to call.
-proc snit::RT.TypemethodCacheLookup {type method} {
+proc snit::RT.CacheTypemethodCommand {type method} {
     upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
     upvar ${type}::Snit_typecomponents  Snit_typecomponents
     upvar ${type}::Snit_typemethodCache Snit_typemethodCache
@@ -2134,7 +2134,7 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
 #               snit::widgets.
 # self:         The instance's current name.
 # method:	The name of the method to call.
-proc ::snit::RT.MethodCacheLookup {type selfns win self method} {
+proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
     variable ${type}::Snit_info
     variable ${type}::Snit_methodInfo
     variable ${type}::Snit_typecomponents
