@@ -1,3 +1,8 @@
+2004-09-30  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Added a first set of test cases for the bignum module 
+        * Corrected the namespace for the bignum module
+
 2004-09-29  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * Added the bignum module by Salvatore Sanfilippo. No test cases yet
