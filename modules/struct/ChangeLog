@@ -1,3 +1,15 @@
+2003-04-01  Andreas Kupries  <andreask@activestate.com>
+
+	* record.test: Applied changes provided by Brett Schwarz
+	  <schwarzkopf@users.sourceforge.net>. His comments: I had changed
+	  the return when encountering a circular record; previously I
+	  returned "", but now I return an error. This fixes record.test
+	  to reflect the change. Part of fix for Tcllib SF Bug #709375.
+
+	  Additional changes by myself: Reformatted (proper tcl
+	  indentations). Renumbered so that all tests have unique id
+	  numbers (Before all tests had id 0.1).
+
 2003-02-25  David N. Welton  <davidw@dedasys.com>
 
 	* matrix.tcl: Require Tcl 8.2 because of string map.  Use string
