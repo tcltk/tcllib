@@ -10,6 +10,7 @@
 # This is accomplished through the use of Tcl namespaces.
 
 package provide logger 0.1
+package require Tcl 8.2
 
 namespace eval logger {
     namespace eval tree {}
