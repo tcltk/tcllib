@@ -1,3 +1,13 @@
+2003-05-20  David N. Welton  <davidw@dedasys.com>
+
+	* logger.test: Added test for setlevel command.
+
+	* logger.man: Document setlevel command in the 'man' page.
+
+	* logger.tcl (setlevel): New command that takes care of enabling
+	  all levels above that specified, and disabling all those below
+	  it.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
