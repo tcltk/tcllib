@@ -5,7 +5,7 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.5 2003/04/11 00:50:37 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.6 2003/04/29 00:46:18 patthoyts Exp $
 # -------------------------------------------------------------------------
 
 package provide uri::urn 1.0.1
@@ -67,19 +67,24 @@ proc ::uri::JoinUrn args {
 # ref: RFC2141 sec2.2
 proc ::uri::urn::quote {url} {
     variable trans
-
+    
     set ndx 0
-    while {[regexp -start $ndx -indices -- "\[^$trans\]" $url r]} {
+    set result ""
+    while {[regexp -indices -- "\[^$trans\]" $url r]} {
         set ndx [lindex $r 0]
         scan [string index $url $ndx] %c chr
         set rep %[format %.2X $chr]
         if {[string match $rep %00]} {
             error "invalid character: character $chr is not allowed"
         }
-        set url [string replace $url $ndx $ndx $rep]
-        incr ndx 3
+        
+        incr ndx -1
+        append result [string range $url 0 $ndx] $rep
+        incr ndx 2
+        set url [string range $url $ndx end]
     }
-    return $url
+    append result $url
+    return $result
 }
 
 # -------------------------------------------------------------------------
