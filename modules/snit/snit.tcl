@@ -1900,6 +1900,7 @@ proc ::snit::DefineDo {which type body} {
     #puts "eval $body\n"
     if {[catch {eval $body} result]} {
         namespace delete $type
+        catch {rename $type ""}
         error $result
     }
 

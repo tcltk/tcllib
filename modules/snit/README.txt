@@ -16,11 +16,12 @@ Changes in V0.93
 --------------------------------------------------------------------
 
 * Documentation fixes: a number of minor corrections were made to the
-  Snit man page and FAQ.
+  Snit man page and FAQ.  Thanks to everyone who pointed them out,
+  especially David S. Cargo.
 
 * Bug fix: when using %AUTO% to create object names, the counter 
   will wrap around to 0 after it reaches (2^32 - 1), to prevent 
-  integer overflow errors.
+  integer overflow errors. (Credit Marty Backe)
 
 * Bug fix: in a normal Tcl proc, the command
 
@@ -28,10 +29,16 @@ Changes in V0.93
 
   makes variable "::my::namespace::var" available to the proc under the 
   local name "var".  Snit redefines the "variable" command for use in
-  instance methods, and had lost this behavior.  
+  instance methods, and had lost this behavior.  (Credit Jeff
+  Hobbs)
 
 * Bug fix: in some cases, the "info vars" instance method didn't
   include the "options" instance variable in its output.
+
+* Fixed bug: in some cases the type command was created even if there 
+  was an error defining the type.  The type command is now cleaned 
+  up in these cases.  (Credit Andy Goth)
+
 
 Changes in V0.92
 --------------------------------------------------------------------
