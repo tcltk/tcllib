@@ -1,3 +1,14 @@
+2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.man: Updated the documentation to clarify the behaviour.
+
+	* test.tcl: Updated testsuite, part of the patch below.
+
+	* tree.tcl (_move): Accepted patch by Brian Theado
+	  <btheado@users.sourceforge.net> fixing the behaviour of mov, SF
+	  bug #578460. The command now also validates all nodes before
+	  trying to move any of them.
+
 2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.man: Fixed typo (graph -> matrix).
