@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: prioqueue.tcl,v 1.2 2003/04/16 19:27:41 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.tcl,v 1.3 2003/04/25 17:07:36 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -407,7 +407,7 @@ proc ::struct::prioqueue::__elementcompare {prio newPrio sortopt sortdir} {
     if {[string equal $sortopt "-integer"] || [string equal $sortopt "-real"]} {
         set result [expr {$prio < $newPrio}]
     } elseif {[string equal $sortopt "-ascii"]} {
-        set result [expr {[string compare $prio $newPrio] < 0}]
+        set result [expr {[string compare $prio $newPrio] <= 0}]
     } elseif {[string equal $sortopt "-dictionary"]} {
         # need to use lsort to access -dictionary sorting
         set result [string equal $prio [lindex \

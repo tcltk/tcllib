@@ -1,3 +1,11 @@
+2003-04-25  Andreas Kupries  <andreask@activestate.com>
+
+	* prioqueue.test: Extended to check for stable insertion.
+	* prioqueue.tcl (__elementcompare): Bugfix, makes insertion stable.
+	* prioqueue.man: New, documentation.
+
+	* skiplist.man: Typo fix.
+
 2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.bench: New file, beginnings of a benchmark suite for the

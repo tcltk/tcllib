@@ -9,7 +9,7 @@
 # Copyright (c) 2002 Michael Schlenker
 # All rights reserved.
 #
-# RCS: @(#) $Id: prioqueue.test,v 1.1 2003/04/15 21:44:51 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.test,v 1.2 2003/04/25 17:07:36 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -422,5 +422,47 @@ test prioqueue-8.2 {peekpriority operation, multiple items} {
     myprioqueue destroy
     set result
 } [list 3 2 1]
+
+
+test prioqueue-9.1 {stable ordering if inserting} {
+    prioqueue myprioqueue
+    myprioqueue put a 1
+    myprioqueue put b 2
+    myprioqueue put c 1
+    set result [myprioqueue peek 3]
+    myprioqueue destroy
+    set result
+} [list b a c ]
+
+test prioqueue-9.2 {stable ordering if inserting} {
+    prioqueue -real myprioqueue 
+    myprioqueue put a 1.0
+    myprioqueue put b 2.0
+    myprioqueue put c 1.0
+    set result [myprioqueue peek 3]
+    myprioqueue destroy
+    set result
+} [list b a c ]
+
+test prioqueue-9.3 {stable ordering if inserting} {
+    prioqueue -dictionary myprioqueue 
+    myprioqueue put a a
+    myprioqueue put b b
+    myprioqueue put c a
+    set result [myprioqueue peek 3]
+    myprioqueue destroy
+    set result
+} [list a c b]
+
+test prioqueue-9.4 {stable ordering if inserting} {
+    prioqueue -ascii myprioqueue 
+    myprioqueue put a a
+    myprioqueue put b b
+    myprioqueue put c a
+    set result [myprioqueue peek 3]
+    myprioqueue destroy
+    set result
+} [list a c b]
+
 
 ::tcltest::cleanupTests
