@@ -1,3 +1,8 @@
+2004-01-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl: Better handling of failure in TLS setup. Added a
+	policy command to control TLS policy on failure.
+
 2004-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtp.tcl: Added support for the STARTTLS extension (RFC 3207).
