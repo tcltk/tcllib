@@ -20,19 +20,20 @@ but quite likely should be. Patches and other help are welcome.
 
 
 
-[section  "COMMANDS"]
+[section COMMANDS]
 
 [list_begin definitions]
 
-[call [cmd uri::split] [arg url]]
+[call [cmd uri::split] [arg url] [opt [arg defaultscheme]]]
 
-[cmd uri::split] takes a single [arg url], decodes it and then returns
-a list of key/value pairs suitable for [cmd "array set"] containing
-the constituents of the [arg url]. If the scheme is missing from the
-url it defaults to [term http]. Currently only the schemes
+[cmd uri::split] takes an [arg url], decodes it and then returns a
+list of key/value pairs suitable for [cmd "array set"] containing the
+constituents of the [arg url]. If the scheme is missing from the url
+it defaults to the value of [arg defaultscheme] if it was specified,
+or [term http] else. Currently only the schemes [term http],
 
-[term http], [term ftp], [term mailto], [term urn], [term news],
-and [term file] are supported. See section [sectref EXTENDING]
+[term ftp], [term mailto], [term urn], [term news], and [term file]
+are supported by the package itself. See section [sectref EXTENDING]
 on how to expand that range.
 
 
