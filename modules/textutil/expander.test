@@ -21,7 +21,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 #---------------------------------------------------------------------
 # Load the expander package
 
-if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
+if { [ lsearch [ namespace children ] "::textutil::expander" ] == -1 } then {
     source [file join [file dirname [info script]] expander.tcl]
 }
 
