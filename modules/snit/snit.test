@@ -759,14 +759,16 @@ test dtypemethod-2.1 {'using "%c %m"' gets normal behavior} {
 test dtypemethod-2.2 {All relevant 'using' conversions are converted} {
     cleanup
 
-    proc echo {args} { join $args "|" }
-
-    type dog {
-        delegate typemethod wag using {echo %% %t %m %n %w %s %c}
+    proc echo {args} { 
+        return $args 
     }
 
-    dog wag
-} {%|::dog|wag|%n|%w|%s|%c}
+    type dog {
+        delegate typemethod {tail wag} using {echo %% %t %M %m %j %n %w %s %c}
+    }
+
+    dog tail wag
+} {% ::dog {tail wag} wag tail_wag %n %w %s %c}
 
 test dtypemethod-2.3 {"%%" is handled properly} {
     cleanup
@@ -891,17 +893,17 @@ test dtypemethod-4.5 {all tokens are used by default} {} {
     cleanup
 
     type tail {
-        method {wag tail}    {} {return "wags tail"}
+        method wag {} {return "wags tail"}
     }
 
     type dog {
         typeconstructor {
             set tail [tail]
         }
-        delegate typemethod {wag tail} to tail
+        delegate typemethod {tail wag} to tail
     }
 
-    dog wag tail
+    dog tail wag
 } {wags tail}
 
 test dtypemethod-5.1 {prefix/typemethod collision} {} {
@@ -3089,16 +3091,16 @@ test dmethod-2.1 {'using "%c %m"' gets normal behavior} {
 test dmethod-2.2 {All 'using' conversions are converted} {
     cleanup
 
-    proc echo {args} { join $args "|" }
+    proc echo {args} { return $args }
 
     type dog {
-        delegate method wag using {echo %% %t %m %n %w %s %c}
+        delegate method {tail wag} using {echo %% %t %M %m %j %n %w %s %c}
     }
 
     dog spot
 
-    spot wag
-} {%|::dog|wag|::dog::Snit_inst1|::spot|::spot|%c}
+    spot tail wag
+} {% ::dog {tail wag} wag tail_wag ::dog::Snit_inst1 ::spot ::spot %c}
 
 test dmethod-2.3 {"%%" is handled properly} {
     cleanup
@@ -3239,18 +3241,18 @@ test dmethod-4.5 {all tokens are used by default} {} {
     cleanup
 
     type tail {
-        method {wag tail}    {} {return "wags tail"}
+        method wag {} {return "wags tail"}
     }
 
     type dog {
         constructor {} {
             set tail [tail]
         }
-        delegate method {wag tail} to tail
+        delegate method {tail wag} to tail
     }
 
     dog spot
-    spot wag tail
+    spot tail wag
 } {wags tail}
 
 test dmethod-5.1 {prefix/method collision} {} {
