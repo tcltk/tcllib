@@ -10,12 +10,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.24 2003/04/09 18:46:29 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.25 2003/04/11 20:07:24 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
 package require log
-package provide pop3 1.5.2
+package provide pop3 1.6
 
 namespace eval ::pop3 {
 
