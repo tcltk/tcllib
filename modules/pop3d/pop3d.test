@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.8 2004/02/11 07:48:41 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.9 2004/08/26 05:50:39 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {
     return
@@ -19,27 +19,27 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 }
 
-if {[catch {source [file join [file dirname [file dirname [info script]]] mime mime.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+if {[catch {source [file join [file dirname [file dirname [info script]]] md5 md5x.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (md5x): $msg"
     return
 }
-if {[catch {source [file join [file dirname [file dirname [info script]]] md5 md5.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+if {[catch {source [file join [file dirname [file dirname [info script]]] mime mime.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (mime): $msg"
     return
 }
 
 package forget pop3d
 catch {namespace delete ::pop3d}
 if {[catch {source [file join [file dirname [info script]] pop3d.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+    puts "skipped [file tail [info script]] (pop3d): $msg"
     return
 }
 if {[catch {source [file join [file dirname [info script]] pop3d_udb.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+    puts "skipped [file tail [info script]] (udb): $msg"
     return
 }
 if {[catch {source [file join [file dirname [info script]] pop3d_dbox.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+    puts "skipped [file tail [info script]] (dbox): $msg"
     return
 }
 
@@ -565,10 +565,10 @@ test pop3-srv-7.2 "auth, APOP/USER" {
     newfsrv
     set res ""
     set trace [subshellpar {
-	package require md5 1
+	package require md5 2
 	set c [socket localhost $port]
 	regexp {(<.*>)} [gets $c] -> id
-	set hash [md5::md5 ${id}smash]
+	set hash [string tolower [md5::md5 -hex ${id}smash]]
 	puts $c "APOP ak $hash" ; flush $c
 	set line [gets $c]
 	puts $c "USER foo" ; flush $c
@@ -622,10 +622,10 @@ foreach {n user pass lidx cidx} {
 	newfsrv
 	set res ""
 	set trace [subshellpar {
-	    package require md5 1
+	    package require md5 2
 	    set c [socket localhost $port]
 	    gets $c line ; regexp {(<.*>)} $line -> id
-	    set hash [md5::md5 ${id}$pass]
+	    set hash [string tolower [md5::md5 -hex ${id}$pass]]
 	    puts $c "APOP $user $hash" ; flush $c ; gets $c line
 	    after 3000
 	    close $c

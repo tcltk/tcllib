@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.14 2004/02/14 05:59:21 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.15 2004/08/26 05:50:39 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -562,6 +562,7 @@ test pop3-6.1 {uidl} {
 } {POP3 UIDL ERROR:  unknown command 'UIDL'}
 
 
+::tcltest::removeFile __pop3d.log
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
 ::tcltest::cleanupTests

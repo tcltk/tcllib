@@ -1,3 +1,9 @@
+2004-08-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d_dbox.test: Fixed problems with usage of md5, now
+	* pop3d.test:      switchable between v1 and v2.
+	* pop3d.tcl:
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
