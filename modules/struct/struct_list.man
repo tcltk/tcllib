@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.7 2004/02/06 08:27:18 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.8 2004/02/11 08:30:10 andreas_kupries Exp $}]
 [manpage_begin list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -215,11 +215,11 @@ sequence containing the elements of the input sequence in reverse
 order.
 
 
-[call [cmd ::struct::list] [method assign] [arg sequence] [opt [arg varname]]...]
+[call [cmd ::struct::list] [method assign] [arg sequence] [arg varname] [opt [arg varname]]...]
 
 The subcommand assigns the first [var n] elements of the input
 
-[arg sequence] to the zero or more variables whose names were listed
+[arg sequence] to the one or more variables whose names were listed
 after the sequence, where [var n] is the number of specified
 variables.
 

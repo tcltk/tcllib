@@ -1,3 +1,7 @@
+2004-02-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.test: Sorted some dict responses for reliable comparison.
+
 2004-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.man: Documented method links.
