@@ -1,3 +1,8 @@
+2001-08-21  Don Porter <dgp@users.sourceforge.net>
+
+	* uri.n: Corrected title.  The 'uri' package does not
+	provide "Tcl Built-In Commands."
+
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* uri.tcl: Frink 2.2 run, fixed dubious code.
