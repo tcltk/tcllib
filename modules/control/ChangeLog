@@ -1,3 +1,7 @@
+2001-11-09  Don Porter <dgp@users.sourceforge.net>
+
+	* control.n: corrections to *roff markup.
+
 2001-11-08  Don Porter <dgp@users.sourceforge.net>
 
 	* ascaller.tcl (ErrorInfoAsCaller): new utility proc that provides

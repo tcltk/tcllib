@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.4 2001/11/07 10:40:01 rmax Exp $
+'\" RCS: @(#) $Id: control.n,v 1.5 2001/11/09 17:36:28 dgp Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -39,7 +39,7 @@ with the command.
 \fBcontrol::assert \fIexpr \fR?\fIarg arg ...\fR?
 When disabled, the \fBassert\fR command behaves exactly like
 the \fBno-op\fR command.
-
+.sp
 When enabled, the \fBassert\fR command evaluates \fIexpr\fR as
 an expression (in the same way that \fBexpr\fR evaluates its
 argument).  If evaluation reveals that \fIexpr\fR is not a valid
@@ -52,10 +52,10 @@ message string is "assertion failed: $expr".  If there are arguments,
 they are joined by \fBjoin\fR to form the message string.  The 
 message string is then appended as an argument to a callback command,
 and the completed callback command is evaluated in the global namespace.
-
+.sp
 The \fBassert\fR command can be customized by the \fBcontrol\fR
 command in two ways:
-
+.sp
 [\fBcontrol::control assert enabled \fR?\fIboolean\fR?] queries or
 sets whether \fBcontrol::assert\fR is enabled.  When called without
 a \fIboolean\fR argument, a boolean value is returned indicating
@@ -63,7 +63,7 @@ whether the \fBcontrol::assert\fR command is enabled.  When called
 with a valid boolean value as the \fIboolean\fR argument, the
 \fBcontrol::assert\fR command is enabled or disabled to match the
 argument, and an empty string is returned.
-
+.sp
 [\fBcontrol::control assert callback \fR?\fIcommand\fR?] queries or sets
 the callback command that will be called by an enabled \fBassert\fR on
 assertion failure.  When called without a \fIcommand\fR argument, the
@@ -72,11 +72,14 @@ argument, that argument becomes the new assertion failure callback
 command.  Note that an assertion failure callback command is always
 defined, even when \fBassert\fR is disabled.  The default callback
 command is [\fBreturn -code error\fR].
-.PP
+.sp
 Note that \fBcontrol::assert\fR has been written so that in
 combination with [\fBnamespace import\fR], it is possible to
 use enabled \fBassert\fR commands in some namespaces and disabled
 \fBassert\fR commands in other namespaces at the same time.  
+This capability is useful so that debugging efforts can be independently
+controlled module by module.
+.sp
 .CS
 \fB% package require control
 % control::control assert enabled 1
@@ -87,8 +90,6 @@ use enabled \fBassert\fR commands in some namespaces and disabled
 assertion failed: 1 == 0
 % two::assert {1 == 0}\fR
 .CE
-This capability is useful so that debugging efforts can be independently
-controlled module by module.
 .TP
 \fBcontrol::do \fIbody while|until test\fR
 The \fBdo\fR command executes body as a script repeatedly \fBuntil\fR
