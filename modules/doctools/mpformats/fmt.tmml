@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.3 2002/02/13 02:59:33 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.4 2002/02/13 23:20:18 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -45,6 +45,35 @@ proc provenance {} {
     return "Generated from [mp_file] by tcllib/doctools/mpexpand with $this"
 }
 
+
+######################################################################
+# Cross-reference tracking.
+#
+
+global SectionNames	;# array mapping section name to refid
+
+# sectionId --
+#	Format section name as an XML ID.
+#
+proc sectionId {name} {
+    regsub -all {[^[:alnum:]]} $name {} name
+    return [string tolower $name]
+}
+
+# possibleReference text gi --
+#	Check if $text is a potential cross-reference;
+#	if so, format as a reference;
+#	otherwise format as a $gi element.
+#
+proc possibleReference {text gi} {
+    global SectionNames
+    if {[info exists SectionNames($text)]} {
+    	return "[startTag ref refid $SectionNames($text)]$text[endTag ref]"
+    } else {
+    	return [wrap $text $gi]
+    }
+}
+
 ######################################################################
 # Conversion specification.
 #
@@ -55,17 +84,21 @@ proc provenance {} {
 
 holdBuffers synopsis see_also keywords
 
+variable block {section dd li}	;# block context elements
+
 proc nl  	{}	{ emptyElement br }
 proc arg 	{text}	{ wrap $text m }
 proc cmd	{text}	{ wrap $text cmd }
-proc emph	{text}	{ wrap $text emph }
-proc strong	{text}	{ wrap $text emph }
+proc emph	{text}	{ possibleReference $text emph }
+proc strong	{text}	{ possibleReference $text emph }
 proc opt 	{text}	{ wrap $text o }
 
-proc example_begin {}	{ sequence [xmlContext section] "<example>" }
-proc example_end   {}	{ return "</example>" }
+proc example_begin {}	{ sequence [xmlContext $::block] [start example] }
+proc example_end   {}	{ end example }
 
-proc example {code} 	{ sequence [xmlContext section] [wrap [HandleText $code] example] }
+proc example {code} {
+    sequence [xmlContext $::block] [wrap [HandleText $code] example] 
+}
 
 global    state
 array set state {mdesc {}}
@@ -108,11 +141,11 @@ pass 2 description {} {
 	;
 }
 
-pass 1 section {name} NOP
+pass 1 section {name} { set ::SectionNames($name) [sectionId $name] }
 pass 2 section {name} {
     sequence \
 	[xmlContext manpage] \
-    	[start section] \
+    	[start section id [sectionId $name]] \
 	[wrap [string toupper $name] title] \
 	;
 }
@@ -173,7 +206,7 @@ pass 1 require {pkg {version {}}} {
 }
 pass 2 require {pkg {version {}}} NOP
 proc formatRequire {pkg version} {
-    return "package require [wrap $pkg package] [wrap? $version l]"
+    return "package require [wrap $pkg package] $version"
 }
 
 pass 1 see_also	{args} { holdWrapped see_also  $args ref }
