@@ -25,8 +25,10 @@ my $smtp_timeout = 120;
 my $smtp_log_mail = 0;
 my $smtp_debug = 1;
 
-my $sender_address = 'Perl Test Script <perl-test-script@' . hostname() . '>';
-my $recipient_address = 'Tcl Server <tcl-smtpd@' . $smtp_smart_host . '>';
+my $sender_address = 'perl-test-script@' . hostname() . '';
+my $recipient_address = 'tcl-smtpd@' . $smtp_smart_host . '';
+my $from_address = 'Perl Test Script <perl-test-script@' . hostname() . '>';
+my $ro_address = 'Tcl Server <tcl-smtpd@' . $smtp_smart_host . '>';
 
 print "Sending valid message\n";
 test_ok();
