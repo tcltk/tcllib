@@ -3,7 +3,7 @@
 [moddesc   {Tcl Math Library}]
 [titledesc {Combinatorial functions in the Tcl Math Library}]
 [require Tcl 8.2]
-[require math [opt 1.2]]
+[require math [opt 1.2.2]]
 [description]
 [para]
 

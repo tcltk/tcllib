@@ -1,3 +1,10 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* combinatorics.man:
+	* math.man:
+	* math.tcl:
+	* pkgIndex.tcl:  Set version of the package to to 1.2.2.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* combinatorics.man: More semantic markup, less visual one.
