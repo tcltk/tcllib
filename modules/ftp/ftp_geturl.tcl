@@ -128,4 +128,4 @@ proc ::ftp::ParseList {flist} {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp::geturl [lindex {Revision: 0.2} 1]
+package provide ftp::geturl 0.2

@@ -16,8 +16,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.9 2003/04/11 01:08:03 andreas_kupries Exp $}
-    variable version 1.2.1
+    variable rcsid {$Id: smtpd.tcl,v 1.10 2003/04/25 04:52:18 andreas_kupries Exp $}
     variable stopped
 
     namespace export start stop
@@ -739,7 +738,11 @@ proc ::smtpd::QUIT {channel line} {
     return
 }
 
-package provide smtpd $smtpd::version
+# -------------------------------------------------------------------------
+# See devdoc/notes.txt before using the variable in the provide statement.
+
+set ::smtpd::version  1.2.1
+package provide smtpd 1.2.1
 
 # -------------------------------------------------------------------------
 # Local variables:
