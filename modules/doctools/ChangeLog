@@ -1,5 +1,24 @@
 2002-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* mpexpand: Changed the generation of error messages by the format
+	  checker to use explicit error codes instead of trying to
+	  construct the whole message automatically. Error codes are
+	  mapped to textual messages using the message catalog facility,
+	  allowing for easy i18n and l10n of mpexpand. Catalogs for the
+	  locales "c", "en", and "de" are provided.
+
+	* mpformats/fmt.html: Changed uri formatting to be a link.
+
+	* mpformats/fmt.tmml: 
+	* mpformats/fmt.html: 
+	* mpformats/fmt.nroff: 
+	* mpformats/fmt.latex: 
+	* mpformats/fmt.list: 
+	* mpformats/fmt.null: 
+	* mpformats/_api.tcl: Added formatting commands "term" and "const"
+	  to allow the structural markup of non-specific terminology and
+	  of constant values.
+
 	* mpformats/fmt.nroff (bullet): Bulleting changed, use \(bu as
 	  bullet instead of *.
 	  (uri): Fixed error with underlining.

@@ -224,6 +224,8 @@ proc class   {text} {strong $text}
 proc var     {text} {strong $text}
 proc file    {text} {return "\"[emph $text]\""}
 proc uri     {text} {emph $text}
+proc term    {text} {emph $text}
+proc const   {text} {strong $text}
 
 ################################################################
 # nroff specific commands

@@ -1,0 +1,20 @@
+# -*- tcl -*-
+package require    msgcat
+namespace import ::msgcat::*
+
+mcset en end/open/list    "End of manpage reached, \[list_end\] missing"
+mcset en end/open/example "End of manpage reached, \[example_end\] missing"
+mcset en end/open/mp	  "End of manpage reached, \[manpage_end\] missing"
+mcset en mpbegin          "Command must be first of manpage"
+mcset en hdrcmd           "Command not allowed outside of the header section"
+mcset en bodycmd          "Command not allowed outside of the body of the manpage"
+mcset en reqcmd           "Command not allowed outside of header or requirement section"
+mcset en nolistcmd        "Command not allowed inside of a list"
+mcset en nolisthdr        "Command not allowed between beginning of a list and its first item"
+mcset en listcmd          "Command not allowed outside of a list"
+mcset en deflist          "Command restricted to usage in definition lists"
+mcset en bulletlist       "Command restricted to usage in itemized lists"
+mcset en enumlist         "Command restricted to usage in enumerated lists"
+mcset en examplecmd       "Command allowed only to close example section"
+mcset en listcmd          "Command not allowed outside of a list"
+mcset en nodonecmd        "Command not allowed after \[manpage_end\]"
