@@ -1,3 +1,7 @@
+2004-08-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* all.tcl: Added constraint 'tcl8.5plus'.
+
 2004-08-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/tar:
