@@ -17,7 +17,7 @@
 # BEFORE making any changes here! Thanks!
 
 # Usage of this version:
-#     exif::analyze $stream
+#     exif::analyze $stream ?$thumbnail?
 # Stream should be an open file handle
 # rewound to the start. It gets set to
 # binary mode and is left at EOF or 
@@ -32,7 +32,10 @@
 #     exif::allfields
 # returns a list of all possible field names.
 # Added by DNew. Funky implementation.
-
+#
+# New
+#     exif::analyzeFile $filename ?$thumbnail?
+#
 # If you find any mistakes here, feel free to correct them
 # and/or send them to me. I just cribbed this - I don't even
 # have a camera that puts this kind of info into the file.
@@ -45,7 +48,7 @@ package require Tcl 8.3
 package provide exif 1.0 ; # first release
 
 namespace eval exif {
-    namespace export analyze fieldnames
+    namespace export analyze analyzeFile fieldnames
     variable debug 0 ; # set to 1 for puts of debug trace
     variable cameraModel ; # used internally to understand options
     variable jpeg_markers ; # so we only have to do it once
@@ -72,7 +75,14 @@ proc exif::streq {s1 s2} {
     return [string equal $s1 $s2]
 }
 
-proc exif::analyze {stream} {
+proc exif::analyzeFile {file {thumbnail {}}} {
+    set stream [open $file]
+    set res [analyze $stream $thumbnail]
+    close $stream
+    return $res
+}
+
+proc exif::analyze {stream {thumbnail {}}} {
     variable jpeg_markers
     array set result {}
     fconfigure $stream -translation binary -encoding binary
@@ -95,12 +105,13 @@ proc exif::analyze {stream} {
             scan $msb %c msb ; scan $lsb %c lsb
             set size [expr {256 * $msb + $lsb}]
             set data [read $stream [expr {$size-2}]]
+	    debug "read [expr $size - 2] bytes of data"
             if {[expr {$size-2}] != [string length $data]} {
                 error "File truncated @2"
             }
             if {[streq $marker $jpeg_markers(APP1)]} {
                 debug "APP1\t$size"
-                array set result [app1 $data]
+                array set result [app1 $data $thumbnail]
             } elseif {[streq $marker $jpeg_markers(DQT)]} {
                 debug "DQT\t$size"
             } elseif {[streq $marker $jpeg_markers(SOF0)]} {
@@ -118,7 +129,7 @@ proc exif::analyze {stream} {
     return [array get result]
 }
 
-proc exif::app1 {data} {
+proc exif::app1 {data thumbnail} {
     variable intel
     variable cameraModel
     array set result {}
@@ -178,13 +189,30 @@ proc exif::app1 {data} {
             if {$value==2} {set result(YCbCrPositioning) "Datum point"}
         } elseif {$tag==0x8769} {
             # EXIF sub IFD
+	    debug "==CALLING exifSubIFD=="
             array set result [exifSubIFD $data $offset]
         } else {
-            debug "Unrecognised entry: Tag=$tag, value=$value"
+            debug "Unrecognized entry: Tag=$tag, value=$value"
         }
     }
     set offset [readLong $data [expr {$curoffset + 12 * $numEntries}]]
     debug "Offset to next IFD: $offset"
+    array set thumb_result [exifSubIFD $data $offset]
+
+    if {$thumbnail != {}} {
+	set jpg [string range $data \
+		$thumb_result(JpegIFOffset) \
+		[expr $thumb_result(JpegIFOffset) + $thumb_result(JpegIFByteCount) - 1]]
+
+        set         to [open $thumbnail w]
+        fconfigure $to -translation binary -encoding binary
+	puts       $to $jpg
+        close      $to
+
+        #can be used (with a JPG-aware TK) to add the image to the result array
+	#set result(THUMB) [image create photo -file $thumbnail]
+    }
+
     return [array get result]
 }
 
@@ -308,8 +336,63 @@ proc exif::exifSubIFD {data curoffset} {
             } elseif {$tag == 0xA217} {
                 # 2 = 1 chip color area sensor
                 set result(SensingMethod) $value
+            } elseif {$tag == 0xA401} {
+		#TJE
+		set result(SensingMethod) "normal"
+                if {$value == 1} {set result(SensingMethod) "custom"}
+            } elseif {$tag == 0xA402} {
+		#TJE
+                set result(ExposureMode) "auto"
+                if {$value == 1} {set result(ExposureMode) "manual"}
+                if {$value == 2} {set result(ExposureMode) "auto bracket"}
+            } elseif {$tag == 0xA403} {
+		#TJE
+                set result(WhiteBalance) "auto"
+                if {$value == 1} {set result(WhiteBalance) "manual"}
+            } elseif {$tag == 0xA404} {
+                # digital zoom not used if number is zero
+		set result(DigitalZoomRatio) "not used"
+                if {$value != 0} {set result(DigitalZoomRatio) $value}
+            } elseif {$tag == 0xA405} {
+		set result(FocalLengthIn35mmFilm) "unknown"
+                if {$value != 0} {set result(FocalLengthIn35mmFilm) $value}
+            } elseif {$tag == 0xA406} {
+                set result(SceneCaptureType) "Standard"
+                if {$value == 1} {set result(SceneCaptureType) "Landscape"} 
+                if {$value == 2} {set result(SceneCaptureType) "Portrait"}
+                if {$value == 3} {set result(SceneCaptureType) "Night scene"}
+            } elseif {$tag == 0xA407} {
+                set result(GainControl) "none"
+                if {$value == 1} {set result(GainControl) "Low gain up"} 
+                if {$value == 2} {set result(GainControl) "High gain up"}
+                if {$value == 3} {set result(GainControl) "Low gain down"}
+                if {$value == 4} {set result(GainControl) "High gain down"}
+            } elseif {$tag == 0x0103} {
+		#TJE
+		set result(Compression) "unknown"
+		if {$value == 1} {set result(Compression) "none"}
+		if {$value == 6} {set result(Compression) "JPEG"}
+            } elseif {$tag == 0x011A} {
+		#TJE
+		set result(XResolution) $value
+            } elseif {$tag == 0x011B} {
+		#TJE
+		set result(YResolution) $value
+            } elseif {$tag == 0x0128} {
+		#TJE
+		set result(ResolutionUnit) "unknown"
+		if {$value == 1} {set result(ResolutionUnit) "inch"}
+		if {$value == 6} {set result(ResolutionUnit) "cm"}
+            } elseif {$tag == 0x0201} {
+		#TJE
+		set result(JpegIFOffset) $value
+		debug "offset = $value"
+            } elseif {$tag == 0x0202} {
+		#TJE
+		set result(JpegIFByteCount) $value
+		debug "bytecount = $value"
             } else {
-                error "Unrecognised EXIF Tag: $tag"
+                error "Unrecognized EXIF Tag: $tag (0x[string toupper [format %x $tag]])"
             }
         }
     }
@@ -554,13 +637,13 @@ proc exif::makerNote {data curoffset} {
                 } elseif {$tag == 15} {
                     foreach k [array names field] {
                         set func [expr {($field($k) >> 8) & 0xFF}]
-                        set val [expr {$field($k) & 0xFF}]
-                        if {$func==1 && $val} {
+                        set v [expr {$field($k) & 0xFF}]
+                        if {$func==1 && $v} {
                             set result(LongExposureNoiseReduction) on
-                        } elseif {$func==1 && !$val} {
+                        } elseif {$func==1 && !$v} {
                             set result(LongExposureNoiseReduction) off
                         } elseif {$func==2} {
-                            set result(Shutter/AE-Lock) [switch $val {
+                            set result(Shutter/AE-Lock) [switch $v {
                                 0 {format "AF/AE lock"}
                                 1 {format "AE lock/AF"}
                                 2 {format "AF/AF lock"}
@@ -640,14 +723,14 @@ proc exif::makerNote {data curoffset} {
                             }
                         } elseif {$func==0} {
                             # Discovered by DNew?
-                            set result(CameraOwner) $value
+                            set result(CameraOwner) $v
                         } else {
-                            append result(UnknownCustomFunc) "$func=$value "
+                            append result(UnknownCustomFunc) "$func=$v "
                         }
                     }
                 }
             } else {
-                debug [format "makerNote: Unrecognised TAG: 0x%x" $tag]
+                debug [format "makerNote: Unrecognized TAG: 0x%x" $tag]
             }
         }
     }
