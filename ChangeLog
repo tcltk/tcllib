@@ -1,3 +1,12 @@
+2004-03-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installer.tcl: Requiring Tcl 8.2 when executing the installer,
+	  as anything below that version does not make any sense. This
+	  fixes [Tcllib SF Bug 899152].
+
+	* installer.tcl: Fixed [Tcllib SF Bug 899209] by deleting an
+	  existing file before trying to overwrite it.
+
 2004-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tcllib_version.tcl: Moving mainline to 1.6.0.1 to distinguish
