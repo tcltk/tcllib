@@ -1,7 +1,9 @@
 2003-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installer.tcl: Bug fix, the modules calendar, control, and math
-	  have a "tclIndex" file which has to be installed too.
+	  have a "tclIndex" file which has to be installed too. Also
+	  changed usage of 'tcl_pkgPath', as this variable does not exist
+	  on windows.
 
 2003-04-17  Andreas Kupries  <andreask@activestate.com>
 
