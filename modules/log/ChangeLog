@@ -1,3 +1,12 @@
+2005-03-04  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.test : 
+	  logger.tcl  :
+	  logger.man  : Added a test (13.7) for a small glitch in the
+	  fix for bug [1102131]. logprocs could be called with
+	  too many arguments. Added new lvlchangeproc callback command
+	  including tests and docs. 
+	  
 2005-02-18  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* logger.test : Added tests for the clean callstack (14.x)
