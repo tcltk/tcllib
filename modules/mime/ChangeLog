@@ -1,3 +1,17 @@
+2001-11-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Fixed bug #472009. Changes in the handling of
+	  script-level transformations cause the system to try to
+	  initialize the read side of the 'smtp::wdata'
+	  transformation. This fails. Added a dummy create/read branch to
+	  the switch. Reported by 'nobody/anonymous', but possibly Andreas
+	  Otto (deduced from the specified example).
+
+	* mime.tcl: Added informaton about 7bit, 8bit, and binary encoding
+	  to the places where it is missing. This fixes SF item
+	  #477088. Bug was reported by Oliver Bienert
+	  <obienert@users.sourceforge.net>.
+
 2001-10-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* mime.n:

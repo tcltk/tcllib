@@ -950,6 +950,8 @@ proc smtp::wdata {token command buffer} {
     upvar 0 $token state
 
     switch -- $command {
+	create/read
+	    -
         create/write
             -
         clear/write

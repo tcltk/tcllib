@@ -318,7 +318,7 @@ proc mime::initializeaux {token args} {
 
             -encoding {
                 switch -- [set state(encoding) [string tolower $value]] {
-                    7bit - 8bit - quoted-printable - base64 {
+                    7bit - 8bit - binary - quoted-printable - base64 {
                     }
 
                     default {
@@ -1309,7 +1309,8 @@ proc mime::getbody {token args} {
                             set chunk [$state(encoding) -mode decode \
                                                         -- $chunk]
                         }
-			"" {
+			7bit - 8bit - binary - "" {
+			    # Bugfix for [#477088]
 			    # Go ahead, leave chunk alone
 			}
 			default {
@@ -1375,6 +1376,8 @@ proc mime::getbody {token args} {
                 }
 
                 default {
+		    # Not a bugfix for [#477088], but clarification
+		    # This handles no-encoding, 7bit, 8bit, and binary.
                     set fragment $state(string)
                 }
             }
@@ -1560,7 +1563,8 @@ proc mime::copymessageaux {token channel} {
                 quoted-printable {
                     set converter $encoding
                 }
-		"" {
+		7bit - 8bit - binary - "" {
+		    # Bugfix for [#477088]
 		    # Go ahead
 		}
 		default {
@@ -1798,7 +1802,8 @@ proc mime::buildmessageaux {token} {
                 quoted-printable {
                     set converter $encoding
                 }
-		"" {
+		7bit - 8bit - binary - "" {
+		    # Bugfix for [#477088]
 		    # Go ahead
 		}
 		default {
