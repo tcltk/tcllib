@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.4 2001/04/25 15:30:03 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.5 2001/05/01 19:01:23 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -126,6 +126,8 @@ foreach module $modules {
 	package require tcltest
 	namespace import ::tcltest::*
 	set ::tcltest::testSingleFile false
+	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
+	#set ::tcltest::verbose ps
     }
     interp alias $c ::tcltest::cleanupTestsHook {} \
 	    ::tcltest::cleanupTestsHook $c

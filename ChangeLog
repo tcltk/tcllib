@@ -1,3 +1,17 @@
+2001-05-01  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (MODULES):  Added module 'report'.
+
+	* all.tcl: Added code to propagate "::tcltest::testDirectory" into
+	  the slave actually doing the tests. This tripped some of the
+	  tests for the new CSV module as they use some external files and
+	  were thus unable to find them correctly without this setting.
+
+	* Makefile.in (MODULES): Added module 'csv'.
+
+	* Added directory 'examples' for future sample applications of
+	  tcllib and some example applications too.
+
 2001-04-24  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in: Added module 'md5'.
