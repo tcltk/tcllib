@@ -3557,6 +3557,29 @@ the old behavior, set the [const -canreplace] pragma to [const yes]:
 }
 }]
 
+[subsection {How can I make my simple type run faster?}]
+
+Set the [const -simpledispatch] pragma to [const yes].
+
+[para]
+
+Snit method dispatch is both flexible and fast, but the flexibility
+comes with a price.  If your type doesn't require the flexibility, the 
+[const -simpledispatch] pragma allows you to substitute a simpler
+dispatch mechanism that runs quite a bit faster.  The limitations
+are these:
+
+[list_begin bullet]
+
+[bullet] Methods cannot be delegated.
+[bullet] Instance commands cannot be renamed.
+[bullet] [cmd uplevel] and [cmd upvar] do not work as expected: the
+caller's scope is two levels up rather than one.
+[bullet] The option-handling methods 
+([cmd cget], [cmd configure], and [cmd configurelist]) are very
+slightly slower.
+[list_end]
+
 [section {MACROS}]
 
 [subsection {What is a macro?}]
