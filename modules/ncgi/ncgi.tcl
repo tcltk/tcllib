@@ -799,10 +799,10 @@ proc ncgi::multipart {type query} {
 
     if {[regexp -- $boundary\r\n $query]} {
         set lineDelim "\r\n"
-puts "DELIM"
+	#	puts "DELIM"
     } else {
         set lineDelim "\n"
-puts "NO"
+	#	puts "NO"
     }
 
     # Iterate over the boundary string and chop into parts
