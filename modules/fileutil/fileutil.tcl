@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.46 2005/02/09 05:52:02 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.47 2005/02/10 17:16:59 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -516,14 +516,14 @@ proc ::fileutil::stripPath {prefix path} {
 #			the confines of the jail.
 
 proc fileutil::jail {jail filename} {
-    if {[string equal [file pathtype $filename]  "absolute"]} {
-	# Although the path to check is absolute we cannot perform a
-	# simple prefix check to see if the path is inside the jail or
-	# not. We have to normalize both path and jail and then we can
-	# check. If the path is outside we make the original path
-	# relative and prefix it with the original jail. We do make
-	# the jail pseudo-absolute by prefixing it with the current
-	# working directory for that.
+    if {![string equal [file pathtype $filename]  "relative"]} {
+	# Although the path to check is absolute (or volumerelative on
+	# windows) we cannot perform a simple prefix check to see if
+	# the path is inside the jail or not. We have to normalize
+	# both path and jail and then we can check. If the path is
+	# outside we make the original path relative and prefix it
+	# with the original jail. We do make the jail pseudo-absolute
+	# by prefixing it with the current working directory for that.
 
 	# Normalized jail. Fully resolved sym links, if any. Our main
 	# complication is that normalize does not resolve symlinks in the

@@ -1,3 +1,11 @@
+2005-02-10  Andreas Kupries <andreask@activestate.com>
+
+	* fileutil.tcl (fileutil::jail): Fixed a problem reported by Pat
+	  Thoyts. Test jail-2.1 failed on windows. The reason was improper
+	  handling of volume-relative paths. They have to be handled like
+	  absolute paths, but were not. Changed the initial if condition a
+	  bit to fix this.
+
 2005-02-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl: Completed implementation and testing of the 'jail'
