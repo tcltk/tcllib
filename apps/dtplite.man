@@ -241,12 +241,16 @@ listed below if and only if the path does not exist.
 
 [emph {Note a limitation}]: If treating the format as path to the tcl
 script implementing the engine was sucessful, then this script has to
-implement not only the engine API for doctools ([term doctools_api]),
-but for [term doctoc_api] and [term docidx_api] as well. Otherwise the
-generation of a table of contents and of a keyword index will fail.
+implement not only the engine API for doctools, i.e.
+
+[term doctools_api], but for [term doctoc_api] and [term docidx_api]
+as well. Otherwise the generation of a table of contents and of a
+keyword index will fail.
 
 [para]
-List of predefined formats, i.e. provided by [term doctools]:
+
+List of predefined formats, i.e. as provided by the
+package [package doctools]:
 
 [para]
 [list_begin definitions]

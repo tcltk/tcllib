@@ -20,15 +20,15 @@ even if this is longer than the uuencode maximum line length. If the
 number of input bytes is not a multiple of 3 then additional 0 bytes
 are added to pad the string.
 
-[call [cmd ::uuencode::decode] [arg "string"]]
+[call [cmd ::uuencode::decode] [arg string]]
 
 Decodes the given encoded data. This will return any padding
 characters as well and it is the callers responsibility to deal with
 handling the actual length of the encoded data. (see uuencode).
 
-[call [cmd ::uuencode::uuencode] [opt "-name [arg string]"] [opt "-mode [arg octal]"] "(-file [arg filename] | [opt --] [arg string])"]
+[call [cmd ::uuencode::uuencode] [opt "[option -name] [arg string]"] [opt "[option -mode] [arg octal]"] "([option -file] [arg filename] | [opt [option --]] [arg string])"]
 
-[call [cmd ::uuencode::uudecode] "(-file [arg filename] | [opt --] [arg string])"]
+[call [cmd ::uuencode::uudecode] "([option -file] [arg filename] | [opt [option --]] [arg string])"]
 
 UUDecode a file or block of data. A file may contain more than one
 embedded file so the result is a list where each element is a three

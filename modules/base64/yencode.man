@@ -11,7 +11,7 @@ This package provides a Tcl-only implementation of the yEnc file
 encoding. This is a recently introduced method of encoding binary
 files for transmission through usenet. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
-escapes characters special to the NNTP posting protocols. See 
+escapes characters special to the [term NNTP] posting protocols. See 
 [uri http://www.yenc.org/] for details concerning the algorithm.
 
 [list_begin definitions]
@@ -25,15 +25,15 @@ returns the yEnc encoded data.
 Decodes the given yEnc encoded data.
 
 [call [cmd ::yencode::yencode] \
-  [opt "-name [arg string]"] \
-  [opt "-line [arg integer]"] \
-  [opt "-crc32 [arg boolean]"] \
-  "(-file [arg filename] | [opt --] [arg string])"]
+  [opt "[option -name] [arg string]"] \
+  [opt "[option -line] [arg integer]"] \
+  [opt "[option -crc32] [arg boolean]"] \
+  "([option -file] [arg filename] | [opt [option --]] [arg string])"]
 
 Encode a file or block of data.
 
 [call [cmd ::yencode::ydecode] \
-  "(-file [arg filename] | [opt --] [arg string])"]
+  "([option -file] [arg filename] | [opt [option --]] [arg string])"]
 
 Decode a file or block of data. A file may contain more than one
 embedded file so the result is a list where each element is a three
@@ -80,5 +80,5 @@ check value in the footer. Use this option to change the default from
 =yend size=584 crc32=ded29f4f
 }]
 
-[keywords encoding uuencode yEnc yencode ydecode]
+[keywords encoding yEnc yencode ydecode]
 [manpage_end]

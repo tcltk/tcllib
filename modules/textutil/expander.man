@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin expander n 1.2]
+[manpage_begin textutil::expander n 1.2]
 [copyright {William H. Duquette, http://www.wjduquette.com/expand}]
 [moddesc   {Text expansion and template processing}]
 [titledesc {Procedures to process templates and expand text.}]
