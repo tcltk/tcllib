@@ -141,6 +141,7 @@ proc ::textutil::expander::Methods {name method argList} {
         evalcmd -
 	textcmd -
         cpush -
+	ctopandclear -
         cis -
         cname -
         cset -
@@ -579,6 +580,34 @@ proc ::textutil::expander::Op_cpop {name cname} {
 
     # FRINK: nocheck
     incr [Var level] -1
+    return $result
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	Op_ctopandclear
+#
+# INPUTS:
+#	None.
+#
+# RETURNS:
+#	The accumulated output in the topmost context, clears the context,
+#	but does not pop it.
+#
+# DESCRIPTION:
+#       Returns the accumulated output for the current context, first
+#	popping the context from the stack.  The expected context name
+#	must match the real name, or an error occurs.
+
+proc ::textutil::expander::Op_ctopandclear {name} {
+    variable Info
+
+    if {[Get level] == 0} {
+        error "$name cpop underflow on '[Op_cname $name]'"
+    }
+
+    set result [Get output-[Get level]]
+    Set output-[Get level] ""
     return $result
 }
 
