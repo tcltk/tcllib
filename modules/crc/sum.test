@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sum.test,v 1.3 2003/05/08 23:55:37 patthoyts Exp $
+# RCS: @(#) $Id: sum.test,v 1.4 2003/05/13 01:42:11 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -34,10 +34,10 @@ if {[catch {source [file join [file dirname [info script]] sum.tcl]} msg]} {
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {[package provide crcc] == {}} {
+if {[info command ::crc::SumBsd_c] == {}} {
     puts "- sum [package present sum] (pure tcl)"
 } else {
-    puts "- sum [package present sum] (critcl based [package provide crcc])"
+    puts "- sum [package present sum] (critcl based)"
 }
 
 # -------------------------------------------------------------------------
