@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.5 2001/05/01 19:01:23 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.6 2001/08/20 20:35:11 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -128,6 +128,22 @@ foreach module $modules {
 	set ::tcltest::testSingleFile false
 	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
 	#set ::tcltest::verbose ps
+
+	# Add a function to construct a proper error message for
+	# 'wrong#args' situations. The format of the messages changed
+	# for 8.4
+
+	proc ::tcltest::getErrorMessage {functionName argList missingIndex} {
+	    # if oldstyle errors:
+	    if { [info tclversion] < 8.4 } {
+		set msg "no value given for parameter "
+		append msg "\"[lindex $argList $missingIndex]\" to "
+		append msg "\"$functionName\""
+	    } else {
+		set msg "wrong # args: should be \"$functionName $argList\""
+	    }
+	    return $msg
+	}
     }
     interp alias $c ::tcltest::cleanupTestsHook {} \
 	    ::tcltest::cleanupTestsHook $c

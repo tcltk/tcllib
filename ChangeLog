@@ -1,3 +1,8 @@
+2001-08-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* all.tcl: Added ::tcltest::getErrorMessage in preparation of
+	  fixing [440051], [440049] and [440046] reported by Larry Virden.
+
 2001-07-17  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.0

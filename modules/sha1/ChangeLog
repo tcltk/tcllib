@@ -1,3 +1,9 @@
+2001-08-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sha1.test: Fixed broken error messages for 8.4. Using
+	  [tcltest::getErrorMessage] now to get the correct message for
+	  all versions of the core. Bug [440051] reported by Larry Virden.
+
 2001-06-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* md5.tcl: Fixed dubious code reported by frink.
