@@ -12,13 +12,11 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Changes in V0.94
+Changes in V0.95
 --------------------------------------------------------------------
 
-PLEASE NOTE: V0.94 is the current development version.  All tests
-pass, or I wouldn't have checked in the code, but I'm still making
-changes (and checking them in).  Use V0.93 instead if this worries
-you.
+The changes listed here were actually made over time in Snit V0.94;
+now that they are complete, the result has been renumbered Snit V0.95.
 
 * Snit method invocation (both local and delegated) has been 
   optimized by the addition of a "method cache".  The primary
@@ -102,6 +100,13 @@ you.
   "$self info methods", and "$self info typemethods".
 
 * Sundry other internal changes.
+
+Changes in V0.94
+--------------------------------------------------------------------
+
+V0.94 was the development version in which most of the V0.95 changes
+were implemented.  The name was changed to V0.95 when the changes
+were complete, so that the contents of V0.95 will be stable.
 
 Changes in V0.93
 --------------------------------------------------------------------

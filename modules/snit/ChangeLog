@@ -1,3 +1,12 @@
+2004-08-04  Will Duquette  <will@wjduquette.com>
+
+	* snitfaq.man   Updated the Snit FAQ document.
+
+	* snit.man      Finalized Snit V0.95, and updated the version number
+	* snit.tcl      throughout.
+	* pkgIndex.tcl
+	* README.txt
+
 2004-07-27  Will Duquette  <will@wjduquette.com>
 
 	* snit.man      Updated the manpage to describe the new "pragma"
