@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.8 2000/08/01 01:56:07 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.9 2001/06/16 01:25:46 welch Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -37,6 +37,10 @@
 .sp
 \fBhtml::font\fR \fIargs\fR
 .sp
+\fBhtml::for\fR \fIstart test next body\fR
+.sp
+\fBhtml::foreach\fR \fIvarlist1 list1 ?varlist2 list2 ...? body\fR
+.sp
 \fBhtml::formatCode\fR \fIcode\fR
 .sp
 \fBhtml::formValue\fR \fIname {defvalue {}}\fR
@@ -64,6 +68,8 @@
 \fBhtml::head\fR \fItitle\fR
 .sp
 \fBhtml::headTag\fR \fIstring\fR
+.sp
+\fBhtml::if\fR \fIexpr1 body1 ?\fBelseif\fR expr2 body2 ...? ?\fBelse\fR bodyN?\fR
 .sp
 \fBhtml::keywords\fR \fIargs\fR
 .sp
@@ -110,6 +116,8 @@
 \fBhtml::title\fR \fItitle\fR
 .sp
 \fBhtml::varEmpty\fR \fIname\fR
+.sp
+\fBhtml::while\fR \fItest body\fR
 .BE
 .SH DESCRIPTION
 .PP
@@ -209,6 +217,20 @@ The parameters to the tag are taken from \fIargs\fP
 and the HTML defaults defined with \fBhtml::init\fP.
 
 .TP
+\fBhtml::for\fR \fIstart test next body\fR
+This procedure is similar to the built-in Tcl \fBfor\fR control
+structure.  Rather than evaluating the body, it returns the subst'ed
+\fIbody\fR.  Each iteration of the loop causes another string to be
+concatenated to the result value.
+
+.TP
+\fBhtml::foreach\fR \fIvarlist1 list1 ?varlist2 list2 ...? body\fR
+This procedure is similar to the built-in Tcl \fBforeach\fR control
+structure.  Rather than evaluating the body, it returns the subst'ed
+\fIbody\fR.  Each iteration of the loop causes another string to be
+concatenated to the result value.
+
+.TP
 \fBhtml::formValue\fR \fIname {defvalue {}}\fR
 Return a name and value pair, where the value is initialized
 from existing CGI data, if any.
@@ -278,6 +300,14 @@ This leaves an open HTML tag pushed on the stack with
 Save a tag for inclusion in the HEAD section generated
 by \fBhtml::head\fR.  The \fIstring\fP is everything
 in the tag except the enclosing angle brackets, < >.
+
+.TP
+\fBhtml::if\fR \fIexpr1 body1 ?\fBelseif\fR expr2 body2 ...? ?\fBelse\fR bodyN?\fR
+This procedure is similar to the built-in Tcl \fBif\fR control
+structure.  Rather than evaluating the body of the branch that is
+taken, it returns the subst'ed \fIbody\fR.  Note that the syntax is
+slightly more restrictive than that of the built-in Tcl \fBif\fR
+control structure.
 
 .TP
 \fBhtml::keywords\fR \fIargs\fR
@@ -417,6 +447,13 @@ the TITLE for a page.
 \fBhtml::varEmpty\fR \fIname\fR
 This returns 1 if the named variable either does not exist or
 has the emptry string for its value.
+
+.TP
+\fBhtml::while\fR \fItest body\fR
+This procedure is similar to the built-in Tcl \fBwhile\fR control
+structure.  Rather than evaluating the body, it returns the subst'ed
+\fIbody\fR.  Each iteration of the loop causes another string to be
+concatenated to the result value.
 
 .SH SEE ALSO
 ncgi
