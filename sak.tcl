@@ -212,7 +212,11 @@ proc gendoc {fmt ext args} {
 		-module $m
 
 	set fl [glob -nocomplain [file join $distribution modules $m *.man]]
-	if {[llength $fl] == 0} {continue}
+
+	if {[llength $fl] == 0} {
+	    dt destroy
+	    continue
+	}
 
 	foreach f $fl {
 	    if {!$null} {
@@ -473,7 +477,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.29 2004/07/04 07:16:50 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.30 2004/07/10 04:14:32 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
