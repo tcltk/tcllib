@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.12 2004/04/30 21:13:19 patthoyts Exp $
+# $Id: time.tcl,v 1.13 2004/05/26 04:24:30 andreas_kupries Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
-    variable version 1.0.3
-    variable rcsid {$Id: time.tcl,v 1.12 2004/04/30 21:13:19 patthoyts Exp $}
+    variable version 1.1
+    variable rcsid {$Id: time.tcl,v 1.13 2004/05/26 04:24:30 andreas_kupries Exp $}
 
     namespace export configure gettime server cleanup
 
