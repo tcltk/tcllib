@@ -763,6 +763,39 @@ test creation-1.6 {weird names are OK} {} {
     spot meow
 } {::spot meows.}
 
+test creation-1.7 {If -hasinstances yes, [$type] == [$type create %AUTO%]} {
+    cleanup
+
+    type dog {
+        variable dummy
+    }
+
+    set mydog [dog]
+} {::dog1}
+
+test creation-1.8 {If -hasinstances no, [$type] != [$type create %AUTO%]} {
+    cleanup
+
+    type dog {
+        pragma -hasinstances no
+    }
+
+    catch {set mydog [dog]} result
+    set result
+} {wrong # args: should be "::dog method args"}
+
+test creation-1.9 {If widget, [$type] != [$type create %AUTO%]} tk {
+    cleanup
+
+    widget dog {
+        variable dummy
+    }
+
+    catch {set mydog [dog]} result
+    set result
+} {wrong # args: should be "::dog method args"}
+
+
 #-----------------------------------------------------------------------
 # procs
 
@@ -1828,18 +1861,13 @@ test option-2.5 {configure returns info, unknown options} tk {
         }
     }
 
-    global errorInfo
-    if {[catch {
-        myframe .frm
-        set a [.frm configure -foo]
-        set b [.frm configure -width]
-        set c [.frm configure -height]
-        destroy .frm
-        tkbide
-    } result]} {
-        puts "Stack Trace <\n$errorInfo>"
-        error $result
-    }
+    myframe .frm
+    set a [.frm configure -foo]
+    set b [.frm configure -width]
+    set c [.frm configure -height]
+    destroy .frm
+    tkbide
+
     list $a $b $c
 
 } {{-foo foo Foo a a} {-width width Width 0 0} {-height height Height 0 0}}
