@@ -1,3 +1,8 @@
+2003-06-25  David N. Welton  <davidw@dedasys.com>
+
+	* logger.man: Updated documentation example - destroy should have
+	been delete.  Thanks to Aaron Faupell.
+
 2003-05-20  David N. Welton  <davidw@dedasys.com>
 
 	* logger.test: Added test for setlevel command.

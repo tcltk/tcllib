@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.3 2003/05/20 09:35:05 davidw Exp $}]
+[comment {$Id: logger.man,v 1.4 2003/06/25 18:46:30 davidw Exp $}]
 [manpage_begin logger n 0.1.0]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -26,7 +26,7 @@ To begin using the logger package, we do the following:
     ... code ...
 
     ${log}::notice "Ending myservice logging"
-    ${log}::destroy
+    ${log}::delete
 }]
 
 [para]
