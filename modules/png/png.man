@@ -122,7 +122,7 @@ to the PNG specification.
 Adds a unicode (international) comment to the PNG image in [arg file],
 just before the first data chunk. Will throw an error if no data chunk
 is found. [arg keyword] has to be less than 80 characters long to
-conform to the PNG specification. [arg keywords] is the translated
+conform to the PNG specification. [arg keyword2] is the translated
 [arg keyword], in the language specified by the language identifier
 [arg lang].
 
