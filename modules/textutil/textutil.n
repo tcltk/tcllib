@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.8 2001/11/12 18:33:10 andreas_kupries Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.9 2001/12/11 21:49:43 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -115,15 +115,15 @@ if set to \fIfalse\fR, a line can exceed the specified '-length' if a
 single word is longer than '-length'. If set to \fItrue\fR, words that
 are longer than '-length' are split so that no line exceeds the
 specified '-length'. Default to \fIfalse\fR.
-
 .TP
 \fBtextutil::splitx\fR \fIstring {regexp [\t \r\n\]+}\fR
 Split the \fIstring\fP and return a list. The string is split
 according to the regular expression \fIregexp\fR instead of a simple
 list of chars. Note that if you add parenthesis into the \fIregexp\fR,
-the parentheses part of separator would be added into list as additional
-element.
-
+the parentheses part of separator would be added into list as
+additional element. If the \fIstring\fR is empty the result is the
+empty list, like for \fBsplit\fR. If \fIregexp\fR is empty the
+\fIstring\fR is split at every character, like \fBsplit\fR does.
 .TP
 \fBtextutil::tabify\fR \fIstring {num 8}\fR
 Tabify the \fIstring\fP by replacing any substring of \fInum\fP space
