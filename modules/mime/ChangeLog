@@ -1,3 +1,9 @@
+2004-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl: Added support for the STARTTLS extension (RFC 3207).
+	This may also support old versions that report a TLS option in
+	reply to EHLO, but these are not tested.
+
 2003-11-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl (word_decode): Fixed [SF Tcllib Bug 764702], accepted
