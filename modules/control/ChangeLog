@@ -1,6 +1,8 @@
 2001-11-09  Don Porter <dgp@users.sourceforge.net>
 
-	* control.n: corrections to *roff markup.
+	* control.n: Some revisions to [control::do] documentation,
+	and added LIMITATIONS section where the [return -code] limitation
+	is explained.  Corrections to *roff markup.
 
 2001-11-08  Don Porter <dgp@users.sourceforge.net>
 
