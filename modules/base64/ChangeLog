@@ -1,3 +1,9 @@
+2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64.tcl: Restricted export list to public API.
+	  [456255]. Patch by Hemang Lavana
+	  <hemanglavana@users.sourceforge.net>
+
 2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* base64.n: Added manpage [446584].

@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.12 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.13 2001/09/05 23:53:52 andreas_kupries Exp $
 
 # Version 1.0 implemented Base64_Encode, Bae64_Decode
 # Version 2.0 uses the base64 namespace
@@ -17,6 +17,7 @@
 
 package require Tcl 8
 namespace eval base64 {
+    namespace export encode decode
 }
 
 if {![catch {package require Trf 2.0}]} {
@@ -157,7 +158,7 @@ if {![catch {package require Trf 2.0}]} {
 	# remove unneeded variables
 	unset base64_tmp i char len val
 
-	namespace export *
+	namespace export encode decode
     }
 
     # base64::encode --
