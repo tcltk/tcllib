@@ -16,6 +16,13 @@
 	  failed. Modified the tempdir tests to better exclude and
 	  manipulate the environment to enforce the wanted result.
 
+2004-01-23  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (fileType): The check for an attached metakit
+	  database left a channel on the tested file open. This causes the
+	  application to leak channels, and on windows the file is also
+	  locked against deletion. Fixed.
+
 2003-11-15  David N. Welton  <davidw@dedasys.com>
 
 	* fileutil.man: Added new test and docs for change below.
