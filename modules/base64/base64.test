@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.4 2000/05/30 23:59:59 ericm Exp $
+# RCS: @(#) $Id: base64.test,v 1.5 2000/10/11 01:31:41 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -29,6 +29,38 @@ test base64-1.2 {base64::encode wraps lines at 60 characters} {
     base64::encode $str
 } "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3Jl
 ZW4gZmllbGQgYW5kIGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
+test base64-1.3 {base64::encode with wrap length set to 76} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    base64::encode -maxlen 76 $str
+} "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3JlZW4gZmllbGQgYW5k
+IGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
+test base64-1.4 {base64::encode with wrap length set to 0} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    base64::encode -maxlen 0 $str
+} "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3JlZW4gZmllbGQgYW5kIGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
+test base64-1.5 {base64::encode with wrap length set to 76, wrapchar to newline+space} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    base64::encode -maxlen 76 -wrapchar "\n " $str
+} "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3JlZW4gZmllbGQgYW5k
+ IGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
+test base64-1.6 {base64::encode, errors} {
+    list [catch {base64::encode} msg] $msg
+} [list 1 "wrong # args: should be \"base64::encode ?-maxlen maxlen? ?-wrapchar wrapchar? string\""]
+test base64-1.7 {base64::encode, errors} {
+    list [catch {base64::encode -maxlen foo} msg] $msg
+} [list 1 "value for \"-maxlen\" missing"]
+test base64-1.8 {base64::encode, errors} {
+    list [catch {base64::encode -maxlen foo bar} msg] $msg
+} [list 1 "expected integer but got \"foo\""]
+test base64-1.9 {base64::encode, errors} {
+    list [catch {base64::encode -maxlen foo -wrapchar bar} msg] $msg
+} [list 1 "value for \"-wrapchar\" missing"]
+test base64-1.10 {base64::encode, errors} {
+    list [catch {base64::encode -foo bar} msg] $msg
+} [list 1 "unknown option \"-foo\": must be -maxlen or -wrapchar"]
 
 test base64-2.1 {base64::decode} {
     base64::decode "dGhpcyBpcyBhIHRlc3QK"

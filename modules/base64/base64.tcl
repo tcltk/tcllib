@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.5 2000/06/02 18:43:53 ericm Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.6 2000/10/11 01:31:41 ericm Exp $
 
 package provide base64 2.0
 
@@ -30,19 +30,63 @@ namespace eval base64 {
     namespace export *
 }
 
-proc base64::encode {string} {
+# base64::encode --
+#
+#	Base64 encode a given string.
+#
+# Arguments:
+#	args	?-maxlen maxlen? ?-wrapchar wrapchar? string
+#	
+#		If maxlen is 0, the output is not wrapped.
+#
+# Results:
+#	A Base64 encoded version of $string, wrapped at $maxlen characters
+#	by $wrapchar.
+
+proc base64::encode {args} {
     variable base64_en
+    
+    # Set the default wrapchar and maximum line length to match the output
+    # of GNU uuencode 4.2.  Various RFC's allow for different wrapping 
+    # characters and wraplengths, so these may be overridden by command line
+    # options.
+    set wrapchar "\n"
+    set maxlen 60
+
+    if { [llength $args] == 0 } {
+	error "wrong # args: should be \"[lindex [info level 0] 0]\
+		?-maxlen maxlen? ?-wrapchar wrapchar? string\""
+    }
+
+    set optionStrings [list "-maxlen" "-wrapchar"]
+    for {set i 0} {$i < [llength $args] - 1} {incr i} {
+	set arg [lindex $args $i]
+	set index [lsearch -glob $optionStrings "${arg}*"]
+	if { $index == -1 } {
+	    error "unknown option \"$arg\": must be -maxlen or -wrapchar"
+	}
+	incr i
+	if { $i >= [llength $args] - 1 } {
+	    error "value for \"$arg\" missing"
+	}
+	set val [lindex $args $i]
+	set [string range [lindex $optionStrings $index] 1 end] $val
+    }
+    
+    if { ![string is integer -strict $maxlen] } {
+	error "expected integer but got \"$maxlen\""
+    }
+
+    set string [lindex $args end]
+
     set result {}
     set state 0
     set length 0
     foreach {c} [split $string {}] {
-	# RFC 2045 says that the output must have no more than 76 chars per
-	# line; we wrap at 60 so that our output is identical to that 
-	# produced by the GNU uuencode 4.2.  We do the length check before
-	# appending so that we don't get an extra newline if the output is
-	# a multiple of 60 chars long.
-	if {$length >= 60} {
-	    append result \n
+	# Do the line length check before appending so that we don't get an
+	# extra newline if the output is a multiple of $maxlen chars long.
+	if {$maxlen && $length >= $maxlen} {
+	    append result $wrapchar
 	    set length 0
 	}
 	scan $c %c x
@@ -67,6 +111,7 @@ proc base64::encode {string} {
     }
     return $result
 }
+
 proc base64::decode {string} {
     variable base64
 

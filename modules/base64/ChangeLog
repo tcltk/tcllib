@@ -1,3 +1,10 @@
+2000-10-10  Eric Melski  <ericm@ajubasolutions.com>
+
+	* base64.tcl: Extending base64::encode to accept optional
+	arguments ?-maxlen maxlen? and ?-wrapchar wrapchar?, to control
+	the line wrapping and the character(s) used to cause the
+	wrapping.  Based on work by Joel Saunier.
+
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* base64.test: Adapted tests to work in tcllib test framework.
