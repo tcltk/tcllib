@@ -1,3 +1,8 @@
+2003-01-28  David N. Welton  <davidw@dedasys.com>
+
+	* fileutil.tcl (::fileutil::fileType): Use 'string match' instead
+	  of regexp.  Require Tcl 8.2.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man: More semantic markup, less visual one.
