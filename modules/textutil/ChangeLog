@@ -1,3 +1,10 @@
+2002-02-14  Tcl Project  <akupries@shaw.ca>
+
+	* expander.tcl: Frink run.
+
+	* Versions are now 1.0.1 and 0.5 to distinguish this from the code
+	  in tcllib release 1.2
+
 2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 0.4, Expander to 1.0.

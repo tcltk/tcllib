@@ -9,10 +9,9 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.12 2002/01/18 20:51:17 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.13 2002/02/15 05:35:30 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide uri 1.1
 
 namespace eval uri {
 
@@ -871,3 +870,5 @@ uri::register prospero {
     variable	schemepart	"//${hostOrPort}/${path}(${fieldspec})*"
     variable	url		"prospero:$schemepart"
 }
+
+package provide uri 1.1.1

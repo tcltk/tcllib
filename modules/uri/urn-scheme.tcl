@@ -5,10 +5,10 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.2 2002/01/18 20:51:17 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.3 2002/02/15 05:35:30 andreas_kupries Exp $
 # -------------------------------------------------------------------------
 
-package require uri 1.1
+package require uri 1.1.1
 
 uri::register {urn URN} {
 	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
@@ -32,7 +32,7 @@ proc uri::SplitUrn {uri} {
 
     upvar \#0 [namespace current]::urn::URNpart pattern
     array set parts {nid {} nss {}}
-    if {[regexp ^$pattern $uri -> parts(nid) parts(nss)]} {
+    if {[regexp -- ^$pattern $uri -> parts(nid) parts(nss)]} {
         return [array get parts]
     } else {
         error "invalid urn syntax: \"$uri\" could not be parsed"
@@ -50,7 +50,7 @@ proc uri::JoinUrn args {
 
     array set parts [list nid {} nss {}]
     array set parts $args
-    if {! [regexp ^$NIDpart$ $parts(nid)]} {
+    if {! [regexp -- ^$NIDpart$ $parts(nid)]} {
         error "invalid urn: nid is invalid"
     }
     set url "urn:$parts(nid):[urn::quote $parts(nss)]"
@@ -65,7 +65,7 @@ proc uri::urn::quote {url} {
     variable trans
 
     set ndx 0
-    while {[regexp -start $ndx -indices "\[^$trans\]" $url r]} {
+    while {[regexp -start $ndx -indices -- "\[^$trans\]" $url r]} {
         set ndx [lindex $r 0]
         scan [string index $url $ndx] %c chr
         set rep %[format %.2X $chr]
@@ -89,7 +89,7 @@ proc uri::urn::unquote {url} {
         set str [string replace [string range $url $first $last] 0 0 0x]
         set c [format %c $str]
         set url [string replace $url $first $last $c]
-        set ndx [expr $last + 1]
+        set ndx [expr {$last + 1}]
     }
     return $url
 }

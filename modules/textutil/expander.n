@@ -2,10 +2,10 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: expander.n,v 1.4 2002/01/18 00:53:38 jenglish Exp $
+'\" RCS: @(#) $Id: expander.n,v 1.5 2002/02/15 05:35:30 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH expander n 1.0 Textutil "Text expansion and template processing"
+.TH expander n 1.0.1 Textutil "Text expansion and template processing"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@ textutil::expander \- Procedures to process templates and expand text.
 .SH SYNOPSIS
 .nf
 \fBpackage require Tcl 8.2\fR
-\fBpackage require textutil::expander ?1.0?\fR
+\fBpackage require textutil::expander ?1.0.1?\fR
 .sp
 \fB::textutil::expander\fR \fIexpanderName\fR
 .fi
