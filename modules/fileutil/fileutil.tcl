@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.13 2002/05/15 16:59:47 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.14 2002/05/21 17:44:41 andreas_kupries Exp $
 
 package require Tcl 8
 package require cmdline
@@ -330,7 +330,15 @@ proc ::fileutil::cat {filename} {
     set fd [open $filename r]
     # Use the [file size] command to get the size, which preallocates memory,
     # rather than trying to grow it as the read progresses.
-    set data [read $fd [file size $filename]]
+    set size [file size $filename]
+    if {$size} {
+        set data [read $fd $size]
+    } else {
+        # if the file has zero bytes it is either empty, or something 
+        # where [file size] reports 0 but the file actually has data (like
+        # the files in the /proc filesystem on Linux)
+        set data [read $fd]
+    }
     close $fd
     return $data
 }
