@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.5 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.5.2.1 2004/08/10 06:19:45 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -17,16 +17,6 @@ namespace eval ::struct::queue {
     
     # counter is used to give a unique name for unnamed queues
     variable counter 0
-
-    # commands is the list of subcommands recognized by the queue
-    variable commands [list \
-	    "clear"	\
-	    "destroy"	\
-	    "get"	\
-	    "peek"	\
-	    "put"	\
-	    "size"	\
-	    ]
 
     # Only export one command, the one used to instantiate a new queue
     namespace export queue
@@ -43,24 +33,47 @@ namespace eval ::struct::queue {
 # Results:
 #	name	name of the queue created
 
-proc ::struct::queue::queue {{name ""}} {
+proc ::struct::queue::queue {args} {
     variable queues
     variable counter
-    
-    if { [llength [info level 0]] == 1 } {
-	incr counter
-	set name "queue${counter}"
+
+    switch -exact -- [llength [info level 0]] {
+	1 {
+	    # Missing name, generate one.
+	    incr counter
+	    set name "queue${counter}"
+	}
+	2 {
+	    # Standard call. New empty queue.
+	    set name [lindex $args 0]
+	}
+	default {
+	    # Error.
+	    return -code error \
+		    "wrong # args: should be \"queue ?name ?=|:=|as|deserialize source??\""
+	}
     }
 
-    if { ![string equal [info commands ::$name] ""] } {
-	error "command \"$name\" already exists, unable to create queue"
+    # FIRST, qualify the name.
+    if {![string match "::*" $name]} {
+        # Get caller's namespace; append :: if not global namespace.
+        set ns [uplevel 1 namespace current]
+        if {"::" != $ns} {
+            append ns "::"
+        }
+
+        set name "$ns$name"
+    }
+    if {[llength [info commands $name]]} {
+	return -code error \
+		"command \"$name\" already exists, unable to create queue"
     }
 
     # Initialize the queue as empty
     set queues($name) [list ]
 
     # Create the command to manipulate the queue
-    interp alias {} ::$name {} ::struct::queue::QueueProc $name
+    interp alias {} $name {} ::struct::queue::QueueProc $name
 
     return $name
 }
@@ -86,13 +99,20 @@ proc ::struct::queue::QueueProc {name {cmd ""} args} {
     }
     
     # Split the args into command and args components
-    if { [string equal [info commands ::struct::queue::_$cmd] ""] } {
-	variable commands
-	set optlist [join $commands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub _$cmd
+    if { [llength [info commands ::struct::queue::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::queue::_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 1 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    return [eval [linsert $args 0 ::struct::queue::_$cmd $name]]
+
+    uplevel 1 [linsert $args 0 ::struct::queue::_$cmd $name]
 }
 
 # ::struct::queue::_clear --
@@ -125,7 +145,7 @@ proc ::struct::queue::_clear {name} {
 proc ::struct::queue::_destroy {name} {
     variable queues
     unset queues($name)
-    interp alias {} ::$name {}
+    interp alias {} $name {}
     return
 }
 
@@ -168,7 +188,7 @@ proc ::struct::queue::_get {name {count 1}} {
 
 # ::struct::queue::_peek --
 #
-#	Retrive the value of an item on the queue without removing it.
+#	Retrieve the value of an item on the queue without removing it.
 #
 # Arguments:
 #	name	name of the queue object.
@@ -176,7 +196,7 @@ proc ::struct::queue::_get {name {count 1}} {
 #
 # Results:
 #	items	top count items from the queue; if there are not enough items
-#		to fufill the request, throws an error.
+#		to fulfill the request, throws an error.
 
 proc ::struct::queue::_peek {name {count 1}} {
     variable queues

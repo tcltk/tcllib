@@ -1,3 +1,44 @@
+2004-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* queue.test:
+	* queue.tcl: Changed way of mapping from queue object commands to
+	  associoated namespaces. The object namespace now has the same
+	  name and location of the object command. Adapted all tests to
+	  account for this change.
+
+	* queue.test:
+	* queue.tcl: Changed dispatcher to auto-generate the list of queue
+	  commands when a wrong one is given. Updated tests to account for
+	  this. Changed dispatcher to uplevel 1 the method execution,
+	  updated walking system to reflect this change.
+
+	  See log entry 2003-07-06 as well.
+
+	* stack.test:
+	* stack.tcl: Changed way of mapping from stack object commands to
+	  associoated namespaces. The object namespace now has the same
+	  name and location of the object command. Adapted all tests to
+	  account for this change.
+
+	* stack.test:
+	* stack.tcl: Changed dispatcher to auto-generate the list of stack
+	  commands when a wrong one is given. Updated tests to account for
+	  this. Changed dispatcher to uplevel 1 the method execution,
+	  updated walking system to reflect this change.
+
+	  See log entry 2003-07-06 as well.
+
+	* stack.man: Fixed [SF Tcllib 1005380]. Documentation for peek and
+	  pop now matching the actual behaviour. See also entry 2003-04-25
+	  for the same thing, for queue.
+
+	* tree.tcl: Spelling police.
+	* graph.tcl:
+	* stack.tcl:
+	* queue.tcl:
+	* matrix.tcl:
+	* ChangeLog:
+
 2004-08-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sets.tests:
@@ -112,7 +153,7 @@
 
 	* struct_tree.man: Updated documentation.
 	* tree.test: Updated testsuite for modified 'walk' syntax.
-	* tree.tcl (method walk): Modified to use list of loopvariables,
+	* tree.tcl (method walk): Modified to use list of loop variables,
 	  containing either one or two. Default: One variable, node
 	  information. When two specified the first refers to action data.
 
@@ -199,7 +240,7 @@
 
 2003-07-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* tree.tcl:  Created ldelete and lset (emulation pre 8.4)
+	* tree.tcl:  Created 'ldelete' and 'lset' (emulation pre 8.4)
 	* graph.tcl: and replaced as much 'lreplace's as possible. Using
 	             the K operator for speed, encapsulated in the two l
 	             commands.
@@ -225,7 +266,7 @@
 	  this. Reworked the testsuite for the changed APIs. Reworked the
 	  (de)serialization stuff a bit and added tests for them. Added an
 	  API to rename nodes, and an API to query the name of the
-	  rootnode. The APIs 'getall' and 'keys' now allow usage of glob
+	  root node. The APIs 'getall' and 'keys' now allow usage of glob
 	  patterns to restrict their results. Documentation is now
 	  uptodate. Added API to compute the 'height' of a node (=
 	  distance to its deepest child).
@@ -242,7 +283,7 @@
 
 	* tree.test:
 	* tree.tcl: Changed way of mapping from tree object commands to
-	  associoated namespaces. The object namespace now has the same
+	  associated namespaces. The object namespace now has the same
 	  name and location of the object command. Adapted all tests to
 	  account for this change.
 
@@ -263,7 +304,7 @@
 	* list.tcl (lcsInvertMerge2): Fixed problem with extending the
 	  result with an chunk of type unchanged, for the case that this
 	  happens at the very beginning, i.e. for an empty result. This
-	  fixes SF tcllib bug [765321].
+	  fixes SF Tcllib bug [765321].
 
 2003-05-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -277,7 +318,7 @@
 	  list of keys into, independent of the output table. As the
 	  latter may not contain all the keys, depending on how and where
 	  key columns are present or not. Additionally cleanups in the use
-	  of loop variables in the keyed helper commands frink complained
+	  of loop variables in the keyed helper commands 'frink' complained
 	  about.
 
 2003-05-16  Andreas Kupries  <andreask@activestate.com>
@@ -292,7 +333,7 @@
 
 	* list.tcl: Rewrote the main dispatcher a bit to make it simpler,
 	  and to allow us to hide internal functions from it. Added
-	  'dbJoin(Keyed)' for relational table join (inner, lef/right/full
+	  'dbJoin(Keyed)' for relational table join (inner, left/right/full
 	  outer). Fixed function name in some error messages.
 
 2003-05-14  Andreas Kupries  <andreask@activestate.com>
@@ -303,7 +344,7 @@
 	* tree.test: Reworked to test handling of item nodes
 	  containing spaces.
 
-	* tree.bench: Reworked, added helper procedures, testcases are now
+	* tree.bench: Reworked, added helper procedures, test cases are now
 	  simpler.
 
 	* struct_list.man: Fixed typos in the examples.
@@ -379,7 +420,7 @@
 
 	* graph.tcl: Redone the setting up of namespace a bit to prevent
 	  problem with the generation of a master package
-	  index. strcut.tcl bailed out with an error because the namespace
+	  index. struct.tcl bailed out with an error because the namespace
 	  was net set up when using [pkg_mkIndex] in this directory.
 
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
@@ -424,7 +465,7 @@
 
 2003-04-02  Andreas Kupries  <andreask@activestate.com>
 
-	* list.cl:
+	* list.tcl:
 	* list.test: Fixed SF tcllib bug #714209.
 
 	* ../../../examples/struct: Added example applications for usage
@@ -511,7 +552,7 @@
 	* test.tcl: Updated testsuite, part of the patch below.
 
 	* tree.tcl (_move): Accepted patch by Brian Theado
-	  <btheado@users.sourceforge.net> fixing the behaviour of mov, SF
+	  <btheado@users.sourceforge.net> fixing the behaviour of move, SF
 	  bug #578460. The command now also validates all nodes before
 	  trying to move any of them.
 
@@ -748,7 +789,7 @@
 2000-03-08  Eric Melski  <ericm@scriptics.com>
 
 	* tree.test:
-	* tree.tcl: Added check for node existance in children function
+	* tree.tcl: Added check for node existence in children function
 	  [Bug: 4341]
 
 2000-03-03  Eric Melski  <ericm@scriptics.com>
