@@ -1,0 +1,169 @@
+[manpage_begin math::bigfloat n 1.0]
+[copyright {2004 Stephane Arnold <stephanearnold at yahoo dot fr>}]
+[moddesc   {Math}]
+[titledesc {Arbitrary precision floating-point numbers for Tcl}]
+
+[require Tcl [opt 8.4]]
+[require bigfloat [opt 1.0]]
+
+[description]
+
+The bigfloat package provides arbitrary precision floating-point math
+capabilities to the Tcl language.
+By convention, we will talk about the numbers treated in this library as :
+[list_begin bullet]
+[bullet]BigFloat for floating-point numbers of arbitrary length
+[bullet]BigInt for arbitrary length positive integers
+[list_end]
+BigFloats are internally represented at Tcl lists: this
+package provides a set of procedures operating against
+the internal representation in order to :
+[list_begin bullet]
+[bullet]
+perform math operations
+
+[bullet]
+convert BigFloats from the internal representation to a string, eventually converted to a double, and vice versa.
+
+[list_end]
+On the other side, BigInts are always represented, even internally, as strings.
+
+[section "INTRODUCTION"]
+[list_begin definitions]
+
+[call [cmd ::math::bigfloat::fromstr] [arg string]]
+Convert [emph string] into a bigfloat. Its precision
+is at least the number of digits provided by [emph string].
+
+But, for more consistency, it is needed that numbers with an absolute value lower than 1
+are stored with as much digits as if the number written began with 0.00...
+
+So a number like 1.0e-5 is represented internally as 0.000010 (7 digits of precision),
+whereas 1.0e+5 is not treated as 100000, but has only 2 digits of precision.
+
+The [emph string]'s last digit is considered by the procedure to be true at +/-1.
+For example, 0.1 is a number between 0.0 and 0.2. 0.10 is between 0.09 and 0.11, and so on.
+So, when you mean 1.0, you may have to write 1.000000 to get enough precision.
+
+[call [cmd ::math::bigfloat::zero] [arg number]]
+Returns [emph number] zeroes as a string.
+For example :
+[example_begin]
+::math::bigfloat::zero 5; # gives : 00000
+::math::bigfloat::zero 10; # gives : 0000000000
+[example_end]
+
+
+[call [cmd ::math::bigfloat::tostr] [arg number]]
+Returns a string form of a BigFloat, in which all digits are exacts,
+and with the maximum number of available digits.
+
+[call [cmd ::math::bigfloat::todouble] [arg number]]
+Returns a double, that may be used in [emph expr],
+from a BigFloat.
+
+[list_end]
+
+[section "ARITHMETICS"]
+[list_begin definitions]
+
+[call [cmd ::math::bigfloat::add] [arg x] [arg y]]
+[call [cmd ::math::bigfloat::sub] [arg x] [arg y]]
+[call [cmd ::math::bigfloat::mul] [arg x] [arg y]]
+[call [cmd ::math::bigfloat::div] [arg x] [arg y]]
+[call [cmd ::math::bigfloat::mod] [arg x] [arg y]]
+
+The commands above take two arguments, [emph x] and [emph y].
+Each argument can be either a BigFloat or a BigInt.
+They return the sum, difference, product, quotient and rest of the division,
+of [emph x] by [emph y].
+
+Divide by zero throws an error.
+[example_begin]
+::math::bigfloat::div 23 0; # throws "divide by zero"
+::math::bigfloat::sub 2 3; # returns 0 instead of expected -1
+[example_end]
+A difference between two BigInt is a BigInt, and therefore is positive.
+You cannot divide a BigInt by a BigFloat, whether you need the quotient nor the rest of
+the division.
+
+[call [cmd ::math::bigfloat::sign] [arg x]]
+Returns 1 when [emph x] is positive or null, -1 either.
+
+[call [cmd ::math::bigfloat::abs] [arg x]]
+Returns the absolute value of [emph x]
+
+[call [cmd ::math::bigfloat::opp] [arg x]]
+Returns the opposite of [emph x]
+
+[call [cmd ::math::bigfloat::pow] [arg x] [arg n]]
+Returns [emph x] taken to the [emph n]th power.
+It only works if [emph n] is a BigInt.
+[emph x] might be a BigFloat or a BigInt.
+
+
+[list_end]
+
+[section COMPARISONS]
+[list_begin definitions]
+[call [cmd ::math::bigfloat::isnull] [arg x]]
+
+Returns 1 if [emph x] is close enough to zero to raise "divide by zero".
+
+[call  [cmd ::math::bigfloat::equal] [arg x] [arg y]]
+
+Returns 1 if [emph x] and [emph y] are equal, 0 elsewhere.
+
+[call [cmd ::math::bigfloat::compare] [arg x] [arg y]]
+
+Returns 0 if both BigFloat arguments are equal,
+1 if [emph x] is greater than [emph y],
+and -1 if [emph x] is lower than [emph y].
+
+[list_end]
+
+[section ANALYSIS]
+[list_begin definitions]
+[call [cmd ::math::bigfloat::sqrt] [arg x]]
+[call [cmd ::math::bigfloat::log] [arg x]]
+[call [cmd ::math::bigfloat::exp] [arg x]]
+[call [cmd ::math::bigfloat::cos] [arg x]]
+[call [cmd ::math::bigfloat::sin] [arg x]]
+[call [cmd ::math::bigfloat::tan] [arg x]]
+[call [cmd ::math::bigfloat::cotan] [arg x]]
+[call [cmd ::math::bigfloat::acos] [arg x]]
+[call [cmd ::math::bigfloat::asin] [arg x]]
+[call [cmd ::math::bigfloat::atan] [arg x]]
+[call [cmd ::math::bigfloat::cosh] [arg x]]
+[call [cmd ::math::bigfloat::sinh] [arg x]]
+[call [cmd ::math::bigfloat::tanh] [arg x]]
+
+The above functions return, respectively, the following :
+square root, logarithm, exponential, cosinus, sinus,
+tangent, cotangent, arccosinus, arcsinus, arctangent, hyperbolic
+cosinus, hyperbolic sinus, hyperbolic tangent, of the BigFloat [emph x].
+
+[call [cmd ::math::bigfloat::pi] [arg n]]
+Returns a BigFloat representing the Pi constant with [emph n] digits after the dot.
+
+[list_end]
+
+[section ROUNDING]
+[list_begin definitions]
+[call [cmd ::math::bigfloat::round] [arg x]]
+[call [cmd ::math::bigfloat::ceil] [arg x]]
+[call [cmd ::math::bigfloat::floor] [arg x]]
+
+The above functions return the [emph x] number,
+rounded like the same mathematical function in [emph expr],
+but as a BigInt.
+
+The result may be negative. It means a result from these procedures may be
+of no use in arithmetic computations done by this. To work around this problem,
+there is a hint : test the sign of [emph x] by calling [emph ::math::bigfloat::sign].
+
+[list_end]
+
+[keywords tcl multiprecision math floating-point]
+
+[manpage_end]
