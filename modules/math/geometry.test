@@ -3,7 +3,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.1 2001/12/12 16:51:53 chdamm Exp $
+# RCS: @(#) $Id: geometry.test,v 1.2 2001/12/12 18:42:16 chdamm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -82,9 +82,36 @@ test geometry-1.1 {geometry::calculateDistanceToLineSegment, on infinite line, b
     eval withFourDecimals [::math::geometry::calculateDistanceToLineSegment {9 5} {1 1 5 3}]
 } 4.4721
 
+
+###
+# findClosestPointOnLine
+###
+test geometry-1.1 {geometry::findClosestPointOnLine, between end points} {
+    eval withFourDecimals [::math::geometry::findClosestPointOnLine {5 10} {0 0 10 10}]
+} {7.5 7.5}
+test geometry-1.1 {geometry::findClosestPointOnLine, before first point} {
+    eval withFourDecimals [::math::geometry::findClosestPointOnLine {-10 0} {0 0 10 10}]
+} {-5.0 -5.0}
+
+
 ###
 # findClosestPointOnLineSegment
 ###
+
+
+###
+# findClosestPointOnPolyline
+###
+test geometry-1.1 {geometry::findClosestPointOnPolyline, one linesegment} {
+    eval withFourDecimals [::math::geometry::findClosestPointOnPolyline {6 4} {1 1 7 1}]
+} {6.0 1.0}
+test geometry-1.1 {geometry::findClosestPointOnPolyline, two linesegments} {
+    eval withFourDecimals [::math::geometry::findClosestPointOnPolyline {5 5} {1 1 1 5 14 10}]
+} {4.4845 6.3402}
+test geometry-1.1 {geometry::findClosestPointOnPolyline, point lies on a linesegment} {
+    eval withFourDecimals [::math::geometry::findClosestPointOnPolyline {5 5} {1 1 8 8}]
+} {5.0 5.0}
+
 
 ###
 # calculateDistanceToPolyline
@@ -114,18 +141,85 @@ test geometry-1.1 {geometry::calculateDistanceToPolyline, on second line segment
     eval withFourDecimals [::math::geometry::calculateDistanceToPolyline {3 2} {4 6 1 0 5 4}]
 } 0.0
 
+
 ###
-# findClosestPointOnPolyline
+# lineSegmentsIntersect
 ###
-test geometry-1.1 {geometry::findClosestPointOnPolyline, one linesegment} {
-    eval withFourDecimals [::math::geometry::findClosestPointOnPolyline {6 4} {1 1 7 1}]
-} {6.0 1.0}
-test geometry-1.1 {geometry::findClosestPointOnPolyline, two linesegments} {
-    eval withFourDecimals [::math::geometry::findClosestPointOnPolyline {5 5} {1 1 1 5 14 10}]
-} {4.4845 6.3402}
-test geometry-1.1 {geometry::findClosestPointOnPolyline, point lies on a linesegment} {
-    eval withFourDecimals [::math::geometry::findClosestPointOnPolyline {5 5} {1 1 8 8}]
-} {5.0 5.0}
+test geometry-1.1 {geometry::lineSegmentsIntersect, } {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {0 10 10 0}
+} 1
+
+
+
+###
+# polylinesIntersect
+###
+test geometry-1.1 {geometry::polylinesIntersect, } {
+    ::math::geometry::polylinesIntersect {0 0 0 2 10 10} {0 10 2 10 10 0}
+} 1
+
+
+
+
+###
+# findLineIntersection
+###
+test geometry-1.1 {geometry::findLineIntersection, first line vertical} {
+    ::math::geometry::findLineIntersection {7 8 7 28} {3 14 17 21}
+} {7 16.0}
+test geometry-1.1 {geometry::findLineIntersection, second line vertical} {
+    ::math::geometry::findLineIntersection {3 14 17 21} {7 8 7 28}
+} {7 16.0}
+test geometry-1.1 {geometry::findLineIntersection, both lines vertical - coincident} {
+    ::math::geometry::findLineIntersection {7 8 7 28} {7 14 7 21}
+} "coincident"
+test geometry-1.1 {geometry::findLineIntersection, both lines vertical - no intersection} {
+    ::math::geometry::findLineIntersection {7 8 7 28} {8 14 8 21}
+} "none"
+test geometry-1.1 {geometry::findLineIntersection, first line horizontal} {
+    ::math::geometry::findLineIntersection {2 3 10 3} {4 5 7 2}
+} {6.0 3.0}
+test geometry-1.1 {geometry::findLineIntersection, second line horizontal} {
+    ::math::geometry::findLineIntersection {4 5 7 2} {2 3 10 3}
+} {6.0 3.0}
+test geometry-1.1 {geometry::findLineIntersection, both lines horizontal - coincident} {
+    ::math::geometry::findLineIntersection {8 7 28 7} {14 7 21 7}
+} "coincident"
+test geometry-1.1 {geometry::findLineIntersection, both lines horizontal - no intersection} {
+    ::math::geometry::findLineIntersection {8 7 28 7} {14 8 21 8}
+} "none"
+test geometry-1.1 {geometry::findLineIntersection, both lines skaeve - with intersection} {
+    ::math::geometry::findLineIntersection {3 2 9 4} {4 5 7 2}
+} {6.0 3.0}
+test geometry-1.1 {geometry::findLineIntersection, both lines skaeve - coincident} {
+    ::math::geometry::findLineIntersection {3 2 9 4} {6 3 12 5}
+} "coincident"
+test geometry-1.1 {geometry::findLineIntersection, both lines skaeve - no intersection} {
+    ::math::geometry::findLineIntersection {3 2 9 4} {3 12 9 14}
+} "none"
+
+
+###
+# findLineSegmentIntersection
+###
+test geometry-1.1 {geometry::findLineSegmentIntersection, both lines vertical - no overlap} {
+    ::math::geometry::findLineSegmentIntersection {1 1 1 2} {1 3 1 4}
+} "none"
+test geometry-1.1 {geometry::findLineSegmentIntersection, both lines vertical - with overlap} {
+    ::math::geometry::findLineSegmentIntersection {1 1 1 2} {1 1.5 1 19}
+} "coincident"
+test geometry-1.1 {geometry::findLineSegmentIntersection, both lines skaeve - with intersection} {
+    ::math::geometry::findLineSegmentIntersection {3 2 9 4} {4 5 7 2}
+} {6.0 3.0}
+test geometry-1.1 {geometry::findLineSegmentIntersection, both lines skaeve - coincident} {
+    ::math::geometry::findLineSegmentIntersection {3 2 9 4} {6 3 12 5}
+} "coincident"
+test geometry-1.1 {geometry::findLineSegmentIntersection, both lines skaeve - parallel but not coincident} {
+    ::math::geometry::findLineSegmentIntersection {3 2 6 3} {9 4 12 5}
+} "none"
+test geometry-1.1 {geometry::findLineSegmentIntersection, both lines skaeve - no intersection} {
+    ::math::geometry::findLineSegmentIntersection {3 2 9 4} {4 5 5 4}
+} "none"
 
 
 ###
