@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.1 2000/06/13 17:48:08 ericm Exp $
+# CVS: $Id: uri.tcl,v 1.2 2000/07/04 02:28:58 steve Exp $
 
 package provide uri 1.0
 
@@ -18,6 +18,7 @@ namespace eval uri {
     namespace export split join
     namespace export resolve isrelative
     namespace export geturl
+    namespace export canonicalize
 
     variable file:counter 0
 
@@ -782,5 +783,35 @@ proc uri::join args {
     array set components $args
 
     return [eval [list Join[string totitle $components(scheme)]] $args]
+}
+
+# uri::canonicalize --
+#
+#	Canonicalize a URL
+#
+# Acknowledgements:
+#	Andreas Kupries, a.kupries@westend.com
+#
+# Arguments:
+#	uri	URI (which contains a path component)
+#
+# Results:
+#	The canonical form of the URI
+
+proc uri::canonicalize uri {
+
+    # Make uri canonical with respect to dots (path changing commands)
+    #
+    # Remove single dots (.)  => pwd not changing
+    # Remove double dots (..) => gobble previous segment of path
+
+    while {[regexp {/\./} $uri]} {
+        regsub -all {/\./} $uri {/} uri
+    }
+    while {[regexp {/\.\./} $uri]} {
+        regsub -all {/[^./]*/\.\./} $uri {/} uri
+    }
+
+    return $uri
 }
 

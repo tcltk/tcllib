@@ -1,5 +1,6 @@
 '\" 
 '\" Copyright (c) 2000 Andreas Kupries
+'\" Copyright (c) 2000 Zveno Pty Ltd
 '\" 
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -18,6 +19,7 @@ uri \- URI utilities
 \fB uri::resolve    \fIbase\fR \fIurl\fR
 \fB uri::isrelative \fIurl\fR
 \fB uri::geturl     \fIurl\fR ?\fIoptions\fR...?
+\fB uri::canonicalize \fIuri\fR
 .BE
 .SH "DESCRIPTION"
 .PP
@@ -66,6 +68,10 @@ above. They are handled internally.
 .PP
 It is not possible to specify results of the command. They depend on
 the \fBgeturl\fR-command for the scheme the request was dispatched to.
+.PP
+\fBuri::canonicalize\fR returns the canonical form of a URI.
+The canonical form of a URI is one where relative path specifications,
+ie. . and .., have been resolved.
 .SH "SCHEMES"
 In addition to the commands mentioned above this package provides
 regular expression to recognize urls for a number of url schemes.
@@ -87,9 +93,10 @@ request by themselves but dispatch it to another command in the
 \fBuri\fR namespace using the scheme of the url as criterion.
 .PP
 \fBuri:split\fR and \fBuri:join\fR call Split[string totitle <scheme>]
-and Join[string totitle <scheme>] resp.
+and Join[string totitle <scheme>] respectively.
 .SH "SEE ALSO"
 .SH "CREDITS"
+Original code by Andreas Kupries.  Modularisation by Steve Ball.
 .PP
 .SH "KEYWORDS"
 uri, url, fetching information, www, http, ftp, mailto, gopher, wais, prospero, file
