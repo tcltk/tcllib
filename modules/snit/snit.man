@@ -888,12 +888,28 @@ argument to the type command doesn't name a valid type method, unless
 the type definition includes [cmd "delegate typemethod *"] or the 
 [const -hasinstances] pragma is set to false.
 
+[nl]
+
+Furthermore, Snit type commands can be called with no arguments at
+all; in this case, the type command creates an instance with an
+automatically generated name.  In other words, provided that the type
+has instances, the following commands are equivalent:
+
+[example {snit::type dog { ... }
+
+set mydog [dog create %AUTO%]
+set mydog [dog %AUTO%]
+set mydog [dog]
+}]
+
+This doesn't work for Snit widgets, for obvious reasons.
+
 [list_end]
 
 [subsection {Standard Type Methods}]
 
 In addition to any type methods in the type's definition, all type and
-widget commands will have at least the following subcommands:
+widget commands will usually have at least the following subcommands:
 
 [para]
 

@@ -1,3 +1,10 @@
+2004-08-12  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Under appropriate conditions, calling a
+	* snit.test     snit::type command with no arguments will create
+	* snit.man      an instance with an automatically generated name.
+	* README.txt
+
 2004-08-11  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Added the -hasinfo pragma, along with the
