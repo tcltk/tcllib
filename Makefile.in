@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.55 2002/01/18 20:42:57 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.55.4.1 2002/01/21 17:55:03 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -286,29 +286,24 @@ depend:
 # - Generate the archives and release the temp dir
 
 dist:
-	rm -rf tcllib$(VERSION) tcllib$(VERSION).tar.gz tcllib$(VERSION).zip
-	@mkdir tcllib$(VERSION)
-	for j in examples modules ; do \
-	    cp -r $(srcdir)/$$j tcllib$(VERSION) ; \
-	done
-	find tcllib$(VERSION) -name CVS -prune -exec rm -rf {} \;
-	for j in license.terms README ChangeLog ; do \
-	    cp $(srcdir)/$$j tcllib$(VERSION)/$$j ; \
-	done
+	rm -rf tcllib-$(VERSION) tcllib-$(VERSION).tar.gz tcllib-$(VERSION).zip
+	@mkdir tcllib-$(VERSION)
+	cp -r $(srcdir)/* tcllib-$(VERSION) ;
+	find tcllib-$(VERSION) -name CVS -prune -exec rm -rf {} \;
 	for j in $(MODULES) ; do \
 	    doc=`ls $(srcdir)/modules/$$j/*.n 2>/dev/null` ; \
 	    if test -n "$$doc" ; then \
 		for i in $$doc ; do \
 		    sed -e '/man\.macros/r $(srcdir)/man.macros' -e '/man\.macros/d' \
-			< $$i > tcllib$(VERSION)/modules/$$j/`basename $$i` ; \
+			< $$i > tcllib-$(VERSION)/modules/$$j/`basename $$i` ; \
 		done; \
 	    fi ; \
 	done ;
-	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl          tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
-	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
-	tar cf - tcllib$(VERSION) | gzip --best > tcllib$(VERSION).tar.gz
-	zip -r tcllib$(VERSION).zip tcllib$(VERSION)
-	rm -rf tcllib$(VERSION)
+	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl          tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
+	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
+	tar cf - tcllib-$(VERSION) | gzip --best > tcllib-$(VERSION).tar.gz
+	zip -r tcllib-$(VERSION).zip tcllib-$(VERSION)
+	rm -rf tcllib-$(VERSION)
 
 
 # Check tcllib and report all modules without documentation and/or testsuite.
