@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ftpd.n,v 1.1 2000/10/28 03:46:03 kuchler Exp $
+'\" RCS: @(#) $Id: ftpd.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH ftpd n 1.1 ftpd "Tcl FTP Server Package"
@@ -26,7 +26,7 @@ the FTP protocol.  It works by listening on the standard FTP socket.
 Most server errors are returned as error messages with the appropriate
 code attached to them.  Since the server code for the ftp daemon is
 executed in the event loop, it is possible that a bgerror will be thrown
-on ther server if there are problems with the code in the module.
+on the server if there are problems with the code in the module.
 
 .SH COMMANDS
 .TP
@@ -64,47 +64,47 @@ Callback to connect the engine to the filesystem it operates on.
 .SH CALLBACKS
 .TP
 \fBauthIpCmd callback\fR
-The authIpCmd recieves the ip-address of the peer attempting to connect to
+The authIpCmd receives the ip-address of the peer attempting to connect to
 the ftp server as its argument. It returns a 1 to allow users from the
 specified IP to attempt to login and a 0 to reject the login attempt from
 the specified IP.
 .TP
 \fBauthUsrCmd callback\fR
-The authUsrCmd recieves the username and password as its two arguments. It
+The authUsrCmd receives the username and password as its two arguments. It
 returns a 1 to accept the attempted login to the ftpd and a 0 to reject the
 attempted login.
 .TP
 \fBauthFileCmd callback\fR
-The authFileCmd recieves the user (that is currently logged in), the
+The authFileCmd receives the user (that is currently logged in), the
 path or filename that is about to be read or written, and \fBread\fR
 or \fBwrite\fR as its three arguments.  It returns a 1 to allow the path or
 filename to be read or written, and a 0 to reject the attempted read or
 write with a permissions error code.
 .TP
 \fBlogCmd callback\fR
-The logCmd recieves a severity and a message as its two arguments.  The
+The logCmd receives a severity and a message as its two arguments.  The
 severities used within the ftpd package are \fBnote\fR, \fBdebug\fR, and
 \fBerror\fR.  The logCmd doesn't return anything.
 .TP
 \fBfsCmd callback\fR
-The fsCmd recieves a subcommand, a filename or path, and optional
+The fsCmd receives a subcommand, a filename or path, and optional
 additional arguments (depending on the subcommand).
 .SP
 The subcommands supported by the fsCmd are:
 .RS
 .TP
 \fBappend\fR <path>
-The append subcommand recieves the filename to append to as its argument. It
-returns a writeable tcl channel as its return value.
+The append subcommand receives the filename to append to as its argument. It
+returns a writable tcl channel as its return value.
 .TP
 \fBdelete\fR <path> <channel-to-write-to>
-The delete subcommand recieves the filename to delete, and a channel to
+The delete subcommand receives the filename to delete, and a channel to
 write to as its two arguments.  The file specified is deleted and the
 appropriate ftp message is written to the channel that is passed as the
 second argument.  The delete subcommand returns nothing.
 .TP
 \fBdlist\fR <path> <style> <channel-to-write-dir-list-to>
-The dlist subcommand recieves the path that it should list the files that
+The dlist subcommand receives the path that it should list the files that
 are in, the style in which the files should be listed which is either
 \fBnlst\fR or \fBlist\fR, and a channel to write to as its three arguments.
 The files in the specified path are printed to the specified channel one per
@@ -113,34 +113,34 @@ channel.  If the style is \fBlist\fR then the file permissions, number of
 links to the file, the name of the user that owns the file, the name of the
 group that owns the file, the size (in bytes) of the file, the modify time
 of the file, and the filename are printed out to the channel in a formatted
-space seperated format.  The dlist subcommand returns nothing.
+space separated format.  The dlist subcommand returns nothing.
 .TP
 \fBexists\fR <path>
-The exists subcommand recieves the name of a file to check the existance of
+The exists subcommand receives the name of a file to check the existence of
 as its only argument.  The exists subcommand returns a 1 if the path
 specified exists and the path is not a directory.
 .TP
 \fBmkdir\fR <path> <channel-to-write-to>
-The mkdir subcommand recieves the path of a directory to create and a
+The mkdir subcommand receives the path of a directory to create and a
 channel to write to as its two arguments.  The mkdir subcommand creates
 the specified directory if necessary and possible.  The mkdir subcommand
 then prints the appropriate success or failure message to the channel.
 The mkdir subcommand returns nothing.
 .TP
 \fBmtime\fR <path> <channel-to-write-mtime-to>
-The mtime subcommand recieves the path of a file to check the modify time
+The mtime subcommand receives the path of a file to check the modify time
 on and a channel as its two arguments.  If the file exists the mtime is
 printed to the channel in the proper FTP format, otherwise an appropriate
 error message and code are printed to the channel.  The mtime subcommand
 returns nothing.
 .TP
 \fBpermissions\fR <path>
-The permissions subcommand recieves the path of a file to retrieve the
+The permissions subcommand receives the path of a file to retrieve the
 permissions of.  The permissions subcommand returns the octal file
 permissions of the specified file.  The file is expected to exist.
 .TP
 \fBrename\fR <path> <newpath> <channel-to-write-to>
-The rename subcommand recieves the path of the current file, the new file
+The rename subcommand receives the path of the current file, the new file
 path, and a channel to write to as its three arguments.  The rename
 subcommand renames the current file to the new file path if the path to the
 new file exists, and then prints out the appropriate message to the channel.
@@ -148,26 +148,26 @@ If the new file path doesn't exist the appropriate error message is printed
 to the channel.  The rename subcommand returns nothing.
 .TP
 \fBretr\fR <path>
-The retr subcommand recieves the path of a file to read as its only
+The retr subcommand receives the path of a file to read as its only
 argument.  The retr subcommand returns a readable channel that the specified
 file can be read from.
 .TP
 \fBrmdir\fR <path> <channel-to-write-to>
-The rmdir subcommand recieves the path of a directory to remove and a
+The rmdir subcommand receives the path of a directory to remove and a
 channel to write to as its two arguments.  The rmdir subcommand removes the
 specified directory (if possible) and prints the appropriate message to
 the channel (which may be an error if the specified directory does not exist
 or is not empty).  The rmdir subcommand returns nothing.
 .TP
 \fBsize\fR <path> <channel-to-write-size-to>
-The size subcommand recieves the path of a file to get the size (in bytes)
+The size subcommand receives the path of a file to get the size (in bytes)
 of and a channel to write to as its two arguments.  The size subcommand
 prints the appropriate code and the size of the file if the specified path
 is a file, otherwise an appropriate error code and message are printed to
 the channel.  The size subcommand returns nothing.
 .TP
 \fBstore\fR <path>
-The store subcommand recieves the path of a file to write as its only
+The store subcommand receives the path of a file to write as its only
 argument.  The store subcommand returns a writable channel.
 .RE
 .TP
@@ -175,7 +175,7 @@ argument.  The store subcommand returns a writable channel.
 .TP
 \fB::ftpd::cwd\fR
 The current working directory for a session when someone first connects to
-the FTPD or when the REIN ftp command is recieved.
+the FTPD or when the REIN ftp command is received.
 .TP
 \fB::ftpd::contact\fR
 The e-mail address of the person that is the contact for the ftp server.

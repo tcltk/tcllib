@@ -4,7 +4,7 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\" 
-'\" RCS: @(#) $Id: javascript.n,v 1.1 2000/11/02 19:26:57 kuchler Exp $
+'\" RCS: @(#) $Id: javascript.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH javascript n 1.0 JavaScript "HTML and Java Script Generation"
@@ -52,7 +52,7 @@ argument is the values of items in the right selection box.  The
 rightNameList argument is the names to appear in the right selection
 box.  The length argument (optional) The number of elts to show before
 adding a vertical scrollbar; it defaults to 8.  The minWidth argument
-(optional) is the number of spaces to determin the minimum box width;
+(optional) is the number of spaces to determine the minimum box width;
 it defaults to 32.
 
 .TP

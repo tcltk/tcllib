@@ -1,3 +1,8 @@
+2001-07-06  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Fixed #438748, corrections of various misspellings in manpages
+	  accross all modules. 
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Ran frink and procheck over all modules and fixed the reported

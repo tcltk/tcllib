@@ -1,7 +1,8 @@
+'\" 
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: report.n,v 1.2 2001/06/19 17:21:57 andreas_kupries Exp $
+'\" RCS: @(#) $Id: report.n,v 1.3 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH report n 1.0 Report "Matrix reports"
@@ -206,7 +207,7 @@ inconsistencies in the definition of the vertical lines (See section
 \fBTEMPLATES\fR).
 .TP
 \fIreportName\fR \fItemplatecode\fR \fBenabled\fR
-Returns the wether the template addressed by the \fItemplatecode\fR is
+Returns the whether the template addressed by the \fItemplatecode\fR is
 currently enabled or not.
 .TP
 \fIreportName\fR \fItemplatecode\fR \fBget\fR
@@ -263,8 +264,8 @@ containing the currently set sizes instead.
 .TP
 \fIreportName\fR \fBpad\fR \fIcolumn\fR ?\fBleft\fR|\fBright\fR|\fBboth\fR ?\fIpadstring\fR??
 This method allows the user to specify padding on the left, right or
-both sides of a \fIcolumn\fR. If the \fIpadstring\fR is not specfied
-it defaults to a single space characcter. \fBNote\fR: An alternative
+both sides of a \fIcolumn\fR. If the \fIpadstring\fR is not specified
+it defaults to a single space character. \fBNote\fR: An alternative
 way of specifying the padding is to use vertical separator strings
 longer than one character in the templates (See section
 \fBTEMPLATES\fR).
@@ -321,7 +322,7 @@ range for indices is "0,...,[\fIreportName\fR columns]-1".
 .PP
 Our examples define some generally useful report styles.
 .PP
-A simple table with lines surounding all information and vertical
+A simple table with lines surrounding all information and vertical
 separators, but without internal horizontal separators.
 .PP
 .CS

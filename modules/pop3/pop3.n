@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.3 2000/05/31 00:00:02 ericm Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.4 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
@@ -35,7 +35,7 @@ pop3 \- Tcl client for POP3 email protocol
 The \fBpop3\fR package provides a simple Tcl-only client library for
 the POP3 email protocol (RFC1939). It works by opening the standard POP3 socket
 on the server, transmitting the username and password, then providing
-a Tcl API to access the POP3 protocol commmands.  All server errors
+a Tcl API to access the POP3 protocol commands.  All server errors
 are returned as Tcl errors (thrown) which must be caught with the Tcl
 \fBcatch\fR command.
 .SH COMMANDS
@@ -112,7 +112,7 @@ is given, then the listing only for that message is returned.
 .TP
 \fB::pop3::top\fR \fIchan\fR \fImsg\fR \fIn\fR 
 Optional POP3 command, all servers may not support this. 
-\fB::pop3::top\fR retrives headers of a message, specified by parameter 
+\fB::pop3::top\fR retrieves headers of a message, specified by parameter 
 \fImsg\fR, and number of \fIn\fR lines from the message body.   
 .TP
 \fB::pop3::close\fR \fIchan\fR

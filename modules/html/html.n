@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.10 2001/06/20 17:39:27 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.11 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -154,7 +154,7 @@ into the table cell.
 
 .TP
 \fBhtml::checkbox\fR \fIname value\fR
-Generate a CHECKBOX form element with the specifed name and value.
+Generate a CHECKBOX form element with the specified name and value.
 This uses \fBhtml::checkValue\fR.
 
 .TP
@@ -463,7 +463,7 @@ the TITLE for a page.
 .TP
 \fBhtml::varEmpty\fR \fIname\fR
 This returns 1 if the named variable either does not exist or
-has the emptry string for its value.
+has the empty string for its value.
 
 .TP
 \fBhtml::while\fR \fItest body\fR

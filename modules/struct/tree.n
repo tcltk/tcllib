@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.9 2000/05/31 00:00:03 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.10 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -174,7 +174,7 @@ Name of the tree object.
 .IP \fB%n\fR
 Name of the current node.
 .IP \fB%a\fR
-Name of the action occuring; one of \fBenter\fR, \fBleave\fR, or
+Name of the action occurring; one of \fBenter\fR, \fBleave\fR, or
 \fBvisit\fR.  \fBenter\fR actions occur during pre-order walks;
 \fBleave\fR actions occur during post-order walks; \fBvisit\fR actions
 occur during in-order walks.  In a both-order walk, the command will

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ncgi.n,v 1.5 2000/08/01 01:56:37 welch Exp $
+'\" RCS: @(#) $Id: ncgi.n,v 1.6 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH ncgi n 1.0 Ncgi "CGI Support"
@@ -77,7 +77,7 @@ form values.  If a CGI value is repeated, you should use
 
 .PP
 An alternative to \fBncgi::parse\fP is \fBncgi::input\fP,
-which has semanatics similar to Don Libes' \fBcgi_input\fP procedure.
+which has semantics similar to Don Libes' \fBcgi_input\fP procedure.
 \fBncgi::input\fP restricts repeated CGI values to have names
 that end with "List".  In this case, \fBncgi::value\fP will return
 the complete list of values, and \fBncgi::input\fP will raise
@@ -114,7 +114,7 @@ Encode \fBstring\fR into www-url-encoded format.
 .TP
 \fBncgi::header\fR \fI{type text/html} args\fR
 Output the CGI header to standard output.
-This emits a Content-Type: header and addtional headers based
+This emits a Content-Type: header and additional headers based
 on \fIargs\fP, which is a list of
 header names and header values.
 
@@ -144,7 +144,7 @@ This procedure parses a multipart/form-data \fIquery\fP.
 This is used by \fBncgi::nvlist\fP and not normally called directly.
 It returns an alternating list of names and structured values.
 Each structure value is in turn a list of two elements.
-The first element is meta-data from the mutlipart/form-data structure.
+The first element is meta-data from the multipart/form-data structure.
 The second element is the form value.  If you use
 \fBncgi::value\fP you just get the form value.
 If you use \fBncgi::valueList\fP you get the structured value
@@ -227,16 +227,16 @@ no side effects.
 .TP
 \fBncgi::setDefaultValueList\fR \fIkey defvaluelist\fR
 Like \fBncgi::setDefaultValue\fR except that the value already
-has list structure to reprent multiple checkboxes or a multi-selection.
+has list structure to represent multiple checkboxes or a multi-selection.
 .TP
 \fBncgi::setValue\fR \fIkey value\fR
-Set a CGI value, overridding whatever was present in the CGI environment already.
+Set a CGI value, overriding whatever was present in the CGI environment already.
 This affects future calls to \fBncgi::value\fR (but not future
 calls to \fBncgi::nvlist\fR).
 .TP
 \fBncgi::setValueList\fR \fIkey valuelist\fR
 Like \fBncgi::setValue\fR except that the value already
-has list structure to reprent multiple checkboxes or a multi-selection.
+has list structure to represent multiple checkboxes or a multi-selection.
 
 .TP
 \fBncgi::type\fR \fI\fR
@@ -268,7 +268,7 @@ each form value, then use \fBncgi::valueList\fP.
 Like \fBncgi::value\fP, but this always returns a list of values
 (even if there is only one value).
 In the case of multipart/form-data, this procedure returns a list of
-two elements.  The first elemtn is meta-data in the form of a parameter, value
+two elements.  The first element is meta-data in the form of a parameter, value
 list.  The second element is the form value.
 
 

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.3 2001/03/26 16:50:21 andreas_kupries Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.4 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -41,7 +41,7 @@ The complete set of procedures is described below.
 .TP
 \fBtextutil::adjust\fR \fIstring args\fR
 Do a justification on the \fIstring\fP according to \fIargs\fP.
-The string is taken as one big paragraphe, ignoring any newlines.
+The string is taken as one big paragraph, ignoring any newlines.
 Then the line is formatted according to the options used, and the
 command return a new string with enough lines to contain all the
 printable chars in the input string. A line is a set of chars
@@ -105,10 +105,10 @@ set the length of the \fIlogical\fR line in the string to \fIinteger\fR.
 
 .TP
 \fBtextutil::splitx\fR \fIstring {regexp [\t \r\n\]+}\fR
-Split the \fIstring\fP and return a list. The string is splitted
+Split the \fIstring\fP and return a list. The string is split
 according to the regular expression \fIregexp\fR instead of a simple
 list of chars. Note that if you add parenthesis into the \fIregexp\fR,
-the parenthesed part of separator would be added into list as additional
+the parentheses part of separator would be added into list as additional
 element.
 
 .TP

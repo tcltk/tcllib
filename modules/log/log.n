@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: log.n,v 1.1 2001/03/26 16:50:21 andreas_kupries Exp $
+'\" RCS: @(#) $Id: log.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH log n 1.0 Log "Logging facility"
@@ -112,7 +112,7 @@ one of lesser priority. Unique abbreviations for the level are allowed
 here too.
 .TP
 \fB::log::lvIsSuppressed\fR \fIlevel\fR
-Asks the package wether the specified level is currently
+Asks the package whether the specified level is currently
 suppressed. Unique abbreviations of level names are allowed.
 .TP
 \fB::log::lvCmd\fR \fIlevel cmd\fR
@@ -163,7 +163,7 @@ command \fB::log::Puts\fR will write the message to the channel
 specified for the given level. If no channel is specified for the
 level the message won't be logged. Unique abbreviations of level names
 are allowed. Errors in the actual logging command are \fBnot\fR
-catched, but propagated to the caller, as they may indicate
+caught, but propagated to the caller, as they may indicate
 misconfigurations of the log facility or errors in the callers code
 itself.
 .TP
@@ -177,7 +177,7 @@ Convenience wrapper around \fB::log::log\fR. Equivalent to
 .TP
 \fB::log::Puts\fR \fIlevel text\fR
 The standard log command, it writes messages and their levels to
-user-specified channels. Assumes that the supression checks were done
+user-specified channels. Assumes that the suppression checks were done
 by the caller. Expects full level names, abbreviations are \fBnot
 allowed\fR.
 

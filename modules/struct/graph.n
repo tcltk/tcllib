@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: graph.n,v 1.2 2000/05/31 00:00:03 ericm Exp $
+'\" RCS: @(#) $Id: graph.n,v 1.3 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH graph n 1.0 Struct "Tcl Data Structures"
@@ -96,7 +96,7 @@ specified, the key \fBdata\fR is assumed.
 
 Return a list of arcs in the graph. If no restriction is specified a
 list containing all arcs is returned. If one of the five possible
-restrictions is specified only arcs satisifying that restriction are
+restrictions is specified only arcs satisfying that restriction are
 returned. All restrictions involve a list of nodes, specified after
 the key for the restriction itself.
 .IP
@@ -164,7 +164,7 @@ specified, the key \fBdata\fR is assumed.
 \fIgraphName\fR \fBnodes\fR ?-in|-out|-adj|-inner|-embedding \fInodelist\fR?
 Return a list of nodes in the graph. If no restriction is specified a
 list containing all nodes is returned. If one of the five possible
-restrictions is specified only nodes satisifying that restriction are
+restrictions is specified only nodes satisfying that restriction are
 returned. All restrictions involve a list of nodes, specified after
 the key for the restriction itself.
 
@@ -190,10 +190,10 @@ The order of the walk, pre-order, post-order or both-order is
 determined by the value of \fIorder\fR; \fBpre\fR indicates pre-order,
 \fBpost\fR indicates post-order, \fBboth\fR indicates
 both-order. Pre-order is the default. Pre-order walking means that a
-node is visited before any of its neighbours (as defined by the
+node is visited before any of its neighbors (as defined by the
 \fIdirection\fR, see below). Post-order walking means that a parent is
-visited after any of its neighbours. Both-order walking means that a
-node is visited before \fBand\fR after any of its neighbours. The
+visited after any of its neighbors. Both-order walking means that a
+node is visited before \fBand\fR after any of its neighbors. The
 combination of a bread-first walk with post- or both-order is illegal.
 
 The direction of the walk is determined by the value of \fIdir\fR;

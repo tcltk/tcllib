@@ -1,7 +1,8 @@
+'\" 
 '\" Copyright (c) 2001 ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: sha1.n,v 1.1 2001/06/22 14:33:07 andreas_kupries Exp $
+'\" RCS: @(#) $Id: sha1.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH sha1 n 1.0 Sha1 "sha1 hash"
@@ -21,7 +22,7 @@
 .PP
 This package provides commands to compute a SHA1 digests of arbitrary
 messages.
-.SH COMMANDSS
+.SH COMMANDS
 .TP
 \fB::sha1::sha1\fR \fImsg\fR
 The command takes a message and returns the SHA1 digest of this message
@@ -29,7 +30,7 @@ as a hexadecimal string.
 .TP
 \fB::sha1::hmac\fR \fIkey text\fR
 The command takes a key string and a text and returns the hmac of the
-text nder the chosen key as a hexadecimal string.
+text under the chosen key as a hexadecimal string.
 .SH EXAMPLES
 .PP
 .CS
