@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.6 2003/05/16 21:47:50 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.7 2003/05/21 05:33:20 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace eval ::struct { namespace eval list {} }
 namespace eval ::struct::list {
     namespace export list
 
-    if 0 {
+    if {0} {
 	# Possibly in the future.
 	namespace export LlongestCommonSubsequence
 	namespace export LlongestCommonSubsequence2
@@ -776,20 +776,26 @@ proc ::struct::list::LdbJoin {args} {
     # --------------------------------
     # Process options ...
 
-    set mode inner
+    set mode   inner
+    set keyvar {}
+
     while {[llength $args]} {
-        set err [::cmdline::getopt args {inner left right full} opt arg]
+        set err [::cmdline::getopt args {inner left right full keys.arg} opt arg]
 	if {$err == 1} {
-	    set mode $opt
+	    if {[string equal $opt keys]} {
+		set keyvar $arg
+	    } else {
+		set mode $opt
+	    }
 	} elseif {$err < 0} {
-	    return -code error "wrong#args: dbJoin ?-inner|-left|-right|-full? \{key table\}..."
+	    return -code error "wrong#args: dbJoin ?-inner|-left|-right|-full? ?-keys varname? \{key table\}..."
 	} else {
 	    # Non-option argument found, stop processing.
 	    break
 	}
     }
 
-    set inner [string equal $mode inner]
+    set inner       [string equal $mode inner]
     set innerorleft [expr {$inner || [string equal $mode left]}]
 
     # --------------------------------
@@ -831,6 +837,11 @@ proc ::struct::list::LdbJoin {args} {
 	if {$inner && ([llength $keylist] == 0)} {return {}}
     }
 
+    if {[string length $keyvar]} {
+	upvar 1 $keyvar keys
+	set             keys $keylist
+    }
+
     return [MapToTable state $keylist]
 }
 
@@ -838,11 +849,17 @@ proc ::struct::list::LdbJoinKeyed {args} {
     # --------------------------------
     # Process options ...
 
-    set mode inner
+    set mode   inner
+    set keyvar {}
+
     while {[llength $args]} {
-        set err [::cmdline::getopt args {inner left right full} opt arg]
+        set err [::cmdline::getopt args {inner left right full keys.arg} opt arg]
 	if {$err == 1} {
-	    set mode $opt
+	    if {[string equal $opt keys]} {
+		set keyvar $arg
+	    } else {
+		set mode $opt
+	    }
 	} elseif {$err < 0} {
 	    return -code error "wrong#args: dbJoin ?-inner|-left|-right|-full? table..."
 	} else {
@@ -851,7 +868,7 @@ proc ::struct::list::LdbJoinKeyed {args} {
 	}
     }
 
-    set inner [string equal $mode inner]
+    set inner       [string equal $mode inner]
     set innerorleft [expr {$inner || [string equal $mode left]}]
 
     # --------------------------------
@@ -889,6 +906,11 @@ proc ::struct::list::LdbJoinKeyed {args} {
 
 	# Check for possible early abort
 	if {$inner && ([llength $keylist] == 0)} {return {}}
+    }
+
+    if {[string length $keyvar]} {
+	upvar 1 $keyvar keys
+	set             keys $keylist
     }
 
     return [MapToTable state $keylist]
@@ -1103,11 +1125,11 @@ proc ::struct::list::InitKeyedMap {mapvar wvar table} {
     upvar $mapvar map $wvar width
     set width [llength [lindex [lindex $table 0] 1]]
     foreach row $table {
-	foreach {keyval row} $row break
+	foreach {keyval rowdata} $row break
 	if {[info exists map($keyval)]} {
-	    lappend map($keyval) $row
+	    lappend map($keyval) $rowdata
 	} else {
-	    set map($keyval) [::list $row]
+	    set map($keyval) [::list $rowdata]
 	}
     }
     return [array names map]
@@ -1120,12 +1142,12 @@ proc ::struct::list::MapKeyedExtendInner {mapvar table} {
     # Phase I - Find all keys in the second table matching keys in the
     # first. Remember all their rows.
     foreach row $table {
-	foreach {keyval row} $row break
+	foreach {keyval rowdata} $row break
 	if {[info exists map($keyval)]} {
 	    if {[info exists used($keyval)]} {
-		lappend used($keyval) $row
+		lappend used($keyval) $rowdata
 	    } else {
-		set used($keyval) [::list $row]
+		set used($keyval) [::list $rowdata]
 	    }
 	} ; # else: Nothing to do for missing keys.
     }
@@ -1153,11 +1175,11 @@ proc ::struct::list::MapKeyedExtendRightOuter {mapvar wvar table} {
 
     set w [llength [lindex $table 0]]
     foreach row $table {
-	foreach {keyval row} $row break
+	foreach {keyval rowdata} $row break
 	if {[info exists used($keyval)]} {
-	    lappend used($keyval) $row
+	    lappend used($keyval) $rowdata
 	} else {
-	    set used($keyval) [::list $row]
+	    set used($keyval) [::list $rowdata]
 	}
     }
 
@@ -1197,12 +1219,12 @@ proc ::struct::list::MapKeyedExtendLeftOuter {mapvar wvar table} {
     # first. Remember all their rows.
     set w [llength [lindex $table 0]]
     foreach row $table {
-	foreach {keyval row} $row break
+	foreach {keyval rowdata} $row break
 	if {[info exists map($keyval)]} {
 	    if {[info exists used($keyval)]} {
-		lappend used($keyval) $row
+		lappend used($keyval) $rowdata
 	    } else {
-		set used($keyval) [::list $row]
+		set used($keyval) [::list $rowdata]
 	    }
 	} ; # else: Nothing to do for missing keys.
     }
@@ -1231,12 +1253,12 @@ proc ::struct::list::MapKeyedExtendFullOuter {mapvar wvar table} {
 
     set w [llength [lindex $table 0]]
     foreach row $table {
-	foreach {keyval row} $row break
+	foreach {keyval rowdata} $row break
 	if {[info exists used($keyval)]} {
-	    lappend used($keyval) $row
+	    lappend used($keyval) $rowdata
 	} else {
 	    lappend keylist $keyval
-	    set used($keyval) [::list $row]
+	    set used($keyval) [::list $rowdata]
 	}
     }
 
