@@ -765,16 +765,11 @@ proc ::snit::Comp.statement.onconfigure {option arglist body} {
 
     CheckArgs "onconfigure $option" $arglist
 
-    # Next, add a magic reference to self and to options
-    set arglist [concat type selfns win self $arglist]
+    # Next, add a magic reference to the option name
+    set arglist [concat option $arglist]
 
-    # Next, add variable declarations to body:
-    set body "%TVARDECS%%IVARDECS%\n$body"
-
-    append compile(defs) "
-
-        proc [list %TYPE%::Snit_configure$option $arglist $body]
-    "
+    Comp.statement.method _configure$option $arglist $body
+    Comp.statement.option $option -configuremethod _configure$option
 } 
 
 # Defines an instance method.
@@ -1830,8 +1825,7 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
             
             # Also, clear the instance caches, as many cached commands
             # might be invalid.
-            unset -nocomplain -- ${selfns}::Snit_methodCache
-            unset -nocomplain -- ${selfns}::Snit_cgetCache
+            RT.ClearInstanceCaches $selfns
         }
     } result]} {
         global errorInfo
@@ -2124,8 +2118,7 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
     # Clear the instance caches.
     # TBD: can we unset just the elements related to
     # this component?
-    unset -nocomplain -- ${selfns}::Snit_methodCache
-    unset -nocomplain -- ${selfns}::Snit_cgetCache
+    RT.ClearInstanceCaches $selfns
 }
 
 # Generates and caches the command for a method.
@@ -2188,6 +2181,14 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
         
     return $command
 }
+
+# Clears all instance command caches
+proc ::snit::RT.ClearInstanceCaches {selfns} {
+    unset -nocomplain -- ${selfns}::Snit_methodCache
+    unset -nocomplain -- ${selfns}::Snit_cgetCache
+    unset -nocomplain -- ${selfns}::Snit_configureCache
+}
+
 
 #-----------------------------------------------------------------------
 # Component Installation
@@ -2600,16 +2601,15 @@ proc ::snit::RT.CacheCgetCommand {type selfns win self option} {
 
             if {$Snit_optionInfo(cget-$option) eq ""} {
                 set command [list set ${selfns}::options($option)]
-                set Snit_cgetCache($option) $command
-                return $command
             } else {
                 set command [snit::RT.CacheMethodCommand \
                                  $type $selfns $win $self \
                                  $Snit_optionInfo(cget-$option)]
                 lappend command $option
-                set Snit_cgetCache($option) $command
-                return $command
             }
+
+            set Snit_cgetCache($option) $command
+            return $command
         }
          
         # Explicitly delegated option; get target
@@ -2645,34 +2645,73 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
     variable ${type}::Snit_optionInfo
 
     foreach {option value} $optionlist {
-        if {[info exist Snit_optionInfo(islocal-$option)]} {
-            if {$Snit_optionInfo(islocal-$option)} {
-                # Locally defined; configure and continue.
-                ${type}::Snit_configure$option $type $selfns $win $self $value
-                continue
+        if {[catch {set ${selfns}::Snit_configureCache($option)} command]} {
+            set command [snit::RT.CacheConfigureCommand \
+                             $type $selfns $win $self $option]
+        
+            if {[llength $command] == 0} {
+                return -code error "unknown option \"$option\""
             }
-
-            # Delegated option: get target.
-            set comp [lindex $Snit_optionInfo(target-$option) 0]
-            set target [lindex $Snit_optionInfo(target-$option) 1]
-        } elseif {$Snit_optionInfo(starcomp) != "" &&
-                  [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
-            # Unknown option, but unknowns are delegated.
-            set comp $Snit_optionInfo(starcomp)
-            set target $option
-        } else {
-            # Use quotes because Tk does.
-            error "unknown option \"$option\""
         }
-        
-        # Get the component's object
-        set obj [RT.Component $type $selfns $comp]
-        
-        # Might want some special error handling here.
-        $obj configure $target $value
+            
+        lappend command $value
+        uplevel 1 $command
     }
     
     return
+}
+
+# Retrieves and caches the command that stores the named option.
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# option        An option name
+
+proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
+    variable ${type}::Snit_optionInfo
+    variable ${selfns}::Snit_configureCache
+
+    if {[info exist Snit_optionInfo(islocal-$option)]} {
+        # We know the item; it's either local, or explicitly delegated.
+        
+        if {$Snit_optionInfo(islocal-$option)} {
+            # It's a local option; if it has a configure method defined,
+            # use it; otherwise, just set the value.
+
+            if {$Snit_optionInfo(configure-$option) eq ""} {
+                set command [list set ${selfns}::options($option)]
+            } else {
+                set command [snit::RT.CacheMethodCommand \
+                                 $type $selfns $win $self \
+                                 $Snit_optionInfo(configure-$option)]
+                lappend command $option
+            }
+
+            set Snit_configureCache($option) $command
+            return $command
+        }
+
+        # Delegated option: get target.
+        set comp [lindex $Snit_optionInfo(target-$option) 0]
+        set target [lindex $Snit_optionInfo(target-$option) 1]
+    } elseif {$Snit_optionInfo(starcomp) != "" &&
+              [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
+        # Unknown option, but unknowns are delegated.
+        set comp $Snit_optionInfo(starcomp)
+        set target $option
+    } else {
+        return ""
+    }
+        
+    # Get the component's object
+    set obj [RT.Component $type $selfns $comp]
+    
+    set command [list $obj configure $target]
+    set Snit_configureCache($option) $command
+    
+    return $command
 }
 
 # Implements the standard "configure" method
