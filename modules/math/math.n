@@ -1,8 +1,8 @@
 '\"
-'\" Copyright (c) 1998-2000 by Ajuba Solutions.
+'\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: math.n,v 1.3 2000/05/31 00:00:01 ericm Exp $
+'\" RCS: @(#) $Id: math.n,v 1.4 2000/06/15 23:46:45 ericm Exp $
 '\" 
 .so man.macros
 .TH math n 1.0 math "Tcl Math Library"
@@ -15,11 +15,29 @@ math \- Tcl math library
 .sp
 \fB::math::max\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
-\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
-.sp
 \fB::math::min\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
-\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::prod\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::prod\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::dot\fR \fIvalues\fR \fIrows\fR \fIcols\fR
+.sp
+\fB::math::cross\fR \fIvalues\fR \fIrows\fR \fIcols\fR
+.sp
+\fB::math::det\fR \fIvalues\fR \fIrows\fR \fIcols\fR
+.sp
+\fB::math::integrate\fR \fIlist of xy value pairs\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -30,16 +48,28 @@ The \fBmath\fR package provides utility math functions.
 \fB::math::max\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 Return the maximum of one or more numeric values.
 .TP
-\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
-Return the arithmetic mean of one or more numeric values.
-.TP
 \fB::math::min\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 Return the minimum of one or more numeric values.
 .TP
-\fB::math::product\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
+Return the sum of one or more numeric values.
+.TP
+\fB::math::prod\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
 Return the product of one or more numeric values.
 .TP
-\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
-Return the sum of one or more numeric values.
+\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the mean, or "average" of one or more numeric values.
+.TP
+\fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the population standard deviation of two or more numeric values.
+.TP
+\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the coefficient of variation expressed as percent of two or more numeric values.
+.TP
+\fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the mean, standard deviation, and coefficient of variation as percent as a list.
+.TP
+\fB::math::integrate\fR \fIlist of xy value pairs\fR
+Return the area under a "curve" defined by a set of x,y pairs and the error bound as a list.
 .SH KEYWORDS
-math
+math statistics

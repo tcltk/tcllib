@@ -1,3 +1,10 @@
+2000-06-15  Eric Melski  <ericm@scriptics.com>
+
+	* math.n: 
+	* math.test: 
+	* math.tcl: Incorporated sigma, cov, stats, integrate functions
+	(from Philip Ehrens <pehrens@ligo.caltech.edu>). [RFE: 5060]
+
 2000-03-27  Eric Melski  <ericm@scriptics.com>
 
 	* math.n: 

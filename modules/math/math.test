@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.4 2000/05/31 00:00:01 ericm Exp $
+# RCS: @(#) $Id: math.test,v 1.5 2000/06/15 23:46:46 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -17,10 +17,23 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 source [file join [file dirname [info script]] math.tcl]
 package require math
 
+proc wrongNumArgs {name arglist count} {
+    set ver [info patchlevel]
+    # strip "a1", etc. designations
+    regsub {(a|b)[1-9]$} $ver {} ver
+    if {[package vcompare $ver 8.4] < 0} {
+	set arg [lindex $arglist $count]
+	set msg "no value given for parameter \"$arg\" to \"$name\""
+    } else {
+	set msg "wrong # args: should be \"$name $arglist\""
+    }
+    return $msg
+}
+
 test math-1.1 {math::min, wrong num args} {
     catch {math::min} msg
     set msg
-} "no value given for parameter \"val\" to \"math::min\""
+} [wrongNumArgs math::min {val args} 0]
 test math-1.2 {simple math::min} {
     math::min 1
 } 1
@@ -40,7 +53,7 @@ test math-1.6 {math::min with floating point numbers} {
 test math-2.1 {math::max, wrong num args} {
     catch {math::max} msg
     set msg
-} "no value given for parameter \"val\" to \"math::max\""
+} [wrongNumArgs math::max {val args} 0]
 test math-2.2 {simple math::max} {
     math::max 1
 } 1
@@ -60,7 +73,7 @@ test math-2.6 {math::max with floating point numbers} {
 test math-3.1 {math::mean, wrong num args} {
     catch {math::mean} msg
     set msg
-} "no value given for parameter \"val\" to \"math::mean\""
+} [wrongNumArgs math::mean {val args} 0]
 test math-3.2 {simple math::mean} {
     math::mean 1
 } 1.0
@@ -80,7 +93,7 @@ test math-3.6 {math::mean with floating point numbers} {
 test math-4.1 {math::sum, wrong num args} {
     catch {math::sum} msg
     set msg
-} "no value given for parameter \"val\" to \"math::sum\""
+} [wrongNumArgs math::sum {val args} 0]
 test math-4.2 {math::sum} {
     math::sum 1
 } 1
@@ -97,7 +110,7 @@ test math-4.5 {math::sum} {
 test math-5.1 {math::product, wrong num args} {
     catch {math::product} msg
     set msg
-} "no value given for parameter \"val\" to \"math::product\""
+} [wrongNumArgs math::product {val args} 0]
 test math-5.2 {simple math::product} {
     math::product 1
 } 1
@@ -114,5 +127,71 @@ test math-5.6 {math::product with floating point numbers} {
     math::product 2 0.5
 } 1.0
 
+test math-6.1 {math::sigma, wrong num args} {
+    catch {math::sigma} msg
+    set msg
+} [wrongNumArgs math::sigma {val1 val2 args} 0]
+test math-6.2 {simple math::sigma} {
+    catch {math::sigma 1} msg
+    set msg
+} [wrongNumArgs math::sigma {val1 val2 args} 1]
+test math-6.3 {simple math::sigma} {
+    expr round([ math::sigma 100 120 ])
+} 14
+test math-6.4 {math::sigma} {
+    expr round([ math::sigma 100 110 100 100 ])
+} 5
+test math-6.5 {math::sigma with negative numbers} {
+    math::sigma 100 100 100 -100
+} 100.0
+test math-6.6 {math::sigma with floating point numbers} {
+    math::sigma 100 110 100 100.0
+} 5.0
+
+test math-7.1 {math::cov, wrong num args} {
+    catch {math::cov} msg
+    set msg
+} [wrongNumArgs math::cov {val1 val2 args} 0]
+test math-7.2 {simple math::cov} {
+    catch {math::cov 1} msg
+    set msg
+} [wrongNumArgs math::cov {val1 val2 args} 1]
+test math-7.3 {simple math::cov} {
+    math::cov 2 1
+} 100.0
+test math-7.4 {math::cov} {
+    catch { math::cov 0 2 1 0 } msg
+    set msg
+} "divide by zero"
+test math-7.5 {math::cov with negative numbers} {
+    math::cov 100 100 100 -100
+} 200.0
+test math-7.6 {math::cov with floating point numbers} {
+    string range [ math::cov 100 110 100 100.0 ] 0 0
+} 4
+
+test math-8.1 {math::stats, wrong num of args} {
+     catch { math::stats } msg
+     set msg
+} [wrongNumArgs math::stats {val1 val2 args} 0]
+test math-8.2 {math::stats, wrong num of args} {
+     catch { math::stats 100 } msg
+     set msg
+} [wrongNumArgs math::stats {val1 val2 args} 1]
+test math-8.3 { simple math::stats } {
+     foreach {a b c} [ math::stats 100 100 100 110 ] { break }
+     set a [ expr round($a) ]
+     set b [ expr round($b) ]
+     set c [ expr round($c) ]
+     list $a $b $c
+} {102 5 5}
+
+test math-9.1 { math::integrate, insufficient data points } {
+     catch { math::integrate {1 10 2 20 3 30 4 40} } msg
+     set msg
+} "at least 5 x,y pairs must be given"     
+test math-9.2 { simple math::integrate } {
+     math::integrate {1 10 2 20 3 30 4 40 5 50 6 60 7 70 8 80 9 90 10 100}
+} {500.0 0.5}     
 
 ::tcltest::cleanupTests
