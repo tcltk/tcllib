@@ -261,11 +261,11 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
 		set A $TEMP
 	    }
 
-	    set H0 [expr {($H0 + $A) & 0xffffffff}]
-	    set H1 [expr {($H1 + $B) & 0xffffffff}]
-	    set H2 [expr {($H2 + $C) & 0xffffffff}]
-	    set H3 [expr {($H3 + $D) & 0xffffffff}]
-	    set H4 [expr {($H4 + $E) & 0xffffffff}]
+	    set H0 [expr {int(($H0 + $A) & 0xffffffff)}]
+	    set H1 [expr {int(($H1 + $B) & 0xffffffff)}]
+	    set H2 [expr {int(($H2 + $C) & 0xffffffff)}]
+	    set H3 [expr {int(($H3 + $D) & 0xffffffff)}]
+	    set H4 [expr {int(($H4 + $E) & 0xffffffff)}]
 	}
 
 	return [format %0.8x%0.8x%0.8x%0.8x%0.8x $H0 $H1 $H2 $H3 $H4]
