@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.18 2002/10/14 20:29:24 hobbs Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.19 2003/02/07 02:58:48 davidw Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2
@@ -182,11 +182,11 @@ proc ::profiler::profProc {name arglist body} {
     # have an absolute namespace qualifier, we have to prepend the current
     # namespace to the command name
     if { ![string equal $ns "::"] } {
-	if { ![regexp -- "^::" $name] } {
+	if { ![string match "::*" $name] } {
 	    set name "${ns}::${name}"
 	}
     }
-    if { ![regexp -- "^::" $name] } {
+    if { ![string match "::*" $name] } {
 	set name "::$name"
     }
 
