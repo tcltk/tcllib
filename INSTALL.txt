@@ -1,0 +1,33 @@
+How to install Tcllib
+=====================
+
+The tcllib distribution offers a number of alternative methods for
+installing tcllib for use by your existing Tcl installation:
+
+1.	install.tcl
+
+	Usage of this script is the prefered method for Unix and
+	Windows platforms.
+
+	Just executing it will use the default Tcl shell program on the
+	host (Unix: PATH, Win*: .tcl association) to determine where to
+	install the library.
+
+	If the script is evaluated by an explictly named Tcl shell program
+	(for example: `/patch/to/tclsh install.tcl`), then the packages
+	of tcllib will be installed so that they are available for use
+	by that Tcl shell program.
+
+2.	install.sh
+
+	Unix only. Execute the script and provide it with the
+	directory where to install tcllib 1.3.
+
+	This script will overwrite an existing installation if
+	such a directory is specified.
+
+3.	install.bat
+
+	Win* only. The directory to install tcllib into is hardwired
+	into the script. If a different location is wanted the script
+	has to be changed with an editor.
