@@ -26,9 +26,9 @@
 # We use newer string routines
 package require Tcl 8.2
 
-package provide ncgi 1.2.1
+package provide ncgi 1.2.2
 
-namespace eval ncgi {
+namespace eval ::ncgi {
 
     # "query" holds the raw query (i.e., form) data
     # This is treated as a cache, too, so you can call ncgi::query more than
@@ -95,7 +95,7 @@ namespace eval ncgi {
     namespace export parseMimeValue multipart cookie setCookie
 }
 
-# ncgi::reset
+# ::ncgi::reset
 #
 #	This resets the state of the CGI input processor.  This is primarily
 #	used for tests, although it is also designed so that TclHttpd can
@@ -114,7 +114,7 @@ namespace eval ncgi {
 #	Resets the cached query data and wipes any environment variables
 #	associated with CGI inputs (like QUERY_STRING)
 
-proc ncgi::reset {args} {
+proc ::ncgi::reset {args} {
     global env
     variable query
     variable contenttype
@@ -138,7 +138,7 @@ proc ncgi::reset {args} {
     }
 }
 
-# ncgi::urlStub
+# ::ncgi::urlStub
 #
 #	Set or return the URL associated with the current page.
 #	This is for use by TclHttpd to override the default value
@@ -151,7 +151,7 @@ proc ncgi::reset {args} {
 # Side Effects:
 #	May affects future calls to ncgi::urlStub
 
-proc ncgi::urlStub {{url {}}} {
+proc ::ncgi::urlStub {{url {}}} {
     global   env
     variable urlStub
     if {[string length $url]} {
@@ -167,7 +167,7 @@ proc ncgi::urlStub {{url {}}} {
     }
 }
 
-# ncgi::query
+# ::ncgi::query
 #
 #	This reads the query data from the appropriate location, which depends
 #	on if it is a POST or GET request.
@@ -178,7 +178,7 @@ proc ncgi::urlStub {{url {}}} {
 # Results:
 #	The raw query data.
 
-proc ncgi::query {} {
+proc ::ncgi::query {} {
     global env
     variable query
 
@@ -204,7 +204,7 @@ proc ncgi::query {} {
     return $query
 }
 
-# ncgi::type
+# ::ncgi::type
 #
 #	This returns the content type of the query data.
 #
@@ -214,7 +214,7 @@ proc ncgi::query {} {
 # Results:
 #	The content type of the query data.
 
-proc ncgi::type {} {
+proc ::ncgi::type {} {
     global env
     variable contenttype
 
@@ -228,7 +228,7 @@ proc ncgi::type {} {
     return $contenttype
 }
 
-# ncgi::decode
+# ::ncgi::decode
 #
 #	This decodes data in www-url-encoded format.
 #
@@ -238,7 +238,7 @@ proc ncgi::type {} {
 # Results:
 #	The decoded value
 
-proc ncgi::decode {str} {
+proc ::ncgi::decode {str} {
     # rewrite "+" back to space
     # protect \ from quoting another '\'
     set str [string map [list + { } "\\" "\\\\"] $str]
@@ -250,7 +250,7 @@ proc ncgi::decode {str} {
     return [subst -novar -nocommand $str]
 }
 
-# ncgi::encode
+# ::ncgi::encode
 #
 #	This encodes data in www-url-encoded format.
 #
@@ -260,7 +260,7 @@ proc ncgi::decode {str} {
 # Results:
 #	The encoded value
 
-proc ncgi::encode {string} {
+proc ::ncgi::encode {string} {
     variable map
 
     # 1 leave alphanumerics characters alone
@@ -275,7 +275,7 @@ proc ncgi::encode {string} {
 }
 
 
-# ncgi::nvlist
+# ::ncgi::nvlist
 #
 #	This parses the query data and returns it as a name, value list
 #
@@ -288,9 +288,9 @@ proc ncgi::encode {string} {
 # Results:
 #	An alternating list of names and values
 
-proc ncgi::nvlist {} {
-    set query [ncgi::query]
-    set type [ncgi::type]
+proc ::ncgi::nvlist {} {
+    set query [query]
+    set type  [type]
     switch -glob -- $type {
 	"" -
 	application/x-www-form-urlencoded -
@@ -309,12 +309,12 @@ proc ncgi::nvlist {} {
 		    set varname anonymous
 		    set val $x
 		}
-		lappend result [ncgi::decode $varname] [ncgi::decode $val]
+		lappend result [decode $varname] [decode $val]
 	    }
 	    return $result
 	}
 	multipart/* {
-	    return [ncgi::multipart $type $query]
+	    return [multipart $type $query]
 	}
 	default {
 	    return -code error "Unknown Content-Type: $type"
@@ -322,7 +322,7 @@ proc ncgi::nvlist {} {
     }
 }
 
-# ncgi::parse
+# ::ncgi::parse
 #
 #	The parses the query data and stores it into an array for later retrieval.
 #	You should use the ncgi::value or ncgi::valueList procedures to get those
@@ -337,14 +337,14 @@ proc ncgi::nvlist {} {
 # Results:
 #	A list of names of the query values
 
-proc ncgi::parse {} {
+proc ::ncgi::parse {} {
     variable value
     variable listRestrict 0
     variable varlist {}
     if {[info exists value]} {
 	unset value
     }
-    foreach {name val} [ncgi::nvlist] {
+    foreach {name val} [nvlist] {
 	if {![info exists value($name)]} {
 	    lappend varlist $name
 	}
@@ -353,7 +353,7 @@ proc ncgi::parse {} {
     return $varlist
 } 
 
-# ncgi::input
+# ::ncgi::input
 #
 #	Like ncgi::parse, but with Don Libes cgi.tcl semantics.
 #	Form elements must have a trailing "List" in their name to be
@@ -366,7 +366,7 @@ proc ncgi::parse {} {
 # Results:
 #	The list of element names in the form
 
-proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
+proc ::ncgi::input {{fakeinput {}} {fakecookie {}}} {
     variable value
     variable varlist {}
     variable listRestrict 1
@@ -376,7 +376,7 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
     if {[string length $fakeinput]} {
 	ncgi::reset $fakeinput
     }
-    foreach {name val} [ncgi::nvlist] {
+    foreach {name val} [nvlist] {
 	set exists [info exists value($name)]
 	if {!$exists} {
 	    lappend varlist $name
@@ -396,7 +396,7 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
     return $varlist
 } 
 
-# ncgi::value
+# ::ncgi::value
 #
 #	Return the value of a named query element, or the empty string if
 #	it was not not specified.  This only returns the first value of
@@ -410,14 +410,14 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 # Results:
 #	The first value of the named element, or the default
 
-proc ncgi::value {key {default {}}} {
+proc ::ncgi::value {key {default {}}} {
     variable value
     variable listRestrict
     variable contenttype
     if {[info exists value($key)]} {
 	if {$listRestrict} {
 
-	    # ncgi::input was called, and it already figured out if the
+	    # ::ncgi::input was called, and it already figured out if the
 	    # user wants list structure or not.
 
 	    set val $value($key)
@@ -427,7 +427,7 @@ proc ncgi::value {key {default {}}} {
 
 	    set val [lindex $value($key) 0]
 	}
-	if {[string match multipart/* [ncgi::type]]} {
+	if {[string match multipart/* [type]]} {
 
 	    # Drop the meta-data information associated with each part
 
@@ -439,7 +439,7 @@ proc ncgi::value {key {default {}}} {
     }
 }
 
-# ncgi::valueList
+# ::ncgi::valueList
 #
 #	Return all the values of a named query element as a list, or
 #	the empty list if it was not not specified.  This always returns
@@ -452,7 +452,7 @@ proc ncgi::value {key {default {}}} {
 # Results:
 #	The first value of the named element, or ""
 
-proc ncgi::valueList {key {default {}}} {
+proc ::ncgi::valueList {key {default {}}} {
     variable value
     if {[info exists value($key)]} {
 	return $value($key)
@@ -461,7 +461,7 @@ proc ncgi::valueList {key {default {}}} {
     }
 }
 
-# ncgi::setValue
+# ::ncgi::setValue
 #
 #	Jam a new value into the CGI environment.  This is handy for preliminary
 #	processing that does data validation and cleanup.
@@ -476,7 +476,7 @@ proc ncgi::valueList {key {default {}}} {
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
 
-proc ncgi::setValue {key value} {
+proc ::ncgi::setValue {key value} {
     variable listRestrict
     if {$listRestrict} {
 	ncgi::setValueList $key $value
@@ -485,7 +485,7 @@ proc ncgi::setValue {key value} {
     }
 }
 
-# ncgi::setValueList
+# ::ncgi::setValueList
 #
 #	Jam a list of new values into the CGI environment.
 #
@@ -497,7 +497,7 @@ proc ncgi::setValue {key value} {
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
 
-proc ncgi::setValueList {key valuelist} {
+proc ::ncgi::setValueList {key valuelist} {
     variable value
     variable varlist
     if {![info exists value($key)]} {
@@ -505,9 +505,9 @@ proc ncgi::setValueList {key valuelist} {
     }
 
     # This if statement is a workaround for another hack in
-    # ncgi::value that treats multipart form data
+    # ::ncgi::value that treats multipart form data
     # differently.
-    if {[string match multipart/* [ncgi::type]]} {
+    if {[string match multipart/* [type]]} {
 	set value($key) [list [list {} [join $valuelist]]]
     } else {
 	set value($key) $valuelist
@@ -515,7 +515,7 @@ proc ncgi::setValueList {key valuelist} {
     return ""
 }
 
-# ncgi::setDefaultValue
+# ::ncgi::setDefaultValue
 #
 #	Set a new value into the CGI environment if there is not already one there.
 #
@@ -528,11 +528,11 @@ proc ncgi::setValueList {key valuelist} {
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
 
-proc ncgi::setDefaultValue {key value} {
+proc ::ncgi::setDefaultValue {key value} {
     ncgi::setDefaultValueList $key [list $value]
 }
 
-# ncgi::setDefaultValueList
+# ::ncgi::setDefaultValueList
 #
 #	Jam a list of new values into the CGI environment if the CGI value
 #	is not already defined.
@@ -545,7 +545,7 @@ proc ncgi::setDefaultValue {key value} {
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
 
-proc ncgi::setDefaultValueList {key valuelist} {
+proc ::ncgi::setDefaultValueList {key valuelist} {
     variable value
     if {![info exists value($key)]} {
 	ncgi::setValueList $key $valuelist
@@ -555,7 +555,7 @@ proc ncgi::setDefaultValueList {key valuelist} {
     }
 }
 
-# ncgi::empty --
+# ::ncgi::empty --
 #
 #	Return true if the CGI variable doesn't exist or is an empty string
 #
@@ -565,11 +565,11 @@ proc ncgi::setDefaultValueList {key valuelist} {
 # Results:
 #	1 if the variable doesn't exist or has the empty value
 
-proc ncgi::empty {name} {
-    return [expr {[string length [string trim [ncgi::value $name]]] == 0}]
+proc ::ncgi::empty {name} {
+    return [expr {[string length [string trim [value $name]]] == 0}]
 }
 
-# ncgi::import
+# ::ncgi::import
 #
 #	Map a CGI input into a Tcl variable.  This creates a Tcl variable in
 #	the callers scope that has the value of the CGI input.  An alternate
@@ -580,16 +580,16 @@ proc ncgi::empty {name} {
 #	tclname		If present, an alternate name for the Tcl variable,
 #			otherwise it is the same as the form element name
 
-proc ncgi::import {cginame {tclname {}}} {
+proc ::ncgi::import {cginame {tclname {}}} {
     if {[string length $tclname]} {
 	upvar 1 $tclname var
     } else {
 	upvar 1 $cginame var
     }
-    set var [ncgi::value $cginame]
+    set var [value $cginame]
 }
 
-# ncgi::importAll
+# ::ncgi::importAll
 #
 #	Map a CGI input into a Tcl variable.  This creates a Tcl variable in
 #	the callers scope for every CGI value, or just for those named values.
@@ -598,18 +598,18 @@ proc ncgi::import {cginame {tclname {}}} {
 #	args	A list of form element names.  If this is empty,
 #		then all form value are imported.
 
-proc ncgi::importAll {args} {
+proc ::ncgi::importAll {args} {
     variable varlist
     if {[llength $args] == 0} {
 	set args $varlist
     }
     foreach cginame $args {
 	upvar 1 $cginame var
-	set var [ncgi::value $cginame]
+	set var [value $cginame]
     }
 }
 
-# ncgi::redirect
+# ::ncgi::redirect
 #
 #	Generate a redirect by returning a header that has a Location: field.
 #	If the URL is not absolute, this automatically qualifies it to
@@ -621,7 +621,7 @@ proc ncgi::importAll {args} {
 # Side Effects:
 #	Outputs a redirect header
 
-proc ncgi::redirect {url} {
+proc ::ncgi::redirect {url} {
     global env
 
     if {![regexp -- {^[^:]+://} $url]} {
@@ -690,7 +690,7 @@ proc ncgi::redirect {url} {
 # Side Effects:
 #	Outputs a normal header
 
-proc ncgi::header {{type text/html} args} {
+proc ::ncgi::header {{type text/html} args} {
     variable cookieOutput
     puts "Content-Type: $type"
     foreach {n v} $args {
@@ -705,7 +705,7 @@ proc ncgi::header {{type text/html} args} {
     flush stdout
 }
 
-# ncgi::parseMimeValue
+# ::ncgi::parseMimeValue
 #
 #	Parse a MIME header value, which has the form
 #	value; param=value; param2="value2"; param3='value3'
@@ -723,7 +723,7 @@ proc ncgi::header {{type text/html} args} {
 #		{param value param2 value param3 value3}
 #	}
 
-proc ncgi::parseMimeValue {value} {
+proc ::ncgi::parseMimeValue {value} {
     set parts [split $value \;]
     set results [list [string trim [lindex $parts 0]]]
     set paramList [list]
@@ -747,7 +747,7 @@ proc ncgi::parseMimeValue {value} {
     return $results
 }
 
-# ncgi::multipart
+# ::ncgi::multipart
 #
 #	This parses multipart form data.
 #	Based on work by Steve Ball for TclHttpd, but re-written to use
@@ -789,9 +789,9 @@ proc ncgi::parseMimeValue {value} {
 #	example above.  Finally, not that if the value has a second element,
 #	which are the parameters, you can "array set" that as well.
 #	
-proc ncgi::multipart {type query} {
+proc ::ncgi::multipart {type query} {
 
-    set parsedType [ncgi::parseMimeValue $type]
+    set parsedType [parseMimeValue $type]
     if {![string match multipart/* [lindex $parsedType 0]]} {
 	return -code error "Not a multipart Content-Type: [lindex $parsedType 0]"
     }
@@ -890,7 +890,7 @@ proc ncgi::multipart {type query} {
     return $results
 }
 
-# ncgi::cookie
+# ::ncgi::cookie
 #
 #	Return a *list* of cookie values, if present, else ""
 #	It is possible for multiple cookies with the same key
@@ -902,7 +902,7 @@ proc ncgi::multipart {type query} {
 # Results:
 #	A list of values for the cookie
 
-proc ncgi::cookie {cookie} {
+proc ::ncgi::cookie {cookie} {
     global env
     set result ""
     if {[info exists env(HTTP_COOKIE)]} {
@@ -916,7 +916,7 @@ proc ncgi::cookie {cookie} {
     return $result
 }
 
-# ncgi::setCookie
+# ::ncgi::setCookie
 #
 #	Set a return cookie.  You must call this before you call
 #	ncgi::header or ncgi::redirect
@@ -932,7 +932,7 @@ proc ncgi::cookie {cookie} {
 # Side Effects:
 #	Formats and stores the Set-Cookie header for the reply.
 
-proc ncgi::setCookie {args} {
+proc ::ncgi::setCookie {args} {
     variable cookieOutput
     array set opt $args
     set line "$opt(-name)=$opt(-value) ;"
