@@ -1,0 +1,68 @@
+'\" sum.n - Copyright (c) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" 
+'\" -------------------------------------------------------------------------
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\" -------------------------------------------------------------------------
+'\" RCS: @(#) $Id: sum.n,v 1.1 2002/01/17 23:33:08 patthoyts Exp $
+'\" 
+.so man.macros
+.TH "sum" n 1.0 tcllib "sum"
+.BS
+'\" Note: do not modify the .SH NAME line immediately below!
+.SH NAME
+::crc::sum \- calculate a sum(1) compatible checksum
+.SH "SYNOPSIS"
+\fBpackage require Tcl 8.2\fR
+.sp
+\fBpackage require sum ?1.0?\fR
+.sp
+\fB::crc::sum\fR \fI?-format string?\fR \fI-file filename\fR | \fIstring\fR
+.BE
+.SH "DESCRIPTION"
+.PP
+This package provides a Tcl-only implementation of the sum(1) command
+which calculates a 16 bit checksum value from the input data.
+The BSD sum algorithm is used by default but the SysV algorithm is
+also available.
+.SH "COMMANDS"
+.TP
+\fB::crc::sum\fR \fI?-format string?\fR \fI-file filename\fR | \fIstring\fR
+The command takes string data or a file name and returns
+a checksum value calculated using the sum(1) algorithm. The result is
+formatted using the \fBformat\fR(n) specifier provided or as an unsigned
+integer (%u) by default.
+.SH "OPTIONS"
+.TP
+\fI-filename name\fR
+Return a checksum for the file contents instead of for parameter data.
+.TP
+\fI-format string\fR
+Return the checksum using an alternative format template.
+.SH "EXAMPLES"
+.PP
+.CS
+\fB% crc::sum "Hello, World!"\fR
+37287
+.CE
+.PP
+.CS
+\fB% crc::sum -format 0x%X "Hello, World!"\fR
+0x91A7
+.CE
+.PP
+.CS
+\fB% crc::sum -file cksum.tcl\fR
+13392
+.CE
+.SH "SEE ALSO"
+sum(1), cksum(n), crc32(n)
+.SH "AUTHORS"
+Pat Thoyts
+.SH "KEYWORDS"
+sum, cksum, checksum, crc, crc32, cyclic redundancy check, data integrity,  
+security
+'\"
+'\" Local Variables:
+'\"   mode: nroff
+'\" End:
