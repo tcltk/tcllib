@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.45 2001/06/22 14:33:07 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.46 2001/08/20 22:30:54 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -127,8 +127,8 @@ top_srcdir = @top_srcdir@
 prefix = $(INSTALL_ROOT)@prefix@
 exec_prefix = $(INSTALL_ROOT)@exec_prefix@
 
-libdir = @libdir@
-mandir = @mandir@
+libdir = $(INSTALL_ROOT)@libdir@
+mandir = $(INSTALL_ROOT)@mandir@
 
 DESTDIR =
 
