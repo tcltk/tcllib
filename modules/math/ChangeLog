@@ -1,3 +1,8 @@
+2004-11-01  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Moved initialisation of CDF in statistics module to 
+          first call
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
