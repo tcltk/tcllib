@@ -2,9 +2,10 @@
 #
 #    Package for basic statistical analysis
 #
-# version 0.1: initial implementation, january 2003
+# version 0.1:   initial implementation, january 2003
+# version 0.1.1: added linear regression, june 2004
 
-package provide math::statistics 0.1.1
+package provide math::statistics 0.1.2
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
@@ -665,27 +666,127 @@ proc ::math::statistics::minmax-histogram-limits { min max {number 8} } {
 
 # linear-model
 #    Determine the coefficients for a linear regression between
-#    two series of data
+#    two series of data (the model: Y = A + B*X)
 #
 # Arguments:
 #    xdata        Series of independent (X) data
 #    ydata        Series of dependent (Y) data
+#    intercept    Whether to use an intercept or not (optional)
 #
 # Result:
 #    List of the following items:
-#    PM
+#    - (Estimate of) Intercept A
+#    - (Estimate of) Slope B
+#    - Standard deviation of Y relative to fit
+#    - Correlation coefficient R2
+#    - Number of degrees of freedom df
+#    - Standard error of the intercept A
+#    - Significance level of A
+#    - Standard error of the slope B
+#    - Significance level of B
 #
-proc ::math::statistics::linear-model { xdata ydata } {
-    variable TOOFEWDATA
+#
+proc ::math::statistics::linear-model { xdata ydata {intercept 1} } {
+   variable TOOFEWDATA
 
-    if { [llength $xdata] < 1 } {
-	return -code error -errorcode ARG "$TOOFEWDATA: no independent data"
-    }
-    if { [llength $ydata] < 1 } {
-	return -code error -errorcode ARG "$TOOFEWDATA: no dependent data"
-    }
+   if { [llength $xdata] < 3 } {
+      return -code error -errorcode ARG "$TOOFEWDATA: not enough independent data"
+   }
+   if { [llength $ydata] < 3 } {
+      return -code error -errorcode ARG "$TOOFEWDATA: not enough dependent data"
+   }
+   if { [llength $xdata] != [llength $ydata] } {
+      return -code error -errorcode ARG "$TOOFEWDATA: number of dependent data differs from number of independent data"
+   }
 
-    # PM
+   set sumx  0.0
+   set sumy  0.0
+   set sumx2 0.0
+   set sumy2 0.0
+   set sumxy 0.0
+   set df    0
+   foreach x $xdata y $ydata {
+      if { $x != "" && $y != "" } {
+         set sumx  [expr {$sumx+$x}]
+         set sumy  [expr {$sumy+$y}]
+         set sumx2 [expr {$sumx2+$x*$x}]
+         set sumy2 [expr {$sumy2+$y*$y}]
+         set sumxy [expr {$sumxy+$x*$y}]
+         incr df
+      }
+   }
+
+   if { $df <= 2 } {
+      return -code error -errorcode ARG "$TOOFEWDATA: too few valid data"
+   }
+   if { $sumx2 == 0.0 } {
+      return -code error -errorcode ARG "$TOOFEWDATA: independent values are all the same"
+   }
+
+   #
+   # Calculate the intermediate quantities
+   #
+   set sx  [expr {$sumx2-$sumx*$sumx/$df}]
+   set sy  [expr {$sumy2-$sumy*$sumy/$df}]
+   set sxy [expr {$sumxy-$sumx*$sumy/$df}]
+
+   #
+   # Calculate the coefficients
+   #
+   if { $intercept } {
+      set B [expr {$sxy/$sx}]
+      set A [expr {($sumy-$B*$sumx)/$df}]
+   } else {
+      set B [expr {$sumxy/$sumx2}]
+      set A 0.0
+   }
+
+   #
+   # Calculate the error estimates
+   #
+   set stdevY 0.0
+   set varY   0.0
+
+   if { $intercept } {
+      set ve [expr {$sy-$B*$sxy}]
+      if { $ve >= 0.0 } {
+         set varY [expr {$ve/($df-2)}]
+      }
+   } else {
+      set ve [expr {$sumy2-$B*$sumxy}]
+      if { $ve >= 0.0 } {
+         set varY [expr {$ve/($df-1)}]
+      }
+   }
+   set seY [expr {sqrt($varY)}]
+
+   if { $intercept } {
+      set R2    [expr {$sxy*$sxy/($sx*$sy)}]
+      set seA   [expr {$seY*sqrt(1.0/$df+$sumx*$sumx/($sx*$df*$df))}]
+      set seB   [expr {sqrt($varY/$sx)}]
+      set tA    {}
+      set tB    {}
+      if { $seA != 0.0 } {
+         set tA    [expr {$A/$seA*sqrt($df-2)}]
+      }
+      if { $seB != 0.0 } {
+         set tB    [expr {$B/$seB*sqrt($df-2)}]
+      }
+   } else {
+      set R2    [expr {$sumxy*$sumxy/($sumx2*$sumy2)}]
+      set seA   {}
+      set tA    {}
+      set tB    {}
+      set seB   [expr {sqrt($varY/$sumx2)}]
+      if { $seB != 0.0 } {
+         set tB    [expr {$B/$seB*sqrt($df-1)}]
+      }
+   }
+
+   #
+   # Return the list of parameters
+   #
+   return [list $A $B $seY $R2 $df $seA $tA $seB $tB]
 }
 
 # linear-residuals
@@ -695,21 +796,32 @@ proc ::math::statistics::linear-model { xdata ydata } {
 # Arguments:
 #    xdata        Series of independent (X) data
 #    ydata        Series of dependent (Y) data
+#    intercept    Whether to use an intercept or not (optional)
 #
 # Result:
 #    List of differences
 #
-proc ::math::statistics::linear-residuals { xdata ydata } {
-    variable TOOFEWDATA
+proc ::math::statistics::linear-residuals { xdata ydata {intercept 1} } {
+   variable TOOFEWDATA
 
-    if { [llength $xdata] < 1 } {
-	return -code error -errorcode ARG "$TOOFEWDATA: no independent data"
-    }
-    if { [llength $ydata] < 1 } {
-	return -code error -errorcode ARG "$TOOFEWDATA: no dependent data"
-    }
+   if { [llength $xdata] < 3 } {
+      return -code error -errorcode ARG "$TOOFEWDATA: no independent data"
+   }
+   if { [llength $ydata] < 3 } {
+      return -code error -errorcode ARG "$TOOFEWDATA: no dependent data"
+   }
+   if { [llength $xdata] != [llength $ydata] } {
+      return -code error -errorcode ARG "$TOOFEWDATA: number of dependent data differs from number of independent data"
+   }
 
-    # PM
+   foreach {A B} [linear-model $xdata $ydata $intercept] {break}
+
+   set result {}
+   foreach x $xdata y $ydata {
+      set residue [expr {$y-$A-$B*$x}]
+      lappend result $residue
+   }
+   return $result
 }
 
 #

@@ -212,6 +212,56 @@ Convenience function - the result is suitable for the histogram function.
 [arg number] - Number of limits to generate (defaults to 8)
 [nl]
 
+[call [cmd ::math::statistics::linear-model] [arg xdata] \
+[arg ydata] [arg intercept]]
+Determine the coefficients for a linear regression between
+two series of data (the model: Y = A + B*X). Returns a list of
+parameters describing the fit
+[nl]
+[arg xdata] - List of independent data
+[nl]
+[arg ydata] - List of dependent data to be fitted
+[nl]
+[arg intercept] - (Optional) compute the intercept (1, default) or fit
+to a line through the origin (0)
+[nl]
+The result consists of the following list:
+[list_begin bullet]
+[bullet]
+(Estimate of) Intercept A
+[bullet]
+(Estimate of) Slope B
+[bullet]
+Standard deviation of Y relative to fit
+[bullet]
+Correlation coefficient R2
+[bullet]
+Number of degrees of freedom df
+[bullet]
+Standard error of the intercept A
+[bullet]
+Significance level of A
+[bullet]
+Standard error of the slope B
+[bullet]
+Significance level of B
+[list_end]
+
+[call [cmd ::math::statistics::linear-residuals] [arg xdata] [arg ydata] \
+[arg intercept]]
+Determine the difference between actual data and predicted from
+the linear model.
+[nl]
+Returns a list of the differences between the actual data and the
+predicted values.
+[nl]
+[arg xdata] - List of independent data
+[nl]
+[arg ydata] - List of dependent data to be fitted
+[nl]
+[arg intercept] - (Optional) compute the intercept (1, default) or fit
+to a line through the origin (0)
+
 [list_end]
 
 [section "STATISTICAL DISTRIBUTIONS"]
@@ -516,10 +566,6 @@ histogram-normal
 histogram-exponential
 [bullet]
 test-histogram
-[bullet]
-linear-model
-[bullet]
-linear-residuals
 [bullet]
 test-corr
 [bullet]
