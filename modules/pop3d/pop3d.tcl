@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.6 2003/04/03 01:50:54 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.7 2003/04/09 19:02:54 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -171,10 +171,15 @@ proc ::pop3d::_up {name} {
     upvar ::pop3d::pop3d::${name}::state    state
     upvar ::pop3d::pop3d::${name}::sock     sock
 
+    log::log debug "pop3d $name up"
     if {[string equal $state up]} {return}
+
+    log::log debug "pop3d $name listening, requested port $port"
 
     set s [socket -server [list ::pop3d::HandleNewConnection $name] $port]
     set trueport [lindex [fconfigure $s -sockname] 2]
+
+    ::log::log debug "pop3d $name listening on $trueport, socket $s ([fconfigure $s -sockname])"
 
     set state up
     set sock  $s
@@ -521,6 +526,8 @@ proc ::pop3d::GreetPeer {name sock} {
 
     upvar cstate cstate
     variable server
+
+    log::log debug "pop3d $name $sock _ Greeting"
 
     Respond2Client $name $sock +OK \
 	    "[::info hostname] $server ready $cstate(id)"
