@@ -1,3 +1,9 @@
+2003-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.wiki (fmt_manpage_end): Fixed usage of wrong
+	  variable ('copyright' was used, should have been 'ct').
+	  [Bug 826206].
+
 2003-06-06  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fr.msg: Added french message catalog. Supplied by
