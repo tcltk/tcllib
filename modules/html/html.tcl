@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.8 2000/04/27 00:50:47 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.9 2000/05/02 22:25:46 mtariq Exp $
 
 package provide html 1.0
 
@@ -424,11 +424,11 @@ proc html::radioValue {name value} {
 #	Display a set of radio buttons while looking for an existing
 #	value from the query data, if any.
 
-proc html::radioSet {key sep list} {
+	proc html::radioSet {key sep list {defaultSelection {}}} {
     set html ""
     set s ""
     foreach {label v} $list {
-	append html "$s<input type=\"radio\" [radioValue $key $v]> $label"
+	append html "$s<input type=\"radio\" [radioValue $key $v]$defaultSelection> $label"
 	set s $sep
     }
     return $html
