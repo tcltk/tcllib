@@ -454,7 +454,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.22 2003/10/21 19:36:28 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.23 2004/01/15 06:36:12 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr

@@ -19,7 +19,7 @@ if {[catch {package require tcllibc}]} {
 
 namespace eval md5crypt {
     variable version 1.0.0
-    variable rcsid {$Id: md5crypt.tcl,v 1.2 2003/07/26 15:41:26 patthoyts Exp $}
+    variable rcsid {$Id: md5crypt.tcl,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $}
     variable itoa64 \
         {./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
 

@@ -6,7 +6,7 @@
 #   	'calendar' package.  The package provides various commands for
 #	manipulating dates and times.
 #
-# RCS:$(@) $Id: calendar.tcl,v 1.4 2003/05/01 00:17:39 andreas_kupries Exp $
+# RCS:$(@) $Id: calendar.tcl,v 1.5 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.2
 

@@ -2,12 +2,12 @@
 #
 #	Implementation of report objects for Tcl.
 #
-# Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: report.tcl,v 1.7 2003/04/11 20:15:11 andreas_kupries Exp $
+# RCS: @(#) $Id: report.tcl,v 1.8 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide report 0.3.1

@@ -3,12 +3,12 @@
 #	Tcl implementations of CSV reader and writer
 #
 # Copyright (c) 2001 by Jeffrey Hobbs
-# Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.14 2003/04/24 22:20:49 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.15 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.4

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.1 2003/12/02 07:37:46 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.2 2004/01/15 06:36:14 andreas_kupries Exp $
 
 namespace eval ::struct {}
 

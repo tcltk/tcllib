@@ -4,7 +4,7 @@
 #	"control".  It provides commands that govern the flow of
 #	control of a program.
 #
-# RCS: @(#) $Id: control.tcl,v 1.13 2003/05/01 00:17:40 andreas_kupries Exp $
+# RCS: @(#) $Id: control.tcl,v 1.14 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.2
 

@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.17 2003/11/15 00:23:46 davidw Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.18 2004/01/15 06:36:12 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package

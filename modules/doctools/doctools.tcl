@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.5 2003/03/30 07:50:25 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.6 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander

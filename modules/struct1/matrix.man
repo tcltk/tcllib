@@ -205,6 +205,13 @@ key [arg row,column] will be used instead. It is possible to link the
 matrix to more than one array. Note that the link is bidirectional,
 i.e. changes to the array are mirrored in the matrix too.
 
+
+[call [arg matrixName] [method links]]
+
+Returns a list containing the names of all array variables the matrix
+was linked to through a call to method [method link].
+
+
 [call [arg matrixName] [method rowheight] [arg row]]
 
 Returns the height of the specified row in lines. This is the highest
@@ -288,6 +295,20 @@ list than there are columns the remaining columns are set to the empty
 string. If there are more values in the list than there are columns
 the superfluous elements are ignored. The matrix is not extended by
 this operation.
+
+[call [arg matrixName] [method {sort columns}] [opt [option -increasing]|[option -decreasing]] [arg row]]
+
+Sorts the columns in the matrix using the data in the specified
+[arg row] as the key to sort by. The options [option -increasing]
+and [option -decreasing] have the same meaning as for [cmd lsort].
+If no option is specified [option -increasing] is assumed.
+
+[call [arg matrixName] [method {sort rows}] [opt [option -increasing]|[option -decreasing]] [arg column]]
+
+Sorts the rows in the matrix using the data in the specified
+[arg column] as the key to sort by. The options [option -increasing]
+and [option -decreasing] have the same meaning as for [cmd lsort].
+If no option is specified [option -increasing] is assumed.
 
 [call [arg matrixName] [method {swap columns}] [arg {column_a column_b}]]
 

@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: idx.wiki,v 1.1 2003/03/05 06:50:34 andreas_kupries Exp $
+# $Id: idx.wiki,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
 #
 # Engine to convert a docidx document into Wiki markup.
 #

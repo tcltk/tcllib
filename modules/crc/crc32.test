@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32.test,v 1.6 2003/05/08 23:55:37 patthoyts Exp $
+# RCS: @(#) $Id: crc32.test,v 1.7 2004/01/15 06:36:12 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
