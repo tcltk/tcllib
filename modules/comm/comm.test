@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.1 2001/08/22 20:20:57 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.2 2002/08/06 21:29:37 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -27,15 +27,15 @@ puts "comm [package present comm]"
 # and have it execute comm too, with some general code to respond to our
 # requests
 
-makeFile {
-    puts [set fh [open ~/foo w]] $argv ; close $fh
+set path(spawn) [makeFile {
+    ##puts [set fh [open ~/foo w]] $argv ; close $fh
 
     source [lindex $argv 0].tcl ; # load 'comm'
     # and wait for commands. But first send our
     # own server socket to the initiator
     ::comm::comm send [lindex $argv 1] [list slaveat [::comm::comm self]]
     vwait forever
-} spawn
+} spawn]
 
 proc slaveat {id} {
     puts "Slave @ $id"
@@ -46,7 +46,7 @@ proc slaveat {id} {
 puts "self @ [::comm::comm self]"
 
 exec \
-	[info nameofexecutable] spawn \
+	[info nameofexecutable] $path(spawn) \
 	[file rootname [info script]] [::comm::comm self] &
 
 puts "Waiting for spawned comm system to boot"
