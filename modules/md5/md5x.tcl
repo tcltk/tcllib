@@ -16,13 +16,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.11 2005/02/19 19:54:09 patthoyts Exp $
+# $Id: md5x.tcl,v 1.12 2005/02/20 08:25:02 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
     variable version 2.0.3
-    variable rcsid {$Id: md5x.tcl,v 1.11 2005/02/19 19:54:09 patthoyts Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.12 2005/02/20 08:25:02 patthoyts Exp $}
     variable usetrf  0
     variable usemd5c 0
     namespace export md5 hmac MD5Init MD5Update MD5Final
@@ -63,7 +63,6 @@ proc ::md5::MD5Init {} {
              D [expr 0x10325476] \
              n 0 i "" ]
     if {$usetrf} {
-        # We have Trf and Memchan so we can create a bucket with these.
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -76,9 +75,7 @@ proc ::md5::MD5Init {} {
                 -read-destination [subst $token](trfread) \
                 -write-type variable \
                 -write-destination [subst $token](trfwrite)
-            set tok(trfread) 0
-            set tok(trfwrite) 0
-            set tok(trf) $s
+            array set tok [list trfread 0 trfwrite 0 trf $s]
         }
     }
     return $token
