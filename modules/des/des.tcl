@@ -76,30 +76,22 @@
 #
 #
 #   $Log: des.tcl,v $
-#   Revision 1.3  2003/04/25 04:52:17  andreas_kupries
+#   Revision 1.4  2003/05/01 00:17:40  andreas_kupries
 #
-#   	* modules/base64/yencode.tcl:    Modified the [package provide]'s
-#   	* modules/base64/uuencode.tcl:   of various packages to aid the
-#   	* modules/crc/sum.tcl:           automatic consistency checking at
-#   	* modules/crc/cksum.tcl:         the expense of slightly more
-#   	* modules/crc/crc32.tcl:         manual overhead for updating the
-#   	* modules/crc/crc16.tcl:         numbers.
-#   	* modules/dns/dns.tcl:
-#   	* modules/dns/resolv.tcl:        Additionally cleanup of the found
-#   	* modules/ftp/ftp.tcl:           inconsistencies.
-#   	* modules/ftp/ftp_geturl.tcl:
-#   	* modules/pop3d/pop3d.tcl:
-#   	* modules/pop3d/pop3d_udb.tcl:
-#   	* modules/pop3d/pop3d_dbox.tcl:
-#   	* modules/pop3d/pop3d_dbox.man:
-#   	* modules/smtpd/smtpd.tcl:
-#   	* modules/des/des.tcl:
-#   	* modules/des/des.man:
-#   	* modules/ntp/time.tcl:
-#   	* modules/md4/md4.tcl:
+#   	* README-1.4txt: New, overview of changes from 1.3 to 1.4.
 #
-#   	* sak.tcl: Changed provide heuristics a bit, more robust against
-#   	  whitespace in various places.
+#   	* installed_modules.tcl: Excluded 'calendar' form the list of
+#   	  installed modules/packages. Not yet ready.
+#
+#   	* sak.tcl (ppackages): Rewritten to use a sub-interpreter for
+#   	  retrieving package version information instead of regexes
+#   	  etc.
+#
+#   	  Reverted all changes made to [package provide] commands on
+#   	  2003-04-24, except for minor details, like the actual version
+#   	  numbers and typos.
+#
+#   	 Fixes SF Tcllib FR #727694
 #
 #   Revision 1.2  2003/04/11 18:55:43  andreas_kupries
 #
@@ -141,6 +133,9 @@
 ## TODO: Check for weak keys: see http://www.cs.wm.edu/~hallyn/des/weak
 
 namespace eval ::DES {
+
+  variable version 0.8
+
   namespace export GetKey DesBlock
 
   #-------------------------------------------------------------------------
@@ -617,10 +612,8 @@ proc ::DES::des {args} {
 }
 
 # -------------------------------------------------------------------------
-# See devdoc/notes.txt before using the variable in the provide statement.
 
-set  ::DES::version 0.8
-package provide des 0.8
+package provide des $DES::version
 
 # -------------------------------------------------------------------------
 #
