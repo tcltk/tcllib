@@ -1,4 +1,8 @@
-2003-06-16  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ncgi.man: Trival spelling fix.
+
+2003-06-16  Andreas Kupries  <andreask@activestate.com>
 
 	* ncgi.test:
 	* ncgi.tcl (importFile): Got a rewritten version from Steve
