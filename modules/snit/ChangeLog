@@ -5,6 +5,12 @@
 	                title to "Simple Now In Tcl", i.e., objects are
 	                now simple.
 
+	* snit.tcl	Added another pragma, -canreplace.  If false
+	* snit.test     (the default) snit::types can no longer create
+	* README.txt    instances which replace existing Tcl commands.
+	* snit.man      Setting "pragma -canreplace yes" restores the
+	* dictionary    previous behavior.
+
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Implemented -configuremethod and configure command
