@@ -258,6 +258,38 @@ Maximum number of iteration steps (defaults to 20)
 [lst_item [arg tolerance]]
 Relative precision (defaults to 0.001)
 [list_end]
+
+
+[call [cmd ::math::calculus::regula_falsi] [arg f] [arg xb] [arg xe] [arg eps]]
+
+Return an estimate of the zero or one of the zeros of the function
+contained in the interval [xb,xe]. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger.
+
+[nl]
+The method used is the so-called [emph "regula falsi" or
+[emph "false position"] method. It is a straightforward implementation.
+The method is robust, but requires that the interval brackets a zero or
+at least an uneven number of zeros, so that the value of the function at
+the start has a different sign than the value at the end.
+
+[nl]
+In contrast to Newton-Raphson there is no need for the computation of
+the function's derivative.
+
+[list_begin arg]
+[arg_def command f] Name of the command that evaluates the function for
+which the zero is to be returned
+
+[arg_def float xb] Start of the interval in which the zero is supposed
+to lie
+
+[arg_def float xe] End of the interval
+
+[arg_def float eps] Relative allowed error (defaults to 1.0e-4)
+
+[list_end]
+
 [list_end]
 [para]
 
