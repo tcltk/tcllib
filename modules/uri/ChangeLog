@@ -1,3 +1,9 @@
+2000-07-20  Eric Melski  <ericm@ajubasolutions.com>
+
+	* uri.test:
+	* uri.tcl: Applied patch from Andreas Kupries, to correct infinite loop
+	condition in uri::canonicalize.
+
 2000-06-16  Eric Melski  <ericm@ajubasolutions.com>
 
 	* uri.test: Fixed bad test, added tcltest::cleanupTests call.

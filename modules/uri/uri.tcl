@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.2 2000/07/04 02:28:58 steve Exp $
+# CVS: $Id: uri.tcl,v 1.3 2000/07/20 18:44:41 ericm Exp $
 
 package provide uri 1.0
 
@@ -809,7 +809,13 @@ proc uri::canonicalize uri {
         regsub -all {/\./} $uri {/} uri
     }
     while {[regexp {/\.\./} $uri]} {
-        regsub -all {/[^./]*/\.\./} $uri {/} uri
+	if {![regsub {/[^./]*/\.\./} $uri {/} uri]} {
+	    # The regexp found 'foo://bar.com/../baz', but this
+	    # cannot be handled by the regsub. Simply remove the
+	    # dots, as is done for the singles to break out of
+	    # infinity.
+	    regsub {/\.\./} $uri {/} uri
+	}
     }
 
     return $uri
