@@ -1,3 +1,7 @@
+2001-10-14  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* csv.tcl: moved to v0.2
+
 2001-09-24   Joe English  <jenglish@sourceforge.net>
 	* modules/ftpd/ftpd.tcl: fix improperly-formatted multi-line 
 	  replies.  See SF tracker ID #424797
@@ -5,7 +9,7 @@
 2001-08-24   Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (check): Added target to report modules without
- 	  testsuites and/or manpages.
+	  testsuites and/or manpages.
 
 2001-08-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
@@ -13,7 +17,7 @@
 	  an example how to use the 'nntp'-client library provided by
 	  tcllib.
 
- 	* Makefile.in (MODULES):  Added package 'comm'.
+	* Makefile.in (MODULES):  Added package 'comm'.
 
 2001-08-21  Don Porter <dgp@users.sourceforge.net>
 
@@ -110,15 +114,15 @@
 
 2000-11-02  Brent Welch <welch@ajubasolutions.com>
 
-        * configure.in: Bumped version number to 0.8
+	* configure.in: Bumped version number to 0.8
 
 2000-11-01  Dan Kuchler <kuchler@ajubasolutions.com>
 
-        * Makefile.in: Added javascript package to tcllib.
+	* Makefile.in: Added javascript package to tcllib.
 
 2000-10-27  Dan Kuchler <kuchler@ajubasolutions.com>
 
-        * Makefile.in: Added ftpd package to tcllib.
+	* Makefile.in: Added ftpd package to tcllib.
 
 2000-10-04  Brent Welch <welch@ajubasolutions.com>
 
@@ -153,12 +157,12 @@
 	* configure.in: Bumped patchlevel to 0.6
 	applied tcllib-0-6 tag
 
-2000-06-15  Dan Kuchler  <kuchler@ajubasolutions.com>
+2000-06-15  Dan Kuchler	 <kuchler@ajubasolutions.com>
 
-        * Makefile.in: Added nntp client package.
-        * modules/nntp: Added nntp client package to tcllib.
+	* Makefile.in: Added nntp client package.
+	* modules/nntp: Added nntp client package to tcllib.
 
-2000-06-13  Eric Melski  <ericm@scriptics.com>
+2000-06-13  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Added uri package.
 	* modules/uri: Added uri package from Steve Ball, Andreas Kupries.
@@ -168,7 +172,7 @@
 	* configure.in: Bumped patchlevel to 0.5
 	applied tcllib-0-5 tag
 
-2000-06-02  Eric Melski  <ericm@scriptics.com>
+2000-06-02  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Added ftp package.
 	* modules/ftp: Added ftp package from Steffen Traeger to tcllib.
@@ -190,37 +194,37 @@
 	* mkInstallScripts.tcl: Made install directory a parameter to
 	the unix install.sh script
 
-2000-04-25  Eric Melski  <ericm@scriptics.com>
+2000-04-25  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Tweaked dist target to include README and
 	license.terms in distributions.
 
-2000-04-17  Brent Welch  <welch@scriptics.com>
+2000-04-17  Brent Welch	 <welch@scriptics.com>
 
 	* modules/html: Added html generation module
 
-2000-04-10  Brent Welch  <welch@scriptics.com>
+2000-04-10  Brent Welch	 <welch@scriptics.com>
 
 	* Makefile.in: restored ncgi module
 
-2000-04-07  Eric Melski  <ericm@scriptics.com>
+2000-04-07  Eric Melski	 <ericm@scriptics.com>
 
 	* configure: 
 	* configure.in: Upped version to 0.3.
 
-2000-03-29  Eric Melski  <ericm@scriptics.com>
+2000-03-29  Eric Melski	 <ericm@scriptics.com>
 
 	* mkIndex.tcl: Added missing "== -1" to [lsearch] for package dir
 	in generated pkgIndex.tcl.
 
-2000-03-28  Eric Melski  <ericm@scriptics.com>
+2000-03-28  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Added $(srcdir)/ prefix to mkIndex.tcl call in the
 	install-libraries target, so that it would find the mkIndex.tcl
 	script when run outside of the source tree.  Same for man.macros
 	in the install-doc target, so it would find the file.
 
-2000-03-27  Eric Melski  <ericm@scriptics.com>
+2000-03-27  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Added dist target for building distribution.
 
@@ -233,18 +237,18 @@
 	* mkIndex.tcl.in: Replace mkIndex.tcl.in with mkIndex.tcl, which
 	now takes more args to specify values.
 
-2000-03-09  Eric Melski  <ericm@scriptics.com>
+2000-03-09  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Added ncgi module, commented out until tests are done.
 
-2000-03-09  Eric Melski  <ericm@scriptics.com>
+2000-03-09  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Updated test target to call out to all.tcl.
 
 	* all.tcl: First checkin of all.tcl, the magic that hides behind
 	"make test".
 
-2000-03-08  Eric Melski  <ericm@scriptics.com>
+2000-03-08  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Commented out cgi module until it's ready for use.
 	Added checks for bogus module names in install-libraries, but
@@ -271,7 +275,7 @@
 	the tclsh executable to use.  Simplified configure.in to minimum
 	number of macros.
 
-2000-03-06  Eric Melski  <ericm@scriptics.com>
+2000-03-06  Eric Melski	 <ericm@scriptics.com>
 
 	* man.macros: Moved from individual modules to toplevel tcllib
 	dir, so that it is not repeated hundreds of times.
@@ -285,9 +289,9 @@
 
 2000-03-06  Scott Redman  <redman@scriptics.com>
 
-	* Makefile.in:  added pop3 module.
+	* Makefile.in:	added pop3 module.
 
-2000-03-02  Eric Melski  <ericm@scriptics.com>
+2000-03-02  Eric Melski	 <ericm@scriptics.com>
 
 	* mkIndex.tcl.in: Instead of probing install dir for modules,
 	changed to take module list on command line, so that users can
@@ -297,7 +301,7 @@
 	generation.  Now changing the module list changes what is
 	installed and what is put in the pkgIndex.tcl.
 
-2000-03-02  Eric Melski  <ericm@scriptics.com>
+2000-03-02  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Work on install-libraries, install-doc; removed
 	references to compiled bits.
@@ -312,11 +316,11 @@
 
 	* tcl.m4: new tcl.m4 from sample extension.
 
-2000-03-01  Eric Melski  <ericm@scriptics.com>
+2000-03-01  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in: Added fileutil, cmdline, mime, base64 modules.
 
-2000-02-24  Eric Melski  <ericm@scriptics.com>
+2000-02-24  Eric Melski	 <ericm@scriptics.com>
 
 	* Makefile.in, et al: Preliminary Makefile and configure script, and
 	supporting files

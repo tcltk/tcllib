@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.2 2001/09/28 18:10:38 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.3 2001/10/14 20:16:50 hobbs Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -57,6 +57,11 @@ test csv-1.6 {split} {
     csv::split $str6
 } {123 123,521.2 {Mary says "Hello, I am Mary"}}
 
+test csv-1.7 {split on join} {
+    # csv 0.1 was exposed to the RE \A matching problem with regsub -all
+    set x [list "\"hello, you\"" a b c]
+    ::csv::split [::csv::join $x]
+} [list "\"hello, you\"" a b c]
 
 test csv-2.1 {join} {
     csv::join {123 {"a"} {} hello}
@@ -85,7 +90,7 @@ test csv-2.6 {join} {
 # Malformed inputs
 
 test csv-3.1 {split} {
-    csv::split {abcd,abc",abc}
+    csv::split {abcd,abc",abc} ; # "
 } {abcd abc abc}
 
 test csv-3.2 {split} {
@@ -240,10 +245,6 @@ test csv-7.2 {reporting} {
 026,EVAL cmd and mixed lists,3805,11276,33.74
 027,EVAL list cmd and mixed lists,3812,11325,33.66
 028,EVAL list cmd and pure lists,592,1598,37.05}
-
-
-
-
 
 ::tcltest::cleanupTests
 return
