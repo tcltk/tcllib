@@ -1,0 +1,292 @@
+# -*- tcl -*-
+# treeql.test:  tests for the tree query language
+#
+# Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "Aborting tests for treeql."
+    puts "Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget treeql 1.0
+package forget struct::tree
+package forget struct::list
+package forget struct::set
+package forget struct::snit
+
+catch {namespace delete ::treeql}
+catch {namespace delete ::struct::tree}
+catch {namespace delete ::struct::list}
+catch {namespace delete ::struct::set}
+catch {namespace delete ::snit}
+
+
+if {[package vsatisfies [package provide Tcl] 8.5]} {
+    set tq_source [file join [file dirname [info script]] treeql.tcl]
+} else {
+    set tq_source [file join [file dirname [info script]] treeql84.tcl]
+}
+
+if {[catch {source $tq_source} msg]} {
+    puts "skipped [file tail [info script]] ([file tail $tq_source]): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [file dirname [info script]]] struct tree.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (struct/tree.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [file dirname [info script]]] struct list.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (struct/list.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [file dirname [info script]]] struct sets.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (struct/set.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [file dirname [info script]]] snit snit.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (snit.tcl): $msg"
+    return
+}
+
+
+package require treeql
+package require struct::tree
+package require struct::list
+package require struct::set
+package require snit
+
+package require struct::tree
+puts "- treeql [package present treeql] ([file tail $tq_source]))"
+puts "  - struct::tree [package present struct::tree]"
+puts "  - struct::list [package present struct::list]"
+puts "  - struct::set  [package present struct::set]"
+puts "  - snit         [package present snit]"
+
+# -------------------------------------------------------------------------
+# generate a tree upon which to conduct the tests
+
+proc mknode {t where l} {
+    foreach {node subnode} $l {
+	set n [$t insert $where $node]
+	$t set $n data $node
+	mknode $t $n $subnode
+    }
+}
+
+set tree [::struct::tree tree]
+set flattened {1 {3 {7 {} 8 {}} 4 {9 {} 10 {}}} 2 {5 {11 {} 12 {}} 6 {13 {} 14 {}}}}
+mknode $tree root $flattened
+$tree set root data 0
+
+treeql q -tree $tree
+
+# -------------------------------------------------------------------------
+
+test treeql-0.1"root" {} {
+    q query root get data
+} 0
+
+test treeql-0.2"children" {} {
+    q query root children get data
+} "1 2"
+
+test treeql-0.3 "grandchildren" {} {
+    q query reset root children children get data
+} "3 4 5 6"
+
+test treeql-0.3 "parents" {} {
+    q query reset root children children parent unique get data
+} "1 2"
+
+test treeql-0.3 "great-grandchildren" {} {
+    q query reset root children children children get data
+} "7 8 9 10 11 12 13 14"
+
+test treeql-0.4 "whole tree" {} {
+    q query reset tree get data
+} "0 1 3 7 8 4 9 10 2 5 11 12 6 13 14"
+
+test treeql-0.5 "first child" {} {
+    q query reset root children select get data
+} 1
+
+test treeql-0.6 "next of first is second" {} {
+    q query reset root children select next get data
+} 2
+
+test treeql-0.7 "root has no next" {} {
+    q query reset root next
+} ""
+
+test treeql-1.0 "whole tree by subtree" {} {
+    q query reset root subtree get data
+} "0 1 3 7 8 4 9 10 2 5 11 12 6 13 14"
+
+test treeql-1.1 "whole tree except root by descendants" {} {
+    q query reset root descendants get data
+} "1 3 7 8 4 9 10 2 5 11 12 6 13 14"
+
+test treeql-1.2 "right half subtree" {} {
+    q query reset root children select next subtree get data
+} "2 5 11 12 6 13 14"
+
+test treeql-1.3 "all the odd numbers" {} {
+    q query reset tree left get data
+} "7 3 9 1 11 5 13"
+
+test treeql-1.4 "all the even numbers" {} {
+    q query reset tree right get data
+} "2 4 8 10 6 12 14"
+
+test treeql-1.5 "whole tree by subtree" {} {
+    q query reset root subtree get data
+} "0 1 3 7 8 4 9 10 2 5 11 12 6 13 14"
+
+test treeql-1.6 "whole tree by ancestors" {} {
+    q query reset root children children children ancestors unique get data
+} "7 3 1 0 8 9 4 10 11 5 2 12 13 6 14"
+
+test treeql-1.7 "three generations by ancestors" {} {
+    q query reset root children children ancestors unique get data
+} "3 1 0 4 5 2 6"
+
+test treeql-1.8 "grandchildren and below by subtree" {} {
+    q query reset root children children children subtree get data
+} "7 8 9 10 11 12 13 14"
+
+test treeql-2.0 "hasatt data" {} {
+    q query reset tree hasatt data get data
+} "0 1 3 7 8 4 9 10 2 5 11 12 6 13 14"
+
+test treeql-2.1 "hasatt noatt (none)" {} {
+    q query reset tree hasatt noatt get data
+} ""
+
+test treeql-2.2 "withatt 7" {} {
+    q query reset tree withatt data 7 get data
+} 7
+
+test treeql-2.3 "withatt 999" {} {
+    q query reset tree withatt data 999 get data
+} ""
+
+test treeql-2.4 "attof {6 7 8 9 10}" {} {
+    q query reset tree attof data {6 7 8 9 10} get data
+} "7 8 9 10 6"
+
+test treeql-2.5 "attmatch 1*" {} {
+    q query reset tree attmatch data 1* get data
+} "1 10 11 12 13 14"
+
+test treeql-2.6 "set to even or odd" {} {
+    q query reset root set @type even
+    q query reset tree left set @type odd
+    q query reset tree right set @type even
+    q query reset tree getvals *
+} "{even 0} {odd 1} {odd 3} {odd 7} {even 8} {even 4} {odd 9} {even 10} {even 2} {odd 5} {odd 11} {even 12} {even 6} {odd 13} {even 14}"
+
+test treeql-2.7 "oftype odd" {} {
+    q query reset tree oftype odd get data
+} "1 3 7 9 5 11 13"
+
+test treeql-2.8 "test unset" {} {
+    q query reset tree set junk 1
+    q query reset tree unset junk
+    q query reset tree getvals *
+} "{even 0} {odd 1} {odd 3} {odd 7} {even 8} {even 4} {odd 9} {even 10} {even 2} {odd 5} {odd 11} {even 12} {even 6} {odd 13} {even 14}"
+
+test treeql-2.9 "attlist" {} {
+    q query reset tree attlist
+} "{even 0} {odd 1} {odd 3} {odd 7} {even 8} {even 4} {odd 9} {even 10} {even 2} {odd 5} {odd 11} {even 12} {even 6} {odd 13} {even 14}"
+
+test treeql-2.10 "attrs" {} {
+    q query reset tree attrs *
+} "@type data @type data @type data @type data @type data @type data @type data @type data @type data @type data @type data @type data @type data @type data @type data"
+
+test treeql-3.0 "capitalise attribute values" {} {
+    q query reset tree string toupper @type
+} "EVEN ODD ODD ODD EVEN EVEN ODD EVEN EVEN ODD ODD EVEN EVEN ODD EVEN"
+
+test treeql-3.1 "attribute string filter" {} {
+    q query reset tree stringP {compare "odd"} @type get data
+} "0 8 4 10 2 12 6 14"
+
+test treeql-3.2 "attribute string !filter" {} {
+    q query reset tree stringNP {compare "odd"} @type get data
+} "1 3 7 9 5 11 13"
+
+test treeql-3.3 "attribute expr filter" {} {
+    q query reset tree exprP {7 <=} data get data
+} "7 8 9 10 11 12 13 14"
+
+test treeql-3.4 "attribute expr !filter" {} {
+    q query reset tree exprNP {7 <=} data get data
+} "0 1 3 4 2 5 6"
+
+test treeql-4.0 "descendents of 2" {} {
+    q query reset root children select next descendants get data
+} "5 11 12 6 13 14"
+
+test treeql-4.1 "forward from 1" {} {
+    q query reset root children select forward get data
+} "5 11 12 6 13 14"
+
+test treeql-4.2 "earlier than 2" {} {
+    q query reset root children next earlier get data
+} "1 3 7 8 4 9 10"
+
+test treeql-4.3 "backward from 2" {} {
+    q query reset root children next backward get data
+} "10 9 4 8 7 3 1"
+
+test treeql-5.0 "<= 4 or odd" {} {
+    q query reset reset tree left orq {tree exprP {4 >=} data} get data 
+} "0 9 3 7 2 13 4 5 11 1"
+
+test treeql-5.1 "> 4 and odd" {} {
+    q query reset tree oftype odd andq {tree exprP {4 <} data} get data
+} "7 9 5 11 13"
+
+test treeql-5.2 "odd numbers by subtraction" {} {
+    q query reset tree notq {tree oftype even} get data
+} "13 1 3 7 9 5 11"
+
+test treeql-5.3 "add a depth attribute to each node" {} {
+    q foreach node {tree} {
+	$tree set $node @depth [llength [q do_rootpath $node]]
+    }
+    q query tree getvals *
+} "{1 even 0} {2 odd 1} {3 odd 3} {4 odd 7} {4 even 8} {3 even 4} {4 odd 9} {4 even 10} {2 even 2} {3 odd 5} {4 odd 11} {4 even 12} {3 even 6} {4 odd 13} {4 even 14}"
+
+test treeql-5.4 "square each odd number" {} {
+    q foreach node {tree oftype odd} {
+	set x [$tree get $node data]
+	$tree set $node square [expr $x * $x]
+    }
+    q query reset tree getvals square
+} "{} 1 9 49 {} {} 81 {} {} 25 121 {} {} 169 {}"
+
+test treeql-6.0 "delete all odd numbers" {} {
+    q query reset tree oftype odd delete
+    q query tree get data
+} "0 8 4 10 2 12 6 14"
+
+test treeql-6.1 "delete all even numbers (except root)" {} {
+    q query reset tree oftype even notq {root} delete
+    q query tree get data
+} 0
+
+
+# -------------------------------------------------------------------------
+q destroy
+::tcltest::cleanupTests

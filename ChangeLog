@@ -1,3 +1,8 @@
+2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules.tcl: Added new module 'treeql' to the
+	  installer. Thanks to Colin McCormack for donating it.
+
 2004-09-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installer.tcl (ainstall): Ensure existence of directory for the
