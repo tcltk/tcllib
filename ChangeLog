@@ -1,3 +1,7 @@
+2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil: Fixed bug #556504.
+
 2002-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d: Bug #532216 fixed. All of pop3d now has a testsuite.
