@@ -5,12 +5,12 @@
 # Author: Erik Leunissen
 #
 #
-# Ackowledgement:
-#     The author is greatful for the advice provided by
+# Acknowledgement:
+#     The author is grateful for the advice provided by
 #     Andreas Kupries during the development of this code.
 #
 #
-# $Id: pool.tcl,v 1.1 2002/05/28 06:29:31 andreas_kupries Exp $
+# $Id: pool.tcl,v 1.2 2002/08/06 20:40:42 andreas_kupries Exp $
 #
 ################################################################################
 
@@ -50,7 +50,7 @@ namespace eval ::struct::pool {
 	SOME_ITEMS_NOT_FREE {Couldn't %s `%s' because some items are still allocated.}
 	UNKNOWN_ARG {Unknown argument `%s'}
 	UNKNOWN_POOL {Nothing known about `%s'.}
-	VARNAME_EXISTS "A variable `::pool::%s' already exists."
+	VARNAME_EXISTS "A variable `::struct::pool::%s' already exists."
 	WRONG_INFO_TYPE "Expected second argument to be one of:\
 		\n     allitems, allocstate, cursize, freeitems, maxsize,\
 		\nbut received: `%s'."
@@ -78,8 +78,8 @@ proc ::struct::pool::lmember {list element} {
 # a particular pool-object:
 #
 #    variable $poolname
-#    upvar #0 ::pool::$poolname pool
-#    upvar #0 ::pool::Allocstate_$poolname state
+#    upvar #0 ::struct::pool::$poolname pool
+#    upvar #0 ::struct::pool::Allocstate_$poolname state
 #
 # Therefore, the names `pool' and `state' refer to a particular
 # instance of a pool.
@@ -88,10 +88,10 @@ proc ::struct::pool::lmember {list element} {
 # also refer to a particular pool.
 #
 
-# ::pool::create
+# ::struct::pool::create
 #
 #    Creates a new instance of a pool (a pool-object).
-#    ::pool::pool (see right below) is an alias to this procedure.
+#    ::struct::pool::pool (see right below) is an alias to this procedure.
 #
 #
 # Arguments:
@@ -148,7 +148,7 @@ proc ::struct::pool::create { {poolname ""} {maxsize 10} } {
     }
     
     # check whether the namespace variable exists
-    if { [::info exists ::pool::$poolname] } {
+    if { [::info exists ::struct::pool::$poolname] } {
         if { [::info exists incrcnt] } {
             incr counter -1
         }
@@ -161,17 +161,17 @@ proc ::struct::pool::create { {poolname ""} {maxsize 10} } {
     lappend pools $poolname
     
     # create and initialize the new pool data structure
-    upvar #0 ::pool::$poolname pool
+    upvar #0 ::struct::pool::$poolname pool
     set pool(freeitems) {}
     set pool(maxsize) $maxsize
     set pool(cursize) 0
     
     # the array that holds allocation state
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     array set state {}
     
     # create a pool-object command and map it to the pool commands
-    interp alias {} ::$poolname {} ::pool::poolCmd $poolname
+    interp alias {} ::$poolname {} ::struct::pool::poolCmd $poolname
     return $poolname
 }
 
@@ -180,11 +180,11 @@ proc ::struct::pool::create { {poolname ""} {maxsize 10} } {
 # other data structures (stack, queue etc...) in the tcllib::struct package.
 #
 proc ::struct::pool::pool { {poolname ""} {maxsize 10} } {
-    ::pool::create $poolname $maxsize
+    ::struct::pool::create $poolname $maxsize
 }
 
 
-# ::pool::poolCmd
+# ::struct::pool::poolCmd
 #
 #    This proc constitutes a level of indirection between the pool-object
 #    subcommand and the pool commands (below); it's sole function is to pass
@@ -207,19 +207,19 @@ proc ::struct::pool::poolCmd {poolname subcmd args} {
     variable Errors
     
     # check the subcmd argument
-    if { [lsearch -exact $::pool::commands $subcmd] == -1 } {
-        set optlist [join $::pool::commands ", "]
+    if { [lsearch -exact $::struct::pool::commands $subcmd] == -1 } {
+        set optlist [join $::struct::pool::commands ", "]
         set optlist [linsert $optlist "end-1" "or"]
         return -code error [format $Errors(BAD_SUBCMD) $subcmd $optlist]
     }
     
     # pass the call to the pool command indicated by the subcmd argument,
     # and return the result from that command.
-    return [eval ::pool::$subcmd $poolname $args]
+    return [eval ::struct::pool::$subcmd $poolname $args]
 }
 
 
-# ::pool::destroy
+# ::struct::pool::destroy
 #
 #    Destroys a pool-object, its associated variables and "object-command"
 #
@@ -259,23 +259,23 @@ proc ::struct::pool::destroy {poolname {forceArg ""}} {
     if { !$force } {
         # check for any lingering allocated items
         variable $poolname
-        upvar #0 ::pool::$poolname pool
-        upvar #0 ::pool::Allocstate_$poolname state
+        upvar #0 ::struct::pool::$poolname pool
+        upvar #0 ::struct::pool::Allocstate_$poolname state
         if { [llength $pool(freeitems)] != $pool(cursize) } {
             return -code error [format $Errors(SOME_ITEMS_NOT_FREE) destroy $poolname]
         }
     }
     
     rename ::$poolname {}
-    unset ::pool::$poolname
-    catch {unset ::pool::Allocstate_$poolname}
+    unset ::struct::pool::$poolname
+    catch {unset ::struct::pool::Allocstate_$poolname}
     set pools [lreplace $pools $index $index]
     
     return
 }
 
 
-# ::pool::add
+# ::struct::pool::add
 #
 #    Add items to the pool
 #
@@ -292,8 +292,8 @@ proc ::struct::pool::destroy {poolname {forceArg ""}} {
 proc ::struct::pool::add {poolname args} {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # argument check
     if { [llength $args] == 0 } {
@@ -336,7 +336,7 @@ proc ::struct::pool::add {poolname args} {
 
 
 
-# ::pool::clear
+# ::struct::pool::clear
 #
 #    Removes all items from the pool and clears corresponding
 #    allocation state.
@@ -356,8 +356,8 @@ proc ::struct::pool::add {poolname args} {
 proc ::struct::pool::clear {poolname {forceArg ""} } {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # check forceArg argument
     if { [string length $forceArg] } {
@@ -387,7 +387,7 @@ proc ::struct::pool::clear {poolname {forceArg ""} } {
 
 
 
-# ::pool::info
+# ::struct::pool::info
 #
 #    Returns information about the pool in data structures that allow
 #    further programmatic use.
@@ -407,8 +407,8 @@ proc ::struct::pool::clear {poolname {forceArg ""} } {
 proc ::struct::pool::info {poolname type args} {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # check the number of arguments
     if { [string equal $type allocID] } {
@@ -449,11 +449,11 @@ proc ::struct::pool::info {poolname type args} {
 }
 
 
-# ::pool::maxsize
+# ::struct::pool::maxsize
 #
 #    Returns the current or sets a new maximum size of the pool.
 #    As far as querying only is concerned, this is an alias for
-#    `::pool::info maxsize'.
+#    `::struct::pool::info maxsize'.
 #
 #
 # Arguments:
@@ -472,8 +472,8 @@ proc ::struct::pool::info {poolname type args} {
 proc ::struct::pool::maxsize {poolname {reqsize ""} } {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     if { [string length $reqsize] } {
         if { [regexp {^\+?[1-9][0-9]*$} $reqsize] } {
@@ -490,7 +490,7 @@ proc ::struct::pool::maxsize {poolname {reqsize ""} } {
 }
 
 
-# ::pool::release
+# ::struct::pool::release
 #
 #    Deallocates an item
 #
@@ -510,8 +510,8 @@ proc ::struct::pool::maxsize {poolname {reqsize ""} } {
 proc ::struct::pool::release {poolname item} {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # Is item in the pool?
     if {![lmember [array names state] $item]} {
@@ -531,7 +531,7 @@ proc ::struct::pool::release {poolname item} {
     return
 }
 
-# ::pool::remove
+# ::struct::pool::remove
 #
 #    Removes an item from the pool
 #
@@ -551,8 +551,8 @@ proc ::struct::pool::release {poolname item} {
 proc ::struct::pool::remove {poolname item {forceArg ""} } {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # check forceArg argument
     if { [string length $forceArg] } {
@@ -588,7 +588,7 @@ proc ::struct::pool::remove {poolname item {forceArg ""} } {
 
 
 
-# ::pool::request
+# ::struct::pool::request
 #
 #     Handles requests for an item, taking into account a preference
 #     for a particular item if supplied.
@@ -628,8 +628,8 @@ proc ::struct::pool::remove {poolname item {forceArg ""} } {
 proc ::struct::pool::request {poolname itemvar args} {
     variable Errors
     variable $poolname
-    upvar #0 ::pool::$poolname pool
-    upvar #0 ::pool::Allocstate_$poolname state
+    upvar #0 ::struct::pool::$poolname pool
+    upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # check args
     set nargs [llength $args]
