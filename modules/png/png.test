@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.2 2004/08/10 06:43:53 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.3 2004/08/10 07:01:32 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

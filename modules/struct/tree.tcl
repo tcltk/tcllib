@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.31 2004/08/10 06:18:07 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.32 2004/08/10 07:01:33 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -129,7 +129,7 @@ proc ::struct::tree::tree {args} {
     }
 
     # Create the command to manipulate the tree
-    interp alias {} ::$name {} ::struct::tree::TreeProc $name
+    interp alias {} $name {} ::struct::tree::TreeProc $name
 
     # Automatic execution of assignment if a source
     # is present.
@@ -588,7 +588,7 @@ proc ::struct::tree::_depth {name node} {
 
 proc ::struct::tree::_destroy {name} {
     namespace delete $name
-    interp alias {} ::$name {}
+    interp alias {} $name {}
 }
 
 # ::struct::tree::_exists --
