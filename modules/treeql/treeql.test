@@ -262,14 +262,14 @@ test treeql-5.2 "odd numbers by subtraction" {} {
 } "13 1 3 7 9 5 11"
 
 test treeql-5.3 "add a depth attribute to each node" {} {
-    q foreach node {tree} {
+    q foreach {tree} node {
 	$tree set $node @depth [llength [q do_rootpath $node]]
     }
     q query tree get *
 } "{1 even 0} {2 odd 1} {3 odd 3} {4 odd 7} {4 even 8} {3 even 4} {4 odd 9} {4 even 10} {2 even 2} {3 odd 5} {4 odd 11} {4 even 12} {3 even 6} {4 odd 13} {4 even 14}"
 
 test treeql-5.4 "square each odd number" {} {
-    q foreach node {tree oftype odd} {
+    q foreach {tree oftype odd} node {
 	set x [$tree get $node data]
 	$tree set $node square [expr $x * $x]
     }
