@@ -6,6 +6,7 @@ source [file join [file dirname [info script]] stack.tcl]
 source [file join [file dirname [info script]] tree.tcl]
 source [file join [file dirname [info script]] matrix.tcl]
 source [file join [file dirname [info script]] pool.tcl]
+source [file join [file dirname [info script]] record.tcl]
 namespace eval struct {
 	namespace import -force graph::*
 	namespace import -force queue::*
@@ -13,5 +14,6 @@ namespace eval struct {
 	namespace import -force tree::*
 	namespace import -force matrix::*
 	namespace import -force pool::*
+	namespace import -force record::*
 	namespace export *
 }
