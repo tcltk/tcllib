@@ -1,0 +1,74 @@
+'\" cksum.n - Copyright (c) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" 
+'\" -------------------------------------------------------------------------
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\" -------------------------------------------------------------------------
+'\" RCS: @(#) $Id: cksum.n,v 1.1 2002/01/15 20:54:59 patthoyts Exp $
+'\" 
+.so man.macros
+.TH "cksum" n 1.0 tcllib "cksum"
+.BS
+'\" Note: do not modify the .SH NAME line immediately below!
+.SH NAME
+::crc::cksum \- calculate a cksum(1) compatible checksum
+.SH "SYNOPSIS"
+\fBpackage require Tcl 8.2\fR
+.sp
+\fBpackage require cksum ?1.0?\fR
+.sp
+\fB::crc::cksum\fR \fI?-format string?\fR \fImessage\fR
+.sp
+\fB::crc::cksum\fR \fI?-format string?\fR \fI-filename file\fR
+.sp
+.BE
+.SH "DESCRIPTION"
+.PP
+This package provides a Tcl-only implementation of the cksum(1) algorithm
+based upon information provided at in the GNU implementation of this
+program as part of the GNU Textutils 2.0 package.
+.SH "COMMANDS"
+.TP
+\fB::crc::cksum\fR \fI?-format string?\fR \fImessage\fR
+.br
+.TP
+\fB::crc::cksum\fR \fI?-format string?\fR \fI-filename file\fR
+The command takes string data or a file name and returns
+a checksum value calculated using the cksum(1) algorithm. The result is
+formatted using the \fBformat\fR(n) specifier provided or as an unsigned
+integer (%u) by default.
+.SH "OPTIONS"
+.TP
+\fI-filename name\fR
+Return a checksum for the file contents instead of for parameter data.
+.TP
+\fI-format string\fR
+Return the checksum using an alternative format template.
+.SH "EXAMPLES"
+.PP
+.CS
+\fB% crc::cksum "Hello, World!"\fR
+2609532967
+.CE
+.PP
+.CS
+\fB% crc::cksum -format 0x%X "Hello, World!"\fR
+0x9B8A5027
+.CE
+.PP
+.CS
+\fB% crc::cksum -file cksum.tcl\fR
+1828321145
+.CE
+.SH "SEE ALSO"
+sum(n), crc32(n)
+
+.SH "AUTHORS"
+Pat Thoyts
+
+.SH "KEYWORDS"
+cksum, checksum, crc, crc32, cyclic redundancy check, data integrity, security
+'\"
+'\" Local Variables:
+'\"   mode: nroff
+'\" End:

@@ -1,3 +1,15 @@
+2002-01-15  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sum.tcl: initial version of crc::sum command
+	* sum.n: initial version of the crc::sum manual page
+	* sum.test: initial version of crc::sum command tests
+	* cksum.tcl: intial version of crc::cksum command
+	* cksum.n: initial version of crc::cksum manual page
+	* cksum.test: initial version of crc::cksum command tests
+	* crc32.tcl: compatability with sum and cksum commands
+	* crc32.test: compatability with sum and cksum tests
+	* crc32.n: compatability with sum and cksum manuals
+
 2002-01-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.tcl: implemented usage of Trf crc-zlib if available.
