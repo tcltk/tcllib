@@ -304,6 +304,23 @@ Return the value associated with the key [arg key] for the graph. If
 no key is specified, the key [strong data] is assumed.
 
 
+[call [arg graphName] [method getall]]
+
+Returns a serialized list of key/value pairs (suitable for use with
+[lb][cmd {array set}][rb]) for the whole graph.
+
+
+[call [arg graphName] [method keys]]
+
+Returns a list of keys for the whole graph.
+
+
+[call [arg graphName] [method keyexists] [opt "-key [arg key]"]]
+
+Return true if the specified [arg key] exists for the whole graph. If no
+[arg key] is specified, the key [strong data] is assumed.
+
+
 [call [arg graphName] [method set] [opt "-key [arg key]"] [opt [arg value]]]
 
 Set or get one of the keyed values associated with a graph. If no key
