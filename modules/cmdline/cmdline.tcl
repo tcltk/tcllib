@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.12 2002/04/25 23:26:16 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.13 2003/02/25 06:40:31 davidw Exp $
 
 package require Tcl 8.2
 package provide cmdline 1.2
@@ -368,7 +368,7 @@ proc cmdline::getfiles {patterns quiet} {
     set result {}
     if {$::tcl_platform(platform) == "windows"} {
 	foreach pattern $patterns {
-	    regsub -all -- {\\} $pattern {\\\\} pat
+	    set pat [string map {{\\} {\\\\}} $pattern]
 	    set files [glob -nocomplain -- $pat]
 	    if {$files == {}} {
 		if {! $quiet} {
