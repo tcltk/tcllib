@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.13 2003/05/02 07:42:05 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.14 2003/10/21 16:17:15 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -145,6 +145,12 @@ foreach module $modules {
 	set ::argv0 [pSet ::argv0]
 	set ::tcllibModule [pSet module]
 	set auto_path [pSet auto_path]
+
+	# The next command allows the execution of 'tk' constrained
+	# tests, if Tk is present (for example when this code is run
+	# run by 'wish').
+	catch {package require Tk}
+
 	package require tcltest
 	namespace import ::tcltest::*
 	set ::tcltest::testSingleFile false
