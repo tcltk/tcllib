@@ -5,6 +5,9 @@
 	shows up with low-valued characters (less than 0x10) near
 	the end of a string that was padded with =
 
+	Nudged version to 2.1 so we can distinquish this version
+	that has bug fixes and new features.
+
 2000-10-10  Eric Melski  <ericm@ajubasolutions.com>
 
 	* base64.tcl: Extending base64::encode to accept optional

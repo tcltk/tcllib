@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.7 2000/10/11 17:21:49 welch Exp $
-
-package provide base64 2.0
+# RCS: @(#) $Id: base64.tcl,v 1.8 2000/10/11 20:04:11 welch Exp $
 
 # Version 1.0 implemented Base64_Encode, Bae64_Decode
+# Version 2.0 uses the base64 namespace
+# Version 2.1 fixes various decode bugs and adds options to encode
 
 namespace eval base64 {
     variable i 0
@@ -169,3 +169,6 @@ proc base64::decode {string} {
     }
     return $output
 }
+
+package provide base64 2.1
+
