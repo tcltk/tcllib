@@ -5,7 +5,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.tcl,v 1.2 2001/11/27 11:46:52 jfontain Exp $
+# $Id: stooop.tcl,v 1.3 2001/12/10 09:06:50 jfontain Exp $
 
 
 # check whether empty named arrays and array unset are supported:
@@ -18,22 +18,28 @@ package provide stooop 4.2
 catch {rename proc _proc}
 
 namespace eval ::stooop {
-    variable checkCode
-    variable traceProcedureChannel
-    variable traceProcedureFormat
-    variable traceDataChannel
-    variable traceDataFormat
-    variable traceDataOperations
+    variable check
+    variable trace
 
     # no checking by default: use an empty instruction to avoid any performance
     # hit:
-    set checkCode {}
-    if {[info exists ::env(STOOOPCHECKALL)]} {
+    set check(code) {}
+    if {[info exists ::env(STOOOPCHECKALL)]&&$::env(STOOOPCHECKALL)} {
         array set ::env\
-            {STOOOPCHECKPROCEDURES {} STOOOPCHECKDATA {} STOOOPCHECKOBJECTS {}}
+            {STOOOPCHECKPROCEDURES 1 STOOOPCHECKDATA 1 STOOOPCHECKOBJECTS 1}
     }
-    if {[info exists ::env(STOOOPCHECKPROCEDURES)]} {
-        append checkCode {::stooop::checkProcedure;}
+    set check(procedures) [expr {\
+        [info exists ::env(STOOOPCHECKPROCEDURES)]&&\
+        $::env(STOOOPCHECKPROCEDURES)\
+    }]
+    set check(data) [expr {\
+        [info exists ::env(STOOOPCHECKDATA)]&&$::env(STOOOPCHECKDATA)\
+    }]
+    set check(objects) [expr {\
+        [info exists ::env(STOOOPCHECKOBJECTS)]&&$::env(STOOOPCHECKOBJECTS)\
+    }]
+    if {$check(procedures)} {
+        append check(code) {::stooop::checkProcedure;}
     }
     if {[info exists ::env(STOOOPTRACEALL)]} {
         # use same channel for both traces
@@ -41,32 +47,32 @@ namespace eval ::stooop {
         set ::env(STOOOPTRACEDATA) $::env(STOOOPTRACEALL)
     }
     if {[info exists ::env(STOOOPTRACEPROCEDURES)]} {
-        set traceProcedureChannel $::env(STOOOPTRACEPROCEDURES)
-        if {![regexp {^stdout|stderr$} $traceProcedureChannel]} {
+        set trace(procedureChannel) $::env(STOOOPTRACEPROCEDURES)
+        if {![regexp {^(stdout|stderr)$} $trace(procedureChannel)]} {
             # eventually truncate output file if it exists:
-            set traceProcedureChannel [open $::env(STOOOPTRACEPROCEDURES) w+]
+            set trace(procedureChannel) [open $::env(STOOOPTRACEPROCEDURES) w+]
         }
         # default format:
-        set traceProcedureFormat\
+        set trace(procedureFormat)\
             {class: %C, procedure: %p, object: %O, arguments: %a}
         # eventually override with user defined format:
-        catch {set traceProcedureFormat $::env(STOOOPTRACEPROCEDURESFORMAT)}
-        append checkCode {::stooop::traceProcedure;}
+        catch {set trace(procedureFormat) $::env(STOOOPTRACEPROCEDURESFORMAT)}
+        append check(code) {::stooop::traceProcedure;}
     }
     if {[info exists ::env(STOOOPTRACEDATA)]} {
-        set traceDataChannel $::env(STOOOPTRACEDATA)
-        if {![regexp {^stdout|stderr$} $traceDataChannel]} {
+        set trace(dataChannel) $::env(STOOOPTRACEDATA)
+        if {![regexp {^(stdout|stderr)$} $trace(dataChannel)]} {
             # eventually truncate output file if it exists
-            set traceDataChannel [open $::env(STOOOPTRACEDATA) w+]
+            set trace(dataChannel) [open $::env(STOOOPTRACEDATA) w+]
         }
         # default format:
-        set traceDataFormat {class: %C, procedure: %p, array: %A, object: %O, member: %m, operation: %o, value: %v}
+        set trace(dataFormat) {class: %C, procedure: %p, array: %A, object: %O, member: %m, operation: %o, value: %v}
         # eventually override with user defined format:
-        catch {set traceDataFormat $::env(STOOOPTRACEDATAFORMAT)}
+        catch {set trace(dataFormat) $::env(STOOOPTRACEDATAFORMAT)}
         # trace all operations by default:
-        set traceDataOperations rwu
+        set trace(dataOperations) rwu
         # eventually override with user defined operations:
-        catch {set traceDataOperations $::env(STOOOPTRACEDATAOPERATIONS)}
+        catch {set trace(dataOperations) $::env(STOOOPTRACEDATAOPERATIONS)}
     }
 
     namespace export class virtual new delete classof  ;# export public commands
@@ -318,7 +324,7 @@ _proc proc {name arguments args} {
 
 # copy flag is set for user defined copy constructor:
 _proc ::stooop::constructorDeclaration {fullClass class copy arguments args} {
-    variable checkCode
+    variable check
     variable fullBases
     variable variable
 
@@ -381,7 +387,7 @@ _proc ::stooop::constructorDeclaration {fullClass class copy arguments args} {
     # be valid, so debugging the procedure is pointless
     set constructorBody \
 "::variable {}
-$checkCode
+$check(code)
 "
     # base class(es) derivation specified:
     if {[llength $fullBases($fullClass)]>0} {
@@ -456,7 +462,7 @@ $checkCode
 }
 
 _proc ::stooop::destructorDeclaration {fullClass class arguments body} {
-    variable checkCode
+    variable check
     variable fullBases
 
     # setup access to class data
@@ -464,7 +470,7 @@ _proc ::stooop::destructorDeclaration {fullClass class arguments body} {
     # procedure is pointless
     set body \
 "::variable {}
-$checkCode
+$check(code)
 $body
 "
     # if there are any, delete base classes parts in reverse order of
@@ -483,7 +489,7 @@ $body
 _proc ::stooop::memberProcedureDeclaration {\
     fullClass class procedure arguments body\
 } {
-    variable checkCode
+    variable check
     variable pureVirtual
 
     if {[info exists pureVirtual]} {                      ;# virtual declaration
@@ -493,7 +499,7 @@ _proc ::stooop::memberProcedureDeclaration {\
             # return value is automatically returned
             _proc ${fullClass}::$procedure $arguments \
 "::variable {}
-$checkCode
+$check(code)
 ::uplevel \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]
 "
         } else {                                  ;# regular virtual declaration
@@ -503,12 +509,12 @@ $checkCode
             # derived class procedure by prepending _
             _proc ${fullClass}::_$procedure $arguments \
 "::variable {}
-$checkCode
+$check(code)
 $body
 "
             _proc ${fullClass}::$procedure $arguments \
 "::variable {}
-$checkCode
+$check(code)
 if {!\[::catch {::info body \$(\$this,_derived)::$procedure}\]} {
 ::return \[::uplevel \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]\]
 }
@@ -519,7 +525,7 @@ if {!\[::catch {::info body \$(\$this,_derived)::$procedure}\]} {
         # setup access to class data:
         _proc ${fullClass}::$procedure $arguments \
 "::variable {}
-$checkCode
+$check(code)
 $body
 "
     }
@@ -551,10 +557,11 @@ if {[llength [array names ::env STOOOP*]]>0} {
     catch {rename ::stooop::class ::stooop::_class}
     # use a new class procedure instead of adding debugging code to existing one
     _proc ::stooop::class {args} {
-        variable traceDataOperations
+        variable trace
+        variable check
 
         set class [lindex $args 0]
-        if {[info exists ::env(STOOOPCHECKDATA)]} {
+        if {$check(data)} {
             # check write and unset operations on empty named array holding
             # class data
             uplevel namespace eval $class\
@@ -564,13 +571,13 @@ if {[llength [array names ::env STOOOP*]]>0} {
             # trace write and unset operations on empty named array holding
             # class data
             uplevel namespace eval $class [list\
-                "::trace variable {} $traceDataOperations ::stooop::traceData"\
+                "::trace variable {} $trace(dataOperations) ::stooop::traceData"\
             ]
         }
         uplevel ::stooop::_class $args
     }
 
-    if {[info exists ::env(STOOOPCHECKPROCEDURES)]} {
+    if {$::stooop::check(procedures)} {
         # prevent the creation of any object of a pure interface class
         # use a new virtual procedure instead of adding debugging code to
         # existing one
@@ -590,7 +597,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         }
     }
 
-    if {[info exists ::env(STOOOPCHECKOBJECTS)]} {
+    if {$::stooop::check(objects)} {
         _proc invokingProcedure {} {
             if {[catch {set procedure [lindex [info level -2] 0]}]} {
                 # no invoking procedure
@@ -606,25 +613,23 @@ if {[llength [array names ::env STOOOP*]]>0} {
         }
     }
 
-    if {\
-        [info exists ::env(STOOOPCHECKPROCEDURES)]||\
-        [info exists ::env(STOOOPCHECKOBJECTS)]\
-    } {
+    if {$::stooop::check(procedures)||$::stooop::check(objects)} {
         # gracefully handle multiple sourcing of this file:
         catch {rename ::stooop::new ::stooop::_new}
         # use a new new procedure instead of adding debugging code to existing
         # one:
         _proc ::stooop::new {classOrId args} {
             variable newId
-            if {[info exists ::env(STOOOPCHECKPROCEDURES)]} {
+            variable check
+
+            if {$check(procedures)} {
                 variable fullClass
                 variable interface
             }
-            if {[info exists ::env(STOOOPCHECKOBJECTS)]} {
+            if {$check(objects)} {
                 variable creator
             }
-
-            if {[info exists ::env(STOOOPCHECKPROCEDURES)]} {
+            if {$check(procedures)} {
                 if {[scan $classOrId %u dummy]==0} {
                     # first argument is a class
                     # generate constructor name:
@@ -650,7 +655,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
                     error "class $fullName with pure virtual procedures should not be instanciated"
                 }
             }
-            if {[info exists ::env(STOOOPCHECKOBJECTS)]} {
+            if {$check(objects)} {
                 # keep track of procedure in which creation occured (new
                 # identifier is really incremented in original new{})
                 set creator([expr {$newId+1}]) [invokingProcedure]
@@ -737,12 +742,11 @@ if {[llength [array names ::env STOOOP*]]>0} {
     # gather current procedure data, perform substitutions and output to trace
     # channel:
     _proc ::stooop::traceProcedure {} {
-        variable traceProcedureChannel
-        variable traceProcedureFormat
+        variable trace
 
         debugInformation class qualifiedClass procedure qualifiedProcedure this
         # all debug data is available since we are for sure in a class procedure
-        set text $traceProcedureFormat
+        set text $trace(procedureFormat)
         regsub -all %C $text $qualifiedClass text  ;# fully qualified class name
         regsub -all %c $text $class text
         # fully qualified procedure name:
@@ -757,7 +761,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
             # remaining arguments:
             regsub -all %a $text [lrange [info level -1] 1 end] text
         }
-        puts $traceProcedureChannel $text
+        puts $trace(procedureChannel) $text
     }
 
     # check that class data member is accessed within procedure of identical
@@ -805,8 +809,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
     # gather accessed data member information, perform substitutions and output
     # to trace channel
     _proc ::stooop::traceData {array name operation} {
-        variable traceDataChannel
-        variable traceDataFormat
+        variable trace
 
         scan $name %u,%s identifier member
         # ignore internally defined members:
@@ -823,7 +826,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         set qualifiedProcedure {}
 
         debugInformation class qualifiedClass procedure qualifiedProcedure this
-        set text $traceDataFormat
+        set text $trace(dataFormat)
         regsub -all %C $text $qualifiedClass text  ;# fully qualified class name
         regsub -all %c $text $class text
         if {[info exists member]} {
@@ -850,10 +853,10 @@ if {[llength [array names ::env STOOOP*]]>0} {
         } else {
             regsub -all %v $text [uplevel set ${array}($name)] text
         }
-        puts $traceDataChannel $text
+        puts $trace(dataChannel) $text
     }
 
-    if {[info exists ::env(STOOOPCHECKOBJECTS)]} {
+    if {$::stooop::check(objects)} {
         # print existing objects along with creation procedure, with optional
         # class pattern (see the string Tcl command manual)
         _proc ::stooop::printObjects {{pattern *}} {
