@@ -16,7 +16,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.13 2004/06/18 01:25:23 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.14 2004/06/18 01:38:38 patthoyts Exp $}
     variable version 1.2.1
     variable stopped
 
@@ -473,9 +473,8 @@ proc ::smtpd::HELO {channel line} {
         log::log debug "HELO received \"$line\""
         return
     }
-    Puts $channel "250-$options(serveraddr) Hello $domain\
+    Puts $channel "250 $options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
-    Puts $channel "250 Ready for mail."
     state $channel domain $domain
     log::log debug "HELO on $channel from $domain"
     return
