@@ -1,3 +1,14 @@
+2004-07-07  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* bessel,tcl:		Indentation adjusted to conform to
+	* bessel.test:		the _Tcl Style Guide._  Errors
+	* constants.test:	corrected in the documentation of
+	* elliptic.tcl:		Romberg integration.
+	* elliptic.text:
+	* qcomplex.tcl:
+	* romberg.man:
+	* special.test:
+	
 2004-07-05  Kevin Kenny  <kennykb@acm.org>
 
 	* calculus.man:	 		Added Romberg integration to
