@@ -70,13 +70,30 @@ default arguments and the [var args] argument; however, it may not
 contain the argument names [var type], [var self], [var selfns], or
 [var win].
 
+[nl]
+
 The variable [var type] is automatically defined in the [arg body] to
-the type's fully-qualified name.
+the type's fully-qualified name.  In addition,
+type variables are automatically visible in the [arg body] 
+of every type method.
 
 [nl]
 
-Type variables are automatically visible in the [arg body] 
-of every type method.
+If the [arg name] consists of two or more tokens, Snit handles it specially:
+
+[example {    typemethod {a b} {} { ... }
+}]
+
+The following two calls to this type method are equivalent:
+
+[example {    $type {a b}
+    $type a b
+}]
+
+In other words, [const a] becomes a subcommand of [var \$type], and
+[const b] becomes a subcommand of [const a].  This makes it possible
+to define a hierarchical command structure; see [cmd method], below,
+for more examples.
 
 [call [cmd typeconstructor] [arg body]]
 
@@ -108,7 +125,6 @@ assigned to the variable in the manner of [cmd "array set"].
 
 Defines an instance method, a subcommand of each instance of this
 type, with the specified name, argument list and body.
-
 The [arg arglist] is a normal Tcl argument list and may contain
 default arguments and the [var args] argument.  
 
@@ -134,6 +150,41 @@ An instance method defined in this way is said to be
 Type and instance variables are
 automatically visible in all instance methods.  If the type has
 locally defined options, the [var options] array is also visible.
+
+[nl]
+
+If the [arg name] consists of two or more tokens, Snit handles it specially:
+
+[example {    method {a b} {} { ... }
+}]
+
+The following two calls to this type method are equivalent:
+
+[example {    $self {a b}
+    $self a b
+}]
+
+In other words, [const a] becomes a subcommand of [var \$self], and
+[const b] becomes a subcommand of [const a].  This makes it possible
+to define a hierarchical command structure.  For example,
+
+[example {% snit::type dog {
+    method {tail wag}   {} {return "Wag, wag"}
+    method {tail droop} {} {return "Droop, droop"}
+}
+::dog
+% dog spot
+::spot
+% spot tail wag
+Wag, wag
+% spot tail droop
+Droop, droop
+%
+}]
+
+What we've done is implicitly defined a "tail" method with subcommands
+"wag" and "droop".  Consequently, it's an error to define "tail"
+explicitly.
        
 [call [cmd option] [arg namespec] [opt [arg defaultValue]]]
 [call [cmd option] [arg namespec] [opt [arg options...]]]
@@ -354,6 +405,12 @@ is roughly equivalent to this explicitly defined method:
     }
 }]
 
+As with methods, the [arg name] may have multiple tokens; in this
+case, the last token of the name is assumed to be the name of the
+component's method.
+
+[nl]
+
 The optional [const as] clause allows you to specify the delegated
 method name and possibly add some arguments:
 
@@ -379,7 +436,7 @@ component.
 
 [nl]
 
-The value of the [const using] clause is a string that may contain 
+The value of the [const using] clause is a list that may contain 
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
@@ -387,6 +444,11 @@ prefix.  Note that the following two statements are equivalent:
 [example {    delegate method wag to tail
     delegate method wag to tail using "%c %m"
 }]
+
+Each element of the list becomes a single element of the delegated
+command--it is never reparsed as a string.
+
+[nl]
 
 Substitutions:
 [list_begin definitions]
@@ -401,7 +463,18 @@ This is replaced with the named component's command.
 
 [lst_item [const %m]]
 
-This is replaced with the method [arg name].
+This is replaced with the final token of the method [arg name]; if
+the method [arg name] has one token, this is identical to [const %M].
+
+[lst_item [const %M]]
+
+This is replaced by the method [arg name]; if the [arg name] consists
+of multiple tokens, they are joined by space characters.
+
+[lst_item [const %j]]
+
+This is replaced by the method [arg name]; if the [arg name] consists
+of multiple tokens, they are joined by underscores ("_").
 
 [lst_item [const %t]]
 
@@ -431,6 +504,17 @@ specify a list of [arg exceptions], i.e., method names that will not
 be so delegated. The [const using] clause is defined as given above.
 In this form, the statement must contain the [const to] clause, the
 [const using] clause, or both.
+
+[nl]
+
+In fact, the "*" can be a list of two or more tokens whose last
+element is "*", as in the following example:
+
+[example {    delegate method {tail *} to tail
+}]
+
+This implicitly defines the method [cmd tail] whose subcommands will
+be delegated to the [var tail] component.
 
 [call [cmd delegate] [const option] [arg namespec] [const to] [arg comp]]
 [call [cmd delegate] [const option] [arg namespec] [const to] [arg comp] [const as] [arg target]]
@@ -486,12 +570,12 @@ defines the component's instance variable.
 [nl]
 
 If the [const -public] option is specified, then the option is made
-public by defining a [arg method] that is delegated to the component's
-command itself, e.g., specifying [const "-public mycomp"] is
+public by defining a [arg method] whose subcommands are delegated
+to the component e.g., specifying [const "-public mycomp"] is
 equivalent to the following:
 
 [example {    component mycomp
-    delegate method mymethod to mycomp using "%c"
+    delegate method {mymethod *} to mycomp
 }]
 
 If the [const -inherit] option is specified, then [arg flag] must be a
@@ -523,6 +607,12 @@ is roughly equivalent to this explicitly defined method:
     }
 }]
 
+As with type methods, the [arg name] may have multiple tokens; in this
+case, the last token of the name is assumed to be the name of the
+component's method.
+
+[nl]
+
 The optional [const as] clause allows you to specify the delegated
 method name and possibly add some arguments:
 
@@ -543,7 +633,7 @@ type component.
 
 [nl]
 
-The value of the [const using] clause is a string that may contain 
+The value of the [const using] clause is a list that may contain 
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
@@ -551,6 +641,11 @@ prefix.  Note that the following two statements are equivalent:
 [example {    delegate typemethod lostdogs to pound
     delegate typemethod lostdogs to pound using "%c %m"
 }]
+
+Each element of the list becomes a single element of the delegated
+command--it is never reparsed as a string.
+
+[nl]
 
 Substitutions:
 [list_begin definitions]
@@ -565,7 +660,18 @@ This is replaced with the named type component's command.
 
 [lst_item [const %m]]
 
-This is replaced with the type method [arg name].
+This is replaced with the final token of the type method [arg name]; if
+the type method [arg name] has one token, this is identical to [const %M].
+
+[lst_item [const %M]]
+
+This is replaced by the type method [arg name]; if the [arg name] consists
+of multiple tokens, they are joined by space characters.
+
+[lst_item [const %j]]
+
+This is replaced by the type method [arg name]; if the [arg name] consists
+of multiple tokens, they are joined by underscores ("_").
 
 [lst_item [const %t]]
 
@@ -593,6 +699,17 @@ not a defined type method, as equivalent to [cmd "\$type create foo"], where
 use [const "delegate typemethod *"], then the [method "create"] type
 method must always be used explicitly.
 
+[nl]
+
+The "*" can be a list of two or more tokens whose last
+element is "*", as in the following example:
+
+[example {    delegate typemethod {tail *} to tail
+}]
+
+This implicitly defines the type method [cmd tail] whose subcommands will
+be delegated to the [var tail] type component.
+
 [call [cmd typecomponent] [arg comp] \
      [opt "[const -public] [arg typemethod]"] \
      [opt "[const -inherit] [arg flag]"]]
@@ -605,12 +722,12 @@ the command's name is stored in a type variable.
 [nl]
 
 If the [const -public] option is specified, then the type component is made
-public by defining a [arg typemethod] that is delegated to the type component's
-command itself, e.g., specifying [const "-public mytypemethod"] is
-equivalent to the following:
+public by defining a [arg typemethod] whose subcommands are delegated to
+the type component, e.g., specifying [const "-public mytypemethod"] 
+is equivalent to the following:
 
 [example {    typecomponent mycomp
-    delegate typemethod mytypemethod to mycomp using "%c"
+    delegate typemethod {mytypemethod *} to mycomp
 }]
 
 If the [const -inherit] option is specified, then [arg flag] must be a
@@ -1537,7 +1654,7 @@ Option delegation is similar to method delegation, except for the
 interactions with the Tk option database; this is described in 
 [sectref "The Tk Option Database"].
 
-[subsection "Type Components and Delegation"]
+[subsection {Type Components and Delegation}]
 
 The relationship between type components and instance components is
 identical to that between type variables and instance variables, and
@@ -1965,7 +2082,7 @@ initialized from the option database just as widget components are.
 
 [para]
 
-[subsection "Macros and Meta-programming"]
+[subsection {Macros and Meta-programming}]
 
 The [cmd snit::macro] command enables a certain amount of
 meta-programming with Snit classes.  For example, suppose you like to
