@@ -1,3 +1,10 @@
+2003-04-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4.test: Added a series of tests to check all lengths of input
+	up to over 2 MD4 block lengths.
+	* md4_check.c: Included the C code used to generate the new test
+	results from the OpenSSL MD4 implementation.
+
 2003-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md4.tcl: Implemented chunked reading from file or
