@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.5 2001/11/09 17:36:28 dgp Exp $
+'\" RCS: @(#) $Id: control.n,v 1.6 2001/11/10 00:21:14 dgp Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -92,21 +92,44 @@ assertion failed: 1 == 0
 .CE
 .TP
 \fBcontrol::do \fIbody while|until test\fR
-The \fBdo\fR command executes body as a script repeatedly \fBuntil\fR
+The \fBdo\fR command evaluates the script \fIbody\fR repeatedly \fBuntil\fR
 the expression \fBtest\fR becomes true or as long as (\fBwhile\fR)
-\fBtest\fR is true, depending on the second argument. It handles all
-exceptional cases (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR, etc.) 
-correctly, except [\fBreturn -code\fR] which is impossible to handle
-by script-only control structures. For more details see the
-documentation of the \fBwhile\fR command which this implementation is
-internally based on.
+\fBtest\fR is true, depending on the second argument. 
+After normal completion, \fBwhile\fR returns an empty string.
+Exceptional return codes (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR, etc.) 
+during the evaluation of \fIbody\fR are handled in the same way the
+\fBwhile\fR command handles them, except as noted in \fBLIMITATIONS\fR, below.
 .TP
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
 The \fBno-op\fR command takes any number of arguments and does nothing.
 It returns an empty string.
 
+.SH LIMITATIONS
+
+Several of the commands provided by the \fBcontrol\fR package
+accept arguments that are scripts to be evaluated.  Due to
+fundamental limitations of Tcl's \fBcatch\fR and \fBreturn\fR
+commands, it is not possible for these commands to properly
+evaluate the command [\fBreturn -code $code\fR] within one
+of those script arguments for any value of \fI$code\fR other
+than \fIok\fR.  In this way, the commands of the \fBcontrol\fR
+package are limited as compared to Tcl's built-in control flow
+commands (such as \fBif\fR, \fBwhile\fR, etc.) and those
+control flow commands that can be provided by packages coded
+in C.  An example of this difference:
+.sp
+.CS
+\fB% package require control
+% proc a {} {while 1 {return -code error a}}
+% proc b {} {control::do {return -code error b} while 1}
+% catch a
+1
+% catch b
+0
+.CE
+
 .SH "SEE ALSO"
-expr, if, join, namespace, return, string, while
+expr, if, join, namespace, return, string, while, break, continue
 
 .SH KEYWORDS
 control, flow, structure, no-op, assert, do
