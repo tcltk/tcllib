@@ -287,6 +287,7 @@ namespace eval ::snit:: {
     # -cgetmethod-$opt       The option's cget method.
     # -hastypeinfo           The -hastypeinfo pragma
     # -hastypedestroy        The -hastypedestroy pragma
+    # -hasinfo               The -hasinfo pragma
     # -hasinstances          The -hasinstances pragma
     # -canreplace            The -canreplace pragma
     variable compile
@@ -400,6 +401,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(varnames) {}
     set compile(typevarnames) {}
     set compile(-hastypeinfo) yes
+    set compile(-hasinfo) yes
     set compile(-hastypedestroy) yes
     set compile(-hasinstances) yes
     set compile(-canreplace) no
@@ -437,10 +439,14 @@ proc ::snit::Comp.Compile {which type body} {
     # Add standard methods/typemethods that only make sense if the
     # type has instances.
     if {$compile(-hasinstances)} {
+        # Add the info method unless the pragma forbids it.
+        if {$compile(-hasinfo)} {
+            Comp.statement.delegate method info \
+                using {::snit::RT.method.info %t %n %w %s}
+        }
+
         Comp.statement.variable options
 
-        Comp.statement.delegate method info \
-            using {::snit::RT.method.info %t %n %w %s}
         Comp.statement.delegate method cget \
             using {::snit::RT.method.cget %t %n %w %s}
         Comp.statement.delegate method configurelist \
@@ -575,6 +581,7 @@ proc ::snit::Comp.statement.pragma {args} {
             -hastypeinfo    -
             -hastypedestroy -
             -hasinstances   -
+            -hasinfo        -
             -canreplace     {
                 if {![string is boolean -strict $val]} {
                     error "$errRoot, \"$opt\" requires a boolean value"
