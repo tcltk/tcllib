@@ -1,5 +1,10 @@
 2004-02-13  David N. Welton  <davidw@dedasys.com>
 
+	* logger.test: Added tests from Schlenker regarding new commands.
+
+	* logger.tcl (logproc): Better error message, bugfix for new code
+	from Schlenker.
+
 	* logger.man: Added documentation for new logger commands.
 
 2004-01-19  David N. Welton  <davidw@dedasys.com>
