@@ -2,16 +2,16 @@
 # Simple Tcl Only Object Oriented Programming
 # An object oriented extension to the Tcl programming language
 #
-# Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
+# Copyright (c) 2002 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.tcl,v 1.4 2001/12/19 11:56:04 jfontain Exp $
+# $Id: stooop.tcl,v 1.5 2002/05/20 21:15:18 jfontain Exp $
 
 
 # check whether empty named arrays and array unset are supported:
 package require Tcl 8.3
 
-package provide stooop 4.3
+package provide stooop 4.4
 
 # rename proc before it is overloaded, ignore error in case of multiple
 # inclusion of this file:
@@ -100,7 +100,7 @@ namespace eval ::stooop {
             }
             # invoke the copy constructor for the class in caller's variable
             # context so that object copy is transparent (see above):
-            uplevel $fullClass($classOrId)::_copy $id $classOrId
+            uplevel 1 $fullClass($classOrId)::_copy $id $classOrId
         } else {                                    ;# first argument is a class
             # generate constructor name:
             set constructor ${classOrId}::[namespace tail $classOrId]
@@ -114,11 +114,11 @@ namespace eval ::stooop {
             # upvar
             # note: if class is in a package, the class namespace code is loaded
             # here, as the first object of the class is created
-            uplevel $constructor [set id [incr newId]] $args
+            uplevel 1 $constructor [set id [incr newId]] $args
             # generate fully qualified class namespace name now that we are sure
             # that class namespace code has been invoked:
             set fullClass($id) [namespace qualifiers\
-                [uplevel namespace which -command $constructor]\
+                [uplevel 1 namespace which -command $constructor]\
             ]
         }
         return $id                          ;# return a unique object identifier
@@ -130,7 +130,7 @@ namespace eval ::stooop {
         foreach id $args {
             # destruct in caller's variable context so that object deletion is
             # transparent:
-            uplevel ::stooop::deleteObject $fullClass($id) $id
+            uplevel 1 ::stooop::deleteObject $fullClass($id) $id
             unset fullClass($id)
         }
     }
@@ -143,7 +143,7 @@ namespace eval ::stooop {
     _proc deleteObject {fullClass id} {
         # invoke the destructor for the class in caller's variable context so
         # that object deletion is transparent:
-        uplevel ${fullClass}::~[namespace tail $fullClass] $id
+        uplevel 1 ${fullClass}::~[namespace tail $fullClass] $id
         # delete all this object data members if any (assume that they were
         # stored as ${class}::($id,memberName)):
         array unset ${fullClass}:: $id,*
@@ -173,11 +173,11 @@ _proc ::stooop::class {args} {
 
     set class [lindex $args 0]
     # register class using its fully qualified name:
-    set declared([uplevel namespace eval $class {namespace current}]) {}
+    set declared([uplevel 1 namespace eval $class {namespace current}]) {}
     # create the empty name array used to hold all class objects so that static
     # members can be directly initialized within the class declaration but
     # outside member procedures
-    uplevel namespace eval $class [list "::variable {}\n[lindex $args end]"]
+    uplevel 1 namespace eval $class [list "::variable {}\n[lindex $args end]"]
 }
 
 # if procedure is a member of a known class, class and procedure names are set
@@ -233,11 +233,11 @@ _proc ::stooop::virtual {keyword name arguments args} {
     # serves as a pure indicator:
     variable pureVirtual
 
-    if {![string equal [uplevel namespace which -command $keyword] ::proc]} {
+    if {![string equal [uplevel 1 namespace which -command $keyword] ::proc]} {
         error "virtual operator works only on proc, not $keyword"
     }
     if {![parseProcedureName\
-        [uplevel namespace current] $name fullClass procedure message\
+        [uplevel 1 namespace current] $name fullClass procedure message\
     ]} {
         error $message                   ;# not in a member procedure definition
     }
@@ -255,19 +255,19 @@ _proc ::stooop::virtual {keyword name arguments args} {
     set pureVirtual [expr {[llength $args]==0}]
     # process procedure declaration, body being empty for pure virtual procedure
     # make virtual transparent by using uplevel:
-    uplevel ::proc [list $name $arguments [lindex $args 0]]
+    uplevel 1 ::proc [list $name $arguments [lindex $args 0]]
     unset pureVirtual
 }
 
 _proc proc {name arguments args} {
     if {![::stooop::parseProcedureName\
-        [uplevel namespace current] $name fullClass procedure message\
+        [uplevel 1 namespace current] $name fullClass procedure message\
     ]} {
         # not in a member procedure definition, fall back to normal procedure
         # declaration
         # uplevel is required instead of eval here otherwise tcl seems to forget
         # the procedure namespace if it exists
-        uplevel _proc [list $name $arguments] $args
+        uplevel 1 _proc [list $name $arguments] $args
         return
     }
     if {[llength $args]==0} {               ;# check for procedure body presence
@@ -500,7 +500,7 @@ _proc ::stooop::memberProcedureDeclaration {\
             _proc ${fullClass}::$procedure $arguments \
 "::variable {}
 $check(code)
-::uplevel \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]
+::uplevel 1 \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]
 "
         } else {                                  ;# regular virtual declaration
             # setup access to class data
@@ -516,9 +516,9 @@ $body
 "::variable {}
 $check(code)
 if {!\[::catch {::info body \$(\$this,_derived)::$procedure}\]} {
-::return \[::uplevel \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]\]
+::return \[::uplevel 1 \$(\$this,_derived)::$procedure \[::lrange \[::info level 0\] 1 end\]\]
 }
-::uplevel ${fullClass}::_$procedure \[::lrange \[::info level 0\] 1 end\]
+::uplevel 1 ${fullClass}::_$procedure \[::lrange \[::info level 0\] 1 end\]
 "
         }
     } else {                                          ;# non virtual declaration
@@ -564,17 +564,17 @@ if {[llength [array names ::env STOOOP*]]>0} {
         if {$check(data)} {
             # check write and unset operations on empty named array holding
             # class data
-            uplevel namespace eval $class\
+            uplevel 1 namespace eval $class\
                 [list {::trace variable {} wu ::stooop::checkData}]
         }
         if {[info exists ::env(STOOOPTRACEDATA)]} {
             # trace write and unset operations on empty named array holding
             # class data
-            uplevel namespace eval $class [list\
+            uplevel 1 namespace eval $class [list\
                 "::trace variable {} $trace(dataOperations) ::stooop::traceData"\
             ]
         }
-        uplevel ::stooop::_class $args
+        uplevel 1 ::stooop::_class $args
     }
 
     if {$::stooop::check(procedures)} {
@@ -588,8 +588,8 @@ if {[llength [array names ::env STOOOP*]]>0} {
         _proc ::stooop::virtual {keyword name arguments args} {
             variable interface
 
-            uplevel ::stooop::_virtual [list $keyword $name $arguments] $args
-            parseProcedureName [uplevel namespace current] $name\
+            uplevel 1 ::stooop::_virtual [list $keyword $name $arguments] $args
+            parseProcedureName [uplevel 1 namespace current] $name\
                 fullClass procedure message
             if {[llength $args]==0} {    ;# no procedure body means pure virtual
                 set interface($fullClass) {}
@@ -602,8 +602,10 @@ if {[llength [array names ::env STOOOP*]]>0} {
             if {[catch {set procedure [lindex [info level -2] 0]}]} {
                 # no invoking procedure
                 return {top level}
-            } elseif {[string length $procedure]==0} {
-                # invoked from a namespace body
+            } elseif {\
+                ([string length $procedure]==0)||\
+                [string equal $procedure namespace]\
+            } {                                 ;# invoked from a namespace body
                 return "namespace [uplevel 2 namespace current]"
             } else {
                 # store fully qualified name, visible from creator procedure
@@ -641,7 +643,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
                     # commands work properly:
                     catch {$constructor}
                     set fullName [namespace qualifiers\
-                        [uplevel namespace which -command $constructor]\
+                        [uplevel 1 namespace which -command $constructor]\
                     ]
                     # anticipate full class name storage in original new{} in
                     # order to avoid invalid object identifier error in
@@ -660,7 +662,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
                 # identifier is really incremented in original new{})
                 set creator([expr {$newId+1}]) [invokingProcedure]
             }
-            return [uplevel ::stooop::_new $classOrId $args]
+            return [uplevel 1 ::stooop::_new $classOrId $args]
         }
     }
 
@@ -672,7 +674,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
             # keep track of procedure in which deletion occured:
             set procedure [invokingProcedure]
             foreach id $args {
-                uplevel ::stooop::deleteObject $fullClass($id) $id
+                uplevel 1 ::stooop::deleteObject $fullClass($id) $id
                 unset fullClass($id)
                 set deleter($id) $procedure
             }
@@ -714,8 +716,10 @@ if {[llength [array names ::env STOOOP*]]>0} {
         set fullClass [string trimleft $namespace :]
         set class [namespace tail $fullClass]                      ;# class name
         set list [info level -2]
-        if {[llength $list]==0} return ;# not in a procedure, nothing else to do
-        set procedure [lindex $list 0]
+        set first [lindex $list 0]
+        if {([llength $list]==0)||[string equal $first namespace]}\
+            return                     ;# not in a procedure, nothing else to do
+        set procedure $first
         # procedure must be known at the invoker level:
         set fullProcedure [uplevel 3 namespace which -command $procedure]
         set procedure [namespace tail $procedure]        ;# strip procedure name
@@ -791,7 +795,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         # no checking can be done outside of a class namespace:
         if {![info exists class]} return
         # determine array full name:
-        set array [uplevel [list namespace which -variable $array]]
+        set array [uplevel 1 [list namespace which -variable $array]]
         if {![info exists procedure]} {              ;# inside a class namespace
             # compare with empty named array fully qualified name:
             if {![string equal $array ::${qualifiedClass}::]} {
@@ -853,7 +857,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         regsub -all %p $text $procedure text
         # fully qualified array name with global qualifiers stripped:
         regsub -all %A $text [string trimleft\
-            [uplevel [list namespace which -variable $array]] :\
+            [uplevel 1 [list namespace which -variable $array]] :\
         ] text
         if {[info exists this]} {                        ;# non static procedure
             regsub -all %O $text $this text
@@ -865,7 +869,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         if {[string equal $operation u]} {
             regsub -all %v $text {} text              ;# no value when unsetting
         } else {
-            regsub -all %v $text [uplevel set ${array}($name)] text
+            regsub -all %v $text [uplevel 1 set ${array}($name)] text
         }
         puts $trace(dataChannel) $text
     }
