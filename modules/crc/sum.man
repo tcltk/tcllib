@@ -1,8 +1,8 @@
-[manpage_begin sum n 1.0]
+[manpage_begin sum n 1.0.1]
 [moddesc   {sum}]
 [titledesc {calculate a sum(1) compatible checksum}]
 [require Tcl 8.2]
-[require sum [opt 1.0]]
+[require sum [opt 1.0.1]]
 [description]
 [para]
 

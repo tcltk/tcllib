@@ -10,10 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.4 2002/09/26 22:50:24 patthoyts Exp $
+# $Id: crc32.tcl,v 1.5 2003/01/26 00:16:03 patthoyts Exp $
 
-namespace eval crc {
-    
+namespace eval ::crc {
+    variable crc32_version 1.0.1
+
     namespace export crc32
 
     variable crc32_tbl [list 0x00000000 0x77073096 0xEE0E612C 0x990951BA \
@@ -93,7 +94,7 @@ namespace eval crc {
 # Description:
 #  Calculate the CRC-32 checksum of the input data.
 #
-proc crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
+proc ::crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
     variable crc32_tbl
     variable signbit
     set crcval $seed
@@ -114,7 +115,7 @@ if {![catch {package require Trf 2.0}]} {
     #  Use the Trf crc-zlib function to calculate the CRC-32 checksum
     #  and return the correct value according to our byte order.
     #
-    proc crc::Crc32_trf {s {seed 0xFFFFFFFF}} {
+    proc ::crc::Crc32_trf {s {seed 0xFFFFFFFF}} {
         if {$seed != 0xFFFFFFFF} {
             return -code error "invalid option: the Trf crc32 command cannot\
                                  accept a seed value"
@@ -129,9 +130,9 @@ if {![catch {package require Trf 2.0}]} {
         return $r
     }
 
-    interp alias {} crc::Crc32 {} crc::Crc32_trf
+    interp alias {} ::crc::Crc32 {} ::crc::Crc32_trf
 } else {
-    interp alias {} crc::Crc32 {} crc::Crc32_tcl
+    interp alias {} ::crc::Crc32 {} ::crc::Crc32_tcl
 }
 
 # -------------------------------------------------------------------------
@@ -144,7 +145,7 @@ if {![catch {package require Trf 2.0}]} {
 #  -format string - return the checksum using this format string.
 #  -seed value    - seed the algorithm using value (default is 0xffffffff)
 #
-proc crc::crc32 {args} {
+proc ::crc::crc32 {args} {
     set filename {}
     set format %u
     set seed 0xffffffff
@@ -222,7 +223,7 @@ proc crc::crc32 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide crc32 1.0
+package provide crc32 $::crc::crc32_version
 
 # -------------------------------------------------------------------------
 #
