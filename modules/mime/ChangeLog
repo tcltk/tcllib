@@ -1,3 +1,15 @@
+2003-06-25  David N. Welton  <davidw@dedasys.com>
+
+	* mime.tcl (::mime::parsedatetime): Use string map instead of
+	regsub - it's faster.
+
+	* mime.test: Added tests which operate on the bad files below.
+
+	* badmail2.txt: Added second piece of mail for testing.  If they
+	turn out to be redundant, we can erase one.
+
+	* badmail1.txt: Added mail for testing that triggers bug 631314.
+
 2003-06-06  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl (::mime::word_decode): Accept lower-case encoding
