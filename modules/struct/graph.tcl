@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.5 2002/02/01 21:51:42 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.6 2002/05/09 05:46:04 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -48,10 +48,15 @@ namespace eval ::struct::graph {
 	    ]
 
     variable arcCommands [list	\
+	    "append"	\
 	    "delete"	\
 	    "exists"	\
 	    "get"	\
+	    "getall"	\
 	    "insert"	\
+	    "keys"	\
+	    "keyexists"	\
+	    "lappend"	\
 	    "set"	\
 	    "source"	\
 	    "target"	\
@@ -59,11 +64,16 @@ namespace eval ::struct::graph {
 	    ]
 
     variable nodeCommands [list	\
+	    "append"	\
 	    "degree"	\
 	    "delete"	\
 	    "exists"	\
 	    "get"	\
+	    "getall"	\
 	    "insert"	\
+	    "keys"	\
+	    "keyexists"	\
+	    "lappend"	\
 	    "opposite"	\
 	    "set"	\
 	    "unset"	\
@@ -270,6 +280,83 @@ proc ::struct::graph::__arc_get {name arc {flag -key} {key data}} {
     return $data($key)
 }
 
+# ::struct::graph::__arc_getall --
+#
+#	Get a serialized array of key/value pairs from an arc in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to query.
+#
+# Results:
+#	value	serialized array of key/value pairs.
+
+proc ::struct::graph::__arc_getall {name arc args} {
+    if { ![__arc_exists $name $arc] } {
+	error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+
+    if { [llength $args] } {
+	error "wrong # args: should be none"
+    }
+    
+    upvar ::struct::graph::graph${name}::arc${arc} data
+
+    return [array get data]
+}
+
+# ::struct::graph::__arc_keys --
+#
+#	Get a list of keys for an arc in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to query.
+#
+# Results:
+#	value	value associated with the key given.
+
+proc ::struct::graph::__arc_keys {name arc args} {
+    if { ![__arc_exists $name $arc] } {
+	error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+
+    if { [llength $args] } {
+	error "wrong # args: should be none"
+    }    
+
+    upvar ::struct::graph::graph${name}::arc${arc} data
+
+    return [array names data]
+}
+
+# ::struct::graph::__arc_keyexists --
+#
+#	Test for existance of a given key for a given arc in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to query.
+#	flag	-key; anything else is an error
+#	key	key to lookup; defaults to data
+#
+# Results:
+#	1 if the key exists, 0 else.
+
+proc ::struct::graph::__arc_keyexists {name arc {flag -key} {key data}} {
+    if { ![__arc_exists $name $arc] } {
+	error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+
+    if { ![string equal $flag "-key"] } {
+	error "invalid option \"$flag\": should be -key"
+    }
+    
+    upvar ::struct::graph::graph${name}::arc${arc} data
+
+    return [info exists data($key)]
+}
+
 # ::struct::graph::__arc_insert --
 #
 #	Add an arc to a graph.
@@ -371,6 +458,82 @@ proc ::struct::graph::__arc_set {name arc args} {
 	}
 	return $data($key)
     }
+}
+
+# ::struct::graph::__arc_append --
+#
+#	Append a value for an arc in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to modify or query.
+#	args	?-key key? value
+#
+# Results:
+#	val	value associated with the given key of the given arc
+
+proc ::struct::graph::__arc_append {name arc args} {
+    if { ![__arc_exists $name $arc] } {
+	error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+
+    upvar ::struct::graph::graph${name}::arc$arc data
+
+    if { [llength $args] != 1 && [llength $args] != 3 } {
+	error "wrong # args: should be \"$name arc append $arc ?-key key?\
+		value\""
+    }
+    
+    if { [llength $args] == 3 } {
+	foreach {flag key} $args break
+	if { ![string equal $flag "-key"] } {
+	    error "invalid option \"$flag\": should be -key"
+	}
+    } else {
+	set key "data"
+    }
+
+    set value [lindex $args end]
+
+    return [append data($key) $value]
+}
+
+# ::struct::graph::__arc_lappend --
+#
+#	lappend a value for an arc in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to modify or query.
+#	args	?-key key? value
+#
+# Results:
+#	val	value associated with the given key of the given arc
+
+proc ::struct::graph::__arc_lappend {name arc args} {
+    if { ![__arc_exists $name $arc] } {
+	error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+
+    upvar ::struct::graph::graph${name}::arc$arc data
+
+    if { [llength $args] != 1 && [llength $args] != 3 } {
+	error "wrong # args: should be \"$name arc lappend $arc ?-key key?\
+		value\""
+    }
+    
+    if { [llength $args] == 3 } {
+	foreach {flag key} $args break
+	if { ![string equal $flag "-key"] } {
+	    error "invalid option \"$flag\": should be -key"
+	}
+    } else {
+	set key "data"
+    }
+
+    set value [lindex $args end]
+
+    return [lappend data($key) $value]
 }
 
 # ::struct::graph::__arc_source --
@@ -934,6 +1097,83 @@ proc ::struct::graph::__node_get {name node {flag -key} {key data}} {
     return $data($key)
 }
 
+# ::struct::graph::__node_getall --
+#
+#	Get a serialized list of key/value pairs from a node in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	node	node to query.
+#
+# Results:
+#	value	value associated with the key given.
+
+proc ::struct::graph::__node_getall {name node args} { 
+    if { ![__node_exists $name $node] } {
+	error "node \"$node\" does not exist in graph \"$name\""
+    }
+
+    if { [llength $args] } {
+	error "wrong # args: should be none"
+    }
+    
+    upvar ::struct::graph::graph${name}::node${node} data
+
+    return [array get data]
+}
+
+# ::struct::graph::__node_keys --
+#
+#	Get a of keys from a node in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	node	node to query.
+#
+# Results:
+#	value	value associated with the key given.
+
+proc ::struct::graph::__node_keys {name node args} { 
+    if { ![__node_exists $name $node] } {
+	error "node \"$node\" does not exist in graph \"$name\""
+    }
+    
+    if { [llength $args] } {
+	error "wrong # args: should be none"
+    }
+
+    upvar ::struct::graph::graph${name}::node${node} data
+
+    return [array names data]
+}
+
+# ::struct::graph::__node_keyexists --
+#
+#	Test for existance of a given key for a node in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	node	node to query.
+#	flag	-key; anything else is an error
+#	key	key to lookup; defaults to data
+#
+# Results:
+#	1 if the key exists, 0 else.
+
+proc ::struct::graph::__node_keyexists {name node {flag -key} {key data}} {
+    if { ![__node_exists $name $node] } {
+	error "node \"$node\" does not exist in graph \"$name\""
+    }
+    
+    if { ![string equal $flag "-key"] } {
+	error "invalid option \"$flag\": should be -key"
+    }
+    
+    upvar ::struct::graph::graph${name}::node${node} data
+
+    return [info exists data($key)]
+}
+
 # ::struct::graph::__node_insert --
 #
 #	Add a node to a graph.
@@ -1057,6 +1297,80 @@ proc ::struct::graph::__node_set {name node args} {
 	}
 	return $data($key)
     }
+}
+
+# ::struct::graph::__node_append --
+#
+#	Append a value for a node in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	node	node to modify or query.
+#	args	?-key key? value
+#
+# Results:
+#	val	value associated with the given key of the given node
+
+proc ::struct::graph::__node_append {name node args} {
+    if { ![__node_exists $name $node] } {
+	error "node \"$node\" does not exist in graph \"$name\""
+    }
+    upvar ::struct::graph::graph${name}::node$node data
+
+    if { [llength $args] != 1 && [llength $args] != 3 } {
+	error "wrong # args: should be \"$name node append $node ?-key key?\
+		value\""
+    }
+    
+    if { [llength $args] == 3 } {
+	foreach {flag key} $args break
+	if { ![string equal $flag "-key"] } {
+	    error "invalid option \"$flag\": should be -key"
+	}
+    } else {
+	set key "data"
+    }
+
+    set value [lindex $args end]
+
+    return [append data($key) $value]
+}
+
+# ::struct::graph::__node_lappend --
+#
+#	lappend a value for a node in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	node	node to modify or query.
+#	args	?-key key? value
+#
+# Results:
+#	val	value associated with the given key of the given node
+
+proc ::struct::graph::__node_lappend {name node args} {
+    if { ![__node_exists $name $node] } {
+	error "node \"$node\" does not exist in graph \"$name\""
+    }
+    upvar ::struct::graph::graph${name}::node$node data
+
+    if { [llength $args] != 1 && [llength $args] != 3 } {
+	error "wrong # args: should be \"$name node lappend $node ?-key key?\
+		value\""
+    }
+    
+    if { [llength $args] == 3 } {
+	foreach {flag key} $args break
+	if { ![string equal $flag "-key"] } {
+	    error "invalid option \"$flag\": should be -key"
+	}
+    } else {
+	set key "data"
+    }
+
+    set value [lindex $args end]
+
+    return [lappend data($key) $value]
 }
 
 # ::struct::graph::__node_unset --

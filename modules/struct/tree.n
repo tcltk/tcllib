@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.15 2002/02/01 22:59:09 andreas_kupries Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.16 2002/05/09 05:46:04 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH tree n 1.2.1 Struct "Tcl Data Structures"
@@ -39,6 +39,10 @@ implementation allows any number of keyed values to be associated with
 each node.
 .PP
 The following commands are possible for tree objects:
+.TP 
+\fItreeName\fR \fBappend\fR \fInode\fR ?\fI-key key\fR? \fIvalue\fR
+Appends a value to one of the keyed values associated with an node.
+If no key is specified, the key \fBdata\fR is assumed.
 .TP
 \fItreeName\fR \fBchildren\fR \fInode\fR
 Return a list of the children of \fInode\fR.
@@ -64,6 +68,17 @@ Remove true if the specified node exists in the tree.
 \fItreeName\fR \fBget\fR \fInode\fR ?\fI-key key\fR?
 Return the value associated with the key \fIkey\fR for the node
 \fInode\fR.  If no key is specified, the key \fBdata\fR is assumed.
+.TP
+\fItreeName\fR \fBgetall\fR \fInode\fR
+Returns a serialized list of key/value pairs (suitable for use with
+\fB[array set]\fR) for the \fInode\fR.
+.TP
+\fItreeName\fR \fBkeys\fR \fInode\fR
+Returns a list of keys for the \fInode\fR.
+.TP
+\fItreeName\fR \fBkeyexists\fR \fInode\fR ?\fI-key key\fR?
+Return true if the specified \fIkey\fR exists for the \fInode\fR.
+If no key is specified, the key \fBdata\fR is assumed.
 .TP
 \fItreeName \fBindex\fR \fInode\fR
 Returns the index of \fInode\fR in its parent's list of children.  For
@@ -92,6 +107,10 @@ The return result from this command is a list of nodes added.
 \fItreeName \fBisleaf\fR \fInode\fR
 Returns true if \fInode\fR is a leaf of the tree (if \fInode\fR has no
 children), false otherwise.
+.TP
+\fItreeName\fR \fBlappend\fR \fInode\fR ?\fI-key key\fR? \fIvalue\fR
+Appends a value (as a list) to one of the keyed values associated with an node.
+If no key is specified, the key \fBdata\fR is assumed. 
 .TP
 \fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR ?\fInode ...\fR?
 Make the specified nodes children of \fIparent\fR, inserting them

@@ -1,3 +1,16 @@
+2002-05-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.n: This file is out of sync.
+	* graph.man:
+	* graph.test:
+	* graph.tcl: See tree, for arcs and nodes.
+
+	* tree.man:
+	* tree.n:
+	* tree.test:
+	* tree.tcl: Accepted FR #552972 (new methods append, lappend,
+	  getall, keys, keyexists) for tree structures.
+
 2002-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.tcl: Fixed SF Tcllib #532791 about unsetting of elements
