@@ -171,7 +171,11 @@ c_pass 2 fmt_manpage_end {} {
     return $res
 }
 
-c_pass 1 fmt_section     {name} { set ::SectionNames($name) [c_sectionId $name] }
+c_pass 1 fmt_section     {name} {
+    set     ::SectionNames($name) [set id [c_sectionId $name]]
+    lappend ::SectionList $name $id
+    return
+}
 c_pass 2 fmt_section     {name} {
     set id [c_sectionId $name]
     return "[markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>\n<p>]"
@@ -205,6 +209,29 @@ c_pass 2 fmt_description {} {
     set result ""
     set syn [c_held synopsis]
     set req [c_held require]
+
+    # Create the TOC. Add the special sections on our own.
+
+    set sections $::SectionList
+    set sections [linsert $sections 0 DESCRIPTION [c_sectionId DESCRIPTION]]
+    if {$syn != {} || $req != {}} {
+	set sections [linsert $sections 0 SYNOPSIS [c_sectionId SYNOPSIS]]
+    }
+    if {[llength [c_xref_seealso]] > 0} {
+	lappend sections {SEE ALSO} [c_sectionId {SEE ALSO}]
+    }
+    if {[llength [c_xref_keywords]] > 0} {
+	lappend sections KEYWORDS [c_sectionId KEYWORDS]
+    }
+    if {[c_get_copyright] != {}} {
+	lappend sections COPYRIGHT [c_sectionId COPYRIGHT]
+    }
+
+    append result [fmt_section {TABLE OF CONTENTS}]
+    foreach {name id} $sections {
+	append result "[markup "&nbsp;&nbsp"];[taga a [list href #$id]]$name[tag/ a][tag br]"
+    }
+
     if {$syn != {} || $req != {}} {
 	append result [fmt_section SYNOPSIS]\n
     }
