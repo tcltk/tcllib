@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.6 2002/03/25 18:54:35 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.7 2002/04/01 19:54:49 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -40,6 +40,7 @@ proc tclformat {cmd matrix {chan stdout}} {
 	    puts $chan "$matrix add rows    $r"
 	    puts $chan "$matrix add columns $c"
 	    puts $chan "$matrix set rect 0 0 [list [$matrix get rect 0 0 end end]]"
+	    return ""
 	}
 	default {
 	    return -code error "Unknown method $cmd"
@@ -1605,7 +1606,27 @@ test matrix-9.12 {unset in linked array} {
 
     mymatrix destroy
     set result
-} {{0,0 1 0,1 a 1,0 2 1,1 b 2,0 3 2,1 c} {{1 2 3} {a b c}}}
+} {{0,0 1 0,1 a 1,0 2 1,1 b 2,0 3 2,1 c} {{{} 2 3} {a b c}}}
+
+test matrix-9.12a {unset in linked array} {
+    matrix mymatrix
+    mymatrix add columns 3
+    mymatrix add row {1 2 3}
+    mymatrix add row {a b c}
+
+    catch {unset a}
+    mymatrix link a
+    catch {unset b}
+    mymatrix link b
+
+    set     result [list]
+    lappend result [aget a]
+    unset a(0,0)
+    lappend result [aget b]
+
+    mymatrix destroy
+    set result
+} {{0,0 1 0,1 a 1,0 2 1,1 b 2,0 3 2,1 c} {0,1 a 1,0 2 1,1 b 2,0 3 2,1 c}}
 
 test matrix-9.13 {operation on linked matrix} {
     catch {unset a}
@@ -1617,7 +1638,7 @@ test matrix-9.13 {operation on linked matrix} {
     set result [mymatrix get rect 0 0 end end]
     mymatrix destroy
     set result
-} {{1 2 3 {}} {a b c d}}}
+} {{1 2 3 {}} {a b c d}}
 
 test 10.1 {search errors} {
     matrix mymatrix
