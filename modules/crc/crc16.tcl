@@ -23,7 +23,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.1 2002/09/25 23:43:58 patthoyts Exp $
+# $Id: crc16.tcl,v 1.2 2002/10/11 22:13:51 patthoyts Exp $
 
 
 namespace eval crc {
@@ -223,7 +223,7 @@ proc crc::crc {args} {
         fconfigure $f -translation binary
         while {![eof $f]} {
             set chunk [read $f 4096]
-            set r [$opts(impl) [lindex $chunk] $r]
+            set r [$opts(impl) $chunk $r]
         }
         close $f
     } else {
