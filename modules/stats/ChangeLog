@@ -1,3 +1,8 @@
+2000-09-20  Brent Welch <welch@ajubasolutions.com>
+
+	* modules/stats/stats.tcl: Refined the countGet routine to return things
+	needed by the TclHttpd status module.  Refined the value-based histogram display.
+
 2000-09-15  Brent Welch <welch@ajubasolutions.com>
 
 	* Created this module.

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.2 2000/09/20 00:21:26 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.3 2000/09/21 03:14:22 welch Exp $
 
 package provide stats 1.0
 
@@ -594,10 +594,24 @@ proc stats::countMergeDay {} {
 #	Create an html display of the histogram.
 #
 # Arguments:
-#	none
+#	tag	The counter tag
+#	args	option, value pairs that affect the display:
+#		-title	Label to display above bar chart
+#		-unit	minutes, hours, or days select time-base histograms.
+#			Specify anything else for value-based histograms.
+#		-images	URL of /images directory.
+#		-gif	Image for normal histogram bars
+#		-ongif	Image for the active histogram bar
+#		-max 	Maximum number of value-based buckets to display
+#		-height	Pixel height of the highest bar
+#		-width	Pixel width of each bar
+#		-skip	Buckets to skip when labeling value-based histograms
+#		-format Format used to display labels of buckets.
+#		-text	If 0, a text version of the histogram is dumped,
+#			otherwise a graphical one is generated.
 #
 # Results:
-#	none
+#	HTML for the display.
 #
 # Side Effects:
 #	See description.
@@ -620,6 +634,7 @@ proc stats::histHtmlDisplay {tag args} {
 	-max 	-1 \
 	-height	100 \
 	-width	4 \
+	-skip	4 \
 	-format %.2f \
 	-text	0
     ]
@@ -635,6 +650,8 @@ proc stats::histHtmlDisplay {tag args} {
 	    set time $minuteBase
 	    set secsForMax $secsPerMinute
 	    set curIndex [expr {([clock seconds] - $minuteBase) / $secsPerMinute}]
+	    set options(-max) 59
+	    set options(-min) 0
 	}
 	hour* {
 	    upvar #0 stats::Hour-$tag histogram
@@ -645,6 +662,8 @@ proc stats::histHtmlDisplay {tag args} {
 	    set time $hourBase
 	    set secsForMax [expr {$secsPerMinute * 60}]
 	    set curIndex hourIndex
+	    set options(-max) 59
+	    set options(-min) 0
 	}
 	day* {
 	    upvar #0 stats::Day-$tag histogram
@@ -655,6 +674,8 @@ proc stats::histHtmlDisplay {tag args} {
 	    set time $dayBase
 	    set secsForMax [expr {$secsPerMinute * 60 * 24}]
 	    set curIndex dayIndex
+	    set options(-max) -1
+	    set options(-min) 0
 	}
 	default {
 	    # Value-based histogram with arbitrary units.
@@ -707,17 +728,12 @@ proc stats::histHtmlDisplay {tag args} {
 		</h3>"
 	append result <ul>
 
-	# Fill in holes in the histogram.
-
-	for {set i [lindex $ix 0]} \
-		{($i < [lindex $ix end]) &&
-			(($options(-max) < 0) || ($i < $options(-max)))} \
-		{incr i} {
-	    if {![info exist histogram($i)]} {
-		set histogram($i) 0
-	    }
+	if {$options(-max) < 0} {
+	    set $options(-max) [lindex $ix end]
 	}
-
+	if {![info exist options(-min)]} {
+	    set $options(-max) [lindex $ix 0]
+	}
     }
 
     # Display the histogram
@@ -752,13 +768,14 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
     append result "<table cellpadding=0 cellspacing=0><tr>\n"
     append result "<td valign=top>$max</td>\n"
-    set overflow 0
-    foreach t [lsort -integer [array names histogram]] {
-	if {($options(-max) > 0) && ($t > $options(-max))} {
-	    incr overflow
-	    continue
+    set ix [lsort -integer [array names histogram]]
+
+    for {set t $options(-min)} {$t < $options(-max)} {incr t} {
+	if {![info exist histogram($t)]} {
+	    set value 0
+	} else {
+	    set value $histogram($t)
 	}
-	set value $histogram($t)
 	if {[catch {expr {round($value * 100.0 / $max)}} percent]} {
 	    set height 1
 	} else {
@@ -773,6 +790,19 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 		width=$options(-width) alt=$value></td>\n"
     }
     append result "</tr>"
+
+    # Count buckets outside the range requested
+
+    set overflow 0
+    set underflow 0
+    foreach t [lsort -integer [array names histogram]] {
+	if {($options(-max) > 0) && ($t > $options(-max))} {
+	    incr overflow
+	}
+	if {($options(-min) >= 0) && ($t < $options(-min))} {
+	    incr underflow
+	}
+    }
 
     # Append a row of labels at the bottom.
 
@@ -814,12 +844,9 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	}
 	default {
 	    append result "<tr><td> </td>"
-	    set skip 4
+	    set skip $options(-skip)
 	    set i 0
-	    foreach t [lsort -integer [array names histogram]] {
-		if {($options(-max) > 0) && ($t > $options(-max))} {
-		    break
-		}
+	    for {set t $options(-min)} {$t < $options(-max)} {incr t} {
 
 		# Label each bucket with its hour
 
@@ -832,6 +859,10 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	}
     }
     append result "</table>"
+    if {$underflow > 0} {
+	append result "<br>Skipped $underflow samples <\
+		[expr {$options(-min) * $counter(bucketsize)}]\n"
+    }
     if {$overflow > 0} {
 	append result "<br>Skipped $overflow samples >\
 		[expr {$options(-max) * $counter(bucketsize)}]\n"
