@@ -1,144 +1,24 @@
-'\" $Id: comm.n,v 1.1 2001/08/22 20:20:57 andreas_kupries Exp $
-'\" %%_OSF_FREE_COPYRIGHT_%%
-'\" Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
-'\" (Please see the file "comm.LICENSE" that accompanied this source)
-'\"
-'\" unroff -fhtml -man comm.n
-'\" (then fix <title>)
-'\"
-'	# DS - begin an indented unfilled display
-.de DS
-.RS
-.nf
-.sp
-..
-'	# DE - end of indented unfilled display
-.de DE
-.fi
-.RE
-.sp .5
-..
-'\"     # CS - begin code excerpt
-.de CS
-.ft CW
-.RS
-.nf
-.ta .25i .5i .75i 1i
-..
-'\"     # CE - end code excerpt
-.de CE
-.fi
-.ft R
-.RE
-..
-'\"
-'\"
+.\" $Id: comm.n,v 1.2 2001/11/09 22:44:59 jenglish Exp $
+.\" %%_OSF_FREE_COPYRIGHT_%%
+.\" Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
+.\" (Please see the file "comm.LICENSE" that accompanied this source)
+.\"
+.so man.macros
 .TH comm n 3.7 comm "package comm 3.7"
-'\"
 .SH NAME
 comm.tcl \- A remote communications facility for Tcl (7.6, 8.0, and later)
 .SH SYNOPSIS
+.nf
 \fBpackage require comm ?3.7?\fR
 .sp
-'\"
-'\" define all interfaces ONCE
-'\"
-.de i1
-\\fB\\$1 send \\fR?\\fI-async\\fR? \\fIid cmd \\fR?\\fIarg arg ...\\fR?
-..
-.de i2
-\\fB\\$1 interps\\fR
-..
-.de iD
-\\fB\\$1 ids\\fR
-..
-.de i3
-\\fB\\$1 self\\fR
-..
-.de i4
-\\fB\\$1 connect \\fR?\\fIid\\fR?
-..
-.de i5
-\\fB\\$1 new \\fIchan\\fR ?\\fIname value ...\\fR?
-..
-.de i6
-\\fB\\$1 config
-.br
-\\fB\\$1 config \\fIname\\fR
-.br
-\\fB\\$1 config ?\\fIname value ...\\fR?
-..
-.de iE
--\\fBlisten \\fR?\\fI0|1\\fR?
--\\fBlocal \\fR?\\fI0|1\\fR?
--\\fBport \\fR?\\fIport\\fR?
-..
-.de iF
--\\fBchan\\fR \\fIchan\\fR
--\\fBserial\\fR \\fIn\\fR
--\\fBsocket\\fR sock\\fIn\\fR
-..
-.de i7
-\\fB\\$1 channels\\fR
-..
-.de i8
-\\fB\\$1 shutdown \\fIid\\fR
-..
-.de i9
-\\fB\\$1 abort\\fR
-..
-.de iA
-\\fB\\$1 destroy\\fR
-..
-.de iB
-\\fB\\$1 remoteid\\fR
-..
-.de iC
-\\fB\\$1 hook \\fIevent\\fR ?\\fB+\\fR??\\fIscript\\fR?
-..
-'\" iD taken (see i2)
-'\" iE taken (see i6)
-'\" iF taken (see i6)
-'\"
-'\" Show all interfaces
-'\"
-.i1 \fIchan\fP
-.sp
-.i2 \fIchan\fP
-.sp
-.iD \fIchan\fP
-.sp
-.i3 \fIchan\fP
-.sp
-.i4 \fIchan\fP
-.sp
-.i6 \fIchan\fP
-.br
-.RS
-.iE \fIchan\fP
-.RE
-.sp
-.i5 \fIchan\fP
-.sp
-.i7 \fIchan\fP
-.sp
-.i8 \fIchan\fP
-.sp
-.i9 \fIchan\fP
-.sp
-.iA \fIchan\fP
-.sp
-.iB \fIchan\fP
-.sp
-.iC \fIchan\fP
-.sp
+\fIchan \fBnew \fIchan\fR ?\fIname value ...\fR?
+\fIchan \fBsend \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR?
+\fIchan \fBhook \fIevent\fR ?\fB+\fR??\fIscript\fR?
+\fIchan \fIoption\fP ?\fI arg arg ...\fR?
+.fi
 The package initializes \fBcomm\fR as the default \fIchan\fR.
-'\"
-'\"
-'\"
 .SH "INTRODUCTION"
 .PP
-.fi
 The
 .B comm
 command provides an inter-interpreter remote execution facility
@@ -158,8 +38,8 @@ These commands work just like
 and
 .BR "winfo interps" :
 .CS
-.i1 \fBcomm\fP
-.i2 \fBcomm\fP
+\fBcomm send \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR?
+\fBcomm interps\fP
 .CE
 This is all that is really needed to know in order to use
 .BR comm .
@@ -181,7 +61,7 @@ doesn't implicitly know the
 .IR id 's
 of all the interpreters on the system.
 .TP
-.i1 \fBcomm\fP
+\fBcomm send \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR? 
 This invokes the given command in the interpreter named by
 .IR id .
 The command waits for the result and remote errors are returned
@@ -189,12 +69,12 @@ unless the
 .B -async
 option is given.
 .TP
-.i3 \fBcomm\fP
+\fBcomm self\fP
 Returns the
 .I id
 for this channel.
 .TP
-.i2 \fBcomm\fP
+\fBcomm interps\fP
 Returns a list of all the remote
 .IR id 's
 to which this channel is connected.
@@ -205,10 +85,10 @@ when a command is first issued it,
 or when a remote
 .I id
 first issues a command to this comm channel.
-.iD \fBcomm\fP
+\fBcomm ids\fP
 is an alias for this method.
 .TP
-.i4 \fBcomm\fP
+\fBcomm connect \fR?\fIid\fR?
 Whereas
 .B "comm send"
 will automatically connect to the given
@@ -248,9 +128,9 @@ Note that the equivalent
 .B send
 command also produces the same error.
 .CS
-% \fBcomm send \fIid\fP llength {a b c}\fR
+% \fBcomm send \fIid\fP llength {a b c}
 \fBwrong # args: should be "llength list"\fR
-% \fBsend \fIname\fP llength {a b c}\fR
+% \fBsend \fIname\fP llength {a b c}
 \fBwrong # args: should be "llength list"\fR
 .CE
 .LP
@@ -274,7 +154,7 @@ For instance,
 .B hook
 scripts are specific to the channel they are defined against. 
 .TP
-.i5 \fBcomm\fP
+\fBcomm new \fIchan\fR ?\fIname value ...\fR?
 This creates a new channel and Tcl command with the given channel name.
 This new command controls the new channel and takes all the same
 arguments as
@@ -283,7 +163,7 @@ Any remaining arguments are passed to the
 .B config
 method.
 .TP
-.i7 \fBcomm\fP
+\fBcomm channels\fR
 This lists all the channels allocated in this Tcl interpreter.
 .LP
 The default configuration parameters for a new channel are:
@@ -307,7 +187,11 @@ method acts similar to
 .B fconfigure
 in that it sets or queries configuration variables associated with a channel.
 .RS
-.i6 \fBcomm\fP
+\fBcomm config
+.br
+\fBcomm config \fIname\fR
+.br
+\fBcomm config ?\fIname value ...\fR?
 .RE
 When given no arguments,
 .B config
@@ -321,13 +205,16 @@ given values.
 These configuration variables can be changed
 (descriptions of them are elsewhere in this manual page):
 .RS
-.iE \fBcomm\fP
+-\fBlisten \fR?\fI0|1\fR?
+-\fBlocal \fR?\fI0|1\fR?
+-\fBport \fR?\fIport\fR?
 .RE
 .sp
 These configuration variables are readonly:
 .RS
-.iF \fBcomm\fP
-.RE
+-\fBchan\fR \fIchan\fR
+-\fBserial\fR \fIn\fR
+-\fBsocket\fR sock\fIn\fR
 .RE
 .PP
 When
@@ -404,17 +291,17 @@ plain hostname or an IP address).
 .PP
 These methods give control over closing connections:
 .TP
-.i8 \fBcomm\fP
+\fBcomm shutdown \fIid\fR 
 This closes the connection to
 .IR id ,
 aborting all outstanding commands in progress.  Note that nothing
 prevents the connection from being immediately reopened by another
 incoming or outgoing command.
 .TP
-.i9 \fBcomm\fP
+\fBcomm abort\fR
 This invokes shutdown on all open connections in this comm channel.
 .TP
-.iA \fBcomm\fP
+\fBcomm destroy\fR
 This aborts all connections and then destroys the this comm channel itself,
 including closing the listening socket.
 Special code allows the default
@@ -446,7 +333,7 @@ callback below.
 .PP
 This is a mechanism for setting hooks for particular events:
 .CS
-.iC \fBcomm\fP
+\fBcomm hook \fIevent\fR ?\fB+\fR??\fIscript\fR? 
 .CE
 .LP
 This uses a syntax similar to Tk's
@@ -483,23 +370,13 @@ the id of the remote in question
 the file id for the socket of the connection
 .RE
 .ta 4i
-
-.\"
-.de Hk
-.TP
-.B \\$1	\\$3
-Variables:
-.I "\\$2"
-.br
-..
-
-.\"
-.\"
-.\"
 These are the defined
 .IR events :
-.\"
-.Hk connecting "chan id host port"
+.TP
+\fBconnecting\fR
+Variables:
+.I "chan id host port"
+.br
 This hook is invoked before making a connection
 to the remote named in
 .IR id .
@@ -520,7 +397,11 @@ Connect to remote failed: Can't connect to even ids
 .CE
 
 .\"
-.Hk connected "chan fid id host port"
+.TP
+.B connected
+Variables:
+.I "chan fid id host port"
+.br
 This hook is invoked immediately after making a remote connection to
 .IR id ,
 allowing arbitrary authentication over the socket
@@ -535,12 +416,13 @@ and
 are merely extracted from the
 .IR id ;
 changing any of these will have no effect on the connection, however.
-It is also possible to substitute and replace
-.I fid .
-
-
+It is also possible to substitute and replace \fIfid\fP.
 .\"
-.Hk incoming "chan fid addr remport"
+.TP
+\fBincoming\fP
+Variables:
+.I "chan fid addr remport"
+.br
 Hook invoked when receiving an incoming connection,
 allowing arbitrary authentication over socket
 named by
@@ -563,7 +445,11 @@ comm hook incoming {
 .CE
 
 .\"
-.Hk eval "chan id cmd buffer"
+.TP
+\fBeval\fP
+Variables:
+.I "chan id cmd buffer"
+.br
 This hook is invoked after collecting a complete script from a remote
 but
 .B before
@@ -663,7 +549,11 @@ A-OK
 .RE
 
 .\"
-.Hk reply "chan id buffer ret return()"
+.TP
+\fBreply\fP
+Variables:
+.I "chan id buffer ret return()"
+.br
 This hook is invoked after collecting a complete reply script from a remote
 but
 .B before
@@ -694,9 +584,12 @@ modifying
 .I buffer
 has no effect.
 .RE
-
 .\"
-.Hk lost "chan id reason"
+.TP
+\fBlost\fP
+Variables:
+.I "chan id reason"
+.br
 This hook is invoked when the connection to
 .I id
 is lost.
@@ -714,14 +607,11 @@ comm hook lost {
     }
 }
 .CE
-'\"
-'\"
-'\"
 .SH UNSUPPORTED
 .PP
 These interfaces may change or go away in subsequence releases.
 .TP
-.iB \fBcomm\fP
+\fBcomm remoteid\fR 
 Returns the
 .I id
 of the sender of the last remote command executed on this channel.
@@ -859,7 +749,7 @@ Added more source commentary, as well as documenting config variables
 in this man page.
 Fixed bug were loss of connection would give error about a variable
 named
-.CW pending
+.B pending
 rather than the message about the lost connection.
 .B "comm ids"
 is now an alias for
@@ -934,7 +824,7 @@ Currently, the protocol version is set to 2.
 .IP "2.3" 5
 .B "comm ids"
 was renamed to
-.B "comm channels".
+.BR "comm channels" .
 General support for
 .B "comm hook"
 was fully implemented, but
@@ -943,11 +833,10 @@ only the
 hook exists, and it was changed to follow the general hook API.
 .B commLostHook
 was unsupported (replaced by
-.B "comm hook lost")
+.BR "comm hook lost" )
 and
 .B commLost
 was removed.
-
 .IP "2.2" 5
 The 
 .B died
@@ -971,11 +860,6 @@ was added.
 .B comm
 has been rewritten from scratch (but is fully compatible with Comm 1.0,
 without the requirement to use obTcl).
-'\"
-'\"
-'\"
-.SH "SEE ALSO"
-.IR send "(n)"
 '\"
 .SH AUTHOR
 John LoVerso, John@LoVerso.Southborough.MA.US
@@ -1067,6 +951,11 @@ Andreas Kupries <a.kupries@westend.com> uses
 and has built a simple nameserver as part of his Pool library.
 See
 .IR http://www.westend.com/~kupries/doc/pool/index.htm .
+'\"
+'\"
+'\"
+.SH "SEE ALSO"
+send(n)
 '\"
 '\" eof
 '\"
