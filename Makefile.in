@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.54 2002/01/12 00:35:44 patthoyts Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.55 2002/01/18 20:42:57 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -269,28 +269,47 @@ depend:
 #   Generated installer for Windows (INSTALL.BAT) and UNIX (install.sh)
 # This all gets archived together (tcllib$(VERSION).zip or 
 # tcllib$(VERSION).tar.gz).
+
+# Changes:
+# - Generate the distributions in the current directory, not the source directory.
+# - Make the structure of the source distribution equal to the
+#   structure of the raw distribution out of CVS, with some files
+#   removed. This makes generation easier.
+#
+# Actions
+# - Remove possible old temp dir and archives
+# - Copy examples and modules into temp dir
+# - Remove meta-data of CVS
+# - Copy a selected number of files into the src distribution
+# - Recopy the manpages and insert man.macros (the big loop)
+# - Generate pkgIndex and installation scripts
+# - Generate the archives and release the temp dir
+
 dist:
-	rm -rf $(srcdir)/tcllib$(VERSION) tcllib$(VERSION).tar.gz tcllib$(VERSION).zip
-	@mkdir $(srcdir)/tcllib$(VERSION)
-	-for j in $(MODULES) ; do \
-	    mkdir $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/*.n $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/*.txt $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/*.xml $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/*.html $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/*.tcl $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/*.test $(srcdir)/tcllib$(VERSION)/$$j ; \
-	    cp $(srcdir)/modules/$$j/tclIndex $(srcdir)/tcllib$(VERSION)/$$j ; \
+	rm -rf tcllib$(VERSION) tcllib$(VERSION).tar.gz tcllib$(VERSION).zip
+	@mkdir tcllib$(VERSION)
+	for j in examples modules ; do \
+	    cp -r $(srcdir)/$$j tcllib$(VERSION) ; \
 	done
-	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl $(srcdir)/tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
-	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl $(srcdir)/tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
-	for j in license.terms README ; do \
-	    cp $(srcdir)/$$j $(srcdir)/tcllib$(VERSION)/$$j ; \
+	find tcllib$(VERSION) -name CVS -prune -exec rm -rf {} \;
+	for j in license.terms README ChangeLog ; do \
+	    cp $(srcdir)/$$j tcllib$(VERSION)/$$j ; \
 	done
-	cd $(srcdir) ; tar cf tcllib$(VERSION).tar tcllib$(VERSION)
-	cd $(srcdir) ; gzip tcllib$(VERSION).tar
-	cd $(srcdir) ; zip -r tcllib$(VERSION).zip tcllib$(VERSION)
-	rm -rf $(srcdir)/tcllib$(VERSION)
+	for j in $(MODULES) ; do \
+	    doc=`ls $(srcdir)/modules/$$j/*.n 2>/dev/null` ; \
+	    if test -n "$$doc" ; then \
+		for i in $$doc ; do \
+		    sed -e '/man\.macros/r $(srcdir)/man.macros' -e '/man\.macros/d' \
+			< $$i > tcllib$(VERSION)/modules/$$j/`basename $$i` ; \
+		done; \
+	    fi ; \
+	done ;
+	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl          tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
+	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
+	tar cf - tcllib$(VERSION) | gzip --best > tcllib$(VERSION).tar.gz
+	zip -r tcllib$(VERSION).zip tcllib$(VERSION)
+	rm -rf tcllib$(VERSION)
+
 
 # Check tcllib and report all modules without documentation and/or testsuite.
 check:

@@ -1,3 +1,7 @@
+2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (dist): Fixed bug #495976.
+
 2002-01-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc module: added sum manual page
@@ -6,8 +10,6 @@
 2002-01-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* examples/csv/csvdiff: New example for csv module. FR #485717.
-
-2002-01-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime: Fixed bug #499242.
 
