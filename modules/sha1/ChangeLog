@@ -1,5 +1,7 @@
 2005-02-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* sha256.tcl:  Inlined a load of expr calls to speed it up.
+	
 	* sha256.tcl:  SHA-224 and SHA-256 pure-Tcl implementation
 	* sha256.test: Tests from FIPS 180-2 for SHA-224 and SHA-256
 	This is the first version. It is correct (in that it passes the
