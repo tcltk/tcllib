@@ -130,11 +130,11 @@ These commands are identical to the MD5 equivalent commands.
 
 [example {
 % set tok [md5::MD5Init]
-::md4::1
-% md4::MD5Update $tok "Tcl "
-% md4::MD5Update $tok "does "
-% md4::MD5Update $tok "MD5"
-% md4::Hex [md5::MD5Final $tok]
+::md5::1
+% md5::MD5Update $tok "Tcl "
+% md5::MD5Update $tok "does "
+% md5::MD5Update $tok "MD5"
+% md5::Hex [md5::MD5Final $tok]
 8AAC1EE01E20BB347104FABB90310433
 }]
 
