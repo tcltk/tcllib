@@ -3,7 +3,8 @@
 [titledesc {Basic statistical functions and procedures}]
 [description]
 [para]
-The [package statistics] package contains functions and procedures for
+
+The [package math::statistics] package contains functions and procedures for
 basic statistical data analysis, such as:
 
 [list_begin bullet]
@@ -37,7 +38,7 @@ that deal with specific statistical distributions, list procedures to
 select or transform data and simple plotting procedures (these require
 Tk).
 
-[emph Note:] The data that need to be analysed are always contained in a
+[emph Note:] The data that need to be analyzed are always contained in a
 simple list. Missing values are represented as empty list elements.
 
 [section "GENERAL PROCEDURES"]
@@ -361,7 +362,7 @@ Return the expected histogram for a uniform distribution.
 
 
 [list_end]
-Pro memorie: more function descriptions to be added
+TO DO: more function descriptions to be added
 
 [section "DATA MANIPULATION"]
 The data manipulation procedures act on lists or lists of lists:
@@ -370,8 +371,7 @@ The data manipulation procedures act on lists or lists of lists:
 
 [call [cmd ::math::statistics::filter] [arg varname] [arg data] [arg expression]]
 Return a list consisting of the data for which the logical
-expression is true (this command works analogously to the "foreach"
-command)
+expression is true (this command works analogously to the command [cmd foreach]).
 [nl]
 [arg varname] - Name of the variable used in the expression
 [nl]
@@ -501,7 +501,7 @@ Create a simple histogram in the given canvas
 
 [list_end]
 
-[section "PRO MEMORIE"]
+[section {THINGS TO DO}]
 The following procedures are yet to be implemented:
 [list_begin bullet]
 [bullet]
