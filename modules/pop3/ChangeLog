@@ -1,5 +1,9 @@
 2002-10-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* pop3.test: Updated to expect 10 messages in pop3-6.0.
+	* srv.tcl: Initialize server with 10 messages. Divert log output
+	  to server log. Prevents hangs in pop3-6.0.
+
 	* pop3.tcl (pop3::retrieve): Changed conditionals around [scan] to
 	  check for the actual number of conversions required to make the
 	  code work, instead of < 0. This fixes bug 620062.
