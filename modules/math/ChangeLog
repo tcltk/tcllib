@@ -1,3 +1,8 @@
+2004-09-09  Andreas Kupries  <andreask@activestate.com>
+
+	* calculus.man: Fixed problems in the calculus manpage introduced
+	  by the last commit done yesterday.
+
 2004-07-19  Andreas Kupries  <andreask@activestate.com>
 
 	* combinatorics.man: Polished minimally, name of manpage.
