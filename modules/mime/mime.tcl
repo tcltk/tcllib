@@ -322,6 +322,129 @@ namespace eval ::mime {
         set reversemap([string tolower $mimeType]) $enc
     }
 
+    set encAliasList [list \
+            ascii ANSI_X3.4-1968 \
+            ascii iso-ir-6 \
+            ascii ANSI_X3.4-1986 \
+            ascii ISO_646.irv:1991 \
+            ascii ASCII \
+            ascii ISO646-US \
+            ascii us \
+            ascii IBM367 \
+            ascii cp367 \
+            cp437 cp437 \
+            cp437 437 \
+            cp775 cp775 \
+            cp850 cp850 \
+            cp850 850 \
+            cp852 cp852 \
+            cp852 852 \
+            cp855 cp855 \
+            cp855 855 \
+            cp857 cp857 \
+            cp857 857 \
+            cp860 cp860 \
+            cp860 860 \
+            cp861 cp861 \
+            cp861 861 \
+            cp861 cp-is \
+            cp862 cp862 \
+            cp862 862 \
+            cp863 cp863 \
+            cp863 863 \
+            cp864 cp864 \
+            cp865 cp865 \
+            cp865 865 \
+            cp866 cp866 \
+            cp866 866 \
+            cp869 cp869 \
+            cp869 869 \
+            cp869 cp-gr \
+            cp936 CP936 \
+            cp936 MS936 \
+            cp936 Windows-936 \
+            iso8859-1 ISO_8859-1:1987 \
+            iso8859-1 iso-ir-100 \
+            iso8859-1 ISO_8859-1 \
+            iso8859-1 latin1 \
+            iso8859-1 l1 \
+            iso8859-1 IBM819 \
+            iso8859-1 CP819 \
+            iso8859-2 ISO_8859-2:1987 \
+            iso8859-2 iso-ir-101 \
+            iso8859-2 ISO_8859-2 \
+            iso8859-2 latin2 \
+            iso8859-2 l2 \
+            iso8859-3 ISO_8859-3:1988 \
+            iso8859-3 iso-ir-109 \
+            iso8859-3 ISO_8859-3 \
+            iso8859-3 latin3 \
+            iso8859-3 l3 \
+            iso8859-4 ISO_8859-4:1988 \
+            iso8859-4 iso-ir-110 \
+            iso8859-4 ISO_8859-4 \
+            iso8859-4 latin4 \
+            iso8859-4 l4 \
+            iso8859-5 ISO_8859-5:1988 \
+            iso8859-5 iso-ir-144 \
+            iso8859-5 ISO_8859-5 \
+            iso8859-5 cyrillic \
+            iso8859-6 ISO_8859-6:1987 \
+            iso8859-6 iso-ir-127 \
+            iso8859-6 ISO_8859-6 \
+            iso8859-6 ECMA-114 \
+            iso8859-6 ASMO-708 \
+            iso8859-6 arabic \
+            iso8859-7 ISO_8859-7:1987 \
+            iso8859-7 iso-ir-126 \
+            iso8859-7 ISO_8859-7 \
+            iso8859-7 ELOT_928 \
+            iso8859-7 ECMA-118 \
+            iso8859-7 greek \
+            iso8859-7 greek8 \
+            iso8859-8 ISO_8859-8:1988 \
+            iso8859-8 iso-ir-138 \
+            iso8859-8 ISO_8859-8 \
+            iso8859-8 hebrew \
+            iso8859-9 ISO_8859-9:1989 \
+            iso8859-9 iso-ir-148 \
+            iso8859-9 ISO_8859-9 \
+            iso8859-9 latin5 \
+            iso8859-9 l5 \
+            iso8859-10 iso-ir-157 \
+            iso8859-10 l6 \
+            iso8859-10 ISO_8859-10:1992 \
+            iso8859-10 latin6 \
+            iso8859-14 iso-ir-199 \
+            iso8859-14 ISO_8859-14:1998 \
+            iso8859-14 ISO_8859-14 \
+            iso8859-14 latin8 \
+            iso8859-14 iso-celtic \
+            iso8859-14 l8 \
+            iso8859-15 ISO_8859-15 \
+            iso8859-15 Latin-9 \
+            iso8859-16 iso-ir-226 \
+            iso8859-16 ISO_8859-16:2001 \
+            iso8859-16 ISO_8859-16 \
+            iso8859-16 latin10 \
+            iso8859-16 l10 \
+            jis0201 X0201 \
+            jis0208 iso-ir-87 \
+            jis0208 x0208 \
+            jis0208 JIS_X0208-1983 \
+            jis0212 x0212 \
+            jis0212 iso-ir-159 \
+            ksc5601 iso-ir-149 \
+            ksc5601 KS_C_5601-1989 \
+            ksc5601 KSC5601 \
+            ksc5601 korean \
+            shiftjis MS_Kanji \
+            utf-8 UTF8]
+
+    foreach {enc mimeType} $encAliasList {
+        set reversemap([string tolower $mimeType]) $enc
+    }
+
     namespace export initialize finalize getproperty \
                      getheader setheader \
                      getbody \
@@ -1410,6 +1533,12 @@ proc ::mime::getbody {token args} {
         set args [lreplace $args $pos $pos]
     }
 
+    set decode 0
+    if {[set pos [lsearch -exact $args -decode]] >= 0} {
+        set decode 1
+        set args [lreplace $args $pos $pos]
+    }
+
     array set options [list -command [list mime::getbodyaux $token] \
                             -blocksize 4096]
     array set options $args
@@ -1662,7 +1791,28 @@ proc ::mime::copymessage {token channel} {
         unset state(fd)
     }
 
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
+    if {$code} {
+        return -code $code -errorinfo $einfo -errorcode $ecode $result
+    }
+
+    if {$decode} {
+        array set params [mime::getproperty $token params]
+
+        if {[info exists params(charset)]} {
+            set charset $params(charset)
+        } else {
+            set charset US-ASCII
+        }
+
+        set enc [reversemapencoding $charset]
+        if {$enc != ""} {
+            set result [::encoding convertfrom $enc $result]
+        } else {
+            return -code error "-decode failed: can't reversemap charset $charset"
+        }
+    }
+
+    return $result
 }
 
 # ::mime::copymessageaux --
@@ -1841,6 +1991,9 @@ proc ::mime::copymessageaux {token channel} {
                 set blocksize 512
             }
             set blocksize [expr {($blocksize/4)*3}]
+
+	    # [893516]
+	    fconfigure $channel -buffersize $blocksize
 
 	    # [893516]
 	    fconfigure $channel -buffersize $blocksize
