@@ -310,7 +310,10 @@ proc fmt_comment {text} {
     }
     return [join $res \n]
 }
-proc fmt_sectref {text} {Bold $text}
+proc fmt_sectref {text {label {}}} {
+    if {![string length $label]} {set label $text}
+    Bold $label
+}
 proc fmt_syscmd  {text} {Bold $text}
 proc fmt_method  {text} {Bold $text}
 proc fmt_option  {text} {Bold $text}

@@ -34,7 +34,7 @@ This framework is provided by the package [package doctools::toc].
 [para]
 
 Anyone who wishes to write a toc formatting engine which plugs into
-this framework has to read the document [term doctoc_fmt]. This is the
+this framework has to read the document [term doctoc_api]. This is the
 formal specification of the API between the framework and its engines.
 
 
@@ -79,9 +79,9 @@ includes comments.
 Then we define rules for all the keywords. Here we introduce our
 knowledge that all commands can be separated by whitespace, and also
 that the inclusion of other files may happen essentially everywhere,
-like the definition of document variables. The contents of any
-included files has to fit into the including file according to the
-location in the grammar the inclusion is at.
+like the definition of document variables. The content of any included
+file has to fit into the including file according to the location in
+the grammar the inclusion is at.
 
 [para]
 [example {

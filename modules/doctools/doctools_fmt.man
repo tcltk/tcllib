@@ -6,358 +6,480 @@
 [description]
 [para]
 
-This manpage specifies a documentation format for manpages. It is
-intended to complement both the [syscmd doctoc] format for writing
-tables of contents and the [syscmd docidx] format for writing indices.
-See [syscmd doctoc_fmt] and [syscmd docidx_fmt] for the specification
-of these two formats.
+This document specifies version 1 of a text format for man pages. The
+name of this format is [term doctools] and it provides all the
+necessary commands to write a manpage.
 
+It is complemented by both the [term doctoc] format for writing tables
+of contents and the [term docidx] format for writing keyword indices.
+
+The formal specifications for these two formats can be found in the
+companion documents [term doctoc_fmt] and [term docidx_fmt].
+
+A third companion document describes the package [package doctools],
+which provides commands for the processing of text in [term doctools]
+format.
 
 [para]
 
-This format is called [syscmd doctools].
+Like for the formats [term doctoc] and [term docidx] a generic
+framework for the conversion of [term doctools] to any number of
+different output formats is provided.
 
-It provides all the necessary commands to write manpages.
+This framework is provided by the package [package doctools].
 
-Like for the [syscmd doctoc] and [syscmd docidx] formats a package is
-provided implementing a generic framework for the conversion of
-[syscmd doctools] to a number of different output formats, like HTML,
-TMML, nroff, LaTeX, etc.
+[para]
 
-The package is called [package doctools], its documentation can be
-found in [syscmd doctools].
-
-People wishing to write a formatting engine for the conversion of
-[syscmd doctools] into a new output format have to read
-[syscmd doctools_api]. This manpage will explain the interface between
-the generic package and such engines.
+Anyone who wishes to write a toc formatting engine which plugs into
+this framework has to read the document [term doctools_api]. This is the
+formal specification of the API between the framework and its engines.
 
 
-[section OVERVIEW]
+[section {FORMAT SPECIFICATION}]
 
-[syscmd doctoc] is similar to LaTex in that it consists primarily of
-text, with markup commands embedded into it. The format used to mark
-something as command is different from LaTeX however. All text between
-matching pairs of [lb] and [rb] is a command, possibly with
+[subsection OVERVIEW]
+
+[term doctools] is similar to LaTeX. Input written in this format
+consists primarily of text, with markup commands embedded into it. The
+format used to mark commands is different from LaTeX however. All text
+between matching pairs of [lb] and [rb] is a command, possibly with
 arguments. Note that both brackets have to be on the same line for a
 command to be recognized.
 
 [para]
 
-In contrast to both [syscmd doctoc] and [syscmd docidx] this format
-does allow plain text beyond white space. This plain text will be the
-contents of the described manpage.
+In contrast to both [term doctoc] and [term docidx] this format does
+allow arbitrary text between markup commands. Only some places are
+restricted to only white space.
 
 
-[section {FORMATTING COMMANDS}]
-[list_begin bullet]
-[bullet]
+[subsection GRAMMAR]
 
-The main commands are [cmd manpage_begin], [cmd manpage_end],
-[cmd moddesc], [cmd titledesc], and [cmd description]. Four of these
-five are required for a manpage. The optional command is
-[cmd titledesc]. The first two are the first and last commands in a
-manpage. Neither text nor other commands may precede
-[cmd manpage_begin] nor follow [cmd manpage_end].  The command
-[cmd description] separates header and body of the manpage and may not
-be omitted.
+The overall syntax of a manpage is best captured in a formal
+context-free grammar. Our notation for the grammar is EBNF. Strings
+will stand for markup commands, however their arguments (if they have
+any) are not part of the grammar. Our grammar contains lexical
+elements as well.
 
-[nl]
+[para]
 
-The remaining commands ([cmd moddesc] and [cmd titledesc]) provide
-one-line descriptions of module and specific title respectively.
+First we specify the whitespace and other text at the lexical level,
+which also includes comments.
 
-[bullet]
-The only text allowed between [cmd manpage_begin] and
-[cmd description] is the command [cmd require]. Other commands or
-normal text are not permitted. [cmd require] is used to list the
-packages the described command(s) depend(s) on for its operation. This
-list can be empty.
+[para]
+[example {
+    COMMENT  ::= "comment"
+    WHITE    ::= { '\n' | '\t' | ' ' | '\r' | COMMENT }
+    TEXT     ::= { All characters except '[' }
+}]
+[para]
 
-[bullet]
-After [cmd description] text and all other commands are allowed. The
-text can be separated into highlevel blocks using named
-[cmd section]s.  Each block can be further divided into paragraphs via
-[cmd para].
 
-[bullet]
-The commands [cmd see_also] and [cmd keywords] define whole sections
-named [emph {SEE ALSO}] and [emph KEYWORDS]. They can occur everywhere
-in the manpage but making them the last section is the usual thing to
-do. They can be omitted.
+Then we define rules for all the keywords. Here we introduce our
+knowledge that some commands allow only whitespace after them.
 
-[bullet]
+[para]
+[example {
+    BEGIN      ::= "manpage_begin" WHITE
+    END        ::= "manpage_end"	
+    TITLE      ::= "titledesc"     WHITE
+    MODULE     ::= "moddesc"       WHITE
+    REQUIRE    ::= "require"       WHITE
+    COPYRIGHT  ::= "copyright"     WHITE
+    DESC       ::= "description"
 
-There are five commands available to markup words, [cmd arg],
+    SECTION    ::= "section"
+    SUBSEC     ::= "subsection"
+    PARA       ::= "para"
+    NL         ::= "nl"
+    SEE_ALSO   ::= "see_also"
+    KEYWORDS   ::= "keywords"
 
-[cmd cmd], [cmd opt], [cmd emph] and [cmd strong]. The first three are
-used to mark words as [emph {command arguments}], as
+    ARG        ::= "arg"
+    CMD        ::= "cmd"
+    OPT        ::= "opt"
+    EMPH       ::= "emph"
+    STRONG     ::= "strong"
+    SECTREF    ::= "sectref"
+    USAGE      ::= "usage"
+    SYSCMD     ::= "syscmd"
+    METHOD     ::= "method"
+    NAMESPACE  ::= "namespace"
+    OPTION     ::= "option"
+    WIDGET     ::= "widget"
+    FUN        ::= "fun"
+    TYPE       ::= "type"
+    PACKAGE    ::= "package"
+    CLASS      ::= "class"
+    VAR        ::= "var"
+    FILE       ::= "file"
+    URI        ::= "uri"
+    TERM       ::= "term"
+    CONST      ::= "const"
+    LB         ::= "lb"
+    RB         ::= "rb"
+    EX_BEGIN   ::= "example_begin"
+    EX_END     ::= "example_end"
+    EXAMPLE    ::= "example"
 
-[emph {command names}] and as [emph optional]. The other two are
-visual markup to emphasize words. The term [emph words] is used in a
-loose sense here, i.e application of the commands to a sequence of
-words is entirely possible, if they are properly quoted. [emph Note]
-that usage of [cmd strong] is discouraged as this command is
-deprecated and only present for backwards compatibility
+    LIST_BEGIN ::= "list_begin" WHITE
+    LIST_END   ::= "list_end"
+    LIST_ITEM  ::= "lst_item"
+    BULLET     ::= "bullet"
+    ENUM       ::= "enum"
+    CALL       ::= "call"
+    ARGDEF     ::= "arg_def"
+    OPTDEF     ::= "opt_def"
+    CMDDEF     ::= "cmd_def"
+    TKODEF     ::= "tkoption_def"
 
-[bullet]
+    INCLUDE    ::= "include"
+    VSET       ::= "vset"
+    DEFUN      ::= { INCLUDE | VSET }
+}]
 
-Another set of commands is available to construct (possibly nested)
-lists. These are [cmd list_begin], [cmd list_end], [cmd lst_item],
-[cmd bullet], [cmd enum], [cmd call], [cmd arg_def], [cmd opt_def],
-[cmd cmd_def], and [cmd tkoption_def]. The first two of these begin
-and end a list respectively.
+At last we can specify the whole manpage. Here we introduce our
+knowledge that inclusion of other files may happen essentially
+everywhere, like the definition of document variables and comments.
+The content of any included file has to fit into the including file
+according to the location in the grammar the inclusion is at.
 
-[nl]
+[para]
+[example {
+    MANPAGE      ::= DEFUN BEGIN HEADER DESC BODY END
 
-The argument to the first command denotes the type of the list. The
-allowed values and their associated item command are explained later,
-in the section detailing the [sectref Commands].
+    HEADER       ::= { TITLE | MODULE | COPYRIGHT } { REQUIRE }
+    BODY         ::= REGULAR_TEXT { SECTION SECBODY }
+    SECBODY      ::= REGULAR_TEXT { SUBSEC SUBSECBODY }
+    SUBSECBODY   ::= REGULAR_TEXT
 
-[nl]
+    REGULAR_TEXT ::= TEXT_CHUNK { PARA TEXT_CHUNK }
+    TEXT_CHUNK   ::= { TEXT | DEFUN | XREF | MARKUP | COMMENT | A_LIST | AN_EXAMPLE }
 
-The other commands start list items and each can be used only inside a
-list of their type. In other words, [cmd bullet] is allowed in
-bulletted lists but nowhere else, [cmd enum] in enumerated lists and
-[cmd lst_item] and [cmd call] are for definition lists. These two
-commands also have some text directly associated with the item
-although the major bulk of the item is the text following the item
-until the next list command.
+    A_LIST       ::= LIST_BEGIN { ( LIST_ITEM | CALL ) LIST_TEXT } LIST_END
+                   | LIST_BEGIN { BULLET LIST_TEXT } LIST_END
+                   | LIST_BEGIN { ENUM   LIST_TEXT } LIST_END
+                   | LIST_BEGIN { ARGDEF LIST_TEXT } LIST_END
+                   | LIST_BEGIN { OPTDEF LIST_TEXT } LIST_END
+                   | LIST_BEGIN { CMDDEF LIST_TEXT } LIST_END
+                   | LIST_BEGIN { TKODEF LIST_TEXT } LIST_END
 
-[nl]
+    LIST_TEXT    ::= TEXT_CHUNK { NL TEXT_CHUNK }
 
-The last list command, [cmd call] is special. It is used to describe
-the syntax of a command and its arguments. It should not only cause
-the appropriate markup of a list item at its place but also add the
-syntax to the table of contents (synopsis) if supported by the output
-format in question. nroff and HTML for example do. A format focused on
-logical markup, like TMML, may not.
+    AN_EXAMPLE   ::= EXAMPLE | EX_BEGIN EXAMPLE_TEXT EX_END
+    EXAMPLE_TEXT ::= { TEXT | DEFUN | MARKUP }
 
-[bullet]
-The command [cmd usage] is similar to [cmd call] in that it adds the
-syntax to the table of contents (synopsis) if supported by the output
-format. Unlike [cmd call],  this command doesn't add any text to the
-output as a direct result of the command. Thus, it can be used
-anywhere within the document to add usage information. Typically it is
-used near the top of the document, in cases where it is not desireable
-to use [cmd call] elsewhere in the document, or where additional usage
-information is desired (e.g.: to document a "package require" command).
+    MARKUP       ::= { BRACKETS | SEMANTIC }
 
-[list_end]
+    XREF         ::= SEE_ALSO | KEYWORDS
+    BRACKETS     ::= LB | RB
+    SEMANTIC     ::= ARG | EMPH | CLASS | STRONG | OPTION
+                   | CMD | TYPE | CONST | METHOD | SECTREF
+                   | OPT | TERM | FUN   | SYSCMD | PACKAGE
+                   | VAR | FILE | USAGE | WIDGET | NAMESPACE
+                   | URI
+}]
 
-[section Commands]
+
+[subsection COMMANDS]
+
+Here we specify the commands used in the grammar. Some commands
+specified here were not used in the grammar at all. The usage of these
+commands is confined to the arguments of other commands.
+
+
 [list_begin definitions]
 
-[call [cmd vset] [arg varname] [arg value] ]
+[call [cmd comment] [arg text]]
 
-Sets the formatter variable [arg varname] to the specified
-[arg value]. Returns the empty string.
+The command declares that the argument [arg text] is a comment.
 
-[call [cmd vset] [arg varname]]
-
-Returns the value associated with the formatter variable
-[arg varname].
 
 [call [cmd include] [arg filename]]
 
-Reads the file named [arg filename], runs it through the expansion
-process and returns the expanded result.
+This command loads the contents of the file [arg filename] for
+processing at its own place.
+
+
+[call [cmd vset] [arg varname] [arg value] ]
+
+This form of the command sets the document variable [arg varname] to
+the specified [arg value]. It does not generate output.
+
+
+[call [cmd vset] [arg varname]]
+
+This form of the command returns the value associated with the
+document variable [arg varname]. 
+
+
+[call [cmd lb]]
+
+This command adds a left bracket to the output. [emph Note] that the
+bracket commands are necessary as plain brackets are used to begin and
+end the formatting commands.
+
+
+[call [cmd rb]]
+
+This command adds a right bracket to the output. [emph Note] that the
+bracket commands are necessary as plain brackets are used to begin and
+end the formatting commands.
 
 
 [call [cmd manpage_begin] [arg command] [arg section] [arg version]]
 
-This command begins a manpage. Nothing is allowed to precede
-it. Arguments are the name of the command described by the manpage,
-the section of the manpages this manpages lives in, and the version of
-the module containing the command. All have to fit on one line.
+This is the command to start a manpage. The arguments are the name of
+the [arg command] described by the manpage, the [arg section] of the
+manpages this manpage resides in, and the [arg version] of the module
+containing the command.
+
 
 [call [cmd manpage_end]]
 
-This command closes a manpage. Nothing is allowed to follow it.
+This is the command to close a manpage.
+
 
 [call [cmd moddesc] [arg desc]]
 
-This command is required and comes after [cmd manpage_begin], but
-before either [cmd require] or [cmd description]. Its argument
-provides a one-line description of the module described by the manpage.
+This command is optional. When used it will register its argument
+[arg desc] as a short description of the module the manpage resides
+in.
+
 
 [call [cmd titledesc] [arg desc]]
 
-This command is optional and comes after [cmd manpage_begin], but
-before either [cmd require] or [cmd description]. Its argument
-provides a one-line expansion of the title for the manpage. If this
-command is not used the manpage processor has to use information from
-[cmd moddesc] instead.
+This command is optional. When used it will register its argument
+[arg desc] as the title of the manpage. When not used the information
+from [cmd moddesc] will be used for the title as well.
+
 
 [call [cmd copyright] [arg text]]
 
-This command is optional and comes after [cmd manpage_begin], but
-before either [cmd require] or [cmd description]. Its argument
-declares the copyright assignment for the manpage. When invoked more
-than once the assignments are accumulated.
+This command is optional. When used its argument [arg text] will
+declare a copyright assignment for the manpage. When invoked more than
+once the assignments are accumulated.
 
 [nl]
 
-A doctools processor is allowed to provide auch information too, but a
-formatting engine has to give the accumulated arguments of this
-command precedence over the data coming from the processor.
+A doctools processor application (like [syscmd dtplite]) is allowed to
+provide such information too, but a formatting engine has to give the
+accumulated arguments of this command precedence over the data coming
+from the application.
+
 
 [call [cmd description]]
 
-This command separates the header part of the manpage from the main
-body. Only [cmd require], [cmd moddesc], or [cmd titledesc] may
-precede it.
+This is the command to separate the header part of the manpage from
+the main body.
+
 
 [call [cmd require] [arg pkg] [opt [arg version]]]
 
-May occur only between [cmd manpage_begin] and [cmd description]. Is
-used to list the packages which are required for the described command
-to be operational.
+This is the command to list the packages which are required by an
+application or other library to import the described package and its
+prerequisites.
+
 
 [call [cmd section] [arg name]]
 
-Used to structure the body of the manpage into named sections. This
-command is not allowed inside of a list or example. It implicitly
-closes the last [cmd para]graph before the command and also implicitly
-opens the first paragraph of the new section.
+This is the command to partition the body of the manpage into named
+sections. Note that the command [cmd description] at the beginning of
+the manpage body implicitly starts a section named "DESCRIPTION". A
+section command implicitly closes the last [cmd para]graph coming
+before it and also implicitly opens the first paragraph of the new
+section.
+
+[call [cmd subsection] [arg name]]
+
+This is the command to partition the body of a [term section] into
+named sub-sections. A subsection command implicitly closes the last
+[cmd para]graph coming before it and also implicitly opens the first
+paragraph of the new section.
+
 
 [call [cmd para]]
 
-Used to structure sections into paragraphs. Must not be used inside of
-a list or example.
+This is the command to partition the text in a section or sub-section
+into paragraphs. Each invokation closes the paragraph coming before it
+and opens a new paragraph for the text coming after.
+
 
 [call [cmd see_also] [arg args]]
 
-Creates a section [emph {SEE ALSO}] containing the arguments as
-cross-references. Must not be used inside of a list or example.
+This is the command to define direct cross-references to other
+documents. Each argument is a label identifying the referenced
+document. If this command is used multiple times all the arguments
+accumulate.
+
 
 [call [cmd keywords] [arg args]]
 
-Creates a section [emph KEYWORDS] containing the arguments as words
-indexing the manpage. Must not be used inside of a list or example.
+This is the command to define the keywords applying to this
+document. Each argument is a single keyword. If this command is used
+multiple times all the arguments accumulate.
+
 
 [call [cmd arg] [arg text]]
 
-Declares that the marked [arg text] is the name of a command argument.
+Declares that the argument [arg text] is the name of a command
+argument.
+
 
 [call [cmd cmd] [arg text]]
 
-Declares that the marked [arg text] is the name of a command.
+Declares that the argument [arg text] is the name of a command.
+
 
 [call [cmd opt] [arg text]]
 
-Declares that the marked [arg text] is something optional. Most often used
-in conjunction with [cmd arg] to denote optional command arguments.
+Declares that the argument [arg text] is something optional. Most
+often used in conjunction with [cmd arg] to denote optional command
+arguments. Example:
+
+[example {
+    [arg foo]
+        A regular argument.
+
+    [opt [arg foo]]
+        An optional argument.
+}]
+
 
 [call [cmd emph] [arg text]]
 
 Emphasize the [arg text].
 
+
 [call [cmd strong] [arg text]]
 
-Emphasize the [arg text]. Same as [cmd emph]. Usage is
+Emphasize the [arg text]. Same as [cmd emph]. Usage of this command is
 discouraged. The command is deprecated and present only for backward
 compatibility.
 
-[call [cmd comment] [arg text]]
 
-Declares that the marked [arg text] is a comment.
+[call [cmd sectref] [arg text] [opt [arg label]]]
 
-[call [cmd sectref] [arg text]]
+Declares that the argument [arg text] is the name of a section
+somewhere else in the document, and the current location should refer
+to it.
 
-Declares that the marked [arg text] is a section reference.
+Without an explicit [arg label] for the reference within the text the
+section title [arg text] is used.
+
 
 [call [cmd syscmd] [arg text]]
 
-Declares that the marked [arg text] is a system command.
+Declares that the argument [arg text] is the name of a system command.
+
 
 [call [cmd method] [arg text]]
 
-Declares that the marked [arg text] is a object method.
+Declares that the argument [arg text] is the name of an object method.
+
 
 [call [cmd namespace] [arg text]]
 
-Declares that the marked [arg text] is a namespace name.
+Declares that the argument [arg text] is the name of a namespace.
+
 
 [call [cmd option] [arg text]]
 
-Declares that the marked [arg text] is a option.
+Declares that the argument [arg text] is the name of an option.
+
 
 [call [cmd widget] [arg text]]
 
-Declares that the marked [arg text] is a widget.
+Declares that the argument [arg text] is the name of a widget.
+
 
 [call [cmd fun] [arg text]]
 
-Declares that the marked [arg text] is a function.
+Declares that the argument [arg text] is the name of a function.
+
 
 [call [cmd type] [arg text]]
 
-Declares that the marked [arg text] is a data type.
+Declares that the argument [arg text] is the name of a data type.
+
 
 [call [cmd package] [arg text]]
 
-Declares that the marked [arg text] is a package.
+Declares that the argument [arg text] is the name of a package.
+
 
 [call [cmd class] [arg text]]
 
-Declares that the marked [arg text] is a class.
+Declares that the argument [arg text] is the name of a class.
+
 
 [call [cmd var] [arg text]]
 
-Declares that the marked [arg text] is a variable.
+Declares that the argument [arg text] is the name of a variable.
+
 
 [call [cmd file] [arg text]]
 
-Declares that the marked [arg text] is a file .
+Declares that the argument [arg text] is a file .
 
-[call [cmd uri] [arg text] [opt [arg label]]]
 
-Declares that the marked [arg text] is a uri. If the second argument
-is present it is interpreted as a human-readable description of the
-uri. In other words, the [arg label] for the link. Otherwise the link
-will be its own label.
+[call [cmd uri] [arg text] [opt [arg text]]]
+
+Declares that the argument [arg text] is an uri. The second argument,
+if it is present, is the human-readable description of the uri. In
+other words, the label for the link. Without a labeling text the uri
+is used as its own label.
+
 
 [call [cmd term] [arg text]]
 
-Declares that the marked [arg text] is a unspecific terminology.
+Declares that the argument [arg text] contains some unspecific
+terminology.
+
 
 [call [cmd const] [arg text]]
 
-Declares that the marked [arg text] is a constant value.
+Declares that the argument [arg text] is a constant value.
+
 
 [call [cmd nl]]
 
-Vertical space to separate text without breaking it into a new
-paragraph.
+This command signals vertical space to separate blocks of text.
 
-[call [cmd lb]]
+[comment {
+    FUTURE: This is the same as para, but restricted to use inside of
+    list elements. Whereas para's are restricted to usage outside list
+    elements. Given that both do the same this separation is stupid.
+    Doctools V2 will have only one command, 'para', useable everywhere.
+    The formatting engine has to switch outputs, if truly necessary.
+}]
 
-Introduces a left bracket into the output.
-
-[call [cmd rb]]
-
-Introduces a right bracket into the output. The bracket commands are
-necessary as plain brackets are used to denote the beginnings and
-endings of the formatting commands.
 
 [call [cmd example_begin]] 
-Formats subsequent text as a code sample:
-line breaks, spaces, and tabs are preserved and,
-where appropriate, text is presented in a fixed-width font.
+
+This command begins an example block. Subsequent text belongs to the
+example. Line breaks, spaces, and tabs have to be preserved literally.
+
 
 [call [cmd example_end]] 
-End of a code sample block.
+
+This command closes the example block.
+
 
 [call [cmd example] [arg text]] 
 
-Formats [arg text] as a multi-line block of sample code.
-[arg text] should be enclosed in braces.
+This command wraps its argument [arg text] into an example. In other
+words, it is a simpler form of markup for the creation of an
+example. It should be used if the example text does not need need
+special markup.
+
 
 [call [cmd list_begin] [arg what]]
 
-Starts new list of type [arg what]. The allowed types (and their
-associated item commands) are:
+This command starts new list. The value of the argument [arg what]
+determines what type of list is opened. This also defines what command
+has to be used to start an item in the new list. The allowed types
+(and their associated item commands) are:
 
 [list_begin definitions]
 [lst_item [emph bullet]]
@@ -382,67 +504,91 @@ associated item commands) are:
 [cmd tkoption_def]
 
 [list_end]
+[nl]
 
 
 [call [cmd list_end]]
 
-Ends the list opened by the last [cmd list_begin].
+This command ends the list opened by the last [cmd list_begin].
+
 
 [call [cmd bullet]]
 
-Starts a new item in a bulletted list.
+This command starts a new list item in a bulletted list. The previous
+item is automatically closed.
+
 
 [call [cmd enum]]
 
-Starts a new item in an enumerated list.
+This command starts a new list item in an enumerated list. The
+previous item is automatically closed.
+
 
 [call [cmd lst_item] [arg text]]
 
-Starts a new item in a definition list. The argument is the term to be
-defined.
+This command starts a new list item in a definition list. The argument
+is the term to be defined. The previous item is automatically closed.
+
 
 [call [cmd call] [arg args]]
 
-Starts a new item in a definition list, but the term defined by it is
-a command and its arguments.
+This command starts a new list item in a definition list, but the term
+defined by it is a command and its arguments. The previous item is
+automatically closed. The first argument is the name of the described
+command, and everything after that are descriptions of the command
+arguments.
+
 
 [call [cmd arg_def] [arg type] [arg name] [opt [arg mode]]]
 
-Starts a new item in an argument list. Specifies the data-[arg type]
-of the described argument, its [arg name] and possibly its
-i/o-[arg mode].
+This command starts a new list item in an argument list. The previous
+item is automatically closed. Specifies the data-[arg type] of the
+described argument, its [arg name] and its i/o-[arg mode]. The latter
+is optional.
+
 
 [call [cmd opt_def] [arg name] [opt [arg arg]]]
 
-Starts a new item in an option list. Specifies the [arg name] of the
-option and possible (i.e. optional) [arg arg]uments.
+This command starts a new list item in an option list. The previous
+item is automatically closed. Specifies the [arg name] of the option
+and its arguments ([arg arg]). The latter is a list, and can be left
+out.
+
 
 [call [cmd cmd_def] [arg command]]
 
-Starts a new item in a command list. Specifies the name of the
-[arg command].
+This command starts a new list item in a command list.  The previous
+item is automatically closed. Specifies the name of the [arg command].
+
 
 [call [cmd tkoption_def] [arg name] [arg dbname] [arg dbclass]]
 
-Starts a new item in a widget option list.  Specifies the [arg name]
-of the option, i.e.  the name used in scripts, name used by the option
-database, and the class (type) of the option.
+This command starts a new list item in a widget option list. The
+previous item is automatically closed.
+
+Specifies the [arg name] of the option, i.e. the name used in scripts,
+the name used by the option database ([arg dbname]), and the class
+(type) of the option ([arg dbclass]).
+
 
 [call [cmd usage] [arg args]]
 
-Defines a term to be used in the table of contents or synopsis section,
-depending on the format. This command is [emph silent], as it doesn't
-add any text to the output as a direct result of the call. It merely
-defines data to appear in another section.
+This command is like [cmd call], except that a formatting engine must
+not generate output at the location of the command. In other words,
+this command is [emph silent]. The data it defines may appear in a
+different section of the output, for example a table of contents, or
+synopsis, depending on the formatting engine and its output format.
 
 [list_end]
 
+
 [section EXAMPLE]
 
-The tcl sources of this manpage can serve as an example for all of the
-markup described by it. Almost every possible construct (with the
-exception of [cmd require]) is used here.
+The sources of this manpage can serve as an example for all of the
+markup described by it. Almost every possible construct is used here.
+
 
 [see_also doctoc_fmt docidx_fmt doctools_api doctools]
 [keywords markup {generic markup} manpage TMML HTML nroff LaTeX]
 [manpage_end]
+

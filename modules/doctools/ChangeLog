@@ -1,3 +1,31 @@
+2004-07-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_common.tcl: Made section references
+	* mpformats/fmt.html:    insensitive to case of
+	* mpformats/fmt.latex:   the refering text. Also
+	* mpformats/fmt.nroff:   now allowing an optional
+	* mpformats/fmt.text:    label to the reference
+	* mpformats/fmt.tmml:    a different text than
+	* mpformats/fmt.wiki:    the section title. Updated
+	* doctools_fmt.man:      the format and api specifi-
+	* doctools_api.man:      cations.
+	* checker.tcl:
+
+2004-07-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/idx.html: Changed index table to use top alignment.
+
+	* doctools.man:     Full overhaul of the documentation
+	* doctools_api.man: pertaining to doctools, format, engine
+	* doctools_fmt.man: api, and framework package.
+
+	* docidx_fmt.man: Typo fixes.
+	* doctoc_fmt.man:
+
+	* doctools.test: Updated to changes in error processing made
+	* doctoc.test:   on 2004-07-22 (See below).
+	* docidx.test:
+
 2004-07-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* docidx_fmt.man: More overhaul.

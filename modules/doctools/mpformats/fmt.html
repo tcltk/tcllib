@@ -26,8 +26,9 @@ proc Year    {} {clock format [clock seconds] -format %Y}
 #
 proc c_possibleReference {text gi} {
     global SectionNames
-    if {[info exists SectionNames($text)]} {
-	return [taga a [list href #$SectionNames($text)]]$text[tag/ a]
+    set id [c_sectionId $text]
+    if {[info exists SectionNames($id)]} {
+	return [taga a [list href #$id]]$text[tag/ a]
     } else {
 	return [tag $gi]$text[tag/ $gi]
     }
@@ -334,12 +335,14 @@ proc em     {text} {return "[markup <em>]$text[markup </em>]"}
 
 proc fmt_opt     {text} {return "?$text?" }
 proc fmt_comment {text} {ht_comment $text}
-proc fmt_sectref {text} {
+proc fmt_sectref {text {label {}}} {
     global SectionNames
-    if {[info exists SectionNames($text)]} {
-    	return "[markup <]a href=[markup \"]#$SectionNames($text)[markup \">]$text[markup </a>]"
+    if {![string length $label]} {set label $text}
+    set id [c_sectionId $text]
+    if {[info exists SectionNames($id)]} {
+    	return "[markup <]a href=[markup \"]#$id[markup \">]$label[markup </a>]"
     } else {
-    	return "[markup <b>]$text[markup </b>]"
+    	return "[markup <b>]$label[markup </b>]"
     }
 }
 proc fmt_syscmd  {text} {strong [XrefMatch $text sa]}
