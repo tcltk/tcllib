@@ -23,7 +23,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.21 2004/07/23 20:39:17 patthoyts Exp $
+# $Id: dns.tcl,v 1.22 2004/07/23 22:14:54 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -33,7 +33,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.2.0
-    variable rcsid {$Id: dns.tcl,v 1.21 2004/07/23 20:39:17 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.22 2004/07/23 22:14:54 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -177,6 +177,7 @@ proc ::dns::resolve {query args} {
     while {[info exists [set token [namespace current]::$id]]} {
         set id [incr uid]
     }
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -359,6 +360,7 @@ proc ::dns::result {token} {
 #  Get the status of the request.
 #
 proc ::dns::status {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     return $state(status)
@@ -368,6 +370,7 @@ proc ::dns::status {token} {
 #  Get the error message. Empty if no error.
 #
 proc ::dns::error {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     if {[info exists state(error)]} {
@@ -380,6 +383,7 @@ proc ::dns::error {token} {
 #  Get the error code. This is 0 for a successful transaction.
 #
 proc ::dns::errorcode {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     set flags [Flags $token]
@@ -392,6 +396,7 @@ proc ::dns::errorcode {token} {
 #  Reset a connection with optional reason.
 #
 proc ::dns::reset {token {why reset} {errormsg {}}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     set state(status) $why
@@ -406,6 +411,7 @@ proc ::dns::reset {token {why reset} {errormsg {}}} {
 #  Wait for a request to complete and return the status.
 #
 proc ::dns::wait {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -420,6 +426,7 @@ proc ::dns::wait {token} {
 #  Remove any state associated with this token.
 #
 proc ::dns::cleanup {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     if {[info exists state]} {
@@ -443,6 +450,7 @@ proc ::dns::dump {args} {
         error "wrong # args: should be \"dump ?option? methodName\""
     }
 
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     
@@ -482,6 +490,7 @@ proc ::dns::DumpMessage {data} {
 #  Contruct a DNS query packet.
 #
 proc ::dns::BuildMessage {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     variable types
@@ -560,6 +569,7 @@ proc ::dns::BuildMessage {token} {
 #  Transmit a DNS request over a tcp connection.
 #
 proc ::dns::TcpTransmit {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -597,6 +607,7 @@ proc ::dns::TcpTransmit {token} {
 #  cannot do this.
 #
 proc ::dns::UdpTransmit {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -625,6 +636,7 @@ proc ::dns::UdpTransmit {token} {
 #  Tidy up after a tcp transaction.
 #
 proc ::dns::Finish {token {errormsg ""}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     global errorInfo errorCode
@@ -654,6 +666,7 @@ proc ::dns::Finish {token {errormsg ""}} {
 #  Handle end-of-file on a tcp connection.
 #
 proc ::dns::Eof {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     set state(status) eof
@@ -666,6 +679,7 @@ proc ::dns::Eof {token} {
 #  Process a DNS reply packet (protocol independent)
 #
 proc ::dns::Receive {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -695,6 +709,7 @@ proc ::dns::Receive {token} {
 #
 proc ::dns::TcpEvent {token} {
     variable log
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     set s $state(sock)
@@ -744,6 +759,7 @@ proc ::dns::TcpEvent {token} {
 # Description:
 #  file event handler for udp sockets.
 proc ::dns::UdpEvent {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     set s $state(sock)
@@ -759,6 +775,7 @@ proc ::dns::UdpEvent {token} {
 # -------------------------------------------------------------------------
 
 proc ::dns::Flags {token {varname {}}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     
@@ -789,6 +806,7 @@ proc ::dns::Flags {token {varname {}}} {
 #
 proc ::dns::Decode {token args} {
     variable log
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1122,7 +1140,7 @@ proc ::uri::SplitDns {uri} {
     array set parts {nameserver {} query {} class {} type {} port {}}
 
     # validate the uri
-    if {[regexp $dns::schemepart $uri r] == 1} {
+    if {[regexp -- $dns::schemepart $uri r] == 1} {
 
         # deal with the optional class and type specifiers
         if {[regexp -indices -- "${classOrTypeSpec}$" $uri range]} {
