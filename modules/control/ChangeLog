@@ -1,3 +1,15 @@
+2001-11-07  Don Porter <dgp@users.sourceforge.net>
+
+	* do.tcl: updated to use [BodyAsCaller] and [CommandAsCaller]
+	so that proper ::errorInfo management is achieved.
+
+	* rswitch.tcl:
+	* ascaller.tcl (new-file): factored out utility procs from
+	rswitch.tcl so they can be used by other conotrol commands.
+	* tclIndex: generated
+
+	* rswitch.test: corrected syntax error [Bug 478989]
+
 2001-11-07  Reinhard Max  <max@suse.de>
 
 	* do.tcl: 
@@ -5,10 +17,6 @@
 	* control.tcl:
 	* control.n: Added support and documentation for [control::do].
 	* tclIndex: Generated.
-
-2001-11-07  Don Porter <dgp@users.sourceforge.net>
-
-	* rswitch.test: corrected syntax error [Bug 478989]
 
 2001-11-03  Don Porter <dgp@users.sourceforge.net>
 
