@@ -42,13 +42,6 @@ Major Variable Definitions (this includes a whole lot of code)
         * alias mytypemethod
         * alias from
     * Snit's internal variables
-        * typevariable Snit_info
-        * typevariable Snit_typemethods
-        * typevariable Snit_methodInfo
-        * typevariable Snit_optiondefaults
-        * typevariable Snit_optiondbspec
-        * typevariable Snit_delegatedoptions
-        * typevariable Snit_compoptions
     * Template Code -- Stuff that gets filled in.
         * proc %TYPE%
         * proc Snit_instanceVars    Initializes instance variables
@@ -71,6 +64,7 @@ Major Variable Definitions (this includes a whole lot of code)
 Compilation Commands
 * proc ::snit::Comp.Init
 * proc ::snit::Comp.Compile
+* proc ::snit::Comp.SaveOptionInfo
 * proc ::snit::Comp.Define
 * proc ::snit::Comp.statement.widgetclass
 * proc ::snit::Comp.statement.hulltype
@@ -129,11 +123,11 @@ rather than compile time.
 ** ::snit::RT.RemoveInstanceTrace
 * Typecomponent Management and Typemethod Caching
 ** ::snit::RT.TypecomponentTrace
-** ::snit::RT.TypemethodCacheLookup
+** ::snit::RT.CacheTypemethodCommand
 * Component Management and Method Caching
 ** ::snit::RT.Component
 ** ::snit::RT.ComponentTrace
-** ::snit::RT.MethodCacheLookup
+** ::snit::RT.CacheMethodCommand
 * Component Installation
 ** ::snit::RT.installhull
 ** ::snit::RT.install
