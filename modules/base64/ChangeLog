@@ -1,7 +1,7 @@
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
 	* base64.tcl: Added code to the Trf supported 'decode'r to ignore
-	  whitespace in hte encoded input.
+	  whitespace in hte encoded input. [Bug 736900].
 
 2003-07-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
