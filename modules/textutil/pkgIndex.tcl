@@ -9,4 +9,5 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded textutil 0.3 [list source [file join $dir textutil.tcl]]
+package ifneeded textutil           0.3 [list source [file join $dir textutil.tcl]]
+package ifneeded textutil::expander 0.9 [list source [file join $dir expander.tcl]]
