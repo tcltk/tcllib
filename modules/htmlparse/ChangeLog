@@ -1,4 +1,10 @@
-Wed Sep 29 11:07:29 2004  Andreas Kupries <andreask@activestate.com>
+2004-10-04  Joe English  <jenglish@users.sourceforge.net>
+
+	* htmlparse.tcl(DoDecMap): Make sure numeric character references 
+	are interpreted as decimal (Bug #1039961).
+	* htmlparse.test: Added test case.
+
+2004-09-29  Andreas Kupries <andreask@activestate.com>
 
 	* htmlparse.test: Fixed [Tcllib SF Bug 1034580], see also
  	* htmlparse.tcl:  [Tcllib SF Bug 900041]. Thanks to Georgios
