@@ -1,3 +1,13 @@
+2005-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Extended tests for the case of inacessible
+	  directories.
+	
+	* fileutil.tcl (find): Fixed SF [Tcllib Bug 1111153]. This is the
+	  same as [Tcllib SF Bug 862491]. Catching problems now when
+	  cd'ing into the chosen base directory, and ignoring all
+	  directories for which the [cd] fails (permissions).
+
 2005-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man: Fixed the doctools syntax error in the new text
