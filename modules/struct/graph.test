@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.6 2002/05/09 05:46:04 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.7 2002/11/06 04:08:02 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -39,7 +39,7 @@ test graph-0.3 {graph errors} {
     catch {mygraph foo} msg
     mygraph destroy
     set msg
-} "bad option \"foo\": must be arc, arcs, destroy, get, node, nodes, set, swap, unset, or walk"
+} "bad option \"foo\": must be arc, arcs, destroy, get, getall, keys, keyexists, node, nodes, set, swap, unset, or walk"
 
 test graph-0.4 {graph errors} {
     catch {graph set} msg
@@ -1686,14 +1686,14 @@ test graph-21.22 {backward both-order bfs walk not implemented} {
 
 # ---------------------------------------------------
 
-test graph-22.1 {get gives error on bogus key} {
+test graph-33.1 {get gives error on bogus key} {
     graph mygraph
     catch {mygraph get -key bogus} msg
     mygraph destroy
     set msg
 } "invalid key \"bogus\" for graph \"mygraph\""
 
-test graph-22.2 {get uses data as default key} {
+test graph-33.2 {get uses data as default key} {
     graph mygraph
     mygraph set foobar
     set result [mygraph get]
@@ -1701,7 +1701,7 @@ test graph-22.2 {get uses data as default key} {
     set result
 } "foobar"
 
-test graph-22.3 {get respects -key flag} {
+test graph-33.3 {get respects -key flag} {
     graph mygraph
     mygraph set -key boom foobar
     set result [mygraph get -key boom]
@@ -1711,7 +1711,7 @@ test graph-22.3 {get respects -key flag} {
 
 # ---------------------------------------------------
 
-test graph-23.1 {set alone gets/sets "data" value} {
+test graph-34.1 {set alone gets/sets "data" value} {
     graph mygraph
     mygraph set foobar
     set result [mygraph set]
@@ -1719,7 +1719,7 @@ test graph-23.1 {set alone gets/sets "data" value} {
     set result
 } "foobar"
 
-test graph-23.2 {set with key gets/sets key value} {
+test graph-34.2 {set with key gets/sets key value} {
     graph mygraph
     mygraph set -key baz foobar
     set result [list [mygraph set] [mygraph set -key baz]]
@@ -1727,28 +1727,28 @@ test graph-23.2 {set with key gets/sets key value} {
     set result
 } [list "" "foobar"]
 
-test graph-23.3 {set with too many args gives error} {
+test graph-34.3 {set with too many args gives error} {
     graph mygraph
     catch {mygraph set foo bar baz boo} msg
     mygraph destroy
     set msg
 } "wrong # args: should be \"mygraph set ?-key key? ?value?\""
 
-test graph-23.4 {set with bad args} {
+test graph-34.4 {set with bad args} {
     graph mygraph
     catch {mygraph set foo bar} msg
     mygraph destroy
     set msg
 } "invalid option \"foo\": should be key"
 
-test graph-23.5 {set with bad args} {
+test graph-34.5 {set with bad args} {
     graph mygraph
     catch {mygraph set foo bar baz} msg
     mygraph destroy
     set msg
 } "invalid option \"foo\": should be key"
 
-test graph-23.6 {set with bad key gives error} {
+test graph-34.6 {set with bad key gives error} {
     graph mygraph
     catch {mygraph set -key foo} msg
     mygraph destroy
@@ -1757,14 +1757,14 @@ test graph-23.6 {set with bad key gives error} {
 
 # ---------------------------------------------------
 
-test graph-24.1 {unset does not give error on bogus key} {
+test graph-35.1 {unset does not give error on bogus key} {
     graph mygraph
     set result [catch {mygraph unset -key bogus}]
     mygraph destroy
     set result
 } 0
 
-test graph-24.2 {unset removes a keyed value} {
+test graph-35.2 {unset removes a keyed value} {
     graph mygraph
     mygraph set -key foobar foobar
     mygraph unset -key foobar
@@ -1773,7 +1773,7 @@ test graph-24.2 {unset removes a keyed value} {
     set msg
 } "invalid key \"foobar\" for graph \"mygraph\""
 
-test graph-24.3 {unset requires -key} {
+test graph-35.3 {unset requires -key} {
     graph mygraph
     mygraph set -key foobar foobar
     catch {mygraph unset flaboozle foobar} msg
@@ -1783,5 +1783,54 @@ test graph-24.3 {unset requires -key} {
 
 # ---------------------------------------------------
 
+test graph-36.1 {getall gives error when key specified} {
+    graph mygraph
+    catch {mygraph getall -key data} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be none"
+test graph-36.2 {getall returns list of key/value pairs} {
+    graph mygraph
+    mygraph set foobar
+    mygraph set -key other thing
+    set results [mygraph getall]
+    mygraph destroy
+    lsort $results
+} "data foobar other thing"
+
+test graph-37.1 {keys gives error when key specified} {
+    graph mygraph
+    catch { mygraph keys -key bogus } msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be none"
+test graph-37.2 {keys returns list of keys} {
+    graph mygraph
+    mygraph set -key other things
+    set results [mygraph keys]
+    mygraph destroy
+    lsort $results
+} "data other"
   
+test graph-38.1 {keyexists returns false on non-existant key} {
+    graph mygraph
+    set result [mygraph keyexists -key bogus]
+    mygraph destroy
+    set result
+} "0"
+test graph-38.2 {keyexists uses data as default key} {
+    graph mygraph
+    set result [mygraph keyexists]
+    mygraph destroy
+    set result
+} "1"
+test graph-38.3 {keyexists respects -key flag} {
+    graph mygraph
+    mygraph set -key boom foobar
+    set result [mygraph keyexists -key boom]
+    mygraph destroy
+    set result
+} "1"
+
+# ---------------------------------------------------  
 ::tcltest::cleanupTests
