@@ -17,15 +17,19 @@ equations.
 [list_end]
 
 [para]
+
 The package is fully implemented in Tcl. No particular attention has
 been paid to the accuracy of the calculations. Instead, well-known
 algorithms have been used in a straightforward manner.
+
 [para]
+
 This document describes the procedures and explains their usage.
 
 [section "PROCEDURES"]
 
 It defines the following public procedures:
+
 [list_begin definitions]
 
 [call [cmd ::math::calculus::integral] [arg begin] [arg end] [arg nosteps] [arg func]]
@@ -38,7 +42,6 @@ Other arguments:
 [nl]
 [arg func] - Function to be integrated. It should take one
 single argument.
-[para]
 
 [call [cmd ::math::calculus::integralExpr] [arg begin] [arg end] [arg nosteps] [arg expression]]
 Similar to the previous proc, this one determines the integral of
@@ -51,7 +54,6 @@ Other arguments:
 [nl]
 [arg expression] - Expression to be integrated. It should
 use the variable "x" as the only variable (the "integrate")
-[para]
 
 [call [cmd ::math::calculus::integral2D] [arg xinterval] [arg yinterval] [arg func]]
 The [strong Integral2D] procedure calculates the integral of
@@ -66,14 +68,12 @@ replaced by a bilinear interpolation.
 [nl]
 The function must take two arguments and return the function
 value.
-[para]
 
 [call [cmd ::math::calculus::integral3D] [arg xinterval] [arg yinterval] [arg zinterval] [arg func]]
 The [strong Integral3D] procedure is the three-dimensional
 equivalent of [strong Intergral2D]. The function taking three
 arguments is integrated over the block in 3D space given by the
 intervals.
-[para]
 
 [call [cmd ::math::calculus::eulerStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
@@ -89,7 +89,6 @@ at the beginning of the step.
 [arg func] - Function of t and the dependent values, returning
 a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of "func" must match).
-[para]
 
 [call [cmd ::math::calculus::heunStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
@@ -105,7 +104,6 @@ at the beginning of the step.
 [arg func] - Function of t and the dependent values, returning
 a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of "func" must match).
-[para]
 
 [call [cmd ::math::calculus::rungeKuttaStep] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
@@ -122,7 +120,6 @@ at the beginning of the step.
 [arg func] - Function of t and the dependent values, returning
 a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of "func" must match).
-[para]
 
 [call [cmd ::math::calculus::boundaryValueSecondOrder] [arg coeff_func] [arg force_func] [arg leftbnd] [arg rightbnd] [arg nostep]]
 Solve a second order linear differential equation with boundary
@@ -167,7 +164,7 @@ interval.
 [nl]
 The procedure returns a list of x-coordinates and the approximated
 values of the solution.
-[para]
+
 
 [call [cmd ::math::calculus::solveTriDiagonal] [arg acoeff] [arg bcoeff] [arg ccoeff] [arg dvalue]]
 Solve a system of linear equations Ax = b with A a tridiagonal
@@ -182,13 +179,14 @@ matrix. Returns the solution as a list.
 [arg dvalue] - List of values on the righthand-side
 [nl]
 [list_end]
+
 [para]
 
 [strong Note:]
-[nl]
+[para]
 The integration of the differential equations via Runge-Kutta
 is yet to be implemented.
-[nl]
+[para]
 Enhancements for the second-order boundary value problem:
 [list_begin bullet]
 [bullet]
@@ -213,7 +211,7 @@ puts "Integral: [lb]::math::calculus::integralExpr 0 100 20 {$x}[rb]"
 Do not forget the braces!
 [para]
 The differential equation for a dampened oscillator:
-[nl]
+[para]
 [example_begin]
 x'' + rx' + wx = 0
 [example_end]

@@ -40,8 +40,12 @@ return all the fields listed in the return from exif::fieldnames.
 This function is expected to be primarily useful for building GUIs to
 display results.
 
+[nl]
+
 N.B.: Read the implementation of [cmd exif::fieldnames] before
 modifying the implementation of [cmd exif::analyze].
+
+[list_end]
 
 [section COPYRIGHTS]
 

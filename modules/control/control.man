@@ -116,6 +116,8 @@ the [cmd while] command handles them, except as noted in
 The [cmd no-op] command takes any number of arguments and does
 nothing.  It returns an empty string.
 
+[list_end]
+
 [section LIMITATIONS]
 
 Several of the commands provided by the [cmd control] package accept

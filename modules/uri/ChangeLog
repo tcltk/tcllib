@@ -1,3 +1,7 @@
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri.man: Fixed formatting errors in the doctools manpage.
+
 2002-02-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri.tcl: Fixed "::uri::canonicalize" to pass the extended

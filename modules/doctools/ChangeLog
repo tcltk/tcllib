@@ -1,3 +1,12 @@
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpexpand: Extended with additional code checking that the
+	  formatting commands are not used out of order and in the wrong
+	  context. This check is independent of the format and thus
+	  implemented outside of the format. Tcllib FR #530059.
+
+	* mpexpand: Implemented Tcllib FR #527029 (help options).
+
 2002-03-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: Removed 'center' alignment from
