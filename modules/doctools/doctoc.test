@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctoc.test,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.test,v 1.3 2004/02/14 05:59:20 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -50,7 +50,7 @@ test doctoc-2.0 {format help} {
 test doctoc-3.0 {doctoc errors} {
     catch {new} msg
     set msg
-} [tcltest::getErrorMessage "new" "name args" 0]
+} [tcltest::wrongNumArgs "new" "name args" 0]
 
 test doctoc-3.1 {doctoc errors} {
     catch {new set} msg
@@ -92,14 +92,14 @@ test doctoc-5.0 {cget errors} {
     catch {mydoctoc cget} result
     mydoctoc destroy
     set result
-} [tcltest::getErrorMessage "::doctools::toc::_cget" "name option" 1]
+} [tcltest::wrongNumArgs "::doctools::toc::_cget" "name option" 1]
 
 test doctoc-5.1 {cget errors} {
     new mydoctoc
     catch {mydoctoc cget foo bar} result
     mydoctoc destroy
     set result
-} [tcltest::tooManyMessage "::doctools::toc::_cget" "name option"]
+} [tcltest::tooManyArgs "::doctools::toc::_cget" "name option"]
 
 test doctoc-5.2 {cget errors} {
     new mydoctoc
@@ -136,7 +136,7 @@ test doctoc-6.0 {configure errors} {
     mydoctoc destroy
     set result
 } {wrong # args: doctools::toc::_configure name ?opt val...??}
-# [tcltest::getErrorMessage "::doctools::toc::_configure" "name ?option?|?option value...?" 1]
+# [tcltest::wrongNumArgs "::doctools::toc::_configure" "name ?option?|?option value...?" 1]
 
 test doctoc-6.1 {configure errors} {
     new mydoctoc
@@ -197,14 +197,14 @@ test doctoc-7.0 {search errors} {
     catch {mydoctoc search} result
     mydoctoc destroy
     set result
-} [tcltest::getErrorMessage "::doctools::toc::_search" "name path" 1]
+} [tcltest::wrongNumArgs "::doctools::toc::_search" "name path" 1]
 
 test doctoc-7.1 {search errors} {
     new mydoctoc
     catch {mydoctoc search foo bar} result
     mydoctoc destroy
     set result
-} [tcltest::tooManyMessage "::doctools::toc::_search" "name path"]
+} [tcltest::tooManyArgs "::doctools::toc::_search" "name path"]
 
 test doctoc-7.2 {search errors} {
     new mydoctoc
@@ -237,14 +237,14 @@ test doctoc-8.0 {format errors} {
     catch {mydoctoc format} result
     mydoctoc destroy
     set result
-} [tcltest::getErrorMessage "::doctools::toc::_format" "name text" 1]
+} [tcltest::wrongNumArgs "::doctools::toc::_format" "name text" 1]
 
 test doctoc-8.1 {format errors} {
     new mydoctoc
     catch {mydoctoc format foo bar} result
     mydoctoc destroy
     set result
-} [tcltest::tooManyMessage "::doctools::toc::_format" "name text"]
+} [tcltest::tooManyArgs "::doctools::toc::_format" "name text"]
 
 test doctoc-8.2 {format errors} {
     new mydoctoc

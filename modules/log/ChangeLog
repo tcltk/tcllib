@@ -1,3 +1,8 @@
+2004-02-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* logger.man:   Brought the version numbers back into sync
+	* pkgIndex.tcl: with 'logger.tcl'
+
 2004-02-13  David N. Welton  <davidw@dedasys.com>
 
 	* logger.test: Added tests from Schlenker regarding new commands.
