@@ -134,6 +134,7 @@ automatically visible in all instance methods.  If the type has
 locally defined options, the [var options] array is also visible.
        
 [call [cmd option] [arg namespec] [opt [arg defaultValue]]]
+[call [cmd option] [arg namespec] [opt [arg options...]]]
 
 Defines an option for instances of this type, and optionally gives it
 an initial value.  The initial value defaults to the empty string if
@@ -174,66 +175,99 @@ instance methods [method configure] and [method cget]; within instance code
 [example {    set myfont $options(-font)
 }]
 
-If the type [arg definition] contains any [cmd onconfigure] or
-[cmd oncget] handlers, however, it's best to stick to 
-[method configure] and [method cget].
-
-[call [cmd onconfigure] [arg name] [arg arglist] [arg body]]
-
-Every locally-defined option [arg name] may have an 
-[cmd onconfigure] handler that is called when the option is set to a
-new value by the [method configure] or [method configurelist] instance
-method.
-
-The [arg arglist] may contain exactly one argument name, which
-is used to pass the option's new value.
+If the type defines any option handlers (e.g., [const -configuremethod]), 
+then it should probably use [method configure] and [method cget] to 
+access its options to avoid subtle errors.
 
 [nl]
 
-As with instance methods, the arguments [var type], [var self], 
-[var selfns], and [var win] are defined implicitly, and all
-type and instance variables (including the [var options] array)
-are automatically visible in the [arg body] of the handler.
+The [cmd option] statement may include the following options:
+
+[list_begin definitions]
+[lst_item "[const -default] [arg defvalue]"]
+
+Defines the option's default value; the option's default value 
+will be "" otherwise.
+
+[lst_item "[const -readonly] [arg flag]"]
+
+The [arg flag] can be any Boolean value recognized by Tcl.  
+If [arg flag] is true, then the option is readonly--it can only
+be set at creation time, i.e., in the type's constructor.
+
+[lst_item "[const -cgetmethod] [arg methodName]"]
+
+Every locally-defined option may define a [const -cgetmethod];
+it is called when the option's value is retrieved using the
+[method cget] method.  Whatever the method's [arg body] returns will
+be the return value of the call to [method cget].  
 
 [nl]
 
-If the [arg definition] contains no explicit onconfigure handler for
-a given option, Snit defines one implicitly:
+The named method must take one argument, the option name.
+For example, this code is equivalent to (though slower than)
+Snit's default handling of [cmd cget]:
 
-[example {    onconfigure name {value} {
-        set options(name) $value
+[example {    option -font -cgetmethod GetOption
+    method GetOption {option} {
+        return $options($option)
     }
 }]
 
-If an explicit onconfigure handler is defined, the options array will
-be updated with the new value only if the handler so updates it.
-For example, the onconfigure handler can validate the new value and 
-save it only if it's valid.
+Note that it's possible for any number of options to share a 
+[const -cgetmethod].
 
-[call [cmd oncget] [arg name] [arg body]]
+[lst_item "[const -configuremethod] [arg methodName]"]
 
-Every locally-defined option [arg name] may have an [cmd oncget]
-handler; it is called when the option's value is retrieved using the
-[method cget] method.  Whatever the handler's [arg body] returns will
-be the return value of the call to [method cget].
-
-[nl]
-
-Although there is no explicit argument list,
-the arguments [var type], [var self], [var selfns], and [var win] are
-defined implicitly, just as they are for onconfigure handlers, and all
-type and instance variables are automatically visible in the
-[arg body] of the handler.
+Every locally-defined option may define a [const -configuremethod];
+it is called when the option's value is set using the
+[method configure] or [method configurelist] methods.  It is the
+named method's responsibility to save the option's value; in other
+words, the value will not be saved to the [var options()] array unless
+the method saves it there.
 
 [nl]
 
-If the [arg definition] contains no explicit oncget handler for a
-given option, Snit defines one implicitly:
+The named method must take two arguments, the option name and
+its new value.  For example, this code is equivalent to 
+(though slower than) Snit's default handling of [cmd configure]:
 
-[example {    oncget name {
-        return $options(name)
+[example {    option -font -configuremethod SetOption
+    method GetOption {option value} {
+        set options($option) $value
     }
 }]
+
+Note that it's possible for any number of options to share a 
+single [const -configuremethod].
+
+[lst_item "[const -validatemethod] [arg methodName]"]
+
+Every locally-defined option may define a [const -validatemethod];
+it is called when the option's value is set using the
+[method configure] or [method configurelist] methods, just before
+the [const -configuremethod] (if any).  It is the
+named method's responsibility to validate the option's new value,
+and to throw an error if the value is invalid.
+
+[nl]
+
+The named method must take two arguments, the option name and
+its new value.  For example, this code verifies that 
+[const -flag]'s value is a valid Boolean value:
+
+[example {    option -font -validatemethod CheckBoolean
+    method CheckBoolean {option value} {
+        if {![string is boolean -strict $value]} {
+            error "option $option must have a boolean value."
+        }
+    }
+}]
+
+Note that it's possible for any number of options to share a 
+single [const -validatemethod].
+
+[list_end]
 
 [call [cmd constructor] [arg arglist] [arg body]]
 
@@ -585,6 +619,52 @@ the typecomponent. That is, [const "-inherit yes"] is equivalent to:
 
 [const Deprecated.]  To expose component [arg comp] publicly, use
 [cmd component]'s [const -public] option.
+
+[call [cmd onconfigure] [arg name] [arg arglist] [arg body]]
+
+[const Deprecated.]  Define [cmd option]'s [const -configuremethod] 
+option instead.
+
+[nl]
+
+As of version 0.94, the following definitions,
+
+[example {    option -myoption
+    onconfigure -myoption {value} {
+        # Code to save the option's value
+    }
+}]
+
+is implemented as follows:
+
+[example {    option -myoption -configuremethod _configure-myoption
+    method _configure-myoption {_option value} {
+        # Code to save the option's value
+    }
+}]
+
+[call [cmd oncget] [arg name] [arg body]]
+
+[const Deprecated.]  Define [cmd option]'s [const -cgetmethod] 
+option instead.
+
+[nl]
+
+As of version 0.94, the following definitions,
+
+[example {    option -myoption
+    oncget -myoption {
+        # Code to return the option's value
+    }
+}]
+
+is implemented as follows:
+
+[example {    option -myoption -cgetmethod _cget-myoption
+    method _cget-myoption {_option} {
+        # Code to return the option's value
+    }
+}]
 
 [list_end]
 
