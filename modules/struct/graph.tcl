@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.3 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.4 2001/11/19 23:32:48 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -38,9 +38,12 @@ namespace eval ::struct::graph {
 	    "arc"		\
 	    "arcs"		\
 	    "destroy"		\
+	    "get"		\
 	    "node"		\
 	    "nodes"		\
+	    "set"		\
 	    "swap"		\
+	    "unset"             \
 	    "walk"		\
 	    ]
 
@@ -95,6 +98,10 @@ proc ::struct::graph::graph {{name ""}} {
 
     # Set up the namespace
     namespace eval ::struct::graph::graph$name {
+
+	# Set up the map for values associated with the graph itself
+	variable graphData
+	array set graphData {data ""}
 
 	# Set up the map from nodes to the arcs coming to them
 	variable  inArcs
@@ -448,52 +455,58 @@ proc ::struct::graph::__arc_unset {name arc {flag -key} {key data}} {
 
 proc ::struct::graph::_arcs {name args} {
 
-    if {[llength $args] == 0} {
-	# No restriction, deliver all.
+    # Discriminate between conditions and nodes
 
-	upvar ::struct::graph::graph${name}::arcNodes arcNodes
-	return [array names arcNodes]
-    }
+    set haveCond 0
+    set haveKey 0
+    set haveValue 0
+    set cond "none"
+    set condNodes [list]
 
-    # Get mode and node list
-
-    set cond [lindex $args 0]
-    set args [lrange $args 1 end]
-
-    # Validate that the cond is good.
-    switch -glob -- $cond {
-	"-in" {
-	    set cond "in"
-	}
-	"-out" {
-	    set cond "out"
-	}
-	"-adj" {
-	    set cond "adj"
-	}
-	"-inner" {
-	    set cond "inner"
-	}
-	"-embedding" {
-	    set cond "embedding"
-	}
-	default {
-	    error "invalid restriction \"$cond\": should be -in, -out,\
-		    -adj, -inner or -embedding"
+    for {set i 0} {$i < [llength $args]} {incr i} {
+	set arg [lindex $args $i]
+	switch -glob -- $arg {
+	    -in -
+	    -out -
+	    -adj -
+	    -inner -
+	    -embedding {
+		set haveCond 1
+		set cond [string range $arg 1 end]
+	    }
+	    -key {
+		incr i
+		set key [lindex $args $i]
+		set haveKey 1
+	    }
+	    -value {
+		incr i
+		set value [lindex $args $i]
+		set haveValue 1
+	    }
+	    -* {
+		error "invalid restriction \"$arg\": should be -in, -out,\
+			-adj, -inner, -embedding, -key or -value"
+	    }
+	    default {
+		lappend condNodes $arg
+	    }
 	}
     }
 
     # Validate that there are nodes to use in the restriction.
     # otherwise what's the point?
-    if {[llength $args] == 0} {
-	set usage "$name arcs ?-in|-out|-adj|-inner|-embedding node node...?"
-	error "no nodes specified: should be \"$usage\""
-    }
+    if {$haveCond} {
+	if {[llength $condNodes] == 0} {
+	    set usage "$name arcs ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"
+	    error "no nodes specified: should be \"$usage\""
+	}
 
-    # Make sure that the specified nodes exist!
-    foreach node $args {
-	if { ![__node_exists $name $node] } {
-	    error "node \"$node\" does not exist in graph \"$name\""
+	# Make sure that the specified nodes exist!
+	foreach node $condNodes {
+	    if { ![__node_exists $name $node] } {
+		error "node \"$node\" does not exist in graph \"$name\""
+	    }
 	}
     }
 
@@ -510,7 +523,7 @@ proc ::struct::graph::_arcs {name args} {
 	    # Result is all arcs going to at least one node
 	    # in the list of arguments.
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    if {[info exists coll($e)]} {continue}
 		    lappend arcs    $e
@@ -522,7 +535,7 @@ proc ::struct::graph::_arcs {name args} {
 	    # Result is all arcs coming from at least one node
 	    # in the list of arguments.
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $outArcs($node) {
 		    if {[info exists coll($e)]} {continue}
 		    lappend arcs    $e
@@ -534,7 +547,7 @@ proc ::struct::graph::_arcs {name args} {
 	    # Result is all arcs coming from or going to at
 	    # least one node in the list of arguments.
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    if {[info exists coll($e)]} {continue}
 		    lappend arcs    $e
@@ -551,11 +564,11 @@ proc ::struct::graph::_arcs {name args} {
 	    # Result is all arcs running between nodes in the list.
 
 	    array set group {}
-	    foreach node $args {
+	    foreach node $condNodes {
 		set group($node) .
 	    }
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {![info exists group($n)]} {continue}
@@ -574,15 +587,15 @@ proc ::struct::graph::_arcs {name args} {
 	}
 	embedding {
 	    # Result is all arcs from -adj minus the arcs from -inner.
-	    # IOW all arcs goint from a node in the list to a node
+	    # IOW all arcs going from a node in the list to a node
 	    # which is *not* in the list
 
 	    array set group {}
-	    foreach node $args {
+	    foreach node $condNodes {
 		set group($node) .
 	    }
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {[info exists group($n)]} {continue}
@@ -599,10 +612,37 @@ proc ::struct::graph::_arcs {name args} {
 		}
 	    }
 	}
+	none {
+	    set arcs [array names arcNodes]
+	}
 	default {error "Can't happen, panic"}
     }
 
-    return $arcs
+    #
+    # We have a list of arcs that match the relation to the nodes.
+    # Now filter according to -key and -value.
+    #
+
+    set filteredArcs [list]
+
+    if {$haveKey} {
+	foreach arc $arcs {
+	    catch {
+		set aval [__arc_get $name $arc -key $key]
+		if {$haveValue} {
+		    if {$aval == $value} {
+			lappend filteredArcs $arc
+		    }
+		} else {
+		    lappend filteredArcs $arc
+		}
+	    }
+	}
+    } else {
+	set filteredArcs $arcs
+    }
+
+    return $filteredArcs
 }
 
 # ::struct::graph::_destroy --
@@ -654,6 +694,28 @@ proc ::struct::graph::__generateUniqueNodeName {name} {
 	incr nextUnusedNode
     }
     return "node${nextUnusedNode}"
+}
+
+# ::struct::graph::_get --
+#
+#	Get a keyed value from the graph itself
+#
+# Arguments:
+#	name	name of the graph.
+#	flag	-key; anything else is an error
+#	key	key to lookup; defaults to data
+#
+# Results:
+#	value	value associated with the key given.
+
+proc ::struct::graph::_get {name {flag -key} {key data}} {
+    upvar ::struct::graph::graph${name}::graphData data
+
+    if { ![info exists data($key)] } {
+	error "invalid key \"$key\" for graph"
+    }
+
+    return $data($key)
 }
 
 # ::struct::graph::_node --
@@ -1022,52 +1084,58 @@ proc ::struct::graph::__node_unset {name node {flag -key} {key data}} {
 
 proc ::struct::graph::_nodes {name args} {
 
-    if {[llength $args] == 0} {
-	# No restriction, deliver all.
+    # Discriminate between conditions and nodes
 
-	upvar ::struct::graph::graph${name}::inArcs inArcs
-	return [array names inArcs]
-    }
+    set haveCond 0
+    set haveKey 0
+    set haveValue 0
+    set cond "none"
+    set condNodes [list]
 
-    # Get mode and node list
-
-    set cond [lindex $args 0]
-    set args [lrange $args 1 end]
-
-    # Validate that the cond is good.
-    switch -glob -- $cond {
-	"-in" {
-	    set cond "in"
-	}
-	"-out" {
-	    set cond "out"
-	}
-	"-adj" {
-	    set cond "adj"
-	}
-	"-inner" {
-	    set cond "inner"
-	}
-	"-embedding" {
-	    set cond "embedding"
-	}
-	default {
-	    error "invalid restriction \"$cond\": should be -in, -out,\
-		    -adj, -inner or -embedding"
+    for {set i 0} {$i < [llength $args]} {incr i} {
+	set arg [lindex $args $i]
+	switch -glob -- $arg {
+	    -in -
+	    -out -
+	    -adj -
+	    -inner -
+	    -embedding {
+		set haveCond 1
+		set cond [string range $arg 1 end]
+	    }
+	    -key {
+		incr i
+		set key [lindex $args $i]
+		set haveKey 1
+	    }
+	    -value {
+		incr i
+		set value [lindex $args $i]
+		set haveValue 1
+	    }
+	    -* {
+		error "invalid restriction \"$arg\": should be -in, -out,\
+			-adj, -inner, -embedding, -key or -value"
+	    }
+	    default {
+		lappend condNodes $arg
+	    }
 	}
     }
 
     # Validate that there are nodes to use in the restriction.
     # otherwise what's the point?
-    if {[llength $args] == 0} {
-	set usage "$name nodes ?-in|-out|-adj|-inner|-embedding node node...?"
-	error "no nodes specified: should be \"$usage\""
-    }
+    if {$haveCond} {
+	if {[llength $condNodes] == 0} {
+	    set usage "$name nodes ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"
+	    error "no nodes specified: should be \"$usage\""
+	}
 
-    # Make sure that the specified nodes exist!
-    foreach node $args {
-	if { ![__node_exists $name $node] } {
-	    error "node \"$node\" does not exist in graph \"$name\""
+	# Make sure that the specified nodes exist!
+	foreach node $condNodes {
+	    if { ![__node_exists $name $node] } {
+		error "node \"$node\" does not exist in graph \"$name\""
+	    }
 	}
     }
 
@@ -1084,7 +1152,7 @@ proc ::struct::graph::_nodes {name args} {
 	    # Result is all nodes with at least one arc going to
 	    # at least one node in the list of arguments.
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {[info exists coll($n)]} {continue}
@@ -1097,7 +1165,7 @@ proc ::struct::graph::_nodes {name args} {
 	    # Result is all nodes with at least one arc coming from
 	    # at least one node in the list of arguments.
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $outArcs($node) {
 		    set n [lindex $arcNodes($e) 1]
 		    if {[info exists coll($n)]} {continue}
@@ -1110,7 +1178,7 @@ proc ::struct::graph::_nodes {name args} {
 	    # Result is all nodes with at least one arc coming from
 	    # or going to at least one node in the list of arguments.
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {[info exists coll($n)]} {continue}
@@ -1131,11 +1199,11 @@ proc ::struct::graph::_nodes {name args} {
 	    # arguments.
 
 	    array set group {}
-	    foreach node $args {
+	    foreach node $condNodes {
 		set group($node) .
 	    }
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {![info exists group($n)]} {continue}
@@ -1158,11 +1226,11 @@ proc ::struct::graph::_nodes {name args} {
 	    # but not in the list itself!
 
 	    array set group {}
-	    foreach node $args {
+	    foreach node $condNodes {
 		set group($node) .
 	    }
 
-	    foreach node $args {
+	    foreach node $condNodes {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {[info exists group($n)]} {continue}
@@ -1179,10 +1247,85 @@ proc ::struct::graph::_nodes {name args} {
 		}
 	    }
 	}
+	none {
+	    set nodes [array names inArcs]
+	}
 	default {error "Can't happen, panic"}
     }
 
-    return $nodes
+    #
+    # We have a list of nodes that match the relation to the nodes.
+    # Now filter according to -key and -value.
+    #
+
+    set filteredNodes [list]
+
+    if {$haveKey} {
+	foreach node $nodes {
+	    catch {
+		set nval [__node_get $name $node -key $key]
+		if {$haveValue} {
+		    if {$nval == $value} {
+			lappend filteredNodes $node
+		    }
+		} else {
+		    lappend filteredNodes $node
+		}
+	    }
+	}
+    } else {
+	set filteredNodes $nodes
+    }
+
+    return $filteredNodes
+}
+
+# ::struct::graph::_set --
+#
+#	Set or get a keyed value from the graph itself
+#
+# Arguments:
+#	name	name of the graph.
+#	flag	-key; anything else is an error
+#	args	?-key key? ?value?
+#
+# Results:
+#	value	value associated with the key given.
+
+proc ::struct::graph::_set {name args} {
+    upvar ::struct::graph::graph${name}::graphData data
+
+    if { [llength $args] > 3 } {
+	error "wrong # args: should be \"$name set ?-key key?\
+		?value?\""
+    }
+
+    set key "data"
+    set haveValue 0
+    if { [llength $args] > 1 } {
+	foreach {flag key} $args break
+	if { ![string match "${flag}*" "-key"] } {
+	    error "invalid option \"$flag\": should be key"
+	}
+	if { [llength $args] == 3 } {
+	    set haveValue 1
+	    set value [lindex $args end]
+	}
+    } elseif { [llength $args] == 1 } {
+	set haveValue 1
+	set value [lindex $args end]
+    }
+
+    if { $haveValue } {
+	# Setting a value
+	return [set data($key) $value]
+    } else {
+	# Getting a value
+	if { ![info exists data($key)] } {
+	    error "invalid key \"$key\" for graph"
+	}
+	return $data($key)
+    }
 }
 
 # ::struct::graph::_swap --
@@ -1249,6 +1392,33 @@ proc ::struct::graph::_swap {name node1 node2} {
     array set node1Vals [array get node2Vals]
     unset node2Vals
     array set node2Vals $value1
+
+    return
+}
+
+# ::struct::graph::_unset --
+#
+#	Remove a keyed value from the graph itself
+#
+# Arguments:
+#	name	name of the graph.
+#	flag	-key; anything else is an error
+#	args	additional args: ?-key key?
+#
+# Results:
+#	None.
+
+proc ::struct::graph::_unset {name {flag -key} {key data}} {
+    upvar ::struct::graph::graph${name}::graphData data
+    
+    if { ![string match "${flag}*" "-key"] } {
+	error "invalid option \"$flag\": should be \"$name unset\
+		?-key key?\""
+    }
+
+    if { [info exists data($key)] } {
+	unset data($key)
+    }
 
     return
 }
