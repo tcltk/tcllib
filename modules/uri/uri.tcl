@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.9 2001/10/31 16:39:53 patthoyts Exp $
+# CVS: $Id: uri.tcl,v 1.10 2001/10/31 23:54:12 patthoyts Exp $
 
 package require Tcl 8.2
 package provide uri 1.0
@@ -140,10 +140,10 @@ proc uri::register {schemeList script} {
     set schemePattern	"([::join $schemes |]):"
 
     foreach s schemeList {
+	# FRINK: nocheck
 	set url2part($s) "${s}:[set ${scheme}::schemepart]"
 	# FRINK: nocheck
 	append url "(${s}:[set ${scheme}::schemepart])|"
-	# FRINK: nocheck
     }
     set url [string trimright $url |]
     return
@@ -204,13 +204,14 @@ proc uri::SplitFtp {url} {
     # "//" [ <user> [":" <password> ] "@"] <host> [":" <port>] "/"
     #	<cwd1> "/" ..."/" <cwdN> "/" <name> [";type=" <typecode>]
 
-    upvar #0 [namespace current]::ftp::typepart ftptype
+    upvar \#0 [namespace current]::ftp::typepart ftptype
 
     array set parts {user {} pwd {} host {} port {} path {} type {}}
 
     # slash off possible type specification
 
     if {[regexp -indices -- "${ftptype}$" $url dummy ftype]} {
+
 	set from	[lindex $ftype 0]
 	set to		[lindex $ftype 1]
 
@@ -252,7 +253,7 @@ proc uri::JoinFtp args {
 
     set type {}
     if {[string length $components(type)]} {
-	set type \;$components(type)
+	set type \;type=$components(type)
     }
     
     return ftp://${userPwd}$components(host)${port}/[string trimleft $components(path) /]$type
@@ -758,7 +759,7 @@ uri::register ftp {
     variable	path	"${segment}(/${segment})*"
 
     variable	type		{[AaDdIi]}
-    variable	typepart	";type=${type}"
+    variable	typepart	";type=(${type})"
     variable	schemepart	\
 		    "//${login}(/${path}(${typepart})?)?"
 
