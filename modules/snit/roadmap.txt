@@ -54,8 +54,6 @@ Major Variable Definitions (this includes a whole lot of code)
     * typevariable Snit_compoptions
     * proc %TYPE%
     * proc Snit_install                     Badly named
-    * proc Snit_removetrace                 Badly named
-    * proc Snit_tracer                      Badly named
     * %COMPILEDDEFS%
     * proc Snit_typeconstructor defined
     * proc Snit_typeconstructor called
@@ -118,9 +116,14 @@ rather than compile time.
 * Object Creation
 ** ::snit::RT.type.typemethod.create
 ** ::snit::RT.widget.typemethod.create
+** ::snit::RT.InstanceTrace
 ** ::snit::RT.UniqueName
 ** ::snit::RT.UniqueInstanceNamespace
 ** ::snit::RT.OptionDbGet
+* Object Destruction
+** ::snit::RT.method.destroy
+** ::snit::RT.DestroyObject
+** ::snit::RT.RemoveInstanceTrace
 * Typecomponent Management and Typemethod Caching
 ** ::snit::RT.TypecomponentTrace
 ** ::snit::RT.TypemethodCacheLookup
@@ -146,9 +149,6 @@ rather than compile time.
 ** ::snit::RT.GetOptionDbSpec
 * Type Destruction
 ** ::snit::RT.typemethod.destroy
-* Object Destruction
-** ::snit::RT.method.destroy
-** ::snit::RT.DestroyObject
 * Type Introspection
 ** ::snit::RT.typemethod.info
 ** ::snit::RT.typemethod.info.typevars
