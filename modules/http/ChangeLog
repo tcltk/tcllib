@@ -1,0 +1,4 @@
+2004-07-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.tcl: Import of the wiki version.
+	* autoproxy.man: Wrote a manual page.
