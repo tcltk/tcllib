@@ -133,6 +133,13 @@ proc c_hold {buffer entry} {
     return
 }
 
+proc c_holding {buffer} {
+    global  Buffers
+    set l 0
+    catch {set l [llength $Buffers($buffer)]}
+    return $l
+}
+
 # held buffer --
 #	Returns current contents of named buffer and empty the buffer.
 #
