@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.1 2000/04/18 01:26:38 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.2 2000/04/19 04:14:54 welch Exp $
 
 package provide html 1.0
 
@@ -20,14 +20,22 @@ namespace eval html:: {
 
     variable page
 
-    # Default values
+    # A simple set of global defaults for tag parameters is implemented
+    # by storing into elements indexed by "key.param", where key is
+    # often the name of an HTML tag (anything for scoping), and
+    # param must be the name of the HTML tag parameter (e.g., "href" or "size")
+    #	input.size
+    #	body.bgcolor
+    #	body.text
+    #	font.face
+    #	font.size
+    #	font.color
 
     variable defaults
     array set defaults {
-	fieldWidth	45
-	textareaHeight	8
-	bgcolor		white
-	text		black
+	input.size	45
+	body.bgcolor	white
+	body.text	black
     }
 
     namespace export *
@@ -38,19 +46,22 @@ namespace eval html:: {
 #	Reset state that gets accumulated for the current page.
 #
 # Arguments:
-#	args:	Name, value list that is used to initialize default namespace
+#	nvlist	Name, value list that is used to initialize default namespace
 #		variables that set font, size, etc.
 #
 # Side Effects:
 #	Wipes the page state array
 
-proc html::reset {args} {
+proc html::reset {{nvlist {}}} {
     variable page
     variable defaults
     if {[info exist page]} {
 	unset page
     }
-    array set defaults $args
+    if {[info exist defaults]} {
+	unset defaults
+    }
+    array set defaults $nvlist
 }
 
 # html::head
@@ -67,11 +78,14 @@ proc html::reset {args} {
 
 proc html::head {title} {
     variable page
-    set html "<html><head>"
-    append html "\t[html::title $title]\n"
-    foreach item {author keywords meta description} {
-	if {[info exist page($item)]} {
-	    append html "\t$page($item)\n"
+    set html "<html><head>\n"
+    append html "\t[html::title $title]"
+    if {[info exist page(author)]} {
+	append html "\t$page(author)"
+    }
+    if {[info exist page(meta)]} {
+	foreach line $page(meta) {
+	    append html "\t$line\n"
 	}
     }
     append html "</head>\n"
@@ -90,7 +104,7 @@ proc html::head {title} {
 proc html::title {title} {
     variable page
     set page(title) $title
-    set html "<title>$title</title>"
+    set html "<title>$title</title>\n"
     return $html
 }
 
@@ -128,9 +142,9 @@ proc html::meta {args} {
     variable page
     set html ""
     foreach {name value} $args {
-	append html "<meta name=\"$name\" value=\"$value\">\n"
+	append html "<meta name=\"$name\" value=\"[quoteformvalue $value]\">"
     }
-    set page(meta) $html
+    lappend page(meta) $html
     return ""
 }
 
@@ -143,16 +157,25 @@ proc html::meta {args} {
 #	args	The keywords
 #
 # Side Effects:
-#	Adds keywords to page(keywords)
-#	We use page because it gets automatically reset by
-#	the template processor for each page
+#	See html::meta
 
 proc html::keywords {args} {
-    variable page
+    html::meta keywords [join $args ", "]
+}
 
-    set html "<meta name=keywords value=\"[join $args ", "]\">"
-    set page(keywords) $html
-    return ""
+# html::description
+#
+#	Add a description META tag to the <head> section.
+#	Call this before you call html::head
+#
+# Arguments:
+#	description	The description
+#
+# Side Effects:
+#	See html::meta
+
+proc html::description {description} {
+    html::meta description $description
 }
 
 # html::author
@@ -170,28 +193,33 @@ proc html::keywords {args} {
 
 proc html::author {author} {
     variable page
-    set page(author) "<!-- $author -->"
+    set page(author) "<!-- $author -->\n"
     return ""
 }
 
-# html::description
+# html::default
 #
-#	Add a description META tag to the <head> section.
-#	Call this before you call html::head
+#	Return a default value, if one has been registered
 #
 # Arguments:
-#	description	The description
+#	key	Index into the defaults array defined by html::reset
+#		This is expected to be in the form tag.pname where
+#		the pname part is used in the tag parameter name
+#	params	pname=value info that overrides any default values
 #
-# Side Effects:
-#	sets page(description)
-#	We use page because it gets automatically reset by
-#	the template processor for each page
+# Results
+#	pname="keyvalue"
 
-proc html::description {description} {
-    variable page
-    set page(description) \
-	"<meta name=description value=\"$description\">"
-    return ""
+proc html::default {key {params {}}} {
+    variable defaults
+    set pname [lindex [split $key .] 1]
+    if {![regexp "(\[ 	\]|^)$pname=" $params] &&
+	    [info exist defaults($key)] &&
+	    [string length $defaults($key)]} {
+	return " $pname=\"$defaults($key)\""
+    } else {
+	return ""
+    }
 }
 
 # html::bodytag
@@ -204,16 +232,12 @@ proc html::description {description} {
 # Results
 #	A body tag
 
-proc html::bodytag {} {
+proc html::bodytag {args} {
     variable default
     append html "<body"
-    if {![html::varempty default(bgcolor)]} {
-	append html " bgcolor=$default(bgcolor)"
-    }
-    if {![html::varempty default(text)]} {
-	append html " text=$default(text)"
-    }
-    append html ">\n"
+    append html [html::default body.bgcolor $args]
+    append html [html::default body.text $args]
+    append html " $args>\n"
     return $html
 }
 
@@ -242,10 +266,6 @@ proc html::formvalue {name {defvalue {}}} {
     if {[string length $value] == 0} {
 	set value $defvalue
     }
-    regsub -all {"} $value {\&#34;} value
-    regsub -all {'} $value {\&#39;} value
-    regsub -all {<} $value {\&lt;} value
-    regsub -all {>} $value {\&gt;} value
     return "name=\"$name\" value=\"[quoteformvalue $value]\""
 }
 
@@ -269,10 +289,10 @@ proc html::quoteformvalue {value} {
     return $value
 }
 
-# html::textinpupt --
+# html::textinput --
 #
-#	Return an <input type=text> element.  This looks at the the
-#	textwidth html variable.
+#	Return an <input type=text> element.  This uses the
+#	input.size default falue.
 #
 # Arguments:
 #	name	The form element name
@@ -282,15 +302,14 @@ proc html::quoteformvalue {value} {
 
 proc html::textinput {name {value {}}} {
     variable defaults
-    set html "<input type=text [html::formvalue $name $value] [html::fieldWidth]"
+    set html "<input type=text [html::formvalue $name $value] [html::default input.size]"
     append html ">\n"
     return $html
 }
 
-# html::textinpupt --
+# html::textinputrow --
 #
-#	Return an <input type=text> element.  This looks at the the
-#	textwidth html variable.
+#	Format a table row containing a text input element and a label.
 #
 # Arguments:
 #	name	The form element name
@@ -298,34 +317,24 @@ proc html::textinput {name {value {}}} {
 # Results:
 #	The html fragment
 
-proc html::textinput {name {value {}}} {
+proc html::textinputrow {label name {value {}}} {
     variable defaults
-    set html "<input type=text [html::formvalue $name $value]"
-    if {![html::varempty defaults(fieldWidth)]} {
-	append html " size=$defaults(fieldWidth)"
-    }
-    append html ">\n"
+    set html [html::row $label [html::textinput $name $value]]
     return $html
 }
 
 # html::passwordinpupt --
 #
-#	Return an <input type=password> element.  This looks at the the
-#	textwidth html variable.
+#	Return an <input type=password> element.
 #
 # Arguments:
-#	name	The form element name
+#	name	The form element name. Defaults to "password"
 #
 # Results:
 #	The html fragment
 
-proc html::passwordinput {name} {
-    variable defaults
-    set html "<input type=password"
-    if {![html::varempty defaults(fieldWidth)]} {
-	append html " size=$defaults(fieldWidth)"
-    }
-    append html ">\n"
+proc html::passwordinput {{name password}} {
+    set html "<input type=password name=$name>\n"
     return $html
 }
 
@@ -408,8 +417,6 @@ proc html::radioset {key sep list} {
 #	value from the query data, if any.
 
 proc html::checkset {key sep list} {
-    variable page
-    array set query $page(query)
     foreach {v label} $list {
 	append html "<input type=checkbox [checkvalue $key $v]> $label$sep"
     }
@@ -661,9 +668,9 @@ proc html::hdrrow {args} {
 #	<td>...</td> fragment
 
 proc html::cell {param value {tag td}} {
-    variable defaults
-    if {![varempty defaults(fontface)] || ![varempty default(fontsize)]} {
-	set value [html::font]$value</font>
+    set font [html::font]
+    if {[string length $font]} {
+	set value $font$value</font>
     }
     return "<[string trimright "$tag $param"]>$value</$tag>"
 }
@@ -674,16 +681,17 @@ proc html::cell {param value {tag td}} {
 #
 # Arguments:
 #	arrname	The name of the array
+#	param	The <table> tag parameters, if any.
 #	pat	A string match pattern for the element keys
 #
 # Results:
 #	A <table>
 
-proc html::tableFromArray {arrname {pat *}} {
+proc html::tableFromArray {arrname {param {}} {pat *}} {
     upvar 1 $arrname arr
     set html ""
     if {[info exists arr]} {
-	append html <TABLE>\n
+	append html "<TABLE $param>\n"
 	append html "<TR><TH colspan=2>$arrname</TH></TR>\n"
 	foreach name [lsort [array names arr $pat]] {
 	    append html [html::row $name $arr($name)]
@@ -749,14 +757,12 @@ proc html::mailto {email {subject {}}} {
 
 proc html::font {args} {
     variable defaults
-    set param [join $args]
-    if {![string match *font=* $param] && ![varempty defaults(fontface)]} {
-	append param " font=\"$defaults(fontface)\""
+    set param [html::default font.face $args][html::default font.size $args][html::default font.color]
+    if {[string length $param$args]} {
+	return <[string trimright "font $param $args"]>
+    } else {
+	return ""
     }
-    if {![string match *size=* $param] && ![varempty defaults(fontsize)]} {
-	append param " size=\"$defaults(fontsize)\""
-    }
-    return <[string trimright "font $param"]>
 }
 
 # html::formatcode
@@ -804,4 +810,46 @@ proc html::minormenu {list {sep { | }}} {
 	set s $sep
     }
     return $html
+}
+
+# html::extractParam
+#
+#	Extract a value from parameter list (this needs a re-do)
+#
+# Arguments:
+#   param	A parameter list.  It should alredy have been processed to
+#		remove any entity references
+#   key		The parameter name
+#   val		The variable to put the value into (use key as default)
+#
+# Results:
+#	returns "1" if the keyword is found, "0" otherwise
+
+proc html::extractParam {param key {val ""}} {
+    if {$val == ""} {
+	upvar $key result
+    } else {
+	upvar $val result
+    }
+    set ws " \t\n\r"
+ 
+    # look for name=value combinations.  Either (') or (") are valid delimeters
+    if {
+      [regsub -nocase [format {.*%s[%s]*=[%s]*"([^"]*).*} $key $ws $ws] $param {\1} value] ||
+      [regsub -nocase [format {.*%s[%s]*=[%s]*'([^']*).*} $key $ws $ws] $param {\1} value] ||
+      [regsub -nocase [format {.*%s[%s]*=[%s]*([^%s]+).*} $key $ws $ws $ws] $param {\1} value] } {
+        set result $value
+        return 1
+    }
+
+    # now look for valueless names
+    # I should strip out name=value pairs, so we don't end up with "name"
+    # inside the "value" part of some other key word - some day
+	
+    set bad \[^a-zA-Z\]+
+    if {[regexp -nocase  "$bad$key$bad" -$param-]} {
+	return 1
+    } else {
+	return 0
+    }
 }
