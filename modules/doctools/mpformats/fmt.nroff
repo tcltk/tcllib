@@ -188,7 +188,7 @@ proc lst_item {text} {
 proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
 proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
 
-proc example_begin {} { return ".nf" }
+proc example_begin {} { return "\n.nf" }
 proc example_end   {} { return ".fi" }
 proc example {code} { 
     set lines [list "" ".nf"] 
@@ -234,15 +234,15 @@ proc const   {text} {strong $text}
 proc nr_bld     {}       {return \\fB}
 proc nr_ul      {}       {return \\fI}
 proc nr_rst     {}       {return \\fR}
-proc nr_p       {}       {return .PP}
+proc nr_p       {}       {return \n.PP\n}
 proc nr_comment {text}   {return "'\\\" $text"}
 proc nr_enum    {num}    {return ".IP \[$num\]"}
 proc nr_vspace  {}       {return .sp}
-proc nr_blt     {text}   {return ".TP\n$text"}
-proc nr_bltn    {n text} {return ".TP $n\n$text"}
+proc nr_blt     {text}   {return "\n.TP\n$text"}
+proc nr_bltn    {n text} {return "\n.TP $n\n$text"}
 
-proc nr_in      {}       {return .RS}
-proc nr_out     {}       {return .RE}
+proc nr_in      {}       {return \n.RS}
+proc nr_out     {}       {return \n.RE}
 
 ################################################################
 

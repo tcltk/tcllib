@@ -364,7 +364,7 @@ proc eval_setup {} {
 	    # Ignore everything which is only whitespace ...
 
 	    set redux [string map [list " " "" "\t" "" "\n" ""] $text]
-	    if {$redux == {}} {return}
+	    if {$redux == {}} {return [HandleText $text]}
 	    if {[IsNot body] && [IsNot example]} {Error body}
 	    if {[LOpen] && ![LItem]} {Error nolisttxt}
 	    return [HandleText $text]
