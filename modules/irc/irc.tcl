@@ -5,7 +5,7 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.6 2003/01/09 06:12:41 davidw Exp $
+# $Id: irc.tcl,v 1.7 2003/01/09 07:34:03 davidw Exp $
 
 package provide irc 0.3
 
@@ -224,7 +224,7 @@ proc irc::connection { host {port 6667} } {
 	    while { $i <= [llength $splitline] } {
 		set tg [lindex $splitline $i]
 		if { [string index $tg 0] == ":" } {
-		    set linedata(msg) [string range [lrange $splitline $i end] 1 end]
+		    set linedata(msg) [string range [join [lrange $splitline $i end]] 1 end]
 		    break
 		}
 		lappend linedata(target) $tg
