@@ -1,14 +1,26 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.4 2001/12/19 11:58:22 jfontain Exp $
+# $Id: stooop.test,v 1.5 2003/05/01 22:40:18 patthoyts Exp $
 
-if {[lsearch [namespace children] ::tcltest]<0} {
+# -------------------------------------------------------------------------
+
+if {[lsearch [namespace children] ::tcltest] < 0} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
 set source [file join [file dirname [info script]] stooop.tcl]
+
+package forget stooop
+catch {namespace delete ::stooop}
+if {[catch {source [file join [file dirname [info script]] stooop.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+# -------------------------------------------------------------------------
+
 
 set dumpArraysCode {
     proc dumpArrays {args} {
@@ -9379,3 +9391,7 @@ test stooop-102 {
 
 cleanupTests
 return
+
+# Local variables:
+# mode: tcl
+# End:

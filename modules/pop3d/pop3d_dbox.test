@@ -8,15 +8,21 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d_dbox.test,v 1.1 2002/05/21 17:31:18 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.test,v 1.2 2003/05/01 22:40:17 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require pop3d::dbox
-puts "pop3d::dbox [package present pop3d::dbox]"
+package forget pop3d::dbox
+catch {namespace delete ::pop3d::dbox}
+if {[catch {source [file join [file dirname [info script]] pop3d_dbox.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+puts "- pop3d::dbox [package present pop3d::dbox]"
 
 # ----------------------------------------------------------------------
 

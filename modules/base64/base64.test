@@ -1,4 +1,4 @@
-# Tests for the base64 module.
+# Tests for the base64 module.                              -*- tcl -*- 
 #
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.7 2001/06/22 14:33:07 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.test,v 1.8 2003/05/01 22:40:12 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -18,15 +18,18 @@ if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
 }
 
-#source [file join [file dirname [info script]] base64.tcl]
-
-package require base64
-if {[catch {package present Trf}]} {
-    puts "base64 [package present base64] (pure Tcl)"
-} else {
-    puts "base64 [package present base64] (Trf based)"
+package forget base64
+catch {namespace delete base64}
+if {[catch {source [file join [file dirname [info script]] base64.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
 }
 
+if {[catch {package present Trf}]} {
+    puts "- base64 [package present base64] (pure Tcl)"
+} else {
+    puts "- base64 [package present base64] (Trf based)"
+}
 
 
 test base64-1.1 {base64::encode} {

@@ -403,7 +403,9 @@ proc ::textutil::expander::Op_reset {name} {
     variable Info 
 
     if {[info exists Info($name-lb)]} {
-        array unset Info "$name-*"
+        foreach elt [array names Info "$name-*"] {
+            unset Info($elt)
+        }
     }
 
     set Info($name-lb) "\["
@@ -576,7 +578,9 @@ proc ::textutil::expander::Op_cpop {name cname} {
     # FRINK: nocheck
     set [Var name-[Get level]] ""
 
-    array unset "Info data-[Get level]-*"
+    foreach elt [array names "Info data-[Get level]-*"] {
+        unset Info($elt)
+    }
 
     # FRINK: nocheck
     incr [Var level] -1

@@ -1,3 +1,33 @@
+2003-05-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/base64/base64.test:      
+	* modules/base64/uuencode.test:     
+	* modules/base64/yencode.test:     Various fixes to fix the
+	* modules/control/ChangeLog:       testsuite for tcl versions
+	* modules/control/do.test:         from 8.2 to 8.5
+	* modules/csv/csv.test:
+	* modules/dns/dns.test:
+	* modules/fileutil/ChangeLog:
+	* modules/fileutil/fileutil.man:
+	* modules/fileutil/fileutil.tcl:
+	* modules/fileutil/fileutil.test:
+	* modules/math/combinatorics.test:
+	* modules/math/math.test:
+	* modules/mime/mime.test:
+	* modules/ntp/time.test:
+	* modules/pop3/pop3.test:
+	* modules/pop3d/pop3d.test:
+	* modules/pop3d/pop3d_dbox.test:
+	* modules/pop3d/pop3d_udb.test:
+	* modules/profiler/profiler.test:
+	* modules/report/report.test:
+	* modules/stooop/pkgIndex.tcl:
+	* modules/stooop/stooop.test:
+	* modules/struct/list.test:
+	* modules/textutil/ChangeLog:
+	* modules/textutil/expander.tcl:
+	* modules/textutil/split.tcl:
+
 2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installer.tcl:
