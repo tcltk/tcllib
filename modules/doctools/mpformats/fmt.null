@@ -47,6 +47,8 @@ proc class       {text}             {return ""}
 proc var         {text}             {return ""}
 proc file        {text}             {return ""}
 proc uri         {text}             {return ""}
+proc term        {text}             {return ""}
+proc const       {text}             {return ""}
 
 
 proc PostProcess {expansion} {return ""}

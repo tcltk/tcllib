@@ -74,6 +74,8 @@ proc fmthelp {} {
 	    * var           - structural markup - variable\n\
 	    * file          - structural markup - file \n\
 	    * uri           - structural markup - uri\n\
+	    * term          - structural markup - unspecific terminology\n\
+	    * const         - structural markup - constant value\n\
 	    * emph          - visual markup - light emphasis, usage is discouraged\n\
 	    * strong        - visual markup - strong emphasis, usage is discouraged\n\
 	    "
@@ -163,6 +165,15 @@ proc eval_setup {} {
     set inip [interp create] ; # interpreter for code in the input/manpage.
     set ckip [interp create] ; # interpreter hosting the formal format checker
 
+    $ckip eval {
+	package require msgcat
+	proc ::msgcat::mcunknown {locale code} {
+	    return "unknown error code \"$code\""
+	}
+    }
+    # Provide l10n
+    $ckip eval [list ::msgcat::mcload [set f [file join [file dirname [info script]] mpformats]]]
+
     # Basic format definitions with error message. We expect that all
     # of these are overwritten by the actual format definition. Then
     # read the format itself.
@@ -203,7 +214,7 @@ proc eval_setup {} {
 	section para list_begin list_end lst_item call bullet enum
 	example example_begin example_end see_also keywords nl arg cmd opt
 	comment sectref syscmd method option widget fun type package
-	class var file uri usage
+	class var file uri usage term const
     } {
 	# We link the formatter commands into the input interpreter
 	# and route them to the checking commands in the checker. We
@@ -284,16 +295,22 @@ proc eval_setup {} {
 
 	# -------------------------------------------------------------
 	# Helpers
-	proc Error {{what {}} {msg {}}} {
+	proc Error {code} {
 	    global state lstctx lstitem
-	    if {$what == {}} {set what error}
-	    if {$msg == {}} {
-		set cmd [string range [lindex [info level 1] 0] 3 end]
-		set a   [lrange [info level 1] 1 end]
-		if {$a != {}} {append cmd " [join $a]"}
-		set msg "Command \"$cmd\" not allowed here ($state ($lstitem $lstctx))"
-	    }
-	    puts stderr "Manpage $what: $msg" ; exit 1
+
+	    # Problematic command with all arguments (we strip the "ck_" prefix!)
+	    # -*- future -*- count lines of input, maintain history buffer, use
+	    # -*- future -*- that to provide some context here.
+
+	    set cmd  [string range [lindex [info level 1] 0] 3 end]
+	    set args [lrange [info level 1] 1 end]
+	    if {$args != {}} {append cmd " [join $args]"}
+	    
+	    # Use a message catalog to map the error code into a legible message.
+	    set msg [::msgcat::mc $code]
+
+	    puts stderr "Manpage error ($code), \"$cmd\" : ${msg}."
+	    exit 1
 	    return
 	}
 	proc Is    {s} {global state ; return [string equal $state $s]}
@@ -330,92 +347,92 @@ proc eval_setup {} {
 		if {![LOpen]} {
 		    return
 		} else {
-		    Error incomplete "\[list_end\] missing"
+		    Error end/open/list
 		}
 	    } elseif {[Is example]} {
-		Error incomplete "\[example_end\] missing"
+		Error end/open/example
 	    } else {
-		Error incomplete "\[manpage_end\] missing"
+		Error end/open/mp
 	    }
 	    return
 	}
 	# -------------------------------------------------------------
 	# Formatting commands
 	proc ck_manpage_begin {title section version} {
-	    if {[IsNot manpage_begin]} {Error}
+	    if {[IsNot manpage_begin]} {Error mpbegin}
 	    Go header
 	    manpage_begin $title $section $version
 	}
 	proc ck_moddesc {desc} {
-	    if {[IsNot header]} {Error}
+	    if {[IsNot header]} {Error hdrcmd}
 	    moddesc $desc
 	}
 	proc ck_titledesc {desc} {
-	    if {[IsNot header]} {Error}
+	    if {[IsNot header]} {Error hdrcmd}
 	    titledesc $desc
 	}
 	proc ck_manpage_end {} {
-	    if {[IsNot body]} {Error}
+	    if {[IsNot body]} {Error bodycmd}
 	    Go done
 	    manpage_end
 	}
 	proc ck_require {pkg {version {}}} {
-	    if {[IsNot header] && [IsNot requirements]} {Error}
+	    if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
 	    Go requirements
 	    require $pkg $version
 	}
 	proc ck_description {} {
-	    if {[IsNot header] && [IsNot requirements]} {Error}
+	    if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
 	    Go body
 	    description
 	}
 	proc ck_section {name} {
-	    if {[IsNot body]} {Error}
-	    if {[LOpen]}      {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {[LOpen]}      {Error nolistcmd}
 	    section $name
 	}
 	proc ck_para {} {
-	    if {[IsNot body]} {Error}
-	    if {[LOpen]}      {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {[LOpen]}      {Error nolistcmd}
 	    para
 	}
 	proc ck_list_begin {what} {
-	    if {[IsNot body]}        {Error}
-	    if {[LOpen] && ![LItem]} {Error}
+	    if {[IsNot body]}        {Error bodycmd}
+	    if {[LOpen] && ![LItem]} {Error nolisthdr}
 	    LPush      $what
 	    list_begin $what
 	}
 	proc ck_list_end {} {
-	    if {[IsNot body]} {Error}
-	    if {![LOpen]}     {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {![LOpen]}     {Error listcmd}
 	    LPop
 	    list_end
 	}
 	proc ck_lst_item {{text {}}} {
-	    if {[IsNot body]}       {Error}
-	    if {![LOpen]}           {Error}
-	    if {![LIs definitions]} {Error}
+	    if {[IsNot body]}       {Error bodycmd}
+	    if {![LOpen]}           {Error listcmd}
+	    if {![LIs definitions]} {Error deflist}
 	    LSItem
 	    lst_item $text
 	}
 	proc ck_call {cmd args} {
-	    if {[IsNot body]}       {Error}
-	    if {![LOpen]}           {Error}
-	    if {![LIs definitions]} {Error}
+	    if {[IsNot body]}       {Error bodycmd}
+	    if {![LOpen]}           {Error listcmd}
+	    if {![LIs definitions]} {Error deflist}
 	    LSItem
 	    eval [linsert $args 0 call $cmd]
 	}
 	proc ck_bullet {} {
-	    if {[IsNot body]}  {Error}
-	    if {![LOpen]}      {Error}
-	    if {![LIs bullet]} {Error}
+	    if {[IsNot body]}  {Error bodycmd}
+	    if {![LOpen]}      {Error listcmd}
+	    if {![LIs bullet]} {Error bulletlist}
 	    LSItem
 	    bullet
 	}
 	proc ck_enum {} {
-	    if {[IsNot body]} {Error}
-	    if {![LOpen]}     {Error}
-	    if {![LIs enum]}  {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {![LOpen]}     {Error listcmd}
+	    if {![LIs enum]}  {Error enumlist}
 	    LSItem
 	    enum
 	}
@@ -423,107 +440,107 @@ proc eval_setup {} {
 	    return [ck_example_begin]${code}[ck_example_end]
 	}
 	proc ck_example_begin {} {
-	    if {[IsNot body]}        {Error}
-	    if {[LOpen] && ![LItem]} {Error}
+	    if {[IsNot body]}        {Error bodycmd}
+	    if {[LOpen] && ![LItem]} {Error nolisthdr}
 	    Go example
 	    example_begin
 	}
 	proc ck_example_end {} {
-	    if {[IsNot example]} {Error}
+	    if {[IsNot example]} {Error examplecmd}
 	    Go body
 	    example_end
 	}
 	proc ck_see_also {args} {
-	    if {[IsNot body]} {Error}
-	    if {[LOpen]}      {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {[LOpen]}      {Error nolistcmd}
 	    eval [linsert $args 0 see_also]
 	}
 	proc ck_keywords {args} {
-	    if {[IsNot body]} {Error}
-	    if {[LOpen]}      {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {[LOpen]}      {Error nolistcmd}
 	    eval [linsert $args 0 keywords]
 	}
 	proc ck_nl {} {
-	    if {[IsNot body]} {Error}
-	    if {![LOpen]}     {Error}
-	    if {![LItem]}     {Error}
+	    if {[IsNot body]} {Error bodycmd}
+	    if {![LOpen]}     {Error listcmd}
+	    if {![LItem]}     {Error nolisthdr}
 	    nl
 	}
 	proc ck_emph {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    emph $text
 	}
 	proc ck_strong {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    strong $text
 	}
 	proc ck_arg {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    arg $text
 	}
 	proc ck_cmd {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    cmd $text
 	}
 	proc ck_opt {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    opt $text
 	}
 	proc ck_comment {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    comment $text
 	}
 	proc ck_sectref {name} {
-	    if {[IsNot body]} {Error}
-	    if {[LOpen] && ![LItem]} {Error}
+	    if {[IsNot body]}        {Error bodycmd}
+	    if {[LOpen] && ![LItem]} {Error nolisthdr}
 	    sectref $name
 	}
 	proc ck_syscmd {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    syscmd $text
 	}
 	proc ck_method {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    method $text
 	}
 	proc ck_option {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    option $text
 	}
 	proc ck_widget {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    widget $text
 	}
 	proc ck_fun {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    fun $text
 	}
 	proc ck_type {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    type $text
 	}
 	proc ck_package {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    package $text
 	}
 	proc ck_class {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    class $text
 	}
 	proc ck_var {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    var $text
 	}
 	proc ck_file {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    file $text
 	}
 	proc ck_uri {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    uri $text
 	}
 	proc ck_usage {text} {
-	    if {[Is done]} {Error}
+	    if {[Is done]} {Error nodonecmd}
 	    usage $text
 	}
 	# -------------------------------------------------------------
