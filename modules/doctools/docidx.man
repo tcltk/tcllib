@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin docidx n 1.0]
+[manpage_begin doctools::idx n 1.0]
 [copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Create and manipulate docidx converter objects}]
@@ -424,7 +424,7 @@ Wippler's [syscmd wikit] application.
 [list_end]
 
 
-[see_also docidx_api docidx_fmt]
-[keywords index {keyword index} documentation manpage]
+[see_also doctools docidx_api docidx_fmt]
+[keywords docidx index {keyword index} documentation manpage]
 [keywords TMML HTML nroff latex wiki conversion markup]
 [manpage_end]

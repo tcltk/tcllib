@@ -1,8 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctoc_fmt n 1.0]
-[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
-[titledesc {Specification of simple tcl markup for table of contents}]
+[titledesc {Specification of a simple Tcl Markup Language for Tables of Contents}]
 [description]
 [para]
 
@@ -228,5 +228,5 @@ module (doctools) of package [package tcllib].
 }]
 
 [see_also doctools_fmt docidx_fmt doctoc_api doctoc]
-[keywords markup {generic markup} toc {table of contents} TMML HTML nroff LaTeX]
+[keywords doctoc markup {generic markup} toc {table of contents} TMML HTML nroff LaTeX]
 [manpage_end]
