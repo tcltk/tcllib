@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.34 2004/01/30 06:58:51 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.35 2004/01/30 19:22:22 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -750,13 +750,18 @@ proc ::fileutil::fileType {filename} {
 	    # Seek to the specified location and try to match a metakit header
 	    # at this location.
 
-	    set         fid [ open $filename r ]
-	    fconfigure $fid -translation binary
-	    fconfigure $fid -buffersize 1024
-	    fconfigure $fid -buffering full
-	    seek       $fid $hdroffset start
-
-	    set test [ read $fid 16 ]
+	    if { [ catch {
+		set         fid [ open $filename r ]
+		fconfigure $fid -translation binary
+		fconfigure $fid -buffersize 1024
+		fconfigure $fid -buffering full
+		seek       $fid $hdroffset start
+		set test [ read $fid 16 ]
+		::close $fid
+	    } err ] } {
+		catch { ::close $fid }
+		return -code error "::fileutil::fileType: $err"
+	    }
 
 	    if {[string match "JL\x1a\x00*" $test]} {
 		lappend type attached metakit smallendian
