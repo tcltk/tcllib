@@ -7,5 +7,5 @@ package ifneeded math::statistics      0.1.1 [list source [file join $dir statis
 package ifneeded math::optimize        0.1   [list source [file join $dir optimize.tcl]]
 package ifneeded math::interpolate     0.9   [list source [file join $dir interpolate.tcl]]
 package ifneeded math::complexnumbers  1.0   [list source [file join $dir qcomplex.tcl]]
-package ifneeded math::special         0.1   [list source [file join $dir bessel.tcl]]
+package ifneeded math::special         0.1   [list source [file join $dir special.tcl]]
 package ifneeded math::constants       1.0   [list source [file join $dir constants.tcl]]

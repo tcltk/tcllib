@@ -23,21 +23,10 @@ namespace eval ::math::constants {
       onethird  1.0/3.0                  "One third (0.3333....)"
       twothirds 2.0/3.0                  "Two thirds (0.3333....)"
       onesixth  1.0/6.0                  "One sixth (0.1666....)"
+      huge      [find_huge]              "(Approximately) largest number"
+      tiny      [find_tiny]              "(Approximately) smallest number not equal zero"
+      eps       [find_eps]               "Smallest number such that 1+eps != 1"
    }
-
-   #
-   # Create the variables from this list:
-   # - By using expr we ensure that the best double precision
-   #   approximation is assigned to the variable, rather than
-   #   just the string
-   # - It also allows us to rely on IEEE arithmetic if available,
-   #   so that for instance 3.0*(1.0/3.0) is exactly 1.0
-   #
-   foreach {const value descr} $constants {
-      # FRINK: nocheck
-      set $const [expr 0.0+$value]
-   }
-
    namespace export constants print-constants
 }
 
@@ -84,6 +73,88 @@ proc ::math::constants::print-constants {args} {
    }
 }
 
+# find_huge --
+#    Find the largest possible number
+#
+# Arguments:
+#    None
+# Result:
+#    Estimate of the largest possible number
+#
+proc ::math::constants::find_huge {} {
+
+   set result 1.0
+
+   while {! [catch {set result [expr {10.0*$result}]}] } {
+      set prev_result $result
+   }
+   set result $prev_result
+   while {! [catch {set result [expr {1.0001*$result}]}] } {
+      set prev_result $result
+   }
+
+   return $prev_result
+}
+
+# find_tiny --
+#    Find the smallest possible number
+#
+# Arguments:
+#    None
+# Result:
+#    Estimate of the smallest possible number
+#
+proc ::math::constants::find_tiny {} {
+
+   set result 1.0
+
+   while { ! [catch {set result [expr {$result/10.0}]}] && $result > 0.0 } {
+      set prev_result $result
+   }
+   set result $prev_result
+
+   while { ! [catch {set result [expr {$result/1.1}]}] && $result < $prev_result } {
+      set prev_result $result
+   }
+
+   return $prev_result
+}
+
+# find_eps --
+#    Find the smallest number eps such that 1+eps != 1
+#
+# Arguments:
+#    None
+# Result:
+#    Estimate of the machine epsilon
+#
+proc ::math::constants::find_eps { } {
+   set eps 1.0
+   while { [expr {1.0+$eps}] != 1.0 } {
+      set prev_eps $eps
+      set eps  [expr 0.5*$eps]
+   }
+   return $prev_eps
+}
+
+# Create the variables from the list:
+# - By using expr we ensure that the best double precision
+#   approximation is assigned to the variable, rather than
+#   just the string
+# - It also allows us to rely on IEEE arithmetic if available,
+#   so that for instance 3.0*(1.0/3.0) is exactly 1.0
+#
+namespace eval ::math::constants {
+   foreach {const value descr} $constants {
+      # FRINK: nocheck
+      set $const [expr 0.0+$value]
+   }
+
+   rename find_eps  {}
+   rename find_tiny {}
+   rename find_huge {}
+}
+
 #
 # Declare our presence
 #
@@ -91,8 +162,8 @@ package provide math::constants 1.0
 
 # some tests --
 #
-if { 0 } {
-::math::constants::constants pi e ln10 onethird
+if { 1 } {
+::math::constants::constants pi e ln10 onethird eps
 set tcl_precision 17
 puts "$pi - [expr {1.0/$pi}]"
 puts $e
@@ -101,4 +172,10 @@ puts "onethird: [expr {3.0*$onethird}]"
 ::math::constants::print-constants onethird pi e
 puts "All defined constants:"
 ::math::constants::print-constants
+
+if { 1.0+$eps == 1.0 } {
+   puts "Something went wrong with eps!"
+} else {
+   puts "Difference: [set ee [expr {1.0+$eps}]] - 1.0 = [expr {$ee-1.0}]"
+}
 }

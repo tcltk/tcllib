@@ -10,21 +10,7 @@
 [description]
 [para]
 This package implements several so-called special functions, like
-Bessel functions.
-
-[para]
-[emph Note:] Currently it only implements three Bessel functions.
-[para]
-[emph Note:] The combinatorics module implements such functions as:
-
-[list_begin bullet]
-[bullet]
-the log gamma function
-[bullet]
-the beta function
-[bullet]
-the factorial function (which is directly related to the gamma function)
-[list_end]
+the Gamma function, the Bessel functions and such.
 
 [para]
 Each function is implemented by a procedure that bares its name (well,
@@ -40,6 +26,13 @@ J1 for the first-order Bessel function of the first kind
 [bullet]
 J1/2 for the half-order Bessel function of the first kind
 
+[bullet]
+I_n for the modified Bessel function of the first kind of order n
+
+[bullet]
+Gamma for the Gamma function, erf and erfc for the error function and
+the complementary error function.
+
 [list_end]
 
 [section "PROCEDURES"]
@@ -47,6 +40,48 @@ J1/2 for the half-order Bessel function of the first kind
 The package defines the following public procedures:
 
 [list_begin definitions]
+
+[call [cmd ::math::special::Beta] [arg x] [arg y]]
+
+Compute the Beta function for arguments "x" and "y"
+
+[list_begin arg]
+[arg_def float x] First argument for the Beta function
+
+[arg_def float y] Second argument for the Beta function
+[list_end]
+
+[nl]
+
+[call [cmd ::math::special::Gamma] [arg x] [arg y]]
+
+Compute the Gamma function for argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the Gamma function
+[list_end]
+
+[nl]
+
+[call [cmd ::math::special::erf] [arg x]]
+
+Compute the error function for argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the error function
+[list_end]
+
+[nl]
+
+[call [cmd ::math::special::erfc] [arg x]]
+
+Compute the complementary error function for argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the complementary error function
+[list_end]
+
+[nl]
 
 [call [cmd ::math::special::J0] [arg x]]
 
@@ -79,6 +114,16 @@ argument "x"
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
+[call [cmd ::math::special::I_n] [arg x]]
+
+Compute the modified Bessel function of the first kind of order n for
+the argument "x"
+
+[list_begin arg]
+[arg_def int x] Positive integer order of the function
+[arg_def float x] Argument for the function
+[list_end]
+
 [list_end]
 
 [section "REMARKS ON THE IMPLEMENTATION"]
@@ -97,7 +142,17 @@ be expressed exactly in terms of elementary functions.
 The functions J0 and J1 are the ones you will encounter most frequently
 in practice.
 
-[keywords math "special functions" "Bessel functions"]
+[para]
+The computation of I_n is based on Miller's algorithm for computing the
+minimal function from recurrence relations.
+
+[para]
+The computation of the Gamma and Beta functions relies on the
+combinatorics package, whereas that of the error functions relies on the
+statistics package.
+
+
+[keywords math "special functions" "Bessel functions" "error function"]
 
 [manpage_end]
 
