@@ -9,12 +9,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.13 2003/02/25 06:40:31 davidw Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.14 2003/04/11 00:39:47 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.2
+package provide cmdline 1.2.1
 
-namespace eval cmdline {
+namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
 	    getKnownOptions usage
 }
@@ -22,7 +22,7 @@ namespace eval cmdline {
 # Load the typed versions of these functions
 source [file join [file dirname [info script]] typedCmdline.tcl]
 
-# cmdline::getopt --
+# ::cmdline::getopt --
 #
 #	The cmdline::getopt works in a fashion like the standard
 #	C based getopt function.  Given an option string and a 
@@ -53,7 +53,7 @@ source [file join [file dirname [info script]] typedCmdline.tcl]
 # 	The getopt function returns 1 if an option was found, 0 if no more
 # 	options were found, and -1 if an error occurred.
 
-proc cmdline::getopt {argvVar optstring optVar valVar} {
+proc ::cmdline::getopt {argvVar optstring optVar valVar} {
     upvar 1 $argvVar argsList
     upvar 1 $optVar option
     upvar 1 $valVar value
@@ -67,7 +67,7 @@ proc cmdline::getopt {argvVar optstring optVar valVar} {
     return $result
 }
 
-# cmdline::getKnownOpt --
+# ::cmdline::getKnownOpt --
 #
 #	The cmdline::getKnownOpt works in a fashion like the standard
 #	C based getopt function.  Given an option string and a 
@@ -101,7 +101,7 @@ proc cmdline::getopt {argvVar optstring optVar valVar} {
 #	0 if no more options were found, -1 if an unknown option was
 #	encountered, and -2 if any other error occurred. 
 
-proc cmdline::getKnownOpt {argvVar optstring optVar valVar} {
+proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
     upvar 1 $argvVar argsList
     upvar 1 $optVar  option
     upvar 1 $valVar  value
@@ -154,7 +154,7 @@ proc cmdline::getKnownOpt {argvVar optstring optVar valVar} {
     return $result
 }
 
-# cmdline::getoptions --
+# ::cmdline::getoptions --
 #
 #	Process a set of command line options, filling in defaults
 #	for those not specified.  This also generates an error message
@@ -181,13 +181,13 @@ proc cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 # Results
 #	Name value pairs suitable for using with array set.
 
-proc cmdline::getoptions {arglistVar optlist {usage options:}} {
+proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
     upvar 1 $arglistVar argv
 
     set opts [GetOptionDefaults $optlist result]
 
     set argc [llength $argv]
-    while {[set err [cmdline::getopt argv $opts opt arg]]} {
+    while {[set err [getopt argv $opts opt arg]]} {
 	if {$err < 0} {
             set result(?) ""
             break
@@ -195,12 +195,12 @@ proc cmdline::getoptions {arglistVar optlist {usage options:}} {
 	set result($opt) $arg
     }
     if {[info exist result(?)] || [info exists result(help)]} {
-	error [cmdline::usage $optlist $usage]
+	error [usage $optlist $usage]
     }
     return [array get result]
 }
 
-# cmdline::getKnownOptions --
+# ::cmdline::getKnownOptions --
 #
 #	Process a set of command line options, filling in defaults
 #	for those not specified.  This ignores unknown flags, but generates
@@ -223,7 +223,7 @@ proc cmdline::getoptions {arglistVar optlist {usage options:}} {
 # Results
 #	Name value pairs suitable for using with array set.
 
-proc cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
+proc ::cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
     upvar 1 $arglistVar argv
 
     set opts [GetOptionDefaults $optlist result]
@@ -236,7 +236,7 @@ proc cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
     set unknownOptions [list]
 
     set argc [llength $argv]
-    while {[set err [cmdline::getKnownOpt argv $opts opt arg]]} {
+    while {[set err [getKnownOpt argv $opts opt arg]]} {
 	if {$err == -1} {
             # Unknown option.
 
@@ -262,12 +262,12 @@ proc cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
     set argv [concat $unknownOptions $argv]
 
     if {[info exist result(?)] || [info exists result(help)]} {
-	error [cmdline::usage $optlist $usage]
+	error [usage $optlist $usage]
     }
     return [array get result]
 }
 
-# cmdline::GetOptionDefaults --
+# ::cmdline::GetOptionDefaults --
 #
 #	This internal procdure processes the option list (that was passed to
 #	the getopt or getKnownOpt procedure).  The defaultArray gets an index
@@ -287,7 +287,7 @@ proc cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
 # Results
 #	Name value pairs suitable for using with array set.
 
-proc cmdline::GetOptionDefaults {optlist defaultArrayVar} {
+proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
     upvar 1 $defaultArrayVar result
 
     set opts {? help}
@@ -311,7 +311,7 @@ proc cmdline::GetOptionDefaults {optlist defaultArrayVar} {
     return $opts
 }
 
-# cmdline::usage --
+# ::cmdline::usage --
 #
 #	Generate an error message that lists the allowed flags.
 #
@@ -323,8 +323,8 @@ proc cmdline::GetOptionDefaults {optlist defaultArrayVar} {
 # Results
 #	A formatted usage message
 
-proc cmdline::usage {optlist {usage {options:}}} {
-    set str "[cmdline::getArgv0] $usage\n"
+proc ::cmdline::usage {optlist {usage {options:}}} {
+    set str "[getArgv0] $usage\n"
     foreach opt [concat $optlist \
 	    {{help "Print this message"} {? "Print this message"}}] {
 	set name [lindex $opt 0]
@@ -345,7 +345,7 @@ proc cmdline::usage {optlist {usage {options:}}} {
     return $str
 }
 
-# cmdline::getfiles --
+# ::cmdline::getfiles --
 #
 #	Given a list of file arguments from the command line, compute
 #	the set of valid files.  On windows, file globbing is performed
@@ -364,7 +364,7 @@ proc cmdline::usage {optlist {usage {options:}}} {
 # Results:
 #	Returns the list of files that match the input patterns.
 
-proc cmdline::getfiles {patterns quiet} {
+proc ::cmdline::getfiles {patterns quiet} {
     set result {}
     if {$::tcl_platform(platform) == "windows"} {
 	foreach pattern $patterns {
@@ -398,7 +398,7 @@ proc cmdline::getfiles {patterns quiet} {
     return $files
 }
 
-# cmdline::getArgv0 --
+# ::cmdline::getArgv0 --
 #
 #	This command returns the "sanitized" version of argv0.  It will strip
 #	off the leading path and remove the ".bin" extensions that our apps
@@ -410,7 +410,7 @@ proc cmdline::getfiles {patterns quiet} {
 # Results:
 #	The application name that can be used in error messages.
 
-proc cmdline::getArgv0 {} {
+proc ::cmdline::getArgv0 {} {
     global argv0
 
     set name [file tail $argv0]
