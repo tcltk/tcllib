@@ -30,7 +30,6 @@ Major Variable Definitions (this includes a whole lot of code)
 * Type namespace definition
     * User's typevariable definitions
     * proc Snit_cleanup         Destroys objects, calls destructor.
-    * proc Snit_optionget       This is badly named
     * proc Snit_constructor     The default constructor
     * proc Snit_instanceVars    Initializes instance variables
     * proc Snit_destructor      The default destructor (empty)
