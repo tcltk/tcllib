@@ -80,7 +80,7 @@
 	* fileutil.man: Added doctools manpage.
 	* fileutils.n: Updated to reflect change of version.
 
-2002-03-20  eric melski  <ericm@ajubasolutions.com>
+2002-03-20  Eric Melski  <ericm@ajubasolutions.com>
 
 	* Bumped version to 1.4
 	
