@@ -5,7 +5,7 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.1 2001/11/12 23:52:42 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.2 2001/11/20 00:01:09 andreas_kupries Exp $
 
 package provide irc 0.1
 
@@ -51,18 +51,20 @@ proc irc::connection { host {port 6667} } {
 
     # Create a unique namespace of the form irc$conn::$host
 
-    set name [format "irc%s::%s" $conn $host]
+    set name [format "%s::irc%s::%s" [namespace current] $conn $host]
 
     namespace eval $name {}
 
     set ${name}::conn $conn
     set ${name}::port $port
+    set ${name}::host $host
 
     namespace eval $name {
+	set nick ""
 	set state 0
-	set host [namespace tail [namespace current]]
 	array set dispatch {}
-    
+	set sock {}
+	array set linedata {}
 	# ircsend --
 	# send text to the IRC server
 
@@ -74,14 +76,17 @@ proc irc::connection { host {port 6667} } {
 	    }
 	}
 
-	# implemented user-side commands
+	# implemented user-side commands, meaning that these commands
+	# cause the calling user to perform the given action.
 
 	proc User { username hostname userinfo } {
 	    ircsend "USER $username $hostname $username :$userinfo"
 	}
 
-	proc Nick { nick } {
-	    ircsend "NICK $nick"
+	proc Nick { nk } {
+	    variable nick
+	    set nick $nk
+	    ircsend "NICK $nk"
 	}
 
 	proc Ping { } {
@@ -124,20 +129,103 @@ proc irc::connection { host {port 6667} } {
 	    return 0
 	}
 
-	# DispatchServerEvent --
+	# Callback API:
 
+	# These are all available from within callbacks, so as to
+	# provide an interface to provide some information on what is
+	# coming out of the server.
+
+	# action --
+
+	# action returns the action performed, such as KICK, PRIVMSG,
+	# MODE etc...
+
+	proc action { } {
+	    variable linedata
+	    return $linedata(action)
+	}
+
+	# msg --
+
+	# the rest of the line, even if there is more than one target.
+
+	proc msg { } {
+	    variable linedata	    
+	    return $linedata(msg)
+	}
+
+	# who --
+
+	# who performed the action.  If the command is called as [who
+	# address], it returns the information in the form
+	# username@ip.address.net
+	
+	proc who { {address 0} } {
+	    variable linedata
+	    set who $linedata(who)
+	    if { $address == 0 } {
+		return [string range $who 0 [expr [string first ! $who] - 1]]
+	    } else {
+		return [string range $who [expr [string last ! $who] + 1] end]
+	    }
+	}
+
+	# target --
+	
+	# to whom was this action done.
+
+	# index specifies which target number it is, if there are more
+	# than one (MODE and KICK commands, for instance).
+
+	proc target { {index 0} } {
+	    variable linedata
+	    return [lindex $linedata(target) $index]
+	}
+
+	# DispatchNumeric --
+	# Dispatch a numeric event that arrives from the server
+
+	proc DispatchNumeric { } {
+	    variable dispatch
+	    variable linedata
+	    if { [info exists dispatch($linedata(action))] } {
+		eval $dispatch($linedata(action))
+	    } else {
+		eval $dispatch(defaultnumeric)
+	    }
+	}
+
+	# DispatchServerEvent --
 	# Dispatch event from server
 
 	proc DispatchServerEvent { line } {
 	    variable dispatch
+	    variable linedata
 	    set splitline [split $line]
-	    set who [lindex $splitline 0]
-	    set cmd [lindex $splitline 1]
-	    set rest [lrange $splitline 2 end]
-	    if { [info exists dispatch($cmd)] } {
-		$dispatch($cmd) $who $rest
+	    set linedata(who) [lindex $splitline 0]
+	    set linedata(action) [lindex $splitline 1]
+	    set linedata(target) {}
+	    set linedata(msg) {}
+
+	    set i 2
+	    while { $i <= [llength $splitline] } {
+		set tg [lindex $splitline $i]
+		if { [string index $tg 0] == ":" } {
+		    set linedata(msg) [string range [lrange $splitline $i end] 1 end]
+		    break
+		}
+		lappend linedata(target) $tg
+		incr i
+	    }
+
+	    if { [string is integer $linedata(action)] } {
+		return [DispatchNumeric]		
+	    }
+
+	    if { [info exists dispatch($linedata(action))] } {
+		eval $dispatch($linedata(action))
 	    } else {
-		$dispatch(defaultevent) $cmd $who $rest
+		eval $dispatch(defaultevent)
 	    }
 	}
 
@@ -146,14 +234,18 @@ proc irc::connection { host {port 6667} } {
 	# Dispatch command from server
 
 	proc DispatchServerCmd { line } {
-	    variable dispatch
-	    set splitline [split $line]
-	    set action [lindex $splitline 0]
-	    set rest [lrange $splitline 1 end]
-	    if { [info exists dispatch($action)] } {
-		$dispatch($action) $rest
+	    variable dispatch 
+	    variable linedata
+	    set splt [string first : $line]
+	    set linedata(action) [string range $line 0 [expr {$splt - 2}]]
+	    set linedata(msg) [string range $line $splt end]
+	    set linedata(target) ""
+	    set linedata(who) ""
+
+	    if { [info exists dispatch($linedata(action))] } {
+		eval $dispatch($linedata(action))
 	    } else {
-		$dispatch(defaultcmd) $action $who $rest
+		eval $dispatch(defaultcmd)
 	    }
 	}
 
@@ -163,15 +255,17 @@ proc irc::connection { host {port 6667} } {
 	# DispatchServerCmd/Event
 
 	proc GetEvent { } {
+	    variable linedata
 	    variable sock
+	    array set linedata {}
 	    if { [eof $sock] } {
 		if { [info exists dispatch(EOF)] } {
 		    $dispatch(EOF)
 		}
 	    }
 	    gets $sock line
-	    if { [string index $line 0] == ":" } {
-		DispatchServerEvent [string range $line 0 end]
+	    if { [string index $line 0] == ":" } {		
+		DispatchServerEvent [string range $line 1 end]
 	    } else { 
 		DispatchServerCmd $line
 	    }
@@ -215,7 +309,7 @@ proc irc::connection { host {port 6667} } {
 	    }
 	}
     }
-    set returncommand [format "irc::irc%s::%s::network" $conn $host]
+    set returncommand [format "%s::irc%s::%s::network" [namespace current] $conn $host]
     incr conn
     return $returncommand
 }
