@@ -1,3 +1,7 @@
+2003-07-02 Aaron Faupell <afaupell@users.sourceforge.net>
+	* irc.tcl fixed logger not being turned off if debug
+	was turned off prior to creating new connection.
+
 2003-07-02 Aaron Faupell
 	* irc.tcl moved cmd-reload to ::irc::reload. removed
 	unused nick variable.

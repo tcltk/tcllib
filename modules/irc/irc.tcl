@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.15 2003/07/02 18:37:39 afaupell Exp $
+# $Id: irc.tcl,v 1.16 2003/07/03 08:31:26 afaupell Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -42,7 +42,7 @@ proc ::irc::config { key args } {
     set value [lindex $args 0]
     foreach ns [namespace children] {
         if { [info exists config($key)] && [info exists ${ns}::config($key)] \
-                && ${ns}::config($key) == $config($key)} {
+                && [set ${ns}::config($key)] == $config($key)} {
             ${ns}::cmd-config $key $value
         }
     }
@@ -111,6 +111,10 @@ proc ::irc::connection { args } {
 	array set dispatch {}
 	array set linedata {}
 	array set config [array get ::irc::config]
+
+	if { !$config(debug) } {
+	    ${logger}::disable debug
+	}
 
 	# ircsend --
 	# send text to the IRC server
