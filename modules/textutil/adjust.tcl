@@ -134,15 +134,13 @@ proc ::textutil::adjust::Adjust { varOrigName varNewName } {
   set text ""
 
 
-  if { $FullLine } then {
-    set text $orig;
-  } else {
-    regsub -all -- "(\n)|(\t)"     $orig   " "  text
-    regsub -all -- " +"            $text  " "   text
-    regsub -all -- "(^ *)|( *\$)"  $text  ""    text
+  if {!$FullLine} {
+    regsub -all -- "(\n)|(\t)"     $orig   " "  orig
+    regsub -all -- " +"            $orig  " "   orig
+    regsub -all -- "(^ *)|( *\$)"  $orig  ""    orig
   }
 
-  set words [split $text];
+  set words [split $orig];
   set numWords [llength $words];
   set numline 0;
 
