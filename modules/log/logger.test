@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: logger.test,v 1.2 2003/05/20 09:35:05 davidw Exp $
+# $Id: logger.test,v 1.3 2003/12/16 15:46:16 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -14,7 +14,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 set auto_path "[file dirname [info script]] $auto_path"
-package require logger
+package require logger 0.2
 
 test logger-1.0 {init basic} {
     set log [logger::init global]
@@ -42,6 +42,30 @@ test logger-2.0 {delete} {
     catch {set ${log}::enabled} err
     set err
 } {can't read "::logger::tree::global::enabled": no such variable}
+
+proc dellog {ns args} {
+    lappend ::results "$ns $args"
+}
+
+test logger-2.1 {delete + callback} {
+    set ::results {}
+    set log1 [logger::init global]
+    set log2 [logger::init global::subsystem]
+    ${log1}::delproc [list dellog $log1]
+    ${log2}::delproc [list dellog $log2]
+    ${log1}::delete
+    set ::results
+} {{::logger::tree::global::subsystem } {::logger::tree::global }}
+
+test logger-2.2 {delete + complex callback} {
+    set ::results {}
+    set log1 [logger::init global]
+    set log2 [logger::init global::subsystem]
+    ${log1}::delproc [list dellog $log1 sock1]
+    ${log2}::delproc [list dellog $log2 sock2]
+    ${log1}::delete
+    set ::results
+} {{::logger::tree::global::subsystem sock2} {::logger::tree::global sock1}}
 
 test logger-3.0 {log} {
     set log [logger::init global]

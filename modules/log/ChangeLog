@@ -1,3 +1,14 @@
+2003-12-16  David N. Welton  <davidw@dedasys.com>
+
+	* logger.test (2.1): Test deletion callbacks.
+	(2.2): Test deletion callbacks.
+
+	* logger.tcl: Bump logger version number because of API change.
+	(::logger::walk): Do eval after walk on children.
+	(delproc): New procedure to set a deletion-time callback that is
+	called for each of the instance's children.  Thanks to Michael
+	Schlenker for the suggestion [ 856280 ].
+
 2003-11-25  Andreas Kupries  <andreask@activestate.com>
 
 	* log.tcl (log::log): Added better handling of multiple lines in log message.
