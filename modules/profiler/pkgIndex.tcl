@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {return}
-package ifneeded profiler 0.2 [list source [file join $dir profiler.tcl]]
+package ifneeded profiler 0.2.1 [list source [file join $dir profiler.tcl]]
