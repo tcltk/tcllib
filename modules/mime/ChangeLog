@@ -1,3 +1,9 @@
+2003-06-06  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* mime.tcl (::mime::parsepart): Reactivated error command, revert
+	  to error on malformed mime input, instead of infinite
+	  looping. [Bug 631314] reported by David Welton.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -685,7 +685,7 @@ proc ::mime::parsepart {token} {
     while {$moreP} {
         if {$fileP} {
             if {$pos > $last} {
-        #        error "termination string missing in $state(content)"
+                 error "termination string missing in $state(content)"
                  set line "--$boundary--"
             } else {
               if {[set x [gets $state(fd) line]] < 0} {
