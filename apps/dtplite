@@ -236,14 +236,6 @@ namespace eval ::dtplite {
     variable  kwid
     array set kwid {}
 
-    # The file map is trivial. We use output files as keys,
-    # and they to themselves. The only reason we do set up
-    # a map in the engine is that the paths relative to each
-    # other may change. what we need, and keep, is a list of
-    # files to map.
-
-    variable  map    {}
-
     # Cache. This array maps from the path of an input file/document
     # (relative to 'input'), to the paths of the file to generate
     # (relative to 'output', including extension and such). In other
@@ -662,16 +654,15 @@ proc ::dtplite::Do.Directory {} {
 	puts stdout \t$f
 
 	set o $out($f)
+	dt configure -file $o
+
 	NavbuttonPush {Keyword Index}     [Output index] $o
 	NavbuttonPush {Table Of Contents} [Output toc]   $o
 	HeaderSetup dt
 	NavbuttonPop
 	NavbuttonPop
-
 	StyleSetup dt $o
-	MapSetup   dt $o
 
-	dt configure -file $f
 	Write [At $o] [dt format [Get [Pick $f]]]
     }
     return
@@ -720,6 +711,7 @@ proc ::dtplite::Do.Directory.Merge {} {
 	puts stdout \t$f
 
 	set o $out($f)
+	dt configure -file $o
 
 	NavbuttonPush {Keyword Index}          [Output index]       $o
 	NavbuttonPush {Table Of Contents}      [Output $module/toc] $o
@@ -728,11 +720,8 @@ proc ::dtplite::Do.Directory.Merge {} {
 	NavbuttonPop
 	NavbuttonPop
 	NavbuttonPop
-
 	StyleSetup dt $o
-	MapSetup   dt $o
 
-	dt configure -file $f
 	Write [At $o] [dt format [Get [Pick $f]]]
     }
     return
@@ -765,7 +754,6 @@ proc ::dtplite::MetadataGet {files {floc {}}} {
 	meta configure -file $f
 	set out($f)  [set o [Output [file join $floc files $f]]]
 	set meta($o) [lindex [string trim [meta format [Get [Pick $f]]]] 1]
-	MapAdd $o
     }
     meta destroy
     return
@@ -788,8 +776,6 @@ proc ::dtplite::TocGet {desc {f toc}} {
     foreach {k item} [array get meta] {
 	lappend res [TocItem $k $item]
     }
-
-    MapAdd $f
     return [list $desc [list $f $res]]
 }
 
@@ -808,9 +794,6 @@ proc ::dtplite::TocMergeSaved {sub} {
     set fqn [At .toc]
     if {[file exists $fqn]} {
 	array set _ [Get $fqn]
-	foreach t [array names _] {
-	    MapAdd [lindex $_($t) 0]
-	}
     }
     array set _ $sub
     set thetoc [array get _]
@@ -863,20 +846,20 @@ proc ::dtplite::TocGenerate {data} {
 }
 
 proc ::dtplite::TocWrite {ftoc findex text} {
-    variable map
     variable format
 
+    set ft [Output $ftoc]
+
     package require doctools::toc
-    doctools::toc::new toc -format $format
+    doctools::toc::new toc -format $format -file $ft
 
     NavbuttonPush {Keyword Index} [Output $findex] $ftoc
     HeaderSetup  toc
     NavbuttonPop
     FooterSetup  toc
     StyleSetup   toc $ftoc
-    MapSetup     toc $ftoc
 
-    Write [At [Output $ftoc]] [toc format $text]
+    Write [At $ft] [toc format $text]
     toc destroy
     return
 }
@@ -890,9 +873,8 @@ proc ::dtplite::TocWrite {ftoc findex text} {
 
 proc ::dtplite::IdxGet {{f index}} {
     # Get index out of the meta data.
-
-    MapAdd [Output $f]
     array set keys {}
+    array set kdup {}
     return [lindex [IdxExtractMeta] 1]
 }
 
@@ -901,22 +883,23 @@ proc ::dtplite::IdxGetSaved {{f index}} {
     variable meta
     variable kwid
 
-    MapAdd [Output $f]
     array set keys {}
     array set kwid {}
+    array set kdup {}
     set start 0
 
     set fqn [At .idx]
     if {[file exists $fqn]} {
-	foreach {kw start ki} [Get $fqn] break
+	foreach {kw kd start ki} [Get $fqn] break
 	array set keys $kw
 	array set kwid $ki
+	array set kdup $kd
     }
 
     foreach {start theindex} [IdxExtractMeta $start] break
 
     # Save extended index for next merge.
-    Write $fqn [list $theindex $start [array get kwid]]
+    Write $fqn [list $theindex [array get kdup] $start [array get kwid]]
 
     return $theindex
 }
@@ -926,13 +909,18 @@ proc ::dtplite::IdxExtractMeta {{start 0}} {
     variable meta
     variable kwid
 
-    upvar keys keys
+    upvar keys keys kdup kdup
     foreach {k item} [array get meta] {
 	foreach {symfile keywords label} [IdxItem $k $item] break
 	# Store inverted file - keyword relationship
+	# Kdup is used to prevent entering of duplicates.
+	# Checks full (keyword file label).
 	foreach k $keywords {
-	    lappend keys($k) [list $symfile $label]
-
+	    set kx [list $k $symfile $label]
+	    if {![info exists kdup($kx)]} {
+		lappend keys($k) [list $symfile $label]
+		set kdup($kx) .
+	    }
 	    if {[info exist kwid($k)]} continue
 	    set kwid($k) key$start
 	    incr start
@@ -970,21 +958,21 @@ proc ::dtplite::IdxGenerate {desc data} {
 }
 
 proc ::dtplite::IdxWrite {findex ftoc text} {
-    variable map
     variable format
 
+    set fi [Output $findex]
+
     package require doctools::idx
-    doctools::idx::new idx -format $format
+    doctools::idx::new idx -format $format -file $fi
 
     NavbuttonPush {Table Of Contents} [Output $ftoc] $findex
     HeaderSetup   idx
     NavbuttonPop
     FooterSetup   idx
     StyleSetup    idx $findex
-    MapSetup      idx $findex
     XrefSetupKwid idx
 
-    Write [At [Output $findex]] [idx format $text]
+    Write [At $fi] [idx format $text]
     idx destroy
     return
 }
@@ -1012,41 +1000,22 @@ proc ::dtplite::IsDoctools {f} {
 
 # ### ### ### ######### ######### #########
 ## Handling the map of files (symbolic -> actual)
-## - Adding a file to the list of whose we wish to map
-## - Setting up actual map, computing proper relative locations.
-
-proc ::dtplite::MapAdd {f} {
-    # f is relative to Output.
-    variable map
-    lappend  map $f
-    return
-}
-
-proc ::dtplite::MapSetup {o ref} {
-    variable map
-
-    # Insert the file map into the processor. Compute for each output
-    # file its actual path relative to the output file 'ref'.
-
-    foreach f $map {
-	$o map $f [MapLink $f $ref]
-    }
-    return
-}
+## - Computing proper relative locations.
 
 proc ::dtplite::MapLink {dst src} {
     # Ensure that the link to file 'dst' is properly done relative to
     # the file 'src'.
 
     set save $dst
-
     set src [file split $src]
     set dst [file split $dst]
+
     while {[string equal [lindex $dst 0] [lindex $src 0]]} {
 	set dst [lrange $dst 1 end]
 	set src [lrange $src 1 end]
 	if {![llength $dst]} {break}
     }
+
     set ul [llength $dst]
     set hl [llength $src]
 
@@ -1059,7 +1028,6 @@ proc ::dtplite::MapLink {dst src} {
 	}
 	set dst [eval file join $dst]
     }
-
     return $dst
 }
 
@@ -1148,12 +1116,6 @@ proc ::dtplite::XrefGetSaved {} {
     set fqn [At .xrf]
     if {[file exists $fqn]} {
 	array set xref [set s [Get $fqn]]
-	# Extend list of mapped files
-	# for proper relative paths.
-	foreach {k v} $s {
-	    set sym [lindex $v 0]
-	    MapAdd $sym
-	}
     }
 
     # Add any new cross references ...
