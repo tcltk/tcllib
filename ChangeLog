@@ -1,3 +1,11 @@
+2002-06-17  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* Applied patch for bug #567428. Bug reported by Larry Virden
+	  <lvirden@users.sourceforge.net>, patch by him too. Correction of
+	  spelling mistakes in the documentation of various modules +
+	  correction of comment placements which interfere with solaris
+	  conventions for nroff output.
+
 2002-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Released and tagged tcllib 1.3.0. ========================

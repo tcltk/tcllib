@@ -142,7 +142,7 @@ Similar to [cmd textutil::tabify] this command tabifies the
 [arg string] and returns the result as a new string. A different
 algorithm is used however. Instead of replacing any substring of
 
-[arg num] spaces this comand works more like an editor. [arg num]
+[arg num] spaces this command works more like an editor. [arg num]
 defaults to 8.
 
 [nl]

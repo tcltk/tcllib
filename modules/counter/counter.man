@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin counter n 2.0]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Counters and Histograms}]
 [titledesc {Procedures for counters and histograms}]
 [require Tcl 8]

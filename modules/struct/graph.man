@@ -1,5 +1,5 @@
-[comment {-*- tcl -*-}]
 [manpage_begin graph n 1.2.1]
+[comment {-*- tcl -*-}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
 [require Tcl 8.2]
@@ -361,9 +361,8 @@ arcs, [strong forward] indicates the direction of the outgoing arcs.
 
 As the walk progresses, the command [arg cmd] will be evaluated at
 each node, with the mode of the call ([strong enter] or
-
 [strong leave]) and values [arg graphName] and the name of the current
-node appended. For a pre-order walk all nodes are Bentered, for a
+node appended. For a pre-order walk, all nodes are [strong enter]ed, for a
 post-order all nodes are left. In a both-order walk the first visit of
 a node [strong enter]s it, the second visit [strong leave]s it.
 

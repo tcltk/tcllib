@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin stooop n 4.2]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Simple Tcl Only Object Oriented Programming}]
 [titledesc {Object oriented extension.}]
 [require Tcl 8.3]
@@ -195,7 +195,7 @@ tracing.
 
 Prints an ordered list of existing objects, in creation order, oldest
 first. Each output line contains the class name, object identifier and
-the procedure within which the creation occured. The optional pattern
+the procedure within which the creation occurred. The optional pattern
 argument (as in the Tcl [cmd {string match}] command) can be used to
 limit the output to matching class names.
 

@@ -14,7 +14,7 @@ This package provides commands to parse command lines and options.
 This command works in a fashion like the standard C based [cmd getopt]
 function.  Given an option string and a pointer to an array or args
 this command will process the first argument and return info on how to
-procede. The command returns 1 if an option was found, 0 if no more
+proceed. The command returns 1 if an option was found, 0 if no more
 options were found, and -1 if an error occurred.
 
 [nl]
