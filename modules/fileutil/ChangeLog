@@ -1,3 +1,9 @@
+2001-12-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Restricted tests 2.2 and 2.3 to the directory
+	  structure created for the test and not the whole directory the
+	  test is run in. Bugfix for item #486572.
+
 2001-11-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test:
