@@ -1,3 +1,8 @@
+2003-04-14  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Added error message to the timeout.
+	* resolv.tcl: incorporated some of Emmanuel's updated code.
+
 2003-04-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.man: *Renamed* to tcllib_dns.man to avoid a name clash with

@@ -18,7 +18,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.12 2003/04/12 00:22:37 patthoyts Exp $
+# $Id: dns.tcl,v 1.13 2003/04/13 23:04:00 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -27,7 +27,7 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
     variable version 1.0.4
-    variable rcsid {$Id: dns.tcl,v 1.12 2003/04/12 00:22:37 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.13 2003/04/13 23:04:00 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -363,10 +363,13 @@ proc ::dns::errorcode {token} {
 # Description:
 #  Reset a connection with optional reason.
 #
-proc ::dns::reset {token {why reset}} {
+proc ::dns::reset {token {why reset} {errormsg {}}} {
     variable $token
     upvar 0 $token state
     set state(status) $why
+    if {[string length $errormsg] > 0 && ![info exists state(error)]} {
+        set state(error) $errormsg
+    }
     catch {fileevent $state(sock) readable {}}
     Finish $token
 }
@@ -535,7 +538,9 @@ proc ::dns::TcpTransmit {token} {
     # setup the timeout
     if {$state(-timeout) > 0} {
         set state(after) [after $state(-timeout) \
-                              [list [namespace origin reset] $token timeout]]
+                              [list [namespace origin reset] \
+                                   $token timeout\
+                                   "operation timed out"]]
     }
 
     set s [socket $state(-nameserver) $state(-port)]
@@ -566,7 +571,9 @@ proc ::dns::UdpTransmit {token} {
     # setup the timeout
     if {$state(-timeout) > 0} {
         set state(after) [after $state(-timeout) \
-                              [list [namespace origin reset] $token timeout]]
+                              [list [namespace origin reset] \
+                                   $token timeout\
+                                  "operation timed out"]]
     }
     
     set state(sock) [udp_open]
