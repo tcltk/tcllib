@@ -10,10 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.19 2002/09/03 19:27:28 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.20 2002/09/03 21:33:08 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
+package require log
 package provide pop3 1.5.2
 
 namespace eval ::pop3 {
@@ -418,7 +419,9 @@ proc ::pop3::retrieve {chan start {end -1}} {
 proc ::pop3::RetrFast {chan size} {
     set msgBuffer [read $chan $size]
 
-puts --$msgBuffer
+    foreach line [split $msgBuffer \n] {
+	::log::log debug "pop3 $chan fast $line"
+    }
 
     # We might have read not enough because of .-stuffed lines.
     # Read the possible remainder in line by line fashion!
@@ -428,10 +431,10 @@ puts --$msgBuffer
     # need to get the real terminating "."
 
     while {[set line [gets $chan]] != ".\r"} {
-puts /-$line
+	::log::log debug "pop3 $chan ____ $line"
 	append msgBuffer $line
     }
-puts /-$line
+    ::log::log debug "pop3 $chan ____ $line"
 
     # Map both cr+lf and cr to lf to simulate auto EOL translation, then
     # unstuff .-stuffed lines.
@@ -456,7 +459,8 @@ proc ::pop3::RetrSlow {chan} {
 	
     while {1} {
 	set line [string trimright [gets $chan] \r]
-puts *-$line
+	::log::log debug "pop3 $chan slow $line"
+
 	# End of the message is a line with just "."
 	if {$line == "."} {
 	    break
@@ -487,20 +491,14 @@ proc ::pop3::send {chan cmdstring} {
    global PopErrorNm PopErrorStr debug
 
    if {$cmdstring != {}} {
-      puts $chan $cmdstring
-puts "($chan >>> $cmdstring)" ; flush stdout
+       ::log::log debug "pop3 $chan >>> $cmdstring"       
+       puts $chan $cmdstring
    }
    
    set popRet [string trim [gets $chan]]
-puts "($chan <<< $popRet)" ; flush stdout
+   ::log::log debug "pop3 $chan <<< $popRet"
 
    if {[string first "+OK" $popRet] == -1} {
-
-       if {"$cmdstring" == "STAT"} {
-   set popRet [string trim [gets $chan]]
-puts "($chan <<< $popRet)" ; flush stdout
-}
-
        error [string range $popRet 4 end]
    }
 
