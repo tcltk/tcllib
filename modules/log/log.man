@@ -35,7 +35,7 @@ level [const debug] is deactivated.
 
 [example {
     package require log
-    log::lvSupress debug
+    log::lvSuppress debug
     log::log debug "Unseen message" ; # No output
 }]
 [para]
