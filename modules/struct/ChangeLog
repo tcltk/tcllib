@@ -1,3 +1,10 @@
+2001-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.test:
+	* matrix.n:
+	* matrix.tcl: Implementation of FR #481022: matrix printing and
+	  searching.
+
 2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.test:
