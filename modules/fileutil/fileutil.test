@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.13 2003/05/01 22:40:15 patthoyts Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.14 2003/08/06 17:01:12 davidw Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -557,6 +557,50 @@ test stripN-2.3 {remove more than existing} {
 
 
 # ----------------------------------------------------------------
+
+# install --------------------------------------------------------
+
+catch {removeDirectory installDst} ;
+catch {removeDirectory installSrc} ;# start with a clean structure!
+
+makeDirectory installDst
+makeDirectory installSrc
+makeDirectory [file join installSrc subdir]
+makeFile "blah" [file join installSrc file1]
+
+# Make a second subdirectory to install.
+if { $tcl_platform(platform) == "unix" } {
+    makeDirectory [file join installSrc subdir2]
+    makeFile "blah" [file join installSrc subdir subfile1]
+    makeFile "blah" [file join installSrc subdir subfile2]
+    makeFile "blah" [file join installSrc subdir subfile3]
+
+    foreach fl {1 2 3} {
+	set fn [file join installSrc subdir2 subfile$fl]
+	makeFile "blah" $fn
+
+	# Give it some "bad" permissions.
+	file attributes $fn -permissions 0600
+    }
+}
+
+test install-1.1 {install a file} {
+    fileutil::install [file join installSrc file1] installDst
+    file exists [file join installDst file1]
+} {1}
+
+test install-2.1 {install a directory} {
+    fileutil::install [file join installSrc subdir] installDst
+    lsort [glob -tails -directory [file join installDst subdir] [file join . / *]]
+} {subfile1 subfile2 subfile3}
+
+test install-3.1 {install a directory, set permissions} {unix} {
+    fileutil::install -m go+rw [file join installSrc subdir2] installDst
+    foreach fl [glob [file join installDst subdir2 *]] {
+	append res [file attributes $fl -permissions]
+    }
+    set res
+} {006660066600666}
 
 ::tcltest::cleanupTests
 return

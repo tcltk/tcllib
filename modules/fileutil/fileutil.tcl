@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.26 2003/07/09 01:48:16 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.27 2003/08/06 17:01:12 davidw Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -657,5 +657,43 @@ proc ::fileutil::tempfile {{prefix {}}} {
  	return -code error "Failed to open a temporary file: $channel"
     } else {
  	return -code error "Failed to find an unused temporary file name"
+    }
+}
+
+# ::fileutil::install --
+#
+#	Tcl version of the 'install' command, which copies files from
+#	one places to another and also optionally sets some attributes
+#	such as group, owner, and permissions.
+#
+# Arguments:
+#	-m		Change the file permissions to the specified
+#                       value.  Valid arguments are those accepted by
+#			file attributes -permissions
+#
+# Results:
+#	None.
+
+# TODO - add options for group/owner manipulation.
+
+proc ::fileutil::install {args} {
+    set options {
+	{m.arg "" "Set permission mode"}
+    }
+    set usage ": [lindex [info level 0] 0]\
+\[options] source destination \noptions:"
+    array set params [::cmdline::getoptions args $options $usage]
+    # Args should now just be the source and destination.
+    if { [llength $args] < 2 } {
+	error $usage
+    }
+    set src [lindex $args 0]
+    set dst [lindex $args 1]
+    file copy -force $src $dst
+    if { $params(m) != "" } {
+	set targets [::fileutil::find $dst]
+	foreach fl $targets {
+	    file attributes $fl -permissions $params(m)
+	}
     }
 }
