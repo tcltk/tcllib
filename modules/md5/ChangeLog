@@ -1,3 +1,9 @@
+2004-12-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5x.tcl: Replaced use of memchan null channel with the systems
+	NUL device (NUL or /dev/null). This avoids problems with clashing
+	names when memchan gets included.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
