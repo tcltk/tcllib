@@ -1,3 +1,14 @@
+2003-05-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.man:
+	* list.tcl (dbJoin(Keyed)): Extended the commands with an option
+	  -keys. Argument is the name of a variable to store the actual
+	  list of keys into, independent of the output table. As the
+	  latter may not contain all the keys, depending on how and where
+	  key columns are present or not. Additionally cleanups in the use
+	  of loop variables in the keyed helper commands frink complained
+	  about.
+
 2003-05-16  Andreas Kupries  <andreask@activestate.com>
 
 	* Extension of the package functionality warrants version bump to 1.4.
@@ -30,7 +41,7 @@
 
 	* tree.test: 
 	* tree.tcl: allow node names with space chars and single :.
-	Double :: may be OK, but the check against it is still in.
+	  Double :: may be OK, but the check against it is still in.
 
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
