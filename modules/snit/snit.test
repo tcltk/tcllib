@@ -5169,6 +5169,18 @@ test optionsyntax-3.8 {option -readonly must be a boolean} {
     set result
 } {Error in 'option -foo...', -readonly requires a boolean, got 'foo'}
 
+test optionsyntax-3.9 {option -readonly can't be empty} {
+    cleanup
+
+    catch {
+        type dog {
+            option -foo -readonly {}
+        }
+    } result
+
+    set result
+} {Error in 'option -foo...', -readonly requires a boolean, got ''}
+
 #-----------------------------------------------------------------------
 # 'delegate option' Syntax tests.
 #
