@@ -1,16 +1,9 @@
-#######################################################
-#
-# Diese Programmteile stammen aus der tcllib 1.3; sie
-# werden hier veraendert, um die Silbentrennung in die
-# Routine adjust einzubauen
-#
-#######################################################
 
 namespace eval ::textutil {
 
     namespace eval adjust {
 
-	variable here [file dirname [info script]]
+        variable here [file dirname [info script]]
         variable StrRepeat [ namespace parent ]::strRepeat
         variable Justify  left
         variable Length   72
@@ -413,7 +406,7 @@ proc ::textutil::adjust::SortList { list dir index } {
 
 # Hyphenation utilities based on Knuth's algorithm
 #
-# Copyright (C) 2001-2002 by Dr.Johannes-Heinrich Vogeler
+# Copyright (C) 2001-2003 by Dr.Johannes-Heinrich Vogeler
 # These procedures may be used as part of the tcllib
 
 # textutil::adjust::Hyphenation
@@ -427,6 +420,16 @@ proc ::textutil::adjust::SortList { list dir index } {
 #      the hyphenated string
 
 proc ::textutil::adjust::Hyphenation { str } {
+
+  # if there are manual set hyphenation marks e.g. "Recht\-schrei\-bung"
+  # use these for hyphenation and return
+
+  if [regexp {[^\\-]*[\\-][.]*} $str] {
+    regsub -all {(\\)(-)} $str {-} tmp;
+    return [split $tmp -];
+  }
+
+  # otherwise follow Knuth's algorithm
 
   variable HyphPatterns;                       # hyphenation patterns (TeX)
 
@@ -507,7 +510,7 @@ proc ::textutil::adjust::Hyphenation { str } {
 #      None.
 #
 # Result:
-#	List of filenames (without directory)
+#       List of filenames (without directory)
 
 proc ::textutil::adjust::listPredefined {} {
     variable here
@@ -517,26 +520,26 @@ proc ::textutil::adjust::listPredefined {} {
 # textutil::adjust::getPredefined
 #
 #      Retrieve the full path for a predefined hyphenation file
-#	coming with the package.
+#       coming with the package.
 #
 # Parameters:
-#      name	Name of the predefined file.
+#      name     Name of the predefined file.
 #
 # Results:
-#	Full path to the file, or an error if it doesn't
-#	exist or is matching the pattern *.tex.
+#       Full path to the file, or an error if it doesn't
+#       exist or is matching the pattern *.tex.
 
 proc ::textutil::adjust::getPredefined {name} {
     variable here
 
     if {![string match *.tex $name]} {
-	return -code error \
-		"Illegal hyphenation file \"$name\""
+        return -code error \
+                "Illegal hyphenation file \"$name\""
     }
     set path [file join $here $name]
     if {![file exists $path]} {
-	return -code error \
-		"Unknown hyphenation file \"$path\""
+        return -code error \
+                "Unknown hyphenation file \"$path\""
     }
     return $path
 }
@@ -695,14 +698,14 @@ proc ::textutil::adjust::indent {text prefix {skip 0}} {
 
     set res [list]
     foreach line [split $text \n] {
-	if {[string compare "" [string trim $line]] == 0} {
-	    lappend res {}
-	} elseif {$skip <= 0} {
-	    lappend res $prefix[string trimright $line]
-	} else {
-	    lappend res [string trimright $line]
-	}
-	if {$skip > 0} {incr skip -1}
+        if {[string compare "" [string trim $line]] == 0} {
+            lappend res {}
+        } elseif {$skip <= 0} {
+            lappend res $prefix[string trimright $line]
+        } else {
+            lappend res [string trimright $line]
+        }
+        if {$skip > 0} {incr skip -1}
     }
     return [join $res \n]
 }
@@ -719,14 +722,14 @@ proc ::textutil::adjust::undent {text} {
     set lines [split $text \n]
     set ne [list]
     foreach l $lines {
-	if {[string length [string trim $l]] == 0} continue
-	lappend ne $l
+        if {[string length [string trim $l]] == 0} continue
+        lappend ne $l
     }
     set lcp [::textutil::longestCommonPrefixList $ne]
 
     if {[string length $lcp] == 0} {return $text}
 
-    regexp {^([ 	]*)} $lcp -> lcp
+    regexp {^([         ]*)} $lcp -> lcp
 
     if {[string length $lcp] == 0} {return $text}
 
@@ -734,11 +737,11 @@ proc ::textutil::adjust::undent {text} {
 
     set res [list]
     foreach l $lines {
-	if {[string length [string trim $l]] == 0} {
-	    lappend res {}
-	} else {
-	    lappend res [string range $l $len end]
-	}
+        if {[string length [string trim $l]] == 0} {
+            lappend res {}
+        } else {
+            lappend res [string range $l $len end]
+        }
     }
     return [join $res \n]
 }
