@@ -1,10 +1,16 @@
+2004-10-02  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Added preliminary documentation for the geometry module
+        * Added procedure areaPolygon to the geometry module
+        * Added Fourier transform module
+
 2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bignum.test: Boilerplate reading file under test.
 
 2004-09-30  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-        * Added a first set of test cases for the bignum module 
+        * Added a first set of test cases for the bignum module
         * Corrected the namespace for the bignum module
 
 2004-09-29  Arjen Markus  <arjenmarkus@users.sourceforge.net>
@@ -26,7 +32,7 @@
         * *.test: Made sure the test files check for version 2.1 of the
           tcltest package
 
-        * *.tcl: Updated the package versions and consistently put the 
+        * *.tcl: Updated the package versions and consistently put the
           "package provide" statement at the end
 
         * interpolate.*: Added cubic splines as interpolation method
@@ -113,14 +119,29 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
+<<<<<<< ChangeLog
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	*
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	*
+
+=======
+>>>>>>> 1.54
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
