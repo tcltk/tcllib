@@ -1,3 +1,11 @@
+2003-03-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.man:
+	* expander.tcl: Added method 'ctopandclear' to retrieve data
+	  captured in the current context without having to pop the
+	  context (and loose state information). User: Plain text
+	  formatter in 'doctools'.
+
 2003-03-28  Andreas Kupries  <andreask@activestate.com>
 
 	* adjust.test:
