@@ -67,6 +67,7 @@ foreach {m pkg doc exa} {
     struct	_tcl  _man _exa
     textutil	 _tex _man  _null
     uri		_tcl  _man  _null
+    uuid	_tcl  _man  _null
 } {
     lappend modules $m
     set guide($m,pkg) $pkg

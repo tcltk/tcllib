@@ -1,0 +1,50 @@
+[manpage_begin uuid n 1.0.0]
+[moddesc {uuid}]
+[copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
+[titledesc {UUID generation and comparison}]
+[require Tcl 8.2]
+[require uuid [opt 1.0.0]]
+[description]
+[para]
+
+This package provides a generator of universally unique identifiers
+(UUID) also known as globally unique identifiers (GUID). This
+implementation follows the draft specification from (1) although this
+is actually an expired draft document.
+
+[section {COMMANDS}]
+
+[list_begin definitions]
+
+[call [cmd "::uuid::uuid generate"]]
+
+Creates a type 4 uuid by MD5 hashing a number of bits of variant data
+including the time and hostname.
+Returns the string representation of the new uuid.
+
+[call [cmd "::uuid::uuid compare"] [arg "id1"] [arg "id2"]]
+
+Compares two uuids. If equal the result is 0 otherwise the result will
+be either +1 or -1.
+
+[list_end]
+
+[section {EXAMPLES}]
+
+[example {
+% uuid::uuid generate
+b12dc22c-5c36-41d2-57da-e29d0ef5839c
+}]
+
+[section {REFERENCES}]
+
+[list_begin enum]
+
+[enum]
+    Paul J. Leach, "UUIDs and GUIDs", February 1998.
+    ([uri http://www.opengroup.org/dce/info/draft-leach-uuids-guids-01.txt])
+
+[list_end]
+
+[keywords UUID GUID]
+[manpage_end]
