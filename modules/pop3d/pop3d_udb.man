@@ -47,6 +47,10 @@ The following commands are possible for database objects:
 
 [list_begin definitions]
 
+[call [arg dbName] [method destroy]]
+
+Destroys the database object.
+
 [call [arg dbName] [method add] [arg {user pwd storage}]]
 
 Add a new user or changes the data of an existing user. Stores
@@ -65,11 +69,8 @@ Changes the name of the specified [arg user] to [arg newName].
 Searches the database for the specified [arg user] and returns a
 two-element list containing the associated password and storage
 reference, in this order. Throws an error if the user could not be
-found. This is nearly the interface as expected by the authentication
-callback of package [package pop3d], except that the latter expect a
-command whith [cmd lookup] a sub-command. For convenience the
-
-[arg dbName] [method do] of this package provides exactly this.
+found. This is the interface as expected by the authentication
+callback of package [package pop3d].
 
 [call [arg dbName] [method exists] [arg user]]
 

@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.8 2002/03/21 07:11:50 ericm Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.9 2002/05/15 16:59:47 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -382,6 +382,54 @@ test fileType-1.13 {test binary graphic gif} {
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list binary graphic gif]]
+
+
+# stripPwd/N -----------------------------------------------------
+# dir = $::tcltest::temporaryDirectory = current working directory
+
+test stripPwd-1.0 {unrelated path} {
+    fileutil::stripPwd find1
+} find1
+
+test stripPwd-1.1 {pwd-relative path} {
+    fileutil::stripPwd [file join [pwd] $dir find1]
+} find1
+
+test stripPwd-1.2 {pwd-relative path} {
+    fileutil::stripPwd [file join [pwd] $dir find1 find2]
+} [file join find1 find2]
+
+
+test stripN-1.0 {remove nothing} {
+    fileutil::stripN find1 0
+} find1
+
+test stripN-1.1 {remove all} {
+    fileutil::stripN find1 1
+} {}
+
+test stripN-1.2 {remove more than existing} {
+    fileutil::stripN find1 2
+} {}
+
+test stripN-2.0 {remove nothing} {
+    fileutil::stripN [file join find1 find2] 0
+} [file join find1 find2]
+
+test stripN-2.1 {remove part} {
+    fileutil::stripN [file join find1 find2] 1
+} find2
+
+test stripN-2.2 {remove all} {
+    fileutil::stripN [file join find1 find2] 2
+} {}
+
+test stripN-2.3 {remove more than existing} {
+    fileutil::stripN [file join find1 find2] 3
+} {}
+
+
+# ----------------------------------------------------------------
 
 ::tcltest::cleanupTests
 return

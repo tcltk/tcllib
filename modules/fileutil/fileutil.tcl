@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.12 2002/03/21 07:11:50 ericm Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.13 2002/05/15 16:59:47 andreas_kupries Exp $
 
 package require Tcl 8
 package require cmdline
@@ -266,6 +266,52 @@ proc ::fileutil::FindGlob {patterns filename} {
 	}
     }
     return 0
+}
+
+# ::fileutil::stripPwd --
+#
+#	If the specified path references a sub directory of [pwd] it
+#	is made relative to [pwd]. Otehrwise it is left unchanged.
+#
+# Arguments:
+#	path		path to modify
+#
+# Results:
+#	path		The (possibly) modified path
+
+proc ::fileutil::stripPwd {path} {
+
+    # [file split[ is used to generate a canonical form for both
+    # paths, for easy comparison, and also one which is easy to modify
+    # using list commands.
+
+    set pwd   [file split [pwd]]
+    set npath [file split $path]
+
+    if {[string match ${pwd}* $npath]} {
+	set path [eval file join [lrange $npath [llength $pwd] end]]
+    }
+    return $path
+}
+
+# ::fileutil::stripN --
+#
+#	Removes N elements from the beginning of the path.
+#
+# Arguments:
+#	path		path to modify
+#	n		number of elements to strip
+#
+# Results:
+#	path		The modified path
+
+proc ::fileutil::stripN {path n} {
+    set path [file split $path]
+    if {$n >= [llength $path]} {
+	return {}
+    } else {
+	return [eval file join [lrange $path $n end]]
+    }
 }
 
 # ::fileutil::cat --

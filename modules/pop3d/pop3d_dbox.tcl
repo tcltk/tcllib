@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.1 2002/03/19 22:56:15 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.2 2002/05/15 16:59:47 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
 
@@ -29,8 +29,10 @@ namespace eval ::pop3d::dbox {
 	    "add"	\
 	    "base"	\
 	    "dele"	\
+	    "destroy"   \
 	    "exists"	\
 	    "get"	\
+	    "list"	\
 	    "lock"	\
 	    "locked"	\
 	    "move"	\
@@ -137,11 +139,28 @@ proc ::pop3d::dbox::_base {name base} {
 	return -code error "base: \"$base\" not writable"
     }
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
+    upvar ::pop3d::dbox::dbox::${name}::dir dir
     set dir $base
     return
 }
 
+
+# ::pop3d::dbox::_destroy --
+#
+#	Destroy a mail database, including its associated command and
+#	data storage.
+#
+# Arguments:
+#	name	Name of the database to destroy.
+#
+# Results:
+#	None.
+
+proc ::pop3d::dbox::_destroy {name} {
+    namespace delete ::pop3d::dbox::dbox::$name
+    interp alias {} ::$name {}
+    return
+}
 
 proc ::pop3d::dbox::_add {name mbox} {
     # @c Create a mailbox with handle <a mbox>. The handle is used as the
@@ -149,8 +168,7 @@ proc ::pop3d::dbox::_add {name mbox} {
     #
     # @a mbox: Reference to the mailbox to be operated on.
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
-
+    set dir      [CheckDir $name]
     set mboxpath [file join $dir $mbox]
 
     if {[file exists $mboxpath]} {
@@ -168,12 +186,15 @@ proc ::pop3d::dbox::_remove {name mbox} {
     #
     # @a mbox: Reference to the mailbox to be operated on.
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
-
+    set dir      [CheckDir $name]
     set mboxpath [file join $dir $mbox]
 
     if {![file exists $mboxpath]} {
 	return -code error "cannot remove \"$mbox\", mailbox does not exist"
+    }
+
+    if {[_locked $name $mbox]} {
+	return -code error "cannot remove \"$mbox\", mailbox is locked"
     }
 
     file delete -force $mboxpath
@@ -187,8 +208,7 @@ proc ::pop3d::dbox::_move {name old new} {
     # @a old: Reference to the mailbox to be operated on.
     # @a new: New reference to the mailbox
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
-
+    set dir     [CheckDir $name]
     set oldpath [file join $dir $old]
     set newpath [file join $dir $new]
 
@@ -205,13 +225,34 @@ proc ::pop3d::dbox::_move {name old new} {
 }
 
 
+proc ::pop3d::dbox::_list {name} {
+    # @c Lists known mailboxes in object.
+    # @r List of mailbox names.
+
+    set dir  [CheckDir $name]
+    set here [pwd]
+    cd $dir
+    set files [glob -nocomplain *]
+    cd $here
+
+    set res [list]
+    foreach f $files {
+	set mboxpath [file join $dir $f]
+	if {! [file isdirectory $mboxpath]} {continue}
+	if {! [file readable    $mboxpath]} {continue}
+	if {! [file writable    $mboxpath]} {continue}
+	lappend res $f
+    }
+    return $res
+}
+
+
 proc ::pop3d::dbox::_exists {name mbox} {
     # @c Determines existence of mailbox <a mbox>.
     # @a mbox: Reference to the mailbox to check for.
     # @r 1 if the mailbox exists, 0 else.
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
-
+    set dir  [CheckDir $name]
     set mbox [file join $dir $mbox]
     return   [file exists    $mbox]
 }
@@ -222,9 +263,11 @@ proc ::pop3d::dbox::_locked {name mbox} {
     # @a mbox: Reference to the mailbox to check.
     # @r 1 if the mailbox is locked, 0 else.
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
-
+    set     dir  [CheckDir $name]
     set     mbox [file join $dir $mbox]
+
+    upvar ::pop3d::dbox::dbox::${name}::locked locked
+
     return [::info exists locked($mbox)]
 }
 
@@ -249,8 +292,8 @@ proc ::pop3d::dbox::_lock {name mbox} {
 
     # Compute a list of message files residing in the mailbox directory
 
-    upvar ::pop3d::udb::udb::${name}::state  state
-    upvar ::pop3d::udb::udb::${name}::locked locked
+    upvar ::pop3d::dbox::dbox::${name}::state  state
+    upvar ::pop3d::dbox::dbox::${name}::locked locked
 
     set  state($dir)  [glob -nocomplain [file join $dir *]]
     set locked($dir) 1
@@ -266,8 +309,8 @@ proc ::pop3d::dbox::_unlock {name mbox} {
 
     set dir [Check $name $mbox]
 
-    upvar ::pop3d::udb::udb::${name}::state  state
-    upvar ::pop3d::udb::udb::${name}::locked locked
+    upvar ::pop3d::dbox::dbox::${name}::state  state
+    upvar ::pop3d::dbox::dbox::${name}::locked locked
 
     unset   state($dir)
     unset  locked($dir)
@@ -282,13 +325,13 @@ proc ::pop3d::dbox::_stat {name mbox} {
     # @a mbox: Reference to the mailbox queried.
     # @r The number of messages in the mailbox
 
-    if {![_locked $name $mbox]} {
-	return -code error "mailbox $mbox is not locked"
-    }
-
     set dir [Check $name $mbox]
 
-    upvar ::pop3d::udb::udb::${name}::state  state
+    if {![_locked $name $mbox]} {
+	return -code error "mailbox \"$mbox\" is not locked"
+    }
+
+    upvar ::pop3d::dbox::dbox::${name}::state  state
 
     return  [llength $state($dir)]
 }
@@ -303,9 +346,17 @@ proc ::pop3d::dbox::_size {name mbox msgId} {
 
     set dir [Check $name $mbox]
 
-    upvar ::pop3d::udb::udb::${name}::state  state
+    upvar ::pop3d::dbox::dbox::${name}::state  state
 
-    return [file size [lindex $state($dir) [incr msgId -1]]]
+    if {
+	($msgId < 1) ||
+	(![info exists state($dir)]) ||
+	([llength $state($dir)] < $msgId)
+    } {
+	return -code error "id \"$msgId\" out of range"
+    }
+    incr msgId -1
+    return [file size [lindex $state($dir) $msgId]]
 }
 
 
@@ -318,12 +369,24 @@ proc ::pop3d::dbox::_dele {name mbox msgList} {
     # @a msgList: List of message ids.
 
     set dir [Check $name $mbox]
+    if {[llength $msgList] == 0} {
+	return -code error "nothing to delete"
+    }
 
     # @d The code assumes that the id's in the list were already
     # @d checked against the maximal number of messages.
 
-    upvar ::pop3d::udb::udb::${name}::state  state
+    upvar ::pop3d::dbox::dbox::${name}::state  state
 
+    foreach msgId $msgList {
+	if {
+	    ($msgId < 1) ||
+	    (![info exists state($dir)]) ||
+	    ([llength $state($dir)] < $msgId)
+	} {
+	    return -code error "id \"$msgId\" out of range"
+	}
+    }
     foreach msgId $msgList {
 	file delete [lindex $state($dir) [incr msgId -1]]
     }
@@ -333,10 +396,18 @@ proc ::pop3d::dbox::_dele {name mbox msgList} {
 }
 
 proc ::pop3d::dbox::_get {name mbox msgId} {
-    incr msgId -1
     set dir [Check $name $mbox]
 
-    upvar ::pop3d::udb::udb::${name}::state  state
+    upvar ::pop3d::dbox::dbox::${name}::state  state
+
+    if {
+	($msgId < 1) ||
+	(![info exists state($dir)]) ||
+	([llength $state($dir)] < $msgId)
+    } {
+	return -code error "id \"$msgId\" out of range"
+    }
+    incr msgId -1
 
     set mailfile [lindex $state($dir) $msgId]
 
@@ -355,8 +426,7 @@ proc ::pop3d::dbox::Check {name mbox} {
     # @r Path of directory holding the message files of the
     # @r specified mailbox.
 
-    upvar ::pop3d::udb::udb::${name}::dir dir
-
+    set dir      [CheckDir $name]
     set mboxpath [file join $dir $mbox]
 
     if {! [file exists      $mboxpath]} {
@@ -371,7 +441,16 @@ proc ::pop3d::dbox::Check {name mbox} {
     if {! [file writable    $mboxpath]} {
 	return -code error "\"$mbox\" is not writable"
     }
-    return $mbox
+    return $mboxpath
+}
+
+proc ::pop3d::dbox::CheckDir {name} {
+    upvar ::pop3d::dbox::dbox::${name}::dir dir
+
+    if {$dir == {}} {
+	return -code error "base directory not specified"
+    }
+    return $dir
 }
 
 ##########################
