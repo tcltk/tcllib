@@ -23,15 +23,15 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd160.tcl,v 1.4 2004/12/03 02:23:40 patthoyts Exp $
+# $Id: ripemd160.tcl,v 1.5 2005/02/17 23:30:31 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
 
 namespace eval ::ripemd {
     namespace eval ripemd160 {
-        variable version 1.0.1
-        variable rcsid {$Id: ripemd160.tcl,v 1.4 2004/12/03 02:23:40 patthoyts Exp $}
+        variable version 1.0.2
+        variable rcsid {$Id: ripemd160.tcl,v 1.5 2005/02/17 23:30:31 patthoyts Exp $}
         variable usetrf 0
 
         
@@ -636,12 +636,8 @@ if {[package provide Trf] != {}} {
     interp alias {} ::ripemd::ripemd160::Hex {} ::hex -mode encode --
 } else {
     proc ::ripemd::ripemd160::Hex {data} {
-        set result {}
-        binary scan $data c* r
-        foreach c $r {
-            append result [format "%02X" [expr {$c & 0xff}]]
-        }
-        return $result
+        binary scan $data H* result
+        return [string toupper $result]
     }
 }
 
@@ -684,8 +680,9 @@ proc ::ripemd::ripemd160::ripemd160 {args} {
             -file*     { set opts(-filename) [Pop args 1] }
             -channel   { set opts(-channel) [Pop args 1] }
             -chunksize { set opts(-chunksize) [Pop args 1] }
-            --         { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
                     must be one of $err"
@@ -735,7 +732,7 @@ proc ::ripemd::ripemd160::ripemd160 {args} {
 # -------------------------------------------------------------------------
 
 proc ::ripemd::ripemd160::hmac160 {args} {
-    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096 -key {}}
+    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096}
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -key       { set opts(-key) [Pop args 1] }
@@ -743,8 +740,9 @@ proc ::ripemd::ripemd160::hmac160 {args} {
             -file*     { set opts(-filename) [Pop args 1] }
             -channel   { set opts(-channel) [Pop args 1] }
             -chunksize { set opts(-chunksize) [Pop args 1] }
-            --         { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
                     must be one of $err"
@@ -753,7 +751,7 @@ proc ::ripemd::ripemd160::hmac160 {args} {
         Pop args
     }
 
-    if {$opts(-key) == {}} {
+    if {![info exists opts(-key)]} {
         return -code error "wrong # args:\
             should be \"hmac160 ?-hex? -key key -filename file | string\""
     }
