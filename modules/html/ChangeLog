@@ -1,3 +1,8 @@
+2002-02-14  Joe English  <jenglish@users.sourceforge.net>
+
+	* html.n: Remove mention of (unimplemented, undocumented) 
+	  formatCode procedure (SF BUG #461434).
+
 2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.2
