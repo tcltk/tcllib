@@ -1,3 +1,15 @@
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
+
+2004-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.tcl (split): New method, like 'filter', but returns lists
+	* list.test:        of both passing and failing elements. Extended
+	* struct_list.man:  both testsuite and documentation.
+
 2004-02-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* list.tcl (assign): Synchronized API to Tcl 8.5 lassign.

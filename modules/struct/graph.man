@@ -795,6 +795,18 @@ the transfer of graph objects over arbitrary channels and for easy
 persistence.
 
 
+[enum]
+
+A new method, [method attr], was added to both [method arc] and
+[method node] allowing the query and retrieval of attribute data
+without regard to arc and node relationships.
+
+[enum]
+
+Both methods [method arcs] and [method nodes] have been extended with
+the ability to select arcs and nodes based on an arbitrary filtering
+criterium.
+
 
 [list_end]
 

@@ -62,6 +62,27 @@ Query the server for the body of the article [arg msgid] from the current
 group.  The body of the article is returned as a valid tcl list. Each element
 in the list is one line of the body of the article.
 
+[call [arg nntpName] [method configure]]
+[call [arg nntpName] [method configure] [arg option]]
+[call [arg nntpName] [method configure] [arg option] [arg value] ...]
+[call [arg nntpName] [method cget] [arg option]]
+
+Query and configure options of the nntp connection object. Currently
+only one option is supported, [option -binary]. When set articles are
+retrieved as binary data instead of text. The only methods affected by
+this are [method article] and [method body].
+
+[nl]
+
+One application of this option would be the download of articles
+containing yEnc encoded images. Although encoded the data is still
+mostly binary and retrieving it as text will corrupt the information.
+
+[nl]
+
+See package [package yencode] for both encoder and decoder of such data.
+
+
 [call [arg nntpName] [method date]]
 
 Query the server for the servers current date.  The date is returned in the

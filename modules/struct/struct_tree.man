@@ -682,6 +682,20 @@ is now officially allowed to manipulate the list of children for a
 node under [emph these] circumstances. It has been made clear that changes under any other circumstances will have undefined results, from silently computing the wrong result to erroring out.
 
 [list_end]
+
+[enum]
+
+A new method, [method attr], was added allowing the query and
+retrieval of attribute data without regard to the node relationship.
+
+[enum]
+
+The method [method children] has been extended with the ability to
+select from the children of the node based on an arbitrary filtering
+criterium. Another extension is the ability to look not only at the
+immediate children of the node, but the whole tree below it.
+
+
 [list_end]
 
 

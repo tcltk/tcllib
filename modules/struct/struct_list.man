@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.8 2004/02/11 08:30:10 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.9 2004/02/16 04:14:50 andreas_kupries Exp $}]
 [manpage_begin list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -329,6 +329,26 @@ subcommand.
 [emph Note:] The [method filter] is a specialized application of
 [method fold] where the result is extended with the current item or
 not, depending o nthe result of the test.
+
+
+[call [cmd ::struct::list] [method split] [arg sequence] [arg cmdprefix] [opt "[arg passVar] [arg failVar]"]]
+
+This is a variant of method [method filter], see above. Instead of
+returning just the elements passing the test we get lists of both
+passing and failing elements.
+
+[nl]
+
+If no variable names are specified then the result of the command will
+be a list containing the list of passing elements, and the list of
+failing elements, in this order. Otherwise the lists of passing and
+failing elements are stored into the two specified variables, and the
+result will be a list containing two numbers, the number of elements
+passing the test, and the number of elements failing, in this order.
+
+[nl]
+
+The interface to the test is the same as used by [method filter].
 
 
 [call [cmd ::struct::list] [method fold] [arg sequence] [arg initialvalue] [arg cmdprefix]]
