@@ -1,3 +1,8 @@
+2003-04-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.man: Changed name to tcllib_list.man to prevent a clash
+	  with tcl's manpages.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* struct.tcl:

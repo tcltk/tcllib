@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: list.man,v 1.5 2003/04/11 20:23:00 andreas_kupries Exp $}]
+[comment {$Id: tcllib_list.man,v 1.1 2003/04/12 20:25:30 andreas_kupries Exp $}]
 [manpage_begin list n 1.2.2]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [moddesc {Tcl Data Structures}]
