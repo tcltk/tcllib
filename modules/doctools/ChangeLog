@@ -1,3 +1,12 @@
+2003-01-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: Modified generation of section titles to
+	  make the resulting HTML more conformant and less
+	  troublesome. Thanks to Larry Virden
+	  <lvirden@users.sourceforge.net> for the catch.  Revised the
+	  engine a bit. Entries in the synopsis now refer directly to the
+	  location where they are defined ([call] command).
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html:  Removed 'strong' formatting. The checker
