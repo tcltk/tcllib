@@ -1,3 +1,10 @@
+2005-02-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sha256.tcl:  SHA-224 and SHA-256 pure-Tcl implementation
+	* sha256.test: Tests from FIPS 180-2 for SHA-224 and SHA-256
+	This is the first version. It is correct (in that it passes the
+	FIPS test vectors) but slow. Speedups to follow.
+
 2005-02-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sha1.h: replaced the possibly buggy sample extension implementation
