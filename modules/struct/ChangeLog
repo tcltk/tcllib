@@ -1,6 +1,6 @@
 2003-04-16  Andreas Kupries  <andreask@activestate.com>
 
-	* prioqueue.tcl (__elementcopare): Failures in testsuite fixed,
+	* prioqueue.tcl (__elementcompare): Failures in testsuite fixed,
 	  patch provided by original author, Michael Schlenker
 	  <mic42@users.sourceforge.net>.
 

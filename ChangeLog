@@ -1,6 +1,18 @@
+2003-04-16  Andreas Kupries  <andreask@activestate.com>
+
+	* installer.tcl: Added 'des' to list. Reworked according to
+	  feedback from Don.
+
+	* tcllib_version.tcl: Added, for sharing with other scripts.
+
+	* modules/stats/pkgIndex: Now throwing an error when trying to
+	  load 'stats'.
+
+	* modules/struct/ChangeLog: Typo correction.
+
 2003-04-15  Andreas Kupries  <andreask@activestate.com>
 
-	* installer.tcl: Added 'md4' to installer.
+	* installer.tcl: Added 'md4' to installer.tcl
 
 2003-04-15  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
