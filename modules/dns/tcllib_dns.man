@@ -1,18 +1,15 @@
-[manpage_begin dns n 1.1]
+[manpage_begin dns n 1.2.0]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {dns}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
-[require dns [opt 1.1]]
+[require dns [opt 1.2.0]]
 [description]
 [para]
 
 The dns package provides a Tcl only Domain Name Service client. You
-should refer to
-RFC 1034 ([uri http://www.rfc-editor.org/rfc/rfc1034.txt]) and
-RFC 1035 ([uri http://www.rfc-editor.org/rfc/rfc1035.txt]) for
-information about the DNS protocol or read resolver(3) to find out how
-the C library resolves domain names.
+should refer to (1) and (2) for information about the DNS protocol or
+read resolver(3) to find out how the C library resolves domain names.
 
 The intention of this package is to insulate Tcl scripts
 from problems with using the system library resolver for slow name servers.
@@ -23,18 +20,18 @@ few other systems. This package is not a substitute for the C library
 resolver - it does however implement name resolution over DNS.
 
 The package also extends the package [package uri] to support DNS URIs
-or the form [uri dns:what.host.com] or
-
+(4) of the form [uri dns:what.host.com] or
 [uri dns://my.nameserver/what.host.com]. The [cmd dns::resolve]
 command can handle DNS URIs or simple domain names as a query.
 
 [para]
 
 [emph Note:] The package defaults to using DNS over TCP
-connections. If you wish to use UDP you will need to get the tcludp
-package and get a version that correctly handles binary data (>
-1.0.4).  This is available at [uri http://tcludp.sourceforge.net/]. If
-the udp package is detected, it will be used automatically.
+connections. If you wish to use UDP you will need to have the 
+[package tcludp] package installed and have a version that
+correctly handles binary data (> 1.0.4).
+This is available at [uri http://tcludp.sourceforge.net/]. 
+If the [package udp] package is present then UDP will be used by default.
 
 [section COMMANDS]
 
@@ -60,41 +57,43 @@ qualified domain name or a DNS URI.
 [lst_item "[cmd -type] [arg TYPE]"]
   Specify the type of DNS record you are interested in. Valid values
   are A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, 
-  MINFO, MX, TXT, SPF, AXFR, MAILB, MAILA and *. 
+  MINFO, MX, TXT, SPF, AAAA, AXFR, MAILB, MAILA and *. 
   See RFC1035 for details about the return values.
   See [uri http://spf.pobox.com/] about SPF.
+  See (3) about AAAA records.
 [lst_item "[cmd -class] [arg CLASS]"]
-  Specify the class of domain name. This is usually IN but may be one of IN for 
-  internet domain names, CS, CH, HS or * for any class.
+  Specify the class of domain name. This is usually IN but may be one
+  of IN for internet domain names, CS, CH, HS or * for any class.
 [lst_item "[cmd -recurse] [arg boolean]"]
-  Set to [arg false] if you do not want the name server to recursively act upon
-  your request. Normally set to [arg true].
+  Set to [arg false] if you do not want the name server to recursively
+  act upon your request. Normally set to [arg true].
 [lst_item "[cmd -command] [arg procname]"]
-  Set a procedure to be called upon request completion. The procedure will be
-  passed the token as its only argument.
+  Set a procedure to be called upon request completion. The procedure 
+  will be passed the token as its only argument.
 [list_end]
 
 [nl]
 [call [cmd ::dns::configure] [opt [arg "options"]]]
 
-The ::dns::configure command is used to setup the dns package. The server to
-query, the protocol and domain search path are all set via this command. If
-no arguments are provided then a list of all the current settings is returned.
-If only one argument then it must the the name of an option and the value for
-that option is returned.
+The [cmd ::dns::configure] command is used to setup the dns
+package. The server to query, the protocol and domain search path are
+all set via this command. If no arguments are provided then a list of
+all the current settings is returned.  If only one argument then it
+must the the name of an option and the value for that option is
+returned.
 
 [list_begin definitions]
 [lst_item "[cmd -nameserver] [arg hostname]"]
   Set the default name server to be used by all queries. The default is
-  localhost.
+  [term localhost].
 [lst_item "[cmd -protocol] [arg tcp|udp]"]
-  Set the default network protocol to be used. Defaults to tcp.
+  Set the default network protocol to be used. Default is [arg tcp].
 [lst_item "[cmd -port] [arg portnum]"]
   Set the default port to use on the name server. The default is 53.
 [lst_item "[cmd -search] [arg domainlist]"]
   Set the domain search list. This is currently not used.
 [lst_item "[cmd -timeout] [arg milliseconds]"]
-  Set the default timeout value for DNS lookups. Defaults to 30 seconds.
+  Set the default timeout value for DNS lookups. Default is 30 seconds.
 [list_end]
 
 
@@ -140,8 +139,7 @@ that option is returned.
 
 [list_end]
 
-
-
+[comment { -----------------------------------------------------------  }]
 
 [section EXAMPLES]
 
@@ -175,9 +173,37 @@ localhost
 % dns::cleanup $tok
 }]
 
+[comment { -----------------------------------------------------------  }]
+
+[section {REFERENCES}]
+
+[list_begin enum]
+
+[enum]
+    Mockapetris, P., "Domain Names - Concepts and Facilities",
+    RFC 1034, November 1987.
+    ([uri http://www.ietf.org/rfc/rfc1034.txt])
+
+[enum]
+    Mockapetris, P., "Domain Names - Implementation and Specification",
+    RFC 1035, November 1087.
+    ([uri http://www.ietf.org/rfc/rfc1035.txt]) 
+
+[enum]
+    Thompson, S. and Huitema, C., "DNS Extensions to support IP version 6",
+    RFC 1886, December 1995.
+    ([uri http://www.ietf.org/rfc/rfc1886.txt])
+
+[enum]
+    Josefsson, S., "Domain Name System Uniform Resource Identifiers",
+    Internet-Draft, October 2003,
+    ([uri http://www.ietf.org/internet-drafts/draft-josefsson-dns-url-09.txt])
+
+[list_end]
+
 [see_also resolver(5)]
 [section AUTHORS]
 Pat Thoyts
 
-[keywords DNS resolver {domain name service} {rfc 1034} {rfc 1035}]
+[keywords DNS resolver {domain name service} {rfc 1034} {rfc 1035} {rfc 1886}]
 [manpage_end]
