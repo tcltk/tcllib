@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.3 2004/02/29 23:23:36 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.4 2004/05/19 04:34:50 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -421,3 +421,13 @@ proc ::struct::set::Ssubsetof {A B} {
 # Performance helper command.
 
 proc ::struct::set::K {x y} {::set x}
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'set::set' into the general structure namespace.
+    namespace import -force set::set
+    namespace export set
+}
+package provide struct::set 2.1

@@ -6,14 +6,25 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.4 2004/02/29 23:23:36 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.5 2004/05/19 04:34:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] sets.tcl]
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::set
+catch {namespace delete ::struct::set}
+if {[catch {source [file join [file dirname [info script]] sets.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct::set
+puts "- struct::set [package present struct::set]"
 
 #----------------------------------------------------------------------
 
@@ -27,6 +38,7 @@ set se {c d e f g h}     ; # b + c
 set sf {a b c d e f g h} ; # a + b
 
 interp alias {} setop {} ::struct::set::set
+
 
 #----------------------------------------------------------------------
 

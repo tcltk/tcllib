@@ -1,3 +1,43 @@
+2004-05-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.tcl:     Made all data structures full packages.
+	* list.tcl:
+	* matrix.tcl:
+	* pkgIndex.tcl:
+	* pool.tcl:
+	* pooltest.tcl:
+	* prioqueue.tcl:
+	* queue.tcl:
+	* record.tcl:
+	* sets.tcl:
+	* skiplist.tcl:
+	* stack.tcl:
+	* struct.tcl:
+	* tree.tcl:
+
+	* graph.test:    Updated all testsuites to report the versions
+	* list.test:     of the packages they test.
+	* matrix.test:
+	* prioqueue.test:
+	* queue.test:
+	* record.test:
+	* sets.test:
+	* skiplist.test:
+	* stack.test:
+	* tree.test:
+
+	* graph.man:     Updated the documentation to show the correct
+	* matrix.man:    new package names.
+	* pool.man:
+	* prioqueue.man:
+	* queue.man:
+	* record.man:
+	* skiplist.man:
+	* stack.man:
+	* struct_list.man:
+	* struct_set.man:
+	* struct_tree.man:
+
 2004-02-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Overall package bumped to v2.1

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin queue n 1.2.1]
+[manpage_begin struct::queue n 1.2.1]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
 [require Tcl 8.2]

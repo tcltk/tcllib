@@ -8,15 +8,29 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.test,v 1.7 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.test,v 1.8 2004/05/19 04:34:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] stack.tcl]
-namespace import struct::stack::stack
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::stack
+catch {namespace delete ::struct::stack}
+if {[catch {source [file join [file dirname [info script]] stack.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct::stack
+puts "- struct::stack [package present struct::stack]"
+
+namespace import struct::stack
+
+#----------------------------------------------------------------------
 
 test stack-0.1 {stack errors} {
     stack mystack

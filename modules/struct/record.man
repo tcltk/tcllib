@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin record n 1.2.1]
+[manpage_begin struct::record n 1.2.1]
 [copyright {2002, Brett Schwarz <brett_schwarz@yahoo.com>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Define and create records (similar to 'C' structures)}]
