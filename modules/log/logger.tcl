@@ -9,7 +9,7 @@
 # lets you have trees of services, that inherit from one another.
 # This is accomplished through the use of Tcl namespaces.
 
-package provide logger 0.1
+package provide logger 0.2
 package require Tcl 8.2
 
 namespace eval ::logger {
@@ -41,8 +41,8 @@ namespace eval ::logger {
 proc ::logger::walk { start code } {
     set children [namespace children $start]
     foreach c $children {
-	namespace eval $c $code
 	logger::walk $c $code
+	namespace eval $c $code
     }
 }
 
@@ -65,11 +65,15 @@ proc ::logger::init {service} {
 	# going.  They can turn it off themselves.
 	variable enabled "debug"
 
+	# Callback to use when the service in question is shut down.
+	set delcallback {}
+
 	# We use this to disable a service completely.  In Tcl 8.4
 	# or greater, by using this, disabled log calls are a
 	# no-op!
 
 	proc no-op args {}
+
 
 	proc stdoutcmd {level text} {
 	    variable service
@@ -172,11 +176,12 @@ proc ::logger::init {service} {
 	    logger::walk [namespace current] [list disable $lv]
 	}
 
+
 	# logproc --
 	#
-	#	Command used to create a procedure that is what is
-	#	executed to perform the logging.  This could write to
-	#	disk, out to the network, or something else.
+	#	Command used to create a procedure that is executed to
+	#	perform the logging.  This could write to disk, out to
+	#	the network, or something else.
 	#
 	# Arguments:
 	#	lv - the level to log, which must be one of $levels.
@@ -191,7 +196,6 @@ proc ::logger::init {service} {
 	# Results:
 	#	None.
 
-
 	proc logproc {lv arg body} {
 	    variable levels
 	    set lvnum [lsearch -exact $levels $lv]
@@ -201,11 +205,36 @@ proc ::logger::init {service} {
 	    proc ${lv}cmd $arg $body
 	}
 
+
+	# delproc --
+	#
+	#	Set a callback for when the logger instance is
+	#	deleted.
+	#
+	# Arguments:
+	#	cmd - the Tcl command to call.
+	#
+	# Side Effects:
+	#	None.
+	#
+	# Results:
+	#	None.
+
+	proc delproc {cmd} {
+	    variable delcallback
+	    set delcallback $cmd
+	}
+
+
 	# delete --
 	#
 	#	Delete the namespace and its children.
 
 	proc delete {} {
+	    variable delcallback
+
+	    logger::walk [namespace current] delete
+	    catch { uplevel \#0 $delcallback }
 	    namespace delete [namespace current]
 	}
 
