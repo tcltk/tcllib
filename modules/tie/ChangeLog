@@ -1,5 +1,9 @@
 2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* pkgIndex.tcl: Fixed mismatch in the names of provided
+	  vs. indexed packages, for the packages implementing the standard
+	  types. Thanks to './sak.tcl validate'.
+
 	* tie_rarray_comm.test: Added code to abort tests when trying
 	* tie_rarray.test:      to run them with a Tcl < 8.4.
 	* tie_array.test:
