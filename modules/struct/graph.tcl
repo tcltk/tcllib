@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.16 2004/08/05 05:05:33 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.17 2004/08/10 06:18:07 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -22,7 +22,7 @@ namespace eval ::struct::graph {}
 # ** NOTE ** ATTENTION **
 #
 # For the 2.0 version of the graph interface 'cgraph 0.6' is _not_
-# useable anymore.
+# usable anymore.
 #
 # '[package vcompare $version 0.6] > 0' <=> '$version > 0.6'
 
@@ -370,7 +370,7 @@ proc ::struct::graph::__arc_delete {name args} {
 
 # ::struct::graph::__arc_exists --
 #
-#	Test for existance of a given arc in a graph.
+#	Test for existence of a given arc in a graph.
 #
 # Arguments:
 #	name	name of the graph.
@@ -469,7 +469,7 @@ proc ::struct::graph::__arc_keys {name arc {pattern *}} {
 
 # ::struct::graph::__arc_keyexists --
 #
-#	Test for existance of a given key for a given arc in a graph.
+#	Test for existence of a given key for a given arc in a graph.
 #
 # Arguments:
 #	name	name of the graph.
@@ -1279,7 +1279,7 @@ proc ::struct::graph::_keys {name {pattern *}} {
 
 # ::struct::graph::_keyexists --
 #
-#	Test for existance of a given key in a graph.
+#	Test for existence of a given key in a graph.
 #
 # Arguments:
 #	name	name of the graph.
@@ -1458,7 +1458,7 @@ proc ::struct::graph::__node_delete {name args} {
 
 # ::struct::graph::__node_exists --
 #
-#	Test for existance of a given node in a graph.
+#	Test for existence of a given node in a graph.
 #
 # Arguments:
 #	name	name of the graph.
@@ -1557,7 +1557,7 @@ proc ::struct::graph::__node_keys {name node {pattern *}} {
 
 # ::struct::graph::__node_keyexists --
 #
-#	Test for existance of a given key for a node in a graph.
+#	Test for existence of a given key for a node in a graph.
 #
 # Arguments:
 #	name	name of the graph.
@@ -1592,7 +1592,7 @@ proc ::struct::graph::__node_keyexists {name node key} {
 #			the routine will generate a unique node name.
 #
 # Results:
-#	node		The namee of the new node.
+#	node		The name of the new node.
 
 proc ::struct::graph::__node_insert {name args} {
 
@@ -2666,7 +2666,7 @@ proc ::struct::graph::Union {args} {
 
 # ::struct::graph::GenAttributeStorage --
 #
-#	Create an array to store the attrributes of a node in.
+#	Create an array to store the attributes of a node in.
 #
 # Arguments:
 #	name	Name of the graph containing the node
