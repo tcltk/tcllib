@@ -4,7 +4,7 @@
 # the STARTTLS feature if available to switch to a secure link before 
 # negotiating authentication using SASL.
 #
-# $Id: saslclient.tcl,v 1.1 2005/02/01 02:41:00 patthoyts Exp $
+# $Id: saslclient.tcl,v 1.2 2005/02/01 16:52:35 patthoyts Exp $
 
 source [file join [file dirname [info script]] sasl.tcl]
 
@@ -12,26 +12,66 @@ package require sasl
 package require base64
 catch {package require sasl::ntlm}
 
-proc ::Write {chan what} {
-    puts "< $what"
-    puts $chan $what
-    return
+# SASLCallback --
+#
+#	This procedure is called from the SASL library when it needs to get
+#	information from the client application. The callback can be specified
+#	with additional data elements and when called the SASL library will
+#	append the SASL context, the command and possibly additional arguments.
+#	The command specified the type of information needed.
+#	So far we have:
+#	  login     users authorization identity (can be same as username).
+#	  username  users authentication identity
+#	  password  users authentication token
+#	  realm     the authentication realm (domain for NTLM)
+#	  hostname  the client's idea of its hostname (for NTLM)
+#
+proc SASLCallback {clientblob chan context command args} {
+    global env
+    upvar #0 $context ctx
+    switch -exact -- $command {
+        login { 
+            return "";# means use the authentication id
+        }
+        username {
+            if {[info exists env(USERDOMAIN)] \
+                    && $env(USERDOMAIN) eq "RENISHAW" \
+                    && $ctx(mech) ne "NTLM" } {
+                return "$env(USERDOMAIN)\\$env(USERNAME)"
+            } else {
+                return "$env(USERNAME)"
+            }
+        }
+        password { 
+            if {[info exists env(http_proxy_pass)]} {
+                return "$env(http_proxy_pass)"
+            } else {
+                return "$env(PASSWORD)"
+            }
+        }
+        realm {
+            if {$ctx(mech) eq "NTLM"} {
+                return "$env(USERDOMAIN)"
+            } else {
+                return [lindex [fconfigure $chan -peername] 1]
+            }
+        }
+        hostname {
+            return [info host]
+        }
+        default {
+            return -code error "oops: client needs to write $command"
+        }
+    }
 }
 
-proc ::Read {chan callback} {
-    if {[eof $chan]} {
-        fileevent $chan readable {}
-        puts stderr "eof"
-        eval $callback [list $chan 1 {}]
-        return
-    }
-    if {[gets $chan line] != -1} {
-        eval $callback [list $chan 0 $line]
-    }
-    return
-}
-
-proc ::Callback {chan eof line} {
+# SMTPClient --
+#
+#	This implements a minimal SMTP client state engine. It will
+#	do enough of the SMTP protocol to initiate a SSL/TLS link and
+#	negotiate SASL parameters. Then it terminates.
+#
+proc Callback {chan eof line} {
     variable mechs
     variable tls
     variable ctx
@@ -60,10 +100,9 @@ proc ::Callback {chan eof line} {
                 foreach mech $mechs {
                     if {[lsearch -exact $supported $mech] != -1} {
                         
-                        set ctx [sasl::new -mechanism $mech \
-                                     -callback [list \
-                                                    [namespace origin saslcb]\
-                                                    "a blob"]]
+                        set ctx [sasl::new \
+                                     -mechanism $mech \
+                                     -callback [list [namespace origin SASLCallback] "client blob" $chan]]
                         Write $chan "AUTH $mech"
                         return
                     }
@@ -85,14 +124,16 @@ proc ::Callback {chan eof line} {
         }
         "334 *" {
             set challenge [string range $line 4 end]
+            set e [string range $challenge end-5 end]
+            puts "? '$e' [binary scan $e H* r; set r]"
             if {![catch {set dec [base64::decode $challenge]}]} {
                 set challenge $dec
             }
-            puts "> $challenge"
+            #puts "> $challenge"
             set code [catch {sasl::step $ctx $challenge} err]
             if {! $code} {
                 set rsp [sasl::response $ctx]
-                puts "< $rsp"
+                #puts "< $rsp"
                 Write $chan [join [base64::encode $rsp] {}]
             } else {
                 puts stderr "sasl error: $err"
@@ -107,43 +148,39 @@ proc ::Callback {chan eof line} {
     }
 }
 
-proc ::saslcb {clientblob context command args} {
-    global env
-    upvar #0 $context ctx
-    switch -exact -- $command {
-        username {
-            if {[info exists env(USERDOMAIN)] \
-                    && $env(USERDOMAIN) eq "RENISHAW" \
-                    && $ctx(mech) ne "NTLM" } {
-                return "$env(USERDOMAIN)\\$env(USERNAME)"
-            } else {
-                return "$env(USERNAME)"
-            }
-        }
-        password { 
-            if {[info exists env(http_proxy_pass)]} {
-                return "$env(http_proxy_pass)"
-            } else {
-                return "$env(PASSWORD)"
-            }
-        }
-        realm {
-            if {$ctx(mech) eq "NTLM"} {
-                return "$env(USERDOMAIN)"
-            } else {
-                return "patthoyts.tk"
-            }
-        }
-        hostname {
-            return [info host]
-        }
-        default {
-            return -code error "oops: client needs to write $command"
-        }
-    }
+# Write --
+#
+#	Write data to the socket channel with logging.
+#
+proc Write {chan what} {
+    puts "< $what"
+    puts $chan $what
+    return
 }
 
-proc ::connect { server port } {
+# Read --
+#
+#	fileevent handler reads data when available from the network socket
+#	and calls the specified callback when it has recieved a complete line.
+#
+proc Read {chan callback} {
+    if {[eof $chan]} {
+        fileevent $chan readable {}
+        puts stderr "eof"
+        eval $callback [list $chan 1 {}]
+        return
+    }
+    if {[gets $chan line] != -1} {
+        eval $callback [list $chan 0 $line]
+    }
+    return
+}
+
+# connect -- 
+#
+#	Open an SMTP session to test out the SASL implementation.
+#
+proc connect { server port } {
     variable mechs ; set mechs {}
     variable tls  ; set tls 0
     puts "Connect to $server:$port"
