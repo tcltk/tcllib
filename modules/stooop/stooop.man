@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin stooop n 4.2]
+[manpage_begin stooop n 4.4.1]
 [moddesc   {Simple Tcl Only Object Oriented Programming}]
 [titledesc {Object oriented extension.}]
 [require Tcl 8.3]
-[require stooop [opt 4.2]]
+[require stooop [opt 4.4.1]]
 [description]
 [para]
 
