@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.12 2002/01/18 20:51:16 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.13 2002/08/09 21:43:00 davidw Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -526,5 +526,42 @@ test ncgi-14.5 {ncgi::multipart--check binary file} {
 \r
 \r
 }"
+
+test ncgi-14.6 {ncgi::multipart setValue} {
+    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set X [read $in]
+    close $in
+
+    foreach line [split $X \n] {
+	if {[string length $line] == 0} {
+	    break
+	}
+	if {[regexp {^Content-Type: (.*)$} $line x type]} {
+	    break
+	}
+    }
+    regsub ".*?\n\n" $X {} X
+
+    ncgi::reset $X $type
+    ncgi::parse
+    ncgi::setValue userval1 foo
+    ncgi::setValue userval2 "a b"
+    list [ncgi::value field1] [ncgi::value field2] [ncgi::value userval1] [ncgi::value userval2] [ncgi::value the_file_naame]
+} {value {another value} foo {a b} {
+<center><h1>
+                  Netscape Address Book Sync for Palm Pilot
+                                         User Guide
+</h1></center>
+
+
+}}
+
+test ncgi-15.1 {ncgi::setValue} {
+    ncgi::reset "nameList=val+ue&nameList=value2"
+    ncgi::input
+    ncgi::setValue foo 1
+    ncgi::setValue bar "a b"
+    list [ncgi::value nameList] [ncgi::value foo] [ncgi::value bar]
+} {{{val ue} value2} 1 {a b}}
 
 ::tcltest::cleanupTests
