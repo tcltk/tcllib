@@ -8,22 +8,70 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.1 2003/04/15 21:25:15 patthoyts Exp $
+# $Id: md4.tcl,v 1.2 2003/04/16 19:39:02 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md4 {
     variable version 1.0.0
-    variable rcsid {$Id: md4.tcl,v 1.1 2003/04/15 21:25:15 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.2 2003/04/16 19:39:02 patthoyts Exp $}
 
-    namespace export md4
+    namespace export md4 hmac MD4Init MD4Update MD4Final
+
+    variable uid
+    if {![info exists uid]} {
+        set uid 0
+    }
+        
 }
 
-set ::md4::MD4_body {
-    
+# -------------------------------------------------------------------------
+
+# MD4Init - create and initialize an MD4 state variable. This will be
+# cleaned up when we call MD4Final
+#
+proc ::md4::MD4Init {} {
+    variable uid
+    set token [namespace current]::[incr uid]
+    upvar #0 $token tok
+
+    # RFC1320:3.3 - Initialize MD4 state structure
+    array set tok \
+        [list \
+             A [expr 0x67452301] \
+             B [expr 0xefcdab89] \
+             C [expr 0x98badcfe] \
+             D [expr 0x10325476] \
+             n 0 i "" ]
+    return $token
+}
+
+proc ::md4::MD4Update {token data} {
+    variable $token
+    upvar 0 $token state
+
+    # Update the state values
+    incr state(n) [string length $data]
+    append state(i) $data
+
+    # Calculate the hash for any complete blocks
+    set len [string length $state(i)]
+    for {set n 0} {($n + 64) <= $len} {} {
+        MD4Hash $token [string range $state(i) $n [incr n 64]]
+    }
+
+    # Adjust the state for the blocks completed.
+    set state(i) [string range $state(i) $n end]
+    return
+}
+
+proc ::md4::MD4Final {token} {
+    variable $token
+    upvar 0 $token state
+
     # RFC1320:3.1 - Padding
     #
-    set len [string length $msg]
+    set len [string length $state(i)]
     set pad [expr {56 - ($len % 64)}]
     if {$len % 64 > 56} {
         incr pad 64
@@ -31,24 +79,88 @@ set ::md4::MD4_body {
     if {$pad == 0} {
         incr pad 64
     }
-    append msg [binary format a$pad \x80]
+    append state(i) [binary format a$pad \x80]
 
     # RFC1320:3.2 - Append length in bits as little-endian wide int.
-    append msg [binary format ii [expr {8 * $len}] 0]
+    append state(i) [binary format ii [expr {8 * $state(n)}] 0]
 
-    # RFC1320:3.3 - Initialize MD buffer
-    set A [expr 0x67452301]
-    set B [expr 0xefcdab89]
-    set C [expr 0x98badcfe]
-    set D [expr 0x10325476]
+    # Calculate the hash for the remaining block.
+    set len [string length $state(i)]
+    for {set n 0} {($n + 64) <= $len} {} {
+        MD4Hash $token [string range $state(i) $n [incr n 64]]
+    }
+
+    # RFC1320:3.5 - Output
+    set r [binary format i4 [list $state(A) $state(B) $state(C) $state(D)]]
+    unset state
+    return $r
+}
+
+# -------------------------------------------------------------------------
+# HMAC Hashed Message Authentication (RFC 2104)
+#
+# hmac = H(K xor opad, H(K xor ipad, text))
+#
+proc ::md4::HMACInit {K} {
+
+    # Key K is adjusted to be 64 bytes long. If K is larger, then use
+    # the MD4 digest of K and pad this instead.
+    set len [string length $K]
+    if {$len > 64} {
+        set tok [MD4Init]
+        MD4Update $tok $K
+        set K [MD4Final $tok]
+        set len [string length $K]
+    }
+    set pad [expr {64 - $len}]
+    append K [string repeat \0 $pad]
+
+    # Cacluate the padding buffers.
+    set Ki {}
+    set Ko {}
+    binary scan $K i16 Ks
+    foreach k $Ks {
+        append Ki [binary format i [expr {$k ^ 0x36363636}]]
+        append Ko [binary format i [expr {$k ^ 0x5c5c5c5c}]]
+    }
+
+    set tok [MD4Init]
+    MD4Update $tok $Ki;                 # initialize with the inner pad
+    
+    # preserve the Ko value for the final stage.
+    set [subst $tok](Ko) $Ko
+
+    return $tok
+}
+
+proc ::md4::HMACUpdate {token data} {
+    MD4Update $token $data
+    return
+}
+
+proc ::md4::HMACFinal {token} {
+    variable $token
+    upvar 0 $token state
+
+    set tok [MD4Init];                  # init the outer hashing function
+    MD4Update $tok $state(Ko);          # prepare with the outer pad.
+    MD4Update $tok [MD4Final $token];   # hash the inner result
+    return [MD4Final $tok]
+}
+
+# -------------------------------------------------------------------------
+
+set ::md4::MD4Hash_body {
+    variable $token
+    upvar 0 $token state
 
     # RFC1320:3.4 - Process Message in 16-Word Blocks
     binary scan $msg i* blocks
     foreach {X0 X1 X2 X3 X4 X5 X6 X7 X8 X9 X10 X11 X12 X13 X14 X15} $blocks {
-        set AA $A
-        set BB $B
-        set CC $C
-        set DD $D
+        set A $state(A)
+        set B $state(B)
+        set C $state(C)
+        set D $state(D)
 
         # Round 1
         # Let [abcd k s] denote the operation
@@ -128,25 +240,14 @@ set ::md4::MD4_body {
         # Then perform the following additions. (That is, increment each
         # of the four registers by the value it had before this block
         # was started.)
-        set A [expr {($A + $AA) & 0xFFFFFFFF}]
-        set B [expr {($B + $BB) & 0xFFFFFFFF}]
-        set C [expr {($C + $CC) & 0xFFFFFFFF}]
-        set D [expr {($D + $DD) & 0xFFFFFFFF}]
+        set state(A) [expr {($A + $state(A)) & 0xFFFFFFFF}]
+        set state(B) [expr {($B + $state(B)) & 0xFFFFFFFF}]
+        set state(C) [expr {($C + $state(C)) & 0xFFFFFFFF}]
+        set state(D) [expr {($D + $state(D)) & 0xFFFFFFFF}]
     }
 
-    # RFC1320:3.5 - Output
-    set ::md4::result [list $A $B $C $D]
-    return [binary format i4 [list $A $B $C $D]]
+    return
 }
-
-# Convert our <<< pseuodo-operator into a procedure call.
-regsub -all -line \
-    {\[expr {(.*) <<< (\d+)}\]} \
-    $::md4::MD4_body \
-    {[<<< [expr {\1}] \2]} \
-    ::md4::MD4_body
-
-proc ::md4::MD4 {msg} $::md4::MD4_body
 
 # 32bit rotate-left
 proc ::md4::<<< {v n} {
@@ -154,20 +255,51 @@ proc ::md4::<<< {v n} {
     return [expr {$v & 0xFFFFFFFF}]
 }
 
+# Convert our <<< pseuodo-operator into a procedure call.
+regsub -all -line \
+    {\[expr {(.*) <<< (\d+)}\]} \
+    $::md4::MD4Hash_body \
+    {[<<< [expr {\1}] \2]} \
+    ::md4::MD4Hash_body
+
 # RFC1320:3.4 - function F
 proc ::md4::F {X Y Z} {
     return [expr {($X & $Y) | ((~$X) & $Z)}]
 }
 
-# RFC1320:3.4 - function H
+# Inline the F function
+regsub -all -line \
+    {\[F (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
+    $::md4::MD4Hash_body \
+    {( (\1 \& \2) | ((~\1) \& \3) )} \
+    ::md4::MD4Hash_body
+    
+# RFC1320:3.4 - function G
 proc ::md4::G {X Y Z} {
     return [expr {($X & $Y) | ($X & $Z) | ($Y & $Z)}]
 }
+
+# Inline the G function
+regsub -all -line \
+    {\[G (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
+    $::md4::MD4Hash_body \
+    {((\1 \& \2) | (\1 \& \3) | (\2 \& \3))} \
+    ::md4::MD4Hash_body
 
 # RFC1320:3.4 - function H
 proc ::md4::H {X Y Z} {
     return [expr {$X ^ $Y ^ $Z}]
 }
+
+# Inline the H function
+regsub -all -line \
+    {\[H (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
+    $::md4::MD4Hash_body \
+    {(\1 ^ \2 ^ \3)} \
+    ::md4::MD4Hash_body
+
+# Define the MD4 hashing procedure with inline functions.
+proc ::md4::MD4Hash {token msg} $::md4::MD4Hash_body
 
 # -------------------------------------------------------------------------
 
@@ -198,27 +330,70 @@ proc ::md4::Pop {varname {nth 0}} {
 
 # -------------------------------------------------------------------------
 
-# TODO: implement a init, update, final version so that we can do large files
-#  or streams using block chunking.
+# fileevent handler for chunked file hashing.
 #
+proc ::md4::Chunk {token channel {chunksize 4096}} {
+    variable $token
+    upvar 0 $token state
+    
+    if {[eof $channel]} {
+        fileevent $channel readable {}
+        set state(reading) 0
+    }
+        
+    MD4Update $token [read $channel $chunksize]
+}
+
+# -------------------------------------------------------------------------
 
 proc ::md4::md4 {args} {
-    array set opts {-hex 0}
+    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096}
     while {[string match -* [set option [lindex $args 0]]]} {
-        switch -exact -- $option {
-            -hex    { set opts(-hex) 1 }
-            --      { Pop args ; break }
+        switch -glob -- $option {
+            -hex       { set opts(-hex) 1 }
+            -file*     { set opts(-filename) [Pop args 1] }
+            -channel   { set opts(-channel) [Pop args 1] }
+            -chunksize { set opts(-chunksize) [Pop args 1] }
+            --         { Pop args ; break }
             default {
+                set err [join [lsort [array names opts]] ", "]
+                return -code error "bad option $option:\
+                    must be one of $err"
             }
         }
         Pop args
     }
 
-    if {[llength $args] != 1} {
-        return -code error "wrong # args: should be \"md4 ?-hex? string\""
+    if {$opts(-filename) != {}} {
+        set opts(-channel) [open $opts(-filename) r]
+        fconfigure $opts(-channel) -translation binary
     }
 
-    set r [MD4 [lindex $args 0]]
+    if {$opts(-channel) == {}} {
+
+        if {[llength $args] != 1} {
+            return -code error "wrong # args:\
+                should be \"md4 ?-hex? -filename file | string\""
+        }
+        set tok [MD4Init]
+        MD4Update $tok [lindex $args 0]
+        set r [MD4Final $tok]
+
+    } else {
+
+        set tok [MD4Init]
+        set [subst $tok](reading) 1
+        fileevent $opts(-channel) readable \
+            [list [namespace origin Chunk] \
+                 $tok $opts(-channel) $opts(-chunksize)]
+        vwait [subst $tok](reading)
+        set r [MD4Final $tok]
+
+        # If we opened the channel - we should close it too.
+        if {$opts(-filename) != {}} {
+            close $opts(-channel)
+        }
+    }
     
     if {$opts(-hex)} {
         set r [Hex $r]
@@ -226,9 +401,68 @@ proc ::md4::md4 {args} {
     return $r
 }
 
-# Can we do an hmac version??
-#proc ::md4::hmac {key text} {
-#}
+# -------------------------------------------------------------------------
+
+proc ::md4::hmac {args} {
+    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096 -key {}}
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
+            -key       { set opts(-key) [Pop args 1] }
+            -hex       { set opts(-hex) 1 }
+            -file*     { set opts(-filename) [Pop args 1] }
+            -channel   { set opts(-channel) [Pop args 1] }
+            -chunksize { set opts(-chunksize) [Pop args 1] }
+            --         { Pop args ; break }
+            default {
+                set err [join [lsort [array names opts]] ", "]
+                return -code error "bad option $option:\
+                    must be one of $err"
+            }
+        }
+        Pop args
+    }
+
+    if {$opts(-key) == {}} {
+        return -code error "wrong # args:\
+            should be \"hmac ?-hex? -key key -filename file | string\""
+    }
+
+    if {$opts(-filename) != {}} {
+        set opts(-channel) [open $opts(-filename) r]
+        fconfigure $opts(-channel) -translation binary
+    }
+
+    if {$opts(-channel) == {}} {
+
+        if {[llength $args] != 1} {
+            return -code error "wrong # args:\
+                should be \"hmac ?-hex? -key key -filename file | string\""
+        }
+        set tok [HMACInit $opts(-key)]
+        HMACUpdate $tok [lindex $args 0]
+        set r [HMACFinal $tok]
+
+    } else {
+
+        set tok [HMACInit $opts(-key)]
+        set [subst $tok](reading) 1
+        fileevent $opts(-channel) readable \
+            [list [namespace origin Chunk] \
+                 $tok $opts(-channel) $opts(-chunksize)]
+        vwait [subst $tok](reading)
+        set r [HMACFinal $tok]
+
+        # If we opened the channel - we should close it too.
+        if {$opts(-filename) != {}} {
+            close $opts(-channel)
+        }
+    }
+    
+    if {$opts(-hex)} {
+        set r [Hex $r]
+    }
+    return $r
+}
 
 # -------------------------------------------------------------------------
 
