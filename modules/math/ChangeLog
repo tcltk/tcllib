@@ -1,3 +1,9 @@
+2004-06-19  Kevin Kenny  <kennykb@acm.org>
+
+	* interpolate.man:  Added polynomial interpolation with Neville's
+	* interpolate.tcl:  algorithm; this procedure will be needed in
+	* interpolate.test: Romberg integration, which is the next project.
+	
 2004-06-18  Kevin Kenny  <kennykb@acm.org>
 
 	* bessel.test:        Fixed several problems that were causing tests

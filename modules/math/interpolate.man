@@ -183,6 +183,20 @@ Set the parameters for spatial interpolation
 [arg_def integer power in] Power for the distance (either 1 or 2; defaults to 2)
 
 [list_end]
+
+[call [cmd ::math::interpolate::neville] [arg xlist] [arg ylist] [arg x]]
+
+Interpolates between the tabulated values of a function 
+whose abscissae are [arg xlist]
+and whose ordinates are [arg ylist] to produce an estimate for the value
+of the function at [arg x].  The result is a two-element list; the first
+element is the function's estimated value, and the second is an estimate
+of the absolute error of the result.  Neville's algorithm for polynomial
+interpolation is used.  Note that a large table of values will use an
+interpolating polynomial of high degree, which is likely to result in
+numerical instabilities; one is better off using only a few tabulated
+values near the desired abscissa.
+
 [list_end]
 
 
