@@ -1,4 +1,12 @@
+2001-11-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.tcl: Tested implementation of FR #481161. Fixed the errors
+	  found that way (incomplete cleanup by 'Get', interfered with the
+	  following 'Put' command).
+
 2001-11-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.tcl, ftp.n: Implemented and documented FR #481161.
 
 	* ftp.tcl: Applied patch #428053 provided by Sreangsu Acharyya
 	  <srean_list@myrealbox.com>. The patch extends 'Reget' to allow

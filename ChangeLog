@@ -1,3 +1,17 @@
+2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtpd: Example consolidation: Moved the smtpd example to
+	'examples' directory.
+
+	* ftp: Implemented FR #481161.
+
+	* ftpd: Added example ftp server used for testing the
+	  functionality of FR #481161.
+
+2001-11-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd: New module.
+
 2001-11-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv: Applied patch #482570.
