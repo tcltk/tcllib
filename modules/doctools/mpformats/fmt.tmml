@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.12 2002/05/15 18:24:41 jenglish Exp $
+# $Id: fmt.tmml,v 1.13 2002/05/15 20:54:33 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -219,7 +219,14 @@ pass 2 arg_def {type name {mode {}}} {
 }
 
 pass 1 cmd_def {command} NOP
-pass 2 cmd_def {command} NYI
+pass 2 cmd_def {command} {
+    sequence \
+    	[xmlContext commandlist] \
+	[start commanddef] \
+	[wrap $command command] \
+	[start desc] \
+	;
+}
 
 pass 1 opt_def {name {arg {}}} NOP
 pass 2 opt_def {name {arg {}}} {
