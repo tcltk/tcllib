@@ -1,3 +1,13 @@
+2004-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* muserv.tcl:  Removed the old facilities for sub processes
+	* musub.tcl:   and programmed interactions. They have been
+	* subserv.tcl: superceded by the code below.
+
+	* coserv.tcl: New sub process mgmt based on "comm".
+	* dialog.tcl: New code for programmed dialogs based on
+	  "coserv.tcl".
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

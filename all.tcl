@@ -8,7 +8,9 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.22 2004/09/28 05:12:39 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.23 2004/10/20 03:55:03 andreas_kupries Exp $
+
+catch {wm withdraw .}
 
 set old_auto_path $auto_path
 
@@ -152,7 +154,10 @@ foreach module $modules {
 	# The next command allows the execution of 'tk' constrained
 	# tests, if Tk is present (for example when this code is run
 	# run by 'wish').
-	catch {package require Tk}
+	catch {
+	    package require Tk
+	    wm withdraw .
+	}
 
 	package require tcltest
 	namespace import ::tcltest::*
