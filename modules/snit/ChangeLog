@@ -1,5 +1,12 @@
 2004-07-24  Will Duquette  <will@wjduquette.com>
 
+	* snit.tcl      (::snit::RT.MethodCacheLookup): The cached command
+	        	is now generated as a list, not a string; this
+			improves the speed of method invocation by quite a 
+			bit.
+
+2004-07-24  Will Duquette  <will@wjduquette.com>
+
 	* snit.tcl	Consolidated the option typevariables into a
 	* dictionary	single array, Snit_optionInfo.  Implemented
 	* roadmap.txt	parsing of the new option definition syntax;
