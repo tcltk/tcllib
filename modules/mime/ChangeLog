@@ -1,3 +1,15 @@
+2004-05-04  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* mime.test:
+	* mime.tcl (copymessageaux): Fixed [SF Tcllib Bug 620852]. Added
+	  '-nonewline' to the puts statements which wrote out the chunks
+	  read from the file associated with the mime part, converted or
+	  not. As the data was [read] we had no business of adding eol's
+	  during writing as well. Thanks to Jasper Taylor
+	  <jaspert@users.sourceforge.net> for the report, and his
+	  patience. Added a test for this as well, using files of similar
+	  size as originally provided.
+
 2004-03-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtp.tcl: Added support for RFC 2554 - SMTP Authentication. This
