@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.6 2001/10/23 03:44:06 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.7 2001/10/31 16:39:53 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -42,6 +42,9 @@ test uri-1.4 {uri::split - https w/- port} {
 test uri-1.5 {uri::split - ftp} {
     eval kvsort [uri::split ftp://ftp.test.net/path/to/resource]
 } {host ftp.test.net path path/to/resource port {} pwd {} scheme ftp type {} user {}}
+test uri-1.6 {uri::split - ftp with userinfo} {
+    eval kvsort [uri::split {ftp://user:passwd@localhost:1/filename}]
+} {host localhost path filename port 1 pwd passwd scheme ftp type {} user user}
 
 test uri-2.1 {uri::join - http} {
     uri::join scheme http path / host www.w3.org
@@ -67,6 +70,15 @@ test uri-2.7 {uri::join - ftp} {
 test uri-2.8 {uri::join - identity function} {
     eval uri::join [uri::split http://www.w3.org/XML/?abc=def]
 } http://www.w3.org/XML/?abc=def
+test uri-2.9 {uri::join - ftp userinfo check} {
+    eval uri::join scheme ftp host localhost port 21 path /filename user user pwd passwd
+} {ftp://user:passwd@localhost:21/filename}
+test uri-2.10 {uri::join - ftp userinfo check with no passwd} {
+    eval uri::join scheme ftp host localhost path /filename user user
+} {ftp://user@localhost/filename}
+test uri-2.10 {uri::join - ftp path prefix} {
+    eval uri::join scheme ftp host localhost path filename
+} ftp://localhost/filename
 
 test uri-3.1 {uri::resolve - relative URL, base trailing slash} {
     uri::resolve http://www.w3.org/path/ test.html
