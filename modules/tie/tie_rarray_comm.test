@@ -6,7 +6,7 @@
 # This is a tie for remote array ties, actually using separate
 # processes. This is based on the package "comm", also in Tcllib.
 #
-# RCS: @(#) $Id: tie_rarray_comm.test,v 1.1 2004/09/20 00:47:34 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_rarray_comm.test,v 1.2 2004/09/23 02:03:28 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -25,17 +25,24 @@ package forget tie::std::rarray
 package forget tie
 package forget comm
 package forget snit
+package forget cmdline
 
 catch {namespace delete tie::std::rarray}
 catch {namespace delete tie}
 catch {namespace delete comm}
 catch {namespace delete snit}
+catch {namespace delete cmdline}
 
-set tie_ra_code [file join [file dirname [info script]] tie_rarray.tcl]
-set tie_code    [file join [file dirname [info script]] tie.tcl]
-set comm_code   [file join [file dirname [info script]] .. comm comm.tcl]
-set snit_code   [file join [file dirname [info script]] .. snit snit.tcl]
+set tie_ra_code  [file join [file dirname [info script]] tie_rarray.tcl]
+set tie_code     [file join [file dirname [info script]] tie.tcl]
+set comm_code    [file join [file dirname [info script]] .. comm comm.tcl]
+set snit_code    [file join [file dirname [info script]] .. snit snit.tcl]
+set cmdline_code [file join [file dirname [info script]] .. cmdline cmdline.tcl]
 
+if {[catch {source $cmdline_code} msg]} {
+    puts "skipped [file tail [info script]] (cmdline.tcl): $msg"
+    return
+}
 if {[catch {source $snit_code} msg]} {
     puts "skipped [file tail [info script]] (snit.tcl): $msg"
     return
@@ -57,6 +64,7 @@ puts "tie::std::rarray [package present tie::std::rarray]"
 puts "- tie            [package present tie]"
 puts "- snit           [package present snit]"
 puts "- comm           [package present comm]"
+puts "- cmdline        [package present cmdline]"
 
 # -------------------------------------------------------------------------
 # Takes a dictionary, returns a list containing the same dictionary,
@@ -194,6 +202,7 @@ test tie-rarray-comm-2.0 {circular init to remote} {
 
     tie::tie av remotearray av {comm::comm send} [slave]
 
+    csend [list source $cmdline_code]
     csend [list source $snit_code]
     csend [list source $tie_code]
     csend [list source $tie_ra_code]
@@ -217,6 +226,7 @@ test tie-rarray-comm-2.1 {circular persistence to remote} {
     }
 
     tie::tie av remotearray av {comm::comm send} [slave]
+    csend [list source $cmdline_code]
     csend [list source $snit_code]
     csend [list source $tie_code]
     csend [list source $tie_ra_code]
