@@ -14,12 +14,18 @@ The intention of this package is to insulate Tcl scripts
 from problems with using the system library resolver for slow name servers.
 It may or may not be of practical use.
 
-The package also extend the [cmd uri] package to support DNS
-URIs or the form dns:what.host.com or
-dns://my.nameserver/what.host.com The [cmd dns::resolve] command can
-handle DNS URIs or simple domain names as a query.
+The package also extends the package [package uri] to support DNS URIs
+or the form [uri dns:what.host.com] or
 
+[uri dns://my.nameserver/what.host.com]. The [cmd dns::resolve]
+command can handle DNS URIs or simple domain names as a query.
 
+[para]
+
+[strong Note:] This package uses TCP to query DNS servers as the tcl
+core does not implement UDP networking. This means that this module
+will not work if DNS over TCP is blocked by a firewall, or not
+accepted by the chosen nameserver.
 
 [section COMMANDS]
 
