@@ -10,25 +10,6 @@ package require Tcl 8.3
 package require mime 1.3.2
 package provide smtp 1.3.2
 
-if {[catch {package require Trf  2.0}]} {
-    # Trf is not available, but we can live without it as long as the
-    # unstack and transform procs are defined.
-
-    # Create these commands in the smtp namespace so that they
-    # won't collide with things at the global namespace level
-
-    namespace eval smtp {
-        proc transform {args} {
- 	    upvar state mystate
-	    set mystate(size) 1
-        }
-        proc unstack {channel} {
-            # do nothing
-            return
-        }
-    }
-}
-
 #
 # state variables:
 #
@@ -55,7 +36,7 @@ namespace eval smtp {
 
 if {[catch {package require Trf  2.0}]} {
     # Trf is not available, but we can live without it as long as the
-    # transform proc is defined.
+    # transform and unstack procs are defined.
 
     # Warning!
     # This is a fragile emulation of the more general calling sequence
@@ -64,6 +45,10 @@ if {[catch {package require Trf  2.0}]} {
     proc transform {args} {
 	upvar state mystate
 	set mystate(size) 1
+    }
+    proc unstack {channel} {
+        # do nothing
+        return
     }
     set ::smtp::trf 0
 }
