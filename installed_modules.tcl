@@ -53,7 +53,7 @@ foreach {m pkg doc exa} {
     report	_tcl  _man  _null
     sha1	_tcl  _man  _null
     smtpd	_tcl  _man _exa
-    snit        _tcl _null  _null
+    snit        _tcl  _man  _null
     soundex	_tcl  _man  _null
     stooop	_tcl  _man  _null
     struct	_tcl  _man _exa
