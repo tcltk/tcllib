@@ -1,8 +1,15 @@
+2002-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>  
+
+	* Makefile.in (doc_generate): Added "TCLLIBPATH=$(srcdir)/modules"
+	  in front of the mpexpand invocation so that it is forced to use
+	  the "expander" package inside of the distribution. This fixes
+	  Tcllib Bug #525007 reported by Don Porter
+	  <dgp@users.sourceforge.net>.
+
 2002-03-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* New module: dns
 	* Makefile.in: updated for new module
-	
 
 2002-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>  
 
