@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.13 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.14 2004/01/25 06:15:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -54,12 +54,43 @@ namespace eval ::struct::matrix {
 # Results:
 #	name	Name of the matrix created
 
-proc ::struct::matrix::matrix {{name ""}} {
+proc ::struct::matrix::matrix {args} {
     variable counter
     
-    if { [llength [info level 0]] == 1 } {
-	incr counter
-	set name "matrix${counter}"
+    set src     {}
+    set srctype {}
+
+    switch -exact -- [llength [info level 0]] {
+	1 {
+	    # Missing name, generate one.
+	    incr counter
+	    set name "matrix${counter}"
+	}
+	2 {
+	    # Standard call. New empty matrix.
+	    set name [lindex $args 0]
+	}
+	4 {
+	    # Copy construction.
+	    foreach {name as src} $args break
+	    switch -exact -- $as {
+		= - := - as {
+		    set srctype matrix
+		}
+		deserialize {
+		    set srctype serial
+		}
+		default {
+		    return -code error \
+			    "wrong # args: should be \"matrix ?name ?=|:=|as|deserialize source??\""
+		}
+	    }
+	}
+	default {
+	    # Error.
+	    return -code error \
+		    "wrong # args: should be \"matrix ?name ?=|:=|as|deserialize source??\""
+	}
     }
 
     # FIRST, qualify the name.
@@ -99,6 +130,18 @@ proc ::struct::matrix::matrix {{name ""}} {
     # Create the command to manipulate the matrix
     interp alias {} $name {} ::struct::matrix::MatrixProc $name
 
+    # Automatic execution of assignment if a source
+    # is present.
+    if {$src != {}} {
+	switch -exact -- $srctype {
+	    matrix {_= $name $src}
+	    serial {_deserialize $name $src}
+	    default {
+		return -code error \
+			"Internal error, illegal srctype \"$srctype\""
+	    }
+	}
+    }
     return $name
 }
 
@@ -138,6 +181,41 @@ proc ::struct::matrix::MatrixProc {name {cmd ""} args} {
 		"bad option \"$cmd\": must be $optlist"
     }
     uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
+}
+
+# ::struct::matrix::_= --
+#
+#	Assignment operator. Copies the source matrix into the
+#       destination, destroying the original information.
+#
+# Arguments:
+#	name	Name of the matrix object we are copying into.
+#	source	Name of the matrix object providing us with the
+#		data to copy.
+#
+# Results:
+#	Nothing.
+
+proc ::struct::matrix::_= {name source} {
+    _deserialize $name [$source serialize]
+    return
+}
+
+# ::struct::matrix::_--> --
+#
+#	Reverse assignment operator. Copies this matrix into the
+#       destination, destroying the original information.
+#
+# Arguments:
+#	name	Name of the matrix object to copy
+#	dest	Name of the matrix object we are copying to.
+#
+# Results:
+#	Nothing.
+
+proc ::struct::matrix::_--> {name dest} {
+    $dest deserialize [_serialize $name]
+    return
 }
 
 # ::struct::matrix::_add --
@@ -702,7 +780,11 @@ proc ::struct::matrix::__add_columns {name n} {
     if {$n <= 0} {
 	return -code error "A value of n <= 0 is not allowed"
     }
+    AddColumns $name $n
+    return
+}
 
+proc ::struct::matrix::AddColumns {name n} {
     variable ${name}::data
     variable ${name}::columns
     variable ${name}::rows
@@ -742,7 +824,11 @@ proc ::struct::matrix::__add_rows {name n} {
     if {$n <= 0} {
 	return -code error "A value of n <= 0 is not allowed"
     }
+    AddRows $name $n
+    return
+}
 
+proc ::struct::matrix::AddRows {name n} {
     variable ${name}::data
     variable ${name}::columns
     variable ${name}::rows
@@ -898,6 +984,35 @@ proc ::struct::matrix::__delete_column {name column} {
     return
 }
 
+# ::struct::matrix::__delete_columns --
+#
+#	Shrink the matrix by "n" columns (from the right).
+#	A value of "n" equal to or smaller than 0 is not
+#	allowed, nor is "n" allowed to be greater than the
+#	number of columns in the matrix.
+#
+# Arguments:
+#	name	Name of the matrix object.
+#	n	The number of columns to remove.
+#
+# Results:
+#	None.
+
+proc ::struct::matrix::__delete_columns {name n} {
+    if {$n <= 0} {
+	return -code error "A value of n <= 0 is not allowed"
+    }
+
+    variable ${name}::columns
+
+    if {$n > $columns} {
+	return -code error "A value of n > #columns is not allowed"
+    }
+
+    DeleteColumns $name $n
+    return
+}
+
 # ::struct::matrix::__delete_row --
 #
 #	Deletes the specified row from the matrix and shifts all
@@ -936,6 +1051,94 @@ proc ::struct::matrix::__delete_row {name row} {
 	catch {unset colw($c)}
     }
     incr rows -1
+    return
+}
+
+# ::struct::matrix::__delete_rows --
+#
+#	Shrink the matrix by "n" rows (from the bottom).
+#	A value of "n" equal to or smaller than 0 is not
+#	allowed, nor is "n" allowed to be greater than the
+#	number of rows in the matrix.
+#
+# Arguments:
+#	name	Name of the matrix object.
+#	n	The number of rows to remove.
+#
+# Results:
+#	None.
+
+proc ::struct::matrix::__delete_rows {name n} {
+    if {$n <= 0} {
+	return -code error "A value of n <= 0 is not allowed"
+    }
+
+    variable ${name}::rows
+
+    if {$n > $rows} {
+	return -code error "A value of n > #rows is not allowed"
+    }
+
+    DeleteRows $name $n
+    return
+}
+
+# ::struct::matrix::_deserialize --
+#
+#	Assignment operator. Copies a serialization into the
+#       destination, destroying the original information.
+#
+# Arguments:
+#	name	Name of the matrix object we are copying into.
+#	serial	Serialized matrix to copy from.
+#
+# Results:
+#	Nothing.
+
+proc ::struct::matrix::_deserialize {name serial} {
+    # As we destroy the original matrix as part of
+    # the copying process we don't have to deal
+    # with issues like node names from the new matrix
+    # interfering with the old ...
+
+    # I. Get the serialization of the source matrix
+    #    and check it for validity.
+
+    CheckSerialization $serial r c values
+
+    # Get all the relevant data into the scope
+
+    variable ${name}::rows
+    variable ${name}::columns
+
+    # Resize the destination matrix for the new data
+
+    if {$r > $rows} {
+	AddRows $name [expr {$r - $rows}]
+    } elseif {$r < $rows} {
+	DeleteRows $name [expr {$rows - $r}]
+    }
+    if {$c > $columns} {
+	AddColumns $name [expr {$c - $columns}]
+    } elseif {$c < $columns} {
+	DeleteColumns $name [expr {$columns - $c}]
+    }
+
+    set rows    $r
+    set columns $c
+
+    # Copy the new data over the old information.
+
+    set row 0
+    foreach rv $values {
+	SetRow $name $row $rv
+	incr row
+    }
+    while {$row < $rows} {
+	# Fill with empty rows if there are not enough.
+	SetRow $name $row {}
+	incr row
+    }
     return
 }
 
@@ -1131,7 +1334,10 @@ proc ::struct::matrix::__get_rect {name column_tl row_tl column_br row_br} {
     } {
 	return -code error "Invalid cell indices, wrong ordering"
     }
+    return [GetRect $name $column_tl $row_tl $column_br $row_br]
+}
 
+proc ::struct::matrix::GetRect {name column_tl row_tl column_br row_br} {
     variable ${name}::data
     set result [list]
 
@@ -1470,6 +1676,67 @@ proc ::struct::matrix::_rows {name} {
     return $rows
 }
 
+# ::struct::matrix::_serialize --
+#
+#	Serialize a matrix object (partially) into a transportable value.
+#	If only a rectangle is serialized the result will be a sub-
+#	matrix in the mathematical sense of the word.
+#
+# Arguments:
+#	name	Name of the matrix.
+#	args	rectangle to place into the serialized matrix
+#
+# Results:
+#	A list structure describing the part of the matrix which was serialized.
+
+proc ::struct::matrix::_serialize {name args} {
+
+    # all - boolean flag - set if and only if the all nodes of the
+    # matrix are chosen for serialization. Because if that is true we
+    # can skip the step finding the relevant arcs and simply take all
+    # arcs.
+
+    set nargs [llength $args]
+    if {($nargs != 0) && ($nargs != 4)} {
+	return -code error "$name: wrong # args: serialize ?column_tl row_tl column_br row_br?"
+    }
+
+    variable ${name}::rows
+    variable ${name}::columns
+
+    if {$nargs == 4} {
+	foreach {column_tl row_tl column_br row_br} $args break
+
+	set column_tl [ChkColumnIndex $name $column_tl]
+	set row_tl    [ChkRowIndex    $name $row_tl]
+	set column_br [ChkColumnIndex $name $column_br]
+	set row_br    [ChkRowIndex    $name $row_br]
+
+	if {
+	    ($column_tl > $column_br) ||
+	    ($row_tl    > $row_br)
+	} {
+	    return -code error "Invalid cell indices, wrong ordering"
+	}
+	set rn [expr {$row_br    - $row_tl    + 1}]
+	set cn [expr {$column_br - $column_tl + 1}]
+    } else {
+	set column_tl 0
+	set row_tl    0
+	set column_br [expr {$columns - 1}]
+	set row_br    [expr {$rows - 1}]
+	set rn $rows
+	set cn $columns
+    }
+
+    # We could optimize and remove empty cells to the right and rows
+    # to the bottom. For now we don't.
+
+    return [list \
+	    $rn $cn \
+	    [GetRect $name $column_tl $row_tl $column_br $row_br]]
+}
+
 # ::struct::matrix::__set_cell --
 #
 #	Sets the value in the cell identified by row and column index
@@ -1675,7 +1942,10 @@ proc ::struct::matrix::__set_rect {name column row values} {
 
 proc ::struct::matrix::__set_row {name row values} {
     set row [ChkRowIndex $name $row]
+    SetRow $name $row $values
+}
 
+proc ::struct::matrix::SetRow {name row values} {
     variable ${name}::data
     variable ${name}::columns
     variable ${name}::rows
@@ -1818,6 +2088,100 @@ proc ::struct::matrix::SwapRows {name row_a row_b} {
 	set   rowh($row_a) $rowh($row_b)
 	unset rowh($row_b)
     } ; # else {nothing to do at all}
+    return
+}
+
+# ::struct::matrix::_transpose --
+#
+#	Exchanges rows and columns of the matrix
+#
+# Arguments:
+#	name		Name of the matrix.
+#
+# Results:
+#	None.
+
+proc ::struct::matrix::_transpose {name} {
+    variable ${name}::rows
+    variable ${name}::columns
+
+    if {$rows == 0} {
+	# Change the dimensions. 
+	# There is no data to shift.
+	# The row/col caches are empty too.
+
+	set rows    $columns 
+	set columns 0
+	return
+
+    } elseif {$columns == 0} {
+	# Change the dimensions. 
+	# There is no data to shift.
+	# The row/col caches are empty too.
+
+	set columns $rows
+	set rows    0
+	return
+    }
+
+    variable ${name}::data
+    variable ${name}::rowh
+    variable ${name}::colw
+
+    # Exchanging the row/col caches is easy, independent of the actual
+    # dimensions of the matrix.
+
+    set rhc [array get rowh]
+    set cwc [array get colw]
+
+    unset rowh ; array set rowh $cwc
+    unset colw ; array set colw $rhc
+
+    if {$rows == $columns} {
+	# A square matrix. We have to swap data around, but there is
+	# need to resize any of the arrays. Only the core is present.
+
+	set n $columns
+
+    } elseif {$rows > $columns} {
+	# Rectangular matrix, we have to delete rows, and add columns.
+
+	for {set r $columns} {$r < $rows} {incr r} {
+	    for {set c 0} {$c < $columns} {incr c} {
+		set   data($r,$c) $data($c,$r)
+		unset data($c,$r)
+	    }
+	}
+
+	set n $columns ; # Size of the core.
+    } else {
+	# rows < columns. Rectangular matrix, we have to delete
+	# columns, and add rows.
+
+	for {set c $rows} {$c < $columns} {incr c} {
+	    for {set r 0} {$r < $rows} {incr r} {
+		set   data($r,$c) $data($c,$r)
+		unset data($c,$r)
+	    }
+	}
+
+	set n $rows ; # Size of the core.
+    }
+
+    set tmp     $rows
+    set rows    $columns
+    set columns $tmp
+
+    # Whatever the actual dimensions, a square core is always
+    # present. The data of this core is now shuffled
+
+    for {set i 0} {$i < $n} {incr i} {
+	for {set j $i ; incr j} {$j < $n} {incr j} {
+	    set tmp $data($i,$j)
+	    set data($i,$j) $data($j,$i)
+	    set data($j,$i) $tmp
+	}
+    }
     return
 }
 
@@ -2275,3 +2639,138 @@ proc ::struct::matrix::SortMaxHeapify {name i key rowCol heapSize {rev 0}} {
     }
     return
 }
+
+# ::struct::matrix::CheckSerialization --
+#
+#	Validate the serialization of a matrix.
+#
+# Arguments:
+#	ser	Serialization to validate.
+#	rvar	Variable to store the number of rows into.
+#	cvar	Variable to store the number of columns into.
+#	dvar	Variable to store the matrix data into.
+#
+# Results:
+#	none
+
+proc ::struct::matrix::CheckSerialization {ser rvar cvar dvar} {
+    upvar 1 \
+	    $rvar   rows    \
+	    $cvar   columns \
+	    $dvar   data
+
+    # Overall length ok ?
+    if {[llength $ser] != 3} {
+	return -code error \
+		"error in serialization: list length not 3."
+    }
+
+    foreach {r c d} $ser break
+
+    # Check rows/columns information
+
+    if {![string is integer -strict $r] || ($r < 0)} {
+	return -code error \
+		"error in serialization: bad number of rows \"$r\"."
+    }
+    if {![string is integer -strict $c] || ($c < 0)} {
+	return -code error \
+		"error in serialization: bad number of columns \"$c\"."
+    }
+
+    # Validate data against rows/columns. We can have less data than
+    # rows or columns, the missing cells will be initialized to the
+    # empty string. But too many is considered as a signal of
+    # being something wrong.
+
+    if {[llength $d] > $r} {
+	return -code error \
+		"error in serialization: data for to many rows."	
+    }
+    foreach rv $d {
+	if {[llength $rv] > $c} {
+	    return -code error \
+		    "error in serialization: data for to many columns."	
+	}
+    }
+
+    # Ok. The data is now ready for the caller.
+
+    set data    $d
+    set rows    $r
+    set columns $c
+    return
+}
+
+# ::struct::matrix::DeleteRows --
+#
+#	Deletes n rows from the bottom of the matrix.
+#
+# Arguments:
+#	name	Name of the matrix.
+#	n	The number of rows to delete (no greater than the number of rows).
+#
+# Results:
+#	None.
+
+proc ::struct::matrix::DeleteRows {name n} {
+    variable ${name}::data
+    variable ${name}::rows
+    variable ${name}::columns
+    variable ${name}::colw
+    variable ${name}::rowh
+
+    # Move all data from the higher rows down and then delete the
+    # superfluous data in the old last row. Move the data in the
+    # height cache too, take partial fill into account there too.
+    # Invalidate the width cache for all columns.
+
+    set rowstart [expr {$rows - $n}]
+
+    for {set c 0} {$c < $columns} {incr c} {
+	for {set r $rowstart} {$r < $rows} {incr r} {
+	    unset data($c,$r)
+	    catch {unset rowh($r)}
+	}
+	catch {unset colw($c)}
+    }
+    set rows $rowstart
+    return
+}
+
+# ::struct::matrix::DeleteColumns --
+#
+#	Deletes n columns from the right of the matrix.
+#
+# Arguments:
+#	name	Name of the matrix.
+#	n	The number of columns to delete.
+#
+# Results:
+#	None.
+
+proc ::struct::matrix::DeleteColumns {name n} {
+    variable ${name}::data
+    variable ${name}::rows
+    variable ${name}::columns
+    variable ${name}::colw
+    variable ${name}::rowh
+
+    # Move all data from the higher columns down and then delete the
+    # superfluous data in the old last column. Move the data in the
+    # width cache too, take partial fill into account there too.
+    # Invalidate the height cache for all rows.
+
+    set colstart [expr {$columns - $n}]
+
+    for {set r 0} {$r < $rows} {incr r} {
+	for {set c $colstart} {$c < $columns} {incr c} {
+	    unset data($c,$r)
+	    catch {unset colw($c)}
+	}
+	catch {unset rowh($r)}
+    }
+    set columns $colstart
+    return
+}
+

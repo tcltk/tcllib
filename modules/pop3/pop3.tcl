@@ -10,12 +10,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.27 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.28 2004/01/25 06:15:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
 package require log
-package provide pop3 1.6
+package provide pop3 1.6.1
 
 namespace eval ::pop3 {
 
@@ -483,7 +483,7 @@ proc ::pop3::RetrFast {chan size} {
     # reads to get the remainder of the message. This has another
     # complication. We cannot simply check for a line containing the
     # terminating signature, simply because the point where the
-    # message was broken in two might jsut be in between the dots of a
+    # message was broken in two might just be in between the dots of a
     # "\r\n..\r\n" sequence. We have to make sure that we do not
     # misinterpret the second part of this sequence as terminator.
     # Another possibility: "\r\n.\r\n" is broken just after the dot.
@@ -492,13 +492,13 @@ proc ::pop3::RetrFast {chan size} {
     # Sometimes the gets returns nothing, need to get the real
     # terminating "."                                    / "
 
-    if {[string range $msgBuffer end-3 end] == "\n.\r\n"} {
+    if {[string equal [string range $msgBuffer end-3 end] "\n.\r\n"]} {
 	# Complete terminator found. Remove it from the message buffer.
 
 	::log::log debug "pop3 $chan /5__"
 	set msgBuffer [string range $msgBuffer 0 end-3]
 
-    } elseif {[string range $msgBuffer end-2 end] == "\n.\r"} {
+    } elseif {[string equal [string range $msgBuffer end-2 end] "\n.\r"]} {
 	# Complete terminator found. Remove it from the message buffer.
 	# Also perform an empty read to remove the missing '\n' from
 	# the channel. If we don't do this all following commands will
@@ -508,7 +508,7 @@ proc ::pop3::RetrFast {chan size} {
 	set msgBuffer [string range $msgBuffer 0 end-2]
 	while {[read $chan 1] != "\n"} {}
 
-    } elseif {[string range $msgBuffer end-1 end] == "\n."} {
+    } elseif {[string equal [string range $msgBuffer end-1 end] "\n."]} {
 	# \n. at the end of the fast buffer.
 	# Can be	\n.\r\n	 = Terminator
 	# or		\n..\r\n = dot-stuffed single .
@@ -533,12 +533,32 @@ proc ::pop3::RetrFast {chan size} {
 	    }
 	    ::log::log debug "pop3 $chan /2__ <$line>"
 	}
-    } else {
-	while {[set line [gets $chan]] != ".\r"} {
+    } elseif {[string equal [string index $msgBuffer end] \n]} {
+	# Line terminator (\n) found. The remainder of the mail has to
+	# consist of true lines we can read directly.
+
+	while {![string equal [set line [gets $chan]] ".\r"]} {
 	    ::log::log debug "pop3 $chan ____ <$line>"
 	    append msgBuffer $line
 	}
 	::log::log debug "pop3 $chan /1__ <$line>"
+    } else {
+	# Incomplete line at the end of the buffer. We complete it in
+	# a single read, and then handle the remainder like the case
+	# before, where we had a complete line at the end of the
+	# buffer.
+
+	set line [gets $chan]
+	::log::log debug "pop3 $chan /1a_ <$line>"
+	append msgBuffer $line
+
+	::log::log debug "pop3 $chan /1b_"
+
+	while {![string equal [set line [gets $chan]] ".\r"]} {
+	    ::log::log debug "pop3 $chan ____ <$line>"
+	    append msgBuffer $line
+	}
+	::log::log debug "pop3 $chan /1c_ <$line>"
     }
 
     ::log::log debug "pop3 $chan done"
