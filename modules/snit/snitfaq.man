@@ -11,40 +11,28 @@
 
 [section OVERVIEW]
 
-[emph {What is this document?}]
-[para]
-
-
+[subsection {What is this document?}]
 
 This is an atypical FAQ list, in that few of the questions are
 frequently asked.  Rather, these are the questions I think a newcomer
 to Snit should be asking.  This file is not a complete reference to
 Snit, however; that information is in the [cmd snit] man page.
 
-[para]
-[emph {What is Snit?}]
-[para]
 
-
+[subsection {What is Snit?}]
 
 Snit is a framework for defining abstract data types and megawidgets
 in pure Tcl.  The name stands for "Snit's Not Incr Tcl", signifying
 that Snit takes a different approach to defining objects than does
 Incr Tcl, the best known object framework for Tcl.
 
-[para]
-[emph {What version of Tcl does Snit require?}]
-[para]
 
-
+[subsection {What version of Tcl does Snit require?}]
 
 Snit requires version Tcl 8.4 or later.
 
-[para]
-[emph {What are Snit's goals?}]
-[para]
 
-
+[subsection {What are Snit's goals?}]
 
 In developing Snit I had the following goals:
 
@@ -82,11 +70,8 @@ It should have a simple, easy-to-use, easy-to-remember syntax.
 
 [list_end]
 
-[para]
-[emph {How is Snit different from other OO frameworks?}]
-[para]
 
-
+[subsection {How is Snit different from other OO frameworks?}]
 
 Snit is unique among Tcl object systems (so far as I know) in that
 it's a system based not on inheritance but on delegation.  Object
@@ -98,11 +83,8 @@ out of the materials at hand; thus, Snit is designed to be able to
 incorporate and build on any object, whether it's a hand-coded object,
 a Tk widget, an Incr Tcl object, a BWidget or almost anything else.
 
-[para]
-[emph {What can I do with Snit?}]
-[para]
 
-
+[subsection {What can I do with Snit?}]
 
 Using Snit, a programmer can:
 
@@ -129,10 +111,7 @@ can be delegated to the component types automatically.
 
 [section OBJECTS]
 
-[emph {What is an object?}]
-[para]
-
-
+[subsection {What is an object?}]
 
 Obviously, a full description of object-oriented programming is beyond
 the scope of this FAQ.  In simple terms, an object is an instance of
@@ -143,11 +122,8 @@ example are the Tk widgets.  A widget is an object; it is represented
 by a Tcl command.  The object's methods are subcommands of the Tcl
 command.  Snit uses the same conventions as Tk widgets do.
 
-[para]
-[emph {What is an abstract data type?}]
-[para]
 
-
+[subsection {What is an abstract data type?}]
 
 In computer science terms, an abstract data type is a complex data
 structure along with a set of operations, like a stack, a queue, or a
@@ -185,11 +161,8 @@ method:
 In this example, [cmd text] is the [term type] command and
 [cmd .mytext] is the [term instance] command.
 
-[para]
-[emph {What kinds of abstract data types does Snit provide?}]
-[para]
 
-
+[subsection {What kinds of abstract data types does Snit provide?}]
 
 Snit allows you to define three kinds of abstract data types:
 
@@ -207,11 +180,8 @@ Snit allows you to define three kinds of abstract data types:
 [cmd snit::widgetadaptor]
 [list_end]
 
-[para]
-[emph {What is a snit::type?}]
-[para]
 
-
+[subsection {What is a snit::type?}]
 
 A [cmd snit::type] is a non-GUI abstract data type, e.g., a stack or a
 queue.  [cmd snit::types] are defined using the [cmd snit::type]
@@ -236,20 +206,14 @@ An instance of a [cmd snit::type] can have [term {instance methods}],
 [term {instance variables}], [term options], and [term components].
 The type itself can have [term {type methods}] and [term procs].
 
-[para]
-[emph {What is a snit::widget?}]
-[para]
 
-
+[subsection {What is a snit::widget?}]
 
 A [cmd snit::widget] is a Tk megawidget built using Snit; it is very
 similar to a [cmd snit::type].  See [sectref WIDGETS].
 
-[para]
-[emph {What is a snit::widgetadaptor?}]
-[para]
 
-
+[subsection {What is a snit::widgetadaptor?}]
 
 A [cmd snit::widgetadaptor] uses Snit to wrap an existing widget type
 (e.g., a Tk label), modifying its interface to a lesser or greater
@@ -257,11 +221,8 @@ extent.  It is very similar to a [cmd snit::widget].
 
 See [sectref {WIDGET ADAPTORS}].
 
-[para]
-[emph {How do I create an instance of a snit::type?}]
-[para]
 
-
+[subsection {How do I create an instance of a snit::type?}]
 
 You create an instance of a [cmd snit::type] by passing the new
 instance's name to the type's create method.  In the following
@@ -329,10 +290,7 @@ dog bark:
 }]
 [para]
 
-[emph {How do I refer to an object indirectly?}]
-[para]
-
-
+[subsection {How do I refer to an object indirectly?}]
 
 Some programmers prefer to save the object name in a variable, and
 reference it that way.  For example,
@@ -355,10 +313,7 @@ dalmation
 }]
 [para]
 
-[emph {How can I generate the object name automatically?}]
-[para]
-
-
+[subsection {How can I generate the object name automatically?}]
 
 If you'd like Snit to generate an object name for you,
 use the [const %AUTO%] keyword as the requested name:
@@ -389,10 +344,7 @@ The "%AUTO%" keyword can be embedded in a longer string:
 [para]
 
 
-[emph {Can types be renamed?}]
-[para]
-
-
+[subsection {Can types be renamed?}]
 
 Tcl's [cmd rename] command renames other commands.  It's a common
 technique in Tcl to modify an existing command by renaming it and
@@ -404,11 +356,8 @@ calls the renamed command.
 [cmd snit::type]'s, however, should never be renamed; to do so breaks
 the connection between the type and its objects.
 
-[para]
-[emph {Can objects be renamed?}]
-[para]
 
-
+[subsection {Can objects be renamed?}]
 
 Tcl's [cmd rename] command renames other commands.  It's a common
 technique in Tcl to modify an existing command by renaming it and
@@ -513,11 +462,8 @@ explicitly as the argument [var self]; this is no longer the case.
 
 [list_end]
 
-[para]
-[emph {How do I destroy a Snit object?}]
-[para]
 
-
+[subsection {How do I destroy a Snit object?}]
 
 Every instance of a [cmd snit::type] has a [method destroy] method:
 
@@ -550,19 +496,15 @@ it to the empty string using the Tcl [cmd rename] command.
 
 [section {INSTANCE METHODS}]
 
-[emph {What is an instance method?}]
-[para]
+[subsection {What is an instance method?}]
 
 An instance method is a procedure associated with a specific object.
 It is given free access to all of the object's type variables,
 instance variables, and so forth.
 
 
-[para]
-[emph {How do I define an instance method?}]
-[para]
 
-
+[subsection {How do I define an instance method?}]
 
 Instance methods are defined in the type definition using
 the [cmd method] statement.  Consider the following code that might be
@@ -592,11 +534,8 @@ except that it appears in a [cmd snit::type] definition.  Notice that
 every instance method gets an implicit argument called [var self];
 this argument contains the object's name.
 
-[para]
-[emph {How does a client call an instance method?}]
-[para]
 
-
+[subsection {How does a client call an instance method?}]
 
 The method name becomes a subcommand of the object.  For example,
 let's put a simulated dog through its paces:
@@ -612,10 +551,7 @@ let's put a simulated dog through its paces:
 }]
 [para]
 
-[emph {How does an instance method call another instance method?}]
-[para]
-
-
+[subsection {How does an instance method call another instance method?}]
 
 If method A needs to call method B on the same object, it does so just
 as a client does: it calls method B as a subcommand of the object
@@ -647,21 +583,15 @@ barking at them:
 }]
 [para]
 
-[emph {Are there any limitations on instance method names?}]
-[para]
-
-
+[subsection {Are there any limitations on instance method names?}]
 
 Not really, so long as you avoid the standard instance method names:
 [method configure], [method configurelist], [method cget],
 
 [method destroy], and [method info].
 
-[para]
-[emph {How do I make an instance method private?}]
-[para]
 
-
+[subsection {How do I make an instance method private?}]
 
 It's often useful to define private methods, that is, instance methods
 intended to be called only by other methods of the same object.
@@ -699,10 +629,7 @@ could be private:
 }]
 [para]
 
-[emph {Are there any limitations on instance method arguments?}]
-[para]
-
-
+[subsection {Are there any limitations on instance method arguments?}]
 
 Method argument lists are defined just like normal Tcl proc argument
 lists; they can include default values, and the [var args] argument.
@@ -710,20 +637,14 @@ However, every method is called with a number of implicit arguments
 provided by Snit in addition to those explicitly defined.  The names
 of these implicit arguments may not used to name explicit arguments.
 
-[para]
-[emph {What implicit arguments are passed to each instance method?}]
-[para]
 
-
+[subsection {What implicit arguments are passed to each instance method?}]
 
 The arguments implicitly passed to every method are [var type],
 [var selfns], [var win], and [var self].
 
-[para]
-[emph {What is $type?}]
-[para]
 
-
+[subsection {What is $type?}]
 
 The implicit argument [var type] contains the fully qualified name of
 the object's type:
@@ -743,10 +664,7 @@ the object's type:
 }]
 [para]
 
-[emph {What is $self?}]
-[para]
-
-
+[subsection {What is $self?}]
 
 The implicit argument [var self] contains the object's fully
 qualified name.
@@ -776,10 +694,7 @@ will never be renamed.
 }]
 [para]
 
-[emph {What is $selfns?}]
-[para]
-
-
+[subsection {What is $selfns?}]
 
 Each Snit object has a private namespace in which to store its
 
@@ -810,11 +725,8 @@ The above example reveals how Snit names an instance's private
 namespace; however, you should not write code that depends on the
 specific naming convention, as it might change in future releases.
 
-[para]
-[emph {What is $win?}]
-[para]
 
-
+[subsection {What is $win?}]
 
 The implicit argument [var win] is defined for all Snit methods,
 including those of [term widgets] and [term widgetadaptors], though it
@@ -832,11 +744,8 @@ means that a [cmd snit::widget] or [cmd snit::widgetadaptor] can be
 adapted by a [cmd snit::widgetadaptor].  See [sectref WIDGETS] for
 more information.
 
-[para]
-[emph {How do I pass an instance method as a callback?}]
-[para]
 
-
+[subsection {How do I pass an instance method as a callback?}]
 
 It depends on the context.
 
@@ -908,11 +817,8 @@ The command [cmd mymethod] can be used like [cmd list] to build up a
 callback command; the only difference is that [cmd mymethod] returns a
 form of the command that won't change if the instance's name changes.
 
-[para]
-[emph {How do I delegate instance methods to a component?}]
-[para]
 
-
+[subsection {How do I delegate instance methods to a component?}]
 
 See [sectref DELEGATION].
 
@@ -920,19 +826,13 @@ See [sectref DELEGATION].
 [section {INSTANCE VARIABLES}]
 
 
-[emph {What is an instance variable?}]
-[para]
-
-
+[subsection {What is an instance variable?}]
 
 An instance variable is a private variable associated with some
 particular Snit object.  Instance variables can be scalars or arrays.
 
-[para]
-[emph {How is a scalar instance variable defined?}]
-[para]
 
-
+[subsection {How is a scalar instance variable defined?}]
 
 Scalar instance variables are defined in the type definition using the
 [cmd variable] statement.  You can simply name it, or you can
@@ -947,10 +847,7 @@ snit::type mytype {
 }]
 [para]
 
-[emph {How is an array instance variable defined?}]
-[para]
-
-
+[subsection {How is an array instance variable defined?}]
 
 Array instance variables are also defined using the [cmd variable]
 command; however, you can't initialize them using the variable
@@ -970,10 +867,7 @@ snit::type mytype {
 }]
 [para]
 
-[emph {Are there any limitations on instance variable names?}]
-[para]
-
-
+[subsection {Are there any limitations on instance variable names?}]
 
 Just a few.
 
@@ -992,22 +886,16 @@ use by Snit internal code.
 Second, instance variable names with the namespace delimiter
 ([const ::]) in them are likely to cause great confusion.
 
-[para]
-[emph {Do I need to declare instance variables before using them?}]
-[para]
 
-
+[subsection {Do I need to declare instance variables before using them?}]
 
 No. Once you've defined an instance variable in the type definition,
 it can be used in any instance code without declaration.  This differs
 from normal Tcl practice, in which all non-local variables in a proc
 need to be declared.
 
-[para]
-[emph {How do I pass an instance variable's name to another object?}]
-[para]
 
-
+[subsection {How do I pass an instance variable's name to another object?}]
 
 In Tk, it's common to pass a widget a variable name; for example, Tk
 label widgets have a [option -textvariable] option which names the
@@ -1039,10 +927,7 @@ snit::widget mywidget {
 }]
 [para]
 
-[emph {How do I make an instance variable public?}]
-[para]
-
-
+[subsection {How do I make an instance variable public?}]
 
 Practically speaking, you don't.  Instead, you'll implement public
 variables as [term options].
@@ -1054,10 +939,7 @@ the variable's value.
 
 [section OPTIONS]
 
-[emph {What is an option?}]
-[para]
-
-
+[subsection {What is an option?}]
 
 A type's options are the equivalent of what other object-oriented
 languages would call public member variables or properties: they are
@@ -1075,11 +957,8 @@ the other hand, can and do.
 
 
 
-[para]
-[emph {How do I define an option?}]
-[para]
 
-
+[subsection {How do I define an option?}]
 
 Options are defined in the type definition using the [cmd option]
 statement.  Consider the following type, to be used in an application
@@ -1112,11 +991,8 @@ empty string.
 
 The Snit man page refers to these as "locally defined" options.
 
-[para]
-[emph {How can a client set options at object creation?}]
-[para]
 
-
+[subsection {How can a client set options at object creation?}]
 
 The normal convention is that the client may pass any number of
 options and their values after the object's name at object creation.
@@ -1142,11 +1018,8 @@ owners evidently take care of him, because he's had his shots.
 different object-creation syntax.  See [sectref CONSTRUCTORS] for more
 information.
 
-[para]
-[emph {How can a client retrieve an option's value?}]
-[para]
 
-
+[subsection {How can a client retrieve an option's value?}]
 
 Retrieve option values using the [method cget] method:
 
@@ -1159,10 +1032,7 @@ mongrel
 }]
 [para]
 
-[emph {How can a client set options after object creation?}]
-[para]
-
-
+[subsection {How can a client set options after object creation?}]
 
 Any number of options may be set at one time using the
 
@@ -1195,10 +1065,7 @@ Arctic Boar Hound
 [para]
 
 
-[emph {How should an instance method access an option value?}]
-[para]
-
-
+[subsection {How should an instance method access an option value?}]
 
 There are two ways an instance method can set and retrieve an option's
 value.  One is to use the [method configure] and [method cget]
@@ -1245,19 +1112,13 @@ handlers, as described in the following answers, you might wish to use
 the [method configure] and [method cget] methods anyway, just so that
 any special processing you've implemented is sure to get done.
 
-[para]
-[emph {How can I catch changes to an option's value?}]
-[para]
 
-
+[subsection {How can I catch changes to an option's value?}]
 
 Use an [cmd onconfigure] handler.
 
-[para]
-[emph {What is an onconfigure handler?}]
-[para]
 
-
+[subsection {What is an onconfigure handler?}]
 
 An [cmd onconfigure] handler is a special kind of instance method
 that's called whenever the related option is given a new value via the
@@ -1296,19 +1157,13 @@ available, just as in an instance method.
 Note that if your handler doesn't put the value in the [var options]
 array, it doesn't get updated.
 
-[para]
-[emph {How can I catch accesses to an option's value?}]
-[para]
 
-
+[subsection {How can I catch accesses to an option's value?}]
 
 Use an [cmd oncget] handler.
 
-[para]
-[emph {What is an oncget handler?}]
-[para]
 
-
+[subsection {What is an oncget handler?}]
 
 An [cmd oncget] handler is a special kind of instance method that's
 called whenever the related option's value is queried via the
@@ -1342,21 +1197,15 @@ instance methods.
 
 [section {TYPE VARIABLES}]
 
-[emph {What is a type variable?}]
-[para]
-
-
+[subsection {What is a type variable?}]
 
 A type variable is a private variable associated with a Snit type
 rather than with a particular instance of the type.  In C++ and Java,
 the equivalent of type variables are called static member variables.
 Type variables can be scalars or arrays.
 
-[para]
-[emph {How is a scalar type variable defined?}]
-[para]
 
-
+[subsection {How is a scalar type variable defined?}]
 
 Scalar type variables are defined in the type definition using the
 [cmd typevariable] statement.  You can simply name it, or you can
@@ -1374,44 +1223,32 @@ snit::type mytype {
 Every object of type [cmd mytype] now has access to a single variable
 called [var greeting].
 
-[para]
-[emph {How is an array type variable defined?}]
-[para]
 
-
+[subsection {How is an array type variable defined?}]
 
 Array-valued type variables are also defined using the
 
 [cmd typevariable] command; however, you can't initialize them that
 way, just as you can't initialize array variables using Tcl's standard
-[cmd variable] command.  [emph {Type constructors}] are the usual way
+[cmd variable] command.  [term {Type constructors}] are the usual way
 to initialize array-valued type variables.
 
-[para]
-[emph {Are there any limitations on type variable names?}]
-[para]
 
-
+[subsection {Are there any limitations on type variable names?}]
 
 Type variable names have the same restrictions as instance variable
 names.
 
-[para]
-[emph {Do I need to declare type variables before using them?}]
-[para]
 
-
+[subsection {Do I need to declare type variables before using them?}]
 
 No. Once you've defined a type variable in the type definition, it can
 be used in [term {instance methods}] or [term {type methods}] without
 declaration.  This differs from normal Tcl practice, in which all
 non-local variables in a proc need to be declared.
 
-[para]
-[emph {How do I pass a type variable's name to another object?}]
-[para]
 
-
+[subsection {How do I pass a type variable's name to another object?}]
 
 In Tk, it's common to pass a widget a variable name; for example, Tk
 label widgets have a [option -textvariable] option which names the
@@ -1443,10 +1280,7 @@ snit::widget mywidget {
 }]
 [para]
 
-[emph {How do I make a type variable public?}]
-[para]
-
-
+[subsection {How do I make a type variable public?}]
 
 There are two ways to do this.  The preferred way is to write a pair
 of [term {type methods}] to set and query the variable's value.
@@ -1473,19 +1307,13 @@ the same name as the type itself.
 
 [section {TYPE METHODS}]
 
-[emph {What is a type method?}]
-[para]
-
-
+[subsection {What is a type method?}]
 
 A type method is a procedure associated with the type itself rather
 than with any specific instance of the type.
 
-[para]
-[emph {How do I define a type method?}]
-[para]
 
-
+[subsection {How do I define a type method?}]
 
 Type methods are defined in the type definition using the
 
@@ -1518,11 +1346,8 @@ The [cmd typemethod] statement looks just like a normal Tcl
 It defines the method name, the argument list, and the body of the
 method.
 
-[para]
-[emph {How does a client call a type method?}]
-[para]
 
-
+[subsection {How does a client call a type method?}]
 
 The method name becomes a subcommand of the type's command.  For
 example,
@@ -1549,21 +1374,15 @@ foreach dog [dog pedigreedDogs] { ... }
 }]
 [para]
 
-[emph {Are there any limitations on type method names?}]
-[para]
-
-
+[subsection {Are there any limitations on type method names?}]
 
 Not really, so long as you avoid the standard type method names:
 
 [para]
 [method create] and [method info].
 
-[para]
-[emph {How do I make a type method private?}]
-[para]
 
-
+[subsection {How do I make a type method private?}]
 
 It's sometimes useful to define private type methods, that is, type
 methods intended to be called only by other type or instance methods
@@ -1581,11 +1400,8 @@ letter.
 Alternatively, a Snit [cmd proc] can be used as a private type method; see
 [sectref PROCS].
 
-[para]
-[emph {Are there any limitations on type method arguments?}]
-[para]
 
-
+[subsection {Are there any limitations on type method arguments?}]
 
 Method argument lists are defined just like normal Tcl proc argument
 lists; they can include default values, and the [var args] argument.
@@ -1594,11 +1410,8 @@ However, every type method is called with an implicit argument called
 type methods should by convention avoid using the names of the
 arguments implicitly defined for [term {instance methods}].
 
-[para]
-[emph {How does an instance or type method call a type method?}]
-[para]
 
-
+[subsection {How does an instance or type method call a type method?}]
 
 If an instance or type method needs to call a type method, it should
 use [var type] to do so:
@@ -1616,10 +1429,7 @@ snit::type dog {
 }]
 [para]
 
-[emph {How do I pass a type method as a callback?}]
-[para]
-
-
+[subsection {How do I pass a type method as a callback?}]
 
 It's common in Tcl to pass a snippet of code to another object, for it
 to call later.  Because types cannot be renamed, the thing to do is
@@ -1636,21 +1446,15 @@ list of pedigreed dogs when a Tk button is pushed:
 
 [section PROCS]
 
-[emph {What is a proc?}]
-[para]
-
-
+[subsection {What is a proc?}]
 
 A Snit [cmd proc] is really just a Tcl proc defined within the type's
 namespace.  You can use procs for private code that isn't related to
 any particular instance.  For example, I often find myself writing a
 proc to pop the first item off of a list stored in a variable.
 
-[para]
-[emph {How do I define a proc?}]
-[para]
 
-
+[subsection {How do I define a proc?}]
 
 Procs are defined by including a [cmd proc] statement in the type
 definition:
@@ -1667,10 +1471,7 @@ snit::type mytype {
 }]
 [para]
 
-[emph {Are there any limitations on proc names?}]
-[para]
-
-
+[subsection {Are there any limitations on proc names?}]
 
 Any name can be used, so long as it does not begin with [const Snit_];
 names beginning with [const Snit_] are reserved for Snit's own use.
@@ -1682,11 +1483,8 @@ command names.
 
 By convention, proc names, being private, begin with a capital letter.
 
-[para]
-[emph {How does a method call a proc?}]
-[para]
 
-
+[subsection {How does a method call a proc?}]
 
 Just like it calls any Tcl command.  For example,
 
@@ -1708,10 +1506,7 @@ snit::type mytype {
 }]
 [para]
 
-[emph {How can I pass a proc to another object as a callback?}]
-[para]
-
-
+[subsection {How can I pass a proc to another object as a callback?}]
 
 I tend to use type or instance methods for this purpose and ignore
 procs altogether.  But if you really need to, the [cmd codename]
@@ -1720,8 +1515,7 @@ command returns the proc's fully qualified name.
 
 [section {TYPE CONSTRUCTORS}]
 
-[emph {What is a type constructor?}]
-[para]
+[subsection {What is a type constructor?}]
 
 A type constructor is a body of code that initializes the type as a
 whole, rather like a C++ static initializer.  The body of a type
@@ -1732,10 +1526,8 @@ again.
 
 A type can have at most one type constructor.
 
-[para]
-[emph {How do I define a type constructor?}]
-[para]
 
+[subsection {How do I define a type constructor?}]
 
 A type constructor is defined by using the [cmd typeconstructor]
 statement in the type definition.  For example, suppose the type uses
@@ -1759,10 +1551,7 @@ an array-valued type variable as a look up table:
 
 [section CONSTRUCTORS]
 
-[emph {What is a constructor?}]
-[para]
-
-
+[subsection {What is a constructor?}]
 
 In object-oriented programming, an object's constructor is responsible
 for initializing the object completely at creation time. The constructor
@@ -1776,11 +1565,8 @@ other objects, updating type variables, and so forth.
 
 The constructor doesn't return anything.
 
-[para]
-[emph {How do I define a constructor?}]
-[para]
 
-
+[subsection {How do I define a constructor?}]
 
 A constructor is defined by using the [cmd constructor] statement in
 the type definition.  Suppose that it's desired to keep a list of all
@@ -1818,10 +1604,7 @@ Kennel Club.
 }]
 [para]
 
-[emph {What does the default constructor do?}]
-[para]
-
-
+[subsection {What does the default constructor do?}]
 
 If you don't provide a constructor explicitly, you get the default
 constructor, which looks like this:
@@ -1850,11 +1633,8 @@ to assume that it's a list of option names and values, as shown in the
 example above.  If you simply want to save the option values, you
 should use the [method configurelist] method, as shown.
 
-[para]
-[emph {Can I choose a different command line syntax for the constructor?}]
-[para]
 
-
+[subsection {Can I choose a different command line syntax for the constructor?}]
 
 Yes, you can.  For example, suppose we wanted to be sure that the
 breed was explicitly stated for every dog at creation time, and
@@ -1887,15 +1667,12 @@ dalmatian
 
 The drawback is that this creation syntax is non-standard, and may
 limit the compatibility of your new type with other people's code.
-For example, Snit generally assumes that [emph {components}] use the
+For example, Snit generally assumes that [term {components}] use the
 standard creation syntax.
 
 
-[para]
-[emph {Are there any limitations on constructor arguments?}]
-[para]
 
-
+[subsection {Are there any limitations on constructor arguments?}]
 
 Constructor argument lists are defined just like normal Tcl proc
 argument list; they can include default values, and the [var args]
@@ -1904,11 +1681,8 @@ implicit arguments provided by Snit in addition to those explicitly
 defined.  The names of these implicit arguments may not used to name
 explicit arguments.
 
-[para]
-[emph {What implicit arguments are passed to the constructor?}]
-[para]
 
-
+[subsection {What implicit arguments are passed to the constructor?}]
 
 The constructor gets the same implicit arguments that are passed to
 [term {instance methods}]: [var type], [var selfns], [var win], and
@@ -1918,21 +1692,15 @@ The constructor gets the same implicit arguments that are passed to
 
 [section DESTRUCTORS]
 
-[emph {What is a destructor?}]
-[para]
-
-
+[subsection {What is a destructor?}]
 
 A destructor is a special kind of method that's called when an object
 is destroyed.  It's responsible for doing any necessary clean-up when
 the object goes away: destroying components, closing files, and so
 forth.
 
-[para]
-[emph {How do I define a destructor?}]
-[para]
 
-
+[subsection {How do I define a destructor?}]
 
 Destructors are defined by using the [cmd destructor] statement in the
 type definition.  Suppose we're maintaining a list of pedigreed dogs;
@@ -1978,28 +1746,19 @@ then we'll want to remove dogs from it when they are destroyed.
 }]
 [para]
 
-[emph {Are there any limitations on destructor arguments?}]
-[para]
-
-
+[subsection {Are there any limitations on destructor arguments?}]
 
 Yes; a destructor has no explicit arguments.
 
-[para]
-[emph {What implicit arguments are passed to the destructor?}]
-[para]
 
-
+[subsection {What implicit arguments are passed to the destructor?}]
 
 The destructor gets the same implicit arguments that are passed to
 [term {instance methods}]: [var type], [var selfns], [var win], and
 [var self].
 
-[para]
-[emph {Must components be destroyed explicitly?}]
-[para]
 
-
+[subsection {Must components be destroyed explicitly?}]
 
 Yes and no.
 
@@ -2020,10 +1779,7 @@ explicitly in a destructor.
 
 [section COMPONENTS]
 
-[emph {What is a component?}]
-[para]
-
-
+[subsection {What is a component?}]
 
 Often an object will create and manage a number of other objects.  One
 example is a Snit megawidget that composes a number of Tk widgets.
@@ -2037,11 +1793,8 @@ components of a Snit object are those objects created by it to which
 methods and options can be delegated.  See [sectref DELEGATION] for
 more information about delegation.
 
-[para]
-[emph {How do I create a component?}]
-[para]
 
-
+[subsection {How do I create a component?}]
 
 First, you must decide what role a component plays within your object,
 and give the role a name.  For example, suppose your [cmd dog] object
@@ -2078,9 +1831,8 @@ The above example shows one way to delegate the [method wag] method to
 the [var mytail] component; see [sectref DELEGATION] for an easier way.
 
 
-[para]
-[emph {How is a component named?}]
-[para]
+
+[subsection {How is a component named?}]
 
 A component has two names.  The first name represents the role the
 component object plays within the Snit object.  This is the component
@@ -2096,10 +1848,8 @@ the "mytail" component's object name is chosen automatically by Snit
 since %AUTO% was used when the component object was created.
 
 
-[para]
-[emph {What does the install command do?}]
-[para]
 
+[subsection {What does the install command do?}]
 
 The [cmd install] command creates the component using the specified
 command ([cmd {tail %AUTO% -partof $self}]), and assigns the result to
@@ -2113,17 +1863,14 @@ command shown above is equivalent to the following command:
 [para]
 
 For [cmd snit::widget]s and [cmd snit::widgetadaptor]s, however, the
-[cmd install]> command also queries [emph {the Tk option database}]
+[cmd install]> command also queries [sectref {THE TK OPTION DATABASE}]
 and initializes the component's options accordingly.  For consistency,
 it's a good idea to get in the habit of using [cmd install] for all
 components.
 
 
-[para]
-[emph {Are there any limitations on component names?}]
-[para]
 
-
+[subsection {Are there any limitations on component names?}]
 
 Yes.  [cmd snit::widget] and [cmd snit::widgetadaptor] have a special
 component called the [var hull] component; thus, the name [var hull]
@@ -2134,9 +1881,8 @@ should be used for no other purpose.
 Component names are in fact instance variable names, and so follow the
 rules for [term {instance variables}].
 
-[para]
-[emph {Are there any limitations on component object names?}]
-[para]
+
+[subsection {Are there any limitations on component object names?}]
 
 Yes.
 
@@ -2203,11 +1949,8 @@ component's object name on the type's name in some way:
 This isn't as safe, but should usually work out okay.
 
 
-[para]
-[emph {Must I destroy the components I create?}]
-[para]
 
-
+[subsection {Must I destroy the components I create?}]
 
 That depends.  When a parent widget is destroyed, all child widgets
 are destroyed automatically.
@@ -2248,9 +1991,8 @@ Note that this code assumes that [cmd tail] is also a
 way.
 
 
-[para]
-[emph {Can I expose a component's object command as part of my interface?}]
-[para]
+
+[subsection {Can I expose a component's object command as part of my interface?}]
 
 Yes, and there are two ways to do it.  The most appropriate way is
 usually to use [sectref DELEGATION].  Delegation allows you to pass
@@ -2264,10 +2006,8 @@ However, there are times when it's appropriate, not to mention
 simpler, just to make the entire component part of your type's public
 interface.
 
-[para]
-[emph {How do I expose a component's object command?}]
-[para]
 
+[subsection {How do I expose a component's object command?}]
 
 Use the [cmd expose] statement.  For example, suppose you're creating
 a combobox megawidget which owns a listbox widget, and you want to
@@ -2334,10 +2074,7 @@ combobox .mycombo
 
 [section DELEGATION]
 
-[emph {What is delegation?}]
-[para]
-
-
+[subsection {What is delegation?}]
 
 Delegation, simply put, is when you pass a task you've been given to
 one of your assistants.  (You do have assistants, don't you?)  Snit
@@ -2391,16 +2128,13 @@ all about.  See the following answers for the easy way to do it.
 [para]
 
 Note that the constructor calls the [method configurelist] method
-[emph after] it creates its [cmd tail]; otherwise,
+[cmd after] it creates its [cmd tail]; otherwise,
 
 if [option -taillength] appeared in the list of [var args] we'd get an
 error.
 
-[para]
-[emph {How can I delegate a method to a component object?}]
-[para]
 
-
+[subsection {How can I delegate a method to a component object?}]
 
 Delegation occurs frequently enough that Snit makes it easy. Any
 method can be delegated to any component by placing a single
@@ -2453,11 +2187,8 @@ Note also that you can define a method name using the [cmd method]
 statement, or you can define it using [cmd delegate]; you can't do
 both.
 
-[para]
-[emph {Can I delegate to a method with a different name?}]
-[para]
 
-
+[subsection {Can I delegate to a method with a different name?}]
 
 Suppose the [cmd tail] object has a [cmd wiggle] method instead of a
 [cmd wag] method, and you want to delegate the [cmd dog]'s [cmd wag]
@@ -2488,8 +2219,7 @@ method to the [cmd tail]'s [cmd wiggle] method.  It's easily done:
 [para]
 
 
-[emph {Can I delegate to a method with additional arguments?}]
-[para]
+[subsection {Can I delegate to a method with additional arguments?}]
 
 Suppose the [cmd tail] object has a [method wag] method
 that takes as an argument the number of times the tail should be
@@ -2524,10 +2254,7 @@ that the tail should be wagged three times.  It's easily done:
 }]
 [para]
 
-[emph {How can I delegate an option to a component object?}]
-[para]
-
-
+[subsection {How can I delegate an option to a component object?}]
 
 The first question in this section (see [sectref DELEGATION]) shows
 one way to delegate an option to a component; but this pattern occurs
@@ -2571,11 +2298,8 @@ Note that you can define an option name using the [cmd option]
 statement, or you can define it using [cmd delegate]; you can't do
 both.
 
-[para]
-[emph {Can I delegate to an option with a different name?}]
-[para]
 
-
+[subsection {Can I delegate to an option with a different name?}]
 
 In the previous answer we delegated the [cmd dog]'s [option -length]
 option down to its [cmd tail].  This is, of course, wrong.  The dog
@@ -2606,10 +2330,7 @@ option, but delegate it to the [cmd tail]'s [option -length] option:
 }]
 [para]
 
-[emph {How can I delegate any unrecognized method or option to a component object?}]
-[para]
-
-
+[subsection {How can I delegate any unrecognized method or option to a component object?}]
 
 It may happen that a Snit object gets most of its behavior from one of
 its components.  This often happens with [cmd snit::widgetadaptors],
@@ -2659,9 +2380,8 @@ It gets anything [cmd dog] doesn't recognize--and if it doesn't
 recognize it either, it will simply throw an error, just as it should.
 
 
-[para]
-[emph {How can I delegate all but certain methods or options to a component?}]
-[para]
+
+[subsection {How can I delegate all but certain methods or options to a component?}]
 
 In the previous answer, we said that every [cmd dog] is
 an [cmd animal] by delegating all unknown methods and options to the
@@ -2703,10 +2423,7 @@ so we exclude those [cmd animal] methods as shown.
 
 [section WIDGETS]
 
-[emph {What is a snit::widget?}]
-[para]
-
-
+[subsection {What is a snit::widget?}]
 
 A [cmd snit::widget] is the Snit version of what Tcl programmers
 usually call a [term megawidget]: a widget-like object usually
@@ -2718,11 +2435,8 @@ A [cmd snit::widget] is also a special kind of [cmd snit::type].  Just
 about everything in this FAQ list that relates to [cmd snit::types]
 also applies to [cmd snit::widgets].
 
-[para]
-[emph {How do I define a snit::widget?}]
-[para]
 
-
+[subsection {How do I define a snit::widget?}]
 
 [cmd snit::widgets] are defined using the [cmd snit::widget] command,
 just as [cmd snit::types] are defined by the [cmd snit::type] command.
@@ -2732,11 +2446,8 @@ just as [cmd snit::types] are defined by the [cmd snit::type] command.
 The body of the definition can contain all of the same kinds of
 statements, plus a couple of others which will be mentioned below.
 
-[para]
-[emph {How do snit::widgets differ from snit::types?}]
-[para]
 
-
+[subsection {How do snit::widgets differ from snit::types?}]
 
 [list_begin bullet]
 [bullet]
@@ -2768,14 +2479,13 @@ contained within this frame.
 [bullet]
 
 [cmd snit::widget]s can have their options receive default values from
-[emph {the Tk option database}].
+[sectref {THE TK OPTION DATABASE}].
 
 [list_end]
 
 
-[para]
-[emph {What is a hull component?}]
-[para]
+
+[subsection {What is a hull component?}]
 
 Snit can't create a Tk widget object; only Tk can do that.
 
@@ -2800,9 +2510,8 @@ that any kind of widget can be used as the hull component; see
 [sectref {WIDGET ADAPTORS}].
 
 
-[para]
-[emph {How can I set the hull type for a snit::widget?}]
-[para]
+
+[subsection {How can I set the hull type for a snit::widget?}]
 
 A [cmd snit::widget]'s hull component will usually be a Tk [cmd frame]
 widget; however, it may also be a [cmd toplevel] widget.  You can
@@ -2822,11 +2531,8 @@ command in the widget definition:
 If no [cmd hulltype] command appears, the hull will be a [cmd frame].
 
 
-[para]
-[emph {How should I name widgets which are components of a snit::widget?}]
-[para]
 
-
+[subsection {How should I name widgets which are components of a snit::widget?}]
 
 Every widget, whether a genuine Tk widget or a Snit megawidget, has to
 have a valid Tk window name.  When a [cmd snit::widget] is first
@@ -2868,12 +2574,9 @@ file.
 
 [para]
 
-[section WIDGETADAPTORS]
+[section {WIDGET ADAPTORS}]
 
-[emph {What is a snit::widgetadaptor?}]
-[para]
-
-
+[subsection {What is a snit::widgetadaptor?}]
 
 A [cmd snit::widgetadaptor] is a kind of [cmd snit::widget].  Whereas
 a [cmd snit::widget]'s hull is automatically created and is always a
@@ -2886,11 +2589,8 @@ defined using some other package.
 It's called a [term {widget adaptor}] because it allows you to take an
 existing widget and customize its behavior.
 
-[para]
-[emph {How do I define a snit::widgetadaptor?}]
-[para]
 
-
+[subsection {How do I define a snit::widgetadaptor?}]
 
 Using the [cmd snit::widgetadaptor] command.  The definition for a
 [cmd snit::widgetadaptor] looks just like that for a [cmd snit::type]
@@ -2955,9 +2655,8 @@ installing a hull component.  Any attempt to pass methods to $self
 prior to calling [cmd installhull] will fail.
 
 
-[para]
-[emph {Can I adapt a widget created by someone else?}]
-[para]
+
+[subsection {Can I adapt a widget created by someone else?}]
 
 Yes.
 
@@ -2991,9 +2690,7 @@ of the [cmd installhull] command for this purpose:
 
 [section {THE TK OPTION DATABASE}]
 
-[emph {What is the Tk option database?}]
-[para]
-
+[subsection {What is the Tk option database?}]
 
 The Tk option database is a database of default option values
 maintained by Tk itself; every Tk application has one.  The concept of
@@ -3049,10 +2746,8 @@ The interaction of Tk widgets with the option database is a complex
 thing; the interaction of Snit with the option database is even more
 so, and repays attention to detail.
 
-[para]
-[emph {Do snit::types use the Tk option database?}]
-[para]
 
+[subsection {Do snit::types use the Tk option database?}]
 
 No, they don't; querying the option database requires a Tk window
 name, and [cmd snit::type]s don't have one.
@@ -3063,10 +2758,8 @@ Only [cmd snit::widget]s and [cmd snit::widgetadaptor]s query the
 option database.
 
 
-[para]
-[emph {What is my snit::widget's widget class?}]
-[para]
 
+[subsection {What is my snit::widget's widget class?}]
 
 Every Tk widget has a "widget class": a name that is used when adding
 option settings to the database.  For Tk widgets, the widget class is
@@ -3107,10 +2800,8 @@ same widget class as an ordinary [cmd text] widget.  This might or
 might not be a good idea, depending on how the rest of the megawidget
 is defined, and how its options are delegated.
 
-[para]
-[emph {What is my snit::widgetadaptor's widget class?}]
-[para]
 
+[subsection {What is my snit::widgetadaptor's widget class?}]
 
 The widget class of a [cmd snit::widgetadaptor] is just the widget
 class of its hull widget; Snit has no control over this.
@@ -3127,10 +2818,8 @@ Try to use [cmd snit::widgetadaptor]s only to make small modifications
 to another widget's behavior.  Then, it will usually not make sense to
 change the widget's widget class anyway.
 
-[para]
-[emph {What are option resource and class names?}]
-[para]
 
+[subsection {What are option resource and class names?}]
 
 Every Tk widget option has three names: the option name, the resource
 name, and the class name.
@@ -3162,10 +2851,8 @@ widget options:
 As is easily seen, sometimes the resource and class names can be
 inferred from the option name, but not always.
 
-[para]
-[emph {What are the resource and class names for my megawidget's options?}]
-[para]
 
+[subsection {What are the resource and class names for my megawidget's options?}]
 
 For options implicitly delegated to a component using
 
@@ -3252,10 +2939,8 @@ as for the built-in Tk widgets.  This is easily done:
 }]
 
 
-[para]
-[emph {How does Snit initialize my megawidget's locally-defined options?}]
-[para]
 
+[subsection {How does Snit initialize my megawidget's locally-defined options?}]
 
 The option database is queried for each of the megawidget's
 locally-defined options, using the option's resource and class name.
@@ -3281,18 +2966,14 @@ the entry added to the option database it defaults to "pebbled".
 However, the caller has explicitly overridden the default, and so the
 new widget will be "greasy".
 
-[para]
-[emph {How does Snit initialize delegated options?}]
-[para]
 
+[subsection {How does Snit initialize delegated options?}]
 
 That depends on whether the options are delegated to the hull, or to
 some other component.
 
-[para]
-[emph {How does Snit initialize options delegated to the hull?}]
-[para]
 
+[subsection {How does Snit initialize options delegated to the hull?}]
 
 A [cmd snit::widget]'s hull is a widget, and given that its class has
 been set it is expected to query the option database for itself.  The
@@ -3415,10 +3096,8 @@ to call [cmd installhull] like this:
 This form still works--but Snit will not query the option database as
 described above.
 
-[para]
-[emph {How does Snit initialize options delegated to other components?}]
-[para]
 
+[subsection {How does Snit initialize options delegated to other components?}]
 
 For hull components, Snit assumes that Tk will do most of the work
 automatically.  Hull components are somewhat more complicated, because
@@ -3508,9 +3187,8 @@ queries the option database and configures the component accordingly.
 You don't really need to know all of this; just use [cmd install] to
 install your components, and Snit will try to do the right thing.
 
-[para]
-[emph {What happens if I install a non-widget as a component of widget?}]
-[para]
+
+[subsection {What happens if I install a non-widget as a component of widget?}]
 
 A [cmd snit::type] never queries the option database.
 
@@ -3528,9 +3206,8 @@ syntax.  If it doesn't, don't use [cmd install].
 [para]
 
 
-[para]
-[emph {Can I adapt widgets from other megawidget packages?}]
-[para]
+
+[subsection {Can I adapt widgets from other megawidget packages?}]
 
 Yes.
 

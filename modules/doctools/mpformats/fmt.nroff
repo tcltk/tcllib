@@ -89,7 +89,8 @@ c_pass 2 fmt_manpage_end {} {
 
 proc fmt_postprocess {nroff} {return [nroff_postprocess $nroff]}
 
-proc fmt_section {name} {return [nr_section $name]}
+proc fmt_section    {name} {return [nr_section $name]}
+proc fmt_subsection {name} {return [nr_subsection $name]}
 proc fmt_para {} {nr_p}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP

@@ -197,29 +197,23 @@ proc gendoc {fmt ext args} {
     if {![string compare $fmt null]} {set null 1}
     if {[llength $args] == 0} {set args [modules]}
 
-    set mpe [file join $distribution modules doctools mpexpand]
-    if {$tcl_platform(platform) != "unix"} {
-        set mpe [list [info nameofexecutable] $mpe]
-    }
-    set ::env(TCLLIBPATH) [file join $distribution modules]
-
     if {!$null} {
 	file mkdir [file join doc $fmt]
     }
 
+    #package require doctools
+    if {[catch {package present doctools}]} {
+	uplevel #0 [list source [file join $distribution modules doctools doctools.tcl]]
+    }
+
     foreach m $args {
+	::doctools::new dt \
+		-format $fmt \
+		-module $m
+
 	set fl [glob -nocomplain [file join $distribution modules $m *.man]]
 	if {[llength $fl] == 0} {continue}
 
-	if {$null} {
-	    set tmp    [open [set tmpname [file rootname [info script]].tmp.[pid]] w]
-	    set target -
-	    set stdout $tmp
-	    set stderr $tmp
-	} else {
-	    set stdout stdout
-	    set stderr stderr
-	}
 	foreach f $fl {
 	    if {!$null} {
                 set target [file join doc $fmt \
@@ -231,20 +225,28 @@ proc gendoc {fmt ext args} {
 	    }
 	    puts "Gen ($fmt): $f"
 
-	    set     cmd $mpe
-	    lappend cmd -module $m
-	    if {$null} {lappend cmd -deprecated}
-	    lappend cmd $fmt $f $target >@ $stdout 2>@ $stderr
+	    dt configure -file $f
+	    if {$null} {
+		dt configure -deprecated 1
+	    }
+
 	    if {[catch {
-		eval exec $cmd
+		set data [dt format [get_input $f]]
 	    } msg]} {
 		puts $msg
+		continue
+	    }
+
+	    set warnings [dt warnings]
+	    if {[llength $warnings] > 0} {
+		puts stderr [join $warnings \n]
+	    }
+
+	    if {!$null} {
+		write_out $target $data
 	    }
 	}
-	if {$null} {
-	    catch {close $tmp}
-	    catch {file delete -force $tmpname}
-	}
+	dt destroy
     }
 }
 
@@ -471,7 +473,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.26 2004/04/16 09:32:36 patthoyts Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.27 2004/05/15 05:31:57 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -829,6 +831,12 @@ proc run-procheck {args} {
 }
 
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
+
+proc write_out {f text} {
+    catch {file delete -force $f}
+    puts -nonewline [set of [open $f w]] $text
+    close $of
+}
 
 
 proc gd-gen-packages {} {

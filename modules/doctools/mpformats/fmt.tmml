@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.17 2004/05/04 22:10:20 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.18 2004/05/15 05:31:57 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -107,7 +107,7 @@ c_pass 2 fmt_description {} {
 	;
 }
 
-c_pass 1 fmt_section {name} { set ::SectionNames($name) [c_sectionId $name] }
+c_pass 1 fmt_section {name} {c_newSection $name 1 end}
 c_pass 2 fmt_section {name} {
     sequence \
 	[xmlContext manpage] \
@@ -115,6 +115,16 @@ c_pass 2 fmt_section {name} {
 	[wrap [string toupper $name] title] \
 	;
 }
+
+c_pass 1 fmt_subsection {name} {c_newSection $name 2 end}
+c_pass 2 fmt_subsection {name} {
+    sequence \
+	[xmlContext section] \
+    	[start subsection id [c_sectionId $name]] \
+	[wrap [string toupper $name] title] \
+	;
+}
+
 c_pass 1 fmt_para {} NOP
 c_pass 2 fmt_para {} { sequence [xmlContext section] [start p] }
 
