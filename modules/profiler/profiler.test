@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.15 2004/02/14 05:59:21 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.test,v 1.16 2005/03/30 22:45:11 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -151,6 +151,65 @@ test profiler-3.1 {profiler wrappers do profiling} {
     array set foo $bar(::foo)
     list callCount $foo(callCount) callerDist $foo(callerDist)
 } [list callCount 4 callerDist [list GLOBAL 4]]
+
+test profiler::leaveHandler::initialize_descendent_time {} {
+    # Verify that the profiler tracks descendent time correctly.  We'll make
+    # a simple call tree, foo -> bar, then invoke foo, then check the profiler
+    # stats to see that _some_ descendent time has been logged for the call 
+    # to bar.  We won't be able to predict exactly how much time will get 
+    # billed there, but it should be non-zero.
+
+    set c [interp create]
+    interp alias $c parentSet {} set
+    array set stats [lindex [$c eval {
+	set auto_path [parentSet auto_path]
+	package require profiler
+
+	profiler::init
+	proc ::foo {} {
+	    ::bar
+	}
+        proc ::bar {} {
+            after 300
+        }
+	foo
+
+	profiler::dump ::foo
+    }] 1]
+    interp delete $c
+    list descendantTime [expr {$stats(descendantTime) > 0}]
+} {descendantTime 1}
+test profiler::leaveHandler::increment_descendent_time {} {
+    # Verify that the profiler increments descendent time each time a
+    # a descendent is invoked.  We'll make a simple call tree, foo -> bar, then
+    # invoke foo, check the descendent time for foo, then invoke foo again and
+    # check the descendent time again.  It should have been incremented after
+    # the second call.
+
+    set c [interp create]
+    interp alias $c parentSet {} set
+    set result [$c eval {
+	set auto_path [parentSet auto_path]
+	package require profiler
+	profiler::init
+	proc ::foo {} {
+	    ::bar
+	}
+        proc ::bar {} {
+            after 300
+        }
+	foo
+        array set stats [lindex [profiler::dump ::foo] 1]
+        set before $stats(descendantTime)
+        foo
+        array set stats [lindex [profiler::dump ::foo] 1]
+        set after $stats(descendantTime)
+        list before [expr {$before - $before}] \
+            after [expr {($after - $before) > 0}]
+    }]
+    interp delete $c
+    set result
+} {before 0 after 1}
 
 test profiler-4.1 {profiler::print produces nicer output than dump} {
     set c [interp create]
