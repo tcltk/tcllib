@@ -94,6 +94,50 @@ proc ::math::special::J1/2 {x} {
    }
 }
 
+# I_n --
+#    Compute the modified Bessel function of the first kind
+#
+# Arguments:
+#    n            Order of the function (must be positive integer or zero)
+#    x            Abscissa at which to compute it
+# Result:
+#    Value of In(x)
+# Note:
+#    This relies on Miller's algorithm for finding minimal solutions
+#
+namespace eval ::math::special {}
+
+proc ::math::special::I_n {n x} {
+   if { ! [string is integer $n] || $n < 0 } {
+      error "Wrong order: must be positive integer or zero"
+   }
+
+   set n2 [expr {$n+8}]  ;# Note: just a guess that this will be enough
+
+   set ynp1 0.0
+   set yn   1.0
+   set sum  1.0
+
+   while { $n2 > 0 } {
+      set ynm1 [expr {$ynp1+2.0*$n2*$yn/$x}]
+      set sum  [expr {$sum+$ynm1}]
+      if { $n2 == $n+1 } {
+         set result $ynm1
+      }
+      set ynp1 $yn
+      set yn   $ynm1
+      incr n2 -1
+   }
+
+   set quotient [expr {(2.0*$sum-$ynm1)/exp($x)}]
+
+   expr {$result/$quotient}
+}
+
+
+
+
+
 #
 # Announce the package
 #
@@ -102,8 +146,12 @@ package provide math::special 0.1
 # some tests --
 #
 if { 0 } {
+set tcl_precision 17
 foreach x {0.0 2.0 4.4 6.0 10.0 11.0 12.0 13.0 14.0} {
    puts "J0($x) = [::math::special::J0 $x] - J1($x) = [::math::special::J1 $x] \
 - J1/2($x) = [::math::special::J1/2 $x]"
+}
+foreach n {0 1 2 3 4 5} {
+   puts [::math::special::I_n $n 1.0]
 }
 }
