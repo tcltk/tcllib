@@ -1,3 +1,9 @@
+2005-04-01  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl: added comments, bumped version number because of
+	potential incompatibility due to inverting the return value
+	of isJPEG.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

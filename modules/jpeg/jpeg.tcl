@@ -7,31 +7,42 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.8 2004/10/05 19:15:52 andreas_kupries Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.9 2005/04/02 02:57:46 afaupell Exp $
 
-package provide jpeg 0.1
+package provide jpeg 0.2
 
 namespace eval ::jpeg {}
 
+# open a file, check jpeg signature, and a return a file handle
+# at the start of the first marker
 proc ::jpeg::openJFIF {file {mode r}} {
     set fh [open $file $mode]
     fconfigure $fh -encoding binary -translation binary -eofchar {}
+    # jpeg sig is FFD8, FF is start of first marker
     if {[read $fh 3] != "\xFF\xD8\xFF"} { close $fh; return -code error "not a jpg file" }
+    # rewind to first marker
     seek $fh -1 current
     return $fh
 }
 
+# return a boolean indicating if a file starts with the jpeg sig
 proc ::jpeg::isJPEG {file} {
     set is [catch {openJFIF $file} fh]
     catch {close $fh}
-    return $is
+    return [expr {!$is}]
 }
 
+# takes an open filehandle at the start of a jpeg marker, and returns a list
+# containing information about the file markers in the jpeg file. each list
+# element itself a list of the marker type, offset of the start of its data,
+# and the length of its data.
 proc ::jpeg::markers {fh} {
     set chunks [list]
     while {[read $fh 1] == "\xFF"} {
         binary scan [read $fh 3] H2S type len
+        # convert to unsigned
         set len [expr {$len & 0x0000FFFF}]
+        # decrement len to account for marker bytes
         incr len -2
         lappend chunks [list $type [tell $fh] $len]
         seek $fh $len current
@@ -54,6 +65,7 @@ proc ::jpeg::imageInfo {file} {
     return $data
 }
 
+# return an images dimensions by reading the Start Of Frame marker
 proc ::jpeg::dimensions {file} {
     set fh [openJFIF $file]
     set sof [lsearch -inline [markers $fh] "c0 *"]
@@ -63,6 +75,7 @@ proc ::jpeg::dimensions {file} {
     return [list $width $height]
 }
 
+# returns a list of all comments (FE segments) in the file
 proc ::jpeg::getComments {file} {
     set fh [openJFIF $file]
     set comments {}
@@ -74,16 +87,20 @@ proc ::jpeg::getComments {file} {
     return $comments
 }
 
+# add a new comment to the file
 proc ::jpeg::addComment {file comment args} {
     set fh [openJFIF $file r+]
+    # find the SoF and save all data after it
     set sof [lsearch -inline [markers $fh] "c0 *"]
     seek $fh [expr {[lindex $sof 1] - 4}] start
     set data2 [read $fh]
+    # seek back to the SoF and write comment(s) segment
     seek $fh [expr {[lindex $sof 1] - 4}] start
     foreach x [linsert $args 0 $comment] {
         if {$x == ""} continue
         puts -nonewline $fh [binary format a2Sa* "\xFF\xFE" [expr {[string length $x] + 2}] $x]
     }
+    # write the saved data bac
     puts -nonewline $fh $data2
     close $fh
 }
@@ -94,11 +111,13 @@ proc ::jpeg::replaceComment {file comment} {
     eval [list addComment $file] [lreplace $com 0 0 $comment]
 }
 
+# removes all comment segments from the file
 proc ::jpeg::removeComments {file} {
     set fh [openJFIF $file]
     set data "\xFF\xD8"
     foreach marker [markers $fh] {
         if {[lindex $marker 0] != "fe"} {
+            # seek back 4 bytes to include the marker and length bytes
             seek $fh [expr {[lindex $marker 1] - 4}] start
             append data [read $fh [expr {[lindex $marker 2] + 4}]]
         }
@@ -110,11 +129,13 @@ proc ::jpeg::removeComments {file} {
     close $fh
 }
 
+# rewrites a jpeg file and removes all metadata (comments, exif, photoshop)
 proc ::jpeg::stripJPEG {file} {
     set fh [openJFIF $file]
     set data {}
     
     set markers [markers $fh]
+    # look for a jfif header segment and save it
     if {[lindex $markers 0 0] == "e0"} {
         seek $fh [lindex $markers 0 1] start
         if {[read $fh 5] == "JFIF\x00"} {
@@ -122,10 +143,12 @@ proc ::jpeg::stripJPEG {file} {
             set jfif [read $fh [expr {[lindex $markers 0 2] + 4}]]
         }
     }
+    # if we dont have a jfif header (exif files), create a fake one
     if {![info exists jfif]} {
         set jfif [binary format a2Sa5cccSScc "\xFF\xE0" 16 "JFIF\x00" 1 2 1 72 72 0 0]
     }
 
+    # remove all the e* and f* markers (metadata)
     foreach marker $markers {
         if {![string match {[ef]*} [lindex $marker 0]]} {
             seek $fh [expr {[lindex $marker 1] - 4}] start
@@ -136,11 +159,15 @@ proc ::jpeg::stripJPEG {file} {
 
     close $fh
     set fh [open $file w+]
+    # write a jpeg file sig, a jfif header, and all the remaining data
     puts -nonewline $fh \xFF\xD8$jfif$data
     close $fh
 }
 
+# if file contains a jpeg thumbnail return it. the returned data is the actual
+# jpeg data, it can be written directly to a file
 proc ::jpeg::getThumbnail {file} {
+    # check if the exif information contains a thumbnail
     array set exif [getExif $file thumbnail]
     if {[info exists exif(Compression)] && \
              $exif(Compression) == 6 && \
@@ -152,10 +179,12 @@ proc ::jpeg::getThumbnail {file} {
         close $fh
         return $thumb
     }
+    # check for a JFXX segment which contains a thumbnail
     set fh [openJFIF $file]
     foreach x [lsearch -inline -all [markers $fh] "e0 *"] {
         seek $fh [lindex $x 1] start
         binary scan [read $fh 6] a5H2 id excode
+        # excode 10 is jpeg encoding, we cant interpret the other types
         if {$id == "JFXX\x00" && $excode == "10"} {
             set thumb [read $fh [expr {[lindex $x 2] - 6}]]
             close $fh
@@ -165,6 +194,9 @@ proc ::jpeg::getThumbnail {file} {
     close $fh
 }
 
+
+# takes key-value pairs returned by getExif and converts their values into
+# human readable format
 proc ::jpeg::formatExif {exif} {
     variable exif_values
     set out {}
@@ -198,6 +230,7 @@ proc ::jpeg::formatExif {exif} {
     return $out
 }
 
+# returns a list of all known exif keys
 proc ::jpeg::exifKeys {} {
     variable exif_tags
     set ret {}
@@ -207,10 +240,14 @@ proc ::jpeg::exifKeys {} {
 
 proc ::jpeg::getExif {file {type main}} {
     set fh [openJFIF $file]
+    # foreach because file may have multiple e1 markers
     foreach app1 [lsearch -inline -all [markers $fh] "e1 *"] {
         seek $fh [lindex $app1 1] start
+        # check that this e1 is really an Exif segment
         if {[read $fh 6] != "Exif\x00\x00"} continue
+        # save offset because exif offsets are relative to this
         set start [tell $fh]
+        # next 2 bytes determine byte order
         binary scan [read $fh 2] H4 byteOrder
         if {$byteOrder == "4d4d"} {
             set byteOrder big
@@ -220,16 +257,21 @@ proc ::jpeg::getExif {file {type main}} {
             close $fh
             return
         }
+        # the answer is 42, if we have our byte order correct
         _scan $byteOrder [read $fh 6] si magic next
         if {$magic != 42} { close $fh; return }
         seek $fh [expr {$start + $next}] start
         if {$type != "thumbnail"} {
             set data [_exif $fh $byteOrder $start]
         } else {
+            # number of entries in this exif block
             _scan $byteOrder [read $fh 2] s num
+            # each entry is 12 bytes
             seek $fh [expr {$num * 12}] current
+            # offset of next exif block (for thumbnail)
             _scan $byteOrder [read $fh 4] i next
             if {$next <= 0} { close $fh; return }
+            # but its relative to start
             seek $fh [expr {$start + $next}] start
             set data [_exif $fh $byteOrder $start]
         }
@@ -303,6 +345,7 @@ proc ::jpeg::_exif2 {data} {
     }
 }
 
+# reads an exif block and returns key-value pairs
 proc ::jpeg::_exif {fh byteOrder offset} {
     variable exif_formats
     variable exif_tags
@@ -316,6 +359,7 @@ proc ::jpeg::_exif {fh byteOrder offset} {
             set tag $t2$t1
         }
         set value [read $fh 4]
+        # special tags, they point to more exif blocks
         if {$tag == "8769" || $tag == "a005"} {
             _scan $byteOrder $value i next
             set pos [tell $fh]
@@ -327,6 +371,8 @@ proc ::jpeg::_exif {fh byteOrder offset} {
         if {![info exists exif_formats($format)]} continue
         if {[info exists exif_tags($tag)]} { set tag $exif_tags($tag) }
         set size [expr {$exif_formats($format) * $components}]
+        # if the data is over 4 bytes, its stored later in the file, with the
+        # data being the offset relative to the exif header
         if {$size > 4} {
             set pos [tell $fh]
             _scan $byteOrder $value i value
@@ -631,7 +677,7 @@ array set ::jpeg::exif_tags {
     9216 TIFF/EPStandardID
 }
 
-# for mapping read values to plain english names by [formatExif]
+# for mapping exif values to plain english by [formatExif]
 array set ::jpeg::exif_values {
     Compression,1 none
     Compression,6 JPEG
@@ -810,6 +856,7 @@ array set ::jpeg::exif_values {
     FileSource,                 unknown
 }
 
+# [binary scan], in the byte order indicated by $e
 proc ::jpeg::_scan {e v f args} {
      foreach x $args { upvar 1 $x $x }
      if {$e == "big"} {
@@ -819,6 +866,10 @@ proc ::jpeg::_scan {e v f args} {
      }
 }
 
+
+# formats exif values, the numbers correspond to data types
+# values may be either byte order, as indicated by $end
+# see the exif spec for more info
 proc ::jpeg::_format {end value type num} {
     if {$num > 1 && $type != 2 && $type != 7} {
         variable exif_formats
