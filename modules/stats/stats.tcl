@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.1 2000/09/19 15:03:39 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.2 2000/09/20 00:21:26 welch Exp $
 
 package provide stats 1.0
 
@@ -149,7 +149,7 @@ proc stats::countInit {tag args} {
 	    -group {
 		# Cluster a set of counters with a single total
 
-		upvar #0 stats::G-$tag group
+		upvar #0 stats::H-$tag histogram
 		set counter(group) $value
 	    }
 	    -lastn {
@@ -220,6 +220,7 @@ proc stats::countReset {tag args} {
     upvar #0 stats::T-$tag counter
     set counter(N) 0	;# Number of samples
     set counter(total) 0
+    set counter(resetDate) [clock seconds]
 
     # With an empty type the counter is a simple accumulator
     # for which we can compute an average.  Here we loop through
@@ -232,9 +233,9 @@ proc stats::countReset {tag args} {
 	    return
 	}
 	-group {
-	    upvar #0 stats::G-$tag vector
-	    if {[info exist vector]} {
-		unset vector
+	    upvar #0 stats::H-$tag histogram
+	    if {[info exist histogram]} {
+		unset histogram
 	    }
 	}
 	-lastn {
@@ -293,12 +294,12 @@ proc stats::count {tag {delta 1} args} {
 		return
 	    }
 	    -group {
-		upvar #0 stats::G-$tag vector
+		upvar #0 stats::H-$tag histogram
 		set subIndex [lindex $args 0]
-		if {![info exists vector($subIndex)]} {
-		    set vector($subIndex) 0
+		if {![info exists histogram($subIndex)]} {
+		    set histogram($subIndex) 0
 		}
-		set vector($subIndex) [expr {$vector($subIndex) + $delta}]
+		set histogram($subIndex) [expr {$histogram($subIndex) + $delta}]
 	    }
 	    -lastn {
 		upvar #0 stats::V-$tag vector
@@ -357,13 +358,32 @@ proc stats::count {tag {delta 1} args} {
     return ""
 }
 
+# stats::countExists
+#
+#	Return true if the counter exists.
+#
+# Arguments:
+#	tag	The counter identifier.
+#
+# Results:
+#	1 if it has been defined.
+#
+# Side Effects:
+#	None.
+
+proc stats::countExists {tag} {
+    upvar #0 stats::T-$tag counter
+    return [info exists counter]
+}
+
 # stats::countGet
 #
 #	Return statistics.
 #
 # Arguments:
 #	tag	The counter identifier.
-#	args	What to get
+#	option	What statistic to get
+#	args	Needed by some options.
 #
 # Results:
 #	With no args, just the counter value.
@@ -371,7 +391,7 @@ proc stats::count {tag {delta 1} args} {
 # Side Effects:
 #	None.
 
-proc stats::countGet {tag {option -total}} {
+proc stats::countGet {tag {option -total} args} {
     upvar #0 stats::T-$tag counter
     switch -- $option {
 	-total {
@@ -401,14 +421,29 @@ proc stats::countGet {tag {option -total}} {
 	}
 	-hist {
 	    upvar #0 stats::H-$tag histogram
-	    set result {}
-	    foreach x [lsort -integer [array names histogram]] {
-		lappend result $x $histogram($x)
+	    if {[llength $args]} {
+		# Return particular bucket
+		set bucket [lindex $args 0]
+		if {[info exist histogram($bucket)]} {
+		    return $histogram($bucket)
+		} else {
+		    return 0
+		}
+	    } else {
+		# Dump the whole histogram
+
+		set result {}
+		foreach x [lsort -integer [array names histogram]] {
+		    lappend result $x $histogram($x)
+		}
+		return $result
 	    }
-	    return $result
 	}
-	-histName {
+	-histVar {
 	    return stats::H-$tag
+	}
+	-totalVar {
+	    return stats::T-$tag\(total)
 	}
 	-histHour {
 	    upvar #0 stats::Hour-$tag histogram
@@ -418,7 +453,7 @@ proc stats::countGet {tag {option -total}} {
 	    }
 	    return $result
 	}
-	-histHourName {
+	-histHourVar {
 	    return stats::Hour-$tag
 	}
 	-histDay {
@@ -429,14 +464,34 @@ proc stats::countGet {tag {option -total}} {
 	    }
 	    return $result
 	}
-	-histDayName {
+	-histDayVar {
 	    return stats::Day-$tag
+	}
+	-resetDate {
+	    if {[info exists counter(resetDate)]} {
+		return $counter(resetDate)
+	    } else {
+		return ""
+	    }
 	}
 	-all {
 	    return [array get counter]
 	}
+	-allTagNames {
+	    set result {}
+	    foreach v [info vars ::stats::T-*] {
+		if {[info exist $v]} {
+		    # Declared arrays might not exist, yet
+		    regsub ::stats::T- $v {} v
+		    lappend result $v
+		}
+	    }
+	    return $result
+	}
 	default {
-	    return -code error "Invalid option $option.  Should be -all, -N, -avg, -hist, or -total."
+	    return -code error "Invalid option $option.\
+		Should be -all, -total, -N, -avg, -avgn, -hist, -histHour,\
+		-histDay, -totalVar, -histVar, -histHourVar, -histDayVar."
 	}
     }
 }
@@ -563,7 +618,10 @@ proc stats::histHtmlDisplay {tag args} {
 	-gif	Blue.gif \
 	-ongif	Red.gif \
 	-max 	-1 \
-	-format %.2f
+	-height	100 \
+	-width	4 \
+	-format %.2f \
+	-text	0
     ]
     array set options $args
 
@@ -571,7 +629,6 @@ proc stats::histHtmlDisplay {tag args} {
 	min* {
 	    upvar #0 stats::H-$tag histogram
 	    set histname stats::H-$tag
-	    set width 3
 	    if {![info exist minuteBase]} {
 		return "<!-- No time-based histograms defined -->"
 	    }
@@ -582,7 +639,6 @@ proc stats::histHtmlDisplay {tag args} {
 	hour* {
 	    upvar #0 stats::Hour-$tag histogram
 	    set histname stats::Hour-$tag
-	    set width 5
 	    if {![info exist hourBase]} {
 		return "<!-- Hour merge has not occurred -->"
 	    }
@@ -593,7 +649,6 @@ proc stats::histHtmlDisplay {tag args} {
 	day* {
 	    upvar #0 stats::Day-$tag histogram
 	    set histname stats::Day-$tag
-	    set width 5
 	    if {![info exist dayBase]} {
 		return "<!-- Hour merge has not occurred -->"
 	    }
@@ -608,17 +663,16 @@ proc stats::histHtmlDisplay {tag args} {
 	    set histname stats::H-$tag
 
 	    set unit $options(-unit)
-	    set width 4
 	    set curIndex ""
+	    set time ""
 	}
     }
     if {! [info exists histogram]} {
 	return "<!-- $histname doesn't exist -->\n"
     }
 
-    set total 0
     set max 0
-    set base 100
+    set maxName 0
     foreach {name value} [array get histogram] {
 	if {$value > $max} {
 	    set max $value
@@ -639,17 +693,22 @@ proc stats::histHtmlDisplay {tag args} {
 
 	# Value-base histogram
 
-	set mode [expr {$counter(bucketsize) * $name}]
-	append result "<h3>$options(-title), ($unit)\
-		[format $options(-format) $mode]\
-		mode,\
+	set ix [lsort -integer [array names histogram]]
+
+	set mode [expr {$counter(bucketsize) * $maxName}]
+	set first [expr {$counter(bucketsize) * [lindex $ix 0]}]
+	set last [expr {$counter(bucketsize) * [lindex $ix end]}]
+	append result "<h3>$options(-title),\
+		[format $options(-format) $first] min,\
+		[format $options(-format) $mode] mode,\
+		[format $options(-format) $last] max,\
 		[format $options(-format) [countGet $tag -avg]] average\
+		($unit)
 		</h3>"
 	append result <ul>
 
 	# Fill in holes in the histogram.
 
-	set ix [lsort -integer [array names histogram]]
 	for {set i [lindex $ix 0]} \
 		{($i < [lindex $ix end]) &&
 			(($options(-max) < 0) || ($i < $options(-max)))} \
@@ -663,6 +722,34 @@ proc stats::histHtmlDisplay {tag args} {
 
     # Display the histogram
 
+    if {$options(-text)} {
+    } else {
+	append result [eval \
+	    {stats::histHtmlDisplayBarChart $tag histogram $max $curIndex $time} \
+	    [array get options]]
+    }
+    return $result
+}
+
+# stats::histHtmlDisplayBarChart
+#
+#	Create an html display of the histogram.
+#
+# Arguments:
+#	none
+#
+# Results:
+#	none
+#
+# Side Effects:
+#	See description.
+
+proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
+    upvar #0 ::stats::T-$tag counter
+    upvar 1 $histVar histogram
+    variable secsPerMinute
+    array set options $args
+
     append result "<table cellpadding=0 cellspacing=0><tr>\n"
     append result "<td valign=top>$max</td>\n"
     set overflow 0
@@ -675,14 +762,15 @@ proc stats::histHtmlDisplay {tag args} {
 	if {[catch {expr {round($value * 100.0 / $max)}} percent]} {
 	    set height 1
 	} else {
-	    set height [expr {$percent * $base / 100}]
+	    set height [expr {$percent * $options(-height) / 100}]
 	}
 	if {$t == $curIndex} {
 	    set img src=$options(-images)/$options(-ongif)
 	} else {
 	    set img src=$options(-images)/$options(-gif)
 	}
-	append result "<td valign=bottom><img $img height=$height width=$width alt=$value></td>\n"
+	append result "<td valign=bottom><img $img height=$height\
+		width=$options(-width) alt=$value></td>\n"
     }
     append result "</tr>"
 
@@ -725,6 +813,9 @@ proc stats::histHtmlDisplay {tag args} {
 	    append result </tr>
 	}
 	default {
+	    append result "<tr><td> </td>"
+	    set skip 4
+	    set i 0
 	    foreach t [lsort -integer [array names histogram]] {
 		if {($options(-max) > 0) && ($t > $options(-max))} {
 		    break
@@ -732,14 +823,18 @@ proc stats::histHtmlDisplay {tag args} {
 
 		# Label each bucket with its hour
 
-		set label $t
-		append result "<td><font size=1>$label</font></td>"
+		set label [expr {$t * $counter(bucketsize)}]
+		if {(($i % $skip) == 0)} {
+		    append result "<td colspan=$skip><font size=1>$label</font></td>"
+		}
+		incr i
 	    }
 	}
     }
     append result "</table>"
     if {$overflow > 0} {
-	append result "<br>(skipped $overflow samples > $options(-max))\n"
+	append result "<br>Skipped $overflow samples >\
+		[expr {$options(-max) * $counter(bucketsize)}]\n"
     }
     append result </ul>
     return $result
