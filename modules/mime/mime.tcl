@@ -46,10 +46,6 @@ if {[catch {package require Trf  2.0}]} {
 		return [md5::md5 -hex $string]
 	    }
 	}
-        proc unstack {channel} {
-	    # do nothing
-	    return
-        }
     }
 
     unset major
@@ -1871,9 +1867,6 @@ proc ::mime::copymessageaux {token channel} {
 
     flush $channel
 
-    if {[string compare $converter ""]} {
-        unstack $channel
-    }
     if {[info exists state(error)]} {
         error $state(error)
     }
