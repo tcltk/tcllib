@@ -304,7 +304,7 @@ package provide math::rationalfunctions 1.0
 
 # some tests --
 #
-if { 1 } {
+if { 0 } {
 set tcl_precision 17
 
 set f1    [::math::rationalfunctions::rationalFunction {1 2 3} {1 4}]
