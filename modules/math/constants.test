@@ -1,0 +1,36 @@
+# constants.test --
+#    Test cases for the ::math::constants package
+#
+
+package require tcltest
+namespace import ::tcltest::*
+
+#package require math::constants
+source "constants.tcl"
+
+#
+# Test: do we get the constants into our namespace?
+#
+test "Constants-1.0" "Get constants into our namespace" -body {
+   ::math::constants::constants pi e
+   expr {[info exists pi] && [info exists e]}
+} -result 1
+
+test "Constants-1.1" "Get constants with the right values" -body {
+   #
+   # Only needed once!
+   #
+   #::math::constants::constants pi e
+   set result1 [expr {abs($pi-4.0*atan(1.0))<1.0e-10?1:0}]
+   set result2 [expr {abs($e-exp(1.0))<1.0e-10?1:0}]
+   expr {$result1+$result2}
+
+   # Note: this should enough accuracy!
+} -result 2
+
+#
+# No tests for print-constants defined ...
+#
+
+# End of test cases
+tcltest::cleanupTests
