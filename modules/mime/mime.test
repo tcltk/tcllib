@@ -1,0 +1,153 @@
+# mime.test - Test suite for TclMIME
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 2000 by Scriptics Corporation.
+# All rights reserved.
+#
+# RCS: @(#) $Id: mime.test,v 1.1 2000/04/26 03:24:56 sandeep Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+source [file join [file dirname [info script]] mime.tcl]
+namespace import mime::*
+
+test mime-1.1 {initialize with no args} {
+    catch {initialize} res
+    subst $res
+} {specify exactly one of -file, -parts, or -string}
+
+test mime-2.1 {Generate a MIME message} {
+    set tok [initialize -canonical "Text/plain" -string "jack and jill"]
+    set msg [mime::buildmessage $tok]
+    # The generated message is predictable except for the Content-ID
+    regexp {MIME-Version: 1.0
+Content-ID: [^\n]+
+Content-Type: text/plain
+
+jack and jill} $msg
+} 1
+
+test mime-2.2 {Generate a multi-part MIME message} {
+    set tok1 [initialize -canonical "Text/plain" -string "jack and jill"]
+    set tok2 [initialize -canonical "Text/plain" -string "james"]
+    set bigTok [mime::initialize -canonical Multipart/MyType \
+	    -param [list MyParam foo] \
+	    -param [list boundary bndry] \
+	    -header [list Content-Description "Test Multipart"] \
+	    -parts [list $tok1 $tok2]]
+    set msg [mime::buildmessage $bigTok]
+    # The generated message is predictable except for the Content-ID
+    regexp {MIME-Version: 1.0
+Content-Description: Test Multipart
+Content-ID: [^\n]+
+Content-Type: multipart/mytype;
+              boundary="bndry";
+              myparam="foo"
+
+--bndry
+MIME-Version: 1.0
+Content-ID: [^\n]+
+Content-Type: text/plain
+
+jack and jill
+--bndry
+MIME-Version: 1.0
+Content-ID: [^\n]+
+Content-Type: text/plain
+
+james
+--bndry--
+} $msg
+} 1
+
+test mime-3.1 {Parse a MIME message} {
+    set msg {MIME-Version: 1.0
+Content-Type: Text/plain
+
+I'm the message.}
+    set tok [mime::initialize -string $msg]
+    mime::getbody $tok
+} "I'm the message."
+
+test mime-3.2 {Parse a multi-part MIME message} {
+    set msg {MIME-Version: 1.0
+Content-Type: Multipart/foo; boundary="bar"
+
+--bar
+MIME-Version: 1.0
+Content-Type: Text/plain
+
+part1
+--bar
+MIME-Version: 1.0
+Content-Type: Text/plain
+
+part2
+--bar
+MIME-Version: 1.0
+Content-Type: Text/plain
+
+part3
+--bar--
+}
+
+    set tok [mime::initialize -string $msg]
+    set partToks [mime::getproperty $tok parts]
+
+    set res ""
+    foreach childTok $partToks {
+	lappend res [mime::getbody $childTok]
+    }
+    set res
+} {part1 part2 part3}
+
+test mime-3.3 {Try to parse a totally invalid message} {
+    catch {mime::initialize -string "blah"} err0
+    set err0
+} {improper line in header: blah}
+
+test mime-3.4 {Try to parse a MIME message with an invalid version} {
+    set msg1 {MIME-Version: 2.0
+Content-Type: text/plain
+
+msg1}
+
+    set tok [mime::initialize -string $msg1]
+    catch {mime::getbody $tok} err1
+    catch {mime::buildmessage $tok} err1a
+    list $err1 $err1a
+} {msg1 {MIME-Version: 2.0
+Content-Type: text/plain
+
+msg1}}
+
+test mime-3.5 {Try to parse a MIME message with no newline between headers and data} {
+    set msg2 {MIME-Version: 1.0
+Content-Type: foobar
+data without newline}
+
+    catch {mime::initialize -string $msg2} err2
+    set err2
+} {improper line in header: data without newline}
+
+test mime-3.6 {Try to parse a MIME message with no MIME version and generate a new message from it} {
+
+    # No MIME version
+    set msg3 {Content-Type: text/plain
+
+foo}
+
+    set tok [mime::initialize -string $msg3]
+    catch {mime::getbody $tok} err3
+    catch {mime::buildmessage $tok} err3a
+    list $err3 $err3a
+} {foo {MIME-Version: 1.0
+Content-Type: text/plain
+
+foo}}

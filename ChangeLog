@@ -1,3 +1,10 @@
+2000-04-25  Sandeep Tamhankar <sandeep@scriptics.com>
+
+	* modules/mime/mime.test: Added a somewhat rudimentary test suite
+	for TclMIME.  Found what I believe is a minor bug in the package,
+	but decided not to fix it (and just let the relevant test fail)
+	until I can discuss it with Brent.
+
 2000-04-25  Eric Melski  <ericm@scriptics.com>
 
 	* Makefile.in: Tweaked dist target to include README and
