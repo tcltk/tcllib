@@ -1,9 +1,9 @@
-[manpage_begin dns n 1.0.1]
+[manpage_begin dns n 1.0.2]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {dns}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
-[require dns [opt 1.0.1]]
+[require dns [opt 1.0.2]]
 [description]
 [para]
 
@@ -142,6 +142,7 @@ ok
 199.175.6.239
 % dns::name $tok
 www.tcl.tk
+% dns::cleanup $tok
 }]
 
 [para]
