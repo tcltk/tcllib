@@ -538,8 +538,8 @@ proc ::logger::import {args} {
     variable services
     
     if {[llength $args] == 0 || [llength $args] > 7} {
-    return -code error "Wrong # of arguments: \"logger::import ?-all? \
-                        ?-force? \
+    return -code error "Wrong # of arguments: \"logger::import ?-all?\
+                        ?-force?\
                         ?-prefix prefix? ?-namespace namespace? service\""
     }
     
@@ -565,8 +565,8 @@ proc ::logger::import {args} {
                      set force 1
             }
             default {
-                return -code error "Unknown argument: \"$opt\" :\n\
-                        Usage: \"logger::import ?-all? ?-force?\
+                return -code error "Unknown argument: \"$opt\" :\nUsage:\
+		        \"logger::import ?-all? ?-force?\
                         ?-prefix prefix? ?-namespace namespace? service\""
             }
         }
@@ -632,5 +632,4 @@ proc ::logger::import {args} {
         interp alias {} $target {} $source
     }
 }
-
 

@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.12 2004/09/15 21:55:36 mic42 Exp $
+# $Id: logger.test,v 1.13 2004/10/04 05:12:33 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -641,6 +641,46 @@ test logger-12.8 {import subcommand} {
      ::foo::bar::disable ::foo::bar::enable ::foo::bar::error ::foo::bar::info\
      ::foo::bar::logproc ::foo::bar::notice ::foo::bar::servicename ::foo::bar::services\
      ::foo::bar::setlevel ::foo::bar::warn}}
+
+test logger-12.9 {import subcommand, errors} {
+    set code [catch {
+    	logger::import
+	} msg]
+    list $code $msg
+} {1 {Wrong # of arguments: "logger::import ?-all? ?-force? ?-prefix prefix? ?-namespace namespace? service"}}
+
+test logger-12.10 {import subcommand, errors} {
+    set code [catch {
+    	logger::import 1 2 3 4 5 6 7 8 
+	} msg]
+    list $code $msg
+} {1 {Wrong # of arguments: "logger::import ?-all? ?-force? ?-prefix prefix? ?-namespace namespace? service"}}
+
+test logger-12.11 {import subcommand, errors} {
+    set code [catch {
+    	logger::import -foo 1 
+	} msg]
+    list $code $msg
+} {1 {Unknown argument: "-foo" :
+Usage: "logger::import ?-all? ?-force? ?-prefix prefix? ?-namespace namespace? service"}}
+
+test logger-12.12 {import subcommand, errors} {
+    set code [catch {
+    	logger::import foo 
+	} msg]
+    list $code $msg
+} {1 {Service "foo" does not exist.}}
+
+test logger-12.13 {import subcommand, errors} {
+    set l [logger::init global]
+    namespace eval ::foo {
+        proc debug {args} { }
+    }
+    set code [catch {
+    	logger::import -namespace ::foo global 
+	} msg]
+    list $code $msg
+} {1 {can't import command "::foo::debug": already exists}}
 
 ::tcltest::cleanupTests
 return
