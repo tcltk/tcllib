@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.6 2004/05/03 22:56:25 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.7 2005/04/01 05:49:55 afaupell Exp $
 
 package provide inifile 0.1
 
@@ -60,7 +60,9 @@ proc ::ini::commit {fh} {
         if { $mode == "r" } {
             error "cannot write to read-only file"
         }
-        set char $::ini::commentchar
+        ::close $channel
+        ::set channel [::open $file w]
+        ::set char $::ini::commentchar
         seek $channel 0 start
         foreach sec [array names sections] {
             if { [info exists comments($sec)] } {
@@ -78,8 +80,7 @@ proc ::ini::commit {fh} {
         }
         catch { unset char sec key }
         close $channel
-        set channel [::open $file r+]
-        set mode r+
+        ::set channel [::open $file $mode]
     }
     return
 }
