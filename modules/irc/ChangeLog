@@ -1,0 +1,4 @@
+2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* irc.n:
+	* irc.tcl: Applied patch #481477.
