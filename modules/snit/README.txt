@@ -29,6 +29,18 @@ V0.97.
   "configurelist", and "cget" instance methods or the "options" 
   instance variable.
 
+* If a snit::type's command is called without arguments, AND the type 
+  can have instances, then an instance is created using %AUTO% to 
+  create its name.  E.g., the following commands are all equivalent:
+
+    snit::type dog { ... }
+
+    set mydog [dog create %AUTO%]
+    set mydog [dog %AUTO%]
+    set mydog [dog]
+
+  This doesn't work for widgets, for obvious reasons.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
