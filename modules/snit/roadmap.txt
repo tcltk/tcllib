@@ -122,6 +122,7 @@ rather than compile time.
 ** ::snit::RT.widget.typemethod.create
 ** ::snit::RT.UniqueName
 ** ::snit::RT.UniqueInstanceNamespace
+** ::snit::RT.OptionDbGet
 * Typecomponent Management and Typemethod Caching
 ** ::snit::RT.TypecomponentTrace
 ** ::snit::RT.TypemethodCacheLookup
