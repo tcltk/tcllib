@@ -27,6 +27,7 @@ package require smtpd
 package require mime
 package require Tk
 wm withdraw .
+set _dlgid 0
 
 # Handle new mail by raising a message dialog for each recipient.
 proc deliverMIME {token} {
@@ -42,9 +43,25 @@ proc deliverMIME {token} {
 
     foreach rcpt $recipients {
         if {! [catch {eval array set addr [mime::parseaddress $rcpt]}]} {
-            tk_messageBox -title "To: $addr(address)" -message $mail
+            display "To: $addr(address)" $mail
         }
     }
+}
+
+proc display {title mail} {
+    global _dlgid
+    incr _dlgid
+    set dlg [toplevel .dlg$_dlgid]
+    set frm [frame ${dlg}.f -bd 0]
+    set txt [text ${frm}.e -yscrollcommand [list ${frm}.sb set]]
+    set scr [scrollbar ${frm}.sb -command [list $txt yview]]
+    set but [button ${dlg}.b -text "Dismiss" -command [list destroy $dlg]]
+    pack $scr -side right -fill y
+    pack $txt -side left -fill both -expand 1
+    pack $frm -side top -fill both -expand 1
+    pack $but -side bottom
+    wm title $dlg $title
+    $txt insert 0.0 $mail
 }
 
 # Accept everyone except those spammers on 192.168.1.* :)
