@@ -1,7 +1,16 @@
+2004-10-04  Andreas Kupries <andreask@activestate.com>
+
+	* htmlparse.tcl (::htmlparse::PrepareHtml): Refixed the [Tcllib SF
+	* htmlparse.test: Bug 861277]. This came back because of the
+	  changes to entity processing for [Tcllib SF Bug 1018574]. We are
+	  now using standard numeric entities to protect these special
+	  characters, instead of nonstandard entities. Extended the test
+	  suite to cover this. Thanks to Joe English for the catch.
+
 2004-10-04  Joe English  <jenglish@users.sourceforge.net>
 
 	* htmlparse.tcl(DoDecMap): Make sure numeric character references 
-	are interpreted as decimal (Bug #1039961).
+	  are interpreted as decimal (Bug #1039961).
 	* htmlparse.test: Added test case.
 
 2004-09-29  Andreas Kupries <andreask@activestate.com>

@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.13 2004/10/04 14:32:05 jenglish Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.14 2004/10/04 18:55:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -300,9 +300,63 @@ test htmlparse-6.1 {Backslashes in content} {
     set tags
 } [list \
     [list html  {} {} {}] \
-    [list p     {} {} {&bsl;}] \
+    [list p     {} {} {&#92;}] \
     [list p     /  {} {}] \
     [list html  /  {} {}] ]
+
+test htmlparse-6.2 {More backslashes in content} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<p>\\abcde</p>"
+    set tags
+} [list \
+    [list html  {} {} {}] \
+    [list p     {} {} {&#92;abcde}] \
+    [list p     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-6.3 {Substitutions from backslashes in content} {
+    htmlparse::mapEscapes {&#92;abcde}
+} {\abcde}
+
+test htmlparse-6.4 {$ in content} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html {<p>$abcde</p>}
+    set tags
+} [list \
+    [list html  {} {} {}] \
+    [list p     {} {} {$abcde}] \
+    [list p     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-6.5 {Substitutions from $ in content} {
+    htmlparse::mapEscapes {$abcde}
+} {$abcde}
+
+test htmlparse-6.6 {Braces in content} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<p>\{\}</p>"
+    set tags
+} [list \
+    [list html  {} {} {}] \
+       [list p     {} {} {&#123;&#125;}] \
+    [list p     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-6.7 {More braces in content} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<p>\{abcde\}</p>"
+    set tags
+} [list \
+    [list html  {} {} {}] \
+       [list p     {} {} {&#123;abcde&#125;}] \
+    [list p     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-6.8 {Substitutions from braces in content} {
+    htmlparse::mapEscapes {&#123;abcde&#125;}
+} {{abcde}}
+
+
 
 # Tcllib SF Bug 861287 - Processing of comments.
 test htmlparse-7.1 {html comments} {
