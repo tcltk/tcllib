@@ -1,3 +1,8 @@
+2003-02-24  David N. Welton  <davidw@dedasys.com>
+
+	* nntp.tcl (::nntp::squirt): Use if, string match instead of
+	regsub.
+
 2003-02-06  David N. Welton  <davidw@dedasys.com>
 
 	* nntp.tcl (::nntp::fetch): Use 'string match' instead of regexp.
