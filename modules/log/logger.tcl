@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>
+#
 # See the file license.terms.
 
 # The logger package provides an 'object oriented' log facility that
@@ -110,8 +111,12 @@ proc ::logger::init {service} {
 
 
     proc setlevel {lv} {
-        disable $lv
-        enable $lv
+        if {[catch {
+            disable $lv
+            enable $lv
+        } msg] == 1} {
+            return -code error -errorcode $::errorCode $msg
+        }
     }
 
     # enable --
@@ -135,7 +140,7 @@ proc ::logger::init {service} {
         variable levels
         set lvnum [lsearch -exact $levels $lv]
         if { $lvnum == -1 } {
-        ::error "Invalid level '$lv' - levels are $levels"
+        return -code error "Invalid level '$lv' - levels are $levels"
         }
 
         variable enabled
@@ -173,7 +178,7 @@ proc ::logger::init {service} {
         variable levels
         set lvnum [lsearch -exact $levels $lv]
         if { $lvnum == -1 } {
-        ::error "Levels are $levels"
+        return -code error "Invalid level '$lv' - levels are $levels"
         }
 
         variable enabled
@@ -242,7 +247,7 @@ proc ::logger::init {service} {
         variable levels
         set lvnum [lsearch -exact $levels $lv]
         if { $lvnum == -1 } {
-        ::error "Invalid level '$lv' - levels are $levels"
+        return -code error "Invalid level '$lv' - levels are $levels"
         }
         switch -exact -- [llength $args] {
         0  {
@@ -258,7 +263,7 @@ proc ::logger::init {service} {
             if {[llength [::info commands $cmd]]} {
             interp alias {} [namespace current]::${lv}cmd {} $cmd
             } else {
-            ::error "Invalid cmd '$cmd' - does not exist"
+            return -code error "Invalid cmd '$cmd' - does not exist"
             }
         }
         2  {
@@ -266,7 +271,7 @@ proc ::logger::init {service} {
             proc ${lv}cmd $arg $body
         }
         default {
-            ::error "Usage: \${log}::logproc level ?cmd?\nor \${log}::logproc level argname body"
+            return -code error "Usage: \${log}::logproc level ?cmd?\nor \${log}::logproc level argname body"
         }
         }
     }
@@ -289,10 +294,13 @@ proc ::logger::init {service} {
 
     proc delproc {args} {
         variable delcallback
-        if {[llength [::info level 0]]==1} {
-            return $delcallback
-        } else {
-            set delcallback [lindex $args 0]
+        
+        switch -exact -- [llength [::info level 0]] {
+                1   {return $delcallback}
+                2   {set delcallback [lindex $args 0]}
+                default {
+                    return -code error "Wrong # of arguments. Usage: \${log}::delproc ?cmd?"
+                }
         }
     }
 
@@ -440,15 +448,23 @@ proc ::logger::services {} {
 
 proc ::logger::enable {lv} {
     variable services
-    foreach sv $services {
-    ::logger::tree::${sv}::enable $lv
+    if {[catch {
+        foreach sv $services {
+        ::logger::tree::${sv}::enable $lv
+        }
+    } msg] == 1} {
+        return -code error -errorcode $::errorCode $msg
     }
 }
 
 proc ::logger::disable {lv} {
     variable services
-    foreach sv $services {
-    ::logger::tree::${sv}::disable $lv
+    if {[catch {
+        foreach sv $services {
+        ::logger::tree::${sv}::disable $lv
+        }
+    } msg] == 1} {
+        return -code error -errorcode $::errorCode $msg
     }
 }
 
@@ -488,7 +504,7 @@ proc ::logger::levels {} {
 proc ::logger::servicecmd {service} {
     variable services
     if {[lsearch -exact $services $service] == -1} {
-        ::error "service \"$service\" does not exist."
+        return -code error "Service \"$service\" does not exist."
     }
     return "::logger::tree::${service}"
 }
