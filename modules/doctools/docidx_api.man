@@ -127,9 +127,12 @@ commands:
 [list_begin definitions]
 [lst_item [cmd dt_format]]
 Returns the name of format loaded into the engine
+
 [lst_item "[cmd dt_fmap] [arg fname]"]
 Returns the actual name to use in the output in place of the symbolic
-filename [arg fname].
+filename [arg fname]. If no mapping is found the input is returned
+unchanged.
+
 [lst_item "[cmd dt_source] [arg file]"]
 This command allows the engine to load additional tcl code. The file
 being loaded has to be in the same directory as the file the format
