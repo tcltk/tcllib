@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.3 2002/09/03 17:13:51 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.4 2003/04/14 04:59:43 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -397,7 +397,7 @@ test pop3-srv-5.0 {initial contact, greeting} {
 
     delsrv
     set res
-} {greeting: +OK %% tcllib/pop3d-1.0 ready <==@%%>}
+} {greeting: +OK %% tcllib/pop3d-1.0.1 ready <==@%%>}
 
 
 test pop3-srv-6.0 {unknown command} {
@@ -431,7 +431,7 @@ array set cstate {
 }
 array set log {
     0  {+OK please send PASS command}
-    1  {+OK %% tcllib/pop3d-1.0 shutting down}
+    1  {+OK %% tcllib/pop3d-1.0.1 shutting down}
     2  {-ERR client not authenticated}
     3  {-ERR authentication failed, sorry}
     4  {-ERR login mechanism USER/PASS was chosen}
