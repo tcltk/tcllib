@@ -11,4 +11,4 @@
 if {![package vsatisfies [package provide Tcl] 8]} {return}
 if {[string match "" [package provide ncgi]]} {return}
 if {![package vsatisfies [package provide ncgi] 1]} {return}
-package ifneeded javascript 1.0 [list source [file join $dir javascript.tcl]]
+package ifneeded javascript 1.0.1 [list source [file join $dir javascript.tcl]]

@@ -12,14 +12,14 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: javascript.tcl,v 1.2 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: javascript.tcl,v 1.3 2003/04/11 18:14:17 andreas_kupries Exp $
 
 package require Tcl 8
 package require ncgi 1
-package provide javascript 1.0
+package provide javascript 1.0.1
 
 
-namespace eval javascript {
+namespace eval ::javascript {
 
     # The SelectionObjList namespace variable is used to keep the list of
     # selection boxes that were created as parts of paired multi-selection
@@ -30,7 +30,7 @@ namespace eval javascript {
     variable SelectionObjList {}
 }
 
-# javascript::BeginJS --
+# ::javascript::BeginJS --
 #
 #	Create HTML code to begin a java script program.
 #
@@ -40,11 +40,11 @@ namespace eval javascript {
 # Results:
 #	Returns HTML code.
 
-proc javascript::BeginJS {} {
+proc ::javascript::BeginJS {} {
     return "\n<SCRIPT LANGUAGE=\"JavaScript\">\n"
 }
 
-# javascript::EndJS --
+# ::javascript::EndJS --
 #
 #	Create HTML code to end a java script program.
 #
@@ -54,11 +54,11 @@ proc javascript::BeginJS {} {
 # Results:
 #	Returns HTML code.
 
-proc javascript::EndJS {} {
+proc ::javascript::EndJS {} {
     return "\n</SCRIPT>\n"
 }
 
-# javascript::MakeMultiSel --
+# ::javascript::MakeMultiSel --
 #
 #	Construct HTML code to create a multi-selection box.
 #
@@ -76,7 +76,7 @@ proc javascript::EndJS {} {
 # Results:
 #	Returns HTML to show the selection box.
 
-proc javascript::MakeMultiSel {id side eltValues eltNames emptyElts \
+proc ::javascript::MakeMultiSel {id side eltValues eltNames emptyElts \
 	length minWidth} {
 
     variable SelectionObjList
@@ -113,7 +113,7 @@ proc javascript::MakeMultiSel {id side eltValues eltNames emptyElts \
     return $html
 }
 
-# javascript::MakeClickProc --
+# ::javascript::MakeClickProc --
 #
 #	Create a "moveSelected$id" java script procedure to move selected items
 #	from one selection box to the other.
@@ -124,7 +124,7 @@ proc javascript::MakeMultiSel {id side eltValues eltNames emptyElts \
 # Results:
 #	Returns java script code.
 
-proc javascript::MakeClickProc {id} {
+proc ::javascript::MakeClickProc {id} {
 
     set result "\nfunction moveSelected${id}(fromObj,toObj) \{\n"
 
@@ -171,7 +171,7 @@ proc javascript::MakeClickProc {id} {
     return $result
 }
 
-# javascript::makeSelectorWidget --
+# ::javascript::makeSelectorWidget --
 #
 #	Construct HTML code to create a dual-multi-selection megawidget.  This
 #	megawidget consists of two side-by-side multi-selection boxes
@@ -196,7 +196,7 @@ proc javascript::MakeClickProc {id} {
 # Results:
 #	Returns HTML to show the dual-multi-selection megawidget.
 
-proc javascript::makeSelectorWidget {id leftLabel leftValueList leftNameList \
+proc ::javascript::makeSelectorWidget {id leftLabel leftValueList leftNameList \
 	rightLabel rightValueList rightNameList {length 8} {minWidth 32}} {
 
     set html ""
@@ -250,7 +250,7 @@ proc javascript::makeSelectorWidget {id leftLabel leftValueList leftNameList \
     return $html
 }
 
-# javascript::makeSubmitButton --
+# ::javascript::makeSubmitButton --
 #
 #	Create an HTML submit button that resets a hidden field for each
 #	registered multi-selection box.
@@ -262,7 +262,7 @@ proc javascript::makeSelectorWidget {id leftLabel leftValueList leftNameList \
 # Results:
 #	Returns HTML submit button code.
 
-proc javascript::makeSubmitButton {name value} {
+proc ::javascript::makeSubmitButton {name value} {
     variable SelectionObjList
     set html ""
 
@@ -302,7 +302,7 @@ proc javascript::makeSubmitButton {name value} {
     return $html
 }
 
-# javascript::makeProtectedSubmitButton --
+# ::javascript::makeProtectedSubmitButton --
 #
 #	Create an HTML submit button that prompts the user with a
 #	continue/cancel shutdown warning before the form is submitted.
@@ -315,7 +315,7 @@ proc javascript::makeSubmitButton {name value} {
 # Results:
 #	Returns HTML submit button code.
 
-proc javascript::makeProtectedSubmitButton {name value msg} {
+proc ::javascript::makeProtectedSubmitButton {name value msg} {
     set html ""
 
     # Create the java script procedure that gives the user the option to cancel
@@ -339,7 +339,7 @@ proc javascript::makeProtectedSubmitButton {name value msg} {
     return $html
 }
 
-# javascript::makeMasterButton --
+# ::javascript::makeMasterButton --
 #
 #	Create an HTML button that sets it's slave checkboxs to the boolean
 #	value.
@@ -354,7 +354,7 @@ proc javascript::makeProtectedSubmitButton {name value msg} {
 # Results:
 #	Returns HTML code to create the child checkbox.
 
-proc javascript::makeMasterButton {master value slavePattern boolean} {
+proc ::javascript::makeMasterButton {master value slavePattern boolean} {
     set html ""
 
     # Create the java script "checkMaster$name" proc that gets called when the
@@ -379,7 +379,7 @@ proc javascript::makeMasterButton {master value slavePattern boolean} {
     return $html
 }
 
-# javascript::makeParentCheckbox --
+# ::javascript::makeParentCheckbox --
 #
 #	Create an HTML checkbox and tie its value to that of it's child
 #	checkbox.  If the parent is unchecked, the child is automatically
@@ -391,7 +391,7 @@ proc javascript::makeMasterButton {master value slavePattern boolean} {
 # Results:
 #	Returns HTML code to create the child checkbox.
 
-proc javascript::makeParentCheckbox {parentName childName} {
+proc ::javascript::makeParentCheckbox {parentName childName} {
     set parentObj "form.$parentName"
     set childObj "form.$childName"
     set html ""
@@ -415,7 +415,7 @@ proc javascript::makeParentCheckbox {parentName childName} {
     return $html
 }
 
-# javascript::makeChildCheckbox --
+# ::javascript::makeChildCheckbox --
 #
 #	Create an HTML checkbox and tie its value to that of it's parent
 #	checkbox.  If the child is checked, the parent is automatically
@@ -428,7 +428,7 @@ proc javascript::makeParentCheckbox {parentName childName} {
 # Results:
 #	Returns HTML code to create the child checkbox.
 
-proc javascript::makeChildCheckbox {parentName childName} {
+proc ::javascript::makeChildCheckbox {parentName childName} {
     set parentObj "form.$parentName"
     set childObj "form.$childName"
     set html ""
