@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.4 2002/04/16 23:10:40 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.5 2002/04/25 23:26:16 andreas_kupries Exp $
 
 package require log;                    # tcllib 1.0
 
@@ -34,6 +34,7 @@ proc uuencode::Encode {s} {
 }
 
 proc uuencode::Decode {s} {
+    if {[string length $s] == 0} {return ""}
     set r {}
     binary scan [pad $s] c* d
         
