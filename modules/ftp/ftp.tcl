@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.27 2003/02/25 07:01:19 davidw Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.28 2003/03/18 22:16:51 patthoyts Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -2751,7 +2751,8 @@ proc ftp::InitDataConn {s sock addr port} {
 
     # assign fileevent handlers, source and destination CI (Channel Identifier)
 
-    switch -- $ftp(State) {
+    # NB: this really does need to be -regexp [PT] 18Mar03
+    switch -regexp -- $ftp(State) {
         list {
             fileevent $sock readable [list [namespace current]::HandleList $s $sock]
             set ftp(SourceCI) $sock
