@@ -1,3 +1,12 @@
+2003-11-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl (word_decode): Fixed [SF Tcllib Bug 764702], accepted
+	  the patch coming with the bugreport (both by Reinhard Speyerer
+	  <rspsf@users.sourceforge.net>). Command is now able to decode
+	  data in encoded utf-8.
+
+	* mime.test: Added test for the bug above.
+
 2003-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl (smtp::hear): Integrated fix for [Bug 836442]. Limiting
