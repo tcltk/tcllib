@@ -1,0 +1,29 @@
+'\"
+'\" RCS: @(#) $Id: control.n,v 1.1 2001/08/21 22:54:15 dgp Exp $
+'\" 
+.so man.macros
+.TH control n 0.0 control "Tcl Control Flow Commands"
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+control \- Procedures for control flow structures.
+.SH SYNOPSIS
+\fBpackage require Tcl 8\fR
+.sp
+\fBpackage require control ?0.0?\fR
+.sp
+\fBcontrol::no-op \fR?\fIarg arg ...\fR?
+.BE
+.SH DESCRIPTION
+.PP
+The \fBcontrol\fR package provides a variety of commands that
+provide additional flow of control structures beyond the
+built-in ones provided by Tcl.
+.SH COMMANDS
+.TP
+\fBcontrol::no-op \fR?\fIarg arg ...\fR?
+Takes any number of arguments and does nothing.  Returns
+an empty string.
+
+.SH KEYWORDS
+control, flow, structure, no-op
