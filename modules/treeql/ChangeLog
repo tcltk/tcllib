@@ -1,0 +1,14 @@
+2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* treeql.tcl:    New module. TreeQL = Tree Query Language
+	* treeql84.tcl:  Donated by Colin McCormack.
+	* treeql.test:   <coldstore@users.sourceforge.net>
+	* pkgIndex.tcl:
+	* docs/api.css:    A CoST-like language for querying and editing
+	* docs/api.dtd:    trees structures. The trees are expected to
+	* docs/index.html: follow the API of "struct::tree".
+	* docs/treeql.xml:
+	* docs/treeapi.xml:    CoST:   http://wiki.tcl.tk/cost
+	* docs/treeql-int.xml: TreeQL: http://wiki.tcl.tk/treecl
+	* docs/treeql-low.xml: The 'cl' is not a typo. The old name
+	* docs/api+xhtml.dtd:  was "Tree Control Language".
