@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.22 2003/04/14 20:15:51 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.23 2003/08/27 21:26:19 patthoyts Exp $
 
 package require Tcl 8.2
 
@@ -799,8 +799,8 @@ proc ::uri::canonicalize uri {
 
 # FTP
 uri::register ftp {
-    set escape [set [namespace parent [namespace current]]::basic::escape]
-    set login  [set [namespace parent [namespace current]]::basic::login]
+    variable escape [set [namespace parent [namespace current]]::basic::escape]
+    variable login  [set [namespace parent [namespace current]]::basic::login]
 
     variable	charN	{[a-zA-Z0-9$_.+!*'(,)?:@&=-]}
     variable	char	"(${charN}|${escape})"
@@ -817,8 +817,8 @@ uri::register ftp {
 
 # FILE
 uri::register file {
-    set host [set [namespace parent [namespace current]]::basic::host]
-    set path [set [namespace parent [namespace current]]::ftp::path]
+    variable	host [set [namespace parent [namespace current]]::basic::host]
+    variable	path [set [namespace parent [namespace current]]::ftp::path]
 
     variable	schemepart	"//(${host}|localhost)?/${path}"
     variable	url		"file:${schemepart}"
@@ -826,8 +826,10 @@ uri::register file {
 
 # HTTP
 uri::register http {
-    set escape		[set [namespace parent [namespace current]]::basic::escape]
-    set hostOrPort	[set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	escape \
+        [set [namespace parent [namespace current]]::basic::escape]
+    variable	hostOrPort	\
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
 
     variable	charN		{[a-zA-Z0-9$_.+!*'(,);:@&=-]}
     variable	char		"($charN|${escape})"
@@ -843,9 +845,12 @@ uri::register http {
 
 # GOPHER
 uri::register gopher {
-    set xChar		[set [namespace parent [namespace current]]::basic::xChar]
-    set hostOrPort	[set [namespace parent [namespace current]]::basic::hostOrPort]
-    set search		[set [namespace parent [namespace current]]::http::search]
+    variable	xChar \
+        [set [namespace parent [namespace current]]::basic::xChar]
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	search \
+        [set [namespace parent [namespace current]]::http::search]
 
     variable	type		$xChar
     variable	selector	"$xChar*"
@@ -857,18 +862,18 @@ uri::register gopher {
 
 # MAILTO
 uri::register mailto {
-    set xChar	[set [namespace parent [namespace current]]::basic::xChar]
-    set host	[set [namespace parent [namespace current]]::basic::host]
+    variable xChar [set [namespace parent [namespace current]]::basic::xChar]
+    variable host  [set [namespace parent [namespace current]]::basic::host]
 
-    variable	schemepart	"$xChar+(@${host})?"
-    variable	url		"mailto:${schemepart}"
+    variable schemepart	"$xChar+(@${host})?"
+    variable url	"mailto:${schemepart}"
 }
 
 # NEWS
 uri::register news {
-    set escape		[set [namespace parent [namespace current]]::basic::escape]
-    set alpha		[set [namespace parent [namespace current]]::basic::alpha]
-    set host		[set [namespace parent [namespace current]]::basic::host]
+    variable escape [set [namespace parent [namespace current]]::basic::escape]
+    variable alpha  [set [namespace parent [namespace current]]::basic::alpha]
+    variable host   [set [namespace parent [namespace current]]::basic::host]
 
     variable	aCharN		{[a-zA-Z0-9$_.+!*'(,);/?:&=-]}
     variable	aChar		"($aCharN|${escape})"
@@ -881,9 +886,12 @@ uri::register news {
 
 # WAIS
 uri::register wais {
-    set uChar		[set [namespace parent [namespace current]]::basic::xChar]
-    set hostOrPort	[set [namespace parent [namespace current]]::basic::hostOrPort]
-    set search		[set [namespace parent [namespace current]]::http::search]
+    variable	uChar \
+        [set [namespace parent [namespace current]]::basic::xChar]
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	search \
+        [set [namespace parent [namespace current]]::http::search]
 
     variable	db		"${uChar}*"
     variable	type		"${uChar}*"
@@ -895,7 +903,7 @@ uri::register wais {
 
     #variable	schemepart	"${doc}|${index}|${database}"
 
-    variable schemepart \
+    variable	schemepart \
 	    "//${hostOrPort}/${db}((\\?${search})|(/${type}/${path}))?"
 
     variable	url		"wais:${schemepart}"
@@ -903,9 +911,12 @@ uri::register wais {
 
 # PROSPERO
 uri::register prospero {
-    set escape		[set [namespace parent [namespace current]]::basic::escape]
-    set hostOrPort	[set [namespace parent [namespace current]]::basic::hostOrPort]
-    set path		[set [namespace parent [namespace current]]::ftp::path]
+    variable	escape \
+        [set [namespace parent [namespace current]]::basic::escape]
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	path \
+        [set [namespace parent [namespace current]]::ftp::path]
 
     variable	charN		{[a-zA-Z0-9$_.+!*'(,)?:@&-]}
     variable	char		"(${charN}|$escape)"
