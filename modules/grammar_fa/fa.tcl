@@ -218,8 +218,8 @@ snit::type ::grammar::fa {
 
     constructor {args} {
 	set alen [llength $args]
-	if {($alen != 2) && ($alen != 0)} {
-	    return -code error "wrong#args: $self ?=|:=|<--|as|deserialize a'?"
+	if {($alen != 2) && ($alen != 0) && ($alen != 3)} {
+	    return -code error "wrong#args: $self ?=|:=|<--|as|deserialize a'|fromRegex re ?over??"
 	}
 
 	array set order    {} ; set nondete     {}
@@ -236,14 +236,28 @@ snit::type ::grammar::fa {
 	foreach {cmd object} $args break
 	switch -exact -- $cmd {
 	    = - := - <-- - as {
+		if {$alen != 2} {
+		    return -code error "wrong#args: $self ?=|:=|<--|as|deserialize a'|fromRegex re ?over??"
+		}
 		$self = $object
 	    }
 	    deserialize {
+		if {$alen != 2} {
+		    return -code error "wrong#args: $self ?=|:=|<--|as|deserialize a'|fromRegex re ?over??"
+		}
 		# Object is actually a value, the deserialization to use.
 		$self deserialize $object
 	    }
+	    fromRegex {
+		# Object is actually a value, the regular expression to use.
+		if {$alen == 2} {
+		    $self fromRegex $object
+		} else {
+		    $self fromRegex $object [lindex $args 2]
+		}
+	    }
 	    default {
-		return -code error "bad assignment: $self ?=|:=|<--|as|deserialize a'?"
+		return -code error "bad assignment: $self ?=|:=|<--|as|deserialize a'|fromRegex re ?over??"
 	    }
 	}
 	return

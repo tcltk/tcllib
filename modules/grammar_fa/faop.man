@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fa n 0.1]
+[manpage_begin faop n 0.1]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Operations on finite automatons}]
 [require Tcl 8.4]
-[require grammar::fa [opt 0.1]]
+[require grammar::fa::op [opt 0.1]]
 [description]
 [keywords grammar automaton {finite automaton}]
 [keywords state {regular expression} {regular grammar}]
@@ -44,7 +44,7 @@ relationship(s).
 The operations can be loosely partitioned into structural and language
 operations. The latter are defined in terms of the language the
 automaton(s) accept, whereas the former are defined in terms of the
-structural properties of the invokved automaton(s). Some operations
+structural properties of the involved automaton(s). Some operations
 are both.
 
 [emph {Structure operations}]
@@ -74,17 +74,15 @@ The language of [arg fa] is unchanged by this operation.
 This is done by adding a single new state, the [term sink], and
 transitions from all other states to that sink for all symbols they
 have no transitions for. The sink itself is made complete by adding
-loop transitions for all sybols.
+loop transitions for all symbols.
 
 [nl]
 
 Note: When a FA has epsilon-transitions transitions over a symbol for
 a state S can be indirect, i.e. not attached directly to S, but to a
 state in the epsilon-closure of S. The symbols for such indirect
-transitions count when computing completeness of a state. In othr
-words, these indireclty reached symbols are [emph not] missing. Adding
-transitions for them would for example throw the [method complement]
-operation off, causing the generation of the wrong result.
+transitions count when computing completeness of a state. In other
+words, these indirectly reached symbols are [emph not] missing.
 
 [nl]
 
@@ -222,7 +220,7 @@ declare states unreachable.
 [emph {Language operations}]
 
 All operations in this section require that all input FAs have at
-least one start and at least one final state. Otherwise the laguage of
+least one start and at least one final state. Otherwise the language of
 the FAs will not be defined, making the operation senseless (as it
 operates on the languages of the FAs in a defined manner).
 
@@ -232,9 +230,9 @@ operates on the languages of the FAs in a defined manner).
 [call [cmd ::grammar::fa::op::complement] [arg fa]]
 
 Complements [arg fa]. This is possible if and only if [arg fa] is
-[term complete]. The resulting FA accepts the complementary language
-of [arg fa]. In other words, all inputs not accepted by the input are
-accepted by the result, and vice versa.
+[term complete] and [term deterministic]. The resulting FA accepts the
+complementary language of [arg fa]. In other words, all inputs not
+accepted by the input are accepted by the result, and vice versa.
 
 [nl]
 
@@ -282,7 +280,7 @@ accepts the union of the languages of the two FAs.
 The result will have all states and transitions of the two input FAs,
 and new start and final states. All states of [arg fb] which exist in
 [arg fa] as well will be renamed, and the [arg mapvar] will contain a
-mapping from the old states of [fb] to the new ones, if present.
+mapping from the old states of [arg fb] to the new ones, if present.
 
 [nl]
 
@@ -351,18 +349,17 @@ Generates a non-deterministic FA which accepts the same language as
 the regular expression [arg regex]. If the [arg over] is specified it
 is treated as the set of symbols the regular expression and the
 automaton are defined over. The command will compute the set from the
-arguments toleaf "S" constructors when [arg over] was not
+"S" constructors in [arg regex] when [arg over] was not
 specified. This set is important if and only if the complement
 operator "!" is used in [arg regex] as the complementary language of
 an FA is quite different for different sets of symbols.
 
 [nl]
 
-
 The regular expression is represented by a nested list, which forms
 a syntax tree. The following structures are legal:
 
-[list_begin definition]
+[list_begin definitions]
 
 [lst_item "{S x}"]
 
@@ -398,7 +395,7 @@ words accepted by the regular expression [var A].
 
 [lst_item "{+ A}"]
 
-Positive kleene closure. Accepts any finite concatenation of words
+Positive Kleene closure. Accepts any finite concatenation of words
 accepted by the regular expression [var A], but not the empty word.
 
 [lst_item "{! A}"]

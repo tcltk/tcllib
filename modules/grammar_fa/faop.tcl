@@ -203,10 +203,10 @@ proc ::grammar::fa::op::remove_eps {fa} {
 		    # action, and no actual parallel transitions are created.
 
 		    set clos [$fa epsilon_closure $s]
-		    foreach sym [$fa symbols@set $clos] {
-			if {$sym eq ""} continue
-			foreach d [$fa nextset $clos $sym] {
-			    if {![catch {$fa next $s $sym --> $d} msg]} {
+		    foreach csym [$fa symbols@set $clos] {
+			if {$csym eq ""} continue
+			foreach d [$fa nextset $clos $csym] {
+			    if {![catch {$fa next $s $csym --> $d} msg]} {
 				set changed 1
 			    }
 			}
@@ -479,6 +479,9 @@ proc ::grammar::fa::op::complement {fa} {
 
     if {![$fa is complete]} {
 	return -code error "Unable to complement incomplete FA"
+    }
+    if {![$fa is deterministic]} {
+	return -code error "Unable to complement non-deterministic FA"
     }
 
     set newfinal [struct::set difference [$fa states] [$fa finalstates]]
@@ -850,8 +853,13 @@ proc ::grammar::fa::op::Regex {fa regex idvar} {
 	    $tmp start add $s
 	    $tmp final add $f
 
-	    complete   $tmp
-	    complement $tmp
+	    determinize $tmp {} $id
+	    incr id [llength [$tmp states]]
+	    if {![$tmp is complete]} {
+		complete    $tmp $id
+		incr id
+	    }
+	    complement  $tmp
 
 	    # Merge and link.
 	    $fa deserialize_merge [$tmp serialize]

@@ -21,12 +21,13 @@ The package neither provides complex operations on the automaton, nor
 has it the ability to execute a definition for a stream of
 symbols.
 
-Use the packages [package grammar::fa::op] and
+Use the packages [package grammar::fa::op],
+[package grammar::fa::dacceptor], and
 [package grammar::fa::interpreter] for that.
 
-Another package related to this is [package grammar::fa::compiler]
-which turns a FA into an executor class which has the definition of
-the FA hardwired into it.
+Another package related to this is [package grammar::fa::compiler]. It
+turns a FA into an executor class which has the definition of the FA
+hardwired into it.
 
 [para]
 
@@ -40,7 +41,7 @@ The package exports the API described here.
 
 [list_begin definitions]
 
-[call [cmd ::grammar::fa] [arg faName] [opt "[const =]|[const :=]|[const <--]|[const as]|[const deserialize] [arg src]"]]
+[call [cmd ::grammar::fa] [arg faName] [opt "[const =]|[const :=]|[const <--]|[const as]|[const deserialize] [arg src]|[const fromRegex] [arg re] [opt [arg over]]"]]
 
 Creates a new finite automaton with an associated global Tcl command
 whose name is [arg faName]. This command may be used to invoke various
@@ -56,8 +57,11 @@ new automaton will be empty if no [arg src] is specified. Otherwise
 it will contain a copy of the definition contained in the [arg src].
 
 The [arg src] has to be a FA object reference for all operators except
-[const deserialize]. That operator requires [arg src] to be the
-serialization of a FA instead.
+[const deserialize] and [const fromRegex]. The [const deserialize]
+operator requires [arg src] to be the serialization of a FA instead,
+and [const fromRegex] takes a regular expression in the form a of a
+syntax tree. See [cmd ::grammar::fa::op::fromRegex] for more detail on
+that.
 
 [list_end]
 [list_end]
@@ -108,14 +112,14 @@ This is the reverse assignment operator for automatons. It copies the
 automation contained in the object [arg faName] over the automaton
 definition in the object [arg dstFA].
 
-The old contents of [arg destFA] are deleted by this operation.
+The old contents of [arg dstFA] are deleted by this operation.
 
 [nl]
 
 This operation is in effect equivalent to
 [nl]
 [example_begin]
-    [arg destFA] [method deserialize] [lb][arg faName] [method serialize][rb]
+    [arg dstFA] [method deserialize] [lb][arg faName] [method serialize][rb]
 [example_end]
 
 
@@ -140,7 +144,7 @@ the same interface.
 
 [nl]
 
-The result is alist of three elements with the following structure:
+The result is a list of three elements with the following structure:
 
 [list_begin enum]
 [enum]
@@ -174,7 +178,7 @@ final state, otherwise it is not.
 [enum]
 The last element is a dictionary describing the transitions for the
 state. The keys are symbols (or the empty string), and the values are
-sets of sucessor states.
+sets of successor states.
 
 [list_end]
 [list_end]
@@ -396,7 +400,7 @@ Define or query transition information.
 [nl]
 
 If [arg next] is specified, then the method will add a transition from
-the state [arg s] to the [term sucessor] state [arg next] labeled with
+the state [arg s] to the [term successor] state [arg next] labeled with
 the symbol [arg sym] to the FA contained in [arg faName]. The
 operation will fail if [arg s], or [arg next] are not known states, or
 if [arg sym] is not a known symbol. An exception to the latter is that
@@ -433,7 +437,7 @@ epsilon transitions.
 [call [arg faName] [method nextset] [arg stateset] [arg sym]]
 
 Returns the set of states which can be reached by a single transition
-originating in a state in the set [arg atsteset] and labeled with the
+originating in a state in the set [arg stateset] and labeled with the
 symbol [arg sym].
 
 [nl]
@@ -485,7 +489,7 @@ FA is deterministic, and [const false] otherwise.
 A predicate. It tests whether the FA in [arg faName] is an
 epsilon-free FA or not. A FA is epsilon-free if it has no epsilon
 transitions. This definition means that all deterministic FAs are
-epsilon-free as well, and epsilon-free'ness is a necessary
+epsilon-free as well, and epsilon-freeness is a necessary
 pre-condition for deterministic'ness.
 
 The result is a boolean value. It will be set to [const true] if the
@@ -611,7 +615,7 @@ T is a function from S x (Sy + epsilon) to {S}, the [term {transition function}]
 Here [const epsilon] denotes the empty input symbol and is distinct
 from all symbols in Sy; and {S} is the set of subsets of S. In other
 words, T maps a combination of State and Input (which can be empty) to
-a set of [term {sucessor states}].
+a set of [term {successor states}].
 
 [list_end]
 [para]
@@ -635,7 +639,7 @@ state in St and ending at a state in Fi whose edges have the labels
 sy_1, sy_2, etc. to sy_n.
 
 The set of all strings accepted by the FA is the [term language] of
-the FA. One important equivalency is that the set of languages which
+the FA. One important equivalence is that the set of languages which
 can be accepted by an FA is the set of [term {regular languages}].
 
 [para]
