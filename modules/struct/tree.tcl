@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.26 2004/01/30 06:58:52 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.27 2004/02/06 08:34:56 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -231,6 +231,88 @@ proc ::struct::tree::_--> {name dest} {
     return
 }
 
+# ::struct::tree::_attr --
+#
+#	Return attribute data for one key and multiple nodes, possibly all.
+#
+# Arguments:
+#	name	Name of the tree object.
+#	key	Name of the attribute to retrieve.
+#
+# Results:
+#	children	Dictionary mapping nodes to attribute data.
+
+proc ::struct::tree::_attr {name key args} {
+    # Syntax:
+    #
+    # t attr key
+    # t attr key -nodes {nodelist}
+    # t attr key -glob nodepattern
+    # t attr key -regexp nodepattern
+
+    variable ${name}::attribute
+
+    set usage "wrong # args: should be \"[list $name] attr key ?-nodes list|-glob pattern|-regexp pattern?\""
+    if {([llength $args] != 0) && ([llength $args] != 2)} {
+	return -code error $usage
+    } elseif {[llength $args] == 0} {
+	# This automatically restricts the list
+	# to nodes which can have the attribute
+	# in question.
+
+	set nodes [array names attribute]
+    } else {
+	# Determine a list of nodes to look at
+	# based on the chosen restriction.
+
+	foreach {mode value} $args break
+	switch -exact -- $mode {
+	    -nodes {
+		# This is the only branch where we have to
+		# perform an explicit restriction to the
+		# nodes which have attributes.
+		set nodes {}
+		foreach n $value {
+		    if {![info exists attribute($n)]} continue
+		    lappend nodes $n
+		}
+	    }
+	    -glob {
+		set nodes [array names attribute $value]
+	    }
+	    -regexp {
+		set nodes {}
+		foreach n [array names attribute] {
+		    if {![regexp -- $value $n]} continue
+		    lappend nodes $n
+		}
+	    }
+	    default {
+		return -code error $usage
+	    }
+	}
+    }
+
+    # Without possibly matching nodes
+    # the result has to be empty.
+
+    if {![llength $nodes]} {
+	return {}
+    }
+
+    # Now locate matching keys and their values.
+
+    set result {}
+    foreach n $nodes {
+	upvar ${name}::$attribute($n) data
+	if {[info exists data($key)]} {
+	    lappend result $n $data($key)
+	}
+    }
+
+    return $result
+}
+
 # ::struct::tree::_deserialize --
 #
 #	Assignment operator. Copies a serialization into the
@@ -297,7 +379,7 @@ proc ::struct::tree::_deserialize {name serial} {
 
 # ::struct::tree::_children --
 #
-#	Return the child list for a given node of a tree.
+#	Return the list of children for a given node of a tree.
 #
 # Arguments:
 #	name	Name of the tree object.
@@ -306,13 +388,65 @@ proc ::struct::tree::_deserialize {name serial} {
 # Results:
 #	children	List of children for the node.
 
-proc ::struct::tree::_children {name node} {
+proc ::struct::tree::_children {name args} {
+    # args := ?-all? node ?filter cmdprefix?
+
+    # '-all' implies that not only the direct children of the
+    # node, but all their children, and so on, are returned.
+    #
+    # 'filter cmd' implies that only those nodes in the result list
+    # which pass the test 'cmd' are placed into the final result. 
+
+    set usage "wrong # args: should be \"[list $name] children ?-all? node ?filter cmd?\""
+
+    if {([llength $args] < 1) || ([llength $args] > 4)} {
+	return -code error $usage
+    }
+    if {[string equal [lindex $args 0] -all]} {
+	set all 1
+	set args [lrange $args 1 end]
+    } else {
+	set all 0
+    }
+
+    # args := node ?filter cmdprefix?
+
+    if {([llength $args] != 1) && ([llength $args] != 3)} {
+	return -code error $usage
+    }
+    if {[llength $args] == 3} {
+	foreach {node _const_ cmd} $args break
+	if {![string equal $_const_ filter] || ![llength $cmd]} {
+	    return -code error $usage
+	}
+    } else {
+	set node [lindex $args 0]
+	set cmd {}
+    }
+
     if { ![_exists $name $node] } {
 	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
 
     variable ${name}::children
-    return $children($node)
+    set result $children($node)
+    if {$all} {
+	set pending $result
+	while {[llength $pending]} {
+	    set n [::struct::list shift pending]
+	    foreach c $children($n) {
+		lappend result $c
+		lappend pending $c
+	    }
+	}
+    }
+
+    if {[llength $cmd]} {
+	lappend cmd $name
+	set result [uplevel 1 [list ::struct::list filter $result $cmd]]
+    }
+
+    return $result
 }
 
 # ::struct::tree::_cut --

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.26 2004/01/30 06:58:52 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.27 2004/02/06 08:34:56 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -156,7 +156,7 @@ test tree-1.3 {tree errors} {
     catch {mytree foo} msg
     mytree destroy
     set msg
-} {bad option "foo": must be -->, =, append, children, cut, delete, depth, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, or walk}
+} {bad option "foo": must be -->, =, append, attr, children, cut, delete, depth, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, or walk}
 
 test tree-1.4 {tree errors} {
     catch {tree set} msg
@@ -595,7 +595,7 @@ test tree-3.3.1 {children, wrong # args} {
     catch {mytree children {IT::EM 0} foo} result
     mytree destroy
     set result
-} {wrong # args: should be "::struct::tree::_children name node"}
+} {wrong # args: should be "::mytree children ?-all? node ?filter cmd?"}
 
 test tree-3.3.2 {children, bad node} {
     tree mytree
@@ -614,6 +614,7 @@ test tree-3.3.3 {children of root, initial} {
 test tree-3.3.4 {children} {
     tree mytree
     set     result [list]
+
     lappend result [mytree children root]
 
     mytree insert root       end {IT::EM 0}
@@ -628,6 +629,54 @@ test tree-3.3.4 {children} {
     mytree destroy
     set result
 } {{} {{IT::EM 0} {IT::EM 1} {IT::EM 2}} {{IT::EM 3} {IT::EM 4}} {}}
+
+test tree-3.3.5 {children, -all} {
+    tree mytree
+    set     result [list]
+
+    mytree insert root end 0
+    mytree insert root end 1
+    mytree insert root end 2
+    mytree insert 0    end 3
+    mytree insert 0    end 4
+    mytree insert 4    end 5
+    mytree insert 4    end 6
+
+    set     result {}
+    lappend result [lsort [mytree children -all root]]
+    lappend result [lsort [mytree children -all 0]]
+    mytree destroy
+    set result
+} {{0 1 2 3 4 5 6} {3 4 5 6}}
+
+test tree-3.3.6 {children, filtering} {
+    tree mytree
+    set     result [list]
+
+    mytree insert root end 0 ; mytree set 0 volume 30
+    mytree insert root end 1
+    mytree insert root end 2
+    mytree insert 0    end 3
+    mytree insert 0    end 4
+    mytree insert 4    end 5 ; mytree set 5 volume 50
+    mytree insert 4    end 6
+
+    proc vol {t n} {
+	$t keyexists $n volume
+    }
+    proc vgt40 {t n} {
+	if {![$t keyexists $n volume]} {return 0}
+	expr {[$t get $n volume] > 40}
+    }
+
+    set     result {}
+    lappend result [lsort [mytree children -all root filter vol]]
+    lappend result [lsort [mytree children -all root filter vgt40]]
+    lappend result [lsort [mytree children      root filter vol]]
+    lappend result [lsort [mytree children      root filter vgt40]]
+    mytree destroy
+    set result
+} {{0 5} 5 0 {}}
 
 ############################################################
 
@@ -2328,6 +2377,98 @@ test tree-5.5.4 {copy construction, tree} {
 
     set result
 } ok
+
+############################################################
+
+proc gentree {t} {
+    tree $t
+    $t insert root end 0 ; $t set 0 volume 30
+    $t insert root end 1
+    $t insert root end 2
+    $t insert 0    end 3
+    $t insert 0    end 4
+    $t insert 4    end 5 ; $t set 5 volume 50
+    $t insert 4    end 6
+}
+
+test tree-6.0 {attribute search} {
+    gentree mytree
+    catch {mytree attr} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_attr name key args"}
+
+test tree-6.1 {attribute search} {
+    gentree mytree
+    catch {mytree attr a b} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree attr key ?-nodes list|-glob pattern|-regexp pattern?"}
+
+test tree-6.2 {attribute search} {
+    gentree mytree
+    catch {mytree attr a b c d} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree attr key ?-nodes list|-glob pattern|-regexp pattern?"}
+
+test tree-6.3 {attribute search} {
+    gentree mytree
+    catch {mytree attr a b c} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree attr key ?-nodes list|-glob pattern|-regexp pattern?"}
+
+test tree-6.4 {attribute search} {
+    gentree mytree
+    set result [mytree attr vol]
+    mytree destroy
+    set result
+} {}
+
+test tree-6.5 {attribute search} {
+    gentree mytree
+    set result [dictsort [mytree attr volume]]
+    mytree destroy
+    set result
+} {0 30 5 50}
+
+test tree-6.6 {attribute search} {
+    gentree mytree
+    set result [mytree attr volume -nodes {0 3}]
+    mytree destroy
+    set result
+} {0 30}
+
+test tree-6.7 {attribute search} {
+    gentree mytree
+    set result [mytree attr volume -glob {[0-3]}]
+    mytree destroy
+    set result
+} {0 30}
+
+test tree-6.8 {attribute search} {
+    gentree mytree
+    set result [mytree attr volume -regexp {[0-3]}]
+    mytree destroy
+    set result
+} {0 30}
+
+test tree-6.9 {attribute search} {
+    gentree mytree
+    set result [mytree attr volume -nodes {}]
+    mytree destroy
+    set result
+} {}
+
+test tree-6.10 {attribute search} {
+    gentree mytree
+    mytree unset 0 volume
+    mytree unset 5 volume
+    set result [mytree attr volume]
+    mytree destroy
+    set result
+} {}
 
 ############################################################
 ::tcltest::cleanupTests
