@@ -1,3 +1,8 @@
+
+2000-06-20  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+        * Code cleanup and bug fixes
+
 2000-06-18  Dan Kuchler  <kuchler@ajubasolutions.com>
 
         * Fixed documentation bug in man page for xpat

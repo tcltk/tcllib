@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.1 2000/06/16 20:54:24 kuchler Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.2 2000/06/20 22:23:56 kuchler Exp $
 
 package provide nntp 0.1
 
@@ -83,26 +83,29 @@ proc ::nntp::nntp {{server ""} {port ""} {name ""}} {
     }
 
     if { ![string equal [info commands ::$name] ""] } {
-        error "command \"$name\" already exists, unable to create stack"
+        error "command \"$name\" already exists, unable to create nntp connection"
     }
+
+    upvar 0 ::nntp::${name}data data
+
     set socks($name) [list ]
 
     # Initialize instance specific variables
 
-    set ::nntp::${name}data(debug) 0
-    set ::nntp::${name}data(eol) "\n"
+    set data(debug) 0
+    set data(eol) "\n"
 
     # Logic to determine whether to use the specified nntp server, or to use
     # the default
 
     if {$server == ""} {
         if {[info exists env(NNTPSERVER)]} {
-            set ::nntp::${name}data(host) "$env(NNTPSERVER)"
+            set data(host) "$env(NNTPSERVER)"
         } else {
-            set ::nntp::${name}data(host) "news"
+            set data(host) "news"
         }
     } else {
-        set ::nntp::${name}data(host) $server
+        set data(host) $server
     }
 
     # Logic to determine whether to use the specified nntp port, or to use the
@@ -110,23 +113,21 @@ proc ::nntp::nntp {{server ""} {port ""} {name ""}} {
 
     if {$port == ""} {
         if {[info exists env(NNTPPORT)]} {
-            set ::nntp::${name}data(port) $env(NNTPPORT)
+            set data(port) $env(NNTPPORT)
         } else {    
-            set ::nntp::${name}data(port) 119
+            set data(port) 119
         }
     } else {
-        set ::nntp::${name}data(port) $port
+        set data(port) $port
     }
  
-    set ::nntp::${name}data(code) 0
-    set ::nntp::${name}data(mesg) ""
-    set ::nntp::${name}data(addr) ""
+    set data(code) 0
+    set data(mesg) ""
+    set data(addr) ""
 
-    #set sock [socket nntp.best.com 119]
-    set sock [socket [set ::nntp::${name}data(host)] \
-            [set ::nntp::${name}data(port)]]
+    set sock [socket $data(host) $data(port)]
 
-    set ::nntp::${name}data(sock) $sock
+    set data(sock) $sock
 
     # Create the command to manipulate the nntp connection
 
@@ -171,21 +172,6 @@ proc ::nntp::NntpProc {name {cmd ""} args} {
     return [eval [list ::nntp::_$cmd $name] $args]
 }
 
-#proc ::nntp::EOL {name {eol ""}} {
-#    if {"$eol" != ""} {
-#        set ::nntp::${name}data(eol) $eol
-#    }
-#    return [set ::nntp::${name}data(eol)]
-#}
-
-#proc ::nntp::OK {name} {
-#
-#     # Codes less than 400 are good
-#
-#    return [expr {(0 < [set ::nntp::${name}data(code)]) && \
-#            ([set ::nntp::${name}data(code)] < 400)}]
-#}
-
 # ::nntp::okprint --
 #
 #       Used to test the return code stored in data(code) to
@@ -200,18 +186,16 @@ proc ::nntp::NntpProc {name {cmd ""} args} {
 #       returns 1 for 'OK' and 0 for error states.   
 
 proc ::nntp::okprint {name} {
+    upvar 0 ::nntp::${name}data data
 
-    if {([set ::nntp::${name}data(code)] >=400)} {
-        set val [expr {(0 < [set ::nntp::${name}data(code)]) && \
-                ([set ::nntp::${name}data(code)] < 400)}]
-        error "NNTPERROR: [set ::nntp::${name}data(code)] \
-                [set ::nntp::${name}data(mesg)]"
+    if {$data(code) >=400} {
+        set val [expr {(0 < $data(code)) && ($data(code) < 400)}]
+        error "NNTPERROR: $data(code) $data(mesg)"
     }
 
     # Codes less than 400 are good
 
-    return [expr {(0 < [set ::nntp::${name}data(code)]) \
-            && ([set ::nntp::${name}data(code)] < 400)}]
+    return [expr {(0 < $data(code)) && ($data(code) < 400)}]
 }
 
 # ::nntp::message --
@@ -228,36 +212,10 @@ proc ::nntp::okprint {name} {
 #       by the eol character(s) stored in data(eol)
 
 proc ::nntp::message {name} {
-    return "[set ::nntp::${name}data(mesg)][set ::nntp::${name}data(eol)]"
+    upvar 0 ::nntp::${name}data data
+
+    return "$data(mesg)$data(eol)"
 }
-
-# ::nntp::code --
-#
-#       Used to return the return codes value
-#
-# Arguments:
-#       name    name of the nntp object.
-#
-# Results:
-#       Returns the code stored in data(code)
-
-#proc ::nntp::code {name} {
-#    return [set ::nntp::${name}data(code)]
-#}
-
-# ::nntp::postok --
-#
-#       Used to determine when it is 'ok' to post
-#
-# Arguments:
-#       name    name of the nntp object.
-#
-# Results:
-#       Returns the code stored in data(post)
-
-#proc ::nntp::postok {name} {
-#    return [set ::nntp::${name}data(post)]
-#}
 
 #################################################
 #
@@ -294,7 +252,9 @@ proc ::nntp::message {name} {
 #
  
 proc ::nntp::_article {name {msgid ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "ARTICLE $msgid"]
 }
 
@@ -313,7 +273,9 @@ proc ::nntp::_article {name {msgid ""}} {
 #       on the nntp server ( 1 if successful, 0 if failed).
 
 proc ::nntp::_authinfo {name {user "guest"} {pass "foobar"}} {
-    set ::nntp::${name}data(cmnd) ""
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) ""
     set res [::nntp::command $name "AUTHINFO USER $user"]
     if {$res} {
         set res [expr {$res && [::nntp::command $name "AUTHINFO PASS $pass"]}]
@@ -340,7 +302,9 @@ proc ::nntp::_authinfo {name {user "guest"} {pass "foobar"}} {
 #       article 'msgid' or if no group has been specified.
 
 proc ::nntp::_body {name {msgid ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "BODY $msgid"]
 }
 
@@ -367,9 +331,11 @@ proc ::nntp::_body {name {msgid ""}} {
 #  411 no such news group
 
 proc ::nntp::_group {name {group ""}} {
-    set ::nntp::${name}data(cmnd) "groupinfo"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "groupinfo"
     if {$group == ""} {
-        set group [set ::nntp::${name}data(group)]
+        set group $data(group)
     }
     return [::nntp::command $name "GROUP $group"]
 }
@@ -393,7 +359,9 @@ proc ::nntp::_group {name {group ""}} {
 #       article 'msgid' or if no group has been specified.
 
 proc ::nntp::_head {name {msgid ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "HEAD $msgid"]
 }
 
@@ -409,12 +377,16 @@ proc ::nntp::_head {name {msgid ""}} {
 #       Returns the NNTP commands expected by the NNTP server.
 
 proc ::nntp::_help {name} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "HELP"]
 }
 
-proc ::nntp::_ihave {name {msgid ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+proc ::nntp::_ihave {name {msgid ""} args} {
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     if {![::nntp::command $name "IHAVE $msgid"]} {
         return
     }
@@ -433,7 +405,9 @@ proc ::nntp::_ihave {name {msgid ""}} {
 #       None.
 
 proc ::nntp::_last {name} {
-    set ::nntp::${name}data(cmnd) "msgid"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "msgid"
     return [::nntp::command $name "LAST"]
 }
 
@@ -453,7 +427,9 @@ proc ::nntp::_last {name} {
 #       a type is specified.
 
 proc ::nntp::_list {name {type ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "LIST $type"]
 }
 
@@ -471,10 +447,11 @@ proc ::nntp::_list {name {type ""}} {
 #       Returns a tcl list of all new groups added since the time specified. 
 
 proc ::nntp::_newgroups {name since args} {
+    upvar 0 ::nntp::${name}data data
+
     set since [clock format [clock scan "$since"] -format "%y%m%d %H%M%S"]
-    #set dist [distributions $name "$args"]
     set dist ""
-    set ::nntp::${name}data(cmnd) "fetch"
+    set data(cmnd) "fetch"
     return [::nntp::command $name "NEWGROUPS $since $dist"]
 }
 
@@ -493,18 +470,18 @@ proc ::nntp::_newgroups {name since args} {
 # Results:
 #       Returns a tcl list of all new messages since the time specified. 
 
-proc ::nntp::_newnews {name {group ""} {since ""} {args ""}} {
+proc ::nntp::_newnews {name {group ""} {since ""}} {
+    upvar 0 ::nntp::${name}data data
+
     if {$group != ""} {
         if {[regexp {^[\w\.\-]+$} $group] == 0} {
-        #if {[string is digit $group]} {}
             set since $group
             set group ""
         }
     }
     if {![info exists group] || ($group == "")} {
-        if {[info exists ::nntp::${name}data(group)] \
-                && ([set ::nntp::${name}data(group)] != "")} {
-            set group [set ::nntp::${name}data(group)]
+        if {[info exists data(group)] && ($data(group) != "")} {
+            set group $data(group)
         } else {
             set group "*"
         }
@@ -513,9 +490,8 @@ proc ::nntp::_newnews {name {group ""} {since ""} {args ""}} {
         set since [clock format [clock scan "now - 1 day"]]
     }
     set since [clock format [clock scan $since] -format "%y%m%d %H%M%S"]
-    #set dist [nntp::_list $name distributions]
     set dist "" 
-    set ::nntp::${name}data(cmnd) "fetch"
+    set data(cmnd) "fetch"
     return [::nntp::command $name "NEWNEWS $group $since $dist"]
 }
 
@@ -531,7 +507,9 @@ proc ::nntp::_newnews {name {group ""} {since ""} {args ""}} {
 #       None.
 
 proc ::nntp::_next {name} {
-    set ::nntp::${name}data(cmnd) "msgid"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "msgid"
     return [::nntp::command $name "NEXT"]
 }
 
@@ -604,7 +582,9 @@ proc ::nntp::_slave {name} {
 #       Returns the statistics for the article.
 
 proc ::nntp::_stat {name {msgid ""}} {
-    set ::nntp::${name}data(cmnd) "status"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "status"
     return [::nntp::command $name "STAT $msgid"]
 }
 
@@ -621,9 +601,10 @@ proc ::nntp::_stat {name {msgid ""}} {
 #       Returns the return value from the quit command.
 
 proc ::nntp::_quit {name} {
+    upvar 0 ::nntp::${name}data data
 
     set ret [::nntp::command $name "QUIT"]
-    close [set ::nntp::${name}data(sock)]
+    close $data(sock)
     rename ${name} {}
     return $ret
 }
@@ -634,26 +615,36 @@ proc ::nntp::_quit {name} {
 #
 
 proc ::nntp::_date {name} {
-    set ::nntp::${name}data(cmnd) "msg"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "msg"
     return [::nntp::command $name "DATE"]
 }
 
 proc ::nntp::_listgroup {name {group ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "LISTGROUP $group"]
 }
 
 proc ::nntp::_mode_reader {name} {
-    set ::nntp::${name}data(cmnd) "msg"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "msg"
     return [::nntp::command $name "MODE READER"]
 }
 
 proc ::nntp::_xgtitle {name {group_pattern ""}} {
-    set ::nntp::${name}data(cmnd) "fetch"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "fetch"
     return [::nntp::command $name "XGTITLE $group_pattern"]
 }
 
 proc ::nntp::_xhdr {name {header "message-id"} {list ""} {last ""}} {
+    upvar 0 ::nntp::${name}data data
+
     if {![regexp {\d+-\d+} $list]} {
         if {"$last" != ""} {
             set list "$list-$last"
@@ -661,28 +652,33 @@ proc ::nntp::_xhdr {name {header "message-id"} {list ""} {last ""}} {
             set list ""
 	}
     }
-    set ::nntp::${name}data(cmnd) "fetch"
+    set data(cmnd) "fetch"
     return [::nntp::command $name "XHDR $header $list"]    
 }
 
 proc ::nntp::_xindex {name {group ""}} {
-    if {("$group" == "") && [info exists ::nntp::${name}data(group)]} {
-        set group [set ::nntp::${name}data(group)]
+    upvar 0 ::nntp::${name}data data
+
+    if {("$group" == "") && [info exists data(group)]} {
+        set group $data(group)
     }
-    set ::nntp::${name}data(cmnd) "fetch"
+    set data(cmnd) "fetch"
     return [::nntp::command $name "XINDEX $group"]    
 }
 
 proc ::nntp::_xmotd {name {since ""}} {
+    upvar 0 ::nntp::${name}data data
+
     if {"$since" != ""} {
         set since [clock seconds]
     }
-    set since [clock format [clock scan $since] "%y%m%d %H%M%S"]
-    set ::nntp::${name}data(cmnd) "fetch"
+    set since [clock format [clock scan $since] -format "%y%m%d %H%M%S"]
+    set data(cmnd) "fetch"
     return [::nntp::command $name "XMOTD $since"]    
 }
 
 proc ::nntp::_xover {name {list ""} {last ""}} {
+    upvar 0 ::nntp::${name}data data
     if {![regexp {\d+-\d+} $list]} {
         if {"$last" != ""} {
             set list "$list-$last"
@@ -690,13 +686,13 @@ proc ::nntp::_xover {name {list ""} {last ""}} {
             set list ""
 	}
     }
-    set ::nntp::${name}data(cmnd) "fetch"
+    set data(cmnd) "fetch"
     return [::nntp::command $name "XOVER $list"]
 }
 
-# TODO
+proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} args} {
+    upvar 0 ::nntp::${name}data data
 
-proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} {args ""}} {
     set patterns ""
 
     if {![regexp {\d+-\d+} $list]} {
@@ -707,7 +703,7 @@ proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} {args ""}} {
         set patterns "$last"
     }
     
-    if {"$args" != ""} {
+    if {[llength $args] > 0} {
         set patterns "$patterns $args"
     }
 
@@ -715,30 +711,34 @@ proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} {args ""}} {
         set patterns "*"
     }
     
-    set ::nntp::${name}data(cmnd) "fetch"
+    set data(cmnd) "fetch"
     return [::nntp::command $name "XPAT $header $list $patterns"]
 }
 
 proc ::nntp::_xpath {name {msgid ""}} {
-    set ::nntp::${name}data(cmnd) "msg"
+    upvar 0 ::nntp::${name}data data
+
+    set data(cmnd) "msg"
     return [::nntp::command $name "XPATH $msgid"]
 }
 
-proc ::nntp::_xsearch {name} {
-    set res [::nntp::commmand $name "XSEARCH"]
+proc ::nntp::_xsearch {name args} {
+    set res [::nntp::command $name "XSEARCH"]
     if {!$res} {
         return
     }
-    #squirt
+    return [::nntp::squirt $name "$args"]    
 }
 
-proc ::nntp::_xthread {name {args ""}} {
-    if {"$args" != ""} {
+proc ::nntp::_xthread {name args} {
+    upvar 0 ::nntp::${name}data data
+
+    if {[llength $args] > 0} {
         set filename "dbinit"
     } else {
         set filename "thread"
     }
-    set ::nntp::${name}data(cmnd) "fetchbinary"
+    set data(cmnd) "fetchbinary"
     return [::nntp::command $name "XTHREAD $filename"]
 }
 
@@ -748,9 +748,11 @@ proc ::nntp::_xthread {name {args ""}} {
 #
 
 proc ::nntp::cmd {name cmd} {
+    upvar 0 ::nntp::${name}data data
+
     set eol "\015\012"
-    set sock [set ::nntp::${name}data(sock)]
-    if {[set ::nntp::${name}data(debug)]} {
+    set sock $data(sock)
+    if {$data(debug)} {
         puts stderr "$sock command $cmd"
     }
     puts $sock "$cmd"
@@ -765,26 +767,32 @@ proc ::nntp::command {name args} {
 }
 
 proc ::nntp::msg {name} {
+    upvar 0 ::nntp::${name}data data
+
     set res [::nntp::okprint $name]
     if {!$res} {
         return
     }
-    return [set ::nntp::${name}data(mesg)]
+    return $data(mesg)
 }
 
 proc ::nntp::groupinfo {name} {
-    set ::nntp::${name}data(group) ""
+    upvar 0 ::nntp::${name}data data
+
+    set data(group) ""
 
     if {[::nntp::okprint $name] && [regexp {(\d+)\s+(\d+)\s+(\d+)\s+([\w\.]+)} \
-            [set ::nntp::${name}data(mesg)] match count first last \
-            ::nntp::${name}data(group)]} {
-        return [list $count $first $last [set ::nntp::${name}data(group)]]
+            $data(mesg) match count first last data(group)]} {
+        return [list $count $first $last $data(group)]
     }
 }
 
 proc ::nntp::msgid {name} {
+    upvar 0 ::nntp::${name}data data
+
     set result ""
-    if {[::nntp::okprint $name] && [regsub {\s+<[^>]+>} [set ::nntp::${name}data(mesg)] {} result]} {
+    if {[::nntp::okprint $name] && \
+            [regsub {\s+<[^>]+>} $data(mesg) {} result]} {
         return $result
     } else {
         return ""
@@ -792,8 +800,11 @@ proc ::nntp::msgid {name} {
 }
 
 proc ::nntp::status {name} {
+    upvar 0 ::nntp::${name}data data
+
     set result ""
-    if {[::nntp::okprint $name] && [regexp {\d+\s+<[^>]+>} [set ::nntp::${name}data(mesg)] result]} {
+    if {[::nntp::okprint $name] && \
+            [regexp {\d+\s+<[^>]+>} $data(mesg) result]} {
         return $result
     } else {
         return ""
@@ -801,17 +812,19 @@ proc ::nntp::status {name} {
 }
 
 proc ::nntp::fetch {name} {
+    upvar 0 ::nntp::${name}data data
+
     set eol "\012"
 
     if {![::nntp::okprint $name]} {
         return
     }
-    set sock [set ::nntp::${name}data(sock)]
+    set sock $data(sock)
 
     set result [list ]
     while {![eof $sock]} {
         gets $sock line
-        regsub {\015?\012$} $line [set ::nntp::${name}data(eol)] line
+        regsub {\015?\012$} $line $data(eol) line
 
         if {[regexp {^\.$} $line]} {
             break
@@ -823,13 +836,15 @@ proc ::nntp::fetch {name} {
 }
 
 proc ::nntp::response {name} {
+    upvar 0 ::nntp::${name}data data
+
     set eol "\012"
 
-    set sock [set ::nntp::${name}data(sock)]
+    set sock $data(sock)
 
     gets $sock line
-    set ::nntp::${name}data(code) 0
-    set ::nntp::${name}data(mesg) ""
+    set data(code) 0
+    set data(mesg) ""
 
     if {$line == ""} {
         error "nntp: unexpected EOF on $sock\n"
@@ -838,23 +853,23 @@ proc ::nntp::response {name} {
     regsub {\015?\012$} $line "" line
 
     set result [regexp {^((\d\d)(\d))\s*(.*)} $line match \
-        ::nntp::${name}data(code) val1 val2 ::nntp::${name}data(mesg)]
+            data(code) val1 val2 data(mesg)]
     
     if {$result == 0} {
-        puts stderr "nntp garpled response: $line\n";
+        puts stderr "nntp garbled response: $line\n";
         return
     }
 
     if {$val1 == 20} {
-        set ::nntp::${name}data(post) [expr {!$val2}]
+        set data(post) [expr {!$val2}]
     }
 
-    if {[set ::nntp::${name}data(debug)]} {
+    if {$data(debug)} {
         puts stderr "val1 $val1 val2 $val2"
-        puts stderr "code '[set ::nntp::${name}data(code)]'"
-        puts stderr "mesg '[set ::nntp::${name}data(mesg)]'"
-        if {[info exists ::nntp::${name}data(post)]} {
-            puts stderr "post '[set ::nntp::${name}data(post)]'"
+        puts stderr "code '$data(code)'"
+        puts stderr "mesg '$data(mesg)'"
+        if {[info exists data(post)]} {
+            puts stderr "post '$data(post)'"
         }
     } 
 
@@ -862,20 +877,45 @@ proc ::nntp::response {name} {
 }
 
 proc ::nntp::returnval {name} {
-    if {([info exists ::nntp::${name}data(cmnd)]) \
-            && ([set ::nntp::${name}data(cmnd)] != "")} {
-        set command [set ::nntp::${name}data(cmnd) ]
+    upvar 0 ::nntp::${name}data data
+
+    if {([info exists data(cmnd)]) \
+            && ($data(cmnd) != "")} {
+        set command $data(cmnd)
     } else {
         set command okprint
     }
     
-    if {[set ::nntp::${name}data(debug)]} {
+    if {$data(debug)} {
         puts stderr "returnval command '$command'"
     }
 
-    set ::nntp::${name}data(cmnd) ""
+    set data(cmnd) ""
     return [::nntp::$command $name]
 }
 
+proc ::nntp::squirt {name {body ""}} {
+    upvar 0 ::nntp::${name}data data
+
+    set body [split $body \n]
+
+    if {$data(debug)} {
+        puts stderr "$data(sock) sending [llength $body] lines\n";
+    }
+
+    foreach line $body {
+        # Print each line, possibly prepending a dot for lines
+        # starting with a dot and trimming any trailing \n.
+        regsub {^\.} $line {..} line
+        puts $data(sock) $line
+    }
+    puts $data(sock) "."
+    flush $data(sock)
+
+    if {$data(debug)} {
+        puts stderr "$data(sock) is finished sending"
+    }
+    return [::nntp::response $name]
+}
 #eof
 
