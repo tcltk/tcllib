@@ -39,8 +39,9 @@ foreach {m pkg doc exa} {
     javascript	_tcl  _man  _null
     log		_tcl  _man  _null
     math	 _tci _man  _null
-    md5		_tcl  _man  _null
     md4		_tcl  _man  _null
+    md5		_tcl  _man  _null
+    md5crypt	_tcl  _null _null
     mime	_tcl  _man _exa
     multiplexer _tcl  _man  _null
     ncgi	_tcl  _man  _null
