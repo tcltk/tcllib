@@ -1,3 +1,8 @@
+2002-02-26  Joe English  <jenglish@users.sourceforge.net
+
+	* tabify.tcl, tabify.test: fix for #521590,
+	  [tabify2 ""] and [untabify2 ""] raised an error.
+
 2002-02-14  Tcl Project  <akupries@shaw.ca>
 
 	* expander.tcl: Frink run.
