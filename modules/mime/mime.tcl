@@ -3502,7 +3502,8 @@ proc mime::word_decode {encoded} {
 	error "malformed word-encoded expression '$encoded'"
     }
 
-    if {![info exists reversemap($charset)]} {
+    set enc [reversemapencoding $charset]
+    if {[string equal "" $enc]} {
 	error "unknown charset '$charset'"
     }
 
@@ -3533,7 +3534,7 @@ proc mime::word_decode {encoded} {
 	}
     }
 
-    return [list $reversemap($charset) $method $result]
+    return [list $enc $method $result]
 }
 
 # mime::field_decode --
