@@ -20,7 +20,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.5 2003/01/25 21:05:52 patthoyts Exp $
+# $Id: dns.tcl,v 1.6 2003/01/30 23:02:34 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
@@ -29,7 +29,7 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
     variable version 1.0.2
-    variable rcsid {$Id: dns.tcl,v 1.5 2003/01/25 21:05:52 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.6 2003/01/30 23:02:34 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup
@@ -49,6 +49,12 @@ namespace eval dns {
         log::lvSuppressLE $options(loglevel) 1
         log::lvSuppress $options(loglevel) 0
     }
+
+    #if {![catch {package require udp} msg]} { ;# tcludp 1.0
+        # When this is tested ok then we make udp be the default
+        # when it is available. For now - leave tcp.
+        #set options(protocol) udp
+    #}
 
     variable types
     array set types { 
@@ -116,7 +122,13 @@ proc dns::configure {args} {
                 if {$cget} {
                     return $options(protocol)
                 } else {
-                    set options(protocol) [Pop args 1] 
+                    set proto [string tolower [Pop args 1]]
+                    if {[string compare udp $proto] == 0 \
+                            && [string compare tcp $proto] == 0} {
+                        return -code error "invalid protocol \"$proto\":\
+                            protocol must be either \"udp\" or \"tcp\""
+                    }
+                    set options(protocol) $proto 
                 }
             }
             -sea* { 
@@ -215,8 +227,10 @@ proc dns::resolve {query args} {
         return -code error "no nameserver specified"
     }
 
-    if {$state(-protocol) != "tcp"} {
-        return -code error "udp support is not yet available"
+    if {$state(-protocol) == "udp"} {
+        if {[package provide udp] == {}} {
+            return -code error "udp support is not available, get tcludp"
+        }
     }
 
     BuildMessage $token
@@ -226,6 +240,8 @@ proc dns::resolve {query args} {
         if {$state(-command) == {}} {
             wait $token
         }
+    } else {
+        UdpTransmit $token
     }
     
     return $token
@@ -472,6 +488,35 @@ proc dns::TcpTransmit {token} {
 }
 
 # -------------------------------------------------------------------------
+# Description:
+#  Transmit a DNS request using UDP datagrams
+#
+# Note:
+#  This requires a UDP implementation that can transmit binary data.
+#  As yet I have been unable to test this myself and the tcludp package
+#  cannot do this.
+#
+proc dns::UdpTransmit {token} {
+    variable $token
+    upvar 0 $token state
+
+    # setup the timeout
+    if {$state(-timeout) > 0} {
+        set state(after) [after $state(-timeout) \
+                              [list [namespace origin reset] $token timeout]]
+    }
+    
+    set state(sock) [udp_open]
+    udp_conf $state(sock) $state(-nameserver) $state(-port)
+    fconfigure $state(sock) -translation binary -buffering none
+    puts -nonewline $state(sock) $state(request)
+    
+    fileevent $state(sock) readable [list [namespace current]::UdpEvent $token]
+    
+    return $token
+}
+
+# -------------------------------------------------------------------------
 
 # Description:
 #  Tidy up after a tcp transaction.
@@ -579,6 +624,24 @@ proc dns::TcpEvent {token} {
     }
 }
 
+# -------------------------------------------------------------------------
+
+# Description:
+#  file event handler for udp sockets.
+proc dns::UdpEvent {token} {
+    variable $token
+    upvar 0 $token state
+    set s $state(sock)
+
+    log::log debug "UdpEvent $token"
+    set payload [read $state(sock)]
+    binary scan $payload SS id flags
+    set id [expr {$id & 0xFFFF}]
+    set trunc [expr {$flags & 0x0400}]
+    if {$trunc != 0} {log::log warning "truncated result!!!"}
+    Receive [namespace current]::$id $payload
+}
+    
 # -------------------------------------------------------------------------
 
 # Description:
