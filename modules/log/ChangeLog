@@ -1,3 +1,20 @@
+2004-05-25  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.tcl: Fixed bug [948273] in ::logger::services
+	  Fixed cleanup of services list in delproc
+	  Implemented doc'ed but missing ${log}::services subcommand
+	  Fixed misuse of set inside namespace eval to prevent 
+	  overwriting of global variables
+	  Added new subcommands servicecmd and servicename 
+	  for introspection
+	  Added introspection to logproc and delproc
+	  Version number changed to 0.4
+	* pkgIndex.tcl: updated version number of logger package
+	* logger.man: updated docs for ${log}::services,
+	  ${log}::delproc and ${log}::logproc.
+	  Added docs for servicecmd and servicename.
+	* logger.test: Added tests for new features and fixed bugs
+
 2004-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* log.tcl: Added initialization code to suppress the lower levels
