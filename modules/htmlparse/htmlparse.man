@@ -1,4 +1,4 @@
-[manpage_begin format n 1.0.1]
+[manpage_begin htmlparse n 0.2]
 [moddesc   {HTML Parser}]
 [titledesc {Procedures to parse HTML strings}]
 [require Tcl 8.2]

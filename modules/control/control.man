@@ -1,4 +1,4 @@
-[manpage_begin format n 1.0.1]
+[manpage_begin control n 0.1]
 [moddesc   {Tcl Control Flow Commands}]
 [titledesc {Procedures for control flow structures.}]
 [require Tcl 8.2]
