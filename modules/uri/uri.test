@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.13 2002/11/15 23:43:57 davidw Exp $
+# RCS: @(#) $Id: uri.test,v 1.14 2003/02/07 20:34:16 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -186,13 +186,17 @@ test uri-3.10 {uri::resolve - two queries,
 
 # -------------------------------------------------------------------------
 
-# NB: This test fails on windows as there is an extra character for each
-#     line (\n -> \r\n) thus filesize of 210 is a read size of 207 [PT]
-
 test uri-4.1 {uri::geturl} {
-    set token [uri::geturl file://[file join [pwd] ${::dirname} pkgIndex.tcl]]
-    expr {[string length [lindex [array get $token data] 1]]}
-} [file size [file join [pwd] $::dirname pkgIndex.tcl]]
+    removeFile __testdata
+    set data [info commands]
+    set file [makeFile {} __testdata]
+    set f [open $file w]
+    puts -nonewline $f $data
+    close $f
+
+    set token [uri::geturl file://[file normalize $file]]
+    string compare $data [set [subst $token](data)]
+} 0
 
 # -------------------------------------------------------------------------
 
