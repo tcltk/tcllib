@@ -136,9 +136,10 @@ PING the server.
 begin with a hashmark ("#") or ampersand ("&").
 
 
-[call [arg net] [method part] [arg channel]]
+[call [arg net] [method part] [arg channel] [opt message]]
 
-Makes the client leave [arg channel].
+Makes the client leave [arg channel]. Some networks may support the optional
+message [opt message]
 
 [call [arg net] [method quit] [opt message]]
 
@@ -174,10 +175,10 @@ Sets the mode [arg args] on the target [arg target]. [arg target] may be a chann
 a channel user, or yourself.
 
 
-[call [arg net] [method topic] [arg channel] [opt message]]
+[call [arg net] [method topic] [arg channel] [arg message]]
 
-Sets the topic on [arg channel] to [opt message] or removes the topic
-if no message is specified
+Sets the topic on [arg channel] to [arg message] specifying and empty string
+will remove the topic
 
 
 [call [arg net] [method invite] [arg channel] [arg target]]
