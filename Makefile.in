@@ -12,13 +12,16 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.46 2001/08/20 22:30:54 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.47 2001/08/21 22:54:15 dgp Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
 
 # Option processing package (like opt)
 CMDLINE=cmdline
+
+# Control flow commands and other language structures
+CONTROL=control
 
 # CSV processing
 CSV=csv
@@ -90,6 +93,7 @@ REPORT=report
 MODULES= \
 	$(BASE64)	\
 	$(CMDLINE)	\
+	$(CONTROL)	\
 	$(CSV)		\
 	$(COUNTER)	\
 	$(STRUCT)	\
