@@ -6,6 +6,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # See the file license.terms.
 
+package require Tcl 8
 package provide log 1.0
 
 namespace eval ::log {

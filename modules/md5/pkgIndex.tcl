@@ -8,4 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
+if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded md5 1.4 [list source [file join $dir md5.tcl]]

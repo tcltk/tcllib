@@ -22,6 +22,8 @@ exec wish8.3 "$0" "$@"
 #
 ########################################################################
 
+package require Tcl 8
+package require Tk
 package require ftp 2.0
 
 # set palette under X

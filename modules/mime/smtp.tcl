@@ -6,10 +6,9 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 
-
-package provide smtp 1.2
-
+package require Tcl 8.3
 package require mime 1.0
+package provide smtp 1.2
 
 if {[catch {package require Trf  2.0}]} {
     # Trf is not available, but we can live without it as long as the

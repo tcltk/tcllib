@@ -24,7 +24,7 @@
 # of decoding them.
 
 # We use newer string routines
-package require Tcl 8.1
+package require Tcl 8.2
 
 package provide ncgi 1.1
 

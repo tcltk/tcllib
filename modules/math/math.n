@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: math.n,v 1.6 2000/10/06 21:10:41 ericm Exp $
+'\" RCS: @(#) $Id: math.n,v 1.7 2001/08/02 16:38:06 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH math n 1.0 math "Tcl Math Library"
@@ -11,6 +11,8 @@
 .SH NAME
 math \- Tcl math library
 .SH SYNOPSIS
+\fBpackage require Tcl 8.2\fR
+.sp
 \fBpackage require math ?1.0?\fR
 .sp
 \fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?

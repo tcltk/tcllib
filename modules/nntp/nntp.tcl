@@ -5,8 +5,9 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.4 2001/07/10 20:39:46 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.5 2001/08/02 16:38:07 andreas_kupries Exp $
 
+package require Tcl 8.2
 package provide nntp 0.1
 
 namespace eval ::nntp {

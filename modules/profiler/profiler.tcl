@@ -7,8 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.15 2001/07/31 23:47:51 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.16 2001/08/02 16:38:07 andreas_kupries Exp $
 
+package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.1
 
 namespace eval ::profiler {

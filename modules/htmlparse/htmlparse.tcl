@@ -16,8 +16,9 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # See the file license.terms.
 
-package require struct
-package require cmdline
+package require Tcl 8.2
+package require struct 1
+package require cmdline 1.1
 package provide htmlparse 0.2
 
 namespace eval ::htmlparse {

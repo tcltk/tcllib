@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.5 2001/08/02 16:22:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.6 2001/08/02 16:38:07 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
@@ -11,6 +11,8 @@
 .SH NAME
 pop3 \- Tcl client for POP3 email protocol
 .SH SYNOPSIS
+\fBpackage require Tcl 8.2\fR
+.sp
 \fBpackage require pop3 ?1.3?\fR
 .sp
 \fB::pop3::open\fR ?-msex \fB0|1\fR? ?-retr-mode \fBretr|list|slow\fR? \fIhost user Ipassword \fR?\fIport\fR? 

@@ -7,8 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.8 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: math.tcl,v 1.9 2001/08/02 16:38:06 andreas_kupries Exp $
 
+package require Tcl 8.2		;# uses [lindex $l end-$integer]
 namespace eval ::math {
 }
 
