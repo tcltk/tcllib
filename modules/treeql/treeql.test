@@ -286,6 +286,18 @@ test treeql-6.1 "delete all even numbers (except root)" {} {
     q query tree get data
 } 0
 
+test treeql-6.1 "delete all (except root)" {} {
+    q query reset tree notq {root} delete
+    q query tree get data
+} 0
+
+test treeql-get.1 {attributes with special characters} {
+    $tree insert root end n1 n2 n3
+    $tree set n1 title hello
+    $tree set n2 title "hello there"
+    $tree set n3 title {[hello]}
+    q query root children get title
+} [list hello {hello there} {[hello]}]
 
 # -------------------------------------------------------------------------
 q destroy
