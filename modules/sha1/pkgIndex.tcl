@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded sha1 1.0.3 [list source [file join $dir sha1.tcl]]
+package ifneeded sha1 2.0.0 [list source [file join $dir sha1.tcl]]
