@@ -1,3 +1,13 @@
+Wed Sep 29 11:07:29 2004  Andreas Kupries <andreask@activestate.com>
+
+	* htmlparse.test: Fixed [Tcllib SF Bug 1034580], see also
+ 	* htmlparse.tcl:  [Tcllib SF Bug 900041]. Thanks to Georgios
+ 	  Petasis <petasis@users.sourceforge.net> for the report and
+ 	  proposed solution. While the solution was not used as-is, it
+ 	  gave enough clues to make writing the actual solution
+ 	  trivial. It converts <tag attr /> to <tag attr></tag>. Added
+ 	  testcases.
+
 2004-09-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* htmlparse.tcl (PrepareHtml): Fixed processing of comments
