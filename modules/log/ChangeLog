@@ -1,5 +1,9 @@
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
+	* log.man:
+	* log.tcl:
+	* pkgIndex.tcl:  Set version of the package 'log' to to 1.0.2.
+
 	* logger.tcl: Fixed bug #614591.
 
 2003-02-25  David N. Welton  <davidw@dedasys.com>
