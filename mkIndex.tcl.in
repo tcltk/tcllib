@@ -78,15 +78,11 @@ proc Nativepath {pathName} {
 }
 
 set prefix "@prefix@"
-set exec_prefix "@exec_prefix@"
 
-set exec_prefix [Nativepath $exec_prefix] 
-
-set libdir @libdir@
 set package @PACKAGE@
 set version @VERSION@
 
-cd [file join $libdir $package]
+cd [file join $prefix lib $package]
 puts "Making pkgIndex.tcl in [pwd]"
 
 set modules [list ]
