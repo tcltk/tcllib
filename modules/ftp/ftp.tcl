@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.3 2000/07/09 20:13:34 kuchler Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.4 2000/07/09 20:18:54 kuchler Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -33,7 +33,7 @@
 #			ftp::Quote <s> <arg1> <arg2> ...
 #
 
-package provide ftp [lindex {$Revision: 1.3 $} 1]
+package provide ftp [lindex {Revision: 2.0 } 1]
 
 namespace eval ftp {
 
