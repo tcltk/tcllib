@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.12 2004/02/09 04:56:31 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.13 2004/02/09 09:32:13 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -842,7 +842,7 @@ proc ::struct::graph::__arc_unset {name arc key} {
     }
 
     upvar ${name}::$arcAttr($arc) data
-    unset -nocomplain data($key)
+    catch {unset data($key)}
 
     if {[array size data] == 0} {
 	# No attributes stored for this arc, squash the whole array.
@@ -1856,7 +1856,7 @@ proc ::struct::graph::__node_unset {name node key} {
     }
 
     upvar ${name}::$nodeAttr($node) data
-    unset -nocomplain data($key)
+    catch {unset data($key)}
 
     if {[array size data] == 0} {
 	# No attributes stored for this node, squash the whole array.
@@ -2785,7 +2785,7 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 proc ::struct::graph::K { x y } { set x }
 
 if { [package vcompare [package provide Tcl] 8.4] < 0 } {
-    proc ::struct::graph:lset { var index arg } {
+    proc ::struct::graph::lset { var index arg } {
 	upvar 1 $var list
 	set list [::lreplace [K $list [set list {}]] $index $index $arg]
     }

@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.1 2004/02/04 05:36:27 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.2 2004/02/09 09:32:14 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -21,6 +21,15 @@ proc wrongNumArgs {name arglist count} {
     if {[package vcompare [package provide Tcl] 8.4] < 0} {
 	set arg [lindex $arglist $count]
 	set msg "no value given for parameter \"$arg\" to \"$name\""
+    } else {
+	set msg "wrong # args: should be \"$name $arglist\""
+    }
+    return $msg
+}
+
+proc tooManyArgs {name arglist} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+	set msg "called \"$name\" with too many arguments"
     } else {
 	set msg "wrong # args: should be \"$name $arglist\""
     }
@@ -45,7 +54,7 @@ interp alias {} setop {} ::struct::set::set
 test set-1.0 {nothing} {
     catch {setop} msg
     set msg
-} {wrong # args: should be "::struct::set::set cmd args"}
+} [wrongNumArgs {::struct::set::set} {cmd args} 0]
 
 test set-1.1 {bogus} {
     catch {setop foo} msg
@@ -56,12 +65,12 @@ test set-1.1 {bogus} {
 test set-2.0 {emptiness} {
     catch {setop empty} msg
     set msg
-} {wrong # args: should be "::struct::set::Sempty set"}
+} [wrongNumArgs {::struct::set::Sempty} {set} 0]
 
 test set-2.1 {emptiness} {
     catch {setop empty a b} msg
     set msg
-} {wrong # args: should be "::struct::set::Sempty set"}
+} [tooManyArgs {::struct::set::Sempty} {set}]
 
 test set-2.2 {emptiness} {
     setop empty $sempty
@@ -79,12 +88,12 @@ test set-2.4 {emptiness} {
 test set-3.0 {size} {
     catch {setop size} msg
     set msg
-} {wrong # args: should be "::struct::set::Ssize set"}
+} [wrongNumArgs {::struct::set::Ssize} {set} 0]
 
 test set-3.1 {size} {
     catch {setop size a b} msg
     set msg
-} {wrong # args: should be "::struct::set::Ssize set"}
+} [tooManyArgs {::struct::set::Ssize} {set}]
 
 test set-3.2 {size} {
     setop size $sempty
@@ -204,17 +213,17 @@ test set-5.13 {intersect} {
 test set-6.0 {difference} {
     catch {setop difference} msg
     set msg
-} {wrong # args: should be "::struct::set::Sdifference A B"}
+} [wrongNumArgs {::struct::set::Sdifference} {A B} 0]
 
 test set-6.1 {difference} {
     catch {setop difference a} msg
     set msg
-} {wrong # args: should be "::struct::set::Sdifference A B"}
+} [wrongNumArgs {::struct::set::Sdifference} {A B} 1]
 
 test set-6.2 {difference} {
     catch {setop difference a b c} msg
     set msg
-} {wrong # args: should be "::struct::set::Sdifference A B"}
+} [tooManyArgs {::struct::set::Sdifference} {A B}]
 
 test set-6.3 {difference} {
     setop difference $sa $sempty
@@ -244,17 +253,17 @@ test set-6.8 {difference} {
 test set-7.0 {symdiff} {
     catch {setop symdiff} msg
     set msg
-} {wrong # args: should be "::struct::set::Ssymdiff A B"}
+} [wrongNumArgs {::struct::set::Ssymdiff} {A B} 0]
 
 test set-7.1 {symdiff} {
     catch {setop symdiff a} msg
     set msg
-} {wrong # args: should be "::struct::set::Ssymdiff A B"}
+} [wrongNumArgs {::struct::set::Ssymdiff} {A B} 1]
 
 test set-7.2 {symdiff} {
     catch {setop symdiff a b c} msg
     set msg
-} {wrong # args: should be "::struct::set::Ssymdiff A B"}
+} [tooManyArgs {::struct::set::Ssymdiff} {A B}]
 
 test set-7.3 {symdiff} {
     lsort [setop symdiff $sa $sempty]
@@ -284,17 +293,17 @@ test set-7.8 {symdiff} {
 test set-8.0 {intersect3} {
     catch {setop intersect3} msg
     set msg
-} {wrong # args: should be "::struct::set::Sintersect3 A B"}
+} [wrongNumArgs {::struct::set::Sintersect3} {A B} 0]
 
 test set-8.1 {intersect3} {
     catch {setop intersect3 a} msg
     set msg
-} {wrong # args: should be "::struct::set::Sintersect3 A B"}
+} [wrongNumArgs {::struct::set::Sintersect3} {A B} 1]
 
 test set-8.2 {intersect3} {
     catch {setop intersect3 a b c} msg
     set msg
-} {wrong # args: should be "::struct::set::Sintersect3 A B"}
+} [tooManyArgs {::struct::set::Sintersect3} {A B}]
 
 test set-8.3 {intersect3} {
     foreach {i da db} [setop intersect3 $sa $sempty] break
@@ -335,17 +344,17 @@ test set-8.9 {intersect3} {
 test set-9.0 {equal} {
     catch {setop equal} msg
     set msg
-} {wrong # args: should be "::struct::set::Sequal A B"}
+} [wrongNumArgs {::struct::set::Sequal} {A B} 0]
 
 test set-9.1 {equal} {
     catch {setop equal a} msg
     set msg
-} {wrong # args: should be "::struct::set::Sequal A B"}
+} [wrongNumArgs {::struct::set::Sequal} {A B} 1]
 
 test set-9.2 {equal} {
     catch {setop equal a b c} msg
     set msg
-} {wrong # args: should be "::struct::set::Sequal A B"}
+} [tooManyArgs {::struct::set::Sequal} {A B}]
 
 test set-9.3 {equal} {
     setop equal $sempty $sempty

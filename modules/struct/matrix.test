@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.9 2004/01/25 06:15:05 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.10 2004/02/09 09:32:13 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -110,7 +110,7 @@ proc validate_serial {m serial {rect {}}} {
     foreach rv $d {
 	set c $ctl
 	foreach cv $rv {
-	    if {[$m get cell $c $r] ne $cv} {
+	    if {![string equal [$m get cell $c $r] $cv]} {
 		return data/cell/$c/$r/content-mismatch
 	    }
 	    incr c
@@ -142,6 +142,29 @@ proc validate_serial {m serial {rect {}}} {
 set matdata {{2 0 f j} {c g b a} {a 02 01 3}}
 
 # ---------------------------------------------------
+
+# Service procedure to develop the error message for "wrong # args"
+
+proc wrongNumArgs {name arglist count} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+	set arg [lindex $arglist $count]
+	set msg "no value given for parameter \"$arg\" to \"$name\""
+    } else {
+	set msg "wrong # args: should be \"$name $arglist\""
+    }
+    return $msg
+}
+
+proc tooManyArgs {name arglist} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+	set msg "called \"$name\" with too many arguments"
+    } else {
+	set msg "wrong # args: should be \"$name $arglist\""
+    }
+    return $msg
+}
+
+#----------------------------------------------------------------------
 
 test matrix-0.1 {matrix errors} {
     matrix mymatrix
@@ -1930,14 +1953,14 @@ test matrix-11.0 {sorting matrices: not enough arguments} {
     catch {mymatrix sort} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "::struct::matrix::_sort name cmd args"}
+} [wrongNumArgs {::struct::matrix::_sort} {name cmd args} 1]
 
 test matrix-11.1 {sorting matrices: not enough arguments} {
     matrix mymatrix
     catch {mymatrix sort} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "::struct::matrix::_sort name cmd args"}
+} [wrongNumArgs {::struct::matrix::_sort} {name cmd args} 1]
 
 test matrix-11.2 {sorting matrices: bad method} {
     matrix mymatrix
@@ -2188,7 +2211,7 @@ test matrix-16.0 {deserialization, wrong #args} {
     catch {mymatrix deserialize foo bar} result
     mymatrix destroy
     set result
-} {wrong # args: should be "::struct::matrix::_deserialize name serial"}
+} [tooManyArgs {::struct::matrix::_deserialize} {name serial}]
 
 test matrix-16.1 {deserialization} {
     matrix mymatrix
@@ -2309,7 +2332,7 @@ test matrix-17.1 {matrix assignment} {
     catch {mymatrix = foo bar} result
     mymatrix destroy
     set result
-} {wrong # args: should be "::struct::matrix::_= name source"}
+} [tooManyArgs {::struct::matrix::_=} {name source}]
 
 test matrix-17.2 {matrix assignment} {
     set serial {2 2 {{. /} {= %}}}
@@ -2335,7 +2358,7 @@ test matrix-18.1 {reverse matrix assignment} {
     catch {mymatrix --> foo bar} result
     mymatrix destroy
     set result
-} {wrong # args: should be "::struct::matrix::_--> name dest"}
+} [tooManyArgs {::struct::matrix::_-->} {name dest}]
 
 test matrix-18.2 {reverse matrix assignment} {
 

@@ -14,9 +14,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 }
 
-#lappend auto_path [pwd]
-package require struct
-#namespace import struct::*
+source [file join [file dirname [info script]] skiplist.tcl]
+namespace eval ::struct {namespace import -force skiplist::*}
 
 # ::shuffle --
 #
