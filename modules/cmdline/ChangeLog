@@ -1,5 +1,13 @@
 2003-08-06  Andreas Kupries  <andreask@activestate.com>
 
+	* cmdline.tcl (getfiles): Using the [string map] fix still had
+	  problem, when mixing back- and forward slashes. Now using [file
+	  join] on the pattern. This removed all problems with the
+	  quoting. I.e. this operation pseudo-normalizes the path. Got the
+	  trick from JeffH.
+
+2003-08-06  Andreas Kupries  <andreask@activestate.com>
+
 	* cmdline.test: Added a test for the backslash quoting behaviour.
 
 	* cmdline.tcl (getfiles): Corrected a bogus attempt to quote
