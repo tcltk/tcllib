@@ -1,3 +1,13 @@
+2003-04-15  Andreas Kupries  <andreask@activestate.com>
+
+	* tcllib_list.man: Changed name to struct_list.man. Allows for
+	  usage of struct outside of tcllib, not as big a coupling.
+
+	* graph.tcl: Redone the setting up of namespace a bit to prevent
+	  problem with the generation of a master package
+	  index. strcut.tcl bailed out with an error because the namespace
+	  was net set up when using [pkg_mkIndex] in this directory.
+
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.test:

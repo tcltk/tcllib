@@ -7,7 +7,14 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.8 2003/04/14 06:58:16 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.9 2003/04/15 17:44:51 andreas_kupries Exp $
+
+# Create the namespace before determining cgraph vs. tcl
+# Otherwise the loading 'struct.tcl' may get into trouble
+# when trying to import commands from them
+
+namespace eval ::struct {}
+namespace eval ::struct::graph {}
 
 # Try to load the cgraph package
 # Get it at http://physnet.uni-oldenburg.de/~schlenk/tcl/graph/ 
@@ -18,7 +25,6 @@ if {![catch {package require cgraph 0.6}]} {
 }
 
 namespace eval ::struct {}
-
 namespace eval ::struct::graph {
     # Data storage in the graph module
     # -------------------------------
