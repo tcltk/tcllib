@@ -1,0 +1,244 @@
+# -*- tcl -*-
+#
+# fmt.latex
+#
+# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+#
+# [mpexpand] definitions to convert a tcl based manpage definition into
+# a manpage based upon LaTeX markup.
+#
+################################################################
+
+proc here {} [list return [file dirname [info script]]]
+proc this {} [list return [file tail    [info script]]]
+
+source [file join [here] _common.tcl]   ; # Shared code
+
+# Called to handle plain text from the input
+proc HandleText {text} {
+    texEscape $text
+}
+
+################################################################
+## Backend for LaTeX markup
+
+proc manpage_begin {title section version} {
+    if {[mp_pass] == 1} {return}
+
+    set module      [mp_module]
+    set shortdesc   [GetDesc mdesc]
+    set description [GetDesc tdesc]
+
+    set     hdr ""
+    append  hdr [Comment "Generated from [mp_file] by tcllib/doctools/mpexpand with [this]"] \n
+    append  hdr [Comment "Copyright (c) [clock format [clock seconds] -format %Y] $::tcl_platform(user)"] \n
+    append  hdr [Comment {All right reserved}] \n
+    append  hdr [Comment "CVS: \$Id\$ $title.$section"] \n
+    append  hdr \n
+
+    append  hdr "\\documentclass\{article\}" \n
+    append  hdr "\\begin\{document\}" \n
+    append  hdr "\\author\{$::tcl_platform(user)\}" \n
+
+    set    titletext ""
+    append titletext "$module / $title \\\\"
+    append titletext "$shortdesc : $description"
+
+    append  hdr "\\title\{[texEscape $titletext]\}" \n
+    append  hdr "\\maketitle" \n
+    return $hdr
+}
+
+proc moddesc {desc} {
+    if {[mp_pass] == 2} {return}
+    SetDesc mdesc $desc
+    return
+}
+proc titledesc {desc} {
+    if {[mp_pass] == 2} {return}
+    SetDesc tdesc $desc
+    return
+}
+
+proc manpage_end {} {
+    return "\\end\{document\}"
+}
+
+proc section {name} {return "\\section\{$name\}"}
+proc para    {}     {return \n\n}
+
+
+proc require {pkg {version {}}} {
+    set    res ""
+    append res [x_synopsis]
+    if {![Req]} {
+	append res \\begin\{flushleft\} \n
+    }
+    Req 1
+    if {$version != {}} {
+	append res "package require [Bold "$pkg $version"]\n"
+    } else {
+	append res "package require [Bold $pkg]\n"
+    }
+    return $res
+}
+
+proc call {cmd args} {
+    if {[mp_pass] == 1} {
+	AddCall "\\item\[\] $cmd [join $args " "]\n"
+	return
+    }
+    return "[lst_item "$cmd [join $args " "]"]"
+}
+
+proc description {} {
+    set pfx   ""
+    if {[Req]} {
+	append pfx "\\end\{flushleft\}\n"
+    }
+    if {[GetCall] == {}} {
+	return $pfx[section DESCRIPTION]
+    }
+    set lstbegin "\\begin\{itemize\}"
+    set lstend   "\\end\{itemize\}"
+    return [x_synopsis]$pfx${lstbegin}\n[GetCall]\n${lstend}\n[section DESCRIPTION]
+}
+
+proc x_synopsis {} {
+    if {![Syn]} {
+	return [section SYNOPSIS]\n
+    }
+    return ""
+}
+
+################################################################
+
+global    list_state
+array set list_state {level -1}
+
+proc list_begin  {what} {
+    global list_state
+
+    switch -exact -- $what {
+	enum - bullet - definitions {}
+	default {return -code error "Unknown list type $what"}
+    }
+
+    incr list_state(level)
+    set  list_state(l,$list_state(level)) $what
+    set  list_state(l,$list_state(level),item) 0
+
+    switch -exact -- $what {
+	enum {
+	    return \\begin\{enumerate\}
+	}
+	bullet {
+	    return \\begin\{itemize\}
+	}
+	definitions {
+	    return \\begin\{itemize\}
+	}
+    }
+}
+
+proc list_end {} {
+    global list_state
+
+    set what $list_state(l,$list_state(level))
+    set item $list_state(l,$list_state(level),item)
+
+    catch {unset list_state(l,$list_state(level))}
+    catch {unset list_state(l,$list_state(level),item)}
+
+    incr list_state(level) -1
+
+    switch -exact -- $what {
+	enum {
+	    return \\end\{enumerate\}
+	}
+	bullet {
+	    return \\end\{itemize\}
+	}
+	definitions {
+	    if {$item} {
+		return \\end\{quote\}\n\\end\{itemize\}
+	    } else {
+		return \\end\{itemize\}
+	    }
+	}
+    }
+}
+
+proc bullet {} {
+    global list_state
+    switch -exact -- $list_state(l,$list_state(level)) {
+	bullet  {return "\\item\n"}
+	default {return -code error "Illegal use of bullet in non-bullet list"}
+    }
+}
+
+proc enum {} {
+    global list_state
+    switch -exact -- $list_state(l,$list_state(level)) {
+	enum    {return "\\item\n"}
+	default {return -code error "Illegal use of bullet in non-bullet list"}
+    }
+}
+
+proc lst_item {text} {
+    global list_state
+
+    set item $list_state(l,$list_state(level),item)
+    set list_state(l,$list_state(level),item) 1
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	definitions {
+	    if {$item} {
+		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+	    } else {
+		return "\\item\[\] $text\n\\begin\{quote\}\n"
+	    }
+	}
+	default     {return -code error "Illegal use of bullet in non-bullet list"}
+    }
+}
+
+################################################################
+
+proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
+proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
+
+proc nl     {}     {return}
+proc arg    {text} {return [Underline $text]}
+proc cmd    {text} {return [Bold      $text]}
+proc emph   {text} {return [Italic    $text]}
+proc strong {text} {return [Bold      $text]}
+proc opt    {text} {return ?$text?}
+
+################################################################
+# latex specific commands
+
+proc Comment   {text} {return "% $text"}
+proc Bold      {text} {return "\{\\bf [texEscape $text]\}"}
+proc Italic    {text} {return "\{\\it [texEscape $text]\}"}
+proc Underline {text} {return "\\underline\{[texEscape $text]\}"}
+
+################################################################
+
+proc setx {v string} {
+    upvar $v _
+    set _ $string
+    return
+}
+
+proc appendx {v string} {
+    upvar $v _
+    append _ $string
+    return
+}
+
+proc texEscape {text} {
+    string map {_ \\_ % \\% $ \\$} $text
+}
+
+################################################################

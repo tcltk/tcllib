@@ -1,0 +1,220 @@
+[manpage_begin format n 1.0]
+[moddesc   {Documentation tools}]
+[titledesc {Specification of simple tcl markup for manpages}]
+[description]
+[para]
+This manpage specifies
+
+[list_begin enum]
+[enum]
+The overall format of manpages using this markup, and
+
+[enum]
+the tcl commands used as the markup
+
+[list_end]
+
+[para]
+The manpage format described here is simpler than TMML, but
+convertible into it (and other formats, like HTML and nroff).
+
+[para]
+The tcl sources of this manpage can serve as an example for all of the
+markup described by it. Every possible construct (with the exception
+of [cmd require]) is used here.
+
+[section OVERVIEW]
+[list_begin bullet]
+[bullet]
+
+The main commands are [cmd manpage_begin], [cmd manpage_end],
+[cmd moddesc], [cmd titledesc], and [cmd description]. Four of these
+five are required for a manpage. The optional command is
+[cmd titledesc]. The first two are the first and last commands in a
+manpage. Neither text nor other commands may precede
+[cmd manpage_begin] nor follow [cmd manpage_end].  The command
+[cmd description] separates header and body of the manpage and may not
+be omitted.
+
+[nl]
+
+The remaining commands ([cmd moddesc] and [cmd titledesc]) provide
+one-line descriptions of module and specific title respectively.
+
+[bullet]
+The only text allowed between [cmd manpage_begin] and
+[cmd description] is the command [cmd require]. Other commands or
+normal text are not permitted. [cmd require] is used to list the
+packages the described command(s) depend(s) on for its operation. This
+list can be empty.
+
+[bullet]
+After [cmd description] text and all other commands are allowed. The
+text can be separated into highlevel blocks using named
+[cmd section]s.  Each block can be further divided into paragraphs via
+[cmd para].
+
+[bullet]
+The commands [cmd see_also] and [cmd keywords] define whole sections
+named [emph {SEE ALSO}] and [emph KEYWORDS]. They can occur everywhere
+in the manpage but making them the last section is the usual thing to
+do. They can be omitted.
+
+[bullet]
+There are five commands available to markup words, [cmd arg],
+[cmd cmd], [cmd opt], [cmd emph] and [cmd strong]. The first three are
+used to mark words as [emph {command arguments}], as
+[emph {command names}] and as [emph optional]. The other two are visual
+markup to emphasize words in two different ways. The term [emph words]
+is used in a loose sense here, i.e application of the commands to a
+sequence of words is entierely possible, if they are properly quoted.
+
+[bullet]
+Another set of six commands is available to construct (possibly
+nested) lists. These are [cmd list_begin], [cmd list_end],
+[cmd lst_item], [cmd bullet], [cmd enum] and [cmd call].  The first
+two of these begin and end a list respectively.
+
+[nl]
+
+The argument to the first command is either [emph bullet], [emph enum]
+or [emph definitions] denoting the type of the list (unordered
+vs. ordered vs. definition list).
+
+[nl]
+
+The other commands start list items and each can be used only inside a
+list of their type. In other words, [cmd bullet] is allowed in
+bulleted lists but nowhere else, [cmd enum] in enumerated lists and
+[cmd lst_item] and [cmd call] are for definition lists. The last two
+commands also have some text directly associated with the item
+although the major bulk of the item is the text following the item
+until the next list command.
+
+[nl]
+
+The last list command, [cmd call] is special. It is used to describe
+the syntax of a command and its arguments. It should not only cause
+the appropriate markup of a list item at its place but also add the
+syntax to the table of contents (synopsis) if supported by the output
+format in question. nroff and HTML for example do. A format focused on
+logical markup, like TMML, may not.
+
+[list_end]
+
+[section Commands]
+[list_begin definitions]
+
+[call [cmd manpage_begin] [arg command] [arg section] [arg version]]
+
+This command begins a manpage. Nothing is allowed to precede
+it. Arguments are the name of the command described by the manpage,
+the section of the manpages this manpages lives in, the version of the
+module containing the command, the nbame of the module itself and two
+descriptions, one short for the command and one a bit longer for the
+module. Both have to fit on one line.
+
+[call [cmd manpage_end]]
+
+This command closes a manpage. Nothing is allowed to follow it.
+
+[call [cmd moddesc] [arg desc]]
+
+This command is required and comes after [cmd manpage_begin], but
+before either [cmd require] or [cmd description]. Its argument
+provides a one-line description of the module described by the manpage.
+
+[call [cmd titledesc] [arg desc]]
+
+This command is optional and comes after [cmd manpage_begin], but
+before either [cmd require] or [cmd description]. Its argument
+provides a one-line expansion of the title for the manpage. If this
+command is not used the manpage processor has to use information from
+[cmd moddesc] instead.
+
+[call [cmd description]]
+
+This command separates the header part of the manpage from the main
+body. Only [cmd require], [cmd moddesc], or [cmd titledesc] may
+precede it.
+
+[call [cmd require] [arg pkg] [opt [arg version]]]
+
+May occur only between [cmd manpage_begin] and [cmd description]. Is
+used to list the packages which are required for the described command
+to be operational.
+
+[call [cmd section] [arg name]]
+
+Used to structure the body of the manpage into named sections.
+
+[call [cmd para]]
+
+Used to structure sections into paragraphs.
+
+[call [cmd see_also] [arg args]]
+
+Creates a section [emph {SEE ALSO}] containing the arguments as
+cross-references.
+
+[call [cmd keywords] [arg args]]
+
+Creates a section [emph KEYWORDS] containing the arguments as words
+indexing the manpage.
+
+[call [cmd arg] [arg text]]
+
+Declares that the marked text is the name of a command argument.
+
+[call [cmd cmd] [arg text]]
+
+Declares that the marked text is the name of a command.
+
+[call [cmd opt] [arg text]]
+
+Declares that the marked text is something optional. Most often used
+in conjunction with [cmd arg] to denote optional command arguments.
+
+[call [cmd emph] [arg text]]
+
+One way to emphasize text in a general manner.
+
+[call [cmd strong] [arg text]]
+
+Another way to emphasize text in a general manner.
+
+[call [cmd nl]]
+
+Vertical space to separate text without breaking it into a new
+paragraph.
+
+[call [cmd list_begin] [arg what]]
+
+Starts new list of type [arg what]. Allowed types are [emph bullet],
+[emph enum] and [emph definitions].
+
+[call [cmd list_end]]
+
+Ends the list opened by the last [cmd list_begin].
+
+[call [cmd bullet]]
+
+Starts a new item in a bulleted list.
+
+[call [cmd enum]]
+
+Starts a new item in an enumerated list.
+
+[call [cmd lst_item] [arg text]]
+
+Starts a new item in a definition list. The argument is the term to be
+defined.
+
+[call [cmd call] [arg args]]
+
+Starts a new item in a definition list, but the term defiuned by it is
+a command and its arguments.
+
+[list_end]
+[keywords manpage TMML HTML nroff conversion markup]
+[manpage_end]

@@ -1,3 +1,7 @@
+2001-12-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module: doctools. FR #492234.
+
 2001-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* texturil: Applied patch #492156.
