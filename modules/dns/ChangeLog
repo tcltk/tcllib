@@ -1,5 +1,7 @@
 2004-07-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* spf.tcl:       Use ip package and implemented IPv6 type.
+
 	* dns.tcl:       Added support for IPv6 lookups (type AAAA).
 
 	* ip.tcl:        NEW: IP address package

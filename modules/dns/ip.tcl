@@ -9,13 +9,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.1 2004/07/23 12:44:37 patthoyts Exp $
+# $Id: ip.tcl,v 1.2 2004/07/23 21:44:04 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
     variable version 1.0.0
-    variable rcsid {$Id: ip.tcl,v 1.1 2004/07/23 12:44:37 patthoyts Exp $}
+    variable rcsid {$Id: ip.tcl,v 1.2 2004/07/23 21:44:04 patthoyts Exp $}
 
     namespace export is version normalize equal type contract mask
     catch {namespace ensemble create}
@@ -241,7 +241,7 @@ proc ::ip::SplitIp {spec} {
         set bits [string range $spec $slash end]
     } else {
         set ip $spec
-        if {[version $ip] == 6} {
+        if {[string length $ip] > 0 && [version $ip] == 6} {
             set bits 128
         } else {
             set bits 32
