@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.2 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.3 2004/02/09 09:32:14 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1146,7 +1146,7 @@ proc ::struct::tree::_unset {name node {flag -key} {key data}} {
     }
     upvar ${name}::$attribute($node) data
 
-    unset -nocomplain data($key)
+    catch {unset data($key)}
     return
 }
 

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.27 2004/02/06 08:34:56 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.28 2004/02/09 09:32:14 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1503,7 +1503,7 @@ proc ::struct::tree::_unset {name node key} {
     }
 
     upvar ${name}::$attribute($node) data
-    unset -nocomplain data($key)
+    catch {unset data($key)}
 
     if {[array size data] == 0} {
 	# No attributes stored for this node, squash the whole array.
@@ -2037,7 +2037,7 @@ proc ::struct::tree::CheckSerialization {ser avar pvar cvar rnvar} {
 proc ::struct::tree::K { x y } { set x }
 
 if { [package vcompare [package provide Tcl] 8.4] < 0 } {
-    proc ::struct::tree:lset { var index arg } {
+    proc ::struct::tree::lset { var index arg } {
 	upvar 1 $var list
 	set list [::lreplace [K $list [set list {}]] $index $index $arg]
     }

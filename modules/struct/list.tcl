@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.13 2004/02/06 08:27:18 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.14 2004/02/09 09:32:13 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -850,7 +850,7 @@ if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 
     proc ::struct::list::Lrepeat {positiveCount value args} {
 	if {![string is integer -strict $positiveCount]} {
-	    return -code error "Expected integer, got \"$positiveCount\""
+	    return -code error "expected integer but got \"$positiveCount\""
 	} elseif {$positiveCount < 1} {
 	    return -code error {must have a count of at least 1}
 	}
