@@ -1,4 +1,8 @@
-2002-06-17  Andreas Kupries  <andreask@pliers.activestate.com>
+2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime: Fixed SF bug #548832.
+
+2002-06-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Applied patch for bug #567428. Bug reported by Larry Virden
 	  <lvirden@users.sourceforge.net>, patch by him too. Correction of
