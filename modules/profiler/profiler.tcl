@@ -7,12 +7,63 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.10 2000/06/02 18:43:56 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.11 2000/06/15 23:46:59 ericm Exp $
 
 package provide profiler 0.1
 
 namespace eval ::profiler {
     variable enabled 1
+}
+
+# start a timer instance "$tag"
+#
+proc ::profiler::tZero { { tag "" } } {
+     set ms [ clock clicks -milliseconds ]
+     set us [ clock clicks ]
+     regsub -all {:} $tag {} tag
+     set ::profiler::T$tag [ list $us $ms ] 
+}
+
+# return a delta time since last __t::start was issued
+# for the given tag
+#
+proc ::profiler::tMark { { tag "" } } {
+     set ut [ clock clicks ]
+     set mt [ clock clicks -milliseconds ]
+     regsub -all {:} $tag {} tag
+     set ust [ lindex [ set ::profiler::T$tag ] 0 ] 
+     set mst [ lindex [ set ::profiler::T$tag ] 1 ]
+     set udt [ expr { ($ut-$ust) } ]
+     set mdt [ expr { ($mt-$mst) } ]000
+     set dt $udt
+     ;## handle wrapping of the microsecond clock
+     if { $dt < 0 || $dt > 1000000 } { set dt $mdt }
+     set dt
+}
+
+# statistical functions for this package
+#
+proc ::profiler::stats {args} {
+     set sum      0
+     set mean     0
+     set sigma_sq 0
+     set sigma    0
+     set cov      0
+     set N [ llength $args ]
+     if { $N > 1 } { 
+        foreach val $args {
+           set sum [ expr { $sum+$val } ]
+        }
+        set mean [ expr { $sum/$N } ]
+        foreach val $args {
+           set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
+        }
+        set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
+        set sigma [ expr { round(sqrt($sigma_sq)) } ]
+        set cov [ expr { (($sigma*1.0)/$mean)*100 } ]
+        set cov [ expr { round($cov*10)/10.0 } ]
+     }   
+     return [ list $mean $sigma $cov ]
 }
 
 # ::profiler::Handler --
@@ -43,17 +94,13 @@ proc ::profiler::Handler {name args} {
 	if { [catch {incr ::profiler::callers($name,$caller)}] } {
 	    set ::profiler::callers($name,$caller) 1
 	}
-	set mark [clock clicks]
+	::profiler::tZero $name.$caller
     }
 
     set CODE [uplevel ${name}ORIG $args]
     if { $enabled } {
-	set t [expr {[clock clicks] - $mark}]
-
-	# Check for [clock clicks] wrapping
-	if { $t < 0 } {
-	    set t [expr {$t * -1}]
-	}
+	set t [::profiler::tMark $name.$caller]
+	lappend ::profiler::statTime($name) $t
 
 	if { [incr ::profiler::callCount($name)] == 1 } {
 	    set ::profiler::compileTime($name) $t
@@ -87,6 +134,7 @@ proc ::profiler::profProc {name arglist body} {
     variable compileTime
     variable totalRuntime
     variable descendantTime
+    variable statTime
     
     # Get the fully qualified name of the proc
     set ns [uplevel [list namespace current]]
@@ -107,6 +155,7 @@ proc ::profiler::profProc {name arglist body} {
     set compileTime($name) 0
     set totalRuntime($name) 0
     set descendantTime($name) 0
+    set statTime($name) {}
 
     uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
     uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
@@ -147,37 +196,50 @@ proc ::profiler::print {{pattern *}} {
     variable totalRuntime
     variable descendantTime
     variable descendants
+    variable statTime
     variable callers
     
     set result ""
     foreach name [lsort [array names callCount $pattern]] {
 	set avgRuntime 0
+	set sigmaRuntime 0
+	set covRuntime 0
 	set avgDesTime 0
 	if { $callCount($name) > 0 } {
-	    set avgRuntime \
-		    [expr {$totalRuntime($name)/($callCount($name))}]
+	    foreach {m s c} [eval ::profiler::stats $statTime($name)] { break }
+	    set avgRuntime   $m
+	    set sigmaRuntime $s
+	    set covRuntime   $c
 	    set avgDesTime \
-		    [expr {$descendantTime($name)/($callCount($name))}]
+		    [expr {$descendantTime($name)/$callCount($name)}]
 	}
 
 	append result "Profiling information for $name\n"
-	append result "[string repeat = 80]\n"
-	append result "Total calls:             \t$callCount($name)\n"
-	append result "Caller distribution:\n"
+	append result "[string repeat = 60]\n"
+	append result "            Total calls:  $callCount($name)\n"
+	if { !$callCount($name) } {
+	    append result "\n"
+	    continue
+	}
+	append result "    Caller distribution:\n"
 	set i [expr {[string length $name] + 1}]
 	foreach index [lsort [array names callers $name,*]] {
-	    append result "\t[string range \
-		    $index $i end]:\t\t$callers($index)\n"
+	    append result "  [string range $index $i end]:  $callers($index)\n"
 	}
-	append result "Compile time:            \t$compileTime($name)\n"
-	append result "Total runtime:           \t$totalRuntime($name)\n"
-	append result "Average runtime:         \t$avgRuntime\n"
-	append result "Total descendant time:   \t$descendantTime($name)\n"
-	append result "Average descendant time: \t$avgDesTime\n"
+	append result "           Compile time:  $compileTime($name)\n"
+	append result "          Total runtime:  $totalRuntime($name)\n"
+	append result "        Average runtime:  $avgRuntime\n"
+	append result "          Runtime StDev:  $sigmaRuntime\n"
+	append result "         Runtime cov(%):  $covRuntime\n"
+	append result "  Total descendant time:  $descendantTime($name)\n"
+	append result "Average descendant time:  $avgDesTime\n"
 	append result "Descendants:\n"
+	if { !$descendantTime($name) } {
+	    append result "  none\n"
+	}
 	foreach index [lsort [array names descendants $name,*]] {
-	    append result "\t[string range \
-		    $index $i end]:\t\t$descendants($index)\n"
+	    append result "  [string range $index $i end]: \
+		    $descendants($index)\n"
 	}
 	append result "\n"
     }
@@ -201,6 +263,7 @@ proc ::profiler::dump {{pattern *}} {
     variable callers
     variable descendantTime
     variable descendants
+    variable statTime
 
     foreach name [lsort [array names callCount $pattern]] {
 	set i [expr {[string length $name] + 1}]
@@ -209,10 +272,14 @@ proc ::profiler::dump {{pattern *}} {
 	    set thisCallers([string range $index $i end]) $callers($index)
 	}
 	set avgRuntime 0
+	set sigmaRuntime 0
+	set covRuntime 0
 	set avgDesTime 0
 	if { $callCount($name) > 0 } {
-	    set avgRuntime \
-		    [expr {$totalRuntime($name)/$callCount($name)}]
+	    foreach {m s c} [eval ::profiler::stats $statTime($name)] { break }
+	    set avgRuntime   $m
+	    set sigmaRuntime $s
+	    set covRuntime   $c
 	    set avgDesTime \
 		    [expr {$descendantTime($name)/$callCount($name)}]
 	}
@@ -225,6 +292,8 @@ proc ::profiler::dump {{pattern *}} {
 		compileTime $compileTime($name) \
 		totalRuntime $totalRuntime($name) \
 		averageRuntime $avgRuntime \
+		stddevRuntime  $sigmaRuntime \
+		covpercentRuntime $covRuntime \
 		descendantTime $descendantTime($name) \
 		averageDescendantTime $avgDesTime \
 		descendants $descendantList]
@@ -321,11 +390,13 @@ proc ::profiler::reset {{pattern *}} {
     variable compileTime
     variable totalRuntime
     variable callers
+    variable statTime
 
     foreach name [array names callCount $pattern] {
 	set callCount($name) 0
 	set compileTime($name) 0
 	set totalRuntime($name) 0
+	set statTime($name) {}
 	foreach caller [array names callers $name,*] {
 	    unset callers($caller)
 	}

@@ -1,3 +1,8 @@
+2000-06-15  Eric Melski  <ericm@ajubasolutions.com>
+
+	* profiler.tcl: Added mods from Philip Ehrens <pehrens@ligo.caltech.edu>
+	to changed formatting, add additional statistics. [RFE: 5060]
+
 2000-03-27  Eric Melski  <ericm@scriptics.com>
 
 	* profiler.tcl: Added a check for [clock clicks] wrapping.
