@@ -1,3 +1,13 @@
+2000-03-07  Scott Stanton  <stanton@scriptics.com>
+
+	* configure.in: 
+	* configure: 
+	* aclocal.m4:
+	* Makefile.in: Changed to use shared config subdirectory.  Also
+	fixed problem on Windows builds where it would fail to identify
+	the tclsh executable to use.  Simplified configure.in to minimum
+	number of macros.
+
 2000-03-06  Eric Melski  <ericm@scriptics.com>
 
 	* man.macros: Moved from individual modules to toplevel tcllib
