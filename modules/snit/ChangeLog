@@ -31,6 +31,12 @@
 	* snit.test     Tcl/Tk-like.  Double-quotes are used instead of
 			single quotes, and terminal periods are omitted.
 	
+	* snit.tcl	Added some code to method and typemethod dispatch
+	* snit.test	so that the return code (e.g., return -code break)
+			returned by the method/typemethod code is passed
+			along unchanged.  This is mostly so that methods
+			and typemethods can conditionally break in event 
+			bindings.
 	
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
