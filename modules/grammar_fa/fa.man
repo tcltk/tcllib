@@ -97,7 +97,7 @@ in [arg srcFA] to [arg faName], overwriting any
 existing definition.
 
 This is the assignment operator for automatons. It copies the
-automaton contained in the graph object [arg srcFA] over the automaton
+automaton contained in the FA object [arg srcFA] over the automaton
 definition in [arg faName]. The old contents of [arg faName] are
 deleted by this operation.
 
@@ -258,13 +258,6 @@ state [arg s] is known, and [const false] otherwise.
 Renames the state [arg s] to [arg snew]. Fails if [arg s] is not a
 known state. Also fails if [arg snew] is already known as a state.
 
-
-[call [arg faName] [method startstates]]
-
-Returns the set of states which are marked as [term start] states,
-also known as [term initial] states.
-
-See [sectref {FINITE AUTOMATONS}] for explanations what this means.
 
 [call [arg faName] [method startstates]]
 
@@ -529,8 +522,8 @@ state can be reached, and [const false] otherwise.
 
 [call [arg faName] [method useful_states]]
 
-Returns the set of states which are able to a final state by one or
-more transitions.
+Returns the set of states which are able to reach a final state by
+one or more transitions.
 
 
 [call [arg faName] [method unuseful_states]]
