@@ -81,6 +81,30 @@ proc ::logger::init {service} {
 	    puts stderr "\[[clock format [clock seconds]]\] \[$service\] \[$level\] \'$text\'"
 	}
 
+
+	# setlevel --
+	#
+	#	This command differs from enable and disable in that
+	#	it disables all the levels below that selected, and
+	#	then enables all levels above it, which enable/disable
+	#	do not do.
+	#
+	# Arguments:
+	#	lv - the level, as defined in $levels.
+	#
+	# Side Effects:
+	#	Runs disable for the level, and then enable, in order
+	#	to ensure that all levels are set correctly.
+	#
+	# Results:
+	#	None.
+
+
+	proc setlevel {lv} {
+	    disable $lv
+	    enable $lv
+	}
+
 	# enable --
 	#
 	#	Enable a particular 'level', and above, for the
