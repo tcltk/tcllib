@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: expander.n,v 1.1 2001/11/12 17:23:18 andreas_kupries Exp $
+'\" RCS: @(#) $Id: expander.n,v 1.2 2001/12/11 05:54:21 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH expander n 1.0 Textutil "Text expansion and template processing"
@@ -141,6 +141,12 @@ If the error mode is \fBnothing\fR, the macro expands to the empty
 string, and is effectively ignored.
 .RE
 .TP
+\fIexpanderName\fR \fBevalcmd\fR ?\fInewEvalCmd\fR?
+Returns the current evaluation command, which defaults to "uplevel
+#0".  If specified, \fInewEvalCmd\fR will be saved for future use and
+then returned; it must be a Tcl command expecting one additional
+argument: the macro to evaluate.
+.TP
 \fIexpanderName\fR \fBexpand\fR \fIstring\fR ?\fIbrackets\fR?
 Expands the input string, replacing embedded macros with their
 expanded values, and returns the expanded string.
@@ -271,6 +277,24 @@ passing the desired brackets to the \fBexpand\fR command:
  % ::myexp expand {<bold>This is boldface</bold>} {< >}
  <b>This is boldface</b>
  %
+.CE
+.PP
+\fBCustomized Macro Expansion\fR
+.PP
+By default, macros are evaluated using the Tcl "uplevel #0" command,
+so that the embedded code executes in the global context.  The
+application can provide a different evaluation command using
+\fBevalcmd\fR; this allows the application to use a safe interpreter,
+for example, or even to evaluated something other than Tcl code.
+There is one caveat: to be recognized as valid, a macro must return 1
+when passed to Tcl's "info complete" command.
+.PP
+For example, the following code "evaluates" each macro by returning
+the macro text itself.
+.PP
+.CS
+    proc identity {macro} {return $macro}
+    ::myexp evalcmd identity
 .CE
 .PP
 \fBUsing the Context Stack\fR

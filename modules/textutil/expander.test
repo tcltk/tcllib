@@ -312,6 +312,20 @@ test expander-4.4 {error mode nothing} {} {
     set result
 } {++++++}
 
+#---------------------------------------------------------------------
+# Test cases 5.x: Replacing the evalcmd.
+
+proc identity {macro} {
+    return $macro
+}
+
+test expander-5.1 {new evalcmd} {} {
+    catch {::textutil::expander exp}
+    exp reset
+    set oldcmd [exp evalcmd]
+    exp evalcmd identity
+    list $oldcmd [exp evalcmd] [exp expand {+++[Bogus Macro]+++}]
+} {{uplevel #0} identity {+++Bogus Macro+++}}
 
 #---------------------------------------------------------------------
 # Clean up
