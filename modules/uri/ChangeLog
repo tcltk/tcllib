@@ -1,5 +1,11 @@
 2001-10-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* uri.tcl: Fixed the ftptype regexp so that the type identifier
+	can be extracted. Fixed the ftp join code to follow the specs for
+	the type identifier. Added tests.
+
+2001-10-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
 	* uri.tcl: Fixes for SF bug 474846 concerning bugs with ftp
 	userinfo and path construction.
 
