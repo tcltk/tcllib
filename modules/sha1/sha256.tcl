@@ -22,7 +22,7 @@ package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha2 {
     variable version 1.0.0
-    variable rcsid {$Id: sha256.tcl,v 1.1 2005/02/22 10:15:22 patthoyts Exp $}
+    variable rcsid {$Id: sha256.tcl,v 1.2 2005/02/22 14:17:28 patthoyts Exp $}
 
     namespace export sha256 hmac SHA256Init SHA256Update SHA256Final
 
@@ -269,7 +269,7 @@ proc ::sha2::HMACFinal {token} {
 #  This is the core SHA1 algorithm. It is a lot like the MD4 algorithm but
 #  includes an extra round and a set of constant modifiers throughout.
 #
-proc ::sha2::SHA256Transform {token msg} {
+set ::sha2::SHA256Transform_body {
     variable K
     upvar #0 $token state
 
@@ -362,13 +362,19 @@ proc ::sha2::SIGMA1 {x} {
 # FIPS 180-2: 4.1.2 equation 4.6
 #  s0 = (x >>> 7)  ^ (x >>> 18) ^ (x >> 3)
 proc ::sha2::sigma0 {x} {
-    return [expr {[>>> $x 7] ^ [>>> $x 18] ^ (($x >> 3) & 0x1fffffff)}]
+    #return [expr {[>>> $x 7] ^ [>>> $x 18] ^ (($x >> 3) & 0x1fffffff)}]
+    return [expr {((($x<<25) | (($x>>7) & (0x7FFFFFFF>>6))) \
+                 ^ (($x<<14) | (($x>>18) & (0x7FFFFFFF>>17))) & 0xFFFFFFFF) \
+                 ^ (($x>>3) & 0x1fffffff)}]
 }
 
 # FIPS 180-2: 4.1.2 equation 4.7
 #  s1 = (x >>> 17) ^ (x >>> 19) ^ (x >> 10)
 proc ::sha2::sigma1 {x} {
-    return [expr {[>>> $x 17] ^ [>>> $x 19] ^ (($x >> 10) & 0x003fffff)}]
+    #return [expr {[>>> $x 17] ^ [>>> $x 19] ^ (($x >> 10) & 0x003fffff)}]
+    return [expr {((($x<<15) | (($x>>17) & (0x7FFFFFFF>>16))) \
+                 ^ (($x<<13) | (($x>>19) & (0x7FFFFFFF>>18))) & 0xFFFFFFFF) \
+                 ^ (($x >> 10) & 0x003fffff)}]
 }
 
 # 32bit rotate-right
@@ -385,6 +391,48 @@ proc ::sha2::<<< {v n} {
                                & (0x7FFFFFFF >> (31 - $n))))) \
                       & 0xFFFFFFFF}]
 }
+
+# -------------------------------------------------------------------------
+# We speed up the SHA256Transform code while maintaining readability in the
+# source code by substituting inline for a number of functions.
+# The idea is to reduce the number of [expr] calls.
+
+# Inline the Ch function
+regsub -all -line \
+    {\[Ch (\$[ABCDEFGH]) (\$[ABCDEFGH]) (\$[ABCDEFGH])\]} \
+    $::sha2::SHA256Transform_body \
+    {((\1 \& \2) ^ ((~\1) \& \3))} \
+    ::sha2::SHA256Transform_body
+
+# Inline the Maj function
+regsub -all -line \
+    {\[Maj (\$[ABCDEFGH]) (\$[ABCDEFGH]) (\$[ABCDEFGH])\]} \
+    $::sha2::SHA256Transform_body \
+    {((\1 \& \2) ^ (\1 \& \3) ^ (\2 \& \3))} \
+    ::sha2::SHA256Transform_body
+
+
+# Inline the SIGMA0 function
+regsub -all -line \
+    {\[SIGMA0 (\$[ABCDEFGH])\]} \
+    $::sha2::SHA256Transform_body \
+    {((((\1<<30) | ((\1>>2) \& (0x7FFFFFFF>>1))) \& 0xFFFFFFFF) \
+          ^ (((\1<<19) | ((\1>>13) \& (0x7FFFFFFF>>12))) \& 0xFFFFFFFF) \
+          ^ (((\1<<10) | ((\1>>22) \& (0x7FFFFFFF>>21))) \& 0xFFFFFFFF) \
+          )} \
+    ::sha2::SHA256Transform_body
+
+# Inline the SIGMA1 function
+regsub -all -line \
+    {\[SIGMA1 (\$[ABCDEFGH])\]} \
+    $::sha2::SHA256Transform_body \
+    {((((\1<<26) | ((\1>>6) \& (0x7FFFFFFF>>5))) \& 0xFFFFFFFF) \
+          ^ (((\1<<21) | ((\1>>11) \& (0x7FFFFFFF>>10))) \& 0xFFFFFFFF) \
+          ^ (((\1<<7) | ((\1>>25) \& (0x7FFFFFFF>>24))) \& 0xFFFFFFFF) \
+          )} \
+    ::sha2::SHA256Transform_body
+
+proc ::sha2::SHA256Transform {token msg} $::sha2::SHA256Transform_body
 
 # -------------------------------------------------------------------------
 
