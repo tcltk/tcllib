@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 0.81.1]
+[manpage_begin snit n 0.82]
 [copyright {2003, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc   {Snit's Not Incr Tcl}]
 [require Tcl 8.3]
-[require snit [opt 0.81.1]]
+[require snit [opt 0.82]]
 [description]
 [para]
 
@@ -756,6 +756,42 @@ also defines the [cmd dog] object's [method wag] method, delegating it
 to the [var tail] component.
 
 
+[section CAVEATS]
+
+Please understand that while Snit is already very stable, it is still
+early days in Snit's development, and not be too critical. If you have
+problems, find bugs, or new ideas you are hereby cordially invited to
+submit a report of your problem, bug, or idea at the SourceForge
+trackers for tcllib, which can be found at
+
+[uri http://sourceforge.net/projects/tcllib/].
+
+The relevant category is [emph snit].
+
+[para]
+
+One particular area to watch is the interaction of Snit with other
+megawidget packages. Some widgets in BWidgets for example place their
+own <Destroy> binding not on a separate bind-tag, but on the widget
+itself. When used as the hull of a [cmd snit::widgetadaptor] this
+causes them to be called before Snit, removing the widget command. A
+previous version of Snit was tripped by this and threw errors because
+it tried to operate on and with an already deleted widget
+command. Snit is now able to deal with this, despite the fact that the
+ultimate cause is at least bad behaviour of Bwidget, possibly even a
+bug. This however does not preclude that there might be other issues
+lurking.
+
+[para]
+
+So, if you use a [cmd snit::widgetadaptor] to adapt somebody else's
+megawidget,
+
+you need to be very careful about making sure the [cmd bindtags] are
+done properly.  There's no way for Snit to take into account all the
+possible weird things other megawidget frameworks might do wrong.
+
+
 [section {KNOWN BUGS}]
 
 [list_begin bullet]
@@ -763,6 +799,11 @@ to the [var tail] component.
 
 Error stack traces returned by Snit are extremely ugly and typically
 contain far too much information about Snit internals.
+
+[bullet]
+
+Also see the SourceForge Trackers at
+[uri http://sourceforge.net/projects/tcllib/], category [emph snit].
 
 [list_end]
 
