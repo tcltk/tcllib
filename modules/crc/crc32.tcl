@@ -6,25 +6,17 @@
 # From http://mini.net/tcl/2259.tcl
 # Written by Wayland Augur and Pat Thoyts.
 #
-# eg:
-#  % crc::crc32 {Hello, World!} 
-#  3964322768
-#  % crc::crc32 {Hello, World!} 0x%X
-#  0xEC4AC3D0
-#
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.1 2002/01/11 22:54:48 patthoyts Exp $
+# $Id: crc32.tcl,v 1.2 2002/01/15 20:54:59 patthoyts Exp $
 
 namespace eval crc {
     
     namespace export crc32
 
-    # CRCTABLE is the pre-calculated lookup table provided for this
-    # implementation:
-    variable CRCTABLE [list 0x00000000 0x77073096 0xEE0E612C 0x990951BA \
+    variable crc32_tbl [list 0x00000000 0x77073096 0xEE0E612C 0x990951BA \
                            0x076DC419 0x706AF48F 0xE963A535 0x9E6495A3 \
                            0x0EDB8832 0x79DCB8A4 0xE0D5E91E 0x97D2D988 \
                            0x09B64C2B 0x7EB17CBD 0xE7B82D07 0x90BF1D91 \
@@ -96,36 +88,93 @@ namespace eval crc {
     }
 }
 
-if {[catch {package require Trf 2.0}]} {
+# Description:
+#  Calculate the CRC-32 checksum of the input data.
+#
+proc crc::Crc32_tcl {s} {
+    variable crc32_tbl
+    variable signbit
+    set crcval 0xFFFFFFFF
     
-    proc crc::crc32 {instr {format %u}} {
-        variable CRCTABLE
-        variable signbit
-        set crcval 0xFFFFFFFF
-
-        binary scan $instr c* nums
-        foreach {n} $nums {
-            set crcval [expr {[lindex $CRCTABLE \
-                                   [expr {($crcval ^ $n) & 0xFF}]] \
-                                  ^ [expr {($crcval>>8) & ~($signbit>>7)}]}]
-        }
-
-        return [format $format [expr {$crcval ^ 0xFFFFFFFF}]]
+    binary scan $s c* nums
+    foreach {n} $nums {
+        set crcval [expr {[lindex $crc32_tbl \
+                               [expr {($crcval ^ $n) & 0xFF}]] \
+                              ^ [expr {($crcval>>8) & ~($signbit>>7)}]}]
     }
+    
+    return [expr {$crcval ^ 0xFFFFFFFF}]
+}
 
-} else {
-
-    proc crc::crc32 {instr {format %u}} {
+# Select the Trf using version if Trf is available
+if {![catch {package require Trf 2.0}]} {
+    # Description:
+    #  Use the Trf crc-zlib function to calculate the CRC-32 checksum
+    #  and return the correct value according to our byte order.
+    #
+    proc crc::Crc32_trf {s} {
         if {$::tcl_platform(byteOrder) == "littleEndian"} {
-            set f i
+            set conv i
         } else {
-            set f I
+            set conv I
         }
         
-        binary scan [crc-zlib $instr] $f r
-        return [format $format $r]
+        binary scan [crc-zlib $s] $conv r
+        return $r
     }
 
+    interp alias {} crc::Crc32 {} crc::Crc32_trf
+} else {
+    interp alias {} crc::Crc32 {} crc::Crc32_tcl
+}
+
+# Description:
+#  Provide a Tcl implementation of a crc32 checksum similar to the cksum
+#  and sum unix commands.
+# Options:
+#  -filename name - return a checksum for the specified file.
+#  -format string - return the checksum using this format string.
+#
+proc crc::crc32 {args} {
+    set filename {}
+    set format %u
+    while {[string match -* [lindex $args 0]]} {
+        switch -glob -- [lindex $args 0] {
+            -fi* {
+                set filename [lindex $args 1]
+                set args [lreplace $args 0 0]
+            }
+            -fo* {
+                set format [lindex $args 1]
+                set args [lreplace $args 0 0]
+            }
+            -- {
+                set args [lreplace $args 0 0]
+                break
+            }
+            default {
+                return -code error "bad option [lindex $args 0]:\
+                     must be -filename or -format"
+            }
+        }
+        set args [lreplace $args 0 0]
+    }
+    
+    if {$filename != {}} {
+        set f [open $filename r]
+        fconfigure $f -translation binary
+        set data [read $f]
+        close $f
+        set r [Crc32 $data]
+    } else {
+        if {[llength $args] != 1} {
+            return -code error "wrong # args: should be \
+                 \"crc32 ?-format string? -file name | data\""
+        }
+        set r [Crc32 [lindex $args 0]]
+    }
+    
+    return [format $format $r]
 }
 
 package provide crc32 1.0
