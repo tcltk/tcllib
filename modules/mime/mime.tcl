@@ -2176,7 +2176,7 @@ proc mime::scopy {token channel offset len blocksize} {
 # Results:
 #	The properly quoted string is returned.
 
-proc mime::qp_encode {string {encoded_word 0}} {
+proc mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
     # 8.1+ improved string manipulation routines used.
     # Replace outlying characters, characters that would normally
     # be munged by EBCDIC gateways, and special Tcl characters "[\]{}
@@ -2202,24 +2202,29 @@ proc mime::qp_encode {string {encoded_word 0}} {
 
     # Break long lines - ugh
 
-    set result ""
-    foreach line [split $string \n] {
-	while {[string length $line] > 72} {
-	    set chunk [string range $line 0 72]
-	    if {[regexp -- (=|=.)$ $chunk dummy end]} {
+    # Implementation of FR #503336
+    if {$no_softbreak} {
+	set result $string
+    } else {
+	set result ""
+	foreach line [split $string \n] {
+	    while {[string length $line] > 72} {
+		set chunk [string range $line 0 72]
+		if {[regexp -- (=|=.)$ $chunk dummy end]} {
+		    
+		    # Don't break in the middle of a code
 
-		# Don't break in the middle of a code
-
-		set len [expr {72 - [string length $end]}]
-		set chunk [string range $line 0 $len]
-		incr len
-		set line [string range $line $len end]
-	    } else {
-		set line [string range $line 73 end]
+		    set len [expr {72 - [string length $end]}]
+		    set chunk [string range $line 0 $len]
+		    incr len
+		    set line [string range $line $len end]
+		} else {
+		    set line [string range $line 73 end]
+		}
+		append result $chunk=\n
 	    }
-	    append result $chunk=\n
+	    append result $line\n
 	}
-	append result $line\n
     }
     
     # Trim off last \n, since the above code has the side-effect

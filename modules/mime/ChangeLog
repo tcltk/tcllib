@@ -1,3 +1,10 @@
+2002-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl (qp_encode): Implemented FR #503336, added
+	  'no_softbreak' flag to qp_encode. Default value is false, giving
+	  the original behaviour. If set the encoded data is not broken
+	  into multiple lines, even if longer than 72 characters.
+
 2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.n: Clarified documentation for 'parseaddress' in the wake
