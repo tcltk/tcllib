@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.39 2000/11/02 01:17:44 kuchler Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.40 2000/11/02 19:26:55 kuchler Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -29,7 +29,7 @@ FTP=ftp
 FTPD=ftpd
 
 # Code to generate javascript code (for dynamically generated web pages)
-JAVASCRIPT=javaScript
+JAVASCRIPT=javascript
 
 # Math functions
 MATH=math

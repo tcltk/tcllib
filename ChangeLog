@@ -1,7 +1,7 @@
 
 2000-11-01  Dan Kuchler <kuchler@ajubasolutions.com>
 
-        * Makefile.in: Added javaScript package to tcllib.
+        * Makefile.in: Added javascript package to tcllib.
 
 2000-10-27  Dan Kuchler <kuchler@ajubasolutions.com>
 
