@@ -19,9 +19,9 @@ options were found, and -1 if an error occurred.
 
 [nl]
 
-[arg argvVar] contains the name of the argv list to process. If
-options are found the arg list is modified and the processed arguments
-are removed from the start of the list.
+[arg argvVar] contains the name of the list of arguments to
+process. If options are found the list is modified and the processed
+arguments are removed from the start of the list.
 
 [nl]
 
@@ -101,8 +101,9 @@ file. The last sentence refers to the pro-tools.
 [call [cmd ::cmdline::getArgv0]]
 
 This command returns the "sanitized" version of [arg argv0].  It will
-strip off the leading path and removes the ".bin" extensions that the
-pro-apps use because they must be wrapped by a shell script.
+strip off the leading path and removes the extension ".bin". The
+latter is used by the pro-apps because they must be wrapped by a shell
+script.
 
 [list_end]
 
@@ -112,7 +113,7 @@ pro-apps use because they must be wrapped by a shell script.
         set options {
             {a          "set the atime only"}
             {m          "set the mtime only"}
-            {c          "do not create non-existant files"}
+            {c          "do not create non-existent files"}
             {r.arg  ""  "use time from ref_file"}
             {t.arg  -1  "use specified time"}
         }
@@ -132,12 +133,12 @@ pro-apps use because they must be wrapped by a shell script.
 
 [para]
 
-This example, taken (and slightly modified) from the fileutil package,
-shows how to use cmdline.  First, a list of options is created, then
-the 'args' list is passed to cmdline for processing.  Subsequently,
-different options are checked to see if they have been passed to the
-script, and what their value is.
+This example, taken (and slightly modified) from the package
+[package fileutil], shows how to use cmdline.  First, a list of
+options is created, then the 'args' list is passed to cmdline for
+processing.  Subsequently, different options are checked to see if
+they have been passed to the script, and what their value is.
 
-[keywords {cmdline processing}]
+[keywords {cmdline processing} {argument processing} argv argv0]
 [manpage_end]
 
