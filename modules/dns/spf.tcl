@@ -5,14 +5,14 @@
 #    http://www.ietf.org/internet-drafts/draft-ietf-marid-protocol-00.txt
 #    http://spf.pobox.com/
 #
-# Domains using SPF:
+# Some domains using SPF:
 #   pobox.org       - mx, a, ptr
 #   oxford.ac.uk    - include
 #   gnu.org         - ip4
 #   aol.com         - ip4, ptr
 #   sourceforge.net - mx, a
 #   altavista.com   - exists,  multiple TXT replies.
-#   oreilly.com     - mx, ptr, include (invalid domain)
+#   oreilly.com     - mx, ptr, include
 #   motleyfool.com  - include (looping includes)
 #
 # -------------------------------------------------------------------------
@@ -20,19 +20,18 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: spf.tcl,v 1.3 2004/07/30 21:46:19 patthoyts Exp $
+# $Id: spf.tcl,v 1.4 2004/07/30 23:58:06 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require dns;                    # tcllib 1.3
 package require logger;                 # tcllib 1.3
 package require ip;                     # tcllib 1.7
-package require mime;                   # tcllib 1.3
 package require struct::list;           # tcllib 1.7
 package require uri::urn;               # tcllib 1.3
 
 namespace eval spf {
     variable version 1.1.0
-    variable rcsid {$Id: spf.tcl,v 1.3 2004/07/30 21:46:19 patthoyts Exp $}
+    variable rcsid {$Id: spf.tcl,v 1.4 2004/07/30 23:58:06 patthoyts Exp $}
 
     namespace export spf
 
@@ -61,12 +60,11 @@ proc ::spf::spf {ip domain sender} {
 
     # 3.3: Initial processing
     # If the sender address has no local part, set it to postmaster
-    if {[catch {eval array set addr [mime::parseaddress $sender]}]} {
-        ${log}::debug "error parsing sender \"$sender\""
+    set addr [split $sender @]
+    if {[set len [llength $addr]] == 0} {
         return -code error -errorcode permanent "invalid sender address"
-    }
-    if {[string length $addr(local)] < 1} {
-        set sender "postmaster@$addr(domain)"
+    } elseif {$len == 1} {
+        set sender "postmaster@$sender"
     }
 
     # 3.4: Record lookup
@@ -368,7 +366,6 @@ proc ::spf::ExpandMacro {macro ip domain sender} {
     set re {%\{([[:alpha:]])(\d+)?(r)?([\+\-\.,/_=]*)\}}
     set C {} ; set T {} ; set R {}; set D {}
     set r [regexp $re $macro -> C T R D]
-    if {$D == {}} {set D .}
     if {$R == {}} {set R 0} else {set R 1}
     set res $macro
     if {$r} {
@@ -395,10 +392,13 @@ proc ::spf::ExpandMacro {macro ip domain sender} {
             i { 
                 set res [ip::normalize $ip]
                 if {[ip::is ipv6 $res]} {
-                    set t {}
                     # Convert 0000:0001 to 0.1
-                    foreach octet [split $res :] {
-                        lappend t [format %x [scan $octet %x]]
+                    set t {}
+                    binary scan [ip::Normalize $ip 6] c* octets
+                    foreach octet $octets {
+                        set hi [expr {($octet & 0xF0) >> 4}]
+                        set lo [expr {$octet & 0x0F}]
+                        lappend t [format %x $hi] [format %x $lo]
                     }
                     set res [join $t .]
                 }
@@ -423,7 +423,8 @@ proc ::spf::ExpandMacro {macro ip domain sender} {
             }
             t { set res [clock seconds] }
         }
-        if {$T != {} || $R} {
+        if {$T != {} || $R || $D != {}} {
+            if {$D == {}} {set D .}
             set res [split $res $D]
             if {$R} {
                 set res [struct::list::Lreverse $res]
@@ -432,7 +433,7 @@ proc ::spf::ExpandMacro {macro ip domain sender} {
                 incr T -1
                 set res [join [lrange $res end-$T end] $D]
             }
-            set res [join $res $D]
+            set res [join $res .]
         }
         if {$enc} {
             # URI encode the result.
