@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.8 2001/10/31 23:54:12 patthoyts Exp $
+# RCS: @(#) $Id: uri.test,v 1.9 2002/02/25 20:15:37 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -160,13 +160,202 @@ test uri-4.1 {uri::geturl} {
 
 # -------------------------------------------------------------------------
 
-test uri-5.1 {uri::canonicalize} {
+test uri-5.1-0 {uri::canonicalize} {
     uri::canonicalize http://www.test.net/path1/./remove/../path2/resource
 } http://www.test.net/path1/path2/resource
 
-test uri-5.2 {uri::canonicalize infinite loop} {
+test uri-5.2-0 {uri::canonicalize infinite loop} {
     uri::canonicalize http://www.test.net/../path2/resource
 } {http://www.test.net/path2/resource}
+
+test uri-5.3-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/./path1/./remove/../path2/../resource
+} http://www.test.net/path1/resource
+
+test uri-5.4-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/./././path1/./remove/../path2/../resource
+} http://www.test.net/path1/resource
+
+test uri-5.5-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/./././path1/./remove/path2/../../resource
+} http://www.test.net/path1/resource
+
+test uri-5.6-0 {uri::canonicalize infinite loop} {
+    uri::canonicalize http://www.test.net/../../../path2/resource
+} {http://www.test.net/path2/resource}
+
+test uri-5.7-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/path1/./remove/../path.html/resource
+} http://www.test.net/path1/path.html/resource
+
+test uri-5.8-0 {uri::canonicalize infinite loop} {
+    uri::canonicalize http://www.test.net/../path.html/resource
+} {http://www.test.net/path.html/resource}
+
+test uri-5.9-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/./path1/./remove/../path.html/../resource
+} http://www.test.net/path1/resource
+
+test uri-5.10-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/./././path1/./remove/../path.html/../resource
+} http://www.test.net/path1/resource
+
+test uri-5.11-0 {uri::canonicalize} {
+    uri::canonicalize http://www.test.net/./././path1/./remove/path.html/../../resource
+} http://www.test.net/path1/resource
+
+test uri-5.12-0 {uri::canonicalize infinite loop} {
+    uri::canonicalize http://www.test.net/../../../path.html/resource
+} {http://www.test.net/path.html/resource}
+
+test uri-5.1-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/path1/./remove/../path2/resource
+} ftp://ftp.test.net/path1/path2/resource
+
+test uri-5.2-1 {uri::canonicalize infinite loop} {
+    uri::canonicalize ftp://ftp.test.net/../path2/resource
+} {ftp://ftp.test.net/path2/resource}
+
+test uri-5.3-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/./path1/./remove/../path2/../resource
+} ftp://ftp.test.net/path1/resource
+
+test uri-5.4-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/./././path1/./remove/../path2/../resource
+} ftp://ftp.test.net/path1/resource
+
+test uri-5.5-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/./././path1/./remove/path2/../../resource
+} ftp://ftp.test.net/path1/resource
+
+test uri-5.6-1 {uri::canonicalize infinite loop} {
+    uri::canonicalize ftp://ftp.test.net/../../../path2/resource
+} {ftp://ftp.test.net/path2/resource}
+
+test uri-5.7-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/path1/./remove/../path.html/resource
+} ftp://ftp.test.net/path1/path.html/resource
+
+test uri-5.8-1 {uri::canonicalize infinite loop} {
+    uri::canonicalize ftp://ftp.test.net/../path.html/resource
+} {ftp://ftp.test.net/path.html/resource}
+
+test uri-5.9-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/./path1/./remove/../path.html/../resource
+} ftp://ftp.test.net/path1/resource
+
+test uri-5.10-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/./././path1/./remove/../path.html/../resource
+} ftp://ftp.test.net/path1/resource
+
+test uri-5.11-1 {uri::canonicalize} {
+    uri::canonicalize ftp://ftp.test.net/./././path1/./remove/path.html/../../resource
+} ftp://ftp.test.net/path1/resource
+
+test uri-5.12-1 {uri::canonicalize infinite loop} {
+    uri::canonicalize ftp://ftp.test.net/../../../path.html/resource
+} {ftp://ftp.test.net/path.html/resource}
+
+test uri-5.1-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/path1/./remove/../path2/resource
+} file://goo.test.net/path1/path2/resource
+
+test uri-5.2-2 {uri::canonicalize infinite loop} {
+    uri::canonicalize file://goo.test.net/../path2/resource
+} {file://goo.test.net/path2/resource}
+
+test uri-5.3-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/./path1/./remove/../path2/../resource
+} file://goo.test.net/path1/resource
+
+test uri-5.4-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/./././path1/./remove/../path2/../resource
+} file://goo.test.net/path1/resource
+
+test uri-5.5-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/./././path1/./remove/path2/../../resource
+} file://goo.test.net/path1/resource
+
+test uri-5.6-2 {uri::canonicalize infinite loop} {
+    uri::canonicalize file://goo.test.net/../../../path2/resource
+} {file://goo.test.net/path2/resource}
+
+test uri-5.7-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/path1/./remove/../path.html/resource
+} file://goo.test.net/path1/path.html/resource
+
+test uri-5.8-2 {uri::canonicalize infinite loop} {
+    uri::canonicalize file://goo.test.net/../path.html/resource
+} {file://goo.test.net/path.html/resource}
+
+test uri-5.9-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/./path1/./remove/../path.html/../resource
+} file://goo.test.net/path1/resource
+
+test uri-5.10-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/./././path1/./remove/../path.html/../resource
+} file://goo.test.net/path1/resource
+
+test uri-5.11-2 {uri::canonicalize} {
+    uri::canonicalize file://goo.test.net/./././path1/./remove/path.html/../../resource
+} file://goo.test.net/path1/resource
+
+test uri-5.12-2 {uri::canonicalize infinite loop} {
+    uri::canonicalize file://goo.test.net/../../../path.html/resource
+} {file://goo.test.net/path.html/resource}
+
+test uri-5.1-3 {uri::canonicalize} {
+    uri::canonicalize file:///path1/./remove/../path2/resource
+} file:///path1/path2/resource
+
+test uri-5.2-3 {uri::canonicalize infinite loop} {
+    uri::canonicalize file:///../path2/resource
+} {file:///path2/resource}
+
+test uri-5.3-3 {uri::canonicalize} {
+    uri::canonicalize file:///./path1/./remove/../path2/../resource
+} file:///path1/resource
+
+test uri-5.4-3 {uri::canonicalize} {
+    uri::canonicalize file:///./././path1/./remove/../path2/../resource
+} file:///path1/resource
+
+test uri-5.5-3 {uri::canonicalize} {
+    uri::canonicalize file:///./././path1/./remove/path2/../../resource
+} file:///path1/resource
+
+test uri-5.6-3 {uri::canonicalize infinite loop} {
+    uri::canonicalize file:///../../../path2/resource
+} {file:///path2/resource}
+
+test uri-5.7-3 {uri::canonicalize} {
+    uri::canonicalize file:///path1/./remove/../path.html/resource
+} file:///path1/path.html/resource
+
+test uri-5.8-3 {uri::canonicalize infinite loop} {
+    uri::canonicalize file:///../path.html/resource
+} {file:///path.html/resource}
+
+test uri-5.9-3 {uri::canonicalize} {
+    uri::canonicalize file:///./path1/./remove/../path.html/../resource
+} file:///path1/resource
+
+test uri-5.10-3 {uri::canonicalize} {
+    uri::canonicalize file:///./././path1/./remove/../path.html/../resource
+} file:///path1/resource
+
+test uri-5.11-3 {uri::canonicalize} {
+    uri::canonicalize file:///./././path1/./remove/path.html/../../resource
+} file:///path1/resource
+
+test uri-5.12-3 {uri::canonicalize infinite loop} {
+    uri::canonicalize file:///../../../path.html/resource
+} {file:///path.html/resource}
+
+test uri-6.0 {uri::canonicalize} {
+    uri::canonicalize telnet://goo.test.net/
+} telnet://goo.test.net/
+
 
 # -------------------------------------------------------------------------
 

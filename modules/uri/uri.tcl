@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.13 2002/02/15 05:35:30 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.14 2002/02/25 20:15:37 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -695,19 +695,39 @@ proc uri::canonicalize uri {
     #
     # Remove single dots (.)  => pwd not changing
     # Remove double dots (..) => gobble previous segment of path
+    #
+    # Fixes for this command:
+    #
+    # * Ignore any url which cannot be split into components by this
+    #   module. Just assume that such urls do not have a path to
+    #   canonicalize.
+    #
+    # * Ignore any url which could be split into components, but does
+    #   not have a path component.
+    #
+    # In the text above 'ignore' means
+    # 'return the url unchanged to the caller'.
 
-    while {[regexp -- {/\./} $uri]} {
-        regsub -all -- {/\./} $uri {/} uri
+    if {[catch {array set u [uri::split $uri]}]} {
+	return $uri
     }
-    while {[regexp -- {/\.\./} $uri]} {
-	if {![regsub -- {/[^./]*/\.\./} $uri {/} uri]} {
-	    # The regexp found 'foo://bar.com/../baz', but this
-	    # cannot be handled by the regsub. Simply remove the
-	    # dots, as is done for the singles to break out of
-	    # infinity.
-	    regsub -- {/\.\./} $uri {/} uri
-	}
+    if {![info exists u(path)]} {
+	return $uri
     }
+
+    set uri $u(path)
+
+    # Remove leading "./" and "../" (and "/../")
+    regsub -all -- {^(\./)+}    $uri {}  uri
+    regsub -all -- {^/(\.\./)+} $uri {/} uri
+    regsub -all -- {^(\.\./)+}  $uri {}  uri
+
+    # Remove inner /./ and /../
+    while {[regsub -all -- {/\./}         $uri {/} uri]} {}
+    while {[regsub -all -- {/[^/]+/\.\./} $uri {/} uri]} {}
+
+    set u(path) $uri
+    set uri [eval uri::join [array get u]]
 
     return $uri
 }
