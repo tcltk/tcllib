@@ -195,7 +195,7 @@ lines. For example:
 [nl]
 [example {
  proc deliver {sender recipients data} {
-    set mail "From $saddr(address) \\
+    set mail "From $sender \\
                [clock format [clock seconds]]"
     append mail "\\n" [join $data "\\n"]
     puts "$mail"
