@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.11 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.12 2004/02/13 06:51:37 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -23,7 +23,8 @@ if {[catch {source [file join [file dirname [info script]] mime.tcl]} msg]} {
 
 namespace import mime::*
 
-puts "mime [package present mime]"
+puts "tcltest [package present tcltest]"
+puts "mime    [package present mime]"
 
 
 
@@ -52,13 +53,14 @@ test mime-2.2 {Generate a multi-part MIME message} {
 	    -header [list Content-Description "Test Multipart"] \
 	    -parts [list $tok1 $tok2]]
     set msg [mime::buildmessage $bigTok]
+
     # The generated message is predictable except for the Content-ID
-    regexp "MIME-Version: 1.0\r
+    list [regexp "MIME-Version: 1.0\r
 Content-Description: Test Multipart\r
 Content-ID: \[^\n]+\r
 Content-Type: multipart/mytype;\r
-              boundary=\"bndry\";\r
-              myparam=\"foo\"\r
+              \[^\n]+;\r
+              \[^\n]+\r
 \r
 --bndry\r
 MIME-Version: 1.0\r
@@ -75,8 +77,8 @@ Content-Type: text/plain\r
 james\r
 \r
 --bndry--\r
-" $msg
-} 1
+" $msg] [regexp "boundary=\"bndry\"" $msg] [regexp "myparam=\"foo\"" $msg]
+} {1 1 1}
 
 test mime-3.1 {Parse a MIME message} {
     set msg {MIME-Version: 1.0
@@ -167,12 +169,20 @@ foo\r
 }"
 
 test mime-3.7 {Test mime with a bad email [SF Bug 631314 ]} {
-    set tok [mime::initialize -file badmail1.txt]
-} {}
+    catch {
+	set tok [mime::initialize -file \
+		[file join $tcltest::testsDirectory badmail1.txt]]
+    } msg ; #{}
+    set msg
+} {termination string missing in multipart/mixed}
 
 test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {
-    set tok [mime::initialize -file badmail2.txt]
-} {}
+    catch {
+	set tok [mime::initialize -file \
+		[file join $tcltest::testsDirectory badmail2.txt]]
+    } msg ; #{}
+    set msg
+} {termination string missing in multipart/related}
 
 test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""

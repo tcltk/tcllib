@@ -1,3 +1,11 @@
+2004-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.test: Fixed access to files, was not done with
+	  tcltest::testDirectory, causing them to be inaccessible
+	  for 8.4+. The result in mime-2.2 was also dependent on the exact
+	  order of keys retrieved from the array of parameters. Rewritten
+	  to take this into account.
+
 2004-01-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtp.tcl: Better handling of failure in TLS setup. Added a

@@ -1,3 +1,8 @@
+2004-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5crypt.test: Testsuite fixed. Had to account that error
+	  messages can dependent on the version of the Tcl core.
+
 2003-07-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5crypt.tcl:   Provided implementation of the Apache
