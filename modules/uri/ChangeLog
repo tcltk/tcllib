@@ -1,3 +1,10 @@
+2001-10-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* uri.tcl: Fixes for SF bug 474846 concerning bugs with ftp
+	userinfo and path construction.
+
+	* uri.test: New tests to chec the above fixes.
+
 2001-10-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* The changes below are made as part of accepting SF patch #470211
