@@ -2183,7 +2183,7 @@ proc mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
     # with =xx sequence
 
     regsub -all -- \
-	    {[\x00-\x08\x0B-\x1E\x21-\x24\x40\x5B-\x5E\x60\x7B-\xFF]} \
+	    {[\x00-\x08\x0B-\x1E\x21-\x24\x3D\x40\x5B-\x5E\x60\x7B-\xFF]} \
 	    $string {[format =%02X [scan "\\&" %c]]} string
 
     # Replace the format commands with their result

@@ -1,3 +1,8 @@
+2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl: Fixed bug SF #548832. Report and patch by Michael
+	  A. Cleverly <cleverly@users.sourceforge.net>.
+
 2002-05-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl (smtp::initialize): Fixed SF bug #561416. The reporter
