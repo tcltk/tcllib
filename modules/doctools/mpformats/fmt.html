@@ -54,7 +54,10 @@ proc titledesc {desc} {
 }
 
 proc manpage_end {}     {return </body></html>}
-proc section     {name} {return "<h2>$name</h2>"}
+proc section     {name} {
+    set ::SectionNames($name) [set id [sectionId $name]]
+    return "<a name=\"$id\"><h2>$name</h2>"
+}
 proc para        {}     {return <p>}
 
 proc require {pkg {version {}}} {
@@ -96,6 +99,34 @@ proc x_synopsis {} {
 	return [section SYNOPSIS]\n
     } else {
 	return ""
+    }
+}
+
+######################################################################
+# Cross-reference tracking.
+#
+
+global SectionNames	;# array mapping section name to refid
+
+# sectionId --
+#	Format section name as an XML ID.
+#
+proc sectionId {name} {
+    regsub -all {[^[:alnum:]]} $name {} name
+    return [string tolower $name]
+}
+
+# possibleReference text gi --
+#	Check if $text is a potential cross-reference;
+#	if so, format as a reference;
+#	otherwise format as a $gi element.
+#
+proc possibleReference {text gi} {
+    global SectionNames
+    if {[info exists SectionNames($text)]} {
+    	return "<a href=\"#$SectionNames($text)\">$text</a>"
+    } else {
+    	return "<${gi}>$text</${gi}>"
     }
 }
 
@@ -152,8 +183,11 @@ proc example {code} { return "<pre class='sample'>[HandleText $code]</pre>" }
 proc nl     {}     {return "<br>" }
 proc arg    {text} {return "<i class='arg'>$text</i>" }
 proc cmd    {text} {return "<b class='cmd'>$text</b>" }
-proc emph   {text} {return "<em>$text</em>" }
-proc strong {text} {return "<strong>$text</strong>" }
+
+proc emph	{text}	{ possibleReference $text em }
+proc strong	{text}	{ possibleReference $text strong }
+
+
 proc opt    {text} {return "?$text?" }
 
 

@@ -1,3 +1,16 @@
+2002-02-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: Added detection of section cross-references
+	  in [emph] and [strong] based on the code for TMML.
+
+2002-02-13  Joe English  <jenglish@users.sourceforge.net>
+
+	* mpformats/fmt.tmml:  [example_begin] inside lists was
+	  not handled correctly.
+
+	* mpformats/fmt.tmml:  Detect section cross-references
+	  in [emph] and [strong].
+
 2002-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_html.tcl: Added command to map HTML special
@@ -15,6 +28,11 @@
 	  manpage_end to make the code robust against strings which are
 	  not valid lists.
 
+2002-02-12  Joe English  <jenglish@users.sourceforge.net>
+
+	* Added [example_begin] and [example_end] commands.
+	  Also [example { code ... }] command.
+
 2001-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Added formatter for LaTeX.
@@ -26,17 +44,3 @@
 	  format to TMML, nroff and HTML. Extensible, i.e. additional
 	  formats can be added without to much work (Manpages for format
 	  and internal interfaces are provided).
-
-2002-02-12  Joe English  <jenglish@users.sourceforge.net>
-
-	* Added [example_begin] and [example_end] commands.
-	  Also [example { code ... }] command.
-
-2002-02-13  Joe English  <jenglish@users.sourceforge.net>
-
-	* mpformats/fmt.tmml:  [example_begin] inside lists was
-	  not handled correctly.
-
-	* mpformats/fmt.tmml:  Detect section cross-references
-	  in [emph] and [strong].
-
