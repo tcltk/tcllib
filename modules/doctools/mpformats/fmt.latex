@@ -99,8 +99,9 @@ c_pass 2 fmt_manpage_end {} {
 
 
 
-proc fmt_section {name} {return "\\section\{$name\}"}
-proc fmt_para    {}     {return \n\n}
+proc fmt_section    {name} {return "\\section\{$name\}"}
+proc fmt_subsection {name} {return "\\subsection\{$name\}"}
+proc fmt_para    {}        {return \n\n}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {

@@ -190,8 +190,8 @@ proc NYI {{message {}}} {
 # Cross-reference tracking (for a single file).
 #
 global SectionNames	;# array mapping 'section name' to 'reference id'
-global SectionList      ;# List of sections and their ids, in order.
-set    SectionList {}
+global SectionList      ;# List of sections, their ids, and levels, in
+set    SectionList {}   ;# order of definition.
 
 # sectionId --
 #	Format section name as an XML ID.
@@ -213,6 +213,21 @@ proc c_possibleReference {text gi} {
     } else {
     	return [wrap $text $gi]
     }
+}
+
+proc c_newSection {name level location} {
+    global SectionList SectionNames
+    set id          [c_sectionId $name]
+
+    set SectionNames($name) $id
+    set SectionList [linsert $SectionList $location $name $id $level]
+    return
+}
+
+proc c_clrSections {} {
+    global SectionList SectionNames
+    set    SectionList {}
+    catch {unset SectionNames}
 }
 
 ######################################################################
