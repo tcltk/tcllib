@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.21 2003/04/11 21:01:28 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.22 2003/04/14 20:15:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -158,7 +158,7 @@ proc ::uri::register {schemeList script} {
 # Results:
 #	Tcl list containing constituents, suitable for 'array set'.
 
-proc ::uri::split {url} {
+proc ::uri::split {url {defaultscheme http}} {
 
     set url [string trim $url]
     set scheme {}
@@ -167,7 +167,7 @@ proc ::uri::split {url} {
     regexp -- {^([a-z0-9+.-][a-z0-9+.-]*):} $url dummy scheme
 
     if {$scheme == {}} {
-	set scheme http
+	set scheme $defaultscheme
     }
 
     # ease maintenance: dynamic dispatch, able to handle all schemes

@@ -1,3 +1,11 @@
+2003-04-14  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.man:
+	* uri.tcl (split): Accepted the FR [#545368] by Mark G. Saye
+	  <markgsaye@users.sourceforge.net>, with a slight difference. To
+	  keep API compatibibility the http stays the default scheme if
+	  none was specified.
+
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri-rfc2396.test: Added constraint 'knownBug' to these
