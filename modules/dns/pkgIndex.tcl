@@ -9,5 +9,5 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded dns    1.0.3 [list source [file join $dir dns.tcl]]
+package ifneeded dns    1.0.4 [list source [file join $dir dns.tcl]]
 package ifneeded resolv 1.0   [list source [file join $dir resolv.tcl]]
