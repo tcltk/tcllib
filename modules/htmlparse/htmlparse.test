@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.1 2001/03/26 16:50:21 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.2 2003/03/25 05:05:01 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -177,6 +177,32 @@ test htmlparse-3.3 {incremental parsing} {
     htmlparse::parse -cmd {cb @} -incvar incomplete -vroot foo -queue q -split 1 $html2
     list $tags [q size] [q peek [q size]] $incomplete
 } {{} 10 {{{cb} {@} \win\ {foo} {} {} {}} {{cb} {@} \win\ {html} {} {} {}} {{cb} {@} \win\ {head} {} {} {}} {{cb} {@} \win\ {title} {} {} {foo}} {{cb} {@} \win\ {title} {/} {} {}} {{cb} {@} \win\ {meta} {} {name="..."} {}} {{cb} {@} \win\ {head} {/} {} {}} {{cb} {@} \win\ {body} {} {} {}} {{cb} {@} \win\ {h2} {} {} {Header}} {{cb} {@} \win\ {p} {} {} {burble}}} </b}
+
+
+proc cb_foo {args} {
+    if {[string equal [lindex $args 1] FOO]} {return }
+    global tags ; lappend tags $args
+}
+
+test htmlparse-3.4 {incremental parsing} {
+    set tags [list]
+    set incomplete ""
+    catch {q destroy}
+    struct::queue q
+
+    set lines [list]
+    lappend lines {<root>} 
+    lappend lines {<tag>Hi there</tag>} 
+    lappend lines {<tag} 
+    lappend lines {>Hi there<} 
+    lappend lines {/tag></root>} 
+
+    foreach l $lines {
+	htmlparse::parse -cmd {cb_foo @} -incvar incomplete -vroot FOO $l
+    }
+    list $tags $incomplete
+} {{{@ root {} {} {}} {@ tag {} {} {Hi there}} {@ tag / {} {}} {@ tag {} {} {Hi there}} {@ tag / {} {}} {@ root / {} {}}} {}}
+
 
 # Don't test: ::htmlparse::debugCallback
 
