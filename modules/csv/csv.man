@@ -8,7 +8,7 @@
 [para]
 
 The [strong csv] package provides commands to manipulate information
-in CSV format (CSV = Comma Separated Values).
+in CSV [strong FORMAT] (CSV = Comma Separated Values).
 
 [section COMMANDS]
 [para]
