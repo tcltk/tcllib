@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: geometry.tcl,v 1.3 2001/12/15 12:43:35 chdamm Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.4 2001/12/16 11:18:24 chdamm Exp $
 
 namespace eval ::math::geometry {
 }
@@ -90,7 +90,7 @@ proc ::math::geometry::calculateDistanceToLine {P line} {
     set Cx [lindex $P 0]
     set Cy [lindex $P 1]
     if {$Ax==$Bx && $Ay==$By} {
-	return [dist $Cx $Cy $Ax $Ay]
+	return [lengthOfPolyline [concat $P [lrange $line 0 1]]]
     } else {
 	set L [expr {sqrt(pow($Bx-$Ax,2) + pow($By-$Ay,2))}]
 	return [expr {abs(($Ay-$Cy)*($Bx-$Ax)-($Ax-$Cx)*($By-$Ay)) / $L}]
@@ -235,7 +235,7 @@ proc ::math::geometry::calculateDistanceToLineSegmentImpl {P linesegment} {
     set Cx [lindex $P 0]
     set Cy [lindex $P 1]
     if {$Ax==$Bx && $Ay==$By} {
-	return [list [dist $Cx $Cy $Ax $Ay] 0]
+	return [list [lengthOfPolyline [concat $P [lrange $linesegment 0 1]]] 0]
     } else {
 	set L [expr {sqrt(pow($Bx-$Ax,2) + pow($By-$Ay,2))}]
 	set r [expr {(($Cx-$Ax)*($Bx-$Ax) + ($Cy-$Ay)*($By-$Ay))/pow($L,2)}]
@@ -921,6 +921,76 @@ proc ::math::geometry::bbox {polyline} {
 
 
 
+# ::math::geometry::pointInsidePolygon
+#
+#       Determine if a point is completely inside a polygon. If the point
+#       touches the polygon, then the point is not complete inside the
+#       polygon.
+#
+# Arguments:
+#       P             a point
+#       polygon       a polygon
+#
+# Results:
+#       isinside      a boolean saying whether the point is
+#                     completely inside the polygon or not
+#
+# Examples:
+#     - pointInsidePolygon {5 5} {4 4 4 6 6 6 6 4}
+#       Result: 1
+#     - pointInsidePolygon {5 5} {6 6 6 7 7 7}
+#       Result: 0
+#
+proc ::math::geometry::pointInsidePolygon {P polygon} {
+    # check if P is on one of the polygon's sides (if so, P is not
+    # inside the polygon)
+    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
+    foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
+	if {[calculateDistanceToLineSegment $P [list $x1 $y1 $x2 $y2]]<0.0000001} {
+	    return 0
+	}
+    }
+
+    # Algorithm
+    # 
+    # Consider a straight line going from P to a point far away from both
+    # P and the polygon (in particular outside the polygon).
+    #   - If the line intersects with 0 of the polygon's sides, then
+    #     P must be outside the polygon.
+    #   - If the line intersects with 1 of the polygon's sides, then
+    #     P must be inside the polygon (since the other end of the line
+    #     is outside the polygon).
+    #   - If the line intersects with 2 of the polygon's sides, then
+    #     the line must pass into one polygon area and out of it again,
+    #     and hence P is outside the polygon.
+    #   - In general: if the line intersects with the polygon's sides an odd
+    #     number of times, then P is inside the polygon. Note: we also have
+    #     to check whether the line crosses one of the polygon's
+    #     bend points for the same reason.
+
+    # get point far away and define the line
+    set polygonBbox [bbox $polygon]
+    set pointFarAway [list [expr {[lindex $polygonBbox 0]-1}] [expr {[lindex $polygonBbox 1]-1}]]
+    set infinityLine [concat $pointFarAway $P]
+    # calculate number of intersections
+    set noOfIntersections 0
+    #   1. count intersections between the line and the polygon's sides
+    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
+    foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
+	if {[lineSegmentsIntersect $infinityLine [list $x1 $y1 $x2 $y2]]} {
+	    incr noOfIntersections
+	}
+    }
+    #   2. count intersections between the line and the polygon's points
+    foreach {x1 y1} $polygon {
+	if {[calculateDistanceToLineSegment [list $x1 $y1] $infinityLine]<0.0000001} {
+	    incr noOfIntersections
+	}
+    }
+    return [expr {$noOfIntersections % 2}]
+}
+
+
 # ::math::geometry::rectangleInsidePolygon
 #
 #       Determine if a rectangle is completely inside a polygon. If polygon
@@ -964,7 +1034,7 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
 	return 0
     }
     
-    # if one of the points of the polygon is inside the rectangle,
+    # 1. if one of the points of the polygon is inside the rectangle,
     # then the rectangle cannot be inside the polygon
     foreach {x y} $polygon {
 	if {$bx1<$x && $x<$bx2 && $by1<$y && $y<$by2} {
@@ -972,12 +1042,10 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
 	}
     }
 
-    # calculate closed polygon
-    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
-    
-    # if one of the line segments of the polygon intersect with the
+    # 2. if one of the line segments of the polygon intersect with the
     # rectangle, then the rectangle cannot be inside the polygon
     set rectanglePolyline [list $bx1 $by1 $bx2 $by1 $bx2 $by2 $bx1 $by2 $bx1 $by1]
+    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
     if {[polylinesIntersect $closedPolygon $rectanglePolyline]} {
 	return 0
     }
@@ -989,20 +1057,9 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
     #  either the rectangle is (completely) inside the polygon, or
     #  the rectangle is (completely) outside the polygon
 
-    # final test: consider a straight line going from a point on the rectangle to
-    # a point far away from both the rectangle and the polygon. If this
-    # line intersects with 0 of the polygon's sides, then the point on the rectangle
-    # (and therefore the rest of the rectangle) must be completely outside the
-    # polygon. Otherwise, the box must be completely inside the polygon.
-    set xFarAway [expr [::math::min $bx1 $polygonP1x] - 1]
-    set yFarAway [expr [::math::min $by1 $polygonP1y] - 1]
-    set infinityLine [list $xFarAway $yFarAway $bx1 $by1]
-    foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
-	if {[lineSegmentsIntersect $infinityLine [list $x1 $y1 $x2 $y2]]} {
-	    return 1
-	}
-    }
-    return 0
+    # final test: if one of the points on the rectangle is inside the
+    # polygon, then the whole rectangle must be inside the rectangle
+    return [pointInsidePolygon [list $bx1 $by1] $polygon]
 }
 
 
