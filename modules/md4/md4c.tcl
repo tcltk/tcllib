@@ -3,14 +3,14 @@
 # This provides a C implementation of MD4 using the sample code from RFC1320
 # and wrapping this up in a Tcl package.
 #
-# The tcl interface code is based upon the md4c code from critcl by JCW.
+# The tcl interface code is based upon the md5c code from critcl by JCW.
 #
 # INSTALLATION
 # ------------
 # This package uses critcl (http://wiki.tcl.tk/critcl). To build do:
 #  critcl -libdir <your-tcl-lib-dir> -pkg md4c md4c
 #
-# $Id: md4c.tcl,v 1.1 2003/04/18 22:28:24 patthoyts Exp $
+# $Id: md4c.tcl,v 1.2 2003/04/30 20:18:29 patthoyts Exp $
 
 package require critcl
 package provide md4c 1.0.0
