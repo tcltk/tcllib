@@ -45,8 +45,6 @@ namespace eval ::snit:: {
 
         # Instance Introspection: info <command> <args>
         method info {command args} {
-            global errorInfo
-
             switch -exact $command {
                 type    -
                 vars    -
@@ -58,13 +56,15 @@ namespace eval ::snit:: {
                     } result]
 
                     if {$errflag} {
+                        global errorInfo
                         return -code error -errorinfo $errorInfo $result
                     } else {
                         return $result
                     }
                 }
                 default {
-                    error "'$self info $command' is not defined."
+                    # error "'$self info $command' is not defined."
+                    return -code error "'$self info $command' is not defined."
                 }
             }
         }
@@ -628,47 +628,50 @@ namespace eval ::snit:: {
         # the method or proc to reference a variable in some other 
         # namespace by its bare name.  It's only valid in instance code; 
         # it requires that selfns be defined.
-        proc %TYPE%::variable {varname} {
-            upvar selfns selfns
-
-            if {![string match "::*" $varname]} {
-                uplevel upvar ${selfns}::$varname $varname
-            } else {
-                # varname is fully qualified; let the standard
-                # "variable" command handle it.
-                uplevel ::variable $varname
-            }
-        }
+        interp alias {} %TYPE%::variable {} ::snit::Variable
 
         # Returns the fully qualified name of a typevariable.
-        proc %TYPE%::typevarname {name} {
-            return %TYPE%::$name
-        }
+        # The "typevarname" form is DEPRECATED.
+        interp alias {} %TYPE%::mytypevar   {} ::snit::MyTypeVar %TYPE%
+        interp alias {} %TYPE%::typevarname {} ::snit::MyTypeVar %TYPE%
 
         # Returns the fully qualified name of an instance variable.  
         # As with "variable", must be called in the context of a method.
-        proc %TYPE%::varname {name} {
-            upvar selfns selfns
-            return ${selfns}::$name
-        }
+        # The "varname" form is DEPRECATED.
 
-        # Returns the fully qualified name of a proc (or typemethod).  
+        interp alias {} %TYPE%::myvar   {} ::snit::MyVar
+        interp alias {} %TYPE%::varname {} ::snit::MyVar
+
+        # Returns the fully qualified name of a proc 
         # Unlike "variable", need not be called in the context of an
         # instance method.
-        proc %TYPE%::codename {name} {
-            return %TYPE%::$name
-        }
+        #
+        # DEPRECATED; use myproc instead.
+        interp alias {} %TYPE%::codename {} ::snit::CodeName %TYPE%
 
-        # Use this like "list" to create a command string to pass to
-        # another object (e.g., as a -command); it automatically inserts
+        # Use this like "list" to pass a proc call to another
+        # object (e.g., as a -command); it automatically qualifies
+        # the proc name.
+        interp alias {} %TYPE%::myproc {} ::snit::MyProc %TYPE%
+
+        # Use this like "list" to pass method call to another object 
+        # (e.g., as a -command); it automatically inserts
         # the code at the beginning to call the right object, even if
         # the object's name has changed.  Requires that selfns be defined
         # in the calling context.
-        proc %TYPE%::mymethod {args} {
-            upvar selfns selfns
-            return [linsert $args 0 ::snit::CallInstance ${selfns}]
-        }
+        interp alias {} %TYPE%::mymethod {} ::snit::MyMethod 
 
+        # Use this like "list" to pass typemethod call to another object 
+        # (e.g., as a -command); it automatically inserts the type
+        # command at the beginning.
+        interp alias {} %TYPE%::mytypemethod {} ::snit::MyTypeMethod %TYPE%
+
+        # Looks for the named option in the named variable.  If found,
+        # it and its value are removed from the list, and the value
+        # is returned.  Otherwise, the default value is returned.
+        # If the option is undelegated, it's own default value will be
+        # used if none is specified.
+        interp alias {} %TYPE%::from {} ::snit::From %TYPE%
 
         # Installs the named widget as the hull of a 
         # widgetadaptor.  Once the widget is hijacked, it's new name
@@ -881,34 +884,6 @@ namespace eval ::snit:: {
 
 
             return
-        }
-
-        # Looks for the named option in the named variable.  If found,
-        # it and its value are removed from the list, and the value
-        # is returned.  Otherwise, the default value is returned.
-        # If the option is undelegated, it's own default value will be
-        # used if none is specified.
-        proc %TYPE%::from {argvName option {defvalue ""}} {
-            typevariable Snit_optiondefaults
-            upvar $argvName argv
-
-            set ioption [lsearch -exact $argv $option]
-
-            if {$ioption == -1} {
-                if {"" == $defvalue &&
-                    [info exists Snit_optiondefaults($option)]} {
-                    return $Snit_optiondefaults($option)
-                } else {
-                    return $defvalue
-                }
-            }
-
-            set ivalue [expr {$ioption + 1}]
-            set value [lindex $argv $ivalue]
-
-            set argv [lreplace $argv $ioption $ivalue] 
-
-            return $value
         }
 
         #----------------------------------------------------------------
@@ -1985,9 +1960,290 @@ proc ::snit::DefineDo {which type body} {
 
 
 #-----------------------------------------------------------------------
-# Instance introspection commands
+# Utility Functions
+#
+# These are utility functions used while compiling Snit types.
+
+# Builds a template from a tagged list of text blocks, then substitutes
+# all symbols in the mapTable, returning the expanded template.
+proc ::snit::Expand {template args} {
+    return [string map $args $template]
+}
+
+# Expands a template and appends it to a variable.
+proc ::snit::Mappend {varname template args} {
+    upvar $varname myvar
+
+    append myvar [string map $args $template]
+}
+
+# Checks argument list against reserved args 
+proc ::snit::CheckArgs {which arglist} {
+    variable reservedArgs
+    
+    foreach name $reservedArgs {
+        if {[Contains $name $arglist]} {
+            error "$which's arglist may not contain '$name' explicitly."
+        }
+    }
+}
+
+# Returns 1 if a value is in a list, and 0 otherwise.
+proc ::snit::Contains {value list} {
+    if {[lsearch -exact $list $value] != -1} {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+# Capitalizes the first letter of a string.
+proc ::snit::Capitalize {text} {
+    set first [string index $text 0]
+    set rest [string range $text 1 end]
+    return "[string toupper $first]$rest"
+}
+
+#=======================================================================
+# Snit Runtime Library
+#
+# These are procs used by Snit types and widgets at runtime.
+
+#-----------------------------------------------------------------------
+# Object Creation
+
+# Returns a unique command name.  
+#
+# REQUIRE: type is a fully qualified name.
+# REQUIRE: name contains "%AUTO%"
+# PROMISE: the returned command name is unused.
+proc ::snit::UniqueName {countervar type name} {
+    upvar $countervar counter 
+    while 1 {
+        # FIRST, bump the counter and define the %AUTO% instance name;
+        # then substitute it into the specified name.  Wrap around at
+        # 2^31 - 2 to prevent overflow problems.
+        incr counter
+        if {$counter > 2147483646} {
+            set counter 0
+        }
+        set auto "[namespace tail $type]$counter"
+        set candidate [snit::Expand $name %AUTO% $auto]
+        if {[info commands $candidate] == ""} {
+            return $candidate
+        }
+    }
+}
+
+# Returns a unique instance namespace, fully qualified.
+#
+# countervar     The name of a counter variable
+# type           The instance's type
+#
+# REQUIRE: type is fully qualified
+# PROMISE: The returned namespace name is unused.
+
+proc ::snit::UniqueInstanceNamespace {countervar type} {
+    upvar $countervar counter 
+    while 1 {
+        # FIRST, bump the counter and define the namespace name.
+        # Then see if it already exists.  Wrap around at
+        # 2^31 - 2 to prevent overflow problems.
+        incr counter
+        if {$counter > 2147483646} {
+            set counter 0
+        }
+        set ins "${type}::Snit_inst${counter}"
+        if {![namespace exists $ins]} {
+            return $ins
+        }
+    }
+}
+
+#-----------------------------------------------------------------------
+# Component Management
+
+
+
+
+
+#-----------------------------------------------------------------------
+# Method/Variable Name Qualification
+
+# Implements %TYPE%::variable.  Requires selfns.
+proc snit::Variable {varname} {
+    upvar selfns selfns
+
+    if {![string match "::*" $varname]} {
+        uplevel upvar ${selfns}::$varname $varname
+    } else {
+        # varname is fully qualified; let the standard
+        # "variable" command handle it.
+        uplevel ::variable $varname
+    }
+}
+
+# Fully qualifies a typevariable name.
+#
+# This is used to implement the mytypevar command.
+
+proc snit::MyTypeVar {type name} {
+    return ${type}::$name
+}
+
+# Fully qualifies an instance variable name.
+#
+# This is used to implement the myvar command.
+proc ::snit::MyVar {name} {
+    upvar selfns selfns
+    return ${selfns}::$name
+}
+
+# Use this like "list" to convert a proc call into a command
+# string to pass to another object (e.g., as a -command).
+# Qualifies the proc name properly.
+#
+# This is used to implement the "myproc" command.
+
+proc snit::MyProc {type procname args} {
+    set procname "${type}::$procname"
+    return [linsert $args 0 $procname]
+}
+
+# DEPRECATED
+proc snit::CodeName {type name} {
+    return "${type}::$name"
+}
+
+# Use this like "list" to convert a typemethod call into a command
+# string to pass to another object (e.g., as a -command).
+# Inserts the type command at the beginning.
+#
+# This is used to implement the "mytypemethod" command.
+
+proc snit::MyTypeMethod {type args} {
+    return [linsert $args 0 $type]
+}
+
+# Use this like "list" to convert a method call into a command
+# string to pass to another object (e.g., as a -command).
+# Inserts the code at the beginning to call the right object, even if
+# the object's name has changed.  Requires that selfns be defined
+# in the calling context, eg. can only be called in instance
+# code.
+#
+# This is used to implement the "mymethod" command.
+
+proc snit::MyMethod {args} {
+    upvar selfns selfns
+    return [linsert $args 0 ::snit::CallInstance ${selfns}]
+}
+
+# Calls an instance method for an object given its
+# instance namespace and remaining arguments (the first of which
+# will be the method name.
+#
+# selfns		The instance namespace
+# args			The arguments
+#
+# Uses the selfns to determine $self, and calls the method
+# in the normal way.
+#
+# This is used to implement the "mymethod" command.
+
+proc ::snit::CallInstance {selfns args} {
+    upvar ${selfns}::Snit_instance self
+    return [uplevel 1 [linsert $args 0 $self]]
+}
+
+# Looks for the named option in the named variable.  If found,
+# it and its value are removed from the list, and the value
+# is returned.  Otherwise, the default value is returned.
+# If the option is undelegated, it's own default value will be
+# used if none is specified.
+#
+# Implements the "from" command.
+
+proc snit::From {type argvName option {defvalue ""}} {
+    variable ${type}::Snit_optiondefaults
+    upvar $argvName argv
+
+    set ioption [lsearch -exact $argv $option]
+
+    if {$ioption == -1} {
+        if {"" == $defvalue &&
+            [info exists Snit_optiondefaults($option)]} {
+            return $Snit_optiondefaults($option)
+        } else {
+            return $defvalue
+        }
+    }
+
+    set ivalue [expr {$ioption + 1}]
+    set value [lindex $argv $ivalue]
+    
+    set argv [lreplace $argv $ioption $ivalue] 
+
+    return $value
+}
+
+#-----------------------------------------------------------------------
+# Type Introspection
+
+# Returns a list of the type's typevariables whose names match a 
+# pattern, excluding Snit internal variables.
+#
+# type		A Snit type
+# pattern       Optional.  The glob pattern to match.  Defaults
+#               to *.
+
+proc ::snit::TypeInfo_typevars {type {pattern *}} {
+    set result {}
+    foreach name [info vars "${type}::$pattern"] {
+        set tail [namespace tail $name]
+        if {![string match "Snit_*" $tail]} {
+            lappend result $name
+        }
+    }
+    
+    return $result
+}
+
+# Returns a list of the type's instances whose names match
+# a pattern.
+#
+# type		A Snit type
+# pattern       Optional.  The glob pattern to match
+#               Defaults to *
+#
+# REQUIRE: type is fully qualified.
+
+proc ::snit::TypeInfo_instances {type {pattern *}} {
+    set result {}
+
+    foreach selfns [namespace children $type] {
+        upvar ${selfns}::Snit_instance instance
+
+        if {[string match $pattern $instance]} {
+            lappend result $instance
+        }
+    }
+
+    return $result
+}
+
+#-----------------------------------------------------------------------
+# Instance Introspection
 
 # Returns the instance's type.
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+#
+# TBD: Why is this command needed?  How hard is it to return $type?
+
 proc ::snit::InstanceInfo_type {type selfns win self} {
     return $type
 }
@@ -2063,122 +2319,4 @@ proc ::snit::InstanceInfo_options {type selfns win self {pattern *}} {
 
     return $names
 }
-
-#-----------------------------------------------------------------------
-# Type introspection commands
-
-# Returns the instance's type's typevariables
-proc ::snit::TypeInfo_typevars {type {pattern *}} {
-    set result {}
-    foreach name [info vars "${type}::$pattern"] {
-        set tail [namespace tail $name]
-        if {![string match "Snit_*" $tail]} {
-            lappend result $name
-        }
-    }
-    
-    return $result
-}
-
-# Returns the instance's instance variables
-proc ::snit::TypeInfo_instances {type {pattern *}} {
-    upvar ${type}::Snit_isWidget Snit_isWidget
-    set result {}
-
-    foreach selfns [namespace children $type] {
-        upvar ${selfns}::Snit_instance instance
-
-        if {[string match $pattern $instance]} {
-            lappend result $instance
-        }
-    }
-
-    return $result
-}
-
-
-#-----------------------------------------------------------------------
-# Utility Functions
-
-# Builds a template from a tagged list of text blocks, then substitutes
-# all symbols in the mapTable, returning the expanded template.
-proc ::snit::Expand {template args} {
-    return [string map $args $template]
-}
-
-# Expands a template and appends it to a variable.
-proc ::snit::Mappend {varname template args} {
-    upvar $varname myvar
-
-    append myvar [string map $args $template]
-}
-
-# Return a unique command name.  
-#
-# Require: type is a fully qualified name.
-# Require: name contains "%AUTO%"
-proc ::snit::UniqueName {countervar type name} {
-    upvar $countervar counter 
-    while 1 {
-        # FIRST, bump the counter and define the %AUTO% instance name;
-        # then substitute it into the specified name.  Wrap around at
-        # 2^31 - 1 to prevent overflow problems.
-        incr counter
-        if {$counter > 2147483647} {
-            set counter 0
-        }
-        set auto "[namespace tail $type]$counter"
-        set candidate [snit::Expand $name %AUTO% $auto]
-        if {[info commands $candidate] == ""} {
-            return $candidate
-        }
-    }
-}
-
-# Return a unique instance namespace
-proc ::snit::UniqueInstanceNamespace {countervar type} {
-    upvar $countervar counter 
-    while 1 {
-        # FIRST, bump the counter and define the namespace name.
-        # Then see if it already exists.
-        incr counter
-        set ins "${type}::Snit_inst${counter}"
-        if {![namespace exists $ins]} {
-            return $ins
-        }
-    }
-}
-
-# Checks argument list against reserved args 
-proc ::snit::CheckArgs {which arglist} {
-    variable reservedArgs
-    
-    foreach name $reservedArgs {
-        if {[Contains $name $arglist]} {
-            error "$which's arglist may not contain '$name' explicitly."
-        }
-    }
-}
-
-# Returns 1 if a value is in a list, and 0 otherwise.
-proc ::snit::Contains {value list} {
-    if {[lsearch -exact $list $value] != -1} {
-        return 1
-    } else {
-        return 0
-    }
-}
-
-# Capitalizes the first letter of a string.
-proc ::snit::Capitalize {text} {
-    set first [string index $text 0]
-    set rest [string range $text 1 end]
-    return "[string toupper $first]$rest"
-}
-
-proc ::snit::CallInstance {selfns args} {
-    upvar ${selfns}::Snit_instance self
-    return [uplevel 1 [linsert $args 0 $self]]
-}
-
 

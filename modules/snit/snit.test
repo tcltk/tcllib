@@ -766,11 +766,100 @@ test mymethod-1.1 {run mymethod handler} {
     set ::RES
 } {::bar::fubar snarf}
 
+#-----------------------------------------------------------------------
+# myproc 
+
+test myproc-1.1 {myproc qualifies proc names} {} {
+    cleanup
+
+    type dog {
+        proc foo {} {}
+
+        typemethod getit {} {
+            return [myproc foo]
+        }
+    }
+
+    dog getit
+} {::dog::foo}
+
+test myproc-1.2 {myproc adds arguments} {} {
+    cleanup
+
+    type dog {
+        proc foo {} {}
+
+        typemethod getit {} {
+            return [myproc foo "a b"]
+        }
+    }
+
+    dog getit
+} {::dog::foo {a b}}
+
+test myproc-1.3 {myproc adds arguments} {} {
+    cleanup
+
+    type dog {
+        proc foo {} {}
+
+        typemethod getit {} {
+            return [myproc foo "a b" c d]
+        }
+    }
+
+    dog getit
+} {::dog::foo {a b} c d}
+
+test myproc-1.4 {procs with selfns work} {} {
+    cleanup
+
+    type dog {
+        variable datum foo
+
+        method qualify {} {
+            return [myproc getdatum $selfns]
+        }
+        proc getdatum {selfns} {
+            return $datum
+        }
+    }
+    dog create spot
+    eval [spot qualify]
+} {foo}
+
+
+#-----------------------------------------------------------------------
+# mytypemethod
+
+test mytypemethod-1.1 {mytypemethod qualifies typemethods} {} {
+    cleanup
+
+    type dog {
+        typemethod this {} {}
+
+        typemethod a {} {
+            return [mytypemethod this]
+        }
+        typemethod b {} {
+            return [mytypemethod this x]
+        }
+        typemethod c {} {
+            return [mytypemethod this "x y"]
+        }
+        typemethod d {} {
+            return [mytypemethod this x y]
+        }
+    }
+    
+    list [dog a] [dog b] [dog c] [dog d]
+} {{::dog this} {::dog this x} {::dog this {x y}} {::dog this x y}}
 
 #-----------------------------------------------------------------------
 # typevariable
 
 test typevariable-1.1 {typevarname qualifies typevariables} {} {
+    # Note: typevarname is DEPRECATED.  Use mytypevar instead.
     cleanup
 
     type dog { 
@@ -874,21 +963,34 @@ test typevariable-1.6 {typevariables can used in procs} {} {
     spot greet
 } {Howdy}
 
-#-----------------------------------------------------------------------
-# instance variable
-
-test ivariable-1.1 {varname qualifies instance variables} {} {
+test typevariable-1.7 {mytypevar qualifies typevariables} {} {
     cleanup
 
     type dog { 
-        method vname {name} {
-            varname $name
+        method tvname {name} {
+            mytypevar $name
         }
     }
 
     dog create spot
-    spot vname myvar
-} {::dog::Snit_inst1::myvar}
+    spot tvname myvar
+} {::dog::myvar}
+
+#-----------------------------------------------------------------------
+# instance variable
+
+test ivariable-1.1 {myvar qualifies instance variables} {} {
+    cleanup
+
+    type dog { 
+        method vname {name} {
+            myvar $name
+        }
+    }
+
+    dog create spot
+    spot vname somevar
+} {::dog::Snit_inst1::somevar}
 
 test ivariable-1.2 {undefined instance variables are OK} {} {
     cleanup
@@ -966,7 +1068,7 @@ test ivariable-1.5 {instance variables can be arrays} {} {
         }
 
         method vname {} {
-            return [varname greetings]
+            return [myvar greetings]
         }
     }
 
@@ -1010,7 +1112,7 @@ test ivariable-1.7 {variable is illegal when selfns is undefined.} {} {
     set result
 } {can't read "selfns": no such variable}
 
-test ivariable-1.8 {varname is illegal when selfns is undefined.} {} {
+test ivariable-1.8 {myvar is illegal when selfns is undefined.} {} {
     cleanup
 
     type dog { 
@@ -1018,7 +1120,7 @@ test ivariable-1.8 {varname is illegal when selfns is undefined.} {} {
             callee
         }
         proc callee {} {
-            varname foo
+            myvar foo
         }
     }
 
@@ -1070,6 +1172,8 @@ test ivariable-1.10 {in methods, variable works with fully qualified names.} {} 
 
 #-----------------------------------------------------------------------
 # codename
+#
+# NOTE: codename is deprecated; myproc should be used instead.
 
 test codename-1.1 {codename qualifies procs} {} {
     cleanup
