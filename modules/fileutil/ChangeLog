@@ -1,3 +1,11 @@
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Cleaning up after Aaron. Updated the test
+	  filetype-1.12 to look for the extended return value of fileType
+	  when applied to jpeg images. The last checkin changed this, but
+	  the test was not updated as well, most likely not even
+	  run. Found and corrected during release preparation and testing.
+
 2004-05-11  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* fileutil.tcl: updated the jpeg test to recognize exif format
