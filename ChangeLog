@@ -1,7 +1,12 @@
 2001-08-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* Makefile.in (mandir, libdir): Applied patch [447141] by Reinhard
+	  Max <rmax@users.sourceforge.net> to virtualize mandir and libdir
+	  via ${INSTALL_ROOT}.
+
 	* all.tcl: Added ::tcltest::getErrorMessage in preparation of
-	  fixing [440051], [440049] and [440046] reported by Larry Virden.
+	  fixing [440051], [440049] and [440046] reported by Larry Virden
+	  <lvirden@users.sourceforge.net>.
 
 2001-07-17  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
