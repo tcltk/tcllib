@@ -76,12 +76,28 @@
 #
 #
 #   $Log: des.tcl,v $
-#   Revision 1.8  2004/09/24 06:54:24  andreas_kupries
-#   Scattered small fixes, mostly adding braces to unbraced
-#   expressions.
+#   Revision 1.9  2004/10/03 23:06:56  andreas_kupries
+#   Mainly updated docs to latest round of changes.
 #
-#   Fixed problem with mismatched package names for the packages
-#   implementing the standard types.
+#   Get package index.
+#
+#   Import treeql work by Colin.
+#
+#   Testsuite fix in cmdline.
+#
+#   TreeQL doc fixup, new files for TreeQL ideas.
+#
+#   Struct::Tree doc fixup (examples, structure, node creation).
+#
+#   Tar file doc extension, added keywords and descriptions.
+#
+#   Updated version numbres according to the changes made.
+#
+#   Added README for the new release.
+#
+#   Version sync and move of K for 8.5 code, fogotten earlier.
+#
+#   First doctools documentation.
 #
 #   Revision 1.6  2003/05/07 21:51:30  patthoyts
 #   	* des.tcl, des.man, pkgIndex.tcl: Hiked the version to 0.8.1
@@ -148,7 +164,7 @@
 
 namespace eval ::DES {
 
-  variable version 0.8.1
+  variable version 0.8.2
 
   namespace export GetKey DesBlock
 

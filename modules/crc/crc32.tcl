@@ -10,10 +10,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.15 2004/05/26 04:24:28 andreas_kupries Exp $
+# $Id: crc32.tcl,v 1.16 2004/10/03 23:06:55 andreas_kupries Exp $
 
 namespace eval ::crc {
-    variable crc32_version 1.1.1
+    variable crc32_version 1.2
 
     namespace export crc32
 

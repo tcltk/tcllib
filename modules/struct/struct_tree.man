@@ -29,11 +29,15 @@ incompatible and otherwise.
 
 [para]
 
+[section API]
+[subsection {Tree CLASS API}]
+
 The main commands of the package are:
 
 [list_begin definitions]
 
-[call [cmd ::struct::tree] [opt [arg treeName]] [opt "[const =]|[const :=]|[const as]|[const deserialize] [arg source]"]]
+[call [cmd ::struct::tree] [opt [arg treeName]] \
+	[opt "[const =]|[const :=]|[const as]|[const deserialize] [arg source]"]]
 
 The command creates a new tree object with an associated global Tcl
 command whose name is [arg treeName]. This command may be used to
@@ -103,14 +107,29 @@ traversal do not fit.
 [list_end]
 [para]
 
-A general observation: The root node of the tree can be used in most
-places where a node is asked for. The default name of the rootnode is
-"root", but this can be changed with the method [method rename] (see
-below). Whatever the current name for the root node of the tree is, it
-can be retrieved by calling the method [method rootname].
+[subsection {Tree OBJECT API}]
 
+Two general observations beforehand:
+
+[list_begin enum]
+[enum]
+
+The root node of the tree can be used in most places where a node is
+asked for. The default name of the rootnode is "root", but this can be
+changed with the method [method rename] (see below). Whatever the
+current name for the root node of the tree is, it can be retrieved by
+calling the method [method rootname].
+
+[enum]
+
+The method [method insert] is the only way to create new nodes, and
+they are automatically added to a parent. A tree object cannot have
+nodes without a parent, save the root node.
+
+[list_end]
 [para]
-The following commands are possible for tree objects:
+
+And now the methods supported by tree objects created by this package:
 
 [list_begin definitions]
 
@@ -487,18 +506,17 @@ the same order as in their parent.
 
 [nl]
 [example {
-    # A possible serialization for the tree structure
-    #
-    #             +- d
-    #       +- a -+
-    # root -+- b  +- e
-    #       +- c
-    # is
-    #
-    # {root {} {} a 0 {} d 3 {} e 3 {} b 0 {} c 0 {}}
-    #
-    # The above assumes that none of the nodes have
-    # attributes.
+ A possible serialization for the tree structure
+
+             +- d
+       +- a -+
+ root -+- b  +- e
+       +- c
+ is
+
+ {root {} {} a 0 {} d 3 {} e 3 {} b 0 {} c 0 {}}
+
+ The above assumes that none of the nodes have attributes.
 }]
 
 
@@ -616,18 +634,18 @@ options and the possible actions.
 
 [nl]
 [example {
-order       type    actions         notes
------       ----    -----           -----
-pre         dfs     enter           parent before children
-post        dfs     leave           parent after children
-in          dfs     visit           parent between first and second child.
-both        dfs     enter, leave    parent before and after children
------       ----    -----           -----
-pre         bfs     enter           parent before children
-post        bfs     leave           parent after children
-in          bfs             -- illegal --
-both        bfs     enter, leave    parent before and after children
------       ----    -----           -----
+ order       type    actions         notes
+ -----       ----    -----           -----
+ pre         dfs     enter           parent before children
+ post        dfs     leave           parent after children
+ in          dfs     visit           parent between first and second child.
+ both        dfs     enter, leave    parent before and after children
+ -----       ----    -----           -----
+ pre         bfs     enter           parent before children
+ post        bfs     leave           parent after children
+ in          bfs             -- illegal --
+ both        bfs     enter, leave    parent before and after children
+ -----       ----    -----           -----
 }]
 
 [nl]
@@ -640,7 +658,7 @@ the children before their parent, making pruning non-sensical.
 
 [list_end]
 
-[section {Changes for 2.0}]
+[subsection {Changes for 2.0}]
 
 The following noteworthy changes have occurred:
 
@@ -742,6 +760,18 @@ immediate children of the node, but the whole tree below it.
 
 [list_end]
 
+[section EXAMPLES]
+
+The following example demonstrates the creation of new nodes:
+
+[example {
+    mytree insert root end 0   ; # Create node 0, as child of the root
+    mytree insert root end 1 2 ; # Ditto nodes 1 & 2
+    mytree insert 0    end 3   ; # Now create node 3 as child of node 0
+    mytree insert 0    end     ; # Create another child of 0, with a
+    #                              generated name. The name is returned
+    #                              as the result of the command.
+}]
 
 [keywords tree serialization node pre-order post-order in-order depth-first breadth-first]
 [manpage_end]

@@ -1,9 +1,9 @@
-[manpage_begin des n 0.8.1]
+[manpage_begin des n 0.8.2]
 [copyright {2003, Jochen C Loewer}]
 [moddesc {Data Encryption Standard (DES)}]
 [titledesc {Perform DES encryption of Tcl data}]
 [require Tcl 8.3]
-[require des 0.8.1]
+[require des 0.8.2]
 [description]
 [para]
 

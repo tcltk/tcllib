@@ -1,7 +1,12 @@
+2004-10-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tar.man: Added keywords and title/module description to the
+	  documentation.
+
 2004-09-10  Aaron Faupell  <afaupell@users.sourceforge.net>
 
-	* tar.tcl fixed typo bug in ::tar::add
-	* tar.man added info for ::tar::stat
+	* tar.tcl: Fixed typo bug in ::tar::add
+	* tar.man: Added info for ::tar::stat
 
 2004-08-23  Andreas Kupries  <andreask@activestate.com>
 

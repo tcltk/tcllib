@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.13 2004/08/25 03:17:32 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.14 2004/10/03 23:06:55 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1142,4 +1142,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.2
+package provide comm 4.2.1
