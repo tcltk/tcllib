@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.4 2002/02/13 23:20:18 jenglish Exp $
+# $Id: fmt.tmml,v 1.5 2002/02/28 07:03:20 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -20,14 +20,18 @@
 #
 ######################################################################
 
-source [file join [file dirname [info script]] _xml.tcl]
-set this [file tail [info script]]
+#rename file __file
+
+source [__file join [__file dirname [info script]] _xml.tcl]
+set this [__file tail [info script]]
 
 ######################################################################
 # mpexpand(n) interface.
 #
 proc NumPasses {}	{ return 2 }
-proc PassSetup {}	{ setPassProcs [mp_pass] }
+proc PassSetup {}	{
+    setPassProcs [mp_pass]
+}
 proc PostProcess {text}	{ return $text }
 proc HandleText {text}	{ xmlEscape $text }
 
@@ -100,6 +104,22 @@ proc example {code} {
     sequence [xmlContext $::block] [wrap [HandleText $code] example] 
 }
 
+proc comment {text} {xmlComment $text}
+proc sectref {text} {possibleReference $text strong}
+proc syscmd  {text} {wrap $text syscmd}
+proc method  {text} {wrap $text method}
+proc option  {text} {wrap $text option}
+proc widget  {text} {wrap $text widget}
+proc fun     {text} {wrap $text fun}
+proc type    {text} {wrap $text type}
+proc package {text} {wrap $text package}
+proc class   {text} {wrap $text class}
+proc var     {text} {wrap $text variable}
+proc file    {text} {wrap $text file}
+proc uri     {text} {wrap $text uri}
+
+
+
 global    state
 array set state {mdesc {}}
 
@@ -113,7 +133,7 @@ pass 2 manpage_begin {title section version} {
     sequence \
 	[xmlComment [provenance]] \
 	[start manpage \
-	    id  	[file root [file tail [mp_file]]] \
+	    id  	[__file rootname [__file tail [mp_file]]] \
 	    cat 	cmd \
 	    title	$title \
 	    version	$version \

@@ -23,22 +23,30 @@ package require textutil::expander
 # 1. Handle command line options, input and output
 
 proc cmdline {} {
-    global argv0 argv format in out extmodule
+    global argv0 argv format in out extmodule visualwarn
 
     if {
-	([llength $argv] > 5) ||
-	([llength $argv] < 3) ||
-	(![string equal -module [lindex $argv 0]] && [llength $argv] > 3) ||
-	([string  equal -module [lindex $argv 0]] && [llength $argv] != 5)
+	([llength $argv] > 6) ||
+	([llength $argv] < 3)
     } {
-	puts "Usage: $argv0 ?-module module? format in|- ?out|-?"
+	puts "Usage: $argv0 ?-module module? ?-visualwarn? format in|- ?out|-?"
 	exit 1
     }
     set extmodule ""
-    if {[string equal -module [lindex $argv 0]]} {
-	set extmodule [lindex $argv 1]
-	set argv [lrange $argv 2 end]
+    set visualwarn 0
+
+    while {[string match -* [set opt [lindex $argv 0]]]} {
+	if {[string equal -module $opt]} {
+	    set extmodule [lindex $argv 1]
+	    set argv [lrange $argv 2 end]
+	    continue
+	}
+	if {[string equal -visualwarn $opt]} {
+	    set visualwarn 1
+	    set argv [lrange $argv 1 end]
+	}
     }
+
     foreach {format in out} $argv break
 
     if {$format == {} || $in == {}} {
@@ -78,7 +86,7 @@ proc format_find {} {
 #     everything in the namespace containing the formatting commands.
 
 proc eval_setup {} {
-    global argv0 format fmtfile mpip inip passes
+    global argv0 format fmtfile mpip inip passes visualwarn
 
     set apibase [file join [file dirname $fmtfile] _api.tcl]
     set mpip [interp create] ; # interpreter for the format.
@@ -88,6 +96,7 @@ proc eval_setup {} {
     # of these are overwritten by the actual format definition. Then
     # read the format itself.
 
+    $mpip eval {rename file __file} ; # protect the original file command.
     $mpip eval [list source $apibase]
     $mpip eval [list source $fmtfile]
 
@@ -121,10 +130,21 @@ proc eval_setup {} {
     foreach cmd {
 	manpage_begin moddesc titledesc manpage_end require description
 	section para list_begin list_end lst_item call bullet enum
-	example example_begin example_end
-	see_also keywords nl arg cmd opt emph strong
+	example example_begin example_end see_also keywords nl arg cmd opt
+	comment sectref syscmd method option widget fun type package
+	class var file uri     
     } {
 	interp alias $inip $cmd $mpip $cmd
+    }
+    if {$visualwarn} {
+	# Route "visual" markup through procedures which generate warnings on stderr.
+	foreach cmd {emph strong} {
+	    interp alias $inip $cmd {} __$cmd
+	}
+    } else {
+	foreach cmd {emph strong} {
+	    interp alias $inip $cmd $mpip $cmd
+	}
     }
 
     # Reroute the handling of plain text into the formatter
@@ -173,6 +193,19 @@ proc mpModule {} {
     return [file tail [file rootname $in]]
 }
 
+proc __strong {text} {
+    global mpip
+    puts stderr "\tVisual markup: \"\[strong \{$text\}\]\""
+    puts stderr "\tPlease consider appropriate semantic markup instead."
+    return [$mpip eval [list strong $text]]
+}
+
+proc __emph {text} {
+    global mpip
+    puts stderr "\tVisual markup: \"\[emph \{$text\}\]\""
+    puts stderr "\tPlease consider appropriate semantic markup instead."
+    return [$mpip eval [list emph $text]]
+}
 
 # ---------------------------------------------------------------------
 #  5. Read input. Also providing the namespace with file information.

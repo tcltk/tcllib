@@ -1,5 +1,7 @@
 2002-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>  
 
+	* doctools: Done FR #517599. FR #520269.
+
 	* mime: Fixed bug #519623.
 
 	* Makefile.in (install-doc): Changed code determining the files to

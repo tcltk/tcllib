@@ -9,10 +9,10 @@
 #
 ################################################################
 
-proc here {} [list return [file dirname [info script]]]
-proc this {} [list return [file tail    [info script]]]
+proc here {} [list return [__file dirname [info script]]]
+proc this {} [list return [__file tail    [info script]]]
 
-source [file join [here] _common.tcl]   ; # Shared code
+source [__file join [here] _common.tcl]   ; # Shared code
 
 global _in_example
 set    _in_example 0
@@ -234,6 +234,27 @@ proc cmd    {text} {return [Bold      $text]}
 proc emph   {text} {return [Italic    $text]}
 proc strong {text} {return [Bold      $text]}
 proc opt    {text} {return ?$text?}
+
+proc comment {text} {
+    set res [list]
+    foreach l [split $text \n] {
+	lappend res [Comment $l]
+    }
+    return [join $res \n]
+}
+proc sectref {text} {strong $text}
+proc syscmd  {text} {strong $text}
+proc method  {text} {strong $text}
+proc option  {text} {strong $text}
+proc widget  {text} {strong $text}
+proc fun     {text} {strong $text}
+proc type    {text} {strong $text}
+proc package {text} {strong $text}
+proc class   {text} {strong $text}
+proc var     {text} {strong $text}
+proc file    {text} {return "\"[Italic $text]\""}
+proc uri     {text} {Underline $text}
+
 
 ################################################################
 # latex specific commands
