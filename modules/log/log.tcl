@@ -596,25 +596,19 @@ proc ::log::lvColorForall {color} {
     return
 }
 
-# log::log --
+# log::logarray --
 #
-#	Log a message according to the specifications for commands,
-#	channels and suppression. In other words: The command will do
-#	nothing if the specified level is suppressed. If it is not
-#	suppressed the actual logging is delegated to the specified
-#	command. If there is no command specified for the level the
-#	message won't be logged. The standard command ::log::Puts will
-#	write the message to the channel specified for the given
-#	level. If no channel is specified for the level the message
-#	won't be logged. Unique abbreviations of level names are
-#	allowed. Errors in the actual logging command are *not*
-#	catched, but propagated to the caller, as they may indicate
-#	misconfigurations of the log facility or errors in the callers
-#	code itself.
+#	Similar to parray, except that the contents of the array
+#	printed out through the log system instead of directly
+#	to stdout.
+#
+#	See also 'log::log' for a general explanation
 #
 # Arguments:
-#	level	The level of the message.
-#	text	The message to log.
+#	level		The level of the message.
+#	arrayvar	The name of the array varaibe to dump
+#	pattern		Optional pattern to restrict the dump
+#			to certain elements in the array.
 #
 # Side Effects:
 #	See above.
@@ -657,6 +651,104 @@ proc ::log::logarray {level arrayvar {pattern *}} {
     }
     return
 }
+
+# log::loghex --
+#
+#	Like 'log::log', except that the logged data is assumed to
+#	be binary and is logged as a block of hex numbers.
+#
+#	See also 'log::log' for a general explanation
+#
+# Arguments:
+#	level	The level of the message.
+#	text	Message printed before the hex block
+#	data	Binary data to show as hex.
+#
+# Side Effects:
+#	See above.
+#
+# Results:
+#	None.
+
+proc ::log::loghex {level text data} {
+    variable cmdMap
+
+    if {[lvIsSuppressed $level]} {
+	# Ignore messages for suppressed levels.
+	return
+    }
+
+    set level [lv2longform $level]
+
+    set cmd $cmdMap($level)
+    if {$cmd == {}} {
+	# Ignore messages for levels without a command
+	return
+    }
+
+    # Format the messages and print them.
+
+    set len [string length $data]
+
+    eval [linsert $cmd end $level "$info ($len bytes):"]
+
+    set address ""
+    set hexnums ""
+    set ascii   ""
+
+    for {set i 0} {$i < $len} {incr i} {
+        set v [string index $data $i]
+        binary scan $v H2 hex
+        binary scan $v c  num
+        set num [expr {($num + 0x100) % 0x100}]
+
+        set text .
+        if {$num > 31} {set text $v} 
+
+        if {($i % 16) == 0} {
+            if {$address != ""} {
+                eval [linsert $cmd end $level [format "%4s  %-48s  |%s|" $address $hexnums $ascii]]
+                set address ""
+                set hexnums ""
+                set ascii   ""
+            }
+            append address [format "%04d" $i]
+        }
+        append hexnums "$hex "
+        append ascii   $text
+    }
+    if {$address != ""} {
+	eval [linsert $cmd end $level [format "%4s  %-48s  |%s|" $address $hexnums $ascii]]
+    }
+    eval [linsert $cmd end $level ""]
+    return
+}
+
+# log::log --
+#
+#	Log a message according to the specifications for commands,
+#	channels and suppression. In other words: The command will do
+#	nothing if the specified level is suppressed. If it is not
+#	suppressed the actual logging is delegated to the specified
+#	command. If there is no command specified for the level the
+#	message won't be logged. The standard command ::log::Puts will
+#	write the message to the channel specified for the given
+#	level. If no channel is specified for the level the message
+#	won't be logged. Unique abbreviations of level names are
+#	allowed. Errors in the actual logging command are *not*
+#	catched, but propagated to the caller, as they may indicate
+#	misconfigurations of the log facility or errors in the callers
+#	code itself.
+#
+# Arguments:
+#	level	The level of the message.
+#	text	The message to log.
+#
+# Side Effects:
+#	See above.
+#
+# Results:
+#	None.
 
 proc ::log::log {level text} {
     variable cmdMap
