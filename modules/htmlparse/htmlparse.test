@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.2 2003/03/25 05:05:01 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.3 2003/08/15 03:51:30 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -214,9 +214,9 @@ test htmlparse-4.0 {predefined entities} {
 proc tlist {t n} {
     set tt [list]
     foreach c [$t children $n] {
-	lappend tt [$t get $c -key synth]
+	lappend tt [$t get $c synth]
     }
-    $t set $n -key synth [list [$t get $n -key type] $tt]
+    $t set $n -key synth [list [$t get $n type] $tt]
 }
 
 test htmlparse-5.0 {conversion to tree} {
@@ -224,7 +224,7 @@ test htmlparse-5.0 {conversion to tree} {
     ::htmlparse::2tree $html3 t
 
     set tx [list]
-    t walk root -command {lappend tx [list [%t depth %n] [%t get %n -key type]]}
+    t walk root -command {lappend tx [list [%t depth %n] [%t get %n type]]}
     t destroy
     set tx
 } {{0 root} {1 hmstart} {2 html} {3 head} {4 title} {5 PCDATA} {4 meta} {3 body} {4 h2} {5 PCDATA} {5 p} {6 b} {7 PCDATA} {5 p} {6 form} {7 input}}
@@ -235,7 +235,7 @@ test htmlparse-5.1 {conversion to tree} {
     ::htmlparse::removeVisualFluff t
 
     set tx [list]
-    t walk root -command {lappend tx [list [%t depth %n] [%t get %n -key type]]}
+    t walk root -command {lappend tx [list [%t depth %n] [%t get %n type]]}
     t destroy
     set tx
 } {{0 root} {1 head} {2 title} {3 PCDATA} {1 body} {2 h2} {3 PCDATA} {3 p} {4 PCDATA} {3 p} {4 form} {5 input}}
@@ -247,7 +247,7 @@ test htmlparse-5.2 {conversion to tree} {
     ::htmlparse::removeFormDefs    t
 
     set tx [list]
-    t walk root -command {lappend tx [list [%t depth %n] [%t get %n -key type]]}
+    t walk root -command {lappend tx [list [%t depth %n] [%t get %n type]]}
     t destroy
     set tx
 } {{0 root} {1 head} {2 title} {3 PCDATA} {1 body} {2 h2} {3 PCDATA} {3 p} {4 PCDATA} {3 p}}
