@@ -293,7 +293,9 @@ proc defaults {} {
 	    set libdir [file join [file dirname [file dirname [info nameofexecutable]]] lib]
 	} else {
 	    # Unwrapped.
-	    set libdir [lindex $::tcl_pkgPath end]
+	    if {[catch {set libdir [lindex $::tcl_pkgPath end]}]} {
+		set libdir [file dirname [info library]]
+	    }
 	}
 
 	set basedir [file dirname $libdir]
