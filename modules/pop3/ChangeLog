@@ -1,3 +1,12 @@
+2000-09-14  Scott Redman  <redman@ajubasolutions.com>
+
+	* pop3.tcl: Based on feedback from Cameron Laird, I did some
+	digging into the RFC and figured out that using the number of
+	octets given by RETR at the beginning of the retrieval to grab
+	that number of bytes was far more efficient.  Thanks to Cameron
+	for pointing that out.  Speed for retrieval should be greatly
+	improved.  Changed version to 1.1.
+
 2000-05-18  Scott Redman  <redman@scriptics.com>
 
 	* pop3.tcl:

@@ -10,9 +10,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.7 2000/06/03 17:40:23 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.8 2000/09/14 21:32:54 redman Exp $
 
-package provide pop3 1.0
+package provide pop3 1.1
 
 namespace eval ::pop3 {
 }
@@ -36,6 +36,7 @@ proc ::pop3::open {host user password {port 110}} {
 
     set chan [socket $host $port]
     fconfigure $chan -buffering none
+    fconfigure $chan -translation binary
     
     if {[catch {::pop3::send $chan {}} errorStr]} {
 	error "POP3 CONNECT ERROR: $errorStr"
@@ -168,24 +169,18 @@ proc ::pop3::retrieve {chan start {end -1}} {
     set result {}
 
     for {set index $start} {$index <= $end} {incr index} {
-	if {[catch {::pop3::send $chan "RETR $index"} errorStr]} {
-	    error "POP3 RETRIEVE ERROR: $errorStr"
-	}
+
+	set sizeStr [::pop3::send $chan "RETR $index"]
+
+	scan $sizeStr {%d %s} size dummy
 	
-	set msgBuffer ""
-	
-	while {1} {
-	    set line [gets $chan]
-	    
-	    # End of the message is a line with just "."
-	    if {$line == "."} {
-		break
-	    } elseif {[string index $line 0] == "."} {
-		set line [string range $line 1 end]
-	    }
-		
-	    append msgBuffer $line "\n"
-	}
+	set msgBuffer [read $chan $size]
+
+	# get the terminating "."
+	# sometimes the gets returns nothing, 
+	# need to get the real terminating "."
+	while {[gets $chan] != ".\r"} {}
+
 	lappend result $msgBuffer
     }
     return $result
@@ -298,7 +293,7 @@ proc ::pop3::send {chan cmdstring} {
    }
    
    set popRet [string trim [gets $chan]]
-   
+
    if {[string first "+OK" $popRet] == -1} {
        error [string range $popRet [expr 3 + 1] end]
    }
