@@ -451,6 +451,90 @@ proc gd-gen-tap {} {
 }
 
 
+proc gd-gen-rpmspec {} {
+    global tcllib_version tcllib_name distribution
+
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.18 2003/05/23 21:13:48 andreas_kupries Exp $
+
+%define version @@@@
+%define directory /usr
+
+Summary: The standard Tcl library
+Name: @__@
+Version: %{version}
+Release: 1
+Copyright: BSD
+Group: Development/Languages
+Source: %{name}-%{version}.tar.bz2
+URL: http://tcllib.sourceforge.net/
+Packager: Jean-Luc Fontaine <jfontain@free.fr>
+BuildArchitectures: noarch
+Prefix: /usr
+Requires: tcl >= 8.3.1
+BuildRequires: tcl >= 8.3.1
+Buildroot: /var/tmp/%{name}-%{version}
+
+%description
+Tcllib, the Tcl Standard Library is a collection of Tcl packages
+that provide utility functions useful to a large collection of Tcl
+programmers.
+The home web site for this code is http://tcllib.sourceforge.net/.
+At this web site, you will find mailing lists, web forums, databases
+for bug reports and feature requests, the CVS repository (browsable
+on the web, or read-only accessible via CVS ), and more.
+Note: also grab source tarball for more documentation, examples, ...
+
+%prep
+
+%setup -q
+
+%install
+# compensate for missing manual files:
+echo 'not available' > modules/calendar/calendar.n
+/usr/bin/tclsh installer.tcl -no-gui -no-wait -no-html -no-examples\
+    -pkg-path $RPM_BUILD_ROOT/usr/lib/%{name}-%{version}\
+    -nroff-path $RPM_BUILD_ROOT/usr/share/man/mann/
+# install HTML documentation to specific modules sub-directories:
+cd modules
+mkdir ../ftp; mv ftp/docs/*.html ../ftp/
+for module in exif mime textutil stooop struct; do
+    mkdir ../$module && mv $module/*.html ../$module/;
+done
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%doc README ChangeLog license.terms exif/ ftp/ mime/ stooop/ struct/ textutil/
+%{directory}/lib/%{name}-%{version}/
+}]
+
+    # Find all documentation and list it in the spec file.
+
+    foreach df [lsort [docfiles]] {
+	append header "%\{directory\}/share/man/mann/$df.gz" \n
+    }
+
+    set    f [open [file join $distribution tcllib.spec] w]
+    puts  $f $header
+    close $f
+    return
+}
+
+
+proc docfiles {} {
+    global distribution
+    package require fileutil
+    set res [list]
+    foreach f [fileutil::findByPattern $distribution -glob *.man] {
+	lappend res [file rootname [file tail $f]].n
+    }
+    proc tclfiles {} [list return $res]
+    return $res
+}
+
+
 proc gd-tip55 {} {
     global tcllib_version tcllib_name distribution contributors
     contributors
@@ -1089,6 +1173,8 @@ proc _validate_module {m} {
 proc __gendist {} {
     gd-cleanup
     gd-tip55
+    gd-gen-rpmspec
+    gd-gen-tap
     gd-assemble
     gd-gen-archives
 
@@ -1114,6 +1200,11 @@ proc __contributors {} {
 proc __tap {} {
     gd-gen-tap
     puts "Created Tcl Dev Kit \"tcllib.tap\""
+}
+
+proc __rpmspec {} {
+    gd-gen-rpmspec
+    puts "Created RPM spec file \"tcllib.spec\""
 }
 
 
