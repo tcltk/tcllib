@@ -81,40 +81,60 @@ proc ipackages {} {
 proc ppackages {} {
     # Determine provided packages (provide, *.tcl - pkgIndex.tcl)
 
+    global    p pf currentfile
     array set p {}
     foreach f [tclfiles] {
+	# We ignore package indices and all files not in a module.
+
 	if {[string equal pkgIndex.tcl [file tail $f]]} {continue}
 	if {![regexp modules $f]}                       {continue}
 
 	set fh [open $f r]
 
-	foreach line [split [read $fh] \n] {
-	    regsub {#.*$} $line {} line
-	    #if { [regexp {#}        $line]} {continue}
-	    if {![regexp {package[ 	]*provide} $line]} {continue}
-	    if { [regexp {provide[ 	]*Tcl}     $line]} {continue}
-	    if { [regexp {if \{}     $line]} {continue}
-	    regsub {^.*provide } $line {} line
-	    set line [string trim $line]
+	# Source the code into a sub-interpreter. The sub interpreter
+	# overloads 'package provide' so that the information about
+	# new packages goes directly to us. We also make sure that the
+	# sub interpreter doesn't kill us, and will not get stuck
+	# early by trying to load other files, or when creating
+	# procedures in namespaces which do not exist due to us
+	# disabling most of the package management.
 
-	    if {[regexp {^\[} $line]} {
-		set pos [string last { } $line]
-		set n [string range $line 0 [incr pos -1]]
-		set v [string range $line [incr pos 2] end]
-	    } else {
-		set pos [string first { } $line]
-		set n [string range $line 0 [incr pos -1]]
-		set v [string range $line [incr pos 2] end]
-	    }
-	    set n [string trim $n]
-	    set p($n) [string trim $v]
-	    set ::pf($n) [eval file join [lrange [file split $f] end-1 end]]
+	set currentfile [eval file join [lrange [file split $f] end-1 end]]
+
+	set ip [interp create]
+	interp alias $ip package {} xPackage
+	interp alias $ip source  {} xNULL
+	interp alias $ip unknown {} xNULL
+	interp alias $ip proc    {} xNULL
+	interp alias $ip exit    {} xNULL
+	if {[catch {$ip eval [read $fh]} msg]} {
+	    #puts "ERROR in $currentfile:\n$msg\n"
 	}
 	close $fh
+	interp delete $ip
     }
 
-    return [array get p]
+    set   pp [array get p]
+    unset p
+    return $pp 
 }
+
+proc xNULL    {args} {}
+proc xPackage {cmd args} {
+
+    if {[string equal $cmd provide]} {
+	global p pf currentfile
+	foreach {n v} $args break
+
+	# No version specified, this is an inquiry, we ignore these.
+	if {$v == {}} {return}
+
+	set p($n) $v
+	set pf($n) $currentfile
+    }
+    return
+}
+
 
 
 proc sep {} {puts ~~~~~~~~~~~~~~~~~~~~~~~~}
