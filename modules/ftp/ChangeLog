@@ -1,6 +1,14 @@
 2001-11-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* ftp.n: updated documentation to cover the new code below.
+	* ftp.tcl: Applied patch #428053 provided by Sreangsu Acharyya
+	  <srean_list@myrealbox.com>. The patch extends 'Reget' to allow
+	  download of an exactly specified slice of the the source
+	  file. This enables the implementation of a 'resume' after a
+	  partial download and also the parallel download of
+	  non-overlaping parts of the same file from different servers.
+
+	* ftp.n: updated documentation to cover the new code above and
+	  below.
 	
 	* ftp_geturl.tcl: New file, provides a geturl command for use by
 	  uri. Declared in a separate package to avoid a cyclic dependency
