@@ -3201,7 +3201,7 @@ test tinfo-1.6 {type info instances with non-global namespaces} {
 } {::dogs::fido {::dogs::fido ::spot}}
 
 #-----------------------------------------------------------------------
-# Setting the widget class class explicitly
+# Setting the widget class explicitly
 
 test widgetclass-1.1 {can't set widgetclass for snit::types} {
     cleanup
@@ -3309,6 +3309,78 @@ test widgetclass-1.7 {explicit widgetclass applied to hull} tk {
     set bg
 } {green}
 
+#-----------------------------------------------------------------------
+# hulltype statement
+
+
+test hulltype-1.1 {can't set hulltype for snit::types} {
+    cleanup
+
+    catch {
+        type dog { 
+            hulltype Dog
+        }
+    } result
+    
+    set result
+} {hulltype cannot be set for snit::types}
+
+test hulltype-1.2 {can't set hulltype for snit::widgetadaptors} tk {
+    cleanup
+
+    catch {
+        widgetadaptor dog { 
+            hulltype Dog
+        }
+    } result
+    
+    set result
+} {hulltype cannot be set for snit::widgetadaptors}
+
+test hulltype-1.3 {hulltype can be frame} tk {
+    cleanup
+
+    widget dog { 
+        delegate option * to hull
+        hulltype frame
+    }
+
+    dog .fido
+    catch {.fido configure -use} result
+    destroy .fido
+    tkbide
+
+    set result
+} {unknown option "-use"}
+
+test hulltype-1.4 {hulltype can be toplevel} tk {
+    cleanup
+
+    widget dog { 
+        delegate option * to hull
+        hulltype toplevel
+    }
+
+    dog .fido
+    catch {.fido configure -use} result
+    destroy .fido
+    tkbide
+
+    set result
+} {-use use Use {} {}}
+
+test hulltype-1.5 {hulltype can only be defined once} tk {
+    cleanup
+
+    catch {
+        widget dog { 
+            hulltype frame
+            hulltype toplevel
+        }
+    } result
+    
+    set result
+} {too many hulltype statements}
 
 
 #---------------------------------------------------------------------
