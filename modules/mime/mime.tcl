@@ -672,11 +672,13 @@ proc mime::parsepart {token} {
     while {$moreP} {
         if {$fileP} {
             if {$pos > $last} {
-                error "termination string missing in $state(content)"
-            }
-            if {[set x [gets $state(fd) line]] < 0} {
-                error "end-of-file encountered while parsing $state(content)"
-            }
+        #        error "termination string missing in $state(content)"
+                 set line "--$boundary--"
+            } {
+              if {[set x [gets $state(fd) line]] < 0} {
+                  error "end-of-file encountered while parsing $state(content)"
+              }
+           }
             incr pos [expr {$x+1}]
         } else {
             if {[string length $string] == 0} {

@@ -1,3 +1,8 @@
+2001-01-30  Eric Melski  <ericm@interwoven.com>
+
+	* mime.tcl: Applied patch from Peter MacDonald to correct problem
+	with mime::initialize failing when mailers neglect to include
+	the trailing boundary marker.
 
 2000-09-20  Dan Kuchler  <kuchler@ajubasolutions.com>
 
