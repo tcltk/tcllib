@@ -1,4 +1,10 @@
-2004-07-17  Will Duquette  <will@wjduquette.com>
+2004-07-20  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	Finished the refactoring job.  All extraneous
+	* roadmap.txt	code has been moved from the type templates to the
+			::snit:: runtime.
+
+2004-07-19  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Refactored %TYPE%::Snit_optionget to 
 	* roadmap.txt	::snit::RT.OptionDbGet. Refactored 
