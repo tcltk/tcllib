@@ -1,3 +1,14 @@
+2003-11-21  Will Duquette  <will@cordelia.local>
+
+	* snit.tcl:      Updated version to 0.91.
+	* pkgIndex.tcl: 
+	* snit.tcl:      Added the "expose" statement to type and widget
+	                 definitions.
+	* snit.test:     Added appropriate tests.
+	* snit.html:     Added documentation for "expose".
+	* faq.html:      Updated the FAQ entries.
+
+
 2003-10-28  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.man:    Fixed typos in documentation.

@@ -3582,7 +3582,6 @@ test widgetclass-1.7 {explicit widgetclass applied to hull} tk {
 #-----------------------------------------------------------------------
 # hulltype statement
 
-
 test hulltype-1.1 {can't set hulltype for snit::types} {
     cleanup
 
@@ -3652,6 +3651,85 @@ test hulltype-1.5 {hulltype can only be defined once} tk {
     set result
 } {too many hulltype statements}
 
+#-----------------------------------------------------------------------
+# expose statement
+
+test expose-1.1 {can't expose nothing.} {
+    cleanup
+
+    catch {
+        type dog { 
+            expose
+        }
+    } result
+    
+    set result
+} {wrong # args: should be "::snit::Type.Expose type component ?as? ?methodname?"}
+
+
+test expose-1.2 {expose a component that's never installed.} {
+    cleanup
+
+    type dog { 
+        expose tail
+    }
+
+    dog fido
+    
+    catch {
+        fido tail wag
+    } result
+    
+    set result
+} {undefined component 'tail'}
+
+test expose-1.3 {exposed method returns component command.} {
+    cleanup
+
+    type tail {  }
+
+    type dog { 
+        expose tail
+
+        constructor {} {
+            install tail using tail $self.tail
+        }
+
+        destructor {
+            $tail destroy
+        }
+    }
+
+    dog fido
+    
+    fido tail
+} {::fido.tail}
+
+test expose-1.4 {exposed method calls component methods.} {
+    cleanup
+
+    type tail {
+        method wag   {args} {return "wag<$args>"}
+        method droop {}     {return "droop"}
+    }
+
+    type dog { 
+        expose tail
+
+        constructor {} {
+            install tail using tail $self.tail
+        }
+
+        destructor {
+            $tail destroy
+        }
+    }
+
+    dog fido
+    
+    list [fido tail wag] [fido tail wag abc] [fido tail wag abc def] \
+        [fido tail droop]
+} {wag<> wag<abc> {wag<abc def>} droop}
 
 #---------------------------------------------------------------------
 # Clean up
