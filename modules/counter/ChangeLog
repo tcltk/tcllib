@@ -1,3 +1,8 @@
+2003-11-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* counter.man: Added documentation for counter::reset. This fixes
+	  [SF Tcllib Bug 759959]. Also added some keywords.
+
 2003-08-13  Brent Welch <welch@panasas.com>
 
 	* counter.tcl: Fixed math in counter::start and counter::stop
