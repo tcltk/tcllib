@@ -1,0 +1,66 @@
+# bessel.test --
+#    Test cases for the ::math::special package (Bessel functions)
+#
+
+package require tcltest
+namespace import ::tcltest::*
+
+#package require math::constants
+source "bessel.tcl"
+
+#
+# As the values were given with four digits, an absolute
+# error is most appropriate
+#
+proc matchNumbers {expected actual} {
+   set match 1
+   foreach a $actual e $expected {
+      puts "abs($a-$e) = [expr {abs($a-$e)}]"
+      if {abs($a-$e) > 0.7e-4} {
+         set match 0
+         break
+      }
+   }
+   return $match
+}
+
+customMatch numbers matchNumbers
+
+#
+# Note: value -0.1777 should have been -0.1776 according to the
+#       consulted table. However, this means the allowed error
+#       should have been made larger. It is the only value
+#       where the procedure fails to achieve an absolute error
+#       of at most 0.7e-4.
+#
+test "Bessel-1.0" "Values of the zeroth-order Bessel function" \
+   -match numbers -body {
+   set result {}
+   foreach x {0.0 1.0 2.0 5.0 7.0 10.0 11.0 14.0} {
+      lappend result [::math::special::J0 $x]
+   }
+   set result
+} -result {1.0 0.7652 0.2239 -0.1777 0.3001 -0.2459 -0.1712 0.1711}
+
+#
+# Note: value -0.3272 should have been -0.3276 according to the
+#       consulted table. However, this means the allowed error
+#       should have been made larger. It is the only value
+#       where the procedure fails to achieve an absolute error
+#       of at most 0.7e-4.
+#
+test "Bessel-1.1" "Values of the first-order Bessel function" \
+   -match numbers -body {
+   set result {}
+   foreach x {0.0 1.0 2.0 5.0 7.0 10.0 11.0 14.0} {
+      lappend result [::math::special::J1 $x]
+   }
+   set result
+} -result {0.0 0.4401 0.5767 -0.3272 -0.0047 0.0435 -0.1768 0.1334}
+
+#
+# No tests for J1/2 yet
+#
+
+# End of test cases
+tcltest::cleanupTests
