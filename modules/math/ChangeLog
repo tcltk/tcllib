@@ -1,3 +1,9 @@
+2003-04-23  Andreas Kupries  <andreask@activestate.com>
+
+	* fuzzy.test: Re-applied bug fixes I did before (See 2003-04-13)
+	  to the newly committed version, which was not merged, but simply
+	  overwrote my changes.
+
 2003-04-21  Andreas Kupries  <andreask@activestate.com>
 
 	* optimize.test: Corrected errors in loading the functionality
