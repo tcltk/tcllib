@@ -1,3 +1,9 @@
+2003-05-06  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* tree.test: 
+	* tree.tcl: allow node names with space chars and single :.
+	Double :: may be OK, but the check against it is still in.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

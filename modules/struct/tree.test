@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.17 2002/08/08 16:49:59 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.18 2003/05/06 22:20:54 hobbs Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -260,10 +260,31 @@ test tree-6.15 {insert gives error when trying to make node its descendant} {
 } "node \"node0\" cannot be its own descendant"
 test tree-6.16 {insert gives error for invalid node names} {
     tree mytree
+    catch {mytree insert root end "foo::bar"} msg
+    mytree destroy
+    set msg
+} "invalid node name \"foo::bar\""
+test tree-6.17 {check node names with spaces} {
+    tree mytree
     catch {mytree insert root end ":\n\t "} msg
     mytree destroy
     set msg
-} "invalid node name \":\n\t \""
+} [list ":\n\t "]
+test tree-6.18 {extended node names with spaces check} {
+    tree mytree
+    set node ":\n\t "
+    set msg [mytree insert root end $node]
+    lappend msg [mytree isleaf $node]
+    mytree insert $node end yummy
+    lappend msg [mytree size $node]
+    lappend msg [mytree isleaf $node]
+    mytree set $node foo
+    lappend msg [mytree keys $node]
+    lappend msg [mytree parent $node]
+    lappend msg [mytree set $node]
+    mytree destroy
+    set msg
+} [list ":\n\t " 1 1 0 data root foo]
 
 test tree-7.1 {move gives error when trying to move root} {
     tree mytree
