@@ -1,3 +1,12 @@
+2002-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.nroff: Corrected problems with trimming lines and
+	  the stripping of empty lines.
+
+	* mpformats/fmt.html: Changed the formatting of examples. Embedded
+	  them into a table and additionally marked them with a black bar
+	  to the left.
+
 2002-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.null: Null format, does not produce any output.
