@@ -121,6 +121,7 @@ proc eval_setup {} {
     foreach cmd {
 	manpage_begin moddesc titledesc manpage_end require description
 	section para list_begin list_end lst_item call bullet enum
+	example example_begin example_end
 	see_also keywords nl arg cmd opt emph strong
     } {
 	interp alias $inip $cmd $mpip $cmd
