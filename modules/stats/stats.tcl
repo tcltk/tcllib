@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.7 2000/09/22 06:05:06 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.8 2000/09/23 07:12:54 welch Exp $
 
 package provide stats 1.0
 
@@ -119,7 +119,7 @@ proc stats::countInit {tag args} {
 
 		    set minuteBase [expr {$lasthour +
 				($startTime - $lasthour) / \
-				($secsPerMinute * 60)}]
+				($secsPerMinute * 60 * 60)}]
 
 		    # Similarly line up hour0 to start at midnight.
 
@@ -137,8 +137,8 @@ proc stats::countInit {tag args} {
 		    set partialHour [expr {($startTime - $lasthour) % \
 				($secsPerMinute * 60)}]
 		    set secs [expr ($secsPerMinute * 60) - ($partialHour)]
-		    if {$secs <= $secsPerMinute} {
-			set secs [expr ($secsPerMinute * 60)]
+		    if {$secs <= 0} {
+			set secs 1
 		    }
 
 		    # After the first timer, the event occurs once each "hour"
