@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.6 2000/09/09 01:46:25 ericm Exp $
+# RCS: @(#) $Id: math.test,v 1.7 2000/10/06 21:10:41 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -220,5 +220,13 @@ test math-10.3 { math::random value value } {
 test math-10.4 {math::random} {
     list [catch {::math::random foo bar baz} msg] $msg
 } [list 1 "wrong # args: should be \"::math::random ?value1? ?value2?\""]
+
+test math-11.1 {math::fibonacci} {
+    set result {}
+    for {set i 0} {$i < 15} {incr i} {
+	lappend result [::math::fibonacci $i]
+    }
+    set result
+} [list 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377]
 
 ::tcltest::cleanupTests

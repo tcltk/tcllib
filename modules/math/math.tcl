@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.6 2000/09/09 01:46:25 ericm Exp $
+# RCS: @(#) $Id: math.tcl,v 1.7 2000/10/06 21:10:41 ericm Exp $
 
 namespace eval ::math {
 }
@@ -39,6 +39,31 @@ proc ::math::cov {val1 val2 args} {
      set sigma [ expr { sqrt($sigma_sq) } ]
      set cov [ expr { ($sigma/$mean)*100 } ]
      set cov
+}
+
+# ::math::fibonacci --
+#
+#	Return the n'th fibonacci number.
+#
+# Arguments:
+#	n	The index in the sequence to compute.
+#
+# Results:
+#	fib	The n'th fibonacci number.
+
+proc ::math::fibonacci {n} {
+    if { $n == 0 } {
+	return 0
+    } else {
+	set prev0 0
+	set prev1 1
+	for {set i 1} {$i < $n} {incr i} {
+	    set tmp $prev1
+	    incr prev1 $prev0
+	    set prev0 $tmp
+	}
+	return $prev1
+    }
 }
 
 # ::math::integrate --

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: math.n,v 1.5 2000/09/09 01:46:25 ericm Exp $
+'\" RCS: @(#) $Id: math.n,v 1.6 2000/10/06 21:10:41 ericm Exp $
 '\" 
 .so man.macros
 .TH math n 1.0 math "Tcl Math Library"
@@ -13,25 +13,25 @@ math \- Tcl math library
 .SH SYNOPSIS
 \fBpackage require math ?1.0?\fR
 .sp
+\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::fibonacci\fR \fIn\fR
+.sp
 \fB::math::max\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
 \fB::math::min\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
-\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
-.sp
 \fB::math::prod\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
-.sp
-\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
 \fB::math::random\fR ?\fIvalue\fR? ?\fIvalue\fR?
 .sp
 \fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
-\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
-.sp
 \fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 .sp
-\fB::math::prod\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
+\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
 .sp
 \fB::math::dot\fR \fIvalues\fR \fIrows\fR \fIcols\fR
 .sp
@@ -47,20 +47,25 @@ math \- Tcl math library
 The \fBmath\fR package provides utility math functions.
 .SH COMMANDS
 .TP
+.TP
+\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the coefficient of variation expressed as percent of two or more numeric values.
+.TP
+\fB::math::integrate\fR \fIlist of xy value pairs\fR
+Return the area under a "curve" defined by a set of x,y pairs and the error bound as a list.
+\fB::math::fibonacci \fIn\fR
+Return the n'th Fibonacci number.
 \fB::math::max\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 Return the maximum of one or more numeric values.
+.TP
+\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the mean, or "average" of one or more numeric values.
 .TP
 \fB::math::min\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 Return the minimum of one or more numeric values.
 .TP
-\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
-Return the sum of one or more numeric values.
-.TP
 \fB::math::prod\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
 Return the product of one or more numeric values.
-.TP
-\fB::math::mean\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
-Return the mean, or "average" of one or more numeric values.
 .TP
 \fB::math::random\fR ?\fIvalue1\fR? ?\fIvalue2\fR?
 Return a random number.  If no arguments are given, the number is a
@@ -72,13 +77,10 @@ arguments are given, the number is an integer value between
 \fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 Return the population standard deviation of two or more numeric values.
 .TP
-\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
-Return the coefficient of variation expressed as percent of two or more numeric values.
-.TP
 \fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
 Return the mean, standard deviation, and coefficient of variation as percent as a list.
 .TP
-\fB::math::integrate\fR \fIlist of xy value pairs\fR
-Return the area under a "curve" defined by a set of x,y pairs and the error bound as a list.
+\fB::math::sum\fR \fIvalue\fR ?\fIvalue\fR \fI...\fR?
+Return the sum of one or more numeric values.
 .SH KEYWORDS
 math statistics

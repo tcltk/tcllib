@@ -1,3 +1,10 @@
+2000-10-06  Eric Melski  <ericm@ajubasolutions.com>
+
+	* math.test: 
+	* math.n: 
+	* math.tcl: Added ::math::fibonacci function, to compute numbers
+	in the Fibonacci sequence.
+
 2000-09-08  Eric Melski  <ericm@ajubasolutions.com>
 
 	* math.test:
