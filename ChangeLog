@@ -1,5 +1,6 @@
 2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* doctools: Fixed bug #556509.
 	* fileutil: Fixed bug #556504.
 
 2002-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
