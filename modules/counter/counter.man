@@ -239,6 +239,16 @@ If 1, a text version of the histogram is dumped, otherwise a graphical
 one is generated.
 
 [list_end]
+
+[call [cmd ::counter::reset] [arg {tag args}]]
+
+Resets the counter with the name [arg tag] to an initial state. The
+[arg args] determine the new characteristics of the counter. They have
+the same meaning as described for [cmd ::counter::init].
+
+
+
 [list_end]
 
+[keywords statistics histogram counting tallying]
 [manpage_end]
