@@ -1,9 +1,9 @@
-[manpage_begin ripemd128 n 1.0.2]
+[manpage_begin ripemd128 n 1.0.3]
 [moddesc   {RIPEMD Message-Digest Algorithm}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {RIPEMD-128 Message-Digest Algorithm}]
 [require Tcl 8.2]
-[require ripemd128 [opt 1.0.2]]
+[require ripemd128 [opt 1.0.3]]
 [description]
 [para]
 
@@ -15,6 +15,13 @@ cryptographically strengthened against weaknesses that have been found
 in MD4 (4). RIPEMD-128 has been designed to be a drop-in replacement
 for MD4 and MD5 (5). If security is the major consideration, then
 RIPEMD-160 or SHA1 should be considered.
+
+[para]
+
+This package will use [package Trf] to
+accelerate the digest computation if available. In
+the absence of an accelerator package the pure-Tcl implementation will
+be used.
 
 [section {COMMANDS}]
 
@@ -114,12 +121,12 @@ These commands are identical to the RIPEMD128 equivalent commands.
 
 [example {
 % ripemd::ripemd128 -hex "Tcl does RIPEMD-128"
-3CAB177BAE65205D81E7978F63556C63
+3cab177bae65205d81e7978f63556c63
 }]
 
 [example {
 % ripemd::hmac128 -hex -key Sekret "Tcl does RIPEMD-128"
-B359DC5971A05BEEA0BE7B106B30E389
+b359dc5971a05beea0be7b106b30e389
 }]
 
 [example {
@@ -129,7 +136,7 @@ B359DC5971A05BEEA0BE7B106B30E389
 % ripemd::RIPEMD128Update $tok "does "
 % ripemd::RIPEMD128Update $tok "RIPEMD-128"
 % ripemd::Hex [ripemd::RIPEMD128Final $tok]
-3CAB177BAE65205D81E7978F63556C63
+3cab177bae65205d81e7978f63556c63
 }]
 
 [section {REFERENCES}]

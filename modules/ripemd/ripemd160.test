@@ -1,6 +1,6 @@
 # ripemd160.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd160.test,v 1.3 2005/02/17 23:30:31 patthoyts Exp $
+# $Id: ripemd160.test,v 1.4 2005/02/23 12:41:37 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -20,38 +20,61 @@ if {[catch {source [file join [file dirname [info script]] ripemd160.tcl]} msg]}
     return
 }
 
-package require ripemd160
-
-if {$::ripemd::::ripemd160::usetrf} {
-    puts "- ripemd160 [package provide ripemd160] (Trf based)"
-}
-puts "- ripemd160 [package provide ripemd160] (pure Tcl)"
-
 # -------------------------------------------------------------------------
 # Setup any constraints
 #
+
+array set preserve [array get ::ripemd::ripemd160::accel]
+
+proc have_accel {} {
+    variable ripemd::ripemd160::accel
+    foreach {e v} [array get accel] { if {$v} {return 1} }
+    return 0
+}
+
+proc set_no_accel {} {
+    variable ripemd::ripemd160::accel
+    foreach e [array names accel] { set accel($e) 0 }
+}
+
+proc reset_accel {} {
+    variable ripemd::ripemd160::accel
+    array set accel [array get ::preserve]
+}
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
+package require ripemd160
+
+if {$::ripemd::ripemd160::accel(cryptkit)} {
+    puts "- ripemd160 [package present ripemd160] (cryptkit based)"
+}
+if {$::ripemd::ripemd160::accel(trf)} {
+    puts "- ripemd160 [package present ripemd160] (Trf based)"
+}
+puts "- ripemd160 [package present ripemd160] (pure Tcl)"
+
+# -------------------------------------------------------------------------
+
 # Test vectors
 #
 set vectors {
-    1 {}    {9C1185A5C5E9FC54612808977EE8F548B2258D31}
-    2 {a}   {0BDC9D2D256B3EE9DAAE347BE6F4DC835A467FFE}
-    3 {abc} {8EB208F7E05D987A9B044A8E98C6B087F15A0BFC}
-    4 {message digest} {5D0689EF49D2FAE572B881B123A85FFA21595F36}
-    5 {abcdefghijklmnopqrstuvwxyz} {F71C27109C692C1B56BBDCEB5B9D2865B3708DBC}
+    1 {}    {9c1185a5c5e9fc54612808977ee8f548b2258d31}
+    2 {a}   {0bdc9d2d256b3ee9daae347be6f4dc835a467ffe}
+    3 {abc} {8eb208f7e05d987a9b044a8e98c6b087f15a0bfc}
+    4 {message digest} {5d0689ef49d2fae572b881b123a85ffa21595f36}
+    5 {abcdefghijklmnopqrstuvwxyz} {f71c27109c692c1b56bbdceb5b9d2865b3708dbc}
     6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
-      {12A053384A9C0C88E405A06C27DCF49ADA62EB2B}
+      {12a053384a9c0c88e405a06c27dcf49ada62eb2b}
     7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
-      {B0E20B6E3116640286ED3A87A5713079B21F5189}
-    8 {-} {4C3B58AA82048B1DB748E6B816165C87C551E013}
-    9 {-error} {72A9EF23F2AF0F88C39F54494347E8C63ACD067F}
+      {b0e20b6e3116640286ed3a87a5713079b21f5189}
+    8 {-} {4c3b58aa82048b1db748e6b816165c87c551e013}
+    9 {-error} {72a9ef23f2af0f88c39f54494347e8c63acd067f}
 }
 lappend vectors \
-    10 [string repeat 1234567890 8] {9B752E45573D4B39F4DBD3323CAB82BF63326BFB}
+    10 [string repeat 1234567890 8] {9b752e45573d4b39f4dbd3323cab82bf63326bfb}
 
 foreach {n msg hash} $vectors {
     test ripemd160-1.$n {RIPEMD-160 test strings} {
@@ -61,14 +84,14 @@ foreach {n msg hash} $vectors {
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
-if {$::ripemd::ripemd160::usetrf} {
-    set ::ripemd::ripemd160::usetrf 0
+if {[have_accel]} {
+    set_no_accel
     foreach {n msg hash} $vectors {
         test ripemd160-tcl-1.$n {RIPEMD-160 pure-Tcl} {
             ::ripemd::ripemd160 -hex -- $msg
         } $hash
     }
-    set ::ripemd::ripemd160::usetrf 1
+    reset_accel
 }
 
 # -------------------------------------------------------------------------
@@ -77,19 +100,19 @@ if {$::ripemd::ripemd160::usetrf} {
 set key [binary format H* 00112233445566778899aabbccddeeff01234567]
 
 set vectors {
-    1 {}    {CF387677BFDA8483E63B57E06C3B5ECD8B7FC055}
-    2 {a}   {0D351D71B78E36DBB7391C810A0D2B6240DDBAFC}
-    3 {abc} {F7EF288CB1BBCC6160D76507E0A3BBF712FB67D6}
-    4 {message digest} {F83662CC8D339C227E600FCD636C57D2571B1C34}
-    5 {abcdefghijklmnopqrstuvwxyz} {843D1C4EB880AC8AC0C9C95696507957D0155DDB}
+    1 {}    {cf387677bfda8483e63b57e06c3b5ecd8b7fc055}
+    2 {a}   {0d351d71b78e36dbb7391c810a0d2b6240ddbafc}
+    3 {abc} {f7ef288cb1bbcc6160d76507e0a3bbf712fb67d6}
+    4 {message digest} {f83662cc8d339c227e600fcd636c57d2571b1c34}
+    5 {abcdefghijklmnopqrstuvwxyz} {843d1c4eb880ac8ac0c9c95696507957d0155ddb}
     6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
-      {60F5EF198A2DD5745545C1F0C47AA3FB5776F881}
+      {60f5ef198a2dd5745545c1f0c47aa3fb5776f881}
     7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
-      {E49C136A9E5627E0681B808A3B97E6A6E661AE79}
-    8 {-} {021B4324B528683C60A868F670E89E0BA2B0E743}
+      {e49c136a9e5627e0681b808a3b97e6a6e661ae79}
+    8 {-} {021b4324b528683c60a868f670e89e0ba2b0e743}
 }
 lappend vectors \
-    9 [string repeat 1234567890 8] {31BE3CC98CEE37B79B0619E3E1C2BE4F1AA56E6C}
+    9 [string repeat 1234567890 8] {31be3cc98cee37b79b0619e3e1c2be4f1aa56e6c}
 
 foreach {n msg hash} $vectors {
     test ripemd160-2.$n {HMAC RIPEMD-160 test vectors} {
@@ -99,14 +122,14 @@ foreach {n msg hash} $vectors {
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
-if {$::ripemd::ripemd160::usetrf} {
-    set ::ripemd::ripemd160::usetrf 0
+if {[have_accel]} {
+    set_no_accel
     foreach {n msg hash} $vectors {
         test ripemd160-tcl-2.$n {HMAC RIPEMD-160 pure-Tcl} {
             ::ripemd::hmac160 -hex -key $key -- $msg
         } $hash
     }
-    set ::ripemd::ripemd160::usetrf 1
+    reset_accel
 }
 
 # -------------------------------------------------------------------------
@@ -115,18 +138,18 @@ if {$::ripemd::ripemd160::usetrf} {
 set key [binary format H* 0123456789abcdeffedcba987654321000112233]
 
 set vectors {
-    1 {}    {FE69A66C7423EEA9C8FA2EFF8D9DAFB4F17A62F5}
-    2 {a}   {85743E899BC82DBFA36FAAA7A25B7CFD372432CD}
-    3 {abc} {6E4AFD501FA6B4A1823CA3B10BD9AA0BA97BA182}
-    4 {message digest} {2E066E624BADB76A184C8F90FBA053330E650E92}
-    5 {abcdefghijklmnopqrstuvwxyz} {07E942AA4E3CD7C04DEDC1D46E2E8CC4C741B3D9}
+    1 {}    {fe69a66c7423eea9c8fa2eff8d9dafb4f17a62f5}
+    2 {a}   {85743e899bc82dbfa36faaa7a25b7cfd372432cd}
+    3 {abc} {6e4afd501fa6b4a1823ca3b10bd9aa0ba97ba182}
+    4 {message digest} {2e066e624badb76a184c8f90fba053330e650e92}
+    5 {abcdefghijklmnopqrstuvwxyz} {07e942aa4e3cd7c04dedc1d46e2e8cc4c741b3d9}
     6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
-      {B6582318DDCFB67A53A67D676B8AD869ADED629A}
+      {b6582318ddcfb67a53a67d676b8ad869aded629a}
     7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
-      {F1BE3EE877703140D34F97EA1AB3A07C141333E2}
+      {f1be3ee877703140d34f97ea1ab3a07c141333e2}
 }
 lappend vectors \
-    8 [string repeat 1234567890 8] {85F164703E61A63131BE7E45958E0794123904F9}
+    8 [string repeat 1234567890 8] {85f164703e61a63131be7e45958e0794123904f9}
 
 foreach {n msg hash} $vectors {
     test ripemd160-3.$n {HMAC RIPEMD-160 test vectors} {
@@ -136,14 +159,14 @@ foreach {n msg hash} $vectors {
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
-if {$::ripemd::ripemd160::usetrf} {
-    set ::ripemd::ripemd160::usetrf 0
+if {[have_accel]} {
+    set_no_accel
     foreach {n msg hash} $vectors {
         test ripemd160-tcl-3.$n {HMAC RIPEMD-160 pure-Tcl} {
             ::ripemd::hmac160 -hex -key $key $msg
         } $hash
     }
-    set ::ripemd::ripemd160::usetrf 1
+    reset_accel
 }
 
 # -------------------------------------------------------------------------
@@ -154,23 +177,23 @@ if {$::ripemd::ripemd160::usetrf} {
 set vectors \
     [list \
          1 [string repeat \x0b 20] "Hi There" \
-         24CB4BD67D20FC1A5D2ED7732DCC39377F0A5668 \
+         24cb4bd67d20fc1a5d2ed7732dcc39377f0a5668 \
          2 "Jefe" "what do ya want for nothing?" \
-         DDA6C0213A485A9E24F4742064A7F033B43C4069 \
+         dda6c0213a485a9e24f4742064a7f033b43c4069 \
          3 [string repeat \xaa 20] [string repeat \xdd 50] \
-         B0B105360DE759960AB4F35298E116E295D8E7C1 \
+         b0b105360de759960ab4f35298e116e295d8e7c1 \
          4 \
          [binary format H* 0102030405060708090a0b0c0d0e0f10111213141516171819]\
          [string repeat \xcd 50] \
-         D5CA862F4D21D5E610E18B4CF1BEB97A4365ECF4 \
+         d5ca862f4d21d5e610e18b4cf1beb97a4365ecf4 \
          5 [string repeat \x0c 20] "Test With Truncation" \
-         7619693978F91D90539AE786500FF3D8E0518E39 \
+         7619693978f91d90539ae786500ff3d8e0518e39 \
          6 [string repeat \xaa 80] \
          "Test Using Larger Than Block-Size Key - Hash Key First" \
-         6466CA07AC5EAC29E1BD523E5ADA7605B791FD8B \
+         6466ca07ac5eac29e1bd523e5ada7605b791fd8b \
          7 [string repeat \xaa 80] \
          "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data" \
-         69EA60798D71616CCE5FD0871E23754CD75D5A0A \
+         69ea60798d71616cce5fd0871e23754cd75d5a0a \
         ]
 foreach {n key msg hash} $vectors {
     test ripemd160-4.$n {RFC2286 test vectors for HMAC-RIPEMD160} {
@@ -178,49 +201,49 @@ foreach {n key msg hash} $vectors {
     } $hash
 }
 
-if {$::ripemd::ripemd160::usetrf} {
-    set ::ripemd::ripemd160::usetrf 0
+if {[have_accel]} {
+    set_no_accel
     foreach {n key msg hash} $vectors {
         test ripemd160-tcl-4.$n {RFC2286 test vectors for HMAC-RIPEMD160 pure-Tcl} {
             ::ripemd::hmac160 -hex -key $key -- $msg
         } $hash
     }
-    set ::ripemd::ripemd160::usetrf 1
+    reset_accel
 }    
 
 # -------------------------------------------------------------------------
 
 test ripemd160-5.1 {Check hashing data that begins with hyphen} {
     list [catch {::ripemd::ripemd160 -hex -hello} msg] $msg
-} {0 A99CC21131C4408D468D8C5ABB5CA5CE59A27623}
+} {0 a99cc21131c4408d468d8c5abb5ca5ce59a27623}
 
 test ripemd160-5.2 {Check hashing data that begins with hyphen} {
     list [catch {::ripemd::ripemd160 -hex -- -hello} msg] $msg
-} {0 A99CC21131C4408D468D8C5ABB5CA5CE59A27623}
+} {0 a99cc21131c4408d468d8c5abb5ca5ce59a27623}
 
 test ripemd160-5.3 {Check hashing data that begins with hyphen} {
     list [catch {::ripemd::ripemd160 -hex --} msg] $msg
-} {0 B79D92CFF708A8AED8F7D064FD35CABA0F888B13}
+} {0 b79d92cff708a8aed8f7d064fd35caba0f888b13}
 
 test ripemd160-5.4 {Check hashing data that begins with hyphen} {
     list [catch {::ripemd::ripemd160 -hex -- --} msg] $msg
-} {0 B79D92CFF708A8AED8F7D064FD35CABA0F888B13}
+} {0 b79d92cff708a8aed8f7d064fd35caba0f888b13}
 
 test ripemd160-6.1 {Check hmac data that begins with hyphen} {
     list [catch {::ripemd::hmac160 -hex -key "" -hello} msg] $msg
-} {0 AC6726C4136F646E33923EF282F6054558135805}
+} {0 ac6726c4136f646e33923ef282f6054558135805}
 
 test ripemd160-6.2 {Check hmac data that begins with hyphen} {
     list [catch {::ripemd::hmac160 -hex -key "" -- -hello} msg] $msg
-} {0 AC6726C4136F646E33923EF282F6054558135805}
+} {0 ac6726c4136f646e33923ef282f6054558135805}
 
 test ripemd160-6.3 {Check hmac data that begins with hyphen} {
     list [catch {::ripemd::hmac160 -hex -key "" --} msg] $msg
-} {0 E0CFE9BED6759BC2FA0DF813092D6220FE94820F}
+} {0 e0cfe9bed6759bc2fa0df813092d6220fe94820f}
 
 test ripemd160-6.4 {Check hmac data that begins with hyphen} {
     list [catch {::ripemd::hmac160 -hex -key "" -- --} msg] $msg
-} {0 E0CFE9BED6759BC2FA0DF813092D6220FE94820F}
+} {0 e0cfe9bed6759bc2fa0df813092d6220fe94820f}
 
 # -------------------------------------------------------------------------
 
