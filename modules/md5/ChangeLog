@@ -1,3 +1,10 @@
+2004-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5x.test: Heh. What a surprise. The testsuite uses a command to
+	  generate the proper error message based on the version of Tcl,
+	  and what does md5 v2 ? It generates its own messages, and they
+	  are always in 8.4+ format. Hnn. Fixed the testsuite.
+
 2003-07-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5.man: Updated the manual page for md5 2.0
