@@ -10,7 +10,12 @@ package require Tcl 8
 package provide log 1.0
 
 namespace eval ::log {
-    namespace export *
+    namespace export levels lv2longform lv2color lv2priority 
+    namespace export lv2cmd lv2channel lvCompare
+    namespace export lvSuppress lvSuppressLE lvIsSuppressed
+    namespace export lvCmd lvCmdForall
+    namespace export lvChannel lvChannelForall lvColor lvColorForall
+    namespace export log logMsg logError
 
     # The known log-levels.
 
