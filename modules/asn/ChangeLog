@@ -1,3 +1,11 @@
+2004-08-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.test: New file, first test cases for asn package.
+
+	* asn.tcl: Enhanced integer encoder: fixed buglet for 2-byte
+	  integers (not minimal in bordercase 127), added the handling of
+	  3-byte integers.
+
 2004-05-27  Andreas Kupries  <andreask@activestate.com>
 
 	* New module: ASN.1 de- and encoding. This was provided to us

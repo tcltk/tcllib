@@ -1,0 +1,79 @@
+# -*- tcl -*-
+# asn.test:  tests for the report structure.
+#
+# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+#
+# RCS: @(#) $Id: asn.test,v 1.1 2004/08/06 05:17:07 andreas_kupries Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+
+package forget asn
+catch {namespace delete ::asn}
+
+if {[catch {source [file join [file dirname [info script]] asn.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct
+puts "- asn [package present asn]"
+
+# -------------------------------------------------------------------------
+
+test asn-1.0 {integer} {
+    catch {asn::asnInteger} result
+    set result
+} [tcltest::wrongNumArgs {asn::asnInteger} {number} 0]
+
+test asn-1.1 {integer} {
+    catch {asn::asnInteger a b} result
+    set result
+} [tcltest::tooManyArgs {asn::asnInteger} {number}]
+
+test asn-1.2 {integer} {
+    catch {asn::asnInteger a} result
+    set result
+} {expected integer but got "a"}
+
+foreach {n i len hex} {
+     0  0        01 00
+     1 -1        01 FF
+     2  1        01 01
+     3  127      01 7F
+     4  128      02 0080
+     5  129      02 0081
+     6  256      02 0100
+     7 -127      01 81
+     8 -128      01 80
+     9 -129      02 FF7F
+    10  32766    02 7FFE
+    11  32767    02 7FFF
+    12  32768    03 008000
+    13  32769    03 008001
+    14 -32767    02 8001
+    15 -32768    02 8000
+    16 -32769    03 FF7FFF
+    17  65536    03 010000
+    18  8388607  03 7FFFFF
+    19  8388608  04 00800000
+    20  8388609  04 00800001
+    21  16777216 04 01000000
+    22 -8388607  03 800001
+    23 -8388608  03 800000
+    24 -8388609  04 FF7FFFFF
+} {
+    test asn-2.$n {integer} {
+	binary scan [asn::asnInteger $i] H* result
+	list $i [string toupper $result]
+    } [list $i 02$len$hex] ; # {}
+}
+
+# -------------------------------------------------------------------------
+::tcltest::cleanupTests
