@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.11 2003/04/11 19:01:06 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.12 2003/08/13 18:48:28 welch Exp $
 
 package require Tcl 8.2
 
@@ -1186,8 +1186,11 @@ proc ::counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
 proc ::counter::start {tag instance} {
     upvar #0 counter::Time-$tag time
-    set time($instance) [list [clock clicks] \
-	    [clock seconds]]
+    # clock clicks can return negative values if the sign bit is set
+    # Here we turn it into a 31-bit counter because we only want
+    # relative differences
+    set msec [expr [clock clicks -milliseconds] & 0x7FFFFFFF]
+    set time($instance) [list $msec [clock seconds]]
 }
 
 # ::counter::stop --
@@ -1214,20 +1217,26 @@ proc ::counter::stop {tag instance {func ::counter::Identity}} {
 	# Extra call. Ignore so we can debug error cases.
 	return
     }
-    set now [list [clock clicks] \
-	    [clock seconds]]
+    set msec [expr [clock clicks -milliseconds] & 0x7FFFFFFF]
+    set now [list $msec [clock seconds]]
     set delMicros [expr {[lindex $now 0] - [lindex $time($instance) 0]}]
+    if {$delMicros < 0} {
+      # Microsecond counter wrapped.
+      set delMicros [expr {0x7FFFFFFF - [lindex $time($instance) 0] +
+                            [lindex $now 0]}]
+    }
     set delSecond [expr {[lindex $now 1] - [lindex $time($instance) 1]}]
     unset time($instance)
 
-    if {$delMicros < 0} {
-	set delMicros [expr {1000000 + $delMicros}]
-	incr delSecond -1
-	if {$delSecond < 0} {
-	    set delSecond 0
-	}
+    # It is quite possible that the millisecond counter is much
+    # larger than 1000, so we just use it unless our microsecond
+    # calculation is screwed up.
+
+    if {$delMicros >= 0} {
+      counter::count $tag [$func [expr {$delMicros / 1000.0}]]
+    } else {
+      counter::count $tag [$func $delSecond]
     }
-    counter::count $tag [$func $delSecond.[format %06d $delMicros]]
 }
 
 # ::counter::Identity --
