@@ -14,10 +14,6 @@ set excluded [list \
 	calendar \
 	]
 
-# Notes: struct1 is a backward compatibility module for people using
-# 'struct 1.x'. The package is itself installed, but its documentation
-# is not. Nor do the struct examples belong to it.
-
 set     modules [list]
 array set guide {}
 foreach {m pkg doc exa} {
