@@ -1,5 +1,7 @@
 2000-03-04  Eric Melski  <ericm@scriptics.com>
 
+	* base64.test: Added tests for decoding data that was padded with ='s
+
 	* base64.tcl: Fixed a bug with line wrapping in the encoder -- it
 	was not properly counting the number of characters emitted, so it 
 	was not wrapping when it should.  Changed the chars/line to 60, so 
@@ -7,6 +9,8 @@
 	for easy testing purposes.  Fixed a bug in the decoder with
 	newlines -- it was not ignoring them as it should according to RFC
 	2045.
+	Fixed a bug in decoder dealing with data that was padded with ='s.
+	
 
 	* base64.test: Some rudimentary tests for the encoder/decoder.
 

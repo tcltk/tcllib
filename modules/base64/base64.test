@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.1 2000/03/05 02:21:00 ericm Exp $
+# RCS: @(#) $Id: base64.test,v 1.2 2000/03/05 03:41:56 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -29,12 +29,25 @@ ZW4gZmllbGQgYW5kIGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
 test base64-2.1 {base64::decode} {
     base64::decode "dGhpcyBpcyBhIHRlc3QK"
 } "this is a test\n"
-test base64-2.2 {base64::decode} {
-    set str "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3Jl"
+test base64-2.2 {base64::decode ignores newlines} {
+    set str "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3Jl\n"
     append str "ZW4gZmllbGQgYW5kIGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
     base64::decode $str
 } "The short red fox ran quickly through the green field and jumped over the tall brown bear\n"
+test base64-2.3 {base64::decode handles equal sign padding} {
+    # decode the encoding of a string that will be padded in the encoding with
+    # one padding char
+    base64::decode [base64::encode "01234"]
+} "01234"
+test base64-2.4 {base64::decode handles equal sign padding} {
+    # decode the encoding of a string that will be padded in the encoding with
+    # two padding chars
+    base64::decode [base64::encode "0123"]
+} "0123"
 
+test base64-3.1 {base64 identity test} {
+	base64::decode [base64::encode "this is a test"]
+} "this is a test"
 
 ::tcltest::cleanupTests
 return

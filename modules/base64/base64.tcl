@@ -1,12 +1,13 @@
-# base64.tcl
+# base64.tcl --
+#
 # Encode/Decode base64 for a string
 # Stephen Uhler / Brent Welch (c) 1997 Sun Microsystems
 # The decoder was done for exmh by Chris Garrigues
 #
-# See the file "license.terms" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# SCCS: @(#) base64.tcl 1.4 98/02/24 16:00:03
+# Copyright (c) 1998-2000 by Scriptics Corporation.
+# All rights reserved.
+# 
+# RCS: @(#) $Id: base64.tcl,v 1.3 2000/03/05 03:41:56 ericm Exp $
 
 package provide base64 2.0
 
@@ -82,13 +83,25 @@ proc base64::decode {string} {
 	    }
 	    set bits $base64($char)
 	    set group [expr {$group | ($bits << $j)}]
-	}
-
-	if {[incr j -6] < 0} {
+	    if {[incr j -6] < 0} {
 		scan [format %06x $group] %2x%2x%2x a b c
 		append output [format %c%c%c $a $b $c]
 		set group 0
 		set j 18
+	    }
+	} else {
+	    # = indicates end of data.  Output whatever chars are left.
+	    # The encoding algorithm dictates that we can only have 1 or 2
+	    # padding characters.  If j is 6, we have 12 bits of good input 
+	    # (enough for 1 8-bit output).  If j is 6, we have 18 bits of good
+	    # input (enough for 2 8-bit outputs).
+	    scan [format %04x $group] %2x%2x a b
+	    if {$j == 6} {
+		append output [format %c $a]
+	    } elseif {$j == 0} {
+		append output [format %c%c $a $b]
+	    }
+	    break
 	}
     }
     return $output
