@@ -62,24 +62,32 @@ Snit_optiondbspec       Array(local option name) =
                         Used in "configure" introspection.
                         Used in widget creation.
 
-Snit_typemethods        Array(typemethod name) = proc name
-                        Used in typemethod cache lookup.
+Snit_typemethodInfo     Array(method name) = {<pattern> <compName>}
+                        where <compName> is "" for normal typemethods
+                        and "method name" can be "*".  Used in
+                        typemethod cache lookup to create the command
+                        for the named typemethod.
+
+Snit_typecomponents     Array(typecomponent name) = command_name
+                        Used whenever we need to retrieve the 
+                        typecomponent's command.
+
+Snit_typeMethodCache    Array(typemethod name) = cached command
+                        Used in typemethod dispatch.
 
 Snit_methodInfo         Array(method name) = {<pattern> <compName>}
                         where <compName> is "" for normal methods and
                         "method name" can be "*".  Used in 
-                        method cache lookup.
+                        method cache lookup to create the command for
+                        the named method.
     
-Snit_typeMethodCache    Array(typemethod name) = cached command
-                        Used in typemethod dispatch.
-
 INSTANCE VARIABLES
 
 Snit_instance           Current name of the instance command.
 
-Snit_components         Array(component name) = name command_name
+Snit_components         Array(component name) = command_name
                         Used whenever we need to retrieve the
-                        component command.
+                        component's command.
 
 Snit_methodCache        Array(method name) = cached command
                         Used during method dispatch.
