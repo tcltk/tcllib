@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.8 2004/02/14 05:59:20 andreas_kupries Exp $}]
-[manpage_begin logger n 0.3]
+[comment {$Id: logger.man,v 1.8.2.1 2004/05/27 03:47:22 andreas_kupries Exp $}]
+[manpage_begin logger n 0.3.1]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
-[require Tcl 8]
-[require logger [opt 0.3]]
+[require Tcl 8.2]
+[require logger [opt 0.3.1]]
 [description]
 
 [para]
@@ -41,12 +41,15 @@ happen:
 Initializes the service [arg service] for logging.  The service names
 are actually Tcl namespace names, so they are seperated with '::'.
 
-When a logger service is initalized, it "inherits" properties from its
+When a logger service is initialized, it "inherits" properties from its
 parents.  For instance, if there were a service [term foo], and
 we did a [cmd logger::init] [arg foo::bar] (to create a [term bar]
 service underneath [term foo]), [term bar] would copy the current
 configuration of the [term foo] service, although it would of
 course, also be possible to then seperately configure [term bar].
+
+If a logger service is initialized and the parent does not yet exist, the
+parent is also created. 
 
 [call [cmd logger::services]]
 
@@ -54,13 +57,13 @@ Returns a list of all the available services.
 
 [call [cmd logger::enable] [arg level]]
 
-Globally enables logging at or "above" the given level.  Levels are
+Globally enables logging at and "above" the given level.  Levels are
 [const debug], [const info], [const notice], [const warn], [const error],
 [const critical].
 
 [call [cmd logger::disable] [arg level]]
 
-Globally disables logging at or "below" the given level.  Levels are
+Globally disables logging at and "below" the given level.  Levels are
 those listed above.
 
 [call [cmd logger::levels]]
@@ -86,13 +89,15 @@ it.
 [call [cmd \${log}::enable] [arg level]]
 
 Enable logging, in the service referenced by [var \${log}], and its
-children, at or above the level specified.  Note that this does [emph not] disable logging below this level, so you should probably use
+children, at and above the level specified.  Note that this does [emph not] disable logging below this level, so you should probably use
 [cmd setlevel] instead.
 
 [call [cmd \${log}::disable] [arg level]]
 
 Disable logging, in the service referenced by [var \${log}], and its
-children, at or below the level specified. Note that this does [emph not] enable logging above this level, so you should probably use [cmd setlevel] instead.
+children, at and below the level specified. Note that this does [emph not] enable logging above this level, 
+so you should probably use [cmd setlevel] instead.
+Disabling the loglevel [const critical] switches logging off for the service and its children.
 
 [call [cmd \${log}::logproc] [arg level] [arg command]]
 [call [cmd \${log}::logproc] [arg level] [arg argname] [arg body]]
@@ -120,15 +125,16 @@ to a database, or anything else.  For example:
 
 [call [cmd \${log}::services]]
 
-Returns a list of all the registered logging services.
+Returns a list of the registered logging services which are children of this service.
 
 [call [cmd \${log}::currentloglevel]]
 
-Returns the currently enabled log level for this service.
+Returns the currently enabled log level for this service. If no logging is enabled returns [const none].
 
-[call [cmd \${log}::delproc]]
+[call [cmd \${log}::delproc] [arg command]]
 
-Set the script to call when the log instance in question is deleted.  For example:
+Set the script to call when the log instance in question is deleted.
+For example:
 
 [example {
     ${log}::delproc [list closesock $logsock]
