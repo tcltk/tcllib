@@ -1,20 +1,22 @@
-Snit's Not Incr Tcl V0.81 README.txt
+Snit's Not Incr Tcl README.txt
 -----------------------------------------------------------------
 
 Snit is pure-Tcl object and megawidget framework.  See snit.html
 for full details.
 
-Snit is a Tcl package; simply unzip or untar the archive and copy the
-resulting "snit" directory to some place on your TCLLIBPATH so Tcl can
-find it.
+Snit is part of "tcllib", the standard Tcl Library.
 
-Snit requires Tcl 8.4 or later.
+Snit lives in "tcllib" now, but its main author keeps stuff at
+http://www.wjduquette.com/snit.  If you have any questions, bug
+reports, suggestions, or comments, feel free to contact me, Will
+Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
+http://www.wjduquette.com/snit for details).
 
-Snit lives at http://www.wjduquette.com/snit.  Check there for
-updates.  If you have any questions, bug reports, suggestions, or comments,
-feel free to contact me, Will Duquette, at will@wjduquette.com; or,
-join the Snit mailing list (see http://www.wjduquette.com/snit for
-details).
+Changes in Later Versions
+--------------------------------------------------------------------
+
+Please see the file ChangeLog in this directory.
+
 
 Changes in V0.81
 --------------------------------------------------------------------

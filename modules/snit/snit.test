@@ -101,6 +101,8 @@ proc cleanup {} {
     cleanupType ::myframe
     cleanupType ::foo
     cleanupType ::bar
+    cleanupType ::tail
+    catch {option clear}
 }
 
 
@@ -1131,7 +1133,28 @@ test option-1.9 {options default to ""} {} {
     spot cget -color
 } {}
 
-test option-1.10 {configure returns info, local options only} {} {
+test option-1.10 {spaces allowed in option defaults} {} {
+    cleanup
+
+    type dog {
+        option -breed "golden retriever"
+    }
+    dog fido
+    fido cget -breed
+} {golden retriever}
+
+test option-1.11 {brackets allowed in option defaults} {} {
+    cleanup
+
+    type dog {
+        option -regexp {[a-z]+}
+    }
+
+    dog fido
+    fido cget -regexp
+} {[a-z]+}
+
+test option-2.1 {configure returns info, local options only} {} {
     cleanup
 
     type dog {
@@ -1143,9 +1166,9 @@ test option-1.10 {configure returns info, local options only} {} {
     spot configure -color red
     spot configure -akc 0
     spot configure
-} {{-akc {} {} 1 0} {-color {} {} black red}}
+} {{-akc akc Akc 1 0} {-color color Color black red}}
 
-test option-1.11 {configure -opt returns info, local options only} {} {
+test option-2.2 {configure -opt returns info, local options only} {} {
     cleanup
 
     type dog {
@@ -1156,11 +1179,11 @@ test option-1.11 {configure -opt returns info, local options only} {} {
     dog create spot
     spot configure -color red
     spot configure -color
-} {-color {} {} black red}
+} {-color color Color black red}
 
-test option-1.12 {configure -opt returns info, explicit options} {} {
+test option-2.3 {configure -opt returns info, explicit options} {} {
     cleanup
-
+catch {
     type papers {
         option -akcflag 1
     }
@@ -1176,9 +1199,12 @@ test option-1.12 {configure -opt returns info, explicit options} {} {
     dog create spot
     spot configure -akc 0
     spot configure -akc
-} {-akc {} {} 1 0}
+} result
 
-test option-1.13 {configure -unknownopt} {} {
+    set result
+} {-akc akc Akc 1 0}
+
+test option-2.4 {configure -unknownopt} {} {
     cleanup
 
     type papers {
@@ -1198,7 +1224,7 @@ test option-1.13 {configure -unknownopt} {} {
     set result
 } {unknown option "-foo"}
 
-test option-1.14 {configure returns info, unknown options} tk {
+test option-2.5 {configure returns info, unknown options} tk {
     cleanup
 
     widgetadaptor myframe { 
@@ -1222,10 +1248,11 @@ test option-1.14 {configure returns info, unknown options} tk {
         puts "Stack Trace <\n$errorInfo>"
         error $result
     }
-        list $a $b $c
-} {{-foo {} {} a a} {-width width Width 0 0} {-height height Height 0 0}}
+    list $a $b $c
 
-test option-1.15 {configure -opt unknown to implicit component} tk {
+} {{-foo foo Foo a a} {-width width Width 0 0} {-height height Height 0 0}}
+
+test option-2.6 {configure -opt unknown to implicit component} tk {
     cleanup
 
     widgetadaptor myframe { 
@@ -1241,27 +1268,230 @@ test option-1.15 {configure -opt unknown to implicit component} tk {
     set result
 } {unknown option "-quux"}
 
-test option-1.16 {spaces allowed in option defaults} {} {
+test option-3.1 {set option resource name explicitly} {
     cleanup
 
     type dog {
-        option -breed "golden retriever"
+        option {-tailcolor tailColor} black
     }
-    dog fido
-    fido cget -breed
-} {golden retriever}
 
-test option-1.17 {brackets allowed in option defaults} {} {
+    dog fido
+
+    fido configure -tailcolor
+} {-tailcolor tailColor TailColor black black}
+
+test option-3.2 {set option class name explicitly} {
     cleanup
 
     type dog {
-        option -regexp {[a-z]+}
+        option {-tailcolor tailcolor TailColor} black
     }
 
     dog fido
-    fido cget -regexp
-} {[a-z]+}
 
+    fido configure -tailcolor
+} {-tailcolor tailcolor TailColor black black}
+
+test option-3.3 {delegated option's names come from owner} {
+    cleanup
+    
+    type tail {
+        option -color black
+    }
+
+    type dog {
+        delegate option -tailcolor to tail as -color
+
+        constructor {args} {
+            set tail [tail fidotail]
+        }
+    }
+
+    dog fido
+
+    fido configure -tailcolor
+} {-tailcolor tailcolor Tailcolor black black}
+
+test option-3.4 {delegated option's resource name set explicitly} {
+    cleanup
+    
+    type tail {
+        option -color black
+    }
+
+    type dog {
+        delegate option {-tailcolor tailColor} to tail as -color
+
+        constructor {args} {
+            set tail [tail fidotail]
+        }
+    }
+
+    dog fido
+
+    fido configure -tailcolor
+} {-tailcolor tailColor TailColor black black}
+
+test option-3.5 {delegated option's class name set explicitly} {
+    cleanup
+    
+    type tail {
+        option -color black
+    }
+
+    type dog {
+        delegate option {-tailcolor tailcolor TailColor} to tail as -color
+
+        constructor {args} {
+            set tail [tail fidotail]
+        }
+    }
+
+    dog fido
+
+    fido configure -tailcolor
+} {-tailcolor tailcolor TailColor black black}
+
+test option-3.6 {delegated option's default comes from component} {
+    cleanup
+    
+    type tail {
+        option -color black
+    }
+
+    type dog {
+        delegate option -tailcolor to tail as -color
+
+        constructor {args} {
+            set tail [tail fidotail -color red]
+        }
+    }
+
+    dog fido
+
+    fido configure -tailcolor
+} {-tailcolor tailcolor Tailcolor black red}
+
+test option-4.1 {local option name must begin with hyphen} {
+    cleanup
+
+    catch {
+        type dog {
+            option nohyphen
+        }
+    } result
+
+    set result
+} {badly named option 'nohyphen'}
+
+test option-4.2 {local option name must be lower case} {
+    cleanup
+
+    catch {
+        type dog {
+            option -Upper
+        }
+    } result
+
+    set result
+} {badly named option '-Upper'}
+
+test option-4.3 {local option name may not contain spaces} {
+    cleanup
+
+    catch {
+        type dog {
+            option {"-with space"}
+        }
+    } result
+
+    set result
+} {badly named option '-with space'}
+
+test option-4.4 {delegated option name must begin with hyphen} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate option nohyphen to tail
+        }
+    } result
+
+    set result
+} {badly named option 'nohyphen'}
+
+test option-4.5 {delegated option name must be lower case} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate option -Upper to tail
+        }
+    } result
+
+    set result
+} {badly named option '-Upper'}
+
+test option-4.6 {delegated option name may not contain spaces} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate option {"-with space"} to tail
+        }
+    } result
+
+    set result
+} {badly named option '-with space'}
+
+test option-5.1 {local widget options read from option database} tk {
+    cleanup
+
+    widget dog { 
+        option -foo a
+        option -bar b
+
+        typeconstructor {
+            option add *Dog.bar bb
+        }
+    }
+
+    dog .fido
+    set a [.fido cget -foo]
+    set b [.fido cget -bar]
+    destroy .fido
+    tkbide
+
+    list $a $b
+} {a bb}
+
+test option-5.2 {local option database values available in constructor} tk {
+    cleanup
+
+    widget dog { 
+        option -bar b
+        variable saveit
+
+        typeconstructor {
+            option add *Dog.bar bb
+        }
+
+        constructor {args} {
+            set saveit $options(-bar)
+        }
+
+        method getit {} {
+            return $saveit
+        }
+    }
+
+    dog .fido
+    set result [.fido getit]
+    destroy .fido
+    tkbide
+
+    set result
+} {bb}
 
 
 #-----------------------------------------------------------------------
@@ -2306,6 +2536,370 @@ test widget-1.1 {creating a widget} tk {
 } {green ::hull1.frm}
 
 #-----------------------------------------------------------------------
+# install
+#
+# The install command is used to install widget components, while getting
+# options for the option database.
+
+test install-1.1 {installed components are created properly} tk {
+    cleanup
+
+    widget myframe {
+        # Delegate an option just to make sure the component variable
+        # exists.
+        delegate option -font to text
+
+        constructor {args} {
+            install text using text $win.text -background green
+        }
+
+        method getit {} {
+            $win.text cget -background
+        }
+    }
+
+    myframe .frm
+    set a [.frm getit]
+    destroy .frm
+    tkbide
+    set a
+} {green}
+
+test install-1.2 {installed components are saved properly} tk {
+    cleanup
+
+    widget myframe {
+        # Delegate an option just to make sure the component variable
+        # exists.
+        delegate option -font to text
+
+        constructor {args} {
+            install text using text $win.text -background green
+        }
+
+        method getit {} {
+            $text cget -background
+        }
+    }
+
+    myframe .frm
+    set a [.frm getit]
+    destroy .frm
+    tkbide
+    set a
+} {green}
+
+test install-1.3 {can't install until hull exists} tk {
+    cleanup
+
+    widgetadaptor myframe {
+        # Delegate an option just to make sure the component variable
+        # exists.
+        delegate option -font to text
+
+        constructor {args} {
+            install text using text $win.text -background green
+        }
+    }
+
+    catch {
+        myframe .frm
+    } result
+
+    set result
+} {Error in constructor: tried to install 'text' before the hull exists}
+
+test install-1.4 {install queries option database} tk {
+    cleanup
+
+    widget myframe {
+        delegate option -font to text
+
+        typeconstructor {
+            option add *Myframe.font Courier
+        }
+
+        constructor {args} {
+            install text using text $win.text
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -font]
+    destroy .frm
+    tkbide
+    set a
+} {Courier}
+
+test install-1.5 {explicit options override option database} tk {
+    cleanup
+
+    widget myframe {
+        delegate option -font to text
+
+        typeconstructor {
+            option add *Myframe.font Courier
+        }
+
+        constructor {args} {
+            install text using text $win.text -font Times
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -font]
+    destroy .frm
+    tkbide
+    set a
+} {Times}
+
+test install-1.6 {option db works with targetted options} tk {
+    cleanup
+
+    widget myframe {
+        delegate option -textfont to text as -font
+
+        typeconstructor {
+            option add *Myframe.textfont Courier
+        }
+
+        constructor {args} {
+            install text using text $win.text
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -textfont]
+    destroy .frm
+    tkbide
+    set a
+} {Courier}
+
+test install-1.7 {install doesn't work in snit::types} {
+    cleanup
+
+    type dog {
+        delegate option -tailcolor to tail
+
+        constructor {args} {
+            install tail using tail $self.tail
+        }
+    }
+
+    catch {
+        dog fido
+    } result
+
+    set result
+} {install can only be used by snit::widgets and widgetadaptors}
+
+test install-1.7 {install can install non-widget components} {
+    cleanup
+
+    type dog {
+        option -tailcolor black
+    }
+
+    widget myframe {
+        delegate option -tailcolor to thedog
+
+        typeconstructor {
+            option add *Myframe.tailcolor green
+        }
+
+        constructor {args} {
+            install thedog using dog $win.dog
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -tailcolor]
+    destroy .frm
+    tkbide
+    set a
+
+} {green}
+
+test install-1.8 {ok if no options are delegated to component} {
+    cleanup
+
+    type dog {
+        option -tailcolor black
+    }
+
+    widget myframe {
+        constructor {args} {
+            install thedog using dog $win.dog
+        }
+    }
+
+    myframe .frm
+    destroy .frm
+    tkbide
+
+    # Test passes if no error is raised.
+    list ok
+} {ok}
+
+#-----------------------------------------------------------------------
+# Advanced installhull tests
+#
+# installhull is used to install the hull widget for both widgets and
+# widget adaptors.  It has two forms.  In one form it installs a widget
+# created by some third party; in this form no querying of the option
+# database is needed, because we haven't taken responsibility for creating
+# it.  But in the other form (installhull using) installhull actually
+# creates the widget, and takes responsibility for querying the 
+# option database as needed.
+#
+# NOTE: "installhull using" is always used to create a widget's hull frame.
+#
+# That options passed into installhull override those from the 
+# option database.
+
+test installhull-1.1 {
+    options delegated to a widget's hull frame with the same name are 
+    initialized from the option database.  Note that there's no 
+    explicit code in Snit to do this; it happens because we set the
+    -class when the widget was created.  In fact, it happens whether
+    we delegate the option name or not.
+} tk {
+    cleanup
+
+    widget myframe {
+        delegate option -background to hull
+
+        typeconstructor {
+            option add *Myframe.background red
+            option add *Myframe.width 123
+        }
+
+        method getwid {} {
+            $hull cget -width
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -background]
+    set b [.frm getwid]
+    destroy .frm
+    tkbide
+    list $a $b
+} {red 123}
+
+test installhull-1.2 {
+    Options delegated to a widget's hull frame with a different name are 
+    initialized from the option database.
+} tk {
+    cleanup
+
+    widget myframe {
+        delegate option -mainbackground to hull as -background
+
+        typeconstructor {
+            option add *Myframe.mainbackground red
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -mainbackground]
+    destroy .frm
+    tkbide
+    set a
+} {red}
+
+test installhull-1.3 {
+    options delegated to a widgetadaptor's hull frame with the same name are 
+    initialized from the option database.  Note that there's no 
+    explicit code in Snit to do this; there's no way to change the
+    adapted hull widget's -class, so the widget is simply being
+    initialized normally.
+} tk {
+    cleanup
+
+    widgetadaptor myframe {
+        delegate option -background to hull
+
+        typeconstructor {
+            option add *Frame.background red
+            option add *Frame.width 123
+        }
+
+        constructor {args} {
+            installhull using frame
+        }
+
+        method getwid {} {
+            $hull cget -width
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -background]
+    set b [.frm getwid]
+    destroy .frm
+    tkbide
+    list $a $b
+} {red 123}
+
+test installhull-1.4 {
+    Options delegated to a widget's hull frame with a different name are 
+    initialized from the option database.
+} tk {
+    cleanup
+
+    widgetadaptor myframe {
+        delegate option -mainbackground to hull as -background
+
+        typeconstructor {
+            option add *Frame.mainbackground red
+        }
+
+        constructor {args} {
+            installhull using frame
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -mainbackground]
+    destroy .frm
+    tkbide
+    set a
+} {red}
+
+test installhull-1.4 {
+    Option values read from the option database are overridden by options
+    explicitly passed, even if delegated under a different name.
+} tk {
+    cleanup
+
+    widgetadaptor myframe {
+        delegate option -mainbackground to hull as -background
+
+        typeconstructor {
+            option add *Frame.mainbackground red
+            option add *Frame.width 123
+        }
+
+        constructor {args} {
+            installhull using frame -background green -width 321
+        }
+
+        method getwid {} {
+            $hull cget -width
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -mainbackground]
+    set b [.frm getwid]
+    destroy .frm
+    tkbide
+    list $a $b
+} {green 321}
+
+
+#-----------------------------------------------------------------------
 # Instance Introspection
 
 test iinfo-1.1 {object info too few args} {
@@ -2512,6 +3106,117 @@ test tinfo-1.6 {type info instances with non-global namespaces} {
 
     list $qname [lsort [dog info instances]]
 } {::dogs::fido {::dogs::fido ::spot}}
+
+#-----------------------------------------------------------------------
+# Setting the widget class class explicitly
+
+test widgetclass-1.1 {can't set widgetclass for snit::types} {
+    cleanup
+
+    catch {
+        type dog { 
+            widgetclass Dog
+        }
+    } result
+    
+    set result
+} {widgetclass cannot be set for snit::types}
+
+test widgetclass-1.2 {can't set widgetclass for snit::widgetadaptors} tk {
+    cleanup
+
+    catch {
+        widgetadaptor dog { 
+            widgetclass Dog
+        }
+    } result
+    
+    set result
+} {widgetclass cannot be set for snit::widgetadaptors}
+
+test widgetclass-1.3 {widgetclass must begin with uppercase letter} tk {
+    cleanup
+
+    catch {
+        widget dog { 
+            widgetclass dog
+        }
+    } result
+    
+    set result
+} {widgetclass 'dog' does not begin with an uppercase letter}
+
+test widgetclass-1.4 {widgetclass can only be defined once} tk {
+    cleanup
+
+    catch {
+        widget dog { 
+            widgetclass Dog
+            widgetclass Dog
+        }
+    } result
+    
+    set result
+} {too many widgetclass statements}
+
+test widgetclass-1.5 {widgetclass set successfully} tk {
+    cleanup
+
+    widget dog { 
+        widgetclass DogWidget
+    }
+    
+    # The test passes if no error is thrown.
+    list ok
+} {ok}
+
+test widgetclass-1.6 {implicit widgetclass applied to hull} tk {
+    cleanup
+
+    widget dog { 
+        typeconstructor {
+            option add *Dog.background green widgetDefault
+        }
+
+        method background {} {
+            $hull cget -background
+        }
+    }
+
+    dog .dog
+    
+    set bg [.dog background]
+
+    destroy .dog
+    
+    set bg
+} {green}
+
+test widgetclass-1.7 {explicit widgetclass applied to hull} tk {
+    cleanup
+
+    widget dog { 
+        widgetclass DogWidget
+
+        typeconstructor {
+            option add *DogWidget.background green widgetDefault
+        }
+
+        method background {} {
+            $hull cget -background
+        }
+    }
+
+    dog .dog
+    
+    set bg [.dog background]
+
+    destroy .dog
+    
+    set bg
+} {green}
+
+
 
 #---------------------------------------------------------------------
 # Clean up
