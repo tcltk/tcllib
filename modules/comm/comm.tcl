@@ -21,7 +21,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.1 2001/08/22 20:20:57 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.2 2001/11/16 21:44:46 andreas_kupries Exp $
 
 package require Tcl 8
 package provide comm 3.7
@@ -128,7 +128,7 @@ namespace eval ::comm {
 proc ::comm::comm_send {} {
     proc send {args} {
 	# Use pure lists to speed this up.
-	eval [linsert $args 0 comm send]
+	eval [linsert $args 0 ::comm::comm send]
 	#eval comm send $args
     }
     rename winfo tk_winfo
@@ -138,7 +138,7 @@ proc ::comm::comm_send {} {
 	    return [eval [linsert $args 0 tk_winfo $cmd]]
 	    #return [eval [list tk_winfo $cmd] $args]
 	}
-	return [comm interps]
+	return [::comm::comm interps]
     }
     proc ::comm::comm_send {} {}
 }

@@ -1,4 +1,4 @@
-.\" $Id: comm.n,v 1.2 2001/11/09 22:44:59 jenglish Exp $
+.\" $Id: comm.n,v 1.3 2001/11/16 21:44:46 andreas_kupries Exp $
 .\" %%_OSF_FREE_COPYRIGHT_%%
 .\" Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
 .\" (Please see the file "comm.LICENSE" that accompanied this source)
@@ -16,7 +16,7 @@ comm.tcl \- A remote communications facility for Tcl (7.6, 8.0, and later)
 \fIchan \fBhook \fIevent\fR ?\fB+\fR??\fIscript\fR?
 \fIchan \fIoption\fP ?\fI arg arg ...\fR?
 .fi
-The package initializes \fBcomm\fR as the default \fIchan\fR.
+The package initializes \fB::comm::comm\fR as the default \fIchan\fR.
 .SH "INTRODUCTION"
 .PP
 The
@@ -38,9 +38,10 @@ These commands work just like
 and
 .BR "winfo interps" :
 .CS
-\fBcomm send \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR?
-\fBcomm interps\fP
+ \fB::comm::comm send \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR?
+ \fB::comm::comm interps\fP
 .CE
+.PP
 This is all that is really needed to know in order to use
 .BR comm .
 '\"
@@ -61,7 +62,7 @@ doesn't implicitly know the
 .IR id 's
 of all the interpreters on the system.
 .TP
-\fBcomm send \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR? 
+\fB::comm::comm send \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR? 
 This invokes the given command in the interpreter named by
 .IR id .
 The command waits for the result and remote errors are returned
@@ -69,12 +70,12 @@ unless the
 .B -async
 option is given.
 .TP
-\fBcomm self\fP
+\fB::comm::comm self\fP
 Returns the
 .I id
 for this channel.
 .TP
-\fBcomm interps\fP
+\fB::comm::comm interps\fP
 Returns a list of all the remote
 .IR id 's
 to which this channel is connected.
@@ -85,12 +86,12 @@ when a command is first issued it,
 or when a remote
 .I id
 first issues a command to this comm channel.
-\fBcomm ids\fP
+\fB::comm::comm ids\fP
 is an alias for this method.
 .TP
-\fBcomm connect \fR?\fIid\fR?
+\fB::comm::comm connect \fR?\fIid\fR?
 Whereas
-.B "comm send"
+.B "::comm::comm send"
 will automatically connect to the given
 .IR id ,
 this forces a connection to a remote
@@ -99,7 +100,7 @@ without sending a command.
 After this, the remote
 .I id
 will appear in
-.BR "comm interps" .
+.BR "::comm::comm interps" .
 .LP
 These four methods make up the basic
 .B comm
@@ -110,7 +111,7 @@ interface.
 .SH "EVAL SEMANTICS"
 .PP
 The evaluation semantics of
-.B "comm send"
+.B "::comm::comm send"
 are intended to match Tk's
 .B send
 .IR exactly .
@@ -119,7 +120,7 @@ This means that
 evaluates arguments on the remote side.
 .LP
 If you find that
-.B "comm send"
+.B "::comm::comm send"
 doesn't work for a particular command,
 try the same thing with Tk's send and see if the result is different.
 If there is a problem, please report it.
@@ -128,10 +129,10 @@ Note that the equivalent
 .B send
 command also produces the same error.
 .CS
-% \fBcomm send \fIid\fP llength {a b c}
-\fBwrong # args: should be "llength list"\fR
-% \fBsend \fIname\fP llength {a b c}
-\fBwrong # args: should be "llength list"\fR
+ % \fB::comm::comm send \fIid\fP llength {a b c}
+ \fBwrong # args: should be "llength list"\fR
+ % \fBsend \fIname\fP llength {a b c}
+ \fBwrong # args: should be "llength list"\fR
 .CE
 .LP
 The
@@ -154,27 +155,30 @@ For instance,
 .B hook
 scripts are specific to the channel they are defined against. 
 .TP
-\fBcomm new \fIchan\fR ?\fIname value ...\fR?
+\fB::comm::comm new \fIchan\fR ?\fIname value ...\fR?
 This creates a new channel and Tcl command with the given channel name.
 This new command controls the new channel and takes all the same
 arguments as
-.BR comm .
+.BR ::comm::comm .
 Any remaining arguments are passed to the
 .B config
 method.
 .TP
-\fBcomm channels\fR
+\fB::comm::comm channels\fR
 This lists all the channels allocated in this Tcl interpreter.
 .LP
 The default configuration parameters for a new channel are:
+.PP
 .CS
 .B "-port 0 -local 1 -listen 0"
 .CE
+.PP
 The default channel
-.B comm
+.B ::comm::comm
 is created with:
+.PP
 .CS
-.B "comm new comm -port 0 -local 1 -listen 1"
+.B "::comm::comm new ::comm::comm -port 0 -local 1 -listen 1"
 .CE
 '\"
 '\"
@@ -187,11 +191,11 @@ method acts similar to
 .B fconfigure
 in that it sets or queries configuration variables associated with a channel.
 .RS
-\fBcomm config
+\fB::comm::comm config
 .br
-\fBcomm config \fIname\fR
+\fB::comm::comm config \fIname\fR
 .br
-\fBcomm config ?\fIname value ...\fR?
+\fB::comm::comm config ?\fIname value ...\fR?
 .RE
 When given no arguments,
 .B config
@@ -225,7 +229,7 @@ An automatically assigned channel
 .I id
 will change when this happens.
 Recycling the socket is done by invoking
-.BR "comm abort" ,
+.BR "::comm::comm abort" ,
 which causes all active sends to terminate.
 '\"
 '\"
@@ -291,30 +295,30 @@ plain hostname or an IP address).
 .PP
 These methods give control over closing connections:
 .TP
-\fBcomm shutdown \fIid\fR 
+\fB::comm::comm shutdown \fIid\fR 
 This closes the connection to
 .IR id ,
 aborting all outstanding commands in progress.  Note that nothing
 prevents the connection from being immediately reopened by another
 incoming or outgoing command.
 .TP
-\fBcomm abort\fR
+\fB::comm::comm abort\fR
 This invokes shutdown on all open connections in this comm channel.
 .TP
-\fBcomm destroy\fR
+\fB::comm::comm destroy\fR
 This aborts all connections and then destroys the this comm channel itself,
 including closing the listening socket.
 Special code allows the default
-.B comm
+.B ::comm::comm
 channel to be closed
 such that the
-.B comm
+.B ::comm::comm
 command it is not destroyed.
 Doing so closes the listening socket, preventing both
 incoming and outgoing commands on the channel.
 This sequence reinitializes the default channel:
 .CS
-.B "comm destroy; comm new comm"
+.B "::comm::comm destroy; ::comm::comm new ::comm::comm"
 .CE
 .PP
 When a remote connection is lost (because the remote exited or called
@@ -333,7 +337,7 @@ callback below.
 .PP
 This is a mechanism for setting hooks for particular events:
 .CS
-\fBcomm hook \fIevent\fR ?\fB+\fR??\fIscript\fR? 
+ \fB::comm::comm hook \fIevent\fR ?\fB+\fR??\fIscript\fR? 
 .CE
 .LP
 This uses a syntax similar to Tk's
@@ -386,16 +390,15 @@ will abort the connection attempt with the error.
 Example:
 .sp
 .CS
-% comm hook connecting {
-    if [string match {*[02468]} $id] {
-        error "Can't connect to even ids" 
-    }
-}
-% comm send 10000 puts ok
-Connect to remote failed: Can't connect to even ids
-% 
+ % ::comm::comm hook connecting {
+     if [string match {*[02468]} $id] {
+         error "Can't connect to even ids" 
+     }
+ }
+ % ::comm::comm send 10000 puts ok
+ Connect to remote failed: Can't connect to even ids
+ % 
 .CE
-
 .\"
 .TP
 .B connected
@@ -437,13 +440,12 @@ but that the remote
 is still unknown.  Example:
 .sp
 .CS
-comm hook incoming {
-    if [string match 127.0.0.1 $addr] {
-        error "I don't talk to myself"
-    }
-}
+ ::comm::comm hook incoming {
+     if [string match 127.0.0.1 $addr] {
+         error "I don't talk to myself"
+     }
+ }
 .CE
-
 .\"
 .TP
 \fBeval\fP
@@ -495,56 +497,67 @@ and
 Examples:
 .RS
 1. augmenting a command
+.PP
 .CS
-% comm send [comm self] pid
-5013
-% comm hook eval {puts "going to execute $buffer"}
-% comm send [comm self] pid
-going to execute pid
-5013
+ % ::comm::comm send [::comm::comm self] pid
+ 5013
+ % ::comm::comm hook eval {puts "going to execute $buffer"}
+ % ::comm::comm send [::comm::comm self] pid
+ going to execute pid
+ 5013
 .CE
+.PP
 2. short circuting a command
+.PP
 .CS
-% comm hook eval {puts "would have executed $buffer"; return 0}
-% comm send [comm self] pid
-would have executed pid
-0
+ % ::comm::comm hook eval {puts "would have executed $buffer"; return 0}
+ % ::comm::comm send [::comm::comm self] pid
+ would have executed pid
+ 0
 .CE
+.PP
 3. Replacing double eval semantics
+.PP
 .CS
-% comm send [comm self] llength {a b c}
-wrong # args: should be "llength list"
-% comm hook eval {return [uplevel #0 $buffer]}
-return [uplevel #0 $buffer]
-% comm send [comm self] llength {a b c}
-3
+ % ::comm::comm send [::comm::comm self] llength {a b c}
+ wrong # args: should be "llength list"
+ % ::comm::comm hook eval {return [uplevel #0 $buffer]}
+ return [uplevel #0 $buffer]
+ % ::comm::comm send [::comm::comm self] llength {a b c}
+ 3
 .CE
+.PP
 4. Using a slave interpreter
+.PP
 .CS
-% interp create foo
-% comm hook eval {return [foo eval $buffer]}
-% comm send [comm self] set myvar 123
-123
-% set myvar
-can't read "myvar": no such variable
-% foo eval set myvar
-123
+ % interp create foo
+ % ::comm::comm hook eval {return [foo eval $buffer]}
+ % ::comm::comm send [::comm::comm self] set myvar 123
+ 123
+ % set myvar
+ can't read "myvar": no such variable
+ % foo eval set myvar
+ 123
 .CE
+.PP
 5. Using a slave interpreter (double eval)
+.PP
 .CS
-% comm hook eval {return [eval foo eval $buffer]}
+ % ::comm::comm hook eval {return [eval foo eval $buffer]}
 .CE
+.PP
 6. Subverting the script to execute
+.PP
 .CS
-% comm hook eval {
-    switch -- $buffer {
-        a {return A-OK} b {return B-OK} default {error "$buffer is a no-no"}
-    }
-}
-% comm send [comm self] pid
-pid is a no-no
-% comm send [comm self] a
-A-OK
+ % ::comm::comm hook eval {
+     switch -- $buffer {
+         a {return A-OK} b {return B-OK} default {error "$buffer is a no-no"}
+     }
+ }
+ % ::comm::comm send [::comm::comm self] pid
+ pid is a no-no
+ % ::comm::comm send [::comm::comm self] a
+ A-OK
 .CE
 .RE
 
@@ -564,10 +577,11 @@ The reply
 is in one of the following forms
 .RS
 .CS
-return \fIresult\fP
-return -code \fIcode\fP \fIresult\fP
-return -code \fIcode\fP -errorinfo \fIinfo\fP -errorcode \fIecode\fP \fImsg\fP
+ return \fIresult\fP
+ return -code \fIcode\fP \fIresult\fP
+ return -code \fIcode\fP -errorinfo \fIinfo\fP -errorcode \fIecode\fP \fImsg\fP
 .CE
+.PP
 For safety reasons, this is decomposed.  The return result
 is in 
 .IR ret ,
@@ -577,6 +591,7 @@ and the return switches are in the return array:
 .I return(-errorinfo)
 .I return(-errordcode)
 .CE
+.PP
 Any of these may be the empty string.
 Modifying
 these four variables can change the return value, whereas
@@ -599,19 +614,19 @@ is an explanatory string indicating why the connection was lost.
 Example:
 .sp
 .CS
-comm hook lost {
-    global myvar
-    if {$myvar(id) == $id} {
-        myfunc
-        return
-    }
-}
+ ::comm::comm hook lost {
+     global myvar
+     if {$myvar(id) == $id} {
+         myfunc
+         return
+     }
+ }
 .CE
 .SH UNSUPPORTED
 .PP
 These interfaces may change or go away in subsequence releases.
 .TP
-\fBcomm remoteid\fR 
+\fB::comm::comm remoteid\fR 
 Returns the
 .I id
 of the sender of the last remote command executed on this channel.
@@ -619,23 +634,23 @@ If used by a proc being invoked remotely, it
 must be called before any events are processed.
 Otherwise, another command may get invoked and change the value.
 .TP
-.B "comm_send"
+.B "::comm::comm_send"
 Invoking this procedure will substitute the Tk
 .B send
 and
 .B "winfo interps"
 commands with these equivalents that use
-.BR comm .
+.BR ::comm::comm .
 .sp
 .CS
-proc send {args} {
-    eval comm send $args
-}
-rename winfo tk_winfo
-proc winfo {cmd args} {
-    if ![string match in* $cmd] {return [eval [list tk_winfo $cmd] $args]}
-    return [comm interps]
-}
+ proc send {args} {
+     eval ::comm::comm send $args
+ }
+ rename winfo tk_winfo
+ proc winfo {cmd args} {
+     if ![string match in* $cmd] {return [eval [list tk_winfo $cmd] $args]}
+     return [::comm::comm interps]
+ }
 .CE
 '\"
 '\"
@@ -662,7 +677,7 @@ In contrast,
 uses the
 .B vwait
 command as a semaphore to indicate the return message has arrived.
-The difference is that a synchornous
+The difference is that a synchronous
 .B send
 will block the application and prevent all events
 (including window related ones) from being processed,
@@ -681,7 +696,7 @@ to block and wait for an event to occur.
 At the cost of multiple channel support,
 .B comm
 could be changed to do blocking I/O on the socket,
-givng send-like blocking semantics.
+giving send-like blocking semantics.
 However, multiple channel support is a very useful feature of comm
 that it is deemed too important to lose.
 The remaining approaches involve a new loadable module written in C
@@ -715,14 +730,19 @@ Minor bug fixes and changes will only affect the minor version.
 To load
 .B comm
 this command is usually used:
+.PP
 .CS
-\fBpackage require Comm 3\fR
+ \fBpackage require comm 3\fR
 .CE
+.PP
 Note that requiring no version (or a specific version) can also be done.
 .LP
 The revision history of
 .B comm
 includes these releases:
+
+.IP "3.7" 5
+Moved into tcllib and placed in a proper namespace.
 
 .IP "3.6" 5
 A bug in the looking up of the remoteid for a executed command
@@ -769,10 +789,11 @@ This means that these commands return exactly as they would with
 .BR send :
 .RS
 .CS
-comm send \fIid\fP break
-catch {comm send \fIid\fP break}
-comm send \fIid\fP expr 1 / 0
+ comm send \fIid\fP break
+ catch {comm send \fIid\fP break}
+ comm send \fIid\fP expr 1 / 0
 .CE
+.PP
 Added a new hook for reply messages.
 Reworked method invocation to avoid the use of comm:* procedures;
 this also cut the invocation time down by 40%.
@@ -885,7 +906,7 @@ without any licensing fee or royalty.
 .SH BUGS
 .IP \(bu
 If there is a failure initializing a channel created with
-.BR "comm new" ,
+.BR "::comm::comm new" ,
 then the channel should be destroyed.
 Currently, it is left in an inconsistent state.
 .IP \(bu
@@ -925,6 +946,7 @@ triggered with a command such as this:
 .CS
 .B "comm send $other exit"
 .CE
+.PP
 Always make sure the channel is quiescent before closing/exiting or
 use at least Tcl7.6 under Windows.
 .LP
@@ -946,11 +968,11 @@ Michael Doyle <miked@eolas.com> has code that implements the Tcl-DP RPC
 interface using standard Tcl sockets, much like
 .BR comm .
 .PP
-Andreas Kupries <a.kupries@westend.com> uses
+Andreas Kupries <andreas_kupries@users.sourceforge.net> uses
 .B comm
 and has built a simple nameserver as part of his Pool library.
 See
-.IR http://www.westend.com/~kupries/doc/pool/index.htm .
+.IR http://www.purl.org/net/akupries/soft/pool/index.htm .
 '\"
 '\"
 '\"
