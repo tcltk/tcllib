@@ -77,4 +77,9 @@ foreach {m pkg doc exa} {
     set guide($m,exa) $exa
 }
 
+# And a list of applications.
+set     apps [list \
+	dtplite \
+]
+
 # --------------------------------------------------------------

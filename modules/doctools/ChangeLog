@@ -1,3 +1,31 @@
+2004-07-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* apps/dtplite.man: New application for doctools processing.
+	* apps/dtplite:     Supercedes 'mpexpand'. Will be installed.
+
+	* mpformats/idx.html: Added engine parameter 'kwid', allowing the
+	  external definition of anchor names for keywords instead of
+	  having them generated automatically. Required for persistence
+	  when extending an existing index.
+
+	* mpformats/fmt.html: Added eols to the table of contents for
+	  better readability of the generated HTML.
+
+	* mpformats/toc.nroff: Fixed bad markup in genration of
+	* mpformats/idx.nroff: tocs and indices. Internal markers
+	  were not stripped out.
+
+	* mpformats/toc.wiki:
+	* mpformats/toc.tmml:
+	* mpformats/toc.text:
+	* mpformats/toc.nroff:
+	* mpformats/toc.html:
+	* checker_toc.tcl: Extended 'division_start' formatting command
+	* doctoc_fmt.man: with an optional second argument, a symbolic
+	  file reference. Create a link to this file from the division
+	  label, if supported by the format. Where not the second argument
+	  will be ignored.
+
 2004-07-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* docidx.man:       Fixed [Tcllib SF Bug 985601]. A number
