@@ -4,7 +4,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate pool objects (of discrete items)}]
 [require Tcl 8.2]
-[require struct [opt 1.3]]
+[require struct::pool [opt 1.2.1]]
 [description]
 [para]
 
