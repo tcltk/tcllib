@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.7 2004/08/16 18:45:43 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.8 2004/10/05 19:15:52 andreas_kupries Exp $
 
 package provide jpeg 0.1
 
@@ -184,16 +184,12 @@ proc ::jpeg::formatExif {exif} {
                     set val [format %2.1f [expr {2 * (log($val) / log(2))}]]
                 }
                 ShutterSpeedValue {
-                    set val 1/[string trimright [string trimright [format %4.2f [expr {pow(2, $val)}]] 0] .]
+                    set val [expr {pow(2, $val)}]
+                    if {abs(round($val) - $val) < 0.2} {set val [expr {round($val)}]}
+                    set val 1/[string trimright [string trimright [format %.2f $val] 0] .]
                 }
                 ExposureTime {
-                    set val 1/[string trimright [string trimright [format %5.4f [expr {1 / $val}]] 0] .]
-                }
-                MakerNote {
-                    #array set tmp $exif
-                    #if {[info exists tmp(ExifOffset)] && [info exists tmp(ExifByteOrder)] && [info exists tmp(Make)]} {
-                    #    set val [MakerNote $tmp(ExifOffset) $tmp(ExifByteOrder) $tmp(Make) $val]
-                    #}
+                    set val 1/[string trimright [string trimright [format %.4f [expr {1 / $val}]] 0] .]
                 }
             }
         }
@@ -732,8 +728,8 @@ array set ::jpeg::exif_values {
     Flash,95 "flash fired, auto mode, return light detected, red-eye reduction mode"
     Flash,   unknown
 
-    ResolutionUnit,2 inches
-    ResolutionUnit,3 centimeters
+    ResolutionUnit,2 inch
+    ResolutionUnit,3 centimeter
     ResolutionUnit,  unknown
 
     SensingMethod,1 undefined
@@ -804,8 +800,8 @@ array set ::jpeg::exif_values {
     MeteringMode,255 other
     MeteringMode,    unknown
     
-    FocalPlaneResolutionUnit,2 inches
-    FocalPlaneResolutionUnit,3 centimeters
+    FocalPlaneResolutionUnit,2 inch
+    FocalPlaneResolutionUnit,3 centimeter
     FocalPlaneResolutionUnit,  none
     
     DigitalZoomRatio,0 "not used"

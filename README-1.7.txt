@@ -85,6 +85,7 @@ doctools	doctools	1.0.2		1.1      	D, B, P, EF
 ------          -------         -----------     -----------     -------------------------------
 exif				1.1.1		1.1.2		B
 fileutil			1.6.1		1.7	   	EF, D, TS
+ftpd				1.2.1		1.2.2		B
 html				1.2.2		1.2.3		D
 htmlparse			1.0		1.1     	B, EF (empty tags)
 irc				0.4		0.5     	P, EF (logger)
@@ -134,8 +135,7 @@ Unchanged Modules/Packages
 ==========================
 
 calendar, crc (cksum, crc16, sum), control, csv, dns (resolv),
-ftp (ftp, ftp::geturl), ftpd, inifile, javascript,
-math (math::fuzzy), md4, md5, md5crypt, multiplexer,
-ncgi, nntp, profiler, report, sha1, soundex, stoop (stooop, switched),
-pop3d (pop3d::udb), uri
+ftp (ftp, ftp::geturl), inifile, javascript, math (math::fuzzy), md4,
+md5, md5crypt, multiplexer, ncgi, nntp, profiler, report, sha1,
+soundex, stoop (stooop, switched), pop3d (pop3d::udb), uri
 
