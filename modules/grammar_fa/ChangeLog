@@ -1,3 +1,10 @@
+2004-05-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* faop.man: Inserted the correct package names into the
+	* fa.man:   manpage headers.
+	* dexec.man:
+	* dacceptor.man:
+
 2004-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.man: Slight renaming of a section for better
