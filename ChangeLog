@@ -1,7 +1,9 @@
 2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* struct/graph: Applied patch #483125
+	
 	* smtpd: Example consolidation: Moved the smtpd example to
-	'examples' directory.
+	  'examples' directory.
 
 	* ftp: Implemented FR #481161.
 

@@ -1,3 +1,12 @@
+2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.test:
+	* graph.n:
+	* graph.tcl: Applied patch #483125 provided by Frank Pilhofer
+	  <fp@fpx.de>. The patch adds key/value information for the whole
+	  graph and extends the selection methods 'arcs' and 'nodes' to
+	  allow selection based on keys and their values.
+
 2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:

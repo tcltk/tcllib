@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.3 2000/06/16 20:15:32 ericm Exp $
+# RCS: @(#) $Id: graph.test,v 1.4 2001/11/19 23:32:48 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -39,7 +39,7 @@ test graph-0.3 {graph errors} {
     catch {mygraph foo} msg
     mygraph destroy
     set msg
-} "bad option \"foo\": must be arc, arcs, destroy, node, nodes, swap, or walk"
+} "bad option \"foo\": must be arc, arcs, destroy, get, node, nodes, set, swap, unset, or walk"
 
 test graph-0.4 {graph errors} {
     catch {graph set} msg
@@ -380,14 +380,14 @@ test graph-10.2 {arcs} {
     catch {mygraph arcs -foo} msg
     mygraph destroy
     set msg
-} {invalid restriction "-foo": should be -in, -out, -adj, -inner or -embedding}
+} {invalid restriction "-foo": should be -in, -out, -adj, -inner, -embedding, -key or -value}
 
 test graph-10.3 {arcs} {
     graph mygraph
     catch {mygraph arcs -in} msg
     mygraph destroy
     set msg
-} {no nodes specified: should be "mygraph arcs ?-in|-out|-adj|-inner|-embedding node node...?"}
+} {no nodes specified: should be "mygraph arcs ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"}
 
 test graph-10.4 {arcs} {
     graph mygraph
@@ -444,6 +444,32 @@ test graph-10.5 {arcs} {
 	{}			\
 	{arcA arcB arcC}	\
 	]
+
+test graph-10.6 {arcs} {
+    graph mygraph
+    mygraph node insert n0
+    mygraph node insert n1
+    mygraph arc insert n0 n1 a1
+    mygraph arc insert n0 n1 a2
+    mygraph arc set a1 -key foobar 1
+    mygraph arc set a2 -key blubber 2
+    catch {mygraph arcs -key foobar} msg
+    mygraph destroy
+    set msg
+} {a1}
+
+test graph-10.7 {arcs} {
+    graph mygraph
+    mygraph node insert n0
+    mygraph node insert n1
+    mygraph arc insert n0 n1 a1
+    mygraph arc insert n0 n1 a2
+    mygraph arc set a1 -key foobar 1
+    mygraph arc set a2 -key foobar 2
+    catch {mygraph arcs -key foobar -value 1} msg
+    mygraph destroy
+    set msg
+} {a1}
 
 # ---------------------------------------------------
 
@@ -801,14 +827,14 @@ test graph-19.2 {nodes} {
     catch {mygraph nodes -foo} msg
     mygraph destroy
     set msg
-} {invalid restriction "-foo": should be -in, -out, -adj, -inner or -embedding}
+} {invalid restriction "-foo": should be -in, -out, -adj, -inner, -embedding, -key or -value}
 
 test graph-19.3 {nodes} {
     graph mygraph
     catch {mygraph nodes -in} msg
     mygraph destroy
     set msg
-} {no nodes specified: should be "mygraph nodes ?-in|-out|-adj|-inner|-embedding node node...?"}
+} {no nodes specified: should be "mygraph nodes ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"}
 
 test graph-19.4 {nodes} {
     graph mygraph
@@ -865,6 +891,28 @@ test graph-19.5 {nodes} {
 	{} \
 	{node1 node2 node3} \
 	]
+
+test graph-19.6 {arcs} {
+    graph mygraph
+    mygraph node insert n0
+    mygraph node insert n1
+    mygraph node set n0 -key foobar 1
+    mygraph node set n1 -key blubber 2
+    catch {mygraph nodes -key foobar} msg
+    mygraph destroy
+    set msg
+} {n0}
+
+test graph-19.7 {arcs} {
+    graph mygraph
+    mygraph node insert n0
+    mygraph node insert n1
+    mygraph node set n0 -key foobar 1
+    mygraph node set n1 -key foobar 2
+    catch {mygraph nodes -key foobar -value 1} msg
+    mygraph destroy
+    set msg
+} {n0}
 
 
 # ---------------------------------------------------
