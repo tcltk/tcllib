@@ -1,6 +1,9 @@
 2004-07-11  Will Duquette  <will@wjduquette.com>
 
-	* snit.tcl	Renamed a number of internal commands, for clarity.
+	* snit.tcl	Renamed a number of internal commands, for
+	                clarity.  Refactored the standard method bodies
+			out of the type definition and into the Snit
+	                runtime using delegation.
 
 2004-07-05  Will Duquette  <will@wjduquette.com>
 
