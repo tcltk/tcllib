@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.41 2004/05/30 20:30:36 afaupell Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.42 2004/06/16 18:02:12 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -626,6 +626,7 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
 #                       audio [mpeg, wave]
 #                       gravity_wave_data_frame
 #                       link
+#			doctools, doctoc, and docidx documentation files.
 #                  
 
 proc ::fileutil::fileType {filename} {
@@ -679,6 +680,12 @@ proc ::fileutil::fileType {filename} {
 
     if { [ regexp {^\#\!\s*(\S+)} $test -> terp ] } {
         lappend type script $terp
+    } elseif {[regexp "\\\[manpage_begin " $test]} {
+	lappend type doctools
+    } elseif {[regexp "\\\[toc_begin " $test]} {
+	lappend type doctoc
+    } elseif {[regexp "\\\[index_begin " $test]} {
+	lappend type docidx
     } elseif { $binary && [ regexp {^[\x7F]ELF} $test ] } {
         lappend type executable elf
     } elseif { $binary && [string match "MZ*" $test] } {
