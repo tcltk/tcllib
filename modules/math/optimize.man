@@ -26,6 +26,7 @@ This document describes the procedures and explains their usage.
 operational.
 
 [section "PROCEDURES"]
+[para]
 This package defines the following public procedures:
 [list_begin definitions]
 
@@ -46,7 +47,6 @@ The procedure returns the "x" value for which the function is minimal.
 one argument).
 [nl]
 [arg maxerr] - Maximum relative error (defaults to 1.0e-4)
-[para]
 
 [call [cmd ::math::optimize::maximize] [arg begin] [arg end] [arg func] [arg maxerr]]
 Maximize the given (continuous) function by examining the values in the
@@ -65,7 +65,6 @@ The procedure returns the "x" value for which the function is maximal.
 one argument).
 [nl]
 [arg maxerr] - Maximum relative error (defaults to 1.0e-4)
-[para]
 
 [call [cmd ::math::optimize::solveLinearProgram] [arg constraints] [arg objective]]
 Solve a [emph "linear program"] in standard form using a straightforward
@@ -81,9 +80,9 @@ implement the linear constraints. It is expected to be a list of N lists
 of M+1 numbers each, M coefficients and the maximum value.
 [nl]
 [arg objective] - The M coefficients of the objective function
-[para]
+[list_end]
 
-[emph Notes:]
+[section NOTES]
 [para]
 Several of the above procedures take the [emph names] of procedures as
 arguments. To avoid problems with the [emph visibility] of these
@@ -110,9 +109,9 @@ procedure. For instance:
        puts [lb]minimum calcfunc $begin $end[rb]
     }
 [example_end]
-[para]
 
 [section EXAMPLES]
+[para]
 Let us take a few simple examples:
 [para]
 Determine the maximum of f(x) = x^3 exp(-3x), on the interval (0,10):
@@ -135,6 +134,7 @@ Optimise the expression 3x+2y, where:
    x + y   <= 1      (constraints specific to the problem)
    2x + 5y <= 10
 [example_end]
+[para]
 This problem can be solved as follows:
 [example_begin]
 
@@ -143,6 +143,7 @@ This problem can be solved as follows:
         { 2.0   5.0  10.0 } } \
         { 3.0   2.0 }[rb]
 [example_end]
+[para]
 Note, that a constraint like:
 [example_begin]
    x + y >= 1
@@ -151,6 +152,8 @@ can be turned into standard form using:
 [example_begin]
    -x  -y <= -1
 [example_end]
+
+[para]
 The theory of linear programming is the subject of many a text book and
 the Simplex algorithm that is implemented here is the most well-known
 method to solve this type of problems.

@@ -1,3 +1,7 @@
+2003-04-18  Joe English  <jenglish@flightlab.com
+	* optimize.man: fix minor markup errors that doctools and tmml 
+	  were complaining about. 
+
 2003-04-16  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: Added math::statistics after yesterday's commit by
