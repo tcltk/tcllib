@@ -1,3 +1,7 @@
+2004-07-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* uuid.tcl:   Added a critcl version for generating uuids on Win32.
+
 2004-07-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uuid.tcl:   Changed uuid compare to uuid equal (bug #987305)
