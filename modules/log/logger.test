@@ -5,8 +5,9 @@
 # No output means no errors were found.
 #
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
+# Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.5 2004/02/13 15:21:02 davidw Exp $
+# $Id: logger.test,v 1.6 2004/05/25 17:30:25 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -14,7 +15,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 set auto_path "[file dirname [info script]] $auto_path"
-package require logger 0.2
+package require logger 0.4
 
 test logger-1.0 {init basic} {
     set log [logger::init global]
@@ -25,6 +26,8 @@ test logger-1.0 {init basic} {
 test logger-1.1 {init sub-system} {
     set log [logger::init global::subsystem]
     ${log}::delete
+    # cleanup the leftover global log
+    ::logger::tree::global::delete
     set log
 } {::logger::tree::global::subsystem}
 
@@ -67,6 +70,14 @@ test logger-2.2 {delete + complex callback} {
     set ::results
 } {{::logger::tree::global::subsystem sock2} {::logger::tree::global sock1}}
 
+test logger-2.3 {delproc introspection} {
+    set log [logger::init global]
+    ${log}::delproc [list dellog $log sock1]
+    set cmd [${log}::delproc]
+    ${log}::delete
+    set cmd
+} {dellog ::logger::tree::global sock1}
+
 test logger-3.0 {log} {
     set log [logger::init global]
     ${log}::error "Danger Will Robinson!"
@@ -82,7 +93,7 @@ test logger-3.1 {log} {
 test logger-3.2 {log} {
     set log [logger::init global]
     ${log}::logproc info txt {
-	set ::INFO "Danger Will Robinson!"
+    set ::INFO "Danger Will Robinson!"
     }
     ${log}::info "Alert"
     ${log}::delete
@@ -93,7 +104,7 @@ test logger-3.2 {log} {
 test logger-3.4 {log} {
     set log1 [logger::init global]
     ${log1}::logproc info txt {
-	set ::INFO "LOGGED: $txt"
+    set ::INFO "LOGGED: $txt"
     }
     set log2 [logger::init global::subsystem]
     ${log1}::info boo
@@ -109,7 +120,7 @@ test logger-4.0 {disable} {
     set ::INFO {no change}
     set log [logger::init global]
     ${log}::logproc info txt {
-	set ::INFO "Danger Will Robinson!"
+    set ::INFO "Danger Will Robinson!"
     }
     ${log}::disable warn
     ${log}::info "Alert"
@@ -121,7 +132,7 @@ test logger-4.1 {disable + enable} {
     set ::INFO {no change}
     set log [logger::init global]
     ${log}::logproc info txt {
-	set ::INFO "Danger Will Robinson!"
+    set ::INFO "Danger Will Robinson!"
     }
     ${log}::disable warn
     ${log}::enable info
@@ -134,7 +145,7 @@ test logger-4.2 {disable all} {
     set ::INFO {no change}
     set log [logger::init global]
     ${log}::logproc critical txt {
-	set ::INFO "Danger Will Robinson!"
+    set ::INFO "Danger Will Robinson!"
     }
     ${log}::disable critical
     ${log}::critical "Alert"
@@ -146,7 +157,7 @@ test logger-4.3 {enable all} {
     set ::INFO {no change}
     set log [logger::init global]
     ${log}::logproc debug txt {
-	set ::INFO "Danger Will Robinson!"
+    set ::INFO "Danger Will Robinson!"
     }
     ${log}::enable debug
     ${log}::debug "Alert"
@@ -165,7 +176,7 @@ test logger-4.5 {test method inheritance} {
     set log1 [logger::init global]
     set log2 [logger::init global::child]
     ${log1}::logproc notice txt {
-	set ::INFO "Danger Will Robinson!"
+    set ::INFO "Danger Will Robinson!"
     }
     ${log2}::notice "alert"
     ${log2}::delete
@@ -178,13 +189,13 @@ test logger-5.0 {setlevel command} {
     set log1 [logger::init global]
     ${log1}::setlevel warn
     ${log1}::logproc error txt {
-	lappend ::INFO "Error Message"
+    lappend ::INFO "Error Message"
     }
     ${log1}::logproc warn txt {
-	lappend ::INFO "Warning Message"
+    lappend ::INFO "Warning Message"
     }
     ${log1}::logproc notice txt {
-	lappend ::INFO "Notice Message"
+    lappend ::INFO "Notice Message"
     }
     ${log1}::error "error"
     ${log1}::warn "warn"
@@ -194,75 +205,126 @@ test logger-5.0 {setlevel command} {
 } {{Error Message} {Warning Message}}
 
 test logger-6.0 {levels command} {
-	logger::levels 
+    logger::levels 
 } {debug info notice warn error critical}
 
 test logger-7.0 {currentloglevel} {
-	set log [logger::init global]
-	foreach lvl [logger::levels] {
-		${log}::setlevel $lvl
-		lappend result [${log}::currentloglevel]
-	}
-	${log}::delete
-	set result
+    set log [logger::init global]
+    foreach lvl [logger::levels] {
+        ${log}::setlevel $lvl
+        lappend result [${log}::currentloglevel]
+    }
+    ${log}::delete
+    set result
 } {debug info notice warn error critical}
 
 test logger-8.0 {logproc with existing proc, non existing proc} {
-	set log [logger::init global]
-	catch { ${log}::logproc warn NoSuchProc } msg
-	${log}::delete
-	set msg
+    set log [logger::init global]
+    catch { ${log}::logproc warn NoSuchProc } msg
+    ${log}::delete
+    set msg
 } {Invalid cmd 'NoSuchProc' - does not exist}
 
-test logger-8.1 {logproc with existing proc, no arguments} {
-	set log [logger::init global]
-	catch { ${log}::logproc warn } msg
-	${log}::delete
-	set msg
-} "Usage: \${log}::logproc level cmd\nor \${log}::logproc level argname body"
-
+test logger-8.1 {logproc with existing proc, introspection} {
+    set log [logger::init global]
+    catch { ${log}::logproc warn } msg
+    ${log}::delete
+    set msg
+} {::logger::tree::global::warncmd}
 
 test logger-8.2 {logproc with existing proc} {
-	set ::INFO ""
-	set log [logger::init global]
-	proc errorlogproc {txt} {
-		lappend ::INFO "Error Message: $txt"
-	}
-	set msg [info commands errorlogproc]
-	${log}::logproc error errorlogproc 
-	${log}::error "error"
-	${log}::error "second error"
-	${log}::delete 
-	rename errorlogproc ""
-	list $msg $::INFO
+    set ::INFO ""
+    set log [logger::init global]
+    proc errorlogproc {txt} {
+        lappend ::INFO "Error Message: $txt"
+    }
+    set msg [info commands errorlogproc]
+    ${log}::logproc error errorlogproc 
+    ${log}::error "error"
+    ${log}::error "second error"
+    ${log}::delete 
+    rename errorlogproc ""
+    list $msg $::INFO
 } {errorlogproc {{Error Message: error} {Error Message: second error}}}
 
 test logger-8.3 {logproc with args and body} {
-	set ::INFO ""
-	set log [logger::init global]
-	${log}::logproc error txt {lappend ::INFO "Error Message: $txt"}
-	${log}::error "error"
-	${log}::error "second error"
-	${log}::delete
-	set ::INFO
+    set ::INFO ""
+    set log [logger::init global]
+    ${log}::logproc error txt {lappend ::INFO "Error Message: $txt"}
+    ${log}::error "error"
+    ${log}::error "second error"
+    ${log}::delete
+    set ::INFO
 } {{Error Message: error} {Error Message: second error}}
 
 test logger-8.4 {logproc with existing proc, survive level switching} {
-	set ::INFO ""
-	set log [logger::init global]
-	proc errorlogproc {txt} {
-		lappend ::INFO "Error Message: $txt"
-	}
-	${log}::logproc error errorlogproc 
-	${log}::error "error"
-	${log}::setlevel critical
-	${log}::error "this should not be in the logfile"
-	${log}::setlevel notice
-	${log}::error "second error"
-	${log}::delete 
-	rename errorlogproc ""
-	set ::INFO
+    set ::INFO ""
+    set log [logger::init global]
+    proc errorlogproc {txt} {
+        lappend ::INFO "Error Message: $txt"
+    }
+    ${log}::logproc error errorlogproc 
+    ${log}::error "error"
+    ${log}::setlevel critical
+    ${log}::error "this should not be in the logfile"
+    ${log}::setlevel notice
+    ${log}::error "second error"
+    ${log}::delete 
+    rename errorlogproc ""
+    set ::INFO
 } {{Error Message: error} {Error Message: second error}}
+
+test logger-8.5 {logproc with existing proc, introspection} {
+    set ::INFO ""
+    set log [logger::init global]
+    proc errorlogproc {txt} {
+        lappend ::INFO "Error Message: $txt"
+    }
+    set msg [info commands errorlogproc]
+    ${log}::logproc error errorlogproc 
+    set cmd [${log}::logproc error]
+    ${log}::delete 
+    rename errorlogproc ""
+    list $msg $cmd
+} {errorlogproc errorlogproc}
+
+test logger-8.6 {logproc with args and body, introspection} {
+    set ::INFO ""
+    set log [logger::init global]
+    ${log}::logproc error txt {lappend ::INFO "Error Message: $txt"}
+    set cmd [${log}::logproc error]
+    ${log}::delete
+    set cmd
+} {::logger::tree::global::errorcmd}
+
+test logger-9.0 {services subcommand} {
+    set log [logger::init global]
+    set result [logger::services]
+    ${log}::delete
+    set result
+} {global}
+
+test logger-9.1 {services subcommand, no child services} {
+    set log [logger::init global]
+    set services [${log}::services]
+    ${log}::delete
+    set services
+} {}
+
+test logger-9.2 {services subcommand, children services} {
+    set log [logger::init global]
+    set child [logger::init global::child]
+    set result [list [logger::services] [${log}::services] [${child}::services]]
+    ${log}::delete
+    set result
+} [list [list global global::child] global::child {}] 
+
+test logger-10.0 {servicecmd test} {
+    set log [logger::init global]
+    set cmd [logger::servicecmd global]
+    ${log}::delete
+    list $log $cmd
+} {::logger::tree::global ::logger::tree::global}
 
 ::tcltest::cleanupTests
 return
