@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.7 2003/04/09 19:02:54 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.8 2003/04/11 20:11:26 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -62,7 +62,7 @@ namespace eval ::pop3d {
 	    "up"		\
 	    ]
 
-    variable version ; set version 1.0
+    variable version ; set version 1.0.1
     variable server  "tcllib/pop3d-$version"
 
     variable cmdMap ; array set cmdMap {
