@@ -1,3 +1,10 @@
+2004-09-04  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Bug fix: read-only options were read-only only
+	* snit.test     if they weren't set at creation time; the 
+	* README.txt    configure cache wasn't being cleared properly
+	                after creation.
+
 2004-08-28  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:     Minor tweaks to instance creation to improve

@@ -2135,7 +2135,7 @@ proc ::snit::RT.ConstructInstance {type selfns instance arglist} {
     # configure it, an error is thrown.
     foreach opt $Snit_optionInfo(local) {
         if {$Snit_optionInfo(readonly-$opt)} {
-            unset -nocomplain ${selfns}::configureCache($opt)
+            unset -nocomplain ${selfns}::Snit_configureCache($opt)
         }
     }
 

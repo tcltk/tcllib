@@ -5882,7 +5882,25 @@ test optionreadonly-1.2 {Readonly options can't be set after creation} {
             -readonly true
     }
 
-    dog fido 
+    dog fido
+
+    catch {
+        fido configure -color brown
+    } result
+
+    set result
+} {option -color can only be set at instance creation} 
+
+test optionreadonly-1.3 {Readonly options can't be set after creation} {
+    cleanup
+
+    type dog {
+        option -color \
+            -default black \
+            -readonly true
+    }
+
+    dog fido -color yellow
 
     catch {
         fido configure -color brown
