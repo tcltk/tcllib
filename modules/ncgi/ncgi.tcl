@@ -25,6 +25,7 @@
 
 # We use newer string routines
 package require Tcl 8.2
+package require fileutil ; # Required by import_file.
 
 package provide ncgi 1.2.2
 
@@ -91,7 +92,7 @@ namespace eval ::ncgi {
     namespace export reset urlStub query type decode encode
     namespace export nvlist parse input value valueList
     namespace export setValue setValueList setDefaultValue setDefaultValueList
-    namespace export empty import importAll redirect header
+    namespace export empty import importAll importFile redirect header
     namespace export parseMimeValue multipart cookie setCookie
 }
 
@@ -889,6 +890,67 @@ proc ::ncgi::multipart {type query} {
     }
     return $results
 }
+
+# ::ncgi::importFile --
+#
+#   get information about a file upload field
+#
+# Arguments:
+#   cmd         one of '-server' '-client' '-type' '-data'
+#   var         cgi variable name for the file field
+#   filename    filename to write to for -server
+# Results:
+#   -server returns the name of the file on the server: side effect
+#      is that the file gets stored on the server and the 
+#      script is responsible for deleting/moving the file
+#   -client returns the name of the file sent from the client 
+#   -type   returns the mime type of the file
+#   -data   returns the contents of the file 
+
+proc ::ncgi::import_file {cmd var {filename {}}} {
+
+    set vlist [ncgi::valueList $var]
+
+    pre - $vlist
+
+    array set fileinfo [lindex $vlist 0]
+    set contents [lindex $vlist 1]
+
+    switch -exact -- $cmd {
+	-server {
+	    ## take care not to write it out more than once
+	    global ncgi::_tmpfiles
+	    if {$filename != {}} {
+		## use supplied filename 
+		set ncgi::_tmpfiles($var) $filename
+	    } elseif {![info exists ncgi::_tmpfiles($var)]} {
+		## create a tmp file 
+		set tmpfile [::fileutil::tempfile ncgi]
+		if [catch {open $tmpfile w} h] {
+		    error "Can't open temporary file in ncgi::import_file"
+		} 
+		fconfigure $h -translation binary -encoding binary
+		puts -nonewline $h $contents 
+		close $h
+		set ncgi::_tmpfiles($var) $tmpfile
+	    }
+	    return $ncgi::_tmpfiles($var)
+	}
+	-client {
+	    return $fileinfo(filename)
+	}
+	-type {
+	    return $fileinfo(content-type)
+	}
+	-data {
+	    return $contents
+	}
+	default {
+	    error "Unknown subcommand to ncgi::import_file: $cmd"
+	}
+    }
+}
+
 
 # ::ncgi::cookie
 #

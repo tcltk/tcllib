@@ -89,6 +89,36 @@ empty, then every CGI vale is imported.  Otherwise each CGI variable
 listed in [arg args] is imported.
 
 
+[call [cmd ::ncgi::importFile] [arg cmd] [arg cginame] [opt [arg filename]]] 
+
+This provides information about an uploaded file from a form input
+field of type [const file] with name [arg cginame].  [arg cmd] can be
+one of [option -server] [option -client], [option -type] or
+[option -data].
+
+[list_begin definitions]
+
+[lst_item "[option -client] [arg cginame]"]
+
+returns the filename as sent by the client.
+
+[lst_item "[option -type] [arg cginame]"]
+
+returns the mime type of the uploaded file.
+
+[lst_item "[option -data] [arg cginame]"]
+
+returns the contents of the file.
+
+[lst_item "[option -server] [arg cginame] [arg filename]"]
+
+writes the file contents to a local temporary file (or [arg filename]
+if supplied) and returns the name of the file. The caller is
+responsible for deleting this file after use.
+
+[list_end]
+
+
 [call [cmd ::ncgi::input] [opt [arg fakeinput]] [opt [arg fakecookie]]]
 
 This reads and decodes the CGI values from the environment.  It
