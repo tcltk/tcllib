@@ -1,3 +1,8 @@
+2002-02-20  Donal K. Fellows  <fellowsd@cs.man.ac.uk>
+
+	* sha1.tcl (initK,sha1): Force 32-bit interpretation of constants
+	larger than INT_MAX on 32-bit processors, due to TIP#72.
+
 2002-02-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* Version up to 1.0.2 to differentiate development from the
