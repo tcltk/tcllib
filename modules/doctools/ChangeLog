@@ -1,3 +1,6 @@
+2004-04-22  Joe English  <jenglish@users.sourceforge.net>
+	* mpformats/fmt.xml: BUGFIX: "puts stderr" ==> "puts_stderr".
+	
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
