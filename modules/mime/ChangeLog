@@ -1,3 +1,9 @@
+2002-10-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.man: Changed -parse to -part in description of
+	  "::mime::initialize". Thanks to "Gerald W. Lester"
+	  <gerald.lester@cox.net> for finding this.
+
 2002-09-16  David N. Welton  <davidw@dedasys.com>
 
 	* smtp.man: Added example from http://mini.net/tcl/1256.
