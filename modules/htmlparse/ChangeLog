@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* htmlparse.tcl:
+	* htmlparse.man:
+	* pkgIndex.tcl:  Set version of the package to to 0.3.1.
+
 2003-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* htmlparse.test: Added htmlparse-3.4 to exercise the fix.
