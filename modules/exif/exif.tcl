@@ -45,9 +45,9 @@
 # There's probably something here I'm using without knowing it.
 package require Tcl 8.3
 
-package provide exif 1.0 ; # first release
+package provide exif 1.1 ; # first release
 
-namespace eval exif {
+namespace eval ::exif {
     namespace export analyze analyzeFile fieldnames
     variable debug 0 ; # set to 1 for puts of debug trace
     variable cameraModel ; # used internally to understand options
@@ -66,23 +66,23 @@ namespace eval exif {
     }
 }
 
-proc exif::debug {str} {
+proc ::exif::debug {str} {
     variable debug
     if {$debug} {puts $str}
 }
 
-proc exif::streq {s1 s2} {
+proc ::exif::streq {s1 s2} {
     return [string equal $s1 $s2]
 }
 
-proc exif::analyzeFile {file {thumbnail {}}} {
+proc ::exif::analyzeFile {file {thumbnail {}}} {
     set stream [open $file]
     set res [analyze $stream $thumbnail]
     close $stream
     return $res
 }
 
-proc exif::analyze {stream {thumbnail {}}} {
+proc ::exif::analyze {stream {thumbnail {}}} {
     variable jpeg_markers
     array set result {}
     fconfigure $stream -translation binary -encoding binary
@@ -129,7 +129,7 @@ proc exif::analyze {stream {thumbnail {}}} {
     return [array get result]
 }
 
-proc exif::app1 {data thumbnail} {
+proc ::exif::app1 {data thumbnail} {
     variable intel
     variable cameraModel
     array set result {}
@@ -217,7 +217,7 @@ proc exif::app1 {data thumbnail} {
 }
 
 # Extract EXIF sub IFD info
-proc exif::exifSubIFD {data curoffset} {
+proc ::exif::exifSubIFD {data curoffset} {
     debug "EXIF: offset=$curoffset"
     set numEntries [readShort $data $curoffset]
     incr curoffset 2
@@ -400,7 +400,7 @@ proc exif::exifSubIFD {data curoffset} {
 }
 
 # Canon proprietary data that I didn't feel like translating to Tcl yet.
-proc exif::makerNote {data curoffset} {
+proc ::exif::makerNote {data curoffset} {
     variable cameraModel
     debug "MakerNote: offset=$curoffset"
 
@@ -737,7 +737,7 @@ proc exif::makerNote {data curoffset} {
     return [array get result]
 }
 
-proc exif::readShort {data offset} {
+proc ::exif::readShort {data offset} {
     variable intel
     if {[string length $data] < [expr {$offset+2}]} {
         error "readShort: end of string reached"
@@ -752,7 +752,7 @@ proc exif::readShort {data offset} {
     }
 }
 
-proc exif::readLong {data offset} {
+proc ::exif::readLong {data offset} {
     variable intel
     if {[string length $data] < [expr {$offset+4}]} {
         error "readLong: end of string reached"
@@ -770,7 +770,7 @@ proc exif::readLong {data offset} {
     }
 }
 
-proc exif::readIFDEntry {data format components offset} {
+proc ::exif::readIFDEntry {data format components offset} {
     variable intel
     if {$format == 2} {
         # ASCII string
@@ -803,7 +803,7 @@ proc exif::readIFDEntry {data format components offset} {
     }
 }
 
-proc exif::compensationFraction {value} {
+proc ::exif::compensationFraction {value} {
     if {$value==0} {return 0}
     if {$value < 0} {
         set result "-"
@@ -835,7 +835,7 @@ proc exif::compensationFraction {value} {
 
 # This returns the list of all possible fieldnames
 # that analyze might return.
-proc exif::fieldnames {} {
+proc ::exif::fieldnames {} {
     variable cached_fieldnames 
     if {[info exists cached_fieldnames]} {
         return $cached_fieldnames
