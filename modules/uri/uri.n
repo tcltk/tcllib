@@ -61,12 +61,14 @@ operation is returned. For an empty \fIurl\fR the result is
 \fBuri::geturl\fR decodes the specified \fIurl\fR and then dispatches
 the request to the package appropriate for the scheme found in the
 url. The command assumes that the package to handle the given scheme
-has the same name as the scheme itself (including possible
-capitalization). It further assumes that the package provides a
-\fBgeturl\fR-command in the namespace of the same name as the package
-itself. This command is called with the given \fIurl\fR and all given
-\fIoptions\fR. Currently \fBgeturl\fR does not handle any options
-itself.
+either has the same name as the scheme itself (including possible
+capitalization) followed by \fB::geturl\fR, or, in case of this
+failing, has the same name as the scheme itself (including possible
+capitalization). It further assumes that whatever package was loaded
+provides a \fBgeturl\fR-command in the namespace of the same name as
+the package itself. This command is called with the given \fIurl\fR
+and all given \fIoptions\fR. Currently \fBgeturl\fR does not handle
+any options itself.
 .PP
 \fBNote:\fR \fBfile\fR-urls are an exception to the rule described
 above. They are handled internally.

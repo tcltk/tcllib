@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.3 2001/11/07 02:48:29 andreas_kupries Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.4 2001/11/16 23:36:59 andreas_kupries Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -14,6 +14,8 @@ ftp \- Client-side tcl implementation of the ftp protocol
 package require \fBTcl\fR
 .sp
 package require \fBftp ?2.2.1?\fR
+.sp
+package require \fBftp::geturl ?0.1?\fR ; # for ftp::geturl command
 .sp
 \fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?\fR
 .sp
@@ -55,6 +57,8 @@ package require \fBftp ?2.2.1?\fR
 .sp
 \fBftp::DisplayMsg\fR \fIhandle\fR \fImsg\fR ?\fIstate\fR?\fR
 .sp
+\fBftp::geturl\fR \fIurl\fR
+.sp
 .BE
 .SH "DESCRIPTION"
 .PP
@@ -94,6 +98,26 @@ instead all commands in the API will change their behaviour too. In
 such a case they will not return a failure code as described below but
 pass the thrown error to their caller.
 .SH "API"
+.TP
+\fBftp::geturl \fIurl\fR
+This command lives in its own package, \fBftp::geturl\fR, and can be
+used by the generic \fBuri::geturl\fR command to retrieve the contents
+of ftp urls. Internally it uses the ftp commands described below to
+fulfill the request.
+.sp
+The contents of an ftp url are defined as follows:
+.RS
+.TP
+\fBfile\fR
+The contents of the specified file itself.
+.TP
+\fBdirectory\fR
+A listing of the contents of the directory in key value notation where
+the file name is the key and its attributes the associated value.
+.TP
+\fBlink\fR
+The attributes of the link, including the path it refers to.
+.RE
 .TP
 \fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?\fR
 This command is used to start a FTP session by establishing a control
