@@ -1,5 +1,16 @@
 2003-04-15  Andreas Kupries  <andreask@activestate.com>
 
+	* skiplist.man:
+	* skiplist.tcl:
+	* skiplist.test: New files. Patch #553980 submitted by Eric Melski
+	  <ericm@users.sourceforge.net> on behalf of Keith Vetter.
+
+	* prioqueue.tcl:
+	* prioqueue.test: New files. Patch #607085 submitted by Michael
+	  Schlenker <mic42@users.sourceforge.net>.
+
+2003-04-15  Andreas Kupries  <andreask@activestate.com>
+
 	* tcllib_list.man: Changed name to struct_list.man. Allows for
 	  usage of struct outside of tcllib, not as big a coupling.
 
