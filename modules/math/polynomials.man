@@ -209,7 +209,7 @@ Return the coefficients of the polynomial (in ascending order).
 
 [list_end]
 
-[nl]
+[list_end]
 
 
 [section "REMARKS ON THE IMPLEMENTATION"]
