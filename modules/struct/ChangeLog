@@ -1,3 +1,10 @@
+2003-04-08  Andreas Kupries  <andreask@activestate.com>
+
+	* list.man:
+	* list.test:
+	* list.tcl: Added and documented commands [iota], [equal], and
+	  [repeat]. Extended the testsuite.
+
 2003-04-02  Andreas Kupries  <andreask@activestate.com>
 
 	* list.cl:
