@@ -15,8 +15,19 @@
 # version 0.1: initial implementation, january 2003
 # version 0.2: added linear and Lagrange interpolation, straightforward
 #              spatial interpolation, april 2004
+# version 0.3: added Neville algorithm.
+#
+# Copyright (c) 2004 by Arjen Markus. All rights reserved.
+# Copyright (c) 2004 by Kevin B. Kenny.  All rights reserved.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+# RCS: @(#) $Id: interpolate.tcl,v 1.3 2004/06/20 18:00:37 kennykb Exp $
+#
+#----------------------------------------------------------------------
 
-package provide math::interpolate 0.2
+package provide math::interpolate 0.3
 package require struct
 
 # ::math::interpolate --
@@ -29,6 +40,7 @@ namespace eval ::math::interpolate {
 
    namespace export interp-1d-table interp-table interp-linear \
                     interp-lagrange
+   namespace export neville
 }
 
 # defineTable --
@@ -418,6 +430,93 @@ proc ::math::interpolate::interp-spatial-params { max_search {power 2} } {
       set inv_dist_pow 2
    }
 }
+
+#----------------------------------------------------------------------
+#
+# neville --
+#
+#	Interpolate a function between tabulated points using Neville's
+#	algorithm.
+#
+# Parameters:
+#	xtable - Table of abscissae.
+#	ytable - Table of ordinates.  Must be a list of the same
+#		 length as 'xtable.'
+#	x - Abscissa for which the function value is desired.
+#
+# Results:
+#	Returns a two-element list.  The first element is the
+#	requested ordinate.  The second element is a rough estimate
+#	of the absolute error, that is, the magnitude of the first
+#	neglected term of a power series.
+#
+# Side effects:
+#	None.
+#
+#----------------------------------------------------------------------
+
+proc ::math::interpolate::neville { xtable ytable x } {
+
+    set n [llength $xtable]
+
+    # Initialization.  Set c and d to the ordinates, and set ns to the
+    # index of the nearest abscissa. Set y to the zero-order approximation
+    # of the nearest ordinate, and dif to the difference between x
+    # and the nearest tabulated abscissa.
+
+    set c [list]
+    set d [list]
+    set i 0
+    set ns 0
+    set dif [expr { abs( $x - [lindex $xtable 0] ) }]
+    set y [lindex $ytable 0]
+    foreach xi $xtable yi $ytable {
+	set dift [expr { abs ( $x - $xi ) }]
+	if { $dift < $dif } {
+	    set ns $i
+	    set y $yi
+	    set dif $dift
+	}
+	lappend c $yi
+	lappend d $yi
+	incr i
+    }
+
+    # Compute successively higher-degree approximations to the fit
+    # function by using the recurrence:
+    #   d_m[i] = ( c_{m-1}[i+1] - d{m-1}[i] ) * (x[i+m]-x) /
+    #			(x[i] - x[i+m])
+    #   c_m[i] = ( c_{m-1}[i+1] - d{m-1}[i] ) * (x[i]-x) /
+    #			(x[i] - x[i+m])
+
+    for { set m 1 } { $m < $n } { incr m } {
+	for { set i 0 } { $i < $n - $m } { set i $ip1 } {
+	    set ip1 [expr { $i + 1 }]
+	    set ipm [expr { $i + $m }]
+	    set ho [expr { [lindex $xtable $i] - $x }]
+	    set hp [expr { [lindex $xtable $ipm] - $x }]
+	    set w [expr { [lindex $c $ip1] - [lindex $d $i] }]
+	    set q [expr { $w / ( $ho - $hp ) }]
+	    lset d $i [expr { $hp * $q }]
+	    lset c $i [expr { $ho * $q }]
+	}
+
+	# Take the straighest path possible through the tableau of c
+	# and d approximations back to the tabulated value
+	if { 2 * $ns < $n - $m } {
+	    set dy [lindex $c $ns]
+	} else {
+	    incr ns -1
+	    set dy [lindex $d $ns]
+	}
+	set y [expr { $y + $dy }]
+    }
+
+    # Return the approximation and the highest-order correction term.
+
+    return [list $y [expr { abs($dy) }]]
+}
+
 #
 # Announce our presence
 #
