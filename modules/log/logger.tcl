@@ -226,7 +226,7 @@ proc ::logger::init {service} {
 		1  {
 		    set cmd [lindex $args 0]
 		    if {[llength [::info commands $cmd]]} {
-			interp alias {} ${lv}cmd {} $cmd
+			interp alias {} [namespace current]::${lv}cmd {} $cmd
 		    } else {
 			::error "Invalid cmd '$cmd' - does not exist"
 		    }
@@ -236,7 +236,7 @@ proc ::logger::init {service} {
 		    proc ${lv}cmd $arg $body
 		}
 		default {
-		    ::error "Usage: \${log} logproc level cmd\nor \${log} logproc level argname body"
+		    ::error "Usage: \${log}::logproc level cmd\nor \${log}::logproc level argname body"
 		}
 	    }
 	}
