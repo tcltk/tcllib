@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.28 2003/03/18 22:16:51 patthoyts Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.29 2003/03/31 22:42:31 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -23,7 +23,7 @@
 #			ftp::List <s> <?directory?>
 #			ftp::NList <s> <?directory?>
 #			ftp::FileSize <s> <file>
-#			ftp::ModTime <s> <from> <to>
+#			ftp::ModTime <s> <file> <?newtime?>
 #			ftp::Delete <s> <file>
 #			ftp::Rename <s> <from> <to>
 #			ftp::Put <s> <(local | -data "data" -channel chan)> <?remote?>
@@ -547,7 +547,11 @@ proc ftp::StateHandler {s {sock ""}} {
             }
         } 
         modtime {
-            PutsCtrlSock $s "MDTM $ftp(File)"
+            if {$ftp(DateTime) != ""} {
+              PutsCtrlSock $s "MDTM $ftp(DateTime) $ftp(File)"
+            } else { ;# No DateTime Specified
+              PutsCtrlSock $s "MDTM $ftp(File)"
+            }
             set ftp(State) modtime_sent
         }  
         modtime_sent {
@@ -559,7 +563,11 @@ proc ftp::StateHandler {s {sock ""}} {
 		    Command $ftp(Command) modtime $ftp(File) [ModTimePostProcess $ftp(DateTime)]
                 }
                 default {
-                    set errmsg "Error getting modification time!"
+                    if {$ftp(DateTime) != ""} {
+                      set errmsg "Error setting modification time! No server MDTM support?"
+                    } else {
+                      set errmsg "Error getting modification time!"
+                    }
                     set complete_with 0
 		    Command $ftp(Command) error $errmsg
                 }
@@ -1306,13 +1314,15 @@ proc ftp::FileSize {s {filename ""}} {
 # 
 # Arguments:
 # filename - 		specifies the remote file name
+# datetime -            optional new timestamp for file
 # 
 # Returns:
 # clock -		files date and time as a system-depentend integer
 #			value in seconds (see tcls clock command) or {} in 
 #			error cases
+# if MDTM not supported on server, returns original timestamp
 
-proc ftp::ModTime {s {filename ""}} {
+proc ftp::ModTime {s {filename ""} {datetime ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1329,7 +1339,11 @@ proc ftp::ModTime {s {filename ""}} {
     } 
 
     set ftp(File) $filename
-    set ftp(DateTime) ""
+
+    if {$datetime != ""} {
+      set datetime [clock format $datetime -format "%Y%m%d%H%M%S"]
+    }
+    set ftp(DateTime) $datetime
 	
     set ftp(State) modtime
     StateHandler $s
@@ -1340,7 +1354,6 @@ proc ftp::ModTime {s {filename ""}} {
     if {![string length $ftp(Command)]} {
 	unset ftp(File)
     }
-		
     if { ![string length $ftp(Command)] && $rc } {
         return [ModTimePostProcess $ftp(DateTime)]
     } else {
