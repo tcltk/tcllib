@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.25 2004/01/25 07:29:51 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.26 2004/02/11 17:51:09 techentin Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2.2
@@ -99,8 +99,10 @@ proc ::profiler::stats {args} {
             }
             set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
             set sigma [ expr { round(sqrt($sigma_sq)) } ]
-            set cov [ expr { (($sigma*1.0)/$mean)*100 } ]
-            set cov [ expr { round($cov*10)/10.0 } ]
+	    if { $mean != 0 } {
+		set cov [ expr { (($sigma*1.0)/$mean)*100 } ]
+		set cov [ expr { round($cov*10)/10.0 } ]
+	    }
         }
     }
     return [ list $mean $sigma $cov ]
