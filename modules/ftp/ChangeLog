@@ -1,3 +1,7 @@
+2003-07-28 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* ftp.tcl fixed bug #753770, added verbose flag check in ElapsedTime
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
