@@ -454,7 +454,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.19 2003/05/26 17:27:03 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.20 2003/07/24 22:51:25 patthoyts Exp $
 
 %define version @@@@
 %define directory /usr
@@ -519,6 +519,37 @@ rm -rf $RPM_BUILD_ROOT
     return
 }
 
+proc gd-gen-yml {} {
+    # YAML is the format used for the FreePAN archive network.
+    # http://freepan.org/
+    global tcllib_version tcllib_name distribution
+    set yml [string map \
+                 [list %V $tcllib_version %N $tcllib_name] \
+                 {dist_id: tcllib
+version: %V
+language: tcl
+description: |
+   This package is intended to be a collection of Tcl packages that provide
+   utility functions useful to a large collection of Tcl programmers.
+
+   The home web site for this code is http://tcllib.sourceforge.net/.
+   At this web site, you will find mailing lists, web forums, databases
+   for bug reports and feature requests, the CVS repository (browsable
+   on the web, or read-only accessible via CVS ), and more.
+
+categories: 
+  - Library/Utility
+  - Library/Mail
+  - Library/Cryptography
+  - Library/Math
+license: BSD
+owner_id: AndreasKupries
+wrapped_content: %N-%V/
+}]
+    set f [open [file join $distribution tcllib.yml] w]
+    puts $f $yml
+    close $f
+}
 
 proc docfiles {} {
     global distribution
@@ -530,7 +561,6 @@ proc docfiles {} {
     proc tclfiles {} [list return $res]
     return $res
 }
-
 
 proc gd-tip55 {} {
     global tcllib_version tcllib_name distribution contributors
@@ -803,6 +833,7 @@ proc __help {} {
         contributors     - Print a list of contributors to tcllib.
 	lmodules         - See above, however one module per line
 	imodules         - Return list of modules known to the installer.
+        critcl-modules   - Return a list of modules with critcl enhancements.
 
 	packages         - Return indexed packages in tcllib, plus versions,
 	                   one package per line. Extracted from the
@@ -813,6 +844,8 @@ proc __help {} {
 	                   call with current packages. Marks all new
 	                   and unchanged packages for higher attention.
 
+        critcl ?module?  - Build a critcl module [default is tcllibc].
+
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
@@ -822,6 +855,7 @@ proc __help {} {
 	/Release engineering
 	gendist  - Generate distribution from CVS snapshot
         gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
+        yml      - Generate a YAML description file.
 
 	/Documentation
 	nroff ?module...?    - Generate manpages
@@ -954,9 +988,18 @@ array set critclmodules {
     md5c    md5/md5c.tcl
 }
 
+# Build critcl modules. If no args then build the tcllibc module.
 proc __critcl {} {
-    global argv critcl critclmodules
-    set critcl [auto_execok critcl]
+    global argv critcl critclmodules tcl_platform
+    if {$tcl_platform(platform) == "windows"} {
+        set critcl [auto_execok tclkitsh]
+        if {$critcl != {}} {
+            set critcl [concat $critcl [auto_execok critcl.kit]]
+        }
+    } else {
+        set critcl [auto_execok critcl]
+    }
+
     if {$critcl != {}} {
         if {[llength $argv] == 0} {
             #foreach p [array names critclmodules] {
@@ -979,6 +1022,7 @@ proc __critcl {} {
     return
 }
 
+# Prints a list of all the modules supporting critcl enhancement.
 proc __critcl-modules {} {
     global critclmodules
     puts tcllibc
@@ -1182,6 +1226,12 @@ proc __gendist {} {
 proc __gentip55 {} {
     gd-tip55
     puts "Created DESCRIPTION.txt"
+    return
+}
+
+proc __yml {} {
+    gd-gen-yml
+    puts "Created YAML spec file \"tcllib.yml\""
     return
 }
 
