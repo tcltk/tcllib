@@ -1,10 +1,10 @@
-[manpage_begin comm n 4.1]
+[manpage_begin comm n 4.2]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003 ActiveState Corporation.}]
 [moddesc   {remote communication}]
 [titledesc {A remote communications facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.1]]
+[require comm [opt 4.2]]
 [description]
 
 [para]
@@ -659,6 +659,11 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[lst_item "4.2"]
+
+Bugfixes, and most important, switched to utf-8 as default encoding
+for full i18n without any problems.
 
 [lst_item "4.1"]
 
