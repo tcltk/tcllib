@@ -1,3 +1,8 @@
+2002-09-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.tcl: Fix to SF bug #579026: implementing file processing
+	in small chunks to reduce memory usage.
+
 2002-01-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc16.tcl, crc16.test, crc16.man: Added CRC16 package
