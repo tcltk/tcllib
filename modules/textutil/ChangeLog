@@ -1,3 +1,16 @@
+2001-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.n:
+	* expander.ehtml:
+	* expander.html:
+	* expander.tcl: Added 'textcmd' method which is called for all
+	  plain text encountered by the processor. Note: The textcmd is
+	  run through the evalcmd, i.e. it is treated as a special macro
+	  surrounding all plain text. It defaults to empty, meaning
+	  'identity'. Also moved the code handling errors in a macro into
+	  a separate function to make usage in multiple places
+	  easier. This is patch #492156.
+
 2001-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* textutil.n:
@@ -15,7 +28,7 @@
 	* expander.n:
 	* expander.ehtml:
 	* expander.html:
-	* expander_notes.txt: Applied update I got from William
+	* expander_notes.txt: Applied update on behalf of William
 	  implementing the 'evalcmd' feature, i.e. instead of using
 	  'uplevel #0' directly expander objects now have a configurable
 	  callback for the execution of macros. The default is still

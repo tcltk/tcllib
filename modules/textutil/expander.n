@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: expander.n,v 1.2 2001/12/11 05:54:21 andreas_kupries Exp $
+'\" RCS: @(#) $Id: expander.n,v 1.3 2001/12/14 04:58:18 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH expander n 1.0 Textutil "Text expansion and template processing"
@@ -178,6 +178,21 @@ use as or within a macro, or to permanently change the bracket
 definitions.  By default, the brackets are \fB[\fR and \fB]\fR, but
 any non-empty string can be used; for example, \fB<\fR and \fB>\fR or
 \fB(*\fR and \fB*)\fR or even \fBHello,\fR and \fBWorld!\fR.
+.TP
+\fIexpanderName\fR \fBtextcmd\fR ?\fInewTxtCmd\fR?
+Returns the current command for processing polain text, which defaults
+to the empty string, meaning \fIidentity\fR. If specified,
+\fInewTextCmd\fR will be saved for future use and then returned; it
+must be a Tcl command expecting one additional argument: the text to
+process. The expander object will this command for all plain text it
+encounters, giving the user of the object the ability to process all
+plain text in some standard way before writing it to the output. The
+object expects that the command returns the processed plain text.
+.sp
+\fBNote\fR that the combination of \fItextcmd plaintext\fR is run through
+the \fIevalcmd\fR for the actual evaluation. In other words, the
+\fItextcmd\fR is treated as a special macro implicitly surrounding all
+plain text in the template.
 .SH TUTORIAL
 .PP
 To begin, create an expander object:
