@@ -1,3 +1,13 @@
+2004-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: Added methods 'ancestors' and 'descendants'.
+	* tree.test:
+	* tree.tcl:
+
+	* struct_tree.man: Added a prune operation to the tree walk
+	* tree.tcl:        command. This implements the [SF Tcllib
+	* tree.test:       RFE 916160].
+
 2004-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.tcl (::struct::tree::tree, ::struct::tree::_destroy):
