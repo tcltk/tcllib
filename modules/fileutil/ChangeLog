@@ -1,7 +1,14 @@
+2004-09-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Introduced a "makeBinaryFile" command to ensure
+	  the correct generation of the example files which contain
+	  binary. Thanks to Greg Baker <gregb@ifost.org.au> for noticing
+	  the problem on his Mac OS X box and helping in debugging it.
+
 2004-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Fixed platform problems in testsuite, bad
-	characters in filenames for Windows.
+	  characters in filenames for Windows.
 
 2004-06-16  Andreas Kupries  <andreask@activestate.com>
 
