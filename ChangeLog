@@ -1,3 +1,13 @@
+2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline: Accepted patch #540313
+
+	* examples/ftp/hpupdate.tcl: Accepted patch #548221 by Larry
+	  Virden <lvirden@users.sourceforge.net>.
+	  Fixed bug #548224 (Touch).
+
+	* base64: Fixed bug #548112.
+
 2002-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools: Fixed bug #527025.

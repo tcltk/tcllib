@@ -237,7 +237,7 @@ global status
 #
 ################################################
 
-# hourglas
+# hourglass
 proc BusyCommand {args} {
 	set command $args
 	set busy {.menu .view .status}
@@ -404,7 +404,7 @@ global ftp opt
 	ShowStatus
 }
 
-# Verbindung zum file_Server trennen
+# Remove connection to file server
 proc Disconnect {} {
 global ftp
 
@@ -428,7 +428,7 @@ global ftp
 	Showselected remote
 }
 
-# Anzeige des Verbindungsstatus
+# Display connection status
 proc ShowStatus {} {
 global status
 	if {([info exists ftp(conn)]) &&
@@ -612,7 +612,7 @@ global ftp
 	BusyCommand Refresh
 }
 
-# Balkenanzeige in der Statuszeile
+# Progress bar displayed in status line
 proc ProgressBar {state {bytes 0} {filename ""}} {
 global ftp
 	set w .progress
@@ -797,11 +797,17 @@ global ftp
 }
 
 
-# update timestamp
-proc Touch {filename} {
+if {[package vcompare [info tclversion] 8.4] >= 0} {
+    proc Touch {filename} {
+	file mtime $filename [clock seconds]
+    }
+} else {
+    # update timestamp
+    proc Touch {filename} {
 	set file [open $filename w]
 	puts -nonewline $file ""
 	close $file
+    }
 }
 
 
@@ -954,24 +960,24 @@ OVERVIEW
 ---------
 
 In order to simplify the transfer of the files of my homepage to the 
-FTP server of my Internet service provider, I looked at the end of 
-1996 for an useful tool. First times Linux offered only the extension
-of the abilities of the command line utility called ftp. As fan of 
-Tcl/Tk my selection immediately fell on "expect". Very suitably
+FTP server of my Internet Service Provider, I looked at the end of 
+1996 for an useful tool. Linux offered only the 
+abilities of the ftp command line utility. As fan of 
+Tcl/Tk, my selection immediately fell on "expect",  which was very suitable
 to automate interactive processes like FTP sessions. A little bit 
-more tcl source code and hpupdate 0.1 was finished, a script for
-automatic updating of the homepage files. 
+more Tcl source code and hpupdate 0.1 was finished, a script for
+automatic updating of my homepage files. 
 
-At the beginning of 1997 I was more intensively occupied with the 
-FTP protocoll. At the same time I played with the socket command 
-of Tcl. Thus the FTP library package for Tcl7.6 was developed. 
+At the beginning of 1997, I was more intensively occupied with the 
+FTP protocol. At the same time I played with Tcl's socket command.
+Thus the FTP library package for Tcl7.6 was developed. 
 This forms the basis for hpupdate. 
 
-So far the program runs under Linux with tcl/tk8.0. I have it once 
-tested on Windows 3.11 (with Win32s) and Windows 95 and it runs 
-perfectly. Today there are no experiences with Windows NT and
-Macintosh. Perhaps somebody is found, who will test it in this 
-environment.I would like to be informed of your experiences!
+So far, the program runs under Linux with Tcl/Tk 8.0. I have once 
+tested it on Windows 3.11 (with Win32s) and Windows 95 and it runs 
+perfectly. Today I have no experiences with Windows NT and
+Macintosh. Perhaps somebody will be found who will test it in these 
+environments. I would like to be informed of your experiences!
 Thank you!
 
 	usage:		hpupdate <directoy>
@@ -985,18 +991,18 @@ set help(install) {
 INSTALLATION
 ------------
 
-The great advantage of hpupdate is the independence of its platform
+The great advantage of hpupdate is its platform independence 
 because of using Tcl/Tk.
 
-If you do not have already installed Tcl/Tk 8.0, at first you must 
-install it. Get it from the known locations and follow the 
-installation instructions. 
+If you do not have Tcl/Tk 8.0 installed already, at first you must 
+install it. Get it from the known locations such as http://tcl.sf.net/
+and follow the installation instructions. 
 
-If you do not have already installed the ftp library package, you must 
+If you have not already installed the ftp library package, you must 
 install it. Get it from my homepage and follow the 
 installation instructions. 
 
-Start up hpupdate and change the prefered options in option menu.
+Start up hpupdate and change the preferred options in option menu.
 	
 "ftp Server Name" 	- remote FTP server hostname
 "User"			- valid username
@@ -1012,7 +1018,7 @@ set help(usage) {
 USAGE
 -----
 
-Hpupdate is divided into 4 areas
+The hpupdate application is divided into 4 areas:
 
 	1.) menu 
 	2.) local file list (source)
@@ -1033,55 +1039,58 @@ closed automatically.
 
 		View / Refresh
 Reads new file data and refreshs it in the list.
+
+		Options / Preferences
+Interface to saving your login, password, ftp server, etc.
 	
 		Help / * look there 
 
 2.) local file list 
-This list contains the file names and the file size of the local
-homepage directory. When getting filename date and time-of-day 
-of the files are compared with the time stamp of the latter transfer.
-hen getting filename to the list, the date/time entry of files is read
-and compared with the timestamp of the last update. Files, of which date 
-and time are newer than the timestamp, are detected as updated and
-marked for upload. 
-It is also possible to mark/unmark the files manual per mouse click.
+This list contains the file names and sizes from the local
+homepage directory. The file name, date and time-of-day 
+of the files are compared with the time stamp of the remote files.
+When getting the filename for this list, the date/time entry of each file
+is read and compared with the timestamp of the last update.
+Files which have a date and/or time newer than the remote file's timestamp
+are detected as updated and marked for upload. 
+It is also possible to mark/unmark the files manually per mouse click.
 The capacity of all files in the directory is displayed in blue. 
-Besides of this the capacity of all marked files as well as its count
-(in parentheses) were shown.
+Besides this, the capacity of the marked files, as well as the count of files
+(in parentheses) are shown.
 
-By pressing the button "Upload" all selected files in  the local 
+By pressing the button "Upload", all selected files in  the local 
 homepage directory will be transfered to the remote FTP server.
 
 3.) remote file list 
-The files at the FTP site appeara in this list after connection with
-the FTP server. The remote directories will be compared with the local.
-Files, which are not in the local list, are detected as superfluous a
+The files at the FTP site appear in this list after connection with
+the FTP server. The remote files will be compared with the local files.
+Files which are not in the local list are detected as superfluous
 and marked for deletion.
-It is also possible to mark/unmark the files manual per mouse click.
-The number of marked files is displayd in an extra frame.
-Additionally the summary disk space is shown. 
+It is also possible to mark/unmark files manually per mouse click.
+The number of marked files is displayed in an extra frame.
+Additionally, the summary disk space is shown. 
 The capacity of all files in the directory is displayed in blue. 
-Besides of this the capacity of all marked files as well as its count
-(in parentheses) were shown.
+Besides this, the capacity of all marked files as well as the count
+(in parentheses) is shown.
 
-By pressing the button "Delete" all selected files in  the remoet homepage
+By pressing the button "Delete", all selected files in the remote homepage
 directory will be deleted.
 
-NOTE: Synchronize the scrolling of both list with checkbutton 
-"sychronize scrollbars "
+NOTE: Synchronize the scrolling of both lists by pressing the checkbutton 
+"sychronize scrollbars ".
 
 4.) status line
-The status line shows when the last update of homepage has taken place.
-This display is alway updated after every upload, that means after 
-every file transfer. Internal the file "hpupdate.ts" is provided 
-with a new timestamp. After this moment all modified local files
-are automatically detected with the next refresh and marked for upload.
+The status line shows when the last update of the remote system has taken place.
+This display is always updated after every file transfer.
+Internally, the file "hpupdate.ts" is provided with a new timestamp.
+After this moment, all modified local files are automatically detected
+with the next refresh and marked for upload.
 
 Error and status messages for the FTP connection are also displayed in
 the status line.
 
 EXTENSION:
-The green LED shows the conecction status, a lighter green means an
+The green LED shows the connection status, a lighter green means an
 established connection.
 
 			***
@@ -1091,11 +1100,11 @@ set help(about) {
   - hpupdate
   homepage update program using FTP 
 
-  Required:   tcl/tk8.0x
+  Required:   Tcl/Tk8.0x
 
   Created:    12/96 
-  Changed:    12/98 
-  Version:    2.0
+  Changed:    04/2002
+  Version:    2.1
 
   Copyright (C) 1997,1998, Steffen Traeger
         EMAIL:  Steffen.Traeger@t-online.de
