@@ -16,15 +16,15 @@
 #   set tok [http::geturl http://wiki.tcl.tk/]
 #   http::data $tok
 #
-# @(#)$Id: autoproxy.tcl,v 1.3 2004/07/19 13:40:18 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.4 2005/02/17 15:14:25 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.3 2004/07/19 13:40:18 patthoyts Exp $}
-    variable version 1.2.0
+    variable rcsid {$Id: autoproxy.tcl,v 1.4 2005/02/17 15:14:25 patthoyts Exp $}
+    variable version 1.2.1
     variable options
 
     if {! [info exists options]} {
@@ -152,7 +152,7 @@ proc ::autoproxy::init {} {
                                ProxyEnable registry item"
                     }
                 }
-                set reg(ProxyServer) [registry get $winregkey "ProxyServer"]
+                set reg(ProxyServer) [GetWin32Proxy http]
                 set reg(ProxyOverride) [registry get $winregkey "ProxyOverride"]
             }
             if {![string is bool $reg(ProxyEnable)]} {
@@ -201,6 +201,30 @@ proc ::autoproxy::init {} {
         http::config -proxyfilter [namespace origin filter]
     }
     return $httpproxy
+}
+
+# autoproxy::GetWin32Proxy -- 
+#
+#	Parse the Windows Internet Settings registry key and return the
+#	protocol proxy requested. If the same proxy is in use for all 
+#	protocols, then that will be returned. Otherwise the string is
+#	parsed. Example:
+#	 ftp=proxy:80;http=proxy:80;https=proxy:80
+#
+proc ::autoproxy::GetWin32Proxy {protocol} {
+    variable winregkey
+    set proxies [split [registry get $winregkey "ProxyServer"] ";"]
+    foreach proxy $proxies {
+        if {[string first = $proxy] == -1} {
+            return $proxy
+        } else {
+            foreach {prot host} [split $proxy =] break
+            if {[string compare $protocol $prot] == 0} {
+                return $host
+            }
+        }
+    }
+    return -code error "failed to identify an '$protocol' proxy"
 }
 
 # -------------------------------------------------------------------------
@@ -272,7 +296,7 @@ proc ::autoproxy::configure:basic {arglist} {
 
 # -------------------------------------------------------------------------
 # Description:
-#  An http package proxy filter. This attempts to work out is a request
+#  An http package proxy filter. This attempts to work out if a request
 #  should go via the configured proxy using a glob comparison against the
 #  no_proxy list items. A typical no_proxy list might be
 #   [list localhost *.my.domain.com 127.0.0.1]
