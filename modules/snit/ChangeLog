@@ -1,7 +1,7 @@
 2004-07-14  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Replaced %TYPE%::Snit_comptrace with
-        * roadmap.txt   snit::RT.ComponentTrace.
+                        snit::RT.ComponentTrace.
 
 			Replaced %TYPE%::Snit_cacheLookup with
 			snit::RT.MethodCacheLookup
@@ -12,7 +12,7 @@
 	* snit.test	Added a test to verify that a widget's hull
 			component cannot be altered once it is set.
 	
-	* roamdmap.txt  Documents the internal structure of snit.tcl.
+	* roadmap.txt   Documents the internal structure of snit.tcl.
 	
 2004-07-11  Will Duquette  <will@wjduquette.com>
 
