@@ -15,7 +15,7 @@ either tcp or udp clients.
 
 [list_begin definitions]
 
-[call [cmd ::time::gettime] [opt [arg "options"]] [arg timeserver]]
+[call [cmd ::time::gettime] [opt [arg "options"]] [arg timeserver] [opt [arg "port"]]]
 
 Get the time from [arg timeserver]. You may specify any of the options
 listed for the [cmd configure] command here. This command returns a
