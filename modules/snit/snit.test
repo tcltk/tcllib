@@ -109,6 +109,7 @@ proc cleanup {} {
     cleanupType ::foo
     cleanupType ::bar
     cleanupType ::tail
+    cleanupType ::animal
     catch {option clear}
 }
 
@@ -4367,6 +4368,98 @@ test macro-1.6 {_variable works.} {
 
     spot testit
 } {_variable works}
+
+#-----------------------------------------------------------------------
+# Component Statement
+
+test component-1.1 {component defines an instance variable.} {
+    cleanup
+    type dog {
+        component tail
+    }
+
+    dog spot
+
+    namespace tail [spot info vars tail]
+} {tail}
+
+test component-1.2 {-public exposes the component.} {
+    cleanup
+
+    type tail {
+        method wag {} {
+            return "Wag, wag"
+        }
+    }
+
+    type dog {
+        component tail -public mytail
+
+        constructor {} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    dog spot
+
+    spot mytail wag
+} {Wag, wag}
+
+test component-1.3 {-inherit requires a boolean value.} {
+    cleanup
+
+    catch {
+        type dog {
+            component animal -inherit foo
+        }
+    } result
+
+    set result
+} {component animal -inherit: expected boolean value, got 'foo'.}
+
+test component-1.4 {-inherit delegates unknown methods to the component.} {
+    cleanup
+
+    type animal {
+        method eat {} {
+            return "Eat, eat."
+        }
+    }
+
+    type dog {
+        component animal -inherit yes
+
+        constructor {} {
+            set animal [animal %AUTO%]
+        }
+    }
+
+    dog spot
+
+    spot eat
+} {Eat, eat.}
+
+test component-1.5 {-inherit delegates unknown options to the component.} {
+    cleanup
+    
+    type animal {
+        option -size medium
+    }
+
+    type dog {
+        component animal -inherit yes
+
+        constructor {} {
+            set animal [animal %AUTO%]
+        }
+    }
+
+    dog spot
+
+    spot cget -size
+} {medium}
+
+
 
 #---------------------------------------------------------------------
 # Clean up
