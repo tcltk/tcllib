@@ -1,9 +1,9 @@
-[manpage_begin md5 n 2.0.3]
+[manpage_begin md5 n 2.0.4]
 [moddesc {MD5 Message-Digest Algorithm}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5 Message-Digest Algorithm}]
 [require Tcl 8.2]
-[require md5 [opt 2.0.3]]
+[require md5 [opt 2.0.4]]
 [description]
 [para]
 
@@ -13,6 +13,16 @@ an arbitrary quantity of data and generates a 128-bit message digest
 from the input. The MD5 algorithm is related to the MD4 algorithm (2)
 but has been strengthened against certain types of potential
 attack. MD5 should be used in preference to MD4 for new applications.
+
+[para]
+
+If you have [package critcl] and have built the [package tcllibc]
+package then the implementation of the hashing function will be
+performed by compiled code. Alternatively if you have either 
+[package cryptkit] or [package Trf] then either of these can be used to
+accelerate the digest computation. If no suitable compiled package is
+available then the pure-Tcl implementation wil be used. The
+programming interface remains the same in all cases.
 
 [para]
 
@@ -73,14 +83,6 @@ bucket). You call [cmd "MD5Init"] to obtain a token and then call
 release any resources and obtain the hash value, you then call 
 [cmd "MD5Final"]. An equivalent set of functions gives you a keyed digest
 (HMAC).
-
-[para]
-
-If you have [package critcl] and have built the [package tcllibc] package
-then the implementation of the hashing function will be performed by compiled
-code. Failing that if you have the [package Trf] package then this can
-be used otherwise there is a pure-tcl equivalent. The programming
-interface remains the same in all cases.
 
 [list_begin definitions]
 

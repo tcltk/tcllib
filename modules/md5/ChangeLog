@@ -1,3 +1,10 @@
+2005-02-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* pkgIndex.tcl: Incremented version to 2.0.4
+	* md5x.tcl:     Rationalised the handling of accelerator packages and
+	* md5x.test:    added support for use of cryptkit. Updated the man
+	* md5.man:      page to note the available accelerators.
+
 2005-02-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5x.test: Added the RFC 2202 HMAC-MD5 test vectors.
