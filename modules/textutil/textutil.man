@@ -175,6 +175,23 @@ Together with [cmd ::textutil::adjust] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
 
 
+[call [cmd ::textutil::undent] [arg string]]
+
+The command computes the common prefix for all
+lines in [arg string] consisting solely out of whitespace,
+removes this from each line and returns the modified string.
+
+[nl]
+
+Lines containing only whitespace are always reduced to completely
+empty lines. They and empty lines are also ignored when computing the
+prefix to remove.
+
+[nl]
+
+Together with [cmd ::textutil::adjust] it is possible to create
+properly wrapped paragraphs with arbitrary indentations.
+
 
 [call [cmd ::textutil::splitx] [arg string] [opt [arg regexp]]]
 
@@ -325,9 +342,24 @@ The complementary operation to [cmd ::textutil::cap]. Forces the first
 character of [arg string] to lower case and returns the modified
 string.
 
+
+[call [cmd ::textutil::longestCommonPrefixList] [arg list]]
+[call [cmd ::textutil::longestCommonPrefix] [opt [arg string]...]]
+
+Computes the longest common prefix for either the [arg string]s given
+to the command, or the strings specified in the single [arg list], and
+returns it as the result of the command.
+
+[nl]
+
+If no strings were specified the result is the empty string.  If only
+one string was specified, the string itself is returned, as it is its
+own longest common prefix.
+
 [list_end]
 
 
 [see_also regexp(n) split(n) string(n)]
-[keywords string {regular expression}]
+[keywords string {regular expression} formatting TeX hyphenation]
+[keywords indenting trimming paragraph]
 [manpage_end]
