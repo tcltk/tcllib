@@ -1,9 +1,9 @@
-[manpage_begin dns n 1.0.4]
+[manpage_begin dns n 1.0.5]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {dns}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
-[require dns [opt 1.0.4]]
+[require dns [opt 1.0.5]]
 [description]
 [para]
 
@@ -32,13 +32,13 @@ command can handle DNS URIs or simple domain names as a query.
 
 [emph Note:] The package defaults to using DNS over TCP
 connections. If you wish to use UDP you will need to get the tcludp
-package and get a version that correctly handles binary
-data. This should be publicly available shortly.
+package and get a version that correctly handles binary data (>
+1.0.4).  This is available at [uri http://tcludp.sourceforge.net/]. If
+the udp package is detected, it will be used automatically.
 
 [section COMMANDS]
 
 [list_begin definitions]
-
 
 [call [cmd ::dns::resolve] [arg query] [opt [arg "options"]]]
 
@@ -58,9 +58,11 @@ qualified domain name or a DNS URI.
 [lst_item "[cmd -timeout] [arg milliseconds]"]
   Override the default timeout.
 [lst_item "[cmd -type] [arg TYPE]"]
-  Specify the type of DNS record you are interested in. Valid values are A, NS, MD
-  MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, MINFO, MX, TXT, AXFR, MAILB,
-  MAILA and *. See RFC1035 for details about the return values.
+  Specify the type of DNS record you are interested in. Valid values
+  are A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, 
+  MINFO, MX, TXT, SPF, AXFR, MAILB, MAILA and *. 
+  See RFC1035 for details about the return values.
+  See [uri http://spf.pobox.com/] about SPF.
 [lst_item "[cmd -class] [arg CLASS]"]
   Specify the class of domain name. This is usually IN but may be one of IN for 
   internet domain names, CS, CH, HS or * for any class.
@@ -107,6 +109,11 @@ that option is returned.
 [nl]
 [call [cmd ::dns::cname] [arg token]]
   Returns a list of canonical names (usually just one) matching your query.
+
+[nl]
+[call [cmd ::dns::result] [arg token]]
+  Returns a list of all the decoded answer records provided for your
+  query. This permits you to extract the result for more unusual query types.
 
 [nl]
 [call [cmd ::dns::status] [arg token]]
@@ -156,6 +163,16 @@ Using DNS URIs as queries:
 [example {
 % set tok [dns::resolve "dns:tcl.tk;type=MX"]
 % set tok [dns::resolve "dns://l.root-servers.net/www.tcl.tk"]
+}]
+
+[para]
+Reverse address lookup:
+[example {
+% set tok [dns::resolve 127.0.0.1]
+::dns::1
+% dns::name $tok
+localhost
+% dns::cleanup $tok
 }]
 
 [see_also resolver(5)]
