@@ -517,9 +517,8 @@ proc ::textutil::expander::Op_cset {name varname value} {
 
 proc ::textutil::expander::Op_cget {name varname} {
     if {![info exists [Var data-[Get level]-$varname]]} {
-        error "$name cget: $varname doesn't exist in this context"
+        error "$name cget: $varname doesn't exist in this context ([Get level])"
     }
-
     return [Get data-[Get level]-$varname]
 }
 
@@ -581,7 +580,6 @@ proc ::textutil::expander::Op_cpop {name cname} {
 
     # FRINK: nocheck
     incr [Var level] -1
-
     return $result
 }
 
@@ -626,11 +624,16 @@ proc ::textutil::expander::Op_cappend {name text} {
 #	brackets are used.
 
 proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
+
     # FIRST, push a new context onto the stack, and save the current
     # brackets.
+
     Op_cpush $name expand
     Op_cset $name lb [Get lb]
     Op_cset $name rb [Get rb]
+
+    # SF Tcllib Bug #530056.
+    set start_level [Get level] ; # remember this for check at end
 
     # NEXT, use the user's brackets, if given.
     if {[llength $brackets] == 2} {
@@ -675,7 +678,39 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
 
 	HandleError $name macro $macro $result
     }
-    
+
+    # SF Tcllib Bug #530056.
+    if {[Get level] > $start_level} {
+	# The user macros pushed additional contexts, but forgot to
+	# pop them all. The main work here is to place all the still
+	# open contexts into the error message, and to produce
+	# syntactically correct english.
+
+	set c [list]
+	set n [expr {[Get level] - $start_level}]
+	if {$n == 1} {
+	    set ctx  context
+	    set verb was
+	} else {
+	    set ctx  contexts
+	    set verb were
+	}
+	for {incr n -1} {$n >= 0} {incr n -1} {
+	    lappend c [Get name-[expr {[Get level]-$n}]]
+	}
+	return -code error \
+		"The following $ctx pushed by the macros $verb not popped: [join $c ,]."
+    } elseif {[Get level] < $start_level} {
+	set n [expr {$start_level - [Get level]}]
+	if {$n == 1} {
+	    set ctx  context
+	} else {
+	    set ctx  contexts
+	}
+	return -code error \
+		"The macros popped $n more $ctx than they had pushed."
+    }
+
     Op_lb $name [Op_cget $name lb]
     Op_rb $name [Op_cget $name rb]
 
