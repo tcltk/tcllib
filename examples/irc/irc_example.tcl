@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # irc example script, by David N. Welton <davidw@dedasys.com>
-# $Id: irc_example.tcl,v 1.8 2004/03/09 08:20:17 andreas_kupries Exp $
+# $Id: irc_example.tcl,v 1.9 2004/03/25 07:23:59 andreas_kupries Exp $
 
 # I include these so that it can find both the irc package and the
 # logger package that irc needs.
