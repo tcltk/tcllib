@@ -419,10 +419,11 @@ proc comment {text} {
     if {[Is done]} {Error nodonecmd}
     fmt_comment $text
 }
-proc sectref {name} {
+proc sectref {name {label {}}} {
     if {[IsNot body]}        {Error bodycmd}
     if {[LOpen] && ![LItem]} {Error nolisthdr}
-    fmt_sectref $name
+    if {![string length $label]} {set label $name}
+    fmt_sectref $name $label
 }
 proc syscmd {text} {
     if {[Is done]} {Error nodonecmd}

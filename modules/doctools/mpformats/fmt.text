@@ -422,7 +422,10 @@ proc fmt_cmd     {text} {return $text}
 proc fmt_emph	 {text} {em     $text }
 proc fmt_opt     {text} {return "?$text?" }
 proc fmt_comment {text} {return}
-proc fmt_sectref {text} {return "-> $text"}
+proc fmt_sectref {text {label {}}} {
+    if {![string length $label]} {set label $text}
+    return "-> $label"
+}
 proc fmt_syscmd  {text} {strong $text}
 proc fmt_method  {text} {return $text}
 proc fmt_option  {text} {return $text}

@@ -197,8 +197,8 @@ set    SectionList {}   ;# order of definition.
 #	Format section name as an XML ID.
 #
 proc c_sectionId {name} {
-    regsub -all {[^[:alnum:]]} $name {} name
-    return [string tolower $name]
+    regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
+    return $id
 }
 
 # possibleReference text gi --
@@ -206,12 +206,14 @@ proc c_sectionId {name} {
 #	if so, format as a reference;
 #	otherwise format as a $gi element.
 #
-proc c_possibleReference {text gi} {
+proc c_possibleReference {text gi {label {}}} {
     global SectionNames
-    if {[info exists SectionNames($text)]} {
-    	return "[startTag ref refid $SectionNames($text)]$text[endTag ref]"
+    if {![string length $label]} {set label $text}
+    set id [c_sectionId $text]
+    if {[info exists SectionNames($id)]} {
+    	return "[startTag ref refid $id]$label[endTag ref]"
     } else {
-    	return [wrap $text $gi]
+    	return [wrap $label $gi]
     }
 }
 
@@ -219,7 +221,7 @@ proc c_newSection {name level location} {
     global SectionList SectionNames
     set id          [c_sectionId $name]
 
-    set SectionNames($name) $id
+    set SectionNames($id) .
     set SectionList [linsert $SectionList $location $name $id $level]
     return
 }
