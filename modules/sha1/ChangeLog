@@ -1,3 +1,12 @@
+2005-02-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sha1.tcl:  Re-implemented to support hashing data in chunks
+	* sha1.test: Included tests from RFC 2202 for HMAC-SHA1.
+	* sha1.man:  This time we have kept the same API but with optional
+	extensions to use files/channels and to request the result as
+	binary. Now supports token based hashing as in md4, md5 and ripemd.
+	Incremented version to 2.0.0
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
