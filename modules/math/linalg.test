@@ -1,0 +1,122 @@
+# linalg.test --
+#    Tests for the linear algebra package
+#
+# NOTE:
+#    Comparison by numbers, not strings needed!
+
+package require tcltest 2.1
+namespace import ::tcltest::*
+
+source linalg.tcl
+namespace import ::math::linearalgebra::*
+
+set ::tcl_precision 17
+
+test dimshape-1.0 "dimension of scalar" -body {
+    dim 1
+} -result 0
+
+test dimshape-1.1 "dimension of vector" -body {
+    dim {1 2 3}
+} -result 1
+
+test dimshape-1.2 "dimension of matrix" -body {
+    dim { {1 2 3} {4 5 6} }
+} -result 2
+
+test dimshape-2.0 "shape of scalar" -body {
+    shape 1
+} -result {}
+
+test dimshape-2.1 "shape of vector" -body {
+    shape {1 2 3}
+} -result 3
+
+test dimshape-2.2 "shape of matrix" -body {
+    shape { {1 2 3} {4 5 6} }
+} -result {2 3}
+
+test norm-1.0 "one-norm - 5 components" -body {
+    norm {1 2 3 0 -1} 1
+} -result 7.0
+
+test norm-1.1 "one-norm - 2 components" -body {
+    norm {1 -1} 1
+} -result 2.0
+
+test norm-1.2 "two-norm - 5 components" -body {
+    norm {1 2 3 0 -1} 2
+} -result [expr {sqrt(15)}]
+
+test norm-1.3 "two-norm - 2 components" -body {
+    norm {1 -1} 2
+} -result [expr {sqrt(2)}]
+
+test norm-1.4 "two-norm - no underflow" -body {
+    norm {3.0e-140 -4.0e-140} 2
+} -result 5.0e-140
+
+test norm-1.5 "two-norm - no overflow" -body {
+    norm {3.0e140 -4.0e140} 2
+} -result 5.0e140
+
+test norm-1.6 "max-norm - 5 components" -body {
+    norm {1 2 3 0 -4} max
+} -result 4
+
+test norm-1.7 "max-norm - 2 components" -body {
+    norm {1 -1} max
+} -result 1
+
+test axpy-1.0 "axpy - vectors" -body {
+    axpy 2 {1 -1} {2 -2}
+} -result {4 -4}
+
+test axpy-1.1 "axpy - matrices" -body {
+    axpy 2 { {1 -1} {2 -2} {3 4} {-3 4} } \
+           { {5 -5} {5 -5} {6 6} {-6 6} }
+} -result {{7 -7} {9 -9} {12 14} {-12 14}}
+
+test add-1.0 "add - vectors" -body {
+    add {1 -1} {2 -2}
+} -result {3 -3}
+
+test add-1.1 "add - matrices" -body {
+    add { {1 -1} {2 -2} {3 4} {-3 4} } \
+        { {5 -5} {5 -5} {6 6} {-6 6} }
+} -result {{6 -6} {7 -7} {9 10} {-9 10}}
+
+test sub-1.0 "sub - vectors" -body {
+    sub {1 -1} {2 -2}
+} -result {-1 1}
+
+test sub-1.1 "sub - matrices" -body {
+    sub { {1 -1} {2 -2} {3 4} {-3 4} } \
+        { {5 -5} {5 -5} {6 6} {-6 6} }
+} -result {{-4 4} {-3 3} {-3 -2} {3 -2}}
+
+test scale-1.0 "scale - vectors" -body {
+    scale 3 {2 -2}
+} -result {6 -6}
+
+test scale-1.1 "scale - matrices" -body {
+    scale 3 { {5 -5} {5 -5} {6 6} {-6 6} }
+} -result {{15 -15} {15 -15} {18 18} {-18 18}}
+
+test make-1.0 "mkVector - create a null vector" -body {
+    mkVector 3
+} -result {0.0 0.0 0.0}
+
+test make-1.1 "mkVector - create a vector with values 1" -body {
+    mkVector 3 1.0
+} -result {1.0 1.0 1.0}
+
+test make-2.0 "mkMatrix - create a matrix with 3 rows, 2 columns" -body {
+    mkMatrix 3 2 2.0
+} -result {{2.0 2.0} {2.0 2.0} {2.0 2.0}}
+
+test make-2.1 "mkMatrix - create a matrix with 2 rows, 3 columns" -body {
+    mkMatrix 2 3 1.0
+} -result {{1.0 1.0 1.0} {1.0 1.0 1.0}}
+
+::tcltest::cleanupTests
