@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.16 2002/07/08 23:25:51 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.17 2002/08/08 16:49:59 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -1266,7 +1266,7 @@ test tree-27.4 {lappend with too many args gives error} {
     catch {mytree lappend node0 foo bar baz boo} msg
     mytree destroy
     set msg
-} "wrong # args: should be \"mytree set node0 ?-key key? value\""
+} "wrong # args: should be \"mytree lappend node0 ?-key key? value\""
 test tree-27.5 {lappend with bad args} {
     tree mytree
     mytree insert root end node0
