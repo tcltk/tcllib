@@ -861,6 +861,77 @@ proc checkmod {} {
     return 1
 }
 
+# -------------------------------------------------------------------------
+# Critcl stuff
+# -------------------------------------------------------------------------
+
+array set critclmodules {
+    tcllibc {}
+    base64c {base64/base64c.tcl base64/uuencode.tcl base64/yencode.tcl}
+    crcc    {crc/crcc.tcl crc/sum.tcl crc/crc32.tcl}
+    md4c    md4/md4c.tcl
+    md5c    md5/md5c.tcl
+}
+
+proc __critcl {} {
+    global argv critcl critclmodules
+    set critcl [auto_execok critcl]
+    if {$critcl != {}} {
+        if {[llength $argv] == 0} {
+            #foreach p [array names critclmodules] {
+            #    critcl_module $p
+            #}
+            critcl_module tcllibc
+        } else {
+            foreach m $argv {
+                if {[info exists critclmodules($m)]} {
+                    critcl_module $m
+                } else {
+                    puts "warning: $m is not a critcl module"
+                }
+            }
+        }
+    } else {
+        puts "error: cannot find a critcl to run."
+        return 1
+    }
+    return
+}
+
+proc __critcl-modules {} {
+    global critclmodules
+    puts tcllibc
+    foreach m [array names critclmodules] {
+        puts $m
+    }
+    return
+}
+
+proc critcl_module {pkg} {
+    global critcl distribution critclmodules
+    if {$pkg == "tcllibc"} {
+        set files [file join $distribution modules tcllibc.tcl]
+        foreach m [array names critclmodules] {
+            foreach f $critclmodules($m) {
+                lappend files [file join $distribution modules $f]
+            }
+        }
+    } else {
+        foreach f $critclmodules($pkg) {
+            lappend files [file join $distribution modules $f]
+        }
+    }
+    set target [file join $distribution modules]
+    catch {
+        puts "$critcl -force -libdir [list $target] -pkg [list $pkg] $files"
+        eval exec $critcl -force -libdir [list $target] -pkg [list $pkg] $files 
+    } r
+    puts $r
+    return
+}
+
+# -------------------------------------------------------------------------
+
 proc __validate {} {
     global argv
     if {[llength $argv] == 0} {
