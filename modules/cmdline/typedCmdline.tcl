@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: typedCmdline.tcl,v 1.4 2001/07/10 20:39:46 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.tcl,v 1.5 2002/08/31 06:27:47 andreas_kupries Exp $
 
 namespace eval cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -344,8 +344,8 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
     set argc [llength $argv]
     while {[set err [cmdline::typedGetopt argv $opts opt arg]]} {
         if {$err == 1} {
-            if {[info exist result($opt)]
-                    && [info exist multi($opt)]} {
+            if {[info exists result($opt)]
+                    && [info exists multi($opt)]} {
                 # Toggle boolean options or append new arguments
 
                 if {$arg == ""} {
@@ -358,15 +358,15 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
             }
         } elseif {($err == -1) || ($err == -3)} {
             error [cmdline::typedUsage $optlist $usage]
-        } elseif {$err == -2 && ![info exist defaults($opt)]} {
+        } elseif {$err == -2 && ![info exists defaults($opt)]} {
             error [cmdline::typedUsage $optlist $usage]
         }
     }
-    if {[info exist result(?)] || [info exists result(help)]} {
+    if {[info exists result(?)] || [info exists result(help)]} {
         error [cmdline::typedUsage $optlist $usage]
     }
     foreach {opt dflt} [array get defaults] {
-        if {![info exist result($opt)]} {
+        if {![info exists result($opt)]} {
             set result($opt) $dflt
         }
     }
