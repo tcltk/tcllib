@@ -26,6 +26,7 @@ math		math::complexnumbers    1.0		Complex number arithmetics
 		math::polynomials       1.0		Polynomial arithmetics
 		math::rationalfunctions 1.0		Arithmetics on rationals over polynomials
 		math::special           0.1		Bessel functions, Elliptics, ...
+		math::fourier		1.0		Fourier Transform
 ------          -------                 -----------     -------------------------------
 png                                     0.1		PNG images, meta data manipulation
 rc4                                     1.0.0		RC4 stream cipher
@@ -94,6 +95,7 @@ log		log		1.1.1		1.2		D, EF
 math		- calculus      0.5.1		0.6     	EF (regula falsi)
 		- optimize      0.1		0.2     	EF
 		- statistics    0.1.1		0.1.2   	P
+		- geometry	1.0.1		1.0.2		D
 ------          -------         -----------     -----------     -------------------------------
 mime		mime		1.3.6		1.4     	Sync
 		smtp		1.3.6		1.4     	D, EF (auth, sasl)
@@ -133,7 +135,7 @@ Unchanged Modules/Packages
 
 calendar, crc (cksum, crc16, sum), control, csv, dns (resolv),
 ftp (ftp, ftp::geturl), ftpd, inifile, javascript,
-math (math::fuzzy, math::geometry), md4, md5, md5crypt, multiplexer,
+math (math::fuzzy), md4, md5, md5crypt, multiplexer,
 ncgi, nntp, profiler, report, sha1, soundex, stoop (stooop, switched),
 pop3d (pop3d::udb), uri
 
