@@ -21,30 +21,17 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.15 2005/02/23 00:55:47 patthoyts Exp $
+# $Id: sha1.tcl,v 1.16 2005/02/24 03:25:50 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
-    variable version 2.0.0
-    variable rcsid {$Id: sha1.tcl,v 1.15 2005/02/23 00:55:47 patthoyts Exp $}
-    variable extn
-    array set extn {critcl 0 cryptkit 0 trf 0}
+    variable version 2.0.1
+    variable rcsid {$Id: sha1.tcl,v 1.16 2005/02/24 03:25:50 patthoyts Exp $}
+    variable accel
+    array set accel {critcl 0 cryptkit 0 trf 0}
 
     namespace export sha1 hmac SHA1Init SHA1Update SHA1Final
-
-    # Try and load a compiled extension to help.
-    if {![catch {package require tcllibc}]
-        || ![catch {package require sha1c}]} {
-        set extn(critcl) [expr {[info command ::sha1::sha1c] != {}}]
-    }
-    if {!$extn(critcl) && ![catch {package require cryptkit}]} {
-        set extn(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
-    }
-    if {!$extn(critcl) && !$extn(cryptkit) && ![catch {package require Trf}]} {
-        # We have this check because Trf's sha1 often doesn't work on Win32.
-        set extn(trf) [expr {![catch {::sha1 aa} msg]}]
-    }
 
     variable uid
     if {![info exists uid]} {
@@ -60,23 +47,23 @@ namespace eval ::sha1 {
 #   cleaned up when we call SHA1Final
 #
 proc ::sha1::SHA1Init {} {
-    variable extn
+    variable accel
     variable uid
     set token [namespace current]::[incr uid]
-    upvar #0 $token tok
+    upvar #0 $token state
 
     # FIPS 180-1: 7 - Initialize the hash state
-    array set tok \
+    array set state \
         [list \
-             A [expr int(0x67452301)] \
-             B [expr int(0xEFCDAB89)] \
-             C [expr int(0x98BADCFE)] \
-             D [expr int(0x10325476)] \
-             E [expr int(0xC3D2E1F0)] \
+             A [expr {int(0x67452301)}] \
+             B [expr {int(0xEFCDAB89)}] \
+             C [expr {int(0x98BADCFE)}] \
+             D [expr {int(0x10325476)}] \
+             E [expr {int(0xC3D2E1F0)}] \
              n 0 i "" ]
-    if {$extn(cryptkit)} {
+    if {$accel(cryptkit)} {
         cryptkit::cryptCreateContext state(ckctx) CRYPT_UNUSED CRYPT_ALGO_SHA
-    } elseif {$extn(trf)} {
+    } elseif {$accel(trf)} {
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -89,7 +76,7 @@ proc ::sha1::SHA1Init {} {
                 -read-destination [subst $token](trfread) \
                 -write-type variable \
                 -write-destination [subst $token](trfwrite)
-            array set tok [list trfread 0 trfwrite 0 trf $s]
+            array set state [list trfread 0 trfwrite 0 trf $s]
         }
     }
     return $token
@@ -106,11 +93,10 @@ proc ::sha1::SHA1Init {} {
 #   it here in preference to the pure-Tcl implementation.
 #
 proc ::sha1::SHA1Update {token data} {
-    variable extn
-    variable $token
+    variable accel
     upvar #0 $token state
 
-    if {$extn(critcl)} {
+    if {$accel(critcl)} {
         if {[info exists state(sha1c)]} {
             set state(sha1c) [sha1c $data $state(sha1c)]
         } else {
@@ -118,7 +104,9 @@ proc ::sha1::SHA1Update {token data} {
         }
         return
     } elseif {[info exists state(ckctx)]} {
-        cryptkit::cryptEncrypt $state(ckctx) $data
+        if {[string length $data] > 0} {
+            cryptkit::cryptEncrypt $state(ckctx) $data
+        }
         return
     } elseif {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
@@ -149,8 +137,7 @@ proc ::sha1::SHA1Update {token data} {
 #    Note that the output is 160 bits represented as binary data.
 #
 proc ::sha1::SHA1Final {token} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     # Check for either of the C-compiled versions.
     if {[info exists state(sha1c)]} {
@@ -162,7 +149,11 @@ proc ::sha1::SHA1Final {token} {
         cryptkit::cryptGetAttributeString $state(ckctx) \
             CRYPT_CTXINFO_HASHVALUE r 20
         cryptkit::cryptDestroyContext $state(ckctx)
-        return $r
+        # If nothing was hashed, we get no r variable set!
+        if {[info exists r]} {
+            unset state
+            return $r
+        }
     } elseif {[info exists state(trf)]} {
         close $state(trf)
         set r $state(trfwrite)
@@ -236,6 +227,7 @@ proc ::sha1::HMACInit {K} {
     SHA1Update $tok $Ki;                 # initialize with the inner pad
     
     # preserve the Ko value for the final stage.
+    # FRINK: nocheck
     set [subst $tok](Ko) $Ko
 
     return $tok
@@ -256,8 +248,7 @@ proc ::sha1::HMACUpdate {token data} {
 #    closed and the binary representation of the hash result is returned.
 #
 proc ::sha1::HMACFinal {token} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     set tok [SHA1Init];                 # init the outer hashing function
     SHA1Update $tok $state(Ko);         # prepare with the outer pad.
@@ -271,12 +262,13 @@ proc ::sha1::HMACFinal {token} {
 #  includes an extra round and a set of constant modifiers throughout.
 #
 proc ::sha1::SHA1Transform {token msg} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     # FIPS 180-1: 7a: Process Message in 16-Word Blocks
     binary scan $msg I* blocks
-    foreach {W0 W1 W2 W3 W4 W5 W6 W7 W8 W9 W10 W11 W12 W13 W14 W15} $blocks {
+    set blockLen [llength $blocks]
+    for {set i 0} {$i < $blockLen} {incr i 16} {
+        set W [lrange $blocks $i [expr {$i+15}]]
         
         # FIPS 180-1: 7b: Expand the input into 80 words
         # For t = 16 to 79 
@@ -286,9 +278,9 @@ proc ::sha1::SHA1Transform {token msg} {
         set t14  1
         set t16 -1
         for {set t 16} {$t < 80} {incr t} {
-            set x [expr {[set W[incr t3]] ^ [set W[incr t8]] ^ \
-                             [set W[incr t14]] ^ [set W[incr t16]]}]
-            set W$t [expr {($x << 1) | (($x >> 31) & 1)}]
+            set x [expr {[lindex $W [incr t3]] ^ [lindex $W [incr t8]] ^ \
+                             [lindex $W [incr t14]] ^ [lindex $W [incr t16]]}]
+            lappend W [expr {($x << 1) | (($x >> 31) & 1)}]
         }
         
         # FIPS 180-1: 7c: Copy hash state.
@@ -307,7 +299,7 @@ proc ::sha1::SHA1Transform {token msg} {
         for {set t 0} {$t < 20} {incr t} {
             set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($D ^ ($B & ($C ^ $D))) \
-                                + $E + [set W$t] + 0x5a827999}]
+                                + $E + [lindex $W $t] + 0x5a827999}]
             set E $D
             set D $C
             set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
@@ -319,18 +311,19 @@ proc ::sha1::SHA1Transform {token msg} {
         for {} {$t < 40} {incr t} {
             set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($B ^ $C ^ $D) \
-                                + $E + [set W$t] + 0x6ed9eba1}]
+                                + $E + [lindex $W $t] + 0x6ed9eba1}]
             set E $D
             set D $C
             set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
             set B $A
             set A $TEMP
         }
+
         # Round 3: ft(B,C,D) = ((B & C) | (B & D) | (C & D)) ( 40 <= t <= 59)
         for {} {$t < 60} {incr t} {
             set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
                                 (($B & $C) | ($D & ($B | $C))) \
-                                + $E + [set W$t] + 0x8f1bbcdc}]
+                                + $E + [lindex $W $t] + 0x8f1bbcdc}]
             set E $D
             set D $C
             set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
@@ -342,7 +335,7 @@ proc ::sha1::SHA1Transform {token msg} {
         for {} {$t < 80} {incr t} {
             set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($B ^ $C ^ $D) \
-                                + $E + [set W$t] + 0xca62c1d6}]
+                                + $E + [lindex $W $t] + 0xca62c1d6}]
             set E $D
             set D $C
             set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
@@ -382,6 +375,44 @@ proc ::sha1::Hex {data} {
 
 # -------------------------------------------------------------------------
 
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::sha1::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        critcl {
+            if {![catch {package require tcllibc}]
+                || ![catch {package require sha1c}]} {
+                set r [expr {[info command ::sha1::sha1c] != {}}]
+            }
+        }
+        cryptkit {
+            if {![catch {package require cryptkit}]} {
+                set r [expr {![catch {cryptkit::cryptInit}]}]
+            }
+        }
+        trf {
+            if {![catch {package require Trf}]} {
+                set r [expr {![catch {::sha1 aa} msg]}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
+    }
+    set accel($name) $r
+}
+
+# -------------------------------------------------------------------------
+
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
@@ -397,8 +428,7 @@ proc ::sha1::Pop {varname {nth 0}} {
 # fileevent handler for chunked file hashing.
 #
 proc ::sha1::Chunk {token channel {chunksize 4096}} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     
     if {[eof $channel]} {
         fileevent $channel readable {}
@@ -452,10 +482,12 @@ proc ::sha1::sha1 {args} {
     } else {
 
         set tok [SHA1Init]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
                  $tok $opts(-channel) $opts(-chunksize)]
+        # FRINK: nocheck
         vwait [subst $tok](reading)
         set r [SHA1Final $tok]
 
@@ -523,10 +555,12 @@ proc ::sha1::hmac {args} {
     } else {
 
         set tok [HMACInit $opts(-key)]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
                  $tok $opts(-channel) $opts(-chunksize)]
+        # FRINK: nocheck
         vwait [subst $tok](reading)
         set r [HMACFinal $tok]
 
@@ -543,6 +577,11 @@ proc ::sha1::hmac {args} {
 }
 
 # -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help.
+namespace eval ::sha1 {
+    foreach e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide sha1 $::sha1::version
 

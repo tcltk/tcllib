@@ -16,29 +16,17 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.13 2005/02/23 15:19:52 patthoyts Exp $
+# $Id: md5x.tcl,v 1.14 2005/02/24 03:25:49 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
     variable version 2.0.4
-    variable rcsid {$Id: md5x.tcl,v 1.13 2005/02/23 15:19:52 patthoyts Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.14 2005/02/24 03:25:49 patthoyts Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
     namespace export md5 hmac MD5Init MD5Update MD5Final
-
-    # Try and load a compiled extension to help.
-    if {![catch {package require tcllibc}] 
-        || ![catch {package require md5c}]} {
-        set accel(critcl) [expr {[info command ::md5::md5c] != {}}]
-    }
-    if {!$accel(critcl) && ![catch {package require cryptkit}]} {
-        set accel(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
-    }
-    if {!$accel(critcl) && !$accel(cryptkit) && ![catch {package require Trf}]} {
-        set accel(trf) [expr {![catch {::md5 abc}]}]
-    }
 
     variable uid
     if {![info exists uid]} {
@@ -57,10 +45,10 @@ proc ::md5::MD5Init {} {
     variable accel
     variable uid
     set token [namespace current]::[incr uid]
-    upvar #0 $token tok
+    upvar #0 $token state
 
     # RFC1321:3.3 - Initialize MD5 state structure
-    array set tok \
+    array set state \
         [list \
              A [expr {0x67452301}] \
              B [expr {0xefcdab89}] \
@@ -82,7 +70,7 @@ proc ::md5::MD5Init {} {
                 -read-destination [subst $token](trfread) \
                 -write-type variable \
                 -write-destination [subst $token](trfwrite)
-            array set tok [list trfread 0 trfwrite 0 trf $s]
+            array set state [list trfread 0 trfwrite 0 trf $s]
         }
     }
     return $token
@@ -110,7 +98,9 @@ proc ::md5::MD5Update {token data} {
         }
         return
     } elseif {[info exists state(ckctx)]} {
-        cryptkit::cryptEncrypt $state(ckctx) $data
+        if {[string length $data] > 0} {
+            cryptkit::cryptEncrypt $state(ckctx) $data
+        }
         return
     } elseif {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
@@ -153,8 +143,11 @@ proc ::md5::MD5Final {token} {
         cryptkit::cryptGetAttributeString $state(ckctx) \
             CRYPT_CTXINFO_HASHVALUE r 16
         cryptkit::cryptDestroyContext $state(ckctx)
-        unset state
-        return $r
+        # If nothing was hashed, we get no r variable set!
+        if {[info exists r]} {
+            unset state
+            return $r
+        }
     } elseif {[info exists state(trf)]} {
         close $state(trf)
         set r $state(trfwrite)
@@ -516,6 +509,44 @@ if {[package provide Trf] != {}} {
 
 # -------------------------------------------------------------------------
 
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::md5::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        critcl {
+            if {![catch {package require tcllibc}]
+                || ![catch {package require md5c}]} {
+                set r [expr {[info command ::md5::md5c] != {}}]
+            }
+        }
+        cryptkit {
+            if {![catch {package require cryptkit}]} {
+                set r [expr {![catch {cryptkit::cryptInit}]}]
+            }
+        }
+        trf {
+            if {![catch {package require Trf}]} {
+                set r [expr {![catch {::md5 aa} msg]}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
+    }
+    set accel($name) $r
+}
+
+# -------------------------------------------------------------------------
+
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
@@ -666,6 +697,11 @@ proc ::md5::hmac {args} {
 }
 
 # -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help.
+namespace eval ::md5 {
+    foreach e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide md5 $::md5::version
 

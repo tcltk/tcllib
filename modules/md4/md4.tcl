@@ -8,27 +8,18 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.15 2005/02/23 12:48:02 patthoyts Exp $
+# $Id: md4.tcl,v 1.16 2005/02/24 03:25:49 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.3
-    variable rcsid {$Id: md4.tcl,v 1.15 2005/02/23 12:48:02 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.16 2005/02/24 03:25:49 patthoyts Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
-
-    # Try and load a compiled extension to help.
-    if {![catch {package require tcllibc}]
-        || ![catch {package require md4c}]} {
-        set accel(critcl) [expr {[info command ::md4::md4c] != {}}]
-    }
-    if {!$accel(critcl) && ![catch {package require cryptkit}]} {
-        set accel(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
-    }
 
     variable uid
     if {![info exists uid]} {
@@ -45,10 +36,10 @@ proc ::md4::MD4Init {} {
     variable uid
     variable accel
     set token [namespace current]::[incr uid]
-    upvar #0 $token tok
+    upvar #0 $token state
 
     # RFC1320:3.3 - Initialize MD4 state structure
-    array set tok \
+    array set state \
         [list \
              A [expr {0x67452301}] \
              B [expr {0xefcdab89}] \
@@ -73,7 +64,9 @@ proc ::md4::MD4Update {token data} {
         }
         return
     } elseif {[info exists state(ckctx)]} {
-        cryptkit::cryptEncrypt $state(ckctx) $data
+        if {[string length $data] > 0} {
+            cryptkit::cryptEncrypt $state(ckctx) $data
+        }
         return
     }
 
@@ -104,8 +97,11 @@ proc ::md4::MD4Final {token} {
         cryptkit::cryptGetAttributeString $state(ckctx) \
             CRYPT_CTXINFO_HASHVALUE r 16
         cryptkit::cryptDestroyContext $state(ckctx)
-        unset state
-        return $r
+        # If nothing was hashed, we get no r variable set!
+        if {[info exists r]} {
+            unset state
+            return $r
+        }
     }
 
     # RFC1320:3.1 - Padding
@@ -367,6 +363,44 @@ if {[package provide Trf] != {}} {
 
 # -------------------------------------------------------------------------
 
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::md4::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        critcl {
+            if {![catch {package require tcllibc}]
+                || ![catch {package require md4c}]} {
+                set r [expr {[info command ::md4::md4c] != {}}]
+            }
+        }
+        cryptkit {
+            if {![catch {package require cryptkit}]} {
+                set r [expr {![catch {cryptkit::cryptInit}]}]
+            }
+        }
+        #trf {
+        #    if {![catch {package require Trf}]} {
+        #        set r [expr {![catch {::md4 aa} msg]}]
+        #    }
+        #}
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
+    }
+    set accel($name) $r
+}
+
+# -------------------------------------------------------------------------
+
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
@@ -519,6 +553,11 @@ proc ::md4::hmac {args} {
 }
 
 # -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help.
+namespace eval ::md4 {
+    foreach e {critcl cryptkit} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide md4 $::md4::version
 

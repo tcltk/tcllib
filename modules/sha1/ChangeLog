@@ -1,4 +1,14 @@
+2005-02-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sha256.tcl: Speeded up the digest calculation.
+	* sha1.tcl:   Arranged to run all available implementations in the
+	* sha1.test:  tests. Speeded up the calculation.
+
 2005-02-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* pkgIndex.tcl: Provide version 1 and version 2
+	* sha1.tcl:     Rationalised the handling of accelerator extensions.
+	* sha1.test:    Tests fixed for the above.
 
 	* sha1.tcl:    Support cryptkit as a possible accellerator.
 	* sha1.test:   Enable testing of cryptkit implementation.
