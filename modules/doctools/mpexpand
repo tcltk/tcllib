@@ -489,7 +489,7 @@ proc eval_setup {} {
 	    enum
 	}
 	proc ck_example {code} {
-	    return [ck_example_begin]${code}[ck_example_end]
+	    return [ck_example_begin][ck_plain_text ${code}][ck_example_end]
 	}
 	proc ck_example_begin {} {
 	    if {[IsNot body]}        {Error bodycmd}
