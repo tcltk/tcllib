@@ -9,16 +9,16 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.2 2004/07/23 21:44:04 patthoyts Exp $
+# $Id: ip.tcl,v 1.3 2004/07/23 22:14:54 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
     variable version 1.0.0
-    variable rcsid {$Id: ip.tcl,v 1.2 2004/07/23 21:44:04 patthoyts Exp $}
+    variable rcsid {$Id: ip.tcl,v 1.3 2004/07/23 22:14:54 patthoyts Exp $}
 
     namespace export is version normalize equal type contract mask
-    catch {namespace ensemble create}
+    #catch {namespace ensemble create}
 
     variable IPv4Ranges
     if {![info exists IPv4Ranges]} {
