@@ -254,6 +254,13 @@ test typedestruction-1.3 {type namespace is deleted} {} {
     namespace exists ::dog
 } {0}
 
+test typedestruction-1.4 {type proc is destroyed on error} {} {
+    catch {type dog {
+        error "Error creating dog"
+    }} result
+
+    list [namespace exists ::dog] [info command ::dog]
+} {0 {}}
 
 #-----------------------------------------------------------------------
 # type and typemethods
@@ -368,6 +375,19 @@ test typeconstructor-1.2 {only one typeconstructor can be defined} {} {
 
     set result
 } {too many typeconstructors}
+
+test typeconstructor-1.3 {type proc is destroyed on error} {} {
+    catch {
+        type dog {
+            typeconstructor {
+                error "Error creating dog"
+            }
+        }
+    } result
+
+    list [namespace exists ::dog] [info command ::dog]
+} {0 {}}
+
 
 #-----------------------------------------------------------------------
 # type creation
