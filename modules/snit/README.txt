@@ -95,6 +95,9 @@ you.
   it can lead to errors that are hard to debug.  You can recover the
   old behavior using the "-canreplace" pragma.
 
+* In type and widget definitions, the "variable" and "typevariable"
+  statements can now initialize arrays as well as scalars.
+
 * Sundry other internal changes.
 
 Changes in V0.93

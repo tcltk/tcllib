@@ -891,7 +891,10 @@ proc ::snit::Comp.statement.typevariable {name args} {
 
     set errRoot "Error in 'typevariable $name...'"
 
-    if {[llength $args] > 1} {
+    set len [llength $args]
+    
+    if {$len > 2 ||
+        ($len == 2 && [lindex $args 0] ne "-array")} {
         error "$errRoot, too many initializers."
     }
 
@@ -901,9 +904,14 @@ proc ::snit::Comp.statement.typevariable {name args} {
 
     lappend compile(typevarnames) $name
 
-    if {[llength $args] == 1} {
+    if {$len == 1} {
         append compile(typevars) \
 		"\n\t    [list ::variable $name [lindex $args 0]]"
+    } elseif {$len == 2} {
+        append compile(typevars) \
+            "\n\t    [list ::variable $name]"
+        append compile(typevars) \
+            "\n\t    [list array set $name [lindex $args 1]]"
     } else {
         append compile(typevars) \
 		"\n\t    [list ::variable $name]"
@@ -918,8 +926,11 @@ proc ::snit::Comp.statement.variable {name args} {
     variable compile
 
     set errRoot "Error in 'variable $name...'"
+
+    set len [llength $args]
     
-    if {[llength $args] > 1} {
+    if {$len > 2 ||
+        ($len == 2 && [lindex $args 0] ne "-array")} {
         error "$errRoot, too many initializers."
     }
 
@@ -929,10 +940,13 @@ proc ::snit::Comp.statement.variable {name args} {
 
     lappend compile(varnames) $name
 
-    if {[llength $args] == 1} {
+    if {$len == 1} {
         append compile(instancevars) \
-		"\n\t    [list set $name [lindex $args 0]]"
-    }
+		"\n[list set $name [lindex $args 0]]\n"
+    } elseif {$len == 2} {
+        append compile(instancevars) \
+		"\n[list array set $name [lindex $args 1]]\n"
+    } 
 
     append  compile(ivprocdec) "\n\t    "
     Mappend compile(ivprocdec) {::variable ${selfns}::%N} %N $name 
