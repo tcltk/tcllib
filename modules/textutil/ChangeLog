@@ -102,7 +102,7 @@
         * tabify.tcl, tabify.test: fix for #521590,
           [tabify2 ""] and [untabify2 ""] raised an error.
 
-2002-02-14  Tcl Project  <andreas_kupries@users.sourceforge.net>
+2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
         * expander.tcl: Frink run.
 
