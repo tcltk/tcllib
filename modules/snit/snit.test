@@ -5961,6 +5961,31 @@ test canreplace-1.2 {Can replace commands when "-canreplace yes"} {
     dog fido
 } {::fido} 
 
+#-----------------------------------------------------------------------
+# Exotic return codes
+
+test break-1.1 {Methods can "return -code break"} {
+    cleanup
+    
+    snit::type dog {
+        method bark {} {return -code break "Breaking"}
+    }
+
+    dog spot
+
+    catch {spot bark} result
+} {3}
+
+test break-1.2 {Typemethods can "return -code break"} {
+    cleanup
+    
+    snit::type dog {
+        typemethod bark {} {return -code break "Breaking"}
+    }
+
+    catch {dog bark} result
+} {3}
+
 
 
 
