@@ -3,14 +3,14 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: da_cons.test,v 1.1 2004/04/09 21:11:50 andreas_kupries Exp $
+# RCS: @(#) $Id: da_cons.test,v 1.2 2004/07/28 08:14:11 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
 test da-cons-1.0 {construction error} {
     catch {grammar::fa::dacceptor a} msg
     set msg
-} {Error in constructor: wrong # args: should be "Snit_constructor type selfns win self fa args"}
+} {Error in constructor: wrong # args: should be "::grammar::fa::dacceptor::Snit_constructor type selfns win self fa args"}
 
 
 test da-cons-1.1 {construction error} {
