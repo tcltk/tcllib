@@ -1,5 +1,7 @@
 2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* struct (tree): Fixed SF bug #578460.
+
 	* doctools: Fixed bug #578465.
 
 2002-07-02  Don Porter <dgp@users.sourceforge.net>

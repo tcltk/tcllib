@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.16 2002/05/09 05:46:04 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.17 2002/07/08 23:25:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -620,6 +620,7 @@ proc ::struct::tree::_move {name parentNode index node args} {
 	set index [expr {[lsearch -exact $children($parentNode) $val] + 1}]
     }
 
+    # Validate all nodes to move before trying to move any.
     foreach node $args {
 	if { [string equal $node "root"] } {
 	    error "cannot move root node"
@@ -638,27 +639,21 @@ proc ::struct::tree::_move {name parentNode index node args} {
 	    }
 	    set ancestor $parent($ancestor)
 	}
-	
-	# Remove this node from its parent's children list
+    }
+
+    # Remove all nodes from their current parent's children list
+    foreach node $args {
 	set oldParent $parent($node)
 	set ind [lsearch -exact $children($oldParent) $node]
+
 	set children($oldParent) [lreplace $children($oldParent) $ind $ind]
 
 	# Update the nodes parent value
 	set parent($node) $parentNode
-
-	# If the node is moving within its parent, and its old location
-	# was before the new location, decrement the new location, so that
-	# it gets put in the right spot
-	if { [string equal $oldParent $parentNode] && $ind < $index } {
-	    incr index -1
-	}
-
-	# Add this node to its parent's children list
-	set children($parentNode) [linsert $children($parentNode) $index $node]
-	
-	incr index
     }
+
+    # Add all nodes to their new parent's children list
+    set children($parentNode) [eval linsert [list $children($parentNode)] $index $args]
 
     return
 }

@@ -152,8 +152,12 @@ associated with an [arg node]. If no [arg key] is specified, the key
 [call [arg treeName] [method move] [arg parent] [arg index] [arg node] [opt "[arg node] ..."]]
 
 Make the specified nodes children of [arg parent], inserting them into
-the parent's child list at the index given by [arg index].
-
+the parent's child list at the index given by [arg index]. Note that
+the command will take all nodes out of the tree before inserting them
+under the new parent, and that it determines the position to place
+them into after the removal, before the re-insertion. This behaviour
+is important when it comes to moving one or more nodes to a different
+index without changing their parent node.
 
 [call [arg treeName] [method next] [arg node] ]
 
