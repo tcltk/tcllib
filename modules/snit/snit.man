@@ -317,6 +317,11 @@ method name and possibly add some arguments:
 
 A method cannot be both locally defined and delegated.
 
+[nl]
+
+[const Note:] All forms of [cmd "delegate method"] can delegate to
+both instance components and typecomponents.
+
 [call [cmd delegate] [const method] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
 
 In this form of the [cmd delegate] statement, the [const using] clause
@@ -338,6 +343,11 @@ prefix.  Note that the following two statements are equivalent:
 
 Substitutions:
 [list_begin definitions]
+[lst_item [const %%]]
+
+This is replaced with a single "%".  Thus, to pass the string "%c"
+to the command as an argument, you'd write "%%c".
+
 [lst_item [const %c]]
 
 This is replaced with the named component's command.
@@ -430,8 +440,8 @@ defines the component's instance variable.
 
 If the [const -public] option is specified, then the option is made
 public by defining a [arg method] that is delegated to the component's
-command itself, e.g., specifying [const -public] is equivalent to the
-following:
+command itself, e.g., specifying [const "-public mycomp"] is
+equivalent to the following:
 
 [example {    component mycomp
     delegate method mymethod to mycomp using "%c"
@@ -447,6 +457,122 @@ equivalent to:
 [example {    component mycomp
     delegate option * to mycomp
     delegate method * to mycomp
+}]
+
+[call [cmd delegate] [const typemethod] [arg name] [const to] [arg comp] [opt "[const as] [arg target]"]]
+
+Delegates typemethod [arg name] to typecomponent [arg comp].  That is, when
+typemethod [arg name] is called on this type, the typemethod
+and its arguments will be passed to the named typecomponent's command
+instead.  That is, the following statement
+
+[example {    delegate typemethod lostdogs to pound
+}]
+
+is roughly equivalent to this explicitly defined method:
+
+[example {    typemethod lostdogs {args} {
+        uplevel $pound lostdogs $args
+    }
+}]
+
+The optional [const as] clause allows you to specify the delegated
+method name and possibly add some arguments:
+
+[example {    delegate typemethod lostdogs to pound as "get lostdogs"
+}]
+
+[nl]
+
+A typemethod cannot be both locally defined and delegated.
+
+[call [cmd delegate] [const typemethod] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
+
+In this form of the [cmd delegate] statement, the [const using] clause
+is used to specify the precise form of the command to which typemethod 
+[arg name] name is delegated.  In this form, the "to" clause is
+optional, since the chosen command might not involve any particular
+typecomponent.
+
+[nl]
+
+The value of the [const using] clause is a string which may contain 
+any or all of the following substitution codes; these codes are
+substituted with the described value to build the delegated command
+prefix.  Note that the following two statements are equivalent:
+
+[example {    delegate typemethod lostdogs to pound
+    delegate typemethod lostdogs to pound using "%c %m"
+}]
+
+Substitutions:
+[list_begin definitions]
+[lst_item [const %%]]
+
+This is replaced with a single "%".  Thus, to pass the string "%c"
+to the command as an argument, you'd write "%%c".
+
+[lst_item [const %c]]
+
+This is replaced with the named typecomponent's command.
+
+[lst_item [const %m]]
+
+This is replaced with the typemethod [arg name].
+
+[lst_item [const %t]]
+
+This is replaced with the fully qualified type name.
+
+[list_end]
+
+[call [cmd delegate] [const typemethod] [const *] [opt "[const to] [arg comp]"] \
+ [opt "[const using] [arg pattern]"] [opt "[const except] [arg exceptions]"]]
+
+The form "delegate typemethod *" delegates all unknown typemethod names to the
+specified typecomponent.  The [const except] clause can be used to
+specify a list of [arg exceptions], i.e., typemethod names that will not
+be so delegated. The [const using] clause is defined as given above.
+In this form, the statement must contain the [const to] clause, the
+[const using] clause, or both.
+
+[nl]
+
+[const Note:] By default, Snit interprets "$type foo", where "foo" is
+not a defined typemethod, as equivalent to "$type create foo", where
+"foo" is the name of a new instance of the type.  If you 
+use "delegate typemethod *", then the "create" typemethod must always
+be used explicitly.
+
+[call [cmd typecomponent] [arg comp] \
+     [opt "[const -public] [arg typemethod]"] \
+     [opt "[const -inherit] [arg flag]"]]
+
+Explicitly declares a typecomponent called [arg comp], and automatically
+defines the component's typevariable.  A typecomponent is an arbitrary
+command to which typemethods and instance methods can be delegated;
+the command's name is stored in a typevariable.
+
+[nl]
+
+If the [const -public] option is specified, then the typecomponent is made
+public by defining a [arg typemethod] that is delegated to the typecomponent's
+command itself, e.g., specifying [const "-public mytypemethod"] is
+equivalent to the following:
+
+[example {    typecomponent mycomp
+    delegate typemethod mytypemethod to mycomp using "%c"
+}]
+
+If the [const -inherit] option is specified, then [arg flag] must be a
+Boolean value; if [arg flag] is true then all unknown typemethods
+will be delegated to this typecomponent. (See the note on "delegate
+typemethod *", above.) The name [const -inherit]
+implies that this type inherits, in a sense, the behavior of
+the typecomponent. That is, [const "-inherit yes"] is equivalent to:
+
+[example {    typecomponent mycomp
+    delegate typemethod * to mycomp
 }]
 
 [call [cmd expose] [arg comp]]
@@ -1140,8 +1266,30 @@ will simply raise an error.
 [para]
 
 Option delegation is similar to method delegation, except for the
-interactions with the Tk option database; this is described in the
-next section.
+interactions with the Tk option database; this is described in 
+[sectref "The Tk Option Database"].
+
+[subsection "Typecomponents and Delegation"]
+
+The relationship between typecomponents and instance components is
+identical to that between typevariables and instance variables, and
+that between typemethods and instance methods.  Just as an instance
+component is an instance variable that holds the name of a command, so
+a typecomponent is a typevariable that holds the name of a command.
+In essence, a typecomponent is a component that's shared by every
+instance of the type.
+
+[para]
+
+Just as [cmd "delegate method"] can be used to delegate methods to
+instance components, as described in 
+[sectref "Components and Delegation"], so [cmd "delegate typemethod"]
+can be used to delegate typemethods to typecomponents.
+
+[para]
+
+Note also that as of Snit 0.94 [cmd "delegate method"] can delegate
+methods to both instance components and typecomponents.
 
 [subsection {The Tk Option Database}]
 
