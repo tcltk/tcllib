@@ -180,7 +180,6 @@ if {![catch {package require Trf 2.0}]} {
 	# RFC doesn't say whether to use little- or big-endian
 	# code says little-endian
 	binary scan $msg i* blocks
-	set len [llength $blocks]
 
 	# loop over the message taking 16 blocks at a time
 
@@ -337,14 +336,33 @@ if {![catch {package require Trf 2.0}]} {
 		# shift it 1 bit, mask off the sign, and finally shift
 		# it the rest of the way.
 		
-		expr {($x << $i) | ((($x >> 1) & 0x7fffffff) >> (31-$i))}
+		# expr {($x << $i) | ((($x >> 1) & 0x7fffffff) >> (31-$i))}
+
+		#
+		# New version, faster when inlining
+		# We replace inline (computing at compile time):
+		#   R$i -> (32 - $i)
+		#   S$i -> (0x7fffffff >> (31-$i))
+		#
+
+		expr { ($x << $i) | (($x >> R$i) & S$i)}
 	    }
 	}
 	# inline <<<
-	regsub -all {\[ *<<< +\[ *expr +({[^\}]*})\] +([0-9]+) *\]} $md5body {(([set x [expr \1]] << \2) |  ((($x >> 1) \& 0x7fffffff) >> (31-\2)))} md5body
+	regsub -all {\[ *<<< +\[ *expr +({[^\}]*})\] +([0-9]+) *\]} $md5body {(([set x [expr \1]] << \2) |  (($x >> R\2) \& S\2))} md5body
 
-	# inline the values of T
+	# now replace the R and S
 	set map {}
+	foreach i { 
+	    7 12 17 22
+	    5  9 14 20
+	    4 11 16 23
+	    6 10 15 21 
+	} {
+	    lappend map R$i [expr {32 - $i}] S$i [expr {0x7fffffff >> (31-$i)}]
+	}
+	
+	# inline the values of T
 	foreach \
 		tName {
 	    T01 T02 T03 T04 T05 T06 T07 T08 T09 T10 

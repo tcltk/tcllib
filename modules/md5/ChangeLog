@@ -1,3 +1,7 @@
+2001-07-03  Miguel Sofer  <mig@utdt.edu>
+
+	* md5.tcl: some more inlining, 10% faster
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* md5.tcl: Fixed dubious code reported by frink.
