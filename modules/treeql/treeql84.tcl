@@ -29,12 +29,12 @@ snit::type ::treeql {
 
 	set result {}
 	foreach node $nodes {
-	    set application [eval [list $tree] $cmd [list $node] $args] 
-	    #puts stderr "Apply: $tree $cmd $node $args -> $application"
-	    if {[catch {foreach a $application {lappend result $a}} x]} {
+	    if {[catch {eval [list $tree] $cmd [list $node] $args} application]} {
 		upvar ::errorInfo eo
 		puts stderr "Apply ERROR: $tree $cmd $node $args -> $application - $eo"
 	    }
+	    #puts stderr "Apply: $tree $cmd $node $args -> $application"
+	    foreach a $application {lappend result $a}
 	}
 
 	return $result
