@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.19 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.20 2004/01/20 21:04:39 afaupell Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -74,7 +74,7 @@ proc ::irc::reload { } {
 	source [set ::irc::irctclfile]
     }
     foreach ns [namespace children] {
-        foreach var {sock state logger host port} {
+        foreach var {sock logger host port} {
             set $var [set ${ns}::$var]
         }
         array set dispatch [array get ${ns}::dispatch]
@@ -82,7 +82,7 @@ proc ::irc::reload { } {
         # make sure our new connection uses the same namespace
         set conn [string range $ns 10 end]
         ::irc::connection
-        foreach var {sock state logger host port} {
+        foreach var {sock logger host port} {
             set ${ns}::$var [set $var]
         }
         array set ${ns}::dispatch [array get dispatch]
@@ -105,7 +105,6 @@ proc ::irc::connection { args } {
     set name [format "%s::irc%s" [namespace current] $conn]
 
     namespace eval $name {
-	set state 0
 	set sock {}
 	set logger [logger::init [namespace qualifiers [namespace current]]]
 	array set dispatch {}
@@ -122,12 +121,12 @@ proc ::irc::connection { args } {
 	proc ircsend { msg } {
 	    variable sock
 	    variable dispatch
-	    variable state
 	    variable logger
+	    if { $sock == "" } { return }
 	    ${logger}::debug "ircsend: '$msg'"
 	    if { [catch {puts $sock $msg} err] } {
-	        close $sock
-	        set state 0
+	        catch { close $sock }
+	        set sock {}
 		if { [info exists dispatch(EOF)] } {
 		    eval $dispatch(EOF)
 		}
@@ -187,8 +186,9 @@ proc ::irc::connection { args } {
         }
 
         proc cmd-connected { } {
-            variable state
-            return $state
+            variable sock
+            if { $sock == "" } { return 0 }
+            return 1
         }
 
 	proc cmd-user { username hostname servername {userinfo ""} } {
@@ -261,23 +261,21 @@ proc ::irc::connection { args } {
 
 	proc cmd-peername { } {
 	    variable sock
-	    variable state
-	    if { $state == 0 } { return {} }
+	    if { $sock == "" } { return {} }
 	    return [fconfigure $sock -peername]
 	}
 
 	proc cmd-sockname { } {
 	    variable sock
-	    variable state
-	    if { $state == 0 } { return {} }
+	    if { $sock == "" } { return {} }
 	    return [fconfigure $sock -sockname]
 	}
 
 	proc cmd-disconnect { } {
 	    variable sock
-	    variable state
-	    if { $state == 0 } { return -1 }
+	    if { $sock == "" } { return -1 }
 	    catch { close $sock }
+	    set sock {}
 	    return 0
 	}
 
@@ -285,7 +283,6 @@ proc ::irc::connection { args } {
 	# Create the actual tcp connection.
 
 	proc cmd-connect { args } {
-	    variable state
 	    variable sock
 	    variable logger
 	    variable host
@@ -305,9 +302,8 @@ proc ::irc::connection { args } {
 		}
 	    }
 
-	    if { $state == 0 } {
+	    if { $sock == "" } {
 		set sock [socket $host $port]
-		set state 1
 		fconfigure $sock -translation crlf -buffering line
 		fileevent $sock readable [namespace current]::GetEvent
 	    }
@@ -391,13 +387,12 @@ proc ::irc::connection { args } {
 	    variable linedata
 	    variable sock
 	    variable dispatch
-	    variable state
 	    variable logger
 	    array set linedata {}
 	    set line "eof"
 	    if { [eof $sock] || [catch {gets $sock} line] } {
 		close $sock
-		set state 0
+		set sock {}
 		${logger}::error "Error receiving from network: $line"
 		if { [info exists dispatch(EOF)] } {
 		    eval $dispatch(EOF)
@@ -486,7 +481,7 @@ proc ::irc::connection { args } {
 	# args: arguments to the command
 
 	proc network { cmd args } {
-	    eval [linsert 0 $args [namespace current]::cmd-$cmd]
+	    eval [linsert $args 0 [namespace current]::cmd-$cmd]
 	}
 
 	# Create default handlers.
