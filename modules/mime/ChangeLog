@@ -1,3 +1,26 @@
+2005-03-08  Andreas Kupries <andreask@activestate.com>
+
+	* mime.tcl (::mime::copymessageaux): Removed usage of the command
+	  'unstack'. Its presence is a bug ever since revision 1.3 (March
+	  9, 2000) of mime.tcl, when the converters (base64,
+	  quoted-printable) started to be used in immediate mode instead
+	  of attaching them to the output channel. This also means that we
+	  do not need the fallback implementation anymore either.
+
+	  Many thanks to Roy Terry <royterry@earthlink.net> for keeping up
+	  the nagging about [SF Tcllib Bug 754920] which demonstrated the
+	  problem.
+
+	  What happened is that the unpaired 'unstack' removes the outer
+	  .-transformation and a second call may close the channel. If
+	  that happens any further access to the channel errors out, and
+	  the mail server gets and transfers an incomplete mail message.
+	  It is a 'may' and not a 'will' because it seems that sometimes
+	  the channel has a refcount > 0 and then 'unstack' does
+	  nothing. This part made the reproduction difficult. It was
+	  originally suspected to be a problem in Trf itself, but is
+	  actually a problem in how it is used by mime.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
