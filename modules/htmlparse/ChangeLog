@@ -1,3 +1,10 @@
+2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* htmlparse.tcl:
+	* htmlparse.n:
+	* htmlparse.man: Bumped to version 0.3.
+
 2002-02-09  David N. Welton  <davidw@dedasys.com>
 
 	* htmlparse.n: Cleaned up some of the language in the man page.

@@ -9,10 +9,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.12 2001/09/24 19:05:14 jenglish Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.13 2002/06/03 20:21:46 andreas_kupries Exp $
 #
 
-# Define the ftpd package version 1.1.1
+# Define the ftpd package version 1.1.2
 
 package require Tcl 8.2
 namespace eval ::ftpd {
@@ -1947,5 +1947,5 @@ proc ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.1.1
+package provide ftpd 1.1.2
 

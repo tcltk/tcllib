@@ -1,3 +1,10 @@
+2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* html.tcl:
+	* html.n:
+	* html.man: Bumped to version 1.2.1.
+
 2002-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* html.man: Added doctools manpage.
