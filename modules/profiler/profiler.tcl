@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.17 2001/08/21 23:36:32 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.18 2002/10/14 20:29:24 hobbs Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2
@@ -309,6 +309,7 @@ proc ::profiler::dump {{pattern *}} {
     variable descendants
     variable statTime
 
+    set result ""
     foreach name [lsort [array names callCount $pattern]] {
 	set i [expr {[string length $name] + 1}]
 	catch {unset thisCallers}
