@@ -1,3 +1,8 @@
+2005-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cfront.tcl: More fixes and 8.5 feature removal for the
+	* cgen.tcl:   compiler packages.
+
 2005-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cgen.tcl: Removed usage of catch 8.5 feature.
