@@ -1,3 +1,10 @@
+2005-02-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4.tcl:      Made hashing cope with data that begins with a 
+	* md4.test:     hyphen and made the '--' end-of-options marker
+	* md4.man:      optional. Incremented version.
+	* pkgIndex.tcl:  
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
