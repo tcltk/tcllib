@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # optimize.test --
 #    Test cases for the ::math::optimize package
 #
@@ -5,12 +6,15 @@
 #    By evaluating the tests in a different namespace than global,
 #    we assure that the namespace issue (Bug #...) is checked.
 #
-source "optimize.tcl"
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+source [file join [file dirname [info script]] optimize.tcl]
 
 namespace eval optimizetest {
-
-package require tcltest
-namespace import ::tcltest::*
 
 #package require math::optimize
 namespace import ::math::optimize::*
