@@ -18,7 +18,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.15 2003/05/01 00:17:40 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.16 2003/07/16 01:49:58 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -27,7 +27,7 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
     variable version 1.0.4
-    variable rcsid {$Id: dns.tcl,v 1.15 2003/05/01 00:17:40 andreas_kupries Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.16 2003/07/16 01:49:58 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -909,6 +909,23 @@ proc ::dns::ReadAnswer {nitems data indexvar} {
                 set exchange [ReadName data [expr {$index + 2}] off]
                 set rdata [list $preference $exchange]
             }
+            SOA {
+                set x $index
+                set rdata [list MNAME [ReadName data $x off]]
+                incr x $off 
+                lappend rdata RNAME [ReadName data $x off]
+                incr x $off
+                lappend rdata SERIAL [ReadULong data $x off]
+                incr x $off
+                lappend rdata REFRESH [ReadLong data $x off]
+                incr x $off
+                lappend rdata RETRY [ReadLong data $x off]
+                incr x $off
+                lappend rdata EXPIRE [ReadLong data $x off]
+                incr x $off
+                lappend rdata MINIMUM [ReadULong data $x off]
+                incr x $off
+            }
         }
 
         incr index $rdlength
@@ -918,6 +935,34 @@ proc ::dns::ReadAnswer {nitems data indexvar} {
     return $result
 }
 
+
+# Read a 32bit integer from a DNS packet. These are compatible with
+# the ReadName proc. Additionally - ReadULong takes measures to ensure 
+# the unsignedness of the value obtained.
+#
+proc ::dns::ReadLong {datavar index usedvar} {
+    upvar $datavar data
+    upvar $usedvar used
+    set r {}
+    set used 0
+    if {[binary scan [string range $data $index end] I r]} {
+        set used 4
+    }
+    return $r
+}
+
+proc ::dns::ReadULong {datavar index usedvar} {
+    upvar $datavar data
+    upvar $usedvar used
+    set r {}
+    set used 0
+    if {[binary scan [string range $data $index end] cccc b1 b2 b3 b4]} {
+        set used 4
+        # This gets us an unsigned value.
+        set r [expr {$b4 + ($b3 << 8) + ($b2 << 16) + ($b1 << 24)}] 
+    }
+    return $r
+}
 
 # Read off the NAME or QNAME element. This reads off each label in turn, 
 # dereferencing pointer labels until we have finished. The length of data
