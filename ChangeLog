@@ -1,3 +1,8 @@
+2002-01-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* base64 module: added uuencode package
+	* crc module: added sum and cksum packages.
+
 2002-01-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* mkInstallScripts.tcl:
