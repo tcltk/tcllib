@@ -1658,7 +1658,7 @@ test option-2.1 {configure returns info, local options only} {} {
     spot configure -color red
     spot configure -akc 0
     spot configure
-} {{-akc akc Akc 1 0} {-color color Color black red}}
+} {{-color color Color black red} {-akc akc Akc 1 0}}
 
 test option-2.2 {configure -opt returns info, local options only} {} {
     cleanup
@@ -1871,7 +1871,7 @@ test option-4.1 {local option name must begin with hyphen} {
     } result
 
     set result
-} {badly named option 'nohyphen'}
+} {Error in 'option nohyphen...', badly named option 'nohyphen'}
 
 test option-4.2 {local option name must be lower case} {
     cleanup
@@ -1883,7 +1883,7 @@ test option-4.2 {local option name must be lower case} {
     } result
 
     set result
-} {badly named option '-Upper'}
+} {Error in 'option -Upper...', badly named option '-Upper'}
 
 test option-4.3 {local option name may not contain spaces} {
     cleanup
@@ -1895,7 +1895,7 @@ test option-4.3 {local option name may not contain spaces} {
     } result
 
     set result
-} {badly named option '-with space'}
+} {Error in 'option {"-with space"}...', badly named option '-with space'}
 
 test option-4.4 {delegated option name must begin with hyphen} {
     cleanup
@@ -2762,7 +2762,7 @@ test doption-1.9 {can't delegate local option: order 2} {
     } result
 
     set result
-} {cannot delegate '-color'; it has been defined locally.}
+} {Error in 'option -color...', cannot define '-color' locally, it has been delegated.}
 
 test doption-1.10 {excepted options are caught properly on cget} {
     cleanup
@@ -4933,7 +4933,6 @@ test typevar_var-1.5 {can't delegate typemethods to instance components} {
 test typevar_var-1.6 {can delegate methods to typecomponents} {
     cleanup
 
-    catch {
     proc echo {args} {return [join $args "|"]}
 
     type dog {
@@ -4948,11 +4947,351 @@ test typevar_var-1.6 {can delegate methods to typecomponents} {
 
     dog spot
     spot wag briskly
+} {wag|briskly}
+
+#-----------------------------------------------------------------------
+# Option syntax tests.
+#
+# This set of tests verifies that the option statement is interpreted
+# properly, that errors are caught, and that the type's optionInfo
+# array is initialized properly.
+#
+# TBD: At some point, this needs to be folded into the regular
+# option tests.
+
+test optionsyntax-1.1 {local option names are saved} {
+    cleanup
+
+    type dog {
+        option -foo
+        option -bar
+    }
+
+    set ::dog::Snit_optionInfo(local)
+} {-foo -bar}
+
+test optionsyntax-1.2 {islocal flag is set} {
+    cleanup
+
+    type dog {
+        option -foo
+    }
+
+    set ::dog::Snit_optionInfo(islocal--foo)
+} {1}
+
+test optionsyntax-2.1 {implicit resource and class} {
+    cleanup
+
+    type dog {
+        option -foo
+    }
+
+    list \
+        $::dog::Snit_optionInfo(resource--foo) \
+        $::dog::Snit_optionInfo(class--foo)
+} {foo Foo}
+
+test optionsyntax-2.2 {explicit resource, default class} {
+    cleanup
+
+    type dog {
+        option {-foo ffoo}
+    }
+
+    list \
+        $::dog::Snit_optionInfo(resource--foo) \
+        $::dog::Snit_optionInfo(class--foo)
+} {ffoo Ffoo}
+
+test optionsyntax-2.3 {explicit resource and class} {
+    cleanup
+
+    type dog {
+        option {-foo ffoo FFoo}
+    }
+
+    list \
+        $::dog::Snit_optionInfo(resource--foo) \
+        $::dog::Snit_optionInfo(class--foo)
+} {ffoo FFoo}
+
+test optionsyntax-2.4 {can't redefine explicit resource} {
+    cleanup
+
+    catch {
+        type dog {
+            option {-foo ffoo}
+            option {-foo foo}
+        }
     } result
 
     set result
-} {wag|briskly}
+} {Error in 'option {-foo foo}...', resource name redefined from 'ffoo' to 'foo'.}
 
+test optionsyntax-2.5 {can't redefine explicit class} {
+    cleanup
+
+    catch {
+        type dog {
+            option {-foo ffoo Ffoo}
+            option {-foo ffoo FFoo}
+        }
+    } result
+
+    set result
+} {Error in 'option {-foo ffoo FFoo}...', class name redefined from 'Ffoo' to 'FFoo'.}
+
+test optionsyntax-2.6 {can redefine implicit resource and class} {
+    cleanup
+
+    type dog {
+        option -foo
+        option {-foo ffoo}
+        option {-foo ffoo FFoo}
+        option -foo
+    }
+} {::dog}
+
+test optionsyntax-3.1 {no default value} {
+    cleanup
+
+    type dog {
+        option -foo
+    }
+
+    set ::dog::Snit_optionInfo(default--foo)
+} {}
+
+test optionsyntax-3.2 {default value, old syntax} {
+    cleanup
+
+    type dog {
+        option -foo bar
+    }
+
+    set ::dog::Snit_optionInfo(default--foo)
+} {bar}
+
+test optionsyntax-3.3 {option definition options can be set} {
+    cleanup
+
+    type dog {
+        option -foo \
+            -default Bar \
+            -validatemethod Validate \
+            -configuremethod Configure \
+            -cgetmethod Cget
+    }
+
+    list \
+        $::dog::Snit_optionInfo(default--foo) \
+        $::dog::Snit_optionInfo(validate--foo) \
+        $::dog::Snit_optionInfo(configure--foo) \
+        $::dog::Snit_optionInfo(cget--foo)
+} {Bar Validate Configure Cget}
+
+test optionsyntax-3.4 {option definition option values accumulate} {
+    cleanup
+
+    type dog {
+        option -foo -default Bar
+        option -foo -validatemethod Validate
+        option -foo -configuremethod Configure
+        option -foo -cgetmethod Cget
+    }
+
+    list \
+        $::dog::Snit_optionInfo(default--foo) \
+        $::dog::Snit_optionInfo(validate--foo) \
+        $::dog::Snit_optionInfo(configure--foo) \
+        $::dog::Snit_optionInfo(cget--foo)
+} {Bar Validate Configure Cget}
+
+test optionsyntax-3.5 {option definition option values can be redefined} {
+    cleanup
+
+    type dog {
+        option -foo -default Bar
+        option -foo -validatemethod Validate
+        option -foo -configuremethod Configure
+        option -foo -cgetmethod Cget
+        option -foo -default Bar2
+        option -foo -validatemethod Validate2
+        option -foo -configuremethod Configure2
+        option -foo -cgetmethod Cget2
+    }
+
+    list \
+        $::dog::Snit_optionInfo(default--foo) \
+        $::dog::Snit_optionInfo(validate--foo) \
+        $::dog::Snit_optionInfo(configure--foo) \
+        $::dog::Snit_optionInfo(cget--foo)
+} {Bar2 Validate2 Configure2 Cget2}
+
+#-----------------------------------------------------------------------
+# 'delegate option' Syntax tests.
+#
+# This set of tests verifies that the 'delegation option' statement is 
+# interpreted properly, and that the type's optionInfo
+# array is initialized properly.
+#
+# TBD: At some point, this needs to be folded into the regular
+# option tests.
+
+test delegateoptionsyntax-1.1 {'delegated' lists delegated option names} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp
+        delegate option -bar to comp
+    }
+
+    set ::dog::Snit_optionInfo(delegated)
+} {-foo -bar}
+
+test delegateoptionsyntax-1.2 {'delegated' does not include '*'} {
+    cleanup
+
+    type dog {
+        delegate option * to comp
+    }
+
+    set ::dog::Snit_optionInfo(delegated)
+} {}
+
+test delegateoptionsyntax-1.3 {'islocal' is set to 0} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp
+    }
+
+    set ::dog::Snit_optionInfo(islocal--foo)
+} {0}
+
+test delegateoptionsyntax-1.4 {'islocal' is not set for '*'} {
+    cleanup
+
+    type dog {
+        delegate option * to comp
+    }
+
+    info exists ::dog::Snit_optionInfo(islocal-*)
+} {0}
+
+test delegateoptionsyntax-1.5 {'delegated-$comp' lists options for the component} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp1
+        delegate option -bar to comp1
+        delegate option -baz to comp2
+        delegate option * to comp2
+    }
+
+    list \
+        $::dog::Snit_optionInfo(delegated-comp1) \
+        $::dog::Snit_optionInfo(delegated-comp2)
+} {{-foo -bar} {-baz *}}
+
+test delegateoptionsyntax-1.6 {'except' is empty by default} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp
+    }
+
+    set ::dog::Snit_optionInfo(except)
+} {}
+
+test delegateoptionsyntax-1.7 {'except' lists exceptions} {
+    cleanup
+
+    type dog {
+        delegate option * to comp except {-foo -bar -baz}
+    }
+
+    set ::dog::Snit_optionInfo(except)
+} {-foo -bar -baz}
+
+test delegateoptionsyntax-1.8 {'target-$opt' set with default} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp
+    }
+
+    set ::dog::Snit_optionInfo(target--foo)
+} {comp -foo}
+
+test delegateoptionsyntax-1.9 {'target-$opt' set explicitly} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp as -bar
+    }
+
+    set ::dog::Snit_optionInfo(target--foo)
+} {comp -bar}
+
+test delegateoptionsyntax-1.10 {'target-$opt' set for *} {
+    cleanup
+
+    type dog {
+        delegate option * to comp
+    }
+
+    set ::dog::Snit_optionInfo(target-*)
+} {comp}
+
+test delegatedoptionsyntax-2.1 {implicit resource and class} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp
+    }
+
+    list \
+        $::dog::Snit_optionInfo(resource--foo) \
+        $::dog::Snit_optionInfo(class--foo)
+} {foo Foo}
+
+test optionsyntax-2.2 {explicit resource, default class} {
+    cleanup
+
+    type dog {
+        delegate option {-foo ffoo} to comp
+    }
+
+    list \
+        $::dog::Snit_optionInfo(resource--foo) \
+        $::dog::Snit_optionInfo(class--foo)
+} {ffoo Ffoo}
+
+test optionsyntax-2.3 {explicit resource and class} {
+    cleanup
+
+    type dog {
+        delegate option {-foo ffoo FFoo} to comp
+    }
+
+    list \
+        $::dog::Snit_optionInfo(resource--foo) \
+        $::dog::Snit_optionInfo(class--foo)
+} {ffoo FFoo}
+
+test optionsyntax-2.4 {* doesn't get resource and class} {
+    cleanup
+
+    type dog {
+        delegate option * to comp
+    }
+
+    list \
+        [info exist ::dog::Snit_optionInfo(resource-*)] \
+        [info exist ::dog::Snit_optionInfo(class-*)]
+} {0 0}
 
 #---------------------------------------------------------------------
 # Clean up
