@@ -1,3 +1,13 @@
+2002-04-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/en.msg: 
+	* mpformats/c.msg: 
+	* mpformats/de.msg: Added the messages required by the new code
+	  below.
+
+	* mpexpand: Added code to check that plain text is not used in
+	  places where it is not allowed.
+
 2002-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Committed changes to list generation (better generation of
