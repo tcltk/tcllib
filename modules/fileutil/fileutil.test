@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.24 2004/09/28 05:12:42 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.25 2004/09/30 06:52:17 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -17,6 +17,15 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     set auto_path [linsert $auto_path 0 .]
     package require tcltest
     namespace import ::tcltest::*
+}
+
+proc makeBinaryFile {data f} {
+    set path [makeFile {} $f]
+    set ch [open $path w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch $data
+    close $ch
+    return $path
 }
 
 # -------------------------------------------------------------------------
@@ -356,37 +365,37 @@ makeDirectory fileTypeTest
 #fileutil::touch [file join $dir fileTypeTest emptyFile]
 set _f [open [file join $dir fileTypeTest emptyFile] a] ; close $_f
 
-makeFile "\u0000" [file join $dir fileTypeTest binaryFile]
+makeBinaryFile "\u0000" [file join $dir fileTypeTest binaryFile]
 
 set elfData "\x7F"
 append elfData "ELF"
 append elfData "\x01\x01\x01\x00\x00"
-makeFile $elfData [file join $dir fileTypeTest elfFile]
+makeBinaryFile $elfData [file join $dir fileTypeTest elfFile]
 
 set bzipData "BZh91AY&SY"
 append bzipData "\x01\x01\x01\x00\x00"
-makeFile $bzipData [file join $dir fileTypeTest bzipFile]
+makeBinaryFile $bzipData [file join $dir fileTypeTest bzipFile]
 
 set gzipData "\x1f\x8b"
 append gzipData "\x01\x01\x01\x00\x00"
-makeFile $gzipData [set f [file join $dir fileTypeTest gzipFile]]
+makeBinaryFile $gzipData [set f [file join $dir fileTypeTest gzipFile]]
 set fh [open $f w] ; fconfigure $fh -encoding binary ; puts -nonewline $fh $gzipData ; close $fh
 
 set jpgData "\xFF\xD8\xFF\xE0\x00\x10JFIF"
 append jpgData "\x00\x01\x02\x01\x01\x2c"
-makeFile $jpgData [file join $dir fileTypeTest jpegFile]
+makeBinaryFile $jpgData [file join $dir fileTypeTest jpegFile]
 
 set gifData "GIF89a\x2b\x00\x40\x00\xf7\xff\x00"
-makeFile $gifData [file join $dir fileTypeTest gifFile]
+makeBinaryFile $gifData [file join $dir fileTypeTest gifFile]
 
 set pngData "\x89PNG"
 append pngData "\x00\x01\x02\x01\x01\x2c"
-makeFile $pngData [set f [file join $dir fileTypeTest pngFile]]
+makeBinaryFile $pngData [set f [file join $dir fileTypeTest pngFile]]
 set fh [open $f w] ; fconfigure $fh -encoding binary ; puts -nonewline $fh $pngData ; close $fh
 
 set tiffData "MM\x00\*"
 append tiffData "\x00\x01\x02\x01\x01\x2c"
-makeFile $tiffData [file join $dir fileTypeTest tiffFile]
+makeBinaryFile $tiffData [file join $dir fileTypeTest tiffFile]
 
 set psData "%!PS-"
 append psData "ADOBO-123 EPSF-1.4"
@@ -394,14 +403,14 @@ makeFile $psData [file join $dir fileTypeTest psFile]
 
 set pdfData "%PDF-"
 append pdfData "1.2 \x00\x01\x02\x01\x01\x2c"
-makeFile $pdfData [file join $dir fileTypeTest pdfFile]
+makeBinaryFile $pdfData [file join $dir fileTypeTest pdfFile]
 
 set epsData $psData
 makeFile $psData [file join $dir fileTypeTest epsFile]
 
 set igwdData "IGWD"
 append igwdData "\x00\x01\x02\x01\x01\x2c"
-makeFile $igwdData [file join $dir fileTypeTest igwdFile]
+makeBinaryFile $igwdData [file join $dir fileTypeTest igwdFile]
 
 makeFile "simple text" [file join $dir fileTypeTest textFile]
 makeFile "#!/bin/tclsh" [file join $dir fileTypeTest scriptFile]
