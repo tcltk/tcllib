@@ -23,6 +23,10 @@ proc call        {cmd args}         {return ""}
 proc usage       {cmd args}         {return ""}
 proc bullet      {}                 {return ""}
 proc enum        {}                 {return ""}
+proc arg_def      {type name {mode {}}} {return ""}
+proc cmd_def      {command}             {return ""}
+proc opt_def      {name {arg {}}}       {return ""}
+proc tkoption_def {name dbname dbclass} {return ""}
 proc see_also    {args}             {return ""}
 proc keywords    {args}             {return ""}
 proc example     {code}             {return ""}

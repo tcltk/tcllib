@@ -52,6 +52,10 @@ proc fmthelp {} {
 	    * usage         - see above, without adding to synopsis\n\
 	    * bullet        - begin item in bulleted list\n\
 	    * enum          - begin item in enumerated list\n\
+	    * arg_def       - begin item in argument list\n\
+	    * cmd_def       - begin item in command list\n\
+	    * opt_def       - begin item in option list\n\
+	    * tkoption_def  - begin item in tkoption list\n\
 	    * example       - example block\n\
 	    * example_begin - begin example\n\
 	    * example_end   - end of example\n\
@@ -214,7 +218,8 @@ proc eval_setup {} {
 	section para list_begin list_end lst_item call bullet enum
 	example example_begin example_end see_also keywords nl arg cmd opt
 	comment sectref syscmd method option widget fun type package
-	class var file uri usage term const
+	class var file uri usage term const arg_def cmd_def opt_def
+	tkoption_def
     } {
 	# We link the formatter commands into the input interpreter
 	# and route them to the checking commands in the checker. We
@@ -273,6 +278,8 @@ proc eval_setup {} {
 	#		| call bullet usage nl	|
 	#		| example see_also	|
 	#		| keywords sectref enum	|
+	#		| arg_def cmd_def	|
+	#		| opt_def tkoption_def	|
 	#		+-----------------------+-----------
 	#		| example_begin		| example
 	#		+-----------------------+-----------
@@ -290,6 +297,10 @@ proc eval_setup {} {
 	# 	lst_item/call			| Only in 'definition list'.
 	# 	enum				| Only in 'enum list'.
 	# 	bullet				| Only in 'bullet list'.
+	#	arg_def				| Only in 'argument list'.
+	#	cmd_def				| Only in 'command list'.
+	#	opt_def				| Only in 'option list'.
+	#	tkoption_def			| Only in 'tkoption list'.
 	#	nl				| Only in list item context.
 	#	para section			| Not allowed in list context
 	# --------------------------------------+----------------------
@@ -427,6 +438,34 @@ proc eval_setup {} {
 	    if {![LIs definitions]} {Error deflist}
 	    LSItem
 	    lst_item $text
+	}
+	proc ck_arg_def {type name {mode {}}} {
+	    if {[IsNot body]}       {Error bodycmd}
+	    if {![LOpen]}           {Error listcmd}
+	    if {![LIs arg]}         {Error arg_list}
+	    LSItem
+	    arg_def $type $name $mode
+	}
+	proc ck_cmd_def {command} {
+	    if {[IsNot body]}       {Error bodycmd}
+	    if {![LOpen]}           {Error listcmd}
+	    if {![LIs cmd]}         {Error cmd_list}
+	    LSItem
+	    cmd_def $command
+	}
+	proc ck_opt_def {name {arg {}}} {
+	    if {[IsNot body]}       {Error bodycmd}
+	    if {![LOpen]}           {Error listcmd}
+	    if {![LIs opt]}         {Error opt_list}
+	    LSItem
+	    opt_def $name $arg
+	}
+	proc ck_tkoption_def {name dbname dbclass} {
+	    if {[IsNot body]}       {Error bodycmd}
+	    if {![LOpen]}           {Error listcmd}
+	    if {![LIs tkoption]}    {Error tkoption_list}
+	    LSItem
+	    tkoption_def $name $dbname $dbclass
 	}
 	proc ck_call {cmd args} {
 	    if {[IsNot body]}       {Error bodycmd}
