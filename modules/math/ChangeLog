@@ -1,3 +1,17 @@
+2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
+
+	* math.tcl: 
+	* misc.tcl:
+	* pkgIndex.tcl:
+	* tclIndex: Reorganized so that math.tcl is a top-level 'package
+	provide' script and loads a tclIndex.  The code from 'math.tcl'
+	moves into 'misc.tcl'.
+	* combinatorics.n:
+	* combinatorics.tcl:
+	* combinatorics.test: Added a 'combinatorics' module containing
+	the Gamma function and several related functions (factorial,
+	binomial coefficient, and Beta). (Feature request #484850).
+	
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* math.tcl: Fixed dubious code reported by frink.
