@@ -1,3 +1,17 @@
+2001-04-25  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* md5.test: Added tests of "md5::hmac". This allows us to test the
+	  two different implementations against each other.
+
+	  Note: The test file will now print which of the two variants
+	  (pure Tcl vs. Trf based) is active and under test.
+
+	* md5.tcl: Added code to create a soft dependency on Trf. In other
+	  words, if Trf is present it will be loaded and used to speed up
+	  operations. Without Trf the original code in pure Tcl will be
+	  used. Note that the presence of Trf allows us to optimize the
+	  command "md5::hmac" too.
+
 2001-04-24  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* New module, 'md5'. The code Don Libes's <libes@nist.gov>

@@ -7,7 +7,9 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.3 2001/03/26 16:50:20 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.4 2001/04/25 15:30:03 andreas_kupries Exp $
+
+set old_auto_path $auto_path
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace eval ::tcltest {}
@@ -97,6 +99,8 @@ if {[llength $::tcltest::matchFiles] > 0} {
 set timeCmd {clock format [clock seconds]}
 puts stdout "Tests began at [eval $timeCmd]"
 
+
+set auto_path $old_auto_path
 set auto_path [linsert $auto_path 0 [file join $root modules]]
 set old_apath $auto_path
 
