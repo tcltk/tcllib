@@ -1,3 +1,6 @@
+2003-11-17  Joe English  <jenglish@users.sourceforge.net>
+	* htmlparse.man: added SEE ALSO link to struct::tree
+
 2003-10-24  Andreas Kupries  <andreask@activestate.com>
 
 	* htmlparse.tcl: Applied [Patch 823346] by Michael Schlenker
