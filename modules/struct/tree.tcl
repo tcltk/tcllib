@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.20 2003/05/06 22:20:53 hobbs Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.21 2003/05/07 04:28:00 hobbs Exp $
 
 package require Tcl 8.2
 
@@ -1316,6 +1316,7 @@ proc ::struct::tree::_walk {name node args} {
 #	None.
 
 proc ::struct::tree::WalkCall {tree node action cmd} {
-    uplevel 3 [string map [list %n $node %a $action %t $tree %% %] $cmd]
+    set subs [list %n [list $node] %a [list $action] %t [list $tree] %% %]
+    uplevel 3 [string map $subs $cmd]
     return
 }

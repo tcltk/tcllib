@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.18 2003/05/06 22:20:54 hobbs Exp $
+# RCS: @(#) $Id: tree.test,v 1.19 2003/05/07 04:28:00 hobbs Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -272,6 +272,9 @@ test tree-6.17 {check node names with spaces} {
 } [list ":\n\t "]
 test tree-6.18 {extended node names with spaces check} {
     tree mytree
+    proc walker {node} {
+	lappend ::FOO $node
+    }
     set node ":\n\t "
     set msg [mytree insert root end $node]
     lappend msg [mytree isleaf $node]
@@ -279,12 +282,14 @@ test tree-6.18 {extended node names with spaces check} {
     lappend msg [mytree size $node]
     lappend msg [mytree isleaf $node]
     mytree set $node foo
+    mytree walk root -command [list walker %n]
+    lappend msg $::FOO
     lappend msg [mytree keys $node]
     lappend msg [mytree parent $node]
     lappend msg [mytree set $node]
     mytree destroy
     set msg
-} [list ":\n\t " 1 1 0 data root foo]
+} [list ":\n\t " 1 1 0 [list root ":\n\t " yummy] data root foo]
 
 test tree-7.1 {move gives error when trying to move root} {
     tree mytree
