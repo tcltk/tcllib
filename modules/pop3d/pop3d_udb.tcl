@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_udb.tcl,v 1.1 2002/03/19 22:56:15 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_udb.tcl,v 1.2 2002/05/15 16:59:47 andreas_kupries Exp $
 
 namespace eval ::pop3d::udb {
     # Data storage in the pop3d::udb module
@@ -22,6 +22,7 @@ namespace eval ::pop3d::udb {
     # commands is the list of subcommands recognized by the server
     variable commands [list	\
 	    "add"		\
+	    "destroy"           \
 	    "exists"		\
 	    "lookup"		\
 	    "read"		\
@@ -102,6 +103,24 @@ proc ::pop3d::udb::UdbProc {name {cmd ""} args} {
 	return -code error "bad option \"$cmd\": must be $optlist"
     }
     eval [list ::pop3d::udb::_$cmd $name] $args
+}
+
+
+# ::pop3d::udb::_destroy --
+#
+#	Destroy a user database, including its associated command and
+#	data storage.
+#
+# Arguments:
+#	name	Name of the database to destroy.
+#
+# Results:
+#	None.
+
+proc ::pop3d::udb::_destroy {name} {
+    namespace delete ::pop3d::udb::udb::$name
+    interp alias {} ::$name {}
+    return
 }
 
 
@@ -243,8 +262,10 @@ proc ::pop3d::udb::_save {name {file {}}} {
     puts  $f ""
     close $f
     
-    file rename -force $file $file.old
-    file rename -force $tmp  $file
+    if {[file exists $file]} {
+	file rename -force $file $file.old
+    }
+    file rename -force $tmp $file
     return
 }
 

@@ -1,3 +1,16 @@
+2002-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.man: Documented the two new commands (stripN,
+	  stripPwd).
+
+	* fileutil.tcl: Made up my mind about SF Bug #462015. The proposed
+	  interface change to [find] is rejected to keep the interface of
+	  the library procedure simple and without hidden surprises =
+	  KISS. Added a command [stripPwd] instead which can be used by
+	  the caller of [find] to make the returned paths relative to the
+	  current working directory. Also added [stripN] to strip a fixed
+	  number of elements from the beginning of a path.
+
 2002-04-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man: Added doctools manpage.

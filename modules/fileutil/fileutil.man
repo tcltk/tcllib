@@ -84,6 +84,22 @@ single element of the list and contains filename, number and contents
 of the matching line, separated by a colons.
 
 
+
+[call [cmd ::fileutil::stripN] [arg path] [arg n]]
+
+Removes the first [arg n] elements from the specified [arg path] and
+returns the modified path. If [arg n] is greater than the number of
+components in [arg path] an empty string is returned.
+
+[call [cmd ::fileutil::stripPwd] [arg path]]
+
+If the [arg path] is inside of the directory returned by
+
+[lb][cmd pwd][rb] it is made relative to that directory. In other
+words, the current working directory is stripped from the [arg path].
+The possibly modified path is returned as the result of the command.
+
+
 [call [cmd ::fileutil::touch] [opt [option -a]] [opt [option -c]] [opt [option -m]] [opt "[option -r] [arg ref_file]"] [opt "[option -t] [arg time]"] [arg filename] [opt [arg ...]]]
 
 Implementation of [syscmd touch]. Alter the atime and mtime of the
