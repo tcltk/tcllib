@@ -1,10 +1,10 @@
-[manpage_begin jpeg n 0.1]
+[manpage_begin jpeg n 0.2]
 [copyright {2004, Code: Aaron Faupell <afaupell@users.sourceforge.net>}]
 [copyright {2004, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {JPEG image manipulation}]
 [titledesc {JPEG querying and manipulation of meta data}]
 [require Tcl 8.2]
-[require jpeg [opt 0.1]]
+[require jpeg [opt 0.2]]
 [description]
 [para]
 

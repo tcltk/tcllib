@@ -1,3 +1,8 @@
+2005-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* profiler.man: Synchronized indexed and provided versions.
+	* pkgIndex.tcl
+
 2005-03-30  Eric Melski  <ericm@electric-cloud.com>
 
 	* profiler.tcl (::profiler::TraceHandler): Make sure that caller names
