@@ -4,7 +4,7 @@
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: bee.test,v 1.1 2004/06/22 07:19:16 andreas_kupries Exp $
+# RCS: @(#) $Id: bee.test,v 1.2 2004/08/16 02:14:17 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -307,11 +307,11 @@ foreach {n bee result} {
 }
 
 
-test bee-12.0 {decoder, torrent} {
+test bee-12.0 {decoder, torrent file} {
     set end 0
     set data [bee::decode [viewFile [file join $::tcltest::testsDirectory example.torrent]] end]
 
-    # Cut the binary out of the result
+    # Cut the binary stuff out of the result, to much, display problems
     list [lreplace $data 5 5 [lreplace [lindex $data 5] end end {}]] $end
 
 } {{announce http://bt.etree.org/announce.php {creation date} 1087598771 info {files {{length 627 path ch1999-05-22.md5} {length 434 path ch1999-05-22.txt} {length 4356201 path ch1999-05-22d1t01.shn} {length 53782885 path ch1999-05-22d1t02.shn} {length 50689401 path ch1999-05-22d1t03.shn} {length 70969629 path ch1999-05-22d1t04.shn} {length 31978833 path ch1999-05-22d1t05.shn} {length 57722005 path ch1999-05-22d1t06.shn} {length 45629997 path ch1999-05-22d2t01.shn} {length 74878121 path ch1999-05-22d2t02.shn} {length 102446341 path ch1999-05-22d2t03.shn} {length 71148293 path ch1999-05-22d2t04.shn}} name ch1999-05-22.schoeps.shnf {piece length} 524288 pieces {}}} 22267}

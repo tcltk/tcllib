@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.15 2004/05/26 04:24:27 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.16 2004/08/16 02:14:17 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -173,7 +173,7 @@ proc ::uuencode::pad {s} {
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
 if {[info command ::uuencode::CDecode] != {}} {    
-    # tcllib criticl package
+    # tcllib critcl package
     interp alias {} ::uuencode::encode {} ::uuencode::CEncode
     interp alias {} ::uuencode::decode {} ::uuencode::CDecode
 } elseif {[package provide Trf] != {}} {

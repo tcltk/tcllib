@@ -272,7 +272,7 @@ proc ::asn::asnBoolean {bool} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnOctetString {string} {
-    # The octect tag is 0x04. The length is arbitrary, so we need
+    # The octet tag is 0x04. The length is arbitrary, so we need
     # 'asnLength' for full coding of the length.
 
     set len [string length $string]
