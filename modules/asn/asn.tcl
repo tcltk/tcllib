@@ -1,5 +1,6 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
+#   Copyright (C) 2004 Michael Schlenker (mic42@users.sourceforge.net)
 #-----------------------------------------------------------------------------
 #   
 #   A partial ASN decoder/encoder implementation in plain Tcl. 
@@ -37,6 +38,8 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
+#   $Id: asn.tcl,v 1.5 2004/12/01 00:42:05 mic42 Exp $
+#
 #-----------------------------------------------------------------------------
 
 package require log
@@ -44,26 +47,32 @@ package require log
 namespace eval asn {
     # Encoder commands
     namespace export \
-	    asnSequence \
-	    asnSet \
-	    asnApplicationConstr \
-	    asnApplication \
-	    asnChoice \
-	    asnChoiceConstr \
-	    asnInteger \
-	    asnEnumeration \
-	    asnBoolean \
-	    asnOctetString
+        asnSequence \
+        asnSet \
+        asnApplicationConstr \
+        asnApplication \
+        asnChoice \
+        asnChoiceConstr \
+        asnInteger \
+        asnEnumeration \
+        asnBoolean \
+        asnOctetString
 
-    # Decoder commands. They read from a channel.
+    # Decoder commands
     namespace export \
-	    asnGetResponse \
-	    asnGetInteger \
-	    asnGetEnumeration \
-	    asnGetOctetString \
-	    asnGetSequence \
-	    asnGetSet \
-	    asnGetApplication    
+        asnGetResponse \
+        asnGetInteger \
+        asnGetEnumeration \
+        asnGetOctetString \
+        asnGetSequence \
+        asnGetSet \
+        asnGetApplication \
+        asnGetPrintableString \
+        asnGetObjectIdentifier \
+        asnGetBoolean \
+        asnGetUTCTime \
+        asnGetBitString \
+        asnGetContext 
 }
 
 #-----------------------------------------------------------------------------
@@ -72,23 +81,23 @@ namespace eval asn {
 # See the 'asn_ber_intro.txt' in this directory for an introduction
 # into BER/DER encoding of ASN.1 information. Bibliography information
 #
-#	A Layman's Guide to a Subset of ASN.1, BER, and DER
+#   A Layman's Guide to a Subset of ASN.1, BER, and DER
 #
-#	An RSA Laboratories Technical Note
-#	Burton S. Kaliski Jr.
-#	Revised November 1, 1993
+#   An RSA Laboratories Technical Note
+#   Burton S. Kaliski Jr.
+#   Revised November 1, 1993
 #
-#	Supersedes June 3, 1991 version, which was also published as
-#	NIST/OSI Implementors' Workshop document SEC-SIG-91-17.
-#	PKCS documents are available by electronic mail to
-#	<pkcs@rsa.com>.
+#   Supersedes June 3, 1991 version, which was also published as
+#   NIST/OSI Implementors' Workshop document SEC-SIG-91-17.
+#   PKCS documents are available by electronic mail to
+#   <pkcs@rsa.com>.
 #
-#	Copyright (C) 1991-1993 RSA Laboratories, a division of RSA
-#	Data Security, Inc. License to copy this document is granted
-#	provided that it is identified as "RSA Data Security, Inc.
-#	Public-Key Cryptography Standards (PKCS)" in all material
-#	mentioning or referencing this document.
-#	003-903015-110-000-000
+#   Copyright (C) 1991-1993 RSA Laboratories, a division of RSA
+#   Data Security, Inc. License to copy this document is granted
+#   provided that it is identified as "RSA Data Security, Inc.
+#   Public-Key Cryptography Standards (PKCS)" in all material
+#   mentioning or referencing this document.
+#   003-903015-110-000-000
 #
 #-----------------------------------------------------------------------------
 
@@ -222,9 +231,9 @@ proc ::asn::asnInteger {number} {
         return [binary format H2H2S 02 02 $number]
     }
     if {($number >= -8388608) && ($number < 8388608)} {
-	set numberb [expr {$number & 0xFFFF}]
-	set numbera [expr {($number >> 16) & 0xFF}]
-	return [binary format H2H2cS 02 03 $numbera $numberb]
+    set numberb [expr {$number & 0xFFFF}]
+    set numbera [expr {($number >> 16) & 0xFF}]
+    return [binary format H2H2cS 02 03 $numbera $numberb]
     }
     return [binary format H2H2I 02 04 $number]
 }
@@ -248,9 +257,9 @@ proc ::asn::asnEnumeration {number} {
         return [binary format H2H2S 0a 02 $number]
     }
     if {($number >= -8388608) && ($number < 8388608)} {
-	set numberb [expr {$number & 0xFFFF}]
-	set numbera [expr {($number >> 16) & 0xFF}]
-	return [binary format H2H2cS 0a 03 $numbera $numberb]
+    set numberb [expr {$number & 0xFFFF}]
+    set numbera [expr {($number >> 16) & 0xFF}]
+    return [binary format H2H2cS 0a 03 $numbera $numberb]
     }
     return [binary format H2H2I 0a 04 $number]
 }
@@ -293,8 +302,8 @@ proc ::asn::asnGetResponse {sock data_var} {
     set tag [read $sock 1]
 
     if {$tag == "\x30"} {
-	# The following code is a replica of 'asnGetLength', modified
-	# for reading the bytes from the channel instead of a string.
+    # The following code is a replica of 'asnGetLength', modified
+    # for reading the bytes from the channel instead of a string.
 
         set len1 [read $sock 1]
         binary scan $len1 c num
@@ -303,23 +312,23 @@ proc ::asn::asnGetResponse {sock data_var} {
         ::log::log debug "asnGetResponse length=$length"
 
         if {$length  >= 0x080} {
-	    # The byte the read is not the length, but a prefix, and
-	    # the lower nibble tells us how many bytes follow.
+        # The byte the read is not the length, but a prefix, and
+        # the lower nibble tells us how many bytes follow.
 
             set len_length  [expr {$length & 0x7f}]
 
-	    # BUG: We should not perform the value extraction for an
-	    # BUG: improper length. It wastes cycles, and here it can
-	    # BUG: cause us trouble, reading more data than there is
-	    # BUG: on the channel. Depending on the channel
-	    # BUG: configuration an attacker can induce us to block,
-	    # BUG: causing a denial of service.
+        # BUG: We should not perform the value extraction for an
+        # BUG: improper length. It wastes cycles, and here it can
+        # BUG: cause us trouble, reading more data than there is
+        # BUG: on the channel. Depending on the channel
+        # BUG: configuration an attacker can induce us to block,
+        # BUG: causing a denial of service.
             set lengthBytes [read $sock $len_length]
 
             switch $len_length {
                 1 {
-		    binary scan $lengthBytes     c length 
-		    set length [expr {($length + 0x100) % 0x100}]
+            binary scan $lengthBytes     c length 
+            set length [expr {($length + 0x100) % 0x100}]
                 }
                 2 { binary scan $lengthBytes     S length }
                 3 { binary scan \x00$lengthBytes I length }
@@ -330,15 +339,15 @@ proc ::asn::asnGetResponse {sock data_var} {
             }
         }
 
-	# Now that the length is known we get the remainder,
-	# i.e. payload, and construct proper in-memory BER encoded
-	# sequence.
+    # Now that the length is known we get the remainder,
+    # i.e. payload, and construct proper in-memory BER encoded
+    # sequence.
 
         set rest [read $sock $length]
         set data [binary format aa*a$length $tag [asnLength $length] $rest]
     }  else {
-	# Generate an error message if the data is not a sequence as
-	# we expected.
+    # Generate an error message if the data is not a sequence as
+    # we expected.
 
         set tag_hex ""
         binary scan $tag H2 tag_hex
@@ -361,6 +370,20 @@ proc ::asn::asnGetByte {data_var byte_var} {
     return
 }
 
+#-----------------------------------------------------------------------------
+# asnPeekByte : Retrieve a single byte from the data (unsigned) 
+#               without removing it.
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnPeekByte {data_var byte_var} {
+    upvar $data_var data $byte_var $byte
+    
+    binary scan [string index $data 0] c byte
+    set byte [expr {($byte + 0x100) % 0x100}]  
+
+    ::log::log debug "asnPeekByte $byte"
+    return
+}
 
 #-----------------------------------------------------------------------------
 # asnGetBytes : Retrieve a block of 'length' bytes from the data.
@@ -388,29 +411,29 @@ proc ::asn::asnGetLength {data_var length_var} {
 
     asnGetByte data length
     if {$length >= 0x080} {
-	# The retrieved byte is a prefix value, and the integer in the
-	# lower nibble tells us how many bytes were used to encode the
-	# length data following immediately after this prefix.
+    # The retrieved byte is a prefix value, and the integer in the
+    # lower nibble tells us how many bytes were used to encode the
+    # length data following immediately after this prefix.
 
         set len_length [expr {$length & 0x7f}]
 
-	# BUG: We should not perform the value extraction for an
-	# BUG: improper length. It cannot cause us trouble [1], even
-	# BUG: if we try to read much more data then we have bytes,
-	# BUG: but it does waste cycles.
-	#
-	# [1] In contrast to reading from a channel (See asnGetResponse).
+    # BUG: We should not perform the value extraction for an
+    # BUG: improper length. It cannot cause us trouble [1], even
+    # BUG: if we try to read much more data then we have bytes,
+    # BUG: but it does waste cycles.
+    #
+    # [1] In contrast to reading from a channel (See asnGetResponse).
 
         asnGetBytes data $len_length lengthBytes
 
         switch $len_length {
             1 {
-		# Efficiently coded data will not go through this
-		# path, as small length values can be coded directly,
-		# without a prefix.
+        # Efficiently coded data will not go through this
+        # path, as small length values can be coded directly,
+        # without a prefix.
 
-		binary scan $lengthBytes     c length 
-	        set length [expr {($length + 0x100) % 0x100}]
+        binary scan $lengthBytes     c length 
+            set length [expr {($length + 0x100) % 0x100}]
             }
             2 { binary scan $lengthBytes     S length }
             3 { binary scan \x00$lengthBytes I length }
@@ -455,7 +478,7 @@ proc ::asn::asnGetInteger {data_var int_var} {
         3 { binary scan \x00$integerBytes I int }
         4 { binary scan $integerBytes     I int }
         default {
-	    # Too long, or prefix coding was used.
+        # Too long, or prefix coding was used.
             return -code error "length information too long"
         }
     }
@@ -578,4 +601,204 @@ proc ::asn::asnGetApplication {data_var appNumber_var} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.1
+# asnGetBoolean: decode a boolean value
+#-----------------------------------------------------------------------------
+
+proc asn::asnGetBoolean {data_var bool_var} {
+    upvar $data_var data $bool_var bool
+
+    asnGetByte data tag
+    if {$tag != 0x01} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected Boolean (0x01), but got $tag_hex"
+    }
+
+    asnGetLength data length
+    asnGetByte data byte
+    set bool [expr {$byte == 0 ? 0 : 1}]    
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetUTCTime: Extract an UTC Time string from the data. Returns a string
+#                representing an UTC Time.
+#
+#-----------------------------------------------------------------------------
+
+proc asn::asnGetUTCTime {data_var utc_var} {
+    upvar $data_var data $utc_var utc
+
+    asnGetByte data tag
+    if {$tag != 0x17} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected UTCTime (0x17), but got $tag_hex"
+    }
+
+    asnGetLength data length
+    asnGetBytes data $length bytes
+    
+    # this should be ascii, make it explicit
+    set bytes [encoding convertfrom ascii $bytes]
+    binary scan $bytes a* utc
+    
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetBitString: Extract a Bit String value (a string of 0/1s) from the
+#                  ASN.1 data.
+#
+#-----------------------------------------------------------------------------
+
+proc asn::asnGetBitString {data_var bitstring_var} {
+    upvar $data_var data $bitstring_var bitstring
+
+    asnGetByte data tag
+    if {$tag != 0x03} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected Bit String (0x03), but got $tag_hex"
+    }
+    
+    asnGetLength data length
+    # get the number of padding bits used at the end
+    asnGetByte data padding
+    incr length -1
+    asnGetBytes data $length bytes
+    binary scan $bytes B* bits
+    
+    # cut off the padding bits
+    set bits [string range $bits 0 end-$padding]
+    set bitstring $bits
+}
+
+#-----------------------------------------------------------------------------
+# asnGetObjectIdentifier: Decode an ASN.1 Object Identifier (OID) into
+#                         a Tcl list of integers.
+#-----------------------------------------------------------------------------
+
+proc asn::asnGetObjectIdentifier {data_var oid_var} {
+      upvar $data_var data $oid_var oid
+
+      asnGetByte data tag
+      if {$tag != 0x06} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected Object Identifier (0x06), but got $tag_hex"  
+      }
+      asnGetLength data length
+      
+      # the first byte encodes the OID parts in position 0 and 1
+      asnGetByte data val
+      set oid [expr {$val / 40}]
+      lappend oid [expr {$val % 40}]
+      incr length -1
+      
+      # the next bytes encode the remaining parts of the OID
+      set bytes [list]
+      set incomplete 0
+      while {$length} {
+        asnGetByte data octet
+        incr length -1
+        if {$octet < 128} {
+            set oidval $octet
+            set mult 128
+            foreach byte $bytes {
+                if {$byte != {}} {
+                incr oidval [expr {$mult*$byte}]    
+                set mult [expr {$mult*128}]
+                }
+            }
+            lappend oid $oidval
+            set bytes [list]
+            set incomplete 0
+        } else {
+            set byte [expr {$octet-128}]
+            set bytes [concat [list $byte] $bytes]
+            set incomplete 1
+        }                      
+      }
+      if {$incomplete} {
+        return -code error "OID Data is incomplete, not enough octets."
+      }
+      return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetContext: Decode an explicit context tag 
+#
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetContext {data_var contextNumber_var} {
+    upvar $data_var data $contextNumber_var contextNumber
+
+    asnGetByte   data tag
+    asnGetLength data length
+
+    if {($tag & 0xE0) != 0x0A0} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected Context (0xa0), but got $tag_hex"
+    }    
+    set contextNumber [expr {$tag & 0x1F}]
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetPrintableString: Decode a Printable String from the data
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetPrintableString {data_var print_var} {
+    upvar $data_var data $print_var print
+
+    asnGetByte data tag
+    if {$tag != 0x13} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected Printable String (0x13), but got $tag_hex"  
+    }
+    asnGetLength data length 
+    asnGetBytes data $length string
+    set print [encoding convertfrom ascii $string]
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetIA5String: Decode a IA5(ASCII) String from the data
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetIA5String {data_var string_var} {
+    upvar $data_var data $string_var print
+
+    asnGetByte data tag
+    if {$tag != 0x16} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected Printable String (0x13), but got $tag_hex"  
+    }
+    asnGetLength data length 
+    asnGetBytes data $length string
+    set string [encoding convertfrom ascii $string]
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetNull: decode a NULL value
+#-----------------------------------------------------------------------------
+
+proc asn::asnGetNull {data_var} {
+    upvar $data_var data 
+
+    asnGetByte data tag
+    if {$tag != 0x05} {
+        binary scan $tag H2 tag_hex
+        return -code error "Expected NULL (0x05), but got $tag_hex"
+    }
+
+    asnGetLength data length
+    asnGetBytes data $length bytes
+    
+    # we do not check the null data, all bytes must be 0x00
+    
+    return
+}
+
+
+
+#-----------------------------------------------------------------------------
+package provide asn 0.2
