@@ -4,6 +4,9 @@
 	* snit.test     with submethods.  The documentation has not yet
 	* README.txt    been updated.
 
+	* snit.tcl      Bug fix: "delegate method {a b} to comp" now produces
+	* snit.test     the call "$comp a b" instead of "$comp a_b".
+
 2004-09-04  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Bug fix: read-only options were read-only only
