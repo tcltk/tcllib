@@ -169,10 +169,8 @@ process and returns the expanded result.
 
 This command begins a manpage. Nothing is allowed to precede
 it. Arguments are the name of the command described by the manpage,
-the section of the manpages this manpages lives in, the version of the
-module containing the command, the name of the module itself and two
-descriptions, one short for the command and one a bit longer for the
-module. Both have to fit on one line.
+the section of the manpages this manpages lives in, and the version of
+the module containing the command. All have to fit on one line.
 
 [call [cmd manpage_end]]
 
