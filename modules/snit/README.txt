@@ -78,6 +78,10 @@ you.
   is saved; its job is to validate the option value and call "error"
   if there's a problem.
 
+* In addition, options can be defined to be "-readonly".  A readonly
+  option's value can be set at creation time (i.e., in the type's
+  constructor) but not afterwards.
+
 * Sundry other internal changes.
 
 Changes in V0.93
