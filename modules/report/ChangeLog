@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* report.tcl:
+	* report.man:
+	* pkgIndex.tcl:  Set version of the package to to 0.3.1
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* report.man: More semantic markup, less visual one.
