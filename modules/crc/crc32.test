@@ -1,0 +1,75 @@
+# crc32.test - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# Tests for the crc32 commands
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: crc32.test,v 1.1 2002/01/11 22:54:48 patthoyts Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+package require crc32
+
+test crc32-1.0 {crc32 with no parameters } {
+    catch {::crc::crc32} result
+    set result
+} {no value given for parameter "instr" to "::crc::crc32"}
+
+foreach {n msg expected} {
+    1    ""
+    "0"
+    2    "a"
+    "3904355907"
+    3    "abc"
+    "891568578"
+    4    "message digest"
+    "538287487"
+    5    "abcdefghijklmnopqrstuvwxyz"
+    "1277644989"
+    6    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    "532866770"
+    7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+    "2091469426"
+    8    "\uFFFE\u0000\u0001\u0002"
+    "2968055525"
+} {
+    test crc32-2.$n {crc32 and unsigned integer} {
+	::crc::crc32 $msg
+    } $expected ; # {}
+}
+
+foreach {n msg expected} {
+    1    ""
+    "0x0"
+    2    "a"
+    "0xE8B7BE43"
+    3    "abc"
+    "0x352441C2"
+    4    "message digest"
+    "0x20159D7F"
+    5    "abcdefghijklmnopqrstuvwxyz"
+    "0x4C2750BD"
+    6    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    "0x1FC2E6D2"
+    7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+    "0x7CA94A72"
+    8    "\uFFFE\u0000\u0001\u0002"
+    "0xB0E8EEE5"
+} {
+    test crc32-3.$n {crc32 as hexadecimal string} {
+	::crc::crc32 $msg 0x%X
+    } $expected ; # {}
+}
+
+
+::tcltest::cleanupTests
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

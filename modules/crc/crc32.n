@@ -1,0 +1,51 @@
+'\" crc32.n - Copyright (c) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" 
+'\" -------------------------------------------------------------------------
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\" -------------------------------------------------------------------------
+'\" RCS: @(#) $Id: crc32.n,v 1.1 2002/01/11 22:54:48 patthoyts Exp $
+'\" 
+.so man.macros
+.TH crc32 n 1.0 CRC32 "Cyclic Redundancy Check (crc32)"
+.BS
+'\" Note: do not modify the .SH NAME line immediately below!
+.SH NAME
+::crc::crc32 \- Perform a 32bit Cyclic Redundancy Check
+.SH SYNOPSIS
+\fBpackage require Tcl 8.2\fR
+.sp
+\fBpackage require crc32 ?1.0?\fR
+.sp
+\fB::crc::crc32\fR \fImsg\fR
+.sp
+.BE
+.SH DESCRIPTION
+.PP
+This package provides a Tcl-only implementation of the CRC-32 algorithm
+based upon information provided at 
+http://www.naaccr.org/standard/crc32/document.html
+If the Trf package is available then we shall use the crc-zlib command
+to implement the checksum as this uses the same algorithm.
+.SH COMMANDS
+.TP
+\fB::crc::crc32\fR \fImsg\fR \fI?format?\fR
+The command takes string data and optionally a format string and returns
+the checksum value using the \fBformat\fR(n) specifier provided or
+%u as the default.
+.SH EXAMPLES
+.PP
+.CS
+% crc::crc32 {Hello, World!}
+.br
+3964322768
+.br
+% crc::crc32 {Hello, World!} 0x%X
+.br
+0xEC4AC3D0
+.CE
+.SH AUTHORS
+Wayland Augur, Pat Thoyts
+.SH KEYWORDS
+crc, crc32, cyclic redundancy check, data integrity, security
+
