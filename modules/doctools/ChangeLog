@@ -1,3 +1,27 @@
+2003-02-12  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* dtformatter.man: Updated the documentation to include the
+	* dtformat.man:    two new commands (vset, include).
+
+	* doctools.tcl (Eval):           Added handling of new [include]
+	* doctools.tcl (ExpandInclude):  formatting command.
+
+	* checker.tcl (vset): New command in the formatting language for
+	  handling variables (setting and retrieving values). Differs from
+	  the regular in that the set value is not retruned as the result
+	  of the command. This is necessary to avoid unwanted insertion of
+	  data into the output stream. The command is handled in the
+	  checker layer (although no checking is required). The engines
+	  never see this command.
+
+	* mpformats/fmt.nroff: Changed both engines to not use the
+	* mpformats/fmt.wiki:  expander context stack anymore. It
+	                       interferes with handling of include
+	                       files. It was used to catch all output and
+	                       then perform last-miunte processing. for
+	                       that we have [fmt_postprocess], moved the
+	                       code to that.
+
 2003-01-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: Modified generation of section titles to

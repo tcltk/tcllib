@@ -19,7 +19,10 @@ The formatting engine has to provide
 [enum]
 
 Implementations of all the commands specified in [cmd dtformat(n)],
-using the defined names, but prefixed with the string [const fmt_].
+using the defined names, but prefixed with the string [const fmt_],
+except for [cmd vset] and [cmd include]. These two commands are
+processed by the generic layer and never seen by the formatting
+engine.
 
 [enum]
 and additionally implementations for
