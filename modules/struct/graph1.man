@@ -206,6 +206,17 @@ This restriction can only be used in combination with
 arcs whose associated key [arg key] has the value [arg value].
 
 [list_end]
+[nl]
+
+The restrictions imposed by either [option -in], [option -out],
+[option -adj], [option -inner], or [option -embedded] are applied
+first. Specifying more than one of them is illegal.
+
+At last the restrictions set via [option -key] (and [option -value])
+are applied.
+Specifying more than one [option -key] (and [option -value]) is
+illegal.
+
 
 [call [arg graphName] [method {node append}] [arg node] [opt "-key [arg key]"] [arg value]]
 

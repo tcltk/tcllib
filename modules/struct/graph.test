@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.17 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.18 2004/09/22 04:47:43 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -683,6 +683,41 @@ test graph-10.8 {arcs} {
     set msg
 } {a1}
 
+test graph-10.9 {arcs, multiple -key, illegal} {
+    graph mygraph
+    catch {mygraph arcs -key foobar -value 1 -key foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-key"}
+
+test graph-10.10 {arcs, multiple -value, illegal} {
+    graph mygraph
+    catch {mygraph arcs -key foobar -value 1 -value foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-value"}
+
+test graph-10.11 {arcs, multiple -filter, illegal} {
+    graph mygraph
+    catch {mygraph arcs -filter foobar -in -filter foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-filter"}
+
+test graph-10.12 {arcs, multiple -in, illegal} {
+    graph mygraph
+    catch {mygraph arcs -filter foobar -in -value foo -in} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-in"|"-out"|"-adj"|"-inner"|"-embedding"}
+
+test graph-10.13 {arcs, -in / -out exclusion, illegal} {
+    graph mygraph
+    catch {mygraph arcs -filter foobar -out -value foo -in} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-in"|"-out"|"-adj"|"-inner"|"-embedding"}
+
 # ---------------------------------------------------
 
 test graph-11.1 {node degree} {
@@ -1187,6 +1222,41 @@ test graph-19.8 {nodes} {
     mygraph destroy
     set msg
 } {n0}
+
+test graph-19.9 {nodes, multiple -keys, illegal} {
+    graph mygraph
+    catch {mygraph nodes -key foobar -key 1} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-key"}
+
+test graph-19.10 {nodes, multiple -value, illegal} {
+    graph mygraph
+    catch {mygraph nodes -key foobar -value 1 -value foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-value"}
+
+test graph-19.11 {nodes, multiple -filter, illegal} {
+    graph mygraph
+    catch {mygraph nodes -filter foobar -in -filter foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-filter"}
+
+test graph-19.12 {nodes, multiple -in, illegal} {
+    graph mygraph
+    catch {mygraph nodes -filter foobar -in -value foo -in} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-in"|"-out"|"-adj"|"-inner"|"-embedding"}
+
+test graph-19.13 {nodes, -in / -out exclusion, illegal} {
+    graph mygraph
+    catch {mygraph nodes -filter foobar -out -value foo -in} msg
+    mygraph destroy
+    set msg
+} {invalid restriction: illegal multiple use of "-in"|"-out"|"-adj"|"-inner"|"-embedding"}
 
 # ---------------------------------------------------
 

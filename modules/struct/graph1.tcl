@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph1.tcl,v 1.1 2004/05/21 03:11:57 andreas_kupries Exp $
+# RCS: @(#) $Id: graph1.tcl,v 1.2 2004/09/22 04:47:43 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -651,15 +651,29 @@ proc ::struct::graph::_arcs {name args} {
 	    -adj -
 	    -inner -
 	    -embedding {
+		if {$haveCond} {
+		    return -code error "invalid restriction:\
+			    illegal multiple use of\
+			    \"-in\"|\"-out\"|\"-adj\"|\"-inner\"|\"-embedding\""
+		}
+
 		set haveCond 1
 		set cond [string range $arg 1 end]
 	    }
 	    -key {
+		if {$haveKey} {
+		    return -code error {invalid restriction: illegal multiple use of "-key"}
+		}
+
 		incr i
 		set key [lindex $args $i]
 		set haveKey 1
 	    }
 	    -value {
+		if {$haveValue} {
+		    return -code error {invalid restriction: illegal multiple use of "-value"}
+		}
+
 		incr i
 		set value [lindex $args $i]
 		set haveValue 1
@@ -1507,15 +1521,29 @@ proc ::struct::graph::_nodes {name args} {
 	    -adj -
 	    -inner -
 	    -embedding {
+		if {$haveCond} {
+		    return -code error "invalid restriction:\
+			    illegal multiple use of\
+			    \"-in\"|\"-out\"|\"-adj\"|\"-inner\"|\"-embedding\""
+		}
+
 		set haveCond 1
 		set cond [string range $arg 1 end]
 	    }
 	    -key {
+		if {$haveKey} {
+		    return -code error {invalid restriction: illegal multiple use of "-key"}
+		}
+
 		incr i
 		set key [lindex $args $i]
 		set haveKey 1
 	    }
 	    -value {
+		if {$haveValue} {
+		    return -code error {invalid restriction: illegal multiple use of "-value"}
+		}
+
 		incr i
 		set value [lindex $args $i]
 		set haveValue 1
