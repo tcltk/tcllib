@@ -1,3 +1,9 @@
+2003-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.man, cksum.man, crc16.man, crc32.man: Added the new
+	copyright markup to the doctools pages.
+	* crc32.tcl: Enforce 32 bit calculations.
+
 2003-02-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc16.tcl: Fixed a bug in the option handling error info.
