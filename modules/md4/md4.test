@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: md4.test,v 1.4.2.1 2004/05/24 03:13:33 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -191,8 +191,10 @@ foreach {n hash} {
     149 84D82189C5458F8647D338FD62EF1667
 } {
     test md4-2.$n "md4 block size checks: length $n" {
-        ::md4::md4 -hex [string repeat a $n]
-    } $hash
+        list [catch {
+            ::md4::md4 -hex [string repeat a $n]
+        } msg] $msg
+    } [list 0 $hash]
 }
 
 ::tcltest::cleanupTests

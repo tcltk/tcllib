@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.9 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: md4.tcl,v 1.9.2.1 2004/05/24 03:13:33 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.1
-    variable rcsid {$Id: md4.tcl,v 1.9 2004/01/15 06:36:13 andreas_kupries Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.9.2.1 2004/05/24 03:13:33 andreas_kupries Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
@@ -280,8 +280,10 @@ proc ::md4::bytes {v} {
 
 # 32bit rotate-left
 proc ::md4::<<< {v n} {
-    set v [expr {(($v << $n) | (($v >> (32 - $n)) & (0x7FFFFFFF >> (31 - $n))))}]
-    return [expr {$v & 0xFFFFFFFF}]
+    return [expr {((($v << $n) \
+                        | (($v >> (32 - $n)) \
+                               & (0x7FFFFFFF >> (31 - $n))))) \
+                      & 0xFFFFFFFF}]
 }
 
 # Convert our <<< pseuodo-operator into a procedure call.
@@ -333,7 +335,7 @@ proc ::md4::MD4Hash {token msg} $::md4::MD4Hash_body
 # -------------------------------------------------------------------------
 
 if {[package provide Trf] != {}} {
-    interp alias {} ::md4::Hex {} ::hex -mode encode
+    interp alias {} ::md4::Hex {} ::hex -mode encode --
 } else {
     proc ::md4::Hex {data} {
         set result {}

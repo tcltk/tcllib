@@ -16,7 +16,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: md5x.tcl,v 1.3.2.1 2004/05/24 03:13:33 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -32,7 +32,7 @@ if {[catch {package require tcllibc}]} {
 
 namespace eval ::md5 {
     variable version 2.0.0
-    variable rcsid {$Id: md5x.tcl,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.3.2.1 2004/05/24 03:13:33 andreas_kupries Exp $}
 
     namespace export md5 hmac MD5Init MD5Update MD5Final
 
@@ -382,8 +382,10 @@ proc ::md5::bytes {v} {
 
 # 32bit rotate-left
 proc ::md5::<<< {v n} {
-    set v [expr {(($v << $n) | (($v >> (32 - $n)) & (0x7FFFFFFF >> (31 - $n))))}]
-    return [expr {$v & 0xFFFFFFFF}]
+    return [expr {((($v << $n) \
+                        | (($v >> (32 - $n)) \
+                               & (0x7FFFFFFF >> (31 - $n))))) \
+                      & 0xFFFFFFFF}]
 }
 
 # Convert our <<< pseuodo-operator into a procedure call.
@@ -485,7 +487,7 @@ proc ::md5::MD5Hash {token msg} $::md5::MD5Hash_bodyX
 # -------------------------------------------------------------------------
 
 if {[package provide Trf] != {}} {
-    interp alias {} ::md5::Hex {} ::hex -mode encode
+    interp alias {} ::md5::Hex {} ::hex -mode encode --
 } else {
     proc ::md5::Hex {data} {
         set result {}
