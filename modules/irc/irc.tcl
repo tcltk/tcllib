@@ -5,27 +5,25 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.13 2003/05/28 20:18:04 davidw Exp $
+# $Id: irc.tcl,v 1.14 2003/06/30 10:24:17 davidw Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
-
 package require logger
 
 namespace eval ::irc {
-    variable conn
-
-    # configuration information
-    set config(debug) 0
-    set log [logger::init irc]
-
     # counter used to differentiate connections
-    set conn 0
+    variable conn 0
+    variable config
+    variable irctclfile [info script]
+    array set config {
+        debug 0
+    }
 }
 
 # ::irc::config --
 #
-# Set configuration options.
+# Set global configuration options.
 #
 # Arguments:
 #
@@ -33,52 +31,58 @@ namespace eval ::irc {
 #
 # value	value of the configuration option.
 
-proc ::irc::config { key value } {
+proc ::irc::config { key args } {
     variable config
-    if { $key == "debug" } {
-	if { $value > 0 } {
-	    ${irc::log}::enable debug
-	} else {
-	    ${irc::log}::disable notice
-	}
+    if { [llength $args] == 0 } {
+	return $config($key)
+    }
+    if { [llength $args] > 1 } {
+	error "wrong # args: should be \"config key ?val?\""
+    }
+    set value [lindex $args 0]
+    foreach ns [namespace children] {
+        if { [info exists config($key)] && [info exists ${ns}::config($key)] \
+                && ${ns}::config($key) == $config($key)} {
+            ${ns}::cmd-config $key $value
+        }
     }
     set config($key) $value
 }
 
+
+# ::irc::connections --
+#
+# Return a list of handles to all existing connections
+
+proc ::irc::connections { } {
+    set r {}
+    foreach ns [namespace children] {
+        lappend r ${ns}::network
+    }
+    return $r
+}
+
+
 # ::irc::connection --
+#
+# Create an IRC connection namespace and associated commands.
 
-# Create an IRC connection namespace and associated commands.  Do not
-# actually make the socket.
-
-# Arguments:
-
-# host	hostname to connect to
-
-# port	port to use - usually 6667
-
-proc ::irc::connection { host {port 6667} } {
+proc ::irc::connection { args } {
     variable conn
     variable config
 
     # Create a unique namespace of the form irc$conn::$host
 
-    set name [format "%s::irc%s::%s" [namespace current] $conn $host]
-
-    namespace eval $name {}
-
-    # FRINK: nocheck
-    set ${name}::conn $conn
-    # FRINK: nocheck
-    set ${name}::port $port
-    # FRINK: nocheck
-    set ${name}::host $host
+    set name [format "%s::irc%s" [namespace current] $conn]
 
     namespace eval $name {
 	set nick ""
 	set state 0
-	array set dispatch {}
 	set sock {}
+	set logger [logger::init [namespace qualifiers [namespace current]]]
+	array set dispatch {}
 	array set linedata {}
+	array set config [array get ::irc::config]
 
 	# ircsend --
 	# send text to the IRC server
@@ -87,19 +91,73 @@ proc ::irc::connection { host {port 6667} } {
 	    variable sock
 	    variable dispatch
 	    variable state
-	    ${irc::log}::debug "ircsend: '$msg'"
-	    if { [catch {puts $sock "$msg"} err] } {
+	    variable logger
+	    ${logger}::debug "ircsend: '$msg'"
+	    if { [catch {puts $sock $msg} err] } {
 	        close $sock
 	        set state 0
 		if { [info exists dispatch(EOF)] } {
 		    eval $dispatch(EOF)
 		}
-		${irc::log}::error "Error in ircsend: $err"
+		${logger}::error "Error in ircsend: $err"
 	    }
 	}
 
+
+	#########################################################
 	# Implemented user-side commands, meaning that these commands
 	# cause the calling user to perform the given action.
+	#########################################################
+
+
+        # cmd-config --
+        #
+        # Set or return per-connection configuration options.
+        #
+        # Arguments:
+        #
+        # key	name of the configuration option to change.
+        #
+        # value	value (optional) of the configuration option.
+
+        proc cmd-config { key args } {
+            variable config
+	    variable logger
+
+	    if { [llength $args] == 0 } {
+		return $config($key)
+	    }
+	    if { [llength $args] > 1 } {
+		error "wrong # args: should be \"cmd-config key ?val?\""
+	    }
+	    set value [lindex $args 0]
+            if { $key == "debug" } {
+                if { $value > 0 } {
+                    ${logger}::enable debug
+                } else {
+                    ${logger}::disable debug
+	        }
+            }
+            set config($key) $value
+        }
+
+
+        # cmd-destroy --
+        #
+        # destroys the current connection and its namespace
+
+        proc cmd-destroy { } {
+            variable logger
+            variable sock
+            ${logger}::delete
+            catch {close $sock}
+            namespace delete [namespace current]
+        }
+
+        proc cmd-connected { } {
+            variable state
+            return $state
+        }
 
 	proc cmd-user { username hostname servername {userinfo ""} } {
 	    if { $userinfo == "" } {
@@ -171,23 +229,90 @@ proc ::irc::connection { host {port 6667} } {
 	    ircsend $line
 	}
 
-	# Connect --
-	# Create the actual connection.
+	proc cmd-peername { } {
+	    variable sock
+	    variable state
+	    if { $state == 0 } { return {} }
+	    return [fconfigure $sock -peername]
+	}
 
-	proc cmd-connect { } {
+	proc cmd-sockname { } {
+	    variable sock
+	    variable state
+	    if { $state == 0 } { return {} }
+	    return [fconfigure $sock -sockname]
+	}
+
+	proc cmd-disconnect { } {
+	    variable sock
+	    variable state
+	    if { $state == 0 } { return -1 }
+	    catch { close $sock }
+	    return 0
+	}
+
+	proc cmd-reload {} {
+	    variable nick
+	    variable sock
+	    variable state
+	    variable logger
+	    variable dispatch
+	    variable host
+	    variable port
+	    # Reload this file, and merge the current connection into
+	    # the new one.
+	    set sk $sock
+	    set nk $nick
+	    set st $state
+	    set lg $logger
+	    array set ds [array get dispatch]
+	    set hs $host
+	    set pt $port
+	    namespace eval :: {
+		source [set ::irc::irctclfile]
+	    }
+	    set conn [namespace qualifiers [::irc::connection]]
+	    set ${conn}::logger $lg
+	    set ${conn}::sock $sk
+	    set ${conn}::state $st
+	    set ${conn}::nick $nk
+	    set ${conn}::port $pt
+	    set ${conn}::host $hs
+	    array set ${conn}::dispatch [array get ds]
+	    return ${conn}::network
+	}
+
+	# Connect --
+	# Create the actual tcp connection.
+
+	proc cmd-connect { args } {
 	    variable state
 	    variable sock
+	    variable logger
 	    variable host
-	    variable conn
 	    variable port
+
+	    # FIXME: This should be REMOVED for the tcllib 1.6 release
+	    # cycle.
+	    # It is for backwards compatibility only!
+	    if { [llength $args] < 1 } {
+		${logger}::warn "You are using a deprecated API - correct usage: 'connect host ?port?'"
+	    } else {
+		set host [lindex $args 0]
+		if { [llength $args] > 1 } {
+		    set port [lindex $args 1]
+		} else {
+		    set port 6667
+		}
+	    }
+
 	    if { $state == 0 } {
 		if { [catch { socket $host $port } sock] } {
-		    return -1
+		    error "Could not open connection to $host $port"
 		}
 		set state 1
 		fconfigure $sock -translation crlf -buffering line
-		fileevent $sock readable\
-		    [format "::irc::irc%s::%s::GetEvent" $conn $host ]
+		fileevent $sock readable [namespace current]::GetEvent
 	    }
 	    return 0
 	}
@@ -244,7 +369,7 @@ proc ::irc::connection { host {port 6667} } {
 
 	# additional --
 
-	# Returns any additional header elements beyond the target.
+	# Returns any additional header elements beyond the target as a list.
 
 	proc additional { } {
 	    variable linedata
@@ -257,8 +382,8 @@ proc ::irc::connection { host {port 6667} } {
 
 	proc header { } {
 	    variable linedata
-	    return [concat [list $linedata(who) $linedata(action) $linedata(target)] \
-			$linedata(additional)]
+	    return [concat [list $linedata(who) $linedata(action) \
+				$linedata(target)] $linedata(additional)]
 	}
 
 	# GetEvent --
@@ -270,17 +395,20 @@ proc ::irc::connection { host {port 6667} } {
 	    variable sock
 	    variable dispatch
 	    variable state
+	    variable logger
+	    variable nick
 	    array set linedata {}
 	    set line "eof"
 	    if { [eof $sock] || [catch {gets $sock} line] } {
 		close $sock
 		set state 0
-		${irc::log}::error "Error receiving from network: $line"
+		${logger}::error "Error receiving from network: $line"
 		if { [info exists dispatch(EOF)] } {
 		    eval $dispatch(EOF)
 		}
 		return
 	    }
+	    ${logger}::debug "Recieved: $line"
 	    if { [set pos [string first " :" $line]] > -1 } {
 		set header [string range $line 0 [expr $pos - 1]]
 		set linedata(msg) [string range $line [expr $pos + 2] end]
@@ -368,9 +496,25 @@ proc ::irc::connection { host {port 6667} } {
 	# Create default handlers.
 
 	set dispatch(PING) {network send "PONG :[msg]"}
+	set dispatch(defaultevent) #
+	set dispatch(defaultcmd) #
+	set dispatch(defaultnumeric) #
     }
-    set returncommand [format "%s::irc%s::%s::network" [namespace current] \
-			   $conn $host]
+
+    # FIXME: This should be REMOVED for the tcllib 1.6 release cycle.
+    # It is for backwards compatibility only!
+    if { [llength $args] > 0 } {
+	[set ${name}::logger]::warn "'connection' no longer takes args - use the 'connect' call to specifiy the host and port."
+	set host [lindex $args 0]
+	if { [llength $args] > 1 } {
+	    set port [lindex $args 1]
+	} else {
+	    set port 6667
+	}
+	${name}::cmd-connect $host $port
+    }
+
+    set returncommand [format "%s::irc%s::network" [namespace current] $conn]
     incr conn
     return $returncommand
 }
