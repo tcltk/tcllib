@@ -356,7 +356,7 @@ proc smtp::sendmessage {part args} {
         }
     }
 
-    if {[string equal $servers localhost]} {
+    if {![string compare $servers localhost]} {
         set client localhost
     } else {
         set client [info hostname]
@@ -1113,7 +1113,7 @@ proc smtp::readable {token} {
         set state(error) $result
     } else {
         # If the line ends in \r, remove the \r.
-        if {[string equal [string index $state(line) end] "\r"]} {
+        if {![string compare [string index $state(line) end] "\r"]} {
             set state(line) [string range $state(line) 0 end-1]
         }
         set state(readable) 1
