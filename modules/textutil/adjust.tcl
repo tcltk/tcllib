@@ -351,6 +351,7 @@ proc ::textutil::adjust::Justification { line index arrayName } {
     # it's the first word, until enough spaces are added
     # then rebuild the line
     #
+    # Idea kept but procedure modified by jhv
 
     if { "$justify" == "plain" } then {
         set miss [ expr { $Length - [ string length $line ] } ]
@@ -358,36 +359,39 @@ proc ::textutil::adjust::Justification { line index arrayName } {
             return "${line}"
         }
 
-        for { set i 1 } { $i < $words(0) } { incr i } {
-            lappend list [ eval list $i $words($i) 1 ]
-        }
-        lappend list [ eval list $i $words($words(0)) 0 ]
-        set list [ SortList $list decreasing 1 ]
+        # Bugfix tcllib-bugs-860753 (jhv)
 
-        set i 0
-        while { $miss > 0 } {
-            set elem [ lindex $list $i ]
-            set nb [ lindex $elem 3 ]
-            incr nb
-            set elem [ lreplace $elem 3 3 $nb ]
-            set list [ lreplace $list $i $i $elem ]
-            incr miss -1
-            incr i
-            if { $i == $words(0) } then {
-                set i 0
-            }
+        set worte [split $line];
+        set imax [llength $worte];
+
+        for {set i 0; set totalLen 0} {$i < $imax} {incr i} {
+          set elem($i) [lindex $worte $i];
+          if {$i > 0} {set elem($i) " $elem($i)"};
+          set elemLen($i) [string length $elem($i)];
+          set totalLen [expr $totalLen+$elemLen($i)];
         }
-        set list [ SortList $list increasing 0 ]
-        set line ""
-        foreach elem $list {
-            set jus [ $StrRepeat " " [ lindex $elem 3 ] ]
-            set word [ lindex $elem 2 ]
-            if { [ lindex $elem 0 ] == $words(0) } then {
-                append line "${jus}${word}"
-            } else {
-                append line "${word}${jus}"
+
+        set miss [expr {$Length - $totalLen}]
+
+        # len walks through all lengths of words of the line under
+        # consideration
+
+        for {set len 1} {$miss > 0} {incr len} {
+          for {set i 1} {($i < $imax) && ($miss > 0)} {incr i} {
+            if {$elemLen($i) == $len} {
+              set elem($i) " $elem($i)";
+              incr elemLen($i);
+              incr miss -1;
             }
+          }
         }
+
+        set line "";
+        for {set i 0} {$i < $imax} {incr i} {
+          set line "$line$elem($i)";
+        }
+
+        # End of bugfix
 
         return "${line}"
     }
@@ -406,7 +410,7 @@ proc ::textutil::adjust::SortList { list dir index } {
 
 # Hyphenation utilities based on Knuth's algorithm
 #
-# Copyright (C) 2001-2003 by Dr.Johannes-Heinrich Vogeler
+# Copyright (C) 2001-2003 by Dr.Johannes-Heinrich Vogeler (jhv)
 # These procedures may be used as part of the tcllib
 
 # textutil::adjust::Hyphenation
