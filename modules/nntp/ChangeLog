@@ -1,5 +1,9 @@
 2002-01-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
+	* Bumped version to 0.2
+
+2002-01-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
 	* nntp.tcl: Fixed bug #502250 reported by Andreas Otto
 	  <aotto@t-online.de> which caused the package to wrap each
 	  message into braces, causing nntp servers to reject the data.

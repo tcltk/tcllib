@@ -1,3 +1,7 @@
+2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Bumped version to 1.2
+
 2001-11-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.tcl (add rows): Indices were transposed. Fixed.

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: misc.tcl,v 1.1 2002/01/12 00:55:13 kennykb Exp $
+# RCS: @(#) $Id: misc.tcl,v 1.2 2002/01/18 20:51:16 andreas_kupries Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 namespace eval ::math {
@@ -357,4 +357,4 @@ proc ::math::expectDouble { arg } {
     return [format "expected a floating-point number but found \"%.50s\"" $arg]
 }
 
-package provide math 1.1
+package provide math 1.2

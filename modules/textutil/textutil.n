@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.10 2002/01/18 00:53:38 jenglish Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.11 2002/01/18 20:51:16 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 .nf
 \fBpackage require Tcl 8.2\fR
-\fBpackage require textutil ?0.3?\fR
+\fBpackage require textutil ?0.4?\fR
 .sp
 \fBtextutil::adjust\fR \fIstring args\fR
 \fBtextutil::splitx\fR \fIstring {regexp [\\t \\r\\n]+}\fR
