@@ -1,4 +1,10 @@
-2002-02-27  Andreas Kupries  <andreask@pliers.activestate.com>
+2002-04-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Accepted patch by Simon Scott
+	  <sjscott@users.sourceforge.net>, with slight modification. Fixes
+	  bug #533025.
+
+2002-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl: Accepted patch for bug #519623 by Rolf Ade
 	  <rolf@pointsman.de>.
