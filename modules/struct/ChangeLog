@@ -1,3 +1,8 @@
+2003-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* struct_tree.man: Added more documentation about the root node of
+	  tree's. [Bug 827643].
+
 2003-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.tcl: Fixed bugs in tree serialization code found when
