@@ -889,7 +889,7 @@ test dtypemethod-4.4 {redefinition is OK} {} {
     dog wag tail
 } {wags tail briskly}
 
-test dtypemethod-4.5 {all tokens are used by default} {} {
+test dtypemethod-4.5 {last token is used by default} {} {
     cleanup
 
     type tail {
@@ -905,6 +905,56 @@ test dtypemethod-4.5 {all tokens are used by default} {} {
 
     dog tail wag
 } {wags tail}
+
+test dtypemethod-4.6 {last token can be *} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags"}
+        method droop {} {return "droops"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {tail *} to tail
+    }
+
+    list [dog tail wag] [dog tail droop]
+} {wags droops}
+
+test dtypemethod-4.7 {except with multiple tokens} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags"}
+        method droop {} {return "droops"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {tail *} to tail except droop
+    }
+
+    catch {dog tail droop} result
+
+    list [dog tail wag] $result
+} {wags {"::dog tail droop" is not defined}}
+
+test dtypemethod-4.8 {"*" in the wrong spot} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate typemethod {tail * wag} to tail
+        }
+    } result
+
+    set result
+} {Error in "delegate typemethod {tail * wag}...", "*" must be the last token.}
 
 test dtypemethod-5.1 {prefix/typemethod collision} {} {
     cleanup
@@ -2859,7 +2909,7 @@ test delegate-1.5 {"as" doesn't work with "*"} {} {
     } result
 
     set result
-} {Error in "delegate method *...", cannot specify "as" with method "*"}
+} {Error in "delegate method *...", cannot specify "as" with "*"}
 
 test delegate-1.6 {"except" must have a target} {} {
     cleanup
@@ -2898,7 +2948,7 @@ test delegate-1.8 {"except" works only with "*"} {} {
     } result
 
     set result
-} {Error in "delegate method foo...", can only specify "except" with method "*"}
+} {Error in "delegate method foo...", can only specify "except" with "*"}
 
 test delegate-1.9 {only "as" or "except"} {} {
     cleanup
@@ -3254,6 +3304,60 @@ test dmethod-4.5 {all tokens are used by default} {} {
     dog spot
     spot tail wag
 } {wags tail}
+
+test dmethod-4.6 {last token can be *} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags"}
+        method droop {} {return "droops"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {tail *} to tail
+    }
+
+    dog spot
+
+    list [spot tail wag] [spot tail droop]
+} {wags droops}
+
+test dmethod-4.7 {except with multiple tokens} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags"}
+        method droop {} {return "droops"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {tail *} to tail except droop
+    }
+
+    dog spot
+
+    catch {spot tail droop} result
+
+    list [spot tail wag] $result
+} {wags {"::spot tail droop" is not defined}}
+
+test dmethod-4.8 {"*" in the wrong spot} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate method {tail * wag} to tail
+        }
+    } result
+
+    set result
+} {Error in "delegate method {tail * wag}...", "*" must be the last token.}
 
 test dmethod-5.1 {prefix/method collision} {} {
     cleanup

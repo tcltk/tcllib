@@ -5,6 +5,12 @@
 			"using" patterns to better support the 
 			hiearchical case.
 
+	* snit.tcl      Extended the "delegate method *" and
+	* snit.test     "delegate typemethod *" syntax to work better with
+	                hierarchical methods.  
+	                E.g., "delegate method {tail *} to tail" now maps
+			"$self tail wag" to "$tail wag"
+
 2004-09-12  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Added support for hierarchical type methods,
