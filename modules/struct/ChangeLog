@@ -1,9 +1,11 @@
-Wed Sep 29 12:29:08 2004  Andreas Kupries <andreask@activestate.com>
+2004-09-29  Andreas Kupries <andreask@activestate.com>
+
+	* record.tcl:  Fixed [Tcllib SF Bug 1018733]. Corrected management
+	* record.text: of _level, which was reset to the level 0 to early,
+ 	  and also was not decremented after a sub-record was completed.
 
 	* record.tcl (Delete): Fixed [Tcllib SF Bug 1023973]. Do not count
 	* record.test:         the id generator down. Added test case for this.
-
-Wed Sep 29 10:11:25 2004  Andreas Kupries <andreask@activestate.com>
 
 	* tree.tcl:        Fixed [Tcllib SF Bug 1034924]. Both tree and graph
 	* struct_tree.man: depend on struct::list for some of their methods.
