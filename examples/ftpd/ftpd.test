@@ -1,7 +1,8 @@
-#!/bin/sh 
-# FTP daemon for testing the ftp client (modules/ftp).
+#! /bin/sh
 # -*- tcl -*- \
-exec tclsh8.3 "$0" ${1+"$@"}
+exec tclsh "$0" ${1+"$@"}
+
+# FTP daemon
 
 # This ftpd runs on port 7777, uses /tmp as root dir and does not do
 # any authentication at all. IOW, do not run this server for longer
@@ -9,6 +10,7 @@ exec tclsh8.3 "$0" ${1+"$@"}
 # server is strictly for short testing the implementation of the ftp
 # module over short periods of time.
 
+package require Tcl 8.3
 package require ftpd
 package require log
 
