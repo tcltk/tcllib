@@ -1,3 +1,10 @@
+2005-02-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5x.tcl:      Avoid raising an error if the string to be hashed
+	* pkgIndex.tcl:  begins with a hyphen. Use '--' as an _optional_ 
+	* md5.mac:       end-of-args marker.
+	* md5x.test:     Added tests.
+
 2004-12-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5x.tcl: Replaced use of memchan null channel with the systems
