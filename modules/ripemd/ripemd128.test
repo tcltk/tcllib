@@ -1,6 +1,6 @@
 # ripemd128.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd128.test,v 1.4 2004/12/03 02:23:40 patthoyts Exp $
+# $Id: ripemd128.test,v 1.5 2005/02/17 23:30:31 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -23,10 +23,9 @@ if {[catch {source [file join [file dirname [info script]] ripemd128.tcl]} msg]}
 package require ripemd128
 
 if {$::ripemd::::ripemd128::usetrf} {
-    puts "ripemd128 [package provide ripemd128] (Trf based)"
-} else {
-    puts "ripemd128 [package provide ripemd128] (pure Tcl)"
+    puts "- ripemd128 [package provide ripemd128] (Trf based)"
 }
+puts "- ripemd128 [package provide ripemd128] (pure Tcl)"
 
 # -------------------------------------------------------------------------
 # Setup any constraints
@@ -66,7 +65,7 @@ foreach {n msg hash} $vectors {
 if {$::ripemd::ripemd128::usetrf} {
     set ::ripemd::ripemd128::usetrf 0
     foreach {n msg hash} $vectors {
-        test ripemd128-2.$n {RIPEMD-128 pure-Tcl} {
+        test ripemd128-tcl-1.$n {RIPEMD-128 test strings (pure-Tcl impl)} {
             ::ripemd::ripemd128 -hex -- $msg
         } $hash
     }
@@ -93,7 +92,7 @@ lappend vectors \
     8 [string repeat 1234567890 8] {9A4F0159C0952DA43A8D466D46B0AF58}
 
 foreach {n msg hash} $vectors {
-    test ripemd128-3.$n {HMAC RIPEMD-128 test vectors} {
+    test ripemd128-2.$n {HMAC RIPEMD-128 test vectors} {
         ::ripemd::hmac128 -hex -key $key -- $msg
     } $hash
 }
@@ -103,7 +102,7 @@ foreach {n msg hash} $vectors {
 if {$::ripemd::ripemd128::usetrf} {
     set ::ripemd::ripemd128::usetrf 0
     foreach {n msg hash} $vectors {
-        test ripemd128-4.$n {HMAC RIPEMD-128 pure-Tcl} {
+        test ripemd128-tcl-2.$n {HMAC RIPEMD-128 test vectors (pure-Tcl impl)} {
             ::ripemd::hmac128 -hex -key $key -- $msg
         } $hash
     }
@@ -130,7 +129,7 @@ lappend vectors \
     8 [string repeat 1234567890 8] {AD04354D8AA2A623E72E3594EE3535C0}
 
 foreach {n msg hash} $vectors {
-    test ripemd128-5.$n {HMAC RIPEMD-128 test vectors} {
+    test ripemd128-3.$n {HMAC RIPEMD-128 test vectors} {
         ::ripemd::hmac128 -hex -key $key -- $msg
     } $hash
 }
@@ -140,7 +139,7 @@ foreach {n msg hash} $vectors {
 if {$::ripemd::ripemd128::usetrf} {
     set ::ripemd::ripemd128::usetrf 0
     foreach {n msg hash} $vectors {
-        test ripemd128-6.$n {HMAC RIPEMD-128 pure-Tcl} {
+        test ripemd128-tcl-3.$n {HMAC RIPEMD-128 test vectors (pure-Tcl impl)} {
             ::ripemd::hmac128 -hex -key $key -- $msg
         } $hash
     }
@@ -174,7 +173,7 @@ set vectors \
          5C6BEC96793E16D40690C237635F30C5 \
         ]
 foreach {n key msg hash} $vectors {
-    test ripemd128-7.$n {RFC2286 test vectors for HMAC-RIPEMD128} {
+    test ripemd128-4.$n {RFC2286 test vectors for HMAC-RIPEMD128} {
         ::ripemd::hmac128 -hex -key $key -- $msg
     } $hash
 }
@@ -182,12 +181,47 @@ foreach {n key msg hash} $vectors {
 if {$::ripemd::ripemd128::usetrf} {
     set ::ripemd::ripemd128::usetrf 0
     foreach {n key msg hash} $vectors {
-        test ripemd128-8.$n {RFC2286 test vectors for HMAC-RIPEMD128 pure-Tcl} {
+        test ripemd128-tcl-4.$n {RFC2286 test vectors for HMAC-RIPEMD128 pure-Tcl} {
             ::ripemd::hmac128 -hex -key $key -- $msg
         } $hash
     }
     set ::ripemd::ripemd128::usetrf 1
 }    
+
+# -------------------------------------------------------------------------
+
+test ripemd128-5.1 {Check hashing data that begins with hyphen} {
+    list [catch {::ripemd::ripemd128 -hex -hello} msg] $msg
+} {0 4FA192692A0FBB0C5E3092F8266A4014}
+
+test ripemd128-5.2 {Check hashing data that begins with hyphen} {
+    list [catch {::ripemd::ripemd128 -hex -- -hello} msg] $msg
+} {0 4FA192692A0FBB0C5E3092F8266A4014}
+
+test ripemd128-5.3 {Check hashing data that begins with hyphen} {
+    list [catch {::ripemd::ripemd128 -hex --} msg] $msg
+} {0 49D7D0E80B035C0EC8FFB81D07185B69}
+
+test ripemd128-5.4 {Check hashing data that begins with hyphen} {
+    list [catch {::ripemd::ripemd128 -hex -- --} msg] $msg
+} {0 49D7D0E80B035C0EC8FFB81D07185B69}
+
+test ripemd128-6.1 {Check hmac data that begins with hyphen} {
+    list [catch {::ripemd::hmac128 -hex -key "" -hello} msg] $msg
+} {0 D34FADEBBDAC6991C4CFB6D9C490AC1D}
+
+test ripemd128-6.2 {Check hmac data that begins with hyphen} {
+    list [catch {::ripemd::hmac128 -hex -key "" -- -hello} msg] $msg
+} {0 D34FADEBBDAC6991C4CFB6D9C490AC1D}
+
+test ripemd128-6.3 {Check hmac data that begins with hyphen} {
+    list [catch {::ripemd::hmac128 -hex -key "" --} msg] $msg
+} {0 3EA28051102F1F44AF3850FAD0EFCA13}
+
+test ripemd128-6.4 {Check hmac data that begins with hyphen} {
+    list [catch {::ripemd::hmac128 -hex -key "" -- --} msg] $msg
+} {0 3EA28051102F1F44AF3850FAD0EFCA13}
+
 
 # -------------------------------------------------------------------------
 
