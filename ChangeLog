@@ -1,9 +1,14 @@
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
+	* sak.tcl: Added -nonewline to a number of puts statements to work
+	  around a problem with Tcl 8.4 where additional ^M characters
+	  appear for Mac OS X. [Bug 784523].
+
 	* README: Updated to describe the new way of adding modules to
-	  tcllib.
+	  tcllib. [Bug 784515].
 
 	* INSTALL.txt: Updated references to tcllib 1.4 to 1.5.
+	  [Bug 784516, incomplete].
 
 	* installed_modules.tcl: Changed doc action for snit from _null to
 	  _man (We have doctools manpages for snit for a while now).
