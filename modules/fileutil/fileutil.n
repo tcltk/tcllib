@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: fileutil.n,v 1.5 2001/08/24 17:01:00 andreas_kupries Exp $
+'\" RCS: @(#) $Id: fileutil.n,v 1.6 2001/11/08 06:26:41 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH fileutil n 1.1 Fileutil "file utilities"
@@ -24,6 +24,8 @@
 \fB::fileutil::foreachLine\fR \fIvar filename cmd\fR
 .sp
 \fB::fileutil::grep\fR \fIpattern\fR ?\fIfiles\fR?
+.sp
+\fB::fileutil::touch\fR ?\fI-a\fR? ?\fI-c\fR? ?\fI-m\fR? ?\fI-r ref_file\fR? ?\fI-t time\fR? \fIfilename\fR ?\fI...\fR?
 .BE
 .SH DESCRIPTION
 .PP
@@ -75,6 +77,14 @@ a list of \fIfiles\fR to search through. The list is optional and
 is a list containing the matches. Each match is a single element of
 the list and contains filename, number and contents of the matching
 line, separated by a colons.
+.TP
+\fB::fileutil::touch\fR ?\fI-a\fR? ?\fI-c\fR? ?\fI-m\fR? ?\fI-r ref_file\fR? ?\fI-t time\fR? \fIfilename\fR ?\fI...\fR?
+Implementation of touch. Alter the atime and mtime of the specified
+files. If \fI-c\fR, do not create files if they do not already
+exist. If \fI-r\fR, use the atime and mtime from \fIref_file\fR. If
+\fI-t\fR, use the integer clock value \fItime\fR. It is illegal to 
+specify both \fI-r\fR and \fI-t\fR. If \fI-a\fR, only change the 
+atime. If \fI-m\fR, only change the mtime. 
 
 .SH KEYWORDS
 file utilities

@@ -7,13 +7,14 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.9 2001/09/05 23:53:52 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.10 2001/11/08 06:26:41 andreas_kupries Exp $
 
 package require Tcl 8
+package require cmdline
 package provide fileutil 1.2
 
 namespace eval ::fileutil {
-    namespace export grep find findByPattern cat foreachLine
+    namespace export grep find findByPattern cat foreachLine touch
 }
 
 # ::fileutil::grep --
@@ -327,4 +328,69 @@ proc ::fileutil::foreachLine {var filename cmd} {
 		$result
     }
     return -code $code $result
+}
+
+# ::fileutil::touch --
+#
+#	Tcl implementation of the UNIX "touch" command.
+#
+#	touch [-a] [-m] [-c] [-r ref_file] [-t time] filename ...
+#
+# Arguments:
+#	-a		change the access time only, unless -m also specified
+#	-m		change the modification time only, unless -a also specified
+#	-c		silently prevent creating a file if it did not previously exist
+#	-r ref_file	use the ref_file's time instead of the current time
+#	-t time		use the specified time instead of the current time
+#			("time" is an integer clock value, like [clock seconds])
+#	filename ...	the files to modify
+#
+# Results
+#	None.
+#
+# Errors:
+#	Both of "-r" and "-t" cannot be specified.
+
+proc ::fileutil::touch {args} {
+    # Don't bother catching errors, just let them propagate up
+
+    set options {
+        {a          "set the atime only"}
+        {m          "set the mtime only"}
+        {c          "do not create non-existant files"}
+        {r.arg  ""  "use time from ref_file"}
+        {t.arg  -1  "use specified time"}
+    }
+    array set params [::cmdline::getoptions args $options]
+
+    # process -a and -m options
+    set set_atime [set set_mtime "true"]
+    if {  $params(a) && ! $params(m)} {set set_mtime "false"}
+    if {! $params(a) &&   $params(m)} {set set_atime "false"}
+
+    # process -r and -t
+    set has_t [expr {$params(t) != -1}]
+    set has_r [expr {[string length $params(r)] > 0}]
+    if {$has_t && $has_r} {
+        return -code error "Cannot specify both -r and -t"
+    } elseif {$has_t} {
+        set atime [set mtime $params(t)]
+    } elseif {$has_r} {
+        file stat $params(r) stat
+        set atime $stat(atime)
+        set mtime $stat(mtime)
+    } else {
+        set atime [set mtime [clock seconds]]
+    }
+
+    # do it
+    foreach filename $args {
+        if {! [file exists $filename]} {
+            if {$params(c)} {continue}
+            close [open $filename w]
+        }
+        if {$set_atime} {file atime $filename $atime}
+        if {$set_mtime} {file mtime $filename $mtime}
+    }
+    return
 }

@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.17 2001/11/07 02:48:29 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.18 2001/11/08 06:26:41 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -1333,9 +1333,20 @@ proc ftp::ModTime {s {filename ""}} {
     }
 }
 
-proc ftp::ModTimePostProcess clock {
+proc ftp::ModTimePostProcess {clock} {
     foreach {year month day hour min sec} {1 1 1 1 1 1} break
-    scan $clock "%4s%2s%2s%2s%2s%2s" year month day hour min sec
+
+    # Bug #478478. Special code to detect ftp servers with a Y2K patch
+    # gone bad and delivering, hmmm, non-standard date information.
+
+    if {[string length $clock] == 15} {
+        scan $clock "%2s%3s%2s%2s%2s%2s%2s" cent year month day hour min sec
+        set year [expr {($cent * 100) + $year}]
+	log::log warning "data | W: server with non-standard time, bad Y2K patch."
+    } else {
+        scan $clock "%4s%2s%2s%2s%2s%2s" year month day hour min sec
+    }
+
     set clock [clock scan "$month/$day/$year $hour:$min:$sec" -gmt 1]
     return $clock
 }
