@@ -1,4 +1,9 @@
 
+2000-08-22  Brent Welch <welch@ajubasolutions.com>
+
+	* configure.in: Bumped patchlevel to 0.6.1
+	applied tcllib-0-6-1 tag
+
 2000-07-19  Brent Welch <welch@ajubasolutions.com>
 
 	* configure.in: Bumped patchlevel to 0.6
