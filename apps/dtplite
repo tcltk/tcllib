@@ -1147,7 +1147,13 @@ proc ::dtplite::XrefGetSaved {} {
     array set xref {}
     set fqn [At .xrf]
     if {[file exists $fqn]} {
-	array set xref [Get $fqn]
+	array set xref [set s [Get $fqn]]
+	# Extend list of mapped files
+	# for proper relative paths.
+	foreach {k v} $s {
+	    set sym [lindex $v 0]
+	    MapAdd $sym
+	}
     }
 
     # Add any new cross references ...
