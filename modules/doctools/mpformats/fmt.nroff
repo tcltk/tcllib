@@ -151,7 +151,7 @@ proc fmt_arg_def {type name {mode {}}} {
 }
 proc fmt_opt_def {name {arg {}}} {
     if {[string match -* $name]} {set name \\-$name}
-    set name [option $name]
+    set name [fmt_option $name]
     if {$arg != {}} {append name " $arg"}
     return [nr_blt $name]
 }
