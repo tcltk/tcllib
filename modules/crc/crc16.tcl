@@ -23,7 +23,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.4 2003/01/26 00:16:03 patthoyts Exp $
+# $Id: crc16.tcl,v 1.5 2003/02/02 21:57:21 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -204,16 +204,16 @@ proc ::crc::CRC-32 {s {seed 0xFFFFFFFF}} {
 proc ::crc::crc {args} {
     array set opts [list filename {} format %u seed 0 impl [namespace origin CRC16]]
     
-    while {[string match -* [lindex $args 0]]} {
-        switch -glob -- [lindex $args 0] {
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
             -fi* { set opts(filename) [Pop args 1] }
             -fo* { set opts(format) [Pop args 1] }
             -i*  { set opts(impl) [uplevel 1 namespace origin [Pop args 1]] }
             -s*  { set opts(seed) [Pop args 1] }
             -- { Pop args ; break }
             default {
-                set err [join [lsort [array names opts]] ", -"]
-                return -code error "bad option [lindex $args 0]:\
+                set options [join [lsort [array names opts]] ", -"]
+                return -code error "bad option $option:\
                        must be one of -$options"
             }
         }
