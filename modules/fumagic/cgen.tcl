@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cgen.tcl,v 1.2 2005/02/11 06:07:31 andreas_kupries Exp $
+# RCS: @(#) $Id: cgen.tcl,v 1.3 2005/02/15 07:45:01 andreas_kupries Exp $
 
 #####
 #
@@ -36,7 +36,7 @@ package provide fileutil::magic::cgen 1.0
 
 namespace eval ::fileutil::magic::cgen {
     # Import the runtime typemap into our scope.
-    variable ::fileutil::rt::typemap
+    variable ::fileutil::magic::rt::typemap
 
     # The tree most operations use for their work.
     variable tree {}
@@ -109,7 +109,8 @@ proc ::fileutil::magic::cgen::tree_el {tree parent file line type qual comp offs
     $tree set $node path $path
 
     # generate a proc call type for the type, Numeric or String
-    variable typemap
+    variable ::fileutil::magic::rt::typemap
+
     switch -glob -- $type {
    	*byte* -
    	*short* -
@@ -359,7 +360,7 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 }
 
 proc ::fileutil::magic::cgen::treegen1 {tree node} {
-    variable typemap
+    variable ::fileutil::magic::rt::typemap
 
     set result ""
     foreach k {otype type offset comp val qual message} {
