@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.14 2004/01/25 06:15:05 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.15 2004/05/19 04:34:50 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -2774,3 +2774,13 @@ proc ::struct::matrix::DeleteColumns {name n} {
     return
 }
 
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'matrix::matrix' into the general structure namespace.
+    namespace import -force matrix::matrix
+    namespace export matrix
+}
+package provide struct::matrix 2.0

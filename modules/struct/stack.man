@@ -1,4 +1,4 @@
-[manpage_begin stack n 1.2.1]
+[manpage_begin struct::stack n 1.2.1]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate stack objects}]
 [require Tcl 8.2]

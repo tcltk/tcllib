@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: prioqueue.tcl,v 1.6 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.tcl,v 1.7 2004/05/19 04:34:50 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -474,3 +474,12 @@ proc ::struct::prioqueue::__elementcompare-dictionary {prio newPrio sortdir} {
     return [expr {$e1 > $e2 ? -1*$sortdir : ($e1 != $e2)*$sortdir}]
 }
 
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'prioqueue::prioqueue' into the general structure namespace.
+    namespace import -force prioqueue::prioqueue
+    namespace export prioqueue
+}
+package provide struct::prioqueue 1.3

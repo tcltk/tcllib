@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.16 2004/02/16 04:14:50 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.17 2004/05/19 04:34:50 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -1472,3 +1472,13 @@ proc ::struct::list::Dekey {keyedtable} {
     foreach row $keyedtable {lappend table [lindex $row 1]}
     return $table
 }
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'list::list' into the general structure namespace.
+    namespace import -force list::list
+    namespace export list
+}
+package provide struct::list 1.4

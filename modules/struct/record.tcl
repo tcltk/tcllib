@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.7 2004/01/15 06:36:14 andreas_kupries Exp $
+# $Id: record.tcl,v 1.8 2004/05/19 04:34:50 andreas_kupries Exp $
 #
 #============================================================
 #
@@ -755,3 +755,13 @@ proc ::struct::record::Qualify {item_ {level_ 2}} {
     return "$item_"
 
 }; # end proc ::struct::record::Qualify
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'record::record' into the general structure namespace.
+    namespace import -force record::record
+    namespace export record
+}
+package provide struct::record 1.2.1

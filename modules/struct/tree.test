@@ -7,15 +7,29 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.29 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.30 2004/05/19 04:34:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] tree.tcl]
-namespace import struct::tree::tree
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::tree
+catch {namespace delete ::struct::tree}
+if {[catch {source [file join [file dirname [info script]] tree.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct::tree
+puts "- struct::tree [package present struct::tree]"
+
+namespace import struct::tree
+
+#----------------------------------------------------------------------
 
 # Takes a dictionary, returns a list containing the same dictionary,
 # however the keys are sorted alphabetically. This allows for a true

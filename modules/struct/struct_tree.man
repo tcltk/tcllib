@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin tree n 2.0]
+[manpage_begin struct::tree n 2.0]
 [copyright {2002-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin pool n 1.2.1]
+[manpage_begin struct::pool n 1.2.1]
 [copyright {2002, Erik Leunissen <e.leunissen@hccnet.nl>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate pool objects (of discrete items)}]

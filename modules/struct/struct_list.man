@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.9 2004/02/16 04:14:50 andreas_kupries Exp $}]
-[manpage_begin list n 1.4]
+[comment {$Id: struct_list.man,v 1.10 2004/05/19 04:34:50 andreas_kupries Exp $}]
+[manpage_begin struct::list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
