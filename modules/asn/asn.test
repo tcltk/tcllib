@@ -4,7 +4,7 @@
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.1 2004/08/06 05:17:07 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.2 2004/08/07 02:17:25 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -42,6 +42,25 @@ test asn-1.2 {integer} {
     set result
 } {expected integer but got "a"}
 
+
+test asn-3.0 {enum} {
+    catch {asn::asnEnumeration} result
+    set result
+} [tcltest::wrongNumArgs {asn::asnEnumeration} {number} 0]
+
+test asn-3.1 {enum} {
+    catch {asn::asnEnumeration a b} result
+    set result
+} [tcltest::tooManyArgs {asn::asnEnumeration} {number}]
+
+test asn-3.2 {enum} {
+    catch {asn::asnEnumeration a} result
+    set result
+} {expected integer but got "a"}
+
+
+
+
 foreach {n i len hex} {
      0  0        01 00
      1 -1        01 FF
@@ -73,6 +92,11 @@ foreach {n i len hex} {
 	binary scan [asn::asnInteger $i] H* result
 	list $i [string toupper $result]
     } [list $i 02$len$hex] ; # {}
+
+    test asn-4.$n {enum} {
+	binary scan [asn::asnEnumeration $i] H* result
+	list $i [string toupper $result]
+    } [list $i 0A$len$hex] ; # {}
 }
 
 # -------------------------------------------------------------------------
