@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.12 2003/03/29 02:01:23 patthoyts Exp $
+# RCS: @(#) $Id: all.tcl,v 1.13 2003/05/02 07:42:05 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -79,7 +79,15 @@ set ::tcltest::testsDirectory [file dirname [info script]]
 set root $::tcltest::testsDirectory
 
 # We need to ensure that the testsDirectory is absolute
-::tcltest::normalizePath ::tcltest::testsDirectory
+if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {
+    # The version of tcltest we have here does not support
+    # 'normalizePath', so we have to do this on our own.
+
+    set oldpwd [pwd]
+    catch {cd $::tcltest::testsDirectory}
+    set ::tcltest::testsDirectory [pwd]
+    cd $oldpwd
+}
 
 puts stdout "tcllib tests"
 puts stdout "Tests running in working dir:  $::tcltest::testsDirectory"
