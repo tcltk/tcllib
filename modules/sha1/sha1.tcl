@@ -21,13 +21,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.13 2005/02/20 22:58:58 patthoyts Exp $
+# $Id: sha1.tcl,v 1.14 2005/02/21 01:53:25 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable version 2.0.0
-    variable rcsid {$Id: sha1.tcl,v 1.13 2005/02/20 22:58:58 patthoyts Exp $}
+    variable rcsid {$Id: sha1.tcl,v 1.14 2005/02/21 01:53:25 patthoyts Exp $}
     variable usetrf 0
     variable usesha1c 0
 
@@ -179,7 +179,7 @@ proc ::sha1::SHA1Final {token} {
     }
 
     # Output
-    set r [binary format I5 [list $state(A) $state(B) $state(C) $state(D) $state(E)]]
+    set r [bytes $state(A)][bytes $state(B)][bytes $state(C)][bytes $state(D)][bytes $state(E)]
     unset state
     return $r
 }
@@ -292,7 +292,7 @@ proc ::sha1::SHA1Transform {token msg} {
         # Round 1: ft(B,C,D) = (B & C) | (~B & D) ( 0 <= t <= 19)
         for {set t 0} {$t < 20} {incr t} {
             set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
-                                (($B & $C) | ((~$B) & $D)) \
+                                ($D ^ ($B & ($C ^ $D))) \
                                 + $E + [set W$t] + 0x5a827999}]
             set E $D
             set D $C
@@ -314,9 +314,9 @@ proc ::sha1::SHA1Transform {token msg} {
         }
         # Round 3: ft(B,C,D) = ((B & C) | (B & D) | (C & D)) ( 40 <= t <= 59)
         for {} {$t < 60} {incr t} {
-            set TEMP [expr {((($A << 5) | (($A >> 27) & 0x1f)) + \
-                                (($B & $C) | ($B & $D) | ($C & $D)) \
-                                + $E + [set W$t] + 0x8f1bbcdc) & 0xffffffff}]
+            set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
+                                (($B & $C) | ($D & ($B | $C))) \
+                                + $E + [set W$t] + 0x8f1bbcdc}]
             set E $D
             set D $C
             set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
@@ -326,9 +326,9 @@ proc ::sha1::SHA1Transform {token msg} {
 
         # Round 4: ft(B,C,D) = (B ^ C ^ D) ( 60 <= t <= 79)
         for {} {$t < 80} {incr t} {
-            set TEMP [expr {((($A << 5) | (($A >> 27) & 0x1f)) + \
+            set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($B ^ $C ^ $D) \
-                                + $E + [set W$t] + 0xca62c1d6) & 0xffffffff}]
+                                + $E + [set W$t] + 0xca62c1d6}]
             set E $D
             set D $C
             set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
@@ -353,10 +353,10 @@ proc ::sha1::byte {n v} {expr {((0xFF << (8 * $n)) & $v) >> (8 * $n)}}
 proc ::sha1::bytes {v} { 
     #format %c%c%c%c [byte 0 $v] [byte 1 $v] [byte 2 $v] [byte 3 $v]
     format %c%c%c%c \
-        [expr {0xFF & $v}] \
-        [expr {(0xFF00 & $v) >> 8}] \
+        [expr {((0xFF000000 & $v) >> 24) & 0xFF}] \
         [expr {(0xFF0000 & $v) >> 16}] \
-        [expr {((0xFF000000 & $v) >> 24) & 0xFF}]
+        [expr {(0xFF00 & $v) >> 8}] \
+        [expr {0xFF & $v}]
 }
 
 # -------------------------------------------------------------------------
