@@ -9,10 +9,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.16 2003/08/06 18:51:20 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.17 2003/08/07 18:42:34 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.2.1
+package provide cmdline 1.2.2
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
