@@ -1,0 +1,1141 @@
+# -*- tcl -*-
+# graph.test:  tests for the graph structure.
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 1998-2000 by Scriptics Corporation.
+# All rights reserved.
+#
+# RCS: @(#) $Id: graph.test,v 1.1 2000/04/07 18:59:24 ericm Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+source [file join [file dirname [info script]] graph.tcl]
+namespace import ::struct::graph::graph
+
+# ---------------------------------------------------
+
+test graph-0.1 {graph errors} {
+    graph mygraph
+    catch {graph mygraph} msg
+    mygraph destroy
+    set msg
+} "command \"mygraph\" already exists, unable to create graph"
+
+test graph-0.2 {graph errors} {
+    graph mygraph
+    catch {mygraph} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph option ?arg arg ...?\""
+
+test graph-0.3 {graph errors} {
+    graph mygraph
+    catch {mygraph foo} msg
+    mygraph destroy
+    set msg
+} "bad option \"foo\": must be arc, arcs, destroy, node, nodes, swap, or walk"
+
+test graph-0.4 {graph errors} {
+    catch {graph set} msg
+    set msg
+} "command \"set\" already exists, unable to create graph"
+
+# ---------------------------------------------------
+
+test graph-1.1 {create} {
+    graph mygraph
+    set result [string equal [info commands ::mygraph] "::mygraph"]
+    mygraph destroy
+    set result
+} 1
+
+test graph-1.2 {create} {
+    set name [graph]
+    set result [list $name [string equal [info commands ::$name] "::$name"]]
+    $name destroy
+    set result
+} [list graph1 1]
+
+test graph-1.3 {destroy} {
+    graph mygraph
+    mygraph destroy
+    string equal [info commands ::mygraph] ""
+} 1
+
+# ---------------------------------------------------
+
+test graph-2.1 {arc delete} {
+    graph mygraph
+    catch {mygraph arc delete arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-2.2 {arc delete} {
+    graph mygraph
+
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    mygraph arc  delete arc0
+
+    set result [mygraph arc exists arc0]
+    mygraph destroy
+    set result
+} {0}
+
+# ---------------------------------------------------
+
+test graph-3.1 {arc exists} {
+    graph mygraph
+    set     result [list]
+    lappend result [mygraph arc exists arc1]
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph arc  insert node1 node2 arc1
+    lappend result [mygraph arc exists arc1]
+    mygraph arc  delete arc1
+    lappend result [mygraph arc exists arc1]
+    mygraph destroy
+    set     result
+} {0 1 0}
+
+# ---------------------------------------------------
+
+test graph-4.1 {arc get gives error on bogus arc} {
+    graph mygraph
+    catch {mygraph arc get arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-4.2 {arc get gives error on bogus key} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    catch {mygraph arc get arc0 -key bogus} msg
+    mygraph destroy
+    set msg
+} "invalid key \"bogus\" for arc \"arc0\""
+
+test graph-4.3 {arc get uses data as default key} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    mygraph arc set arc0 foobar
+    set result [mygraph arc get arc0]
+    mygraph destroy
+    set result
+} "foobar"
+
+test graph-4.4 {arc get respects -key flag} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    mygraph arc set arc0 -key boom foobar
+    set result [mygraph arc get arc0 -key boom]
+    mygraph destroy
+    set result
+} "foobar"
+
+# ---------------------------------------------------
+
+test graph-5.1 {arc insert gives error on duplicate arc name} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    catch {mygraph arc insert node0 node1 arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" already exists in graph \"mygraph\""
+
+test graph-5.2 {arc insert creates and initializes arc} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    set result [list ]
+    lappend result [mygraph arc exists arc0]
+    lappend result [mygraph arc source arc0]
+    lappend result [mygraph arc target arc0]
+    lappend result [mygraph arc set arc0]
+    mygraph destroy
+    set result
+} {1 node0 node1 {}}
+
+test graph-5.3 {arc insert arcs in correct location} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+
+    mygraph arc insert node0 node1 arc0
+    mygraph arc insert node0 node1 arc1
+    mygraph arc insert node0 node1 arc2
+    set result [lsort [mygraph arcs -out node0]]
+    mygraph destroy
+    set result
+} {arc0 arc1 arc2}
+
+test graph-5.4 {arc insert gives error when trying to insert to a fake node} {
+    graph mygraph
+    catch {mygraph arc insert node0 node1 arc0} msg
+    mygraph destroy
+    set msg
+} "source node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-5.5 {arc insert gives error when trying to insert to a fake node} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph arc insert node0 node1 arc0} msg
+    mygraph destroy
+    set msg
+} "target node \"node1\" does not exist in graph \"mygraph\""
+
+test graph-5.6 {arc insert generates arc name when none is given} {
+    graph mygraph
+    mygraph node insert n0
+
+    set     result [list [mygraph arc insert n0 n0]]
+    lappend result       [mygraph arc insert n0 n0]
+    mygraph                       arc insert n0 n0 arc3
+    lappend result       [mygraph arc insert n0 n0]
+    mygraph destroy
+    set result
+} [list arc1 arc2 arc4]
+
+if {0} {
+    # if feature used, fix this test...
+    test graph-5.6 {arc insert generates arc name when none is given} {
+	graph mygraph
+	set result [list [mygraph insert root end]]
+	lappend result [mygraph insert root end]
+	mygraph insert root end arc3
+	lappend result [mygraph insert root end]
+	mygraph destroy
+	set result
+    } [list arc1 arc2 arc4] ; # {}
+}
+
+# ---------------------------------------------------
+
+test graph-6.1 {arc set gives error on bogus arc} {
+    graph mygraph
+    catch {mygraph arc set arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-6.2 {arc set with arc name gets/sets "data" value} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    mygraph arc set arc0 foobar
+    set result [mygraph arc set arc0]
+    mygraph destroy
+    set result
+} "foobar"
+
+test graph-6.3 {arc set with arc name and key gets/sets key value} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    mygraph arc set arc0 -key baz foobar
+    set result [list [mygraph arc set arc0] [mygraph arc set arc0 -key baz]]
+    mygraph destroy
+    set result
+} [list "" "foobar"]
+
+test graph-6.4 {arc set with too many args gives error} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    catch {mygraph arc set arc0 foo bar baz boo} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph arc set arc0 ?-key key? ?value?\""
+
+test graph-6.5 {arc set with bad args} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    catch {mygraph arc set arc0 foo bar} msg
+    mygraph destroy
+    set msg
+} "invalid option \"foo\": should be key"
+
+test graph-6.6 {arc set with bad args} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    catch {mygraph arc set arc0 foo bar baz} msg
+    mygraph destroy
+    set msg
+} "invalid option \"foo\": should be key"
+
+test graph-6.7 {arc set with bad key gives error} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc insert node0 node1 arc0
+    catch {mygraph arc set arc0 -key foo} msg
+    mygraph destroy
+    set msg
+} "invalid key \"foo\" for arc \"arc0\""
+
+# ---------------------------------------------------
+
+test graph-7.1 {arc source gives error on bogus arc} {
+    graph mygraph
+    catch {mygraph arc source arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-7.2 {arc source} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    set result [mygraph arc source arc0]
+    mygraph destroy
+    set result
+} node0
+
+# ---------------------------------------------------
+
+test graph-8.1 {arc target gives error on bogus arc} {
+    graph mygraph
+    catch {mygraph arc target arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-8.2 {arc target} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    set result [mygraph arc target arc0]
+    mygraph destroy
+    set result
+} node1
+
+# ---------------------------------------------------
+
+test graph-9.1 {arc unset gives error on bogus arc} {
+    graph mygraph
+    catch {mygraph arc unset arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-9.2 {arc unset does not give error on bogus key} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    set result [catch {mygraph arc unset arc0 -key bogus}]
+    mygraph destroy
+    set result
+} 0
+
+test graph-9.3 {arc unset removes a keyed value from a arc} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    mygraph arc        set arc0 -key foobar foobar
+    mygraph arc      unset arc0 -key foobar
+    catch {mygraph arc get arc0 -key foobar} msg
+    mygraph destroy
+    set msg
+} "invalid key \"foobar\" for arc \"arc0\""
+
+# ---------------------------------------------------
+
+test graph-10.1 {arcs} {
+    graph mygraph
+    set result [mygraph arcs]
+    mygraph destroy
+    set result
+} {}
+
+test graph-10.2 {arcs} {
+    graph mygraph
+    catch {mygraph arcs -foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction "-foo": should be -in, -out, -adj, -inner or -embedding}
+
+test graph-10.3 {arcs} {
+    graph mygraph
+    catch {mygraph arcs -in} msg
+    mygraph destroy
+    set msg
+} {no nodes specified: should be "mygraph arcs ?-in|-out|-adj|-inner|-embedding node node...?"}
+
+test graph-10.4 {arcs} {
+    graph mygraph
+    catch {mygraph arcs -in node0} msg
+    mygraph destroy
+    set msg
+} {node "node0" does not exist in graph "mygraph"}
+
+test graph-10.5 {arcs} {
+    graph mygraph
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph node insert node3
+    mygraph node insert node4
+    mygraph node insert node5
+    mygraph node insert node6
+
+    mygraph arc insert node4 node1 arcA
+    mygraph arc insert node5 node2 arcB
+    mygraph arc insert node6 node3 arcC
+    mygraph arc insert node3 node1 arcD
+    mygraph arc insert node1 node2 arcE
+    mygraph arc insert node2 node3 arcF
+
+    set result [list \
+	    [lsort [mygraph arcs            ]] \
+	    \
+	    [lsort [mygraph arcs -in        node1 node2 node3]] \
+	    [lsort [mygraph arcs -out       node1 node2 node3]] \
+	    [lsort [mygraph arcs -adj       node1 node2 node3]] \
+	    [lsort [mygraph arcs -inner     node1 node2 node3]] \
+	    [lsort [mygraph arcs -embedding node1 node2 node3]] \
+	    \
+	    [lsort [mygraph arcs -in        node4 node5 node6]] \
+	    [lsort [mygraph arcs -out       node4 node5 node6]] \
+	    [lsort [mygraph arcs -adj       node4 node5 node6]] \
+	    [lsort [mygraph arcs -inner     node4 node5 node6]] \
+	    [lsort [mygraph arcs -embedding node4 node5 node6]] \
+    ]
+    mygraph destroy
+    set result
+} [list \
+	{arcA arcB arcC arcD arcE arcF}	\
+	\
+	{arcA arcB arcC arcD arcE arcF}	\
+	{arcD arcE arcF}		\
+	{arcA arcB arcC arcD arcE arcF}	\
+	{arcD arcE arcF}		\
+	{arcA arcB arcC}		\
+	\
+	{}			\
+	{arcA arcB arcC}	\
+	{arcA arcB arcC}	\
+	{}			\
+	{arcA arcB arcC}	\
+	]
+
+# ---------------------------------------------------
+
+test graph-11.1 {node degree} {
+    graph mygraph
+    catch {mygraph node degree} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph node degree ?-in|-out| node\""
+
+test graph-11.2 {node degree} {
+    graph mygraph
+    catch {mygraph node degree foo bar baz} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph node degree ?-in|-out| node\""
+
+test graph-11.3 {node degree} {
+    graph mygraph
+    catch {mygraph node degree node0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-11.4 {node degree} {
+    graph mygraph
+    catch {mygraph node degree -foo node0} msg
+    mygraph destroy
+    set msg
+} "invalid option \"-foo\": should be -in or -out"
+
+test graph-11.5 {node degree} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph node insert node3
+    mygraph node insert node4
+    mygraph node insert node5
+
+    mygraph arc insert node1 node2 arc0
+    mygraph arc insert node3 node3 arc1
+    mygraph arc insert node4 node5 arc2
+    mygraph arc insert node4 node5 arc3
+    mygraph arc insert node4 node5 arc4
+    mygraph arc insert node5 node2 arc5
+
+    set result [list	\
+	    [mygraph node degree      node0]	\
+	    [mygraph node degree -in  node0]	\
+	    [mygraph node degree -out node0]	\
+	    [mygraph node degree      node1]	\
+	    [mygraph node degree -in  node1]	\
+	    [mygraph node degree -out node1]	\
+	    [mygraph node degree      node2]	\
+	    [mygraph node degree -in  node2]	\
+	    [mygraph node degree -out node2]	\
+	    [mygraph node degree      node3]	\
+	    [mygraph node degree -in  node3]	\
+	    [mygraph node degree -out node3]	\
+	    [mygraph node degree      node4]	\
+	    [mygraph node degree -in  node4]	\
+	    [mygraph node degree -out node4]	\
+	    [mygraph node degree      node5]	\
+	    [mygraph node degree -in  node5]	\
+	    [mygraph node degree -out node5]	\
+	    ]
+
+    mygraph destroy
+    set result
+} [list	0 0 0 \
+	1 0 1 \
+	2 2 0 \
+	2 1 1 \
+	3 0 3 \
+	4 3 1
+	]
+
+# ---------------------------------------------------
+
+test graph-12.1 {node delete} {
+    graph mygraph
+    catch {mygraph node delete node0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-12.2 {node delete} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node delete node0
+    set result [mygraph node exists node0]
+    mygraph destroy
+    set result
+} {0}
+
+test graph-12.3 {node delete} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+    mygraph node delete node0
+
+    set result [list \
+	    [mygraph node exists node0] \
+	    [mygraph node exists node1] \
+	    [mygraph arc exists arc0]	\
+	    ]
+    mygraph destroy
+    set result
+} {0 1 0}
+
+# ---------------------------------------------------
+
+test graph-13.1 {node exists} {
+    graph mygraph
+    set     result [list]
+    lappend result [mygraph node exists node1]
+    mygraph node insert node1
+    lappend result [mygraph node exists node1]
+    mygraph node delete node1
+    lappend result [mygraph node exists node1]
+    mygraph destroy
+    set     result
+} {0 1 0}
+
+# ---------------------------------------------------
+
+test graph-14.1 {node get gives error on bogus node} {
+    graph mygraph
+    catch {mygraph node get node0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-14.2 {node get gives error on bogus key} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node get node0 -key bogus} msg
+    mygraph destroy
+    set msg
+} "invalid key \"bogus\" for node \"node0\""
+
+test graph-14.3 {node get uses data as default key} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node set node0 foobar
+    set result [mygraph node get node0]
+    mygraph destroy
+    set result
+} "foobar"
+
+test graph-14.4 {node get respects -key flag} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node set node0 -key boom foobar
+    set result [mygraph node get node0 -key boom]
+    mygraph destroy
+    set result
+} "foobar"
+
+# ---------------------------------------------------
+
+test graph-15.1 {node insert gives error on duplicate node name} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node insert node0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" already exists in graph \"mygraph\""
+
+test graph-15.2 {node insert creates and initializes node} {
+    graph mygraph
+    mygraph node insert node0
+    set result [list ]
+    lappend result [mygraph node exists node0]
+    lappend result [mygraph node set    node0]
+    mygraph destroy
+    set result
+} {1 {}}
+
+test graph-15.3 {node insert generates node name when none is given} {
+    graph mygraph
+    set result [list [mygraph node insert]]
+
+    lappend result [mygraph node insert]
+    mygraph node insert node3
+    lappend result [mygraph node insert]
+    mygraph destroy
+    set result
+} [list node1 node2 node4]
+
+if {0} {
+    # fix if this feature is used ...
+    test graph-15.x {node insert generates node name when none is given} {
+	graph mygraph
+	set result [list [mygraph node insert root end]]
+	lappend result [mygraph node insert root end]
+	mygraph node insert root end node3
+	lappend result [mygraph node insert root end]
+	mygraph destroy
+	set result
+    } [list node1 node2 node4] ; # {}
+}
+
+# ---------------------------------------------------
+
+test graph-16.1 {node opposite gives error on bogus node} {
+    graph mygraph
+    catch {mygraph node opposite node0 arc0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-16.2 {node opposite gives error on bogus arc} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node opposite node0 arc0} msg
+    mygraph destroy
+    set msg
+} "arc \"arc0\" does not exist in graph \"mygraph\""
+
+test graph-16.3 {node opposite gives error on bogus node/arc combination} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph arc  insert node1 node2 arc0
+
+    catch {mygraph node opposite node0 arc0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" and arc \"arc0\" are not connected in graph \"mygraph\""
+
+test graph-16.4 {node opposite} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node1
+    mygraph arc  insert node0 node1 arc0
+
+    set result [list	\
+	    [mygraph node opposite node0 arc0]	\
+	    [mygraph node opposite node1 arc0]	\
+	    ]
+    mygraph destroy
+    set result
+} {node1 node0}
+
+test graph-16.5 {node opposite} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph arc  insert node0 node0 arc0
+    set result [mygraph node opposite node0 arc0]
+    mygraph destroy
+    set result
+} {node0}
+
+# ---------------------------------------------------
+
+test graph-17.1 {node set gives error on bogus node} {
+    graph mygraph
+    catch {mygraph node set node0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-17.2 {node set with node name gets/sets "data" value} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node set node0 foobar
+    set result [mygraph node set node0]
+    mygraph destroy
+    set result
+} "foobar"
+
+test graph-17.3 {node set with node name and key gets/sets key value} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node set node0 -key baz foobar
+    set result [list [mygraph node set node0] [mygraph node set node0 -key baz]]
+    mygraph destroy
+    set result
+} [list "" "foobar"]
+
+test graph-17.4 {node set with too many args gives error} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node set node0 foo bar baz boo} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph node set node0 ?-key key? ?value?\""
+
+test graph-17.5 {node set with bad args} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node set node0 foo bar} msg
+    mygraph destroy
+    set msg
+} "invalid option \"foo\": should be key"
+
+test graph-17.6 {node set with bad args} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node set node0 foo bar baz} msg
+    mygraph destroy
+    set msg
+} "invalid option \"foo\": should be key"
+
+test graph-17.7 {node set with bad key gives error} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph node set node0 -key foo} msg
+    mygraph destroy
+    set msg
+} "invalid key \"foo\" for node \"node0\""
+
+# ---------------------------------------------------
+
+test graph-18.1 {node unset gives error on bogus node} {
+    graph mygraph
+    catch {mygraph node unset node0} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-18.2 {node unset does not give error on bogus key} {
+    graph mygraph
+    mygraph node insert node0
+    set result [catch {mygraph node unset node0 -key bogus}]
+    mygraph destroy
+    set result
+} 0
+
+test graph-18.3 {node unset removes a keyed value from a node} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node set node0 -key foobar foobar
+    mygraph node unset node0 -key foobar
+    catch {mygraph node get node0 -key foobar} msg
+    mygraph destroy
+    set msg
+} "invalid key \"foobar\" for node \"node0\""
+
+# ---------------------------------------------------
+
+test graph-19.1 {nodes} {
+    graph mygraph
+    set result [mygraph nodes]
+    mygraph destroy
+    set result
+} {}
+
+test graph-19.2 {nodes} {
+    graph mygraph
+    catch {mygraph nodes -foo} msg
+    mygraph destroy
+    set msg
+} {invalid restriction "-foo": should be -in, -out, -adj, -inner or -embedding}
+
+test graph-19.3 {nodes} {
+    graph mygraph
+    catch {mygraph nodes -in} msg
+    mygraph destroy
+    set msg
+} {no nodes specified: should be "mygraph nodes ?-in|-out|-adj|-inner|-embedding node node...?"}
+
+test graph-19.4 {nodes} {
+    graph mygraph
+    catch {mygraph nodes -in node0} msg
+    mygraph destroy
+    set msg
+} {node "node0" does not exist in graph "mygraph"}
+
+test graph-19.5 {nodes} {
+    graph mygraph
+    mygraph node insert node1
+    mygraph node insert node2
+    mygraph node insert node3
+    mygraph node insert node4
+    mygraph node insert node5
+    mygraph node insert node6
+
+    mygraph arc insert node4 node1 arcA
+    mygraph arc insert node5 node2 arcB
+    mygraph arc insert node6 node3 arcC
+    mygraph arc insert node3 node1 arcD
+    mygraph arc insert node1 node2 arcE
+    mygraph arc insert node2 node3 arcF
+
+    set result [list \
+	    [lsort [mygraph nodes            ]] \
+	    \
+	    [lsort [mygraph nodes -in        node1 node2 node3]] \
+	    [lsort [mygraph nodes -out       node1 node2 node3]] \
+	    [lsort [mygraph nodes -adj       node1 node2 node3]] \
+	    [lsort [mygraph nodes -inner     node1 node2 node3]] \
+	    [lsort [mygraph nodes -embedding node1 node2 node3]] \
+	    \
+	    [lsort [mygraph nodes -in        node4 node5 node6]] \
+	    [lsort [mygraph nodes -out       node4 node5 node6]] \
+	    [lsort [mygraph nodes -adj       node4 node5 node6]] \
+	    [lsort [mygraph nodes -inner     node4 node5 node6]] \
+	    [lsort [mygraph nodes -embedding node4 node5 node6]] \
+    ]
+    mygraph destroy
+    set result
+} [list \
+	{node1 node2 node3 node4 node5 node6} \
+	\
+	{node1 node2 node3 node4 node5 node6} \
+	{node1 node2 node3} \
+	{node1 node2 node3 node4 node5 node6} \
+	{node1 node2 node3} \
+	{node4 node5 node6} \
+	\
+	{} \
+	{node1 node2 node3} \
+	{node1 node2 node3} \
+	{} \
+	{node1 node2 node3} \
+	]
+
+
+# ---------------------------------------------------
+
+test graph-20.1 {swap gives error when trying to swap non existant node} {
+    graph mygraph
+    catch {mygraph swap node0 node1} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-20.2 {swap gives error when trying to swap non existant node} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph swap node0 node1} msg
+    mygraph destroy
+    set msg
+} "node \"node1\" does not exist in graph \"mygraph\""
+
+test graph-20.3 {swap gives error when trying to swap node with self} {
+    graph mygraph
+    mygraph node insert node0
+    catch {mygraph swap node0 node0} msg
+    mygraph destroy
+    set msg
+} "cannot swap node \"node0\" with itself"
+
+test graph-20.4 {swap swaps node relationships correctly} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node0.1
+    mygraph node insert node0.2
+    mygraph node insert node0.1.1
+    mygraph node insert node0.1.2
+
+    mygraph arc insert node0 node0.1     a1
+    mygraph arc insert node0 node0.2     a2
+    mygraph arc insert node0.1 node0.1.1 a3
+    mygraph arc insert node0.1 node0.1.2 a4
+
+    mygraph swap node0 node0.1
+
+    set result [list \
+	    [lsort [mygraph nodes -out node0]]   \
+	    [lsort [mygraph nodes -out node0.1]] \
+	    ]
+    mygraph destroy
+    set result
+} {{node0.1.1 node0.1.2} {node0 node0.2}}
+
+test graph-20.5 {swap swaps node relationships correctly} {
+    graph mygraph
+    mygraph node insert node0
+    mygraph node insert node0.1
+    mygraph node insert node0.2
+    mygraph node insert node0.1.1
+    mygraph node insert node0.1.2
+
+    mygraph arc insert node0   node0.1   a1
+    mygraph arc insert node0   node0.2   a2
+    mygraph arc insert node0.1 node0.1.1 a3
+    mygraph arc insert node0.1 node0.1.2 a4
+
+    mygraph swap node0 node0.1.1
+
+    set result [list \
+	    [lsort [mygraph nodes -out node0]]   \
+	    [lsort [mygraph nodes -out node0.1.1]] \
+	    ]
+    mygraph destroy
+    set result
+} {{} {node0.1 node0.2}}
+
+# ---------------------------------------------------
+
+proc makegraph {} {
+    graph mygraph
+
+    mygraph node insert i
+    mygraph node insert ii
+    mygraph node insert iii
+    mygraph node insert iv
+    mygraph node insert v
+    mygraph node insert vi
+    mygraph node insert vii
+    mygraph node insert viii
+    mygraph node insert ix
+
+    mygraph arc insert   i    ii  1
+    mygraph arc insert   ii  iii  2
+    mygraph arc insert   ii  iii  3
+    mygraph arc insert   ii  iii  4
+    mygraph arc insert  iii   iv  5
+    mygraph arc insert  iii   iv  6
+    mygraph arc insert   iv    v  7
+    mygraph arc insert    v   vi  8
+    mygraph arc insert   vi viii  9
+    mygraph arc insert viii    i 10
+    mygraph arc insert    i   ix 11
+    mygraph arc insert   ix   ix 12
+    mygraph arc insert    i  vii 13
+    mygraph arc insert  vii   vi 14
+}
+
+
+test graph-21.1 {walk with too few args} {
+    graph mygraph
+    catch {mygraph walk} msg
+    mygraph destroy
+    set msg
+} "no value given for parameter \"node\" to \"::struct::graph::_walk\""
+
+test graph-21.2 {walk with too few args} {
+    graph mygraph
+    catch {mygraph walk node0} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph walk node0 ?-dir forward|backward? ?-order pre|post|both? ?-type {bfs|dfs}? -command cmd\""
+
+test graph-21.3 {walk with too many args} {
+    graph mygraph
+    catch {mygraph walk node0 -foo bar -baz boo -foo2 boo -foo3 baz -foo4 baz} msg
+    mygraph destroy
+    set msg
+} "wrong # args: should be \"mygraph walk node0 ?-dir forward|backward? ?-order pre|post|both? ?-type {bfs|dfs}? -command cmd\""
+
+test graph-21.4 {walk with fake node} {
+    graph mygraph
+    catch {mygraph walk node0 -command {}} msg
+    mygraph destroy
+    set msg
+} "node \"node0\" does not exist in graph \"mygraph\""
+
+test graph-21.5 {walk using unknown option} {
+    makegraph
+    catch {mygraph walk i -foo x -command {}} msg
+    mygraph destroy
+    set msg
+} "unknown option \"-foo\": should be \"mygraph walk i ?-dir forward|backward? ?-order pre|post|both? ?-type {bfs|dfs}? -command cmd\""
+
+test graph-21.6 {walk with empty command} {
+    makegraph
+    catch {mygraph walk i -command {}} msg
+    mygraph destroy
+    set msg
+} "no command specified: should be \"mygraph walk i ?-dir forward|backward? ?-order pre|post|both? ?-type {bfs|dfs}? -command cmd\""
+
+test graph-21.7 {walk with illegal specifications} {
+    makegraph
+    catch {mygraph walk i -command foo -type foo} msg
+    mygraph destroy
+    set msg
+} "invalid search type \"foo\": should be dfs, or bfs"
+
+test graph-21.8 {walk with illegal specifications} {
+    makegraph
+    catch {mygraph walk i -command foo -type dfs -dir oneway} msg
+    mygraph destroy
+    set msg
+} "invalid search direction \"oneway\": should be forward or backward"
+
+test graph-21.9 {walk with illegal specifications} {
+    makegraph
+    catch {mygraph walk i -command foo -type dfs -dir forward -order none} msg
+    mygraph destroy
+    set msg
+} "invalid search order \"none\": should be both, pre or post"
+
+
+test graph-21.10 {forward pre-order dfs is default walk} {
+    makegraph
+    set t [list ]
+    mygraph walk i -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	enter mygraph    i enter mygraph ii enter mygraph iii	\
+	enter mygraph   iv enter mygraph  v enter mygraph  vi	\
+	enter mygraph viii enter mygraph ix enter mygraph vii	\
+	]
+
+test graph-21.11 {forward post-order dfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk i -order post -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	leave mygraph viii leave mygraph  vi leave mygraph  v	\
+	leave mygraph   iv leave mygraph iii leave mygraph ii	\
+	leave mygraph   ix leave mygraph vii leave mygraph  i	\
+	]
+
+test graph-21.12 {forward both-order dfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk i -order both -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	enter mygraph    i enter mygraph   ii enter mygraph iii	\
+	enter mygraph   iv enter mygraph    v enter mygraph  vi	\
+	enter mygraph viii leave mygraph viii leave mygraph  vi \
+	leave mygraph    v leave mygraph   iv leave mygraph iii	\
+	leave mygraph   ii enter mygraph   ix leave mygraph  ix	\
+	enter mygraph  vii leave mygraph  vii leave mygraph   i	\
+	]
+
+test graph-21.13 {forward pre-order bfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk i -type bfs -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	enter mygraph   i enter mygraph   ii enter mygraph ix	\
+	enter mygraph vii enter mygraph  iii enter mygraph vi	\
+	enter mygraph  iv enter mygraph viii enter mygraph  v	\
+	]
+
+test graph-21.14 {backward pre-order bfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk ix -type bfs -dir backward -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	enter mygraph ix enter mygraph   i enter mygraph viii	\
+	enter mygraph vi enter mygraph   v enter mygraph  vii	\
+	enter mygraph iv enter mygraph iii enter mygraph   ii	\
+	]
+
+test graph-21.15 {backward pre-order dfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk ix -dir backward -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	enter mygraph  ix enter mygraph  i enter mygraph viii	\
+	enter mygraph  vi enter mygraph  v enter mygraph   iv	\
+	enter mygraph iii enter mygraph ii enter mygraph  vii	\
+	]
+
+test graph-21.16 {backward post-order dfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk ix -dir backward -order post -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	leave mygraph   ii leave mygraph iii leave mygraph   iv	\
+	leave mygraph    v leave mygraph vii leave mygraph   vi	\
+	leave mygraph viii leave mygraph   i leave mygraph   ix	\
+	]
+
+test graph-21.17 {backward both-order dfs walk} {
+    makegraph
+    set t [list ]
+    mygraph walk ix -dir backward -order both -command {lappend t}
+    mygraph destroy
+    set t
+} [list \
+	enter mygraph   ix enter mygraph   i enter mygraph viii	\
+	enter mygraph   vi enter mygraph   v enter mygraph   iv	\
+	enter mygraph  iii enter mygraph  ii leave mygraph   ii	\
+	leave mygraph  iii leave mygraph  iv leave mygraph    v	\
+	enter mygraph  vii leave mygraph vii leave mygraph   vi	\
+	leave mygraph viii leave mygraph   i leave mygraph   ix	\
+	]
+
+# ---------------------------------------------------
+  
+::tcltest::cleanupTests

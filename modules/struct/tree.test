@@ -7,21 +7,15 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.8 2000/03/20 20:07:33 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.9 2000/04/07 18:59:25 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
-}
-
-if { [lsearch [namespace children] ::struct] == -1 } {
-    package require struct
-    namespace import struct::*
-}
+source [file join [file dirname [info script]] tree.tcl]
+namespace import struct::tree::tree
 
 test tree-0.1 {tree errors} {
     tree mytree
@@ -492,7 +486,7 @@ test tree-11.2 {depth is computed correctly} {
     set result
 } 4
 
-test tree-12.1 {dfs walk} {
+test tree-12.1 {pre dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end node0
@@ -501,12 +495,14 @@ test tree-12.1 {dfs walk} {
     mytree insert node0 end node0.2
     mytree insert node1 end node1.1
     mytree insert node1 end node1.2
-    mytree walk root -type dfs -command {lappend t}
+    mytree walk root -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list mytree root mytree node0 mytree node0.1 mytree node0.2 mytree node1 \
-	mytree node1.1 mytree node1.2]
-test tree-12.2 {bfs walk} {
+} [list enter mytree root    enter mytree node0 enter mytree node0.1 \
+	enter mytree node0.2 enter mytree node1 \
+	enter mytree node1.1 enter mytree node1.2]
+
+test tree-12.1.0 {post dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end node0
@@ -515,12 +511,14 @@ test tree-12.2 {bfs walk} {
     mytree insert node0 end node0.2
     mytree insert node1 end node1.1
     mytree insert node1 end node1.2
-    mytree walk root -type bfs -command {lappend t}
+    mytree walk root -order post -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list mytree root mytree node0 mytree node1 mytree node0.1 mytree node0.2 \
-	mytree node1.1 mytree node1.2]
-test tree-12.3 {dfs is default walk} {
+} [list leave mytree node0.1 leave mytree node0.2 leave mytree node0 \
+	leave mytree node1.1 leave mytree node1.2 \
+	leave mytree node1   leave mytree root]
+
+test tree-12.1.1 {both dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end node0
@@ -529,11 +527,128 @@ test tree-12.3 {dfs is default walk} {
     mytree insert node0 end node0.2
     mytree insert node1 end node1.1
     mytree insert node1 end node1.2
-    mytree walk root -command {lappend t}
+    mytree walk root -order both -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list mytree root mytree node0 mytree node0.1 mytree node0.2 mytree node1 \
-	mytree node1.1 mytree node1.2]
+} [list enter mytree root enter mytree node0 enter mytree node0.1 \
+	leave mytree node0.1 enter mytree node0.2 leave mytree node0.2 \
+	leave mytree node0 enter mytree node1 enter mytree node1.1 \
+	leave mytree node1.1 enter mytree node1.2 leave mytree node1.2 \
+	leave mytree node1   leave mytree root]
+
+test tree-12.1.3 {in dfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -order in -type dfs -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list visit mytree node0.1 visit mytree node0   visit mytree node0.2 \
+	visit mytree root    visit mytree node1.1 visit mytree node1 \
+	visit mytree node1.2]
+
+test tree-12.1.4 {pre dfs walk, different % specifiers} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type dfs -command {lappend t %n %%}
+    mytree destroy
+    set t
+} [list root % node0 % node0.1 % \
+	node0.2 % node1 % \
+	node1.1 % node1.2 %]
+
+test tree-12.1.5 {pre dfs walk, different % specifiers} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type dfs -command {lappend t %% %t}
+    mytree destroy
+    set t
+} [list % mytree % mytree % mytree \
+	% mytree % mytree \
+	% mytree % mytree]
+
+test tree-12.2 {pre bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type bfs -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter mytree root    enter mytree node0   enter mytree node1   \
+	enter mytree node0.1 enter mytree node0.2 enter mytree node1.1 \
+	enter mytree node1.2]
+
+test tree-12.2.0 {post bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type bfs -order post -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list leave mytree node1.2 leave mytree node1.1 leave mytree node0.2 \
+	leave mytree node0.1 leave mytree node1   leave mytree node0 \
+	leave mytree root]
+
+test tree-12.2.1 {both bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type bfs -order both -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter mytree root    enter mytree node0   enter mytree node1   \
+	enter mytree node0.1 enter mytree node0.2 enter mytree node1.1 \
+	enter mytree node1.2 leave mytree node1.2 leave mytree node1.1 \
+	leave mytree node0.2 leave mytree node0.1 leave mytree node1   \
+	leave mytree node0   leave mytree root]
+
+test tree-12.3 {pre dfs is default walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter mytree root enter mytree node0 enter mytree node0.1 \
+	enter mytree node0.2 enter mytree node1 \
+	enter mytree node1.1 enter mytree node1.2]
 test tree-12.4 {walk with too few args} {
     tree mytree
     catch {mytree walk} msg
@@ -545,19 +660,37 @@ test tree-12.5 {walk with too few args} {
     catch {mytree walk root} msg
     mytree destroy
     set msg
-} "wrong # args: should be \"mytree walk root ?-type {bfs|dfs}? -command cmd\""
+} "wrong # args: should be \"mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
 test tree-12.6 {walk with too many args} {
     tree mytree
     catch {mytree walk root -foo bar -baz boo -foo2 boo -foo3 baz} msg
     mytree destroy
     set msg
-} "wrong # args: should be \"mytree walk root ?-type {bfs|dfs}? -command cmd\""
+} "wrong # args: should be \"mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
 test tree-12.7 {walk with fake node} {
     tree mytree
     catch {mytree walk node0 -command {}} msg
     mytree destroy
     set msg
 } "node \"node0\" does not exist in tree \"mytree\""
+test tree-12.8 {walk gives error on invalid search type} {
+    tree mytree
+    catch {mytree walk root -type foo -command foo} msg
+    mytree destroy
+    set msg
+} {invalid search type "foo": should be dfs, or bfs}
+test tree-12.9 {walk gives error on invalid search order} {
+    tree mytree
+    catch {mytree walk root -order foo -command foo} msg
+    mytree destroy
+    set msg
+} {invalid search order "foo": should be pre, post, both, or in}
+test tree-12.10 {walk gives error on invalid combination of order and type} {
+    tree mytree
+    catch {mytree walk root -order in -type bfs -command foo} msg
+    mytree destroy
+    set msg
+} {unable to do a in-order breadth first walk}
 
 test tree-13.1 {swap gives error when trying to swap root} {
     tree mytree
@@ -594,11 +727,11 @@ test tree-13.4 {swap swaps node relationships correctly} {
     mytree insert node0.1 end node0.1.2
     mytree swap node0 node0.1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list mytree root mytree node0.1 mytree node0 mytree node0.1.1 \
-	mytree node0.1.2 mytree node0.2]
+} [list enter mytree root      enter mytree node0.1   enter mytree node0 \
+	enter mytree node0.1.1 enter mytree node0.1.2 enter mytree node0.2]
 test tree-13.5 {swap swaps node relationships correctly} {
     tree mytree
     mytree insert root end node0
@@ -608,11 +741,11 @@ test tree-13.5 {swap swaps node relationships correctly} {
     mytree insert node0.1 end node0.1.2
     mytree swap node0 node0.1.1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list mytree root mytree node0.1.1 mytree node0.1 mytree node0 \
-	mytree node0.1.2 mytree node0.2]
+} [list enter mytree root enter mytree node0.1.1 enter mytree node0.1 \
+	enter mytree node0 enter mytree node0.1.2 enter mytree node0.2]
 test tree-13.6 {swap swaps node relationships correctly} {
     tree mytree
     mytree insert root end node0
@@ -621,11 +754,11 @@ test tree-13.6 {swap swaps node relationships correctly} {
     mytree insert node1 end node1.1
     mytree swap node0 node1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list mytree root mytree node1 mytree node0.1 mytree node0 \
-	mytree node1.1]
+} [list enter mytree root enter mytree node1 enter mytree node0.1 \
+	enter mytree node0 enter mytree node1.1]
 
 test tree-14.1 {get gives error on bogus node} {
     tree mytree
@@ -783,10 +916,10 @@ test tree-21.1 {cutting nodes} {
     mytree insert node1 end node1.2
     mytree cut node1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} {mytree root mytree node0 mytree node1.0 mytree node1.1 mytree node1.2 mytree node2}
+} {enter mytree root enter mytree node0 enter mytree node1.0 enter mytree node1.1 enter mytree node1.2 enter mytree node2}
 test tree-21.2 {cutting nodes} {
     tree mytree
     catch {mytree cut root} msg
@@ -838,10 +971,10 @@ test tree-22.1 {splicing nodes} {
     mytree insert root end node2
     mytree splice root 1 3 node1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} {mytree root mytree node0 mytree node1 mytree node1.0 mytree node1.1 mytree node1.2 mytree node2}
+} {enter mytree root enter mytree node0 enter mytree node1 enter mytree node1.0 enter mytree node1.1 enter mytree node1.2 enter mytree node2}
 test tree-22.2 {splicing nodes with no node name given} {
     tree mytree
     mytree insert root end node0
@@ -851,10 +984,10 @@ test tree-22.2 {splicing nodes with no node name given} {
     mytree insert root end node2
     set res [mytree splice root 1 3]
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     list $res $t
-} [list node1 {mytree root mytree node0 mytree node1 mytree node1.0 mytree node1.1 mytree node1.2 mytree node2}]
+} [list node1 {enter mytree root enter mytree node0 enter mytree node1 enter mytree node1.0 enter mytree node1.1 enter mytree node1.2 enter mytree node2}]
 test tree-22.3 {splicing nodes errors on duplicate node name} {
     tree mytree
     mytree insert root end node0
@@ -891,10 +1024,10 @@ test tree-22.5 {splicing node works with strange index} {
     mytree insert root end node2
     mytree splice root -5 12 node1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} {mytree root mytree node1 mytree node0 mytree node1.0 mytree node1.1 mytree node1.2 mytree node2}
+} {enter mytree root enter mytree node1 enter mytree node0 enter mytree node1.0 enter mytree node1.1 enter mytree node1.2 enter mytree node2}
 test tree-22.6 {splicing nodes with no node name and no "to" index given} {
     tree mytree
     mytree insert root end node0
@@ -904,9 +1037,9 @@ test tree-22.6 {splicing nodes with no node name and no "to" index given} {
     mytree insert root end node2
     mytree splice root 1
     set t [list ]
-    mytree walk root -command {lappend t}
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} {mytree root mytree node0 mytree node1 mytree node1.0 mytree node1.1 mytree node1.2 mytree node2}
+} {enter mytree root enter mytree node0 enter mytree node1 enter mytree node1.0 enter mytree node1.1 enter mytree node1.2 enter mytree node2}
   
 ::tcltest::cleanupTests

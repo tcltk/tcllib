@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.8 2000/03/20 20:07:33 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.9 2000/04/07 18:59:25 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -942,7 +942,7 @@ proc ::struct::tree::_unset {name node {flag -key} {key data}} {
 #	None.
 
 proc ::struct::tree::_walk {name node args} {
-    set usage "$name walk $node ?-type {bfs|dfs}? -command cmd"
+    set usage "$name walk $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"
 
     if {[llength $args] > 6 || [llength $args] < 2} {
 	error "wrong # args: should be \"$usage\""
@@ -968,10 +968,7 @@ proc ::struct::tree::_walk {name node args} {
 		set type [string tolower [lindex $args $i]]
 	    }
 	    "-order" {
-		# TODO -- it's a large hassle to support all three kinds 
-		# of traversal here, so for now order is always pre-order.
-		# To re-enable it, uncomment the next line and add support.
-		#set order [string tolower [lindex $args $i]]
+		set order [string tolower [lindex $args $i]]
 	    }
 	    "-command" {
 		set cmd [lindex $args $i]
@@ -1011,48 +1008,151 @@ proc ::struct::tree::_walk {name node args} {
 	"in" {
 	    set order in
 	}
-	default {
-	    error "invalid search order \"$order\": should be pre, post, or in"
+	"both" {
+	    set order both
 	}
+	default {
+	    error "invalid search order \"$order\":\
+		    should be pre, post, both, or in"
+	}
+    }
+
+    if {[string equal $order "in"] && [string equal $type "bfs"]} {
+	error "unable to do a ${order}-order breadth first walk"
     }
 
     # Do the walk
     upvar ::struct::tree::tree${name}::children children
     set st [list ]
     lappend st $node
+
+    # Compute some flags for the possible places of command evaluation
+    set leave [expr {[string equal $order post] \
+	    || [string equal $order both]}]
+    set enter [expr {[string equal $order pre] \
+	    || [string equal $order both]}]
+    set touch [string equal $order in]
+
+    if {$leave} {
+	set lvlabel leave
+    } elseif {$touch} {
+	# in-order does not provide a sense
+	# of nesting for the parent, hence
+	# no enter/leave, just 'visit'.
+	set lvlabel visit
+    }
+
     if { [string equal $type "dfs"] } {
-	# Depth-first search
+	# Depth-first walk, several orders of visiting nodes
+	# (pre, post, both, in)
+
+	array set visited {}
+
 	while { [llength $st] > 0 } {
 	    set node [lindex $st end]
-	    set st [lreplace $st end end]
-	    # Evaluate the command at this node
-	    set cmdcpy $cmd
-	    lappend cmdcpy $name $node
-	    uplevel 2 $cmdcpy
-	    
-	    # Add this node's children.  Have to add them in reverse order
-	    # so that they will be popped left-to-right
-	    set len [llength $children($node)]
-	    for {set i [expr {$len - 1}]} {$i >= 0} {incr i -1} {
-		lappend st [lindex $children($node) $i]
+
+	    if {[info exists visited($node)]} {
+		# Second time we are looking at this 'node'.
+		# Pop it, then evaluate the command (post, both, in).
+
+		set st [lreplace $st end end]
+
+		if {$leave || $touch} {
+		    # Evaluate the command at this node
+		    WalkCall $name $node $lvlabel $cmd
+		}
+	    } else {
+		# First visit of this 'node'.
+		# Do *not* pop it from the stack so that we are able
+		# to visit again after its children
+
+		# Remember it.
+		set visited($node) .
+
+		if {$enter} {
+		    # Evaluate the command at this node (pre, both)
+		    WalkCall $name $node "enter" $cmd
+		}
+
+		# Add the children of this node to the stack.
+		# The exact behaviour depends on the chosen
+		# order. For pre, post, both-order we just
+		# have to add them in reverse-order so that
+		# they will be popped left-to-right. For in-order
+		# we have rearrange the stack so that the parent
+		# is revisited immediately after the first child.
+		# (but only if there is ore than one child,)
+
+		set clist        $children($node)
+		set len [llength $clist]
+
+		if {$touch && ($len > 1)} {
+		    # Pop node from stack, insert into list of children
+		    set st    [lreplace $st end end]
+		    set clist [linsert $clist 1 $node]
+		    incr len
+		}
+
+		for {set i [expr {$len - 1}]} {$i >= 0} {incr i -1} {
+		    lappend st [lindex $clist $i]
+		}
 	    }
 	}
     } else {
-	# Breadth first search
+	# Breadth first walk (pre, post, both)
+	# No in-order possible. Already captured.
+
+	if {$leave} {
+	    set backward $st
+	}
+
 	while { [llength $st] > 0 } {
-	    set node [lindex $st 0]
-	    set st [lreplace $st 0 0]
-	    # Evaluate the command at this node
-	    set cmdcpy $cmd
-	    lappend cmdcpy $name $node
-	    uplevel 2 $cmdcpy
-	    
+	    set node [lindex   $st 0]
+	    set st   [lreplace $st 0 0]
+
+	    if {$enter} {
+		# Evaluate the command at this node
+		WalkCall $name $node "enter" $cmd
+	    }
+
 	    # Add this node's children
+	    # And create a mirrored version in case of post/both order.
+
 	    foreach child $children($node) {
 		lappend st $child
+		if {$leave} {
+		    set backward [linsert $backward 0 $child]
+		}
+	    }
+	}
+
+	if {$leave} {
+	    foreach node $backward {
+		# Evaluate the command at this node
+		WalkCall $name $node "leave" $cmd
 	    }
 	}
     }
     return
 }
 
+# ::struct::tree::WalkCall --
+#
+#	Helper command to 'walk' handling the evaluation
+#	of the user-specified command. Information about
+#	the tree, node and current action are substituted
+#	into the command before it evaluation.
+#
+# Arguments:
+#	tree	tree we are walking
+#	node	node we are at.
+#	action	The current action.
+#	cmd	The command to call, already partially substituted.
+#
+# Results:
+#	None.
+
+proc ::struct::tree::WalkCall {tree node action cmd} {
+    uplevel 3 [string map [list %n $node %a $action %t $tree %% %] $cmd]
+    return
+}

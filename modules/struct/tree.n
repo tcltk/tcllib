@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.7 2000/03/20 20:07:33 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.8 2000/04/07 18:59:24 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -68,7 +68,7 @@ Returns the index of \fInode\fR in its parent's list of children.  For
 example, if a node has \fBnodeFoo\fR, \fBnodeBar\fR, and \fBnodeBaz\fR as
 children, in that order, the index of \fBnodeBar\fR is 1.
 .TP
-\fItreeName\R \fBinsert\fR \fIparent\fR \fIindex\fR ?\fIchild\fR ?\fIchild ...\fR??
+\fItreeName\fR \fBinsert\fR \fIparent\fR \fIindex\fR ?\fIchild\fR ?\fIchild ...\fR??
 Insert one or more nodes into the tree as children of the node
 \fIparent\fR.  The nodes will be added in the order they are given.
 If \fIparent\fR is \fBroot\fR, it refers to the root of the tree.  The
@@ -139,17 +139,48 @@ Swap the position of \fInode1\fR and \fInode2\fR in the tree.
 Remove a keyed value from the node \fInode\fR.  If no key is
 specified, the key \fBdata\fR is assumed.
 .TP
-\fItreeName\fR \fBwalk\fR \fInode\fR ?\fI-type type\fR? \fI-command cmd\fR
+\fItreeName\fR \fBwalk\fR \fInode\fR ?\fI-order order\fR? ?\fI-type type\fR? \fI-command cmd\fR
+
 Perform a breadth-first or depth-first walk of the tree starting at
 the node \fInode\fR.  The type of walk, breadth-first or depth-first,
 is determined by the value of \fItype\fR; \fBbfs\fR indicates
 breadth-first, \fBdfs\fR indicates depth-first.  Depth-first is the
-default.  All walks are pre-order, meaning that a parent node is
-visited before any of its children.  For example, a breadth-first
-search starting from the root will visit the root, followed by all of
-the root's children, followed by all of the root's grandchildren.  As
-the walk progresses, the command \fIcmd\fR will be evaluated at each
-node, with the values \fItreeName\fR and the name of the current node appended.
+default. The order of the walk, pre-, post-, both- or in-order is
+determined by the value of \fIorder\fR; \fBpre\fR indicates pre-order,
+\fBpost\fR indicates post-order, \fBboth\fR indicates both-order and
+\fBin\fR indicates in-order. Pre-order is the default.
+
+Pre-order walking means that a parent node is visited before any of
+its children.  For example, a breadth-first search starting from the
+root will visit the root, followed by all of the root's children,
+followed by all of the root's grandchildren. Post-order walking means
+that a parent node is visited after any of its children. Both-order
+walking means that a parent node is visited before \fBand\fR after any
+of its children. In-order walking means that a parent node is visited
+after its first child and before the second. This is a generalization
+of in-order walking for binary trees and will do the right thing if a
+binary is walked. The combination of a breadth-first walk with
+in-order is illegal.
+
+As the walk progresses, the command \fIcmd\fR will be evaluated at
+each node.  Percent substitution will be performed on \fIcmd\fR before
+evaluation, just as in a \fBbind\fR script.  The following
+substitutions are recognized:
+.RS
+.IP \fB%%\fR
+Insert the literal % character.
+.IP \fB%t\fR
+Name of the tree object.
+.IP \fB%n\fR
+Name of the current node.
+.IP \fB%a\fR
+Name of the action occuring; one of \fBenter\fR, \fBleave\fR, or
+\fBvisit\fR.  \fBenter\fR actions occur during pre-order walks;
+\fBleave\fR actions occur during post-order walks; \fBvisit\fR actions
+occur during in-order walks.  In a both-order walk, the command will
+be evaluated twice for each node; the action is \fBenter\fR for the
+first evaluation, and \fBleave\fR for the second.
+.RE
 
 .SH KEYWORDS
 tree
