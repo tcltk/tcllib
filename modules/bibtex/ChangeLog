@@ -1,3 +1,7 @@
+2005-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bibtex.man: Added documentation.
+
 2005-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bibtex.tcl:   New module. Parser for BibTeX bibliography
