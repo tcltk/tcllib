@@ -68,22 +68,22 @@ test adjust-0.4 {adjust string with plain justification} {
 test adjust-0.5 {adjust string on left with full line} {
     ::textutil::adjust $string -full yes
 } \
-"hello, world                                                            "
+"hello,        world                                                     "
 
 test adjust-0.6 {adjust string on right with full line} {
     ::textutil::adjust $string -justify right -full yes
 } \
-"                                                            hello, world"
+"                                             hello,        world        "
 
 test adjust-0.7 {adjust string on center with full line} {
     ::textutil::adjust $string -justify center -full 1
 } \
-"                              hello, world                              "
+"                       hello,        world                              "
 
 test adjust-0.8 {adjust string with plain justification and full line} {
     ::textutil::adjust $string -justify plain -full YES
 } \
-"hello, world                                                            "
+"hello,        world                                                     "
 
 ##############################
 
@@ -108,20 +108,20 @@ don't let me be misunderstood. Cause tramp like us, baby we were born to
 test adjust-1.3 {adjust multi lines on center} {
     ::textutil::adjust $text -justify center -full yes
 } \
-" Hello, world! This is the end, my friend. You're just another brick in 
-the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
- trés bien ensembles. Smoke on the water, and fire in the sky. Oh Lord, 
-don't let me be misunderstood. Cause tramp like us, baby we were born to
-                                  run.                                  "
+"Hello, world!             This is the end,    my    friend.  You're just
+ another   brick   in   the   wall.    Michele, ma belle, sont des mots 
+   qui vont trés bien ensembles, trés bien ensembles.     Smoke on the  
+water, and fire in the sky.      Oh Lord, don't let me be misunderstood.
+             Cause tramp like us, baby we were born to run.             "
 
 test adjust-1.4 {adjust multi lines with plain justification} {
     ::textutil::adjust $text -justify plain -full yes
 } \
-"Hello, world! This  is the end,  my friend. You're just another brick in
-the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
-trés bien ensembles. Smoke  on the water, and fire  in the sky. Oh Lord,
-don't let me be misunderstood. Cause tramp like us, baby we were born to
-run.                                                                    "
+"Hello, world!             This is the end,    my    friend.  You're just
+another     brick   in   the   wall.    Michele, ma belle, sont des mots
+qui vont trés bien ensembles, trés bien ensembles.          Smoke on the
+water, and fire in the sky.      Oh Lord, don't let me be misunderstood.
+Cause tramp like us, baby we were born to run.                          "
 
 test adjust-1.5 {adjust multi lines with plain justification} {
     ::textutil::adjust $text -justify plain
@@ -155,20 +155,22 @@ test adjust-2.2 {adjust multi lines on right with specified length} {
 test adjust-2.3 {adjust multi lines on center with specified length} {
     ::textutil::adjust $text -justify center -length 62 -full yes
 } \
-" Hello, world! This is the end, my friend. You're just another
- brick in the wall. Michele, ma belle, sont des mots qui vont 
- trés bien ensembles, trés bien ensembles. Smoke on the water,
- and fire in the sky. Oh Lord, don't let me be misunderstood. 
-        Cause tramp like us, baby we were born to run.        "
+" Hello, world!             This is the end,    my    friend.  
+ You're just    another   brick   in   the   wall.    Michele,
+  ma belle, sont des mots qui vont trés bien ensembles, trés  
+bien ensembles.     Smoke on the water, and fire in the sky.  
+ Oh Lord, don't let me be misunderstood.  Cause tramp like us,
+                   baby we were born to run.                  "
 
 test adjust-2.4 {adjust multi lines with plain justification} {
     ::textutil::adjust $text -justify plain -length 62 -full yes
 } \
-"Hello, world! This  is the end, my friend. You're just another
-brick  in the wall. Michele,  ma belle, sont des mots qui vont
-trés bien ensembles, trés bien ensembles. Smoke  on the water,
-and fire  in the sky.  Oh Lord, don't let me be misunderstood.
-Cause tramp like us, baby we were born to run.                "
+"Hello, world!               This is the end,    my    friend. 
+You're just     another   brick   in   the   wall.    Michele,
+ma belle,  sont   des mots  qui vont trés bien ensembles, trés
+bien ensembles.     Smoke on the water, and fire in the sky.  
+Oh Lord, don't let me be misunderstood.   Cause tramp like us,
+baby we were born to run.                                     "
 
 test adjust-2.5 {adjust multi lines with plain justification} {
     ::textutil::adjust $text -justify plain -length 62
@@ -179,39 +181,37 @@ trés bien ensembles, trés bien ensembles. Smoke  on the water,
 and fire  in the sky.  Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run."
 
-test adjust-2.6 {adjust multi lines with plain justification and long word} {knownBug} {
+test adjust-2.6 {adjust multi lines with plain justification and long word} {
     ::textutil::adjust $text2 -justify plain -length 31 -strictlength 1
 } \
-"Hello,  world! This is the end,
-my friend.  You're just another
-brick in the wall. Michele,  ma
-belle,  sont  des mots qui vont
-trés bien ensembles,  trés bien
-                     ensembles.
-ThisIsSimilarToTextOnlyThisStri
-     ngHasOneReallyLongWordInIt
-Smoke on the water, and fire in
-the sky. Oh Lord,  don't let me
-be misunderstood.  Cause  tramp
-like  us, baby  we were born to
-run."
+"Hello, world! This  is the end,
+my friend. You're  just another
+brick  in the wall. Michele, ma
+belle, sont  des mots  qui vont
+trés  bien ensembles, trés bien
+ensembles.
+ThisIsSimilarToTextOnlyThisStrin
+gHasOneReallyLongWordInIt Smoke
+on  the water, and fire  in the
+sky.  Oh Lord, don't let  me be
+misunderstood. Cause tramp like
+us, baby  we were born  to run."
 
-test adjust-2.7 {adjust multi lines with plain justification and strictlength} {knownBug} {
+test adjust-2.7 {adjust multi lines with plain justification and strictlength} {
     ::textutil::adjust $text2 -justify plain -length 31 -strictlength 1
 } \
-"Hello,  world! This is the end,
-my friend.  You're just another
-brick in the wall. Michele,  ma
-belle,  sont  des mots qui vont
-trés bien ensembles,  trés bien
-                     ensembles.
-ThisIsSimilarToTextOnlyThisStri
-     ngHasOneReallyLongWordInIt
-Smoke on the water, and fire in
-the sky. Oh Lord,  don't let me
-be misunderstood.  Cause  tramp
-like  us, baby  we were born to
-run."
+"Hello, world! This  is the end,
+my friend. You're  just another
+brick  in the wall. Michele, ma
+belle, sont  des mots  qui vont
+trés  bien ensembles, trés bien
+ensembles.
+ThisIsSimilarToTextOnlyThisStrin
+gHasOneReallyLongWordInIt Smoke
+on  the water, and fire  in the
+sky.  Oh Lord, don't let  me be
+misunderstood. Cause tramp like
+us, baby  we were born  to run."
 
 test adjust-2.8 {adjust multi lines with left justification and strictlength} {
     ::textutil::adjust $text2 -justify left -length 31 -strictlength 1
@@ -222,13 +222,12 @@ brick in the wall. Michele, ma
 belle, sont des mots qui vont
 trés bien ensembles, trés bien
 ensembles.
-ThisIsSimilarToTextOnlyThisStri
-ngHasOneReallyLongWordInIt
-Smoke on the water, and fire in
-the sky. Oh Lord, don't let me
-be misunderstood. Cause tramp
-like us, baby we were born to
-run."
+ThisIsSimilarToTextOnlyThisStrin
+gHasOneReallyLongWordInIt Smoke
+on the water, and fire in the
+sky. Oh Lord, don't let me be
+misunderstood. Cause tramp like
+us, baby we were born to run."
 
 ###################################################
 
