@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.4 2004/05/27 15:02:11 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.5 2004/05/29 09:15:53 afaupell Exp $
 
 package provide jpeg 0.1
 
@@ -163,6 +163,33 @@ proc ::jpeg::getExif {file {type main}} {
     return $data
 }
 
+proc ::jpeg::removeExif {file} {
+    set fh [openJFIF $file]
+    set data {}
+    set markers [markers $fh]
+    if {[lsearch $markers "e1 *"] < 0} { close $fh; return }
+    foreach marker $markers {
+        if {[lindex $marker 0] != "e1"} {
+            seek $fh [expr {[lindex $marker 1] - 4}] start
+            append data [read $fh [expr {[lindex $marker 2] + 4}]]
+        } else {
+            seek $fh [lindex $marker 1] start
+            if {[read $fh 6] == "Exif\x00\x00"} continue
+            seek $fh -10 current
+            append data [read $fh [expr {[lindex $marker 2] + 4}]]
+        }
+    }
+    append data [read $fh]
+    close $fh
+    set fh [open $file w]
+    puts -nonewline $fh "\xFF\xD8"
+    if {[lindex $markers 0 0] != "e0"} {
+        puts -nonewline $fh [binary format a2Sa5cccSScc "\xFF\xE0" 16 "JFIF\x00" 1 2 1 72 72 0 0]
+    }
+    puts -nonewline $fh $data
+    close $fh
+}
+
 proc ::jpeg::_exif {fh byteOrder offset} {
     variable exif
     set return {}
@@ -197,7 +224,6 @@ proc ::jpeg::_exif {fh byteOrder offset} {
     }
     return $return
 }
-
 
 proc ::jpeg::debug {file} {
     set fh [openJFIF $file]
