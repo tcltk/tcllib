@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.16 2003/07/03 08:31:26 afaupell Exp $
+# $Id: irc.tcl,v 1.17 2003/07/28 06:32:02 afaupell Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -306,9 +306,7 @@ proc ::irc::connection { args } {
 	    }
 
 	    if { $state == 0 } {
-		if { [catch { socket $host $port } sock] } {
-		    error "Could not open connection to $host $port"
-		}
+		set sock [socket $host $port]
 		set state 1
 		fconfigure $sock -translation crlf -buffering line
 		fileevent $sock readable [namespace current]::GetEvent
