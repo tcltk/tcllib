@@ -42,6 +42,11 @@ namespace eval ncgi {
 
     variable varlist
 
+    # This holds the URL coresponding to the current request
+    # This does not include the server name.
+
+    variable urlstub
+
     # This flags compatibility with Don Libes cgi.tcl when dealing with
     # form values that appear more than once.  This bit gets flipped when
     # you use the ncgi::input procedure to parse inputs.
@@ -111,6 +116,31 @@ proc ncgi::reset {{newquery {}} {newtype {}}} {
     } else {
 	set query $newquery
 	set contenttype $newtype
+    }
+}
+
+# ncgi::urlstub
+#
+#	Set or return the URL associated with the current page.
+#	This is for use by TclHttpd to override the default value
+#	that otherwise comes from the CGI environment
+#
+# Arguments:
+#	url	(option) The url of the page, not counting the server name.
+#		If not specified, the current urlstub is returned
+#
+# Side Effects:
+#	May affects future calls to ncgi::urlstub
+
+proc ncgi::urlstub {{url {}}} {
+    variable urlstub
+    if {[string length $url]} {
+	set urlstub $url
+    } elseif {[info exist urlstub]} {
+	return $urlstub
+    } elseif {[info exist env(SCRIPT_NAME)]} {
+	set urlstub $env(SCRIPT_NAME)
+	return $urlstub
     }
 }
 
@@ -346,11 +376,12 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 #
 # Arguments:
 #	name	The name of the query element
+#	default	The value to return if the value is not present
 #
 # Results:
-#	The first value of the named element, or ""
+#	The first value of the named element, or the default
 
-proc ncgi::value {key} {
+proc ncgi::value {key {default {}}} {
     variable value
     variable listRestrict
     if {[info exists value($key)]} {
@@ -367,7 +398,7 @@ proc ncgi::value {key} {
 	    return [lindex $value($key) 0]
 	}
     } else {
-	return ""
+	return $default
     }
 }
 
@@ -384,13 +415,27 @@ proc ncgi::value {key} {
 # Results:
 #	The first value of the named element, or ""
 
-proc ncgi::valuelist {key} {
+proc ncgi::valuelist {key {default {}}} {
     variable value
     if {[info exists value($key)]} {
 	return $value($key)
     } else {
-	return [list]
+	return $default
     }
+}
+
+# ncgi::empty --
+#
+#	Return true if the CGI variable doesn't exist or is an empty string
+#
+# Arguments:
+#	name	Name of the CGI variable
+#
+# Results:
+#	1 if the variable doesn't exist or has the empty value
+
+proc ncgi::empty {name} {
+    return [expr {[string length [string trim [ncgi::value $name]]] == 0}]
 }
 
 # ncgi::import
