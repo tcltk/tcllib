@@ -18,16 +18,16 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.10 2003/03/05 22:53:25 patthoyts Exp $
+# $Id: dns.tcl,v 1.11 2003/04/11 18:53:22 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
-namespace eval dns {
+namespace eval ::dns {
     variable version 1.0.3
-    variable rcsid {$Id: dns.tcl,v 1.10 2003/03/05 22:53:25 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.11 2003/04/11 18:53:22 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -73,7 +73,7 @@ namespace eval dns {
 #  Configure the DNS package. In particular the local nameserver will need
 #  to be set. With no options, returns a list of all current settings.
 #
-proc dns::configure {args} {
+proc ::dns::configure {args} {
     variable options
 
     if {[llength $args] < 1} {
@@ -160,7 +160,7 @@ proc dns::configure {args} {
 #  Create a DNS query and send to the specified name server. Returns a token
 #  to be used to obtain any further information about this query.
 #
-proc dns::resolve {query args} {
+proc ::dns::resolve {query args} {
     variable uid
     variable options
     variable log
@@ -248,7 +248,7 @@ proc dns::resolve {query args} {
 # Description:
 #  Return a list of domain names returned as results for the last query.
 #
-proc dns::name {token} {
+proc ::dns::name {token} {
     set r {}
     Flags $token flags
     array set reply [Decode $token]
@@ -289,7 +289,7 @@ proc dns::name {token} {
 # Description:
 #  Return a list of the IP addresses returned for this query.
 #
-proc dns::address {token} {
+proc ::dns::address {token} {
     set r {}
     array set reply [Decode $token]
     foreach answer $reply(AN) {
@@ -307,7 +307,7 @@ proc dns::address {token} {
 # Description:
 #  Return a list of all CNAME results returned for this query.
 #
-proc dns::cname {token} {
+proc ::dns::cname {token} {
     set r {}
     array set reply [Decode $token]
     foreach answer $reply(AN) {
@@ -326,7 +326,7 @@ proc dns::cname {token} {
 # Description:
 #  Get the status of the request.
 #
-proc dns::status {token} {
+proc ::dns::status {token} {
     variable $token
     upvar 0 $token state
     return $state(status)
@@ -335,7 +335,7 @@ proc dns::status {token} {
 # Description:
 #  Get the error message. Empty if no error.
 #
-proc dns::error {token} {
+proc ::dns::error {token} {
     variable $token
     upvar 0 $token state
     if {[info exists state(error)]} {
@@ -347,7 +347,7 @@ proc dns::error {token} {
 # Description
 #  Get the error code. This is 0 for a successful transaction.
 #
-proc dns::errorcode {token} {
+proc ::dns::errorcode {token} {
     variable $token
     upvar 0 $token state
     set flags [Flags $token]
@@ -359,7 +359,7 @@ proc dns::errorcode {token} {
 # Description:
 #  Reset a connection with optional reason.
 #
-proc dns::reset {token {why reset}} {
+proc ::dns::reset {token {why reset}} {
     variable $token
     upvar 0 $token state
     set state(status) $why
@@ -370,7 +370,7 @@ proc dns::reset {token {why reset}} {
 # Description:
 #  Wait for a request to complete and return the status.
 #
-proc dns::wait {token} {
+proc ::dns::wait {token} {
     variable $token
     upvar 0 $token state
 
@@ -384,7 +384,7 @@ proc dns::wait {token} {
 # Description:
 #  Remove any state associated with this token.
 #
-proc dns::cleanup {token} {
+proc ::dns::cleanup {token} {
     variable $token
     upvar 0 $token state
     if {[info exists state]} {
@@ -397,7 +397,7 @@ proc dns::cleanup {token} {
 # Description:
 #  Dump the raw data of the request and reply packets.
 #
-proc dns::dump {args} {
+proc ::dns::dump {args} {
     if {[llength $args] == 1} {
         set type -reply
         set token [lindex $args 0]
@@ -432,7 +432,7 @@ proc dns::dump {args} {
 # Description:
 #  Perform a hex dump of binary data.
 #
-proc dns::DumpMessage {data} {
+proc ::dns::DumpMessage {data} {
     set result {}
     binary scan $data c* r
     foreach c $r {
@@ -446,7 +446,7 @@ proc dns::DumpMessage {data} {
 # Description:
 #  Contruct a DNS query packet.
 #
-proc dns::BuildMessage {token} {
+proc ::dns::BuildMessage {token} {
     variable $token
     upvar 0 $token state
     variable types
@@ -520,7 +520,7 @@ proc dns::BuildMessage {token} {
 # Description:
 #  Transmit a DNS request over a tcp connection.
 #
-proc dns::TcpTransmit {token} {
+proc ::dns::TcpTransmit {token} {
     variable $token
     upvar 0 $token state
 
@@ -555,7 +555,7 @@ proc dns::TcpTransmit {token} {
 #  As yet I have been unable to test this myself and the tcludp package
 #  cannot do this.
 #
-proc dns::UdpTransmit {token} {
+proc ::dns::UdpTransmit {token} {
     variable $token
     upvar 0 $token state
 
@@ -581,7 +581,7 @@ proc dns::UdpTransmit {token} {
 # Description:
 #  Tidy up after a tcp transaction.
 #
-proc dns::Finish {token {errormsg ""}} {
+proc ::dns::Finish {token {errormsg ""}} {
     variable $token
     upvar 0 $token state
     global errorInfo errorCode
@@ -610,7 +610,7 @@ proc dns::Finish {token {errormsg ""}} {
 # Description:
 #  Handle end-of-file on a tcp connection.
 #
-proc dns::Eof {token} {
+proc ::dns::Eof {token} {
     variable $token
     upvar 0 $token state
     set state(status) eof
@@ -622,7 +622,7 @@ proc dns::Eof {token} {
 # Description:
 #  Process a DNS reply packet (protocol independent)
 #
-proc dns::Receive {token data} {
+proc ::dns::Receive {token data} {
     variable $token
     upvar 0 $token state
 
@@ -651,7 +651,7 @@ proc dns::Receive {token data} {
 # Description:
 #  file event handler for tcp socket. Wait for the reply data.
 #
-proc dns::TcpEvent {token} {
+proc ::dns::TcpEvent {token} {
     variable log
     variable $token
     upvar 0 $token state
@@ -688,7 +688,7 @@ proc dns::TcpEvent {token} {
 
 # Description:
 #  file event handler for udp sockets.
-proc dns::UdpEvent {token} {
+proc ::dns::UdpEvent {token} {
     variable $token
     upvar 0 $token state
     set s $state(sock)
@@ -701,7 +701,7 @@ proc dns::UdpEvent {token} {
     
 # -------------------------------------------------------------------------
 
-proc dns::Flags {token {varname {}}} {
+proc ::dns::Flags {token {varname {}}} {
     variable $token
     upvar 0 $token state
     
@@ -730,7 +730,7 @@ proc dns::Flags {token {varname {}}} {
 # Description:
 #  Decode a DNS packet (either query or response).
 #
-proc dns::Decode {token args} {
+proc ::dns::Decode {token args} {
     variable log
     variable $token
     upvar 0 $token state
@@ -777,7 +777,7 @@ proc dns::Decode {token args} {
 
 # -------------------------------------------------------------------------
 
-proc dns::Expand {data} {
+proc ::dns::Expand {data} {
     set r {}
     binary scan $data c* d
     foreach c $d {
@@ -791,7 +791,7 @@ proc dns::Expand {data} {
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
-proc dns::Pop {varname {nth 0}} {
+proc ::dns::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -800,7 +800,7 @@ proc dns::Pop {varname {nth 0}} {
 
 # -------------------------------------------------------------------------
 
-proc dns::KeyOf {arrayname value {default {}}} {
+proc ::dns::KeyOf {arrayname value {default {}}} {
     upvar $arrayname array
     set lst [array get array]
     set ndx [lsearch -exact $lst $value]
@@ -818,7 +818,7 @@ proc dns::KeyOf {arrayname value {default {}}} {
 # Read the question section from a DNS message. This always starts at index
 # 12 of a message but may be of variable length.
 #
-proc dns::ReadQuestion {nitems data indexvar} {
+proc ::dns::ReadQuestion {nitems data indexvar} {
     variable types
     variable classes
     upvar $indexvar index
@@ -847,7 +847,7 @@ proc dns::ReadQuestion {nitems data indexvar} {
 
 # Read an answer section from a DNS message. 
 #
-proc dns::ReadAnswer {nitems data indexvar} {
+proc ::dns::ReadAnswer {nitems data indexvar} {
     variable types
     variable classes
     upvar $indexvar index
@@ -898,7 +898,7 @@ proc dns::ReadAnswer {nitems data indexvar} {
 # dereferencing pointer labels until we have finished. The length of data
 # used is passed back using the usedvar variable.
 #
-proc dns::ReadName {datavar index usedvar} {
+proc ::dns::ReadName {datavar index usedvar} {
     upvar $datavar data
     upvar $usedvar used
     set startindex $index
@@ -938,7 +938,7 @@ proc dns::ReadName {datavar index usedvar} {
 #
 if {$::tcl_platform(platform) == "Windows"} {
 
-proc dns::Win32_NameServers {} {
+proc ::dns::Win32_NameServers {} {
     package require registry
     set base {HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip}
     set param "$base\\Parameters"
@@ -956,7 +956,7 @@ proc dns::Win32_NameServers {} {
 }
 
 
-proc dns::AppendRegistryValue {key val listName} {
+proc ::dns::AppendRegistryValue {key val listName} {
     upvar $listName lst
     if {![catch {registry get $key $val} v]} {
         set lst [concat $lst $v]
@@ -994,9 +994,9 @@ catch {
     }
 }
 
-namespace eval uri {} ;# needed for pkg_mkIndex.
+namespace eval ::uri {} ;# needed for pkg_mkIndex.
 
-proc uri::SplitDns {uri} {
+proc ::uri::SplitDns {uri} {
     upvar \#0 [namespace current]::dns::schemepart schemepart
     upvar \#0 [namespace current]::dns::class classOrType
     upvar \#0 [namespace current]::dns::class classRE
@@ -1036,7 +1036,7 @@ proc uri::SplitDns {uri} {
     return [array get parts]
 }
 
-proc uri::JoinDns {args} {
+proc ::uri::JoinDns {args} {
     array set parts {nameserver {} port {} query {} class {} type {}}
     array set parts $args
     set query [::uri::urn::quote $parts(query)]
