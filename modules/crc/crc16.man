@@ -1,4 +1,5 @@
 [manpage_begin crc16 n 1.0.1]
+[copyright {2002, Pat Thoyts}]
 [moddesc   {Cyclic Redundancy Check (crc16)}]
 [titledesc {Perform a 16bit Cyclic Redundancy Check}]
 [require Tcl 8.2]
