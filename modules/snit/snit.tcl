@@ -393,17 +393,15 @@ proc ::snit::Comp.Compile {which type body} {
     set isWidget [string match widget* $which]
     set isWidgetAdaptor [string match widgetadaptor $which]
 
-    if {$isWidgetAdaptor} {
-        # A widgetadaptor is also a widget.
-        set which widget
-    }
-
     # NEXT, Evaluate the type's definition in the class interpreter.
     $compiler eval $body
 
     # NEXT, Add the standard definitions
-    Comp.statement.typevariable Snit_isWidget $isWidget
-    Comp.statement.typevariable Snit_isWidgetAdaptor $isWidgetAdaptor
+    append compile(defs) \
+        "\nset %TYPE%::Snit_isWidget $isWidget\n"
+    
+    append compile(defs) \
+        "\nset %TYPE%::Snit_isWidgetAdaptor $isWidgetAdaptor\n"
 
     # Indicate whether the type can create instances that replace
     # existing commands.
