@@ -1,3 +1,7 @@
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.man: New file, doctools manpage.
+
 2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.5.1
