@@ -1,3 +1,21 @@
+2003-04-01  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* checker_toc.tcl: Bug fixes for handling of nested toc divisions.
+
+	* ../../examples/doctools/doctools.idx:
+	* ../../examples/doctools/doctools.toc: Updated to reflect latest
+	  changes in the format definitions.
+
+	* doctoc.tcl:
+	* docidx.tcl: Added the package and file ops initially created in
+	  doctools.tcl to these packages too, so that their text engines
+	  can use 'textutil' too.
+
+	* mpformats/_text.tcl:
+	* mpformats/fmt.text: 
+	* mpformats/toc.text: 
+	* mpformats/idx.text: Bug fixes.
+
 2003-03-31  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/toc.text:

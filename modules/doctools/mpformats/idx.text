@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: idx.text,v 1.1 2003/04/01 01:20:33 andreas_kupries Exp $
+# $Id: idx.text,v 1.2 2003/04/01 23:38:19 andreas_kupries Exp $
 #
 # Engine to convert a docidx document into plain text.
 #
@@ -11,7 +11,7 @@
 
 dt_source _idx_common.tcl
 dt_source _text.tcl
-proc c_copyrightsymbol {} {markup "(c)"}
+proc c_copyrightsymbol {} {return "(c)"}
 
 ######################################################################
 # Conversion specification.
@@ -29,27 +29,30 @@ global key ; set key {}
 global max ; set max 0
 
 proc fmt_index_begin {label title} {
+    TextInitialize
+
     global map ; unset map ; array set map {}
     global key ; set key {}
     global max ; set max 0
 
     set hdr ""
-    if {($label != {}) && ($title != {})} {
-	append  hdr "$label -- $title"
-    } elseif {$label != {}} {
-	append  hdr $label
-    } elseif {$title != {}} {
-	append  hdr $title
-    }
-    append hdr [c_provenance]\n
-    append hdr \n\n
+    append hdr "Index [textutil::uncap [c_provenance]]\n\n"
 
-    Text $hdr
+    if {($label != {}) && ($title != {})} {
+	set title "$label -- $title"
+    } elseif {$label != {}} {
+	set title $label
+    } elseif {$title != {}} {
+	 # title is set
+    }
+    append hdr $title \n
+    append hdr [textutil::strRepeat = [string length $title]]
+    Text  $hdr
     CloseParagraph [Verbatim]
     return
 }
 proc fmt_index_end {} {
-    global map
+    global map max
 
     set break 0
     set rmargin [expr {80 - $max}]

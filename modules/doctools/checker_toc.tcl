@@ -77,10 +77,12 @@ global state
 # contents	| item			| -> item_series
 # item_series	|			| -> item_series
 # div_items	|			| -> div_items
+# division      |                       | -> div_items
 # --------------+-----------------------+----------------------
 # contents	| division_start	| -> end, PUSH division
 # div_series	|			| -> div_series, PUSH division
 # end		|			| PUSH division
+# division      |                       | PUSH division
 # --------------+-----------------------+----------------------
 # div_items	| division_end		| POP (-> div_series / -> end)
 # --------------+-----------------------+----------------------
@@ -122,7 +124,7 @@ proc IsNot {s} {global state ; return [expr {![string equal $state $s]}]}
 proc Go    {s} {Log " >>\[$s\]" ; global state ; set state $s; return}
 proc Push  {s} {Log " //\[$s\]" ; global state stack ; lappend stack $state ; set state $s; return}
 proc Pop   {}  {Log* " pop" ;  global state stack ; set state [lindex $stack end] ; set stack [lrange $stack 0 end-1] ; Log " \\\\\[$state\]" ; return}
-proc State {} {global state ; return $state}
+proc State {} {global state stack ; return "$stack || $state"}
 
 proc Enter {cmd} {Log* "\[[State]\] $cmd"}
 
@@ -196,26 +198,26 @@ proc toc_end {} {
 proc division_start {title} {
     Enter division_start
     if {
-	[IsNot contents] && [IsNot div_series] && [IsNot end]
+	[IsNot contents] && [IsNot div_series] && [IsNot end] && [IsNot division]
     } {Error toc/sectcmd}
     if {[Is contents] || [Is end]} {Go end} else {Go div_series}
-    Push section
+    Push div_series
     fmt_division_start $title
 }
 proc division_end {} {
     Enter division_end
-    if {[IsNot div_items]} {Error toc/sectecmd [State]}
+    if {[IsNot div_items] && [IsNot div_series]} {Error toc/sectecmd [State]}
     Pop
     fmt_division_end
 }
 proc item {file label desc} {
     Enter item
     if {
-	[IsNot     contents] && [IsNot item_series] && [IsNot div_items]
+	[IsNot div_series] && [IsNot contents] && [IsNot item_series] && [IsNot div_items]
     } {
 	Error toc/itemcmd
     }
-    if {[Is div_items]} {Go div_items} else {Go item_series}
+    if {[Is div_items] || [Is div_series]} {Go div_items} else {Go item_series}
     fmt_item $file $label $desc
 }
 proc comment {text} {
