@@ -899,13 +899,13 @@ proc ::math::linearalgebra::mkBorder { size } {
                 set entry 1.0
             }
             if { $i == $size-1 } {
-                set entry [expr {pow(2.0,-$j}]
+                set entry [expr {pow(2.0,-$j)}]
                 if { $j == $size-1 } {
                    set entry 0.0
                 }
             }
             if { $j == $size-1 } {
-                set entry [expr {pow(2.0,-$i}]
+                set entry [expr {pow(2.0,-$i)}]
                 if { $i == $size-1 } {
                    set entry 0.0
                 }
@@ -1595,6 +1595,10 @@ proc ::math::linearalgebra::from_LA { mv } {
     return $result
 }
 
+#
+# Announce the package's presence
+#
+package provide math::linearalgebra 1.0
 
 if { 0 } {
 Te doen:
