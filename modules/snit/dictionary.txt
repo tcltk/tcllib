@@ -56,6 +56,8 @@ Snit_optionInfo         An array of option data.  The keys are as follows:
 
     delegated           List of explicitly delegated option names.
 
+    starcomp		Name of component for "delegate option *" or ""
+
     except              List of option names explicitly NOT delegated 
                         by "delegate option *".
 
@@ -77,13 +79,12 @@ Snit_optionInfo         An array of option data.  The keys are as follows:
 
     cget-$localOpt       The name of the cget method, or "".
 
-  Fields defined only for delegated options, including "*".
+  Fields defined only for delegated options
 
     delegated-$comp      List of option names delegated to this component.
 
     target-$opt         [list component targetOptionName].
-                        The target option name is missing for
-                        option "*".
+
 
 INSTANCE VARIABLES
 
