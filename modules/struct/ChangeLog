@@ -1,3 +1,7 @@
+2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* matrix.n: Fixed nroff trouble.
+
 2001-05-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* matrix.tcl (insert row/column): Fixed wrong references to the

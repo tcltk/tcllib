@@ -1,8 +1,7 @@
-'\" -*- nroff -*-
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: csv.n,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+'\" RCS: @(#) $Id: csv.n,v 1.2 2001/06/19 17:21:56 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH csv n 1.0 Csv "CSV processing"
@@ -127,3 +126,4 @@ Mary says "Hello, I am Mary"
 .SH SEE ALSO
 .SH KEYWORDS
 csv
+'\" -*- nroff -*-

@@ -1,3 +1,7 @@
+2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* csv.n: Fixed nroff trouble.
+
 2001-05-01  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Committed to CVS head at SF.

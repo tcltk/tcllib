@@ -1,3 +1,7 @@
+2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* md5.n: Fixed nroff trouble.
+
 2001-04-25  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* md5.test: Added tests of "md5::hmac". This allows us to test the
