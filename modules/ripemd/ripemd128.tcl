@@ -23,20 +23,19 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd128.tcl,v 1.6 2005/02/17 23:30:31 patthoyts Exp $
+# $Id: ripemd128.tcl,v 1.7 2005/02/23 12:41:37 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-#catch {package require ripemdc 1.0};   # tcllib critcl alternative
 
 namespace eval ::ripemd {
     namespace eval ripemd128 {
-        variable version 1.0.2
-        variable rcsid {$Id: ripemd128.tcl,v 1.6 2005/02/17 23:30:31 patthoyts Exp $}
-        variable usetrf 0
+        variable version 1.0.3
+        variable rcsid {$Id: ripemd128.tcl,v 1.7 2005/02/23 12:41:37 patthoyts Exp $}
+        variable accel
+        array set accel {trf 0}
 
-        # See if we can use Trf
         if {![catch {package require Trf}]} {
-            set usetrf 1
+            set accel(trf) [expr {![catch {::ripemd128 abc} msg]}]
         }
 
         variable uid
@@ -56,7 +55,7 @@ namespace eval ::ripemd {
 # cleaned up when we call MD4Final
 #
 proc ::ripemd::ripemd128::RIPEMD128Init {} {
-    variable usetrf
+    variable accel
     variable uid
     set token [namespace current]::[incr uid]
     upvar #0 $token tok
@@ -69,7 +68,7 @@ proc ::ripemd::ripemd128::RIPEMD128Init {} {
              C [expr {0x98badcfe}] \
              D [expr {0x10325476}] \
              n 0 i "" ]
-    if {$usetrf} {
+    if {$accel(trf)} {
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -91,9 +90,7 @@ proc ::ripemd::ripemd128::RIPEMD128Init {} {
 }
 
 proc ::ripemd::ripemd128::RIPEMD128Update {token data} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     if {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
@@ -116,9 +113,7 @@ proc ::ripemd::ripemd128::RIPEMD128Update {token data} {
 }
 
 proc ::ripemd::ripemd128::RIPEMD128Final {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     if {[info exists state(trf)]} {
         close $state(trf)
@@ -516,13 +511,9 @@ proc ::ripemd::ripemd128::RIPEMD128Hash {token msg} $::ripemd::ripemd128::RIPEMD
 
 # -------------------------------------------------------------------------
 
-if {[package provide Trf] != {}} {
-    interp alias {} ::ripemd::ripemd128::Hex {} ::hex -mode encode --
-} else {
-    proc ::ripemd::ripemd128::Hex {data} {
-        binary scan $data H* result
-        return [string toupper $result]
-    }
+proc ::ripemd::ripemd128::Hex {data} {
+    binary scan $data H* result
+    return $result
 }
 
 # -------------------------------------------------------------------------
@@ -574,7 +565,7 @@ proc ::ripemd::ripemd128::ripemd128 {args} {
         }
         Pop args
     }
-
+    
     if {$opts(-filename) != {}} {
         set opts(-channel) [open $opts(-filename) r]
         fconfigure $opts(-channel) -translation binary

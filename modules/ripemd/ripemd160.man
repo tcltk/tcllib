@@ -1,9 +1,9 @@
-[manpage_begin ripemd160 n 1.0.2]
+[manpage_begin ripemd160 n 1.0.3]
 [moddesc   {RIPEMD Message-Digest Algorithm}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {RIPEMD-160 Message-Digest Algorithm}]
 [require Tcl 8.2]
-[require ripemd160 [opt 1.0.2]]
+[require ripemd160 [opt 1.0.3]]
 [description]
 [para]
 
@@ -13,6 +13,13 @@ generates a 160-bit message digest from the input. The RIPEMD-160
 algorithm is based upon the MD4 algorithm (2, 4) but has been
 cryptographically strengthened against weaknesses that have been found
 in MD4 (4).
+
+[para]
+
+This package will use [package cryptkit] or [package Trf] to
+accelerate the digest computation if either package is available. In
+the absence of an accelerator package the pure-Tcl implementation will
+be used.
 
 [section {COMMANDS}]
 
@@ -65,15 +72,6 @@ release any resources and obtain the hash value, you then call
 [cmd RIPEMD160Final]. An equivalent set of functions gives you a keyed
 digest (HMAC).
 
-[para]
-
-If you have [package critcl] and have built the [package tcllibc]
-package then the implementation of the hashing function will be
-performed by compiled code. Alternatively if both the Trf and Memchan
-extensions are available then these will be used. Finally the package
-will revert to a pure-Tcl implementation.  The programming interface
-remains the same, however.
-
 [list_begin definitions]
 
 [call [cmd "::ripemd::RIPEMD160Init"]]
@@ -112,12 +110,12 @@ These commands are identical to the RIPEMD160 equivalent commands.
 
 [example {
 % ripemd::ripemd160 -hex "Tcl does RIPEMD-160"
-0829DEA75A1A7074C702896723FE37763481A0A7
+0829dea75a1a7074c702896723fe37763481a0a7
 }]
 
 [example {
 % ripemd::hmac160 -hex -key Sekret "Tcl does RIPEMD-160"
-BF0C927231733686731DDDB470B64A9C23F7F53B
+bf0c927231733686731dddb470b64a9c23f7f53b
 }]
 
 [example {
@@ -127,7 +125,7 @@ BF0C927231733686731DDDB470B64A9C23F7F53B
 % ripemd::RIPEMD160Update $tok "does "
 % ripemd::RIPEMD160Update $tok "RIPEMD-160"
 % ripemd::Hex [ripemd::RIPEMD160Final $tok]
-0829DEA75A1A7074C702896723FE37763481A0A7
+0829dea75a1a7074c702896723fe37763481a0a7
 }]
 
 [section {REFERENCES}]

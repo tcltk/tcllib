@@ -23,21 +23,24 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd160.tcl,v 1.5 2005/02/17 23:30:31 patthoyts Exp $
+# $Id: ripemd160.tcl,v 1.6 2005/02/23 12:41:37 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
 
 namespace eval ::ripemd {
     namespace eval ripemd160 {
-        variable version 1.0.2
-        variable rcsid {$Id: ripemd160.tcl,v 1.5 2005/02/17 23:30:31 patthoyts Exp $}
-        variable usetrf 0
+        variable version 1.0.3
+        variable rcsid {$Id: ripemd160.tcl,v 1.6 2005/02/23 12:41:37 patthoyts Exp $}
+        variable accel
+        array set accel {cryptkit 0 trf 0}
 
         
-        # See if we can use Trf
-        if {![catch {package require Trf}]} {
-            set usetrf 1
+        if {![catch {package require cryptkit}]} {
+            set accel(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
+        }
+        if {!$accel(cryptkit) && ![catch {package require Trf}]} {
+            set accel(trf) [expr {![catch {::ripemd160 abc} msg]}]
         }
 
         variable uid
@@ -57,7 +60,7 @@ namespace eval ::ripemd {
 # cleaned up when we call RIPEMD160Final
 #
 proc ::ripemd::ripemd160::RIPEMD160Init {} {
-    variable usetrf
+    variable accel
     variable uid
     set token [namespace current]::[incr uid]
     upvar #0 $token tok
@@ -71,7 +74,10 @@ proc ::ripemd::ripemd160::RIPEMD160Init {} {
              D [expr {0x10325476}] \
              E [expr {0xc3d2e1f0}] \
              n 0 i "" ]
-    if {$usetrf} {
+    if {$accel(cryptkit)} {
+        cryptkit::cryptCreateContext state(ckctx) \
+            CRYPT_UNUSED CRYPT_ALGO_RIPEMD160
+    } elseif {$accel(trf)} {
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -93,11 +99,12 @@ proc ::ripemd::ripemd160::RIPEMD160Init {} {
 }
 
 proc ::ripemd::ripemd160::RIPEMD160Update {token data} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
-    if {[info exists state(trf)]} {
+    if {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) $data
+        return
+    } elseif {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
         return
     }
@@ -118,11 +125,16 @@ proc ::ripemd::ripemd160::RIPEMD160Update {token data} {
 }
 
 proc ::ripemd::ripemd160::RIPEMD160Final {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
-    if {[info exists state(trf)]} {
+    if {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) ""
+        cryptkit::cryptGetAttributeString $state(ckctx) \
+            CRYPT_CTXINFO_HASHVALUE r 20
+        cryptkit::cryptDestroyContext $state(ckctx)
+        unset state
+        return $r
+    } elseif {[info exists state(trf)]} {
         close $state(trf)
         set r $state(trfwrite)
         unset state
@@ -632,13 +644,9 @@ proc ::ripemd::ripemd160::RIPEMD160Hash {token msg} \
 
 # -------------------------------------------------------------------------
 
-if {[package provide Trf] != {}} {
-    interp alias {} ::ripemd::ripemd160::Hex {} ::hex -mode encode --
-} else {
-    proc ::ripemd::ripemd160::Hex {data} {
-        binary scan $data H* result
-        return [string toupper $result]
-    }
+proc ::ripemd::ripemd160::Hex {data} {
+    binary scan $data H* result
+    return $result
 }
 
 # -------------------------------------------------------------------------
