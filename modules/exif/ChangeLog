@@ -1,3 +1,7 @@
+2003-02-06  David N. Welton  <davidw@dedasys.com>
+
+	* exif.tcl (exif::makerNote): Use string match instead of regexp.
+
 2002-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* exif.tcl: Applied patch for bug report SF #530907 partially.

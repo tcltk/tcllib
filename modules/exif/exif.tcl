@@ -363,7 +363,7 @@ proc exif::makerNote {data curoffset} {
                     debug "$j : $field($j)"
                 }
                 if {$tag == 1} {
-                    if {![regexp -nocase Pro90 $cameraModel]} {
+                    if {![string match -nocase "*Pro90*" $cameraModel]} {
                         if {$field(1)==1} {
                             set result(MacroMode) macro
                         } else {
@@ -511,7 +511,7 @@ proc exif::makerNote {data curoffset} {
 			}
 		    }
                     if {[info exists field(34)] \
-			    [regexp -nocase pro90 $cameraModel]} {
+			    [string match -nocase "*pro90*" $cameraModel]} {
                         if {$field(34)} {
                             set result(ImageStabilisation) on
                         } else {
