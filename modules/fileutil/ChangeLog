@@ -1,3 +1,12 @@
+2003-08-06  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (find): The fix for SF tcllib bug [647974]
+	  introduced a tcl command new to tcl 8.4. This command is
+	  [file system]. Changing the code to exclude dev/inode checking
+	  only for 8.4 and above. For versions of Tcl below 8.4. the fix
+	  is not required as they do not have virtual filesystem
+	  support. This fixes SF tcllib bug [784157].
+
 2003-08-06  David N. Welton  <davidw@dedasys.com>
 
 	* fileutil.man: Added documentation for the new 'install' command.
