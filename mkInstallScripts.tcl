@@ -15,12 +15,13 @@ set modules [lrange $argv 3 end]
 #
 
 set f [open [file join $outdir INSTALL.BAT] w]
-puts $f "@echo off"
-puts $f "set TCLINSTALL=C:\\Progra~1\\Tcl"
-puts $f "mkdir %TCLINSTALL%\\lib\\$package$version"
-puts $f "copy pkgIndex.tcl %TCLINSTALL%\\lib\\$package$version"
-puts $f "cd modules"
-puts $f "for %%f in ($modules) do xcopy .\\%%f\\*.* %TCLINSTALL%\\lib\\$package$version\\%%f /E /S /I /Q /C"
+puts  $f "@echo off"
+puts  $f "set TCLINSTALL=C:\\Progra~1\\Tcl"
+puts  $f "mkdir %TCLINSTALL%\\lib\\$package$version"
+puts  $f "copy pkgIndex.tcl %TCLINSTALL%\\lib\\$package$version"
+puts  $f "xcopy .\\doc\\html\\*.* %TCLINSTALL%\\lib\\$package$version\\doc /E /S /I /Q /C"
+puts  $f "cd modules"
+puts  $f "for %%f in ($modules) do xcopy .\\%%f\\*.* %TCLINSTALL%\\lib\\$package$version\\%%f /E /S /I /Q /C"
 close $f
 
 # Make an install.sh for Unix
@@ -44,19 +45,24 @@ puts $f "fi"
 puts $f "if \[ ! -d \$TCLINSTALL/man/mann \] ; then \\"
 puts $f "    mkdir -p \$TCLINSTALL/man/mann ; \\"
 puts $f "fi"
-puts $f "cp -f pkgIndex.tcl \$TCLINSTALL/lib/$package$version"
+puts $f "if \[ ! -d \$TCLINSTALL/lib/$package$version/htmldoc \] ; then \\"
+puts $f "    mkdir -p \$TCLINSTALL/lib/$package$version/htmldoc ; \\"
+puts $f "fi"
+puts $f "cp -f pkgIndex.tcl    \$TCLINSTALL/lib/$package$version"
+puts $f "cp -f doc/nroff/*.n   \$TCLINSTALL/man/mann                     2> /dev/null ; \\"
+puts $f "cp -f doc/html/*.html \$TCLINSTALL/lib/$package$version/htmldoc 2> /dev/null ; \\"
 puts $f "cd modules"
 puts $f "for j in $modules ; do \\"
 puts $f "    if \[ ! -d \$TCLINSTALL/lib/$package$version/\$j \] ; then \\"
 puts $f "        mkdir \$TCLINSTALL/lib/$package$version/\$j ; \\"
 puts $f "    fi; \\"
-puts $f "    cp -f \$j/*.tcl    \$TCLINSTALL/lib/$package$version/\$j ; \\"
+puts $f "    cp -f \$j/*.tcl    \$TCLINSTALL/lib/$package$version/\$j 2>/dev/null; \\"
 puts $f "    if \[ -f \$j/tclIndex \] ; then \\"
 puts $f "        cp -f \$j/tclIndex \$TCLINSTALL/lib/$package$version/\$j ; \\"
 puts $f "    fi ; \\"
-puts $f "    cp -f \$j/*.n      \$TCLINSTALL/man/mann 2> /dev/null ; \\"
 puts $f "done"
 close $f
+
 switch -exact $::tcl_platform(platform) {
     unix {
 	file attributes $installFile -permissions 0755

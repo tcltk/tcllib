@@ -16,27 +16,39 @@
 foreach {outdir package version} $argv {
     break
 }
-set modules [lrange $argv 3 end]
+## set modules [lrange $argv 3 end]
 cd $outdir
 puts "Making pkgIndex.tcl in [pwd]"
 
+## First run the standard package indexer. This creates a pkgIndex.tcl
+## file in the directory modules. Read an transform this file into the
+## final form.
+
+# Add -verbose in case of trouble
+pkg_mkIndex modules */*.tcl
+
+set base  [open [file join modules pkgIndex.tcl] r]
 set index [open pkgIndex.tcl w]
-puts $index "if { \[lsearch \$auto_path \$dir\] == -1 } {"
-puts $index "\tlappend auto_path \$dir"
-puts $index "\tif {!\[catch {package vcompare \[info patchlevel\] \[info patchlevel\]}\]} {"
-puts $index "\t\tif {!\[package vsatisfies \[info patchlevel\] 8.3.1\]} {"
-puts $index "\t\t\tforeach tlf \[glob -nocomplain \[file join \$dir * pkgIndex.tcl\]\] {"
-puts $index "\t\t\t\tset dir \[file dirname \$tlf\]"
-puts $index "\t\t\t\tsource \$tlf"
-puts $index "\t\t\t}"
-puts $index "\t\t\tcatch {unset tlf}"
-puts $index "\t\t}"
-puts $index "\t}"
-puts $index "}"
-puts $index "package ifneeded $package $version {"
-foreach module $modules {
-    puts $index "\tcatch {package require $module}"
+
+set trailer [list]
+
+while {![eof $base]} {
+    if {[gets $base line] < 0} {continue}
+    puts $index $line
+    if {[regexp {^package ifneeded} $line]} {
+	foreach {_ _ pkg ver} [split $line] break
+	lappend trailer "\tcatch \{package require $pkg $ver\}"
+    }
 }
-puts $index "\tpackage provide $package $version"
-puts $index "}"
+close $base
+
+puts  $index ""
+puts  $index "package ifneeded $package $version \{"
+puts  $index [join $trailer \n]
+puts  $index "\tpackage provide $package $version"
+puts  $index "\ttclLog \"Don't do \\\"package require $package\\\", ask for individual modules.\""
+puts  $index "\}"
 close $index
+
+file delete [file join modules pkgIndex.tcl]
+exit

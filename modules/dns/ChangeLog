@@ -1,0 +1,4 @@
+2002-06-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dns.man: Added note to manpage regarding DNS via TCP and
+	  possible pitfalls.
