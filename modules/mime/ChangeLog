@@ -1,3 +1,12 @@
+2002-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl: Applied patch SF #585455 supplied by Pascal Scheffers
+	  <pascalscheffers@users.sourceforge.net> on behalf of Marshall
+	  Rose <mrose@users.sourceforge.net>. This patch speeds up MIME
+	  processing by using [split \n] and list ops to iterate over the
+	  lines in the mail instead of using [string range] for doing it
+	  incrementally, copying unprocessed data down again and again.
+
 2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl: Fixed bug SF #548832. Report and patch by Michael
