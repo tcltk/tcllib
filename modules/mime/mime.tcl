@@ -181,7 +181,7 @@ namespace eval ::mime {
             shiftjis Shift_JIS \
             symbol "" \
             unicode "" \
-            utf-8 ""]
+            utf-8 UTF-8]
 
     variable encodings
     array set encodings $encList

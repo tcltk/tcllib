@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.9 2003/06/25 20:54:59 davidw Exp $
+# RCS: @(#) $Id: mime.test,v 1.10 2003/11/21 06:07:57 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -263,6 +263,14 @@ foreach {n encoded expected} {
     ""
 } {
     test mime-6.$n {Test field_decode (from RFC 2047, part 8)} {
+	mime::field_decode $encoded
+    } $expected ; # {}
+}
+
+foreach {bug n encoded expected} {
+    764702 1 "(=?utf-8?Q?H=C3=BCrz?=)" "(Hürz)"
+} {
+    test mime-7.$n "Test field_decode (from SF Tcllib bug $bug)" {
 	mime::field_decode $encoded
     } $expected ; # {}
 }
