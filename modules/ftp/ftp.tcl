@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.32 2003/05/01 00:17:40 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.33 2003/07/28 18:03:43 afaupell Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -1653,6 +1653,7 @@ proc ::ftp::Rename {s from to} {
 # stop_time - 		ending time
 
 proc ::ftp::ElapsedTime {s stop_time} {
+    variable VERBOSE
     upvar ::ftp::ftp$s ftp
 
     set elapsed [expr {$stop_time - $ftp(Start_Time)}]
@@ -1660,7 +1661,9 @@ proc ::ftp::ElapsedTime {s stop_time} {
         set elapsed 1
     }
     set persec [expr {$ftp(Total) / $elapsed}]
-    DisplayMsg $s "$ftp(Total) bytes sent in $elapsed seconds ($persec Bytes/s)"
+    if { $VERBOSE } {
+        DisplayMsg $s "$ftp(Total) bytes sent in $elapsed seconds ($persec Bytes/s)"
+    }
     return
 }
 
