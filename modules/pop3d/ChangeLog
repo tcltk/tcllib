@@ -1,3 +1,10 @@
+2003-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3d.tcl (H_quit): Remember the handle of the idle event we are
+	  scheduling. This event can be passed by by an eof on the
+	  channel. (CloseConnection): Kill a pending idle event, it was
+	  passed by and is not relevant anymore. [Bug 650977].
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
