@@ -1,3 +1,16 @@
+2005-03-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bibtex.test: Updated testsuite to handle the more rigorous
+	* bibtex.man:  option processing, fixed some buglets. Added
+	* bibtex.tcl:  a new API command and extended the documentation as
+	  well. Bumped to version 0.5
+
+2005-03-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bibtex.tcl: Revamped the option processing of 'parse', rewrote
+	  processing to follow the documentation, and implemented true
+	  background processing. ... Currently breaks the testsuite.
+
 2005-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bibtex.man: Added documentation.
