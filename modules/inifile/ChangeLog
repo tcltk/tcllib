@@ -1,3 +1,11 @@
+2004-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* inifile.test: Fixed [Tcllib SF Bug 899204] by (a) rewriting all
+	  tests to be completely independent of each other and (b)
+	  changing the mode when opening the test file to 'r'. It should
+	  be noted that the write facilities of the module are not covered
+	  by the testsuite. That is unfortunate.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
