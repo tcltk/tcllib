@@ -13,7 +13,7 @@ This package implements several so-called special functions, like
 the Gamma function, the Bessel functions and such.
 
 [para]
-Each function is implemented by a procedure that bares its name (well,
+Each function is implemented by a procedure that bears its name (well,
 in close approximation):
 
 [list_begin bullet]
@@ -31,7 +31,13 @@ I_n for the modified Bessel function of the first kind of order n
 
 [bullet]
 Gamma for the Gamma function, erf and erfc for the error function and
-the complementary error function.
+the complementary error function
+
+[bullet]
+fresnel_C and fresnel_S for the Fresnel integrals
+
+[bullet]
+elliptic_K and elliptic_E (complete elliptic integrals)
 
 [list_end]
 
@@ -131,6 +137,31 @@ for the argument "k"
 
 [list_begin arg]
 [arg_def float k] Argument for the function
+[list_end]
+
+[call [cmd ::math::special::elliptic_E] [arg k]]
+
+Compute the complete elliptic integral of the second kind
+for the argument "k"
+
+[list_begin arg]
+[arg_def float k] Argument for the function
+[list_end]
+
+[call [cmd ::math::special::fresnel_C] [arg x]]
+
+Compute the Fresnel cosine integral for real argument x
+
+[list_begin arg]
+[arg_def float x] Argument for the function
+[list_end]
+
+[call [cmd ::math::special::fresnel_S] [arg x]]
+
+Compute the Fresnel sine integral for real argument x
+
+[list_begin arg]
+[arg_def float x] Argument for the function
 [list_end]
 
 [list_end]
