@@ -1,3 +1,10 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl:
+	* html.man:
+	* html.tcl: Fixed bug #614591. Set version of the package to to
+	  1.2.2. Fixed equivalent of bug #648679.
+
 2003-02-24  David N. Welton  <davidw@dedasys.com>
 
 	* html.tcl (html::quoteFormValue): Package requires Tcl 8.2 in any
