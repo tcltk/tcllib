@@ -4,10 +4,10 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 1999 by Scriptics Corporation.
+# Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.4 2000/05/04 06:01:07 welch Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.5 2000/05/31 00:00:00 ericm Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*

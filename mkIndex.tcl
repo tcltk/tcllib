@@ -7,7 +7,7 @@
 #		version 	package version
 #		modules		list of modules to include
 #
-# Copyright (c) 1999 Scriptics Corporation.
+# Copyright (c) 1999-2000 Ajuba Solutions.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.

@@ -1,8 +1,8 @@
 '\"
-'\" Copyright (c) 1998-2000 by Scriptics Corporation.
+'\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.4 2000/05/20 06:20:06 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.5 2000/05/31 00:00:00 ericm Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"

@@ -1,11 +1,11 @@
-# unixutil.tcl --
+# fileutil.tcl --
 #
 #	Tcl implementations of standard UNIX utilities.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.2 2000/03/10 22:59:17 ericm Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.3 2000/05/31 00:00:00 ericm Exp $
 
 package provide fileutil 1.0
 

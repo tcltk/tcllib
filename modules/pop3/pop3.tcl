@@ -4,12 +4,12 @@
 #	Some concepts borrowed from "frenchie", a POP3
 #	mail client utility written by Scott Beasley.
 #
-# Copyright (c) 2000 by Scriptics Corporation.
+# Copyright (c) 2000 by Ajuba Solutions.
 # portions Copyright (c) 2000 by Scott Beasley
 #
 # All rights reserved.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.4 2000/05/18 18:19:16 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.5 2000/05/31 00:00:02 ericm Exp $
 
 package provide pop3 1.0
 
@@ -387,3 +387,4 @@ proc ::pop3::top {chan msg n} {
     }
     return $msgBuffer
 }
+

@@ -4,12 +4,12 @@
 # Standard Tcl Library. Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.5 2000/05/20 06:20:07 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.6 2000/05/31 00:00:00 ericm Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*

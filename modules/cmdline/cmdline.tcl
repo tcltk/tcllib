@@ -5,10 +5,10 @@
 #	It also includes a utility routine to determine the app
 #	name for use in command line errors.
 #
-# Copyright (c) 1998 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.4 2000/05/04 06:01:07 welch Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.5 2000/05/30 23:59:59 ericm Exp $
 
 package provide cmdline 1.1
 namespace eval cmdline {

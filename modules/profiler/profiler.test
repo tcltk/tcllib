@@ -3,10 +3,10 @@
 # Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.7 2000/03/20 22:08:34 ericm Exp $
+# RCS: @(#) $Id: profiler.test,v 1.8 2000/05/31 00:00:02 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

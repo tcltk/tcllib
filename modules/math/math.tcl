@@ -2,10 +2,10 @@
 #
 #	Collection of math functions.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.2 2000/03/28 02:28:25 ericm Exp $
+# RCS: @(#) $Id: math.tcl,v 1.3 2000/05/31 00:00:01 ericm Exp $
 
 package provide math 1.0
 

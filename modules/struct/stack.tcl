@@ -2,10 +2,10 @@
 #
 #	Stack implementation for Tcl.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.2 2000/05/31 00:00:03 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -76,16 +76,10 @@ proc ::struct::stack::stack {{name ""}} {
 # Results:
 #	Varies based on command to perform
 
-proc ::struct::stack::StackProc {name {cmd ""} args} {
-    # Do minimal args checks here
-    if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
-    }
-    
+proc ::struct::stack::StackProc {name cmd args} {
     # Split the args into command and args components
-    if { [llength [info commands ::struct::stack::_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands ", "]
+    if { [lsearch -exact $::struct::stack::commands $cmd] == -1 } {
+	set optlist [join $::struct::stack::commands ", "]
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }

@@ -4,10 +4,10 @@
 # Stephen Uhler / Brent Welch (c) 1997 Sun Microsystems
 # The decoder was done for exmh by Chris Garrigues
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.3 2000/03/05 03:41:56 ericm Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.4 2000/05/30 23:59:59 ericm Exp $
 
 package provide base64 2.0
 

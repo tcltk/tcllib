@@ -1,8 +1,8 @@
 '\"
-'\" Copyright (c) 1998-2000 by Scriptics Corporation.
+'\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.8 2000/04/07 18:59:24 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.9 2000/05/31 00:00:03 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"

@@ -4,9 +4,9 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.8 2000/05/15 21:21:58 welch Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.9 2000/05/31 00:00:02 ericm Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*

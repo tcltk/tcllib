@@ -2,10 +2,10 @@
 #
 #	Implementation of a tree data structure for Tcl.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.11 2000/04/27 18:42:29 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.12 2000/05/31 00:00:03 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -76,7 +76,7 @@ proc ::struct::tree::tree {{name ""}} {
 	set name "tree${counter}"
     }
 
-    if { ![string equal [info commands ::$name] ""] } {
+    if { [llength [info commands ::$name]] } {
 	error "command \"$name\" already exists, unable to create tree"
     }
 

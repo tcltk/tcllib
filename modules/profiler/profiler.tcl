@@ -2,10 +2,10 @@
 #
 #	Tcl code profiler.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.8 2000/03/28 03:23:46 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.9 2000/05/31 00:00:02 ericm Exp $
 
 package provide profiler 0.1
 

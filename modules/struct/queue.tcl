@@ -2,10 +2,10 @@
 #
 #	Queue implementation for Tcl.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.2 2000/05/31 00:00:03 ericm Exp $
 
 namespace eval ::struct {}
 

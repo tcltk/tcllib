@@ -5,12 +5,12 @@
 #	This module depends on the ncgi module for the procedures
 #	that initialize form elements based on current CGI values.
 #
-# Copyright (c) 1998-2000 by Scriptics Corporation.
+# Copyright (c) 1998-2000 by Ajuba Solutions.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.11 2000/05/20 06:20:07 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.12 2000/05/31 00:00:00 ericm Exp $
 
 package provide html 1.0
 

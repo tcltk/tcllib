@@ -1,8 +1,8 @@
 '\"
-'\" Copyright (c) 2000 by Scriptics Corporation.
+'\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.2 2000/05/18 18:19:16 redman Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.3 2000/05/31 00:00:02 ericm Exp $
 '\" 
 .so man.macros
 .TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
