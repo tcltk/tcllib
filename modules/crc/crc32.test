@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32.test,v 1.4 2002/01/23 20:56:30 patthoyts Exp $
+# RCS: @(#) $Id: crc32.test,v 1.5 2003/01/07 00:40:03 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -115,7 +115,7 @@ if {![catch {package present Trf 2.0}]} {
         set data [crc::loaddata $crc::testfile]
         set r1 [::crc::Crc32_trf $data]
         set r2 [::crc::Crc32_tcl $data]
-        if {$r1 != $r2} {
+        if {int($r1) != int($r2)} {
             set r "differing results: $r1 != $r2"
         } else {
             set r ok
