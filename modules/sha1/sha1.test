@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1.test,v 1.5 2005/02/20 22:05:35 patthoyts Exp $
+# RCS: @(#) $Id: sha1.test,v 1.6 2005/02/20 22:58:58 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -32,10 +32,15 @@ if {[catch {source [file join [file dirname [info script]] sha1.tcl]} msg]} {
 # Setup any constraints
 #
 
+array set preserve [list usesha1c $::sha1::usesha1c usetrf $::sha1::usetrf]
+
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
+if {$::sha1::usesha1c} {
+    puts "- sha1 [package present sha1] (critcl based)"
+}
 if {$::sha1::usetrf} {
     puts "- sha1 [package present sha1] (Trf based)"
 }
@@ -57,19 +62,30 @@ test sha1-1.2 {sha1} {
     set result
 } "wrong # args: should be \"hmac ?-hex? -key key -filename file | string\""
 
-
-foreach {n msg expected} {
+set vectors {
     1 "abc"
     "a9993e364706816aba3e25717850c26c9cd0d89d"
     2 "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
     "84983e441c3bd26ebaae4aa1f95129e5e54670f1"
-} {
+}
+foreach {n msg expected} $vectors {
     test sha1-2.$n {sha1} {
 	::sha1::sha1 $msg
     } $expected ; # {}
 }
 
-foreach {n key text expected} {
+if {$::sha1::usetrf || $::sha1::usesha1c} {
+    foreach v {usetrf usesha1c} {set ::sha1::$v 0}
+    foreach {n msg expected} $vectors {
+        test sha1-tcl-2.$n {sha1 (pure tcl)} {
+            ::sha1::sha1 $msg
+        } $expected ; # {}
+    }
+    foreach v {usetrf usesha1c} {set ::sha1::$v $preserve($v)}
+}
+
+
+set vectors {
     1 ""     ""      "fbdb1d1b18aa6c08324b7d64b71fb76370690e1d"
     2 "foo"  "hello" "4c883e9bc42763641bba04185d492de00de7ce2c"
     3 "bar"  "world" "a905e79f51faa446cb5a3888b577e34577ef7fce"
@@ -80,12 +96,22 @@ foreach {n key text expected} {
     8 "hmac" "hmac"  "9e08393f6ac829c4385930ea38567dad582d958f"
     9 "01234567abcdefgh01234567abcdefgh01234567abcdefgh01234567abcdefgh==" "hello world"
     "dd80c541f75064d70e53a6b7b0a45210127f484e"
-} {
+}
+foreach {n key text expected} $vectors {
     test sha1-3.$n {hmac} {
 	::sha1::hmac $key $text
     } $expected ; # {}
 }
 
+if {$::sha1::usetrf || $::sha1::usesha1c} {
+    foreach v {usetrf usesha1c} {set ::sha1::$v 0}
+    foreach {n key text expected} $vectors {
+        test sha1-tcl-3.$n {hmac (pure tcl)} {
+            ::sha1::hmac $key $text
+        } $expected ; # {}
+    }
+    foreach v {usetrf usesha1c} {set ::sha1::$v $preserve($v)}
+}
 
 # -------------------------------------------------------------------------
 # RFC 2202 has a set of test vectors for HMAC-MD5 and HMAC-SHA1.
@@ -119,20 +145,14 @@ foreach {n key msg hash} $vectors {
     } $hash
 }
 
-foreach {n key msg hash} $vectors {
-    test sha1-4b.$n {RFC2202 test vectors for HMAC-SHA1} {
-        ::sha1::hmac $key $msg
-    } $hash
-}
-
-if {$::sha1::usetrf} {
-    set ::sha1::usetrf 0
+if {$::sha1::usetrf || $::sha1::usesha1c} {
+    foreach v {usetrf usesha1c} {set ::sha1::$v 0}
     foreach {n key msg hash} $vectors {
         test sha1-tcl-4.$n {RFC2202 test vectors for HMAC-SHA1 pure-Tcl} {
             ::sha1::hmac $key $msg
         } $hash
     }
-    set ::sha1::usetrf 1
+    foreach v {usetrf usesha1c} {set ::sha1::$v $preserve($v)}
 }    
 
 # -------------------------------------------------------------------------
