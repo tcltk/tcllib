@@ -128,6 +128,7 @@ rather than compile time.
 ** ::snit::RT.Component
 ** ::snit::RT.ComponentTrace
 ** ::snit::RT.CacheMethodCommand
+** ::snit::RT.ClearInstanceCaches
 * Component Installation
 ** ::snit::RT.installhull
 ** ::snit::RT.install
@@ -146,6 +147,7 @@ rather than compile time.
 ** ::snit::RT.method.cget
 ** ::snit::RT.CacheCgetCommand
 ** ::snit::RT.method.configurelist
+** ::snit::RT.CacheConfigureCommand
 ** ::snit::RT.method.configure
 ** ::snit::RT.GetOptionDbSpec
 * Type Destruction

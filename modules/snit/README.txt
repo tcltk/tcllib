@@ -64,6 +64,17 @@ you.
 * "delegate method" can now delegate methods to components or
   typecomponents.
 
+* The option definition syntax has been extended; see snit.man.
+
+* The "oncget" and "onconfigure" statements are now deprecated.
+  In their place, the "option" statement allows you to name methods
+  to use for retrieving and setting the option's value.  Existing
+  "oncget" and "onconfigure" handlers continue to function as
+  expected, with one difference: they get a new implicit argument,
+  "option", which is the name of the option being set.  If your
+  existing handlers use "option" as a variable name, they will need
+  to be changed.
+
 * Sundry other internal changes.
 
 Changes in V0.93
