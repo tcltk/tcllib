@@ -1,3 +1,7 @@
+2003-08-07  Andreas Kupries  <andreask@activestate.com>
+
+	* Bumped version information to 1.2.2 for the bugfix.
+
 2003-08-06  Andreas Kupries  <andreask@activestate.com>
 
 	* cmdline.tcl (getfiles): Using the [string map] fix still had
