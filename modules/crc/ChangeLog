@@ -1,3 +1,8 @@
+2003-01-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc16.tcl: Fix for bug #620612: the crc16 CRC calculation failed
+	for 32 bit CRC widths for tcl < 8.4. Masked off high bits after shift
+
 2003-01-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* cksum.tcl: Enabled processing in chunks to reduce memory
