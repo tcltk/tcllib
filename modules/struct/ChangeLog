@@ -1,3 +1,16 @@
+2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.tcl: The changes in the list dispatcher required
+	  corresponding changes in a number of methods: upvar/level 2 =>
+	  upvar/level 1. Detected by testsuite. Bad me, should have run it
+	  immediately. Bugs fixed.
+
+	* list.test: Extended the testsuite.
+	* list.tcl (lcsInvertMerge2): Fixed problem with extending the
+	  result with an chunk of type unchanged, for the case that this
+	  happens at the very beginning, i.e. for an empty result. This
+	  fixes SF tcllib bug [765321].
+
 2003-05-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* list.tcl (dispatcher): eval => uplevel so that upvar's in the
