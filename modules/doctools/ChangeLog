@@ -1,13 +1,26 @@
 2002-05-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* This completes the implementation of SF tcllib item #534334.
+
+	* mpformats/fmt.html: See last entry, completed definitions for
+	  the new lists.
+
+	* format.man: Added the new commands (see last entry) to the
+	  format specification and also added more explanations regarding
+	  sections and paragraphs.
+
+2002-05-09  Joe English  <jenglish@users.sourceforge.net>
+
 	* mpexpand:
 	* mpformats/c.msg:
 	* mpformats/de.msg:
 	* mpformats/en.msg:
+	* mpformats/fmt.nroff:
 	* mpformats/fmt.latex:
 	* mpformats/fmt.list:
 	* mpformats/fmt.nroff:
 	* mpformats/fmt.null:  Added new list types for arguments, options,
-	  commands, and Tk options.
+	  commands, and Tk (widget) options.
 
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
