@@ -1,3 +1,13 @@
+2003-12-01  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (ftp::StateHandler): See last entry. The condition to
+	  invoke a report for a failure of the regex was wrong, and
+	  missing a negation. Fixed this. Also cleaned up the regexp, it
+	  had a caret to much in it. Thanks to <nafis@crd.ge.com> for
+	  reporting this. The bug report is at -->
+	  http://bugs.activestate.com/show_bug.cgi?id=28433, and not on
+	  SourceForge.
+
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.tcl (ftp::StateHandler): Accepted change to the regexp

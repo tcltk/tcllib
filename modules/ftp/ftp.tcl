@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.34 2003/10/21 20:52:42 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.35 2003/12/01 19:47:54 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -252,7 +252,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
 
             # get return code, check for multi-line text
             
-            if {[regexp -- "^-?(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line msgtext]} {
+            if {![regexp -- "^-?(\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line msgtext]} {
 		set errmsg "C: Internal Error @ line 255.\
 			Regex pattern not matching the input \"$bufline\""
 		if {$VERBOSE} {
