@@ -4,7 +4,7 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\" 
-'\" RCS: @(#) $Id: javascript.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
+'\" RCS: @(#) $Id: javascript.n,v 1.3 2001/08/02 16:38:06 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH javascript n 1.0 JavaScript "HTML and Java Script Generation"
@@ -14,6 +14,12 @@
 ::javascript \- Procedures to generate HTML and Java Script structures.
 .SH SYNOPSIS
 .BS
+.sp
+\fBpackage require Tcl 8\fR
+.sp
+\fBpackage require ncgi 1\fR
+.sp
+\fBpackage require javascript ?1.0?\fR
 .sp
 \fBjavascript::makeSelectorWidget\fR \fIid leftLabel leftValueList rightLabel rightValueList rightNameList length {minWidth 32}\fR
 .sp

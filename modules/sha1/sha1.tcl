@@ -26,6 +26,7 @@
 ### Changed the code to use Trf if this package is present on the
 ### system requiring the sha1 package. Analogous to md5.
 
+package require Tcl 8.2
 namespace eval ::sha1 {
 }
 

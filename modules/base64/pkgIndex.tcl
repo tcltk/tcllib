@@ -8,4 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
+if {![package vsatisfies [package provide Tcl] 8]} {return}
 package ifneeded base64 2.2 [list source [file join $dir base64.tcl]]

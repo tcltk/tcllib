@@ -9,11 +9,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.8 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.9 2001/08/02 16:38:06 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.1
 
+package require Tcl 8.2
 namespace eval ::ftpd {
 
     # The listening port.

@@ -26,7 +26,7 @@ puts $index "\tlappend auto_path \[file dirname \[info script\]\]"
 puts $index "}"
 puts $index "package ifneeded $package $version {"
 foreach module $modules {
-    puts $index "\tpackage require $module"
+    puts $index "\tcatch {package require $module}"
 }
 puts $index "\tpackage provide $package $version"
 puts $index "}"

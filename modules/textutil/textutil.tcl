@@ -1,3 +1,4 @@
+package require Tcl 8.2
 namespace eval textutil {
     namespace export strRepeat
     

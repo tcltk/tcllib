@@ -22,6 +22,7 @@
 # Modified by Miguel Sofer to use inlines and simple variables
 ##################################################
 
+package require Tcl 8.2
 namespace eval ::md5 {
 }
 

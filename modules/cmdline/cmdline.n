@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: cmdline.n,v 1.1 2001/07/31 23:47:51 andreas_kupries Exp $
+'\" RCS: @(#) $Id: cmdline.n,v 1.2 2001/08/02 16:38:06 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH cmdline n 1.0 Cmdline "command line / option processing"
@@ -11,6 +11,8 @@
 .SH NAME
 ::cmdline \- Procedures to process command lines and options.
 .SH SYNOPSIS
+\fBpackage require Tcl 8.2\fR
+.sp
 \fBpackage require cmdline ?1.1?\fR
 .sp
 \fB::cmdline::getopt\fR \fIargvVar optstring optVar valVar\fR
