@@ -1,3 +1,7 @@
+2004-07-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* installed_modules.tcl: NEW MODULE: rc4
+
 2004-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: Added module 'bee'.
