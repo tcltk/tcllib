@@ -1,7 +1,9 @@
 2004-07-17  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Refactored %TYPE%::Snit_optionget to 
-	* roadmap.txt	::snit::RT.OptionDbGet.
+	* roadmap.txt	::snit::RT.OptionDbGet. Refactored 
+			%TYPE%::Snit_cleanup to 
+			::snit::RT.DestroyObject
 
 2004-07-17  Will Duquette  <will@wjduquette.com>
 
