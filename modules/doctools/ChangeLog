@@ -1,3 +1,13 @@
+2003-03-13  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/_common.tcl: Fixed initialization error for
+	  cross-references causing unwanted suppression (leakage of
+	  definitions between multiple pages).
+
+	* doctoc.tcl:   Bug fixes in three return statemments.
+	* docidx.tcl:   (return -code error string, not return -code string)
+	* doctools.tcl: 
+
 2003-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html:  Rewrite handling of [keywords] and
