@@ -1,4 +1,6 @@
 [manpage_begin base64 n 2.3]
+[copyright {2000, Eric Melski}]
+[copyright {2001, Miguel Sofer}]
 [moddesc {base64 en- & decoding}]
 [titledesc   {Procedures to encode and decode base64}]
 [require Tcl 8]
