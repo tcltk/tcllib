@@ -1,3 +1,7 @@
+2003-07-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5.man: Updated the manual page for md5 2.0
+
 2003-07-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5c.tcl:  Brought in the critcl implementation of MD5
