@@ -9,13 +9,13 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 #
-# $Id: rc4.tcl,v 1.3 2004/07/04 01:22:46 patthoyts Exp $
+# $Id: rc4.tcl,v 1.4 2005/02/20 01:56:20 patthoyts Exp $
 
 package require Tcl 8.2
 
 namespace eval ::rc4 {
-    variable version 1.0.0
-    variable rcsid {$Id: rc4.tcl,v 1.3 2004/07/04 01:22:46 patthoyts Exp $}
+    variable version 1.0.1
+    variable rcsid {$Id: rc4.tcl,v 1.4 2005/02/20 01:56:20 patthoyts Exp $}
 
     namespace export rc4
 
@@ -189,17 +189,9 @@ proc ::rc4::RC4Final {Key} {
 # -------------------------------------------------------------------------
 # Helper to turn binary data into hex format.
 #
-if {[package provide Trf] != {}} {
-    interp alias {} ::rc4::Hex {} ::hex -mode encode --
-} else {
-    proc ::rc4::Hex {data} {
-        set result {}
-        binary scan $data c* r
-        foreach c $r {
-            append result [format "%02X" [expr {$c & 0xff}]]
-        }
-        return $result
-    }
+proc ::rc4::Hex {data} {
+    binary scan $data H* result
+    return $result
 }
 
 # Demo function for use with Trf transform command to add automatic
@@ -320,8 +312,9 @@ proc ::rc4::rc4 {args} {
             -in         { set opts(-in) [Pop args 1] }
             -out        { set opts(-out) [Pop args 1] }
             -chunksize  { set opts(-chunksize) [Pop args 1] }
-            --          { Pop args; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
                     must be one of $err"
@@ -330,7 +323,7 @@ proc ::rc4::rc4 {args} {
         Pop args
     }
 
-    if {$opts(-key) == {}} {
+    if {[string length $opts(-key)] < 1} {
         return -code error "wrong # args:\
             should be \"rc4 ?-hex? -key key -in channel | string\""
     }

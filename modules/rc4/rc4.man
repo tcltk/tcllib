@@ -1,9 +1,9 @@
-[manpage_begin rc4 n 1.0.0]
+[manpage_begin rc4 n 1.0.1]
 [moddesc   {rc4}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {RC4 Stream Cipher}]
 [require Tcl 8.2]
-[require rc4 [opt 1.0.0]]
+[require rc4 [opt 1.0.1]]
 [description]
 [para]
 
