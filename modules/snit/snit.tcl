@@ -153,8 +153,22 @@ set ::snit::typeTemplate {
                 return -code error  "\"%TYPE% $method\" is not defined"
             }
         }
-        
-        uplevel $command $args
+
+        # Pass along the return code unchanged.
+        set retval [catch {uplevel $command $args} result]
+
+        if {$retval} {
+            if {$retval == 1} {
+                global errorInfo
+                global errorCode
+                return -code error -errorinfo $errorInfo \
+                    -errorcode $errorCode $result
+            } else {
+                return -code $retval $result
+            }
+        }
+
+        return $result
     }
 
     # Snit_instanceVars selfns
@@ -1808,7 +1822,21 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
             }
         }
             
-        uplevel 1 $command $args
+        # Pass along the return code unchanged.
+        set retval [catch {uplevel 1 $command $args} result]
+
+        if {$retval} {
+            if {$retval == 1} {
+                global errorInfo
+                global errorCode
+                return -code error -errorinfo $errorInfo \
+                    -errorcode $errorCode $result
+            } else {
+                return -code $retval $result
+            }
+        }
+
+        return $result
     }]
 
     proc $procname {method args} $body
