@@ -8,14 +8,17 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.45 2005/02/02 06:48:50 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.46 2005/02/09 05:52:02 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
 package provide fileutil 1.7
 
 namespace eval ::fileutil {
-    namespace export grep find findByPattern cat foreachLine
+    namespace export \
+	    grep find findByPattern cat touch foreachLine \
+	    jail stripPwd stripN stripPath tempdir tempfile \
+	    install fileType
 }
 
 # ::fileutil::grep --
@@ -466,6 +469,98 @@ proc ::fileutil::stripN {path n} {
     }
 }
 
+# ::fileutil::stripPath --
+#
+#	If the specified path references/is a path in prefix (or prefix itself) it
+#	is made relative to prefix. Otherwise it is left unchanged.
+#	In the case of it being prefix itself the result is the string '.'.
+#
+# Arguments:
+#	prefix		prefix to strip from the path.
+#	path		path to modify
+#
+# Results:
+#	path		The (possibly) modified path.
+
+proc ::fileutil::stripPath {prefix path} {
+    # [file split] is used to generate a canonical form for both
+    # paths, for easy comparison, and also one which is easy to modify
+    # using list commands.
+
+    if {[string equal $prefix $path]} {
+	return "."
+    }
+
+    set prefix [file split $prefix]
+    set npath  [file split $path]
+
+    if {[string match ${prefix}* $npath]} {
+	set path [eval [linsert [lrange $npath [llength $prefix] end] 0 file join ]]
+    }
+    return $path
+}
+
+# ::fileutil::jail --
+#
+#	Ensures that the input path 'filename' stays within the the
+#	directory 'jail'. In this way it preventsuser-supplied paths
+#	from escaping the jail.
+#
+# Arguments:
+#	jail		The path to the directory the other must
+#			not escape from.
+#	filename	The path to prevent from escaping.
+#
+# Results:
+#	path		The (possibly) modified path surely within
+#			the confines of the jail.
+
+proc fileutil::jail {jail filename} {
+    if {[string equal [file pathtype $filename]  "absolute"]} {
+	# Although the path to check is absolute we cannot perform a
+	# simple prefix check to see if the path is inside the jail or
+	# not. We have to normalize both path and jail and then we can
+	# check. If the path is outside we make the original path
+	# relative and prefix it with the original jail. We do make
+	# the jail pseudo-absolute by prefixing it with the current
+	# working directory for that.
+
+	# Normalized jail. Fully resolved sym links, if any. Our main
+	# complication is that normalize does not resolve symlinks in the
+	# last component of the path given to it, so we add a bogus
+	# component, resolve, and then strip it off again. That is why the
+	# code is so large and long.
+
+	set njail [eval [list file join] [lrange [file split \
+		[Normalize [file join $jail __dummy__]]] 0 end-1]]
+
+	# Normalize filename. Fully resolved sym links, if
+	# any. S.a. for an explanation of the complication.
+
+	set nfile [eval [list file join] [lrange [file split \
+		[Normalize [file join $filename __dummy__]]] 0 end-1]]
+
+	if {[string match ${njail}* $nfile]} {
+	    return $filename
+	}
+
+	# Outside the jail, put it inside. ... We normalize the input
+	# path lexically for this, to prevent escapes still lurking in
+	# the original path. (We cannot use the normalized path,
+	# symlinks may have bent it out of shape in unrecognizable ways.
+
+	return [eval [linsert [lrange [file split \
+		[LexNormalize $filename]] 1 end] 0 file join [pwd] $jail]]
+    } else {
+	# The path is relative, consider it as outside
+	# implicitly. Normalize it lexically! to prevent escapes, then
+	# put the jail in front, use PWD to ensure absoluteness.
+
+	return [eval [linsert [LexNormalize $filename] 0 \
+		file join [pwd] $jail]]
+    }
+}
+
 # ::fileutil::cat --
 #
 #	Tcl implementation of the UNIX "cat" command.  Returns the contents
@@ -868,6 +963,10 @@ proc ::fileutil::fileType {filename} {
 # Results:
 #	The directory for temporary files.
 
+proc ::fileutil::tempdir {} {
+    return [Normalize [TempDir]]
+}
+
 proc ::fileutil::TempDir {} {
     global tcl_platform env
     set attempdirs [list]
@@ -901,16 +1000,6 @@ proc ::fileutil::TempDir {} {
     return [pwd]
 }
 
-if { [package vcompare [package provide Tcl] 8.4] < 0 } {
-    proc ::fileutil::tempdir {} {
-	return [TempDir]
-    }
-} else {
-    proc ::fileutil::tempdir {} {
-	return [file normalize [TempDir]]
-    }
-}
-
 # ::fileutil::tempfile --
 #
 #   generate a temporary file name suitable for writing to
@@ -924,6 +1013,10 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
 # Results:
 #   returns a file name
 #
+
+proc ::fileutil::tempfile {{prefix {}}} {
+    return [Normalize [TempFile $prefix]]
+}
 
 proc ::fileutil::TempFile {prefix} {
     set tmpdir [tempdir]
@@ -968,16 +1061,6 @@ proc ::fileutil::TempFile {prefix} {
     }
 }
 
-if { [package vcompare [package provide Tcl] 8.4] < 0 } {
-    proc ::fileutil::tempfile {{prefix {}}} {
-	return [TempFile $prefix]
-    }
-} else {
-    proc ::fileutil::tempfile {{prefix {}}} {
-	return [file normalize [TempFile $prefix]]
-    }
-}
-
 # ::fileutil::install --
 #
 #	Tcl version of the 'install' command, which copies files from
@@ -1013,5 +1096,135 @@ proc ::fileutil::install {args} {
 	foreach fl $targets {
 	    file attributes $fl -permissions $params(m)
 	}
+    }
+}
+
+# ### ### ### ######### ######### #########
+
+proc ::fileutil::LexNormalize {sp} {
+    set sp [file split $sp]
+
+    # Resolution of embedded relative modifiers (., and ..).
+
+    set np {}
+    set noskip 1
+    while {[llength $sp]} {
+	set ele    [lindex $sp 0]
+	set sp     [lrange $sp 1 end]
+	set islast [expr {[llength $sp] == 0}]
+
+	if {[string equal $ele ".."]} {
+	    if {[llength $np] > 1} {
+		# .. : Remove the previous element added to the
+		# new path, if there actually is enough to remove.
+		set np [lrange $np 0 end-1]
+	    }
+	} elseif {[string equal $ele "."]} {
+	    # Ignore .'s, they stay at the current location
+	    continue
+	} else {
+	    # A regular element.
+	    lappend np $ele
+	}
+    }
+    if {[llength $np] > 0} {
+	return [eval file join $np]
+    }
+    return {}
+}
+
+# ### ### ### ######### ######### #########
+## Forward compatibility. Some routines require path normalization,
+## something we have supported by the builtin 'file' only since Tcl
+## 8.4. For versions of Tcl before that, to be supported by the
+## module, we implement a normalizer in Tcl itself. Slow, but working.
+
+if {[package vcompare [package provide Tcl] 8.4] < 0} {
+    # Pre 8.4. We do not have 'file normalize'. We create an
+    # approximation for it based on earlier commands.
+
+    # ... Hm. This is lexical normalization. It does not resolve
+    # symlinks in the path to their origin.
+
+    proc ::fileutil::Normalize {sp} {
+	set sp [file split $sp]
+
+	# Conversion of the incoming path to absolute.
+	if {[string equal [file pathtype [lindex $sp 0]] "relative"]} {
+	    set sp [file split [eval [list file join [pwd]] $sp]]
+	}
+
+	# Resolution of symlink components, and embedded relative
+	# modifiers (., and ..).
+
+	set np {}
+	set noskip 1
+	while {[llength $sp]} {
+	    set ele    [lindex $sp 0]
+	    set sp     [lrange $sp 1 end]
+	    set islast [expr {[llength $sp] == 0}]
+
+	    if {[string equal $ele ".."]} {
+		if {[llength $np] > 1} {
+		    # .. : Remove the previous element added to the
+		    # new path, if there actually is enough to remove.
+		    set np [lrange $np 0 end-1]
+		}
+	    } elseif {[string equal $ele "."]} {
+		# Ignore .'s, they stay at the current location
+		continue
+	    } else {
+		# A regular element. If it is not the last component
+		# then check if the combination is a symlink, and if
+		# yes, resolve it.
+
+		lappend np $ele
+
+		if {!$islast && $noskip} {
+		    # The flag 'noskip' is technically not required,
+		    # just 'file exists'. However if a path P does not
+		    # exist, then all longer paths starting with P can
+		    # not exist either, and using the flag to store
+		    # this knowledge then saves us a number of
+		    # unnecessary stat calls. IOW this a performance
+		    # optimization.
+
+		    set p [eval file join $np]
+		    set noskip [file exists $p]
+		    if {$noskip} {
+			if {[string equal link [file type $p]]} {
+			    set dst [file readlink $p]
+
+			    # We always push the destination in front of
+			    # the source path (in expanded form). So that
+			    # we handle .., .'s, and symlinks inside of
+			    # this path as well. An absolute path clears
+			    # the result, a relative one just removes the
+			    # last, now resolved component.
+
+			    set sp [eval [linsert [file split $dst] 0 linsert $sp 0]]
+
+			    if {![string equal relative [file pathtype $dst]]} {
+				# Absolute|volrelative destination, clear
+				# result, we have to start over.
+				set np {}
+			    } else {
+				# Relative link, just remove the resolved
+				# component again.
+				set np [lrange $np 0 end-1]
+			    }
+			}
+		    }
+		}
+	    }
+	}
+	if {[llength $np] > 0} {
+	    return [eval file join $np]
+	}
+	return {}
+    }
+} else {
+    proc ::fileutil::Normalize {sp} {
+	file normalize $sp
     }
 }

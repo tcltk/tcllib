@@ -108,14 +108,47 @@ components in a given path may be determined by performing
 
 [call [cmd ::fileutil::stripPwd] [arg path]]
 
-If the [arg path] is inside of the directory returned by
-
+If, and only if the [arg path] is inside of the directory returned by
 [lb][cmd pwd][rb] (or the current working directory itself) it is made
 relative to that directory. In other words, the current working
 directory is stripped from the [arg path].  The possibly modified path
 is returned as the result of the command. If the current working
 directory itself was specified for [arg path] the result is the string
 "[const .]".
+
+
+[call [cmd ::fileutil::stripPath] [arg prefix] [arg path]]
+
+If, and only of the [arg path] is inside of the directory
+
+[file prefix] (or the prefix directory itself) it is made relative to
+that directory. In other words, the prefix directory is stripped from
+the [arg path]. The possibly modified path is returned as the result
+of the command.
+
+If the prefix directory itself was specified for [arg path] the result
+is the string "[const .]".
+
+
+[call [cmd ::fileutil::jail] [arg jail] [arg path]]
+
+This command ensures that the [arg path] is not escaping the directory
+[arg jail]. It always returns an absolute path derived from [arg path]
+which is within [arg jail].
+
+[nl]
+
+If [arg path] is an absolute path and already within [arg jail] it is
+returned unmodified.
+
+[nl]
+
+An absolute path outside of [arg jail] is stripped of its root element
+and then put into the [arg jail] by prefixing it with it. The same
+happens if [arg path] is relative, except that nothing is stripped of
+it. Before adding the [arg jail] prefix the [arg path] is lexically
+normalized to prevent the caller from using [const ..] segments in
+[arg path] to escape the jail.
 
 
 [call [cmd ::fileutil::touch] [opt [option -a]] [opt [option -c]] [opt [option -m]] [opt "[option -r] [arg ref_file]"] [opt "[option -t] [arg time]"] [arg filename] [opt [arg ...]]]
