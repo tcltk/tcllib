@@ -30,7 +30,7 @@ package require Tcl 8.2
 namespace eval ::sha1 {
 }
 
-if {![catch {package require Trf 2.0}]} {
+if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
     # Trf is available, so implement the functionality provided here
     # in terms of calls to Trf for speed.
 
