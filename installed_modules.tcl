@@ -42,6 +42,7 @@ foreach {m pkg doc exa} {
     inifile     _tcl  _man  _null
     irc		_tcl  _man _exa
     javascript	_tcl  _man  _null
+    ldap        _tcl  _man _exa
     log		_tcl  _man  _null
     math	 _tci _man  _null
     md4		_tcl  _man  _null
