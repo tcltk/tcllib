@@ -310,7 +310,7 @@ proc ::html::set {var val} {
 proc ::html::eval {args} {
 
     # The args must be evaluated in the stack frame above this one.
-    ::eval uplevel $args
+    ::eval [linsert $args 0 uplevel]
     return ""
 }
 
@@ -657,7 +657,7 @@ proc ::html::textInput {name {value {}} args} {
 
 proc ::html::textInputRow {label name {value {}} args} {
     variable defaults
-    ::set html [row $label [::eval [list html::textInput $name $value] $args]]
+    ::set html [row $label [::eval [linsert $args 0 html::textInput $name $value]]]
     return $html
 }
 

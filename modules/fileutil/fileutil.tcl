@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.37 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.38 2004/05/03 22:56:16 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -425,7 +425,7 @@ proc ::fileutil::stripPwd {path} {
     set npath [file split $path]
 
     if {[string match ${pwd}* $npath]} {
-	set path [eval file join [lrange $npath [llength $pwd] end]]
+	set path [eval [linsert [lrange $npath [llength $pwd] end] 0 file join ]]
     }
     return $path
 }
@@ -446,7 +446,7 @@ proc ::fileutil::stripN {path n} {
     if {$n >= [llength $path]} {
 	return {}
     } else {
-	return [eval file join [lrange $path $n end]]
+	return [eval [linsert [lrange $path $n end] 0 file join]]
     }
 }
 
