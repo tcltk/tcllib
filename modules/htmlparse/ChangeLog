@@ -1,3 +1,12 @@
+2005-01-11  Andreas Kupries <andreask@activestate.com>
+
+	* htmlparse.tcl: Modified to load only the data structure we
+	  need, stacks, and not all eleven.
+
+	* htmlparse.test: Ensured usage of local packages, nothing
+	  installed, and updated for the new struct usage. Updated to
+	  fixes in cmdline.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
