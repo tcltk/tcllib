@@ -17,13 +17,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: resolv.tcl,v 1.1 2003/02/27 01:34:41 patthoyts Exp $
+# $Id: resolv.tcl,v 1.2 2003/04/11 18:53:22 andreas_kupries Exp $
 
 package require dns 1.0;                # tcllib 1.3
 
 namespace eval ::resolv {
-    variable version 1.0.0
-    variable rcsid {$Id: resolv.tcl,v 1.1 2003/02/27 01:34:41 patthoyts Exp $}
+    variable version 1.0
+    variable rcsid {$Id: resolv.tcl,v 1.2 2003/04/11 18:53:22 andreas_kupries Exp $}
 
     namespace export resolve init ignore
 
