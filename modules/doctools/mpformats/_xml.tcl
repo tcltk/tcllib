@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.5 2002/05/15 18:25:33 jenglish Exp $
+# $Id: _xml.tcl,v 1.6 2002/05/27 23:38:16 andreas_kupries Exp $
 #
 # [expand] utilities for generating XML.
 #
@@ -194,9 +194,9 @@ variable Buffers
 # pass $passNo procName procArgs { body  } --
 #	Specifies procedure definition for pass $n.
 #
-proc pass {pass proc args body} {
+proc pass {pass proc arguments body} {
     variable PassProcs
-    lappend PassProcs($pass) $proc $args $body
+    lappend PassProcs($pass) $proc $arguments $body
 }
 
 proc setPassProcs {pass} {
