@@ -48,9 +48,49 @@ namespace eval smtp {
     namespace export sendmessage
 }
 
+# smtp::sendmessage --
+#
+#	Sends a mime object (containing a message) to some recipients
+#
+# Arguments:
+#	part  The MIME object containing the message to send
+#       args  A list of arguments specifying various options for sending the
+#             message:
+#             -atleastone  A boolean specifying whether or not to send the
+#                          message at all if any of the recipients are 
+#                          invalid.  A value of false (as defined by 
+#                          smtp::boolean) means that ALL recipients must be
+#                          valid in order to send the message.  A value of
+#                          true means that as long as at least one recipient
+#                          is valid, the message will be sent.
+#             -debug       A boolean specifying whether or not debugging is
+#                          on.  If debugging is enabled, status messages are 
+#                          printed to stderr while trying to send mail.
+#             -queue       A boolean specifying whether or not the message
+#                          being sent should be queued for later delivery.
+#             -header      A single RFC 822 header key and value (as a list),
+#                          used to specify to whom to send the message 
+#                          (To, Cc, Bcc), the "From", etc.
+#             -originator  The originator of the message (equivalent to
+#                          specifying a From header).
+#             -recipients  A string containing recipient e-mail addresses.
+#                          NOTE: This option overrides any recipient addresses
+#                          specified with -header.
+#             -servers     A list of mail servers that could process the
+#                          request.
+#
+# Results:
+#	Message is sent.  On success, return "".  On failure, throw an
+#       exception with an error code and error message.
 
 proc smtp::sendmessage {part args} {
     global errorCode errorInfo
+
+    # Here are the meanings of the following boolean variables:
+    # aloP -- value of -atleastone option above.
+    # debugP -- value of -debug option above.
+    # origP -- 1 if -originator option was specified, 0 otherwise.
+    # queueP -- value of -queue option above.
 
     set aloP 0
     set debugP 0
@@ -61,41 +101,39 @@ proc smtp::sendmessage {part args} {
     set servers [list localhost]
 
     array set header ""
+
+    # lowerL will contain the list of header keys (converted to lower case) 
+    # specified with various -header options.  mixedL is the mixed-case version
+    # of the list.
     set lowerL ""
     set mixedL ""
 
-    set argc [llength $args]
-    for {set argx 0} {$argx < $argc} {incr argx} {
-        set option [lindex $args $argx]
-        if {[incr argx] >= $argc} {
-            error "missing argument to $option"
-        }
-        set value [lindex $args $argx]
+    # Parse options (args).
 
+    if {[expr {[llength $args]%2}]} {
+        # Some option didn't get a value.
+        error "Each option must have a value!  Invalid option list: $args"
+    }
+    
+    foreach {option value} $args {
         switch -- $option {
-            -atleastone {
-                set aloP [smtp::boolean $value]
-            }
-
-            -debug {
-                set debugP [smtp::boolean $value]
-            }
-
-            -queue {
-                set queueP [smtp::boolean $value]
-            }
-
+            -atleastone {set aloP   [smtp::boolean $value]}
+            -debug      {set debugP [smtp::boolean $value]}
+            -queue      {set queueP [smtp::boolean $value]}
             -header {
                 if {[llength $value] != 2} {
                     error "-header expects a key and a value, not $value"
                 }
-                set lower [string tolower [set mixed [lindex $value 0]]]
-                if {(![string compare $lower content-type]) \
-                        || (![string compare $lower \
-                                     content-transfer-encoding]) \
-                        || (![string compare $lower content-md5]) \
-                        || (![string compare $lower mime-version])} {
-                    error "don't go there..."
+                set mixed [lindex $value 0]
+                set lower [string tolower $mixed]
+                set disallowedHdrList \
+                    [list content-type \
+                          content-transfer-encoding \
+                          content-md5 \
+                          mime-version]
+                if {[lsearch -exact $disallowedHdrList $lower] > -1} {
+                    error "Content-Type, Content-Transfer-Encoding,\
+                        Content-MD5, and MIME-Version cannot be user-specified."
                 }
                 if {[lsearch -exact $lowerL $lower] < 0} {
                     lappend lowerL $lower
@@ -106,7 +144,8 @@ proc smtp::sendmessage {part args} {
             }
 
             -originator {
-                if {![string compare [set originator $value] ""]} {
+                set originator $value
+                if {$originator == ""} {
                     set origP 1
                 }
             }
@@ -132,6 +171,10 @@ proc smtp::sendmessage {part args} {
         set prefixL ""
         set prefixM ""
     }
+
+    # Set a bunch of variables whose value will be the real header to be used
+    # in the outbound message (with proper case and prefix).
+
     foreach mixed {From Sender To cc Dcc Bcc Date Message-ID} {
         set lower [string tolower $mixed]
         set ${lower}L $prefixL$lower
@@ -139,40 +182,64 @@ proc smtp::sendmessage {part args} {
     }
 
     if {$origP} {
+        # -originator was specified with "", so SMTP sender should be marked "".
         set sender ""
     } else {
-        if {(![string compare $originator ""]) \
-                && (![info exists header($fromL)])} {
-            catch { set originator [id user] }
-        }
-        if {[string compare $originator ""]} {
-            set who -originator
-    
-            if {[lsearch -exact $lowerL $fromL] < 0} {
-                lappend lowerL $fromL
-                lappend mixedL $fromM
-                lappend header($fromL) $originator
+        # -originator was specified with a value, OR -originator wasn't
+        # specified at all.
+        
+        # If no -originator was provided, get the originator from the "From"
+        # header.  If there was no "From" header get it from the username
+        # executing the script.
+
+        set who "-originator"
+        if {$originator == ""} {
+            if {![info exists header($fromL)]} {
+                set originator $::tcl_platform(user)
+            } else {
+                set originator [join $header($fromL) ,]
+
+                # Indicate that we're using the From header for the originator.
+
+                set who $fromM
             }
-        } elseif {[catch { set originator [smtp::merge $header($fromL)] }]} {
-            error "need -header \"$fromM ...\""
-        } else {
-            set who $fromM
         }
-        if {[llength [set addrs [mime::parseaddress $originator]]] > 1} {
+        
+	# If there's no "From" header, create a From header with the value
+	# of -originator as the value.
+
+        if {[lsearch -exact $lowerL $fromL] < 0} {
+            lappend lowerL $fromL
+            lappend mixedL $fromM
+            lappend header($fromL) $originator
+        }
+
+	# mime::parseaddress returns a list whose elements are huge key-value
+	# lists with info about the addresses.  In this case, we only want one
+	# originator, so we want the length of the main list to be 1.
+
+        set addrs [mime::parseaddress $originator]
+        if {[llength $addrs] > 1} {
             error "too many mailboxes in $who: $originator"
         }
         array set aprops [lindex $addrs 0]
-        if {[string compare $aprops(error) ""]} {
+        if {$aprops(error) != ""} {
             error "error in $who: $aprops(error)"
         }
+
+	# sender = validated originator or the value of the From header.
+
         set sender $aprops(address)
-    
-        if {([lsearch -exact $lowerL $senderL] < 0) \
-                && ([string compare $originator \
-                            [set from [smtp::merge $header($fromL)]]])} {
+
+	# If no Sender header has been specified and From is different from
+	# originator, then set the sender header to the From.  Otherwise, don't
+	# specify a Sender header.
+        set from [join $header($fromL) ,]
+        if {[lsearch -exact $lowerL $senderL] < 0 && \
+                [string compare $originator $from]} {
             catch { unset aprops }
             array set aprops [lindex [mime::parseaddress $from] 0]
-            if {[string compare $aprops(error) ""]} {
+            if {$aprops(error) != ""} {
                 error "error in $fromM: $aprops(error)"
             }
             if {[string compare $aprops(address) $sender]} {
@@ -183,76 +250,78 @@ proc smtp::sendmessage {part args} {
         }
     }
 
-    if {[string compare $recipients ""]} {
-        set who -recipients
+    # We're done parsing the arguments.
 
-	# Reset To list and get rid of cc, bcc, and dcc, since -recipients
-	# overrides all of them.
-	set header($toL) $recipients
-	if {[set x [lsearch -exact $lowerL $toL]]==-1} {
-	    lappend lowerL $toL
-	    lappend mixedL $toM
-	}
-	
-	foreach elt [list $ccL $bccL $dccL] {
-	    if {[set x [lsearch -exact $lowerL $elt]]>-1} {
-		unset header($ccL)
-		set lowerL [lreplace $lowerL $x $x]
-		set mixedL [lreplace $mixedL $x $x]
-	    }
-	}
-    } elseif {[catch { set recipients [smtp::merge $header($toL)] }]} {
+    if {$recipients != ""} {
+        set who -recipients
+    } elseif {![info exists header($toL)]} {
         error "need -header \"$toM ...\""
     } else {
-        set who $toM
-        if {![catch { append recipients ,[smtp::merge $header($ccL)] }]} {
+        set recipients [join $header($toL) ,]
+	# Add Cc values to recipients list
+	set who $toM
+        if {[info exists header($ccL)]} {
+            append recipients ,[join $header($ccL) ,]
             append who /$ccM
         }
 
-        if {[set x [lsearch -exact $lowerL $dccL]] >= 0} {
-            append recipients ,[smtp::merge $header($dccL)]
+        set dccInd [lsearch -exact $lowerL $dccL]
+        if {$dccInd >= 0} {
+	    # Add Dcc values to recipients list, and get rid of Dcc header
+	    # since we don't want to output that.
+            append recipients ,[join $header($dccL) ,]
             append who /$dccM
 
             unset header($dccL)
-            set lowerL [lreplace $lowerL $x $x]
-            set mixedL [lreplace $mixedL $x $x]
+            set lowerL [lreplace $lowerL $dccInd $dccInd]
+            set mixedL [lreplace $mixedL $dccInd $dccInd]
         }
     }
 
     set brecipients ""
-    if {[set x [lsearch -exact $lowerL $bccL]] >= 0} {
+    set bccInd [lsearch -exact $lowerL $bccL]
+    if {$bccInd >= 0} {
         set bccP 1
 
-        foreach addr [mime::parseaddress [smtp::merge $header($bccL)]] {
+	# Build valid bcc list and remove bcc element of header array (so that
+	# bcc info won't be sent with mail).
+        foreach addr [mime::parseaddress [join $header($bccL) ,]] {
             catch { unset aprops }
             array set aprops $addr
-            if {[string compare $aprops(error) ""]} {
+            if {$aprops(error) != ""} {
                 error "error in $bccM: $aprops(error)"
             }
             lappend brecipients $aprops(address)
         }
 
         unset header($bccL)
-        set lowerL [lreplace $lowerL $x $x]
-        set mixedL [lreplace $mixedL $x $x]
+        set lowerL [lreplace $lowerL $bccInd $bccInd]
+        set mixedL [lreplace $mixedL $bccInd $bccInd]
     } else {
         set bccP 0
     }
+
+    # If there are no To headers, add "" to bcc list.  WHY??
     if {[lsearch -exact $lowerL $toL] < 0} {
         lappend lowerL $bccL
         lappend mixedL $bccM
         lappend header($bccL) ""
     }
 
+    # Construct valid recipients list from recipients list.
+
     set vrecipients ""
     foreach addr [mime::parseaddress $recipients] {
         catch { unset aprops }
         array set aprops $addr
-        if {[string compare $aprops(error) ""]} {
+        if {$aprops(error) != ""} {
             error "error in $who: $aprops(error)"
         }
         lappend vrecipients $aprops(address)
     }
+
+    # If there's no date header, get the date from the mime message.  Same for
+    # the message-id.
 
     if {([lsearch -exact $lowerL $dateL] < 0) \
             && ([catch { mime::getheader $part $dateL }])} {
@@ -269,19 +338,25 @@ proc smtp::sendmessage {part args} {
 
     }
 
+    # Get all the headers from the MIME object and save them so that they can
+    # later be restored.
     set savedH [mime::getheader $part]
+
+    # Take all the headers defined earlier and add them to the MIME message.
     foreach lower $lowerL mixed $mixedL {
         foreach value $header($lower) {
             mime::setheader $part $mixed $value -mode append
         }
     }
 
-    if {![string compare $servers localhost]} {
+    if {[string equal $servers localhost]} {
         set client localhost
     } else {
         set client [info hostname]
     }
 
+    # Create smtp token, which essentially means begin talking to the SMTP
+    # server.
     set token [smtp::initialize -debug $debugP -client $client \
                                 -multiple $bccP -queue $queueP \
                                 -servers $servers]
@@ -298,6 +373,8 @@ proc smtp::sendmessage {part args} {
     set ecode $errorCode
     set einfo $errorInfo
 
+    # Send the message to bcc recipients as a MIME attachment.
+
     if {($code == 0) && ($bccP)} {
         set inner [mime::initialize -canonical message/rfc822 \
                                     -header [list Content-Description \
@@ -305,7 +382,9 @@ proc smtp::sendmessage {part args} {
                                     -parts [list $part]]
 
         set subject "\[$bccM\]"
-        catch { append subject " " [lindex $header(subject) 0] }
+        if {[info exists header(subject)]} {
+            append subject " " [lindex $header(subject) 0] 
+        }
 
         set outer [mime::initialize \
                          -canonical multipart/digest \
@@ -327,7 +406,7 @@ proc smtp::sendmessage {part args} {
         set einfo $errorInfo
 
         if {$code == 0} {
-            set result [concat result $result2]
+            set result [concat $result $result2]
         } else {
             set result $result2
         }
@@ -336,6 +415,9 @@ proc smtp::sendmessage {part args} {
         catch { mime::finalize $outer -subordinates none }
     }
 
+    # Determine if there was any error in prior operations and set errorcodes
+    # and error messages appropriately.
+    
     switch -- $code {
         0 {
             set status orderly
@@ -353,8 +435,12 @@ proc smtp::sendmessage {part args} {
         }
     }
 
+    # Destroy SMTP token 'cause we're done with it.
+    
     catch { smtp::finalize $token -close $status }
 
+    # Restore provided MIME object to original state (without the SMTP headers).
+    
     foreach key [mime::getheader $part -names] {
         mime::setheader $part $key "" -mode delete
     }
@@ -367,6 +453,23 @@ proc smtp::sendmessage {part args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# smtp::sendmessageaux --
+#
+#	Sends a mime object (containing a message) to some recipients using an
+#       existing SMTP token.
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#	part        The MIME object containing the message to send.
+#       originator  The e-mail address of the entity sending the message,
+#                   usually the From clause.
+#       recipients  List of e-mail addresses to whom message will be sent.
+#       aloP        Boolean "atleastone" setting; see the -atleastone option
+#                   in smtp::sendmessage for details.
+#
+# Results:
+#	Message is sent.  On success, return "".  On failure, throw an
+#       exception with an error code and error message.
 
 proc smtp::sendmessageaux {token part originator recipients aloP} {
     global errorCode errorInfo
@@ -409,6 +512,27 @@ proc smtp::sendmessageaux {token part originator recipients aloP} {
     return $oops
 }
 
+# smtp::initialize --
+#
+#	Create an SMTP token and open a connection to the SMTP server.
+#
+# Arguments:
+#       args  A list of arguments specifying various options for sending the
+#             message:
+#             -debug       A boolean specifying whether or not debugging is
+#                          on.  If debugging is enabled, status messages are 
+#                          printed to stderr while trying to send mail.
+#             -client      Either localhost or the name of the local host.
+#             -multiple    Multiple messages will be sent using this token.
+#             -queue       A boolean specifying whether or not the message
+#                          being sent should be queued for later delivery.
+#             -servers     A list of mail servers that could process the
+#                          request.
+#
+# Results:
+#	On success, return an smtp token.  On failure, throw
+#       an exception with an error code and error message.
+
 proc smtp::initialize {args} {
     global errorCode errorInfo
 
@@ -425,6 +549,9 @@ proc smtp::initialize {args} {
     array set options $args
     set state(options) [array get options]
 
+    # Iterate through servers until one accepts a connection (and responds
+    # nicely).
+    
     foreach server $options(-servers) {
         if {$options(-debug)} {
             puts stderr "Trying $server..."
@@ -456,14 +583,15 @@ proc smtp::initialize {args} {
             }
 
             421 - default {
-                catch { close $state(sd) }
-
+                # 421 - Temporary problem on server
+                catch {close $state(sd)}
                 continue
             }
         }
         
-        if {[set code [catch { smtp::talk $token 300 \
-                                          "EHLO $options(-client)" } \
+        # Try enhanced SMTP first.
+        
+        if {[set code [catch {smtp::talk $token 300 "EHLO $options(-client)"} \
                    result]]} {
             array set response [list code 400 diagnostic $result args ""]
         } else {
@@ -483,31 +611,56 @@ proc smtp::initialize {args} {
             set ecode $errorCode
             set einfo $errorInfo
         }
-        switch -- $response(code) {
-            250 {
-                if {(!$options(-multiple)) \
-                        && ([lsearch $response(args) ONEX] >= 0)} {
-                    catch { smtp::talk $token 300 ONEX }
-                }
-                if {($options(-queue)) \
-                        && ([lsearch $response(args) XQUE] >= 0)} {
-                    catch { smtp::talk $token 300 QUED }
-                }
+        
+        if {$response(code) == 250} {
+            # Successful response to HELO or EHLO command, so set up queuing
+            # and whatnot and return the token.
 
-                return $token
+            if {(!$options(-multiple)) \
+                    && ([lsearch $response(args) ONEX] >= 0)} {
+                catch {smtp::talk $token 300 ONEX}
+            }
+            if {($options(-queue)) \
+                    && ([lsearch $response(args) XQUE] >= 0)} {
+                catch {smtp::talk $token 300 QUED}
             }
 
-            default {
-                catch { close $state(sd) }
-            }
+            return $token
+        } else {
+            # Bad response; close the connection and hope the next server
+            # is happier.
+            catch {close $state(sd)}
         }
     }
 
+    # None of the servers accepted our connection, so close everything up and
+    # return an error.
     smtp::finalize $token -close drop
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# smtp::finalize --
+#
+#	Deletes an SMTP token by closing the connection to the SMTP server,
+#       cleanup up various state.
+#
+# Arguments:
+#       token   SMTP token that has an open connection to the SMTP server.
+#       args    Optional arguments, where the only useful option is -close,
+#               whose valid values are the following:
+#               orderly     Normal successful completion.  Close connection and
+#                           clear state variables.
+#               abort       A connection exists to the SMTP server, but it's in
+#                           a weird state and needs to be reset before being
+#                           closed.  Then clear state variables.
+#               drop        No connection exists, so we just need to clean up
+#                           state variables.
+#
+# Results:
+#	SMTP connection is closed and state variables are cleared.  If there's
+#       an error while attempting to close the connection to the SMTP server,
+#       throw an exception with the error code and error message.
 
 proc smtp::finalize {token args} {
     global errorCode errorInfo
@@ -544,7 +697,7 @@ proc smtp::finalize {token args} {
 
     catch { close $state(sd) }
 
-    if {[string compare $state(afterID) ""]} {
+    if {$state(afterID) != ""} {
         catch { after cancel $state(afterID) }
     }
 
@@ -556,42 +709,64 @@ proc smtp::finalize {token args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# smtp::winit --
+#
+#	Send originator info to SMTP server.  This occurs after HELO/EHLO
+#       command has completed successfully (in smtp::initialize).  This function
+#       is called by smtp::sendmessageaux.
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#       originator  The e-mail address of the entity sending the message,
+#                   usually the From clause.
+#       mode        SMTP command specifying the mode of communication.  Default
+#                   value is MAIL.
+#
+# Results:
+#	Originator info is sent and SMTP server's response is returned.  If an
+#       error occurs, throw an exception.
 
 proc smtp::winit {token originator {mode MAIL}} {
     variable $token
     upvar 0 $token state
 
-    switch -- $mode {
-        MAIL - SEND - SOML - SAML {
-        }
-
-        default {
-            error "unknown origination mode $mode"
-        }
+    if {[lsearch -exact [list MAIL SEND SOML SAML] $mode] < 0} {
+        error "unknown origination mode $mode"
     }
 
     array set response \
           [set result [smtp::talk $token 600 \
                                   "$mode FROM:<$originator>"]]
-    switch -- $response(code) {
-        250 {
-            set state(addrs) 0
-            return $result
-        }
-
-        default {
-            return -code 7 $result
-        }
+    if {$response(code) == 250} {
+        set state(addrs) 0
+        return $result
+    } else {
+        return -code 7 $result
     }
 }
 
+# smtp::waddr --
+#
+#	Send recipient info to SMTP server.  This occurs after originator info
+#       is sent (in smtp::winit).  This function is called by
+#       smtp::sendmessageaux. 
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#       recipient   One of the recipients to whom the message should be
+#                   delivered.  
+#
+# Results:
+#	Recipient info is sent and SMTP server's response is returned.  If an
+#       error occurs, throw an exception.
 
 proc smtp::waddr {token recipient} {
     variable $token
     upvar 0 $token state
 
-    array set response \
-          [set result [smtp::talk $token 3600 "RCPT TO:<$recipient>"]]
+    set result [smtp::talk $token 3600 "RCPT TO:<$recipient>"]
+    array set response $result
+
     switch -- $response(code) {
         250 - 251 {
             incr state(addrs)
@@ -604,19 +779,28 @@ proc smtp::waddr {token recipient} {
     }
 }
 
+# smtp::wtext --
+#
+#	Send message to SMTP server.  This occurs after recipient info
+#       is sent (in smtp::winit).  This function is called by
+#       smtp::sendmessageaux. 
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#	part        The MIME object containing the message to send.
+#
+# Results:
+#	MIME message is sent and SMTP server's response is returned.  If an
+#       error occurs, throw an exception.
 
 proc smtp::wtext {token part} {
     variable $token
     upvar 0 $token state
 
-    array set response [set result [smtp::talk $token 300 DATA]]
-    switch -- $response(code) {
-        354 {
-        }
-
-        default {
-            return -code 7 $result
-        }
+    set result [smtp::talk $token 300 DATA]
+    array set response $result
+    if {$response(code) != 354} {
+        return -code 7 $result
     }
 
     if {[catch { smtp::wtextaux $token $part } result]} {
@@ -626,7 +810,8 @@ proc smtp::wtext {token part} {
 
     set secs [expr {(($state(size)>>10)+1)*3600}]
 
-    array set response [set result [smtp::talk $token $secs .]]
+    set result [smtp::talk $token $secs .]
+    array set response $result
     switch -- $response(code) {
         250 - 251 {
             return $result
@@ -638,6 +823,19 @@ proc smtp::wtext {token part} {
     }
 }
 
+# smtp::wtextaux --
+#
+#	Helper function that coordinates writing the MIME message to the socket.
+#       In particular, it stacks the channel leading to the SMTP server, sets up
+#       some file events, sends the message, unstacks the channel, resets the
+#       file events to their original state, and returns.
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#	part        The MIME object containing the message to send.
+#
+# Results:
+#	Message is sent.  If anything goes wrong, throw an exception.
 
 proc smtp::wtextaux {token part} {
     global errorCode errorInfo
@@ -662,6 +860,22 @@ proc smtp::wtextaux {token part} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# smtp::wdata --
+#
+#	This is the custom transform using Trf to do CR/LF translation.  If Trf
+#       is not installed on the system, then this function never gets called and
+#       no translation occurs.
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#       command     Trf provided command for manipulating socket data.
+#	buffer      Data to be converted.
+#
+# Results:
+#	buffer is translated, and state(size) is set.  If Trf is not installed
+#       on the system, the transform proc defined at the top of this file sets
+#       state(size) to 1.  state(size) is used later to determine a timeout
+#       value.
 
 proc smtp::wdata {token command buffer} {
     variable $token
@@ -733,6 +947,18 @@ proc smtp::wdata {token command buffer} {
     }
 }
 
+# smtp::talk --
+#
+#	Sends an SMTP command to a server
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#	secs        Timeout after which command should be aborted.
+#       command     Command to send to SMTP server.
+#
+# Results:
+#	command is sent and response is returned.  If anything goes wrong, throw
+#       an exception.
 
 proc smtp::talk {token secs command} {
     variable $token
@@ -757,6 +983,16 @@ proc smtp::talk {token secs command} {
     return [smtp::hear $token $secs]
 }
 
+# smtp::hear --
+#
+#	Listens for SMTP server's response to some prior command.
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#	secs        Timeout after which we should stop waiting for a response.
+#
+# Results:
+#	Response is returned.
 
 proc smtp::hear {token secs} {
     variable $token
@@ -777,6 +1013,7 @@ proc smtp::hear {token secs} {
             vwait $token
         }
 
+        # Wait until socket is readable.
         if {$state(readable) !=  -1} {
             catch { after cancel $state(afterID) }
             set state(afterID) ""
@@ -818,6 +1055,8 @@ proc smtp::hear {token secs} {
                     [string trim [string range $state(line) 4 end]]
         }
 
+        # When status message line ends in -, it means the message is complete.
+        
         if {[string compare [string index $state(line) 3] -]} {
             break
         }
@@ -826,6 +1065,20 @@ proc smtp::hear {token secs} {
     return [array get response]
 }
 
+# smtp::readable --
+#
+#	Reads a line of data from SMTP server when the socket is readable.  This
+#       is the callback of "fileevent readable".
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#
+# Results:
+#	state(line) contains the line of data and state(readable) is reset.
+#       state(readable) gets the following values:
+#       -3  if there's a premature eof,
+#       -2  if reading from socket fails.
+#       1   if reading from socket was successful
 
 proc smtp::readable {token} {
     variable $token
@@ -843,9 +1096,9 @@ proc smtp::readable {token} {
         set state(readable) -2
         set state(error) $result
     } else {
-        if {[string last "\r" $state(line)] \
-                == [set x [expr {[string length $state(line)]-1}]]} {
-            set state(line) [string range $state(line) 0 [expr {$x-1}]]
+        # If the line ends in \r, remove the \r.
+        if {[string equal [string index $state(line) end] "\r"]} {
+            set state(line) [string range $state(line) 0 end-1]
         }
         set state(readable) 1
     }
@@ -860,6 +1113,15 @@ proc smtp::readable {token} {
     }
 }
 
+# smtp::timer --
+#
+#	Handles timeout condition on any communication with the SMTP server.
+#
+# Arguments:
+#       token       SMTP token that has an open connection to the SMTP server.
+#
+# Results:
+#	Sets state(readable) to -1 and state(error) to an error message.
 
 proc smtp::timer {token} {
     variable $token
@@ -877,6 +1139,17 @@ proc smtp::timer {token} {
     }
 }
 
+# smtp::boolean --
+#
+#	Helper function for unifying boolean values to 1 and 0.
+#
+# Arguments:
+#       value   Some kind of value that represents true or false (i.e. 0, 1,
+#               false, true, no, yes, off, on).
+#
+# Results:
+#	Return 1 if the value is true, 0 if false.  If the input value is not
+#       one of the above, throw an exception.
 
 proc smtp::boolean {value} {
     switch -- [string tolower $value] {
@@ -892,16 +1165,4 @@ proc smtp::boolean {value} {
             error "unknown boolean value: $value"
         }
     }
-}
-
-proc smtp::merge {values} {
-    set result ""
-    set s ""
-
-    foreach value $values {
-        append result $s $value
-        set s ,
-    }
-
-    return $result
 }
