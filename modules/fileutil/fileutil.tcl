@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.25 2003/07/05 04:14:11 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.26 2003/07/09 01:48:16 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -155,7 +155,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 	    # non-existing target) or not readable, i.e. inaccessible. In both
 	    # cases it makes sense to ignore them.
 
-	    if {[catch {file stat [file join $cwd $filename] stat}]} {
+	    if {[catch {file stat [set full [file join $cwd $filename]] stat}]} {
 		continue
 	    }
 
@@ -181,7 +181,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 	    # Use uplevel to eval the command, not eval, so that variable 
 	    # substitutions occur in the right context.
 	    if {!$filt || [uplevel $filtercmd [list $filename]]} {
-		lappend files [file join $cwd $filename]
+		lappend files $full
 	    }
 	    if {[file isdirectory $filename]} {
 		set files [concat $files [find $filename $filtercmd inodes]]
