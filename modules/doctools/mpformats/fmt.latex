@@ -262,6 +262,8 @@ proc class   {text} {strong $text}
 proc var     {text} {strong $text}
 proc file    {text} {return "\"[Italic $text]\""}
 proc uri     {text} {Underline $text}
+proc term    {text} {emph $text}
+proc const   {text} {strong $text}
 
 
 ################################################################
