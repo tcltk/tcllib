@@ -8,7 +8,7 @@
 '\" SCCS: @(#) uri.n
 '\" 
 .so man.macros
-.TH "uri" n 8.2 Tcl "Tcl Built-In Commands"
+.TH "uri" n 8.2 Tcl "Tcl Uniform Resource Identifier Management"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
