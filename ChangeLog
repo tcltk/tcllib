@@ -1,3 +1,7 @@
+2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* math (calculus): Fixed SF Tcllib Bug #553773.
+
 2002-05-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime: Fixed SF Tcllib Bug #561416

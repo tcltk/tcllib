@@ -1,3 +1,12 @@
+2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* calculus.README:
+	* calculus.CHANGES:
+	* calculus.tcl:
+	* calculus.test:
+	* calculus.man: Applied changes for #553773 on behalf of Arjen
+	  Markus <arjenmarkus@users.sourceforge.net>.
+
 2002-05-08  Don Porter <dgp@users.sourceforge.net>
 
 	* calculus.test: Corrected testing problems by namespace-ifying
