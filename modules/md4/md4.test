@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.9 2005/02/17 22:20:13 patthoyts Exp $
+# $Id: md4.test,v 1.10 2005/02/17 23:36:32 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -31,9 +31,9 @@ package require md4
 # -------------------------------------------------------------------------
 
 if {$::md4::usemd4c} {
-    puts "md4 [package provide md4] (using md4c)"
+    puts "- md4 [package provide md4] (using md4c)"
 }
-puts "md4 [package provide md4] (pure Tcl)"
+puts "- md4 [package provide md4] (pure Tcl)"
 
 # -------------------------------------------------------------------------
 
