@@ -9,7 +9,7 @@ namespace eval ::math::special {
     #
     # Define a number of common mathematical constants
     #
-    ::math::constants pi
+    ::math::constants::constants pi
 
     #
     # Export the functions
