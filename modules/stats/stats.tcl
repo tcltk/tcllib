@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.5 2000/09/21 18:53:46 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.6 2000/09/21 20:21:38 welch Exp $
 
 package provide stats 1.0
 
@@ -669,6 +669,13 @@ proc stats::histHtmlDisplay {tag args} {
     ]
     array set options $args
 
+    # Support for self-posting pages that can clear counters.
+
+    if {[ncgi::value resetCounter] == $tag} {
+	stats::countReset $tag
+	return "<!-- Reset $tag counter -->"
+    }
+
     switch -glob -- $options(-unit) {
 	min* {
 	    upvar #0 stats::H-$tag histogram
@@ -736,9 +743,38 @@ proc stats::histHtmlDisplay {tag args} {
 
 	# Time-base histogram
 
-	append result "<h3>$options(-title) ($counter(total) total,\
+	append result "<h4>$options(-title) ($counter(total) total,\
 		max [format %.2f [expr {$max/double($secsForMax)}]]\
-		per second)</h3>"
+		per second) bucket size = "
+	set t $secsForMax
+	set days [expr {$t / (60 * 60 * 24)}]
+	if {$days == 1} {
+	    append result "1 Day "
+	} elseif {$days > 1} {
+	    append result "$days Days "
+	}
+	set t [expr {$t - $days * (60 * 60 * 24)}]
+	set hours [expr {$t / (60 * 60)}]
+	if {$hours == 1} {
+	    append result "1 Hour "
+	} elseif {$hours > 1} {
+	    append result "$hours Hours "
+	}
+	set t [expr {$t - $hours * (60 * 60)}]
+	set mins [expr {$t / 60}]
+	if {$mins == 1} {
+	    append result "1 Minute "
+	} elseif {$mins > 1} {
+	    append result "$mins Minutes "
+	}
+	set t [expr {$t - $mins * 60}]
+	if {$t == 1} {
+	    append result "1 Second "
+	} elseif {$t > 1} {
+	    append result "$t Seconds "
+	}
+	append result </h4>
+
 	append result <ul>
 	append result "<h4>Starting at [clock format $time]</h4>"
 
@@ -751,13 +787,14 @@ proc stats::histHtmlDisplay {tag args} {
 	set mode [expr {$counter(bucketsize) * $maxName}]
 	set first [expr {$counter(bucketsize) * [lindex $ix 0]}]
 	set last [expr {$counter(bucketsize) * [lindex $ix end]}]
-	append result "<h3>$options(-title),\
+	append result "<h4>$options(-title),\
 		[format $options(-format) $first] min,\
 		[format $options(-format) $mode] mode,\
 		[format $options(-format) $last] max,\
 		[format $options(-format) [countGet $tag -avg]] average\
 		($unit)
-		</h3>"
+		(<a href=[ncgi::urlStub]?resetCounter=$tag>Reset</a>)
+		</h4>"
 	append result <ul>
 
 	if {$options(-max) < 0} {
