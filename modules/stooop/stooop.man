@@ -17,7 +17,7 @@ to be as simple to use as possible.
 [para]
 
 This manual is very succinct and is to be used as a quick reminder for
-the programmer, who should have read the thorough [uri stooop.html]
+the programmer, who should have read the thorough [uri stooop_man.html]
 HTML documentation at this point.
 
 [list_begin definitions]
@@ -215,7 +215,7 @@ the output to matching class names.
 
 [section EXAMPLES]
 
-Please see the full HTML documentation in [uri stooop.html].
+Please see the full HTML documentation in [uri stooop_man.html].
 
-[keywords class object oriented C++]
+[keywords class {object oriented} object C++]
 [manpage_end]
