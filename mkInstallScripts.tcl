@@ -17,8 +17,9 @@ set modules [lrange $argv 3 end]
 set f [open [file join $outdir INSTALL.BAT] w]
 puts $f "@echo off"
 puts $f "set TCLINSTALL=C:\\Progra~1\\Tcl"
+puts $f "mkdir %TCLINSTALL%\\lib\\$package$version"
 puts $f "copy pkgIndex.tcl %TCLINSTALL%\\lib\\$package$version"
-puts $f "for %%f in ($modules) do xcopy .\\%%f\\*.* %TCLINSTALL%\\lib\\$package$version\\%%f /E /S /I /C /Y"
+puts $f "for %%f in ($modules) do xcopy .\\%%f\\*.* %TCLINSTALL%\\lib\\$package$version\\%%f /E /S /I /Q /C"
 close $f
 
 # Make an install.sh for Unix
@@ -27,14 +28,20 @@ close $f
 set installFile [file join $outdir install.sh]
 set f [open $installFile w]
 puts $f "#!/bin/sh"
-puts $f "set TCLINSTALL=/usr/local"
-puts $f "mkdir -p \$TCLINSTALL/lib/$package$version"
-puts $f "mkdir -p \$TCLINSTALL/man/mann"
-puts $f "cp pkgIndex.tcl \$TCLINSTALL/lib/$package$version"
+puts $f "TCLINSTALL=/usr/local"
+puts $f "if ! \[ -d \$TCLINSTALL/lib/$package$version \] ; then \\"
+puts $f "    mkdir -p \$TCLINSTALL/lib/$package$version ; \\"
+puts $f "fi"
+puts $f "if ! \[ -d \$TCLINSTALL/man/mann \] ; then \\"
+puts $f "    mkdir -p \$TCLINSTALL/man/mann ; \\"
+puts $f "fi"
+puts $f "cp -f pkgIndex.tcl \$TCLINSTALL/lib/$package$version"
 puts $f "for j in $modules ; do \\"
-puts $f "    mkdir \$TCLINSTALL/lib/$package$version/\$\$j ; \\"
-puts $f "    cp \$\$j/*.tcl \$TCLINSTALL/lib/$package$version/\$\$j ; \\"
-puts $f "    cp \$\$j/*.n   \$TCLINSTALL/man/mann ; \\"
+puts $f "    if ! \[ -d \$TCLINSTALL/lib/$package$version/\$j \] ; then \\"
+puts $f "        mkdir \$TCLINSTALL/lib/$package$version/\$j ; \\"
+puts $f "    fi; \\"
+puts $f "    cp -f \$j/*.tcl \$TCLINSTALL/lib/$package$version/\$j ; \\"
+puts $f "    cp -f \$j/*.n   \$TCLINSTALL/man/mann ; \\"
 puts $f "done"
 close $f
 file attributes $installFile -permissions 0755

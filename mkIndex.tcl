@@ -30,3 +30,4 @@ foreach module $modules {
 }
 puts $index "\tpackage provide $package $version"
 puts $index "}"
+close $index
