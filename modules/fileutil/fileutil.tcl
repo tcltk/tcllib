@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.39 2004/05/11 19:14:28 afaupell Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.40 2004/05/26 04:24:28 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.6
+package provide fileutil 1.6.1
 
 namespace eval ::fileutil {
     namespace export grep find findByPattern cat foreachLine
