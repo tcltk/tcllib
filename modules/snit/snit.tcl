@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.93
+package provide snit 0.94
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -584,6 +584,9 @@ namespace eval ::snit:: {
 
             # Save the new component value.
             set Snit_components($component) $cvar
+
+            # Clear the method cache.
+            unset -nocomplain -- ${selfns}::Snit_methodCache
         }
 
         # Snit_destructor type selfns win self
@@ -1012,8 +1015,8 @@ namespace eval ::snit:: {
 
         # Snit_install selfns instance
         #
-        # Creates the instance proc, which calls the Snit_dispatcher.
-        # "self" is the initial name of the instance, and "selfns" is
+        # Creates the instance proc.
+        # "instance" is the initial name of the instance, and "selfns" is
         # the instance namespace.
         proc %TYPE%::Snit_install {selfns instance} {
             typevariable Snit_isWidget
@@ -1032,8 +1035,22 @@ namespace eval ::snit:: {
             }
 
             # NEXT, install the new proc
-            proc $procname {method args} \
-                "%TYPE%::Snit_dispatcher %TYPE% $selfns $instance \[set ${selfns}::Snit_instance] \$method \$args"
+            set body [string map [list %SELFNS% $selfns %WIN% $instance] {
+                set self [set %SELFNS%::Snit_instance]
+
+                if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
+                    set command [%TYPE%::Snit_cacheLookup %TYPE% %SELFNS% %WIN% $self $method]
+                    
+                    if {[llength $command] == 0} {
+                        return -code error \
+                            "'$self $method' is not defined."
+                    }
+                }
+
+                uplevel 1 $command $args
+            }]
+
+            proc $procname {method args} $body
 
             # NEXT, add the trace.
             trace add command $procname {rename delete} \
@@ -1088,8 +1105,12 @@ namespace eval ::snit:: {
                     }
                 } else {
                     # Otherwise, track the change.
-                    upvar ${selfns}::Snit_instance Snit_instance
+                    ::variable ${selfns}::Snit_instance Snit_instance
                     set Snit_instance [uplevel namespace which -command $new]
+
+                    # Also, clear the method cache, as many cached commands
+                    # will be invalid.
+                    unset -nocomplain -- ${selfns}::Snit_methodCache
                 }
             } result]} {
                 global errorInfo
@@ -1102,7 +1123,8 @@ namespace eval ::snit:: {
             }
         }
 
-        # Calls a local method or a delegated method.
+        # Generates and caches the command for a method.
+        # TBD: The cache needs to be cleared if certain things are renamed.
         #
         # type:		The instance's type
         # selfns:	The instance's private namespace
@@ -1111,19 +1133,16 @@ namespace eval ::snit:: {
         # self:         The instance's current name.
         # method:	The name of the method to call.
         # argList:      Arguments for the method.
-        proc %TYPE%::Snit_dispatcher {type selfns win self method argList} {
-            global errorInfo
-            global errorCode
-
+        proc %TYPE%::Snit_cacheLookup {type selfns win self method} {
             typevariable Snit_info
             typevariable Snit_methods
-            upvar ${selfns}::Snit_components Snit_components
-            
+            variable ${selfns}::Snit_components
+            variable ${selfns}::Snit_methodCache
+
             if {![info exists Snit_methods($method)]} {
                 if {![info exists Snit_methods(*)] ||
                     [lsearch -exact $Snit_info(exceptmethods) $method] != -1} {
-                    return -code error \
-                        "'$self $method' is not defined."
+                    return ""
                 }
                 set delegate [concat $Snit_methods(*) $method]
             } else {
@@ -1146,20 +1165,10 @@ namespace eval ::snit:: {
                 set command [lreplace $delegate 0 0 $comp]
             }
 
-            set errflag [catch {
-                uplevel 2 $command $argList
-            } result]
+            set Snit_methodCache($method) $command
 
-            if {$errflag} {
-		# Used to try to fix up "bad option", but did it badly.
-                
-                return -code error -errorinfo $errorInfo \
-                    -errorcode $errorCode $result
-            } else {
-                return $result
-            }
+            return $command
         }
-
 
         #----------------------------------------------------------
         # Compiled Definitions
