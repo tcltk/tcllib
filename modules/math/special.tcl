@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: special.tcl,v 1.5 2004/07/12 09:59:59 arjenmarkus Exp $
+# RCS: @(#) $Id: special.tcl,v 1.6 2004/08/27 09:49:57 arjenmarkus Exp $
 #
 package require math
 package require math::constants
@@ -26,8 +26,12 @@ namespace eval ::math::special {
     #
     # Functions defined in other math submodules
     #
-    namespace import ::math::Beta
-    namespace import ::math::ln_Gamma
+    if { [info commands Beta] == {} } {
+       namespace import ::math::Beta
+    }
+    if { [info commands Beta] == {} } {
+       namespace import ::math::ln_Gamma
+    }
 
     #
     # Export the various functions

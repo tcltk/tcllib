@@ -1,12 +1,12 @@
 # classic_polyns.tcl --
 #    Implement procedures for the classic orthogonal polynomials
 #
-source "polynomials.tcl"
-
 package require math::polynomials
 
 namespace eval ::math::special {
-    namespace import ::math::polynomials::*
+    if {[info commands addPolyn] == {} } {
+        namespace import ::math::polynomials::*
+    }
 }
 
 
@@ -161,6 +161,8 @@ proc ::math::special::hermite {n} {
 
     return $pnp1
 }
+
+package provide math::classicpolynomials 0.1
 
 # some tests --
 #
