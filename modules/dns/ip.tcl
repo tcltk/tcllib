@@ -9,13 +9,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.4 2004/11/06 02:27:10 patthoyts Exp $
+# $Id: ip.tcl,v 1.5 2004/11/21 00:49:07 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
     variable version 1.0.0
-    variable rcsid {$Id: ip.tcl,v 1.4 2004/11/06 02:27:10 patthoyts Exp $}
+    variable rcsid {$Id: ip.tcl,v 1.5 2004/11/21 00:49:07 patthoyts Exp $}
 
     namespace export is version normalize equal type contract mask
     #catch {namespace ensemble create}
@@ -256,6 +256,10 @@ proc ::ip::SplitIp {spec} {
 proc ::ip::Normalize {ip {version 0}} {
     if {$version < 0} {
         set version [version $ip]
+        if {$version < 0} {
+            return -code error "invalid address \"$ip\":\
+                value must be a valid IPv4 or IPv6 address"
+        }
     }
     return [Normalize$version $ip]
 }
