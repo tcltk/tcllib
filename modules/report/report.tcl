@@ -7,10 +7,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: report.tcl,v 1.6 2002/02/02 01:07:51 andreas_kupries Exp $
+# RCS: @(#) $Id: report.tcl,v 1.7 2003/04/11 20:15:11 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide report 0.3
+package provide report 0.3.1
 
 namespace eval ::report {
     # Data storage in the report module
