@@ -1,5 +1,10 @@
 2003-04-17  Andreas Kupries  <andreask@activestate.com>
 
+	* installer.tcl: Bug fixes in non-gui mode, added option to force
+	  cmdline mode.
+	
+	* sak.tcl: Added command to invoke the testsuite(s).
+
 	* installer.tcl: Added GUI.
 
 	* main.tcl: New file, entrypoint for *kit, *pack, redirects to

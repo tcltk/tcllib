@@ -206,7 +206,7 @@ proc get   {}     {global message ; return $message}
 
 proc log {text} {
     global config
-    if {!$config(gui)} {puts stdout $text ; flush stdout return}
+    if {!$config(gui)} {puts stdout $text ; flush stdout ; return}
     .l.t insert end $text\n
     .l.t see    end
     update
@@ -214,7 +214,7 @@ proc log {text} {
 }
 proc log* {text} {
     global config
-    if {!$config(gui)} {puts -nonewline stdout $text ; flush stdout return}
+    if {!$config(gui)} {puts -nonewline stdout $text ; flush stdout ; return}
     .l.t insert end $text
     .l.t see    end
     update
@@ -268,7 +268,7 @@ array set config {
     doc,html  0 doc,html,path  {}
     exa 1 exa,path {}
     dry 0 wait 1 valid 1
-    gui 0
+    gui 0 no-gui 0
 }
 
 # --------------------------------------------------------------
@@ -456,7 +456,6 @@ proc handlegui {} {
 # Handle a command line
 
 proc handlecmdline {} {
-    processargs
     showconfiguration
     validate
     wait
@@ -469,6 +468,7 @@ proc processargs {} {
     while {[llength $argv] > 0} {
 	switch -exact -- [lindex $argv 0] {
 	    -no-wait     {set config(wait) 0}
+	    -no-gui      {set config(no-gui) 1}
 	    -simulate    -
 	    -dry-run     {set config(dry) 1}
 	    -html        {set config(doc,html) 1}
@@ -501,7 +501,7 @@ proc processargs {} {
 	    }
 	    -help   -
 	    default {
-		puts stderr "usage: $argv0 ?-dry-run/-simulate? ?-no-wait? ?-html|-no-html? ?-nroff|-no-nroff? ?-examples|-no-examples? ?-pkgs|-no-pkgs? ?-pkg-path path? ?-nroff-path path? ?-html-path path? ?-example-path path?"
+		puts stderr "usage: $argv0 ?-dry-run/-simulate? ?-no-wait? ?-no-gui? ?-html|-no-html? ?-nroff|-no-nroff? ?-examples|-no-examples? ?-pkgs|-no-pkgs? ?-pkg-path path? ?-nroff-path path? ?-html-path path? ?-example-path path?"
 		exit 1
 	    }
 	}
@@ -551,8 +551,11 @@ proc wait {} {
 # Main code
 
 proc main {} {
+    global config
+
     defaults
-    if {[catch {package require Tk}]} {
+    processargs
+    if {$config(no-gui) || [catch {package require Tk}]} {
 	handlecmdline
     } else {
 	handlegui
