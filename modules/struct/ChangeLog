@@ -1,4 +1,14 @@
+2004-02-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: New method 'attr' for attribute searches
+	* tree.tcl:        based on attribute name, and node
+	* tree.test:       restrictions.
+
 2004-02-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: Extended the method 'children', now allows
+	* tree.tcl:        node filtering and recursive listing of all
+	* tree.man:	   children in the tree starting at the node.
 
 	* struct_list.man: Added a 'shift method to 'struct::list'.
 	* list.tcl:

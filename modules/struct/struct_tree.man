@@ -137,9 +137,93 @@ Appends a [arg value] to one of the keyed values associated with an
 node. Returns the new value given to the attribute [arg key].
 
 
-[call [arg treeName] [method children] [arg node]]
+[call [arg treeName] [method attr] [arg key]]
+[call [arg treeName] [method attr] [arg key] [option -nodes] [arg list]]
+[call [arg treeName] [method attr] [arg key] [option -glob] [arg globpattern]]
+[call [arg treeName] [method attr] [arg key] [option -regexp] [arg repattern]]
+
+This method retrieves the value of the attribute named [arg key], for
+all nodes in the tree (matching the restriction specified via one of
+the possible options) and having the specified attribute.
+
+[nl]
+
+The result is a dictionary mapping from node names to the value of
+attribute [arg key] at that node.
+
+Nodes not having the attribute [arg key], or not passing a
+specified restriction, are not listed in the result.
+
+[nl]
+
+The possible restrictions are:
+
+[list_begin opt]
+[opt_def -nodes]
+
+The value is a list of nodes. Only the nodes mentioned in this list
+are searched for the attribute.
+
+[opt_def -glob]
+
+The value is a glob pattern. Only the nodes in the tree whose names
+match this pattern are searched for the attribute.
+
+[opt_def -regexp]
+
+The value is a regular expression. Only the nodes in the tree whose
+names match this pattern are searched for the attribute.
+
+[list_end]
+[nl]
+
+[call [arg treeName] [method children] [opt [option -all]] [arg node] [opt "[const filter] [arg cmdprefix]"]]
 
 Return a list of the children of [arg node].
+
+If the option [option -all] is specified, then not only the direct
+children, but their children, and so on are returned in the result.
+
+If a filter command is specified only those nodes are listed in the
+final result which pass the test. The command in [arg cmdprefix] is
+called with two arguments, the name of the tree object, and the name
+of the node in question. It is executed in the context of the caller
+and has to return a boolean value. Nodes for which the command returns
+[const false] are removed from the result list before it is returned
+to the caller.
+
+[nl]
+Some examples:
+[nl]
+[example {
+    mytree insert root end 0 ; mytree set 0 volume 30
+    mytree insert root end 1
+    mytree insert root end 2
+    mytree insert 0    end 3
+    mytree insert 0    end 4
+    mytree insert 4    end 5 ; mytree set 5 volume 50
+    mytree insert 4    end 6
+
+    proc vol {t n} {
+	$t keyexists $n volume
+    }
+    proc vgt40 {t n} {
+	if {![$t keyexists $n volume]} {return 0}
+	expr {[$t get $n volume] > 40}
+    }
+
+    tclsh> lsort [mytree children -all root filter vol]
+    0 5
+
+    tclsh> lsort [mytree children -all root filter vgt40]
+    5
+
+    tclsh> lsort [mytree children root filter vol]
+    0
+
+    tclsh> puts ([lsort [mytree children root filter vgt40]])
+    ()
+}]
 
 
 [call [arg treeName] [method cut] [arg node]]
