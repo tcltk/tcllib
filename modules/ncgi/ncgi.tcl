@@ -602,7 +602,7 @@ proc ncgi::parseMimeValue {value} {
             set val [string trim $val]
             # Allow single as well as double quotes
             if {[regexp {^["']} $val quote]} {
-                if {[regexp ^${quote}(\[^$quote\]+)$quote $val x val2]} {
+                if {[regexp ^${quote}(\[^$quote\]*)$quote $val x val2]} {
                     # Trim quotes and any extra crap after close quote
                     set val $val2
                 }

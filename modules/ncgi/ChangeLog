@@ -1,3 +1,9 @@
+2000-05-02  Sandeep Tamhankar <sandeep@scriptics.com>
+
+	* ncgi.tcl: Changed ncgi::parseMimeValue such that a key-value
+	pair like name="" would turn into the list {name {}} instead of
+	{name {""}}.
+	
 2000-04-14  Brent Welch <welch@scriptics.com>
 	
 	* ncgi.tcl: Changed ncgi::list to ncgi::nvlist (for "name value list") becauase
