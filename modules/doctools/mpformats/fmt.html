@@ -10,11 +10,11 @@
 #
 ################################################################
 
-proc here {} [list return [file dirname [info script]]]
-proc this {} [list return [file tail    [info script]]]
+proc here {} [list return [__file dirname [info script]]]
+proc this {} [list return [__file tail    [info script]]]
 
-source [file join [here] _common.tcl]   ; # Shared code
-source [file join [here] _html.tcl]     ; # HTML basic formatting
+source [__file join [here] _common.tcl]   ; # Shared code
+source [__file join [here] _html.tcl]     ; # HTML basic formatting
 
 proc bgcolor {} {return ""}
 proc border  {} {return 0}
@@ -189,6 +189,27 @@ proc strong	{text}	{ possibleReference $text strong }
 
 
 proc opt    {text} {return "?$text?" }
+
+proc comment {text} {ht_comment $text}
+proc sectref {text} {
+    global SectionNames
+    if {[info exists SectionNames($text)]} {
+    	return "<a href=\"#$SectionNames($text)\">$text</a>"
+    } else {
+    	return "<b>$text</b>"
+    }
+}
+proc syscmd  {text} {strong $text}
+proc method  {text} {strong $text}
+proc option  {text} {strong $text}
+proc widget  {text} {strong $text}
+proc fun     {text} {strong $text}
+proc type    {text} {strong $text}
+proc package {text} {strong $text}
+proc class   {text} {strong $text}
+proc var     {text} {strong $text}
+proc file    {text} {return "\"[strong $text]\""}
+proc uri     {text} {emph $text}
 
 
 ################################################################

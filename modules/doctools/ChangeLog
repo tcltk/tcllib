@@ -1,3 +1,21 @@
+2002-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.null: Null format, does not produce any output.
+
+	* mpformats/fmt.tmml: 
+	* mpformats/fmt.nroff: 
+	* mpformats/fmt.latex: 
+	* mpformats/fmt.html:
+	* mpformats/fmt.list: Implementations of the new command.
+
+	* mpexpand: Added the commands to the processor application. Added
+	  option "-visualwarn". When present the processor warn about
+	  usage of visual markup. Tcllib FR #517599.
+
+	* mpformats/_api.tcl: Added a number of semantic markup commands
+	  to the api as part of Tcllib FR #517599. Also added comment
+	  command, see Tcllib FR #520269.
+
 2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_common.tcl: Frink run.
