@@ -94,6 +94,13 @@
 <li><a href="#how_does_an_instance_or_type_method_call_a_type_method">How does an instance or type method call a type method?</a>
 <li><a href="#how_do_i_pass_a_type_method_as_a_callback">How do I pass a type method as a callback?</a>
 </ul><p>
+
+<h3><a href="#type_constructors">TYPE CONSTRUCTORS</a></h3>
+<ul>
+<li><a href="#what_is_a_type_constructor">What is a type constructor?</a>
+<li><a href="#how_do_i_define_a_type_constructor">How do I define a type constructor?</a>
+<li><a href="#how_do_i_call_a_type_constructor">How do I call a type constructor?</a>
+</ul><p>
 <h3><a href="#procs">PROCS</a></h3>
 <ul>
 <li><a href="#what_is_a_proc">What is a proc?</a>
@@ -1347,6 +1354,44 @@ a list of pedigreed dogs when a Tk button is pushed:<p>
 
 <pre>button .btn -text "Pedigrees" -command [list dog printPedigrees]
 pack .btn</pre>
+
+<h2><a name="type_constructors">TYPE CONSTRUCTORS</a></h2>
+
+<h4><a name="what_is_a_type_constructor">What is a type
+constructor?</a></h4>
+
+A type constructor is a body of code that's executed when the type is
+first defined.  It is used to initialize type resources once when the
+type is defined.  For example, a type constructor can initialize
+array-valued type variables or add entries to the Tk option database.<p>
+
+<h4><a name="how_do_i_define_a_type_constructor">How do I define a
+type constructor?</a></h4>
+
+Type constructors are defined by including a "typeconstructor"
+statement in the type definition:<p>
+
+<pre>snit::type mytype {
+   # typevariable can only initialize scalars.
+   typevariable table
+
+   # Initializes the table array
+   typeconstructor {
+       array set table {
+           key1  value1
+           key2  value2
+           key3  value3
+       }
+   }
+
+   # ...
+}</pre>
+
+
+<h4><a name="how_do_i_call_a_type_constructor">How do I call a type
+constructor?</a></h4>
+
+You don't.  It's called automatically when the type is defined.<p>
 
 <h2><a name="procs">PROCS</a></h2>
 

@@ -392,6 +392,7 @@ namespace eval ::snit:: {
     # %TYPE%          The fully qualified type name.
     # %IVARDECS%      Instance variable declarations
     # %TVARDECS%      Type variable declarations
+    # %TCONSTBODY%    Type constructor body
     # %INSTANCEVARS%  The compiled instance variable initialization code.
     # %TYPEVARS%      The compiled type variable initialization code.
 
@@ -884,6 +885,16 @@ namespace eval ::snit:: {
         # Compiled Definitions
             
         %COMPILEDDEFS%
+
+        #----------------------------------------------------------
+        # Type Constructor
+
+        proc %TYPE%::Snit_typeconstructor {type} {
+            %TVARDECS%
+            %TCONSTBODY%
+        }
+
+        %TYPE%::Snit_typeconstructor %TYPE%
     }
 }
 
@@ -902,6 +913,7 @@ namespace eval ::snit:: {
     # instancevars:      Instance variable definitions and initializations.
     # ivprocdec:         Instance variable proc declarations.
     # tvprocdec:         Type variable proc declarations.
+    # typeconstructor:   Type constructor body.
     # localoptions:      Names of local options.
     # delegatedoptions:  Names of delegated options.
     # localmethods:      Names of locally defined methods.
@@ -1072,6 +1084,17 @@ proc ::snit::Type.Typemethod {type method arglist body} {
         set  %TYPE%::Snit_typemethods(%METHOD%) Snit_typemethod%METHOD%
         proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
+} 
+
+# Defines a typemethod method.
+proc ::snit::Type.Typeconstructor {type body} {
+    variable compile
+
+    if {$compile(typeconstructor) ne ""} {
+        error "too many typeconstructors"
+    }
+
+    set compile(typeconstructor) $body
 } 
 
 # Defines a static proc in the type's namespace.
@@ -1314,6 +1337,7 @@ proc ::snit::Define {which type body} {
     set compile(delegatedoptions) {}
     set compile(ivprocdec) {}
     set compile(tvprocdec) {}
+    set compile(typeconstructor) {}
     set compile(localmethods) {}
     set compile(delegatedmethods) {}
     set compile(components) {}
@@ -1333,17 +1357,18 @@ proc ::snit::Define {which type body} {
         interp create class.interp
 	class.interp eval {catch {package require snit::__does_not_exist__}}
     }
-    class.interp alias constructor  ::snit::Type.Constructor  $type
-    class.interp alias destructor   ::snit::Type.Destructor   $type
-    class.interp alias option       ::snit::Type.Option       $type
-    class.interp alias onconfigure  ::snit::Type.Onconfigure  $type
-    class.interp alias oncget       ::snit::Type.Oncget       $type
-    class.interp alias typemethod   ::snit::Type.Typemethod   $type
-    class.interp alias method       ::snit::Type.Method       $type
-    class.interp alias proc         ::snit::Type.Proc         $type
-    class.interp alias typevariable ::snit::Type.Typevariable $type
-    class.interp alias variable     ::snit::Type.Variable     $type
-    class.interp alias delegate     ::snit::Type.Delegate     $type
+    class.interp alias constructor     ::snit::Type.Constructor     $type
+    class.interp alias destructor      ::snit::Type.Destructor      $type
+    class.interp alias option          ::snit::Type.Option          $type
+    class.interp alias onconfigure     ::snit::Type.Onconfigure     $type
+    class.interp alias oncget          ::snit::Type.Oncget          $type
+    class.interp alias typemethod      ::snit::Type.Typemethod      $type
+    class.interp alias typeconstructor ::snit::Type.Typeconstructor $type
+    class.interp alias method          ::snit::Type.Method          $type
+    class.interp alias proc            ::snit::Type.Proc            $type
+    class.interp alias typevariable    ::snit::Type.Typevariable    $type
+    class.interp alias variable        ::snit::Type.Variable        $type
+    class.interp alias delegate        ::snit::Type.Delegate        $type
 
     # NEXT, Add the standard definitions; then 
     # evaluate the type's definition in the class interpreter.
@@ -1370,6 +1395,7 @@ proc ::snit::Define {which type body} {
                        %TYPE%         $type \
                        %IVARDECS%     $compile(ivprocdec) \
                        %TVARDECS%     $compile(tvprocdec) \
+                       %TCONSTBODY%   $compile(typeconstructor) \
                        %INSTANCEVARS% $compile(instancevars) \
                        %TYPEVARS%     $compile(typevars) \
 		       ]
