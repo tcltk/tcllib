@@ -1,3 +1,17 @@
+2004-02-13  David N. Welton  <davidw@dedasys.com>
+
+	* logger.man: Added documentation for new logger commands.
+
+2004-01-19  David N. Welton  <davidw@dedasys.com>
+
+	* logger.tcl (currentloglevel): Added proc from Michael Schlenker
+	to get information about the current log level for a given
+	service.
+	(logproc): Make logproc optionally take a command as an argument.
+	From Michael Schlenker.
+	(::logger::levels): New proc - returns the available log levels.
+	From Michael Schlenker.
+
 2003-12-18  David N. Welton  <davidw@dedasys.com>
 
 	* logger.man: Document changes to logger API.

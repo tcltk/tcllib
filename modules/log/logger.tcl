@@ -9,7 +9,7 @@
 # lets you have trees of services, that inherit from one another.
 # This is accomplished through the use of Tcl namespaces.
 
-package provide logger 0.2
+package provide logger 0.3
 package require Tcl 8.2
 
 namespace eval ::logger {
@@ -176,18 +176,38 @@ proc ::logger::init {service} {
 	    logger::walk [namespace current] [list disable $lv]
 	}
 
+	# currentloglevel --
+	#
+	#   Get the currently enabled log level for this service.
+	#
+	# Arguments:
+	#   none
+	#
+	# Side Effects:
+	#   none
+	#
+	# Results:
+	#   current log level
+	#
+
+	proc currentloglevel {} {
+	    variable enabled
+	    return $enabled
+	}
 
 	# logproc --
 	#
 	#	Command used to create a procedure that is executed to
 	#	perform the logging.  This could write to disk, out to
 	#	the network, or something else.
+	#   If two arguments are given, use an existing command.
+	#   If three arguments are given, create a proc.
 	#
 	# Arguments:
 	#	lv - the level to log, which must be one of $levels.
-	#	arg - the arg the procedure takes, usually something
-	#	like 'txt'.
-	#	body - the body of the procedure.
+	#	args - either one or two arguments.
+	#          if one, this is a cmd name that is called for this level
+	#          if two, these are an argument and proc body
 	#
 	# Side Effects:
 	#	Creates a logging command to take care of the details
@@ -196,13 +216,29 @@ proc ::logger::init {service} {
 	# Results:
 	#	None.
 
-	proc logproc {lv arg body} {
+	proc logproc {lv args} {
 	    variable levels
 	    set lvnum [lsearch -exact $levels $lv]
 	    if { $lvnum == -1 } {
 		::error "Invalid level '$lv' - levels are $levels"
 	    }
-	    proc ${lv}cmd $arg $body
+	    switch -exact -- [llength $args] {
+		1  {
+		    set cmd [lindex $args 0]
+		    if {[llength [::info commands $cmd]]} {
+			interp alias {} ${lv}cmd {} $cmd
+		    } else {
+			::error "Invalid cmd '$cmd' - does not exist"
+		    }
+		}
+		2  {
+		    foreach {arg body} $args {break}
+		    proc ${lv}cmd $arg $body
+		}
+		default {
+		    ::error "Usage: \${log} logproc level cmd\nor \${log} logproc level argname body"
+		}
+	    }
 	}
 
 
@@ -343,4 +379,24 @@ proc ::logger::disable {lv} {
     foreach sv $services {
 	::logger::tree::${sv}::disable $lv
     }
+}
+
+# ::logger::levels --
+#
+#	Introspect the available log levels.  Provided so a caller does
+#	not need to know implementation details or code the list
+#	himself.
+#
+# Arguments:
+#	None.
+#
+# Side Effects:
+#	None.
+#
+# Results:
+#	levels - The list of valid log levels accepted by enable and disable
+
+proc ::logger::levels {} {
+    variable levels
+    return $levels
 }
