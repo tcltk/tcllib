@@ -6158,6 +6158,87 @@ test hastypemethods-1.5 {-hastypemethods no, -hasinstances no fails.} {
 } {type ::dog has neither typemethods nor instances} 
 
 #-----------------------------------------------------------------------
+# -simpledispatch yes
+
+test simpledispatch-1.1 {not allowed with method delegation.} {
+    catch {cleanup}
+
+    catch {
+        type dog {
+            pragma -simpledispatch yes
+
+            delegate method foo to bar
+        }
+    } result
+
+    set result
+} {type ::dog requests -simpledispatch but delegates methods.} 
+
+test simpledispatch-1.2 {normal methods work with simpledispatch.} {
+    catch {cleanup}
+
+    type dog {
+        pragma -simpledispatch yes
+        
+        method barks {how} {
+            return "$self barks $how."
+        }
+    }
+    
+    dog spot
+    spot barks loudly
+} {::spot barks loudly.} 
+
+test simpledispatch-1.3 {option methods work with simpledispatch.} {
+    catch {cleanup}
+
+    type dog {
+        pragma -simpledispatch yes
+        
+        option -breed mutt
+    }
+    
+    dog spot
+    set a [spot cget -breed]
+    spot configure -breed collie
+    set b [spot cget -breed]
+    spot configurelist [list -breed sheltie]
+    set c [spot cget -breed]
+
+    list $a $b $c
+} {mutt collie sheltie} 
+
+test simpledispatch-1.4 {info method works with simpledispatch.} {
+    catch {cleanup}
+
+    type dog {
+        pragma -simpledispatch yes
+        
+        option -breed mutt
+    }
+    
+    dog spot
+    
+    spot info options
+} {-breed} 
+
+test simpledispatch-1.5 {destroy method works with simpledispatch.} {
+    catch {cleanup}
+
+    type dog {
+        pragma -simpledispatch yes
+        
+        option -breed mutt
+    }
+    
+    dog spot
+    set a [info commands ::spot]
+    spot destroy
+    set b [info commands ::spot]
+    list $a $b
+} {::spot {}} 
+
+#-----------------------------------------------------------------------
 # Exotic return codes
 
 test break-1.1 {Methods can "return -code break"} {

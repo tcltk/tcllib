@@ -50,6 +50,17 @@ V0.97.
   the first argument defaults to "%AUTO%" for snit::types but not
   for snit::widgets.
 
+* Added pragma -simpledispatch.  This pragma is intended to make
+  simple, heavily used types (e.g. stacks or queues) more efficient.
+  If its value is "no" (the default), then the type has traditional
+  Snit behavior with respect to method dispatch.  If its value is
+  "yes", then a simpler, faster scheme is used; however, there are
+  corresponding limitations. See the man page for details.
+
+* Bug fix: the "pragma" statement now throws an error if the specified 
+  pragma isn't defined, e.g., "pragma -boguspragma yes" is now an
+  error.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
