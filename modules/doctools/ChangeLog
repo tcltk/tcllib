@@ -1,3 +1,12 @@
+2004-07-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* docidx.man:       Fixed [Tcllib SF Bug 985601]. A number
+	* doctoc.man:       of options (-copyright) and methods (map,
+	* doctools.man:     parameters, setparam) were not documented,
+	* docidx_api.man:   nor the engine parameters supported by the
+	* doctoc_api.man:   predefined html formatters (header, footer,
+	* doctools_api.man: meta, xref). This is no longer the case.
+
 2004-05-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpexpand.man: Updated reference 'dtformat' to 'doctools_fmt'.

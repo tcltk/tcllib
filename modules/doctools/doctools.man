@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools n 1.1]
-[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Create and manipulate doctools converter object}]
 [require Tcl 8.2]
@@ -8,12 +8,15 @@
 [description]
 
 This package provides objects which can be used to convert text
-written in the doctools format as specified in [cmd dtformat(n)]
+written in the doctools format as specified in [syscmd doctools_fmt]
 into any output format X, assuming that a formatting engine for X is
 available and provides the interface specified in
-[cmd dtformatter(n)].
 
-[section API]
+[syscmd doctools_api].
+
+
+[section {PUBLIC API}]
+[subsection {PACKAGE COMMANDS}]
 
 [list_begin definitions]
 
@@ -32,10 +35,10 @@ used to set the initial configuration of the object.
 
 [call [cmd ::doctools::help]]
 
-This is a pure convenience command for applications which want to
-provide their user with a reminder of the available formatting
-commands and their meanings. It returns a string containing a standard
-help for this purpose.
+This is a convenience command for applications which want to provide
+their user with a reminder of the available formatting commands and
+their meanings. It returns a string containing a standard help for
+this purpose.
 
 
 [call [cmd ::doctools::search] [arg path]]
@@ -60,7 +63,7 @@ not a directory, or is not readable.
 
 [list_end]
 
-[section {OBJECT COMMAND}]
+[subsection {OBJECT COMMAND}]
 
 All commands created by [cmd ::doctools::new] have the following
 general form and may be used to invoke various operations on the
@@ -76,7 +79,7 @@ explanations.
 
 [list_end]
 
-[section {OBJECT METHODS}]
+[subsection {OBJECT METHODS}]
 
 [list_begin definitions]
 
@@ -125,7 +128,24 @@ for the object.
 [nl]
 
 The method assumes that the [arg text] is in doctools format as
-specified in [cmd dtformat(n)]. Errors will be thrown otherwise.
+specified in [syscmd doctools_fmt]. Errors will be thrown otherwise.
+
+
+[call [arg objectName] [method map] [arg symbolic] [arg actual]]
+
+This methods extends the per-object mapping from a
+[arg symbolic] filename to the [arg actual] uri.
+
+The object itself just stores the mapping and does nothing with
+it. However the engine for the configured format can query the mapping
+through the command [cmd dt_fmap] (see [syscmd doctools_api])
+
+
+[call [arg objectName] [method parameters]]
+
+Returns a list containing the names of all parameters supported by the
+engine for the format the object is configured for. Returns an empty
+list if the object is not yet configured for a specific format.
 
 
 [call [arg objectName] [method search] [arg path]]
@@ -137,6 +157,16 @@ the global (per-package) list of paths.
 [nl]
 
 The path entered last is searched through first.
+
+
+[call [arg objectName] [method setparam] [arg name] [arg value]]
+
+Sets the [arg name]d engine parameter to the given [arg value]. Throws
+an error if the object is not yet configured for a specific
+format. Also throws an error if the configured format does not know a
+parameter with the specified [arg name]. The list of known parameter
+names can be retrieved via method [method parameters].
+
 
 [call [arg objectName] [method warnings]]
 
@@ -155,7 +185,7 @@ All doctools objects understand the following configuration options:
 
 The argument of this option is stored in the object and can be
 retrieved by the formatting engine via the command [cmd dt_file] (see
-[cmd dtformatter(n)]). Its default value is the empty string.
+[syscmd doctools_api]). Its default value is the empty string.
 
 [nl]
 
@@ -166,7 +196,7 @@ currently processed by the engine.
 
 The argument of this option is stored in the object and can be
 retrieved by the formatting engine via the command [cmd dt_module]
-(see [cmd dtformatter(n)]). Its default value is the empty string.
+(see [syscmd doctools_api]). Its default value is the empty string.
 
 [nl]
 
@@ -198,6 +228,14 @@ This option is a flag. If set the object will generate warnings when
 formatting a text containing the deprecated markup command [cmd strong]
 Its default value is [const FALSE]. In other words, no warnings will
 be generated.
+
+[lst_item "[option -copyright] [arg text]"]
+
+This option specifies a text which is not used by the object itself,
+but can be queried by the engine for the configured format, via the
+command [cmd dt_copyright] (see [syscmd doctools_api]). Its default
+value is the empty string.
+
 
 [list_end]
 
@@ -255,15 +293,116 @@ The mapping fails.
 [list_end]
 
 
-[section {ENGINES}]
+[section {PREDEFINED ENGINES}]
 
-The package comes with the following predefined formatting engines
+The package provides predefined engines for the following
+formats. Some of the engines support parameters. These will be
+explained below as well.
 
 [list_begin definitions]
 [lst_item html]
 
 This engine generates HTML markup, for processing by web browsers and
-the like.
+the like. This engine supports four parameters:
+
+[list_begin definitions]
+[lst_item footer]
+
+The value for this parameter has to be valid selfcontained HTML markup
+for the body section of a HTML document. The default value is the
+empty string. The value is inserted into the generated output just
+before the [const </body>] tag, closing the body of the generated
+HTML.
+
+[nl]
+
+This can be used to insert boilerplate footer markup into the
+generated document.
+
+[lst_item header]
+
+The value for this parameter has to be valid selfcontained HTML markup
+for the body section of a HTML document. The default value is the
+empty string. The value is inserted into the generated output just
+after the [const <body>] tag, starting the body of the generated HTML.
+
+[nl]
+
+This can be used to insert boilerplate header markup into the
+generated document.
+
+
+[lst_item meta]
+
+The value for this parameter has to be valid selfcontained HTML markup
+for the header section of a HTML document. The default value is the
+empty string. The value is inserted into the generated output just
+after the [const <head>] tag, starting the header section of the
+generated HTML.
+
+[nl]
+
+This can be used to insert boilerplate meta data markup into the
+generated document, like references to a stylesheet, standard meta
+keywords, etc.
+
+
+[lst_item xref]
+
+The value for this parameter has to be a list of triples specifying
+cross-reference information. This information is used by the engine to
+create more hyperlinks. Each triple is a list containing a pattern,
+symbolic filename and fragment reference, in this order. If a pattern
+is specified multiple times the last occurence of the pattern will be
+used.
+
+[nl]
+
+The engine will consult the xref database when encountering specific
+commands and will create a link if the relevant text matches one of
+the patterns. No link will be created if no match was found. The link
+will go to the uri [const {file#fragment}] listed in the relevant
+triple, after conversion of the symbolic file name to the actual uri
+via [cmd dt_fmap] (see [syscmd doctools_api]).
+
+This file-to-uri mapping was build by calls to the method [method map]
+of the doctools object (See section [sectref {OBJECT METHODS}]).
+
+[nl]
+
+The following formatting commands will consult the xref database:
+
+[list_begin definitions]
+[lst_item "[cmd cmd] [arg word]"]
+
+The command will look for the patterns [const sa,][arg word],
+and [arg word], in this order.
+
+[lst_item "[cmd syscmd] [arg word]"]
+
+The command will look for the patterns [const sa,][arg word],
+and [arg word], in this order.
+
+[lst_item "[cmd term] [arg word]"]
+
+The command will look for the patterns [const kw,][arg word],
+and [arg word], in this order.
+
+[lst_item "[cmd see_also] [arg word]..."]
+
+The command will look for the patterns [const sa,][arg word],
+and [arg word], in this order, for each [arg word] given to the
+command.
+
+[lst_item "[cmd keywords] [arg word]..."]
+
+The command will look for the patterns [const kw,][arg word],
+and [arg word], in this order, for each [arg word] given to the
+command.
+
+[list_end]
+[list_end]
+[nl]
 
 [lst_item latex]
 
