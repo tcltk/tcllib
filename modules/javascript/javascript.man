@@ -1,5 +1,5 @@
-[manpage_begin javascript n 1.0]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin javascript n 1.0]
 [moddesc   {HTML and Java Script Generation}]
 [titledesc {Procedures to generate HTML and Java Script structures.}]
 [require Tcl 8]
@@ -10,7 +10,7 @@
 The [package ::javascript] package provides commands that generate
 HTML and Java Script code.  These commands typically return an HTML
 string as their result.  In particular, they do not output their
-result to [strong stdout].
+result to [const stdout].
 
 [para]
 

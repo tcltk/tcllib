@@ -2,21 +2,14 @@
 # -*- tcl -*- \
 exec tclsh "$0" ${1+"$@"}
 
-package require textutil::expander
+lappend auto_path [file dirname [file dirname [info script]]]
+package require doctools
 
 # ---------------------------------------------------------------------
 #  1. Handle command line options, input and output
-#  2. Read formatting macros into a namespace
-#  3. Determine if 1- or 2-pass.
-#  4. Create expander object, setup with command callback to evaluate
-#     everything in the namespace containing the formatting commands.
-#  5. Read input
-#  6. Run pre-pass-hook, optional
-#  7. Pass 1 through expander.
-#  8. Run pre-pass-hook, optional       | either both or none
-#  9. Pass 2 through expander, optional |
-# 10. Run output through post-hook, optional
-# 11. Write output.
+#  2. Initialize a doctools object.
+#  3. Run the input through the object.
+#  4. Write output.
 # ---------------------------------------------------------------------
 
 proc usage {{exitstate 1}} {
@@ -25,7 +18,8 @@ proc usage {{exitstate 1}} {
 	    ?-h|--help|-help|-??\
 	    ?-help-fmt|--help-fmt?\
 	    ?-module module?\
-	    ?-visualwarn?\
+	    ?-deprecated?\
+	    ?-copyright text?\
 	    format in|- ?out|-?"
     exit $exitstate
 }
@@ -36,53 +30,7 @@ proc fmthelp {} {
     # Tcllib FR #527029: short reference of formatting commands.
 
     global argv0
-    puts "$argv0 formatting commands\n\
-	    * manpage_begin - begin of manpage\n\
-	    * moddesc       - module description\n\
-	    * titledesc     - manpage title\n\
-	    * manpage_end   - end of manpage\n\
-	    * require       - package requirement\n\
-	    * description   - begin of manpage body\n\
-	    * section       - begin new section of body\n\
-	    * para          - begin new paragraph\n\
-	    * list_begin    - begin a list\n\
-	    * list_end      - end of a list\n\
-	    * lst_item      - begin item of definition list\n\
-	    * call          - command definition, adds to synopsis\n\
-	    * usage         - see above, without adding to synopsis\n\
-	    * bullet        - begin item in bulleted list\n\
-	    * enum          - begin item in enumerated list\n\
-	    * arg_def       - begin item in argument list\n\
-	    * cmd_def       - begin item in command list\n\
-	    * opt_def       - begin item in option list\n\
-	    * tkoption_def  - begin item in tkoption list\n\
-	    * example       - example block\n\
-	    * example_begin - begin example\n\
-	    * example_end   - end of example\n\
-	    * see_also      - cross reference declaration\n\
-	    * keywords      - keyword declaration\n\
-	    * nl            - paragraph break in list items\n\
-	    * arg           - semantic markup - argument\n\
-	    * cmd           - semantic markup - command\n\
-	    * opt           - semantic markup - optional data\n\
-	    * comment       - semantic markup - comment\n\
-	    * sectref       - semantic markup - section reference\n\
-	    * syscmd        - semantic markup - system command\n\
-	    * method        - semantic markup - object method\n\
-	    * option        - semantic markup - option\n\
-	    * widget        - semantic markup - widget\n\
-	    * fun           - semantic markup - function\n\
-	    * type          - semantic markup - data type\n\
-	    * package       - semantic markup - package\n\
-	    * class         - semantic markup - class\n\
-	    * var           - semantic markup - variable\n\
-	    * file          - semantic markup - file \n\
-	    * uri           - semantic markup - uri\n\
-	    * term          - semantic markup - unspecific terminology\n\
-	    * const         - semantic markup - constant value\n\
-	    * emph          - visual markup - light emphasis, usage is discouraged\n\
-	    * strong        - visual markup - strong emphasis, usage is discouraged\n\
-	    "
+    puts "$argv0 [doctools::help]"
     exit 0
 }
 
@@ -90,10 +38,11 @@ proc fmthelp {} {
 # 1. Handle command line options, input and output
 
 proc cmdline {} {
-    global argv0 argv format in out extmodule visualwarn
+    global argv0 argv format in out extmodule deprecated copyright
 
+    set copyright ""
     set extmodule ""
-    set visualwarn 0
+    set deprecated 0
 
     while {[string match -* [set opt [lindex $argv 0]]]} {
 	switch -exact -- $opt {
@@ -102,8 +51,13 @@ proc cmdline {} {
 		set argv [lrange $argv 2 end]
 		continue
 	    }
-	    -visualwarn {
-		set visualwarn 1
+	    -copyright {
+		set copyright [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+		continue
+	    }
+	    -deprecated {
+		set deprecated 1
 		set argv [lrange $argv 1 end]
 	    }
 	    -help - -h - --help - -? {
@@ -130,590 +84,34 @@ proc cmdline {} {
 	usage
     }
     if {$out == {}} {set out -}
+    return $format
 }
 
 # ---------------------------------------------------------------------
-#  2. Read formatting macros and setup evalution environment.
-
-proc format_find {} {
-    global format fmtfile argv0
-
-    set _here [file dirname [file join [pwd] [info script]]]
-
-    set fmtfile {}
-    foreach p [list \
-	    [file join $_here mpformats fmt.$format] \
-	    [file join [file dirname $_here] lib doctools mpformats fmt.$format] \
-	    ] {
-	if {[file exists $p]} {
-	    set fmtfile $p
-	    break
-	}
-    }
-
-    if {[string equal $fmtfile ""]} {
-	puts "$argv0: Unknown format \"$format\""
-	exit 1
-    }
-}
-
-# ---------------------------------------------------------------------
-#  4. Create expander object, setup with command callback to evaluate
-#     everything in the namespace containing the formatting commands.
-
-proc eval_setup {} {
-    global argv0 format fmtfile mpip inip ckip passes visualwarn
-
-    set apibase [file join [file dirname $fmtfile] _api.tcl]
-    set mpip [interp create] ; # interpreter for the formatting engine
-    set inip [interp create] ; # interpreter for code in the input/manpage.
-    set ckip [interp create] ; # interpreter hosting the formal format checker
-
-    $ckip eval {
-	package require msgcat
-	proc ::msgcat::mcunknown {locale code} {
-	    return "unknown error code \"$code\""
-	}
-    }
-    # Provide l10n
-    $ckip eval [list ::msgcat::mcload [set f [file join [file dirname [info script]] mpformats]]]
-
-    # Basic format definitions with error message. We expect that all
-    # of these are overwritten by the actual format definition. Then
-    # read the format itself.
-
-    $mpip eval {rename file __file} ; # protect the original file command.
-    $mpip eval [list source $apibase]
-    $mpip eval [list source $fmtfile]
-
-    # Create the expander object associated to the sub interpreter and
-    # set it up so that all macros found in the input are evaluated
-    # inside of the input subinterpreter.
-
-    ::textutil::expander ::mp
-    ::mp evalcmd mpEval
-    ::mp textcmd __mpText__
-
-    # Link global information commands into format and input interpreters.
-
-    interp alias $mpip mp_pass   {} mpPass
-    interp alias $mpip mp_file   {} mpFile
-    interp alias $mpip mp_module {} mpModule
-
-    interp alias $inip mp_pass   {} mpPass
-    interp alias $inip mp_file   {} mpFile
-    interp alias $inip mp_module {} mpModule
-
-    # Link the formatting commands, limited access to the expander
-    # object and information commands into the input interpreter.
-
-    foreach cmd {
-	cappend cget cis cname cpop cpush cset lb rb
-    } {
-	interp alias $inip $cmd {} ::mp $cmd
-	interp alias $mpip $cmd {} ::mp $cmd
-    }
-    foreach cmd {
-	manpage_begin moddesc titledesc manpage_end require description
-	section para list_begin list_end lst_item call bullet enum
-	example example_begin example_end see_also keywords nl arg cmd opt
-	comment sectref syscmd method option widget fun type package
-	class var file uri usage term const arg_def cmd_def opt_def
-	tkoption_def
-    } {
-	# We link the formatter commands into the input interpreter
-	# and route them to the checking commands in the checker. We
-	# also link the formatter commands into the checker, so that
-	# it is able to forward the accepted invocations to the
-	# actual formatter.
-
-	interp alias $inip $cmd $ckip ck_$cmd
-	interp alias $ckip $cmd $mpip $cmd
-    }
-    if {$visualwarn} {
-	# Route "visual" markup through procedures which generate warnings on stderr.
-	foreach cmd {emph strong} {
-	    interp alias $inip $cmd {}  __$cmd
-	    interp alias $ckip $cmd $mpip $cmd
-	}
-    } else {
-	foreach cmd {emph strong} {
-	    interp alias $inip $cmd $ckip ck_$cmd
-	    interp alias $ckip $cmd $mpip $cmd
-	}
-    }
-
-    # Reroute the handling of plain text into the formatter
-    interp alias $inip __mpText__ $ckip ck_plain_text
-    interp alias $ckip HandleText $mpip HandleText
-
-    # ---------------------------------------------------------------------
-    # Now initialize the format checker (state, commands)
-
-    $ckip eval {
-	global state lstctx lstitem
-	# --------------+-----------------------+----------------------
-	# state		| allowed commands	| new state (if any)
-	# --------------+-----------------------+----------------------
-	# all except	| arg cmd opt comment	|
-	#  for "done"	| syscmd method option	|
-	#		| widget fun type class	|
-	#		| package var file uri	|
-	#		| strong emph		|
-	# --------------+-----------------------+----------------------
-	# manpage_begin	| manpage_begin		| header
-	# --------------+-----------------------+----------------------
-	# header	| moddesc titledesc	| header
-	#		+-----------------------+-----------
-	#		| require		| requirements
-	#		+-----------------------+-----------
-	#		| description		| body
-	# --------------+-----------------------+----------------------
-	# requirements	| require		| requirements
-	#		+-----------------------+-----------
-	#		| description		| body
-	# --------------+-----------------------+----------------------
-	# body		| section para list_end	| body
-	#		| list_begin lst_item	|
-	#		| call bullet usage nl	|
-	#		| example see_also	|
-	#		| keywords sectref enum	|
-	#		| arg_def cmd_def	|
-	#		| opt_def tkoption_def	|
-	#		+-----------------------+-----------
-	#		| example_begin		| example
-	#		+-----------------------+-----------
-	#		| manpage_end		| done
-	# --------------+-----------------------+----------------------
-	# example	| example_end		| body
-	# --------------+-----------------------+----------------------
-	# done		|			|
-	# --------------+-----------------------+----------------------
-	#
-	# Additional checks
-	# --------------------------------------+----------------------
-	# list_begin/list_end			| Are allowed to nest.
-	# --------------------------------------+----------------------
-	# 	lst_item/call			| Only in 'definition list'.
-	# 	enum				| Only in 'enum list'.
-	# 	bullet				| Only in 'bullet list'.
-	#	arg_def				| Only in 'argument list'.
-	#	cmd_def				| Only in 'command list'.
-	#	opt_def				| Only in 'option list'.
-	#	tkoption_def			| Only in 'tkoption list'.
-	#	nl				| Only in list item context.
-	#	para section			| Not allowed in list context
-	# --------------------------------------+----------------------
-
-	# -------------------------------------------------------------
-	# Helpers
-	proc Error {code} {
-	    global state lstctx lstitem
-
-	    # Problematic command with all arguments (we strip the "ck_" prefix!)
-	    # -*- future -*- count lines of input, maintain history buffer, use
-	    # -*- future -*- that to provide some context here.
-
-	    set cmd  [string range [lindex [info level 1] 0] 3 end]
-	    set args [lrange [info level 1] 1 end]
-	    if {$args != {}} {append cmd " [join $args]"}
-	    
-	    # Use a message catalog to map the error code into a legible message.
-	    set msg [::msgcat::mc $code]
-
-	    puts stderr "Manpage error ($code), \"$cmd\" : ${msg}."
-	    exit 1
-	    return
-	}
-	proc Is    {s} {global state ; return [string equal $state $s]}
-	proc IsNot {s} {global state ; return [expr {![string equal $state $s]}]}
-	proc Go    {s} {global state ; set state $s; return}
-	proc LPush {l} {
-	    global lstctx lstitem
-	    set    lstctx [linsert $lstctx 0 $l $lstitem]
-	    return
-	}
-	proc LPop {} {
-	    global lstctx lstitem
-	    set lstitem [lindex $lstctx 1]
-	    set lstctx  [lrange $lstctx 2 end]
-	    return
-	}
-	proc LSItem {} {global lstitem ; set lstitem 1}
-	proc LIs  {l} {global lstctx ; string equal $l [lindex $lstctx 0]}
-	proc LItem {} {global lstitem ; return $lstitem}
-	proc LOpen {} {
-	    global lstctx
-	    expr {$lstctx != {}}
-	}
-	# -------------------------------------------------------------
-	# Framing
-	proc ck_initialize {} {
-	    global state   ; set state manpage_begin
-	    global lstctx  ; set lstctx [list]
-	    global lstitem ; set lstitem 0
-	    return
-	}
-	proc ck_complete {} {
-	    if {[Is done]} {
-		if {![LOpen]} {
-		    return
-		} else {
-		    Error end/open/list
-		}
-	    } elseif {[Is example]} {
-		Error end/open/example
-	    } else {
-		Error end/open/mp
-	    }
-	    return
-	}
-	# -------------------------------------------------------------
-	# Plain text
-	proc ck_plain_text {text} {
-	    # Only in body, not between list_begin and first item.
-	    # Ignore everything which is only whitespace ...
-
-	    set redux [string map [list " " "" "\t" "" "\n" ""] $text]
-	    if {$redux == {}} {return [HandleText $text]}
-	    if {[IsNot body] && [IsNot example]} {Error body}
-	    if {[LOpen] && ![LItem]} {Error nolisttxt}
-	    return [HandleText $text]
-	}
-	# -------------------------------------------------------------
-	# Formatting commands
-	proc ck_manpage_begin {title section version} {
-	    if {[IsNot manpage_begin]} {Error mpbegin}
-	    Go header
-	    manpage_begin $title $section $version
-	}
-	proc ck_moddesc {desc} {
-	    if {[IsNot header]} {Error hdrcmd}
-	    moddesc $desc
-	}
-	proc ck_titledesc {desc} {
-	    if {[IsNot header]} {Error hdrcmd}
-	    titledesc $desc
-	}
-	proc ck_manpage_end {} {
-	    if {[IsNot body]} {Error bodycmd}
-	    Go done
-	    manpage_end
-	}
-	proc ck_require {pkg {version {}}} {
-	    if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
-	    Go requirements
-	    require $pkg $version
-	}
-	proc ck_description {} {
-	    if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
-	    Go body
-	    description
-	}
-	proc ck_section {name} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {[LOpen]}      {Error nolistcmd}
-	    section $name
-	}
-	proc ck_para {} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {[LOpen]}      {Error nolistcmd}
-	    para
-	}
-	proc ck_list_begin {what {hint {}}} {
-	    if {[IsNot body]}        {Error bodycmd}
-	    if {[LOpen] && ![LItem]} {Error nolisthdr}
-	    LPush      $what
-	    list_begin $what $hint
-	}
-	proc ck_list_end {} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {![LOpen]}     {Error listcmd}
-	    LPop
-	    list_end
-	}
-	proc ck_lst_item {{text {}}} {
-	    if {[IsNot body]}       {Error bodycmd}
-	    if {![LOpen]}           {Error listcmd}
-	    if {![LIs definitions]} {Error deflist}
-	    LSItem
-	    lst_item $text
-	}
-	proc ck_arg_def {type name {mode {}}} {
-	    if {[IsNot body]}       {Error bodycmd}
-	    if {![LOpen]}           {Error listcmd}
-	    if {![LIs arg]}         {Error arg_list}
-	    LSItem
-	    arg_def $type $name $mode
-	}
-	proc ck_cmd_def {command} {
-	    if {[IsNot body]}       {Error bodycmd}
-	    if {![LOpen]}           {Error listcmd}
-	    if {![LIs cmd]}         {Error cmd_list}
-	    LSItem
-	    cmd_def $command
-	}
-	proc ck_opt_def {name {arg {}}} {
-	    if {[IsNot body]}       {Error bodycmd}
-	    if {![LOpen]}           {Error listcmd}
-	    if {![LIs opt]}         {Error opt_list}
-	    LSItem
-	    opt_def $name $arg
-	}
-	proc ck_tkoption_def {name dbname dbclass} {
-	    if {[IsNot body]}       {Error bodycmd}
-	    if {![LOpen]}           {Error listcmd}
-	    if {![LIs tkoption]}    {Error tkoption_list}
-	    LSItem
-	    tkoption_def $name $dbname $dbclass
-	}
-	proc ck_call {cmd args} {
-	    if {[IsNot body]}       {Error bodycmd}
-	    if {![LOpen]}           {Error listcmd}
-	    if {![LIs definitions]} {Error deflist}
-	    LSItem
-	    eval [linsert $args 0 call $cmd]
-	}
-	proc ck_bullet {} {
-	    if {[IsNot body]}  {Error bodycmd}
-	    if {![LOpen]}      {Error listcmd}
-	    if {![LIs bullet]} {Error bulletlist}
-	    LSItem
-	    bullet
-	}
-	proc ck_enum {} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {![LOpen]}     {Error listcmd}
-	    if {![LIs enum]}  {Error enumlist}
-	    LSItem
-	    enum
-	}
-	proc ck_example {code} {
-	    return [ck_example_begin][ck_plain_text ${code}][ck_example_end]
-	}
-	proc ck_example_begin {} {
-	    if {[IsNot body]}        {Error bodycmd}
-	    if {[LOpen] && ![LItem]} {Error nolisthdr}
-	    Go example
-	    example_begin
-	}
-	proc ck_example_end {} {
-	    if {[IsNot example]} {Error examplecmd}
-	    Go body
-	    example_end
-	}
-	proc ck_see_also {args} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {[LOpen]}      {Error nolistcmd}
-	    eval [linsert $args 0 see_also]
-	}
-	proc ck_keywords {args} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {[LOpen]}      {Error nolistcmd}
-	    eval [linsert $args 0 keywords]
-	}
-	proc ck_nl {} {
-	    if {[IsNot body]} {Error bodycmd}
-	    if {![LOpen]}     {Error listcmd}
-	    if {![LItem]}     {Error nolisthdr}
-	    nl
-	}
-	proc ck_emph {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    emph $text
-	}
-	proc ck_strong {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    strong $text
-	}
-	proc ck_arg {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    arg $text
-	}
-	proc ck_cmd {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    cmd $text
-	}
-	proc ck_opt {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    opt $text
-	}
-	proc ck_comment {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    comment $text
-	}
-	proc ck_sectref {name} {
-	    if {[IsNot body]}        {Error bodycmd}
-	    if {[LOpen] && ![LItem]} {Error nolisthdr}
-	    sectref $name
-	}
-	proc ck_syscmd {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    syscmd $text
-	}
-	proc ck_method {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    method $text
-	}
-	proc ck_option {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    option $text
-	}
-	proc ck_widget {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    widget $text
-	}
-	proc ck_fun {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    fun $text
-	}
-	proc ck_type {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    type $text
-	}
-	proc ck_package {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    package $text
-	}
-	proc ck_class {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    class $text
-	}
-	proc ck_var {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    var $text
-	}
-	proc ck_file {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    file $text
-	}
-	proc ck_uri {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    uri $text
-	}
-	proc ck_usage {text} {
-	    if {[Is done]} {Error nodonecmd}
-	    usage $text
-	}
-	# -------------------------------------------------------------
-    }
-
-    # ---------------------------------------------------------------------
-    #  3. Determine if 1- or 2-pass.
-
-    set passes [$mpip eval {NumPasses}]
-    if {![string is integer $passes] || ($passes < 1)} {
-	puts "${argv0}: $format error: illegal number of passes \"$passes\""
-	exit 1
-    }
-
-    return
-}
-
-# Execute a macro from the input. Special handling for the plain text
-# command.
-
-proc mpEval {macro} {
-    global inip
-    $inip eval $macro
-}
-
-# Define/retrieve number of current pass.
-proc mpPass {{n {}}} {
-    global __pass
-    if {$n != {}} {
-	set __pass $n
-    }
-    return $__pass
-}
-
-proc mpFile {} {
-    global  in
-    return $in
-}
-
-proc mpModule {} {
-    global  in extmodule
-
-    if {$extmodule != {}} {
-	return $extmodule
-    }
-    return [file tail [file rootname $in]]
-}
-
-proc __strong {text} {
-    global ckip
-    puts stderr "\tVisual markup: \"\[strong \{$text\}\]\""
-    puts stderr "\tPlease consider appropriate semantic markup instead."
-    return [$ckip eval [list strong $text]]
-}
-
-proc __emph {text} {
-    global ckip
-    puts stderr "\tVisual markup: \"\[emph \{$text\}\]\""
-    puts stderr "\tPlease consider appropriate semantic markup instead."
-    return [$ckip eval [list emph $text]]
-}
-
-# ---------------------------------------------------------------------
-#  5. Read input. Also providing the namespace with file information.
+#  3. Read input. Also providing the namespace with file information.
 
 proc get_input {} {
-    global in text
-
+    global in
     if {[string equal $in -]} {
-	set text [read stdin]
-	set in stdin
+	return [read stdin]
     } else {
 	set if [open $in r]
 	set text [read $if]
 	close $if
+	return $text
     }
 }
 
 # ---------------------------------------------------------------------
-#  6. Run pre-pass-hook, optional
-#  7. Pass 1 through expander.
-#  8. Run pre-pass-hook, optional       | either both or none
-#  9. Pass 2 through expander, optional |
+# 4. Write output.
 
-proc passes {} {
-    global mpip ckip text expansion passes
-
-    set n 1
-    while {$passes > 0} {
-	mpPass $n
-	$mpip eval PassSetup
-
-	$ckip eval ck_initialize
-	set expansion [::mp expand $text]
-	$ckip eval ck_complete
-
-	incr passes -1
-	incr n
-    }
-    return
-}
-
-# ---------------------------------------------------------------------
-# 10. Run output through post-hook, optional
-
-proc postprocess {} {
-    global expansion   mpip
-    set    expansion [$mpip eval [list PostProcess $expansion]]
-}
-
-# ---------------------------------------------------------------------
-# 11. Write output.
-
-proc write_expansion {} {
-    global out expansion
-
+proc write_out {text} {
+    global out
     if {[string equal $out -]} {
-	puts -nonewline stdout $expansion
+	puts -nonewline stdout $text
     } else {
 	set of [open $out w]
-	puts -nonewline $of $expansion
+	puts -nonewline $of $text
 	close $of
     }
 }
@@ -723,13 +121,30 @@ proc write_expansion {} {
 # Get it all together
 
 proc main {} {
-    cmdline
-    format_find
-    eval_setup
-    get_input
-    passes
-    postprocess
-    write_expansion
+    global format deprecated extmodule in copyright
+
+    #if {[catch {}
+	cmdline
+
+	::doctools::new dt -format $format -deprecated $deprecated -file $in
+	if {$extmodule != {}} {
+	    dt configure -module $extmodule
+	}
+	if {$copyright != {}} {
+	    dt configure -copyright $copyright
+	}
+
+	write_out [dt format [get_input]]
+
+	set warnings [dt warnings]
+	if {[llength $warnings] > 0} {
+	    puts stderr [join $warnings \n]
+	}
+
+	#{} msg]} {}
+	#puts stderr "Execution error: $msg"
+    #{}
+    return
 }
 
 

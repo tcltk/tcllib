@@ -1,4 +1,5 @@
 [manpage_begin csv n 0.3]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {CSV processing}]
 [titledesc {Procedures to handle CSV data.}]
 [require Tcl 8.3]
@@ -7,8 +8,8 @@
 
 [para]
 
-The [strong csv] package provides commands to manipulate information
-in CSV [strong FORMAT] (CSV = Comma Separated Values).
+The [package csv] package provides commands to manipulate information
+in CSV [sectref FORMAT] (CSV = Comma Separated Values).
 
 [section COMMANDS]
 [para]
@@ -51,9 +52,9 @@ A report command which can be used by the matrix methods
 
 [cmd "format 2string"] and [cmd "format 2chan"]. For the latter this
 command delegates the work to [cmd ::csv::writematrix]. [arg cmd] is
-expected to be either [strong printmatrix] or
+expected to be either [method printmatrix] or
 
-[strong printmatrix2channel]. The channel argument, [arg chan], has
+[method printmatrix2channel]. The channel argument, [arg chan], has
 to be present for the latter and must not be present for the first.
 
 [call [cmd ::csv::split] [arg line] "{[arg sepChar] ,}"]
@@ -73,22 +74,22 @@ allowed modes are:
 
 [list_begin definitions]
 
-[lst_item [strong none]]
+[lst_item [const none]]
 
 This is the default mode. In this mode it is the responsibility of the
 caller to ensure that the matrix has enough columns to contain the
 full line. If there are not enough columns the list of values is
 silently truncated at the end to fit.
 
-[lst_item [strong empty]]
+[lst_item [const empty]]
 
 In this mode the command expands an empty matrix to hold all columns
 of the specified line, but goes no further. The overall effect is that
 the first of a series of lines determines the number of columns in the
 matrix and all following lines are truncated to that size, as if mode
-[strong none] was set.
+[const none] was set.
 
-[lst_item [strong auto]]
+[lst_item [const auto]]
 
 In this mode the command expands the matrix as needed to hold all
 columns contained in [arg line]. The overall effect is that after

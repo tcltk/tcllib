@@ -38,9 +38,10 @@ set    textMap {
 # with entity references.
 #
 
-variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} {"} {\1"} }
-
-variable finalMap $textMap
+global   markupMap
+set      markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} {"} {\1"} } 
+global   finalMap
+set      finalMap $textMap
 lappend  finalMap {\1&} {&}  {\1<} {<}  {\1>} {>} {\1"} {"}
 
 
@@ -49,12 +50,7 @@ proc htmlEscape {text} {
     return [string map $textMap $text]
 }
 
-# Called to handle plain text from the input
-proc HandleText {text} {
-    return $text
-}
-
-proc PostProcess {text}	{
+proc fmt_postprocess {text}	{
     global finalMap
     return [string map $finalMap $text]
 }
@@ -64,12 +60,9 @@ proc PostProcess {text}	{
 #	These will be stripped out in PostProcess.
 #
 proc markup {text} {
-    variable markupMap
+    global markupMap
     return [string map $markupMap $text]
 }
-
-
-proc state {} [list return [__file join [pwd] state]]
 
 proc use_bg {} {
     set c [bgcolor]
@@ -128,4 +121,13 @@ proc tag_ {t block args} {
 }
 
 
-proc ht_comment {text}   {return "[markup <]! -- $text --[markup >]"}
+proc ht_comment {text}   {return "[markup <]! -- [join [split $text \n] "   -- "]\n   --[markup >]"}
+
+# wrap content gi --
+#	Returns $content wrapped inside <$gi> ... </$gi> tags.
+#
+proc wrap {content gi} {
+    return "[tag $gi]${content}[tag/ $gi]"
+}
+proc startTag {x args} {if {[llength $args]} {taga $x $args} else {tag $x}}
+proc endTag   {x} {tag/ $x}

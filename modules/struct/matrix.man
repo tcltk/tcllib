@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin matrix n 1.2.1]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]
 [require Tcl 8.2]
@@ -28,10 +29,10 @@ form. The cells in the matrix are addressed by pairs of integer
 numbers, with the first (left) number in the pair specifying the
 column and the second (right) number specifying the row the cell is
 in. These indices are counted from 0 upward. The special non-numeric
-index [strong end] refers to the last row or column in the matrix,
+index [const end] refers to the last row or column in the matrix,
 depending on the context. Indices of the form
 
-[strong end]-[var number] are counted from the end of the row or
+[const end]-[var number] are counted from the end of the row or
 column, like they are for standard Tcl lists. Trying to access
 non-existing cells causes an error.
 
@@ -130,7 +131,7 @@ string containing the result of this operation into the channel. The
 report has to support the [method printmatrix2channel] method.  If no
 [arg report] is specified the system will use an internal report
 definition to format the matrix. If no [arg channel] is specified the
-system will use [strong stdout].
+system will use [const stdout].
 
 [call [arg matrixName] [method {get cell}] [arg {column row}]]
 
@@ -172,7 +173,7 @@ supplied. Without [arg values] the new cells will be set to the empty
 string. The new column is inserted just before the column specified by
 the given index. This means, if [arg column] is less than or equal to
 zero, then the new column is inserted at the beginning of the matrix,
-before the first column. If [arg column] has the value [strong end],
+before the first column. If [arg column] has the value [const end],
 or if it is greater than or equal to the number of columns in the
 matrix, then the new column is appended to the matrix, behind the last
 column. The old column at the chosen index and all columns with higher
@@ -187,7 +188,7 @@ row is inserted just before the row specified by the given index. This
 means, if [arg row] is less than or equal to zero, then the new row is
 inserted at the beginning of the matrix, before the first row. If
 
-[arg row] has the value [strong end], or if it is greater than or
+[arg row] has the value [const end], or if it is greater than or
 equal to the number of rows in the matrix, then the new row is
 appended to the matrix, behind the last row. The old row at that index
 and all rows with higher indices are shifted one index upward.
@@ -199,7 +200,7 @@ contents of all cells in the matrix is stored in the array too, with
 all changes to the matrix propagated there too. The contents of the
 cell [arg (column,row)] is stored in the array using the key
 
-[arg column,row]. If the option [strong -transpose] is specified the
+[arg column,row]. If the option [option -transpose] is specified the
 key [arg row,column] will be used instead. It is possible to link the
 matrix to more than one array. Note that the link is bidirectional,
 i.e. changes to the array are mirrored in the matrix too.
@@ -227,11 +228,11 @@ down.
 
 The type of the pattern (string, glob, regular expression) is
 determined by the option after the [method search] keyword. If no
-option is given it defaults to [strong -exact].
+option is given it defaults to [option -exact].
 
 [nl]
 
-If the option [strong -nocase] is specified the search will be
+If the option [option -nocase] is specified the search will be
 case-insensitive.
 
 [call [arg matrixName] [method search] [opt -nocase] [opt -exact|-glob|-regexp] [method column] [arg {column pattern}]]

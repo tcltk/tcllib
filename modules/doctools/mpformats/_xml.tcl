@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.6 2002/05/27 23:38:16 andreas_kupries Exp $
+# $Id: _xml.tcl,v 1.7 2003/01/19 07:58:44 andreas_kupries Exp $
 #
 # [expand] utilities for generating XML.
 #
@@ -24,10 +24,7 @@ variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} }
 variable finalMap  { {\1&} {&}  {\1<} {<}  {\1>} {>}
 		     {&} &amp;  {<} &lt;   {>} &gt; }
 
-proc HandleText {text} {
-    return $text
-}
-proc PostProcess {text}	{
+proc fmt_postprocess {text}	{
     variable finalMap
     return [string map $finalMap $text]
 }

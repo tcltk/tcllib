@@ -5,7 +5,7 @@
 [require textutil [opt 0.5]]
 [description]
 
-The [strong textutil] package provides commands that manipulate
+The [package textutil] package provides commands that manipulate
 strings or texts (a.k.a. long strings or string with embedded newlines
 or paragraphs).
 
@@ -46,53 +46,53 @@ trailing spaces are ignored before returning the string (see
 
 [lst_item "-full [arg boolean]"]
 
-If set to [strong false], any trailing space chars are deleted before
-returning the string. If set to [strong true], any trailing space
-chars are left in the string. Default to [strong false].
+If set to [const false], any trailing space chars are deleted before
+returning the string. If set to [const true], any trailing space
+chars are left in the string. Default to [const false].
 
 [lst_item "-hyphenate [arg boolean]"]
 
-if set to [strong false], no hyphenation will be done. If set to
-[strong true], the last word of a line is tried to be hyphenated.
-Default to [strong false]. Note: hyphenation patterns must be loaded
+if set to [const false], no hyphenation will be done. If set to
+[const true], the last word of a line is tried to be hyphenated.
+Default to [const false]. Note: hyphenation patterns must be loaded
 prior using the procedure textutil::adjust::readPatterns <filename>;
 where the file named filename contains the TeX hyphenation patterns.
 
-[lst_item "-justify ([strong center|left|plain|right])"]
+[lst_item "-justify ([const center|left|plain|right])"]
 
-Set the justification of the returned string to [strong center],
-[strong left], [strong plain] or [strong right]. By default, it is set
-to [strong left].  The justification means that any line in the
+Set the justification of the returned string to [const center],
+[const left], [const plain] or [const right]. By default, it is set
+to [const left].  The justification means that any line in the
 returned string but the last one is build according to the value. If
-the justification is set to [strong plain] and the number of printable
+the justification is set to [const plain] and the number of printable
 chars in the last line is less than 90% of the length of a line (see
-[arg -length]), then this line is justified with the [strong left]
+[arg -length]), then this line is justified with the [const left]
 value, avoiding the expansion of this line when it is too small. The
 meaning of each value is:
 
 [list_begin definitions]
 
-[lst_item [strong center]]
+[lst_item [const center]]
 
 The real line is centered in the logical line. If needed, a set of
 space char are added at the beginning (half of the needed set) and at
 the end (half of the needed set) of the line if required (see the
 option [arg -full]).
 
-[lst_item [strong left]]
+[lst_item [const left]]
 
 The real line is set on the left of the logical line. It means that
 there are no space chars at the beginning of this line. If required,
 all needed space chars are added at the end of the line (see the
 option [arg -full]).
 
-[lst_item [strong plain]]
+[lst_item [const plain]]
 
 The real line is exactly set in the logical line. It means that there
 are no leading or trailing space chars. All the needed space chars are
 added in the [emph real] line, between 2 (or more) words.
 
-[lst_item [strong right]]
+[lst_item [const right]]
 
 The real line is set on the right of the logical line. It means that
 there are no space chars at the end of this line, and there may be
@@ -105,18 +105,18 @@ some space chars at the beginning, despite of the [arg -full] option.
 Set the length of the [emph logical] line in the string to
 
 [arg integer].  [arg integer] must be a positive integer
-value. Defaults to [emph 72].
+value. Defaults to [const 72].
 
 
 [lst_item "-strictlength [arg boolean]"]
 
-If set to [strong false], a line can exceed the specified
+If set to [const false], a line can exceed the specified
 
 [arg -length] if a single word is longer than [arg -length]. If set to
-[strong true], words that are longer than [arg -length] are split so
+[const true], words that are longer than [arg -length] are split so
 that no line exceeds the specified [arg -length]. Defaults to
 
-[strong false].
+[const false].
 
 [list_end]
 
