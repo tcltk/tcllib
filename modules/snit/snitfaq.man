@@ -3465,7 +3465,7 @@ Use the [cmd pragma] statement.  Each pragma is an option with a
 value; each time you use the [cmd pragma] statement you can set one or
 more of them.
 
-[subsection {How can I get rid of the "info" typemethod?}]
+[subsection {How can I get rid of the "info" type method?}]
 
 Set the [const -hastypeinfo] pragma to [const no]:
 
@@ -3475,9 +3475,9 @@ Set the [const -hastypeinfo] pragma to [const no]:
 }
 }]
 
-Snit will refrain from defining the [method info] typemethod.
+Snit will refrain from defining the [method info] type method.
 
-[subsection {How can I get rid of the "destroy" typemethod?}]
+[subsection {How can I get rid of the "destroy" type method?}]
 
 Set the [const -hastypedestroy] pragma to [const no]:
 
@@ -3487,9 +3487,9 @@ Set the [const -hastypedestroy] pragma to [const no]:
 }
 }]
 
-Snit will refrain from defining the [method destroy] typemethod.
+Snit will refrain from defining the [method destroy] type method.
 
-[subsection {How can I get rid of the "create" typemethod?}]
+[subsection {How can I get rid of the "create" type method?}]
 
 Set the [const -hasinstances] pragma to [const no]:
 
@@ -3499,9 +3499,41 @@ Set the [const -hasinstances] pragma to [const no]:
 }
 }]
 
-Snit will refrain from defining the [method create] typemethod;
+Snit will refrain from defining the [method create] type method;
 if you call the type command with an unknown method name, you'll get
 an error instead of a new instance of the type.
+
+[para]
+
+This is useful if you wish to use a [cmd snit::type] to define
+an ensemble command rather than a type with instances.
+
+[para]
+
+Pragmas [const -hastypemethods] and [const -hasinstances] cannot
+both be false (or there'd be nothing left).
+
+[subsection {How can I get rid of type methods altogether?}]
+
+Normal Tk widget type commands don't have subcommands; all they do is 
+create widgets--in Snit terms, the type command calls the 
+[method create] type method directly.  To get the same behavior from 
+Snit, set the [const -hastypemethods] pragma to [const no]:
+
+[example {snit::type dog {
+    pragma -hastypemethods no
+    #...
+}
+
+# Creates ::spot
+dog spot
+
+# Tries to create an instance called ::create
+dog create spot
+}]
+
+Pragmas [const -hastypemethods] and [const -hasinstances] cannot
+both be false (or there'd be nothing left).
 
 [subsection {Why can't I create an object that replaces an old object with the same name?}]
 

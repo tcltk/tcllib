@@ -660,12 +660,27 @@ called [cmd destroy] that is used to destroy the type and all of its
 instances.  The [cmd destroy] type method is documented below.  If
 false, it will not.
 
+[lst_item "[const -hastypemethods] [arg flag]"]
+
+If true (the default), the generated type's type command will have 
+subcommands (type methods) as usual.  If false, the type command
+will serve only to create instances of the type; the first argument
+is the instance name.
+
+[nl]
+
+This pragma and [const -hasinstances] cannot both be set false.
+
 [lst_item "[const -hasinstances] [arg flag]"]
 
 If true (the default), the generated type will have a type method 
 called [cmd create] that is used to create instances of the type,
 along with a variety of instance-related features.  If false, it will
 not. 
+
+[nl]
+
+This pragma and [const -hastypemethods] cannot both be set false.
 
 [lst_item "[const -hasinfo] [arg flag]"]
 
