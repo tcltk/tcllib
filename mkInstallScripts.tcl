@@ -50,4 +50,11 @@ puts $f "    fi ; \\"
 puts $f "    cp -f \$j/*.n      \$TCLINSTALL/man/mann ; \\"
 puts $f "done"
 close $f
-file attributes $installFile -permissions 0755
+switch -exact $::tcl_platform(platform) {
+    unix {
+	file attributes $installFile -permissions 0755
+    }
+    windows {
+	file attributes $installFile -readonly 1
+    }
+}
