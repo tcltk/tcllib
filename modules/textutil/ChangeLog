@@ -1,0 +1,6 @@
+2000-07-01  Eric Melski  <ericm@ajubasolutions.com>
+
+	* pkgIndex.tcl: Standard package index.
+
+	* textutil.tcl: Added [package provide]; no actual functions yet, just the
+	package stub.
