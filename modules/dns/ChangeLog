@@ -1,3 +1,8 @@
+2004-07-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* spf.tcl:       Updated to draft-ietf-marid-protocol-00 document.
+	* spf.test:      Fully implements section 7 macro expansion.
+
 2004-07-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* spf.tcl:       Use ip package and implemented IPv6 type.
