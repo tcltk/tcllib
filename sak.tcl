@@ -267,6 +267,7 @@ proc __help {} {
 	name     - Return tcllib package name
 
 	/Development
+	modules          - Return list of modules.
 	validate         - Check various parts of tcllib for problems.
 	test ?module...? - Run testsuite for listed modules.
 	                   For all modules if none specified.
@@ -296,6 +297,9 @@ proc __major   {} {global tcllib_version ; puts [lindex [split $tcllib_version .
 
 # --------------------------------------------------------------
 # Development
+
+proc __modules {} {puts [modules]}
+
 
 proc __test {} {
     global argv distribution

@@ -1,5 +1,15 @@
 2003-04-17  Andreas Kupries  <andreask@activestate.com>
 
+	* configure.in: Switched over from the original build system
+	* configure:    to one where configure/Makefile are optional
+	* Makefile.in:  and delegating all real work to 'sak.tcl'.
+	* INSTALL.txt:  Updated documentation, reduced configure macros.
+	* aclocal.m4:
+	* sak.tcl:
+	* devdoc/releaseguide.html:
+
+2003-04-17  Andreas Kupries  <andreask@activestate.com>
+
 	* installer.tcl: Bug fixes in non-gui mode, added option to force
 	  cmdline mode.
 	
