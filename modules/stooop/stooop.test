@@ -1,7 +1,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.3 2001/11/29 16:51:53 jfontain Exp $
+# $Id: stooop.test,v 1.4 2001/12/19 11:58:22 jfontain Exp $
 
 if {[lsearch [namespace children] ::tcltest]<0} {
     package require tcltest
@@ -8875,46 +8875,46 @@ test stooop-94 {
     interp delete $interpreter
     set result
 } [list\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in main script}\
-    {+ ::a(2) created in ::p}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in main script}\
-    {+ ::a(2) created in ::p}\
-    {+ ::a(3) created in ::n::p}\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {- ::a(1) created in main script}\
-    {stooop::report invoked from main script:}\
-    {- ::a(1) created in main script}\
-    {- ::a(2) created in ::p}\
-    {stooop::report invoked from main script:}\
-    {- ::a(1) created in main script}\
-    {- ::a(2) created in ::p}\
-    {- ::a(3) created in ::n::p}\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::A(4) created in main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::A(4) created in main script}\
-    {+ ::A(5) created in ::q}\
-    {stooop::report invoked from main script:}\
-    {+ ::A(4) created in main script}\
-    {+ ::A(5) created in ::q}\
-    {+ ::A(6) created in ::m::q}\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {- ::A(4) created in main script}\
-    {stooop::report invoked from main script:}\
-    {- ::A(4) created in main script}\
-    {- ::A(5) created in ::q}\
-    {stooop::report invoked from main script:}\
-    {- ::A(4) created in main script}\
-    {- ::A(5) created in ::q}\
-    {- ::A(6) created in ::m::q}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + top level}\
+    {+ ::a(2) + ::p}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + top level}\
+    {+ ::a(2) + ::p}\
+    {+ ::a(3) + ::n::p}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {- ::a(1) - top level + top level}\
+    {stooop::report invoked from top level:}\
+    {- ::a(1) - top level + top level}\
+    {- ::a(2) - top level + ::p}\
+    {stooop::report invoked from top level:}\
+    {- ::a(1) - top level + top level}\
+    {- ::a(2) - top level + ::p}\
+    {- ::a(3) - top level + ::n::p}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::A(4) + top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::A(4) + top level}\
+    {+ ::A(5) + ::q}\
+    {stooop::report invoked from top level:}\
+    {+ ::A(4) + top level}\
+    {+ ::A(5) + ::q}\
+    {+ ::A(6) + ::m::q}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {- ::A(4) - top level + top level}\
+    {stooop::report invoked from top level:}\
+    {- ::A(4) - top level + top level}\
+    {- ::A(5) - top level + ::q}\
+    {stooop::report invoked from top level:}\
+    {- ::A(4) - top level + top level}\
+    {- ::A(5) - top level + ::q}\
+    {- ::A(6) - top level + ::m::q}\
 ]
 
 test stooop-95 {
@@ -8964,21 +8964,21 @@ test stooop-95 {
     interp delete $interpreter
     set result
 } [list\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in namespace ::n}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in namespace ::n}\
-    {+ ::a(2) created in ::n::p}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in namespace ::n}\
-    {+ ::a(2) created in ::n::p}\
-    {+ ::a(3) created in namespace ::n::m}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in namespace ::n}\
-    {+ ::a(2) created in ::n::p}\
-    {+ ::a(3) created in namespace ::n::m}\
-    {+ ::a(4) created in ::n::m::q}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + namespace ::n}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + namespace ::n}\
+    {+ ::a(2) + ::n::p}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + namespace ::n}\
+    {+ ::a(2) + ::n::p}\
+    {+ ::a(3) + namespace ::n::m}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + namespace ::n}\
+    {+ ::a(2) + ::n::p}\
+    {+ ::a(3) + namespace ::n::m}\
+    {+ ::a(4) + ::n::m::q}\
 ]
 
 test stooop-96 {
@@ -9034,14 +9034,14 @@ test stooop-96 {
     interp delete $interpreter
     set result
 } [list\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::b(1) created in main script}\
-    {+ ::c(2) created in ::b::b}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::b(1) + top level}\
+    {+ ::c(2) + ::b::b}\
     {stooop::record invoked from namespace ::A}\
     {stooop::report invoked from namespace ::A:}\
-    {+ ::A::b(3) created in namespace ::A}\
-    {+ ::c(4) created in ::A::b::b}\
+    {+ ::A::b(3) + namespace ::A}\
+    {+ ::c(4) + ::A::b::b}\
 ]
 
 test stooop-97 {
@@ -9092,13 +9092,13 @@ test stooop-97 {
 } [list\
     {stooop::record invoked from ::n::p}\
     {stooop::report invoked from ::n::p:}\
-    {+ ::a(1) created in ::n::p}\
+    {+ ::a(1) + ::n::p}\
     {stooop::record invoked from ::n::m::q}\
     {stooop::report invoked from ::n::m::q:}\
-    {+ ::a(2) created in ::n::m::q}\
+    {+ ::a(2) + ::n::m::q}\
     {stooop::record invoked from namespace ::n}\
     {stooop::report invoked from namespace ::n:}\
-    {+ ::a(3) created in namespace ::n}\
+    {+ ::a(3) + namespace ::n}\
 ]
 
 test stooop-98 {
@@ -9131,12 +9131,12 @@ test stooop-98 {
     interp delete $interpreter
     set result
 } [list\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::a(1) created in main script}\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {- ::a(1) created in main script}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::a(1) + top level}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {- ::a(1) - top level + top level}\
 ]
 
 test stooop-99 {
@@ -9208,38 +9208,38 @@ test stooop-99 {
     interp delete $interpreter
     set result
 } [list\
-    {stooop::printObjects invoked from main script:}\
-    {stooop::printObjects invoked from main script:}\
-    {::a(1) created in main script}\
-    {stooop::printObjects invoked from main script:}\
-    {::a(1) created in main script}\
-    {::a(2) created in ::p}\
-    {stooop::printObjects invoked from main script:}\
-    {::a(1) created in main script}\
-    {::a(2) created in ::p}\
-    {::a(3) created in ::n::p}\
-    {stooop::printObjects invoked from main script:}\
-    {::a(2) created in ::p}\
-    {::a(3) created in ::n::p}\
-    {stooop::printObjects invoked from main script:}\
-    {::a(3) created in ::n::p}\
-    {stooop::printObjects invoked from main script:}\
-    {stooop::printObjects invoked from main script:}\
-    {stooop::printObjects invoked from main script:}\
-    {::A(4) created in main script}\
-    {stooop::printObjects invoked from main script:}\
-    {::A(4) created in main script}\
-    {::A(5) created in ::q}\
-    {stooop::printObjects invoked from main script:}\
-    {::A(4) created in main script}\
-    {::A(5) created in ::q}\
-    {::A(6) created in ::m::q}\
-    {stooop::printObjects invoked from main script:}\
-    {::A(5) created in ::q}\
-    {::A(6) created in ::m::q}\
-    {stooop::printObjects invoked from main script:}\
-    {::A(6) created in ::m::q}\
-    {stooop::printObjects invoked from main script:}\
+    {stooop::printObjects invoked from top level:}\
+    {stooop::printObjects invoked from top level:}\
+    {::a(1) + top level}\
+    {stooop::printObjects invoked from top level:}\
+    {::a(1) + top level}\
+    {::a(2) + ::p}\
+    {stooop::printObjects invoked from top level:}\
+    {::a(1) + top level}\
+    {::a(2) + ::p}\
+    {::a(3) + ::n::p}\
+    {stooop::printObjects invoked from top level:}\
+    {::a(2) + ::p}\
+    {::a(3) + ::n::p}\
+    {stooop::printObjects invoked from top level:}\
+    {::a(3) + ::n::p}\
+    {stooop::printObjects invoked from top level:}\
+    {stooop::printObjects invoked from top level:}\
+    {stooop::printObjects invoked from top level:}\
+    {::A(4) + top level}\
+    {stooop::printObjects invoked from top level:}\
+    {::A(4) + top level}\
+    {::A(5) + ::q}\
+    {stooop::printObjects invoked from top level:}\
+    {::A(4) + top level}\
+    {::A(5) + ::q}\
+    {::A(6) + ::m::q}\
+    {stooop::printObjects invoked from top level:}\
+    {::A(5) + ::q}\
+    {::A(6) + ::m::q}\
+    {stooop::printObjects invoked from top level:}\
+    {::A(6) + ::m::q}\
+    {stooop::printObjects invoked from top level:}\
 ]
 
 test stooop-100 {
@@ -9286,26 +9286,26 @@ test stooop-100 {
     interp delete $interpreter
     set result
 } [list\
-    {stooop::record invoked from main script}\
-    {stooop::printObjects invoked from main script:}\
-    {::aa(1) created in main script}\
-    {::ab(2) created in main script}\
-    {stooop::printObjects invoked from main script:}\
-    {::ab(2) created in main script}\
-    {::bb(3) created in main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::aa(1) created in main script}\
-    {+ ::ab(2) created in main script}\
-    {stooop::report invoked from main script:}\
-    {+ ::ab(2) created in main script}\
-    {+ ::bb(3) created in main script}\
-    {stooop::record invoked from main script}\
-    {stooop::report invoked from main script:}\
-    {- ::aa(1) created in main script}\
-    {- ::ab(2) created in main script}\
-    {stooop::report invoked from main script:}\
-    {- ::ab(2) created in main script}\
-    {- ::bb(3) created in main script}\
+    {stooop::record invoked from top level}\
+    {stooop::printObjects invoked from top level:}\
+    {::aa(1) + top level}\
+    {::ab(2) + top level}\
+    {stooop::printObjects invoked from top level:}\
+    {::ab(2) + top level}\
+    {::bb(3) + top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::aa(1) + top level}\
+    {+ ::ab(2) + top level}\
+    {stooop::report invoked from top level:}\
+    {+ ::ab(2) + top level}\
+    {+ ::bb(3) + top level}\
+    {stooop::record invoked from top level}\
+    {stooop::report invoked from top level:}\
+    {- ::aa(1) - top level + top level}\
+    {- ::ab(2) - top level + top level}\
+    {stooop::report invoked from top level:}\
+    {- ::ab(2) - top level + top level}\
+    {- ::bb(3) - top level + top level}\
 ]
 
 test stooop-101 {
