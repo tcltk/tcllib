@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.2.2.1 2004/05/24 02:58:12 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.2.2.2 2004/08/05 05:43:08 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -201,36 +201,44 @@ proc ::struct::set::Intersect {A B} {
 # Side effects:
 #       None.
 
-if {[package vcompare [package provide Tcl] 8.4] < 0} {
-    # Tcl 8.[23]. Use explicit array to perform the operation.
+proc ::struct::set::Sdifference {A B} {
+    if {[llength $A] == 0} {return {}}
+    if {[llength $B] == 0} {return $A}
 
-    proc ::struct::set::Sdifference {A B} {
-	if {[llength $A] == 0} {return {}}
-	if {[llength $B] == 0} {return $A}
+    array set tmp {}
+    foreach x $A {::set tmp($x) .}
+    foreach x $B {catch {unset tmp($x)}}
+    return [array names tmp]
+}
 
-	array set tmp {}
-	foreach x $A {::set tmp($x) .}
-	foreach x $B {catch {unset tmp($x)}}
-	return [array names tmp]
-    }
+if 0 {
+    # Tcllib SF Bug 1002143. We cannot use the implementation below.
+    # It will treat set elements containing '(' and ')' as array
+    # elements, and this screws up the storage of elements as the name
+    # of local vars something fierce. No way around this. Disabling
+    # this code and always using the other implementation (s.a.) is
+    # the only possible fix.
 
-} else {
-    # Tcl 8.4+, has 'unset -nocomplain'
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+	# Tcl 8.[23]. Use explicit array to perform the operation.
+    } else {
+	# Tcl 8.4+, has 'unset -nocomplain'
 
-    proc ::struct::set::Sdifference {A B} {
-	if {[llength $A] == 0} {return {}}
-	if {[llength $B] == 0} {return $A}
+	proc ::struct::set::Sdifference {A B} {
+	    if {[llength $A] == 0} {return {}}
+	    if {[llength $B] == 0} {return $A}
 
-	# Get the variable B out of the way, avoid collisions
-	# prepare for "pure list optimization"
-	::set ::struct::set::tmp [lreplace $B -1 -1 unset -nocomplain]
-	unset B
+	    # Get the variable B out of the way, avoid collisions
+	    # prepare for "pure list optimization"
+	    ::set ::struct::set::tmp [lreplace $B -1 -1 unset -nocomplain]
+	    unset B
 
-	# unset A early: no local variables left
-	foreach [lindex [list $A [unset A]] 0] {.} {break}
+	    # unset A early: no local variables left
+	    foreach [lindex [list $A [unset A]] 0] {.} {break}
 
-	eval $::struct::set::tmp
-	return [info locals]
+	    eval $::struct::set::tmp
+	    return [info locals]
+	}
     }
 }
 

@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.3 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.3.2.1 2004/08/05 05:43:08 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -227,6 +227,18 @@ test set-6.7 {difference} {
 test set-6.8 {difference} {
     lsort [setop difference $sd $sa]
 } {e f}
+
+test set-6.9 {difference} {
+    lsort [setop difference \
+	    [list "Washington, DC (District of Columbia)" Maryland Virginia] \
+	    [list "Washington, DC (District of Columbia)" Virginia]]
+} Maryland
+
+test set-6.10 {difference} {
+    lsort [setop difference \
+	    [list DC Maryland Virginia] \
+	    [list DC Virginia]]
+} Maryland
 
 
 test set-7.0 {symdiff} {
