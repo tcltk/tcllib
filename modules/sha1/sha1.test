@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1.test,v 1.6 2005/02/20 22:58:58 patthoyts Exp $
+# RCS: @(#) $Id: sha1.test,v 1.7 2005/02/21 10:01:52 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -188,6 +188,33 @@ test sha1-6.3 {Check hashing data that begins with hyphen} {
 test sha1-6.4 {Check hashing data that begins with hyphen} {
     list [catch {::sha1::hmac -hex -key - --} msg] $msg
 } {0 01c134b54ab872941acfce0cf3202f16ee64fb14}
+
+# -------------------------------------------------------------------------
+
+set testfile [makeFile {} sha1[pid].data]
+
+# pattern repeatcount sha1-hash
+set vectors \
+    [list \
+         0 "\x00" 81922 a9fb4910179d5088ab606944ca0216e4403a5141 \
+         1 "\x5a" 81920 fef13bbee20792b7b2e65f15d5e4dd6ae04e2323 \
+         2 "\x01\x23\x45\x67\x89\xab\xcd\xef" 2048 \
+           846b9be26036a0b3c16a32805b5f3a85f8d0e0f5 \
+         ]
+
+foreach {n pattern repeat hash} $vectors {
+    test sha1-7.$n "file hashing" {
+        list [catch {
+            set f [open $testfile w]
+            fconfigure $f -encoding binary -translation binary
+            puts -nonewline $f [string repeat $pattern $repeat]
+            close $f
+            sha1::sha1 -hex -file $testfile
+        } msg] $msg
+    } [list 0 $hash]
+}
+
+removeFile $testfile
 
 # -------------------------------------------------------------------------
 
