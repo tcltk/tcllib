@@ -1,6 +1,7 @@
 2003-01-08  David N. Welton  <davidw@dedasys.com>
 
 	* irc.tcl: Make sure 'api' commands return strings, not lists.
+	(DispatchServerEvent): Add a missing join, to keep
 
 2002-12-16  David N. Welton  <davidw@dedasys.com>
 
