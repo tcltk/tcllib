@@ -29,10 +29,19 @@ set ::tcl_precision 17
 #
 proc matchNumbers {expected actual} {
     set match 1
-    foreach a [join $actual] e [join $expected] {
-        if {abs($a-$e) > 0.1e-6} {
-            set match 0
-            break
+    if { [llength [lindex $expected 0]] > 1 } {
+        foreach a $actual e $expected {
+            set match [matchNumbers $e $a]
+            if { $match == 0 } {
+                break
+            }
+        }
+    } else {
+        foreach a $actual e $expected {
+            if {abs($a-$e) > 0.1e-6} {
+                set match 0
+                break
+            }
         }
     }
     return $match
@@ -63,6 +72,18 @@ test dimshape-2.1 "shape of vector" -body {
 test dimshape-2.2 "shape of matrix" -body {
     shape { {1 2 3} {4 5 6} }
 } -result {2 3}
+
+test symmetric-1.0 "non-symmetric matrix" -body {
+    symmetric { {1 2 3} {4 5 6} {7 8 9}}
+} -result 0
+
+test symmetric-1.1 "symmetric matrix" -body {
+    symmetric { {1 2 3} {2 1 4} {3 4 1}}
+} -result 1
+
+test symmetric-1.1 "non-square matrix" -body {
+    symmetric { {1 2 3} {2 1 4}}
+} -result 0
 
 test norm-1.0 "one-norm - 5 components" -match numbers -body {
     norm {1 2 3 0 -1} 1
@@ -96,6 +117,18 @@ test norm-1.7 "max-norm - 2 components" -match numbers -body {
     norm {1 -1} max
 } -result 1
 
+test norm-2.0 "matrix-norm - 2x2 - max" -match numbers -body {
+    normMatrix {{1 -1} {1 1}} max
+} -result 1
+
+test norm-2.1 "matrix-norm - 2x2 - 1" -match numbers -body {
+    normMatrix {{1 -1} {1 1}} 1
+} -result 4
+
+test norm-2.2 "matrix-norm - 2x2 - 2" -match numbers -body {
+    normMatrix {{1 -1} {1 1}} 2
+} -result 2
+
 test dotproduct-1.0" "dot-product - 2 components" -match numbers -body {
     dotproduct {1 -1} {1 -1}
 } -result 2.0
@@ -104,12 +137,12 @@ test dotproduct-1.1" "dot-product - 5 components" -match numbers -body {
     dotproduct {1 2 3 4 5} {5 4 3 2 1}
 } -result [expr {5.0+8+9+8+5}]
 
-test normalize-1.0" "normalize - 2 components" -match numbers -body {
-    normalize {3 4}
+test unitlength-1.0" "unitlength - 2 components" -match numbers -body {
+    unitLengthVector {3 4}
 } -result {0.6 0.8}
 
-test normalize-1.1" "normalize - 4 components" -match numbers -body {
-    normalize {1 1 1 1}
+test unitlength-1.1" "unitlength - 4 components" -match numbers -body {
+    unitLengthVector {1 1 1 1}
 } -result {0.5 0.5 0.5 0.5}
 
 test axpy-1.0 "axpy - vectors" -body {
@@ -233,6 +266,16 @@ test getset-3.3 "setelem - set element (1,2) in a matrix" -body {
     setelem M 1 2 100
 } -result {{1 2 3} {4 5 100} {7 8 9} {10 11 12}}
 
+test getset-4.0 "getelem - get element 1 from a vector" -body {
+    set V {1 2 3}
+    getelem $V 1
+} -result 2
+
+test getset-4.1 "setelem - set element 1 in a vector" -body {
+    set V {1 2 3}
+    setelem V 1 4
+} -result {1 4 3}
+
 test rotate-1.0 "rotate - over 90 degrees" -body {
     set v1 {1 2 3}
     set v2 {4 5 6}
@@ -244,6 +287,24 @@ test rotate-1.1 "rotate - over 180 degrees" -body {
     set v2 {7 8 9 10 11 12}
     rotate -1 0 $v1 $v2
 } -result {{-1 -2 -3 -4 -5 -6} {-7 -8 -9 -10 -11 -12}}
+
+test solve-1.1 "solveGauss - 2x2 matrix" -match numbers -body {
+    set b {{2 3} {-2 3}}
+    set M {{2 3} {-2 3}}
+    solveGauss $M $b
+} -result {{1 0} {0 1}}
+
+test solve-1.2 "solveGauss - 3x3 matrix" -match numbers -body {
+    set b {{2 3 4} {-2 3 4} {1 1 1}}
+    set M {{2 3 4} {-2 3 4} {1 1 1}}
+    solveGauss $M $b
+} -result {{1 0 0} {0 1 0} {0 0 1}}
+
+test solve-1.3 "solveGauss - 3x3 matrix - less trivial" -match numbers -body {
+    set b {{6 -3 6} {2 -3 2} {2 -1 2}}
+    set M {{2 3 4} {-2 3 4} {1 1 1}}
+    solveGauss $M $b
+} -result {{1 0 1} {0 -1 0} {1 0 1}}
 
 #
 # Check the result by multiplying U*S*Vtrans and compare
