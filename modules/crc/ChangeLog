@@ -1,3 +1,9 @@
+2002-01-16  Pat Thoyts  <Pat.Thoyts@bigfoot.com>
+
+	* crc32.tcl: added -seed and -implementation options.
+	* crc32.n: updated for the -seed and -impl options
+	* crc32.test: added tests for the -seed and -impl options.
+
 2002-01-15  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sum.tcl: initial version of crc::sum command
