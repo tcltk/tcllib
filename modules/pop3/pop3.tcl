@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.25 2003/04/11 20:07:24 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.26 2003/11/19 06:23:07 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -94,8 +94,10 @@ proc ::pop3::close {chan} {
 #       May throw errors from the server.
 
 proc ::pop3::delete {chan start {end -1}} {
-    
-    set count [lindex [::pop3::status $chan] 0]
+
+    variable state
+    array set  cstate $state($chan)
+    set count $cstate(limit)
     set last 0
     catch {set last [::pop3::last $chan]}
 
@@ -224,7 +226,7 @@ proc ::pop3::list {chan {msg ""}} {
 
 proc ::pop3::open {args} {
     variable state
-    array set cstate {msex 0 retr_mode retr}
+    array set cstate {msex 0 retr_mode retr limit {}}
 
     log::log debug "pop3::open | [join $args]"
 
@@ -307,6 +309,16 @@ proc ::pop3::open {args} {
 	error "POP3 LOGIN ERROR: $errorStr"
     }
 
+    # [ 833486 ] Can't delete messages one at a time ...
+    # Remember the number of messages in the maildrop at the beginning
+    # of the session. This gives us the highest possible number for
+    # message ids later. Note that this number must not be affected
+    # when deleting mails later. While the number of messages drops
+    # down the limit for the message id's stays the same. The messages
+    # are not renumbered before the session actually closed.
+
+    set cstate(limit) [lindex [::pop3::status $chan] 0]
+
     # Remember the state.
 
     set state($chan) [array get cstate]
@@ -341,7 +353,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
     variable state
     array set cstate $state($chan)
     
-    set count [lindex [::pop3::status $chan] 0]
+    set count $cstate(limit)
     set last 0
     catch {set last [::pop3::last $chan]}
 

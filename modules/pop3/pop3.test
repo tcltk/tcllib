@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.10 2003/05/02 07:42:06 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.11 2003/11/19 06:23:07 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -53,6 +53,12 @@ lappend __loginOk \
 	{Respond {+OK please send PASS command}} \
 	{Respond {+OK congratulations}}
 
+set     __loginStatusOk $__Init
+lappend __loginStatusOk \
+	{Respond {+OK please send PASS command}} \
+	{Respond {+OK congratulations}} \
+	{Respond {+OK 11 176}}
+
 set     __loginFailed $__Init
 lappend __loginFailed \
 	{Respond {+OK please send PASS command}} \
@@ -64,7 +70,7 @@ lappend __loginFailedLock \
 	{Respond {-ERR could not aquire lock for maildrop ak}}
 
 
-set     __statusOk $__loginOk
+set     __statusOk $__loginStatusOk
 lappend __statusOk \
 	{Respond {+OK 11 176}}
 
@@ -72,11 +78,11 @@ set     __statusOkQuit $__statusOk
 lappend __statusOkQuit \
 	{Respond {+OK localhost muserv shutting down}}
 
-set     __lastFailed $__loginOk
+set     __lastFailed $__loginStatusOk
 lappend __lastFailed \
 	{Respond {-ERR unknown command 'LAST'}}
 
-set     __uidlFailed $__loginOk
+set     __uidlFailed $__loginStatusOk
 lappend __uidlFailed \
 	{Respond {-ERR unknown command 'UIDL'}}
 
@@ -85,7 +91,7 @@ lappend __retrFail \
 	{Respond {-ERR unknown command 'LAST'}} \
 	{Respond {+OK localhost muserv shutting down}}
 
-set     __topFail $__loginOk
+set     __topFail $__loginStatusOk
 lappend __topFail \
 	{Respond {-ERR no such message}} \
 	{Respond {+OK localhost muserv shutting down}}
@@ -134,8 +140,8 @@ proc retrMessage {list msg {n {}}} {
 }
 
 proc topMessage {msg} {
-    global       __loginOk
-    set     res $__loginOk
+    global       __loginStatusOk
+    set     res $__loginStatusOk
     lappend res \
 	    {Respond +OK} \
 	    [message $msg] \
@@ -145,14 +151,13 @@ proc topMessage {msg} {
 }
 
 proc deleDialog {} {
-    global       __loginOk
-    set     res $__loginOk
+    global       __loginStatusOk
+    set     res $__loginStatusOk
     lappend res \
 	    {RespondLog {+OK 11 176}}
 
     foreach n {1 2 3 4 5 6 7 8 9 10 11} {
 	lappend res \
-		{RespondLog {+OK 11 176}} \
 		{RespondLog {-ERR unknown command 'LAST'}} \
 		{RespondLog {+OK 6 octets}} \
 		{Send       {Content-Type: text/plain;}} \
@@ -160,7 +165,6 @@ proc deleDialog {} {
 		{Send       {}} \
 		{Send       {    }} \
 		{Send       {.}} \
-		{RespondLog {+OK 11 176}} \
 		{RespondLog {-ERR unknown command 'LAST'}} \
 		"RespondLog {+OK message $n deleted}"
     }
@@ -263,7 +267,7 @@ test pop3-0.7 {unknown user} {
 } {POP3 LOGIN ERROR:  authentication failed, sorry}
 
 test pop3-0.8 {open pop3 channel} {
-    set port [setupServer $__loginOk]
+    set port [setupServer $__loginStatusOk]
     set psock [pop3::open localhost ak smash $port]
     close $psock
     ::subserv::muservStop
@@ -272,10 +276,10 @@ test pop3-0.8 {open pop3 channel} {
     # the prescribed api command.
     lappend msg [peek $psock]
     set msg
-} {sock {msex 0 retr_mode retr}}
+} {sock {limit 11 msex 0 retr_mode retr}}
 
 test pop3-0.9 {outside close} {
-    set port [setupServer $__loginOk]
+    set port [setupServer $__loginStatusOk]
     set psock [pop3::open localhost ak smash $port]
     close $psock
     catch {pop3::close $psock} msg
@@ -298,7 +302,7 @@ test pop3-0.10 {multiple open pop3 channel to same maildrop} {
 # ----------------------------------------------------------------------
 
 test pop3-1.0 {status after cut} {
-    set port  [setupServer $__loginOk]
+    set port  [setupServer $__loginStatusOk]
     set psock [pop3::open localhost ak smash $port]
     close $psock
     catch {pop3::status $psock} msg
@@ -307,7 +311,7 @@ test pop3-1.0 {status after cut} {
 } {POP3 STAT ERROR: can not find channel named "SOCK"}
 
 test pop3-1.1 {status after close} {
-    set port  [setupServer $__loginOk]
+    set port  [setupServer $__loginStatusOk]
     set psock [pop3::open localhost ak smash $port]
     pop3::close $psock
     catch {pop3::status $psock} msg
@@ -323,7 +327,7 @@ test pop3-1.2 {status ok} {
     pop3::close $psock
     ::subserv::muservStop
     set status
-} {11 176 {msex 0 retr_mode retr}}
+} {11 176 {limit 11 msex 0 retr_mode retr}}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
@@ -482,7 +486,6 @@ test pop3-3.5 {top} {
 test pop3-5.0 {get and delete all message, nano-client} {
     set res ""
     set port  [setupServer [deleDialog]]
-
     set psock [pop3::open -retr-mode slow localhost ak smash $port]
     set x [lindex [pop3::status $psock] 0]
     lappend res $x
@@ -496,7 +499,7 @@ test pop3-5.0 {get and delete all message, nano-client} {
     lappend res [::subserv::muservLog]
     ::subserv::muservStop
     set res
-} {11 67 67 67 67 67 67 67 67 67 67 67 {STAT STAT LAST {RETR 1} STAT LAST {DELE 1} STAT LAST {RETR 2} STAT LAST {DELE 2} STAT LAST {RETR 3} STAT LAST {DELE 3} STAT LAST {RETR 4} STAT LAST {DELE 4} STAT LAST {RETR 5} STAT LAST {DELE 5} STAT LAST {RETR 6} STAT LAST {DELE 6} STAT LAST {RETR 7} STAT LAST {DELE 7} STAT LAST {RETR 8} STAT LAST {DELE 8} STAT LAST {RETR 9} STAT LAST {DELE 9} STAT LAST {RETR 10} STAT LAST {DELE 10} STAT LAST {RETR 11} STAT LAST {DELE 11} QUIT}}
+} {11 67 67 67 67 67 67 67 67 67 67 67 {STAT LAST {RETR 1} LAST {DELE 1} LAST {RETR 2} LAST {DELE 2} LAST {RETR 3} LAST {DELE 3} LAST {RETR 4} LAST {DELE 4} LAST {RETR 5} LAST {DELE 5} LAST {RETR 6} LAST {DELE 6} LAST {RETR 7} LAST {DELE 7} LAST {RETR 8} LAST {DELE 8} LAST {RETR 9} LAST {DELE 9} LAST {RETR 10} LAST {DELE 10} LAST {RETR 11} LAST {DELE 11} QUIT}}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------

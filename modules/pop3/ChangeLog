@@ -1,3 +1,16 @@
+2003-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.tcl (pop3::open): Remembering initial count of messages, as
+	  limit for message ids.
+	  (pop3::delete): Replaced [status] call with access to stored
+	  limit for validation of message ids.
+	  (pop3::retrieve): Ditto.
+	  The changes above fix [SF Tcllib Bug 833486].
+
+	* pop3.test: Updated testsuite to the changes in the sequences of
+	  pop3 commands (New STAT after PASS, and no STAT before
+	  LAST/RETR, nor before LAST/DELE).
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
