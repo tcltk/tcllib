@@ -1,3 +1,10 @@
+2004-10-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: Made verbosity easier to switch, and log output a
+	  bit more readable.
+
+	* pop3d.tcl:  Made prefix strings of log output consistent.
+
 2004-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: Rewritten to use the new facilities for programmed

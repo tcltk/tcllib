@@ -1,3 +1,10 @@
+2004-10-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dialog.tcl: More log output for better tracing of the
+	  internals. Especially added trace when receiving an incomplete
+	  line while waiting for data from the peer. Added code to clean
+	  up old connections, prevent leakage of channel handles.
+
 2004-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* muserv.tcl:  Removed the old facilities for sub processes
