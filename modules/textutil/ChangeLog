@@ -1,3 +1,7 @@
+2003-01-27  Andreas Kupries  <andreask@activestate.com>
+
+	* expander.man: Fixed typo in documentation.
+
 2003-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* adjust_hyph.test: Rewrote the file into a proper testsuite.
