@@ -1564,7 +1564,7 @@ proc mime::copymessageaux {token channel} {
                     set converter $encoding
                 }
 		7bit - 8bit - binary - "" {
-		    # Bugfix for [#477088]
+		    # Bugfix for [#477088], also [#539952]
 		    # Go ahead
 		}
 		default {

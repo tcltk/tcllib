@@ -1005,6 +1005,12 @@ proc smtp::wdata {token command buffer} {
             incr state(size) [string length $result]
             return $result
         }
+
+        create/read - 
+        delete/read {
+	    # Bugfix for [#539952]
+        }
+
 	default {
 	    error "Unknown command \"$command\""
 	}
