@@ -1,6 +1,9 @@
 2004-05-07  Andreas Kupries  <andreask@activestate.com>
 
-	* New module: png querying and manipulation.
+	* New module for querying JPEG images, and manipulating their
+	  comments.
+
+	* New module: PNG querying and manipulation.
 
 2004-05-04  Andreas Kupries  <andreask@activestate.com>
 
