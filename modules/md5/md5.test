@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5.test,v 1.6 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: md5.test,v 1.7 2004/02/13 06:51:37 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -40,6 +40,19 @@ if {[catch {package present Trf}] || [catch {::md5 -- test}]} {
     puts "- md5 [package present md5] (pure Tcl)"
 } else {
     puts "- md5 [package present md5] (Trf based)"
+}
+
+# -------------------------------------------------------------------------
+# Service procedure to develop the error message for "wrong # args"
+
+proc wrongNumArgs {name arglist count} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+	set arg [lindex $arglist $count]
+	set msg "no value given for parameter \"$arg\" to \"$name\""
+    } else {
+	set msg "wrong # args: should be \"$name $arglist\""
+    }
+    return $msg
 }
 
 # -------------------------------------------------------------------------
