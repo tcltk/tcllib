@@ -657,6 +657,13 @@ called [cmd create] that is used to create instances of the type,
 along with a variety of instance-related features.  If false, it will
 not. 
 
+[lst_item "[const -hasinfo] [arg flag]"]
+
+If true (the default), instances of the generated type will have 
+an instance method called [method info] that is used for 
+instance introspection; the [method info]
+method is documented below.  If false, it will not.
+
 [list_end]
 
 [call [cmd expose] [arg comp]]
