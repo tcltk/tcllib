@@ -2977,6 +2977,24 @@ test dmethod-4.4 {redefinition is OK} {} {
     spot wag tail
 } {wags tail briskly}
 
+test dmethod-4.5 {all tokens are used by default} {} {
+    cleanup
+
+    type tail {
+        method {wag tail}    {} {return "wags tail"}
+    }
+
+    type dog {
+        constructor {} {
+            set tail [tail]
+        }
+        delegate method {wag tail} to tail
+    }
+
+    dog spot
+    spot wag tail
+} {wags tail}
+
 test dmethod-5.1 {prefix/method collision} {} {
     cleanup
 
