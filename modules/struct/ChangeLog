@@ -1,3 +1,8 @@
+2003-02-25  David N. Welton  <davidw@dedasys.com>
+
+	* matrix.tcl: Require Tcl 8.2 because of string map.  Use string
+	map instead of regexp.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.man: More semantic markup, less visual one.
