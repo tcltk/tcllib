@@ -1,5 +1,10 @@
 2004-05-04  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/fmt.html: Implemented [SF Tcllib RFE 772491]. Added
+	  the generation of a table of contents at the beginning of the
+	  html output for quick jumps to the various parts of the
+	  documentation.
+
 	* checker.tcl:         Accepted [SF Tcllib RFE 946856], an
 	* doctools_fmt.man:    extension of the uri command to allow
 	* doctools.tcl:        labels. Updated documentation, added

@@ -190,6 +190,8 @@ proc NYI {{message {}}} {
 # Cross-reference tracking (for a single file).
 #
 global SectionNames	;# array mapping 'section name' to 'reference id'
+global SectionList      ;# List of sections and their ids, in order.
+set    SectionList {}
 
 # sectionId --
 #	Format section name as an XML ID.
