@@ -1,0 +1,5 @@
+2002-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module. Pop3 server, and associated objects for simple user
+	  and mailbox management. No testsuite yet. Testsuite will be
+	  written in conjunction with testsuite for pop3 module.
