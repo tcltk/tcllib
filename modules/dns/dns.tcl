@@ -20,18 +20,50 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.4 2002/08/31 06:27:47 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.5 2003/01/25 21:05:52 patthoyts Exp $
 
+package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
-    variable version 1.0.1
-    variable rcsid {$Id: dns.tcl,v 1.4 2002/08/31 06:27:47 andreas_kupries Exp $}
+    variable version 1.0.2
+    variable rcsid {$Id: dns.tcl,v 1.5 2003/01/25 21:05:52 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup
+
+    variable options
+    if {![info exists options]} {
+        array set options {
+            port       53
+            timeout    30000
+            protocol   tcp
+            search     {}
+            nameserver {localhost}
+            loglevel   warning
+        }
+        
+        log::lvSuppressLE emergency 0
+        log::lvSuppressLE $options(loglevel) 1
+        log::lvSuppress $options(loglevel) 0
+    }
+
+    variable types
+    array set types { 
+        A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
+        NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
+        AXFR 252  MAILB 253  MAILA 254  * 255
+    } 
+
+    variable classes
+    array set classes { IN 1  CS 2  CH  3  HS 4  * 255}
+
+    variable uid
+    if {![info exists uid]} {
+        set uid 0
+    }
 }
 
 # -------------------------------------------------------------------------
@@ -746,15 +778,14 @@ catch {
         set escape     [set [namespace parent [namespace current]]::basic::escape]
         set host       [set [namespace parent [namespace current]]::basic::host]
         set hostOrPort [set [namespace parent [namespace current]]::basic::hostOrPort]
-        set classValues [string map "* \\\\*" \
-                             [join [array names ::dns::classes] "|"]]
-        set typeValues [string map "* \\\\*" \
-                            [join [array names ::dns::types] "|"]]
-        set class "class=(${classValues})"
-        set type "type=(${typeValues})"
-        set classOrType "(${class})|(${type})"
-        set classOrTypeSpec "\\?${classOrType}(;${classOrType})?"
-        
+
+        set class [string map {* \\\\*} \
+                       "class=([join [array names ::dns::classes] {|}])"]
+        set type  [string map {* \\\\*} \
+                       "type=([join [array names ::dns::types] {|}])"]
+        set classOrType "(?:${class}|${type})"
+        set classOrTypeSpec "(?:${class}|${type})(?:;(?:${class}|${type}))?"
+
         set query "${host}(${classOrTypeSpec})?"
         variable schemepart "(//${hostOrPort}/)?(${query})"
         variable url "dns:$schemepart"
@@ -765,6 +796,7 @@ namespace eval uri {} ;# needed for pkg_mkIndex.
 
 proc uri::SplitDns {uri} {
     upvar \#0 [namespace current]::dns::schemepart schemepart
+    upvar \#0 [namespace current]::dns::class classOrType
     upvar \#0 [namespace current]::dns::class classRE
     upvar \#0 [namespace current]::dns::type typeRE
     upvar \#0 [namespace current]::dns::classOrTypeSpec classOrTypeSpec
@@ -824,39 +856,6 @@ proc uri::JoinDns {args} {
         set query "//${ns}/${query}"
     }
     return "dns:$query"
-}
-
-# -------------------------------------------------------------------------
-# Initialize variables, using the procedures defined above.
-
-namespace eval dns {
-    variable options
-    if {![info exists options]} {
-        array set options {
-            port       53
-            timeout    30000
-            protocol   tcp
-            search     {}
-            nameserver {localhost}
-            loglevel   warning
-        }
-        configure -loglevel $options(loglevel)
-    }
-
-    variable types
-    array set types { 
-        A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
-        NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
-        AXFR 252  MAILB 253  MAILA 254  * 255
-    } 
-
-    variable classes
-    array set classes { IN 1  CS 2  CH  3  HS 4  * 255}
-
-    variable uid
-    if {![info exists uid]} {
-        set uid 0
-    }
 }
 
 # -------------------------------------------------------------------------
