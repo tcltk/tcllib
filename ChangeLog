@@ -1,3 +1,6 @@
+2000-10-04  Brent Welch <welch@ajubasolutions.com>
+
+	* Makefile.in: Nuked stats in favor of counter.
 
 2000-09-19  Brent Welch <welch@ajubasolutions.com>
 
