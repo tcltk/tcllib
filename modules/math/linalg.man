@@ -1,0 +1,237 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin math::linearalgebra n 1.0]
+[copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
+[copyright {2004 Ed Hume<hume@hume.com>}]
+[moddesc   {Math}]
+[titledesc {Linear Algebra}]
+
+[require Tcl [opt 8.4]]
+[require math::linearalgebra [opt 1.0]]
+
+[description]
+[para]
+This package offers both low-level procedures and high-level algorithms
+to deal with linear algebra problems:
+
+[list_begin bullet]
+[bullet]
+robust solution of linear equations or least squares problems
+[bullet]
+determining eigenvectors and eigenvalues of symmetric matrices
+[bullet]
+various decompositions of general matrices or matrices of a specific
+form
+[list_end]
+
+It arose as a re-implementation of Hume's LA package and the desire to
+offer low-level procedures as found in the well-known BLAS library.
+Matrices are implemented as lists of lists rather linear lists with
+reserved elements, as in the original LA package, as it was found that
+such an implementation is actually faster.
+
+[para]
+It is advisable, however, to use the procedures that are offered, such
+as [emph setrow] and [emph getrow], rather than rely on this
+representation explicitly: that way it is to switch to a possibly even
+faster compiled implementation that supports the same API.
+
+
+[section "PROCEDURES"]
+
+The package defines the following public procedures (several exist as
+specialised procedures, see below):
+
+[list_begin definitions]
+
+[call [cmd ::math::linearalgebra::dim] [arg obj]]
+
+Returns the number of dimensions for the object (either 0 for a scalar,
+1 for a vector and 2 for a matrix)
+
+[list_begin arg]
+[arg_def any obj] Scalar, vector, or matrix
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::shape] [arg obj]]
+
+Returns the number of elements in each dimension for the object (either
+an empty list for a scalar, a single number for a vector and a list of
+the number of rows and columns for a matrix)
+
+[list_begin arg]
+[arg_def any obj] Scalar, vector, or matrix
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::norm] [arg vector] [arg type]]
+
+Returns the norm of the given vector. The type argument can be: 1,
+2, inf or max, respectively the sum of absolute values, the ordinary
+Euclidean norm or the max norm.
+
+[list_begin arg]
+[arg_def list vector] Vector, list of coefficients
+[arg_def string type] Type of norm (default: 2, the Euclidean norm)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::dotproduct] [arg vect1] [arg vect2]]
+
+Determine the inproduct or dot product of two vectors. These must have
+the same shape (number of dimensions)
+
+[list_begin arg]
+[arg_def list vect1] First vector, list of coefficients
+[arg_def list vect2] Second vector, list of coefficients
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::unitLengthVector] [arg vector]]
+
+Return a vector in the same direction with length 1.
+
+[list_begin arg]
+[arg_def list vector] Vector to be normalized
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::axpy] [arg scale] [arg mv1] [arg mv2]]
+
+Return a vector or matrix that results from a "daxpy" operation, that
+is: compute a*x+y (a a scalar and x and y both vectors or matrices of
+the same shape) and return the result.
+
+[list_begin arg]
+[arg_def double scale] The scale factor for the first vector/matrix (a)
+[arg_def list mv1] First vector or matrix (x)
+[arg_def list mv2] Second vector or matrix (y)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::add] [arg mv1] [arg mv2]]
+
+Return a vector or matrix that is the sum of the two arguments (x+y)
+
+[list_begin arg]
+[arg_def list mv1] First vector or matrix (x)
+[arg_def list mv2] Second vector or matrix (y)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::sub] [arg mv1] [arg mv2]]
+
+Return a vector or matrix that is the difference of the two arguments
+(x-y)
+
+[list_begin arg]
+[arg_def list mv1] First vector or matrix (x)
+[arg_def list mv2] Second vector or matrix (y)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::scale] [arg scale] [arg mv]]
+
+Scale a vector or matrix and return the result, that is: compute a*x.
+
+[list_begin arg]
+[arg_def double scale] The scale factor for the vector/matrix (a)
+[arg_def list mv] Vector or matrix (x)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::rotate] [arg c] [arg s] [arg vect1] [arg vect2]]
+
+Apply a planar rotation to two vectors and return the result as a list
+of two vectors: c*x-s*y and s*x+c*y. In algorithms you can often easily
+determine the cosine and sine of the angle, so it is more efficient to
+pass that information directly.
+
+[list_begin arg]
+[arg_def double c] The cosine of the angle
+[arg_def double s] The sine of the angle
+[arg_def list vect1] First vector (x)
+[arg_def list vect2] Seocnd vector (x)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::transpose] [arg matrix]]
+
+Transpose a matrix
+
+[list_begin arg]
+[arg_def list matrix] Matrix to be transposed
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::matmul] [arg mv1] [arg mv2]]
+
+Multiply a vector/matrix with another vector/matrix. The result is
+a matrix, if both x and y are matrices or both are vectors, in
+which case the "outer product" is computed. If one is a vector and the
+other is a matrix, then the result is a vector.
+
+[list_begin arg]
+[arg_def list mv1] First vector/matrix (x)
+[arg_def list mv2] Second vector/matrix (y)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::mkVector] [arg ndim] [arg value]]
+
+Create a vector with ndim elements, each with the value [emph value].
+
+[list_begin arg]
+[arg_def integer ndim] Dimension of the vector (number of components)
+[arg_def double value] Uniform value to be used (default: 0.0)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::mkUnitVector] [arg ndim] [arg ndir]]
+
+Create a unit vector in [emph ndim]-dimensional space, along the
+[emph ndir]-th direction.
+
+[list_begin arg]
+[arg_def integer ndim] Dimension of the vector (number of components)
+[arg_def integer ndir] Direction (0, ..., ndim-1)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::mkMatrix] [arg nrows] [arg ncols] [arg value]]
+
+Create a matrix with [emph nrows] rows and [emph ncols] columns. All
+elements have the value [emph value].
+
+[list_begin arg]
+[arg_def integer nrows] Number of rows
+[arg_def integer ncols] Number of columns
+[arg_def double value] Uniform value to be used (default: 0.0)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::mkIdentity] [arg size]]
+
+Create an identity matrix of dimension [emph size].
+
+[list_begin arg]
+[arg_def integer size] Dimension of the matrix
+[list_end]
+
+[list_end]
+
+TODO: all the other procedures and algorithms
+
+solveGauss, solveGaussBand
+determineQR, determineSVD, cholesky
+leastSquaresSVD, leastSquares
+symmetric, certainlyPositive, diagonallyDominant
+
+[section "REMARKS ON THE IMPLEMENTATION"]
+
+TODO
+
+[keywords math "linear algebra" vectors matrices "least squares" "linear equations"]
+
+[manpage_end]
+
