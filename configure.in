@@ -1,26 +1,8 @@
-#--------------------------------------------------------------------
-# Sample configure.in for Tcl Extensions.  The only places you should
-# need to modify this file are marked by the string __CHANGE__
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-# __CHANGE__
-# This very first macro is used to verify that the configure script can 
-# find the sources.  The argument to AC_INIT should be a unique filename
-# for this package, and can be a relative path, such as:
-#
-# AC_INIT(../generic/tcl.h)
-#--------------------------------------------------------------------
-
 AC_INIT(ChangeLog)
 
-#--------------------------------------------------------------------
-# __CHANGE__
-# Set your package name and version numbers here.  The NODOT_VERSION is
-# required for constructing the library name on systems that don't like
-# dots in library names (Windows).  The VERSION variable is used on the
-# other systems.
-#--------------------------------------------------------------------
+AC_CONFIG_AUX_DIR(config)
+CONFIGDIR=${srcdir}/config
+AC_SUBST(CONFIGDIR)
 
 PACKAGE=tcllib
 
@@ -31,45 +13,12 @@ PATCHLEVEL=
 VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
 NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
 
-
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
 
-#--------------------------------------------------------------------
-# We put this here so that you can compile with -DVERSION="1.2" to
-# encode the package version directly into the source files.
-#--------------------------------------------------------------------
-
-eval AC_DEFINE_UNQUOTED(VERSION, "${VERSION}")
-
 AC_PROG_INSTALL
-
-#--------------------------------------------------------------------
-# Checks to see if the make program sets the $MAKE variable.
-#--------------------------------------------------------------------
-
-AC_PROG_MAKE_SET
-
-#--------------------------------------------------------------------
-# Load the tclConfig.sh file
-#--------------------------------------------------------------------
-
-SC_PATH_TCLCONFIG
-SC_LOAD_TCLCONFIG
-
-#--------------------------------------------------------------------
-# Find tclsh so that we can run pkg_mkIndex to generate the pkgIndex.tcl
-# file during the install process.  Don't run the TCLSH_PROG through
-# ${CYGPATH} because it's being used directly by make.
-# Require that we use a tclsh shell version 8.2 or later since earlier
-# versions have bugs in the pkg_mkIndex routine.
-#--------------------------------------------------------------------
-
+SC_SIMPLE_EXEEXT
 SC_PROG_TCLSH
-
-#--------------------------------------------------------------------
-# Finally, substitute all of the various values into the Makefile.
-#--------------------------------------------------------------------
 
 AC_OUTPUT([Makefile \
 	mkIndex.tcl])
