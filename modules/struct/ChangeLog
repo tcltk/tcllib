@@ -1,6 +1,13 @@
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
-	* tree.test: 
+	* tree.n: 
+	* tree.tcl: 
+	* tree.test: Applied patch from [RFE: 4338]; adds index function to
+	tree.  Applied patch from [RFE: 4339], with slight modification; adds
+	numchildren function to tree.  Applied patch from [RFE: 4336],
+	with additional error checks and test cases; adds next, previous
+	functions to tree.  Added extra tests for walk command.
+
 	* tree.tcl: Added isleaf function and tests [RFE: 4340]
 
 	* struct.tcl: Changed order of namespace import/namespace export

@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.5 2000/03/09 21:27:07 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.6 2000/03/09 23:48:58 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -30,21 +30,25 @@ namespace eval ::struct::tree {
 
     # commands is the list of subcommands recognized by the tree
     variable commands [list \
-	    "children"	\
-	    "destroy"	\
-	    "delete"	\
-	    "depth"	\
-	    "exists"	\
-	    "get"	\
-	    "insert"	\
-	    "isleaf"	\
-	    "move"	\
-	    "parent"	\
-	    "set"	\
-	    "size"	\
-	    "swap"	\
-	    "unset"	\
-	    "walk"	\
+	    "children"		\
+	    "destroy"		\
+	    "delete"		\
+	    "depth"		\
+	    "exists"		\
+	    "get"		\
+	    "index"		\
+	    "insert"		\
+	    "isleaf"		\
+	    "move"		\
+	    "next"		\
+	    "numchildren"	\
+	    "parent"		\
+	    "previous"		\
+	    "set"		\
+	    "size"		\
+	    "swap"		\
+	    "unset"		\
+	    "walk"		\
 	    ]
 
     # Only export one command, the one used to instantiate a new tree
@@ -283,6 +287,36 @@ proc ::struct::tree::_get {name node {flag -key} {key data}} {
     return $data($key)
 }
 
+# ::struct::tree::_index --
+#
+#	Determine the index of node with in its parent's list of children.
+#
+# Arguments:
+#	name	name of the tree.
+#	node	node to look up.
+#
+# Results:
+#	index	The index of the node in its parent
+
+proc ::struct::tree::_index {name node} {
+    if { [string equal $node "root"] } {
+	# The special root node has no parent, thus no index in it either.
+	error "cannot determine index of root node"
+    }
+    
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    upvar ::struct::tree::tree${name}::children children
+    upvar ::struct::tree::tree${name}::parent   parent
+
+    # Locate the parent and ourself in its list of children
+    set parentNode $parent($node)
+
+    return [lsearch -exact $children($parentNode) $node]
+}
+
 # ::struct::tree::_insert --
 #
 #	Add a node to a tree.
@@ -334,14 +368,14 @@ proc ::struct::tree::_insert {name parentNode index args} {
 
 # ::struct::tree::_isleaf --
 #
-#     Return whether the given node of a tree is a leaf or not.
+#	Return whether the given node of a tree is a leaf or not.
 #
 # Arguments:
-#     name    name of the tree object.
-#     node    node to look up.
+#	name	name of the tree object.
+#	node	node to look up.
 #
 # Results:
-#     isleaf  Boolean indicator whether the node is a leaf or not.
+#	isleaf	true if the node is a leaf; false otherwise.
 
 proc ::struct::tree::_isleaf {name node} {
     if { ![_exists $name $node] } {
@@ -407,6 +441,59 @@ proc ::struct::tree::_move {name parentNode index node} {
     return
 }
 
+# ::struct::tree::_next --
+#
+#	Return the right sibling for a given node of a tree.
+#
+# Arguments:
+#	name		name of the tree object.
+#	node		node to look up.
+#
+# Results:
+#	sibling		The right sibling for the node, or null if node was
+#			the rightmost child of its parent.
+
+proc ::struct::tree::_next {name node} {
+    # The 'root' has no siblings.
+    if { [string equal $node "root"] } {
+	return {}
+    }
+    
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    
+    # Locate the parent and our place in its list of children.
+    upvar ::struct::tree::tree${name}::parent   parent
+    upvar ::struct::tree::tree${name}::children children
+    
+    set parentNode $parent($node)
+    set  index [lsearch -exact $children($parentNode) $node]
+    
+    # Go to the node to the right and return its name.
+    return [lindex $children($parentNode) [incr index]]
+}
+
+# ::struct::tree::_numchildren --
+#
+#	Return the number of immediate children for a given node of a tree.
+#
+# Arguments:
+#	name		name of the tree object.
+#	node		node to look up.
+#
+# Results:
+#	numchildren	number of immediate children for the node.
+ 
+proc ::struct::tree::_numchildren {name node} {
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    
+    upvar ::struct::tree::tree${name}::children children
+    return [llength $children($node)]
+}
+
 # ::struct::tree::_parent --
 #
 #	Return the name of the parent node of a node in a tree.
@@ -423,6 +510,39 @@ proc ::struct::tree::_parent {name node} {
 	error "node \"$node\" does not exist in tree \"$name\""
     }
     return [set ::struct::tree::tree${name}::parent($node)]
+}
+
+# ::struct::tree::_previous --
+#
+#	Return the left sibling for a given node of a tree.
+#
+# Arguments:
+#	name		name of the tree object.
+#	node		node to look up.
+#
+# Results:
+#	sibling		The left sibling for the node, or null if node was 
+#			the leftmost child of its parent.
+
+proc ::struct::tree::_previous {name node} {
+    # The 'root' has no siblings.
+    if { [string equal $node "root"] } {
+	return {}
+    }
+    
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    
+    # Locate the parent and our place in its list of children.
+    upvar ::struct::tree::tree${name}::parent   parent
+    upvar ::struct::tree::tree${name}::children children
+    
+    set parentNode $parent($node)
+    set  index [lsearch -exact $children($parentNode) $node]
+    
+    # Go to the node to the right and return its name.
+    return [lindex $children($parentNode) [incr index -1]]
 }
 
 # ::struct::tree::_set --
@@ -645,10 +765,14 @@ proc ::struct::tree::_unset {name node {flag -key} {key data}} {
 #	None.
 
 proc ::struct::tree::_walk {name node args} {
-    set usage "$name walk $node ?-type {bfs|dfs}? -command cmd\""
+    set usage "$name walk $node ?-type {bfs|dfs}? -command cmd"
 
     if {[llength $args] > 6 || [llength $args] < 2} {
 	error "wrong # args: should be \"$usage\""
+    }
+
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
     }
 
     # Set defaults

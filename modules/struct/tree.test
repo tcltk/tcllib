@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.4 2000/03/09 21:27:07 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.5 2000/03/09 23:48:58 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -40,7 +40,7 @@ test tree-0.3 {tree errors} {
     catch {mytree foo} msg
     mytree destroy
     set msg
-} "bad option \"foo\": must be children, destroy, delete, depth, exists, get, insert, isleaf, move, parent, set, size, swap, unset, or walk"
+} "bad option \"foo\": must be children, destroy, delete, depth, exists, get, index, insert, isleaf, move, next, numchildren, parent, previous, set, size, swap, unset, or walk"
 test tree-0.4 {tree errors} {
     catch {tree set} msg
     set msg
@@ -401,6 +401,30 @@ test tree-12.3 {dfs is default walk} {
     set t
 } [list mytree root mytree node0 mytree node0.1 mytree node0.2 mytree node1 \
 	mytree node1.1 mytree node1.2]
+test tree-12.4 {walk with too few args} {
+    tree mytree
+    catch {mytree walk} msg
+    mytree destroy
+    set msg
+} "no value given for parameter \"node\" to \"::struct::tree::_walk\""
+test tree-12.5 {walk with too few args} {
+    tree mytree
+    catch {mytree walk root} msg
+    mytree destroy
+    set msg
+} "wrong # args: should be \"mytree walk root ?-type {bfs|dfs}? -command cmd\""
+test tree-12.6 {walk with too many args} {
+    tree mytree
+    catch {mytree walk root -foo bar -baz boo -foo2 boo -foo3 baz} msg
+    mytree destroy
+    set msg
+} "wrong # args: should be \"mytree walk root ?-type {bfs|dfs}? -command cmd\""
+test tree-12.7 {walk with fake node} {
+    tree mytree
+    catch {mytree walk node0 -command {}} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
 
 test tree-13.1 {swap gives error when trying to swap root} {
     tree mytree
@@ -537,5 +561,83 @@ test tree-16.2 {isleaf} {
     mytree destroy
     set msg
 } "node \"node0\" does not exist in tree \"mytree\""
+
+test tree-17.1 {index of root fails} {
+    tree mytree
+    catch {mytree index root} msg
+    mytree destroy
+    set msg
+} "cannot determine index of root node"
+test tree-17.2 {index} {
+    tree mytree
+    mytree insert root end node1
+    mytree insert root end node0
+    set result [list [mytree index node0] [mytree index node1]]
+    mytree destroy
+    set result
+} [list 1 0]
+test tree-17.3 {index of non-existant node} {
+    tree mytree
+    catch {mytree index node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+
+test tree-18.1 {numchildren} {
+    tree mytree
+    set t [mytree numchildren root]
+    mytree insert root end node0
+    lappend t [mytree numchildren root] [mytree numchildren node0]
+    mytree destroy
+    set t
+} [list 0 1 0]
+test tree-18.2 {numchildren} {
+    tree mytree
+    catch {mytree numchildren node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+
+test tree-19.1 {next from root} {
+    tree mytree
+    set res [mytree next root]
+    mytree destroy
+    set res
+} {}
+test tree-19.2 {next from fake node} {
+    tree mytree
+    catch {mytree next node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-19.3 {next} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert root end node1
+    set res [list [mytree next node0] [mytree next node1]]
+    mytree destroy
+    set res
+} [list node1 {}]
+
+test tree-20.1 {previous from root} {
+    tree mytree
+    set res [mytree previous root]
+    mytree destroy
+    set res
+} {}
+test tree-20.2 {previous from fake node} {
+    tree mytree
+    catch {mytree previous node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-20.3 {next} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert root end node1
+    set res [list [mytree previous node0] [mytree previous node1]]
+    mytree destroy
+    set res
+} [list {} node0]
 
 ::tcltest::cleanupTests
