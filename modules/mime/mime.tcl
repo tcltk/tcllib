@@ -1849,9 +1849,6 @@ proc ::mime::copymessageaux {token channel} {
             }
             set blocksize [expr {($blocksize/4)*3}]
 
-	    # [893516]
-	    fconfigure $channel -buffersize $blocksize
-
             puts $channel ""
 
             if {[string compare $converter ""]} {
