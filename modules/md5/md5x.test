@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.8 2005/02/17 14:29:30 patthoyts Exp $
+# RCS: @(#) $Id: md5x.test,v 1.9 2005/02/17 21:58:01 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -86,21 +86,38 @@ foreach {n msg expected} $tests {
 	list [catch {::md5::md5 -hex -- $msg} msg] $msg
     } [list 0 $expected]
 }
+
 #
+# If we are using critcl, try and test using Trf too.
 # If we are using a compiled helper - check the pureTcl version too.
 #
-if {$::md5::usetrf || $::md5::usemd5c || 1} {
-    set usetrf $::md5::usetrf
-    set usemd5c $::md5::usemd5c
+array set preserve [list usemd5c $::md5::usemd5c usetrf $::md5::usetrf]
+if {$::md5::usemd5c} {
+    if {![catch {package require Trf}]} {
+        set ::md5::usetrf 1
+        set ::md5::usemd5c 0
+        puts "- md5 [package present md5] (Trf based)"
+        foreach {n msg expected} $tests {
+            test md5-trf-2.$n {md5 trf implementation} {
+                list [catch {::md5::md5 -hex $msg} msg] $msg
+            } [list 0 $expected]
+        }
+        set ::md5::usetrf $preserve(usetrf)
+        set ::md5::usemd5c $preserve(usemd5c)
+    }
+}
+
+if {$::md5::usetrf || $::md5::usemd5c} {
     set ::md5::usetrf 0
     set ::md5::usemd5c 0
+    puts "- md5 [package present md5] (pure Tcl)"
     foreach {n msg expected} $tests {
         test md5-tcl-2.$n {md5 pureTcl implementation} {
             list [catch {::md5::md5 -hex $msg} msg] $msg
         } [list 0 $expected]
     }
-    set ::md5::usetrf $usetrf
-    set ::md5::usemd5c $usemd5c
+    set ::md5::usetrf $preserve(usetrf)
+    set ::md5::usemd5c $preserve(usemd5c)
 }
 
 set vectors {
@@ -125,19 +142,37 @@ foreach {n key text expected} $vectors {
     } [list 0 $expected]
 }
 
-if {$::md5::usetrf || $::md5::usemd5c || 1} {
-    set usetrf $::md5::usetrf
-    set usemd5c $::md5::usemd5c
+#
+# If we are using critcl, try and test using Trf too.
+# If we are using a compiled helper - check the pureTcl version too.
+#
+if {$::md5::usemd5c} {
+    if {![catch {package require Trf}]} {
+        set ::md5::usetrf 1
+        set ::md5::usemd5c 0
+        foreach {n key text expected} $vectors {
+            test md5-trf-4.$n {md5 trf hmac implementation} {
+                list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
+            } [list 0 $expected]
+        }
+        set ::md5::usetrf $preserve(usetrf)
+        set ::md5::usemd5c $preserve(usemd5c)
+    }
+}
+
+if {$::md5::usetrf || $::md5::usemd5c} {
     set ::md5::usetrf 0
     set ::md5::usemd5c 0
     foreach {n key text expected} $vectors {
-        test md5-tcl-4.$n {md5 pureTcl implementation} {
+        test md5-tcl-4.$n {md5 pureTcl hmac implementation} {
             list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
         } [list 0 $expected]
     }
-    set ::md5::usetrf $usetrf
-    set ::md5::usemd5c $usemd5c
+    set ::md5::usetrf $preserve(usetrf)
+    set ::md5::usemd5c $preserve(usemd5c)
 }
+
+# -------------------------------------------------------------------------
 
 test md5-5.1 {Check hashing data that begins with hyphen} {
     list [catch {::md5::md5 -hex -hello} msg] $msg
