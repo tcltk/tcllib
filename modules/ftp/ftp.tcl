@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.24 2002/02/15 05:35:30 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.25 2002/08/06 23:02:06 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -1943,7 +1943,7 @@ proc ftp::Get {s args} {
     }
 
     if {($ftp(inline) != 0) && ($dest != "")} {
-        DisplayMsg $s "Cannot return data in a variable, and place it in destination file." error
+        DisplayMsg $s "Cannot return data in a variable or channel, and place it in destination file." error
         return 0
     }
 
@@ -1952,7 +1952,7 @@ proc ftp::Get {s args} {
         return 0
     }
 
-    if {$ftp(inline) != 2} {
+    if {$ftp(inline) == 0} {
 	if { $dest == "" } {
 	    set dest $source
 	} else {

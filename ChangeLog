@@ -1,5 +1,11 @@
 2002-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* Makefile.in (dist): Fixed SF Bug #567079, reported by Don Porter
+	  <dgp@users.sourceforge.net>. No infinite recursion anymore for
+	  srcdir == builddir.
+
+	* ftp: Fixed SF Bug #582668.
+
 	* comm: Fixed SF Bug #589225.
 
 	* Makefile.in (install-doc): Restored the code inlining the
