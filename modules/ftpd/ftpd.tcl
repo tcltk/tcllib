@@ -9,10 +9,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.6 2000/11/02 00:02:20 kuchler Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.7 2000/11/22 17:28:49 ericm Exp $
 #
 
-# Define the ftpd package version 1.1
+# Define the ftpd package version 1.1.1
 
 namespace eval ::ftpd {
 
@@ -708,7 +708,10 @@ proc ::ftpd::command::APPE {sock list} {
         }
     }
 
-    if {![catch {::ftpd::Fs append $path} f]} {
+#
+# Patched Mark O'Connor
+#
+    if {![catch {::ftpd::Fs append $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
@@ -1184,7 +1187,10 @@ proc ::ftpd::command::RETR {sock list} {
         }
     }
 
-    if {![catch {::ftpd::Fs retr $path} f]} {
+#
+# Patched Mark O'Connor
+#
+    if {![catch {::ftpd::Fs retr $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $f $data(sock2) -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
@@ -1373,7 +1379,10 @@ proc ::ftpd::command::STOR {sock list} {
         }
     }
 
-    if {![catch {::ftpd::Fs store $path} f]} {
+#
+# Patched Mark O'Connor
+#
+    if {![catch {::ftpd::Fs store $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
@@ -1421,7 +1430,10 @@ proc ::ftpd::command::STOU {sock list} {
         incr i
     }
 
-    if {![catch {::ftpd::Fs store $file} f]} {
+#
+# Patched Mark O'Connor
+#
+    if {![catch {::ftpd::Fs store $file $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f $file]
     } else {
@@ -1691,13 +1703,34 @@ proc ::ftpd::fsFile::fs {command path args} {
 
     switch -exact -- $command {
         append {
-	    return [open $path a]
+          #
+          # Patched Mark O'Connor
+          #
+	    set fhandle [open $path a]
+          if {[lindex $args 0] == "binary"} {
+             fconfigure $fhandle -translation binary
+          }
+          return $fhandle
         }
 	retr {
-	    return [open $path r]
+          #
+          # Patched Mark O'Connor
+          #
+	    set fhandle [open $path r]
+          if {[lindex $args 0] == "binary"} {
+             fconfigure $fhandle -translation binary
+          }
+          return $fhandle
 	}
 	store {
-	    return [open $path w]
+          #
+          # Patched Mark O'Connor
+          #
+	    set fhandle [open $path w]
+          if {[lindex $args 0] == "binary"} {
+             fconfigure $fhandle -translation binary
+          }
+          return $fhandle
 	}
 	dlist {
 	    foreach {style outchan} $args break
@@ -1902,4 +1935,8 @@ proc ftpd::fsFile::FormDate {seconds} {
 # Only provide the package if it has been successfully
 # sourced into the interpreter.
 
-package provide ftpd 1.1
+#
+# Patched Mark O'Connor
+#
+package provide ftpd 1.1.1
+

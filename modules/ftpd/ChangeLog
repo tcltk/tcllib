@@ -1,20 +1,25 @@
+2000-11-22  Eric Melski  <ericm@interwoven.com>
+
+	* Integrated patch from Mark O'Conner.  Patch fixed file translation
+	mode bug (ie, binary vs. ascii) that prevented proper retrieval
+	of binary files.  [SFBUG: 122664]
 
 2000-11-01  Dan Kuchler  <kuchler@ajubasolutions.com>
 
-        * Integrated patch from Keith Vetter <keith@softbook.com>
-        Patch fixed several bugs.  Allowed users to log in as
-        both 'anonymous' and 'ftp' by default instead of just anonymous.
-        Fixed syntax error with the 'socket -server' line in ftpd::server when
-        'myaddr' is specified.  Fixed the argument specifications for
-        cmdline:getoptions in ftpd::config so that arguments are required for
-        the -logCmd and the -fsCmd.
+	* Integrated patch from Keith Vetter <keith@softbook.com>
+	Patch fixed several bugs.  Allowed users to log in as
+	both 'anonymous' and 'ftp' by default instead of just anonymous.
+	Fixed syntax error with the 'socket -server' line in ftpd::server when
+	'myaddr' is specified.  Fixed the argument specifications for
+	cmdline:getoptions in ftpd::config so that arguments are required for
+	the -logCmd and the -fsCmd.
 
 2000-10-30  Dan Kuchler  <kuchler@ajubasolutions.com>
 
-        * Made some fixes to better support windows.
+	* Made some fixes to better support windows.
 
 2000-10-27  Dan Kuchler  <kuchler@ajubasolutions.com>
 
-        * Initial revision of tcllib ftpd.  Based off of the ftpd in
-          the stdtcl distribution.
+	* Initial revision of tcllib ftpd.  Based off of the ftpd in
+	the stdtcl distribution.
 
