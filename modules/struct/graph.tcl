@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.4 2001/11/19 23:32:48 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.5 2002/02/01 21:51:42 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -431,7 +431,7 @@ proc ::struct::graph::__arc_unset {name arc {flag -key} {key data}} {
     }
     
     if { ![string match "${flag}*" "-key"] } {
-	error "invalid option \"$flag\": should be \"$name unset\
+	error "invalid option \"$flag\": should be \"$name arc unset\
 		$arc ?-key key?\""
     }
 
@@ -516,7 +516,6 @@ proc ::struct::graph::_arcs {name args} {
     upvar ::struct::graph::graph${name}::arcNodes arcNodes
 
     set       arcs [list]
-    array set coll  {}
 
     switch -exact -- $cond {
 	in {
@@ -525,9 +524,15 @@ proc ::struct::graph::_arcs {name args} {
 
 	    foreach node $condNodes {
 		foreach e $inArcs($node) {
-		    if {[info exists coll($e)]} {continue}
+		    # As an arc has only one destination, i.e. is the
+		    # in-arc of exactly one node it is impossible to
+		    # count an arc twice. IOW the [info exists] below
+		    # is never true. Found through coverage analysis
+		    # and then trying to think up a testcase invoking
+		    # the continue.
+		    # if {[info exists coll($e)]} {continue}
 		    lappend arcs    $e
-		    set     coll($e) .
+		    #set     coll($e) .
 		}
 	    }
 	}
@@ -537,15 +542,20 @@ proc ::struct::graph::_arcs {name args} {
 
 	    foreach node $condNodes {
 		foreach e $outArcs($node) {
-		    if {[info exists coll($e)]} {continue}
+		    # See above 'in', same reasoning, one source per arc.
+		    # if {[info exists coll($e)]} {continue}
 		    lappend arcs    $e
-		    set     coll($e) .
+		    #set     coll($e) .
 		}
 	    }
 	}
 	adj {
 	    # Result is all arcs coming from or going to at
 	    # least one node in the list of arguments.
+
+	    array set coll  {}
+	    # Here we do need 'coll' as each might be an in- and
+	    # out-arc for one or two nodes in the list of arguments.
 
 	    foreach node $condNodes {
 		foreach e $inArcs($node) {
@@ -562,6 +572,10 @@ proc ::struct::graph::_arcs {name args} {
 	}
 	inner {
 	    # Result is all arcs running between nodes in the list.
+
+	    array set coll  {}
+	    # Here we do need 'coll' as each might be an in- and
+	    # out-arc for one or two nodes in the list of arguments.
 
 	    array set group {}
 	    foreach node $condNodes {
@@ -590,6 +604,11 @@ proc ::struct::graph::_arcs {name args} {
 	    # IOW all arcs going from a node in the list to a node
 	    # which is *not* in the list
 
+	    # This also means that no arc can be counted twice as it
+	    # is either going to a node, or coming from a node in the
+	    # list, but it can't do both, because then it is part of
+	    # -inner, which was excluded!
+
 	    array set group {}
 	    foreach node $condNodes {
 		set group($node) .
@@ -599,16 +618,16 @@ proc ::struct::graph::_arcs {name args} {
 		foreach e $inArcs($node) {
 		    set n [lindex $arcNodes($e) 0]
 		    if {[info exists group($n)]} {continue}
-		    if {[info exists coll($e)]}  {continue}
+		    # if {[info exists coll($e)]}  {continue}
 		    lappend arcs    $e
-		    set     coll($e) .
+		    # set     coll($e) .
 		}
 		foreach e $outArcs($node) {
 		    set n [lindex $arcNodes($e) 1]
 		    if {[info exists group($n)]} {continue}
-		    if {[info exists coll($e)]}  {continue}
+		    # if {[info exists coll($e)]}  {continue}
 		    lappend arcs    $e
-		    set     coll($e) .
+		    # set     coll($e) .
 		}
 	    }
 	}
@@ -712,7 +731,7 @@ proc ::struct::graph::_get {name {flag -key} {key data}} {
     upvar ::struct::graph::graph${name}::graphData data
 
     if { ![info exists data($key)] } {
-	error "invalid key \"$key\" for graph"
+	error "invalid key \"$key\" for graph \"$name\""
     }
 
     return $data($key)
@@ -760,7 +779,7 @@ proc ::struct::graph::_node {name cmd args} {
 proc ::struct::graph::__node_degree {name args} {
 
     if {([llength $args] < 1) || ([llength $args] > 2)} {
-	error "wrong # args: should be \"$name node degree ?-in|-out| node\""
+	error "wrong # args: should be \"$name node degree ?-in|-out? node\""
     }
 
     switch -exact -- [llength $args] {
@@ -772,9 +791,7 @@ proc ::struct::graph::__node_degree {name args} {
 	    set opt  [lindex $args 0]
 	    set node [lindex $args 1]
 	}
-	default {
-	    error "Wrong # arguments given to 'degree'"
-	}
+	default {error "Can't happen, panic"}
     }
 
     # Validate the option.
@@ -1060,7 +1077,7 @@ proc ::struct::graph::__node_unset {name node {flag -key} {key data}} {
     }
     
     if { ![string match "${flag}*" "-key"] } {
-	error "invalid option \"$flag\": should be \"$name unset\
+	error "invalid option \"$flag\": should be \"$name node unset\
 		$node ?-key key?\""
     }
 
@@ -1322,7 +1339,7 @@ proc ::struct::graph::_set {name args} {
     } else {
 	# Getting a value
 	if { ![info exists data($key)] } {
-	    error "invalid key \"$key\" for graph"
+	    error "invalid key \"$key\" for graph \"$name\""
 	}
 	return $data($key)
     }

@@ -1,3 +1,18 @@
+2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Version up to 1.2.1 to differentiate development from the
+	  version in the tcllib 1.2 release.
+
+	* matrix.test:
+	* matrix.tcl: See below, but not complete.
+	* queue.test
+	* stack.test:
+	* graph.tcl: 
+	* graph.test: 
+	* tree.tcl: 
+	* tree.test: Updated code and tests to cover all paths through the
+	  code.
+
 2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.2

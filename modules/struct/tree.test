@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.13 2001/09/05 23:36:15 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.14 2002/02/01 21:51:42 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -711,6 +711,25 @@ test tree-12.10 {walk gives error on invalid combination of order and type} {
     mytree destroy
     set msg
 } {unable to do a in-order breadth first walk}
+test tree-12.11 {walk with unknown options} {
+    tree mytree
+    catch {mytree walk root -foo bar} msg
+    mytree destroy
+    set msg
+} "unknown option \"-foo\": should be \"mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
+test tree-12.12 {walk, option without value} {
+    tree mytree
+    catch {mytree walk root -type dfs -order} msg
+    mytree destroy
+    set msg
+} "value for \"-order\" missing: should be \"mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
+test tree-12.13 {walk without command} {
+    tree mytree
+    catch {mytree walk root -order pre} msg
+    mytree destroy
+    set msg
+} "no command specified: should be \"mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
+
 
 test tree-13.1 {swap gives error when trying to swap root} {
     tree mytree
@@ -779,6 +798,20 @@ test tree-13.6 {swap swaps node relationships correctly} {
     set t
 } [list enter mytree root enter mytree node1 enter mytree node0.1 \
 	enter mytree node0 enter mytree node1.1]
+test tree-13.7 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node0.1 end node0.1.1
+    mytree insert node0.1 end node0.1.2
+    mytree swap node0.1 node0
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter mytree root      enter mytree node0.1   enter mytree node0 \
+	enter mytree node0.1.1 enter mytree node0.1.2 enter mytree node0.2]
 
 test tree-14.1 {get gives error on bogus node} {
     tree mytree
@@ -832,6 +865,14 @@ test tree-15.3 {unset removes a keyed value from a node} {
     mytree destroy
     set msg
 } "invalid key \"foobar\" for node \"node0\""
+test tree-15.4 {unset requires -key} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key foobar foobar
+    catch {mytree unset node0 flaboozle foobar} msg
+    mytree destroy
+    set msg
+} "invalid option \"flaboozle\": should be \"mytree unset node0 ?-key key?\""
 
 test tree-16.1 {isleaf} {
     tree mytree
