@@ -1,3 +1,10 @@
+2003-04-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.test: Fix for bug #709375 - test failures for bigEndian
+	systems when using Trf crc-zlib.
+	* crc32bugs.test: Additional test file used to isolate byte
+	ordering problems.
+
 2003-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.man, cksum.man, crc16.man, crc32.man: Added the new
