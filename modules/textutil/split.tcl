@@ -35,18 +35,31 @@ namespace eval ::textutil {
 # Note that if you add parenthesis into regexp, parenthesed part of separator
 # would be added into list as additional element. Just like in Perl. -- cary 
 #
-
-proc ::textutil::split::splitx [list str [list regexp "\[\t \r\n\]+"]] {
+# Speed improvement by Reinhard Max:
+# Instead of repeatedly copying around the not yet matched part of the
+# string, I use [regexp]'s -start option to restrict the match to that
+# part. This reduces the complexity from something like O(n^1.5) to
+# O(n). My test case for that was:
+# 
+# foreach i {1 10 100 1000 10000} {
+#     set s [string repeat x $i]
+#     puts [time {splitx $s .}]
+# }
+#
+proc ::textutil::split::splitx {str {regexp {[\t \r\n]+}}} {
     set list  {}
-    while {[regexp -indices -- $regexp $str match submatch]} {
-	lappend list [string range $str 0 [expr {[lindex $match 0] -1}]]
-	if {[lindex $submatch 0]>=0} {
-	    lappend list [string range $str [lindex $submatch 0]\
-			      [lindex $submatch 1]]
-	}
-	set str [string range $str [expr {[lindex $match 1]+1}] end]
+    set start 0
+    while {[regexp -start $start -indices -- $regexp $str match submatch]} {
+        foreach {subStart subEnd} $submatch break
+        foreach {matchStart matchEnd} $match break
+        incr matchStart -1
+        incr matchEnd
+        lappend list [string range $str $start $matchStart]
+        if {$subStart >= $start} {
+            lappend list [string range $str $subStart $subEnd]
+        }
+        set start $matchEnd
     }
-    lappend list $str
+    lappend list [string range $str $start end]
     return $list
 }
-
