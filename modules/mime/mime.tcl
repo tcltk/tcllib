@@ -12,7 +12,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.3.5
+package provide mime 1.4
 
 if {[catch {package require Trf  2.0}]} {
 
@@ -1391,7 +1391,7 @@ proc ::mime::setheader {token key value args} {
 # Arguments:
 #       token      The MIME token to parse.
 #       args       Optional arguments of the form:
-#                  ?-command callback ?-blocksize octets? ?
+#                  ?-decode? ?-command callback ?-blocksize octets? ?
 #
 # Results:
 #       Returns a string containing the MIME part's entire body, or
@@ -1403,6 +1403,12 @@ proc ::mime::getbody {token args} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+
+    set decode 0
+    if {[set pos [lsearch -exact $args -decode]] >= 0} {
+        set decode 1
+        set args [lreplace $args $pos $pos]
+    }
 
     array set options [list -command [list mime::getbodyaux $token] \
                             -blocksize 4096]
@@ -1548,7 +1554,28 @@ proc ::mime::getbody {token args} {
     set ecode $errorCode
     set einfo $errorInfo    
 
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
+    if {$code} {
+        return -code $code -errorinfo $einfo -errorcode $ecode $result
+    }
+
+    if {$decode} {
+        array set params [mime::getproperty $token params]
+
+        if {[info exists params(charset)]} {
+            set charset $params(charset)
+        } else {
+            set charset US-ASCII
+        }
+
+        set enc [reversemapencoding $charset]
+        if {$enc != ""} {
+            set result [::encoding convertfrom $enc $result]
+        } else {
+            return -code error "-decode failed: can't reversemap charset $charset"
+        }
+    }
+
+    return $result
 }
 
 # ::mime::getbodyaux --
