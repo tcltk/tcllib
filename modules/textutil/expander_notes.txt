@@ -7,6 +7,11 @@ o   expander.tcl is an objectified version of the expansion algorithm
     -   Support for context stack.
 o   Next: add and test incremental expansion.
 
+Things done: 11/23/2001
+x   Added the evalcmd command; this allows the application to specify
+    a different means of evaluating macros than the default "uplevel
+    #0".
+
 Things done: 11/3/2001
 x   Added a couple of more tests for the nested expander problem I
     fixed the other day.

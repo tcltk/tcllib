@@ -1,3 +1,7 @@
+2001-12-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* textutil: Update from William, 'evalcmd' callback.
+
 2001-12-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil: Bugfix for item #486572.

@@ -52,9 +52,9 @@ solve the third problem as well.<p>
 
 To begin, create an expander object:<p>
 
-<pre>% package require expander
+<pre>% package require textutil::expander
 1.0
-% ::expander::expander myexp
+% ::textutil::expander myexp
 ::myexp
 %</pre>
 
@@ -134,6 +134,22 @@ passing the desired brackets to the <code><a href="#expand">expand</a></code> co
 % ::myexp expand {&lt;bold&gt;This is boldface&lt;/bold&gt;} {&lt; &gt;}
 &lt;b&gt;This is boldface&lt;/b&gt;
 %</pre>
+
+<h3><a name="customized_macro_expansion">Customized Macro Expansion</a></h3>
+
+By default, macros are evaluated using the Tcl "uplevel #0" command, so
+that the embedded code executes in the global context.  The
+application can provide a different evaluation command using
+<code><a href="#evalcmd">evalcmd</a></code>; this allows the application to use a safe
+interpreter, for example, or even to evaluated something other than
+Tcl code.  There is one caveat: to be recognized as valid, a macro
+must return 1 when passed to Tcl's "info complete" command.<p>
+
+For example, the following code "evaluates" each macro by returning
+the macro text itself.<p>
+
+<pre>proc identity {macro} {return $macro}
+::myexp evalcmd identity</pre>
 
 <h3><a name="using_the_context_stack">Using the Context Stack</a></h3>
 
@@ -280,6 +296,12 @@ subcommands:<p>
 
        If the error mode is "nothing", the macro expands to the empty
        string, and is effectively ignored.<p>
+
+  <dt> <code><a name="evalcmd">evalcmd ?<i>newEvalCmd</i>?</a></code>
+  <dd> Returns the current evaluation command, which defaults to
+       "uplevel #0".  If specified, <i>newEvalCmd</i> will be saved
+       for future use and then returned; it must be a Tcl
+       command expecting one additional argument: the macro to evaluate.<p>
        
   <dt> <code><a name="expand">expand <i>inputString</i> ?<i>brackets</i>?</a></code>
   <dd> Expands the input string, replacing embedded macros with their
