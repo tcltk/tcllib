@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 '\" All rights reserved.
 '\" 
-'\" $Id: irc.n,v 1.1 2001/11/12 23:52:42 andreas_kupries Exp $
+'\" $Id: irc.n,v 1.2 2001/11/20 00:01:09 andreas_kupries Exp $
 '\" 
 .TH irc n 0.1 IRC "Low Level Tcl IRC Interface"
 .BS
@@ -34,32 +34,15 @@ the new IRC connection.
 In the following list of available connection methods \fInet\fR
 represents a connection command as returned by \fB::irc::connection\fR.
 .TP
-\fInet \fBregisterevent\fR \fIevent\fR \fIcommand\fR 
+\fInet \fBregisterevent\fR \fIevent\fR \fIscript\fR 
 Registers a callback handler for the specific event.  Events available
 are those described in the IRC RFC: 1459.  In addition, there are
 several other events defined. \fBdefaultcommand\fR adds a command that
 is called if no other callback is present.  \fBEOF\fR is called if the
-connection signals an End of File condition.  Callbacks are called
-like so:
-
-For server events (anything received from the server with an initial
-":"):
-\fB
-.CS
- command $who $rest
-.CE
-\fR
-Where $who is the person or server that initiated the event, and $rest
-is the rest of the line.
-
-And for server commands (PING and the like):
-\fB
-.CS
- command $action $rest
-.CE
-\fR
-Where $action is the action taken by the server, and $rest is anything
-else delivered to the client.
+connection signals an End of File condition.  \fIscript\fR is executed
+in the connection namespace, which can take advantage of several
+commands (see \fBCallback Commands\fR below) to aid in the parsing of
+data.
 .TP
 \fInet \fBconnect\fR
 This causes the socket to be established.  \fB::irc::connection\fR
@@ -90,6 +73,28 @@ Sends \fImessage\fR to \fItarget\fR, which can be either a channel, or
 another user, in which case their nick is used.
 \fInet \fBsend\fR \fItext\fR
 Sends \fItext\fR to the IRC server.
+
+.SH Callback Commands
+.PP
+These commands are used within callbacks
+.TP
+\fBwho\fR \fI?address?\fR
+Returns the nick of the user who performed a command.  The optional
+\fIaddress\fR argument causes the command to return the
+username@address of the user.
+.TP
+\fBaction\fR
+Returns the action perfomed, such as KICK, PRIVMSG, MODE, etc...
+Normally not useful, as callbacks are bound to a particular event.
+.TP
+\fBtarget\fR \fI?index?\fR
+Returns the target of a particular command, such as the channel or
+user to whom a PRIVMSG is sent.  In the case of multiple targets, the
+optional \fIindex\fR argument may be used to specify which one to
+return.  The default is 0.
+.TP
+\fBmsg\fR
+Returns the message portion of the command (the part after the :).
 
 .SH Global Commands	
 .PP
