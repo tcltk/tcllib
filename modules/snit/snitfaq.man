@@ -2531,6 +2531,31 @@ prior to calling [cmd installhull] will fail.
 
 
 
+[para]
+[emph {Can I adapt widgets from other megawidget packages?}]
+[para]
+
+Yes.
+
+[para]
+
+However, you need to be very careful about making sure the
+[cmd bindtags] are done properly.  There's no way for Snit to take
+into account all the possible weird things other megawidget frameworks
+might do wrong.
+
+[para]
+
+For example, some widgets in BWidgets place their own <Destroy>
+binding not on a separate bind-tag, but on the widget itself. When
+used as the hull of a [cmd snit::widgetadaptor] this causes them to be
+called before Snit, removing the widget command. A previous version of
+Snit was tripped by this and threw errors because it tried to operate
+on and with an already deleted widget command. Snit is now able to
+deal with this, despite the fact that the ultimate cause is at least
+bad behaviour of Bwidget, possibly even a bug. This however does not
+preclude that there might be other issues lurking.
+
 
 [keywords class {object oriented} object C++]
 [keywords {Incr Tcl} BWidget]
