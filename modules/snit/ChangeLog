@@ -1,5 +1,10 @@
 2004-07-17  Will Duquette  <will@wjduquette.com>
 
+	* snit.tcl	Refactored %TYPE%::Snit_optionget to 
+	* roadmap.txt	::snit::RT.OptionDbGet.
+
+2004-07-17  Will Duquette  <will@wjduquette.com>
+
 	* snit.tcl	  Added "delegate typemethod ..." in all its glory,
 	* snit.test	  including "delegate typemethod *".  Made it 
 	* dictionary.txt  Possible to delegate an instance method to a
