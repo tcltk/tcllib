@@ -177,8 +177,6 @@ argument "x"
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
-[nl]
-
 [call [cmd ::math::special::J1] [arg x]]
 
 Compute the first-order Bessel function of the first kind for the
@@ -188,11 +186,28 @@ argument "x"
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
-[nl]
+[call [cmd ::math::special::Jn] [arg n] [arg x]]
+
+Compute the nth-order Bessel function of the first kind for the
+argument "x"
+
+[list_begin arg]
+[arg_def integer n] Order of the Bessel function
+[arg_def float x] Argument for the Bessel function
+[list_end]
 
 [call [cmd ::math::special::J1/2] [arg x]]
 
 Compute the half-order Bessel function of the first kind for the
+argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the Bessel function
+[list_end]
+
+[call [cmd ::math::special::J-1/2] [arg x]]
+
+Compute the minus-half-order Bessel function of the first kind for the
 argument "x"
 
 [list_begin arg]
@@ -286,6 +301,7 @@ Compute the hyperbolic sine integral for the argument "x"
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
+
 [call [cmd ::math::special::fresnel_C] [arg x]]
 
 Compute the Fresnel cosine integral for real argument x
@@ -294,9 +310,19 @@ Compute the Fresnel cosine integral for real argument x
 [arg_def float x] Argument for the function
 [list_end]
 
+
 [call [cmd ::math::special::fresnel_S] [arg x]]
 
 Compute the Fresnel sine integral for real argument x
+
+[list_begin arg]
+[arg_def float x] Argument for the function
+[list_end]
+
+
+[call [cmd ::math::special::sinc] [arg x]]
+
+Compute the sinc function for real argument x
 
 [list_begin arg]
 [arg_def float x] Argument for the function

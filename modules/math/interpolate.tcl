@@ -16,18 +16,18 @@
 # version 0.2: added linear and Lagrange interpolation, straightforward
 #              spatial interpolation, april 2004
 # version 0.3: added Neville algorithm.
+# version 1.0: added cubic splines, september 2004
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 # Copyright (c) 2004 by Kevin B. Kenny.  All rights reserved.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: interpolate.tcl,v 1.3 2004/06/20 18:00:37 kennykb Exp $
+#
+# RCS: @(#) $Id: interpolate.tcl,v 1.4 2004/09/22 11:05:52 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
 
-package provide math::interpolate 0.3
 package require struct
 
 # ::math::interpolate --
@@ -517,7 +517,136 @@ proc ::math::interpolate::neville { xtable ytable x } {
     return [list $y [expr { abs($dy) }]]
 }
 
+# prepare-cubic-splines --
+#    Prepare interpolation based on cubic splines
+#
+# Arguments:
+#    xcoord    The x-coordinates
+#    ycoord    Y-values for these x-coordinates
+# Result:
+#    Intermediate parameters describing the spline function,
+#    to be used in the second step, interp-cubic-splines.
+# Note:
+#    Implicitly it is assumed that the function decribed by xcoord
+#    and ycoord has a second derivative 0 at the end points.
+#    To minimise the work if more than one value is needed, the
+#    algorithm is divided in two steps
+#    (Derived from the routine SPLINT in Davis and Rabinowitz:
+#    Methods for Numerical Integration, AP, 1984)
+#
+proc ::math::interpolate::prepare-cubic-splines {xcoord ycoord} {
+
+    if { [llength $xcoord] < 3 } {
+        return -code error "At least three points are required"
+    }
+    if { [llength $xcoord] != [llength $ycoord] } {
+        return -code error "Equal number of x and y values required"
+    }
+
+    set m2 [expr {[llength $xcoord]-1}]
+
+    set s  0.0
+    set h  {}
+    set c  {}
+    for { set i 0 } { $i < $m2 } { incr i } {
+        set ip1 [expr {$i+1}]
+        set h1  [expr {[lindex $xcoord $ip1]-[lindex $xcoord $i]}]
+        lappend h $h1
+        if { $h1 <= 0.0 } {
+            return -code error "X values must be strictly ascending"
+        }
+        set r [expr {([lindex $ycoord $ip1]-[lindex $ycoord $i])/$h1}]
+        lappend c [expr {$r-$s}]
+        set s $r
+    }
+    set s 0.0
+    set r 0.0
+    set t {--}
+    lset c 0 0.0
+
+    for { set i 1 } { $i < $m2 } { incr i } {
+        set ip1 [expr {$i+1}]
+        set im1 [expr {$i-1}]
+        set y2  [expr {[lindex $c $i]+$r*[lindex $c $im1]}]
+        set t1  [expr {2.0*([lindex $xcoord $im1]-[lindex $xcoord $ip1])-$r*$s}]
+        set s   [lindex $h $i]
+        set r   [expr {$s/$t1}]
+        lset c  $i $y2
+        lappend t  $t1
+    }
+    lappend c 0.0
+
+    for { set j 1 } { $j < $m2 } { incr j } {
+        set i   [expr {$m2-$j}]
+        set ip1 [expr {$i+1}]
+        set h1  [lindex $h $i]
+        set yp1 [lindex $c $ip1]
+        set y1  [lindex $c $i]
+        set t1  [lindex $t $i]
+        lset c  $i [expr {($h1*$yp1-$y1)/$t1}]
+    }
+
+    set b {}
+    set d {}
+    for { set i 0 } { $i < $m2 } { incr i } {
+        set ip1 [expr {$i+1}]
+        set s   [lindex $h $i]
+        set yp1 [lindex $c $ip1]
+        set y1  [lindex $c $i]
+        set r   [expr {$yp1-$y1}]
+        lappend d [expr {$r/$s}]
+        lset c $i [expr {3.0*$y1}]
+        lappend b [expr {([lindex $ycoord $ip1]-[lindex $ycoord $i])/$s
+                         -($y1+$r)*$s}]
+    }
+
+    lappend d 0.0
+    lappend b 0.0
+
+    return [list $d $c $b $ycoord $xcoord]
+}
+
+# interp-cubic-splines --
+#    Interpolate based on cubic splines
+#
+# Arguments:
+#    coeffs    Coefficients resulting from the preparation step
+#    x         The x-coordinate for which to estimate the value
+# Result:
+#    Interpolated value at x
+#
+proc ::math::interpolate::interp-cubic-splines {coeffs x} {
+    foreach {dcoef ccoef bcoef acoef xcoord} $coeffs {break}
+
+    #
+    # Check the bounds - no extrapolation
+    #
+    if { $x < [lindex $xcoord 0] } {error "X value too small"}
+    if { $x > [lindex $xcoord end] } {error "X value too large"}
+
+    #
+    # Which interval?
+    #
+    set idx -1
+    foreach xv $xcoord {
+        if { $xv > $x } {
+            break
+        }
+        incr idx
+    }
+
+    set a      [lindex $acoef $idx]
+    set b      [lindex $bcoef $idx]
+    set c      [lindex $ccoef $idx]
+    set d      [lindex $dcoef $idx]
+    set dx     [expr {$x-[lindex $xcoord $idx]}]
+
+    return [expr {(($d*$dx+$c)*$dx+$b)*$dx+$a}]
+}
+
+
+
 #
 # Announce our presence
 #
-# package provide math::interpolate 0.2 # done above
+package provide math::interpolate 1.0

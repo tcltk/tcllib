@@ -7,10 +7,10 @@
 # Copyright (c) 2004 by Kevin B. Kenny.  All rights reserved.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: calculus.tcl,v 1.6 2004/09/09 13:07:58 arjenmarkus Exp $
+#
+# RCS: @(#) $Id: calculus.tcl,v 1.7 2004/09/22 11:05:52 arjenmarkus Exp $
 
-package require math::interpolate 0.3
+package require math::interpolate
 package provide math::calculus 0.6
 
 # math::calculus --
@@ -28,7 +28,7 @@ namespace eval ::math::calculus {
 	boundaryValueSecondOrder solveTriDiagonal   \
 	newtonRaphson newtonRaphsonParameters
 
-    namespace export romberg romberg_infinity 
+    namespace export romberg romberg_infinity
     namespace export romberg_sqrtSingLower romberg_sqrtSingUpper
     namespace export romberg_powerLawLower romberg_powerLawUpper
     namespace export romberg_expLower romberg_expUpper
@@ -553,7 +553,7 @@ proc ::math::calculus::newtonRaphsonParameters { maxiter tolerance } {
 # as 's'.  The function will be evaluated at additional points
 # to give a total of 3**n equally spaced points, and the estimate
 # of the integral will be updated and returned
-# 
+#
 # Under normal circumstances, user code will not call this function
 # directly. Instead, it will use ::math::calculus::romberg to
 # do error control and extrapolation to a zero step size.
@@ -649,7 +649,7 @@ proc ::math::calculus::midpoint { f a b { n 0 } { s 0. } } {
 #----------------------------------------------------------------------
 
 proc ::math::calculus::romberg { f a b args } {
-    
+
     # Replace f with a context-independent version
 
     set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]

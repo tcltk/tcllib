@@ -11,11 +11,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: optimize.tcl,v 1.5 2004/06/22 07:45:20 arjenmarkus Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.6 2004/09/22 11:05:52 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
-
-package provide optimize 0.2
 
 # math::optimize --
 #    Namespace for the commands
@@ -595,6 +593,12 @@ proc ::math::optimize::min_unbound_1d { f x1 x2 args } {
 }
 
 #
+# Announce the package
+#
+package provide math::optimize 0.2
+
+if { 0 } {
+#
 # Some simple tests
 #
 if {[file tail $::argv0] == [info script]} {
@@ -626,4 +630,5 @@ if {[file tail $::argv0] == [info script]} {
    puts "Between -1 and 3: [maximum -1.0 3.0 f4 ] (expected: 0.5)"
    puts "Between  1 and 3: [maximum 1.0 3.0  f4 ] (expected: 1)"
 
+}
 }
