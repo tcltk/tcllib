@@ -97,7 +97,7 @@ if {![catch {package require Trf 2.0}]} {
 		0xCA62C1D6
 	    } {
 		for {set i 0} {$i < 20} {incr i} {
-		    lappend K $t
+		    lappend K [expr {int($t)}]
 		}
 	    }
 	}
@@ -180,11 +180,11 @@ if {![catch {package require Trf 2.0}]} {
 
 	# initial H buffer
 
-	set H0 0x67452301
-	set H1 0xEFCDAB89
-	set H2 0x98BADCFE
-	set H3 0x10325476
-	set H4 0xC3D2E1F0
+	set H0 [expr {int(0x67452301)}]
+	set H1 [expr {int(0xEFCDAB89)}]
+	set H2 [expr {int(0x98BADCFE)}]
+	set H3 [expr {int(0x10325476)}]
+	set H4 [expr {int(0xC3D2E1F0)}]
 
 	#
 	# process message in 16-word blocks (64-byte blocks)
