@@ -392,9 +392,11 @@ proc gd-gen-tap {} {
     lappend lines {# Complete bundle}
     lappend lines {}
     lappend lines [list Package [list $tcllib_name $tcllib_version]]
-    lappend lines "Base    @TAP_DIR@"
-    lappend lines "Path    pkgIndex.tcl"
-    lappend lines "Path    [join $modules "\nPath    "]"
+    lappend lines "Base     @TAP_DIR@"
+    lappend lines "Platform *"
+    lappend lines "Desc     {Tcllib: Bundle of all packages}"
+    lappend lines "Path     pkgIndex.tcl"
+    lappend lines "Path     [join $modules "\nPath     "]"
 
     set  strip [llength [file split $distribution]]
     incr strip 2
@@ -412,18 +414,22 @@ proc gd-gen-tap {} {
 	lappend lines "# -------+"
 	lappend lines {}
 	lappend lines [list Package [list __$m 0.0]]
+	lappend lines "Platform *"
+	lappend lines "Desc     {Tcllib module}"
 	lappend lines Hidden
-	lappend lines "Base    @TAP_DIR@/$m"
+	lappend lines "Base     @TAP_DIR@/$m"
 
 	foreach f [modtclfiles $m] {
-	    lappend lines "Path    [fileutil::stripN $f $strip]"
+	    lappend lines "Path     [fileutil::stripN $f $strip]"
 	}
 
 	# Packages in the module ...
 	foreach {p v} [ppackages $m] {
 	    lappend lines {}
-	    lappend lines [list Package $p $v]
+	    lappend lines [list Package [list $p $v]]
 	    lappend lines "See   [list __$m]"
+	    lappend lines "Platform *"
+	    lappend lines "Desc     {Tcllib package}"
 	}
 	lappend lines {}
 	lappend lines {#}
