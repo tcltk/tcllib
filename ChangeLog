@@ -1,3 +1,9 @@
+2003-05-26  Andreas Kupries  <andreask@activestate.com>
+
+	* sak.tcl: Updated rpm spec generator using the latest .spec by
+	  Jean-Luc as template. The spec now determiens the list of files
+	  on its own. Don't have to generate them.
+
 2003-05-23  Andreas Kupries  <andreask@activestate.com>
 
 	* sak.tcl (gd-gen-rpmspec): Added functions to generate a .spec
