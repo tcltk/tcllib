@@ -13,13 +13,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.9 2000/09/28 21:28:37 kuchler Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.10 2000/10/02 02:23:44 kuchler Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
 #			ftp::Cd <s> <directory>
 #			ftp::Pwd <s>
-#			ftp::Type <s> <?ascii|binary?>	
+#			ftp::Type <s> <?ascii|binary|tenex?>	
 #			ftp::List <s> <?directory?>
 #			ftp::NList <s> <?directory?>
 #			ftp::FileSize <s> <file>
@@ -146,6 +146,12 @@ proc ftp::WaitOrTimeout {s} {
         set retvar $ftp(state.control)
     }
 
+    if {$ftp(Error) != ""} {
+        set errmsg $ftp(Error)
+        set ftp(Error) ""
+        DisplayMsg $s $errmsg error
+    }
+
     return $retvar
 }
 
@@ -257,7 +263,7 @@ proc ftp::StateHandler {s {sock ""}} {
             if { $VERBOSE } {
                 DisplayMsg $s "C: 421 Service not available, closing control connection." control
             }
-            DisplayMsg $s "Service not available!" error
+            set ftp(Error) "Service not available!"
             CloseDataConn $s
             WaitComplete $s 0
 	    Command $ftp(Command) terminated
@@ -370,8 +376,10 @@ proc ftp::StateHandler {s {sock ""}} {
         type {
             if { [string equal $ftp(Type) "ascii"] } {
                 PutsCtrlSock $s "TYPE A"
-            } else {
+            } elseif { [string equal $ftp(Type) "binary"] } {
                 PutsCtrlSock $s "TYPE I"
+            } else {
+                PutsCtrlSock $s "TYPE L"
             }
             set ftp(State) type_sent
         }
@@ -987,10 +995,12 @@ proc ftp::StateHandler {s {sock ""}} {
         }
     }
 	
-    # display error message
+    # Rather than throwing an error in the event loop, set the ftp(Error)
+    # variable to hold the message so that it can later be thrown after the
+    # the StateHandler has completed.
+
     if { [info exists errmsg] } {
         set ftp(Error) $errmsg
-        DisplayMsg $s $errmsg error
     }
 
     # If operating asynchronously, commence next state
@@ -2215,22 +2225,22 @@ proc ftp::Open {server user passwd args} {
         DisplayMsg $s "Starting new connection with: "
     }
 	
-    set ftp(User) 		$user
+    set ftp(User)       $user
     set ftp(Passwd) 	$passwd
-    set ftp(RemoteHost) 	$server
+    set ftp(RemoteHost) $server
     set ftp(LocalHost) 	[info hostname]
     set ftp(DataPort) 	0
-    set ftp(Type) 		{}
-    set ftp(Error) 		{}
+    set ftp(Type) 	{}
+    set ftp(Error) 	""
     set ftp(Progress) 	{}
     set ftp(Command)	{}
     set ftp(Output) 	{}
     set ftp(Blocksize) 	4096	
     set ftp(Timeout) 	600	
-    set ftp(Mode) 		active	
-    set ftp(Port) 		21	
+    set ftp(Mode) 	active	
+    set ftp(Port) 	21	
 
-    set ftp(State) 		user
+    set ftp(State) 	user
 	
     # set state var
     set ftp(state.control) ""

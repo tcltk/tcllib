@@ -1,4 +1,17 @@
 
+2000-10-01  Dan Kuchler <kuchler@ajubasolutions.com>
+
+      * ftp.tcl: Moved the call to 'DisplayMsg' from inside of the
+      fileevent loop (in ftp::StateHandler) to WaitorTimeout.  Now
+      errors that occur in StateHandler won't be thrown until after the
+      the asynchronous (fileevent) portion of the code has completed.
+      ftp::OpenActiveConn and ftp::OpenPassiveConn can both still generate
+      errors in the event loop, which will cause a bgerror to be thrown.
+      Added some (untested) code to support Tenex mode ftp transfers.  So
+      far tenex mode sends across 'TYPE L', and then does the transfer with
+      a binary encoded channel. Since I don't have a tenex system to test
+      it with, this feature is very alpha at this point.
+
 2000-09-28  Dan Kuchler <kuchler@ajubasolutions.com>
 
       * ftp.tcl: Fixed a line of code in the "list_close" state of StateHandler,

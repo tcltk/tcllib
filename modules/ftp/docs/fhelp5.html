@@ -18,10 +18,11 @@
     <dd>
 
 	The <b>ftp::Type</b> command sets the ftp file transfer type either 
-	to <em>ascii</em> or to <em>binary</em>. In every case, also if the type name is
-	unspecified, it returns the current type. 
+	to <em>ascii</em>, <em>binary</em>, or to <em>tenex</em>. In every
+        case, also if the type name is unspecified, it returns the current type.
 
-	<p>Only <b>ascii</b> and <b>binary</b> types are currently supported. The ascii
+	<p>Only <b>ascii</b> and <b>binary</b> types are currently supported.
+        There is some early (alhpa) support for Tenex mode.  The ascii
 	type is normally used to convert text files to a format suitable
 	for text editors on the platform depended destination machine.
 	The binary type allows undisturbed transfers of non-text files,
