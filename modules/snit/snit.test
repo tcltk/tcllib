@@ -161,21 +161,21 @@ test Mappend-1.4 {template with odd number of arguments} -body {
     unset text
 }
 
-test UniqueName-1.1 {no name collision} -body {
+test RT.UniqueName-1.1 {no name collision} -body {
     set counter 0
 
     # Standard qualified type name.
-    set n1 [snit::UniqueName counter ::mytype ::my::%AUTO%]
+    set n1 [snit::RT.UniqueName counter ::mytype ::my::%AUTO%]
 
     # Standard qualified widget name.
-    set n2 [snit::UniqueName counter ::mytype .my.%AUTO%]
+    set n2 [snit::RT.UniqueName counter ::mytype .my.%AUTO%]
 
     list $n1 $n2
 } -result {::my::mytype1 .my.mytype2} -cleanup {
     unset counter n1 n2
 }
 
-test UniqueName-1.2 {name collision} -body {
+test RT.UniqueName-1.2 {name collision} -body {
     set counter 0
 
     # Create the first two equivalent procs.
@@ -183,32 +183,32 @@ test UniqueName-1.2 {name collision} -body {
     proc ::mytype2 {} {}
 
     # Create a new name; it should skip to 3.
-    snit::UniqueName counter ::mytype ::%AUTO%
+    snit::RT.UniqueName counter ::mytype ::%AUTO%
 } -result {::mytype3} -cleanup {
     unset counter
     rename ::mytype1 ""
     rename ::mytype2 ""
 }
 
-test UniqueName-1.3 {nested type name} -body {
+test RT.UniqueName-1.3 {nested type name} -body {
     set counter 0
 
-    snit::UniqueName counter ::thisis::yourtype ::your::%AUTO%
+    snit::RT.UniqueName counter ::thisis::yourtype ::your::%AUTO%
 } -result {::your::yourtype1} -cleanup {
     unset counter
 }
 
-test UniqueInstanceNamespace-1.1 {no name collision} -setup {
+test RT.UniqueInstanceNamespace-1.1 {no name collision} -setup {
     namespace eval ::mytype:: {}
 } -body {
     set counter 0
-    snit::UniqueInstanceNamespace counter ::mytype
+    snit::RT.UniqueInstanceNamespace counter ::mytype
 } -result {::mytype::Snit_inst1} -cleanup {
     unset counter
     namespace delete ::mytype::
 }
 
-test UniqueInstanceNamespace-1.2 {name collision} -setup {
+test RT.UniqueInstanceNamespace-1.2 {name collision} -setup {
     namespace eval ::mytype:: {}
     namespace eval ::mytype::Snit_inst1:: {}
     namespace eval ::mytype::Snit_inst2:: {}
@@ -216,7 +216,7 @@ test UniqueInstanceNamespace-1.2 {name collision} -setup {
     set counter 0
     
     # Should skip to 3.
-    snit::UniqueInstanceNamespace counter ::mytype
+    snit::RT.UniqueInstanceNamespace counter ::mytype
 } -result {::mytype::Snit_inst3} -cleanup {
     unset counter
     namespace delete ::mytype::
@@ -676,7 +676,7 @@ test rename-1.1 {mymethod uses name of instance name variable} {} {
 
     dog fido
     fido mymethod
-} {{::snit::CallInstance ::dog::Snit_inst1} {::snit::CallInstance ::dog::Snit_inst1 {A B}} {::snit::CallInstance ::dog::Snit_inst1 A B}}
+} {{::snit::RT.CallInstance ::dog::Snit_inst1} {::snit::RT.CallInstance ::dog::Snit_inst1 {A B}} {::snit::RT.CallInstance ::dog::Snit_inst1 A B}}
 
 test rename-1.2 {instances can be renamed.} {} {
     cleanup
@@ -693,7 +693,7 @@ test rename-1.2 {instances can be renamed.} {} {
     set b [spot names]
 
     concat $a $b
-} {{::snit::CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::fido {::snit::CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::spot}
+} {{::snit::RT.CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::fido {::snit::RT.CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::spot}
 
 test rename-1.3 {rename to "" deletes an instance.} {} {
     cleanup
