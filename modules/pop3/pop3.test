@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.12 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.13 2004/01/25 06:15:05 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -23,14 +23,6 @@ if {[catch {source [file join $::tcltest::testsDirectory pop3.tcl]} msg]} {
 }
 
 source [file join [file dirname $::tcltest::testsDirectory] devtools subserv.tcl]
-
-if 0 {
-    rename test test__
-    proc test {args} {
-	puts "[lindex $args 0] ____________________________________________"
-	return [uplevel test__ $args]
-    }
-}
 
 puts "- tcltest [package present tcltest]"
 puts "- pop3    [package present pop3]"
@@ -103,6 +95,30 @@ Content-Type: text/plain;
 Test ______
 
 .
+
+--
+Done
+}
+
+set __messageB {MIME-Version: 1.0
+Content-Type: text/plain;
+              charset="us-ascii"
+
+Test ______
+
+This line can cause a failure.
+
+--
+Done
+}
+
+set __messageC {MIME-Version: 1.0
+Content-Type: text/plain;
+              charset="us-ascii"
+
+Test ______
+
+This line can cause a failure.
 
 --
 Done
@@ -202,6 +218,14 @@ proc peek {chan} {
 ::log::lvSuppress notice
 ::log::lvSuppress debug
 ::log::lvSuppress warning
+
+if 0 {
+    rename test test__
+    proc test {args} {
+	puts "[lindex $args 0] ________________________________________________________________________"
+	return [uplevel test__ $args]
+    }
+}
 
 proc blot {txt sock} {
     string map [list $sock SOCK] $txt
@@ -425,6 +449,15 @@ test pop3-2.8 {fast retrieval, .-stuff border break, #528928} {
     ::subserv::muservStop
     set res
 } [list $__message]
+
+test pop3-2.9 {fast retrieval, .-stuff border break} {
+    set port  [setupServer [retrMessage 0 $__messageB 126]]
+    set psock [pop3::open -retr-mode retr localhost ak smash $port]
+    set res   [pop3::retrieve $psock 1]
+    pop3::close $psock
+    ::subserv::muservStop
+    set res
+} [list $__messageB]
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------

@@ -1,3 +1,16 @@
+2004-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Version bumped up to 1.6.1.
+	* pop3.man:
+
+	* pop3.test: New test for the corner case.
+	* pop3.tcl (::pop3::RetrFast): Thanks to Clif Flynt for reporting a
+	  new corner case I had not considered in the fast/slow
+	  transition code, plus patch. Modified a number of string
+	  comparisons, using [string equal] instead of "==" (Improved
+	  performance due to less conversion and less checking for
+	  numerics, and possibly bytecompilation in Tcl 8.4+).
+
 2003-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.tcl (pop3::open): Remembering initial count of messages, as

@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.8 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.9 2004/01/25 06:15:05 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -60,10 +60,88 @@ proc aget {avar} {
     return $out
 }
 
+# Validate a serialization against the matrix it
+# was generated from.
+
+proc validate_serial {m serial {rect {}}} {
+    # Need a list with length 3.
+
+    if {[llength $serial] != 3} {
+	return serial/wrong#elements
+    }
+
+    foreach {r c d} $serial break
+
+    # Check dimensions against source
+
+    if {$rect == {}} {
+	set ro [$m rows]
+	set co [$m columns]
+
+	set ctl 0 ; set cbr $co ; incr cbr -1
+	set rtl 0 ; set rbr $ro ; incr rbr -1
+    } else {
+	foreach {ctl rtl cbr rbr} $rect break
+	set ro [expr {$rbr - $rtl + 1}]
+	set co [expr {$cbr - $ctl + 1}]
+    }
+    if {$r != $ro} {
+	return dim/row-mismatch
+    }
+    if {$c != $co} {
+	return dim/column-mismatch
+    }
+
+    # Check cell data size against dimensions.
+
+    if {[llength $d] > $r} {
+	return data/rows/to-many
+    }
+    foreach rv $d {
+	if {[llength $rv] > $c} {
+	    return data/columns/to-many
+	}
+    }
+
+    # Check cell data against matrix itself,
+    # possibly offset to the chosen rectangle.
+
+    set r $rtl
+    foreach rv $d {
+	set c $ctl
+	foreach cv $rv {
+	    if {[$m get cell $c $r] ne $cv} {
+		return data/cell/$c/$r/content-mismatch
+	    }
+	    incr c
+	}
+	while {$c < $cbr} {
+	    # Empty cell to the right, check that they are truly empty
+	    if {[$m get cell $c $r] != {}} {
+		return data/cell/$c/$r/not-empty/missing-from-serial
+	    }
+	    incr c
+	}
+	incr r
+    }
+    while {$r < $rbr} {
+	# Empty row at the bottom, check that they are truly empty
+	for {set c $ctl} {$c < $cbr} {incr c} {
+	    if {[$m get cell $c $r] != {}} {
+		return data/cell/$c/$r/not-empty/missing-from-serial
+	    }
+	}
+	incr r
+    }
+
+    return ok
+}
+
 # Serialized matrix for some tests.
 
 set matdata {{2 0 f j} {c g b a} {a 02 01 3}}
 
+# ---------------------------------------------------
 
 test matrix-0.1 {matrix errors} {
     matrix mymatrix
@@ -84,7 +162,7 @@ test matrix-0.3 {matrix errors} {
     catch {mymatrix foo} msg
     mymatrix destroy
     set msg
-} "bad option \"foo\": must be add, cells, cellsize, columns, columnwidth, delete, destroy, format, get, insert, link, links, rowheight, rows, search, set, sort, swap, or unlink"
+} "bad option \"foo\": must be -->, =, add, cells, cellsize, columns, columnwidth, delete, deserialize, destroy, format, get, insert, link, links, rowheight, rows, search, serialize, set, sort, swap, transpose, or unlink"
 
 test matrix-0.4 {matrix errors} {
     matrix mymatrix
@@ -98,7 +176,7 @@ test matrix-0.5 {matrix errors} {
     catch {mymatrix delete foo} msg
     mymatrix destroy
     set msg
-} "bad option \"foo\": must be column, or row"
+} "bad option \"foo\": must be column, columns, row, or rows"
 
 test matrix-0.6 {matrix errors} {
     matrix mymatrix
@@ -529,6 +607,99 @@ test matrix-4.7 {deletion of rows and columns} {
     mymatrix destroy
     set result
 } {bad row index 5, row does not exist}
+
+test matrix-4.8 {deletion of rows and columns} {
+    matrix mymatrix
+    catch {mymatrix delete rows 0} result
+    mymatrix destroy
+    set result
+} {A value of n <= 0 is not allowed}
+
+test matrix-4.9 {deletion of rows and columns} {
+    matrix mymatrix
+    catch {mymatrix delete rows -1} result
+    mymatrix destroy
+    set result
+} {A value of n <= 0 is not allowed}
+
+test matrix-4.10 {deletion of rows and columns} {
+    matrix mymatrix
+    catch {mymatrix delete rows 1} result
+    mymatrix destroy
+    set result
+} {A value of n > #rows is not allowed}
+
+test matrix-4.11 {deletion of rows and columns} {
+    matrix mymatrix
+    mymatrix add rows 2
+    catch {mymatrix delete rows 3} result
+    mymatrix destroy
+    set result
+} {A value of n > #rows is not allowed}
+
+test matrix-4.12 {deletion of rows and columns} {
+    matrix mymatrix
+    catch {mymatrix delete columns 0} result
+    mymatrix destroy
+    set result
+} {A value of n <= 0 is not allowed}
+
+test matrix-4.13 {deletion of rows and columns} {
+    matrix mymatrix
+    catch {mymatrix delete columns -1} result
+    mymatrix destroy
+    set result
+} {A value of n <= 0 is not allowed}
+
+test matrix-4.14 {deletion of rows and columns} {
+    matrix mymatrix
+    catch {mymatrix delete columns 1} result
+    mymatrix destroy
+    set result
+} {A value of n > #columns is not allowed}
+
+test matrix-4.15 {deletion of rows and columns} {
+    matrix mymatrix
+    mymatrix add rows 2
+    catch {mymatrix delete columns 3} result
+    mymatrix destroy
+    set result
+} {A value of n > #columns is not allowed}
+
+test matrix-4.16 {deletion of rows and columns} {
+    matrix mymatrix
+    mymatrix add rows    2
+    mymatrix add columns 3
+    mymatrix set rect 0 0 {{a b c} {d e f}}
+    mymatrix delete rows 1
+    set result [mymatrix get rect 0 0 2 0]
+    mymatrix destroy
+    set result
+} {{a b c}}
+
+test matrix-4.17 {deletion of rows and columns} {
+    matrix mymatrix
+    mymatrix add rows    2
+    mymatrix add columns 3
+    mymatrix set rect 0 0 {{a b c} {d e f}}
+    mymatrix delete columns 1
+    set result [mymatrix get rect 0 0 1 1]
+    mymatrix destroy
+    set result
+} {{a b} {d e}}
+
+test matrix-4.18 {deletion of rows and columns} {
+    matrix mymatrix
+    mymatrix add rows    2
+    mymatrix add columns 3
+    mymatrix set rect 0 0 {{a b c} {d e f}}
+    mymatrix delete rows    1
+    mymatrix delete columns 1
+    set result [mymatrix get rect 0 0 1 0]
+    mymatrix destroy
+    set result
+} {{a b}}
+
 
 test matrix-5.0 {format error} {
     matrix mymatrix
@@ -1904,6 +2075,322 @@ foreach {n cmd res resd} {
     } $resd
 }
 
+test matrix-14.0 {transposition} {
+    matrix mymatrix
+    mymatrix transpose
+    set result [list [mymatrix rows] [mymatrix columns]]
+    mymatrix destroy
+    set result
+} {0 0}
+
+test matrix-14.1 {transposition} {
+    matrix mymatrix
+    mymatrix add rows 2
+    mymatrix transpose
+    set result [list [mymatrix rows] [mymatrix columns]]
+    mymatrix destroy
+    set result
+} {0 2}
+
+test matrix-14.2 {transposition} {
+    matrix mymatrix
+    mymatrix add columns 2
+    mymatrix transpose
+    set result [list [mymatrix rows] [mymatrix columns]]
+    mymatrix destroy
+    set result
+} {2 0}
+
+test matrix-14.3 {transposition} {
+    matrix mymatrix
+    mymatrix add rows    2
+    mymatrix add columns 3
+    mymatrix set rect 0 0 {{a b c} {d e f}}
+
+    mymatrix transpose
+    set result [list [mymatrix rows] [mymatrix columns] [mymatrix get rect 0 0 1 2]]
+    mymatrix destroy
+    set result
+} {3 2 {{a d} {b e} {c f}}}
+
+test matrix-14.4 {transposition} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 2
+    mymatrix set rect 0 0 {{a d} {b e} {c f}}
+
+    mymatrix transpose
+    set result [list [mymatrix rows] [mymatrix columns] [mymatrix get rect 0 0 2 1]]
+    mymatrix destroy
+    set result
+} {2 3 {{a b c} {d e f}}}
+
+test matrix-14.5 {transposition} {
+    matrix mymatrix
+    mymatrix add rows    2
+    mymatrix add columns 2
+    mymatrix set rect 0 0 {{a b} {d e}}
+
+    mymatrix transpose
+    set result [list [mymatrix rows] [mymatrix columns] [mymatrix get rect 0 0 1 1]]
+    mymatrix destroy
+    set result
+} {2 2 {{a d} {b e}}}
+
+
+
+############################################################
+# V. Objects to values and back ...
+# - serialize deserialize = -->
+############################################################
+
+test matrix-15.0 {serialization, bogus rectangle} {
+    matrix mymatrix
+    catch {mymatrix serialize 1 1 3 3} result
+    mymatrix destroy
+    set result
+} {bad column index 1, column does not exist}
+
+test matrix-15.1 {serialization, all} {
+    matrix mymatrix
+    mymatrix add columns 4
+    mymatrix add rows    3
+    mymatrix set rect    0 0 $matdata
+
+    set serial [mymatrix serialize]
+    set result [validate_serial mymatrix $serial]
+    mymatrix destroy
+    set result
+
+    # set serial =
+    # {3 4 {{2 0 f j} {c g b a} {a 02 01 3}}}
+} ok
+
+test matrix-15.2 {serialization, submatrix} {
+    matrix mymatrix
+    mymatrix add columns 4
+    mymatrix add rows    3
+    mymatrix set rect    0 0 $matdata
+
+    set serial [mymatrix serialize 1 1 2 2]
+    set result [validate_serial mymatrix $serial {1 1 2 2}]
+    mymatrix destroy
+    set result
+
+    # set serial =
+    # {2 2 {{g b} {02 01}}}
+} ok
+
+# ---------------------------------------------------  
+
+test matrix-16.0 {deserialization, wrong #args} {
+    matrix mymatrix
+    catch {mymatrix deserialize foo bar} result
+    mymatrix destroy
+    set result
+} {wrong # args: should be "::struct::matrix::_deserialize name serial"}
+
+test matrix-16.1 {deserialization} {
+    matrix mymatrix
+    set serial {3 4}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: list length not 3.}}
+
+test matrix-16.2 {deserialization} {
+    matrix mymatrix
+    set serial {1 1 {{1}} .}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: list length not 3.}}
+
+test matrix-16.3 {deserialization} {
+    matrix mymatrix
+    set serial {. 1 {}}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: bad number of rows ".".}}
+
+test matrix-16.4 {deserialization} {
+    matrix mymatrix
+    set serial {-1 1 {}}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: bad number of rows "-1".}}
+
+test matrix-16.5 {deserialization} {
+    matrix mymatrix
+    set serial {1 . {}}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: bad number of columns ".".}}
+
+test matrix-16.6 {deserialization} {
+    matrix mymatrix
+    set serial {1 -1 {}}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: bad number of columns "-1".}}
+
+test matrix-16.7 {deserialization} {
+    matrix mymatrix
+    set serial {2 2 {{a b} {c d} {e f}}}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: data for to many rows.}}
+
+test matrix-16.8 {deserialization} {
+    matrix mymatrix
+    set serial {2 2 {{a b} {c d e}}}
+    set fail [catch {mymatrix deserialize $serial} result]
+    mymatrix destroy
+    list $fail $result
+} {1 {error in serialization: data for to many columns.}}
+
+test matrix-16.9 {deserialization} {
+    matrix mymatrix
+
+    # Our check of the success of the deserialization
+    # is to validate the generated matrix against the
+    # serialized data.
+
+    set serial {4 3 {{a b c} {d e} {f}}}
+
+    set     result [list]
+    lappend result [validate_serial mymatrix $serial]
+
+    mymatrix deserialize $serial
+    lappend result [validate_serial mymatrix $serial]
+    mymatrix destroy
+    set result
+} {dim/row-mismatch ok}
+
+test matrix-16.10 {deserialization} {
+    matrix mymatrix
+
+    # Our check of the success of the deserialization
+    # is to validate the generated matrix against the
+    # serialized data.
+
+    # Applying to serialization one after the
+    # other. Checking that the second operation
+    # completely squashes the data from the first.
+
+    set seriala {4 3 {{a b c} {d e} {f}}}
+    set serialb {2 2 {{. /} {= %}}}
+
+    set     result [list]
+    lappend result [validate_serial mymatrix $seriala]
+    lappend result [validate_serial mymatrix $serialb]
+
+    mymatrix deserialize $seriala
+    lappend result [validate_serial mymatrix $seriala]
+    lappend result [validate_serial mymatrix $serialb]
+
+    mymatrix deserialize $serialb
+    lappend result [validate_serial mymatrix $seriala]
+    lappend result [validate_serial mymatrix $serialb]
+
+    mymatrix destroy
+    set result
+} {dim/row-mismatch dim/row-mismatch ok dim/row-mismatch dim/row-mismatch ok}
+
+# ---------------------------------------------------  
+
+test matrix-17.1 {matrix assignment} {
+    matrix mymatrix
+    catch {mymatrix = foo bar} result
+    mymatrix destroy
+    set result
+} {wrong # args: should be "::struct::matrix::_= name source"}
+
+test matrix-17.2 {matrix assignment} {
+    set serial {2 2 {{. /} {= %}}}
+
+    matrix mymatrix
+    matrix bmatrix
+
+    mymatrix deserialize $serial
+
+    set result [validate_serial bmatrix $serial]
+    bmatrix = mymatrix
+    lappend result [validate_serial bmatrix $serial]
+
+    mymatrix destroy
+    bmatrix  destroy
+    set result
+} {dim/row-mismatch ok}
+
+# ---------------------------------------------------  
+
+test matrix-18.1 {reverse matrix assignment} {
+    matrix mymatrix
+    catch {mymatrix --> foo bar} result
+    mymatrix destroy
+    set result
+} {wrong # args: should be "::struct::matrix::_--> name dest"}
+
+test matrix-18.2 {reverse matrix assignment} {
+
+    set serial {4 3 {{a b c} {d e} {f}}}
+
+    matrix mymatrix
+    matrix bmatrix
+
+    mymatrix deserialize $serial
+
+    set result [validate_serial bmatrix $serial]
+    mymatrix --> bmatrix
+    lappend result [validate_serial bmatrix $serial]
+
+    mymatrix destroy
+    bmatrix  destroy
+    set result
+} {dim/row-mismatch ok}
+
+# ---------------------------------------------------  
+
+test matrix-19.1 {copy construction, wrong # args} {
+    catch {matrix mymatrix = a b} result
+    set result
+} {wrong # args: should be "matrix ?name ?=|:=|as|deserialize source??"}
+
+test matrix-19.2 {copy construction, unknown operator} {
+    catch {matrix mymatrix foo a} result
+    set result
+} {wrong # args: should be "matrix ?name ?=|:=|as|deserialize source??"}
+
+test matrix-19.3 {copy construction, value} {
+    set serial {4 3 {{a b c} {d e} {f}}}
+
+    matrix mymatrix deserialize $serial
+    set result [validate_serial mymatrix $serial]
+    mymatrix destroy
+
+    set result
+} ok
+
+test matrix-19.4 {copy construction, matrix} {
+    set serial {4 3 {{a b c} {d e} {f}}}
+
+    matrix mymatrix deserialize $serial
+    matrix bmatrix = mymatrix
+
+    set result [validate_serial bmatrix $serial]
+    mymatrix destroy
+    bmatrix  destroy
+
+    set result
+} ok
+
+# ---------------------------------------------------
 
 # Future tests: query rowheight, column width before and after delete
 # row/column to ascertain that the cached values are correctly
