@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.15 2002/01/18 20:51:16 andreas_kupries Exp $
+'\" RCS: @(#) $Id: html.n,v 1.16 2002/02/14 21:23:32 jenglish Exp $
 '\" 
 .so man.macros
 .TH html n 1.2 Html "HTML Generation"
@@ -11,7 +11,6 @@
 .SH NAME
 ::html \- Procedures to generate HTML structures.
 .SH SYNOPSIS
-.BS
 .sp
 \fBpackage require Tcl 8.2\fR
 .sp
@@ -47,8 +46,6 @@
 .sp
 \fBhtml::foreach\fR \fIvarlist1 list1 ?varlist2 list2 ...? body\fR
 .sp
-\fBhtml::formatCode\fR \fIcode\fR
-.sp
 \fBhtml::formValue\fR \fIname {defvalue {}}\fR
 .sp
 \fBhtml::getFormInfo\fR \fIargs\fR
@@ -75,7 +72,7 @@
 .sp
 \fBhtml::headTag\fR \fIstring\fR
 .sp
-\fBhtml::if\fR \fIexpr1 body1 ?\fBelseif\fR expr2 body2 ...? ?\fBelse\fR bodyN?\fR
+\fBhtml::if\fR \fIexpr1 body1\fR ?\fBelseif\fR \fIexpr2 body2 ...\fR? ?\fBelse\fR \fIbodyN?\fR
 .sp
 \fBhtml::keywords\fR \fIargs\fR
 .sp
@@ -320,7 +317,7 @@ by \fBhtml::head\fR.  The \fIstring\fP is everything
 in the tag except the enclosing angle brackets, < >.
 
 .TP
-\fBhtml::if\fR \fIexpr1 body1 ?\fBelseif\fR expr2 body2 ...? ?\fBelse\fR bodyN?\fR
+\fBhtml::if\fR \fIexpr1 body1\fR ?\fBelseif\fR \fIexpr2 body2 ...\fR? ?\fBelse\fR \fIbodyN?\fR
 This procedure is similar to the built-in Tcl \fBif\fR control
 structure.  Rather than evaluating the body of the branch that is
 taken, it returns the subst'ed \fIbody\fR.  Note that the syntax is
@@ -490,7 +487,7 @@ structure.  Rather than evaluating the body, it returns the subst'ed
 \fIbody\fR.  Each iteration of the loop causes another string to be
 concatenated to the result value.
 
-.SH SEE ALSO
+.SH "SEE ALSO"
 ncgi
 
 .SH KEYWORDS
