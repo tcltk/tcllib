@@ -1,3 +1,10 @@
+2004-07-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* rc4.tcl:  Storing the state as a list and using lset is faster
+	than using an array provided we have a built-in lset
+	command. Added both versions and switch appropriately to get the
+	fastest implementation for the tcl version. Tested 8.2 - 8.5.
+
 2004-07-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* rc4.tcl:  Pure tcl implementation of the Alledged RC4 stream cipher.

@@ -1,6 +1,6 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: rc4.test,v 1.1 2004/07/02 00:01:03 patthoyts Exp $
+# $Id: rc4.test,v 1.2 2004/07/04 00:16:53 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -27,7 +27,11 @@ if {[catch {source [file join [file dirname [info script]] rc4.tcl]} msg]} {
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-puts "- rc4 [package present rc4] (pure Tcl)"
+if {[info command ::rc4::rc4c] != {}} {
+    puts "- rc4 [package present rc4] (critcl)"
+} else {
+    puts "- rc4 [package present rc4] (pure Tcl)"
+}
 
 # -------------------------------------------------------------------------
 

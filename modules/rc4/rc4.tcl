@@ -9,13 +9,13 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 #
-# $Id: rc4.tcl,v 1.1 2004/07/02 00:01:03 patthoyts Exp $
+# $Id: rc4.tcl,v 1.2 2004/07/04 00:16:53 patthoyts Exp $
 
 package require Tcl 8.2
 
 namespace eval ::rc4 {
     variable version 1.0.0
-    variable rcsid {$Id: rc4.tcl,v 1.1 2004/07/02 00:01:03 patthoyts Exp $}
+    variable rcsid {$Id: rc4.tcl,v 1.2 2004/07/04 00:16:53 patthoyts Exp $}
 
     namespace export rc4
 
@@ -23,11 +23,28 @@ namespace eval ::rc4 {
     if {![info exists uid]} {
         set uid 0
     }
+
+    # Using a list to hold the keystream state is a lot faster than using
+    # an array. However, for Tcl < 8.4 we don't have the lset command.
+    # Using a compatability lset is slower than using arrays.
+    # Obviously, a compiled C version is fastest of all.
+    # So lets pick the fastest method we can find...
+    #
+    if {[info command ::rc4::rc4c] != {}} {
+        interp alias {} ::rc4::RC4Init {} ::rc4::rc4c_init
+        interp alias {} ::rc4::RC4     {} ::rc4::rc4c
+    } elseif {[package vcompare [package provide Tcl] 8.4] < 0} {
+        interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_Array
+        interp alias {} ::rc4::RC4     {} ::rc4::RC4_Array
+    } else {
+        interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_List
+        interp alias {} ::rc4::RC4     {} ::rc4::RC4_List
+    }
 }
 
-# RC4Init - create and initialize the RC4 state.
+# RC4Init - create and initialize the RC4 state as an array
 #
-proc ::rc4::RC4Init {keystr} {
+proc ::rc4::RC4Init_Array {keystr} {
     variable uid
 
     binary scan $keystr c* key
@@ -57,7 +74,9 @@ proc ::rc4::RC4Init {keystr} {
     return $Key
 }
 
-proc ::rc4::RC4 {Key datastr} {
+# RC4 - process the data using the array based state
+#
+proc ::rc4::RC4_Array {Key datastr} {
     # FRINK: nocheck
     variable $Key
     upvar #0 $Key state
@@ -81,6 +100,79 @@ proc ::rc4::RC4 {Key datastr} {
     set state(x) $x
     set state(y) $y
     return [binary format c* $res]
+}
+
+# RC4Init - create and initialize the RC4 state as a list.
+#
+proc ::rc4::RC4Init_List {keystr} {
+    variable uid
+
+    binary scan $keystr c* key
+    set keylen [llength $key]
+
+    set Key [namespace current]::key[incr uid]
+    # FRINK: nocheck
+    variable $Key
+    upvar #0 $Key State
+    catch {unset State}
+
+    set i 0
+    set j 0
+    set s {}; #[::struct::list::Liota 256]
+    for {set n 0} {$n < 256} {incr n} {lappend s $n}
+    
+    for {set cn 0} {$cn < 256} {incr cn} {
+        set j [expr {([lindex $key $i] + [lindex $s $cn] + $j) % 256}]
+        set t [lindex $s $cn]
+        lset s $cn [lindex $s $j]
+        lset s $j $t
+        set i [expr {($i + 1) % $keylen}]
+    }
+    
+    set State(x) 0
+    set State(y) 0
+    set State(s) $s
+
+    return $Key
+}
+
+# RC4 - process the data using the list-based state.
+#
+proc ::rc4::RC4_List {Key datastr} {
+    # FRINK: nocheck
+    variable $Key
+    upvar #0 $Key State
+    set res {}
+
+    binary scan $datastr c* data
+    set datalen [llength $data]
+    
+    set x $State(x)
+    set y $State(y)
+    set s $State(s)
+
+    for {set cn 0} {$cn < $datalen} {incr cn} {
+        set x [expr {($x + 1) % 256}]
+        set y [expr {([lindex $s $x] + $y) % 256}]
+        set t [lindex $s $y]
+        lset s $y [lindex $s $x]
+        lset s $x $t
+        set i [expr {([lindex $s $x] + [lindex $s $y]) % 256}]
+        lappend res [expr {([lindex $data $cn] ^ [lindex $s $i]) & 0xFF}]
+    }
+    set State(x) $x
+    set State(y) $y
+    set State(s) $s
+    return [binary format c* $res]
+}
+
+# Using this compat function for < 8.4 is 2x slower than using arrays.
+proc ::rc4::K {x y} {set x}
+if {[package vcompare [package provide Tcl] 8.4] < 0} {
+    proc ::rc4::lset {var index arg} {
+        upvar 1 $var list
+        set list [::lreplace [K $list [set list {}]] $index $index $arg]
+    }
 }
 
 proc ::rc4::RC4Final {Key} {
