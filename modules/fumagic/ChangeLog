@@ -1,3 +1,21 @@
+2005-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mimetypes.test: Copied the filetype tests from fileutil over for
+	  use by the mimetype command, and adapted the results. Only four
+	  places where the result can be said to be bogus
+	* mimetypes.tcl: Added code to remove duplicates from the output
+	  of the low-level recognizer.
+	* rtcore.tcl: Added 'resultv' command which does not stop
+	  processing in the caller as well. Needed by our wrapper.
+
+	* mimetypes.tcl: Moved code in 'magic.tcl' to
+	* magic.tcl:    'mimetypes.tcl'. There is no need for a highlevel
+	  package loading all the different recognizers. Each recognizer
+	  is fully in its own package now. That makes the addition of more
+	  recognizers easier, without causing the wrapper to load more and
+	  more unneeded code. Things are large as they are, no need to
+	  make them larger. Deleted "magic.tcl".
+
 2005-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* New module 'fumagic'. file(1) magic(5) based file type

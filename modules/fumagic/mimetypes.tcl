@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: mimetypes.tcl,v 1.1 2005/02/10 17:34:16 andreas_kupries Exp $
+# RCS: @(#) $Id: mimetypes.tcl,v 1.2 2005/02/11 05:08:53 andreas_kupries Exp $
 
 #####
 #
@@ -22,16 +22,53 @@
 #
 #####
 
+# ### ### ### ######### ######### #########
+## Requirements.
+
+package require Tcl 8.4
+package require fileutil::magic::rt    ; # We need the runtime core.
+
+# ### ### ### ######### ######### #########
+## Implementation
+
+proc ::fileutil::magic::mimetype {file} {
+    if {![file exists $file]} {
+        return -code error "file not found: \"$file\""
+    }
+
+    rt::open $file
+    mimetype::run
+    rt::close
+    set types [rt::resultv]
+
+    if {[llength $types]} {
+	# We postprocess the data if needed, as the low-level
+	# recognizer can return duplicate information.
+
+	array set _ {}
+	set utypes  {}
+	foreach t $types {
+	    if {[info exists _($t)]} continue
+	    lappend utypes $t
+	    set _($t) .
+	    set types $utypes
+	}
+    }
+    return $types
+}
+
+# The actual recognizer is the command below.
+
 ##
 ## -- Do not edit after this line !
 ## -- ** BEGIN GENERATED CODE ** --
 
 package require fileutil::magic::rt
-namespace eval ::fileutil::magic::/mime {
+namespace eval ::fileutil::magic::mimetype {
     namespace import ::fileutil::magic::rt::*
 }
 
-proc ::fileutil::magic::/mime::run {} {
+proc ::fileutil::magic::mimetype::run {} {
     switch -- [Nv s 0 ] 1538 {emit application/x-alan-adventure-game} 387 {emit application/x-executable-file} -147 {emit application/data} -155 {emit application/data} -5536 {emit application/x-arj} -138 {emit application/data} -394 {emit application/data} -650 {emit application/x-lzh} 387 {emit application/x-executable-file} 392 {emit application/x-executable-file} 399 {emit application/x-object-file} -13230 {emit {RLE image data,}} 322 {emit {basic-16 executable}} 323 {emit {basic-16 executable \(TV\)}} 328 {emit application/x-executable-file} 329 {emit application/x-executable-file} 330 {emit application/x-executable-file} 338 {emit application/x-executable-file} 332 {emit application/x-executable-file} 1078 {emit font/linux-psf} 387 {emit {ECOFF alpha}} 332 {emit {MS Windows COFF Intel 80386 object file}} 358 {emit {MS Windows COFF MIPS R4000 object file}} 388 {emit {MS Windows COFF Alpha object file}} 616 {emit {MS Windows COFF Motorola 68000 object file}} 496 {emit {MS Windows COFF PowerPC object file}} 656 {emit {MS Windows COFF PA-RISC object file}} 263 {emit {PDP-11 executable}} 257 {emit {PDP-11 UNIX/RT ldp}} 261 {emit {PDP-11 old overlay}} 264 {emit {PDP-11 pure executable}} 265 {emit {PDP-11 separate I&D executable}} 287 {emit {PDP-11 kernel overlay}} 4843 {emit {SYMMETRY i386 .o}} 8939 {emit {SYMMETRY i386 executable \(0 @ 0\)}} 13035 {emit {SYMMETRY i386 executable \(invalid @ 0\)}} 17131 {emit {SYMMETRY i386 standalone executable}} 376 {emit {VAX COFF executable}} 381 {emit {VAX COFF pure executable}} -155 {emit x.out} 518 {emit {Microsoft a.out}} 320 {emit {old Microsoft 8086 x.out}} 1408 {emit {XENIX 8086 relocatable or 80286 small model}}
     if {[S 0 == TADS ]} {emit application/x-tads-game}
     switch -- [Nv S 0 ] 272 {emit application/x-executable-file} 273 {emit application/x-executable-file} 29127 {emit application/x-cpio} -14479 {emit application/x-bcpio} -147 {emit application/data} -155 {emit application/data} 368 {emit application/x-executable-file} 369 {emit application/x-executable-file} 1793 {emit application/x-executable-file} 262 {emit application/x-executable-file} 1537 {emit application/x-executable-file} 381 {emit application/x-executable-file} 383 {emit application/x-executable-file} 7967 {emit application/data} 8191 {emit application/data} -13563 {emit application/data} 1281 {emit application/x-locale} 340 {emit application/data} 341 {emit application/x-executable-file} 286 {emit font/x-vfont} 7681 {emit font/x-vfont} 407 {emit application/x-executable-file} 404 {emit application/x-executable-file} 200 {emit {hp200 \(68010\) BSD}} 300 {emit {hp300 \(68020+68881\) BSD}} 351 {emit {370 XA sysV executable}} 346 {emit {370 XA sysV pure executable}} 22529 {emit {370 sysV pure executable}} 23041 {emit {370 XA sysV pure executable}} 23809 {emit {370 sysV executable}} 24321 {emit {370 XA sysV executable}} 345 {emit {SVR2 executable \(Amdahl-UTS\)}} 348 {emit {SVR2 pure executable \(Amdahl-UTS\)}} 344 {emit {SVR2 pure executable \(USS/370\)}} 349 {emit {SVR2 executable \(USS/370\)}} 479 {emit {executable \(RISC System/6000 V3.1\) or obj module}} 260 {emit {shared library}} 261 {emit {ctab data}} -508 {emit {structured file}} 12320 {emit {character Computer Graphics Metafile}} -40 {emit image/jpeg} 474 {emit x/x-image-sgi} 4112 {emit {PEX Binary Archive}} -21267 {emit {Java serialization data}} -32768 {emit {lif file}} 256 {emit {raw G3 data, byte-padded}} 5120 {emit {raw G3 data}} 336 {emit {mc68k COFF}} 337 {emit {mc68k executable \(shared\)}} 338 {emit {mc68k executable \(shared demand paged\)}} 364 {emit {68K BCS executable}} 365 {emit {88K BCS executable}} 392 {emit {Tower/XP rel 2 object}} 397 {emit {Tower/XP rel 2 object}} 400 {emit {Tower/XP rel 3 object}} 405 {emit {Tower/XP rel 3 object}} 408 {emit {Tower32/600/400 68020 object}} 416 {emit {Tower32/800 68020}} 421 {emit {Tower32/800 68010}} -30771 {emit {OS9/6809 module:}} 19196 {emit {OS9/68K module:}} 373 {emit {i386 COFF object}} 10775 {emit {\"compact bitmap\" format \(Poskanzer\)}} -26368 {emit {PGP key public ring}} -27391 {emit {PGP key security ring}} -27392 {emit {PGP key security ring}} -23040 {emit {PGP encrypted data}} 601 {emit {mumps avl global}} 602 {emit {mumps blt global}} -4693 {emit {}} 10012 {emit {Sendmail frozen configuration}} -30875 {emit {disk quotas file}} 1286 {emit {IRIS Showcase file}} 550 {emit {IRIS Showcase template}} 352 {emit {MIPSEB COFF executable}} 354 {emit {MIPSEL COFF executable}} 24577 {emit {MIPSEB-LE COFF executable}} 25089 {emit {MIPSEL-LE COFF executable}} 355 {emit {MIPSEB MIPS-II COFF executable}} 358 {emit {MIPSEL MIPS-II COFF executable}} 25345 {emit {MIPSEB-LE MIPS-II COFF executable}} 26113 {emit {MIPSEL-LE MIPS-II COFF executable}} 320 {emit {MIPSEB MIPS-III COFF executable}} 322 {emit {MIPSEL MIPS-III COFF executable}} 16385 {emit {MIPSEB-LE MIPS-III COFF executable}} 16897 {emit {MIPSEL-LE MIPS-III COFF executable}} 384 {emit {MIPSEB Ucode}} 386 {emit {MIPSEL Ucode}} -16162 {emit {Compiled PSI \(v1\) data}} -16166 {emit {Compiled PSI \(v2\) data}} -21846 {emit {SoftQuad DESC or font file binary}} 283 {emit {Curses screen image}} 284 {emit {Curses screen image}} 263 {emit {unknown machine executable}} 264 {emit {unknown pure executable}} 265 {emit {PDP-11 separate I&D}} 267 {emit {unknown pure executable}} 392 {emit {Perkin-Elmer executable}} 378 {emit {amd 29k coff noprebar executable}} 890 {emit {amd 29k coff prebar executable}} -8185 {emit {amd 29k coff archive}} 21845 {emit {VISX image file}}
@@ -535,7 +572,8 @@ proc ::fileutil::magic::/mime::run {} {
 ## -- Do not edit before this line !
 ##
 
-package provide fileutil::magic::/mime 1.0
+# ### ### ### ######### ######### #########
+## Ready for use.
+
+package provide fileutil::magic::mimetype 1.0
 # EOF
-
-
