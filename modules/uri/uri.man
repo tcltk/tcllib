@@ -12,6 +12,14 @@ them. For the latter this package analyses the requested url/uri and
 then dispatches it to the appropriate package (http, ftp, ...) for
 actual fetching.
 
+[para]
+
+The package currently does not conform to
+RFC 2396 ([uri http://www.rfc-editor.org/rfc/rfc2396.txt]),
+but quite likely should be. Patches and other help are welcome.
+
+
+
 [section  "COMMANDS"]
 
 [list_begin definitions]
@@ -139,9 +147,8 @@ and  [cmd "Join[lb]string totitle <scheme>[rb]"] respectively.
 [section  CREDITS]
 [para]
 
-Original code by Andreas Kupries.
-Modularisation by Steve Ball.
+Original code (regular expressions) by Andreas Kupries.
+Modularisation by Steve Ball, also the split/join/resolve functionality.
 
-[keywords uri url {fetching information} www http ftp mailto news gopher wais prospero file] 
-
+[keywords uri url {fetching information} www http ftp mailto news gopher wais prospero file {rfc 2396}] 
 [manpage_end]
