@@ -1,8 +1,8 @@
-[manpage_begin base64 n 2.2.1]
+[manpage_begin base64 n 2.2.2]
 [moddesc {base64 en- & decoding}]
 [titledesc   {Procedures to encode and decode base64}]
 [require Tcl 8]
-[require base64 [opt 2.2.1]]
+[require base64 [opt 2.2.2]]
 [description]
 [para]
 
