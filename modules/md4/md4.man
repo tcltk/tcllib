@@ -1,5 +1,5 @@
 [manpage_begin md4 n 1.0.3]
-[moddesc   {md4}]
+[moddesc   {MD4 Message-Digest Algorithm}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD4 Message-Digest Algorithm}]
 [require Tcl 8.2]

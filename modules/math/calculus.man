@@ -1,6 +1,6 @@
 [manpage_begin math::calculus n 0.5.1]
 [copyright {2002,2003,2004 Arjen Markus}]
-[moddesc   {Math}]
+[moddesc   {Tcl Math Library}]
 [titledesc {Integration and ordinary differential equations}]
 [require Tcl 8]
 [require math::calculus 0.5.1]

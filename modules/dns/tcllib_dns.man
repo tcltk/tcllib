@@ -1,6 +1,6 @@
 [manpage_begin dns n 1.2.0]
 [copyright {2002, Pat Thoyts}]
-[moddesc   {dns}]
+[moddesc   {Domain Name Service}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
 [require dns [opt 1.2.1]]

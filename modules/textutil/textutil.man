@@ -1,5 +1,5 @@
 [manpage_begin textutil n 0.6.2]
-[moddesc   {Texts and strings utils}]
+[moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to manipulate texts and strings.}]
 [require Tcl 8.2]
 [require textutil [opt 0.6.2]]

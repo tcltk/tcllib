@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::complexnumbers n 1.0]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
-[moddesc   complexnumbers]
+[moddesc   {Tcl Math Library}]
 [titledesc {Straightforward complex number package}]
 [require Tcl 8.3]
 [require math::complexnumbers [opt 1.0]]
