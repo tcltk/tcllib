@@ -180,7 +180,7 @@ proc mbox::initialize_file {token} {
                     set offset [tell $state(fd)]
                     set size 0
                 } else {
-                    incr size [expr [string length $line]+1]
+                    incr size [expr {[string length $line]+1}]
                 }
             }
 
@@ -203,7 +203,7 @@ proc mbox::initialize_file {token} {
 
                     set phase pre
                 } else {
-                    incr size [expr [string length $line]+1]
+                    incr size [expr {[string length $line]+1}]
                 }
             }
 

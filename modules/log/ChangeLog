@@ -1,5 +1,8 @@
 2004-09-23  Andreas Kupries  <andreask@activestate.com>
 
+	* logger.tcl (logger::import): Fixed malformed return value,
+	  premature end of the string due to unquoted ".
+
 	* logger.tcl: A small fix in the new command [nsExists] for Tcl
 	  8.[23]. The condition was revers.
 

@@ -36,19 +36,12 @@
 #
 #
 #   $Log: ldap.tcl,v $
-#   Revision 1.2  2004/06/17 03:47:04  andreas_kupries
-#   Removed question in comments, issue is resolved.
+#   Revision 1.3  2004/09/24 06:54:24  andreas_kupries
+#   Scattered small fixes, mostly adding braces to unbraced
+#   expressions.
 #
-#   New module, partial ASN.1 de- and encoder.
-#
-#   Added log command for hex output (when dealing with binary
-#   data).
-#
-#   Import of Arjen's changes, adding bessel functions to math,
-#   also complex numbers.
-#
-#   Import of my changes, detection of doctools documentation
-#   files, also doctoc and docidx.
+#   Fixed problem with mismatched package names for the packages
+#   implementing the standard types.
 #
 #   Revision 1.1  2004/04/27 19:45:35  andreas_kupries
 #
@@ -314,7 +307,7 @@ proc ldap::buildUpFilter { filter } {
             return [asnChoiceConstr 2 [buildUpFilter [lindex $filter 1]]]           
         } 
         =\\*$ {  #--- present ---------------------------------------
-            set endpos [expr [string length $first] -3]
+            set endpos [expr {[string length $first] -3}]
             set attributetype [string range $first 0 $endpos]
             return [asnChoice 7 $attributetype]           
         }
@@ -803,7 +796,7 @@ proc ldap::debugData { info data } {
         set v [string index $data $i]
         binary scan $v H2 hex
         binary scan $v c  num
-        set num [expr ( $num + 0x100 ) % 0x100]
+        set num [expr {( $num + 0x100 ) % 0x100}]
         set text .
         if {$num > 31} {
             set text $v
@@ -884,7 +877,7 @@ proc ldap::asnApplicationConstr { appNumber args } {
     foreach part $args {
         append out $part
     }
-    set code [expr 0x060 + $appNumber]
+    set code [expr {0x060 + $appNumber}]
     set len  [string length $out]
     return [binary format ca*a$len $code [asnLength $len] $out]
 }
@@ -895,7 +888,7 @@ proc ldap::asnApplicationConstr { appNumber args } {
 #-----------------------------------------------------------------------------
 proc ldap::asnApplication { appNumber data } {
 
-    set code [expr 0x040 + $appNumber]
+    set code [expr {0x040 + $appNumber}]
     set len  [string length $data]
     return [binary format ca*a$len $code [asnLength $len] $data]
 }
@@ -911,7 +904,7 @@ proc ldap::asnChoice { appNumber args } {
     foreach part $args {
         append out $part
     }
-    set code [expr 0x080 + $appNumber]
+    set code [expr {0x080 + $appNumber}]
     set len  [string length $out]
     return [binary format ca*a$len $code [asnLength $len] $out]
 }
@@ -926,7 +919,7 @@ proc ldap::asnChoiceConstr { appNumber args } {
     foreach part $args {
         append out $part
     }
-    set code [expr 0x0A0 + $appNumber]
+    set code [expr {0x0A0 + $appNumber}]
     set len  [string length $out]
     return [binary format ca*a$len $code [asnLength $len] $out]
 }
@@ -970,7 +963,7 @@ proc ldap::asnEnumeration { number } {
 #-----------------------------------------------------------------------------
 proc ldap::asnBoolean { bool } {
 
-    return [binary format H2H2c 01 01 [expr $bool ? 0x0FF : 0]]
+    return [binary format H2H2c 01 01 [expr {$bool ? 0x0FF : 0}]]
 }
 
 
@@ -998,14 +991,14 @@ proc ldap::asnGetResponse { sock data_var } {
     if {$tag == "\x30"} { 
         set len1 [read $sock 1]
         binary scan $len1 c num
-        set length [expr ($num + 0x100) % 0x100]
+        set length [expr {($num + 0x100) % 0x100}]
         trace "asnGetResponse length=$length"
         if {$length  >= 0x080} {
-            set len_length [expr $length & 0x7f]
+            set len_length [expr {$length & 0x7f}]
             set lengthBytes [read $sock $len_length]
             switch $len_length {
                 1 { binary scan $lengthBytes     c length 
-                    set length [expr ($length + 0x100) % 0x100]
+		    set length [expr {($length + 0x100) % 0x100}]
                 }
                 2 { binary scan $lengthBytes     S length }
                 3 { binary scan \x00$lengthBytes I length }
@@ -1034,7 +1027,7 @@ proc ldap::asnGetByte { data_var byte_var } {
     upvar $data_var data $byte_var byte
 
     binary scan [string index $data 0] c byte
-    set byte [expr ($byte + 0x100) % 0x100]  
+    set byte [expr {($byte + 0x100) % 0x100}]
     set data [string range $data 1 end]
 
     trace "asnGetByte $byte"
@@ -1069,11 +1062,11 @@ proc ldap::asnGetLength { data_var length_var } {
     asnGetByte data length
 
     if {$length  >= 0x080} {
-        set len_length [expr $length & 0x7f]
+        set len_length [expr {$length & 0x7f}]
         asnGetBytes data $len_length lengthBytes
         switch $len_length {
             1 { binary scan $lengthBytes     c length 
-                set length [expr ($length + 0x100) % 0x100]
+	        set length [expr {($length + 0x100) % 0x100}]
             }
             2 { binary scan $lengthBytes     S length }
             3 { binary scan \x00$lengthBytes I length }
@@ -1217,7 +1210,7 @@ proc ldap::asnGetApplication { data_var appNumber_var } {
     if {($byte & 0xE0) != 0x060} {
         error "Got different tag than application (0x060)"
     }    
-    set appNumber [expr ($byte & 0x1F)]
+    set appNumber [expr {$byte & 0x1F}]
 }
 
 

@@ -76,35 +76,12 @@
 #
 #
 #   $Log: des.tcl,v $
-#   Revision 1.7  2004/01/15 06:36:12  andreas_kupries
+#   Revision 1.8  2004/09/24 06:54:24  andreas_kupries
+#   Scattered small fixes, mostly adding braces to unbraced
+#   expressions.
 #
-#   	* matrix.man:  Implemented Ed Suominen's sort methods, with
-#   	* matrix.tcl:  modifications to speed things up, and to have
-#   	* matrix.test: a more standard API (-options).
-#
-#   	* matrix.man: Documented method links.
-#
-#   	* matrix.test: Updated test to cover for method links.
-#   	* matrix.tcl: Changed the code to determine the list of available
-#   	  methods automatically for use in the error message when an
-#   	  unknown method is called.
-#
-#   	* matrix.test:
-#   	* matrix.tcl: Namespaces of objects now standalone, and not inside
-#   	  of struct::matrix anymore. Arbitrary placement of objects is now
-#   	  possible, including nested namespaces. Cleanup of all references
-#   	  to instance variables.
-#
-#   	* matrix.tcl: Made the return of errors more regular.
-#
-#   	* matrix.tcl: Changed a number of eval calls to the more proper
-#   	  'uplevel 1'. This means that an implementation of a method can
-#   	  now assume that it is called on the same stack level as the
-#   	  method itself.
-#
-#   	* matrix.tcl: Typo in comments fixed.
-#   	* matrix.tcl (__set_rect): Fixed typos in var names causing the
-#   	  system to retain bogus cache data.
+#   Fixed problem with mismatched package names for the packages
+#   implementing the standard types.
 #
 #   Revision 1.6  2003/05/07 21:51:30  patthoyts
 #   	* des.tcl, des.man, pkgIndex.tcl: Hiked the version to 0.8.1
@@ -441,7 +418,7 @@ namespace eval ::DES {
      
       for { set j  0 } { $j < 56 } { incr j } {
           set l $pc1($j)
-          set m [expr $l & 07]
+          set m [expr {$l & 07}]
           if {$useVNC} {
               set pc1m($j) [expr { ( ($keyBlock([expr {$l >> 3}]) & $bytebitVNC($m)) != 0 ) ? 1: 0 }]
           } else {
@@ -451,7 +428,7 @@ namespace eval ::DES {
       for { set i 0 } { $i < 16 } { incr i } {
 
           set m [expr { $encDec ? ($i << 1) : ((15-$i) << 1) }]
-          set n [expr $m + 1]
+          set n [expr {$m + 1}]
           set kn($m) 0 
           set kn($n) 0
           for { set j 0 } { $j < 28 } { incr j } {
@@ -475,7 +452,7 @@ namespace eval ::DES {
               if {$pcr($pc2($j)) != 0} { 
                   set kn($m) [expr { $kn($m) | $bigbyte($j) }] 
               }
-              if {$pcr($pc2([expr $j+24])) != 0} {
+              if {$pcr($pc2([expr {$j+24}])) != 0} {
                   set kn($n) [expr { $kn($n) | $bigbyte($j) }]
               }
           }
