@@ -1,5 +1,14 @@
 2002-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* mime.tcl: Accepted patch in SF FR #595240, provided by Marshall
+	  T. Rose <mrose@users.sourceforge.net>. The patch makes the code
+	  more robust with respect to a common mime encoding error.
+
+	* tcllib/examples/mime: Added an example application making use of
+	  mime and smtp packages. Mbot is a highly-specialized filter for
+	  personal messages. Again this is code provided to us by Marshall
+	  T. Rose.
+
 	* smtp.tcl: Followup patch to patch SF #557520/2. A line of code
 	  initializing the options from the state was missing in one
 	  command, causing problems with the usage of -maxsecs. This was
