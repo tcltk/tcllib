@@ -6,16 +6,12 @@
 #
 # 20040930 Colin McCormack - initial release to tcllib
 
-package provide treeql 1.1
+package provide treeql 1.2
 
 package require Tcl 8.5
 package require snit
 package require struct::list
 package require struct::set
-
-proc K {x y} {
-    set x
-}
 
 snit::type treeql {
     variable nodes	;# set of all nodes
@@ -38,20 +34,6 @@ snit::type treeql {
 	    }
 	    #puts stderr "Apply: $tree $cmd $node $args -> $application"
 	    lappend result {expand}$application
-	}
-
-	return $result
-    }
-
-    # apply the [$tree cmd {expand}$args] form to each node
-    # returns the concatenated strings of results of application
-    method sapply {cmd args} {
-
-	set result {}
-	foreach node $nodes {
-	    set application [$tree {expand}$cmd $node {expand}$args] 
-	    #puts stderr "Sapply: $tree $cmd $node $args -> $application"
-	    append result $application " "
 	}
 
 	return $result
@@ -179,7 +161,7 @@ snit::type treeql {
     }
 
     # shim to return string values of attributes matching $pattern of a given $node
-    method do_getvals {node pattern} {
+    method do_get {node pattern} {
 	set result {}
 	foreach key [$tree keys $node $pattern] {
 	    lappend result [list [$tree get $node $key]]
@@ -187,26 +169,22 @@ snit::type treeql {
 	return $result
     }
 
-    # Return list of attribute values of attributes matching $pattern
-    method getvals {pattern args} {
-	set nodes [$self mapself do_getvals $pattern]
-	return $args	;# this terminates a query
-    }
-
-    # Returns list of attribute values of attributes matching $attr - 
-    method get {attr args} {
-	return [$self getvals $attr {expand}$args]
+    # Returns list of attribute values of attributes matching $pattern - 
+    method get {pattern} {
+	set nodes [$self mapself do_get $pattern]
+	return {}	;# terminate query
     }
 
     # Returns list of attribute values of the current node, in an unspecified order.
-    method attlist {args} {
-	return [$self getvals * {expand}$args]
+    method attlist {} {
+	$self get *
+	return {}	;# terminate query
     }
 
     # Returns list of lists of attributes of each node
-    method attrs {glob args} {
+    method attrs {glob} {
 	set nodes [$self apply keys $glob]
-	return $args
+	return {}	;# terminate query
     }
 
     # shim to find node ancestors by repetitive [parent]
@@ -317,12 +295,6 @@ snit::type treeql {
 	return $args
     }
 
-    # generates the tree root
-    method rootname {args} {
-	set nodes [$tree rootname]
-	return $args
-    }
-
     # shim to calculate descendants
     method do_subtree {node} {
 	set nodeset $node
@@ -374,7 +346,7 @@ snit::type treeql {
     # flattened next subtrees
     method forward {args} {
 	set nodes [$self applyself do_next*]	;# next siblings
-	$self descendants	;# their subtrees
+	$self descendants	;# their proper descendants
 	return $args
     }
 
@@ -387,7 +359,7 @@ snit::type treeql {
     # flattened previous subtrees in tree order
     method earlier {args} {
 	set nodes [$self applyself do_previous*]	;# all earlier siblings
-	$self subtree	;# their subtrees
+	$self descendants	;# their proper descendants
 	return $args
     }
 
@@ -401,9 +373,9 @@ snit::type treeql {
     }
 
     # Returns the node type of nodes
-    method nodetype {args} {
-	set nodes [$self sapply get @type]
-	return $args
+    method nodetype {} {
+	set nodes [$self apply get @type]
+	return {}	;# terminate query
     }
 
     # Reduce to nodes of @type $t
@@ -437,10 +409,10 @@ snit::type treeql {
     }
 
     # Returns values of attribute attname
-    method attval {attname args} {
+    method attval {attname} {
 	$self hasatt $attname	;# only nodes with attribute
-	set nodes [$self sapply get $attname]	;# get the attribute nodes
-	return $args
+	set nodes [$self apply get $attname]	;# get the attribute nodes
+	return {}	;# terminate query
     }
 
     # Reduce to nodes with attribute $attr of $value
@@ -488,9 +460,9 @@ snit::type treeql {
     }
 
     # apply string operation $op to attribute $attr on each node
-    method string {op attr args} {
+    method string {op attr} {
 	set nodes [$self mapself do_attr [list string {expand}$op] $attr]
-	return $args
+	return {}	;# terminate query
     }
 
     # remove duplicate nodes, preserving order
@@ -688,5 +660,9 @@ snit::type treeql {
     # useful in constructing a sub-query
     method discard {args} {
 	return [K [$self result] [$self destroy]]
+    }
+
+    proc K {x y} {
+	set x
     }
 }

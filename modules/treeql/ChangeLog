@@ -1,3 +1,16 @@
+2004-10-03 Colin McCormack <coldstore@users.sourceforge.net>
+
+	* treeql.tcl,treeql84.tcl: bumped version to 1.2
+	* treeql.tcl: moved K operator into object (avoiding namespace conflict)
+	* treeql.tcl,treeql84.tcl: removed getvals - redundant with get.  Renamed do_getvals to do_get.
+	* treeql.tcl,treeql84.tcl: made all attribute string accessors terminate query.
+	* treeql.tcl,treeql84.tcl: removed args arg to give error if more query operators are present after a string accessor.
+	* treeql.tcl,treeql84.tcl: removed rootname operator - redundant
+	* treeql.tcl,treeql84.tcl: made earlier generate proper descendants & changed test case for proper semantics
+	* treeql.tcl,treeql84.tcl: removed sapply and all references to it - it was improperly implemented and redundant with apply.
+	* treeql.test: changed path to list.tcl and tree.tcl to use normalize, so you can run the test from the treeql directory
+	* treeql.test: changed usage of [getvals] to [get]
+
 2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* treeql84.tcl: Bugfix in 'apply'. Wrong statement was
