@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.6 2001/08/02 16:38:07 andreas_kupries Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.7 2001/08/20 23:17:33 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
@@ -28,6 +28,8 @@ pop3 \- Tcl client for POP3 email protocol
 \fB::pop3::list\fR \fIchan\fR \fR?\fImsg\fR?
 .sp
 \fB::pop3::top\fR \fIchan\fR \fImsg\fR \fIn\fR
+.sp
+\fB::pop3::uidl\fR \fIchan\fR \fR?\fImsg\fR?
 .sp
 \fB::pop3::close\fR \fIchan\fR
 .sp
@@ -71,7 +73,7 @@ value includes all messages read from all clients connecting to the
 login account.  This command may not be supported by the email
 server, in which case the server may return 0 or an error.
 .TP
-\fB::pop3::retrieve\fR \fIchan startIndex \fR?\fIendIndex\fR
+\fB::pop3::retrieve\fR \fIchan startIndex \fR?\fIendIndex\fR?
 Retrieve a range of messages from the server.  If the \fIendIndex\fR
 is not specified, only one message will be retrieved.  The return
 value is a list containing each message as a separate element.  See
@@ -91,7 +93,7 @@ It should also be noted that the system checks upon the configured
 mode and falls back to the slower modes if the above assumptions are
 not true.
 .TP
-\fB::pop3::delete\fR \fIchan startIndex \fR?\fIendIndex\fR
+\fB::pop3::delete\fR \fIchan startIndex \fR?\fIendIndex\fR?
 Delete a range of messages from the server.  If the \fIendIndex\fR is
 not specified, only one message will be deleted.  Note, the indices
 are not reordered on the server, so if you delete message 1, then the
@@ -137,9 +139,15 @@ Returns the scan listing of the mailbox. If parameter \fImsg\fR
 is given, then the listing only for that message is returned.
 .TP
 \fB::pop3::top\fR \fIchan\fR \fImsg\fR \fIn\fR 
-Optional POP3 command, all servers may not support this. 
+Optional POP3 command, not all servers may support this. 
 \fB::pop3::top\fR retrieves headers of a message, specified by parameter 
 \fImsg\fR, and number of \fIn\fR lines from the message body.   
+.TP
+\fB::pop3::uidl\fR \fIchan\fR \fR?\fImsg\fR?
+Optional POP3 command, not all servers may support this. 
+\fB::pop3::uidl\fR returns the uid listing of the mailbox. If the
+parameter \fImsg\fR is specified, then the listing only for that
+message is returned.
 .TP
 \fB::pop3::close\fR \fIchan\fR
 Gracefully close the connect after sending a POP3 QUIT command down

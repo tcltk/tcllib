@@ -1,4 +1,14 @@
-2001-08-02  Andreas Kupries  <andreask@pliers.activestate.com>
+2001-08-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.tcl: Added UIDL command, patch [448634] by Mark G. Saye
+	  <markgsaye@users.sourceforge.net>. Code was added manually as
+	  the patch was not applicable anymore after the recent changes
+	  (see below). Updated implementation of UIDL to use the new
+	  command [RetrSlow] instead of performing the retrieval by
+	  itself. Also updated the implementations of the TOP and LIST
+	  commands to do the same.
+
+2001-08-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.n: Updated to new package version, see [447013] too.
 
