@@ -1,3 +1,10 @@
+2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (check-doc-markup): Fixed setting for DOC_FLAGS. The
+	  option '-visualwarn' does not exist anymore. Replaced by the
+	  option '-deprecated'. Thanks to Larry Virden for reporting the
+	  problem.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* install.tcl: Changed to notify the user if the directory to
