@@ -32,15 +32,15 @@ set _dlgid 0
 # Handle new mail by raising a message dialog for each recipient.
 proc deliverMIME {token} {
 
-    set sender [lindex [mime::getheader $token From] 0]
-    set recipients [lindex [mime::getheader $token To] 0]
+    set senders [mime::getheader $token From]
+    set recipients [mime::getheader $token To]
 
-    if {[catch {eval array set saddr [mime::parseaddress $sender]}]} {
-        error "invalid sender address \"$sender\""
+    if {[catch {eval array set saddr \
+                    [mime::parseaddress [lindex $senders 0]]}]} {
+        error "invalid sender address \"$senders\""
     }
     set mail "From $saddr(address) [clock format [clock seconds]]\n"
     append mail [mime::buildmessage $token]
-
     foreach rcpt $recipients {
         if {! [catch {eval array set addr [mime::parseaddress $rcpt]}]} {
             display "To: $addr(address)" $mail
