@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.74 2002/06/10 22:29:51 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.75 2002/08/06 21:29:37 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -274,8 +274,10 @@ install-doc: doc
 	@echo Installing documentation for $(PACKAGE)
 	@if [ `echo 'puts $$tcl_platform(platform) ; exit' | $(TCLSH_PROG)` = unix ] ; then \
 	    $(mkinstalldirs) $(mandir)/mann ; \
-	    for f in doc/nroff/*.n ; do cp -f $$f $(mandir)/mann ; done ; \
-	    $(INSTALL_DATA) $(srcdir)/man.macros $(mandir) ; \
+	    for f in doc/nroff/*.n ; do \
+		sed -e '/man\.macros/r man.macros' -e '/man\.macros/d' \
+			$$f >> $(mandir)/mann/$$(basename $$f) ; \
+	    done ; \
 	fi
 	$(mkinstalldirs)   $(pkglibdir)/htmldoc
 	cp doc/html/*.html $(pkglibdir)/htmldoc
