@@ -8,27 +8,31 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.14 2005/02/17 22:20:13 patthoyts Exp $
+# $Id: md4.tcl,v 1.15 2005/02/23 12:48:02 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.3
-    variable rcsid {$Id: md4.tcl,v 1.14 2005/02/17 22:20:13 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.15 2005/02/23 12:48:02 patthoyts Exp $}
+    variable accel
+    array set accel {critcl 0 cryptkit 0}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
+
+    # Try and load a compiled extension to help.
+    if {![catch {package require tcllibc}]
+        || ![catch {package require md4c}]} {
+        set accel(critcl) [expr {[info command ::md4::md4c] != {}}]
+    }
+    if {!$accel(critcl) && ![catch {package require cryptkit}]} {
+        set accel(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
+    }
 
     variable uid
     if {![info exists uid]} {
         set uid 0
-    }
-
-    # Try and use the critcl extension.
-    variable usemd4c 0
-    if {![catch {package require tcllibc}] \
-            || ![catch {package require md4::md4c}]} {
-        set usemd4c [expr {[info command ::md4::md4c] != {}}]
     }
 }
 
@@ -39,6 +43,7 @@ namespace eval ::md4 {
 #
 proc ::md4::MD4Init {} {
     variable uid
+    variable accel
     set token [namespace current]::[incr uid]
     upvar #0 $token tok
 
@@ -50,21 +55,25 @@ proc ::md4::MD4Init {} {
              C [expr {0x98badcfe}] \
              D [expr {0x10325476}] \
              n 0 i "" ]
+    if {$accel(cryptkit)} {
+        cryptkit::cryptCreateContext state(ckctx) CRYPT_UNUSED CRYPT_ALGO_MD4
+    }
     return $token
 }
 
 proc ::md4::MD4Update {token data} {
-    variable usemd4c
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    variable accel
+    upvar #0 $token state
 
-    if {$usemd4c} {
+    if {$accel(critcl)} {
         if {[info exists state(md4c)]} {
             set state(md4c) [md4c $data $state(md4c)]
         } else {
             set state(md4c) [md4c $data]
         }
+        return
+    } elseif {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) $data
         return
     }
 
@@ -84,13 +93,17 @@ proc ::md4::MD4Update {token data} {
 }
 
 proc ::md4::MD4Final {token} {
-    variable usemd4c
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
-    if {$usemd4c} {
+    if {[info exists state(md4c)]} {
         set r $state(md4c)
+        unset state
+        return $r
+    } elseif {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) ""
+        cryptkit::cryptGetAttributeString $state(ckctx) \
+            CRYPT_CTXINFO_HASHVALUE r 16
+        cryptkit::cryptDestroyContext $state(ckctx)
         unset state
         return $r
     }
