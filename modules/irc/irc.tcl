@@ -2,10 +2,10 @@
 #
 #	irc implementation for Tcl.
 #
-# Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
+# Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.11 2003/05/16 22:01:13 davidw Exp $
+# $Id: irc.tcl,v 1.12 2003/05/25 07:40:38 davidw Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -101,8 +101,12 @@ proc ::irc::connection { host {port 6667} } {
 	# Implemented user-side commands, meaning that these commands
 	# cause the calling user to perform the given action.
 
-	proc cmd-user { username hostname servername userinfo } {
-	    ircsend "USER $username $hostname $servername :$userinfo"
+	proc cmd-user { username hostname servername {userinfo ""} } {
+	    if { $userinfo == "" } {
+		ircsend "USER $username $hostname server :$servername"
+	    } else {
+		ircsend "USER $username $hostname $servername :$userinfo"
+	    }
 	}
 
 	proc cmd-nick { nk } {
@@ -127,8 +131,12 @@ proc ::irc::connection { host {port 6667} } {
 	    ircsend "JOIN $chan $key"
 	}
 
-	proc cmd-part { chan {msg "tcllib irc library"} } {
-	    ircsend "PART $chan :$msg"
+	proc cmd-part { chan {msg ""} } {
+	    if { $msg == "" } {
+		ircsend "PART $chan"
+	    } else {
+		ircsend "PART $chan :$msg"
+	    }
 	}
 
 	proc cmd-quit { {msg {}} } {
@@ -173,15 +181,11 @@ proc ::irc::connection { host {port 6667} } {
 	    variable conn
 	    variable port
 	    if { $state == 0 } {
-		catch {
-		    set sock [socket $host $port]
-		}
-		if { ! [info exists sock] } {
+		if { [catch { socket $host $port } sock] } {
 		    return -1
 		}
 		set state 1
-		fconfigure $sock -translation crlf
-		fconfigure $sock -buffering line
+		fconfigure $sock -translation crlf -buffering line
 		fileevent $sock readable\
 		    [format "::irc::irc%s::%s::GetEvent" $conn $host ]
 	    }
@@ -281,11 +285,10 @@ proc ::irc::connection { host {port 6667} } {
 		set header [string range $line 0 [expr $pos - 1]]
 		set linedata(msg) [string range $line [expr $pos + 2] end]
 	    } else {
-		set line [string trim $line]
-		set pos [string last " " $line]
-		set header [string range $line 0 [expr $pos - 1]]
-		set linedata(msg) [string range $line [expr $pos + 1] end]
+		set header [string trim $line]
+		set linedata(msg) {}
 	    }
+
 	    if { [string match :* $header] } {
 		set header [split [string trimleft $header :]]
 	    } else {
@@ -331,7 +334,7 @@ proc ::irc::connection { host {port 6667} } {
 
 	proc cmd-getevent { evnt } {
 	    variable dispatch
-	    if { [info exists exists dispatch($evnt)] } {
+	    if { [info exists dispatch($evnt)] } {
 		return $dispatch($evnt)
 	    }
 	    return {}
