@@ -16,8 +16,16 @@
 Returns a list of the files contained in [arg tarball].
 
 
-[call [cmd ::tar::stat] [arg file] [opt file]]
+[call [cmd ::tar::stat] [arg tarball] [opt file]]
 
+Returns a nested dict containing information on the named [opt file] in [arg tarball],
+or all files. the top level are pairs of filename and info. The info is a dict in the form
+mode uid gid size mtime type linkname uname gname devmajor devminor
+
+[example {
+::tar::stat tarball.tar
+foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {} uname user gname wheel devmajor 0 devminor 0}
+}]
 
 
 [call [cmd ::tar::untar] [arg tarball] [arg args]]
