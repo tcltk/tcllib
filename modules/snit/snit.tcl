@@ -980,35 +980,43 @@ namespace eval ::snit:: {
         # in the parent of the %TYPE% namespace!  All accesses to 
         # %TYPE% variables and methods must be qualified!
         proc %TYPE% {method args} {
-            global errorInfo
-            global errorCode
-
             # First, if the typemethod is unknown, we'll assume that it's
             # an instance name if we can.
-            if {![info exists %TYPE%::Snit_typemethods($method)]} {
-                if {[set %TYPE%::Snit_isWidget] && 
-                    ![string match ".*" $method]} {
-                    return -code error  "\"%TYPE% $method\" is not defined"
+            if {[catch {set %TYPE%::Snit_typeMethodCache($method)} command]} {
+                set command [%TYPE%::Snit_typeCacheLookup $method]
+
+                if {[llength $command] eq 0} {
+                    if {[set %TYPE%::Snit_isWidget] && 
+                        ![string match ".*" $method]} {
+                        return -code error  "\"%TYPE% $method\" is not defined"
+                    }
+
+                    set args [concat $method $args]
+                    set method create
+                    set command [%TYPE%::Snit_typeCacheLookup $method]
                 }
-                set args [concat $method $args]
-                set method create
             }
 
-            set procname [set %TYPE%::Snit_typemethods($method)]
-
-            set errflag [catch {
-                uplevel [concat %TYPE%::$procname %TYPE% $args]
-            } result]
-
-            if {$errflag} {
-                return -code error \
-                    -errorinfo $errorInfo \
-                    -errorcode $errorCode \
-                    $result
-            } else {
-                return $result
-            }
+            uplevel $command $args
         }
+        
+        # Generates and caches the command for a typemethod.
+        #
+        # method:	The name of the method to call.
+        proc %TYPE%::Snit_typeCacheLookup {method} {
+            puts "typeCacheLookup: %TYPE% $method"
+            # First, if the typemethod is unknown, we'll assume that it's
+            # an instance name if we can.
+            if {[catch {set %TYPE%::Snit_typemethods($method)} procname]} {
+                return ""
+            }
+
+            set command [concat %TYPE%::$procname %TYPE%]
+            set %TYPE%::Snit_typeMethodCache($method) $command
+
+            return $command
+        }
+
 
         #----------------------------------------------------------------
         # Dispatcher Command
