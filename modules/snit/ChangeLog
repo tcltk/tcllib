@@ -1,3 +1,10 @@
+2004-08-11  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Added the -hasinfo pragma, along with the
+	* snit.test     appropriate tests.  Updated documentation.
+	* snit.man
+	* README.txt
+
 2004-08-07  Will Duquette  <will@wjduquette.com>
 
 	* All files     Updated to Snit V0.96 for post-0.95 development.
@@ -603,4 +610,3 @@
 	* pkgIndex.tcl:
 	* snit.man:
 	* snitfaq.man:
-

@@ -5962,6 +5962,36 @@ test canreplace-1.2 {Can replace commands when "-canreplace yes"} {
 } {::fido} 
 
 #-----------------------------------------------------------------------
+# pragma -hasinfo
+
+test hasinfo-1.1 {$obj info is defined by default} {
+    cleanup
+
+    type dog {
+        variable foo
+    }
+
+    dog spot
+    spot info vars
+} {::dog::Snit_inst1::foo ::dog::Snit_inst1::options} 
+
+test hasinfo-1.2 {$obj info can be disabled} {
+    cleanup
+
+    type dog {
+        pragma -hasinfo no
+        variable foo
+    }
+
+    catch {
+        dog spot
+        spot info vars
+    } result
+    set result
+} {"::spot info" is not defined} 
+
+
+#-----------------------------------------------------------------------
 # Exotic return codes
 
 test break-1.1 {Methods can "return -code break"} {
