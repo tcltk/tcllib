@@ -10,11 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: do.tcl,v 1.3 2001/11/09 04:59:45 dgp Exp $
+# RCS: @(#) $Id: do.tcl,v 1.4 2002/01/18 16:42:56 rmax Exp $
 #
 namespace eval ::control {
 
-    proc do {body whileOrUntil test} {
+    proc do {body args} {
 
 	#
 	# Implements a "do body while|until test" loop
@@ -22,15 +22,23 @@ namespace eval ::control {
 	# It is almost as fast as builtin "while" command for loops with
 	# more than just a few iterations.
 	#
-	
-	switch -exact -- $whileOrUntil {
 
-	    "while" {}
-	    "until" { set test !($test) }
-	    default {
-		return -code error \
-		    "bad option \"$whileOrUntil\": must be until, or while"
+	set len [llength $args]
+	if {$len !=2 && $len != 0} {
+	    set proc [namespace current]::[lindex [info level 0] 0]
+	    return -code error "wrong # args: should be \"$proc body\" or \"$proc body \[until|while\] test\""
+	}
+	set test 0
+	foreach {whileOrUntil test} $args {
+	    switch -exact -- $whileOrUntil {
+		"while" {}
+		"until" { set test !($test) }
+		default {
+		    return -code error \
+			"bad option \"$whileOrUntil\": must be until, or while"
+		}
 	    }
+	    break
 	}
 
 	# the first invocation of the body
@@ -57,7 +65,6 @@ namespace eval ::control {
 		return -code $code $result
 	    }
 	}
-
 	# the rest of the loop
 	set code [catch {uplevel 1 [list while $test $body]} result]
 	if {$code == 1} {
