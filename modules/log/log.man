@@ -211,15 +211,15 @@ itself.
 [call [cmd ::log::logarray] [arg level] [arg arrayvar] [opt [arg pattern]]]
 
 Like [cmd ::log::log], but logs the contents of the specified array
-variable, possibly restricted to entries matching the [arg
-pattern]. The pattern defaults to [const *] (i.e. all entries) if it
-is not specified.
+variable [arg arrayvar], possibly restricted to entries matching the
+[arg pattern]. The pattern defaults to [const *] (i.e. all entries) if
+none was specified.
 
 
 [call [cmd ::log::loghex] [arg level] [arg text] [arg data]]
 
-Like [cmd ::log::log], but assumes that [arg data] is in binary. It
-converts the [arg data] into a mixed hex/ascii representation before
+Like [cmd ::log::log], but assumes that [arg data] contains binary
+data. It converts this into a mixed hex/ascii representation before
 writing them to the log.
 
 
