@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.6 2004/07/01 21:30:46 patthoyts Exp $
+# RCS: @(#) $Id: md5x.test,v 1.7 2004/12/03 02:08:30 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -83,7 +83,7 @@ set tests {
 }
 foreach {n msg expected} $tests {
     test md5-2.$n {md5} {
-	list [catch {::md5::md5 -hex $msg} msg] $msg
+	list [catch {::md5::md5 -hex -- $msg} msg] $msg
     } [list 0 $expected]
 }
 #
@@ -103,7 +103,7 @@ if {$::md5::usetrf || $::md5::usemd5c || 1} {
     set ::md5::usemd5c $usemd5c
 }
 
-foreach {n key text expected} {
+set vectors {
     1 ""     ""      "74E6F7298A9C2D168935F58C001BAD88"
     2 "\x01" ""      "DFA55EFBE6ED07FA2E056E57E949930A"
     3 "foo"  "hello" "EF2AC8901530DB30AA56929ADFE5E13B"
@@ -115,10 +115,36 @@ foreach {n key text expected} {
     9 "hmac" "hmac"  "08ABBE58A55219789E3EEDE153808A56"
    10 "01234567abcdefgh01234567abcdefgh01234567abcdefgh01234567abcdefgh==" "hello world"
     "CF0237466F9B3C773858A1892B474C9E"
-} {
+   11 "-"    "a"     "E3BA60E98ED812A68AEB04A8FF57AC8E"
+   12 "a"    "-"     "A9DD01C469578DCD4220600667DF6FFB"
+} 
+
+foreach {n key text expected} $vectors {
     test md5-3.$n {hmac} {
-	list [catch {::md5::hmac -hex -key $key $text} msg] $msg
+	list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
     } [list 0 $expected]
 }
 
+if {$::md5::usetrf || $::md5::usemd5c || 1} {
+    set usetrf $::md5::usetrf
+    set usemd5c $::md5::usemd5c
+    set ::md5::usetrf 0
+    set ::md5::usemd5c 0
+    foreach {n key text expected} $vectors {
+        test md5-tcl-4.$n {md5 pureTcl implementation} {
+            list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
+        } [list 0 $expected]
+    }
+    set ::md5::usetrf $usetrf
+    set ::md5::usemd5c $usemd5c
+}
+
+# -------------------------------------------------------------------------
+
 ::tcltest::cleanupTests
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
