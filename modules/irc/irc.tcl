@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.17 2003/07/28 06:32:02 afaupell Exp $
+# $Id: irc.tcl,v 1.18 2003/10/22 19:43:27 davidw Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -486,7 +486,7 @@ proc ::irc::connection { args } {
 	# args: arguments to the command
 
 	proc network { cmd args } {
-	    eval [namespace current]::cmd-$cmd $args
+	    eval [linsert 0 $args [namespace current]::cmd-$cmd]
 	}
 
 	# Create default handlers.
