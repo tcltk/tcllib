@@ -1526,6 +1526,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
     set target ""
     set exceptions {}
     set pattern ""
+    set methodTail [lindex $method end]
 
     foreach {opt value} $arglist {
         switch -exact $opt {
@@ -1543,21 +1544,22 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         error "$errRoot, missing \"to\""
     }
 
-    if {$method eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify \"as\" with method \"*\""
+    if {$methodTail eq "*" && $target ne ""} {
+        error "$errRoot, cannot specify \"as\" with \"*\""
     }
 
-    if {$method ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify \"except\" with method \"*\"" 
+    if {$methodTail ne "*" && $exceptions ne ""} {
+        error "$errRoot, can only specify \"except\" with \"*\"" 
     }
 
     if {$pattern ne "" && $target ne ""} {
         error "$errRoot, cannot specify both \"as\" and \"using\""
     }
 
-    # Make sure the pattern is a valid list.
-    if {[catch {lindex $pattern 0} result]} {
-        error "$errRoot, the -pattern, \"$pattern\", is not a valid list"
+    foreach token [lrange $method 1 end-1] {
+        if {$token eq "*"} {
+            error "$errRoot, \"*\" must be the last token."
+        }
     }
 
     # NEXT, define the component
@@ -1567,7 +1569,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
 
     # NEXT, define the pattern.
     if {$pattern eq ""} {
-        if {$method eq "*"} {
+        if {$methodTail eq "*"} {
             set pattern "%c %m"
         } elseif {$target ne ""} {
             set pattern "%c $target"
@@ -1576,13 +1578,18 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         }
     }
 
+    # Make sure the pattern is a valid list.
+    if {[catch {lindex $pattern 0} result]} {
+        error "$errRoot, the using pattern, \"$pattern\", is not a valid list"
+    }
+
     # NEXT, check the method name against previously defined 
     # methods.
     Comp.CheckMethodName $method 1 ::snit::typemethodInfo $errRoot
 
     set typemethodInfo($method) [list 0 $pattern $component]
 
-    if {[string equal $method "*"]} {
+    if {[string equal $methodTail "*"]} {
         Mappend compile(defs) {
             set %TYPE%::Snit_info(excepttypemethods) %EXCEPT%
         } %EXCEPT% [list $exceptions]
@@ -1607,6 +1614,7 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
     set target ""
     set exceptions {}
     set pattern ""
+    set methodTail [lindex $method end]
 
     foreach {opt value} $arglist {
         switch -exact $opt {
@@ -1624,21 +1632,22 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         error "$errRoot, missing \"to\""
     }
 
-    if {$method eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify \"as\" with method \"*\""
+    if {$methodTail eq "*" && $target ne ""} {
+        error "$errRoot, cannot specify \"as\" with \"*\""
     }
 
-    if {$method ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify \"except\" with method \"*\"" 
+    if {$methodTail ne "*" && $exceptions ne ""} {
+        error "$errRoot, can only specify \"except\" with \"*\"" 
     }
 
     if {$pattern ne "" && $target ne ""} {
         error "$errRoot, cannot specify both \"as\" and \"using\""
     }
 
-    # Make sure the pattern is a valid list.
-    if {[catch {lindex $pattern 0} result]} {
-        error "$errRoot, the -pattern, \"$pattern\", is not a valid list"
+    foreach token [lrange $method 1 end-1] {
+        if {$token eq "*"} {
+            error "$errRoot, \"*\" must be the last token."
+        }
     }
 
     # NEXT, we delegate some methods
@@ -1653,13 +1662,18 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
 
     # NEXT, define the pattern.
     if {$pattern eq ""} {
-        if {$method eq "*"} {
+        if {$methodTail eq "*"} {
             set pattern "%c %m"
         } elseif {$target ne ""} {
             set pattern "%c $target"
         } else {
             set pattern "%c %m"
         }
+    }
+
+    # Make sure the pattern is a valid list.
+    if {[catch {lindex $pattern 0} result]} {
+        error "$errRoot, the using pattern, \"$pattern\", is not a valid list"
     }
 
     # NEXT, check the method name against previously defined 
@@ -1669,7 +1683,7 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
     # NEXT, save the method info.
     set methodInfo($method) [list 0 $pattern $component]
 
-    if {[string equal $method "*"]} {
+    if {[string equal $methodTail "*"]} {
         Mappend compile(defs) {
             set %TYPE%::Snit_info(exceptmethods) %EXCEPT%
         } %EXCEPT% [list $exceptions]
@@ -2485,11 +2499,14 @@ proc snit::RT.CacheTypemethodCommand {type method} {
     set implicitCreate 0
     set instanceName ""
 
+    set starredMethod [lreplace $method end end *]
+    set methodTail [lindex $method end]
+
     if {[info exists Snit_typemethodInfo($method)]} {
         set key $method
-    } elseif {[info exists Snit_typemethodInfo(*)]} {
-        if {[lsearch -exact $Snit_info(excepttypemethods) $method] == -1} {
-            set key "*"
+    } elseif {[info exists Snit_typemethodInfo($starredMethod)]} {
+        if {[lsearch -exact $Snit_info(excepttypemethods) $methodTail] == -1} {
+            set key $starredMethod
         } else {
             return [list ]
         }
@@ -2627,11 +2644,14 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
     variable ${selfns}::Snit_methodCache
 
     # FIRST, get the pattern data and the component name.
+    set starredMethod [lreplace $method end end *]
+    set methodTail [lindex $method end]
+
     if {[info exists Snit_methodInfo($method)]} {
         set key $method
-    } elseif {[info exists Snit_methodInfo(*)] &&
-              [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
-        set key "*"
+    } elseif {[info exists Snit_methodInfo($starredMethod)] &&
+              [lsearch -exact $Snit_info(exceptmethods) $methodTail] == -1} {
+        set key $starredMethod
     } else {
         return [list ]
     }
