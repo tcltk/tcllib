@@ -1,5 +1,8 @@
 2004-02-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* ripemd128.tcl:  Added -- to end options if using Trf's hex in case
+	* ripemd160.tcl:  the hash begins with a - character (possible).
+	
 	* ripemd160.tcl:  Inlined the algorithm functions. This makes the
 	pure-Tcl code about 2x faster than the proc calling version.
 	* ripemd128.tcl:  Streamlined the <<< implementation a bit.
