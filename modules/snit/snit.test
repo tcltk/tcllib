@@ -2003,7 +2003,7 @@ test delegate-1.5 {"as" doesn't work with "*"} {} {
     } result
 
     set result
-} {error in 'delegate method *...', cannot specify '-as' with method '*'}
+} {error in 'delegate method *...', cannot specify 'as' with method '*'}
 
 test delegate-1.6 {"except" must have a target} {} {
     cleanup
@@ -2042,7 +2042,7 @@ test delegate-1.8 {"except" works only with "*"} {} {
     } result
 
     set result
-} {error in 'delegate method foo...', can only specify '-except' with method '*'}
+} {error in 'delegate method foo...', can only specify 'except' with method '*'}
 
 test delegate-1.9 {only "as" or "except"} {} {
     cleanup
@@ -2194,7 +2194,90 @@ test dmethod-1.8 {excepted methods are caught properly} {
     list $a $b $c
 } {flaunted {'::fifi wag' is not defined.} {'::fifi tuck' is not defined.}}
 
-test dmethod-2.1 {component names can be changed dynamically} {
+test dmethod-1.9 {as clause can include arguments} {
+    cleanup
+
+    type tail {
+        method wag {adverb}    {return "wagged $adverb"}
+    }
+
+    type dog {
+        delegate method wag to tail as {wag briskly}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    dog spot
+
+    spot wag
+} {wagged briskly}
+
+test dmethod-2.1 {'using "%c %m"' gets normal behavior} {
+    cleanup
+
+    type tail {
+        method wag {adverb}    {return "wagged $adverb"}
+    }
+
+    type dog {
+        delegate method wag to tail using {%c %m}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    dog spot
+
+    spot wag briskly
+} {wagged briskly}
+
+test dmethod-2.2 {All 'using' conversions are converted} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate method wag using {echo %% %t %m %n %w %s %c}
+    }
+
+    dog spot
+
+    spot wag
+} {%|::dog|wag|::dog::Snit_inst1|::spot|::spot|%c}
+
+test dmethod-2.3 {"%%" is handled properly} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate method wag using {echo %%m %%%m}
+    }
+
+    dog spot
+
+    spot wag
+} {%m|%wag}
+
+test dmethod-2.4 {Method "*" and "using"} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate method * using {echo %m}
+    }
+
+    dog spot
+
+    list [spot wag] [spot bark loudly]
+} {wag bark|loudly}
+
+
+test dmethod-3.1 {component names can be changed dynamically} {
     cleanup
 
     type tail1 {

@@ -33,7 +33,6 @@ concepts.
 
 Snit provides the following commands for defining new types:
 
-[para]
 [list_begin definitions]
 
 [call [cmd snit::type] [arg name] [arg definition]]
@@ -291,36 +290,90 @@ instance variables as well, provided that it is passed
 Although they are not implicitly defined for procs, the argument names
 [const type], [const self], and [const win] should be avoided.
 
-[call [cmd delegate] [const method] [arg name] [const to] [arg comp]]
-[call [cmd delegate] [const method] [arg name] [const to] [arg comp] [const as] [arg target]]
-[call [cmd delegate] [const method] [const *] [const to] [arg comp]]
-[call [cmd delegate] [const method] [const *] [const to] [arg comp] [const except] [arg exceptions]]
+[call [cmd delegate] [const method] [arg name] [const to] [arg comp] [opt "[const as] [arg target]"]]
 
-Delegates one or more instance methods to a component of the
-object. When a method [arg name] is explicitly stated, it will
-automatically be delegated to the named component as though the method
-were defined as follows:
+Delegates method [arg name] to component [arg comp].  That is, when
+method [arg name] is called on an instance of this type, the method
+and its arguments will be passed to the named component's command
+instead.  That is, the following statement
 
-[example {    method name {args...} {
-        uplevel [list $comp mymethod args...]
+[example {    delegate method wag to tail
+}]
+
+is roughly equivalent to this explicitly defined method:
+
+[example {    method wag {args} {
+        uplevel $tail wag $args
     }
 }]
 
-If desired, the delegated method may [arg target] a method with a
-different name by using the [const as] clause; the [arg target] may
-also include arguments add to the beginning of the argument list.
+The optional [const as] clause allows you to specify the delegated
+method name and possibly add some arguments:
 
-[nl]
-
-The form "delegate method *" delegates all unknown method names to the
-specified [arg comp]onent.  The [const except] clause can be used to
-specify a list of [arg exceptions], i.e., method names that will not
-be so delegated.
+[example {    delegate method wagtail to tail as "wag briskly"
+}]
 
 [nl]
 
 A method cannot be both locally defined and delegated.
 
+[call [cmd delegate] [const method] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
+
+In this form of the [cmd delegate] statement, the [const using] clause
+is used to specify the precise form of the command to which method 
+[arg name] name is delegated.  In this form, the "to" clause is
+optional, since the chosen command might not involve any particular
+component.
+
+[nl]
+
+The value of the [const using] clause is a string which may contain 
+any or all of the following substitution codes; these codes are
+substituted with the described value to build the delegated command
+prefix.  Note that the following two statements are equivalent:
+
+[example {    delegate method wag to tail
+    delegate method wag to tail using "%c %m"
+}]
+
+Substitutions:
+[list_begin definitions]
+[lst_item [const %c]]
+
+This is replaced with the named component's command.
+
+[lst_item [const %m]]
+
+This is replaced with the method [arg name].
+
+[lst_item [const %t]]
+
+This is replaced with the fully qualified type name.
+
+[lst_item [const %n]]
+
+This is replaced with the name of the instance's private namespace.
+
+[lst_item [const %s]]
+
+This is replaced with the name of the instance command.
+
+[lst_item [const %w]]
+
+This is replaced with the original name of the instance command; for
+Snit widgets and widget adaptors, it will be the Tk window name.
+It remains constant, even if the instance command is renamed.
+
+[list_end]
+
+[call [cmd delegate] [const method] [const *] [opt "[const to] [arg comp]"] [opt "[const using] [arg pattern]"] [opt "[const except] [arg exceptions]"]]
+
+The form "delegate method *" delegates all unknown method names to the
+specified [arg comp]onent.  The [const except] clause can be used to
+specify a list of [arg exceptions], i.e., method names that will not
+be so delegated. The [const using] clause is defined as given above.
+In this form, the statement must contain the [const to] clause, the
+[const using] clause, or both.
 
 [call [cmd delegate] [const option] [arg namespec] [const to] [arg comp]]
 [call [cmd delegate] [const option] [arg namespec] [const to] [arg comp] [const as] [arg target]]
@@ -380,9 +433,7 @@ public by defining a [arg method] that is delegated to the component's
 command itself, e.g., specifying [const -public] is equivalent to the
 following:
 
-[example {    # TBD: This example uses the delegation syntax,
-    # which isn't yet implemented.
-    component mycomp
+[example {    component mycomp
     delegate method mymethod to mycomp using "%c"
 }]
 
