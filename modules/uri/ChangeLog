@@ -1,3 +1,9 @@
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
 2004-09-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* urn-scheme.tcl (urn::unquote): The latest unquote used features
