@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.12 2003/04/23 23:18:28 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.13 2003/04/24 00:12:20 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.3
@@ -328,20 +328,89 @@ proc ::csv::Split {alternate line sepChar} {
     set sepRE \\$sepChar
 
     if {$alternate} {
-	regsub -- "$sepRE\"\"$" $line $sepChar line
-	regsub -- "^\"\"$sepRE" $line $sepChar line
-	regsub -all -- {(^\"|\"$)} $line \0 line
+	# The alternate syntax requires a different parser.
+	# A variation of the string map / regsub parser for the
+	# regular syntax was tried but does not handle embedded
+	# doubled " well (testcase csv-91.3 was 'knownBug', sole
+	# one, still a bug). Now we just tokenize the input into
+	# the primary parts (sep char, "'s and the rest) and then
+	# use an explicitly coded state machine (DFA) to parse
+	# and convert token sequences.
 
+	## puts 1->>$line<<
 	set line [string map [list \
-		$sepChar\"\"\" $sepChar\0\" \
-		\"\"\"$sepChar \"\0$sepChar \
-		\
-		$sepChar\"\" $sepChar \
-		\"\"$sepChar $sepChar \
-		\
-		\"\"           \" \
-		\"             \0 \
+		$sepChar \0$sepChar\0 \
+		\" \0\"\0 \
 		] $line]
+
+	## puts 2->>$line<<
+	set line [string map [list \0\0 \0] $line]
+	regsub "^\0" $line {} line
+	regsub "\0$" $line {} line
+
+	## puts 3->>$line<<
+
+	set val ""
+	set res ""
+	set state base
+
+	## puts 4->>[::split $line \0]
+	foreach token [::split $line \0] {
+
+	    ## puts "\t*= $state\t>>$token<<"
+	    switch -exact -- $state {
+		base {
+		    if {[string equal $token "\""]} {
+			set state qvalue
+			continue
+		    }
+		    if {[string equal $token $sepChar]} {
+			lappend res $val
+			set val ""
+			continue
+		    }
+		    append val $token
+		}
+		qvalue {
+		    if {[string equal $token "\""]} {
+			# May end value, may be a doubled "
+			set state endordouble
+			continue
+		    }
+		    append val $token
+		}
+		endordouble {
+		    if {[string equal $token "\""]} {
+			# Doubled ", append to current value
+			append val \"
+			set state qvalue
+			continue
+		    }
+		    # Last " was end of quoted value. Close it.
+		    # We expect current as $sepChar
+
+		    lappend res $val
+		    set          val ""
+		    set state base
+
+		    if {[string equal $token $sepChar]} {continue}
+
+		    # Undoubled " in middle of text. Just assume that
+		    # remainder is another qvalue.
+		    set state qvalue
+		}
+		default {
+		    return -code error "Internal error, illegal parsing state"
+		}
+	    }
+	}
+
+	## puts "/= $state\t>>$val<<"
+
+	lappend res $val
+
+	## puts 5->>$res<<
+	return $res
     } else {
 	regsub -- "$sepRE\"\"$" $line $sepChar\0\"\"\0 line
 	regsub -- "^\"\"$sepRE" $line \0\"\"\0$sepChar line
@@ -353,21 +422,23 @@ proc ::csv::Split {alternate line sepChar} {
 		\"\"           \" \
 		\"             \0 \
 		] $line]
-    }
-    set end 0
-    while {[regexp -indices -start $end -- {(\0)[^\0]*(\0)} $line \
-	    -> start end]} {
-	set start [lindex $start 0]
-	set end   [lindex $end 0]
-	set range [string range $line $start $end]
-	if {[string first $sepChar $range] >= 0} {
-	    set line [string replace $line $start $end \
-		    [string map [list $sepChar \1] $range]]
+
+	set end 0
+	while {[regexp -indices -start $end -- {(\0)[^\0]*(\0)} $line \
+		-> start end]} {
+	    set start [lindex $start 0]
+	    set end   [lindex $end 0]
+	    set range [string range $line $start $end]
+	    if {[string first $sepChar $range] >= 0} {
+		set line [string replace $line $start $end \
+			[string map [list $sepChar \1] $range]]
+	    }
+	    incr end
 	}
-	incr end
+	set line [string map [list $sepChar \0 \1 $sepChar \0 {} ] $line]
+	return [::split $line \0]
+
     }
-    set line [string map [list $sepChar \0 \1 $sepChar \0 {} ] $line]
-    return [::split $line \0]
 }
 
 # ::csv::split2matrix --
