@@ -313,6 +313,21 @@ test type-1.5 {typemethod args can't include self} {} {
     set result
 } {typemethod foo's arglist may not contain 'self' explicitly.}
 
+test type-1.6 {typemethod args can span multiple lines} {} {
+    cleanup
+
+    # This case caused an error at definition time in 0.9 because the
+    # arguments were included in a comment in the compile script, and 
+    # the subsequent lines weren't commented.
+    type dog { 
+        typemethod foo {
+            a 
+            b
+        } { }
+    }
+} {::dog}
+
+
 #-----------------------------------------------------------------------
 # typeconstructor
 
@@ -565,7 +580,7 @@ test method-1.10 {too many arguments} {} {
     set result
 } {wrong # args: should be "::dog::Snit_methodbark type selfns win self volume"}
 
-test type-1.11 {method args can't include type} {} {
+test method-1.11 {method args can't include type} {} {
     cleanup
 
     catch {
@@ -576,7 +591,7 @@ test type-1.11 {method args can't include type} {} {
     set result
 } {method foo's arglist may not contain 'type' explicitly.}
 
-test type-1.12 {method args can't include self} {} {
+test method-1.12 {method args can't include self} {} {
     cleanup
 
     catch {
@@ -586,6 +601,21 @@ test type-1.12 {method args can't include self} {} {
     } result
     set result
 } {method foo's arglist may not contain 'self' explicitly.}
+
+test method-1.13 {method args can span multiple lines} {} {
+    cleanup
+
+    # This case caused an error at definition time in 0.9 because the
+    # arguments were included in a comment in the compile script, and 
+    # the subsequent lines weren't commented.
+    type dog { 
+        method foo {
+                    a  
+                    b
+                } { }
+    }
+} {::dog}
+
 
 #-----------------------------------------------------------------------
 # mymethod and renaming
