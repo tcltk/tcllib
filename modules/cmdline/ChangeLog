@@ -1,5 +1,7 @@
 2003-08-06  Andreas Kupries  <andreask@activestate.com>
 
+	* cmdline.test: Added a test for the backslash quoting behaviour.
+
 	* cmdline.tcl (getfiles): Corrected a bogus attempt to quote
 	  backslashes in file patterns on the windows platform.
 
