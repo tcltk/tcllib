@@ -26,13 +26,22 @@ namespace eval uuid {
         interp alias {} ::uuid::lset {} ::struct::list::lset
     }
 
+    # Under windows we can use a critcl extension to call the Win32 API.
+    interp alias {} ::uuid::generate {} ::uuid::generate_tcl
+    if {[string equal $::tcl_platform(platform) "windows"]} {
+        catch {package require tcllibc}
+        if {[info command ::uuid::generate_c] != {}} {
+            interp alias {} ::uuid::generate {} ::uuid::generate_c
+        }
+    }
+
     proc K {a b} {set a}
 }
 
 # Generates a binary UUID as per the draft spec. We generate a pseudo-random
 # type uuid (type 4). See section 3.4
 #
-proc ::uuid::generate {} {
+proc ::uuid::generate_tcl {} {
     package require md5 2
     variable uid
 
@@ -66,10 +75,46 @@ proc ::uuid::generate {} {
     return [binary format c* $r]
 }
 
+if {[string equal $tcl_platform(platform) "windows"] 
+        && [package provide critcl] != {}} {
+    namespace eval uuid {
+        critcl::ccode {
+            #define WIN32_LEAN_AND_MEAN
+            #include <windows.h>
+            #include <tchar.h>
+            typedef long (__stdcall *LPFNUUIDCREATE)(UUID *);
+            typedef const unsigned char cu_char;
+        }
+        critcl::cproc generate_c {Tcl_Interp* interp} ok {
+            HRESULT hr = S_OK;
+            int r = TCL_OK;
+            UUID uuid = {0};
+            HMODULE hLib;
+            LPFNUUIDCREATE lpfnUuidCreate = NULL;
+
+            hLib = LoadLibrary(_T("rpcrt4.dll"));
+            if (hLib)
+                lpfnUuidCreate = (LPFNUUIDCREATE)GetProcAddress(hLib,
+                                                                "UuidCreate");
+            if (lpfnUuidCreate) {
+                lpfnUuidCreate(&uuid);
+                Tcl_Obj *obj = Tcl_NewByteArrayObj((cu_char *)&uuid,
+                                                   sizeof(uuid));
+                Tcl_SetObjResult(interp, obj);
+            } else {
+                Tcl_SetResult(interp, "error: failed to create a guid",
+                              TCL_STATIC);
+                r = TCL_ERROR;
+            }
+            return r;
+        }
+    }
+}
+
 # Convert a binary uuid into its string representation.
 #
 proc ::uuid::tostring {uuid} {
-    set s [md5::Hex $uuid]
+    binary scan $uuid H* s
     foreach {a b} {0 7 8 11 12 15 16 19 20 end} {
         append r [string range $s $a $b] -
     }
