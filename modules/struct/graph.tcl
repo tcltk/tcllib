@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.9 2003/04/15 17:44:51 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.10 2003/08/07 18:49:58 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -18,8 +18,18 @@ namespace eval ::struct::graph {}
 
 # Try to load the cgraph package
 # Get it at http://physnet.uni-oldenburg.de/~schlenk/tcl/graph/ 
+#
+# ** NOTE ** ATTENTION **
+#
+# For the 2.0 version of the graph interface 'cgraph 0.6' is _not_
+# useable anymore.
+#
+# '[package vcompare $version 0.6] > 0' <=> '$version > 0.6'
 
-if {![catch {package require cgraph 0.6}]} {
+if {
+    ![catch {package require cgraph} version] &&
+    [package vcompare $version 0.6] > 0
+} {
     # the cgraph package takes over, so we can return
     return
 }
@@ -47,54 +57,6 @@ namespace eval ::struct::graph {
     # counter is used to give a unique name for unnamed graph
     variable counter 0
 
-    # commands is the list of subcommands recognized by the graph
-    variable commands [list	\
-	    "arc"		\
-	    "arcs"		\
-	    "destroy"		\
-	    "get"		\
-	    "getall"		\
-	    "keys"		\
-	    "keyexists"		\
-	    "node"		\
-	    "nodes"		\
-	    "set"		\
-	    "swap"		\
-	    "unset"             \
-	    "walk"		\
-	    ]
-
-    variable arcCommands [list	\
-	    "append"	\
-	    "delete"	\
-	    "exists"	\
-	    "get"	\
-	    "getall"	\
-	    "insert"	\
-	    "keys"	\
-	    "keyexists"	\
-	    "lappend"	\
-	    "set"	\
-	    "source"	\
-	    "target"	\
-	    "unset"	\
-	    ]
-
-    variable nodeCommands [list	\
-	    "append"	\
-	    "degree"	\
-	    "delete"	\
-	    "exists"	\
-	    "get"	\
-	    "getall"	\
-	    "insert"	\
-	    "keys"	\
-	    "keyexists"	\
-	    "lappend"	\
-	    "opposite"	\
-	    "set"	\
-	    "unset"	\
-	    ]
 
     # Only export one command, the one used to instantiate a new graph
     namespace export graph
@@ -111,24 +73,73 @@ namespace eval ::struct::graph {
 # Results:
 #	name	name of the graph created
 
-proc ::struct::graph::graph {{name ""}} {
+proc ::struct::graph::graph {args} {
     variable counter
     
-    if { [llength [info level 0]] == 1 } {
-	incr counter
-	set name "graph${counter}"
+    set src     {}
+    set srctype {}
+
+    switch -exact -- [llength [info level 0]] {
+	1 {
+	    # Missing name, generate one.
+	    incr counter
+	    set name "graph${counter}"
+	}
+	2 {
+	    # Standard call. New empty graph.
+	    set name [lindex $args 0]
+	}
+	4 {
+	    # Copy construction.
+	    foreach {name as src} $args break
+	    switch -exact -- $as {
+		= - := - as {
+		    set srctype graph
+		}
+		deserialize {
+		    set srctype serial
+		}
+		default {
+		    return -code error \
+			    "wrong # args: should be \"graph ?name ?=|:=|as|deserialize source??\""
+		}
+	    }
+	}
+	default {
+	    # Error.
+	    return -code error \
+		    "wrong # args: should be \"graph ?name ?=|:=|as|deserialize source??\""
+	}
     }
 
-    if { ![string equal [info commands ::$name] ""] } {
-	error "command \"$name\" already exists, unable to create graph"
+    # FIRST, qualify the name.
+    if {![string match "::*" $name]} {
+        # Get caller's namespace; append :: if not global namespace.
+        set ns [uplevel 1 namespace current]
+        if {"::" != $ns} {
+            append ns "::"
+        }
+
+        set name "$ns$name"
+    }
+    if {[llength [info commands $name]]} {
+	return -code error "command \"$name\" already exists, unable to create graph"
     }
 
     # Set up the namespace
-    namespace eval ::struct::graph::graph$name {
+    namespace eval $name {
 
 	# Set up the map for values associated with the graph itself
-	variable graphData
-	array set graphData {data ""}
+	variable  graphAttr
+	array set graphAttr {}
+
+	# Set up the node attribute mapping
+	variable  nodeAttr
+	array set nodeAttr {}
+
+	# Set up the arc attribute mapping
+	variable  arcAttr
+	array set arcAttr {}
 
 	# Set up the map from nodes to the arcs coming to them
 	variable  inArcs
@@ -144,15 +155,32 @@ proc ::struct::graph::graph {{name ""}} {
 
 	# Set up a value for use in creating unique node names
 	variable nextUnusedNode
-	set nextUnusedNode 1
+	set      nextUnusedNode 1
 
 	# Set up a value for use in creating unique arc names
 	variable nextUnusedArc
-	set nextUnusedArc 1
+	set      nextUnusedArc 1
+
+	# Set up a counter for use in creating attribute arrays.
+	variable nextAttr
+	set      nextAttr 0
     }
 
     # Create the command to manipulate the graph
-    interp alias {} ::$name {} ::struct::graph::GraphProc $name
+    interp alias {} $name {} ::struct::graph::GraphProc $name
+
+    # Automatic execution of assignment if a source
+    # is present.
+    if {$src != {}} {
+	switch -exact -- $srctype {
+	    graph  {_= $name $src}
+	    serial {_deserialize $name $src}
+	    default {
+		return -code error \
+			"Internal error, illegal srctype \"$srctype\""
+	    }
+	}
+    }
 
     return $name
 }
@@ -174,17 +202,91 @@ proc ::struct::graph::graph {{name ""}} {
 proc ::struct::graph::GraphProc {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::graph::_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub _$cmd
+    if { [llength [info commands ::struct::graph::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::graph::_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    if {[string match __* $p]} {continue}
+	    lappend xlist [string range $p 1 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::graph::_$cmd $name] $args
+    uplevel 1 [linsert $args 0 ::struct::graph::$sub $name]
+}
+
+# ::struct::graph::_= --
+#
+#	Assignment operator. Copies the source graph into the
+#       destination, destroying the original information.
+#
+# Arguments:
+#	name	Name of the graph object we are copying into.
+#	source	Name of the graph object providing us with the
+#		data to copy.
+#
+# Results:
+#	Nothing.
+
+proc ::struct::graph::_= {name source} {
+    _deserialize $name [$source serialize]
+    return
+}
+
+# ::struct::graph::_--> --
+#
+#	Reverse assignment operator. Copies this graph into the
+#       destination, destroying the original information.
+#
+# Arguments:
+#	name	Name of the graph object to copy
+#	dest	Name of the graph object we are copying to.
+#
+# Results:
+#	Nothing.
+
+proc ::struct::graph::_--> {name dest} {
+    $dest deserialize [_serialize $name]
+    return
+}
+
+# ::struct::graph::_append --
+#
+#	Append a value for an attribute in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	args	key value
+#
+# Results:
+#	val	value associated with the given key of the given arc
+
+proc ::struct::graph::_append {name key value} {
+    variable ${name}::graphAttr
+    return [append    graphAttr($key) $value]
+}
+
+# ::struct::graph::_lappend --
+#
+#	lappend a value for an attribute in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	args	key value
+#
+# Results:
+#	val	value associated with the given key of the given arc
+
+proc ::struct::graph::_lappend {name key value} {
+    variable ${name}::graphAttr
+    return [lappend   graphAttr($key) $value]
 }
 
 # ::struct::graph::_arc --
@@ -201,16 +303,21 @@ proc ::struct::graph::GraphProc {name {cmd ""} args} {
 #	As of the invoked handler.
 
 proc ::struct::graph::_arc {name cmd args} {
-
     # Split the args into command and args components
-    if { [llength [info commands ::struct::graph::__arc_$cmd]] == 0 } {
-	variable arcCommands
-	set optlist [join $arcCommands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
-    }
 
-    eval [list ::struct::graph::__arc_$cmd $name] $args
+    set sub __arc_$cmd
+    if { [llength [info commands ::struct::graph::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::graph::__arc_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 6 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
+    }
+    uplevel 1 [linsert $args 0 ::struct::graph::$sub $name]
 }
 
 # ::struct::graph::__arc_delete --
@@ -228,28 +335,32 @@ proc ::struct::graph::__arc_delete {name args} {
 
     foreach arc $args {
 	if { ![__arc_exists $name $arc] } {
-	    error "arc \"$arc\" does not exist in graph \"$name\""
+	    return -code error "arc \"$arc\" does not exist in graph \"$name\""
 	}
     }
 
-    upvar ::struct::graph::graph${name}::inArcs   inArcs
-    upvar ::struct::graph::graph${name}::outArcs  outArcs
-    upvar ::struct::graph::graph${name}::arcNodes arcNodes
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
+    variable ${name}::arcAttr
 
     foreach arc $args {
 	foreach {source target} $arcNodes($arc) break ; # lassign
 
 	unset arcNodes($arc)
-	# FRINK: nocheck
-	unset ::struct::graph::graph${name}::arc$arc
+
+	if {[info exists arcAttr($arc)]} {
+	    unset ${name}::$arcAttr($arc)
+	    unset arcAttr($arc)
+	}
 
 	# Remove arc from the arc lists of source and target nodes.
 
-	set index            [lsearch -exact $outArcs($source) $arc]
-	set outArcs($source) [lreplace       $outArcs($source) $index $index]
+	set index [lsearch -exact $outArcs($source) $arc]
+	ldelete outArcs($source) $index
 
-	set index            [lsearch -exact $inArcs($target)  $arc]
-	set inArcs($target)  [lreplace       $inArcs($target)  $index $index]
+	set index [lsearch -exact $inArcs($target)  $arc]
+	ldelete inArcs($target) $index
     }
 
     return
@@ -267,7 +378,7 @@ proc ::struct::graph::__arc_delete {name args} {
 #	1 if the arc exists, 0 else.
 
 proc ::struct::graph::__arc_exists {name arc} {
-    return [info exists ::struct::graph::graph${name}::arcNodes($arc)]
+    return [info exists ${name}::arcNodes($arc)]
 }
 
 # ::struct::graph::__arc_get --
@@ -277,23 +388,26 @@ proc ::struct::graph::__arc_exists {name arc} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to query.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	key	key to lookup
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::__arc_get {name arc {flag -key} {key data}} {
+proc ::struct::graph::__arc_get {name arc key} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
-    
-    upvar ::struct::graph::graph${name}::arc${arc} data
 
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attribute data for this arc, key has to be invalid.
+	return -code error "invalid key \"$key\" for arc \"$arc\""
+    }
+
+    upvar ${name}::$arcAttr($arc) data
     if { ![info exists data($key)] } {
-	error "invalid key \"$key\" for arc \"$arc\""
+	return -code error "invalid key \"$key\" for arc \"$arc\""
     }
-
     return $data($key)
 }
 
@@ -304,22 +418,24 @@ proc ::struct::graph::__arc_get {name arc {flag -key} {key data}} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to query.
+#	pattern	optional glob pattern to restrict retrieval
 #
 # Results:
 #	value	serialized array of key/value pairs.
 
-proc ::struct::graph::__arc_getall {name arc args} {
+proc ::struct::graph::__arc_getall {name arc {pattern *}} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    if { [llength $args] } {
-	error "wrong # args: should be none"
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attributes ...
+	return {}
     }
-    
-    upvar ::struct::graph::graph${name}::arc${arc} data
 
-    return [array get data]
+    upvar ${name}::$arcAttr($arc) data
+    return [array get data $pattern]
 }
 
 # ::struct::graph::__arc_keys --
@@ -329,22 +445,24 @@ proc ::struct::graph::__arc_getall {name arc args} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to query.
+#	pattern	optional glob pattern to restrict retrieval
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::__arc_keys {name arc args} {
+proc ::struct::graph::__arc_keys {name arc {pattern *}} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    if { [llength $args] } {
-	error "wrong # args: should be none"
-    }    
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attributes ...
+	return {}
+    }
 
-    upvar ::struct::graph::graph${name}::arc${arc} data
-
-    return [array names data]
+    upvar ${name}::$arcAttr($arc) data
+    return [array names data $pattern]
 }
 
 # ::struct::graph::__arc_keyexists --
@@ -354,23 +472,23 @@ proc ::struct::graph::__arc_keys {name arc args} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to query.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	key	key to lookup
 #
 # Results:
 #	1 if the key exists, 0 else.
 
-proc ::struct::graph::__arc_keyexists {name arc {flag -key} {key data}} {
+proc ::struct::graph::__arc_keyexists {name arc key} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    if { ![string equal $flag "-key"] } {
-	error "invalid option \"$flag\": should be -key"
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attribute data for this arc, key cannot exist.
+	return 0
     }
-    
-    upvar ::struct::graph::graph${name}::arc${arc} data
 
+    upvar ${name}::$arcAttr($arc) data
     return [info exists data($key)]
 }
 
@@ -398,24 +516,22 @@ proc ::struct::graph::__arc_insert {name source target args} {
     }
 
     if { [__arc_exists $name $arc] } {
-	error "arc \"$arc\" already exists in graph \"$name\""
+	return -code error "arc \"$arc\" already exists in graph \"$name\""
     }
     
     if { ![__node_exists $name $source] } {
-	error "source node \"$source\" does not exist in graph \"$name\""
+	return -code error "source node \"$source\" does not exist in graph \"$name\""
     }
     
     if { ![__node_exists $name $target] } {
-	error "target node \"$target\" does not exist in graph \"$name\""
+	return -code error "target node \"$target\" does not exist in graph \"$name\""
     }
     
-    upvar ::struct::graph::graph${name}::inArcs    inArcs
-    upvar ::struct::graph::graph${name}::outArcs   outArcs
-    upvar ::struct::graph::graph${name}::arcNodes  arcNodes
-    upvar ::struct::graph::graph${name}::arc${arc} data
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
 
     # Set up the new arc
-    set data(data)       ""
     set arcNodes($arc) [list $source $target]
 
     # Add this arc to the arc lists of its source resp. target nodes.
@@ -425,6 +541,63 @@ proc ::struct::graph::__arc_insert {name source target args} {
     return $arc
 }
 
+# ::struct::graph::__arc_rename --
+#
+#	Rename a arc in place.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	Name of the arc to rename
+#	newname	The new name of the arc.
+#
+# Results:
+#	The new name of the arc.
+
+proc ::struct::graph::__arc_rename {name arc newname} {
+    if { ![__arc_exists $name $arc] } {
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+    if {[__arc_exists $name $newname]} {
+	return -code error "unable to rename arc to \"$newname\",\
+		arc of that name already present in the graph \"$name\""
+    }
+
+    set oldname  $arc
+
+    # Perform the rename in the internal
+    # data structures.
+
+    # - graphAttr - not required, arc independent.
+    # - nodeAttr  - not required, arc independent.
+    # - counters  - not required
+
+    variable ${name}::arcAttr
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
+
+    # Arc relocation
+
+    set arcNodes($newname) [set nodes $arcNodes($oldname)]
+    unset                              arcNodes($oldname)
+
+    # Update the two nodes ...
+    foreach {start end} $nodes break
+
+    set pos [lsearch -exact $inArcs($end) $oldname]
+    lset inArcs($end) $pos $newname
+
+    set pos [lsearch -exact $outArcs($start) $oldname]
+    lset outArcs($start) $pos $newname
+
+    if {[info exists arcAttr($oldname)]} {
+	set arcAttr($newname) $arcAttr($oldname)
+	unset                  arcAttr($oldname)
+    }
+
+    return $newname
+}
+
 # ::struct::graph::__arc_set --
 #
 #	Set or get a value for an arc in a graph.
@@ -432,48 +605,37 @@ proc ::struct::graph::__arc_insert {name source target args} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to modify or query.
-#	args	?-key key? ?value?
+#	key	attribute to modify or query
+#	args	?value?
 #
 # Results:
 #	val	value associated with the given key of the given arc
 
-proc ::struct::graph::__arc_set {name arc args} {
-    if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
-    }
-
-    upvar ::struct::graph::graph${name}::arc$arc data
-
-    if { [llength $args] > 3 } {
-	error "wrong # args: should be \"$name arc set $arc ?-key key?\
-		?value?\""
-    }
-    
-    set key "data"
-    set haveValue 0
+proc ::struct::graph::__arc_set {name arc key args} {
     if { [llength $args] > 1 } {
-	foreach {flag key} $args break
-	if { ![string match "${flag}*" "-key"] } {
-	    error "invalid option \"$flag\": should be key"
-	}
-	if { [llength $args] == 3 } {
-	    set haveValue 1
-	    set value [lindex $args end]
-	}
-    } elseif { [llength $args] == 1 } {
-	set haveValue 1
-	set value [lindex $args end]
+	return -code error "wrong # args: should be \"$name arc set $arc key ?value?\""
+    }
+    if { ![__arc_exists $name $arc] } {
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    if { $haveValue } {
-	# Setting a value
-	return [set data($key) $value]
+    if { [llength $args] > 0 } {
+	# Setting the value. This may have to create
+	# the attribute array for this particular
+	# node
+
+	variable ${name}::arcAttr
+	if {![info exists arcAttr($arc)]} {
+	    # No attribute data for this node,
+	    # so create it as we need it now.
+	    GenAttributeStorage $name arc $arc
+	}
+
+	upvar ${name}::$arcAttr($arc) data
+	return [set data($key) [lindex $args end]]
     } else {
 	# Getting a value
-	if { ![info exists data($key)] } {
-	    error "invalid key \"$key\" for arc \"$arc\""
-	}
-	return $data($key)
+	return [__arc_get $name $arc $key]
     }
 }
 
@@ -484,34 +646,24 @@ proc ::struct::graph::__arc_set {name arc args} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to modify or query.
-#	args	?-key key? value
+#	args	key value
 #
 # Results:
 #	val	value associated with the given key of the given arc
 
-proc ::struct::graph::__arc_append {name arc args} {
+proc ::struct::graph::__arc_append {name arc key value} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::arc$arc data
-
-    if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name arc append $arc ?-key key?\
-		value\""
-    }
-    
-    if { [llength $args] == 3 } {
-	foreach {flag key} $args break
-	if { ![string equal $flag "-key"] } {
-	    error "invalid option \"$flag\": should be -key"
-	}
-    } else {
-	set key "data"
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attribute data for this arc,
+	# so create it as we need it.
+	GenAttributeStorage $name arc $arc
     }
 
-    set value [lindex $args end]
-
+    upvar ${name}::$arcAttr($arc) data
     return [append data($key) $value]
 }
 
@@ -522,34 +674,24 @@ proc ::struct::graph::__arc_append {name arc args} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to modify or query.
-#	args	?-key key? value
+#	args	key value
 #
 # Results:
 #	val	value associated with the given key of the given arc
 
-proc ::struct::graph::__arc_lappend {name arc args} {
+proc ::struct::graph::__arc_lappend {name arc key value} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::arc$arc data
-
-    if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name arc lappend $arc ?-key key?\
-		value\""
-    }
-    
-    if { [llength $args] == 3 } {
-	foreach {flag key} $args break
-	if { ![string equal $flag "-key"] } {
-	    error "invalid option \"$flag\": should be -key"
-	}
-    } else {
-	set key "data"
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attribute data for this arc,
+	# so create it as we need it.
+	GenAttributeStorage $name arc $arc
     }
 
-    set value [lindex $args end]
-
+    upvar ${name}::$arcAttr($arc) data
     return [lappend data($key) $value]
 }
 
@@ -566,10 +708,10 @@ proc ::struct::graph::__arc_lappend {name arc args} {
 
 proc ::struct::graph::__arc_source {name arc} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::arcNodes arcNodes
+    variable ${name}::arcNodes
     return [lindex $arcNodes($arc) 0]
 }
 
@@ -586,10 +728,10 @@ proc ::struct::graph::__arc_source {name arc} {
 
 proc ::struct::graph::__arc_target {name arc} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::arcNodes arcNodes
+    variable ${name}::arcNodes
     return [lindex $arcNodes($arc) 1]
 }
 
@@ -600,24 +742,30 @@ proc ::struct::graph::__arc_target {name arc} {
 # Arguments:
 #	name	name of the graph.
 #	arc	arc to modify.
-#	args	additional args: ?-key key?
+#	key	attribute to remove
 #
 # Results:
 #	None.
 
-proc ::struct::graph::__arc_unset {name arc {flag -key} {key data}} {
+proc ::struct::graph::__arc_unset {name arc key} {
     if { ![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
-    }
-    
-    if { ![string match "${flag}*" "-key"] } {
-	error "invalid option \"$flag\": should be \"$name arc unset\
-		$arc ?-key key?\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::arc${arc} data
-    if { [info exists data($key)] } {
-	unset data($key)
+    variable ${name}::arcAttr
+    if {![info exists arcAttr($arc)]} {
+	# No attribute data for this arc,
+	# nothing to do.
+	return
+    }
+
+    upvar ${name}::$arcAttr($arc) data
+    unset -nocomplain data($key)
+
+    if {[array size data] == 0} {
+	# No attributes stored for this arc, squash the whole array.
+	set arcAttr($arc) {}
+	unset data
     }
     return
 }
@@ -665,7 +813,7 @@ proc ::struct::graph::_arcs {name args} {
 		set haveValue 1
 	    }
 	    -* {
-		error "invalid restriction \"$arg\": should be -in, -out,\
+		return -code error "invalid restriction \"$arg\": should be -in, -out,\
 			-adj, -inner, -embedding, -key or -value"
 	    }
 	    default {
@@ -679,21 +827,21 @@ proc ::struct::graph::_arcs {name args} {
     if {$haveCond} {
 	if {[llength $condNodes] == 0} {
 	    set usage "$name arcs ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"
-	    error "no nodes specified: should be \"$usage\""
+	    return -code error "no nodes specified: should be \"$usage\""
 	}
 
 	# Make sure that the specified nodes exist!
 	foreach node $condNodes {
 	    if { ![__node_exists $name $node] } {
-		error "node \"$node\" does not exist in graph \"$name\""
+		return -code error "node \"$node\" does not exist in graph \"$name\""
 	    }
 	}
     }
 
     # Now we are able to go to work
-    upvar ::struct::graph::graph${name}::inArcs   inArcs
-    upvar ::struct::graph::graph${name}::outArcs  outArcs
-    upvar ::struct::graph::graph${name}::arcNodes arcNodes
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
 
     set       arcs [list]
 
@@ -814,7 +962,7 @@ proc ::struct::graph::_arcs {name args} {
 	none {
 	    set arcs [array names arcNodes]
 	}
-	default {error "Can't happen, panic"}
+	default {return -code error "Can't happen, panic"}
     }
 
     #
@@ -827,7 +975,7 @@ proc ::struct::graph::_arcs {name args} {
     if {$haveKey} {
 	foreach arc $arcs {
 	    catch {
-		set aval [__arc_get $name $arc -key $key]
+		set aval [__arc_get $name $arc $key]
 		if {$haveValue} {
 		    if {$aval == $value} {
 			lappend filteredArcs $arc
@@ -844,6 +992,91 @@ proc ::struct::graph::_arcs {name args} {
     return $filteredArcs
 }
 
+
+# ::struct::graph::_deserialize --
+#
+#	Assignment operator. Copies a serialization into the
+#       destination, destroying the original information.
+#
+# Arguments:
+#	name	Name of the graph object we are copying into.
+#	serial	Serialized graph to copy from.
+#
+# Results:
+#	Nothing.
+
+proc ::struct::graph::_deserialize {name serial} {
+    # As we destroy the original graph as part of
+    # the copying process we don't have to deal
+    # with issues like node names from the new graph
+    # interfering with the old ...
+
+    # I. Get the serialization of the source graph
+    #    and check it for validity.
+
+    CheckSerialization $serial \
+	    gattr nattr aattr ina outa arcn
+
+    # Get all the relevant data into the scope
+
+    variable ${name}::graphAttr
+    variable ${name}::nodeAttr
+    variable ${name}::arcAttr
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
+    variable ${name}::nextAttr
+
+    # Kill the existing information and insert the new
+    # data in their place.
+
+    foreach n [array names inArcs] {
+	unset inArcs($n) outArcs($n)
+    }
+    array set inArcs   [array get ina]
+    array set outArcs  [array get outa]
+    unset ina outa
+
+    foreach a [array names arcNodes] {
+	unset arcNodes($a)
+    }
+    array set arcNodes [array get arcn]
+    unset arcn
+
+    set nextAttr 0
+    foreach a [array names nodeAttr] {
+	unset ${name}::$nodeAttr($a)
+    }
+    foreach a [array names arcAttr] {
+	unset ${name}::$arcAttr($a)
+    }
+    foreach n [array names nattr] {
+	GenAttributeStorage $name node $n
+	array set ${name}::$nodeAttr($n) $nattr($n)
+    }
+    foreach a [array names aattr] {
+	GenAttributeStorage $name arc $a
+	array set ${name}::$arcAttr($a) $aattr($a)
+    }
+    foreach k [array names graphAttr] {
+	unset graphAttr($k)
+    }
+    array set graphAttr $gattr
+
+    ## Debug ## Dump internals ...
+    if {0} {
+	puts "___________________________________ $name"
+	parray inArcs
+	parray outArcs
+	parray arcNodes
+	parray nodeAttr
+	parray arcAttr
+	parray graphAttr
+	puts ___________________________________
+    }
+    return
+}
+
 # ::struct::graph::_destroy --
 #
 #	Destroy a graph, including its associated command and data storage.
@@ -855,8 +1088,8 @@ proc ::struct::graph::_arcs {name args} {
 #	None.
 
 proc ::struct::graph::_destroy {name} {
-    namespace delete ::struct::graph::graph$name
-    interp alias {} ::$name {}
+    namespace delete $name
+    interp alias {} $name {}
 }
 
 # ::struct::graph::__generateUniqueArcName --
@@ -870,7 +1103,7 @@ proc ::struct::graph::_destroy {name} {
 #	arc	name of a arc guaranteed to not exist in the graph.
 
 proc ::struct::graph::__generateUniqueArcName {name} {
-    upvar ::struct::graph::graph${name}::nextUnusedArc nextUnusedArc
+    variable ${name}::nextUnusedArc
     while {[__arc_exists $name "arc${nextUnusedArc}"]} {
 	incr nextUnusedArc
     }
@@ -888,7 +1121,7 @@ proc ::struct::graph::__generateUniqueArcName {name} {
 #	node	name of a node guaranteed to not exist in the graph.
 
 proc ::struct::graph::__generateUniqueNodeName {name} {
-    upvar ::struct::graph::graph${name}::nextUnusedNode nextUnusedNode
+    variable ${name}::nextUnusedNode
     while {[__node_exists $name "node${nextUnusedNode}"]} {
 	incr nextUnusedNode
     }
@@ -901,39 +1134,33 @@ proc ::struct::graph::__generateUniqueNodeName {name} {
 #
 # Arguments:
 #	name	name of the graph.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	key	key to lookup
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::_get {name {flag -key} {key data}} {
-    upvar ::struct::graph::graph${name}::graphData data
-
-    if { ![info exists data($key)] } {
-	error "invalid key \"$key\" for graph \"$name\""
+proc ::struct::graph::_get {name key} {
+    variable  ${name}::graphAttr
+    if { ![info exists graphAttr($key)] } {
+	return -code error "invalid key \"$key\" for graph \"$name\""
     }
-
-    return $data($key)
+    return $graphAttr($key)
 }
 
 # ::struct::graph::_getall --
 #
-#	Get a serialized list of key/value pairs from a graph.
+#	Get an attribute dictionary from a graph.
 #
 # Arguments:
 #	name	name of the graph.
+#	pattern	optional, glob pattern
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::_getall {name args} { 
-    if { [llength $args] } {
-	error "wrong # args: should be none"
-    }
-    
-    upvar ::struct::graph::graph${name}::graphData data
-    return [array get data]
+proc ::struct::graph::_getall {name {pattern *}} { 
+    variable ${name}::graphAttr
+    return [array get graphAttr $pattern]
 }
 
 # ::struct::graph::_keys --
@@ -942,17 +1169,14 @@ proc ::struct::graph::_getall {name args} {
 #
 # Arguments:
 #	name	name of the graph.
+#	pattern	optional, glob pattern
 #
 # Results:
 #	value	list of known keys
 
-proc ::struct::graph::_keys {name args} { 
-    if { [llength $args] } {
-	error "wrong # args: should be none"
-    }
-
-    upvar ::struct::graph::graph${name}::graphData data
-    return [array names data]
+proc ::struct::graph::_keys {name {pattern *}} { 
+    variable   ${name}::graphAttr
+    return [array names graphAttr $pattern]
 }
 
 # ::struct::graph::_keyexists --
@@ -961,19 +1185,14 @@ proc ::struct::graph::_keys {name args} {
 #
 # Arguments:
 #	name	name of the graph.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	key	key to lookup
 #
 # Results:
 #	1 if the key exists, 0 else.
 
-proc ::struct::graph::_keyexists {name {flag -key} {key data}} {
-    if { ![string equal $flag "-key"] } {
-	error "invalid option \"$flag\": should be -key"
-    }
-    
-    upvar ::struct::graph::graph${name}::graphData data
-    return [info exists data($key)]
+proc ::struct::graph::_keyexists {name key} {
+    variable   ${name}::graphAttr
+    return [info exists graphAttr($key)]
 }
 
 # ::struct::graph::_node --
@@ -990,16 +1209,20 @@ proc ::struct::graph::_keyexists {name {flag -key} {key data}} {
 #	As of the the invoked handler.
 
 proc ::struct::graph::_node {name cmd args} {
-
     # Split the args into command and args components
-    if { [llength [info commands ::struct::graph::__node_$cmd]] == 0 } {
-	variable nodeCommands
-	set optlist [join $nodeCommands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __node_$cmd
+    if { [llength [info commands ::struct::graph::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::graph::__node_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 7 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-
-    eval [list ::struct::graph::__node_$cmd $name] $args
+    uplevel 1 [linsert $args 0 ::struct::graph::$sub $name]
 }
 
 # ::struct::graph::__node_degree --
@@ -1018,7 +1241,7 @@ proc ::struct::graph::_node {name cmd args} {
 proc ::struct::graph::__node_degree {name args} {
 
     if {([llength $args] < 1) || ([llength $args] > 2)} {
-	error "wrong # args: should be \"$name node degree ?-in|-out? node\""
+	return -code error "wrong # args: should be \"$name node degree ?-in|-out? node\""
     }
 
     switch -exact -- [llength $args] {
@@ -1030,7 +1253,7 @@ proc ::struct::graph::__node_degree {name args} {
 	    set opt  [lindex $args 0]
 	    set node [lindex $args 1]
 	}
-	default {error "Can't happen, panic"}
+	default {return -code error "Can't happen, panic"}
     }
 
     # Validate the option.
@@ -1040,18 +1263,18 @@ proc ::struct::graph::__node_degree {name args} {
 	-in  -
 	-out {}
 	default {
-	    error "invalid option \"$opt\": should be -in or -out"
+	    return -code error "invalid option \"$opt\": should be -in or -out"
 	}
     }
 
     # Validate the node
 
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::inArcs   inArcs
-    upvar ::struct::graph::graph${name}::outArcs  outArcs
+    variable ${name}::inArcs
+    variable ${name}::outArcs
 
     switch -exact -- $opt {
 	-in  {
@@ -1079,7 +1302,7 @@ proc ::struct::graph::__node_degree {name args} {
 		}
 	    }
 	}
-	default {error "Can't happen, panic"}
+	default {return -code error "Can't happen, panic"}
     }
 
     return $result
@@ -1101,12 +1324,13 @@ proc ::struct::graph::__node_delete {name args} {
 
     foreach node $args {
 	if { ![__node_exists $name $node] } {
-	    error "node \"$node\" does not exist in graph \"$name\""
+	    return -code error "node \"$node\" does not exist in graph \"$name\""
 	}
     }
 
-    upvar ::struct::graph::graph${name}::inArcs  inArcs
-    upvar ::struct::graph::graph${name}::outArcs outArcs
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::nodeAttr
 
     foreach node $args {
 	# Remove all the arcs connected to this node
@@ -1124,8 +1348,11 @@ proc ::struct::graph::__node_delete {name args} {
 
 	unset inArcs($node)
 	unset outArcs($node)
-	# FRINK: nocheck
-	unset ::struct::graph::graph${name}::node$node
+
+	if {[info exists nodeAttr($node)]} {
+	    unset ${name}::$nodeAttr($node)
+	    unset nodeAttr($node)
+	}
     }
 
     return
@@ -1143,7 +1370,7 @@ proc ::struct::graph::__node_delete {name args} {
 #	1 if the node exists, 0 else.
 
 proc ::struct::graph::__node_exists {name node} {
-    return [info exists ::struct::graph::graph${name}::inArcs($node)]
+    return [info exists ${name}::inArcs($node)]
 }
 
 # ::struct::graph::__node_get --
@@ -1153,23 +1380,26 @@ proc ::struct::graph::__node_exists {name node} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to query.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	key	key to lookup
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::__node_get {name node {flag -key} {key data}} {
+proc ::struct::graph::__node_get {name node key} {
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
-    
-    upvar ::struct::graph::graph${name}::node${node} data
+ 
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attribute data for this node, key has to be invalid.
+	return -code error "invalid key \"$key\" for node \"$node\""
+    }
 
+    upvar ${name}::$nodeAttr($node) data
     if { ![info exists data($key)] } {
-	error "invalid key \"$key\" for node \"$node\""
+	return -code error "invalid key \"$key\" for node \"$node\""
     }
-
     return $data($key)
 }
 
@@ -1180,22 +1410,24 @@ proc ::struct::graph::__node_get {name node {flag -key} {key data}} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to query.
+#	pattern	optional glob pattern to restrict retrieval
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::__node_getall {name node args} { 
+proc ::struct::graph::__node_getall {name node {pattern *}} { 
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
-    if { [llength $args] } {
-	error "wrong # args: should be none"
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attributes ...
+	return {}
     }
-    
-    upvar ::struct::graph::graph${name}::node${node} data
 
-    return [array get data]
+    upvar ${name}::$nodeAttr($node) data
+    return [array get data $pattern]
 }
 
 # ::struct::graph::__node_keys --
@@ -1205,22 +1437,24 @@ proc ::struct::graph::__node_getall {name node args} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to query.
+#	pattern	optional glob pattern to restrict retrieval
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::__node_keys {name node args} { 
+proc ::struct::graph::__node_keys {name node {pattern *}} { 
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
-    }
-    
-    if { [llength $args] } {
-	error "wrong # args: should be none"
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::node${node} data
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attributes ...
+	return {}
+    }
 
-    return [array names data]
+    upvar ${name}::$nodeAttr($node) data
+    return [array names data $pattern]
 }
 
 # ::struct::graph::__node_keyexists --
@@ -1230,23 +1464,23 @@ proc ::struct::graph::__node_keys {name node args} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to query.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	key	key to lookup
 #
 # Results:
 #	1 if the key exists, 0 else.
 
-proc ::struct::graph::__node_keyexists {name node {flag -key} {key data}} {
+proc ::struct::graph::__node_keyexists {name node key} {
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
     
-    if { ![string equal $flag "-key"] } {
-	error "invalid option \"$flag\": should be -key"
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attribute data for this node, key cannot exist.
+	return 0
     }
-    
-    upvar ::struct::graph::graph${name}::node${node} data
 
+    upvar ${name}::$nodeAttr($node) data
     return [info exists data($key)]
 }
 
@@ -1272,17 +1506,15 @@ proc ::struct::graph::__node_insert {name args} {
     }
 
     if { [__node_exists $name $node] } {
-	error "node \"$node\" already exists in graph \"$name\""
+	return -code error "node \"$node\" already exists in graph \"$name\""
     }
     
-    upvar ::struct::graph::graph${name}::inArcs      inArcs
-    upvar ::struct::graph::graph${name}::outArcs     outArcs
-    upvar ::struct::graph::graph${name}::node${node} data
+    variable ${name}::inArcs
+    variable ${name}::outArcs
 
     # Set up the new node
     set inArcs($node)  [list]
     set outArcs($node) [list]
-    set data(data) ""
 
     return $node
 }
@@ -1301,14 +1533,14 @@ proc ::struct::graph::__node_insert {name args} {
 
 proc ::struct::graph::__node_opposite {name node arc} {
     if {![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
     
     if {![__arc_exists $name $arc] } {
-	error "arc \"$arc\" does not exist in graph \"$name\""
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::arcNodes arcNodes
+    variable ${name}::arcNodes
 
     # Node must be connected to at least one end of the arc.
 
@@ -1317,7 +1549,7 @@ proc ::struct::graph::__node_opposite {name node arc} {
     } elseif {[string equal $node [lindex $arcNodes($arc) 1]]} {
 	set result [lindex $arcNodes($arc) 0]
     } else {
-	error "node \"$node\" and arc \"$arc\" are not connected\
+	return -code error "node \"$node\" and arc \"$arc\" are not connected\
 		in graph \"$name\""
     }
 
@@ -1331,47 +1563,37 @@ proc ::struct::graph::__node_opposite {name node arc} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to modify or query.
-#	args	?-key key? ?value?
+#	key	attribute to modify or query
+#	args	?value?
 #
 # Results:
 #	val	value associated with the given key of the given node
 
-proc ::struct::graph::__node_set {name node args} {
-    if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+proc ::struct::graph::__node_set {name node key args} {
+    if { [llength $args] > 1 } {
+	return -code error "wrong # args: should be \"$name node set $node key ?value?\""
     }
-    upvar ::struct::graph::graph${name}::node$node data
-
-    if { [llength $args] > 3 } {
-	error "wrong # args: should be \"$name node set $node ?-key key?\
-		?value?\""
+    if { ![__node_exists $name $node] } {
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
     
-    set key "data"
-    set haveValue 0
-    if { [llength $args] > 1 } {
-	foreach {flag key} $args break
-	if { ![string match "${flag}*" "-key"] } {
-	    error "invalid option \"$flag\": should be key"
-	}
-	if { [llength $args] == 3 } {
-	    set haveValue 1
-	    set value [lindex $args end]
-	}
-    } elseif { [llength $args] == 1 } {
-	set haveValue 1
-	set value [lindex $args end]
-    }
+    if { [llength $args] > 0 } {
+	# Setting the value. This may have to create
+	# the attribute array for this particular
+	# node
 
-    if { $haveValue } {
-	# Setting a value
-	return [set data($key) $value]
+	variable ${name}::nodeAttr
+	if {![info exists nodeAttr($node)]} {
+	    # No attribute data for this node,
+	    # so create it as we need it now.
+	    GenAttributeStorage $name node $node
+	}
+	upvar ${name}::$nodeAttr($node) data
+
+	return [set data($key) [lindex $args end]]
     } else {
 	# Getting a value
-	if { ![info exists data($key)] } {
-	    error "invalid key \"$key\" for node \"$node\""
-	}
-	return $data($key)
+	return [__node_get $name $node $key]
     }
 }
 
@@ -1382,33 +1604,24 @@ proc ::struct::graph::__node_set {name node args} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to modify or query.
-#	args	?-key key? value
+#	args	key value
 #
 # Results:
 #	val	value associated with the given key of the given node
 
-proc ::struct::graph::__node_append {name node args} {
+proc ::struct::graph::__node_append {name node key value} {
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
-    }
-    upvar ::struct::graph::graph${name}::node$node data
-
-    if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name node append $node ?-key key?\
-		value\""
-    }
-    
-    if { [llength $args] == 3 } {
-	foreach {flag key} $args break
-	if { ![string equal $flag "-key"] } {
-	    error "invalid option \"$flag\": should be -key"
-	}
-    } else {
-	set key "data"
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
-    set value [lindex $args end]
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attribute data for this node,
+	# so create it as we need it.
+	GenAttributeStorage $name node $node
+    }
 
+    upvar ${name}::$nodeAttr($node) data
     return [append data($key) $value]
 }
 
@@ -1419,33 +1632,24 @@ proc ::struct::graph::__node_append {name node args} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to modify or query.
-#	args	?-key key? value
+#	args	key value
 #
 # Results:
 #	val	value associated with the given key of the given node
 
-proc ::struct::graph::__node_lappend {name node args} {
+proc ::struct::graph::__node_lappend {name node key value} {
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
-    }
-    upvar ::struct::graph::graph${name}::node$node data
-
-    if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name node lappend $node ?-key key?\
-		value\""
-    }
-    
-    if { [llength $args] == 3 } {
-	foreach {flag key} $args break
-	if { ![string equal $flag "-key"] } {
-	    error "invalid option \"$flag\": should be -key"
-	}
-    } else {
-	set key "data"
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
-    set value [lindex $args end]
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attribute data for this node,
+	# so create it as we need it.
+	GenAttributeStorage $name node $node
+    }
 
+    upvar ${name}::$nodeAttr($node) data
     return [lappend data($key) $value]
 }
 
@@ -1456,24 +1660,30 @@ proc ::struct::graph::__node_lappend {name node args} {
 # Arguments:
 #	name	name of the graph.
 #	node	node to modify.
-#	args	additional args: ?-key key?
+#	key	attribute to remove
 #
 # Results:
 #	None.
 
-proc ::struct::graph::__node_unset {name node {flag -key} {key data}} {
+proc ::struct::graph::__node_unset {name node key} {
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
-    }
-    
-    if { ![string match "${flag}*" "-key"] } {
-	error "invalid option \"$flag\": should be \"$name node unset\
-		$node ?-key key?\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
-    upvar ::struct::graph::graph${name}::node${node} data
-    if { [info exists data($key)] } {
-	unset data($key)
+    variable ${name}::nodeAttr
+    if {![info exists nodeAttr($node)]} {
+	# No attribute data for this node,
+	# nothing to do.
+	return
+    }
+
+    upvar ${name}::$nodeAttr($node) data
+    unset -nocomplain data($key)
+
+    if {[array size data] == 0} {
+	# No attributes stored for this node, squash the whole array.
+	set nodeAttr($node) {}
+	unset data
     }
     return
 }
@@ -1521,7 +1731,7 @@ proc ::struct::graph::_nodes {name args} {
 		set haveValue 1
 	    }
 	    -* {
-		error "invalid restriction \"$arg\": should be -in, -out,\
+		return -code error "invalid restriction \"$arg\": should be -in, -out,\
 			-adj, -inner, -embedding, -key or -value"
 	    }
 	    default {
@@ -1535,21 +1745,21 @@ proc ::struct::graph::_nodes {name args} {
     if {$haveCond} {
 	if {[llength $condNodes] == 0} {
 	    set usage "$name nodes ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"
-	    error "no nodes specified: should be \"$usage\""
+	    return -code error "no nodes specified: should be \"$usage\""
 	}
 
 	# Make sure that the specified nodes exist!
 	foreach node $condNodes {
 	    if { ![__node_exists $name $node] } {
-		error "node \"$node\" does not exist in graph \"$name\""
+		return -code error "node \"$node\" does not exist in graph \"$name\""
 	    }
 	}
     }
 
     # Now we are able to go to work
-    upvar ::struct::graph::graph${name}::inArcs   inArcs
-    upvar ::struct::graph::graph${name}::outArcs  outArcs
-    upvar ::struct::graph::graph${name}::arcNodes arcNodes
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
 
     set       nodes [list]
     array set coll  {}
@@ -1657,7 +1867,7 @@ proc ::struct::graph::_nodes {name args} {
 	none {
 	    set nodes [array names inArcs]
 	}
-	default {error "Can't happen, panic"}
+	default {return -code error "Can't happen, panic"}
     }
 
     #
@@ -1670,7 +1880,7 @@ proc ::struct::graph::_nodes {name args} {
     if {$haveKey} {
 	foreach node $nodes {
 	    catch {
-		set nval [__node_get $name $node -key $key]
+		set nval [__node_get $name $node $key]
 		if {$haveValue} {
 		    if {$nval == $value} {
 			lappend filteredNodes $node
@@ -1687,51 +1897,191 @@ proc ::struct::graph::_nodes {name args} {
     return $filteredNodes
 }
 
+# ::struct::graph::__node_rename --
+#
+#	Rename a node in place.
+#
+# Arguments:
+#	name	name of the graph.
+#	node	Name of the node to rename
+#	newname	The new name of the node.
+#
+# Results:
+#	The new name of the node.
+
+proc ::struct::graph::__node_rename {name node newname} {
+    if { ![__node_exists $name $node] } {
+	return -code error "node \"$node\" does not exist in graph \"$name\""
+    }
+    if {[__node_exists $name $newname]} {
+	return -code error "unable to rename node to \"$newname\",\
+		node of that name already present in the graph \"$name\""
+    }
+
+    set oldname  $node
+
+    # Perform the rename in the internal
+    # data structures.
+
+    # - graphAttr - not required, node independent.
+    # - arcAttr   - not required, node independent.
+    # - counters  - not required
+
+    variable ${name}::nodeAttr
+    variable ${name}::inArcs
+    variable ${name}::outArcs
+    variable ${name}::arcNodes
+
+    # Node relocation
+
+    set inArcs($newname)    [set in $inArcs($oldname)]
+    unset                            inArcs($oldname)
+    set outArcs($newname) [set out $outArcs($oldname)]
+    unset                           outArcs($oldname)
+
+    if {[info exists nodeAttr($oldname)]} {
+	set nodeAttr($newname) $nodeAttr($oldname)
+	unset                   nodeAttr($oldname)
+    }
+
+    # Update all relevant arcs.
+    # 8.4: lset ...
+
+    foreach a $in {
+	set arcNodes($a) [list [lindex $arcNodes($a) 0] $newname]
+    }
+    foreach a $out {
+	set arcNodes($a) [list $newname [lindex $arcNodes($a) 1]]
+    }
+
+    return $newname
+}
+
+# ::struct::graph::_serialize --
+#
+#	Serialize a graph object (partially) into a transportable value.
+#	If only a subset of nodes is serialized the result will be a sub-
+#	graph in the mathematical sense of the word: These nodes and all
+#	arcs which are only between these nodes. No arcs to modes outside
+#	of the listed set.
+#
+# Arguments:
+#	name	Name of the graph.
+#	args	list of nodes to place into the serialized graph
+#
+# Results:
+#	A list structure describing the part of the graph which was serialized.
+
+proc ::struct::graph::_serialize {name args} {
+
+    # all - boolean flag - set if and only if the all nodes of the
+    # graph are chosen for serialization. Because if that is true we
+    # can skip the step finding the relevant arcs and simply take all
+    # arcs.
+
+    variable ${name}::arcNodes
+    variable ${name}::inArcs
+
+    set all 0
+    if {[llength $args] > 0} {
+	set nodes [luniq $args]
+	foreach n $nodes {
+	    if {![__node_exists $name $n]} {
+		return -code error "node \"$n\" does not exist in graph \"$name\""
+	    }
+	}
+	if {[llength $nodes] == [array size inArcs]} {
+	    set all 1
+	}
+    } else {
+	set nodes [array names inArcs]
+	set all 1
+    }
+
+    if {$all} {
+	set arcs [array names arcNodes]
+    } else {
+	set arcs [eval [linsert $nodes 0 _arcs $name -inner]]
+    }
+
+    variable ${name}::nodeAttr
+    variable ${name}::arcAttr
+    variable ${name}::graphAttr
+
+    set na {}
+    set aa {}
+    array set np {}
+
+    # node indices, attribute data ...
+    set i 0
+    foreach n $nodes {
+	set np($n) [list $i]
+	incr i 3
+
+	if {[info exists nodeAttr($n)]} {
+	    upvar ${name}::$nodeAttr($n) data
+	    lappend np($n) [array get data]
+	} else {
+	    lappend np($n) {}
+	}
+    }
+
+    # arc dictionary
+    set arcdata  {}
+    foreach a $arcs {
+	foreach {src dst} $arcNodes($a) break
+	# Arc information
+
+	set     arc $a
+	lappend arc [lindex $np($dst) 0]
+	if {[info exists arcAttr($a)]} {
+	    upvar ${name}::$arcAttr($a) data
+	    lappend arc [array get data]
+	} else {
+	    lappend arc {}
+	}
+
+	# Add the information to the node
+	# indices ...
+
+	lappend np($src) $arc
+    }
+
+    # Combine the transient data into one result.
+
+    set result [list]
+    foreach n $nodes {
+	lappend result $n
+	lappend result [lindex $np($n) 1]
+	lappend result [lrange $np($n) 2 end]
+    }
+    lappend result [array get graphAttr]
+
+    return $result
+}
+
 # ::struct::graph::_set --
 #
 #	Set or get a keyed value from the graph itself
 #
 # Arguments:
 #	name	name of the graph.
-#	flag	-key; anything else is an error
-#	args	?-key key? ?value?
+#	key	attribute to modify or query
+#	args	?value?
 #
 # Results:
 #	value	value associated with the key given.
 
-proc ::struct::graph::_set {name args} {
-    upvar ::struct::graph::graph${name}::graphData data
-
-    if { [llength $args] > 3 } {
-	error "wrong # args: should be \"$name set ?-key key?\
-		?value?\""
-    }
-
-    set key "data"
-    set haveValue 0
+proc ::struct::graph::_set {name key args} {
     if { [llength $args] > 1 } {
-	foreach {flag key} $args break
-	if { ![string match "${flag}*" "-key"] } {
-	    error "invalid option \"$flag\": should be key"
-	}
-	if { [llength $args] == 3 } {
-	    set haveValue 1
-	    set value [lindex $args end]
-	}
-    } elseif { [llength $args] == 1 } {
-	set haveValue 1
-	set value [lindex $args end]
+	return -code error "wrong # args: should be \"$name set key ?value?\""
     }
-
-    if { $haveValue } {
-	# Setting a value
-	return [set data($key) $value]
+    if { [llength $args] > 0 } {
+	variable ${name}::graphAttr
+	return [set graphAttr($key) [lindex $args end]]
     } else {
 	# Getting a value
-	if { ![info exists data($key)] } {
-	    error "invalid key \"$key\" for graph \"$name\""
-	}
-	return $data($key)
+	return [_get $name $key]
     }
 }
 
@@ -1750,38 +2100,29 @@ proc ::struct::graph::_set {name args} {
 proc ::struct::graph::_swap {name node1 node2} {
     # Can only swap two real nodes
     if { ![__node_exists $name $node1] } {
-	error "node \"$node1\" does not exist in graph \"$name\""
+	return -code error "node \"$node1\" does not exist in graph \"$name\""
     }
     if { ![__node_exists $name $node2] } {
-	error "node \"$node2\" does not exist in graph \"$name\""
+	return -code error "node \"$node2\" does not exist in graph \"$name\""
     }
 
     # Can't swap a node with itself
     if { [string equal $node1 $node2] } {
-	error "cannot swap node \"$node1\" with itself"
+	return -code error "cannot swap node \"$node1\" with itself"
     }
 
     # Swapping nodes means swapping their labels, values and arcs
-    upvar ::struct::graph::graph${name}::outArcs      outArcs
-    upvar ::struct::graph::graph${name}::inArcs       inArcs
-    upvar ::struct::graph::graph${name}::arcNodes     arcNodes
-    upvar ::struct::graph::graph${name}::node${node1} node1Vals
-    upvar ::struct::graph::graph${name}::node${node2} node2Vals
+    variable ${name}::outArcs
+    variable ${name}::inArcs
+    variable ${name}::arcNodes
+    variable ${name}::nodeAttr
 
     # Redirect arcs to the new nodes.
 
-    foreach e $inArcs($node1) {
-	set arcNodes($e) [lreplace $arcNodes($e) end end $node2]
-    }
-    foreach e $inArcs($node2) {
-	set arcNodes($e) [lreplace $arcNodes($e) end end $node1]
-    }
-    foreach e $outArcs($node1) {
-	set arcNodes($e) [lreplace $arcNodes($e) 0 0 $node2]
-    }
-    foreach e $outArcs($node2) {
-	set arcNodes($e) [lreplace $arcNodes($e) 0 0 $node1]
-    }
+    foreach e $inArcs($node1)  {lset arcNodes($e) end $node2}
+    foreach e $inArcs($node2)  {lset arcNodes($e) end $node1}
+    foreach e $outArcs($node1) {lset arcNodes($e) 0 $node2}
+    foreach e $outArcs($node2) {lset arcNodes($e) 0 $node1}
 
     # Swap arc lists
 
@@ -1794,11 +2135,33 @@ proc ::struct::graph::_swap {name node1 node2} {
     set outArcs($node2) $tmp
 
     # Swap the values
-    set   value1        [array get node1Vals]
-    unset node1Vals
-    array set node1Vals [array get node2Vals]
-    unset node2Vals
-    array set node2Vals $value1
+    # More complicated now with the possibility that nodes do not have
+    # attribute storage associated with them. But also
+    # simpler as we just have to swap/move the array
+    # reference
+
+    if {
+	[set ia [info exists nodeAttr($node1)]] ||
+	[set ib [info exists nodeAttr($node2)]]
+    } {
+	# At least one of the nodes has attribute data. We simply swap
+	# the references to the arrays containing them. No need to
+	# copy the actual data around.
+
+	if {$ia && $ib} {
+	    set tmp               $nodeAttr($node1)
+	    set nodeAttr($node1) $nodeAttr($node2)
+	    set nodeAttr($node2) $tmp
+	} elseif {$ia} {
+	    set   nodeAttr($node2) $nodeAttr($node1)
+	    unset nodeAttr($node1)
+	} elseif {$ib} {
+	    set   nodeAttr($node1) $nodeAttr($node2)
+	    unset nodeAttr($node2)
+	} else {
+	    return -code error "Impossible condition."
+	}
+    } ; # else: No attribute storage => Nothing to do {}
 
     return
 }
@@ -1809,24 +2172,16 @@ proc ::struct::graph::_swap {name node1 node2} {
 #
 # Arguments:
 #	name	name of the graph.
-#	flag	-key; anything else is an error
-#	args	additional args: ?-key key?
+#	key	attribute to remove
 #
 # Results:
 #	None.
 
-proc ::struct::graph::_unset {name {flag -key} {key data}} {
-    upvar ::struct::graph::graph${name}::graphData data
-    
-    if { ![string match "${flag}*" "-key"] } {
-	error "invalid option \"$flag\": should be \"$name unset\
-		?-key key?\""
+proc ::struct::graph::_unset {name key} {
+    variable ${name}::graphAttr
+    if {[info exists  graphAttr($key)]} {
+	unset graphAttr($key)
     }
-
-    if { [info exists data($key)] } {
-	unset data($key)
-    }
-
     return
 }
 
@@ -1850,11 +2205,11 @@ proc ::struct::graph::_walk {name node args} {
 	    ?-order pre|post|both? ?-type {bfs|dfs}? -command cmd"
 
     if {[llength $args] > 8 || [llength $args] < 2} {
-	error "wrong # args: should be \"$usage\""
+	return -code error "wrong # args: should be \"$usage\""
     }
 
     if { ![__node_exists $name $node] } {
-	error "node \"$node\" does not exist in graph \"$name\""
+	return -code error "node \"$node\" does not exist in graph \"$name\""
     }
 
     # Set defaults
@@ -1868,7 +2223,7 @@ proc ::struct::graph::_walk {name node args} {
 	set flag [lindex $args $i]
 	incr i
 	if { $i >= [llength $args] } {
-	    error "value for \"$flag\" missing: should be \"$usage\""
+	    return -code error "value for \"$flag\" missing: should be \"$usage\""
 	}
 	switch -glob -- $flag {
 	    "-type" {
@@ -1884,14 +2239,14 @@ proc ::struct::graph::_walk {name node args} {
 		set dir [string tolower [lindex $args $i]]
 	    }
 	    default {
-		error "unknown option \"$flag\": should be \"$usage\""
+		return -code error "unknown option \"$flag\": should be \"$usage\""
 	    }
 	}
     }
     
     # Make sure we have a command to run, otherwise what's the point?
     if { [string equal $cmd ""] } {
-	error "no command specified: should be \"$usage\""
+	return -code error "no command specified: should be \"$usage\""
     }
 
     # Validate that the given type is good
@@ -1903,7 +2258,7 @@ proc ::struct::graph::_walk {name node args} {
 	    set type "bfs"
 	}
 	default {
-	    error "invalid search type \"$type\": should be dfs, or bfs"
+	    return -code error "invalid search type \"$type\": should be dfs, or bfs"
 	}
     }
     
@@ -1919,7 +2274,7 @@ proc ::struct::graph::_walk {name node args} {
 	    set order post
 	}
 	default {
-	    error "invalid search order \"$order\": should be both,\
+	    return -code error "invalid search order \"$order\": should be both,\
 		    pre or post"
 	}
     }
@@ -1933,7 +2288,7 @@ proc ::struct::graph::_walk {name node args} {
 	    set dir -in
 	}
 	default {
-	    error "invalid search direction \"$dir\": should be\
+	    return -code error "invalid search direction \"$dir\": should be\
 		    forward or backward"
 	}
     }
@@ -1950,12 +2305,12 @@ proc ::struct::graph::_walk {name node args} {
 
 	    while { [llength $st] > 0 } {
 		set node [lindex   $st end]
-		set st   [lreplace $st end end]
+		ldelete st end
 
 		# Evaluate the command at this node
 		set cmdcpy $cmd
 		lappend cmdcpy enter $name $node
-		uplevel 2 $cmdcpy
+		uplevel 1 $cmdcpy
 
 		set visited($node) .
 
@@ -1985,12 +2340,12 @@ proc ::struct::graph::_walk {name node args} {
 		    # Second time we are here, pop it,
 		    # then evaluate the command.
 
-		    set st [lreplace $st end end]
+		    ldelete st end
 
 		    # Evaluate the command at this node
 		    set cmdcpy $cmd
 		    lappend cmdcpy leave $name $node
-		    uplevel 2 $cmdcpy
+		    uplevel 1 $cmdcpy
 		} else {
 		    # First visit. Remember it.
 		    set visited($node) .
@@ -2019,12 +2374,12 @@ proc ::struct::graph::_walk {name node args} {
 		    # Second time we are here, pop it,
 		    # then evaluate the command.
 
-		    set st [lreplace $st end end]
+		    ldelete st end
 
 		    # Evaluate the command at this node
 		    set cmdcpy $cmd
 		    lappend cmdcpy leave $name $node
-		    uplevel 2 $cmdcpy
+		    uplevel 1 $cmdcpy
 		} else {
 		    # First visit. Remember it.
 		    set visited($node) .
@@ -2032,7 +2387,7 @@ proc ::struct::graph::_walk {name node args} {
 		    # Evaluate the command at this node
 		    set cmdcpy $cmd
 		    lappend cmdcpy enter $name $node
-		    uplevel 2 $cmdcpy
+		    uplevel 1 $cmdcpy
 	    
 		    # Add this node's neighbours.
 		    set next [_nodes $name $dir $node]
@@ -2055,11 +2410,11 @@ proc ::struct::graph::_walk {name node args} {
 	    # Pre-order Breadth first search
 	    while { [llength $st] > 0 } {
 		set node [lindex $st 0]
-		set st   [lreplace $st 0 0]
+		ldelete st 0
 		# Evaluate the command at this node
 		set cmdcpy $cmd
 		lappend cmdcpy enter $name $node
-		uplevel 2 $cmdcpy
+		uplevel 1 $cmdcpy
 	    
 		set visited($node) .
 
@@ -2080,7 +2435,7 @@ proc ::struct::graph::_walk {name node args} {
 	    # consistent for myself. Leave it
 	    # out.
 
-	    error "unable to do a ${order}-order breadth first walk"
+	    return -code error "unable to do a ${order}-order breadth first walk"
 	}
     }
     return
@@ -2114,4 +2469,151 @@ proc ::struct::graph::Union {args} {
 	    return [array names tmp]
 	}
     }
+}
+
+# ::struct::graph::GenAttributeStorage --
+#
+#	Create an array to store the attrributes of a node in.
+#
+# Arguments:
+#	name	Name of the graph containing the node
+#	type	Type of object for the attribute
+#	obj	Name of the node or arc which got attributes.
+#
+# Results:
+#	none
+
+proc ::struct::graph::GenAttributeStorage {name type obj} {
+    variable ${name}::nextAttr
+    upvar    ${name}::${type}Attr attribute
+
+    set   attr "a[incr nextAttr]"
+    set   attribute($obj) $attr
+    return
+}
+
+
+
+proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar arcnvar} {
+    upvar 1 \
+	    $gavar   graphAttr \
+	    $navar   nodeAttr  \
+	    $aavar   arcAttr   \
+	    $inavar  inArcs    \
+	    $outavar outArcs   \
+	    $arcnvar arcNodes
+
+    # Overall length ok ?
+    if {[llength $ser] % 3 != 1} {
+	return -code error \
+		"error in serialization: list length not 1 mod 3."
+    }
+
+    # Attribute length ok ? Dictionary!
+    set graphAttr [lindex $ser end]
+    if {[llength $graphAttr] % 2} {
+	return -code error \
+		"error in serialization: malformed graph attribute dictionary."
+    }
+
+    # Basic decoder pass
+
+    foreach {node attr narcs} [lrange $ser 0 end-1] {
+	if {![info exists inArcs($node)]} {
+	    set inArcs($node)  [list]
+	}
+	set outArcs($node) [list]
+
+	# Attribute length ok ? Dictionary!
+	if {[llength $attr] % 2} {
+	    return -code error \
+		    "error in serialization: malformed node attribute dictionary."
+	}
+	# Remember attribute data only for non-empty nodes
+	if {[llength $attr]} {
+	    set nodeAttr($node) $attr
+	}
+
+	foreach arcd $narcs {
+	    foreach {arc dst attr} $arcd break
+
+	    if {[info exists arcNodes($arc)]} {
+		return -code error \
+			"error in serialization: duplicate definition of arc \"$arc\"."
+	    }
+
+	    # Attribute length ok ? Dictionary!
+	    if {[llength $attr] % 2} {
+		return -code error \
+			"error in serialization: malformed arc attribute dictionary."
+	    }
+	    # Remember attribute data only for non-empty nodes
+	    if {[llength $attr]} {
+		set arcAttr($arc) $attr
+	    }
+
+	    # Destination reference ok ?
+	    if {
+		![string is integer -strict $dst] ||
+		($dst % 3) ||
+		($dst < 0) ||
+		($dst >= [llength $ser])
+	    } {
+		return -code error \
+			"error in serialization: bad arc destination reference \"$dst\"."
+	    }
+
+	    # Get destination and reconstruct the
+	    # various relationships.
+
+	    set dstnode [lindex $ser $dst]
+
+	    set arcNodes($arc) [list $node $dstnode]
+	    lappend inArcs($dstnode) $arc
+	    lappend outArcs($node)   $arc
+	}
+    }
+
+    # Duplicate node names ?
+
+    if {[array size outArcs] < ([llength $ser] / 3)} {
+	return -code error \
+		"error in serialization: duplicate node names."
+    }
+
+    # Ok. The data is now ready for the caller.
+    return
+}
+
+##########################
+# Private functions follow
+#
+# Do a compatibility version of [lset] for pre-8.4 versions of Tcl.
+# This version does not do multi-arg [lset]!
+
+proc ::struct::graph::K { x y } { set x }
+
+if { [package vcompare [package provide Tcl] 8.4] < 0 } {
+    proc ::struct::graph:lset { var index arg } {
+	upvar 1 $var list
+	set list [::lreplace [K $list [set list {}]] $index $index $arg]
+    }
+}
+
+proc ::struct::graph::ldelete {var index {end {}}} {
+    upvar 1 $var list
+    if {$end == {}} {set end $index}
+    set list [lreplace [K $list [set list {}]] $index $end]
+    return
+}
+
+proc ::struct::graph::luniq {list} {
+    array set _ {}
+    set result [list]
+    foreach e $list {
+	if {[info exists _($e)]} {continue}
+	lappend result $e
+	set _($e) .
+    }
+    return $result
 }

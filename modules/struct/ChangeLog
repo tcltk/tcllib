@@ -1,3 +1,45 @@
+2003-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.tcl: Fixed bugs in tree serialization code found when
+	  hitting them during testing the graph.
+
+	* graph.man:  Completed the implementation of graph serialization.
+	* graph.tcl:  Updated testsuite, documentation.
+	* graph.test:
+
+2003-07-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.tcl:  Created ldelete and lset (emulation pre 8.4)
+	* graph.tcl: and replaced as much 'lreplace's as possible. Using
+	             the K operator for speed, encapsulated in the two l
+	             commands.
+
+	* graph.man: Implemented the renaming of nodes and arcs.
+	* graph.tcl:
+	* graph.test:
+
+2003-07-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.tcl: 
+	* graph.test:
+	* graph.man: Same changes in attribute handling as for
+	  'tree'. Noted that the graph attributes had neither 'append' nor
+	  'lappend' methods. Added. Documentation and testsuite updated.
+
+	* pkgIndex.tcl:
+	* struct_tree.man:
+	* tree.test:
+	* tree.tcl: More rework. The attribute APIs are now backward
+	  incompatible, the default attribute 'data' has been dropped. The
+	  whole module 'struct' has been bumped to version 2.0 because of
+	  this. Reworked the testsuite for the changed APIs. Reworked the
+	  (de)serialization stuff a bit and added tests for them. Added an
+	  API to rename nodes, and an API to query the name of the
+	  rootnode. The APIs 'getall' and 'keys' now allow usage of glob
+	  patterns to restrict their results. Documentation is now
+	  uptodate. Added API to compute the 'height' of a node (=
+	  distance to its deepest child).
+
 2003-07-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.test:	
