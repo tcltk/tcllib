@@ -99,6 +99,8 @@ proc cleanup {} {
     cleanupType ::cat
     cleanupType ::mylabel
     cleanupType ::myframe
+    cleanupType ::foo
+    cleanupType ::bar
 }
 
 
@@ -557,7 +559,7 @@ test rename-1.1 {mymethod uses name of instance name variable} {} {
 
     dog fido
     fido mymethod
-} {{$::dog::Snit_inst1::Snit_instance} {$::dog::Snit_inst1::Snit_instance {A B}} {$::dog::Snit_inst1::Snit_instance A B}}
+} {{::snit::CallInstance ::dog::Snit_inst1} {::snit::CallInstance ::dog::Snit_inst1 {A B}} {::snit::CallInstance ::dog::Snit_inst1 A B}}
 
 test rename-1.2 {instances can be renamed.} {} {
     cleanup
@@ -574,7 +576,7 @@ test rename-1.2 {instances can be renamed.} {} {
     set b [spot names]
 
     concat $a $b
-} {{$::dog::Snit_inst1::Snit_instance} ::dog::Snit_inst1 ::fido ::fido {$::dog::Snit_inst1::Snit_instance} ::dog::Snit_inst1 ::fido ::spot}
+} {{::snit::CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::fido {::snit::CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::spot}
 
 test rename-1.3 {rename to "" deletes an instance.} {} {
     cleanup
@@ -611,6 +613,43 @@ test rename-1.5 {creating an object twice destroys the first instance.} {} {
 
     list $a $b $c
 } {::dog::Snit_inst1 ::dog::Snit_inst2 {}}
+
+#-----------------------------------------------------------------------
+# mymethod actually works
+
+test mymethod-1.1 {run mymethod handler} {
+    cleanup
+
+    type foo {
+	option -command {}
+	method runcmd {} {
+	    eval [linsert $options(-command) end $self snarf]
+	    return
+	}
+    }
+    type bar {
+	variable sub
+	constructor {args} {
+	    set sub [foo fubar -command [mymethod Handler]]
+	    return
+	}
+
+	method Handler {args} {
+	    set ::RES $args
+	}
+
+	method test {} {
+	    $sub runcmd
+	    return
+	}
+    }
+
+    set ::RES {}
+    bar boogle
+    boogle test
+    set ::RES
+} {::bar::fubar snarf}
+
 
 #-----------------------------------------------------------------------
 # typevariable
@@ -1564,7 +1603,9 @@ test dmethod-1.5 {delegating unknown method to existing component with error} {
     set result ""
     catch {spot foo bar} result
     set result
-} {'::spot foo' is not defined.}
+} {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+
+# {'::spot foo' is not defined.}
 
 test dmethod-1.6 {can't delegate local method: order 1} {
     cleanup
