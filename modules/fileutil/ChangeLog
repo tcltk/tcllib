@@ -1,3 +1,8 @@
+2004-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Fixed platform problems in testsuite, bad
+	characters in filenames for Windows.
+
 2004-06-16  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (fileType): Added code to recognize files written

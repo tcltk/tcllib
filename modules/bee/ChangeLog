@@ -1,3 +1,13 @@
+2004-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bee.man:      Cleared up version confusion. This package
+	* bee.test:     definitely requires 8.4. Fixed in package
+	* pkgIndex.tcl: index, docs, added boilerplate abort to
+	                testsuite.
+
+	* bee.test: Fixed problem with testsuite, cannot use viewFile,
+	  does not do binary.
+
 2004-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bee.tcl: Typo police.
