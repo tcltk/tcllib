@@ -1,7 +1,7 @@
 # rational_funcs.tcl --
 #    Implement procedures to deal with rational functions
 #
-source polynomials.tcl
+
 package require math::polynomials
 
 namespace eval ::math::rationalfunctions {

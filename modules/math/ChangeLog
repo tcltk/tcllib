@@ -1,3 +1,12 @@
+2005-03-16  Andreas Kupries <andreask@activestate.com>
+
+	* bigfloat.tcl: Added package require math::bignum. If we use the
+	  package we should load it as well.
+
+	* rational_funcs.tcl: Redone entry '2004-11-22 Andreas Kupries
+	  <andreask@activestate.com>'. Somehow the source command came
+	  back.
+
 2005-03-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Corrected problem with exponential_Ei - doubly defined
