@@ -1,160 +1,165 @@
+2002-08-11  vogeler <vogeler@users.sourceforge.net>
+
+        * adjust.tcl: added hyphenation (TeX). Hyphenation has been
+          tested  for german, english, italian and spanish
+
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* expander.man: Fixed typo.
+        * expander.man: Fixed typo.
 
 2002-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* expander.man: New file, doctools manpage.
+        * expander.man: New file, doctools manpage.
 
 2002-03-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* expander.tcl (Op_expand): Fix for SF Bug #530056. Added code
-	  checking start and end levels for pushed/popped contexts and
-	  alert the caller if the numbers do not match, indicating that
-	  the macros pushed more or less contexts than popped.
+        * expander.tcl (Op_expand): Fix for SF Bug #530056. Added code
+          checking start and end levels for pushed/popped contexts and
+          alert the caller if the numbers do not match, indicating that
+          the macros pushed more or less contexts than popped.
 
 2002-02-26  Joe English  <jenglish@users.sourceforge.net
 
-	* tabify.tcl, tabify.test: fix for #521590,
-	  [tabify2 ""] and [untabify2 ""] raised an error.
+        * tabify.tcl, tabify.test: fix for #521590,
+          [tabify2 ""] and [untabify2 ""] raised an error.
 
 2002-02-14  Tcl Project  <andreas_kupries@users.sourceforge.net>
 
-	* expander.tcl: Frink run.
+        * expander.tcl: Frink run.
 
-	* Versions are now 1.0.1 and 0.5 to distinguish this from the code
-	  in tcllib release 1.2
+        * Versions are now 1.0.1 and 0.5 to distinguish this from the code
+          in tcllib release 1.2
 
 2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* Bumped version to 0.4, Expander to 1.0.
+        * Bumped version to 0.4, Expander to 1.0.
 
 2002-01-17  Joe English  <jenglish@users.sourceforge.net>
 
-	* textutil.n, expander.n: Fixed nroff markup errors.
+        * textutil.n, expander.n: Fixed nroff markup errors.
 
 2001-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* expander.n:
-	* expander.ehtml:
-	* expander.html:
-	* expander.tcl: Added 'textcmd' method which is called for all
-	  plain text encountered by the processor. Note: The textcmd is
-	  run through the evalcmd, i.e. it is treated as a special macro
-	  surrounding all plain text. It defaults to empty, meaning
-	  'identity'. Also moved the code handling errors in a macro into
-	  a separate function to make usage in multiple places
-	  easier. This is patch #492156.
+        * expander.n:
+        * expander.ehtml:
+        * expander.html:
+        * expander.tcl: Added 'textcmd' method which is called for all
+          plain text encountered by the processor. Note: The textcmd is
+          run through the evalcmd, i.e. it is treated as a special macro
+          surrounding all plain text. It defaults to empty, meaning
+          'identity'. Also moved the code handling errors in a macro into
+          a separate function to make usage in multiple places
+          easier. This is patch #492156.
 
 2001-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* textutil.n:
-	* split.test:
-	* split.tcl: Fixed item #476988, the handling of the empty input
-	  string, reported by Glenn Jackman
-	  <glennjnn@users.sourceforge.net>. Also added code to detect and
-	  handle an empty regular expression. In that case "splitx"
-	  degenerates to a simple "split".
+        * textutil.n:
+        * split.test:
+        * split.tcl: Fixed item #476988, the handling of the empty input
+          string, reported by Glenn Jackman
+          <glennjnn@users.sourceforge.net>. Also added code to detect and
+          handle an empty regular expression. In that case "splitx"
+          degenerates to a simple "split".
 
 2001-12-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* expander.test:
-	* expander.tcl:
-	* expander.n:
-	* expander.ehtml:
-	* expander.html:
-	* expander_notes.txt: Applied update on behalf of William
-	  implementing the 'evalcmd' feature, i.e. instead of using
-	  'uplevel #0' directly expander objects now have a configurable
-	  callback for the execution of macros. The default is still
-	  'uplevel #0' but this can be changed.
+        * expander.test:
+        * expander.tcl:
+        * expander.n:
+        * expander.ehtml:
+        * expander.html:
+        * expander_notes.txt: Applied update on behalf of William
+          implementing the 'evalcmd' feature, i.e. instead of using
+          'uplevel #0' directly expander objects now have a configurable
+          callback for the execution of macros. The default is still
+          'uplevel #0' but this can be changed.
 
 2001-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* expander.test: Fixed a problem with the expander testsuite. It
-	  checked for the wrong namespace and thus did not load the
-	  functionality to be tested.
+        * expander.test: Fixed a problem with the expander testsuite. It
+          checked for the wrong namespace and thus did not load the
+          functionality to be tested.
 
 2001-11-28  Reinhard Max  <max@suse.de>
 
-	* split.tcl: Speed improvement by using [regexp -start] instead of
-	repeatedly copying the tail of the string.
-	
+        * split.tcl: Speed improvement by using [regexp -start] instead of
+        repeatedly copying the tail of the string.
+
 2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* textutil.n:
-	* adjust.tcl:
-	* adjust.tcl: Added code, tests and documentation for option
-	  -strictlength as provided by Dan Kuchler <dan@kuchler.net>.
+        * textutil.n:
+        * adjust.tcl:
+        * adjust.tcl: Added code, tests and documentation for option
+          -strictlength as provided by Dan Kuchler <dan@kuchler.net>.
 
-	* expander.tcl:
-	* expander.test:
-	* expander.ehtml:
-	* expander.html:
-	* expander.n:
-	* expander_license.txt:
-	* expander_notes.txt: Documentation, code and testsuite for
-	  expander objects; the heart of the expand macro processor by
-	  William H. Duquette <will@wjduquette.com> packaged up as a
-	  library.
+        * expander.tcl:
+        * expander.test:
+        * expander.ehtml:
+        * expander.html:
+        * expander.n:
+        * expander_license.txt:
+        * expander_notes.txt: Documentation, code and testsuite for
+          expander objects; the heart of the expand macro processor by
+          William H. Duquette <will@wjduquette.com> packaged up as a
+          library.
 
 2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* pkgIndex.tcl:
-	* textutil.n:
-	* textutil.tcl: Version up to 0.3
+        * pkgIndex.tcl:
+        * textutil.n:
+        * textutil.tcl: Version up to 0.3
 
 2001-09-18   Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* tabify.tcl (tabifyLine): Documentation of the algorithm
-	  expanded. Text provided by Helmut Giese.
+        * tabify.tcl (tabifyLine): Documentation of the algorithm
+          expanded. Text provided by Helmut Giese.
 
 2001-09-17    Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* tabify.tcl: Added (un)tabify code provided by Helmut Giese
-	  <hgiese@ratiosoft.com> which is more editor-like than the
-	  existing code. The existing code was not deleted so both
-	  behaviours can be used in the future. This fixes [439016].
+        * tabify.tcl: Added (un)tabify code provided by Helmut Giese
+          <hgiese@ratiosoft.com> which is more editor-like than the
+          existing code. The existing code was not deleted so both
+          behaviours can be used in the future. This fixes [439016].
 
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* tabify.tcl: Frink 2.2 run, fixed dubious code.
+        * tabify.tcl: Frink 2.2 run, fixed dubious code.
 
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* split.tcl:
-	* adjust.tcl:
-	* trim.tcl: Fixed dubious code reported by frink.
+        * split.tcl:
+        * adjust.tcl:
+        * trim.tcl: Fixed dubious code reported by frink.
 
 2001-03-23 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* textutil.tcl: Reworked the implementation of 'StrRepeat', made
-	  it much faster (used code from Pool_Base). Renamed to
-	  'strRepeat' and exported.
+        * textutil.tcl: Reworked the implementation of 'StrRepeat', made
+          it much faster (used code from Pool_Base). Renamed to
+          'strRepeat' and exported.
 
-	  **Note** that the tcl implementation is one order of magnitude
-	  faster than [string repeat] for num >= 1000.
+          **Note** that the tcl implementation is one order of magnitude
+          faster than [string repeat] for num >= 1000.
 
-	* textutil.n: Added description of 'strRepeat'.
-	* repeat.test: New file, tests 'strRepeat'.
+        * textutil.n: Added description of 'strRepeat'.
+        * repeat.test: New file, tests 'strRepeat'.
 
 2000-11-02  Eric Melski  <ericm@ajubasolutions.com>
 
-	* textutil.test:
-	* adjust.test:
-	* split.test:
-	* tabify.test:
-	* trim.test:
-	* adjust.tcl:
-	* split.tcl:
-	* tabify.tcl:
-	* trim.tcl:
-	* textutil.tcl: Added functions from Joel Saunier (adjust, splitx,
-	tabify, trim, trimleft, trimright, untabify).
+        * textutil.test:
+        * adjust.test:
+        * split.test:
+        * tabify.test:
+        * trim.test:
+        * adjust.tcl:
+        * split.tcl:
+        * tabify.tcl:
+        * trim.tcl:
+        * textutil.tcl: Added functions from Joel Saunier (adjust, splitx,
+        tabify, trim, trimleft, trimright, untabify).
 
 2000-07-01  Eric Melski  <ericm@ajubasolutions.com>
 
-	* pkgIndex.tcl: Standard package index.
+        * pkgIndex.tcl: Standard package index.
 
-	* textutil.tcl: Added [package provide]; no actual functions yet, 
-	just the package stub.
+        * textutil.tcl: Added [package provide]; no actual functions yet,
+        just the package stub.
