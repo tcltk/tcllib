@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.19 2003/03/25 05:10:50 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.20 2003/03/25 18:09:44 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -271,8 +271,9 @@ proc ::fileutil::FindGlob {patterns filename} {
 
 # ::fileutil::stripPwd --
 #
-#	If the specified path references is path in [pwd] (or [pwd] itself) it
+#	If the specified path references is a path in [pwd] (or [pwd] itself) it
 #	is made relative to [pwd]. Otherwise it is left unchanged.
+#	In the case of [pwd] itself the result is the string '.'.
 #
 # Arguments:
 #	path		path to modify
