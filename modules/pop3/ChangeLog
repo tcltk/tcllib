@@ -1,3 +1,21 @@
+2003-04-09  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.man: Documented new API.
+
+	* pop3.tcl: More logging of internal activity. Final nail into the
+	  bug #528928 (Additional border cases were not handled yet,
+	  incorrect handling detected through the new testsuite).
+
+	  New API 'pop3::config'.
+
+	* pop3.test: Testsuite rewritten. Uses the sub-process and server
+	  support provided by the new module 'devtools'. Avoids the stdin
+	  lockup on windows. Uses a micro server for fixed responses to
+	  the client instead of a true pop3 server, simplifies the
+	  testing, less external dependencies, also better control over
+	  the data sent to the client = easier to create intentionally
+	  (semi-)bogus information to stress border cases.
+
 2003-04-03  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.tcl: Fixed bug in the new code which wasn't found because
