@@ -6,8 +6,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: tree.tcl,v 1.22 2003/05/14 22:26:17 andreas_kupries Exp $
+#
+# RCS: @(#) $Id: tree.tcl,v 1.23 2003/07/07 06:57:43 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -28,39 +28,9 @@ namespace eval ::struct::tree {
     #	children	array mapping nodes to their children list
     #	parent		array mapping nodes to their parent node
     #	node:$node	array mapping keys to values for the node $node
-    
+
     # counter is used to give a unique name for unnamed trees
     variable counter 0
-
-    # commands is the list of subcommands recognized by the tree
-    variable commands [list \
-	    "append"		\
-	    "children"		\
-	    "cut"		\
-	    "destroy"		\
-	    "delete"		\
-	    "depth"		\
-	    "exists"		\
-	    "get"		\
-	    "getall"		\
-	    "index"		\
-	    "insert"		\
-	    "isleaf"		\
-	    "keys"		\
-	    "keyexists"		\
-	    "lappend"		\
-	    "move"		\
-	    "next"		\
-	    "numchildren"	\
-	    "parent"		\
-	    "previous"		\
-	    "set"		\
-	    "size"		\
-	    "splice"		\
-	    "swap"		\
-	    "unset"		\
-	    "walk"		\
-	    ]
 
     # Only export one command, the one used to instantiate a new tree
     namespace export tree
@@ -79,33 +49,48 @@ namespace eval ::struct::tree {
 
 proc ::struct::tree::tree {{name ""}} {
     variable counter
-    
-    if { [llength [info level 0]] == 1 } {
+
+    if {[llength [info level 0]] == 1} {
 	incr counter
 	set name "tree${counter}"
     }
+    # FIRST, qualify the name.
+    if {![string match "::*" $name]} {
+        # Get caller's namespace; append :: if not global namespace.
+        set ns [uplevel 1 namespace current]
+        if {"::" != $ns} {
+            append ns "::"
+        }
 
-    if { [llength [info commands ::$name]] } {
-	error "command \"$name\" already exists, unable to create tree"
+        set name "$ns$name"
+    }
+    if {[llength [info commands $name]]} {
+	return -code error \
+		"command \"$name\" already exists, unable to create tree"
     }
 
-    # Set up the namespace
-    namespace eval ::struct::tree::tree$name {
+    # Set up the namespace for the object,
+    # identical to the object command.
+    namespace eval $name {
 	# Set up root node's child list
 	variable children
-	set children(root) [list ]
+	set      children(root) [list]
 
 	# Set root node's parent
 	variable parent
-	set parent(root) [list ]
+	set      parent(root) [list]
 
-	# Set up the root node's data
-	variable noderoot
-	set noderoot(data) ""
+	# Set up the node attribute mapping
+	variable  attribute
+	array set attribute {}
 
-	# Set up a value for use in creating unique node names
+	# Set up a counter for use in creating unique node names
 	variable nextUnusedNode
 	set      nextUnusedNode 1
+
+	# Set up a counter for use in creating node attribute arrays.
+	variable nextAttr
+	set      nextAttr 0
     }
 
     # Create the command to manipulate the tree
@@ -132,17 +117,23 @@ proc ::struct::tree::tree {{name ""}} {
 proc ::struct::tree::TreeProc {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
-    if { [llength [info commands ::struct::tree::_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub _$cmd
+    if { [llength [info commands ::struct::tree::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::tree::_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 1 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [list ::struct::tree::_$cmd $name] $args
+    return [uplevel 1 [linsert $args 0 ::struct::tree::$sub $name]]
 }
 
 # ::struct::tree::_children --
@@ -158,10 +149,10 @@ proc ::struct::tree::TreeProc {name {cmd ""} args} {
 
 proc ::struct::tree::_children {name node} {
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
-    variable ::struct::tree::tree${name}::children
+
+    variable ${name}::children
     return $children($node)
 }
 
@@ -181,23 +172,23 @@ proc ::struct::tree::_children {name node} {
 proc ::struct::tree::_cut {name node} {
     if { [string equal $node "root"] } {
 	# Can't delete the special root node
-	error "cannot cut root node"
+	return -code error "cannot cut root node"
     }
-    
+
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
-    variable ::struct::tree::tree${name}::parent
-    variable ::struct::tree::tree${name}::children
-    
+
+    variable ${name}::parent
+    variable ${name}::children
+
     # Locate our parent, children and our location in the parent
     set parentNode $parent($node)
     set childNodes $children($node)
-    
+
     set index [lsearch -exact $children($parentNode) $node]
-    
-    # Excise this node from the parent list, 
+
+    # Excise this node from the parent list,
     set newChildren [lreplace $children($parentNode) $index $index]
 
     # Put each of the children of $node into the parent's children list,
@@ -209,12 +200,7 @@ proc ::struct::tree::_cut {name node} {
     }
     set children($parentNode) $newChildren
 
-    # Remove all record of $node
-    unset parent($node)
-    unset children($node)
-    # FRINK: nocheck
-    unset ::struct::tree::tree${name}::node$node
-
+    KillNode $name $node
     return
 }
 
@@ -233,15 +219,14 @@ proc ::struct::tree::_cut {name node} {
 proc ::struct::tree::_delete {name node} {
     if { [string equal $node "root"] } {
 	# Can't delete the special root node
-	error "cannot delete root node"
+	return -code error "cannot delete root node"
     }
-    
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
 
-    variable ::struct::tree::tree${name}::children
-    variable ::struct::tree::tree${name}::parent
+    variable ${name}::children
+    variable ${name}::parent
 
     # Remove this node from its parent's children list
     set parentNode $parent($node)
@@ -251,26 +236,21 @@ proc ::struct::tree::_delete {name node} {
     # Yes, we could use the stack structure implemented in ::struct::stack,
     # but it's slower than inlining it.  Since we don't need a sophisticated
     # stack, don't bother.
-    set st [list ]
+    set st [list]
     foreach child $children($node) {
 	lappend st $child
     }
 
-    unset children($node)
-    unset parent($node)
-    # FRINK: nocheck
-    unset ::struct::tree::tree${name}::node$node
+    KillNode $name $node
 
     while { [llength $st] > 0 } {
-	set node [lindex $st end]
-	set st [lreplace $st end end]
+	set node [lindex   $st end]
+	set st   [lreplace $st end end]
 	foreach child $children($node) {
 	    lappend st $child
 	}
-	unset children($node)
-	unset parent($node)
-	# FRINK: nocheck
-	unset ::struct::tree::tree${name}::node$node
+
+	KillNode $name $node
     }
     return
 }
@@ -288,9 +268,9 @@ proc ::struct::tree::_delete {name node} {
 
 proc ::struct::tree::_depth {name node} {
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    variable ::struct::tree::tree${name}::parent
+    variable ${name}::parent
     set depth 0
     while { ![string equal $node "root"] } {
 	incr depth
@@ -310,7 +290,7 @@ proc ::struct::tree::_depth {name node} {
 #	None.
 
 proc ::struct::tree::_destroy {name} {
-    namespace delete ::struct::tree::tree$name
+    namespace delete $name
     interp alias {} ::$name {}
 }
 
@@ -326,25 +306,7 @@ proc ::struct::tree::_destroy {name} {
 #	1 if the node exists, 0 else.
 
 proc ::struct::tree::_exists {name node} {
-    return [info exists ::struct::tree::tree${name}::parent($node)]
-}
-
-# ::struct::tree::__generateUniqueNodeName --
-#
-#	Generate a unique node name for the given tree.
-#
-# Arguments:
-#	name	Name of the tree to generate a unique node name for.
-#
-# Results:
-#	node	Name of a node guaranteed to not exist in the tree.
-
-proc ::struct::tree::__generateUniqueNodeName {name} {
-    variable ::struct::tree::tree${name}::nextUnusedNode
-    while {[_exists $name "node${nextUnusedNode}"]} {
-	incr nextUnusedNode
-    }
-    return "node${nextUnusedNode}"
+    return [info exists ${name}::parent($node)]
 }
 
 # ::struct::tree::_get --
@@ -361,13 +323,24 @@ proc ::struct::tree::__generateUniqueNodeName {name} {
 #	value	Value associated with the key given.
 
 proc ::struct::tree::_get {name node {flag -key} {key data}} {
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
-    upvar 0 ::struct::tree::tree${name}::node${node} data
-    if { ![info exists data($key)] } {
-	error "invalid key \"$key\" for node \"$node\""
+
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# No attribute data for this node,
+	# except for the default key 'data'.
+
+	if {[string equal $key data]} {
+	    return ""
+	}
+	return -code error "invalid key \"$key\" for node \"$node\""
+    }
+
+    upvar ${name}::$attribute($node) data
+    if {![info exists data($key)]} {
+	return -code error "invalid key \"$key\" for node \"$node\""
     }
     return $data($key)
 }
@@ -383,16 +356,21 @@ proc ::struct::tree::_get {name node {flag -key} {key data}} {
 # Results:
 #	value	A serialized list of key/value pairs.
 
-proc ::struct::tree::_getall {name node args} { 
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+proc ::struct::tree::_getall {name node args} {
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+    if {[llength $args]} {
+	return -code error "wrong # args: should be \"$name getall $node\""
     }
 
-    if { [llength $args] } {
-	error "wrong # args: should be \"$name getall $node\""
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# Only default key is present, invisibly.
+	return {data {}}
     }
-    
-    upvar 0 ::struct::tree::tree${name}::node${node} data
+
+    upvar ${name}::$attribute($node) data
     return [array get data]
 }
 
@@ -407,16 +385,22 @@ proc ::struct::tree::_getall {name node args} {
 # Results:
 #	value	A serialized list of key/value pairs.
 
-proc ::struct::tree::_keys {name node args} { 
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+proc ::struct::tree::_keys {name node args} {
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+    if {[llength $args]} {
+	return -code error "wrong # args: should be \"$name keys $node\""
     }
 
-    if { [llength $args] } {
-	error "wrong # args: should be \"$name keys $node\""
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# No attribute data for this node,
+	# except for the default key 'data'.
+	return {data}
     }
 
-    upvar 0 ::struct::tree::tree${name}::node${node} data
+    upvar ${name}::$attribute($node) data
     return [array names data]
 }
 
@@ -434,15 +418,22 @@ proc ::struct::tree::_keys {name node args} {
 #	1 if the key exists, 0 else.
 
 proc ::struct::tree::_keyexists {name node {flag -key} {key data}} {
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+    if {![string equal $flag "-key"]} {
+	return -code error "invalid option \"$flag\": should be -key"
     }
 
-    if { ![string equal $flag "-key"] } {
-	error "invalid option \"$flag\": should be -key"
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# No attribute data for this node,
+	# except for the default key 'data'.
+
+	return [string equal $key data]
     }
-    
-    upvar 0 ::struct::tree::tree${name}::node${node} data
+
+    upvar ${name}::$attribute($node) data
     return [info exists data($key)]
 }
 
@@ -460,15 +451,15 @@ proc ::struct::tree::_keyexists {name node {flag -key} {key data}} {
 proc ::struct::tree::_index {name node} {
     if { [string equal $node "root"] } {
 	# The special root node has no parent, thus no index in it either.
-	error "cannot determine index of root node"
-    }
-    
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "cannot determine index of root node"
     }
 
-    variable ::struct::tree::tree${name}::children
-    variable ::struct::tree::tree${name}::parent
+    if { ![_exists $name $node] } {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    variable ${name}::children
+    variable ${name}::parent
 
     # Locate the parent and ourself in its list of children
     set parentNode $parent($node)
@@ -494,26 +485,15 @@ proc ::struct::tree::_index {name node} {
 proc ::struct::tree::_insert {name parentNode index args} {
     if { [llength $args] == 0 } {
 	# No node name was given; generate a unique one
-	set args [list [__generateUniqueNodeName $name]]
-    } else {
-	# Validate the node names
-	foreach child $args {
-
-	    # Still required, because of per-node arrays for attributes, containing the node name in their name.
-
-	    if {[string match *::* $child]} {
-		return -code error "invalid node name \"$child\""
-	    }
-	}
+	set args [list [GenerateUniqueNodeName $name]]
     }
-
     if { ![_exists $name $parentNode] } {
-	error "parent node \"$parentNode\" does not exist in tree \"$name\""
+	return -code error "parent node \"$parentNode\" does not exist in tree \"$name\""
     }
 
-    variable ::struct::tree::tree${name}::parent
-    variable ::struct::tree::tree${name}::children
-    
+    variable ${name}::parent
+    variable ${name}::children
+
     # Make sure the index is numeric
     if { ![string is integer $index] } {
 	# If the index is not numeric, make it numeric by lsearch'ing for
@@ -527,14 +507,14 @@ proc ::struct::tree::_insert {name parentNode index args} {
 	if {[_exists $name $node] } {
 	    # Move the node to its new home
 	    if { [string equal $node "root"] } {
-		error "cannot move root node"
+		return -code error "cannot move root node"
 	    }
-	    
+	
 	    # Cannot make a node its own descendant (I'm my own grandpaw...)
 	    set ancestor $parentNode
 	    while { ![string equal $ancestor "root"] } {
 		if { [string equal $ancestor $node] } {
-		    error "node \"$node\" cannot be its own descendant"
+		    return -code error "node \"$node\" cannot be its own descendant"
 		}
 		set ancestor $parent($ancestor)
 	    }
@@ -542,7 +522,7 @@ proc ::struct::tree::_insert {name parentNode index args} {
 	    set oldParent $parent($node)
 	    set ind [lsearch -exact $children($oldParent) $node]
 	    set children($oldParent) [lreplace $children($oldParent) $ind $ind]
-	    
+	
 	    # If the node is moving within its parent, and its old location
 	    # was before the new location, decrement the new location, so that
 	    # it gets put in the right spot
@@ -551,9 +531,7 @@ proc ::struct::tree::_insert {name parentNode index args} {
 	    }
 	} else {
 	    # Set up the new node
-	    upvar 0 ::struct::tree::tree${name}::node${node} data
-	    set children($node) [list ]
-	    set data(data) ""
+	    set children($node) [list]
 	}
 
 	# Add this node to its parent's children list
@@ -580,10 +558,10 @@ proc ::struct::tree::_insert {name parentNode index args} {
 
 proc ::struct::tree::_isleaf {name node} {
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
-    variable ::struct::tree::tree${name}::children
+
+    variable ${name}::children
     return [expr {[llength $children($node)] == 0}]
 }
 
@@ -608,11 +586,11 @@ proc ::struct::tree::_move {name parentNode index node args} {
 
     # Can only move a node to a real location in the tree
     if { ![_exists $name $parentNode] } {
-	error "parent node \"$parentNode\" does not exist in tree \"$name\""
+	return -code error "parent node \"$parentNode\" does not exist in tree \"$name\""
     }
 
-    variable ::struct::tree::tree${name}::parent
-    variable ::struct::tree::tree${name}::children
+    variable ${name}::parent
+    variable ${name}::children
 
     # Make sure the index is numeric
     if { ![string is integer $index] } {
@@ -626,19 +604,19 @@ proc ::struct::tree::_move {name parentNode index node args} {
     # Validate all nodes to move before trying to move any.
     foreach node $args {
 	if { [string equal $node "root"] } {
-	    error "cannot move root node"
+	    return -code error "cannot move root node"
 	}
 
 	# Can only move real nodes
 	if { ![_exists $name $node] } {
-	    error "node \"$node\" does not exist in tree \"$name\""
+	    return -code error "node \"$node\" does not exist in tree \"$name\""
 	}
 
 	# Cannot move a node to be a descendant of itself
 	set ancestor $parentNode
 	while { ![string equal $ancestor "root"] } {
 	    if { [string equal $ancestor $node] } {
-		error "node \"$node\" cannot be its own descendant"
+		return -code error "node \"$node\" cannot be its own descendant"
 	    }
 	    set ancestor $parent($ancestor)
 	}
@@ -679,18 +657,18 @@ proc ::struct::tree::_next {name node} {
     if { [string equal $node "root"] } {
 	return {}
     }
-    
+
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
+
     # Locate the parent and our place in its list of children.
-    variable ::struct::tree::tree${name}::parent
-    variable ::struct::tree::tree${name}::children
-    
+    variable ${name}::parent
+    variable ${name}::children
+
     set parentNode $parent($node)
     set  index [lsearch -exact $children($parentNode) $node]
-    
+
     # Go to the node to the right and return its name.
     return [lindex $children($parentNode) [incr index]]
 }
@@ -705,13 +683,13 @@ proc ::struct::tree::_next {name node} {
 #
 # Results:
 #	numchildren	Number of immediate children for the node.
- 
+
 proc ::struct::tree::_numchildren {name node} {
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
-    variable ::struct::tree::tree${name}::children
+
+    variable ${name}::children
     return [llength $children($node)]
 }
 
@@ -728,10 +706,10 @@ proc ::struct::tree::_numchildren {name node} {
 
 proc ::struct::tree::_parent {name node} {
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
     # FRINK: nocheck
-    return [set ::struct::tree::tree${name}::parent($node)]
+    return [set ${name}::parent($node)]
 }
 
 # ::struct::tree::_previous --
@@ -743,7 +721,7 @@ proc ::struct::tree::_parent {name node} {
 #	node		Node to look up.
 #
 # Results:
-#	sibling		The left sibling for the node, or null if node was 
+#	sibling		The left sibling for the node, or null if node was
 #			the leftmost child of its parent.
 
 proc ::struct::tree::_previous {name node} {
@@ -751,20 +729,39 @@ proc ::struct::tree::_previous {name node} {
     if { [string equal $node "root"] } {
 	return {}
     }
-    
+
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
+
     # Locate the parent and our place in its list of children.
-    variable ::struct::tree::tree${name}::parent
-    variable ::struct::tree::tree${name}::children
-    
+    variable ${name}::parent
+    variable ${name}::children
+
     set parentNode $parent($node)
     set  index [lsearch -exact $children($parentNode) $node]
-    
+
     # Go to the node to the right and return its name.
     return [lindex $children($parentNode) [incr index -1]]
+}
+
+# ::struct::tree::_serialize --
+#
+#	Serialize a tree object (partially) into a transportable value.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Root node of the serialized tree.
+#
+# Results:
+#	A list structure describing the part of the tree which was serialized.
+
+proc ::struct::tree::_serialize {name {node root}} {
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+    Serialize $name $node tree attr
+    return [list $tree [array get attr]]
 }
 
 # ::struct::tree::_set --
@@ -782,41 +779,50 @@ proc ::struct::tree::_previous {name node} {
 #	val	Value associated with the given key of the given node
 
 proc ::struct::tree::_set {name node args} {
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    upvar 0 ::struct::tree::tree${name}::node$node data
-
-    if { [llength $args] > 3 } {
-	error "wrong # args: should be \"$name set [list $node] ?-key key?\
+    if {[llength $args] > 3} {
+	return -code error "wrong # args: should be \"$name set [list $node] ?-key key?\
 		?value?\""
     }
-    
+
+    # Process the arguments ...
+
     set key "data"
     set haveValue 0
-    if { [llength $args] > 1 } {
+    if {[llength $args] > 1} {
 	foreach {flag key} $args break
-	if { ![string match "${flag}*" "-key"] } {
-	    error "invalid option \"$flag\": should be key"
+	if {![string match "${flag}*" "-key"]} {
+	    return -code error "invalid option \"$flag\": should be key"
 	}
-	if { [llength $args] == 3 } {
+	if {[llength $args] == 3} {
 	    set haveValue 1
 	    set value [lindex $args end]
 	}
-    } elseif { [llength $args] == 1 } {
+    } elseif {[llength $args] == 1} {
 	set haveValue 1
 	set value [lindex $args end]
     }
 
-    if { $haveValue } {
-	# Setting a value
+    if {$haveValue} {
+	# Setting a value. This may have to create
+	# the attribute array for this particular
+	# node
+
+	variable ${name}::attribute
+	if {![info exists attribute($node)]} {
+	    # No attribute data for this node,
+	    # so create it as we need it.
+	    GenAttributeStorage $name $node
+	}
+	upvar ${name}::$attribute($node) data
+
 	return [set data($key) $value]
     } else {
 	# Getting a value
-	if { ![info exists data($key)] } {
-	    error "invalid key \"$key\" for node \"$node\""
-	}
-	return $data($key)
+
+	return [_get $name $node -key $key]
     }
 }
 
@@ -835,26 +841,34 @@ proc ::struct::tree::_set {name node args} {
 #	val	Value associated with the given key of the given node
 
 proc ::struct::tree::_append {name node args} {
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    upvar 0 ::struct::tree::tree${name}::node$node data
-
-    if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name set [list $node] ?-key key?\
+    if {
+	([llength $args] != 1) &&
+	([llength $args] != 3)
+    } {
+	return -code error "wrong # args: should be \"$name set [list $node] ?-key key?\
 		value\""
     }
-    
-    if { [llength $args] == 3 } {
+    if {[llength $args] == 3} {
 	foreach {flag key} $args break
-	if { ![string equal $flag "-key"] } {
-	    error "invalid option \"$flag\": should be -key"
+	if {![string equal $flag "-key"]} {
+	    return -code error "invalid option \"$flag\": should be -key"
 	}
     } else {
 	set key "data"
     }
 
     set value [lindex $args end]
+
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# No attribute data for this node,
+	# so create it as we need it.
+	GenAttributeStorage $name $node
+    }
+    upvar ${name}::$attribute($node) data
 
     return [append data($key) $value]
 }
@@ -874,26 +888,34 @@ proc ::struct::tree::_append {name node args} {
 #	val	Value associated with the given key of the given node
 
 proc ::struct::tree::_lappend {name node args} {
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    upvar 0 ::struct::tree::tree${name}::node$node data
-
-    if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name lappend [list $node] ?-key key?\
+    if {
+	([llength $args] != 1) &&
+	([llength $args] != 3)
+    } {
+	return -code error "wrong # args: should be \"$name lappend [list $node] ?-key key?\
 		value\""
     }
-    
-    if { [llength $args] == 3 } {
+    if {[llength $args] == 3} {
 	foreach {flag key} $args break
-	if { ![string equal $flag "-key"] } {
-	    error "invalid option \"$flag\": should be -key"
+	if {![string equal $flag "-key"]} {
+	    return -code error "invalid option \"$flag\": should be -key"
 	}
     } else {
 	set key "data"
     }
 
     set value [lindex $args end]
+
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# No attribute data for this node,
+	# so create it as we need it.
+	GenAttributeStorage $name $node
+    }
+    upvar ${name}::$attribute($node) data
 
     return [lappend data($key) $value]
 }
@@ -912,19 +934,19 @@ proc ::struct::tree::_lappend {name node args} {
 
 proc ::struct::tree::_size {name {node root}} {
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
+
     # If the node is the root, we can do the cheap thing and just count the
     # number of nodes (excluding the root node) that we have in the tree with
     # array names
     if { [string equal $node "root"] } {
-	set size [llength [array names ::struct::tree::tree${name}::parent]]
+	set size [llength [array names ${name}::parent]]
 	return [expr {$size - 1}]
     }
 
     # Otherwise we have to do it the hard way and do a full tree search
-    variable ::struct::tree::tree${name}::children
+    variable ${name}::children
     set size 0
     set st [list ]
     foreach child $children($node) {
@@ -943,7 +965,7 @@ proc ::struct::tree::_size {name {node root}} {
 
 # ::struct::tree::_splice --
 #
-#	Add a node to a tree, making a range of children from the given 
+#	Add a node to a tree, making a range of children from the given
 #	parent children of the new node.
 #
 # Arguments:
@@ -961,33 +983,33 @@ proc ::struct::tree::_size {name {node root}} {
 proc ::struct::tree::_splice {name parentNode from {to end} args} {
     if { [llength $args] == 0 } {
 	# No node name given; generate a unique node name
-	set node [__generateUniqueNodeName $name]
+	set node [GenerateUniqueNodeName $name]
     } else {
 	set node [lindex $args 0]
     }
 
     if { [_exists $name $node] } {
-	error "node \"$node\" already exists in tree \"$name\""
+	return -code error "node \"$node\" already exists in tree \"$name\""
     }
-    
-    variable ::struct::tree::tree${name}::children
-    variable ::struct::tree::tree${name}::parent
+
+    variable ${name}::children
+    variable ${name}::parent
 
     # Save the list of children that are moving
     set moveChildren [lrange $children($parentNode) $from $to]
-    
+
     # Remove those children from the parent
     set children($parentNode) [lreplace $children($parentNode) $from $to]
 
     # Add the new node
     _insert $name $parentNode $from $node
-    
+
     # Move the children
     set children($node) $moveChildren
     foreach child $moveChildren {
 	set parent($child) $node
     }
-    
+
     return $node
 }
 
@@ -1005,28 +1027,26 @@ proc ::struct::tree::_splice {name parentNode from {to end} args} {
 
 proc ::struct::tree::_swap {name node1 node2} {
     # Can't swap the magic root node
-    if { [string equal $node1 "root"] || [string equal $node2 "root"] } {
-	error "cannot swap root node"
+    if {[string equal $node1 "root"] || [string equal $node2 "root"]} {
+	return -code error "cannot swap root node"
     }
-    
+
     # Can only swap two real nodes
-    if { ![_exists $name $node1] } {
-	error "node \"$node1\" does not exist in tree \"$name\""
+    if {![_exists $name $node1]} {
+	return -code error "node \"$node1\" does not exist in tree \"$name\""
     }
-    if { ![_exists $name $node2] } {
-	error "node \"$node2\" does not exist in tree \"$name\""
+    if {![_exists $name $node2]} {
+	return -code error "node \"$node2\" does not exist in tree \"$name\""
     }
 
     # Can't swap a node with itself
-    if { [string equal $node1 $node2] } {
-	error "cannot swap node \"$node1\" with itself"
+    if {[string equal $node1 $node2]} {
+	return -code error "cannot swap node \"$node1\" with itself"
     }
 
     # Swapping nodes means swapping their labels and values
-    variable ::struct::tree::tree${name}::children
-    variable ::struct::tree::tree${name}::parent
-    upvar 0 ::struct::tree::tree${name}::node${node1} node1Vals
-    upvar 0 ::struct::tree::tree${name}::node${node2} node2Vals
+    variable ${name}::children
+    variable ${name}::parent
 
     set parent1 $parent($node1)
     set parent2 $parent($node2)
@@ -1038,7 +1058,7 @@ proc ::struct::tree::_swap {name node1 node2} {
 
     set children($parent1) [lreplace $children($parent1) $i1 $i1 $node2]
     set children($parent2) [lreplace $children($parent2) $i2 $i2 $node1]
-    
+
     # Make node1 the parent of node2's children, and vis versa
     foreach child $children($node2) {
 	set parent($child) $node1
@@ -1046,7 +1066,7 @@ proc ::struct::tree::_swap {name node1 node2} {
     foreach child $children($node1) {
 	set parent($child) $node2
     }
-    
+
     # Swap the children lists
     set children1 $children($node1)
     set children($node1) $children($node2)
@@ -1064,11 +1084,33 @@ proc ::struct::tree::_swap {name node1 node2} {
     }
 
     # Swap the values
-    set value1 [array get node1Vals]
-    unset node1Vals
-    array set node1Vals [array get node2Vals]
-    unset node2Vals
-    array set node2Vals $value1
+    # More complicated now with the possibility that nodes do not have
+    # attribute storage associated with them.
+
+    variable ${name}::attribute
+
+    if {
+	[set ia [info exists attribute($node1)]] ||
+	[set ib [info exists attribute($node2)]]
+    } {
+	# At least one of the nodes has attribute data. We simply swap
+	# the references to the arrays containing them. No need to
+	# copy the actual data around.
+
+	if {$ia && $ib} {
+	    set tmp               $attribute($node1)
+	    set attribute($node1) $attribute($node2)
+	    set attribute($node2) $tmp
+	} elseif {$ia} {
+	    set   attribute($node2) $attribute($node1)
+	    unset attribute($node1)
+	} elseif {$ib} {
+	    set   attribute($node1) $attribute($node2)
+	    unset attribute($node2)
+	} else {
+	    return -code error "Impossible condition."
+	}
+    } ; # else: No attribute storage => Nothing to do {}
 
     return
 }
@@ -1088,19 +1130,23 @@ proc ::struct::tree::_swap {name node1 node2} {
 #	None.
 
 proc ::struct::tree::_unset {name node {flag -key} {key data}} {
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+    if {![_exists $name $node]} {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
-    
-    if { ![string match "${flag}*" "-key"] } {
-	error "invalid option \"$flag\": should be \"$name unset\
+    if {![string match "${flag}*" "-key"]} {
+	return -code error "invalid option \"$flag\": should be \"$name unset\
 		[list $node] ?-key key?\""
     }
 
-    upvar 0 ::struct::tree::tree${name}::node${node} data
-    if { [info exists data($key)] } {
-	unset data($key)
+    variable ${name}::attribute
+    if {![info exists attribute($node)]} {
+	# No attribute data for this node,
+	# except for the default key 'data'.
+	GenAttributeStorage $name $node
     }
+    upvar ${name}::$attribute($node) data
+
+    unset -nocomplain data($key)
     return
 }
 
@@ -1125,11 +1171,11 @@ proc ::struct::tree::_walk {name node args} {
     set usage "$name walk $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"
 
     if {[llength $args] > 6 || [llength $args] < 2} {
-	error "wrong # args: should be \"$usage\""
+	return -code error "wrong # args: should be \"$usage\""
     }
 
     if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
+	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
 
     # Set defaults
@@ -1141,7 +1187,7 @@ proc ::struct::tree::_walk {name node args} {
 	set flag [lindex $args $i]
 	incr i
 	if { $i >= [llength $args] } {
-	    error "value for \"$flag\" missing: should be \"$usage\""
+	    return -code error "value for \"$flag\" missing: should be \"$usage\""
 	}
 	switch -glob -- $flag {
 	    "-type" {
@@ -1154,14 +1200,14 @@ proc ::struct::tree::_walk {name node args} {
 		set cmd [lindex $args $i]
 	    }
 	    default {
-		error "unknown option \"$flag\": should be \"$usage\""
+		return -code error "unknown option \"$flag\": should be \"$usage\""
 	    }
 	}
     }
-    
+
     # Make sure we have a command to run, otherwise what's the point?
     if { [string equal $cmd ""] } {
-	error "no command specified: should be \"$usage\""
+	return -code error "no command specified: should be \"$usage\""
     }
 
     # Validate that the given type is good
@@ -1170,27 +1216,27 @@ proc ::struct::tree::_walk {name node args} {
 	    set type $type
 	}
 	default {
-	    error "invalid search type \"$type\": should be dfs, or bfs"
+	    return -code error "invalid search type \"$type\": should be dfs, or bfs"
 	}
     }
-    
+
     # Validate that the given order is good
     switch -exact -- $order {
 	"pre" - "post" - "in" - "both" {
 	    set order $order
 	}
 	default {
-	    error "invalid search order \"$order\":\
+	    return -code error "invalid search order \"$order\":\
 		    should be pre, post, both, or in"
 	}
     }
 
     if {[string equal $order "in"] && [string equal $type "bfs"]} {
-	error "unable to do a ${order}-order breadth first walk"
+	return -code error "unable to do a ${order}-order breadth first walk"
     }
 
     # Do the walk
-    variable ::struct::tree::tree${name}::children
+    variable ${name}::children
     set st [list ]
     lappend st $node
 
@@ -1320,6 +1366,111 @@ proc ::struct::tree::_walk {name node args} {
 
 proc ::struct::tree::WalkCall {tree node action cmd} {
     set subs [list %n [list $node] %a [list $action] %t [list $tree] %% %]
-    uplevel 3 [string map $subs $cmd]
+    uplevel 2 [string map $subs $cmd]
+    return
+}
+
+# ::struct::tree::GenerateUniqueNodeName --
+#
+#	Generate a unique node name for the given tree.
+#
+# Arguments:
+#	name	Name of the tree to generate a unique node name for.
+#
+# Results:
+#	node	Name of a node guaranteed to not exist in the tree.
+
+proc ::struct::tree::GenerateUniqueNodeName {name} {
+    variable ${name}::nextUnusedNode
+    while {[_exists $name "node${nextUnusedNode}"]} {
+	incr nextUnusedNode
+    }
+    return "node${nextUnusedNode}"
+}
+
+# ::struct::tree::KillNode --
+#
+#	Delete all data of a node.
+#
+# Arguments:
+#	name	Name of the tree containing the node
+#	node	Name of the node to delete.
+#
+# Results:
+#	none
+
+proc ::struct::tree::KillNode {name node} {
+    variable ${name}::parent
+    variable ${name}::children
+    variable ${name}::attribute
+
+    # Remove all record of $node
+    unset parent($node)
+    unset children($node)
+
+    if {[info exists attribute($node)]} {
+	# FRINK: nocheck
+	unset ${name}::$attribute($node)
+	unset attribute($node)
+    }
+    return
+}
+
+# ::struct::tree::GenAttributeStorage --
+#
+#	Create an array to store the attrributes of a node in.
+#
+# Arguments:
+#	name	Name of the tree containing the node
+#	node	Name of the node which got attributes.
+#
+# Results:
+#	none
+
+proc ::struct::tree::GenAttributeStorage {name node} {
+    variable ${name}::nextAttr
+    variable ${name}::attribute
+
+    set   attr "a[incr nextAttr]"
+    set   attribute($node) $attr
+    upvar ${name}::$attr data
+    set   data(data) ""
+    return
+}
+
+# ::struct::tree::Serialize --
+#
+#	Serialize a tree object (partially) into a transportable value.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Root node of the serialized tree.
+#
+# Results:
+#	None
+
+proc ::struct::tree::Serialize {name node tvar avar} {
+    upvar 1 $tvar tree $avar attr
+
+    variable ${name}::children
+    variable ${name}::attribute
+
+    # Store attribute data
+    if {[info exists attribute($node)]} {
+	upvar ${name}:: attribute($node) data
+	set attr($node) [array get data]
+    } else {
+	set attr($node) {}
+    }
+
+    # Build tree structure as nested list.
+
+    set subtrees [list]
+    foreach c $children($node) {
+	Serialize $name $c sub attr
+	lappend subtrees $sub
+    }
+
+    set tree [list $node $subtrees]
     return
 }
