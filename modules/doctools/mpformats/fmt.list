@@ -8,11 +8,11 @@
 #
 ################################################################
 
-proc here {} [list return [file dirname [info script]]]
-proc this {} [list return [file tail    [info script]]]
+proc here {} [list return [__file dirname [info script]]]
+proc this {} [list return [__file tail    [info script]]]
 
 
-source [file join [here] _common.tcl]   ; # Shared code
+source [__file join [here] _common.tcl]   ; # Shared code
 
 
 proc manpage_begin {title section version} {
@@ -54,6 +54,19 @@ proc strong      {text}             {}
 proc setx        {v string}         {}
 proc appendx     {v string}         {}
 proc opt         {text}             {}
+proc comment     {text}             {}
+proc sectref     {text}             {}
+proc syscmd      {text}             {}
+proc method      {text}             {}
+proc option      {text}             {}
+proc widget      {text}             {}
+proc fun         {text}             {}
+proc type        {text}             {}
+proc package     {text}             {}
+proc class       {text}             {}
+proc var         {text}             {}
+proc file        {text}             {}
+proc uri         {text}             {}
 
 ################################################################
 

@@ -1,0 +1,57 @@
+# -*- tcl -*-
+# rules/manpage.api
+#
+# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+
+# Defines the procedures a manpage rules file has to support for good
+# manpages. The procedures here return errors.
+
+################################################################
+
+proc manpage_begin {title section version} {return ""}
+proc moddesc     {desc}             {return ""}
+proc titledesc   {desc}             {return ""}
+proc manpage_end {}                 {return ""}
+proc require     {pkg {version {}}} {return ""}
+proc description {}                 {return ""}
+proc section     {name}             {return ""}
+proc para        {}                 {return ""}
+proc list_begin  {what}             {return ""}
+proc list_end    {}                 {return ""}
+proc lst_item    {{text {}}}        {return ""}
+proc call        {cmd args}         {return ""}
+proc bullet      {}                 {return ""}
+proc enum        {}                 {return ""}
+proc see_also    {args}             {return ""}
+proc keywords    {args}             {return ""}
+proc example     {code}             {return ""}
+proc example_begin {}               {return ""}
+proc example_end {}                 {return ""}
+proc nl          {}                 {return ""}
+proc arg         {text}             {return ""}
+proc cmd         {text}             {return ""}
+proc opt         {text}             {return ""}
+proc emph        {text}             {return ""}
+proc strong      {text}             {return ""}
+proc comment     {text}             {return ""}
+proc sectref     {text}             {return ""}
+proc syscmd      {text}             {return ""}
+proc method      {text}             {return ""}
+proc option      {text}             {return ""}
+proc widget      {text}             {return ""}
+proc fun         {text}             {return ""}
+proc type        {text}             {return ""}
+proc package     {text}             {return ""}
+proc class       {text}             {return ""}
+proc var         {text}             {return ""}
+proc file        {text}             {return ""}
+proc uri         {text}             {return ""}
+
+
+proc PostProcess {expansion} {return ""}
+proc HandleText  {text} {return ""}
+proc NumPasses   {} {return 1}
+proc PassSetup   {} {}
+
+
+################################################################

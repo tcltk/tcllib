@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.62 2002/02/27 21:12:49 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.63 2002/02/28 07:03:20 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -348,14 +348,6 @@ check-doc:
 	   if [ `ls $(srcdir)/modules/$$mod/*.[13n] 2>/dev/null | wc -l` -lt 1 ]; then \
 		   if [ `ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | wc -l` -lt 1 ]; then \
 			echo '  ' without '* any **' manpages : $$mod ; \
-		   else \
-			   files=`ls $(srcdir)/modules/$$mod/*.[13n] 2>/dev/null` ; \
-			   for f in $$files ; do \
-				fb=`basename $$f .n` ; \
-				if test ! -f $(srcdir)/modules/$$mod/$$fb.man ; then \
-					echo '    ' no .man equivalent : $$f ; \
-				fi ; \
-			   done ; \
 		   fi; \
 	   else \
 		   if [ `ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | wc -l` -lt 1 ]; then \
@@ -372,6 +364,9 @@ check-doc:
 	   fi; \
 	done
 
+check-doc-markup:
+	$(MAKE) doc_generate DOC_FMT=null DOC_EXT=null DOC_FLAGS=-visualwarn
+
 #========================================================================
 # End of user-definable section
 #========================================================================
@@ -381,6 +376,7 @@ DOC_EXP=$(srcdir)/modules/doctools/mpexpand
 ## Parameters:
 #
 ## * DOC_FMT	output format to generate
+## * DOC_FLAGS  additional flags, or empty
 ## * DOC_EXT	extension for the generated file
 ## * DOC_MODE   which set of manpages to convert. default to 'user'.
 ##              other sets: all, dev
@@ -405,7 +401,7 @@ doc_generate:
 		$(mkinstalldirs) doc/$(DOC_FMT) ; \
 		for file in $$files ; do \
 		    echo Gen "($(DOC_FMT)):" $$file ; \
-		    $(DOC_EXP) -module $$mod $(DOC_FMT) \
+		    $(DOC_EXP) -module $$mod $(DOC_FLAGS) $(DOC_FMT) \
 			$$file doc/$(DOC_FMT)/`basename $$file .man`.$(DOC_EXT) ; \
 		done ; \
 	    fi ; \

@@ -44,7 +44,7 @@ proc HandleText {text} {
     return [htmlEscape $text]
 }
 
-proc state {} [list return [file join [pwd] state]]
+proc state {} [list return [__file join [pwd] state]]
 
 proc use_bg {} {
     set c [bgcolor]

@@ -36,5 +36,19 @@ proc opt         {text}             [__ opt]
 proc emph        {text}             [__ emph]
 proc strong      {text}             [__ strong]
 
+proc comment     {text}             [__ comment]
+proc sectref     {text}             [__ sectref]
+proc syscmd      {text}             [__ syscmd]
+proc method      {text}             [__ method]
+proc option      {text}             [__ option]
+proc widget      {text}             [__ widget]
+proc fun         {text}             [__ fun]
+proc type        {text}             [__ type]
+proc package     {text}             [__ package]
+proc class       {text}             [__ class]
+proc var         {text}             [__ var]
+proc file        {text}             [__ file]
+proc uri         {text}             [__ uri]
+
 ################################################################
 rename __ {}
