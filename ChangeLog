@@ -1,3 +1,18 @@
+2000-03-02  Eric Melski  <ericm@scriptics.com>
+
+    * Makefile.in: Work on install-libraries, install-doc; removed
+    references to compiled bits.
+
+    * mkIndex.tcl.in: Tweaked the generated pkgIndex.tcl to only
+    append the dirname if it doesn't already exist in the auto_path,
+    and to use \[file dirname \[info script\]\] instead of [pwd].
+
+    * configure:
+    * configure.in: Removed checks for compiler, and all stuff related
+    to compiling/linking (this is a tcl only extension).
+
+    * tcl.m4: new tcl.m4 from sample extension.
+
 2000-03-01  Eric Melski  <ericm@scriptics.com>
 
 	* Makefile.in: Added fileutil, cmdline, mime, base64 modules.
