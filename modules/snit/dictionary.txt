@@ -19,24 +19,18 @@ Snit_info               Introspection Array.  Keys and values are as
                         methods.
     ivardecs            Instance variable declarations--for dynamic
                         methods.
+    isWidget            Boolean; true if object is a widget or
+                        widgetadaptor.
+    isWidgetAdaptor     Boolean; true if object is a widgetadaptor
 
 Snit_methods            List of method names; defined only when
                         -simpledispatch yes.
 
-Snit_isWidget           Boolean; true if the object is a widget or 
-                        widgetadaptor. 
-                        
-                        * Could live in Snit_info.
-                        * Can this be resolved at compile time?
-
-Snit_isWidgetAdaptor    Boolean; true if the object is a
-                        widgetadaptor.
-
-                        * Could live in Snit_info.
-                        * Can this be resolved at compile time?
-
-Snit_typemethodInfo     Array(method name) = {<pattern> <compName>}
-                        where <compName> is "" for normal typemethods
+Snit_typemethodInfo     Array(method name) = {<flag> ?<pattern> <compName>?}
+                        where <flag> is 1 if the method has submethods
+                        (in which case the other fields
+                        are missing) and 0 if it doesn't.
+                        <compName> is "" for normal typemethods
                         and "method name" can be "*".  Used in
                         typemethod cache lookup to create the command
                         for the named typemethod.
@@ -48,8 +42,11 @@ Snit_typecomponents     Array(typecomponent name) = command_name
 Snit_typeMethodCache    Array(typemethod name) = cached command
                         Used in typemethod dispatch.
 
-Snit_methodInfo         Array(method name) = {<pattern> <compName>}
-                        where <compName> is "" for normal methods and
+Snit_methodInfo         Array(method name) = {<flag> ?<pattern> <compName>?}
+                        where <flag> is 1 if the method has submethods
+                        (in which case the other fields
+                        are missing) and 0 if it doesn't.
+                        <compName> is "" for normal methods and
                         "method name" can be "*".  Used in 
                         method cache lookup to create the command for
                         the named method.
