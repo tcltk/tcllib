@@ -1,3 +1,10 @@
+2004-07-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Fixed [Tcllib SF Bug 988123], which caused the doctools
+	  converter to fail if one run a module without documentation was
+	  followed by a module having documentation. Found by Reinhard Max
+	  <max@suse.de>.
+
 2004-07-09  Reinhard Max  <max@suse.de>
 
 	* installed_modules.tcl: NEW MODULE: ident
