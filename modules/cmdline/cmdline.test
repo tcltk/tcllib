@@ -7,7 +7,7 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.6 2002/04/25 23:26:16 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.7 2003/08/06 17:55:43 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -278,6 +278,17 @@ test cmdline-4.9 {cmdline::getfiles, silent no match} {
     }
 } [list \
 	[file join $::tcltest::temporaryDirectory cmdlineJunk/foo1]]
+
+
+test cmdline-4.10 {cmdline::getfiles, backslashes on windows} {pc} {
+    runGetFilesTest {
+	set result [cmdline::getfiles {cmdlineJunk\foo*} 1]
+	puts -nonewline [lsort $result]
+    }
+} [list \
+	[file join $::tcltest::temporaryDirectory cmdlineJunk/foo1] \
+	[file join $::tcltest::temporaryDirectory cmdlineJunk/foo2]]
+
 
 # Remove the temporary directory and files from the previous tests
 
