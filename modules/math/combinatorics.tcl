@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: combinatorics.tcl,v 1.2 2002/01/12 01:06:55 kennykb Exp $
+# RCS: @(#) $Id: combinatorics.tcl,v 1.3 2002/02/15 05:35:30 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -249,7 +249,7 @@ proc ::math::factorial { x } {
 
     # Error case - gamma fails
 
-    if { [catch { expr exp( [ln_Gamma [expr { $x + 1 }]] ) } result] } {
+    if { [catch { expr {exp( [ln_Gamma [expr { $x + 1 }]] )} } result] } {
 	return -code error -errorcode $::errorCode $result
     } 
 

@@ -1,3 +1,10 @@
+2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (statcheck, frink, procheck): Added developer
+	  targets to invoke two static code checkers.
+
+	* Ran frink over the package and corrected several minor problems.
+
 2002-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in: Added target for generation of documentation in

@@ -16,7 +16,7 @@ uri \- URI utilities
 .SH "SYNOPSIS"
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require uri ?1.1?\fR
+\fBpackage require uri ?1.1.1?\fR
 .sp
 \fB uri::split      \fIurl\fR
 \fB uri::join       \fR?\fIkey\fR \fIvalue\fR?...

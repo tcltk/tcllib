@@ -5,9 +5,9 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.2 2001/11/20 00:01:09 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.3 2002/02/15 05:35:30 andreas_kupries Exp $
 
-package provide irc 0.1
+package provide irc 0.2
 
 namespace eval irc {
     variable conn
@@ -55,8 +55,11 @@ proc irc::connection { host {port 6667} } {
 
     namespace eval $name {}
 
+    # FRINK: nocheck
     set ${name}::conn $conn
+    # FRINK: nocheck
     set ${name}::port $port
+    # FRINK: nocheck
     set ${name}::host $host
 
     namespace eval $name {
@@ -164,9 +167,9 @@ proc irc::connection { host {port 6667} } {
 	    variable linedata
 	    set who $linedata(who)
 	    if { $address == 0 } {
-		return [string range $who 0 [expr [string first ! $who] - 1]]
+		return [string range $who 0 [expr {[string first ! $who] - 1}]]
 	    } else {
-		return [string range $who [expr [string last ! $who] + 1] end]
+		return [string range $who [expr {[string last ! $who] + 1}] end]
 	    }
 	}
 
@@ -223,9 +226,9 @@ proc irc::connection { host {port 6667} } {
 	    }
 
 	    if { [info exists dispatch($linedata(action))] } {
-		eval $dispatch($linedata(action))
+		return [eval $dispatch($linedata(action))]
 	    } else {
-		eval $dispatch(defaultevent)
+		return [eval $dispatch(defaultevent)]
 	    }
 	}
 

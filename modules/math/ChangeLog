@@ -1,3 +1,17 @@
+2002-02-14  Tcl Project  <akupries@shaw.ca>
+
+
+2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* combinatorics.tcl
+	* geometry.tcl (proc): Frink run
+
+	* math::geometry: Version is now 1.0.1 to distinguish this from
+	  the code in tcllib release 1.2
+
+	* math: Version is now 1.2.1 to distinguish this from
+	  the code in tcllib release 1.2
+
 2002-01-18  Don Porter <dgp@users.sourceforge.net>
 
 	* math.tcl: [namespace export Beta] got out of sync with the
@@ -6,6 +20,7 @@
 	math.tcl, a sync problem waiting to happen.
 
 2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* Bumped version to 1.2.
 
 2002-01-18  Andreas Kupries <andreas_kupries@users.sourceforge.net>

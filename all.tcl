@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.6 2001/08/20 20:35:11 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.7 2002/02/15 05:35:29 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -74,7 +74,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 set ::tcltest::testSingleFile false
-set ::tcltest::testsDirectory [file dir [info script]]
+set ::tcltest::testsDirectory [file dirname [info script]]
 set root $::tcltest::testsDirectory
 
 # We need to ensure that the testsDirectory is absolute
@@ -164,5 +164,6 @@ foreach module $modules {
 # cleanup
 puts stdout "\nTests ended at [eval $timeCmd]"
 ::tcltest::cleanupTests 1
+# FRINK: nocheck
 return
 
