@@ -1,3 +1,9 @@
+2004-09-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tcl: Accepted patch by David Graveraux fixing a number
+	  of problems with HTML entities.
+	  This fixes [Tcllib SF Bug 1018574].
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

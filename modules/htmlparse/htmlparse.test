@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.6 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.7 2004/09/02 04:31:48 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -206,10 +206,40 @@ test htmlparse-3.4 {incremental parsing} {
 
 # Don't test: ::htmlparse::debugCallback
 
-test htmlparse-4.0 {predefined entities} {
-    ::htmlparse::mapEscapes "&gt;&lt;&amp;"
+test htmlparse-4.0 {predefined (HTML 2.0) entities} {
+    ::htmlparse::mapEscapes {&gt;&lt;&amp;}
 } {><&}
 
+test htmlparse-4.1 {non entities unharmed} {
+    ::htmlparse::mapEscapes {this&that&those as well}
+} {this&that&those as well}
+
+test htmlparse-4.2 {loose SGML parsing for entities} {
+    ::htmlparse::mapEscapes "&amp &amp\n&amp"
+} {& &
+&}
+
+test htmlparse-4.3 {numeric, decimal entities} {
+    ::htmlparse::mapEscapes {emdash: &#8212; euro: &#8364;}
+} "emdash: \u2014 euro: \u20ac"
+
+test htmlparse-4.4 {numeric, hexidecimal entities} {
+    ::htmlparse::mapEscapes {emdash: &#x2014; euro: &#x20ac;}
+} "emdash: \u2014 euro: \u20ac"
+
+test htmlparse-4.5 {Unknown named entities shall not be mangled} {
+    ::htmlparse::mapEscapes {I am &FOO;! You are &FOO
+We all are &FOO}
+} {I am &FOO;! You are &FOO
+We all are &FOO}
+
+test htmlparse-4.6 {numeric, decimal entities; out-of-range} {
+    ::htmlparse::mapEscapes {too big: &#89998; and unharmed}
+} {too big: &#89998; and unharmed}
+
+test htmlparse-4.7 {numeric, hexidecimal entities; out-of-range} {
+    ::htmlparse::mapEscapes {too big: &#xffff; and unharmed}
+} {too big: &#xffff; and unharmed}
 
 proc tlist {t n} {
     set tt [list]
