@@ -154,7 +154,7 @@ set ::snit::typeTemplate {
     # Initializes the instance variables, if any.  Called during
     # instance creation.
     
-    proc %TYPE%::Snit_instanceVars {selfns} {%IVARDECS%
+    proc %TYPE%::Snit_instanceVars {selfns} {
         %INSTANCEVARS%
     }
 
@@ -223,9 +223,8 @@ set ::snit::nominalTypeProc {
         # "args" is %AUTO%.
         if {$method eq "" && [llength $args] == 0} {
             ::variable %TYPE%::Snit_info
-            ::variable %TYPE%::Snit_isWidget
 
-            if {$Snit_info(hasinstances) && !$Snit_isWidget} {
+            if {$Snit_info(hasinstances) && !$Snit_info(isWidget)} {
                 set method create
                 lappend args %AUTO%
             } else {
@@ -269,11 +268,11 @@ set ::snit::simpleTypeProc {
     # in the parent of the %TYPE% namespace!  All accesses to 
     # %TYPE% variables and methods must be qualified!
     proc %TYPE% {args} {
-        ::variable %TYPE%::Snit_isWidget
+        ::variable %TYPE%::Snit_info
 
         # FIRST, if the are no args, the single arg is %AUTO%
         if {[llength $args] == 0} {
-            if {$Snit_isWidget} {
+            if {$Snit_info(isWidget)} {
                 error "wrong \# args: should be \"%TYPE% name args\""
             }
             
@@ -282,7 +281,7 @@ set ::snit::simpleTypeProc {
 
         # NEXT, we're going to call the create method.
         # Pass along the return code unchanged.
-        if {$Snit_isWidget} {
+        if {$Snit_info(isWidget)} {
             set command [list ::snit::RT.widget.typemethod.create %TYPE%]
         } else {
             set command [list ::snit::RT.type.typemethod.create %TYPE%]
@@ -353,6 +352,8 @@ set ::snit::nominalInstanceProc {
 # proc $instanceName {method args} ....
 
 set ::snit::simpleInstanceProc {
+    set self [set %SELFNS%::Snit_instance]
+
     if {[lsearch -exact ${%TYPE%::Snit_methods} $method] == -1} {
 	set optlist [join ${%TYPE%::Snit_methods} ", "]
 	set optlist [linsert $optlist "end-1" "or"]
@@ -360,7 +361,7 @@ set ::snit::simpleInstanceProc {
     }
 
     eval [linsert $args 0 \
-              %TYPE%::Snit_method$method %TYPE% %SELFNS% %WIN% %WIN%] 
+              %TYPE%::Snit_method$method %TYPE% %SELFNS% %WIN% $self] 
 }
 
 
@@ -555,10 +556,10 @@ proc ::snit::Comp.Compile {which type body} {
 
     # NEXT, Add the standard definitions
     append compile(defs) \
-        "\nset %TYPE%::Snit_isWidget $isWidget\n"
-    
+        "\nset %TYPE%::Snit_info(isWidget) $isWidget\n"
+
     append compile(defs) \
-        "\nset %TYPE%::Snit_isWidgetAdaptor $isWidgetAdaptor\n"
+        "\nset %TYPE%::Snit_info(isWidgetAdaptor) $isWidgetAdaptor\n"
 
     # Indicate whether the type can create instances that replace
     # existing commands.
@@ -1184,10 +1185,10 @@ proc ::snit::Comp.statement.variable {name args} {
 
     if {$len == 1} {
         append compile(instancevars) \
-		"\n[list set $name [lindex $args 0]]\n"
+            "\nset \${selfns}::$name [list [lindex $args 0]]\n"
     } elseif {$len == 2} {
         append compile(instancevars) \
-		"\n[list array set $name [lindex $args 1]]\n"
+            "\narray set \${selfns}::$name [list [lindex $args 1]]\n"
     } 
 
     append  compile(ivprocdec) "\n\t    "
@@ -1350,7 +1351,7 @@ proc ::snit::Comp.DefineComponent {component {errRoot "Error"}} {
 
         # Add a write trace to do the component thing.
         Mappend compile(instancevars) {
-            trace add variable %COMP% write \
+            trace add variable ${selfns}::%COMP% write \
                 [list ::snit::RT.ComponentTrace [list %TYPE%] $selfns %COMP%]
         } %TYPE% $compile(type) %COMP% $component
     }
@@ -1934,7 +1935,6 @@ proc ::snit::RT.type.typemethod.create {type name args} {
 proc ::snit::RT.widget.typemethod.create {type name args} {
     variable ${type}::Snit_info
     variable ${type}::Snit_optionInfo
-    variable ${type}::Snit_isWidgetAdaptor
 
     # FIRST, if %AUTO% appears in the name, generate a unique 
     # command name.
@@ -1960,7 +1960,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
     # create a frame as its hull.  We set the frame's -class to
     # the user's widgetclass, or, if none, to the basename of
     # the $type with an initial upper case letter.
-    if {!$Snit_isWidgetAdaptor} {
+    if {!$Snit_info(isWidgetAdaptor)} {
         # FIRST, determine the class name
         if {"" == $Snit_info(widgetclass)} {
             set Snit_info(widgetclass) \
@@ -2031,7 +2031,6 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
 # Creates the instance proc.
 
 proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
-    variable ${type}::Snit_isWidget
     variable ${type}::Snit_info
         
     # FIRST, remember the instance name.  The Snit_instance variable
@@ -2041,7 +2040,7 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
     set Snit_instance $instance
 
     # NEXT, qualify the proc name if it's a widget.
-    if {$Snit_isWidget} {
+    if {$Snit_info(isWidget)} {
         set procname ::$instance
     } else {
         set procname $instance
@@ -2082,7 +2081,6 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
 # vanish.  Add a catch to output any error message.
 
 proc ::snit::RT.InstanceTrace {type selfns win old new op} {
-    variable ${type}::Snit_isWidget
     variable ${type}::Snit_info
 
     # Note to developers ...
@@ -2093,13 +2091,11 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
     if {[catch {
         # FIRST, clean up if necessary
         if {"" == $new} {
-            if {$Snit_isWidget} {
+            if {$Snit_info(isWidget)} {
                 destroy $win
             } else {
                 ::snit::RT.DestroyObject $type $selfns $win
             }
-        } elseif {$Snit_info(simpledispatch)} {
-            error "object $old should not have been renamed."
         } else {
             # Otherwise, track the change.
             variable ${selfns}::Snit_instance
@@ -2112,7 +2108,7 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
     } result]} {
         global errorInfo
         # Pop up the console on Windows wish, to enable stdout.
-        # This clobbers errorInfo unix, so save it.
+        # This clobbers errorInfo on unix, so save it so we can print it.
         set ei $errorInfo
         catch {console show}
         puts "Error in ::snit::RT.InstanceTrace $type $selfns $win $old $new $op:"
@@ -2129,8 +2125,8 @@ proc ::snit::RT.ConstructInstance {type selfns instance arglist} {
     set Snit_iinfo(constructed) 0
 
     # Call the user's constructor
-    eval [list ${type}::Snit_constructor $type $selfns \
-              $instance $instance] $arglist
+    eval [linsert $arglist 0 \
+              ${type}::Snit_constructor $type $selfns $instance $instance]
 
     set Snit_iinfo(constructed) 1
 
@@ -2229,7 +2225,7 @@ proc ::snit::RT.method.destroy {type selfns win self} {
 # win		The original instance command name.
 
 proc ::snit::RT.DestroyObject {type selfns win} {
-    variable ${type}::Snit_isWidget
+    variable ${type}::Snit_info
 
     # If the variable Snit_instance doesn't exist then there's no
     # instance command for this object -- it's most likely a 
@@ -2251,7 +2247,7 @@ proc ::snit::RT.DestroyObject {type selfns win} {
                 
         # Next, delete the hull component's instance command,
         # if there is one.
-        if {$Snit_isWidget} {
+        if {$Snit_info(isWidget)} {
             set hullcmd [::snit::RT.Component $type $selfns hull]
             
             catch {rename $instance ""}
@@ -2280,9 +2276,9 @@ proc ::snit::RT.DestroyObject {type selfns win} {
 # instance       The current instance name
 
 proc ::snit::RT.RemoveInstanceTrace {type selfns win instance} {
-    variable ${type}::Snit_isWidget
+    variable ${type}::Snit_info
 
-    if {$Snit_isWidget} {
+    if {$Snit_info(isWidget)} {
         set procname ::$instance
     } else {
         set procname $instance
@@ -2304,7 +2300,7 @@ proc ::snit::RT.RemoveInstanceTrace {type selfns win instance} {
 # cache.
 
 proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
-    upvar ${type}::Snit_isWidget Snit_isWidget
+    upvar ${type}::Snit_info Snit_info
     upvar ${type}::${component} cvar
     upvar ${type}::Snit_typecomponents Snit_typecomponents
         
@@ -2344,7 +2340,7 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         # this is a widget and the style of the name is wrong, or the
         # name mimics a standard typemethod.
 
-        if {[set ${type}::Snit_isWidget] && 
+        if {[set ${type}::Snit_info(isWidget)] && 
             ![string match ".*" $method]} {
             return ""
         }
@@ -2417,7 +2413,7 @@ proc ::snit::RT.Component {type selfns name} {
 # cache.
 
 proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
-    upvar ${type}::Snit_isWidget Snit_isWidget
+    upvar ${type}::Snit_info Snit_info
     upvar ${selfns}::${component} cvar
     upvar ${selfns}::Snit_components Snit_components
         
@@ -2425,7 +2421,7 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
     # it's been defined, that's an error--but only if
     # this is a widget or widget adaptor.
     if {"hull" == $component && 
-        $Snit_isWidget &&
+        $Snit_info(isWidget) &&
         [info exists Snit_components($component)]} {
         set cvar $Snit_components($component)
         error "The hull component cannot be redefined"
@@ -2521,7 +2517,6 @@ proc ::snit::RT.ClearInstanceCaches {selfns} {
 # is assigned to the hull component.
 
 proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
-    variable ${type}::Snit_isWidget
     variable ${type}::Snit_info
     variable ${type}::Snit_optionInfo
     upvar self self
@@ -2530,7 +2525,7 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
     upvar ${selfns}::options options
 
     # FIRST, make sure we can do it.
-    if {!$Snit_isWidget} { 
+    if {!$Snit_info(isWidget)} { 
         error "installhull is valid only for snit::widgetadaptors"
     }
             
@@ -2625,7 +2620,6 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
 # It expects self and selfns to be defined in the caller's context.
 
 proc ::snit::RT.install {type compName "using" widgetType winPath args} {
-    variable ${type}::Snit_isWidget
     variable ${type}::Snit_optionInfo
     variable ${type}::Snit_info
     upvar self self
@@ -2635,7 +2629,7 @@ proc ::snit::RT.install {type compName "using" widgetType winPath args} {
 
     # We do the magic option database stuff only if $self is
     # a widget.
-    if {$Snit_isWidget} {
+    if {$Snit_info(isWidget)} {
         if {"" == $hull} {
             error "tried to install \"$compName\" before the hull exists"
         }
@@ -2667,7 +2661,7 @@ proc ::snit::RT.install {type compName "using" widgetType winPath args} {
 
     # NEXT, handle the option database for "delegate option *",
     # in widgets only.
-    if {$Snit_isWidget && $Snit_optionInfo(starcomp) eq $compName} {
+    if {$Snit_info(isWidget) && $Snit_optionInfo(starcomp) eq $compName} {
         # FIRST, get the list of option specs from the widget.
         # If configure doesn't work, skip it.
         if {[catch {$comp configure} specs]} {
@@ -2864,7 +2858,7 @@ proc ::snit::RT.from {type argvName option {defvalue ""}} {
 # type		The snit type
 
 proc ::snit::RT.typemethod.destroy {type} {
-    variable ${type}::Snit_isWidget
+    variable ${type}::Snit_info
         
     # FIRST, destroy all instances
     foreach selfns [namespace children $type] {
@@ -2873,7 +2867,7 @@ proc ::snit::RT.typemethod.destroy {type} {
         }
         upvar ${selfns}::Snit_instance obj
             
-        if {$Snit_isWidget} {
+        if {$Snit_info(isWidget)} {
             destroy $obj
         } else {
             if {"" != [info commands $obj]} {

@@ -3572,7 +3572,6 @@ are these:
 [list_begin bullet]
 
 [bullet] Methods cannot be delegated.
-[bullet] Instance commands cannot be renamed.
 [bullet] [cmd uplevel] and [cmd upvar] do not work as expected: the
 caller's scope is two levels up rather than one.
 [bullet] The option-handling methods 
