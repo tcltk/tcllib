@@ -5,8 +5,6 @@
 [require Tcl 8.2]
 [require report [opt 0.3]]
 [description]
-
-
 [para]
 
 This package provides report objects which can be used by the
