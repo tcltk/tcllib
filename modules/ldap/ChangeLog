@@ -1,3 +1,9 @@
+2005-03-16  Andreas Kupries <andreask@activestate.com>
+
+	* ldap.tcl (ldap::asnGetInteger): Fixed [SF Tcllib Bug 1164663], a
+	  copy/paste bug in the definition of this procedure. It belongs
+	  into the ldap namespace, not the asn namespace.
+
 2005-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ldap.tcl: Reformatted to get clean indentation, also trimmed
