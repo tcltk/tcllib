@@ -7,17 +7,28 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: png.tcl,v 1.2 2004/05/11 06:51:54 andreas_kupries Exp $
+# RCS: @(#) $Id: png.tcl,v 1.3 2004/05/20 23:00:10 afaupell Exp $
 
 package provide png 0.1
-package require crc32
 
 namespace eval ::png {}
 
-proc ::png::validate {file} {
-    set fh [open $file r]
+proc ::png::_openPNG {file {mode r}} {
+    set fh [open $file $mode]
     fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return SIG }
+    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
+    return $fh
+}
+
+proc ::png::isPNG {file} {
+    if {[catch {_openPNG $file} fh]} { return 0 }
+    close $fh
+    return 1
+}
+
+proc ::png::validate {file} {
+    package require crc32
+    if {[catch {_openPNG $file} fh]} { return SIG }
     set num 0
     set idat 0
     set last {}
@@ -41,9 +52,7 @@ proc ::png::validate {file} {
 }
 
 proc ::png::imageInfo {file} {
-    set fh [open $file r]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
+    set fh [_openPNG $file]
     binary scan [read $fh 8] Ia4 len type
     set r [read $fh $len]
     if {![eof $fh] && $type == "IHDR"} {
@@ -61,9 +70,7 @@ proc ::png::imageInfo {file} {
 }
 
 proc ::png::getTimestamp {file} {
-    set fh [open $file r]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
+    set fh [_openPNG $file]
 
     while {[set r [read $fh 8]] != ""} {
         binary scan $r Ia4 len type
@@ -80,12 +87,14 @@ proc ::png::getTimestamp {file} {
 }
 
 proc ::png::setTimestamp {file time} {
-    set fh [open $file r+]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
-
-    set    time [eval binary format Sccccc [string map {" 0" " "} [clock format $time -format "%Y %m %d %H %M %S" -gmt 1]]]
-    append time [binary format I [::crc::crc32 tIME$time]]
+    set fh [_openPNG $file r+]
+    
+    set time [eval binary format Sccccc [string map {" 0" " "} [clock format $time -format "%Y %m %d %H %M %S" -gmt 1]]]
+    if {![catch {package present crc32}]} {
+        append time [binary format I [::crc::crc32 tIME$time]]
+    } else {
+        append time [binary format I 0]
+    }
 
     while {[set r [read $fh 8]] != ""} {
         binary scan $r Ia4 len type
@@ -109,9 +118,7 @@ proc ::png::setTimestamp {file time} {
 }
 
 proc ::png::getComments {file} {
-    set fh [open $file r]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
+    set fh [_openPNG $file]
     set text {}
 
     while {[set r [read $fh 8]] != ""} {
@@ -136,9 +143,7 @@ proc ::png::getComments {file} {
 }
 
 proc ::png::removeComments {file} {
-    set fh [open $file r+]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
+    set fh [_openPNG $file r+]
     set data "\x89PNG\r\n\x1a\n"
     while {[set r [read $fh 8]] != ""} {
         binary scan $r Ia4 len type
@@ -157,17 +162,19 @@ proc ::png::removeComments {file} {
 
 proc ::png::addComment {file keyword arg1 args} {
     if {[llength $args] > 0 && [llength $args] != 2} { close $fh; return -code error "wrong number of arguments" }
-    set fh [open $file r+]
-    fconfigure $fh -encoding binary -translation binary -eofchar {}
-    if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
+    set fh [_openPNG $file r+]
 
     if {[llength $args] > 0} {
         set comment "iTXt$keyword\x00\x00\x00$arg1\x00[encoding convertto utf-8 [lindex $args 0]]\x00[encoding convertto utf-8 [lindex $args 1]]"
     } else {
         set comment "tEXt$keyword\x00$arg1"
     }
-
-    append comment [binary format I [::crc::crc32 $comment]]
+    
+    if {![catch {package present crc32}]} {
+        append comment [binary format I [::crc::crc32 $comment]]
+    } else {
+        append comment [binary format I 0]
+    }
 
     while {[set r [read $fh 8]] != ""} {
         binary scan $r Ia4 len type
