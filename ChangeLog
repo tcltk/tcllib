@@ -1,3 +1,11 @@
+2002-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d: Added testsuites for user database and simple mailbox
+	  storage.
+
+	* fileutil: SF Bug #462015 closed. Proosed change rejected, added
+	  new commands to perform the desired operation instead.
+
 2002-05-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools: Fixed bug #534334 (actually more a FR).
