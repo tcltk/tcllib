@@ -1,3 +1,8 @@
+2002-08-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.test: Followup to fix for bug SF #587533. Had to update the
+	  test suite too.
+
 2002-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.tcl (lappend): Fixed bug SF #587533 reported by Evan Rempel
