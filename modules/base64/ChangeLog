@@ -1,3 +1,12 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* uuencode.man:
+	* base64.tcl:
+	* base64.man:
+	* pkgIndex.tcl: Fixed bug #614591. Set version of the base64
+	  package to to 2.2.2. uuencode is now at version 1.0.2
+	  throughout.
+
 2003-03-24  Andreas Kupries  <andreask@activestate.com>
 
 	* uuencode.test: 
