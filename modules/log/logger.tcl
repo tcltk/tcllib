@@ -13,7 +13,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.5.1
+package provide logger 0.5.2
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -74,13 +74,15 @@ proc ::logger::init {service} {
     namespace eval tree::${service} {
         variable service
         variable levels
+        variable oldname 
     }
 
     lappend services $service
 
     set [namespace current]::tree::${service}::service $service
     set [namespace current]::tree::${service}::levels $levels
-
+    set [namespace current]::tree::${service}::oldname $service
+    
     namespace eval tree::${service} {
     # Defaults to 'debug' level - show everything.  I don't
     # want people to wonder where there debug messages are
@@ -165,6 +167,7 @@ proc ::logger::init {service} {
             set enabled $lv
         }
         
+        variable service
         while { $lvnum <  [llength $levels] } {
         interp alias {} [namespace current]::[lindex $levels $lvnum] \
             {} [namespace current]::[lindex $levels $lvnum]cmd
@@ -284,7 +287,10 @@ proc ::logger::init {service} {
         }
         2  {
             foreach {arg body} $args {break}
-            proc ${lv}cmd $arg $body
+            proc ${lv}cmd {args} "_setservicename \$args; 
+                                      set val \[${lv}customcmd \[lindex \$args end]\] ; 
+                                      _restoreservice; set val"
+            proc ${lv}customcmd $arg $body
         }
         default {
             return -code error "Usage: \${log}::logproc level ?cmd?\nor \${log}::logproc level argname body"
@@ -367,6 +373,23 @@ proc ::logger::init {service} {
         return $service
     }
     
+    proc _setservicename {arg} {
+        variable service
+        variable oldname
+        if {[llength $arg] <= 1} {
+            return
+        } else {
+            set oldname $service
+            set service [lindex $arg end-1]
+        }
+    }
+        
+    proc _restoreservice {} {
+        variable service
+        variable oldname
+        set service $oldname
+        return
+    }
     
     # Walk the parent service namespaces to see first, if they
     # exist, and if any are enabled, and then, as a
@@ -402,14 +425,16 @@ proc ::logger::init {service} {
             # OPTIMIZE: do not allow multiple aliases in the hierarchy
             #           they can always be replaced by more efficient
             #           direct aliases to the target procs.
-            interp alias {} [namespace current]::${lvl}cmd {} ${parent}::${lvl}cmd
+            interp alias {} [namespace current]::${lvl}cmd {} ${parent}::${lvl}cmd $service
         }
         # inherit the starting loglevel of the parent service
         setlevel [${parent}::currentloglevel]
 
     } else {
         foreach lvl [::logger::levels] {
-            proc ${lvl}cmd {txt} "stdoutcmd $lvl \$txt"
+            proc ${lvl}cmd {args} "_setservicename \$args ; 
+                                   set val \[stdoutcmd $lvl \[lindex \$args end\]\] ; 
+                                   _restoreservice; set val"
         }
     }
     }
@@ -634,7 +659,8 @@ proc ::logger::import {args} {
     #
     
     foreach {target source} $imports {
-        interp alias {} $target {} $source
+        proc $target {args} "interp eval \{\} \[list $source\] \$args"
+        #interp alias {} $target {} $source
     }
 }
 
