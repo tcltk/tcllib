@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: sum.tcl,v 1.6 2003/05/13 01:42:11 patthoyts Exp $
+# $Id: sum.tcl,v 1.7 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 

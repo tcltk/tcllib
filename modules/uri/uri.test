@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.16 2003/04/11 21:01:29 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.17 2004/01/15 06:36:14 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

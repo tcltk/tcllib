@@ -16,7 +16,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.11 2003/05/01 00:17:41 andreas_kupries Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.12 2004/01/15 06:36:14 andreas_kupries Exp $}
     variable version 1.2.1
     variable stopped
 

@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.10 2003/04/11 20:04:39 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.11 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide nntp 0.2.1

@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.4 2003/12/16 21:24:34 jenglish Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.5 2004/01/15 06:36:13 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

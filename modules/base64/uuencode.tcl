@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.11 2003/05/14 22:56:28 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.12 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require log};            # tcllib 1.0

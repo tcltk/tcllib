@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: geometry.tcl,v 1.5 2002/02/15 05:35:30 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.6 2004/01/15 06:36:13 andreas_kupries Exp $
 
 namespace eval ::math::geometry {
 }

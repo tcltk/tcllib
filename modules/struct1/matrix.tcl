@@ -2,12 +2,15 @@
 #
 #	Implementation of a matrix data structure for Tcl.
 #
-# Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#
+# Heapsort code Copyright (c) 2003 by Edwin A. Suominen <ed@eepatents.com>,
+# based on concepts in "Introduction to Algorithms" by Thomas H. Cormen et al.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.1 2003/12/02 07:37:46 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.2 2004/01/15 06:36:14 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -33,39 +36,8 @@ namespace eval ::struct::matrix {
     # - lock    boolean flag to disable MatTraceIn while in MatTraceOut [#532783]
     # - unset   string used to convey information about 'unset' traces from MatTraceIn to MatTraceOut.
 
-    # counter is used to give a unique name for unnamed matrixs
+    # counter is used to give a unique name for unnamed matrices
     variable counter 0
-
-    # commands is the list of subcommands recognized by the matrix
-    variable commands
-    set      commands(.) [list	\
-	    "add"		\
-	    "cells"		\
-	    "cellsize"		\
-	    "columns"		\
-	    "columnwidth"	\
-	    "delete"		\
-	    "destroy"		\
-	    "format"		\
-	    "get"		\
-	    "insert"		\
-	    "link"		\
-	    "rowheight"		\
-	    "rows"		\
-	    "search"		\
-	    "set"		\
-	    "swap"		\
-	    "unlink"
-	    ]
-
-    # Some subcommands have their own subcommands.
-    set commands(add)    [list "column" "columns" "row" "rows"]
-    set commands(delete) [list "column" "row"]
-    set commands(format) [list "2chan" "2string"]
-    set commands(get)    [list "cell" "column" "rect" "row"]
-    set commands(insert) [list "column" "row"]
-    set commands(set)    [list "cell" "column" "rect" "row"]
-    set commands(swap)   [list "columns" "rows"]
 
     # Only export one command, the one used to instantiate a new matrix
     namespace export matrix
@@ -90,12 +62,22 @@ proc ::struct::matrix::matrix {{name ""}} {
 	set name "matrix${counter}"
     }
 
-    if { [llength [info commands ::$name]] } {
-	error "command \"$name\" already exists, unable to create matrix"
+    # FIRST, qualify the name.
+    if {![string match "::*" $name]} {
+        # Get caller's namespace; append :: if not global namespace.
+        set ns [uplevel 1 namespace current]
+        if {"::" != $ns} {
+            append ns "::"
+        }
+        set name "$ns$name"
+    }
+
+    if { [llength [info commands $name]] } {
+	return -code error "command \"$name\" already exists, unable to create matrix"
     }
 
     # Set up the namespace
-    namespace eval ::struct::matrix::matrix$name {
+    namespace eval $name {
 	variable columns 0
 	variable rows    0
 
@@ -115,7 +97,7 @@ proc ::struct::matrix::matrix {{name ""}} {
     }
 
     # Create the command to manipulate the matrix
-    interp alias {} ::$name {} ::struct::matrix::MatrixProc $name
+    interp alias {} $name {} ::struct::matrix::MatrixProc $name
 
     return $name
 }
@@ -138,17 +120,24 @@ proc ::struct::matrix::matrix {{name ""}} {
 proc ::struct::matrix::MatrixProc {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(.) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub _$cmd
+    if {[llength [info commands ::struct::matrix::$sub]] == 0} {
+	set optlist [lsort [info commands ::struct::matrix::_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    if {[string match __* $p]} {continue}
+	    lappend xlist [string range $p 1 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::_add --
@@ -166,17 +155,23 @@ proc ::struct::matrix::MatrixProc {name {cmd ""} args} {
 proc ::struct::matrix::_add {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name add option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name add option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__add_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(add) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __add_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__add_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 6 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__add_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::_delete --
@@ -194,17 +189,23 @@ proc ::struct::matrix::_add {name {cmd ""} args} {
 proc ::struct::matrix::_delete {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name delete option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name delete option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__delete_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(delete) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __delete_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__delete_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 9 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__delete_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::_format --
@@ -222,17 +223,23 @@ proc ::struct::matrix::_delete {name {cmd ""} args} {
 proc ::struct::matrix::_format {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name format option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name format option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__format_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(format) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __format_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__format_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 9 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__format_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::_get --
@@ -250,17 +257,23 @@ proc ::struct::matrix::_format {name {cmd ""} args} {
 proc ::struct::matrix::_get {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name get option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name get option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__get_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(get) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __get_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__get_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 6 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__get_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::_insert --
@@ -278,17 +291,23 @@ proc ::struct::matrix::_get {name {cmd ""} args} {
 proc ::struct::matrix::_insert {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name insert option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name insert option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__insert_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(insert) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __insert_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__insert_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 9 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__insert_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::_search --
@@ -350,14 +369,14 @@ proc ::struct::matrix::_search {name args} {
     set pattern [lindex $args end]
     set args    [lrange $args 1 end-1]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
 
     switch -exact -- $range {
 	all {
-	    set ctl 0 ; set cbr $cols ; incr cbr -1
-	    set rtl 0 ; set rbr $rows ; incr rbr -1
+	    set ctl 0 ; set cbr $columns ; incr cbr -1
+	    set rtl 0 ; set rbr $rows    ; incr rbr -1
 	}
 	column {
 	    set ctl [ChkColumnIndex $name [lindex $args 0]]
@@ -366,7 +385,7 @@ proc ::struct::matrix::_search {name args} {
 	}
 	row {
 	    set rtl [ChkRowIndex $name [lindex $args 0]]
-	    set ctl 0    ; set cbr $cols ; incr cbr -1
+	    set ctl 0    ; set cbr $columns ; incr cbr -1
 	    set rbr $rtl
 	}
 	rect {
@@ -423,17 +442,106 @@ proc ::struct::matrix::_search {name args} {
 proc ::struct::matrix::_set {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name set option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name set option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__set_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(set) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __set_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__set_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 6 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__set_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
+}
+
+# ::struct::matrix::_sort --
+#
+#	Command that processes all 'sort' subcommands.
+#
+# Arguments:
+#	name	Name of the matrix object to manipulate.
+#	cmd	Subcommand of 'sort' to invoke.
+#	args	Arguments for subcommand of 'sort'.
+#
+# Results:
+#	Varies based on command to perform
+
+proc ::struct::matrix::_sort {name cmd args} {
+    # Do minimal args checks here
+    if { [llength [info level 0]] == 2 } {
+	return -code error "wrong # args: should be \"$name sort option ?arg arg ...?\""
+    }
+    if {[string equal $cmd "rows"]} {
+	set code   r
+	set byrows 1
+    } elseif {[string equal $cmd "columns"]} {
+	set code   c
+	set byrows 0
+    } else {
+	return -code error \
+		"bad option \"$cmd\": must be columns, or rows"
+    }
+
+    set revers 0 ;# Default: -increasing
+    while {1} {
+	switch -glob -- [lindex $args 0] {
+	    -increasing {set revers 0}
+	    -decreasing {set revers 1}
+	    default {
+		if {[llength $args] > 1} {
+		    return -code error \
+			"invalid option \"[lindex $args 0]\":\
+			should be -increasing, or -decreasing"
+		}
+		break
+	    }
+	}
+	set args [lrange $args 1 end]
+    }
+    # ASSERT: [llength $args] == 1
+
+    if {[llength $args] != 1} {
+	return -code error "wrong # args: should be \"$name sort option ?arg arg ...?\""
+    }
+
+    set key [lindex $args 0]
+
+    if {$byrows} {
+	set key [ChkColumnIndex $name $key]
+	variable ${name}::rows
+
+	# Adapted by EAS from BUILD-MAX-HEAP(A) of CRLS 6.3
+	set heapSize $rows
+    } else {
+	set key [ChkRowIndex $name $key]
+	variable ${name}::columns
+
+	# Adapted by EAS from BUILD-MAX-HEAP(A) of CRLS 6.3
+	set heapSize $columns
+    }
+
+    for {set i [expr {int($heapSize/2)-1}]} {$i>=0} {incr i -1} {
+	SortMaxHeapify $name $i $key $code $heapSize $revers
+    }
+
+    # Adapted by EAS from remainder of HEAPSORT(A) of CRLS 6.4
+    for {set i [expr {$heapSize-1}]} {$i>=1} {incr i -1} {
+	if {$byrows} {
+	    SwapRows $name 0 $i
+	} else {
+	    SwapColumns $name 0 $i
+	}
+	incr heapSize -1
+	SortMaxHeapify $name 0 $key $code $heapSize $revers
+    }
+    return
 }
 
 # ::struct::matrix::_swap --
@@ -451,17 +559,23 @@ proc ::struct::matrix::_set {name {cmd ""} args} {
 proc ::struct::matrix::_swap {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name swap option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name swap option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
-    if { [llength [info commands ::struct::matrix::__swap_$cmd]] == 0 } {
-	variable commands
-	set optlist [join $commands(swap) ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    set sub __swap_$cmd
+    if { [llength [info commands ::struct::matrix::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::matrix::__swap_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 7 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
     }
-    eval [linsert $args 0 ::struct::matrix::__swap_$cmd $name]
+    uplevel 1 [linsert $args 0 ::struct::matrix::$sub $name]
 }
 
 # ::struct::matrix::__add_column --
@@ -480,10 +594,10 @@ proc ::struct::matrix::_swap {name {cmd ""} args} {
 #	None.
 
 proc ::struct::matrix::__add_column {name {values {}}} {
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::rowh    rh
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
+    variable ${name}::rowh
 
     if {[set l [llength $values]] < $rows} {
 	# Missing values. Fill up with empty strings
@@ -508,12 +622,12 @@ proc ::struct::matrix::__add_column {name {values {}}} {
     foreach v $values {
 	if {$v != {}} {
 	    # Data changed unpredictably, invalidate cache
-	    catch {unset rh($r)}
+	    catch {unset rowh($r)}
 	} ; # {else leave the row unchanged}
-	set data($cols,$r) $v
+	set data($columns,$r) $v
 	incr r
     }
-    incr cols
+    incr columns
     return
 }
 
@@ -533,20 +647,20 @@ proc ::struct::matrix::__add_column {name {values {}}} {
 #	None.
 
 proc ::struct::matrix::__add_row {name {values {}}} {
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::colw    cw
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
+    variable ${name}::colw
 
-    if {[set l [llength $values]] < $cols} {
+    if {[set l [llength $values]] < $columns} {
 	# Missing values. Fill up with empty strings
 
-	for {} {$l < $cols} {incr l} {
+	for {} {$l < $columns} {incr l} {
 	    lappend values {}
 	}
-    } elseif {[llength $values] > $cols} {
+    } elseif {[llength $values] > $columns} {
 	# To many values. Remove the superfluous items
-	set values [lrange $values 0 [expr {$cols - 1}]]
+	set values [lrange $values 0 [expr {$columns - 1}]]
     }
 
     # "values" now contains the information to set into the array.
@@ -561,7 +675,7 @@ proc ::struct::matrix::__add_row {name {values {}}} {
     foreach v $values {
 	if {$v != {}} {
 	    # Data changed unpredictably, invalidate cache
-	    catch {unset cw($c)}
+	    catch {unset colw($c)}
 	} ; # {else leave the row unchanged}
 	set data($c,$rows) $v
 	incr c
@@ -589,9 +703,9 @@ proc ::struct::matrix::__add_columns {name n} {
 	return -code error "A value of n <= 0 is not allowed"
     }
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
 
     # The new values set into the cell is always the empty
     # string. These have a length and height of 0, i.e. the don't
@@ -601,9 +715,9 @@ proc ::struct::matrix::__add_columns {name n} {
 
     while {$n > 0} {
 	for {set r 0} {$r < $rows} {incr r} {
-	    set data($cols,$r) ""
+	    set data($columns,$r) ""
 	}
-	incr cols
+	incr columns
 	incr n -1
     }
 
@@ -629,9 +743,9 @@ proc ::struct::matrix::__add_rows {name n} {
 	return -code error "A value of n <= 0 is not allowed"
     }
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
 
     # The new values set into the cell is always the empty
     # string. These have a length and height of 0, i.e. the don't
@@ -640,7 +754,7 @@ proc ::struct::matrix::__add_rows {name n} {
     # height caches.
 
     while {$n > 0} {
-	for {set c 0} {$c < $cols} {incr c} {
+	for {set c 0} {$c < $columns} {incr c} {
 	    set data($c,$rows) ""
 	}
 	incr rows
@@ -661,8 +775,8 @@ proc ::struct::matrix::__add_rows {name n} {
 #	The number of cells in the matrix.
 
 proc ::struct::matrix::_cells {name} {
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::columns columns
+    variable ${name}::rows
+    variable ${name}::columns
     return [expr {$rows * $columns}]
 }
 
@@ -683,7 +797,7 @@ proc ::struct::matrix::_cellsize {name column row} {
     set column [ChkColumnIndex $name $column]
     set row    [ChkRowIndex    $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data data
+    variable ${name}::data
     return [string length $data($column,$row)]
 }
 
@@ -699,7 +813,7 @@ proc ::struct::matrix::_cellsize {name column row} {
 #	The number of columns in the matrix.
 
 proc ::struct::matrix::_columns {name} {
-    upvar ::struct::matrix::matrix${name}::columns columns
+    variable ${name}::columns
     return $columns
 }
 
@@ -721,11 +835,11 @@ proc ::struct::matrix::_columns {name} {
 proc ::struct::matrix::_columnwidth {name column} {
     set column [ChkColumnIndex $name $column]
 
-    upvar ::struct::matrix::matrix${name}::colw cw
+    variable ${name}::colw
 
-    if {![info exists cw($column)]} {
-	upvar ::struct::matrix::matrix${name}::rows rows
-	upvar ::struct::matrix::matrix${name}::data data
+    if {![info exists colw($column)]} {
+	variable ${name}::rows
+	variable ${name}::data
 
 	set width 0
 	for {set r 0} {$r < $rows} {incr r} {
@@ -737,10 +851,10 @@ proc ::struct::matrix::_columnwidth {name column} {
 	    }
 	}
 
-	set cw($column) $width
+	set colw($column) $width
     }
 
-    return $cw($column)
+    return $colw($column)
 }
 
 # ::struct::matrix::__delete_column --
@@ -758,11 +872,11 @@ proc ::struct::matrix::_columnwidth {name column} {
 proc ::struct::matrix::__delete_column {name column} {
     set column [ChkColumnIndex $name $column]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::colw    cw
-    upvar ::struct::matrix::matrix${name}::rowh    rh
+    variable ${name}::data
+    variable ${name}::rows
+    variable ${name}::columns
+    variable ${name}::colw
+    variable ${name}::rowh
 
     # Move all data from the higher columns down and then delete the
     # superfluous data in the old last column. Move the data in the
@@ -770,17 +884,17 @@ proc ::struct::matrix::__delete_column {name column} {
     # Invalidate the height cache for all rows.
 
     for {set r 0} {$r < $rows} {incr r} {
-	for {set c $column; set cn [expr {$c + 1}]} {$cn < $cols} {incr c ; incr cn} {
+	for {set c $column; set cn [expr {$c + 1}]} {$cn < $columns} {incr c ; incr cn} {
 	    set data($c,$r) $data($cn,$r)
-	    if {[info exists cw($cn)]} {
-		set cw($c) $cw($cn)
-		unset cw($cn)
+	    if {[info exists colw($cn)]} {
+		set colw($c) $colw($cn)
+		unset colw($cn)
 	    }
 	}
 	unset data($c,$r)
-	catch {unset rh($r)}
+	catch {unset rowh($r)}
     }
-    incr cols -1
+    incr columns -1
     return
 }
 
@@ -799,27 +913,27 @@ proc ::struct::matrix::__delete_column {name column} {
 proc ::struct::matrix::__delete_row {name row} {
     set row [ChkRowIndex $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::colw    cw
-    upvar ::struct::matrix::matrix${name}::rowh    rh
+    variable ${name}::data
+    variable ${name}::rows
+    variable ${name}::columns
+    variable ${name}::colw
+    variable ${name}::rowh
 
     # Move all data from the higher rows down and then delete the
     # superfluous data in the old last row. Move the data in the
     # height cache too, take partial fill into account there too.
     # Invalidate the width cache for all columns.
 
-    for {set c 0} {$c < $cols} {incr c} {
+    for {set c 0} {$c < $columns} {incr c} {
 	for {set r $row; set rn [expr {$r + 1}]} {$rn < $rows} {incr r ; incr rn} {
 	    set data($c,$r) $data($c,$rn)
-	    if {[info exists rh($rn)]} {
-		set rh($r) $rh($rn)
-		unset rh($rn)
+	    if {[info exists rowh($rn)]} {
+		set rowh($r) $rowh($rn)
+		unset rowh($rn)
 	    }
 	}
 	unset data($c,$r)
-	catch {unset cw($c)}
+	catch {unset colw($c)}
     }
     incr rows -1
     return
@@ -836,7 +950,7 @@ proc ::struct::matrix::__delete_row {name row} {
 #	None.
 
 proc ::struct::matrix::_destroy {name} {
-    upvar ::struct::matrix::matrix${name}::link link
+    variable ${name}::link
 
     # Unlink all existing arrays before destroying the object so that
     # we don't leave dangling references / traces.
@@ -845,8 +959,8 @@ proc ::struct::matrix::_destroy {name} {
 	_unlink $name $avar
     }
 
-    namespace delete ::struct::matrix::matrix$name
-    interp alias {} ::$name {}
+    namespace delete $name
+    interp alias {}  $name {}
 }
 
 # ::struct::matrix::__format_2string --
@@ -931,7 +1045,7 @@ proc ::struct::matrix::__format_2chan {name {report {}} {chan stdout}} {
     return
 }
 
-# ::struct::matrix::__get_dell --
+# ::struct::matrix::__get_cell --
 #
 #	Returns the value currently contained in the cell identified
 #	by row and column index.
@@ -948,7 +1062,7 @@ proc ::struct::matrix::__get_cell {name column row} {
     set column [ChkColumnIndex $name $column]
     set row    [ChkRowIndex    $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data data
+    variable ${name}::data
     return $data($column,$row)
 }
 
@@ -967,9 +1081,12 @@ proc ::struct::matrix::__get_cell {name column row} {
 
 proc ::struct::matrix::__get_column {name column} {
     set column [ChkColumnIndex $name $column]
+    return     [GetColumn      $name $column]
+}
 
-    upvar ::struct::matrix::matrix${name}::data data
-    upvar ::struct::matrix::matrix${name}::rows rows
+proc ::struct::matrix::GetColumn {name column} {
+    variable ${name}::data
+    variable ${name}::rows
 
     set result [list]
     for {set r 0} {$r < $rows} {incr r} {
@@ -1015,7 +1132,7 @@ proc ::struct::matrix::__get_rect {name column_tl row_tl column_br row_br} {
 	return -code error "Invalid cell indices, wrong ordering"
     }
 
-    upvar ::struct::matrix::matrix${name}::data data
+    variable ${name}::data
     set result [list]
 
     for {set r $row_tl} {$r <= $row_br} {incr r} {
@@ -1044,12 +1161,15 @@ proc ::struct::matrix::__get_rect {name column_tl row_tl column_br row_br} {
 
 proc ::struct::matrix::__get_row {name row} {
     set row [ChkRowIndex $name $row]
+    return  [GetRow      $name $row]
+}
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
+proc ::struct::matrix::GetRow {name row} {
+    variable ${name}::data
+    variable ${name}::columns
 
     set result [list]
-    for {set c 0} {$c < $cols} {incr c} {
+    for {set c 0} {$c < $columns} {incr c} {
 	lappend result $data($c,$row)
     }
     return $result
@@ -1082,16 +1202,18 @@ proc ::struct::matrix::__insert_column {name column {values {}}} {
     # Allow both negative and too big indices.
     set column [ChkColumnIndexAll $name $column]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::rowh    rh
+    variable ${name}::columns
 
-    if {$column > $cols} {
+    if {$column > $columns} {
 	# Same as 'addcolumn'
 	__add_column $name $values
 	return
     }
+
+    variable ${name}::data
+    variable ${name}::rows
+    variable ${name}::rowh
+    variable ${name}::colw
 
     set firstcol $column
     if {$firstcol < 0} {
@@ -1119,17 +1241,17 @@ proc ::struct::matrix::__insert_column {name column {values {}}} {
     # Invalidate the height cache for all rows.
 
     for {set r 0} {$r < $rows} {incr r} {
-	for {set cn $cols ; set c [expr {$cn - 1}]} {$c >= $firstcol} {incr c -1 ; incr cn -1} {
+	for {set cn $columns ; set c [expr {$cn - 1}]} {$c >= $firstcol} {incr c -1 ; incr cn -1} {
 	    set data($cn,$r) $data($c,$r)
-	    if {[info exists cw($c)]} {
-		set cw($cn) $cw($c)
-		unset cw($c)
+	    if {[info exists colw($c)]} {
+		set colw($cn) $colw($c)
+		unset colw($c)
 	    }
 	}
 	set data($firstcol,$r) [lindex $values $r]
-	catch {unset rh($r)}
+	catch {unset rowh($r)}
     }
-    incr cols
+    incr columns
     return
 }
 
@@ -1159,10 +1281,7 @@ proc ::struct::matrix::__insert_row {name row {values {}}} {
     # Allow both negative and too big indices.
     set row [ChkRowIndexAll $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::rowh    rh
+    variable ${name}::rows
 
     if {$row > $rows} {
 	# Same as 'addrow'
@@ -1170,20 +1289,25 @@ proc ::struct::matrix::__insert_row {name row {values {}}} {
 	return
     }
 
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rowh
+    variable ${name}::colw
+
     set firstrow $row
     if {$firstrow < 0} {
 	set firstrow 0
     }
 
-    if {[set l [llength $values]] < $cols} {
+    if {[set l [llength $values]] < $columns} {
 	# Missing values. Fill up with empty strings
 
-	for {} {$l < $cols} {incr l} {
+	for {} {$l < $columns} {incr l} {
 	    lappend values {}
 	}
-    } elseif {[llength $values] > $cols} {
+    } elseif {[llength $values] > $columns} {
 	# To many values. Remove the superfluous items
-	set values [lrange $values 0 [expr {$cols - 1}]]
+	set values [lrange $values 0 [expr {$columns - 1}]]
     }
 
     # "values" now contains the information to set into the array.
@@ -1195,16 +1319,16 @@ proc ::struct::matrix::__insert_row {name row {values {}}} {
     # height cache too, take partial fill into account there too.
     # Invalidate the width cache for all columns.
 
-    for {set c 0} {$c < $cols} {incr c} {
+    for {set c 0} {$c < $columns} {incr c} {
 	for {set rn $rows ; set r [expr {$rn - 1}]} {$r >= $firstrow} {incr r -1 ; incr rn -1} {
 	    set data($c,$rn) $data($c,$r)
-	    if {[info exists rh($r)]} {
-		set rh($rn) $rh($r)
-		unset rh($r)
+	    if {[info exists rowh($r)]} {
+		set rowh($rn) $rowh($r)
+		unset rowh($r)
 	    }
 	}
 	set data($c,$firstrow) [lindex $values $c]
-	catch {unset cw($c)}
+	catch {unset colw($c)}
     }
     incr rows
     return
@@ -1251,7 +1375,7 @@ proc ::struct::matrix::_link {name args} {
 	}
     }
 
-    upvar ::struct::matrix::matrix${name}::link link
+    variable ${name}::link
 
     if {[info exists link($variable)]} {
 	return -code error "$name link: Variable \"$variable\" already linked to matrix"
@@ -1264,7 +1388,7 @@ proc ::struct::matrix::_link {name args} {
     set link($variable) $transpose
 
     upvar #0 $variable array
-    upvar ::struct::matrix::matrix${name}::data data
+    variable ${name}::data
 
     foreach key [array names data] {
 	foreach {c r} [split $key ,] break
@@ -1292,7 +1416,7 @@ proc ::struct::matrix::_link {name args} {
 #	List of variables the matrix is linked to.
 
 proc ::struct::matrix::_links {name} {
-    upvar ::struct::matrix::matrix${name}::link link
+    variable ${name}::link
     return [array names link]
 }
 
@@ -1312,23 +1436,23 @@ proc ::struct::matrix::_links {name} {
 proc ::struct::matrix::_rowheight {name row} {
     set row [ChkRowIndex $name $row]
 
-    upvar ::struct::matrix::matrix${name}::rowh rh
+    variable ${name}::rowh
 
-    if {![info exists rh($row)]} {
-	upvar ::struct::matrix::matrix${name}::columns cols
-	upvar ::struct::matrix::matrix${name}::data data
+    if {![info exists rowh($row)]} {
+	variable ${name}::columns
+	variable ${name}::data
 
 	set height 1
-	for {set c 0} {$c < $cols} {incr c} {
+	for {set c 0} {$c < $columns} {incr c} {
 	    set cheight [llength [split $data($c,$row) \n]]
 	    if {$cheight > $height} {
 		set height $cheight
 	    }
 	}
 
-	set rh($row) $height
+	set rowh($row) $height
     }
-    return $rh($row)
+    return $rowh($row)
 }
 
 # ::struct::matrix::_rows --
@@ -1342,7 +1466,7 @@ proc ::struct::matrix::_rowheight {name row} {
 #	The number of rows in the matrix.
 
 proc ::struct::matrix::_rows {name} {
-    upvar ::struct::matrix::matrix${name}::rows rows
+    variable ${name}::rows
     return $rows
 }
 
@@ -1364,7 +1488,7 @@ proc ::struct::matrix::__set_cell {name column row value} {
     set column [ChkColumnIndex $name $column]
     set row    [ChkRowIndex    $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data data
+    variable ${name}::data
 
     if {![string compare $value $data($column,$row)]} {
 	# No change, ignore call!
@@ -1374,8 +1498,8 @@ proc ::struct::matrix::__set_cell {name column row value} {
     set data($column,$row) $value
 
     if {$value != {}} {
-	upvar ::struct::matrix::matrix${name}::colw colw
-	upvar ::struct::matrix::matrix${name}::rowh rowh
+	variable ${name}::colw
+	variable ${name}::rowh
 	catch {unset colw($column)}
 	catch {unset rowh($row)}
     }
@@ -1404,11 +1528,11 @@ proc ::struct::matrix::__set_cell {name column row value} {
 proc ::struct::matrix::__set_column {name column values} {
     set column [ChkColumnIndex $name $column]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::rowh    rh
-    upvar ::struct::matrix::matrix${name}::colw    cw
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
+    variable ${name}::rowh
+    variable ${name}::colw
 
     if {[set l [llength $values]] < $rows} {
 	# Missing values. Fill up with empty strings
@@ -1432,12 +1556,12 @@ proc ::struct::matrix::__set_column {name column values} {
     foreach v $values {
 	if {$v != {}} {
 	    # Data changed unpredictably, invalidate cache
-	    catch {unset rh($r)}
+	    catch {unset rowh($r)}
 	} ; # {else leave the row unchanged}
 	set data($column,$r) $v
 	incr r
     }
-    catch {unset cw($column)}
+    catch {unset colw($column)}
     return
 }
 
@@ -1468,11 +1592,11 @@ proc ::struct::matrix::__set_rect {name column row values} {
     set column [ChkColumnIndexNeg $name $column]
     set row    [ChkRowIndexNeg    $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::colw    colw
-    upvar ::struct::matrix::matrix${name}::rowh    rowh
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
+    variable ${name}::colw
+    variable ${name}::rowh
 
     if {$row < 0} {
 	# Remove rows from the head of values to restrict it to the
@@ -1503,14 +1627,14 @@ proc ::struct::matrix::__set_rect {name column row values} {
 	set line [lrange $line $firstcol end]
 
 	set l [expr {$column + [llength $line]}]
-	if {$l > $cols} {
-	    set line [lrange $line 0 [expr {$cols - $column - 1}]]
-	} elseif {$l < [expr {$cols - $firstcol}]} {
+	if {$l > $columns} {
+	    set line [lrange $line 0 [expr {$columns - $column - 1}]]
+	} elseif {$l < [expr {$columns - $firstcol}]} {
 	    # We have to take the offset into the line into account
 	    # or we add fillers we don't need, overwriting part of the
 	    # data array we shouldn't.
 
-	    for {} {$l < [expr {$cols - $firstcol}]} {incr l} {
+	    for {} {$l < [expr {$columns - $firstcol}]} {incr l} {
 		lappend line {}
 	    }
 	}
@@ -1518,8 +1642,8 @@ proc ::struct::matrix::__set_rect {name column row values} {
 	set c $column
 	foreach cell $line {
 	    if {$cell != {}} {
-		catch {unset rh($r)}
-		catch {unset cw($c)}
+		catch {unset rowh($r)}
+		catch {unset colw($c)}
 	    }
 	    set data($c,$r) $cell
 	    incr c
@@ -1552,21 +1676,21 @@ proc ::struct::matrix::__set_rect {name column row values} {
 proc ::struct::matrix::__set_row {name row values} {
     set row [ChkRowIndex $name $row]
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rows    rows
-    upvar ::struct::matrix::matrix${name}::colw    cw
-    upvar ::struct::matrix::matrix${name}::rowh    rh
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rows
+    variable ${name}::colw
+    variable ${name}::rowh
 
-    if {[set l [llength $values]] < $cols} {
+    if {[set l [llength $values]] < $columns} {
 	# Missing values. Fill up with empty strings
 
-	for {} {$l < $cols} {incr l} {
+	for {} {$l < $columns} {incr l} {
 	    lappend values {}
 	}
-    } elseif {[llength $values] > $cols} {
+    } elseif {[llength $values] > $columns} {
 	# To many values. Remove the superfluous items
-	set values [lrange $values 0 [expr {$cols - 1}]]
+	set values [lrange $values 0 [expr {$columns - 1}]]
     }
 
     # "values" now contains the information to set into the array.
@@ -1580,12 +1704,12 @@ proc ::struct::matrix::__set_row {name row values} {
     foreach v $values {
 	if {$v != {}} {
 	    # Data changed unpredictably, invalidate cache
-	    catch {unset cw($c)}
+	    catch {unset colw($c)}
 	} ; # {else leave the row unchanged}
 	set data($c,$row) $v
 	incr c
     }
-    catch {unset rh($row)}
+    catch {unset rowh($row)}
     return
 }
 
@@ -1604,10 +1728,13 @@ proc ::struct::matrix::__set_row {name row values} {
 proc ::struct::matrix::__swap_columns {name column_a column_b} {
     set column_a [ChkColumnIndex $name $column_a]
     set column_b [ChkColumnIndex $name $column_b]
+    return [SwapColumns $name $column_a $column_b]
+}
 
-    upvar ::struct::matrix::matrix${name}::data data
-    upvar ::struct::matrix::matrix${name}::rows rows
-    upvar ::struct::matrix::matrix${name}::colw colw
+proc ::struct::matrix::SwapColumns {name column_a column_b} {
+    variable ${name}::data
+    variable ${name}::rows
+    variable ${name}::colw
 
     # Note: This operation does not influence the height cache for all
     # rows and the width cache only insofar as its contents has to be
@@ -1655,10 +1782,13 @@ proc ::struct::matrix::__swap_columns {name column_a column_b} {
 proc ::struct::matrix::__swap_rows {name row_a row_b} {
     set row_a [ChkRowIndex $name $row_a]
     set row_b [ChkRowIndex $name $row_b]
+    return [SwapRows $name $row_a $row_b]
+}
 
-    upvar ::struct::matrix::matrix${name}::data    data
-    upvar ::struct::matrix::matrix${name}::columns cols
-    upvar ::struct::matrix::matrix${name}::rowh    rowh
+proc ::struct::matrix::SwapRows {name row_a row_b} {
+    variable ${name}::data
+    variable ${name}::columns
+    variable ${name}::rowh
 
     # Note: This operation does not influence the width cache for all
     # columns and the height cache only insofar as its contents has to be
@@ -1666,7 +1796,7 @@ proc ::struct::matrix::__swap_rows {name row_a row_b} {
     # cache might be partially filled or not at all, so we don't have
     # to "swap" in some situations.
 
-    for {set c 0} {$c < $cols} {incr c} {
+    for {set c 0} {$c < $columns} {incr c} {
 	set tmp             $data($c,$row_a)
 	set data($c,$row_a) $data($c,$row_b)
 	set data($c,$row_b) $tmp
@@ -1705,7 +1835,7 @@ proc ::struct::matrix::__swap_rows {name row_a row_b} {
 
 proc ::struct::matrix::_unlink {name avar} {
 
-    upvar ::struct::matrix::matrix${name}::link link
+    variable ${name}::link
 
     if {![info exists link($avar)]} {
 	# Ignore unlinking of unkown variables.
@@ -1715,8 +1845,8 @@ proc ::struct::matrix::_unlink {name avar} {
     # Delete the traces first, then remove the link management
     # information from the object.
 
-    upvar #0 $avar array
-    upvar ::struct::matrix::matrix${name}::data data
+    upvar #0 $avar    array
+    variable ${name}::data
 
     trace vdelete array wu [list ::struct::matrix::MatTraceIn  $avar $name]
     trace vdelete date  w  [list ::struct::matrix::MatTraceOut $avar $name]
@@ -1739,25 +1869,25 @@ proc ::struct::matrix::_unlink {name avar} {
 #	The absolute index to the column
 
 proc ::struct::matrix::ChkColumnIndex {name column} {
-    upvar ::struct::matrix::matrix${name}::columns c
+    variable ${name}::columns
 
     switch -regex -- $column {
 	{end-[0-9]+} {
 	    set column [string map {end- ""} $column]
-	    set cc [expr {$c - 1 - $column}]
-	    if {($cc < 0) || ($cc >= $c)} {
+	    set cc [expr {$columns - 1 - $column}]
+	    if {($cc < 0) || ($cc >= $columns)} {
 		return -code error "bad column index end-$column, column does not exist"
 	    }
 	    return $cc
 	}
 	end {
-	    if {$c <= 0} {
+	    if {$columns <= 0} {
 		return -code error "bad column index $column, column does not exist"
 	    }
-	    return [expr {$c - 1}]
+	    return [expr {$columns - 1}]
 	}
 	{[0-9]+} {
-	    if {($column < 0) || ($column >= $c)} {
+	    if {($column < 0) || ($column >= $columns)} {
 		return -code error "bad column index $column, column does not exist"
 	    }
 	    return $column
@@ -1783,25 +1913,25 @@ proc ::struct::matrix::ChkColumnIndex {name column} {
 #	The absolute index to the row
 
 proc ::struct::matrix::ChkRowIndex {name row} {
-    upvar ::struct::matrix::matrix${name}::rows r
+    variable ${name}::rows
 
     switch -regex -- $row {
 	{end-[0-9]+} {
 	    set row [string map {end- ""} $row]
-	    set rr [expr {$r - 1 - $row}]
-	    if {($rr < 0) || ($rr >= $r)} {
+	    set rr [expr {$rows - 1 - $row}]
+	    if {($rr < 0) || ($rr >= $rows)} {
 		return -code error "bad row index end-$row, row does not exist"
 	    }
 	    return $rr
 	}
 	end {
-	    if {$r <= 0} {
+	    if {$rows <= 0} {
 		return -code error "bad row index $row, row does not exist"
 	    }
-	    return [expr {$r - 1}]
+	    return [expr {$rows - 1}]
 	}
 	{[0-9]+} {
-	    if {($row < 0) || ($row >= $r)} {
+	    if {($row < 0) || ($row >= $rows)} {
 		return -code error "bad row index $row, row does not exist"
 	    }
 	    return $row
@@ -1828,22 +1958,22 @@ proc ::struct::matrix::ChkRowIndex {name row} {
 #	The absolute index to the column
 
 proc ::struct::matrix::ChkColumnIndexNeg {name column} {
-    upvar ::struct::matrix::matrix${name}::columns c
+    variable ${name}::columns
 
     switch -regex -- $column {
 	{end-[0-9]+} {
 	    set column [string map {end- ""} $column]
-	    set cc [expr {$c - 1 - $column}]
-	    if {$cc >= $c} {
+	    set cc [expr {$columns - 1 - $column}]
+	    if {$cc >= $columns} {
 		return -code error "bad column index end-$column, column does not exist"
 	    }
 	    return $cc
 	}
 	end {
-	    return [expr {$c - 1}]
+	    return [expr {$columns - 1}]
 	}
 	{[0-9]+} {
-	    if {$column >= $c} {
+	    if {$column >= $columns} {
 		return -code error "bad column index $column, column does not exist"
 	    }
 	    return $column
@@ -1870,22 +2000,22 @@ proc ::struct::matrix::ChkColumnIndexNeg {name column} {
 #	The absolute index to the row
 
 proc ::struct::matrix::ChkRowIndexNeg {name row} {
-    upvar ::struct::matrix::matrix${name}::rows r
+    variable ${name}::rows
 
     switch -regex -- $row {
 	{end-[0-9]+} {
 	    set row [string map {end- ""} $row]
-	    set rr [expr {$r - 1 - $row}]
-	    if {$rr >= $r} {
+	    set rr [expr {$rows - 1 - $row}]
+	    if {$rr >= $rows} {
 		return -code error "bad row index end-$row, row does not exist"
 	    }
 	    return $rr
 	}
 	end {
-	    return [expr {$r - 1}]
+	    return [expr {$rows - 1}]
 	}
 	{[0-9]+} {
-	    if {$row >= $r} {
+	    if {$row >= $rows} {
 		return -code error "bad row index $row, row does not exist"
 	    }
 	    return $row
@@ -1911,16 +2041,16 @@ proc ::struct::matrix::ChkRowIndexNeg {name row} {
 #	The absolute index to the column
 
 proc ::struct::matrix::ChkColumnIndexAll {name column} {
-    upvar ::struct::matrix::matrix${name}::columns c
+    variable ${name}::columns
 
     switch -regex -- $column {
 	{end-[0-9]+} {
 	    set column [string map {end- ""} $column]
-	    set cc [expr {$c - 1 - $column}]
+	    set cc [expr {$columns - 1 - $column}]
 	    return $cc
 	}
 	end {
-	    return $c
+	    return $columns
 	}
 	{[0-9]+} {
 	    return $column
@@ -1946,16 +2076,16 @@ proc ::struct::matrix::ChkColumnIndexAll {name column} {
 #	The absolute index to the row
 
 proc ::struct::matrix::ChkRowIndexAll {name row} {
-    upvar ::struct::matrix::matrix${name}::rows r
+    variable ${name}::rows
 
     switch -regex -- $row {
 	{end-[0-9]+} {
 	    set row [string map {end- ""} $row]
-	    set rr [expr {$r - 1 - $row}]
+	    set rr [expr {$rows - 1 - $row}]
 	    return $rr
 	}
 	end {
-	    return $r
+	    return $rows
 	}
 	{[0-9]+} {
 	    return $row
@@ -1983,7 +2113,7 @@ proc ::struct::matrix::ChkRowIndexAll {name row} {
 proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # Propagate changes in the linked array back into the matrix.
 
-    upvar ::struct::matrix::matrix${name}::lock lock
+    variable ${name}::lock
     if {$lock} {return}
 
     # We have to cover two possibilities when encountering an "unset" operation ...
@@ -1997,9 +2127,9 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
 	return
     }
 
-    upvar #0 $avar                              array
-    upvar ::struct::matrix::matrix${name}::data data
-    upvar ::struct::matrix::matrix${name}::link link
+    upvar #0 $avar    array
+    variable ${name}::data
+    variable ${name}::link
 
     set transpose $link($avar)
     if {$transpose} {
@@ -2021,7 +2151,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
 	# all of this we use another state variable to
 	# signal this situation.
 
-	upvar ::struct::matrix::matrix${name}::unset unset
+	variable ${name}::unset
 	set unset $avar
 
 	$name set cell $c $r ""
@@ -2049,7 +2179,7 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
 proc ::struct::matrix::MatTraceOut {avar name var idx op} {
     # Propagate changes in the matrix data array into the linked array.
 
-    upvar ::struct::matrix::matrix${name}::unset unset
+    variable ${name}::unset
 
     if {![string compare $avar $unset]} {
 	# Do not change the variable currently unsetting
@@ -2057,12 +2187,12 @@ proc ::struct::matrix::MatTraceOut {avar name var idx op} {
 	return
     }
 
-    upvar ::struct::matrix::matrix${name}::lock lock
+    variable ${name}::lock
     set lock 1 ; # Disable MatTraceIn [#532783]
 
-    upvar #0 $avar                              array
-    upvar ::struct::matrix::matrix${name}::data data
-    upvar ::struct::matrix::matrix${name}::link link
+    upvar #0 $avar    array
+    variable ${name}::data
+    variable ${name}::link
 
     set transpose $link($avar)
 
@@ -2085,5 +2215,63 @@ proc ::struct::matrix::MatTraceOut {avar name var idx op} {
     return
 }
 
+# ::struct::matrix::SortMaxHeapify --
+#
+#	Helper for the 'sort' method. Performs the central algorithm
+#	which converts the matrix into a heap, easily sortable.
+#
+# Arguments:
+#	name	Matrix object which is sorted.
+#	i	Index of the row/column currently being sorted.
+#	key	Index of the column/row to sort the rows/columns by.
+#	rowCol	Indicator if we are sorting rows ('r'), or columns ('c').
+#	heapSize Number of rows/columns to sort.
+#	rev	Boolean flag, set if sorting is done revers (-decreasing).
+#
+# Sideeffects:
+#	Transforms the matrix into a heap of rows/columns,
+#	swapping them around.
+#
+# Results:
+#	None.
 
+proc ::struct::matrix::SortMaxHeapify {name i key rowCol heapSize {rev 0}} {
+    # MAX-HEAPIFY, adapted by EAS from CLRS 6.2
+    switch  $rowCol {
+	r { set A [GetColumn $name $key] }
+	c { set A [GetRow    $name $key] }
+    }
+    # Weird expressions below for clarity, as CLRS uses A[1...n]
+    # format and TCL uses A[0...n-1]
+    set left  [expr {int(2*($i+1)    -1)}]
+    set right [expr {int(2*($i+1)+1  -1)}]
 
+    # left, right are tested as < rather than <= because they are
+    # in A[0...n-1]
+    if {
+	$left < $heapSize &&
+	( !$rev && [lindex $A $left] > [lindex $A $i] ||
+	   $rev && [lindex $A $left] < [lindex $A $i] )
+    } {
+	set largest $left
+    } else {
+	set largest $i
+    }
+
+    if {
+	$right < $heapSize &&
+	( !$rev && [lindex $A $right] > [lindex $A $largest] ||
+	   $rev && [lindex $A $right] < [lindex $A $largest] )
+    } {
+	set largest $right
+    }
+
+    if { $largest != $i } {
+	switch $rowCol {
+	    r { SwapRows    $name $i $largest }
+	    c { SwapColumns $name $i $largest }
+	}
+	SortMaxHeapify $name $largest $key $rowCol $heapSize $rev
+    }
+    return
+}

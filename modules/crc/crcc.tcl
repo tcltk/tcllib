@@ -6,12 +6,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crcc.tcl,v 1.1 2003/05/09 20:33:07 patthoyts Exp $
+# $Id: crcc.tcl,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require critcl 
 
 namespace eval ::crc {
-    variable rcsid {$Id: crcc.tcl,v 1.1 2003/05/09 20:33:07 patthoyts Exp $}
+    variable rcsid {$Id: crcc.tcl,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $}
 }
 
 package provide crcc 1.0.0

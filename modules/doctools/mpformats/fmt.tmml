@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.15 2003/03/12 04:48:44 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.16 2004/01/15 06:36:12 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.

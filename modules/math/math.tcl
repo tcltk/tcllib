@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.17 2003/05/01 00:17:41 andreas_kupries Exp $
+# RCS: @(#) $Id: math.tcl,v 1.18 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 

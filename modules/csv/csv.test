@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.10 2003/05/01 22:40:14 patthoyts Exp $
+# RCS: @(#) $Id: csv.test,v 1.11 2004/01/15 06:36:12 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package

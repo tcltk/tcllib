@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.18 2003/10/22 19:43:27 davidw Exp $
+# $Id: irc.tcl,v 1.19 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package provide irc 0.4
 package require Tcl 8.3

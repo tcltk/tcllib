@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.16 2003/06/16 19:01:40 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.17 2004/01/15 06:36:13 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

@@ -29,7 +29,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: rdate.tcl,v 1.1 2003/03/17 23:34:58 patthoyts Exp $
+# $Id: rdate.tcl,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require time;                   # tcllib 1.4
 
