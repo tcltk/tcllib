@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.12 2000/03/09 00:07:40 ericm Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.13 2000/03/09 19:44:30 ericm Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -35,7 +35,7 @@ PROFILER=profiler
 POP3=pop3
 
 # CGI input processing
-CGI=cgi
+#CGI=cgi
 
 # MIME encoder/decoder and SMTP package
 # These are modified/hacked to have a soft requirement for Trf:
@@ -44,15 +44,14 @@ MIME=mime
 
 MODULES= \
 	$(BASE64)	\
+	$(CGI)		\
 	$(CMDLINE)	\
 	$(STRUCT)	\
 	$(FILEUTIL)	\
-	$(MATH)	\
+	$(MATH)		\
 	$(MIME)		\
 	$(POP3)		\
-	$(PROFILER)	\
-	$(MIME)	\
-	$(CGI)
+	$(PROFILER)
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -167,6 +166,7 @@ install-doc: doc
 	$(INSTALL_DATA) man.macros $(mandir)
 
 test:
+	$(TCLSH_PROG) all.tcl -modules "$(MODULES)"
 
 depend:
 
