@@ -1,3 +1,8 @@
+2004-07-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl:     Cleaned up some hardcoded settings left from
+	                development. (oops).
+
 2004-07-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtp.tcl:     Added SASL mechanism DIGEST-MD5 authentication
