@@ -1,7 +1,7 @@
-#!/bin/sh
-# the next line restarts using wish \
-exec wish8.3 "$0" -- "$@"
-#
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
 #  - homepage update program using FTP -
 #
 #   Required:   tcl/tk8.2
@@ -31,6 +31,7 @@ exec wish8.3 "$0" -- "$@"
 ########################################################################
 
 # load required FTP package library 
+package require Tcl 8.3
 package require ftp 2.0
 package require Tk
 if {![llength [info commands tkButtonInvoke]]} {
