@@ -1,3 +1,43 @@
+2005-02-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tmc:           Added basic magic compiler, and script to
+	* regenerate.sh: regenerate the recognizers.
+
+	* filetypes.tcl:  Added general recognizer for file types,
+	* filetypes.man:  tests, and documentation for it.
+	* filetypes.test: WARNING. This recognizer is LARGE.
+
+2005-02-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rtcore.tcl: Added the Nvx, Nx, and Sx commands to handle the
+	  generation of location data for use by the R command for the
+	  handling of relative addressing.
+
+	* cgen.tcl:
+	* rtcore.tcl: Rewritten the intialization of the typemap, fixing
+	  bugs in the definition of the types using native byteorder
+	  instead of explicitly specified big/little endian.
+
+	* mimetypes,man: Added REFERENCES section, and olisted url where
+	  Colin found the sources of file(1) and of the magic files used.
+
+2005-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rtcore.tcl: Added commands I, R, and L to support indirect and
+	  relative adressing.
+
+	* cgen.tcl: Rewrote the whole offset handling in the generator, to
+	  support all types of offsets, i.e relative, indirect and
+	  indirect relative ones. A new stage now parses all offsets into
+	  standard components. The treegen stage then assembles proper
+	  base handling using new rtcore commands (I, R). Also now saving
+	  indicators about which branches actually need saving of field
+	  locations for relative adressing, this is used to optimize usage
+	  of check commands with saving (Nx, Sx, Nvx), and when to
+	  regenerate the level information (L). The latter is an implicit
+	  variable in the generated recognizer procedure, accessed via
+	  'upvar 1' from the runtime commands.
+
 2005-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cfront.tcl: More fixes and 8.5 feature removal for the

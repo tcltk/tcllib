@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cgen.tcl,v 1.3 2005/02/15 07:45:01 andreas_kupries Exp $
+# RCS: @(#) $Id: cgen.tcl,v 1.4 2005/02/18 06:38:32 andreas_kupries Exp $
 
 #####
 #
@@ -44,8 +44,18 @@ namespace eval ::fileutil::magic::cgen {
     # Generator data structure.
     variable regions
 
-    namespace export 2tree treedump treegen
+    # Type mapping for indirect offsets.
+    # empty -> long/Q, because this uses native byteorder.
 
+    array set otmap {
+        .b c    .B c
+        .s s    .S S
+        .l i    .L I
+	{} Q
+    }
+
+    # Export the API
+    namespace export 2tree treedump treegen
 }
 
 
@@ -176,6 +186,11 @@ proc ::fileutil::magic::cgen::2tree {script} {
     #optStr $tree root
     puts stderr "Script contains [llength [$tree children root]] discriminators"
     path $tree
+
+    # Decoding the offsets, determination if we have to handle
+    # relative offsets, and where. The less, the better.
+    Offsets $tree
+
     return $tree
 }
 
@@ -285,7 +300,10 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
 	foreach n $nodes {
 	    set nv [expr [$tree get $n val]]
 	    if {[info exists matcher($nv)]} {
-		puts stderr "Node <[$tree getall $n]> clashes with <[$tree getall $matcher($nv)]>"
+		puts stderr "*====================================="
+		puts stderr "* Node         <[$tree getall $n]>"
+		puts stderr "* clashes with <[$tree getall $matcher($nv)]>"
+		puts stderr "*====================================="
 	    } else {
 		set matcher($nv) $n
 	    }
@@ -309,29 +327,164 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
     }
 }
 
+proc ::fileutil::magic::cgen::Offsets {tree} {
+
+    # Indicator if a node has to save field location information for
+    # relative addressing. The 'kill' attribute is an accumulated
+    # 'save' over the whole subtree. It will be used to determine when
+    # level information was destroyed by subnodes and has to be
+    # regenerated at the current level.
+
+    $tree walk root -type dfs node {
+	$tree set $node save 0
+	$tree set $node kill 0
+    }
+
+    # We walk from the leafs up to the root, synthesizing the data
+    # needed, as we go.
+    $tree walk root -type dfs -order post node {
+	if {$node eq "root"} continue
+	DecodeOffset $tree $node [$tree get $node offset]
+
+	# If the current node's parent is a switch, and the node has
+	# to save, then the switch has to save. Because the current
+	# node is not relevant during code generation anymore, the
+	# switch is.
+
+	if {[$tree get $node save]} {
+	    # We save, therefore we kill.
+	    $tree set $node kill 1
+	    if {[$tree get [$tree parent $node] otype] eq "Switch"} {
+		$tree set [$tree parent $node] save 1
+	    }
+	} else {
+	    # We don't save i.e. kill, but we may inherit it from
+	    # children which kill.
+
+	    foreach c [$tree children $node] {
+		if {[$tree get $c kill]} {
+		    $tree set $node kill 1
+		    break
+		}
+	    }
+	}
+    }
+}
+
+proc ::fileutil::magic::cgen::DecodeOffset {tree node offset} {
+    if {[string match "(*)" $offset]} {
+	# Indirection offset. (Decoding is non-trivial, therefore
+	# packed into a proc).
+
+	set ind 1 ; # Indirect location
+	foreach {rel base itype idelta} [DecodeIndirectOffset $offset] break
+
+    } elseif {[string match "&*" $offset]} {
+	# Direct relative offset. (Decoding is trivial)
+
+	set ind    0       ; # Direct location
+	set rel    1       ; # Relative
+	set base   [string range $offset 1 end] ; # Base Delta
+	set itype  {}      ; # No data for indirect
+	set idelta {}      ; # s.a.
+
+    } else {
+	set ind    0       ; # Direct location
+	set rel    0       ; # Absolute
+	set base   $offset ; # Here!
+	set itype  {}      ; # No data for indirect
+	set idelta {}      ; # s.a.
+    }
+
+    # Store the expanded data back into the tree.
+
+    foreach v {ind rel base itype idelta} {
+	$tree set $node $v [set $v]
+    }
+
+    # For nodes with adressing relative to last field above the latter
+    # has to save this information.
+
+    if {$rel} {
+	$tree set [$tree parent $node] save 1
+    }
+    return
+}
+
+proc ::fileutil::magic::cgen::DecodeIndirectOffset {offset} {
+    variable otmap ; # Offset typemap.
+
+    # Offset parser.
+    # Syntax:
+    #   ( ?&? number ?.[bslBSL]? ?[+-]? ?number? )
+
+    set n {(([0-9]+)|(0x[0-9A-Fa-f]+))}
+    set o "\\((&?)(${n})((\\.\[bslBSL])?)(\[+-]?)(${n}?)\\)"
+    #         |   | ||| ||               |       | |||
+    #         1   2 345 67               8       9 012
+    #         ^   ^     ^                ^       ^
+    #         rel base  type             sign    index
+    #
+    #                            1   2    3 4 5 6    7 8    9   0 1 2
+    set ok [regexp $o $offset -> rel base _ _ _ type _ sign idx _ _ _]
+
+    if {!$ok} {
+        return -code error "Bad offset \"$offset\""
+    }
+
+    # rel is in {"", &}, map to 0|1
+    if {$rel eq ""} {set rel 0} else {set rel 1}
+
+    # base is a number, enforce decimal. Not optional.
+    set base [expr $base]
+
+    # Type is in .b .s .l .B .S .L, and "". Map to a regular magic
+    # type code.
+    set type $otmap($type)
+
+    # sign is in {+,-,""}. Map to -|"" (Becomes sign of index)
+    if {$sign eq "+"} {set sign ""}
+
+    # Index is optional number. Enforce decimal, empty is zero. Add in
+    # the sign as well for a proper signed index.
+
+    if {$idx eq ""} {set idx 0}
+    set idx $sign[expr $idx]
+
+    return [list $rel $base $type $idx]
+}
+
 proc ::fileutil::magic::cgen::treedump {tree} {
     set result ""
     $tree walk root -type dfs node {
 	set path  [$tree get $node path]
 	set depth [llength $path]
 
-	append result [string repeat "  " $depth] [list $path] ": " [$tree get $node type]
+	append result [string repeat "  " $depth] [list $path] ": " [$tree get $node type]:
 
 	if {[$tree keyexists $node offset]} {
-	    append result ,[$tree get $node offset]
+	    append result " ,O|[$tree get $node offset]|"
+
+	    set x {}
+	    foreach v {ind rel base itype idelta} {lappend x [$tree get $node $v]}
+	    append result "=<[join $x !]>"
 	}
 	if {[$tree keyexists $node qual]} {
 	    set q [$tree get $node qual]
 	    if {$q ne ""} {
-		append result ,$q
+		append result " ,q/$q/"
 	    }
 	}
 
 	if {[$tree keyexists $node comp]} {
-	    append result [$tree get $node comp]
+	    append result " " C([$tree get $node comp])
 	}
 	if {[$tree keyexists $node val]} {
-	    append result [$tree get $node val]
+	    append result " " V([$tree get $node val])
+	}
+
+	if {[$tree keyexists $node otype]} {
+	    append result " " [$tree get $node otype]/[$tree get $node save]
 	}
 
 	if {$depth == 1} {
@@ -363,32 +516,37 @@ proc ::fileutil::magic::cgen::treegen1 {tree node} {
     variable ::fileutil::magic::rt::typemap
 
     set result ""
-    foreach k {otype type offset comp val qual message} {
+    foreach k {otype type offset comp val qual message save path} {
 	if {[$tree keyexists $node $k]} {
 	    set $k [$tree get $node $k]
 	}
     }
 
-    if {$otype eq "N"} {
-	set type [list N $type]
-    } elseif {$otype eq "S"} {
-	set type S
-    }
+    set level [llength $path]
 
     # Generate code for each node per its type.
 
     switch $otype {
 	N -
 	S {
-	    # this is a complex offset - call the offset interpreter
-	    # NOTE: The offset interpreter is currently not implemented.
-
-	    if {[string match "(*)" $offset]} {
-		set offset "\[offset $offset\]"
-		puts "WARNING: This magic makes use of the complex offset interpreter."
-		puts "WARNING: A feature not implemented by the runtime core."
-		puts "WARNING: Recognition results may be incorrect."
+	    if {$save} {
+		# We have to save field data for relative adressing under this
+		# leaf.
+		if {$otype eq "N"} {
+		    set type [list Nx $level $type]
+		} elseif {$otype eq "S"} {
+		    set type [list Sx $level]
+		}
+	    } else {
+		# Regular fetching of information.
+		if {$otype eq "N"} {
+		    set type [list N $type]
+		} elseif {$otype eq "S"} {
+		    set type S
+		}
 	    }
+
+	    set offset [GenerateOffset $tree $node]
 
 	    if {$qual eq ""} {
 		append result "if \{\[$type $offset $comp [list $val]\]\} \{"
@@ -403,11 +561,25 @@ proc ::fileutil::magic::cgen::treegen1 {tree node} {
 		    append result "emit [$tree get $node path]"
 		}
 	    } else {
+		# If we saved data the child branches may destroy
+		# level information. We regenerate it if needed.
+
 		if {$message ne ""} {
 		    append result "emit [list $message]\n"
 		}
+
+		set killed 0
 		foreach child [$tree children $node] {
+		    if {$save && $killed && [$tree get $child rel]} {
+			# This location already does not regenerate if
+			# the killing subnode was last. We also do not
+			# need to regenerate if the current subnode
+			# does not use relative adressing.
+			append result "L $level;"
+			set killed 0
+		    }
 		    append result [treegen1 $tree $child]
+		    set killed [expr {$killed || [$tree get $child kill]}]
 		}
 		#append result "\nreturn \$result"
 	    }
@@ -420,40 +592,78 @@ proc ::fileutil::magic::cgen::treegen1 {tree node} {
 	    }
 	}
 	Switch {
-	    # this is a complex offset - call the offset interpreter
-	    if {[string match "(*)" $offset]} {
-		set offset "\[offset $offset\]"
-		puts "WARNING: This magic makes use of the complex offset interpreter."
-		puts "WARNING: A feature not implemented by the runtime core."
-		puts "WARNING: Recognition results may be incorrect."
+	    set offset [GenerateOffset $tree $node]
+
+	    if {$save} {
+		set fetch "Nvx $level"
+	    } else {
+		set fetch Nv
 	    }
 
-	    if {$qual eq ""} {
-		append result "switch -- \[Nv $type $offset\] "
-	    } else {
-		append result "switch -- \[Nv $type $offset $qual\] "
+	    append fetch " " $type " " $offset
+	    if {$qual ne ""} {
+		append fetch " " $qual
 	    }
+	    append result "switch -- \[$fetch\] "
 
 	    set scan [lindex $typemap($type) 1]
 
+	    set ckilled 0
 	    foreach child [$tree children $node] {
 		binary scan [binary format $scan [$tree get $child val]] $scan val
 		append result "$val \{"
 
+		if {$save && $ckilled} {
+		    # This location already does not regenerate if
+		    # the killing subnode was last. We also do not
+		    # need to regenerate if the current subnode
+		    # does not use relative adressing.
+		    append result "L $level;"
+		    set ckilled 0
+		}
+
 		if {[$tree isleaf $child]} {
 		    append result "emit [list [$tree get $child message]]"
 		} else {
+		    set killed 0
 		    append result "emit [list [$tree get $child message]]\n"
 		    foreach grandchild [$tree children $child] {
+			if {$save && $killed && [$tree get $grandchild rel]} {
+			    # This location already does not regenerate if
+			    # the killing subnode was last. We also do not
+			    # need to regenerate if the current subnode
+			    # does not use relative adressing.
+			    append result "L $level;"
+			    set killed 0
+			}
 			append result [treegen1 $tree $grandchild]
+			set killed [expr {$killed || [$tree get $grandchild kill]}]
 		    }
 		}
+
+		set ckilled [expr {$ckilled || [$tree get $child kill]}]
 		append result "\} "
 	    }
 	    append result "\n"
 	}
     }
     return $result
+}
+
+proc ::fileutil::magic::cgen::GenerateOffset {tree node} {
+    # Examples:
+    # direct absolute:     45      -> 45
+    # direct relative:    &45      -> [R 45]
+    # indirect absolute:  (45.s+1) -> [I 45 s 1]
+    # indirect relative: (&45.s+1) -> [I [R 45] s 1]
+
+    foreach v {ind rel base itype idelta} {
+	set $v [$tree get $node $v]
+    }
+
+    if {$rel} {set base "\[R $base\]"}
+    if {$ind} {set base "\[I $base $itype $idelta\]"}
+    return $base
 }
 
 # ### ### ### ######### ######### #########

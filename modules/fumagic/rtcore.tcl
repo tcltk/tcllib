@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: rtcore.tcl,v 1.2 2005/02/11 05:08:53 andreas_kupries Exp $
+# RCS: @(#) $Id: rtcore.tcl,v 1.3 2005/02/18 06:38:32 andreas_kupries Exp $
 
 #####
 #
@@ -52,10 +52,14 @@ namespace eval ::fileutil::magic::rt {
     variable string {}     ; # Last recognized string | For substitution
     variable numeric -9999 ; # Last recognized number | into the message
 
+    variable  last         ; # Behind last fetch locations,
+    array set last {}      ; # per nesting level.
+
     # [*] The vast majority of magic strings are in the first 4k of the file.
 
+    # Export APIs (full public, recognizer public)
     namespace export open close file_start result
-    namespace export emit offset Nv N S
+    namespace export emit offset Nv N S Nvx Nx Sx L R I
 }
 
 # ### ### ### ######### ######### #########
@@ -232,6 +236,146 @@ proc ::fileutil::magic::rt::S {offset comp val {qual ""}} {
     return $c
 }
 
+proc ::fileutil::magic::rt::Nvx {atlevel type offset {qual ""}} {
+    variable typemap
+    variable numeric
+    variable last
+
+    upvar 1 level l
+    set  l $atlevel
+
+    # unpack the type characteristics
+    foreach {size scan} $typemap($type) break
+
+    # fetch the numeric field from the file
+    set numeric [Fetch $offset $size $scan]
+
+    set last($atlevel) [expr {$offset + $size}]
+
+    if {$qual ne ""} {
+	# there's a mask to be applied
+	set numeric [expr $numeric $qual]
+    }
+
+    ::fileutil::magic::rt::Debug {puts stderr "NV $type $offset $qual: $numeric"}
+    return $numeric
+}
+
+# Numeric - get bytes of $type at $offset and $compare to $val
+# qual might be a mask
+proc ::fileutil::magic::rt::Nx {atlevel type offset comp val {qual ""}} {
+    variable typemap
+    variable numeric
+    variable last
+
+    upvar 1 level l
+    set  l $atlevel
+
+    # unpack the type characteristics
+    foreach {size scan} $typemap($type) break
+
+    set last($atlevel) [expr {$offset + $size}]
+
+    # fetch the numeric field
+    set numeric [Fetch $offset $size $scan]
+
+    if {$comp eq "x"} {
+	# anything matches - don't care
+	return 1
+    }
+
+    # get value in binary form, then back to numeric
+    # this avoids problems with sign, as both values are
+    # [binary scan]-converted identically
+    binary scan [binary format $scan $val] $scan val
+
+    if {$qual ne ""} {
+	# there's a mask to be applied
+	set numeric [expr $numeric $qual]
+    }
+
+    # perform comparison
+    set c [expr $val $comp $numeric]
+
+    ::fileutil::magic::rt::Debug {puts stderr "numeric $type: $val $comp $numeric / $qual - $c"}
+    return $c
+}
+
+proc ::fileutil::magic::rt::Sx {atlevel offset comp val {qual ""}} {
+    variable fd
+    variable string
+    variable last
+
+    upvar 1 level l
+    set  l $atlevel
+
+    # convert any backslashes
+    set val [subst -nocommands -novariables $val]
+
+    if {$comp eq "x"} {
+	# match anything - don't care, just get the value
+	set string ""
+
+	# Query: Can we use GetString here ?
+	# Or at least the strbuf cache ?
+
+	# move to the offset
+	::seek $fd $offset
+	while {
+	    ([::string length $string] < 100) &&
+	    [::string is print [set c [::read $fd 1]]]
+	} {
+	    if {[::string is space $c]} {
+		break
+	    }
+	    append string $c
+	}
+
+	set last($atlevel) [expr {$offset + [string length $string]}]
+
+	return 1
+    }
+
+    set len [::string length $val]
+    set last($atlevel) [expr {$offset + $len}]
+
+    # get the string and compare it
+    set string [GetString $offset $len]
+    set cmp    [::string compare $val $string]
+    set c      [expr $cmp $comp 0]
+
+    ::fileutil::magic::rt::Debug {
+	puts "String '$val' $comp '$string' - $c"
+	if {$c} {
+	    puts "offset $offset - $string"
+	}
+    }
+    return $c
+}
+proc ::fileutil::magic::rt::L {newlevel} {
+    # Regenerate level information in the calling context.
+    upvar 1 level l ; set l $newlevel
+    return
+}
+
+proc ::fileutil::magic::rt::I {base type delta} {
+    # Handling of base locations specified indirectly through the
+    # contents of the inspected file.
+
+    variable typemap
+    foreach {size scan} $typemap($type) break
+    return [expr {[Fetch $base $size $scan] + $delta}]
+}
+
+proc ::fileutil::magic::rt::R {base} {
+    # Handling of base locations specified relative to the end of the
+    # last field one level above.
+
+    variable last   ; # Remembered locations.
+    upvar 1 level l ; # The level to get data from.
+    return [expr {$last($l) + $base}]
+}
+
 # ### ### ### ######### ######### #########
 ## Internal. Retrieval of the data used in comparisons.
 
@@ -308,20 +452,43 @@ namespace eval ::fileutil::magic::rt {
 
 proc ::fileutil::magic::rt::Init {} {
     variable typemap
+    global tcl_platform
+
+    # Set the definitions for all types which have their endianess
+    # explicitly specified n their name.
 
     array set typemap {
-	byte    {1 c}  ubyte   {1 c}  short    {2 S}  ushort   {2 S}
-	beshort {2 S}  leshort {2 s}  ubeshort {2 S}  uleshort {2 s}
-	long    {4 I}  belong  {4 I}  lelong   {4 i}  ubelong  {4 I}
-	ulelong {4 i}  date    {2 S}  bedate   {2 S}  ledate   {2 s}
-	ldate   {4 I}  beldate {4 I}  leldate  {4 i}
+	byte    {1 c}  ubyte    {1 c}
+	beshort {2 S}  ubeshort {2 S}
+	leshort {2 s}  uleshort {2 s}
+	belong  {4 I}  ubelong  {4 I}
+	lelong  {4 i}  ulelong  {4 i}  
+	bedate  {4 S}  ledate   {4 s}
+	beldate {4 I}  leldate  {4 i}
+
+	long  {4 Q} ulong  {4 Q} date  {4 Q} ldate {4 Q}
+	short {2 Y} ushort {2 Y}
     }
+
+    # Now set the definitions for the types without explicit
+    # endianess. They assume/use 'native' byteorder. We also put in
+    # special forms for the compiler, so that it can use short names
+    # for the native-endian types as well.
 
     # generate short form names
     foreach {n v} [array get typemap] {
 	foreach {len scan} $v break
 	#puts stderr "Adding $scan - [list $len $scan]"
 	set typemap($scan) [list $len $scan]
+    }
+
+    # The special Q and Y short forms are incorrect, correct now to
+    # use the proper native endianess.
+
+    if {$tcl_platform(byteOrder) eq "littleEndian"} {
+	array set typemap {Q {4 i} Y {2 s}}
+    } else {
+	array set typemap {Q {4 I} Y {2 S}}
     }
 }
 
