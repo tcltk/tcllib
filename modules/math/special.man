@@ -40,7 +40,7 @@ fresnel_C and fresnel_S for the Fresnel integrals
 elliptic_K and elliptic_E (complete elliptic integrals)
 
 [bullet]
-exponent_E1 and other functions related to the so-called exponential
+exponent_Ei and other functions related to the so-called exponential
 integrals
 
 [bullet]
@@ -71,11 +71,9 @@ Error        | erf         |             |     --      |
 functions    | erfc        |             |             |
              | ierfc_n     |             |             |
              |             |             |             |
-Exponential  | E1          |  x >= 0     |     --      |   < 2.0e-7 (x<1)
-integrals    |             |             |             |   < 5.0e-5 (x>1)
-             | E_n         |  x >= 0     |     --      |   as E1
-             | Ei          |  x != 0     |     --      |   as E1
-             | li          |  x > 0      |     --      |   as E1
+Exponential  | Ei          |  x != 0     |     --      |   < 1.0e-10 (relative)
+integrals    | En          |  x >  0     |     --      |   as Ei
+             | li          |  x > 0      |     --      |   as Ei
              | Chi         |  x > 0      |     --      |   < 1.0e-8
              | Shi         |  x > 0      |     --      |   < 1.0e-8
              | Ci          |  x > 0      |     --      |   < 2.0e-4
@@ -222,6 +220,65 @@ for the argument "k"
 
 [list_begin arg]
 [arg_def float k] Argument for the function
+[list_end]
+
+[call [cmd ::math::special::exponential_Ei] [arg x]]
+
+Compute the exponential integral of the second kind
+for the argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the function (x != 0)
+[list_end]
+
+[call [cmd ::math::special::exponential_En] [arg n] [arg x]]
+
+Compute the exponential integral of the first kind
+for the argument "x" and order n
+
+[list_begin arg]
+[arg_def int n] Order of the integral (n >= 0)
+[arg_def float x] Argument for the function (x >= 0)
+[list_end]
+
+[call [cmd ::math::special::exponential_li] [arg x]]
+
+Compute the logarithmic integral for the argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the function (x > 0)
+[list_end]
+
+[call [cmd ::math::special::exponential_Ci] [arg x]]
+
+Compute the cosine integral for the argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the function (x > 0)
+[list_end]
+
+[call [cmd ::math::special::exponential_Si] [arg x]]
+
+Compute the sine integral for the argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the function (x > 0)
+[list_end]
+
+[call [cmd ::math::special::exponential_Chi] [arg x]]
+
+Compute the hyperbolic cosine integral for the argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the function (x > 0)
+[list_end]
+
+[call [cmd ::math::special::exponential_Shi] [arg x]]
+
+Compute the hyperbolic sine integral for the argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the function (x > 0)
 [list_end]
 
 [call [cmd ::math::special::fresnel_C] [arg x]]
