@@ -162,7 +162,7 @@ package provide math::constants 1.0
 
 # some tests --
 #
-if { 1 } {
+if { 0 } {
 ::math::constants::constants pi e ln10 onethird eps
 set tcl_precision 17
 puts "$pi - [expr {1.0/$pi}]"
