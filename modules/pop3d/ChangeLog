@@ -1,3 +1,8 @@
+2004-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: Rewritten to use the new facilities for programmed
+	  interaction and sub processes.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
