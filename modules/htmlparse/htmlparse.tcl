@@ -40,6 +40,7 @@ namespace eval ::htmlparse {
     array set escapes {
 	lt <   gt >   amp &   quot \"   copy \xa9
 	reg \xae   ob \x7b   cb \x7d   nbsp \xa0
+	bsl \\
     } ; # " make the emacs highlighting code happy.
 
     # II. ISO Latin-1 escape codes
