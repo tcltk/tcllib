@@ -12,165 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.89 2003/04/17 17:20:47 andreas_kupries Exp $
-
-# Base64 encoder/decoder
-BASE64=base64
-
-# Option processing package (like opt)
-CMDLINE=cmdline
-
-# Socket based 'send'.
-COMM=comm
-
-# Control flow commands and other language structures
-CONTROL=control
-
-# CSV processing
-CSV=csv
-
-# DES
-DES=des
-
-# Documentation tools
-DOCTOOLS=doctools
-
-# Domain Name Service client
-DNS=dns
-
-# EXIF image parsing
-EXIF=exif
-
-# File utilities (grep, find, etc.)
-FILEUTIL=fileutil
-
-# FTP library
-FTP=ftp
-
-# FTPD library
-FTPD=ftpd
-
-# Code to generate javascript code (for dynamically generated web pages)
-JAVASCRIPT=javascript
-
-# Math functions
-MATH=math
-
-# MD4 hash digest
-MD4=md4
-
-# MD5 hash digest
-MD5=md5
-
-# SHA1 hash digest
-SHA1=sha1
-
-# Data structures (stack, queue, tree)
-STRUCT=struct
-
-# CGI input processing, "ncgi" to avoid conflict with Libes cgi.tcl
-NCGI=ncgi
-
-# Simple function level profiler
-PROFILER=profiler
-
-# POP3 email client API
-POP3=pop3
-
-# POP3 email server
-POP3D=pop3d
-
-# HTML generation API
-HTML=html
-
-# IRC
-IRC=irc
-
-# MIME encoder/decoder and SMTP package. These are modified/hacked to
-# have a soft requirement for Trf: They will encode/decode MIME
-# messages faster if Trf is available.  Another speciality here: One
-# directory contains two packages! This requires a little hackery
-# when creating the full package index for tcllib.
-MIME=mime
-
-SOUNDEX=soundex
-
-# URI parsing module
-URI=uri
-
-# NNTP client module
-NNTP=nntp
-
-# NTP network time protocols
-NTP=ntp
-
-# Text utilities
-TEXTUTIL=textutil
-
-# Counters and statistics
-COUNTER=counter
-
-# Logging facility
-LOGGER=log
-
-# HTML parsing facilities
-HTMLPARSE=htmlparse
-
-# Tabular reporting (depends upon matrix)
-REPORT=report
-
-# Object oriented extension: stooop
-# (Simple Tcl Only Object Oriented Programming)
-STOOOP=stooop
-
-# SMTP daemon
-SMTPD=smtpd
-
-# Cyclic Redundancy Check
-CRC=crc
-
-# Calendar facilities
-CALENDAR=calendar
-
-MODULES= \
-	$(BASE64)	\
-	$(CALENDAR)	\
-	$(CMDLINE)	\
-	$(COMM)		\
-	$(CONTROL)	\
-	$(CRC)		\
-	$(CSV)		\
-	$(COUNTER)	\
-	$(DOCTOOLS)	\
-	$(DES)          \
-	$(DNS)          \
-	$(EXIF)		\
-	$(STRUCT)	\
-	$(FILEUTIL)	\
-	$(FTP)		\
-	$(FTPD)         \
-	$(JAVASCRIPT)   \
-	$(HTML)         \
-	$(IRC)          \
-	$(MATH)		\
-	$(MD4)		\
-	$(MD5)		\
-	$(MIME)		\
-	$(NCGI)		\
-	$(NNTP)         \
-	$(NTP)		\
-	$(POP3)		\
-	$(POP3D)	\
-	$(PROFILER)	\
-	$(SMTPD)	\
-	$(SOUNDEX)	\
-	$(TEXTUTIL)	\
-	$(URI)		\
-	$(LOGGER)	\
-	$(HTMLPARSE)	\
-	$(REPORT)	\
-	$(SHA1) \
-	$(STOOOP)
+# RCS: @(#) $Id: Makefile.in,v 1.90 2003/04/18 02:57:46 andreas_kupries Exp $
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -178,448 +20,90 @@ MODULES= \
 # correct.
 #========================================================================
 
-SHELL = @SHELL@
+SHELL		= @SHELL@
 
-INSTALL_ROOT =
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+libdir		= @libdir@
+mandir		= @mandir@
 
-srcdir = @srcdir@
-top_srcdir = @top_srcdir@
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-
-libdir = @libdir@
-mandir = @mandir@
-
-DESTDIR =
-
-pkglibdir = $(libdir)/@PACKAGE@@VERSION@
-
-top_builddir = .
-
-INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
-INSTALL_DATA = @INSTALL_DATA@
-INSTALL_SCRIPT = @INSTALL_SCRIPT@
-INSTALL_STRIP_FLAG =
-transform = @program_transform_name@
-
-NORMAL_INSTALL = :
-PRE_INSTALL = :
-POST_INSTALL = :
-NORMAL_UNINSTALL = :
-PRE_UNINSTALL = :
-POST_UNINSTALL = :
+DESTDIR		=
+pkglibdir	= $(libdir)/@PACKAGE@@VERSION@
+top_builddir	= .
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 CYGPATH = @CYGPATH@
+
 TCLSH_PROG = @TCLSH_PROG@
 
-AUTOCONF = autoconf
-
-ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-CONFIGDIR = @CONFIGDIR@
-mkinstalldirs = $(SHELL) $(CONFIGDIR)/mkinstalldirs
 CONFIG_CLEAN_FILES =
 
 #========================================================================
 # Start of user-definable TARGETS section
 #========================================================================
 
-#========================================================================
-# TEA TARGETS.  Please note that the "libraries:" target refers to platform
-# independent files, and the "binaries:" target inclues executable programs and
-# platform-dependent libraries.  Modify these targets so that they install
-# the various pieces of your package.  The make and install rules
-# for the BINARIES that you specified above have already been done.
-#========================================================================
+all:
+install: install-libraries install-doc
+doc:     html-doc nroff-doc
 
-all: libraries doc
+install-libraries:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
+		-pkg-path   $(DESTDIR)$(pkglibdir) \
+		-no-examples -no-html -no-nroff \
+		-no-wait -no-gui
 
-#========================================================================
-# The binaries target builds executable programs, Windows .dll's, unix
-# shared/static libraries, and any other platform-dependent files.
-# The list of targets to build for "binaries:" is specified at the top
-# of the Makefile, in the "BINARIES" variable.
-#========================================================================
-
-binaries:
-
-libraries:
-
-# Generation of documentation is platform dependent
-doc:
-	$(MAKE) html-doc
-	if [ `echo 'puts $$tcl_platform(platform) ; exit' | $(TCLSH_PROG)` = unix ] ; then \
-	    $(MAKE) nroff-doc ; \
-	fi
-
-install: all install-libraries install-doc
-
-install-binaries: 
-
-#========================================================================
-# This rule installs platform-independent files, such as header files.
-#========================================================================
-
-install-libraries: libraries
-	$(mkinstalldirs) $(DESTDIR)$(pkglibdir)
-	@echo "Installing modules in $(DESTDIR)$(pkglibdir)"
-	@for i in $(MODULES) ; do \
-	    if test -d $(srcdir)/modules/$$i; then  \
-		echo "Installing $$i in $(DESTDIR)$(pkglibdir)/$$i" ; \
-		$(mkinstalldirs) $(DESTDIR)$(pkglibdir)/$$i ; \
-		if test "X`ls $(srcdir)/modules/$$i/*.tcl 2>/dev/null`" != "X" ; then \
-		    for j in `ls $(srcdir)/modules/$$i/*.tcl 2>/dev/null` ; do \
-			$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$$i ; \
-		    done; \
-		fi ; \
-		if test -f $(srcdir)/modules/$$i/tclIndex ; then \
-		    $(INSTALL_DATA) $(srcdir)/modules/$$i/tclIndex $(DESTDIR)$(pkglibdir)/$$i ; \
-		fi \
-	    fi; \
-	done;
-	$(MAKE) gen-main-index "PKGDIR=$(srcdir)"
-	cp $(srcdir)/pkgIndex.tcl $(DESTDIR)$(pkglibdir)
-	# Module specific installation code
-	# i. doctools (message catalogs and predefined formatting engines)
-	$(mkinstalldirs) $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats
-	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/*.msg 2>/dev/null`" != "X" ; then \
-	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/*.msg 2>/dev/null` ; do \
-		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
-	    done; \
-	fi ;
-	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/*.tcl 2>/dev/null`" != "X" ; then \
-	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/*.tcl 2>/dev/null` ; do \
-		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
-	    done; \
-	fi ;
-	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/fmt.* 2>/dev/null`" != "X" ; then \
-	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/fmt.* 2>/dev/null` ; do \
-		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
-	    done; \
-	fi ;
-	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/idx.* 2>/dev/null`" != "X" ; then \
-	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/idx.* 2>/dev/null` ; do \
-		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
-	    done; \
-	fi ;
-	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/toc.* 2>/dev/null`" != "X" ; then \
-	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/toc.* 2>/dev/null` ; do \
-		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
-	    done; \
-	fi ;
-	# ii. textutil (hyphenation files)
-	if test "X`ls $(srcdir)/modules/$(TEXTUTIL)/*.tex 2>/dev/null`" != "X" ; then \
-	    for j in `ls $(srcdir)/modules/$(TEXTUTIL)/*.tex 2>/dev/null` ; do \
-		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(TEXTUTIL) ; \
-	    done; \
-	fi ;
-
-
-
-#========================================================================
-# Install documentation.  Unix manpages should go in the $(mandir)
-# directory.
-#========================================================================
-
-install-doc: doc
-	@echo Installing documentation for $(PACKAGE)
-	@if [ `echo 'puts $$tcl_platform(platform) ; exit' | $(TCLSH_PROG)` = unix ] ; then \
-	    $(mkinstalldirs) $(DESTDIR)$(mandir)/mann ; \
-	    for f in doc/nroff/*.n ; do \
-		sed -e '/man\.macros/r man.macros' -e '/man\.macros/d' \
-			$$f > $(DESTDIR)$(mandir)/mann/`basename $$f` ; \
-	    done ; \
-	fi
-	$(mkinstalldirs)   $(DESTDIR)$(pkglibdir)/htmldoc
-	cp doc/html/*.html $(DESTDIR)$(pkglibdir)/htmldoc
+install-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
+		-nroff-path $(DESTDIR)$(mandir)/mann \
+		-no-examples -no-pkgs -no-html \
+		-no-wait -no-gui
 
 test:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/all.tcl` -modules "$(MODULES)"
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` test
 
 depend:
-
-# Make a distribution.  This includes:
-#   Code, doc's, and tests for all modules
-#   Generated installer for Windows (INSTALL.BAT) and UNIX (install.sh)
-# This all gets archived together (tcllib$(VERSION).zip or 
-# tcllib$(VERSION).tar.gz).
-
-# Changes:
-# - Generate the distributions in the current directory, not the source directory.
-# - Make the structure of the source distribution equal to the
-#   structure of the raw distribution out of CVS, with some files
-#   removed. This makes generation easier.
-#
-# Actions
-# - Remove possible old temp dir and archives
-# - Copy examples and modules into temp dir
-# - Remove meta-data of CVS
-# - Copy a selected number of files into the src distribution
-# - Recopy the manpages and insert man.macros (the big loop)
-# - Generate pkgIndex and installation scripts
-# - Generate the archives and release the temp dir
-
-dist: html-doc nroff-doc
-	rm -rf tcllib-$(VERSION) tcllib-$(VERSION).tar.gz tcllib-$(VERSION).zip
-	ls -d $(srcdir)/* > __FILES
-	@mkdir tcllib-$(VERSION)
-	cp -r `cat __FILES | grep -v __FILES` tcllib-$(VERSION) ;
-	rm __FILES
-	cp -r doc         tcllib-$(VERSION) ;
-	find tcllib-$(VERSION) -name CVS -prune -exec rm -rf {} \;
-	for j in $(MODULES) ; do \
-	    doc=`ls $(srcdir)/modules/$$j/*.n 2>/dev/null` ; \
-	    if test -n "$$doc" ; then \
-		for i in $$doc ; do \
-		    sed -e '/man\.macros/r $(srcdir)/man.macros' -e '/man\.macros/d' \
-			< $$i > tcllib-$(VERSION)/modules/$$j/`basename $$i` ; \
-		done; \
-	    fi ; \
-	done ;
-	rm -rf tcllib-$(VERSION)/modules/ftp/example
-	rm -rf tcllib-$(VERSION)/modules/ftpd/examples
-	rm -rf tcllib-$(VERSION)/modules/stats
-	rm -rf tcllib-$(VERSION)/modules/fileinput
-	$(MAKE) gen-main-index "PKGDIR=tcllib-$(VERSION)"
-	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
-	tar cf - tcllib-$(VERSION) | gzip --best > tcllib-$(VERSION).tar.gz
-	zip -r tcllib-$(VERSION).zip tcllib-$(VERSION)
-	rm -rf tcllib-$(VERSION)
-
-# Internal target. Used by both 'make dist' and 'make install' to
-# generate the package index for tcllib.  Variable to set by the
-# caller:
-#
-# PKGDIR = Installation directory of the package.
-
-gen-main-index:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/mkIndex.tcl` `$(CYGPATH) $(PKGDIR)` tcllib $(VERSION)
-
-
-#========================================================================
-# Developer targets.
-#========================================================================
-
-# Run frink on all .tcl files in tcllib.
-frink:
-	-find $(srcdir) -type f -name '*.tcl' | xargs frink 2>&1 >/dev/null -H
-
-procheck:
-	-find $(srcdir) -type f -name '*.tcl' | xargs procheck
-
-statcheck: frink procheck
-
-
-# Check tcllib and report all modules without documentation and/or testsuite.
-
-check: check-tests check-doc
-	@echo ~~~~~~~~~~~~~~~~~~~~~~~~
-
-check-tests:
-	@echo ~~~~~~~~~~~~~~~~~~~~~~~~
-	@for mod in $(MODULES) ; do \
-	   if [ `ls $(srcdir)/modules/$$mod/*.test  2>/dev/null | wc -l` -lt 1 ]; then	\
-		echo '  ' without testsuite : $$mod ; \
-	   fi; \
-	done
-
-check-doc:
-	@echo ~~~~~~~~~~~~~~~~~~~~~~~~
-	@for mod in $(MODULES) ; do \
-	   if [ `ls $(srcdir)/modules/$$mod/*.[13n] 2>/dev/null | wc -l` -lt 1 ]; then \
-		   if [ `ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | wc -l` -lt 1 ]; then \
-			echo '  ' without '* any **' manpages : $$mod ; \
-		   fi; \
-	   else \
-		   if [ `ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | wc -l` -lt 1 ]; then \
-			echo '  ' without doctools manpages : $$mod ; \
-		   else \
-			   files=`ls $(srcdir)/modules/$$mod/*.[13n] 2>/dev/null` ; \
-			   for f in $$files ; do \
-				fb=`basename $$f .n` ; \
-				if test ! -f $(srcdir)/modules/$$mod/$$fb.man ; then \
-					echo '    ' no .man equivalent : $$f ; \
-				fi ; \
-			   done ; \
-		   fi; \
-	   fi; \
-	done
-
-check-doc-markup:
-	$(MAKE) doc_generate DOC_FMT=null DOC_EXT=null DOC_FLAGS=-deprecated
-
-#========================================================================
-# End of user-definable section
-#========================================================================
-
-DOC_EXP=$(TCLSH_PROG) $(srcdir)/modules/doctools/mpexpand
-
-## Parameters:
-#
-## * DOC_FMT	output format to generate
-## * DOC_FLAGS  additional flags, or empty
-## * DOC_EXT	extension for the generated file
-## * DOC_MODE   which set of manpages to convert. default to 'user'.
-##              other sets: all, dev, single
-##              all = user + dev, dev = internal manpages for developers.
-##              single = file is explicitly specified (DOC_FILE)
-#
-# Internal target ...
-#
-doc_generate:
-	@if [ "X$$DOC_MODE" = X ]; then DOC_MODE=user; fi ; \
-	for mod in $(MODULES); do \
-            case X$$DOC_MODE in \
-	    Xuser)  files=`ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | sed -e '/\.dev\.man$$/d'` ; \
-		;; \
-	    Xdev)   files=`ls $(srcdir)/modules/$$mod/*.dev.man 2>/dev/null` ; \
-		;; \
-	    Xall)   files=`ls $(srcdir)/modules/$$mod/*.man 2>/dev/null` ; \
-		;; \
-	    Xsingle) files=$$DOC_FILE ; \
-		;; \
-            *)	echo ERROR, invalid mode $$DOC_MODE ; \
-		;; \
-	    esac ; \
-	    if [ "X$$files" != X ]; then \
-		$(mkinstalldirs) doc/$(DOC_FMT) ; \
-		for file in $$files ; do \
-		    echo Gen "($(DOC_FMT)):" $$file ; \
-		    TCLLIBPATH=$(srcdir)/modules $(DOC_EXP) -module $$mod $(DOC_FLAGS) $(DOC_FMT) \
-			$$file doc/$(DOC_FMT)/`basename $$file .man`.$(DOC_EXT) ; \
-		done ; \
-	    fi ; \
-	done
-	touch $(DOC_FMT)-doc
-
-#========================================================================
-# Public targets for the generation of documentation.
-
-html-doc:
-	@$(MAKE) doc_generate DOC_FMT=html DOC_EXT=html
-
-nroff-doc:
-	@$(MAKE) doc_generate DOC_FMT=nroff DOC_EXT=n
-
-tmml-doc:
-	@$(MAKE) doc_generate DOC_FMT=tmml DOC_EXT=tmml
-
-wiki-doc:
-	@$(MAKE) doc_generate DOC_FMT=wiki DOC_EXT=wiki
-
-latex-doc:
-	@$(MAKE) doc_generate DOC_FMT=latex DOC_EXT=tex
-	@cd doc/latex ; files=`ls *.tex  2>/dev/null` ; \
-	if [ "X$$files" != X ]; then	\
-		cd ../.. ; $(mkinstalldirs) doc/dvi doc/ps ; \
-		cd doc/dvi ; \
-		for f in $$files ; do	\
-		    echo Gen "(dvi/ps):" $$file ; \
-		    latex ../latex/$$f ; \
-		    dvips -o ../ps/`basename $$f .tex`.ps `basename $$f .tex`.dvi ; \
-		done ; \
-	fi
-
-list-doc:
-	@$(MAKE) doc_generate DOC_FMT=list DOC_EXT=l
-	@cd doc/list ; files=`ls *.l  2>/dev/null` ; \
-	if [ "X$$files" != X ]; then	\
-	    cat *.l > list ; rm *.l ; \
-	    mv list manpages.tcl ; \
-	fi
-
-#
-# The format "latex2" is currently not defined. I plan for it to
-# generate half-baked output, i.e. tex without header and trailer.
-# The half-baked files plus a boilerplate header and trailer make up
-# the file containing the full documentation. Currently the order in
-# the file is determined by sorting the filenames alphabetically. This
-# can be changed with some effort here.
-#
-
-latex2-doc:
-	$(MAKE) doc_generate DOC_FMT=latex2 DOC_EXT=tex
-	cd doc/latex2 ; files=`ls *.tex  2>/dev/null` ; \
-	if [ "X$$files" != X ]; then	\
-		cd ../.. ; $(mkinstalldirs) doc/dvi doc/ps ; \
-		cat $(srcdir)/modules/doctools/latex2.hdr doc/latex2/*.tex \
-			$(srcdir)/modules/doctools/latex2.ftr > tcllib_doc.tex ; \
-		rm doc/latex2/*.tex ; mv tcllib_doc.tex doc/latex2/tcllib_doc.tex ; \
-		cd doc/dvi ; \
-		echo Gen "(dvi/ps):" tcllib_doc.tex ; \
-		latex ../latex2/tcllib_doc.tex ; \
-		dvips -o ../ps/tcllib_doc.ps tcllib_doc.dvi ; \
-	fi
-
-#
-# Developer targets, usage enforces generation of documentation
-#
-
-doc-force: nroff-doc-force html-doc-force tmml-doc-force
-
-html-doc-force:
-	@rm html-doc ; $(MAKE) html-doc
-tmml-doc-force:
-	@rm tmml-doc ; $(MAKE) tmml-doc
-nroff-doc-force:
-	@rm nroff-doc ; $(MAKE) nroff-doc
-latex-doc-force:
-	@rm latex-doc ; $(MAKE) latex-doc
-latex2-doc-force:
-	@rm latex2-doc ; $(MAKE) latex2-doc
-list-doc-force:
-	@rm list-doc ; $(MAKE) list-doc
-
-#========================================================================
-# Don't modify the file to clean here.  Instead, set the "CLEANFILES"
-# variable in configure.in
-#========================================================================
+dist:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` gendist
 
 clean:
-	rm -rf doc *-doc  
+	rm -rf doc *-doc
 
 distclean: clean
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 	-rm -f config.status
 
-#========================================================================
-# Install binary object libraries.  On Windows this includes both .dll and
-# .lib files.  Because the .lib files are not explicitly listed anywhere,
-# we need to deduce their existence from the .dll file of the same name.
-# Additionally, the .dll files go into the bin directory, but the .lib
-# files go into the lib directory.  On Unix platforms, all library files
-# go into the lib directory.  In addition, this will generate the pkgIndex.tcl
-# file in the install location (assuming it can find a usable tclsh8.2 shell)
-#
-# You should not have to modify this target.
-#========================================================================
-
-install-lib-binaries: installdirs
-
-#========================================================================
-# Install binary executables (e.g. .exe files)
-#
-# You should not have to modify this target.
-#========================================================================
-
-install-bin-binaries: installdirs
-
-.SUFFIXES: .c .o .obj
-
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 uninstall-binaries:
 
-installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(pkglibdir)
 
-.PHONY: all binaries clean depend distclean doc install installdirs \
-libraries test
+html-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` html
+nroff-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` nroff
+tmml-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` tmml
+wiki-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` wiki
+latex-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` ps
+list-doc:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` list
+
+check:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` validate
+
+sak-help:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` help
+
+
+.PHONY: all binaries clean depend distclean doc install installdirs libraries test
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
