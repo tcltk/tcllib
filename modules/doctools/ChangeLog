@@ -1,3 +1,9 @@
+2003-06-06  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fr.msg: Added french message catalog. Supplied by
+	  David Zolli <dzolli@users.sourceforge.net>, aka kroc. This is
+	  tracker item [Bug 744149].
+
 2003-05-23  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.nroff (fmt_arg_def, fmt_cmd_def): Analogous errors
@@ -15,7 +21,7 @@
 	* Released and tagged Tcllib 1.4 ========================
 	* 
 
-2003-04-01  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-04-01  Andreas Kupries  <andreask@activestate.com>
 
 	* checker_toc.tcl: Bug fixes for handling of nested toc divisions.
 
