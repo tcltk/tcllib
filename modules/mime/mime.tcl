@@ -29,6 +29,10 @@ if {[catch {package require Trf  2.0}]} {
 	# 31 is completely random - just want something long for boundaries
 	return [string range $string 0 31]
     }
+    proc unstack {channel} {
+	# do nothing
+	return
+    }
 }
 
 #
@@ -1215,10 +1219,11 @@ proc mime::copymessageaux {token channel} {
                     set fd [set state(fd) \
                                 [open $state(file) { RDONLY }]]
                 }
-                set size "-size $state(count)"
+                set size $state(count)
             } else {
                 set fd [set state(fd) [open $state(file) { RDONLY }]]
-                set size ""
+		# read until eof
+                set size -1
             }
             seek $fd $state(offset) start
             if {$closeP} {
@@ -1227,11 +1232,11 @@ proc mime::copymessageaux {token channel} {
 
             puts $channel ""
 
-	    while {($size != 0) && (![eof $state(fd)])} {
-		if {$size < 0 || $size > 32768} {
-		    set X [read $state(fd) 32768]
+	    while {($size != 0) && (![eof $fd])} {
+		if {$size < 0 || $size > 32766} {
+		    set X [read $fd 32766]
 		} else {
-		    set X [read $state(fd)]
+		    set X [read $fd $size]
 		}
 		if {$size > 0} {
 		    set size [expr {$size - [string length $X]}]
@@ -1431,11 +1436,11 @@ proc mime::buildmessageaux {token} {
 
             append result \n
 
-	    while {($size != 0) && (![eof $state(fd)])} {
-		if {$size < 0 || $size > 32768} {
-		    set X [read $state(fd) 32768]
+	    while {($size != 0) && (![eof $fd])} {
+		if {$size < 0 || $size > 32766} {
+		    set X [read $fd 32766]
 		} else {
-		    set X [read $state(fd)]
+		    set X [read $fd $size]
 		}
 		if {$size > 0} {
 		    set size [expr {$size - [string length $X]}]
