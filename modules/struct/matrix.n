@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: matrix.n,v 1.3 2001/07/06 18:30:52 andreas_kupries Exp $
+'\" RCS: @(#) $Id: matrix.n,v 1.4 2001/07/10 23:56:55 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH matrix n 1.0 Struct "Tcl Data Structures"
@@ -35,7 +35,7 @@ numbers, with the first (left) number in the pair specifying the
 column and the second (right) number specifying the row the cell is
 in. These indices are counted from 0 upward. The special non-numeric
 index \fBend\fR refers to the last row or column in the matrix,
-depending on the context. Indices of the form \fBend\R -\fInumber\fR
+depending on the context. Indices of the form \fBend\fR -\fInumber\fR
 are counted from the end of the row or column, like they are for
 standard Tcl lists. Trying to access non-existing cells causes an
 error.
@@ -125,7 +125,7 @@ as the first element of this list.
 \fImatrixName\fR \fBget rect\fR \fIcolumn_tl row_tl column_br row_br\fR
 Returns a list of lists of cell values. The values stored in the
 result come from the sub-matrix whose top-left and bottom-right cells
-are specified by \fIcolumn_tl, row_tl\R and \fIcolumn_br, row_br\fR
+are specified by \fIcolumn_tl, row_tl\fR and \fIcolumn_br, row_br\fR
 resp. Note that the following equations have to be true: \fIcolumn_tl
 <= column_br\fR and \fIrow_tl <= row_br\fR. The result is organized as
 follows: The outer list is the list of rows, its elements are lists
