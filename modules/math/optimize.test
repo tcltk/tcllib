@@ -57,24 +57,24 @@ test "Minimum-1.0" "Minimum of constant function" {
 #
 # To do: find out why this case fails
 #
-test "Minimum-2.0" "Minimum of uneven function, case 1" {
+test "Minimum-2.0" "Minimum of odd function, case 1" {
    set result [minimum -1.0 1.0 ::optimizetest::ffunc]
-   set xmin   [expr {-sqrt(1.0/3.0)*1.0001}]
-   set xmax   [expr {-sqrt(1.0/3.0)*0.9999}]
+   set xmin   [expr {-sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {-sqrt(1.0/3.0)+0.0001}]
    within_range $result $xmin $xmax
 } 1
 
-test "Minimum-2.1" "Minimum of uneven function, asymmetric interval" {
+test "Minimum-2.1" "Minimum of odd function, asymmetric interval" {
    set result [minimum -0.8 1.2 ::optimizetest::ffunc]
-   set xmin   [expr {-sqrt(1.0/3.0)-1.0001}]
-   set xmax   [expr {-sqrt(1.0/3.0)*0.9999}]
+   set xmin   [expr {-sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {-sqrt(1.0/3.0)+0.0001}]
    within_range $result $xmin $xmax
 } 1
 
-test "Minimum-2.2" "Minimum of uneven function, case 2" {
+test "Minimum-2.2" "Minimum of odd function, case 2" {
    set result [minimum -1.0 1.0 ::optimizetest::minfunc]
-   set xmin   [expr {sqrt(1.0/3.0)*0.9999}]
-   set xmax   [expr {sqrt(1.0/3.0)*1.0001}]
+   set xmin   [expr {sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {sqrt(1.0/3.0)+0.0001}]
    within_range $result $xmin $xmax
 } 1
 
@@ -97,17 +97,17 @@ test "Maximum-1.0" "Maximum of constant function" {
    within_range $result -1.0 1.0
 } 1
 
-test "Maximum-2.0" "Maximum of uneven function, case 1" {
+test "Maximum-2.0" "Maximum of odd function, case 1" {
    set result [maximum -1.0 1.0 ::optimizetest::ffunc]
-   set xmin   [expr {sqrt(1.0/3.0)*0.9999}]
-   set xmax   [expr {sqrt(1.0/3.0)*1.0001}]
+   set xmin   [expr {sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {sqrt(1.0/3.0)+0.0001}]
    within_range $result $xmin $xmax
 } 1
 
-test "Maximum-2.1" "Maximum of uneven function, case 2" {
+test "Maximum-2.1" "Maximum of odd function, case 2" {
    set result [maximum -1.0 1.0 ::optimizetest::minfunc]
-   set xmin   [expr {-sqrt(1.0/3.0)*1.0001}]
-   set xmax   [expr {-sqrt(1.0/3.0)*0.9999}]
+   set xmin   [expr {-sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {-sqrt(1.0/3.0)+0.0001}]
    within_range $result $xmin $xmax
 } 1
 
@@ -116,11 +116,11 @@ test "Maximum-2.1" "Maximum of uneven function, case 2" {
 #
 test "Maximum-2.2" "Maximum of even function" {
    set result [maximum -1.0 1.0 ::optimizetest::absfunc]
-   set xmin   [expr {-sqrt(1.0/3.0)*1.0001}]
-   set xmax   [expr {-sqrt(1.0/3.0)*0.9999}]
+   set xmin   [expr {-sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {-sqrt(1.0/3.0)+0.0001}]
    set ok     [within_range $result $xmin $xmax]
-   set xmin   [expr {sqrt(1.0/3.0)*0.9999}]
-   set xmax   [expr {sqrt(1.0/3.0)*1.0001}]
+   set xmin   [expr {sqrt(1.0/3.0)-0.0001}]
+   set xmax   [expr {sqrt(1.0/3.0)+0.0001}]
    incr ok    [within_range $result $xmin $xmax]
 } 1
 

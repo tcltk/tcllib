@@ -89,8 +89,6 @@ proc ::math::optimize::maximum { begin end func {maxerr 1.0e-4} } {
    return $x1
 }
 
-}
-
 # Now we can announce our presence
 package provide math::optimize 0.1
 
