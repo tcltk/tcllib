@@ -1,3 +1,7 @@
+2001-09-12  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Added manpages for ftp package.
+
 2001-08-01  Don Porter  <dgp@users.sourceforge.net>
 
 	* example/hpupdate.tcl:  Workaround for moving Tk internal

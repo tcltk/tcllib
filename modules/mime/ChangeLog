@@ -1,3 +1,7 @@
+2001-09-12  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Added manpages for smtp and mime packages.
+
 2001-08-01  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* mime.tcl: made package require 8.3 and sped up qp_encode and
