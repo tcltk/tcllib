@@ -123,7 +123,7 @@ if {![catch {package require Trf 2.0}]} {
     proc ::md5::time {} {
 	foreach len {10 50 100 500 1000 5000 10000} {
 	    set time [::time {md5 [format %$len.0s ""]} 100]
-	    regexp "\[0-9]*" $time msec
+	    regexp -- "\[0-9]*" $time msec
 	    puts "input length $len: [expr {$msec/1000}] milliseconds per interation"
 	}
     }
@@ -325,7 +325,7 @@ if {![catch {package require Trf 2.0}]} {
 	regsub -all {\[ *I +(\$.) +(\$.) +(\$.) *\]} $md5body {(\2 ^ (\1 | (~\3)))} md5body
 
 	# bitwise left-rotate
-	if 0 {
+	if {0} {
 	    proc md5pure::<<< {x i} {
 		# This works by bitwise-ORing together right piece and left
 		# piece so that the (original) right piece becomes the left

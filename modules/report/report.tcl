@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: report.tcl,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+# RCS: @(#) $Id: report.tcl,v 1.2 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide report 0.1
 
@@ -240,6 +240,9 @@ proc ::report::defstyle {styleName arguments body} {
 	    }
 	    2 {
 		set def 1
+	    }
+	    default {
+		error "Illegal length of value \"$v\""
 	    }
 	}
     }
@@ -548,8 +551,10 @@ proc ::report::CheckColumn {columns column} {
 	    }
 	    return $column
 	}
+	default {
+	    return -code error "column: syntax error in index \"$column\""
+	}
     }
-    return -code error "column: syntax error in index \"$column\""
 }
 
 # ::report::CheckVerticals --
@@ -737,13 +742,14 @@ proc ::report::_tAction {name template cmd args} {
 		    upvar ::report::report${name}::enabled enabled
 		    return $enabled($template)
 		}
+		default {error "Can't happen, panic, run, shout"}
 	    }
 	}
 	default {
 	    return -code error "Unknown template command \"$cmd\""
 	}
     }
-    return
+    return ""
 }
 
 # ::report::_tcaption --
@@ -772,7 +778,7 @@ proc ::report::_tcaption {name {size {}}} {
     }
     if {$size == $tcaption} {
 	# No change, nothing to do
-	return
+	return ""
     }
     if {($size > 0) && ($tcaption == 0)} {
 	# Perform a consistency check after the assignment, the
@@ -782,7 +788,7 @@ proc ::report::_tcaption {name {size {}}} {
     } else {
 	set tcaption $size
     }
-    return
+    return ""
 }
 
 # ::report::_bcaption --
@@ -811,7 +817,7 @@ proc ::report::_bcaption {name {size {}}} {
     }
     if {$size == $bcaption} {
 	# No change, nothing to do
-	return
+	return ""
     }
     if {($size > 0) && ($bcaption == 0)} {
 	# Perform a consistency check after the assignment, the
@@ -821,7 +827,7 @@ proc ::report::_bcaption {name {size {}}} {
     } else {
 	set bcaption $size
     }
-    return
+    return ""
 }
 
 # ::report::_size --
@@ -848,7 +854,7 @@ proc ::report::_size {name column {size {}}} {
     }
     if {[string equal $size dyn]} {
 	set csize($column) $size
-	return
+	return ""
     }
     if {![string is integer $size]} {
 	return -code error "expected integer greater than zero, got \"$size\""
@@ -857,7 +863,7 @@ proc ::report::_size {name column {size {}}} {
 	return -code error "expected integer greater than zero, got \"$size\""
     }
     set csize($column) $size
-    return
+    return ""
 }
 
 # ::report::_sizes --
@@ -903,7 +909,7 @@ proc ::report::_sizes {name {sizes {}}} {
 	set csize($i) $s
 	incr i
     }
-    return
+    return ""
 }
 
 # ::report::_pad --
@@ -945,7 +951,7 @@ proc ::report::_pad {name column {where {}} {string { }}} {
 	    return -code error "where: expected left, right, or both, got \"$where\""
 	}
     }
-    return
+    return ""
 }
 
 # ::report::_justify --
@@ -973,10 +979,12 @@ proc ::report::_justify {name column {jvalue {}}} {
     switch -exact -- $jvalue {
 	left - right - center {
 	    set cjust($column) $jvalue
-	    return
+	    return ""
+	}
+	default {
+	    return -code error "justification: expected, left, right, or center, got \"$jvalue\""
 	}
     }
-    return -code error "justification: expected, left, right, or center, got \"$jvalue\""
 }
 
 # ::report::_printmatrix --
@@ -1360,6 +1368,9 @@ proc ::report::FormatCell {value size just} {
 	    set rcut [expr {$cut - $lcut}]
 
 	    return [string range $value $lcut end-$rcut]
+	}
+	default {
+	    error "Can't happen, panic, run, shout"
 	}
     }
 }

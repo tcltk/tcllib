@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.12 2000/09/20 17:23:14 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.13 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide profiler 0.1
 
@@ -29,6 +29,7 @@ proc ::profiler::tZero { { tag "" } } {
     set ms [ clock clicks -milliseconds ]
     set us [ clock clicks ]
     regsub -all {:} $tag {} tag
+    # FRINK: nocheck
     set ::profiler::T$tag [ list $us $ms ] 
     return
 }
@@ -49,7 +50,16 @@ proc ::profiler::tMark { { tag "" } } {
      set ut [ clock clicks ]
      set mt [ clock clicks -milliseconds ]
      regsub -all {:} $tag {} tag
+
+    # Per tag a variable was created within the profiler
+    # namespace. But we should check if the tag does ecxist.
+
+    if {![info exists ::profiler::T$tag]} {
+	error "Unknown tag \"$tag\""
+    }
+    # FRINK: nocheck
      set ust [ lindex [ set ::profiler::T$tag ] 0 ] 
+    # FRINK: nocheck
      set mst [ lindex [ set ::profiler::T$tag ] 1 ]
      set udt [ expr { ($ut-$ust) } ]
      set mdt [ expr { ($mt-$mst) } ]000
@@ -170,11 +180,11 @@ proc ::profiler::profProc {name arglist body} {
     # have an absolute namespace qualifier, we have to prepend the current
     # namespace to the command name
     if { ![string equal $ns "::"] } {
-	if { ![regexp "^::" $name] } {
+	if { ![regexp -- "^::" $name] } {
 	    set name "${ns}::${name}"
 	}
     }
-    if { ![regexp "^::" $name] } {
+    if { ![regexp -- "^::" $name] } {
 	set name "::$name"
     }
 

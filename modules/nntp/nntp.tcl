@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.2 2000/06/20 22:23:56 kuchler Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.3 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide nntp 0.1
 
@@ -388,7 +388,7 @@ proc ::nntp::_ihave {name {msgid ""} args} {
 
     set data(cmnd) "fetch"
     if {![::nntp::command $name "IHAVE $msgid"]} {
-        return
+        return ""
     }
     return [::nntp::squirt $name "$args"]    
 }
@@ -474,7 +474,7 @@ proc ::nntp::_newnews {name {group ""} {since ""}} {
     upvar 0 ::nntp::${name}data data
 
     if {$group != ""} {
-        if {[regexp {^[\w\.\-]+$} $group] == 0} {
+        if {[regexp -- {^[\w\.\-]+$} $group] == 0} {
             set since $group
             set group ""
         }
@@ -534,7 +534,7 @@ proc ::nntp::_next {name} {
 proc ::nntp::_post {name args} {
     
     if {![::nntp::command $name "POST"]} {
-        return
+        return ""
     }
     return [::nntp::squirt $name "$args"]
 }
@@ -645,7 +645,7 @@ proc ::nntp::_xgtitle {name {group_pattern ""}} {
 proc ::nntp::_xhdr {name {header "message-id"} {list ""} {last ""}} {
     upvar 0 ::nntp::${name}data data
 
-    if {![regexp {\d+-\d+} $list]} {
+    if {![regexp -- {\d+-\d+} $list]} {
         if {"$last" != ""} {
             set list "$list-$last"
         } else {
@@ -679,7 +679,7 @@ proc ::nntp::_xmotd {name {since ""}} {
 
 proc ::nntp::_xover {name {list ""} {last ""}} {
     upvar 0 ::nntp::${name}data data
-    if {![regexp {\d+-\d+} $list]} {
+    if {![regexp -- {\d+-\d+} $list]} {
         if {"$last" != ""} {
             set list "$list-$last"
         } else {
@@ -695,7 +695,7 @@ proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} args} {
 
     set patterns ""
 
-    if {![regexp {\d+-\d+} $list]} {
+    if {![regexp -- {\d+-\d+} $list]} {
         if {("$last" != "") && ([string is digit $last])} {
             set list "$list-$last"
         }
@@ -725,7 +725,7 @@ proc ::nntp::_xpath {name {msgid ""}} {
 proc ::nntp::_xsearch {name args} {
     set res [::nntp::command $name "XSEARCH"]
     if {!$res} {
-        return
+        return ""
     }
     return [::nntp::squirt $name "$args"]    
 }
@@ -771,7 +771,7 @@ proc ::nntp::msg {name} {
 
     set res [::nntp::okprint $name]
     if {!$res} {
-        return
+        return ""
     }
     return $data(mesg)
 }
@@ -781,10 +781,11 @@ proc ::nntp::groupinfo {name} {
 
     set data(group) ""
 
-    if {[::nntp::okprint $name] && [regexp {(\d+)\s+(\d+)\s+(\d+)\s+([\w\.]+)} \
+    if {[::nntp::okprint $name] && [regexp -- {(\d+)\s+(\d+)\s+(\d+)\s+([\w\.]+)} \
             $data(mesg) match count first last data(group)]} {
         return [list $count $first $last $data(group)]
     }
+    return ""
 }
 
 proc ::nntp::msgid {name} {
@@ -804,7 +805,7 @@ proc ::nntp::status {name} {
 
     set result ""
     if {[::nntp::okprint $name] && \
-            [regexp {\d+\s+<[^>]+>} $data(mesg) result]} {
+            [regexp -- {\d+\s+<[^>]+>} $data(mesg) result]} {
         return $result
     } else {
         return ""
@@ -817,7 +818,7 @@ proc ::nntp::fetch {name} {
     set eol "\012"
 
     if {![::nntp::okprint $name]} {
-        return
+        return ""
     }
     set sock $data(sock)
 
@@ -826,7 +827,7 @@ proc ::nntp::fetch {name} {
         gets $sock line
         regsub {\015?\012$} $line $data(eol) line
 
-        if {[regexp {^\.$} $line]} {
+        if {[regexp -- {^\.$} $line]} {
             break
         }
         regsub {^\.\.} $line {.} line
@@ -852,12 +853,12 @@ proc ::nntp::response {name} {
 
     regsub {\015?\012$} $line "" line
 
-    set result [regexp {^((\d\d)(\d))\s*(.*)} $line match \
+    set result [regexp -- {^((\d\d)(\d))\s*(.*)} $line match \
             data(code) val1 val2 data(mesg)]
     
     if {$result == 0} {
         puts stderr "nntp garbled response: $line\n";
-        return
+        return ""
     }
 
     if {$val1 == 20} {

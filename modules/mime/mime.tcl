@@ -238,7 +238,7 @@ proc mime::initialize {args} {
     variable mime
 
     set token [namespace current]::[incr mime(uid)]
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -274,7 +274,7 @@ proc mime::initialize {args} {
 
 proc mime::initializeaux {token args} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -418,6 +418,7 @@ proc mime::initializeaux {token args} {
                     }
                 }
             }
+	    default {# Go ahead}
         }
 
         if {[lsearch -exact $state(lowerL) content-id] < 0} {
@@ -449,6 +450,7 @@ proc mime::initializeaux {token args} {
 
     if {[set fileP [info exists state(file)]]} {
         if {[set openP [info exists state(root)]]} {
+	    # FRINK: nocheck
             variable $state(root)
             upvar 0 $state(root) root
 
@@ -492,6 +494,7 @@ proc mime::initializeaux {token args} {
 #       otherwise it just sets up the appropriate variables.
 
 proc mime::parsepart {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -631,6 +634,7 @@ proc mime::parsepart {token} {
         }
 
         if {[string match message/* $state(content)]} {
+	    # FRINK: nocheck
             variable [set child $token-[incr state(cid)]]
 
             set state(value) parts
@@ -674,7 +678,7 @@ proc mime::parsepart {token} {
             if {$pos > $last} {
         #        error "termination string missing in $state(content)"
                  set line "--$boundary--"
-            } {
+            } else {
               if {[set x [gets $state(fd) line]] < 0} {
                   error "end-of-file encountered while parsing $state(content)"
               }
@@ -734,7 +738,7 @@ proc mime::parsepart {token} {
             }
             continue
         }
-
+	# FRINK: nocheck
         variable [set child $token-[incr state(cid)]]
 
         lappend state(parts) $child
@@ -773,7 +777,7 @@ proc mime::parsepart {token} {
 
 proc mime::parsetype {token string} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -815,6 +819,7 @@ proc mime::parsetype {token string} {
 #       tcl list.
 
 proc mime::parsetypeaux {token string} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -904,6 +909,7 @@ proc mime::parsetypeaux {token string} {
 #       Returns an empty string.
 
 proc mime::finalize {token args} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -936,6 +942,7 @@ proc mime::finalize {token args} {
     foreach name [array names state] {
         unset state($name)
     }
+    # FRINK: nocheck
     unset $token
 }
 
@@ -971,6 +978,7 @@ proc mime::finalize {token args} {
 #       Returns the properties of a MIME part
 
 proc mime::getproperty {token {property ""}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1033,6 +1041,7 @@ proc mime::getproperty {token {property ""}} {
 #       Returns the size in bytes of the MIME token.
 
 proc mime::getsize {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1063,6 +1072,9 @@ proc mime::getsize {token} {
         string/1 {
             return [string length $state(string)]
         }
+	default {
+	    error "Unknown combination \"$state(value)/$state(canonicalP)\""
+	}
     }
 
     if {![string compare $state(encoding) base64]} {
@@ -1097,6 +1109,7 @@ proc mime::getsize {token} {
 #       Returns the header of a MIME part.
 
 proc mime::getheader {token {key ""}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1155,6 +1168,7 @@ proc mime::getheader {token {key ""}} {
 #       Returns previous value associated with the specified key.
 
 proc mime::setheader {token key value args} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1171,6 +1185,7 @@ proc mime::setheader {token key value args} {
         mime-version {
             error "key $key may not be set"
         }
+	default {# Skip key}
     }
 
     array set header $state(header)
@@ -1248,7 +1263,7 @@ proc mime::setheader {token key value args} {
 
 proc mime::getbody {token args} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1280,7 +1295,7 @@ proc mime::getbody {token args} {
                     }
                     incr pos [set len \
                                   [string length [set chunk [read $fd $cc]]]]
-                    switch -- $state(encoding) {
+                    switch -exact -- $state(encoding) {
                         base64
                             -
                         quoted-printable {
@@ -1292,6 +1307,12 @@ proc mime::getbody {token args} {
                             set chunk [$state(encoding) -mode decode \
                                                         -- $chunk]
                         }
+			"" {
+			    # Go ahead, leave chunk alone
+			}
+			default {
+			    error "Can't handle content encoding \"$state(encoding)\""
+			}
                     }
                     append fragment $chunk
 
@@ -1371,7 +1392,10 @@ proc mime::getbody {token args} {
             } result]
             set ecode $errorCode
             set einfo $errorInfo
-        }
+	}
+	default {
+	    error "Unknown combination \"$state(value)/$state(canonicalP)\""
+	}
     }
 
     set code [catch {
@@ -1405,12 +1429,14 @@ proc mime::getbody {token args} {
 #       error if it is called with the reason of 'error'.
 
 proc mime::getbodyaux {token reason {fragment ""}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
     switch -- $reason {
         data {
             append state(getbody) $fragment
+	    return ""
         }
 
         end {
@@ -1428,6 +1454,10 @@ proc mime::getbodyaux {token reason {fragment ""}} {
             catch { unset state(getbody) }
             error $reason
         }
+
+	default {
+	    error "Unknown reason \"$reason\""
+	}
     }
 }
 
@@ -1448,7 +1478,7 @@ proc mime::getbodyaux {token reason {fragment ""}} {
 
 proc mime::copymessage {token channel} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1481,6 +1511,7 @@ proc mime::copymessage {token channel} {
 #       is being written to the channel.
 
 proc mime::copymessageaux {token channel} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1527,6 +1558,12 @@ proc mime::copymessageaux {token channel} {
                 quoted-printable {
                     set converter $encoding
                 }
+		"" {
+		    # Go ahead
+		}
+		default {
+		    error "Can't handle content encoding \"$encoding\""
+		}
             }
         }
     } elseif {([string match multipart/* $state(content)]) \
@@ -1552,6 +1589,7 @@ proc mime::copymessageaux {token channel} {
         file {
             set closeP 1
             if {[info exists state(root)]} {
+		# FRINK: nocheck
                 variable $state(root)
                 upvar 0 $state(root) root 
 
@@ -1644,6 +1682,9 @@ proc mime::copymessageaux {token channel} {
 		puts $channel $state(string)
 	    }
         }
+	default {
+	    error "Unknown value \"$state(value)\""
+	}
     }
 
     flush $channel
@@ -1672,7 +1713,7 @@ proc mime::copymessageaux {token channel} {
 
 proc mime::buildmessage {token} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1707,6 +1748,7 @@ proc mime::buildmessage {token} {
 #       Returns the message that has been built up in memory.
 
 proc mime::buildmessageaux {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1754,6 +1796,12 @@ proc mime::buildmessageaux {token} {
                 quoted-printable {
                     set converter $encoding
                 }
+		"" {
+		    # Go ahead
+		}
+		default {
+		    error "Can't handle content encoding \"$encoding\""
+		}
             }
         }
     } elseif {([string match multipart/* $state(content)]) \
@@ -1779,6 +1827,7 @@ proc mime::buildmessageaux {token} {
         file {
             set closeP 1
             if {[info exists state(root)]} {
+		# FRINK: nocheck
                 variable $state(root)
                 upvar 0 $state(root) root 
 
@@ -1864,6 +1913,9 @@ proc mime::buildmessageaux {token} {
 		append result "$state(string)\n"
 	    }
         }
+	default {
+	    error "Unknown value \"$state(value)\""
+	}
     }
 
     if {[info exists state(error)]} {
@@ -1884,6 +1936,7 @@ proc mime::buildmessageaux {token} {
 #       or quoted-printable).
 
 proc mime::encoding {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1901,6 +1954,7 @@ proc mime::encoding {token} {
         multipart/* {
             return ""
         }
+	default {# Skip}
     }
 
     set asciiP 1
@@ -1942,6 +1996,9 @@ proc mime::encoding {token} {
                 }
             }
         }
+	default {
+	    error "Unknown value \"$state(value)\""
+	}
     }
 
     switch -glob -- $state(content) {
@@ -2043,6 +2100,7 @@ proc mime::encodinglineP {line} {
 # 
 
 proc mime::fcopy {token count {error ""}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2069,6 +2127,7 @@ proc mime::fcopy {token count {error ""}} {
 #       copied to the specified channel.
 
 proc mime::scopy {token channel offset len blocksize} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2157,7 +2216,7 @@ proc mime::qp_encode {string {encoded_word 0}} {
     foreach line [split $string \n] {
 	while {[string length $line] > 72} {
 	    set chunk [string range $line 0 72]
-	    if {[regexp (=|=.)$ $chunk dummy end]} {
+	    if {[regexp -- (=|=.)$ $chunk dummy end]} {
 
 		# Don't break in the middle of a code
 
@@ -2273,7 +2332,7 @@ proc mime::parseaddress {string} {
     variable mime
 
     set token [namespace current]::[incr mime(uid)]
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2284,6 +2343,7 @@ proc mime::parseaddress {string} {
     foreach name [array names state] {
         unset state($name)
     }
+    # FRINK: nocheck
     catch { unset $token }
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
@@ -2324,6 +2384,7 @@ proc mime::parseaddress {string} {
 #       specified in the argument.
 
 proc mime::parseaddressaux {token string} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2435,7 +2496,7 @@ proc mime::parseaddressaux {token string} {
 
 proc mime::addr_next {token} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2511,6 +2572,7 @@ proc mime::addr_next {token} {
 #	Returns 1 if there is another address, and 0 if there is not.
 
 proc mime::addr_specification {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2624,6 +2686,7 @@ proc mime::addr_specification {token} {
 #	Returns 1 if there is another address, and 0 if there is not.
 
 proc mime::addr_routeaddr {token {checkP 1}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2678,6 +2741,7 @@ proc mime::addr_routeaddr {token {checkP 1}} {
 #       syntax is found.
 
 proc mime::addr_route {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2753,6 +2817,7 @@ proc mime::addr_route {token} {
 #       syntax is found.
 
 proc mime::addr_domain {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2799,6 +2864,7 @@ proc mime::addr_domain {token} {
 #       syntax is found.
 
 proc mime::addr_local {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2843,6 +2909,7 @@ proc mime::addr_local {token} {
 
 
 proc mime::addr_phrase {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2893,6 +2960,7 @@ proc mime::addr_phrase {token} {
 #       syntax is found.
 
 proc mime::addr_group {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2936,6 +3004,7 @@ proc mime::addr_group {token} {
 #       syntax is found.
 
 proc mime::addr_end {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -2970,7 +3039,7 @@ proc mime::addr_end {token} {
 
 proc mime::addr_x400 {mbox key} {
     if {[set x [string first "/$key=" [string toupper $mbox]]] < 0} {
-        return
+        return ""
     }
     set mbox [string range $mbox [expr {$x+[string length $key]+2}] end]
 
@@ -3184,6 +3253,7 @@ proc mime::uniqueID {} {
 #	Returns the next token found by the parser.
 
 proc mime::parselexeme {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -3399,13 +3469,18 @@ proc mime::word_encode {charset method string} {
     }
 
     set result "=?$encodings($charset)?"
-    switch -exact $method {
+    switch -exact -- $method {
 	base64 {
-	    append result "B?[base64::encode $string]?="
+	    append result "B?[string trimright [base64 -mode encode -- $string] \n]?="
 	}
-
 	quoted-printable {
 	    append result "Q?[qp_encode $string 1]?="
+	}
+	"" {
+	    # Go ahead
+	}
+	default {
+	    error "Can't handle content encoding \"$method\""
 	}
     }
 
@@ -3426,7 +3501,7 @@ proc mime::word_decode {encoded} {
 
     variable reversemap
 
-    if {[regexp {=\?([^?]+)\?(.)\?([^?]*)\?=} $encoded \
+    if {[regexp -- {=\?([^?]+)\?(.)\?([^?]*)\?=} $encoded \
 		- charset method string] != 1} {
 	error "malformed word-encoded expression '$encoded'"
     }
@@ -3435,7 +3510,7 @@ proc mime::word_decode {encoded} {
 	error "unknown charset '$charset'"
     }
 
-    switch $method {
+    switch -exact -- $method {
 	B {
             set method base64
         }
@@ -3447,13 +3522,18 @@ proc mime::word_decode {encoded} {
         }
     }
 
-    switch -exact $method {
+    switch -exact -- $method {
 	base64 {
-	    set result [base64::decode $string]
+	    set result [base64 -mode decode -- $string]
 	}
-
 	quoted-printable {
 	    set result [qp_decode $string 1]
+	}
+	"" {
+	    # Go ahead
+	}
+	default {
+	    error "Can't handle content encoding \"$method\""
 	}
     }
 
@@ -3478,7 +3558,7 @@ proc mime::field_decode {field} {
     set field [join $field]
 
     set result ""
-    while {[regexp -indices {=\?([^?]+)\?(.)\?([^?]*)\?=} $field indices]} {
+    while {[regexp -indices -- {=\?([^?]+)\?(.)\?([^?]*)\?=} $field indices]} {
 
 	# get the indices
 

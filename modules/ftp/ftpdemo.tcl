@@ -259,7 +259,7 @@ global test
 		set state ""
 	}
 	
-	switch $state {
+	switch -exact -- $state {
 	  data		{.msg.f.f2.text insert end "$msg\n" data}
 	  control	{.msg.f.f2.text insert end "$msg\n" control}
 	  error		{.msg.f.f2.text insert end "$msg\n" error; incr test(errors)}
@@ -327,7 +327,7 @@ global test
 proc ProgressBar {state {bytes 0} {total {}} {filename {}}} {
 global progress
 	set w .progress
-	switch $state {
+	switch -exact -- $state {
 	  init	{
 		set progress(percent) "0%"
 		set progress(total) $total
@@ -377,6 +377,9 @@ global progress
 	  	unset progress
 		destroy $w
 		update
+	  }
+	  default {
+	      error "Unknown state \"$state\""
 	  }
 	}
 }
@@ -691,7 +694,7 @@ global cnf
 	set cnf(debug) 0
 	set cnf(verbose) 1
 	
-	if {[file exist $cnf(configfile)]} {
+	if {[file exists $cnf(configfile)]} {
 		set f [open $cnf(configfile) r]
 		array set cnf [read $f]
 		close $f

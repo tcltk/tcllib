@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* pop3.tcl: Fixed dubious code reported by frink.
+
 2001-01-24  Scott Redman  <redman@tivo.com>
 
 	* pop3.tcl: Fixed a bug when getting the "." back

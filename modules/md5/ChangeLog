@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* md5.tcl: Fixed dubious code reported by frink.
+
 2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* md5.n: Fixed nroff trouble.

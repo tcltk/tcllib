@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.7 2000/10/06 21:10:41 ericm Exp $
+# RCS: @(#) $Id: math.tcl,v 1.8 2001/06/22 15:29:18 andreas_kupries Exp $
 
 namespace eval ::math {
 }
@@ -93,12 +93,12 @@ proc ::math::integrate { xy_pairs } {
      }   
      
      ;## are we dealing with x,y pairs?
-     if { [ expr $length % 2 ] } {
+     if { [ expr {$length % 2} ] } {
         return -code error "unmatched xy pair in input"
      }
      
      ;## are there an even number of pairs?  Augment.
-     if { ! [ expr $length % 4 ] } {
+     if { ! [ expr {$length % 4} ] } {
         set xy_pairs [ concat [ lindex $xy_pairs 0 ] 0 $xy_pairs ]
      }
      set x0   [ lindex $xy_pairs 0     ]

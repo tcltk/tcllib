@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.9 2001/06/22 14:33:07 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.10 2001/06/22 15:29:18 andreas_kupries Exp $
 
 # Version 1.0 implemented Base64_Encode, Bae64_Decode
 # Version 2.0 uses the base64 namespace
@@ -60,6 +60,14 @@ if {![catch {package require Trf 2.0}]} {
 		error "value for \"$arg\" missing"
 	    }
 	    set val [lindex $args $i]
+
+	    # The name of the variable to assign the value to is extracted
+	    # from the list of known options, all of which have an
+	    # associated variable of the same name as the option without
+	    # a leading "-". The [string range] command is used to strip
+	    # of the leading "-" from the name of the option.
+	    #
+	    # FRINK: nocheck
 	    set [string range [lindex $optionStrings $index] 1 end] $val
 	}
     
@@ -191,6 +199,14 @@ if {![catch {package require Trf 2.0}]} {
 		error "value for \"$arg\" missing"
 	    }
 	    set val [lindex $args $i]
+
+	    # The name of the variable to assign the value to is extracted
+	    # from the list of known options, all of which have an
+	    # associated variable of the same name as the option without
+	    # a leading "-". The [string range] command is used to strip
+	    # of the leading "-" from the name of the option.
+	    #
+	    # FRINK: nocheck
 	    set [string range [lindex $optionStrings $index] 1 end] $val
 	}
     
@@ -261,10 +277,10 @@ if {![catch {package require Trf 2.0}]} {
 	    set bits [lindex $base64 $x]
 	    if {$bits >= 0} {
 		if {[llength [lappend nums $bits]] == 4} {
-		    foreach {v w x y} $nums break
+		    foreach {v w z y} $nums break
 		    set a [expr {($v << 2) | ($w >> 4)}]
-		    set b [expr {(($w & 0xF) << 4) | ($x >> 2)}]
-		    set c [expr {(($x & 0x3) << 6) | $y}]
+		    set b [expr {(($w & 0xF) << 4) | ($z >> 2)}]
+		    set c [expr {(($z & 0x3) << 6) | $y}]
 		    append output [binary format ccc $a $b $c]
 		    set nums {}
 		}		
@@ -275,13 +291,13 @@ if {![catch {package require Trf 2.0}]} {
 		# (enough for 1 8-bit output).  If x!={}, we have 18 bits of
 		# input (enough for 2 8-bit outputs).
 		
-		foreach {v w x} $nums break
+		foreach {v w z} $nums break
 		set a [expr {($v << 2) | (($w & 0x30) >> 4)}]
 		
-		if {$x == {}} {
+		if {$z == {}} {
 		    append output [binary format c $a ]
 		} else {
-		    set b [expr {(($w & 0xF) << 4) | (($x & 0x3C) >> 2)}]
+		    set b [expr {(($w & 0xF) << 4) | (($z & 0x3C) >> 2)}]
 		    append output [binary format cc $a $b]
 		}		
 		break

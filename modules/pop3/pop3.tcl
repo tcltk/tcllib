@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.9 2001/05/02 15:03:33 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.10 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide pop3 1.2
 
@@ -295,7 +295,7 @@ proc ::pop3::send {chan cmdstring} {
    set popRet [string trim [gets $chan]]
 
    if {[string first "+OK" $popRet] == -1} {
-       error [string range $popRet [expr 3 + 1] end]
+       error [string range $popRet 4 end]
    }
 
    return [string range $popRet 3 end]

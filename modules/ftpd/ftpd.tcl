@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.7 2000/11/22 17:28:49 ericm Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.8 2001/06/22 15:29:18 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.1
@@ -513,7 +513,7 @@ proc ::ftpd::read {sock} {
 	Finish $sock
 	return
     }
-    switch $data(state) {
+    switch -exact -- $data(state) {
 	command {
 	    gets $sock command
 	    set parts [split $command]
@@ -538,6 +538,9 @@ proc ::ftpd::read {sock} {
 		Log error "Unknown command: $cmd"
 		puts $sock "500 Unknown command $cmd"
 	    }
+	}
+	default {
+	    error "Unknown state \"$data(state)\""
 	}
     }
     return
@@ -1115,6 +1118,7 @@ proc ::ftpd::command::QUIT {sock list} {
     ::ftpd::Log note "Closed $sock"
     puts $sock "221 Goodbye."
     close $sock
+    # FRINK: nocheck
     unset ::ftpd::$sock
     return
 }
@@ -1646,7 +1650,7 @@ proc ::ftpd::fsFile::docRoot {{dir {}}} {
     } else {
 	set docRoot $dir
     }
-    return
+    return ""
 }
 
 # ::ftpd::fsFile::fs --
@@ -1869,8 +1873,11 @@ proc ::ftpd::fsFile::fs {command path args} {
                 puts $outchan "213 [file size $path]"
 	    }
         }
+	default {
+	    error "Unknown command \"$command\""
+	}
     }
-    return
+    return ""
 }
 
 # ::ftpd::fsFile::PermBits --

@@ -1,3 +1,8 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl:
+	* mime.tcl: Fixed dubious code reported by frink and procheck.
+
 2001-01-30  Eric Melski  <ericm@interwoven.com>
 
 	* mime.tcl: Applied patch from Peter MacDonald to correct problem

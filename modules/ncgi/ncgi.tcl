@@ -148,6 +148,7 @@ proc ncgi::urlStub {{url {}}} {
     variable urlStub
     if {[string length $url]} {
 	set urlStub $url
+	return ""
     } elseif {[info exist urlStub]} {
 	return $urlStub
     } elseif {[info exist env(SCRIPT_NAME)]} {
@@ -303,7 +304,7 @@ proc ncgi::nvlist {} {
 	    foreach {x} [split [string trim $query] &] {
 		# Turns out you might not get an = sign,
 		# especially with <isindex> forms.
-		if {![regexp (.*)=(.*) $x dummy varname val]} {
+		if {![regexp -- (.*)=(.*) $x dummy varname val]} {
 		    set varname anonymous
 		    set val $x
 		}
@@ -379,7 +380,7 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 	if {!$exists} {
 	    lappend varlist $name
 	}
-	if {[regexp List$ $name]} {
+	if {[regexp -- List$ $name]} {
 	    # Accumulate a list of values for this name
 	    lappend value($name) $val
 	} elseif {$exists} {
@@ -614,7 +615,7 @@ proc ncgi::importAll {args} {
 proc ncgi::redirect {url} {
     global env
 
-    if {![regexp {^[^:]+://} $url]} {
+    if {![regexp -- {^[^:]+://} $url]} {
 
 	# The url is relative (no protocol/server spec in it), so
 	# here we create a canonical URL.
@@ -650,13 +651,13 @@ proc ncgi::redirect {url} {
 	# URL.  Otherwise use SERVER_NAME.  These could be different, e.g.,
 	# "pop.scriptics.com" vs. "pop"
 
-	if {![regexp {^https?://([^/:]*)} $env(REQUEST_URI) x server]} {
+	if {![regexp -- {^https?://([^/:]*)} $env(REQUEST_URI) x server]} {
 	    set server $env(SERVER_NAME)
 	}
 	if {[string match /* $url]} {
 	    set url $proto://$server$port$url
 	} else {
-	    regexp {^(.*/)[^/]*$} $request_uri match dirname
+	    regexp -- {^(.*/)[^/]*$} $request_uri match dirname
 	    set url $proto://$server$port$dirname$url
 	}
     }
@@ -713,12 +714,12 @@ proc ncgi::parseMimeValue {value} {
     set results [list [string trim [lindex $parts 0]]]
     set paramList [list]
     foreach sub [lrange $parts 1 end] {
-	if {[regexp {([^=]+)=(.+)} $sub match key val]} {
+	if {[regexp -- {([^=]+)=(.+)} $sub match key val]} {
             set key [string trim [string tolower $key]]
             set val [string trim $val]
             # Allow single as well as double quotes
-            if {[regexp {^["']} $val quote]} { ;# need a " for balance
-                if {[regexp ^${quote}(\[^$quote\]*)$quote $val x val2]} {
+            if {[regexp -- {^["']} $val quote]} { ;# need a " for balance
+                if {[regexp -- ^${quote}(\[^$quote\]*)$quote $val x val2]} {
                     # Trim quotes and any extra crap after close quote
                     set val $val2
                 }
@@ -842,7 +843,7 @@ puts "NO"
 	set headers [list]
 	set formName ""
         foreach line [split [string range $query $offset $off2] $lineDelim] {
-	    if {[regexp {([^:	 ]+):(.*)$} $line x hdrname value]} {
+	    if {[regexp -- {([^:	 ]+):(.*)$} $line x hdrname value]} {
 		set hdrname [string tolower $hdrname]
 		set valueList [parseMimeValue $value]
 		if {[string equal $hdrname "content-disposition"]} {

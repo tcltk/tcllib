@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.2 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide csv 0.1
 
@@ -139,6 +139,7 @@ proc ::csv::report {cmd matrix args} {
 		return -code error "wrong # args: ::csv::report printmatrix2channel matrix chan"
 	    }
 	    writematrix $matrix [lindex $args 0]
+	    return ""
 	}
 	default {
 	    return -code error "Unknown method $cmd"
@@ -164,7 +165,7 @@ proc ::csv::split {line {sepChar ,}} {
 	    \"\"\"$sepChar \"\0$sepChar \
 	    \"\" \" \" \0 ] $line]
     set end 0
-    while {[regexp -indices -start $end {(\0)[^\0]*(\0)} $line -> start end]} {
+    while {[regexp -indices -start $end -- {(\0)[^\0]*(\0)} $line -> start end]} {
 	set start [lindex $start 0]
 	set end   [lindex $end 0]
 	set range [string range $line $start $end]
@@ -262,12 +263,12 @@ proc ::csv::writematrix {m chan {sepChar ,}} {
 #	None.
 
 proc ::csv::writequeue {q chan {sepChar ,}} {
-    while {[q size] > 0} {
-	puts $chan [join [q get] $sepChar]
+    while {[$q size] > 0} {
+	puts $chan [join [$q get] $sepChar]
     }
 
     # Memory intensive alternative:
-    # puts $chan [joinlist [q get [q size]] $sepChar]
+    # puts $chan [joinlist [$q get [$q size]] $sepChar]
     return
 }
 

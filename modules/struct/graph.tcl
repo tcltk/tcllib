@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.2 2000/06/02 18:43:56 ericm Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.3 2001/06/22 15:29:18 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -206,6 +206,7 @@ proc ::struct::graph::__arc_delete {name args} {
 	foreach {source target} $arcNodes($arc) break ; # lassign
 
 	unset arcNodes($arc)
+	# FRINK: nocheck
 	unset ::struct::graph::graph${name}::arc$arc
 
 	# Remove arc from the arc lists of source and target nodes.
@@ -598,6 +599,7 @@ proc ::struct::graph::_arcs {name args} {
 		}
 	    }
 	}
+	default {error "Can't happen, panic"}
     }
 
     return $arcs
@@ -708,6 +710,9 @@ proc ::struct::graph::__node_degree {name args} {
 	    set opt  [lindex $args 0]
 	    set node [lindex $args 1]
 	}
+	default {
+	    error "Wrong # arguments given to 'degree'"
+	}
     }
 
     # Validate the option.
@@ -756,6 +761,7 @@ proc ::struct::graph::__node_degree {name args} {
 		}
 	    }
 	}
+	default {error "Can't happen, panic"}
     }
 
     return $result
@@ -800,6 +806,7 @@ proc ::struct::graph::__node_delete {name args} {
 
 	unset inArcs($node)
 	unset outArcs($node)
+	# FRINK: nocheck
 	unset ::struct::graph::graph${name}::node$node
     }
 
@@ -1172,6 +1179,7 @@ proc ::struct::graph::_nodes {name args} {
 		}
 	    }
 	}
+	default {error "Can't happen, panic"}
     }
 
     return $nodes
@@ -1513,7 +1521,7 @@ proc ::struct::graph::_walk {name node args} {
 #	set	list representing the union of the argument lists.
 
 proc ::struct::graph::Union {args} {
-    switch [llength $args] {
+    switch -- [llength $args] {
 	0 {
 	    return {}
 	}

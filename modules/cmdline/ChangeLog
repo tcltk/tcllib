@@ -1,3 +1,8 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* typedCmdline.tcl:
+	* cmdline.tcl: Fixed dubious code reported by frink.
+
 2000-05-03  Brent Welch <welch@scriptics.com>
 
 	* cmdline.tcl: Changed cmdline::getopt to set boolean arguments to

@@ -1,3 +1,6 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* nntp.tcl: Fixed dubious code reported by frink.
 
 2000-06-20  Dan Kuchler  <kuchler@ajubasolutions.com>
 
