@@ -4,7 +4,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
 [require Tcl 8.2]
-[require struct [opt 2.0]]
+[require struct::tree [opt 2.0]]
 [description]
 [para]
 
