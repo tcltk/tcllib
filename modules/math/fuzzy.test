@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # fuzzy.test --
 #
 #    Test suite for the math::fuzzy procs of tolerant comparisons
@@ -5,30 +6,31 @@
 #
 #    version 0.2: imporved and extended implementation, march 2002
 
-package require  tcltest
-namespace import ::tcltest::*
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
 
-#package require  fuzzy
-#namespace import ::math::fuzzy::*
-source "fuzzy.tcl"
+package require  math::fuzzy
+puts "math::fuzzy [package present math::fuzzy]"
+
 namespace import ::math::fuzzy::*
 
 #
 # Test: tolerance has sane value
 #
-#test "Tolerance-1.0" "Tolerance has acceptable value" {
+#test math-fuzzy-Tolerance-1.0 {Tolerance has acceptable value} {
 #   expr {(1.0+0.5*$::math::fuzzy::eps3) != 1.0}
 #} 1
-
-#test "Tolerance-1.1" "Tolerance has acceptable value" {
+#test math-fuzzy-Tolerance-1.1 {Tolerance has acceptable value} {
 #   expr {(1.0-0.5*$::math::fuzzy::eps3) != 1.0}
 #} 1
 
-test "Tolerance-1.0" "Tolerance has acceptable value" {
+test math-fuzzy-Tolerance-1.0 {Tolerance has acceptable value} {
    expr {(1.0+0.5*$::math::fuzzy::eps3) != 1.0}
 } 1
 
-test "Tolerance-1.1" "Tolerance has acceptable value" {
+test math-fuzzy-Tolerance-1.1 {Tolerance has acceptable value} {
    expr {(1.0-0.5*$::math::fuzzy::eps3) != 1.0}
 } 1
 
@@ -38,81 +40,81 @@ test "Tolerance-1.1" "Tolerance has acceptable value" {
 #       GrThan-1.* and LoEqual-1.* ditto
 #
 
-test "Equal-1.0" "Compare two floats and see if they are equal" {
+test math-fuzzy-Equal-1.0 {Compare two floats and see if they are equal} {
    teq 1.0 1.001
 } 0
-test "Equal-1.1" "Compare two floats and see if they are equal" {
+test math-fuzzy-Equal-1.1 {Compare two floats and see if they are equal} {
    teq 1.0 1.0001
 } 0
-test "Equal-1.2" "Compare two floats and see if they are equal" {
+test math-fuzzy-Equal-1.2 {Compare two floats and see if they are equal} {
    teq 1.0 1.00000000000000001
 } 1
-test "Equal-1.3" "Compare two floats and see if they are equal" {
+test math-fuzzy-Equal-1.3 {Compare two floats and see if they are equal} {
    teq 1.0 1.000000000000001
 } 0
 
-test "NotEqual-1.0" "Compare two floats and see if they differ" {
+test math-fuzzy-NotEqual-1.0 {Compare two floats and see if they differ} {
    tne 1.0 1.001
 } 1
-test "NotEqual-1.1" "Compare two floats and see if they differ" {
+test math-fuzzy-NotEqual-1.1 {Compare two floats and see if they differ} {
    tne 1.0 1.0001
 } 1
-test "NotEqual-1.2" "Compare two floats and see if they differ" {
+test math-fuzzy-NotEqual-1.2 {Compare two floats and see if they differ} {
    tne 1.0 1.00000000000000001
 } 0
-test "NotEqual-1.3" "Compare two floats and see if they differ" {
+test math-fuzzy-NotEqual-1.3 {Compare two floats and see if they differ} {
    tne 1.0 1.000000000000001
 } 1
 
-test "GrEqual-1.0" "Compare two floats - check greater/equal" {
+test math-fuzzy-GrEqual-1.0 {Compare two floats - check greater/equal} {
    tge 1.0 1.001
 } 0
-test "GrEqual-1.1" "Compare two floats - check greater/equal" {
+test math-fuzzy-GrEqual-1.1 {Compare two floats - check greater/equal} {
    tge 1.0 1.0001
 } 0
-test "GrEqual-1.2" "Compare two floats - check greater/equal" {
+test math-fuzzy-GrEqual-1.2 {Compare two floats - check greater/equal} {
    tge 1.0 1.00000000000000001
 } 1
-test "GrEqual-1.3" "Compare two floats - check greater/equal" {
+test math-fuzzy-GrEqual-1.3 {Compare two floats - check greater/equal} {
    tge 1.0 1.000000000000001
 } 0
 
-test "Lower-1.0" "Compare two floats - check lower" {
+test math-fuzzy-Lower-1.0 {Compare two floats - check lower} {
    tlt 1.0 1.001
 } 1
-test "Lower-1.1" "Compare two floats - check lower" {
+test math-fuzzy-Lower-1.1 {Compare two floats - check lower} {
    tlt 1.0 1.0001
 } 1
-test "Lower-1.2" "Compare two floats - check lower" {
+test math-fuzzy-Lower-1.2 {Compare two floats - check lower} {
    tlt 1.0 1.00000000000000001
 } 0
-test "Lower-1.3" "Compare two floats - check lower" {
+test math-fuzzy-Lower-1.3 {Compare two floats - check lower} {
    tlt 1.0 1.000000000000001
 } 1
 
-test "LoEqual-1.0" "Compare two floats - check lower/equal" {
+test math-fuzzy-LoEqual-1.0 {Compare two floats - check lower/equal} {
    tle 1.0 1.001
 } 1
-test "LoEqual-1.1" "Compare two floats - check lower/equal" {
+test math-fuzzy-LoEqual-1.1 {Compare two floats - check lower/equal} {
    tle 1.0 1.0001
 } 1
-test "LoEqual-1.2" "Compare two floats - check lower/equal" {
+test math-fuzzy-LoEqual-1.2 {Compare two floats - check lower/equal} {
    tle 1.0 1.00000000000000001
 } 1
-test "LoEqual-1.3" "Compare two floats - check lower/equal" {
+test math-fuzzy-LoEqual-1.3 {Compare two floats - check lower/equal} {
    tle 1.0 1.000000000000001
 } 1
 
-test "Greater-1.0" "Compare two floats - check greater" {
+test math-fuzzy-Greater-1.0 {Compare two floats - check greater} {
    tgt 1.0 1.001
 } 0
-test "Greater-1.1" "Compare two floats - check greater" {
+test math-fuzzy-Greater-1.1 {Compare two floats - check greater} {
    tgt 1.0 1.0001
 } 0
-test "Greater-1.2" "Compare two floats - check greater" {
+test math-fuzzy-Greater-1.2 {Compare two floats - check greater} {
    tgt 1.0 1.00000000000000001
 } 0
-test "Greater-1.3" "Compare two floats - check greater" {
+test math-fuzzy-Greater-1.3 {Compare two floats - check greater} {
    tgt 1.0 1.000000000000001
 } 0
 
@@ -122,7 +124,7 @@ test "Greater-1.3" "Compare two floats - check greater" {
 #
 # Note: no attention paid to tcl_precision!
 #
-test "ManyCompares-1.0" "Compare results of calculations" {
+test math-fuzzy-ManyCompares-1.0 {Compare results of calculations} {
    set tol_eq 0
    set tol_ne 0
    set tol_ge 0
@@ -146,7 +148,7 @@ test "ManyCompares-1.0" "Compare results of calculations" {
    set result [list $tol_eq $tol_ne $tol_ge $tol_gt $tol_le $tol_lt]
 } {2000 0 2000 0 2000 0}
 
-test "ManyCompares-1.1" "Compare fails due to missing braces" {
+test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces} {
    set tol_eq 0
    set tol_ne 0
    set tol_ge 0
@@ -181,7 +183,7 @@ test "ManyCompares-1.1" "Compare fails due to missing braces" {
    set equal
 } 0
 
-test "ManyCompares-1.2" "Compare fails due to naive comparison" {
+test math-fuzzy-ManyCompares-1.2 {Compare fails due to naive comparison} {
    set naiv_eq 0
    set naiv_ne 0
    set naiv_ge 0
@@ -213,7 +215,7 @@ test "ManyCompares-1.2" "Compare fails due to naive comparison" {
    set equal
 } 0
 
-test "Floor-Ceil-1.0" "Check floor and ceil functions" {
+test math-fuzzy-Floor-Ceil-1.0 {Check floor and ceil functions} {
    set fc_eq 0
    set fz_eq 0
    set fz_ne 0
@@ -230,7 +232,7 @@ test "Floor-Ceil-1.0" "Check floor and ceil functions" {
    set result [list $fc_eq $fz_eq]
 } {2001 2001}
 
-test "Floor-Ceil-1.1" "Naive floor and ceil fail" {
+test math-fuzzy-Floor-Ceil-1.1 {Naive floor and ceil fail} {
    set fc_eq 0
    set fz_eq 0
    set fz_ne 0
@@ -255,47 +257,57 @@ test "Floor-Ceil-1.1" "Naive floor and ceil fail" {
    set equal
 } 0
 
-test "Roundoff-1.0" "Rounding off numbers" {
+test math-fuzzy-Roundoff-1.0 {Rounding off numbers} {
 
    set result {}
-   foreach x {  0.1  0.3  0.4999999  0.5000001  0.99999
-               -0.1 -0.3 -0.4999999 -0.5000001 -0.99999 } {
+   foreach x {
+       0.1  0.3  0.4999999  0.5000001  0.99999
+       -0.1 -0.3 -0.4999999 -0.5000001 -0.99999
+   } {
       lappend result [tround $x]
    }
    set result
 } {0.0 0.0 0.0 1.0 1.0 0.0 0.0 0.0 -1.0 -1.0}
 
-test "Roundoff-1.1" "Rounding off numbers naively - may fail" {
+test math-fuzzy-Roundoff-1.1 {Rounding off numbers naively - may fail} {
    set result {}
-   foreach x {  0.1  0.3  0.4999999  0.5000001  0.99999
-               -0.1 -0.3 -0.4999999 -0.5000001 -0.99999 } {
+   foreach x {
+       0.1  0.3  0.4999999  0.5000001  0.99999
+       -0.1 -0.3 -0.4999999 -0.5000001 -0.99999
+   } {
       lappend result [expr {floor($x+0.5)}]
    }
    set result
 } {0.0 0.0 0.0 1.0 1.0 0.0 0.0 0.0 -1.0 -1.0}
 
-test "Roundoff-2.1" "Rounding off numbers with one digit" {
+test math-fuzzy-Roundoff-2.1 {Rounding off numbers with one digit} {
    set result {}
-   foreach x {  0.11  0.32  0.4999999  0.5000001  0.99999
-               -0.11 -0.32 -0.4999999 -0.5000001 -0.99999 } {
+   foreach x {
+       0.11  0.32  0.4999999  0.5000001  0.99999
+       -0.11 -0.32 -0.4999999 -0.5000001 -0.99999
+   } {
       lappend result [troundn $x 1]
    }
    set result
 } {0.1 0.3 0.5 0.5 1.0 -0.1 -0.3 -0.5 -0.5 -1.0}
 
-test "Roundoff-2.2" "Rounding off numbers with two digits" {
+test math-fuzzy-Roundoff-2.2 {Rounding off numbers with two digits} {
    set result {}
-   foreach x {  0.11  0.32  0.4999999  0.5000001  0.99999
-               -0.11 -0.32 -0.4999999 -0.5000001 -0.99999 } {
+   foreach x {
+       0.11  0.32  0.4999999  0.5000001  0.99999
+       -0.11 -0.32 -0.4999999 -0.5000001 -0.99999
+   } {
       lappend result [troundn $x 2]
    }
    set result
 } {0.11 0.32 0.5 0.5 1.0 -0.11 -0.32 -0.5 -0.5 -1.0}
 
-test "Roundoff-2.3" "Rounding off numbers with three digits" {
+test math-fuzzy-Roundoff-2.3 {Rounding off numbers with three digits} {
    set result {}
-   foreach x {  0.1115  0.3210  0.4909999  0.5123401  0.99999
-               -0.1115 -0.3210 -0.4909999 -0.5123401 -0.99999 } {
+   foreach x {
+       0.1115  0.3210  0.4909999  0.5123401  0.99999
+       -0.1115 -0.3210 -0.4909999 -0.5123401 -0.99999
+   } {
       lappend result [troundn $x 3]
    }
    set result
