@@ -1,3 +1,8 @@
+2003-11-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.man: Extended the explanation for the example to cover the
+	  alternate format as well [SF Tcllib RFE 737770].
+
 2003-05-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.man: Changed the phrasing for the alternate format a bit,
