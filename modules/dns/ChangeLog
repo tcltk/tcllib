@@ -1,3 +1,11 @@
+2004-01-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Added automatic recognition of reverse lookups (where
+	query is 1.2.3.4). These are converted to in-addr.arpa lookups.
+	Added a dns::result to return the whole decoded answer record.
+	Added SPF record type (an alias for TXT).
+	Incremented package version to 1.0.5
+
 2003-07-09  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Added decoding for SOA response records. 
