@@ -22,16 +22,16 @@ namespace eval ::math::statistics {}
 #    Substitute local variables in caller
 #
 proc ::math::statistics::filter { varname data expression } {
-   upvar 0 $varname _x_
-   set result {}
-   foreach _x_ $data {
-      # FRINK: nocheck
-      if $expression {
+    upvar 0 $varname _x_
+    set result {}
+    foreach _x_ $data {
+	# FRINK: nocheck
+	if $expression {
 
-         lappend result $_x_
-      }
-   }
-   return $result
+	    lappend result $_x_
+	}
+    }
+    return $result
 }
 
 # map --
@@ -48,13 +48,13 @@ proc ::math::statistics::filter { varname data expression } {
 #    List of transformed elements
 #
 proc ::math::statistics::map { varname data expression } {
-   upvar 0 $varname _x_
-   set result {}
-   foreach _x_ $data {
-      # FRINK: nocheck
-      lappend result [expr $expression]
-   }
-   return $result
+    upvar 0 $varname _x_
+    set result {}
+    foreach _x_ $data {
+	# FRINK: nocheck
+	lappend result [expr $expression]
+    }
+    return $result
 }
 
 # samplescount --
@@ -71,19 +71,19 @@ proc ::math::statistics::map { varname data expression } {
 #    List of transformed elements
 #
 proc ::math::statistics::samplescount { varname list {expression 1} } {
-   upvar 0 $varname _x_
-   set result {}
-   foreach data $list {
-      set number 0
-      foreach _x_ $data {
-         # FRINK: nocheck
-         if $expression {
-            incr number
-         }
-      }
-      lappend result $number
-   }
-   return $result
+    upvar 0 $varname _x_
+    set result {}
+    foreach data $list {
+	set number 0
+	foreach _x_ $data {
+	    # FRINK: nocheck
+	    if $expression {
+		incr number
+	    }
+	}
+	lappend result $number
+    }
+    return $result
 }
 
 # End of list procedures
