@@ -1,4 +1,4 @@
-# Tests for the grep function.
+# Tests for the find function.
 #
 # Sourcing this file into Tcl runs the tests and generates output for errors.
 # No output means no errors were found.
@@ -6,21 +6,45 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: grep.test,v 1.1 2000/03/01 23:27:00 ericm Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.1 2000/03/09 21:28:43 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+}
+
 package require fileutil
+
+# Build a sample tree to search
+makeDirectory find1
+makeDirectory [file join find1 find2]
+makeFile "" [file join find1 file1]
+makeFile "test" [file join find1 find2 file2]
+set dir $::tcltest::temporaryDirectory
+
+proc fileIsBiggerThan {s f} {
+    expr {![file isdirectory $f] && [file size $f] > $s}
+}
+
+test find-1.1 {standard recursive find} {
+    lsort [fileutil::find [file join $dir find1]]
+} [list [file join $dir find1 file1] [file join $dir find1 find2] \
+	[file join $dir find1 find2 file2]]
+test find-1.2 {find directories} {
+    fileutil::find [file join $dir find1] {file isdirectory}
+} [list [file join $dir find1 find2]]
+test find-1.3 {find files bigger than a given size} {
+    fileutil::find [file join $dir find1] {fileIsBiggerThan 1}
+} [list [file join $dir find1 find2 file2]]
 
 # Build a sample tree to search
 makeDirectory grepTest
 makeFile "zoop" [file join grepTest file1]
 makeFile "zoo\nbart"  [file join grepTest file2]
-
-set dir $::tcltest::temporaryDirectory
 
 test grep-1.1 {normal grep} {
     lsort [fileutil::grep "zoo" [glob [file join $dir grepTest *]]]
@@ -32,7 +56,6 @@ test grep-1.2 {more restrictive grep} {
 test grep-1.3 {more restrictive grep} {
     lsort [fileutil::grep "bar" [glob [file join $dir grepTest *]]]
 } [list "[file join $dir grepTest file2]:2:bart"]
-
 
 ::tcltest::cleanupTests
 return
