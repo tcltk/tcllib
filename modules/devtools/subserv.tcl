@@ -54,6 +54,7 @@ proc ::subserv::exec {pathToScriptFile port} {
 #	Create a micro server which can be run later.
 
 proc ::subserv::muserv {pathToScriptFile ctrlport port responses} {
+    global auto_path
     variable here
 
     log::log debug "subserv | muserv       | $pathToScriptFile $ctrlport $port [llength $responses]"
@@ -61,10 +62,14 @@ proc ::subserv::muserv {pathToScriptFile ctrlport port responses} {
     catch {file delete -force $pathToScriptFile}
     set script [open $pathToScriptFile w]
 
+    set ap $auto_path
+    lappend ap [file dirname [file dirname [info script]]]
+
     puts $script ""
     puts $script "# -----------------------------------------------"
     puts $script "# Configuration of \"musub.tcl\""
     puts $script ""
+    puts $script [list set auto_path $ap]
     puts $script [list set logfile   $pathToScriptFile.log]
     puts $script [list set port      $port]
     puts $script [list set responses $responses]

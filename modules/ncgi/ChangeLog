@@ -1,3 +1,11 @@
+2003-05-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ncgi.test: Fixed all the tests which use a sub-process. The
+	  auto_path was not propagated, causing the sub-process to require
+	  an installed tcllib for correct operation (i.e. to find the
+	  other packages ncgi depends on, like fileutil). also changed the
+	  test prolog to match the other testsuites.
+
 2003-04-25  Andreas Kupries  <andreask@activestate.com>
 
 	* ncgi.tcl (::ncgi::query): Added code to handle binary data in
