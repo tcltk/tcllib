@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.18 2003/10/21 21:24:01 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.19 2003/10/24 17:46:29 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Bae64_Decode
 # Version 2.0   uses the base64 namespace
@@ -278,6 +278,7 @@ if {![catch {package require Trf 2.0}]} {
 	if {[string length $string] == 0} {return ""}
 
 	set base64 $::base64::base64
+	set output "" ; # Fix for [Bug 821126]
 
 	binary scan $string c* X
 	foreach x $X {
