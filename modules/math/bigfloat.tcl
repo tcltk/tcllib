@@ -45,6 +45,8 @@
 #
 ########################################################################
 
+package require math::bignum
+
 # this line helps when I want to source this file again and again
 catch {namespace delete ::math::bigfloat}
 
