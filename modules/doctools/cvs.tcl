@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cvs.tcl,v 1.4 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: cvs.tcl,v 1.5 2004/10/03 23:06:56 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil
@@ -135,4 +135,4 @@ proc ::doctools::cvs::toChangeLog {evar cvar fvar} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::cvs 0.1
+package provide doctools::cvs 0.1.1

@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.16 2004/08/16 02:14:17 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.17 2004/10/03 23:06:55 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -16,7 +16,7 @@ if {[catch {package require tcllibc}]} {
 }
 
 namespace eval ::uuencode {
-    variable version 1.1.1
+    variable version 1.1.2
 
     namespace export encode decode uuencode uudecode
 }

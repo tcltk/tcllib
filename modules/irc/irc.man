@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin irc n 0.4]
+[manpage_begin irc n 0.5]
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
 [require Tcl]
-[require irc [opt 0.4]]
+[require irc [opt 0.5]]
 [description]
 
 This package provides low-level commands to deal with the IRC protocol

@@ -13,7 +13,7 @@ package require snit
 package require struct::list
 package require struct::set
 
-snit::type treeql {
+snit::type ::treeql {
     variable nodes	;# set of all nodes
     variable tree	;# tree over which nodes are defined
     variable query	;# full query - ie: 'parent' of this treeql object

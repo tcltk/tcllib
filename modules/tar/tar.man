@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tar n 0.1]
-[moddesc   {}]
-[titledesc {}]
+[moddesc   {Tar file handling}]
+[titledesc {Tar file creation, extraction & manipulation}]
 [require Tcl 8.4]
 [require tar [opt 0.1]]
 [description]
@@ -23,7 +23,7 @@ or all files. the top level are pairs of filename and info. The info is a dict i
 mode uid gid size mtime type linkname uname gname devmajor devminor
 
 [example {
-::tar::stat tarball.tar
+% ::tar::stat tarball.tar
 foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {} uname user gname wheel devmajor 0 devminor 0}
 }]
 
@@ -66,4 +66,5 @@ Appends [arg files] to the end of the existing [arg tarball]
 
 [list_end]
 
+[keywords tar {tape archive} archive]
 [manpage_end]

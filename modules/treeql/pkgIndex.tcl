@@ -10,7 +10,7 @@
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 if {[package vsatisfies [package provide Tcl] 8.5]} {
-    package ifneeded treeql 1.0 [list source [file join $dir treeql.tcl]]
+    package ifneeded treeql 1.2 [list source [file join $dir treeql.tcl]]
 } else {
-    package ifneeded treeql 1.0 [list source [file join $dir treeql84.tcl]]
+    package ifneeded treeql 1.2 [list source [file join $dir treeql84.tcl]]
 }

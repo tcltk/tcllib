@@ -1109,4 +1109,4 @@ proc ::textutil::expander::DisplayOf {text} {
 # Provide the package only if the code above was read and executed
 # without error.
 
-package provide textutil::expander 1.2.1
+package provide textutil::expander 1.3

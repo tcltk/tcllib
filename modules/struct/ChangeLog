@@ -1,3 +1,10 @@
+2004-10-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: Added a bit more structure to the manpage,
+	  added an example demonstrating the creation of nodes, added an
+	  explicit statement that new nodes are created with the method
+	  "insert".
+
 2004-09-29  Andreas Kupries <andreask@activestate.com>
 
 	* record.tcl:  Fixed [Tcllib SF Bug 1018733]. Corrected management
@@ -74,7 +81,7 @@
 
 	* stack.test:
 	* stack.tcl: Changed way of mapping from stack object commands to
-	  associoated namespaces. The object namespace now has the same
+	  associated namespaces. The object namespace now has the same
 	  name and location of the object command. Adapted all tests to
 	  account for this change.
 
