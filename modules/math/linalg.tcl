@@ -24,20 +24,23 @@
 
 namespace eval ::math::linearalgebra {
     # Define the namespace
-    namespace export dim shape symmetric
+    namespace export dim shape conforming symmetric
     namespace export norm norm_one norm_two norm_max normMatrix
     namespace export dotproduct unitLengthVector normalizeStat
     namespace export axpy axpy_vect axpy_mat
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
     namespace export scale scale_vect scale_mat
-    namespace export rotate
+    namespace export rotate angle
     namespace export getrow getcol getelem setrow setcol setelem
     namespace export mkVector mkMatrix mkIdentity mkDiagonal
     namespace export mkHilbert mkDingdong mkBorder mkFrank
+    namespace export mkMoler mkWilkinsonW+ mkWilkinsonW-
     namespace export solveGauss solveTriangular
     namespace export solveGaussBand solveTriangularBand
-    namespace export determineSVD
+    namespace export determineSVD eigenvectorsSVD
+    namespace export orthonormalizeColumns orthonormalizeRows
+    namespace export show
 }
 
 # dim --
@@ -72,6 +75,34 @@ proc ::math::linearalgebra::shape { obj } {
     return $result
 }
 
+# show --
+#     Return a string representing the vector or matrix,
+#     for easy printing
+# Arguments:
+#     obj        Object like a scalar, vector or matrix
+#     format     Format to be used (defaults to %6.4f)
+#     rowsep     Separator for rows (defaults to \n)
+#     colsep     Separator for columns (defaults to " ")
+# Result:
+#     String representing the vector or matrix
+#
+proc ::math::linearalgebra::show { obj {format %6.4f} {rowsep \n} {colsep " "} } {
+    set result ""
+    if { [llength [lindex $obj 0]] == 1 } {
+        foreach v $obj {
+            append result "[format $format $v]$rowsep"
+        }
+    } else {
+        foreach row $obj {
+            foreach v $row {
+                append result "[format $format $v]$colsep"
+            }
+            append result $rowsep
+        }
+    }
+    return $result
+}
+
 # conforming --
 #     Determine if two objects (vector or matrix) are conforming
 #     in shape, rows or for a matrix multiplication
@@ -98,6 +129,28 @@ proc ::math::linearalgebra::conforming { type obj1 obj2 } {
     }
     return $result
 }
+
+# angle --
+#     Return the "angle" between two vectors (in radians)
+# Arguments:
+#     vect1      First vector
+#     vect2      Second vector
+# Result:
+#     Angle between the two vectors
+#
+proc ::math::linearalgebra::angle { vect1 vect2 } {
+
+    set dp [dotproduct $vect1 $vect2]
+    set n1 [norm_2 $vect1]
+    set n2 [norm_2 $vect2]
+
+    if { $n1 == 0.0 || $n2 == 0.0 } {
+       return -code error "Angle not defined for null vector"
+    }
+
+    return [expr {acos($dp/$n1/$n2)}]
+}
+
 
 # norm --
 #     Compute the (1-, 2- or Inf-) norm of a vector
@@ -780,6 +833,149 @@ proc ::math::linearalgebra::mkOnes { size } {
     return [mkMatrix $size $size 1.0]
 }
 
+# mkMoler --
+#     Make a Moler matrix
+# Arguments:
+#     size       Size of the matrix
+# Result:
+#     A nested list, representing a Moler matrix
+# Notes:
+#     Moler matrices have a very simple Choleski
+#     decomposition. It has one small eigenvalue
+#     and it can easily upset elimination methods
+#     for systems of linear equations
+#
+proc ::math::linearalgebra::mkMoler { size } {
+    set result {}
+    for { set j 0 } { $j < $size } { incr j } {
+        set row {}
+        for { set i 0 } { $i < $size } { incr i } {
+            if { $i == $j } {
+                lappend row $i
+            } else {
+                lappend row [expr {($i>$j?$j:$i)-2.0}]
+            }
+        }
+        lappend result $row
+    }
+    return $result
+}
+
+# mkFrank --
+#     Make a Frank matrix
+# Arguments:
+#     size       Size of the matrix
+# Result:
+#     A nested list, representing a Frank matrix
+#
+proc ::math::linearalgebra::mkFrank { size } {
+    set result {}
+    for { set j 0 } { $j < $size } { incr j } {
+        set row {}
+        for { set i 0 } { $i < $size } { incr i } {
+            lappend row [expr {($i>$j?$j:$i)-2.0}]
+        }
+        lappend result $row
+    }
+    return $result
+}
+
+# mkBorder --
+#     Make a bordered matrix
+# Arguments:
+#     size       Size of the matrix
+# Result:
+#     A nested list, representing a bordered matrix
+# Note:
+#     This matrix has size-2 eigenvalues at 1.
+#
+proc ::math::linearalgebra::mkBorder { size } {
+    set result {}
+    for { set j 0 } { $j < $size } { incr j } {
+        set row {}
+        for { set i 0 } { $i < $size } { incr i } {
+            set entry 0.0
+            if { $i == $j } {
+                set entry 1.0
+            }
+            if { $i == $size-1 } {
+                set entry [expr {pow(2.0,-$j}]
+                if { $j == $size-1 } {
+                   set entry 0.0
+                }
+            }
+            if { $j == $size-1 } {
+                set entry [expr {pow(2.0,-$i}]
+                if { $i == $size-1 } {
+                   set entry 0.0
+                }
+            }
+            lappend row $entry
+        }
+        lappend result $row
+    }
+    return $result
+}
+
+# mkWilkinsonW+ --
+#     Make a Wilkinson W+ matrix
+# Arguments:
+#     size       Size of the matrix
+# Result:
+#     A nested list, representing a Wilkinson W+ matrix
+# Note:
+#     This kind of matrix has pairs of eigenvalues that
+#     are very close together. Usually the order is odd.
+#
+proc ::math::linearalgebra::mkWilkinsonW+ { size } {
+    set result {}
+    for { set j 0 } { $j < $size } { incr j } {
+        set row {}
+        for { set i 0 } { $i < $size } { incr i } {
+            set entry 0.0
+            if { $i == $j } {
+                set entry [expr {$size/2 + 1 -
+                                   ($i>$size-$i+1? $size-$i : $i+1)}]
+            }
+            if { $i == $j+1 || $i+1 == $j } {
+                set entry 1
+            }
+            lappend row $entry
+        }
+        lappend result $row
+    }
+    return $result
+}
+
+# mkWilkinsonW+ --
+#     Make a Wilkinson W+ matrix
+# Arguments:
+#     size       Size of the matrix
+# Result:
+#     A nested list, representing a Wilkinson W+ matrix
+# Note:
+#     This kind of matrix has pairs of eigenvalues with
+#     opposite signs (if the order is odd).
+#
+proc ::math::linearalgebra::mkWilkinsonW- { size } {
+    set result {}
+    for { set j 0 } { $j < $size } { incr j } {
+        set row {}
+        for { set i 0 } { $i < $size } { incr i } {
+            set entry 0.0
+            if { $i == $j } {
+                set entry [expr {$size/2 + $i}]
+            }
+            if { $i == $j+1 || $i+1 == $j } {
+                set entry 1
+            }
+            lappend row $entry
+        }
+        lappend result $row
+    }
+    return $result
+}
+
 # getrow --
 #     Get the specified row from a matrix
 # Arguments:
@@ -974,7 +1170,7 @@ proc ::math::linearalgebra::solveGaussBand { matrix bvect } {
         set sweep_row   [getrow $matrix $i]
         set bvect_sweep [getrow $bvect  $i]
 
-        set sweep_fact [expr { double([lindex $sweep_row [expr {$lowdiags-$i}]]) }]
+        set sweep_fact [lindex $sweep_row [expr {$lowdiags-$i}]]
 
         for { set j [expr {$i+1}] } { $j <= $lowdiags } { incr j } {
             set sweep_row     [concat [lrange $sweep_row 1 end] 0.0]
@@ -1010,7 +1206,7 @@ proc ::math::linearalgebra::solveTriangularBand { matrix bvect } {
     for { set i [expr {$norows-1}] } { $i >= 0 } { incr i -1 } {
         set sweep_row   [getrow $matrix $i]
         set bvect_sweep [getrow $bvect  $i]
-        set sweep_fact  [expr { double([lindex $sweep_row $middle]) }]
+        set sweep_fact  [lindex $sweep_row $middle]
         set norm_fact   [expr {1.0/$sweep_fact}]
 
         lset bvect $i [scale $norm_fact $bvect_sweep]
@@ -1121,17 +1317,137 @@ proc ::math::linearalgebra::determineSVD { A {epsilon 2.3e-16} } {
     return [list $A $S $V]
 }
 
+# eigenvectorsSVD --
+#     Determine the eigenvectors and eigenvalues of a real
+#     symmetric matrix via the SVD
+# Arguments:
+#     A          Matrix to be examined
+#     epsilon    Tolerance for the procedure (defaults to 2.3e-16)
+#
+# Result:
+#     List of the matrix of eigenvectors and the vector of corresponding
+#     eigenvalues
+# Note:
+#     This is taken directly from Hume's LA package, and adjusted
+#     to fit the different matrix format. Also changes are applied
+#     that can be found in the second edition of Nash's book
+#     "Compact numerical methods for computers"
+#
+proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
+    foreach {m n} [shape $A] {break}
+    if { $m != $n } {
+       return -code error "Expected a square matrix"
+    }
+
+    #
+    # Determine the shift h so that the matrix A+hI is positive
+    # definite (the Gershgorin region)
+    #
+    set h {}
+    set i 0
+    foreach row $matrix {
+        set aii [lindex $row $i]
+        set sum [expr {2.0*abs($aii) - [norm_one $row]}]
+        incr i
+
+        if { $h == {} || $sum < $h } {
+            set h $sum
+        }
+    }
+    if { $h <= $eps } {
+        set h [expr {$h - sqrt($eps)}]
+        # try to make smallest eigenvalue positive and not too small
+        set A [sub $A [mkIdentity $m $h]]
+    } else {
+        set h 0.0
+    }
+
+    #
+    # Determine the SVD decomposition: this holds the
+    # eigenvectors and eigenvalues
+    #
+    foreach {U S V} [determineSVD $A $eps]
+
+    #
+    # Rescale and flip signs if all negative or zero
+    #
+    set evals {}
+    for {set j 0} {$j < $n} {incr j} {
+        set s 0.0
+        set notpositive 0
+        for {set i 0} {$i < $n} {incr i} {
+            set Aij [lindex $A $i $j]
+            if { $Aij <= 0.0 } {
+               incr notpositive
+            }
+            set s [expr {$s + $Aij*$Aij}]
+        }
+        set s [expr {sqrt($s)}]
+        if { $notpositive == $n } {
+            set sf [expr {0.0-$s}]
+        } else {
+            set sf $s
+        }
+        set colv [getcol $A $j]
+        setcol A [scale [expr {1.0/$sf}] $colv]
+        lappend evals [expr {$s+$h}]
+    }
+    return [list $A $evals]
+}
+
+# orthonormalizeColumns --
+#     Orthonormalize the columns of a matrix, using the modified
+#     Gram-Schmidt method
+# Arguments:
+#     matrix     Matrix to be treated
+#
+# Result:
+#     Matrix with pairwise orthogonal columns, each having length 1
+#
+proc ::math::linearalgebra::orthonormalizeColumns { matrix } {
+    transpose [orthonormalizeRows [transpose $matrix]]
+}
+
+# orthonormalizeRows --
+#     Orthonormalize the rows of a matrix, using the modified
+#     Gram-Schmidt method
+# Arguments:
+#     matrix     Matrix to be treated
+#
+# Result:
+#     Matrix with pairwise orthogonal rows, each having length 1
+#
+proc ::math::linearalgebra::orthonormalizeRows { matrix } {
+    set result $matrix
+    set rowno  0
+    foreach r $matrix {
+        set newrow [unitLengthVector [getrow $result $rowno]]
+        setrow result $rowno $newrow
+        incr rowno
+        set  rowno2 $rowno
+
+        #
+        # Update the matrix immediately: this is numerically
+        # more stable
+        #
+        foreach nextrow [lrange $result $rowno end] {
+            set factor  [dotproduct $newrow $nextrow]
+            set nextrow [sub_vect $nextrow [scale_vect $factor $newrow]]
+            setrow result $rowno2 $nextrow
+            incr rowno2
+        }
+    }
+    return $result
+}
+
+
 if { 0 } {
 Te doen:
 behoorlijke testen!
 matmul
 solveGauss_band
-modified Gram-Schmidt
-svd
 join_col, join_row
-de overige testmatrices uit Nash
 to_LA, from_LA
-eigenvectoren
 is matrix symmetrisch?
 kleinste-kwadraten met SVD en met Gauss
 PCA
@@ -1171,4 +1487,17 @@ puts "[::math::linearalgebra::determineSVD $M]"
 if { 0 } {
 set M {{1 2} {2 1}}
 puts "[::math::linearalgebra::normMatrix $M]"
+}
+if { 0 } {
+set M {{1.3 2.3} {2.123 1}}
+puts "[::math::linearalgebra::show $M]"
+set M {{1.3 2.3 45 3.} {2.123 1 5.6 0.01}}
+puts "[::math::linearalgebra::show $M]"
+puts "[::math::linearalgebra::show $M %12.4f]"
+}
+if { 0 } {
+    set M {{1 0 0}
+           {1 1 0}
+           {1 1 1}}
+    puts [::math::linearalgebra::orthonormalizeRows $M]
 }
