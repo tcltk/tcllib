@@ -1,3 +1,7 @@
+2003-12-18  David N. Welton  <davidw@dedasys.com>
+
+	* logger.man: Document changes to logger API.
+
 2003-12-16  David N. Welton  <davidw@dedasys.com>
 
 	* logger.test (2.1): Test deletion callbacks.
