@@ -28,7 +28,7 @@ incompatible and otherwise.
 
 [para]
 
-The main command of the package is:
+The main commands of the package are:
 
 [list_begin definitions]
 
@@ -85,6 +85,20 @@ is equivalent to
     mytree deserialize $b
 }]
 
+
+[call [cmd ::struct::tree::prune]]
+
+This command is provided outside of the tree methods, as it is not a
+tree method per se. It however interacts tightly with the method
+[method walk]. When used in the walk script it causes the traversal to
+ignore the children of the node we are currently at.
+
+This command cannot be used with the traversal modes which look at
+children before their parent, i.e. [const post] and [const in]. The
+only applicable orders of traversal are [const pre] and
+[const both]. An error is thrown if the command and chosen order of
+traversal do not fit.
+
 [list_end]
 [para]
 
@@ -129,6 +143,15 @@ This operation is in effect equivalent to
 [example_begin]
     [arg desttree] [method deserialize] [lb][arg treeName] [method serialize][rb]
 [example_end]
+
+
+[call [arg treeName] [method ancestors] [arg node]]
+
+This method extends the method [method parent] and returns a list
+containing all ancestor nodes to the specified [arg node]. The
+immediate ancestor, in other words, parent node, is the first element
+in that list, its parent the second element, and so on until the root
+node is reached, making it the last element of the returned list.
 
 
 [call [arg treeName] [method append] [arg node] [arg key] [arg value]]
@@ -242,6 +265,20 @@ will be removed as well to prevent orphaned nodes.
 [call [arg treeName] [method depth] [arg node]]
 
 Return the number of steps from node [arg node] to the root node.
+
+
+[call [arg treeName] [method descendants] [arg node] [opt "[const filter] [arg cmdprefix]"]]
+
+This method extends the method [method children] and returns a list
+containing all nodes descending from [arg node], and passing the
+filter, if such was specified.
+
+[nl]
+
+This is actually the same as
+"[arg treeName] [method children] [option -all]".
+[method descendants] should be prefered, and "children -all"
+will be deprecated sometime in the future.
 
 
 [call [arg treeName] [method deserialize] [arg serialization]]
@@ -592,7 +629,13 @@ both        bfs     enter, leave    parent before and after children
 -----       ----    -----           -----
 }]
 
+[nl]
 
+Note the command [cmd ::struct::tree::prune]. This command can be used
+in the walk script to force the command to ignore the children of the
+node we are currently at. It will throw an error if the order of
+traversal is either [const post] or [const in] as these modes visit
+the children before their parent, making pruning non-sensical.
 
 [list_end]
 
