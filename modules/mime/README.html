@@ -87,10 +87,10 @@ smtp::sendmessage<br></b>
 mime::parseaddress<br></b>
 <b><a href="#mime_parsedatetime">3.10</a>&nbsp;
 mime::parsedatetime<br></b>
-<b><a href="#mime_mapencodings">3.10</a>&nbsp;
-mime::mapencodings<br></b>
-<b><a href="#mime_reversemapencodings">3.10</a>&nbsp;
-mime::reversemapencodings<br></b>
+<b><a href="#mime_mapencoding">3.10</a>&nbsp;
+mime::mapencoding<br></b>
+<b><a href="#mime_reversemapencoding">3.10</a>&nbsp;
+mime::reversemapencoding<br></b>
 
 <b><a href="#anchor6">4.</a>&nbsp;
 EXAMPLES<br></b>
@@ -327,7 +327,7 @@ Parameters:
 </pre><font face="verdana, helvetica, arial, sans-serif" size="2">
 
 <p>
-<a href="#mime_mapencodings">mime::mapencodings</a>
+<a href="#mime_mapencoding">mime::mapencoding</a>
 returns a string.
 Parameters:
 </p>
@@ -335,7 +335,7 @@ Parameters:
 </pre><font face="verdana, helvetica, arial, sans-serif" size="2">
 
 <p>
-<a href="#mime_reversemapencodings">mime::reversemapencodings</a>
+<a href="#mime_reversemapencoding">mime::reversemapencoding</a>
 returns a string.
 Parameters:
 </p>
@@ -391,7 +391,7 @@ mime::finalize destroys a MIME part.
 
 <p>
 If the -subordinates option is present,
-it specifies which subordinates should be also be destroyed.
+it specifies which subordinates should also be destroyed.
 The default value is "dynamic".
 </p>
 
@@ -712,19 +712,19 @@ The list of properties and their ranges are:
     zone         -720 .. 720 (minutes east of GMT)
 </pre><font face="verdana, helvetica, arial, sans-serif" size="2">
 
-<h4><a name="mime_mapencodings">3.10</a>&nbsp;mime::mapencodings</h4>
+<h4><a name="mime_mapencoding">3.10</a>&nbsp;mime::mapencoding</h4>
 
 <p>
-mime::mapencodings takes a string containing the name of a
+mime::mapencoding takes a string containing the name of a
 tcl encoding (see [encoding names]) and returns the MIME
 charset name for that encoding (or "" if the charset name
 is unknown).
 </p>
 
-<h4><a name="mime_reversemapencodings">3.10</a>&nbsp;mime::reversemapencodings</h4>
+<h4><a name="mime_reversemapencoding">3.10</a>&nbsp;mime::reversemapencoding</h4>
 
 <p>
-mime::reversemapencodings takes a string containing the name of a
+mime::reversemapencoding takes a string containing the name of a
 MIME charset tcl encoding (see [encoding names]) and returns the MIME
 charset name for that encoding (or "" if no known tcl encoding maps to
 the mime charset type).

@@ -30,8 +30,8 @@ Table of Contents
    3.9  smtp::sendmessage  . . . . . . . . . . . . . . . . . . . . .   7
    3.10 mime::parseaddress . . . . . . . . . . . . . . . . . . . . .   8
    3.11 mime::parsedatetime  . . . . . . . . . . . . . . . . . . . .   9
-   3.12 mime::mapencodings . . . . . . . . . . . . . . . . . . . . .   9
-   3.13 mime::reversemapencodings  . . . . . . . . . . . . . . . . .   9
+   3.12 mime::mapencoding  . . . . . . . . . . . . . . . . . . . . .   9
+   3.13 mime::reversemapencoding . . . . . . . . . . . . . . . . . .   9
 
    4.   EXAMPLES . . . . . . . . . . . . . . . . . . . . . . . . . .  10
         References . . . . . . . . . . . . . . . . . . . . . . . . .  12
@@ -225,10 +225,10 @@ README                          Tcl MIME                   February 2000
    mime::parsedatetime (Section 3.10) returns a string. Parameters:
        [string | -now] property
 
-   mime::mapencodings (Section 3.10) returns a string. Parameters:
+   mime::mapencoding (Section 3.10) returns a string. Parameters:
        encoding_name
 
-   mime::reversemapencodings (Section 3.10) returns a string. Parameters:
+   mime::reversemapencoding (Section 3.10) returns a string. Parameters:
        charset_type
 
 
@@ -265,7 +265,7 @@ README                          Tcl MIME                   February 2000
    mime::finalize destroys a MIME part.
 
    If the -subordinates option is present, it specifies which
-   subordinates should be also be destroyed. The default value is
+   subordinates should also be destroyed. The default value is
    "dynamic".
 
 3.3 mime::getproperty
@@ -494,15 +494,15 @@ README                          Tcl MIME                   February 2000
        year         1900 ...
        zone         -720 .. 720 (minutes east of GMT)
 
-3.10 mime::mapencodings
+3.10 mime::mapencoding
 
    mime::mapencodings maps tcl encodings onto the proper names for their
    MIME charset type.  This is only done for encodings whose charset types
    were known.  The remaining encodings return "" for now.
 
-3.10 mime::reversemapencodings
+3.10 mime::reversemapencoding
 
-   mime::reversemapencodings maps MIME charset types onto tcl encoding names.
+   mime::reversemapencoding maps MIME charset types onto tcl encoding names.
    Those that are unknown return "".
 
 

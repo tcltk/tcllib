@@ -1,4 +1,15 @@
 
+2000-09-04  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+        * README.xml
+        * README.txt
+        * README.html
+        * mime.tcl:  Added proc header comment blocks to all procedures.
+        Some are better than others, and they were written based on a
+        quick analysis of the code and the documentation in the README
+        file.  They should be updated as they change or are found to be
+        inaccurate.
+
 2000-09-01  Dan Kuchler  <kuchler@ajubasolutions.com>
        
         * mime.tcl

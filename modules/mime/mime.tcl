@@ -195,10 +195,36 @@ namespace eval mime {
                      uniqueID
 }
 
-
+# mime::initialize --
 #
-# parts is parts
+#	Creates a MIME part, and returnes the MIME token for that part.
 #
+# Arguments:
+#	args   Args can be any one of the following:
+#                  ?-canonical type/subtype
+#                  ?-param    {key value}?...
+#                  ?-encoding value?
+#                  ?-header   {key value}?... ?
+#                  (-file name | -string value | -parts {token1 ... tokenN})
+#
+#       If the -canonical option is present, then the body is in
+#       canonical (raw) form and is found by consulting either the -file,
+#       -string, or -part option. 
+#
+#       In addition, both the -param and -header options may occur zero
+#       or more times to specify "Content-Type" parameters (e.g.,
+#       "charset") and header keyword/values (e.g.,
+#       "Content-Disposition"), respectively. 
+#
+#       Also, -encoding, if present, specifies the
+#       "Content-Transfer-Encoding" when copying the body.
+#
+#       If the -canonical option is not present, then the MIME part
+#       contained in either the -file or the -string option is parsed,
+#       dynamically generating subordinates as appropriate.
+#
+# Results:
+#	An initialized mime token.
 
 proc mime::initialize {args} {
     global errorCode errorInfo
@@ -223,6 +249,22 @@ proc mime::initialize {args} {
     return $token
 }
 
+# mime::initializeaux --
+#
+#	Configures the MIME token created in mime::initialize based on
+#       the arguments that mime::initialize supports.
+#
+# Arguments:
+#       token  The MIME token to configure.
+#	args   Args can be any one of the following:
+#                  ?-canonical type/subtype
+#                  ?-param    {key value}?...
+#                  ?-encoding value?
+#                  ?-header   {key value}?... ?
+#                  (-file name | -string value | -parts {token1 ... tokenN})
+#
+# Results:
+#       Either configures the mime token, or throws an error.
 
 proc mime::initializeaux {token args} {
     global errorCode errorInfo
@@ -431,6 +473,17 @@ proc mime::initializeaux {token args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# mime::parsepart --
+#
+#       Parses the MIME headers and attempts to break up the message
+#       into its various parts, creating a MIME token for each part.
+#
+# Arguments:
+#       token  The MIME token to parse.
+#
+# Results:
+#       Throws an error if it has problems parsing the MIME token,
+#       otherwise it just sets up the appropriate variables.
 
 proc mime::parsepart {token} {
     variable $token
@@ -697,6 +750,18 @@ proc mime::parsepart {token} {
     }
 }
 
+# mime::parsetype --
+#
+#       Parses the string passed in and identifies the content-type and
+#       params strings.
+#
+# Arguments:
+#       token  The MIME token to parse.
+#       string The content-type string that should be parsed.
+#
+# Results:
+#       Returns the content and params for the string as a two element
+#       tcl list.
 
 proc mime::parsetype {token string} {
     global errorCode errorInfo
@@ -728,6 +793,18 @@ proc mime::parsetype {token string} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# mime::parsetypeaux --
+#
+#       A helper function for mime::parsetype.  Parses the specified
+#       string looking for the content type and params.
+#
+# Arguments:
+#       token  The MIME token to parse.
+#       string The content-type string that should be parsed.
+#
+# Results:
+#       Returns the content and params for the string as a two element
+#       tcl list.
 
 proc mime::parsetypeaux {token string} {
     variable $token
@@ -802,6 +879,21 @@ proc mime::parsetypeaux {token string} {
     }
 }
 
+# mime::finalize --
+#
+#   mime::finalize destroys a MIME part.
+#
+#   If the -subordinates option is present, it specifies which
+#   subordinates should also be destroyed. The default value is
+#   "dynamic".
+#
+# Arguments:
+#       token  The MIME token to parse.
+#       args   Args can be optionally be of the following form:
+#              ?-subordinates "all" | "dynamic" | "none"?
+#
+# Results:
+#       Returns an empty string.
 
 proc mime::finalize {token args} {
     variable $token
@@ -839,6 +931,36 @@ proc mime::finalize {token args} {
     unset $token
 }
 
+# mime::getproperty --
+#
+#   mime::getproperty returns the properties of a MIME part.
+#
+#   The properties are:
+#
+#       property    value
+#       ========    =====
+#       content     the type/subtype describing the content
+#       encoding    the "Content-Transfer-Encoding"
+#       params      a list of "Content-Type" parameters
+#       parts       a list of tokens for the part's subordinates
+#       size        the approximate size of the content (unencoded)
+#
+#   The "parts" property is present only if the MIME part has
+#   subordinates.
+#
+#   If mime::getproperty is invoked with the name of a specific
+#   property, then the corresponding value is returned; instead, if
+#   -names is specified, a list of all properties is returned;
+#   otherwise, a serialized array of properties and values is returned.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       property   One of 'content', 'encoding', 'params', 'parts', and
+#                  'size'. Defaults to returning a serialized array of
+#                  properties and values.
+#
+# Results:
+#       Returns the properties of a MIME part
 
 proc mime::getproperty {token {property ""}} {
     variable $token
@@ -892,6 +1014,16 @@ proc mime::getproperty {token {property ""}} {
     }
 }
 
+# mime::getsize --
+#
+#    Determine the size (in bytes) of a MIME part/token
+#
+# Arguments:
+#       token      The MIME token to parse.
+#
+# Results:
+#       Returns the size in bytes of the MIME token.
+
 proc mime::getsize {token} {
     variable $token
     upvar 0 $token state
@@ -932,10 +1064,29 @@ proc mime::getsize {token} {
     return $size
 }
 
-
+# mime::getheader --
 #
-# header access
+#    mime::getheader returns the header of a MIME part.
 #
+#    A header consists of zero or more key/value pairs. Each value is a
+#    list containing one or more strings.
+#
+#    If mime::getheader is invoked with the name of a specific key, then
+#    a list containing the corresponding value(s) is returned; instead,
+#    if -names is specified, a list of all keys is returned; otherwise, a
+#    serialized array of keys and values is returned. Note that when a
+#    key is specified (e.g., "Subject"), the list returned usually
+#    contains exactly one string; however, some keys (e.g., "Received")
+#    often occur more than once in the header, accordingly the list
+#    returned usually contains more than one string.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       key        Either a key or '-names'.  If it is '-names' a list
+#                  of all keys is returned.
+#
+# Results:
+#       Returns the header of a MIME part.
 
 proc mime::getheader {token {key ""}} {
     variable $token
@@ -966,6 +1117,34 @@ proc mime::getheader {token {key ""}} {
     }
 }
 
+# mime::setheader --
+#
+#    mime::setheader writes, appends to, or deletes the value associated
+#    with a key in the header.
+#
+#    The value for -mode is one of: 
+#
+#       write: the key/value is either created or overwritten (the
+#       default);
+#
+#       append: a new value is appended for the key (creating it as
+#       necessary); or,
+#
+#       delete: all values associated with the key are removed (the
+#       "value" parameter is ignored).
+#
+#    Regardless, mime::setheader returns the previous value associated
+#    with the key.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       key        The name of the key whose value should be set.
+#       value      The value for the header key to be set to.
+#       args       An optional argument of the form:
+#                  ?-mode "write" | "append" | "delete"?
+#
+# Results:
+#       Returns previous value associated with the specified key.
 
 proc mime::setheader {token key value args} {
     variable $token
@@ -1024,10 +1203,40 @@ proc mime::setheader {token key value args} {
     return $result
 }
 
-
+# mime::getbody --
 #
-# body handling
+#    mime::getbody returns the body of a leaf MIME part in canonical form.
 #
+#    If the -command option is present, then it is repeatedly invoked
+#    with a fragment of the body as this:
+#
+#        uplevel #0 $callback [list "data" $fragment]
+#
+#    (The -blocksize option, if present, specifies the maximum size of
+#    each fragment passed to the callback.)
+#    When the end of the body is reached, the callback is invoked as:
+#
+#        uplevel #0 $callback "end"
+#
+#    Alternatively, if an error occurs, the callback is invoked as:
+#
+#        uplevel #0 $callback [list "error" reason]
+#
+#    Regardless, the return value of the final invocation of the callback
+#    is propagated upwards by mime::getbody.
+#
+#    If the -command option is absent, then the return value of
+#    mime::getbody is a string containing the MIME part's entire body.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       args       Optional arguments of the form:
+#                  ?-command callback ?-blocksize octets? ?
+#
+# Results:
+#       Returns a string containing the MIME part's entire body, or
+#       if '-command' is specified, the return value of the command
+#       is returned.
 
 proc mime::getbody {token args} {
     global errorCode errorInfo
@@ -1170,6 +1379,22 @@ proc mime::getbody {token args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# mime::getbodyaux --
+#
+#    Builds up the body of the message, fragment by fragment.  When
+#    the entire message has been retrieved, it is returned.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       reason     One of 'data', 'end', or 'error'.
+#       fragment   The section of data data fragment to extract a
+#                  string from.
+#
+# Results:
+#       Returns nothing, except when called with the 'end' argument
+#       in which case it returns a string that contains all of the
+#       data that 'getbodyaux' has been called with.  Will throw an
+#       error if it is called with the reason of 'error'.
 
 proc mime::getbodyaux {token reason {fragment ""}} {
     variable $token
@@ -1198,10 +1423,20 @@ proc mime::getbodyaux {token reason {fragment ""}} {
     }
 }
 
-
+# mime::copymessage --
 #
-# message handling
+#    mime::copymessage copies the MIME part to the specified channel.
 #
+#    mime::copymessage operates synchronously, and uses fileevent to
+#    allow asynchronous operations to proceed independently.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       channel    The channel to copy the message to.
+#
+# Results:
+#       Returns nothing unless an error is thrown while the message
+#       is being written to the channel.
 
 proc mime::copymessage {token channel} {
     global errorCode errorInfo
@@ -1225,6 +1460,17 @@ proc mime::copymessage {token channel} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# mime::copymessageaux --
+#
+#    mime::copymessageaux copies the MIME part to the specified channel.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#       channel    The channel to copy the message to.
+#
+# Results:
+#       Returns nothing unless an error is thrown while the message
+#       is being written to the channel.
 
 proc mime::copymessageaux {token channel} {
     variable $token
@@ -1402,13 +1648,19 @@ proc mime::copymessageaux {token channel} {
     }
 }
 
+# mime::buildmessage --
 #
-# The following is a clone of the copymessage code to build up the
-# result in memory, and, unfortunately, without using a memory channel.
-# I considered parameterizing the "puts" calls in copy message, but
-# the need for this procedure may go away, so I'm living with it for
-# the moment.
+#     The following is a clone of the copymessage code to build up the
+#     result in memory, and, unfortunately, without using a memory channel.
+#     I considered parameterizing the "puts" calls in copy message, but
+#     the need for this procedure may go away, so I'm living with it for
+#     the moment.
 #
+# Arguments:
+#       token      The MIME token to parse.
+#
+# Results:
+#       Returns the message that has been built up in memory.
 
 proc mime::buildmessage {token} {
     global errorCode errorInfo
@@ -1431,6 +1683,20 @@ proc mime::buildmessage {token} {
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
+
+# mime::buildmessageaux --
+#
+#     The following is a clone of the copymessageaux code to build up the
+#     result in memory, and, unfortunately, without using a memory channel.
+#     I considered parameterizing the "puts" calls in copy message, but
+#     the need for this procedure may go away, so I'm living with it for
+#     the moment.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#
+# Results:
+#       Returns the message that has been built up in memory.
 
 proc mime::buildmessageaux {token} {
     variable $token
@@ -1598,6 +1864,16 @@ proc mime::buildmessageaux {token} {
     return $result
 }
 
+# mime::encoding --
+#
+#     Determines how a token is encoded.
+#
+# Arguments:
+#       token      The MIME token to parse.
+#
+# Results:
+#       Returns the encoding of the message (the null string, base64,
+#       or quoted-printable).
 
 proc mime::encoding {token} {
     variable $token
@@ -1692,6 +1968,17 @@ proc mime::encoding {token} {
     return ""
 }
 
+# mime::encodingasciiP --
+#
+#     Checks if a string is a pure ascii string, or if it has a non-standard
+#     form.
+#
+# Arguments:
+#       line    The line to check.
+#
+# Results:
+#       Returns 1 if \r only occurs at the end of lines, and if all
+#       characters in the line are between the ASCII codes of 32 and 126.
 
 proc mime::encodingasciiP {line} {
     foreach c [split $line ""] {
@@ -1715,6 +2002,17 @@ proc mime::encodingasciiP {line} {
     return 0
 }
 
+# mime::encodinglineP --
+#
+#     Checks if a string is a line is valid to be processed.
+#
+# Arguments:
+#       line    The line to check.
+#
+# Results:
+#       Returns 1 the line is less than 76 characters long, the line
+#       contains more characters than just whitespace, the line does
+#       not start with a '.', and the line does not start with 'From '.
 
 proc mime::encodinglineP {line} {
     if {([string length $line] > 76) \
@@ -1926,13 +2224,40 @@ proc mime::qp_decode {string {encoded_word 0}} {
     return [subst $string]
 }
 
+# mime::parseaddress --
 #
-# address handling
+#       This was originally written circa 1982 in C. we're still using it
+#       because it recognizes virtually every buggy address syntax ever
+#       generated!
 #
-#    this was originally written circa 1982 in C. we're still using it
-#    because it recognizes virtually every buggy address syntax ever
-#    generated!
+#       mime::parseaddress takes a string containing one or more 822-style
+#       address specifications and returns a list of serialized arrays, one
+#       element for each address specified in the argument.
 #
+#    Each serialized array contains these properties:
+#
+#       property    value
+#       ========    =====
+#       address     local@domain
+#       comment     822-style comment
+#       domain      the domain part (rhs)
+#       error       non-empty on a parse error
+#       group       this address begins a group
+#       friendly    user-friendly rendering
+#       local       the local part (lhs)
+#       memberP     this address belongs to a group
+#       phrase      the phrase part
+#       proper      822-style address specification
+#       route       822-style route specification (obsolete)
+#
+#    Note that one or more of these properties may be empty.
+#
+# Arguments:
+#	string        The address string to parse
+#
+# Results:
+#	Returns a list of serialized arrays, one element for each address
+#       specified in the argument.
 
 proc mime::parseaddress {string} {
     global errorCode errorInfo
@@ -1956,6 +2281,39 @@ proc mime::parseaddress {string} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# mime::parseaddressaux --
+#
+#       This was originally written circa 1982 in C. we're still using it
+#       because it recognizes virtually every buggy address syntax ever
+#       generated!
+#
+#       mime::parseaddressaux does the actually parsing for mime::parseaddress
+#
+#    Each serialized array contains these properties:
+#
+#       property    value
+#       ========    =====
+#       address     local@domain
+#       comment     822-style comment
+#       domain      the domain part (rhs)
+#       error       non-empty on a parse error
+#       group       this address begins a group
+#       friendly    user-friendly rendering
+#       local       the local part (lhs)
+#       memberP     this address belongs to a group
+#       phrase      the phrase part
+#       proper      822-style address specification
+#       route       822-style route specification (obsolete)
+#
+#    Note that one or more of these properties may be empty.
+#
+# Arguments:
+#       token         The MIME token to work from.
+#	string        The address string to parse
+#
+# Results:
+#	Returns a list of serialized arrays, one element for each address
+#       specified in the argument.
 
 proc mime::parseaddressaux {token string} {
     variable $token
@@ -2057,6 +2415,15 @@ proc mime::parseaddressaux {token string} {
     return $result
 }
 
+# mime::addr_next --
+#
+#       Locate the next address in a mime token.
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns 1 if there is another address, and 0 if there is not.
 
 proc mime::addr_next {token} {
     global errorCode errorInfo
@@ -2123,6 +2490,17 @@ proc mime::addr_next {token} {
     return 1
 }
 
+# mime::addr_specification --
+#
+#   Uses lookahead parsing to determine whether there is another
+#   valid e-mail address or not.  Throws errors if unrecognized
+#   or invalid e-mail address syntax is used.
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns 1 if there is another address, and 0 if there is not.
 
 proc mime::addr_specification {token} {
     variable $token
@@ -2226,6 +2604,16 @@ proc mime::addr_specification {token} {
     return 1
 }
 
+# mime::addr_routeaddr --
+#
+#       Parses the domain portion of an e-mail address.  Finds the '@'
+#       sign and then calls mime::addr_route to verify the domain.
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns 1 if there is another address, and 0 if there is not.
 
 proc mime::addr_routeaddr {token {checkP 1}} {
     variable $token
@@ -2269,6 +2657,17 @@ proc mime::addr_routeaddr {token {checkP 1}} {
     return 1
 }
 
+# mime::addr_route --
+#
+#    Attempts to parse the portion of the e-mail address after the @.
+#    Tries to verify that the domain definition has a valid form.
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 proc mime::addr_route {token} {
     variable $token
@@ -2333,6 +2732,17 @@ proc mime::addr_route {token} {
     }
 }
 
+# mime::addr_domain --
+#
+#    Attempts to parse the portion of the e-mail address after the @.
+#    Tries to verify that the domain definition has a valid form.
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 proc mime::addr_domain {token} {
     variable $token
@@ -2370,6 +2780,15 @@ proc mime::addr_domain {token} {
     }
 }
 
+# mime::addr_local --
+#
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 proc mime::addr_local {token} {
     variable $token
@@ -2403,6 +2822,16 @@ proc mime::addr_local {token} {
         }
     }
 }
+
+# mime::addr_phrase --
+#
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 
 proc mime::addr_phrase {token} {
@@ -2445,6 +2874,15 @@ proc mime::addr_phrase {token} {
     }
 }
 
+# mime::addr_group --
+#
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 proc mime::addr_group {token} {
     variable $token
@@ -2479,6 +2917,15 @@ proc mime::addr_group {token} {
     }
 }
 
+# mime::addr_end --
+#
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 proc mime::addr_end {token} {
     variable $token
@@ -2503,6 +2950,15 @@ proc mime::addr_end {token} {
     }    
 }
 
+# mime::addr_x400 --
+#
+#
+# Arguments:
+#       token         The MIME token to work from.
+#
+# Results:
+#	Returns nothing if successful, and throws an error if invalid
+#       syntax is found.
 
 proc mime::addr_x400 {mbox key} {
     if {[set x [string first "/$key=" [string toupper $mbox]]] < 0} {
@@ -2517,13 +2973,42 @@ proc mime::addr_x400 {mbox key} {
     return [string trim $mbox "\""]
 }
 
-
+# mime::parsedatetime --
 #
-# date handling
+#    Fortunately the clock command in the Tcl 8.x core does all the heavy 
+#    lifting for us (except for timezone calculations).
 #
-#    fortunately the clock command in the Tcl 8.x core does all the heavy 
-#    lifting for us (except for timezone calculations)
+#    mime::parsedatetime takes a string containing an 822-style date-time
+#    specification and returns the specified property.
 #
+#    The list of properties and their ranges are:
+#
+#       property     range
+#       ========     =====
+#       hour         0 .. 23
+#       lmonth       January, February, ..., December
+#       lweekday     Sunday, Monday, ... Saturday
+#       mday         1 .. 31
+#       min          0 .. 59
+#       mon          1 .. 12
+#       month        Jan, Feb, ..., Dec
+#       proper       822-style date-time specification
+#       rclock       elapsed seconds between then and now
+#       sec          0 .. 59
+#       wday         0 .. 6 (Sun .. Mon)
+#       weekday      Sun, Mon, ..., Sat
+#       yday         1 .. 366
+#       year         1900 ...
+#       zone         -720 .. 720 (minutes east of GMT)
+#
+# Arguments:
+#       value       Either a 822-style date-time specification or '-now'
+#                   if the current date/time should be used.
+#       property    The property (from the list above) to return
+#
+# Results:
+#	Returns the string value of the 'property' for the date/time that was
+#       specified in 'value'.
 
 proc mime::parsedatetime {value property} {
     if {![string compare $value -now]} {
@@ -2662,10 +3147,17 @@ proc mime::parsedatetime {value property} {
     return $value
 }
 
-
+# mime::uniqueID --
 #
-# unique identifiers
+#    Used to generate a 'globally unique identifier' for the content-id.
+#    The id is built from the pid, the current time, the hostname, and
+#    a counter that is incremented each time a message is sent.
 #
+# Arguments:
+#
+# Results:
+#	Returns the a string that contains the globally unique identifier
+#       that should be used for the Content-ID of an e-mail message.
 
 proc mime::uniqueID {} {
     variable mime
@@ -2673,10 +3165,15 @@ proc mime::uniqueID {} {
     return "<[pid].[clock seconds].[incr mime(cid)]@[info hostname]>"
 }
 
-
+# mime::parselexeme --
 #
-# helper functions
+#    Used to implement a lookahead parser.
 #
+# Arguments:
+#       token    The MIME token to operate on.
+#
+# Results:
+#	Returns the next token found by the parser.
 
 proc mime::parselexeme {token} {
     variable $token
@@ -2820,6 +3317,19 @@ proc mime::parselexeme {token} {
     return [set state(lastC) LX_ATOM]
 }
 
+# mime::mapencoding --
+#
+#    mime::mapencodings maps tcl encodings onto the proper names for their
+#    MIME charset type.  This is only done for encodings whose charset types
+#    were known.  The remaining encodings return "" for now.
+#
+# Arguments:
+#       enc      The tcl encoding to map.
+#
+# Results:
+#	Returns the MIME charset type for the specified tcl encoding, or ""
+#       if none is known.
+
 proc mime::mapencoding {enc} {
 
     variable encodings
@@ -2830,6 +3340,18 @@ proc mime::mapencoding {enc} {
     return ""
 }
 
+# mime::reversemapencoding --
+#
+#    mime::reversemapencodings maps MIME charset types onto tcl encoding names.
+#    Those that are unknown return "".
+#
+# Arguments:
+#       mimeType  The MIME charset to convert into a tcl encoding type.
+#
+# Results:
+#	Returns the tcl encoding name for the specified mime charset, or ""
+#       if none is known.
+
 proc mime::reversemapencoding {mimeType} {
 
     variable reversemap
@@ -2839,6 +3361,18 @@ proc mime::reversemapencoding {mimeType} {
     }
     return ""
 }
+
+# mime::word_encode --
+#
+#    Word encodes strings as per RFC 2047.
+#
+# Arguments:
+#       charset   The character set to encode the message to.
+#       method    The encoding method (base64 or quoted-printable).
+#       string    The string to encode.
+#
+# Results:
+#	Returns a word encoded string.
 
 proc mime::word_encode {charset method string} {
 
@@ -2869,6 +3403,16 @@ proc mime::word_encode {charset method string} {
 
     return $result
 }
+
+# mime::word_decode --
+#
+#    Word decodes strings that have been word encoded as per RFC 2047.
+#
+# Arguments:
+#       encoded   The word encoded string to decode.
+#
+# Results:
+#	Returns the string that has been decoded from the encoded message.
 
 proc mime::word_decode {encoded} {
 
@@ -2907,6 +3451,17 @@ proc mime::word_decode {encoded} {
 
     return [list $reversemap($charset) $method $result]
 }
+
+# mime::field_decode --
+#
+#    Word decodes strings that have been word encoded as per RFC 2047
+#    and converts the string from UTF to the original encoding/charset.
+#
+# Arguments:
+#       field     The string to decode
+#
+# Results:
+#	Returns the decoded string in its original encoding/charset..
 
 proc mime::field_decode {field} {
 

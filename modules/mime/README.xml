@@ -207,7 +207,7 @@ Parameters:</preamble>
 </figure>
 
 <figure>
-<preamble><xref target="mime_mapencodings">mime::mapencodings</xref>
+<preamble><xref target="mime_mapencoding">mime::mapencoding</xref>
 returns a string.
 Parameters:</preamble>
 <artwork><![CDATA[    encoding_name
@@ -215,7 +215,7 @@ Parameters:</preamble>
 </figure>
 
 <figure>
-<preamble><xref target="mime_reversemapencodings">mime::reversemapencodings</xref>
+<preamble><xref target="mime_reversemapencoding">mime::reversemapencoding</xref>
 returns a string.
 Parameters:</preamble>
 <artwork><![CDATA[    content_type
@@ -253,7 +253,7 @@ dynamically generating subordinates as appropriate.</t>
 <t>mime::finalize destroys a MIME part.</t>
 
 <t>If the -subordinates option is present,
-it specifies which subordinates should be also be destroyed.
+it specifies which subordinates should also be destroyed.
 The default value is "dynamic".</t>    
 </section>
 
@@ -488,14 +488,14 @@ date-time specification and returns the specified property.</t>
 </figure>
 </section>
 
-<section anchor="mime_mapencodings" title="mime::mapencodings">
-<t>mime::mapencodings maps tcl encodings onto the proper names for their
+<section anchor="mime_mapencoding" title="mime::mapencoding">
+<t>mime::mapencoding maps tcl encodings onto the proper names for their
 MIME charset type.  This is only done for encodings whose charset types
 were known.  The remaining encodings return "" for now.</t>
 </section>
 
-<section anchor="mime_reversemapencodings" title="mime::reversemapencodings">
-<t>mime::reversemapencodings maps MIME charset types onto tcl encoding names.
+<section anchor="mime_reversemapencoding" title="mime::reversemapencoding">
+<t>mime::reversemapencoding maps MIME charset types onto tcl encoding names.
 Those that are unknown return "".</t>
 </section>
 
