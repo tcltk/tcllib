@@ -1,4 +1,12 @@
-2003-06-06  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-06-06  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl (::mime::word_decode): Accept lower-case encoding
+	  specifiers. [Bug 732512]. Reported by Matthew Walker
+	  <gunzel@users.sourceforge.net>, plus patch. Patch accepted by
+	  Marshall Rose.
+
+	* mime.test: Two more tests checking the acceptance of lower-case
+	  encoding specifiers.
 
 	* mime.tcl (::mime::parsepart): Reactivated error command, revert
 	  to error on malformed mime input, instead of infinite
