@@ -394,6 +394,15 @@ proc ::dtplite::processCmdline {} {
 	}
     }
 
+    # Set up an extension based on the format, if no extension was
+    # specified.  also compute the name of the module, based on the
+    # input. [SF Tcllib Bug 1111364]. Has to come before the line
+    # marked with a [*], or a filename without extension is created.
+
+    if {[string equal $ext ""]} {
+	set ext $format
+    }
+
     CheckInput $input {Input path}
     if {[file isfile $input]} {
 	# Input file. Merge mode is not possible. Output can be file
@@ -414,6 +423,7 @@ proc ::dtplite::processCmdline {} {
 	    # input file (and -ext, if present).
 
 	    if {[file isdirectory $output]} {
+		# [*] [SF Tcllib Bug 1111364]
 		set output [file join $output [file tail [Output $input]]]
 	    }
 	} else {
@@ -441,13 +451,6 @@ proc ::dtplite::processCmdline {} {
 	set mode Directory.Merge
     } else {
 	set mode Directory
-    }
-
-    # Set up an extension based on the format, if no extension was specified.
-    # also compute the name of the module, based on the input.
-
-    if {[string equal $ext ""]} {
-	set ext $format
     }
 
     set module [file rootname [file tail $input]]
