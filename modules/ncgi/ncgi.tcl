@@ -5,11 +5,11 @@
 # Please note that Don Libe's has a "cgi.tcl" that implements version 1.0
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures
 # (it doesn't use the ::cgi:: namespace) and has a wealth of procedures for
-# generating HTML.  In contract, the package provided here is primarly concerned
-# with processing input to CGI programs.  I have tried to mirror his API's
-# where possible.  So, ncgi::input is equivalent to cgi_input, and so on.
-# There are also some different APIs for accessing values
-# (ncgi::list, ncgi::parse and ncgi::value come to mind)
+# generating HTML.  In contract, the package provided here is primarly
+# concerned with processing input to CGI programs.  I have tried to mirror his
+# API's where possible.  So, ncgi::input is equivalent to cgi_input, and so
+# on.  There are also some different APIs for accessing values (ncgi::list,
+# ncgi::parse and ncgi::value come to mind)
 
 # Note, I use the term "query data" to refer to the data that is passed in
 # to a CGI program.  Typically this comes from a Form in an HTML browser.
@@ -22,7 +22,8 @@ package provide ncgi 1.0
 namespace eval ncgi {
 
     # "query" holds the raw query (i.e., form) data
-    # This is treated as a cache, too, so you can call ncgi::query more than once
+    # This is treated as a cache, too, so you can call ncgi::query more than
+    # once
 
     variable query
 
@@ -62,7 +63,8 @@ namespace eval ncgi {
 	" " +   \n %0D%0A
     }
  
-    # I don't like importing, but this makes everything show up in pkgIndex.tcl
+    # I don't like importing, but this makes everything show up in 
+    # pkgIndex.tcl
 
     namespace export *
 }
