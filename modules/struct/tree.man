@@ -36,6 +36,11 @@ The following commands are possible for tree objects:
 
 [list_begin definitions]
 
+[call [arg treeName] [method append] [arg node] [opt "-key [arg key]"] [arg value]]
+
+Appends a [arg value] to one of the keyed values associated with an
+node. If no [arg key] is specified, the key [strong data] is assumed.
+
 
 [call [arg treeName] [method children] [arg node]]
 
@@ -75,6 +80,22 @@ Remove true if the specified node exists in the tree.
 Return the value associated with the key [arg key] for the node
 
 [arg node]. If no key is specified, the key [strong data] is assumed.
+
+[call [arg treeName] [method getall] [arg node]]
+
+Returns a serialized list of key/value pairs (suitable for use with
+[lb][cmd {array set}][rb]) for the [arg node].
+
+
+[call [arg treeName] [method keys] [arg node]]
+
+Returns a list of keys for the [arg node].
+
+
+[call [arg treeName] [method keyexists] [arg node] [opt "-key [arg key]"]]
+
+Return true if the specified [arg key] exists for the [arg node]. If
+no [arg key] is specified, the key [strong data] is assumed.
 
 
 [call [arg treeName] [method index] [arg node]]
@@ -119,6 +140,13 @@ The return result from this command is a list of nodes added.
 
 Returns true if [arg node] is a leaf of the tree (if [arg node] has no
 children), false otherwise.
+
+
+[call [arg treeName] [method lappend] [arg node] [opt "-key [arg key]"] [arg value]]
+
+Appends a [arg value] (as a list) to one of the keyed values
+associated with an [arg node]. If no [arg key] is specified, the key
+[strong data] is assumed.
 
 
 [call [arg treeName] [method move] [arg parent] [arg index] [arg node] [opt "[arg node] ..."]]

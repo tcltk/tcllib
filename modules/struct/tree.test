@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.14 2002/02/01 21:51:42 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.15 2002/05/09 05:46:04 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -34,7 +34,7 @@ test tree-0.3 {tree errors} {
     catch {mytree foo} msg
     mytree destroy
     set msg
-} "bad option \"foo\": must be children, cut, destroy, delete, depth, exists, get, index, insert, isleaf, move, next, numchildren, parent, previous, set, size, splice, swap, unset, or walk"
+} "bad option \"foo\": must be append, children, cut, destroy, delete, depth, exists, get, getall, index, insert, isleaf, keys, keyexists, lappend, move, next, numchildren, parent, previous, set, size, splice, swap, unset, or walk"
 test tree-0.4 {tree errors} {
     catch {tree set} msg
     set msg
@@ -1102,5 +1102,169 @@ test tree-22.6 {splicing nodes with no node name and no "to" index given} {
     mytree destroy
     set t
 } {enter mytree root enter mytree node0 enter mytree node1 enter mytree node1.0 enter mytree node1.1 enter mytree node1.2 enter mytree node2}
+
+test tree-23.1 {getall gives error on bogus node} {
+    tree mytree
+    catch {mytree getall node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-23.2 {getall gives error when key specified} {
+    tree mytree
+    catch {mytree getall node0 -key data} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-23.3 {getall with node name returns list of key/value pairs} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foobar
+    mytree set node0 -key other thing
+    set results [mytree getall node0]
+    mytree destroy
+    lsort $results
+} "data foobar other thing"
   
+test tree-24.1 {keys gives error on bogus node} {
+    tree mytree
+    catch {mytree keys node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-24.2 {keys gives error when key specified} {
+    tree mytree
+    catch {mytree keys node0 -key data} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-24.3 {keys with node name returns list of keys} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foobar
+    mytree set node0 -key other thing
+    set results [mytree keys node0]
+    mytree destroy
+    lsort $results
+} "data other"
+  
+test tree-25.1 {keyexists gives error on bogus node} {
+    tree mytree
+    catch {mytree keyexists node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-25.2 {keyexists returns false on non-existant key} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree keyexists node0 -key bogus} msg
+    mytree destroy
+    set msg
+} "0"
+test tree-25.3 {keyexists uses data as default key} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foobar
+    set result [mytree keyexists node0]
+    mytree destroy
+    set result
+} "1"
+test tree-25.4 {keyexists respects -key flag} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key boom foobar
+    set result [mytree keyexists node0 -key boom]
+    mytree destroy
+    set result
+} "1"
+
+test tree-26.1 {append gives error on bogus node} {
+    tree mytree
+    catch {mytree append node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-26.2 {append with node name appends to "data" value} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foo
+    set result [mytree append node0 bar]
+    mytree destroy
+    set result
+} "foobar"
+test tree-26.3 {append with node name and key appends key value} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key baz foo
+    set result [mytree append node0 -key baz bar]
+    mytree destroy
+    set result
+} "foobar"
+test tree-26.4 {append with too many args gives error} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree append node0 foo bar baz boo} msg
+    mytree destroy
+    set msg
+} "wrong # args: should be \"mytree set node0 ?-key key? value\""
+test tree-26.5 {append with bad args} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree append node0 -foo bar baz} msg
+    mytree destroy
+    set msg
+} "invalid option \"-foo\": should be -key"
+test tree-26.6 {append respects -key flag} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key baz foo
+    set result [mytree append node0 -key baz bar]
+    mytree destroy
+    set result
+} "foobar"
+
+test tree-27.1 {lappend gives error on bogus node} {
+    tree mytree
+    catch {mytree lappend node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-27.2 {lappend with node name appends to "data" value} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foo
+    set result [mytree lappend node0 bar]
+    mytree destroy
+    set result
+} "foo bar"
+test tree-27.3 {lappend with node name and key appends key value} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key baz foo
+    set result [mytree lappend node0 -key baz bar]
+    mytree destroy
+    set result
+} "foo bar"
+test tree-27.4 {lappend with too many args gives error} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree lappend node0 foo bar baz boo} msg
+    mytree destroy
+    set msg
+} "wrong # args: should be \"mytree set node0 ?-key key? value\""
+test tree-27.5 {lappend with bad args} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree lappend node0 -foo bar baz} msg
+    mytree destroy
+    set msg
+} "invalid option \"-foo\": should be -key"
+test tree-27.6 {lappend respects -key flag} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key baz foo
+    set result [mytree lappend node0 -key baz bar]
+    mytree destroy
+    set result
+} "foo bar"
+
 ::tcltest::cleanupTests
