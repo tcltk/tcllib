@@ -1,3 +1,11 @@
+2000-04-26  Brent Welch <welch@scriptics.com>
+
+	* configure.in: Bumped patchlevel to 0.4
+	* Makefile.in: Fixed dist target to deal with missing manual
+	pages and test files.
+	* ncgi/ncgi.tcl, ncgi.test: changed names to get capitalization
+	right: setCookie, valueList, importAll, urlStub
+
 2000-04-25  Sandeep Tamhankar <sandeep@scriptics.com>
 
 	* modules/mime/mime.test: Added a somewhat rudimentary test suite
