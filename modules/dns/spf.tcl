@@ -19,15 +19,16 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: spf.tcl,v 1.1 2004/07/01 12:25:14 patthoyts Exp $
+# $Id: spf.tcl,v 1.2 2004/07/23 21:44:04 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require dns;                    # tcllib 1.3
 package require logger;                 # tcllib 1.3
+package require ip;                     # tcllib 1.7
 
 namespace eval spf {
-    variable version 1.0.0
-    variable rcsid {$Id: spf.tcl,v 1.1 2004/07/01 12:25:14 patthoyts Exp $}
+    variable version 1.1.0
+    variable rcsid {$Id: spf.tcl,v 1.2 2004/07/23 21:44:04 patthoyts Exp $}
 
     namespace export spf
 
@@ -71,7 +72,7 @@ proc ::spf::Spf {sender target spf} {
             this domain has provided version \"$version\""
     }
 
-    if {![is_ip4_addr $sender]} {
+    if {![ip::is ipv4 $sender]} {
         set ips [A $sender]
         set sender [lindex $ips 0]
     }
@@ -83,8 +84,8 @@ proc ::spf::Spf {sender target spf} {
     set directives [lrange [split $spf { }] 1 end]
     foreach directive $directives {
         set prefix [string range $directive 0 0]
-        if {$prefix eq "+" || $prefix eq "-" 
-            || $prefix eq "?" || $prefix eq "~"} {
+        if {[string equal $prefix "+"] || [string equal $prefix "-"]
+            || [string equal $prefix "?"] || [string equal $prefix "~"]} {
             set directive [string range $directive 1 end]
         } else {
             set prefix "+"
@@ -104,16 +105,18 @@ proc ::spf::Spf {sender target spf} {
             }
         } else {
             if {[catch {::spf::_$cmd $sender $target $param} res]} {
-                if {$res eq "none" || $res eq "error" || $res eq "unknown"} {
+                if {[string equal $res "none"] 
+                    || [string equal $res "error"]
+                    || [string equal $res "unknown"]} {
                     return $res
                 }
                 return -code error "error in \"$cmd\": $res"
-            }
+            }            
             if {$res} { set result $prefix }
         }
         
         ${log}::debug "$prefix $cmd\($param) -> $result"
-        if {$result eq "+"} break
+        if {[string equal $result "+"]} break
     }
     
     return $result
@@ -153,7 +156,7 @@ proc ::spf::_include {sender target param} {
     variable log
     upvar seen_domains Seen
 
-    if {[string range $param 0 0] ne ":"} {
+    if {![string equal [string range $param 0 0] ":"]} {
         return -code error "dubious parameters for \"include\""
     }
     set r ?
@@ -163,11 +166,11 @@ proc ::spf::_include {sender target param} {
         if {[catch {set r [spf $sender $domain]}]} {
             return -code error error
         }
-        if {$r eq "none" || $r eq "unknown"} {
+        if {[string equal $r "none"] || [string equal $r "unknown"]} {
             return -code error $r
         }
     }
-    return [expr {$r eq "+"}]
+    return [string equal $r "+"]
 }
 
 # 4.4: This mechanism matches if the <sending-host> is one of the
@@ -175,16 +178,14 @@ proc ::spf::_include {sender target param} {
 #
 proc ::spf::_a {sender target param} {
     variable log
-    foreach {domain bits} [splitspec [string trimleft $param :]] {}
+    foreach {domain bits} [ip::SplitIp [string trimleft $param :]] {}
     if {$domain == {}} {
         set domain $target
     }
     set dips [A $domain]
-    set ip [ipmask $sender $bits]
     foreach dip $dips {
         ${log}::debug "  compare: ${sender}/${bits} with ${dip}/${bits}"
-        set dp [ipmask $dip $bits]
-        if {$ip == $dp} {
+        if {[ip::equal $sender/$bits $dip/$bits]} {
             return 1
         }
     }
@@ -196,21 +197,20 @@ proc ::spf::_a {sender target param} {
 #
 proc ::spf::_mx {sender target param} {
     variable log
-    foreach {domain bits} [splitspec [string trimleft $param :]] {}
-    if {$domain eq ""} {
+    ${log}::debug "'$sender' '$target' '$param'"
+    foreach {domain bits} [ip::SplitIp [string trimleft $param :]] {}
+    if {[string length $domain] < 1} {
         set domain $target
     }
     ${log}::debug "  fetching MX for $domain"
     set mxs [MX $domain]
 
-    set ip [ipmask $sender $bits]
     foreach mx $mxs {
         set mx [lindex $mx 1]
         set mxips [A $mx]
         foreach mxip $mxips {
             ${log}::debug "  compare: ${sender}/${bits} with ${mxip}/${bits}"
-            set mp [ipmask $mxip $bits]
-            if {$ip == $mp} {
+            if {[ip::equal $sender/$bits $mxip/$bits]} {
                 return 1
             }
         }
@@ -231,7 +231,7 @@ proc ::spf::_ptr {sender target param} {
     foreach name $names {
         set ips [A $name]
         foreach ip $ips {
-            if {$ip eq $sender} {
+            if {[string equal $ip $sender]} {
                 lappend validnames $name
                 continue
             }
@@ -257,11 +257,9 @@ proc ::spf::_ptr {sender target param} {
 #
 proc ::spf::_ip4 {sender target param} {
     variable log
-    foreach {network bits} [splitspec [string range $param 1 end]] {}
-    set net [ipmask $network $bits]
-    set ipx [ipmask $sender $bits]
+    foreach {network bits} [ip::SplitIp [string range $param 1 end]] {}
     ${log}::debug "  compare ${sender}/${bits} to ${network}/${bits}"
-    if {$ipx == $net} {
+    if {[ip::equal $sender/$bits $network/$bits]} {
         return 1
     }
     return 0
@@ -272,7 +270,11 @@ proc ::spf::_ip4 {sender target param} {
 #
 proc ::spf::_ip6 {sender target param} {
     variable log
-    ${log}::warn "ip6 address handling not implemented."
+    foreach {network bits} [ip::SplitIp [string range $param 1 end]] {}
+    ${log}::debug "  compare ${sender}/${bits} to ${network}/${bits}"
+    if {[ip::equal $sender/$bits $network/$bits]} {
+        return 1
+    }
     return 0
 }
 
@@ -336,7 +338,7 @@ proc ::spf::Resolve {domain type resultproc} {
     }
     set tok [dns::resolve $domain -type $type]
     dns::wait $tok
-    if {[dns::status $tok] eq "ok"} {
+    if {[string equal [dns::status $tok] "ok"]} {
         set result [$resultproc $tok]
         set code   ok
     } else {
@@ -377,6 +379,11 @@ proc ::spf::A {name} {
     return [Resolve $name A ::dns::address]
 }
 
+
+proc ::spf::AAAA {name} {
+    return [Resolve $name AAAA ::dns::address]
+}
+
 proc ::spf::PTR {addr} {
     return [Resolve $addr A ::dns::name]
 }
@@ -386,56 +393,6 @@ proc ::spf::MX {domain} {
     return [lsort -index 0 $r]
 }
 
-# -------------------------------------------------------------------------
-
-# FIX ME - Factor these helpers out into an IPv4 address module or something.
-
-proc ::spf::ip2x {ip {validate 0}} {
-    set octets [split $ip .]
-    if {[llength $octets] != 4} {
-        set octets [lrange [concat $octets 0 0 0] 0 3]
-    }
-    if {$validate} {
-        foreach oct $octets {
-            if {$oct < 0 || $oct > 255} {
-                return -code error "invalid ip address"
-            }
-        }
-    }
-    binary scan [binary format c4 $octets] H8 x
-    return 0x$x
-}
-
-proc ::spf::ipmask {ip {bits {}}} {
-    if {[string length $bits] < 1} { set bits 32 }
-    set ipx [ip2x $ip]
-    if {[string is integer $bits]} {
-        set mask [expr {(0xFFFFFFFF << (32 - $bits)) & 0xFFFFFFFF}]
-    } else {
-        set mask [ip2x $bits]
-    }
-    return [format 0x%08x [expr {$ipx & $mask}]]
-}
-    
-proc ::spf::is_ip4_addr {ip} {
-    if {[catch {ip2x $ip true}]} {
-        return 0
-    }
-    return 1
-}
-
-proc ::spf::splitspec {spec} {
-    set bits 32
-    set domain $spec
-    set slash [string last / $spec]
-    if {$slash != -1} {
-        incr slash -1
-        set domain [string range $spec 0 $slash]
-        incr slash 2
-        set bits [string range $spec $slash end]
-    }
-    return [list $domain $bits]
-}
     
 # -------------------------------------------------------------------------
 
