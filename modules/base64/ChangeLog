@@ -1,3 +1,11 @@
+2003-03-24  Andreas Kupries  <andreask@activestate.com>
+
+	* uuencode.test: 
+	* uuencode.tcl: Fixed bug #700327, reported by Roger Niva
+	  <rniva@users.sourceforge.net>. Added '--' before actual data
+	  argument to prevent mishandling of data beginning with a dash
+	  ('-'). Extended the testsuite to cover these cases.
+
 2003-02-23  David N. Welton  <davidw@dedasys.com>
 
 	* base64.tcl: Bumped base64.tcl Tcl requirement to 8.2, swapped
