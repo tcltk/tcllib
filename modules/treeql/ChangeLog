@@ -11,6 +11,8 @@
 	* treeql.test: changed path to list.tcl and tree.tcl to use normalize, so you can run the test from the treeql directory
 	* treeql.test: changed usage of [getvals] to [get]
 	* treeql.tcl,treeql84.tcl: made all mapping commands consistently handle errors.
+	* treeql.tcl,treeql84.tcl: transform: removed some confusing local vars (using $query), changed arg order, fixed error.
+	* treeql.tcl,treeql84.tcl,treeql.test: foreach changed argument order
 	
 2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	

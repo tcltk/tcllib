@@ -558,25 +558,32 @@ snit::type treeql {
     }
 
     # perform a subquery then replace the nodeset
-    method transform {var query body args} {
+    method transform {q var body args} {
 	set new {}
-	foreach n [$self subquery {expand}$query] {
+	foreach n [$self subquery {expand}$q] {
 	    uplevel 1 set $var $n
-	    switch [catch {uplevel 1 $body} result eo] {
-		ok {
+	    switch [catch {
+		uplevel 1 $body
+	    } result eo] {
+		0 {
+		    # ok
 		    lappend new $result
 		}
-		error {
-		    error $result
+		1 {
+		    # error
+		    error $result	;# pass errors up
 		}
-		return {
+		2 {
+		    # return
 		    set nodes $result
 		    return
 		}
-		break {
+		3 {
+		    # break
 		    break;
 		}
-		continue {
+		4 {
+		    # continue
 		    continue;
 		}
 	    }
@@ -588,7 +595,7 @@ snit::type treeql {
     }
 
     # perform a subquery $query then map $body over results
-    method foreach {var q body args} {
+    method foreach {q var body args} {
 	foreach n [$self subquery {expand}$q] {
 	    uplevel 1 set $var $n
 	    uplevel 1 $body
