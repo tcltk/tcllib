@@ -1,3 +1,8 @@
+2001-11-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* textutil: Added 'expander' code by William H. Duquette
+	  <will@wjduquette.com>.
+
 2001-11-09  Joe English  <jenglish@users.sourceforge.net>
 
 	* comm: Replaced nroff macro trickery in comm.n manpage.
