@@ -2,7 +2,7 @@
 '\" Generated from smtpd.man by mpexpand with fmt.nroff
 '\"
 .so man.macros
-.TH "smtpd" n 1.1 smtpd "Tcl SMTP Server Package"
+.TH "smtpd" n 1.2.1 smtpd "Tcl SMTP Server Package"
 .BS
 .SH NAME
 smtpd \- Tcl SMTP server implementation
@@ -10,7 +10,7 @@ smtpd \- Tcl SMTP server implementation
 .SH "SYNOPSIS"
 package require \fBTcl 8.3\fR
 .sp
-package require \fBsmtpd ?1.1?\fR
+package require \fBsmtpd ?1.2?\fR
 .sp
 \fB::smtpd::start\fR ?\fImyaddr\fR? ?\fIport\fR?\fR
 .sp
