@@ -1,3 +1,14 @@
+2003-08-06  Andreas Kupries  <andreask@activestate.com>
+
+	* expander.tcl (Op_expand): Fixed SF tcllib bug 781973 ... Do not
+	  throw a regular error. Using HandleError now to give the user
+	  control of the situation, via the defined error mode.
+
+	* pkgIndex.tcl: Expander bumped to version 1.2.1 for this
+	  bugfix. Do not bump the version again when doing minor
+	  bugfixes. Only bigger bugfixes and major changes warrant a bump
+	  before the next release.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
