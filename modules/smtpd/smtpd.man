@@ -9,9 +9,13 @@
 [para]
 
 The [package smtpd] package provides a simple Tcl-only server library
-for the Simple Mail Transfer Protocol as described in RFC 821 and RFC
-2821.  By default the server will bind to the default network address
-and the standard SMTP port (25).
+for the Simple Mail Transfer Protocol as described in
+
+RFC  821 ([uri http://www.rfc-editor.org/rfc/rfc821.txt]) and
+RFC 2821 ([uri http://www.rfc-editor.org/rfc/rfc2821.txt]).
+
+By default the server will bind to the default network address and the
+standard SMTP port (25).
 
 [para]
 
@@ -270,5 +274,5 @@ WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
 [file license.terms] for more details.
 
-[keywords smtpd smtp services {RFC 821} {RFC 2821} vwait socket]
+[keywords smtpd smtp services {rfc 821} {rfc 2821} vwait socket]
 [manpage_end]

@@ -1,3 +1,8 @@
+2003-04-22  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* graph.man: Switched cgraph reference to a purl supplied by the
+	  cgraph author, and added wiki reference.
+
 2003-04-16  Andreas Kupries  <andreask@activestate.com>
 
 	* prioqueue.tcl (__elementcompare): Failures in testsuite fixed,

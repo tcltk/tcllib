@@ -7,10 +7,12 @@
 [description]
 
 The [package ftpd] package provides a simple Tcl-only server library
-for the FTP protocol.  It works by listening on the standard FTP
-socket.  Most server errors are returned as error messages with the
-appropriate code attached to them.  Since the server code for the ftp
-daemon is executed in the event loop, it is possible that a
+for the FTP protocol as specified in
+RFC 959 ([uri http://www.rfc-editor.org/rfc/rfc959.txt]).
+It works by listening on the standard FTP socket.  Most server errors
+are returned as error messages with the appropriate code attached to
+them.  Since the server code for the ftp daemon is executed in the
+event loop, it is possible that a
 
 [cmd bgerror] will be thrown on the server if there are problems with
 the code in the module.

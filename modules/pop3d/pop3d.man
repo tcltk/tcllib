@@ -32,7 +32,8 @@ command.
 
 A pop3 server can be started on any port the caller has permission for
 from the operating system. The default port will be 110, which is the
-port defined by the standard (RFC 1939).
+port defined by the standard specified in
+RFC 1939 ([uri http://www.rfc-editor.org/rfc/rfc1939.txt]).
 
 After creating, configuring and starting a the server object will
 listen for and accept connections on that port and handle them
@@ -222,5 +223,5 @@ pop3 connection.
 
 [list_end]
 
-[keywords pop3 internet network protocol rfc1939]
+[keywords pop3 internet network protocol {rfc 1939}]
 [manpage_end]
