@@ -1,3 +1,7 @@
+2001-07-09  Brent Welch <welch@panasas.com>
+
+	* counter.test: Fixed histlog test
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* counter.tcl: Fixed dubious code reported by frink.
