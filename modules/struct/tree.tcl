@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.21 2003/05/07 04:28:00 hobbs Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.22 2003/05/14 22:26:17 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -498,6 +498,9 @@ proc ::struct::tree::_insert {name parentNode index args} {
     } else {
 	# Validate the node names
 	foreach child $args {
+
+	    # Still required, because of per-node arrays for attributes, containing the node name in their name.
+
 	    if {[string match *::* $child]} {
 		return -code error "invalid node name \"$child\""
 	    }
@@ -785,7 +788,7 @@ proc ::struct::tree::_set {name node args} {
     upvar 0 ::struct::tree::tree${name}::node$node data
 
     if { [llength $args] > 3 } {
-	error "wrong # args: should be \"$name set $node ?-key key?\
+	error "wrong # args: should be \"$name set [list $node] ?-key key?\
 		?value?\""
     }
     
@@ -838,7 +841,7 @@ proc ::struct::tree::_append {name node args} {
     upvar 0 ::struct::tree::tree${name}::node$node data
 
     if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name set $node ?-key key?\
+	error "wrong # args: should be \"$name set [list $node] ?-key key?\
 		value\""
     }
     
@@ -877,7 +880,7 @@ proc ::struct::tree::_lappend {name node args} {
     upvar 0 ::struct::tree::tree${name}::node$node data
 
     if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name lappend $node ?-key key?\
+	error "wrong # args: should be \"$name lappend [list $node] ?-key key?\
 		value\""
     }
     
@@ -1091,7 +1094,7 @@ proc ::struct::tree::_unset {name node {flag -key} {key data}} {
     
     if { ![string match "${flag}*" "-key"] } {
 	error "invalid option \"$flag\": should be \"$name unset\
-		$node ?-key key?\""
+		[list $node] ?-key key?\""
     }
 
     upvar 0 ::struct::tree::tree${name}::node${node} data
