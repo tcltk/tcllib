@@ -1134,7 +1134,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
             proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
         } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body] 
     } else {
-        set methodInfo($method) {0 "%t::Snit_hmethod%m %t %n %w %s" ""}
+        set methodInfo($method) {0 "%t::Snit_hmethod%j %t %n %w %s" ""}
 
         Mappend compile(defs) {
             proc %TYPE%::Snit_hmethod%JMETHOD% %ARGLIST% %BODY% 
@@ -1222,7 +1222,7 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
             proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
         } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
     } else {
-        set typemethodInfo($method) {0 "%t::Snit_htypemethod%m %t" ""}
+        set typemethodInfo($method) {0 "%t::Snit_htypemethod%j %t" ""}
 
         Mappend compile(defs) {
             proc %TYPE%::Snit_htypemethod%JMETHOD% %ARGLIST% %BODY%
@@ -1572,7 +1572,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         } elseif {$target ne ""} {
             set pattern "%c $target"
         } else {
-            set pattern "%c $method"
+            set pattern "%c %m"
         }
     }
 
@@ -1658,7 +1658,7 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         } elseif {$target ne ""} {
             set pattern "%c $target"
         } else {
-            set pattern "%c $method"
+            set pattern "%c %m"
         }
     }
 
@@ -1874,7 +1874,7 @@ proc ::snit::typemethod {type method arglist body} {
         set Snit_typemethodInfo($method) {0 "%t::Snit_typemethod%m %t" ""}
         uplevel [list proc ${type}::Snit_typemethod$method $arglist $body]
     } else {
-        set Snit_typemethodInfo($method) {0 "%t::Snit_htypemethod%m %t" ""}
+        set Snit_typemethodInfo($method) {0 "%t::Snit_htypemethod%j %t" ""}
         set suffix [join $method _]
         uplevel [list proc ${type}::Snit_htypemethod$suffix $arglist $body]
     }
@@ -1908,7 +1908,7 @@ proc ::snit::method {type method arglist body} {
         set Snit_methodInfo($method) {0 "%t::Snit_method%m %t %n %w %s" ""}
         uplevel [list proc ${type}::Snit_method$method $arglist $body]
     } else {
-        set Snit_methodInfo($method) {0 "%t::Snit_hmethod%m %t %n %w %s" ""}
+        set Snit_methodInfo($method) {0 "%t::Snit_hmethod%j %t %n %w %s" ""}
 
         set suffix [join $method _]
         uplevel [list proc ${type}::Snit_hmethod$suffix $arglist $body]
@@ -2527,8 +2527,10 @@ proc snit::RT.CacheTypemethodCommand {type method} {
     # NEXT, build the substitution list
     set subList [list \
                      %% % \
-                     %t [list $type] \
-                     %m [join $method _]]
+                     %t $type \
+                     %M $method \
+                     %m [lindex $method end] \
+                     %j [join $method _]]
     
     if {$compName ne ""} {
         if {![info exists Snit_typecomponents($compName)]} {
@@ -2538,7 +2540,11 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         lappend subList %c [list $Snit_typecomponents($compName)]
     }
 
-    set command [string map $subList $pattern]
+    set command {}
+
+    foreach subpattern $pattern {
+        lappend command [string map $subList $subpattern]
+    }
 
     if {$implicitCreate} {
         # In this case, $method is the name of the instance to
@@ -2639,8 +2645,10 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
     # NEXT, build the substitution list
     set subList [list \
                      %% % \
-                     %t [list $type] \
-                     %m [join $method _] \
+                     %t $type \
+                     %M $method \
+                     %m [lindex $method end] \
+                     %j [join $method _] \
                      %n [list $selfns] \
                      %w [list $win] \
                      %s [list $self]]
