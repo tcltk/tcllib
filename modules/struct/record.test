@@ -410,3 +410,17 @@ test record-8.5 {show existence of record} {
     record exists record myns::contact
 } 1
 
+
+# Auto instances and deletion.
+
+test record-9.0 {auto instance & deletion} {
+    set res {}
+    lappend res [contact #auto]
+    lappend res [contact #auto]
+
+    record delete instance [lindex $res end]
+
+    lappend res [contact #auto]
+
+} {::contact1 ::contact2 ::contact3}
+

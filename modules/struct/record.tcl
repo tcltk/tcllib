@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.8 2004/05/19 04:34:50 andreas_kupries Exp $
+# $Id: record.tcl,v 1.9 2004/09/29 19:32:20 andreas_kupries Exp $
 #
 #============================================================
 #
@@ -47,6 +47,10 @@ namespace eval ::struct::record {
     ##
     ##  _count(some_record) 0
     ##
+
+    ## This is not a count, but an id generator. Its value has to
+    ## increase monotonicaly.
+
     variable _count
 
     ##
@@ -640,7 +644,10 @@ proc ::struct::record::Delete {sub_ item_} {
                     unset _defn($item_)
                 }
 
-                incr _count($ns) -1
+		# Auto-generated id numbers increase monotonically.
+		# Reverting here causes the next auto to fail, claiming
+		# that the instance exists.
+                # incr _count($ns) -1
         
             } else {
                 #error "$item_ is not a instance"
