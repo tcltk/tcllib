@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* Fixed bug #614591 throughout. Numerous modules updated. Also
+	  first round of getting version number consistents, and updated
+	  for a 1.4 release of the whole.
+
 2003-04-09  Andreas Kupries  <andreask@activestate.com>
 
 	* New module: devtools. Internal use only for now. Does not

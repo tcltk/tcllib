@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: soundex.tcl,v 1.1 2003/04/01 21:24:21 andreas_kupries Exp $
+# RCS: @(#) $Id: soundex.tcl,v 1.2 2003/04/11 19:21:16 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -25,7 +25,7 @@ namespace eval ::soundex {}
 # TCL port by Evan Rempel 2/10/98 Dept Comp Services University of Victoria.
 # erempel@uvic.ca
 
-# proc soundex::knuth ( string )
+# proc ::soundex::knuth ( string )
 #
 #   Given as argument: a character string. Returns: a static string, 4 characters long
 #   This string is the Soundex key for the argument string.
