@@ -1,3 +1,7 @@
+2002-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.man: New file, doctools manpage.
+
 2002-03-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.tcl (Op_expand): Fix for SF Bug #530056. Added code
