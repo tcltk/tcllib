@@ -1,3 +1,7 @@
+2002-01-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* html: Applied patch #484117.
+
 2001-12-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* New module: doctools. FR #492234.
