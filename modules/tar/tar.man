@@ -47,7 +47,7 @@ Creates a new tar file containing the [arg files]
 [list_end]
 [nl]
 
-[call [cmd ::tar::append] [arg tarball] [arg files] [args]]
+[call [cmd ::tar::add] [arg tarball] [arg files] [args]]
 
 Appends [arg files] to the end of the existing [arg tarball]
 
