@@ -1,6 +1,14 @@
 # special.tcl --
 #    Provide well-known special mathematical functions
 #
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 2004 by Arjen Markus. All rights reserved.
+#
+# RCS: @(#) $Id: special.tcl,v 1.4 2004/07/05 15:33:22 kennykb Exp $
+#
 package require math
 package require math::constants
 package require math::statistics
@@ -9,28 +17,29 @@ package require math::statistics
 #    Create a convenient namespace for the "special" mathematical functions
 #
 namespace eval ::math::special {
-   #
-   # Define a number of common mathematical constants
-   #
-   ::math::constants::constants pi
-   variable halfpi [expr {$pi/2.0}]
+    #
+    # Define a number of common mathematical constants
+    #
+    ::math::constants::constants pi
+    variable halfpi [expr {$pi/2.0}]
 
-   #
-   # Functions defined in other math submodules
-   #
-   namespace import ::math::Beta
+    #
+    # Functions defined in other math submodules
+    #
+    namespace import ::math::Beta
+    namespace import ::math::ln_Gamma
 
-   #
-   # Export the various functions
-   #
-   namespace export Beta Gamma erf erfc fresnel_C fresnel_S
+    #
+    # Export the various functions
+    #
+    namespace export Beta ln_Gamma Gamma erf erfc fresnel_C fresnel_S
 }
 
 # Gamma --
 #    The Gamma function - synonym for "factorial"
 #
 proc ::math::special::Gamma {x} {
-   ::math::factorial $x
+    ::math::factorial [expr { $x + 1 }]
 }
 
 # erf --
@@ -41,20 +50,20 @@ proc ::math::special::Gamma {x} {
 #    erf(x)
 #
 proc ::math::special::erf {x} {
-   set x2 $x
-   if { $x > 0.0 } {
-      set x2 [expr {-$x}]
-   }
-   if { $x2 != 0.0 } {
-      set r [::math::statistics::cdf-normal 0.0 [expr {sqrt(0.5)}] $x2]
-      if { $x > 0.0 } {
-         return [expr {1.0-2.0*$r}]
-      } else {
-         return [expr {2.0*$r-1.0}]
-      }
-   } else {
-      return 0.0
-   }
+    set x2 $x
+    if { $x > 0.0 } {
+        set x2 [expr {-$x}]
+    }
+    if { $x2 != 0.0 } {
+        set r [::math::statistics::cdf-normal 0.0 [expr {sqrt(0.5)}] $x2]
+        if { $x > 0.0 } {
+            return [expr {1.0-2.0*$r}]
+        } else {
+            return [expr {2.0*$r-1.0}]
+        }
+    } else {
+        return 0.0
+    }
 }
 
 # erfc --
@@ -65,20 +74,20 @@ proc ::math::special::erf {x} {
 #    erfc(x) = 1.0-erf(x)
 #
 proc ::math::special::erfc {x} {
-   set x2 $x
-   if { $x > 0.0 } {
-      set x2 [expr {-$x}]
-   }
-   if { $x2 != 0.0 } {
-      set r [::math::statistics::cdf-normal 0.0 [expr {sqrt(0.5)}] $x2]
-      if { $x > 0.0 } {
-         return [expr {2.0*$r}]
-      } else {
-         return [expr {2.0-2.0*$r}]
-      }
-   } else {
-      return 1.0
-   }
+    set x2 $x
+    if { $x > 0.0 } {
+        set x2 [expr {-$x}]
+    }
+    if { $x2 != 0.0 } {
+        set r [::math::statistics::cdf-normal 0.0 [expr {sqrt(0.5)}] $x2]
+        if { $x > 0.0 } {
+            return [expr {2.0*$r}]
+        } else {
+            return [expr {2.0-2.0*$r}]
+        }
+    } else {
+        return 1.0
+    }
 }
 
 # ComputeFG --
@@ -92,7 +101,7 @@ proc ::math::special::erfc {x} {
 #    See Abramowitz and Stegun. The accuracy is 2.0e-3.
 #
 proc ::math::special::ComputeFG {x} {
-   list [expr {(1.0+0.926*$x)/(2.0+1.792*$x+3.104*$x*$x)}] \
+    list [expr {(1.0+0.926*$x)/(2.0+1.792*$x+3.104*$x*$x)}] \
         [expr {1.0/(2.0+4.142*$x+3.492*$x*$x+6.670*$x*$x*$x)}]
 }
 
@@ -107,20 +116,20 @@ proc ::math::special::ComputeFG {x} {
 #    This relies on a rational approximation of the two auxiliary functions f and g
 #
 proc ::math::special::fresnel_C {x} {
-   variable halfpi
-   if { $x < 0.0 } {
-      error "Domain error: x must be non-negative"
-   }
+    variable halfpi
+    if { $x < 0.0 } {
+        error "Domain error: x must be non-negative"
+    }
 
-   if { $x == 0.0 } {
-      return 0.0
-   }
+    if { $x == 0.0 } {
+        return 0.0
+    }
 
-   foreach {f g} [ComputeFG $x] {break}
+    foreach {f g} [ComputeFG $x] {break}
 
-   set xarg [expr {$halfpi*$x*$x}]
+    set xarg [expr {$halfpi*$x*$x}]
 
-   return [expr {0.5+$f*sin($xarg)-$g*cos($xarg)}]
+    return [expr {0.5+$f*sin($xarg)-$g*cos($xarg)}]
 }
 
 # fresnel_S --
@@ -134,20 +143,20 @@ proc ::math::special::fresnel_C {x} {
 #    This relies on a rational approximation of the two auxiliary functions f and g
 #
 proc ::math::special::fresnel_S {x} {
-   variable halfpi
-   if { $x < 0.0 } {
-      error "Domain error: x must be non-negative"
-   }
+    variable halfpi
+    if { $x < 0.0 } {
+        error "Domain error: x must be non-negative"
+    }
 
-   if { $x == 0.0 } {
-      return 0.0
-   }
+    if { $x == 0.0 } {
+        return 0.0
+    }
 
-   foreach {f g} [ComputeFG $x] {break}
+    foreach {f g} [ComputeFG $x] {break}
 
-   set xarg [expr {$halfpi*$x*$x}]
+    set xarg [expr {$halfpi*$x*$x}]
 
-   return [expr {0.5-$f*cos($xarg)-$g*sin($xarg)}]
+    return [expr {0.5-$f*cos($xarg)-$g*sin($xarg)}]
 }
 
 # Bessel functions and elliptic integrals --
