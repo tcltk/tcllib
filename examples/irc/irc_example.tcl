@@ -3,15 +3,7 @@
 	exec tclsh "$0" "$@"
 
 # irc example script, by David N. Welton <davidw@dedasys.com>
-# $Id: irc_example.tcl,v 1.5 2003/05/16 22:05:32 davidw Exp $
-
-# Pick up a nick from the command line, or default to TclIrc.
-
-if { [lindex $argv 0] != "" } {
-    set nick [lindex $argv 0]
-} else {
-    set nick TclIrc
-}
+# $Id: irc_example.tcl,v 1.6 2003/06/30 20:06:34 davidw Exp $
 
 # I include these so that it can find both the irc package and the
 # logger package that irc needs.
@@ -20,48 +12,24 @@ set auto_path "[file join [file dirname [info script]] .. .. modules irc] $auto_
 set auto_path "[file join [file dirname [info script]] .. .. modules log] $auto_path"
 package require irc 0.4
 
-namespace eval client {
+namespace eval ircclient {
     variable channel \#tcl
-}
 
-proc ircclient::connect { nick } {
-    variable channel
-    set cn [::irc::connection irc.freenode.net 6667]
-    set ns [namespace qualifiers $cn]
-
-    $cn registerevent 001 "$cn join $channel"
-
-    # Register a default action for commands from the server.
-    $cn registerevent defaultcmd {
-	puts "[action] [msg]"
+    # Pick up a nick from the command line, or default to TclIrc.
+    if { [lindex $::argv 0] != "" } {
+	set nick [lindex $::argv 0]
+    } else {
+	set nick TclIrc
     }
 
-    # Register a default action for numeric events from the server.
-    $cn registerevent defaultnumeric {
-	puts "[action] XXX [target] XXX [msg]"
-    }
-
-    # Register a default action for events.
-    $cn registerevent defaultevent {
-	puts "[action] XXX [who] XXX [target] XXX [msg]"
-    }
-
-    # Register a default action for PRIVMSG (either public or to a
-    # channel).
-    $cn registerevent PRIVMSG {
-	puts "[who] says to [target] [msg]"
-    }
-
-    $cn registerevent KICK {
-	puts "[who] KICKed [target 1] from [target] : [msg]"
-    }
-
+    set cn [::irc::connection]
     # Connect to the server.
-    $cn connect
+    $cn connect irc.freenode.net 6667
     $cn user $nick localhost domain "www.tcl.tk"
     $cn nick $nick
+    while { 1 } {
+	source mainloop.tcl
+	vwait ::ircclient::RELOAD
+    }
 }
 
-# Start things in motion.
-ircclient::connect $nick
-vwait forever
