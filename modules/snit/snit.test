@@ -691,7 +691,7 @@ test dtypemethod-1.6 {can't delegate local typemethod: order 1} {
     } result
 
     set result
-} {Error in "delegate typemethod foo...", "foo" has been defined locally}
+} {Error in "delegate typemethod foo...", "foo" has been defined locally.}
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
     cleanup
@@ -704,7 +704,7 @@ test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
     } result
 
     set result
-} {Error in "delegate typemethod foo...", "foo" has been defined locally}
+} {Error in "typemethod foo...", "foo" has been delegated}
 
 test dtypemethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -3004,7 +3004,7 @@ test dmethod-1.6 {can't delegate local method: order 1} {
     } result
 
     set result
-} {Error in "delegate method foo...", "foo" has been defined locally}
+} {Error in "delegate method foo...", "foo" has been defined locally.}
 
 test dmethod-1.7 {can't delegate local method: order 2} {
     cleanup
@@ -3017,7 +3017,7 @@ test dmethod-1.7 {can't delegate local method: order 2} {
     } result
 
     set result
-} {Error in "delegate method foo...", "foo" has been defined locally}
+} {Error in "method foo...", "foo" has been delegated}
 
 test dmethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -4766,7 +4766,7 @@ test iinfo-1.14 {info typemethods, simple case} {
     dog spot
 
     spot info typemethods
-} {create info destroy}
+} {info create destroy}
 
 test iinfo-1.15 {info typemethods, with pattern} {
     cleanup
@@ -4789,7 +4789,7 @@ test iinfo-1.16 {info typemethods, with explicit typemethods} {
     dog spot
 
     spot info typemethods
-} {create info foo bar destroy}
+} {foo info create bar destroy}
 
 test iinfo-1.17 {info typemethods, with implicit typemethods} {
     cleanup
@@ -4814,7 +4814,7 @@ test iinfo-1.17 {info typemethods, with implicit typemethods} {
     set c [spot info typemethods len*]
 
     list $a $b $c
-} {{create info destroy} {create info destroy is length} length}
+} {{info create destroy} {info create destroy is length} length}
 
 test iinfo-1.18 {info methods, simple case} {
     cleanup
@@ -4847,7 +4847,7 @@ test iinfo-1.20 {info methods, with explicit methods} {
     dog spot
 
     spot info methods 
-} {info foo bar destroy}
+} {foo info bar destroy}
 
 test iinfo-1.21 {info typemethods, with implicit typemethods} {
     cleanup
@@ -4988,7 +4988,7 @@ test tinfo-1.9 {type info typemethods, simple case} {
     type dog { }
 
     dog info typemethods
-} {create info destroy}
+} {info create destroy}
 
 test tinfo-1.10 {type info typemethods, with pattern} {
     cleanup
@@ -5007,7 +5007,7 @@ test tinfo-1.11 {type info typemethods, with explicit typemethods} {
     }
 
     dog info typemethods
-} {create info foo bar destroy}
+} {foo info create bar destroy}
 
 test tinfo-1.12 {type info typemethods, with implicit typemethods} {
     cleanup
@@ -5030,7 +5030,7 @@ test tinfo-1.12 {type info typemethods, with implicit typemethods} {
     set c [dog info typemethods len*]
 
     list $a $b $c
-} {{create info destroy} {create info destroy is length} length}
+} {{info create destroy} {info create destroy is length} length}
 
 
 #-----------------------------------------------------------------------
@@ -5524,7 +5524,7 @@ test etypemethod-3.2 {prefix/method collision} {} {
     } result
 
     set result
-} {Cannot redefine "wag", "wag" has submethods.}
+} {Cannot define "wag", "wag" has submethods.}
 
 test etypemethod-3.3 {prefix/method collision} {} {
     cleanup
@@ -5552,7 +5552,7 @@ test etypemethod-3.4 {prefix/method collision} {} {
     } result
 
     set result
-} {Cannot redefine "wag tail", "wag tail" has submethods.}
+} {Cannot define "wag tail", "wag tail" has submethods.}
 
 #-----------------------------------------------------------------------
 # Externally defined methods
@@ -5621,7 +5621,7 @@ test emethod-1.5 {delegated methods can't be redefined} {
     } result
         
     set result
-} {Cannot define "bark", it has been delegated}
+} {Cannot define "bark", "bark" has been delegated}
 
 test emethod-1.6 {can't define external method if no type} {
     cleanup
@@ -5714,7 +5714,7 @@ test emethod-3.2 {prefix/method collision} {} {
     } result
 
     set result
-} {Cannot redefine "wag", "wag" has submethods.}
+} {Cannot define "wag", "wag" has submethods.}
 
 test emethod-3.3 {prefix/method collision} {} {
     cleanup
@@ -5746,7 +5746,7 @@ test emethod-3.4 {prefix/method collision} {} {
     } result
 
     set result
-} {Cannot redefine "wag tail", "wag tail" has submethods.}
+} {Cannot define "wag tail", "wag tail" has submethods.}
 
 
 #-----------------------------------------------------------------------
