@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.7 2000/03/14 23:10:55 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.8 2000/03/20 20:07:33 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -131,14 +131,7 @@ test tree-5.1 {exists} {
     set result
 } {1 1 0}
 
-test tree-6.1 {insert gives error on duplicate node name} {
-    tree mytree
-    mytree insert root end node0
-    catch {mytree insert root end node0} msg
-    mytree destroy
-    set msg
-} "node \"node0\" already exists in tree \"mytree\""
-test tree-6.2 {insert creates and initializes node} {
+test tree-6.1 {insert creates and initializes node} {
     tree mytree
     mytree insert root end node0
     set result [list ]
@@ -150,7 +143,7 @@ test tree-6.2 {insert creates and initializes node} {
     mytree destroy
     set result
 } {1 root {} {} node0}
-test tree-6.3 {insert insert nodes in correct location} {
+test tree-6.2 {insert insert nodes in correct location} {
     tree mytree
     mytree insert root end node0
     mytree insert root end node1
@@ -159,13 +152,13 @@ test tree-6.3 {insert insert nodes in correct location} {
     mytree destroy
     set result
 } {node2 node0 node1}
-test tree-6.4 {insert gives error when trying to insert to a fake parent} {
+test tree-6.3 {insert gives error when trying to insert to a fake parent} {
     tree mytree
     catch {mytree insert node0 end node1} msg
     mytree destroy
     set msg
 } "parent node \"node0\" does not exist in tree \"mytree\""
-test tree-6.5 {insert generates node name when none is given} {
+test tree-6.4 {insert generates node name when none is given} {
     tree mytree
     set result [list [mytree insert root end]]
     lappend result [mytree insert root end]
@@ -174,7 +167,104 @@ test tree-6.5 {insert generates node name when none is given} {
     mytree destroy
     set result
 } [list node1 node2 node4]
-	
+test tree-6.5 {insert inserts multiple nodes properly} {
+    tree mytree
+    mytree insert root end a b c d e f
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list a b c d e f]
+test tree-6.6 {insert moves nodes that exist} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree insert node0 end node4 node5 node6
+    mytree insert root end node4
+    set result [list [mytree children root] [mytree children node0]]
+    mytree destroy
+    set result
+} [list [list node0 node1 node2 node3 node4] [list node5 node6]]
+test tree-6.7 {insert moves nodes that already exist properly} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node1 end node2
+    mytree insert root end node1 node2
+    set result [list			\
+	    [mytree children root]	\
+	    [mytree children node0]	\
+	    [mytree children node1]	\
+	    [mytree parent node1]	\
+	    [mytree parent node2]	\
+	    ]
+    mytree destroy
+    set result
+} [list [list node0 node1 node2] {} {} root root]
+test tree-6.8 {insert moves multiple nodes properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2
+    mytree insert root 0 node1 node2
+    set result [list			\
+	    [mytree children root]	\
+	    ]
+    mytree destroy
+    set result
+} [list [list node1 node2 node0]]
+test tree-6.9 {insert moves multiple nodes properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2
+    mytree insert root 1 node0 node1
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node0 node1 node2]
+test tree-6.10 {insert moves node within parent properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree insert root 2 node1
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node0 node1 node2 node3]
+test tree-6.11 {insert moves node within parent properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree insert node3 end node4 node5 node6
+    mytree insert root 2 node0 node4 node5 node6
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node1 node0 node4 node5 node6 node2 node3]
+test tree-6.12 {insert moves node in parent properly when oldInd < newInd} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree insert root 2 node0
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node1 node0 node2 node3]
+test tree-6.13 {insert gives error when trying to move root} {
+    tree mytree
+    catch {mytree insert root end root} msg
+    mytree destroy
+    set msg
+} "cannot move root node"
+test tree-6.14 {insert gives error when trying to make node its descendant} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree insert node0 end node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" cannot be its own descendant"
+test tree-6.15 {insert gives error when trying to make node its descendant} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node1 end node2
+    catch {mytree insert node2 end node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" cannot be its own descendant"
+
 test tree-7.1 {move gives error when trying to move root} {
     tree mytree
     mytree insert root end node0
@@ -221,6 +311,49 @@ test tree-7.6 {move correctly moves a node} {
     mytree destroy
     set result
 } {{node1 node2} {} node0}
+test tree-7.7 {move moves multiple nodes properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2
+    mytree move root 0 node1 node2
+    set result [list			\
+	    [mytree children root]	\
+	    ]
+    mytree destroy
+    set result
+} [list [list node1 node2 node0]]
+test tree-7.8 {move moves multiple nodes properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2
+    mytree move root 1 node0 node1
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node0 node1 node2]
+test tree-7.9 {move moves node within parent properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree move root 2 node1
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node0 node1 node2 node3]
+test tree-7.10 {move moves node within parent properly} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree insert node3 end node4 node5 node6
+    mytree move root 2 node0 node4 node5 node6
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node1 node0 node4 node5 node6 node2 node3]
+test tree-7.11 {move moves node in parent properly when oldInd < newInd} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree move root 2 node0
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node1 node0 node2 node3]
 
 test tree-8.1 {parent gives error on fake node} {
     tree mytree

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.6 2000/03/14 23:10:55 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.7 2000/03/20 20:07:33 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -68,21 +68,29 @@ Returns the index of \fInode\fR in its parent's list of children.  For
 example, if a node has \fBnodeFoo\fR, \fBnodeBar\fR, and \fBnodeBaz\fR as
 children, in that order, the index of \fBnodeBar\fR is 1.
 .TP
-\fItreeName \fBinsert\fR \fIparent\fR \fIindex\fR ?\fIchild\fR?
-Insert a node named \fIchild\fR into the tree as a child of the node
-\fIparent\fR.  If \fIparent\fR is \fBroot\fR, it refers to the root of
-the tree.  The new node will be added to the \fIparent\fR node's
-child list at the index given by \fIindex\fR.  If \fIchild\fR is not
-specified, a name will be generated for the new node.  The generated
-name is of the form \fBnode\fR\fIx\fR, where \fIx\fR is a number.  The
-return result from this command is the name of the new node.
+\fItreeName\R \fBinsert\fR \fIparent\fR \fIindex\fR ?\fIchild\fR ?\fIchild ...\fR??
+Insert one or more nodes into the tree as children of the node
+\fIparent\fR.  The nodes will be added in the order they are given.
+If \fIparent\fR is \fBroot\fR, it refers to the root of the tree.  The
+new nodes will be added to the \fIparent\fR node's child list at the
+index given by \fIindex\fR.
+
+If any of the specified children already exist in \fItreeName\fR,
+those nodes will be moved from their original location to the new
+location indicated by this command.
+
+If no \fIchild\fR is specified, a single node will be added, and a
+name will be generated for the new node. The generated name is of the
+form \fBnode\fR\fIx\fR, where \fIx\fR is a number.
+
+The return result from this command is a list of nodes added.
 .TP
 \fItreeName \fBisleaf\fR \fInode\fR
 Returns true if \fInode\fR is a leaf of the tree (if \fInode\fR has no
 children), false otherwise.
 .TP
-\fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR
-Make \fInode\fR a child of \fIparent\fR, inserting it
+\fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR ?\fInode ...\fR?
+Make the specified nodes children of \fIparent\fR, inserting them
 into the parent's child list at the index given by \fIindex\fR.
 .TP
 \fItreeName\fR \fBnext\fR \fInode\fR 
@@ -91,7 +99,8 @@ Return the right sibling of \fInode\fR, or the empty string if
 .TP
 \fItreeName\fR \fBnumchildren\fR \fInode\fR
 Return the number of immediate children of \fInode\fR.
-.TP\fItreeName\fR \fBparent\fR \fInode\fR
+.TP
+\fItreeName\fR \fBparent\fR \fInode\fR
 Return the parent of \fInode\fR.
 .TP
 \fItreeName\fR \fBprevious\fR \fInode\fR 

@@ -1,3 +1,15 @@
+2000-03-20  Eric Melski  <ericm@scriptics.com>
+
+	* tree.test: 
+	* tree.n: 
+	* tree.tcl: Added support for inserting/moving multiple nodes at
+	once.  Changed behavior of insert with respect to inserting nodes
+	that already exist; instead of an error, it will move the node.
+
+2000-03-14  Eric Melski  <ericm@scriptics.com>
+
+	* tree.n: Added a brief description of what a tree is.
+
 2000-03-10  Eric Melski  <ericm@scriptics.com>
 
 	* tree.n: 

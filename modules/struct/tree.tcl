@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.7 2000/03/11 01:14:40 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.8 2000/03/20 20:07:33 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -391,47 +391,83 @@ proc ::struct::tree::_index {name node} {
 
 # ::struct::tree::_insert --
 #
-#	Add a node to a tree.
+#	Add a node to a tree; if the node(s) specified already exist, they
+#	will be moved to the given location.
 #
 # Arguments:
 #	name		name of the tree.
 #	parentNode	parent to add the node to.
 #	index		index at which to insert.
-#	args		node to insert; must be unique.  If none is given,
-#			the routine will generate a unique node name.
+#	args		node(s) to insert.  If none is given, the routine
+#			will generate a single unique node name.
 #
 # Results:
-#	node		name of the inserted node.
+#	nodes		name of the inserted nodes.
 
 proc ::struct::tree::_insert {name parentNode index args} {
     if { [llength $args] == 0 } {
 	# No node name was given; generate a unique one
-	set node [__generateUniqueNodeName $name]
-    } else {
-	set node [lindex $args 0]
+	set args [list [__generateUniqueNodeName $name]]
     }
 
-    if { [_exists $name $node] } {
-	error "node \"$node\" already exists in tree \"$name\""
-    }
-    
     if { ![_exists $name $parentNode] } {
 	error "parent node \"$parentNode\" does not exist in tree \"$name\""
     }
 
     upvar ::struct::tree::tree${name}::parent parent
     upvar ::struct::tree::tree${name}::children children
-    upvar ::struct::tree::tree${name}::node${node} data
     
-    # Set up the new node
-    set parent($node) $parentNode
-    set children($node) [list ]
-    set data(data) ""
+    # Make sure the index is numeric
+    if { ![string is integer $index] } {
+	# If the index is not numeric, make it numeric by lsearch'ing for
+	# the value at index, then incrementing index (because "end" means
+	# just past the end for inserts)
+	set val [lindex $children($parentNode) $index]
+	set index [expr {[lsearch -exact $children($parentNode) $val] + 1}]
+    }
 
-    # Add this node to its parent's children list
-    set children($parentNode) [linsert $children($parentNode) $index $node]
+    foreach node $args {
+	if { [_exists $name $node] } {
+	    # Move the node to its new home
+	    if { [string equal $node "root"] } {
+		error "cannot move root node"
+	    }
+	    
+	    # Cannot make a node its own descendant (I'm my own grandpaw...)
+	    set ancestor $parentNode
+	    while { ![string equal $ancestor "root"] } {
+		if { [string equal $ancestor $node] } {
+		    error "node \"$node\" cannot be its own descendant"
+		}
+		set ancestor $parent($ancestor)
+	    }
+	    # Remove this node from its parent's children list
+	    set oldParent $parent($node)
+	    set ind [lsearch -exact $children($oldParent) $node]
+	    set children($oldParent) [lreplace $children($oldParent) $ind $ind]
+	    
+	    # If the node is moving within its parent, and its old location
+	    # was before the new location, decrement the new location, so that
+	    # it gets put in the right spot
+	    if { [string equal $oldParent $parentNode] && $ind < $index } {
+		incr index -1
+	    }
+	} else {
+	    # Set up the new node
+	    upvar ::struct::tree::tree${name}::node${node} data
+	    set children($node) [list ]
+	    set data(data) ""
+	}
 
-    return $node
+	# Add this node to its parent's children list
+	set children($parentNode) [linsert $children($parentNode) $index $node]
+
+	# Update the parent pointer for this node
+	set parent($node) $parentNode
+	incr index
+    }
+
+    return $args
 }
 
 # ::struct::tree::_isleaf --
@@ -463,48 +499,71 @@ proc ::struct::tree::_isleaf {name node} {
 #	name		name of the tree
 #	parentNode	parent to add the node to.
 #	index		index at which to insert.
-#	node		node to insert; must be unique.
+#	node		node to move; must exist.
+#	args		additional nodes to move; must exist.
 #
 # Results:
 #	None.
 
-proc ::struct::tree::_move {name parentNode index node} {
-    if { [string equal $node "root"] } {
-	error "cannot move root node"
-    }
+proc ::struct::tree::_move {name parentNode index node args} {
+    set args [linsert $args 0 $node]
 
     # Can only move a node to a real location in the tree
     if { ![_exists $name $parentNode] } {
 	error "parent node \"$parentNode\" does not exist in tree \"$name\""
     }
 
-    # Can only move real nodes
-    if { ![_exists $name $node] } {
-	error "node \"$node\" does not exist in tree \"$name\""
-    }
-
-    # Cannot move a node to be a descendant
     upvar ::struct::tree::tree${name}::parent parent
-    set ancestor $parentNode
-    while { ![string equal $ancestor "root"] } {
-	if { [string equal $ancestor $node] } {
-	    error "node \"$node\" cannot be its own descendant"
-	}
-	set ancestor $parent($ancestor)
-    }
-    
     upvar ::struct::tree::tree${name}::children children
     
-    # Remove this node from its parent's children list
-    set oldParent $parent($node)
-    set oldInd [lsearch -exact $children($oldParent) $node]
-    set children($oldParent) [lreplace $children($oldParent) $oldInd $oldInd]
+    # Make sure the index is numeric
+    if { ![string is integer $index] } {
+	# If the index is not numeric, make it numeric by lsearch'ing for
+	# the value at index, then incrementing index (because "end" means
+	# just past the end for inserts)
+	set val [lindex $children($parentNode) $index]
+	set index [expr {[lsearch -exact $children($parentNode) $val] + 1}]
+    }
 
-    # Update the nodes parent value
-    set parent($node) $parentNode
+    foreach node $args {
+	if { [string equal $node "root"] } {
+	    error "cannot move root node"
+	}
 
-    # Add this node to its parent's children list
-    set children($parentNode) [linsert $children($parentNode) $index $node]
+	# Can only move real nodes
+	if { ![_exists $name $node] } {
+	    error "node \"$node\" does not exist in tree \"$name\""
+	}
+
+	# Cannot move a node to be a descendant of itself
+	set ancestor $parentNode
+	while { ![string equal $ancestor "root"] } {
+	    if { [string equal $ancestor $node] } {
+		error "node \"$node\" cannot be its own descendant"
+	    }
+	    set ancestor $parent($ancestor)
+	}
+	
+	# Remove this node from its parent's children list
+	set oldParent $parent($node)
+	set ind [lsearch -exact $children($oldParent) $node]
+	set children($oldParent) [lreplace $children($oldParent) $ind $ind]
+
+	# Update the nodes parent value
+	set parent($node) $parentNode
+
+	# If the node is moving within its parent, and its old location
+	# was before the new location, decrement the new location, so that
+	# it gets put in the right spot
+	if { [string equal $oldParent $parentNode] && $ind < $index } {
+	    incr index -1
+	}
+
+	# Add this node to its parent's children list
+	set children($parentNode) [linsert $children($parentNode) $index $node]
+	
+	incr index
+    }
 
     return
 }
