@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.7 2001/11/20 19:51:10 jenglish Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.8 2001/11/21 03:25:33 jenglish Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -214,13 +214,15 @@ machine. This mainly affects end-of-line markers. The type
 \fBbinary\fR on the other hand allows the undisturbed transfer of
 non-text files, such as compressed files, images and executables.
 .TP
-\fBftp::List\fR \fIhandle\fR ?\fIdirectory\fR?
-This commands lists the contents of the specified a directory or other
-group of files. If no directory is specified the current remote
-directory is used instead. Wildcard expressions such as \fI*.tcl\fR
-are allowed. A directory or file name must be fully qualified,
-otherwise the commands lists the entries in the current remote
-directory.
+\fBftp::List\fR \fIhandle\fR ?\fIpattern\fR?
+This command returns a human-readable list of files.
+Wildcard expressions such as \fI*.tcl\fR are allowed. 
+If \fIpattern\fR refers to a specific directory,
+then the contents of that directory are returned.
+If the \fIpattern\fR is not a fully-qualified path name,
+the command lists entries relative to the current remote directory.
+If no \fIpattern\fR is specified, the contents of the current remote
+directory is returned. 
 .sp
 The listing includes any system-dependent information that the server
 chooses to include. For example most UNIX systems produce output from
