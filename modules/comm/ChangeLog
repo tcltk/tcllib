@@ -1,3 +1,11 @@
+2003-05-09  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* pkgIndex.tcl: updated to comm 4.1
+	* comm.man:
+	* comm.tcl: rewrite of code to remove pseudo-object model.
+	Clean up code, add send -command callback to allow for
+	notification of results for asynchronous sends.
+
 2003-05-08  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* comm.tcl: update use of string functions to 8.2 cleanliness.
