@@ -656,10 +656,17 @@ proc ncgi::multipart {type query} {
     if {![info exists options(boundary)]} {
 	return -code error "No boundary given for multipart document"
     }
+    set boundary $options(boundary)
+
+    # The query data is typically read in binary mode, which preserves
+    # the \r\n sequence from a Windows-based browser.  
+
+    if {[regexp -- $boundary\r\n $query]} {
+	regsub -all \r\n $query \n query
+    }
 
     # Iterate over the boundary string and chop into parts
 
-    set boundary $options(boundary)
     set len [string length $query]
     # "3" is for \n--
     set blen [expr {3 + [string length $boundary]}]
