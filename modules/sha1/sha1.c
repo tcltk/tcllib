@@ -1,4 +1,4 @@
-/*	$NetBSD: sha1.c,v 1.1 2005/02/21 13:24:18 patthoyts Exp $	*/
+/*	$NetBSD: sha1.c,v 1.2 2005/02/21 14:26:26 patthoyts Exp $	*/
 /*	$OpenBSD: sha1.c,v 1.9 1997/07/23 21:12:32 kstailey Exp $	*/
 
 /*
@@ -55,15 +55,15 @@
 
 
 typedef union {
-    uint8_t    c[64];
-    uint32_t l[16];
+    u_char    c[64];
+    u_int32_t l[16];
 } CHAR64LONG16;
 
 #ifdef __sparc_v9__
-void do_R01(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *);
-void do_R2(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *);
-void do_R3(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *);
-void do_R4(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *);
+void do_R01(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *);
+void do_R2(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *);
+void do_R3(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *);
+void do_R4(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *);
 
 #define nR0(v,w,x,y,z,i) R0(*v,*w,*x,*y,*z,i)
 #define nR1(v,w,x,y,z,i) R1(*v,*w,*x,*y,*z,i)
@@ -72,7 +72,7 @@ void do_R4(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR
 #define nR4(v,w,x,y,z,i) R4(*v,*w,*x,*y,*z,i)
 
 void
-do_R01(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *block)
+do_R01(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *block)
 {
     nR0(a,b,c,d,e, 0); nR0(e,a,b,c,d, 1); nR0(d,e,a,b,c, 2); nR0(c,d,e,a,b, 3);
     nR0(b,c,d,e,a, 4); nR0(a,b,c,d,e, 5); nR0(e,a,b,c,d, 6); nR0(d,e,a,b,c, 7);
@@ -82,7 +82,7 @@ do_R01(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LO
 }
 
 void
-do_R2(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *block)
+do_R2(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *block)
 {
     nR2(a,b,c,d,e,20); nR2(e,a,b,c,d,21); nR2(d,e,a,b,c,22); nR2(c,d,e,a,b,23);
     nR2(b,c,d,e,a,24); nR2(a,b,c,d,e,25); nR2(e,a,b,c,d,26); nR2(d,e,a,b,c,27);
@@ -92,7 +92,7 @@ do_R2(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LON
 }
 
 void
-do_R3(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *block)
+do_R3(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *block)
 {
     nR3(a,b,c,d,e,40); nR3(e,a,b,c,d,41); nR3(d,e,a,b,c,42); nR3(c,d,e,a,b,43);
     nR3(b,c,d,e,a,44); nR3(a,b,c,d,e,45); nR3(e,a,b,c,d,46); nR3(d,e,a,b,c,47);
@@ -102,7 +102,7 @@ do_R3(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LON
 }
 
 void
-do_R4(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LONG16 *block)
+do_R4(u_int32_t *a, u_int32_t *b, u_int32_t *c, u_int32_t *d, u_int32_t *e, CHAR64LONG16 *block)
 {
     nR4(a,b,c,d,e,60); nR4(e,a,b,c,d,61); nR4(d,e,a,b,c,62); nR4(c,d,e,a,b,63);
     nR4(b,c,d,e,a,64); nR4(a,b,c,d,e,65); nR4(e,a,b,c,d,66); nR4(d,e,a,b,c,67);
@@ -116,10 +116,10 @@ do_R4(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d, uint32_t *e, CHAR64LON
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
 void SHA1Transform(state, buffer)
-    uint32_t state[5];
-    const uint8_t buffer[64];
+    u_int32_t state[5];
+    const u_char buffer[64];
 {
-    uint32_t a, b, c, d, e;
+    u_int32_t a, b, c, d, e;
     CHAR64LONG16 *block;
 
 #ifdef SHA1HANDSOFF
@@ -208,10 +208,10 @@ void SHA1Init(context)
  */
 void SHA1Update(context, data, len)
     SHA1_CTX *context;
-    const uint8_t *data;
-    uint32_t len;
+    const u_char *data;
+    u_int32_t len;
 {
-    uint32_t i, j;
+    u_int32_t i, j;
 
     _DIAGASSERT(context != 0);
     _DIAGASSERT(data != 0);
@@ -237,27 +237,27 @@ void SHA1Update(context, data, len)
  * Add padding and return the message digest.
  */
 void SHA1Final(digest, context)
-    uint8_t digest[20];
+    u_char digest[20];
     SHA1_CTX* context;
 {
-    uint32_t i;
-    uint8_t finalcount[8];
+    u_int32_t i;
+    u_char finalcount[8];
 
     _DIAGASSERT(digest != 0);
     _DIAGASSERT(context != 0);
 
     for (i = 0; i < 8; i++) {
-	finalcount[i] = (uint8_t)((context->count[(i >= 4 ? 0 : 1)]
+	finalcount[i] = (u_char)((context->count[(i >= 4 ? 0 : 1)]
 	 >> ((3-(i & 3)) * 8) ) & 255);	 /* Endian independent */
     }
-    SHA1Update(context, (const uint8_t *)"\200", 1);
+    SHA1Update(context, (const u_char *)"\200", 1);
     while ((context->count[0] & 504) != 448)
-	SHA1Update(context, (const uint8_t *)"\0", 1);
+	SHA1Update(context, (const u_char *)"\0", 1);
     SHA1Update(context, finalcount, 8);  /* Should cause a SHA1Transform() */
 
     if (digest) {
 	for (i = 0; i < 20; i++)
-	    digest[i] = (uint8_t)
+	    digest[i] = (u_char)
 		((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
