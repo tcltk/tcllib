@@ -2,6 +2,7 @@
 
 	* modules/stats/stats.tcl: Added time labels and tick
 	marks to all the time-based histograms.
+	Fixed alignment of per-minute and per-hour histograms.
 
 2000-09-20  Brent Welch <welch@ajubasolutions.com>
 

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.6 2000/09/21 20:21:38 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.7 2000/09/22 06:05:06 welch Exp $
 
 package provide stats 1.0
 
@@ -109,22 +109,31 @@ proc stats::countInit {tag args} {
 		    set secsPerMinute $value
 
 		    set startTime [clock seconds]
-		    set hourIndex 0
 		    set dayIndex 0
 
-		    # Align the minute base to the start of a minute
+		    # Align the minute base to the start of a hour,
+		    # or the nearest sensible minute.
 
-		    set minuteBase [clock scan [clock format $startTime \
-				-format %H:%M]]
-		    set minuteEpoch ""
+		    set lasthour [clock scan [clock format $startTime \
+				-format %H:00]]
+
+		    set minuteBase [expr {$lasthour +
+				($startTime - $lasthour) / \
+				($secsPerMinute * 60)}]
+
+		    # Similarly line up hour0 to start at midnight.
+
+		    set hourBase [clock scan [clock format $startTime \
+				-format 00:00]]
+
+		    set hourIndex [expr {($startTime - $hourBase) / \
+				($secsPerMinute * 60)}]
 
 		    # Set up a single timer for the interpreter to merge
 		    # any and all time-baesd histograms.
 		    # Set up the merge to happen on the "hour".
 		    # partialHour is used to handle the case where secsPerMinute < 60
 
-		    set lasthour [clock scan [clock format $startTime \
-				-format %H:00]]
 		    set partialHour [expr {($startTime - $lasthour) % \
 				($secsPerMinute * 60)}]
 		    set secs [expr ($secsPerMinute * 60) - ($partialHour)]
@@ -548,7 +557,7 @@ proc stats::MergeHour {interval} {
     variable secsPerMinute
 
     after $interval [list stats::MergeHour $interval]
-    if {$hourIndex == 0} {
+    if {![info exist hourBase] || $hourIndex == 0} {
 	set hourBase $minuteBase
     }
     set minuteBase [clock seconds]
