@@ -1,4 +1,21 @@
-2003-10-20  Will Duquette  <will@cordelia.local.>
+2003-10-23  Will Duquette  <will@cordelia.local.>
+
+	* snit.html: Added documentation for the new "hulltype",
+	  	     "widgetclass", and "install" commands.  Updated the
+	  	     documentation for "installhull" to show the new
+	  	     "installhull using" syntax.  Updated the
+	  	     documentation for "option" and "delegate option" to
+	  	     show how to specify the resource and class names for
+	  	     options.  Added a section on the interaction between
+	  	     Snit and the Tk option database.
+
+2003-10-21  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl:  Add the "hulltype" command.  This allows the snit::widget 
+	* snit.test: author to choose whether the hull should be a frame
+	  	     or a toplevel.  Tests have been updated as usual.
+
+2003-10-20  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:  The new "install" command can now be used to install
 	* snit.test: components for snit::types as well.  It doesn't add
@@ -11,7 +28,7 @@
 
 		     Tests have been updated as usual.
 
-2003-10-19  Will Duquette  <will@cordelia.local.>
+2003-10-19  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:  During normal widget creation, the default values
 	* snit.test: for a widget's local options are overridden by
@@ -40,7 +57,7 @@
 
 		     The version number in snit.tcl has been updated to 0.84.
 
-2003-10-18  Will Duquette  <will@cordelia.local.>
+2003-10-18  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:  Added the "widgetclass" statement; this allows
 	* snit.test: snit::widgets (and nothing else) to explicitly set
@@ -72,7 +89,7 @@
                      true; configure now returns the resource and
                      class name defined in the type definition.
 
-2003-10-17  Will Duquette  <will@cordelia.local.>
+2003-10-17  Will Duquette  <will@wjduquette.com>
 
 	* snit.html: Added typeconstructor documentation.
 	* faq.html:  

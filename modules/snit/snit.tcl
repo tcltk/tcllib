@@ -365,7 +365,8 @@ namespace eval ::snit:: {
                 # NEXT, create the widget
                 set self $name
 		package require Tk
-                installhull using frame -class $Snit_info(widgetclass)
+                installhull using \
+                    $Snit_info(hulltype) -class $Snit_info(widgetclass)
 
                 # NEXT, let's query the option database for our
                 # widget, now that we know that it exists.
@@ -892,11 +893,13 @@ namespace eval ::snit:: {
 	    # options:       List of the names of the type's local options.
 	    # counter:       Count of instances created so far.
             # widgetclass:   Set by widgetclass statement.
+            # hulltype:      Hull type (frame or toplevel) for widgets only.
 	    typevariable Snit_info
 	    set Snit_info(ns)      %TYPE%::
 	    set Snit_info(options) {}
 	    set Snit_info(counter) 0
             set Snit_info(widgetclass) {}
+            set Snit_info(hulltype) frame
 
 	    # Array: Public methods of this type.
 	    # Index is typemethod name; value is proc name.
@@ -1193,6 +1196,34 @@ proc ::snit::Type.Widgetclass {type name} {
     } %WIDGETCLASS% [list $name]
 
     set compile(widgetclass) $name
+}
+
+# Defines a widget's hull type.
+# This statement is only available for snit::widgets,
+# not for snit::types or snit::widgetadaptors.
+proc ::snit::Type.Hulltype {type name} {
+    variable compile
+
+    # First, hulltype can only be set for true widgets
+    if {"widget" != $compile(which)} {
+        error "hulltype cannot be set for snit::$compile(which)s"
+    }
+
+    # Next, it must be either "frame" or "toplevel"
+    if {"frame" != $name && "toplevel" != $name} {
+        error "invalid hulltype '$name', should be 'frame' or 'toplevel'"
+    }
+
+    if {"" != $compile(hulltype)} {
+        error "too many hulltype statements"
+    }
+
+    # Next, save it.
+    Mappend compile(defs) {
+        set  %TYPE%::Snit_info(hulltype) %HULLTYPE%
+    } %HULLTYPE% $name
+
+    set compile(hulltype) $name
 }
 
 # Defines a constructor.
@@ -1659,6 +1690,7 @@ proc ::snit::Define {which type body} {
     }
 
     class.interp alias widgetclass     ::snit::Type.Widgetclass     $type
+    class.interp alias hulltype        ::snit::Type.Hulltype        $type
     class.interp alias constructor     ::snit::Type.Constructor     $type
     class.interp alias destructor      ::snit::Type.Destructor      $type
     class.interp alias option          ::snit::Type.Option          $type
@@ -1683,6 +1715,7 @@ proc ::snit::Define {which type body} {
     set compile(tvprocdec) {}
     set compile(typeconstructor) {}
     set compile(widgetclass) {}
+    set compile(hulltype) {}
     set compile(localmethods) {}
     set compile(delegatedmethods) {}
     set compile(components) {}
