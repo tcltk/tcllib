@@ -1,3 +1,8 @@
+2002-05-08  Don Porter <dgp@users.sourceforge.net>
+
+	* calculus.test: Corrected testing problems by namespace-ifying
+	the file.
+
 2002-04-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* combinatorics.man: Added doctools manpage.
