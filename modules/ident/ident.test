@@ -1,15 +1,31 @@
-# ident.test --
+# ident.test --                                                 -*- tcl -*-
 #
 #	Tests for the ident package
 #
 
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
 package forget ident
-catch {namespace delete ident}
+catch {namespace delete ::ident}
+if {[catch {source [file join [file dirname [info script]] ident.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
 
-source [file join [file dirname [info script]] ident.tcl]
+puts "- ident [package present ident]"
 
-package require tcltest
-namespace import -force tcltest::test ::tcltest::cleanupTests
+# -------------------------------------------------------------------------
+# Tests
+# -------------------------------------------------------------------------
 
 # good responses
 test {ident-1.0} {normal response} {
@@ -37,3 +53,9 @@ test {ident-3.0} {empty response} {
 test {ident-3.1} {nonsense} {
     ident::parse "sadf liubsv"
 } {resp-type FATAL error {Unexpected response:"sadf liubsv"}}
+
+# -------------------------------------------------------------------------
+
+::tcltest::cleanupTests
+
+# -------------------------------------------------------------------------
