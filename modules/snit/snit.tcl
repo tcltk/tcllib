@@ -98,6 +98,7 @@ set ::snit::typeTemplate {
         #
         # ns:                The type's namespace
         # hasinstances:      T or F, from pragma -hasinstances.
+        # simpledispatch:    T or F, from pragma -hasinstances.
         # canreplace:        T or F, from pragma -canreplace.
         # counter:           Count of instances created so far.
         # widgetclass:       Set by widgetclass statement.
@@ -109,6 +110,7 @@ set ::snit::typeTemplate {
         typevariable Snit_info
         set Snit_info(ns)      %TYPE%::
         set Snit_info(hasinstances) 1
+        set Snit_info(simpledispatch) 0
         set Snit_info(canreplace) 0
         set Snit_info(counter) 0
         set Snit_info(widgetclass) {}
@@ -202,6 +204,12 @@ set ::snit::typeTemplate {
 
     %TYPE%::Snit_typeconstructor %TYPE%
 }
+
+#-----------------------------------------------------------------------
+# Type procs
+#
+# These procs expect the fully-qualified type name to be 
+# substituted in for %TYPE%.
 
 # This is the nominal type proc.  It supports typemethods and
 # delegated typemethods.
@@ -297,6 +305,65 @@ set ::snit::simpleTypeProc {
     }
 }
 
+#-----------------------------------------------------------------------
+# Instance procs
+#
+# The following must be substituted into these proc bodies:
+#
+# %SELFNS%       The instance namespace
+# %WIN%          The original instance name
+# %TYPE%         The fully-qualified type name
+#
+
+# Nominal instance proc body: supports method caching and delegation.
+#
+# proc $instanceName {method args} ....
+set ::snit::nominalInstanceProc {
+    set self [set %SELFNS%::Snit_instance]
+            
+    if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
+        set command [snit::RT.CacheMethodCommand %TYPE% %SELFNS% %WIN% $self $method]
+                
+        if {[llength $command] == 0} {
+            return -code error \
+                "\"$self $method\" is not defined"
+        }
+    }
+            
+    # Pass along the return code unchanged.
+    set retval [catch {uplevel 1 $command $args} result]
+
+    if {$retval} {
+        if {$retval == 1} {
+            global errorInfo
+            global errorCode
+            return -code error -errorinfo $errorInfo \
+                -errorcode $errorCode $result
+        } else {
+            return -code $retval $result
+        }
+    }
+
+    return $result
+}
+
+# Simplified method proc body: No delegation allowed; no support for
+# upvar or exotic return codes.  Designed for max speed for simple types.
+#
+# proc $instanceName {method args} ....
+
+set ::snit::simpleInstanceProc {
+    if {[lsearch -exact ${%TYPE%::Snit_methods} $method] == -1} {
+	set optlist [join ${%TYPE%::Snit_methods} ", "]
+	set optlist [linsert $optlist "end-1" "or"]
+	error "bad option \"$method\": must be $optlist"
+    }
+
+    eval [linsert $args 0 \
+              %TYPE%::Snit_method$method %TYPE% %SELFNS% %WIN% %WIN%] 
+}
+
+
 #=======================================================================
 # Snit Type Definition
 #
@@ -333,7 +400,8 @@ namespace eval ::snit:: {
     # localoptions:          Names of local options.
     # delegatedoptions:      Names of delegated options.
     # localmethods:          Names of locally defined methods.
-    # delegatedmethods:      Names of delegated methods.
+    # delegatedmethods:      Names of delegated methods (except *)
+    # delegatesmethods:      no if no delegated methods, yes otherwise.
     # components:            Names of defined components.
     # localtypemethods:      Names of locally defined methods.
     # delegatedtypemethods:  Names of delegated typemethods.
@@ -354,6 +422,7 @@ namespace eval ::snit:: {
     # -hastypemethods        The -hastypemethods pragma
     # -hasinfo               The -hasinfo pragma
     # -hasinstances          The -hasinstances pragma
+    # -simpledispatch        The -simpledispatch pragma
     # -canreplace            The -canreplace pragma
     variable compile
 
@@ -462,6 +531,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(hulltype) {}
     set compile(localmethods) {}
     set compile(delegatedmethods) {}
+    set compile(delegatesmethods) no
     set compile(localtypemethods) {}
     set compile(delegatedtypemethods) {}
     set compile(components) {}
@@ -474,6 +544,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(-hastypemethods) yes
     set compile(-hasinfo) yes
     set compile(-hasinstances) yes
+    set compile(-simpledispatch) no
     set compile(-canreplace) no
 
     set isWidget [string match widget* $which]
@@ -495,8 +566,13 @@ proc ::snit::Comp.Compile {which type body} {
 
 
     # Check pragmas for conflict.
+    
     if {!$compile(-hastypemethods) && !$compile(-hasinstances)} {
         error "$which $type has neither typemethods nor instances"
+    }
+
+    if {$compile(-simpledispatch) && $compile(delegatesmethods)} {
+        error "$which $type requests -simpledispatch but delegates methods."
     }
 
     # If there are typemethods, define the standard typemethods and
@@ -524,22 +600,49 @@ proc ::snit::Comp.Compile {which type body} {
     # Add standard methods/typemethods that only make sense if the
     # type has instances.
     if {$compile(-hasinstances)} {
+        # If we're using simple dispatch, remember that.
+        if {$compile(-simpledispatch)} {
+            append compile(defs) "\nset %TYPE%::Snit_info(simpledispatch) 1\n"
+        }
+
         # Add the info method unless the pragma forbids it.
         if {$compile(-hasinfo)} {
-            Comp.statement.delegate method info \
-                using {::snit::RT.method.info %t %n %w %s}
+            if {!$compile(-simpledispatch)} {
+                Comp.statement.delegate method info \
+                    using {::snit::RT.method.info %t %n %w %s}
+            } else {
+                Comp.statement.method info {args} {
+                    eval [linsert $args 0 \
+                              ::snit::RT.method.info $type $selfns $win $self]
+                }
+            }
         }
         
         # Add the option handling stuff if there are any options.
         if {$compile(hasoptions)} {
             Comp.statement.variable options
 
-            Comp.statement.delegate method cget \
-                using {::snit::RT.method.cget %t %n %w %s}
-            Comp.statement.delegate method configurelist \
-                using {::snit::RT.method.configurelist %t %n %w %s}
-            Comp.statement.delegate method configure \
-                using {::snit::RT.method.configure %t %n %w %s}
+            if {!$compile(-simpledispatch)} {
+                Comp.statement.delegate method cget \
+                    using {::snit::RT.method.cget %t %n %w %s}
+                Comp.statement.delegate method configurelist \
+                    using {::snit::RT.method.configurelist %t %n %w %s}
+                Comp.statement.delegate method configure \
+                    using {::snit::RT.method.configure %t %n %w %s}
+            } else {
+                Comp.statement.method cget {args} {
+                    eval [linsert $args 0 \
+                              ::snit::RT.method.cget $type $selfns $win $self]
+                }
+                Comp.statement.method configurelist {args} {
+                    eval [linsert $args 0 \
+                              ::snit::RT.method.configurelist $type $selfns $win $self]
+                }
+                Comp.statement.method configure {args} {
+                    eval [linsert $args 0 \
+                              ::snit::RT.method.configure $type $selfns $win $self]
+                }
+            }
         }
 
         # Add a default constructor, if they haven't already defined one.
@@ -554,16 +657,29 @@ proc ::snit::Comp.Compile {which type body} {
                 Comp.statement.constructor {} {}
             }
         }
-
+        
         if {!$isWidget} {
-            Comp.statement.delegate method destroy \
-                using {::snit::RT.method.destroy %t %n %w %s}
+            if {!$compile(-simpledispatch)} {
+                Comp.statement.delegate method destroy \
+                    using {::snit::RT.method.destroy %t %n %w %s}
+            } else {
+                Comp.statement.method destroy {args} {
+                    eval [linsert $args 0 \
+                              ::snit::RT.method.destroy $type $selfns $win $self]
+                }
+            }
 
             Comp.statement.delegate typemethod create \
                 using {::snit::RT.type.typemethod.create %t}
         } else {
             Comp.statement.delegate typemethod create \
                 using {::snit::RT.widget.typemethod.create %t}
+        }
+
+        # Save the list of method names, for -simpledispatch
+        if {$compile(-simpledispatch)} {
+            append compile(defs) \
+                "\nset %TYPE%::Snit_methods [list $compile(localmethods)]\n"
         }
     } else {
         append compile(defs) "\nset %TYPE%::Snit_info(hasinstances) 0\n"
@@ -683,12 +799,16 @@ proc ::snit::Comp.statement.pragma {args} {
             -hastypedestroy -
             -hastypemethods -
             -hasinstances   -
+            -simpledispatch -
             -hasinfo        -
             -canreplace     {
                 if {![string is boolean -strict $val]} {
                     error "$errRoot, \"$opt\" requires a boolean value"
                 }
                 set compile($opt) $val
+            }
+            default {
+                error "$errRoot, unknown pragma"
             }
         }
     }
@@ -1389,6 +1509,9 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         error "$errRoot, the -pattern, \"$pattern\", is not a valid list"
     }
 
+    # NEXT, we delegate some methods
+    set compile(delegatesmethods) yes
+
     # NEXT, define the component.  Allow typecomponents.
     if {$component ne ""} {
         if {[lsearch -exact $compile(typecomponents) $component] == -1} {
@@ -1909,6 +2032,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
 
 proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
     variable ${type}::Snit_isWidget
+    variable ${type}::Snit_info
         
     # FIRST, remember the instance name.  The Snit_instance variable
     # allows the instance to figure out its current name given the
@@ -1924,36 +2048,16 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
     }
 
     # NEXT, install the new proc
-    set body [string map [list %SELFNS% $selfns %WIN% $instance %TYPE% $type] {
-        set self [set %SELFNS%::Snit_instance]
-            
-        if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
-            set command [snit::RT.CacheMethodCommand %TYPE% %SELFNS% %WIN% $self $method]
-                
-            if {[llength $command] == 0} {
-                return -code error \
-                    "\"$self $method\" is not defined"
-            }
-        }
-            
-        # Pass along the return code unchanged.
-        set retval [catch {uplevel 1 $command $args} result]
+    if {!$Snit_info(simpledispatch)} {
+        set instanceProc $::snit::nominalInstanceProc
+    } else {
+        set instanceProc $::snit::simpleInstanceProc
+    }
 
-        if {$retval} {
-            if {$retval == 1} {
-                global errorInfo
-                global errorCode
-                return -code error -errorinfo $errorInfo \
-                    -errorcode $errorCode $result
-            } else {
-                return -code $retval $result
-            }
-        }
-
-        return $result
-    }]
-
-    proc $procname {method args} $body
+    proc $procname {method args} \
+        [string map \
+             [list %SELFNS% $selfns %WIN% $instance %TYPE% $type] \
+             $instanceProc]
 
     # NEXT, add the trace.
     trace add command $procname {rename delete} \
@@ -1979,6 +2083,7 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
 
 proc ::snit::RT.InstanceTrace {type selfns win old new op} {
     variable ${type}::Snit_isWidget
+    variable ${type}::Snit_info
 
     # Note to developers ...
     # For Tcl 8.4.0, errors thrown in trace handlers vanish silently.
@@ -1993,6 +2098,8 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
             } else {
                 ::snit::RT.DestroyObject $type $selfns $win
             }
+        } elseif {$Snit_info(simpledispatch)} {
+            error "object $old should not have been renamed."
         } else {
             # Otherwise, track the change.
             variable ${selfns}::Snit_instance

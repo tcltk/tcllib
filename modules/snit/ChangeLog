@@ -1,3 +1,12 @@
+2004-08-22  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	Defined the -simpledispatch pragma.  Updated
+	* snit.test     the test suite and the relevant documentation.
+	* snit.man
+	* README.txt
+	* snitfaq.man
+	* dictionary
+
 2004-08-14  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Defined the -hastypemethods pragma, and added
