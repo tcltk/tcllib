@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.6 2004/05/29 17:43:26 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.7 2004/08/16 18:45:43 afaupell Exp $
 
 package provide jpeg 0.1
 
@@ -19,6 +19,12 @@ proc ::jpeg::openJFIF {file {mode r}} {
     if {[read $fh 3] != "\xFF\xD8\xFF"} { close $fh; return -code error "not a jpg file" }
     seek $fh -1 current
     return $fh
+}
+
+proc ::jpeg::isJPEG {file} {
+    set is [catch {openJFIF $file} fh]
+    catch {close $fh}
+    return $is
 }
 
 proc ::jpeg::markers {fh} {
@@ -75,6 +81,7 @@ proc ::jpeg::addComment {file comment args} {
     set data2 [read $fh]
     seek $fh [expr {[lindex $sof 1] - 4}] start
     foreach x [linsert $args 0 $comment] {
+        if {$x == ""} continue
         puts -nonewline $fh [binary format a2Sa* "\xFF\xFE" [expr {[string length $x] + 2}] $x]
     }
     puts -nonewline $fh $data2
@@ -103,15 +110,45 @@ proc ::jpeg::removeComments {file} {
     close $fh
 }
 
+proc ::jpeg::stripJPEG {file} {
+    set fh [openJFIF $file]
+    set data {}
+    
+    set markers [markers $fh]
+    if {[lindex $markers 0 0] == "e0"} {
+        seek $fh [lindex $markers 0 1] start
+        if {[read $fh 5] == "JFIF\x00"} {
+            seek $fh -9 current
+            set jfif [read $fh [expr {[lindex $markers 0 2] + 4}]]
+        }
+    }
+    if {![info exists jfif]} {
+        set jfif [binary format a2Sa5cccSScc "\xFF\xE0" 16 "JFIF\x00" 1 2 1 72 72 0 0]
+    }
+
+    foreach marker $markers {
+        if {![string match {[ef]*} [lindex $marker 0]]} {
+            seek $fh [expr {[lindex $marker 1] - 4}] start
+            append data [read $fh [expr {[lindex $marker 2] + 4}]]
+        }
+    }
+    append data [read $fh]
+
+    close $fh
+    set fh [open $file w+]
+    puts -nonewline $fh \xFF\xD8$jfif$data
+    close $fh
+}
+
 proc ::jpeg::getThumbnail {file} {
     array set exif [getExif $file thumbnail]
     if {[info exists exif(Compression)] && \
              $exif(Compression) == 6 && \
-             [info exists exif(JpegIFOffset)] && \
-             [info exists exif(JpegIFByteCount)]} {
+             [info exists exif(JPEGInterchangeFormat)] && \
+             [info exists exif(JPEGInterchangeFormatLength)]} {
         set fh [openJFIF $file]
-        seek $fh [expr {[lindex [lsearch -inline [markers $fh] "e1 *"] 1] + 6 + $exif(JpegIFOffset)}] start
-        set thumb [read $fh $exif(JpegIFByteCount)]
+        seek $fh [expr {$exif(ExifOffset) + $exif(JPEGInterchangeFormat)}] start
+        set thumb [read $fh $exif(JPEGInterchangeFormatLength)]
         close $fh
         return $thumb
     }
@@ -126,6 +163,50 @@ proc ::jpeg::getThumbnail {file} {
         }
     }
     close $fh
+}
+
+proc ::jpeg::formatExif {exif} {
+    variable exif_values
+    set out {}
+    foreach {tag val} $exif {
+        if {[info exists exif_values($tag,$val)]} {
+            set val $exif_values($tag,$val)
+        } elseif {[info exists exif_values($tag,)]} {
+            set val $exif_values($tag,)
+        } else {
+            switch -exact -- $tag {
+                UserComment {set val [string trim [string range $val 8 end] \x00]}
+                ComponentsConfiguration {binary scan $val cccc a b c d; set val $a,$b,$c,$d}
+                ExifVersion {set val [expr [string range $val 0 1].[string range $val 2 3]]}
+                FNumber {set val [format %2.1f $val]}
+                MaxApertureValue -
+                ApertureValue {
+                    set val [format %2.1f [expr {2 * (log($val) / log(2))}]]
+                }
+                ShutterSpeedValue {
+                    set val 1/[string trimright [string trimright [format %4.2f [expr {pow(2, $val)}]] 0] .]
+                }
+                ExposureTime {
+                    set val 1/[string trimright [string trimright [format %5.4f [expr {1 / $val}]] 0] .]
+                }
+                MakerNote {
+                    #array set tmp $exif
+                    #if {[info exists tmp(ExifOffset)] && [info exists tmp(ExifByteOrder)] && [info exists tmp(Make)]} {
+                    #    set val [MakerNote $tmp(ExifOffset) $tmp(ExifByteOrder) $tmp(Make) $val]
+                    #}
+                }
+            }
+        }
+        lappend out $tag $val
+    }
+    return $out
+}
+
+proc ::jpeg::exifKeys {} {
+    variable exif_tags
+    set ret {}
+    foreach {x y} [array get exif_tags] {lappend ret $y}
+    return $ret
 }
 
 proc ::jpeg::getExif {file {type main}} {
@@ -151,12 +232,13 @@ proc ::jpeg::getExif {file {type main}} {
         } else {
             _scan $byteOrder [read $fh 2] s num
             seek $fh [expr {$num * 12}] current
-            _scan $byteOrder [read $fh 4] s next
+            _scan $byteOrder [read $fh 4] i next
             if {$next <= 0} { close $fh; return }
             seek $fh [expr {$start + $next}] start
             set data [_exif $fh $byteOrder $start]
         }
         close $fh
+        lappend data ExifOffset $start ExifByteOrder $byteOrder
         return $data
     }
     close $fh
@@ -189,8 +271,45 @@ proc ::jpeg::removeExif {file} {
     close $fh
 }
 
+proc ::jpeg::_exif2 {data} {
+    variable exif_tags
+    set byteOrder little
+    set start 0
+    set i 2
+    for {_scan $byteOrder $data @0s num} {$num > 0} {incr num -1} {
+        binary scan $data @${i}H2H2 t1 t2
+        if {$byteOrder == "big"} {
+            set tag $t1$t2
+        } else {
+            set tag $t2$t1
+        }
+        incr i 2
+        _scan $byteOrder $data @${i}si format components
+        incr i 6
+        set value [string range $data $i [expr {$i + 3}]]
+        if {$tag == "8769" || $tag == "a005"} {
+            _scan $byteOrder $value i next
+            #set pos [tell $fh]
+            #seek $fh [expr {$offset + $next}] start
+            #eval lappend return [_exif $fh $byteOrder $offset]
+            #seek $fh $pos start
+            continue
+        }
+        if {![info exists exif_formats($format)]} continue
+        if {[info exists exif_tags($tag)]} { set tag $exif_tags($tag) }
+        set size [expr {$exif_formats($format) * $components}]
+        if {$size > 4} {
+            _scan $byteOrder $value i value
+            #puts "$value"
+            #set value [string range $data [expr {$i + $offset + $value}] [expr {$size - 1}]]
+        }
+        lappend ret $tag [_format $byteOrder $value $format $components]
+    }
+}
+
 proc ::jpeg::_exif {fh byteOrder offset} {
-    variable exif
+    variable exif_formats
+    variable exif_tags
     set return {}
     for {_scan $byteOrder [read $fh 2] s num} {$num > 0} {incr num -1} {
         binary scan [read $fh 2] H2H2 t1 t2
@@ -209,9 +328,9 @@ proc ::jpeg::_exif {fh byteOrder offset} {
             seek $fh $pos start
             continue
         }
-        if {![info exists exif(formatlen,$format)]} continue
-        if {[info exists exif(tag,$tag)]} { set tag $exif(tag,$tag) }
-        set size [expr {$exif(formatlen,$format) * $components}]
+        if {![info exists exif_formats($format)]} continue
+        if {[info exists exif_tags($tag)]} { set tag $exif_tags($tag) }
+        set size [expr {$exif_formats($format) * $components}]
         if {$size > 4} {
             set pos [tell $fh]
             _scan $byteOrder $value i value
@@ -220,6 +339,60 @@ proc ::jpeg::_exif {fh byteOrder offset} {
             seek $fh $pos start
         }
         lappend return $tag [_format $byteOrder $value $format $components]
+    }
+    return $return
+}
+
+proc ::jpeg::MakerNote {offset byteOrder Make data} {
+    if {$Make == "Canon"} {
+        set data [MakerNoteCanon $offset $byteOrder $data]
+    } elseif {[string match Nikon* $data] || $Make == "NIKON"} {
+        set data [MakerNoteNikon $offset $byteOrder $data]
+    } elseif {[string match FUJIFILM* $data]} {
+        set data [MakerNoteFuji $offset $byteOrder $data]
+    } elseif {[string match OLYMP* $data]} {
+        set data [MakerNoteOlympus $offset $byteOrder $data]
+    }
+    return $data
+}
+
+proc ::jpeg::MakerNoteNikon {offset byteOrder data} {
+    variable exif_formats
+    set return {}
+    if {[string match Nikon* $data]} {
+        set i 8
+    } else {
+        set i 0
+    }
+    binary scan $data @8s num
+    incr i 2
+    puts [expr {($num * 12) + $i}]
+    puts [string range $data 142 150]
+    #exit
+    for {} {$num > 0} {incr num -1} {
+        binary scan $data @${i}H2H2 t1 t2
+        if {$byteOrder == "big"} {
+            set tag $t1$t2
+        } else {
+            set tag $t2$t1
+        }
+        incr i 2
+        _scan $byteOrder $data @${i}si format components
+        incr i 6
+        set value [string range $data $i [expr {$i + 3}]]
+        if {![info exists exif_formats($format)]} continue
+        #if {[info exists exif_tags($tag)]} { set tag $exif_tags($tag) }
+        set size [expr {$exif_formats($format) * $components}]
+        if {$size > 4} {
+            _scan $byteOrder $value i value
+            puts "$value"
+            set value 1
+            #set value [string range $data [expr {$i + $offset + $value}] [expr {$size - 1}]]
+        } else {
+        
+        lappend ret $tag [_format $byteOrder $value $format $components]
+        }
+        puts "$tag $format $components $value"
     }
     return $return
 }
@@ -325,149 +498,337 @@ proc ::jpeg::debug {file} {
     }
 }
 
-array set ::jpeg::exif [list formatlen,1 1 formatlen,2 1 formatlen,3 2 formatlen,4 4 formatlen,5 8 formatlen,6 1 formatlen,7 1 formatlen,8 2 formatlen,9 4 formatlen,10 8 formatlen,11 4 formatlen,12 8] 
-array set ::jpeg::exif {
-    tag,010e ImageDescription
-    tag,010f Make
-    tag,0110 Model
-    tag,0112 Orientation
-    tag,011a XResolution
-    tag,011b YResolution
-    tag,0128 ResolutionUnit
-    tag,0131 Software  
-    tag,0132 DateTime
-    tag,013e WhitePoint
-    tag,013f PrimaryChromaticities
-    tag,0211 YCbCrCoefficients
-    tag,0213 YCbCrPositioning
-    tag,0214 ReferenceBlackWhite
-    tag,8298 Copyright
+# for mapping the exif format types to byte lengths
+array set ::jpeg::exif_formats [list 1 1 2 1 3 2 4 4 5 8 6 1 7 1 8 2 9 4 10 8 11 4 12 8]
+
+# list of recognized exif tags. if a tag is not listed here it will show up as its raw hex value
+array set ::jpeg::exif_tags {
+    0100 ImageWidth
+    0101 ImageLength
+    0102 BitsPerSample
+    0103 Compression
+    0106 PhotometricInterpretation
+    0112 Orientation
+    0115 SamplesPerPixel
+    011c PlanarConfiguration
+    0212 YCbCrSubSampling
+    0213 YCbCrPositioning
+    011a XResolution
+    011b YResolution
+    0128 ResolutionUnit
+
+    0111 StripOffsets
+    0116 RowsPerStrip
+    0117 StripByteCounts
+    0201 JPEGInterchangeFormat
+    0202 JPEGInterchangeFormatLength
+
+    012d TransferFunction
+    013e WhitePoint
+    013f PrimaryChromaticities
+    0211 YCbCrCoefficients
+    0213 YCbCrPositioning
+    0214 ReferenceBlackWhite
+
+    0132 DateTime
+    010e ImageDescription
+    010f Make
+    0110 Model
+    0131 Software  
+    013b Artist
+    8298 Copyright
     
-    tag,829a ExposureTime
-    tag,829d FNumber
-    tag,8822 ExposureProgram
-    tag,8827 ISOSpeedRatings
-    tag,9000 ExifVersion  
-    tag,9003 DateTimeOriginal
-    tag,9004 DateTimeDigitized
-    tag,9101 ComponentsConfiguration
-    tag,9102 CompressedBitsPerPixel
-    tag,9201 ShutterSpeedValue
-    tag,9202 ApertureValue
-    tag,9203 BrightnessValue
-    tag,9204 ExposureBiasValue
-    tag,9205 MaxApertureValue
-    tag,9206 SubjectDistance
-    tag,9207 MeteringMode
-    tag,9208 LightSource
-    tag,9209 Flash
-    tag,920a FocalLength
-    tag,927c MakerNote
-    tag,9286 UserComment
-    tag,9290 SubsecTime
-    tag,9291 SubsecTimeOriginal
-    tag,9292 SubsecTimeDigitized
-    tag,a000 FlashPixVersion
-    tag,a001 ColorSpace
-    tag,a002 ExifImageWidth
-    tag,a003 ExifImageHeight
-    tag,a004 RelatedSoundFile
-    tag,a005 ExifInteroperabilityOffset
-    tag,a20e FocalPlaneXResolution
-    tag,a20f FocalPlaneYResolution
-    tag,a210 FocalPlaneResolutionUnit
-    tag,a215 ExposureIndex
-    tag,a217 SensingMethod
-    tag,a300 FileSource
-    tag,a301 SceneType
-    tag,a302 CFAPattern
+    9000 ExifVersion  
+    a000 FlashpixVersion
+
+    a001 ColorSpace
+
+    9101 ComponentsConfiguration
+    9102 CompressedBitsPerPixel
+    a002 ExifImageWidth
+    a003 ExifImageHeight
+
+    927c MakerNote
+    9286 UserComment
+
+    a004 RelatedSoundFile
+
+    9003 DateTimeOriginal
+    9004 DateTimeDigitized
+    9290 SubsecTime
+    9291 SubsecTimeOriginal
+    9292 SubsecTimeDigitized
+
+    829a ExposureTime
+    829d FNumber
+    8822 ExposureProgram
+    8824 SpectralSensitivity
+    8827 ISOSpeedRatings
+    8828 OECF
+    9201 ShutterSpeedValue
+    9202 ApertureValue
+    9203 BrightnessValue
+    9204 ExposureBiasValue
+    9205 MaxApertureValue
+    9206 SubjectDistance
+    9207 MeteringMode
+    9208 LightSource
+    9209 Flash
+    920a FocalLength
+    9214 SubjectArea
+    a20b FlashEnergy
+    a20c SpatialFrequencyResponse
+    a20e FocalPlaneXResolution
+    a20f FocalPlaneYResolution
+    a210 FocalPlaneResolutionUnit
+    a214 SubjectLocation
+    a215 ExposureIndex
+    a217 SensingMethod
+    a300 FileSource
+    a301 SceneType
+    a302 CFAPattern
+    a401 CustomRendered
+    a402 ExposureMode
+    a403 WhiteBalance
+    a404 DigitalZoomRatio
+    a405 FocalLengthIn35mmFilm
+    a406 SceneCaptureType
+    a407 GainControl
+    a408 Contrast
+    a409 Saturation
+    a40a Sharpness
+    a40b DeviceSettingDescription
+    a40c SubjectDistanceRange
+    a420 ImageUniqueID
+
     
-    tag,0100 ImageWidth
-    tag,0101 ImageLength
-    tag,0102 BitsPerSample
-    tag,0103 Compression
-    tag,0106 PhotometricInterpretation
-    tag,0111 StripOffsets
-    tag,0115 SamplesPerPixel
-    tag,0116 RowsPerStrip
-    tag,0117 StripByteConunts
-    tag,011a XResolution
-    tag,011b YResolution
-    tag,011c PlanarConfiguration
-    tag,0128 ResolutionUnit
-    tag,0201 JpegIFOffset
-    tag,0202 JpegIFByteCount
-    tag,0211 YCbCrCoefficients
-    tag,0212 YCbCrSubSampling
-    tag,0213 YCbCrPositioning
-    tag,0214 ReferenceBlackWhite
+    0001 InteroperabilityIndex
+    0002 InteroperabilityVersion
+    1000 RelatedImageFileFormat
+    1001 RelatedImageWidth
+    1002 RelatedImageLength
     
-    tag,0001 InteroperabilityIndex
-    tag,0002 InteroperabilityVersion
-    tag,1000 RelatedImageFileFormat
-    tag,1001 RelatedImageWidth
-    tag,1002 RelatedImageLength
+    00fe NewSubfileType
+    00ff SubfileType
+    013d Predictor
+    0142 TileWidth
+    0143 TileLength
+    0144 TileOffsets
+    0145 TileByteCounts
+    014a SubIFDs
+    015b JPEGTables
+    828d CFARepeatPatternDim
+    828e CFAPattern
+    828f BatteryLevel
+    83bb IPTC/NAA
+    8773 InterColorProfile
+    8825 GPSInfo
+    8829 Interlace
+    882a TimeZoneOffset
+    882b SelfTimerMode
+    920c SpatialFrequencyResponse
+    920d Noise
+    9211 ImageNumber
+    9212 SecurityClassification
+    9213 ImageHistory
+    9215 ExposureIndex
+    9216 TIFF/EPStandardID
+}
+
+# for mapping read values to plain english names by [formatExif]
+array set ::jpeg::exif_values {
+    Compression,1 none
+    Compression,6 JPEG
+    Compression,  unknown
+
+    PhotometricInterpretation,2 RGB
+    PhotometricInterpretation,6 YCbCr
+    PhotometricInterpretation,  unknown
+
+    Orientation,1 normal
+    Orientation,2 mirrored
+    Orientation,3 "180 degrees"
+    Orientation,4 "180 degrees, mirrored"
+    Orientation,5 "90 degrees ccw, mirrored"
+    Orientation,6 "90 degrees cw"
+    Orientation,7 "90 degrees cw, mirrored"
+    Orientation,8 "90 degrees ccw"
+    Orientation,  unknown
+
+    PlanarConfiguration,1 chunky
+    PlanarConfiguration,2 planar
+    PlanarConfiguration,  unknown
+
+    YCbCrSubSampling,2,1 YCbCr4:2:2
+    YCbCrSubSampling,2,2 YCbCr4:2:0
+    YCbCrSubSampling,    unknown
+
+    YCbCrPositioning,1 centered
+    YCbCrPositioning,2 co-sited
+    YCbCrPositioning,  unknown
+
+    FlashpixVersion,0100 "Flashpix Format Version 1.0"
+    FlashpixVersion,     unknown
+
+    ColorSpace,1     sRGB
+    ColorSpace,32768 uncalibrated
+    ColorSpace,      unknown
+
+    ExposureProgram,0 undefined
+    ExposureProgram,1 manual
+    ExposureProgram,2 normal
+    ExposureProgram,3 "aperture priority"
+    ExposureProgram,4 "shutter priority"
+    ExposureProgram,5 creative
+    ExposureProgram,6 action
+    ExposureProgram,7 portrait
+    ExposureProgram,8 landscape
+    ExposureProgram,  unknown
+
+    LightSource,0   unknown
+    LightSource,1   daylight
+    LightSource,2   flourescent
+    LightSource,3   tungsten
+    LightSource,4   flash
+    LightSource,9   "fine weather"
+    LightSource,10  "cloudy weather"
+    LightSource,11  shade
+    LightSource,12  "daylight flourescent"
+    LightSource,13  "day white flourescent"
+    LightSource,14  "cool white flourescent"
+    LightSource,15  "white flourescent"
+    LightSource,17  "standard light A"
+    LightSource,18  "standard light B"
+    LightSource,19  "standard light C"
+    LightSource,20  D55
+    LightSource,21  D65
+    LightSource,22  D75
+    LightSource,23  D50
+    LightSource,24  "ISO studio tungsten"
+    LightSource,255 other
+    LightSource,    unknown
+
+    Flash,0  "no flash"
+    Flash,1  "flash fired"
+    Flash,5  "strobe return light not detected"
+    Flash,7  "strobe return light detected"
+    Flash,9  "flash fired, compulsory flash mode"
+    Flash,13 "flash fired, compulsory flash mode, return light not detected"
+    Flash,15 "flash fired, compulsory flash mode, return light detected"
+    Flash,16 "flash did not fire, compulsory flash mode"
+    Flash,24 "flash did not fire, auto mode"
+    Flash,25 "flash fired, auto mode"
+    Flash,29 "flash fired, auto mode, return light not detected"
+    Flash,31 "flash fired, auto mode, return light detected"
+    Flash,32 "no flash function"
+    Flash,65 "flash fired, red-eye reduction mode"
+    Flash,69 "flash fired, red-eye reduction mode, return light not detected"
+    Flash,71 "flash fired, red-eye reduction mode, return light detected"
+    Flash,73 "flash fired, compulsory mode, red-eye reduction mode"
+    Flash,77 "flash fired, compulsory mode, red-eye reduction mode, return light not detected"
+    Flash,79 "flash fired, compulsory mode, red-eye reduction mode, return light detected"
+    Flash,89 "flash fired, auto mode, red-eye reduction mode"
+    Flash,93 "flash fired, auto mode, return light not detected, red-eye reduction mode"
+    Flash,95 "flash fired, auto mode, return light detected, red-eye reduction mode"
+    Flash,   unknown
+
+    ResolutionUnit,2 inches
+    ResolutionUnit,3 centimeters
+    ResolutionUnit,  unknown
+
+    SensingMethod,1 undefined
+    SensingMethod,2 "one chip color area sensor"
+    SensingMethod,3 "two chip color area sensor"
+    SensingMethod,4 "three chip color area sensor"
+    SensingMethod,5 "color sequential area sensor"
+    SensingMethod,7 "trilinear sensor"
+    SensingMethod,8 "color sequential linear sensor"
+    SensingMethod,  unknown
+
+    SceneType,\x01\x00\x00\x00 "directly photographed image"
+    SceneType,                 unknown
+
+    CustomRendered,0 normal
+    CustomRendered,1 custom
+
+    ExposureMode,0 auto
+    ExposureMode,1 manual
+    ExposureMode,2 "auto bracket"
+    ExposureMode,  unknown
+
+    WhiteBalance,0 auto
+    WhiteBlanace,1 manual
+    WhiteBlanace,  unknown
+
+    SceneCaptureType,0 standard
+    SceneCaptureType,1 landscape
+    SceneCaptureType,2 portrait
+    SceneCaptureType,3 night
+    SceneCaptureType,  unknown
+
+    GainControl,0 none
+    GainControl,1 "low gain up"
+    GainControl,2 "high gain up"
+    GainControl,3 "low gain down"
+    GainControl,4 "high gain down"
+    GainControl,  unknown
+
+    Contrast,0 normal
+    Contrast,1 soft
+    Contrast,2 hard
+    Contrast,  unknown
+
+    Saturation,0 normal
+    Saturation,1 low
+    Saturation,2 high
+    Saturation,  unknown
+
+    Sharpness,0 normal
+    Sharpness,1 soft
+    Sharpness,2 hard
+    Sharpness,  unknown
+
+    SubjectDistanceRange,0 unknown
+    SubjectDistanceRange,1 macro
+    SubjectDistanceRange,2 close
+    SubjectDistanceRange,3 distant
+    SubjectDistanceRange,  unknown
     
-    tag,00fe NewSubfileType
-    tag,00ff SubfileType
-    tag,012d TransferFunction
-    tag,013b Artist
-    tag,013d Predictor
-    tag,0142 TileWidth
-    tag,0143 TileLength
-    tag,0144 TileOffsets
-    tag,0145 TileByteCounts
-    tag,014a SubIFDs
-    tag,015b JPEGTables
-    tag,828d CFARepeatPatternDim
-    tag,828e CFAPattern
-    tag,828f BatteryLevel
-    tag,83bb IPTC/NAA
-    tag,8773 InterColorProfile
-    tag,8824 SpectralSensitivity
-    tag,8825 GPSInfo
-    tag,8828 OECF
-    tag,8829 Interlace
-    tag,882a TimeZoneOffset
-    tag,882b SelfTimerMode
-    tag,920b FlashEnergy
-    tag,920c SpatialFrequencyResponse
-    tag,920d Noise
-    tag,9211 ImageNumber
-    tag,9212 SecurityClassification
-    tag,9213 ImageHistory
-    tag,9214 SubjectLocation
-    tag,9215 ExposureIndex
-    tag,9216 TIFF/EPStandardID
-    tag,a20b FlashEnergy
-    tag,a20c SpatialFrequencyResponse
-    tag,a214 SubjectLocation
+    MeteringMode,0   unknown
+    MeteringMode,1   average
+    MeteringMode,2   "center weighted average"
+    MeteringMode,3   spot
+    MeteringMode,4   multi-spot
+    MeteringMode,5   multi-segment
+    MeteringMode,6   partial
+    MeteringMode,255 other
+    MeteringMode,    unknown
+    
+    FocalPlaneResolutionUnit,2 inches
+    FocalPlaneResolutionUnit,3 centimeters
+    FocalPlaneResolutionUnit,  none
+    
+    DigitalZoomRatio,0 "not used"
+    
+    FileSource,\x03\x00\x00\x00 "digital still camera"
+    FileSource,                 unknown
 }
 
 proc ::jpeg::_scan {e v f args} {
      foreach x $args { upvar 1 $x $x }
      if {$e == "big"} {
-         eval [list binary scan $v [string map {a A b B h H s S i I} $f]] $args
+         eval [list binary scan $v [string map {b B h H s S i I} $f]] $args
      } else {
          eval [list binary scan $v $f] $args
      }
 }
 
 proc ::jpeg::_format {end value type num} {
-    #set t {}
-    #upvar tag tag
-    #foreach x [split $value {}] {
-    #    _scan $end $x H2 a
-    #    lappend t $a
-    #}
-    #puts "$tag $type $num"
-    #puts $t
-
     if {$num > 1 && $type != 2 && $type != 7} {
-        variable exif
+        variable exif_formats
         set r {}
         for {set i 0} {$i < $num} {incr i} {
-            set len $exif(formatlen,$type)
+            set len $exif_formats($type)
             lappend r [_format $end [string range $value [expr {$len * $i}] [expr {($len * $i) + $len - 1}]] $type 1]
         }
         return [join $r ,]
@@ -475,23 +836,36 @@ proc ::jpeg::_format {end value type num} {
     switch -exact -- $type {
         1 { _scan $end $value c value }
         2 { set value [string trimright $value \x00] }
-        3 { _scan $end $value s value }
-        4 { _scan $end $value i value }
+        3 {
+            _scan $end $value s value
+            set value [format %u $value]
+        }
+        4 {
+            _scan $end $value i value
+            set value [format %u $value]
+        }
         5 {
             _scan $end $value ii n d
-            set value "$n/$d"
+            set n [format %u $n]
+            set d [format %u $d]
+            if {$d == 0} {set d 1}
+            #set value [string trimright [string trimright [format %5.4f [expr {double($n) / $d}]] 0] .]
+            set value [string trimright [string trimright [expr {double($n) / $d}] 0] .]
+            #set value "$n/$d"
         }
         6 { _scan $end $value c value }
         8 { _scan $end $value s value }
         9 { _scan $end $value i value }
         10 {
             _scan $end $value ii n d
-            set value "$n/$d"
+            if {$d == 0} {set d 1}
+            #set value [string trimright [string trimright [format %5.4f [expr {double($n) / $d}]] 0] .]
+            set value [string trimright [string trimright [expr {double($n) / $d}] 0] .]
+            #set value "$n/$d"
         }
         11 { _scan $end $value i value }
         12 { _scan $end $value w value }
     }
-    #puts $value
     return $value
 }
 
