@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.8 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.9 2004/08/18 01:59:37 andreas_kupries Exp $
 
 namespace eval ::struct {}
 namespace eval ::struct::queue {
@@ -49,7 +49,7 @@ proc ::struct::queue::queue {args} {
 	default {
 	    # Error.
 	    return -code error \
-		    "wrong # args: should be \"queue ?name ?=|:=|as|deserialize source??\""
+		    "wrong # args: should be \"queue ?name?\""
 	}
     }
 
