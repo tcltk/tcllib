@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8]} {return}
-package ifneeded log 1.0 [list source [file join $dir log.tcl]]
+package ifneeded log 1.0.1 [list source [file join $dir log.tcl]]

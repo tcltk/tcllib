@@ -2,10 +2,10 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: csv.n,v 1.8 2002/01/18 20:51:15 andreas_kupries Exp $
+'\" RCS: @(#) $Id: csv.n,v 1.9 2002/02/01 22:59:08 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH csv n 1.0 Csv "CSV processing"
+.TH csv n 0.3 Csv "CSV processing"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.3\fR
 .sp
-\fBpackage require csv ?0.2?\fR
+\fBpackage require csv ?0.3?\fR
 .sp
 \fB::csv::join\fR \fIvalues {sepChar ,}\fR
 .sp
