@@ -1,5 +1,8 @@
 2003-04-02  Andreas Kupries  <andreask@activestate.com>
 
+	* list.cl:
+	* list.test: Fixed SF tcllib bug #714209.
+
 	* ../../../examples/struct: Added example applications for usage
 	  of longestCommonSubsequence and lcsInvert.
 
