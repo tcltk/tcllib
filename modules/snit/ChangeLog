@@ -18,6 +18,13 @@
 
 	* snit.test     Fixed Snit bug 899207 (snit test failures)
 
+	* snit.tcl	Added new instance introspection methods 
+	* snit.test   	"info typemethods" and "info methods", and a new
+	* README.txt    type introspection typemethod "info typemethods".
+	* snit.man      
+	* roadmap.txt
+
+
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Implemented -configuremethod and configure command

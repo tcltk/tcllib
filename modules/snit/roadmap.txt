@@ -145,11 +145,14 @@ rather than compile time.
 * Type Introspection
 ** ::snit::RT.typemethod.info
 ** ::snit::RT.typemethod.info.typevars
+** ::snit::RT.typemethod.info.typemethods
 ** ::snit::RT.typemethod.info.instances
 * Instance Introspection
 ** ::snit::RT.method.info
 ** ::snit::RT.method.info.type
 ** ::snit::RT.method.info.typevars
+** ::snit::RT.method.info.typemethods
+** ::snit::RT.method.info.methods
 ** ::snit::RT.method.info.vars
 ** ::snit::RT.method.info.options
 
