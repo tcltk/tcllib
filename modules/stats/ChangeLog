@@ -1,3 +1,8 @@
+2000-09-23  Brent Welch <welch@ajubasolutions.com>
+
+	* modules/stats/stats.tcl: Time-based histograms were
+	not displaying the 23rd hour nor the 59th minute.
+
 2000-09-22  Brent Welch <welch@ajubasolutions.com>
 
 	* modules/stats/stats.tcl: Fixed initialization when the

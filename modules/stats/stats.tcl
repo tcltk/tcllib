@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.8 2000/09/23 07:12:54 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.9 2000/09/24 07:21:46 welch Exp $
 
 package provide stats 1.0
 
@@ -83,12 +83,21 @@ proc stats::countInit {tag args} {
 		variable dayIndex
 
 		upvar #0 stats::H-$tag histogram
+		upvar #0 stats::Hour-$tag hourhist
+		upvar #0 stats::Day-$tag dayhist
 
-		# Clear the per-minute histogram.
+		# Clear the histograms.
 
 		for {set i 0} {$i < 60} {incr i} {
 		    set histogram($i) 0
 		}
+		for {set i 0} {$i < 24} {incr i} {
+		    set hourhist($i) 0
+		}
+		if {[info exist dayhist]} {
+		    unset dayhist
+		}
+		set dayhist(0) 0
 
 		# The value associated with -timehist is the number of seconds
 		# in each bucket.  Normally this is 60, but for
@@ -695,7 +704,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    set time $minuteBase
 	    set secsForMax $secsPerMinute
 	    set curIndex [expr {([clock seconds] - $minuteBase) / $secsPerMinute}]
-	    set options(-max) 59
+	    set options(-max) 60
 	    set options(-min) 0
 	}
 	hour* {
@@ -710,7 +719,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    if {$curIndex < 0} {
 		set curIndex 23
 	    }
-	    set options(-max) 23
+	    set options(-max) 24
 	    set options(-min) 0
 	}
 	day* {
