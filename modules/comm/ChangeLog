@@ -1,3 +1,18 @@
+2003-10-21  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* pkgIndex.tcl: updated to v4.2.
+
+	* comm.man: 
+	* comm.tcl (comm_cmd_new): make 'comm::comm new ?chan?' fully
+	qualify the namespace of the new channel and return that.
+	[Bug #741653, #817351]
+
+	* comm.tcl: change default encoding to utf-8.  This should still
+	work with other versions of comm because the previous one-sided
+	binary setting only allowed for limited i18n-ness.  Using this
+	version of comm on both sides will ensure full i18n-happiness.
+	[Bug #806420]
+
 2003-05-09  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* pkgIndex.tcl: updated to comm 4.1
