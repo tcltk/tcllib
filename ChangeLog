@@ -1,3 +1,10 @@
+2004-07-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* installed_modules.tcl: NEW MODULE: http
+	The http module is intended to contain things for use with the http
+	package. Now, this is the 'autoproxy' package. I plan to add an
+	auto-cookie managing package too (if I can find it.)
+
 2004-07-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Fixed [Tcllib SF Bug 988123], which caused the doctools
