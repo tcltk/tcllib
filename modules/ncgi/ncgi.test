@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # Tests for the cgi module.
 #
 # This file contains a collection of tests for one or more of the Tcl
@@ -6,14 +7,31 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.14 2002/08/15 18:23:39 davidw Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.15 2003/05/02 07:42:06 andreas_kupries Exp $
 
-package require tcltest
-namespace import -force ::tcltest::*
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import -force ::tcltest::*
+}
+
+
+if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+}
+
+package forget ncgi
+catch {namespace delete ncgi}
 
 set ncgiFile [file join [file dirname [info script]] ncgi.tcl]
-source $ncgiFile
-package require ncgi 1.2.1
+set     sub_ap $auto_path
+lappend sub_ap [file dirname [file dirname [info script]]]
+
+if {[catch {source $ncgiFile} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+puts "- ncgi [package present ncgi]"
+
 
 test ncgi-1.1 {ncgi::reset} {
     ncgi::reset
@@ -58,10 +76,11 @@ test ncgi-2.4 {ncgi::query POST} {
     set env(REQUEST_METHOD) POST
     set env(CONTENT_LENGTH) 10
     makeFile [format {
-	source %s
+	set auto_path {%s}
+	source {%s}
 	ncgi::query
 	puts $ncgi::query
-    } $ncgiFile] test1
+    } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     puts $f "name=value"
     flush $f
@@ -242,13 +261,14 @@ test ncgi-11.1 {ncgi::redirect} {
     set env(SERVER_NAME) www.scriptics.com
     set env(SERVER_PORT) 80
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile $URL] test1
+    } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL\n\nPlease go to <a href=\"$URL\">$URL</a>\n"
@@ -262,6 +282,7 @@ test ncgi-11.2 {ncgi::redirect} {
     set env(SERVER_NAME) www.scriptics.com
     set env(SERVER_PORT) 80
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::setCookie -name CookieName -value 12345
@@ -269,7 +290,7 @@ test ncgi-11.2 {ncgi::redirect} {
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile $URL] test1
+    } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\nSet-Cookie: CookieName=12345 ;\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -283,13 +304,14 @@ test ncgi-11.3 {ncgi::redirect} {
     set env(SERVER_NAME) www.scriptics.com
     set env(SERVER_PORT) 80
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile $URL] test1
+    } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -303,13 +325,14 @@ test ncgi-11.4 {ncgi::redirect} {
     set env(SERVER_NAME) www.scriptics.com
     set env(SERVER_PORT) 80
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile $URL] test1
+    } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -323,13 +346,14 @@ test ncgi-11.5 {ncgi::redirect} {
     set env(SERVER_NAME) www.scriptics.com
     set env(SERVER_PORT) 8000
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile $URL] test1
+    } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -344,58 +368,63 @@ test ncgi-11.6 {ncgi::redirect} {
     set env(SERVER_PORT) 443
     set env(HTTPS) "on"
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile $URL] test1
+    } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 test ncgi-12.1 {ncgi::header} {
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::header
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile] test1
+    } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\n\n"
 
 test ncgi-12.2 {ncgi::header} {
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::header text/plain
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile] test1
+    } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/plain\n\n"
 
 test ncgi-12.3 {ncgi::header} {
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::header text/html X-Comment "This is a test"
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile] test1
+    } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nX-Comment: This is a test\n\n"
 
 test ncgi-12.4 {ncgi::header} {
     makeFile [format {
+	set auto_path {%s}
 	if {[catch {
 	source %s
 	ncgi::setCookie -name Name -value {The+Value}
@@ -403,7 +432,7 @@ test ncgi-12.4 {ncgi::header} {
 	} err]} {
 	    puts $err
 	}
-    } $ncgiFile] test1
+    } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nSet-Cookie: Name=The+Value ;\n\n"

@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.5 2003/05/01 22:40:17 patthoyts Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.6 2003/05/02 07:42:07 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -256,10 +256,14 @@ proc openpipe {} {
 }
 
 proc subshell {script args} {
-    global pipe
+    global pipe auto_path
     removeFile  __script
     makeFile {} __script
     set f [open __script w]
+
+    set     sub_ap $auto_path
+    lappend sub_ap [file dirname [file dirname [info script]]]
+    lappend args auto_path $sub_ap
 
     foreach {k v} $args {
 	puts $f [list set $k $v]
@@ -279,10 +283,14 @@ proc subshell {script args} {
 }
 
 proc subshellpar {script myscript args} {
-    global pipe
+    global pipe auto_path
     removeFile  __script
     makeFile {} __script
     set f [open __script w]
+
+    set     sub_ap $auto_path
+    lappend sub_ap [file dirname [file dirname [info script]]]
+    lappend args auto_path $sub_ap
 
     foreach {k v} $args {
 	puts $f [list set $k $v]
