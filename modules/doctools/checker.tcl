@@ -119,7 +119,7 @@ proc Warn {code text} {
 
 proc Is    {s} {global state ; return [string equal $state $s]}
 proc IsNot {s} {global state ; return [expr {![string equal $state $s]}]}
-proc Go    {s} {global state ; set state $s; return}
+proc Go    {s} {Log " >>\[$s\]" ; global state ; set state $s; return}
 proc LPush {l} {
     global lstctx lstitem
     set    lstctx [linsert $lstctx 0 $l $lstitem]
@@ -151,6 +151,16 @@ proc LValid {what} {
 	default {return 0}
     }
 }
+
+proc State {} {global state ; return $state}
+proc Enter {cmd} {Log "\[[State]\] $cmd"}
+
+#proc Log* {text} {puts -nonewline $text}
+#proc Log  {text} {puts            $text}
+proc Log* {text} {}
+proc Log  {text} {}
+
+
 # -------------------------------------------------------------
 # Framing
 proc ck_initialize {} {
@@ -211,48 +221,58 @@ proc vset {var args} {
 # -------------------------------------------------------------
 # Formatting commands
 proc manpage_begin {title section version} {
+    Enter manpage_begin
     if {[IsNot manpage_begin]} {Error mpbegin}
     Go header
     fmt_manpage_begin $title $section $version
 }
 proc moddesc {desc} {
+    Enter moddesc
     if {[IsNot header]} {Error hdrcmd}
     fmt_moddesc $desc
 }
 proc titledesc {desc} {
+    Enter titledesc
     if {[IsNot header]} {Error hdrcmd}
     fmt_titledesc $desc
 }
 proc copyright {text} {
+    Enter copyright
     if {[IsNot header]} {Error hdrcmd}
     fmt_copyright $text
 }
 proc manpage_end {} {
+    Enter manpage_end
     if {[IsNot body]} {Error bodycmd}
     Go done
     fmt_manpage_end
 }
 proc require {pkg {version {}}} {
+    Enter require
     if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
     Go requirements
     fmt_require $pkg $version
 }
 proc description {} {
+    Enter description
     if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
     Go body
     fmt_description
 }
 proc section {name} {
+    Enter section
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
     fmt_section $name
 }
 proc para {} {
+    Enter para
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
     fmt_para
 }
 proc list_begin {what {hint {}}} {
+    Enter "list_begin $what $hint"
     if {[IsNot body]}        {Error bodycmd}
     if {[LOpen] && ![LItem]} {Error nolisthdr}
     if {![LValid $what]}     {Error invalidlist $what}
@@ -260,12 +280,14 @@ proc list_begin {what {hint {}}} {
     fmt_list_begin $what $hint
 }
 proc list_end {} {
+    Enter list_end
     if {[IsNot body]} {Error bodycmd}
     if {![LOpen]}     {Error listcmd}
     LPop
     fmt_list_end
 }
 proc lst_item {{text {}}} {
+    Enter lst_item
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs definitions]} {Error deflist}
@@ -273,6 +295,7 @@ proc lst_item {{text {}}} {
     fmt_lst_item $text
 }
 proc arg_def {type name {mode {}}} {
+    Enter arg_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs arg]}         {Error arg_list}
@@ -280,6 +303,7 @@ proc arg_def {type name {mode {}}} {
     fmt_arg_def $type $name $mode
 }
 proc cmd_def {command} {
+    Enter cmd_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs cmd]}         {Error cmd_list}
@@ -287,6 +311,7 @@ proc cmd_def {command} {
     fmt_cmd_def $command
 }
 proc opt_def {name {arg {}}} {
+    Enter opt_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs opt]}         {Error opt_list}
@@ -294,6 +319,7 @@ proc opt_def {name {arg {}}} {
     fmt_opt_def $name $arg
 }
 proc tkoption_def {name dbname dbclass} {
+    Enter tkoption_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs tkoption]}    {Error tkoption_list}
@@ -301,6 +327,7 @@ proc tkoption_def {name dbname dbclass} {
     fmt_tkoption_def $name $dbname $dbclass
 }
 proc call {cmd args} {
+    Enter call
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs definitions]} {Error deflist}
@@ -308,6 +335,7 @@ proc call {cmd args} {
     eval [linsert $args 0 fmt_call $cmd]
 }
 proc bullet {} {
+    Enter bullet
     if {[IsNot body]}  {Error bodycmd}
     if {![LOpen]}      {Error listcmd}
     if {![LIs bullet]} {Error bulletlist}
@@ -315,6 +343,7 @@ proc bullet {} {
     fmt_bullet
 }
 proc enum {} {
+    Enter enum
     if {[IsNot body]} {Error bodycmd}
     if {![LOpen]}     {Error listcmd}
     if {![LIs enum]}  {Error enumlist}
@@ -322,30 +351,36 @@ proc enum {} {
     fmt_enum
 }
 proc example {code} {
+    Enter example
     return [example_begin][plain_text ${code}][example_end]
 }
 proc example_begin {} {
+    Enter example_begin
     if {[IsNot body]}        {Error bodycmd}
     if {[LOpen] && ![LItem]} {Error nolisthdr}
     Go example
     fmt_example_begin
 }
 proc example_end {} {
+    Enter example_end
     if {[IsNot example]} {Error examplecmd}
     Go body
     fmt_example_end
 }
 proc see_also {args} {
+    Enter see_also
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
     eval [linsert $args 0 fmt_see_also]
 }
 proc keywords {args} {
+    Enter keywords
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
     eval [linsert $args 0 fmt_keywords]
 }
 proc nl {} {
+    Enter nl
     if {[IsNot body]} {Error bodycmd}
     if {![LOpen]}     {Error listcmd}
     if {![LItem]}     {Error nolisthdr}
