@@ -1,8 +1,12 @@
+2003-07-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* base64c.tcl: Added the placeholder package.
+
 2003-05-14  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* Merged DEVELOPMENT branch from root to DEVELOPMENT-merge-1
-	This brings in the critcl enhancements for uuencode and yencode
-	along with a few extra tests for yencode.
+	* Merged DEVELOPMENT branch from DEVELOPMENT-root to
+	DEVELOPMENT-merge-1 This brings in the critcl enhancements for
+	uuencode and yencode along with a few extra tests for yencode.
 
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
