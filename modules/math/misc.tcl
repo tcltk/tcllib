@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: misc.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: misc.tcl,v 1.5 2004/07/05 03:39:47 kennykb Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 namespace eval ::math {
@@ -355,5 +355,27 @@ proc ::math::sum {val args} {
 
 proc ::math::expectDouble { arg } {
     return [format "expected a floating-point number but found \"%.50s\"" $arg]
+}
+
+#----------------------------------------------------------------------
+#
+# ::math::expectInteger --
+#
+#	Format an error message that an argument was expected to be
+#	integer and wasn't
+#
+# Parameters:
+#	arg -- Misformatted argument
+#
+# Results:
+#	Returns an appropriate error message
+#
+# Side effects:
+#	None.
+#
+#----------------------------------------------------------------------
+
+proc ::math::expectInteger { arg } {
+    return [format "expected an integer but found \"%.50s\"" $arg]
 }
 

@@ -373,6 +373,8 @@ It can be solved with the following fragment:
       coeffs force {0.0 1.0} [lb]list $length 0.0[rb] 100[rb]
 [example_end]
 
+[see_also romberg]
+
 [keywords math calculus integration "differential equations" roots]
 
 [manpage_end]
