@@ -36,15 +36,16 @@ namespace eval ::htmlparse {
 
     # I. Standard escapes. (ISO latin-1 esc's are in a different table)
 
-    array set escapes {
-	lt <   gt >   amp &   quot \"   copy \xa9
+    variable  tmp ; # Ensure that 'tmp' is in this namespace.
+    array set tmp {
+	lt <   gt >  quot \"   copy \xa9
 	reg \xae   ob \x7b   cb \x7d   nbsp \xa0
-	bsl \\
+	bsl \\ amp &#38; 
     } ; # " make the emacs highlighting code happy.
 
     # II. ISO Latin-1 escape codes
 
-    array set escapes {
+    array set tmp {
 	nbsp \xa0 iexcl \xa1 cent \xa2 pound \xa3 curren \xa4
 	yen \xa5 brvbar \xa6 sect \xa7 uml \xa8 copy \xa9
 	ordf \xaa laquo \xab not \xac shy \xad reg \xae
@@ -66,6 +67,15 @@ namespace eval ::htmlparse {
 	uacute \xfa ucirc \xfb uuml \xfc yacute \xfd thorn \xfe
 	yuml \xff
     }
+
+    set escapes [list]
+    foreach esc [array names tmp] {
+        # create both valid forms, in the right order for string map
+        lappend escapes "&$esc;" $tmp($esc) "&$esc" $tmp($esc)
+    }
+    # and add the Tcl special chars
+    lappend escapes \] \\\] \[ \\\[ \$ \\\$ \\ \\\\ 
+    unset tmp
 
     # Internal cache for the foreach variable-lists and the
     # substitution strings used to split a HTML string into
@@ -274,24 +284,26 @@ proc ::htmlparse::parse {args} {
     # Handle incomplete HTML (Recognize incomplete tag at end, buffer
     # it up for the next call).
 
-    if {[regexp -- {[^<]*(<[^>]*)$} [lindex "\{$html\}" end] -> trailer]} {
+    set end [lindex \{$html\} end]
+    if {[set idx [string last < $end]] > [string last > $end]} {
+
 	if {$incvar == {}} {
 	    return -code error "::htmlparse::parse : HTML is incomplete, option -incvar is missing"
 	}
 
 	#  upvar $incvar incomplete -- Already done, s.a.
-	set incomplete $trailer
-	set html       [string range $html 0 [expr {[string last "<" $html] - 1}]]
+	set incomplete [string range $end $idx end]
+	incr idx -1
+	set html       [string range $end 0 $idx]
+	
     } else {
 	set incomplete ""
     }
 
     # Convert the HTML string into a script.
 
-    set w " \t\r\n"	;# white space
-    set exp <(/?)([CClass ^$w>]+)[CClass $w]*([CClass ^>]*)>
     set sub "\}\n$cmd {\\2} {\\1} {\\3} \{"
-    regsub -all -- $exp $html $sub html
+    regsub -all -- {<(/?)([^\s>]+)\s*([^>]*)>} $html $sub html
 
     # The value of queue now determines wether we process the HTML by
     # ourselves (queue is empty) or if we generate a list of  scripts
@@ -429,6 +441,7 @@ proc ::htmlparse::debugCallback {args} {
 #	their actual characters.
 
 proc ::htmlparse::mapEscapes {html} {
+    variable escapes
     # Find HTML escape characters of the form &xxx;
 
     if { ! [string match "*&*" $html] } {
@@ -436,60 +449,13 @@ proc ::htmlparse::mapEscapes {html} {
 	return $html
     }
 
-    regsub -all -- {([][$\\])} $html {\\\1} new
-    regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d tmp;set tmp]]} new
-    regsub -all -- {&([a-zA-Z]+);?} $new {[DoMap \1]} new
+    set new [string map $escapes $html]
+    regsub -all -- {&[a-zA-Z];?} $new {?} new 
+    regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d]]} new
     return [subst $new]
+
 }
 
-# htmlparse::CClass --
-#
-#	Internal helper command used by '::htmlparse::parse' while
-#	transforming the HTML string. Makes it easier to declare
-#	character classes in a ""-bounded string without traipsing
-#	into quoting hell.
-#
-# Arguments:
-#	x	A set of characters.
-#
-# Side Effects:
-#	None.
-#
-# Results:
-#	Returns a regular expression for the specified character
-#	class.
-
-proc ::htmlparse::CClass {x} {
-    return "\[$x\]"
-}
-
-# htmlparse::DoMap --
-#
-#	Internal helper command. Takes a the body of a single escape
-#	sequence (i.e. the string without the sourounding & and ;) and
-#	returns the associated actual character. Used by
-#	'::htmlparse::mapEscapes' to do the real work.
-#
-# Arguments:
-#	text	The body of the escape sequence to convert.
-#
-#	unknown	Optional. Defaults to '?'. The string to return if the
-#		escape sequence is not known to the command.
-#
-# Side Effects:
-#	None.
-#
-# Results:
-#	None.
-
-proc ::htmlparse::DoMap {text {unknown ?}} {
-    # Convert an HTML escape sequence into a character.
-
-    variable escapes
-    set result $unknown
-    catch {set result $escapes($text)}
-    return $result
-}
 
 # htmlparse::2tree --
 #
