@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: log.n,v 1.4 2002/02/01 22:59:08 andreas_kupries Exp $
+'\" RCS: @(#) $Id: log.n,v 1.5 2002/03/01 05:28:28 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH log n 1.0.1 Log "Logging facility"
@@ -62,14 +62,58 @@ The \fB::log\fR package provides commands that allow libraries and
 applications to selectively log information about their internal
 operation and state.
 .PP
-Each message given to the log facility is associated with a
-\fIlevel\fR determining the importance of the message. The user can
-then select which levels to log, what commands to use for the logging
-of each level and the channel to write the message to. The latter is
-relevant only if the standard command (\fB::log::Puts\fR) to log
-messages provided by \fB::log\fR is used. Apprehending the usage of
-this facility in graphical applications, i.e. \fBtk\fR-based ones, it
-also allows the user to associate colors with the message levels.
+To use the package just execute
+.PP
+.CS
+ package require log
+ log::log notice "Some message"
+.CE
+.PP
+As can be seen above, each message given to the log facility is
+associated with a \fIlevel\fR determining the importance of the
+message. The user can then select which levels to log, what commands
+to use for the logging of each level and the channel to write the
+message to. In the following example the logging of all message with
+level \fBdebug\fR is deactivated.
+.PP
+.CS
+ package require log
+ log::lvSupress debug
+ log::log debug "Unseen message" ; # No output
+.CE
+.PP
+By default all messages associated with an error-level
+(\fBemergency\fR,\fBalert\fR, \fBcritical\fR, and \fBerror\fR) are
+written to \fBstderr\fR. Messages with any other level are written to
+\fBstdout\fR. In the following example the log module is reconfigured
+to write \fBdebug\fR messages to \fBstderr\fR too.
+.PP
+.CS
+ package require log
+ log::lvChannel debug stderr
+ log::log debug "Written to stderr"
+.CE
+.PP
+Each message level is also associated with a command to use when
+logging a message with that level. The behaviour above for example
+relies on the fact that all message levels use by default the standard
+command \fB::log::Puts\fR to log any message. In the following example
+all messages of level \fBnotice\fR are given to the non-standard
+command \fBtoText\fR for logging. This disables the channel setting for such
+messages, assuming that \fBtoText\fR does not use it by itself.
+.PP
+.CS
+ package require log
+ log::lvCmd notice toText
+ log::log notice "Handled by \"toText\""
+.CE
+.PP
+Another database maintained by this facility is a map from message
+levels to colors. The information in this database has \fBno\fR
+influence on the behaviour of the module. It is merely provided as a
+convenience and in anticipation of the usage of this facility in
+\fBtk\fR-based application which may want to colorize message logs.
+.SH API
 .PP
 The following commands are available:
 .TP
