@@ -12,6 +12,14 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
+Changes in V0.94
+--------------------------------------------------------------------
+
+* Snit method invocation (both local and delegated) has been 
+  optimized by the addition of a "method cache".  The primary
+  remaining cost in method invocation is the cost of declaring
+  instance variables.
+
 Changes in V0.93
 --------------------------------------------------------------------
 
