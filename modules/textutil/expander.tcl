@@ -36,6 +36,7 @@ namespace eval ::textutil {
 	# errmode	    How to handle macro errors: 
 	#		    nothing, macro, error, fail.
         # evalcmd           The evaluation command.
+	# textcmd           The plain text processing command.
 	# level		    The context level
 	# output-$level     The accumulated text at this context level.
 	# name-$level       The tag name of this context level
@@ -138,6 +139,7 @@ proc ::textutil::expander::Methods {name method argList} {
         setbrackets -
         errmode -
         evalcmd -
+	textcmd -
         cpush -
         cis -
         cname -
@@ -361,6 +363,31 @@ proc ::textutil::expander::Op_evalcmd {name {newEvalCmd ""}} {
 
 #---------------------------------------------------------------------
 # FUNCTION:
+# 	Op_textcmd ?newTextCmd?
+#
+# INPUTS:
+#	newTextCmd		If given, the new text command.
+#
+# RETURNS:
+#	The current text command
+#
+# DESCRIPTION:
+#	Returns the current text command.  This is the command used to
+#	process plain text. It defaults to {}, meaning identity.
+
+proc ::textutil::expander::Op_textcmd {name args} {
+    switch -exact [llength $args] {
+	0 {}
+	1 {Set textcmd [lindex $args 0]}
+	default {
+	    return -code error "wrong#args for textcmd: name ?newTextcmd?"
+	}
+    }
+    return [Get textcmd]
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
 # 	Op_reset
 #
 # INPUTS:
@@ -383,6 +410,7 @@ proc ::textutil::expander::Op_reset {name} {
     set Info($name-rb) "\]"
     set Info($name-errmode) "fail"
     set Info($name-evalcmd) "uplevel #0"
+    set Info($name-textcmd) ""
     set Info($name-level) 0
     set Info($name-output-0) ""
     set Info($name-name-0) ":0"
@@ -610,6 +638,16 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
         # FIRST, If there was plain text, append it to the output, and 
         # continue.
         if {$plainText != ""} {
+	    set tc [Get textcmd]
+	    if {[string length $tc] > 0} {
+		lappend tc $plainText
+
+		if {![catch "[Get evalcmd] [list $tc]" result]} {
+		    set plainText $result
+		} else {
+		    HandleError $name {plain text} $tc $result
+		}
+	    }
             Op_cappend $name $plainText
             if {[string length $inputString] == 0} {
                 break
@@ -628,30 +666,52 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
             continue
         } 
 
-        switch [Get errmode] {
-            nothing { }
-            macro { 
-                Op_cappend $name "[Get lb]$macro[Get rb]" 
-            }
-            error {
-                Op_cappend $name "\n=================================\n"
-                Op_cappend $name "*** Error in macro:\n"
-                Op_cappend $name "*** [Get lb]$macro[Get rb]\n--> $result\n"
-                Op_cappend $name "=================================\n"
-            }
-            fail   { 
-                error "Error in macro:\n[Get lb]$macro[Get rb]\n--> $result"
-            }
-            default {
-                error "Unknown error mode: [Get errmode]"
-            }
-        }
+	HandleError $name macro $macro $result
     }
     
     Op_lb $name [Op_cget $name lb]
     Op_rb $name [Op_cget $name rb]
 
     return [Op_cpop $name expand]
+}
+
+#---------------------------------------------------------------------
+# FUNCTION
+#	HandleError name title command errmsg
+#
+# INPUTS:
+#	name		The name of the expander object in question.
+#	title		A title text
+#	command		The command which caused the error.
+#	errmsg		The error message to report
+#
+# RETURNS:
+#	Nothing
+#
+# DESCRIPTIONS
+#	Is executed when an error in a macro or the plain text handler
+#	occurs. Generates an error message according to the current
+#	error mode.
+
+proc ::textutil::expander::HandleError {name title command errmsg} {
+    switch [Get errmode] {
+	nothing { }
+	macro { 
+	    Op_cappend $name "[Get lb]$command[Get rb]" 
+	}
+	error {
+	    Op_cappend $name "\n=================================\n"
+	    Op_cappend $name "*** Error in $title:\n"
+	    Op_cappend $name "*** [Get lb]$command[Get rb]\n--> $errmsg\n"
+	    Op_cappend $name "=================================\n"
+	}
+	fail   { 
+	    return -code error "Error in $title:\n[Get lb]$command[Get rb]\n--> $errmsg"
+	}
+	default {
+	    return -code error "Unknown error mode: [Get errmode]"
+	}
+    }
 }
 
 #---------------------------------------------------------------------
