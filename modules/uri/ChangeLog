@@ -1,3 +1,27 @@
+2001-10-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* The changes below are made as part of accepting SF patch #470211
+	  provided by Pat Thoyts <patthoyts@users.sourceforge.net>
+
+	* uri.n: Documented "uri::register".
+
+	* urn-scheme.tcl: Changed to use the new registration
+	  command. Added declaration of "schemepart" as that variable is
+	  required for the registration.
+
+	* uri.tcl (uri::register): New command to register url
+	  schemes. Rewrote the module to make use of this command when
+	  declaring the standard schemes like ftp, http, ... Fixed a bug
+	  in the url declarations (access to namespace basic was
+	  incorrect). The command takes care to update the overall
+	  variables tracking scheme information.
+
+	* pkgIndex.tcl: Added the new sub-package to our package index.
+
+	* urn.test: 
+	* urn-scheme.tcl: New files, new sub-packages, provide the URN
+	  schema for uri's and associated testsuite.
+
 2001-08-21  Don Porter <dgp@users.sourceforge.net>
 
 	* uri.n: Corrected title.  The 'uri' package does not

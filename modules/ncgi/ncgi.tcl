@@ -652,7 +652,12 @@ proc ncgi::redirect {url} {
 	# URL.  Otherwise use SERVER_NAME.  These could be different, e.g.,
 	# "pop.scriptics.com" vs. "pop"
 
-	if {![regexp -- {^https?://([^/:]*)} $env(REQUEST_URI) x server]} {
+	if {[info exist env(REQUEST_URI)]} {
+	    # Not all servers have the leading protocol spec
+	    if {![regexp -- {^https?://([^/:]*)} $env(REQUEST_URI) x server]} {
+		set server $env(SERVER_NAME)
+	    }
+	} else {
 	    set server $env(SERVER_NAME)
 	}
 	if {[string match /* $url]} {
