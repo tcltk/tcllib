@@ -1,0 +1,42 @@
+2004-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Bumped version to 1.0.
+
+	* tie_rarray.tcl: Fixed propagation of [unset] to use the option
+	  -nocomplain. Required to avoid problems with circular ties.
+
+	* tie_rarray_comm.test: New tests for remote array involving true
+	  remove communication, using [comm].
+
+	* tie_array.test: Updated to surely use the local revision of
+	* tie_file.test:  snit when perfoming the tests.
+	* tie_log.test:   
+	* tie_rarray.test:
+
+2004-09-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:   Updated, now version 0.9. Proxy renamed
+	* tie.man:        to 'dsource'. Template renamed to .txt.
+	* tie.tcl:        API frozen in simpler form, no -dsource,
+	* tie_array.tcl:  only types. dsource functionality available
+	* tie_array.test: through the dsource/proxy type. Better
+	* tie_file.tcl:   introspection. Untie api changed, always
+	* tie_file.test:  taking a var-name. This allows tieing to
+	* tie_log.tcl:    proc local variables. Full testsuite for
+	* tie_log.test:   basic framework and all types.
+	* tie_dsource.tcl:
+	* tie_rarray.tcl:
+	* tie_rarray.test:
+	* tie_template.txt:
+
+2004-09-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Framework for tied array variables.
+	* tie.man:      Documentation, standard data sources.
+	* tie.tcl:
+	* tie_array.tcl:
+	* tie_file.tcl:
+	* tie_log.tcl:
+	* tie_proxy.tcl:
+	* tie_rarray.tcl:
+	* tie_template.tcl:
