@@ -1,3 +1,7 @@
+2000-03-09  Eric Melski  <ericm@scriptics.com>
+
+	* math.test: Adapted tests for use in/out of tcllib test framework.
+
 2000-03-07  Eric Melski  <ericm@scriptics.com>
 
 	* pkgIndex.tcl:

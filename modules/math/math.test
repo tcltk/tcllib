@@ -7,12 +7,17 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.1 2000/03/07 23:00:34 ericm Exp $
+# RCS: @(#) $Id: math.test,v 1.2 2000/03/09 21:24:06 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
+
+if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+}
+
 package require math
 
 test math-1.1 {math::min, wrong num args} {
