@@ -262,6 +262,7 @@ proc ::textutil::tabify::tabify2 { string { num 8 } } {
     set inLst [split $string \n]
 
     # now work on each line
+    set outLst [list]
     foreach line $inLst {
 	lappend outLst [tabifyLine $line $num]
     }
@@ -282,6 +283,7 @@ proc ::textutil::tabify::untabify2 { string { num 8 } } {
 
     set inLst [split $string \n]
 
+    set outLst [list]
     foreach line $inLst {
 	lappend outLst [untabifyLine $line $num]
     }
