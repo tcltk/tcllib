@@ -1,3 +1,8 @@
+2003-01-28  David N. Welton  <davidw@dedasys.com>
+
+	* comm.tcl (::comm::commConfigure): Use 'string is integer'
+	  instead of regexp's.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.man: More semantic markup, less visual one.
