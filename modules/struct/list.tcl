@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.8 2003/05/21 05:46:31 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.9 2003/07/05 05:29:49 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -463,7 +463,15 @@ proc ::struct::list::LlcsInvertMerge2 {idx1 idx2 len1 len2} {
 
 	if {$empty1 && $empty2} {
 	    # Case (d), add 'unchanged' chunk.
-	    foreach {type left right} [lindex $result end] break
+	    # [765321] 
+	    # Note: We canot extend an 'unchanged' chunk at the
+	    #       end if the result has no content yet.
+
+	    if {[llength $result] > 0} {
+		foreach {type left right} [lindex $result end] break
+	    } else {
+		set type -- ; # dummy value
+	    }
 	    if {[string equal $type unchanged]} {
 		# We extend the 'unchanged' chunk found at the end.
 		lset result end [::list unchanged [::list [lindex $left 0] $a] [::list [lindex $right 0] $b]]
@@ -573,7 +581,7 @@ proc ::struct::list::Lassign {sequence args} {
     # Perform assignments
     set i 0
     foreach v $args {
-	upvar 2 $v var
+	upvar 1 $v var
 	set      var [::lindex $sequence $i]
 	incr i
     }
@@ -653,7 +661,7 @@ proc ::struct::list::Lmap {sequence cmdprefix} {
 
     set res [::list]
     foreach item $sequence {
-	lappend res [uplevel 2 [linsert $cmdprefix end $item]]
+	lappend res [uplevel 1 [linsert $cmdprefix end $item]]
     }
     return $res
 }
@@ -679,7 +687,7 @@ proc ::struct::list::Lfold {sequence initialvalue cmdprefix} {
 
     set res $initialvalue
     foreach item $sequence {
-	set res [uplevel 2 [linsert $cmdprefix end $res $item]]
+	set res [uplevel 1 [linsert $cmdprefix end $res $item]]
     }
     return $res
 }
