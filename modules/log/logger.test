@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: logger.test,v 1.1 2002/12/16 23:35:28 davidw Exp $
+# $Id: logger.test,v 1.2 2003/05/20 09:35:05 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -148,6 +148,26 @@ test logger-4.5 {test method inheritance} {
     ${log1}::delete
     set ::INFO
 } {Danger Will Robinson!}
+
+test logger-5.0 {setlevel command} {
+    set ::INFO ""
+    set log1 [logger::init global]
+    ${log1}::setlevel warn
+    ${log1}::logproc error txt {
+	lappend ::INFO "Error Message"
+    }
+    ${log1}::logproc warn txt {
+	lappend ::INFO "Warning Message"
+    }
+    ${log1}::logproc notice txt {
+	lappend ::INFO "Notice Message"
+    }
+    ${log1}::error "error"
+    ${log1}::warn "warn"
+    ${log1}::notice "notice"
+    ${log1}::delete
+    set ::INFO
+} {{Error Message} {Warning Message}}
 
 
 ::tcltest::cleanupTests
