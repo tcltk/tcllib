@@ -188,7 +188,7 @@ namespace eval mime {
     variable reversemap
     foreach {enc mimeType} $encList {
         if {$mimeType != ""} {
-            set reversemap($mimeType) $enc
+            set reversemap([string tolower $mimeType]) $enc
         }
     } 
 
@@ -3428,9 +3428,10 @@ proc mime::mapencoding {enc} {
 proc mime::reversemapencoding {mimeType} {
 
     variable reversemap
-
-    if {[info exists reversemap($mimeType)]} {
-        return $reversemap($mimeType)
+    
+    set lmimeType [string tolower $mimeType]
+    if {[info exists reversemap($lmimeType)]} {
+        return $reversemap($lmimeType)
     }
     return ""
 }
