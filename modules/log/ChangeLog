@@ -1,5 +1,12 @@
 2004-05-26  Michael Schlenker <mic42@users.sourceforge.net>
 
+	* logger.tcl: Replaced use of != for string comparision with
+	  equivalent but correcter 'string compare'.
+	  Fixed a bug with special logger names demonstrated by test 1.3.
+	* logger.test: Added test for special logger name.
+	  
+2004-05-26  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* logger.tcl: Fixed bug with enable/disable
 	  wrong enabled value was reported if disable critical was used.
 	  Added "none" as result for currentloglevel for this situation.

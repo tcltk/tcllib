@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.7 2004/05/26 01:09:36 mic42 Exp $
+# $Id: logger.test,v 1.8 2004/05/26 16:41:33 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -38,6 +38,17 @@ test logger-1.2 {instantiate main logger and child} {
     ${log1}::delete
     list $log1 $log2
 } {::logger::tree::global ::logger::tree::global::subsystem}
+
+test logger-1.3 {instantiate logger with problematic name} {
+    set log [logger::init foo::logger::tree::bar]    
+    set services [logger::services]
+    # direct cleanup of logger namespace
+    foreach srv $services {
+        ::logger::tree::${srv}::delete
+    }
+    set services_post [logger::services]
+    list $log [lsort $services] $services_post
+} {::logger::tree::foo::logger::tree::bar {foo foo::logger foo::logger::tree foo::logger::tree::bar} {}}
 
 test logger-2.0 {delete} {
     set log [logger::init global]
