@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.14 2003/02/07 20:34:16 patthoyts Exp $
+# RCS: @(#) $Id: uri.test,v 1.15 2003/02/07 22:04:22 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -194,7 +194,7 @@ test uri-4.1 {uri::geturl} {
     puts -nonewline $f $data
     close $f
 
-    set token [uri::geturl file://[file normalize $file]]
+    set token [uri::geturl file://$file]
     string compare $data [set [subst $token](data)]
 } 0
 
