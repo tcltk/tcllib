@@ -1,3 +1,13 @@
+2002-11-05  Brett Schwarz  <schwarzkopf@users.sourceforge.net>
+
+        * struct.tcl: modified to include record.tcl
+
+        * record.man:
+        * record.html:
+        * record.n:
+        * record.test:
+        * record.tcl: new data structure
+
 2002-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.test: 
