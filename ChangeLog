@@ -1,10 +1,14 @@
+2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools: Fixed bug #578465.
+
 2002-07-02  Don Porter <dgp@users.sourceforge.net>
 
 	* all.tcl: Corrected name of tcltest hook procedure
 
 2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* csv: Fixed bug #565051.
+	* csv: Fixed SF bug #565051.
 
 	* mime: Fixed SF bug #548832.
 

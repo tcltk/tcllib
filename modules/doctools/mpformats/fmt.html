@@ -112,7 +112,7 @@ proc HandleText {text} {
     set redux [string map [list " " "" "\t" "" "\n" ""] $text]
     if {$redux != {}} {lsmark 0}
 
-    return [htmlEscape $text]
+    return $text
 }
 
 ################################################################
