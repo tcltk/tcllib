@@ -8,7 +8,7 @@
 [para]
 
 This manpage describes a processor / converter for manpages in the
-doctools format as specified in [cmd dtformat]. The processor is based
+doctools format as specified in [cmd doctools_fmt]. The processor is based
 upon the package [package doctools].
 
 [list_begin definitions]
