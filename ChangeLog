@@ -1,5 +1,7 @@
 2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* irc: Added IRC example to examples section. Patch #481479.
+
 	* struct/graph: Applied patch #483125
 	
 	* smtpd: Example consolidation: Moved the smtpd example to
