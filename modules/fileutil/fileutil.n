@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: fileutil.n,v 1.1 2001/07/31 23:47:51 andreas_kupries Exp $
+'\" RCS: @(#) $Id: fileutil.n,v 1.2 2001/07/31 23:58:55 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH fileutil n 1.0 Fileutil "file utilities"
@@ -13,9 +13,9 @@
 .SH SYNOPSIS
 \fBpackage require fileutil ?1.1?\fR
 .sp
-\fB::fileutil::grep\fR ?-maxlen \fImaxlen\fR? ?-wrapchar \fIchar\fR? \fIstring\fR
+\fB::fileutil::grep\fR \fIpattern\fR ?\fIfiles\fR?
 .sp
-\fB::fileutil::find\fR \fIstring\fR
+\fB::fileutil::find\fR ?\fIbasedir\fR ?\fIfiltercmd\fR??
 .sp
 \fB::fileutil::cat\fR \fIfilename\fR
 .BE
@@ -25,7 +25,7 @@ This package provides implementations of standard unix utilities
 .TP
 \fB::fileutil::grep\fR \fIpattern\fR ?\fIfiles\fR?
 Implementation of grep. Adapted from the Tcler's Wiki. The first
-argument defiens the \fIpattern\fR to search for. This is followed by
+argument defines the \fIpattern\fR to search for. This is followed by
 a list of \fIfiles\fR to search through. The list is optional and
 \fBstdin\fR will be used if is missing. The result of the procedures
 is a list containing the matches. Each match is a single element of
