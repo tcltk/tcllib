@@ -554,11 +554,10 @@ avoided.
 [call [cmd delegate] [const method] [const *] [const to] [arg comp] [const except] [arg exceptions]]
 
 
-Delegates one or more instance methods to a component of
-the object. When instance method [arg name]
-is used with an instance of this type, it will automatically be
-delegated to the named component as though the method were defined as
-follows:
+Delegates one or more instance methods to a component of the
+object. When a method [arg name] is explicitly stated, it will
+automatically be delegated to the named component as though the method
+were defined as follows:
 
 [nl]
 [example {
