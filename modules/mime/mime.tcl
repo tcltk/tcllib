@@ -12,7 +12,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.3.2
+package provide mime 1.3.3
 
 if {[catch {package require Trf  2.0}]} {
 
@@ -27,7 +27,7 @@ if {[catch {package require Trf  2.0}]} {
     # Create these commands in the mime namespace so that they
     # won't collide with things at the global namespace level
 
-    namespace eval mime {
+    namespace eval ::mime {
         proc base64 {-mode what -- chunk} {
    	    return [base64::$what $chunk]
         }
@@ -71,7 +71,7 @@ if {[catch {package require Trf  2.0}]} {
 #
 
 
-namespace eval mime {
+namespace eval ::mime {
     variable mime
     array set mime { uid 0 cid 0 }
 
@@ -203,7 +203,7 @@ namespace eval mime {
                      uniqueID
 }
 
-# mime::initialize --
+# ::mime::initialize --
 #
 #	Creates a MIME part, and returnes the MIME token for that part.
 #
@@ -234,7 +234,7 @@ namespace eval mime {
 # Results:
 #	An initialized mime token.
 
-proc mime::initialize {args} {
+proc ::mime::initialize {args} {
     global errorCode errorInfo
 
     variable mime
@@ -257,7 +257,7 @@ proc mime::initialize {args} {
     return $token
 }
 
-# mime::initializeaux --
+# ::mime::initializeaux --
 #
 #	Configures the MIME token created in mime::initialize based on
 #       the arguments that mime::initialize supports.
@@ -274,7 +274,7 @@ proc mime::initialize {args} {
 # Results:
 #       Either configures the mime token, or throws an error.
 
-proc mime::initializeaux {token args} {
+proc ::mime::initializeaux {token args} {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -441,7 +441,7 @@ proc mime::initializeaux {token args} {
             lappend state(mixedL) Content-ID
 
             array set header $state(header)
-            lappend header(content-id) [mime::uniqueID]
+            lappend header(content-id) [uniqueID]
             set state(header) [array get header]
         }
 
@@ -496,7 +496,7 @@ proc mime::initializeaux {token args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# mime::parsepart --
+# ::mime::parsepart --
 #
 #       Parses the MIME headers and attempts to break up the message
 #       into its various parts, creating a MIME token for each part.
@@ -508,7 +508,7 @@ proc mime::initializeaux {token args} {
 #       Throws an error if it has problems parsing the MIME token,
 #       otherwise it just sets up the appropriate variables.
 
-proc mime::parsepart {token} {
+proc ::mime::parsepart {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -583,7 +583,7 @@ proc mime::parsepart {token} {
                     error "multiple Content-Type fields starting with $vline"
                 }
 
-                if {![catch { set x [mime::parsetype $token $value] }]} {
+                if {![catch { set x [parsetype $token $value] }]} {
                     set state(content) [lindex $x 0]
                     set state(params) [lindex $x 1]
                 }
@@ -759,7 +759,7 @@ proc mime::parsepart {token} {
     }
 }
 
-# mime::parsetype --
+# ::mime::parsetype --
 #
 #       Parses the string passed in and identifies the content-type and
 #       params strings.
@@ -772,7 +772,7 @@ proc mime::parsepart {token} {
 #       Returns the content and params for the string as a two element
 #       tcl list.
 
-proc mime::parsetype {token string} {
+proc ::mime::parsetype {token string} {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -802,7 +802,7 @@ proc mime::parsetype {token string} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# mime::parsetypeaux --
+# ::mime::parsetypeaux --
 #
 #       A helper function for mime::parsetype.  Parses the specified
 #       string looking for the content type and params.
@@ -815,17 +815,17 @@ proc mime::parsetype {token string} {
 #       Returns the content and params for the string as a two element
 #       tcl list.
 
-proc mime::parsetypeaux {token string} {
+proc ::mime::parsetypeaux {token string} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
-    if {[string compare [mime::parselexeme $token] LX_ATOM]} {
+    if {[string compare [parselexeme $token] LX_ATOM]} {
         error [format "expecting type (found %s)" $state(buffer)]
     }
     set type [string tolower $state(buffer)]
 
-    switch -- [mime::parselexeme $token] {
+    switch -- [parselexeme $token] {
         LX_SOLIDUS {
         }
 
@@ -842,14 +842,14 @@ proc mime::parsetypeaux {token string} {
         }
     }
 
-    if {[string compare [mime::parselexeme $token] LX_ATOM]} {
+    if {[string compare [parselexeme $token] LX_ATOM]} {
         error [format "expecting subtype (found %s)" $state(buffer)]
     }
     append type [string tolower /$state(buffer)]
 
     array set params ""
     while {1} {
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_END {
                 return [list $type [array get params]]
             }
@@ -862,7 +862,7 @@ proc mime::parsetypeaux {token string} {
             }
         }
 
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_END {
                 return [list $type [array get params]]
             }
@@ -877,11 +877,11 @@ proc mime::parsetypeaux {token string} {
 
         set attribute [string tolower $state(buffer)]
 
-        if {[string compare [mime::parselexeme $token] LX_EQUALS]} {
+        if {[string compare [parselexeme $token] LX_EQUALS]} {
             error [format "expecting \"=\" (found %s)" $state(buffer)]
         }
 
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_ATOM {
             }
 
@@ -899,7 +899,7 @@ proc mime::parsetypeaux {token string} {
     }
 }
 
-# mime::finalize --
+# ::mime::finalize --
 #
 #   mime::finalize destroys a MIME part.
 #
@@ -915,7 +915,7 @@ proc mime::parsetypeaux {token string} {
 # Results:
 #       Returns an empty string.
 
-proc mime::finalize {token args} {
+proc ::mime::finalize {token args} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -953,7 +953,7 @@ proc mime::finalize {token args} {
     unset $token
 }
 
-# mime::getproperty --
+# ::mime::getproperty --
 #
 #   mime::getproperty returns the properties of a MIME part.
 #
@@ -984,7 +984,7 @@ proc mime::finalize {token args} {
 # Results:
 #       Returns the properties of a MIME part
 
-proc mime::getproperty {token {property ""}} {
+proc ::mime::getproperty {token {property ""}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -994,7 +994,7 @@ proc mime::getproperty {token {property ""}} {
             array set properties [list content  $state(content) \
                                        encoding $state(encoding) \
                                        params   $state(params) \
-                                       size     [mime::getsize $token]]
+                                       size     [getsize $token]]
             if {[info exists state(parts)]} {
                 set properties(parts) $state(parts)
             }
@@ -1028,7 +1028,7 @@ proc mime::getproperty {token {property ""}} {
         }
 
         size {
-            return [mime::getsize $token]
+            return [getsize $token]
         }
 
         default {
@@ -1037,7 +1037,7 @@ proc mime::getproperty {token {property ""}} {
     }
 }
 
-# mime::getsize --
+# ::mime::getsize --
 #
 #    Determine the size (in bytes) of a MIME part/token
 #
@@ -1047,7 +1047,7 @@ proc mime::getproperty {token {property ""}} {
 # Results:
 #       Returns the size in bytes of the MIME token.
 
-proc mime::getsize {token} {
+proc ::mime::getsize {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1066,7 +1066,7 @@ proc mime::getsize {token} {
         parts/1 {
             set size 0
             foreach part $state(parts) {
-                incr size [mime::getsize $part]
+                incr size [getsize $part]
             }
 
             return $size
@@ -1091,7 +1091,7 @@ proc mime::getsize {token} {
     return $size
 }
 
-# mime::getheader --
+# ::mime::getheader --
 #
 #    mime::getheader returns the header of a MIME part.
 #
@@ -1115,7 +1115,7 @@ proc mime::getsize {token} {
 # Results:
 #       Returns the header of a MIME part.
 
-proc mime::getheader {token {key ""}} {
+proc ::mime::getheader {token {key ""}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1145,7 +1145,7 @@ proc mime::getheader {token {key ""}} {
     }
 }
 
-# mime::setheader --
+# ::mime::setheader --
 #
 #    mime::setheader writes, appends to, or deletes the value associated
 #    with a key in the header.
@@ -1174,7 +1174,7 @@ proc mime::getheader {token {key ""}} {
 # Results:
 #       Returns previous value associated with the specified key.
 
-proc mime::setheader {token key value args} {
+proc ::mime::setheader {token key value args} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1233,7 +1233,7 @@ proc mime::setheader {token key value args} {
     return $result
 }
 
-# mime::getbody --
+# ::mime::getbody --
 #
 #    mime::getbody returns the body of a leaf MIME part in canonical form.
 #
@@ -1268,7 +1268,7 @@ proc mime::setheader {token key value args} {
 #       if '-command' is specified, the return value of the command
 #       is returned.
 
-proc mime::getbody {token args} {
+proc ::mime::getbody {token args} {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -1421,7 +1421,7 @@ proc mime::getbody {token args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# mime::getbodyaux --
+# ::mime::getbodyaux --
 #
 #    Builds up the body of the message, fragment by fragment.  When
 #    the entire message has been retrieved, it is returned.
@@ -1438,7 +1438,7 @@ proc mime::getbody {token args} {
 #       data that 'getbodyaux' has been called with.  Will throw an
 #       error if it is called with the reason of 'error'.
 
-proc mime::getbodyaux {token reason {fragment ""}} {
+proc ::mime::getbodyaux {token reason {fragment ""}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1471,7 +1471,7 @@ proc mime::getbodyaux {token reason {fragment ""}} {
     }
 }
 
-# mime::copymessage --
+# ::mime::copymessage --
 #
 #    mime::copymessage copies the MIME part to the specified channel.
 #
@@ -1486,7 +1486,7 @@ proc mime::getbodyaux {token reason {fragment ""}} {
 #       Returns nothing unless an error is thrown while the message
 #       is being written to the channel.
 
-proc mime::copymessage {token channel} {
+proc ::mime::copymessage {token channel} {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -1508,7 +1508,7 @@ proc mime::copymessage {token channel} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# mime::copymessageaux --
+# ::mime::copymessageaux --
 #
 #    mime::copymessageaux copies the MIME part to the specified channel.
 #
@@ -1520,7 +1520,7 @@ proc mime::copymessage {token channel} {
 #       Returns nothing unless an error is thrown while the message
 #       is being written to the channel.
 
-proc mime::copymessageaux {token channel} {
+proc ::mime::copymessageaux {token channel} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1557,7 +1557,7 @@ proc mime::copymessageaux {token channel} {
 
         if {$state(canonicalP)} {
             if {![string compare [set encoding $state(encoding)] ""]} {
-                set encoding [mime::encoding $token]
+                set encoding [encoding $token]
             }
             if {[string compare $encoding ""]} {
                 puts $channel "Content-Transfer-Encoding: $encoding"
@@ -1708,7 +1708,7 @@ proc mime::copymessageaux {token channel} {
     }
 }
 
-# mime::buildmessage --
+# ::mime::buildmessage --
 #
 #     The following is a clone of the copymessage code to build up the
 #     result in memory, and, unfortunately, without using a memory channel.
@@ -1722,7 +1722,7 @@ proc mime::copymessageaux {token channel} {
 # Results:
 #       Returns the message that has been built up in memory.
 
-proc mime::buildmessage {token} {
+proc ::mime::buildmessage {token} {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -1744,7 +1744,7 @@ proc mime::buildmessage {token} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# mime::buildmessageaux --
+# ::mime::buildmessageaux --
 #
 #     The following is a clone of the copymessageaux code to build up the
 #     result in memory, and, unfortunately, without using a memory channel.
@@ -1758,7 +1758,7 @@ proc mime::buildmessage {token} {
 # Results:
 #       Returns the message that has been built up in memory.
 
-proc mime::buildmessageaux {token} {
+proc ::mime::buildmessageaux {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1796,7 +1796,7 @@ proc mime::buildmessageaux {token} {
 
         if {$state(canonicalP)} {
             if {![string compare [set encoding $state(encoding)] ""]} {
-                set encoding [mime::encoding $token]
+                set encoding [encoding $token]
             }
             if {[string compare $encoding ""]} {
                 append result "Content-Transfer-Encoding: $encoding\n"
@@ -1895,7 +1895,7 @@ proc mime::buildmessageaux {token} {
                 message/* {
                     append result "\n"
                     foreach part $state(parts) {
-                        append result [mime::buildmessage $part]
+                        append result [buildmessage $part]
                         break
                     }
                 }
@@ -1903,7 +1903,7 @@ proc mime::buildmessageaux {token} {
                 default {
                     foreach part $state(parts) {
                         append result "\n--$boundary\n"
-                        append result [mime::buildmessage $part]
+                        append result [buildmessage $part]
                     }
                     append result "\n--$boundary--\n"
                 }
@@ -1936,7 +1936,7 @@ proc mime::buildmessageaux {token} {
     return $result
 }
 
-# mime::encoding --
+# ::mime::encoding --
 #
 #     Determines how a token is encoded.
 #
@@ -1947,7 +1947,7 @@ proc mime::buildmessageaux {token} {
 #       Returns the encoding of the message (the null string, base64,
 #       or quoted-printable).
 
-proc mime::encoding {token} {
+proc ::mime::encoding {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -1978,10 +1978,10 @@ proc mime::encoding {token} {
 
             while {[gets $fd line] >= 0} {
                 if {$asciiP} {
-                    set asciiP [mime::encodingasciiP $line]
+                    set asciiP [encodingasciiP $line]
                 }
                 if {$lineP} {
-                    set lineP [mime::encodinglineP $line]
+                    set lineP [encodinglineP $line]
                 }
                 if {(!$asciiP) && (!$lineP)} {
                     break
@@ -1998,10 +1998,10 @@ proc mime::encoding {token} {
         string {
             foreach line [split $state(string) "\n"] {
                 if {$asciiP} {
-                    set asciiP [mime::encodingasciiP $line]
+                    set asciiP [encodingasciiP $line]
                 }
                 if {$lineP} {
-                    set lineP [mime::encodinglineP $line]
+                    set lineP [encodinglineP $line]
                 }
                 if {(!$asciiP) && (!$lineP)} {
                     break
@@ -2045,7 +2045,7 @@ proc mime::encoding {token} {
     return ""
 }
 
-# mime::encodingasciiP --
+# ::mime::encodingasciiP --
 #
 #     Checks if a string is a pure ascii string, or if it has a non-standard
 #     form.
@@ -2057,7 +2057,7 @@ proc mime::encoding {token} {
 #       Returns 1 if \r only occurs at the end of lines, and if all
 #       characters in the line are between the ASCII codes of 32 and 126.
 
-proc mime::encodingasciiP {line} {
+proc ::mime::encodingasciiP {line} {
     foreach c [split $line ""] {
         switch -- $c {
             " " - "\t" - "\r" - "\n" {
@@ -2079,7 +2079,7 @@ proc mime::encodingasciiP {line} {
     return 0
 }
 
-# mime::encodinglineP --
+# ::mime::encodinglineP --
 #
 #     Checks if a string is a line is valid to be processed.
 #
@@ -2091,7 +2091,7 @@ proc mime::encodingasciiP {line} {
 #       contains more characters than just whitespace, the line does
 #       not start with a '.', and the line does not start with 'From '.
 
-proc mime::encodinglineP {line} {
+proc ::mime::encodinglineP {line} {
     if {([string length $line] > 76) \
             || ([string compare $line [string trimright $line]]) \
             || ([string first . $line] == 0) \
@@ -2102,7 +2102,7 @@ proc mime::encodinglineP {line} {
     return 1
 }
 
-# mime::fcopy --
+# ::mime::fcopy --
 #
 #	Appears to be unused.
 #
@@ -2111,7 +2111,7 @@ proc mime::encodinglineP {line} {
 # Results:
 # 
 
-proc mime::fcopy {token count {error ""}} {
+proc ::mime::fcopy {token count {error ""}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -2122,7 +2122,7 @@ proc mime::fcopy {token count {error ""}} {
     set state(doneP) 1
 }
 
-# mime::scopy --
+# ::mime::scopy --
 #
 #	Copy a portion of the contents of a mime token to a channel.
 #
@@ -2138,7 +2138,7 @@ proc mime::fcopy {token count {error ""}} {
 #	The specified portion of the string in the mime token is
 #       copied to the specified channel.
 
-proc mime::scopy {token channel offset len blocksize} {
+proc ::mime::scopy {token channel offset len blocksize} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -2169,7 +2169,7 @@ proc mime::scopy {token channel offset len blocksize} {
     return
 }
 
-# mime::qp_encode --
+# ::mime::qp_encode --
 #
 #	Tcl version of quote-printable encode
 #
@@ -2181,7 +2181,7 @@ proc mime::scopy {token channel offset len blocksize} {
 # Results:
 #	The properly quoted string is returned.
 
-proc mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
+proc ::mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
     # 8.1+ improved string manipulation routines used.
     # Replace outlying characters, characters that would normally
     # be munged by EBCDIC gateways, and special Tcl characters "[\]{}
@@ -2249,7 +2249,7 @@ proc mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
     return $result
 }
 
-# mime::qp_decode --
+# ::mime::qp_decode --
 #
 #	Tcl version of quote-printable decode
 #
@@ -2261,7 +2261,7 @@ proc mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
 # Results:
 #	The decoded string is returned.
 
-proc mime::qp_decode {string {encoded_word 0}} {
+proc ::mime::qp_decode {string {encoded_word 0}} {
     # 8.1+ improved string manipulation routines used.
     # Special processing for encoded words (RFC 2047)
 
@@ -2291,7 +2291,7 @@ proc mime::qp_decode {string {encoded_word 0}} {
     return [subst -novar -nocommand $string]
 }
 
-# mime::parseaddress --
+# ::mime::parseaddress --
 #
 #       This was originally written circa 1982 in C. we're still using it
 #       because it recognizes virtually every buggy address syntax ever
@@ -2326,7 +2326,7 @@ proc mime::qp_decode {string {encoded_word 0}} {
 #	Returns a list of serialized arrays, one element for each address
 #       specified in the argument.
 
-proc mime::parseaddress {string} {
+proc ::mime::parseaddress {string} {
     global errorCode errorInfo
 
     variable mime
@@ -2349,7 +2349,7 @@ proc mime::parseaddress {string} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# mime::parseaddressaux --
+# ::mime::parseaddressaux --
 #
 #       This was originally written circa 1982 in C. we're still using it
 #       because it recognizes virtually every buggy address syntax ever
@@ -2383,7 +2383,7 @@ proc mime::parseaddress {string} {
 #	Returns a list of serialized arrays, one element for each address
 #       specified in the argument.
 
-proc mime::parseaddressaux {token string} {
+proc ::mime::parseaddressaux {token string} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -2399,7 +2399,7 @@ proc mime::parseaddressaux {token string} {
     set state(lexemeL) $addrlexemeL
 
     set result ""
-    while {[mime::addr_next $token]} {
+    while {[addr_next $token]} {
         if {[string compare [set tail $state(domain)] ""]} {
             set tail @$state(domain)
         } else {
@@ -2442,13 +2442,13 @@ proc mime::parseaddressaux {token string} {
                 if {[string first "/" $mbox] != 0} {
                     set friendly $mbox
                 } elseif {[string compare \
-                                  [set friendly [mime::addr_x400 $mbox PN]] \
+                                  [set friendly [addr_x400 $mbox PN]] \
                                   ""]} {
                 } elseif {([string compare \
-                                   [set friendly [mime::addr_x400 $mbox S]] \
+                                   [set friendly [addr_x400 $mbox S]] \
                                    ""]) \
                             && ([string compare \
-                                        [set g [mime::addr_x400 $mbox G]] \
+                                        [set g [addr_x400 $mbox G]] \
                                         ""])} {
                     set friendly "$g $friendly"
                 }
@@ -2484,7 +2484,7 @@ proc mime::parseaddressaux {token string} {
     return $result
 }
 
-# mime::addr_next --
+# ::mime::addr_next --
 #
 #       Locate the next address in a mime token.
 #
@@ -2494,7 +2494,7 @@ proc mime::parseaddressaux {token string} {
 # Results:
 #	Returns 1 if there is another address, and 0 if there is not.
 
-proc mime::addr_next {token} {
+proc ::mime::addr_next {token} {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -2559,7 +2559,7 @@ proc mime::addr_next {token} {
     return 1
 }
 
-# mime::addr_specification --
+# ::mime::addr_specification --
 #
 #   Uses lookahead parsing to determine whether there is another
 #   valid e-mail address or not.  Throws errors if unrecognized
@@ -2571,13 +2571,13 @@ proc mime::addr_next {token} {
 # Results:
 #	Returns 1 if there is another address, and 0 if there is not.
 
-proc mime::addr_specification {token} {
+proc ::mime::addr_specification {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
     set lookahead $state(input)
-    switch -- [mime::parselexeme $token] {
+    switch -- [parselexeme $token] {
         LX_ATOM
             -
         LX_QSTRING {
@@ -2590,12 +2590,12 @@ proc mime::addr_specification {token} {
             }
 
             catch { unset state(comment) }
-            return [mime::addr_specification $token]
+            return [addr_specification $token]
         }
 
         LX_COMMA {
             catch { unset state(comment) }
-            return [mime::addr_specification $token]
+            return [addr_specification $token]
         }
 
         LX_END {
@@ -2603,12 +2603,12 @@ proc mime::addr_specification {token} {
         }
 
         LX_LBRACKET {
-            return [mime::addr_routeaddr $token]
+            return [addr_routeaddr $token]
         }
 
         LX_ATSIGN {
             set state(input) $lookahead
-            return [mime::addr_routeaddr $token 0]
+            return [addr_routeaddr $token 0]
         }
 
         default {
@@ -2618,21 +2618,21 @@ proc mime::addr_specification {token} {
         }
     }
 
-    switch -- [mime::parselexeme $token] {
+    switch -- [parselexeme $token] {
         LX_ATOM
             -
         LX_QSTRING {
             append state(phrase) " " $state(buffer)
 
-            return [mime::addr_phrase $token]
+            return [addr_phrase $token]
         }
 
         LX_LBRACKET {
-            return [mime::addr_routeaddr $token]
+            return [addr_routeaddr $token]
         }
 
         LX_COLON {
-            return [mime::addr_group $token]
+            return [addr_group $token]
         }
 
         LX_DOT {
@@ -2674,7 +2674,7 @@ proc mime::addr_specification {token} {
     return 1
 }
 
-# mime::addr_routeaddr --
+# ::mime::addr_routeaddr --
 #
 #       Parses the domain portion of an e-mail address.  Finds the '@'
 #       sign and then calls mime::addr_route to verify the domain.
@@ -2685,13 +2685,13 @@ proc mime::addr_specification {token} {
 # Results:
 #	Returns 1 if there is another address, and 0 if there is not.
 
-proc mime::addr_routeaddr {token {checkP 1}} {
+proc ::mime::addr_routeaddr {token {checkP 1}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
     set lookahead $state(input)
-    if {![string compare [mime::parselexeme $token] LX_ATSIGN]} {
+    if {![string compare [parselexeme $token] LX_ATSIGN]} {
         mime::addr_route $token
     } else {
         set state(input) $lookahead
@@ -2728,7 +2728,7 @@ proc mime::addr_routeaddr {token {checkP 1}} {
     return 1
 }
 
-# mime::addr_route --
+# ::mime::addr_route --
 #
 #    Attempts to parse the portion of the e-mail address after the @.
 #    Tries to verify that the domain definition has a valid form.
@@ -2740,7 +2740,7 @@ proc mime::addr_routeaddr {token {checkP 1}} {
 #	Returns nothing if successful, and throws an error if invalid
 #       syntax is found.
 
-proc mime::addr_route {token} {
+proc ::mime::addr_route {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -2748,7 +2748,7 @@ proc mime::addr_route {token} {
     set state(route) @
 
     while {1} {
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_ATOM
                 -
             LX_DLITERAL {
@@ -2762,11 +2762,11 @@ proc mime::addr_route {token} {
             }
         }
 
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_COMMA {
                 append state(route) $state(buffer)
                 while {1} {
-                    switch -- [mime::parselexeme $token] {
+                    switch -- [parselexeme $token] {
                         LX_COMMA {
                         }
 
@@ -2804,7 +2804,7 @@ proc mime::addr_route {token} {
     }
 }
 
-# mime::addr_domain --
+# ::mime::addr_domain --
 #
 #    Attempts to parse the portion of the e-mail address after the @.
 #    Tries to verify that the domain definition has a valid form.
@@ -2816,13 +2816,13 @@ proc mime::addr_route {token} {
 #	Returns nothing if successful, and throws an error if invalid
 #       syntax is found.
 
-proc mime::addr_domain {token} {
+proc ::mime::addr_domain {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
     while {1} {
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_ATOM
                 -
             LX_DLITERAL {
@@ -2836,7 +2836,7 @@ proc mime::addr_domain {token} {
             }
         }
 
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_DOT {
                 append state(domain) $state(buffer)
             }
@@ -2853,7 +2853,7 @@ proc mime::addr_domain {token} {
     }
 }
 
-# mime::addr_local --
+# ::mime::addr_local --
 #
 #
 # Arguments:
@@ -2863,7 +2863,7 @@ proc mime::addr_domain {token} {
 #	Returns nothing if successful, and throws an error if invalid
 #       syntax is found.
 
-proc mime::addr_local {token} {
+proc ::mime::addr_local {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -2871,7 +2871,7 @@ proc mime::addr_local {token} {
     set state(memberP) $state(glevel)
 
     while {1} {
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_ATOM
                 -
             LX_QSTRING {
@@ -2885,7 +2885,7 @@ proc mime::addr_local {token} {
             }
         }
 
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_DOT {
                 append state(local) $state(buffer)
             }
@@ -2897,7 +2897,7 @@ proc mime::addr_local {token} {
     }
 }
 
-# mime::addr_phrase --
+# ::mime::addr_phrase --
 #
 #
 # Arguments:
@@ -2908,13 +2908,13 @@ proc mime::addr_local {token} {
 #       syntax is found.
 
 
-proc mime::addr_phrase {token} {
+proc ::mime::addr_phrase {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
     while {1} {
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_ATOM
                 -
             LX_QSTRING {
@@ -2929,16 +2929,16 @@ proc mime::addr_phrase {token} {
 
     switch -- $state(lastC) {
         LX_LBRACKET {
-            return [mime::addr_routeaddr $token]
+            return [addr_routeaddr $token]
         }
 
         LX_COLON {
-            return [mime::addr_group $token]
+            return [addr_group $token]
         }
 
         LX_DOT {
             append state(phrase) $state(buffer)
-            return [mime::addr_phrase $token]   
+            return [addr_phrase $token]   
         }
 
         default {
@@ -2949,7 +2949,7 @@ proc mime::addr_phrase {token} {
     }
 }
 
-# mime::addr_group --
+# ::mime::addr_group --
 #
 #
 # Arguments:
@@ -2959,7 +2959,7 @@ proc mime::addr_phrase {token} {
 #	Returns nothing if successful, and throws an error if invalid
 #       syntax is found.
 
-proc mime::addr_group {token} {
+proc ::mime::addr_group {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -2974,7 +2974,7 @@ proc mime::addr_group {token} {
 
     set lookahead $state(input)
     while {1} {
-        switch -- [mime::parselexeme $token] {
+        switch -- [parselexeme $token] {
             LX_SEMICOLON
                 -
             LX_END {
@@ -2987,13 +2987,13 @@ proc mime::addr_group {token} {
 
             default {
                 set state(input) $lookahead
-                return [mime::addr_specification $token]
+                return [addr_specification $token]
             }
         }
     }
 }
 
-# mime::addr_end --
+# ::mime::addr_end --
 #
 #
 # Arguments:
@@ -3003,7 +3003,7 @@ proc mime::addr_group {token} {
 #	Returns nothing if successful, and throws an error if invalid
 #       syntax is found.
 
-proc mime::addr_end {token} {
+proc ::mime::addr_end {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -3027,7 +3027,7 @@ proc mime::addr_end {token} {
     }    
 }
 
-# mime::addr_x400 --
+# ::mime::addr_x400 --
 #
 #
 # Arguments:
@@ -3037,7 +3037,7 @@ proc mime::addr_end {token} {
 #	Returns nothing if successful, and throws an error if invalid
 #       syntax is found.
 
-proc mime::addr_x400 {mbox key} {
+proc ::mime::addr_x400 {mbox key} {
     if {[set x [string first "/$key=" [string toupper $mbox]]] < 0} {
         return ""
     }
@@ -3050,7 +3050,7 @@ proc mime::addr_x400 {mbox key} {
     return [string trim $mbox "\""]
 }
 
-# mime::parsedatetime --
+# ::mime::parsedatetime --
 #
 #    Fortunately the clock command in the Tcl 8.x core does all the heavy 
 #    lifting for us (except for timezone calculations).
@@ -3087,7 +3087,7 @@ proc mime::addr_x400 {mbox key} {
 #	Returns the string value of the 'property' for the date/time that was
 #       specified in 'value'.
 
-proc mime::parsedatetime {value property} {
+proc ::mime::parsedatetime {value property} {
     if {![string compare $value -now]} {
         set clock [clock seconds]
     } else {
@@ -3224,7 +3224,7 @@ proc mime::parsedatetime {value property} {
     return $value
 }
 
-# mime::uniqueID --
+# ::mime::uniqueID --
 #
 #    Used to generate a 'globally unique identifier' for the content-id.
 #    The id is built from the pid, the current time, the hostname, and
@@ -3236,13 +3236,13 @@ proc mime::parsedatetime {value property} {
 #	Returns the a string that contains the globally unique identifier
 #       that should be used for the Content-ID of an e-mail message.
 
-proc mime::uniqueID {} {
+proc ::mime::uniqueID {} {
     variable mime
 
     return "<[pid].[clock seconds].[incr mime(cid)]@[info hostname]>"
 }
 
-# mime::parselexeme --
+# ::mime::parselexeme --
 #
 #    Used to implement a lookahead parser.
 #
@@ -3252,7 +3252,7 @@ proc mime::uniqueID {} {
 # Results:
 #	Returns the next token found by the parser.
 
-proc mime::parselexeme {token} {
+proc ::mime::parselexeme {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -3291,7 +3291,7 @@ proc mime::parselexeme {token} {
                         }
                         append state(comment) $state(buffer)
 
-                        return [mime::parselexeme $token]
+                        return [parselexeme $token]
                     }
                 }
 
@@ -3395,7 +3395,7 @@ proc mime::parselexeme {token} {
     return [set state(lastC) LX_ATOM]
 }
 
-# mime::mapencoding --
+# ::mime::mapencoding --
 #
 #    mime::mapencodings maps tcl encodings onto the proper names for their
 #    MIME charset type.  This is only done for encodings whose charset types
@@ -3408,7 +3408,7 @@ proc mime::parselexeme {token} {
 #	Returns the MIME charset type for the specified tcl encoding, or ""
 #       if none is known.
 
-proc mime::mapencoding {enc} {
+proc ::mime::mapencoding {enc} {
 
     variable encodings
 
@@ -3418,7 +3418,7 @@ proc mime::mapencoding {enc} {
     return ""
 }
 
-# mime::reversemapencoding --
+# ::mime::reversemapencoding --
 #
 #    mime::reversemapencodings maps MIME charset types onto tcl encoding names.
 #    Those that are unknown return "".
@@ -3430,7 +3430,7 @@ proc mime::mapencoding {enc} {
 #	Returns the tcl encoding name for the specified mime charset, or ""
 #       if none is known.
 
-proc mime::reversemapencoding {mimeType} {
+proc ::mime::reversemapencoding {mimeType} {
 
     variable reversemap
     
@@ -3441,7 +3441,7 @@ proc mime::reversemapencoding {mimeType} {
     return ""
 }
 
-# mime::word_encode --
+# ::mime::word_encode --
 #
 #    Word encodes strings as per RFC 2047.
 #
@@ -3453,7 +3453,7 @@ proc mime::reversemapencoding {mimeType} {
 # Results:
 #	Returns a word encoded string.
 
-proc mime::word_encode {charset method string} {
+proc ::mime::word_encode {charset method string} {
 
     variable encodings
 
@@ -3488,7 +3488,7 @@ proc mime::word_encode {charset method string} {
     return $result
 }
 
-# mime::word_decode --
+# ::mime::word_decode --
 #
 #    Word decodes strings that have been word encoded as per RFC 2047.
 #
@@ -3498,7 +3498,7 @@ proc mime::word_encode {charset method string} {
 # Results:
 #	Returns the string that has been decoded from the encoded message.
 
-proc mime::word_decode {encoded} {
+proc ::mime::word_decode {encoded} {
 
     variable reversemap
 
@@ -3542,7 +3542,7 @@ proc mime::word_decode {encoded} {
     return [list $enc $method $result]
 }
 
-# mime::field_decode --
+# ::mime::field_decode --
 #
 #    Word decodes strings that have been word encoded as per RFC 2047
 #    and converts the string from UTF to the original encoding/charset.
@@ -3553,8 +3553,8 @@ proc mime::word_decode {encoded} {
 # Results:
 #	Returns the decoded string in its original encoding/charset..
 
-proc mime::field_decode {field} {
-    # mime::field_decode is broken.  Here's a new version.
+proc ::mime::field_decode {field} {
+    # ::mime::field_decode is broken.  Here's a new version.
     # This code is in the public domain.  Don Libes <don@libes.com>
 
     # Step through a field for mime-encoded words, building a new
@@ -3573,7 +3573,7 @@ proc mime::field_decode {field} {
 	    }
 	}
 
-	set decoded [mime::word_decode $encoded]
+	set decoded [word_decode $encoded]
         foreach {charset - string} $decoded break
 
 	append result [::encoding convertfrom $charset $string]
