@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.2 2000/04/19 04:14:54 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.3 2000/04/19 06:08:40 welch Exp $
 
 package provide html 1.0
 
@@ -188,8 +188,6 @@ proc html::description {description} {
 #
 # Side Effects:
 #	sets page(author)
-#	We use page because it gets automatically reset by
-#	the template processor for each page
 
 proc html::author {author} {
     variable page
@@ -200,6 +198,8 @@ proc html::author {author} {
 # html::default
 #
 #	Return a default value, if one has been registered
+#	and an overriding value does not occur in the existing
+#	tag parameters.
 #
 # Arguments:
 #	key	Index into the defaults array defined by html::reset
@@ -237,7 +237,7 @@ proc html::bodytag {args} {
     append html "<body"
     append html [html::default body.bgcolor $args]
     append html [html::default body.text $args]
-    append html " $args>\n"
+    append html "[string trimright " $args"]>\n"
     return $html
 }
 
@@ -302,7 +302,8 @@ proc html::quoteformvalue {value} {
 
 proc html::textinput {name {value {}}} {
     variable defaults
-    set html "<input type=text [html::formvalue $name $value] [html::default input.size]"
+    set html "<input type=text [html::formvalue $name $value]"
+    append html [html::default input.size]
     append html ">\n"
     return $html
 }
@@ -334,7 +335,7 @@ proc html::textinputrow {label name {value {}}} {
 #	The html fragment
 
 proc html::passwordinput {{name password}} {
-    set html "<input type=password name=$name>\n"
+    set html "<input type=password name=\"$name\">\n"
     return $html
 }
 
@@ -375,12 +376,12 @@ proc html::checkvalue {name {value 1}} {
 	    return "name=\"$name\" value=\"[quoteformvalue $value]\" CHECKED"
 	}
     }
-    return "name=$name value=\"[quoteformvalue $value]\""
+    return "name=\"$name\" value=\"[quoteformvalue $value]\""
 }
 
 # html::radiovalue
 #
-#	Like html::formalue, but for radioboxes that need CHECKED
+#	Like html::formvalue, but for radioboxes that need CHECKED
 #
 # Arguments:
 #	name	The name of the form element
@@ -392,9 +393,9 @@ proc html::checkvalue {name {value 1}} {
 
 proc html::radiovalue {name value} {
     if {[string equal $value [ncgi::value $name]]} {
-	return "name=$name value=\"[quoteformvalue $value]\" CHECKED"
+	return "name=\"$name\" value=\"[quoteformvalue $value]\" CHECKED"
     } else {
-	return "name=$name value=\"[quoteformvalue $value]\""
+	return "name=\"$name\" value=\"[quoteformvalue $value]\""
     }
 }
 
@@ -405,8 +406,10 @@ proc html::radiovalue {name value} {
 
 proc html::radioset {key sep list} {
     set html ""
+    set s ""
     foreach {v label} $list {
-	append html "<input type=radio [radiovalue $key $v]> $label$sep"
+	append html "$s<input type=radio [radiovalue $key $v]> $label"
+	set s $sep
     }
     return $html
 }
@@ -417,12 +420,44 @@ proc html::radioset {key sep list} {
 #	value from the query data, if any.
 
 proc html::checkset {key sep list} {
+    set s ""
     foreach {v label} $list {
-	append html "<input type=checkbox [checkvalue $key $v]> $label$sep"
+	append html "$s<input type=checkbox [checkvalue $key $v]> $label"
+	set s $sep
     }
     return $html
 }
 
+# html::select --
+#
+#	Format a <select> element that retains the state of the
+#	current CGI values.
+#
+# Arguments:
+#	name		The form element name
+#	param		The various size, multiple parameters for the tag
+#	choices		A simple list of choices
+#	current		Value to assume if nothing is in CGI state
+#
+# Results:
+#	The html fragment
+
+proc html::select {name param choices {current {}}} {
+    variable page
+
+    set def [ncgi::value $name $current]
+    set html "<select name=\"$name\"[string trimright  " $param"]>\n"
+    foreach {v label} $choices {
+	if {[string equal $def $v]} {
+	    set SEL " SELECTED"
+	} else {
+	    set SEL ""
+	}
+	append html "<option value=\"$v\"$SEL>$label\n"
+    }
+    append html "</select>\n"
+    return $html
+}
 
 # html::selectplain --
 #
@@ -445,37 +480,6 @@ proc html::selectplain {name param choices {current {}}} {
     return [html::select $name $param $namevalue $current]
 }
 
-# html::select --
-#
-#	Format a <select> element that retains the state of the
-#	current CGI values.
-#
-# Arguments:
-#	name		The form element name
-#	param		The various size, multiple parameters for the tag
-#	choices		A simple list of choices
-#	current		Value to assume if nothing is in CGI state
-#
-# Results:
-#	The html fragment
-
-proc html::select {name param choices {current {}}} {
-    variable page
-
-    set def [ncgi::value $name $current]
-    set html "<select name=\"$name\" $param>\n"
-    foreach {v label} $choices {
-	if {[string equal $def $v]} {
-	    set SEL SELECTED
-	} else {
-	    set SEL ""
-	}
-	append html "<option value=\"$v\" $SEL>$label\n"
-    }
-    append html "</select>\n"
-    return $html
-}
-
 # html::textarea --
 #
 #	Format a <textarea> element that retains the state of the
@@ -491,7 +495,7 @@ proc html::select {name param choices {current {}}} {
 
 proc html::textarea {name {param {}} {current {}}} {
     set value [ncgi::value $name $current]
-    set html "<textarea name=\"$name\" $param>$value</textarea>\n"
+    set html "<textarea name=\"$name\"[string trimright " $param"]>$value</textarea>\n"
     return $html
 }
 

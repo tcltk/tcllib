@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.1 2000/04/19 04:14:54 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.2 2000/04/19 06:08:41 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -17,6 +17,9 @@ namespace import -force ::tcltest::*
 set myFile [file join [file dirname [info script]] html.tcl]
 source $myFile
 package require html 1.0
+
+source [file join [file dirname [info script]] ../ncgi/ncgi.tcl]
+package require ncgi
 
 test html-1.1 {html::reset} {
     html::reset
@@ -135,3 +138,266 @@ test html-7.3 {html::description} {
     lindex $html::page(meta) 0
 } {<meta name="description" value="one &#34;one val&#34; &amp;">}
 
+test html-8.1 {html::author} {
+    html::reset
+    html::author "This is the author."
+} {}
+
+test html-8.2 {html::author} {
+    html::reset
+    html::author "This is the author."
+    set html::page(author)
+} {<!-- This is the author. -->
+}
+
+test html-8.3 {html::author} {
+    html::reset
+    html::author {one "one val" &}
+    set html::page(author)
+} {<!-- one "one val" & -->
+}
+
+test html-9.1 {html::default} {
+    html::reset {
+	body.bgcolor	red
+	font.face	times
+    }
+    html::default xyzzy
+} {}
+
+test html-9.2 {html::default} {
+    html::reset {
+	body.bgcolor	red
+	font.face	times
+    }
+    html::default body.bgcolor
+} { bgcolor="red"}
+
+test html-9.3 {html::default} {
+    html::reset {
+	body.bgcolor	red
+	font.face	times
+    }
+    html::default font.face "face=arial"
+} {}
+
+test html-9.4 {html::default} {
+    html::reset {
+	body.bgcolor	red
+	font.face	times
+    }
+    html::default font.face "color=blue size=1"
+} { face="times"}
+
+test html-10.1 {html::bodytag} {
+    html::reset
+    html::bodytag
+} {<body>
+}
+
+test html-10.2 {html::bodytag} {
+    html::reset {
+	body.bgcolor	white
+	body.text	black
+    }
+    html::bodytag
+} {<body bgcolor="white" text="black">
+}
+
+test html-10.3 {html::bodytag} {
+    html::reset {
+	body.bgcolor	white
+	body.text	black
+    }
+    html::bodytag "text=red"
+} {<body bgcolor="white" text=red>
+}
+
+test html-11.1 {html::formvalue} {
+    ncgi::reset name=value
+    ncgi::parse
+    html::formvalue name
+} {name="name" value="value"}
+
+test html-11.2 {html::formvalue} {
+    ncgi::reset name=value
+    ncgi::parse
+    html::formvalue name2
+} {name="name2" value=""}
+
+test html-11.3 {html::formvalue} {
+    ncgi::reset "name=one+value&name2=%7e"
+    ncgi::parse
+    html::formvalue name2
+} {name="name2" value="~"}
+
+test html-12.1 {html::quoteformvalue} {
+    html::quoteformvalue name2
+} {name2}
+
+test html-12.2 {html::quoteformvalue} {
+    html::quoteformvalue {"name2"}
+} {&#34;name2&#34;}
+
+test html-12.3 {html::quoteformvalue} {
+    html::quoteformvalue {"'><&}
+} {&#34;&#39;&gt;&lt;&amp;}
+
+test html-13.1 {html::textinput} {
+    html::reset
+    ncgi::reset
+    ncgi::parse
+    html::textinput email
+} {<input type=text name="email" value="">
+}
+
+test html-13.2 {html::textinput} {
+    html::reset
+    ncgi::reset email=welch@scriptics.com
+    ncgi::parse
+    html::textinput email
+} {<input type=text name="email" value="welch@scriptics.com">
+}
+
+test html-13.3 {html::textinput} {
+    html::reset {
+	input.size	30
+    }
+    ncgi::reset
+    ncgi::parse
+    html::textinput email
+} {<input type=text name="email" value="" size="30">
+}
+
+test html-13.4 {html::textinput} {
+    html::reset {
+	input.size	30
+    }
+    ncgi::reset
+    ncgi::parse
+    html::textinput email default@foo.com
+} {<input type=text name="email" value="default@foo.com" size="30">
+}
+
+test html-13.5 {html::textinput} {
+    html::reset
+    ncgi::reset email=welch@scriptics.com
+    ncgi::parse
+    html::textinput email default@foo.com
+} {<input type=text name="email" value="welch@scriptics.com">
+}
+
+test html-14.1 {html::textinputrow} {
+    html::reset
+    ncgi::reset email=welch@scriptics.com
+    ncgi::parse
+    html::textinputrow Email email
+} {<tr>
+	<td>Email</td>
+	<td><input type=text name="email" value="welch@scriptics.com">
+</td>
+</tr>
+}
+
+test html-15.1 {html::passwordinput} {
+    html::passwordinput
+} {<input type=password name="password">
+}
+
+test html-15.2 {html::passwordinput} {
+    html::passwordinput form_pass
+} {<input type=password name="form_pass">
+}
+
+test html-16.1 {html::checkbox} {
+    ncgi::reset email=welch@scriptics.com
+    ncgi::parse
+    html::checkbox item value
+} {<input type=checkbox name="item" value="value">
+}
+
+test html-16.2 {html::checkbox} {
+    ncgi::reset email=welch@scriptics.com
+    ncgi::parse
+    html::checkbox email value
+} {<input type=checkbox name="email" value="value">
+}
+
+test html-17.1 {html::checkvalue} {
+    ncgi::reset item=xyz
+    ncgi::parse
+    html::checkbox item xyz
+} {<input type=checkbox name="item" value="xyz" CHECKED>
+}
+
+test html-18.1 {html::radiovalue} {
+    ncgi::reset item=xyz
+    ncgi::parse
+    html::radiovalue item xyz
+} {name="item" value="xyz" CHECKED}
+
+test html-19.1 {html::radioset} {
+    ncgi::reset item=2
+    ncgi::parse
+    html::radioset item " |\n" {
+	1 One	2 Two	3 Three
+    }
+} {<input type=radio name="item" value="1"> One |
+<input type=radio name="item" value="2" CHECKED> Two |
+<input type=radio name="item" value="3"> Three}
+
+test html-20.1 {html::checkset} {
+    ncgi::reset item=2&item=3+4&x=y
+    ncgi::parse
+    html::checkset item " |\n" {
+	1 One	2 Two	{3 4} Three
+    }
+} {<input type=checkbox name="item" value="1"> One |
+<input type=checkbox name="item" value="2" CHECKED> Two |
+<input type=checkbox name="item" value="3 4" CHECKED> Three}
+
+test html-21.1 {html::select} {
+    ncgi::reset item=2&x=y
+    ncgi::parse
+    html::select item "multiple" {
+	1 One	2 Two	{3 4} Three
+    }
+} {<select name="item" multiple>
+<option value="1">One
+<option value="2" SELECTED>Two
+<option value="3 4">Three
+</select>
+}
+
+test html-22.1 {html::selectplain} {
+    ncgi::reset item=Three
+    ncgi::parse
+    html::selectplain item "" {
+	One	Two	Three
+    }
+} {<select name="item">
+<option value="One">One
+<option value="Two">Two
+<option value="Three" SELECTED>Three
+</select>
+}
+
+test html-22.2 {html::selectplain} {
+    ncgi::reset item=Three
+    ncgi::parse
+    html::selectplain another "" {
+	One	Two	Three
+    } One
+} {<select name="another">
+<option value="One" SELECTED>One
+<option value="Two">Two
+<option value="Three">Three
+</select>
+}
+
+test html-23.1 {html::textarea} {
+    ncgi::reset item=Three
+    ncgi::parse
+    html::textarea info
+} {<textarea name="info"></textarea>
+}
