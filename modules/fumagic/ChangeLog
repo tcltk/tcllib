@@ -1,3 +1,7 @@
+2005-03-16  Andreas Kupries <andreask@activestate.com>
+
+	* Fixed typos in the manpage headers.
+
 2005-02-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tmc:           Added basic magic compiler, and script to
