@@ -53,6 +53,7 @@ foreach {m pkg doc exa} {
     ncgi	_tcl  _man  _null
     nntp	_tcl  _man _exa
     ntp		_tcl  _man _exa
+    png	        _tcl  _man  _null
     pop3	_tcl  _man  _null
     pop3d	_tcl  _man  _null
     profiler	_tcl  _man  _null

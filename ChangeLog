@@ -1,3 +1,7 @@
+2004-05-07  Andreas Kupries  <andreask@activestate.com>
+
+	* New module: png querying and manipulation.
+
 2004-05-04  Andreas Kupries  <andreask@activestate.com>
 
 	* install_action.tcl: Fixed [SF Tcllib Bug 784519]. Loading the
