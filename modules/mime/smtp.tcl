@@ -758,8 +758,12 @@ proc ::smtp::initialize_ehlo {token} {
             }
         }
 
-        if {![info exists state(auth)] \
-                && [set andx [lsearch -glob $response(args) "AUTH*"]] >= 0} {
+        # If we have not already tried and the server supports it and we 
+        # have a username -- lets try to authenticate.
+        #
+        if {![info exists state(auth)]
+            && [set andx [lsearch -glob $response(args) "AUTH*"]] >= 0 
+            && [string length $options(-username)] > 0 } {
             
             # May be AUTH mech or AUTH=mech
             # We want to use the strongest mechanism that has been offered
@@ -957,9 +961,14 @@ proc ::smtp::auth_DIGEST-MD5 {token} {
         set uri "smtp/$realm"
 
         set A1 [md5_bin "$options(-username):$realm:$options(-password)"]
-        set A1 [md5_hex "${A1}:$nonce:$cnonce"]
-        set A2 [md5_hex "AUTHENTICATE:$uri"]
-        set R  [md5_hex $A1:$nonce:$noncecount:$cnonce:$qop:$A2]
+        set A2 "AUTHENTICATE:$uri"
+        if {![string equal $qop "auth"]} {
+            append A2 :[string repeat 0 32]
+        }
+        
+        set A1h [md5_hex "${A1}:$nonce:$cnonce"]
+        set A2h [md5_hex $A2]
+        set R  [md5_hex $A1h:$nonce:$noncecount:$cnonce:$qop:$A2h]
 
         set reply "username=\"$options(-username)\",realm=\"$realm\",nonce=\"$nonce\",nc=\"$noncecount\",cnonce=\"$cnonce\",digest-uri=\"$uri\",response=\"$R\",qop=$qop"
         if {$options(-debug)} {
