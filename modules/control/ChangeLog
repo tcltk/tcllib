@@ -1,3 +1,8 @@
+2002-02-21  Reinhard Max  <max@suse.de>
+
+	* do.test: Updated do-2.3 to reflect the change of the standard
+	"wrong # args:..." message for Tcl 8.4. (Bug #517595)
+	
 2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* assert.tcl: 
