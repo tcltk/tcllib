@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.5 2001/08/02 16:38:07 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.6 2002/01/16 18:48:03 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide nntp 0.1
@@ -527,17 +527,17 @@ proc ::nntp::_next {name} {
 #
 # Arguments:
 #       name    Name of the nntp object.
-#       args    A message of the form specified in RFC 850
+#       article A message of the form specified in RFC 850
 #
 # Results:
 #       None.
 
-proc ::nntp::_post {name args} {
+proc ::nntp::_post {name article} {
     
     if {![::nntp::command $name "POST"]} {
         return ""
     }
-    return [::nntp::squirt $name "$args"]
+    return [::nntp::squirt $name "$article"]
 }
 
 # ::nntp::_slave --
