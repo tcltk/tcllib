@@ -1,3 +1,9 @@
+2000-05-06  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/smtp.tcl: Fixed bug 5383, where smtp wouldn't work because
+	it had a dependency on Trf.  I've patched the code, and it seems
+	to work fine now.
+
 2000-05-03  Brent Welch <welch@scriptics.com>
 
 	* cmdline/cmdline.tcl:

@@ -9,6 +9,19 @@ package provide smtp 1.2
 
 package require mime 1.0
 
+if {[catch {package require Trf  2.0}]} {
+    # Trf is not available, but we can live without it as long as the
+    # transform proc is defined.
+
+    # Warning!
+    # This is a fragile emulation of the more general calling sequence
+    # that appears to work with this code here.
+
+    proc transform {args} {
+	upvar state mystate
+	set mystate(size) 1
+    }
+}
 
 #
 # state variables:
