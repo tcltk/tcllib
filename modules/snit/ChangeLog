@@ -1,3 +1,16 @@
+2003-10-20  Will Duquette  <will@cordelia.local.>
+
+	* snit.tcl:  The new "install" command can now be used to install
+	* snit.test: components for snit::types as well.  It doesn't add
+		     any value, since there's no option database, but at
+	             least the syntax will be the same.
+
+		     "install" now initializes the component properly
+		     from the option database when "option *" has been
+		     delegated to it.
+
+		     Tests have been updated as usual.
+
 2003-10-19  Will Duquette  <will@cordelia.local.>
 
 	* snit.tcl:  During normal widget creation, the default values
