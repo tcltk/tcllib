@@ -1,5 +1,8 @@
 2002-05-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* mime.tcl: Accepted patch for SF bug #553784, by Don Porter
+	  <dgp@users.sourceforge.net>.
+
 	* smtp.tcl: Applied patch for SF bug #539952, on behalf of
 	  Marshall Rose <mrose@users.sourceforge.net>. The part of the
 	  patch regarding "mime.tcl" was already in the CVS, as part of
