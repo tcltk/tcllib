@@ -263,11 +263,11 @@ Relative precision (defaults to 0.001)
 [call [cmd ::math::calculus::regula_falsi] [arg f] [arg xb] [arg xe] [arg eps]]
 
 Return an estimate of the zero or one of the zeros of the function
-contained in the interval [xb,xe]. The error in this estimate is of the
+contained in the interval [lb]xb,xe[rb]. The error in this estimate is of the
 order of eps*abs(xe-xb), the actual error may be slightly larger.
 
 [nl]
-The method used is the so-called [emph "regula falsi" or
+The method used is the so-called [emph {regula falsi}] or
 [emph "false position"] method. It is a straightforward implementation.
 The method is robust, but requires that the interval brackets a zero or
 at least an uneven number of zeros, so that the value of the function at
