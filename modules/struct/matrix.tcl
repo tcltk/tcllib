@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.2 2001/05/20 11:22:09 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -918,7 +918,7 @@ proc ::struct::matrix::__insert_column {name column {values {}}} {
 
     if {$column > $cols} {
 	# Same as 'addcolumn'
-	_addcolumn $name $values
+	__add_column $name $values
 	return
     }
 
@@ -995,7 +995,7 @@ proc ::struct::matrix::__insert_row {name row {values {}}} {
 
     if {$row > $rows} {
 	# Same as 'addrow'
-	_addrow $name $values
+	__add_row $name $values
 	return
     }
 

@@ -1,3 +1,11 @@
+2001-05-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* matrix.tcl (insert row/column): Fixed wrong references to the
+	  internal add row/column procedures.
+
+	* modules/struct/matrix.test: Added 8.11 and 8.12 to test the case
+	  of 'insert FOO' devolving to 'add FOO'.
+
 2001-05-01  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Committed changes (matrix) to CVS head at SF.
@@ -18,13 +26,13 @@
 
 	* stack.test: 
 	* queue.test: Changed "package require struct" to "source [file
-	join [file dirname [info script]] xxxx.tcl]", which is more reliable.
+	  join [file dirname [info script]] xxxx.tcl]", which is more reliable.
 
 	* tree.test: 
 	* tree.tcl: Added support for different walk orders (post,
-	in, and both) [RFE: 4420].  Added support for percent substitution
-	on walk command.  (WalkCall) Added protection against node/tree
-	names with spaces.
+	  in, and both) [RFE: 4420].  Added support for percent substitution
+	  on walk command.  (WalkCall) Added protection against node/tree
+	  names with spaces.
 
 	* graph.tcl: 
 	* graph.test: 
@@ -35,8 +43,8 @@
 	* tree.test: 
 	* tree.n: 
 	* tree.tcl: Added support for inserting/moving multiple nodes at
-	once.  Changed behavior of insert with respect to inserting nodes
-	that already exist; instead of an error, it will move the node.
+	  once.  Changed behavior of insert with respect to inserting nodes
+	  that already exist; instead of an error, it will move the node.
 
 2000-03-14  Eric Melski  <ericm@scriptics.com>
 
@@ -47,23 +55,23 @@
 	* tree.n: 
 	* tree.tcl: 
 	* tree.test: Applied patch from [RFE: 4337], with enhancements for
-	better efficiency, and additional test cases; adds cut and splice
-	functions to tree.
+	  better efficiency, and additional test cases; adds cut and splice
+	  functions to tree.
 
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* tree.n: 
 	* tree.tcl: 
 	* tree.test: Applied patch from [RFE: 4338]; adds index function to
-	tree.  Applied patch from [RFE: 4339], with slight modification; adds
-	numchildren function to tree.  Applied patch from [RFE: 4336],
-	with additional error checks and test cases; adds next, previous
-	functions to tree.  Added extra tests for walk command.
+	  tree.  Applied patch from [RFE: 4339], with slight modification; adds
+	  numchildren function to tree.  Applied patch from [RFE: 4336],
+	  with additional error checks and test cases; adds next, previous
+	  functions to tree.  Added extra tests for walk command.
 
 	* tree.tcl: Added isleaf function and tests [RFE: 4340]
 
 	* struct.tcl: Changed order of namespace import/namespace export
-	calls.  Added -force to namespace import calls.
+	  calls.  Added -force to namespace import calls.
 
 	* tree.test: 
 	* stack.test: 
@@ -71,13 +79,13 @@
 
 	* tree.test:
 	* tree.tcl: Added code to auto-generate node names on insert if no
-	name is given [RFE: 4345]
+	  name is given [RFE: 4345]
 
 2000-03-08  Eric Melski  <ericm@scriptics.com>
 
 	* tree.test:
 	* tree.tcl: Added check for node existance in children function
-	[Bug: 4341]
+	  [Bug: 4341]
 
 2000-03-03  Eric Melski  <ericm@scriptics.com>
 
