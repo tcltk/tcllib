@@ -1,6 +1,7 @@
 2000-10-02  Brent Welch <welch@ajubasolutions.com>
 
 	* NAME CHANGE from "stats" to "counter"
+	* counter.tcl: Changed shading of histogram labels.
 
 2000-10-02  Brent Welch <welch@ajubasolutions.com>
 

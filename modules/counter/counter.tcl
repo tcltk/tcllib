@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.1 2000/10/03 03:52:59 welch Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.2 2000/10/03 05:27:13 welch Exp $
 
 namespace eval counter:: {
 
@@ -1027,6 +1027,9 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
     # Append a row of labels at the bottom.
 
+    set colors {black #CCCCCC}
+    set bgcolors {#CCCCCC black}
+    set colori 0
     if {$counter(type) != "-timehist"} {
 
 	# Label each bucket with its value
@@ -1066,7 +1069,10 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	    }
 	    set label [format $options(-format) $x]
 	    if {(($i % $skip) == 0)} {
-		append result "<td colspan=$skip><font size=1>$label</font></td>"
+		set color [lindex $colors $colori]
+		set bg [lindex $bgcolors $colori]
+		set colori [expr {($colori+1) % 2}]
+		append result "<td colspan=$skip><font size=1 color=$color>$label</font></td>"
 	    }
 	}
 	append result </tr>
@@ -1128,7 +1134,10 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
 	    set label [clock format $time -format $format]
 	    if {(($t % $skip) == 0) && ($label != $lastLabel)} {
-		append result "<td colspan=$skip><font size=1>$label</font></td>"
+		set color [lindex $colors $colori]
+		set bg [lindex $bgcolors $colori]
+		set colori [expr {($colori+1) % 2}]
+		append result "<td colspan=$skip><font size=1 color=$color>$label</font></td>"
 		set lastLabel $label
 	    }
 	    if {$t == $curIndex} {
