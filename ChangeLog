@@ -1,3 +1,7 @@
+2001-09-24   Joe English  <jenglish@sourceforge.net>
+	* modules/ftpd/ftpd.tcl: fix improperly-formatted multi-line 
+	  replies.  See SF tracker ID #424797
+
 2001-08-24   Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (check): Added target to report modules without
