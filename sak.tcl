@@ -310,7 +310,8 @@ proc gd-assemble {} {
 }
 
 proc gd-tip55 {} {
-    global tcllib_version tcllib_name distribution
+    global tcllib_version tcllib_name distribution contributors
+    contributors
 
     set md {Identifier: %N
 Title:  Tcl Standard Library
@@ -323,29 +324,49 @@ URL: http://tcllib.sourceforge.net/
 Architecture: tcl
 }
 
-    set f [open [file join $distribution ChangeLog] r]
-    array set names {}
+    regsub {Version: %V} $md "Version: $tcllib_version" md
+    regsub {Identifier: %N} $md "Identifier: $tcllib_name" md
+    foreach person [lsort [array names contributors]] {
+        set mail $contributors($person)
+        regsub {@}  $mail " at " mail
+        regsub -all {\.} $mail " dot " mail
+        append md "Contributor: $person <$mail>\n"
+    }
+
+    set f [open [file join $distribution DESCRIPTION.txt] w]
+    puts $f $md
+    close $f
+}
+
+# Fill the global array of contributors to tcllib by processing the
+# ChangeLog entries.
+#
+proc contributors {} {
+    global distribution contributors
+    if {![info exists contributors] || [array size contributors] == 0} {
+        get_contributors [file join $distribution ChangeLog]
+
+        foreach f [glob -nocomplain [file join $distribution modules *]] {
+            if {![file isdirectory $f]} {continue}
+            if {[string match CVS [file tail $f]]} {continue}
+            if {![file exists [file join $f ChangeLog]]} {continue}
+            get_contributors [file join $f ChangeLog]
+        }
+    }
+}
+
+proc get_contributors {changelog} {
+    global contributors
+    set f [open $changelog r]
     while {![eof $f]} {
         gets $f line
         if {[regexp {^[\d-]+\s+(.*?)<(.*?)>} $line r name mail]} {
             set name [string trim $name]
             if {![info exists names($name)]} {
-                regsub {@}  $mail " at " mail
-                regsub -all {\.} $mail " dot " mail
-                set names($name) $mail
+                set contributors($name) $mail
             }
         }
     }
-    close $f
-
-    regsub {Version: %V} $md "Version: $tcllib_version" md
-    regsub {Identifier: %N} $md "Identifier: $tcllib_name" md
-    foreach person [lsort [array names names]] {
-        append md "Contributor: $person <$names($person)>\n"
-    }
-
-    set f [open [file join $distribution DESCRIPTION.txt] w]
-    puts $f $md
     close $f
 }
 
@@ -483,8 +504,9 @@ proc __help {} {
 
 	/Development
 	modules          - Return list of modules.
+        contributors     - Print a list of contributors to tcllib.
 	lmodules         - See above, however one module per line
-	imodules         - Return list of modules known to hte installer.
+	imodules         - Return list of modules known to the installer.
 
 	packages         - Return indexed packages in tcllib, plus versions,
 	                   one package per line. Extracted from the
@@ -694,6 +716,15 @@ proc __gendist {} {
 proc __gentip55 {} {
     gd-tip55
     puts "Created DESCRIPTION.txt"
+    return
+}
+
+proc __contributors {} {
+    global contributors
+    contributors
+    foreach person [lsort [array names contributors]] {
+        puts "$person <$contributors($person)>"
+    }
     return
 }
 
