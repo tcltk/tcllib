@@ -137,7 +137,7 @@ Kicks the user [arg target] from the channel [arg channel] with a message [opt m
 
 [call [arg net] [method mode] [arg target] [arg args]]
 
-Sets the mode [arg args] on the target [target]. [target] may be a channel,
+Sets the mode [arg args] on the target [arg target]. [arg target] may be a channel,
 a channel user, or yourself.
 
 
