@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: gregorian.tcl,v 1.1 2002/01/11 23:48:24 kennykb Exp $
+# RCS: @(#) $Id: gregorian.tcl,v 1.2 2002/01/14 17:05:12 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -449,10 +449,6 @@ proc calendar::GregorianCalendar::EFYWDToJulianDay { dateArray
 # Side effects:
 #	None.
 #
-# Bugs:
-#	Several locales require "last XXXday of the month" for daylight
-#	saving time calculations, and this feature is not yet implemented.
-#
 # The 'dateVar' array is expected to contain the following keys:
 #	+ ERA - The constant 'BCE' or 'CE'.
 #	+ YEAR - The Gregorian calendar year
@@ -461,7 +457,9 @@ proc calendar::GregorianCalendar::EFYWDToJulianDay { dateArray
 #			If day of week is 7 or greater, it is interpreted
 #			modulo 7.
 #	+ DAY_OF_WEEK_IN_MONTH - The day of week within the month
-#				 (1 = first XXXday, 2 = second XXDday, ...)
+#				 (1 = first XXXday, 2 = second XXDday, ...
+#				 also -1 = last XXXday, -2 = next-to-last
+#				 XXXday, ...)
 #
 #----------------------------------------------------------------------
 
@@ -471,21 +469,38 @@ proc calendar::GregorianCalendar::EYMWDToJulianDay { dateVar } {
     
     variable epoch
     
-    # Begin by finding the first of the month
-    
+    # Are we counting from the beginning or the end of the month?
+
     array set date2 [array get date]
-    set date2(DAY_OF_MONTH) 1
-    set firstDayOfMonth [EYMDToJulianDay date2]
+    if { $date(DAY_OF_WEEK_IN_MONTH) >= 0 } {
 
-    # Find the first given weekday in the given month
-
-    set wd1 [WeekdayOnOrBefore $date(DAY_OF_WEEK) \
-		 [expr { $firstDayOfMonth + 6 }]]
-
-    # Add the requisite number of weeks
-
-    return [expr { $wd1 + 7 * $date(DAY_OF_WEEK_IN_MONTH) - 7 }]
+	# When counting from the start of the month, begin by
+	# finding the 'zeroeth' - the last day of the prior month.
+	# Note that it's ok to give EYMDToJulianDay a zero day-of-month!
     
+	set date2(DAY_OF_MONTH) 0
+
+    } else {
+
+	# When counting from the end of the month, the 'zeroeth'
+	# is the seventh of the following month.  Note that it's ok
+	# to give EYMDToJulianDay a thirteenth month!
+
+	incr date2(MONTH)
+	set date2(DAY_OF_MONTH) 7
+
+    }
+
+    set zeroethDayOfMonth [EYMDToJulianDay date2]
+
+    # Find the zeroeth weekday in the given month
+	
+    set wd0 [WeekdayOnOrBefore $date(DAY_OF_WEEK) $zeroethDayOfMonth]
+	
+    # Add the requisite number of weeks
+	
+    return [expr { $wd0 + 7 * $date(DAY_OF_WEEK_IN_MONTH) }]
+
 }
 
 #----------------------------------------------------------------------
