@@ -11,7 +11,7 @@ engine has to comply with to be usable by the package
 [package doctools::idx].
 
 The specification of the [term docidx] format all index formatting
-engines have to process can be found in the companion document is
+engines have to process can be found in the companion document
 [term docidx_fmt].
 
 [section API]
@@ -156,6 +156,7 @@ This command has to format the label [arg text] and the associated
 [arg title] string as the start of the generated index and return
 the formatted string.
 
+
 [call [cmd fmt_index_end]]
 
 This command has to generate the end of the generated index and return
@@ -175,7 +176,8 @@ This command has to format a document reference and return the
 formatted string.
 
 The document referenced by the entry is specified through its symbolic
-name [arg file], whereas the label to use is provided by [arg text].
+name [arg file], whereas the label to use for the link is provided by
+[arg text].
 
 Use the command [cmd dt_fmap] to convert the symbolic name to the
 actual link.
@@ -195,6 +197,7 @@ uri to use in the output.
 [list_end]
 
 [para]
+
 
 [subsection {IMPORTED ENVIRONMENT}]
 
@@ -281,5 +284,5 @@ immediately, but have to have a copy at their location.
 [list_end]
 
 [see_also docidx_fmt docidx]
-[keywords markup {generic markup} index keywords TMML HTML nroff LaTeX]
+[keywords markup {generic markup} index keywords {keyword index} TMML HTML nroff LaTeX]
 [manpage_end]
