@@ -1,3 +1,31 @@
+2004-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: Extended with table showing the relationship
+	  between the various combination of type and order, and the
+	  possible visitor actions.
+
+2004-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: Updated documentation.
+	* tree.test: Updated testsuite for modified 'walk' syntax.
+	* tree.tcl (method walk): Modified to use list of loopvariables,
+	  containing either one or two. Default: One variable, node
+	  information. When two specified the first refers to action data.
+
+	* list.test: Added test for call with illegal option.
+	* list.tcl (Lflatten): Added proper error message when
+	  encountering an unknown/illegal option.
+
+2004-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man: Updated the documentation to reflect the
+	  changes below.
+
+	* tree.test: Updated testsuite to reflect the changes made below.
+	
+	* tree.tcl (walk): Changed API to be more like [foreach]. Allowing
+	  break/return/continue in the walk body as well now too.
+
 2004-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.test: Implemented (de)serialization of matrix objects,

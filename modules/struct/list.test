@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.9 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.10 2004/01/30 06:58:52 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -376,6 +376,11 @@ test flatten-1.2 {flatten command} {
 test flatten-2.1 {flatten errors} {
     list [catch {flatten} msg] $msg
 } {1 {wrong#args: should be "::struct::list::Lflatten ?-full? ?--? sequence"}}
+
+test flatten-2.2 {flatten errors} {
+    list [catch {flatten -all {a {b c d} {e {f g}}}} msg] $msg
+} {1 {Unknown option "-all", should be either -full, or --}}
+
 
 #----------------------------------------------------------------------
 

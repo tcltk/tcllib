@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.18 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.19 2004/01/30 06:58:51 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -59,66 +59,67 @@ puts "- fileutil [package present fileutil]"
 # Structure
 #
 #	dir
-#	+--find1
-#          +--find2
-#          |  +--file2
-#          +--file1
+#	+--{find 1}
+#          +--{find 2}
+#          |  +--{file 2}
+#          +--{file 1}
 
-catch {removeDirectory find1} ; # start with a clean structure!
+catch {removeDirectory {find 1}} ; # start with a clean structure!
 
-makeDirectory find1
-makeDirectory [file join find1 find2]
-makeFile "" [file join find1 file1]
-makeFile "test" [file join find1 find2 file2]
+makeDirectory {find 1}
+makeDirectory [file join {find 1} {find 2}]
+makeFile "" [file join {find 1} {file 1}]
+makeFile "test" [file join {find 1} {find 2} {file 2}]
 set dir $::tcltest::temporaryDirectory
+
 
 proc fileIsBiggerThan {s f} {
     expr {![file isdirectory $f] && [file size $f] > $s}
 }
 
 test find-1.1 {standard recursive find} {
-    lsort [fileutil::find [file join $dir find1]]
-} [list [file join $dir find1 file1] [file join $dir find1 find2] \
-	[file join $dir find1 find2 file2]]
+    lsort [fileutil::find [file join $dir {find 1}]]
+} [list [file join $dir {find 1} {file 1}] [file join $dir {find 1} {find 2}] \
+	[file join $dir {find 1} {find 2} {file 2}]]
 
 test find-1.2 {find directories} {
-    fileutil::find [file join $dir find1] {file isdirectory}
-} [list [file join $dir find1 find2]]
+    fileutil::find [file join $dir {find 1}] {file isdirectory}
+} [list [file join $dir {find 1} {find 2}]]
 
 test find-1.3 {find files bigger than a given size} {
-    fileutil::find [file join $dir find1] {fileIsBiggerThan 1}
-} [list [file join $dir find1 find2 file2]]
+    fileutil::find [file join $dir {find 1}] {fileIsBiggerThan 1}
+} [list [file join $dir {find 1} {find 2} {file 2}]]
 
 
 # Extend the previous sample tree
 # Extended structure:
 #
 #	dir
-#	+--find1
-#          +--find2       <----------+
-#          |  +--file2		     |
-#          |  +--file3 --> ../find2 -+
-#          +--file1
+#	+--{find 1}
+#          +--{find 2}       <----------+
+#          |  +--{file 2}		     |
+#          |  +--{file 3} --> ../{find 2} -+
+#          +--{file 1}
 
 test find-1.4 {handling of circular links} {unix} {
-    catch {file delete -force [file join $dir find1 find2 file3]}
-    exec ln -s ../find2 [file join $dir find1 find2 file3]
+    catch {file delete -force [file join $dir {find 1} {find 2} {file 3}]}
+    exec ln -s [file join .. {find 2}] [file join $dir {find 1} {find 2} {file 3}]
 
-    # Find has to skip 'file3'
-    lsort [fileutil::find [file join $dir find1]]
-} [list [file join $dir find1 file1] [file join $dir find1 find2] \
-	[file join $dir find1 find2 file2]]
+    # Find has to skip '{file 3}'
+    lsort [fileutil::find [file join $dir {find 1}]]
+} [list [file join $dir {find 1} {file 1}] [file join $dir {find 1} {find 2}] \
+	[file join $dir {find 1} {find 2} {file 2}]]
 
 test find-1.5 {find file} {
-    ::fileutil::find [file join $dir find1 file1]
-} [file join $dir find1 file1]
+    ::fileutil::find [file join $dir {find 1} {file 1}]
+} [list [file join $dir {find 1} {file 1}]]
 
 test find-1.6 {find file with filter} {
-    ::fileutil::find [file join $dir find1 file1] {file isfile}
-} [file join $dir find1 file1]
+    ::fileutil::find [file join $dir {find 1} {file 1}] {file isfile}
+} [list [file join $dir {find 1} {file 1}]]
 
 test find-1.7 {find file with filter - negative} {
-    ::fileutil::find [file join $dir find1 file1] {file isdirectory}
+    ::fileutil::find [file join $dir {find 1} {file 1}] {file isdirectory}
 } {}
 
 
@@ -135,48 +136,48 @@ test find-2.1 {find by pattern} {
 } {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}
 
 test find-2.2 {find by pattern} {
-    lsort [::fileutil::findByPattern [file join $dir find1] -glob {fil*}]
-} [list [file join $dir find1 file1] [file join $dir find1 find2 file2]]
+    lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]
+} [list [file join $dir {find 1} {file 1}] [file join $dir {find 1} {find 2} {file 2}]]
 
 test find-2.3 {find by pattern} {
-    lsort [::fileutil::findByPattern [file join $dir find1] -regexp {.*1$}]
-} [list [file join $dir find1 file1]]
+    lsort [::fileutil::findByPattern [file join $dir {find 1}] -regexp {.*1$}]
+} [list [file join $dir {find 1} {file 1}]]
 
 
 catch {removeDirectory grepTest} ; # start with a clean structure!
 
 # Build a sample tree to search
 makeDirectory grepTest
-makeFile "zoop" [file join $dir grepTest file1]
-makeFile "zoo\nbart"  [file join $dir grepTest file2]
+makeFile "zoop" [file join $dir grepTest {file 1}]
+makeFile "zoo\nbart"  [file join $dir grepTest {file 2}]
 
 test grep-1.1 {normal grep} {
     lsort [fileutil::grep "zoo" [glob [file join $dir grepTest *]]]
-} [list "[file join $dir grepTest file1]:1:zoop" \
-	"[file join $dir grepTest file2]:1:zoo"]
+} [list "[file join $dir grepTest {file 1}]:1:zoop" \
+	"[file join $dir grepTest {file 2}]:1:zoo"]
 test grep-1.2 {more restrictive grep} {
     lsort [fileutil::grep "zoo." [glob [file join $dir grepTest *]]]
-} [list "[file join $dir grepTest file1]:1:zoop"]
+} [list "[file join $dir grepTest {file 1}]:1:zoop"]
 test grep-1.3 {more restrictive grep} {
     lsort [fileutil::grep "bar" [glob [file join $dir grepTest *]]]
-} [list "[file join $dir grepTest file2]:2:bart"]
+} [list "[file join $dir grepTest {file 2}]:2:bart"]
 
 makeDirectory catTest
-makeFile "foo\nbar\nbaz\n" [file join $dir catTest file1]
-makeFile "bebop" [file join $dir catTest file2]
+makeFile "foo\nbar\nbaz\n" [file join $dir catTest {file 1}]
+makeFile "bebop" [file join $dir catTest {file 2}]
 
 test cat-1.1 {cat} {
-    fileutil::cat [file join $dir catTest file1]
+    fileutil::cat [file join $dir catTest {file 1}]
 } "foo\nbar\nbaz\n"
 
 test cat-1.2 {cat multiple files} {
-    fileutil::cat [file join $dir catTest file1] [file join $dir catTest file2]
+    fileutil::cat [file join $dir catTest {file 1}] [file join $dir catTest {file 2}]
 } "foo\nbar\nbaz\nbebop\n"
 
 
 test foreachline-1.0 {foreachLine} {
     set res ""
-    ::fileutil::foreachLine line [file join $dir catTest file1] {
+    ::fileutil::foreachLine line [file join $dir catTest {file 1}] {
 	append res /$line
     }
     set res
@@ -186,7 +187,7 @@ test foreachline-1.0 {foreachLine} {
 
 catch {removeDirectory touchTest} ; # start with a clean structure!
 makeDirectory touchTest
-makeFile "blah" [file join $dir touchTest file1]
+makeFile "blah" [file join $dir touchTest {file 1}]
 
 test touch-1.1 {create file} tcl8.3plus {
     set f [file join $dir touchTest here]
@@ -203,13 +204,13 @@ test touch-1.2 {'-c' prevents file creation} tcl8.3plus {
 } 0
 
 test touch-1.3 {'-c' has no effect on existing files} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch -c $f
     file exists $f
 } 1
 
 test touch-1.4 {test relative times} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     set a1 [file atime $f]
     set m1 [file mtime $f]
@@ -221,7 +222,7 @@ test touch-1.4 {test relative times} tcl8.3plus {
 } [list 1 1 1 1]
 
 test touch-1.5 {test relative times using -a} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     set a1 [file atime $f]
     set m1 [file mtime $f]
@@ -233,7 +234,7 @@ test touch-1.5 {test relative times using -a} tcl8.3plus {
 } [list 1 0 1 0]
 
 test touch-1.6 {test relative times using -m} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     set a1 [file atime $f]
     set m1 [file mtime $f]
@@ -245,7 +246,7 @@ test touch-1.6 {test relative times using -m} tcl8.3plus {
 } [list 1 0 0 1]
 
 test touch-1.7 {test relative times using -a and -m} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     set a1 [file atime $f]
     set m1 [file mtime $f]
@@ -257,7 +258,7 @@ test touch-1.7 {test relative times using -a and -m} tcl8.3plus {
 } [list 1 1 1 1]
 
 test touch-1.8 {test -t} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -t 42 $f
@@ -267,7 +268,7 @@ test touch-1.8 {test -t} tcl8.3plus {
 } [list 1 1]
 
 test touch-1.9 {test -t with -a} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -t 42 -a $f
@@ -277,7 +278,7 @@ test touch-1.9 {test -t with -a} tcl8.3plus {
 } [list 1 0]
 
 test touch-1.10 {test -t with -m} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -t 42 -m $f
@@ -287,7 +288,7 @@ test touch-1.10 {test -t with -m} tcl8.3plus {
 } [list 0 1]
 
 test touch-1.11 {test -t with -a and -m} tcl8.3plus {
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -t 42 -a -m $f
@@ -298,7 +299,7 @@ test touch-1.11 {test -t with -a and -m} tcl8.3plus {
 
 test touch-1.12 {test -r} tcl8.3plus {
     set r [info script]
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -r $r $f
@@ -309,7 +310,7 @@ test touch-1.12 {test -r} tcl8.3plus {
 
 test touch-1.13 {test -r with -a} tcl8.3plus {
     set r [info script]
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -r $r -a $f
@@ -320,7 +321,7 @@ test touch-1.13 {test -r with -a} tcl8.3plus {
 
 test touch-1.14 {test -r with -m} tcl8.3plus {
     set r [info script]
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -r $r -m $f
@@ -331,7 +332,7 @@ test touch-1.14 {test -r with -m} tcl8.3plus {
 
 test touch-1.15 {test -r with -a and -m} tcl8.3plus {
     set r [info script]
-    set f [file join $dir touchTest file1]
+    set f [file join $dir touchTest {file 1}]
     fileutil::touch $f
     after 1001
     fileutil::touch -r $r -m -a $f
@@ -532,16 +533,16 @@ test fileType-1.21 {test binary compressed gzip} {
 # dir = $::tcltest::temporaryDirectory = current working directory
 
 test stripPwd-1.0 {unrelated path} {
-    fileutil::stripPwd find1
-} find1
+    fileutil::stripPwd {find 1}
+} {find 1}
 
 test stripPwd-1.1 {pwd-relative path} {
-    fileutil::stripPwd [file join [pwd] $dir find1]
-} find1
+    fileutil::stripPwd [file join [pwd] $dir {find 1}]
+} {find 1}
 
 test stripPwd-1.2 {pwd-relative path} {
-    fileutil::stripPwd [file join [pwd] $dir find1 find2]
-} [file join find1 find2]
+    fileutil::stripPwd [file join [pwd] $dir {find 1} {find 2}]
+} [file join {find 1} {find 2}]
 
 test stripPwd-1.3 {pwd itself} {
     fileutil::stripPwd [pwd]
@@ -549,31 +550,31 @@ test stripPwd-1.3 {pwd itself} {
 
 
 test stripN-1.0 {remove nothing} {
-    fileutil::stripN find1 0
-} find1
+    fileutil::stripN {find 1} 0
+} {find 1}
 
 test stripN-1.1 {remove all} {
-    fileutil::stripN find1 1
+    fileutil::stripN {find 1} 1
 } {}
 
 test stripN-1.2 {remove more than existing} {
-    fileutil::stripN find1 2
+    fileutil::stripN {find 1} 2
 } {}
 
 test stripN-2.0 {remove nothing} {
-    fileutil::stripN [file join find1 find2] 0
-} [file join find1 find2]
+    fileutil::stripN [file join {find 1} {find 2}] 0
+} [file join {find 1} {find 2}]
 
 test stripN-2.1 {remove part} {
-    fileutil::stripN [file join find1 find2] 1
-} find2
+    fileutil::stripN [file join {find 1} {find 2}] 1
+} {find 2}
 
 test stripN-2.2 {remove all} {
-    fileutil::stripN [file join find1 find2] 2
+    fileutil::stripN [file join {find 1} {find 2}] 2
 } {}
 
 test stripN-2.3 {remove more than existing} {
-    fileutil::stripN [file join find1 find2] 3
+    fileutil::stripN [file join {find 1} {find 2}] 3
 } {}
 
 
@@ -587,7 +588,7 @@ catch {removeDirectory installSrc} ;# start with a clean structure!
 makeDirectory installDst
 makeDirectory installSrc
 makeDirectory [file join installSrc subdir]
-makeFile "blah" [file join installSrc file1]
+makeFile "blah" [file join installSrc {file 1}]
 
 # Make a second subdirectory to install.
 if { $tcl_platform(platform) == "unix" } {
@@ -606,8 +607,8 @@ if { $tcl_platform(platform) == "unix" } {
 }
 
 test install-1.1 {install a file} {
-    fileutil::install [file join installSrc file1] installDst
-    file exists [file join installDst file1]
+    fileutil::install [file join installSrc {file 1}] installDst
+    file exists [file join installDst {file 1}]
 } {1}
 
 test install-2.1 {install a directory} {
@@ -627,15 +628,18 @@ test install-3.1 {install a directory, set permissions} {unix} {
 test tempdir-1.1 {return the correct directorary for temporary files} -constraints {
     unix
 } -body {
-    set ::env(TEMP) /var/tmp
+    set ::env(TMPDIR) [pwd] ;# Most high-priority source, and existing directory!
     ::fileutil::tempdir
 } -cleanup {
-    unset env(TEMP)
-} -result {/var/tmp}
+    unset env(TMPDIR)
+} -result [pwd]
 
 test tempdir-1.2 {return the correct directorary for temporary files} -constraints {
     unix
 } -body {
+    catch {unset ::env(TMPDIR)}
+    catch {unset ::env(TEMPDIR)}
+    catch {unset ::env(TMP)}
     ::fileutil::tempdir
 } -result {/tmp}
 
