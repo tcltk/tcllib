@@ -840,6 +840,7 @@ proc smtp::wtext {token part} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+    array set options $state(options)
 
     set result [smtp::talk $token 300 DATA]
     array set response $result

@@ -1,3 +1,11 @@
+2002-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Followup patch to patch SF #557520/2. A line of code
+	  initializing the options from the state was missing in one
+	  command, causing problems with the usage of -maxsecs. This was
+	  noted on c.l.t., by Acacio Cruz. The followup patch was provided
+	  by Todd Coram.
+
 2002-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl: Applied patch SF #557520/2 (== SF #558132) supplied by
