@@ -1,0 +1,114 @@
+[manpage_begin formatter n 1.0]
+[moddesc   {Documentation tools}]
+[titledesc {Interface specification for formatter code}]
+[description]
+[para]
+
+This manpage specifies the interface between the
+manpage processor [cmd mpexpand] and the tcl code
+implementing the  conversion into a particular
+output format.
+
+[para]
+
+The tcl code has to provide
+
+[list_begin enum]
+[enum]
+Implementations of all commands specified in
+[strong format(n)], using the defined names
+
+[enum]
+and additionally implementations for
+
+[list_begin definitions]
+
+[lst_item "[cmd NumPasses]"]
+
+This command is called after the formatter is setup
+and has to return the number of passes required by
+this formatter to process a manpage. This information
+has to be an integer number greater or equal to one.
+
+[lst_item "[cmd PassSetup]"]
+
+This command is called at the beginning of each
+pass over the input. It can assume that the current
+number of the pass is already set to the correct value
+and is responsible for setting up the internal state
+of the formatter for this pass.
+
+[lst_item "[cmd PostProcess] [arg text]"]
+
+This command is called after last pass, with the
+expansion result of that pass, and can do any
+last-ditch modifications of the generated result.
+Its result is the final text written to the output.
+
+[nl]
+
+Most formats will use [emph identity] here.
+
+[lst_item "[cmd HandleText] [arg text]"]
+
+This command is called for any plain text encountered
+by the processor in the input and can do any special
+processing required for plain text. Its result is the
+string written into the expansion.
+
+[nl]
+
+Most formats will use [emph identity] here.
+
+[list_end]
+[list_end]
+
+[para]
+
+The tcl code implementing all of the above can make
+the following assumptions:
+
+[list_begin enum]
+[enum]
+It has full access to its own non-safe interpreter.
+In other words, the formatter cannot damage the other
+parts of the processor, but it can do damage to the
+filesystem. It is trusted in that way.
+
+[enum]
+The surrounding system provides the formatter code
+with the following commands:
+
+[list_begin definitions]
+
+[lst_item "[cmd mp_pass]"]
+This command returns the number of the current pass.
+
+[lst_item "[cmd mp_file]"]
+This command returns the full name of the file
+currently processed, or [strong stdin], if the
+input is read from there.
+
+[lst_item "[cmd mp_module]"]
+This command returns the name of the module we are in.
+
+[lst_item "[cmd cappend]"]
+[lst_item "[cmd cget]"]
+[lst_item "[cmd cis]"]
+[lst_item "[cmd cname]"]
+[lst_item "[cmd cpop]"]
+[lst_item "[cmd cpush]"]
+[lst_item "[cmd cset]"]
+[lst_item "[cmd lb]"]
+[lst_item "[cmd rb]"]
+
+All of the above commands are methods of the expander
+object handling the input. Their arguments and
+results are described in [strong expander(n)].
+
+[list_end]
+[list_end]
+
+[para]
+[keywords manpage interface TMML HTML nroff conversion markup]
+[manpage_end]
