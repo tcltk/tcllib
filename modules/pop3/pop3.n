@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.1 2000/03/06 18:57:55 redman Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.2 2000/05/18 18:19:16 redman Exp $
 '\" 
 .so man.macros
 .TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
@@ -23,13 +23,17 @@ pop3 \- Tcl client for POP3 email protocol
 .sp
 \fB::pop3::delete\fR \fIchan startIndex \fR?\fIendIndex\fR?
 .sp
+\fB::pop3::list\fR \fIchan\fR \fR?\fImsg\fR?
+.sp
+\fB::pop3::top\fR \fIchan\fR \fImsg\fR \fIn\fR
+.sp
 \fB::pop3::close\fR \fIchan\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 The \fBpop3\fR package provides a simple Tcl-only client library for
-the POP3 email protocol.  It works by opening the standard POP3 socket
+the POP3 email protocol (RFC1939). It works by opening the standard POP3 socket
 on the server, transmitting the username and password, then providing
 a Tcl API to access the POP3 protocol commmands.  All server errors
 are returned as Tcl errors (thrown) which must be caught with the Tcl
@@ -102,8 +106,17 @@ The message is the last message read by a POP3 client, see
 The most recent message in the spool (the end of the spool).
 .RE
 .TP
+\fB::pop3::list\fR \fIchan\fR \fR?\fImsg\fR?
+Returns the scan listing of the mailbox. If parameter \fImsg\fR 
+is given, then the listing only for that message is returned.
+.TP
+\fB::pop3::top\fR \fIchan\fR \fImsg\fR \fIn\fR 
+Optional POP3 command, all servers may not support this. 
+\fB::pop3::top\fR retrives headers of a message, specified by parameter 
+\fImsg\fR, and number of \fIn\fR lines from the message body.   
+.TP
 \fB::pop3::close\fR \fIchan\fR
 Gracefully close the connect after sending a POP3 QUIT command down
 the socket.
 .SH KEYWORDS
-mail, email, pop, pop3
+mail, email, pop, pop3, RFC1939

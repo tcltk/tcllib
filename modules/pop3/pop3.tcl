@@ -9,7 +9,7 @@
 #
 # All rights reserved.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.3 2000/05/18 00:00:38 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.4 2000/05/18 18:19:16 redman Exp $
 
 package provide pop3 1.0
 
@@ -180,7 +180,6 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	    if {$line == "."} {
 		break
 	    } elseif {[string index $line 0] == "."} {
-		puts aha
 		set line [string range $line 1 end]
 	    }
 		
@@ -306,3 +305,85 @@ proc ::pop3::send {chan cmdstring} {
    return [string range $popRet 3 end]
 }
 
+# ::pop3::list --
+#
+#	Returns "scan listing" of the mailbox. If parameter msg
+#       is defined, then the listing only for the given message 
+#       is returned.
+#
+# Arguments:
+#	chan        The channel open to the POP3 server.
+#       msg         The message number (optional).
+#
+# Results:
+#	If msg parameter is not given, Tcl list of scan listings in 
+#       the maildrop is returned. In case msg parameter is given,
+#       a list of length one containing the specified message listing
+#       is returned.
+
+proc ::pop3::list {chan {msg ""}} {
+    global PopErrorNm PopErrorStr debug
+ 
+    if {$msg == ""} {
+	if {[catch {::pop3::send $chan "LIST"} errorStr]} {
+	    error "POP3 LIST ERROR: $errorStr"
+	}
+	while {1} {
+	    set line [gets $chan]
+
+	    # End of the message is a line with just "."
+
+	    if {$line == "."} {
+		break
+	    } elseif {[string index $line 0] == "."} {
+		set line [string range $line 1 end]
+	    }
+
+	    lappend msgBuffer $line
+	}
+    } else {
+
+	# argument msg given, single-line response expected
+
+	if {[catch {expr {0 + $msg}}]} {
+	    error "POP3 LIST ERROR: malformed message number '$msg'"
+	} else {
+	    lappend msgBuffer [string trim [::pop3::send $chan "LIST $msg"]]
+	}
+    }
+    return $msgBuffer
+}
+
+# ::pop3::top --
+#
+#       Optional POP3 command (see RFC1939). Retrieves message header
+#       and given number of lines from the message body.
+#
+# Arguments:
+#	chan        The channel open to the POP3 server.
+#       msg         The message number to be retrieved.
+#       n           Number of lines returned from the message body.
+#
+# Results:
+#	Text (with newlines) from the server.
+#       Errors from the POP3 server are thrown.
+
+proc ::pop3::top {chan msg n} {
+    global PopErrorNm PopErrorStr debug
+    
+    if {[catch {::pop3::send $chan "TOP $msg $n"} errorStr]} {
+	error "POP3 TOP ERROR: $errorStr"
+    }
+
+    while {1} {
+	set line [gets $chan]
+	# End of the message is a line with just "."
+	if {$line == "."} {
+	    break
+	} elseif {[string index $line 0] == "."} {
+	    set line [string range $line 1 end]
+	}
+	append msgBuffer "$line\n"
+    }
+    return $msgBuffer
+}
