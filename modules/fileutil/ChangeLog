@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.man:
+	* fileutil.tcl:
+	* pkgIndex.tcl:  Set version of the package to to 1.5.
+
 2003-04-02  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.test (fileutil): Fixed tcllib SF bug #714214 reported
