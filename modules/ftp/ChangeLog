@@ -1,3 +1,13 @@
+2001-11-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.n: updated documentation to cover the new code below.
+	
+	* ftp_geturl.tcl: New file, provides a geturl command for use by
+	  uri. Declared in a separate package to avoid a cyclic dependency
+	  between the ftp and uri packages. The uri package is changed to
+	  try for a scheme::geturl package first and then for a scheme
+	  package to get the desired functionality. Implements FR #476804.
+
 2001-11-06  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.tcl: Applied patch in #478478 to handle non-standard date
