@@ -4,17 +4,21 @@
 #	"control".  It provides commands that govern the flow of
 #	control of a program.
 #
-# RCS: @(#) $Id: control.tcl,v 1.1 2001/08/21 22:54:15 dgp Exp $
+# RCS: @(#) $Id: control.tcl,v 1.2 2001/08/23 04:53:15 dgp Exp $
 
-package require Tcl 8
+package require Tcl 8.2
 
 namespace eval ::control {
     variable version 0
-    namespace export no-op
+    namespace export assert control no-op
 
-    variable home [file join [pwd] [file dirname [info script]]]
+    proc control {command args} {
+	# Need to add error handling here
+	namespace eval [list $command] $args
+    }
 
     # Set up for auto-loading the commands
+    variable home [file join [pwd] [file dirname [info script]]]
     if {[lsearch -exact $::auto_path $home] == -1} {
 	lappend ::auto_path $home
     }

@@ -1,5 +1,15 @@
 2001-08-21  Don Porter <dgp@users.sourceforge.net>
 
+	* control.tcl:
+	* control.n: Added and documented new commands [control::control]
+	and [control::assert].
+	* pkgIndex.tcl: Updated to reflect Tcl 8.2 dependence.
+	* tclIndex: Generated
+
+	* assert.tcl: New file: implements [control::assert].
+
+2001-08-21  Don Porter <dgp@users.sourceforge.net>
+
 	* index.tcl: New file: Utility script for generating tclIndex.
 	* tclIndex: Generated.
 
