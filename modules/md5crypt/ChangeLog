@@ -4,6 +4,8 @@
 	* md5cryptc.tcl:  variation of md5crypt - as used in the
 	* md5crypt.test:  Apache2 htpasswd program.
 
+	* md5crypt.man:   Added a manual page.
+	
 2003-07-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5crypt.tcl:   Initial version of a pure-Tcl and
