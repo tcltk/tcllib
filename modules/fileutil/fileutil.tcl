@@ -3,11 +3,12 @@
 #	Tcl implementations of standard UNIX utilities.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
+# Copyright (c) 2002      by Phil Ehrens <phil@slug.org> (fileType)
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.15 2002/10/10 02:39:45 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.16 2002/10/28 17:22:34 andreas_kupries Exp $
 
 package require Tcl 8
 package require cmdline
