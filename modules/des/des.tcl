@@ -76,6 +76,9 @@
 #
 #
 #   $Log: des.tcl,v $
+#   Revision 1.6  2003/05/07 21:51:30  patthoyts
+#   	* des.tcl, des.man, pkgIndex.tcl: Hiked the version to 0.8.1
+#
 #   Revision 1.5  2003/05/06 23:49:01  patthoyts
 #   	* des.tcl (DesBlock): Change the final result from binary format
 #   	to some bit-shifting for tcl < 8.4 to fix for 64 bit platforms.
@@ -138,7 +141,7 @@
 
 namespace eval ::DES {
 
-  variable version 0.8
+  variable version 0.8.1
 
   namespace export GetKey DesBlock
 
