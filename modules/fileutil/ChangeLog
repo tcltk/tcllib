@@ -1,3 +1,8 @@
+2002-04-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.man: Added doctools manpage.
+	* fileutils.n: Updated to reflect change of version.
+
 2002-03-20  eric melski  <ericm@ajubasolutions.com>
 
 	* Bumped version to 1.4
@@ -5,7 +10,7 @@
 	* fileutil.n:
 	* fileutil.test:
 	* fileutil.tcl: Added fileType command posted to comp.lang.tcl by
-	Phil Ehrens, with some minor modifications.
+	  Phil Ehrens, with some minor modifications.
 
 2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
