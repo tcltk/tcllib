@@ -1,3 +1,8 @@
+2004-04-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl:     Added support for SNTP (RFC 2030).
+	* ntp_time.man:
+
 2004-02-28  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.tcl: Fix the version as 1.0.2

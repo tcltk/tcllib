@@ -1,20 +1,21 @@
 # time.tcl - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Client for the Time protocol. See RFC 868
+# Client for Simple Network Time Protocol - RFC 2030
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.11 2004/02/28 00:26:24 patthoyts Exp $
+# $Id: time.tcl,v 1.12 2004/04/30 21:13:19 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
-    variable version 1.0.2
-    variable rcsid {$Id: time.tcl,v 1.11 2004/02/28 00:26:24 patthoyts Exp $}
+    variable version 1.0.3
+    variable rcsid {$Id: time.tcl,v 1.12 2004/04/30 21:13:19 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -123,6 +124,10 @@ proc ::time::SetOrGet {option {cget 0}} {
 
 # -------------------------------------------------------------------------
 
+proc ::time::getsntp {args} {
+    return [eval [linsert $args 0 [namespace origin gettime] -port 123]]
+}
+
 proc ::time::gettime {args} {
     variable options
     variable uid
@@ -209,10 +214,23 @@ proc ::time::unixtime {{token {}}} {
     if {$State(status) != "ok"} {
         return -code error $State(error)
     }
-    if {[binary scan $State(data) I r] < 1} {
-        return -code error "Unable to scan data"
+    
+    # SNTP returns 48+ bytes while TIME always returns 4.
+    if {[string length $State(data)] == 4} {
+        # RFC848 TIME
+        if {[binary scan $State(data) I r] < 1} {
+            return -code error "Unable to scan data"
+        }
+        return [expr {int($r - $epoch(unix))}]
+    } elseif {[string length $State(data)] > 47} {
+        # SNTP TIME
+        if {[binary scan $State(data) c40II -> sec frac] < 1} {
+            return -code error "Failed to decode result"
+        }
+        return [expr {int($sec - $epoch(unix))}]
+    } else {
+        return -code error "error: data format not recognised"
     }
-    return [expr {int($r - $epoch(unix))}]
 }
 
 proc ::time::status {token} {
