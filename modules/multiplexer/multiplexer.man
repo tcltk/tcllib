@@ -1,0 +1,87 @@
+[comment {-*- tcl -*- doctools manpage}]
+[comment { $Id: multiplexer.man,v 1.1 2003/05/19 08:28:48 davidw Exp $ }]
+[manpage_begin multiplexer 0.2]
+[moddesc   {One-to-many comunication with sockets.}]
+[titledesc {One-to-many comunication with sockets.}]
+[require Tcl]
+[require logger]
+[require irc [opt 0.2]]
+[description]
+
+The multiplexer package provides a generic system for one-to-many
+comunication utilizing sockets.  For example, think of a chat system
+where one user sends a message which is then broadcast to all the
+other connected users.
+
+[para]
+
+It is possible to have different multiplexers running concurrently.
+
+[list_begin definitions]
+
+[call [cmd ::multiplexer::create]]
+
+The [cmd create] command creates a new multiplexer 'instance'.  For
+example:
+
+[example {set mp [::multiplexer::create]}]
+
+This instance can then be manipulated like so: [example {${mp}::Init 35100}]
+
+[call [cmd ${multiplexer_instance}::Init] [arg port]]
+
+This starts the multiplexer listening on the specified port.
+
+[call [cmd ${multiplexer_instance}::Config] [arg key] [arg value]]
+
+Use [cmd Config] to configure the multiplexer instance.  Configuration options currently include:
+
+[opt sendtoorigin]: If 1, the sender receives a copy of the sent
+message.  Defaults to 0.
+
+[opt debuglevel]: Sets the debug level to use for the multiplexer
+instance, according to those specified by the logger package (debug,
+info, notice, warn, error, critical).
+
+[call [cmd ${multiplexer_instance}::AddFilter] [arg data] [arg chan] [arg clientaddress] [arg clientport]]
+
+Command to add a filter for data that passes through the multiplexer.
+The filter proc is called like this:
+
+[example {Filter data chan clientaddress clientport}]
+
+Arguments:
+
+function: proc to filter data that arrives to the multiplexer.  Takes
+data, chan, clientaddress, and clientport arguments.  Returns filtered
+version of data.
+
+[call [cmd ${multiplexer_instance}::AddAccessFilter] [arg data] [arg chan] [arg clientaddress] [arg clientport]]
+
+Command to add an access filter that will be called like so:
+
+AccessFilter chan clientaddress clientport
+
+Arguments:
+
+function: proc to filter access to the multiplexer.  Takes chan,
+clientaddress and clientport arguments.  Returns 0 on success, -1 on
+failure.
+
+[call [cmd ${multiplexer_instance}::AddExitFilter] [arg chan] [arg clientaddress] [arg clientport]]
+
+Adds filter to be run when client socket generates an EOF condition.
+ExitFilter functions look like the following:
+
+ExitFilter chan clientaddress clientport
+
+Arguments:
+
+function: hook to be run when clients exit by generating an EOF.
+Takes chan, clientaddress and clientport arguments, and returns
+nothing.
+
+[list_end]
+
+[keywords multiplexer chat]
+[manpage_end]

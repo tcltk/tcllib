@@ -1,0 +1,10 @@
+2003-05-19  David N. Welton  <davidw@dedasys.com>
+
+	* multiplexer.tcl: Adding updated multiplexer to tcllib.  It is
+	now possible to run multiple multiplexer instances, and it uses
+	the logger package for logging.
+
+	* multiplexer.man: New file, still needs cleaning up.  Content
+	taken from old multiplexer.n.
+
+	* multiplexer.test: Added a few initial tests.  Working on more.
