@@ -9,13 +9,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.3 2004/07/23 22:14:54 patthoyts Exp $
+# $Id: ip.tcl,v 1.4 2004/11/06 02:27:10 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
     variable version 1.0.0
-    variable rcsid {$Id: ip.tcl,v 1.3 2004/07/23 22:14:54 patthoyts Exp $}
+    variable rcsid {$Id: ip.tcl,v 1.4 2004/11/06 02:27:10 patthoyts Exp $}
 
     namespace export is version normalize equal type contract mask
     #catch {namespace ensemble create}
@@ -90,10 +90,10 @@ proc ::ip::equal {lhs rhs} {
     return 1
 }
 
-proc ::ip::normalize {ip} {
+proc ::ip::normalize {ip {Ip4inIp6 0}} {
     foreach {ip mask} [SplitIp $ip] break
     set version [version $ip]
-    set s [ToString [Normalize $ip $version]]
+    set s [ToString [Normalize $ip $version] $Ip4inIp6]
     if {($version == 6 && $mask != 128) || ($version == 4 && $mask != 32)} {
         append s /$mask
     }
@@ -311,7 +311,7 @@ proc ::ip::Normalize6 {ip} {
 
 # This will convert a full ipv4/ipv6 in binary format into a normal
 # expanded string rep.
-proc ::ip::ToString {bin} {
+proc ::ip::ToString {bin {Ip4inIp6 0}} {
     set len [string length $bin]
     set r ""
     if {$len == 4} {
@@ -321,11 +321,22 @@ proc ::ip::ToString {bin} {
         }
         return [join $r .]
     } elseif {$len == 16} {
-        binary scan $bin H32 hex
-        for {set n 0} {$n < 32} {incr n} {
-            append r [string range $hex $n [incr n 3]]:
+        if {$Ip4inIp6 == 0} {
+            binary scan $bin H32 hex
+            for {set n 0} {$n < 32} {incr n} {
+                append r [string range $hex $n [incr n 3]]:
+            }
+            return [string trimright $r :]
+        } else {
+            binary scan $bin H24c4 hex octets
+            for {set n 0} {$n < 24} {incr n} {
+                append r [string range $hex $n [incr n 3]]:
+            }
+            foreach octet $octets {
+                append r [expr {$octet & 0xff}].
+            }
+            return [string trimright $r .]
         }
-        return [string trimright $r :]
     } else {
         return -code error "invalid binary address:\
             argument is neither an IPv4 nor an IPv6 address"
