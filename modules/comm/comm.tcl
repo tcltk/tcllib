@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.12 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.13 2004/08/25 03:17:32 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -79,8 +79,8 @@ namespace eval ::comm {
     #	$ch,return,$serial	return codes to go along with result
 
     if {0} {
-	# Propogate result, code, and errorCode.  Can't just eval
-	# otherwise TCL_BREAK gets turrned into TCL_ERROR.
+	# Propagate result, code, and errorCode.  Can't just eval
+	# otherwise TCL_BREAK gets turned into TCL_ERROR.
 	global errorInfo errorCode
 	set code [catch [concat commSend $args] res]
 	return -code $code -errorinfo $errorInfo -errorcode $errorCode $res
@@ -627,7 +627,7 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	    break
 	}
 	if {[info exists userport] || ![string match "*already in use" $ret]} {
-	    # don't erradicate the class
+	    # don't eradicate the class
 	    if {![string equal ::comm::comm $chan]} {
 		rename $chan {}
 	    }
@@ -766,8 +766,8 @@ proc ::comm::commIncoming {chan fid addr remport} {
 	puts stderr "peers=$comm($chan,peers,$id) port=$comm($chan,port)"
 
 	# To avoid the race, we really want to terminate one connection.
-	# However, both sides are commited to using it.
-	# commConnect needs to be sychronous and detect the close.
+	# However, both sides are committed to using it.
+	# commConnect needs to be synchronous and detect the close.
 	# close $fid
 	# return $comm($chan,peers,$id)
     }
