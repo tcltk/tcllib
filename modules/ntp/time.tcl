@@ -1,20 +1,20 @@
 # time.tcl - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# Client for the Time protocol. See RFC868
+# Client for the Time protocol. See RFC 868
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.6 2003/05/01 00:17:41 andreas_kupries Exp $
+# $Id: time.tcl,v 1.7 2003/05/02 22:33:59 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
-    variable version 1.0.0
-    variable rcsid {$Id: time.tcl,v 1.6 2003/05/01 00:17:41 andreas_kupries Exp $}
+    variable version 1.0.1
+    variable rcsid {$Id: time.tcl,v 1.7 2003/05/02 22:33:59 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -204,7 +204,7 @@ proc ::time::unixtime {{token {}}} {
     if {[binary scan $State(data) I r] < 1} {
         return -code error "Unable to scan data"
     }
-    return [expr {$r - $epoch(unix)}]
+    return [expr {int($r - $epoch(unix))}]
 }
 
 proc ::time::status {token} {
