@@ -1,3 +1,9 @@
+2001-11-20  Joe English <jenglish@users.sourceforge.net>
+	* ftp.n: (r1.6 -> r1.8) Update for bug report #474999 
+	  "ftp man page description typo" -- attempt to clarify
+	  description of "ftp::List" command.  Also fixed minor 
+	  markup errors.
+
 2001-11-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.tcl: Tested implementation of FR #481161. Fixed the errors
