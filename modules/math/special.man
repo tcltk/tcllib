@@ -24,7 +24,13 @@ J0 for the zeroth-order Bessel function of the first kind
 J1 for the first-order Bessel function of the first kind
 
 [bullet]
+Jn for the nth-order Bessel function of the first kind
+
+[bullet]
 J1/2 for the half-order Bessel function of the first kind
+
+[bullet]
+J-1/2 for the minus-half-order Bessel function of the first kind
 
 [bullet]
 I_n for the modified Bessel function of the first kind of order n
@@ -58,10 +64,9 @@ parameters and error bounds.
 [example {
 Family       | Function    | Domain x    | Parameter   | Error bound
 -------------+-------------+-------------+-------------+--------------
-Bessel       | J_0, J_1,   | all of R    | n = integer |   < 1.0e-4
-             | J_n         |             |             |   to 1.0e-3
+Bessel       | J0, J1,     | all of R    | n = integer |   < 1.0e-8
+             | Jn          |             |             |  (|x|<20, n<20)
 Bessel       | J1/2, J-1/2,|  x > 0      | n = integer |   exact
-             | J_n+1/2     |             |             |
 Bessel       | I_n         | all of R    | n = integer |   < 1.0e-6
              |             |             |             |
 Elliptic     | K           | 0 <= x < 1  |     --      |   < 1.0e-6
@@ -105,7 +110,7 @@ The following well-known functions are currently missing from the package:
 [bullet]
 Bessel functions of the second kind (Y_n, K_n)
 [bullet]
-Bessel functions of arbitrary order
+Bessel functions of arbitrary order (and hence the Airy functions)
 [bullet]
 Chebyshev polynomials of the second kind (U_n)
 [bullet]
