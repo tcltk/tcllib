@@ -1,3 +1,8 @@
+2000-10-02  Brent Welch <welch@ajubasolutions.com>
+
+	* modules/stats/stats.tcl: Added stats::htmlHistDisplayRow
+	so that the calling page could define the overall table structure.
+
 2000-10-01  Brent Welch <welch@ajubasolutions.com>
 
 	* modules/stats/stats.tcl: Fixed calculation of hourBase

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.11 2000/10/02 07:40:58 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.12 2000/10/02 16:24:15 welch Exp $
 
 package provide stats 1.0
 
@@ -220,9 +220,12 @@ proc stats::countInit {tag args} {
 		}
 		set counter(bucketsize) $value
 	    }
+	    -disabled {
+		# Type to disable counting
+	    }
 	    default {
 		return -code error "Unsupported option $option.\
-			Must be -timehist, -group, -lastn, -hist, -hist2x, or -hist10x."
+	    Must be -timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog, or -disabled."
 	    }
 	}
 	if {[string length $option]} {
@@ -238,7 +241,7 @@ proc stats::countInit {tag args} {
 
     if {[llength $counter(type)] > 1} {
 	return -code error "Multiple type attributes not supported.  Use only one of\
-		-timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog."
+		-timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog, -disabled."
     }
     return ""
 }
@@ -596,7 +599,6 @@ proc stats::MergeHour {interval} {
 	set hourBase $minuteBase
     }
     set minuteBase [clock seconds]
-Stderr "MergeHour $interval"
 
     foreach tag $tagsToMerge {
 	upvar #0 stats::T-$tag counter
@@ -706,12 +708,33 @@ proc stats::MergeDay {} {
 #			otherwise a graphical one is generated.
 #
 # Results:
-#	HTML for the display.
+#	HTML for the display as a complete table.
 #
 # Side Effects:
 #	None.
 
 proc stats::histHtmlDisplay {tag args} {
+    append result "<p>\n<table border=0 cellpadding=0 cellspacing=0>\n"
+    append result [eval {stats::histHtmlDisplayRow $tag} $args]
+    append result </table>
+    return $result
+}
+
+# stats::histHtmlDisplayRow --
+#
+#	Create an html display of the histogram.
+#
+# Arguments:
+#	See stats::histHtmlDisplay
+#
+# Results:
+#	HTML for the display.  Ths is one row of a 2-column table,
+#	the calling page must define the <table> tag.
+#
+# Side Effects:
+#	None.
+
+proc stats::histHtmlDisplayRow {tag args} {
     upvar #0 stats::T-$tag counter
     variable secsPerMinute
     variable minuteBase
@@ -812,7 +835,6 @@ proc stats::histHtmlDisplay {tag args} {
 
     # Start 2-column HTML display.  A summary table at the left, the histogram on the right.
 
-    append result "<p>\n<table border=0 cellpadding=0 cellspacing=0>\n"
     append result "<tr><td valign=top>\n"
 
     append result "<table bgcolor=#EEEEEE>\n"
@@ -824,13 +846,6 @@ proc stats::histHtmlDisplay {tag args} {
 
 	# Time-base histogram
 
-	append result "<tr><td>[html::font]<b>Max Per Sec</b></font></td>"
-	append result "<td>[html::font][format %.2f [expr {$max/double($secsForMax)}]]</font></td></tr>\n"
-
-	if {$periodMax > 0} {
-	    append result "<tr><td>[html::font]<b>Grand Max Per Sec</b></font></td>"
-	    append result "<td>[html::font][format %.2f $periodMax]</font></td></tr>\n"
-	}
 	set string {}
 	set t $secsForMax
 	set days [expr {$t / (60 * 60 * 24)}]
@@ -861,6 +876,14 @@ proc stats::histHtmlDisplay {tag args} {
 	}
 	append result "<tr><td>[html::font]<b>Bucket Size</b></font></td>"
 	append result "<td>[html::font]$string</font></td></tr>\n"
+
+	append result "<tr><td>[html::font]<b>Max Per Sec</b></font></td>"
+	append result "<td>[html::font][format %.2f [expr {$max/double($secsForMax)}]]</font></td></tr>\n"
+
+	if {$periodMax > 0} {
+	    append result "<tr><td>[html::font]<b>Best Per Sec</b></font></td>"
+	    append result "<td>[html::font][format %.2f $periodMax]</font></td></tr>\n"
+	}
 	append result "<tr><td>[html::font]<b>Starting Time</b></font></td>"
 	switch -glob -- $options(-unit) {
 	    min* {
@@ -886,16 +909,22 @@ proc stats::histHtmlDisplay {tag args} {
 	set mode [expr {$counter(bucketsize) * $maxName}]
 	set first [expr {$counter(bucketsize) * [lindex $ix 0]}]
 	set last [expr {$counter(bucketsize) * [lindex $ix end]}]
-	append result "<tr><td>[html::font]<b>Minimum</b></font></td>"
-	append result "<td>[html::font]$first</font></td></tr>\n"
-	append result "<tr><td>[html::font]<b>Mode</b></font></td>"
-	append result "<td>[html::font]$mode</font></td></tr>\n"
-	append result "<tr><td>[html::font]<b>Maxmum</b></font></td>"
-	append result "<td>[html::font]$last</font></td></tr>\n"
+
 	append result "<tr><td>[html::font]<b>Average</b></font></td>"
 	append result "<td>[html::font][format $options(-format) [countGet $tag -avg]]</font></td></tr>\n"
+
+	append result "<tr><td>[html::font]<b>Mode</b></font></td>"
+	append result "<td>[html::font]$mode</font></td></tr>\n"
+
+	append result "<tr><td>[html::font]<b>Minimum</b></font></td>"
+	append result "<td>[html::font]$first</font></td></tr>\n"
+
+	append result "<tr><td>[html::font]<b>Maxmum</b></font></td>"
+	append result "<td>[html::font]$last</font></td></tr>\n"
+
 	append result "<tr><td>[html::font]<b>Unit</b></font></td>"
 	append result "<td>[html::font]$unit</font></td></tr>\n"
+
 	append result "<tr><td colspan=2 align=center>[html::font]<b>"
 	append result "<a href=[ncgi::urlStub]?resetCounter=$tag>Reset</a></td></tr>\n"
 
@@ -923,10 +952,9 @@ proc stats::histHtmlDisplay {tag args} {
 	    [array get options]]
     }
 
-    # Close the right hand column and the outer table.
+    # Close the right hand column, but leave our caller's table open.
 
     append result </td></tr>\n
-    append result </table>\n
 
     return $result
 }
@@ -955,8 +983,8 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
     variable secsPerMinute
     array set options $args
 
-    append result "<table cellpadding=0 cellspacing=0><tr>\n"
-    append result "<td valign=top>$max</td>\n"
+    append result "<table cellpadding=0 cellspacing=0 bgcolor=#eeeeee><tr>\n"
+
     set ix [lsort -integer [array names histogram]]
 
     for {set t $options(-min)} {$t < $options(-max)} {incr t} {
@@ -1001,7 +1029,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	# Label each bucket with its value
 	# This is probably wrong for hist2x and hist10x
 
-	append result "<tr><td> </td>"
+	append result "<tr>"
 	set skip $options(-skip)
 	if {![info exists counter(mult)]} {
 	    set counter(mult) 1
@@ -1010,7 +1038,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	# These are tick marks
 
 	set img src=$options(-images)/$options(-gif)
-	append result "<tr><td> </td>"
+	append result "<tr>"
 	for {set i $options(-min)} {$i < $options(-max)} {incr i} {
 	    if {(($i % $skip) == 0)} {
 		append result "<td valign=bottom><img $img height=3 \
@@ -1023,7 +1051,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
 	# These are the labels
 
-	append result "<tr><td> </td>"
+	append result "<tr>"
 	for {set i $options(-min)} {$i < $options(-max)} {incr i} {
 	    if {$counter(type) == "-histlog"} {
 		if {[catch {expr {int(log($i) * $counter(bucketsize))}} x]} {
@@ -1078,7 +1106,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	# These are tick marks
 
 	set img src=$options(-images)/$options(-gif)
-	append result "<tr><td> </td>"
+	append result "<tr>"
 	foreach t [lsort -integer [array names histogram]] {
 	    if {(($t % $skip) == 0)} {
 		append result "<td valign=bottom><img $img height=3 \
@@ -1090,7 +1118,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	append result </tr>
 
 	set lastLabel ""
-	append result "<tr><td> </td>"
+	append result "<tr>"
 	foreach t [lsort -integer [array names histogram]] {
 
 	    # Label each bucket with its time
@@ -1117,7 +1145,6 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	append result "<br>Skipped $overflow samples >\
 		[expr {$options(-max) * $counter(bucketsize)}]\n"
     }
-    append result </ul>
     return $result
 }
 
