@@ -2,15 +2,11 @@
 #
 # Provide a Tcl only implementation of uuencode and uudecode.
 #
-# TODO: use Trf if available.
-#       more test cases
-#       manual page
-#
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.2 2002/01/17 01:46:59 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.3 2002/01/17 23:09:40 patthoyts Exp $
 
 namespace eval uuencode {
     namespace export encode decode uuencode uudecode
