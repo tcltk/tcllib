@@ -484,6 +484,57 @@ proc ::math::bignum::testbit {z n} {
     expr {([lindex $z $atom] & $mask) != 0}
 }
 
+# does bitwise and between a and b
+proc ::math::bignum::bitand {a b} {
+    # The internal number rep is little endian. Appending zeros is
+    # equivalent to adding leading zeros to a regular big-endian
+    # representation. The two numbers are extended to the same length,
+    # then the operation is applied to the absolute value.
+
+    while {[llength $a] < [llength $b]} {lappend a 0}
+    while {[llength $b] < [llength $a]} {lappend b 0}
+    set r [::math::bignum::zero [expr {[llength $a]-1}]]
+    for {set i 2} {$i < [llength $a]} {incr i} {
+	set or [expr {[lindex $a $i] & [lindex $b $i]}]
+	lset r $i $or
+    }
+    ::math::bignum::normalize r
+}
+
+# does bitwise XOR between a and b
+proc ::math::bignum::bitxor {a b} {
+    # The internal number rep is little endian. Appending zeros is
+    # equivalent to adding leading zeros to a regular big-endian
+    # representation. The two numbers are extended to the same length,
+    # then the operation is applied to the absolute value.
+
+    while {[llength $a] < [llength $b]} {lappend a 0}
+    while {[llength $b] < [llength $a]} {lappend b 0}
+    set r [::math::bignum::zero [expr {[llength $a]-1}]]
+    for {set i 2} {$i < [llength $a]} {incr i} {
+	set or [expr {[lindex $a $i] ^ [lindex $b $i]}]
+	lset r $i $or
+    }
+    ::math::bignum::normalize r
+}
+
+# does bitwise or between a and b
+proc ::math::bignum::bitor {a b} {
+    # The internal number rep is little endian. Appending zeros is
+    # equivalent to adding leading zeros to a regular big-endian
+    # representation. The two numbers are extended to the same length,
+    # then the operation is applied to the absolute value.
+
+    while {[llength $a] < [llength $b]} {lappend a 0}
+    while {[llength $b] < [llength $a]} {lappend b 0}
+    set r [::math::bignum::zero [expr {[llength $a]-1}]]
+    for {set i 2} {$i < [llength $a]} {incr i} {
+	set or [expr {[lindex $a $i] | [lindex $b $i]}]
+	lset r $i $or
+    }
+    ::math::bignum::normalize r
+}
+
 # Return the number of bits needed to represent 'z'.
 proc ::math::bignum::bits z {
     set atoms [::math::bignum::atoms $z]
