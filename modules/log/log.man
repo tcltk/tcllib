@@ -1,4 +1,4 @@
-[manpage_begin format n 1.0.1]
+[manpage_begin log n 1.0.1]
 [moddesc   {Logging facility}]
 [titledesc {Procedures to log messages of libraries and applications.}]
 [require Tcl 8]
