@@ -1,3 +1,15 @@
+2003-07-18  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.test: Fixed SF tcllib bug #772535. Instead of using a
+	* snit.tcl:  variable reference in the callback a regular command
+	             is called, with the unchanging 'selfns' as argument.
+		     From there things go through the regular dispatching
+		     mechanism after the actual instance name was obtained.
+		     Updated all affected tests.
+
+		     Updated dmethod-1.5 also, 'string' delivers a
+		     different error message.
+
 2003-07-16  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.man:    Added references to bug trackers, as part of
