@@ -1,3 +1,64 @@
+2003-10-19  Will Duquette  <will@cordelia.local.>
+
+	* snit.tcl:  During normal widget creation, the default values
+	* snit.test: for a widget's local options are overridden by
+	  	     values from the option database.
+
+		     Array %TYPE%::Snit_compoptions now lists delegated 
+		     option names for each component.
+
+		     Added a new command, "install", for use in widget
+		     and widgetadaptor constructors.  Install creates a
+		     widget, assigning it to a component; it also queries
+		     the option database for any option values that are
+		     delegated to this component.
+
+		     Modified installhull, adding a new form that queries
+		     the option database as appropriate for options
+		     delegated to the hull widget.
+
+		     At this point, the only options whose default values
+		     do not come from the option database in the proper
+		     way are those implicitly delegated by "delegate
+		     option *" to a non-hull widget.  I need to think
+		     about those.
+
+		     Of course, new tests have been added for all of this.
+
+		     The version number in snit.tcl has been updated to 0.84.
+
+2003-10-18  Will Duquette  <will@cordelia.local.>
+
+	* snit.tcl:  Added the "widgetclass" statement; this allows
+	* snit.test: snit::widgets (and nothing else) to explicitly set
+	             the widget class name passed to the hull as "-class".
+	             In addition, the hull's -class is set automatically, 
+		     to the explicit widgetclass, if any, or to the 
+		     widget type name with an initial capital letter.
+
+                     Next, an object's options now have real resource
+                     and class names, which are reported correctly by 
+                     "$obj configure".  By default, the resource name
+                     is just the option name minus the hyphen, and
+                     the class name is just the resource name with an
+                     initial capital.
+
+                     In both the "option" and "delegate option"
+                     statements, the option name may be specified as
+                     a pair or a triple, e.g.,
+
+                       option {-name name Name}
+
+                     Thus, the resource name and class name can be
+                     specified explicitly.
+
+                     In previous versions, the resource name and
+                     class name returned by configure for delegated
+                     options was the resource name and class name
+                     returned by the component.  This is no longer
+                     true; configure now returns the resource and
+                     class name defined in the type definition.
+
 2003-10-17  Will Duquette  <will@cordelia.local.>
 
 	* snit.html: Added typeconstructor documentation.
