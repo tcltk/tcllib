@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.43 2004/10/03 23:06:56 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.44 2004/12/01 22:23:39 techentin Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -924,7 +924,7 @@ proc ::fileutil::TempFile {prefix} {
  	set newname $prefix
  	for {set j 0} {$j < $nrand_chars} {incr j} {
  	    append newname [string index $chars \
-		    [expr {([clock clicks] ^ $mypid) % 62}]]
+		    [expr {int(rand()*62)}]]
  	}
 	set newname [file join $tmpdir $newname]
  	if {[file exists $newname]} {
