@@ -1,4 +1,9 @@
 
+2000-07-19  Brent Welch <welch@ajubasolutions.com>
+
+	* configure.in: Bumped patchlevel to 0.6
+	applied tcllib-0-6 tag
+
 2000-06-15  Dan Kuchler  <kuchler@ajubasolutions.com>
 
         * Makefile.in: Added nntp client package.
