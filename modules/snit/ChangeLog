@@ -1,5 +1,7 @@
 2004-02-07  Will Duquette  <will@wjduquette.com>
 
+	* README.txt:  Added 0.93 information to README.txt.
+
 	* snit.tcl:    Fixed bug: "$obj info vars" used to leave out "options"
 	* snit.test:   if no options were defined.  It's clearer if the 
 	               behavior is always the same.
@@ -13,6 +15,11 @@
 		       created even if there was an error defining the
 		       type.  The type command is now cleaned up in these
 		       cases.  (Credit Andy Goth)
+
+	* snit.tcl:    Implemented RFE 844766: need ability to split class
+	* snit.test:   defs across files.  Added the snit::typemethod and
+	* snit.html:   snit::method commands; these allow typemethods and
+		       methods to be defined after the class already exists.
 
 2004-02-07  Will Duquette  <will@wjduquette.com>
 

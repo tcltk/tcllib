@@ -6,7 +6,7 @@ for full details.
 
 Snit is part of "tcllib", the standard Tcl Library.
 
-Snit lives in "tcllib" now, but its main author keeps stuff at
+Snit lives in "tcllib" now, but it is available separately at
 http://www.wjduquette.com/snit.  If you have any questions, bug
 reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
@@ -14,6 +14,11 @@ http://www.wjduquette.com/snit for details).
 
 Changes in V0.93
 --------------------------------------------------------------------
+
+* Enhancement: Added the snit::typemethod and snit::method commands; 
+  these allow typemethods and methods to be defined (and redefined)
+  after the class already exists.  See the Snit man page for 
+  details.
 
 * Documentation fixes: a number of minor corrections were made to the
   Snit man page and FAQ.  Thanks to everyone who pointed them out,
