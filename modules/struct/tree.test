@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.15 2002/05/09 05:46:04 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.16 2002/07/08 23:25:51 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -328,7 +328,7 @@ test tree-7.8 {move moves multiple nodes properly} {
     set result [mytree children root]
     mytree destroy
     set result
-} [list node0 node1 node2]
+} [list node2 node0 node1]
 test tree-7.9 {move moves node within parent properly} {
     tree mytree
     mytree insert root end node0 node1 node2 node3
@@ -336,7 +336,7 @@ test tree-7.9 {move moves node within parent properly} {
     set result [mytree children root]
     mytree destroy
     set result
-} [list node0 node1 node2 node3]
+} [list node0 node2 node1 node3]
 test tree-7.10 {move moves node within parent properly} {
     tree mytree
     mytree insert root end node0 node1 node2 node3
@@ -345,7 +345,7 @@ test tree-7.10 {move moves node within parent properly} {
     set result [mytree children root]
     mytree destroy
     set result
-} [list node1 node0 node4 node5 node6 node2 node3]
+} [list node1 node2 node0 node4 node5 node6 node3]
 test tree-7.11 {move moves node in parent properly when oldInd < newInd} {
     tree mytree
     mytree insert root end node0 node1 node2 node3
@@ -353,7 +353,23 @@ test tree-7.11 {move moves node in parent properly when oldInd < newInd} {
     set result [mytree children root]
     mytree destroy
     set result
+} [list node1 node2 node0 node3]
+test tree-7.12 {move node up one} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree move root [mytree index [mytree next node0]] node0
+    set result [mytree children root]
+    mytree destroy
+    set result
 } [list node1 node0 node2 node3]
+test tree-7.13 {move node down one} {
+    tree mytree
+    mytree insert root end node0 node1 node2 node3
+    mytree move root [mytree index [mytree previous node2]] node2
+    set result [mytree children root]
+    mytree destroy
+    set result
+} [list node0 node2 node1 node3]
 
 test tree-8.1 {parent gives error on fake node} {
     tree mytree
