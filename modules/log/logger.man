@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.13 2004/09/15 21:55:36 mic42 Exp $}]
-[manpage_begin logger n 0.5]
+[comment {$Id: logger.man,v 1.14 2005/03/04 16:44:13 mic42 Exp $}]
+[manpage_begin logger n 0.6]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8.2]
-[require logger [opt 0.5]]
+[require logger [opt 0.6]]
 [description]
 
 [para]
@@ -110,7 +110,7 @@ Enable logging, in the service referenced by [var \${log}], and its
 children, at and above the level specified, and disable logging below
 it.
 
-[call [cmd \${log}::enable] [arg level]]
+[call [cmd \${log}::enable] [arg level] ]
 
 Enable logging, in the service referenced by [var \${log}], and its
 children, at and above the level specified.  Note that this does [emph not] disable logging below this level, so you should probably use
@@ -122,6 +122,21 @@ Disable logging, in the service referenced by [var \${log}], and its
 children, at and below the level specified. Note that this does [emph not] enable logging above this level, 
 so you should probably use [cmd setlevel] instead.
 Disabling the loglevel [const critical] switches logging off for the service and its children.
+
+[call [cmd \${log}::lvlchangeproc] [arg command]]
+[call [cmd \${log}::lvlchangeproc]]
+
+Set the script to call when the log instance in question changes its log level.
+If called without a command it returns the currently registered command. The command gets two arguments
+appended, the old and the new loglevel. The callback is invoked after all changes have been done.
+If child loggers are affected, their callbacks are called before their parents callback. 
+
+[example {
+ 	proc lvlcallback {old new} {
+ 	    puts "Loglevel changed from $old to $new"
+ 	}
+ 	${log}::lvlchangeproc lvlcallback
+ }]
 
 [call [cmd \${log}::logproc] [arg level]]
 [call [cmd \${log}::logproc] [arg level] [arg command]]

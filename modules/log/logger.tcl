@@ -13,7 +13,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.5.3
+package provide logger 0.6
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -92,6 +92,15 @@ proc ::logger::init {service} {
     # Callback to use when the service in question is shut down.
     variable delcallback {}
 
+    # Callback when the loglevel is changed
+    variable levelchangecallback {}
+    
+    # State variable to decide when to call levelcallback
+    variable inSetLevel 0
+    
+    # The currently configured levelcommands
+    variable lvlcmds
+    
     # We use this to disable a service completely.  In Tcl 8.4
     # or greater, by using this, disabled log calls are a
     # no-op!
@@ -129,12 +138,22 @@ proc ::logger::init {service} {
 
 
     proc setlevel {lv} {
+        variable inSetLevel 1
+        set oldlvl [currentloglevel]
+        
+        # do not allow enable and disable to do recursion
         if {[catch {
-            disable $lv
-            enable $lv
+            disable $lv 0
+            set newlvl [enable $lv 0]
         } msg] == 1} {
             return -code error -errorcode $::errorCode $msg
         }
+        # do the recursion here
+        logger::walk [namespace current] [list setlevel $lv]
+        
+        set inSetLevel 0
+        lvlchangewrapper $oldlvl $newlvl
+        return
     }
 
     # enable --
@@ -154,7 +173,7 @@ proc ::logger::init {service} {
     # Results:
     #   None.
 
-    proc enable {lv} {
+    proc enable {lv {recursion 1}} {
         variable levels
         set lvnum [lsearch -exact $levels $lv]
         if { $lvnum == -1 } {
@@ -162,18 +181,24 @@ proc ::logger::init {service} {
         }
 
         variable enabled
+        set newlevel $enabled
         set elnum [lsearch -exact $levels $enabled]
         if {($elnum == -1) || ($elnum > $lvnum)} {
-            set enabled $lv
+            set newlevel $lv
         }
-        
+                
         variable service
         while { $lvnum <  [llength $levels] } {
         interp alias {} [namespace current]::[lindex $levels $lvnum] \
             {} [namespace current]::[lindex $levels $lvnum]cmd
         incr lvnum
         }
-        logger::walk [namespace current] [list enable $lv]
+        
+        if {$recursion} {
+            logger::walk [namespace current] [list enable $lv]
+        }
+        lvlchangewrapper $enabled $newlevel
+        set enabled $newlevel
     }
 
     # disable --
@@ -193,7 +218,7 @@ proc ::logger::init {service} {
     # Results:
     #   None.
 
-    proc disable {lv} {
+    proc disable {lv {recursion 1}} {
         variable levels
         set lvnum [lsearch -exact $levels $lv]
         if { $lvnum == -1 } {
@@ -201,21 +226,27 @@ proc ::logger::init {service} {
         }
 
         variable enabled
+        set newlevel $enabled
         set elnum [lsearch -exact $levels $enabled]
         if {($elnum > -1) && ($elnum <= $lvnum)} {
             if {$lvnum+1 >= [llength $levels]} {
-                set enabled "none"
+                set newlevel "none"
             } else {
-                set enabled [lindex $levels [expr {$lvnum+1}]]
+                set newlevel [lindex $levels [expr {$lvnum+1}]]
             }
         }
         
         while { $lvnum >= 0 } {
+        
         interp alias {} [namespace current]::[lindex $levels $lvnum] {} \
             [namespace current]::no-op
         incr lvnum -1
         }
-        logger::walk [namespace current] [list disable $lv]
+        if {$recursion} {
+            logger::walk [namespace current] [list disable $lv]
+        }
+        lvlchangewrapper $enabled $newlevel
+        set enabled $newlevel
     }
 
     # currentloglevel --
@@ -237,6 +268,47 @@ proc ::logger::init {service} {
         return $enabled
     }
 
+    # lvlchangeproc --
+    #
+    #   Set or introspect a callback for when the logger instance 
+    #   changes its loglevel.
+    #
+    # Arguments:
+    #   cmd - the Tcl command to call, it is called with two parameters, old and new log level.
+    #   or none for introspection
+    #
+    # Side Effects:
+    #   None.
+    #
+    # Results:
+    #   If no arguments are given return the current callback cmd.
+
+    proc lvlchangeproc {args} {
+        variable levelchangecallback
+        
+        switch -exact -- [llength [::info level 0]] {
+                1   {return $levelchangecallback}
+                2   {set levelchangecallback [lindex $args 0]}
+                default {
+                    return -code error "Wrong # of arguments. Usage: \${log}::lvlchangeproc ?cmd?"
+                }
+        }
+    }
+
+    proc lvlchangewrapper {old new} {
+        variable inSetLevel
+        
+        # we are called after disable and enable are finished 
+        if {$inSetLevel} {return}
+        
+        # no action if level does not change
+        if {[string equal $old $new]} {return}
+        variable levelchangecallback
+        catch {
+            uplevel #0 $levelchangecallback $old $new
+        }
+    }
+    
     # logproc --
     #
     #   Command used to create a procedure that is executed to
@@ -264,33 +336,32 @@ proc ::logger::init {service} {
 
     proc logproc {lv args} {
         variable levels
+        variable lvlcmds
+        
         set lvnum [lsearch -exact $levels $lv]
         if { $lvnum == -1 } {
         return -code error "Invalid level '$lv' - levels are $levels"
         }
         switch -exact -- [llength $args] {
         0  {
-            if {[llength [::info proc ${lv}cmd]]} {
-                set proc [namespace current]::${lv}cmd
-            } else {
-                set proc [interp alias {} [namespace current]::${lv}cmd]
-            }
-            return $proc
+            return $lvlcmds($lv)
            }
         1  {
             set cmd [lindex $args 0]
             if {[llength [::info commands $cmd]]} {
-            interp alias {} [namespace current]::${lv}cmd {} $cmd
+                proc ${lv}cmd {args} "uplevel 1 \[list $cmd \[lindex \$args end\]\]"
             } else {
-            return -code error "Invalid cmd '$cmd' - does not exist"
+                return -code error "Invalid cmd '$cmd' - does not exist"
             }
+            set lvlcmds($lv) $cmd
         }
         2  {
             foreach {arg body} $args {break}
             proc ${lv}cmd {args} "_setservicename \$args; 
-                                      set val \[${lv}customcmd \[lindex \$args end]\] ; 
+                                      set val \[${lv}customcmd \[lindex \$args end\]\] ; 
                                       _restoreservice; set val"
             proc ${lv}customcmd $arg $body
+            set lvlcmds($lv) [namespace current]::${lv}customcmd
         }
         default {
             return -code error "Usage: \${log}::logproc level ?cmd?\nor \${log}::logproc level argname body"
@@ -435,6 +506,7 @@ proc ::logger::init {service} {
             proc ${lvl}cmd {args} "_setservicename \$args ; 
                                    set val \[stdoutcmd $lvl \[lindex \$args end\]\] ; 
                                    _restoreservice; set val"
+            set lvlcmds($lvl) [namespace current]::${lvl}cmd
         }
     }
     }
