@@ -17,11 +17,23 @@ namespace eval ftp {
 # Returns the contents of the requested url.
 
 proc ftp::geturl {url} {
-    # FUTURE: -validate to validate existence of url, but no download of contents.
+    # FUTURE: -validate to validate existence of url, but no download
+    # of contents.
 
     array set urlparts [uri::split $url]
 
-    set fdc [ftp::Open $urlparts(host) anonymous enteryourname@here.com]
+    if {$urlparts(user) == {}} {
+        set urlparts(user) "anonymous"
+    }
+    if {$urlparts(pwd) == {}} {
+        set urlparts(pwd) "user@localhost.localdomain"
+    }
+    if {$urlparts(port) == {}} {
+        set urlparts(port) 21
+    }
+
+    set fdc [ftp::Open $urlparts(host) $urlparts(user) $urlparts(pwd) \
+                 -port $urlparts(port)]
     if {$fdc < 0} {
 	return -code error "Cannot reach host for url \"$url\""
     }
@@ -42,12 +54,20 @@ proc ftp::geturl {url} {
 	return -code error "Cannot reach directory of url \"$url\""
     }
 
+    # Fix for the tkcon List enhancements in ftp.tcl
+    set List ::ftp::List_org
+    if {[info command $List] == {}} {
+        set List ::ftp::List 
+    }
+
     # The result of List is a list of entries in the given directory.
     # Note that it is in 'ls -l format. We parse that into a more
     # readable array.
 
-    array set flist [ftp::ParseList [ftp::List $fdc ""]]
-    if {![info exists flist($ftp_file)]} {
+    #array set flist [ftp::ParseList [$List $fdc ""]]
+    #if {![info exists flist($ftp_file)]} {}
+    set flist [$List $fdc $ftp_file]
+    if {$flist == {}} {
 	ftp::Close $fdc
 	return -code error "Cannot reach item of url \"$url\""
     }
@@ -58,16 +78,21 @@ proc ftp::geturl {url} {
     # Link     : For now we do not follow the link but return the
     #            meta information, i.e. the path it is pointing to.
 
-    switch -exact -- [lindex $flist($ftp_file) 0] {
-	file {
+    #switch -exact -- [lindex $flist($ftp_file) 0] {}
+    switch -exact -- [string index [lindex $flist 0] 0] {
+	- {
 	    ftp::Get $fdc $ftp_file -variable contents
 	}
-	dir {
-	    set contents [ftp::ParseList [ftp::List $fdc $ftp_file]]
+	d {
+	    set contents [ftp::NList $fdc $ftp_file]
 	}
-	link {
-	    set contents $flist($ftp_file)
+	l {
+	    set contents $flist
 	}
+        default {
+            ftp::Close $fdc
+            return -code error "File information \"$flist\" not recognised"
+        }
     }
 
     ftp::Close $fdc
