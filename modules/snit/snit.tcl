@@ -1399,7 +1399,7 @@ proc ::snit::Type.Method {type method arglist body} {
     # Next, save the definition script.
     Mappend compile(defs) {
 
-        # Method %METHOD% %ARGLIST%
+        # Method %METHOD%
         set  %TYPE%::Snit_methods(%METHOD%) ""
         proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body] 
@@ -1419,7 +1419,7 @@ proc ::snit::Type.Typemethod {type method arglist body} {
 
     Mappend compile(defs) {
 
-        # Typemethod %METHOD% %ARGLIST%
+        # Typemethod %METHOD%
         set  %TYPE%::Snit_typemethods(%METHOD%) Snit_typemethod%METHOD%
         proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
@@ -1621,7 +1621,7 @@ proc ::snit::DelegatedMethod {type method component target exceptions} {
     }
 
     Mappend compile(defs) {
-        # Delegated method %METH% to %COMP% as %TARGET%
+        # Delegated method %METH% to %COMP%
         set %TYPE%::Snit_methods(%METH%) [concat %COMP% %TARGET%]
     } %METH% $method %COMP% $component %TARGET% $target
 
