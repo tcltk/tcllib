@@ -1,3 +1,14 @@
+2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* fuzzy.tcl: Committed new code (see #535216), this also updates
+	  the package to version 0.2
+
+	* fuzzy.man: 
+	* fuzzy.test: New files for fuzzy comparisons, documentation and
+	  testsuite. Fixed some bugs in them. NOTE: There are failures in
+	  the testsuite.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* combinatorics.man:

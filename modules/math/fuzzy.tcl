@@ -1,18 +1,18 @@
-# tfa.tcl --
+# fuzzy.tcl --
 #
 #    Script to define tolerant floating-point comparisons
 #    (Tcl-only version)
 #
-#    version 0.1: initial implementation, january 2002
+#    version 0.2: improved and extended, march 2002
 
-package provide math::fuzzy 0.1
+package provide math::fuzzy 0.2
 
 namespace eval ::math::fuzzy {
    variable eps3 2.2e-16
 
    namespace export teq tne tge tgt tle tlt tfloor tceil tround troundn
 
-# determineTolerance
+# DetermineTolerance
 #    Determine the epsilon value
 #
 # Arguments:
@@ -24,7 +24,7 @@ namespace eval ::math::fuzzy {
 # Side effects:
 #    Sets variable eps3
 #
-proc determineTolerance { } {
+proc DetermineTolerance { } {
    variable eps3
    set eps 1.0
    while { [expr {1.0+$eps}] != 1.0 } {
@@ -35,7 +35,7 @@ proc determineTolerance { } {
    #puts "Eps3: $eps3 ($eps) ([expr {1.0-$check}] [expr 1.0-$check]"
 }
 
-# absmax --
+# Absmax --
 #    Return the absolute maximum of two numbers
 #
 # Arguments:
@@ -45,7 +45,7 @@ proc determineTolerance { } {
 # Result:
 #    Maximum of the absolute values
 #
-proc absmax { first second } {
+proc Absmax { first second } {
    return [expr {abs($first) > abs($second)? abs($first) : abs($second)}]
 }
 
@@ -61,20 +61,40 @@ proc absmax { first second } {
 #
 proc teq { first second } {
    variable eps3
-   set scale [absmax $first $second]
+   set scale [Absmax $first $second]
    return [expr {abs($first-$second) <= $eps3 * $scale}]
 }
 
 proc tne { first second } {
    variable eps3
 
-   return [expr ! [teq $first $second]]
+   return [expr {![teq $first $second]}]
 }
 
 proc tgt { first second } {
    variable eps3
-   set scale [absmax $first $second]
+   set scale [Absmax $first $second]
    return [expr {($first-$second) > $eps3 * $scale}]
+}
+
+proc tle { first second } {
+   return [expr {![tgt $first $second]}]
+}
+
+proc tlt { first second } {
+   if { [tgt $first $second] } {
+      return 1
+   } else {
+      return [tne $first $second]
+   }
+}
+
+proc tge { first second } {
+   if { [tgt $first $second] } {
+      return 1
+   } else {
+      return [teq $first $second]
+   }
 }
 
 # tfloor --
@@ -115,7 +135,7 @@ proc tfloor { number } {
 #    value
 #
 proc tceil { number } {
-   return [expr {-[tfloor -$number]}]
+   expr {-[tfloor [expr {-$number}]]}
 }
 
 # tround --
@@ -125,17 +145,32 @@ proc tceil { number } {
 #    number     Number in question
 #
 # Result:
-#    Nearest integer number to the given number
+#    Nearest integer number
 #
 proc tround { number } {
-   return [tround [expr {$number+0.5}]]
+   tfloor [expr {$number+0.5}]
+}
+
+# troundn --
+#    Round off a number to a given precision and return the result
+#
+# Arguments:
+#    number     Number in question
+#    ndec       Number of decimals to keep
+#
+# Result:
+#    Nearest number with given precision
+#
+proc troundn { number ndec } {
+   set scale   [expr {pow(10.0,$ndec)}]
+   set rounded [tfloor [expr {$number*$scale+0.5}]]
+   expr {$rounded/$scale}
 }
 
 #
 # Determine the tolerance once and for all
 #
-determineTolerance
-rename determineTolerance {}
+DetermineTolerance
+rename DetermineTolerance {}
 
 } ;# End of namespace
-
