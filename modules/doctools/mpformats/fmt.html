@@ -215,6 +215,7 @@ proc list_begin  {what {hint {}}} {
     switch -exact -- $what {
 	enum        {set tag ol}
 	bullet      {set tag ul}
+	arg - cmd - opt - tkoption -
 	definitions {set tag dl}
 	default     {return -code error "Unknown list type $what"}
     }
@@ -227,6 +228,34 @@ proc list_end {} {return [lpop][lsmark 1]}
 proc lst_item {text} {return [limark][tag dt]$text[tag dd][lsmark 1]}
 proc bullet   {}     {return [limark][tag li][lsmark 1]}
 proc enum     {}     {return [limark][tag li][lsmark 1]}
+
+proc arg_def {type name {mode {}}} {
+    set    text ""
+    append text "$type [arg $name]"
+    if {$mode != {}} {
+	append text " ($mode)"
+    }
+    lst_item $text
+}
+
+proc cmd_def {command} {
+    lst_item [cmd $command]
+}
+
+proc opt_def {name {arg {}}} {
+    set text [option $name]
+    if {$arg != {}} {append text " $arg"}
+    lst_item $text
+}
+
+proc tkoption_def {name dbname dbclass} {
+    set    text ""
+    append text "Command-Line Switch:\t[option $name][markup <br>]\n"
+    append text "Database Name:\t[strong $dbname][markup <br>]\n"
+    append text "Database Class:\t[strong $dbclass][markup <br>]\n"
+    lst_item $text
+}
+
 
 ################################################################
 

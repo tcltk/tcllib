@@ -1,5 +1,7 @@
 2002-05-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* doctools: Fixed bug #534334 (actually more a FR).
+
 	* examples/csv/csvdiff: Applied patch associated with tcllib SF
 	  bug #551133. Bug reported by <lvirden@users.sourceforge.net>,
 	  patch by <dgp@users.sourceforge.net>.
