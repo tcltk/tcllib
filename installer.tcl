@@ -8,7 +8,13 @@ exec tclsh "$0" ${1+"$@"}
 set distribution   [file dirname [info script]]
 lappend auto_path  [file join $distribution modules]
 
-source [file join $distribution tcllib_version.tcl] ; # Get version information.
+
+# --------------------------------------------------------------
+# Version information for tcllib.
+# List of modules to install (and definitions guiding the process)
+
+source [file join $distribution tcllib_version.tcl]    ; # Get version information.
+source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
 
 # --------------------------------------------------------------
 # Low-level commands of the installation engine.
@@ -178,57 +184,6 @@ proc _exa {module exadir} {
 	    [file join $exadir $module] \
 	    1
     return
-}
-
-# --------------------------------------------------------------
-# List of modules to install (and definitions guiding the process)
-
-set     modules [list]
-array set guide {}
-foreach {m pkg doc exa} {
-    base64	_tcl  _man  _null
-    calendar	 _tci _man  _null
-    cmdline	_tcl  _man  _null
-    comm	_tcl  _man  _null
-    control	 _tci _man  _null
-    counter	_tcl  _man  _null
-    crc		_tcl  _man  _null
-    csv		_tcl  _man _exa
-    des		_tcl  _man  _null
-    dns		_tcl  _man _exa
-    doctools	 _doc _man _exa
-    exif	_tcl  _man  _null
-    fileutil	_tcl  _man  _null
-    ftp		_tcl  _man _exa
-    ftpd	_tcl  _man _exa
-    html	_tcl  _man  _null
-    htmlparse	_tcl  _man  _null
-    irc		_tcl  _man _exa
-    javascript	_tcl  _man  _null
-    log		_tcl  _man  _null
-    math	 _tci _man  _null
-    md5		_tcl  _man  _null
-    md4		_tcl  _man  _null
-    mime	_tcl  _man _exa
-    ncgi	_tcl  _man  _null
-    nntp	_tcl  _man _exa
-    ntp		_tcl  _man _exa
-    pop3	_tcl  _man  _null
-    pop3d	_tcl  _man  _null
-    profiler	_tcl  _man  _null
-    report	_tcl  _man  _null
-    sha1	_tcl  _man  _null
-    smtpd	_tcl  _man _exa
-    soundex	_tcl  _man  _null
-    stooop	_tcl  _man  _null
-    struct	_tcl  _man _exa
-    textutil	 _tex _man  _null
-    uri		_tcl  _man  _null
-} {
-    lappend modules $m
-    set guide($m,pkg) $pkg
-    set guide($m,doc) $doc
-    set guide($m,exa) $exa
 }
 
 # --------------------------------------------------------------

@@ -1,5 +1,19 @@
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
+	* Makefile.in (install): Merged the code for the partial install
+	  targets into one call for full normal install, and dropped the
+	  link between install and the partial install targets.
+
+	* installed_modules.tcl: Moved the list of installed modules out
+	* installer.tcl:         of the installer proper into a separate
+	* sak.tcl:               file, so that the other tools have access
+	                         to it too. Extended the SAK to check this
+	                         information against the list of modules
+	                         under development and print out all the
+	                         discrepancies, i.e: modules which are not
+	                         installed, or modules installed, but not
+	                         existing. This is under 'validate'.
+
 	* sak.tcl: Restricted the list of modules to subdirectories of
 	  'modules' which contain a package index (pkgIndex.tcl).
 
