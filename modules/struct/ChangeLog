@@ -1,3 +1,9 @@
+2004-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.test: Implemented (de)serialization of matrix objects,
+	* matrix.tcl:  copy and assignment operators, and a transpose
+	* matrix.man:  method. Extended testsuite and documentation.
+
 2004-01-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.man:  Implemented Ed Suominen's sort methods, with
@@ -6,7 +12,7 @@
 
 2004-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* matrix.man: Documented method links.
+	* matrix.man: Documented method 'links'.
 
 	* matrix.test: Updated test to cover for method links.
 	* matrix.tcl: Changed the code to determine the list of available
