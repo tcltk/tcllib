@@ -1,3 +1,11 @@
+2002-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.tcl (Transfer): Use a single dot to write the
+	  terminator. Not \n.\n. Puts does the terminating \n, and
+	  buildmessage/copymessage the other. Brought the client out of
+	  sync after a retrieval because of an empty line after the
+	  terminator line of the multi-line response.
+
 2002-08-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Note aside: The pop3 server may understate the size of a message

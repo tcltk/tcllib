@@ -1,4 +1,9 @@
 2002-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test: Added testcase 6.0, a nano-client to retrieve and
+	  delete all messages on a pop server in one go. Directly derived
+	  from the script for Tcllib bug #501577. Unable to reproduce that
+	  bug :(
 	
 	* pop3.test:
 	* clnt.tcl:
