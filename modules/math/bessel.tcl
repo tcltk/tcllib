@@ -1,5 +1,11 @@
 # bessel.tcl --
-#    Evaluate the most common Bessel functions via quadrature formulas
+#    Evaluate the most common Bessel functions
+#
+# TODO:
+#    Yn - finding decent approximations seems tough
+#    Jnu - for arbitrary values of the parameter
+#    J'n - first derivative (from recurrence relation)
+#    Kn - forward application of recurrence relation?
 #
 
 # namespace special
@@ -14,7 +20,7 @@ namespace eval ::math::special {
     #
     # Export the functions
     #
-    namespace export J0 J1 J1/2 I_n
+    namespace export J0 J1 Jn J1/2 J-1/2 I_n
 }
 
 # J0 --
@@ -26,25 +32,7 @@ namespace eval ::math::special {
 #    Value of J0(x)
 #
 proc ::math::special::J0 {x} {
-    variable pi
-    #
-    # Determine the number of components (very crude heuristic)
-    # (We use a quadrature formula here and use the symmetry of
-    # the cos function to reduce the number of actually computed
-    # components by a gfactor 2.
-    #
-
-    set ncomps [expr {2*int($x/2.0+0.5)}]
-    if { $ncomps < 6 } {
-        set ncomps 6
-    }
-
-    set result 0.0
-    for { set i 1 } { $i < $ncomps } { incr i 2 } {
-        set result [expr {$result + cos( $x * cos((2*$i-1)*$pi/(2.0*$ncomps)) ) }]
-    }
-
-    expr {2.0*$result/$ncomps}
+    Jn 0 $x
 }
 
 # J1 --
@@ -56,26 +44,54 @@ proc ::math::special::J0 {x} {
 #    Value of J1(x)
 #
 proc ::math::special::J1 {x} {
+    Jn 1 $x
+}
+
+# Jn --
+#    Compute the Bessel function of the first kind of order n
+# Arguments:
+#    n       Order of the function (must be integer)
+#    x       Value of the argument
+# Result:
+#    Jn(x)
+# Note:
+#    This relies on the integral representation for
+#    the Bessel functions of integer order:
+#             1     I pi
+#    Jn(x) = --     I   cos(x sin t - nt) dt
+#            pi   0 I
+#
+#    For this kind of integrands the trapezoidal rule is
+#    very efficient according to Davis and Rabinowitz
+#    (Methods of numerical integration, 1984).
+#
+proc ::math::special::Jn {n x} {
     variable pi
-    #
-    # Determine the number of components (very crude heuristic)
-    # (We use a quadrature formula here and use the symmetry of
-    # the cos function to reduce the number of actually computed
-    # components by a gfactor 2.
-    #
 
-    set ncomps [expr {2*int($x/2.0+0.5)}]
-    if { $ncomps < 6 } {
-        set ncomps 6
+    if { ![string is integer -strict $n] } {
+         return -code error "Order argument must be integer"
     }
 
+    #
+    # Integrate over the interval [0,pi] using a small
+    # enough step - 40 points should do a good job
+    # with |x| < 20, n < 20 (an accuracy of 1.0e-8
+    # is reported by Davis and Rabinowitz)
+    #
+    set number 40
+    set step   [expr {$pi/double($number)}]
     set result 0.0
-    for { set i 1 } { $i < $ncomps } { incr i 2 } {
-        set factor [expr {cos((2*$i-1)*$pi/(2.0*$ncomps))}]
-        set result [expr {$result + $factor * sin( $x * $factor) }]
+
+    for { set i 0 } { $i <= $number } { incr i } {
+        set t [expr {double($i)*$step}]
+        set f [expr {cos($x * sin($t) - $n * $t)}]
+        if { $i == 0 || $i == $number } {
+            set f [expr {$f/2.0}]
+        }
+        set result [expr {$result+$f}]
     }
 
-    expr {2.0*$result/$ncomps}
+    expr {$result*$step/$pi}
 }
 
 # J1/2 --
@@ -96,6 +112,22 @@ proc ::math::special::J1/2 {x} {
         expr {sqrt(2.0/$pi/$x)*sin($x)}
     } else {
         return 0.0
+    }
+}
+
+# J-1/2 --
+#    Compute the Bessel function of the first kind of order -1/2
+# Arguments:
+#    x       Value of the argument (!= 0.0)
+# Result:
+#    J-1/2(x)
+#
+proc ::math::special::J-1/2 {x} {
+    variable pi
+    if { $x == 0.0 } {
+        return -code error "Argument must not be zero (singularity)"
+    } else {
+        return [expr {-cos($x)/sqrt($pi*$x/2.0)}]
     }
 }
 

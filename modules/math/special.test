@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: special.test,v 1.4 2004/07/07 12:05:09 arjenmarkus Exp $
+# $Id: special.test,v 1.5 2004/09/17 07:32:21 arjenmarkus Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -101,6 +101,8 @@ test "Fresnel-1.1" "Values of the Fresnel S intergral" \
    set result
 } -result {0.0  0.00052 0.00419 0.06473 0.43826 0.69750
            0.34342 0.49631 0.42052 0.49919}
+
+# No tests for sinc yet
 
 # End of test cases
 tcltest::cleanupTests
