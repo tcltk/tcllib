@@ -9,11 +9,13 @@
 # directory hierarchy, but missing in the list of installed modules.
 # --------------------------------------------------------------
 
+# Excluded:
+#    calendar	 _tci _man  _null
+
 set     modules [list]
 array set guide {}
 foreach {m pkg doc exa} {
     base64	_tcl  _man  _null
-    calendar	 _tci _man  _null
     cmdline	_tcl  _man  _null
     comm	_tcl  _man  _null
     control	 _tci _man  _null

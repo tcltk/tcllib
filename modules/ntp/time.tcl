@@ -7,13 +7,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.5 2003/04/25 04:52:17 andreas_kupries Exp $
+# $Id: time.tcl,v 1.6 2003/05/01 00:17:41 andreas_kupries Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
-    variable rcsid {$Id: time.tcl,v 1.5 2003/04/25 04:52:17 andreas_kupries Exp $}
+    variable version 1.0.0
+    variable rcsid {$Id: time.tcl,v 1.6 2003/05/01 00:17:41 andreas_kupries Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -307,10 +308,8 @@ proc ::time::Pop {varname {nth 0}} {
 }
 
 # -------------------------------------------------------------------------
-# See devdoc/notes.txt before using the variable in the provide statement.
 
-set ::time::version  1.0.0
-package provide time 1.0.0
+package provide time $::time::version
 
 # -------------------------------------------------------------------------
 # Local variables:

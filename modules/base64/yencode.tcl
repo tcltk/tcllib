@@ -6,12 +6,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.4 2003/04/25 04:52:16 andreas_kupries Exp $
+# @(#)$Id: yencode.tcl,v 1.5 2003/05/01 00:17:39 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require crc32;                  # tcllib 1.1
 
 namespace eval ::yencode {
+    variable version 1.0.1
     namespace export encode decode yencode ydecode
 }
 
@@ -198,10 +199,8 @@ proc ::yencode::ydecode {args} {
 }
 
 # -------------------------------------------------------------------------
-# See devdoc/notes.txt before using the variable in the provide statement.
 
-set ::yencode::version  1.0.1
-package provide yencode 1.0.1
+package provide yencode $::yencode::version
 
 # -------------------------------------------------------------------------
 #
@@ -209,3 +208,4 @@ package provide yencode 1.0.1
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
+
