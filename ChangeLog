@@ -1,6 +1,7 @@
 2002-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* mime: Applied SF patch #585455.
+	* mime:        Applied SF patch #585455.
+	* mime (smtp): Applied patch SF #557520/2.
 
 2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
