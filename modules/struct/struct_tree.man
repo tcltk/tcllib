@@ -282,20 +282,6 @@ This is actually the same as
 will be deprecated sometime in the future.
 
 
-[call [arg treeName] [method descendants] [arg node] [opt "[const filter] [arg cmdprefix]"]]
-
-This method extends the method [method children] and returns a list
-containing all nodes descending from [arg node], and passing the
-filter, if such was specified.
-
-[nl]
-
-This is actually the same as
-"[arg treeName] [method children] [option -all]".
-[method descendants] should be prefered, and "children -all"
-will be deprecated sometime in the future.
-
-
 [call [arg treeName] [method deserialize] [arg serialization]]
 
 This is the complement to [method serialize]. It replaces tree data in

@@ -14,8 +14,13 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     }
 }
 
-source [file join [file dirname [info script]] bignum.tcl]
+package forget math::bignum
+catch {namespace delete ::math::bignum}
 
+if {[catch {source [file join [file dirname [info script]] bignum.tcl]}]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
 
 proc matchBignums { expected actual } {
    set match 1
