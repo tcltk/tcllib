@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: matrix.n,v 1.6 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: matrix.n,v 1.7 2001/11/24 02:24:55 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH matrix n 1.0 Struct "Tcl Data Structures"
@@ -105,15 +105,20 @@ higher indices one index down.
 Destroys the matrix, including its storage space and associated
 command.
 .TP
-\fImatrixName \fBformat 2string\fR \fIreport\fR
+\fImatrixName \fBformat 2string\fR ?\fIreport\fR?
 Formats the matrix using the specified report object and returns the
 string containing the result of this operation. The report has to
-support the \fBprintmatrix\fR method.
+support the \fBprintmatrix\fR method. If no \fIreport\fR is specified
+the system will use an internal report definition to format the
+matrix.
 .TP
-\fImatrixName \fBformat 2chan\fR \fIreport channel\fR
+\fImatrixName \fBformat 2chan\fR ??\fIreport\fR? \fIchannel\fR?
 Formats the matrix using the specified report object and writes the
 string containing the result of this operation into the channel. The
-report has to support the \fBprintmatrix2channel\fR method.
+report has to support the \fBprintmatrix2channel\fR method.  If no
+\fIreport\fR is specified the system will use an internal report
+definition to format the matrix. If no \fIchannel\fR is specified the
+system will use \fBstdout\fR.
 .TP
 \fImatrixName\fR \fBget cell\fR \fIcolumn row\fR
 Returns the value currently contained in the cell identified by row
@@ -182,6 +187,31 @@ number of lines spanned by a cell over all cells in the row.
 .TP
 \fImatrixName\fR \fBrows\fR
 Returns the number of rows currently managed by the matrix.
+.TP
+\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBall\fR \fIpattern\fR
+Searches the whole matrix for cells matching the \fIpattern\fR and
+returns a list with all matches. Each item in the aforementioned list
+is a list itself and contains the column and row index of the matching
+cell, in this order. The results are ordered by column first and row
+second, both times in ascending order. This means that matches to the
+left and the top of the matrix come before matches to the right and
+down.
+.sp
+The type of the pattern (string, glob, regular expression) is
+determined by the option after the \fBsearch\fR keyword. If no option
+is given it defaults to \fB-exact\fR.
+.TP
+\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBcolumn\fR \fIcolumn pattern\fR
+Like \fBsearch all\fR, but the search is restricted to the specified
+column.
+.TP
+\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBrow\fR    \fIrow pattern\fR
+Like \fBsearch all\fR, but the search is restricted to the specified
+row.
+.TP
+\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBrect\fR \fIcolumn_tl row_tl column_br row_br pattern\fR
+Like \fBsearch all\fR, but the search is restricted to the specified
+rectangular area of the matrix.
 .TP
 \fImatrixName\fR \fBset cell\fR \fIcolumn row value\fR
 Sets the value in the cell identified by row and column index to the
