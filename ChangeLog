@@ -1,4 +1,8 @@
-2001-03-26  Tcl Project  <a.kupries@westend.com>
+2001-04-24  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in: Added module 'md5'.
+
+2001-03-26  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (install-libraries):  [Bug #404917]
 	  Added 'smtp' explictly to the list of modules for the full
