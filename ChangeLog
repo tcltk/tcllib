@@ -2,7 +2,10 @@
 2000-08-22  Brent Welch <welch@ajubasolutions.com>
 
 	* configure.in: Bumped patchlevel to 0.6.1
-	applied tcllib-0-6-1 tag
+	* Makefile.in: Ignore errors when installing documentation,
+	which only partly exists. You'll still see the error messages
+	but it doesn't stop the install.
+	Applied tcllib-0-6-1 tag
 
 2000-07-19  Brent Welch <welch@ajubasolutions.com>
 
