@@ -136,7 +136,7 @@ proc cmdline {} {
 #  2. Read formatting macros and setup evalutin environment
 
 proc format_find {} {
-    global format fmtfile
+    global format fmtfile argv0
 
     set _here [file dirname [file join [pwd] [info script]]]
 
