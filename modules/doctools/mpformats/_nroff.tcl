@@ -102,6 +102,19 @@ proc nroff_postprocess {nroff} {
 	    if {![string length $line]} {continue}
 	    set line [string trim $line]
 	    if {![string length $line]} {continue}
+
+	    if {[regexp {^\x1\\f[BI]\.} $line]} {
+		# We found confusing formatting at the beginning of
+		# the current line. We lift this line up and attach it
+		# at the end of the last line to remove this
+		# irregularity. Note that the regexp has to look for
+		# the special 0x01 character as well to be sure that
+		# the sequence in question truly is formatting.
+
+		set last  [lindex   $lines end]
+		set lines [lreplace $lines end end]
+		set line "$last $line"
+	    }
 	} else {
 	    # No-fill mode. We remove trailing whitespace, but keep
 	    # leading whitespace and empty lines.

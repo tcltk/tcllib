@@ -1,3 +1,10 @@
+2005-01-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_nroff.tcl: Extended the post processing to regularize
+	  confusing *roff formatting at the beginning of lines. This fixes
+	  Tcllib SF Bug 1094294, which was reported by Rolf Ade
+	  <pointsman@users.sourceforge.net>.
+
 2005-01-11  Andreas Kupries <andreask@activestate.com>
 
 	* mpformats/fmt.nroff:  Fixed bad nroff formatting for examples
