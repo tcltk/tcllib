@@ -1604,7 +1604,7 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         } elseif {$target ne ""} {
             set pattern "%c $target"
         } else {
-            set pattern "%c %m"
+            set pattern "%c $method"
         }
     }
 
