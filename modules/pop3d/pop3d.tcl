@@ -7,10 +7,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.1 2002/03/19 22:56:15 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.2 2002/05/16 00:48:31 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
+package require log  ; # tcllib | tracing
 
 namespace eval ::pop3d {
     # Data storage in the pop3d module
@@ -64,7 +65,7 @@ namespace eval ::pop3d {
     variable version ; set version 1.0
     variable server  "tcllib/pop3d-$version"
 
-    variable cmdMap ; array set cmMap {
+    variable cmdMap ; array set cmdMap {
 	USER H_user
 	PASS H_pass
 	APOP H_apop
@@ -103,18 +104,19 @@ proc ::pop3d::new {{name ""}} {
     }
 
     if { ![string equal [info commands ::$name] ""] } {
-	error "command \"$name\" already exists, unable to create pop3 server"
+	return -code error "command \"$name\" already exists, unable to create pop3 server"
     }
 
     # Set up the namespace
     namespace eval ::pop3d::pop3d::$name {
-	variable port    110
-	variable sock    {}
-	variable authCmd {}
-	variable storCmd {}
-	variable state   down
-	variable conn    ; array set conn {}
-	variable counter 0
+	variable port     110
+	variable trueport 110
+	variable sock     {}
+	variable authCmd  {}
+	variable storCmd  {}
+	variable state    down
+	variable conn     ; array set conn {}
+	variable counter  0
     }
 
     # Create the command to manipulate the pop3 server
@@ -140,7 +142,7 @@ proc ::pop3d::new {{name ""}} {
 proc ::pop3d::Pop3dProc {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
+	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
     
     # Split the args into command and args components
@@ -148,7 +150,7 @@ proc ::pop3d::Pop3dProc {name {cmd ""} args} {
 	variable commands
 	set optlist [join $commands ", "]
 	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+	return -code error "bad option \"$cmd\": must be $optlist"
     }
     eval [list ::pop3d::_$cmd $name] $args
 }
@@ -164,13 +166,16 @@ proc ::pop3d::Pop3dProc {name {cmd ""} args} {
 #	None.
 
 proc ::pop3d::_up {name} {
-    upvar ::pop3d::pop3d::${name}::port  port
-    upvar ::pop3d::pop3d::${name}::state state
-    upvar ::pop3d::pop3d::${name}::sock  sock
+    upvar ::pop3d::pop3d::${name}::port     port
+    upvar ::pop3d::pop3d::${name}::trueport trueport
+    upvar ::pop3d::pop3d::${name}::state    state
+    upvar ::pop3d::pop3d::${name}::sock     sock
 
     if {[string equal $state up]} {return}
 
     set s [socket -server [list ::pop3d::HandleNewConnection $name] $port]
+    set trueport [lindex [fconfigure $s -sockname] 2]
+
     set state up
     set sock  $s
     return
@@ -187,8 +192,10 @@ proc ::pop3d::_up {name} {
 #	None.
 
 proc ::pop3d::_down {name} {
-    upvar ::pop3d::pop3d::${name}::state state
-    upvar ::pop3d::pop3d::${name}::sock  sock
+    upvar ::pop3d::pop3d::${name}::state    state
+    upvar ::pop3d::pop3d::${name}::sock     sock
+    upvar ::pop3d::pop3d::${name}::trueport trueport
+    upvar ::pop3d::pop3d::${name}::port     port
 
     # Ignore if server is down or exiting
     if {![string equal $state up]} {return}
@@ -196,6 +203,8 @@ proc ::pop3d::_down {name} {
     close $sock
     set state down
     set sock  {}
+
+    set trueport $port
     return
 }
 
@@ -219,6 +228,9 @@ proc ::pop3d::_destroy {name {mode kill}} {
 	    foreach c [array names conn] {
 		CloseConnection $name $c
 	    }
+
+	    namespace delete ::pop3d::pop3d::$name
+	    interp alias {} ::$name {}
 	}
 	defer {
 	    if {[array size conn] > 0} {
@@ -252,9 +264,13 @@ proc ::pop3d::_destroy {name {mode kill}} {
 
 proc ::pop3d::_cget {name anoption} {
     switch -exact -- $anoption {
+	-state {
+	    upvar ::pop3d::pop3d::${name}::state state
+	    return $state
+	}
 	-port {
-	    upvar ::pop3d::pop3d::${name}::port port
-	    return $port
+	    upvar ::pop3d::pop3d::${name}::trueport trueport
+	    return $trueport
 	}
 	-auth {
 	    upvar ::pop3d::pop3d::${name}::authCmd authCmd
@@ -267,7 +283,7 @@ proc ::pop3d::_cget {name anoption} {
 	default {
 	    return -code error \
 		    "Unknown option \"$anoption\":\
-		    Expected \"-port\", \"-auth\", or \"-storage\""
+		    Expected \"-state\", \"-port\", \"-auth\", or \"-storage\""
 	}
     }
     # return - in all branches
@@ -288,28 +304,47 @@ proc ::pop3d::_configure {name args} {
     set argc [llength $args]
     if {($argc > 1) && (($argc % 2) == 1)} {
 	return -code error \
-		"wrong#args, expected: -option | (-option value)..."
+		"wrong # args, expected: -option | (-option value)..."
     }
     if {$argc == 1} {
 	return [_cget $name [lindex $args 0]]
     }
 
-    upvar ::pop3d::pop3d::${name}::port    port
-    upvar ::pop3d::pop3d::${name}::authCmd authCmd
-    upvar ::pop3d::pop3d::${name}::storCmd storCmd
+    upvar ::pop3d::pop3d::${name}::trueport trueport
+    upvar ::pop3d::pop3d::${name}::port     port
+    upvar ::pop3d::pop3d::${name}::authCmd  authCmd
+    upvar ::pop3d::pop3d::${name}::storCmd  storCmd
+    upvar ::pop3d::pop3d::${name}::state    state
 
     if {$argc == 0} {
 	# Return the full configuration.
-	return [list -port $port -auth $authCmd -storage $storCmd]
+	return [list \
+		-port    $trueport \
+		-auth    $authCmd  \
+		-storage $storCmd  \
+		-state   $state
+		]
     }
 
-    while {[length $args] > 0} {
+    while {[llength $args] > 0} {
 	set option [lindex $args 0]
 	set value  [lindex $args 1]
 	switch -exact -- $option {
-	    -port    {set port    $value}
 	    -auth    {set authCmd $value}
 	    -storage {set storCmd $value}
+	    -port    {
+		set port $value
+
+		# Propagate to the queried value if the server is down
+		# and thus has no real true port.
+
+		if {[string equal $state down]} {
+		    set trueport $value
+		}
+	    }
+	    -state {
+		return -code error "Option -state is read-only"
+	    }
 	    default {
 		return -code error \
 			"Unknown option \"$option\":\
@@ -319,6 +354,42 @@ proc ::pop3d::_configure {name args} {
 	set args [lrange $args 2 end]
     }
     return ""
+}
+
+
+# ::pop3d::_conn --
+#
+#	Query connection state.
+#
+# Arguments:
+#	name	name of the pop3 server.
+#	cmd	subcommand to perform
+#	args	arguments for subcommand
+#
+# Results:
+#	Specific to subcommand
+
+proc ::pop3d::_conn {name cmd args} {
+    upvar ::pop3d::pop3d::${name}::conn    conn
+    switch -exact -- $cmd {
+	list {
+	    if {[llength $args] > 0} {
+		return -code error "wrong # args: should be \"$name conn list\""
+	    }
+	    return [array names conn]
+	}
+	state {
+	    if {[llength $args] != 1} {
+		return -code error "wrong # args: should be \"$name conn state connId\""
+	    }
+	    set sock [lindex $args 0]
+	    upvar $conn($sock) cstate
+	    return [array get  cstate]
+	}
+	default {
+	    return -code error "bad option \"$cmd\": must be list, or state"
+	}
+    }
 }
 
 ##########################
@@ -336,7 +407,7 @@ proc ::pop3d::HandleNewConnection {name sock rHost rPort} {
     set cstate(remotehost) $rHost
     set cstate(remoteport) $rPort
     set cstate(server)     $name
-    set cstate(id)         "<[clock clicks]$name[pid]@[::info hostname]>"
+    set cstate(id)         "<[string map {- {}} [clock clicks]]_${name}_[pid]@[::info hostname]>"
     set cstate(state)      "auth"
     set cstate(name)       ""
     set cstate(logon)      ""
@@ -395,7 +466,7 @@ proc ::pop3d::CloseConnection {name sock} {
     return
 }
 
-::pop3d::HandleCommand {name sock} {
+proc ::pop3d::HandleCommand {name sock} {
     # @c Called by the event system after arrival of a new command for
     # @c connection.
 
@@ -451,7 +522,7 @@ proc ::pop3d::GreetPeer {name sock} {
     upvar cstate cstate
     variable server
 
-    Respond2Client $sock +OK \
+    Respond2Client $name $sock +OK \
 	    "[::info hostname] $server ready $cstate(id)"
     return
 }
@@ -524,6 +595,11 @@ proc ::pop3d::H_pass {name sock cmd line} {
 
 	set pwd [lindex [split $line] 1]
 
+	if {![uplevel #0 [linsert $authCmd end exists $cstate(name)]]} {
+	    ::log::log warning "$name $sock $authCmd lookup $cstate(name) : user does not exist"
+	    CheckLogin $name $sock "" "" ""
+	    return
+	}
 	if {[catch {
 	    set info [uplevel #0 [linsert $authCmd end lookup $cstate(name)]]
 	} msg]} {
@@ -531,7 +607,6 @@ proc ::pop3d::H_pass {name sock cmd line} {
 	    CheckLogin $name $sock "" "" ""
 	    return
 	}
-
 	CheckLogin $name $sock $pwd [lindex $info 0] [lindex $info 1]
     }
     return
@@ -564,6 +639,8 @@ proc ::pop3d::H_apop {name sock cmd line} {
 
     upvar ::pop3d::pop3d::${name}::authCmd authCmd
 
+    #log::log debug "authCmd|$authCmd|"
+
     if {$authCmd == {}} {
 	# No authentication is possible. Reject all users.
 	CheckLogin $name $sock "" "" ""
@@ -571,6 +648,12 @@ proc ::pop3d::H_apop {name sock cmd line} {
     }
 
     set digest  [lindex $line 2]
+
+    if {![uplevel #0 [linsert $authCmd end exists $cstate(name)]]} {
+	::log::log warning "$name $sock $authCmd lookup $cstate(name) : user does not exist"
+	CheckLogin $name $sock "" "" ""
+	return
+    }
     if {[catch {
 	set info [uplevel #0 [linsert $authCmd end lookup $cstate(name)]]
     } msg]} {
@@ -645,6 +728,7 @@ proc ::pop3d::H_dele {name sock cmd line} {
     set msgid [lindex $line 1]
 
     if {
+	($msgid < 1) ||
 	($msgid > $cstate(msg)) ||
 	([lsearch $msgid $cstate(deleted)] >= 0)
     } {
@@ -823,11 +907,11 @@ proc ::pop3d::H_list {name sock cmd line} {
 
     if {$msgid == {}} {
 	# full listing
-	Respond2Client $name $sock +OK $cstate(n) messages
+	Respond2Client $name $sock +OK "$cstate(msg) messages"
 
-	set n $cstate(n)
+	set n $cstate(msg)
 
-	for {set i 0} {$i < $n} {incr n} {
+	for {set i 1} {$i <= $n} {incr i} {
 	    Respond2Client $name $sock $i \
 		    [uplevel #0 [linsert $storCmd end \
 		    size $cstate(storage) $i]]
@@ -838,6 +922,7 @@ proc ::pop3d::H_list {name sock cmd line} {
 	# listing for specified message
 
 	if {
+	    ($msgid < 1) ||
 	    ($msgid > $cstate(msg)) ||
 	    ([lsearch $msgid $cstate(deleted)] >= 0)
 	}  {
@@ -865,6 +950,8 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
     # @a clientid: Authentication code transmitted by client
     # @a serverid: Authentication code calculated here.
     # @a storage:  Handle of mailbox requested by client.
+
+    #log::log debug "CheckLogin|$name|$sock|$clientid|$serverid|$storage|"
 
     upvar cstate cstate
     upvar ::pop3d::pop3d::${name}::storCmd storCmd

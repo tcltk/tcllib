@@ -1,3 +1,12 @@
+2002-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test:
+	* pop3d.man:
+	* pop3d_dbox.tcl: Split port into configured port and true
+	  port. This allows the usage of port "0" to force auto-selection
+	  of a free port. Documented the special behaviour of
+	  -port. Created testsuite for pop3 server. Tcllib #532216.
+
 2002-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d_dbox.man:
