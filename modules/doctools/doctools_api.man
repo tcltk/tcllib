@@ -129,19 +129,40 @@ commands:
 [list_begin definitions]
 [lst_item [cmd dt_file]]
 Returns the full name of the file currently processed by the engine.
+
 [lst_item [cmd dt_fileid]]
 Returns the name of the file currently processed by the engine,
 without path, nor extension
+
 [lst_item [cmd dt_format]]
 Returns the name of format loaded into the engine
+
 [lst_item [cmd dt_lnesting]]
 Returns the number lists currently open
+
 [lst_item [cmd dt_module]]
 Returns the name of the module the file currently processed belongs to.
+
 [lst_item "[cmd dt_source] [arg file]"]
 This command allows the engine to load additional tcl code. The file
 being loaded has to be in the same directory as the file the format
 engine was loaded from. Any path specified for [arg file] is ignored.
+
+[lst_item [cmd dt_copyright]]
+Returns a string containing the copyright information the doctools
+object was configured with (option [option -copyright]).
+
+[lst_item [cmd dt_user]]
+Returns the name of the current user as known to the tcl interpreter
+executing the doctools object controlling the engine.
+
+[lst_item "[cmd dt_fmap] [arg fname]"]
+Returns the actual name to use in the output in place of the symbolic
+filename [arg fname]. If no mapping is found the input is returned
+unchanged.
+
+
+
 [list_end]
 
 [lst_item "Expander commands"]

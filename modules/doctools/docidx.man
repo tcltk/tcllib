@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin docidx n 1.0]
-[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Create and manipulate docidx converter objects}]
 [require Tcl 8.2]
@@ -12,7 +12,8 @@ written in the doctoc format as specified in [syscmd docidx_fmt] into
 any output format X, assuming that a formatting engine for X is
 available and provides the interface specified in [syscmd docidx_api].
 
-[section API]
+[section {PUBLIC API}]
+[subsection {PACKAGE COMMANDS}]
 
 [list_begin definitions]
 
@@ -59,7 +60,7 @@ not a directory, or is not readable.
 
 [list_end]
 
-[section {OBJECT COMMAND}]
+[subsection {OBJECT COMMAND}]
 
 All commands created by [cmd ::doctools::idx::new] have the following
 general form and may be used to invoke various operations on the
@@ -75,7 +76,7 @@ explanations.
 
 [list_end]
 
-[section {OBJECT METHODS}]
+[subsection {OBJECT METHODS}]
 
 [list_begin definitions]
 
@@ -127,6 +128,23 @@ The method assumes that the [arg text] is in docidx format as
 specified in [cmd dtformat(n)]. Errors will be thrown otherwise.
 
 
+[call [arg objectName] [method map] [arg symbolic] [arg actual]]
+
+This methods extends the per-object mapping from a
+[arg symbolic] filename to the [arg actual] uri.
+
+The object itself just stores the mapping and does nothing with
+it. However the engine for the configured format can query the mapping
+through the command [cmd dt_fmap] (see [syscmd doctoc_api])
+
+
+[call [arg objectName] [method parameters]]
+
+Returns a list containing the names of all parameters supported by the
+engine for the format the object is configured for. Returns an empty
+list if the object is not yet configured for a specific format.
+
+
 [call [arg objectName] [method search] [arg path]]
 
 This method extends the per-object list of paths searched for
@@ -136,6 +154,16 @@ the global (per-package) list of paths.
 [nl]
 
 The path entered last is searched through first.
+
+
+[call [arg objectName] [method setparam] [arg name] [arg value]]
+
+Sets the [arg name]d engine parameter to the given [arg value]. Throws
+an error if the object is not yet configured for a specific
+format. Also throws an error if the configured format does not know a
+parameter with the specified [arg name]. The list of known parameter
+names can be retrieved via method [method parameters].
+
 
 [call [arg objectName] [method warnings]]
 
@@ -254,15 +282,61 @@ The mapping fails.
 [list_end]
 
 
-[section {ENGINES}]
+[section {PREDEFINED ENGINES}]
 
-The package comes with the following predefined formatting engines
+The package provides predefined engines for the following
+formats. Some of the engines support parameters. These will be
+explained below as well.
 
 [list_begin definitions]
 [lst_item html]
 
 This engine generates HTML markup, for processing by web browsers and
-the like.
+the like. This engine supports three parameters:
+
+[list_begin definitions]
+[lst_item footer]
+
+The value for this parameter has to be valid selfcontained HTML markup
+for the body section of a HTML document. The default value is the
+empty string. The value is inserted into the generated output just
+before the [const </body>] tag, closing the body of the generated
+HTML.
+
+[nl]
+
+This can be used to insert boilerplate footer markup into the
+generated document.
+
+[lst_item header]
+
+The value for this parameter has to be valid selfcontained HTML markup
+for the body section of a HTML document. The default value is the
+empty string. The value is inserted into the generated output just
+after the [const <body>] tag, starting the body of the generated HTML.
+
+[nl]
+
+This can be used to insert boilerplate header markup into the
+generated document.
+
+
+[lst_item meta]
+
+The value for this parameter has to be valid selfcontained HTML markup
+for the header section of a HTML document. The default value is the
+empty string. The value is inserted into the generated output just
+after the [const <head>] tag, starting the header section of the
+generated HTML.
+
+[nl]
+
+This can be used to insert boilerplate meta data markup into the
+generated document, like references to a stylesheet, standard meta
+keywords, etc.
+
+[list_end]
+[nl]
 
 [lst_item latex]
 
