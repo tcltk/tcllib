@@ -105,7 +105,7 @@ proc ::exif::analyze {stream {thumbnail {}}} {
             scan $msb %c msb ; scan $lsb %c lsb
             set size [expr {256 * $msb + $lsb}]
             set data [read $stream [expr {$size-2}]]
-	    debug "read [expr $size - 2] bytes of data"
+	    debug "read [expr {$size - 2}] bytes of data"
             if {[expr {$size-2}] != [string length $data]} {
                 error "File truncated @2"
             }
@@ -202,7 +202,7 @@ proc ::exif::app1 {data thumbnail} {
     if {$thumbnail != {}} {
 	set jpg [string range $data \
 		$thumb_result(JpegIFOffset) \
-		[expr $thumb_result(JpegIFOffset) + $thumb_result(JpegIFByteCount) - 1]]
+		[expr {$thumb_result(JpegIFOffset) + $thumb_result(JpegIFByteCount) - 1}]]
 
         set         to [open $thumbnail w]
         fconfigure $to -translation binary -encoding binary
@@ -593,7 +593,7 @@ proc ::exif::makerNote {data curoffset} {
 			    lappend result(FlashMode) "external_E-TTL"
 			}
 		    }
-                    if {[info exists field(34)] \
+                    if {[info exists field(34)] && \
 			    [string match -nocase "*pro90*" $cameraModel]} {
                         if {$field(34)} {
                             set result(ImageStabilisation) on
@@ -930,6 +930,6 @@ if {0} {
     set f [open [lindex $argv 0]]
     array set v [exif::analyze $f]
     close $f
-    parray $v
+    parray v
 }
 

@@ -6,7 +6,7 @@ source ./mime.tcl
 proc construct_item_with_attachment size {
     set message_token [mime::initialize -canonical text/plain \
             -string "This is a first part."]
-    set attachment_body [string repeat abcd\n [expr $size / 5]]
+    set attachment_body [string repeat abcd\n [expr {$size / 5}]]
     set attachment_token [mime::initialize \
             -canonical application/octet-stream \
             -string $attachment_body]
@@ -101,7 +101,7 @@ proc getnextline {} {
 	set next_EOL $msg_size	
     }
 
-    set msg_EOF [expr $next_EOL == $msg_size]
+    set msg_EOF [expr {$next_EOL == $msg_size}]
 
     set line [string range $message $sp $next_EOL] 
     set curpos [incr next_EOL]
