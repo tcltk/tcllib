@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.22 2003/04/03 01:50:53 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.23 2003/04/03 20:13:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -456,11 +456,16 @@ proc ::pop3::RetrFast {chan size} {
 	# Can be	\n.\r\n	 = Terminator
 	# or		\n..\r\n = dot-stuffed single .
 
+	log::log debug "pop3 $chan /check for cut .. or terminator sequence"
+
 	# Idle until non-empty line encountered.
 	while {[set line [gets $chan]] == ""} {}
 	if {"$line" == "\r"} {
-	    # Terminator already found
-	    ::log::log debug "pop3 $chan |___ <$line>"
+	    # Terminator already found. Note that we have to
+	    # remove the partial terminator sequence from the
+	    # message buffer.
+	    ::log::log debug "pop3 $chan |3__ <$line>"
+	    set msgBuffer [string range $msgBuffer 0 end-1]
 	} else {
 	    # Append line and look for the real terminator
 	    append msgBuffer $line
@@ -469,14 +474,14 @@ proc ::pop3::RetrFast {chan size} {
 		::log::log debug "pop3 $chan ____ <$line>"
 		append msgBuffer $line
 	    }
-	    ::log::log debug "pop3 $chan |___ <$line>"
+	    ::log::log debug "pop3 $chan |2__ <$line>"
 	}
     } else {
 	while {[set line [gets $chan]] != ".\r"} {
 	    ::log::log debug "pop3 $chan ____ <$line>"
 	    append msgBuffer $line
 	}
-	::log::log debug "pop3 $chan |___ <$line>"
+	::log::log debug "pop3 $chan |1__ <$line>"
     }
 
     # Map both cr+lf and cr to lf to simulate auto EOL translation, then

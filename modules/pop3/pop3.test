@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.5 2003/04/03 01:50:54 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.6 2003/04/03 20:13:07 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -461,23 +461,40 @@ test pop3-6.1 {fast retrieval, .-stuff border break, #528928} {
     set res
 } [list $msg] ; # {}
 
+if 0 {
+source [file join $::tcltest::testsDirectory .. testsupport subserv.tcl]
 
-### FUTURE test ### fast/slow break in terminator.
-
-set msg {MIME-Version: 1.0
-Content-Type: text/plain; charset="us-asc"
-
-y___-
-}
 test pop3-6.2 {fast retrieval, .-stuff border break, #528928} {
-    set port [newsrv]
+    set port [::subserv::muservSpawn \
+	    [makeFile {} __muserv] 0 {
+	CrLf
+	Send    {+OK localhost muserv ready <607236728_pop3d1_4411@localhost>}
+	Respond {+OK please send PASS command}
+	Respond {+OK congratulations}
+	Respond {+OK 1 74}
+	Respond {-ERR unknown command 'LAST'}
+	Respond {+OK 74 octets}
+	Send    {MIME-Version: 1.0}
+	Send    {Content-Type: text/plain; charset="us-ascii"}
+	Send    {}
+	Send    {Test}
+	Send    {.}
+        Respond {+OK localhost muserv shutting down}
+    }] ; # {}
     set psock [pop3::open -retr-mode retr localhost ak smash $port]
-    set res [pop3::retrieve $psock 4]
+    set res [pop3::retrieve $psock 1]
     pop3::close $psock
-    delsrv
+
+    ::subserv::muservStop
     set res
-} [list $msg] ; # {}
+} [list {MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+
+Test
+}] ; # {}
+}
+
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
-#::tcltest::cleanupTests
+::tcltest::cleanupTests
