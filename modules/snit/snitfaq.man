@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snitfaq n 0.9]
+[manpage_begin snitfaq n 0.91]
 [copyright {2003, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc   {Snit Frequently Asked Questions}]
 [require Tcl 8.3]
-[require snit [opt 0.9]]
+[require snit [opt 0.91]]
 [description]
 [para]
 
@@ -78,7 +78,7 @@ Smalltalk, or anything else, it should try to emulate Tcl itself.
 
 [bullet]
 
-It should have a simple, easy-to-use, easy-to-remember syntax.<p>
+It should have a simple, easy-to-use, easy-to-remember syntax.
 
 [list_end]
 
@@ -776,7 +776,7 @@ will never be renamed.
 }]
 [para]
 
-[emph {What is $selfns}]
+[emph {What is $selfns?}]
 [para]
 
 
@@ -811,7 +811,7 @@ namespace; however, you should not write code that depends on the
 specific naming convention, as it might change in future releases.
 
 [para]
-[emph {What is $win}]
+[emph {What is $win?}]
 [para]
 
 
@@ -2077,6 +2077,25 @@ name is; the [cmd dog] object refers to it by its component name.
 The above example shows one way to delegate the [method wag] method to
 the [var mytail] component; see [sectref DELEGATION] for an easier way.
 
+
+[para]
+[emph {How is a component named?}]
+[para]
+
+A component has two names.  The first name represents the role the
+component object plays within the Snit object.  This is the component
+name proper, and is the name used to refer to the component within
+Snit code.  The second name is the name of the actual component object
+created by the Snit object's constructor.  This second name is always
+a Tcl command name, and is referred to as the component's object name.
+
+[para]
+
+In the example in the previous FAQ, the component name is "mytail";
+the "mytail" component's object name is chosen automatically by Snit
+since %AUTO% was used when the component object was created.
+
+
 [para]
 [emph {What does the install command do?}]
 [para]
@@ -2114,6 +2133,75 @@ should be used for no other purpose.
 
 Component names are in fact instance variable names, and so follow the
 rules for [term {instance variables}].
+
+[para]
+[emph {Are there any limitations on component object names?}]
+[para]
+
+Yes.
+
+Component objects which are Tk widgets or megawidgets must have valid
+Tk window names.
+
+Component objects which are not widgets or megawidgets must have
+fully-qualified command names, i.e., names which include the full
+namespace of the command.  Note that Snit always creates objects with
+fully qualified names.
+
+Second, component object names must be unique.  This is no problem for
+widget components, since widget names are always unique; but consider
+the following code:
+
+[para]
+[example {
+    snit::type tail { ... }
+
+    snit::type dog {
+        delegate method wag to mytail
+
+        constructor {} {
+            install mytail using tail mytail
+        }
+    }
+}]
+[para]
+
+This code uses the component name, "mytail", as the component object
+name.  This is not good, and here's why: Snit instance code executes
+in the Snit type's namespace.  In this case, the mytail component is
+created in the ::dog:: namespace, and will thus have the name
+::dog::mytail.
+
+[para]
+
+Now, suppose you create two dogs.  Both will have a mytail component
+called ::dog::mytail.  In other words, you've got two dogs with one
+tail between them.  This is very bad.  Here are a couple of ways to
+avoid it:
+
+[para]
+
+First, if the component type is a [cmd snit::type] you can
+specify %AUTO% as its name, and be guaranteed to get a unique name.
+This is the safest thing to do:
+
+[para]
+[example {
+    install mytail using tail %AUTO%
+}]
+[para]
+
+If the component type isn't a [cmd snit::type] you can base the
+component's object name on the type's name in some way:
+
+[para]
+[example {
+     install mytail using tail $self.mytail
+}]
+[para]
+
+This isn't as safe, but should usually work out okay.
+
 
 [para]
 [emph {Must I destroy the components I create?}]
@@ -2159,6 +2247,89 @@ Note that this code assumes that [cmd tail] is also a
 [cmd snit::type]; if not, it might need to be destroyed in some other
 way.
 
+
+[para]
+[emph {Can I expose a component's object command as part of my interface?}]
+[para]
+
+Yes, and there are two ways to do it.  The most appropriate way is
+usually to use [sectref DELEGATION].  Delegation allows you to pass
+the options and methods you specify along to particular components.
+This effectively hides the components from the users of your type, and
+ensures good encapsulation.
+
+[para]
+
+However, there are times when it's appropriate, not to mention
+simpler, just to make the entire component part of your type's public
+interface.
+
+[para]
+[emph {How do I expose a component's object command?}]
+[para]
+
+
+Use the [cmd expose] statement.  For example, suppose you're creating
+a combobox megawidget which owns a listbox widget, and you want to
+make the listbox's entire interface public.  You can do this:
+
+[para]
+[example {
+snit::widget combobox {
+     expose listbox
+
+     constructor {args} {
+         install listbox using listbox $win.listbox ....
+
+         #...
+     }
+
+     #...
+}
+
+combobox .mycombo
+.mycombo listbox configure -width 30
+}]
+[para]
+
+The [cmd expose] statement exposes the named component by
+defining a method of the same name.  The method's arguments are passed
+along to the component.  Thus, the above code sets the listbox
+component's "-width" to 30.
+
+[para]
+
+If called with no arguments, the method returns the component's object
+name:
+
+[para]
+[example {
+% .mycombo listbox
+.mycombo.listbox
+}]
+[para]
+
+Usually you'll let the method name be the same as the component name;
+however, you can rename it if necessary.  The code in the following
+listing exposes the same interface as the previous example:
+
+[para]
+[example {
+snit::widget combobox {
+     expose mylistbox as listbox
+
+     constructor {args} {
+         install mylistbox using listbox $win.mylistbox ....
+
+         #...
+     }
+
+     #...
+}
+combobox .mycombo
+.mycombo listbox configure -width 30
+}]
+[para]
 
 
 [section DELEGATION]
@@ -2933,10 +3104,12 @@ change the widget's widget class anyway.
 [para]
 
 
-Every Tk widget option has has three names: the option name, the
-resource name, and the class name.  The option name begins with a
-hyphen and is all lowercase; it's used when creating widgets, and with
-the [cmd configure] and [cmd cget] commands.
+Every Tk widget option has three names: the option name, the resource
+name, and the class name.
+
+The option name begins with a hyphen and is all lowercase; it's used
+when creating widgets, and with the [cmd configure] and [cmd cget]
+commands.
 
 [para]
 
