@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.5 2001/09/05 23:53:52 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.6 2001/09/28 18:10:38 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.1
@@ -60,7 +60,7 @@ proc ::csv::join {values {sepChar ,}} {
 proc ::csv::joinlist {values {sepChar ,}} {
     set out ""
     foreach record $values {
-	append out "[join $record]\n"
+	append out "[join $record $sepChar]\n"
     }
     return $out
 }
