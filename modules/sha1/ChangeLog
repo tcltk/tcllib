@@ -1,5 +1,8 @@
 2005-02-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* sha1.h: replaced the possibly buggy sample extension implementation
+	* sha1.c: with shiny new code from the NetBSD project.
+
 	* sha1.test: Added some file tests (16K and 81K)
 	* sha1.tcl: Replaced steps 1 and 3 with slightly more efficient
 	but equivalent bit operations. Fixed an error with integer length
