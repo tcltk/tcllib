@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.4 2003/04/08 23:08:42 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.5 2003/04/09 18:25:31 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -26,6 +26,8 @@ namespace eval ::struct::list {
 	namespace export LongestCommonSubsequence2
 	namespace export LcsInvert
 	namespace export LcsInvert2
+	namespace export LcsInvertMerge
+	namespace export LcsInvertMerge2
 	namespace export Reverse
 	namespace export Assign
 	namespace export Flatten
@@ -369,7 +371,7 @@ proc ::struct::list::LcsInvert2 {idx1 idx2 len1 len2} {
     set last2 -1
 
     foreach a $idx1 b $idx2 {
-	# Three possible cases.
+	# Four possible cases.
 	# a) last1 ... a and last2 ... b are not empty.
 	#    This is a 'change'.
 	# b) last1 ... a is empty, last2 ... b is not.
@@ -433,6 +435,88 @@ proc ::struct::list::LcsInvert2 {idx1 idx2 len1 len2} {
     return $result
 }
 
+proc ::struct::list::LcsInvertMerge {lcsData len1 len2} {
+    return [LcsInvertMerge2 [::lindex $lcsData 0] [::lindex $lcsData 1] $len1 $len2]
+}
+
+proc ::struct::list::LcsInvertMerge2 {idx1 idx2 len1 len2} {
+    set result {}
+    set last1 -1
+    set last2 -1
+
+    foreach a $idx1 b $idx2 {
+	# Four possible cases.
+	# a) last1 ... a and last2 ... b are not empty.
+	#    This is a 'change'.
+	# b) last1 ... a is empty, last2 ... b is not.
+	#    This is an 'addition'.
+	# c) last1 ... a is not empty, last2 ... b is empty.
+	#    This is a deletion.
+	# d) If both ranges are empty we can ignore the
+	#    two current indices. For merging we simply
+	#    take the information from the input.
+
+	set empty1 [expr {($a - $last1) <= 1}]
+	set empty2 [expr {($b - $last2) <= 1}]
+
+	if {$empty1 && $empty2} {
+	    # Case (d), add 'unchanged' chunk.
+	    foreach {type left right} [lindex $result end] break
+	    if {[string equal $type unchanged]} {
+		# We extend the 'unchanged' chunk found at the end.
+		lset result end [::list unchanged [::list [lindex $left 0] $a] [::list [lindex $right 0] $b]]
+	    } else {
+		lappend result [::list unchanged [::list $last1 $a] [::list $last2 $b]]
+	    }
+
+	} elseif {$empty1} {
+	    # Case (b), 'addition'.
+	    incr last2 ; incr b -1
+	    lappend result [::list added [::list $last1 $a] [::list $last2 $b]]
+	    incr b
+	} elseif {$empty2} {
+	    # Case (c), 'deletion'
+	    incr last1 ; incr a -1
+	    lappend result [::list deleted [::list $last1 $a] [::list $last2 $b]]
+	    incr a
+	} else {
+	    # Case (q), 'change'.
+	    incr last1 ; incr a -1
+	    incr last2 ; incr b -1
+	    lappend result [::list changed [::list $last1 $a] [::list $last2 $b]]
+	    incr a
+	    incr b
+	}
+
+	set last1 $a
+	set last2 $b
+    }
+
+    # Handle the last chunk, using the information about the length of
+    # the original sequences.
+
+    set empty1 [expr {($len1 - $last1) <= 1}]
+    set empty2 [expr {($len2 - $last2) <= 1}]
+
+    if {$empty1 && $empty2} {
+	# Case (d), ignore the indices
+    } elseif {$empty1} {
+	# Case (b), 'addition'.
+	incr last2 ; incr len2 -1
+	lappend result [::list added [::list $last1 $len1] [::list $last2 $len2]]
+    } elseif {$empty2} {
+	# Case (c), 'deletion'
+	incr last1 ; incr len1 -1
+	lappend result [::list deleted [::list $last1 $len1] [::list $last2 $len2]]
+    } else {
+	# Case (q), 'change'.
+	incr last1 ; incr len1 -1
+	incr last2 ; incr len2 -1
+	lappend result [::list changed [::list $last1 $len1] [::list $last2 $len2]]
+    }
+
+    return $result
+}
 
 # ::struct::list::Reverse --
 #
