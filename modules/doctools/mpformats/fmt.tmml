@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.9 2002/04/24 03:11:42 jenglish Exp $
+# $Id: fmt.tmml,v 1.10 2002/04/24 03:19:32 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -94,7 +94,7 @@ proc example {code} {
 }
 
 proc comment {text} {xmlComment $text}
-proc sectref {text} {possibleReference $text strong}
+proc sectref {text} {possibleReference $text emph}
 proc syscmd  {text} {wrap $text syscmd}
 proc method  {text} {wrap $text method}
 proc option  {text} {wrap $text option}
@@ -105,9 +105,9 @@ proc package {text} {wrap $text package}
 proc class   {text} {wrap $text class}
 proc var     {text} {wrap $text variable}
 proc file    {text} {wrap $text file}
-proc uri     {text} {wrap $text uri}
+proc uri     {text} {wrap $text url}
 proc term    {text} {wrap $text term}
-proc const   {text} {strong $text}
+proc const   {text} {wrap $text l}
 
 global    state
 array set state {mdesc {}}
