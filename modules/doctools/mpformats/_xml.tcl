@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.2 2002/04/24 01:40:31 jenglish Exp $
+# $Id: _xml.tcl,v 1.3 2002/04/24 03:11:42 jenglish Exp $
 #
 # [expand] utilities for generating XML.
 #
@@ -9,49 +9,72 @@
 #
 ######################################################################
 
-# xmlEscape text --
-#	Replaces XML markup characters in $text with the
-#	appropriate entity references.
-#
-variable textMap 	{ & &amp;  < &lt;  > &gt; }
-variable attvalMap	{ & &amp;  < &lt;  > &gt; {"} &quot; } ; # "
 
-proc xmlEscape {text} {
-    variable textMap
-    string map $textMap $text
+# Handling XML delimiters in content:
+#
+# Plain text is initially passed through unescaped;
+# internally-generated markup is protected by preceding it with \1.
+# The final PostProcess step strips the escape character from
+# real markup and replaces markup characters from content
+# with entity references.
+#
+
+variable attvalMap { {&} &amp;  {<} &lt;  {>} &gt; {"} &quot; {'} &apos; } ; # "
+variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} }
+variable finalMap  { {\1&} {&}  {\1<} {<}  {\1>} {>}
+		     {&} &amp;  {<} &lt;   {>} &gt; }
+
+proc HandleText {text} {
+    return $text
+}
+proc PostProcess {text}	{
+    variable finalMap
+    return [string map $finalMap $text]
+}
+
+# markup text --
+#	Protect markup characters in $text with \1.
+#	These will be stripped out in PostProcess.
+#
+proc markup {text} {
+    variable markupMap
+    return [string map $markupMap $text]
+}
+
+# attlist { n1 v1 n2 v2 ... } --
+#	Return XML-formatted attribute list.
+#	Does *not* escape markup -- the result must be passed through
+#	[markup] before returning it to the expander.
+#
+proc attlist {nvpairs} {
+    variable attvalMap
+    if {[llength $nvpairs] == 1} { set nvpairs [lindex $nvpairs 0] }
+    set attlist ""
+    foreach {name value} $nvpairs {
+    	append attlist " $name='[string map $attvalMap $value]'"
+    }
+    return $attlist
 }
 
 # startTag gi ?attname attval ... ? --
 #	Return start-tag for element $gi with specified attributes.
 #
 proc startTag {gi args} {
-    variable attvalMap
-    if {[llength $args] == 1} { set args [lindex $args 0] }
-    set tag "<$gi"
-    foreach {name value} $args {
-    	append tag " $name='[string map $attvalMap $value]'"
-    }
-    return [append tag ">"]
+    return [markup "<$gi[attlist $args]>"]
 }
 
 # endTag gi --
 #	Return end-tag for element $gi.
 #
 proc endTag {gi} {
-    return "</$gi>"
+    return [markup "</$gi>"]
 }
 
 # emptyElement gi ?attribute  value ... ?
 #	Return empty-element tag.
 #
 proc emptyElement {gi args} {
-    variable attvalMap
-    if {[llength $args] == 1} { set args [lindex $args 0] }
-    set tag "<$gi"
-    foreach {name value} $args {
-    	append tag " $name='[string map $attvalMap $value]'"
-    }
-    return [append tag "/>"]
+    return [markup "<$gi[attlist $args]/>"]
 }
 
 # xmlComment text --
@@ -59,14 +82,14 @@ proc emptyElement {gi args} {
 #	NB: if $text includes the sequence "--", it will be mangled.
 #
 proc xmlComment {text} {
-    return "<!-- [string map {-- { - - }} $text] -->"
+    return [markup "<!-- [string map {-- { - - }} $text] -->"]
 }
 
 # wrap content gi --
 #	Returns $content wrapped inside <$gi> ... </$gi> tags.
 #
 proc wrap {content gi} {
-    return "<$gi>$content</$gi>"
+    return "[startTag $gi]${content}[endTag $gi]"
 }
 
 # wrap? content gi --
@@ -74,7 +97,7 @@ proc wrap {content gi} {
 #
 proc wrap? {content gi} {
     if {![string length [string trim $content]]} { return "" }
-    return "<$gi>$content</$gi>"
+    return "[startTag $gi]${content}[endTag $gi]"
 }
 
 # wrapLines? content gi ? gi... ?
@@ -84,7 +107,7 @@ proc wrap? {content gi} {
 proc wrapLines? {content args} {
     if {![string length $content]} { return "" }
     foreach gi $args {
-	set content [join [list <$gi> $content </$gi>] "\n"]
+	set content [join [list [startTag $gi] $content [endTag $gi]] "\n"]
     }
     return $content
 }
@@ -128,7 +151,7 @@ proc xmlContext {gis {default {}}} {
 	if {[lsearch $gis $current] >= 0} {
 	    return [join $endTags \n]
 	}
-	lappend endTags "</$current>"
+	lappend endTags [endTag $current]
 	set elementStack [lreplace $elementStack end end]
     }
     # Not found:
@@ -149,7 +172,7 @@ proc end {{gi {}}} {
     }
     set prefix [xmlContext $gi]
     set elementStack [lreplace $elementStack end end]
-    return [join [list $prefix </$gi>] "\n"]
+    return [join [list $prefix [endTag $gi]] "\n"]
 }
 
 ######################################################################
@@ -177,7 +200,7 @@ proc setPassProcs {pass} {
 }
 
 # holdBuffers buffer ? buffer ...? --
-#	Declare a list of hold buffers, 
+#	Declare a list of hold buffers,
 #	to collect data in one pass and output it later.
 #
 proc holdBuffers {args} {

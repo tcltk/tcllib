@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.8 2002/04/01 14:58:06 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.9 2002/04/24 03:11:42 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -11,16 +11,10 @@
 # See also <URL: http://tmml.sourceforge.net>
 #
 # BUGS:
-#	+ XML markup characters in [expand] macro arguments
-#	  are not properly escaped.  (Plain text outside of
-#	  [...] is handled correctly however.)
-#
 #	+ Text must be preceded by [para] or one of the
 #	  list item macros, or else the output will be invalid.
 #
 ######################################################################
-
-#rename file __file
 
 source [__file join [__file dirname [info script]] _xml.tcl]
 set this [__file tail [info script]]
@@ -29,11 +23,7 @@ set this [__file tail [info script]]
 # mpexpand(n) interface.
 #
 proc NumPasses {}	{ return 2 }
-proc PassSetup {}	{
-    setPassProcs [mp_pass]
-}
-proc PostProcess {text}	{ return $text }
-proc HandleText {text}	{ xmlEscape $text }
+proc PassSetup {}	{ setPassProcs [mp_pass] }
 
 ######################################################################
 # Utilities.
@@ -48,7 +38,6 @@ proc provenance {} {
     variable this
     return "Generated from [mp_file] by tcllib/doctools/mpexpand with $this"
 }
-
 
 ######################################################################
 # Cross-reference tracking.
@@ -101,7 +90,7 @@ proc example_begin {}	{ sequence [xmlContext $::block] [start example] }
 proc example_end   {}	{ end example }
 
 proc example {code} {
-    sequence [xmlContext $::block] [wrap [HandleText $code] example] 
+    sequence [xmlContext $::block] [wrap $code example]
 }
 
 proc comment {text} {xmlComment $text}
@@ -119,8 +108,6 @@ proc file    {text} {wrap $text file}
 proc uri     {text} {wrap $text uri}
 proc term    {text} {wrap $text term}
 proc const   {text} {strong $text}
-
-
 
 global    state
 array set state {mdesc {}}
