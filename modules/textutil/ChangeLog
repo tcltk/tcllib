@@ -1,6 +1,20 @@
+2000-11-02  Eric Melski  <ericm@ajubasolutions.com>
+
+	* textutil.test:
+	* adjust.test:
+	* split.test:
+	* tabify.test:
+	* trim.test:
+	* adjust.tcl:
+	* split.tcl:
+	* tabify.tcl:
+	* trim.tcl:
+	* textutil.tcl: Added functions from Joel Saunier (adjust, splitx,
+	tabify, trim, trimleft, trimright, untabify).
+
 2000-07-01  Eric Melski  <ericm@ajubasolutions.com>
 
 	* pkgIndex.tcl: Standard package index.
 
-	* textutil.tcl: Added [package provide]; no actual functions yet, just the
-	package stub.
+	* textutil.tcl: Added [package provide]; no actual functions yet, 
+	just the package stub.
