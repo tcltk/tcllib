@@ -29,8 +29,8 @@ can be overridden with the environment variables [var NNTPPORT] and
 [nl]
 
 Some of the commands supported by this package are not part of the
-nntp rfc (rfc 977) and will not be available (or implemented) on all
-nntp servers.
+nntp rfc 977 ([uri http://www.rfc-editor.org/rfc/rfc977.txt]) and will
+not be available (or implemented) on all nntp servers.
 
 [nl]
 
@@ -160,8 +160,9 @@ one) and returns the msgid of that message.
 
 [call [arg nntpName] [method post] [arg article]]
 
-Posts an article of the form specified in RFC 1036 (successor to RFC
-850) to the current news group.
+Posts an article of the form specified in
+RFC 1036 ([uri http://www.rfc-editor.org/rfc/rfc1036.txt], successor
+to RFC 850) to the current news group.
 
 [call [arg nntpName] [method slave]]
 
@@ -309,5 +310,5 @@ A bigger example for posting a single article.
     Test message body" 
 }]
 
-[keywords news nntp nntpclient rfc1030 rfc977]
+[keywords news nntp nntpclient {rfc 1036} {rfc 977}]
 [manpage_end]

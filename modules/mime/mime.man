@@ -369,5 +369,5 @@ that are unknown return "".
 [list_end]
 
 [see_also smtp pop3 ftp http]
-[keywords mail email smtp mime rfc821 rfc822 internet net]
+[keywords mail email smtp mime {rfc 821} {rfc 822} internet net]
 [manpage_end]

@@ -7,9 +7,12 @@
 [description]
 [para]
 
-The dns package provides a Tcl only Domain Name Service client. You should
-refer to RFC 1034 and RFC 1035 for information about the DNS protocol or
-read resolver(3) to find out how the C library resolves domain names.
+The dns package provides a Tcl only Domain Name Service client. You
+should refer to
+RFC 1034 ([uri http://www.rfc-editor.org/rfc/rfc1034.txt]) and
+RFC 1035 ([uri http://www.rfc-editor.org/rfc/rfc1035.txt]) for
+information about the DNS protocol or read resolver(3) to find out how
+the C library resolves domain names.
 
 The intention of this package is to insulate Tcl scripts
 from problems with using the system library resolver for slow name servers.
@@ -159,5 +162,5 @@ Using DNS URIs as queries:
 [section AUTHORS]
 Pat Thoyts
 
-[keywords DNS resolver {domain name service}]
+[keywords DNS resolver {domain name service} {rfc 1034} {rfc 1035}]
 [manpage_end]

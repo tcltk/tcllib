@@ -1,3 +1,21 @@
+2003-04-22  Andreas Kupries  <andreask@activestate.com>
+
+	* modules/dns/tcllib_dns.man: Cleaned up RFC references, usage
+	* modules/ftp/ftp.man:        of such in the keyword sections,
+	* modules/ftpd/ftpd.man:      and added links to the master RFC
+	* modules/irc/irc.man:        website at http://www.rfc-editor.org.
+	* modules/md4/md4.man:
+	* modules/mime/mime.man:
+	* modules/mime/smtp.man:
+	* modules/nntp/nntp.man:
+	* modules/pop3/pop3.man:
+	* modules/pop3d/pop3d.man:
+	* modules/pop3d/pop3d_dbox.man:
+	* modules/pop3d/pop3d_udb.man:
+	* modules/smtpd/smtpd.man:
+	* modules/struct/graph.man:
+	* modules/uri/uri.man: 
+
 2003-04-21  Andreas Kupries  <andreask@activestate.com>
 
 	* devdoc/indexing.txt:
