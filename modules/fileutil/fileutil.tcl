@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.29 2003/09/04 00:10:44 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.30 2003/10/23 12:37:26 davidw Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -143,10 +143,22 @@ if {[string compare unix $tcl_platform(platform)]} {
 		upvar $nodeVar inodes
 	    }
 
-	    set oldwd [pwd]
-	    cd $basedir
-	    set cwd [pwd]
-	    set filenames [glob -nocomplain * .*]
+	    # Instead of getting a directory, we have received one file
+	    # name.  Do not do directory operations.
+	    if { [file isfile $basedir] } {
+		set cwd "" ; # This variable is needed below.
+		set fileisbasedir 1
+		set filenames $basedir
+	    } elseif { [file isdirectory $basedir] } {
+		set fileisbasedir 0
+		set oldwd [pwd]
+		cd $basedir
+		set cwd [pwd]
+		set filenames [glob -nocomplain * .*]
+	    } else {
+		error "$basedir does not exist"
+	    }
+
 	    set files {}
 	    set filt [string length $filtercmd]
 	    # If we don't remove . and .. from the file list, we'll get stuck in
@@ -193,7 +205,9 @@ if {[string compare unix $tcl_platform(platform)]} {
 		    set files [concat $files [find $filename $filtercmd inodes]]
 		}
 	    }
-	    cd $oldwd
+	    if { ! $fileisbasedir } {
+		cd $oldwd
+	    }
 	    return $files
 	}
 
@@ -262,7 +276,9 @@ if {[string compare unix $tcl_platform(platform)]} {
 		    set files [concat $files [find $filename $filtercmd inodes]]
 		}
 	    }
-	    cd $oldwd
+	    if { ! $fileisbasedir } {
+		cd $oldwd
+	    }
 	    return $files
 	}
 
@@ -734,6 +750,71 @@ proc ::fileutil::fileType {filename} {
     return $type
 }
 
+# ::fileutil::tempdir --
+#
+#	Return the correct directory to use for temporary files.
+#	Python attempts this sequence, which seems logical:
+#
+#       1. The directory named by the `TMPDIR' environment variable.
+#
+#       2. The directory named by the `TEMP' environment variable.
+#
+#       3. The directory named by the `TMP' environment variable.
+#
+#       4. A platform-specific location:
+#            * On Macintosh, the `Temporary Items' folder.
+#
+#            * On Windows, the directories `C:$\$TEMP', `C:$\$TMP',
+#              `$\$TEMP', and `$\$TMP', in that order.
+#
+#            * On all other platforms, the directories `/tmp',
+#              `/var/tmp', and `/usr/tmp', in that order.
+#
+#        5. As a last resort, the current working directory.
+#
+# Arguments:
+#	None.
+#
+# Side Effects:
+#	None.
+#
+# Results:
+#	The directory for temporary files.
+
+proc ::fileutil::tempdir {} {
+    global tcl_platform env
+    set attempdirs [list]
+
+    foreach tmp {TMPDIR TEMP TMP} {
+	if { [info exists env($tmp)] } {
+	    lappend attempdirs $env($tmp)
+	}
+    }
+
+    switch $tcl_platform(platform) {
+	windows {
+	    lappend attempdirs "C:\\TEMP" "C:\\TMP" "\\TEMP" "\\TMP"
+	}
+	macintosh {
+	    set tmpdir $env(TRASH_FOLDER)  ;# a better place?
+	}
+	default {
+	    lappend attempdirs [file join / tmp] \
+		[file join / var tmp] [file join / usr tmp]
+	}
+    }
+
+    foreach tmp $attempdirs {
+	if { [file isdirectory $tmp] && [file writable $tmp] } {
+	    return $tmp
+	}
+    }
+
+    # If nothing else worked...
+    return [pwd]
+}
+
+
 # ::fileutil::tempfile --
 #
 #   generate a temporary file name suitable for writing to
@@ -749,18 +830,7 @@ proc ::fileutil::fileType {filename} {
 #
 
 proc ::fileutil::tempfile {{prefix {}}} {
-    global  tcl_platform env
-    switch $tcl_platform(platform) {
-	unix {
-	    set tmpdir /tmp;   # or even $::env(TMPDIR), at times.
-	} macintosh {
-	    set tmpdir $env(TRASH_FOLDER)  ;# a better place?
-	} default {
-	    set tmpdir [pwd]
-	    catch {set tmpdir $env(TMP)}
-	    catch {set tmpdir $env(TEMP)}
-	}
-    }
+    set tmpdir [::fileutil::tempdir]
 
     set chars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     set nrand_chars 10

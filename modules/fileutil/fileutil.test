@@ -8,12 +8,13 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.15 2003/08/11 20:48:35 davidw Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.16 2003/10/23 12:37:26 davidw Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
 #
 if {[lsearch [namespace children] ::tcltest] == -1} {
+    set auto_path [linsert $auto_path 0 .]
     package require tcltest
     namespace import ::tcltest::*
 }
@@ -616,6 +617,21 @@ test install-3.1 {install a directory, set permissions} {unix} {
     }
     set res
 } {006660066600666}
+
+test tempdir-1.1 {return the correct directorary for temporary files} -constraints {
+    unix
+} -body {
+    set ::env(TEMP) /var/tmp
+    ::fileutil::tempdir
+} -cleanup {
+    unset env(TEMP)
+} -result {/var/tmp}
+
+test tempdir-1.2 {return the correct directorary for temporary files} -constraints {
+    unix
+} -body {
+    ::fileutil::tempdir
+} -result {/tmp}
 
 ::tcltest::cleanupTests
 return
