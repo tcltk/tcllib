@@ -97,7 +97,7 @@ Send a CTCP PING to [arg target].
 PING the server.
 
 
-[call [arg net] [method join] [arg channel]]
+[call [arg net] [method join] [arg channel] [opt key]]
 
 [arg channel] is the IRC channel to join.  IRC channels typically
 begin with a hashmark ("#") or ampersand ("&").
