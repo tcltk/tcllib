@@ -7,9 +7,11 @@
 [description]
 [para]
 
-This package implements a client for the RFC 868 TIME protocol. This
-simple protocol returns the time in seconds since 1 January 1900 to
-either tcp or udp clients.
+This package implements a client for the RFC 868 TIME protocol
+([uri http://www.rfc-editor.org/rfc/rfc868.txt]).
+
+This simple protocol returns the time in seconds since 1 January 1900
+to either tcp or udp clients.
 
 [section COMMANDS]
 
@@ -34,7 +36,7 @@ pairs of option name and value.
   Set the default network protocol. This defaults to udp if the tcludp
   package is available. Otherwise it will use tcp.
 [lst_item "[cmd -port] [arg number]"]
-  Set the default port to use. RFC868 uses port 37.
+  Set the default port to use. RFC 868 uses port 37.
 [lst_item "[cmd -timeout] [arg number]"]
   Set the default timeout value in milliseconds. The default is 10 seconds.
 [lst_item "[cmd -command] [arg number]"]
@@ -49,7 +51,7 @@ pairs of option name and value.
 Get the current value for the named configuration option.
 
 [call [cmd ::time::unixtime] [arg token]]
-  Format the returned time for the unix epoch. RFC868 time defines
+  Format the returned time for the unix epoch. RFC 868 time defines
   time 0 as 1 Jan 1900, while unix time defines time 0 as 1 Jan
   1970. This command converts the reply to unix time.
 
@@ -85,5 +87,5 @@ Get the current value for the named configuration option.
 [section AUTHORS]
 Pat Thoyts
 
-[keywords time NTP RFC868]
+[keywords time NTP {rfc 868}]
 [manpage_end]
