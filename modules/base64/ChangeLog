@@ -1,3 +1,10 @@
+2003-10-24  Andreas Kupries  <andreask@activestate.com>
+
+	* base64.test:
+	* base64.tcl: Applied patch fixing [Bug 821126]. Variable 'output'
+	  is now initialized to empty to have it defined at all
+	  times. Extended testsuite to cover the fixed cases.
+
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
 	* base64.tcl: Added code to the Trf supported 'decode'r to ignore
