@@ -48,8 +48,18 @@ loose itself in infinite loops upon encountering circular link
 structures.  The result of the command is a list containing the paths
 to the interesting files.
 
+[nl]
 
-[call [cmd ::fileutil::findByPattern] [arg basedir] [opt [option -regexp]|[option -glob]] [opt [option --]] [arg patterns]]
+The [arg filtercmd], if specified, is interpreted as a command prefix
+and one argument is added to it, the name of the file or directory
+find is currently looking at. Note that this name is [emph not] fully
+qualified. It has to be joined it with the result of [cmd pwd] to get
+an absolute filename.
+
+
+[call [cmd ::fileutil::findByPattern] [arg basedir] \
+     [opt [option -regexp]|[option -glob]] [opt [option --]] \
+     [arg patterns]]
 
 This command is based upon the [package TclX] command
 
