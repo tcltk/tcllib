@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.9 2002/01/18 16:42:47 rmax Exp $
+'\" RCS: @(#) $Id: control.n,v 1.10 2002/01/18 18:04:36 dgp Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -99,7 +99,7 @@ The \fBdo\fR command evaluates the script \fIbody\fR repeatedly
 (\fBwhile\fR) \fBtest\fR is true, depending on the value of
 \fIoption\fR being \fBuntil\fR or \fBwhile\fR. If \fIoption\fR and
 \fItest\fR are omitted the body is evaluated exactly once. After
-normal completion, \fBwhile\fR returns an empty string.  Exceptional
+normal completion, \fBdo\fR returns an empty string.  Exceptional
 return codes (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR, etc.) during
 the evaluation of \fIbody\fR are handled in the same way the
 \fBwhile\fR command handles them, except as noted in
