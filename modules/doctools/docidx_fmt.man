@@ -178,9 +178,11 @@ This command adds the keyword [arg text] to the index.
 
 [call [cmd manpage] [arg file] [arg text]]
 
-This command adds an element to the index which refers to a file. The
-file is specified through the symbolic name [arg file]. The [arg text]
-argument is used to label the reference.
+This command adds an element to the index which refers to a
+document.
+
+The document is specified through the symbolic name [arg file]. The
+[arg text] argument is used to label the reference.
 
 [nl]
 
