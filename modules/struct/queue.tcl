@@ -3,9 +3,11 @@
 #	Queue implementation for Tcl.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# All rights reserved.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.2 2000/05/31 00:00:03 ericm Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.3 2000/06/02 18:43:56 ericm Exp $
 
 namespace eval ::struct {}
 

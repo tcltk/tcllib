@@ -1,0 +1,43 @@
+2000-05-24  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/smtp.tcl: Fixed bug 5693, where the "To:" header wasn't
+	being sent with an e-mail when using the -recipients flag of
+	smtp::sendmessage.  Also, if -recipients was combined with -header
+	"To ..." or -header "Cc ...", it would send the message only to
+	-recipients (which is documented) but it would leave the Cc and To
+	headers, which are wrong.  This is also fixed.
+
+2000-05-23  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/mime.tcl
+	* mime/mime.test: Fixed bugs 5521 and 5659, where qp_encode and
+	qp_decode had numerous bugs.  See #5659 for details.
+
+2000-05-22  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/smtp.tcl: Fixed a bug where if the requested mail server
+	didn't exist (i.e. the host didn't have an SMTP server running),
+	smtp::sendmessage would continue executing until a horrific crash
+	at a later point.  I added the check and proper error reporting.
+
+2000-05-06  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/smtp.tcl: Fixed bug 5383, where smtp wouldn't work because
+	it had a dependency on Trf.  I've patched the code, and it seems
+	to work fine now.
+
+2000-04-25  Sandeep Tamhankar <sandeep@scriptics.com>
+
+	* modules/mime/mime.test: Added a somewhat rudimentary test suite
+	for TclMIME.  Found what I believe is a minor bug in the package,
+	but decided not to fix it (and just let the relevant test fail)
+	until I can discuss it with Brent.
+
+2000-03-07  Brent Welch <welch@scriptics.com>
+
+	* modules/mime/mime.tcl: Modified this to have a soft dependency on
+	the Trf package.  If it is available then the encoding and decoding
+	of MIME base64 and quoted-printable will run faster.
+	Also added mime::buildmessage that creates the structured MIME message
+	in a string and returns that - much like mime::copymessage that
+	copies the message to a channel.

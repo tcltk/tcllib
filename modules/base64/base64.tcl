@@ -5,9 +5,10 @@
 # The decoder was done for exmh by Chris Garrigues
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# All rights reserved.
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.4 2000/05/30 23:59:59 ericm Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.5 2000/06/02 18:43:53 ericm Exp $
 
 package provide base64 2.0
 

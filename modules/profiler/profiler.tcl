@@ -3,9 +3,11 @@
 #	Tcl code profiler.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# All rights reserved.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.9 2000/05/31 00:00:02 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.10 2000/06/02 18:43:56 ericm Exp $
 
 package provide profiler 0.1
 

@@ -7,9 +7,10 @@
 # Copyright (c) 2000 by Ajuba Solutions.
 # portions Copyright (c) 2000 by Scott Beasley
 #
-# All rights reserved.
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.5 2000/05/31 00:00:02 ericm Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.6 2000/06/02 18:43:56 ericm Exp $
 
 package provide pop3 1.0
 

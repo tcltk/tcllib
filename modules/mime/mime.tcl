@@ -1,7 +1,9 @@
 # mime.tcl - MIME body parts
 #
 # (c) 1999-2000 Marshall T. Rose
-# Hold harmless the author, and any lawful use is allowed.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 # Influenced by Borenstein's/Rose's safe-tcl (circa 1993) and Darren New's
 # unpublished package of 1999.

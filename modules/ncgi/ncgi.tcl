@@ -1,6 +1,12 @@
 # ncgi.tcl
 #
 # Basic support for CGI programs
+#
+# Copyright (c) 2000 Ajuba Solutions.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+
 
 # Please note that Don Libes' has a "cgi.tcl" that implements version 1.0
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures

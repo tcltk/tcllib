@@ -13,19 +13,37 @@
 	transition from "www" to "www.scriptics.com" can trigger
 	Basic Authentication challenges.
 
+2000-05-02  Brent Welch <welch@scriptics.com>
+
+	* ncgi/ncgi.tcl:
+	Moved the '+' decoding from nvlist down into ncgi::decode.
+	Changed ncgi::value to strip out the structure associated with
+	multipart/form-data values.  Use ncgi::valueList to get the
+	structured value.
+
 2000-05-02  Sandeep Tamhankar <sandeep@scriptics.com>
 
 	* ncgi.tcl: Changed ncgi::parseMimeValue such that a key-value
 	pair like name="" would turn into the list {name {}} instead of
 	{name {""}}.
 	
+2000-04-26  Brent Welch <welch@scriptics.com>
+
+	* ncgi.tcl, ncgi.test: changed names to get capitalization
+	right: setCookie, valueList, importAll, urlStub
+
+2000-04-17  Brent Welch  <welch@scriptics.com>
+
+	* ncgi.tcl: Fixed ncgi::reset with no query data.  Fixed
+	ncgi::multipart because it usually gets \r\n data.
+
 2000-04-14  Brent Welch <welch@scriptics.com>
 	
-	* ncgi.tcl: Changed ncgi::list to ncgi::nvlist (for "name value list") becauase
-	of the inevitable conflict with the global list command.
-	Added ncgi::importall to import a set of cgi variables
-	Added multipart/form-data parsing
-	Added ncgi::cookie and ncgi::setcookie
+	* ncgi.tcl: Changed ncgi::list to ncgi::nvlist (for "name value
+	list") becauase	of the inevitable conflict with the global list
+	command.  Added ncgi::importall to import a set of cgi variables.
+	Added multipart/form-data parsing.  Added ncgi::cookie and
+	ncgi::setcookie.
 
 2000-03-20  Eric Melski  <ericm@scriptics.com>
 

@@ -3,9 +3,11 @@
 #	Collection of math functions.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# All rights reserved.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.3 2000/05/31 00:00:01 ericm Exp $
+# RCS: @(#) $Id: math.tcl,v 1.4 2000/06/02 18:43:54 ericm Exp $
 
 package provide math 1.0
 

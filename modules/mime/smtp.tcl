@@ -1,7 +1,9 @@
 # smtp.tcl - SMTP client
 #
 # (c) 1999-2000 Marshall T. Rose
-# Hold harmless the author, and any lawful use is allowed.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 
 

@@ -6,9 +6,10 @@
 #	name for use in command line errors.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# All rights reserved.
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.5 2000/05/30 23:59:59 ericm Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.6 2000/06/02 18:43:53 ericm Exp $
 
 package provide cmdline 1.1
 namespace eval cmdline {

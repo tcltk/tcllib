@@ -1,50 +1,7 @@
-2000-05-24  Sandeep Tamhankar  <sandeep@scriptics.com>
-	* mime/smtp.tcl: Fixed bug 5693, where the "To:" header wasn't
-	being sent with an e-mail when using the -recipients flag of
-	smtp::sendmessage.  Also, if -recipients was combined with -header
-	"To ..." or -header "Cc ...", it would send the message only to
-	-recipients (which is documented) but it would leave the Cc and To
-	headers, which are wrong.  This is also fixed.
+2000-06-02  Eric Melski  <ericm@scriptics.com>
 
-2000-05-23  Sandeep Tamhankar  <sandeep@scriptics.com>
-
-	* mime/mime.tcl
-	* mime/mime.test: Fixed bugs 5521 and 5659, where qp_encode and
-	qp_decode had numerous bugs.  See #5659 for details.
-
-2000-05-22  Sandeep Tamhankar  <sandeep@scriptics.com>
-
-	* mime/smtp.tcl: Fixed a bug where if the requested mail server
-	didn't exist (i.e. the host didn't have an SMTP server running),
-	smtp::sendmessage would continue executing until a horrific crash
-	at a later point.  I added the check and proper error reporting.
-
-2000-05-16  Brent Welch <welch@scriptics.com>
-
-	* modules/html/html.tcl: Added html::refresh to generate
-	META tags that cause a page to refresh.
-
-2000-05-06  Sandeep Tamhankar  <sandeep@scriptics.com>
-
-	* mime/smtp.tcl: Fixed bug 5383, where smtp wouldn't work because
-	it had a dependency on Trf.  I've patched the code, and it seems
-	to work fine now.
-
-2000-05-03  Brent Welch <welch@scriptics.com>
-
-	* cmdline/cmdline.tcl:
-	Changed cmdline::getopt to set boolean arguments to
-	0 or 1 explicitly.  Previously it just set the value
-	to "" if it was present, or did nothing.  This vfixes
-	the -verbose command line bug in connect.
-
-2000-05-02  Brent Welch <welch@scriptics.com>
-
-	* ncgi/ncgi.tcl:
-	Moved the '+' decoding from nvlist down into ncgi::decode.
-	Changed ncgi::value to strip out the structure associated with
-	multipart/form-data values.  Use ncgi::valueList to get the
-	structured value.
+	* Makefile.in: Added ftp package.
+	* modules/ftp: Added ftp package from Steffen Traeger to tcllib.
 
 2000-04-28  Sandeep Tamhankar <sandeep@scriptics.com>
 
@@ -57,43 +14,20 @@
 	
 2000-04-26  Brent Welch <welch@scriptics.com>
 
-	* html/html.tcl:  Added urlResove and urlParent URL parsing
-	routines.
-
-2000-04-26  Brent Welch <welch@scriptics.com>
-
 	* configure.in: Bumped patchlevel to 0.4
 	* Makefile.in: Fixed dist target to deal with missing manual
 	pages and test files.
-	* ncgi/ncgi.tcl, ncgi.test: changed names to get capitalization
-	right: setCookie, valueList, importAll, urlStub
-	* html/html.tcl: track name changes in ncgi
 	* mkInstallScripts.tcl: Made install directory a parameter to
 	the unix install.sh script
-
-2000-04-25  Sandeep Tamhankar <sandeep@scriptics.com>
-
-	* modules/mime/mime.test: Added a somewhat rudimentary test suite
-	for TclMIME.  Found what I believe is a minor bug in the package,
-	but decided not to fix it (and just let the relevant test fail)
-	until I can discuss it with Brent.
 
 2000-04-25  Eric Melski  <ericm@scriptics.com>
 
 	* Makefile.in: Tweaked dist target to include README and
 	license.terms in distributions.
 
-2000-04-24  Brent Welch  <welch@scriptics.com>
-	
-	* html/html.tcl, html.test: Cleanup of procedure names in html package.
-	* html/html.n:	Updates to the man page
-	* htmlhtml.test: 60% through tests
-
 2000-04-17  Brent Welch  <welch@scriptics.com>
 
-	* html/html.tcl: Added html generation module
-	* ncgi/ncgi.tcl: Fixed ncgi::reset with no query data.
-	Fixed ncgi::multipart because it usually gets \r\n data
+	* modules/html: Added html generation module
 
 2000-04-10  Brent Welch  <welch@scriptics.com>
 
@@ -148,16 +82,9 @@
 
 2000-03-07  Brent Welch <welch@scriptics.com>
 
-	* modules/mime/mime.tcl: Modified this to have a soft dependency on
-	the Trf package.  If it is available then the encoding and decoding
-	of MIME base64 and quoted-printable will run faster.
-	Also added mime::buildmessage that creates the structured MIME message
-	in a string and returns that - much like mime::copymessage that
-	copies the message to a channel.
-
-	* modules/cgi/cgi.tcl: Preliminary version of a CGI module.  Still
-	needs some cookie functions, test suite, and docs...
-
+	* modules/cgi: Preliminary version of a CGI module.  Still needs
+	some cookie functions, test suite, and docs...
+	
 2000-03-07  Eric Melski <ericm@scriptics.com>
 
 	* modules/math: math library

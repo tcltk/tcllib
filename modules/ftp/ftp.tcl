@@ -1,16 +1,20 @@
+# ftp.tcl --
 #
-#   tcl FTP library package -- 
+#	FTP library package for Tcl 8.0+.  Originally written by Steffen
+#	Traeger (Steffen.Traeger@t-online.de); modified by Peter MacDonald
+#	(peter@pdqi.com) to support multiple simultaneous FTP sessions.
+#
+# Copyright (c) 1996-1999 by Steffen Traeger <Steffen.Traeger@t-online.de>
+# Copyright (c) 2000 by Ajuba Solutions
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-#   required:   tcl8.0
-#
-#   created:	12/96 
-#   changed:    12/99                            
-#   version:    2.0     Modified by Peter MacDonald (peter@pdqi.com) to support 
-#			multiple simultaneous ftps.
+# RCS: @(#) $Id: ftp.tcl,v 1.2 2000/06/02 18:43:54 ericm Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
-#		    	ftp::Cd <s> <directory>
+#			ftp::Cd <s> <directory>
 #			ftp::Pwd <s>
 #			ftp::Type <s> <?ascii|binary?>	
 #			ftp::List <s> <?directory?>
@@ -28,14 +32,8 @@
 #			ftp::RmDir <s> <directory>
 #			ftp::Quote <s> <arg1> <arg2> ...
 #
-# Copyright 1996-1999 Steffen Traeger (Steffen.Traeger@t-online.de)
-#
-# See the file "license.terms" for information on usage and redistribution
-# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-########################################################################
 
-package provide ftp [lindex {$Revision: 1.1 $} 1]
+package provide ftp [lindex {$Revision: 1.2 $} 1]
 
 namespace eval ftp {
 
