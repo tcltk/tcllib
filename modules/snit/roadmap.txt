@@ -144,6 +144,7 @@ rather than compile time.
 ** ::snit::RT.from
 * Option Handling
 ** ::snit::RT.method.cget
+** ::snit::RT.CacheCgetCommand
 ** ::snit::RT.method.configurelist
 ** ::snit::RT.method.configure
 ** ::snit::RT.GetOptionDbSpec
