@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 0.83]
+[manpage_begin snit n 0.84]
 [copyright {2003, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc   {Snit's Not Incr Tcl}]
 [require Tcl 8.3]
-[require snit [opt 0.83]]
+[require snit [opt 0.84]]
 [description]
 [para]
 
@@ -70,16 +70,7 @@ describing all options, as Tk widgets do.
 
 [nl]
 
-Two warnings.
-
-First, unlike Tk widget options, locally-defined [cmd snit::type] and
-[cmd snit::widget] options do not have a [term dbname]
-
-or [term classname]; Snit never queries the Tk option database.  These
-fields in the returned information will be set to the empty string,
-{}.
-
-Second, the information will be available for delegated options only
+Warning: This information will be available for delegated options only
 if the component to which they are delegated has a [method configure]
 method that returns this same kind of information.
 
@@ -233,12 +224,64 @@ definition, and omit declaring them in methods, type methods, and so
 forth.
 
 
+[call [cmd install] [arg compName] [const using] [arg objType] [arg objName] [arg args...]]
+
+Creates a new object and installs it as a component, as described
+under [emph {Components and Delegation}].
+
+If this is a [cmd snit::type], then the following two commands are
+equivalent:
+
+[nl]
+[example {
+    install myComp using myObjType $self.myComp options...
+}]
+[nl]
+[example {
+    set myComp [myObjType $self.myComp options...]
+}]
+[nl]
+
+Note that whichever method is used, [arg compName] must still be
+declared in the type definition using [cmd variable], or must be
+referenced in at least one [cmd delegate] statement.
+
+If this is a [cmd snit::widget] or [cmd snit::widgetadaptor], and if
+options have been delegated to component [arg compName], then those
+options will receive default values from the Tk option database.  Note
+that it doesn't matter whether the component to be installed is a
+widget or not.  See [emph {The Tk Option Database}] for more
+information.
+
+
+[call [cmd installhull] [const using] [arg widgetType] [arg args...]]
 [call [cmd installhull] [arg name]]
 
 The constructor of a [cmd snit::widgetadaptor] must create a widget to
 be the object's hull component; the widget is installed as the hull
 component using this command.  Note that the installed widget's name
 must be [const {$win}].
+
+This command has two forms.
+
+The first form specifies the [arg widgetType] and the [arg args...]
+(that is, the hardcoded option list) to use in creating the hull.
+Given this form, [cmd installhull] creates the hull widget, and
+initializes any options delegated to the hull from the Tk option
+database.
+
+In the second form, the hull widget has already been created; note
+that its name must be "$win".  In this case, the Tk option database is
+[emph not] queried for any options delegated to the hull.
+
+See [emph {The Tk Option Database}] for more information
+about [cmd snit::widgetadaptor]s and the option database.
+
+The longer form is preferred; however, the shorter form allows the
+programmer to adapt a widget created elsewhere, which is sometimes
+useful.  For example, it can be used to adapt a "page" widget created
+by a BWidgets tabbed notebook or pages manager widget.
+
 
 [nl]
 
@@ -263,8 +306,8 @@ result to [cmd installhull] as follows:
 
 Defines a new abstract data type called [arg name].  If [arg name] is
 not a fully qualified command name, it is assumed to be a name in the
-namespace in which the snit::type command appears (usually the global
-namespace).  It returns the fully qualified type name.
+namespace in which the [cmd snit::type] command appears (usually the
+global namespace).  It returns the fully qualified type name.
 
 [nl]
 
@@ -273,8 +316,8 @@ new type, along with other activities.
 
 [nl]
 
-The snit::type [arg definition] block is a script which may contain
-the following definitions:
+The [cmd snit::type] [arg definition] block is a script which may
+contain the following definitions:
 
 [nl]
 [list_begin definitions]
@@ -307,19 +350,45 @@ Type variables defined in the type [arg definition] are automatically
 visible in the [arg body] of every type method.
 
 
-[call [cmd option] [arg name] [opt [arg defaultValue]]]
+[call [cmd option] [arg namespec] [opt [arg defaultValue]]]
 
 Defines an option for instances of this type, and optionally gives it
 an initial value.  (The option's value defaults to the empty string if
-no initial value is specified.)  The option's [arg name] must begin
-with a hyphen, [const -].  Options are normally set and retrieved
-using the standard [method configure] and [method cget] instance
-methods.
+no initial value is specified.)
 
 [nl]
 
 An option defined in this way is said to be [term {locally defined}].
 
+[nl]
+
+The [arg namespec] is a list defining the option's
+name, resource name, and class name, e.g.:
+
+[nl]
+[example {
+    option {-font font Font} {Courier 12}
+}]
+[nl]
+
+The option name must begin with a hyphen, and must not contain any
+upper case letters. The resource name and class name are optional; if
+not specified, the resource name defaults to the option name, minus
+the hyphen, and the class name defaults to the resource name with the
+first letter capitalized.  Thus, the following statement is equivalent
+to the previous example:
+
+[nl]
+[example {
+    option -font {Courier 12}
+}]
+[nl]
+
+See [emph {The Tk Option Database}] for more information about
+resource and class names.
+
+Options are normally set and retrieved using the standard
+[method configure] and [method cget] instance methods.
 
 [call [cmd variable] [arg name] [opt [arg value]]]
 
@@ -518,15 +587,17 @@ allowed.
 A method cannot be both locally defined and delegated.
 
 
-[call [cmd delegate] [const option] [arg name] [const to] [arg comp] [opt "[const as] [arg compoption]"]]
+[call [cmd delegate] [const option] [arg namespec] [const to] [arg comp] [opt "[const as] [arg compoption]"]]
 
-Defines a delegated option.
+Defines a delegated option; the [arg namespec] is defined as for the
+[cmd option] statement.
 
 When the [method configure], [method configurelist], or [method cget]
 instance method is used to set or retrieve the option's value, the
 equivalent [method configure] or [method cget] command will be applied
 to the component as though these [cmd onconfigure] and [cmd oncget]
-handlers were defined:
+handlers were defined, where [arg name] is the option name from the
+[arg namespec]:
 
 [nl]
 [example {
@@ -567,9 +638,9 @@ in these ways:
 [bullet]
 
 Every [cmd snit::widget] instance has an automatically-created
-component called [var hull], which is a Tk frame widget.  Other
-widgets created as part of the megawidget will be created within this
-frame.
+component called [var hull], which is normally a Tk frame widget.
+Other widgets created as part of the megawidget will be created within
+this widget.
 
 [nl]
 
@@ -586,6 +657,27 @@ The name of an instance must be valid Tk window name, and the parent
 window must exist.
 
 [list_end]
+[nl]
+
+A [cmd snit::widget] definition can include any of statements allowed
+in a [cmd snit::type] definition, and may also include these as well:
+
+[nl]
+
+[list_begin definitions]
+
+[call [cmd widgetclass] [arg name]]
+
+Sets the [cmd snit::widget]'s widget class to [arg name], overriding
+the default.  See [emph {The Tk Option Database}] for more
+information.
+
+[call [cmd hulltype] [arg type]]
+
+Determined the kind of widget used as the [cmd snit::widget]'s hull.
+The [arg type] may be [cmd frame] (the default) or [cmd toplevel].
+
+[list_end]
 
        
 [call [cmd snit::widgetadaptor] [arg name] [arg definition]]
@@ -597,6 +689,13 @@ constructor and installed using the [cmd installhull] command.  Once
 the hull is installed, its instance command is renamed and replaced as
 with normal [cmd snit::widget]s.  The original command is again
 accessible in the instance variable [var hull].
+
+[nl]
+
+Note that in general it is not possible to change the
+[emph {widget class}] of a [cmd snit::widgetadaptor]'s hull widget.
+See [emph {The Tk Option Database}] for information on how
+[cmd snit::widgetadaptor]s interact with the option database.
 
 [list_end]
 
@@ -645,7 +744,7 @@ instance name.
 
 [nl]
 
-For [cmd snit::widgets] and [cmd snit::widgetadaptors], [arg name]
+For [cmd snit::widget]s and [cmd snit::widgetadaptor]s, [arg name]
 must be a valid widget name; the method returns the widget name.
 
 [nl]
@@ -675,9 +774,9 @@ variables); all variable names are fully-qualified.
 
 [call [cmd {$type}] [method {info instances}]]
 
-Returns a list of the type's instances.  For snit::types, it will be a
-list of fully-qualified instance names; for snit::widgets, it will be
-a list of Tk widget names.
+Returns a list of the type's instances.  For [cmd snit::type]s, it
+will be a list of fully-qualified instance names;
+for [cmd snit::widget]s, it will be a list of Tk widget names.
 
 
 [call [cmd {$type}] [method destroy]]
@@ -726,7 +825,34 @@ variable, it's easily accessible in any method.
 
 [para]
 
-In the above example, the [cmd dog] object's [method wag] method
+As of Snit 0.84, the [cmd install] command provides an alternate way
+to create and install the component:
+
+[para]
+[example {
+snit::type dog {
+    variable mytail
+
+    constructor {args} {
+        install mytail using tail %AUTO% -partof $self
+        $self configurelist $args
+    }
+
+    method wag {} {
+        $mytail wag
+    }
+}
+}]
+[para]
+
+For [cmd snit::type]s, the two methods are equivalent; for
+[cmd snit::widget]s and [cmd snit::widgetadaptor]s, the [cmd install]
+command properly initializes delegated options by querying
+[emph {the Tk option database}].
+
+[para]
+
+In the above examples, the [cmd dog] object's [method wag] method
 simply calls the [cmd tail] component's [method wag] method.  In OO
 circles, this is called delegation.  Snit provides an easier way to do
 this, as shown:
@@ -741,12 +867,6 @@ this, as shown:
             $self configurelist $args
         }
     }
-    
-    snit::type tail {
-        option -length 5
-        option -partof
-        method wag {} { return "Wag, wag, wag."}
-    }
 }]
 [para]
 
@@ -754,6 +874,454 @@ The [cmd delegate] statement in the type definition implicitly defines
 the instance variable [var mytail] to hold the component's name; it
 also defines the [cmd dog] object's [method wag] method, delegating it
 to the [var tail] component.
+
+[para]
+
+If desired, all otherwise unknown methods can be delegated to a
+specific component:
+
+[para]
+[example {
+    snit::type dog {
+	delegate method * to mytail
+
+	constructor {args} {
+	    set mytail [tail %AUTO% -partof $self]
+	    $self configurelist $args
+	}
+
+	method bark { return "Bark, bark, bark!" }
+    }
+}]
+[para]
+
+In this case, a [cmd dog] object will handle its own [method bark]
+method; but [method wag] will be passed along to [cmd mytail].  Any
+other method, being recognized by neither [cmd dog] nor [cmd tail],
+will simply raise an error.
+
+[para]
+
+Option delegation is similar to method delegation, except for the
+interactions with the Tk option database; this is described in the
+next section.
+
+
+[emph {The Tk Option Database}]
+[para]
+
+This section describes how Snit interacts with the Tk option database,
+and assumes the reader has a working knowledge of the option database
+and its uses.  The book [emph {Practical Programming in Tcl and Tk}]
+by Welch et al has a good introduction to the option database, as does
+[emph {Effective Tcl/Tk Programming}].
+
+[para]
+
+Snit is implemented so that most of the time it will simply do the
+right thing with respect to the option database, provided that the
+widget developer does the right thing by Snit.  The body of this
+section goes into great deal about what Snit requires.  The following
+is a brief statement of the requirements, for reference.
+
+[para]
+
+[list_begin bullet]
+[bullet]
+
+If the widget's default widget class is not what is desired, set it
+explicitly using [cmd widgetclass] in the widget definition.
+
+[bullet]
+
+When defining or delegating options, specify the resource and class
+names explicitly when necessary.
+
+[bullet]
+
+Use [cmd {installhull using}] to install the hull for
+[cmd snit::widgetadaptor]s.
+
+[bullet]
+
+Use [cmd install] to install all other components.
+
+[list_end]
+[para]
+
+The interaction of Tk widgets with the option database is a complex
+thing; the interaction of Snit with the option database is even more
+so, and repays attention to detail.
+
+[para]
+
+[emph {Setting the widget class:}] Every Tk widget has a widget class.
+For Tk widgets, the widget class name is the just the widget type name
+with an initial capital letter, e.g., the widget class for
+[cmd button] widgets is "Button".
+
+[para]
+
+Similarly, the widget class of a [cmd snit::widget] defaults to the
+unqualified type name with the first letter capitalized.  For example,
+the widget class of
+
+[para]
+[example {snit::widget ::mylibrary::scrolledText { ... }}]
+[para]
+
+is "ScrolledText".  The widget class can also be set explicitly using
+the [cmd widgetclass] statement within the [cmd snit::widget]
+definition.
+
+[para]
+
+Note that only [cmd frame] and [cmd toplevel] widgets allow the user
+to change the widget class name, which is why they are the allowable
+hull types for normal [cmd snit::widget]s.
+
+[para]
+
+The widget class of a [cmd snit::widgetadaptor] is just the widget
+class of its hull widget; this cannot be changed unless the hull
+widget is a [cmd frame] or [cmd toplevel], in which case it will
+usually make more sense to use [cmd snit::widget] rather than
+[cmd snit::widgetadaptor].
+
+[para]
+
+[emph {Setting option resource names and classes:}] In Tk, every
+option has three names: the option name, the resource name, and the
+class name.  The option name begins with a hyphen is all lowercase;
+it's used when creating widgets, and with the [cmd configure] and
+[cmd cget] commands.
+
+[para]
+
+The resource and class names are used to initialize option default
+values by querying the Tk option database.  The resource name is
+usually just the option name minus the hyphen, but may contain
+uppercase letters at word boundaries; the class name is usually just
+the resource name with an initial capital, but not always.  For
+example, here are the option, resource, and class names for several
+[cmd text] widget options:
+
+[para]
+[example {
+    -background         background         Background 
+    -borderwidth        borderWidth        BorderWidth 
+    -insertborderwidth  insertBorderWidth  BorderWidth 
+    -padx               padX               Pad 
+}]
+[para]
+
+As is easily seen, sometimes the resource and class names can be
+inferred from the option name, but not always.
+
+[para]
+
+Snit options also have a resource name and a class name.  By default,
+these names follow the rule given above: the resource name is the
+option name without the hyphen, and the class name is the resource
+name with an initial capital.  This is true for both locally-defined
+options and explicitly delegated options:
+
+[para]
+[example {
+    snit::widget mywidget {
+	option -background
+	delegate option -borderwidth to hull
+	delegate option * to text
+	# ...
+    }
+}]
+[para]
+
+In this case, the widget class name is "Mywidget".  The widget has the
+following options: -background, which is locally defined,
+-borderwidth, which is explicitly delegated; all other widgets are
+delegated to a component called "text", which is probably a Tk
+
+[cmd text] widget.  If so, [cmd mywidget] has all the same options as
+a [cmd text] widget.  The option, resource, and class names are as
+follows:
+
+[para]
+[example {
+    -background  background  Background
+    -borderwidth borderwidth Borderwidth
+    -padx        padX        Pad
+}]
+[para]
+
+Note that the locally defined option, "-background", happens to have
+the same three names as the standard Tk "-background" option; and
+"-pad", which is delegated implicitly to the "text" component has the
+same three names for [cmd mywidget] as it does for the [cmd text]
+widget.  "-borderwidth", on the other hand, has different resource and
+class names than usual, because the internal word "width" isn't
+capitalized.  For consistency, it should be; this is done as shown:
+
+[para]
+[example {
+    snit::widget mywidget {
+	option -background
+	delegate option {-borderwidth borderWidth} to hull
+	delegate option * to text
+	# ...
+    }
+}]
+[para]
+
+The class name will default to "BorderWidth", as expected.
+
+[para]
+
+Suppose, however, that [cmd mywidget] also delegated "-padx" and
+"-pady" to the hull.  In this case, both the resource name and the
+class name must be specified explicitly:
+
+[para]
+[example {
+    snit::widget mywidget {
+	option -background
+	delegate option {-borderwidth borderWidth} to hull
+	delegate option {-padx padX Pad} to hull
+	delegate option {-pady padY Pad} to hull
+	delegate option * to text
+	# ...
+    }
+}]
+[para]
+
+[emph {Querying the option database:}] If you set your widgetclass and
+option names as described above, Snit will query the option database
+when each instance is created, and will generally do the right thing
+when it comes to querying the option database.  The remainder of this
+section goes into the gory details.
+
+[para]
+
+[emph {Initializing locally defined options:}]
+
+When an instance of a snit::widget is created, its locally defined
+options are initialized as follows: each option's resource and class
+names are used to query the Tk option database.  If the result is
+non-empty, it is used as the option's default; otherwise, the default
+hardcoded in the type definition is used.  In either case, the default
+can be overridden by the caller.  For example,
+
+[para]
+[example {
+    option add *Mywidget.texture pebbled
+
+    snit::widget mywidget {
+	option -texture smooth
+	# ...
+    }
+
+    mywidget .mywidget -texture greasy
+}]
+[para]
+
+Here, "-texture" would normally default to "smooth", but because of
+the entry added to the option database it defaults to "pebbled".
+However, the caller has explicitly overridden the default, and so the
+new widget will be "greasy".
+
+[para]
+
+[emph {Initializing options delegated to the hull:}]
+
+A [cmd snit::widget]'s hull is a widget, and given that its class has
+been set it is expected to query the option database for itself.  The
+only exception concerns options that are delegated to it with a
+different name.  Consider the following code:
+
+[para]
+[example {
+    option add *Mywidget.borderWidth 5
+    option add *Mywidget.relief sunken
+    option add *Mywidget.hullbackground red
+    option add *Mywidget.background green
+
+    snit::widget mywidget {
+	delegate option -borderwidth to hull
+	delegate option -hullbackground to hull as -background
+	delegate option * to hull
+	# ...
+    }
+
+    mywidget .mywidget
+
+    set A [.mywidget cget -relief]
+    set B [.mywidget cget -hullbackground]
+    set C [.mywidget cget -background]
+    set D [.mywidget cget -borderwidth]
+}]
+[para]
+
+The question is, what are the values of variables A, B, C and D?
+
+[para]
+
+The value of A is "sunken".  The hull is a Tk frame which has been
+given the widget class "Mywidget"; it will automatically query the
+option database and pick up this value.  Since the -relief option is
+implicitly delegated to the hull, Snit takes no action.
+
+[para]
+
+The value of B is "red".  The hull will automatically pick up the
+value "green" for its -background option, just as it picked up the
+-relief value.  However, Snit knows that -hullbackground is mapped to
+the hull's -background option; hence, it queries the option database
+for -hullbackground and gets "red" and updates the hull accordingly.
+
+[para]
+
+The value of C is also "red", because -background is implicitly
+delegated to the hull; thus, retrieving it is the same as retrieving
+-hullbackground.  Note that this case is unusual; in practice,
+-background would probably be explicitly delegated to some other
+component.
+
+[para]
+
+The value of D is "5", but not for the reason you think.  Note that as
+it is defined above, the resource name for -borderwidth defaults to
+"borderwidth", whereas the option database entry is "borderWidth".  As
+with -relief, the hull picks up its own "-borderwidth" option before
+Snit does anything.  Because the option is delegated under its own
+name, Snit assumes that the correct thing has happened, and doesn't
+worry about it any further.
+
+[para]
+
+For [cmd snit::widgetadaptor]s, the case is somewhat altered.  Widget
+adaptors retain the widget class of their hull, and the hull is not
+created automatically by Snit.  Instead, the [cmd snit::widgetadaptor]
+must call [cmd installhull] in its constructor.  The normal way to do
+this is as follows:
+
+[para]
+[example {
+    snit::widgetadaptor mywidget {
+	# ...
+	constructor {args} {
+	    # ...
+	    installhull using text -foreground white
+	    #
+	}
+	#...
+    }
+}]
+[para]
+
+In this case, the [cmd installhull] command will create the hull using
+a command like this:
+
+[para]
+[example {
+    set hull [text $win -foreground white]
+}]
+[para]
+
+The hull is a [cmd text] widget, so its widget class is "Text".  Just
+as with [cmd snit::widget] hulls, Snit assumes that it will pick up
+all of its normal option values automatically; options delegated from
+a different name are initialized from the option database in the same
+way.
+
+[para]
+
+[emph {Initializing options delegated to other components:}]
+
+Non-hull components are matched against the option database in two
+ways.  First, a component widget remains a widget still, and therefore
+is initialized from the option database in the usual way.
+
+Second, the option database is queried for all options delegated to
+the component, and the component is initialized accordingly--provided
+that the [cmd install] command is used to create it.
+
+[para]
+
+Before option database support was added to Snit, the usual way to
+create a component was to simply create it in the constructor and
+assign its command name to the component variable:
+
+[para]
+[example {
+    snit::widget mywidget {
+	delegate option -background to myComp
+
+	constructor {args} {
+	    set myComp [text $win.text -foreground black]
+	}
+    }
+}]
+[para]
+
+The drawback of this method is that Snit has no opportunity to
+initialize the component properly.  Hence, the following approach is
+now used:
+
+[para]
+[example {
+    snit::widget mywidget {
+	delegate option -background to myComp
+
+	constructor {args} {
+	    install myComp using text $win.text -foreground black
+	}
+    }
+}]
+[para]
+
+The [cmd install] command does the following:
+
+[para]
+[list_begin bullet]
+[bullet]
+
+Builds a list of the options explicitly included in the [cmd install]
+command -- in this case, -foreground.
+
+[bullet]
+
+Queries the option database for all options delegated explicitly to
+the named component.
+
+[bullet]
+
+Creates the component using the specified command, after inserting
+into it a list of options and values read from the option database.
+Thus, the explicitly include options (-foreground) will override
+anything read from the option database.
+
+[bullet]
+
+If the widget definition implicitly delegated options to the component
+using "delegate option *", then Snit calls the newly created
+component's [cmd configure] method to receive a list of all of the
+component's options.  From this Snit builds a list of options
+implicitly delegated to the component which were not explicitly
+included in the [cmd install] command.  For all such options, Snit
+queries the option database and configures the component accordingly.
+
+[list_end]
+
+[emph {Non-widget components:}] The option database is never queried
+for [cmd snit::type]s, since it can only be queried given a Tk widget
+name.
+
+However, [cmd snit::widget]s can have non-widget components.  And if
+options are delegated to those components, and if the [cmd install]
+command is used to install those components, then they will be
+initialized from the option database just as widget components are.
+
+[para]
 
 
 [section CAVEATS]
