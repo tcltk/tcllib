@@ -8,13 +8,13 @@
 [description]
 [para]
 
-Snit is yet another pure Tcl object and megawidget system.  It's
-unique among Tcl object systems (so far as I know) in that it's a
-system based not on inheritance but on delegation.  Object systems
-based on inheritance only allow you to inherit from classes defined
-using the same system, and that's a shame.  In Tcl, an object is
+Snit is a pure Tcl object and megawidget system.  It's
+unique among Tcl object systems in that it's based not on inheritance
+but on delegation.  Object systems based on inheritance only allow you
+to inherit from classes defined using the same system, which is
+limiting.  In Tcl, an object is 
 anything that acts like an object; it shouldn't matter how the object
-was implemented.  I designed Snit to help me build applications out of
+was implemented.  Snit is intended to help you build applications out of
 the materials at hand; thus, Snit is designed to be able to
 incorporate and build on any object, whether it's a hand-coded object,
 a [package Tk] widget, an [package {Incr Tcl}] object,
@@ -195,7 +195,8 @@ will be "" otherwise.
 
 The [arg flag] can be any Boolean value recognized by Tcl.  
 If [arg flag] is true, then the option is readonly--it can only
-be set at creation time, i.e., in the type's constructor.
+be set using [method configure] or [method configurelist] 
+at creation time, i.e., in the type's constructor.
 
 [lst_item "[const -cgetmethod] [arg methodName]"]
 
@@ -356,19 +357,19 @@ A method cannot be both locally defined and delegated.
 [nl]
 
 [const Note:] All forms of [cmd "delegate method"] can delegate to
-both instance components and typecomponents.
+both instance components and type components.
 
 [call [cmd delegate] [const method] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
 
 In this form of the [cmd delegate] statement, the [const using] clause
 is used to specify the precise form of the command to which method 
-[arg name] name is delegated.  In this form, the "to" clause is
+[arg name] name is delegated.  In this form, the [const "to"] clause is
 optional, since the chosen command might not involve any particular
 component.
 
 [nl]
 
-The value of the [const using] clause is a string which may contain 
+The value of the [const using] clause is a string that may contain 
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
@@ -414,7 +415,7 @@ It remains constant, even if the instance command is renamed.
 
 [call [cmd delegate] [const method] [const *] [opt "[const to] [arg comp]"] [opt "[const using] [arg pattern]"] [opt "[const except] [arg exceptions]"]]
 
-The form "delegate method *" delegates all unknown method names to the
+The form [cmd "delegate method *"] delegates all unknown method names to the
 specified [arg comp]onent.  The [const except] clause can be used to
 specify a list of [arg exceptions], i.e., method names that will not
 be so delegated. The [const using] clause is defined as given above.
@@ -451,7 +452,7 @@ name is used in place of [arg name].
 
 [nl]
 
-The form "delegate option *" delegates all unknown method names to the
+The form [cmd "delegate option *"] delegates all unknown method names to the
 specified [arg comp]onent.  The [const except] clause can be used to
 specify a list of [arg exceptions], i.e., option names that will not
 be so delegated.
@@ -497,9 +498,9 @@ equivalent to:
 
 [call [cmd delegate] [const typemethod] [arg name] [const to] [arg comp] [opt "[const as] [arg target]"]]
 
-Delegates typemethod [arg name] to typecomponent [arg comp].  That is, when
-typemethod [arg name] is called on this type, the typemethod
-and its arguments will be passed to the named typecomponent's command
+Delegates type method [arg name] to type component [arg comp].  That is, when
+type method [arg name] is called on this type, the type method
+and its arguments will be passed to the named type component's command
 instead.  That is, the following statement
 
 [example {    delegate typemethod lostdogs to pound
@@ -520,19 +521,19 @@ method name and possibly add some arguments:
 
 [nl]
 
-A typemethod cannot be both locally defined and delegated.
+A type method cannot be both locally defined and delegated.
 
 [call [cmd delegate] [const typemethod] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
 
 In this form of the [cmd delegate] statement, the [const using] clause
-is used to specify the precise form of the command to which typemethod 
-[arg name] name is delegated.  In this form, the "to" clause is
+is used to specify the precise form of the command to which type method 
+[arg name] name is delegated.  In this form, the [const "to"] clause is
 optional, since the chosen command might not involve any particular
-typecomponent.
+type component.
 
 [nl]
 
-The value of the [const using] clause is a string which may contain 
+The value of the [const using] clause is a string that may contain 
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
@@ -550,11 +551,11 @@ to the command as an argument, you'd write "%%c".
 
 [lst_item [const %c]]
 
-This is replaced with the named typecomponent's command.
+This is replaced with the named type component's command.
 
 [lst_item [const %m]]
 
-This is replaced with the typemethod [arg name].
+This is replaced with the type method [arg name].
 
 [lst_item [const %t]]
 
@@ -565,34 +566,36 @@ This is replaced with the fully qualified type name.
 [call [cmd delegate] [const typemethod] [const *] [opt "[const to] [arg comp]"] \
  [opt "[const using] [arg pattern]"] [opt "[const except] [arg exceptions]"]]
 
-The form "delegate typemethod *" delegates all unknown typemethod names to the
-specified typecomponent.  The [const except] clause can be used to
-specify a list of [arg exceptions], i.e., typemethod names that will not
+The form [cmd "delegate typemethod *"] delegates all unknown type
+method names to the
+specified type component.  The [const except] clause can be used to
+specify a list of [arg exceptions], i.e., type method names that will not
 be so delegated. The [const using] clause is defined as given above.
 In this form, the statement must contain the [const to] clause, the
 [const using] clause, or both.
 
 [nl]
 
-[const Note:] By default, Snit interprets "$type foo", where "foo" is
-not a defined typemethod, as equivalent to "$type create foo", where
-"foo" is the name of a new instance of the type.  If you 
-use "delegate typemethod *", then the "create" typemethod must always
-be used explicitly.
+[const Note:] By default, Snit interprets [cmd "\$type foo"], where
+[const "foo"] is
+not a defined type method, as equivalent to [cmd "\$type create foo"], where
+[const "foo"] is the name of a new instance of the type.  If you 
+use [const "delegate typemethod *"], then the [method "create"] type
+method must always be used explicitly.
 
 [call [cmd typecomponent] [arg comp] \
      [opt "[const -public] [arg typemethod]"] \
      [opt "[const -inherit] [arg flag]"]]
 
-Explicitly declares a typecomponent called [arg comp], and automatically
-defines the component's typevariable.  A typecomponent is an arbitrary
-command to which typemethods and instance methods can be delegated;
-the command's name is stored in a typevariable.
+Explicitly declares a type component called [arg comp], and automatically
+defines the component's type variable.  A type component is an arbitrary
+command to which type methods and instance methods can be delegated;
+the command's name is stored in a type variable.
 
 [nl]
 
-If the [const -public] option is specified, then the typecomponent is made
-public by defining a [arg typemethod] that is delegated to the typecomponent's
+If the [const -public] option is specified, then the type component is made
+public by defining a [arg typemethod] that is delegated to the type component's
 command itself, e.g., specifying [const "-public mytypemethod"] is
 equivalent to the following:
 
@@ -601,11 +604,11 @@ equivalent to the following:
 }]
 
 If the [const -inherit] option is specified, then [arg flag] must be a
-Boolean value; if [arg flag] is true then all unknown typemethods
-will be delegated to this typecomponent. (See the note on "delegate
+Boolean value; if [arg flag] is true then all unknown type methods
+will be delegated to this type component. (See the note on "delegate
 typemethod *", above.) The name [const -inherit]
 implies that this type inherits, in a sense, the behavior of
-the typecomponent. That is, [const "-inherit yes"] is equivalent to:
+the type component. That is, [const "-inherit yes"] is equivalent to:
 
 [example {    typecomponent mycomp
     delegate typemethod * to mycomp
@@ -615,14 +618,15 @@ the typecomponent. That is, [const "-inherit yes"] is equivalent to:
 
 The [cmd pragma] statement provides control over how Snit generates a
 type.  It takes the following options; in each case, [arg flag] must
-be a Boolean value recognized by Tcl, e.g., 0, 1, "yes", "no", and so
+be a Boolean value recognized by Tcl, e.g., [const 0], [const 1], 
+[const "yes"], [const "no"], and so
 on.
 
 [nl]
 
-If the [const -hastypeinfo], [const -hastypedestroy], and
-[const -hasinstances] pragmas are all set to false, the type
-definition produces an ensemble command without any extraneous
+By setting the [const -hastypeinfo], [const -hastypedestroy], and
+[const -hasinstances] pragmas to false and defining appropriate
+type methods, you can create an ensemble command without any extraneous
 behavior.
 
 [list_begin definitions]
@@ -635,20 +639,20 @@ behavior of Snit V0.93 and earlier versions.
 
 [lst_item "[const -hastypeinfo] [arg flag]"]
 
-If true (the default), the generated type will have a typemethod
+If true (the default), the generated type will have a type method
 called [cmd info] that is used for type introspection; the [cmd info]
-typemethod is documented below.  If false, it will not.
+type method is documented below.  If false, it will not.
 
 [lst_item "[const -hastypedestroy] [arg flag]"]
 
-If true (the default), the generated type will have a typemethod
+If true (the default), the generated type will have a type method
 called [cmd destroy] that is used to destroy the type and all of its
-instances.  The [cmd destroy] typemethod is documented below.  If
+instances.  The [cmd destroy] type method is documented below.  If
 false, it will not.
 
 [lst_item "[const -hasinstances] [arg flag]"]
 
-If true (the default), the generated type will have a typemethod 
+If true (the default), the generated type will have a type method 
 called [cmd create] that is used to create instances of the type,
 along with a variety of instance-related features.  If false, it will
 not. 
@@ -681,7 +685,7 @@ As of version 0.94, the following definitions,
     }
 }]
 
-is implemented as follows:
+are implemented as follows:
 
 [example {    option -myoption -configuremethod _configure-myoption
     method _configure-myoption {_option value} {
@@ -704,7 +708,7 @@ As of version 0.94, the following definitions,
     }
 }]
 
-is implemented as follows:
+are implemented as follows:
 
 [example {    option -myoption -cgetmethod _cget-myoption
     method _cget-myoption {_option} {
@@ -786,7 +790,7 @@ See [sectref {The Tk Option Database}] for information on how
 
 [call [cmd snit::typemethod] [arg type] [arg name] [arg arglist] [arg body]]
 
-Defines a new typemethod (or redefines an existing typemethod)
+Defines a new type method (or redefines an existing type method)
 for a previously existing [arg type].
 
 [call [cmd snit::method] [arg type] [arg name] [arg arglist] [arg body]]
@@ -834,11 +838,11 @@ the second element is the definition script.
 
 [cmd snit::compile] is useful when additional processing
 must be done on the Snit-generated code--if it must be instrumented,
-for example, or run through the TclDevKit compiler.  In addition,the
-returned script could be saved in a text file and used to define the
+for example, or run through the TclDevKit compiler.  In addition, the
+returned script could be saved in a ".tcl" file and used to define the
 type as part of an application or library, thus saving the compilation
 overhead at application start-up.  Note that the
-same version of Snit must be used at run time as at compile time.
+same version of Snit must be used at run-time as at compile-time.
 
 [list_end]
 
@@ -863,13 +867,15 @@ chosen.
 
 The type command is most often used to create new instances of the 
 type; hence, the [method create] method is assumed if the first
-argument to the type command doesn't name a valid type method.
+argument to the type command doesn't name a valid type method, unless
+the type definition includes [cmd "delegate typemethod *"] or the 
+[const -hasinstances] pragma is set to false.
 
 [list_end]
 
 [subsection {Standard Type Methods}]
 
-In addition to any typemethods in the type's definition, all type and
+In addition to any type methods in the type's definition, all type and
 widget commands will have at least the following subcommands:
 
 [para]
@@ -896,7 +902,9 @@ must be a valid widget name; the method returns the widget name.
 [nl]
 
 So long as [arg name] does not conflict with any defined type method
-name, the [method create] keyword may be omitted.
+name the [method create] keyword may be omitted, unless
+the type definition includes [cmd "delegate typemethod *"] or the 
+[const -hasinstances] pragma is set to false.
 
 [nl]
 
@@ -927,20 +935,20 @@ variables); all variable names are fully-qualified.
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [call [cmd {$type}] [method {info typemethods}] [opt [arg pattern]]]
 
-Returns a list of the names of the type's typemethods.  If the type
+Returns a list of the names of the type's type methods.  If the type
 definition includes [cmd "delegate typemethod *"], the list will
-include only the names of those implicitly delegated typemethods 
-that have been called at least once and are still in the typemethod cache.
+include only the names of those implicitly delegated type methods 
+that have been called at least once and are still in the type method cache.
 
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [call [cmd {$type}] [method {info instances}] [opt [arg pattern]]]
@@ -952,7 +960,7 @@ for [cmd snit::widget]s, it will be a list of Tk widget names.
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [call [cmd {$type}] [method destroy]]
@@ -1044,7 +1052,7 @@ internal variables).  The names are fully qualified.
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [call [cmd {$object}] [method {info typevars}] [opt [arg pattern]]]
@@ -1055,20 +1063,20 @@ internal variables).  The names are fully qualified.
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [call [cmd {$object}] [method {info typemethods}] [opt [arg pattern]]]
 
-Returns a list of the names of the type's typemethods.  If the type
+Returns a list of the names of the instance's type's type methods.  If the type
 definition includes [cmd "delegate typemethod *"], the list will
-include only the names of those implicitly delegated typemethods 
-that have been called at least once and are still in the typemethod cache.
+include only the names of those implicitly delegated type methods 
+that have been called at least once and are still in the type method cache.
 
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [call [cmd {$object}] [method {info options}] [opt [arg pattern]]]
@@ -1083,7 +1091,7 @@ be delegated to the component.
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 [nl]
 
@@ -1101,7 +1109,7 @@ been called at least once and are still in the method cache.
 [nl]
 
 If [arg pattern] is given, it's used as a [cmd {string match}]
-pattern; only names which match the pattern are returned.
+pattern; only names that match the pattern are returned.
 
 
 [list_end]
@@ -1123,8 +1131,8 @@ The [cmd mymethod] command is used for formatting callback commands to
 be passed to other objects.  It returns a command that when called
 will invoke method [arg name] with the specified arguments, plus of
 course any arguments added by the caller.  In other words, both of the
-following commands will cause my object's [method dosomething] method
-to be called when [cmd {$button}] is pressed:
+following commands will cause the object's 
+[method dosomething] method to be called when the [cmd {$button}] is pressed:
 
 [example {    $button configure -command [list $self dosomething myargument]
        
@@ -1132,7 +1140,7 @@ to be called when [cmd {$button}] is pressed:
 }]
 
 The chief distinction between the two is that the latter form will not
-break if the creator of my object renames its object command.
+break if the object's command is renamed.
 
 [call [cmd mytypemethod] [arg name] [opt [arg args...]]]
 
@@ -1140,7 +1148,7 @@ The [cmd mytypemethod] command is used for formatting callback commands to
 be passed to other objects.  It returns a command that when called
 will invoke type method [arg name] with the specified arguments, plus of
 course any arguments added by the caller.  In other words, both of the
-following commands will cause my object's [method dosomething] type method
+following commands will cause the object's [method dosomething] type method
 to be called when [cmd {$button}] is pressed:
 
 [example {    $button configure -command [list $type dosomething myargument]
@@ -1158,7 +1166,7 @@ The [cmd myproc] command is used for formatting callback commands to
 be passed to other objects.  It returns a command that when called
 will invoke the type proc [arg name] with the specified arguments, plus of
 course any arguments added by the caller.  In other words, both of the
-following commands will cause my object's [method dosomething] proc
+following commands will cause the object's [method dosomething] proc
 to be called when [cmd {$button}] is pressed:
 
 [example {    $button configure -command [list ${type}::dosomething myargument]
@@ -1226,6 +1234,11 @@ that it doesn't matter whether the component to be installed is a
 widget or not.  See [sectref {The Tk Option Database}] for more
 information.
 
+[nl]
+
+[cmd install] cannot be used to install type components; just assign
+the type component's command name to the type component's variable
+instead.
 
 [call [cmd installhull] [const using] [arg widgetType] [arg args...]]
 [call [cmd installhull] [arg name]]
@@ -1295,7 +1308,7 @@ definition, and omit declaring them in methods, type methods, etc.
 
 [call [cmd varname] [arg name]]
 
-This command is [const deprecated].  Use [cmd myvar] instead.
+[const Deprecated.]  Use [cmd myvar] instead.
 
 [nl]
 
@@ -1306,7 +1319,7 @@ a [option -textvariable] to a Tk label widget.
 
 [call [cmd typevarname] [arg name]]
 
-This command is [const deprecated].  Use [cmd mytypevar] instead.
+[const Deprecated.]  Use [cmd mytypevar] instead.
 
 [nl]
 
@@ -1316,7 +1329,7 @@ this if you're passing the type variable to some other object, e.g., as a
 
 [call [cmd codename] [arg name]]
 
-This command is [const deprecated].  Use [cmd myproc] instead.
+[const Deprecated.]  Use [cmd myproc] instead.
 
 Given the name of a proc (but not a type or instance method), returns
 the fully-qualified command name, suitable for passing as a callback.
@@ -1382,7 +1395,7 @@ to create and install the component:
 
 For [cmd snit::type]s, the two methods are equivalent; for
 [cmd snit::widget]s and [cmd snit::widgetadaptor]s, the [cmd install]
-command properly initializes delegated options by querying
+command properly initializes the widget's options by querying
 [sectref {The Tk Option Database}].
 
 [para]
@@ -1408,7 +1421,7 @@ The [cmd delegate] statement in the type definition implicitly defines
 the instance variable [var mytail] to hold the component's name
 (though it's good form to use [cmd component] to declare it explicitly); it
 also defines the [cmd dog] object's [method wag] method, delegating it
-to the [var tail] component.
+to the [var mytail] component.
 
 [para]
 
@@ -1441,14 +1454,14 @@ Option delegation is similar to method delegation, except for the
 interactions with the Tk option database; this is described in 
 [sectref "The Tk Option Database"].
 
-[subsection "Typecomponents and Delegation"]
+[subsection "Type Components and Delegation"]
 
-The relationship between typecomponents and instance components is
-identical to that between typevariables and instance variables, and
-that between typemethods and instance methods.  Just as an instance
+The relationship between type components and instance components is
+identical to that between type variables and instance variables, and
+that between type methods and instance methods.  Just as an instance
 component is an instance variable that holds the name of a command, so
-a typecomponent is a typevariable that holds the name of a command.
-In essence, a typecomponent is a component that's shared by every
+a type component is a type variable that holds the name of a command.
+In essence, a type component is a component that's shared by every
 instance of the type.
 
 [para]
@@ -1456,12 +1469,12 @@ instance of the type.
 Just as [cmd "delegate method"] can be used to delegate methods to
 instance components, as described in 
 [sectref "Components and Delegation"], so [cmd "delegate typemethod"]
-can be used to delegate typemethods to typecomponents.
+can be used to delegate type methods to type components.
 
 [para]
 
 Note also that as of Snit 0.94 [cmd "delegate method"] can delegate
-methods to both instance components and typecomponents.
+methods to both instance components and type components.
 
 [subsection {The Tk Option Database}]
 
@@ -1484,13 +1497,13 @@ is a brief statement of the requirements, for reference.
 [list_begin bullet]
 [bullet]
 
-If the widget's default widget class is not what is desired, set it
+If the [cmd snit::widget]'s default widget class is not what is desired, set it
 explicitly using [cmd widgetclass] in the widget definition.
 
 [bullet]
 
 When defining or delegating options, specify the resource and class
-names explicitly when necessary.
+names explicitly when if the defaults aren't what you want.
 
 [bullet]
 
@@ -1532,8 +1545,8 @@ definition.
 [para]
 
 Note that only [cmd frame] and [cmd toplevel] widgets allow the user
-to change the widget class name, which is why they are the allowable
-hull types for normal [cmd snit::widget]s.
+to change the widget class name, which is why they are the only allowable
+hull types for [cmd snit::widget]s.
 
 [para]
 
@@ -1547,7 +1560,7 @@ usually make more sense to use [cmd snit::widget] rather than
 
 [const {Setting option resource names and classes:}] In Tk, every
 option has three names: the option name, the resource name, and the
-class name.  The option name begins with a hyphen is all lowercase;
+class name.  The option name begins with a hyphen and is all lowercase;
 it's used when creating widgets, and with the [cmd configure] and
 [cmd cget] commands.
 
@@ -1613,7 +1626,7 @@ component, has the
 same three names for [cmd mywidget] as it does for the [cmd text]
 widget.  [option -borderwidth], on the other hand, has different resource and
 class names than usual, because the internal word "width" isn't
-capitalized.  For consistency, it should be; this is done as shown:
+capitalized.  For consistency, it should be; this is done as follows:
 
 [para]
 [example {    snit::widget mywidget {
@@ -1649,7 +1662,7 @@ class name must be specified explicitly:
 [const {Querying the option database:}] If you set your widgetclass and
 option names as described above, Snit will query the option database
 when each instance is created, and will generally do the right thing
-when it comes to querying the option database.  The remainder of the
+when it comes to querying the option database.  The remainder of this
 section goes into the gory details.
 
 [para]
@@ -1848,7 +1861,7 @@ anything read from the option database.
 [bullet]
 
 If the widget definition implicitly delegated options to the component
-using "delegate option *", then Snit calls the newly created
+using [cmd "delegate option *"], then Snit calls the newly created
 component's [cmd configure] method to receive a list of all of the
 component's options.  From this Snit builds a list of options
 implicitly delegated to the component that were not explicitly
@@ -1957,26 +1970,10 @@ see [uri http://www.wjduquette.com/snit] for details.
 
 [para]
 
-One particular area to watch is the interaction of Snit with other
-megawidget packages. Some widgets in BWidgets for example place their
-own <Destroy> binding not on a separate bind-tag, but on the widget
-itself. When used as the hull of a [cmd snit::widgetadaptor] this
-causes them to be called before Snit, removing the widget command. An
-earlier version of Snit was tripped by this and threw errors because
-it tried to operate on and with an already deleted widget
-command. Snit is now able to deal with this, despite the fact that the
-ultimate cause is at least bad behaviour of Bwidget, possibly even a
-bug. This however does not preclude that there might be other issues
-lurking.
-
-[para]
-
-So, if you use a [cmd snit::widgetadaptor] to adapt somebody else's
-megawidget,
-you need to be very careful about making sure the [cmd bindtags] are
-done properly.  There's no way for Snit to take into account all the
-possible weird things other megawidget frameworks might do wrong.
-
+One particular area to watch is using [cmd snit::widgetadaptor] to
+adapt megawidgets created by other megawidget packages; correct
+widget destruction depends on the order of the <Destroy> bindings.
+The wisest course is simply not to do this.
 
 [section {KNOWN BUGS}]
 
@@ -2002,13 +1999,10 @@ notebook application, I found I was writing it as a collection of
 objects.  I wasn't using any particular object-oriented framework; I
 was just writing objects in pure Tcl following the guidelines in my
 Guide to Object Commands
-(See [uri http://www.wjduquette.com/tcl/objects.html]), along with a
-few other tricks I'd picked up since.  And it was working very well.
-But on the other hand, it was getting tiresome.  Writing objects in
-pure Tcl is straightforward, once you figure it out, but there's a
-fair amount of boilerplate code to write for each one, especially if
-you're trying to create megawidgets or create objects with options,
-like Tk widgets have.
+(see [uri http://www.wjduquette.com/tcl/objects.html]), along with a
+few other tricks I'd picked up since.  And though it was working well,
+it quickly became tiresome because of the amount of boilerplate
+code associated with each new object type.
 
 [para]
 
@@ -2026,7 +2020,6 @@ inheritance, but it's great at delegation, and it makes creating
 megawidgets easy.
 
 [para]
-
 
 If you have any comments or suggestions (or bug reports!) don't
 hesitate to send me e-mail at [uri will@wjduquette.com].  In addition,
@@ -2048,6 +2041,6 @@ Griffin.  If I've forgotten anyone, my apologies; let me know and
 I'll add your name to the list.
 
 [keywords class {object oriented} object C++]
-[keywords {Incr Tcl} BWidget]
+[keywords Snit type {Incr Tcl} BWidget]
 [keywords widget adaptors {widget adaptors} {mega widget}]
 [manpage_end]
