@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.3 2003/04/02 22:32:28 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.4 2003/04/08 23:08:42 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -31,6 +31,9 @@ namespace eval ::struct::list {
 	namespace export Flatten
 	namespace export Map
 	namespace export Fold
+	namespace export Iota
+	namespace export Equal
+	namespace export Repeat
     }
 }
 
@@ -593,4 +596,78 @@ proc ::struct::list::Fold {sequence initialvalue cmdprefix} {
 	set res [uplevel 2 [linsert $cmdprefix end $res $item]]
     }
     return $res
+}
+
+# ::struct::list::Iota --
+#
+#	Return a list containing the integer numbers 0 ... n-1
+#
+# Parameters:
+#	n	First number not in the generated list.
+#
+# Results:
+#	A list containing integer numbers.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Iota {n} {
+    set retval [::list]
+    for {set i 0} {$i < $n} {incr i} {
+	::lappend retval $i
+    }
+    return $retval
+}
+
+# ::struct::list::Equal --
+#
+#	Compares two lists for equality
+#	(Same length, Same elements in same order).
+#
+# Parameters:
+#	a	First list to compare.
+#	b	Second list to compare.
+#
+# Results:
+#	A boolean. True if the lists are equal.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Equal {a b} {
+    # Author of this command is "Richard Suchenwirth"
+
+    if {[::llength $a] != [::llength $b]} {return 0}
+    if {[::lindex $a 0] == $a} {return [string equal $a $b]}
+    foreach i $a j $b {if {![Equal $i $j]} {return 0}}
+    return 1
+}
+
+# ::struct::list::Repeat --
+#
+#	Create a list repeating the same value over again.
+#
+# Parameters:
+#	value	value to use in the created list.
+#	args	Dimension(s) of the (nested) list to create.
+#
+# Results:
+#	A list
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Repeat {value args} {
+    if {[::llength $args] == 1} {set args [::lindex $args 0]}
+    set buf {}
+    foreach number $args {
+	incr number 0 ;# force integer (1)
+	set buf {}
+	for {set i 0} {$i<$number} {incr i} {
+	    ::lappend buf $value
+	}
+	set value $buf
+    }
+    return $buf
+    # (1): See 'Stress testing' (wiki) for why this makes the code safer.
 }
