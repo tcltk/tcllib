@@ -1,3 +1,8 @@
+2002-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.man: Added example of formatting a matrix using tabular
+	  reports (See tcllib module "reports" too.). Fixes #530207.
+
 2002-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.n:

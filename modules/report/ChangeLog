@@ -1,3 +1,8 @@
+2002-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* report.man: Added example of formatting a matrix using tabular
+	  reports (See tcllib module "struct" too.). Fixes #530207.
+
 2002-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* report.man: New file, manpage in doctools format.
