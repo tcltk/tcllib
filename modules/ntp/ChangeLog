@@ -1,0 +1,7 @@
+2003-03-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl:
+	* time.man: Initial checkin of an RFC 868 client.
+	* examples/ntp/rdate.tcl: A demo using the time package to request
+	the current time from a remote host via tcp or udp.
+	
