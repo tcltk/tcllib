@@ -102,6 +102,15 @@ themselves are described in section [sectref OPTIONS].
 Returns the current value of the specified option. The options
 themselves are described in section [sectref OPTIONS].
 
+[call [arg serverName] [method conn] list]
+
+Returns a list containing the ids of all connections currently open.
+
+[call [arg serverName] [method conn] state [arg id]]
+
+Returns a list suitable for [lb][cmd {array set}][rb] containing the
+state of the connection referenced by [arg id].
+
 [list_end]
 
 [section OPTIONS]
@@ -110,19 +119,28 @@ The following options are available to pop3 server objects.
 
 [list_begin definitions]
 
-[lst_item "-port [arg port]"]
+[lst_item "[option -port] [arg port]"]
 
 Defines the [arg port] to listen on for new connections. Default is
-110.
+110. This option is a bit special. If [arg port] is set to "0" the
+server, or rather the operating system, will select a free port on its
+own. When querying [option -port] the id of this chosen port will be
+returned. Changing the port while the server is up will neither change
+the returned value, nor will it change on which port the server is
+listening on. Only after resetting the server via a call to
 
-[lst_item "-auth [arg command]"]
+[method down] followed by a call to [method up] will the new port take
+effect. It is at that time that the value returned when querying
+[option -port] will change too.
+
+[lst_item "[option -auth] [arg command]"]
 
 Defines a [arg command] prefix to call whenever the authentication of
 a user is required. If no such command is specified the server will
 reject all users. The interface which has to be provided by the
 command prefix is described in section [sectref AUTHENTICATION].
 
-[lst_item "-storage [arg command]"]
+[lst_item "[option -storage] [arg command]"]
 
 Defines a [arg command] prefix to call whenever the handling of
 mailbox contents is required. If no such command is specified the

@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.2 2002/05/15 16:59:47 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.3 2002/05/16 00:48:31 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
 
@@ -307,6 +307,8 @@ proc ::pop3d::dbox::_unlock {name mbox} {
     #
     # @a mbox: Reference to the mailbox to be locked.
 
+    # not locked ?
+    if {![_locked $name $mbox]} {return}
     set dir [Check $name $mbox]
 
     upvar ::pop3d::dbox::dbox::${name}::state  state
