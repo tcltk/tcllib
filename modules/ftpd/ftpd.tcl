@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.20 2004/02/09 04:56:30 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.21 2004/02/11 07:48:40 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -528,7 +528,7 @@ proc ::ftpd::read {sock} {
 
     set CurrentSocket $sock
     if {[eof $sock]} {
-	::ftpd::Finish $sock
+	Finish $sock
 	return
     }
     switch -exact -- $data(state) {
@@ -581,7 +581,7 @@ proc ::ftpd::Finish {sock} {
     upvar #0 ::ftpd::$sock data
     variable cfg
 
-    if {![string equal $cfg(closeCmd) {}]} then {
+    if {[hasCallback closeCmd]} then {
 	##
 	## User specified a close command so invoke it
 	##
@@ -741,9 +741,9 @@ proc ::ftpd::command::APPE {sock list} {
         }
     }
 
-#
-# Patched Mark O'Connor
-#
+    #
+    # Patched Mark O'Connor
+    #
     if {![catch {::ftpd::Fs append $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
@@ -1175,6 +1175,7 @@ proc ::ftpd::command::REIN {sock list} {
     upvar #0 ::ftpd::$sock data
 
     ::ftpd::FinishData $sock
+    catch {close $data(sock2a)}
 
     # Reinitialize the user and connection data.
 
@@ -1184,6 +1185,7 @@ proc ::ftpd::command::REIN {sock list} {
 	buffering	line \
 	cwd		"$::ftpd::cwd" \
 	mode		binary \
+	sock2a          "" \
         sock2           ""]
 
     return
@@ -1221,9 +1223,9 @@ proc ::ftpd::command::RETR {sock list} {
         }
     }
 
-#
-# Patched Mark O'Connor
-#
+    #
+    # Patched Mark O'Connor
+    #
     if {![catch {::ftpd::Fs retr $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $f $data(sock2) -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
@@ -1413,9 +1415,9 @@ proc ::ftpd::command::STOR {sock list} {
         }
     }
 
-#
-# Patched Mark O'Connor
-#
+    #
+    # Patched Mark O'Connor
+    #
     if {![catch {::ftpd::Fs store $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
@@ -1464,9 +1466,9 @@ proc ::ftpd::command::STOU {sock list} {
         incr i
     }
 
-#
-# Patched Mark O'Connor
-#
+    #
+    # Patched Mark O'Connor
+    #
     if {![catch {::ftpd::Fs store $file $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f $file]
@@ -1608,7 +1610,7 @@ proc ::ftpd::GetDone {sock sock2 f filename bytes {err {}}} {
     } else {
         puts $sock "226 Transfer complete (unique file name: $filename)."
     }
-    if {![string equal $cfg(xferDoneCmd) {}]} then {
+    if {[hasCallback xferDoneCmd]} then {
 	catch {$cfg(xferDoneCmd) $sock $sock2 $f $bytes $filename $err}
     }
     Log debug "GetDone $f $sock2 $bytes bytes filename: $filename"
@@ -1742,34 +1744,34 @@ proc ::ftpd::fsFile::fs {command path args} {
 
     switch -exact -- $command {
         append {
-          #
-          # Patched Mark O'Connor
-          #
+	    #
+	    # Patched Mark O'Connor
+	    #
 	    set fhandle [open $path a]
-          if {[lindex $args 0] == "binary"} {
-             fconfigure $fhandle -translation binary
-          }
-          return $fhandle
+	    if {[lindex $args 0] == "binary"} {
+		fconfigure $fhandle -translation binary
+	    }
+	    return $fhandle
         }
 	retr {
-          #
-          # Patched Mark O'Connor
-          #
+	    #
+	    # Patched Mark O'Connor
+	    #
 	    set fhandle [open $path r]
-          if {[lindex $args 0] == "binary"} {
-             fconfigure $fhandle -translation binary
-          }
-          return $fhandle
+	    if {[lindex $args 0] == "binary"} {
+		fconfigure $fhandle -translation binary
+	    }
+	    return $fhandle
 	}
 	store {
-          #
-          # Patched Mark O'Connor
-          #
+	    #
+	    # Patched Mark O'Connor
+	    #
 	    set fhandle [open $path w]
-          if {[lindex $args 0] == "binary"} {
-             fconfigure $fhandle -translation binary
-          }
-          return $fhandle
+	    if {[lindex $args 0] == "binary"} {
+		fconfigure $fhandle -translation binary
+	    }
+	    return $fhandle
 	}
 	dlist {
 	    foreach {style outchan} $args break

@@ -1,3 +1,13 @@
+2004-02-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* multiplexer.man: This package is can be used with Tcl
+	* pkgIndex.tcl:    8.2. Documented as such.
+
+	* multiplexer.test: One test uses the 8.3'ism 'file
+	  channels'. Added constraint and skipping it when under Tcl
+	  8.2. Changed initialization code to ensure that the local
+	  multiplexer package is loaded, and not an installed one.
+
 2003-05-20  Andreas Kupries  <andreask@activestate.com>
 
 	* multiplexer.man: Cleaned up the documentation of the three hooks

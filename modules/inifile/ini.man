@@ -2,7 +2,7 @@
 [manpage_begin inifile n 0.1]
 [moddesc   {Parsing of Windows INI files}]
 [titledesc {Parsing of Windows INI files}]
-[require Tcl 8.4]
+[require Tcl 8.2]
 [require inifile [opt 0.1]]
 [description]
 
