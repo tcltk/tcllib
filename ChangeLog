@@ -1,3 +1,7 @@
+2001-11-09  Joe English  <jenglish@users.sourceforge.net>
+
+	* comm: Replaced nroff macro trickery in comm.n manpage.
+
 2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime: Fixed bug #479174.
