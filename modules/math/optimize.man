@@ -1,8 +1,11 @@
-[manpage_begin math::optimize n 0.1]
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin math::optimize n 0.2]
+[copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
+[copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Math}]
 [titledesc {Optimisation routines}]
 [require Tcl 8.2]
-[require math::optimize [opt 0.1]]
+[require math::optimize [opt 0.2]]
 [description]
 [para]
 This package implements several optimisation algorithms:
@@ -35,11 +38,13 @@ This package defines the following public procedures:
 [call [cmd ::math::optimize::minimize] [arg begin] [arg end] [arg func] [arg maxerr]]
 Minimize the given (continuous) function by examining the values in the
 given interval. The procedure determines the values at both ends and in the
-centre of the interval and then constructs a new interval of 2/3 length
+centre of the interval and then constructs a new interval of 1/2 length
 that includes the minimum. No guarantee is made that the [emph global]
 minimum is found.
 [nl]
 The procedure returns the "x" value for which the function is minimal.
+[nl]
+[emph {This procedure has been deprecated - use min_bound_1d instead}]
 [nl]
 [arg begin] - Start of the interval
 [nl]
@@ -59,6 +64,8 @@ maximum is found.
 [nl]
 The procedure returns the "x" value for which the function is maximal.
 [nl]
+[emph {This procedure has been deprecated - use max_bound_1d instead}]
+[nl]
 [arg begin] - Start of the interval
 [nl]
 [arg end] - End of the interval
@@ -75,11 +82,11 @@ uses Brent's method of parabolic interpolation, protected by golden-section
 subdivisions if the interpolation is not converging.  No guarantee is made
 that a [emph global] minimum is found.  The function to evaluate, [arg func],
 must be a single Tcl command; it will be evaluated with an abscissa appended
-as the last argument.  
+as the last argument.
 [nl]
 [arg x1] and [arg x2] are the two bounds of
 the interval in which the minimum is to be found.  They need not be in
-increasing order.  
+increasing order.
 [nl]
 [arg reltol], if specified, is the desired upper bound
 on the relative error of the result; default is 1.0e-7.  The given value
@@ -98,18 +105,18 @@ more than [arg maxiter] times, it returns an error to the caller.
 [arg traceFlag] is a Boolean value. If true, it causes the command to
 print a message on the standard output giving the abscissa and ordinate
 at each function evaluation, together with an indication of what type
-of interpolation was chosen.  Default is 0.
+of interpolation was chosen.  Default is 0 (no trace).
 
 [call [cmd ::math::optimize::min_unbound_1d] [arg func] [arg begin] [arg end] [opt "[option -relerror] [arg reltol]"] [opt "[option -abserror] [arg abstol]"] [opt "[option -maxiter] [arg maxiter]"] [opt "[option -trace] [arg traceflag]"]]
 
-Miminizes a function of one variable over the entire real number line.  
+Miminizes a function of one variable over the entire real number line.
 The procedure uses parabolic extrapolation combined with golden-section
 dilatation to search for a region where a minimum exists, followed by
 Brent's method of parabolic interpolation, protected by golden-section
 subdivisions if the interpolation is not converging.  No guarantee is made
 that a [emph global] minimum is found.  The function to evaluate, [arg func],
 must be a single Tcl command; it will be evaluated with an abscissa appended
-as the last argument.  
+as the last argument.
 [nl]
 [arg x1] and [arg x2] are two initial guesses at where the minimum
 may lie.  [arg x1] is the starting point for the minimization, and
@@ -133,7 +140,7 @@ more than [arg maxiter] times, it returns an error to the caller.
 [arg traceFlag] is a Boolean value. If true, it causes the command to
 print a message on the standard output giving the abscissa and ordinate
 at each function evaluation, together with an indication of what type
-of interpolation was chosen.  Default is 0.
+of interpolation was chosen.  Default is 0 (no trace).
 
 [call [cmd ::math::optimize::solveLinearProgram] [arg constraints] [arg objective]]
 Solve a [emph "linear program"] in standard form using a straightforward
@@ -159,7 +166,7 @@ procedures, the fully-qualified name of these procedures is determined
 inside the optimize routines. For the user this has only one
 consequence: the named procedure must be visible in the calling
 procedure. For instance:
-[example_begin]
+[example {
     namespace eval ::mySpace {
        namespace export calcfunc
        proc calcfunc { x } { return $x }
@@ -168,26 +175,30 @@ procedure. For instance:
     # Use a fully-qualified name
     #
     namespace eval ::myCalc {
-       puts [lb]minimum ::myCalc::calcfunc $begin $end[rb]
+       puts [min_bound_1d ::myCalc::calcfunc $begin $end]
     }
     #
     # Import the name
     #
     namespace eval ::myCalc {
        namespace import ::mySpace::calcfunc
-       puts [lb]minimum calcfunc $begin $end[rb]
+       puts [min_bound_1d calcfunc $begin $end]
     }
-[example_end]
+}]
+
+The simple procedures [emph minimum] and [emph maximum] have been
+deprecated: the alternatives are much more flexible, robust and
+require less function evaluations.
 
 [section EXAMPLES]
 [para]
 Let us take a few simple examples:
 [para]
 Determine the maximum of f(x) = x^3 exp(-3x), on the interval (0,10):
-[example_begin]
-proc efunc { x } { expr {[lb]$x*$x*$x * exp(-3.0*$x)[rb]} }
-puts "Maximum at: [lb]::math::optimize::maximum 0.0 10.0 efunc[rb]"
-[example_end]
+[example {
+proc efunc { x } { expr {$x*$x*$x * exp(-3.0*$x)} }
+puts "Maximum at: [::math::optimize::max_bound_1d efunc 0.0 10.0]"
+}]
 [para]
 The maximum allowed error determines the number of steps taken (with
 each step in the iteration the interval is reduced with a factor 1/2).
@@ -196,36 +207,36 @@ Hence, a maximum error of 0.0001 is achieved in approximately 14 steps.
 An example of a [emph "linear program"] is:
 [para]
 Optimise the expression 3x+2y, where:
-[example_begin]
+[example {
    x >= 0 and y >= 0 (implicit constraints, part of the
                      definition of linear programs)
 
    x + y   <= 1      (constraints specific to the problem)
    2x + 5y <= 10
-[example_end]
+}]
 [para]
 This problem can be solved as follows:
-[example_begin]
+[example {
 
-   set solution [lb]::math::optimize::solveLinearProgram \
+   set solution [::math::optimize::solveLinearProgram \
       { { 1.0   1.0   1.0 }
         { 2.0   5.0  10.0 } } \
-        { 3.0   2.0 }[rb]
-[example_end]
+        { 3.0   2.0 }]
+}]
 [para]
 Note, that a constraint like:
-[example_begin]
+[example {
    x + y >= 1
-[example_end]
+}]
 can be turned into standard form using:
-[example_begin]
+[example {
    -x  -y <= -1
-[example_end]
+}]
 
 [para]
 The theory of linear programming is the subject of many a text book and
-the Simplex algorithm that is implemented here is the most well-known
-method to solve this type of problems.
+the Simplex algorithm that is implemented here is the best-known
+method to solve this type of problems, but it is not the only one.
 
 [keywords math optimization minimum maximum "linear program"]
 
