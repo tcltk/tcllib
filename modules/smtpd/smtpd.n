@@ -1,18 +1,10 @@
 '\" -*- nroff -*-
 '\" Copyright (C) 2001 Pat Thoyts <patthoyts@users.sourceforge.net>
 '\" 
-'\" RCS: @(#) $Id: smtpd.n,v 1.1 2001/11/17 21:51:11 patthoyts Exp $
+'\" RCS: @(#) $Id: smtpd.n,v 1.2 2002/01/18 21:03:34 patthoyts Exp $
 '\" 
 .TH smtpd n 1.0 smtpd "Tcl SMTP Server Package"
 .BS
-'\" The following CW macros give us Constant Width fonts for
-'\" formatting code nicely -- especially for postscript output.
-.de CW
-\&\f(CW\\$*\fR
-..
-.de CWS
-\&\f(CW\s-1\\$*\s0\fR
-..
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
 smtpd \- Tcl SMTP server implementation
@@ -57,7 +49,9 @@ IP address then the server socket will be bound to that network
 interface. By default the server is bound to all network
 interfaces. For example:
 .br
-.CW \ \ \ set sock [smtpd::start [info hostname] 0]
+.CS
+set sock [smtpd::start [info hostname] 0]
+.CE
 .br
 will bind to the hosts internet interface on the first available
 port.
@@ -66,19 +60,18 @@ At present the package only supports a single instance of a SMTP
 server. This could be changed if required at the cost of making the
 package a little more complicated to read. If there is a good reason
 for running multiple SMTP services then it will only be necessary to
-fix the \fIoptions\fR array and the \f(CWsmtpd::stopped\fR variable usage.
+fix the \fIoptions\fR array and the \fBsmtpd::stopped\fR variable usage.
 .sp
 As the server code uses \fIfileevent\fR(n) handlers to process the
 input on sockets you will need to run the event loop. This means
 either you should be running from within \fIwish\fR(1) or you should 
-\fIvwait\fR(n) on the
-.CW smtpd::stopped
+\fIvwait\fR(n) on the \fBsmtpd::stopped\fR
 variable which is set when the server is stopped.
 .TP
 .B ::smtpd::stop
 Halt the server and release the listening socket. If the server has
 not been started then this command does nothing. The
-.CW smtpd::stopped
+.B smtpd::stopped
 variable is set for use with \fIvwait\fR(n).
 .br
 It should be noted that stopping the server does not disconnect any
@@ -117,21 +110,22 @@ This procedure is called with the clients ip address as soon as a
 connection request has been accepted and before any protocol commands
 are processed. If you wish to deny access to a specific host then an
 error should be returned by this callback. For example:
-.br
-\f(CW proc validate_host {ipnum} {
-   if {[string match "192.168.1.*" $ipnum]} {
-     error "go away!"
-   }
+.PP
+.CS
+ proc validate_host {ipnum} {
+    if {[string match "192.168.1.*" $ipnum]} {
+       error "go away!"
+    }
  }
-\fR
-.br
+.CE
+.PP
 If access is denied the client will receive a standard message that
 includes the text of your error, such as:
 .br
-.CW 550 Access denied: I hate you.
+.B 550 Access denied: I hate you.
 .br
 As per the SMTP protocol, the connection is not closed but we wait for
-the client to send a QUIT command. Any other commands cause a \f(CW503
+the client to send a QUIT command. Any other commands cause a \fB503
 Bad Sequence\fR error.
 .TP
 .B validate_sender callback
@@ -140,15 +134,17 @@ during processing of a MAIL command to allow you to accept or reject
 mail based upon the declared sender. To reject mail you should throw
 an error. For example, to reject mail from user "denied":
 .br
-\f(CW proc validate_sender {address} {
-   eval array set addr \\
-        [mime::parseaddress $address]
-   if {[string match "denied" $addr(local)]} {
-        error "mailbox $addr(local) denied"
-   }
-   return    
+.CS
+ proc validate_sender {address} {
+    eval array set addr \\
+         [mime::parseaddress $address]
+    if {[string match "denied" $addr(local)]} {
+         error "mailbox $addr(local) denied"
+    }
+    return    
  }
-\fR
+.CE
+.PP
 The content of any error message will not be passed back to the client.
 .TP
 .B validate_recipient callback
@@ -162,13 +158,15 @@ The deliver callback is called once a mail message has been
 successfully passed to the server. The procedure is called with the
 sender, a list of recipients and the text of the mail as a list of
 lines. For example:
-\f(CW proc deliver {sender recipients data} {
-   set mail "From $saddr(address) \\
-              [clock format [clock seconds]]"
-   append mail "\\n" [join $data "\\n"]
-   puts "$mail"
+.CS
+ proc deliver {sender recipients data} {
+    set mail "From $saddr(address) \\
+               [clock format [clock seconds]]"
+    append mail "\\n" [join $data "\\n"]
+    puts "$mail"
  }
-\fR
+.CE
+.PP
 Note that the DATA command will return an error if no sender or
 recipient has yet been defined.
 .RE
@@ -180,10 +178,9 @@ This variable is set to \fItrue\fR during the ::smtpd::stop command to
 permit the use of the \fIvwait\fR(n) command.
 '\".B::smtpd::postmaster\fR
 '\"The e-mail address of the person that is the contact for the server.
-.SH BUGS
-There are no bugs \(em yet.
 .SH AUTHOR
-Written by Pat Thoyts <\f(CWpatthoyts@users.sourceforge.net\fR>
+Written by Pat Thoyts 
+.RE <patthoyts@users.sourceforge.net>
 .SH COPYRIGHT
 This software is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
