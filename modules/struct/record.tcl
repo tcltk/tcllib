@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.6 2003/11/06 05:47:34 schwarzkopf Exp $
+# $Id: record.tcl,v 1.7 2004/01/15 06:36:14 andreas_kupries Exp $
 #
 #============================================================
 #

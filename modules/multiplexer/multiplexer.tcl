@@ -7,7 +7,7 @@
 
 # This file may be distributed under the same terms as Tcl.
 
-# $Id: multiplexer.tcl,v 1.3 2003/05/20 23:01:47 andreas_kupries Exp $
+# $Id: multiplexer.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package provide multiplexer 0.2
 package require logger

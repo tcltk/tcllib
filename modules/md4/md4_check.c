@@ -5,7 +5,7 @@
  *
  * usage: md4_check
  *
- * $Id: md4_check.c,v 1.1 2003/04/17 23:29:13 patthoyts Exp $
+ * $Id: md4_check.c,v 1.2 2004/01/15 06:36:13 andreas_kupries Exp $
  */
 
 #include <stdlib.h>
@@ -14,7 +14,7 @@
 #include <openssl/md4.h>
 
 static const char rcsid[] = 
-"$Id: md4_check.c,v 1.1 2003/04/17 23:29:13 patthoyts Exp $";
+"$Id: md4_check.c,v 1.2 2004/01/15 06:36:13 andreas_kupries Exp $";
 
 void
 md4(const char *buf, size_t len, unsigned char *res)

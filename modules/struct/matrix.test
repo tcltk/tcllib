@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.7 2002/04/01 19:54:49 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.8 2004/01/15 06:36:14 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -60,6 +60,9 @@ proc aget {avar} {
     return $out
 }
 
+# Serialized matrix for some tests.
+
+set matdata {{2 0 f j} {c g b a} {a 02 01 3}}
 
 
 test matrix-0.1 {matrix errors} {
@@ -67,21 +70,21 @@ test matrix-0.1 {matrix errors} {
     catch {matrix mymatrix} msg
     mymatrix destroy
     set msg
-} "command \"mymatrix\" already exists, unable to create matrix"
+} "command \"::mymatrix\" already exists, unable to create matrix"
 
 test matrix-0.2 {matrix errors} {
     matrix mymatrix
     catch {mymatrix} msg
     mymatrix destroy
     set msg
-} "wrong # args: should be \"mymatrix option ?arg arg ...?\""
+} "wrong # args: should be \"::mymatrix option ?arg arg ...?\""
 
 test matrix-0.3 {matrix errors} {
     matrix mymatrix
     catch {mymatrix foo} msg
     mymatrix destroy
     set msg
-} "bad option \"foo\": must be add, cells, cellsize, columns, columnwidth, delete, destroy, format, get, insert, link, rowheight, rows, search, set, swap, or unlink"
+} "bad option \"foo\": must be add, cells, cellsize, columns, columnwidth, delete, destroy, format, get, insert, link, links, rowheight, rows, search, set, sort, swap, or unlink"
 
 test matrix-0.4 {matrix errors} {
     matrix mymatrix
@@ -128,7 +131,7 @@ test matrix-0.9 {matrix errors} {
 test matrix-0.10 {matrix errors} {
     catch {matrix set} msg
     set msg
-} "command \"set\" already exists, unable to create matrix"
+} "command \"::set\" already exists, unable to create matrix"
 
 test matrix-0.11 {matrix errors} {
     matrix mymatrix
@@ -154,10 +157,10 @@ test matrix-0.13 {matrix errors} {
 
 test matrix-1.0 {create} {
     set name [matrix]
-    set result [list $name [string equal [info commands ::$name] "::$name"]]
+    set result [list $name [string equal [info commands $name] "$name"]]
     $name destroy
     set result
-} [list matrix1 1]
+} [list ::matrix1 1]
 
 
 test matrix-1.1 {columns, rows & cells} {
@@ -208,7 +211,7 @@ test matrix-2.0 {add error} {
     catch {mymatrix add} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix add option ?arg arg ...?"}
+} {wrong # args: should be "::mymatrix add option ?arg arg ...?"}
 
 test matrix-2.1 {add column, add row} {
     matrix mymatrix
@@ -381,7 +384,7 @@ test matrix-4.0 {delete error} {
     catch {mymatrix delete} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix delete option ?arg arg ...?"}
+} {wrong # args: should be "::mymatrix delete option ?arg arg ...?"}
 
 test matrix-4.1 {deletion of rows and columns} {
     matrix mymatrix
@@ -532,7 +535,7 @@ test matrix-5.0 {format error} {
     catch {mymatrix format} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix format option ?arg arg ...?"}
+} {wrong # args: should be "::mymatrix format option ?arg arg ...?"}
 
 test matrix-5.1 {formatting} {
     matrix mymatrix
@@ -545,11 +548,11 @@ test matrix-5.1 {formatting} {
     set result [mymatrix format 2string tclformat]
     mymatrix destroy
     set result
-} "# mymatrix 3 x 3
-matrix mymatrix
-mymatrix add rows    3
-mymatrix add columns 3
-mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
+} "# ::mymatrix 3 x 3
+matrix ::mymatrix
+::mymatrix add rows    3
+::mymatrix add columns 3
+::mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
 
 test matrix-5.2 {internal format} {
     matrix mymatrix
@@ -611,7 +614,7 @@ test matrix-6.0 {set/get error} {
     catch {mymatrix get} msgb
     mymatrix destroy
     list $msga $msgb
-} {{wrong # args: should be "mymatrix set option ?arg arg ...?"} {wrong # args: should be "mymatrix get option ?arg arg ...?"}}
+} {{wrong # args: should be "::mymatrix set option ?arg arg ...?"} {wrong # args: should be "::mymatrix get option ?arg arg ...?"}}
 
 test matrix-6.1 {set and get in all forms} {
     matrix mymatrix
@@ -1125,7 +1128,7 @@ test matrix-7.0 {swap error} {
     catch {mymatrix swap} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix swap option ?arg arg ...?"}
+} {wrong # args: should be "::mymatrix swap option ?arg arg ...?"}
 
 test matrix-7.1 {swapping} {
     matrix mymatrix
@@ -1264,7 +1267,7 @@ test matrix-8.0 {insert error} {
     catch {mymatrix insert} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix insert option ?arg arg ...?"}
+} {wrong # args: should be "::mymatrix insert option ?arg arg ...?"}
 
 test matrix-8.1 {insertion} {
     matrix mymatrix
@@ -1450,21 +1453,21 @@ test matrix-9.0 {link errors} {
     catch {mymatrix link} msg
     mymatrix destroy
     set msg
-} {mymatrix: wrong # args: link ?-transpose? arrayvariable}
+} {::mymatrix: wrong # args: link ?-transpose? arrayvariable}
 
 test matrix-9.1 {link errors} {
     matrix mymatrix
     catch {mymatrix link 1 2 3} msg
     mymatrix destroy
     set msg
-} {mymatrix: wrong # args: link ?-transpose? arrayvariable}
+} {::mymatrix: wrong # args: link ?-transpose? arrayvariable}
 
 test matrix-9.2 {link errors} {
     matrix mymatrix
     catch {mymatrix link foo 2} msg
     mymatrix destroy
     set msg
-} {mymatrix: illegal syntax: link ?-transpose? arrayvariable}
+} {::mymatrix: illegal syntax: link ?-transpose? arrayvariable}
 
 test matrix-9.3 {link errors} {
     matrix mymatrix
@@ -1472,7 +1475,7 @@ test matrix-9.3 {link errors} {
     catch {mymatrix link foo} msg
     mymatrix destroy
     set msg
-} {mymatrix link: Variable "foo" already linked to matrix}
+} {::mymatrix link: Variable "foo" already linked to matrix}
 
 test matrix-9.4 {linking, initial transfer} {
     matrix mymatrix
@@ -1645,28 +1648,28 @@ test 10.1 {search errors} {
     catch {mymatrix search} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
+} {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
 test 10.2 {search errors} {
     matrix mymatrix
     catch {mymatrix search 1} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
+} {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
 test 10.3 {search errors} {
     matrix mymatrix
     catch {mymatrix search 1 2 3 4 5} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
+} {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
 test 10.4 {search errors} {
     matrix mymatrix
     catch {mymatrix search 1 2 3 4 5 6 7 8} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
+} {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
 test 10.5 {search errors} {
     matrix mymatrix
@@ -1751,6 +1754,157 @@ foreach {n mode range pattern result} {
 }
 
 
+test matrix-11.0 {sorting matrices: not enough arguments} {
+    matrix mymatrix
+    catch {mymatrix sort} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "::struct::matrix::_sort name cmd args"}
+
+test matrix-11.1 {sorting matrices: not enough arguments} {
+    matrix mymatrix
+    catch {mymatrix sort} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "::struct::matrix::_sort name cmd args"}
+
+test matrix-11.2 {sorting matrices: bad method} {
+    matrix mymatrix
+    catch {mymatrix sort foo} msg
+    mymatrix destroy
+    set msg
+} {bad option "foo": must be columns, or rows}
+
+test matrix-11.3 {sorting matrices: not enough arguments} {
+    matrix mymatrix
+    catch {mymatrix sort rows} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "::mymatrix sort option ?arg arg ...?"}
+
+test matrix-11.4 {sorting matrices: to many arguments} {
+    matrix mymatrix
+    catch {mymatrix sort rows foo bar} msg
+    mymatrix destroy
+    set msg
+} {invalid option "foo": should be -increasing, or -decreasing}
+
+test matrix-11.5 {sorting matrices: bad option} {
+    matrix mymatrix
+    catch {mymatrix sort rows -foo bar} msg
+    mymatrix destroy
+    set msg
+} {invalid option "-foo": should be -increasing, or -decreasing}
+
+test matrix-11.6 {sorting matrices: not enough arguments} {
+    matrix mymatrix
+    catch {mymatrix sort columns} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "::mymatrix sort option ?arg arg ...?"}
+
+test matrix-11.7 {sorting matrices: to many arguments} {
+    matrix mymatrix
+    catch {mymatrix sort columns foo bar} msg
+    mymatrix destroy
+    set msg
+} {invalid option "foo": should be -increasing, or -decreasing}
+
+test matrix-11.8 {sorting matrices: bad option} {
+    matrix mymatrix
+    catch {mymatrix sort columns -foo bar} msg
+    mymatrix destroy
+    set msg
+} {invalid option "-foo": should be -increasing, or -decreasing}
+
+test matrix-11.9 {sorting matrices: bad index} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 4
+    catch {mymatrix sort rows -1} msg
+    mymatrix destroy
+    set msg
+} {bad column index -1, column does not exist}
+
+test matrix-11.10 {sorting matrices: bad index} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 4
+    catch {mymatrix sort rows 4} msg
+    mymatrix destroy
+    set msg
+} {bad column index 4, column does not exist}
+
+test matrix-11.11 {sorting matrices: bad index} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 4
+    catch {mymatrix sort rows foo} msg
+    mymatrix destroy
+    set msg
+} {bad column index "foo", syntax error}
+
+test matrix-11.12 {sorting matrices: bad index} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 4
+    catch {mymatrix sort columns -1} msg
+    mymatrix destroy
+    set msg
+} {bad row index -1, row does not exist}
+
+test matrix-11.13 {sorting matrices: bad index} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 4
+    catch {mymatrix sort columns 3} msg
+    mymatrix destroy
+    set msg
+} {bad row index 3, row does not exist}
+
+test matrix-11.14 {sorting matrices: bad index} {
+    matrix mymatrix
+    mymatrix add rows    3
+    mymatrix add columns 4
+    catch {mymatrix sort columns foo} msg
+    mymatrix destroy
+    set msg
+} {bad row index "foo", syntax error}
+
+
+foreach {n cmd res resd} {
+    1 {rows    0} {{2 0 f j} {a 02 01 3} {c g b a}} {{c g b a} {a 02 01 3} {2 0 f j}}
+    2 {rows    1} {{2 0 f j} {a 02 01 3} {c g b a}} {{c g b a} {a 02 01 3} {2 0 f j}}
+    3 {rows    2} {{a 02 01 3} {c g b a} {2 0 f j}} {{2 0 f j} {c g b a} {a 02 01 3}}
+    4 {rows    3} {{a 02 01 3} {c g b a} {2 0 f j}} {{2 0 f j} {c g b a} {a 02 01 3}}
+    5 {columns 0} {{0 2 f j} {g c b a} {02 a 01 3}} {{j f 2 0} {a b c g} {3 01 a 02}}
+    6 {columns 1} {{j f 2 0} {a b c g} {3 01 a 02}} {{0 2 f j} {g c b a} {02 a 01 3}}
+    7 {columns 2} {{f 0 j 2} {b g a c} {01 02 3 a}} {{2 j 0 f} {c a g b} {a 3 02 01}}
+} {
+    test matrix-12.$n "sorting matrices: $cmd" {
+	matrix mymatrix
+	mymatrix add rows    3
+	mymatrix add columns 4
+	mymatrix set rect 0 0 $matdata
+	eval [list mymatrix sort] $cmd
+	set result [mymatrix get rect 0 0 3 2]
+	mymatrix destroy
+	set result
+    } $res
+
+    test matrix-13.$n "sorting matrices: $cmd, -decreasing" {
+	matrix mymatrix
+	mymatrix add rows    3
+	mymatrix add columns 4
+	mymatrix set rect 0 0 $matdata
+	eval [linsert [linsert $cmd 1 -decreasing] 0 mymatrix sort]
+	set result [mymatrix get rect 0 0 3 2]
+	mymatrix destroy
+	set result
+    } $resd
+}
+
+
 # Future tests: query rowheight, column width before and after delete
 # row/column to ascertain that the cached values are correctly
 # shifted.
@@ -1760,8 +1914,6 @@ foreach {n mode range pattern result} {
 # Future: Tests involving cached information (row heights, col widths)
 # should use special commands to peek at the cache only, without
 # recalculation.
-
-# Document 'links' method.
 
 ::tcltest::cleanupTests
 

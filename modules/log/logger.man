@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.5 2003/12/17 23:17:29 davidw Exp $}]
+[comment {$Id: logger.man,v 1.6 2004/01/15 06:36:13 andreas_kupries Exp $}]
 [manpage_begin logger n 0.1.0]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]

@@ -7,7 +7,7 @@
 # should be doing is connecting a socket to the resolved address and then requesting
 # the original URL. Useless if there is a proxy between you as well.
 #
-# $Id: tk_sample.tcl,v 1.1 2002/03/02 01:54:21 patthoyts Exp $
+# $Id: tk_sample.tcl,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tkhtml
 package require http

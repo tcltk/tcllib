@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.6 2003/05/14 22:56:28 patthoyts Exp $
+# @(#)$Id: yencode.tcl,v 1.7 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require crc32};          # tcllib 1.1

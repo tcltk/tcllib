@@ -4,7 +4,7 @@
 #
 # Written by Jean-Claude Wippler <jcw@equi4.com>
 #
-# $Id: md5c.tcl,v 1.2 2003/07/26 02:18:00 patthoyts Exp $
+# $Id: md5c.tcl,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package require critcl;                 # needs critcl
 package provide md5c 0.11;              # 

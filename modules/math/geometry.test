@@ -3,7 +3,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.6 2003/04/24 18:39:04 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.test,v 1.7 2004/01/15 06:36:13 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

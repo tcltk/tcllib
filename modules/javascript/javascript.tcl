@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: javascript.tcl,v 1.3 2003/04/11 18:14:17 andreas_kupries Exp $
+# RCS: @(#) $Id: javascript.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package require Tcl 8
 package require ncgi 1
