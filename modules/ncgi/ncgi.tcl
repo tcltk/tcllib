@@ -126,10 +126,10 @@ proc ncgi::reset {args} {
 	# We use and test args here so we can detect the
 	# difference between empty query data and a full reset.
 
-	if {[info exist query]} {
+	if {[info exists query]} {
 	    unset query
 	}
-	if {[info exist contenttype]} {
+	if {[info exists contenttype]} {
 	    unset contenttype
 	}
     } else {
@@ -157,9 +157,9 @@ proc ncgi::urlStub {{url {}}} {
     if {[string length $url]} {
 	set urlStub $url
 	return ""
-    } elseif {[info exist urlStub]} {
+    } elseif {[info exists urlStub]} {
 	return $urlStub
-    } elseif {[info exist env(SCRIPT_NAME)]} {
+    } elseif {[info exists env(SCRIPT_NAME)]} {
 	set urlStub $env(SCRIPT_NAME)
 	return $urlStub
     } else {
@@ -182,14 +182,14 @@ proc ncgi::query {} {
     global env
     variable query
 
-    if {[info exist query]} {
+    if {[info exists query]} {
 	# This ensures you can call ncgi::query more than once,
 	# and that you can use it with ncgi::reset
 	return $query
     }
 
     set query ""
-    if {[info exist env(REQUEST_METHOD)]} {
+    if {[info exists env(REQUEST_METHOD)]} {
 	if {$env(REQUEST_METHOD) == "GET"} {
 	    if {[info exists env(QUERY_STRING)]} {
 		set query $env(QUERY_STRING)
@@ -218,8 +218,8 @@ proc ncgi::type {} {
     global env
     variable contenttype
 
-    if {![info exist contenttype]} {
-	if {[info exist env(CONTENT_TYPE)]} {
+    if {![info exists contenttype]} {
+	if {[info exists env(CONTENT_TYPE)]} {
 	    set contenttype $env(CONTENT_TYPE)
 	} else {
 	    return ""
@@ -341,11 +341,11 @@ proc ncgi::parse {} {
     variable value
     variable listRestrict 0
     variable varlist {}
-    if {[info exist value]} {
+    if {[info exists value]} {
 	unset value
     }
     foreach {name val} [ncgi::nvlist] {
-	if {![info exist value($name)]} {
+	if {![info exists value($name)]} {
 	    lappend varlist $name
 	}
 	lappend value($name) $val
@@ -370,14 +370,14 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
     variable value
     variable varlist {}
     variable listRestrict 1
-    if {[info exist value]} {
+    if {[info exists value]} {
 	unset value
     }
     if {[string length $fakeinput]} {
 	ncgi::reset $fakeinput
     }
     foreach {name val} [ncgi::nvlist] {
-	set exists [info exist value($name)]
+	set exists [info exists value($name)]
 	if {!$exists} {
 	    lappend varlist $name
 	}
@@ -500,7 +500,7 @@ proc ncgi::setValue {key value} {
 proc ncgi::setValueList {key valuelist} {
     variable value
     variable varlist
-    if {![info exist value($key)]} {
+    if {![info exists value($key)]} {
 	lappend varlist $key
     }
 
@@ -547,7 +547,7 @@ proc ncgi::setDefaultValue {key value} {
 
 proc ncgi::setDefaultValueList {key valuelist} {
     variable value
-    if {![info exist value($key)]} {
+    if {![info exists value($key)]} {
 	ncgi::setValueList $key $valuelist
 	return ""
     } else {
@@ -635,17 +635,17 @@ proc ncgi::redirect {url} {
 	#		current one in base Basic Authentication is being used.
 	# port		This is set if it is not the default port.
 
-	if {[info exist env(REQUEST_URI)]} {
+	if {[info exists env(REQUEST_URI)]} {
 	    # Not all servers have the leading protocol spec
 	    regsub -- {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
-	} elseif {[info exist env(SCRIPT_NAME)]} {
+	} elseif {[info exists env(SCRIPT_NAME)]} {
 	    set request_uri $env(SCRIPT_NAME)
 	} else {
 	    set request_uri /
 	}
 
 	set port ""
-	if {[info exist env(HTTPS)] && $env(HTTPS) == "on"} {
+	if {[info exists env(HTTPS)] && $env(HTTPS) == "on"} {
 	    set proto https
 	    if {$env(SERVER_PORT) != 443} {
 		set port :$env(SERVER_PORT)
@@ -660,7 +660,7 @@ proc ncgi::redirect {url} {
 	# URL.  Otherwise use SERVER_NAME.  These could be different, e.g.,
 	# "pop.scriptics.com" vs. "pop"
 
-	if {[info exist env(REQUEST_URI)]} {
+	if {[info exists env(REQUEST_URI)]} {
 	    # Not all servers have the leading protocol spec
 	    if {![regexp -- {^https?://([^/:]*)} $env(REQUEST_URI) x server]} {
 		set server $env(SERVER_NAME)
@@ -696,7 +696,7 @@ proc ncgi::header {{type text/html} args} {
     foreach {n v} $args {
 	puts "$n: $v"
     }
-    if {[info exist cookieOutput]} {
+    if {[info exists cookieOutput]} {
 	foreach line $cookieOutput {
 	    puts "Set-Cookie: $line"
 	}
@@ -905,7 +905,7 @@ proc ncgi::multipart {type query} {
 proc ncgi::cookie {cookie} {
     global env
     set result ""
-    if {[info exist env(HTTP_COOKIE)]} {
+    if {[info exists env(HTTP_COOKIE)]} {
 	foreach pair [split $env(HTTP_COOKIE) \;] {
 	    foreach {key value} [split [string trim $pair] =] { break ;# lassign }
 	    if {[string compare $cookie $key] == 0} {
@@ -937,11 +937,11 @@ proc ncgi::setCookie {args} {
     array set opt $args
     set line "$opt(-name)=$opt(-value) ;"
     foreach extra {path domain} {
-	if {[info exist opt(-$extra)]} {
+	if {[info exists opt(-$extra)]} {
 	    append line " $extra=$opt(-$extra) ;"
 	}
     }
-    if {[info exist opt(-expires)]} {
+    if {[info exists opt(-expires)]} {
 	switch -glob -- $opt(-expires) {
 	    *GMT {
 		set expires $opt(-expires)
@@ -953,7 +953,7 @@ proc ncgi::setCookie {args} {
 	}
 	append line " expires=$expires ;"
     }
-    if {[info exist opt(-secure)]} {
+    if {[info exists opt(-secure)]} {
 	append line " secure "
     }
     lappend cookieOutput $line
