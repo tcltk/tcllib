@@ -2,7 +2,7 @@
 [manpage_begin doctools n 1.1]
 [copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
-[titledesc {Create and manipulate doctools converter object}]
+[titledesc {Create and manipulate doctools converter objects}]
 [require Tcl 8.2]
 [require doctools [opt 1.1]]
 [description]

@@ -1,280 +1,246 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin docidx_fmt n 1.0]
-[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
-[titledesc {Specification of simple tcl markup for an index}]
+[titledesc {Specification of a simple Tcl Markup Language for Keyword Indices}]
 [description]
 [para]
 
-This manpage specifies a documentation format for indices. It is
-intended to complement both the [syscmd doctools] format for writing
-manpages and the [syscmd doctoc] format for writing tables of
-contents. See [syscmd doctools_fmt] and [syscmd doctoc_fmt] for the
-specification of these two formats.
+This document specifies version 1 of a text format for keyword
+indices. The name of this format is [term docidx] and it provides all
+the necessary commands to write a keyword index for a group of
+documents.
+
+It is intended to complement both the [term doctools] format for
+writing documentation and the [term doctoc] format for writing tables
+of contents.
+
+The formal specifications for these two formats can be found in the
+companion documents [term doctools_fmt] and [term doctoc_fmt].
+
+A third companion document describes the package
+
+[package doctools::idx], which provides commands for the processing of
+text in [term docidx] format.
 
 [para]
 
-This format is called [syscmd docidx].
+Like for the formats [term doctools] and [term doctoc] a generic
+framework for the conversion of [term docidx] to any number of
+different output formats is provided.
 
-It provides all the necessary commands to write an index for a group
-of manpages.
-
-Like for the [syscmd doctools] and [syscmd doctoc] formats a package
-is provided implementing a generic framework for the conversion of
-[syscmd docidx] to a number of different output formats, like HTML,
-TMML, nroff, LaTeX, etc.
-
-The package is called [package doctools::idx], its documentation can
-be found in [syscmd docidx].
-
-People wishing to write a formatting engine for the conversion of
-[syscmd docidx] into a new output format have to read
-[syscmd docidx_api]. This manpage will explain the interface between
-the generic package and such engines.
-
-
-[section OVERVIEW]
-
-[syscmd docidx] is similar to LaTex in that it consists primarily of
-text, with markup commands embedded into it. The format used to mark
-something as command is different from LaTeX however. All text between
-matching pairs of [lb] and [rb] is a command, possibly with
-arguments. Note that both brackets have to be on the same line for a
-command to be recognized.
+This framework is provided by the package [package doctools::idx].
 
 [para]
 
-In this format plain text is not allowed, except for whitespace, which
-can be used to separate the formatting commands described in the next
-section ([sectref {FORMATTING COMMANDS}]).
+Anyone who wishes to write an index formatting engine which plugs into
+this framework has to read the document [term docidx_fmt]. This is the
+formal specification of the API between the framework and its engines.
 
 
-[section {FORMATTING COMMANDS}]
+[section {FORMAT SPECIFICATION}]
 
-First a number of generic commands useable anywhere in a
-[syscmd docidx] file.
+
+[subsection OVERVIEW]
+
+While [term doctools] is similar to LaTeX [term docidx] is only
+superficially so. Input written in this format consists of a series of
+markup commands, which may be separated by whitespace. Other text is
+not allowed. The best comparison would be to imagine a LaTeX document
+with all regular text removed.
+
+[para]
+
+The format used to mark commands is different from LaTeX however. All
+text between matching pairs of [lb] and [rb] is a command, possibly
+with arguments. Note that both brackets have to be on the same line
+for a command to be recognized.
+
+[subsection {GRAMMAR}]
+
+The overall syntax of a keyword index is best captured in a formal
+context-free grammar. Our notation for the grammar is EBNF. Strings
+will stand for markup commands, however their arguments (if they have
+any) are not part of the grammar. Our grammar contains lexical
+elements as well.
+
+[para]
+
+First we specify the whitespace at the lexical level, which also
+includes comments.
+
+[para]
+[example {
+    COMMENT  ::= "comment"
+    WHITE    ::= { '\n' | '\t' | ' ' | '\r' | COMMENT }
+}]
+[para]
+
+Then we define rules for all the keywords. Here we introduce our
+knowledge that all commands can be separated by whitespace, and also
+that the inclusion of other files may happen essentially everywhere,
+like the definition of document variables. The contents of any
+included files has to fit into the including file according to the
+location in the grammar the inclusion is at.
+
+[para]
+[example {
+    BEGIN    ::= "index_begin" WHITE DEFUN
+    END      ::= "index_end"   WHITE
+    KEY      ::= "key"         WHITE DEFUN
+    MANPAGE  ::= "manpage"     WHITE DEFUN
+    URL      ::= "url"         WHITE DEFUN
+
+    INCLUDE  ::= "include"     WHITE
+    VSET     ::= "vset"        WHITE
+
+    DEFUN    ::= { INCLUDE | VSET }
+}]
+[para]
+
+At last we can specify the whole index.
+
+[para]
+[example {
+    INDEX    ::= DEFUN BEGIN CONTENT END
+
+    CONTENT  ::= KEYWORD { KEYWORD }
+    KEYWORD  ::= KEY REF { REF }
+    REF      ::= MANPAGE | URL
+}]
+
+
+[subsection COMMANDS]
+
+Here we specify the commands used in the grammar. Some commands
+specified here were not used in the grammar at all. The usage of these
+commands is confined to the arguments of other commands.
 
 [list_begin definitions]
-
-[call [cmd vset] [arg varname] [arg value] ]
-
-Sets the formatter variable [arg varname] to the specified
-[arg value]. Returns the empty string.
-
-[call [cmd vset] [arg varname]]
-
-Returns the value associated with the formatter variable
-[arg varname].
-
-[call [cmd include] [arg filename]]
-
-Instructs the system to insert the expanded contents of the file named
-[arg filename] in its own place.
 
 [call [cmd comment] [arg text]]
 
-Declares that the marked [arg text] is a comment.
-
-[list_end]
+This command declares that the argument [arg text] is a comment.
 
 
-Commands to insert special plain text. These bracket commands are
-necessary as plain brackets are used to denote the beginnings and
-endings of the formatting commands and thus cannot be used as normal
-characters anymore.
+[call [cmd include] [arg filename]]
 
-[list_begin definitions]
+This command loads the contents of the file [arg filename] for
+processing at its own place.
+
+
+[call [cmd vset] [arg varname] [arg value] ]
+
+This form of the command sets the document variable [arg varname] to
+the specified [arg value]. It does not generate output. It is this
+form the grammar is refering to.
+
+
+[call [cmd vset] [arg varname]]
+
+This form of the command returns the value associated with the
+document variable [arg varname]. This form is not used by the grammar
+and restricted to usage in the arguments of other commands.
+
 
 [call [cmd lb]]
 
-Introduces a left bracket into the output.
+This command adds a left bracket to the output. Its usage is
+restricted to the arguments of other commands.
+
 
 [call [cmd rb]]
 
-Introduces a right bracket into the output.
+This command adds a right bracket to the output. Its usage is
+restricted to the arguments of other commands.
 
-[list_end]
-
-
-
-And now the relevant markup commands.
-
-[list_begin definitions]
 
 [call [cmd index_begin] [arg text] [arg title]]
 
-This command starts an index. It has to be the very first
-
-[term markup] command in a [syscmd docidx] file. Plain text is not
-allowed to come before this command. Only the generic commands (see
-above: [cmd vset], [cmd include], [cmd comment]) can be used before
-it.
-
-[nl]
+This is the command to start a keyword index.
 
 The [arg text] argument provides a label for the whole group of
-manpages the index refers to. Often this is the name of the package
-(or extension) the manpages belong to.
+documents the index refers to. Often this is the name of the package
+(or extension) the documents belong to.
 
-[nl]
-
-The [arg title] argument provides the title for the index.
-
-[nl]
-
-Each index has to contain at least one [cmd key].
+The [arg title] argument provides the overall title text for the index.
 
 
 [call [cmd index_end]]
 
-This command closes an index. Nothing is allowed to follow it.
+This is the command to close a keyword index.
 
 
 [call [cmd key] [arg text]]
 
-This commands starts the list of manpages and other entities which
-refer to the keyword named by the argument [arg text].
+This command adds the keyword [arg text] to the index.
+
+
+[call [cmd manpage] [arg file] [arg text]]
+
+This command adds an element to the index which refers to a file. The
+file is specified through the symbolic name [arg file]. The [arg text]
+argument is used to label the reference.
 
 [nl]
 
-Each key section has to contain at least one index element, either
-[cmd manpage] or [cmd url].
-
-
-[call [cmd manpage] [arg file] [arg label]]
-
-This command describes an individual index element. Each such element
-belongs to the last occurence of a [cmd key] command coming before the
-index.
-
-[nl]
-
-The [arg file] argument refers to the file containing the actual
-manpage refering to that key. The second argument is used to label the
-reference.
-
-[nl]
-
-To preserve convertibility of this format to various output formats
-the filename argument [arg file] is considered to contain a symbolic
-name. The actual name of the file will be inserted by the formatting
-engine used to convert the input, based on a mapping from symbolic to
-actual names given to it.
+The symbolic names are used to preserve the convertibility of this
+format to any output format. The actual name of the file will be
+inserted by the chosen formatting engine when converting the
+input. This will be based on a mapping from symbolic to actual names
+given to the engine.
 
 
 [call [cmd url] [arg url] [arg label]]
 
-This is the second command to describe an index element. The
-association to the key it belongs to is done in the same way as for
-the [cmd manpage] command. The first however is not the symbolic name
-of the file refering to that key, but an url describing the exact
-location of the document indexed here.
+This is the second command to add an element to the index. To refer to
+a document it is not using a symbolic name however, but a (possibly
+format-specific) url describing the exact location of the document
+indexed here.
 
 [list_end]
+
 
 [section NOTES]
 
-[list_begin enum]
-[enum]
-
-Using an appropriate formatting engine and some glue code it is
-possible to automatically generate a document in [syscmd docidx]
-format from a collection of manpages in [syscmd doctools] format.
-
-
-[list_end]
-
-[section EXAMPLE]
-
-As an example an index for all manpages belonging to this module
-(doctools) of package [package tcllib].
+It is possible to generate a keyword index in [term docidx] format
+automatically from a collection of documents in [term doctools]
+format. All is needed is a special doctools formatting engine which
+extracts the relevant metadata and some glue code to convert this data
+to [term docidx].
 
 [para]
 
+The application [cmd dtplite] is an example for this.
+
+
+[section EXAMPLE]
+
+The example is a keyword index for all manpages in the module 
+[term base64].
+
+[para]
 [example {
-[index_begin tcllib/doctools {Documentation tools}]
- [key HTML]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtformatter]
-  [manpage dtocengine]
-  [manpage dtocformat]
-  [manpage mpexpand]
- [key TMML]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtformatter]
-  [manpage dtocengine]
-  [manpage dtocformat]
-  [manpage mpexpand]
- [key conversion]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtformatter]
-  [manpage dtocengine]
-  [manpage dtocformat]
-  [manpage mpexpand]
- [key documentation]
-  [manpage doctools]
-  [manpage dtformatter]
- [key index]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtocformat]
- [key interface]
-  [manpage didxengine]
-  [manpage dtformatter]
-  [manpage dtocengine]
- [key manpage]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtformatter]
-  [manpage dtocengine]
-  [manpage dtocformat]
-  [manpage mpexpand]
- [key markup]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtformatter]
-  [manpage dtocengine]
-  [manpage dtocformat]
-  [manpage mpexpand]
- [key nroff]
-  [manpage didxengine]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtformatter]
-  [manpage dtocengine]
-  [manpage dtocformat]
-  [manpage mpexpand]
- [key {table of contents}]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtocengine]
-  [manpage dtocformat]
- [key toc]
-  [manpage didxformat]
-  [manpage doctools]
-  [manpage dtformat]
-  [manpage dtocengine]
-  [manpage dtocformat]
+[index_begin tcllib/base64 {De- & Encoding}]
+    [key base64]
+        [manpage base64]
+    [key encoding]
+        [manpage base64]
+        [manpage uuencode]
+        [manpage yencode]
+    [key uuencode]
+        [manpage uuencode]
+    [key yEnc]
+        [manpage yencode]
+    [key ydecode]
+        [manpage yencode]
+    [key yencode]
+        [manpage yencode]
 [index_end]
 }]
 
-[see_also doctools_fmt doctoc_fmt docidx_api docidx]
-[keywords markup {generic markup} index keywords TMML HTML nroff LaTeX]
+
+[see_also doctools::idx docidx_api doctools_fmt doctoc_fmt]
+[keywords docidx index {keyword index} keywords documentation]
+[keywords markup {generic markup} TMML HTML nroff LaTeX]
 [manpage_end]

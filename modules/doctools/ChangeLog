@@ -1,4 +1,20 @@
+2004-07-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* docidx_fmt.man: More overhaul.
+	* docidx_api.man: 
+	* doctoc_fmt.man: 
+	* doctoc_api.man: 
+	* doctoc.man: 
+	* doctools_fmt.man: 
+	* doctools_api.man: 
+	* doctools.man: 
+	* changelog.man:
+	* cvs.man:
+
 2004-07-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* docidx_api.man: Overhaul.
+	* docidx.man:
 
 	* ../../apps/dtplite: Revamped the whole file mapping. Actually
 	  ripped it out. Is not needed, the formatting engine does the
