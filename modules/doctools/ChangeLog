@@ -1,8 +1,13 @@
+2003-05-23  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.nroff (fmt_arg_def, fmt_cmd_def): Analogous errors
+	  to fmt_opt_def, see below. Fixed. Reported by David Welton.
+
 2003-05-21  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.nroff (fmt_opt_def): Fixed bug. Called [option],
 	  should have been [fmt_option]. Prevented the nroff conversion of
-	  the multiplexer documentation.
+	  the multiplexer documentation. Reported by David Welton.
 
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
