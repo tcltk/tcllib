@@ -1,3 +1,14 @@
+2004-11-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl:     Added support for RFC2782 (DNS SRV) which provides
+	               for service discovery via DNS. 
+		       Added dns::nameservers command to return the list
+	               of nameservers configured -- this is not
+	               necessarily all that reliable but should be useful.
+		       Implemented for Windows and Unix.
+	* ip.tcl:      Added an error message to deal with invalid address
+	               formats during normalization.
+	
 2004-11-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ip.tcl:       Bug #1060460 - support for IPv4 in IPv6-style
