@@ -1,3 +1,7 @@
+2002-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* report.man: New file, manpage in doctools format.
+
 2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Version up to 0.3 to differentiate development from the

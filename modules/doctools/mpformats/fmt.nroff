@@ -64,11 +64,14 @@ proc manpage_end {} {
     set trimblanks 1
     foreach line [split [cpop mp] "\n"] {
 	if {$trimblanks} {
-	    if {[lsearch $nfMode [split $line]] >= 0} { set trimblanks 0 }
+	    if {[lsearch -exact $nfMode [split $line]] >= 0} { set trimblanks 0 }
 	    if {![string length $line]} { continue }
 	    set line [string trim $line]
+	    if {0 == [string length $line]} {
+		continue
+	    }
 	} else {
-	    if {[lsearch $fiMode [split $line]] >= 0} { set trimblanks 1 }
+	    if {[lsearch -exact $fiMode [split $line]] >= 0} { set trimblanks 1 }
 	}
 	lappend lines $line
     } 
