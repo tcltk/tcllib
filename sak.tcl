@@ -51,7 +51,7 @@ proc modules {} {
 }
 
 proc modules_mod {m} {
-    return [expr {[lsearch -exact [modules] $m] > 0}]
+    return [expr {[lsearch -exact [modules] $m] >= 0}]
 }
 
 proc load_modinfo {} {

@@ -928,7 +928,7 @@ proc ::ncgi::import_file {cmd var {filename {}}} {
 	    } elseif {![info exists ncgi::_tmpfiles($var)]} {
 		## create a tmp file 
 		set tmpfile [::fileutil::tempfile ncgi]
-		if [catch {open $tmpfile w} h] {
+		if {[catch {open $tmpfile w} h]} {
 		    error "Can't open temporary file in ncgi::import_file"
 		} 
 		fconfigure $h -translation binary -encoding binary
