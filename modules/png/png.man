@@ -19,7 +19,7 @@ stands for [term {Portable Network Graphics}] and is specified at
 
 Returns a value indicating if [arg file] is a valid PNG file. The file
 is checked for PNG signature, each chunks checksum is verified,
-existance of a data chunk is verified, first chunk is checked for
+existence of a data chunk is verified, first chunk is checked for
 header, last chunk is checked for ending. Things [emph not] checked
 for are: validity of values within a chunk, multiple header chunks,
 noncontiguous data chunks, end chunk before actual eof. This procedure
