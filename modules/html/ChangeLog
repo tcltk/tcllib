@@ -1,3 +1,11 @@
+2000-08-22  Dan Kuchler <kuchler@ajubasolutions.com>
+
+        * modules/html/html.tcl:
+        Removed the 'html::resolveUrl' procedure because it provided
+        the same functionality as the uri::resolve function, only
+        html::resolveUrl was undocumented and untested and as a result
+        did not seem to work as well as uri::resolve.
+
 2000-07-31  Brent Welch <welch@scriptics.com>
 
 	* modules/html/html.tcl:

@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.16 2000/08/01 01:56:07 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.17 2000/08/22 20:54:13 kuchler Exp $
 
 package provide html 1.0
 
@@ -963,93 +963,6 @@ proc html::extractParam {param key {varName ""}} {
     } else {
 	return 0
     }
-}
-
-# html::resolveUrl
-#
-#	Turn a URL into an absolute URL.
-#
-# Arguments:
-#   base	The base URL - typically of the page containing a URL reference.
-#   ref		The URL to convert
-#
-# Results:
-#	The new, absolute URL
-
-proc html::resolveUrl {base ref} {
-    set ref [string trim $ref]
-    if {[regexp {^([^ :]+):(.+)} $ref x protocol rest]} {
-	if {[regexp -nocase (file|mail) $protocol] || [regexp ^// $rest]} {
-
-	    # file: or mailto: URL - return as is
-
-	    return $ref
-	}
-	regsub ^$protocol: $ref {} ref
-    }
-
-    # Parse the base URL first
-    # We need to chop into the server part, the directory part,
-    # and the trailing name part.
-
-    if {[regexp {^([^:]+):(/+[^/]*)(.*)$} $base dummy protocol server ext]} {
-	set protocol [string tolower $protocol]
-	if {$protocol == "file"} {
-	    set ext $server$ext
-	    set server /
-	}
-	if {[string match */ $ext]} { 
-	    set dir $ext
-	} else {
-	    set dir [html::urlParent $ext]
-	}
-	if {$dir == "."} {
-	    set dir /
-	}
-
-	# Strip leading ../ from the URL
-
-	while {[regsub {^\.\./} $ref {} ref] == 1} {
-	    set dir [html::urlParent $dir]
-	}
-
-	# Combine it with the base URL appropriately
-
-	if {[string match /* $ref]} {
-	    set ref $protocol:$server$ref
-	} elseif {$dir == "/"} {
-	    set ref $protocol:$server/$ref
-	} else {
-	    set ref $protocol:$server/[string trim $dir /]/$ref
-	}
-
-	# collapse out /./
-
-	regsub -all {(^|/)\./} $ref / ref
-	return $ref
-    }
-
-    # Various special cases...
-    
-    if {[regsub -nocase ^file: $base {} filebase]} {
-
-	# dos names like file:c:, and file direname breaks with
-	# file:c:/, transforming that to file:c: no slash
-
-	set ref file:[file join [file dirname $filebase] [string trim $ref /]]
-	return $ref
-    }
-    set ref [html::urlParent $base]/[string trim $ref /]
-    if ![regexp {^([^:]+):} $ref x protocol] {
-	if [regexp {^www\.} $ref] {
-	    set protocol http
-	    set ref http://$ref
-	} else {
-	    set protocol file
-	    set ref file:$ref
-	}
-    }
-    return $ref
 }
 
 # html::urlParent --
