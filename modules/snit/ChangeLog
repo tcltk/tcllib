@@ -1,13 +1,26 @@
+2004-07-05  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Replaced the old method cacheLookup code with new
+	                code based on command patterns.  All tests pass;
+	                no test changes were needed.  All is now ready to
+	                add the new "delegate method" "using" keyword.
+	* dictionary.txt
+	                This file documents Snit's private variables.
+	                It's up-to-date, and checked in for the first
+	                time.
+
+	* snit.tcl      Implemented the new "using <pattern>" clause to
+	* snit.test    	"delegate method", and added relevant tests.
+
+	* snit.man      Documented the new "delegate method" syntax.
+	* README.txt
+
 2004-07-04  Will Duquette  <will@wjduquette.com>
 
-	* snit.tcl      Implemented the new option delegation syntax and
-	* snit.test     the beginning of the new method delegation syntax.
-	                Revised the relevant error messages, and updated
-			snit.test to match.  I've not yet revised the
-			set of tests to use or test the new syntax; the
-			old syntax, though deprecated, has been shown to
-			work.  I'll update snit.man when the method
-			delegation work is complete.
+	* snit.tcl      Re-implemented the option and method delegation 
+	* snit.test     syntax so that the order of clauses is no longer
+	                important.  Along the way, I made the relevant
+			error messages more specific.
 
 2004-06-26  Will Duquette  <will@wjduquette.com>
 
