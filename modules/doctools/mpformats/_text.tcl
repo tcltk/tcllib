@@ -57,8 +57,9 @@ proc EnumBullet {ivar} {
 #
 # The operations are:
 #
-# - SECT	Section.   Title.
-# - PARA	Paragraph. Environment reference and text.
+# - SECT	Section.    Title.
+# - SUBSECT     Subsection. Title.
+# - PARA	Paragraph.  Environment reference and text.
 #
 # The PARA operation is the workhorse of the engine, dooing all the
 # formatting, using the information in an "environment" as the guide
@@ -153,7 +154,8 @@ proc TextInitialize {} {
 
 ################################################################
 
-proc Section {name} {Store SECT $name ; return}
+proc Section    {name} {Store SECT    $name ; return}
+proc Subsection {name} {Store SUBSECT $name ; return}
 
 proc CloseParagraph {{id {}}} {
     global para currentId
@@ -288,6 +290,22 @@ proc SECT {text} {
     lappend linebuffer ""
     lappend linebuffer $text
     lappend linebuffer [textutil::strRepeat = [string length $text]]
+    return
+}
+
+proc SUBSECT {text} {
+    upvar linebuffer linebuffer
+
+    # text is actually the list of arguments, having one element, the text.
+    set text [lindex $text 0]
+    #puts_stderr "SUBSECT $text"
+    #puts_stderr ""
+
+    # Write subsection title, underline it (with less emphasis)
+
+    lappend linebuffer ""
+    lappend linebuffer $text
+    lappend linebuffer [textutil::strRepeat - [string length $text]]
     return
 }
 

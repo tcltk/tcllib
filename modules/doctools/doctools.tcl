@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.8 2004/05/04 22:10:20 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.9 2004/05/15 05:31:57 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -107,6 +107,7 @@ proc ::doctools::help {} {
 	    * require       - package requirement\n\
 	    * description   - begin of manpage body\n\
 	    * section       - begin new section of body\n\
+	    * subsection    - begin new sub-section of body\n\
 	    * para          - begin new paragraph\n\
 	    * list_begin    - begin a list\n\
 	    * list_end      - end of a list\n\
@@ -779,7 +780,7 @@ proc ::doctools::SetupChecker {name} {
 	keywords nl arg cmd opt comment sectref syscmd method option
 	widget fun type package class var file uri usage term const
 	arg_def cmd_def opt_def tkoption_def emph strong plain_text
-	namespace
+	namespace subsection
     } {
 	interp alias $chk_ip fmt_$cmd $format_ip fmt_$cmd
     }
@@ -898,6 +899,15 @@ proc ::doctools::Eval {name macro} {
 	return [ExpandInclude $name $filename]
     }
 
+    # Rewrite the [namespace] command before passing it on.
+    # "namespace" is a special command. The interpreter the validator
+    # resides in uses the package "msgcat", which in turn uses the
+    # builtin namespace. So the builtin cannot be simply
+    # overwritten. We use a different name.
+
+    if {[string match namespace* $macro]} {
+	set macro _$macro
+    }
     return [$chk_ip eval $macro]
 }
 

@@ -65,6 +65,7 @@ global state lstctx lstitem
 #		| keywords sectref enum	|
 #		| arg_def cmd_def	|
 #		| opt_def tkoption_def	|
+#		| subsection		|
 #		+-----------------------+-----------
 #		| example_begin		| example
 #		+-----------------------+-----------
@@ -266,6 +267,12 @@ proc section {name} {
     if {[LOpen]}      {Error nolistcmd}
     fmt_section $name
 }
+proc subsection {name} {
+    Enter subsection
+    if {[IsNot body]} {Error bodycmd}
+    if {[LOpen]}      {Error nolistcmd}
+    fmt_subsection $name
+}
 proc para {} {
     Enter para
     if {[IsNot body]} {Error bodycmd}
@@ -457,7 +464,10 @@ proc file {text} {
     if {[Is done]} {Error nodonecmd}
     fmt_file $text
 }
-proc namespace {text} {
+
+# Special case: We must not overwrite the builtin namespace command,
+# as it is required by the package "msgcat".
+proc _namespace {text} {
     if {[Is done]} {Error nodonecmd}
     fmt_namespace $text
 }

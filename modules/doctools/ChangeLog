@@ -1,5 +1,26 @@
 2004-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* doctools.tcl: Fixed a bug in the namespace implementation
+	* checker.tcl: (RFE 943145, see below). Cannot use 'namespace' in
+	  checker, it uses msgcat, uses in turn the builtin, overwriting
+	  is bad. Have to handle this specially (New name, rewrite to new
+	  name) before handing the macro over to the expander.
+
+	* doctools.tcl:          Implemented [SF Tcllib RFE 772490] for
+	* checker.tcl:           doctools, the addition of 'subsections'
+	* mpformats/_common.tcl: to the language. Updated the main engine,
+	* mpformats/_nroff.tcl:  the validator subsystem, and all formatting
+	* mpformats/_text.tcl:   engines which are coming with the package.
+	* mpformats/fmt.html:    For HTML output subsections are added to
+	* mpformats/fmt.latex:   the TOC (See [SF Tcllib RFE 772491] below)
+	* mpformats/fmt.nroff:   as well.
+	* mpformats/fmt.null: 
+	* mpformats/fmt.text: 
+	* mpformats/fmt.tmml: 
+	* mpformats/fmt.wiki: 
+
+2004-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* mpformats/_text.tcl (SECT): Fixed a small problem in the text
 	  generator which was present for ages. Titles of more than one
 	  word would have braces around them. Not fatal but also not so

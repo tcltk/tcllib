@@ -29,8 +29,7 @@ concepts.
 
 [section REFERENCE]
 
-[emph {The Instance Command}]
-[para]
+[subsection {The Instance Command}]
 
 A Snit type or widget's [method create] type method creates objects of
 the type; each object has a unique name which is also a Tcl command.
@@ -50,9 +49,7 @@ The subsequent [arg args] depend on the specific [arg method] chosen.
 
 [list_end]
 
-[para]
-[emph {Standard Instance Methods}]
-[para]
+[subsection {Standard Instance Methods}]
 
 In addition to any delegated or locally-defined instance methods in
 the type's definition, all Snit objects will have at least the
@@ -151,9 +148,7 @@ to another.
 
 [list_end]
 
-[para]
-[emph {Commands for use in Object Code}]
-[para]
+[subsection {Commands for use in Object Code}]
 
 Snit defines the following commands for use in your object code:
 that is, for use in type methods, instance methods, constructors,
@@ -331,8 +326,7 @@ break if the creator of my object renames its object command.
 [list_end]
 [para]
 
-[emph {Type and Widget Definitions}]
-[para]
+[subsection {Type and Widget Definitions}]
 
 Snit provides the following commands for defining new types:
 
@@ -777,9 +771,7 @@ instance methods can't be redefined.
 
 [list_end]
 
-[para]
-[emph {The Type Command}]
-[para]
+[subsection {The Type Command}]
 
 A type or widget definition creates a type command, which is used to
 create instances of the type.  The type command this form.
@@ -797,9 +789,7 @@ chosen.
 
 [list_end]
 
-[para]
-[emph {Standard Type Methods}]
-[para]
+[subsection {Standard Type Methods}]
 
 In addition to any typemethods in the type's definition, all types and
 widgets will have at least the following method:
@@ -877,9 +867,7 @@ use the Tk [cmd destroy] command instead.
 
 [list_end]
 
-[para]
-[emph {Components and Delegation}]
-[para]
+[subsection {Components and Delegation}]
 
 When an object includes other objects, as when a toolbar contains
 buttons or a GUI object contains an object that references a database,
@@ -997,9 +985,7 @@ Option delegation is similar to method delegation, except for the
 interactions with the Tk option database; this is described in the
 next section.
 
-[para]
-[emph {The Tk Option Database}]
-[para]
+[subsection {The Tk Option Database}]
 
 This section describes how Snit interacts with the Tk option database,
 and assumes the reader has a working knowledge of the option database
@@ -1191,9 +1177,7 @@ when each instance is created, and will generally do the right thing
 when it comes to querying the option database.  The remainder of this
 section goes into the gory details.
 
-[para]
-[emph {Initializing locally defined options:}]
-[para]
+[subsection {Initializing locally defined options:}]
 
 When an instance of a snit::widget is created, its locally defined
 options are initialized as follows: each option's resource and class
@@ -1220,9 +1204,7 @@ the entry added to the option database it defaults to "pebbled".
 However, the caller has explicitly overridden the default, and so the
 new widget will be "greasy".
 
-[para]
-[emph {Initializing options delegated to the hull:}]
-[para]
+[subsection {Initializing options delegated to the hull:}]
 
 A [cmd snit::widget]'s hull is a widget, and given that its class has
 been set it is expected to query the option database for itself.  The
@@ -1324,9 +1306,7 @@ all of its normal option values automatically; options delegated from
 a different name are initialized from the option database in the same
 way.
 
-[para]
-[emph {Initializing options delegated to other components:}]
-[para]
+[subsection {Initializing options delegated to other components:}]
 
 Non-hull components are matched against the option database in two
 ways.  First, a component widget remains a widget still, and therefore
