@@ -231,7 +231,15 @@ proc xinstall {type args} {
 }
 
 proc doinstall {} {
-    global config tcllib_version distribution tcllib_name
+    global config tcllib_version distribution tcllib_name modules excluded
+
+    if {!$config(no-exclude)} {
+	foreach p $excluded {
+	    set pos [lsearch -exact $modules $p]
+	    if {$pos < 0} {continue}
+	    set modules [lreplace $modules $pos $pos]
+	}
+    }
 
     if {$config(pkg)}       {
 	xinstall   pkg $config(pkg,path)
@@ -257,7 +265,7 @@ array set config {
     doc,html  0 doc,html,path  {}
     exa 1 exa,path {}
     dry 0 wait 1 valid 1
-    gui 0 no-gui 0
+    gui 0 no-gui 0 no-exclude 0
 }
 
 # --------------------------------------------------------------
@@ -458,6 +466,7 @@ proc processargs {} {
 
     while {[llength $argv] > 0} {
 	switch -exact -- [lindex $argv 0] {
+	    +excluded    {set config(no-exclude) 1}
 	    -no-wait     {set config(wait) 0}
 	    -no-gui      {set config(no-gui) 1}
 	    -simulate    -
