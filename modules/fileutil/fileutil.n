@@ -1,0 +1,52 @@
+'\" 
+'\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+'\" All rights reserved.
+'\" 
+'\" RCS: @(#) $Id: fileutil.n,v 1.1 2001/07/31 23:47:51 andreas_kupries Exp $
+'\" 
+.so man.macros
+.TH fileutil n 1.0 Fileutil "file utilities"
+.BS
+'\" Note: do not modify the .SH NAME line immediately below!
+.SH NAME
+::fileutil \- Procedures implementing some file utilities
+.SH SYNOPSIS
+\fBpackage require fileutil ?1.1?\fR
+.sp
+\fB::fileutil::grep\fR ?-maxlen \fImaxlen\fR? ?-wrapchar \fIchar\fR? \fIstring\fR
+.sp
+\fB::fileutil::find\fR \fIstring\fR
+.sp
+\fB::fileutil::cat\fR \fIfilename\fR
+.BE
+.SH DESCRIPTION
+.PP
+This package provides implementations of standard unix utilities
+.TP
+\fB::fileutil::grep\fR \fIpattern\fR ?\fIfiles\fR?
+Implementation of grep. Adapted from the Tcler's Wiki. The first
+argument defiens the \fIpattern\fR to search for. This is followed by
+a list of \fIfiles\fR to search through. The list is optional and
+\fBstdin\fR will be used if is missing. The result of the procedures
+is a list containing the matches. Each match is a single element of
+the list and contains filename, number and contents of the matching
+line, separated by a colons.
+.TP
+\fB::fileutil::find\fR ?\fIbasedir\fR ?\fIfiltercmd\fR??
+An implementation of the unix command \fBfind\fR. Adapted from the
+Tcler's Wiki. Takes at most two arguments, the path to the directory
+to start searching from and a command to use to evaluate interest in
+each file. The path defaults to \fB.\fR, i.e. the current
+directory. The command defaults to the empty string, which means that
+all files are of interest. The command takes care \fBnot\fR to loose
+itself in infinite loops upon encountering circular link structures.
+The result of the command is a list containing the paths to the
+interesting files.
+.TP
+\fB::fileutil::cat\fR \fIfilename\fR
+A tcl implementation of the UNIX "cat" command.  Returns the contents
+of the specified file. The first argument is the name of the file to
+read.
+
+.SH KEYWORDS
+file utilities

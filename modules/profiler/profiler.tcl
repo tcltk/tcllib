@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.14 2001/07/10 20:39:46 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.15 2001/07/31 23:47:51 andreas_kupries Exp $
 
 package provide profiler 0.1
 
@@ -135,7 +135,7 @@ proc ::profiler::Handler {name args} {
 	::profiler::tZero $name.$caller
     }
 
-    set CODE [uplevel ${name}ORIG $args]
+    set CODE [uplevel 1 [list ${name}ORIG] $args]
     if { $enabled } {
 	set t [::profiler::tMark $name.$caller]
 	lappend ::profiler::statTime($name) $t

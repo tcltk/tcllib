@@ -1,8 +1,12 @@
+2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* base64.n: Added manpage [446584].
+
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* base64.tcl: Frink 2.2 run, fixed dubious code.
 
-2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net
 
 	* base64.tcl: Fixed dubious code reported by frink.
 
