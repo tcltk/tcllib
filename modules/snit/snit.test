@@ -1022,6 +1022,25 @@ test ivariable-1.9 {procs which define selfns see instance variables.} {} {
     spot caller
 } {Howdy}
 
+test ivariable-1.10 {in methods, variable works with fully qualified names.} {} {
+    cleanup
+
+    namespace eval ::somenamespace:: {
+        set somevar somevalue
+    }
+
+    type dog { 
+        method get {} {
+            variable ::somenamespace::somevar
+            return $somevar
+        }
+    }
+
+    dog create spot
+
+    spot get
+} {somevalue}
+
 #-----------------------------------------------------------------------
 # codename
 
@@ -3354,7 +3373,7 @@ test iinfo-1.5 {object info vars} {
 
     dog create spot
     lsort [spot info vars]
-} {::dog::Snit_inst1::hervar ::dog::Snit_inst1::hisvar}
+} {::dog::Snit_inst1::hervar ::dog::Snit_inst1::hisvar ::dog::Snit_inst1::options}
 
 test iinfo-1.6 {object info no vars defined} {
     cleanup
@@ -3363,7 +3382,7 @@ test iinfo-1.6 {object info no vars defined} {
 
     dog create spot
     list [spot info vars] [spot info typevars]
-} {{} {}}
+} {::dog::Snit_inst1::options {}}
 
 test iinfo-1.7 {info options with no options} {
     cleanup
