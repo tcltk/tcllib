@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.5 2003/04/09 18:25:32 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.6 2003/05/01 22:40:18 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -29,10 +29,7 @@ if { [string compare lset [info commands lset]] } {
 # Service procedure to develop the error message for "wrong # args"
 
 proc wrongNumArgs {name arglist count} {
-    set ver [info patchlevel]
-    # strip "a1", etc. designations
-    regsub {(a|b)[1-9]$} $ver {} ver
-    if {[package vcompare $ver 8.4] < 0} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
 	set arg [lindex $arglist $count]
 	set msg "no value given for parameter \"$arg\" to \"$name\""
     } else {

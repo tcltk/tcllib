@@ -8,18 +8,33 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.4 2003/04/14 04:59:43 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.5 2003/05/01 22:40:17 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+package forget pop3d
+catch {namespace delete ::pop3d}
+if {[catch {source [file join [file dirname [info script]] pop3d.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] pop3d_udb.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] pop3d_dbox.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
 package require pop3d
 package require pop3d::udb
 package require pop3d::dbox
 
-puts "pop3d [package present pop3d]"
+puts "- pop3d [package present pop3d]"
 puts "- udb  [package present pop3d::udb]"
 puts "- dbox [package present pop3d::dbox]"
 
