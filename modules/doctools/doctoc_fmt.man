@@ -135,7 +135,7 @@ This command closes a table of contents. Nothing is allowed to follow
 it.
 
 
-[call [cmd division_start] [arg text]]
+[call [cmd division_start] [arg text] [opt [arg symfile]]]
 
 This command and its counterpart [cmd division_end] can be used to give
 the table of contents additional structure.
@@ -153,6 +153,11 @@ that divisions can be nested.
 
 The division has to contain at least either one toc element
 ([cmd item]) or one division.
+
+[nl]
+
+If the symbolic filename [arg symfile] is present then the division
+title should link to the referenced file, if supported by the format.
 
 
 [call [cmd division_end]]

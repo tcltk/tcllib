@@ -195,14 +195,14 @@ proc toc_end {} {
     Go done
     fmt_toc_end
 }
-proc division_start {title} {
+proc division_start {title {symfile {}}} {
     Enter division_start
     if {
 	[IsNot contents] && [IsNot div_series] && [IsNot end] && [IsNot division]
     } {Error toc/sectcmd}
     if {[Is contents] || [Is end]} {Go end} else {Go div_series}
     Push div_series
-    fmt_division_start $title
+    fmt_division_start $title $symfile
 }
 proc division_end {} {
     Enter division_end

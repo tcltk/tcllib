@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: idx.html,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: idx.html,v 1.3 2004/07/22 05:11:44 andreas_kupries Exp $
 #
 # Engine to convert a docidx document into HTML.
 #
@@ -29,6 +29,8 @@ global firstkey   ; set firstkey   1
 global even       ; set even        1
 global reflist    ; set reflist [list]
 global cnt        ; set cnt 0
+global kwid
+array set kwid {}
 
 proc fmt_index_begin     {label title}      {
     set     hdr ""
@@ -37,6 +39,12 @@ proc fmt_index_begin     {label title}      {
 
     # Engine parameter - insert 'meta'
     if {[set meta [Get meta]] != {}} {append hdr [markup $meta]\n}
+
+    # Engine parameter - load predefined keyword anchors.
+    if {[llength [set ki [Get kwid]]]} {
+	global    kwid
+	array set kwid $ki
+    }
 
     append  hdr "[markup </head>]\n"
     append  hdr [ht_comment [c_provenance]]\n
@@ -54,9 +62,10 @@ proc fmt_index_begin     {label title}      {
     } elseif {$title != {}} {
 	append  hdr "[markup <h3>] $title [markup </h3>]\n"
     }
-    append  hdr "[markup "<hr><table class=\"#idx\">"]\n"
+    append  hdr [markup "<hr><table class=\"#idx\">"]\n
     return $hdr
 }
+
 proc fmt_index_end {} {
     set    text [FlushReferences]
     append text [tag/ table]\n
@@ -67,8 +76,9 @@ proc fmt_index_end {} {
 
     return $text[tag hr]${footer}[tag/ body][tag/ html]\n
 }
+
 proc fmt_key {text} {
-    global firstkey even reflist cnt
+    global firstkey even reflist cnt kwid
 
     set res [FlushReferences]
     set firstkey 0
@@ -80,9 +90,16 @@ proc fmt_key {text} {
     }
     set even [expr {1-$even}]
 
-    append  res "    [markup "<td class=\"#idxleft\" >"][markup "<a name=\"key$cnt\">"] ${text} [markup </a>][tag/ td]\n"
-    append  res "    [markup "<td class=\"#idxright\">"]\n"
-    incr cnt
+    if {[info exists kwid($text)]} {
+	set anchor $kwid($text)
+    } else {
+	set anchor key$cnt
+	incr cnt
+    }
+
+    append  res "    [markup {<td class="#idxleft" >}]"
+    append  res "[markup "<a name=\"$anchor\">"] ${text} [markup </a>][tag/ td]\n"
+    append  res "    [markup {<td class="#idxright">}]\n"
     return $res
 }
 
@@ -112,6 +129,7 @@ array set __var {
     meta   {}
     header {}
     footer {}
+    kwid   {}
 }
 proc Get               {varname}      {global __var ; return $__var($varname)}
 proc idx_listvariables {}             {global __var ; return [array names __var]}
