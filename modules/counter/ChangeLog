@@ -1,3 +1,8 @@
+2003-02-23  David N. Welton  <davidw@dedasys.com>
+
+	* counter.tcl (counter::names): Use string map instead of regsub.
+	Require Tcl 8.2 as a consequence.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* counter.man: More semantic markup, less visual one.
