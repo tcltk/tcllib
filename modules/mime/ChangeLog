@@ -1,3 +1,10 @@
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl:     Updated smtp to version 1.4, to reflect the
+	* smtp.man:     extensions made to it (Authentication). This
+	* pkgIndex.tcl: also distinguishes the main line version from the
+	                one in the 1.6 branch.
+
 2004-05-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl: Fixed [SF Tcllib Bug 954328]. Same bug in different
