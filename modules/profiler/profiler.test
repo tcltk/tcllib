@@ -6,11 +6,22 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.10 2001/08/21 23:36:32 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.test,v 1.11 2003/04/14 07:08:36 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
+}
+
+# This constraint restricts certain tests to run on tcl8.3 version only
+if {[package vsatisfies [package provide tcltest] 2.0]} {
+    # tcltest2.0+ has an API to specify a test constraint
+    ::tcltest::testConstraint tcl8.3only \
+        [expr {![package vsatisfies [package provide Tcl] 8.4]}]
+} else {
+    # In tcltest1.0, a global variable needs to be set directly.
+    set ::tcltest::testConstraints(tcl8.3only) \
+        [expr {![package vsatisfies [package provide Tcl] 8.4]}]
 }
 
 # Add the test script dir to the auto_path, so that we can package require
@@ -30,7 +41,7 @@ test profiler-1.0 {profiler::init redirects the proc command} {
     set result
 } [list ::profiler::profProc ::_oldProc]
 
-test profiler-2.0 {profiler creates two wrapper proc and real proc} {
+test profiler-2.0 {profiler creates two wrapper proc and real proc} {tcl8.3only} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -45,7 +56,7 @@ test profiler-2.0 {profiler creates two wrapper proc and real proc} {
     interp delete $c
     set result
 } [list foo fooORIG]
-test profiler-2.1 {profiler creates procs in correct scope} {
+test profiler-2.1 {profiler creates procs in correct scope} {tcl8.3only} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -61,7 +72,7 @@ test profiler-2.1 {profiler creates procs in correct scope} {
     interp delete $c
     set result
 } [list ::foo::foo ::foo::fooORIG]
-test profiler-2.2 {profiler creates procs in correct scope} {
+test profiler-2.2 {profiler creates procs in correct scope} {tcl8.3only} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -78,7 +89,7 @@ test profiler-2.2 {profiler creates procs in correct scope} {
     interp delete $c
     set result
 } [list ::foo::foo ::foo::fooORIG]
-test profiler-2.3 {profiler creates procs in correct scope} {
+test profiler-2.3 {profiler creates procs in correct scope} {tcl8.3only} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -97,7 +108,7 @@ test profiler-2.3 {profiler creates procs in correct scope} {
     interp delete $c
     set result
 } [list ::foo::bar::foo ::foo::bar::fooORIG]
-test profiler-2.4 {profiler creates procs in correct scope} {
+test profiler-2.4 {profiler creates procs in correct scope} {tcl8.3only} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
