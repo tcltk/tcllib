@@ -7,13 +7,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.16 2001/08/02 16:38:07 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.17 2001/08/21 23:36:32 andreas_kupries Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.1
+package provide profiler 0.2
 
 namespace eval ::profiler {
-    variable enabled 1
 }
 
 # ::profiler::tZero --
@@ -121,7 +120,7 @@ proc ::profiler::stats {args} {
 
 proc ::profiler::Handler {name args} {
     variable enabled
-    if { $enabled } {
+    if { $enabled($name) } {
 	if { [info level] == 1 } {
 	    set caller GLOBAL
 	} else {
@@ -137,7 +136,7 @@ proc ::profiler::Handler {name args} {
     }
 
     set CODE [uplevel 1 [list ${name}ORIG] $args]
-    if { $enabled } {
+    if { $enabled($name) } {
 	set t [::profiler::tMark $name.$caller]
 	lappend ::profiler::statTime($name) $t
 
@@ -174,6 +173,8 @@ proc ::profiler::profProc {name arglist body} {
     variable totalRuntime
     variable descendantTime
     variable statTime
+    variable enabled
+    variable paused
     
     # Get the fully qualified name of the proc
     set ns [uplevel [list namespace current]]
@@ -195,6 +196,7 @@ proc ::profiler::profProc {name arglist body} {
     set totalRuntime($name) 0
     set descendantTime($name) 0
     set statTime($name) {}
+    set enabled($name) [expr {!$paused}]
 
     uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
     uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
@@ -213,6 +215,9 @@ proc ::profiler::profProc {name arglist body} {
 #		profiler::profProc
 
 proc ::profiler::init {} {
+    # paused is set to 1 when the profiler is suspended.
+    variable paused 0
+
     rename ::proc ::_oldProc
     interp alias {} proc {} ::profiler::profProc
 
@@ -440,6 +445,54 @@ proc ::profiler::reset {{pattern *}} {
 	    unset callers($caller)
 	}
     }
+    return
+}
+
+# ::profiler::suspend --
+#
+#	Suspend the profiler.
+#
+# Arguments:
+#	pattern		pattern of functions to suspend; default is *.
+#
+# Results:
+#	None.  Resets the `enabled($name)' variable to 0
+#	       to suspend profiling
+
+proc ::profiler::suspend {{pattern *}} {
+    variable callCount
+    variable enabled
+    variable paused
+
+    set paused 1
+    foreach name [array names callCount $pattern] {
+        set enabled($name) 0
+    }
+
+    return
+}
+
+# ::profiler::resume --
+#
+#	Resume the profiler, after it has been suspended.
+#
+# Arguments:
+#	pattern		pattern of functions to suspend; default is *.
+#
+# Results:
+#	None.  Sets the `enabled($name)' variable to 1
+#	       so as to enable the profiler.
+
+proc ::profiler::resume {{pattern *}} {
+    variable callCount
+    variable enabled
+    variable paused
+
+    set paused 0
+    foreach name [array names callCount $pattern] {
+        set enabled($name) 1
+    }
+
     return
 }
 

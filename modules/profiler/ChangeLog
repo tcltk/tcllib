@@ -1,3 +1,15 @@
+2001-08-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Moved version to 0.2.
+
+	* profiler.test: Adapted testsuite.
+
+	* profiler.n: Added documentation. Same patch as below.
+
+	* profiler.tcl: Applied patch [446799] by Hemang Lavana
+	  <hemanglavana@users.sourceforge.net>, adding support for
+	  resume/suspend operations to the profiler. moved version to 0.2.
+
 2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* profiler.tcl (Handler): Fixed [446562].
