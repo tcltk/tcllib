@@ -3,7 +3,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.3 2001/12/15 12:43:35 chdamm Exp $
+# RCS: @(#) $Id: geometry.test,v 1.4 2001/12/16 11:18:24 chdamm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -342,26 +342,72 @@ test geometry-1.1 {geometry::rectanglesOverlap, not strict, no overlap} {
 
 
 ###
+# pointInsidePolygon
+###
+test geometry-1.1 {geometry::pointInsidePolygon, simple inside} {
+    math::geometry::pointInsidePolygon {5 5} {4 4 4 6 6 6 6 4}
+} 1
+test geometry-1.1 {geometry::pointInsidePolygon, simple not inside} {
+    math::geometry::pointInsidePolygon {5 5} {6 6 6 7 7 7}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, point on polygon's sides} {
+    math::geometry::pointInsidePolygon {5 5} {5 4 5 6 7 7}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, point identical with one of polygon's points} {
+    math::geometry::pointInsidePolygon {5 5} {5 4 5 5 7 7}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, point not in polygon's bbox} {
+    math::geometry::pointInsidePolygon {5 5} {8 8 8 9 9 9 9 8}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, hour-glass with center on point} {
+    math::geometry::pointInsidePolygon {5 5} {4 4 6 6 6 4 4 6}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, hour-glass with point inside one of the areas} {
+    math::geometry::pointInsidePolygon {5 5} {3 2 5 11 3 11 11 6}
+} 1
+test geometry-1.1 {geometry::pointInsidePolygon, hour-glass with point on left side} {
+    math::geometry::pointInsidePolygon {5 5} {4 1 8 8 6 8 8 1}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, hour-glass with point on right side} {
+    math::geometry::pointInsidePolygon {5 5} {2 4 6 9 2 9 5 4}
+} 0
+test geometry-1.1 {geometry::pointInsidePolygon, infinityLine crosses point instead of line segment} {
+    math::geometry::pointInsidePolygon {5 5} {4 4 4 7 7 7 7 4}
+} 1
+
+
+
+###
 # rectangleInsidePolygon
 ###
 test geometry-1.1 {geometry::rectangleInsidePolygon, simple} {
     math::geometry::rectangleInsidePolygon {0 10} {10 0} {-10 -10 0 11 11 11 11 0}
 } 1
-test geometry-1.1 {geometry::rectangleInsidePolygon, random sample} {
-    math::geometry::rectangleInsidePolygon {27 69} {141 171} {32 14 16 28 2 52 -3 86 -4 128 -1 168 13 202 37 228 73 246 109 251 163 255 239 257 333 255 435 252 487 232 491 186 461 146 399 112 321 76 217 40 109 10 63 -4 49 -2 27 2 25 3}
-} 1
 test geometry-1.1 {geometry::rectangleInsidePolygon, rectangle and polygon identical} {
     math::geometry::rectangleInsidePolygon {5 5} {7 7} {5 5 5 7 7 7 7 5}
 } 0
-test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with center inside rectangle} {
-    math::geometry::rectangleInsidePolygon {5 5} {7 7} {5 3 7 9 5 9 7 3}
+test geometry-1.1 {geometry::rectangleInsidePolygon, bboxes don't overlap} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {8 8 8 9 9 9 9 8}
+} 0
+test geometry-1.1 {geometry::rectangleInsidePolygon, polygon point is inside the rectangle} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {4 4 4 8 6 6}
 } 0
 test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with center inside rectangle} {
     math::geometry::rectangleInsidePolygon {5 5} {7 7} {5 3 7 9 5 9 7 3}
 } 0
-test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass rectangle inside one of the areas} {
-    math::geometry::rectangleInsidePolygon {5 5} {7 7} {3 3 5 11 3 11 11 6}
+test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with rectangle inside one of the areas} {
+    math::geometry::rectangleInsidePolygon {5 5} {7 7} {3 2 5 11 3 11 11 6}
 } 1
+test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with rectangle on left side} {
+    math::geometry::rectangleInsidePolygon {5 5} {6 6} {4 1 8 8 6 8 8 1}
+} 0
+test geometry-1.1 {geometry::rectangleInsidePolygon, hour-glass with rectangle on right side} {
+    math::geometry::rectangleInsidePolygon {5 5} {6 6} {2 4 6 9 2 9 5 4}
+} 0
+test geometry-1.1 {geometry::rectangleInsidePolygon, infinityLine crosses point instead of line segment} {
+    math::geometry::rectangleInsidePolygon {5 5} {6 6} {4 4 4 7 7 7 7 4}
+} 1
+
 
 
 
