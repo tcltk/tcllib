@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.20 2002/09/03 21:33:08 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.21 2002/10/14 19:17:23 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -355,7 +355,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	    retr {
 		set sizeStr [::pop3::send $chan "RETR $index"]
 
-		if {[scan $sizeStr {%d %s} size dummy] < 0} {
+		if {[scan $sizeStr {%d %s} size dummy] < 1} {
 		    # The server did not deliver the size information.
 		    # Switch our mode to "list" and use the slow
 		    # method this time. The next call will use LIST before
@@ -374,7 +374,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	    list {
 		set sizeStr [::pop3::send $chan "LIST $index"]
 
-		if {[scan $sizeStr {%d %d %s} dummy size dummy] < 0} {
+		if {[scan $sizeStr {%d %d %s} dummy size dummy] < 2} {
 		    # Not even LIST generates the necessary size information.
 		    # Switch to full slow mode and don't bother anymore.
 
