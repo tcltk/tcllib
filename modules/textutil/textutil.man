@@ -50,6 +50,13 @@ If set to [strong false], any trailing space chars are deleted before
 returning the string. If set to [strong true], any trailing space
 chars are left in the string. Default to [strong false].
 
+[lst_item "-hyphenate [arg boolean]"]
+
+if set to [strong false], no hyphenation will be done. If set to
+[strong true], the last word of a line is tried to be hyphenated.
+Default to [strong false]. Note: hyphenation patterns must be loaded
+prior using the procedure textutil::adjust::readPatterns <filename>;
+where the file named filename contains the TeX hyphenation patterns.
 
 [lst_item "-justify ([strong center|left|plain|right])"]
 
