@@ -1,3 +1,11 @@
+2003-01-24  David N. Welton  <davidw@dedasys.com>
+
+	* pkgIndex.tcl: Added dependency on Tcl 8.3 in the pkgIndex.tcl
+	  file.  I'm not sure that this code won't work with earlier
+	  versions of Tcl, but 8.3 is all I have to test against.  Please
+	  let me know if you successfully run it with earlier versions.
+	  Fixes [674331].
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* irc.man: More semantic markup, less visual one.
