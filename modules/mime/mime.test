@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.14 2004/05/04 20:03:28 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.15 2004/05/04 20:37:57 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -183,6 +183,58 @@ test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {
     } msg ; #{}
     set msg
 } {termination string missing in multipart/related}
+
+test mime-3.9 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back} {
+    set msg {MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+
+Fran\xE7ois
+}
+    set tok [mime::initialize -string $msg]
+    mime::getbody $tok -decode
+} {Fran\xE7ois
+}
+
+test mime-3.10 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back (example from encoding man page)} {
+    set msg {MIME-Version: 1.0
+Content-Type: text/plain; charset=EUC-JP
+Content-Transfer-Encoding: quoted-printable
+
+=A4=CF}
+    set tok [mime::initialize -string $msg]
+    mime::getbody $tok -decode
+} "\u306F"
+
+test mime-3.11 {Parse a MIME message without a charset encoded body and use getbody -decode to get it back} {
+    set msg {MIME-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+A plain text message.}
+    set tok [mime::initialize -string $msg]
+    mime::getbody $tok -decode
+} "A plain text message."
+
+test mime-3.12 {Parse a MIME message with a charset encoded body in an unrecognised charset and use getbody -decode to attempt to get it back} {
+    set msg {MIME-Version: 1.0
+Content-Type: text/plain; charset=SCRIBBLE
+Content-Transfer-Encoding: quoted-printable
+
+This is a message in the scribble charset that tcl does not recognise.}
+    set tok [mime::initialize -string $msg]
+    catch {mime::getbody $tok -decode} errmsg
+    set errmsg
+} "-decode failed: can't reversemap charset SCRIBBLE"
+
+test mime-3.13 {Parse a MIME message with a charset encoded body in an unrecognised charset but don't use -decode so we get it back raw} {
+    set msg {MIME-Version: 1.0
+Content-Type: text/plain; charset=SCRIBBLE
+Content-Transfer-Encoding: quoted-printable
+
+This is a message in the scribble charset that tcl does not recognise.}
+    set tok [mime::initialize -string $msg]
+    mime::getbody $tok
+} "This is a message in the scribble charset that tcl does not recognise."
 
 test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
