@@ -1,3 +1,9 @@
+2004-12-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.tcl: Fixed bug in search for Trfcrypt (noticed by
+	Antirez). Added a Reset command to the programming API to permit
+	reuse of a key with a new initialization vector..
+
 2004-12-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* blowfish.tcl:  Add in support for Trfcrypt implementation.

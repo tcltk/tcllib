@@ -21,7 +21,7 @@ package require Tcl 8.4
 
 namespace eval blowfish {
     variable version 1.0.0
-    variable rcsid {$Id: blowfish.tcl,v 1.2 2004/12/07 07:11:52 patthoyts Exp $}
+    variable rcsid {$Id: blowfish.tcl,v 1.3 2004/12/21 12:20:06 patthoyts Exp $}
 
     variable usetrf
 
@@ -414,6 +414,12 @@ proc ::blowfish::Init {mode key iv} {
     return $token
 }
 
+proc ::blowfish::Reset {token iv} {
+    upvar #0 $token state
+    set state(I) $iv
+    return
+}
+
 proc ::blowfish::Final {token} {
     variable $token
     unset $token
@@ -682,7 +688,7 @@ proc ::blowfish::blowfish_tcl {args} {
 
 # If we can use the Trfcrypt C implementation.
 if {![info exists ::blowfish::usetrf]} {
-    if {[package require Trfcrypt] && [info command ::blowfish] != {}} {
+    if {![catch {package require Trfcrypt}] && [info command ::blowfish] != {}} {
         set ::blowfish::usetrf 1
         interp alias {} ::blowfish::blowfish {} ::blowfish
     } else {
