@@ -1282,6 +1282,47 @@ test typevariable-1.7 {mytypevar qualifies typevariables} {} {
     spot tvname myvar
 } {::dog::myvar}
 
+test typevariable-1.8 {typevariable with too many initializers throws an error.} {} {
+    cleanup
+
+    catch {
+        type dog { 
+            typevariable color dark brown
+        }
+    } result
+
+    set result
+} {Error in 'typevariable color...', too many initializers.}
+
+test typevariable-1.9 {typevariable with too many initializers throws an error.} {} {
+    cleanup
+
+    catch {
+        type dog { 
+            typevariable color -array dark brown
+        }
+    } result
+
+    set result
+} {Error in 'typevariable color...', too many initializers.}
+
+test typevariable-1.10 {typevariable can initialize array variables.} {} {
+    cleanup
+
+    type dog { 
+        typevariable data -array {
+            family jones
+            color brown
+        }
+
+        typemethod getdata {item} {
+            return $data($item)
+        }
+    }
+
+    list [dog getdata family] [dog getdata color]
+} {jones brown}
+
 #-----------------------------------------------------------------------
 # instance variable
 
@@ -1475,6 +1516,48 @@ test ivariable-1.10 {in methods, variable works with fully qualified names.} {} 
 
     spot get
 } {somevalue}
+
+test ivariable-1.11 {variable with too many initializers throws an error.} {} {
+    cleanup
+
+    catch {
+        type dog { 
+            variable color dark brown
+        }
+    } result
+
+    set result
+} {Error in 'variable color...', too many initializers.}
+
+test ivariable-1.12 {variable with too many initializers throws an error.} {} {
+    cleanup
+
+    catch {
+        type dog { 
+            variable color -array dark brown
+        }
+    } result
+
+    set result
+} {Error in 'variable color...', too many initializers.}
+
+test ivariable-1.13 {variable can initialize array variables.} {} {
+    cleanup
+
+    type dog { 
+        variable data -array {
+            family jones
+            color brown
+        }
+
+        method getdata {item} {
+            return $data($item)
+        }
+    }
+
+    dog spot
+    list [spot getdata family] [spot getdata color]
+} {jones brown}
 
 #-----------------------------------------------------------------------
 # codename
