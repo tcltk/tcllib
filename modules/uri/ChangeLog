@@ -1,3 +1,11 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.test:
+	* uri.tcl (::uri::split): Fixed bug #676976 reported by Jason
+	  Mills <jasonmills@users.sourceforge.net>. An incorrect regular
+	  expression (typo in character class) accepted more character
+	  than it should have.
+
 2003-04-10  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl:
