@@ -1,4 +1,8 @@
-2002-06-07  Andreas Kupries  <andreask@pliers.activestate.com>
+2002-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Released and tagged tcllib 1.3.0. ========================
+
+2002-06-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dns: Fixed SF bug #564670.
 
