@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: expander.n,v 1.3 2001/12/14 04:58:18 andreas_kupries Exp $
+'\" RCS: @(#) $Id: expander.n,v 1.4 2002/01/18 00:53:38 jenglish Exp $
 '\" 
 .so man.macros
 .TH expander n 1.0 Textutil "Text expansion and template processing"
@@ -11,12 +11,12 @@
 .SH NAME
 textutil::expander \- Procedures to process templates and expand text.
 .SH SYNOPSIS
-.BS
+.nf
 \fBpackage require Tcl 8.2\fR
-.sp
 \fBpackage require textutil::expander ?1.0?\fR
 .sp
 \fB::textutil::expander\fR \fIexpanderName\fR
+.fi
 .BE
 .SH DESCRIPTION
 .PP
@@ -39,20 +39,17 @@ implement a markup language similar to HTML.
 .sp
 The \fBsubst\fR command is efficient, but it has three drawbacks for
 this kind of template processing:
-.TP
-*
+.IP \(bu
 There's no way to identify and process the plain text between two
 embedded Tcl commands; that makes it difficult to handle plain text in
 a context-sensitive way.
-.TP
-*
+.IP \(bu
 Embedded commands are necessarily bracketed by \fB[\fR and \fB]\fR;
 it's convenient to be able to choose different brackets in special
 cases.  Someone producing web pages that include a large quantity of
 Tcl code examples might easily prefer to use \fB<<\fR and \fB>>\fR as
 the embedded code delimiters instead.
-.TP
-*
+.IP \(bu
 There's no easy way to handle incremental input, as one might wish to
 do when reading data from a socket.
 
@@ -63,7 +60,7 @@ solve the third problem as well.
 The following section describes the command API to the expander; this
 is followed by tutorial section.
 
-.SH EXPANDER API
+.SH "EXPANDER API"
 .PP
 The \fBtextutil::expander\fR package provides only one command,
 described below. The rest of the section is taken by a description of
@@ -123,20 +120,16 @@ Sets the macro expansion error mode to one of \fBnothing\fR,
 \fBfail\fR.  The value determines what the expander does if an error
 is detected during expansion of a macro.
 .RS
-.TP
-*
+.IP \(bu
 If the error mode is \fBfail\fR, the error propagates normally and can
 be caught or ignored by the application.
-.TP
-*
+.IP \(bu
 If the error mode is \fBerror\fR, the macro expands into a detailed
 error message, and expansion continues.
-.TP
-*
+.IP \(bu
 If the error mode is \fBmacro\fR, the macro expands to itself; that
 is, it is passed along to the output unchanged.
-.TP
-*
+.IP \(bu
 If the error mode is \fBnothing\fR, the macro expands to the empty
 string, and is effectively ignored.
 .RE
@@ -232,7 +225,7 @@ replaces it with its result string.  For example,
  % ::myexp expand {There are many ways to say "Hello, World!":
  [set result {}
  foreach greeting $greetings {
-    append result "$greeting, World!\n"
+    append result "$greeting, World!\\n"
  }
  set result]
  And that's just a small sample!}
@@ -400,7 +393,7 @@ are only called within the correct context using either \fBcis\fR or
 \fBexpander\fR was written by William H. Duquette; it is a repackaging
 of the central algorithm of the expand macro processing tool.
 
-.SH SEE ALSO
+.SH "SEE ALSO"
 regexp, split, string, http://www.wjduquette.com/expand
 
 .SH KEYWORDS
