@@ -1,3 +1,8 @@
+2003-01-30  David N. Welton  <davidw@dedasys.com>
+
+	* loggerperformance.test: Changed file name so as to avoid
+	  problems with autoindexer.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* logger.man: More semantic markup, less visual one.
