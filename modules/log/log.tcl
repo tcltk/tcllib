@@ -620,6 +620,42 @@ proc ::log::lvColorForall {color} {
 # Results:
 #	None.
 
+proc ::log::logarray {level arrayvar {pattern *}} {
+    variable cmdMap
+
+    if {[lvIsSuppressed $level]} {
+	# Ignore messages for suppressed levels.
+	return
+    }
+
+    set level [lv2longform $level]
+
+    set cmd $cmdMap($level)
+    if {$cmd == {}} {
+	# Ignore messages for levels without a command
+	return
+    }
+
+    upvar 1 $arrayvar array
+    if {![array exists array]} {
+        error "\"$arrayvar\" isn't an array"
+    }
+    set maxl 0
+    foreach name [lsort [array names array $pattern]] {
+        if {[string length $name] > $maxl} {
+            set maxl [string length $name]
+        }
+    }
+    set maxl [expr {$maxl + [string length $arrayvar] + 2}]
+    foreach name [lsort [array names array $pattern]] {
+        set nameString [format %s(%s) $arrayvar $name]
+
+	eval [linsert $cmd end $level \
+		[format "%-*s = %s" $maxl $nameString $array($name)]]
+    }
+    return
+}
+
 proc ::log::log {level text} {
     variable cmdMap
 
@@ -636,10 +672,12 @@ proc ::log::log {level text} {
 	return
     }
 
-    # Delegate actual logging to the command
+    # Delegate actual logging to the command.
+    # Handle multi-line messages correctly.
 
-    lappend cmd $level $text
-    eval $cmd
+    foreach line [split $text \n] {
+	eval [linsert $cmd end $level $line]
+    }
     return
 }
 
