@@ -11,12 +11,12 @@
 # lets you have trees of services, that inherit from one another.
 # This is accomplished through the use of Tcl namespaces.
 
-package provide logger 0.4
+package provide logger 0.5
 package require Tcl 8.2
 
 namespace eval ::logger {
     namespace eval tree {}
-    namespace export init enable disable services servicecmd
+    namespace export init enable disable services servicecmd import
 
     # The active services.
     variable services {}
@@ -383,6 +383,9 @@ proc ::logger::init {service} {
     # methods have been defined.
     if {[string compare $parent "::logger::tree"]} {
         foreach lvl [::logger::levels] {
+            # OPTIMIZE: do not allow multiple aliases in the hierarchy
+            #           they can always be replaced by more efficient
+            #           direct aliases to the target procs.
             interp alias {} [namespace current]::${lvl}cmd {} ${parent}::${lvl}cmd
         }
     } else {
@@ -444,6 +447,17 @@ proc ::logger::disable {lv} {
     if {[catch {
         foreach sv $services {
         ::logger::tree::${sv}::disable $lv
+        }
+    } msg] == 1} {
+        return -code error -errorcode $::errorCode $msg
+    }
+}
+
+proc ::logger::setlevel {lv} {
+    variable services
+    if {[catch {
+        foreach sv $services {
+        ::logger::tree::${sv}::setlevel $lv
         }
     } msg] == 1} {
         return -code error -errorcode $::errorCode $msg
