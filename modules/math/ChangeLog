@@ -1,6 +1,14 @@
+2004-09-22  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * *.test: made sure the test files check for version 2.1 of the
+          tcltest package
+        * *.tcl: updated the package versions and consistently put the 
+          "package provide" statement at the end
+        * interpolate.*: added cubic splines as interpolation method
+
 2004-09-17  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-	* ... Describe your changes here ...
+	* bessel.tcl: better implementation of Bessel functions of integer order
 
 2004-09-09  Andreas Kupries  <andreask@activestate.com>
 
@@ -9,7 +17,7 @@
 
 2004-09-08  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-	* ... Describe your changes here ...
+	* calculus.tcl: added regula falsi method for finding roots
 
 2004-07-19  Andreas Kupries  <andreask@activestate.com>
 

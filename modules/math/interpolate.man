@@ -34,6 +34,9 @@ bounds.
 Spatial interpolation using a straightforward distance-weight method. This procedure
 allows any number of spatial dimensions and any number of dependent variables.
 
+[bullet]
+Interpolation in one dimension using cubic splines.
+
 [list_end]
 
 [para]
@@ -131,6 +134,41 @@ must be computed.
 [list_end]
 
 [nl]
+
+[call [cmd ::math::interpolate::prepare_cubic_splines] [arg xcoord] [arg ycoord]]
+
+Returns a list of coefficients for the second routine
+[emph interp_cubic_splines] to actually interpolate.
+
+[list_begin arg]
+[arg_def list xcoord] List of x-coordinates for the value of the
+function to be interpolated is known. The coordinates must be strictly
+ascending. At least three points are required.
+
+[arg_def list ycoord] List of y-coordinates (the values of the
+function at the given x-coordinates).
+
+[list_end]
+
+[nl]
+
+[call [cmd ::math::interpolate::interp_cubic_splines] [arg coeffs] [arg x]]
+
+Returns the interpolated value at coordinate x. The coefficients are
+computed by the procedure [emph prepare_cubic_splines].
+
+[list_begin arg]
+[arg_def list coeffs] List of coefficients as returned by
+prepare_cubic_splines
+
+[arg_def float x] x-coordinate at which to estimate the function. Must
+be between the first and last x-coordinate for which values were given.
+
+[list_end]
+
+[nl]
+
+
 [call [cmd ::math::interpolate::interp-spatial] [arg xyvalues] [arg coord]]
 
 Use a straightforward interpolation method with weights as function of the
@@ -190,6 +228,42 @@ values near the desired abscissa.
 
 [section EXAMPLES]
 [emph TODO]
+
+Example of using the cubic splines:
+[para]
+Suppose the following values are given:
+[example {
+    x       y
+  0.1     1.0
+  0.3     2.1
+  0.4     2.2
+  0.8     4.11
+  1.0     4.12
+}]
+Then to estimate the values at 0.1, 0.2, 0.3, ... 1.0, you can use:
+[example {
+   set coeffs [::math::interpolate::prepare_cubic_splines \
+                 {0.1 0.3 0.4 0.8  1.0} \
+                 {1.0 2.1 2.2 4.11 4.12}]
+   foreach x {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+      puts "$x: [::math::interpolate::interp_cubic_splines $coeffs $x]"
+   }
+}]
+to get the following output:
+[example {
+0.1: 1.0
+0.2: 1.68044117647
+0.3: 2.1
+0.4: 2.2
+0.5: 3.11221507353
+0.6: 4.25242647059
+0.7: 5.41804227941
+0.8: 4.11
+0.9: 3.95675857843
+1.0: 4.12
+}]
+As you can see, the values at the abscissae are reproduced perfectly.
+
 
 [keywords math interpolation "spatial interpolation"]
 
