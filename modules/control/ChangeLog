@@ -1,4 +1,8 @@
+2002-01-29  Reinhard Max  <max@suse.de>
 
+	* do.test: Changed the performance comparison part at the end to
+	be skipped during "make test".
+	
 RELEASE 0.1: bundled with tcllib 1.2
 
 2002-01-18  Don Porter <dgp@users.sourceforge.net>
