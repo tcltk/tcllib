@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.10 2003/05/01 00:17:41 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.11 2003/10/21 21:09:24 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -444,6 +444,9 @@ proc ::pop3d::CloseConnection {name sock} {
 
     upvar $conn($sock) cstate
 
+    # Kill a pending idle event for CloseConnection, we are closing now.
+    catch {after cancel $cstate(idlepending)}
+
     ::log::log debug "$name $sock closing connection"
 
     if {[catch {close $sock} msg]} {
@@ -838,7 +841,7 @@ proc ::pop3d::H_quit {name sock cmd line} {
 	}
     }
 
-    after idle [list ::pop3d::CloseConnection $name $sock]
+    set cstate(idlepending) [after idle [list ::pop3d::CloseConnection $name $sock]]
 
     Respond2Client $name $sock +OK \
 	    "[::info hostname] $server shutting down"
