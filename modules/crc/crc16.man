@@ -1,8 +1,8 @@
-[manpage_begin crc16 n 1.0]
+[manpage_begin crc16 n 1.0.1]
 [moddesc   {Cyclic Redundancy Check (crc16)}]
 [titledesc {Perform a 16bit Cyclic Redundancy Check}]
 [require Tcl 8.2]
-[require crc16 [opt 1.0]]
+[require crc16 [opt 1.0.1]]
 [description]
 [para]
 

@@ -11,10 +11,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: cksum.tcl,v 1.2 2003/01/03 02:21:46 patthoyts Exp $
+# $Id: cksum.tcl,v 1.3 2003/01/26 00:16:03 patthoyts Exp $
 
-namespace eval crc {
-    
+package require Tcl 8.2;                # tcl minimum version
+
+namespace eval ::crc {
+    variable cksum_version 1.0.1
+
     namespace export cksum
 
     variable cksum_tbl [list 0x0 \
@@ -77,14 +80,14 @@ namespace eval crc {
 #  This procedure has been broken into two parts to permit working on
 #  a file in small sections.
 #
-proc crc::Cksum {s} {
+proc ::crc::Cksum {s} {
     set t 0
     set l 0
     Cksum_chunk s t l
     return [Cksum_finalize t l]
 }
 
-proc crc::Cksum_chunk {data_var sum_var len_var} {
+proc ::crc::Cksum_chunk {data_var sum_var len_var} {
     variable cksum_tbl
     upvar $data_var s
     upvar $sum_var t
@@ -101,7 +104,7 @@ proc crc::Cksum_chunk {data_var sum_var len_var} {
     }
 }
 
-proc crc::Cksum_finalize {sum_var len_var} {
+proc ::crc::Cksum_finalize {sum_var len_var} {
     variable cksum_tbl
     upvar $sum_var t
     upvar $len_var l
@@ -120,7 +123,7 @@ proc crc::Cksum_finalize {sum_var len_var} {
 #  -format string  - return the checksum using this format string.
 #  -chunksize size - set the chunking read size
 #
-proc crc::cksum {args} {
+proc ::crc::cksum {args} {
     set filename {}
     set format %u
     set chunksize 10240
@@ -172,8 +175,11 @@ proc crc::cksum {args} {
     return [format $format $r]
 }
 
-package provide cksum 1.0
+# -------------------------------------------------------------------------
 
+package provide cksum $::crc::cksum_version
+
+# -------------------------------------------------------------------------
 # Local variables:
 #   mode: tcl
 #   indent-tabs-mode: nil
