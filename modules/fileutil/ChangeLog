@@ -1,3 +1,21 @@
+2004-01-28  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (fileutil::find): Fixed bug in handling a single
+	  file as base directory: The initial list was not set up as a
+	  list, and the test results (see below) were not listified either
+	  for these cases. That broke down for paths containing
+	  spaces. Also fixed: Neither the windows nor the pre-8.4 version
+	  of the command had been modified to deal with a single file.
+	  Oversight from the change @ 2003-10-22 by David N. Welton
+	  <davidw@dedasys.com>.
+
+	  Regularized a number of error returns.
+
+	* fileutil.test: Changed testsuite to use files and directories
+	  containing spaces in their names. A number of tests
+	  failed. Modified the tempdir tests to better exclude and
+	  manipulate the environment to enforce the wanted result.
+
 2003-11-15  David N. Welton  <davidw@dedasys.com>
 
 	* fileutil.man: Added new test and docs for change below.
