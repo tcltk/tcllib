@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.9 2000/03/07 23:00:32 ericm Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.10 2000/03/08 01:52:07 welch Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -34,9 +34,13 @@ PROFILER=profiler
 # POP3 email client API
 POP3=pop3
 
-# MIME encoder/decoder and SMTP package; commented out by default because of
-# dependance on TRF
-#MIME=mime
+# CGI input processing
+CGI=cgi
+
+# MIME encoder/decoder and SMTP package
+# These are modified/hacked to have a soft requirement for Trf:
+# They will encode/decode MIME messages faster if Trf is available.
+MIME=mime
 
 MODULES= \
 	$(BASE64)	\
@@ -46,7 +50,9 @@ MODULES= \
 	$(MATH)	\
 	$(MIME)		\
 	$(POP3)		\
-	$(PROFILER)
+	$(PROFILER)	\
+	$(MIME)	\
+	$(CGI)
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
