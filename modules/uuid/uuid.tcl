@@ -80,8 +80,9 @@ if {[string equal $tcl_platform(platform) "windows"]
     namespace eval uuid {
         critcl::ccode {
             #define WIN32_LEAN_AND_MEAN
+            #define STRICT
             #include <windows.h>
-            #include <tchar.h>
+            #include <ole2.h>
             typedef long (__stdcall *LPFNUUIDCREATE)(UUID *);
             typedef const unsigned char cu_char;
         }
