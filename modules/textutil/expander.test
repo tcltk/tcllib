@@ -278,7 +278,7 @@ test expander-4.1 {error mode fail} {} {
     exp errmode fail
     catch {exp expand {+++[nop]+++}} result
     set result
-} {Error in macro:
+} {Error in macro at line 1, column 3:
 [nop]
 --> invalid command name "nop"}
 
@@ -290,7 +290,7 @@ test expander-4.2 {error mode error} {} {
     set result
 } {+++
 =================================
-*** Error in macro:
+*** Error in macro at line 1, column 3:
 *** [nop]
 --> invalid command name "nop"
 =================================
@@ -311,6 +311,26 @@ test expander-4.4 {error mode nothing} {} {
     catch {exp expand {+++[nop]+++}} result
     set result
 } {++++++}
+
+test expander-4.5 {counting lines} {} {
+    catch {::textutil::expander exp}
+    exp reset
+    exp errmode error
+    catch {exp expand {+++
+
+
+  [nop]+++}} result
+    set result
+} {+++
+
+
+  
+=================================
+*** Error in macro at line 4, column 2:
+*** [nop]
+--> invalid command name "nop"
+=================================
++++}
 
 #---------------------------------------------------------------------
 # Test cases 5.x: Replacing the evalcmd.
