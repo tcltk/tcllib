@@ -227,8 +227,8 @@ c_holdBuffers synopsis see_also keywords precomments
 # Management of see-also and keyword cross-references
 
 proc c_xref_init {} {
-    global seealso  seealso__  ; set seealso  [list] ; array set seealso__  {}
-    global keywords keywords__ ; set keywords [list] ; array set keywords__ {}
+    global seealso  seealso__  ; set seealso  [list] ; catch {unset seealso__}  ; array set seealso__  {}
+    global keywords keywords__ ; set keywords [list] ; catch {unset keywords__} ; array set keywords__ {}
 }
 
 proc c_xref_seealso  {} {global seealso  ; return $seealso}
