@@ -1041,7 +1041,8 @@ proc ::textutil::expander::LocGet {name} {
 proc ::textutil::expander::LocUpdate {name text} {
     foreach {ch line col} [LocGet $name] break
     set numchars [string length $text]
-    set numlines [regexp -all "\n" $text]
+    #8.4+ set numlines [regexp -all "\n" $text]
+    set numlines [expr {[llength [split $text \n]]-1}]
 
     incr ch   $numchars
     incr line $numlines
