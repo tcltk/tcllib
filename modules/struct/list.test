@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.11 2004/02/04 05:36:27 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.12 2004/02/06 08:27:18 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -437,6 +437,43 @@ test fold-4.4 {fold command} {
 
 #----------------------------------------------------------------------
 
+interp alias {} filter {} ::struct::list::list filter
+
+proc even {i} {expr {($i % 2) == 0}}
+
+test filter-4.1 {filter command} {
+    filter {1 2 3 4 5 6 7 8} even
+} {2 4 6 8}
+
+test filter-4.2 {filter command} {
+    filter {} even
+} {}
+
+test filter-4.3 {filter command} {
+    filter {3 5 7} even
+} {}
+
+#----------------------------------------------------------------------
+
+interp alias {} shift {} ::struct::list::list shift
+
+test shift-4.1 {shift command} {
+    set v {1 2 3 4 5 6 7 8}
+    list [shift v] $v
+} {1 {2 3 4 5 6 7 8}}
+
+test shift-4.2 {shift command} {
+    set v {1}
+    list [shift v] $v
+} {1 {}}
+
+test shift-4.3 {shift command} {
+    set v {}
+    list [shift v] $v
+} {{} {}}
+
+#----------------------------------------------------------------------
+
 interp alias {} iota {} ::struct::list::list iota
 
 test iota-4.1 {iota command} {
@@ -471,7 +508,6 @@ test repeatn-4.3 {repeatn command} {
 test repeatn-4.4 {repeatn command} {
     repeatn 0 {3 4}
 } {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
-
 
 #----------------------------------------------------------------------
 

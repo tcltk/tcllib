@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.12 2004/02/04 05:36:27 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.13 2004/02/06 08:27:18 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -33,11 +33,13 @@ namespace eval ::struct::list {
 	namespace export Lassign
 	namespace export Lflatten
 	namespace export Lmap
+	namespace export Lfilter
 	namespace export Lfold
 	namespace export Liota
 	namespace export Lequal
 	namespace export Lrepeatn
 	namespace export Lrepeat
+	namespace export Lshift
 	namespace export LdbJoin
 	namespace export LdbJoinOuter
     }
@@ -81,8 +83,9 @@ proc ::struct::list::list {cmd args} {
 # Do a compatibility version of [lset] for pre-8.4 versions of Tcl.
 # This version does not do multi-arg [lset]!
 
+proc ::struct::list::K { x y } { set x }
+
 if { [package vcompare [package provide Tcl] 8.4] < 0 } {
-    proc ::struct::list::K { x y } { set x }
     proc ::struct::list::lset { var index arg } {
 	upvar 1 $var list
 	set list [::lreplace [K $list [set list {}]] $index $index $arg]
@@ -572,23 +575,54 @@ proc ::struct::list::Lreverse {sequence} {
 # Side effects:
 #       None.
 
-proc ::struct::list::Lassign {sequence args} {
-    set l [::llength $sequence]
-    set a [::llength $args]
+# Do a compatibility version of [assign] for pre-8.5 versions of Tcl.
 
-    # Nothing to assign.
-    if {$a == 0} {return $sequence}
+if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 
-    # Perform assignments
-    set i 0
-    foreach v $args {
-	upvar 1 $v var
-	set      var [::lindex $sequence $i]
-	incr i
-    }
+    proc ::struct::list::Lassign {sequence args} {
+	set l [::llength $sequence]
+	set a [::llength $args]
 
-    # Return remainder, if there is any.
-    return [::lrange $sequence $a end]
+	# Nothing to assign.
+	if {$a == 0} {return $sequence}
+
+	# Perform assignments
+	set i 0
+	foreach v $args {
+	    upvar 1 $v var
+	    set      var [::lindex $sequence $i]
+	    incr i
+	}
+
+	# Return remainder, if there is any.
+	return [::lrange $sequence $a end]
+}
+
+} else {
+    # For 8.5 simply redirect the method to the core command.
+
+    interp alias {} ::struct::list::Lassign {} lassign
+}
+
+
+# ::struct::list::Lshift --
+#
+#	Shift a list in a variable one element down, and return first element
+#
+# Parameters:
+#	listvar		Name of variable containing the list to shift.
+#
+# Results:
+#	The first element of the list.
+#
+# Side effects:
+#       After the call the list variable will contain
+#	the second to last elements of the list.
+
+proc ::struct::list::Lshift {listvar} {
+    upvar 1 $listvar list
+    set list [Lassign [K $list [set list {}]] v]
+    return $v
 }
 
 
@@ -667,6 +701,32 @@ proc ::struct::list::Lmap {sequence cmdprefix} {
 	lappend res [uplevel 1 [linsert $cmdprefix end $item]]
     }
     return $res
+}
+
+# ::struct::list::Lfilter --
+#
+#	Apply command to each element of a list and return elements passing the test.
+#
+# Parameters:
+#	sequence	List to operate on
+#	cmdprefix	Test to perform on the elements.
+#
+# Results:
+#	List containing the elements of the input passing the test command.
+#
+# Side effects:
+#       None of its own, but the command prefix can perform arbitrary actions.
+
+proc ::struct::list::Lfilter {sequence cmdprefix} {
+    # Shortcut when nothing is to be done.
+    if {[::llength $sequence] == 0} {return $sequence}
+    return [Lfold $sequence {} [::list ::struct::list::FTest $cmdprefix]]
+}
+
+proc ::struct::list::FTest {cmdprefix result item} {
+    set pass [uplevel 1 [::linsert $cmdprefix end $item]]
+    if {$pass} {::lappend result $item}
+    return $result
 }
 
 # ::struct::list::Lfold --
@@ -784,7 +844,7 @@ proc ::struct::list::Lrepeatn {value args} {
 # Side effects:
 #       None
 
-# Do a compatibility version of [lset] for pre-8.5 versions of Tcl.
+# Do a compatibility version of [repeat] for pre-8.5 versions of Tcl.
 
 if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 

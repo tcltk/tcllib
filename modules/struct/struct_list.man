@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.6 2004/02/04 05:36:27 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.7 2004/02/06 08:27:18 andreas_kupries Exp $}]
 [manpage_begin list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -296,6 +296,41 @@ subcommand.
 }]
 
 
+[call [cmd ::struct::list] [method filter] [arg sequence] [arg cmdprefix]]
+
+The subcommand takes a [arg sequence] to operate on and a command
+prefix ([arg cmdprefix]) specifying an operation, applies the command
+prefix to each element of the sequence and returns a sequence
+consisting of all elements of the [arg sequence] for which the command
+prefix returned [const true].
+
+In other words, this command filters out all elements of the input
+[arg sequence] which fail the test the [arg cmdprefix] represents, and
+returns the remaining elements.
+
+[nl]
+
+The command prefix will be evaluated with a single word appended to
+it. The evaluation takes place in the context of the caller of the
+subcommand.
+
+[nl]
+
+[example {
+    tclsh> # removing all odd numbers from the input
+
+    tclsh> proc even {x} {expr {($x % 2) == 0}}
+    tclsh> ::struct::list filter {1 2 3 4 5} even
+    2 4
+}]
+
+[nl]
+
+[emph Note:] The [method filter] is a specialized application of
+[method fold] where the result is extended with the current item or
+not, depending o nthe result of the test.
+
+
 [call [cmd ::struct::list] [method fold] [arg sequence] [arg initialvalue] [arg cmdprefix]]
 
 The subcommand takes a [arg sequence] to operate on, an arbitrary
@@ -347,6 +382,19 @@ of the subcommand.
     tclsh> ::struct::list fold {1 2 3 4 5} 0 +
     15
 }]
+
+
+[call [cmd ::struct::list] [method shift] [arg listvar]]
+
+The subcommand takes the list contained in the variable named by
+
+[arg listvar] and shifts it down one element.
+
+After the call [arg listvar] will contain a list containing the second
+to last elements of the input list. The first element of the ist is
+returned as the result of the command. Shifting the empty list does
+nothing.
+
 
 [call [cmd ::struct::list] [method iota] [arg n]]
 
@@ -643,7 +691,7 @@ author's personal site: [uri http://www.cs.dartmouth.edu/~doug/]
 [keywords reverse]
 [keywords assign]
 [keywords flatten]
-[keywords map]
+[keywords map filter]
 [keywords folding reduce]
 [keywords equality equal repetition repeating]
 [keywords {inner join} {left outer join} {right outer join} {full outer join} {outer join} join]
