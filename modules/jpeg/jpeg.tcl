@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.5 2004/05/29 09:15:53 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.6 2004/05/29 17:43:26 afaupell Exp $
 
 package provide jpeg 0.1
 
@@ -23,10 +23,9 @@ proc ::jpeg::openJFIF {file {mode r}} {
 
 proc ::jpeg::markers {fh} {
     set chunks [list]
-    while {[set x [read $fh 1]] == "\xFF"} {
-        binary scan [read $fh 3] aS type len
+    while {[read $fh 1] == "\xFF"} {
+        binary scan [read $fh 3] H2S type len
         set len [expr {$len & 0x0000FFFF}]
-        binary scan $type H2 type
         incr len -2
         lappend chunks [list $type [tell $fh] $len]
         seek $fh $len current
@@ -36,15 +35,17 @@ proc ::jpeg::markers {fh} {
 
 proc ::jpeg::imageInfo {file} {
     set fh [openJFIF $file r+]
-    set app0 [lsearch -inline [markers $fh] "e0 *"]
-    seek $fh [lindex $app0 1] start
-    set id [read $fh 5]
-    if {$id == "JFIF\x00"} {
-        binary scan [read $fh 9] cccSScc ver1 ver2 units xr yr xt yt
-        close $fh
-        return [list version $ver1.$ver2 units $units xdensity $xr ydensity $yr xthumb $xt ythumb $yt]
+    set data {}
+    if {[set app0 [lsearch -inline [markers $fh] "e0 *"]] != ""} {
+        seek $fh [lindex $app0 1] start
+        set id [read $fh 5]
+        if {$id == "JFIF\x00"} {
+            binary scan [read $fh 9] cccSScc ver1 ver2 units xr yr xt yt
+            set data [list version $ver1.$ver2 units $units xdensity $xr ydensity $yr xthumb $xt ythumb $yt]
+        }
     }
     close $fh
+    return $data
 }
 
 proc ::jpeg::dimensions {file} {
@@ -74,7 +75,7 @@ proc ::jpeg::addComment {file comment args} {
     set data2 [read $fh]
     seek $fh [expr {[lindex $sof 1] - 4}] start
     foreach x [linsert $args 0 $comment] {
-        puts -nonewline $fh "\xFF\xFE[binary format S [expr {[string length $x] + 2}]]$x"
+        puts -nonewline $fh [binary format a2Sa* "\xFF\xFE" [expr {[string length $x] + 2}] $x]
     }
     puts -nonewline $fh $data2
     close $fh
@@ -119,7 +120,7 @@ proc ::jpeg::getThumbnail {file} {
         seek $fh [lindex $x 1] start
         binary scan [read $fh 6] a5H2 id excode
         if {$id == "JFXX\x00" && $excode == "10"} {
-            set thumb [read $fh expr {$len - 8}]]
+            set thumb [read $fh [expr {[lindex $x 2] - 6}]]
             close $fh
             return $thumb
         }
@@ -129,38 +130,36 @@ proc ::jpeg::getThumbnail {file} {
 
 proc ::jpeg::getExif {file {type main}} {
     set fh [openJFIF $file]
-    set data {}
-    
-    if {[set exif [lsearch -inline [markers $fh] "e1 *"]] != ""} {
-        seek $fh [lindex $exif 1] start
-        if {[read $fh 6] != "Exif\x00\x00"} { close $fh; return }
+    foreach app1 [lsearch -inline -all [markers $fh] "e1 *"] {
+        seek $fh [lindex $app1 1] start
+        if {[read $fh 6] != "Exif\x00\x00"} continue
         set start [tell $fh]
- 
-        binary scan [read $fh 2] H4 a
-        if {$a == "4d4d"} {
-            set end big
-        } elseif {$a == "4949"} {
-            set end little
+        binary scan [read $fh 2] H4 byteOrder
+        if {$byteOrder == "4d4d"} {
+            set byteOrder big
+        } elseif {$byteOrder == "4949"} {
+            set byteOrder little
+        } else {
+            close $fh
+            return
         }
-
-        if {![info exists end]} { close $fh; return }
-        _scan $end [read $fh 6] si magic next
+        _scan $byteOrder [read $fh 6] si magic next
         if {$magic != 42} { close $fh; return }
         seek $fh [expr {$start + $next}] start
-
         if {$type != "thumbnail"} {
-            set data [_exif $fh $end $start]
+            set data [_exif $fh $byteOrder $start]
         } else {
-            _scan $end [read $fh 2] s num
+            _scan $byteOrder [read $fh 2] s num
             seek $fh [expr {$num * 12}] current
-            _scan $end [read $fh 4] s next
+            _scan $byteOrder [read $fh 4] s next
             if {$next <= 0} { close $fh; return }
             seek $fh [expr {$start + $next}] start
-            set data [_exif $fh $end $start]
+            set data [_exif $fh $byteOrder $start]
         }
+        close $fh
+        return $data
     }
     close $fh
-    return $data
 }
 
 proc ::jpeg::removeExif {file} {
@@ -228,12 +227,12 @@ proc ::jpeg::_exif {fh byteOrder offset} {
 proc ::jpeg::debug {file} {
     set fh [openJFIF $file]
     
-    puts "marker: d8"
+    puts "marker: d8 length: 0"
     puts "  SOI (Start Of Image)"
     
     foreach marker [markers $fh] {
         seek $fh [lindex $marker 1] 
-        puts "marker: [lindex $marker 0] len: [lindex $marker 2]"
+        puts "marker: [lindex $marker 0] length: [lindex $marker 2]"
         switch -glob -- [lindex $marker 0] {
             c0 {
                 binary scan [read $fh 6] cSSc precision height width color
@@ -267,12 +266,12 @@ proc ::jpeg::debug {file} {
                     binary scan [read $fh 9] cccSScc ver1 ver2 units xr vr xt yt
                     puts "    Header: $ver1.$ver2 $units $xr $vr $xt $yt"
                 } elseif {$id == "JFXX\x00"} {
-                    puts "  JFXX"
+                    puts "  JFXX (JFIF Extension)"
                     binary scan [read $fh 1] H2 excode
-                    if {$excode == "10"} { set excode "10 - JPEG thumbnail" }
-                    if {$excode == "11"} { set excode "11 - Palletized thumbnail" }
-                    if {$excode == "13"} { set excode "13 - RGB thumbnail" }
-                    puts "    Extension code: $excode"
+                    if {$excode == "10"} { set excode "10 (JPEG thumbnail)" }
+                    if {$excode == "11"} { set excode "11 (Palletized thumbnail)" }
+                    if {$excode == "13"} { set excode "13 (RGB thumbnail)" }
+                    puts "    Extension code: 0x$excode"
                 } else {
                     puts "  Unknown APP0 segment: $id"
                 }
