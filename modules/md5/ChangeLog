@@ -1,3 +1,8 @@
+2003-01-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5.tcl: Handle cases where Trf is available but the md5 command
+	is not callable (like missing crypt.dll or libmd5crypt).
+
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* md5.man: Fixed formatting errors in the doctools manpage.
