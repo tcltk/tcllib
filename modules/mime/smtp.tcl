@@ -268,6 +268,12 @@ proc smtp::sendmessage {part args} {
                                 -multiple $bccP -queue $queueP \
                                 -servers $servers]
 
+    if {![string match "::smtp::*" $token]} {
+	# An error occurred and $token contains the error info
+	array set respArr $token
+	return -code error $respArr(diagnostic)
+    }
+
     set code [catch { smtp::sendmessageaux $token $part \
                                            $sender $vrecipients $aloP } \
                     result]

@@ -1,3 +1,10 @@
+2000-05-22  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/smtp.tcl: Fixed a bug where if the requested mail server
+	didn't exist (i.e. the host didn't have an SMTP server running),
+	smtp::sendmessage would continue executing until a horrific crash
+	at a later point.  I added the check and proper error reporting.
+
 2000-05-16  Brent Welch <welch@scriptics.com>
 
 	* modules/html/html.tcl: Added html::refresh to generate
