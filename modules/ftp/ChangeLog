@@ -1,3 +1,8 @@
+2002-08-06  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.tcl: Fixed SF Bug #582668, reported by Frank Richter
+	  <frari@users.sourceforge.net>.
+
 2002-03-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.man: New, doctools manpage.
