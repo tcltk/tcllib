@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: bessel.test,v 1.6 2004/08/19 11:23:34 arjenmarkus Exp $
+# $Id: bessel.test,v 1.7 2004/09/17 07:32:21 arjenmarkus Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -30,7 +30,7 @@ package require math
 proc matchNumbers {expected actual} {
     set match 1
     foreach a $actual e $expected {
-        if {abs($a-$e) > 0.7e-4} {
+        if {abs($a-$e) > 0.1e-4} {
             set match 0
             break
         }
@@ -40,13 +40,6 @@ proc matchNumbers {expected actual} {
 
 customMatch numbers matchNumbers
 
-#
-# Note: value -0.1777 should have been -0.1776 according to the
-#       consulted table. However, this means the allowed error
-#       should have been made larger. It is the only value
-#       where the procedure fails to achieve an absolute error
-#       of at most 0.7e-4.
-#
 test "Bessel-1.0" "Values of the zeroth-order Bessel function" \
     -match numbers -body {
     set result {}
@@ -54,15 +47,8 @@ test "Bessel-1.0" "Values of the zeroth-order Bessel function" \
         lappend result [::math::special::J0 $x]
     }
    set result
-} -result {1.0 0.7652 0.2239 -0.1777 0.3001 -0.2459 -0.1712 0.1711}
+} -result {1.0 0.765198 0.223891 -0.177597 0.300079 -0.245936 -0.171190 0.171073}
 
-#
-# Note: value -0.3272 should have been -0.3276 according to the
-#       consulted table. However, this means the allowed error
-#       should have been made larger. It is the only value
-#       where the procedure fails to achieve an absolute error
-#       of at most 0.7e-4.
-#
 test "Bessel-1.1" "Values of the first-order Bessel function" \
     -match numbers -body {
     set result {}
@@ -70,7 +56,7 @@ test "Bessel-1.1" "Values of the first-order Bessel function" \
         lappend result [::math::special::J1 $x]
     }
     set result
-} -result {0.0 0.4401 0.5767 -0.3272 -0.0047 0.0435 -0.1768 0.1334}
+} -result {0.0 0.440050 0.576725 -0.327579 -0.004683 0.043473 -0.176785 0.133375}
 
 #
 # No tests for J1/2 yet
