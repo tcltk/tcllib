@@ -14,7 +14,16 @@ global    data
 array set data {}
 
 proc fmt_numpasses   {}     {return 1}
-proc fmt_postprocess {text} {global data ; return [list manpage [array get data]]\n}
+proc fmt_postprocess {text} {
+    global data
+    foreach key {seealso keywords} {
+	array set _ {}
+	foreach ref $data($key) {set _($ref) .}
+	set data($key) [array names _]
+	unset _
+    }
+    return [list manpage [array get data]]\n
+}
 proc fmt_plain_text  {text} {return ""}
 proc fmt_setup       {n}    {return}
 
@@ -35,7 +44,7 @@ proc fmt_manpage_begin {title section version} {
 
 proc fmt_moddesc   {desc} {global data ; set data(shortdesc) $desc}
 proc fmt_titledesc {desc} {global data ; set data(desc)      $desc}
-proc fmt_keywords  {args} {global data ; set data(keywords)  $args}
-proc fmt_see_also  {args} {global data ; set data(seealso)   $args}
+proc fmt_keywords  {args} {global data ; foreach ref $args {lappend data(keywords) $ref} ; return}
+proc fmt_see_also  {args} {global data ; foreach ref $args {lappend data(seealso)  $ref} ; return}
 
 ################################################################
