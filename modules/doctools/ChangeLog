@@ -1,3 +1,11 @@
+2003-03-27  Andreas Kupries  <andreask@activestate.com>
+
+	* cvs.man:
+	* cvs.tcl: Added code to handle parsing and reformatting of cvs
+	  log files. Origin of the code the tcl'ers wiki, page
+	  http://wiki.tcl.tk/log2changelog. The actual original author is
+	  unknown (not listed on the wiki).
+
 2003-03-24  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools_fmt.man: Fixed documentation bug #704187 reported by
