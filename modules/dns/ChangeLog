@@ -1,3 +1,8 @@
+2004-11-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ip.tcl:       Bug #1060460 - support for IPv4 in IPv6-style
+	                addresses in ip::normalize.
+
 2004-10-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl:       Applied fix for bug #1018934 "incorrectly
