@@ -1,0 +1,253 @@
+#!/bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+package require textutil::expander
+
+# ---------------------------------------------------------------------
+#  1. Handle command line options, input and output
+#  2. Read formatting macros into a namespace
+#  3. Determine if 1- or 2-pass.
+#  4. Create expander object, setup with command callback to evaluate
+#     everything in the namespace containing the formatting commands.
+#  5. Read input
+#  6. Run pre-pass-hook, optional
+#  7. Pass 1 through expander.
+#  8. Run pre-pass-hook, optional       | either both or none
+#  9. Pass 2 through expander, optional |
+# 10. Run output through post-hook, optional
+# 11. Write output.
+# ---------------------------------------------------------------------
+
+# ---------------------------------------------------------------------
+# 1. Handle command line options, input and output
+
+proc cmdline {} {
+    global argv0 argv format in out extmodule
+
+    if {
+	([llength $argv] > 5) ||
+	([llength $argv] < 3) ||
+	(![string equal -module [lindex $argv 0]] && [llength $argv] > 3) ||
+	([string  equal -module [lindex $argv 0]] && [llength $argv] != 5)
+    } {
+	puts "Usage: $argv0 ?-module module? format in|- ?out|-?"
+	exit 1
+    }
+    set extmodule ""
+    if {[string equal -module [lindex $argv 0]]} {
+	set extmodule [lindex $argv 1]
+	set argv [lrange $argv 2 end]
+    }
+    foreach {format in out} $argv break
+
+    if {$format == {} || $in == {}} {
+	puts "Usage: $argv0 ?-module module? format in|- ?out|-?"
+	exit 1
+    }
+    if {$out == {}} {set out -}
+}
+
+# ---------------------------------------------------------------------
+#  2. Read formatting macros and setup evalutin environment
+
+proc format_find {} {
+    global format fmtfile
+
+    set _here [file dirname [file join [pwd] [info script]]]
+
+    set fmtfile {}
+    foreach p [list \
+	    [file join $_here mpformats fmt.$format] \
+	    [file join [file dirname $_here] lib doctools mpformats fmt.$format] \
+	    ] {
+	if {[file exists $p]} {
+	    set fmtfile $p
+	    break
+	}
+    }
+
+    if {[string equal $fmtfile ""]} {
+	puts "$argv0: Unknown format \"$format\""
+	exit 1
+    }
+}
+
+# ---------------------------------------------------------------------
+#  4. Create expander object, setup with command callback to evaluate
+#     everything in the namespace containing the formatting commands.
+
+proc eval_setup {} {
+    global argv0 format fmtfile mpip inip passes
+
+    set apibase [file join [file dirname $fmtfile] _api.tcl]
+    set mpip [interp create] ; # interpreter for the format.
+    set inip [interp create] ; # interpreter for code in the input.
+
+    # Basic format definitions with error message. We expect that all
+    # of these are overwritten by the actual format definition. Then
+    # read the format itself.
+
+    $mpip eval [list source $apibase]
+    $mpip eval [list source $fmtfile]
+
+    # Create the expander object associated to the sub interpreter and
+    # set it up so that all macros found in the input are evaluated
+    # inside of the input subinterpreter.
+
+    ::textutil::expander ::mp
+    ::mp evalcmd mpEval
+    ::mp textcmd __mpText__
+
+    # Link global information commands into format and input interpreters.
+
+    interp alias $mpip mp_pass   {} mpPass
+    interp alias $mpip mp_file   {} mpFile
+    interp alias $mpip mp_module {} mpModule
+
+    interp alias $inip mp_pass   {} mpPass
+    interp alias $inip mp_file   {} mpFile
+    interp alias $inip mp_module {} mpModule
+
+    # Link the formatting commands, limited access to the expander
+    # object and information commands into the input interpreter.
+
+    foreach cmd {
+	cappend cget cis cname cpop cpush cset lb rb
+    } {
+	interp alias $inip $cmd {} ::mp $cmd
+	interp alias $mpip $cmd {} ::mp $cmd
+    }
+    foreach cmd {
+	manpage_begin moddesc titledesc manpage_end require description
+	section para list_begin list_end lst_item call bullet enum
+	see_also keywords nl arg cmd opt emph strong
+    } {
+	interp alias $inip $cmd $mpip $cmd
+    }
+
+    # Reroute the handling of plain text into the formatter
+    interp alias $inip __mpText__ $mpip HandleText
+
+    # ---------------------------------------------------------------------
+    #  3. Determine if 1- or 2-pass.
+
+    set passes [$mpip eval {NumPasses}]
+    if {![string is integer $passes] || ($passes < 1)} {
+	puts "${argv0}: $format error: illegal number of passes \"$passes\""
+	exit 1
+    }
+
+    return
+}
+
+# Execute a macro from the input. Special handling for the plain text
+# command.
+
+proc mpEval {macro} {
+    global inip
+    $inip eval $macro
+}
+
+# Define/retrieve number of current pass.
+proc mpPass {{n {}}} {
+    global __pass
+    if {$n != {}} {
+	set __pass $n
+    }
+    return $__pass
+}
+
+proc mpFile {} {
+    global  in
+    return $in
+}
+
+proc mpModule {} {
+    global  in extmodule
+
+    if {$extmodule != {}} {
+	return $extmodule
+    }
+    return [file tail [file rootname $in]]
+}
+
+
+# ---------------------------------------------------------------------
+#  5. Read input. Also providing the namespace with file information.
+
+proc get_input {} {
+    global in text
+
+    if {[string equal $in -]} {
+	set text [read stdin]
+	set in stdin
+    } else {
+	set if [open $in r]
+	set text [read $if]
+	close $if
+    }
+}
+
+# ---------------------------------------------------------------------
+#  6. Run pre-pass-hook, optional
+#  7. Pass 1 through expander.
+#  8. Run pre-pass-hook, optional       | either both or none
+#  9. Pass 2 through expander, optional |
+
+proc passes {} {
+    global mpip text expansion passes
+
+    set n 1
+    while {$passes > 0} {
+	mpPass $n
+	$mpip eval PassSetup
+	set expansion [::mp expand $text]
+
+	incr passes -1
+	incr n
+    }
+    return
+}
+
+# ---------------------------------------------------------------------
+# 10. Run output through post-hook, optional
+
+proc postprocess {} {
+    global expansion   mpip
+    set    expansion [$mpip eval [list PostProcess $expansion]]
+}
+
+# ---------------------------------------------------------------------
+# 11. Write output.
+
+proc write_expansion {} {
+    global out expansion
+
+    if {[string equal $out -]} {
+	puts -nonewline stdout $expansion
+    } else {
+	set of [open $out w]
+	puts -nonewline $of $expansion
+	close $of
+    }
+}
+
+
+# ---------------------------------------------------------------------
+# Get it all together
+
+proc main {} {
+    cmdline
+    format_find
+    eval_setup
+    get_input
+    passes
+    postprocess
+    write_expansion
+}
+
+
+# ---------------------------------------------------------------------
+main
+exit

@@ -1,0 +1,174 @@
+# -*- tcl -*-
+#
+# fmt.html
+#
+# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+#
+# [expand] definitions to convert a tcl based manpage definition into
+# a manpage based upon HTML markup. Additional definition files allow
+# the conversion into nroff and TMML.
+#
+################################################################
+
+proc here {} [list return [file dirname [info script]]]
+proc this {} [list return [file tail    [info script]]]
+
+source [file join [here] _common.tcl]   ; # Shared code
+source [file join [here] _html.tcl]     ; # HTML basic formatting
+
+proc bgcolor {} {return ""}
+proc border  {} {return 0}
+
+################################################################
+## Backend for HTML markup
+
+proc manpage_begin {title section version} {
+    if {[mp_pass] == 1} {return}
+
+    set module      [mp_module]
+    set shortdesc   [GetDesc mdesc]
+    set description [GetDesc tdesc]
+
+    set     hdr ""
+    append  hdr "<html><head><title>$title - $shortdesc </title></head>\n"
+    append  hdr "[ht_comment "Generated from [mp_file] by tcllib/doctools/mpexpand with [this]"]\n"
+    append  hdr "[ht_comment "Copyright (c) [clock format [clock seconds] -format %Y] $::tcl_platform(user)"]\n"
+    append  hdr "[ht_comment {All rights reserved}]\n"
+    append  hdr "[ht_comment "CVS: \$Id\$ $title.$section"]\n"
+    append  hdr "\n"
+    append  hdr "<h1> [string trimleft $title :]($section) $version $module \"$shortdesc\"</h1>\n"
+    append  hdr "[section NAME]\n"
+    append  hdr "[para] $title - $description"
+    return $hdr
+}
+
+proc moddesc {desc} {
+    if {[mp_pass] == 2} {return}
+    SetDesc mdesc $desc
+    return
+}
+proc titledesc {desc} {
+    if {[mp_pass] == 2} {return}
+    SetDesc tdesc $desc
+    return
+}
+
+proc manpage_end {}     {return </body></html>}
+proc section     {name} {return "<h2>$name</h2>"}
+proc para        {}     {return <p>}
+
+proc require {pkg {version {}}} {
+    Req 1
+    set result "[x_synopsis]package require <b>$pkg"
+    if {$version != {}} {
+	append result " $version"
+    }
+    append result "</b><br>"
+    return $result
+}
+
+proc call {cmd args} {
+    if {[mp_pass] == 1} {
+	AddCall "[trtop][td]$cmd [join $args " "]</td></tr>\n"
+	return
+    }
+    return "[lst_item "$cmd [join $args " "]"]\n"
+}
+
+proc description {} {
+    set result ""
+    if {[GetCall] != {}} {
+	append result [x_synopsis]
+	if {[Req]} {append result <br>}
+
+	proc bgcolor {} {return lightyellow}
+
+	append result [btable][tr][td][table][GetCall]</table></td></tr></table>\n
+
+	proc bgcolor {} {return ""}
+    }
+    append result [section DESCRIPTION]
+    return $result
+}
+
+proc x_synopsis {} {
+    if {![Syn]} {
+	return [section SYNOPSIS]\n
+    } else {
+	return ""
+    }
+}
+
+################################################################
+
+global    list_state
+array set list_state {level -1}
+
+proc list_begin  {what} {
+    global list_state
+
+    switch -exact -- $what {
+	enum        {set result <ol>}
+	bullet      {set result <ul>}
+	definitions {set result <dl>}
+	default     {return -code error "Unknown list type $what"}
+    }
+
+    incr list_state(level)
+    set  list_state(l,$list_state(level)) $what
+
+    return $result
+}
+
+proc list_end {} {
+    global list_state
+
+    set what    $list_state(l,$list_state(level))
+    catch {unset list_state(l,$list_state(level))}
+
+    incr list_state(level) -1
+
+    switch -exact -- $what {
+	enum        {set result </ol>}
+	bullet      {set result </ul>}
+	definitions {set result </dl>}
+    }
+    return $result
+}
+
+proc lst_item {text} {return <dt>$text<dd>}
+proc bullet {} {return <li>}
+proc enum {} {return <li>}
+
+################################################################
+
+proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
+proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
+
+proc nl     {}     {return <br>}
+proc arg    {text} {return <i>$text</i>}
+proc cmd    {text} {return <b>$text</b>}
+proc emph   {text} {return <i>$text</i>}
+proc strong {text} {return <b>$text</b>}
+proc opt    {text} {return ?$text?}
+
+################################################################
+# HTML specific commands
+
+proc ht_comment {text}   {return "<! -- $text -->"}
+
+################################################################
+
+proc setx {v string} {
+    upvar $v _
+    set _ $string
+    return
+}
+
+proc appendx {v string} {
+    upvar $v _
+    append _ $string
+    return
+}
+
+################################################################

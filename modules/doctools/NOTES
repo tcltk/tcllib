@@ -1,0 +1,33 @@
+======
+ TODO
+======
+
+*	Wrap the engine into a package and make the processor
+	application(s) just a thin layer on top of it.
+
+	Functionality
+
+	-	create processor
+	-	set/change format
+	-	set module, file information
+	-	process string
+
+	Applications
+
+	-	Handle options
+	-	Read text (file, stdin)
+	-	engage package (s.a.)
+	-	Write output (file, stdout)
+
+
+*	Add a tk-based editor application which loads and generates
+	the format (and can invoke the processor to generate the other
+	formats).
+
+*	Option: Explicit specification of format file, overide
+	internal searching
+
+*	Rewrite formatters to use generator packages for their
+	output format. Example: HTML => tcllib/html package
+	to generate the tags. Less quoting issues. Has escape
+	handlers.

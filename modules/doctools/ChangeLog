@@ -1,0 +1,11 @@
+2001-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Added formatter for LaTeX.
+
+2001-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module. Application module providing a simple tcl-based
+	  manpage markup language and a processor for converting this
+	  format to TMML, nroff and HTML. Extensible, i.e. additional
+	  formats can be added without to much work (Manpages for format
+	  and internal interfaces are provided).
