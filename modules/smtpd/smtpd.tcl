@@ -15,8 +15,8 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.6 2002/10/26 21:53:03 patthoyts Exp $}
-    variable version 1.1
+    variable rcsid {$Id: smtpd.tcl,v 1.7 2003/01/03 00:39:22 patthoyts Exp $}
+    variable version 1.2
     variable stopped
 
     namespace export start stop
@@ -33,6 +33,14 @@ namespace eval smtpd {
             validate_host      {}
             validate_sender    {}
             validate_recipient {}
+        }
+    }
+
+    variable extensions
+    if {! [info exists extensions]} {
+        array set extensions {
+            8BITMIME {}
+            SIZE     0
         }
     }
 }
@@ -140,14 +148,14 @@ proc smtpd::stop {} {
 proc smtpd::accept {channel client_addr client_port} {
     variable options
     variable version
+    upvar [namespace current]::state_$channel State
 
     # init state array
-    # FRINK: nocheck
-    catch {unset [namespace current]::state_$channel}
-    state $channel access allowed
-    state $channel indata 0
-    state $channel client_addr $client_addr
-    state $channel client_port $client_port
+    catch {unset State}
+    initializeState $channel
+    set State(access) allowed
+    set State(client_addr) $client_addr
+    set State(client_port) $client_port
     set accepted true
 
     # configure the data channel
@@ -158,8 +166,8 @@ proc smtpd::accept {channel client_addr client_port} {
     if {[cget -validate_host] != {}} {
         if {[catch {eval [cget -validate_host] $client_addr} msg] } {
             log::log notice "access denied for $client_addr:$client_port: $msg"
-            puts $channel "550 Access denied: $msg"
-            state $channel access denied
+            Puts $channel "550 Access denied: $msg"
+            set State(access) denied
             set accepted false
         }
     }
@@ -167,10 +175,23 @@ proc smtpd::accept {channel client_addr client_port} {
     if {$accepted} {
         # Accept the connection
         log::log notice "connect from $client_addr:$client_port on $channel"
-        puts $channel "220 $options(serveraddr) tcllib smtpd $version; [timestamp]"
+        Puts $channel "220 $options(serveraddr) tcllib smtpd $version; [timestamp]"
     }
     
     return
+}
+
+# -------------------------------------------------------------------------
+# Description:
+#   Initialize the channel state array. Called by accept and RSET.
+#
+proc smtpd::initializeState {channel} {
+    upvar [namespace current]::state_$channel State
+    set State(indata) 0
+    set State(to) {}
+    set State(from) {}
+    set State(data) {}
+    set State(options) {}
 }
 
 # -------------------------------------------------------------------------
@@ -204,6 +225,23 @@ proc smtpd::state {channel args} {
 
 # -------------------------------------------------------------------------
 # Description:
+#   Safe puts.
+#   If the client closes the channel, then puts will throw an error. Lets
+#   terminate the session if this occurs.
+proc smtpd::Puts {channel args} {
+    if {[catch {uplevel puts $channel $args} msg]} {
+        log::log error $msg
+        catch {
+            close $channel
+            # FRINK: nocheck
+            unset -- [namespace current]::state_$channel
+        }
+    }
+    return $msg
+}
+
+# -------------------------------------------------------------------------
+# Description:
 #   Perform the chat with a connected client. This procedure accepts input on
 #   the connected socket and executes commands according to the state of the
 #   session.
@@ -211,40 +249,48 @@ proc smtpd::state {channel args} {
 proc smtpd::service {channel} {
     variable commands
     variable options
+    upvar [namespace current]::state_$channel State
 
     if {[eof $channel]} {
         close $channel
         return
     }
 
-    gets $channel cmdline
+    if {[catch {gets $channel cmdline} msg]} {
+        close $channel
+        log::log error $msg
+        return
+    }
 
     if { $cmdline == "" && [eof $channel] } {
-        log::log warning "channel closed"
+        log::log warning "client has closed the channel"
         return
     }
 
     log::log debug "received: $cmdline"
 
     # If we are handling a DATA section, keep looking for the end of data.
-    if {[state $channel indata] } {
+    if {$State(indata)} {
         if {$cmdline == "."} {
-            state $channel indata 0
+            set State(indata) 0
             fconfigure $channel -translation crlf
             if {[catch {deliver $channel} err]} {
                 # permit delivery handler to return SMTP errors in errorCode
                 if {[regexp {\d{3}} $::errorCode]} {
-                    puts $channel "$::errorCode $err"
+                    Puts $channel "$::errorCode $err"
                 } else {
-                    puts $channel "554 Transaction failed: $err"
+                    Puts $channel "554 Transaction failed: $err"
                 }
             } else {
-                puts $channel "250 [state $channel id]\
+                Puts $channel "250 [state $channel id]\
                         Message accepted for delivery"
             }
         } else {
-            # FRINK: nocheck
-            lappend [namespace current]::[subst state_$channel](data) $cmdline
+            # RFC 2821 section 4.5.2: Transparency
+            if {[string match {..*} $cmdline]} {
+                set cmdline [string range $cmdline 1 end]
+            }
+            lappend State(data) $cmdline
         }
         return
     }
@@ -253,17 +299,17 @@ proc smtpd::service {channel} {
     set cmd [string toupper [lindex [split $cmdline] 0]]
     if {[lsearch $commands $cmd] != -1} {
         if {[info proc $cmd] == {}} {
-            puts $channel "500 $cmd not implemented"
+            Puts $channel "500 $cmd not implemented"
         } else {
             # If access denied then client can only issue QUIT.
-            if {[state $channel access] == "denied" && $cmd != "QUIT" } {
-                puts $channel "503 bad sequence of commands"
+            if {$State(access) == "denied" && $cmd != "QUIT" } {
+                Puts $channel "503 bad sequence of commands"
             } else {
                 set r [eval $cmd $channel [list $cmdline]]
             }
         }
     } else {
-        puts $channel "500 Invalid command"
+        Puts $channel "500 Invalid command"
     }
 
     return
@@ -355,10 +401,10 @@ proc smtpd::deliver {channel} {
         # create a MIME token from the mail message.        
         set tok [mime::initialize -string \
                 [join [state $channel data] "\n"]]
-        mime::setheader $tok "From" [state $channel from]
-        foreach recipient [state $channel to] {
-            mime::setheader $tok "To" $recipient -mode append
-        }
+#        mime::setheader $tok "From" [state $channel from]
+#        foreach recipient [state $channel to] {
+#            mime::setheader $tok "To" $recipient -mode append
+#        }
         
         # catch and rethrow any errors.
         set err [catch {$deliverMIME $tok} msg]
@@ -398,6 +444,16 @@ proc smtpd::deliver_old {channel} {
 }
 
 # -------------------------------------------------------------------------
+proc smtpd::split_address {address} {
+    set start [string first < $address]
+    set end [string last > $address]
+    set addr [string range $address $start $end]
+    incr end
+    set opts [string trim [string range $address $end end]]
+    return [list $addr $opts]
+}
+
+# -------------------------------------------------------------------------
 # The SMTP Commands
 # -------------------------------------------------------------------------
 # Description:
@@ -409,47 +465,52 @@ proc smtpd::HELO {channel line} {
     variable options
 
     if {[state $channel domain] != {}} {
-        puts $channel "503 bad sequence of commands"
+        Puts $channel "503 bad sequence of commands"
         log::log debug "HELO received out of sequence."
         return
     }
 
     set r [regexp -nocase {^HELO\s+([-\w\.]+)\s*$} $line -> domain]
     if {$r == 0} {
-        puts $channel "501 Syntax error in parameters or arguments"
+        Puts $channel "501 Syntax error in parameters or arguments"
         log::log debug "HELO received \"$line\""
         return
     }
-    puts $channel "250-$options(serveraddr) Hello $domain\
+    Puts $channel "250-$options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
-    puts $channel "250 Ready for mail."
+    Puts $channel "250 Ready for mail."
     state $channel domain $domain
     log::log debug "HELO on $channel from $domain"
     return
 }
 
+# -------------------------------------------------------------------------
 # Description:
 #   Initiate an ESMTP session
 # Reference:
 #   RFC2821 4.1.1.1
 proc smtpd::EHLO {channel line} {
     variable options
+    variable extensions
 
     if {[state $channel domain] != {}} {
-        puts $channel "503 bad sequence of commands"
+        Puts $channel "503 bad sequence of commands"
         log::log debug "EHLO received out of sequence."
         return
     }
 
     set r [regexp -nocase {^EHLO\s+([-\w\.]+)\s*$} $line -> domain]
     if {$r == 0} {
-        puts $channel "501 Syntax error in parameters or arguments"
+        Puts $channel "501 Syntax error in parameters or arguments"
         log::log debug "EHLO received \"$line\""
         return
     }
-    puts $channel "250-$options(serveraddr) Hello $domain\
+    Puts $channel "250-$options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
-    puts $channel "250 Ready for mail."
+    foreach {extn opts} [array get extensions] {
+        Puts $channel [string trimright "250-$extn $opts"]
+    }
+    Puts $channel "250 Ready for mail."
     state $channel domain $domain
     log::log debug "EHLO on $channel from $domain"
     return
@@ -463,16 +524,21 @@ proc smtpd::EHLO {channel line} {
 proc smtpd::MAIL {channel line} {
     set r [regexp -nocase {^MAIL FROM:\s*(.*)} $line -> from]
     if {$r == 0} {
-        puts $channel "501 Syntax error in parameters or arguments"
+        Puts $channel "501 Syntax error in parameters or arguments"
         log::log debug "MAIL received \"$line\""
         return
     }
-    if {[catch {eval array set addr [mime::parseaddress $from]} msg]} {
+    if {[catch {
+        set from [split_address $from]
+        set opts [lindex $from 1]
+        set from [lindex $from 0]
+        eval array set addr [mime::parseaddress $from]
+    } msg]} {
         set addr(error) $msg
     }
     if {$addr(error) != {} } {
         log::log debug "MAIL failed $addr(error)"
-        puts $channel "501 Syntax error in parameters or arguments"
+        Puts $channel "501 Syntax error in parameters or arguments"
         return
     }
 
@@ -480,7 +546,7 @@ proc smtpd::MAIL {channel line} {
         if {[catch {eval [cget -validate_sender] $addr(address)}]} {
             # this user has been denied
             log::log info "MAIL denied user $addr(address)"
-            puts $channel "553 Requested action not taken:\
+            Puts $channel "553 Requested action not taken:\
                             mailbox name not allowed"
             return
         }
@@ -488,7 +554,8 @@ proc smtpd::MAIL {channel line} {
 
     log::log debug "MAIL FROM: $addr(address)"
     state $channel from $from
-    puts $channel "250 OK"
+    state $channel options $opts
+    Puts $channel "250 OK"
     return
 }
 
@@ -506,16 +573,22 @@ proc smtpd::MAIL {channel line} {
 proc smtpd::RCPT {channel line} {
     set r [regexp -nocase {^RCPT TO:\s*(.*)} $line -> to]
     if {$r == 0} {
-        puts $channel "501 Syntax error in parameters or arguments"
+        Puts $channel "501 Syntax error in parameters or arguments"
         log::log debug "RCPT received \"$line\""
         return
     }
-    if {[catch {eval array set addr [mime::parseaddress $to]} msg]} {
+    if {[catch {
+        set to [split_address $to]
+        set opts [lindex $to 1]
+        set to [lindex $to 0]
+        eval array set addr [mime::parseaddress $to]
+    } msg]} {
         set addr(error) $msg
     }
+
     if {$addr(error) != {}} {
         log::log debug "RCPT failed $addr(error)"
-        puts $channel "501 Syntax error in parameters or arguments"
+        Puts $channel "501 Syntax error in parameters or arguments"
         return
     }
 
@@ -527,7 +600,7 @@ proc smtpd::RCPT {channel line} {
             if {[catch {eval [cget -validate_recipient] $addr(address)}]} {
                 # this recipient has been denied
                 log::log info "RCPT denied mailbox $addr(address)"
-                puts $channel "553 Requested action not taken:\
+                Puts $channel "553 Requested action not taken:\
                             mailbox name not allowed"
                 return
             }
@@ -539,7 +612,7 @@ proc smtpd::RCPT {channel line} {
     catch {set recipients [state $channel to]}
     lappend recipients $to
     state $channel to $recipients
-    puts $channel "250 OK"
+    Puts $channel "250 OK"
     return
 }
 
@@ -561,18 +634,24 @@ proc smtpd::RCPT {channel line} {
 #
 proc smtpd::DATA {channel line} {
     variable version
-    if { [state $channel from] != {} && [state $channel to] != {} } {
-        puts $channel "354 Enter mail, end with \".\" on a line by itself"
-        state $channel id [uid]
-        state $channel indata 1
-        eval array set sndr [mime::parseaddress [state $channel from]]
-
-        set trace "Received: from [state $channel domain] \[[state $channel client_addr]\]\n\
-              \tby [info hostname] ($version) id [state $channel id]; [timestamp]"
-        state $channel data [list $trace]
-        fconfigure $channel -translation auto
+    upvar [namespace current]::state_$channel State
+    log::log debug "DATA"
+    if { $State(from) == {}} {
+        Puts $channel "503 bad sequence: no sender specified"
+    } elseif { $State(to) == {}} {
+        Puts $channel "503 bad sequence: no recipient specified"
     } else {
-        puts $channel "503 bad sequence of commands"
+        Puts $channel "354 Enter mail, end with \".\" on a line by itself"
+        set State(id) [uid]
+        set State(indata) 1
+
+        lappend trace "Return-Path: $State(from)"
+        lappend trace "Received: from [state $channel domain]\
+                   \[[state $channel client_addr]\]"
+        lappend trace "\tby [info hostname] with tcllib smtpd ($version)\
+                   id $State(id); [timestamp]"
+        set State(data) $trace
+        fconfigure $channel -translation auto ;# naughty: RFC2821:2.3.7
     }
     return
 }
@@ -584,17 +663,12 @@ proc smtpd::DATA {channel line} {
 #   RFC2821 4.1.1.5
 #
 proc smtpd::RSET {channel line} {
-    
-    if {[catch {
-        state $channel indata 0
-        state $channel from {}
-        state $channel to {}
-        state $channel data {}
-    } msg]} {
+    upvar [namespace current]::state_$channel State
+    log::log debug "RSET on $channel"
+    if {[catch {initializeState $channel} msg]} {
         log::log warning "RSET: $msg"
     }
-    puts $channel "250 OK"
-    log::log debug "RSET on $channel"
+    Puts $channel "250 OK"
     return
 }
 
@@ -638,7 +712,7 @@ proc smtpd::NOOP {channel line} {
     set str {}
     regexp -nocase {^NOOP (.*)$} -> str
     log::log debug "NOOP: $str"
-    puts $channel "250 OK"
+    Puts $channel "250 OK"
     return
 }
 
@@ -653,12 +727,14 @@ proc smtpd::NOOP {channel line} {
 #
 proc smtpd::QUIT {channel line} {
     variable options
+    upvar [namespace current]::state_$channel State
+
     log::log debug "QUIT on $channel"
-    puts $channel "221 $options(serveraddr) Service closing transmission channel"
+    Puts $channel "221 $options(serveraddr) Service closing transmission channel"
     close $channel
         
     # cleanup the session state array.
-    unset [namespace current]::state_$channel
+    unset State
     return
 }
 
