@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded struct 1.4 [list source [file join $dir struct.tcl]]
+package ifneeded struct 2.0 [list source [file join $dir struct.tcl]]
