@@ -1,3 +1,10 @@
+2003-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl (fileutil::touch): Applied patch #688965 provided
+	  by Glenn Jackman <glennjnn@users.sourceforge.net>. This patch
+	  provides a better message when asking the [fileutil::touch]
+	  command for help.
+
 2003-03-24  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.test:

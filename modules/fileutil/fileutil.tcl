@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.18 2003/03/24 23:11:56 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.19 2003/03/25 05:10:50 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -421,7 +421,8 @@ proc ::fileutil::touch {args} {
         {r.arg  ""  "use time from ref_file"}
         {t.arg  -1  "use specified time"}
     }
-    array set params [::cmdline::getoptions args $options]
+    set usage ": [lindex [info level 0] 0] \[options] filename ...\noptions:"
+    array set params [::cmdline::getoptions args $options $usage]
 
     # process -a and -m options
     set set_atime [set set_mtime "true"]
