@@ -59,7 +59,7 @@ region of integration may be arbitrarily large and negative.
 
 Integrates an exponentially decaying function; the upper limit of the
 region of integration may be arbitrarily large.
-        
+
 [list_end]
 
 [section PARAMETERS]
@@ -122,7 +122,7 @@ see section [sectref "IMPROPER INTEGRALS"] for details.  Default is
 
 Requests that integration terminate after at most [arg n] triplings of
 the number of evaluations performed.  In other words, given [arg n]
-for [option -maxiter], the integration machinery will make at most 
+for [option -maxiter], the integration machinery will make at most
 3**[arg n] evaluations of the function.  Default is 14, corresponding
 to a limit approximately 4.8 million evaluations. (Well-behaved
 functions will seldom require more than a few hundred evaluations.)
@@ -150,7 +150,7 @@ tripling the number of subdivisions at each step.
 
 [para]
 
-Once the interval has been divided at least [arg d] times, 
+Once the interval has been divided at least [arg d] times,
 a polynomial is fitted to the integrals estimated in the last
 [arg d]+1 divisions.  The integrals are considered to be a
 function of the square of the width of the subintervals
@@ -197,7 +197,7 @@ of the same sign; if you need to integrate across the axis,
 say, from a negative value to positive infinity,
 use [cmd romberg] to integrate from the negative
 value to a small positive value, and then [cmd romberg_infinity]
-to integrate from the positive value to positive infinity.  The 
+to integrate from the positive value to positive infinity.  The
 [cmd romberg_infinity] procedure works by making the change of
 variable u=1/x, so that the integral from a to b of f(x) is
 evaluated as the integral from 1/a to 1/b of f(1/u)/u**2.
@@ -208,8 +208,8 @@ Integrate a function that has an integrable power law singularity
 at either the lower or upper bound of the region of integration
 (or has a derivative with a power law singularity there).
 These procedures take a first parameter, [arg gamma], which gives
-the power law.  The function is presumed to diverge as
-(x-[arg a])**[arg gamma] or ([arg b]-x)**[arg gamma].  [arg gamma]
+the power law.  The function or its first derivative are presumed to diverge as
+(x-[arg a])**(-[arg gamma]) or ([arg b]-x)**(-[arg gamma]).  [arg gamma]
 must be greater than zero and less than 1.
 
 [nl]
@@ -230,6 +230,17 @@ gives much more orderly convergence.
 These procedures operate by making the change of variable
 u=(x-a)**(1-gamma) ([cmd romberg_powerLawLower]) or
 u=(b-x)**(1-gamma) ([cmd romberg_powerLawUpper]).
+
+[nl]
+
+To summarize the meaning of gamma:
+
+[list_begin bullet]
+[bullet]
+If f(x) ~ x**(-a) (0 < a < 1), use gamma = a
+[bullet]
+If f'(x) ~ x**(-b) (0 < b < 1), use gamma = b
+[list_end]
 
 [lst_item "[cmd romberg_sqrtSingLower] and [cmd romberg_sqrtSingUpper]"]
 
@@ -294,7 +305,7 @@ the caller's scope; the following procedure does it.
 proc romberg_sine { f a b args } {
     set f [lreplace $f 0 0\
                [uplevel 1 [list namespace which [lindex $f 0]]]]
-    set f [list v $f]
+    set f [list g $f]
     return [eval [linsert $args 0\
                       romberg $f\
                       [expr { asin($a) }] [expr { asin($b) }]]]
