@@ -1,3 +1,8 @@
+2002-02-27  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* mime.tcl: Accepted patch for bug #519623 by Rolf Ade
+	  <rolf@pointsman.de>.
+
 2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Version set to 1.3.2 to differentiate the development code from
