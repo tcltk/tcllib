@@ -1,3 +1,7 @@
+2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: Updated to new version number.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3d.tcl:
