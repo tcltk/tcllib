@@ -186,8 +186,8 @@ proc ppackages {args} {
 	interp delete $ip
     }
 
-    file delete $capout ; close $capcout
-    file delete $caperr ; close $capcerr
+    close $capcout ; file delete $capout
+    close $capcerr ; file delete $caperr
 
     set   pp [array get p]
     unset p
@@ -562,7 +562,7 @@ proc getpdesc  {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.38 2005/02/23 05:13:48 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.39 2005/02/23 12:40:17 patthoyts Exp $
 
 %define version @@@@
 %define directory /usr
