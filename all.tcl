@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.21 2004/09/25 14:26:46 patthoyts Exp $
+# RCS: @(#) $Id: all.tcl,v 1.22 2004/09/28 05:12:39 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.1 2004/09/20 00:47:34 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.2 2004/09/28 05:12:43 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -204,10 +204,21 @@ snit::type ::tie::std::file {
 	# Compress current contents into a single multi-key load operation.
 	puts $new [list array set [array get cache]]
 
-	# Copy compacted journal over the existing one.
-	file rename -force ${path}.new $path
-	close $chan
-	set    chan $new
+	if {$::tcl_platform(platform) eq "windows"} {
+	    # For windows the open channels prevent us from
+	    # overwriting the old file. We have to leave
+	    # attackers a (small) window of opportunity for
+	    # replacing the file with something they own :(
+	    close $chan
+	    close $new
+	    file rename -force ${path}.new $path
+	    set chan [open ${path} {RDWR EXCL APPEND}]
+	} else {
+	    # Copy compacted journal over the existing one.
+	    file rename -force ${path}.new $path
+	    close $chan
+	    set    chan $new
+	}
 	return
     }
 
