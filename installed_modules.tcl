@@ -46,7 +46,7 @@ foreach {m pkg doc exa} {
     math	 _tci _man  _null
     md4		_tcl  _man  _null
     md5		_tcl  _man  _null
-    md5crypt	_tcl  _null _null
+    md5crypt	_tcl  _man _null
     mime	_tcl  _man _exa
     multiplexer _tcl  _man  _null
     ncgi	_tcl  _man  _null
@@ -57,6 +57,7 @@ foreach {m pkg doc exa} {
     pop3d	_tcl  _man  _null
     profiler	_tcl  _man  _null
     report	_tcl  _man  _null
+    rc4         _tcl  _man  _null
     ripemd      _tcl  _man  _null
     sha1	_tcl  _man  _null
     smtpd	_tcl  _man _exa
