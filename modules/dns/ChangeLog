@@ -1,3 +1,10 @@
+2003-04-11  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* dns.tcl:
+	* dns.man:
+	* pkgIndex.tcl:  Fixed bug #614591. Set version of the package to
+	  to 1.0.3 throughout. Added package 'resolv' to index.
+
 2003-03-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: converted from the log package to logger. Enable UDP as
