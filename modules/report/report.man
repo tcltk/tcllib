@@ -435,6 +435,7 @@ An extension of a [cmd simpletable], see above, with a title area.
 [example {
     ::report::defstyle captionedtable {{n 1}} {
 	simpletable
+	topdata   set [data get]
 	topcapsep set [top get]
 	topcapsep enable
 	tcaption $n

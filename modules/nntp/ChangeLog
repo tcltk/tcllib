@@ -1,3 +1,7 @@
+2002-03-25  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* nntp.man: New file, doctools manpage.
+
 2002-01-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 0.2
