@@ -1,5 +1,8 @@
 2005-02-14  Andreas Kupries <andreask@activestate.com>
 
+	* modules/docstrip:       NEW MODULE: docstrip.
+	* installed_modules.tcl:  Literate programming support.
+
 	* apps/dtplite (::dtplite::processCmdline): Fixed the [SF Tcllib
 	  Bug 1111364]. The extension has to be set up before the creation
 	  of the filename (for a directory output path), otherwise the
