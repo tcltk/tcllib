@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.6 2001/09/17 21:40:50 andreas_kupries Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.7 2001/10/17 17:27:26 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -14,7 +14,7 @@
 .BS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require textutil ?0.2?\fR
+\fBpackage require textutil ?0.3?\fR
 .sp
 \fBtextutil::adjust\fR \fIstring args\fR
 .sp

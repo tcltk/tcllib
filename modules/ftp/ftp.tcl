@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.14 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.15 2001/10/17 17:27:26 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -37,7 +37,7 @@
 #
 
 package require Tcl 8.2
-package provide ftp [lindex {Revision: 2.2 } 1]
+package provide ftp [lindex {Revision: 2.2.1} 1]
 
 namespace eval ftp {
 

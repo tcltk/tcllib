@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: md5.n,v 1.4 2001/08/02 16:38:06 andreas_kupries Exp $
+'\" RCS: @(#) $Id: md5.n,v 1.5 2001/10/17 17:27:26 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH md5 n 1.0 Md5 "md5 hash"
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require md5 ?1.4?\fR
+\fBpackage require md5 ?1.4.1?\fR
 .sp
 \fB::md5::md5\fR \fImsg\fR?
 .sp

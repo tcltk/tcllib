@@ -1,3 +1,13 @@
+2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* struct.tcl:
+	* graph.n:
+	* matrix.n:
+	* queue.n:
+	* stack.n:
+	* tree.n: Version up to 1.1.1
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* The changes below fix bug [458011].

@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.1 2001/09/13 17:38:32 andreas_kupries Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.2 2001/10/17 17:27:26 andreas_kupries Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -13,7 +13,7 @@ ftp \- Client-side tcl implementation of the ftp protocol
 .SH "SYNOPSIS"
 package require \fBTcl\fR
 .sp
-package require \fBftp ?2.2?\fR
+package require \fBftp ?2.2.1?\fR
 .sp
 \fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?\fR
 .sp

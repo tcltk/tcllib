@@ -1,3 +1,9 @@
+2001-10-16  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* ftp.n:
+	* ftp.tcl:
+	* pkgIndex.tcl: Version up to 2.2.1.
+
 2001-09-17 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* example/hpupdate.tcl: Some cleanups in the example code,

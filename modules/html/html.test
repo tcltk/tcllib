@@ -9,14 +9,14 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.8 2001/06/20 17:39:28 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.9 2001/10/17 17:27:26 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
 
 set myFile [file join [file dirname [info script]] html.tcl]
 source $myFile
-package require html 1.0
+package require html 1.1.1
 
 source [file join [file dirname [info script]] ../ncgi/ncgi.tcl]
 package require ncgi
