@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.29 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.29.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -434,6 +434,18 @@ test tree-2.6.5 {unset removes attribute from node} {
     mytree destroy
     set result
 } {0 1 0}
+
+test tree-2.6.6 {unset followed by node delete} {
+    tree mytree
+    set result [list]
+    set n [mytree insert root end]
+    mytree set $n foo bar
+    mytree unset $n foo
+    mytree delete $n
+    set result [mytree exists $n]
+    mytree destroy
+    set result
+} 0
 
 ############################################################
 

@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.13 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.13.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -503,7 +503,7 @@ test graph-9.4 {arc unset does not give error on bogus key} {
     set result
 } 0
 
-test graph-9.5 {arc unset removes attribute from node} {
+test graph-9.5 {arc unset removes attribute from arc} {
     graph mygraph
     mygraph node insert node0
     mygraph node insert node1
@@ -517,6 +517,21 @@ test graph-9.5 {arc unset removes attribute from node} {
     mygraph destroy
     set result
 } {0 1 0}
+
+test graph-9.6 {arc unset followed by arc delete} {
+    graph mygraph
+    set result [list]
+    mygraph node insert node0
+    mygraph node insert node1
+    set a [mygraph arc insert node0 node1 root]
+    mygraph arc set $a foo bar
+    mygraph arc unset $a foo
+    mygraph arc delete $a
+    set result [mygraph arc exists $a]
+    mygraph destroy
+    unset a
+    set result
+} 0
 
 # ---------------------------------------------------
 
@@ -1007,6 +1022,19 @@ test graph-18.5 {node unset removes attribute from node} {
     mygraph destroy
     set result
 } {0 1 0}
+
+test graph-18.6 {node unset followed by node delete} {
+    graph mygraph
+    set result [list]
+    set n [mygraph node insert node0]
+    mygraph node set    $n foo bar
+    mygraph node unset  $n foo
+    mygraph node delete $n
+    set result [mygraph node exists $n]
+    mygraph destroy
+    unset n
+    set result
+} 0
 
 # ---------------------------------------------------
 

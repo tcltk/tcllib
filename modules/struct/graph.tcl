@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.13 2004/02/09 09:32:13 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.13.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -846,7 +846,7 @@ proc ::struct::graph::__arc_unset {name arc key} {
 
     if {[array size data] == 0} {
 	# No attributes stored for this arc, squash the whole array.
-	set arcAttr($arc) {}
+	unset arcAttr($arc)
 	unset data
     }
     return
@@ -1860,7 +1860,7 @@ proc ::struct::graph::__node_unset {name node key} {
 
     if {[array size data] == 0} {
 	# No attributes stored for this node, squash the whole array.
-	set nodeAttr($node) {}
+	unset nodeAttr($node)
 	unset data
     }
     return
