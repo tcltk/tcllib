@@ -1,3 +1,9 @@
+2003-05-17  David N. Welton  <davidw@dedasys.com>
+
+	* irc_example.tcl: Changes from Aaron Faupell - now uses irc 0.4.
+	  Use ircclient namespace instead of previous, overly generic
+	  'client'.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
