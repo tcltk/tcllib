@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.7 2002/02/15 05:35:29 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.8 2002/05/08 17:05:52 dgp Exp $
 
 set old_auto_path $auto_path
 
@@ -153,7 +153,7 @@ foreach module $modules {
 	puts stdout [string map [list "$root/" ""] $file]
 	$c eval {
 	    if {[catch {source [pSet file]} msg]} {
-		puts stdout $msg
+		puts stdout $errorInfo
 	    }
 	}
     }
