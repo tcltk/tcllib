@@ -2,25 +2,45 @@
 #
 # Provide a set of tests to excercise the urn-scheme package.
 #
-# @(#)$Id: urn.test,v 1.4 2004/02/11 08:30:10 andreas_kupries Exp $
+# @(#)$Id: urn.test,v 1.5 2004/08/03 09:25:10 patthoyts Exp $
 
-# Initialize the required packages
-
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
-    #source [file join [pwd] [file dirname [info script]] defs.tcl]
 }
 
-if {[catch {package require uri}]} {
-    catch {puts stderr "Cannot load the URI package"}
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget uri::urn
+package forget uri
+catch {
+    namespace delete ::uri::urn
+    namespace delete ::uri
+}
+if {[catch {source [file join [file dirname [info script]] uri.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] urn-scheme.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
     return
 }
 
-if {[catch {package require uri::urn}]} {
-    catch {puts stderr "Failed to source the URN scheme extension"}
-    return
-}
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+package require struct
+puts "- uri::urn [package present uri::urn]"
+puts "- uri [package present uri]"
 
 # -------------------------------------------------------------------------
 
@@ -151,6 +171,34 @@ test urn-3.4 {NSS containing illegal characters} {
     }
     set result
 } {ok}
+
+# -------------------------------------------------------------------------
+# Quoting checks - various UTF-8 representations for 'coffee' (RFC 2324)
+#
+set data \
+    [list \
+         "coffee"                           "coffee" \
+         "\x4B\x61\x66\x66\x65\x65"         "Kaffee" \
+         "\x71\xC3\xA6\x68\x76\xC3\xA6"     "q%C3%A6hv%C3%A6" \
+         "\xD9\x82\xD9\x87\xD9\x88\xD8\xA9" "%D9%82%D9%87%D9%88%D8%A9" \
+         "\xCE\xBA\xCE\xB1\xCF\x86\xCE\xAD" "%CE%BA%CE%B1%CF%86%CE%AD" \
+         "\xE0\xA4\x95\xE0\xA5\x8C\xE0\xA4\xAB\xE0\xA5\x80" \
+                                "%E0%A4%95%E0%A5%8C%E0%A4%AB%E0%A5%80" \
+        ]
+
+set n 0
+foreach {utf8 quoted} $data {
+    test urn-4.[incr n] [list quote utf8 string] {
+        list [catch {uri::urn::quote $utf8} msg] $msg
+    } [list 0 $quoted]
+}
+
+set n 0
+foreach {utf8 quoted} $data {
+    test urn-5.[incr n] [list unquote utf8 string] {
+        list [catch {uri::urn::unquote $quoted} msg] $msg
+    } [list 0 $utf8]
+}
 
 # -------------------------------------------------------------------------
 # Clean up the tests
