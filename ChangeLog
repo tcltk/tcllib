@@ -1,5 +1,8 @@
 2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* irc: New module. Internet protocol handling. Internet Relay Chat
+	  (IRC). Author David N. Welton <davidw@dedasys.com>.
+
 	* examples/nntp: Moved example applications out of the nntp module
 	  into the example space.
 
