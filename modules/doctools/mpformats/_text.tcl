@@ -197,6 +197,33 @@ proc SaveEnv {} {
 
 ################################################################
 
+proc text_plain_text {text} {
+    #puts_stderr "<<text_plain_text>>"
+
+    if  {[IsOff]} {return}
+
+    # Note: Whenever we get plain text it is possible that a macro for
+    # visual markup actually generated output before the expander got
+    # to the current text. This output was captured by the expander in
+    # its current context. Given the current organization of the
+    # engine we have to retrieve this formatted text from the expander
+    # or it will be lost. This is the purpose of the 'ctopandclear',
+    # which retrieves the data and also clears the capture buffer. The
+    # latter to prevent us from retrieving it agasin later, after the
+    # next macro added more data.
+
+    set text [ex_ctopandclear]$text
+
+    # ... TODO ... Handling of example => verbatim
+
+    if {[string length [string trim $text]] == 0} return
+
+    Text $text
+    return
+}
+
+################################################################
+
 proc text_postprocess {text} {
 
     #puts_stderr XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

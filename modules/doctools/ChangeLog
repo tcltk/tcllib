@@ -1,5 +1,13 @@
 2003-03-31  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/toc.text:
+	* mpformats/idx.text: New files, toc & index formatting in plain text.
+
+	* mpformats/_text.tcl:
+	* mpformats/fmt.text: Moved processing of plain text into the generic part.
+
+2003-03-31  Andreas Kupries  <andreask@activestate.com>
+
 	* cvs.tcl (scanLog): Applied fix for Bug #712951 reported by Joe
 	  English <jenglish@users.sourceforge.net>.
 

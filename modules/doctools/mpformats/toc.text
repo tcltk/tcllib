@@ -1,0 +1,59 @@
+# -*- tcl -*-
+#
+# $Id: toc.text,v 1.1 2003/04/01 01:20:33 andreas_kupries Exp $
+#
+# Engine to convert a doctoc document into plain text.
+#
+# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Freely redistributable.
+#
+######################################################################
+
+dt_source _toc_common.tcl
+dt_source _text.tcl
+
+######################################################################
+# Conversion specification.
+# One-pass processing.
+
+rename toc_postprocess {}
+rename text_postprocess toc_postprocess
+
+proc fmt_plain_text {text} {return {}}
+
+################################################################
+## Backend for TMML markup
+
+global firstitem   ; set firstitem   1
+global maintable   ; set maintable   1
+global even        ; set even        1
+
+proc fmt_comment       {text}        {return}
+proc fmt_toc_end       {}            {return}
+proc fmt_toc_begin     {label title} {
+    set     hdr ""
+    append  hdr [c_provenance]\n
+    append  hdr \n
+    append  hdr $label \n
+    append  hdr $title \n
+
+    Text $hdr
+    CloseParagraph [Verbatim]
+}
+proc fmt_division_end   {}      {RestoreContext ; return}
+proc fmt_division_start {title} {
+    Text $title
+    CloseParagraph
+    SaveContext
+    set base [NewEnv Division {
+	incr currentEnv(lmargin)   $lmarginIncrement
+    }] ; # {}
+    return
+}
+proc fmt_item          {file label desc} {
+    Text "$file $desc"
+    CloseParagraph
+    return
+}
+
+################################################################
