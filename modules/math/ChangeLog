@@ -2,6 +2,7 @@
 
         * Added preliminary versions of a linear algebra module
           (revision of Hume's LA). No documentation yet
+        * Removed the initialisation of CDF (that was left in there)
 
 2004-11-01  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
