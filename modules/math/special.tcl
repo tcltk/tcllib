@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: special.tcl,v 1.6 2004/08/27 09:49:57 arjenmarkus Exp $
+# RCS: @(#) $Id: special.tcl,v 1.7 2004/09/17 07:32:21 arjenmarkus Exp $
 #
 package require math
 package require math::constants
@@ -36,7 +36,7 @@ namespace eval ::math::special {
     #
     # Export the various functions
     #
-    namespace export Beta ln_Gamma Gamma erf erfc fresnel_C fresnel_S
+    namespace export Beta ln_Gamma Gamma erf erfc fresnel_C fresnel_S sinc
 }
 
 # Gamma --
@@ -161,6 +161,21 @@ proc ::math::special::fresnel_S {x} {
     set xarg [expr {$halfpi*$x*$x}]
 
     return [expr {0.5-$f*cos($xarg)-$g*sin($xarg)}]
+}
+
+# sinc --
+#    Compute the sinc function
+# Arguments:
+#    x       Value of the argument
+# Result:
+#    sin(x)/x
+#
+proc ::math::special::sinc {x} {
+    if { $x == 0.0 } {
+        return 1.0
+    } else {
+        return [expr {sin($x)/$x}]
+    }
 }
 
 # Bessel functions and elliptic integrals --
