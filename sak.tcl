@@ -454,7 +454,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.18 2003/05/23 21:13:48 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.19 2003/05/26 17:27:03 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -462,7 +462,7 @@ proc gd-gen-rpmspec {} {
 Summary: The standard Tcl library
 Name: @__@
 Version: %{version}
-Release: 1
+Release: 2
 Copyright: BSD
 Group: Development/Languages
 Source: %{name}-%{version}.tar.bz2
@@ -500,21 +500,18 @@ mkdir ../ftp; mv ftp/docs/*.html ../ftp/
 for module in exif mime textutil stooop struct; do
     mkdir ../$module && mv $module/*.html ../$module/;
 done
+# generate list of files in the package (man pages are compressed):
+find $RPM_BUILD_ROOT ! -type d |\
+    sed -e "s,^$RPM_BUILD_ROOT,,;" -e 's,\.n$,\.n\.gz,;' >\
+    %{_builddir}/%{name}-%{version}/files
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files -f %{_builddir}/%{name}-%{version}/files
 %defattr(-,root,root)
 %doc README ChangeLog license.terms exif/ ftp/ mime/ stooop/ struct/ textutil/
-%{directory}/lib/%{name}-%{version}/
 }]
-
-    # Find all documentation and list it in the spec file.
-
-    foreach df [lsort [docfiles]] {
-	append header "%\{directory\}/share/man/mann/$df.gz" \n
-    }
 
     set    f [open [file join $distribution tcllib.spec] w]
     puts  $f $header
