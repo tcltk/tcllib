@@ -1687,7 +1687,7 @@ constructor shown here:
 
 When the constructor is called, [var args] will be set to the list of
 arguments that follow the object's name.  The constructor is allowed
-to interprete this list any way it chooses; the normal convention is
+to interpret this list any way it chooses; the normal convention is
 to assume that it's a list of option names and values, as shown in the
 example above.  If you simply want to save the option values, you
 should use the [method configurelist] method, as shown.
@@ -2309,7 +2309,7 @@ Wag, wag, wag.
 }]
 [para]
 
-This code has the same affect as the code shown under the previous
+This code has the same effect as the code shown under the previous
 question: when a [cmd dog]'s [cmd wag] method is called, the call and
 its arguments are passed along automatically to the [cmd tail] object.
 
@@ -3066,8 +3066,8 @@ capital letter.  For example, suppose we explicitly delegate "-padx":
 ::mytext
 % mytext .text
 .text
-% .text configure -mytext
--mytext mytext Mytext 5 5
+% .text configure -myvalue
+-myvalue myvalue Myvalue 5 5
 % .text configure -padx
 -padx padx Padx 1 1
 %

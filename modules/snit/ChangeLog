@@ -1,3 +1,8 @@
+2005-02-14  Andreas Kupries <andreask@activestate.com>
+
+	* snitfaq.man: Fixed a number of typos reported by Bob Techentin,
+	  see [SF Tcllib Bug 1050674].
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
