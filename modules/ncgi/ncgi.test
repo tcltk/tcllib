@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.9 2000/05/31 00:00:02 ericm Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.10 2001/06/16 01:26:36 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -495,5 +495,36 @@ test ncgi-14.4 {ncgi::multipart} {
 
 
 }}
+
+test ncgi-14.5 {ncgi::multipart--check binary file} {
+    set in [open [file join [file dirname [info script]] formdata.txt]]
+
+    # Read the file in as though it were binary.
+    fconfigure $in -translation binary
+    set X [read $in]
+    close $in
+
+    foreach line [split $X \n] {
+	if {[string length $line] == 0} {
+	    break
+	}
+	if {[regexp {^Content-Type: (.*)$} $line x type]} {
+	    break
+	}
+    }
+    regsub ".*?\n\n" $X {} X
+
+    ncgi::reset $X $type
+    ncgi::parse
+    set content [ncgi::value the_file_naame]
+    list [ncgi::value field1] [ncgi::value field2] $content            
+} "value {another value} {\r
+<center><h1>\r
+                  Netscape Address Book Sync for Palm Pilot\r
+                                         User Guide\r
+</h1></center>\r
+\r
+\r
+}"
 
 ::tcltest::cleanupTests

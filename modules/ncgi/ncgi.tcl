@@ -717,7 +717,7 @@ proc ncgi::parseMimeValue {value} {
             set key [string trim [string tolower $key]]
             set val [string trim $val]
             # Allow single as well as double quotes
-            if {[regexp {^["']} $val quote]} {
+            if {[regexp {^["']} $val quote]} { ;# need a " for balance
                 if {[regexp ^${quote}(\[^$quote\]*)$quote $val x val2]} {
                     # Trim quotes and any extra crap after close quote
                     set val $val2
@@ -774,8 +774,6 @@ proc ncgi::parseMimeValue {value} {
 #	example above.  Finally, not that if the value has a second element,
 #	which are the parameters, you can "array set" that as well.
 #	
-
-
 proc ncgi::multipart {type query} {
 
     set parsedType [ncgi::parseMimeValue $type]
@@ -790,27 +788,33 @@ proc ncgi::multipart {type query} {
 
     # The query data is typically read in binary mode, which preserves
     # the \r\n sequence from a Windows-based browser.  
+    # Also, binary data may contain \r\n sequences.
 
     if {[regexp -- $boundary\r\n $query]} {
-	regsub -all \r\n $query \n query
+        set lineDelim "\r\n"
+puts "DELIM"
+    } else {
+        set lineDelim "\n"
+puts "NO"
     }
 
     # Iterate over the boundary string and chop into parts
 
     set len [string length $query]
-    # "3" is for \n--
-    set blen [expr {3 + [string length $boundary]}]
+    # [string length $lineDelim]+2 is for "$lineDelim--"
+    set blen [expr {[string length $lineDelim] + 2 + \
+            [string length $boundary]}]
     set first 1
     set results [list]
     set offset 0
 
     # Ensuring the query data starts
     # with a newline makes the string first test simpler
-
-    if {![string equal [string index $query 0] \n]} {
-	set query \n$query
+    if {[string first $lineDelim $query 0]!=0} {
+        set query $lineDelim$query
     }
-    while {[set offset [string first \n--$boundary $query $offset]] >= 0} {
+    while {[set offset [string first $lineDelim--$boundary $query $offset]] \
+            >= 0} {
 	if {!$first} {
 	    lappend results $formName [list $headers \
 		[string range $query $off2 [expr {$offset -1}]]]
@@ -834,10 +838,10 @@ proc ncgi::multipart {type query} {
 	#		}
 	#	}
 
-	set off2 [string first \n\n $query $offset]
+        set off2 [string first "$lineDelim$lineDelim" $query $offset]
 	set headers [list]
 	set formName ""
-	foreach line [split [string range $query $offset $off2] \n] {
+        foreach line [split [string range $query $offset $off2] $lineDelim] {
 	    if {[regexp {([^:	 ]+):(.*)$} $line x hdrname value]} {
 		set hdrname [string tolower $hdrname]
 		set valueList [parseMimeValue $value]
@@ -860,8 +864,9 @@ proc ncgi::multipart {type query} {
 	}
 
 	if {$off2 > 0} {
-	    # +2 for the \n\n
-	    incr off2 2
+            # +[string length "$lineDelim$lineDelim"] for the
+            # $lineDelim$lineDelim
+            incr off2 [string length "$lineDelim$lineDelim"]
 	    set offset $off2
 	} else {
 	    break
