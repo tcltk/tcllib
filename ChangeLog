@@ -1,3 +1,9 @@
+2004-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sak.tcl: Some mods to the critcl build code for use under
+	Windows. If it cannot find critcl.kit, then use env(CRITCL) for
+	the location of the kit file.
+
 2004-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* examples/csv/csv2html.orig:		Unified the startup header of all
