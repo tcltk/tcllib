@@ -32,6 +32,10 @@ exec wish8.3 "$0" -- "$@"
 
 # load required FTP package library 
 package require ftp 2.0
+package require Tk
+if {![llength [info commands tkButtonInvoke]]} {
+    ::tk::unsupported::ExposePrivateCommand tkButtonInvoke
+}
 
 # LED Colors
 set status(off) "#006666"
