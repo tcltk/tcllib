@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.9 2004/09/29 19:32:20 andreas_kupries Exp $
+# $Id: record.tcl,v 1.10 2004/09/29 20:56:18 andreas_kupries Exp $
 #
 #============================================================
 #
@@ -59,7 +59,8 @@ namespace eval ::struct::record {
     ##
     ##  _defn(some_instances) name_of_defining_record
     ##
-    variable _defn
+    variable  _defn
+    array set _defn {}
 
     ##
     ##  This holds the defaults for a record definition.
@@ -343,6 +344,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
             eval [linsert $narg 0 Create $def ${inst_}.${inst}]
             set args [lreplace $args $cnt $cnt_plus]
 
+            incr _level -1
         } else {
 
             uplevel #0 [list interp alias {} ${inst_}.$V {} ::struct::record::Access $defn_ $inst_ $V]
@@ -357,10 +359,12 @@ proc ::struct::record::Create {defn_ inst_ args} {
 
         Access $defn_ $inst_ [string trimleft "$k" -] $v
 
-    }; # end foreach arg
+    }; # end foreach arg {}
 
-    set _level 0
-    
+    if {$_level == 2} {
+	set _level 0
+    }
+
     return $inst_
 
 }; # end proc ::struct::record::Create
