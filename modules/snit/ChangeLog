@@ -1,4 +1,15 @@
-2004-06-26  Will Duquette  <will@cordelia.local>
+2004-07-04  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Implemented the new option delegation syntax and
+	* snit.test     the beginning of the new method delegation syntax.
+	                Revised the relevant error messages, and updated
+			snit.test to match.  I've not yet revised the
+			set of tests to use or test the new syntax; the
+			old syntax, though deprecated, has been shown to
+			work.  I'll update snit.man when the method
+			delegation work is complete.
+
+2004-06-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Added the "component" statement, with two options, 
 	* snit.test     -public and -inherit.  Added all relevant tests.
