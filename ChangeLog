@@ -1,3 +1,15 @@
+2005-02-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Extended with code to extract package descriptions from
+	  the module manpages. The association between packages and
+	  manpages is made through the manpage title and require
+	  statements. Added sub commands which format and print the found
+	  information.  Extended the tap generator to insert such
+	  information into its result.
+
+	* modules/doctools/fmt.desc: New format, used for the basic data
+	  extraction mentioned above.
+
 2005-02-14  Andreas Kupries <andreask@activestate.com>
 
 	* modules/docstrip:       NEW MODULE: docstrip.
