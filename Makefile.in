@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.80 2002/09/23 08:04:35 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.81 2002/09/25 23:05:15 hobbs Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -169,15 +169,15 @@ INSTALL_ROOT =
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
-prefix = $(INSTALL_ROOT)@prefix@
-exec_prefix = $(INSTALL_ROOT)@exec_prefix@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
 
-libdir = $(INSTALL_ROOT)@libdir@
-mandir = $(INSTALL_ROOT)@mandir@
+libdir = @libdir@
+mandir = @mandir@
 
 DESTDIR =
 
-pkglibdir = $(prefix)/lib/@PACKAGE@@VERSION@
+pkglibdir = $(libdir)/@PACKAGE@@VERSION@
 
 top_builddir = .
 
@@ -248,22 +248,22 @@ install-binaries:
 #========================================================================
 
 install-libraries: libraries
-	$(mkinstalldirs) $(pkglibdir)
-	@echo "Installing modules in $(pkglibdir)"
+	$(mkinstalldirs) $(DESTDIR)$(pkglibdir)
+	@echo "Installing modules in $(DESTDIR)$(pkglibdir)"
 	@for i in $(MODULES) ; do \
 	    if test -d $(srcdir)/modules/$$i; then  \
-		echo "Installing $$i in $(pkglibdir)/$$i" ; \
-		$(mkinstalldirs) $(pkglibdir)/$$i ; \
+		echo "Installing $$i in $(DESTDIR)$(pkglibdir)/$$i" ; \
+		$(mkinstalldirs) $(DESTDIR)$(pkglibdir)/$$i ; \
 		for j in `ls $(srcdir)/modules/$$i/*.tcl 2>/dev/null` ; do \
-		    $(INSTALL_DATA) $$j $(pkglibdir)/$$i ; \
+		    $(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$$i ; \
 		done; \
 		if test -f $(srcdir)/modules/$$i/tclIndex ; then \
-		    $(INSTALL_DATA) $(srcdir)/modules/$$i/tclIndex $(pkglibdir)/$$i ; \
+		    $(INSTALL_DATA) $(srcdir)/modules/$$i/tclIndex $(DESTDIR)$(pkglibdir)/$$i ; \
 		fi \
 	    fi; \
 	done;
 	$(MAKE) gen-main-index "PKGDIR=$(srcdir)"
-	cp $(srcdir)/pkgIndex.tcl $(pkglibdir)
+	cp $(srcdir)/pkgIndex.tcl $(DESTDIR)$(pkglibdir)
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
@@ -273,14 +273,14 @@ install-libraries: libraries
 install-doc: doc
 	@echo Installing documentation for $(PACKAGE)
 	@if [ `echo 'puts $$tcl_platform(platform) ; exit' | $(TCLSH_PROG)` = unix ] ; then \
-	    $(mkinstalldirs) $(mandir)/mann ; \
+	    $(mkinstalldirs) $(DESTDIR)$(mandir)/mann ; \
 	    for f in doc/nroff/*.n ; do \
 		sed -e '/man\.macros/r man.macros' -e '/man\.macros/d' \
-			$$f > $(mandir)/mann/`basename $$f` ; \
+			$$f > $(DESTDIR)$(mandir)/mann/`basename $$f` ; \
 	    done ; \
 	fi
-	$(mkinstalldirs)   $(pkglibdir)/htmldoc
-	cp doc/html/*.html $(pkglibdir)/htmldoc
+	$(mkinstalldirs)   $(DESTDIR)$(pkglibdir)/htmldoc
+	cp doc/html/*.html $(DESTDIR)$(pkglibdir)/htmldoc
 
 test:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/all.tcl` -modules "$(MODULES)"

@@ -1,3 +1,7 @@
+2002-09-25  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in: better DESTDIR/libdir support (steffen)
+
 2002-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* mime: New field_decode, extended testsuite.
