@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 0.94]
+[manpage_begin snit n 0.95]
 [copyright {2003-2004, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc  {Simple Now In Tcl}]
 [require Tcl 8.4]
-[require snit [opt 0.94]]
+[require snit [opt 0.95]]
 [description]
 [para]
 
@@ -677,7 +677,7 @@ option instead.
 
 [nl]
 
-As of version 0.94, the following definitions,
+As of version 0.95, the following definitions,
 
 [example {    option -myoption
     onconfigure -myoption {value} {
@@ -700,7 +700,7 @@ option instead.
 
 [nl]
 
-As of version 0.94, the following definitions,
+As of version 0.95, the following definitions,
 
 [example {    option -myoption
     oncget -myoption {
@@ -921,7 +921,7 @@ constructor can specify a different argument list.
 
 [nl]
 
-As of Snit V0.94, [method create] will throw an error if the [arg name]
+As of Snit V0.95, [method create] will throw an error if the [arg name]
 is the same as any existing command--note that this was always true
 for [cmd snit::widget]s and [cmd snit::widgetadaptor]s.  You can
 restore the previous behavior using the [const -canreplace] pragma.
@@ -1473,7 +1473,7 @@ can be used to delegate type methods to type components.
 
 [para]
 
-Note also that as of Snit 0.94 [cmd "delegate method"] can delegate
+Note also that as of Snit 0.95 [cmd "delegate method"] can delegate
 methods to both instance components and type components.
 
 [subsection {The Tk Option Database}]
