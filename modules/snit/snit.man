@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 0.95]
+[manpage_begin snit n 0.96]
 [copyright {2003-2004, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc  {Simple Now In Tcl}]
 [require Tcl 8.4]
-[require snit [opt 0.95]]
+[require snit [opt 0.96]]
 [description]
 [para]
 
