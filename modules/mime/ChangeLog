@@ -1,3 +1,8 @@
+2003-01-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* mime.tcl (md5): Fix for bug # 630381. Use tcllib md5 to handle
+	Trf transparency.
+
 2002-10-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.man: Changed -parse to -part in description of
