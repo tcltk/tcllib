@@ -1,3 +1,18 @@
+2003-04-16  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl: Added math::statistics after yesterday's commit by
+	  Arjen Markus.
+
+	* statistics.test: Changed to conform to standard of importing
+	  tcltest, changed import of tested functionality, added checks
+	  that actually tcltest 1.2 or higher is used (Aborting if not).
+	
+	* statistics.tcl:
+	* liststat.tcl
+	* pdf_stat.tcl:
+	* plotstat.tcl: Reformatted a bit to be more near to the
+	  style-guide with regard to indentation.
+
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:
