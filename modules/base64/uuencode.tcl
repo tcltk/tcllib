@@ -6,19 +6,22 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.6 2002/06/03 20:21:46 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.7 2003/01/26 00:38:28 patthoyts Exp $
 
+package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
 
-namespace eval uuencode {
+namespace eval ::uuencode {
+    variable version 1.0.2
+
     namespace export encode decode uuencode uudecode
 }
 
-proc uuencode::Enc {c} {
+proc ::uuencode::Enc {c} {
     return [format %c [expr {($c != 0) ? (($c & 0x3f) + 0x20) : 0x60}]]
 }
 
-proc uuencode::Encode {s} {
+proc ::uuencode::Encode {s} {
     set r {}
     binary scan $s c* d
     foreach {c1 c2 c3} $d {
@@ -33,7 +36,7 @@ proc uuencode::Encode {s} {
     return $r
 }
 
-proc uuencode::Decode {s} {
+proc ::uuencode::Decode {s} {
     if {[string length $s] == 0} {return ""}
     set r {}
     binary scan [pad $s] c* d
@@ -57,7 +60,7 @@ proc uuencode::Decode {s} {
 # Result:
 #  Returns the input string - possibly padded with uuencoded null chars.
 #
-proc uuencode::pad {s} {
+proc ::uuencode::pad {s} {
     if {[set mod [expr {[string length $s] % 4}]] != 0} {
         log::log notice "invalid uuencoded string: padding string to a\
               multiple of 4."
@@ -71,20 +74,20 @@ proc uuencode::pad {s} {
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
 if {[catch {package require Trf 2.0}]} {
-    interp alias {} uuencode::encode {} uuencode::Encode
-    interp alias {} uuencode::decode {} uuencode::Decode
+    interp alias {} ::uuencode::encode {} ::uuencode::Encode
+    interp alias {} ::uuencode::decode {} ::uuencode::Decode
 } else {
-    proc uuencode::encode {s} {
+    proc ::uuencode::encode {s} {
         return [::uuencode -mode encode $s]
     }
-    proc uuencode::decode {s} {
+    proc ::uuencode::decode {s} {
         return [::uuencode -mode decode [pad $s]]
     }
 }
 
 # -------------------------------------------------------------------------
 
-proc uuencode::uuencode {args} {
+proc ::uuencode::uuencode {args} {
     array set opts {mode 0644 filename {} name {}}
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
@@ -150,7 +153,7 @@ proc uuencode::uuencode {args} {
 #  three element list of the provided filename, the suggested mode and the 
 #  data itself.
 #
-proc uuencode::uudecode {args} {
+proc ::uuencode::uudecode {args} {
     array set opts {mode 0644 filename {}}
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
@@ -200,7 +203,8 @@ proc uuencode::uudecode {args} {
                     set state false
                     lappend result [list $opts(name) $opts(mode) $r]
                 } else {
-                    set n [expr {([scan $line %c] - 0x21)}]
+                    scan $line %c c
+                    set n [expr {($c - 0x21)}]
                     append r [string range \
                                   [decode [string range $line 1 end]] 0 $n]
                 }
@@ -213,7 +217,7 @@ proc uuencode::uudecode {args} {
 
 # -------------------------------------------------------------------------
 
-package provide uuencode 1.0.1
+package provide uuencode $::uuencode::version
 
 # -------------------------------------------------------------------------
 #

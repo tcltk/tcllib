@@ -10,5 +10,7 @@
 
 if {![package vsatisfies [package provide Tcl] 8]} {return}
 package ifneeded base64 2.2.1 [list source [file join $dir base64.tcl]]
+
+if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded uuencode 1.0.1 [list source [file join $dir uuencode.tcl]]
-package ifneeded yencode 1.0 [list source [file join $dir yencode.tcl]]
+package ifneeded yencode 1.0.1 [list source [file join $dir yencode.tcl]]
