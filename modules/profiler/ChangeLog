@@ -1,3 +1,9 @@
+2003-04-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* profiler.tcl (::profiler::stats): Check for sum being zero when
+	using tcl < 8.4 (no execution trace available). Prevents a divide
+	by zero error.
+
 2003-04-13  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* profiler.test:

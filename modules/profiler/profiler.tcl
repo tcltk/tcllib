@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.22 2003/04/14 07:08:36 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.23 2003/04/28 23:34:49 patthoyts Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2.1
@@ -82,26 +82,28 @@ proc ::profiler::tMark { { tag "" } } {
 #	covariance.
 
 proc ::profiler::stats {args} {
-     set sum      0
-     set mean     0
-     set sigma_sq 0
-     set sigma    0
-     set cov      0
-     set N [ llength $args ]
-     if { $N > 1 } { 
+    set sum      0
+    set mean     0
+    set sigma_sq 0
+    set sigma    0
+    set cov      0
+    set N [ llength $args ]
+    if { $N > 1 } { 
         foreach val $args {
-           set sum [ expr { $sum+$val } ]
+            incr sum $val
         }
-        set mean [ expr { $sum/$N } ]
-        foreach val $args {
-           set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
+        if {$sum > 0} {
+            set mean [ expr { $sum/$N } ]
+            foreach val $args {
+                set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
+            }
+            set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
+            set sigma [ expr { round(sqrt($sigma_sq)) } ]
+            set cov [ expr { (($sigma*1.0)/$mean)*100 } ]
+            set cov [ expr { round($cov*10)/10.0 } ]
         }
-        set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
-        set sigma [ expr { round(sqrt($sigma_sq)) } ]
-        set cov [ expr { (($sigma*1.0)/$mean)*100 } ]
-        set cov [ expr { round($cov*10)/10.0 } ]
-     }   
-     return [ list $mean $sigma $cov ]
+    }
+    return [ list $mean $sigma $cov ]
 }
 
 # ::profiler::Handler --
