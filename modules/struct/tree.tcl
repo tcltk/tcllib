@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.15 2001/09/05 23:36:15 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.16 2002/05/09 05:46:04 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -34,6 +34,7 @@ namespace eval ::struct::tree {
 
     # commands is the list of subcommands recognized by the tree
     variable commands [list \
+	    "append"		\
 	    "children"		\
 	    "cut"		\
 	    "destroy"		\
@@ -41,9 +42,13 @@ namespace eval ::struct::tree {
 	    "depth"		\
 	    "exists"		\
 	    "get"		\
+	    "getall"		\
 	    "index"		\
 	    "insert"		\
 	    "isleaf"		\
+	    "keys"		\
+	    "keyexists"		\
+	    "lappend"		\
 	    "move"		\
 	    "next"		\
 	    "numchildren"	\
@@ -365,6 +370,80 @@ proc ::struct::tree::_get {name node {flag -key} {key data}} {
 	error "invalid key \"$key\" for node \"$node\""
     }
     return $data($key)
+}
+
+# ::struct::tree::_getall --
+#
+#	Get a serialized list of key/value pairs from a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to query.
+#
+# Results:
+#	value	A serialized list of key/value pairs.
+
+proc ::struct::tree::_getall {name node args} { 
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    if { [llength $args] } {
+	error "wrong # args: should be \"$name getall $node\""
+    }
+    
+    upvar ::struct::tree::tree${name}::node${node} data
+    return [array get data]
+}
+
+# ::struct::tree::_keys --
+#
+#	Get a list of keys from a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to query.
+#
+# Results:
+#	value	A serialized list of key/value pairs.
+
+proc ::struct::tree::_keys {name node args} { 
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    if { [llength $args] } {
+	error "wrong # args: should be \"$name keys $node\""
+    }
+
+    upvar ::struct::tree::tree${name}::node${node} data
+    return [array names data]
+}
+
+# ::struct::tree::_keyexists --
+#
+#	Test for existance of a given key for a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to query.
+#	flag	Optional flag specifier; if present, must be "-key".
+#	key	Optional key to lookup; defaults to data.
+#
+# Results:
+#	1 if the key exists, 0 else.
+
+proc ::struct::tree::_keyexists {name node {flag -key} {key data}} {
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    if { ![string equal $flag "-key"] } {
+	error "invalid option \"$flag\": should be -key"
+    }
+    
+    upvar ::struct::tree::tree${name}::node${node} data
+    return [info exists data($key)]
 }
 
 # ::struct::tree::_index --
@@ -740,6 +819,84 @@ proc ::struct::tree::_set {name node args} {
 	}
 	return $data($key)
     }
+}
+
+# ::struct::tree::_append --
+#
+#	Append a value for a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to modify or query.
+#	args	Optional arguments specifying a key and a value.  Format is
+#			?-key key? ?value?
+#		If no key is specified, the key "data" is used.
+#
+# Results:
+#	val	Value associated with the given key of the given node
+
+proc ::struct::tree::_append {name node args} {
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    upvar ::struct::tree::tree${name}::node$node data
+
+    if { [llength $args] != 1 && [llength $args] != 3 } {
+	error "wrong # args: should be \"$name set $node ?-key key?\
+		value\""
+    }
+    
+    if { [llength $args] == 3 } {
+	foreach {flag key} $args break
+	if { ![string equal $flag "-key"] } {
+	    error "invalid option \"$flag\": should be -key"
+	}
+    } else {
+	set key "data"
+    }
+
+    set value [lindex $args end]
+
+    return [append data($key) $value]
+}
+
+# ::struct::tree::_lappend --
+#
+#	lappend a value for a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to modify or query.
+#	args	Optional arguments specifying a key and a value.  Format is
+#			?-key key? ?value?
+#		If no key is specified, the key "data" is used.
+#
+# Results:
+#	val	Value associated with the given key of the given node
+
+proc ::struct::tree::_lappend {name node args} {
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    upvar ::struct::tree::tree${name}::node$node data
+
+    if { [llength $args] != 1 && [llength $args] != 3 } {
+	error "wrong # args: should be \"$name set $node ?-key key?\
+		value\""
+    }
+    
+    if { [llength $args] == 3 } {
+	foreach {flag key} $args break
+	if { ![string equal $flag "-key"] } {
+	    error "invalid option \"$flag\": should be -key"
+	}
+    } else {
+	set key "data"
+    }
+
+    set value [lindex $args end]
+
+    return [lappend data($key) $value]
 }
 
 # ::struct::tree::_size --

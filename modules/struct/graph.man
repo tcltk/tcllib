@@ -62,6 +62,12 @@ The following commands are possible for graph objects:
 
 Destroy the graph, including its storage space and associated command.
 
+[call [arg graphName] [method {arc append}] [arg arc] [opt "-key [arg key]"] [arg value]]
+
+Appends a [arg value] to one of the keyed values associated with an
+[arg arc]. If no [arg key] is specified, the key [strong data] is
+assumed.
+
 
 [call [arg graphName] [method {arc delete}] [arg arc] [opt "[arg arc] ..."]]
 
@@ -78,6 +84,22 @@ Return true if the specified [arg arc] exists in the graph.
 Return the value associated with the key [arg key] for the [arg arc].
 If no key is specified, the key [strong data] is assumed.
 
+[call [arg graphName] [method {arc getall}] [arg arc]]
+
+Returns a serialized list of key/value pairs (suitable for use with
+[lb][cmd {array set}][rb]) for the [arg arc].
+
+
+[call [arg graphName] [method {arc keys}] [arg arc]]
+
+Returns a list of keys for the [arg arc].
+
+
+[call [arg graphName] [method {arc keyexists}] [arg arc] [opt "-key [arg key]"]]
+
+Return true if the specified [arg key] exists for the [arg arc]. If no
+[arg key] is specified, the key [strong data] is assumed.
+
 
 [call [arg graphName] [method {arc insert}] [arg start] [arg end] [opt [arg child]]]
 
@@ -85,6 +107,13 @@ Insert an arc named [arg child] into the graph beginning at the node
 [arg start] and ending at the node [arg end]. If the name of the new
 arc is not specified the system will generate a unique name of the
 form [strong arc][arg x].
+
+
+[call [arg graphName] [method {arc lappend}] [arg arc] [opt "-key [arg key]"] [arg value]]
+
+Appends a [arg value] (as a list) to one of the keyed values
+associated with an [arg arc].  If no [arg key] is specified, the key
+[strong data] is assumed.
 
 
 [call [arg graphName] [method {arc set}] [arg arc] [opt "-key [arg key]"] [opt [arg value]]]
@@ -169,6 +198,12 @@ arcs whose associated key [arg key] has the value [arg value].
 
 [list_end]
 
+[call [arg graphName] [method {node append}] [arg node] [opt "-key [arg key]"] [arg value]]
+
+Appends a [arg value] to one of the keyed values associated with an
+[arg node]. If no [arg key] is specified, the key [strong data] is
+assumed.
+
 
 [call [arg graphName] [method {node degree}] [opt -in|-out] [arg node]]
 
@@ -193,12 +228,34 @@ Return true if the specified [arg node] exists in the graph.
 Return the value associated with the key [arg key] for the [arg node].
 If no key is specified, the key [strong data] is assumed.
 
+[call [arg graphName] [method {node getall}] [arg node]]
+
+Returns a serialized list of key/value pairs (suitable for use with
+[lb][cmd {array set}][rb]) for the [arg node].
+
+
+[call [arg graphName] [method {node keys}] [arg node]]
+
+Returns a list of keys for the [arg node].
+
+
+[call [arg graphName] [method {node keyexists}] [arg node] [opt "-key [arg key]"]]
+
+Return true if the specified [arg key] exists for the [arg node]. If
+no [arg key] is specified, the key [strong data] is assumed.
+
 
 [call [arg graphName] [method {node insert}] [opt [arg child]]]
 
 Insert a node named [arg child] into the graph. The nodes has no arcs
 connected to it. If the name of the new child is not specified the
 system will generate a unique name of the form [strong node][arg x].
+
+[call [arg graphName] [method {node lappend}] [arg node] [opt "-key [arg key]"] [arg value]]
+
+Appends a [arg value] (as a list) to one of the keyed values
+associated with an [arg node]. If no [arg key] is specified, the key
+[strong data] is assumed.
 
 
 [call [arg graphName] [method {node opposite}] [arg node] [arg arc]]
