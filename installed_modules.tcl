@@ -61,6 +61,7 @@ foreach {m pkg doc exa} {
     profiler	_tcl  _man  _null
     report	_tcl  _man  _null
     rc4         _tcl  _man  _null
+    rcs         _tcl  _man  _null
     ripemd      _tcl  _man  _null
     sha1	_tcl  _man  _null
     smtpd	_tcl  _man _exa
