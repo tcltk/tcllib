@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.2 2003/03/13 23:08:00 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.3 2003/04/01 23:38:19 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -555,6 +555,9 @@ proc ::doctools::toc::SetupFormatter {name format} {
     $mpip invokehidden source [file join $here api_toc.tcl]
     #$mpip eval [list source [file join $here api_toc.tcl]]
     interp alias $mpip dt_source   {} ::doctools::toc::Source $mpip [file dirname $format]
+    interp alias $mpip dt_package  {} ::doctools::Package $mpip
+    interp alias $mpip file        {} ::doctools::FileOp  $mpip
+    interp alias $mpip puts_stderr {} ::puts stderr
     $mpip invokehidden source $format
     #$mpip eval [list source $format]
 

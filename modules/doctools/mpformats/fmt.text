@@ -19,11 +19,6 @@ proc   fmt_initialize {} {BaseInitialize ; TextInitialize ; return}
 ################################################################
 # Special manpage environments
 
-proc NewVerbatim {} {
-    global currentEnv
-    return [NewEnv Verbatim {set currentEnv(verbatim) 1}]
-}
-
 proc NewExample {} {
     global currentEnv
     return [NewEnv Example {
@@ -31,20 +26,6 @@ proc NewExample {} {
 	append currentEnv(prefix)   "| "
 	set    currentEnv(example) .
     }] ; # {}
-}
-
-proc Verbatim {} {
-    global currentEnv
-    if {![info exists currentEnv(verbenv)]} {
-	SaveContext
-	set verb [NewVerbatim]
-	RestoreContext
-
-	# Remember verbatim mode in the base environment
-	set currentEnv(verbenv) $verb
-	SaveEnv
-    }
-    return $currentEnv(verbenv)
 }
 
 proc Example {} {
