@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32bugs.test,v 1.3 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: crc32bugs.test,v 1.4 2005/03/12 02:13:50 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -22,7 +22,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 # Ensure we test _this_ local copy and one installed somewhere else.
 #
 package forget crc32
-#catch {namespace delete ::crc}
+catch {namespace delete ::crc}
 if {[catch {source [file join [file dirname [info script]] crc32.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
@@ -42,16 +42,44 @@ if {[catch {source [file join [file dirname [info script]] crc16.tcl]} msg]} {
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
+set BO $::tcl_platform(byteOrder)
 
-if {[catch {package present Trf}]} {
-    puts "- crc32bugs (pure Tcl) $::tcl_platform(byteOrder)"
-} else {
-    puts "- crc32bugs (Trf based) $::tcl_platform(byteOrder)"
+if {[::crc::LoadAccelerator critcl]} {
+    puts "- crc32bugs [package provide crc32] (critcl based) $BO"
+}
+if {[::crc::LoadAccelerator trf]} {
+    puts "- crc32bugs [package provide crc32] (Trf based) $BO"
+}
+puts "- crc32bugs [package provide crc32] (pure Tcl) $BO"
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::crc::accel]
+
+proc implementations {} {
+    variable ::crc::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::crc::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::crc::accel
+    array set accel [array get ::preserve]
 }
 
 # -------------------------------------------------------------------------
 
-foreach {n msg expected} {
+set tests {
     1  ""                 "0"
     2  "\x00"             "d202ef8d"
     3  "\x00\x00"         "41d912ff"
@@ -63,15 +91,18 @@ foreach {n msg expected} {
     9  "\xFF\xFF\xFF\xFF" "ffffffff"
    10  "\x00\x00\x00\x01" "5643ef8a"
    11  "\x80\x00\x00\x00" "cc1d6927"
-} {
-    test crc32bugs-2.$n {crc32 (Trf and and crc-32 comparison} {
-	list [catch {
-            list \
-                [::crc::crc32 -format %x $msg] \
-                [format %x [::crc::Crc32_tcl $msg]] \
-                [::crc::crc-32 -format %x $msg]
-        } msg] $msg
-    } [list 0 [list $expected $expected $expected]]
+}
+
+foreach impl [implementations] {
+    select_implementation $impl
+    foreach {n msg expected} $tests {
+        test crc32bugs-$impl-1.$n "crc32 (crc32 and and crc16 comparison)" {
+            list [catch {
+                list [::crc::crc32 -format %x $msg] \
+                    [::crc::crc-32 -format %x $msg]
+            } msg] $msg
+        } [list 0 [list $expected $expected]]
+    }
 }
 
 # -------------------------------------------------------------------------
