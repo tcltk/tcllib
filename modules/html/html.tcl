@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.6 2000/04/25 06:23:22 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.7 2000/04/26 21:37:44 welch Exp $
 
 package provide html 1.0
 
@@ -391,7 +391,7 @@ proc html::checkbox {name value} {
 
 proc html::checkValue {name {value 1}} {
     variable page
-    foreach v [ncgi::valuelist $name] {
+    foreach v [ncgi::valueList $name] {
 	if {[string compare $value $v] == 0} {
 	    return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
 	}
@@ -842,7 +842,7 @@ proc html::minorMenu {list {sep { | }}} {
     global page
     set s ""
     set html ""
-    regsub {index.h?tml$} [ncgi::urlstub] {} this
+    regsub {index.h?tml$} [ncgi::urlStub] {} this
     foreach {label url} $list {
 	regsub {index.h?tml$} $url {} that
 	if {[string compare $this $that] == 0} {
