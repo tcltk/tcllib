@@ -1,5 +1,7 @@
 2004-10-21  Colin McCormack <coldstore@users.sourceforge.net>
-	* treeql*.tcl: fixed SF bug 1042987 - Extra list layers on output of get
+
+	* treeql.tcl:   Fixed SF bug 1042987.
+	* treeql84.tcl: Extra list layers on output of get.
 
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
