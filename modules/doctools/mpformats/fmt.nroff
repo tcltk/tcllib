@@ -1,81 +1,89 @@
 # -*- tcl -*-
 #
-# fmt.nroff
+# -- doctools NROFF formatting engine.
 #
-# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2003 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # a manpage based upon *roff markup. Additional definition files allow
 # the conversion into HTML and TMML.
-#
-################################################################
 
-proc here {} [list return [__file dirname [info script]]]
-proc this {} [list return [__file tail    [info script]]]
-
-source [__file join [here] _common.tcl]   ; # Shared code
 
 ################################################################
-## Backend for *roff markup
+# Load shared code, load nroff support.
 
-global started
-set    started 0
+dt_source _common.tcl
+dt_source _nroff.tcl
 
-global precomments
-set    precomments ""
+################################################################
+# Define the API commands.
 
-proc manpage_begin {title section version} {
-    global started precomments
-    set    started 1
+c_pass 1 fmt_manpage_begin {title section version} c_begin
+c_pass 2 fmt_manpage_begin {title section version} {
+    c_begin
 
-    if {[mp_pass] == 1} {return}
+    set module      [dt_module]
+    set shortdesc   [c_get_module]
+    set description [c_get_title]
+    set copyright   [c_get_copyright]
 
-    set module      [mp_module]
-    set shortdesc   [GetDesc mdesc]
-    set description [GetDesc tdesc]
+    ex_cpush mp
+    c_holdBuffers hdr
 
-    cpush mp
-    set     hdr ""
-    append  hdr "[nr_comment {}]\n"
-    append  hdr "[nr_comment "Generated from [mp_file] by mpexpand with [this]"]\n"
-    append  hdr "[nr_comment {}]\n"
+    c_hold hdr [nr_comment {}]
+    c_hold hdr [nr_comment [c_provenance]]
+    if {$copyright != {}} {
+	c_hold hdr [nr_comment $copyright]
+    }
+    c_hold hdr [nr_comment {}]
 
-    if {$precomments != {}} {
-	append hdr $precomments
+    if {[set text [c_held precomments]] != {}} {
+	c_hold hdr $text
     }
 
-    append  hdr ".so man.macros\n"
-    append  hdr ".TH \"[string trimleft $title :]\" $section $version $module \"$shortdesc\"\n"
-    append  hdr ".BS\n"
-    append  hdr ".SH NAME\n"
-    append  hdr "$title \\- $description"
-    return $hdr
+    c_hold hdr [nr_include man.macros]
+    c_hold hdr [nr_title "\"[string trimleft $title :]\" $section $version $module \"$shortdesc\""]
+    c_hold hdr [nr_bolds]
+    c_hold hdr [fmt_section NAME]
+    c_hold hdr "$title \\- $description"
+
+    return [c_held hdr]
 }
 
-proc moddesc {desc} {
-    if {[mp_pass] == 2} {return}
-    SetDesc mdesc $desc
-    return
-}
-proc titledesc {desc} {
-    if {[mp_pass] == 2} {return}
-    SetDesc tdesc $desc
-    return
-}
+c_pass 1 fmt_moddesc   {desc} {c_set_module $desc}
+c_pass 2 fmt_moddesc   {desc} NOP
 
-proc manpage_end {} {
-    global started
-    set    started 0
+c_pass 1 fmt_titledesc {desc} {c_set_title $desc}
+c_pass 2 fmt_titledesc {desc} NOP
 
+c_pass 1 fmt_copyright {desc} {c_set_copyright $desc}
+c_pass 2 fmt_copyright {desc} NOP
+
+c_pass 1 fmt_manpage_end {} NOP
+c_pass 2 fmt_manpage_end {} {
+    set nroff [ex_cpop mp]
+
+    # Complete the generation with a copyright
+    # section, if such information is available.
+
+    set copyright [c_get_copyright]
+    if {$copyright != {}} {
+	append nroff [fmt_section COPYRIGHT] \n
+	append nroff [nr_nofill] \n
+	append nroff $copyright \n
+	append nroff [nr_fill]
+    }
+
+    # Postprocessing after generation ...
     # Strip empty lines out of the generated nroff source
     # and trim leading blanks, except in code samples.
-    #
-    if {[mp_pass] == 1} {return}
+
     set nfMode [list .nf .CS]	;# requests which start no-fill mode
     set fiMode [list .fi .CE]	;# requests which terminate no-fill mode
     set lines [list]
     set trimblanks 1
-    foreach line [split [cpop mp] "\n"] {
+
+    foreach line [split $nroff "\n"] {
 	if {$trimblanks} {
 	    if {[lsearch -exact $nfMode [split $line]] >= 0} { set trimblanks 0 }
 	    if {![string length $line]} { continue }
@@ -91,44 +99,31 @@ proc manpage_end {} {
     return [join $lines "\n"]
 }
 
-proc section {name} {return ".SH \"$name\""}
-proc para    {}     {nr_p}
+proc fmt_section {name} {return ".SH \"$name\""}
+proc fmt_para {} {nr_p}
 
-proc require {pkg {version {}}} {
-    if {$version != {}} {
-	return "[x_synopsis]package require [nr_bld]$pkg $version[nr_rst]\n[nl]"
-    }
-    return "[x_synopsis]package require [nr_bld]$pkg[nr_rst]\n[nl]"
+c_pass 2 fmt_require {pkg {version {}}} NOP
+c_pass 1 fmt_require {pkg {version {}}} {
+    if {$version != {}} {set version " $version"}
+    c_hold synopsis "package require [nr_bld]$pkg $version[nr_rst]\n[fmt_nl]"
 }
 
-proc usage {cmd args} {
-    if {[mp_pass] == 1} {
-	AddCall "$cmd [join $args " "][nr_rst]\n[nl]\n"
-	return
-    }
-    return ""
-}
+c_pass 1 fmt_usage {cmd args} {c_hold synopsis "$cmd [join $args " "][nr_rst]\n[fmt_nl]"}
+c_pass 2 fmt_usage {cmd args} NOP
 
-proc call {cmd args} {
-    if {[mp_pass] == 1} {
-	AddCall "$cmd [join $args " "][nr_rst]\n[nl]\n"
-	return
-    }
-    return "[lst_item "$cmd [join $args " "][nr_rst]"]"
-}
+c_pass 1 fmt_call  {cmd args} {c_hold synopsis       "$cmd [join $args " "][nr_rst]\n[fmt_nl]"}
+c_pass 2 fmt_call  {cmd args} {return "[fmt_lst_item "$cmd [join $args " "][nr_rst]"]"}
 
-proc description {} {
-    if {[GetCall] == {}} {
-	return .BE\n[section DESCRIPTION]
+c_pass 1 fmt_description {} NOP
+c_pass 2 fmt_description {} {
+    set text ""
+    if {[set syn [c_held synopsis]] != {}} {
+	append text [fmt_section SYNOPSIS]\n
+	append text ${syn}\n
+	append text [nr_bolde]\n
     }
-    return [x_synopsis][GetCall].BE\n[section DESCRIPTION]
-}
-
-proc x_synopsis {} {
-    if {![Syn]} {
-	return [section SYNOPSIS]\n
-    }
-    return ""
+    append text [fmt_section DESCRIPTION]
+    return $text
 }
 
 ################################################################
@@ -136,208 +131,105 @@ proc x_synopsis {} {
 global    list_state
 array set list_state {level -1}
 
-proc list_begin {what {hint {}}} {
-    # ignoring hints.
-    global list_state
-
-    switch -exact -- $what {
-	enum - bullet - definitions - arg - cmd -
-	opt - tkoption {}
-	default {return -code error "Unknown list type $what"}
-    }
-
-    incr list_state(level)
-    set  list_state(l,$list_state(level)) $what
-    set  list_state(l,$list_state(level),id) 0
-
-    if {$list_state(level) > 0} {
+proc fmt_list_begin {what {hint {}}} {
+    c_cinit
+    if {[dt_lnesting] > 1} {
 	return [nr_in]
     }
     return {}
 }
 
-proc list_end {} {
-    global list_state
-
-    catch {unset list_state(l,$list_state(level))}
-    catch {unset list_state(l,$list_state(level),id)}
-
-    incr list_state(level) -1
-
-    if {$list_state(level) >= 0} {
+proc fmt_list_end {} {
+    c_creset
+    if {[dt_lnesting] > 0} {
 	return [nr_out]
     }
     return {}
 }
 
-proc bullet {} {
-    global list_state
+proc fmt_enum     {}        {return [nr_item " \[[c_cnext]\]\n"]}
+proc fmt_bullet   {}        {return [nr_item " \\(bu"]}
+proc fmt_lst_item {text}    {return [nr_blt $text]}
+proc fmt_cmd_def  {command} {return [nr_blt [cmd $command]]}
 
-    switch -exact -- $list_state(l,$list_state(level)) {
-	bullet  {return ".IP \\(bu"}
-	default {return -code error "Illegal use of bullet in non-bullet list"}
-    }
+proc fmt_arg_def {type name {mode {}}} {
+    set    text [nr_blt ""]
+    append text [arg $name]
+    append text " $type"
+    if {$mode != {}} {append text " ($mode)"}
+    return $text
 }
-
-proc enum {} {
-    global list_state
-
-    switch -exact -- $list_state(l,$list_state(level)) {
-	enum    {return ".IP \[[incr list_state(l,$list_state(level),id)]\]\n"}
-	default {return -code error "Illegal use of bullet in non-bullet list"}
-    }
+proc fmt_opt_def {name {arg {}}} {
+    if {[string match -* $name]} {set name \\-$name}
+    set name [option $name]
+    if {$arg != {}} {append name " $arg"}
+    return [nr_blt $name]
 }
-
-proc lst_item {text} {
-    global list_state
-
-    switch -exact -- $list_state(l,$list_state(level)) {
-	definitions {return ".TP\n$text"}
-	default     {return -code error "Illegal use of bullet in non-bullet list"}
-    }
-}
-
-proc arg_def {type name {mode {}}} {
-    global list_state
-
-    switch -exact -- $list_state(l,$list_state(level)) {
-	arg     {
-	    set text ".TP\n"
-	    append text [arg $name]
-	    append text " $type"
-	    if {$mode != {}} {
-		append text " ($mode)"
-	    }
-	    return $text
-	}
-	default {return -code error "Illegal use of arg_def in non-argument list"}
-    }
-}
-
-proc cmd_def {command} {
-    global list_state
-
-    switch -exact -- $list_state(l,$list_state(level)) {
-	cmd     {return ".TP\n[cmd $command]"}
-	default {return -code error "Illegal use of cmd_def in non-command list"}
-    }
-}
-
-proc opt_def {name {arg {}}} {
-    global list_state
-
-    switch -exact -- $list_state(l,$list_state(level)) {
-	opt {
-	    if {[string match -* $name]} {set    name \\-$name}
-	    set name [option $name]
-	    if {$arg != {}}              {append name " $arg"}
-	    return ".TP\n$name"
-	}
-	default {return -code error "Illegal use of opt_def in non-option list"}
-    }
-}
-
-proc tkoption_def {name dbname dbclass} {
-    global list_state
-
-    switch -exact -- $list_state(l,$list_state(level)) {
-	tkoption {
-	    set    text ""
-	    append text ".LP\n"
-	    append text ".nf\n"
-	    append text ".ta 6c\n"
-	    append text "Command-Line Switch:\t[nr_bld]$name[nr_rst]\n"
-	    append text "Database Name:\t[nr_bld]$dbname[nr_rst]\n"
-	    append text "Database Class:\t[nr_bld]$dbclass[nr_rst]\n"
-	    append text ".fi\n"
-	    append text ".IP\n"
-	    return $text
-	}
-	default {return -code error "Illegal use of tkoption_def in non-tkoption list"}
-    }
+proc fmt_tkoption_def {name dbname dbclass} {
+    set    text ""
+    append text "[nr_lp]\n"
+    append text "[nr_nofill]\n"
+    append text "[nr_ta " 6c"]\n"
+    append text "Command-Line Switch:\t[bold $name]\n"
+    append text "Database Name:\t[bold $dbname]\n"
+    append text "Database Class:\t[bold $dbclass]\n"
+    append text "[nr_fill]\n"
+    append text "[nr_item]\n"
+    return $text
 }
 
 ################################################################
 
-proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
-proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
+proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
+proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
 
-proc example_begin {} { return "\n.nf" }
-proc example_end   {} { return ".fi" }
-proc example {code} { 
-    set lines [list "" ".nf"] 
+proc fmt_example_begin {} { return "\n[nr_nofill]" }
+proc fmt_example_end   {} { nr_fill }
+proc fmt_example {code} { 
+    set lines [list "" [nr_nofill]] 
     foreach line [split $code "\n"] {
-    	lappend lines [HandleText $line]
+    	lappend lines [fmt_plain_text $line]
     }
-    lappend lines ".fi" ""
+    lappend lines [nr_fill] ""
     return [join $lines "\n"]
 }
 
-proc nl     {}     {nr_vspace}
-proc arg    {text} {return [nr_ul]$text[nr_rst]}
-proc cmd    {text} {return [nr_bld]$text[nr_rst]}
-proc emph   {text} {return [nr_ul]$text[nr_rst]}
-proc strong {text} {return [nr_bld]$text[nr_rst]}
-proc opt    {text} {return ?$text?}
+proc fmt_nl     {}     {nr_vspace}
+proc fmt_arg    {text} {underline $text}
+proc fmt_cmd    {text} {bold      $text}
+proc fmt_emph   {text} {underline $text}
+proc fmt_opt    {text} {return   ?$text?}
 
-proc comment {text} {
-    global started
+proc bold      {text} {return [nr_bld]$text[nr_rst]}
+proc underline {text} {return [nr_ul]$text[nr_rst]}
 
+proc fmt_comment {text} {
     set res [list]
     foreach l [split $text \n] {
 	lappend res [nr_comment $l]
     }
-
-    if {$started} {
+    if {[c_begun]} {
 	return [join $res \n]
     } else {
-	global precomments
-	append precomments [join $res \n]
+	if {[c_inpass] == 1} {
+	    c_hold precomments [join $res \n]
+	}
+	return ""
     }
 }
-proc sectref {text} {strong $text}
-proc syscmd  {text} {strong $text}
-proc method  {text} {strong $text}
-proc option  {text} {strong $text}
-proc widget  {text} {strong $text}
-proc fun     {text} {strong $text}
-proc type    {text} {strong $text}
-proc package {text} {strong $text}
-proc class   {text} {strong $text}
-proc var     {text} {strong $text}
-proc file    {text} {return "\"[emph $text]\""}
-proc uri     {text} {emph $text}
-proc term    {text} {emph $text}
-proc const   {text} {strong $text}
-
-################################################################
-# nroff specific commands
-
-proc nr_bld     {}       {return \\fB}
-proc nr_ul      {}       {return \\fI}
-proc nr_rst     {}       {return \\fR}
-proc nr_p       {}       {return \n.PP\n}
-proc nr_comment {text}   {return "'\\\" $text"}
-proc nr_enum    {num}    {return ".IP \[$num\]"}
-proc nr_vspace  {}       {return .sp}
-proc nr_blt     {text}   {return "\n.TP\n$text"}
-proc nr_bltn    {n text} {return "\n.TP $n\n$text"}
-
-proc nr_in      {}       {return \n.RS}
-proc nr_out     {}       {return \n.RE}
-
-################################################################
-
-proc setx {v string} {
-    upvar $v _
-    set _ $string
-    return
-}
-
-proc appendx {v string} {
-    upvar $v _
-    append _ $string
-    return
-}
+proc fmt_sectref {text} {bold $text}
+proc fmt_syscmd  {text} {bold $text}
+proc fmt_method  {text} {bold $text}
+proc fmt_option  {text} {bold $text}
+proc fmt_widget  {text} {bold $text}
+proc fmt_fun     {text} {bold $text}
+proc fmt_type    {text} {bold $text}
+proc fmt_package {text} {bold $text}
+proc fmt_class   {text} {bold $text}
+proc fmt_var     {text} {bold $text}
+proc fmt_file    {text} {return "\"[underline $text]\""}
+proc fmt_uri     {text} {underline $text}
+proc fmt_term    {text} {underline $text}
+proc fmt_const   {text} {bold $text}
 
 ################################################################

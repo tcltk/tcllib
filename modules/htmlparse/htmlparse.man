@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin htmlparse n 0.3]
 [moddesc   {HTML Parser}]
 [titledesc {Procedures to parse HTML strings}]
@@ -8,7 +9,7 @@
 [description]
 [para]
 
-The [strong htmlparse] package provides commands that allow libraries
+The [package htmlparse] package provides commands that allow libraries
 and applications to parse HTML in a string into a representation of
 their choice.
 
@@ -29,7 +30,7 @@ the handling of tag attributes and character entities (escaped
 characters). The parser provides the un-interpreted tag attributes to
 the invoked command to aid in the former, and the package at large
 provides a helper command, [cmd ::htmlparse::mapEscapes], to aid in
-the handling of the latter. The parser [strong does] ignore leading
+the handling of the latter. The parser [emph does] ignore leading
 DOCTYPE declarations and all valid HTML comments it encounters.
 
 [nl]
@@ -72,7 +73,7 @@ the scripts in the queue.
 
 [nl]
 
-[strong Note]: The queue object given to the parser has to provide the
+[emph Note]: The queue object given to the parser has to provide the
 same interface as the queue defined in tcllib -> struct. This means,
 for example, that all queues created via that tcllib module can be
 immediately used here. Still, the queue doesn't have to come from
@@ -103,24 +104,24 @@ The following options are available:
 
 [list_begin definitions]
 
-[lst_item "[strong -cmd] [arg cmd]"]
+[lst_item "[option -cmd] [arg cmd]"]
 
 The command prefix to invoke for every tag in the HTML
 string. Defaults to [arg ::htmlparse::debugCallback].
 
-[lst_item "[strong -vroot] [arg tag]"]
+[lst_item "[option -vroot] [arg tag]"]
 
 The virtual root tag to add around the HTML in normal mode. In
 incremental mode it is the first tag in each chunk processed by the
 parser, but there will be no closing tags. Defaults to
 [arg hmstart].
 
-[lst_item "[strong -split] [arg n]"]
+[lst_item "[option -split] [arg n]"]
 
 The size of the groups produced by an incremental mode parser. Ignored
 when in normal mode. Defaults to 10. Values <= 0 are not allowed.
 
-[lst_item "[strong -incvar] [arg var]"]
+[lst_item "[option -incvar] [arg var]"]
 
 The name of the variable where to store any incomplete HTML into. This
 makes most sense for the incremental mode. The parser will throw an
@@ -132,7 +133,7 @@ not missing tags.  Optional, defaults to 'no variable'.
 
 [list_begin definitions]
 [nl]
-[lst_item [strong "Interface to the command prefix"]]
+[lst_item [emph "Interface to the command prefix"]]
 
 In normal mode the parser will invoke the command prefix with four
 arguments appended. See [cmd ::htmlparse::debugCallback] for a
@@ -143,7 +144,7 @@ description.
 In incremental mode, however, the generated scripts will invoke the
 command prefix with five arguments appended. The last four of these
 are the same which were mentioned above. The first is a placeholder
-string ([strong "\\\\win\\\\"]) for a clientdata value to be supplied later
+string ([const "\\\\win\\\\"]) for a clientdata value to be supplied later
 during the actual execution of the generated scripts. This could be a
 tk window path, for example. This allows the user of this package to
 preprocess HTML strings without committing them to a specific window,

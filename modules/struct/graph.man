@@ -1,5 +1,6 @@
-[manpage_begin graph n 1.2.1]
 [comment {-*- tcl -*-}]
+[manpage_begin graph n 1.2.1]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
 [require Tcl 8.2]
@@ -65,7 +66,7 @@ Destroy the graph, including its storage space and associated command.
 [call [arg graphName] [method {arc append}] [arg arc] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
-[arg arc]. If no [arg key] is specified, the key [strong data] is
+[arg arc]. If no [arg key] is specified, the key [const data] is
 assumed.
 
 
@@ -82,7 +83,7 @@ Return true if the specified [arg arc] exists in the graph.
 [call [arg graphName] [method {arc get}] [arg arc] [opt "-key [arg key]"]]
 
 Return the value associated with the key [arg key] for the [arg arc].
-If no key is specified, the key [strong data] is assumed.
+If no key is specified, the key [const data] is assumed.
 
 [call [arg graphName] [method {arc getall}] [arg arc]]
 
@@ -98,7 +99,7 @@ Returns a list of keys for the [arg arc].
 [call [arg graphName] [method {arc keyexists}] [arg arc] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the [arg arc]. If no
-[arg key] is specified, the key [strong data] is assumed.
+[arg key] is specified, the key [const data] is assumed.
 
 
 [call [arg graphName] [method {arc insert}] [arg start] [arg end] [opt [arg child]]]
@@ -106,23 +107,23 @@ Return true if the specified [arg key] exists for the [arg arc]. If no
 Insert an arc named [arg child] into the graph beginning at the node
 [arg start] and ending at the node [arg end]. If the name of the new
 arc is not specified the system will generate a unique name of the
-form [strong arc][arg x].
+form [emph arc][arg x].
 
 
 [call [arg graphName] [method {arc lappend}] [arg arc] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg arc].  If no [arg key] is specified, the key
-[strong data] is assumed.
+[const data] is assumed.
 
 
 [call [arg graphName] [method {arc set}] [arg arc] [opt "-key [arg key]"] [opt [arg value]]]
 
 Set or get one of the keyed values associated with an arc.  If no key
-is specified, the key [strong data] is assumed.  Each arc that is
+is specified, the key [const data] is assumed.  Each arc that is
 added to a graph has the empty string assigned to the key
 
-[strong data] automatically.  An arc may have any number of keyed
+[const data] automatically.  An arc may have any number of keyed
 values associated with it.  If [arg value] is not specified, this
 command returns the current value assigned to the key; if [arg value]
 is specified, this command assigns that value to the key.
@@ -141,7 +142,7 @@ Return the node the given [arg arc] ends at.
 [call [arg graphName] [method {arc unset}] [arg arc] [opt "-key [arg key]"]]
 
 Remove a keyed value from the arc [arg arc].  If no key is specified,
-the key [strong data] is assumed.
+the key [const data] is assumed.
 
 
 [call [arg graphName] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-in|-out|-adj|-inner|-embedding [arg nodelist]"]]
@@ -154,46 +155,46 @@ that involve connected nodes have a list of nodes as argument,
 specified after the name of the restriction itself.
 
 [list_begin definitions]
-[lst_item [strong -in]]
+[lst_item [option -in]]
 
 Return a list of all arcs whose target is one of the nodes in the
 [arg nodelist].
 
-[lst_item [strong -out]]
+[lst_item [option -out]]
 
 Return a list of all arcs whose source is one of the nodes in the
 [arg nodelist].
 
-[lst_item [strong -adj]]
+[lst_item [option -adj]]
 
 Return a list of all arcs adjacent to at least one of the nodes in the
 [arg nodelist]. This is the union of the nodes returned by
 
-[strong -in] and [strong -out].
+[option -in] and [option -out].
 
-[lst_item [strong -inner]]
+[lst_item [option -inner]]
 
 Return a list of all arcs adjacent to two of the nodes in the
 
 [arg nodelist]. This is the set of arcs in the subgraph spawned by the
 specified nodes.
 
-[lst_item [strong -embedding]]
+[lst_item [option -embedding]]
 
 Return a list of all arcs adjacent to exactly one of the nodes in the
 [arg nodelist]. This is the set of arcs connecting the subgraph
 spawned by the specified nodes to the rest of the graph.
 
-[lst_item "[strong -key] [arg key]"]
+[lst_item "[option -key] [arg key]"]
 
 Limit the list of arcs that are returned to those arcs that have an
 associated key [arg key].
 
-[lst_item "[strong -value] [arg value]"]
+[lst_item "[option -value] [arg value]"]
 
 This restriction can only be used in combination with
 
-[strong -key]. It limits the list of arcs that are returned to those
+[option -key]. It limits the list of arcs that are returned to those
 arcs whose associated key [arg key] has the value [arg value].
 
 [list_end]
@@ -201,14 +202,14 @@ arcs whose associated key [arg key] has the value [arg value].
 [call [arg graphName] [method {node append}] [arg node] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
-[arg node]. If no [arg key] is specified, the key [strong data] is
+[arg node]. If no [arg key] is specified, the key [const data] is
 assumed.
 
 
 [call [arg graphName] [method {node degree}] [opt -in|-out] [arg node]]
 
 Return the number of arcs adjacent to the specified [arg node]. If one
-of the restrictions [strong -in] or [strong -out] is given only the
+of the restrictions [option -in] or [option -out] is given only the
 incoming resp. outgoing arcs are counted.
 
 
@@ -226,7 +227,7 @@ Return true if the specified [arg node] exists in the graph.
 [call [arg graphName] [method {node get}] [arg node] [opt "-key [arg key]"]]
 
 Return the value associated with the key [arg key] for the [arg node].
-If no key is specified, the key [strong data] is assumed.
+If no key is specified, the key [const data] is assumed.
 
 [call [arg graphName] [method {node getall}] [arg node]]
 
@@ -242,20 +243,20 @@ Returns a list of keys for the [arg node].
 [call [arg graphName] [method {node keyexists}] [arg node] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the [arg node]. If
-no [arg key] is specified, the key [strong data] is assumed.
+no [arg key] is specified, the key [const data] is assumed.
 
 
 [call [arg graphName] [method {node insert}] [opt [arg child]]]
 
 Insert a node named [arg child] into the graph. The nodes has no arcs
 connected to it. If the name of the new child is not specified the
-system will generate a unique name of the form [strong node][arg x].
+system will generate a unique name of the form [emph node][arg x].
 
 [call [arg graphName] [method {node lappend}] [arg node] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg node]. If no [arg key] is specified, the key
-[strong data] is assumed.
+[const data] is assumed.
 
 
 [call [arg graphName] [method {node opposite}] [arg node] [arg arc]]
@@ -267,10 +268,10 @@ to be adjacent to the given [arg node].
 [call [arg graphName] [method {node set}] [arg node] [opt "-key [arg key]"] [opt [arg value]]]
 
 Set or get one of the keyed values associated with a node.  If no key
-is specified, the key [strong data] is assumed.  Each node that is
+is specified, the key [const data] is assumed.  Each node that is
 added to a graph has the empty string assigned to the key
 
-[strong data] automatically.  A node may have any number of keyed
+[const data] automatically.  A node may have any number of keyed
 values associated with it.  If [arg value] is not specified, this
 command returns the current value assigned to the key; if [arg value]
 is specified, this command assigns that value to the key.
@@ -301,7 +302,7 @@ restriction as defined for [method arcs].
 [call [arg graphName] [method get] [opt "-key [arg key]"]]
 
 Return the value associated with the key [arg key] for the graph. If
-no key is specified, the key [strong data] is assumed.
+no key is specified, the key [const data] is assumed.
 
 
 [call [arg graphName] [method getall]]
@@ -318,14 +319,14 @@ Returns a list of keys for the whole graph.
 [call [arg graphName] [method keyexists] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the whole graph. If no
-[arg key] is specified, the key [strong data] is assumed.
+[arg key] is specified, the key [const data] is assumed.
 
 
 [call [arg graphName] [method set] [opt "-key [arg key]"] [opt [arg value]]]
 
 Set or get one of the keyed values associated with a graph. If no key
-is specified, the key [strong data] is assumed. Each graph has the
-empty string assigned to the key [strong data] automatically. A graph
+is specified, the key [const data] is assumed. Each graph has the
+empty string assigned to the key [const data] automatically. A graph
 may have any number of keyed values associated with it. If [arg value]
 is not specified, this command returns the current value assigned to
 the key; if [arg value] is specified, this command assigns that value
@@ -340,7 +341,7 @@ Swap the position of [arg node1] and [arg node2] in the graph.
 [call [arg graphName] [method unset] [opt "-key [arg key]"]]
 
 Remove a keyed value from the graph. If no key is specified, the key
-[strong data] is assumed.
+[const data] is assumed.
 
 [call [arg graphName] [method walk] [arg node] [opt "-order [arg order]"] [opt "-type [arg type]"] [opt "-dir [arg direction]"] -command [arg cmd]]
 
@@ -351,37 +352,37 @@ opposite to the incoming arcs.
 [nl]
 
 The type of walk, breadth-first or depth-first, is determined by the
-value of [arg type]; [strong bfs] indicates breadth-first,
+value of [arg type]; [const bfs] indicates breadth-first,
 
-[strong dfs] indicates depth-first.  Depth-first is the default.
+[const dfs] indicates depth-first.  Depth-first is the default.
 
 [nl]
 
 The order of the walk, pre-order, post-order or both-order is
-determined by the value of [arg order]; [strong pre] indicates
-pre-order, [strong post] indicates post-order, [strong both] indicates
+determined by the value of [arg order]; [const pre] indicates
+pre-order, [const post] indicates post-order, [const both] indicates
 both-order. Pre-order is the default. Pre-order walking means that a
 node is visited before any of its neighbors (as defined by the
 
 [arg direction], see below). Post-order walking means that a parent is
 visited after any of its neighbors. Both-order walking means that a
-node is visited before [strong and] after any of its neighbors. The
+node is visited before [emph and] after any of its neighbors. The
 combination of a bread-first walk with post- or both-order is illegal.
 
 [nl]
 
 The direction of the walk is determined by the value of [arg dir];
-[strong backward] indicates the direction opposite to the incoming
-arcs, [strong forward] indicates the direction of the outgoing arcs.
+[const backward] indicates the direction opposite to the incoming
+arcs, [const forward] indicates the direction of the outgoing arcs.
 
 [nl]
 
 As the walk progresses, the command [arg cmd] will be evaluated at
-each node, with the mode of the call ([strong enter] or
-[strong leave]) and values [arg graphName] and the name of the current
-node appended. For a pre-order walk, all nodes are [strong enter]ed, for a
+each node, with the mode of the call ([const enter] or
+[const leave]) and values [arg graphName] and the name of the current
+node appended. For a pre-order walk, all nodes are [const enter]ed, for a
 post-order all nodes are left. In a both-order walk the first visit of
-a node [strong enter]s it, the second visit [strong leave]s it.
+a node [const enter]s it, the second visit [const leave]s it.
 
 [list_end]
 

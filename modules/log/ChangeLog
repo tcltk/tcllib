@@ -1,3 +1,8 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* logger.man: More semantic markup, less visual one.
+	* log.man:
+
 2002-12-16  David N. Welton  <davidw@dedasys.com>
 
 	* logger.test: Logger tests.

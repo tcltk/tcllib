@@ -2,7 +2,7 @@
 #
 # fmt.html
 #
-# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2003 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # a manpage based upon HTML markup. Additional definition files allow
@@ -11,39 +11,19 @@
 ################################################################
 ################################################################
 
-proc here {} [list return [__file dirname [info script]]]
-proc this {} [list return [__file tail    [info script]]]
-
-source [__file join [here] _common.tcl]   ; # Shared code
-source [__file join [here] _html.tcl]     ; # HTML basic formatting
+dt_source _common.tcl   ; # Shared code
+dt_source _html.tcl     ; # HTML basic formatting
 
 proc bgcolor {} {return ""}
 proc border  {} {return 0}
-
-################################################################
-################################################################
-## Backend for HTML markup
-# ==============================================================
-# Internal data structures and state
-# --------------------------------------------------------------
-# I. Internal cross references (between and to sections)
-
-global SectionNames	;# array mapping section name to refid
-
-# sectionId --
-#	Format section name as an XML ID.
-#
-proc sectionId {name} {
-    regsub -all {[^[:alnum:]]} $name {} name
-    return [string tolower $name]
-}
+proc Year    {} {clock format [clock seconds] -format %Y}
 
 # possibleReference text gi --
 #	Check if $text is a potential cross-reference;
 #	if so, format as a reference;
 #	otherwise format as a $gi element.
 #
-proc possibleReference {text gi} {
+proc c_possibleReference {text gi} {
     global SectionNames
     if {[info exists SectionNames($text)]} {
 	return [taga a [list href #$SectionNames($text)]]$text[tag/ a]
@@ -52,13 +32,15 @@ proc possibleReference {text gi} {
     }
 }
 
-# --------------------------------------------------------------
-# II. Description tracking: Located in the common code.
+c_holdBuffers require
+
+################################################################
+## Backend for HTML markup
 
 # --------------------------------------------------------------
-# III. Handling of lists. Simplified, the global check of nesting and
-#      legality of list commands allows us to throw away most of the
-#      existing checks.
+# Handling of lists. Simplified, the global check of nesting and
+# legality of list commands allows us to throw away most of the
+# existing checks.
 
 global liststack ; # stack of list tags to use in list_end
 global hintstack ; # stack of hint information.
@@ -107,187 +89,177 @@ proc limark {} {
 
 proc lcompact {} {global chint ; string equal $chint compact}
 
-proc HandleText {text} {
-
+proc fmt_plain_text {text} {
+    # Control list state
     set redux [string map [list " " "" "\t" "" "\n" ""] $text]
     if {$redux != {}} {lsmark 0}
-
     return $text
 }
 
 ################################################################
-################################################################
-
-################################################################
 # Formatting commands.
 
-proc manpage_begin {title section version} {
-    if {[mp_pass] == 1} {return}
-
-    set module      [mp_module]
-    set shortdesc   [GetDesc mdesc]
-    set description [GetDesc tdesc]
+c_pass 1 fmt_manpage_begin {title section version} NOP
+c_pass 2 fmt_manpage_begin {title section version} {
+    set module      [dt_module]
+    set shortdesc   [c_get_module]
+    set description [c_get_title]
+    set copyright   [c_get_copyright]
 
     set     hdr ""
     append  hdr "[markup <html><head><title>]$title - $shortdesc [markup </title></head>]\n"
-    append  hdr "[ht_comment "Generated from [mp_file] by tcllib/doctools/mpexpand with [this]"]\n"
-    append  hdr "[ht_comment "Copyright (c) [clock format [clock seconds] -format %Y] $::tcl_platform(user)"]\n"
-    append  hdr "[ht_comment {All rights reserved}]\n"
-    append  hdr "[ht_comment "CVS: \$Id\$ $title.$section"]\n"
-    append  hdr "\n"
+    append  hdr [ht_comment [c_provenance]]\n
+    if {$copyright != {}} {
+	append  hdr [ht_comment $copyright]\n
+    }
+    append  hdr [ht_comment "CVS: \$Id\$ $title.$section"]\n
+    append  hdr \n
     append  hdr "[markup <h1>] [string trimleft $title :]($section) $version $module \"$shortdesc\"[markup </h1>]\n"
-    append  hdr "[section NAME]\n"
-    append  hdr "[para] $title - $description"
+    append  hdr [fmt_section NAME]\n
+    append  hdr "[fmt_para] $title - $description"
     return $hdr
 }
 
-proc moddesc {desc} {
-    if {[mp_pass] == 2} {return}
-    SetDesc mdesc $desc
-    return
-}
-proc titledesc {desc} {
-    if {[mp_pass] == 2} {return}
-    SetDesc tdesc $desc
-    return
+c_pass 1 fmt_moddesc   {desc} {c_set_module $desc}
+c_pass 2 fmt_moddesc   {desc} NOP
+
+c_pass 1 fmt_titledesc {desc} {c_set_title $desc}
+c_pass 2 fmt_titledesc {desc} NOP
+
+c_pass 1 fmt_copyright {desc} {c_set_copyright $desc}
+c_pass 2 fmt_copyright {desc} NOP
+
+c_pass 1 fmt_manpage_end {} NOP
+c_pass 2 fmt_manpage_end {} {
+    set res ""
+    set copyright [c_get_copyright]
+    if {$copyright != {}} {
+	append res [fmt_section COPYRIGHT] \n
+	append res [join [split $copyright \n] [tag br]\n] [tag br]\n
+    }
+    append res [markup </body></html>]
+    return $res
 }
 
-proc manpage_end {}     {return [markup </body></html>]}
-proc section     {name} {
-    set ::SectionNames($name) [set id [sectionId $name]]
+c_pass 1 fmt_section     {name} { set ::SectionNames($name) [c_sectionId $name] }
+c_pass 2 fmt_section     {name} {
+    set id [c_sectionId $name]
     return "[markup <]a name=[markup \"]$id[markup \"><h2>]$name[markup </h2>]"
 }
-proc para        {}     {return [markup <p>]}
+proc fmt_para {} {return [markup <p>]}
 
-proc require {pkg {version {}}} {
-    Req 1
-    set result "[x_synopsis]package require [markup <b>]$pkg"
+c_pass 2 fmt_require {pkg {version {}}} NOP
+c_pass 1 fmt_require {pkg {version {}}} {
+    set result "package require [markup <b>]$pkg"
     if {$version != {}} {
 	append result " $version"
     }
     append result [markup "</b><br>"]
-    return $result
+    c_hold require $result
+    return
 }
 
-proc usage {cmd args} {
-    if {[mp_pass] == 1} {
-	AddCall "[trtop][td]$cmd [join $args " "][markup </td></tr>]\n"
-	return
-    }
-    return ""
-}
+c_pass 2 fmt_usage {cmd args} NOP
+c_pass 1 fmt_usage {cmd args} {c_hold synopsis "[trtop][td]$cmd [join $args " "][markup </td></tr>]"}
 
-proc call {cmd args} {
-    if {[mp_pass] == 1} {
-	AddCall "[trtop][td]$cmd [join $args " "][markup </td></tr>]\n"
-	return
-    }
-    return "[lst_item "$cmd [join $args " "]"]\n"
-}
+c_pass 1 fmt_call {cmd args} {c_hold synopsis "[trtop][td]$cmd [join $args " "][markup </td></tr>]"}
+c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]\n"}
 
-proc description {} {
+c_pass 1 fmt_description {} NOP
+c_pass 2 fmt_description {} {
     set result ""
-    if {[GetCall] != {}} {
-	append result [x_synopsis]
-	if {[Req]} {append result [markup <br>]}
-
+    set syn [c_held synopsis]
+    set req [c_held require]
+    if {$syn != {} || $req != {}} {
+	append result [fmt_section SYNOPSIS]\n
+    }
+    if {$req != {}} {
+	append result $req \n
+	append result [markup <br>]
+    }
+    if {$syn != {}} {
 	proc bgcolor {} {return lightyellow}
 
-	append result [btable][tr][td][table][GetCall][markup </table></td></tr></table>]\n
+	append result [btable][tr][td][table]${syn}\n[markup </table></td></tr></table>]\n
 
 	proc bgcolor {} {return ""}
     }
-    append result [section DESCRIPTION]
+    append result [fmt_section DESCRIPTION]
     return $result
-}
-
-proc x_synopsis {} {
-    if {![Syn]} {
-	return [section SYNOPSIS]\n
-    } else {
-	return ""
-    }
 }
 
 ################################################################
 
-proc list_begin  {what {hint {}}} {
+proc fmt_list_begin  {what {hint {}}} {
     switch -exact -- $what {
 	enum        {set tag ol}
 	bullet      {set tag ul}
 	arg - cmd - opt - tkoption -
 	definitions {set tag dl}
-	default     {return -code error "Unknown list type $what"}
     }
-
     return [if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
 }
 
-proc list_end {} {return [lpop][lsmark 1]}
+proc fmt_list_end {}        {return [lpop][lsmark 1]}
+proc fmt_lst_item {text}    {return [limark][tag dt]$text[tag dd][lsmark 1]}
+proc fmt_bullet   {}        {return [limark][tag li][lsmark 1]}
+proc fmt_enum     {}        {return [limark][tag li][lsmark 1]}
+proc fmt_cmd_def  {command} {fmt_lst_item [cmd $command]}
 
-proc lst_item {text} {return [limark][tag dt]$text[tag dd][lsmark 1]}
-proc bullet   {}     {return [limark][tag li][lsmark 1]}
-proc enum     {}     {return [limark][tag li][lsmark 1]}
-
-proc arg_def {type name {mode {}}} {
+proc fmt_arg_def {type name {mode {}}} {
     set    text ""
-    append text "$type [arg $name]"
+    append text "$type [fmt_arg $name]"
     if {$mode != {}} {
 	append text " ($mode)"
     }
-    lst_item $text
+    fmt_lst_item $text
 }
-
-proc cmd_def {command} {
-    lst_item [cmd $command]
-}
-
-proc opt_def {name {arg {}}} {
-    set text [option $name]
+proc fmt_opt_def {name {arg {}}} {
+    set text [fmt_option $name]
     if {$arg != {}} {append text " $arg"}
-    lst_item $text
+    fmt_lst_item $text
 }
-
-proc tkoption_def {name dbname dbclass} {
+proc fmt_tkoption_def {name dbname dbclass} {
     set    text ""
-    append text "Command-Line Switch:\t[option $name][markup <br>]\n"
+    append text "Command-Line Switch:\t[fmt_option $name][markup <br>]\n"
     append text "Database Name:\t[strong $dbname][markup <br>]\n"
     append text "Database Class:\t[strong $dbclass][markup <br>]\n"
-    lst_item $text
+    fmt_lst_item $text
 }
 
 
 ################################################################
 
-proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
-proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
+proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
+proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
 
-proc example_begin {} {
+proc fmt_example_begin {} {
     lsmark 0
     return [markup "<p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"]
 }
-proc example_end   {} {
+proc fmt_example_end   {} {
     return [markup "</pre></td></tr></table></p>"]
 }
-proc example {code} {
-    return "[example_begin][HandleText $code][example_end]"
+proc fmt_example {code} {
+    return "[fmt_example_begin][fmt_plain_text $code][fmt_example_end]"
 }
 
-proc nl {} {
+proc fmt_nl {} {
     if {[lcompact]} {return [tag br]}
     return [tag br][tag br]
 }
-proc arg    {text} {return "[markup "<i class='arg'>"]$text[markup </i>]" }
-proc cmd    {text} {return "[markup "<b class='cmd'>"]$text[markup </b>]" }
+proc fmt_arg    {text} {return "[markup "<i class='arg'>"]$text[markup </i>]" }
+proc fmt_cmd    {text} {return "[markup "<b class='cmd'>"]$text[markup </b>]" }
 
-proc emph	{text}	{ possibleReference $text em }
-proc strong	{text}	{ possibleReference $text strong }
+proc fmt_emph	{text}	{ em $text }
+
+proc strong {text} {return "[markup <strong>]$text[markup </strong>]"}
+proc em     {text} {return "[markup <em>]$text[markup </em>]"}
 
 
-proc opt    {text} {return "?$text?" }
-
-proc comment {text} {ht_comment $text}
-proc sectref {text} {
+proc fmt_opt     {text} {return "?$text?" }
+proc fmt_comment {text} {ht_comment $text}
+proc fmt_sectref {text} {
     global SectionNames
     if {[info exists SectionNames($text)]} {
     	return "[markup <]a href=[markup \"]#$SectionNames($text)[markup \">]$text[markup </a>]"
@@ -295,36 +267,18 @@ proc sectref {text} {
     	return "[markup <b>]$text[markup </b>]"
     }
 }
-proc syscmd  {text} {strong $text}
-proc method  {text} {strong $text}
-proc option  {text} {strong $text}
-proc widget  {text} {strong $text}
-proc fun     {text} {strong $text}
-proc type    {text} {strong $text}
-proc package {text} {strong $text}
-proc class   {text} {strong $text}
-proc var     {text} {strong $text}
-proc file    {text} {return "\"[strong $text]\""}
-proc uri     {text} {return "[markup <]a href=[markup \"]$text[markup \">]$text[markup </a>]"}
-proc term    {text} {emph $text}
-proc const   {text} {strong $text}
-
-
-################################################################
-# HTML specific commands
-
-################################################################
-
-proc setx {v string} {
-    upvar $v _
-    set _ $string
-    return
-}
-
-proc appendx {v string} {
-    upvar $v _
-    append _ $string
-    return
-}
+proc fmt_syscmd  {text} {strong $text}
+proc fmt_method  {text} {strong $text}
+proc fmt_option  {text} {strong $text}
+proc fmt_widget  {text} {strong $text}
+proc fmt_fun     {text} {strong $text}
+proc fmt_type    {text} {strong $text}
+proc fmt_package {text} {strong $text}
+proc fmt_class   {text} {strong $text}
+proc fmt_var     {text} {strong $text}
+proc fmt_file    {text} {return "\"[strong $text]\""}
+proc fmt_uri     {text} {return "[markup <]a href=[markup \"]$text[markup \">]$text[markup </a>]"}
+proc fmt_term    {text} {em $text}
+proc fmt_const   {text} {strong $text}
 
 ################################################################

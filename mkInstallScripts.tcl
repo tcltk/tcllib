@@ -61,6 +61,14 @@ puts $f "    if \[ -f \$j/tclIndex \] ; then \\"
 puts $f "        cp -f \$j/tclIndex \$TCLINSTALL/lib/$package$version/\$j ; \\"
 puts $f "    fi ; \\"
 puts $f "done"
+puts $f "## Module specific installation code"
+puts $f "#  1. doctools: message catalogs and predefined formatting engines."
+puts $f "mkdir \$TCLINSTALL/lib/$package$version/doctools/mpformats"
+puts $f "cp -f doctools/mpformats/* \$TCLINSTALL/lib/$package$version/doctools/mpformats 2>/dev/null; \\"
+puts $f "#  2. textutil: hyphenation files"
+puts $f "cp -f textutil/*.tex    \$TCLINSTALL/lib/$package$version/textutil 2>/dev/null; \\"
+
+
 close $f
 
 switch -exact $::tcl_platform(platform) {

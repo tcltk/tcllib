@@ -1,6 +1,6 @@
-[manpage_begin pool n 1.2.1]
 [comment {-*- tcl -*-}]
-[comment {Author: Erik Leunissen <e.leunissen@hccnet.nl>}]
+[manpage_begin pool n 1.2.1]
+[copyright {2002, Erik Leunissen <e.leunissen@hccnet.nl>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate pool objects (of discrete items)}]
 [require Tcl 8.2]
@@ -20,7 +20,7 @@ new pool will be named pool[var X], where X is a positive integer.
 The optional second argument [arg maxsize] has to be a positive
 integer indicating the maximum size of the pool; this is the maximum
 number of items the pool may hold. The default for this value is
-[strong 10].
+[const 10].
      
 [nl]
 
@@ -83,24 +83,24 @@ purpose of the pool command and its subordinates.
 
 [para]      
 
-[strong {Pool parlance}]: If we say that an item is
+[emph {Pool parlance}]: If we say that an item is
 
-[strong allocated], it means that the item is [strong busy],
+[term allocated], it means that the item is [term busy],
 
-[strong owned] or [strong occupied]; it is not available anymore. If
-an item is [strong free], it is [strong available]. Deallocating an
+[term owned] or [term occupied]; it is not available anymore. If
+an item is [term free], it is [term available]. Deallocating an
 item is equivalent to setting free or releasing an item. The person or
 entity to which the item has been allotted is said to own the item.
       
       
 [section ITEMS]
       
-[strong {Discrete items}]
+[emph {Discrete items}]
 [para]
 
-The [strong pool] command is designed for
+The [cmd pool] command is designed for
 
-[strong {discrete items only}]. Note that there are pools where
+[emph {discrete items only}]. Note that there are pools where
 allocation occurs on a non-discrete basis, for example computer
 memory. There are also pools from which the shares that are doled out
 are not expected to be returned, for example a charity fund or a pan
@@ -109,14 +109,14 @@ pools from which nothing is ever allocated or returned, like a
 swimming pool or a cesspool.
 
 [para]
-[strong {Unique item names}]
+[emph {Unique item names}]
 [para]
 
 A pool cannot manage duplicate item names. Therefore, items in a pool
 must have unique names.
 
 [para]
-[strong {Item equivalence}]
+[emph {Item equivalence}]
 [para]
 
 From the point of view of the manager of a pool, items are
@@ -126,7 +126,7 @@ preferences for a particular item, based on some item property they
 know.
 
 [para] 
-[strong Preferences]
+[emph Preferences]
 [para]
 
 A future owner may have a preference for a particular item. Preference
@@ -176,34 +176,34 @@ structure will be destroyed regardless allocation state of its items.
 
 Returns various information about the pool for further programmatic
 use. The [arg type] argument indicates the type of information
-requested. Only the [strong allocID] type uses an additional argument.
+requested. Only the type [const allocID] uses an additional argument.
 
 [list_begin definitions]
      
-[lst_item "[strong allocID] [arg itemName]"]
+[lst_item "[const allocID] [arg itemName]"]
 
 returns the allocID of the item whose name is [arg itemName]. Free
-items have an allocation id of [strong -1].
+items have an allocation id of [const -1].
 
-[lst_item [strong allitems]]
+[lst_item [const allitems]]
 
 returns a list of all items in the pool.
  
-[lst_item [strong allocstate]]
+[lst_item [const allocstate]]
 
 Returns a list of key-value pairs, where the keys are the items and
 the values are the corresponding allocation id's. Free items have an
-allocation id of [strong -1].
+allocation id of [const -1].
       
-[lst_item [strong cursize]]
+[lst_item [const cursize]]
 
 returns the current pool size, i.e. the number of items in the pool.
       
-[lst_item [strong freeitems]]
+[lst_item [const freeitems]]
 
 returns a list of items that currently are not allocated.
       
-[lst_item [strong maxsize]]
+[lst_item [const maxsize]]
 
 returns the maximum size of the pool.
 
@@ -283,7 +283,7 @@ identified by allocID. If the allocation state of an item is queried,
 it is this allocation ID that will be returned. If the option
 
 [option -allocID] is not supplied, the item will be given to and owned
-by [strong dummyID]. Allocation id's may be anything except the value
+by [const dummyID]. Allocation id's may be anything except the value
 -1, which is reserved for free items.
 
      
@@ -306,7 +306,7 @@ example shows the usage in a server application that talks to a
 back-end application.
 
 [para]      
-[strong {Example 1}]
+[emph {Example 1}]
 [para]
 
 This example presents an interactive tclsh session which considers the
@@ -315,7 +315,7 @@ in chronological order, from the creation of the pool, via the most
 important stages in the usage of a pool, to the final destruction.
 
 [para]
-[strong {Note aside:}]
+[emph {Note aside:}]
 [para]
 
 In this example, brand names are used to label the various
@@ -403,7 +403,7 @@ Resume the interactive session:
 }]
 
 [para]
-[strong {Example 2}]
+[emph {Example 2}]
 [para]
 
 This example describes the case from which the author's need for pool

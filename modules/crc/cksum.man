@@ -18,7 +18,7 @@ of this program as part of the GNU Textutils 2.0 package.
 [call [cmd ::crc::cksum] [opt "-format [arg format]"] "-filename [arg file]"]
 
 The command takes string data or a file name and returns a checksum
-value calculated using the [strong cksum(1)] algorithm. The result is
+value calculated using the [syscmd cksum(1)] algorithm. The result is
 formatted using the [arg format](n) specifier provided or as an
 unsigned integer (%u) by default.
 

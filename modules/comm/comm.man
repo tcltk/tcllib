@@ -1,4 +1,5 @@
 [manpage_begin comm n 4.0]
+[copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [moddesc   {remote communication}]
 [titledesc {A remote communications facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
@@ -7,10 +8,10 @@
 
 [para]
 
-The [strong comm] command provides an inter-interpreter remote
+The [package comm] command provides an inter-interpreter remote
 execution facility much like Tk's [cmd send(n)], except that it uses
 sockets rather than the X server for the communication path.  As a
-result, [strong comm] works with multiple interpreters, works on
+result, [package comm] works with multiple interpreters, works on
 Windows and Macintosh systems, and provides control over the remote
 execution path.
 
@@ -26,7 +27,7 @@ These commands work just like [cmd send] and [cmd "winfo interps"] :
 [para]
 
 This is all that is really needed to know in order to use
-[strong comm]
+[package comm]
 
 [section  COMMANDS]
 [para]
@@ -34,12 +35,12 @@ This is all that is really needed to know in order to use
 The package initializes [cmd ::comm::comm] as the default [emph chan].
 
 [para]
-[strong comm] names communication endpoints with an [emph id] unique
+[package comm] names communication endpoints with an [emph id] unique
 to each machine.  Before sending commands, the [emph id] of another
-interpreter is needed.  Unlike Tk's send, [strong comm] doesn't
+interpreter is needed.  Unlike Tk's send, [package comm] doesn't
 implicitly know the [emph id]'s of all the interpreters on the system.
 
-The following four methods make up the basic [strong comm] interface.
+The following four methods make up the basic [package comm] interface.
 
 [list_begin definitions]
 
@@ -47,7 +48,7 @@ The following four methods make up the basic [strong comm] interface.
 
 This invokes the given command in the interpreter named by [arg id].
 The command waits for the result and remote errors are returned unless
-the [strong -async] option is given.
+the [option -async] option is given.
 
 [call [cmd "::comm::comm self"]]
 
@@ -56,7 +57,7 @@ Returns the [emph id] for this channel.
 [call [cmd "::comm::comm interps"]]
 
 Returns a list of all the remote [emph id]'s to which this channel is
-connected.  [strong comm] learns a new remote [emph id] when a command
+connected.  [package comm] learns a new remote [emph id] when a command
 is first issued it, or when a remote [emph id] first issues a command
 to this comm channel.  [cmd "::comm::comm ids"] is an alias for this
 method.
@@ -74,7 +75,7 @@ sending a command.  After this, the remote [emph id] will appear in
 [para]
 
 The evaluation semantics of [cmd "::comm::comm send"] are intended to
-match Tk's [cmd send] [strong exactly]. This means that [strong comm]
+match Tk's [cmd send] [emph exactly]. This means that [package comm]
 evaluates arguments on the remote side.
 
 [para]
@@ -104,7 +105,7 @@ The [cmd eval] hook (described below) can be used to change from
 
 More than one [cmd comm] channel (or [emph listener]) can be created
 in each Tcl interpreter.  This allows flexibility to create full and
-restricted channels.  For instance, [strong hook] scripts are specific
+restricted channels.  For instance, [term hook] scripts are specific
 to the channel they are defined against.
 
 [list_begin definitions]
@@ -163,18 +164,18 @@ These configuration variables can be changed (descriptions of them are
 elsewhere in this manual page):
 
 [list_begin definitions]
-[lst_item "[strong -listen] [opt [arg 0|1]]"]
-[lst_item "[strong -local]  [opt [arg 0|1]]"]
-[lst_item "[strong -port]   [opt [arg port]]"]
+[lst_item "[option -listen] [opt [arg 0|1]]"]
+[lst_item "[option -local]  [opt [arg 0|1]]"]
+[lst_item "[option -port]   [opt [arg port]]"]
 [list_end]
 
 [para]
 These configuration variables are readonly:
 
 [list_begin definitions]
-[lst_item "[strong -chan]    [arg chan]"]
-[lst_item "[strong -serial]  [arg n]"]
-[lst_item "[strong -socket]  sock[arg In]"]
+[lst_item "[option -chan]    [arg chan]"]
+[lst_item "[option -serial]  [arg n]"]
+[lst_item "[option -socket]  sock[arg In]"]
 [list_end]
 
 [para]
@@ -188,26 +189,26 @@ active sends to terminate.
 [section  "ID/PORT ASSIGNMENTS"]
 [para]
 
-[strong comm] uses a TCP port for endpoint [emph id].  The
+[package comm] uses a TCP port for endpoint [emph id].  The
 
-[strong interps] (or [emph ids]) method merely lists all the TCP ports
+[method interps] (or [method ids]) method merely lists all the TCP ports
 to which the channel is connected.  By default, each channel's
 
 [emph id] is randomly assigned by the operating system (but usually
 starts at a low value around 1024 and increases each time a new socket
 is opened).  This behavior is accomplished by giving the
 
-[strong "-port"] config option a value of 0.  Alternately, a specific
+[option -port] config option a value of 0.  Alternately, a specific
 TCP port number may be provided for a given channel.  As a special
 case, comm contains code to allocate a a high-numbered TCP port
-(>10000) by using [strong "-port {}"].  Note that a channel won't be
+(>10000) by using [option "-port {}"].  Note that a channel won't be
 created and initialized unless the specific port can be allocated.
 
 [para]
 
 As a special case, if the channel is configured with
 
-[strong "-listen 0"], then it will not create a listening socket and
+[option "-listen 0"], then it will not create a listening socket and
 will use an id of [emph 0] for itself.  Such a channel is only good
 for outgoing connections (although once a connection is established,
 it can carry send traffic in both directions).
@@ -218,13 +219,13 @@ it can carry send traffic in both directions).
 By default, each channel is restricted to accepting connections from
 the local system.  This can be overridden by using the
 
-[strong "-local 0"] configuration option For such channels, the
+[option "-local 0"] configuration option For such channels, the
 
-[emph id] parameter takes the form [strong "\{ id host \}"].
+[emph id] parameter takes the form [emph "\{ id host \}"].
 
 [para]
 
-[strong WARNING]: The [emph host] must always be specified in the same
+[emph WARNING]: The [emph host] must always be specified in the same
 form (e.g., as either a fully qualified domain name, plain hostname or
 an IP address).
 
@@ -265,9 +266,9 @@ the channel.  This sequence reinitializes the default channel:
 [para]
 
 When a remote connection is lost (because the remote exited or called
-[cmd shutdown]), [strong comm] can invoke an application callback.
+[cmd shutdown]), [package comm] can invoke an application callback.
 This can be used to cleanup or restart an ancillary process, for
-instance.  See the [strong lost] callback below.
+instance.  See the [term lost] callback below.
 
 [section  CALLBACKS]
 [para]
@@ -275,11 +276,11 @@ This is a mechanism for setting hooks for particular events:
 
 [list_begin definitions]
 
-[call [cmd "::comm::comm hook"] [arg event] [opt [strong +]] [opt [arg script]]]
+[call [cmd "::comm::comm hook"] [arg event] [opt [const +]] [opt [arg script]]]
 
 This uses a syntax similar to Tk's [cmd bind] command.  Prefixing
 
-[arg script] with a [strong +] causes the new script to be appended.
+[arg script] with a [const +] causes the new script to be appended.
 Without this, a new [arg script] replaces any existing script.  When
 invoked without a script, no change is made.  In all cases, the new
 hook script is returned by the command.
@@ -288,7 +289,7 @@ hook script is returned by the command.
 
 When an [arg event] occurs, the [arg script] associated with it is
 evaluated with the listed variables in scope and available.  The
-return code ( [strong not] the return value) of the script is commonly
+return code ([emph not] the return value) of the script is commonly
 used decide how to further process after the hook.
 
 [nl]
@@ -296,13 +297,13 @@ Common variables include:
 
 [list_begin definitions]
 
-[lst_item [strong chan]]
+[lst_item [var chan]]
 the name of the comm channel (and command)
 
-[lst_item [strong id]]
+[lst_item [var id]]
 the id of the remote in question
 
-[lst_item [strong fid]]
+[lst_item [var fid]]
 the file id for the socket of the connection
 
 [list_end]
@@ -313,7 +314,7 @@ These are the defined [emph events]:
 
 [list_begin definitions]
 
-[lst_item [strong connecting]]
+[lst_item [const connecting]]
 
 Variables:
 [arg "chan id host port"]
@@ -336,7 +337,7 @@ attempt with the error.  Example:
  % 
 }]
 
-[lst_item [strong connected]]
+[lst_item [const connected]]
 
 Variables:
 [arg "chan fid id host port"]
@@ -350,7 +351,7 @@ extracted from the [arg id]; changing any of these will have no effect
 on the connection, however.  It is also possible to substitute and
 replace [arg fid].
 
-[lst_item [strong incoming]]
+[lst_item [const incoming]]
 
 Variables:
 [arg "chan fid addr remport"]
@@ -372,16 +373,16 @@ peer is named by [arg remport] and [arg addr] but that the remote
 }]
 
 
-[lst_item [strong eval]]
+[lst_item [const eval]]
 
 Variables:
 [arg "chan id cmd buffer"]
 [nl]
 
 This hook is invoked after collecting a complete script from a remote
-but [strong before] evaluating it.  This allows complete control over
+but [emph before] evaluating it.  This allows complete control over
 the processing of incoming commands.  [arg cmd] contains either
-[strong send] or [strong async].  [arg buffer] holds the script to
+[const send] or [const async].  [arg buffer] holds the script to
 evaluate.  At the time the hook is called, [arg "\$chan remoteid"] is
 identical in value to [arg id].
 
@@ -478,14 +479,14 @@ Subverting the script to execute
 [list_end]
 
 
-[lst_item [strong reply]]
+[lst_item [const reply]]
 
 Variables:
 [arg "chan id buffer ret return()"]
 [nl]
 
 This hook is invoked after collecting a complete reply script from a
-remote but [strong before] evaluating it.  This allows complete
+remote but [emph before] evaluating it.  This allows complete
 control over the processing of replies to sent commands.  The reply
 [arg buffer] is in one of the following forms
 
@@ -515,7 +516,7 @@ can change the return value, whereas modifying [arg buffer] has no
 effect.
 
 
-[lst_item [strong lost]]
+[lst_item [const lost]]
 
 Variables:
 [arg "chan id reason"]
@@ -580,17 +581,17 @@ Something here soon.
 
 [para]
 
-There is one outstanding difference between [strong comm] and
+There is one outstanding difference between [package comm] and
 
 [cmd send].  When blocking in a synchronous remote command, [cmd send]
 uses an internal C hook (Tk_RestrictEvents) to the event loop to look
 ahead for send-related events and only process those without
-processing any other events.  In contrast, [strong comm] uses the
+processing any other events.  In contrast, [package comm] uses the
 
 [cmd vwait] command as a semaphore to indicate the return message has
 arrived.  The difference is that a synchronous [cmd send] will block
 the application and prevent all events (including window related ones)
-from being processed, while a synchronous [strong comm] will block the
+from being processed, while a synchronous [cmd {::comm::comm send}] will block the
 application but still allow other events will still get processed.  In
 particular, [cmd "after idle"] handlers will fire immediately when
 comm blocks.
@@ -599,7 +600,7 @@ comm blocks.
 
 What can be done about this?  First, note that this behavior will come
 from any code using [cmd vwait] to block and wait for an event to
-occur.  At the cost of multiple channel support, [strong comm] could
+occur.  At the cost of multiple channel support, [package comm] could
 be changed to do blocking I/O on the socket, giving send-like blocking
 semantics.  However, multiple channel support is a very useful feature
 of comm that it is deemed too important to lose.  The remaining
@@ -609,18 +610,18 @@ create a modified version of the [cmd vwait] command that allow the
 event flags passed to Tcl_DoOneEvent to be specified.  For [cmd comm],
 just the TCL_FILE_EVENTS would be processed.  Another way would be to
 implement a mechanism like Tk_RestrictEvents, but apply it to the Tcl
-event loop (since [strong comm] doesn't require Tk).  One of these
-approaches will be available in a future [strong comm] release as an
+event loop (since [package comm] doesn't require Tk).  One of these
+approaches will be available in a future [package comm] release as an
 optional component.
 
 [section COMPATIBILITY]
 [para]
 
-[strong comm] exports itself as a package.  The package version number
+[package comm] exports itself as a package.  The package version number
 is in the form [emph "major . minor"], where the major version will
 only change when a non-compatible change happens to the API or
 protocol.  Minor bug fixes and changes will only affect the minor
-version.  To load [strong comm] this command is usually used:
+version.  To load [package comm] this command is usually used:
 
 [para]
 [example {
@@ -631,7 +632,7 @@ version.  To load [strong comm] this command is usually used:
 Note that requiring no version (or a specific version) can also be done.
 
 [para]
-The revision history of [strong comm] includes these releases:
+The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
 
@@ -660,22 +661,22 @@ value.  Previously, the return code was passed in from the remote as a
 command to evaluate.  Since the wire protocol has not changed, this is
 still the case.  Instead, the reply handling code decodes the
 
-[strong reply] message.
+[const reply] message.
 
 [lst_item "3.4"]
 
 Added more source commentary, as well as documenting config variables
 in this man page.  Fixed bug were loss of connection would give error
-about a variable named [strong pending] rather than the message about
+about a variable named [var pending] rather than the message about
 the lost connection.  [cmd "comm ids"] is now an alias for
 
 [cmd "comm interps"] (previously, it an alias for [cmd "comm chans"]).
 Since the method invocation change of 3.0, break and other exceptional
 conditions were not being returned correctly from [cmd "comm send"].
 This has been fixed by removing the extra level of indirection into
-the internal procedure [strong commSend ].  Also added propagation of
+the internal procedure [cmd commSend].  Also added propagation of
 the [arg errorCode] variable.  This means that these commands return
-exactly as they would with [cmd send ]:
+exactly as they would with [cmd send]:
 
 [example {
  comm send id break
@@ -707,15 +708,15 @@ page on blocking semantics was added.
 
 [lst_item "3.1"]
 
-All the documented hooks were implemented.  [strong commLostHook] was
+All the documented hooks were implemented.  [cmd commLostHook] was
 removed.  A bug in [cmd "comm new"] was fixed.
 
 [lst_item "3.0"]
 
-This is a new version of [strong comm] with several major changes.
+This is a new version of [package comm] with several major changes.
 There is a new way of creating the methods available under the
 
-[strong comm] command.  The [cmd "comm init"] method has been retired
+[cmd comm] command.  The [cmd "comm init"] method has been retired
 and is replaced by [cmd "comm configure"] which allows access to many
 of the well-defined internal variables.  This also generalizes the
 options available to [cmd "comm new"].  Finally, there is now a
@@ -726,24 +727,24 @@ protocol version is set to 2.
 [lst_item "2.3"]
 
 [cmd "comm ids"] was renamed to [cmd "comm channels"].  General
-support for [strong "comm hook"] was fully implemented, but only the
-[strong lost] hook exists, and it was changed to follow the general
-hook API.  [strong commLostHook] was unsupported (replaced by
+support for [cmd "comm hook"] was fully implemented, but only the
+[term lost] hook exists, and it was changed to follow the general
+hook API.  [cmd commLostHook] was unsupported (replaced by
 
-[cmd "comm hook lost"]) and [strong commLost] was removed.
+[cmd "comm hook lost"]) and [cmd commLost] was removed.
 
 [lst_item "2.2"]
 
-The [strong died] hook was renamed [strong lost], to be accessed by
-[strong commLostHook] and an early implementation of
-[strong "comm lost hook" ].  As such, [strong commDied] is now
-[strong commLost].
+The [term died] hook was renamed [term lost], to be accessed by
+[cmd commLostHook] and an early implementation of
+[cmd "comm lost hook" ].  As such, [cmd commDied] is now
+[cmd commLost].
 
 [lst_item "2.1"]
 Unsupported method [cmd "comm remoteid"] was added.
 
 [lst_item "2.0"]
-[strong comm] has been rewritten from scratch (but is fully compatible
+[package comm] has been rewritten from scratch (but is fully compatible
 with Comm 1.0, without the requirement to use obTcl).
 
 [list_end]
@@ -757,17 +758,15 @@ John LoVerso, John@LoVerso.Southborough.MA.US
 [emph http://www.opengroup.org/~loverso/tcl-tk/#comm]
 
 
-[section  COPYRIGHT]
-
-Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
+[section  LICENSE]
 
 Please see the file [emph comm.LICENSE] that accompanied this source,
 or
-[emph http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html].
+[uri http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html].
 
 [para]
 
-This license for [strong comm], new as of version 3.2, allows it to be
+This license for [package comm], new as of version 3.2, allows it to be
 used for free, without any licensing fee or royalty.
 
 
@@ -858,12 +857,12 @@ compiled Tcl extension.  See
 
 [para]
 Michael Doyle <miked@eolas.com> has code that implements the Tcl-DP
-RPC interface using standard Tcl sockets, much like [strong comm]
+RPC interface using standard Tcl sockets, much like [package comm]
 
 [para]
 Andreas Kupries <andreas_kupries@users.sourceforge.net> uses
-[strong comm] and has built a simple nameserver as part of his Pool
-library.  See [emph http://www.purl.org/net/akupries/soft/pool/index.htm].
+[package comm] and has built a simple nameserver as part of his Pool
+library.  See [uri http://www.purl.org/net/akupries/soft/pool/index.htm].
 
 [see_also send(n)]
 [manpage_end]

@@ -41,7 +41,7 @@ Tcler's Wiki. Takes at most two arguments, the path to the directory
 to start searching from and a command to use to evaluate interest in
 each file. The path defaults to [file .], i.e. the current
 directory. The command defaults to the empty string, which means that
-all files are of interest. The command takes care [strong not] to
+all files are of interest. The command takes care [emph not] to
 loose itself in infinite loops upon encountering circular link
 structures.  The result of the command is a list containing the paths
 to the interesting files.
@@ -80,7 +80,7 @@ empty.
 Implementation of [syscmd grep]. Adapted from the Tcler's Wiki. The
 first argument defines the [arg pattern] to search for. This is
 followed by a list of [arg files] to search through. The list is
-optional and [strong stdin] will be used if it is missing. The result
+optional and [const stdin] will be used if it is missing. The result
 of the procedures is a list containing the matches. Each match is a
 single element of the list and contains filename, number and contents
 of the matching line, separated by a colons.

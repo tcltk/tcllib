@@ -1,5 +1,5 @@
-[manpage_begin counter n 2.0]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin counter n 2.0]
 [moddesc   {Counters and Histograms}]
 [titledesc {Procedures for counters and histograms}]
 [require Tcl 8]
@@ -195,7 +195,7 @@ Label to display above bar chart
 
 [lst_item "[option -unit] [arg unit]"]
 
-Specify [strong minutes], [strong hours], or [strong days] for the
+Specify [const minutes], [const hours], or [const days] for the
 time-base histograms.  For value-based histograms, the [arg unit] is
 used in the title.
 

@@ -1,6 +1,6 @@
-[manpage_begin record n 1.2.1]
 [comment {-*- tcl -*-}]
-[comment {Author: Brett Schwarz <brett_schwarz@yahoo.com>}]
+[manpage_begin record n 1.2.1]
+[copyright {2002, Brett Schwarz <brett_schwarz@yahoo.com>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Define and create records (similar to 'C' structures)}]
 [require Tcl 8.2]
@@ -80,10 +80,11 @@ will return an error if the instance does not exist.
       
 [section {RECORD MEMBERS}]
 
-Record members can either be variables, or other records, However, the same
-record can not be nested witin itself (circular). To define a nested record,
-you need to specify the [strong record] keyword, along the with name of the record, and the name of the instance of that nested
-record. For example, it would look like this:
+Record members can either be variables, or other records, However, the
+same record can not be nested witin itself (circular). To define a
+nested record, you need to specify the [const record] keyword, along
+the with name of the record, and the name of the instance of that
+nested record. For example, it would look like this:
 
 [para]
 [example_begin]
@@ -119,7 +120,7 @@ All instances created from this record definition, will initially have 5 as
 the value for [arg mem2]. If no default is given, then the value will be the empty string.
 
 [para]
-[strong {Getting Values}]
+[emph {Getting Values}]
 [para]
 
 To get a value of a member, there are several ways to do this. 
@@ -153,7 +154,7 @@ To get a value of a nested member, then use the dot notation:
 [list_end]
 
 [para]
-[strong {Setting Values}]
+[emph {Setting Values}]
 [para]
 
 To set a value of a member, there are several ways to do this. 
@@ -178,7 +179,7 @@ To set a value of a nested member, then use the dot notation:
 [list_end]
 
 [para]
-[strong {Alias access}]
+[emph {Alias access}]
 [para]
 
 In the original implementation, access was done by using dot notation similar to how 'C' structures are accessed. However, 
@@ -236,7 +237,7 @@ created, then it inherits the members of the record definition, very
 similar to how objects work. During instance generation, an object command for the instance
 is created as well, using [arg instanceName]. This object command is used
 to access the data members of the instance. During the instantiation, values for
-that instance can be given, [strong but] all values must be given, and be given
+that instance can be given, [emph but] all values must be given, and be given
 in key/value pairs. Nested records, need to be in list format.
 
 [nl]
@@ -276,7 +277,7 @@ Two examples are provided to give an good illustration on how to use
 this package.
 
 [para]      
-[strong {Example 1}]
+[emph {Example 1}]
 [para]
 
 Probably the most obvious example would be to hold contact information,
@@ -344,7 +345,7 @@ first middle last {record locations home} {record locations work}
 }]
 
 [para]      
-[strong {Example 1}]
+[emph {Example 1}]
 [para]
 
 This next example just illustrates a simple linked list

@@ -1,5 +1,5 @@
-[manpage_begin ftp n 2.3.1]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin ftp n 2.3.1]
 [moddesc   {ftp client}]
 [titledesc {Client-side tcl implementation of the ftp protocol}]
 [require Tcl 8.2]
@@ -52,7 +52,7 @@ that the default implementation honors the option [option -output] to
 
 [para]
 
-[strong Caution]: The default implementation logs error messages like
+[emph Caution]: The default implementation logs error messages like
 all other messages. If this behaviour is changed to throwing an error
 instead all commands in the API will change their behaviour too. In
 such a case they will not return a failure code as described below but
@@ -75,16 +75,16 @@ The contents of an ftp url are defined as follows:
 
 [list_begin definitions]
 
-[lst_item [strong file]]
+[lst_item [term file]]
 
 The contents of the specified file itself.
 
-[lst_item [strong directory]]
+[lst_item [term directory]]
 
 A listing of the contents of the directory in key value notation where
 the file name is the key and its attributes the associated value.
 
-[lst_item [strong link]]
+[lst_item [term link]]
 
 The attributes of the link, including the path it refers to.
 
@@ -118,7 +118,7 @@ The options overwrite some default values or set special abilities:
 
 The blocksize is used during data transfer. At most [arg size] bytes
 are transfered at once. The default value for this option is 4096.
-The package will evaluate the [strong {-progress callback}] for the
+The package will evaluate the [cmd {-progress callback}] for the
 session after the transfer of each block.
 
 [lst_item "[option -timeout] [arg seconds]"]
@@ -138,11 +138,11 @@ connections.
 [lst_item "[option -mode] [arg mode]"]
 
 The transfer [arg mode] option determines if a file transfer occurs in
-[strong active] or [strong passive] mode. In passive mode the client
+[const active] or [const passive] mode. In passive mode the client
 will ask the ftp server to listen on a data port and wait for the
 connection rather than to initiate the process by itself when a data
 transfer request comes in. Passive mode is normally a requirement when
-accessing sites via a firewall. The default mode is [strong active].
+accessing sites via a firewall. The default mode is [const active].
 
 [lst_item "[option -progress] [arg callback]"]
 
@@ -170,7 +170,7 @@ When evaluating the [arg callback] several arguments are appended to
 the callback script, namely the keyword of the operation that has
 completed and any additional arguments specific to the operation.  If
 an error occurred during the execution of the operation the callback is
-given the keyword [strong error].
+given the keyword [const error].
 
 [lst_item "[option -output] [arg callback]"]
 
@@ -205,7 +205,7 @@ a subdirectory of the current directory,
 
 [bullet]
 
-Two dots, [strong ..]  (as an indicator for the parent directory of
+Two dots, [const ..]  (as an indicator for the parent directory of
 the current directory)
 
 [bullet]
@@ -219,27 +219,27 @@ or a fully qualified path to a new working directory.
 This command returns the complete path of the current working
 directory on the ftp server, or an empty string in case of an error.
 
-[call [cmd ::ftp::Type] [arg handle] [opt [strong ascii|binary|tenex]]]
+[call [cmd ::ftp::Type] [arg handle] [opt [const ascii|binary|tenex]]]
 
-This command sets the ftp file transfer type to either [strong ascii],
-[strong binary], or [strong tenex]. The command always returns the
+This command sets the ftp file transfer type to either [const ascii],
+[const binary], or [const tenex]. The command always returns the
 currently set type. If called without type no change is made.
 
 [nl]
 
-Currently only [strong ascii] and [strong binary] types are
+Currently only [const ascii] and [const binary] types are
 supported. There is some early (alpha) support for Tenex mode. The
-type [strong ascii] is normally used to convert text files into a
+type [const ascii] is normally used to convert text files into a
 format suitable for text editors on the platform of the destination
 machine. This mainly affects end-of-line markers. The type
 
-[strong binary] on the other hand allows the undisturbed transfer of
+[const binary] on the other hand allows the undisturbed transfer of
 non-text files, such as compressed files, images and executables.
 
 [call [cmd ::ftp::List] [arg handle] [opt [arg pattern]]]
 
 This command returns a human-readable list of files.  Wildcard
-expressions such as [strong *.tcl] are allowed.  If [arg pattern]
+expressions such as [file *.tcl] are allowed.  If [arg pattern]
 refers to a specific directory, then the contents of that directory
 are returned.  If the [arg pattern] is not a fully-qualified path
 name, the command lists entries relative to the current remote
@@ -272,7 +272,7 @@ server. If the command fails an empty string is returned.
 
 [nl]
 
-[strong ATTENTION!] It will not work properly when in ascii mode and
+[emph ATTENTION!] It will not work properly when in ascii mode and
 is not supported by all ftp server implementations.
 
 [call [cmd ::ftp::ModTime] [arg handle] [arg file]]
@@ -351,7 +351,7 @@ file.
 
 If [option -channel] [arg chan] is specified, the system will write
 the retrieved data into the channel [arg chan] instead of a file. The
-system will [strong not] close [arg chan] after the transfer, this is
+system will [emph not] close [arg chan] after the transfer, this is
 the responsibility of the caller to [cmd ::ftp::Get].
 
 [call [cmd ::ftp::Reget] [arg handle] [arg remote] [opt [arg local]] [opt [arg from]] [opt [arg to]]]
@@ -416,7 +416,7 @@ verbatim to the caller.
 
 This command is used by the package itself to show the different
 messages from the ftp sessions. The package itself declares this
-command very simple, writing the messages to [strong stdout] (if
+command very simple, writing the messages to [const stdout] (if
 
 [var ::ftp::VERBOSE] was set, see below) and throwing tcl errors for
 error messages. It is the responsibility of the application to

@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin pop3d n 1.0]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Tcl POP3 server implementation}]
 [require Tcl 8.2]
@@ -39,7 +40,7 @@ according to the POP3 protocol.
 
 [para]
 
-[strong Note:] The server provided by this module will handle only the
+[emph Note:] The server provided by this module will handle only the
 basic protocol by itself. For the higher levels of user authentication
 and handling of the actual mailbox contents callbacks will be invoked.
 
@@ -67,12 +68,12 @@ The provided [arg mode]s are:
 
 [list_begin definitions]
 
-[lst_item [strong kill]]
+[lst_item [const kill]]
 
 Destroys the server immediately, and forcefully closes all currently
 open connections. This is the default mode.
 
-[lst_item [strong defer]]
+[lst_item [const defer]]
 
 Stops the server from accepting new connections and will actually
 destroy it only after the last of the currently open connections for

@@ -1,3 +1,7 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* javascript.man: More semantic markup, less visual one.
+
 2002-04-12  Andreas Kupries  <andreas_kupries@user.sourceforge.net>
 
 	* javascript.man: Added doctools manpage.

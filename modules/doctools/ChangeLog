@@ -1,3 +1,96 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html:  Removed 'strong' formatting. The checker
+	* mpformats/fmt.latex: warns if used and warnings requested, it
+	* mpformats/fmt.nroff: now also redirects the command to 'emph'.
+	* mpformats/fmt.wiki:  The option -visualwarn (doctools, and
+	* mpformats/fmt.null:  mpexpand) renamed to -deprecated. Message
+	* mpformats/fmt.list:  'visualmarkup' removed from the catalogs,
+	* mpformats/c.msg:     and 'depr_strong' added instead.
+	* mpformats/en.msg: 
+	* mpformats/de.msg: 
+	* checker.tcl: 
+	* doctools.tcl: 
+	* mpexpand: 
+
+	* doctools.man:    Updated, converted [strong] to better
+	* dtformat.man:    formatting commands. Ditto for all manpages
+	* dtformatter.man: in tcllib containing 'strong'. 'strong' is now
+	* mpexpand.man:    not present anymore.
+
+	* mpformats/_common.tcl: Applied a patch by Joe English adding the
+	* mpformats/fmt.tmml:    copyright information to the appropriate
+	                         place in the TMML output. This also fixes
+				 a bug in c_get_copyright where an empty
+				 string resulted in a incomplete line
+				 being given to the formatter.
+
+	* mpformats/fmt.html:  Removed the phrase 'All rights reserved'
+	* mpformats/fmt.latex: from the code, on recommendation by
+	* mpformats/fmt.nroff: Joe English.
+	* mpformats/fmt.wiki: 
+
+	(In the way to early morrow :)
+	* mpformats/fmt.html:  Changed to display copyright information in
+	* mpformats/fmt.latex: the conversion result itself and not only
+	* mpformats/fmt.nroff: embedded in comments.
+	* mpformats/fmt.wiki: 
+
+2003-01-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.tcl:          Added a new formatting command,
+	* doctools.test:         'copyright', to declare/assign copyright
+	* doctools.man:          for manpages. Updated both documentation
+	* dtformat.man:          and testsuite. Extended the common code
+	* checker.tcl:           base with convenience methods for storing
+	* api.tcl:               and retrieving such information. The
+	* mpformats/fmt.html:    retrieval operation also implements the
+	* mpformats/fmt.latex:   logic giving the information in a manpage
+	* mpformats/fmt.list:    precedence over information coming from the
+	* mpformats/fmt.nroff:   processor. Updated all predefined engines
+	* mpformats/fmt.null:    to handle the new command. TMML done only
+	* mpformats/fmt.tmml:    partially, as I don't know where the copy-
+	* mpformats/fmt.wiki:    right has to go.
+	* mpformats/_common.tcl: 
+	* mpformats/_html.tcl:   
+	* mpformats/_nroff.tcl:  
+	* mpexpand:
+
+2003-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpexpand:      Moved format help into the package itself.
+	* doctools.tcl:  Changed the checker. Input syntax errors are not
+	* checker.tcl:   written to stderr anymore, but reported through
+	* doctools.man:  an standard tcl error. Warnings are collected and
+	* doctools.test: can be queried after a formatting run. Made the
+	                 generic engine more robust against failures in a
+			 formatting engine. Wrote documentation for the
+			 package. Extended the configuration method to be
+			 more standard. Wrote a testsuite.
+
+2003-01-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpexpand:              Nearly complete rewrite of the system.
+	* mpformats/fmt.html:    The recognized input format was _not_
+	* mpformats/fmt.latex:   changed.  The main functionality was
+	* mpformats/fmt.list:    placed into a package, doctools.  This
+	* mpformats/fmt.nroff:   package allows the creation of multiple
+	* mpformats/fmt.null:    formatter objects, to be used alone or
+	* mpformats/fmt.tmml:    together.  The application 'mpexpand' was
+	* mpformats/fmt.wiki:    rewritten to use that package and is now
+	* mpformats/_common.tcl: much simpler.  The communication between
+	* mpformats/_nroff.tcl:  the various stages was made simpler, and
+	* mpformats/_xml.tcl:    one slave interpreter was dropped because
+	* mpformats/_html.tcl:   of this.  It might be added back if its
+	* api.tcl:               existence proves to be beneficial.  The
+	* checker.tcl:           API between main systen and formatter
+	* doctools.tcl:          engine was changed, consequently all
+	* dtformatter.man:       existing engines had to be updated.  They
+	                         were also made simpler, especially in the
+	                         area of list handling, because of the
+				 validation done by the checker subsystem.
+				 The version number is now 1.0.
+
 2002-12-16  David N. Welton  <davidw@dedasys.com>
 
 	* mpexpand (format_find): Added 'argv0' as a global variable, in

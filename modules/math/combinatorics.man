@@ -1,5 +1,5 @@
-[manpage_begin combinatorics n 4.2]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin combinatorics n 4.2]
 [moddesc   {Tcl Math Library}]
 [titledesc {Combinatorial functions in the Tcl Math Library}]
 [require Tcl 8.2]
@@ -30,7 +30,7 @@ positive infinity of
 [nl]
 
 The approximation used in the Tcl Math Library is from Lanczos,
-[strong {ISIAM J. Numerical Analysis, series B,}] volume 1, p. 86.
+[emph {ISIAM J. Numerical Analysis, series B,}] volume 1, p. 86.
 For "[var x] > 1", the absolute error of the result is claimed to be
 smaller than 5.5*10**-10 -- that is, the resulting value of Gamma when
 
@@ -63,7 +63,7 @@ ULP.
 [nl]
 
 For real [arg x], [arg x] >= 0, the result is approximated by
-computing [strong Gamma(x+1)] using the [cmd ::math::ln_Gamma]
+computing [term Gamma(x+1)] using the [cmd ::math::ln_Gamma]
 function, and the result is expected to be precise to better than nine
 significant figures.
 
@@ -74,7 +74,7 @@ of [arg x] that is not numeric.
 
 [call [cmd ::math::choose] [arg {n k}]]
 
-Returns the binomial coefficient [strong {C(n, k)}]
+Returns the binomial coefficient [term {C(n, k)}]
 
 [example {
    C(n,k) = n! / k! (n-k)!

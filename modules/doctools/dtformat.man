@@ -1,4 +1,7 @@
-[manpage_begin format n 1.0]
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin dtformat n 1.0]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Specification of simple tcl markup for manpages}]
 [description]
@@ -61,13 +64,18 @@ in the manpage but making them the last section is the usual thing to
 do. They can be omitted.
 
 [bullet]
+
 There are five commands available to markup words, [cmd arg],
+
 [cmd cmd], [cmd opt], [cmd emph] and [cmd strong]. The first three are
 used to mark words as [emph {command arguments}], as
-[emph {command names}] and as [emph optional]. The other two are visual
-markup to emphasize words in two different ways. The term [emph words]
-is used in a loose sense here, i.e application of the commands to a
-sequence of words is entirely possible, if they are properly quoted.
+
+[emph {command names}] and as [emph optional]. The other two are
+visual markup to emphasize words. The term [emph words] is used in a
+loose sense here, i.e application of the commands to a sequence of
+words is entirely possible, if they are properly quoted. [emph Note]
+that usage of [cmd strong] is discouraged as this command is
+deprecated and only present for backwards compatibility
 
 [bullet]
 
@@ -144,6 +152,19 @@ provides a one-line expansion of the title for the manpage. If this
 command is not used the manpage processor has to use information from
 [cmd moddesc] instead.
 
+[call [cmd copyright] [arg text]]
+
+This command is optional and comes after [cmd manpage_begin], but
+before either [cmd require] or [cmd description]. Its argument
+declares the copyright assignment for the manpage. When invoked more
+than once the assignments are accumulated.
+
+[nl]
+
+A doctools processor is allowed to provide auch information too, but a
+formatting engine has to give the accumulated arguments of this
+command precedence over the data coming from the processor.
+
 [call [cmd description]]
 
 This command separates the header part of the manpage from the main
@@ -193,11 +214,13 @@ in conjunction with [cmd arg] to denote optional command arguments.
 
 [call [cmd emph] [arg text]]
 
-One way to emphasize [arg text] in a general manner.
+Emphasize the [arg text].
 
 [call [cmd strong] [arg text]]
 
-Another way to emphasize [arg text] in a general manner.
+Emphasize the [arg text]. Same as [cmd emph]. Usage is
+discouraged. The command is deprecated and present only for backward
+compatibility.
 
 [call [cmd comment] [arg text]]
 

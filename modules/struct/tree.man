@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin tree n 1.2.1]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
 [require Tcl 8.2]
@@ -39,7 +40,7 @@ The following commands are possible for tree objects:
 [call [arg treeName] [method append] [arg node] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
-node. If no [arg key] is specified, the key [strong data] is assumed.
+node. If no [arg key] is specified, the key [const data] is assumed.
 
 
 [call [arg treeName] [method children] [arg node]]
@@ -79,7 +80,7 @@ Remove true if the specified node exists in the tree.
 
 Return the value associated with the key [arg key] for the node
 
-[arg node]. If no key is specified, the key [strong data] is assumed.
+[arg node]. If no key is specified, the key [const data] is assumed.
 
 [call [arg treeName] [method getall] [arg node]]
 
@@ -95,17 +96,17 @@ Returns a list of keys for the [arg node].
 [call [arg treeName] [method keyexists] [arg node] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the [arg node]. If
-no [arg key] is specified, the key [strong data] is assumed.
+no [arg key] is specified, the key [const data] is assumed.
 
 
 [call [arg treeName] [method index] [arg node]]
 
 Returns the index of [arg node] in its parent's list of children.  For
-example, if a node has [strong nodeFoo], [strong nodeBar], and
+example, if a node has [term nodeFoo], [term nodeBar], and
 
-[strong nodeBaz] as children, in that order, the index of
+[term nodeBaz] as children, in that order, the index of
 
-[strong nodeBar] is 1.
+[term nodeBar] is 1.
 
 
 [call [arg treeName] [method insert] [arg parent] [arg index] [opt "[arg child] [opt "[arg child] ..."]"]]
@@ -113,9 +114,9 @@ example, if a node has [strong nodeFoo], [strong nodeBar], and
 Insert one or more nodes into the tree as children of the node
 
 [arg parent]. The nodes will be added in the order they are given. If
-[arg parent] is [strong root], it refers to the root of the tree. The
+[arg parent] is [const root], it refers to the root of the tree. The
 new nodes will be added to the [arg parent] node's child list at the
-index given by [arg index]. The [arg index] can be [strong end] in
+index given by [arg index]. The [arg index] can be [const end] in
 which case the new nodes will be added after the current last child.
 
 [nl]
@@ -128,7 +129,7 @@ location indicated by this command.
 
 If no [arg child] is specified, a single node will be added, and a
 name will be generated for the new node. The generated name is of the
-form [strong node][var x], where [var x] is a number. If names are
+form [emph node][var x], where [var x] is a number. If names are
 specified they must neither contain whitespace nor colons (":").
 
 [nl]
@@ -146,7 +147,7 @@ children), false otherwise.
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg node]. If no [arg key] is specified, the key
-[strong data] is assumed.
+[const data] is assumed.
 
 
 [call [arg treeName] [method move] [arg parent] [arg index] [arg node] [opt "[arg node] ..."]]
@@ -186,8 +187,8 @@ Return the left sibling of [arg node], or the empty string if
 [call [arg treeName] [method set] [arg node] [opt "[option -key] [arg key]"] [opt [arg value]]]
 
 Set or get one of the keyed values associated with a node. If no key
-is specified, the key [strong data] is assumed.  Each node that is
-added to a tree has the value "" assigned to the key [strong data]
+is specified, the key [const data] is assumed.  Each node that is
+added to a tree has the value "" assigned to the key [const data]
 automatically.  A node may have any number of keyed values associated
 with it.  If [arg value] is not specified, this command returns the
 current value assigned to the key; if [arg value] is specified, this
@@ -198,20 +199,20 @@ command assigns that value to the key.
 
 
 Return a count of the number of descendants of the node [arg node]; if
-no node is specified, [strong root] is assumed.
+no node is specified, [const root] is assumed.
 
 
 [call [arg treeName] [method splice] [arg parent] [arg from] [opt [arg to]] [opt [arg child]]]
 
 Insert a node named [arg child] into the tree as a child of the node
-[arg parent]. If [arg parent] is [strong root], it refers to the root
+[arg parent]. If [arg parent] is [const root], it refers to the root
 of the tree. The new node will be added to the parent node's child
 list at the index given by [arg from].  The children of [arg parent]
 which are in the range of the indices [arg from] and [arg to] are made
 children of [arg child].  If the value of [arg to] is not specified it
-defaults to [strong end].  If no name is given for [arg child], a name
+defaults to [const end].  If no name is given for [arg child], a name
 will be generated for the new node.  The generated name is of the form
-[strong node][var x], where [var x] is a number.  The return result
+[emph node][var x], where [var x] is a number.  The return result
 from this command is the name of the new node.
 
 
@@ -223,19 +224,19 @@ Swap the position of [arg node1] and [arg node2] in the tree.
 [call [arg treeName] [method unset] [arg node] [opt "[option -key] [arg key]"]]
 
 Remove a keyed value from the node [arg node].  If no key is
-specified, the key [strong data] is assumed.
+specified, the key [const data] is assumed.
 
 
 [call [arg treeName] [method walk] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [option -command] [arg cmd]]
 
 Perform a breadth-first or depth-first walk of the tree starting at
 the node [arg node].  The type of walk, breadth-first or depth-first,
-is determined by the value of [arg type]; [strong bfs] indicates
-breadth-first, [strong dfs] indicates depth-first.  Depth-first is the
+is determined by the value of [arg type]; [const bfs] indicates
+breadth-first, [const dfs] indicates depth-first.  Depth-first is the
 default. The order of the walk, pre-, post-, both- or in-order is
-determined by the value of [arg order]; [strong pre] indicates
-pre-order, [strong post] indicates post-order, [strong both] indicates
-both-order and [strong in] indicates in-order. Pre-order is the
+determined by the value of [arg order]; [const pre] indicates
+pre-order, [const post] indicates post-order, [const both] indicates
+both-order and [const in] indicates in-order. Pre-order is the
 default.
 
 [nl]
@@ -245,7 +246,7 @@ its children.  For example, a breadth-first search starting from the
 root will visit the root, followed by all of the root's children,
 followed by all of the root's grandchildren. Post-order walking means
 that a parent node is visited after any of its children. Both-order
-walking means that a parent node is visited before [strong and] after
+walking means that a parent node is visited before [emph and] after
 any of its children. In-order walking means that a parent node is
 visited after its first child and before the second. This is a
 generalization of in-order walking for binary trees and will do the
@@ -261,27 +262,27 @@ substitutions are recognized:
 
 [list_begin definitions]
 
-[lst_item [strong %%]]
+[lst_item [const %%]]
 
 Insert the literal % character.
 
-[lst_item [strong %t]]
+[lst_item [const %t]]
 
 Name of the tree object.
 
-[lst_item [strong %n]]
+[lst_item [const %n]]
 
 Name of the current node.
 
-[lst_item [strong %a]]
+[lst_item [const %a]]
 
-Name of the action occurring; one of [strong enter], [strong leave],
-or [strong visit].  [strong enter] actions occur during pre-order
-walks; [strong leave] actions occur during post-order walks;
+Name of the action occurring; one of [const enter], [const leave],
+or [const visit].  [const enter] actions occur during pre-order
+walks; [const leave] actions occur during post-order walks;
 
-[strong visit] actions occur during in-order walks.  In a both-order
+[const visit] actions occur during in-order walks.  In a both-order
 walk, the command will be evaluated twice for each node; the action is
-[strong enter] for the first evaluation, and [strong leave] for the
+[const enter] for the first evaluation, and [const leave] for the
 second.
 
 [list_end]

@@ -1,5 +1,6 @@
-[manpage_begin mime n 1.3.2]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin mime n 1.3.2]
+[copyright {1999-2000 Marshall T. Rose}]
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [require Tcl]
@@ -29,16 +30,16 @@ canonical (raw) form and is found by consulting either the
 [nl]
 
 In addition, both the [option -param] and [option -header] options may
-occur zero or more times to specify [strong Content-Type] parameters
-(e.g., [strong charset]) and header keyword/values (e.g.,
+occur zero or more times to specify [const Content-Type] parameters
+(e.g., [const charset]) and header keyword/values (e.g.,
 
-[strong Content-Disposition]), respectively.
+[const Content-Disposition]), respectively.
 
 [nl]
 
 Also, [option -encoding], if present, specifies the
 
-[strong Content-Transfer-Encoding] when copying the body.
+[const Content-Transfer-Encoding] when copying the body.
 
 [bullet]
 
@@ -49,7 +50,7 @@ is parsed, dynamically generating subordinates as appropriate.
 [list_end]
 
 
-[call [cmd ::mime::finalize] [arg token] [opt "[option -subordinates] [strong all] | [strong dynamic] | [strong none]"]]
+[call [cmd ::mime::finalize] [arg token] [opt "[option -subordinates] [const all] | [const dynamic] | [const none]"]]
 
 This command destroys the MIME part represented by [arg token]. It
 returns an empty string.
@@ -59,7 +60,7 @@ returns an empty string.
 If the [option -subordinates] option is present, it specifies which
 subordinates should also be destroyed. The default value is
 
-[strong dynamic], destroying all subordinates which were created by
+[const dynamic], destroying all subordinates which were created by
 [cmd ::mime::initialize] together with the containing body part.
 
 
@@ -78,24 +79,24 @@ The possible properties are:
 [list_begin definitions]
 
 
-[lst_item [strong content]]
+[lst_item [const content]]
 
 The type/subtype describing the content
 
-[lst_item [strong encoding]]
+[lst_item [const encoding]]
 
 The "Content-Transfer-Encoding"
 
-[lst_item [strong params]]
+[lst_item [const params]]
 
 A list of "Content-Type" parameters
 
-[lst_item [strong parts]]
+[lst_item [const parts]]
 
 A list of tokens for the part's subordinates.  This property is
 present only if the MIME part has subordinates.
 
-[lst_item [strong size]]
+[lst_item [const size]]
 
 The approximate size of the content (unencoded)
 
@@ -123,7 +124,7 @@ more than once in the header, accordingly the list returned usually
 contains more than one string.
 
 
-[call [cmd ::mime::setheader] [arg token] [arg {key value}] [opt "[option -mode] [strong write] | [strong append] | [strong delete]"]]
+[call [cmd ::mime::setheader] [arg token] [arg {key value}] [opt "[option -mode] [const write] | [const append] | [const delete]"]]
 
 This command writes, appends to, or deletes the [arg value] associated
 with a [arg key] in the header. It returns a list of strings
@@ -136,15 +137,15 @@ The value for [option -mode] is one of:
 [list_begin definitions]
 
 
-[lst_item [strong write]]
+[lst_item [const write]]
 
 The [arg key]/[arg value] is either created or overwritten (the default).
 
-[lst_item [strong append]]
+[lst_item [const append]]
 
 A new [arg value] is appended for the [arg key] (creating it as necessary).
 
-[lst_item [strong delete]]
+[lst_item [const delete]]
 
 All values associated with the key are removed (the [arg value]
 parameter is ignored).
@@ -229,47 +230,47 @@ more of these properties may be empty.
 [list_begin definitions]
 
 
-[lst_item [strong address]]
+[lst_item [const address]]
 
 local@domain
 
-[lst_item [strong comment]]
+[lst_item [const comment]]
 
 822-style comment
 
-[lst_item [strong domain]]
+[lst_item [const domain]]
 
 the domain part (rhs)
 
-[lst_item [strong error]]
+[lst_item [const error]]
 
 non-empty on a parse error
 
-[lst_item [strong group]]
+[lst_item [const group]]
 
 this address begins a group
 
-[lst_item [strong friendly]]
+[lst_item [const friendly]]
 
 user-friendly rendering
 
-[lst_item [strong local]]
+[lst_item [const local]]
 
 the local part (lhs)
 
-[lst_item [strong memberP]]
+[lst_item [const memberP]]
 
 this address belongs to a group
 
-[lst_item [strong phrase]]
+[lst_item [const phrase]]
 
 the phrase part
 
-[lst_item [strong proper]]
+[lst_item [const proper]]
 
 822-style address specification
 
-[lst_item [strong route]]
+[lst_item [const route]]
 
 822-style route specification (obsolete)
 
@@ -289,63 +290,63 @@ The list of properties and their ranges are:
 [list_begin definitions]
 
 
-[lst_item [strong hour]]
+[lst_item [const hour]]
 
 0 .. 23
 
-[lst_item [strong lmonth]]
+[lst_item [const lmonth]]
 
 January, February, ..., December
 
-[lst_item [strong lweekday]]
+[lst_item [const lweekday]]
 
 Sunday, Monday, ... Saturday
 
-[lst_item [strong mday]]
+[lst_item [const mday]]
 
 1 .. 31
 
-[lst_item [strong min]]
+[lst_item [const min]]
 
 0 .. 59
 
-[lst_item [strong mon]]
+[lst_item [const mon]]
 
 1 .. 12
 
-[lst_item [strong month]]
+[lst_item [const month]]
 
 Jan, Feb, ..., Dec
 
-[lst_item [strong proper]]
+[lst_item [const proper]]
 
 822-style date-time specification
 
-[lst_item [strong rclock]]
+[lst_item [const rclock]]
 
 elapsed seconds between then and now
 
-[lst_item [strong sec]]
+[lst_item [const sec]]
 
 0 .. 59
 
-[lst_item [strong wday]]
+[lst_item [const wday]]
 
 0 .. 6 (Sun .. Mon)
 
-[lst_item [strong weekday]]
+[lst_item [const weekday]]
 
 Sun, Mon, ..., Sat
 
-[lst_item [strong yday]]
+[lst_item [const yday]]
 
 1 .. 366
 
-[lst_item [strong year]]
+[lst_item [const year]]
 
 1900 ...
 
-[lst_item [strong zone]]
+[lst_item [const zone]]
 
 -720 .. 720 (minutes east of GMT)
 

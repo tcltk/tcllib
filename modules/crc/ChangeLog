@@ -1,3 +1,9 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* crc32.man: More semantic markup, less visual one.
+	* cksum.man:
+	* sum.man:
+
 2003-01-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.test: Fixed another 8.3 - 8.4 wide integer problem.
