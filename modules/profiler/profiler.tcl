@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.19 2003/02/07 02:58:48 davidw Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.20 2003/02/25 07:06:08 davidw Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2
@@ -28,7 +28,7 @@ namespace eval ::profiler {
 proc ::profiler::tZero { { tag "" } } {
     set ms [ clock clicks -milliseconds ]
     set us [ clock clicks ]
-    regsub -all -- {:} $tag {} tag
+    set tag [string map {: ""} $tag]
     # FRINK: nocheck
     set ::profiler::T$tag [ list $us $ms ] 
     return
@@ -47,9 +47,9 @@ proc ::profiler::tZero { { tag "" } } {
 #		time, in microseconds.
 
 proc ::profiler::tMark { { tag "" } } {
-     set ut [ clock clicks ]
-     set mt [ clock clicks -milliseconds ]
-     regsub -all -- {:} $tag {} tag
+    set ut [ clock clicks ]
+    set mt [ clock clicks -milliseconds ]
+    set tag [string map {: ""} $tag]
 
     # Per tag a variable was created within the profiler
     # namespace. But we should check if the tag does ecxist.
