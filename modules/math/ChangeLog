@@ -1,3 +1,8 @@
+2004-11-08  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Added preliminary versions of a linear algebra module
+          (revision of Hume's LA). No documentation yet
+
 2004-11-01  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * Moved initialisation of CDF in statistics module to 
