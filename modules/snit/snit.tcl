@@ -961,6 +961,8 @@ namespace eval ::snit:: {
     # delegatedtypemethods:  Names of delegated typemethods.
     # typecomponents:        Names of defined typecomponents.
     # typevars:              Typevariable definitions and initializations.
+    # varnames:              Names of instance variables
+    # typevarnames           Names of type variables
     variable compile
 
     # The following variable lists the reserved type definition statement
@@ -1068,6 +1070,8 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(delegatedtypemethods) {}
     set compile(components) {}
     set compile(typecomponents) {}
+    set compile(varnames) {}
+    set compile(typevarnames) {}
 
     append compile(defs) \
 	    "set %TYPE%::Snit_isWidget        [string match widget* $which]\n"
@@ -1330,7 +1334,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedmethods)]} {
-        error "error in 'delegate method $method...', '$method' has been defined locally."
+        error "Error in 'delegate method $method...', '$method' has been defined locally."
     }
 
     lappend compile(localmethods) $method
@@ -1358,7 +1362,7 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedtypemethods)]} {
-        error "error in 'delegate typemethod $method...', '$method' has been defined locally."
+        error "Error in 'delegate typemethod $method...', '$method' has been defined locally."
     }
 
     lappend compile(localtypemethods) $method
@@ -1416,9 +1420,17 @@ proc ::snit::Comp.statement.proc {proc arglist body} {
 proc ::snit::Comp.statement.typevariable {name args} {
     variable compile
 
+    set errRoot "Error in 'typevariable $name...'"
+
     if {[llength $args] > 1} {
-        error "typevariable '$name' has too many initializers"
+        error "$errRoot, too many initializers."
     }
+
+    if {[lsearch -exact $compile(varnames) $name] != -1} {
+        error "$errRoot, '$name' is already an instance variable."
+    }
+
+    lappend compile(typevarnames) $name
 
     if {[llength $args] == 1} {
         append compile(typevars) \
@@ -1435,10 +1447,18 @@ proc ::snit::Comp.statement.typevariable {name args} {
 # type's create typemethod.
 proc ::snit::Comp.statement.variable {name args} {
     variable compile
+
+    set errRoot "Error in 'variable $name...'"
     
     if {[llength $args] > 1} {
-        error "variable '$name' has too many initializers"
+        error "$errRoot, too many initializers."
     }
+
+    if {[lsearch -exact $compile(typevarnames) $name] != -1} {
+        error "$errRoot, '$name' is already a typevariable."
+    }
+
+    lappend compile(varnames) $name
 
     if {[llength $args] == 1} {
         append compile(instancevars) \
@@ -1457,11 +1477,44 @@ proc ::snit::Comp.statement.variable {name args} {
 proc ::snit::Comp.statement.typecomponent {component args} {
     variable compile
 
-    # FIRST, define the component
-    Comp.DefineTypecomponent $component
+    set errRoot "Error in 'typecomponent $component...'"
 
-    # TBD: Add -public and -inherit after typemethod delegation
-    # is working.
+    # FIRST, define the component
+    Comp.DefineTypecomponent $component $errRoot
+
+    # NEXT, handle the options.
+    set publicMethod ""
+    set inheritFlag 0
+
+    foreach {opt val} $args {
+        switch -exact -- $opt {
+            -public {
+                set publicMethod $val
+            }
+            -inherit {
+                set inheritFlag $val
+                if {![string is boolean $inheritFlag]} {
+    error "typecomponent $component -inherit: expected boolean value, got '$val'."
+                }
+            }
+            default {
+                error "typecomponent $component: Invalid option '$opt'"
+            }
+        }
+    }
+
+    # NEXT, if -public specified, define the method.  
+    if {$publicMethod ne ""} {
+        Comp.statement.delegate typemethod $publicMethod \
+            to $component using {%c}
+    }
+
+    # NEXT, if "-inherit 1" is specified, delegate typemethod * to 
+    # this component.
+    if {$inheritFlag} {
+        Comp.statement.delegate typemethod "*" to $component
+    }
+
 }
 
 
@@ -1473,8 +1526,12 @@ proc ::snit::Comp.statement.typecomponent {component args} {
 #
 # component     The component name
 
-proc ::snit::Comp.DefineTypecomponent {component} {
+proc ::snit::Comp.DefineTypecomponent {component {errRoot "Error"}} {
     variable compile
+
+    if {[lsearch -exact $compile(varnames) $component] != -1} {
+        error "$errRoot, '$component' is already an instance variable."
+    }
 
     if {[lsearch $compile(typecomponents) $component] == -1} {
         # Remember we've done this.
@@ -1504,8 +1561,10 @@ proc ::snit::Comp.DefineTypecomponent {component} {
 proc ::snit::Comp.statement.component {component args} {
     variable compile
 
+    set errRoot "Error in 'component $component...'"
+
     # FIRST, define the component
-    Comp.DefineComponent $component
+    Comp.DefineComponent $component $errRoot
 
     # NEXT, handle the options.
     set publicMethod ""
@@ -1550,8 +1609,12 @@ proc ::snit::Comp.statement.component {component args} {
 #
 # component     The component name
 
-proc ::snit::Comp.DefineComponent {component} {
+proc ::snit::Comp.DefineComponent {component {errRoot "Error"}} {
     variable compile
+
+    if {[lsearch -exact $compile(typevarnames) $component] != -1} {
+        error "$errRoot, '$component' is already a typevariable."
+    }
 
     if {[lsearch $compile(components) $component] == -1} {
         # Remember we've done this.
@@ -1576,12 +1639,12 @@ proc ::snit::Comp.statement.delegate {what name args} {
         method     { Comp.DelegatedMethod     $name $args }
         option     { Comp.DelegatedOption     $name $args }
         default {
-            error "syntax error in definition: delegate $what $name..."
+            error "Error in 'delegate $what $name...', '$what'?"
         }
     }
 
     if {([llength $args] % 2) != 0} {
-        error "syntax error in definition: delegate $what $name..."
+        error "Error in 'delegate $what $name...', invalid syntax"
     }
 }
 
@@ -1594,7 +1657,7 @@ proc ::snit::Comp.statement.delegate {what name args} {
 proc ::snit::Comp.DelegatedTypemethod {method arglist} {
     variable compile
 
-    set errRoot "error in 'delegate typemethod [list $method]...'"
+    set errRoot "Error in 'delegate typemethod [list $method]...'"
 
     # Next, parse the delegation options.
     set component ""
@@ -1632,7 +1695,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
 
     # NEXT, define the component
     if {$component ne ""} {
-        Comp.DefineTypecomponent $component
+        Comp.DefineTypecomponent $component $errRoot
     }
 
     # NEXT, define the pattern.
@@ -1676,7 +1739,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
 proc ::snit::Comp.DelegatedMethod {method arglist} {
     variable compile
 
-    set errRoot "error in 'delegate method [list $method]...'"
+    set errRoot "Error in 'delegate method [list $method]...'"
 
     # Next, parse the delegation options.
     set component ""
@@ -1712,9 +1775,11 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         error "$errRoot, cannot specify both 'as' and 'using'"
     }
 
-    # NEXT, define the component
+    # NEXT, define the component.  Allow typecomponents.
     if {$component ne ""} {
-        Comp.DefineComponent $component
+        if {[lsearch -exact $compile(typecomponents) $component] == -1} {
+            Comp.DefineComponent $component $errRoot
+        }
     }
 
     # NEXT, define the pattern.
@@ -1763,7 +1828,7 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
     set resourceName [lindex $optionDef 1]
     set className [lindex $optionDef 2]
 
-    set errRoot "error in 'delegate option [list $optionDef]...'"
+    set errRoot "Error in 'delegate option [list $optionDef]...'"
 
     # Next, parse the delegation options.
     set component ""
@@ -1811,7 +1876,7 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
     }
 
     # NEXT, define the component
-    Comp.DefineComponent $component
+    Comp.DefineComponent $component $errRoot
 
     # Next, define the target option, if not specified.
     if {![string equal $option "*"] &&
@@ -2248,6 +2313,7 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
 proc ::snit::RT.MethodCacheLookup {type selfns win self method} {
     variable ${type}::Snit_info
     variable ${type}::Snit_methodInfo
+    variable ${type}::Snit_typecomponents
     variable ${selfns}::Snit_components
     variable ${selfns}::Snit_methodCache
 
@@ -2273,11 +2339,15 @@ proc ::snit::RT.MethodCacheLookup {type selfns win self method} {
                      %s [list $self]]
 
     if {$compName ne ""} {
-        if {![info exists Snit_components($compName)]} {
+        if {[info exists Snit_components($compName)]} {
+            set compCmd $Snit_components($compName)
+        } elseif {[info exists Snit_typecomponents($compName)]} {
+            set compCmd $Snit_typecomponents($compName)
+        } else {
             error "$type $self delegates method '$method' to undefined component '$compName'."
         }
         
-        lappend subList %c [list $Snit_components($compName)]
+        lappend subList %c [list $compCmd]
     }
 
     set command [string map $subList $pattern]
