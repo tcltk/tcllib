@@ -1,3 +1,9 @@
+2001-10-12  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.tcl: Corrected the inline documentation to reflect what
+	  is actually happening. Problem reported by Glenn Jackman
+	  <glennjnn@users.sourceforge.net>, Item #46650.
+
 2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.n: Added manpage [446584].
