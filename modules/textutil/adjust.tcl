@@ -112,15 +112,20 @@ proc ::textutil::adjust::Configure { args } {
 
 proc ::textutil::adjust::Adjust { varOrigName varNewName } {
   variable Length
+  variable FullLine
   variable StrictLength
   variable Hyphenate
 
   upvar $varOrigName orig
   upvar $varNewName  text
 
-  regsub -all -- "(\n)|(\t)"     $orig  " "  text
-  regsub -all -- " +"            $text  " "  text
-  regsub -all -- "(^ *)|( *\$)"  $text  ""   text
+  if { $FullLine } then {
+    set text $orig;
+  } else {
+    regsub -all -- "(\n)|(\t)"     $orig  " "  text
+    regsub -all -- " +"            $text  " "  text
+    regsub -all -- "(^ *)|( *\$)"  $text  ""   text
+  }
 
   set ltext [ split $text ]
 
@@ -191,28 +196,22 @@ proc ::textutil::adjust::Adjust { varOrigName varNewName } {
 
       set word2 [Hyphenation $word];
       set word2 [string trim $word2];
-      set word3 "";
-      set word4 ""
 
-      set i 0;
       set iMax [llength $word2];
 
-      # build up the part of the word to be kept in the current line
+      # word3 := part of the word to be kept in the current line
 
-      while { $i < $iMax } {
+      for {set i 0; set word3 ""} {$i < $iMax} {incr i} {
         set syl [lindex $word2 $i]
         if { $pos + [string length " $word3$syl-"] > $Length } { break }
         append word3 $syl;
-        incr i;
       }
 
-      # build up the part of the hyphenated word to be transferred to
-      # the next line
+      # word4 := part of the word to be moved to the next line
 
-      while { $i < $iMax } {
-        set syl [lindex $word2 $i];
+      for {set word4 ""} {$i < $iMax} {incr i} {
+        set syl [lindex $word2 $i]
         append word4 $syl;
-        incr i;
       }
 
       # to be done in the future: code that guarantees that the
@@ -221,8 +220,6 @@ proc ::textutil::adjust::Adjust { varOrigName varNewName } {
       if {[string length $word3] && [string length $word4]} {
         # hyphenation was succesful: keep $word3 and the hyphen in the
         # current line and begin next line with $word4
-        #
-        # current line
 
         append line " $word3-"
         incr numword
@@ -243,8 +240,14 @@ proc ::textutil::adjust::Adjust { varOrigName varNewName } {
         set words(0) 1
         set words(1) [ list $size $word ]
       } else {
-        # hyphenation failed => close current line and begin
-        # the next line with the unhyphenated word ($word)
+        # hyphenation failed => close current line and begin the next
+        # line with the unhyphenated word ($word) - provided we have not
+        # encountered an unhyphenable word exceeding linesize
+
+        if {([string length $word4] > $Length) && ([llength $word2] == 1)} {
+          error "Word \"$word4\" can\'t be hyphenated\
+          and exceeds linesize $Length!"
+        }
 
         if [string length $text] { append text "\n" }
         append text [Justification $line [incr numline] words]
@@ -432,6 +435,11 @@ proc ::textutil::adjust::Hyphenation { str } {
     regsub -all {(\\)(-)} $str {-} tmp;
     return [split $tmp -];
   }
+
+  # Don't hyphenate very short words! Minimum length for hyphenation
+  # is set to 3 characters!
+
+  if { [string length $str] < 4 } then { return $str }
 
   # otherwise follow Knuth's algorithm
 
