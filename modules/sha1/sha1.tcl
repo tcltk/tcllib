@@ -2,7 +2,7 @@
 #
 # sha1.tcl - SHA1 in Tcl
 # Author: Don Libes <libes@nist.gov>, May 2001
-# Version 1.0.0
+# Version 1.0.3
 #
 # SHA1 defined by FIPS 180-1, "The SHA1 Message-Digest Algorithm",
 #          http://www.itl.nist.gov/fipspubs/fip180-1.htm
@@ -85,7 +85,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
 } else {
     # Without Trf use the all-tcl implementation by Don Libes.
 
-    namespace eval sha1 {
+    namespace eval ::sha1 {
 	variable K
 
 	proc initK {} {
@@ -109,7 +109,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
     # This proc is not necessary during runtime and may be omitted if you
     # are simply inserting this file into a production program.
     #
-    proc sha1::test {} {
+    proc ::sha1::test {} {
 	foreach {msg expected} {
 	    "abc"
 	    "a9993e364706816aba3e25717850c26c9cd0d89d"
@@ -140,7 +140,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
     # This proc is not necessary during runtime and may be omitted if you
     # are simply inserting this file into a production program.
     #
-    proc sha1::time {} {
+    proc ::sha1::time {} {
 	foreach len {10 50 100 500 1000 5000 10000} {
 	    set time [::time {sha1 [format %$len.0s ""]} 10]
 	    set msec [lindex $time 0]
@@ -148,7 +148,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
 	}
     }
 
-    proc sha1::sha1 {msg} {
+    proc ::sha1::sha1 {msg} {
 	variable K
 
 	#
@@ -273,7 +273,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
 
     ### These procedures are either inlined or replaced with a normal [format]!
     #
-    #proc sha1::f {t B C D} {
+    #proc ::sha1::f {t B C D} {
     #    switch [expr {$t/20}] {
     #	 0 {
     #	     expr {($B & $C) | ((~$B) & $D)}
@@ -285,17 +285,17 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
     #    }
     #}
     #
-    #proc sha1::byte0 {i} {expr {0xff & $i}}
-    #proc sha1::byte1 {i} {expr {(0xff00 & $i) >> 8}}
-    #proc sha1::byte2 {i} {expr {(0xff0000 & $i) >> 16}}
-    #proc sha1::byte3 {i} {expr {((0xff000000 & $i) >> 24) & 0xff}}
+    #proc ::sha1::byte0 {i} {expr {0xff & $i}}
+    #proc ::sha1::byte1 {i} {expr {(0xff00 & $i) >> 8}}
+    #proc ::sha1::byte2 {i} {expr {(0xff0000 & $i) >> 16}}
+    #proc ::sha1::byte3 {i} {expr {((0xff000000 & $i) >> 24) & 0xff}}
     #
-    #proc sha1::bytes {i} {
+    #proc ::sha1::bytes {i} {
     #    format %0.2x%0.2x%0.2x%0.2x [byte3 $i] [byte2 $i] [byte1 $i] [byte0 $i]
     #}
 
     # hmac: hash for message authentication
-    proc sha1::hmac {key text} {
+    proc ::sha1::hmac {key text} {
 	# if key is longer than 64 bytes, reset it to SHA1(key).  If shorter, 
 	# pad it out with null (\x00) chars.
 	set keyLen [string length $key]
@@ -328,4 +328,4 @@ if {![catch {package require Trf 2.0}] && ![catch {::sha1 -- test}]} {
     }
 }
 
-package provide sha1 1.0.2
+package provide sha1 1.0.3
