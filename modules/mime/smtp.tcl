@@ -933,8 +933,10 @@ proc ::smtp::auth_DIGEST-MD5 {token} {
 
     if {$response(code) == 334} {
         set challenge [base64::decode $response(diagnostic)]
-
+        
         # RFC 2831 2.1
+        # Char categories as per spec...
+        # Build up a regexp for splitting the challenge into key value pairs.
         set sep "\\\]\\\[\\\\()<>@,;:\\\"\\\?=\\\{\\\} \t"
         set tok {0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\-\|\~\!\#\$\%\&\*\+\.\^\_\`}
         set sqot {(?:\'(?:\\.|[^\'\\])*\')}
@@ -942,12 +944,17 @@ proc ::smtp::auth_DIGEST-MD5 {token} {
         array set params [regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 }]
 
         if {![info exists options(noncecount)]} {set options(noncecount) 0}
-        set nonce $params(nonce) ;#[base64::decode $params(nonce)]
-        set cnonce [md5_hex [clock seconds]:[pid]:[expr {rand()}]]]
+        set nonce $params(nonce)
+        set cnonce [CreateNonce]
         set noncecount [format %08u [incr options(noncecount)]]
         set qop auth
-        set realm "binky.home"
-        set uri "smtp/binky.home";#[lindex [fconfigure $options(sd) -peername] 1]"
+        # If realm not specified - use the servers fqdn
+        if {[info exists params(realm)]} {
+            set realm $params(realm)
+        } else {
+            set realm [lindex [fconfigure $state(sd) -peername] 1]
+        }
+        set uri "smtp/$realm"
 
         set A1 [md5_bin "$options(-username):$realm:$options(-password)"]
         set A1 [md5_hex "${A1}:$nonce:$cnonce"]
@@ -998,6 +1005,24 @@ proc ::smtp::md5_init {} {
         proc ::smtp::md5_bin {data} { return [::md5::md5 $data] }
         proc ::smtp::hmac_hex {pass data} { return [::md5::hmac -hex -key $pass $data] }
     }
+}
+
+# Get 16 random bytes for a nonce value. If we can use /dev/random, do so
+# otherwise we hash some values.
+#
+proc ::smtp::CreateNonce {} {
+    set bytes {}
+    if {[file readable /dev/random]} {
+        catch {
+            set f [open /dev/random r]
+            fconfigure $f -translation binary -buffering none
+            set bytes [read $f 16]
+        }
+    }
+    if {[string length $bytes] < 1} {
+        set bytes [md5_bin [clock seconds]:[pid]:[expr {rand()}]]
+    }
+    return [binary scan $bytes h* r; set r]
 }
 
 # ::smtp::finalize --
