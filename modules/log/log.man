@@ -207,6 +207,22 @@ caught, but propagated to the caller, as they may indicate
 misconfigurations of the log facility or errors in the callers code
 itself.
 
+
+[call [cmd ::log::logarray] [arg level] [arg arrayvar] [opt [arg pattern]]]
+
+Like [cmd ::log::log], but logs the contents of the specified array
+variable, possibly restricted to entries matching the [arg
+pattern]. The pattern defaults to [const *] (i.e. all entries) if it
+is not specified.
+
+
+[call [cmd ::log::loghex] [arg level] [arg text] [arg data]]
+
+Like [cmd ::log::log], but assumes that [arg data] is in binary. It
+converts the [arg data] into a mixed hex/ascii representation before
+writing them to the log.
+
+
 [call [cmd ::log::logMsg] [arg text]]
 
 Convenience wrapper around [cmd ::log::log].
