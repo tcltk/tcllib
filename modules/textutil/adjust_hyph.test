@@ -1,0 +1,58 @@
+#!/bin/sh
+# the next line restarts using tclsh \
+exec tclsh "$0" ${1+"$@"}
+
+##################################################################
+# Main programme to test adjust/hyphenation                      #
+##################################################################
+
+source adjust.tcl
+
+##########
+# German #
+##########
+
+puts "\nTest german hyphenation ...\n";
+
+set str "Kurz berichtet: Theodor Holzkopf (Name frei erfunden) promovierte \
+zum Doktor der Rechte über das Thema 'Die Böllerschüsse im Völkerrecht'"
+set wid 16
+
+# Setup hyphenation patterns
+
+textutil::adjust::readPatterns "dehypht.tex"
+
+# Patterns loaded
+
+puts [textutil::adjust $str -hyphenate 1 -length $wid];
+
+###########
+# italian #
+###########
+
+puts "\nTest italian hyphenation ...\n"
+
+set str "Non sappiamo con precisione quando a Roma furono \
+        institutite le prime scuole regolari, cioè 'statali'. \
+        Plutarcho dice che nacquero verso il 250 avanti Cristo, \
+        cioè circa cinquecent'anni dopo la fondazione della città. \
+        (Indro Montanelli)"
+set wid 20;
+textutil::adjust::readPatterns "ithyph.tex"
+puts [textutil::adjust $str -hyphenate 1 -length $wid];
+
+###########
+# spanish #
+###########
+
+puts "\nTest spanish hyphenation ...\n";
+
+set str "El panorama politico estará convulsionado porque los emeneristas, \
+        además de no contar con el apoyo del NFR para gobernar en el periodo \
+        2002-2007, se proponen junto con los ucesistas a aprobar los \
+        cambios a la carta magna (Periodico La Razon, Bolivia)"
+set wid 20;
+textutil::adjust::readPatterns "eshyph_vo.tex"
+puts [textutil::adjust $str -hyphenate 1 -length $wid];
+
+exit;
