@@ -1,3 +1,11 @@
+2004-11-08  Andreas Kupries <andreask@activestate.com>
+
+	* cmdline.tcl (::cmdline::getKnownOpt): Changed generation of
+	  error message for unknown option, re-added the prefix-dash to
+	  the option name. See AS Bugzilla Report 32363
+	  [http://bugs.activestate.com/show_bug.cgi?id=32363].
+	* cmdline.test: Updated testsuite to new error message.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
