@@ -6,6 +6,16 @@
 	  absolute paths, but were not. Changed the initial if condition a
 	  bit to fix this.
 
+2005-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Made glob patterns platform-dependent. This fixes
+	  [SF Tcllib Bug 1098039].
+
+2005-02-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Added test case for the handling of dot-files by
+	  [find]. This is for [SF Tcllib Bug 1098039].
+
 2005-02-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl: Completed implementation and testing of the 'jail'
