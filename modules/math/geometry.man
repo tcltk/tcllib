@@ -1,0 +1,171 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin math::geometry n 1.0.2]
+[copyright {2004 by Ideogramic ApS and other parties}]
+[moddesc   {Math}]
+[titledesc {Geometrical computations}]
+
+[require Tcl [opt 8.3]]
+[require math::geometry [opt 1.0.2]]
+
+[description]
+[para]
+The [package math::geometry] package is a collection of functions for
+computations and manipulations on two-dimensional geometrical objects,
+such as points, lines and polygons.
+
+[para]
+The geometrical objects are implemented as plain lists of coordinates.
+For instance a line is defined by a list of four numbers, the x- and
+y-coordinate of a first point and the x- and y-coordinates of a second
+point on the line.
+
+[para]
+The various types of object are recognised by the number of coordinate
+pairs and the context in which they are used: a list of four elements
+can be regarded as an infinite line, a finite line segment but also
+as a polyline of one segment and a point set of two points.
+
+[para]
+Currently the following types of objects are distinguished:
+[list_begin bullet]
+[bullet]
+[emph] point - a list of two coordinates representing the x- and
+y-coordinates respectively.
+
+[bullet]
+[emph line] - a list of four coordinates, interpreted as the x- and
+y-coordinates of two distinct points on the line.
+
+[bullet]
+[emph "line segment"] - a list of four coordinates, interpreted as the
+x- and y-coordinates of the first and the last points on the line
+segment.
+
+[bullet]
+[emph "polyline"] - a list of an even number of coordinates,
+interpreted as the x- and y-coordinates of an ordered set of points.
+
+[bullet]
+[emph "polygon"] - like a polyline, but the implicit assumption is that
+the polyline is closed (if the first and last points do not coincide,
+the missing segment is automatically added).
+
+[bullet]
+[emph "point set"] - again a list of an even number of coordinates, but
+the points are regarded without any ordering.
+
+[list_end]
+
+
+[section "PROCEDURES"]
+
+The package defines the following public procedures:
+
+[list_begin definitions]
+
+[call [cmd ::math::geometry::calculateDistanceToLine] [arg P] [arg line]]
+
+Calculate the distance of point P to the (infinite) line and return the
+result
+
+[list_begin arg]
+[arg_def list P] List of two numbers, the coordinates of the point
+
+[arg_def list line] List of four numbers, the coordinates of two points
+on the line
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::calculateDistanceToLineSegment] [arg P] [arg linesegment]]
+
+Calculate the distance of point P to the (finite) line segment and
+return the result.
+
+[list_begin arg]
+[arg_def list P] List of two numbers, the coordinates of the point
+
+[arg_def list linesegment] List of four numbers, the coordinates of the
+first and last points of the line segment
+[list_end]
+
+[nl]
+
+[nl]
+
+[call [cmd ::math::geometry::calculateDistanceToPolyline] [arg P] [arg polyline]]
+
+Calculate the distance of point P to the polyline and
+return the result.
+
+[list_begin arg]
+[arg_def list P] List of two numbers, the coordinates of the point
+
+[arg_def list polyline] List of numbers, the coordinates of the
+vertices of the polyline
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::findClosestPointOnLine] [arg P] [arg line]]
+
+Return the point on a line which is closest to a given point.
+
+[list_begin arg]
+[arg_def list P] List of two numbers, the coordinates of the point
+
+[arg_def list line] List of four numbers, the coordinates of two points
+on the line
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::findClosestPointOnLineSegment] [arg P] [arg linesegment]]
+
+Return the point on a [emph "line segment"] which is closest to a given
+point.
+
+[list_begin arg]
+[arg_def list P] List of two numbers, the coordinates of the point
+
+[arg_def list linesegment] List of four numbers, the first and last
+points on the line segment
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::findClosestPointOnPolyline] [arg P] [arg polyline]]
+
+Return the point on a [emph "polyline"] which is closest to a given
+point.
+
+[list_begin arg]
+[arg_def list P] List of two numbers, the coordinates of the point
+
+[arg_def list polyline] List of numbers, the vertices of the polyline
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::lengthOfPolyline] [arg polyline]]
+
+Return the length of the [emph "polyline"] (note: it not regarded as a
+polygon)
+
+[list_begin arg]
+[arg_def list polyline] List of numbers, the vertices of the polyline
+[list_end]
+
+[nl]
+
+[list_end]
+
+Other functions: Pro Memorie
+
+
+
+
+[keywords math "plane geometry" "point" "line" "distance" "angle"]
+
+[manpage_end]
+

@@ -6,8 +6,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: geometry.tcl,v 1.6 2004/01/15 06:36:13 andreas_kupries Exp $
+#
+# RCS: @(#) $Id: geometry.tcl,v 1.7 2004/10/04 09:50:37 arjenmarkus Exp $
 
 namespace eval ::math::geometry {
 }
@@ -79,7 +79,7 @@ proc ::math::geometry::calculateDistanceToLine {P line} {
     # dist = |s|*L
     #
     # =>
-    # 
+    #
     #        | (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay) |
     # dist = ---------------------------------
     #                       L
@@ -224,7 +224,7 @@ proc ::math::geometry::calculateDistanceToLineSegmentImpl {P linesegment} {
     # dist = |s|*L
     #
     # =>
-    # 
+    #
     #        | (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay) |
     # dist = ---------------------------------
     #                       L
@@ -582,7 +582,7 @@ proc ::math::geometry::findLineIntersection {line1 line2} {
     set l2y1 [lindex $line2 1]
     set l2x2 [lindex $line2 2]
     set l2y2 [lindex $line2 3]
-    
+
     # Is one of the lines vertical?
     if {$l1x1==$l1x2 || $l2x1==$l2x2} {
 	# One of the lines is vertical
@@ -691,15 +691,15 @@ proc ::math::geometry::polylinesIntersect {polyline1 polyline2} {
 #
 proc ::math::geometry::polylinesBoundingIntersect {polyline1 polyline2 granularity} {
     if {$granularity<=1} {
-	# Use perfect intersect 
-	# => first pin down where an intersection point may be, and then 
+	# Use perfect intersect
+	# => first pin down where an intersection point may be, and then
 	#    call MultilinesIntersectPerfect on those parts
 	set granularity 10 ; # optimal search granularity?
 	set perfectmatch 1
     } else {
 	set perfectmatch 0
     }
-    
+
     # split the lines into parts consisting of $granularity points
     set polyline1parts {}
     for {set i 0} {$i<[llength $polyline1]} {incr i [expr {2*$granularity-2}]} {
@@ -709,7 +709,7 @@ proc ::math::geometry::polylinesBoundingIntersect {polyline1 polyline2 granulari
     for {set i 0} {$i<[llength $polyline2]} {incr i [expr {2*$granularity-2}]} {
 	lappend polyline2parts [lrange $polyline2 $i [expr {$i+2*$granularity-1}]]
     }
-    
+
     # do any of the parts overlap?
     foreach part1 $polyline1parts {
 	foreach part2 $polyline2parts {
@@ -952,7 +952,7 @@ proc ::math::geometry::pointInsidePolygon {P polygon} {
     }
 
     # Algorithm
-    # 
+    #
     # Consider a straight line going from P to a point far away from both
     # P and the polygon (in particular outside the polygon).
     #   - If the line intersects with 0 of the polygon's sides, then
@@ -1033,7 +1033,7 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
 	    [list $polygonP1x $polygonP1y] [list $polygonP2x $polygonP2y] 0]} {
 	return 0
     }
-    
+
     # 1. if one of the points of the polygon is inside the rectangle,
     # then the rectangle cannot be inside the polygon
     foreach {x y} $polygon {
@@ -1063,4 +1063,31 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
 }
 
 
-package provide math::geometry 1.0.1
+# ::math::geometry::areaPolygon
+#
+#       Determine the area enclosed by a (non-complex) polygon
+#
+# Arguments:
+#       polygon       a polygon
+#
+# Results:
+#       area          the area enclosed by the polygon
+#
+# Examples:
+#     - areaPolygon {-10 -10 10 -10 10 10 -10 10}
+#       Result: 400
+#
+proc ::math::geometry::areaPolygon {polygon} {
+
+    foreach {a1 a2 b1 b2} $polygon {break}
+
+    set area 0.0
+    foreach {c1 c2} [lrange $polygon 4 end] {
+        set area [expr {$area + $b1*$c2 - $b2*$c1}]
+        set b1   $c1
+        set b2   $c2
+    }
+    expr {0.5*abs($area)}
+}
+
+package provide math::geometry 1.0.2
