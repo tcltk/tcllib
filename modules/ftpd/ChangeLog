@@ -1,3 +1,9 @@
+2004-10-05  Andreas Kupries <andreask@activestate.com>
+
+	* ftpd.tcl: Fixed [Tcllib SF Bug 1006157] reported by Stephen
+	  Huntley <blacksqr@users.sourceforge.net>. Using fake user/group
+	  information when on Windows.
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftpd.tcl: Updated version number to sync with 1.6.1
