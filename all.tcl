@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.2 2000/05/30 23:59:59 ericm Exp $
+# RCS: @(#) $Id: all.tcl,v 1.3 2001/03/26 16:50:20 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace eval ::tcltest {}
@@ -98,12 +98,17 @@ set timeCmd {clock format [clock seconds]}
 puts stdout "Tests began at [eval $timeCmd]"
 
 set auto_path [linsert $auto_path 0 [file join $root modules]]
+set old_apath $auto_path
 
 foreach module $modules {
     set ::tcltest::testsDirectory [file join $root modules $module]
+
     if { ![file isdirectory $::tcltest::testsDirectory] } {
 	puts stdout "unknown module $module"
     }
+
+    set auto_path $old_apath
+    set auto_path [linsert $auto_path 0 $::tcltest::testsDirectory]
 
     # foreach module, make a slave interp and source that module's tests into
     # the slave.  This isolates the test suites from one another.
@@ -113,10 +118,10 @@ foreach module $modules {
     # import the auto_path from the parent interp, so "package require" works
     $c eval {
 	set ::tcllibModule [pSet module]
+	set auto_path [pSet auto_path]
 	package require tcltest
 	namespace import ::tcltest::*
 	set ::tcltest::testSingleFile false
-	set auto_path [pSet auto_path]
     }
     interp alias $c ::tcltest::cleanupTestsHook {} \
 	    ::tcltest::cleanupTestsHook $c

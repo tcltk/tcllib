@@ -1,11 +1,22 @@
+2001-03-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: [Bug #410104, Patch #410106]
+	  New implementation of ::fileutil::find for unixoid OSs using
+	  stat and device/inode configuration to detect and break circular
+	  softlink structures. This implementation also skips un'stat'able
+	  files and directories.
+
+	* fileutil.test: Added fileutil-1.4 testing the circle breaker
+	  (only under unix).
+
 2000-03-10  Eric Melski  <ericm@scriptics.com>
 
 	* fileutil.test:
 	* fileutil.tcl: Added cat function, duplicates standard UNIX "cat"
-	utility.
+	  utility.
 
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* fileutil.test: Collected tests into one file; adapted tests for
-	use in/out of tcllib test framework.
+	  use in/out of tcllib test framework.
 

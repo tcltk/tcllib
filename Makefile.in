@@ -7,11 +7,12 @@
 #	replaced in the actual Makefile.
 #
 # Copyright (c) 1999-2000 Ajuba Solutions
+# Copyright (c) 2001      ActiveState Tool Corp.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.40 2000/11/02 19:26:55 kuchler Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.41 2001/03/26 16:50:20 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -66,6 +67,12 @@ TEXTUTIL=textutil
 # Counters and statistics
 COUNTER=counter
 
+# Logging facility
+LOGGER=log
+
+# HTML parsing facilities
+HTMLPARSE=htmlparse
+
 MODULES= \
 	$(BASE64)	\
 	$(CMDLINE)	\
@@ -83,7 +90,9 @@ MODULES= \
 	$(POP3)		\
 	$(PROFILER)	\
 	$(TEXTUTIL)	\
-	$(URI)
+	$(URI)		\
+	$(LOGGER)	\
+	$(HTMLPARSE)
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please

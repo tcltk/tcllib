@@ -1,3 +1,34 @@
+2001-03-26  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in: Added module 'htmlparse'.
+
+2001-03-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in: Added module 'log'.
+
+2001-03-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* all.tcl: [Bug #410100, Patch #410105]
+	  Squashed a subtle bug with package management for the
+	  tests. Changes: all.tcl now adds the module path to the
+	  auto_path (the tested modules did it themselves before) and also
+	  moved the setting of the auto_path in the slave before the first
+	  'package require'. Why ? Assume the old code, an installed
+	  fileutil 1.0 and a new fileutil 1.1 under development. The
+	  initialization of the tests scans the package directories and
+	  finds fileutil 1.0. The module then adds itself to the auto_path
+	  and then requires fileutil (without version). Now fileutil 1.0
+	  is found by the pkg management, it is acceptable according to
+	  the rules of require and thus used. The new version is not
+	  considered at all, as changing the auto_path does *not* enforce
+	  a rescan of package directories. It is possible to solve the
+	  problem by having the modules require themselves and request a
+	  specific version (1.1 in this case). But this would mean that in
+	  each module we have (at least) one more file containing the
+	  version number (all test files!) and we have to maintain this
+	  for every module. The change here however solves the problem
+	  without touching the modules at all.
+
 2000-11-02  Brent Welch <welch@ajubasolutions.com>
 
         * configure.in: Bumped version number to 0.8

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.2 2000/11/02 19:38:14 ericm Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.3 2001/03/26 16:50:21 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -26,6 +26,8 @@
 \fBtextutil::trimright\fR \fIstring {regexp [ \t]+}\fR
 .sp
 \fBtextutil::untabify\fR \fIstring {num 8}\fR
+.sp
+\fBtextutil::strRepeat\fR \fIstring num\fR
 .BE
 .SH DESCRIPTION
 .PP
@@ -145,6 +147,15 @@ between the beginning and the end of the string.
 \fBtextutil::untabify\fR \fIstring {num 8}\fR
 Untabify the \fIstring\fP by replacing any tabulation char by a substring
 of \fInum\fP space chars and return the result as a new string.
+
+.TP
+\fBtextutil::strRepeat\fR \fItext num\fR
+The implementation depends on the core executing the package. Used
+\fBstring repeat\fR if it is present, or a fast tcl implementation if
+it is not. Returns a string containing the \fItext\fR repeated
+\fInum\fR times. The repetitions are joined without characters between
+them. A value of \fInum\fR <= 0 causes the command to return an empty
+string.
 
 .SH SEE ALSO
 regexp, split, string
