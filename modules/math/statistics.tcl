@@ -99,6 +99,13 @@ proc ::math::statistics::BasicStats { type values } {
 
     if { $number > 1 } {
 	set var    [expr {($sumsq-$mean*$sum)/double($number-1)}]
+        #
+        # Take care of a rare situation: uniform data might
+        # cause a tiny negative difference
+        #
+        if { $var < 0.0 } {
+           set var 0.0
+        }
 	set stdev  [expr {sqrt($var)}]
     }
 
