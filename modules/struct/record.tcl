@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.1 2002/11/06 04:24:35 schwarzkopf Exp $
+# $Id: record.tcl,v 1.2 2002/11/06 19:32:52 schwarzkopf Exp $
 #
 #============================================================
 #
@@ -93,10 +93,7 @@ proc ::struct::record::record {cmd_ args} {
         error "Sub command \"$cmd_\" is not recognized. Must be [join $commands ,]"
     }
 
-    ##
-    ## Could have used string totitle, but would need 8.2 ...
-    ##
-    set cmd_ [string totitle $cmd_]
+    set cmd_ [string totitle "$cmd_"]
     return [uplevel 1 ::struct::record::${cmd_} $args]
 
 }; # end proc ::struct::record::record
@@ -125,7 +122,7 @@ proc ::struct::record::Define {defn_ vars_ args} {
 
     set defn_ [Qualify $defn_]
 
-    if {[info exist _recorddefn($defn_)]} {
+    if {[info exists _recorddefn($defn_)]} {
         error "Record definition $defn_ already exists"
     }
 
@@ -160,7 +157,7 @@ proc ::struct::record::Define {defn_ vars_ args} {
 
         } elseif {$len == 3} {
 
-            if {![string match "record" [lindex $V 0]]} {
+            if {![string match "record" "[lindex $V 0]"]} {
 
                 Delete record $defn_
                 error "$V is a Bad member for record definition
@@ -175,7 +172,7 @@ proc ::struct::record::Define {defn_ vars_ args} {
             ##  Right now, there can not be circular records
             ##  so, we abort the creation
             ##
-            if {[string match $defn_ $new]} {
+            if {[string match "$defn_" "$new"]} {
                 Delete record $defn_
                 return -errorinfo "Can not have circular records.\
                 Structure was not created."
@@ -187,7 +184,7 @@ proc ::struct::record::Define {defn_ vars_ args} {
             ##  use to be declared, so the parsing code
             ##  is already there.
             ##
-            set V [join [lrange $V 1 2] ::]
+            set V [join [lrange $V 1 2] "::"]
         }
 
         lappend _recorddefn($defn_) $V
@@ -241,13 +238,13 @@ proc ::struct::record::Create {defn_ inst_ args} {
     variable _defn
     variable _defaults
 
-    set inst_ [Qualify $inst_]
+    set inst_ [Qualify "$inst_"]
 
     ##
     ##    test to see if the record
     ##    definition has been defined yet
     ##
-    if {![info exist _recorddefn($defn_)]} {
+    if {![info exists _recorddefn($defn_)]} {
         error "Structure $defn_ does not exist"
     }
 
@@ -258,7 +255,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
     ##    variable is automatically
     ##    generated
     ##
-    if {[string match "[Qualify #auto]" $inst_]} {
+    if {[string match "[Qualify #auto]" "$inst_"]} {
         set c $_count($defn_)
         set inst_ [format "%s%s" ${defn_} $_count($defn_)]
         incr _count($defn_)
@@ -269,7 +266,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
     ##    created. This avoids any collisions with
     ##    previously created instances
     ##
-    if {[info exist _defn($inst_)]} {
+    if {[info exists _defn($inst_)]} {
         incr _count($defn_) -1
         error "Instances $inst_ already exists"
     }
@@ -291,7 +288,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
         ##
         ##  Test to see if there is a nested record
         ##
-        if {[regexp {([\w]*)::([\w]*)} $V m def inst]} {
+        if {[regexp -- {([\w]*)::([\w]*)} $V m def inst]} {
 
 
             ##
@@ -301,9 +298,9 @@ proc ::struct::record::Create {defn_ inst_ args} {
             ##
             set def [Qualify $def]
 
-            if {![info exist _recorddefn($def)]} {
+            if {![info exists _recorddefn($def)]} {
 
-                Delete inst $inst_
+                Delete inst "$inst_"
 
                 return
             }
@@ -321,9 +318,9 @@ proc ::struct::record::Create {defn_ inst_ args} {
             ##
             set cnt_plus [expr {$cnt + 1}]
             set mem [lindex $args $cnt]
-            if {![string match "" $mem]} {
-                 if {![string match "-$inst" $mem]} {
-                    Delete inst $inst_
+            if {![string match "" "$mem"]} {
+                 if {![string match "-$inst" "$mem"]} {
+                    Delete inst "$inst_"
                     error "$inst is not a member of $defn_"
                 }
             }
@@ -342,7 +339,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
 
     foreach {k v} $args {
 
-        Access $defn_ $inst_ [string trimleft $k -] $v
+        Access $defn_ $inst_ [string trimleft "$k" -] $v
 
     }; # end foreach arg
     
@@ -425,11 +422,11 @@ proc ::struct::record::Cmd {inst_ args} {
     set result [list]
 
     set len [llength $args]
-    if {$len <= 1} {return [Show values $inst_]}
+    if {$len <= 1} {return [Show values "$inst_"]}
 
     set cmd [lindex $args 0]
 
-    if {[string match cget $cmd]} {
+    if {[string match "cget" "$cmd"]} {
 
             set cnt 0
             foreach k [lrange $args 1 end] {
@@ -443,7 +440,7 @@ proc ::struct::record::Cmd {inst_ args} {
             if {$cnt == 1} {set result [lindex $result 0]}
             return $result
 
-    } elseif {[string match "config*" $cmd]} {
+    } elseif {[string match "config*" "$cmd"]} {
 
             set L [lrange $args 1 end]
             foreach {k v} $L {
@@ -454,6 +451,8 @@ proc ::struct::record::Cmd {inst_ args} {
             error "Wrong argument.
             must be \"object cget|configure args\""
     }
+
+    return [list]
 
 }; # end proc ::struct::record::Cmd
 
@@ -513,13 +512,13 @@ proc ::struct::record::Show {what_ {record_ ""}} {
     ##
     ## We just prepend :: to the record_ argument
     ##
-    if {![string match "::*" $record_]} {set record_ "::$record_"}
+    if {![string match "::*" "$record_"]} {set record_ "::$record_"}
 
-    if {[string match "record*" $what_]} {
+    if {[string match "record*" "$what_"]} {
         return [lsort [array names _recorddefn]]
-    } elseif {[string match "mem*" $what_]} {
+    } elseif {[string match "mem*" "$what_"]} {
 
-       if {[string match "" $record_] || ![info exists _recorddefn($record_)]} {
+       if {[string match "" "$record_"] || ![info exists _recorddefn($record_)]} {
            error "Bad arguments while accessing members. Bad record name"
        }
 
@@ -527,9 +526,9 @@ proc ::struct::record::Show {what_ {record_ ""}} {
        set cnt 0
        foreach m $_recorddefn($record_) {
            set def [lindex $_defaults($record_) $cnt]
-           if {[regexp {([\w]+)::([\w]+)} $m m d i]} {
+           if {[regexp -- {([\w]+)::([\w]+)} $m m d i]} {
                lappend res [list record $d $i]
-           } elseif {![string match "" $def]} {
+           } elseif {![string match "" "$def"]} {
                lappend res [list $m $def]
            } else {
                lappend res $m
@@ -538,24 +537,20 @@ proc ::struct::record::Show {what_ {record_ ""}} {
            incr cnt
        }
 
-       #return $_recorddefn($record_)
        return $res
 
-    } elseif {[string match inst* $what_]} {
-
-        #return [lsort [array names ::struct::record${record_}::values]]
+    } elseif {[string match "inst*" "$what_"]} {
 
         if {![info exists ::struct::record${record_}::instances]} {
             return [list]
         }
         return [lsort [set ::struct::record${record_}::instances]]
 
-    } elseif {[string match val* $what_]} {
+    } elseif {[string match "val*" "$what_"]} {
 
            set ns $_defn($record_)
 
-           #if {[string match "" $record_] || ![info exists ${ns}::values($record_)]}
-           if {[string match "" $record_] || ([lsearch [set [Ns $record_]instances] $record_] < 0)} {
+           if {[string match "" "$record_"] || ([lsearch [set [Ns $record_]instances] $record_] < 0)} {
 
                error "Wrong arguments to values. Bad instance name"
            }
@@ -565,7 +560,7 @@ proc ::struct::record::Show {what_ {record_ ""}} {
 
               set v [set [Ns $record_]values($record_,$k)]
 
-              if {[regexp {([\w]*)::([\w]*)} $k m def inst]} {
+              if {[regexp -- {([\w]*)::([\w]*)} $k m def inst]} {
                   set v [::struct::record::Show values ${record_}.${inst}]
               }
 
@@ -573,8 +568,9 @@ proc ::struct::record::Show {what_ {record_ ""}} {
            }
            return $ret
 
-    } else {
     }
+
+    return [list]
 
 }; # end proc ::struct::record::Show
 
@@ -604,7 +600,7 @@ proc ::struct::record::Delete {sub_ item_} {
     ##
     ## We just semi-blindly prepend :: to the record_ argument
     ##
-    if {![string match "::*" $item_]} {set item_ "::$item_"}
+    if {![string match "::*" "$item_"]} {set item_ "::$item_"}
 
     switch -- $sub_ {
 
@@ -644,8 +640,8 @@ proc ::struct::record::Delete {sub_ item_} {
             ##  Delete the instances for this
             ##  record
             ##
-            foreach I [Show instance $item_] {
-                catch {Delete instance $I}
+            foreach I [Show instance "$item_"] {
+                catch {Delete instance "$I"}
             }
 
             catch {
@@ -711,7 +707,6 @@ proc ::struct::record::Exists {sub_ item_} {
         }
     }; # end switch
 
-    return
 }; # end proc ::struct::record::Exists
 
 
@@ -733,16 +728,16 @@ proc ::struct::record::Exists {sub_ item_} {
 #
 proc ::struct::record::Qualify {item_ {level_ 2}} {
 
-    if {![string match "::*" $item_]} {
+    if {![string match "::*" "$item_"]} {
         set ns [uplevel $level_ [list namespace current]]
 
-        if {![string match "::" $ns]} {
+        if {![string match "::" "$ns"]} {
             append ns "::"
         }
      
         set item_ "$ns${item_}"
     }
 
-    return $item_
+    return "$item_"
 
 }; # end proc ::struct::record::Qualify
