@@ -1058,6 +1058,30 @@ proc html::hdrRow {args} {
     return $html
 }
 
+# html::paramRow
+#
+#	Format a table row.  If the default font has been set, this
+#	takes care of wrapping the table cell contents in a font tag.
+#
+#       Based on html::row
+#
+# Arguments:
+#	list	Values to put into the row
+#       rparam   Parameters for row
+#       cparam   Parameters for cells
+#
+# Results:
+#	A <tr><td>...</tr> fragment
+
+proc html::paramRow {list {rparam {}} {cparam {}}} {
+    ::set html "<tr $rparam>\n"
+    ::foreach x $list {
+	append html \t[html::cell $cparam $x td]\n
+    }
+    append html "</tr>\n"
+    return $html
+}
+
 # html::cell
 #
 #	Format a table cell.  If the default font has been set, this
@@ -1199,6 +1223,48 @@ proc html::minorMenu {list {sep { | }}} {
 	}
 	::set s $sep
     }
+    return $html
+}
+
+# html::minorList
+#
+#	Create a list of links given a list of label, URL pairs.
+#	If the URL is the current page, it is not highlighted.
+#
+#       Based on html::minorMenu
+#
+# Arguments:
+#
+#	list	List that alternates label, url, label, url
+#       ordered Boolean flag to choose between ordered and
+#               unordered lists. Defaults to 0, i.e. unordered.
+#
+# Results:
+#	A <ul><li><a...><\li>.....<\ul> fragment
+#    or a <ol><li><a...><\li>.....<\ol> fragment
+
+proc html::minorList {list {ordered 0}} {
+    global page
+    ::set s ""
+    ::set html ""
+    ::if { $ordered } {
+	append html [html::openTag ol]
+    } else {
+	append html [html::openTag ul]
+    }
+    regsub -- {index.h?tml$} [ncgi::urlStub] {} this
+    ::foreach {label url} $list {
+	append html [html::openTag li]
+	regsub -- {index.h?tml$} $url {} that
+	::if {[string compare $this $that] == 0} {
+	    append html "$s$label"
+	} else {
+	    append html "$s<a href=\"$url\">$label</a>"
+	}
+	append html [html::closeTag]
+	append html \n
+    }
+    append html [html::closeTag]
     return $html
 }
 
