@@ -6,7 +6,7 @@
 #	a good stack trace in ::errorInfo as appropriate.
 # -------------------------------------------------------------------------
 #
-# RCS: @(#) $Id: ascaller.tcl,v 1.1 2001/11/07 21:59:24 dgp Exp $
+# RCS: @(#) $Id: ascaller.tcl,v 1.2 2001/11/09 04:59:45 dgp Exp $
 
 namespace eval ::control {
 
@@ -55,6 +55,18 @@ namespace eval ::control {
 	    }
 	}]
 	return $script
+    }
+
+    proc ErrorInfoAsCaller {find replace} {
+	set info $::errorInfo
+	set i [string last "\n    (\"$find" $info]
+	if {$i == -1} {return $info}
+	set result [string range $info 0 [incr i 6]]	;# keep "\n    (\""
+	append result $replace			;# $find -> $replace
+	incr i [string length $find]
+	set j [string first ) $info [incr i]]	;# keep rest of parenthetical
+	append result [string range $info $i $j]
+        return $result
     }
 
 }
