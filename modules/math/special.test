@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: special.test,v 1.2 2004/06/30 10:52:44 arjenmarkus Exp $
+# $Id: special.test,v 1.3 2004/07/05 15:33:22 kennykb Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -88,7 +88,6 @@ test "Fresnel-1.0" "Values of the Fresnel C intergral" \
    foreach x {0.0 0.1 0.2 0.5 1.0 1.5 2.0 3.0 4.0 5.0} {
       lappend result [::math::special::fresnel_C $x]
    }
-   puts $result
    set result
 } -result {0.0  0.09999 0.19992 0.49234 0.77989 0.44526
            0.48825 0.60572 0.49842 0.56363}
@@ -99,7 +98,6 @@ test "Fresnel-1.1" "Values of the Fresnel S intergral" \
    foreach x {0.0 0.1 0.2 0.5 1.0 1.5 2.0 3.0 4.0 5.0} {
       lappend result [::math::special::fresnel_S $x]
    }
-   puts $result
    set result
 } -result {0.0  0.00052 0.00419 0.06473 0.43826 0.69750
            0.34342 0.49631 0.42052 0.49919}

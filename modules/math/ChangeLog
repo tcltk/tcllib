@@ -8,6 +8,13 @@
 	* misc.tcl (expectInteger):	that have integrable singularities
 					and integrals over half-infinite
 					intervals.
+	* constants.tcl:  Changes so that constants get defined in the
+	* constants.test: correct namespace. Changed tests so that they
+	* elliptic.test:  don't fail when other tests have already run.
+	* special.tcl:    Changed the definition of Gamma to the correct
+	* special.test:   one.
+	Also added copyright notices and CVS IDs in several files that
+	lacked them, and corrected indentation in several files.
 	
 2004-06-19  Kevin Kenny  <kennykb@acm.org>
 
