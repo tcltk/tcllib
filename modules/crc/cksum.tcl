@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: cksum.tcl,v 1.1 2002/01/15 20:54:59 patthoyts Exp $
+# $Id: cksum.tcl,v 1.2 2003/01/03 02:21:46 patthoyts Exp $
 
 namespace eval crc {
     
@@ -73,12 +73,23 @@ namespace eval crc {
 
 # Description:
 #  Calculate a cksum(1) compatible 32 bit checksum for the input data.
+#  
+#  This procedure has been broken into two parts to permit working on
+#  a file in small sections.
 #
 proc crc::Cksum {s} {
-    variable cksum_tbl
-
     set t 0
     set l 0
+    Cksum_chunk s t l
+    return [Cksum_finalize t l]
+}
+
+proc crc::Cksum_chunk {data_var sum_var len_var} {
+    variable cksum_tbl
+    upvar $data_var s
+    upvar $sum_var t
+    upvar $len_var l
+
     binary scan $s c* r
     foreach {n} $r {
         set t [expr {($t << 8)
@@ -88,7 +99,12 @@ proc crc::Cksum {s} {
                                              }]]}]
         incr l
     }
-    
+}
+
+proc crc::Cksum_finalize {sum_var len_var} {
+    variable cksum_tbl
+    upvar $sum_var t
+    upvar $len_var l
     for {set i $l} {$i > 0} {set i [expr {$i>>8}]} {
         set t [expr {($t << 8) \
                          ^ [lindex $cksum_tbl \
@@ -100,12 +116,14 @@ proc crc::Cksum {s} {
 # Description:
 #  Provide a Tcl equivalent of the unix cksum(1) command.
 # Options:
-#  -filename name - return a checksum for the specified file.
-#  -format string - return the checksum using this format string.
+#  -filename name  - return a checksum for the specified file.
+#  -format string  - return the checksum using this format string.
+#  -chunksize size - set the chunking read size
 #
 proc crc::cksum {args} {
     set filename {}
     set format %u
+    set chunksize 10240
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
             -fi* {
@@ -114,6 +132,11 @@ proc crc::cksum {args} {
             }
             -fo* {
                 set format [lindex $args 1]
+                set args [lreplace $args 0 0]
+            }
+            -ch* -
+            -bu* {
+                set chunksize [lindex $args 1]
                 set args [lreplace $args 0 0]
             }
             -- {
@@ -129,11 +152,16 @@ proc crc::cksum {args} {
     }
 
     if {$filename != {}} {
+        set cksum 0
+        set cklen 0
         set f [open $filename r]
         fconfigure $f -translation binary
-        set data [read $f]
+        while {![eof $f]} {
+            set chunk [read $f $chunksize]
+            Cksum_chunk chunk cksum cklen
+        }
         close $f
-        set r [Cksum $data]
+        set r [Cksum_finalize cksum cklen]
     } else {
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be \
