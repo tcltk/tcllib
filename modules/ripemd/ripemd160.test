@@ -1,0 +1,155 @@
+# ripemd160.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
+#
+# $Id: ripemd160.test,v 1.1 2004/02/18 14:32:04 patthoyts Exp $
+
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget ripemd160
+catch {namespace delete ::ripemd::ripemd160}
+if {[catch {source [file join [file dirname [info script]] ripemd160.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require ripemd160
+
+if {$::ripemd::::ripemd160::usetrf} {
+    puts "ripemd160 [package provide ripemd160] (Trf based)"
+} else {
+    puts "ripemd160 [package provide ripemd160] (pure Tcl)"
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+# Test vectors
+#
+set vectors {
+    1 {}    {9C1185A5C5E9FC54612808977EE8F548B2258D31}
+    2 {a}   {0BDC9D2D256B3EE9DAAE347BE6F4DC835A467FFE}
+    3 {abc} {8EB208F7E05D987A9B044A8E98C6B087F15A0BFC}
+    4 {message digest} {5D0689EF49D2FAE572B881B123A85FFA21595F36}
+    5 {abcdefghijklmnopqrstuvwxyz} {F71C27109C692C1B56BBDCEB5B9D2865B3708DBC}
+    6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
+      {12A053384A9C0C88E405A06C27DCF49ADA62EB2B}
+    7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+      {B0E20B6E3116640286ED3A87A5713079B21F5189}
+}
+lappend vectors \
+    8 [string repeat 1234567890 8] {9B752E45573D4B39F4DBD3323CAB82BF63326BFB}
+
+foreach {n msg hash} $vectors {
+    test ripemd160-1.$n {RIPEMD-160 test strings} {
+        ::ripemd::ripemd160 -hex $msg
+    } $hash
+}
+
+# If our implementation is managing to use Trf then check the pure tcl
+# version as well.
+if {$::ripemd::ripemd160::usetrf} {
+    set ::ripemd::ripemd160::usetrf 0
+    foreach {n msg hash} $vectors {
+        test ripemd160-2.$n {RIPEMD-160 pure-Tcl} {
+            ::ripemd::ripemd160 -hex $msg
+        } $hash
+    }
+    set ::ripemd::ripemd160::usetrf 1
+}
+
+# -------------------------------------------------------------------------
+# HMAC test vectors
+
+set key [binary format H* 00112233445566778899aabbccddeeff01234567]
+
+set vectors {
+    1 {}    {CF387677BFDA8483E63B57E06C3B5ECD8B7FC055}
+    2 {a}   {0D351D71B78E36DBB7391C810A0D2B6240DDBAFC}
+    3 {abc} {F7EF288CB1BBCC6160D76507E0A3BBF712FB67D6}
+    4 {message digest} {F83662CC8D339C227E600FCD636C57D2571B1C34}
+    5 {abcdefghijklmnopqrstuvwxyz} {843D1C4EB880AC8AC0C9C95696507957D0155DDB}
+    6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
+      {60F5EF198A2DD5745545C1F0C47AA3FB5776F881}
+    7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+      {E49C136A9E5627E0681B808A3B97E6A6E661AE79}
+}
+lappend vectors \
+    8 [string repeat 1234567890 8] {31BE3CC98CEE37B79B0619E3E1C2BE4F1AA56E6C}
+
+foreach {n msg hash} $vectors {
+    test ripemd160-3.$n {HMAC RIPEMD-160 test vectors} {
+        ::ripemd::hmac160 -hex -key $key $msg
+    } $hash
+}
+
+# If our implementation is managing to use Trf then check the pure tcl
+# version as well.
+if {$::ripemd::ripemd160::usetrf} {
+    set ::ripemd::ripemd160::usetrf 0
+    foreach {n msg hash} $vectors {
+        test ripemd160-4.$n {HMAC RIPEMD-160 pure-Tcl} {
+            ::ripemd::hmac160 -hex -key $key $msg
+        } $hash
+    }
+    set ::ripemd::ripemd160::usetrf 1
+}
+
+# -------------------------------------------------------------------------
+# HMAC test vectors - key 2
+
+set key [binary format H* 0123456789abcdeffedcba987654321000112233]
+
+set vectors {
+    1 {}    {FE69A66C7423EEA9C8FA2EFF8D9DAFB4F17A62F5}
+    2 {a}   {85743E899BC82DBFA36FAAA7A25B7CFD372432CD}
+    3 {abc} {6E4AFD501FA6B4A1823CA3B10BD9AA0BA97BA182}
+    4 {message digest} {2E066E624BADB76A184C8F90FBA053330E650E92}
+    5 {abcdefghijklmnopqrstuvwxyz} {07E942AA4E3CD7C04DEDC1D46E2E8CC4C741B3D9}
+    6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
+      {B6582318DDCFB67A53A67D676B8AD869ADED629A}
+    7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+      {F1BE3EE877703140D34F97EA1AB3A07C141333E2}
+}
+lappend vectors \
+    8 [string repeat 1234567890 8] {85F164703E61A63131BE7E45958E0794123904F9}
+
+foreach {n msg hash} $vectors {
+    test ripemd160-5.$n {HMAC RIPEMD-160 test vectors} {
+        ::ripemd::hmac160 -hex -key $key $msg
+    } $hash
+}
+
+# If our implementation is managing to use Trf then check the pure tcl
+# version as well.
+if {$::ripemd::ripemd160::usetrf} {
+    set ::ripemd::ripemd160::usetrf 0
+    foreach {n msg hash} $vectors {
+        test ripemd160-6.$n {HMAC RIPEMD-160 pure-Tcl} {
+            ::ripemd::hmac160 -hex -key $key $msg
+        } $hash
+    }
+    set ::ripemd::ripemd160::usetrf 1
+}
+
+# -------------------------------------------------------------------------
+
+::tcltest::cleanupTests
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
