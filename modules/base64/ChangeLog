@@ -1,3 +1,8 @@
+2003-04-21  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* uuencode.test: Added code to suppress output from the log
+	  package during the test.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* uuencode.man:
