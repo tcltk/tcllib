@@ -1,8 +1,8 @@
-[manpage_begin sha1 n 1.0.2]
+[manpage_begin sha1 n 1.0.3]
 [moddesc   {sha1 hash}]
 [titledesc {Perform sha1 hashing}]
 [require Tcl 8.2]
-[require sha1 [opt 1.0.2]]
+[require sha1 [opt 1.0.3]]
 [description]
 [para]
 
