@@ -1,3 +1,9 @@
+2005-02-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sha1.tcl: Replaced steps 1 and 3 with slightly more efficient
+	but equivalent bit operations. Fixed an error with integer length
+	exposed with tcl8.5. Verified 8.2-8.5
+
 2005-02-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sha1c.tcl: Imported the sha1 implementation from the Tcl sample
