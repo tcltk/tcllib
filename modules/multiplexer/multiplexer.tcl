@@ -7,7 +7,7 @@
 
 # This file may be distributed under the same terms as Tcl.
 
-# $Id: multiplexer.tcl,v 1.1 2003/05/19 08:28:48 davidw Exp $
+# $Id: multiplexer.tcl,v 1.2 2003/05/19 13:40:22 davidw Exp $
 
 package provide multiplexer 0.2
 package require logger
@@ -38,7 +38,7 @@ proc ::multiplexer::create {} {
 	# config options
 	array set config {}
 	set config(sendtoorigin) 0
-	set config(debuglevel) debug
+	set config(debuglevel) warn
 	${log}::disable $config(debuglevel)
 	${log}::enable $config(debuglevel)
 
@@ -206,6 +206,7 @@ proc ::multiplexer::create {} {
 	    # run through access filters
 	    foreach af $accessfilters {
 		if { [$af $chan $client $clientport] == -1 } {
+		    ${log}::debug "Access denied to $chan $client $clientport"
 		    close $chan
 		    return
 		}

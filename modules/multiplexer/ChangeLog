@@ -1,5 +1,12 @@
 2003-05-19  David N. Welton  <davidw@dedasys.com>
 
+	* multiplexer.tcl (NewClient): Added access denied debug message
+	for accessfilter.
+
+	* multiplexer.man: Minor cleanups.
+
+	* multiplexer.test: Added several tests.
+
 	* multiplexer.tcl: Adding updated multiplexer to tcllib.  It is
 	now possible to run multiple multiplexer instances, and it uses
 	the logger package for logging.
