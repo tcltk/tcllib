@@ -382,30 +382,12 @@ proc ::logger::init {service} {
     # children, they should be instantiated after the parent's
     # methods have been defined.
     if {[string compare $parent "::logger::tree"]} {
-        interp alias {} [namespace current]::debugcmd {} ${parent}::debugcmd
-        interp alias {} [namespace current]::infocmd {} ${parent}::infocmd
-        interp alias {} [namespace current]::noticecmd {} ${parent}::noticecmd
-        interp alias {} [namespace current]::warncmd {} ${parent}::warncmd
-        interp alias {} [namespace current]::errorcmd {} ${parent}::errorcmd
-        interp alias {} [namespace current]::criticalcmd {} ${parent}::criticalcmd
+        foreach lvl [::logger::levels] {
+            interp alias {} [namespace current]::${lvl}cmd {} ${parent}::${lvl}cmd
+        }
     } else {
-        proc debugcmd {txt} {
-        stdoutcmd debug $txt
-        }
-        proc infocmd {txt} {
-        stdoutcmd info $txt
-        }
-        proc noticecmd {txt} {
-        stdoutcmd notice $txt
-        }
-        proc warncmd {txt} {
-        stderrcmd warn $txt
-        }
-        proc errorcmd {txt} {
-        stderrcmd error $txt
-        }
-        proc criticalcmd {txt} {
-        stderrcmd critical $txt
+        foreach lvl [::logger::levels] {
+            proc ${lvl}cmd {txt} "stdoutcmd $lvl \$txt"
         }
     }
     }
@@ -508,5 +490,3 @@ proc ::logger::servicecmd {service} {
     }
     return "::logger::tree::${service}"
 }
-
-
