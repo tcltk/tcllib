@@ -14,6 +14,8 @@
 #
 # Support added for RFC1886 - DNS Extensions to support IP version 6
 #
+# Support added for RFC2782 - DNS RR for specifying the location of services
+#
 # TODO:
 #  - When using tcp we should make better use of the open connection and
 #    send multiple queries along the same connection.
@@ -23,7 +25,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.23 2004/10/19 10:59:54 patthoyts Exp $
+# $Id: dns.tcl,v 1.24 2004/11/21 00:49:07 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -33,7 +35,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.2.0
-    variable rcsid {$Id: dns.tcl,v 1.23 2004/10/19 10:59:54 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.24 2004/11/21 00:49:07 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -61,7 +63,7 @@ namespace eval ::dns {
     array set types { 
         A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
         NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
-        SPF 16 AAAA 28 AXFR 252  MAILB 253  MAILA 254  * 255
+        SPF 16 AAAA 28 SRV 33 AXFR 252  MAILB 253  MAILA 254  * 255
     } 
 
     variable classes
@@ -973,6 +975,17 @@ proc ::dns::ReadAnswer {nitems data indexvar} {
                 set exchange [ReadName data [expr {$index + 2}] off]
                 set rdata [list $preference $exchange]
             }
+            SRV {
+                set x $index
+                set rdata [list priority [ReadUShort data $x off]]
+                incr x $off
+                lappend rdata weight [ReadUShort data $x off]
+                incr x $off
+                lappend rdata port [ReadUShort data $x off]
+                incr x $off
+                lappend rdata target [ReadName data $x off]
+                incr x $off
+            }
             SOA {
                 set x $index
                 set rdata [list MNAME [ReadName data $x off]]
@@ -1028,6 +1041,19 @@ proc ::dns::ReadULong {datavar index usedvar} {
     return $r
 }
 
+proc ::dns::ReadUShort {datavar index usedvar} {
+    upvar $datavar data
+    upvar $usedvar used
+    set r {}
+    set used 0
+    if {[binary scan [string range $data $index end] cc b1 b2]} {
+        set used 2
+        # This gets us an unsigned value.
+        set r [expr {$b2 + ($b1 << 8)}] 
+    }
+    return $r
+}
+
 # Read off the NAME or QNAME element. This reads off each label in turn, 
 # dereferencing pointer labels until we have finished. The length of data
 # used is passed back using the usedvar variable.
@@ -1065,40 +1091,60 @@ proc ::dns::ReadName {datavar index usedvar} {
 
 # -------------------------------------------------------------------------
 
-# Experimental support for finding the nameservers to use on a Windows
-# machine
+# Experimental support for finding the nameservers
+#
 # For unix we can just parse the /etc/resolv.conf if it exists.
 # Of couse, some unices use /etc/resolver and other things (NIS for instance)
+# On Windows, we can examine the Internet Explorer settings from the registry.
 #
-if {$::tcl_platform(platform) == "Windows"} {
-
-proc ::dns::Win32_NameServers {} {
-    package require registry
-    set base {HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip}
-    set param "$base\\Parameters"
-    set interfaces "$param\\Interfaces"
-    set nameservers {}
-    AppendRegistryValue $param NameServer nameservers
-    AppendRegistryValue $param DhcpNameServer nameservers
-    foreach i [registry keys $interfaces] {
-        AppendRegistryValue "$interfaces\\$i" NameServer nameservers
-        AppendRegistryValue "$interfaces\\$i" DhcpNameServer nameservers
+switch -exact $::tcl_platform(platform) {
+    windows {
+        proc ::dns::nameservers {} {
+            package require registry
+            set base {HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip}
+            set param "$base\\Parameters"
+            set interfaces "$param\\Interfaces"
+            set nameservers {}
+            AppendRegistryValue $param NameServer nameservers
+            AppendRegistryValue $param DhcpNameServer nameservers
+            foreach i [registry keys $interfaces] {
+                AppendRegistryValue "$interfaces\\$i" NameServer nameservers
+                AppendRegistryValue "$interfaces\\$i" DhcpNameServer nameservers
+            }
+            
+            return $nameservers
+        }
+        proc ::dns::AppendRegistryValue {key val listName} {
+            upvar $listName lst
+            if {![catch {registry get $key $val} v]} {
+                if {[lsearch -exact $lst $v] == -1} {
+                    set lst [concat $lst $v]
+                }
+            }
+        }
     }
-
-    # FIX ME: this doesn't preserve the original preference ordering
-    return [lsort -unique $nameservers]
-}
-
-
-proc ::dns::AppendRegistryValue {key val listName} {
-    upvar $listName lst
-    if {![catch {registry get $key $val} v]} {
-        set lst [concat $lst $v]
+    unix {
+        proc ::dns::nameservers {} {
+            set nameservers {}
+            if {[file readable /etc/resolv.conf]} {
+                set f [open /etc/resolv.conf r]
+                while {![eof $f]} {
+                    gets $f line
+                    if {[regexp {^\s*nameserver\s+(.*)$} $line -> ns]} {
+                        lappend nameservers $ns
+                    }
+                }
+                close $f
+            }
+            return $nameservers
+        }
+    }
+    default {
+        proc ::dns::nameservers {} {
+            return -code error "command not supported for this platform."
+        }
     }
 }
-
-}
-
 
 # -------------------------------------------------------------------------
 # Possible support for the DNS URL scheme.
