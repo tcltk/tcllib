@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.9 2004/06/04 16:19:44 mic42 Exp $
+# $Id: logger.test,v 1.10 2004/06/04 16:35:25 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -421,6 +421,13 @@ test logger-10.1 {servicecmd, nonexistent service} {
     set code [catch {logger::servicecmd nonexistant} msg]
     list $code $msg
 } {1 {Service "nonexistant" does not exist.}}
+
+test logger-11.0 {servicename subcommand} {
+    set log [logger::init global]
+    set name [${log}::servicename]
+    ${log}::delete
+    set name
+} {global}
 
 
 ::tcltest::cleanupTests
