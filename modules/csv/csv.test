@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.2 2001/09/28 18:10:38 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -102,6 +102,10 @@ test csv-4.1 {joinlist} {
 	    {1 {""a""} b}		\
 	    {123 123,521.2 {Mary says "Hello, I am Mary"}}]
 } "$str1a\n$str2\n$str3a\n$str4\n$str5\n$str6\n"
+
+test csv-4.2 {joinlist, sepChar} {
+    csv::joinlist [list [list a b c] [list d e f]] @
+} "a@b@c\nd@e@f\n"
 
 
 test csv-5.1 {reading csv files} {
