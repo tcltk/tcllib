@@ -1,9 +1,9 @@
 # The lifo and fifo classes (for the stooop object oriented extension)
 #
-# Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
+# Copyright (c) 2002 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: xifo.tcl,v 1.3 2004/01/15 06:36:14 andreas_kupries Exp $
+# $Id: xifo.tcl,v 1.4 2004/07/19 19:12:45 jfontain Exp $
 
 
 # Here is a sample FIFO/LIFO implementation with stooop.
@@ -14,7 +14,9 @@
 # package require stooop
 # namespace import stooop::*
 
+
 ::stooop::class xifo {
+
     proc xifo {this size} {
         set ($this,size) $size
         empty $this
@@ -28,7 +30,7 @@
     proc in {this data} {
         variable ${this}data
         tidyUp $this
-        if {[array size ${this}data]>=$($this,size)} {
+        if {[array size ${this}data] >= $($this,size)} {
             unset ${this}data($($this,first))
             incr ($this,first)
         }
@@ -52,8 +54,7 @@
     }
 
     proc isEmpty {this} {
-        variable ${this}data
-        return [expr {[array size ${this}data]==0}]
+        return [expr {$($this,last) < $($this,first)}]
     }
 
     ::stooop::virtual proc out {this}
@@ -61,14 +62,16 @@
     ::stooop::virtual proc data {this}
 }
 
+
 ::stooop::class lifo {
+
     proc lifo {this {size 2147483647}} xifo {$size} {}
 
     proc ~lifo {this} {}
 
     proc out {this} {
         xifo::tidyUp $this
-        if {[array size xifo::${this}data]==0} {
+        if {[array size xifo::${this}data] == 0} {
             error "lifo $this out error, empty"
         }
         # delay unsetting popped data to improve performance by avoiding a data
@@ -81,21 +84,24 @@
     proc data {this} {
         set list {}
         set first $xifo::($this,first)
-        for {set index $xifo::($this,last)} {$index>=$first} {incr index -1} {
+        for {set index $xifo::($this,last)} {$index >= $first} {incr index -1} {
             lappend list [set xifo::${this}data($index)]
         }
         return $list
     }
+
 }
 
+
 ::stooop::class fifo {
+
     proc fifo {this {size 2147483647}} xifo {$size} {}
 
     proc ~fifo {this} {}
 
     proc out {this} {
         xifo::tidyUp $this
-        if {[array size xifo::${this}data]==0} {
+        if {[array size xifo::${this}data] == 0} {
             error "fifo $this out error, empty"
         }
         # delay unsetting popped data to improve performance by avoiding a data
@@ -108,16 +114,18 @@
     proc data {this} {
         set list {}
         set last $xifo::($this,last)
-        for {set index $xifo::($this,first)} {$index<=$last} {incr index} {
+        for {set index $xifo::($this,first)} {$index <= $last} {incr index} {
             lappend list [set xifo::${this}data($index)]
         }
         return $list
     }
+
 }
+
 
 # Here are a few lines of sample code:
 #    proc exercise {id} {
-#        for {set u 0} {$u<10} {incr u} {
+#        for {set u 0} {$u < 10} {incr u} {
 #            xifo::in $id $u
 #        }
 #        puts [xifo::out $id]
