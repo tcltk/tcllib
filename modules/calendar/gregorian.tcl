@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: gregorian.tcl,v 1.3 2002/02/15 05:35:29 andreas_kupries Exp $
+# RCS: @(#) $Id: gregorian.tcl,v 1.4 2003/04/11 19:10:42 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ package require Tcl 8.2;		# Not tested with earlier releases
 #
 #----------------------------------------------------------------------
 
-namespace eval calendar::CommonCalendar {
+namespace eval ::calendar::CommonCalendar {
 
     namespace export WeekdayOnOrBefore
     namespace export CivilYearToAbsolute
@@ -127,7 +127,7 @@ namespace eval calendar::CommonCalendar {
 
 #----------------------------------------------------------------------
 #
-# calendar::CommonCalendar::WeekdayOnOrBefore --
+# ::calendar::CommonCalendar::WeekdayOnOrBefore --
 #
 #	Determine the last time that a given day of the week occurs
 #	on or before a given date (e.g., Sunday on or before January 2).
@@ -145,7 +145,7 @@ namespace eval calendar::CommonCalendar {
 #
 #----------------------------------------------------------------------
 
-proc calendar::CommonCalendar::WeekdayOnOrBefore { weekday j } {
+proc ::calendar::CommonCalendar::WeekdayOnOrBefore { weekday j } {
     # Normalize weekday, Monday=0
     set k [expr { ($weekday + 6) % 7 }]
     return [expr { $j - ( $j - $k ) % 7 }]
@@ -153,7 +153,7 @@ proc calendar::CommonCalendar::WeekdayOnOrBefore { weekday j } {
 
 #----------------------------------------------------------------------
 #
-# calendar::CommonCalendar::CivilYearToAbsolute --
+# ::calendar::CommonCalendar::CivilYearToAbsolute --
 #
 #	Calculate an "absolute" year number, that is, the count of
 #	years from the common epoch, 1 B.C.E.
@@ -174,7 +174,7 @@ proc calendar::CommonCalendar::WeekdayOnOrBefore { weekday j } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::CommonCalendar::CivilYearToAbsolute { dateVar } {
+proc ::calendar::CommonCalendar::CivilYearToAbsolute { dateVar } {
 
     upvar 1 $dateVar date
     switch -exact $date(ERA) {
@@ -235,7 +235,7 @@ namespace eval calendar::GregorianCalendar {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::IsLeapYear
+# ::calendar::GregorianCalendar::IsLeapYear
 #
 #	Tests whether a year is a leap year.
 #
@@ -254,7 +254,7 @@ namespace eval calendar::GregorianCalendar {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::IsLeapYear { y } {
+proc ::calendar::GregorianCalendar::IsLeapYear { y } {
 
     variable commonYears
     return [expr { ( $y % 4 ) == 0
@@ -264,7 +264,7 @@ proc calendar::GregorianCalendar::IsLeapYear { y } {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::EYMDToJulianDay
+# ::calendar::GregorianCalendar::EYMDToJulianDay
 #
 #    	Convert a date on the Gregorian calendar expressed as
 #	era (BCE or CE), year in the era, month number (January = 1)
@@ -286,7 +286,7 @@ proc calendar::GregorianCalendar::IsLeapYear { y } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::EYMDToJulianDay { dateArray } {
+proc ::calendar::GregorianCalendar::EYMDToJulianDay { dateArray } {
 
     upvar 1 $dateArray date
     
@@ -315,7 +315,7 @@ proc calendar::GregorianCalendar::EYMDToJulianDay { dateArray } {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::EYDToJulianDay --
+# ::calendar::GregorianCalendar::EYDToJulianDay --
 #
 #	Convert a date expressed in the Gregorian calendar as era (BCE or CE),
 #	year, and day-of-year to a Julian Day Number.
@@ -336,7 +336,7 @@ proc calendar::GregorianCalendar::EYMDToJulianDay { dateArray } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::EYDToJulianDay { dateArray } {
+proc ::calendar::GregorianCalendar::EYDToJulianDay { dateArray } {
 
     upvar 1 $dateArray date
     variable epoch
@@ -355,7 +355,7 @@ proc calendar::GregorianCalendar::EYDToJulianDay { dateArray } {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::EFYWDToJulianDay --
+# ::calendar::GregorianCalendar::EFYWDToJulianDay --
 #
 #	Convert a date expressed in the system of era, fiscal year,
 #	week number and day number to a Julian Day Number.
@@ -401,7 +401,7 @@ proc calendar::GregorianCalendar::EYDToJulianDay { dateArray } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::EFYWDToJulianDay { dateArray
+proc ::calendar::GregorianCalendar::EFYWDToJulianDay { dateArray
 						     {daysInFirstWeek 4}
 						     {firstDayOfWeek 1}  } {
     upvar 1 $dateArray date
@@ -436,7 +436,7 @@ proc calendar::GregorianCalendar::EFYWDToJulianDay { dateArray
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::EYMWDToJulianDay --
+# ::calendar::GregorianCalendar::EYMWDToJulianDay --
 #
 #	Given era, year, month, and day of week in month (e.g. "first Tuesday")
 #	derive a Julian day number.
@@ -465,7 +465,7 @@ proc calendar::GregorianCalendar::EFYWDToJulianDay { dateArray
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::EYMWDToJulianDay { dateVar } {
+proc ::calendar::GregorianCalendar::EYMWDToJulianDay { dateVar } {
     
     upvar 1 $dateVar date
     
@@ -507,7 +507,7 @@ proc calendar::GregorianCalendar::EYMWDToJulianDay { dateVar } {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::JulianDayToEYD --
+# ::calendar::GregorianCalendar::JulianDayToEYD --
 #
 #	Given a Julian day number, compute era, year, and day of year.
 #
@@ -531,7 +531,7 @@ proc calendar::GregorianCalendar::EYMWDToJulianDay { dateVar } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::JulianDayToEYD { j dateVar } {
+proc ::calendar::GregorianCalendar::JulianDayToEYD { j dateVar } {
 
     upvar 1 $dateVar date
     
@@ -593,7 +593,7 @@ proc calendar::GregorianCalendar::JulianDayToEYD { j dateVar } {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::JulianDayToEYMD --
+# ::calendar::GregorianCalendar::JulianDayToEYMD --
 #
 #	Given a Julian day number, compute era, year, month, and day
 #	of the Gregorian calendar.
@@ -613,7 +613,7 @@ proc calendar::GregorianCalendar::JulianDayToEYD { j dateVar } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::JulianDayToEYMD  { j dateVar } {
+proc ::calendar::GregorianCalendar::JulianDayToEYMD  { j dateVar } {
 
     upvar 1 $dateVar date
     
@@ -645,7 +645,7 @@ proc calendar::GregorianCalendar::JulianDayToEYMD  { j dateVar } {
 
 #----------------------------------------------------------------------
 #
-# calendar::GregorianCalendar::JulianDayToEFYWD --
+# ::calendar::GregorianCalendar::JulianDayToEFYWD --
 #
 #	Given a julian day number, compute era, fiscal year, fiscal week,
 #	and day of week in a fiscal calendar based on the Gregorian calendar.
@@ -676,7 +676,7 @@ proc calendar::GregorianCalendar::JulianDayToEYMD  { j dateVar } {
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::JulianDayToEFYWD { j
+proc ::calendar::GregorianCalendar::JulianDayToEFYWD { j
 						     dateVar
 						     {daysInFirstWeek 4}
 						     {firstDayOfWeek 1}  } {
@@ -750,7 +750,7 @@ proc calendar::GregorianCalendar::JulianDayToEFYWD { j
 #
 #----------------------------------------------------------------------
 
-proc calendar::GregorianCalendar::JulianDayToEYMWD { j dateVar } {
+proc ::calendar::GregorianCalendar::JulianDayToEYMWD { j dateVar } {
 
     upvar 1 $dateVar date
 
