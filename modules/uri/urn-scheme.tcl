@@ -5,7 +5,7 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.8 2004/08/03 09:25:10 patthoyts Exp $
+# $Id: urn-scheme.tcl,v 1.9 2004/09/23 03:52:42 andreas_kupries Exp $
 # -------------------------------------------------------------------------
 
 package require uri      1.1.2
@@ -79,19 +79,39 @@ proc ::uri::urn::quote {url} {
 }
 
 # -------------------------------------------------------------------------
-
 # Perform the reverse of urn::quote.
-proc ::uri::urn::unquote {url} {
-    set result ""
-    set start 0
-    while {[regexp -start $start -indices {%[0-9a-fA-F]{2}} $url match]} {
-        foreach {first last} $match break
-        append result [string range $url $start [expr {$first - 1}]]
-        append result [format %c 0x[string range $url [incr first] $last]]
-        set start [incr last]
+
+if { [package vcompare [package provide Tcl] 8.3] < 0 } {
+    # Before Tcl 8.3 we do not have 'regexp -start'. We simulate it by
+    # using 'string range' and adjusting the match results.
+
+    proc ::uri::urn::unquote {url} {
+        set result ""
+        set start 0
+        while {[regexp -indices {%[0-9a-fA-F]{2}} [string range $url $start end] match]} {
+            foreach {first last} $match break
+            incr first $start ; # Make the indices relative to the true string.
+            incr last  $start ; # I.e. undo the effect of the 'string range' on match results.
+            append result [string range $url $start [expr {$first - 1}]]
+            append result [format %c 0x[string range $url [incr first] $last]]
+            set start [incr last]
+        }
+        append result [string range $url $start end]
+        return $result
     }
-    append result [string range $url $start end]
-    return $result
+} else {
+    proc ::uri::urn::unquote {url} {
+        set result ""
+        set start 0
+        while {[regexp -start $start -indices {%[0-9a-fA-F]{2}} $url match]} {
+            foreach {first last} $match break
+            append result [string range $url $start [expr {$first - 1}]]
+            append result [format %c 0x[string range $url [incr first] $last]]
+            set start [incr last]
+        }
+        append result [string range $url $start end]
+        return $result
+    }
 }
 
 # -------------------------------------------------------------------------
