@@ -26,6 +26,9 @@ Changes in V0.91
   component as part of your type's public interface.  See the man page
   and the Snit FAQ list for more information.
 
+* The "info" type and instance methods now take "string match"
+  patterns as appropriate.
+
 * NOTE: V0.91 is not yet complete; there are more changes to come.
 
 Changes in V0.9

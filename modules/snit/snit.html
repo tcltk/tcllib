@@ -444,18 +444,29 @@ widgets will have at least the following method:<p>
        list of <i>option</i> names and their <i>value</i>s; however, a
        type's constructor can specify a different argument list.<p>
 
-  <dt> <code><a name="$type">$type info typevars</a></code>
+  <dt> <code><a name="$type">$type info typevars ?<i>pattern</i>?</a></code>
   <dd> Returns a list of the type's type variables (excluding Snit
        internal variables); all variable names are fully-qualified.<p>
 
-  <dt> <code><a name="$type">$type info instances</a></code>
-  <dd> Returns a list of the type's instances.  For <code>snit::type</code>s, it
+       If <i>pattern</i> is given, it's used as a <code>string
+       match</code> pattern; only names which match the pattern are
+       returned.<p>
+
+  <dt> <code><a name="$type">$type info instances ?<i>pattern</i>?</a></code>
+  <dd> Returns a list of the type's instances.  For
+       <code>snit::type</code>s, it 
        will be a list of fully-qualified instance names; for
        snit::widgets, it will be a list of Tk widget names.<p>
 
+       If <i>pattern</i> is given, it's used as a <code>string
+       match</code> pattern; only names which match the pattern are
+       returned.<p>
+
   <dt> <code><a name="$type">$type destroy</a></code>
   <dd> Destroys the type's instances, the type's namespace, and the
-       type command itself.<p>
+       type command itself.  This method is defined only for
+       <code>snit::types</code>; <code>snit::widgets</code> use the Tk
+       <code>destroy</code> command instead.<p>
 </dl>
 
 <h3><a name="the_instance_command">The Instance Command</a></h3>
@@ -513,21 +524,33 @@ following methods:<p>
   <dt> <code><a name="$object">$object info type</a></code>
   <dd> Returns the instance's type.<p>
 
-  <dt> <code><a name="$object">$object info vars</a></code>
+  <dt> <code><a name="$object">$object info vars ?<i>pattern</i>?</a></code>
   <dd> Returns a list of the object's instance variables (excluding
        Snit internal variables).  The names are fully qualified.<p>
 
-  <dt> <code><a name="$object">$object info typevars</a></code>
+       If <i>pattern</i> is given, it's used as a <code>string
+       match</code> pattern; only names which match the pattern are
+       returned.<p>
+
+  <dt> <code><a name="$object">$object info typevars ?<i>pattern</i>?</a></code>
   <dd> Returns a list of the object's type's type variables (excluding
        Snit internal variables).  The names are fully qualified.<p>
 
-  <dt> <code><a name="$object">$object info options</a></code>
+       If <i>pattern</i> is given, it's used as a <code>string
+       match</code> pattern; only names which match the pattern are
+       returned.<p>
+
+  <dt> <code><a name="$object">$object info options ?<i>pattern</i>?</a></code>
   <dd> Returns a list of the object's option names.  This always
        includes local options and explicitly delegated options.  If
        unknown options are delegated as well, and if the component to
        which they are delegated responds to "$object configure" like Tk
        widgets do, then the result will include all possible unknown
        options which could be delegated to the component.<p>
+
+       If <i>pattern</i> is given, it's used as a <code>string
+       match</code> pattern; only names which match the pattern are
+       returned.<p>
 
        Note that the return value might be different for different
        instances of the same type, if component object types can vary

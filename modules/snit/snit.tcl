@@ -1892,14 +1892,14 @@ proc ::snit::InstanceInfo_type {type selfns win self} {
 }
 
 # Returns the instance's type's typevariables
-proc ::snit::InstanceInfo_typevars {type selfns win self} {
-    return [TypeInfo_typevars $type]
+proc ::snit::InstanceInfo_typevars {type selfns win self {pattern *}} {
+    return [TypeInfo_typevars $type $pattern]
 }
 
 # Returns the instance's instance variables
-proc ::snit::InstanceInfo_vars {type selfns win self} {
+proc ::snit::InstanceInfo_vars {type selfns win self {pattern *}} {
     set result {}
-    foreach name [info vars ${selfns}::*] {
+    foreach name [info vars "${selfns}::$pattern"] {
         set tail [namespace tail $name]
         if {![string match "Snit_*" $tail]} {
             lappend result $name
@@ -1910,7 +1910,7 @@ proc ::snit::InstanceInfo_vars {type selfns win self} {
 }
 
 # Returns a list of the names of the instance's options
-proc ::snit::InstanceInfo_options {type selfns win self} {
+proc ::snit::InstanceInfo_options {type selfns win self {pattern *}} {
     upvar ${type}::Snit_optiondefaults   Snit_optiondefaults
     upvar ${type}::Snit_delegatedoptions Snit_delegatedoptions
     upvar ${type}::Snit_info             Snit_info
@@ -1951,16 +1951,25 @@ proc ::snit::InstanceInfo_options {type selfns win self} {
         }
     }
 
-    return $result
+    # Next, apply the pattern
+    set names {}
+
+    foreach name $result {
+        if {[string match $pattern $name]} {
+            lappend names $name
+        }
+    }
+
+    return $names
 }
 
 #-----------------------------------------------------------------------
 # Type introspection commands
 
 # Returns the instance's type's typevariables
-proc ::snit::TypeInfo_typevars {type} {
+proc ::snit::TypeInfo_typevars {type {pattern *}} {
     set result {}
-    foreach name [info vars ${type}::*] {
+    foreach name [info vars "${type}::$pattern"] {
         set tail [namespace tail $name]
         if {![string match "Snit_*" $tail]} {
             lappend result $name
@@ -1971,14 +1980,16 @@ proc ::snit::TypeInfo_typevars {type} {
 }
 
 # Returns the instance's instance variables
-proc ::snit::TypeInfo_instances {type} {
+proc ::snit::TypeInfo_instances {type {pattern *}} {
     upvar ${type}::Snit_isWidget Snit_isWidget
     set result {}
 
     foreach selfns [namespace children $type] {
         upvar ${selfns}::Snit_instance instance
 
-        lappend result $instance
+        if {[string match $pattern $instance]} {
+            lappend result $instance
+        }
     }
 
     return $result
