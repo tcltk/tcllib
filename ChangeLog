@@ -1,3 +1,8 @@
+2002-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (dist): Brought archive names and contents more in
+	  sync with earlier releases. This is still release 1.2.
+
 2002-01-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Tagging branch tcllib-1-2-0 as subbranch of RELEASES now.
