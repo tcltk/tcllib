@@ -1,3 +1,15 @@
+2002-02-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri.tcl: Fixed "::uri::canonicalize" to pass the extended
+	  testsuite. The change to testsuite and command implementation
+	  here was triggered through work on a spider and real life urls,
+	  some of which where handled incorrectly.
+
+	* uri.test: Extended the testsuite for "::uri::canonicalize" a
+	  lot. Handling of uris with a path, without a path, unknown uri
+	  schemes, path components which contain a ".", but are neither
+	  "."  nor "..".
+
 2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* urn-scheme.tcl: Frink run.
