@@ -1,3 +1,13 @@
+2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
+
+	* mkInstallScripts.tcl: Changed the installation process for
+	Windows to avoid the unimplemented [file permissions] in favor of
+	[file attributes].
+	
+2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
+
+	* New module: calendar.
+	
 2002-01-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* New module: crc. From patch #501339
