@@ -1,3 +1,9 @@
+2003-10-24  Andreas Kupries  <andreask@activestate.com>
+
+	* htmlparse.tcl: Applied [Patch 823346] by Michael Schlenker
+	  <mic42@users.sourceforge.net>. Cleans the code up a bit, using
+	  faster string ops in place of regexes and -subs, where possible.
+
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
 	* htmlparse.man: Extended documentation of command '2tree' with
