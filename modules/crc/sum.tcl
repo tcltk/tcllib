@@ -13,10 +13,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: sum.tcl,v 1.5 2003/05/08 23:55:37 patthoyts Exp $
+# $Id: sum.tcl,v 1.6 2003/05/13 01:42:11 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-catch {package require crcc};           # critcl enhanced crc module
+
+catch {package require tcllibc};        # critcl enhancements to tcllib
+#catch {package require crcc};           # critcl enhanced crc module
 
 namespace eval ::crc {
     variable sum_version 1.1.0
@@ -121,11 +123,15 @@ if {[package provide critcl] != {}} {
 # -------------------------------------------------------------------------
 # Switch from pure tcl to compiled if available.
 #
-if {[package provide crcc] == {}} {
+if {[info command ::crc::SumBsd_c] == {}} {
     interp alias {} ::crc::sum-bsd  {} ::crc::SumBsd
-    interp alias {} ::crc::sum-sysv {} ::crc::SumSysV
 } else {
     interp alias {} ::crc::sum-bsd  {} ::crc::SumBsd_c
+}
+
+if {[info command ::crc::SumSysV_c] == {}} {
+    interp alias {} ::crc::sum-sysv {} ::crc::SumSysV
+} else {
     interp alias {} ::crc::sum-sysv {} ::crc::SumSysV_c
 }
 
