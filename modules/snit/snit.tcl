@@ -110,66 +110,9 @@ namespace eval ::snit:: {
 
 set ::snit::typeTemplate {
 
-    #----------------------------------------------------------------
-    # Snit Internals
-    #
-    # These commands are used internally by Snit, and are not to be
-    # used directly by any client code.  Nevertheless they are
-    # defined here so that they live in the correct namespace.
-    
     namespace eval %TYPE% {%TYPEVARS%
     }
 
-    # Snit_cleanup selfns win
-    #
-    # This is the function that really cleans up; it's automatically 
-    # called when any instance is destroyed, e.g., by "$object destroy"
-    # for types, and by the <Destroy> event for widgets.
-
-    # TBD: Move this to Snit runtime
-    proc %TYPE%::Snit_cleanup {selfns win} {
-        typevariable Snit_isWidget
-
-        # If the variable Snit_instance doesn't exist then there's no
-        # instance command for this object -- it's most likely a 
-        # widgetadaptor. Consequently, there are some things that
-        # we don't need to do.
-        if {[info exists ${selfns}::Snit_instance]} {
-            upvar ${selfns}::Snit_instance instance
-            
-            # First, remove the trace on the instance name, so that we
-            # don't call Snit_cleanup recursively.
-            Snit_removetrace $selfns $win $instance
-            
-            # Next, call the user's destructor
-            Snit_destructor %TYPE% $selfns $win $instance
-
-            # Next, if this isn't a widget, delete the instance command.
-            # If it is a widget, get the hull component's name, and rename
-            # it back to the widget name
-                
-            # Next, delete the hull component's instance command,
-            # if there is one.
-            if {$Snit_isWidget} {
-                set hullcmd [::snit::RT.Component %TYPE% $selfns hull]
-                
-                catch {rename $instance ""}
-
-                # Clear the bind event
-                bind Snit%TYPE%$win <Destroy> ""
-
-                if {[info command $hullcmd] != ""} {
-                    rename $hullcmd ::$instance
-                }
-            } else {
-                catch {rename $instance ""}
-            }
-        }
-
-        # Next, delete the instance's namespace.  This kills any
-        # instance variables.
-        namespace delete $selfns
-    }
 
     #----------------------------------------------------------------
     # Compiled Procs
@@ -630,7 +573,7 @@ set ::snit::typeTemplate {
                 if {$Snit_isWidget} {
                     destroy $win
                 } else {
-                    Snit_cleanup $selfns $win
+                    ::snit::RT.DestroyObject %TYPE% $selfns $win
                 }
             } else {
                 # Otherwise, track the change.
@@ -1926,7 +1869,7 @@ proc ::snit::RT.type.typemethod.create {type name args} {
         
         set theInfo $errorInfo
         set theCode $errorCode
-        ${type}::Snit_cleanup $selfns $name
+        ::snit::RT.DestroyObject $type $selfns $name
         error "Error in constructor: $result" $theInfo $theCode
     }
 
@@ -2007,7 +1950,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
         # so that the widget name's tag is unencumbered.
             
         bind Snit$type$name <Destroy> [::snit::Expand {
-            %TYPE%::Snit_cleanup %NS% %W
+            ::snit::RT.DestroyObject %TYPE% %NS% %W
         } %TYPE% $type %NS% $selfns]
             
         # Insert the bindtag into the list of bindtags right
@@ -2024,7 +1967,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
 
         set theInfo $errorInfo
         set theCode $errorCode
-        ${type}::Snit_cleanup $selfns $name
+        ::snit::RT.DestroyObject $type $selfns $name
         error "Error in constructor: $result" $theInfo $theCode
     }
         
@@ -2449,8 +2392,61 @@ proc ::snit::RT.typemethod.destroy {type} {
 proc ::snit::RT.method.destroy {type selfns win self} {
     # Calls Snit_cleanup, which (among other things) calls the
     # user's destructor.
-    ${type}::Snit_cleanup $selfns $win
+    ::snit::RT.DestroyObject $type $selfns $win
 }
+
+# This is the function that really cleans up; it's automatically 
+# called when any instance is destroyed, e.g., by "$object destroy"
+# for types, and by the <Destroy> event for widgets.
+#
+# type		The fully-qualified type name.
+# selfns	The instance namespace
+# win		The original instance command name.
+
+proc ::snit::RT.DestroyObject {type selfns win} {
+    variable ${type}::Snit_isWidget
+
+    # If the variable Snit_instance doesn't exist then there's no
+    # instance command for this object -- it's most likely a 
+    # widgetadaptor. Consequently, there are some things that
+    # we don't need to do.
+    if {[info exists ${selfns}::Snit_instance]} {
+        upvar ${selfns}::Snit_instance instance
+            
+        # First, remove the trace on the instance name, so that we
+        # don't call RT.DestroyObject recursively.
+        ${type}::Snit_removetrace $selfns $win $instance
+            
+        # Next, call the user's destructor
+        ${type}::Snit_destructor $type $selfns $win $instance
+
+        # Next, if this isn't a widget, delete the instance command.
+        # If it is a widget, get the hull component's name, and rename
+        # it back to the widget name
+                
+        # Next, delete the hull component's instance command,
+        # if there is one.
+        if {$Snit_isWidget} {
+            set hullcmd [::snit::RT.Component $type $selfns hull]
+            
+            catch {rename $instance ""}
+
+            # Clear the bind event
+            bind Snit$type$win <Destroy> ""
+
+            if {[info command $hullcmd] != ""} {
+                rename $hullcmd ::$instance
+            }
+        } else {
+            catch {rename $instance ""}
+        }
+    }
+
+    # Next, delete the instance's namespace.  This kills any
+    # instance variables.
+    namespace delete $selfns
+}
+
 
 #-----------------------------------------------------------------------
 # Option Handling
