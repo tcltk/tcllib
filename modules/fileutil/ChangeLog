@@ -1,3 +1,12 @@
+2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl (cat): Fixed bug #556504, reported by Michael
+	  A. Cleverly <cleverly@users.sourceforge.net>. The fix was
+	  provided by Michael too. The problem was reading files which are
+	  reported as size 0, but actually have content, just dynamically
+	  generated (Linux /proc is an example of an fs containing such
+	  files).
+
 2002-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man: Documented the two new commands (stripN,
