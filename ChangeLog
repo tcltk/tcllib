@@ -1,3 +1,10 @@
+2004-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules.tcl: Added module 'bee'.
+
+	* New module for  de- and encoding data using the bittorrent
+	  serialization format.
+
 2004-05-25  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* installed_modules.tcl: remove struct1 module.
