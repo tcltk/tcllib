@@ -1,0 +1,117 @@
+'\"
+'\" Copyright (c) 1998-2000 by Ajuba Solutions.
+'\" All rights reserved.
+'\" 
+'\" RCS: @(#) $Id: stats.n,v 1.1 2000/09/19 15:03:39 welch Exp $
+'\" 
+.so man.macros
+.TH stats n 1.0 Stats "Statistics and Counters"
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+::stats \- Procedures for counters, histograms, and statistics.
+.SH SYNOPSIS
+.BS
+.sp
+\fBstats::countInit\fR \fItag\fR \fIargs\fR
+.sp
+\fBstats::count\fR \fItag {delta 1}\fR
+.sp
+\fBstats::countReset\fR \fItag\fR
+.sp
+\fBstats::countGet\fR \fItag args\fR
+.sp
+\fBstats::countStart\fR \fItag\fR
+.sp
+\fBstats::countStop\fR \fItag\fR
+.sp
+\fBstats::histHtmlDisplay\fR \fItag args\fR
+.BE
+.SH DESCRIPTION
+.PP
+The \fB::stats\fR package provides a counter facility and
+can compute statistics and histograms over the collected data.
+
+.TP
+\fBstats::countInit\fR \fItag args\fR
+This defines a counter with the name \fItag\fP.
+The \fIargs\fP determines the characteristics of the counter.
+If you just want a simple counter you can skip the
+\fBstats::countInit\fR call.  The \fIargs\fP are
+.TP
+\fB-label\fR \fIstring\fR
+Defines the label associated with the counter
+when displaying the values.
+.TP
+\fB-unit\fR \fIunit\fR
+The units of the counter, for display purposes.
+.TP
+\fB-lastn\fR \fIN\fR
+Save the last \fIN\fP values of the counter to maintain
+a "running average" of the counter.
+
+.TP
+\fB-hist\fR \fIbucketsize\fR
+Accumulate the statistic into histogram buckets of size
+\fIbucketsize\fP.  For example, if the samples are millesecond
+time values and \fIbucketsize\fP is 10, then each
+histogram bucket represents time values of
+0 to 10 msec, 10 to 20 msec, 20 to 30 msec, and so on.
+
+.TP
+\fB-hist2x\fR \fIbucketsize\fR
+Accumulate the statistic into histogram buckets.
+The size of the first bucket is 
+\fIbucketsize\fP, each other bucket holds values
+2 times the size of the previous bucket.
+For example, if \fIbucketsize\fP is 10, then each
+histogram bucket represents time values of
+0 to 10 msec, 10 to 20 msec, 20 to 40 msec, 40 to 80 msec, and so on.
+
+.TP
+\fB-hist10x\fR \fIbucketsize\fR
+Accumulate the statistic into histogram buckets.
+The size of the first bucket is 
+\fIbucketsize\fP, each other bucket holds values
+10 times the size of the previous bucket.
+For example, if \fIbucketsize\fP is 10, then each
+histogram bucket represents time values of
+0 to 10 msec, 10 to 100 msec, 100 to 1000 msec, and so on.
+
+.TP
+\fB-timehist\fR \fIsecsPerMinute\fR
+Keep a time-based histogram.
+The counter is summed into a histogram bucket based on the current time.
+There are 60 per-minute buckets that have a size determined by
+\fIsecsPerMinute\fP, which
+is normally 60, but for testing purposes can be less.
+Every "hour" (i.e., 60 "minutes") the contents of the per-minute buckets are summed
+into the next hourly bucket.
+Every 24 "hours" the contents of the per-hour buckets are summed into
+the next daily bucket.
+The stats package keeps all time-based histograms in sync, so the first
+\fIsecsPerMinute\fP value seen by the package is used for all subsequent
+time-based histograms.
+
+.TP
+\fBstats::count\fR \fItag {delta 1}\fR
+Increment the counter identified by \fItag\fP.
+The default increment is 1, although you can increment
+by any value, integer or real, by specifying \fIdelta\fP.
+You must declare each counter with \fBstats::countInit\fP to define
+the characteristics of counter before you start to use it.
+
+.TP
+\fBstats::countStart\fR \fItag instance\fR
+Record the starting time of an interval.
+The \fItag\fP is the name of the counter defined as
+a \fB-hist\fP value-based histogram.
+The \fIinstance\fP is used to distinquish this interval from
+any other intervals that might be overlapping this one.
+
+.TP
+\fBstats::countStop\fR \fItag instance\fR
+Record the ending time of an interval.
+The delta time since the corresponding \fBcountStart\fP call
+for \fIinstance\fP is recorded in the histogram
+identified by \fItag\fP.
