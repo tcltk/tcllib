@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: combinatorics.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: combinatorics.tcl,v 1.5 2004/02/09 19:31:54 hobbs Exp $
 #
 #----------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ proc ::math::ln_Gamma { x } {
     # Handle the common case of a real argument that's within the
     # permissible range.
 
-    if { [string is double $x]
+    if { [string is double -strict $x]
 	 && ( $x > 0 )
 	 && ( $x <= 2.5563481638716906e+305 )
      } {
@@ -171,7 +171,7 @@ proc ::math::ln_Gamma { x } {
 
     # Handle the error cases.
 
-    if { ![string is double $x] } {
+    if { ![string is double -strict $x] } {
 	return -code error [expectDouble $x]
     }
 
@@ -227,17 +227,17 @@ proc ::math::factorial { x } {
 
     # Common case: factorial of a small integer
 
-    if { [string is integer $x]
+    if { [string is integer -strict $x]
 	 && $x >= 0
-	 && $x <= [llength $factorialList] } {
+	 && $x < [llength $factorialList] } {
 	return [lindex $factorialList $x]
-    } 
+    }
 
     # Error case: not a number
 
-    if { ![string is double $x] } {
+    if { ![string is double -strict $x] } {
 	return -code error [expectDouble $x]
-    } 
+    }
 
     # Error case: gamma in the left half plane
 
@@ -245,13 +245,13 @@ proc ::math::factorial { x } {
 	set proc [lindex [info level 0] 0]
 	set message "argument to $proc must be greater than -1.0"
 	return -code error -errorcode [list ARITH DOMAIN $message] $message
-    } 
+    }
 
     # Error case - gamma fails
 
     if { [catch { expr {exp( [ln_Gamma [expr { $x + 1 }]] )} } result] } {
 	return -code error -errorcode $::errorCode $result
-    } 
+    }
 
     # Success - computed factorial n as Gamma(n+1)
 
@@ -291,9 +291,9 @@ proc ::math::choose { n k } {
 
     # Use a precomputed table for small integer args
 
-    if { [string is integer $n]
+    if { [string is integer -strict $n]
 	 && $n >= 0 && $n < 34
-	 && [string is integer $k]
+	 && [string is integer -strict $k]
 	 && $k >= 0 && $k <= $n } {
 
 	set i [expr { ( ( $n * ($n + 1) ) / 2 ) + $k }]
@@ -304,10 +304,10 @@ proc ::math::choose { n k } {
 
     # Test bogus arguments
 
-    if { ![string is double $n] } {
+    if { ![string is double -strict $n] } {
 	return -code error [expectDouble $n]
     }
-    if { ![string is double $k] } {
+    if { ![string is double -strict $k] } {
 	return -code error [expectDouble $k]
     }
 
@@ -321,7 +321,7 @@ proc ::math::choose { n k } {
 
     # Handle k out of range
 
-    if { [string is integer $k] && [string is integer $n]
+    if { [string is integer -strict $k] && [string is integer -strict $n]
 	 && ( $k < 0 || $k > $n ) } {
 	return 0
     }
@@ -350,8 +350,8 @@ proc ::math::choose { n k } {
     # Round to integer if both args are integers and the result fits
 
     if { $r <= 2147483647.5 
-	       && [string is integer $n]
-	       && [string is integer $k] } {
+	       && [string is integer -strict $n]
+	       && [string is integer -strict $k] } {
 	return [expr { round( $r ) }]
     }
 
@@ -393,10 +393,10 @@ proc ::math::Beta { z w } {
 
     # Check form of both args so that domain check can be made
 
-    if { ![string is double $z] } {
+    if { ![string is double -strict $z] } {
 	return -code error [expectDouble $z]
     }
-    if { ![string is double $w] } {
+    if { ![string is double -strict $w] } {
 	return -code error [expectDouble $w]
     }
 
