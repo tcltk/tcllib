@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.25 2000/05/04 14:58:42 ericm Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.26 2000/05/25 20:22:22 wart Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -173,7 +173,7 @@ install-doc: doc
 	$(INSTALL_DATA) $(srcdir)/man.macros $(mandir)
 
 test:
-	$(TCLSH_PROG) $(srcdir)/all.tcl -modules "$(MODULES)"
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/all.tcl` -modules "$(MODULES)"
 
 depend:
 
