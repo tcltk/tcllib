@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.14 2002/08/31 06:27:47 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.15 2003/04/11 18:32:01 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -213,7 +213,7 @@ proc ::ftpd::logStderr {severity text} {
 #       The ftpd logCmd callback is called with the specified severity and
 #       text if there is a non-NULL ftpCmd.
 
-proc ftpd::Log {severity text} {
+proc ::ftpd::Log {severity text} {
 
     # Central call out to log handlers.
 
@@ -1895,7 +1895,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 # Side Effects:
 #       None.
 
-proc ftpd::fsFile::PermBits {file mode} {
+proc ::ftpd::fsFile::PermBits {file mode} {
 
     array set s {
         0 --- 1 --x 2 -w- 3 -wx 4 r-- 5 r-x 6 rw- 7 rwx
@@ -1927,7 +1927,7 @@ proc ftpd::fsFile::PermBits {file mode} {
 # Side Effects:
 #       None.
 
-proc ftpd::fsFile::FormDate {seconds} {
+proc ::ftpd::fsFile::FormDate {seconds} {
 
     set currentTime [clock seconds]
     set oldTime [clock scan "6 months ago" -base $currentTime]
@@ -1947,5 +1947,5 @@ proc ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.1.2
+package provide ftpd 1.1.3
 
