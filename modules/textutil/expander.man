@@ -4,7 +4,7 @@
 [moddesc   {Text expansion and template processing}]
 [titledesc {Procedures to process templates and expand text.}]
 [require Tcl 8.2]
-[require textutil::expander [opt 1.2]]
+[require textutil::expander [opt 1.2.1]]
 [description]
 
 
