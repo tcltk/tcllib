@@ -1,3 +1,19 @@
+2001-05-01  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Committed changes (matrix) to CVS head at SF.
+
+2001-04-17  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* matrix.n: updated and completed documentation
+	* matrix:test: Added testsuite
+	* matrix.tcl: Added the implementation.
+
+2001-04-12  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* struct.tcl: Added loading of the matrix definition.
+
+	* matrix.n: Adding matrix structure.
+
 2000-04-07  Eric Melski  <ericm@scriptics.com>
 
 	* stack.test: 
