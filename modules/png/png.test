@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.1 2004/05/23 05:47:33 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.2 2004/08/10 06:43:53 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -30,8 +30,8 @@ if {[catch {source [file join [file dirname [info script]] png.tcl]} msg]} {
 
 package require crc32
 package require png
-puts "- png [package present png]"
-puts "- png [package present crc32]"
+puts "- png   [package present png]"
+puts "- crc32 [package present crc32]"
 catch {puts "- Trf [package present Trf]"}
 
 #----------------------------------------------------------------------
@@ -247,7 +247,7 @@ array set expected {
 foreach f [lsort [glob -directory [file join [file dirname [info script]] testimages] *.png]] {
     set root [file rootname [file tail $f]]
 
-    # Files beginning with x are invalid, and thus not useable in these
+    # Files beginning with x are invalid, and thus not usable in these
     # tests.
 
     if {[string match x* $root]} continue
