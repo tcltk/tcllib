@@ -1,5 +1,9 @@
 2002-06-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* dns.man: 
+	* dns.tcl:
+	* pkgIndex.tcl: Version up to 1.0.1
+
 	* dns.tcl: moved var initialization code to the end, as it uses
 	  the 'dns::configure' command, and thus should be called after
 	  its definition. This is the reason for bug #564670, thus now
