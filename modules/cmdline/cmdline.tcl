@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.9 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.10 2001/10/12 22:40:41 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide cmdline 1.1
@@ -114,7 +114,12 @@ proc cmdline::getopt {argvVar optstring optVar valVar} {
 #	arglistVar	The name of the argument list, typically argv
 #	optlist		A list-of-lists where each element specifies an option
 #			in the form:
-#				flag default comment
+#				(where flag takes no argument) 
+#					flag comment 
+#
+#				(or where flag takes an argument) 
+#					flag default comment
+#
 #			If flag ends in ".arg" then the value is taken from the
 #			command line. Otherwise it is a boolean and appears in
 #			the result if present on the command line. If flag ends
