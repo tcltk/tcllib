@@ -47,6 +47,13 @@ namespace eval ::textutil {
 # }
 #
 proc ::textutil::split::splitx {str {regexp {[\t \r\n]+}}} {
+    # Bugfix 476988
+    if {[string length $str] == 0} {
+	return {}
+    }
+    if {[string length $regexp] == 0} {
+	return [::split $str ""]
+    }
     set list  {}
     set start 0
     while {[regexp -start $start -indices -- $regexp $str match submatch]} {
