@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.2 2001/08/23 04:53:15 dgp Exp $
+'\" RCS: @(#) $Id: control.n,v 1.3 2001/10/17 19:38:45 dgp Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -8,7 +8,7 @@
 .SH NAME
 control \- Procedures for control flow structures.
 .SH SYNOPSIS
-\fBpackage require Tcl 8\fR
+\fBpackage require Tcl 8.2\fR
 .sp
 \fBpackage require control ?0.0?\fR
 .sp
