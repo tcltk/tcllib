@@ -12,12 +12,12 @@ This package provides implementations of standard unix utilities.
 [list_begin definitions]
 
 
-[call [cmd ::fileutil::cat] [arg filename]]
+[call [cmd ::fileutil::cat] [arg files]]
 
 A tcl implementation of the UNIX [syscmd cat] command.  Returns the
-contents of the specified file. The first argument is the name of the
-file to read.
-
+contents of the specified file(s). The arguments are files to read.
+If there are problems reading any of the files, an error will occur,
+and no data will be returned.
 
 [call [cmd ::fileutil::fileType] [arg filename]]
 
