@@ -1,3 +1,7 @@
+2004-07-09  Reinhard Max  <max@suse.de>
+
+	* installed_modules.tcl: NEW MODULE: ident
+
 2004-07-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* installed_modules.tcl: NEW MODULE: uuid
