@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.test,v 1.2 2000/09/21 06:26:02 welch Exp $
+# RCS: @(#) $Id: stats.test,v 1.3 2000/10/02 07:40:59 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -147,6 +147,25 @@ test stats-hist10x {stats::count} {
     stats::count hist 1478
     stats::count hist 1478000
     stats::countGet hist -hist
+} {0 1 1 7 2 2 3 1 6 1}
+
+test stats-histlog {stats::count} {
+    stats::countInit histlog -histlog 10
+    stats::count histlog 0.1
+    stats::count histlog 0.5
+    stats::count histlog 0.9
+    stats::count histlog 1.0
+    stats::count histlog 2
+    stats::count histlog 3
+    stats::count histlog 5
+    stats::count histlog 10
+    stats::count histlog 30
+    stats::count histlog 50
+    stats::count histlog 100
+    stats::count histlog 300
+    stats::count histlog 500
+    stats::count histlog 1000
+    stats::countGet histlog -hist
 } {0 1 1 7 2 2 3 1 6 1}
 
 test stats-timehist {stats::count} {

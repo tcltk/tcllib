@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.10 2000/09/24 07:31:32 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.11 2000/10/02 07:40:58 welch Exp $
 
 package provide stats 1.0
 
@@ -99,6 +99,12 @@ proc stats::countInit {tag args} {
 		}
 		set dayhist(0) 0
 
+		# Clear all-time high records
+
+		set counter(maxPerMinute) 0
+		set counter(maxPerHour) 0
+		set counter(maxPerDay) 0
+
 		# The value associated with -timehist is the number of seconds
 		# in each bucket.  Normally this is 60, but for
 		# testing, we compress minutes.  The value is limited at
@@ -120,32 +126,22 @@ proc stats::countInit {tag args} {
 		    set startTime [clock seconds]
 		    set dayIndex 0
 
-		    # Align the minute base to the start of a hour,
-		    # or the nearest sensible minute.
-
-		    set lasthour [clock scan [clock format $startTime \
-				-format %H:00]]
-
-		    set minuteBase [expr {$lasthour +
-				($startTime - $lasthour) / \
-				($secsPerMinute * 60 * 60)}]
-
-		    # Similarly line up hour0 to start at midnight.
-
-		    set hourBase [clock scan [clock format $startTime \
+		    set dayStart [clock scan [clock format $startTime \
 				-format 00:00]]
+		    
+		    # Figure out what "hour" we are
 
-		    set hourIndex [expr {($startTime - $hourBase) / \
-				($secsPerMinute * 60)}]
+		    set delta [expr $startTime - $dayStart]
+		    set hourIndex [expr $delta / ($secsPerMinute * 60)]
+		    set day [expr $hourIndex / 24]
+		    set hourIndex [expr $hourIndex % 24]
 
-		    # Set up a single timer for the interpreter to merge
-		    # any and all time-baesd histograms.
-		    # Set up the merge to happen on the "hour".
-		    # partialHour is used to handle the case where secsPerMinute < 60
+		    set hourBase [expr $dayStart + $day * $secsPerMinute * 60 * 24]
+		    set minuteBase [expr {$hourBase + $hourIndex * 60 * $secsPerMinute}]
 
-		    set partialHour [expr {($startTime - $lasthour) % \
-				($secsPerMinute * 60)}]
-		    set secs [expr ($secsPerMinute * 60) - ($partialHour)]
+		    set partialHour [expr {$startTime -
+			($hourBase + $hourIndex * 60 * $secsPerMinute)}]
+		    set secs [expr {(60 * $secsPerMinute) - $partialHour}]
 		    if {$secs <= 0} {
 			set secs 1
 		    }
@@ -163,6 +159,11 @@ proc stats::countInit {tag args} {
 		# buckets that are skipped during idle periods.
 
 		set counter(lastMinute) -1
+
+		# The following is referenced when bugs cause histogram
+		# hits outside the expect range (overflow and underflow)
+
+		set counter(bucketsize)	 0
 	    }
 	    -group {
 		# Cluster a set of counters with a single total
@@ -212,6 +213,13 @@ proc stats::countInit {tag args} {
 		set counter(bucketsize) $value
 		set counter(mult) 10
 	    }
+	    -histlog {
+		upvar #0 stats::H-$tag histogram
+		if {[info exist histogram]} {
+		    unset histogram
+		}
+		set counter(bucketsize) $value
+	    }
 	    default {
 		return -code error "Unsupported option $option.\
 			Must be -timehist, -group, -lastn, -hist, -hist2x, or -hist10x."
@@ -230,7 +238,7 @@ proc stats::countInit {tag args} {
 
     if {[llength $counter(type)] > 1} {
 	return -code error "Multiple type attributes not supported.  Use only one of\
-		-timehist, -group, -lastn, -hist, -hist2x, or -hist10x."
+		-timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog."
     }
     return ""
 }
@@ -274,6 +282,7 @@ proc stats::countReset {tag args} {
 	}
 	-hist -
 	-hist10x -
+	-histlog -
 	-hist2x {
 	    upvar #0 stats::H-$tag histogram
 	    if {[info exist histogram]} {
@@ -355,6 +364,14 @@ proc stats::count {tag {delta 1} args} {
 			{set max [expr {$max * $counter(mult)}]} {
 		    incr bucket
 		}
+		if {![info exist histogram($bucket)]} {
+		    set histogram($bucket) 0
+		}
+		incr histogram($bucket)
+	    }
+	    -histlog {
+		upvar #0 stats::H-$tag histogram
+		set bucket [expr {int(log($delta)*$counter(bucketsize))}]
 		if {![info exist histogram($bucket)]} {
 		    set histogram($bucket) 0
 		}
@@ -500,6 +517,15 @@ proc stats::countGet {tag {option -total} args} {
 	-histDayVar {
 	    return ::stats::Day-$tag
 	}
+	-maxPerMinute {
+	    return $counter(maxPerMinute)
+	}
+	-maxPerHour {
+	    return $counter(maxPerHour)
+	}
+	-maxPerDay {
+	    return $counter(maxPerDay)
+	}
 	-resetDate {
 	    if {[info exists counter(resetDate)]} {
 		return $counter(resetDate)
@@ -570,6 +596,7 @@ proc stats::MergeHour {interval} {
 	set hourBase $minuteBase
     }
     set minuteBase [clock seconds]
+Stderr "MergeHour $interval"
 
     foreach tag $tagsToMerge {
 	upvar #0 stats::T-$tag counter
@@ -586,8 +613,16 @@ proc stats::MergeHour {interval} {
 	# Accumulate into the next hour bucket.
 
 	set hourhist($hourIndex) 0
+	set max 0
 	foreach i [array names histogram] {
 	    set hourhist($hourIndex) [expr {$hourhist($hourIndex) + $histogram($i)}]
+	    if {$histogram($i) > $max} {
+		set max $histogram($i)
+	    }
+	}
+	set perSec [expr {$max / $secsPerMinute}]
+	if {$perSec > $counter(maxPerMinute)} {
+	    set counter(maxPerMinute) $perSec
 	}
     }
     set hourIndex [expr {($hourIndex + 1) % 24}]
@@ -624,14 +659,27 @@ proc stats::MergeDay {} {
 	set dayBase $hourBase
     }
     foreach tag $tagsToMerge {
+	upvar #0 stats::T-$tag counter
 	upvar #0 stats::Day-$tag dayhist
 	upvar #0 stats::Hour-$tag hourhist
 	set dayhist($dayIndex) 0
+	set max 0
 	for {set i 0} {$i < 24} {incr i} {
 	    if {[info exist hourhist($i)]} {
 		set dayhist($dayIndex) [expr {$dayhist($dayIndex) + $hourhist($i)}]
+		if {$hourhist($i) > $max} { 
+		    set mx $hourhist($i) 
+		}
 	    }
 	}
+	set perSec [expr {double($max) / ($secsPerMinute * 60)}]
+	if {$perSec > $counter(maxPerHour)} {
+	    set counter(maxPerHour) $perSec
+	}
+    }
+    set perSec [expr {double($dayhist($dayIndex)) / ($secsPerMinute * 60 * 24)}]
+    if {$perSec > $counter(maxPerDay)} {
+	set counter(maxPerDay) $perSec
     }
     incr dayIndex
 }
@@ -689,6 +737,7 @@ proc stats::histHtmlDisplay {tag args} {
 
     # Support for self-posting pages that can clear counters.
 
+    append result "<!-- resetCounter [ncgi::value resetCounter] -->"
     if {[ncgi::value resetCounter] == $tag} {
 	stats::countReset $tag
 	return "<!-- Reset $tag counter -->"
@@ -703,6 +752,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    }
 	    set time $minuteBase
 	    set secsForMax $secsPerMinute
+	    set periodMax $counter(maxPerMinute)
 	    set curIndex [expr {([clock seconds] - $minuteBase) / $secsPerMinute}]
 	    set options(-max) 60
 	    set options(-min) 0
@@ -715,6 +765,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    }
 	    set time $hourBase
 	    set secsForMax [expr {$secsPerMinute * 60}]
+	    set periodMax $counter(maxPerHour)
 	    set curIndex [expr {$hourIndex - 1}]
 	    if {$curIndex < 0} {
 		set curIndex 23
@@ -730,6 +781,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    }
 	    set time $dayBase
 	    set secsForMax [expr {$secsPerMinute * 60 * 24}]
+	    set periodMax $counter(maxPerDay)
 	    set curIndex dayIndex
 	    set options(-max) $dayIndex
 	    set options(-min) 0
@@ -757,44 +809,73 @@ proc stats::histHtmlDisplay {tag args} {
 	    set maxName $name
 	}
     }
+
+    # Start 2-column HTML display.  A summary table at the left, the histogram on the right.
+
+    append result "<p>\n<table border=0 cellpadding=0 cellspacing=0>\n"
+    append result "<tr><td valign=top>\n"
+
+    append result "<table bgcolor=#EEEEEE>\n"
+    append result "<tr><td colspan=2 align=center>[html::font]<b>$options(-title)</b></font></td></tr>\n"
+    append result "<tr><td>[html::font]<b>Total</b></font></td>"
+    append result "<td>[html::font][format $options(-format) $counter(total)]</font></td></tr>\n"
+
     if {[info exists secsForMax]} {
 
 	# Time-base histogram
 
-	append result "<h4>$options(-title) ($counter(total) total,\
-		max [format %.2f [expr {$max/double($secsForMax)}]]\
-		per second) bucket size = "
+	append result "<tr><td>[html::font]<b>Max Per Sec</b></font></td>"
+	append result "<td>[html::font][format %.2f [expr {$max/double($secsForMax)}]]</font></td></tr>\n"
+
+	if {$periodMax > 0} {
+	    append result "<tr><td>[html::font]<b>Grand Max Per Sec</b></font></td>"
+	    append result "<td>[html::font][format %.2f $periodMax]</font></td></tr>\n"
+	}
+	set string {}
 	set t $secsForMax
 	set days [expr {$t / (60 * 60 * 24)}]
 	if {$days == 1} {
-	    append result "1 Day "
+	    append string "1 Day "
 	} elseif {$days > 1} {
-	    append result "$days Days "
+	    append string "$days Days "
 	}
 	set t [expr {$t - $days * (60 * 60 * 24)}]
 	set hours [expr {$t / (60 * 60)}]
 	if {$hours == 1} {
-	    append result "1 Hour "
+	    append string "1 Hour "
 	} elseif {$hours > 1} {
-	    append result "$hours Hours "
+	    append string "$hours Hours "
 	}
 	set t [expr {$t - $hours * (60 * 60)}]
 	set mins [expr {$t / 60}]
 	if {$mins == 1} {
-	    append result "1 Minute "
+	    append string "1 Minute "
 	} elseif {$mins > 1} {
-	    append result "$mins Minutes "
+	    append string "$mins Minutes "
 	}
 	set t [expr {$t - $mins * 60}]
 	if {$t == 1} {
-	    append result "1 Second "
+	    append string "1 Second "
 	} elseif {$t > 1} {
-	    append result "$t Seconds "
+	    append string "$t Seconds "
 	}
-	append result </h4>
-
-	append result <ul>
-	append result "<h4>Starting at [clock format $time]</h4>"
+	append result "<tr><td>[html::font]<b>Bucket Size</b></font></td>"
+	append result "<td>[html::font]$string</font></td></tr>\n"
+	append result "<tr><td>[html::font]<b>Starting Time</b></font></td>"
+	switch -glob -- $options(-unit) {
+	    min* {
+		append result "<td>[html::font][clock format $time \
+			-format %k:%M:%S]</font></td></tr>\n"
+	    }
+	    hour* {
+		append result "<td>[html::font][clock format $time \
+			-format %k:%M:%S]</font></td></tr>\n"
+	    }
+	    day* {
+		append result "<td>[html::font][clock format $time \
+			-format "%b %d %k:%M]</font></td></tr>\n"
+	    }
+	}
 
     } else {
 
@@ -805,23 +886,33 @@ proc stats::histHtmlDisplay {tag args} {
 	set mode [expr {$counter(bucketsize) * $maxName}]
 	set first [expr {$counter(bucketsize) * [lindex $ix 0]}]
 	set last [expr {$counter(bucketsize) * [lindex $ix end]}]
-	append result "<h4>$options(-title),\
-		[format $options(-format) $first] min,\
-		[format $options(-format) $mode] mode,\
-		[format $options(-format) $last] max,\
-		[format $options(-format) [countGet $tag -avg]] average\
-		($unit)
-		(<a href=[ncgi::urlStub]?resetCounter=$tag>Reset</a>)
-		</h4>"
-	append result <ul>
+	append result "<tr><td>[html::font]<b>Minimum</b></font></td>"
+	append result "<td>[html::font]$first</font></td></tr>\n"
+	append result "<tr><td>[html::font]<b>Mode</b></font></td>"
+	append result "<td>[html::font]$mode</font></td></tr>\n"
+	append result "<tr><td>[html::font]<b>Maxmum</b></font></td>"
+	append result "<td>[html::font]$last</font></td></tr>\n"
+	append result "<tr><td>[html::font]<b>Average</b></font></td>"
+	append result "<td>[html::font][format $options(-format) [countGet $tag -avg]]</font></td></tr>\n"
+	append result "<tr><td>[html::font]<b>Unit</b></font></td>"
+	append result "<td>[html::font]$unit</font></td></tr>\n"
+	append result "<tr><td colspan=2 align=center>[html::font]<b>"
+	append result "<a href=[ncgi::urlStub]?resetCounter=$tag>Reset</a></td></tr>\n"
 
 	if {$options(-max) < 0} {
-	    set $options(-max) [lindex $ix end]
+	    set options(-max) [lindex $ix end]
 	}
 	if {![info exist options(-min)]} {
-	    set $options(-min) [lindex $ix 0]
+	    set options(-min) [lindex $ix 0]
 	}
     }
+
+    # End table nested inside left-hand column
+
+    append result </table>\n
+    append result </td>\n
+    append result "<td valign=bottom>\n"
+
 
     # Display the histogram
 
@@ -831,6 +922,12 @@ proc stats::histHtmlDisplay {tag args} {
 	    {stats::histHtmlDisplayBarChart $tag histogram $max $curIndex $time} \
 	    [array get options]]
     }
+
+    # Close the right hand column and the outer table.
+
+    append result </td></tr>\n
+    append result </table>\n
+
     return $result
 }
 
@@ -928,7 +1025,14 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
 	append result "<tr><td> </td>"
 	for {set i $options(-min)} {$i < $options(-max)} {incr i} {
-	    set x [expr {$i * $counter(bucketsize) * $counter(mult)}]
+	    if {$counter(type) == "-histlog"} {
+		if {[catch {expr {int(log($i) * $counter(bucketsize))}} x]} {
+		    # Out-of-bounds
+		    break
+		}
+	    } else {
+		set x [expr {$i * $counter(bucketsize) * $counter(mult)}]
+	    }
 	    set label [format $options(-format) $x]
 	    if {(($i % $skip) == 0)} {
 		append result "<td colspan=$skip><font size=1>$label</font></td>"
@@ -1047,6 +1151,8 @@ proc stats::countStart {tag instance} {
 #	tag		The counter identifier.
 #	instance	There may be multiple intervals outstanding
 #			at any time.  This serves to distinquish them.
+#	func		An optional function used to massage the time
+#			stamp before putting into the histogram.
 #
 # Results:
 #	None
@@ -1054,7 +1160,7 @@ proc stats::countStart {tag instance} {
 # Side Effects:
 #	Computes the current interval and adds it to the histogram.
 
-proc stats::countStop {tag instance} {
+proc stats::countStop {tag instance {func ::stats::countIdentity}} {
     upvar #0 stats::Time-$tag time
 
     if {![info exist time($instance)]} {
@@ -1074,5 +1180,24 @@ proc stats::countStop {tag instance} {
 	    set delSecond 0
 	}
     }
-    stats::count $tag $delSecond.[format %06d $delMicros]
+    stats::count $tag [$func $delSecond.[format %06d $delMicros]]
+}
+
+# stats::Identity --
+#
+#	Return its argument.  This is used as the default function
+#	to apply to an interval timer.
+#
+# Arguments:
+#	x		Some value.
+#
+# Results:
+#	$x
+#
+# Side Effects:
+#	None
+
+
+proc stats::countIdentity {x} {
+    return $x
 }
