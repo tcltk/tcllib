@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
 #-----------------------------------------------------------------------------
-#   
-#   A (partial) LDAPv3 protocol implementation in plain Tcl. 
+#
+#   A (partial) LDAPv3 protocol implementation in plain Tcl.
 #
 #   See RFC 2251 and ASN.1 (X.680) and BER (X.690).
 #
 #
-#   This software is copyrighted by Jochen C. Loewer (loewerj@web.de). The 
-#   following terms apply to all files associated with the software unless 
+#   This software is copyrighted by Jochen C. Loewer (loewerj@web.de). The
+#   following terms apply to all files associated with the software unless
 #   explicitly disclaimed in individual files.
 #
 #   The authors hereby grant permission to use, copy, modify, distribute,
@@ -20,7 +20,7 @@
 #   and need not follow the licensing terms described here, provided that
 #   the new terms are clearly indicated on the first page of each file where
 #   they apply.
-#  
+#
 #   IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
 #   FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
 #   ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
@@ -36,6 +36,19 @@
 #
 #
 #   $Log: ldap.tcl,v $
+#   Revision 1.5  2005/02/16 03:54:24  andreas_kupries
+#   Reformatting for indentation, trimmed trailing whitespace.
+#
+#   ldap merge, manual help required.
+#
+#   Import of fixes for ldap by Michael Schlenker, cross-ported
+#   from the asn fixes.
+#
+#   Import of asn fixes by Michael Schlenker.
+#
+#   More fixes and 8.5 feature removal for the compiler
+#   packages.
+#
 #   Revision 1.4  2005/02/15 19:05:16  mic42
 #   Fixed various issues with signed/unsigned values in the ldap module by crossporting from the asn module
 #
@@ -57,7 +70,7 @@
 #
 #   Revision 1.1  2000/03/23  17:40:22  17:40:22  jolo (Jochen Loewer)
 #   Initial revision
-#   
+#
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -77,13 +90,13 @@ namespace eval ldap {
                       modify                 \
                       add                    \
                       delete                 \
-                      modifyDN   
+                      modifyDN
 
-    variable SSLCertifiedAuthoritiesFile 
+    variable SSLCertifiedAuthoritiesFile
     variable doDebug
- 
+
     set doDebug 0
-    
+
     array set resultCode2String {
          0  success
          1  operationsError
@@ -135,7 +148,7 @@ namespace eval ldap {
 proc ldap::connect { host {port 389} } {
 
     #--------------------------------------
-    #   connect via TCP/IP 
+    #   connect via TCP/IP
     #--------------------------------------
     set sock [socket $host $port]
     fconfigure $sock -blocking yes -translation binary
@@ -145,10 +158,10 @@ proc ldap::connect { host {port 389} } {
     #--------------------------------------
     upvar ::ldap::ldap$sock conn
     catch { unset conn }
-  
+
     set conn(sock)      $sock
     set conn(messageId) 0
-  
+
     return ::ldap::ldap$sock
 }
 
@@ -163,7 +176,7 @@ proc ldap::secure_connect { host {port 636} } {
     package require tls
 
     #------------------------------------------------------------------
-    #   connect via TCP/IP 
+    #   connect via TCP/IP
     #------------------------------------------------------------------
     set sock [socket $host $port]
     fconfigure $sock -blocking yes -translation binary
@@ -177,13 +190,13 @@ proc ldap::secure_connect { host {port 636} } {
                       -request 1 -server 0 -require 0 -ssl2 no -ssl3 yes -tls1 yes
     set retry 0
     while {1} {
-        if {$retry > 20} { 
+        if {$retry > 20} {
             close $sock
             return -code error "too long retry to setup SSL connection"
         }
         if {[catch { tls::handshake $sock } err]} {
             if {[string match "*resource temporarily unavailable*" $err]} {
-                after 50  
+                after 50
                 incr retry
             } else {
                 close $sock
@@ -200,10 +213,10 @@ proc ldap::secure_connect { host {port 636} } {
     #--------------------------------------
     upvar ::ldap::ldap$sock conn
     catch { unset conn }
-  
+
     set conn(sock)      $sock
     set conn(messageId) 0
-  
+
     return ::ldap::ldap$sock
 }
 
@@ -216,7 +229,7 @@ proc ldap::bind { handle {name ""} {password ""} } {
 
     upvar $handle conn
 
-    incr conn(messageId) 
+    incr conn(messageId)
 
     #-----------------------------------------------------------------
     #   marshal bind request packet and send it
@@ -267,7 +280,7 @@ proc ldap::unbind { handle } {
 
     upvar $handle conn
 
-    incr conn(messageId) 
+    incr conn(messageId)
 
     #------------------------------------------------
     #   marshal unbind request packet and send it
@@ -283,7 +296,7 @@ proc ldap::unbind { handle } {
 
 
 #-----------------------------------------------------------------------------
-#    buildUpFilter  -   parses the text representation of LDAP search 
+#    buildUpFilter  -   parses the text representation of LDAP search
 #                       filters and transforms it into the correct
 #                       marshalled representation for the search request
 #                       packet
@@ -307,12 +320,12 @@ proc ldap::buildUpFilter { filter } {
             return [asnChoiceConstr 1 $data]
         }
         ^\\!$ {  #--- not -------------------------------------------
-            return [asnChoiceConstr 2 [buildUpFilter [lindex $filter 1]]]           
-        } 
+            return [asnChoiceConstr 2 [buildUpFilter [lindex $filter 1]]]
+        }
         =\\*$ {  #--- present ---------------------------------------
             set endpos [expr {[string length $first] -3}]
             set attributetype [string range $first 0 $endpos]
-            return [asnChoice 7 $attributetype]           
+            return [asnChoice 7 $attributetype]
         }
         ^[0-9A-z.]*~= {  #--- approxMatch --------------------------
             regexp {^([0-9A-z.]*)~=(.*)$} $first all attributetype value
@@ -353,11 +366,11 @@ proc ldap::buildUpFilter { filter } {
             return [asnChoiceConstr 3 [asnOctetString $attributetype] \
                                       [asnOctetString $value]         ]
         }
-        default { 
+        default {
             return [buildUpFilter $first]
             #error "cant handle $first for filter part"
         }
-    }   
+    }
 }
 
 #-----------------------------------------------------------------------------
@@ -386,7 +399,7 @@ proc ldap::search { handle baseObject filterString attributes } {
     regsub -all {\)} $filterString "\} " filterString
 
     set berFilter [buildUpFilter $filterString]
-     
+
     set berAttributes ""
     foreach attribute $attributes {
         append berAttributes [asnOctetString $attribute]
@@ -395,7 +408,7 @@ proc ldap::search { handle baseObject filterString attributes } {
     #----------------------------------------------------------
     #   marshal search request packet and send it
     #----------------------------------------------------------
-    incr conn(messageId) 
+    incr conn(messageId)
     set request [asnSequence                            \
                     [asnInteger $conn(messageId)]       \
                     [asnApplicationConstr 3             \
@@ -451,7 +464,7 @@ proc ldap::search { handle baseObject filterString attributes } {
                 lappend result_attributes $attrType $result_attrValues
             }
             lappend results [list $objectName $result_attributes]
-        } 
+        }
         if {$appNum == 5} {
             #----------------------------------------------------------
             #   unmarshal search final response packet
@@ -476,7 +489,7 @@ proc ldap::search { handle baseObject filterString attributes } {
 #                 o add attributes with new values
 #
 #-----------------------------------------------------------------------------
-proc ldap::modify { handle dn 
+proc ldap::modify { handle dn
                     attrValToReplace { attrToDelete {} } { attrValToAdd {} } } {
 
     upvar $handle conn
@@ -486,7 +499,7 @@ proc ldap::modify { handle dn
     set operationReplace 2
 
     #------------------------------------------------------------------
-    #   marshal attribute modify operations 
+    #   marshal attribute modify operations
     #    - always mode 'replace' ! see rfc2251:
     #
     #        replace: replace all existing values of the given attribute
@@ -508,7 +521,7 @@ proc ldap::modify { handle dn
                                  ]                                   \
                              ]
     }
-    
+
     #------------------------------------------------------------------
     #   marshal attribute add operations
     #
@@ -553,7 +566,7 @@ proc ldap::modify { handle dn
     #----------------------------------------------------------
     #   marshal 'modify' request packet and send it
     #----------------------------------------------------------
-    incr conn(messageId) 
+    incr conn(messageId)
     set request [asnSequence                             \
                     [asnInteger $conn(messageId)]        \
                     [asnApplicationConstr 6              \
@@ -566,7 +579,7 @@ proc ldap::modify { handle dn
     flush $conn(sock)
 
     #-----------------------------------------------------------------------
-    #   receive (blocking) 'modify' response packet(s) and unmarshal it 
+    #   receive (blocking) 'modify' response packet(s) and unmarshal it
     #-----------------------------------------------------------------------
     asnGetResponse $conn(sock) response
     debugData bindResponse $response
@@ -610,13 +623,13 @@ proc ldap::add { handle dn attrValueTuples } {
                             [asnSet                          \
                                 [asnOctetString $attrValue ] \
                             ]                                \
-                        ] 
+                        ]
     }
 
     #----------------------------------------------------------
     #   marshal search 'add' request packet and send it
     #----------------------------------------------------------
-    incr conn(messageId) 
+    incr conn(messageId)
     set request [asnSequence                        \
                     [asnInteger $conn(messageId)]   \
                     [asnApplicationConstr 8         \
@@ -630,7 +643,7 @@ proc ldap::add { handle dn attrValueTuples } {
     flush $conn(sock)
 
     #-----------------------------------------------------------------------
-    #   receive (blocking) 'add' response packet(s) and unmarshal it 
+    #   receive (blocking) 'add' response packet(s) and unmarshal it
     #
     #-----------------------------------------------------------------------
     asnGetResponse $conn(sock) response
@@ -665,7 +678,7 @@ proc ldap::delete { handle dn } {
     #----------------------------------------------------------
     #   marshal 'delete' request packet and send it
     #----------------------------------------------------------
-    incr conn(messageId) 
+    incr conn(messageId)
     set request [asnSequence                      \
                     [asnInteger $conn(messageId)] \
                     [asnApplication 10 $dn      ] \
@@ -676,7 +689,7 @@ proc ldap::delete { handle dn } {
     flush $conn(sock)
 
     #-----------------------------------------------------------------------
-    #   receive (blocking) 'delete' response packet(s) and unmarshal it 
+    #   receive (blocking) 'delete' response packet(s) and unmarshal it
     #
     #-----------------------------------------------------------------------
     asnGetResponse $conn(sock) response
@@ -712,7 +725,7 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } } {
     #----------------------------------------------------------
     #   marshal 'modifyDN' request packet and send it
     #----------------------------------------------------------
-    incr conn(messageId) 
+    incr conn(messageId)
     set request [asnSequence                             \
                     [asnInteger $conn(messageId)]        \
                     [asnApplicationConstr 12             \
@@ -726,7 +739,7 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } } {
     flush $conn(sock)
 
     #-----------------------------------------------------------------------
-    #   receive (blocking) 'modifyDN' response packet(s) and unmarshal it 
+    #   receive (blocking) 'modifyDN' response packet(s) and unmarshal it
     #-----------------------------------------------------------------------
     asnGetResponse $conn(sock) response
     debugData bindResponse $response
@@ -757,12 +770,12 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } } {
 proc ldap::disconnect { handle } {
 
     upvar $handle conn
- 
+
     # should we sent an 'unbind' ?
     close $conn(sock)
     unset conn
 
-    return            
+    return
 }
 
 
@@ -773,8 +786,8 @@ proc ldap::disconnect { handle } {
 proc ldap::trace { message } {
 
     variable doDebug
-    
-    if {!$doDebug} return 
+
+    if {!$doDebug} return
 
     puts stderr $message
 }
@@ -787,8 +800,8 @@ proc ldap::trace { message } {
 proc ldap::debugData { info data } {
 
     variable doDebug
-    
-    if {!$doDebug} return 
+
+    if {!$doDebug} return
 
     set len [string length $data]
     trace "$info ($len bytes):"
@@ -803,7 +816,7 @@ proc ldap::debugData { info data } {
         set text .
         if {$num > 31} {
             set text $v
-        } 
+        }
         if { ($i % 16) == 0 } {
             if {$address != ""} {
                 trace [format "%4s  %-48s  |%s|" $address $hexnums $ascii ]
@@ -833,11 +846,11 @@ proc ldap::asnLength { len } {
         return -code error "Negative length octet requested"
     }
     if {$len < 128} {
-        # short form: ISO X.690 8.1.3.4 
+        # short form: ISO X.690 8.1.3.4
         return [binary format c $len]
     }
     # long form: ISO X.690 8.1.3.5
-    # try to use a minimal encoding, 
+    # try to use a minimal encoding,
     # even if not required by BER, but it is required by DER
     # take care for signed vs. unsigned issues
     if {$len < 256  } {
@@ -851,14 +864,14 @@ proc ldap::asnLength { len } {
         return [binary format H2S 82 [expr {$len - 65536}]]
     }
     if {$len < 8388608} {
-        # three octet signed value    
-        return [binary format H2cS 83 [expr {$len >> 16}] [expr {($len & 0xFFFF) - 65536}]] 
-    }    
-    if {$len < 16777216} {
-        # three octet signed value    
-        return [binary format H2cS 83 [expr {($len >> 16) -256}] [expr {($len & 0xFFFF) -65536}]] 
+        # three octet signed value
+        return [binary format H2cS 83 [expr {$len >> 16}] [expr {($len & 0xFFFF) - 65536}]]
     }
-    if {$len < 2147483649} { 
+    if {$len < 16777216} {
+        # three octet signed value
+        return [binary format H2cS 83 [expr {($len >> 16) -256}] [expr {($len & 0xFFFF) -65536}]]
+    }
+    if {$len < 2147483649} {
         # four octet signed value
         return [binary format H2I 84 $len]
     }
@@ -868,7 +881,7 @@ proc ldap::asnLength { len } {
     }
     if {$len < 1099511627776} {
         # five octet unsigned value
-        return [binary format H2 85][string range [binary format W $len] 3 end]  
+        return [binary format H2 85][string range [binary format W $len] 3 end]
     }
     if {$len < 281474976710656} {
         # six octet unsigned value
@@ -878,9 +891,9 @@ proc ldap::asnLength { len } {
         # seven octet value
         return [binary format H2 87][string range [binary format W $len] 1 end]
     }
-    
+
     # must be a 64-bit wide signed value
-    return [binary format H2W 88 $len] 
+    return [binary format H2W 88 $len]
 }
 
 
@@ -993,18 +1006,18 @@ proc ::ldap::asnEnumeration {number} {
 #-----------------------------------------------------------------------------
 
 proc ::ldap::asnIntegerOrEnum {tag number} {
-    # The integer tag is 0x02 , the Enum Tag 0x0a otherwise identical. 
+    # The integer tag is 0x02 , the Enum Tag 0x0a otherwise identical.
     # The length is 1, 2, 3, or 4, coded in a
     # single byte. This can be done directly, no need to go through
     # asnLength. The value itself is written in big-endian.
 
     # Known bug/issue: The command cannot handle very wide integers, i.e.
     # anything above 8 bytes length. Use asnBignumInteger for those.
-    
+
     # check if we really have an int
     set num $number
     incr num
-    
+
     if {($number >= -128) && ($number < 128)} {
         return [binary format H2H2c $tag 01 $number]
     }
@@ -1027,18 +1040,18 @@ proc ::ldap::asnIntegerOrEnum {tag number} {
     if {($number >= -140737488355328) && ($number < 140737488355328)} {
         set numberb [expr {$number & 0xFFFFFFFF}]
         set numbera [expr {($number >> 32) & 0xFFFF}]
-        return [binary format H2H2SI $tag 06 $numbera $numberb]        
+        return [binary format H2H2SI $tag 06 $numbera $numberb]
     }
     if {($number >= -36028797018963968) && ($number < 36028797018963968)} {
         set numberc [expr {$number & 0xFFFFFFFF}]
         set numberb [expr {($number >> 32) & 0xFFFF}]
         set numbera [expr {($number >> 48) & 0xFF}]
-        return [binary format H2H2cSI $tag 07 $numbera $numberb $numberc]        
-    }    
+        return [binary format H2H2cSI $tag 07 $numbera $numberb $numberc]
+    }
     if {($number >= -9223372036854775808) && ($number <= 9223372036854775807)} {
         return [binary format H2H2W $tag 08 $number]
     }
-    return -code error "Integer value to large to encode, use asnBigInteger" 
+    return -code error "Integer value to large to encode, use asnBigInteger"
 }
 
 
@@ -1073,7 +1086,7 @@ proc ldap::asnGetResponse { sock data_var } {
 
     set tag [read $sock 1]
 
-    if {$tag == "\x30"} { 
+    if {$tag == "\x30"} {
         set len1 [read $sock 1]
         binary scan $len1 c num
         set length [expr {($num + 0x100) % 0x100}]
@@ -1083,33 +1096,36 @@ proc ldap::asnGetResponse { sock data_var } {
             set lengthBytes [read $sock $len_length]
             switch $len_length {
             1 {
-            # Efficiently coded data will not go through this
-            # path, as small length values can be coded directly,
-            # without a prefix.
+		# Efficiently coded data will not go through this
+		# path, as small length values can be coded directly,
+		# without a prefix.
 
-                binary scan $lengthBytes     c length 
+                binary scan $lengthBytes     c length
                 set length [expr {($length + 0x100) % 0x100}]
             }
-            2 { binary scan $lengthBytes     S length 
+            2 {
+		binary scan $lengthBytes     S length
                 set length [expr {($length + 0x10000) % 0x10000}]
             }
-            3 { binary scan \x00$lengthBytes I length 
+            3 {
+		binary scan \x00$lengthBytes I length
                 set length [expr {($length + 0x1000000) % 0x1000000}]
             }
-            4 { binary scan $lengthBytes     I length 
+            4 {
+		binary scan $lengthBytes     I length
                 set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
             }
-            default {                
+            default {
                 binary scan $lengthBytes H* hexstr
                 # skip leading zeros which are allowed by BER
-                set hexlen [string trimleft $hexstr 0] 
+                set hexlen [string trimleft $hexstr 0]
                 # check if it fits into a 64-bit signed integer
                 if {[string length $hexlen] > 16} {
-                    return -code {ARITH IOVERFLOW 
+                    return -code {ARITH IOVERFLOW
                             {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
-                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} { 
+                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} {
                     # check most significant bit, if set we need bignum
-                    return -code {ARITH IOVERFLOW 
+                    return -code {ARITH IOVERFLOW
                             {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
                 } else {
                     scan $hexstr "%lx" length
@@ -1176,43 +1192,48 @@ proc ::ldap::asnGetLength {data_var length_var} {
     # length data following immediately after this prefix.
 
         set len_length [expr {$length & 0x7f}]
-        
+
         if {[string length $data] < $len_length} {
-            return -code error "length information invalid, not enough octets left" 
+            return -code error "length information invalid, not enough octets left"
         }
-        
+
         asnGetBytes data $len_length lengthBytes
 
         switch $len_length {
             1 {
-        # Efficiently coded data will not go through this
-        # path, as small length values can be coded directly,
-        # without a prefix.
+		# Efficiently coded data will not go through this
+		# path, as small length values can be coded directly,
+		# without a prefix.
 
-            binary scan $lengthBytes     c length 
-            set length [expr {($length + 0x100) % 0x100}]
+		binary scan $lengthBytes     c length
+		set length [expr {($length + 0x100) % 0x100}]
             }
-            2 { binary scan $lengthBytes     S length 
-            set length [expr {($length + 0x10000) % 0x10000}]
+            2 {
+		binary scan $lengthBytes     S length
+		set length [expr {($length + 0x10000) % 0x10000}]
             }
-            3 { binary scan \x00$lengthBytes I length 
-            set length [expr {($length + 0x1000000) % 0x1000000}]
+            3 {
+		binary scan \x00$lengthBytes I length
+		set length [expr {($length + 0x1000000) % 0x1000000}]
             }
-            4 { binary scan $lengthBytes     I length 
-            set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
+            4 {
+		binary scan $lengthBytes     I length
+		set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
             }
-            default {                
+            default {
                 binary scan $lengthBytes H* hexstr
                 # skip leading zeros which are allowed by BER
-                set hexlen [string trimleft $hexstr 0] 
+                set hexlen [string trimleft $hexstr 0]
                 # check if it fits into a 64-bit signed integer
                 if {[string length $hexlen] > 16} {
-                    return -code {ARITH IOVERFLOW 
-                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
-                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} { 
+                    return -code {ARITH IOVERFLOW
+                            {Length value too large for normal use, try asnGetBigLength}} \
+				    "Length value to large"
+                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} {
                     # check most significant bit, if set we need bignum
-                    return -code {ARITH IOVERFLOW 
-                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                    return -code {ARITH IOVERFLOW
+                            {Length value too large for normal use, try asnGetBigLength}} \
+				    "Length value to large"
                 } else {
                     scan $hexstr "%lx" length
                 }
@@ -1228,7 +1249,7 @@ proc ::ldap::asnGetLength {data_var length_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetInteger {data_var int_var} {
-    # Tag is 0x02. 
+    # Tag is 0x02.
 
     upvar $data_var data $int_var int
 
@@ -1248,13 +1269,13 @@ proc ::asn::asnGetInteger {data_var int_var} {
     switch $len {
         1 { binary scan $integerBytes     c int }
         2 { binary scan $integerBytes     S int }
-        3 { 
-            # check for negative int and pad 
+        3 {
+            # check for negative int and pad
             scan [string index $integerBytes 0] %c byte
             if {$byte & 128} {
                 binary scan \xff$integerBytes I int
             } else {
-                binary scan \x00$integerBytes I int 
+                binary scan \x00$integerBytes I int
             }
           }
         4 { binary scan $integerBytes     I int }
@@ -1269,7 +1290,7 @@ proc ::asn::asnGetInteger {data_var int_var} {
             } else {
                 set pad [string repeat \x00 [expr {8-$len}]]
             }
-            binary scan $pad$integerBytes W int 
+            binary scan $pad$integerBytes W int
         }
         default {
         # Too long
@@ -1320,11 +1341,11 @@ proc ldap::asnGetEnumeration { data_var enum_var } {
 proc ldap::asnGetOctetString { data_var string_var } {
 
     upvar $data_var data $string_var string
-    
+
     asnGetByte data byte
-    if {$byte != 0x04} { 
+    if {$byte != 0x04} {
         error "Got different tag than octet string (0x04)"
-    }    
+    }
     asnGetLength data length
     asnGetBytes  data $length temp
     set string $temp
@@ -1340,9 +1361,9 @@ proc ldap::asnGetSequence { data_var sequence_var } {
     upvar $data_var data $sequence_var sequence
 
     asnGetByte data byte
-    if {$byte != 0x030} { 
+    if {$byte != 0x030} {
         error "Got different tag than sequence (0x030)"
-    }    
+    }
     asnGetLength data length
     asnGetBytes  data $length temp
     set sequence $temp
@@ -1358,12 +1379,12 @@ proc ldap::asnGetSet { data_var set_var } {
     upvar $data_var data $set_var set
 
     asnGetByte data byte
-    if {$byte != 0x031} { 
+    if {$byte != 0x031} {
         error "Got different tag than set (0x031)"
-    }    
+    }
     asnGetLength data length
     asnGetBytes  data $length temp
-    set set $temp    
+    set set $temp
 }
 
 
@@ -1375,13 +1396,11 @@ proc ldap::asnGetApplication { data_var appNumber_var } {
 
     upvar $data_var data $appNumber_var appNumber
 
-    asnGetByte   data byte  
-    asnGetLength data length   
+    asnGetByte   data byte
+    asnGetLength data length
 
     if {($byte & 0xE0) != 0x060} {
         error "Got different tag than application (0x060)"
-    }    
+    }
     set appNumber [expr {$byte & 0x1F}]
 }
-
-
