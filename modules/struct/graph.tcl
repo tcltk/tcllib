@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.11 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.12 2004/02/09 04:56:31 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -667,6 +667,88 @@ proc ::struct::graph::__arc_append {name arc key value} {
     return [append data($key) $value]
 }
 
+# ::struct::graph::__arc_attr --
+#
+#	Return attribute data for one key and multiple arcs, possibly all.
+#
+# Arguments:
+#	name	Name of the graph object.
+#	key	Name of the attribute to retrieve.
+#
+# Results:
+#	children	Dictionary mapping arcs to attribute data.
+
+proc ::struct::graph::__arc_attr {name key args} {
+    # Syntax:
+    #
+    # t attr key
+    # t attr key -arcs {arclist}
+    # t attr key -glob arcpattern
+    # t attr key -regexp arcpattern
+
+    variable ${name}::arcAttr
+
+    set usage "wrong # args: should be \"[list $name] arc attr key ?-arcs list|-glob pattern|-regexp pattern?\""
+    if {([llength $args] != 0) && ([llength $args] != 2)} {
+	return -code error $usage
+    } elseif {[llength $args] == 0} {
+	# This automatically restricts the list
+	# to arcs which can have the attribute
+	# in question.
+
+	set arcs [array names arcAttr]
+    } else {
+	# Determine a list of arcs to look at
+	# based on the chosen restriction.
+
+	foreach {mode value} $args break
+	switch -exact -- $mode {
+	    -arcs {
+		# This is the only branch where we have to
+		# perform an explicit restriction to the
+		# arcs which have attributes.
+		set arcs {}
+		foreach n $value {
+		    if {![info exists arcAttr($n)]} continue
+		    lappend arcs $n
+		}
+	    }
+	    -glob {
+		set arcs [array names arcAttr $value]
+	    }
+	    -regexp {
+		set arcs {}
+		foreach n [array names arcAttr] {
+		    if {![regexp -- $value $n]} continue
+		    lappend arcs $n
+		}
+	    }
+	    default {
+		return -code error $usage
+	    }
+	}
+    }
+
+    # Without possibly matching arcs
+    # the result has to be empty.
+
+    if {![llength $arcs]} {
+	return {}
+    }
+
+    # Now locate matching keys and their values.
+
+    set result {}
+    foreach n $arcs {
+	upvar ${name}::$arcAttr($n) data
+	if {[info exists data($key)]} {
+	    lappend result $n $data($key)
+	}
+    }
+
+    return $result
+}
+
 # ::struct::graph::__arc_lappend --
 #
 #	lappend a value for an arc in a graph.
@@ -788,6 +870,7 @@ proc ::struct::graph::_arcs {name args} {
     set haveCond 0
     set haveKey 0
     set haveValue 0
+    set haveFilter 0
     set cond "none"
     set condNodes [list]
 
@@ -812,9 +895,14 @@ proc ::struct::graph::_arcs {name args} {
 		set value [lindex $args $i]
 		set haveValue 1
 	    }
+	    -filter {
+		incr i
+		set fcmd [lindex $args $i]
+		set haveFilter 1
+	    }
 	    -* {
 		return -code error "invalid restriction \"$arg\": should be -in, -out,\
-			-adj, -inner, -embedding, -key or -value"
+			-adj, -inner, -embedding, -key, -value, or -filter"
 	    }
 	    default {
 		lappend condNodes $arg
@@ -826,7 +914,7 @@ proc ::struct::graph::_arcs {name args} {
     # otherwise what's the point?
     if {$haveCond} {
 	if {[llength $condNodes] == 0} {
-	    set usage "$name arcs ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"
+	    set usage "$name arcs ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?"
 	    return -code error "no nodes specified: should be \"$usage\""
 	}
 
@@ -970,9 +1058,9 @@ proc ::struct::graph::_arcs {name args} {
     # Now filter according to -key and -value.
     #
 
-    set filteredArcs [list]
 
     if {$haveKey} {
+	set filteredArcs [list]
 	foreach arc $arcs {
 	    catch {
 		set aval [__arc_get $name $arc $key]
@@ -985,11 +1073,19 @@ proc ::struct::graph::_arcs {name args} {
 		}
 	    }
 	}
-    } else {
-	set filteredArcs $arcs
+	set arcs $filteredArcs
     }
 
-    return $filteredArcs
+    #
+    # Apply the general filter command, if specified.
+    #
+
+    if {$haveFilter} {
+	lappend fcmd $name
+	set arcs [uplevel 1 [list ::struct::list filter $arcs $fcmd]]
+    }
+
+    return $arcs
 }
 
 
@@ -1625,6 +1721,88 @@ proc ::struct::graph::__node_append {name node key value} {
     return [append data($key) $value]
 }
 
+# ::struct::graph::__node_attr --
+#
+#	Return attribute data for one key and multiple nodes, possibly all.
+#
+# Arguments:
+#	name	Name of the graph object.
+#	key	Name of the attribute to retrieve.
+#
+# Results:
+#	children	Dictionary mapping nodes to attribute data.
+
+proc ::struct::graph::__node_attr {name key args} {
+    # Syntax:
+    #
+    # t attr key
+    # t attr key -nodes {nodelist}
+    # t attr key -glob nodepattern
+    # t attr key -regexp nodepattern
+
+    variable ${name}::nodeAttr
+
+    set usage "wrong # args: should be \"[list $name] node attr key ?-nodes list|-glob pattern|-regexp pattern?\""
+    if {([llength $args] != 0) && ([llength $args] != 2)} {
+	return -code error $usage
+    } elseif {[llength $args] == 0} {
+	# This automatically restricts the list
+	# to nodes which can have the attribute
+	# in question.
+
+	set nodes [array names nodeAttr]
+    } else {
+	# Determine a list of nodes to look at
+	# based on the chosen restriction.
+
+	foreach {mode value} $args break
+	switch -exact -- $mode {
+	    -nodes {
+		# This is the only branch where we have to
+		# perform an explicit restriction to the
+		# nodes which have attributes.
+		set nodes {}
+		foreach n $value {
+		    if {![info exists nodeAttr($n)]} continue
+		    lappend nodes $n
+		}
+	    }
+	    -glob {
+		set nodes [array names nodeAttr $value]
+	    }
+	    -regexp {
+		set nodes {}
+		foreach n [array names nodeAttr] {
+		    if {![regexp -- $value $n]} continue
+		    lappend nodes $n
+		}
+	    }
+	    default {
+		return -code error $usage
+	    }
+	}
+    }
+
+    # Without possibly matching nodes
+    # the result has to be empty.
+
+    if {![llength $nodes]} {
+	return {}
+    }
+
+    # Now locate matching keys and their values.
+
+    set result {}
+    foreach n $nodes {
+	upvar ${name}::$nodeAttr($n) data
+	if {[info exists data($key)]} {
+	    lappend result $n $data($key)
+	}
+    }
+
+    return $result
+}
+
 # ::struct::graph::__node_lappend --
 #
 #	lappend a value for a node in a graph.
@@ -1706,6 +1884,7 @@ proc ::struct::graph::_nodes {name args} {
     set haveCond 0
     set haveKey 0
     set haveValue 0
+    set haveFilter 0
     set cond "none"
     set condNodes [list]
 
@@ -1730,9 +1909,14 @@ proc ::struct::graph::_nodes {name args} {
 		set value [lindex $args $i]
 		set haveValue 1
 	    }
+	    -filter {
+		incr i
+		set fcmd [lindex $args $i]
+		set haveFilter 1
+	    }
 	    -* {
 		return -code error "invalid restriction \"$arg\": should be -in, -out,\
-			-adj, -inner, -embedding, -key or -value"
+			-adj, -inner, -embedding, -key, -value, or -filter"
 	    }
 	    default {
 		lappend condNodes $arg
@@ -1744,7 +1928,7 @@ proc ::struct::graph::_nodes {name args} {
     # otherwise what's the point?
     if {$haveCond} {
 	if {[llength $condNodes] == 0} {
-	    set usage "$name nodes ?-key key? ?-value value? ?-in|-out|-adj|-inner|-embedding node node...?"
+	    set usage "$name nodes ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?"
 	    return -code error "no nodes specified: should be \"$usage\""
 	}
 
@@ -1875,9 +2059,8 @@ proc ::struct::graph::_nodes {name args} {
     # Now filter according to -key and -value.
     #
 
-    set filteredNodes [list]
-
     if {$haveKey} {
+	set filteredNodes [list]
 	foreach node $nodes {
 	    catch {
 		set nval [__node_get $name $node $key]
@@ -1890,11 +2073,19 @@ proc ::struct::graph::_nodes {name args} {
 		}
 	    }
 	}
-    } else {
-	set filteredNodes $nodes
+	set nodes $filteredNodes
     }
 
-    return $filteredNodes
+    #
+    # Apply the general filter command, if specified.
+    #
+
+    if {$haveFilter} {
+	lappend fcmd $name
+	set nodes [uplevel 1 [list ::struct::list filter $nodes $fcmd]]
+    }
+
+    return $nodes
 }
 
 # ::struct::graph::__node_rename --

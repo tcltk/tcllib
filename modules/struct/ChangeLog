@@ -1,3 +1,13 @@
+2004-02-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.man:  Added new method 'arc attr' ad 'node attr' to
+	* graph.tcl:  the graph data structure. They serve the same
+	* graph.test: purpose as the 'attr' method for trees. See below.
+
+	  Additional the 'arcs' and 'nodes' method have been given
+	  '-filter' options, similar to the filter for the children of a
+	  node in trees.
+
 2004-02-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct_tree.man: New method 'attr' for attribute searches

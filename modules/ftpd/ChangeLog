@@ -1,3 +1,11 @@
+2004-02-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl
+	* ftpd.tcl: Imported changes made by "Gerald W. Lester"
+	  <Gerald.Lester@ShowMaster.com>. Bugfixes, more callbacks (close,
+	  transfer done), and implementation of passive mode data
+	  connection. Version up to 1.2.
+
 2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftpd.tcl (Fs): Fixed SF tcllib bug [766112]. Copied code from
