@@ -1,3 +1,7 @@
+2004-02-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* urn.test: Added dict sorting for reliable comparisons.
+
 2003-08-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uri.tcl: Applied a fix for bug #795032: damage to global vars.

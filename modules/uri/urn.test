@@ -2,7 +2,7 @@
 #
 # Provide a set of tests to excercise the urn-scheme package.
 #
-# @(#)$Id: urn.test,v 1.3 2004/01/15 06:36:14 andreas_kupries Exp $
+# @(#)$Id: urn.test,v 1.4 2004/02/11 08:30:10 andreas_kupries Exp $
 
 # Initialize the required packages
 
@@ -24,12 +24,27 @@ if {[catch {package require uri::urn}]} {
 
 # -------------------------------------------------------------------------
 
+# Takes a dictionary, returns a list containing the same dictionary,
+# however the keys are sorted alphabetically. This allows for a true
+# comparison of dictionary results.
+
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+	lappend out $key $a($key)
+    }
+    return $out
+}
+
+# -------------------------------------------------------------------------
+
 # Tests to check for valid urn sections.
 
 test urn-1.1 {Check basic split} {
     catch {uri::split urn:tcl:test} result
-    set result
-} {nss test scheme urn nid tcl}
+    dictsort $result
+} {nid tcl nss test scheme urn}
 
 test urn-1.2 {Check basic join} {
     catch {uri::join scheme urn nid tcl nss test} result
@@ -38,8 +53,8 @@ test urn-1.2 {Check basic join} {
 
 test urn-1.3 {Split permissible NID} {
     catch {uri::split urn:tcl-TCL-0123456789:test} result
-    set result
-} {nss test scheme urn nid tcl-TCL-0123456789}
+    dictsort $result
+} {nid tcl-TCL-0123456789 nss test scheme urn}
 
 test urn-1.4 {Join permissible NID} {
     catch {uri::join scheme urn nid tcl-TCL-0123456789 nss test} result
@@ -48,8 +63,8 @@ test urn-1.4 {Join permissible NID} {
 
 test urn-1.5 {Split permissible NSS} {
     catch {uri::split {urn:tcl:Test-0123456789()+,-.:=@;$_!*'}} result
-    set result
-} {nss {Test-0123456789()+,-.:=@;$_!*'} scheme urn nid tcl}
+    dictsort $result
+} {nid tcl nss {Test-0123456789()+,-.:=@;$_!*'} scheme urn}
 
 test urn-1.6 {Join permissible NSS} {
     catch {uri::join scheme urn nid tcl nss {Test-0123456789()+,-.:=@;$_!*'}} result

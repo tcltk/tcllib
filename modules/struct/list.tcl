@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.14 2004/02/09 09:32:13 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.15 2004/02/11 08:30:10 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -579,12 +579,12 @@ proc ::struct::list::Lreverse {sequence} {
 
 if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 
-    proc ::struct::list::Lassign {sequence args} {
-	set l [::llength $sequence]
+    proc ::struct::list::Lassign {sequence v args} {
+	set args [linsert $args 0 $v]
 	set a [::llength $args]
 
 	# Nothing to assign.
-	if {$a == 0} {return $sequence}
+	#if {$a == 0} {return $sequence}
 
 	# Perform assignments
 	set i 0
