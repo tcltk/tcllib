@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.15 2003/04/11 18:32:01 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.16 2003/07/04 15:56:51 msofer Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -410,10 +410,11 @@ proc ::ftpd::unixAuth {user pass} {
 proc ::ftpd::server {{myaddr {}}} {
     variable port
     if {[string length $myaddr]} {
-	socket -server ::ftpd::accept -myaddr $myaddr $port
+	set f [socket -server ::ftpd::accept -myaddr $myaddr $port]
     } else {
-	socket -server ::ftpd::accept $port
+	set f [socket -server ::ftpd::accept $port]
     }
+    set port [lindex [fconfigure $f -sockname] 2]
     return
 }
 
