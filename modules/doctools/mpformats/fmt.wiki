@@ -205,7 +205,16 @@ proc fmt_package {text} {strong $text}
 proc fmt_class   {text} {strong $text}
 proc fmt_var     {text} {strong $text}
 proc fmt_file    {text} {return "\"[emph $text]\""}
-proc fmt_uri     {text} {emph $text}
+proc fmt_namespace     {text} {strong $text}
+proc fmt_uri     {text {label {}}} {
+    if {$label == {}} {
+	# No label is an inlined emphasized link.
+	return [emph $text]
+    } else {
+	# Label in the text, link for it is hidden in an annotation.
+	return "[emph $label] \[$text\]"
+    }
+}
 proc fmt_term    {text} {emph $text}
 proc fmt_const   {text} {strong $text}
 

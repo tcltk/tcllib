@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.16 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.17 2004/05/04 22:10:20 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -56,7 +56,11 @@ proc fmt_package {text} {wrap $text package}
 proc fmt_class   {text} {wrap $text class}
 proc fmt_var     {text} {wrap $text variable}
 proc fmt_file    {text} {wrap $text file}
-proc fmt_uri     {text} {wrap $text url}
+proc fmt_namespace     {text} {wrap $text term}
+proc fmt_uri     {text {label {}}} {
+    # TMML ignores the label
+    wrap $text url
+}
 proc fmt_term    {text} {wrap $text term}
 proc fmt_const   {text} {wrap $text l}
 
