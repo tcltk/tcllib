@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.6 2002/05/09 05:46:04 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.7 2002/11/06 04:08:01 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -39,6 +39,9 @@ namespace eval ::struct::graph {
 	    "arcs"		\
 	    "destroy"		\
 	    "get"		\
+	    "getall"		\
+	    "keys"		\
+	    "keyexists"		\
 	    "node"		\
 	    "nodes"		\
 	    "set"		\
@@ -900,6 +903,65 @@ proc ::struct::graph::_get {name {flag -key} {key data}} {
     return $data($key)
 }
 
+# ::struct::graph::_getall --
+#
+#	Get a serialized list of key/value pairs from a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#
+# Results:
+#	value	value associated with the key given.
+
+proc ::struct::graph::_getall {name args} { 
+    if { [llength $args] } {
+	error "wrong # args: should be none"
+    }
+    
+    upvar ::struct::graph::graph${name}::graphData data
+    return [array get data]
+}
+
+# ::struct::graph::_keys --
+#
+#	Get a list of keys from a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#
+# Results:
+#	value	list of known keys
+
+proc ::struct::graph::_keys {name args} { 
+    if { [llength $args] } {
+	error "wrong # args: should be none"
+    }
+
+    upvar ::struct::graph::graph${name}::graphData data
+    return [array names data]
+}
+
+# ::struct::graph::_keyexists --
+#
+#	Test for existance of a given key in a graph.
+#
+# Arguments:
+#	name	name of the graph.
+#	flag	-key; anything else is an error
+#	key	key to lookup; defaults to data
+#
+# Results:
+#	1 if the key exists, 0 else.
+
+proc ::struct::graph::_keyexists {name {flag -key} {key data}} {
+    if { ![string equal $flag "-key"] } {
+	error "invalid option \"$flag\": should be -key"
+    }
+    
+    upvar ::struct::graph::graph${name}::graphData data
+    return [info exists data($key)]
+}
+
 # ::struct::graph::_node --
 #
 #	Dispatches the invocation of node methods to the proper handler
@@ -1124,7 +1186,7 @@ proc ::struct::graph::__node_getall {name node args} {
 
 # ::struct::graph::__node_keys --
 #
-#	Get a of keys from a node in a graph.
+#	Get a list of keys from a node in a graph.
 #
 # Arguments:
 #	name	name of the graph.
