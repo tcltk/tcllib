@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.17 2003/04/11 19:16:19 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.18 2003/10/21 21:24:01 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Bae64_Decode
 # Version 2.0   uses the base64 namespace
@@ -112,6 +112,7 @@ if {![catch {package require Trf 2.0}]} {
     #	The decoded value.
 
     proc ::base64::decode {string} {
+	regsub -all {\s} $string {} string
 	::base64 -mode decode -- $string
     }
 
