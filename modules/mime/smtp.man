@@ -70,6 +70,17 @@ insecure will cause the package to continue on the unencrypted channel.
 Returning 'secure' will cause the socket to be closed and the next server
 in the [option -servers] list to be tried.
 
+[lst_item [option -username]]
+[lst_item [option -password]]
+
+If your SMTP server requires authentication before accepting mail you can
+use [option -username] and [option -password] to provide your authentication
+details to the server. Currently this package supports CRAM-MD5, LOGIN and
+PLAIN authentication methods. The most secure method will be tried first
+and each method tried in turn until we are either authorized or we run out of
+methods. Note that if the server permits a TLS connection, then the 
+authorization will occur after we begin using the secure channel.
+
 [list_end]
 [nl]
 

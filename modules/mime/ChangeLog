@@ -1,3 +1,11 @@
+2004-03-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl: Added support for RFC 2554 - SMTP Authentication. This
+	included support for the SASL mechanisms CRAM-MD5 and PLAIN and
+	the Microsoft LOGIN mechanism. This has been tested against
+	Microsoft Exchange servers and Sendmail 8.12.
+	Added support for RFC 1870, the SIZE extension.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

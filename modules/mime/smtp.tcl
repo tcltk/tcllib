@@ -95,6 +95,8 @@ if {[catch {package require Trf  2.0}]} {
 #                          some reason. Return 'insecure' to continue with
 #                          normal SMTP or 'secure' to close the connection and
 #                          try another server.
+#             -username    These are needed if your SMTP server requires
+#             -password    authentication.
 #
 # Results:
 #	Message is sent.  On success, return "".  On failure, throw an
@@ -120,6 +122,8 @@ proc ::smtp::sendmessage {part args} {
     set ports [list 25]
     set tlsP 1
     set tlspolicy {}
+    set username {}
+    set password {}
 
     array set header ""
 
@@ -185,6 +189,9 @@ proc ::smtp::sendmessage {part args} {
             -ports {
                 set ports $value
             }
+
+            -username { set username $value }
+            -password { set password $value }
 
             default {
                 error "unknown option $option"
@@ -397,7 +404,8 @@ proc ::smtp::sendmessage {part args} {
 		                -maxsecs $maxsecs -usetls $tlsP \
                                 -multiple $bccP -queue $queueP \
                                 -servers $servers -ports $ports \
-                                -tlspolicy $tlspolicy]
+                                -tlspolicy $tlspolicy \
+                                -username $username -password $password]
 
     if {![string match "::smtp::*" $token]} {
 	# An error occurred and $token contains the error info
@@ -512,7 +520,7 @@ proc ::smtp::sendmessage {part args} {
 proc ::smtp::sendmessageaux {token part originator recipients aloP} {
     global errorCode errorInfo
 
-    winit $token $originator
+    winit $token $part $originator
 
     set goodP 0
     set badP 0
@@ -570,6 +578,8 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 #                          the request (one port per server-- defaults to 25).
 #             -usetls      A boolean to indicate we will use TLS if possible.
 #             -tlspolicy   Command called if TLS setup fails.
+#             -username    These provide the authentication information 
+#             -password    to be used if needed by the SMTP server.
 #
 # Results:
 #	On success, return an smtp token.  On failure, throw
@@ -588,7 +598,8 @@ proc ::smtp::initialize {args} {
     array set state [list afterID "" options "" readable 0]
     array set options [list -debug 0 -client localhost -multiple 1 \
                             -maxsecs 120 -queue 0 -servers localhost \
-                            -ports 25 -usetls 1 -tlspolicy {}]
+                            -ports 25 -usetls 1 -tlspolicy {} \
+                            -username {} -password {}]
     array set options $args
     set state(options) [array get options]
 
@@ -693,6 +704,8 @@ proc ::smtp::initialize_ehlo {token} {
         # Successful response to HELO or EHLO command, so set up queuing
         # and whatnot and return the token.
         
+        set state(esmtp) $response(args)
+
         if {(!$options(-multiple)) \
                 && ([lsearch $response(args) ONEX] >= 0)} {
             catch {smtp::talk $token 300 ONEX}
@@ -744,6 +757,44 @@ proc ::smtp::initialize_ehlo {token} {
                 }
             }
         }
+
+        if {![info exists state(auth)] \
+                && [set andx [lsearch -glob $response(args) "AUTH*"]] >= 0} {
+            
+            # May be AUTH mech or AUTH=mech
+            # We want to use the strongest mechanism that has been offered
+            # and that we support. If we cannot find a mechanism that 
+            # succeeds, we will go ahead and try to carry on unauthenticated.
+            # This may still work else we'll get an unauthorised error later.
+
+            set mechs [string range [lindex $response(args) $andx] 5 end]
+            foreach mech [list CRAM-MD5 LOGIN PLAIN] {
+                if {[lsearch -exact $mechs $mech] == -1} { continue }
+                if {[info command [namespace current]::auth_$mech] != {}} {
+                    if {[catch {
+                        auth_$mech $token
+                    } msg]} {
+                        if {$options(-debug)} {
+                            puts stderr "AUTH $mech failed: $msg "
+                            flush stderr
+                        }
+                    }
+                    if {[info exists state(auth)] && $state(auth)} {
+                        if {$state(auth) == 1} {
+                            break
+                        } else {
+                            # After successful AUTH we are supposed to redo
+                            # our connection for mechanisms that setup a new
+                            # security layer -- these should set state(auth) 
+                            # greater than 1
+                            fileevent $state(sd) readable \
+                                [list ::smtp::readable $token]
+                            return [initialize_ehlo $token]
+                        }
+                    }
+                }
+            }
+        }
         
         return $token
     } else {
@@ -752,6 +803,111 @@ proc ::smtp::initialize_ehlo {token} {
         catch {close $state(sd)}
     }
     return {}
+}
+
+# ::smtp::auth_LOGIN --
+#
+#	Perform LOGIN authentication to the SMTP server.
+#
+# Results:
+#	Negiotiates user authentication. If successful returns the result
+#       otherwise an error is thrown
+
+proc ::smtp::auth_LOGIN {token} {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    array set options $state(options)
+    
+    package require base64
+    set user [base64::encode $options(-username)]
+    set pass [base64::encode $options(-password)]
+
+    set state(auth) 0
+    set result [smtp::talk $token 300 "AUTH LOGIN"]
+    array set response $result
+
+    if {$response(code) == 334} {
+        set result [smtp::talk $token 300 $user]
+        array set response $result
+    }
+    if {$response(code) == 334} {
+        set result [smtp::talk $token 300 $pass]
+        array set response $result
+    }
+    if {$response(code) == 235} {
+        set state(auth) 1
+        return $result
+    } else {
+        return -code 7 $result
+    }
+}
+
+# ::smtp::auth_PLAIN
+#
+# 	Implement PLAIN SASL mechanism (RFC2595).
+#
+# Results:
+#	Negiotiates user authentication. If successful returns the result
+#       otherwise an error is thrown
+
+proc ::smtp::auth_PLAIN {token} {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    array set options $state(options)
+    
+    package require base64
+    set id [base64::encode "\x00$options(-username)\x00$options(-password)"]
+
+    set state(auth) 0
+    set result [smtp::talk $token 300 "AUTH PLAIN $id"]
+    array set response $result
+    
+    if {$response(code) == 235} {
+        set state(auth) 1
+        return $result
+    } else {
+        return -code 7 $result
+    }
+}
+
+# ::smtp::auth_CRAM-MD5
+#
+# 	Implement CRAM-MD5 SASL mechanism (RFC2195).
+#
+# Results:
+#	Negiotiates user authentication. If successful returns the result
+#       otherwise an error is thrown
+
+proc ::smtp::auth_CRAM-MD5 {token} {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    array set options $state(options)
+    
+    package require base64
+    package require md5 2
+
+    set state(auth) 0
+    set result [smtp::talk $token 300 "AUTH CRAM-MD5"]
+    array set response $result
+
+    if {$response(code) == 334} {
+        set challenge [base64::decode $response(diagnostic)]
+        set reply [md5::hmac -hex -key $options(-password) $challenge]
+        set reply [base64::encode \
+                       "$options(-username) [string tolower $reply]"]
+        set result [smtp::talk $token 300 $reply]
+        array set response $result
+    }
+
+    if {$response(code) == 235} {
+        set state(auth) 1
+        return $result
+    } else {
+        return -code 7 $result
+    }
 }
 
 # ::smtp::finalize --
@@ -832,6 +988,8 @@ proc ::smtp::finalize {token args} {
 #
 # Arguments:
 #       token       SMTP token that has an open connection to the SMTP server.
+#       part        MIME token for the message to be sent. May be used for
+#                   handling some SMTP extensions.
 #       originator  The e-mail address of the entity sending the message,
 #                   usually the From clause.
 #       mode        SMTP command specifying the mode of communication.  Default
@@ -841,7 +999,7 @@ proc ::smtp::finalize {token args} {
 #	Originator info is sent and SMTP server's response is returned.  If an
 #       error occurs, throw an exception.
 
-proc ::smtp::winit {token originator {mode MAIL}} {
+proc ::smtp::winit {token part originator {mode MAIL}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -850,9 +1008,19 @@ proc ::smtp::winit {token originator {mode MAIL}} {
         error "unknown origination mode $mode"
     }
 
-    array set response \
-          [set result [talk $token 600 \
-                                  "$mode FROM:<$originator>"]]
+    set from "$mode FROM:<$originator>"
+
+    # RFC 1870 -  SMTP Service Extension for Message Size Declaration
+    if {[info exists state(esmtp)] 
+        && [lsearch -glob $state(esmtp) "SIZE*"] != -1} {
+        catch {
+            set size [string length [mime::buildmessage $part]]
+            append from " SIZE=$size"
+        }
+    }
+
+    array set response [set result [talk $token 600 $from]]
+
     if {$response(code) == 250} {
         set state(addrs) 0
         return $result
