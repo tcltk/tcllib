@@ -1,0 +1,5 @@
+2004-07-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* uuid.tcl:   Package for UUID generation and comparison.
+	* uuid.test:
+	* uuid.man:
