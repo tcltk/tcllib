@@ -1,3 +1,10 @@
+2000-03-09  Eric Melski  <ericm@scriptics.com>
+
+	* Makefile.in: Updated test target to call out to all.tcl.
+
+	* all.tcl: First checkin of all.tcl, the magic that hides behind
+	"make test".
+
 2000-03-08  Eric Melski  <ericm@scriptics.com>
 
 	* Makefile.in: Commented out cgi module until it's ready for use.
