@@ -1,4 +1,0 @@
-2003-04-09  Andreas Kupries  <andreask@activestate.com>
-
-	* New module. 
-	* First contents are support for sub-processes in testsuites.

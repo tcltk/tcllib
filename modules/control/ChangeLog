@@ -1,26 +1,3 @@
-2003-04-11  Andreas Kupries  <andreask@activestate.com>
-
-	* control.man:
-	* control.tcl:
-	* pkgIndex.tcl:  Set version of the package to to 0.1.2.
-
-2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	* control.man: More semantic markup, less visual one.
-
-2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	* control.man: Fixed formatting errors in the doctools manpage.
-
-2002-02-21  Don Porter <dgp@users.sourceforge.net>
-
-	* control.tcl:
-	* pkgIndex.tcl: Bumped to 0.1.1.
-	* rswitch.tcl:
-	* rswitch.test: removed files from HEAD branch that aren't yet
-	ready for release.
-	* tclIndex: ran genIndex
-
 2002-02-21  Reinhard Max  <max@suse.de>
 
 	* do.test: Updated do-2.3 to reflect the change of the standard

@@ -1,6 +1,0 @@
-2003-04-01  Andreas Kupries  <andreask@activestate.com>
-
-	* soundex.tcl: New module for soundex algorithms.
-	* soundex.man:
-	* soundex.test:
-	* pkgIndex.tcl:
