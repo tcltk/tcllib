@@ -1,3 +1,12 @@
+2004-07-17  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	  Added "delegate typemethod ..." in all its glory,
+	* snit.test	  including "delegate typemethod *".  Added relevant
+	* dictionary.txt  tests, and updated the internal documentation
+			  files.
+	* roadmap.txt
+	
+
 2004-07-15  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl 	Replaced the old typemethod definition and
