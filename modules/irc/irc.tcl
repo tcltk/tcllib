@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.12 2003/05/25 07:40:38 davidw Exp $
+# $Id: irc.tcl,v 1.13 2003/05/28 20:18:04 davidw Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -139,7 +139,7 @@ proc ::irc::connection { host {port 6667} } {
 	    }
 	}
 
-	proc cmd-quit { {msg {}} } {
+	proc cmd-quit { {msg {tcllib irc module - http://tcllib.sourceforge.net/}} } {
 	    ircsend "QUIT :$msg"
 	}
 
