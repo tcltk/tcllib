@@ -1,8 +1,8 @@
-# soap.test - Copyright (C) 2001 Pat Thoyts <Pat.Thoyts@bigfoot.com>
+# urn.test - Copyright (C) 2001 Pat Thoyts <Pat.Thoyts@bigfoot.com>
 #
-# Provide a set of tests to excercise the SOAP package.
+# Provide a set of tests to excercise the urn-scheme package.
 #
-# @(#)$Id: urn.test,v 1.1 2001/10/23 03:44:06 andreas_kupries Exp $
+# @(#)$Id: urn.test,v 1.2 2001/11/03 01:12:58 patthoyts Exp $
 
 # Initialize the required packages
 
