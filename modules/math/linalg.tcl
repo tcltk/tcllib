@@ -10,7 +10,7 @@
 #      and tasks.
 #    - The general procedures perform some checks and then call
 #      the various specific procedures. The general procedures are
-#      aimed for robustness.
+#      aimed at robustness and ease of use.
 #    - The specific procedures do not check anything, they are
 #      designed for speed. Failure to comply to the interface
 #      requirements will presumably lead to [expr] errors.
@@ -24,9 +24,9 @@
 
 namespace eval ::math::linearalgebra {
     # Define the namespace
-    namespace export dim shape
-    namespace export norm norm_one norm_two norm_max
-    namespace export dotproduct normalize
+    namespace export dim shape symmetric
+    namespace export norm norm_one norm_two norm_max normMatrix
+    namespace export dotproduct unitLengthVector normalizeStat
     namespace export axpy axpy_vect axpy_mat
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
@@ -36,6 +36,7 @@ namespace eval ::math::linearalgebra {
     namespace export mkVector mkMatrix mkIdentity mkDiagonal
     namespace export mkHilbert mkDingdong mkBorder mkFrank
     namespace export solveGauss solveTriangular
+    namespace export solveGaussBand solveTriangularBand
     namespace export determineSVD
 }
 
@@ -67,6 +68,33 @@ proc ::math::linearalgebra::shape { obj } {
        return $result
     } else {
        lappend result [llength [lindex $obj 0]]
+    }
+    return $result
+}
+
+# conforming --
+#     Determine if two objects (vector or matrix) are conforming
+#     in shape, rows or for a matrix multiplication
+# Arguments:
+#     type       Type of conforming: shape, rows or matmul
+#     obj1       First object (vector or matrix)
+#     obj2       Second object (vector or matrix)
+# Result:
+#     1 if they conform, 0 if not
+#
+proc ::math::linearalgebra::conforming { type obj1 obj2 } {
+    set shape1 [shape $obj1]
+    set shape2 [shape $obj2]
+    set result 0
+    if { $type == "shape" } {
+        set result [expr {[lindex $shape1 0] == [lindex $shape2 0] &&
+                          [lindex $shape1 1] == [lindex $shape2 1]}]
+    }
+    if { $type == "rows" } {
+        set result [expr {[lindex $shape1 0] == [lindex $shape2 0]}]
+    }
+    if { $type == "matmul" } {
+        set result [expr {[lindex $shape1 1] == [lindex $shape2 0]}]
     }
     return $result
 }
@@ -141,6 +169,49 @@ proc ::math::linearalgebra::norm_max { vector } {
     return $max
 }
 
+# normMatrix --
+#     Compute the (1-, 2- or Inf-) norm of a matrix
+# Arguments:
+#     matrix     Matrix (list of row vectors)
+#     type       Either 1, 2 or max/inf to indicate the type of
+#                norm (default: 2, the euclidean norm)
+# Result:
+#     The (1-, 2- or Inf-) norm of the matrix
+#
+proc ::math::linearalgebra::normMatrix { matrix {type 2} } {
+    set v {}
+
+    foreach row $matrix {
+        lappend v [norm $row $type]
+    }
+
+    return [norm $v $type]
+}
+
+# symmetric --
+#     Determine if the matrix is symmetric or not
+# Arguments:
+#     matrix     Matrix (list of row vectors)
+#     eps        Tolerance (defaults to 1.0e-8)
+# Result:
+#     1 if symmetric (within the tolerance), 0 if not
+#
+proc ::math::linearalgebra::symmetric { matrix {eps 1.0e-8} } {
+    set shape [shape $matrix]
+    if { [lindex $shape 0] != [lindex $shape 1] } {
+       return 0
+    }
+
+    set norm_org   [normMatrix $matrix]
+    set norm_asymm [normMatrix [sub $matrix [transpose $matrix]]]
+
+    if { $norm_asymm <= $eps*$norm_org } {
+        return 1
+    } else {
+        return 0
+    }
+}
+
 # dotproduct --
 #     Compute the dot product of two vectors
 # Arguments:
@@ -160,19 +231,33 @@ proc ::math::linearalgebra::dotproduct { vect1 vect2 } {
     return $sum
 }
 
-# normalize --
-#     Normalize a vector and return the result
+# unitLengthVector --
+#     Normalize a vector so that a length 1 results and return the new vector
 # Arguments:
 #     vector     Vector to be normalized
 # Result:
 #     A vector of length 1
 #
-proc ::math::linearalgebra::normalize { vector } {
-    set scale [norm $vector]
+proc ::math::linearalgebra::unitLengthVector { vector } {
+    set scale [norm_two $vector]
     if { $scale == 0.0 } {
         return -code error "Can not normalize a null-vector"
     }
     return [scale [expr {1.0/$scale}] $vector]
+}
+
+# normalizeStat --
+#     Normalize a matrix or vector in a statistical sense and return the result
+# Arguments:
+#     mv        Matrix or vector to be normalized
+# Result:
+#     A matrix or vector whose columns are normalised to have a mean of
+#     0 and a standard deviation of 1.
+#
+proc ::math::linearalgebra::normalizeStat { mv } {
+   #
+   # TODO
+   #
 }
 
 # axpy --
@@ -764,35 +849,43 @@ proc ::math::linearalgebra::setcol { matrix col newvalues } {
 }
 
 # getelem --
-#     Get the specified element (row,column) from a matrix
+#     Get the specified element (row,column) from a matrix/vector
 # Arguments:
 #     matrix     Matrix in question
 #     row        Index of the row
-#     col        Index of the column
+#     col        Index of the column (not present for vectors)
 #
 # Result:
 #     The matrix element (row,column)
 #
-proc ::math::linearalgebra::getelem { matrix row col } {
-    lindex $matrix $row $col
+proc ::math::linearalgebra::getelem { matrix row {col {}} } {
+    if { $col != {} } {
+        lindex $matrix $row $col
+    } else {
+        lindex $matrix $row
+    }
 }
 
 # setelem --
-#     Set the specified element (row,column) in a matrix
+#     Set the specified element (row,column) in a matrix or vector
 # Arguments:
-#     matrix     _Name_ of matrix in question
+#     matrix     _Name_ of matrix/vector in question
 #     row        Index of the row
-#     col        Index of the column
-#     newvalue   New value  for the element
+#     col        Index of the column/new value
+#     newvalue   New value  for the element (not present for vectors)
 #
 # Result:
 #     Updated matrix
 # Side effect:
 #     The matrix is updated
 #
-proc ::math::linearalgebra::setelem { matrix row col newvalue } {
+proc ::math::linearalgebra::setelem { matrix row col {newvalue {}} } {
     upvar $matrix mat
-    lset mat $row $col $newvalue
+    if { $newvalue != {} } {
+        lset mat $row $col $newvalue
+    } else {
+        lset mat $row $col
+    }
     return $mat
 }
 
@@ -813,7 +906,7 @@ proc ::math::linearalgebra::solveGauss { matrix bvect } {
         set sweep_row   [getrow $matrix $i]
         set bvect_sweep [getrow $bvect  $i]
         # No pivoting yet
-        set sweep_fact [lindex $sweep_row $i]
+        set sweep_fact  [expr {double([lindex $sweep_row $i])}]
         for { set j [expr {$i+1}] } { $j < $norows } { incr j } {
             set current_row   [getrow $matrix $j]
             set bvect_current [getrow $bvect  $j]
@@ -841,18 +934,93 @@ proc ::math::linearalgebra::solveTriangular { matrix bvect } {
     set norows [llength $matrix]
     set nocols $norows
 
-    for { set i [expr {$nocols-1}] } { $i >= 0 } { incr i -1 } {
+    for { set i [expr {$norows-1}] } { $i >= 0 } { incr i -1 } {
         set sweep_row   [getrow $matrix $i]
         set bvect_sweep [getrow $bvect  $i]
-        set sweep_fact  [lindex $sweep_row $i]
-        set norm_fact   [expr {1.0/$sweep_fact-1.0}]
+        set sweep_fact  [expr {double([lindex $sweep_row $i])}]
+        set norm_fact   [expr {1.0/$sweep_fact}]
 
-        lset bvect $i [axpy_vect $norm_fact $bvect_sweep $bvect_sweep]
+        lset bvect $i [scale $norm_fact $bvect_sweep]
 
         for { set j [expr {$i-1}] } { $j >= 0 } { incr j -1 } {
             set current_row   [getrow $matrix $j]
             set bvect_current [getrow $bvect  $j]
             set factor     [expr {-[lindex $current_row $i]/$sweep_fact}]
+
+            lset bvect  $j [axpy_vect $factor $bvect_sweep $bvect_current]
+        }
+    }
+
+    return $bvect
+}
+
+# solveGaussBand --
+#     Solve a system of linear equations using Gauss elimination,
+#     where the matrix is stored as a band matrix.
+# Arguments:
+#     matrix     Matrix defining the coefficients (in band form)
+#     bvect      Right-hand side (may be several columns)
+#
+# Result:
+#     Solution of the system or an error in case of singularity
+#
+proc ::math::linearalgebra::solveGaussBand { matrix bvect } {
+    set norows   [llength $matrix]
+    set nocols   $norows
+    set nodiags  [llength [lindex $matrix 0]]
+    set lowdiags [expr {($nodiags-1)/2}]
+
+    for { set i 0 } { $i < $nocols } { incr i } {
+        set sweep_row   [getrow $matrix $i]
+        set bvect_sweep [getrow $bvect  $i]
+
+        set sweep_fact [expr { double([lindex $sweep_row [expr {$lowdiags-$i}]]) }]
+
+        for { set j [expr {$i+1}] } { $j <= $lowdiags } { incr j } {
+            set sweep_row     [concat [lrange $sweep_row 1 end] 0.0]
+            set current_row   [getrow $matrix $j]
+            set bvect_current [getrow $bvect  $j]
+            set factor      [expr {-[lindex $current_row $i]/$sweep_fact}]
+
+            lset matrix $j [axpy_vect $factor $sweep_row   $current_row]
+            lset bvect  $j [axpy_vect $factor $bvect_sweep $bvect_current]
+        }
+    }
+
+    return [solveTriangularBand $matrix $bvect]
+}
+
+# solveTriangularBand --
+#     Solve a system of linear equations where the matrix is
+#     upper-triangular (stored as a band matrix)
+# Arguments:
+#     matrix     Matrix defining the coefficients (in band form)
+#     bvect      Right-hand side (may be several columns)
+#
+# Result:
+#     Solution of the system or an error in case of singularity
+#
+proc ::math::linearalgebra::solveTriangularBand { matrix bvect } {
+    set norows   [llength $matrix]
+    set nocols   $norows
+    set nodiags  [llength [lindex $matrix 0]]
+    set uppdiags [expr {($nodiags-1)/2}]
+    set middle   [expr {($nodiags-1)/2}]
+
+    for { set i [expr {$norows-1}] } { $i >= 0 } { incr i -1 } {
+        set sweep_row   [getrow $matrix $i]
+        set bvect_sweep [getrow $bvect  $i]
+        set sweep_fact  [expr { double([lindex $sweep_row $middle]) }]
+        set norm_fact   [expr {1.0/$sweep_fact}]
+
+        lset bvect $i [scale $norm_fact $bvect_sweep]
+
+        for { set j [expr {$i-1}] } { $j >= $i-$middle && $j >= 0 } \
+                { incr j -1 } {
+            set current_row   [getrow $matrix $j]
+            set bvect_current [getrow $bvect  $j]
+            set k             [expr {$i-$middle}]
+            set factor     [expr {-[lindex $current_row $k]/$sweep_fact}]
 
             lset bvect  $j [axpy_vect $factor $bvect_sweep $bvect_current]
         }
@@ -996,5 +1164,11 @@ if { 0 } {
    puts [time {::math::linearalgebra::add_vect      $vect1 $vect2} 50000]
 }
 
+if { 0 } {
 set M {{1 2} {2 1}}
 puts "[::math::linearalgebra::determineSVD $M]"
+}
+if { 0 } {
+set M {{1 2} {2 1}}
+puts "[::math::linearalgebra::normMatrix $M]"
+}
