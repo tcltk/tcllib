@@ -1,4 +1,7 @@
-# $Id: pkgIndex.tcl,v 1.1 2001/11/26 11:41:26 jfontain Exp $
+# Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
+# This code may be distributed under the same terms as Tcl.
+#
+# $Id: pkgIndex.tcl,v 1.2 2001/11/27 11:46:52 jfontain Exp $
 
 # Since stooop redefines the proc command and the default package facility will
 # only load the stooop package at the first unknown command, proc being
