@@ -1,3 +1,7 @@
+2001-11-07  Don Porter <dgp@users.sourceforge.net>
+
+	* rswitch.test: corrected syntax error [Bug 478989]
+
 2001-11-03  Don Porter <dgp@users.sourceforge.net>
 
 	* rswitch.tcl: Replaced bogus copyright notice with public
