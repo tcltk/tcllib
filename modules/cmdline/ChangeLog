@@ -1,3 +1,7 @@
+2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.n: Added manpage [446584].
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* typedCmdline.tcl:
