@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.33 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.34 2004/08/15 03:34:07 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -170,7 +170,7 @@ test tree-1.3 {tree errors} {
     catch {mytree foo} msg
     mytree destroy
     set msg
-} {bad option "foo": must be -->, =, append, attr, children, cut, delete, depth, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, or walk}
+} {bad option "foo": must be -->, =, ancestors, append, attr, children, cut, delete, depth, descendants, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, or walk}
 
 test tree-1.4 {tree errors} {
     catch {tree set} msg
@@ -550,7 +550,7 @@ test tree-2.8.6 {keyexists returns true for existing key} {
 
 ############################################################
 # III. Structural operations ...
-# - isleaf, parent, children, numchildren,
+# - isleaf, parent, children, numchildren, ancestors, descendants
 # - exists, size, depth, height
 # - insert, delete, move, cut, splice, swap
 # - rename, rootname
@@ -1603,6 +1603,87 @@ test tree-3.16.9 {rename node, index} {
     set result
 } {1 foo 1}
 
+############################################################
+
+test tree-3.17.1 {ancestors, wrong # args} {
+    tree mytree
+    catch {mytree ancestors {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} [tcltest::tooManyArgs {::struct::tree::_ancestors} {name node}]
+
+test tree-3.17.2 {ancestors gives error on fake node} {
+    tree mytree
+    catch {mytree ancestors {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.17.3 {ancestors gives correct value} {
+    tree mytree
+    mytree insert root       end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 1}
+    mytree insert {IT::EM 1} end {IT::EM 2}
+    set result [mytree ancestors {IT::EM 2}]
+    mytree destroy
+    set result
+} {{IT::EM 1} {IT::EM 0} root}
+
+test tree-3.17.4 {ancestors of root is empty string} {
+    tree mytree
+    set result [mytree ancestors root]
+    mytree destroy
+    set result
+} {}
+
+############################################################
+
+test tree-3.18.1 {descendants} {
+    tree mytree
+    set     result [list]
+
+    mytree insert root end 0
+    mytree insert root end 1
+    mytree insert root end 2
+    mytree insert 0    end 3
+    mytree insert 0    end 4
+    mytree insert 4    end 5
+    mytree insert 4    end 6
+
+    set     result {}
+    lappend result [lsort [mytree descendants root]]
+    lappend result [lsort [mytree descendants 0]]
+    mytree destroy
+    set result
+} {{0 1 2 3 4 5 6} {3 4 5 6}}
+
+test tree-3.18.2 {descendants, filtering} {
+    tree mytree
+    set     result [list]
+
+    mytree insert root end 0 ; mytree set 0 volume 30
+    mytree insert root end 1
+    mytree insert root end 2
+    mytree insert 0    end 3
+    mytree insert 0    end 4
+    mytree insert 4    end 5 ; mytree set 5 volume 50
+    mytree insert 4    end 6
+
+    proc vol {t n} {
+	$t keyexists $n volume
+    }
+    proc vgt40 {t n} {
+	if {![$t keyexists $n volume]} {return 0}
+	expr {[$t get $n volume] > 40}
+    }
+
+    set     result {}
+    lappend result [lsort [mytree descendants root filter vol]]
+    lappend result [lsort [mytree descendants root filter vgt40]]
+    mytree destroy
+    set result
+} {{0 5} 5}
+
 
 ############################################################
 # IV. Navigation in the tree
@@ -2040,7 +2121,7 @@ if {[package vcompare [package provide Tcl] 8.3] < 0} {
     ("WalkCall" body line 4)
     invoked from within
 "WalkCall $avar $nvar $name $node "enter" $script"
-    (procedure "::struct::tree::_walk" line 147)
+    (procedure "::struct::tree::_walk" line 148)
     invoked from within
 "::struct::tree::_walk ::mytree root {a n} {
 	    if {[string equal $n "b"]} {
@@ -2073,7 +2154,7 @@ if {[package vcompare [package provide Tcl] 8.3] < 0} {
     ("WalkCall" body line 2)
     invoked from within
 "WalkCall $avar $nvar $name $node "enter" $script"
-    (procedure "::struct::tree::_walk" line 147)
+    (procedure "::struct::tree::_walk" line 148)
     invoked from within
 "::struct::tree::_walk ::mytree root {a n} {
 	    if {[string equal $n "b"]} {
@@ -2118,6 +2199,50 @@ test tree-4.4.17 {error in walk} {
     mytree destroy
     list $t $result $::errorInfo
 } [list {== enter root enter 0 enter a .} fubar $t4417estack]
+
+
+foreach {n prune type order log} {
+    0 0 dfs pre  {enter 0 enter 1 enter 2 enter 4 enter 5 enter 6 enter 3}
+    1 1 dfs pre  {enter 0 enter 1 enter 2 enter 3}
+    2 0 dfs both {enter 0 enter 1 leave 1 enter 2 enter 4 leave 4 enter 5 leave 5 enter 6 leave 6 leave 2 enter 3 leave 3 leave 0}
+    3 1 dfs both {enter 0 enter 1 leave 1 enter 2 leave 2 enter 3 leave 3 leave 0}
+    4 0 bfs pre  {enter 0 enter 1 enter 2 enter 3 enter 4 enter 5 enter 6}
+    5 1 bfs pre  {enter 0 enter 1 enter 2 enter 3}
+    6 0 bfs both {enter 0 enter 1 enter 2 enter 3 enter 4 enter 5 enter 6 leave 6 leave 5 leave 4 leave 3 leave 2 leave 1 leave 0}
+    7 1 bfs both {enter 0 enter 1 enter 2 enter 3 leave 3 leave 2 leave 1 leave 0}
+} {
+    test tree-4.5.$n {pruning} {
+	# (0 (1 2 (4 5 6) 3))
+	tree mytree deserialize {0 {} {} 1 0 {} 2 0 {} 4 6 {} 5 6 {} 6 6 {} 3 0 {}}
+	set t {}
+	mytree walk 0 -type $type -order $order {a n} {
+	    lappend t $a $n
+	    if {$prune && ($n == 2)} {struct::tree::prune}
+	}
+	mytree destroy
+	set t
+    } $log ;# {}
+}
+
+foreach {n type order} {
+    8  dfs post
+    9  bfs post
+    10 dfs in
+} {
+    test tree-4.5.$n {prune errors} {
+	# (0 (1 2 (4 5)))
+	tree mytree deserialize {0 {} {} 1 0 {} 2 0 {} 4 6 {} 5 6 {}}
+	set t {}
+	catch {
+	    mytree walk 0 -type $type -order $order {a n} {
+		lappend t $a $n
+		if {($n == 2)} {struct::tree::prune}
+	    }
+	} res ; # {}
+	mytree destroy
+	set res
+    } "Illegal attempt to prune ${order}-order walking" ;# {}
+}
 
 ############################################################
 # V. Objects to values and back ...
