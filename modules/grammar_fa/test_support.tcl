@@ -51,45 +51,59 @@ proc validate_serial {value fa} {
 	}
 	struct::list assign $v start final trans
 	if {![string is boolean -strict $start]} {
-	    return "$prefix expected boolean for start, got \"$start\""
+	    return "$prefix expected boolean for start, got \"$start\", for state \"$k\""
 	}
 	if {($start && ![$fa start? $k]) || (!$start && [$fa start? $k])} {
-	    return "$prefix start does not match"
+	    return "$prefix start does not match for state \"$k\""
 	}
 	if {![string is boolean -strict $final]} {
-	    return "$prefix expected boolean for final, got \"$final\""
+	    return "$prefix expected boolean for final, got \"$final\", for state \"$k\""
 	}
 	if {($final && ![$fa final? $k]) || (!$final && [$fa final? $k])} {
-	    return "$prefix final does not match"
+	    return "$prefix final does not match for state \"$k\""
 	}
 	if {[llength $trans] % 2 == 1} {
-	    return "$prefix transition data is not a dictionary"
+	    return "$prefix transition data is not a dictionary for state \"$k\""
 	}
 	array set _trans $trans
 	if {[llength $trans] != (2*[array size _trans])} {
-	    return "$prefix transition data contains duplicate symbols"
+	    return "$prefix transition data contains duplicate symbols for state \"$k\""
 	}
 	# trans keys set-equal to trans/symbols(fa,k)
 	if {![struct::set equal [$fa symbols@ $k] [array names _trans]]} {
-	    return "$prefix transition symbols do not match"
+	    return "$prefix transition symbols do not match for state \"$k\""
 	}
 	unset _trans
 
 	foreach {sym destinations} $trans {
 	    if {($sym ne "") && ![struct::set contains $symbols $sym]} {
-		return "$prefix illegal symbol \"$sym\" in transition"
+		return "$prefix illegal symbol \"$sym\" in transition for state \"$k\""
 	    }
 	    foreach dest $destinations {
 		if {![info exists _states($dest)]} {
-		    return "$prefix illegal destination state \"$dest\""
+		    return "$prefix illegal destination state \"$dest\" for state \"$k\""
 		}
 	    }
 	    if {![struct::set equal $destinations [$fa next $k $sym]]} {
-		return "$prefix destination set does not match"
+		return "$prefix destination set does not match for state \"$k\""
 	    }
 	}
     }
     return ok
+}
+
+# -------------------------------------------------------------------------
+# Takes a dictionary, returns a list containing the same dictionary,
+# however the keys are sorted alphabetically. This allows for a true
+# comparison of dictionary results.
+
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+	lappend out $key $a($key)
+    }
+    return $out
 }
 
 # -------------------------------------------------------------------------
@@ -332,6 +346,40 @@ def xyz!-e {
     a symbol add @
     a next x @  --> y
     a next y "" --> z
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def datom {
+    a state add x y
+    a symbol add @
+    a next x @ --> y
+}
+def dalt {
+    a state add u v w x y z
+    a symbol add @ =
+    a next u "" --> v ; a next v @ --> x ; a next x "" --> z
+    a next u "" --> w ; a next w = --> y ; a next y "" --> z
+}
+def daltb {
+    a state add u v w x y z
+    a symbol add @ =
+    a next u "" --> v ; a next v @ --> x ; a next x "" --> z
+    a next u "" --> w ; a next w = --> y ; a next y "" --> z
+    a next z "" --> u
+}
+def dopt {
+    a state add u v w x
+    a symbol add @
+    a next u "" --> v ; a next v @ --> w ; a next w "" --> x
+    a next u "" --> x
+}
+def drep {
+    a state add u v w x
+    a symbol add @
+    a next u "" --> v ; a next v @ --> w ; a next w "" --> x
+    a next u "" --> x
+    a next x "" --> u
 }
 
 # -------------------------------------------------------------------------

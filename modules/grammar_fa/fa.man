@@ -40,7 +40,7 @@ The package exports the API described here.
 
 [list_begin definitions]
 
-[call [cmd ::grammar::fa] [arg faName] [opt "[const =]|[const :=]|[const <--] [arg srcFA]"]]
+[call [cmd ::grammar::fa] [arg faName] [opt "[const =]|[const :=]|[const <--]|[const as]|[const deserialize] [arg src]"]]
 
 Creates a new finite automaton with an associated global Tcl command
 whose name is [arg faName]. This command may be used to invoke various
@@ -52,9 +52,12 @@ operations on the automaton. It has the following general form:
 
 [arg Option] and the [arg arg]s determine the exact behavior of the
 command. See section [sectref {FA METHODS}] for more explanations. The
-new automaton will be empty if no [arg srcFA] is specified. Otherwise
-it will contain a copy of the definition contained in the [arg srcFA]
-object.
+new automaton will be empty if no [arg src] is specified. Otherwise
+it will contain a copy of the definition contained in the [arg src].
+
+The [arg src] has to be a FA object reference for all operators except
+[const deserialize]. That operator requires [arg src] to be the
+serialization of a FA instead.
 
 [list_end]
 [list_end]
@@ -193,11 +196,10 @@ a possible serialization is
 [example {
     grammar::fa \\
     {yellow red green red/yellow} \\
-    1 Stop \\
-    {Drive     {{} 0 {} {} {yellow {Brake {}}}} \\
-     Brake     {{} 0 {} {} {red {Stop {}}}} \\
-     Stop      {{} 0 {} {} {red/yellow {Attention {}}}} \\
-     Attention {{} 0 {} {} {green {Drive {}}}}}
+    {Drive     {0 0 {yellow     Brake}} \\
+     Brake     {0 0 {red        Stop}} \\
+     Stop      {1 0 {red/yellow Attention}} \\
+     Attention {0 0 {green      Drive}}}
 }]
 [nl]
 
@@ -228,11 +230,10 @@ declared.
 
 Deletes the state [arg s1], [arg s2], et cetera, and all associated
 information from the FA definition in [arg faName]. The latter means
-that the information about the state's priority, enter and leave
-methods, and in- or outbound transitions are deleted as well. If the
-deleted state was the start state then this information is invalidated
-as well. The operation will fail if the state [arg s] is not known to
-the FA.
+that the information about in- or outbound transitions is deleted as
+well. If the deleted state was a start or final state then this
+information is invalidated as well. The operation will fail if the
+state [arg s] is not known to the FA.
 
 
 [call [arg faName] [method state] [method exists] [arg s]]
@@ -248,28 +249,6 @@ state [arg s] is known, and [const false] otherwise.
 
 Renames the state [arg s] to [arg snew]. Fails if [arg s] is not a
 known state. Also fails if [arg snew] is already known as a state.
-
-
-[call [arg faName] [method state] [method priority] [arg s] [opt "[const =] [arg n]"]]
-
-Set or query the priority of the state [arg s] contained in the FA
-[arg faName]. If [arg n] is specified (and an integer number) then the
-state's priority will be set to it. Otherwise the operation will
-return the current priority of the state. This will fail if no
-priority was ever set or the state.
-
-[nl]
-
-[emph Note:] State priorities have no direct relevance for a
-FA. However together with the creation order they can be used to
-impose a full order on the states of a FA, and that is used by the NFA
-to DFA conversion in the package [package grammar::fa::op] to select
-enter, and leave actions for the generated FA.
-
-[call [arg faName] [method state] [method !priority] [arg s]]
-
-Deletes the priority information of state [arg s], if any. Does not
-fail if there was no priority set before.
 
 
 [call [arg faName] [method startstates]]
@@ -473,19 +452,45 @@ The result is a boolean value. It will be set to [const true] if the
 FA is deterministic, and [const false] otherwise.
 
 
-[call [arg faName] [method compare] [arg sa] [arg se]]
+[call [arg faName] [method is] [method complete]]
 
-This method compares the two states [arg sa] and [arg se] with respect
-to priority and order. If [arg sa] is deemed greater than [arg se] it
-will return [const 1]. If [arg sa] is deemed lesser than [arg se] it
-will return [const -1]. In all other cases it will return [const 0].
+A predicate. It tests whether the FA in [arg faName] is a complete FA
+or not. A FA is complete if it has at least one transition per state
+and symbol. This also means that a FA without symbols, or states is
+also complete.
+
+The result is a boolean value. It will be set to [const true] if the
+FA is deterministic, and [const false] otherwise.
 
 [nl]
 
-A state with a priority setting is greater than a state without a
-priority. If both states have a priority the one with the higher
-priority (greater numeric value) is greater. If both states have no
-priority the one created first is greater.
+Note: When a FA has epsilon-transitions transitions over a symbol for
+a state S can be indirect, i.e. not attached directly to S, but to a
+state in the epsilon-closure of S. The symbols for such indirect
+transitions count when computing completeness.
+
+
+[call [arg faName] [method is] [method useful]]
+
+A predicate. It tests whether the FA in [arg faName] is an useful FA
+or not. A FA is useful if all states are [term reachable]
+and [term useful].
+
+The result is a boolean value. It will be set to [const true] if the
+FA is deterministic, and [const false] otherwise.
+
+
+[call [arg faName] [method is] [method epsilon-free]]
+
+A predicate. It tests whether the FA in [arg faName] is an
+epsilon-free FA or not. A FA is epsilon-free if it has no epsilon
+transitions. This definition means that all deterministic FAs are
+epsilon-free as well, and epsilon-free'ness is a necessary
+pre-condition for deterministic'ness.
+
+The result is a boolean value. It will be set to [const true] if the
+FA is deterministic, and [const false] otherwise.
+
 
 
 [call [arg faName] [method reachable_states]]
@@ -534,7 +539,7 @@ any number of transitions. This is
 [call [arg faName] [method useful] [arg s]]
 
 A predicate. It tests whether the state [arg s] in the FA [arg faName]
-is able to reached a final state by one or more transitions.
+is able to reach a final state by one or more transitions.
 
 The result is a boolean value. It will be set to [const true] if the
 state is useful, and [const false] otherwise.
@@ -548,20 +553,22 @@ transitions over the empty symbol, transitions which do not consume
 input. This is called the [term {epsilon closure}] of [arg s].
 
 
+[call [arg faName] [method reverse]]
+[call [arg faName] [method complete]]
+[call [arg faName] [method remove_eps]]
+[call [arg faName] [method trim] [opt [arg what]]]
+[call [arg faName] [method determinize] [opt [arg mapvar]]]
+[call [arg faName] [method minimize] [opt [arg mapvar]]]
+
 [call [arg faName] [method complement]]
 [call [arg faName] [method kleene]]
 [call [arg faName] [method optional]]
-[call [arg faName] [method complete]]
-[call [arg faName] [method reverse]]
-[call [arg faName] [method remove_eps]]
-[call [arg faName] [method determinize]]
-[call [arg faName] [method minimize]]
-[call [arg faName] [method union] [arg fa]]
-[call [arg faName] [method intersect] [arg fa]]
-[call [arg faName] [method concatenate] [arg fa]]
-[call [arg faName] [method cross] [arg fa]]
-[call [arg faName] [method trim] [opt [arg what]]]
-[call [arg faName] [method =regex] [arg regex]]
+[call [arg faName] [method union] [arg fa] [opt [arg mapvar]]]
+[call [arg faName] [method intersect] [arg fa] [opt [arg mapvar]]]
+[call [arg faName] [method difference] [arg fa] [opt [arg mapvar]]]
+[call [arg faName] [method concatenate] [arg fa] [opt [arg mapvar]]]
+
+[call [arg faName] [method fromRegex] [arg regex] [opt [arg over]]]
 
 These methods provide more complex operations on the FA.  Please see
 the same-named commands in the package [package grammar::fa::op] for

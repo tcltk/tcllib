@@ -1,0 +1,25 @@
+2004-04-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* All files: Bugfixes in basic FA support. Updated tests, updated
+	  documentation. Completed implementation of more comlex FA
+	  operations, their documentation, and their tests. Test suite is
+	  now definitely in overkill, taking 13 minutes to run :P
+
+2004-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/fa_state.test
+	* tests/fa_is_complete.test
+	* tests/fa_is_cons.test
+	* fa.tcl: Fixed definition of 'is complete' for FAs without
+	  symbols. Updated tests. Fixed deletion of states, added test for
+	  the fixed case. Aded construction from serialization. Updated
+	  tests. Added cache for epsilon closures.
+
+	* fa.man: Removed the remnants of the documentation for 'state
+	  priority'. Added the missing documentation for all 'is' commands
+	  beyond 'deterministic'.
+
+2004-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module: Grammar operations, Finite Automatons.
+
