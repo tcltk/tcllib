@@ -1,5 +1,10 @@
 2002-11-15  David N. Welton  <davidw@dedasys.com>
 
+	* uri.tcl (uri::canonicalize): Take care of trailing .., as in
+	"http://foobar.com/foo/bar/..".
+
+	* uri.test: Test for the above condition.
+
 	* uri.tcl: Bump patchlevel in 'package provide'.
 
 	* uri.test: Added tests for 'news' splitting and joining.
