@@ -1,6 +1,6 @@
-New in Tcllib 1.5
+New in Tcllib 1.6
 =================
-                                Tcllib 1.4      Tcllib 1.5
+                                Tcllib 1.4      Tcllib 1.6
 Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     -------------------------------
 inifile                         --              0.1             Handling of Window .ini files.
@@ -14,7 +14,7 @@ struct                          1.3             2.0
 ------          -------         -----------     -----------     -------------------------------
 
 
-Changes from Tcllib 1.4 to 1.5
+Changes from Tcllib 1.4 to 1.6
 ==============================
 
 Legend
@@ -25,7 +25,7 @@ Legend
         EX :    New examples.                   >
         P  :    Performance enhancement.       /
 
-                                Tcllib 1.4      Tcllib 1.5
+                                Tcllib 1.4      Tcllib 1.6
 Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     -------------------------------
 base64          base64          2.2.2           2.3		B, EF (Trf)
