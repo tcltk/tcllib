@@ -9,6 +9,11 @@
 		       instance method now makes "name" available, just
 		       as the standard "variable" command does.
 
+		       Fixed bug: in some cases the type command was
+		       created even if there was an error defining the
+		       type.  The type command is now cleaned up in these
+		       cases.  (Credit Andy Goth)
+
 2004-02-07  Will Duquette  <will@wjduquette.com>
 
 	* All:         Updated version to 0.93.
