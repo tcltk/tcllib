@@ -1,3 +1,8 @@
+2000-09-21  Brent Welch <welch@ajubasolutions.com>
+
+	* modules/stats/stats.tcl: Added time labels and tick
+	marks to all the time-based histograms.
+
 2000-09-20  Brent Welch <welch@ajubasolutions.com>
 
 	* modules/stats/stats.tcl: Refined the countGet routine to return things

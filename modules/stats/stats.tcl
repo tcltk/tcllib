@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.4 2000/09/21 06:26:02 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.5 2000/09/21 18:53:46 welch Exp $
 
 package provide stats 1.0
 
@@ -176,6 +176,7 @@ proc stats::countInit {tag args} {
 		    unset histogram
 		}
 		set counter(bucketsize) $value
+		set counter(mult) 1
 	    }
 	    -hist2x {
 		upvar #0 stats::H-$tag histogram
@@ -689,8 +690,11 @@ proc stats::histHtmlDisplay {tag args} {
 	    }
 	    set time $hourBase
 	    set secsForMax [expr {$secsPerMinute * 60}]
-	    set curIndex hourIndex
-	    set options(-max) 59
+	    set curIndex [expr {$hourIndex - 1}]
+	    if {$curIndex < 0} {
+		set curIndex 23
+	    }
+	    set options(-max) 23
 	    set options(-min) 0
 	}
 	day* {
@@ -702,7 +706,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    set time $dayBase
 	    set secsForMax [expr {$secsPerMinute * 60 * 24}]
 	    set curIndex dayIndex
-	    set options(-max) -1
+	    set options(-max) $dayIndex
 	    set options(-min) 0
 	}
 	default {
@@ -760,7 +764,7 @@ proc stats::histHtmlDisplay {tag args} {
 	    set $options(-max) [lindex $ix end]
 	}
 	if {![info exist options(-min)]} {
-	    set $options(-max) [lindex $ix 0]
+	    set $options(-min) [lindex $ix 0]
 	}
     }
 
@@ -809,9 +813,10 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 	} else {
 	    set value $histogram($t)
 	}
-	if {[catch {expr {round($value * 100.0 / $max)}} percent]} {
+	if {$max == 0 || $value == 0} {
 	    set height 1
 	} else {
+	    set percent [expr {round($value * 100.0 / $max)}]
 	    set height [expr {$percent * $options(-height) / 100}]
 	}
 	if {$t == $curIndex} {
@@ -839,57 +844,110 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 
     # Append a row of labels at the bottom.
 
-    switch -glob -- $options(-unit) {
-	min*	{#do nothing}
-	hour*	{
-	    append result "<tr><td> </td>"
-	    set lastLabel ""
-	    foreach t [lsort -integer [array names histogram]] {
+    if {$counter(type) != "-timehist"} {
 
-		# Label each bucket with its hour
+	# Label each bucket with its value
+	# This is probably wrong for hist2x and hist10x
 
-		set label [clock format $time -format %k]
-		if {$label != $lastLabel} {
-		    append result "<td><font size=1>$label</font></td>"
-		    set lastLabel $label
+	append result "<tr><td> </td>"
+	set skip $options(-skip)
+	if {![info exists counter(mult)]} {
+	    set counter(mult) 1
+	}
+
+	# These are tick marks
+
+	set img src=$options(-images)/$options(-gif)
+	append result "<tr><td> </td>"
+	for {set i $options(-min)} {$i < $options(-max)} {incr i} {
+	    if {(($i % $skip) == 0)} {
+		append result "<td valign=bottom><img $img height=3 \
+			width=1></td>\n"
+	    } else {
+		append result "<td valign=bottom></td>"
+	    }
+	}
+	append result </tr>
+
+	# These are the labels
+
+	append result "<tr><td> </td>"
+	for {set i $options(-min)} {$i < $options(-max)} {incr i} {
+	    set x [expr {$i * $counter(bucketsize) * $counter(mult)}]
+	    set label [format $options(-format) $x]
+	    if {(($i % $skip) == 0)} {
+		append result "<td colspan=$skip><font size=1>$label</font></td>"
+	    }
+	}
+	append result </tr>
+    } else {
+	switch -glob -- $options(-unit) {
+	    min*	{
+		if {$secsPerMinute != 60} {
+		    set format %k:%M:%S
+		    set skip 12
 		} else {
-		    append result "<td><font size=1></font></td>"
+		    set format %k:%M
+		    set skip 4
 		}
-		incr time [expr $secsPerMinute * 60]
+		set deltaT $secsPerMinute
+		set wrapDeltaT [expr {$secsPerMinute * -60}]
 	    }
-	    append result </tr>
-	}
-	day* {
-	    append result "<tr><td> </td>"
-	    set skip 4
-	    set i 0
-	    set lastLabel ""
-	    foreach t [lsort -integer [array names histogram]] {
-		set label [clock format $time -format "%m/%d"]
-		if {(($i % $skip) == 0) && ($label != $lastLabel)} {
-		    append result "<td colspan=$skip><font size=1>$label</font></td>"
-		    set lastLabel $label
+	    hour*	{
+		if {$secsPerMinute != 60} {
+		    set format %k:%M
+		    set skip 4
+		} else {
+		    set format %k
+		    set skip 2
 		}
-		incr time [expr 60 * $secsPerMinute * 24]
-		incr i
+		set deltaT [expr {$secsPerMinute * 60}]
+		set wrapDeltaT [expr {$secsPerMinute * 60 * -24}]
 	    }
-	    append result </tr>
+	    day* {
+		if {$secsPerMinute != 60} {
+		    set format "%m/%d %k:%M"
+		    set skip 10
+		} else {
+		    set format %k
+		    set skip $options(-skip)
+		}
+		set deltaT [expr {$secsPerMinute * 60 * 24}]
+		set wrapDeltaT 0
+	    }
 	}
-	default {
-	    append result "<tr><td> </td>"
-	    set skip $options(-skip)
-	    set i 0
-	    for {set t $options(-min)} {$t < $options(-max)} {incr t} {
+	# These are tick marks
 
-		# Label each bucket with its hour
-
-		set label [expr {$t * $counter(bucketsize)}]
-		if {(($i % $skip) == 0)} {
-		    append result "<td colspan=$skip><font size=1>$label</font></td>"
-		}
-		incr i
+	set img src=$options(-images)/$options(-gif)
+	append result "<tr><td> </td>"
+	foreach t [lsort -integer [array names histogram]] {
+	    if {(($t % $skip) == 0)} {
+		append result "<td valign=bottom><img $img height=3 \
+			width=1></td>\n"
+	    } else {
+		append result "<td valign=bottom></td>"
 	    }
 	}
+	append result </tr>
+
+	set lastLabel ""
+	append result "<tr><td> </td>"
+	foreach t [lsort -integer [array names histogram]] {
+
+	    # Label each bucket with its time
+
+	    set label [clock format $time -format $format]
+	    if {(($t % $skip) == 0) && ($label != $lastLabel)} {
+		append result "<td colspan=$skip><font size=1>$label</font></td>"
+		set lastLabel $label
+	    }
+	    if {$t == $curIndex} {
+		incr time $wrapDeltaT
+	    } else {
+		incr time $deltaT
+	    }
+	}
+	append result </tr>\n
     }
     append result "</table>"
     if {$underflow > 0} {
