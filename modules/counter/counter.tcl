@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.2 2000/10/03 05:27:13 welch Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.3 2000/10/03 18:01:30 welch Exp $
 
 namespace eval counter:: {
 
@@ -899,7 +899,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 	    }
 	    day* {
 		append result "<td>[html::font][clock format $time \
-			-format "%b %d %k:%M]</font></td></tr>\n"
+			-format "%b %d %k:%M"]</font></td></tr>\n"
 	    }
 	}
 

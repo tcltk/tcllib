@@ -1,3 +1,7 @@
+2000-10-03  Brent Welch <welch@ajubasolutions.com>
+
+	* counter.tcl: Fixed bug in label format for daily graph.
+
 2000-10-02  Brent Welch <welch@ajubasolutions.com>
 
 	* NAME CHANGE from "stats" to "counter"
