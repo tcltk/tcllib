@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.32 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.33 2004/08/15 03:34:07 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -148,6 +148,27 @@ proc ::struct::tree::tree {args} {
     return $name
 }
 
+# ::struct::tree::prune --
+#
+#	Abort the walk script, and ignore any children of the
+#	node we are currently at.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+#
+# Sideeffects:
+#
+#	Stops the execution of the script and throws a signal to the
+#	surrounding walker to go to the next node, and ignore the
+#	children of the current node.
+
+proc ::struct::tree::prune {} {
+    return -code 5
+}
+
 ##########################
 # Private functions follow
 
@@ -229,6 +250,34 @@ proc ::struct::tree::_= {name source} {
 proc ::struct::tree::_--> {name dest} {
     $dest deserialize [_serialize $name]
     return
+}
+
+# ::struct::tree::_ancestors --
+#
+#	Return the list of all parent nodes of a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to look up.
+#
+# Results:
+#	parents	List of parents of node $node.
+#		Immediate ancestor (parent) first,
+#		Root of tree (ancestor of all) last.
+
+proc ::struct::tree::_ancestors {name node} {
+    if { ![_exists $name $node] } {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    variable ${name}::parent
+    set a {}
+    while {[info exists parent($node)]} {
+	set node $parent($node)
+	if {$node == {}} break
+	lappend a $node
+    }
+    return $a
 }
 
 # ::struct::tree::_attr --
@@ -574,6 +623,57 @@ proc ::struct::tree::_depth {name node} {
 	set node $parent($node)
     }
     return $depth
+}
+
+# ::struct::tree::_descendants --
+#
+#	Return the list containing all descendants of a node in a tree.
+#
+# Arguments:
+#	name	Name of the tree.
+#	node	Node to look at.
+#
+# Results:
+#	desc	(filtered) List of nodes descending from 'node'.
+
+proc ::struct::tree::_descendants {name node args} {
+    # children -all sucessor, allows filtering.
+
+    set usage "wrong # args: should be \"[list $name] descendants node ?filter cmd?\""
+
+    if {[llength $args] > 2} {
+	return -code error $usage
+    } elseif {[llength $args] == 2} {
+	foreach {_const_ cmd} $args break
+	if {![string equal $_const_ filter] || ![llength $cmd]} {
+	    return -code error $usage
+	}
+    } else {
+	set cmd {}
+    }
+
+    if { ![_exists $name $node] } {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    variable ${name}::children
+
+    set result  $children($node)
+    set pending $result
+    while {[llength $pending]} {
+	set n [::struct::list shift pending]
+	foreach c $children($n) {
+	    lappend result $c
+	    lappend pending $c
+	}
+    }
+
+    if {[llength $cmd]} {
+	lappend cmd $name
+	set result [uplevel 1 [list ::struct::list filter $result $cmd]]
+    }
+
+    return $result
 }
 
 # ::struct::tree::_destroy --
@@ -1661,6 +1761,7 @@ proc ::struct::tree::_walk {name node args} {
 		if {$leave || $touch} {
 		    # Evaluate the script at this node
 		    WalkCall $avar $nvar $name $node $lvlabel $script
+		    # prune stops execution of loop here.
 		}
 	    } else {
 		# First visit of this 'node'.
@@ -1678,6 +1779,7 @@ proc ::struct::tree::_walk {name node args} {
 		    # this node and thus affect the walk.
 
 		    WalkCall $avar $nvar $name $node "enter" $script
+		    # prune stops execution of loop here.
 		}
 
 		# Add the children of this node to the stack.
@@ -1719,6 +1821,7 @@ proc ::struct::tree::_walk {name node args} {
 	    if {$enter} {
 		# Evaluate the script at this node
 		WalkCall $avar $nvar $name $node "enter" $script
+		# prune stops execution of loop here.
 	    }
 
 	    # Add this node's children
@@ -1780,6 +1883,7 @@ proc ::struct::tree::WalkCall {avar nvar tree node action cmd} {
     #               2 - the body invoked [return]
     #               3 - the body invoked [break]
     #               4 - the body invoked [continue]
+    #               5 - the body invoked [struct::tree::prune]
     # everything else - return and pass on the results
     #
     switch -exact -- $code {
@@ -1793,6 +1897,13 @@ proc ::struct::tree::WalkCall {avar nvar tree node action cmd} {
 	    return -code break
 	}
 	4 {}
+	5 {
+	    upvar order order
+	    if {[string equal $order post] || [string equal $order in]} {
+		return -code error "Illegal attempt to prune ${order}-order walking"
+	    }
+	    return -code continue
+	}
 	default {
 	    upvar 1 rcode rcode rvalue rvalue
 	    set rcode $code
