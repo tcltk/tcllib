@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.7 2000/03/20 22:08:34 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.8 2000/03/28 03:23:46 ericm Exp $
 
 package provide profiler 0.1
 
@@ -41,12 +41,18 @@ proc ::profiler::Handler {name args} {
 	if { [catch {incr ::profiler::callers($name,$caller)}] } {
 	    set ::profiler::callers($name,$caller) 1
 	}
-	set ms [clock clicks]
+	set mark [clock clicks]
     }
 
     set CODE [uplevel ${name}ORIG $args]
     if { $enabled } {
-	set t [expr {[clock clicks] - $ms}]
+	set t [expr {[clock clicks] - $mark}]
+
+	# Check for [clock clicks] wrapping
+	if { $t < 0 } {
+	    set t [expr {$t * -1}]
+	}
+
 	if { [incr ::profiler::callCount($name)] == 1 } {
 	    set ::profiler::compileTime($name) $t
 	}
