@@ -1,3 +1,12 @@
+2005-01-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Expanded the documentation (it should now describe all
+          public procedures)
+        * Expanded the tests (not complete, but it should cover most
+          more complicated procedures)
+        * Expanded the set of procedures (only a few algorithms
+          await implementation)
+
 2005-01-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Added modified Gram-Schmidt method to the linear algebra package

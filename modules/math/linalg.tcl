@@ -31,7 +31,7 @@ namespace eval ::math::linearalgebra {
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
     namespace export scale scale_vect scale_mat
-    namespace export rotate angle
+    namespace export rotate angle choleski
     namespace export getrow getcol getelem setrow setcol setelem
     namespace export mkVector mkMatrix mkIdentity mkDiagonal
     namespace export mkHilbert mkDingdong mkBorder mkFrank
@@ -39,8 +39,9 @@ namespace eval ::math::linearalgebra {
     namespace export solveGauss solveTriangular
     namespace export solveGaussBand solveTriangularBand
     namespace export determineSVD eigenvectorsSVD
+    namespace export leastSquaresSVD
     namespace export orthonormalizeColumns orthonormalizeRows
-    namespace export show
+    namespace export show to_LA from_LA
 }
 
 # dim --
@@ -851,9 +852,9 @@ proc ::math::linearalgebra::mkMoler { size } {
         set row {}
         for { set i 0 } { $i < $size } { incr i } {
             if { $i == $j } {
-                lappend row $i
+                lappend row [expr {$i+1}]
             } else {
-                lappend row [expr {($i>$j?$j:$i)-2.0}]
+                lappend row [expr {($i>$j?$j:$i)-1.0}]
             }
         }
         lappend result $row
@@ -1366,7 +1367,7 @@ proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
     # Determine the SVD decomposition: this holds the
     # eigenvectors and eigenvalues
     #
-    foreach {U S V} [determineSVD $A $eps]
+    foreach {U S V} [determineSVD $A $eps] {break}
 
     #
     # Rescale and flip signs if all negative or zero
@@ -1393,6 +1394,113 @@ proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
         lappend evals [expr {$s+$h}]
     }
     return [list $A $evals]
+}
+
+# leastSquaresSVD --
+#     Determine the solution to the least-squares problem Ax ~ y
+#     via the singular value decomposition
+# Arguments:
+#     A          Matrix to be examined
+#     y          Dependent variable
+#     qmin       Minimum singular value to be considered (defaults to 0)
+#     epsilon    Tolerance for the procedure (defaults to 2.3e-16)
+#
+# Result:
+#     Vector x as the solution of the least-squares problem
+#
+proc ::math::linearalgebra::leastSquaresSVD { A y {qmin 0.0} {epsilon 2.3e-16} } {
+
+    foreach {m n} [shape $A] {break}
+    foreach {U S V} [determineSVD $A $epsilon] {break}
+
+    set tol [expr {$epsilon * $epsilon * $n * $n}]
+    #
+    # form Utrans*y into g
+    #
+    set g {}
+    for {set j 0} {$j < $n} {incr j} {
+        set s 0.0
+        for {set i 0} {$i < $m} {incr i} {
+            set Aij [lindex $A $i $j]
+            set yi  [lindex $y $i]
+            set s [expr {$s + $Aij*$yi}]
+        }
+        lappend g $s ;# g[j] = $s
+    }
+
+    #
+    # form VS+g = VS+Utrans*g
+    #
+    set x {}
+    for {set j 0} {$j < $n} {incr j} {
+        set s 0.0
+        for {set i 0} {$i < $n} {incr i} {
+            set zi [lindex $S $i]
+            if { $zi > $qmin } {
+                set Vji [lindex $V $j $i]
+                set gi  [lindex $g $i]
+                set s   [expr {$s + $Vji*$gi/$zi}]
+            }
+        }
+        lappend x $s
+    }
+    return $x
+}
+
+# choleski --
+#     Determine the Choleski decomposition of a symmetric,
+#     positive-semidefinite matrix (this condition is not checked!)
+#
+# Arguments:
+#     matrix     Matrix to be treated
+#
+# Result:
+#     Lower-triangular matrix (L) representing the Choleski decomposition:
+#        L Lt = matrix
+#
+proc ::math::linearalgebra::choleski { matrix } {
+    foreach {rows cols} [shape $matrix] {break}
+
+    set result $matrix
+
+    for { set j 0 } { $j < $cols } { incr j } {
+        if { $j > 0 } {
+            for { set i $j } { $i < $cols } { incr i } {
+                set sum [lindex $result $i $j]
+                for { set k 0 } { $k <= $j-1 } { incr k } {
+                    set Aki [lindex $result $i $k]
+                    set Akj [lindex $result $j $k]
+                    set sum [expr {$sum-$Aki*$Akj}]
+                }
+                lset result $i $j $sum
+            }
+        }
+
+        #
+        # Take care of a singular matrix
+        #
+        if { [lindex $result $j $j] <= 0.0 } {
+            lset result $j $j 0.0
+        }
+
+        #
+        # Scale the column
+        #
+        set s [expr {sqrt([lindex $result $j $j])}]
+        for { set i 0 } { $i < $cols } { incr i } {
+            if { $i >= $j } {
+                if { $s == 0.0 } {
+                    lset result $i $j 0.0
+                } else {
+                    lset result $i $j [expr {[lindex $result $i $j]/$s}]
+                }
+            } else {
+                lset result $i $j 0.0
+            }
+        }
+    }
+
+    return $result
 }
 
 # orthonormalizeColumns --
@@ -1440,64 +1548,55 @@ proc ::math::linearalgebra::orthonormalizeRows { matrix } {
     return $result
 }
 
+# to_LA --
+#     Convert a matrix or vector to the LA format
+# Arguments:
+#     mv         Matrix or vector to be converted
+#
+# Result:
+#     List according to LA conventions
+#
+proc ::math::linearalgebra::to_LA { mv } {
+    foreach {rows cols} [shape $mv] {
+        if { $cols == {} } {
+            set cols 0
+        }
+    }
 
-if { 0 } {
-Te doen:
-behoorlijke testen!
-matmul
-solveGauss_band
-join_col, join_row
-to_LA, from_LA
-is matrix symmetrisch?
-kleinste-kwadraten met SVD en met Gauss
-PCA
-}
-
-if { 0 } {
-set matrix {{1.0  2.0 -1.0}
-            {3.0  1.1  0.5}
-            {1.0 -2.0  3.0}}
-set bvect  {{1.0  2.0 -1.0}
-            {3.0  1.1  0.5}
-            {1.0 -2.0  3.0}}
-puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
-set bvect  {{4.0   2.0}
-            {12.0  1.2}
-            {4.0  -2.0}}
-puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
+    set result [list 2 $rows $cols]
+    foreach row $mv {
+        set result [concat $result $row]
+    }
+    return $result
 }
 
-if { 0 } {
+# from_LA --
+#     Convert a matrix or vector from the LA format
+# Arguments:
+#     mv         Matrix or vector to be converted
+#
+# Result:
+#     List according to current conventions
+#
+proc ::math::linearalgebra::from_LA { mv } {
+    foreach {rows cols} [lrange $mv 1 2] {break}
 
-   set vect1 {1.0 2.0}
-   set vect2 {3.0 4.0}
-   ::math::linearalgebra::axpy_vect 1.0 $vect1 $vect2
-   ::math::linearalgebra::add_vect      $vect1 $vect2
-   puts [time {::math::linearalgebra::axpy_vect 1.0 $vect1 $vect2} 50000]
-   puts [time {::math::linearalgebra::axpy_vect 2.0 $vect1 $vect2} 50000]
-   puts [time {::math::linearalgebra::axpy_vect 1.0 $vect1 $vect2} 50000]
-   puts [time {::math::linearalgebra::axpy_vect 1.1 $vect1 $vect2} 50000]
-   puts [time {::math::linearalgebra::add_vect      $vect1 $vect2} 50000]
+    if { $cols != 0 } {
+        set result {}
+        set elem2  2
+        for { set i 0 } { $i < $rows } { incr i } {
+            set  elem1 [expr {$elem2+1}]
+            incr elem2 $cols
+            lappend result [lrange $mv $elem1 $elem2]
+        }
+    } else {
+        set result [lrange $mv 3 end]
+    }
+
+    return $result
 }
 
-if { 0 } {
-set M {{1 2} {2 1}}
-puts "[::math::linearalgebra::determineSVD $M]"
-}
-if { 0 } {
-set M {{1 2} {2 1}}
-puts "[::math::linearalgebra::normMatrix $M]"
-}
-if { 0 } {
-set M {{1.3 2.3} {2.123 1}}
-puts "[::math::linearalgebra::show $M]"
-set M {{1.3 2.3 45 3.} {2.123 1 5.6 0.01}}
-puts "[::math::linearalgebra::show $M]"
-puts "[::math::linearalgebra::show $M %12.4f]"
-}
-if { 0 } {
-    set M {{1 0 0}
-           {1 1 0}
-           {1 1 1}}
-    puts [::math::linearalgebra::orthonormalizeRows $M]
-}
+
+# Announce the presence of the package
+#
+package provide math::linearalgebra 1.0

@@ -13,3 +13,4 @@ package ifneeded math::polynomials       1.0   [list source [file join $dir poly
 package ifneeded math::rationalfunctions 1.0   [list source [file join $dir rational_funcs.tcl]]
 package ifneeded math::bignum            3.0   [list source [file join $dir bignum.tcl]]
 package ifneeded math::fourier           1.0   [list source [file join $dir fourier.tcl]]
+package ifneeded math::linearalgebra     1.0   [list source [file join $dir linalg.tcl]]
