@@ -1,3 +1,8 @@
+2003-04-09  Andreas Kupries  <andreask@activestate.com>
+
+	* New module: devtools. Internal use only for now. Does not
+	  contain true packages.
+
 2003-04-01  Andreas Kupries  <andreask@activestate.com>
 
 	* Makefile.in (MODULES): Added the soundex module.
@@ -5,8 +10,8 @@
 2003-03-28  Andreas Kupries  <andreask@activestate.com>
 
 	* README: Updated information about acceptable documentation
-	  formats, i.e. added doctools, made it mst prefered format. This
-	  fixes the [Bug #685270], reported by Larry Virden
+	  formats, i.e. added doctools, made it the most prefered
+	  format. This fixes the [Bug #685270], reported by Larry Virden
 	  <lvirden@users.sourceforge.net>.
 
 2003-03-24  Andreas Kupries  <andreask@activestate.com>
