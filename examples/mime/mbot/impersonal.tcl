@@ -32,7 +32,7 @@ proc tclLog {message} {
     catch { puts -nonewline $fd \
                  [format "%s %-8.8s %06d %s\n" \
                          [clock format [clock seconds] -format "%m/%d %T"] \
-                         personal [expr [pid]%65535] $message] }
+                         personal [expr {[pid]%65535}] $message] }
 
     catch { close $fd }
 }
@@ -247,8 +247,8 @@ if {[catch {
         if {[set x [string first = $param]] <= 0} {
             cleanup "page $request unavailable" 504
         }
-        set key [string range $param 0 [expr $x-1]]
-        set arg($key) [string range $param [expr $x+1] end]
+        set key [string range $param 0 [expr {$x-1}]]
+        set arg($key) [string range $param [expr {$x+1}] end]
     }
 
     set expires [mime::parsedatetime -now proper]
@@ -363,7 +363,7 @@ Expires: $expires
         array set props [mbox::getproperty $mbox]
 
         if {$lastN < 0} {
-            set diff [expr -($lastN*86400)]
+            set diff [expr {-($lastN*86400)}]
 
             set last 0
             for {set msgNo $props(last)} {$msgNo > 0} {incr msgNo -1} {
@@ -392,7 +392,7 @@ Expires: $expires
                 set last $props(last)
             }
         } elseif {[set first \
-                       [expr [set last $props(last)]-($lastN+1)]] <= 0} {
+		[expr {[set last $props(last)]-($lastN+1)}]] <= 0} {
             set first 1
         }
 

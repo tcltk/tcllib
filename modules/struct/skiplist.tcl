@@ -386,7 +386,7 @@ proc ::struct::skiplist::_walk {name cmd} {
 proc ::struct::skiplist::randomLevel {prob level maxlevel} {
 
     set lvl 1
-    while {[expr rand()] < $prob && $lvl < $maxlevel} {
+    while {(rand() < $prob) && ($lvl < $maxlevel)} {
 	incr lvl
     }
 

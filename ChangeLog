@@ -1,3 +1,10 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl (tclfiles, docfiles): Added code to exclude files under
+	  SCCS directories from the validation. Required to prevent bogus
+	  output when run in my BitKeeper repository. Also fixed bug in
+	  docfiles, redefined the wrong command.
+
 2004-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: New module 'tie added to installer. Tcl

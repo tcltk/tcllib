@@ -1,3 +1,10 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* skiplist.tcl: Fixed expr'essions without braces.
+
+	* graph.tcl (CheckSerialization): Fixed nested reuse of foreach
+	  variable (attr).
+
 2004-09-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.test:  Fixed [Tcllib SF Bug 1007396]. Multiple use
