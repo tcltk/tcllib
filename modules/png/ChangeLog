@@ -1,3 +1,7 @@
+2004-09-22  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* png.test: updated timestamp test to use gmt
+
 2004-08-25  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* png.tcl bug fix in getTimestamp, made times be interpreted as gmt.
