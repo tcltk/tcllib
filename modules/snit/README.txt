@@ -53,6 +53,17 @@ you.
 
 * Added ::snit::compile.
 
+* Added the "delegate typemethod" statement.  It's similar to 
+  "delegate method" and has the same syntax, but delegates typemethods
+  to commands whose names are stored in typevariables.
+
+* Added the "typecomponent" type definition statement.  Parallel to
+  "component", "typecomponent" is used to declare targets for the new 
+  "delegate typemethod" statement.
+
+* "delegate method" can now delegate methods to components or
+  typecomponents.
+
 * Sundry other internal changes.
 
 Changes in V0.93
