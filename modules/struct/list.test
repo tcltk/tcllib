@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.17 2004/05/19 04:34:50 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.18 2005/02/24 05:33:26 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -990,6 +990,107 @@ foreach {jtype left middle right result} {
     } [lsort [set $result]]
 
     incr n
+}
+
+#----------------------------------------------------------------------
+
+interp alias {} swap {} ::struct::list::list swap
+
+foreach {n list i j err res} {
+    0  {}           0  0   1 {list index out of range}
+    1  {}           3  4   1 {list index out of range}
+    2  {a b c d e} -1  0   1 {list index out of range}
+    3  {a b c d e}  0 -1   1 {list index out of range}
+    4  {a b c d e}  6  0   1 {list index out of range}
+    5  {a b c d e}  0  6   1 {list index out of range}
+    6  {a b c d e}  0  0   0 {a b c d e}
+    7  {a b c d e}  0  1   0 {b a c d e}
+    8  {a b c d e}  1  0   0 {b a c d e}
+    9  {a b c d e}  0  4   0 {e b c d a}
+    10 {a b c d e}  4  0   0 {e b c d a}
+    11 {a b c d e}  2  4   0 {a b e d c}
+    12 {a b c d e}  4  2   0 {a b e d c}
+    13 {a b c d e}  1  3   0 {a d c b e}
+    14 {a b c d e}  3  1   0 {a d c b e}
+} {
+    if {$err} {
+	test swap-1.$n {swap command error} {
+	    set l $list
+	    catch {swap l $i $j} msg
+	    set msg
+	} $res ; # {}
+    } else {
+	test swap-1.$n {swap command} {
+	    set l $list
+	    swap l $i $j
+	} $res ; # {}
+    }
+}
+
+
+#----------------------------------------------------------------------
+
+interp alias {} firstperm    {} ::struct::list::list firstperm
+interp alias {} nextperm     {} ::struct::list::list nextperm
+interp alias {} foreachperm  {} ::struct::list::list foreachperm
+interp alias {} permutations {} ::struct::list::list permutations
+
+array set ps {
+    {Tom Dick Harry Bob} {
+	0	{Bob Dick Harry Tom}	{Tom Harry Bob Dick}
+	{
+	    {Bob Dick Harry Tom}    {Bob Dick Tom Harry}
+	    {Bob Harry Dick Tom}    {Bob Harry Tom Dick}
+	    {Bob Tom Dick Harry}    {Bob Tom Harry Dick}
+	    {Dick Bob Harry Tom}    {Dick Bob Tom Harry}
+	    {Dick Harry Bob Tom}    {Dick Harry Tom Bob}
+	    {Dick Tom Bob Harry}    {Dick Tom Harry Bob}
+	    {Harry Bob Dick Tom}    {Harry Bob Tom Dick}
+	    {Harry Dick Bob Tom}    {Harry Dick Tom Bob}
+	    {Harry Tom Bob Dick}    {Harry Tom Dick Bob}
+	    {Tom Bob Dick Harry}    {Tom Bob Harry Dick}
+	    {Tom Dick Bob Harry}    {Tom Dick Harry Bob}
+	    {Tom Harry Bob Dick}    {Tom Harry Dick Bob}
+	}
+    }
+    {3 2 1 4} {
+	1	{1 2 3 4}	{3 2 4 1}
+	{
+	    {1 2 3 4} {1 2 4 3} {1 3 2 4} {1 3 4 2}
+	    {1 4 2 3} {1 4 3 2} {2 1 3 4} {2 1 4 3}
+	    {2 3 1 4} {2 3 4 1} {2 4 1 3} {2 4 3 1}
+	    {3 1 2 4} {3 1 4 2} {3 2 1 4} {3 2 4 1}
+	    {3 4 1 2} {3 4 2 1} {4 1 2 3} {4 1 3 2}
+	    {4 2 1 3} {4 2 3 1} {4 3 1 2} {4 3 2 1}
+	}
+    }
+}
+
+foreach k [array names ps] {
+    foreach {n firstp nextp allp} $ps($k) break
+
+    test firstperm-1.$n {firstperm command} {
+	firstperm $k
+    } $firstp ; # {}
+
+    test nextperm-1.$n {nextperm command} {
+	nextperm $k
+    } $nextp ; # {}
+
+    # Note: The lrange below is necessary a trick/hack to kill the
+    # existing string representation of allp, and get a pure list out
+    # of it. Otherwise the string based comparison of test will fail,
+    # seeing different string reps of the same list.
+
+    test permutations-1.$n {permutations command} {
+	permutations $k
+    } [lrange $allp 0 end] ; # {}
+
+    test foreachperm-1.$n {foreachperm command} {
+	set res {}
+	foreachperm x $k {lappend res $x}
+	set res
+    } [lrange $allp 0 end] ; # {}
 }
 
 #----------------------------------------------------------------------

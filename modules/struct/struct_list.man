@@ -1,8 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.11 2004/05/21 03:11:57 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.12 2005/02/24 05:33:26 andreas_kupries Exp $}]
 [manpage_begin struct::list n 1.4]
-[copyright {2003 by Kevin B. Kenny. All rights reserved}]
-[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
+[copyright {2003-2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating lists}]
 [require Tcl 8.0]
@@ -571,6 +571,45 @@ elements in each [arg table] are not the lists of column values, but a
 two-element list where the second element is the regular list of
 column values and the first element is the key to use.
 
+[call [cmd ::struct::list] [method swap] [arg listvar] [arg i] [arg j]]
+
+The subcommand exchanges the elements at the indices [arg i] and
+[arg j] in the list stored in the variable named by [arg listvar]. The
+list is modified in place, and also returned as the result of the
+subcommand.
+
+
+[call [cmd ::struct::list] [method firstperm] [arg list]]
+
+This subcommand returns the lexicographically first permutation of the
+input [arg list].
+
+
+[call [cmd ::struct::list] [method nextperm] [arg perm]]
+
+This subcommand accepts a permutation of a set of elements (provided
+by [arg perm]) and returns the next permutatation in lexicographic
+sequence.
+
+[nl]
+The algorithm used here is by Donal E. Knuth, see section
+[sectref REFERENCES] for details.
+
+
+[call [cmd ::struct::list] [method permutations] [arg list]]
+
+This subcommand returns a list containing all permutations of the
+input [arg list] in lexicographic order.
+
+
+[call [cmd ::struct::list] [method foreachperm] [arg var] [arg list] [arg body]]
+
+This subcommand executes the script [arg body] once for each
+permutation of the specified [arg list]. The permutations are visited
+in lexicographic order, and the variable [arg var] is set to the
+permutation for which [arg body] is currently executed. The result of
+the loop command is the empty string.
+
 [list_end]
 
 [section {LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON}]
@@ -701,10 +740,20 @@ Examples for all the joins:
 
 [section REFERENCES]
 
+[list_begin enum]
+
+[enum]
 J. W. Hunt and M. D. McIlroy, "An algorithm for differential 
 file comparison," Comp. Sci. Tech. Rep. #41, Bell Telephone 
 Laboratories (1976). Available on the Web at the second
 author's personal site: [uri http://www.cs.dartmouth.edu/~doug/]
+
+[enum]
+Donald E. Knuth, "Fascicle 2b of 'The Art of Computer Programming'
+volume 4". Available on the Web at the author's personal site:
+[uri http://www-cs-faculty.stanford.edu/~knuth/fasc2b.ps.gz].
+
+[list_end]
 
 [keywords list diff differential comparison common subsequence]
 [keywords {longest common subsequence}]
@@ -715,4 +764,5 @@ author's personal site: [uri http://www.cs.dartmouth.edu/~doug/]
 [keywords folding reduce]
 [keywords equality equal repetition repeating]
 [keywords {inner join} {left outer join} {right outer join} {full outer join} {outer join} join]
+[keywords swapping permutation {first permutation} {next permutation} {generate permutations}]
 [manpage_end]
