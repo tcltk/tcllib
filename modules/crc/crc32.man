@@ -85,7 +85,7 @@ integer is expected as the result.
 483919716
 }]
 
-[see_also sum(n) cksum(n)]
+[see_also sum(n) cksum(n) crc16(n)]
 [section AUTHORS]
 Pat Thoyts
 

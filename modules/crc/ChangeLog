@@ -1,5 +1,9 @@
 2002-01-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* crc16.tcl, crc16.test, crc16.man: Added CRC16 package
+
+2002-01-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
 	* crc32.test, sum.test, cksum.test: Fixed SF bug #507242: failing
 	tests when running 'make test'
 
