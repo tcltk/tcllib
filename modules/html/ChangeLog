@@ -1,3 +1,7 @@
+2000-07-28  Brent Welch <welch@scriptics.com>
+
+	* modules/html/html.tcl, html.n: Added html::passwordInputRow
+
 2000-07-24  Brent Welch <welch@scriptics.com>
 
 	* modules/html/html.tcl: Fixed html::closeTag to tolerate

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.6 2000/06/10 05:33:40 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.7 2000/07/29 00:32:49 welch Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -77,6 +77,8 @@
 .sp
 \fBhtml::passwordInput\fR \fI{name password}\fR
 .sp
+\fBhtml::passwordInputRow\fR \fIlabel {name password}\fR
+.sp
 \fBhtml::quoteFormValue\fR \fIvalue\fR
 .sp
 \fBhtml::radioSet\fR \fIkey sep list\fR
@@ -102,6 +104,8 @@
 \fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
 .sp
 \fBhtml::textInput\fR \fIname {value {}}\fR
+.sp
+\fBhtml::textInputRow\fR \fIname {value {}}\fR
 .sp
 \fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
 .sp
@@ -312,6 +316,11 @@ from the stack.
 .TP
 \fBhtml::passwordInput\fR \fI{name password}\fR
 Generate an INPUT tag of type PASSWORD.
+
+.TP
+\fBhtml::passwordInputRow\fR \fIlabel {name password}\fR
+Format a table row containing
+a label and an INPUT tag of type PASSWORD.
 
 .TP
 \fBhtml::quoteFormValue\fR \fIvalue\fR

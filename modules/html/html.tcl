@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.14 2000/07/24 22:15:14 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.15 2000/07/29 00:32:49 welch Exp $
 
 package provide html 1.0
 
@@ -385,7 +385,23 @@ proc html::textInputRow {label name {value {}}} {
     return $html
 }
 
-# html::passwordinpupt --
+# html::passwordInputRow --
+#
+#	Format a table row containing a password input element and a label.
+#
+# Arguments:
+#	name	The form element name
+#
+# Results:
+#	The html fragment
+
+proc html::passwordInputRow {label {name password}} {
+    variable defaults
+    set html [html::row $label [html::passwordInput $name]]
+    return $html
+}
+
+# html::passwordInpupt --
 #
 #	Return an <input type=password> element.
 #
