@@ -1,5 +1,10 @@
 2000-04-26  Brent Welch <welch@scriptics.com>
 
+	* html/html.tcl:  Added urlResove and urlParent URL parsing
+	routines.
+
+2000-04-26  Brent Welch <welch@scriptics.com>
+
 	* configure.in: Bumped patchlevel to 0.4
 	* Makefile.in: Fixed dist target to deal with missing manual
 	pages and test files.
