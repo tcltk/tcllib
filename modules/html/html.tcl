@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.3 2000/04/19 06:08:40 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.4 2000/04/19 20:52:15 welch Exp $
 
 package provide html 1.0
 
@@ -563,7 +563,43 @@ proc html::getFormInfo {args} {
     return $html
 }
 
-# html::open
+# html::h1
+#	Generate an H1 tag.
+#
+# Arguments:
+#	string
+#	params
+#
+# Results:
+#	Formats the tag.
+
+proc html::h1 {string {params {}}} {
+    html::h 1 $string $params
+}
+proc html::h2 {string {params {}}} {
+    html::h 2 $string $params
+}
+proc html::h3 {string {params {}}} {
+    html::h 3 $string $params
+}
+proc html::h4 {string {params {}}} {
+    html::h 4 $string $params
+}
+proc html::h5 {string {params {}}} {
+    html::h 5 $string $params
+}
+proc html::h6 {string {params {}}} {
+    html::h 6 $string $params
+}
+proc html::h {level string {params {}}} {
+    global defaults
+    foreach def [array names defaults h$level.*] {
+	append params [html::default $def $params]
+    }
+    return "<[string trimright "h$level $params"]>$string</h$level>\n"
+}
+
+# html::opentag
 #	Remember that a tag  is opened so it can be closed later.
 #	This is used to automatically clean up at the end of a page.
 #
@@ -575,13 +611,13 @@ proc html::getFormInfo {args} {
 #	Formats the tag.  Also keeps it around in a per-page stack
 #	of open tags.
 
-proc html::open {tag args} {
+proc html::opentag {tag args} {
     variable page
     lappend page(stack) $tag
     return <[string trimright "$tag $args"]>
 }
 
-# html::close
+# html::closetag
 #	Pop a tag from the stack and close it.
 #
 # Arguments:
@@ -590,7 +626,7 @@ proc html::open {tag args} {
 # Results:
 #	A close tag.  Also pops the stack.
 
-proc html::close {} {
+proc html::closetag {} {
     variable page
     set top [lindex $page(stack) end]
     set page(stack) [lreplace $page(stack) end end]
@@ -612,7 +648,7 @@ proc html::end {} {
     variable page
     set html ""
     while {[llength $page(stack)]} {
-	append html [html::close]\n
+	append html [html::closetag]\n
     }
     return $html
 }
