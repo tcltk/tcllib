@@ -1,32 +1,56 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin dtformat n 1.0]
+[manpage_begin doctools_fmt n 1.0]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Specification of simple tcl markup for manpages}]
 [description]
 [para]
-This manpage specifies
 
-[list_begin enum]
-[enum]
-The overall format of manpages using this markup, and
+This manpage specifies a documentation format for manpages. It is
+intended to complement both the [syscmd doctoc] format for writing
+tables of contents and the [syscmd docidx] format for writing indices.
+See [syscmd doctoc_fmt] and [syscmd docidx_fmt] for the specification
+of these two formats.
 
-[enum]
-the tcl commands used as the markup
-
-[list_end]
 
 [para]
-The manpage format described here is simpler than TMML, but
-convertible into it (and other formats, like HTML and nroff).
 
-[para]
-The tcl sources of this manpage can serve as an example for all of the
-markup described by it. Every possible construct (with the exception
-of [cmd require]) is used here.
+This format is called [syscmd doctools].
+
+It provides all the necessary commands to write manpages.
+
+Like for the [syscmd doctoc] and [syscmd docidx] formats a package is
+provided implementing a generic framework for the conversion of
+[syscmd doctools] to a number of different output formats, like HTML,
+TMML, nroff, LaTeX, etc.
+
+The package is called [package doctools], its documentation can be
+found in [syscmd doctools].
+
+People wishing to write a formatting engine for the conversion of
+[syscmd doctools] into a new output format have to read
+[syscmd doctools_api]. This manpage will explain the interface between
+the generic package and such engines.
+
 
 [section OVERVIEW]
+
+[syscmd doctoc] is similar to LaTex in that it consists primarily of
+text, with markup commands embedded into it. The format used to mark
+something as command is different from LaTeX however. All text between
+matching pairs of [lb] and [rb] is a command, possibly with
+arguments. Note that both brackets have to be on the same line for a
+command to be recognized.
+
+[para]
+
+In contrast to both [syscmd doctoc] and [syscmd docidx] this format
+does allow plain text beyond white space. This plain text will be the
+contents of the described manpage.
+
+
+[section {FORMATTING COMMANDS}]
 [list_begin bullet]
 [bullet]
 
@@ -409,6 +433,12 @@ defines data to appear in another section.
 
 [list_end]
 
-[see_also expander(n) formatter(n) mpexpand(n)]
-[keywords manpage TMML HTML nroff conversion markup]
+[section EXAMPLE]
+
+The tcl sources of this manpage can serve as an example for all of the
+markup described by it. Almost every possible construct (with the
+exception of [cmd require]) is used here.
+
+[see_also doctoc_fmt docidx_fmt doctools_api doctools]
+[keywords markup {generic markup} manpage TMML HTML nroff LaTeX]
 [manpage_end]

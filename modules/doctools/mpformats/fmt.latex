@@ -25,7 +25,7 @@ proc fmt_plain_text {text} {
     if {$_in_example} {
 	return $text
     }
-    texEscape $text
+    return [texEscape $text]
 }
 
 proc Year {} {clock format [clock seconds] -format %Y}
@@ -148,6 +148,9 @@ proc fmt_list_begin  {what {hint {}}} {
 	bullet - arg - opt - cmd - tkoption - definitions {
 	    return \\begin\{itemize\}
 	}
+	default {
+	    return -code error "Must not happen"
+	}
     }
 }
 
@@ -175,6 +178,9 @@ proc fmt_list_end {} {
 	    } else {
 		return \\end\{itemize\}
 	    }
+	}
+	default {
+	    return -code error "Must not happen"
 	}
     }
 }

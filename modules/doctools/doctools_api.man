@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin dtformatter n 1.0]
+[manpage_begin doctools_api n 1.0]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
@@ -7,22 +7,31 @@
 [description]
 [para]
 
-This manpage specifies the interface between the manpage processor
-[cmd doctools::format] and the tcl code implementing the conversion
-into a particular output format, i.e. the formatting engine.
+This manpage specifies the interface between formatting engines for
+data in the [syscmd doctools] format as specified in
+[syscmd doctools_fmt], and [package doctools], the package for the
+generic handling of such data, as described in [syscmd doctools].
 
 [para]
 
-The formatting engine has to provide
+Each formatting engine has to implement the conversion of input in
+[syscmd doctools] format to one particular output format as chosen by
+the author of the formatting engine.
+
+[section INTERFACE]
+
+Each formatting engine has to provide
 
 [list_begin enum]
 [enum]
 
-Implementations of all the commands specified in [cmd dtformat(n)],
-using the defined names, but prefixed with the string [const fmt_],
-except for [cmd vset] and [cmd include]. These two commands are
-processed by the generic layer and never seen by the formatting
-engine.
+Implementations of all the formatting commands as specified in
+
+[syscmd doctools_fmt], using the defined names, but prefixed with the
+string [const fmt_]. The sole exceptions to this are the formatting
+commands [cmd vset] and [cmd include]. These two commands are
+processed by the generic layer and will never be seen by the
+formatting engine.
 
 [enum]
 and additionally implementations for
@@ -74,6 +83,25 @@ text. Its result is the string written into the expansion.
 [nl]
 
 Most formats will use [emph identity] here.
+
+
+[lst_item [cmd fmt_listvariables]]
+
+The command is called after loading a formatting engine to determine
+which parameters are supported by that engine. The return value is a
+list containing the names of these parameters.
+
+[lst_item "[cmd fmt_varset] [arg varname] [arg text]"]
+
+The command is called by the generic layer to set the value of an
+engine specific parameter. The parameter to change is specified by
+[arg varname], and the value to set is given in [arg text].
+
+[nl]
+
+The command will throw an error if an unknown [arg varname] is
+used. Only the names returned by [cmd fmt_listvariables] are
+considered known.
 
 [list_end]
 [list_end]
@@ -192,6 +220,6 @@ currently tuned for use by engines like HTML and TMML.
 [list_end]
 [list_end]
 
-[see_also expander(n) format(n) mpexpand(n)]
-[keywords manpage interface TMML HTML nroff conversion markup]
+[see_also doctools_fmt doctools]
+[keywords markup {generic markup} manpage TMML HTML nroff LaTeX]
 [manpage_end]

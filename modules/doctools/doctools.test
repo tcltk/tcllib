@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.1 2003/01/19 07:58:44 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.2 2003/03/05 06:50:33 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -83,7 +83,7 @@ test doctools-4.1 {doctools errors} {
     catch {mydoctools foo} msg
     mydoctools destroy
     set msg
-} "bad option \"foo\": must be cget, configure, destroy, format, search, or warnings"
+} "bad option \"foo\": must be cget, configure, destroy, format, map, search, warnings, parameters, or setparam"
 
 # cget ..................................................................
 
@@ -267,7 +267,7 @@ test doctools-8.3 {format} {
     lappend res [mydoctools warnings]
     mydoctools destroy
     set res
-} {manpage foo n 1.0 {}}
+} {manpage {seealso {} keywords {} file {} section n module {} version 1.0 title foo shortdesc {} desc {} fid {}} {}}
 
 test doctools-8.4 {format} {
     new mydoctools -format list -deprecated on
@@ -275,7 +275,7 @@ test doctools-8.4 {format} {
     lappend res [mydoctools warnings]
     mydoctools destroy
     set res
-} {manpage foo n 1.0 {{Manpage warning (depr_strong): Deprecated command "[strong {foo}]".
+} {manpage {seealso {} keywords {} file {} section n module {} version 1.0 title foo shortdesc {} desc {} fid {}} {{Manpage warning (depr_strong): Deprecated command "[strong {foo}]".
 Manpage warning (depr_strong): 	Please consider appropriate semantic markup or [emph] instead.}}}
 
 
@@ -290,5 +290,5 @@ test doctools-9.0 {manpage syntax} {
 } {Manpage error (body), "plain_text foo" : Plain text not allowed outside of the body of the manpage.}
 
 
+namespace forget ::doctools::new
 ::tcltest::cleanupTests
-
