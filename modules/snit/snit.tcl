@@ -10,7 +10,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.95
+package provide snit 0.96
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -2586,7 +2586,21 @@ proc ::snit::RT.mymethod {args} {
 
 proc ::snit::RT.CallInstance {selfns args} {
     upvar ${selfns}::Snit_instance self
-    return [uplevel 1 [linsert $args 0 $self]]
+
+    set retval [catch {uplevel 1 [linsert $args 0 $self]} result]
+
+    if {$retval} {
+        if {$retval == 1} {
+            global errorInfo
+            global errorCode
+            return -code error -errorinfo $errorInfo \
+                -errorcode $errorCode $result
+        } else {
+            return -code $retval $result
+        }
+    }
+
+    return $result
 }
 
 # Looks for the named option in the named variable.  If found,

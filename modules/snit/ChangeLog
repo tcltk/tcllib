@@ -1,3 +1,10 @@
+2004-08-07  Will Duquette  <will@wjduquette.com>
+
+	* All files     Updated to Snit V0.96 for post-0.95 development.
+	                Fixed bug: methods called via [mymethod] can now
+	                return exotic return codes, e.g.,
+			"return -code break"
+
 2004-08-04  Will Duquette  <will@wjduquette.com>
 
 	* snitfaq.man   Updated the Snit FAQ document.
