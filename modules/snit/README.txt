@@ -51,7 +51,7 @@ you.
   things) can be automatically substituted.  It's now possible to
   delegate a method just about any way you'd like.
 
-* Added ::snit::compile
+* Added ::snit::compile.
 
 * Sundry other internal changes.
 
