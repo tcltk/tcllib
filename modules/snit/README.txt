@@ -63,6 +63,20 @@ V0.97.
 
 * Bug fix: -readonly options weren't.  Now they are.
 
+* Added support for hierarchical methods, like the Tk text widget's
+  tag, mark, and image methods.  You define the methods like so:
+
+    method {tag add}       {args} {...}
+    method {tag configure} {args} {...}
+    method {tag cget}      {args} {...}
+
+  and call them like so:
+
+    $widget tag add ....
+
+  The "delegate method" statement also supports hierarchical methods.
+  However, hierarchical methods cannot be used with -simpledispatch.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
