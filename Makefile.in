@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.83 2003/01/19 07:58:43 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.84 2003/03/13 22:56:11 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -281,6 +281,16 @@ install-libraries: libraries
 	fi ;
 	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/fmt.* 2>/dev/null`" != "X" ; then \
 	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/fmt.* 2>/dev/null` ; do \
+		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
+	    done; \
+	fi ;
+	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/idx.* 2>/dev/null`" != "X" ; then \
+	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/idx.* 2>/dev/null` ; do \
+		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
+	    done; \
+	fi ;
+	if test "X`ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/toc.* 2>/dev/null`" != "X" ; then \
+	    for j in `ls $(srcdir)/modules/$(DOCTOOLS)/mpformats/toc.* 2>/dev/null` ; do \
 		$(INSTALL_DATA) $$j $(DESTDIR)$(pkglibdir)/$(DOCTOOLS)/mpformats ; \
 	    done; \
 	fi ;

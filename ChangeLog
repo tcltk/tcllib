@@ -1,3 +1,8 @@
+2003-03-13  Andreas Kupries  <andreask@activestate.com>
+
+	* Makefile.in (install-libraries): Extended special code for
+	  doctools to install the new idx and toc engines.
+
 2003-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/des: Imported and tcllib-ised the DES package
