@@ -6,10 +6,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.5 2003/05/01 00:17:39 andreas_kupries Exp $
+# @(#)$Id: yencode.tcl,v 1.6 2003/05/14 22:56:28 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-package require crc32;                  # tcllib 1.1
+catch {package require crc32};          # tcllib 1.1
+catch {package require tcllibc};        # critcl enhancements for tcllib
 
 namespace eval ::yencode {
     variable version 1.0.1
@@ -18,7 +19,7 @@ namespace eval ::yencode {
 
 # -------------------------------------------------------------------------
 
-proc ::yencode::encode {s} {
+proc ::yencode::Encode {s} {
     set r {}
     binary scan $s c* d
     foreach {c} $d {
@@ -33,7 +34,7 @@ proc ::yencode::encode {s} {
     return $r
 }
 
-proc ::yencode::decode {s} {
+proc ::yencode::Decode {s} {
     if {[string length $s] == 0} {return ""}
     set r {}
     set esc 0
@@ -51,6 +52,109 @@ proc ::yencode::decode {s} {
         append r [format %c $v]
     }
     return $r
+}
+
+# -------------------------------------------------------------------------
+# C coded versions for critcl built base64c package
+# -------------------------------------------------------------------------
+
+if {[package provide critcl] != {}} {
+    namespace eval ::yencode {
+        critcl::ccode {
+            #include <string.h>
+        }
+        critcl::ccommand CEncode {dummy interp objc objv} {
+            Tcl_Obj *inputPtr, *resultPtr;
+            int len, rlen, xtra;
+            unsigned char *input, *p, *r, v;
+            
+            if (objc !=  2) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                return TCL_ERROR;
+            }
+            
+            /* fetch the input data */
+            inputPtr = objv[1];
+            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+
+            /* calculate the length of the encoded result */
+            rlen = len;
+            for (p = input; p < input + len; p++) {
+                v = (*p + 42) % 256;
+                if (v == 0 || v == 9 || v == 0x0A || v == 0x0D || v == 0x3D)
+                   rlen++;
+            }
+            
+            /* allocate the output buffer */
+            resultPtr = Tcl_GetObjResult(interp);
+            if (Tcl_IsShared(resultPtr)) {
+                resultPtr = Tcl_DuplicateObj(resultPtr);
+                Tcl_SetObjResult(interp, resultPtr);
+            }
+            r = Tcl_SetByteArrayLength(resultPtr, rlen);
+            
+            /* encode the input */
+            for (p = input; p < input + len; p++) {
+                v = (*p + 42) % 256;
+                if (v == 0 || v == 9 || v == 0x0A || v == 0x0D || v == 0x3D) {
+                    *r++ = '=';
+                    v = (v + 42) % 256;
+                }
+                *r++ = v;
+            }
+
+            return TCL_OK;
+        }
+
+        critcl::ccommand CDecode {dummy interp objc objv} {
+            Tcl_Obj *inputPtr, *resultPtr;
+            int len, rlen, esc;
+            unsigned char *input, *p, *r, v;
+            
+            if (objc !=  2) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                return TCL_ERROR;
+            }
+            
+            /* fetch the input data */
+            inputPtr = objv[1];
+            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+
+            /* allocate the output buffer */
+            resultPtr = Tcl_GetObjResult(interp);
+            if (Tcl_IsShared(resultPtr)) {
+                resultPtr = Tcl_DuplicateObj(resultPtr);
+                Tcl_SetObjResult(interp, resultPtr);
+            }
+            r = Tcl_SetByteArrayLength(resultPtr, len);
+            
+            /* encode the input */
+            for (p = input, esc = 0, rlen = 0; p < input + len; p++) {
+                if (*p == 61 && esc == 0) {
+                    esc = 1;
+                    continue;
+                }
+                v = (*p - 42) % 256;
+                if (esc) {
+                    v = (v - 42) % 256;
+                    esc = 0;
+                }
+                *r++ = v;
+                rlen++;
+            }
+            Tcl_SetByteArrayLength(resultPtr, rlen);
+
+            return TCL_OK;
+        }
+    }
+}
+
+if {[info command ::yencode::CEncode] != {}} {
+    interp alias {} ::yencode::encode {} ::yencode::CEncode
+    interp alias {} ::yencode::decode {} ::yencode::CDecode
+} else {
+    interp alias {} ::yencode::encode {} ::yencode::Encode
+    interp alias {} ::yencode::decode {} ::yencode::Decode
 }
 
 # -------------------------------------------------------------------------
