@@ -18,7 +18,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.9 2003/03/04 22:08:42 patthoyts Exp $
+# $Id: dns.tcl,v 1.10 2003/03/05 22:53:25 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -27,7 +27,7 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
     variable version 1.0.3
-    variable rcsid {$Id: dns.tcl,v 1.9 2003/03/04 22:08:42 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.10 2003/03/05 22:53:25 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -40,7 +40,7 @@ namespace eval dns {
             protocol   tcp
             search     {}
             nameserver {localhost}
-            loglevel   warning
+            loglevel   warn
         }
         variable log [logger::init dns]
         ${log}::enable $options(loglevel)
