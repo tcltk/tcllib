@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.11 2004/01/30 06:58:52 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.12 2004/02/04 05:36:27 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -36,6 +36,7 @@ namespace eval ::struct::list {
 	namespace export Lfold
 	namespace export Liota
 	namespace export Lequal
+	namespace export Lrepeatn
 	namespace export Lrepeat
 	namespace export LdbJoin
 	namespace export LdbJoinOuter
@@ -739,7 +740,7 @@ proc ::struct::list::Lequal {a b} {
     return 1
 }
 
-# ::struct::list::Lrepeat --
+# ::struct::list::Lrepeatn --
 #
 #	Create a list repeating the same value over again.
 #
@@ -753,7 +754,7 @@ proc ::struct::list::Lequal {a b} {
 # Side effects:
 #       None
 
-proc ::struct::list::Lrepeat {value args} {
+proc ::struct::list::Lrepeatn {value args} {
     if {[::llength $args] == 1} {set args [::lindex $args 0]}
     set buf {}
     foreach number $args {
@@ -766,6 +767,59 @@ proc ::struct::list::Lrepeat {value args} {
     }
     return $buf
     # (1): See 'Stress testing' (wiki) for why this makes the code safer.
+}
+
+# ::struct::list::Lrepeat --
+#
+#	Create a list repeating the same value over again.
+#	[Identical to the Tcl 8.5 lrepeat command]
+#
+# Parameters:
+#	n	Number of replications.
+#	args	values to use in the created list.
+#
+# Results:
+#	A list
+#
+# Side effects:
+#       None
+
+# Do a compatibility version of [lset] for pre-8.5 versions of Tcl.
+
+if { [package vcompare [package provide Tcl] 8.5] < 0 } {
+
+    proc ::struct::list::Lrepeat {positiveCount value args} {
+	if {![string is integer -strict $positiveCount]} {
+	    return -code error "Expected integer, got \"$positiveCount\""
+	} elseif {$positiveCount < 1} {
+	    return -code error {must have a count of at least 1}
+	}
+
+	set args   [linsert $args 0 $value]
+
+	if {$positiveCount == 1} {
+	    # Tcl itself has already listified the incoming parameters
+	    # via 'args'.
+	    return $args
+	}
+
+	set result [::list]
+	while {$positiveCount > 0} {
+	    if {($positiveCount % 2) == 0} {
+		set args [concat $args $args]
+		set positiveCount [expr {$positiveCount/2}]
+	    } else {
+		set result [concat $result $args]
+		incr positiveCount -1
+	    }
+	}
+	return $result
+    }
+
+} else {
+    # For 8.5 simply redirect the method to the core command.
+
+    interp alias {} ::struct::list::Lrepeat {} lrepeat
 }
 
 # ::struct::list::LdbJoin(Keyed) --
@@ -1041,7 +1095,7 @@ proc ::struct::list::MapExtendRightOuter {mapvar wvar key table} {
     }
     foreach k [array names used] {
 	if {![info exists map($k)]} {
-	    set map($k) [::list [Lrepeat {} $width]]
+	    set map($k) [::list [Lrepeatn {} $width]]
 	}
 	Cartesian map used $k
     }
@@ -1080,7 +1134,7 @@ proc ::struct::list::MapExtendLeftOuter {mapvar wvar key table} {
 	if {[info exists  used($k)]} {
 	    Cartesian map used $k
 	} else {
-	    SingleRightCartesian map $k [Lrepeat {} $w]
+	    SingleRightCartesian map $k [Lrepeatn {} $w]
 	}
     }
     incr width $w
@@ -1115,12 +1169,12 @@ proc ::struct::list::MapExtendFullOuter {mapvar wvar key table} {
 
     foreach k [array names map] {
 	if {![info exists used($k)]} {
-	    SingleRightCartesian map $k [Lrepeat {} $w]
+	    SingleRightCartesian map $k [Lrepeatn {} $w]
 	}
     }
     foreach k [array names used] {
 	if {![info exists map($k)]} {
-	    set map($k) [::list [Lrepeat {} $width]]
+	    set map($k) [::list [Lrepeatn {} $width]]
 	}
 	Cartesian map used $k
     }
@@ -1208,7 +1262,7 @@ proc ::struct::list::MapKeyedExtendRightOuter {mapvar wvar table} {
     }
     foreach k [array names used] {
 	if {![info exists map($k)]} {
-	    set map($k) [::list [Lrepeat {} $width]]
+	    set map($k) [::list [Lrepeatn {} $width]]
 	}
 	Cartesian map used $k
     }
@@ -1247,7 +1301,7 @@ proc ::struct::list::MapKeyedExtendLeftOuter {mapvar wvar table} {
 	if {[info exists  used($k)]} {
 	    Cartesian map used $k
 	} else {
-	    SingleRightCartesian map $k [Lrepeat {} $w]
+	    SingleRightCartesian map $k [Lrepeatn {} $w]
 	}
     }
     incr width $w
@@ -1282,12 +1336,12 @@ proc ::struct::list::MapKeyedExtendFullOuter {mapvar wvar table} {
 
     foreach k [array names map] {
 	if {![info exists used($k)]} {
-	    SingleRightCartesian map $k [Lrepeat {} $w]
+	    SingleRightCartesian map $k [Lrepeatn {} $w]
 	}
     }
     foreach k [array names used] {
 	if {![info exists map($k)]} {
-	    set map($k) [::list [Lrepeat {} $width]]
+	    set map($k) [::list [Lrepeatn {} $width]]
 	}
 	Cartesian map used $k
     }
