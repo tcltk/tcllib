@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.5 2001/08/02 16:38:07 andreas_kupries Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.6 2001/09/17 21:40:50 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -22,6 +22,8 @@
 .sp
 \fBtextutil::tabify\fR \fIstring {num 8}\fR
 .sp
+\fBtextutil::tabify2\fR \fIstring {num 8}\fR
+.sp
 \fBtextutil::trim\fR \fIstring {regexp [ \t]+}\fR
 .sp
 \fBtextutil::trimleft\fR \fIstring {regexp [ \t]+}\fR
@@ -29,6 +31,8 @@
 \fBtextutil::trimright\fR \fIstring {regexp [ \t]+}\fR
 .sp
 \fBtextutil::untabify\fR \fIstring {num 8}\fR
+.sp
+\fBtextutil::untabify2\fR \fIstring {num 8}\fR
 .sp
 \fBtextutil::strRepeat\fR \fIstring num\fR
 .BE
@@ -120,6 +124,18 @@ Tabify the \fIstring\fP by replacing any substring of \fInum\fP space
 chars by a tabulation and return the result as a new string.
 
 .TP
+\fBtextutil::tabify2\fR \fIstring {num 8}\fR
+Similar to \fBtextutil::tabify\fR this command tabifies the
+\fIstring\fR and returns the result as a new string. A different
+algorithm is used however. Instead of replacing any substring of
+\fInum\fP spaces this comand works more like an editor.
+.sp
+Each line of the text in \fIstring\fR is treated as if there are
+tabstops every \fInum\fR columns. Only sequences of space characters
+containing more than one space character and found immediately before
+a tabstop are replaced with tabs.
+
+.TP
 \fBtextutil::trim\fR \fIstring {regexp [ \t]+}\fR
 Remove in \fIstring\fP any leading and trailing substring according to
 the regular expression \fIregexp\fR and return the result as a new string.
@@ -150,6 +166,21 @@ between the beginning and the end of the string.
 \fBtextutil::untabify\fR \fIstring {num 8}\fR
 Untabify the \fIstring\fP by replacing any tabulation char by a substring
 of \fInum\fP space chars and return the result as a new string.
+
+.TP
+\fBtextutil::untabify2\fR \fIstring {num 8}\fR
+
+Untabify the \fIstring\fP by replacing any tabulation char by a
+substring of at most \fInum\fP space chars and return the result as a
+new string. Unlike \fBtextutil::untabify\fR each tab is not replaced
+by a fixed number of space characters.  The command overlays each line
+in the \fIstring\fR with tabstops every \fInum\fR columns instead and
+replaces tabs with just enough space characters to reach the next
+tabstop. This is the complement of the actions taken by
+\fBtextutil::tabify2\fR.
+.sp
+There is one asymmetry though: A tab can be replaced with a single
+space, but not the other way around.
 
 .TP
 \fBtextutil::strRepeat\fR \fItext num\fR
