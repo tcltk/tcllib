@@ -1,3 +1,26 @@
+2003-06-30  David N. Welton  <davidw@dedasys.com>
+
+	* irc.tcl (::irc::connection): connection no longer takes
+	host/port arguments.  This is done by connect now.  Added note
+	that compatibility code for older versions should be removed after
+	a release cycle or two.  (Aaron Faupell)
+	(cmd-connect): connect command now takes hostname and port
+	arguments. (Aaron Faupell)
+	(cmd-reload): New command reloads irc.tcl file, making it possible
+	to make changes in a running system without losing the connection.
+	(::irc::connection): The unique namespace for irc connections no
+	longer includes the hostname. (Aaron Faupell)
+	(::irc::connections): New command - return list of existing
+	connections (Aaron Faupell).
+	(cmd-config): Per connection configuration (Aaron Faupell).
+	(cmd-peername): New command - get socket peername.
+	(cmd-sockname): New command - get socket name.
+	(cmd-disconnect): New command - disconnect the connection without
+	destroying it.
+
+	* irc.man: Updated the man page to reflect the new connect and
+	connection commands.
+
 2003-05-28  David N. Welton  <davidw@dedasys.com>
 
 	* irc.tcl (cmd-quit): Add default QUIT message.
