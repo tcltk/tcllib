@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.7 2001/10/14 20:16:50 hobbs Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.8 2001/11/12 22:24:04 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.2
@@ -77,15 +77,19 @@ proc ::csv::joinlist {values {sepChar ,}} {
 #	m		The matrix to add the read data too.
 #	chan		The channel to read from.
 #	sepChar		The separator character, defaults to comma
+#	expand		The expansion mode. The default is none
 #
 # Results:
 #	A list of the values in 'line'.
 
-proc ::csv::read2matrix {chan m {sepChar ,}} {
+proc ::csv::read2matrix {chan m {sepChar ,} {expand none}} {
+    # FR #481023
+    # See 'split2matrix' for the available expansion modes.
+
     while {![eof $chan]} {
 	if {[gets $chan line] < 0} {continue}
 	if {$line == {}} {continue}
-	split2matrix $m $line $sepChar
+	split2matrix $m $line $sepChar $expand
     }
     return
 }
@@ -202,12 +206,43 @@ proc ::csv::split {line {sepChar ,}} {
 #	m		The matrix to write the resulting list to.
 #	line		The string to split
 #	sepChar		The separator character, defaults to comma
+#	expand		The expansion mode. The default is none
 #
 # Results:
 #	A list of the values in 'line', written to 'q'.
 
-proc ::csv::split2matrix {m line {sepChar ,}} {
-    $m add row [split $line $sepChar]
+proc ::csv::split2matrix {m line {sepChar ,} {expand none}} {
+    # FR #481023
+
+    set csv [split $line $sepChar]
+
+    # Expansion modes
+    # - none  : default, behaviour of original implementation.
+    #           no expansion is done, lines are silently truncated
+    #           to the number of columns in the matrix.
+    #
+    # - empty : A matrix without columns is expanded to the number
+    #           of columns in the first line added to it. All
+    #           following lines are handled as if "mode == none"
+    #           was set.
+    #
+    # - auto  : Full auto-mode. The matrix is expanded as needed to
+    #           hold all columns of all lines.
+
+    switch -exact -- $expand {
+	none {}
+	empty {
+	    if {[$m columns] == 0} {
+		$m add columns [llength $csv]
+	    }
+	}
+	auto {
+	    if {[$m columns] < [llength $csv]} {
+		$m add columns [expr {[llength $csv] - [$m columns]}]
+	    }
+	}
+    }
+    $m add row $csv
     return
 }
 
