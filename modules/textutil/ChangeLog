@@ -1,3 +1,8 @@
+2001-09-18   Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* tabify.tcl (tabifyLine): Documentation of the algorithm
+	  expanded. Text provided by Helmut Giese.
+
 2001-09-17    Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* tabify.tcl: Added (un)tabify code provided by Helmut Giese
