@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.17 2005/03/12 02:13:50 patthoyts Exp $
+# $Id: crc32.tcl,v 1.18 2005/03/12 21:11:01 patthoyts Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.3
@@ -97,7 +97,7 @@ namespace eval ::crc {
 
 # crc::Crc32Init --
 #
-#	Create and initialize an crc32 context. This is cleaned up
+#	Create and initialize a crc32 context. This is cleaned up
 #	when we we call Crc32Final to obtain the result.
 #
 proc ::crc::Crc32Init {{seed 0xFFFFFFFF}} {
@@ -164,7 +164,7 @@ proc ::crc::Crc32Final {token} {
         close $state(trf)
         binary scan $state(trfwrite) i sum
     } else {
-        set sum [expr {$state(sum) ^ 0xFFFFFFFF}]
+        set sum [expr {($state(sum) ^ 0xFFFFFFFF) & 0xFFFFFFFF}]
     }
     unset state
     return $sum
