@@ -1,3 +1,9 @@
+2004-06-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl (::smtpd::gmtoffset): Fixed bug #934134. The TZ
+	calculation was inverted and failed to cope with times spanning
+	midnight.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
