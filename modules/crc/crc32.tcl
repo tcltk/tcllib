@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.2 2002/01/15 20:54:59 patthoyts Exp $
+# $Id: crc32.tcl,v 1.3 2002/01/16 17:48:41 patthoyts Exp $
 
 namespace eval crc {
     
@@ -88,14 +88,16 @@ namespace eval crc {
     }
 }
 
+# -------------------------------------------------------------------------
+
 # Description:
 #  Calculate the CRC-32 checksum of the input data.
 #
-proc crc::Crc32_tcl {s} {
+proc crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
     variable crc32_tbl
     variable signbit
-    set crcval 0xFFFFFFFF
-    
+    set crcval $seed
+
     binary scan $s c* nums
     foreach {n} $nums {
         set crcval [expr {[lindex $crc32_tbl \
@@ -112,7 +114,11 @@ if {![catch {package require Trf 2.0}]} {
     #  Use the Trf crc-zlib function to calculate the CRC-32 checksum
     #  and return the correct value according to our byte order.
     #
-    proc crc::Crc32_trf {s} {
+    proc crc::Crc32_trf {s {seed 0xFFFFFFFF}} {
+        if {$seed != 0xFFFFFFFF} {
+            return -code error "invalid option: the Trf crc32 command cannot\
+                                 accept a seed value"
+        }
         if {$::tcl_platform(byteOrder) == "littleEndian"} {
             set conv i
         } else {
@@ -128,16 +134,22 @@ if {![catch {package require Trf 2.0}]} {
     interp alias {} crc::Crc32 {} crc::Crc32_tcl
 }
 
+# -------------------------------------------------------------------------
+
 # Description:
 #  Provide a Tcl implementation of a crc32 checksum similar to the cksum
 #  and sum unix commands.
 # Options:
 #  -filename name - return a checksum for the specified file.
 #  -format string - return the checksum using this format string.
+#  -seed value    - seed the algorithm using value (default is 0xffffffff)
 #
 proc crc::crc32 {args} {
     set filename {}
     set format %u
+    set seed 0xffffffff
+    set impl [namespace origin Crc32]
+
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
             -fi* {
@@ -148,37 +160,57 @@ proc crc::crc32 {args} {
                 set format [lindex $args 1]
                 set args [lreplace $args 0 0]
             }
+            -s* {
+                set seed [lindex $args 1]
+                set args [lreplace $args 0 0]
+            }
+            -i* {
+                set impl [uplevel 1 namespace origin [lindex $args 1]]
+                set args [lreplace $args 0 0]
+            }
             -- {
                 set args [lreplace $args 0 0]
                 break
             }
             default {
                 return -code error "bad option [lindex $args 0]:\
-                     must be -filename or -format"
+                     must be -filename, -format, -implementation or -seed"
             }
         }
         set args [lreplace $args 0 0]
     }
-    
+
+    # The Trf implementation doesn't accept an alternative CRC seed so
+    # use the Tcl implementation if this is set (unless the user has
+    # set it to some other impl).
+    if {$seed != 0xffffffff && [string match [namespace origin Crc32] $impl]} {
+        set impl [namespace origin Crc32_tcl]
+    }
+
     if {$filename != {}} {
         set f [open $filename r]
         fconfigure $f -translation binary
         set data [read $f]
         close $f
-        set r [Crc32 $data]
+        set r [$impl $data $seed]
     } else {
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be \
-                 \"crc32 ?-format string? -file name | data\""
+                 \"crc32 ?-format string? ?-seed value? ?-impl procname?\
+                 -file name | data\""
         }
-        set r [Crc32 [lindex $args 0]]
+        set r [$impl [lindex $args 0] $seed]
     }
     
     return [format $format $r]
 }
 
+# -------------------------------------------------------------------------
+
 package provide crc32 1.0
 
+# -------------------------------------------------------------------------
+#
 # Local variables:
 #   mode: tcl
 #   indent-tabs-mode: nil
