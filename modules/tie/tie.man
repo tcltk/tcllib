@@ -487,7 +487,7 @@ error will show up as error of the set operation which caused the
 method call.
 
 
-[call [cmd ds] [method unsetv] [opt [arg index]]]
+[call [cmd ds] [method unsetv] [arg index]]
 
 This command has to remove the value under the key [arg index] from
 the [term {data source}] the object talks to.
