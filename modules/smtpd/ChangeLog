@@ -1,3 +1,8 @@
+2001-11-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Moved example.tcl to the standard location in
+	  'tcllib/examples/smtpd'. Also renamed it to "tk_smtpd".
+
 2001-11-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtpd.tcl: Tcl SMTP server package.

@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.20 2001/11/17 00:13:00 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.21 2001/11/19 21:02:19 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -26,15 +26,29 @@
 #			ftp::ModTime <s> <from> <to>
 #			ftp::Delete <s> <file>
 #			ftp::Rename <s> <from> <to>
-#			ftp::Put <s> <(local | -data "data"> <?remote?>
-#			ftp::Append <s> <(local | -data "data"> <?remote?>
-#			ftp::Get <s> <remote> <?(local | -variable varname)?>
+#			ftp::Put <s> <(local | -data "data" -channel chan)> <?remote?>
+#			ftp::Append <s> <(local | -data "data" | -channel chan)> <?remote?>
+#			ftp::Get <s> <remote> <?(local | -variable varname | -channel chan)?>
 #			ftp::Reget <s> <remote> <?local?>
 #			ftp::Newer <s> <remote> <?local?>
 #			ftp::MkDir <s> <directory>
 #			ftp::RmDir <s> <directory>
 #			ftp::Quote <s> <arg1> <arg2> ...
-
+#
+# Internal documentation. Contents of a session state array.
+#
+# ---------------------------------------------
+# key             value
+# ---------------------------------------------
+# State           Current state of the session and the currently executing command.
+# RemoteFileName  Name of the remote file, for put/get
+# LocalFileName   Name of local file, for put/get
+# inline          1 - Put/Get is inline (from data, to variable)
+# filebuffer  
+# PutData         Data to move when inline
+# SourceCI        Channel to read from, "Put"
+# ---------------------------------------------
+#
 
 package require Tcl 8.2
 package require log     ; # tcllib/log, general logging facility.
@@ -1664,7 +1678,8 @@ proc ftp::Put {s args} {
         return 0
     }
     if {([llength $args] < 1) || ([llength $args] > 4)} {
-        DisplayMsg $s "wrong # args: should be \"ftp::Put handle (-data \"data\" | localFilename) remoteFilename\"" error
+        DisplayMsg $s \
+		"wrong # args: should be \"ftp::Put handle (-data \"data\" | -channel chan | localFilename) remoteFilename\"" error
 	return 0    
     }
 
@@ -1678,43 +1693,56 @@ proc ftp::Put {s args} {
         } elseif {($flags) && ([string equal $arg "-data"])} {
             set ftp(inline) 1
             set ftp(filebuffer) ""
+        } elseif {($flags) && ([string equal $arg "-channel"])} {
+            set ftp(inline) 2
 	} elseif {$source == ""} {
             set source $arg
 	} elseif {$dest == ""} {
             set dest $arg
 	} else {
-            DisplayMsg $s "wrong # args: should be \"ftp::Put handle (-data \"data\" | localFilename) remoteFilename\"" error
+            DisplayMsg $s "wrong # args: should be \"ftp::Put handle (-data \"data\" | -channel chan | localFilename) remoteFilename\"" error
 	    return 0
         }
     }
 
     if {($source == "")} {
-        DisplayMsg $s "Must specify a valid file to Put" error
+        DisplayMsg $s "Must specify a valid data source to Put" error
         return 0
     }        
 
     set ftp(RemoteFilename) $dest
 
-    if {$ftp(inline)} {
+    if {$ftp(inline) == 1} {
         set ftp(PutData) $source
         if { $dest == "" } {
             set dest ftp.tmp
         }
         set ftp(RemoteFilename) $dest
     } else {
-        set ftp(PutData) ""
-        if { ![file exists $source] } {
-            DisplayMsg $s "File \"$source\" not exist" error
-            return 0
-        }
-        if { $dest == "" } {
-            set dest [file tail $source]
-        }
-        set ftp(LocalFilename) $source
+	if {$ftp(inline) == 0} {
+	    # File transfer
+
+	    set ftp(PutData) ""
+	    if { ![file exists $source] } {
+		DisplayMsg $s "File \"$source\" not exist" error
+		return 0
+	    }
+	    if { $dest == "" } {
+		set dest [file tail $source]
+	    }
+	    set ftp(LocalFilename) $source
+	    set ftp(SourceCI) [open $ftp(LocalFilename) r]
+	} else {
+	    # Channel transfer. We fake the rest of the system into
+	    # believing that a file transfer is happening. This makes
+	    # the handling easier.
+
+	    set ftp(SourceCI) $source
+	    set ftp(inline) 0
+	}
         set ftp(RemoteFilename) $dest
 
 	# TODO: read from source file asynchronously
-        set ftp(SourceCI) [open $ftp(LocalFilename) r]
         if { [string equal $ftp(Type) "ascii"] } {
             fconfigure $ftp(SourceCI) -buffering line -blocking 1
         } else {
@@ -1766,7 +1794,7 @@ proc ftp::Append {s args} {
     }
 
     if {([llength $args] < 1) || ([llength $args] > 4)} {
-        DisplayMsg $s "wrong # args: should be \"ftp::Append handle (-data \"data\" | localFilename) remoteFilename\"" error
+        DisplayMsg $s "wrong # args: should be \"ftp::Append handle (-data \"data\" | -channel chan | localFilename) remoteFilename\"" error
         return 0
     }
 
@@ -1780,44 +1808,57 @@ proc ftp::Append {s args} {
         } elseif {($flags) && ([string equal $arg "-data"])} {
             set ftp(inline) 1
             set ftp(filebuffer) ""
+        } elseif {($flags) && ([string equal $arg "-channel"])} {
+            set ftp(inline) 2
         } elseif {$source == ""} {
             set source $arg
         } elseif {$dest == ""} {
             set dest $arg
         } else {
-            DisplayMsg $s "wrong # args: should be \"ftp::Append handle (-data \"data\" | localFilename) remoteFilename\"" error
+            DisplayMsg $s "wrong # args: should be \"ftp::Append handle (-data \"data\" | -channel chan | localFilename) remoteFilename\"" error
             return 0
         }
     }
 
     if {($source == "")} {
-        DisplayMsg $s "Must specify a valid file to Append" error
+        DisplayMsg $s "Must specify a valid data source to Append" error
         return 0
     }   
 
     set ftp(RemoteFilename) $dest
 
-    if {$ftp(inline)} {
+    if {$ftp(inline) == 1} {
         set ftp(PutData) $source
         if { $dest == "" } {
             set dest ftp.tmp
         }
         set ftp(RemoteFilename) $dest
     } else {
-        set ftp(PutData) ""
-        if { ![file exists $source] } {
-            DisplayMsg $s "File \"$source\" not exist" error
-            return 0
-        }
-			
-        if { $dest == "" } {
-            set dest [file tail $source]
-        }
+	if {$ftp(inline) == 0} {
+	    # File transfer
 
-        set ftp(LocalFilename) $source
+	    set ftp(PutData) ""
+	    if { ![file exists $source] } {
+		DisplayMsg $s "File \"$source\" not exist" error
+		return 0
+	    }
+			
+	    if { $dest == "" } {
+		set dest [file tail $source]
+	    }
+
+	    set ftp(LocalFilename) $source
+	    set ftp(SourceCI) [open $ftp(LocalFilename) r]
+	} else {
+	    # Channel transfer. We fake the rest of the system into
+	    # believing that a file transfer is happening. This makes
+	    # the handling easier.
+
+	    set ftp(SourceCI) $source
+	    set ftp(inline) 0
+	}
         set ftp(RemoteFilename) $dest
 
-        set ftp(SourceCI) [open $ftp(LocalFilename) r]
         if { [string equal $ftp(Type) "ascii"] } {
             fconfigure $ftp(SourceCI) -buffering line -blocking 1
         } else {
@@ -1868,7 +1909,7 @@ proc ftp::Get {s args} {
     }
 
     if {([llength $args] < 1) || ([llength $args] > 4)} {
-        DisplayMsg $s "wrong # args: should be \"ftp::Get handle remoteFile ?(-variable varName | localFilename)?\"" error
+        DisplayMsg $s "wrong # args: should be \"ftp::Get handle remoteFile ?(-variable varName | -channel chan | localFilename)?\"" error
 	return 0    
     }
 
@@ -1883,60 +1924,81 @@ proc ftp::Get {s args} {
         } elseif {($flags) && ([string equal $arg "-variable"])} {
             set ftp(inline) 1
             set ftp(filebuffer) ""
-	} elseif {($ftp(inline)) && ([string equal $varname "**NONE**"])} {
+        } elseif {($flags) && ([string equal $arg "-channel"])} {
+            set ftp(inline) 2
+	} elseif {($ftp(inline) == 1) && ([string equal $varname "**NONE**"])} {
             set varname $arg
 	    set ftp(get:varname) $varname
+	} elseif {($ftp(inline) == 2) && ([string equal $varname "**NONE**"])} {
+	    set ftp(get:channel) $arg
 	} elseif {$source == ""} {
             set source $arg
 	} elseif {$dest == ""} {
             set dest $arg
 	} else {
             DisplayMsg $s "wrong # args: should be \"ftp::Get handle remoteFile
-?(-variable varName | localFilename)?\"" error
+?(-variable varName | -channel chan | localFilename)?\"" error
 	    return 0
         }
     }
 
-    if {($ftp(inline)) && ($dest != "")} {
+    if {($ftp(inline) != 0) && ($dest != "")} {
         DisplayMsg $s "Cannot return data in a variable, and place it in destination file." error
         return 0
     }
 
     if {$source == ""} {
-        DisplayMsg $s "Must specify a valid file to Get" error
+        DisplayMsg $s "Must specify a valid data source to Get" error
         return 0
     }
 
-    if { $dest == "" } {
-        set dest $source
-    } else {
-        if {[file isdirectory $dest]} {
-            set dest [file join $dest [file tail $source]]
-        }
+    if {$ftp(inline) != 2} {
+	if { $dest == "" } {
+	    set dest $source
+	} else {
+	    if {[file isdirectory $dest]} {
+		set dest [file join $dest [file tail $source]]
+	    }
+	}
+	set ftp(LocalFilename) $dest
     }
 
     set ftp(RemoteFilename) $source
-    set ftp(LocalFilename) $dest
 
+    if {$ftp(inline) == 2} {
+	set ftp(inline) 0
+    }
     set ftp(State) get_$ftp(Mode)
     StateHandler $s
 
     # wait for synchronization
     set rc [WaitOrTimeout $s]
+
+    # It is important to unset 'get:channel' in all cases or it will
+    # interfere with any following ftp command (as its existence
+    # suppresses the closing of the destination channel identifier
+    # (DestCI). We cannot do it earlier than just before the 'return'
+    # or code depending on it for the current command may not execute
+    # correctly.
+
     if { $rc } {
 	if {![string length $ftp(Command)]} {
 	    ElapsedTime $s [clock seconds]
 	    if {$ftp(inline)} {
+		catch {unset ftp(get:channel)}
 		upvar $varname returnData
 		set returnData $ftp(GetData)
 	    }
 	}
+	catch {unset ftp(get:channel)}
         return 1
     } else {
         if {$ftp(inline)} {
+	    catch {unset ftp(get:channel)}
             return ""
 	}
         CloseDataConn $s
+	catch {unset ftp(get:channel)}
         return 0
     }
 }
@@ -2391,13 +2453,23 @@ proc ftp::CopyNext {s bytes {error {}}} {
     }
 
     if { $error != "" } {
-        catch {close $ftp(DestCI)}
+	# Protect the destination channel from destruction if it came
+	# from the caller. Closing it is not our responsibility in that case.
+
+	if {![info exists ftp(get:channel)]} {
+	    catch {close $ftp(DestCI)}
+	}
         catch {close $ftp(SourceCI)}
         unset ftp(state.data)
         DisplayMsg $s $error error
 
     } elseif { ([eof $ftp(SourceCI)] || ($blocksize <= 0)) } {
-        close $ftp(DestCI)
+	# Protect the destination channel from destruction if it came
+	# from the caller. Closing it is not our responsibility in that case.
+
+	if {![info exists ftp(get:channel)]} {
+	    close $ftp(DestCI)
+	}
         close $ftp(SourceCI)
         unset ftp(state.data)
         if { $VERBOSE } {
@@ -2432,7 +2504,16 @@ proc ftp::HandleData {s sock} {
     # create local file for ftp::Get 
 
     if { [regexp -- "^get" $ftp(State)]  && (!$ftp(inline))} {
-        set rc [catch {set ftp(DestCI) [open $ftp(LocalFilename) w]} msg]
+
+	# A channel was specified by the caller. Use that instead of a
+	# file.
+
+	if {[info exists ftp(get:channel)]} {
+	    set ftp(DestCI) $ftp(get:channel)
+	    set rc 0
+	} else {
+	    set rc [catch {set ftp(DestCI) [open $ftp(LocalFilename) w]} msg]
+	}
         if { $rc != 0 } {
             DisplayMsg $s "$msg" error
             return 0
@@ -2603,6 +2684,14 @@ proc ftp::HandleOutput {s sock} {
 #
 proc ftp::CloseDataConn {s } {
     upvar ::ftp::ftp$s ftp
+
+    # Protect the destination channel from destruction if it came
+    # from the caller. Closing it is not our responsibility.
+
+    if {[info exists ftp(get:channel)]} {
+	catch {unset ftp(get:channel)}
+	catch {unset ftp(DestCI)}
+    }
 
     catch {after cancel $ftp(Wait)}
     catch {fileevent $ftp(DataSock) readable {}}
