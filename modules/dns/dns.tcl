@@ -25,7 +25,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.25 2004/11/21 01:05:06 patthoyts Exp $
+# $Id: dns.tcl,v 1.26 2004/11/21 11:41:25 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -35,7 +35,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.2.1
-    variable rcsid {$Id: dns.tcl,v 1.25 2004/11/21 01:05:06 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.26 2004/11/21 11:41:25 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -1049,7 +1049,7 @@ proc ::dns::ReadUShort {datavar index usedvar} {
     if {[binary scan [string range $data $index end] cc b1 b2]} {
         set used 2
         # This gets us an unsigned value.
-        set r [expr {$b2 + ($b1 << 8)}] 
+        set r [expr {(($b2 & 0xff) + (($b1 & 0xff) << 8)) & 0xffff}] 
     }
     return $r
 }
