@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.12 2002/11/25 02:41:55 gwlester Exp $
+# RCS: @(#) $Id: html.test,v 1.13 2002/12/02 04:11:28 gwlester Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -297,6 +297,14 @@ test html-13.5 {html::textInput} {
     ncgi::parse
     html::textInput email value=default@foo.com
 } {<input type="text" name="email" value="welch@scriptics.com">
+}
+
+test html-13.6 {html::textInput} {
+    html::init
+    ncgi::reset 
+    ncgi::parse
+    html::textInput email default@foo.com size=80
+} {<input type="text" name="email" value="default@foo.com" size=80>
 }
 
 test html-14.1 {html::textInputRow} {
