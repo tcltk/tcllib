@@ -1,3 +1,8 @@
+2004-08-16  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl: added commands isJPEG, stripJPEG, formatExif, exifKeys
+	* jpeg.man: updated for new commands, new examples
+
 2004-05-26  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* jpeg.tcl: rewritten/factored
