@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.15 2000/03/10 19:54:35 ericm Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.16 2000/03/10 23:46:07 hershey Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -29,7 +29,7 @@ MATH=math
 STRUCT=struct
 
 # CGI input processing
-#NCGI=ncgi
+NCGI=ncgi
 
 # Simple function level profiler
 PROFILER=profiler
