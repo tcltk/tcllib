@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.6 2003/05/01 22:40:16 patthoyts Exp $
+# RCS: @(#) $Id: mime.test,v 1.7 2003/05/05 07:14:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -36,11 +36,11 @@ test mime-2.1 {Generate a MIME message} {
     set tok [initialize -canonical "Text/plain" -string "jack and jill"]
     set msg [mime::buildmessage $tok]
     # The generated message is predictable except for the Content-ID
-    regexp {MIME-Version: 1.0
-Content-ID: [^\n]+
-Content-Type: text/plain
-
-jack and jill} $msg
+    regexp "MIME-Version: 1.0\r
+Content-ID: \[^\n]+\r
+Content-Type: text/plain\r
+\r
+jack and jill" $msg
 } 1
 
 test mime-2.2 {Generate a multi-part MIME message} {
@@ -53,29 +53,29 @@ test mime-2.2 {Generate a multi-part MIME message} {
 	    -parts [list $tok1 $tok2]]
     set msg [mime::buildmessage $bigTok]
     # The generated message is predictable except for the Content-ID
-    regexp {MIME-Version: 1.0
-Content-Description: Test Multipart
-Content-ID: [^\n]+
-Content-Type: multipart/mytype;
-              boundary="bndry";
-              myparam="foo"
-
---bndry
-MIME-Version: 1.0
-Content-ID: [^\n]+
-Content-Type: text/plain
-
-jack and jill
-
---bndry
-MIME-Version: 1.0
-Content-ID: [^\n]+
-Content-Type: text/plain
-
-james
-
---bndry--
-} $msg
+    regexp "MIME-Version: 1.0\r
+Content-Description: Test Multipart\r
+Content-ID: \[^\n]+\r
+Content-Type: multipart/mytype;\r
+              boundary=\"bndry\";\r
+              myparam=\"foo\"\r
+\r
+--bndry\r
+MIME-Version: 1.0\r
+Content-ID: \[^\n]+\r
+Content-Type: text/plain\r
+\r
+jack and jill\r
+\r
+--bndry\r
+MIME-Version: 1.0\r
+Content-ID: \[^\n]+\r
+Content-Type: text/plain\r
+\r
+james\r
+\r
+--bndry--\r
+" $msg
 } 1
 
 test mime-3.1 {Parse a MIME message} {
@@ -134,11 +134,11 @@ msg1}
     catch {mime::getbody $tok} err1
     catch {mime::buildmessage $tok} err1a
     list $err1 $err1a
-} {msg1 {MIME-Version: 2.0
-Content-Type: text/plain
-
-msg1
-}}
+} "msg1 {MIME-Version: 2.0\r
+Content-Type: text/plain\r
+\r
+msg1\r
+}"
 
 test mime-3.5 {Try to parse a MIME message with no newline between headers and data} {
     set msg2 {MIME-Version: 1.0
@@ -160,11 +160,11 @@ foo}
     catch {mime::getbody $tok} err3
     catch {mime::buildmessage $tok} err3a
     list $err3 $err3a
-} {foo {MIME-Version: 1.0
-Content-Type: text/plain
-
-foo
-}}
+} "foo {MIME-Version: 1.0\r
+Content-Type: text/plain\r
+\r
+foo\r
+}"
 
 test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
