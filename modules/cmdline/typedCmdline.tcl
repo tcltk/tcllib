@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: typedCmdline.tcl,v 1.7 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.tcl,v 1.8 2004/08/17 01:19:46 andreas_kupries Exp $
 
 namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -32,7 +32,7 @@ namespace eval ::cmdline {
 #	The cmdline::typedGetopt works in a fashion like the standard
 #	C based getopt function.  Given an option string and a
 #	pointer to a list of args this command will process the
-#	first argument and return info on how to procede. In addition,
+#	first argument and return info on how to proceed. In addition,
 #	you may specify a type for the argument to each option.
 #
 # Arguments:
@@ -137,7 +137,7 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
             }
 
             "-*" {
-                # Create list of options without their argument extentions
+                # Create list of options without their argument extensions
 
                 set optstr ""
                 foreach str $optstring {
@@ -423,7 +423,7 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
 #
 #	Search a Tcl list for a pattern; searches first for an exact match,
 #	and if that fails, for a unique prefix that matches the pattern 
-#	(ie, first "lsearch -exact", then "lsearch -glob $pattern*"
+#	(i.e, first "lsearch -exact", then "lsearch -glob $pattern*"
 #
 # Arguments:
 #	list		list of words
@@ -444,7 +444,7 @@ proc ::cmdline::prefixSearch {list pattern} {
 
     set slist [lsort $list]
     if {[set pos [::lsearch -glob $slist $pattern*]] > -1} {
-        # What if there is nothting for the check variable?
+        # What if there is nothing for the check variable?
 
         set check [lindex $slist [expr {$pos + 1}]]
         if {[string first $pattern $check] != 0} {

@@ -2,14 +2,14 @@
 #
 #	This package provides a utility for parsing command line
 #	arguments that are processed by our various applications.
-#	It also includes a utility routine to determine the app
-#	name for use in command line errors.
+#	It also includes a utility routine to determine the
+#	application name for use in command line errors.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.18 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.19 2004/08/17 01:19:46 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide cmdline 1.2.2
@@ -27,7 +27,7 @@ source [file join [file dirname [info script]] typedCmdline.tcl]
 #	The cmdline::getopt works in a fashion like the standard
 #	C based getopt function.  Given an option string and a 
 #	pointer to an array or args this command will process the
-#	first argument and return info on how to procede.
+#	first argument and return info on how to proceed.
 #
 # Arguments:
 #	argvVar		Name of the argv list that you
@@ -72,7 +72,7 @@ proc ::cmdline::getopt {argvVar optstring optVar valVar} {
 #	The cmdline::getKnownOpt works in a fashion like the standard
 #	C based getopt function.  Given an option string and a 
 #	pointer to an array or args this command will process the
-#	first argument and return info on how to procede.
+#	first argument and return info on how to proceed.
 #
 # Arguments:
 #	argvVar		Name of the argv list that you
@@ -269,7 +269,7 @@ proc ::cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
 
 # ::cmdline::GetOptionDefaults --
 #
-#	This internal procdure processes the option list (that was passed to
+#	This internal procedure processes the option list (that was passed to
 #	the getopt or getKnownOpt procedure).  The defaultArray gets an index
 #	for each option in the option list, the value of which is the option's
 #	default value.
@@ -355,7 +355,7 @@ proc ::cmdline::usage {optlist {usage {options:}}} {
 #
 #	This code also uses the full path for each file.  If not
 #	given it prepends [pwd] to the filename.  This ensures that
-#	these files will never comflict with files in our zip file.
+#	these files will never conflict with files in our zip file.
 #
 # Arguments:
 #	patterns	The file patterns specified by the user.

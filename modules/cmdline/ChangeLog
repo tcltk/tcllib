@@ -1,3 +1,10 @@
+2004-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ChangeLog: Typo police.
+	* cmdline.tcl:
+	* cmdline.man:
+	* typedCmdline.tcl:
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -32,7 +39,7 @@
 	  problems, when mixing back- and forward slashes. Now using [file
 	  join] on the pattern. This removed all problems with the
 	  quoting. I.e. this operation pseudo-normalizes the path. Got the
-	  trick from JeffH.
+	  trick from Jeff Hobbs.
 
 2003-08-06  Andreas Kupries  <andreask@activestate.com>
 
@@ -64,8 +71,8 @@
 
 2003-02-23  David N. Welton  <davidw@dedasys.com>
 
-	* cmdline.tcl (cmdline::getfiles): Use string map instead of
-	regsub.
+	* cmdline.tcl (cmdline::getfiles): Use [string map] instead of
+	  [regsub].
 
 2002-08-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -81,8 +88,8 @@
 	  * cmdline.tcl: Added getKnownOpt and getKnownOptions procedures
 	    to the API.  The procedures offer a way for arguments that are
 	    not in the optionList to be ignored.  This way, you can have
-	    two independant locations in your application where
-	    commandline arguments are parsed.  I bumped the package
+	    two independent locations in your application where
+	    command line arguments are parsed.  I bumped the package
 	    version to 1.2.
 
 	* cmdline.man: Updated documentation.
@@ -116,13 +123,13 @@
 
 	* cmdline.tcl: Changed cmdline::getopt to set boolean arguments to
 	0 or 1 explicitly.  Previously it just set the value to "" if it
-	was present, or did nothing.  This vfixes the -verbose command
+	was present, or did nothing.  This fixes the -verbose command
 	line bug in connect.
 
 2000-04-07  Eric Melski  <ericm@scriptics.com>
 
 	* typedCmdline.test: Changed sourcing bits at start of file to
-	work better with updated file dependancies.
+	work better with updated file dependencies.
 
 	* typedCmdline.tcl: Removed "package provide"; that should occur
 	only in one file per package.  Reformatted function headers to
