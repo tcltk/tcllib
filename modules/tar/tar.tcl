@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.1 2004/08/20 09:09:40 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.2 2004/08/20 17:44:47 afaupell Exp $
 
 package provide tar 0.1
 
@@ -109,7 +109,7 @@ proc ::tar::untar {tar args} {
     set data 0
     set nomtime 0
     set noperms 0
-    parseOpts {dir 1 file 1 nooverwrite 0 glob 1 nomtime 0 noperms 0} $args
+    parseOpts {dir 1 file 1 glob 1 nooverwrite 0 nomtime 0 noperms 0} $args
     if {![info exists dir]} {set dir [pwd]}
     set pattern *
     if {[info exists file]} {
@@ -151,6 +151,7 @@ proc ::tar::untar {tar args} {
                 lappend ret $name {}
             }
         }
+        seek $fh [pad $header(size)] current
         if {![file exists $name]} continue
         
         if {$::tcl_platform(platform) == "unix"} {
@@ -163,8 +164,6 @@ proc ::tar::untar {tar args} {
         if {!$nomtime} {
             file mtime $name $header(mtime)
         }
-
-        seek $fh [pad $header(size)] current
     }
     close $fh
     return $ret

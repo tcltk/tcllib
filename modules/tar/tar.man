@@ -11,13 +11,19 @@
 
 [list_begin definitions]
 
-[call [cmd ::tar::contents] [arg file]]
+[call [cmd ::tar::contents] [arg tarball]]
+
+Returns a list of the files contained in [arg tarball].
 
 
 [call [cmd ::tar::stat] [arg file] [opt file]]
 
 
-[call [cmd ::tar::untar] [arg file] [args]]
+
+[call [cmd ::tar::untar] [arg tarball] [args]]
+
+Extracts [tarball]
+
 [list_begin opt]
 [opt_def -dir dirName]
 [opt_def -file fileName]
@@ -30,8 +36,11 @@
 
 [call [cmd ::tar::get] [arg tarball] [arg fileName]]
 
+Returns the contents of [fileName] from the [tarball]
 
 [call [cmd ::tar::create] [arg tarball] [arg files] [args]]
+
+Creates a new tar file containing the [arg files]
 
 [list_begin opt]
 [opt_def -dereference]
@@ -39,6 +48,8 @@
 [nl]
 
 [call [cmd ::tar::append] [arg tarball] [arg files] [args]]
+
+Appends [arg files] to the end of the existing [arg tarball]
 
 [list_begin opt]
 [opt_def -dereference]
