@@ -1,3 +1,8 @@
+2005-01-28  Andreas Kupries <andreask@activestate.com>
+
+	* modules/rcs:           NEW MODULE: rcs
+	* installed_modules.tcl:   
+
 2005-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* Makefile.in: Added -no-apps, and -app-path to the installer

@@ -8,12 +8,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: rcs.tcl,v 1.1 2005/01/29 04:57:26 andreas_kupries Exp $
+# RCS: @(#) $Id: rcs.tcl,v 1.2 2005/01/29 05:39:02 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites.
 
-# - None -
+package require Tcl 8.4
 
 # ### ### ### ######### ######### #########
 ## API Implementation
@@ -224,10 +224,10 @@ proc ::rcs::encodeRcsPatch {patch} {
 
 # ::rcs::applyRcsPatch --
 #
-# Apply a patch in the format returned by patch2list to a text in the
-# format returned by the xx2dict commands. The result is dictionary
-# containing the modified text. Use the dict2xx commands to convert
-# this back into a regular text.
+# Apply a patch in the format returned by decodeRcsPatch to a text in
+# the format returned by the xx2dict commands. The result is
+# dictionary containing the modified text. Use the dict2xx commands to
+# convert this back into a regular text.
 #
 # Arguments
 # - text	The text (as dict) to patch
@@ -273,28 +273,6 @@ proc ::rcs::applyRcsPatch {text patch} {
     }
 
     return [array get lines]
-}
-
-# ### ### ### ######### ######### #########
-## Integrated test, called if the file is called as the main file of a
-## tcl interpreter.
-
-if {[info exists argv0] && ([info script] == $argv0)} {
-
-
-
-    set ldict [rcs::text2dict $lao]
-    set plist [rcs::patch2list $patch]
-
-    set new [rcs::dict2text [rcs::patch $ldict $plist]]
-
-    if {$new ne $tzu} {
-	puts stderr "Files differ"
-	puts stderr "NEW: $new"
-	puts stderr "SHOULDBE: $tzu"
-    } else {
-	puts stderr "Files match"
-    }
 }
 
 # ### ### ### ######### ######### #########

@@ -1,5 +1,9 @@
 2005-01-28  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
+	* rcs.tcl:  The module code uses 8.4 features, updated all places
+	* rcs.man:  refering to or checking the version of Tcl in use to
+	* rcs.test: this version.
+
 	* rcs.man: Created the documentation for the package.
 
 2005-01-27  Andreas Kupries <andreas_kupries@users.sourceforge.net>
