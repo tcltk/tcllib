@@ -1,3 +1,10 @@
+2003-04-10  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl:
+	* sha1.man:
+	* sha1.tcl: Fixed bug #614591. Set version of the package to to
+	  1.0.3
+
 2003-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sha1.tcl (sha1::sha1): Applied patch #637770 submitted by Donal
