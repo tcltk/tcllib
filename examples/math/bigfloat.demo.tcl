@@ -46,6 +46,9 @@
 # Web site : http://sarnold.free.fr/
 ########################################################################
 
+# first thing to do : load the package in memory
+package require math::bigfloat
+
 set nbButtons 0
 proc addButton {command} {
     global nbButtons
@@ -147,7 +150,6 @@ proc drawStack {args} {
 
 proc init {} {
     wm title . "BigFloatDemo 1.0"
-    source bigfloat.tcl
     # the stack (for RPN)
     frame .stack
     pack .stack
