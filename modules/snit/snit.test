@@ -1742,7 +1742,7 @@ test destroy-1.3 {user-defined destructors are called} {} {
 #-----------------------------------------------------------------------
 # delegate: general syntax tests
 
-test delegate-1.1 {syntax error: delegate foo} {} {
+test delegate-1.1 {can only delegate methods or options} {} {
     cleanup
 
     set result ""
@@ -1755,20 +1755,20 @@ test delegate-1.1 {syntax error: delegate foo} {} {
     set result
 } {syntax error in definition: delegate foo bar...}
 
-test delegate-1.2 {syntax error: delegate method foo as} {} {
+test delegate-1.2 {"to" must appear in the right place} {} {
     cleanup
 
     set result ""
     catch {
         type dog {
-            delegate method foo as bar
+            delegate method foo from bar
         }
     } result
 
     set result
 } {syntax error in definition: delegate method foo...}
 
-test delegate-1.3 {syntax error: delegate method foo to bar as} {} {
+test delegate-1.3 {"as" must have a target} {} {
     cleanup
 
     set result ""
@@ -1781,18 +1781,84 @@ test delegate-1.3 {syntax error: delegate method foo to bar as} {} {
     set result
 } {syntax error in definition: delegate method foo...}
 
-test delegate-1.4 {syntax error: delegate method foo to bar foo} {} {
+test delegate-1.4 {"as" must have a single target} {} {
     cleanup
 
     set result ""
     catch {
         type dog {
-            delegate method foo to bar foo quux
+            delegate method foo to bar as baz quux
         }
     } result
 
     set result
 } {syntax error in definition: delegate method foo...}
+
+test delegate-1.5 {"as" doesn't work with "*"} {} {
+    cleanup
+
+    set result ""
+    catch {
+        type dog {
+            delegate method * to hull as foo
+        }
+    } result
+
+    set result
+} {syntax error in definition: delegate method *...}
+
+test delegate-1.6 {"except" must have a target} {} {
+    cleanup
+
+    set result ""
+    catch {
+        type dog {
+            delegate method * to bar except
+        }
+    } result
+
+    set result
+} {syntax error in definition: delegate method *...}
+
+test delegate-1.7 {"except" must have a single target} {} {
+    cleanup
+
+    set result ""
+    catch {
+        type dog {
+            delegate method * to bar except baz quux
+        }
+    } result
+
+    set result
+} {syntax error in definition: delegate method *...}
+
+test delegate-1.8 {"except" works only with "*"} {} {
+    cleanup
+
+    set result ""
+    catch {
+        type dog {
+            delegate method foo hull except bar
+        }
+    } result
+
+    set result
+} {syntax error in definition: delegate method foo...}
+
+test delegate-1.9 {only "as" or "except"} {} {
+    cleanup
+
+    set result ""
+    catch {
+        type dog {
+            delegate method foo to bar with quux
+        }
+    } result
+
+    set result
+} {syntax error in definition: delegate method foo...}
+
 
 #-----------------------------------------------------------------------
 # delegated methods
@@ -1902,6 +1968,34 @@ test dmethod-1.7 {can't delegate local method: order 2} {
 
     set result
 } {cannot delegate 'foo'; it has been defined locally.}
+
+test dmethod-1.8 {excepted methods are caught properly} {
+    cleanup
+
+    type tail {
+        method wag {}    {return "wagged"}
+        method flaunt {} {return "flaunted"}
+        method tuck {}   {return "tuck"}
+    }
+
+    type cat {
+        method meow {} {}
+        delegate method * to tail except {wag tuck}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    cat fifi
+
+    catch {fifi flaunt} a
+    catch {fifi wag}    b
+    catch {fifi tuck}   c
+    
+    list $a $b $c
+} {flaunted {'::fifi wag' is not defined.} {'::fifi tuck' is not defined.}}
+
 
 #-----------------------------------------------------------------------
 # delegated options
@@ -2064,6 +2158,134 @@ test doption-1.9 {can't delegate local option: order 2} {
 
     set result
 } {cannot delegate '-color'; it has been defined locally.}
+
+test doption-1.10 {excepted options are caught properly on cget} {
+    cleanup
+
+    type tail {
+        option -a a
+        option -b b
+        option -c c
+    }
+
+    type cat {
+        delegate option * to tail except {-b -c}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    cat fifi
+
+    catch {fifi cget -a} a
+    catch {fifi cget -b} b
+    catch {fifi cget -c} c
+    
+    list $a $b $c
+} {a {unknown option "-b"} {unknown option "-c"}}
+
+test doption-1.11 {excepted options are caught properly on configurelist} {
+    cleanup
+
+    type tail {
+        option -a a
+        option -b b
+        option -c c
+    }
+
+    type cat {
+        delegate option * to tail except {-b -c}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    cat fifi
+
+    catch {fifi configurelist {-a 1}} a
+    catch {fifi configurelist {-b 1}} b
+    catch {fifi configurelist {-c 1}} c
+    
+    list $a $b $c
+} {{} {unknown option "-b"} {unknown option "-c"}}
+
+test doption-1.12 {excepted options are caught properly on configure, 1} {
+    cleanup
+
+    type tail {
+        option -a a
+        option -b b
+        option -c c
+    }
+
+    type cat {
+        delegate option * to tail except {-b -c}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    cat fifi
+
+    catch {fifi configure -a 1} a
+    catch {fifi configure -b 1} b
+    catch {fifi configure -c 1} c
+    
+    list $a $b $c
+} {{} {unknown option "-b"} {unknown option "-c"}}
+
+test doption-1.13 {excepted options are caught properly on configure, 2} {
+    cleanup
+
+    type tail {
+        option -a a
+        option -b b
+        option -c c
+    }
+
+    type cat {
+        delegate option * to tail except {-b -c}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    cat fifi
+
+    catch {fifi configure -a} a
+    catch {fifi configure -b} b
+    catch {fifi configure -c} c
+    
+    list $a $b $c
+} {{-a a A a a} {unknown option "-b"} {unknown option "-c"}}
+
+test doption-1.14 {configure query skips excepted options} {
+    cleanup
+
+    type tail {
+        option -a a
+        option -b b
+        option -c c
+    }
+
+    type cat {
+        option -d d
+        delegate option * to tail except {-b -c}
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    cat fifi
+
+    fifi configure
+} {{-d d D d d} {-a a A a a}}
+
 
 #-----------------------------------------------------------------------
 # from
@@ -2833,6 +3055,36 @@ test install-2.3 {
     set a
 } {blue}
 
+test install-2.4 {
+    Delegate option * with an excepted option.  Because the text widget's
+    -state is excepted, it won't be set from the option database.
+} tk {
+    cleanup
+
+    widget myframe {
+        delegate option * to text except -state
+
+        typeconstructor {
+            option add *Myframe.foreground red
+            option add *Myframe.state disabled
+        }
+
+        constructor {args} {
+            install text using text $win.text
+        }
+
+        method getstate {} {
+            $text cget -state
+        }
+    }
+
+    myframe .frm
+    set a [.frm getstate]
+    destroy .frm
+    tkbide
+
+    set a
+} {normal}
 
 #-----------------------------------------------------------------------
 # Advanced installhull tests
@@ -3117,6 +3369,24 @@ test iinfo-1.9 {info options with unknown delegated options} tk {
     tkbide
     set a
 } {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
+
+test iinfo-1.10 {info options with exceptions} tk {
+    cleanup
+
+    widgetadaptor myframe { 
+        option -foo a
+        delegate option * to hull except -background
+        constructor {args} {
+            installhull [frame $self]
+        }
+    }
+    myframe .frm
+
+    set a [lsort [.frm info options]]
+    destroy .frm
+    tkbide
+    set a
+} {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
 
 #-----------------------------------------------------------------------
 # Type Introspection

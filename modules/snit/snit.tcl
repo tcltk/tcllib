@@ -96,6 +96,7 @@ namespace eval ::snit:: {
         method cget {option} {
             typevariable Snit_optiondefaults
             typevariable Snit_delegatedoptions
+            typevariable Snit_info
                 
             if {[info exists Snit_optiondefaults($option)]} {
                 # Normal option; return it.
@@ -104,7 +105,8 @@ namespace eval ::snit:: {
                 # Delegated option: get target.
                 set comp [lindex $Snit_delegatedoptions($option) 0]
                 set target [lindex $Snit_delegatedoptions($option) 1]
-            } elseif {[info exists Snit_delegatedoptions(*)]} {
+            } elseif {[info exists Snit_delegatedoptions(*)] &&
+                      [lsearch -exact $Snit_info(exceptopts) $option] == -1} {
                 # Unknown option, but unknowns are delegated; get target.
                 set comp [lindex $Snit_delegatedoptions(*) 0]
                 set target $option
@@ -124,6 +126,7 @@ namespace eval ::snit:: {
         method configurelist {optionlist} {
             typevariable Snit_optiondefaults
             typevariable Snit_delegatedoptions
+            typevariable Snit_info
 
             foreach {option value} $optionlist {
                 if {[info exist Snit_optiondefaults($option)]} {
@@ -133,7 +136,8 @@ namespace eval ::snit:: {
                     # Delegated option: get target.
                     set comp [lindex $Snit_delegatedoptions($option) 0]
                     set target [lindex $Snit_delegatedoptions($option) 1]
-                } elseif {[info exists Snit_delegatedoptions(*)]} {
+                } elseif {[info exists Snit_delegatedoptions(*)] &&
+                      [lsearch -exact $Snit_info(exceptopts) $option] == -1} {
                     # Unknown option, but unknowns are delegated.
                     set comp [lindex $Snit_delegatedoptions(*) 0]
                     set target $option
@@ -145,8 +149,6 @@ namespace eval ::snit:: {
                 # Get the component's object
                 set obj [Snit_component $selfns $comp]
                     
-                # TBD: I'll probably want to fix up certain error
-                # messages, but I'm not sure how yet.
                 $obj configure $target $value
             }
             
@@ -157,6 +159,7 @@ namespace eval ::snit:: {
             typevariable Snit_delegatedoptions
             typevariable Snit_optiondefaults
             typevariable Snit_optiondbspec
+            typevariable Snit_info
 
             # If two or more arguments, set values as usual.
             if {[llength $args] >= 2} {
@@ -205,7 +208,8 @@ namespace eval ::snit:: {
                 }
 
                 return [list $opt $res $cls $defValue [$self cget $opt]]
-            } elseif {[info exists Snit_delegatedoptions(*)]} {
+            } elseif {[info exists Snit_delegatedoptions(*)] &&
+                      [lsearch -exact $Snit_info(exceptopts) $opt] == -1} {
                 set logicalName [lindex $Snit_delegatedoptions(*) 0]
                 set target $opt
                 set comp $Snit_components($logicalName)
@@ -757,6 +761,7 @@ namespace eval ::snit:: {
             typevariable Snit_compoptions
             typevariable Snit_delegatedoptions
             typevariable Snit_optiondbspec
+            typevariable Snit_info
             upvar self self
             upvar selfns selfns
             upvar ${selfns}::$compName comp
@@ -820,10 +825,11 @@ namespace eval ::snit:: {
                 }
 
                 # NEXT, "delegate option *" matches all options defined
-                # by this widget that aren't defined by the widget as a whole.
-                # Plus, we skip usedOpts.  So build a list of the invalid
-                # option names.
-                set skiplist [concat $usedOpts [array names Snit_optiondbspec]]
+                # by this widget that aren't defined by the widget as a whole,
+                # and that aren't excepted.  Plus, we skip usedOpts.  So build 
+                # a list of the invalid option names.
+                set skiplist [concat $usedOpts $Snit_info(exceptopts) \
+                                  [array names Snit_optiondbspec]]
 
                 # NEXT, loop over all of the component's options, and set
                 # any not in the skip list for which there is an option 
@@ -885,6 +891,10 @@ namespace eval ::snit:: {
 
         #----------------------------------------------------------------
         # Snit variables 
+        #
+        # TBD: At some point I really need to review all of these variables
+        # and see if there's more a straightforward, clearer way to store
+        # all of the same information.
 
 	namespace eval %TYPE% {
 	    # Array: General Snit Info
@@ -894,12 +904,16 @@ namespace eval ::snit:: {
 	    # counter:       Count of instances created so far.
             # widgetclass:   Set by widgetclass statement.
             # hulltype:      Hull type (frame or toplevel) for widgets only.
+            # exceptmethods: Methods explicitly not delegated to *
+            # exceptopts:    Options explicitly not delegated to *
 	    typevariable Snit_info
 	    set Snit_info(ns)      %TYPE%::
 	    set Snit_info(options) {}
 	    set Snit_info(counter) 0
             set Snit_info(widgetclass) {}
             set Snit_info(hulltype) frame
+            set Snit_info(exceptmethods) {}
+            set Snit_info(exceptopts) {}
 
 	    # Array: Public methods of this type.
 	    # Index is typemethod name; value is proc name.
@@ -945,7 +959,8 @@ namespace eval ::snit:: {
             # First, if the typemethod is unknown, we'll assume that it's
             # an instance name if we can.
             if {![info exists %TYPE%::Snit_typemethods($method)]} {
-                if {[set %TYPE%::Snit_isWidget] && ![string match ".*" $method]} {
+                if {[set %TYPE%::Snit_isWidget] && 
+                    ![string match ".*" $method]} {
                     return -code error  "\"%TYPE% $method\" is not defined"
                 }
                 set args [concat $method $args]
@@ -1072,11 +1087,13 @@ namespace eval ::snit:: {
         proc %TYPE%::Snit_dispatcher {type selfns win self method argList} {
             global errorInfo
 
+            typevariable Snit_info
             typevariable Snit_methods
             upvar ${selfns}::Snit_components Snit_components
             
             if {![info exists Snit_methods($method)]} {
-                if {![info exists Snit_methods(*)]} {
+                if {![info exists Snit_methods(*)] ||
+                    [lsearch -exact $Snit_info(exceptmethods) $method] != -1} {
                     return -code error \
                         "'$self $method' is not defined."
                 }
@@ -1291,14 +1308,18 @@ proc ::snit::Type.Option {type optionDef {defvalue ""}} {
         # Option $option
         lappend %TYPE%::Snit_info(options) %OPTION%
 
-        set  %TYPE%::Snit_optiondefaults(%OPTION%) %DEFVALUE%
-        set  %TYPE%::Snit_optiondbspec(%OPTION%) [list %RES% %CLASS%]
+        set %TYPE%::Snit_optiondefaults(%OPTION%) %DEFVALUE%
+        set %TYPE%::Snit_optiondbspec(%OPTION%) [list %RES% %CLASS%]
 
-        proc %TYPE%::Snit_configure%OPTION% {type selfns win self value} {%TVARDECS%%IVARDECS%
+        proc %TYPE%::Snit_configure%OPTION% {type selfns win self value} {
+            %TVARDECS%
+            %IVARDECS%
             set options(%OPTION%) $value
         }
 
-        proc %TYPE%::Snit_cget%OPTION% {type selfns win self} {%TVARDECS%%IVARDECS%
+        proc %TYPE%::Snit_cget%OPTION% {type selfns win self} {
+            %TVARDECS%
+            %IVARDECS%
             return $options(%OPTION%)
         }
     } %OPTION% $option %DEFVALUE% [list $defvalue] \
@@ -1482,31 +1503,57 @@ proc ::snit::Type.Variable {type name args} {
 #               methods or options
 # "to"          sugar; must be "to"
 # component     The logical name of the delegate
-# "as"          sugar; if not "", must be "as"
+# "as"          sugar; if not "", must be "as" or "except"
 # thing         The name of the delegate's option, or the delegate's method,
-#               possibly with arguments.  Must not be "" if "as" is "as";
-#               ignored if "as" is ""
+#               possibly with arguments, or a list of excepted methods.
+# args          Must be {}; it's here to let Type.Delegate do better error
+#               handling.
 
 proc ::snit::Type.Delegate {
-    type which name "to" component {"as" ""} {thing ""}
+    type which name "to" component {"as" ""} {thing ""} args
 } {
     variable compile
 
+    set target ""
+    set exceptions ""
+
     # FIRST, check syntax.
-    if {![string equal $to "to"] ||
-        (![string equal $as "as"] && ![string equal $as ""]) ||
-        ([string equal $as "as"] && [string equal $thing ""]) ||
-        ([string equal $name "*"] && ![string equal $thing ""])} {
+    set errFlag 0
+
+    if {![string equal $to "to"] || 
+        [llength $args] != 0} {
+        # Basic syntax
+        set errFlag 1
+    }
+
+    if {![string equal $thing ""]} {
+        # If there's a "thing", then the "as" argument indicates what kind
+        # of thing it is.
+
+        if {[string equal $as "as"] && ![string equal $name "*"]} {
+            set target $thing
+        } elseif {[string equal $as "except"] && [string equal $name "*"]} {
+            set exceptions $thing
+        } else {
+            set errFlag 1
+        }
+    } elseif {![string equal $as ""]} {
+        # If there's no "thing" then $as had better be empty.
+
+        set errFlag 1
+    }
+
+    if {$errFlag} {
         error "syntax error in definition: delegate $which $name..."
     }
 
     # NEXT, dispatch to method or option handler.
     switch $which {
         method {
-            DelegatedMethod $type $name $component $thing
+            DelegatedMethod $type $name $component $target $exceptions
         }
         option {
-            DelegatedOption $type $name $component $thing
+            DelegatedOption $type $name $component $target $exceptions
         }
         default {
             error "syntax error in definition: delegate $which $name..."
@@ -1522,6 +1569,11 @@ proc ::snit::Type.Delegate {
 # The name becomes an instance variable; in addition, it gets a 
 # write trace so that when it is set, all of the component mechanisms
 # get updated.
+#
+# NOTE: This currently only gets done for components to which something
+# is delegated.  Vanilla components which are just saved to an instance
+# variable get none of this special handling.  But since this handling
+# is to support the delegate statements, that's OK.
 #
 # type          The type name
 # component     The component name
@@ -1551,29 +1603,35 @@ proc ::snit::DefineComponent {type component} {
 # type          The type name
 # method        The name of the method
 # component     The logical name of the delegate
-# command       The name of the delegate's method, possibly with arguments,
+# target        The name of the delegate's method, possibly with arguments,
 #               or "".
+# exceptions    When method is "*", this can be a list of methods not to 
+#               delegate, or {}; otherwise, it's guaranteed to be {}.
 
-proc ::snit::DelegatedMethod {type method component command} {
+proc ::snit::DelegatedMethod {type method component target exceptions} {
     variable compile
 
     if {![string equal $method "*"] &&
-        [string equal $command ""]} {
-        set command $method
+        [string equal $target ""]} {
+        set target $method
     }
 
     if {[Contains $method $compile(localmethods)]} {
         error "cannot delegate '$method'; it has been defined locally."
     }
 
+    Mappend compile(defs) {
+        # Delegated method %METH% to %COMP% as %TARGET%
+        set %TYPE%::Snit_methods(%METH%) [concat %COMP% %TARGET%]
+    } %METH% $method %COMP% $component %TARGET% $target
+
     if {![string equal $method "*"]} {
         lappend compile(delegatedmethods) $method
+    } else {
+        Mappend compile(defs) {
+            set %TYPE%::Snit_info(exceptmethods) %EXCEPT%
+        } %EXCEPT% [list $exceptions]
     }
-
-    append compile(defs) "
-        # Delegated method $method to $component as $command
-        [list set %TYPE%::Snit_methods($method) [concat $component $command]]
-    "
 } 
 
 # Creates a delegated option, delegating it to a particular
@@ -1584,8 +1642,10 @@ proc ::snit::DelegatedMethod {type method component command} {
 # option        The name of the option
 # component     The logical name of the delegate
 # target        The name of the delegate's option, or "".
+# exceptions    When option is "*", this can be a list of options not to 
+#               delegate, or {}
 
-proc ::snit::DelegatedOption {type optionDef component target} {
+proc ::snit::DelegatedOption {type optionDef component target exceptions} {
     variable compile
 
     # First, get the three option names.
@@ -1638,12 +1698,12 @@ proc ::snit::DelegatedOption {type optionDef component target} {
         }
 
         Mappend  compile(defs) {
-            # Delegated option %OPTION% to %COMP% as %TARGET%
-            set %TYPE%::Snit_delegatedoptions(%OPTION%) [list %COMP% %TARGET%]
             set %TYPE%::Snit_optiondbspec(%OPTION%) [list %RES% %CLASS%]
-
-        } %OPTION% $option %COMP% $component %TARGET% $target \
-            %RES% $resourceName %CLASS% $className
+        } %OPTION% $option %RES% $resourceName %CLASS% $className
+    } else {
+        Mappend  compile(defs) {
+            set %TYPE%::Snit_info(exceptopts) %EXCEPT%
+        } %EXCEPT% [list $exceptions]
     }
 } 
 
@@ -1812,8 +1872,9 @@ proc ::snit::InstanceInfo_vars {type selfns win self} {
 
 # Returns a list of the names of the instance's options
 proc ::snit::InstanceInfo_options {type selfns win self} {
-    upvar ${type}::Snit_optiondefaults Snit_optiondefaults
+    upvar ${type}::Snit_optiondefaults   Snit_optiondefaults
     upvar ${type}::Snit_delegatedoptions Snit_delegatedoptions
+    upvar ${type}::Snit_info             Snit_info
 
     set result {}
 
@@ -1834,7 +1895,7 @@ proc ::snit::InstanceInfo_options {type selfns win self} {
     }
 
     # If "configure" works as for Tk widgets, add the resulting
-    # options to the list.
+    # options to the list.  Skip excepted options
     if {$gotStar} {
         upvar ${selfns}::Snit_components Snit_components
         set logicalName [lindex $Snit_delegatedoptions(*) 0]
@@ -1843,7 +1904,8 @@ proc ::snit::InstanceInfo_options {type selfns win self} {
         if {![catch {$comp configure} records]} {
             foreach record $records {
                 set opt [lindex $record 0]
-                if {[lsearch -exact $result $opt] == -1} {
+                if {[lsearch -exact $result $opt] == -1 &&
+                    [lsearch -exact $Snit_info(exceptopts) $opt] == -1} {
                     lappend result $opt
                 }
             }
@@ -1963,4 +2025,5 @@ proc ::snit::CallInstance {selfns args} {
     upvar ${selfns}::Snit_instance self
     return [uplevel 1 [linsert $args 0 $self]]
 }
+
 
