@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.5 2004/02/09 19:34:43 hobbs Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -170,9 +170,14 @@ test combinatorics-2.6 { math::factorial, evaluate at pole } {
 } {{argument to math::factorial must be greater than -1.0} {ARITH DOMAIN {argument to math::factorial must be greater than -1.0}}}
 
 test combinatorics-2.7 { math::factorial, exponent overflow } {
-    catch { math::factorial 172 } msg
+    catch { math::factorial 171 } msg
     list $msg $::errorCode
 } {{floating-point value too large to represent} {ARITH OVERFLOW {floating-point value too large to represent}}}
+
+test combinatorics-2.8 { math::factorial, "" arg } {
+    catch { math::factorial "" } msg
+    list $msg
+} {{expected a floating-point number but found ""}}
 
 test combinatorics-3.1 { math::choose, wrong num args } {
     catch { math::choose } msg
