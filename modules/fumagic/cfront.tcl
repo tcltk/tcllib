@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cfront.tcl,v 1.2 2005/02/11 06:07:31 andreas_kupries Exp $
+# RCS: @(#) $Id: cfront.tcl,v 1.3 2005/02/15 07:45:01 andreas_kupries Exp $
 
 #####
 #
@@ -227,7 +227,8 @@ proc ::fileutil::magic::cfront::process {file {maxlevel 10000}} {
    			# trim redundant Long value qualifier
    			set value [string trimright $value L]
 
-   			if {[catch {set value [expr $value]} x eo]} {
+   			if {[catch {set value [expr $value]} x]} {
+			    upvar #0 errorInfo eo
    			    # check that value is representable in tcl
    			    puts stderr "Reject Value Error: ${file}:$linenum '$value' '$line' - $eo"
    			    continue;
@@ -339,7 +340,7 @@ proc ::fileutil::magic::cfront::compile {args} {
     return $tcl
 }
 
-proc ::fileutil::magic::cfront::procdef {procname path} {
+proc ::fileutil::magic::cfront::procdef {procname args} {
 
     set pspace [namespace qualifiers $procname]
 
@@ -352,7 +353,8 @@ proc ::fileutil::magic::cfront::procdef {procname path} {
     lappend script "namespace eval [list ${pspace}] \{"
     lappend script "    namespace import ::fileutil::magic::rt::*"
     lappend script "\}"
-    lappend script [list proc ${procname} {} [compile $arg]]
+    lappend script ""
+    lappend script [list proc ${procname} {} \n[eval [linsert $args 0 compile]]\n]
     return [join $script \n]
 }
 
