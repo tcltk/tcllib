@@ -1,3 +1,9 @@
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
+
 2004-02-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* multiplexer.man: This package is can be used with Tcl

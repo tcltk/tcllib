@@ -71,7 +71,7 @@ sensible defaults.
 Notes
 -----
 
-The installer will overwrite an existing installation of tcllib 1.5
+The installer will overwrite an existing installation of tcllib 1.6
 without asking back after the initial confirmation is given. And if
 the user chooses the same directory as for tcllib 1.4, or 1.3, etc.
 then the installer will overwrite that too.

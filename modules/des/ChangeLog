@@ -1,3 +1,9 @@
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
+
 2003-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* des.tcl, des.man, pkgIndex.tcl: Hiked the version to 0.8.1
