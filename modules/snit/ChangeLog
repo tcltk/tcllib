@@ -2,8 +2,10 @@
 
 	* snit.tcl	Refactored %TYPE%::Snit_optionget to 
 	* roadmap.txt	::snit::RT.OptionDbGet. Refactored 
-			%TYPE%::Snit_cleanup to 
-			::snit::RT.DestroyObject
+			%TYPE%::Snit_cleanup to ::snit::RT.DestroyObject,
+			%TYPE%::Snit_tracer to ::snit::RT.InstanceTrace,
+			and %TYPE%::Snit_removetrace to
+			::snit::RT.RemoveInstanceTrace.
 
 2004-07-17  Will Duquette  <will@wjduquette.com>
 
