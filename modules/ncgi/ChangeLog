@@ -1,3 +1,10 @@
+2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ncgi.n:
+	* ncgi.test:
+	* ncgi.tcl:
+	* pkgIndex.tcl: Version up to 1.2
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ncgi.tcl: Restricted export list to public API.

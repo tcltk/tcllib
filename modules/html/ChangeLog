@@ -1,3 +1,10 @@
+2001-10-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* html.n:
+	* html.test:
+	* html.tcl:
+	* pkgIndex.tcl: Version up to 1.1.1
+
 2001-08-01  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* html.tcl: added 8.1+ improved version of quoteFormValue.
