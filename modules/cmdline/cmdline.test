@@ -7,14 +7,12 @@
 # Copyright (c) 1999 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.1 2000/03/01 23:26:59 ericm Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.2 2000/03/02 21:57:33 ericm Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
 
-set cmdLineFile [file join [file dirname [info script]] ../cmdline.tcl]
-
-source $cmdLineFile
+package require cmdline
 
 # cmdline::getopt
 

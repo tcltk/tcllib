@@ -230,6 +230,7 @@ AC_DEFUN(SC_LOAD_TCLCONFIG, [
     eval TCL_LIB_FILE=${TCL_LIB_FILE}
     eval TCL_LIB_FLAG=${TCL_LIB_FLAG}
 
+    AC_SUBST(TCL_DBGX)
     AC_SUBST(TCL_BIN_DIR)
     AC_SUBST(TCL_SRC_DIR)
     AC_SUBST(TCL_LIB_FILE)
@@ -263,10 +264,10 @@ AC_DEFUN(SC_LOAD_TCLCONFIG, [
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_LOAD_TKCONFIG, [
-    AC_MSG_CHECKING([for existence of $TCLCONFIG])
+    AC_MSG_CHECKING([for existence of $TK_BIN_DIR/tkConfig.sh])
 
     if test -f "$TK_BIN_DIR/tkConfig.sh" ; then
-        AC_MSG_CHECKING([loading $TK_BIN_DIR/tkConfig.sh])
+        AC_MSG_RESULT([loading])
 	. $TK_BIN_DIR/tkConfig.sh
     else
         AC_MSG_RESULT([could not find $TK_BIN_DIR/tkConfig.sh])
@@ -275,6 +276,7 @@ AC_DEFUN(SC_LOAD_TKCONFIG, [
     AC_SUBST(TK_BIN_DIR)
     AC_SUBST(TK_SRC_DIR)
     AC_SUBST(TK_LIB_FILE)
+    AC_SUBST(TK_XINCLUDES)
 ])
 
 #------------------------------------------------------------------------
@@ -301,7 +303,7 @@ AC_DEFUN(SC_ENABLE_GCC, [
 	CC=gcc
     else
 	case "`uname -s`" in
-	    *win32* | *WIN32* | *CYGWIN_NT*)
+	    *win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
 		CC=cl
 	    ;;
 	    *)
@@ -384,19 +386,27 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 	[tcl_ok=$enableval], [tcl_ok=no])
 
     if test "$tcl_ok" = "yes"; then
-	AC_MSG_RESULT(yes)
 	TCL_THREADS=1
 	AC_DEFINE(TCL_THREADS)
 	AC_DEFINE(_REENTRANT)
 
-	AC_CHECK_LIB(pthread,pthread_mutex_init,tcl_ok=yes,tcl_ok=no)
-	if test "$tcl_ok" = "yes"; then
-	    # The space is needed
-	    THREADS_LIBS=" -lpthread"
-	else
-	    TCL_THREADS=0
-	    AC_MSG_WARN("Don t know how to find pthread lib on your system - you must disable thread support or edit the LIBS in the Makefile...")
-	fi
+	case "`uname -s`" in
+	    *win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
+		    AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_CHECK_LIB(pthread,pthread_mutex_init,tcl_ok=yes,tcl_ok=no)
+		if test "$tcl_ok" = "yes"; then
+		    # The space is needed
+		    THREADS_LIBS=" -lpthread"
+		    AC_MSG_RESULT(yes)
+		else
+		    TCL_THREADS=0
+		    AC_MSG_RESULT(no)
+		    AC_MSG_WARN("Don t know how to find pthread lib on your system - you must disable thread support or edit the LIBS in the Makefile...")
+		fi
+		;;
+	esac
     else
 	TCL_THREADS=0
 	AC_MSG_RESULT(no (default))
@@ -434,7 +444,7 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 
 AC_DEFUN(SC_ENABLE_SYMBOLS, [
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
+	*win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
 	    tcl_dbgx=d
 	;;
 	*)
@@ -652,7 +662,7 @@ AC_DEFUN(SC_CONFIG_CFLAGS, [
 	    LDFLAGS="-export-dynamic"
 	    LD_SEARCH_FLAGS=""
 	    ;;
-	*win32*|*WIN32*|CYGWIN_NT*|cygwin_nt*)
+	*win32*|*WIN32*|CYGWIN_NT*|cygwin_nt*|*CYGWIN_98*|*CYGWIN_95*)
 	    CFLAGS_DEBUG="-nologo -Z7 -Od -WX ${runtime}d"
 	    CFLAGS_OPTIMIZE="-nologo -Oti -Gs -GD ${runtime}"
 	    LDFLAGS_CONSOLE="-subsystem:console"
@@ -1782,7 +1792,7 @@ AC_DEFUN(SC_TCL_LINK_LIBS, [
 
 AC_DEFUN(SC_MAKE_LIB, [
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
+	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
 	    if test "${CC-cc}" = "cl"; then
 		MAKE_STATIC_LIB="\${STLIB_LD} -out:\[$]@ \$(\[$]@_OBJECTS) "
 		MAKE_SHARED_LIB="\${SHLIB_LD} \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS} \$(LDFLAGS) -out:\[$]@ \$(\[$]@_OBJECTS) "
@@ -1814,8 +1824,12 @@ AC_DEFUN(SC_MAKE_LIB, [
 # Arguments:
 #	basename	The base name of the library without version
 #			numbers, extensions, or "lib" prefixes.
+#	extra_dir	Extra directory in which to search for the
+#			library.  This location is used first, then
+#			$prefix/$exec-prefix, then some defaults.
 #
-#	Requires:
+# Requires:
+#	CYGPATH		command used to generate native style paths
 #
 # Results:
 #
@@ -1826,8 +1840,29 @@ AC_DEFUN(SC_MAKE_LIB, [
 
 AC_DEFUN(SC_LIB_SPEC, [
     AC_MSG_CHECKING(for $1 library)
-    eval "sc_lib_name_dir=${libdir}"
+
+    # Look in exec-prefix and prefix for the library.  If neither of
+    # these were specified, look in libdir.  It doesn't matter if libdir
+    # wasn't specified since a search in the unspecified directory will
+    # fail (NONE/lib)
+
+    if test x"${exec_prefix}" != x"NONE" ; then
+	sc_lib_name_dir="${exec_prefix}/lib"
+    elif test x"${prefix}" != "NONE" ; then
+	sc_lib_name_dir="${prefix}/lib"
+    else
+	eval "sc_lib_name_dir=${libdir}"
+    fi
+
+    if test x"$2" != x ; then
+	sc_extra_lib_dir=$2
+    else
+	sc_extra_lib_dir=NONE
+    fi
+
     for i in \
+	    `ls -dr ${sc_extra_lib_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
+	    `ls -dr ${sc_extra_lib_dir}/lib$1[[0-9]]* 2>/dev/null ` \
 	    `ls -dr ${sc_lib_name_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
 	    `ls -dr ${sc_lib_name_dir}/lib$1[[0-9]]* 2>/dev/null ` \
 	    `ls -dr /usr/lib/$1[[0-9]]*.lib 2>/dev/null ` \
@@ -1838,13 +1873,14 @@ AC_DEFUN(SC_LIB_SPEC, [
 
 	    sc_lib_name_dir=`dirname $i`
 	    $1_LIB_NAME=`basename $i`
+	    $1_LIB_PATH_NAME=$i
 	    break
 	fi
     done
 
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
-	    $1_LIB_SPEC=${$1_LIB_NAME}
+	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	    $1_LIB_SPEC=\"`${CYGPATH} ${$1_LIB_PATH_NAME}`\"
 	    ;;
 	*)
 	    # Strip off the leading "lib" and trailing ".a" or ".so"
@@ -1861,7 +1897,7 @@ AC_DEFUN(SC_LIB_SPEC, [
 ])
 
 #------------------------------------------------------------------------
-# SC_PRIVATE_TCL_INCLUDE --
+# SC_PRIVATE_TCL_HEADERS --
 #
 #	Locate the private Tcl include files
 #
@@ -1889,7 +1925,7 @@ AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
     AC_MSG_CHECKING(for Tcl private include files)
 
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
+	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
 	    TCL_TOP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/..`\"
 	    TCL_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../generic`\"
 	    TCL_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../unix`\"
@@ -1900,7 +1936,7 @@ AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
 	    TCL_PLATFORM_DIR_NATIVE=${TCL_WIN_DIR_NATIVE}
 	;;
 	*)
-	    TCL_TOP_DIR_NATIVE=${TCL_SRC_DIR}
+	    TCL_TOP_DIR_NATIVE='$(TCL_SRC_DIR)'
 	    TCL_GENERIC_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/generic'
 	    TCL_UNIX_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/unix'
 	    TCL_WIN_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/win'
@@ -1993,3 +2029,242 @@ AC_DEFUN(SC_PUBLIC_TCL_HEADERS, [
 
     AC_SUBST(TCL_INCLUDES)
 ])
+
+#------------------------------------------------------------------------
+# SC_PRIVATE_TK_HEADERS --
+#
+#	Locate the private Tk include files
+#
+# Arguments:
+#
+#	Requires:
+#		TK_SRC_DIR	Assumes that SC_LOAD_TKCONFIG has
+#				 already been called.
+#
+# Results:
+#
+#	Substs the following vars:
+#		TK_INCLUDES
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PRIVATE_TK_HEADERS, [
+    AC_MSG_CHECKING(for Tk private include files)
+
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	    TK_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../unix`\"
+	    TK_WIN_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../win`\"
+	    TK_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../generic`\"
+	    TK_XLIB_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../xlib`\"
+	    TK_PLATFORM_DIR_NATIVE=${TK_WIN_DIR_NATIVE}
+
+	    TK_INCLUDES="-I${TK_GENERIC_DIR_NATIVE} -I${TK_PLATFORM_DIR_NATIVE} -I${TK_XLIB_DIR_NATIVE}"
+	;;
+	*)
+	    TK_GENERIC_DIR_NATIVE='$(TK_TOP_DIR_NATIVE)/generic'
+	    TK_UNIX_DIR_NATIVE='$(TK_TOP_DIR_NATIVE)/unix'
+	    TK_WIN_DIR_NATIVE='$(TK_TOP_DIR_NATIVE)/win'
+	    TK_PLATFORM_DIR_NATIVE=${TK_UNIX_DIR_NATIVE}
+
+	    TK_INCLUDES="-I${TK_GENERIC_DIR_NATIVE} -I${TK_PLATFORM_DIR_NATIVE}"
+	;;
+    esac
+
+    AC_SUBST(TK_UNIX_DIR_NATIVE)
+    AC_SUBST(TK_WIN_DIR_NATIVE)
+    AC_SUBST(TK_GENERIC_DIR_NATIVE)
+    AC_SUBST(TK_XLIB_DIR_NATIVE)
+    AC_SUBST(TK_PLATFORM_DIR_NATIVE)
+
+    AC_SUBST(TK_INCLUDES)
+    AC_MSG_RESULT(Using srcdir found in tkConfig.sh)
+])
+
+#------------------------------------------------------------------------
+# SC_PUBLIC_TK_HEADERS --
+#
+#	Locate the installed public Tk header files
+#
+# Arguments:
+#	None.
+#
+# Requires:
+#	CYGPATH must be set
+#
+# Results:
+#
+#	Adds a --with-tkinclude switch to configure.
+#	Result is cached.
+#
+#	Substs the following vars:
+#		TK_INCLUDES
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PUBLIC_TK_HEADERS, [
+    AC_MSG_CHECKING(for Tk public headers)
+
+    AC_ARG_WITH(tkinclude, [ --with-tkinclude      directory containing the public Tk header files.], with_tkinclude=${withval})
+
+    if test x"${with_tkinclude}" != x ; then
+	if test -f "${with_tkinclude}/tk.h" ; then
+	    ac_cv_c_tkh=${with_tkinclude}
+	else
+	    AC_MSG_ERROR([${with_tkinclude} directory does not contain Tk public header file tk.h])
+	fi
+    else
+	AC_CACHE_VAL(ac_cv_c_tkh, [
+	    # Use the value from --with-tkinclude, if it was given
+
+	    if test x"${with_tkinclude}" != x ; then
+		ac_cv_c_tkh=${with_tkinclude}
+	    else
+		# Check in the includedir, if --prefix was specified
+
+		eval "temp_includedir=${includedir}"
+		for i in \
+			`ls -d ${temp_includedir} 2>/dev/null` \
+			/usr/local/include /usr/include ; do
+		    if test -f "$i/tk.h" ; then
+			ac_cv_c_tkh=$i
+			break
+		    fi
+		done
+	    fi
+	])
+    fi
+
+    # Print a message based on how we determined the include path
+
+    if test x"${ac_cv_c_tkh}" = x ; then
+	AC_MSG_ERROR(tk.h not found.  Please specify its location with --with-tkinclude)
+    else
+	AC_MSG_RESULT(${ac_cv_c_tkh})
+    fi
+
+    # Convert to a native path and substitute into the output files.
+
+    INCLUDE_DIR_NATIVE=`${CYGPATH} ${ac_cv_c_tkh}`
+
+    TK_INCLUDES=-I\"${INCLUDE_DIR_NATIVE}\"
+
+    AC_SUBST(TK_INCLUDES)
+])
+
+#------------------------------------------------------------------------
+# SC_SIMPLE_EXEEXT
+#	Select the executable extension based on the host type.  This
+#	is a lightweight replacement for AC_EXEEXT that doesn't require
+#	a compiler.
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		EXEEXT
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_SIMPLE_EXEEXT, [
+    AC_MSG_CHECKING(executable extension based on host type)
+
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	    EXEEXT=".exe"
+	;;
+	*)
+	    EXEEXT=""
+	;;
+    esac
+
+    AC_MSG_RESULT(${EXEEXT})
+    AC_SUBST(EXEEXT)
+])
+
+#------------------------------------------------------------------------
+# SC_PROG_TCLSH
+#	Locate a tclsh shell in the following directories:
+#		${exec_prefix}/bin
+#		${prefix}/bin
+#		${TCL_BIN_DIR}
+#		${TCL_BIN_DIR}/../bin
+#		${PATH}
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		TCLSH_PROG
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PROG_TCLSH, [
+    AC_MSG_CHECKING([for tclsh])
+
+    AC_CACHE_VAL(ac_cv_path_tclsh, [
+	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
+	for dir in $search_path ; do
+	    for j in `ls -r $dir/tclsh[[8-9]]*${EXEEXT} 2> /dev/null` \
+		    `ls -r $dir/tclsh*${EXEEXT} 2> /dev/null` ; do
+		if test x"$ac_cv_path_tclsh" = x ; then
+		    if test -f "$j" ; then
+			ac_cv_path_tclsh=$j
+			break
+		    fi
+		fi
+	    done
+	done
+    ])
+
+    if test -f "$ac_cv_path_tclsh" ; then
+	TCLSH_PROG=$ac_cv_path_tclsh
+	AC_MSG_RESULT($TCLSH_PROG)
+    else
+	AC_MSG_ERROR(No tclsh found in PATH:  $search_path)
+    fi
+    AC_SUBST(TCLSH_PROG)
+])
+
+#------------------------------------------------------------------------
+# SC_PROG_WISH
+#	Locate a wish shell in the following directories:
+#		${exec_prefix}/bin
+#		${prefix}/bin
+#		${TCL_BIN_DIR}
+#		${TCL_BIN_DIR}/../bin
+#		${PATH}
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		WISH_PROG
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PROG_WISH, [
+    AC_MSG_CHECKING([for wish])
+
+    AC_CACHE_VAL(ac_cv_path_wish, [
+	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
+	for dir in $search_path ; do
+	    for j in `ls -r $dir/wish[[8-9]]*${EXEEXT} 2> /dev/null` \
+		    `ls -r $dir/wish*${EXEEXT} 2> /dev/null` ; do
+		if test x"$ac_cv_path_wish" = x ; then
+		    if test -f "$j" ; then
+			ac_cv_path_wish=$j
+			break
+		    fi
+		fi
+	    done
+	done
+    ])
+
+    if test -f "$ac_cv_path_wish" ; then
+	WISH_PROG=$ac_cv_path_wish
+	AC_MSG_RESULT($WISH_PROG)
+    else
+	AC_MSG_ERROR(No wish found in PATH:  $search_path)
+    fi
+    AC_SUBST(WISH_PROG)
+])
+

@@ -12,17 +12,7 @@ ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
-  --enable-gcc            allow use of gcc if available [--disable-gcc]"
-ac_help="$ac_help
- --with-tclinclude      directory containing the public Tcl header files."
-ac_help="$ac_help
   --with-tcl              directory containing tcl configuration (tclConfig.sh)"
-ac_help="$ac_help
-  --enable-threads        build with threads"
-ac_help="$ac_help
-  --enable-shared         build and link with shared libraries [--enable-shared]"
-ac_help="$ac_help
-  --enable-symbols        build with debugging symbols [--disable-symbols]"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -565,258 +555,6 @@ eval cat >> confdefs.h <<EOF
 EOF
 
 
-#--------------------------------------------------------------------
-# Check whether --enable-gcc or --disable-gcc was given.  Do this 
-# before AC_CYGWIN is called so the compiler can 
-# be fully tested by built-in autoconf tools.
-# This macro also calls AC_PROG_CC to set the compiler if --enable-gcc
-# was not used.
-#--------------------------------------------------------------------
-
-
-    # Check whether --enable-gcc or --disable-gcc was given.
-if test "${enable_gcc+set}" = set; then
-  enableval="$enable_gcc"
-  ok=$enableval
-else
-  ok=no
-fi
-
-    if test "$ok" = "yes"; then
-	CC=gcc
-    else
-	case "`uname -s`" in
-	    *win32* | *WIN32* | *CYGWIN_NT*)
-		CC=cl
-	    ;;
-	    *)
-		CC=${CC-cc}
-	    ;;
-	esac
-    fi
-    # Extract the first word of "gcc", so it can be a program name with args.
-set dummy gcc; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:601: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  if test -n "$CC"; then
-  ac_cv_prog_CC="$CC" # Let the user override the test.
-else
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_prog_CC="gcc"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-fi
-fi
-CC="$ac_cv_prog_CC"
-if test -n "$CC"; then
-  echo "$ac_t""$CC" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-if test -z "$CC"; then
-  # Extract the first word of "cc", so it can be a program name with args.
-set dummy cc; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:631: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  if test -n "$CC"; then
-  ac_cv_prog_CC="$CC" # Let the user override the test.
-else
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_prog_rejected=no
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      if test "$ac_dir/$ac_word" = "/usr/ucb/cc"; then
-        ac_prog_rejected=yes
-	continue
-      fi
-      ac_cv_prog_CC="cc"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-if test $ac_prog_rejected = yes; then
-  # We found a bogon in the path, so make sure we never use it.
-  set dummy $ac_cv_prog_CC
-  shift
-  if test $# -gt 0; then
-    # We chose a different compiler from the bogus one.
-    # However, it has the same basename, so the bogon will be chosen
-    # first if we set CC to just the basename; use the full file name.
-    shift
-    set dummy "$ac_dir/$ac_word" "$@"
-    shift
-    ac_cv_prog_CC="$@"
-  fi
-fi
-fi
-fi
-CC="$ac_cv_prog_CC"
-if test -n "$CC"; then
-  echo "$ac_t""$CC" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-  if test -z "$CC"; then
-    case "`uname -s`" in
-    *win32* | *WIN32*)
-      # Extract the first word of "cl", so it can be a program name with args.
-set dummy cl; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:682: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  if test -n "$CC"; then
-  ac_cv_prog_CC="$CC" # Let the user override the test.
-else
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_prog_CC="cl"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-fi
-fi
-CC="$ac_cv_prog_CC"
-if test -n "$CC"; then
-  echo "$ac_t""$CC" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
- ;;
-    esac
-  fi
-  test -z "$CC" && { echo "configure: error: no acceptable cc found in \$PATH" 1>&2; exit 1; }
-fi
-
-echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works""... $ac_c" 1>&6
-echo "configure:714: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
-
-ac_ext=c
-# CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&5'
-ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&5'
-cross_compiling=$ac_cv_prog_cc_cross
-
-cat > conftest.$ac_ext << EOF
-
-#line 725 "configure"
-#include "confdefs.h"
-
-main(){return(0);}
-EOF
-if { (eval echo configure:730: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
-  ac_cv_prog_cc_works=yes
-  # If we can't run a trivial program, we are probably using a cross compiler.
-  if (./conftest; exit) 2>/dev/null; then
-    ac_cv_prog_cc_cross=no
-  else
-    ac_cv_prog_cc_cross=yes
-  fi
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  ac_cv_prog_cc_works=no
-fi
-rm -fr conftest*
-ac_ext=c
-# CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&5'
-ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&5'
-cross_compiling=$ac_cv_prog_cc_cross
-
-echo "$ac_t""$ac_cv_prog_cc_works" 1>&6
-if test $ac_cv_prog_cc_works = no; then
-  { echo "configure: error: installation or configuration problem: C compiler cannot create executables." 1>&2; exit 1; }
-fi
-echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler""... $ac_c" 1>&6
-echo "configure:756: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
-echo "$ac_t""$ac_cv_prog_cc_cross" 1>&6
-cross_compiling=$ac_cv_prog_cc_cross
-
-echo $ac_n "checking whether we are using GNU C""... $ac_c" 1>&6
-echo "configure:761: checking whether we are using GNU C" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_gcc'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.c <<EOF
-#ifdef __GNUC__
-  yes;
-#endif
-EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:770: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
-  ac_cv_prog_gcc=yes
-else
-  ac_cv_prog_gcc=no
-fi
-fi
-
-echo "$ac_t""$ac_cv_prog_gcc" 1>&6
-
-if test $ac_cv_prog_gcc = yes; then
-  GCC=yes
-else
-  GCC=
-fi
-
-ac_test_CFLAGS="${CFLAGS+set}"
-ac_save_CFLAGS="$CFLAGS"
-CFLAGS=
-echo $ac_n "checking whether ${CC-cc} accepts -g""... $ac_c" 1>&6
-echo "configure:789: checking whether ${CC-cc} accepts -g" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_cc_g'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -g -c conftest.c 2>&1`"; then
-  ac_cv_prog_cc_g=yes
-else
-  ac_cv_prog_cc_g=no
-fi
-rm -f conftest*
-
-fi
-
-echo "$ac_t""$ac_cv_prog_cc_g" 1>&6
-if test "$ac_test_CFLAGS" = set; then
-  CFLAGS="$ac_save_CFLAGS"
-elif test $ac_cv_prog_cc_g = yes; then
-  if test "$GCC" = yes; then
-    CFLAGS="-g -O2"
-  else
-    CFLAGS="-g"
-  fi
-else
-  if test "$GCC" = yes; then
-    CFLAGS="-O2"
-  else
-    CFLAGS=
-  fi
-fi
-
-
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -848,7 +586,7 @@ ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 echo $ac_n "checking for a BSD compatible install""... $ac_c" 1>&6
-echo "configure:852: checking for a BSD compatible install" >&5
+echo "configure:590: checking for a BSD compatible install" >&5
 if test -z "$INSTALL"; then
 if eval "test \"`echo '$''{'ac_cv_path_install'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -906,7 +644,7 @@ test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 #--------------------------------------------------------------------
 
 echo $ac_n "checking whether ${MAKE-make} sets \${MAKE}""... $ac_c" 1>&6
-echo "configure:910: checking whether ${MAKE-make} sets \${MAKE}" >&5
+echo "configure:648: checking whether ${MAKE-make} sets \${MAKE}" >&5
 set dummy ${MAKE-make}; ac_make=`echo "$2" | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_prog_make_${ac_make}_set'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -934,265 +672,6 @@ fi
 
 
 #--------------------------------------------------------------------
-# Find ranlib
-#--------------------------------------------------------------------
-
-# Extract the first word of "ranlib", so it can be a program name with args.
-set dummy ranlib; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:944: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_RANLIB'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  if test -n "$RANLIB"; then
-  ac_cv_prog_RANLIB="$RANLIB" # Let the user override the test.
-else
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_prog_RANLIB="ranlib"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-  test -z "$ac_cv_prog_RANLIB" && ac_cv_prog_RANLIB=":"
-fi
-fi
-RANLIB="$ac_cv_prog_RANLIB"
-if test -n "$RANLIB"; then
-  echo "$ac_t""$RANLIB" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-
-#--------------------------------------------------------------------
-# This macro performs additional compiler tests.
-#--------------------------------------------------------------------
-
-echo $ac_n "checking for Cygwin environment""... $ac_c" 1>&6
-echo "configure:977: checking for Cygwin environment" >&5
-if eval "test \"`echo '$''{'ac_cv_cygwin'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 982 "configure"
-#include "confdefs.h"
-
-int main() {
-
-#ifndef __CYGWIN__
-#define __CYGWIN__ __CYGWIN32__
-#endif
-return __CYGWIN__;
-; return 0; }
-EOF
-if { (eval echo configure:993: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  rm -rf conftest*
-  ac_cv_cygwin=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  ac_cv_cygwin=no
-fi
-rm -f conftest*
-rm -f conftest*
-fi
-
-echo "$ac_t""$ac_cv_cygwin" 1>&6
-CYGWIN=
-test "$ac_cv_cygwin" = yes && CYGWIN=yes
-
-#--------------------------------------------------------------------
-# Determines the correct binary file extension (.o, .obj, .exe etc.)
-#--------------------------------------------------------------------
-
-echo $ac_n "checking for object suffix""... $ac_c" 1>&6
-echo "configure:1015: checking for object suffix" >&5
-if eval "test \"`echo '$''{'ac_cv_objext'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  rm -f conftest*
-echo 'int i = 1;' > conftest.$ac_ext
-if { (eval echo configure:1021: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  for ac_file in conftest.*; do
-    case $ac_file in
-    *.c) ;;
-    *) ac_cv_objext=`echo $ac_file | sed -e s/conftest.//` ;;
-    esac
-  done
-else
-  { echo "configure: error: installation or configuration problem; compiler does not work" 1>&2; exit 1; }
-fi
-rm -f conftest*
-fi
-
-echo "$ac_t""$ac_cv_objext" 1>&6
-OBJEXT=$ac_cv_objext
-ac_objext=$ac_cv_objext
-
-echo $ac_n "checking for mingw32 environment""... $ac_c" 1>&6
-echo "configure:1039: checking for mingw32 environment" >&5
-if eval "test \"`echo '$''{'ac_cv_mingw32'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 1044 "configure"
-#include "confdefs.h"
-
-int main() {
-return __MINGW32__;
-; return 0; }
-EOF
-if { (eval echo configure:1051: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  rm -rf conftest*
-  ac_cv_mingw32=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  ac_cv_mingw32=no
-fi
-rm -f conftest*
-rm -f conftest*
-fi
-
-echo "$ac_t""$ac_cv_mingw32" 1>&6
-MINGW32=
-test "$ac_cv_mingw32" = yes && MINGW32=yes
-
-
-echo $ac_n "checking for executable suffix""... $ac_c" 1>&6
-echo "configure:1070: checking for executable suffix" >&5
-if eval "test \"`echo '$''{'ac_cv_exeext'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  if test "$CYGWIN" = yes || test "$MINGW32" = yes; then
-  ac_cv_exeext=.exe
-else
-  rm -f conftest*
-  echo 'int main () { return 0; }' > conftest.$ac_ext
-  ac_cv_exeext=
-  if { (eval echo configure:1080: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
-    for file in conftest.*; do
-      case $file in
-      *.c | *.o | *.obj) ;;
-      *) ac_cv_exeext=`echo $file | sed -e s/conftest//` ;;
-      esac
-    done
-  else
-    { echo "configure: error: installation or configuration problem: compiler cannot create executables." 1>&2; exit 1; }
-  fi
-  rm -f conftest*
-  test x"${ac_cv_exeext}" = x && ac_cv_exeext=no
-fi
-fi
-
-EXEEXT=""
-test x"${ac_cv_exeext}" != xno && EXEEXT=${ac_cv_exeext}
-echo "$ac_t""${ac_cv_exeext}" 1>&6
-ac_exeext=$EXEEXT
-
-
-#--------------------------------------------------------------------
-# "cygpath" is used on windows to generate native path names for include
-# files.
-# These variables should only be used with the compiler and linker since
-# they generate native path names.
-#
-# Unix tclConfig.sh points SRC_DIR at the top-level directory of
-# the Tcl sources, while the Windows tclConfig.sh points SRC_DIR at
-# the win subdirectory.  Hence the different usages of SRC_DIR below.
-#
-# This must be done before calling SC_PUBLIC_TCL_HEADERS
-#--------------------------------------------------------------------
-
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*)
-	CYGPATH="cygpath -w"
-    ;;
-    *)
-	CYGPATH=echo
-    ;;
-esac
-
-
-
-#--------------------------------------------------------------------
-# __CHANGE__
-# Choose which headers you need.  Extension authors should try very
-# hard to only rely on the Tcl public header files.  Internal headers
-# contain private data structures and are subject to change without
-# notice.
-# This MUST be called before SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
-#--------------------------------------------------------------------
-
-
-    echo $ac_n "checking for Tcl public headers""... $ac_c" 1>&6
-echo "configure:1136: checking for Tcl public headers" >&5
-
-    # Check whether --with-tclinclude or --without-tclinclude was given.
-if test "${with_tclinclude+set}" = set; then
-  withval="$with_tclinclude"
-  with_tclinclude=${withval}
-fi
-
-
-    if test x"${with_tclinclude}" != x ; then
-	if test -f "${with_tclinclude}/tcl.h" ; then
-	    ac_cv_c_tclh=${with_tclinclude}
-	else
-	    { echo "configure: error: ${with_tclinclude} directory does not contain Tcl public header file tcl.h" 1>&2; exit 1; }
-	fi
-    else
-	if eval "test \"`echo '$''{'ac_cv_c_tclh'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  
-	    # Use the value from --with-tclinclude, if it was given
-
-	    if test x"${with_tclinclude}" != x ; then
-		ac_cv_c_tclh=${with_tclinclude}
-	    else
-		# Check in the includedir, if --prefix was specified
-
-		eval "temp_includedir=${includedir}"
-		for i in \
-			`ls -d ${temp_includedir} 2>/dev/null` \
-			/usr/local/include /usr/include ; do
-		    if test -f "$i/tcl.h" ; then
-			ac_cv_c_tclh=$i
-			break
-		    fi
-		done
-	    fi
-	
-fi
-
-    fi
-
-    # Print a message based on how we determined the include path
-
-    if test x"${ac_cv_c_tclh}" = x ; then
-	{ echo "configure: error: tcl.h not found.  Please specify its location with --with-tclinclude" 1>&2; exit 1; }
-    else
-	echo "$ac_t""${ac_cv_c_tclh}" 1>&6
-    fi
-
-    # Convert to a native path and substitute into the output files.
-
-    INCLUDE_DIR_NATIVE=`${CYGPATH} ${ac_cv_c_tclh}`
-
-    TCL_INCLUDES=-I\"${INCLUDE_DIR_NATIVE}\"
-
-    
-
-#SC_PRIVATE_TCL_HEADERS
-
-#--------------------------------------------------------------------
 # Load the tclConfig.sh file
 #--------------------------------------------------------------------
 
@@ -1213,7 +692,7 @@ if test "${with_tcl+set}" = set; then
 fi
 
 	echo $ac_n "checking for Tcl configuration""... $ac_c" 1>&6
-echo "configure:1217: checking for Tcl configuration" >&5
+echo "configure:696: checking for Tcl configuration" >&5
 	if eval "test \"`echo '$''{'ac_cv_c_tclconfig'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1283,7 +762,7 @@ fi
 
 
     echo $ac_n "checking for existence of $TCL_BIN_DIR/tclConfig.sh""... $ac_c" 1>&6
-echo "configure:1287: checking for existence of $TCL_BIN_DIR/tclConfig.sh" >&5
+echo "configure:766: checking for existence of $TCL_BIN_DIR/tclConfig.sh" >&5
 
     if test -f "$TCL_BIN_DIR/tclConfig.sh" ; then
         echo "$ac_t""loading" 1>&6
@@ -1314,312 +793,7 @@ echo "configure:1287: checking for existence of $TCL_BIN_DIR/tclConfig.sh" >&5
     
     
     
-
-
-#--------------------------------------------------------------------
-# __CHANGE__
-# A few miscellaneous platform-specific items:
-#
-# Define a special symbol for Windows (BUILD_exampleA in this case) so
-# that we create the export library with the dll.  See sha1.h on how
-# to use this.
-#
-# Windows creates a few extra files that need to be cleaned up.
-# You can add more files to clean if your extension creates any extra
-# files.
-#
-# Define any extra compiler flags in the PACKAGE_CFLAGS variable.
-# These will be appended to the current set of compiler flags for
-# your system.
-#--------------------------------------------------------------------
-
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*)
-	cat >> confdefs.h <<\EOF
-#define BUILD_exampleA 1
-EOF
-
-	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
-	
-    ;;
-    *)
-	CLEANFILES=
-    ;;
-esac
-
-#--------------------------------------------------------------------
-# Check whether --enable-threads or --disable-threads was given.
-# So far only Tcl responds to this one.
-#--------------------------------------------------------------------
-
-
-    echo $ac_n "checking for building with threads""... $ac_c" 1>&6
-echo "configure:1358: checking for building with threads" >&5
-    # Check whether --enable-threads or --disable-threads was given.
-if test "${enable_threads+set}" = set; then
-  enableval="$enable_threads"
-  tcl_ok=$enableval
-else
-  tcl_ok=no
-fi
-
-
-    if test "$tcl_ok" = "yes"; then
-	echo "$ac_t""yes" 1>&6
-	TCL_THREADS=1
-	cat >> confdefs.h <<\EOF
-#define TCL_THREADS 1
-EOF
-
-	cat >> confdefs.h <<\EOF
-#define _REENTRANT 1
-EOF
-
-
-	echo $ac_n "checking for pthread_mutex_init in -lpthread""... $ac_c" 1>&6
-echo "configure:1381: checking for pthread_mutex_init in -lpthread" >&5
-ac_lib_var=`echo pthread'_'pthread_mutex_init | sed 'y%./+-%__p_%'`
-if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_save_LIBS="$LIBS"
-LIBS="-lpthread  $LIBS"
-cat > conftest.$ac_ext <<EOF
-#line 1389 "configure"
-#include "confdefs.h"
-/* Override any gcc2 internal prototype to avoid an error.  */
-/* We use char because int might match the return type of a gcc2
-    builtin and then its argument prototype would still apply.  */
-char pthread_mutex_init();
-
-int main() {
-pthread_mutex_init()
-; return 0; }
-EOF
-if { (eval echo configure:1400: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=yes"
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=no"
-fi
-rm -f conftest*
-LIBS="$ac_save_LIBS"
-
-fi
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  tcl_ok=yes
-else
-  echo "$ac_t""no" 1>&6
-tcl_ok=no
-fi
-
-	if test "$tcl_ok" = "yes"; then
-	    # The space is needed
-	    THREADS_LIBS=" -lpthread"
-	else
-	    TCL_THREADS=0
-	    echo "configure: warning: "Don t know how to find pthread lib on your system - you must disable thread support or edit the LIBS in the Makefile..."" 1>&2
-	fi
-    else
-	TCL_THREADS=0
-	echo "$ac_t""no (default)" 1>&6
-    fi
-
-
-
-#--------------------------------------------------------------------
-# The statement below defines a collection of symbols related to
-# building as a shared library instead of a static library.
-#--------------------------------------------------------------------
-
-
-    echo $ac_n "checking how to build libraries""... $ac_c" 1>&6
-echo "configure:1442: checking how to build libraries" >&5
-    # Check whether --enable-shared or --disable-shared was given.
-if test "${enable_shared+set}" = set; then
-  enableval="$enable_shared"
-  tcl_ok=$enableval
-else
-  tcl_ok=yes
-fi
-
-
-    if test "${enable_shared+set}" = set; then
-	enableval="$enable_shared"
-	tcl_ok=$enableval
-    else
-	tcl_ok=yes
-    fi
-
-    if test "$tcl_ok" = "yes" ; then
-	echo "$ac_t""shared" 1>&6
-	SHARED_BUILD=1
-    else
-	echo "$ac_t""static" 1>&6
-	SHARED_BUILD=0
-	cat >> confdefs.h <<\EOF
-#define STATIC_BUILD 1
-EOF
-
-    fi
-
-
-#--------------------------------------------------------------------
-# This macro figures out what flags to use with the compiler/linker
-# when building shared/static debug/optimized objects.  This information
-# is all taken from the tclConfig.sh file.
-#--------------------------------------------------------------------
-
-CFLAGS_DEBUG=${TCL_CFLAGS_DEBUG}
-CFLAGS_OPTIMIZE=${TCL_CFLAGS_OPTIMIZE}
-LDFLAGS_DEBUG=${TCL_LDFLAGS_DEBUG}
-LDFLAGS_OPTIMIZE=${TCL_LDFLAGS_OPTIMIZE}
-SHLIB_LD=${TCL_SHLIB_LD}
-STLIB_LD=${TCL_STLIB_LD}
-SHLIB_CFLAGS=${TCL_SHLIB_CFLAGS}
-
-
-
-
-
-
-
-
-#--------------------------------------------------------------------
-# Set the default compiler switches based on the --enable-symbols 
-# option.
-#--------------------------------------------------------------------
-
-
-    case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
-	    tcl_dbgx=d
-	;;
-	*)
-	    tcl_dbgx=g
-	;;
-    esac
-
-    echo $ac_n "checking for build with symbols""... $ac_c" 1>&6
-echo "configure:1509: checking for build with symbols" >&5
-    # Check whether --enable-symbols or --disable-symbols was given.
-if test "${enable_symbols+set}" = set; then
-  enableval="$enable_symbols"
-  tcl_ok=$enableval
-else
-  tcl_ok=no
-fi
-
-    if test "$tcl_ok" = "yes"; then
-	CFLAGS_DEFAULT="${CFLAGS_DEBUG}"
-	LDFLAGS_DEFAULT="${LDFLAGS_DEBUG}"
-	DBGX=${tcl_dbgx}
-	TCL_DBGX=${tcl_dbgx}
-	echo "$ac_t""yes" 1>&6
-    else
-	CFLAGS_DEFAULT="${CFLAGS_OPTIMIZE}"
-	LDFLAGS_DEFAULT="${LDFLAGS_OPTIMIZE}"
-	DBGX=""
-	TCL_DBGX=""
-	echo "$ac_t""no" 1>&6
-    fi
-
     
-    
-    
-
-
-if test "${SHARED_BUILD}" = "1" ; then
-    CFLAGS='${CFLAGS_DEFAULT} ${CFLAGS_WARNING} ${SHLIB_CFLAGS}'
-else
-    CFLAGS='${CFLAGS_DEFAULT} ${CFLAGS_WARNING}'
-fi
-
-#--------------------------------------------------------------------
-# Everyone should be linking against the Tcl stub library.  If you
-# can't for some reason, remove this definition.  If you aren't using
-# stubs, you also need to modify the SHLIB_LD_LIBS setting below to
-# link against the non-stubbed Tcl library.
-#--------------------------------------------------------------------
-
-cat >> confdefs.h <<\EOF
-#define USE_TCL_STUBS 1
-EOF
-
-
-#--------------------------------------------------------------------
-# This macro generates a line to use when building a library.  It
-# depends on values set by the SC_ENABLE_SHARED, SC_ENABLE_SYMBOLS,
-# and SC_LOAD_TCLCONFIG macros above.
-#--------------------------------------------------------------------
-
-
-    case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
-	    if test "${CC-cc}" = "cl"; then
-		MAKE_STATIC_LIB="\${STLIB_LD} -out:\$@ \$(\$@_OBJECTS) "
-		MAKE_SHARED_LIB="\${SHLIB_LD} \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS} \$(LDFLAGS) -out:\$@ \$(\$@_OBJECTS) "
-	    fi
-	    ;;
-	*)
-	    MAKE_STATIC_LIB="\${STLIB_LD} \$@ \$(\$@_OBJECTS)"
-	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \$@ \$(\$@_OBJECTS) \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS}"
-	    ;;
-    esac
-
-    if test "${SHARED_BUILD}" = "1" ; then
-	MAKE_LIB=${MAKE_SHARED_LIB}
-    else
-	MAKE_LIB=${MAKE_STATIC_LIB}
-    fi
-
-    
-    
-    
-
-
-#--------------------------------------------------------------------
-# eval these two values to dereference the ${DBGX} variable.
-#--------------------------------------------------------------------
-
-eval "SHARED_LIB_SUFFIX=${TCL_SHARED_LIB_SUFFIX}"
-eval "UNSHARED_LIB_SUFFIX=${TCL_UNSHARED_LIB_SUFFIX}"
-
-#--------------------------------------------------------------------
-# Shared libraries and static libraries have different names.
-#--------------------------------------------------------------------
-
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*)
-	if test "${SHARED_BUILD}" = "1" ; then
-	    SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
-	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
-	    RANLIB=:
-	else
-	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
-	fi
-	;;
-    *)
-	if test "${SHARED_BUILD}" = "1" ; then
-	    SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC}"
-	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
-	    RANLIB=:
-	else
-	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
-	fi
-	;;
-esac
-
-#--------------------------------------------------------------------
-# __CHANGE__
-# Change the name from exampeA_LIB_FILE to match your package name.
-#--------------------------------------------------------------------
-
-
 
 
 #--------------------------------------------------------------------
@@ -1630,52 +804,37 @@ esac
 # versions have bugs in the pkg_mkIndex routine.
 #--------------------------------------------------------------------
 
-for ac_prog in tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh${EXEEXT}
-do
-# Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:1639: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_path_TCLSH_PROG'+set}'`\" = set"; then
+
+    echo $ac_n "checking for tclsh""... $ac_c" 1>&6
+echo "configure:810: checking for tclsh" >&5
+
+    if eval "test \"`echo '$''{'ac_cv_path_tclsh'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
-  case "$TCLSH_PROG" in
-  /*)
-  ac_cv_path_TCLSH_PROG="$TCLSH_PROG" # Let the user override the test with a path.
-  ;;
-  ?:/*)			 
-  ac_cv_path_TCLSH_PROG="$TCLSH_PROG" # Let the user override the test with a dos path.
-  ;;
-  *)
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="${exec_prefix}:${PATH}"
-  for ac_dir in $ac_dummy; do 
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_path_TCLSH_PROG="$ac_dir/$ac_word"
-      break
+  
+	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
+	for dir in $search_path ; do
+	    for j in `ls -r $dir/tclsh[8-9]*${EXEEXT} 2> /dev/null` \
+		    `ls -r $dir/tclsh*${EXEEXT} 2> /dev/null` ; do
+		if test x"$ac_cv_path_tclsh" = x ; then
+		    if test -f "$j" ; then
+			ac_cv_path_tclsh=$j
+			break
+		    fi
+		fi
+	    done
+	done
+    
+fi
+
+
+    if test -f "$ac_cv_path_tclsh" ; then
+	TCLSH_PROG=$ac_cv_path_tclsh
+	echo "$ac_t""$TCLSH_PROG" 1>&6
+    else
+	{ echo "configure: error: No tclsh found in PATH:  $search_path" 1>&2; exit 1; }
     fi
-  done
-  IFS="$ac_save_ifs"
-  ;;
-esac
-fi
-TCLSH_PROG="$ac_cv_path_TCLSH_PROG"
-if test -n "$TCLSH_PROG"; then
-  echo "$ac_t""$TCLSH_PROG" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-test -n "$TCLSH_PROG" && break
-done
-test -n "$TCLSH_PROG" || TCLSH_PROG=":"
-
-
-if test "x${TCLSH_PROG}" = "x:" ; then
-    echo "configure: warning: No tclsh executable found.  You will have to build the pkgIndex.tcl file manually." 1>&2
-fi
-
+    
 
 
 #--------------------------------------------------------------------
@@ -1830,16 +989,11 @@ s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@PACKAGE@%$PACKAGE%g
 s%@VERSION@%$VERSION%g
-s%@CC@%$CC%g
 s%@INSTALL_PROGRAM@%$INSTALL_PROGRAM%g
 s%@INSTALL_SCRIPT@%$INSTALL_SCRIPT%g
 s%@INSTALL_DATA@%$INSTALL_DATA%g
 s%@SET_MAKE@%$SET_MAKE%g
-s%@RANLIB@%$RANLIB%g
-s%@OBJEXT@%$OBJEXT%g
-s%@EXEEXT@%$EXEEXT%g
-s%@CYGPATH@%$CYGPATH%g
-s%@TCL_INCLUDES@%$TCL_INCLUDES%g
+s%@TCL_DBGX@%$TCL_DBGX%g
 s%@TCL_BIN_DIR@%$TCL_BIN_DIR%g
 s%@TCL_SRC_DIR@%$TCL_SRC_DIR%g
 s%@TCL_LIB_FILE@%$TCL_LIB_FILE%g
@@ -1853,21 +1007,6 @@ s%@TCL_LIB_SPEC@%$TCL_LIB_SPEC%g
 s%@TCL_BUILD_LIB_SPEC@%$TCL_BUILD_LIB_SPEC%g
 s%@TCL_STUB_LIB_SPEC@%$TCL_STUB_LIB_SPEC%g
 s%@TCL_BUILD_STUB_LIB_SPEC@%$TCL_BUILD_STUB_LIB_SPEC%g
-s%@CLEANFILES@%$CLEANFILES%g
-s%@CFLAGS_DEBUG@%$CFLAGS_DEBUG%g
-s%@CFLAGS_OPTIMIZE@%$CFLAGS_OPTIMIZE%g
-s%@STLIB_LD@%$STLIB_LD%g
-s%@SHLIB_LD@%$SHLIB_LD%g
-s%@SHLIB_CFLAGS@%$SHLIB_CFLAGS%g
-s%@SHLIB_LDFLAGS@%$SHLIB_LDFLAGS%g
-s%@TCL_DBGX@%$TCL_DBGX%g
-s%@CFLAGS_DEFAULT@%$CFLAGS_DEFAULT%g
-s%@LDFLAGS_DEFAULT@%$LDFLAGS_DEFAULT%g
-s%@MAKE_LIB@%$MAKE_LIB%g
-s%@MAKE_SHARED_LIB@%$MAKE_SHARED_LIB%g
-s%@MAKE_STATIC_LIB@%$MAKE_STATIC_LIB%g
-s%@exampleA_LIB_FILE@%$exampleA_LIB_FILE%g
-s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
 s%@TCLSH_PROG@%$TCLSH_PROG%g
 
 CEOF

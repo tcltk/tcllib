@@ -98,7 +98,9 @@ foreach f [glob -nocomplain ./*] {
 }
 
 set index [open pkgIndex.tcl w]
-puts $index "lappend auto_path [pwd]"
+puts $index "if { \[lsearch \$auto_path \[file dirname \[info script\]\]\] } {"
+puts $index "\tlappend auto_path \[file dirname \[info script\]\]"
+puts $index "}"
 puts $index "package ifneeded $package $version {"
 foreach module $modules {
     puts $index "\tpackage require $module"
