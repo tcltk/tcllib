@@ -208,15 +208,23 @@ proc ::asn::asnChoiceConstr {appNumber args} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnInteger {number} {
-    # The integer tag is 0x02. The length is 1, 2, or 4, coded in a
+    # The integer tag is 0x02. The length is 1, 2, 3, or 4, coded in a
     # single byte. This can be done directly, no need to go through
     # asnLength. The value itself is written in big-endian.
+
+    # Known bug/issue: The command cannot handle wide integers, i.e.
+    # anything between 5 to 8 bytes length.
 
     if {($number >= -128) && ($number < 128)} {
         return [binary format H2H2c 02 01 $number]
     }
-    if {($number >= -32768) && ($number < 32767)} {
+    if {($number >= -32768) && ($number < 32768)} {
         return [binary format H2H2S 02 02 $number]
+    }
+    if {($number >= -8388608) && ($number < 8388608)} {
+	set numberb [expr {$number & 0xFFFF}]
+	set numbera [expr {($number >> 16) & 0xFF}]
+	return [binary format H2H2cS 02 03 $numbera $numberb]
     }
     return [binary format H2H2I 02 04 $number]
 }
