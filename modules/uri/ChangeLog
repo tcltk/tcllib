@@ -1,3 +1,11 @@
+2004-05-03  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* uri.test: * uri.tcl (SplitHttp): Fixed [SF Tcllib Bug
+	936064]. Now extracting user/password information from the Http
+	URI as well. Simple change from 'GetHostPort' to
+	'GetUPHP'. Updated the test suite as well (One new test, and
+	update of 4 existing tests).
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
