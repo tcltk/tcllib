@@ -1,4 +1,4 @@
-2005-04-04  Michael Schlenker <mic42@users.sourceforge.net>
+2005-04-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.man:      Synchronized indexed/provided versions.
 	* pkgIndex.tcl:
