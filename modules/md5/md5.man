@@ -1,9 +1,9 @@
-[manpage_begin md5 n 2.0.2]
+[manpage_begin md5 n 2.0.3]
 [moddesc {Perform md5 hashing}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5 Message-Digest Algorithm}]
 [require Tcl 8.2]
-[require md5 [opt 2.0.2]]
+[require md5 [opt 2.0.3]]
 [description]
 [para]
 

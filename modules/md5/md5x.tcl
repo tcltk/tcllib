@@ -16,13 +16,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.9 2004/12/02 23:52:07 patthoyts Exp $
+# $Id: md5x.tcl,v 1.10 2005/02/17 14:29:30 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
-    variable version 2.0.2
-    variable rcsid {$Id: md5x.tcl,v 1.9 2004/12/02 23:52:07 patthoyts Exp $}
+    variable version 2.0.3
+    variable rcsid {$Id: md5x.tcl,v 1.10 2005/02/17 14:29:30 patthoyts Exp $}
     variable usetrf  0
     variable usemd5c 0
     namespace export md5 hmac MD5Init MD5Update MD5Final
@@ -544,11 +544,12 @@ proc ::md5::md5 {args} {
             -file*     { set opts(-filename) [Pop args 1] }
             -channel   { set opts(-channel) [Pop args 1] }
             -chunksize { set opts(-chunksize) [Pop args 1] }
-            --         { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
-                    must be one of $err"
+                    must be one of $err\nlen: [llength $args]"
             }
         }
         Pop args
@@ -602,8 +603,9 @@ proc ::md5::hmac {args} {
             -file*     { set opts(-filename) [Pop args 1] }
             -channel   { set opts(-channel) [Pop args 1] }
             -chunksize { set opts(-chunksize) [Pop args 1] }
-            --         { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
                     must be one of $err"
