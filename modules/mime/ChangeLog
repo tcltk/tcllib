@@ -1,5 +1,12 @@
 2004-05-04  Andreas Kupries  <andreask@activestate.com>
 
+	* mime:test:
+	* mime.tcl: Applied [SF Tcllib Patch 758742], adding many more
+	  MIME types for encodings to the knowledge-base of the
+	  package. Thanks to Matthew Walker <gunzel@users.sourceforge.net>
+	  for the work, and Mikhail Teterin <kot@users.sourceforge.net>
+	  for prodding.
+
 	* mime.test:
 	* mime.tcl (copymessageaux): Fixed [SF Tcllib Bug 620852]. Added
 	  '-nonewline' to the puts statements which wrote out the chunks
