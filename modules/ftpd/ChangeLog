@@ -1,3 +1,10 @@
+2002-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* ftpd.n: Changed to require tcl version 8.3. Code uses -unique
+	  option of [lsort], introduced in that version. This fixes SF bug
+	  #531799.
+
 2001-09-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftpd.tcl: Applied patch [459197] from Hemang to fix more
