@@ -1,6 +1,27 @@
+2001-08-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* All of the changes below are related to tcllib Patch [449531] by
+	  Anselm Lingnau <lingnau@users.sourceforge.net>. Instead of
+	  taking in the proposed highlevel 'fileinput' I added some of the
+	  more low-level commands from Tclx which can be used to
+	  create/compose 'fileinput'.
+
+	* pkgIndex.tcl: Moved version of fileutil to 1.2.
+
+	* fileutil.test: Added tests for the new commands. Moved version
+	  of fileutil to 1.2.
+
+	* fileutil.n: Added documentation of the new commands. Moved
+	  version of fileutil to 1.2.
+
+	* fileutil.tcl (findByPattern, foreachLine): New commands, modeled
+	  after TclX's 'recursive_glob' and 'for_file'. Moved version of
+	  fileutil to 1.2.
+
 2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* fileutil.n: Added manpage [446584].
+	* fileutil.n: Added manpage documenting the commands. tcllib Bug
+	  [446584].
 
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 

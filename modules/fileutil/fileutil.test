@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.4 2001/03/26 16:50:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.5 2001/08/24 17:01:00 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -75,6 +75,27 @@ test find-1.4 {handling of circular links} {unix} {
 	[file join $dir find1 find2 file2]]
 
 
+# find by pattern tests
+
+test find-2.0 {find by pattern} {
+    catch {::fileutil::findByPattern $dir -glob {fil*} foo} msg
+    set msg
+} {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}
+
+test find-2.1 {find by pattern} {
+    catch {::fileutil::findByPattern $dir -glob} msg
+    set msg
+} {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}
+
+test find-2.2 {find by pattern} {
+    lsort [::fileutil::findByPattern $dir -glob {fil*}]
+} [list [file join $dir find1 file1] [file join $dir find1 find2 file2]]
+
+test find-2.3 {find by pattern} {
+    lsort [::fileutil::findByPattern $dir -regexp {.*1$}]
+} [list [file join $dir find1] [file join $dir find1 file1]]
+
+
 catch {removeDirectory grepTest} ; # start with a clean structure!
 
 # Build a sample tree to search
@@ -98,6 +119,15 @@ makeFile "foo\nbar\nbaz\n" [file join $dir catTest file1]
 test cat-1.1 {cat} {
     fileutil::cat [file join $dir catTest file1]
 } "foo\nbar\nbaz\n"
+
+
+test foreachline-1.0 {foreachLine} {
+    set res ""
+    ::fileutil::foreachLine line [file join $dir catTest file1] {
+	append res /$line
+    }
+    set res
+} {/foo/bar/baz}
 
 ::tcltest::cleanupTests
 return

@@ -1,3 +1,8 @@
+2001-08-24   Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (check): Added target to report modules without
+ 	  testsuites and/or manpages.
+
 2001-08-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* examples/nntp: Added new example application 'postnews'. This is
