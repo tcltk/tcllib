@@ -34,6 +34,15 @@ proc base64::encode {string} {
     set state 0
     set length 0
     foreach {c} [split $string {}] {
+	# RFC 2045 says that the output must have no more than 76 chars per
+	# line; we wrap at 60 so that our output is identical to that 
+	# produced by the GNU uuencode 4.2.  We do the length check before
+	# appending so that we don't get an extra newline if the output is
+	# a multiple of 60 chars long.
+	if {$length >= 60} {
+	    append result \n
+	    set length 0
+	}
 	scan $c %c x
 	switch [incr state] {
 	    1 {	append result $base64_en([expr {($x >>2) & 0x3F}]) }
@@ -42,14 +51,11 @@ proc base64::encode {string} {
 	    3 { append result \
 		$base64_en([expr {(($old << 2) & 0x3C) | (($x >> 6) & 0x3)}])
 		append result $base64_en([expr {($x & 0x3F)}])
+		incr length
 		set state 0}
 	}
 	set old $x
 	incr length
-	if {$length >= 72} {
-	    append result \n
-	    set length 0
-	}
     }
     set x 0
     switch $state {
@@ -66,7 +72,14 @@ proc base64::decode {string} {
     set group 0
     set j 18
     foreach char [split $string {}] {
-	if [string compare $char "="] {
+	if {[string compare $char "="]} {
+	    # RFC 2045 says that line breaks and other characters not part
+	    # of the Base64 alphabet must be ignored, and that the decoder
+	    # can optionally emit a warning or reject the message.  We opt
+	    # not to do so, but to just ignore the character.
+	    if { ![info exists base64($char)] } {
+		continue
+	    }
 	    set bits $base64($char)
 	    set group [expr {$group | ($bits << $j)}]
 	}
