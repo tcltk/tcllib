@@ -1,3 +1,15 @@
+2004-02-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Overall package bumped to v2.1
+	* struct.tcl:
+
+	* sets.tcl:       Added include, exclude, add, and subtract
+	* sets.test:      operators, and a new predicate subsetof.
+	* struct_set.man: Added documentation for the new methods
+	                  above. Added tests for the new methods.
+
+	* sets.tcl: Typo police. No functional changes.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
