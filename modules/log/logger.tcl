@@ -138,7 +138,12 @@ proc ::logger::init {service} {
         ::error "Invalid level '$lv' - levels are $levels"
         }
 
-        variable enabled $lv
+        variable enabled
+        set elnum [lsearch -exact $levels $enabled]
+        if {($elnum == -1) || ($elnum > $lvnum)} {
+            set enabled $lv
+        }
+        
         while { $lvnum <  [llength $levels] } {
         interp alias {} [namespace current]::[lindex $levels $lvnum] \
             {} [namespace current]::[lindex $levels $lvnum]cmd
@@ -171,8 +176,16 @@ proc ::logger::init {service} {
         ::error "Levels are $levels"
         }
 
-        # this is the lowest level possible.
-        variable enabled $lv
+        variable enabled
+        set elnum [lsearch -exact $levels $enabled]
+        if {($elnum > -1) && ($elnum <= $lvnum)} {
+            if {$lvnum+1 >= [llength $levels]} {
+                set enabled "none"
+            } else {
+                set enabled [lindex $levels [expr {$lvnum+1}]]
+            }
+        }
+        
         while { $lvnum >= 0 } {
         interp alias {} [namespace current]::[lindex $levels $lvnum] {} \
             [namespace current]::no-op

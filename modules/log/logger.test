@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.6 2004/05/25 17:30:25 mic42 Exp $
+# $Id: logger.test,v 1.7 2004/05/26 01:09:36 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -217,6 +217,64 @@ test logger-7.0 {currentloglevel} {
     ${log}::delete
     set result
 } {debug info notice warn error critical}
+
+test logger-7.1 {currentloglevel, disable all} {
+    set log [logger::init global]
+    ${log}::disable critical
+    set result [${log}::currentloglevel]
+    ${log}::delete
+    set result
+} {none}
+
+test logger-7.2 {currentloglevel, enable incremental} {
+    set results ""
+    set log [logger::init global]
+    ${log}::disable critical
+    ${log}::enable critical
+    lappend results [${log}::currentloglevel]
+    ${log}::enable debug
+    lappend results [${log}::currentloglevel]
+    ${log}::delete
+    set results
+} {critical debug}
+
+test logger-7.3 {currentloglevel, enable incremental} {
+    set results ""
+    set log [logger::init global]
+    ${log}::disable critical
+    ${log}::enable debug
+    lappend results [${log}::currentloglevel]
+    ${log}::enable critical
+    lappend results [${log}::currentloglevel]
+    ${log}::delete
+    set results
+} {debug debug}
+
+test logger-7.3 {currentloglevel, disable incremental} {
+    set results ""
+    set log [logger::init global]
+    ${log}::enable debug
+    lappend results [${log}::currentloglevel]
+    ${log}::disable critical
+    lappend results [${log}::currentloglevel]
+    ${log}::disable debug
+    lappend results [${log}::currentloglevel]
+    ${log}::delete
+    set results
+} {debug none none}
+
+test logger-7.4 {currentloglevel, disable incremental} {
+    set results ""
+    set log [logger::init global]
+    ${log}::enable debug
+    lappend results [${log}::currentloglevel]
+    ${log}::disable debug
+    lappend results [${log}::currentloglevel]
+    ${log}::disable critical
+    lappend results [${log}::currentloglevel]
+    ${log}::delete
+    set results
+} {debug info none}
 
 test logger-8.0 {logproc with existing proc, non existing proc} {
     set log [logger::init global]
