@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.10 2002/07/02 18:37:55 dgp Exp $
+# RCS: @(#) $Id: all.tcl,v 1.11 2002/09/04 17:22:51 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -152,6 +152,16 @@ foreach module $modules {
 		set msg "no value given for parameter "
 		append msg "\"[lindex $argList $missingIndex]\" to "
 		append msg "\"$functionName\""
+	    } else {
+		set msg "wrong # args: should be \"$functionName $argList\""
+	    }
+	    return $msg
+	}
+
+	proc ::tcltest::tooManyMessage {functionName argList} {
+	    # if oldstyle errors:
+	    if { [info tclversion] < 8.4 } {
+		set msg "called \"$functionName\" with too many arguments"
 	    } else {
 		set msg "wrong # args: should be \"$functionName $argList\""
 	    }
