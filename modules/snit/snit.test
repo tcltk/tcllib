@@ -415,15 +415,19 @@ test typeconstructor-1.3 {type proc is destroyed on error} {} {
 
 test typecomponent-1.1 {typecomponent defines typevariable} {} {
     cleanup
+
+    catch {
     type dog {
         typecomponent mycomp
-
+            
         typemethod test {} {
             return $mycomp
         }
     }
 
     dog test
+    } result
+    set result
 } {}
 
 test typecomponent-1.2 {typecomponent trace executes} {} {
@@ -440,6 +444,33 @@ test typecomponent-1.2 {typecomponent trace executes} {} {
 
     dog test
 } {foo}
+
+test typecomponent-1.3 {typecomponent -public works} {} {
+    cleanup
+    type dog {
+        typecomponent mycomp -public string
+
+        typeconstructor {
+            set mycomp string
+        }
+    }
+
+    dog string length foo
+} {3}
+
+test typecomponent-1.4 {typecomponent -inherit yes} {} {
+    cleanup
+    type dog {
+        typecomponent mycomp -inherit yes
+
+        typeconstructor {
+            set mycomp string
+        }
+    }
+
+    dog length foo
+} {3}
+
 
 #-----------------------------------------------------------------------
 # Typemethod delegation
@@ -529,7 +560,7 @@ test dtypemethod-1.6 {can't delegate local typemethod: order 1} {
     } result
 
     set result
-} {error in 'delegate typemethod foo...', 'foo' has been defined locally.}
+} {Error in 'delegate typemethod foo...', 'foo' has been defined locally.}
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
     cleanup
@@ -542,7 +573,7 @@ test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
     } result
 
     set result
-} {error in 'delegate typemethod foo...', 'foo' has been defined locally.}
+} {Error in 'delegate typemethod foo...', 'foo' has been defined locally.}
 
 test dtypemethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -1872,7 +1903,7 @@ test option-4.4 {delegated option name must begin with hyphen} {
     } result
 
     set result
-} {error in 'delegate option nohyphen...', badly named option 'nohyphen'}
+} {Error in 'delegate option nohyphen...', badly named option 'nohyphen'}
 
 test option-4.5 {delegated option name must be lower case} {
     cleanup
@@ -1884,7 +1915,7 @@ test option-4.5 {delegated option name must be lower case} {
     } result
 
     set result
-} {error in 'delegate option -Upper...', badly named option '-Upper'}
+} {Error in 'delegate option -Upper...', badly named option '-Upper'}
 
 test option-4.6 {delegated option name may not contain spaces} {
     cleanup
@@ -1896,7 +1927,7 @@ test option-4.6 {delegated option name may not contain spaces} {
     } result
 
     set result
-} {error in 'delegate option {"-with space"}...', badly named option '-with space'}
+} {Error in 'delegate option {"-with space"}...', badly named option '-with space'}
 
 test option-5.1 {local widget options read from option database} tk {
     cleanup
@@ -2207,7 +2238,7 @@ test delegate-1.1 {can only delegate methods or options} {} {
     } result
 
     set result
-} {syntax error in definition: delegate foo bar...}
+} {Error in 'delegate foo bar...', 'foo'?}
 
 test delegate-1.2 {"to" must appear in the right place} {} {
     cleanup
@@ -2220,7 +2251,7 @@ test delegate-1.2 {"to" must appear in the right place} {} {
     } result
 
     set result
-} {error in 'delegate method foo...', unknown delegation option 'from'.}
+} {Error in 'delegate method foo...', unknown delegation option 'from'.}
 
 test delegate-1.3 {"as" must have a target} {} {
     cleanup
@@ -2233,7 +2264,7 @@ test delegate-1.3 {"as" must have a target} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method foo...}
+} {Error in 'delegate method foo...', invalid syntax}
 
 test delegate-1.4 {"as" must have a single target} {} {
     cleanup
@@ -2246,7 +2277,7 @@ test delegate-1.4 {"as" must have a single target} {} {
     } result
 
     set result
-} {error in 'delegate method foo...', unknown delegation option 'quux'.}
+} {Error in 'delegate method foo...', unknown delegation option 'quux'.}
 
 test delegate-1.5 {"as" doesn't work with "*"} {} {
     cleanup
@@ -2259,7 +2290,7 @@ test delegate-1.5 {"as" doesn't work with "*"} {} {
     } result
 
     set result
-} {error in 'delegate method *...', cannot specify 'as' with method '*'}
+} {Error in 'delegate method *...', cannot specify 'as' with method '*'}
 
 test delegate-1.6 {"except" must have a target} {} {
     cleanup
@@ -2272,7 +2303,7 @@ test delegate-1.6 {"except" must have a target} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method *...}
+} {Error in 'delegate method *...', invalid syntax}
 
 test delegate-1.7 {"except" must have a single target} {} {
     cleanup
@@ -2285,7 +2316,7 @@ test delegate-1.7 {"except" must have a single target} {} {
     } result
 
     set result
-} {error in 'delegate method *...', unknown delegation option 'quux'.}
+} {Error in 'delegate method *...', unknown delegation option 'quux'.}
 
 test delegate-1.8 {"except" works only with "*"} {} {
     cleanup
@@ -2298,7 +2329,7 @@ test delegate-1.8 {"except" works only with "*"} {} {
     } result
 
     set result
-} {error in 'delegate method foo...', can only specify 'except' with method '*'}
+} {Error in 'delegate method foo...', can only specify 'except' with method '*'}
 
 test delegate-1.9 {only "as" or "except"} {} {
     cleanup
@@ -2311,7 +2342,7 @@ test delegate-1.9 {only "as" or "except"} {} {
     } result
 
     set result
-} {error in 'delegate method foo...', unknown delegation option 'with'.}
+} {Error in 'delegate method foo...', unknown delegation option 'with'.}
 
 
 #-----------------------------------------------------------------------
@@ -2408,7 +2439,7 @@ test dmethod-1.6 {can't delegate local method: order 1} {
     } result
 
     set result
-} {error in 'delegate method foo...', 'foo' has been defined locally.}
+} {Error in 'delegate method foo...', 'foo' has been defined locally.}
 
 test dmethod-1.7 {can't delegate local method: order 2} {
     cleanup
@@ -2421,7 +2452,7 @@ test dmethod-1.7 {can't delegate local method: order 2} {
     } result
 
     set result
-} {error in 'delegate method foo...', 'foo' has been defined locally.}
+} {Error in 'delegate method foo...', 'foo' has been defined locally.}
 
 test dmethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -2713,7 +2744,7 @@ test doption-1.8 {can't delegate local option: order 1} {
     } result
 
     set result
-} {error in 'delegate option -color...', '-color' has been defined locally.}
+} {Error in 'delegate option -color...', '-color' has been defined locally.}
 
 test doption-1.9 {can't delegate local option: order 2} {
     cleanup
@@ -4811,6 +4842,111 @@ test component-1.5 {-inherit delegates unknown options to the component.} {
     spot cget -size
 } {medium}
 
+#-----------------------------------------------------------------------
+# Typevariables, Variables, Typecomponents, Components
+
+test typevar_var-1.1 {variable/typevariable collisions not allowed: order 1} {
+    cleanup
+
+    catch {
+        type dog {
+            typevariable var
+            variable var
+        }
+    } result
+
+    set result
+} {Error in 'variable var...', 'var' is already a typevariable.}
+
+test typevar_var-1.2 {variable/typevariable collisions not allowed: order 2} {
+    cleanup
+
+    catch {
+        type dog {
+            variable var
+            typevariable var
+        }
+    } result
+
+    set result
+} {Error in 'typevariable var...', 'var' is already an instance variable.}
+
+test typevar_var-1.3 {component/typecomponent collisions not allowed: order 1} {
+    cleanup
+
+    catch {
+        type dog {
+            typecomponent comp
+            component comp
+        }
+    } result
+
+    set result
+} {Error in 'component comp...', 'comp' is already a typevariable.}
+
+test typevar_var-1.4 {component/typecomponent collisions not allowed: order 2} {
+    cleanup
+
+    catch {
+        type dog {
+            component comp
+            typecomponent comp
+        }
+    } result
+
+    set result
+} {Error in 'typecomponent comp...', 'comp' is already an instance variable.}
+
+test typevar_var-1.5 {can't delegate options to typecomponents} {
+    cleanup
+
+    catch {
+        type dog {
+            typecomponent comp
+
+            delegate option -opt to comp
+        }
+    } result
+
+    set result
+} {Error in 'delegate option -opt...', 'comp' is already a typevariable.}
+
+test typevar_var-1.5 {can't delegate typemethods to instance components} {
+    cleanup
+
+    catch {
+        type dog {
+            component comp
+
+            delegate typemethod foo to comp
+        }
+    } result
+
+    set result
+} {Error in 'delegate typemethod foo...', 'comp' is already an instance variable.}
+
+test typevar_var-1.6 {can delegate methods to typecomponents} {
+    cleanup
+
+    catch {
+    proc echo {args} {return [join $args "|"]}
+
+    type dog {
+        typecomponent tail
+
+        typeconstructor {
+            set tail echo
+        }
+
+        delegate method wag to tail
+    }
+
+    dog spot
+    spot wag briskly
+    } result
+
+    set result
+} {wag|briskly}
 
 
 #---------------------------------------------------------------------
