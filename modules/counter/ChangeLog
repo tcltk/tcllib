@@ -1,3 +1,7 @@
+2002-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* counter.man: Added doctools manpage.
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* counter.tcl: Restricted export list to public API.
