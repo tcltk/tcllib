@@ -1,3 +1,9 @@
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
 2004-07-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5x.tcl: Try and fix up the use of Trf with Memchan for the
