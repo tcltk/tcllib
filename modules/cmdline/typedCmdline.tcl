@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: typedCmdline.tcl,v 1.5 2002/08/31 06:27:47 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.tcl,v 1.6 2003/04/11 19:07:05 andreas_kupries Exp $
 
-namespace eval cmdline {
+namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
 
     # variable cmdline::charclasses --
@@ -27,7 +27,7 @@ namespace eval cmdline {
 
 }
 
-# cmdline::typedGetopt --
+# ::cmdline::typedGetopt --
 #
 #	The cmdline::typedGetopt works in a fashion like the standard
 #	C based getopt function.  Given an option string and a
@@ -113,7 +113,7 @@ namespace eval cmdline {
 #	you must use the exact option. Abbreviating it can cause
 #	an error in the "cmdline::prefixSearch" procedure.
 
-proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
+proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
     variable charclasses
 
     upvar $argvVar argsList
@@ -146,7 +146,7 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
 
                 set _opt [string range $arg 1 end]
 
-                set i [cmdline::prefixSearch $optstr [file rootname $_opt]]
+                set i [prefixSearch $optstr [file rootname $_opt]]
                 if {$i != -1} {
                     set opt [lindex $optstring $i]
 
@@ -259,7 +259,7 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
     return $retval
 }
 
-# cmdline::typedGetoptions --
+# ::cmdline::typedGetoptions --
 #
 #	Process a set of command line options, filling in defaults
 #	for those not specified. This also generates an error message
@@ -313,7 +313,7 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
 # Results
 #	Name value pairs suitable for using with array set.
 
-proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
+proc ::cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
     variable charclasses
 
     upvar 1 $arglistVar argv
@@ -342,7 +342,7 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
         }
     }
     set argc [llength $argv]
-    while {[set err [cmdline::typedGetopt argv $opts opt arg]]} {
+    while {[set err [typedGetopt argv $opts opt arg]]} {
         if {$err == 1} {
             if {[info exists result($opt)]
                     && [info exists multi($opt)]} {
@@ -357,13 +357,13 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
                 set result($opt) "$arg"
             }
         } elseif {($err == -1) || ($err == -3)} {
-            error [cmdline::typedUsage $optlist $usage]
+            error [typedUsage $optlist $usage]
         } elseif {$err == -2 && ![info exists defaults($opt)]} {
-            error [cmdline::typedUsage $optlist $usage]
+            error [typedUsage $optlist $usage]
         }
     }
     if {[info exists result(?)] || [info exists result(help)]} {
-        error [cmdline::typedUsage $optlist $usage]
+        error [typedUsage $optlist $usage]
     }
     foreach {opt dflt} [array get defaults] {
         if {![info exists result($opt)]} {
@@ -373,7 +373,7 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
     return [array get result]
 }
 
-# cmdline::typedUsage --
+# ::cmdline::typedUsage --
 #
 #	Generate an error message that lists the allowed flags,
 #	type of argument taken (if any), default value (if any),
@@ -385,10 +385,10 @@ proc cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
 # Results
 #	A formatted usage message
 
-proc cmdline::typedUsage {optlist {usage {options:}}} {
+proc ::cmdline::typedUsage {optlist {usage {options:}}} {
     variable charclasses
 
-    set str "[cmdline::getArgv0] $usage\n"
+    set str "[getArgv0] $usage\n"
     foreach opt [concat $optlist \
             {{help "Print this message"} {? "Print this message"}}] {
         set name [lindex $opt 0]
@@ -419,7 +419,7 @@ proc cmdline::typedUsage {optlist {usage {options:}}} {
     return $str
 }
 
-# cmdline::prefixSearch --
+# ::cmdline::prefixSearch --
 #
 #	Search a Tcl list for a pattern; searches first for an exact match,
 #	and if that fails, for a unique prefix that matches the pattern 
@@ -433,7 +433,7 @@ proc cmdline::typedUsage {optlist {usage {options:}}} {
 #	Index of found word is returned. If no exact match or
 #	unique short version is found then -1 is returned.
 
-proc cmdline::prefixSearch {list pattern} {
+proc ::cmdline::prefixSearch {list pattern} {
     # Check for an exact match
 
     if {[set pos [::lsearch -exact $list $pattern]] > -1} {
