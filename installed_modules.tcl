@@ -37,6 +37,7 @@ foreach {m pkg doc exa} {
     grammar_fa  _tcl  _man  _null
     html	_tcl  _man  _null
     htmlparse	_tcl  _man  _null
+    http	_tcl  _man  _null
     ident       _tcl  _man  _null
     inifile     _tcl  _man  _null
     irc		_tcl  _man _exa
