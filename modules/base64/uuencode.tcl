@@ -6,14 +6,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.8 2003/03/24 23:21:22 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.9 2003/04/25 04:52:16 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
 
 namespace eval ::uuencode {
-    variable version 1.0.2
-
     namespace export encode decode uuencode uudecode
 }
 
@@ -216,8 +214,10 @@ proc ::uuencode::uudecode {args} {
 }
 
 # -------------------------------------------------------------------------
+# See devdoc/notes.txt before using the variable in the provide statement.
 
-package provide uuencode $::uuencode::version
+set ::uuencode::version  1.0.2
+package provide uuencode 1.0.2
 
 # -------------------------------------------------------------------------
 #
@@ -225,4 +225,3 @@ package provide uuencode $::uuencode::version
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
-

@@ -1,3 +1,28 @@
+2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/base64/yencode.tcl:    Modified the [package provide]'s
+	* modules/base64/uuencode.tcl:   of various packages to aid the
+	* modules/crc/sum.tcl:           automatic consistency checking at
+	* modules/crc/cksum.tcl:         the expense of slightly more
+	* modules/crc/crc32.tcl:         manual overhead for updating the
+	* modules/crc/crc16.tcl:         numbers.
+	* modules/dns/dns.tcl:
+	* modules/dns/resolv.tcl:        Additionally cleanup of the found
+	* modules/ftp/ftp.tcl:           inconsistencies.
+	* modules/ftp/ftp_geturl.tcl:
+	* modules/pop3d/pop3d.tcl:
+	* modules/pop3d/pop3d_udb.tcl:
+	* modules/pop3d/pop3d_dbox.tcl:
+	* modules/pop3d/pop3d_dbox.man:
+	* modules/smtpd/smtpd.tcl:
+	* modules/des/des.tcl:
+	* modules/des/des.man:
+	* modules/ntp/time.tcl:
+	* modules/md4/md4.tcl:
+
+	* sak.tcl: Changed provide heuristics a bit, more robust against
+	  whitespace in various places.
+
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
 	* sak.tcl: New command 'provided' to list packages provided by tcl

@@ -95,6 +95,7 @@ proc ppackages {} {
 	    if { [regexp {provide[ 	]*Tcl}     $line]} {continue}
 	    if { [regexp {if \{}     $line]} {continue}
 	    regsub {^.*provide } $line {} line
+	    set line [string trim $line]
 
 	    if {[regexp {^\[} $line]} {
 		set pos [string last { } $line]
@@ -105,6 +106,7 @@ proc ppackages {} {
 		set n [string range $line 0 [incr pos -1]]
 		set v [string range $line [incr pos 2] end]
 	    }
+	    set n [string trim $n]
 	    set p($n) [string trim $v]
 	    set ::pf($n) [eval file join [lrange [file split $f] end-1 end]]
 	}

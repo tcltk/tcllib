@@ -76,6 +76,31 @@
 #
 #
 #   $Log: des.tcl,v $
+#   Revision 1.3  2003/04/25 04:52:17  andreas_kupries
+#
+#   	* modules/base64/yencode.tcl:    Modified the [package provide]'s
+#   	* modules/base64/uuencode.tcl:   of various packages to aid the
+#   	* modules/crc/sum.tcl:           automatic consistency checking at
+#   	* modules/crc/cksum.tcl:         the expense of slightly more
+#   	* modules/crc/crc32.tcl:         manual overhead for updating the
+#   	* modules/crc/crc16.tcl:         numbers.
+#   	* modules/dns/dns.tcl:
+#   	* modules/dns/resolv.tcl:        Additionally cleanup of the found
+#   	* modules/ftp/ftp.tcl:           inconsistencies.
+#   	* modules/ftp/ftp_geturl.tcl:
+#   	* modules/pop3d/pop3d.tcl:
+#   	* modules/pop3d/pop3d_udb.tcl:
+#   	* modules/pop3d/pop3d_dbox.tcl:
+#   	* modules/pop3d/pop3d_dbox.man:
+#   	* modules/smtpd/smtpd.tcl:
+#   	* modules/des/des.tcl:
+#   	* modules/des/des.man:
+#   	* modules/ntp/time.tcl:
+#   	* modules/md4/md4.tcl:
+#
+#   	* sak.tcl: Changed provide heuristics a bit, more robust against
+#   	  whitespace in various places.
+#
 #   Revision 1.2  2003/04/11 18:55:43  andreas_kupries
 #
 #   	* des.tcl:  Fixed bug #614591.
@@ -116,9 +141,6 @@
 ## TODO: Check for weak keys: see http://www.cs.wm.edu/~hallyn/des/weak
 
 namespace eval ::DES {
-
-  variable version 0.8.0
-
   namespace export GetKey DesBlock
 
   #-------------------------------------------------------------------------
@@ -595,8 +617,10 @@ proc ::DES::des {args} {
 }
 
 # -------------------------------------------------------------------------
+# See devdoc/notes.txt before using the variable in the provide statement.
 
-package provide des $DES::version
+set  ::DES::version 0.8
+package provide des 0.8
 
 # -------------------------------------------------------------------------
 #

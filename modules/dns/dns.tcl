@@ -18,7 +18,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.13 2003/04/13 23:04:00 patthoyts Exp $
+# $Id: dns.tcl,v 1.14 2003/04/25 04:52:17 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -26,8 +26,7 @@ package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
-    variable version 1.0.4
-    variable rcsid {$Id: dns.tcl,v 1.13 2003/04/13 23:04:00 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.14 2003/04/25 04:52:17 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -1087,7 +1086,9 @@ proc ::uri::JoinDns {args} {
 
 # -------------------------------------------------------------------------
 
-package provide dns $dns::version
+# See devdoc/notes.txt before using the variable in the provide statement.
+set ::dns::version  1.0.4
+package provide dns 1.0.4
 
 # -------------------------------------------------------------------------
 # Local Variables:

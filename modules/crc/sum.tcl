@@ -13,12 +13,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: sum.tcl,v 1.2 2003/01/26 00:16:03 patthoyts Exp $
+# $Id: sum.tcl,v 1.3 2003/04/25 04:52:16 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::crc {
-    variable sum_version 1.0.1
     namespace export sum
 }
 
@@ -115,8 +114,10 @@ proc ::crc::sum {args} {
 }
 
 # -------------------------------------------------------------------------
+# See devdoc/notes.txt before using the variable in the provide statement.
 
-package provide sum $::crc::sum_version
+set ::crc::sum_version 1.0.1
+package provide sum    1.0.1
 
 # -------------------------------------------------------------------------    
 # Local Variables:
