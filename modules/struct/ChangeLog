@@ -1,10 +1,16 @@
 2003-04-25  Andreas Kupries  <andreask@activestate.com>
 
+	* queue.man: Documentation fix. peek/get throw errors if more was
+	  requested than in the queue. The documentation talked about
+	  returning empty strings. Thanks to Michael Schlenker
+	  <mic42@users.sourceforge.net> for the report.
+
 	* prioqueue.test: Extended to check for stable insertion.
 	* prioqueue.tcl (__elementcompare): Bugfix, makes insertion stable.
 	* prioqueue.man: New, documentation.
 
-	* skiplist.man: Typo fix.
+	* skiplist.man: Typo fix. Thanks to Michael Schlenker
+	  <mic42@users.sourceforge.net> for the report.
 
 2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
