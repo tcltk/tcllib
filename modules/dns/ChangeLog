@@ -1,5 +1,7 @@
 2004-11-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* dns.tcl:     Fixed bug in ReadUShort.
+	
 	* dns.tcl:     Incremented the version to 1.2.1 and updated the
 	* ip.tcl:      manual. 
 	
