@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.17 2002/07/08 23:25:51 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.18 2002/08/06 20:52:54 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -876,7 +876,7 @@ proc ::struct::tree::_lappend {name node args} {
     upvar ::struct::tree::tree${name}::node$node data
 
     if { [llength $args] != 1 && [llength $args] != 3 } {
-	error "wrong # args: should be \"$name set $node ?-key key?\
+	error "wrong # args: should be \"$name lappend $node ?-key key?\
 		value\""
     }
     
