@@ -1,3 +1,7 @@
+2004-08-25  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* png.tcl bug fix in getTimestamp, made times be interpreted as gmt.
+
 2004-08-09  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* png.man: Spelling police.

@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.3 2004/08/10 07:01:32 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.4 2004/08/25 17:43:51 afaupell Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -261,9 +261,9 @@ foreach f [lsort [glob -directory [file join [file dirname [info script]] testim
 # Timestamps
 
 array set exptime {
-    cm0n0g04 946758896
-    cm7n0g04 28800
-    cm9n0g04 946713599
+    cm0n0g04 946730096
+    cm7n0g04 0
+    cm9n0g04 946684799
 }
 
 foreach f [lsort [glob -directory [file join [file dirname [info script]] testimages] cm*.png]] {
