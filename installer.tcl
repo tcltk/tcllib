@@ -164,8 +164,9 @@ proc ainstall {} {
 	set aexe [file join $distribution apps $a]
 	set adst [file join $config(app,path) ${a}$ext]
 
+	file mkdir [file dirname  $adst]
 	catch {file delete -force $adst}
-	file copy -force $aexe $adst
+	file copy -force $aexe    $adst
 
 	if {[file exists $aexe.man]} {
 	    if {$config(doc,nroff)} {

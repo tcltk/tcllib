@@ -1,3 +1,8 @@
+2004-09-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installer.tcl (ainstall): Ensure existence of directory for the
+	  applications to install.
+
 2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl (tclfiles, docfiles): Added code to exclude files under
