@@ -1,4 +1,11 @@
+2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tcl:  When changing the 'walk' method of 'struct::tree'
+	* htmlparse.test: adaption of this module was forgotten. Fixed.
+	  Also fixed problem with usage of 8.3'ism in 'mapEscapes.
+
 2003-12-16  Joe English  <jenglish@users.sourceforge.net>
+
 	* htmlparse.tcl: Fix for bug #861277 (backslashes in content)
 	* htmlparse.test: Added test case.
 

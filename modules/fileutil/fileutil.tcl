@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.36 2004/02/03 22:28:20 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.37 2004/02/10 06:44:21 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -815,7 +815,7 @@ proc ::fileutil::fileType {filename} {
 # Results:
 #	The directory for temporary files.
 
-proc ::fileutil::tempdir {} {
+proc ::fileutil::TempDir {} {
     global tcl_platform env
     set attempdirs [list]
 
@@ -840,7 +840,7 @@ proc ::fileutil::tempdir {} {
 
     foreach tmp $attempdirs {
 	if { [file isdirectory $tmp] && [file writable $tmp] } {
-	    return [file normalize $tmp]
+	    return $tmp
 	}
     }
 
@@ -848,6 +848,15 @@ proc ::fileutil::tempdir {} {
     return [pwd]
 }
 
+if { [package vcompare [package provide Tcl] 8.4] < 0 } {
+    proc ::fileutil::tempdir {} {
+	return [TempDir]
+    }
+} else {
+    proc ::fileutil::tempdir {} {
+	return [file normalize [TempDir]]
+    }
+}
 
 # ::fileutil::tempfile --
 #
@@ -863,8 +872,8 @@ proc ::fileutil::tempdir {} {
 #   returns a file name
 #
 
-proc ::fileutil::tempfile {{prefix {}}} {
-    set tmpdir [::fileutil::tempdir]
+proc ::fileutil::TempFile {prefix} {
+    set tmpdir [tempdir]
 
     set chars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     set nrand_chars 10
@@ -895,7 +904,7 @@ proc ::fileutil::tempfile {{prefix {}}} {
  	    } else {
  		# Success
 		close $channel
- 		return [file normalize $newname]
+ 		return $newname
  	    }
  	}
     }
@@ -903,6 +912,16 @@ proc ::fileutil::tempfile {{prefix {}}} {
  	return -code error "Failed to open a temporary file: $channel"
     } else {
  	return -code error "Failed to find an unused temporary file name"
+    }
+}
+
+if { [package vcompare [package provide Tcl] 8.4] < 0 } {
+    proc ::fileutil::tempfile {{prefix {}}} {
+	return [TempFile $prefix]
+    }
+} else {
+    proc ::fileutil::tempfile {{prefix {}}} {
+	return [file normalize [TempFile $prefix]]
     }
 }
 
