@@ -40,6 +40,10 @@ proc call        {cmd args}         {}
 proc list_begin  {what {hint {}}}   {}
 proc list_end    {}                 {}
 proc lst_item    {text}             {}
+proc arg_def      {type name {mode {}}} {}
+proc cmd_def      {command}             {}
+proc opt_def      {name {arg {}}}       {}
+proc tkoption_def {name dbname dbclass} {}
 proc see_also    {args}             {}
 proc keywords    {args}             {}
 proc example_begin {}               {}

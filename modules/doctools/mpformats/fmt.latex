@@ -136,7 +136,7 @@ proc list_begin  {what {hint {}}} {
     global list_state
 
     switch -exact -- $what {
-	enum - bullet - definitions {}
+	enum - bullet - definitions - arg - cmd - opt - tkoption {}
 	default {return -code error "Unknown list type $what"}
     }
 
@@ -148,7 +148,7 @@ proc list_begin  {what {hint {}}} {
 	enum {
 	    return \\begin\{enumerate\}
 	}
-	bullet {
+	bullet - arg - opt - cmd - tkoption {
 	    return \\begin\{itemize\}
 	}
 	definitions {
@@ -175,7 +175,7 @@ proc list_end {} {
 	bullet {
 	    return \\end\{itemize\}
 	}
-	definitions {
+	definitions - arg - opt - cmd - tkoption {
 	    if {$item} {
 		return \\end\{quote\}\n\\end\{itemize\}
 	    } else {
@@ -216,6 +216,93 @@ proc lst_item {text} {
 	    }
 	}
 	default     {return -code error "Illegal use of bullet in non-bullet list"}
+    }
+}
+
+proc arg_def {type name {mode {}}} {
+    global list_state
+
+    set item $list_state(l,$list_state(level),item)
+    set list_state(l,$list_state(level),item) 1
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	arg     {
+	    set    text ""
+	    append text [arg $name]
+	    append text " $type"
+	    if {$mode != {}} {append text " ($mode)"}
+
+	    if {$item} {
+		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+	    } else {
+		return "\\item\[\] $text\n\\begin\{quote\}\n"
+	    }
+	}
+	default {return -code error "Illegal use of arg_def in non-argument list"}
+    }
+}
+
+proc cmd_def {command} {
+    global list_state
+
+    set item $list_state(l,$list_state(level),item)
+    set list_state(l,$list_state(level),item) 1
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	cmd     {
+	    set text [cmd $command]
+
+	    if {$item} {
+		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+	    } else {
+		return "\\item\[\] $text\n\\begin\{quote\}\n"
+	    }
+	}
+	default {return -code error "Illegal use of cmd_def in non-command list"}
+    }
+}
+
+proc opt_def {name {arg {}}} {
+    global list_state
+
+    set item $list_state(l,$list_state(level),item)
+    set list_state(l,$list_state(level),item) 1
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	opt {
+	    set text [option $name]
+	    if {$arg != {}} {append text " $arg"}
+
+	    if {$item} {
+		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+	    } else {
+		return "\\item\[\] $text\n\\begin\{quote\}\n"
+	    }
+	}
+	default {return -code error "Illegal use of opt_def in non-option list"}
+    }
+}
+
+proc tkoption_def {name dbname dbclass} {
+    global list_state
+
+    set item $list_state(l,$list_state(level),item)
+    set list_state(l,$list_state(level),item) 1
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	tkoption {
+	    set    text ""
+	    append text "Command-Line Switch:	[Bold $name]\\\\\n"
+	    append text "Database Name:	[Bold $dbname]\\\\\n"
+	    append text "Database Class:	[Bold $dbclass]\\\\\n"
+
+	    if {$item} {
+		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+	    } else {
+		return "\\item\[\] $text\n\\begin\{quote\}\n"
+	    }
+	}
+	default {return -code error "Illegal use of tkoption_def in non-tkoption list"}
     }
 }
 
