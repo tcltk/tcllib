@@ -1,0 +1,103 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin math::special n 0.1]
+[copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
+[moddesc   {Math}]
+[titledesc {Special mathematical functions}]
+
+[require Tcl [opt 8.3]]
+[require math::special [opt 0.1]]
+
+[description]
+[para]
+This package implements several so-called special functions, like
+Bessel functions.
+
+[para]
+[emph Note:] Currently it only implements three Bessel functions.
+[para]
+[emph Note:] The combinatorics module implements such functions as:
+
+[list_begin bullet]
+[bullet]
+the log gamma function
+[bullet]
+the beta function
+[bullet]
+the factorial function (which is directly related to the gamma function)
+[list_end]
+
+[para]
+Each function is implemented by a procedure that bares its name (well,
+in close approximation):
+
+[list_begin bullet]
+[bullet]
+J0 for the zeroth-order Bessel function of the first kind
+
+[bullet]
+J1 for the first-order Bessel function of the first kind
+
+[bullet]
+J1/2 for the half-order Bessel function of the first kind
+
+[list_end]
+
+[section "PROCEDURES"]
+
+The package defines the following public procedures:
+
+[list_begin definitions]
+
+[call [cmd ::math::special::J0] [arg x]]
+
+Compute the zeroth-order Bessel function of the first kind for the
+argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the Bessel function
+[list_end]
+
+[nl]
+
+[call [cmd ::math::special::J1] [arg x]]
+
+Compute the first-order Bessel function of the first kind for the
+argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the Bessel function
+[list_end]
+
+[nl]
+
+[call [cmd ::math::special::J1/2] [arg x]]
+
+Compute the half-order Bessel function of the first kind for the
+argument "x"
+
+[list_begin arg]
+[arg_def float x] Argument for the Bessel function
+[list_end]
+
+[list_end]
+
+[section "REMARKS ON THE IMPLEMENTATION"]
+
+It should be noted, that the actual implementation of J0 and J1 depends
+on straightforward Gaussian quadrature formulas. The (absolute) accuracy
+of the results is of the order 1.0e-4 or better. The main reason to
+implement them like that was that it was fast to do (the formulas are
+simple) and the computations are fast too.
+
+[para]
+The implementation of J1/2 does not suffer from this: this function can
+be expressed exactly in terms of elementary functions.
+
+[para]
+The functions J0 and J1 are the ones you will encounter most frequently
+in practice.
+
+[keywords math "special functions" "Bessel functions"]
+
+[manpage_end]
+
