@@ -13,7 +13,11 @@ read resolver(3) to find out how the C library resolves domain names.
 
 The intention of this package is to insulate Tcl scripts
 from problems with using the system library resolver for slow name servers.
-It may or may not be of practical use.
+It may or may not be of practical use. Internet name resolution is a
+complex business and DNS is only one part of the resolver. You may
+find you are supposed to be using hosts files, NIS or WINS to name a
+few other systems. This package is not a substitute for the C library
+resolver - it does however implement name resolution over DNS.
 
 The package also extends the package [package uri] to support DNS URIs
 or the form [uri dns:what.host.com] or
@@ -23,10 +27,10 @@ command can handle DNS URIs or simple domain names as a query.
 
 [para]
 
-[emph Note:] This package uses TCP to query DNS servers as the tcl
-core does not implement UDP networking. This means that this module
-will not work if DNS over TCP is blocked by a firewall, or not
-accepted by the chosen nameserver.
+[emph Note:] The package defaults to using DNS over TCP
+connections. If you wish to use UDP you will need to get the tcludp
+package and get a version that correctly handles binary
+data. This should be publicly available shortly.
 
 [section COMMANDS]
 
@@ -44,8 +48,7 @@ qualified domain name or a DNS URI.
   Specify an alternative name server for this request.
 [lst_item "[cmd -protocol] [arg tcp|udp]"]
   Specify the network protocol to use for this request. Can be one of
-  [arg tcp] or [arg udp]. However only tcp is currently implemented in the
-  package.
+  [arg tcp] or [arg udp]. 
 [lst_item "[cmd -port] [arg portnum]"]
   Specify an alternative port.
 [lst_item "[cmd -search] [arg domainlist]"]
