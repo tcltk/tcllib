@@ -23,7 +23,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.7 2003/05/01 00:17:40 andreas_kupries Exp $
+# $Id: crc16.tcl,v 1.8 2003/05/08 23:55:37 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -55,7 +55,7 @@ namespace eval ::crc {
 
 # -------------------------------------------------------------------------
 # Generate a CRC lookup table.
-# This creates a CRC algorithm lookup lable for a 'width' bits checksum
+# This creates a CRC algorithm lookup table for a 'width' bits checksum
 # using the 'poly' polynomial for all values of an input byte.
 # Setting 'reflected' changes the bit order for input bytes.
 # Returns a list or 255 elements.

@@ -10,10 +10,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.9 2003/05/01 00:17:40 andreas_kupries Exp $
+# $Id: crc32.tcl,v 1.10 2003/05/08 23:55:37 patthoyts Exp $
 
 namespace eval ::crc {
-    variable crc32_version 1.0.1
+    variable crc32_version 1.0.2
 
     namespace export crc32
 
@@ -131,7 +131,17 @@ if {![catch {package require Trf 2.0}]} {
 }
 
 # -------------------------------------------------------------------------
+# Description:
+#  Pop the nth element off a list. Used in options processing.
+#
+proc ::crc::Pop {varname {nth 0}} {
+    upvar $varname args
+    set r [lindex $args $nth]
+    set args [lreplace $args $nth $nth]
+    return $r
+}
 
+# -------------------------------------------------------------------------
 # Description:
 #  Provide a Tcl implementation of a crc32 checksum similar to the cksum
 #  and sum unix commands.
@@ -141,79 +151,79 @@ if {![catch {package require Trf 2.0}]} {
 #  -seed value    - seed the algorithm using value (default is 0xffffffff)
 #
 proc ::crc::crc32 {args} {
-    set filename {}
-    set format %u
-    set seed 0xffffffff
-    set impl [namespace origin Crc32]
-
-    while {[string match -* [lindex $args 0]]} {
-        switch -glob -- [lindex $args 0] {
-            -fi* {
-                set filename [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -fo* {
-                set format [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -s* {
-                set seed [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -i* {
-                set impl [uplevel 1 namespace origin [lindex $args 1]]
-                set args [lreplace $args 0 0]
-            }
-            -- {
-                set args [lreplace $args 0 0]
-                break
-            }
+    array set opts [list -filename {} -format %u -seed 0xffffffff \
+                        -channel {} -chunksize 4096 -timeout 30000 \
+                        -implementation [namespace origin Crc32]]
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
+            -file*  { set opts(-filename) [Pop args 1] }
+            -for*   { set opts(-format) [Pop args 1] }
+            -chan*  { set opts(-channel) [Pop args 1] }
+            -chunk* { set opts(-chunksize) [Pop args 1] }
+            -time*  { set opts(-timeout) [Pop args 1] }
+            -seed   { set opts(-seed) [Pop args 1] }
+            -impl*  { set opts(-implementation) \
+                          [uplevel 1 namespace origin [Pop args 1]] }
+            --      { Pop args ; break }
             default {
-                return -code error "bad option [lindex $args 0]:\
-                     must be -filename, -format, -implementation or -seed"
+                set err [join [lsort [array names opts -*]] ", "]
+                return -code error "bad option \"$option\": must be $err"
             }
         }
-        set args [lreplace $args 0 0]
+        Pop args
     }
 
     # The Trf implementation doesn't accept an alternative CRC seed so
     # use the Tcl implementation if this is set (unless the user has
     # set it to some other impl).
-    if {$seed != 0xffffffff && [string match [namespace origin Crc32] $impl]} {
-        set impl [namespace origin Crc32_tcl]
+    if {$opts(-seed) != 0xffffffff \
+            && [string match [namespace origin Crc32] $opts(-implementation)]} {
+        set opts(-implementation) [namespace origin Crc32_tcl]
     }
 
-    if {$filename != {}} {
-        set r $seed
-        set f [open $filename r]
-        fconfigure $f -translation binary
-        # If we are using Trf - we cannot chunk
-        if {[package provide Trf] != {} \
-                && [string match [namespace origin Crc32] $impl]} {
-            set data [read $f]
-            set r [$impl $data $r]
-        } else {
-            # Process the chunks. We need to undo the final xor
-            # to obtain the seed for the following chunk. Then re-apply
-            # for the final result.
-            while {![eof $f]} {
-                set data [read $f 4096]
-                set r [$impl $data $r]
-                set r [expr {$r ^ 0xFFFFFFFF}]
-            }
-            set r [expr {$r ^ 0xFFFFFFFF}]
-        }
-        close $f
-    } else {
+    # If a file was given - open it
+    if {$opts(-filename) != {}} {
+        set opts(-channel) [open $opts(-filename) r]
+        fconfigure $opts(-channel) -translation binary
+    }
+
+    if {$opts(-channel) == {}} {
+        
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be \
                  \"crc32 ?-format string? ?-seed value? ?-impl procname?\
                  -file name | data\""
         }
-        set r [$impl [lindex $args 0] $seed]
+        set r [$opts(-implementation) [lindex $args 0] $opts(-seed)]
+
+    } else {
+
+        set r $opts(-seed)
+        # If we are using Trf - we cannot chunk
+        if {[package provide Trf] != {} \
+                && [string match [namespace origin Crc32] \
+                        $opts(-implementation)]} {
+            set data [read $opts(-channel)]
+            set r [$opts(-implementation) $data $r]
+        } else {
+            # Process the chunks. We need to undo the final xor
+            # to obtain the seed for the following chunk. Then re-apply
+            # for the final result.
+            while {![eof $opts(-channel)]} {
+                set data [read $opts(-channel) $opts(-chunksize)]
+                set r [$opts(-implementation) $data $r]
+                set r [expr {$r ^ 0xFFFFFFFF}]
+            }
+            set r [expr {$r ^ 0xFFFFFFFF}]
+        }
+
+        if {$opts(-filename) != {}} {
+            close $opts(-channel)
+        }
+
     }
     
-    return [format $format $r]
+    return [format $opts(-format) $r]
 }
 
 # -------------------------------------------------------------------------
