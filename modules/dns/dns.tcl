@@ -21,7 +21,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.19 2004/01/25 07:29:39 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.19.2.1 2004/05/27 03:47:22 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -30,7 +30,7 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
     variable version 1.1
-    variable rcsid {$Id: dns.tcl,v 1.19 2004/01/25 07:29:39 andreas_kupries Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.19.2.1 2004/05/27 03:47:22 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -46,7 +46,7 @@ namespace eval ::dns {
             loglevel   warn
         }
         variable log [logger::init dns]
-        ${log}::enable $options(loglevel)
+        ${log}::setlevel $options(loglevel)
     }
 
     if {![catch {package require udp 1.0.4} msg]} { ;# tcludp 1.0.4+
@@ -142,7 +142,7 @@ proc ::dns::configure {args} {
                     return $options(loglevel)
                 } else {
                     set options(loglevel) [Pop args 1]
-                    ${log}::enable $options(loglevel)
+                    ${log}::setlevel $options(loglevel)
                 }
             }
             --    { Pop args ; break }
