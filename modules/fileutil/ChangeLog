@@ -1,9 +1,16 @@
+2004-02-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Modified the tests a bit to use glob characters
+	  in file names to check that the code is robust against that too.
+
+	  See http://bugs.activestate.com/show_bug.cgi?id=29491
+
 2004-02-03  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (tempdir, tempfile): Now [file normalize]'ing the
 	  results of these two commands. More windows friendly.
 
-2004-01-28  Andreas Kupries  <andreask@activestate.com>
+2004-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl (fileutil::find): Fixed bug in handling a single
 	  file as base directory: The initial list was not set up as a
