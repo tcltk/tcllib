@@ -276,6 +276,10 @@ Declares that the marked [arg text] is a system command.
 
 Declares that the marked [arg text] is a object method.
 
+[call [cmd namespace] [arg text]]
+
+Declares that the marked [arg text] is a namespace name.
+
 [call [cmd option] [arg text]]
 
 Declares that the marked [arg text] is a option.
@@ -308,9 +312,12 @@ Declares that the marked [arg text] is a variable.
 
 Declares that the marked [arg text] is a file .
 
-[call [cmd uri] [arg text]]
+[call [cmd uri] [arg text] [opt [arg label]]]
 
-Declares that the marked [arg text] is a uri.
+Declares that the marked [arg text] is a uri. If the second argument
+is present it is interpreted as a human-readable description of the
+uri. In other words, the [arg label] for the link. Otherwise the link
+will be its own label.
 
 [call [cmd term] [arg text]]
 
