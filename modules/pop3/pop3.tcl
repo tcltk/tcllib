@@ -10,9 +10,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.8 2000/09/14 21:32:54 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.9 2001/05/02 15:03:33 redman Exp $
 
-package provide pop3 1.1
+package provide pop3 1.2
 
 namespace eval ::pop3 {
 }
@@ -329,7 +329,7 @@ proc ::pop3::list {chan {msg ""}} {
 
 	    # End of the message is a line with just "."
 
-	    if {$line == "."} {
+	    if {[string trimright $line] == "."} {
 		break
 	    } elseif {[string index $line 0] == "."} {
 		set line [string range $line 1 end]
@@ -374,7 +374,7 @@ proc ::pop3::top {chan msg n} {
     while {1} {
 	set line [gets $chan]
 	# End of the message is a line with just "."
-	if {$line == "."} {
+	if {[string trimright $line] == "."} {
 	    break
 	} elseif {[string index $line 0] == "."} {
 	    set line [string range $line 1 end]
