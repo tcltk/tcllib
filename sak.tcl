@@ -124,8 +124,8 @@ proc gendoc {fmt ext {mode user} {flags {}}} {
     global tcl_platform
 
     set mpe [file join $distribution modules doctools mpexpand]
-    if {$tcl_platform(platform) == "windows"} {
-        set mpe [list [auto_execok tclsh] $mpe]
+    if {$tcl_platform(platform) != "unix"} {
+        set mpe [list [info nameofexecutable] $mpe]
     }
     set ::env(TCLLIBPATH) [file join $distribution modules]
 
