@@ -26,7 +26,7 @@ namespace eval ::textutil {
 proc ::textutil::tabify::tabify { string { num 8 } } {
     
     set str [ MakeTabStr $num ]
-    regsub -all $str $string "\t" string
+    regsub -all -- $str $string "\t" string
     
     return $string
 }
@@ -34,7 +34,7 @@ proc ::textutil::tabify::tabify { string { num 8 } } {
 proc ::textutil::tabify::untabify { string { num 8 } } {
     
     set str [ MakeTabStr $num ]
-    regsub -all "\t" $string $str string
+    regsub -all -- "\t" $string $str string
     
     return $string
 }

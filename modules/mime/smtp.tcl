@@ -911,7 +911,7 @@ proc smtp::wtextaux {token part} {
     } else {
         set code [catch { mime::buildmessage $part } result]
         if {$code == 0} {
-            regsub -all {\n\.} $result "\n.." result
+            regsub -all -- {\n\.} $result "\n.." result
             set state(size) [string length $result]
             puts -nonewline $state(sd) $result
             set result ""

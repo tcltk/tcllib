@@ -1,3 +1,7 @@
+2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* nntp.tcl: Frink 2.2 run, fixed dubious code.
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* nntp.tcl: Fixed dubious code reported by frink.

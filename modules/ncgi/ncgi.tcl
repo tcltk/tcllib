@@ -232,13 +232,13 @@ proc ncgi::type {} {
 
 proc ncgi::decode {str} {
     # Replace + with space
-    regsub -all {\+} $str { } str
+    regsub -all -- {\+} $str { } str
 
     # Protect Tcl special chars
-    regsub -all {[][\\\$]} $str {\\&} str
+    regsub -all -- {[][\\\$]} $str {\\&} str
 
     # Replace %xx sequences with a format command
-    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $str {[format %c 0x\1]} str
+    regsub -all -- {%([0-9a-fA-F][0-9a-fA-F])} $str {[format %c 0x\1]} str
 
     # Replace the format commands with their result
     return [subst $str]
@@ -262,14 +262,14 @@ proc ncgi::encode {string} {
     # 3 Escape constructs that are "special" to the tcl parser
     # 4 "subst" the result, doing all the array substitutions
 
-    regsub -all \[^a-zA-Z0-9\] $string {$map(&)} string
+    regsub -all -- \[^a-zA-Z0-9\] $string {$map(&)} string
     if {0} {
 	# These lines seem totally bogus - am I missing something?
-	regsub -all \n $string {\\n} string
-	regsub -all \t $string {\\t} string
+	regsub -all -- \n $string {\\n} string
+	regsub -all -- \t $string {\\t} string
     }
     # This quotes cases like $map([) or $map($)
-    regsub -all {[][{})\\]\)} $string {\\&} string
+    regsub -all -- {[][{})\\]\)} $string {\\&} string
     return [subst $string]
 }
 
@@ -628,7 +628,7 @@ proc ncgi::redirect {url} {
 
 	if {[info exist env(REQUEST_URI)]} {
 	    # Not all servers have the leading protocol spec
-	    regsub {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
+	    regsub -- {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
 	} elseif {[info exist env(SCRIPT_NAME)]} {
 	    set request_uri $env(SCRIPT_NAME)
 	} else {

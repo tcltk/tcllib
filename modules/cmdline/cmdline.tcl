@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.7 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.8 2001/07/10 20:39:46 andreas_kupries Exp $
 
 package provide cmdline 1.1
 namespace eval cmdline {
@@ -129,11 +129,11 @@ proc cmdline::getoptions {arglistVar optlist {usage options:}} {
     set opts {? help}
     foreach opt $optlist {
 	set name [lindex $opt 0]
-	if {[regsub .secret$ $name {} name] == 1} {
+	if {[regsub -- .secret$ $name {} name] == 1} {
 	    # Need to hide this from the usage display and getopt
 	}   
 	lappend opts $name
-	if {[regsub .arg$ $name {} name] == 1} {
+	if {[regsub -- .arg$ $name {} name] == 1} {
 
 	    # Set defaults for those that take values.
 
@@ -174,11 +174,11 @@ proc cmdline::usage {optlist {usage {options:}}} {
     foreach opt [concat $optlist \
 	    {{help "Print this message"} {? "Print this message"}}] {
 	set name [lindex $opt 0]
-	if {[regsub .secret$ $name {} name] == 1} {
+	if {[regsub -- .secret$ $name {} name] == 1} {
 	    # Hidden option
 	    continue
 	}
-	if {[regsub .arg$ $name {} name] == 1} {
+	if {[regsub -- .arg$ $name {} name] == 1} {
 	    set default [lindex $opt 1]
 	    set comment [lindex $opt 2]
 	    append str [format " %-20s %s <%s>\n" "-$name value" \
@@ -214,7 +214,7 @@ proc cmdline::getfiles {patterns quiet} {
     set result {}
     if {$::tcl_platform(platform) == "windows"} {
 	foreach pattern $patterns {
-	    regsub -all {\\} $pattern {\\\\} pat
+	    regsub -all -- {\\} $pattern {\\\\} pat
 	    set files [glob -nocomplain -- $pat]
 	    if {$files == {}} {
 		if {! $quiet} {

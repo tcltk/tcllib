@@ -613,11 +613,11 @@ proc html::formValue {name {defvalue {}}} {
 #	&#34;Hello, &lt;b&gt;World!&#34;
 
 proc html::quoteFormValue {value} {
-    regsub -all {&} $value {\&amp;} value
-    regsub -all {"} $value {\&#34;} value ;# need a " for balance
-    regsub -all {'} $value {\&#39;} value
-    regsub -all {<} $value {\&lt;} value
-    regsub -all {>} $value {\&gt;} value
+    regsub -all -- {&} $value {\&amp;} value
+    regsub -all -- {"} $value {\&#34;} value ;# need a " for balance
+    regsub -all -- {'} $value {\&#39;} value
+    regsub -all -- {<} $value {\&lt;} value
+    regsub -all -- {>} $value {\&gt;} value
     return $value
 }
 
@@ -1181,9 +1181,9 @@ proc html::minorMenu {list {sep { | }}} {
     global page
     ::set s ""
     ::set html ""
-    regsub {index.h?tml$} [ncgi::urlStub] {} this
+    regsub -- {index.h?tml$} [ncgi::urlStub] {} this
     ::foreach {label url} $list {
-	regsub {index.h?tml$} $url {} that
+	regsub -- {index.h?tml$} $url {} that
 	::if {[string compare $this $that] == 0} {
 	    append html "$s$label"
 	} else {
@@ -1248,7 +1248,7 @@ proc html::extractParam {param key {varName ""}} {
 
 proc html::urlParent {url} {
     ::set url [string trimright $url /]
-    regsub {[^/]+$} $url {} url
+    regsub -- {[^/]+$} $url {} url
     return $url
 }
 

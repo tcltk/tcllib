@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.11 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.12 2001/07/10 20:39:46 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -2735,7 +2735,7 @@ proc ftp::OpenControlConn {s {block 1}} {
     # to comma format)
 
     set ftp(LocalAddr) [lindex [fconfigure $ftp(CtrlSock) -sockname] 0]
-    regsub -all "\[.\]" $ftp(LocalAddr) "," ftp(LocalAddr) 
+    regsub -all -- "\[.\]" $ftp(LocalAddr) "," ftp(LocalAddr) 
 
     # report ready message
 
