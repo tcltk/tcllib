@@ -27,8 +27,19 @@
 #       |
 #  pkgIndex.tcl
 #
+
+proc Nativepath {pathName} {
+    global tcl_platform
+
+    if {![string match $tcl_platform(platform) unix]} {
+	if {[regexp {//(.)/(.*)} $pathName null driveLetter pathRemains]} {
+	    set pathName $driveLetter:/$pathRemains
+	}
+    }
+    return $pathName
+}
        
-set prefix "@prefix@"
+set prefix [Nativepath "@prefix@"]
 
 set package @PACKAGE@
 set version @VERSION@
