@@ -9,11 +9,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.5 2003/04/09 18:25:31 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.6 2003/05/16 21:47:50 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
 package require Tcl 8.0
+package require cmdline
 
 namespace eval ::struct { namespace eval list {} }
 
@@ -22,20 +23,22 @@ namespace eval ::struct::list {
 
     if 0 {
 	# Possibly in the future.
-	namespace export LongestCommonSubsequence
-	namespace export LongestCommonSubsequence2
-	namespace export LcsInvert
-	namespace export LcsInvert2
-	namespace export LcsInvertMerge
-	namespace export LcsInvertMerge2
-	namespace export Reverse
-	namespace export Assign
-	namespace export Flatten
-	namespace export Map
-	namespace export Fold
-	namespace export Iota
-	namespace export Equal
-	namespace export Repeat
+	namespace export LlongestCommonSubsequence
+	namespace export LlongestCommonSubsequence2
+	namespace export LlcsInvert
+	namespace export LlcsInvert2
+	namespace export LlcsInvertMerge
+	namespace export LlcsInvertMerge2
+	namespace export Lreverse
+	namespace export Lassign
+	namespace export Lflatten
+	namespace export Lmap
+	namespace export Lfold
+	namespace export Liota
+	namespace export Lequal
+	namespace export Lrepeat
+	namespace export LdbJoin
+	namespace export LdbJoinOuter
     }
 }
 
@@ -58,13 +61,12 @@ proc ::struct::list::list {cmd args} {
     if { [llength [info level 0]] == 1 } {
 	return -code error "wrong # args: should be \"$cmd ?arg arg ...?\""
     }
-    set sub [string toupper [string index $cmd 0]][string range $cmd 1 end]
-
+    set sub L$cmd
     if { [llength [info commands ::struct::list::$sub]] == 0 } {
 	set optlist [info commands ::struct::list::L*]
 	set xlist {}
 	foreach p $optlist {
-	    lappend xlist [string tolower [string index $p 0]][string range $p 1 end]
+	    lappend xlist [string range $p 1 end]
 	}
 	return -code error \
 		"bad option \"$cmd\": must be [linsert [join $xlist ", "] "end-1" "or"]"
@@ -90,7 +92,7 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
 # Implementations of the functionality.
 #
 
-# ::struct::list::LongestCommonSubsequence --
+# ::struct::list::LlongestCommonSubsequence --
 #
 #       Computes the longest common subsequence of two lists.
 #
@@ -136,7 +138,7 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
 #	Laboratories (1976). Available on the Web at the second
 #	author's personal site: http://www.cs.dartmouth.edu/~doug/
 
-proc ::struct::list::LongestCommonSubsequence {
+proc ::struct::list::LlongestCommonSubsequence {
     sequence1
     sequence2
     {maxOccurs 0x7fffffff}
@@ -253,7 +255,7 @@ proc ::struct::list::LongestCommonSubsequence {
     return [::list $seta $setb]
 }
 
-# ::struct::list::LongestCommonSubsequence2 --
+# ::struct::list::LlongestCommonSubsequence2 --
 #
 #	Derives an approximation to the longest common subsequence
 #	of two lists.
@@ -281,7 +283,7 @@ proc ::struct::list::LongestCommonSubsequence {
 #	it then tries to augment the subsequence by computing the true
 #	longest common subsequences of the sublists between matched pairs.
 
-proc ::struct::list::LongestCommonSubsequence2 {
+proc ::struct::list::LlongestCommonSubsequence2 {
     sequence1
     sequence2
     {maxOccurs 0x7fffffff}
@@ -290,7 +292,7 @@ proc ::struct::list::LongestCommonSubsequence2 {
     # most $maxOccurs times
 
     foreach { l1 l2 } \
-	[LongestCommonSubsequence $sequence1 $sequence2 $maxOccurs] {
+	[LlongestCommonSubsequence $sequence1 $sequence2 $maxOccurs] {
 	    break
 	}
 
@@ -309,7 +311,7 @@ proc ::struct::list::LongestCommonSubsequence2 {
 
 	    set subl1 [lrange $sequence1 $n1 [expr { $i1 - 1 }]]
 	    set subl2 [lrange $sequence2 $n2 [expr { $i2 - 1 }]]
-	    foreach { m1 m2 } [LongestCommonSubsequence $subl1 $subl2] break
+	    foreach { m1 m2 } [LlongestCommonSubsequence $subl1 $subl2] break
 	    foreach j1 $m1 j2 $m2 {
 		lappend result1 [expr { $j1 + $n1 }]
 		lappend result2 [expr { $j2 + $n2 }]
@@ -331,7 +333,7 @@ proc ::struct::list::LongestCommonSubsequence2 {
     if { $n1 < [llength $sequence1] && $n2 < [llength $sequence2] } {
 	set subl1 [lrange $sequence1 $n1 end]
 	set subl2 [lrange $sequence2 $n2 end]
-	foreach { m1 m2 } [LongestCommonSubsequence $subl1 $subl2] break
+	foreach { m1 m2 } [LlongestCommonSubsequence $subl1 $subl2] break
 	foreach j1 $m1 j2 $m2 {
 	    lappend result1 [expr { $j1 + $n1 }]
 	    lappend result2 [expr { $j2 + $n2 }]
@@ -341,7 +343,7 @@ proc ::struct::list::LongestCommonSubsequence2 {
     return [::list $result1 $result2]
 }
 
-# ::struct::list::LcsInvert --
+# ::struct::list::LlcsInvert --
 #
 #	Takes the data describing a longest common subsequence of two
 #	lists and inverts the information in the sense that the result
@@ -361,11 +363,11 @@ proc ::struct::list::LongestCommonSubsequence2 {
 # Side effects:
 #       None.
 
-proc ::struct::list::LcsInvert {lcsData len1 len2} {
-    return [LcsInvert2 [::lindex $lcsData 0] [::lindex $lcsData 1] $len1 $len2]
+proc ::struct::list::LlcsInvert {lcsData len1 len2} {
+    return [LlcsInvert2 [::lindex $lcsData 0] [::lindex $lcsData 1] $len1 $len2]
 }
 
-proc ::struct::list::LcsInvert2 {idx1 idx2 len1 len2} {
+proc ::struct::list::LlcsInvert2 {idx1 idx2 len1 len2} {
     set result {}
     set last1 -1
     set last2 -1
@@ -435,11 +437,11 @@ proc ::struct::list::LcsInvert2 {idx1 idx2 len1 len2} {
     return $result
 }
 
-proc ::struct::list::LcsInvertMerge {lcsData len1 len2} {
-    return [LcsInvertMerge2 [::lindex $lcsData 0] [::lindex $lcsData 1] $len1 $len2]
+proc ::struct::list::LlcsInvertMerge {lcsData len1 len2} {
+    return [LlcsInvertMerge2 [::lindex $lcsData 0] [::lindex $lcsData 1] $len1 $len2]
 }
 
-proc ::struct::list::LcsInvertMerge2 {idx1 idx2 len1 len2} {
+proc ::struct::list::LlcsInvertMerge2 {idx1 idx2 len1 len2} {
     set result {}
     set last1 -1
     set last2 -1
@@ -518,7 +520,7 @@ proc ::struct::list::LcsInvertMerge2 {idx1 idx2 len1 len2} {
     return $result
 }
 
-# ::struct::list::Reverse --
+# ::struct::list::Lreverse --
 #
 #	Reverses the contents of the list and returns the reversed
 #	list as the result of the command.
@@ -532,7 +534,7 @@ proc ::struct::list::LcsInvertMerge2 {idx1 idx2 len1 len2} {
 # Side effects:
 #       None.
 
-proc ::struct::list::Reverse {sequence} {
+proc ::struct::list::Lreverse {sequence} {
     set l [::llength $sequence]
 
     # Shortcut for lists where reversing yields the list itself
@@ -547,7 +549,7 @@ proc ::struct::list::Reverse {sequence} {
 }
 
 
-# ::struct::list::Assign --
+# ::struct::list::Lassign --
 #
 #	Assign list elements to variables.
 #
@@ -561,7 +563,7 @@ proc ::struct::list::Reverse {sequence} {
 # Side effects:
 #       None.
 
-proc ::struct::list::Assign {sequence args} {
+proc ::struct::list::Lassign {sequence args} {
     set l [::llength $sequence]
     set a [::llength $args]
 
@@ -581,7 +583,7 @@ proc ::struct::list::Assign {sequence args} {
 }
 
 
-# ::struct::list::Flatten --
+# ::struct::list::Lflatten --
 #
 #	Remove nesting from the input
 #
@@ -594,10 +596,10 @@ proc ::struct::list::Assign {sequence args} {
 # Side effects:
 #       None.
 
-proc ::struct::list::Flatten {args} {
+proc ::struct::list::Lflatten {args} {
     if {[::llength $args] < 1} {
 	return -code error \
-		"wrong#args: should be \"::struct::list::Assign ?-full? ?--? sequence\""
+		"wrong#args: should be \"::struct::list::Lflatten ?-full? ?--? sequence\""
     }
 
     set full 0
@@ -612,7 +614,7 @@ proc ::struct::list::Flatten {args} {
 
     if {[::llength $args] != 1} {
 	return -code error \
-		"wrong#args: should be \"::struct::list::Assign ?-full? ?--? sequence\""
+		"wrong#args: should be \"::struct::list::Lflatten ?-full? ?--? sequence\""
     }
 
     set sequence [::lindex $args 0]
@@ -630,7 +632,7 @@ proc ::struct::list::Flatten {args} {
 }
 
 
-# ::struct::list::Map --
+# ::struct::list::Lmap --
 #
 #	Apply command to each element of a list and return concatenated results.
 #
@@ -645,7 +647,7 @@ proc ::struct::list::Flatten {args} {
 # Side effects:
 #       None of its own, but the command prefix can perform arbitry actions.
 
-proc ::struct::list::Map {sequence cmdprefix} {
+proc ::struct::list::Lmap {sequence cmdprefix} {
     # Shortcut when nothing is to be done.
     if {[::llength $sequence] == 0} {return $sequence}
 
@@ -656,7 +658,7 @@ proc ::struct::list::Map {sequence cmdprefix} {
     return $res
 }
 
-# ::struct::list::Fold --
+# ::struct::list::Lfold --
 #
 #	Fold list into one value.
 #
@@ -671,7 +673,7 @@ proc ::struct::list::Map {sequence cmdprefix} {
 # Side effects:
 #       None of its own, but the command prefix can perform arbitry actions.
 
-proc ::struct::list::Fold {sequence initialvalue cmdprefix} {
+proc ::struct::list::Lfold {sequence initialvalue cmdprefix} {
     # Shortcut when nothing is to be done.
     if {[::llength $sequence] == 0} {return $initialvalue}
 
@@ -682,7 +684,7 @@ proc ::struct::list::Fold {sequence initialvalue cmdprefix} {
     return $res
 }
 
-# ::struct::list::Iota --
+# ::struct::list::Liota --
 #
 #	Return a list containing the integer numbers 0 ... n-1
 #
@@ -695,7 +697,7 @@ proc ::struct::list::Fold {sequence initialvalue cmdprefix} {
 # Side effects:
 #       None
 
-proc ::struct::list::Iota {n} {
+proc ::struct::list::Liota {n} {
     set retval [::list]
     for {set i 0} {$i < $n} {incr i} {
 	::lappend retval $i
@@ -703,7 +705,7 @@ proc ::struct::list::Iota {n} {
     return $retval
 }
 
-# ::struct::list::Equal --
+# ::struct::list::Lequal --
 #
 #	Compares two lists for equality
 #	(Same length, Same elements in same order).
@@ -718,16 +720,16 @@ proc ::struct::list::Iota {n} {
 # Side effects:
 #       None
 
-proc ::struct::list::Equal {a b} {
+proc ::struct::list::Lequal {a b} {
     # Author of this command is "Richard Suchenwirth"
 
     if {[::llength $a] != [::llength $b]} {return 0}
     if {[::lindex $a 0] == $a} {return [string equal $a $b]}
-    foreach i $a j $b {if {![Equal $i $j]} {return 0}}
+    foreach i $a j $b {if {![Lequal $i $j]} {return 0}}
     return 1
 }
 
-# ::struct::list::Repeat --
+# ::struct::list::Lrepeat --
 #
 #	Create a list repeating the same value over again.
 #
@@ -741,7 +743,7 @@ proc ::struct::list::Equal {a b} {
 # Side effects:
 #       None
 
-proc ::struct::list::Repeat {value args} {
+proc ::struct::list::Lrepeat {value args} {
     if {[::llength $args] == 1} {set args [::lindex $args 0]}
     set buf {}
     foreach number $args {
@@ -754,4 +756,516 @@ proc ::struct::list::Repeat {value args} {
     }
     return $buf
     # (1): See 'Stress testing' (wiki) for why this makes the code safer.
+}
+
+# ::struct::list::LdbJoin(Keyed) --
+#
+#	Relational table joins.
+#
+# Parameters:
+#	args	key specs and tables to join
+#
+# Results:
+#	A table/matrix as nested list. See
+#	struct/matrix set/get rect for structure.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::LdbJoin {args} {
+    # --------------------------------
+    # Process options ...
+
+    set mode inner
+    while {[llength $args]} {
+        set err [::cmdline::getopt args {inner left right full} opt arg]
+	if {$err == 1} {
+	    set mode $opt
+	} elseif {$err < 0} {
+	    return -code error "wrong#args: dbJoin ?-inner|-left|-right|-full? \{key table\}..."
+	} else {
+	    # Non-option argument found, stop processing.
+	    break
+	}
+    }
+
+    set inner [string equal $mode inner]
+    set innerorleft [expr {$inner || [string equal $mode left]}]
+
+    # --------------------------------
+    # Process tables ...
+
+    if {([llength $args] % 2) != 0} {
+	return -code error "wrong#args: dbJoin ?-inner|-left|-right|-full? \{key table\}..."
+    }
+
+    # One table only, join is identity
+    if {[llength $args] == 2} {return [lindex $args 1]}
+
+    # Use first table for setup.
+
+    foreach {key table} $args break
+
+    # Check for possible early abort
+    if {$innerorleft && ([llength $table] == 0)} {return {}}
+
+    set width 0
+    array set state {}
+
+    set keylist [InitMap state width $key $table]
+
+    # Extend state with the remaining tables.
+
+    foreach {key table} [lrange $args 2 end] {
+	# Check for possible early abort
+	if {$inner && ([llength $table] == 0)} {return {}}
+
+	switch -exact -- $mode {
+	    inner {set keylist [MapExtendInner      state       $key $table]}
+	    left  {set keylist [MapExtendLeftOuter  state width $key $table]}
+	    right {set keylist [MapExtendRightOuter state width $key $table]}
+	    full  {set keylist [MapExtendFullOuter  state width $key $table]}
+	}
+
+	# Check for possible early abort
+	if {$inner && ([llength $keylist] == 0)} {return {}}
+    }
+
+    return [MapToTable state $keylist]
+}
+
+proc ::struct::list::LdbJoinKeyed {args} {
+    # --------------------------------
+    # Process options ...
+
+    set mode inner
+    while {[llength $args]} {
+        set err [::cmdline::getopt args {inner left right full} opt arg]
+	if {$err == 1} {
+	    set mode $opt
+	} elseif {$err < 0} {
+	    return -code error "wrong#args: dbJoin ?-inner|-left|-right|-full? table..."
+	} else {
+	    # Non-option argument found, stop processing.
+	    break
+	}
+    }
+
+    set inner [string equal $mode inner]
+    set innerorleft [expr {$inner || [string equal $mode left]}]
+
+    # --------------------------------
+    # Process tables ...
+
+    # One table only, join is identity
+    if {[llength $args] == 1} {
+	return [Dekey [lindex $args 0]]
+    }
+
+    # Use first table for setup.
+
+    set table [lindex $args 0]
+
+    # Check for possible early abort
+    if {$innerorleft && ([llength $table] == 0)} {return {}}
+
+    set width 0
+    array set state {}
+
+    set keylist [InitKeyedMap state width $table]
+
+    # Extend state with the remaining tables.
+
+    foreach table [lrange $args 1 end] {
+	# Check for possible early abort
+	if {$inner && ([llength $table] == 0)} {return {}}
+
+	switch -exact -- $mode {
+	    inner {set keylist [MapKeyedExtendInner      state       $table]}
+	    left  {set keylist [MapKeyedExtendLeftOuter  state width $table]}
+	    right {set keylist [MapKeyedExtendRightOuter state width $table]}
+	    full  {set keylist [MapKeyedExtendFullOuter  state width $table]}
+	}
+
+	# Check for possible early abort
+	if {$inner && ([llength $keylist] == 0)} {return {}}
+    }
+
+    return [MapToTable state $keylist]
+}
+
+## Helpers for the relational joins.
+## Map is an array mapping from keys to a list
+## of rows with that key
+
+proc ::struct::list::Cartesian {leftmap rightmap key} {
+    upvar $leftmap left $rightmap right
+    set joined [::list]
+    foreach lrow $left($key) {
+	foreach row $right($key) {
+	    lappend joined [concat $lrow $row]
+	}
+    }
+    set left($key) $joined
+    return
+}
+
+proc ::struct::list::SingleRightCartesian {mapvar key rightrow} {
+    upvar $mapvar map
+    set joined [::list]
+    foreach lrow $map($key) {
+	lappend joined [concat $lrow $rightrow]
+    }
+    set map($key) $joined
+    return
+}
+
+proc ::struct::list::MapToTable {mapvar keys} {
+    # Note: keys must not appear multiple times in the list.
+
+    upvar $mapvar map
+    set table [::list]
+    foreach k $keys {
+	foreach row $map($k) {lappend table $row}
+    }
+    return $table
+}
+
+## More helpers, core join operations: Init, Extend.
+
+proc ::struct::list::InitMap {mapvar wvar key table} {
+    upvar $mapvar map $wvar width
+    set width [llength [lindex $table 0]]
+    foreach row $table {
+	set keyval [lindex $row $key]
+	if {[info exists map($keyval)]} {
+	    lappend map($keyval) $row
+	} else {
+	    set map($keyval) [::list $row]
+	}
+    }
+    return [array names map]
+}
+
+proc ::struct::list::MapExtendInner {mapvar key table} {
+    upvar $mapvar map
+    array set used {}
+
+    # Phase I - Find all keys in the second table matching keys in the
+    # first. Remember all their rows.
+    foreach row $table {
+	set keyval [lindex $row $key]
+	if {[info exists map($keyval)]} {
+	    if {[info exists used($keyval)]} {
+		lappend used($keyval) $row
+	    } else {
+		set used($keyval) [::list $row]
+	    }
+	} ; # else: Nothing to do for missing keys.
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map, and eliminate all entries which have no keys in
+    # the second table.
+    foreach k [array names map] {
+	if {[info exists  used($k)]} {
+	    Cartesian map used $k
+	} else {
+	    unset map($k)
+	}
+    }
+    return [array names map]
+}
+
+proc ::struct::list::MapExtendRightOuter {mapvar wvar key table} {
+    upvar $mapvar map $wvar width
+    array set used {}
+
+    # Phase I - We keep all keys of the right table, even if they are
+    # missing in the left one <=> Definition of right outer join.
+
+    set w [llength [lindex $table 0]]
+    foreach row $table {
+	set keyval [lindex $row $key]
+	if {[info exists used($keyval)]} {
+	    lappend used($keyval) $row
+	} else {
+	    set used($keyval) [::list $row]
+	}
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map, and eliminate all entries which have no keys in
+    # the second table. If there is nothing in the left table we
+    # create an appropriate empty row for the cartesian => definition
+    # of right outer join.
+
+    # We go through used, because map can be empty for outer
+
+    foreach k [array names map] {
+	if {![info exists used($k)]} {
+	    unset map($k)
+	}
+    }
+    foreach k [array names used] {
+	if {![info exists map($k)]} {
+	    set map($k) [::list [Lrepeat {} $width]]
+	}
+	Cartesian map used $k
+    }
+
+    incr width $w
+    return [array names map]
+}
+
+proc ::struct::list::MapExtendLeftOuter {mapvar wvar key table} {
+    upvar $mapvar map $wvar width
+    array set used {}
+
+    ## Keys: All in inner join + additional left keys 
+    ##       == All left keys = array names map after
+    ##          all is said and done with it.
+
+    # Phase I - Find all keys in the second table matching keys in the
+    # first. Remember all their rows.
+    set w [llength [lindex $table 0]]
+    foreach row $table {
+	set keyval [lindex $row $key]
+	if {[info exists map($keyval)]} {
+	    if {[info exists used($keyval)]} {
+		lappend used($keyval) $row
+	    } else {
+		set used($keyval) [::list $row]
+	    }
+	} ; # else: Nothing to do for missing keys.
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map. We keep entries which have no keys in the second
+    # table, we actually extend them <=> Left outer join.
+
+    foreach k [array names map] {
+	if {[info exists  used($k)]} {
+	    Cartesian map used $k
+	} else {
+	    SingleRightCartesian map $k [Lrepeat {} $w]
+	}
+    }
+    incr width $w
+    return [array names map]
+}
+
+proc ::struct::list::MapExtendFullOuter {mapvar wvar key table} {
+    upvar $mapvar map $wvar width
+    array set used {}
+
+    # Phase I - We keep all keys of the right table, even if they are
+    # missing in the left one <=> Definition of right outer join.
+
+    set w [llength [lindex $table 0]]
+    foreach row $table {
+	set keyval [lindex $row $key]
+	if {[info exists used($keyval)]} {
+	    lappend used($keyval) $row
+	} else {
+	    lappend keylist $keyval
+	    set used($keyval) [::list $row]
+	}
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map. We keep entries which have no keys in the second
+    # table, we actually extend them <=> Left outer join.
+    # If there is nothing in the left table we create an appropriate
+    # empty row for the cartesian => definition of right outer join.
+
+    # We go through used, because map can be empty for outer
+
+    foreach k [array names map] {
+	if {![info exists used($k)]} {
+	    SingleRightCartesian map $k [Lrepeat {} $w]
+	}
+    }
+    foreach k [array names used] {
+	if {![info exists map($k)]} {
+	    set map($k) [::list [Lrepeat {} $width]]
+	}
+	Cartesian map used $k
+    }
+
+    incr width $w
+    return [array names map]
+}
+
+## Keyed helpers
+
+proc ::struct::list::InitKeyedMap {mapvar wvar table} {
+    upvar $mapvar map $wvar width
+    set width [llength [lindex [lindex $table 0] 1]]
+    foreach row $table {
+	foreach {keyval row} $row break
+	if {[info exists map($keyval)]} {
+	    lappend map($keyval) $row
+	} else {
+	    set map($keyval) [::list $row]
+	}
+    }
+    return [array names map]
+}
+
+proc ::struct::list::MapKeyedExtendInner {mapvar table} {
+    upvar $mapvar map
+    array set used {}
+
+    # Phase I - Find all keys in the second table matching keys in the
+    # first. Remember all their rows.
+    foreach row $table {
+	foreach {keyval row} $row break
+	if {[info exists map($keyval)]} {
+	    if {[info exists used($keyval)]} {
+		lappend used($keyval) $row
+	    } else {
+		set used($keyval) [::list $row]
+	    }
+	} ; # else: Nothing to do for missing keys.
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map, and eliminate all entries which have no keys in
+    # the second table.
+    foreach k [array names map] {
+	if {[info exists  used($k)]} {
+	    Cartesian map used $k
+	} else {
+	    unset map($k)
+	}
+    }
+
+    return [array names map]
+}
+
+proc ::struct::list::MapKeyedExtendRightOuter {mapvar wvar table} {
+    upvar $mapvar map $wvar width
+    array set used {}
+
+    # Phase I - We keep all keys of the right table, even if they are
+    # missing in the left one <=> Definition of right outer join.
+
+    set w [llength [lindex $table 0]]
+    foreach row $table {
+	foreach {keyval row} $row break
+	if {[info exists used($keyval)]} {
+	    lappend used($keyval) $row
+	} else {
+	    set used($keyval) [::list $row]
+	}
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map, and eliminate all entries which have no keys in
+    # the second table. If there is nothing in the left table we
+    # create an appropriate empty row for the cartesian => definition
+    # of right outer join.
+
+    # We go through used, because map can be empty for outer
+
+    foreach k [array names map] {
+	if {![info exists used($k)]} {
+	    unset map($k)
+	}
+    }
+    foreach k [array names used] {
+	if {![info exists map($k)]} {
+	    set map($k) [::list [Lrepeat {} $width]]
+	}
+	Cartesian map used $k
+    }
+
+    incr width $w
+    return [array names map]
+}
+
+proc ::struct::list::MapKeyedExtendLeftOuter {mapvar wvar table} {
+    upvar $mapvar map $wvar width
+    array set used {}
+
+    ## Keys: All in inner join + additional left keys 
+    ##       == All left keys = array names map after
+    ##          all is said and done with it.
+
+    # Phase I - Find all keys in the second table matching keys in the
+    # first. Remember all their rows.
+    set w [llength [lindex $table 0]]
+    foreach row $table {
+	foreach {keyval row} $row break
+	if {[info exists map($keyval)]} {
+	    if {[info exists used($keyval)]} {
+		lappend used($keyval) $row
+	    } else {
+		set used($keyval) [::list $row]
+	    }
+	} ; # else: Nothing to do for missing keys.
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map. We keep entries which have no keys in the second
+    # table, we actually extend them <=> Left outer join.
+
+    foreach k [array names map] {
+	if {[info exists  used($k)]} {
+	    Cartesian map used $k
+	} else {
+	    SingleRightCartesian map $k [Lrepeat {} $w]
+	}
+    }
+    incr width $w
+    return [array names map]
+}
+
+proc ::struct::list::MapKeyedExtendFullOuter {mapvar wvar table} {
+    upvar $mapvar map $wvar width
+    array set used {}
+
+    # Phase I - We keep all keys of the right table, even if they are
+    # missing in the left one <=> Definition of right outer join.
+
+    set w [llength [lindex $table 0]]
+    foreach row $table {
+	foreach {keyval row} $row break
+	if {[info exists used($keyval)]} {
+	    lappend used($keyval) $row
+	} else {
+	    lappend keylist $keyval
+	    set used($keyval) [::list $row]
+	}
+    }
+
+    # Phase II - Merge the collected rows of the second (right) table
+    # into the map. We keep entries which have no keys in the second
+    # table, we actually extend them <=> Left outer join.
+    # If there is nothing in the left table we create an appropriate
+    # empty row for the cartesian => definition of right outer join.
+
+    # We go through used, because map can be empty for outer
+
+    foreach k [array names map] {
+	if {![info exists used($k)]} {
+	    SingleRightCartesian map $k [Lrepeat {} $w]
+	}
+    }
+    foreach k [array names used] {
+	if {![info exists map($k)]} {
+	    set map($k) [::list [Lrepeat {} $width]]
+	}
+	Cartesian map used $k
+    }
+
+    incr width $w
+    return [array names map]
+}
+
+proc ::struct::list::Dekey {keyedtable} {
+    set table [::list]
+    foreach row $keyedtable {lappend table [lindex $row 1]}
+    return $table
 }

@@ -1,3 +1,18 @@
+2003-05-16  Andreas Kupries  <andreask@activestate.com>
+
+	* Extension of the package functionality warrants version bump to 1.4.
+	
+	* list.man: Added descriptions of the db join commands, and
+	  section explaining the table joins.
+
+	* list.test: Added tests for the db join functionality. Adapted
+	  existing tests to changed (fixed) error messages.
+
+	* list.tcl: Rewrote the main dispatcher a bit to make it simpler,
+	  and to allow us to hide internal functions from it. Added
+	  'dbJoin(Keyed)' for relational table join (inner, lef/right/full
+	  outer). Fixed function name in some error messages.
+
 2003-05-14  Andreas Kupries  <andreask@activestate.com>
 
 	* tree.tcl: Added some [list]'s to show node names containing
