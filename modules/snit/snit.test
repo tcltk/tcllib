@@ -263,11 +263,15 @@ test typedestruction-1.1 {type command is deleted} {} {
 } {}
 
 test typedestruction-1.2 {instance commands are deleted} {} {
-    type dog { }
+    catch {
+        type dog { }
 
-    dog create spot
-    dog destroy
-    info command ::spot
+        dog create spot
+        dog destroy
+        info command ::spot
+    } result
+    set result
+
 } {}
 
 test typedestruction-1.3 {type namespace is deleted} {} {
