@@ -18,7 +18,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.11 2003/04/11 18:53:22 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.12 2003/04/12 00:22:37 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -26,8 +26,8 @@ package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
-    variable version 1.0.3
-    variable rcsid {$Id: dns.tcl,v 1.11 2003/04/11 18:53:22 andreas_kupries Exp $}
+    variable version 1.0.4
+    variable rcsid {$Id: dns.tcl,v 1.12 2003/04/12 00:22:37 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -75,6 +75,7 @@ namespace eval ::dns {
 #
 proc ::dns::configure {args} {
     variable options
+    variable log
 
     if {[llength $args] < 1} {
         set r {}
@@ -165,8 +166,11 @@ proc ::dns::resolve {query args} {
     variable options
     variable log
 
+    # get a guaranteed unique and non-present token id.
     set id [incr uid]
-    set token [namespace current]::$id
+    while {[info exists [set token [namespace current]::$id]]} {
+        set id [incr uid]
+    }
     variable $token
     upvar 0 $token state
 
@@ -622,14 +626,13 @@ proc ::dns::Eof {token} {
 # Description:
 #  Process a DNS reply packet (protocol independent)
 #
-proc ::dns::Receive {token data} {
+proc ::dns::Receive {token} {
     variable $token
     upvar 0 $token state
 
-    binary scan $data SS id flags
+    binary scan $state(reply) SS id flags
     set status [expr {$flags & 0x000F}]
 
-    append state(reply) $data
     switch -- $status {
         0 {
             set state(status) ok
@@ -667,13 +670,26 @@ proc ::dns::TcpEvent {token} {
         ${log}::debug "Event error: $result"
         Finish $tok "error reading data: $result"
     } elseif { [string length $result] >= 0 } {
-        # check the length and flags and chop off the tcp length prefix.
-        binary scan $result SSS length id flags
-        set payload [string range $result 2 end]
-        set id [expr {$id & 0xFFFF}]
-        ${log}::debug "Event read: [string length $payload] should be $length"
-        # handle the correct request based on the contained ID
-        Receive [namespace current]::$id $payload
+        if {[catch {
+            # Handle incomplete reads - check the size and keep reading.
+            if {![info exists state(size)]} {
+                binary scan $result S state(size)
+                set result [string range $result 2 end]            
+            }
+            append state(reply) $result
+            
+            # check the length and flags and chop off the tcp length prefix.
+            if {[string length $state(reply)] >= $state(size)} {
+                binary scan $result S id
+                set id [expr {$id & 0xFFFF}]
+                Receive [namespace current]::$id
+            } else {
+                ${log}::debug "Incomplete tcp read:\
+                   [string length $state(reply)] should be $state(size)"
+            }
+        } err]} {
+            Finish $tok "Event error: $err"
+        }
     } elseif { [eof $state(sock)] } {
         Eof $token
     } elseif { [fblocked $state(sock)] } {
@@ -694,9 +710,11 @@ proc ::dns::UdpEvent {token} {
     set s $state(sock)
 
     set payload [read $state(sock)]
-    binary scan $payload SS id flags
+    append state(reply) $payload
+
+    binary scan $payload S id
     set id [expr {$id & 0xFFFF}]
-    Receive [namespace current]::$id $payload
+    Receive [namespace current]::$id
 }
     
 # -------------------------------------------------------------------------
