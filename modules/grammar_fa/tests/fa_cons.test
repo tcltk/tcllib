@@ -3,29 +3,35 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_cons.test,v 1.2 2004/04/04 19:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_cons.test,v 1.3 2004/04/09 21:11:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
 test fa-cons-1.0 {construction error} {
     catch {grammar::fa a foo} msg
     set msg
-} {Error in constructor: wrong#args: ::a ?=|:=|<--|as|deserialize a'?}
+} {Error in constructor: wrong#args: ::a ?=|:=|<--|as|deserialize a'|fromRegex re ?over??}
 
 
 test fa-cons-1.1 {construction error} {
-    catch {grammar::fa a foo fie far} msg
+    catch {grammar::fa a foo fie far fux} msg
     set msg
-} {Error in constructor: wrong#args: ::a ?=|:=|<--|as|deserialize a'?}
+} {Error in constructor: wrong#args: ::a ?=|:=|<--|as|deserialize a'|fromRegex re ?over??}
 
 
 test fa-cons-1.2 {construction error} {
-    catch {grammar::fa a foo fie} msg
-    list [info commands ::a] $msg
-} {{} {Error in constructor: bad assignment: ::a ?=|:=|<--|as|deserialize a'?}}
+    catch {grammar::fa a foo fie far} msg
+    set msg
+} {Error in constructor: bad assignment: ::a ?=|:=|<--|as|deserialize a'|fromRegex re ?over??}
 
 
 test fa-cons-1.3 {construction error} {
+    catch {grammar::fa a foo fie} msg
+    set msg
+} {Error in constructor: bad assignment: ::a ?=|:=|<--|as|deserialize a'|fromRegex re ?over??}
+
+
+test fa-cons-1.4 {construction error} {
     catch {grammar::fa a = b} msg
     set msg
 } {Error in constructor: invalid command name "b"}
