@@ -2,7 +2,7 @@
 
 	* Committed changes to list generation (better generation of
 	  whitespace for HTML, allowing hints). Only the HTML formatter
-	  currently acknowledges hints.
+	  currently acknowledges hints. This fixes SF Bug #535382.
 
 2002-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

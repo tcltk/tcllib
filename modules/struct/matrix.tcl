@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.9 2002/03/25 18:54:35 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.10 2002/04/01 19:54:49 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -29,7 +29,8 @@ namespace eval ::struct::matrix {
     # - rowh    cache of rowheights
     # - link    information about linked arrays
     # - lock    boolean flag to disable MatTraceIn while in MatTraceOut [#532783]
-    
+    # - unset   string used to convey information about 'unset' traces from MatTraceIn to MatTraceOut.
+
     # counter is used to give a unique name for unnamed matrixs
     variable counter 0
 
@@ -101,12 +102,14 @@ proc ::struct::matrix::matrix {{name ""}} {
 	variable rowh
 	variable link
 	variable lock
+	variable unset
 
-	array set data {}
-	array set colw {}
-	array set rowh {}
-	array set link {}
-	set       lock 0
+	array set data  {}
+	array set colw  {}
+	array set rowh  {}
+	array set link  {}
+	set       lock  0
+	set       unset {}
     }
 
     # Create the command to manipulate the matrix
@@ -301,7 +304,7 @@ proc ::struct::matrix::_search {name args} {
     set mode   exact
     set nocase 0
 
-    while 1 {
+    while {1} {
 	switch -glob -- [lindex $args 0] {
 	    -exact - -glob - -regexp {
 		set mode [string range [lindex $args 0] 1 end]
@@ -1981,8 +1984,13 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     upvar ::struct::matrix::matrix${name}::lock lock
     if {$lock} {return}
 
-    if {![string compare $op u]} {
-	# External array was destroyed, perform automatic unlink.
+    # We have to cover two possibilities when encountering an "unset" operation ...
+    # 1. The external array was destroyed: perform automatic unlink.
+    # 2. An individual element was unset:  Set the corresponding cell to the empty string.
+    #    See SF Tcllib Bug #532791.
+
+    if {(![string compare $op u]) && ($idx == {})} {
+	# Possibility 1: Array was destroyed
 	$name unlink $avar
 	return
     }
@@ -2000,6 +2008,25 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
 
     # Use standard method to propagate the change.
     # => Get automatically index checks, cache updates, ...
+
+    if {![string compare $op u]} {
+	# Unset possibility 2: Element was unset.
+	# Note: Setting the cell to the empty string will
+	# invoke MatTraceOut for this array and thus try
+	# to recreate the destroyed element of the array.
+	# We don't want this. But we do want to propagate
+	# the change to other arrays, as "unset". To do
+	# all of this we use another state variable to
+	# signal this situation.
+
+	upvar ::struct::matrix::matrix${name}::unset unset
+	set unset $avar
+
+	$name set cell $c $r ""
+
+	set unset {}
+	return
+    }
 
     $name set cell $c $r $array($idx)
     return
@@ -2020,6 +2047,14 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
 proc ::struct::matrix::MatTraceOut {avar name var idx op} {
     # Propagate changes in the matrix data array into the linked array.
 
+    upvar ::struct::matrix::matrix${name}::unset unset
+
+    if {![string compare $avar $unset]} {
+	# Do not change the variable currently unsetting
+	# one of its elements.
+	return
+    }
+
     upvar ::struct::matrix::matrix${name}::lock lock
     set lock 1 ; # Disable MatTraceIn [#532783]
 
@@ -2035,7 +2070,18 @@ proc ::struct::matrix::MatTraceOut {avar name var idx op} {
 	foreach {c r} [split $idx ,] break
     }
 
-    set array($c,$r) $data($idx)
+    if {$unset != {}} {
+	# We are currently propagating the unset of an
+	# element in a different linked array to this
+	# array. We make sure that this is an unset too.
+
+	unset array($c,$r)
+    } else {
+	set array($c,$r) $data($idx)
+    }
     set lock 0
     return
 }
+
+
+

@@ -1,5 +1,12 @@
 2002-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* matrix.tcl: Fixed SF Tcllib #532791 about unsetting of elements
+	  in linked arrays as reported by Ken Jones
+	  <kenj@users.sourceforge.net>. Unsetting an element in a linked
+	  array now sets the corresponding cell in the matrix to the empty
+	  string, and the corresponding elements in other linked arrays
+	  are now unset too.
+
 	* tree.man: New file, doctools manpage.
 
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
