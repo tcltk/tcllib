@@ -1,4 +1,14 @@
 
+2000-11-01  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+        * Integrated patch from Keith Vetter <keith@softbook.com>
+        Patch fixed several bugs.  Allowed users to log in as
+        both 'anonymous' and 'ftp' by default instead of just anonymous.
+        Fixed syntax error with the 'socket -server' line in ftpd::server when
+        'myaddr' is specified.  Fixed the argument specifications for
+        cmdline:getoptions in ftpd::config so that arguments are required for
+        the -logCmd and the -fsCmd.
+
 2000-10-30  Dan Kuchler  <kuchler@ajubasolutions.com>
 
         * Made some fixes to better support windows.
