@@ -1,3 +1,7 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* nntp.man: More semantic markup, less visual one.
+
 2002-08-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* nntp.man: Added example, updated reference from rfc 850 to rfc

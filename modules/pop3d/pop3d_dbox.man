@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin pop3d::dbox n 1.0]
+[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Simple mailbox database for pop3d}]
 [require Tcl 8.2]
@@ -141,7 +142,7 @@ that there are zero messages in the mailbox.
 
 Returns a handle for the specified message. This handle is a mime
 token following the interface described in the documentation of
-package [package mime]. The token is [strong read-only]. In other
+package [package mime]. The token is [emph read-only]. In other
 words, the caller is allowed to do anything with the token except to
 modify it.
 

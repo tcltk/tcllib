@@ -1,79 +1,24 @@
 # -*- tcl -*-
 #
-# fmt.list
+# -- Extraction of basic meta information (title section version) from a manpage.
 #
-# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
-#
-# [expand] generate processable list entry for manpage
+# Copyright (c) 2001-2002 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003     Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 ################################################################
 
-proc here {} [list return [__file dirname [info script]]]
-proc this {} [list return [__file tail    [info script]]]
+# Take the null format as a base and extend it a bit.
+dt_source fmt.null
 
+proc fmt_numpasses   {}     {return 1}
+proc fmt_postprocess {text} {global data ; return $data}
+proc fmt_plain_text  {text} {return ""}
+proc fmt_setup       {n}    {return}
 
-source [__file join [here] _common.tcl]   ; # Shared code
-
-
-proc manpage_begin {title section version} {
-    cpush mp
-    cset m [list manpage $title $section $version]
+proc fmt_manpage_begin {title section version} {
+    global data
+    set    data [list manpage $title $section $version]\n
     return
 }
 
-proc manpage_end {} {
-    set res [cget m]
-    cpop mp
-    set res
-}
-
 ################################################################
-
-proc moddesc     {desc}             {}
-proc titledesc   {desc}             {}
-proc require     {pkg {version {}}} {}
-proc description {}                 {}
-proc section     {name}             {}
-proc para        {}                 {}
-proc usage       {cmd args}         {}
-proc call        {cmd args}         {}
-proc list_begin  {what {hint {}}}   {}
-proc list_end    {}                 {}
-proc lst_item    {text}             {}
-proc arg_def      {type name {mode {}}} {}
-proc cmd_def      {command}             {}
-proc opt_def      {name {arg {}}}       {}
-proc tkoption_def {name dbname dbclass} {}
-proc see_also    {args}             {}
-proc keywords    {args}             {}
-proc example_begin {}               {}
-proc example_end {}                 {}
-proc example     {code}             {}
-proc nl          {}                 {}
-proc bullet      {}                 {}
-proc enum        {}                 {}
-proc arg         {text}             {}
-proc cmd         {text}             {}
-proc emph        {text}             {}
-proc strong      {text}             {}
-proc setx        {v string}         {}
-proc appendx     {v string}         {}
-proc opt         {text}             {}
-proc comment     {text}             {}
-proc sectref     {text}             {}
-proc syscmd      {text}             {}
-proc method      {text}             {}
-proc option      {text}             {}
-proc widget      {text}             {}
-proc fun         {text}             {}
-proc type        {text}             {}
-proc package     {text}             {}
-proc class       {text}             {}
-proc var         {text}             {}
-proc file        {text}             {}
-proc uri         {text}             {}
-proc term        {text}             {}
-proc const       {text}             {}
-
-################################################################
-

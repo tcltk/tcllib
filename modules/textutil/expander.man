@@ -1,12 +1,11 @@
-[manpage_begin expander n 1.0.1]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin expander n 1.0.1]
+[copyright {William H. Duquette, http://www.wjduquette.com/expand}]
 [moddesc   {Text expansion and template processing}]
 [titledesc {Procedures to process templates and expand text.}]
 [require Tcl 8.2]
 [require textutil::expander [opt 1.0.1]]
 [description]
-
-[comment {.IP \(bu <== bullet}]
 
 
 [para]
@@ -47,11 +46,11 @@ a context-sensitive way.
 
 [bullet]
 
-Embedded commands are necessarily bracketed by [strong [lb]] and
-[strong [rb]]; it's convenient to be able to choose different brackets
+Embedded commands are necessarily bracketed by [const [lb]] and
+[const [rb]]; it's convenient to be able to choose different brackets
 in special cases.  Someone producing web pages that include a large
-quantity of Tcl code examples might easily prefer to use [strong <<]
-and [strong >>] as the embedded code delimiters instead.
+quantity of Tcl code examples might easily prefer to use [const <<]
+and [const >>] as the embedded code delimiters instead.
 
 [bullet]
 
@@ -68,7 +67,8 @@ solve the third problem as well.
 [para]
 
 The following section describes the command API to the expander; this
-is followed by tutorial section.
+is followed by the tutorial sections, beginning at
+[sectref {TUTORIAL: Basics}].
 
 [section {EXPANDER API}]
 [para]
@@ -156,30 +156,30 @@ Retrieves the internal variable name of context variable
 
 [call [arg expanderName] [method errmode] [arg newErrmode]]
 
-Sets the macro expansion error mode to one of [strong nothing],
-[strong macro], [strong error], or [strong fail]; the default value is
-[strong fail].  The value determines what the expander does if an
+Sets the macro expansion error mode to one of [const nothing],
+[const macro], [const error], or [const fail]; the default value is
+[const fail].  The value determines what the expander does if an
 error is detected during expansion of a macro.
 
 [list_begin bullet]
 [bullet]
 
-If the error mode is [strong fail], the error propagates normally and
+If the error mode is [const fail], the error propagates normally and
 can be caught or ignored by the application.
 
 [bullet]
 
-If the error mode is [strong error], the macro expands into a detailed
+If the error mode is [const error], the macro expands into a detailed
 error message, and expansion continues.
 
 [bullet]
 
-If the error mode is [strong macro], the macro expands to itself; that
+If the error mode is [const macro], the macro expands to itself; that
 is, it is passed along to the output unchanged.
 
 [bullet]
 
-If the error mode is [strong nothing], the macro expands to the empty
+If the error mode is [const nothing], the macro expands to the empty
 string, and is effectively ignored.
 
 [list_end]
@@ -234,11 +234,11 @@ are likely if this command is called from within a call to
 
 Sets the left and right macro expansion brackets.  This command is for
 use as or within a macro, or to permanently change the bracket
-definitions.  By default, the brackets are [strong [lb]] and
+definitions.  By default, the brackets are [const [lb]] and
 
-[strong [rb]], but any non-empty string can be used; for example,
-[strong <] and [strong >] or [strong (*] and [strong *)] or even
-[strong Hello,] and [strong World!].
+[const [rb]], but any non-empty string can be used; for example,
+[const <] and [const >] or [const (*] and [const *)] or even
+[const Hello,] and [const World!].
 
 
 [call [arg expanderName] [method textcmd] [opt [arg newTextCmd]]]
@@ -255,14 +255,14 @@ object expects that the command returns the processed plain text.
 
 [nl]
 
-[strong Note] that the combination of "[cmd textcmd] [arg plaintext]"
+[emph Note] that the combination of "[cmd textcmd] [arg plaintext]"
 is run through the [arg evalcmd] for the actual evaluation. In other
 words, the [arg textcmd] is treated as a special macro implicitly
 surrounding all plain text in the template.
 
 [list_end]
 
-[section TUTORIAL]
+[section {TUTORIAL: Basics}]
 
 [para]
 
@@ -299,7 +299,7 @@ commands:
 
 [para]
 
-[strong {Embedding Macros}]
+[section {TUTORIAL: Embedding Macros}]
 
 [para]
 
@@ -330,11 +330,11 @@ replaces it with its result string.  For example,
 
 [para]
 
-[strong {Writing Macro Commands}]
+[section {TUTORIAL: Writing Macro Commands}]
 
 [para]
 
-More typically, [strong {macro commands}] are used to create a markup
+More typically, [emph {macro commands}] are used to create a markup
 language.  A macro command is just a Tcl command that returns an
 output string.  For example, expand can be used to implement a generic
 document markup language that can be retargeted to HTML or any other
@@ -358,13 +358,13 @@ example, decide what to return based on the desired output format.
 
 [para]
 
-[strong {Changing the Expansion Brackets}]
+[section {TUTORIAL: Changing the Expansion Brackets}]
 
 [para]
 
 By default, embedded macros are enclosed in square brackets,
 
-[strong [lb]] and [strong [rb]].  If square brackets need to be
+[const [lb]] and [const [rb]].  If square brackets need to be
 included in the output, the input can contain the [cmd lb] and
 
 [cmd rb] commands.  Alternatively, or if square brackets are
@@ -374,8 +374,8 @@ be changed to any pair of non-empty strings.
 [para]
 
 The [method setbrackets] command changes the brackets permanently.
-For example, you can write pseudo-html by change them to [strong <]
-and [strong >]:
+For example, you can write pseudo-html by change them to [const <]
+and [const >]:
 
 [para]
 
@@ -401,7 +401,7 @@ passing the desired brackets to the [method expand] command:
 
 [para]
 
-[strong {Customized Macro Expansion}]
+[section {TUTORIAL: Customized Macro Expansion}]
 
 [para]
 
@@ -427,7 +427,7 @@ the macro text itself.
 
 [para]
 
-[strong {Using the Context Stack}]
+[section {TUTORIAL: Using the Context Stack}]
 
 [para]
 
@@ -445,7 +445,7 @@ like this:
 
 [para]
 
-The [strong footnote] macro would, presumably, assign a number to this
+The [cmd footnote] macro would, presumably, assign a number to this
 footnote and save the text to be formatted later on.  However, this
 solution is ugly if the footnote text is long or should contain
 additional markup.  Consider the following instead:
@@ -460,8 +460,8 @@ additional markup.  Consider the following instead:
 
 [para]
 
-Here the footnote text is contained between [strong footnote] and
-[strong /footnote] macros, continues onto a second line, and contains
+Here the footnote text is contained between [cmd footnote] and
+[cmd /footnote] macros, continues onto a second line, and contains
 several macros of its own.  This is both clearer and more flexible;
 however, with the features presented so far there's no easy way to do
 it.  That's the purpose of the context stack.
@@ -469,10 +469,10 @@ it.  That's the purpose of the context stack.
 [para]
 
 All macro expansion takes place in a particular context.  Here, the
-[strong footnote] macro pushes a new context onto the context stack.
+[cmd footnote] macro pushes a new context onto the context stack.
 Then, all expanded text gets placed in that new context.
 
-[strong /footnote] retrieves it by popping the context.  Here's a
+[cmd /footnote] retrieves it by popping the context.  Here's a
 skeleton implementation of these two macros:
 
 [para]

@@ -1,5 +1,5 @@
-[manpage_begin ftpd n 1.1.2]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin ftpd n 1.1.2]
 [moddesc   {Tcl FTP Server Package}]
 [titledesc {Tcl FTP server implementation}]
 [require Tcl 8.3]
@@ -65,37 +65,37 @@ Callback to connect the engine to the filesystem it operates on.
 
 [list_begin definitions]
 
-[lst_item [strong {authIpCmd callback}]]
+[lst_item "[cmd authIpCmd] callback"]]
 
 The authIpCmd receives the ip-address of the peer attempting to
 connect to the ftp server as its argument. It returns a 1 to allow
 users from the specified IP to attempt to login and a 0 to reject the
 login attempt from the specified IP.
 
-[lst_item [strong {authUsrCmd callback}]]
+[lst_item "[cmd authUsrCmd] callback"]]
 
 The authUsrCmd receives the username and password as its two
 arguments. It returns a 1 to accept the attempted login to the ftpd
 and a 0 to reject the attempted login.
 
-[lst_item [strong {authFileCmd callback}]]
+[lst_item "[cmd authFileCmd] callback"]]
 
 The authFileCmd receives the user (that is currently logged in), the
 path or filename that is about to be read or written, and
 
-[strong read] or [strong write] as its three arguments.  It returns a
+[const read] or [const write] as its three arguments.  It returns a
 1 to allow the path or filename to be read or written, and a 0 to
 reject the attempted read or write with a permissions error code.
 
-[lst_item [strong {logCmd callback}]]
+[lst_item "[cmd logCmd] callback"]]
 
 The logCmd receives a severity and a message as its two arguments.
-The severities used within the ftpd package are [strong note],
+The severities used within the ftpd package are [const note],
 
-[strong debug], and [strong error]. The logCmd doesn't return
+[const debug], and [const error]. The logCmd doesn't return
 anything.
 
-[lst_item [strong {fsCmd callback}]]
+[lst_item "[cmd fsCmd] callback"]]
 
 The fsCmd receives a subcommand, a filename or path, and optional
 additional arguments (depending on the subcommand).
@@ -121,11 +121,11 @@ as the second argument.  The delete subcommand returns nothing.
 
 The dlist subcommand receives the path that it should list the files
 that are in, the style in which the files should be listed which is
-either [strong nlst] or [strong list], and a channel to write to as
+either [const nlst] or [const list], and a channel to write to as
 its three arguments.  The files in the specified path are printed to
-the specified channel one per line.  If the style is [strong nlst]
+the specified channel one per line.  If the style is [const nlst]
 only the name of the file is printed to the channel.  If the style is
-[strong list] then the file permissions, number of links to the file,
+[const list] then the file permissions, number of links to the file,
 the name of the user that owns the file, the name of the group that
 owns the file, the size (in bytes) of the file, the modify time of the
 file, and the filename are printed out to the channel in a formatted

@@ -1,6 +1,6 @@
-[manpage_begin logger n 0.1.0]
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.1 2002/12/16 23:35:28 davidw Exp $}]
+[comment {$Id: logger.man,v 1.2 2003/01/19 07:58:44 andreas_kupries Exp $}]
+[manpage_begin logger n 0.1.0]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8]
@@ -42,11 +42,11 @@ Initializes the service [arg service] for logging.  The service names
 are actually Tcl namespace names, so they are seperated with '::'.
 
 When a logger service is initalized, it "inherits" properties from its
-parents.  For instance, if there were a service [strong foo], and
-we did a [cmd logger::init] [arg foo::bar] (to create a [strong bar]
-service underneath [strong foo]), [strong bar] would copy the current
-configuration of the [strong foo] service, although it would of
-course, also be possible to then seperately configure [strong bar].
+parents.  For instance, if there were a service [term foo], and
+we did a [cmd logger::init] [arg foo::bar] (to create a [term bar]
+service underneath [term foo]), [term bar] would copy the current
+configuration of the [term foo] service, although it would of
+course, also be possible to then seperately configure [term bar].
 
 [call [cmd logger::services]]
 
@@ -55,8 +55,8 @@ Returns a list of all the available services.
 [call [cmd logger::enable] [arg level]]
 
 Globally enables logging at or "above" the given level.  Levels are
-[strong debug], [strong info], [strong notice], [strong warn], [strong error],
-[strong critical].
+[const debug], [const info], [const notice], [const warn], [const error],
+[const critical].
 
 [call [cmd logger::disable] [arg level]]
 
@@ -71,16 +71,16 @@ those listed above.
 [call [cmd \${log}::critical] [arg message]]
 
 These are the commands called to actually log a message about an
-event.  [strong \${log}] is the variable obtained from [cmd logger::init].
+event.  [var \${log}] is the variable obtained from [cmd logger::init].
 
 [call [cmd \${log}::enable] [arg level]]
 
-Enable logging, in the service referenced by [strong \${log}], and its
+Enable logging, in the service referenced by [var \${log}], and its
 children.
 
 [call [cmd \${log}::disable] [arg level]]
 
-Disable logging, in the service referenced by [strong \${log}], and
+Disable logging, in the service referenced by [var \${log}], and
 its children.
 
 [call [cmd \${log}::logproc] [arg level] [arg argname] [arg body]]

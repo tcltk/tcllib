@@ -9,16 +9,18 @@
 #
 ################################################################
 
-proc here {} [list return [__file dirname [info script]]]
-proc this {} [list return [__file tail    [info script]]]
+##
+## This engine needs a rewrite for a better handling
+## of characters special to TeX / LaTeX.
+##
 
-source [__file join [here] _common.tcl]   ; # Shared code
+dt_source _common.tcl   ; # Shared code
 
 global _in_example
 set    _in_example 0
 
 # Called to handle plain text from the input
-proc HandleText {text} {
+proc fmt_plain_text {text} {
     global _in_example
     if {$_in_example} {
 	return $text
@@ -26,26 +28,30 @@ proc HandleText {text} {
     texEscape $text
 }
 
+proc Year {} {clock format [clock seconds] -format %Y}
+
+c_holdBuffers require
+
 ################################################################
 ## Backend for LaTeX markup
 
-proc manpage_begin {title section version} {
-    if {[mp_pass] == 1} {return}
-
-    set module      [mp_module]
-    set shortdesc   [GetDesc mdesc]
-    set description [GetDesc tdesc]
+c_pass 1 fmt_manpage_begin {title section version} NOP
+c_pass 2 fmt_manpage_begin {title section version} {
+    set module      [dt_module]
+    set shortdesc   [c_get_module]
+    set description [c_get_title]
+    set copyright   [c_get_copyright]
 
     set     hdr ""
-    append  hdr [Comment "Generated from [mp_file] by tcllib/doctools/mpexpand with [this]"] \n
-    append  hdr [Comment "Copyright (c) [clock format [clock seconds] -format %Y] $::tcl_platform(user)"] \n
-    append  hdr [Comment {All right reserved}] \n
+    append  hdr [Comment [c_provenance]] \n
+    if {$copyright != {}} {
+	append  hdr [Comment $copyright] \n
+    }
     append  hdr [Comment "CVS: \$Id\$ $title.$section"] \n
     append  hdr \n
-
     append  hdr "\\documentclass\{article\}" \n
     append  hdr "\\begin\{document\}" \n
-    append  hdr "\\author\{$::tcl_platform(user)\}" \n
+    append  hdr "\\author\{[dt_user]\}" \n
 
     set    titletext ""
     append titletext "$module / $title \\\\"
@@ -56,74 +62,71 @@ proc manpage_begin {title section version} {
     return $hdr
 }
 
-proc moddesc {desc} {
-    if {[mp_pass] == 2} {return}
-    SetDesc mdesc $desc
-    return
-}
-proc titledesc {desc} {
-    if {[mp_pass] == 2} {return}
-    SetDesc tdesc $desc
-    return
-}
+c_pass 1 fmt_moddesc   {desc} {c_set_module $desc}
+c_pass 2 fmt_moddesc   {desc} NOP
 
-proc manpage_end {} {
-    return "\\end\{document\}"
-}
+c_pass 1 fmt_titledesc {desc} {c_set_title $desc}
+c_pass 2 fmt_titledesc {desc} NOP
 
-proc section {name} {return "\\section\{$name\}"}
-proc para    {}     {return \n\n}
+c_pass 1 fmt_copyright {desc} {c_set_copyright [texEscape $desc]}
+c_pass 2 fmt_copyright {desc} NOP
 
-
-proc require {pkg {version {}}} {
+c_pass 1 fmt_manpage_end {} NOP
+c_pass 2 fmt_manpage_end {} {
     set    res ""
-    append res [x_synopsis]
-    if {![Req]} {
+    set copyright [c_get_copyright]
+    if {$copyright != {}} {
+	append res [fmt_section COPYRIGHT] \n
 	append res \\begin\{flushleft\} \n
+	append res [join [split $copyright \n] \\linebreak\n] \\linebreak\n
+	append res \\end\{flushleft\} \n
     }
-    Req 1
-    if {$version != {}} {
-	append res "package require [Bold "$pkg $version"]\n"
-    } else {
-	append res "package require [Bold $pkg]\n"
-    }
+    append  res "\\end\{document\}"
     return $res
 }
 
-proc usage {cmd args} {
-    if {[mp_pass] == 1} {
-	AddCall "\\item\[\] $cmd [join $args " "]\n"
-	return
+
+
+proc fmt_section {name} {return "\\section\{$name\}"}
+proc fmt_para    {}     {return \n\n}
+
+c_pass 2 fmt_require {pkg {version {}}} NOP
+c_pass 1 fmt_require {pkg {version {}}} {
+    if {$version != {}} {
+	set res "package require [Bold "$pkg $version"]\n"
+    } else {
+	set res "package require [Bold $pkg]\n"
     }
-    return ""
+    c_hold require $res
+    return
 }
 
-proc call {cmd args} {
-    if {[mp_pass] == 1} {
-	AddCall "\\item\[\] $cmd [join $args " "]\n"
-	return
-    }
-    return "[lst_item "$cmd [join $args " "]"]"
-}
+c_pass 2 fmt_usage {cmd args} NOP
+c_pass 1 fmt_usage {cmd args} {c_hold synopsis "\\item\[\] $cmd [join $args " "]"}
 
-proc description {} {
-    set pfx   ""
-    if {[Req]} {
-	append pfx "\\end\{flushleft\}\n"
-    }
-    if {[GetCall] == {}} {
-	return $pfx[section DESCRIPTION]
-    }
-    set lstbegin "\\begin\{itemize\}"
-    set lstend   "\\end\{itemize\}"
-    return [x_synopsis]$pfx${lstbegin}\n[GetCall]\n${lstend}\n[section DESCRIPTION]
-}
+c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
+c_pass 1 fmt_call {cmd args} {c_hold synopsis "\\item\[\] $cmd [join $args " "]"}
 
-proc x_synopsis {} {
-    if {![Syn]} {
-	return [section SYNOPSIS]\n
+c_pass 1 fmt_description {} NOP
+c_pass 2 fmt_description {} {
+    set res ""
+    set req [c_held require]
+    set syn [c_held synopsis]
+    if {$req != {} || $syn != {}} {
+	append res [fmt_section SYNOPSIS]\n
+	if {$req != {}} {
+	    append res \\begin\{flushleft\} \n
+	    append res $req \n
+	    append res \\end\{flushleft\} \n
+	}
+	if {$syn != {}} {
+	    append res "\\begin\{itemize\}" \n
+	    append res ${syn} \n\n
+	    append res "\\end\{itemize\}" \n
+	}
     }
-    return ""
+    append res [fmt_section DESCRIPTION]
+    return $res
 }
 
 ################################################################
@@ -131,15 +134,9 @@ proc x_synopsis {} {
 global    list_state
 array set list_state {level -1}
 
-proc list_begin  {what {hint {}}} {
+proc fmt_list_begin  {what {hint {}}} {
     # ignoring hints
     global list_state
-
-    switch -exact -- $what {
-	enum - bullet - definitions - arg - cmd - opt - tkoption {}
-	default {return -code error "Unknown list type $what"}
-    }
-
     incr list_state(level)
     set  list_state(l,$list_state(level)) $what
     set  list_state(l,$list_state(level),item) 0
@@ -148,16 +145,13 @@ proc list_begin  {what {hint {}}} {
 	enum {
 	    return \\begin\{enumerate\}
 	}
-	bullet - arg - opt - cmd - tkoption {
-	    return \\begin\{itemize\}
-	}
-	definitions {
+	bullet - arg - opt - cmd - tkoption - definitions {
 	    return \\begin\{itemize\}
 	}
     }
 }
 
-proc list_end {} {
+proc fmt_list_end {} {
     global list_state
 
     set what $list_state(l,$list_state(level))
@@ -185,199 +179,149 @@ proc list_end {} {
     }
 }
 
-proc bullet {} {
-    global list_state
-    switch -exact -- $list_state(l,$list_state(level)) {
-	bullet  {return "\\item\n"}
-	default {return -code error "Illegal use of bullet in non-bullet list"}
-    }
-}
+proc fmt_bullet {} {return "\\item\n"}
+proc fmt_enum   {} {return "\\item\n"}
 
-proc enum {} {
-    global list_state
-    switch -exact -- $list_state(l,$list_state(level)) {
-	enum    {return "\\item\n"}
-	default {return -code error "Illegal use of bullet in non-bullet list"}
-    }
-}
-
-proc lst_item {text} {
+proc fmt_lst_item {text} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    switch -exact -- $list_state(l,$list_state(level)) {
-	definitions {
-	    if {$item} {
-		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-	    } else {
-		return "\\item\[\] $text\n\\begin\{quote\}\n"
-	    }
-	}
-	default     {return -code error "Illegal use of bullet in non-bullet list"}
+    ## set text [texEscape $text]
+    if {$item} {
+	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+    } else {
+	return "\\item\[\] $text\n\\begin\{quote\}\n"
     }
 }
 
-proc arg_def {type name {mode {}}} {
+proc fmt_arg_def {type name {mode {}}} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    switch -exact -- $list_state(l,$list_state(level)) {
-	arg     {
-	    set    text ""
-	    append text [arg $name]
-	    append text " $type"
-	    if {$mode != {}} {append text " ($mode)"}
+    set    text ""
+    append text [fmt_arg $name]
+    append text " $type"
+    if {$mode != {}} {append text " ($mode)"}
 
-	    if {$item} {
-		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-	    } else {
-		return "\\item\[\] $text\n\\begin\{quote\}\n"
-	    }
-	}
-	default {return -code error "Illegal use of arg_def in non-argument list"}
+    if {$item} {
+	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+    } else {
+	return "\\item\[\] $text\n\\begin\{quote\}\n"
     }
 }
 
-proc cmd_def {command} {
+proc fmt_cmd_def {command} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    switch -exact -- $list_state(l,$list_state(level)) {
-	cmd     {
-	    set text [cmd $command]
+    set text [fmt_cmd $command]
 
-	    if {$item} {
-		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-	    } else {
-		return "\\item\[\] $text\n\\begin\{quote\}\n"
-	    }
-	}
-	default {return -code error "Illegal use of cmd_def in non-command list"}
+    if {$item} {
+	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+    } else {
+	return "\\item\[\] $text\n\\begin\{quote\}\n"
     }
 }
 
-proc opt_def {name {arg {}}} {
+proc fmt_opt_def {name {arg {}}} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    switch -exact -- $list_state(l,$list_state(level)) {
-	opt {
-	    set text [option $name]
-	    if {$arg != {}} {append text " $arg"}
+    set text [fmt_option $name]
+    if {$arg != {}} {append text " $arg"}
 
-	    if {$item} {
-		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-	    } else {
-		return "\\item\[\] $text\n\\begin\{quote\}\n"
-	    }
-	}
-	default {return -code error "Illegal use of opt_def in non-option list"}
+    if {$item} {
+	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+    } else {
+	return "\\item\[\] $text\n\\begin\{quote\}\n"
     }
 }
 
-proc tkoption_def {name dbname dbclass} {
+proc fmt_tkoption_def {name dbname dbclass} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    switch -exact -- $list_state(l,$list_state(level)) {
-	tkoption {
-	    set    text ""
-	    append text "Command-Line Switch:	[Bold $name]\\\\\n"
-	    append text "Database Name:	[Bold $dbname]\\\\\n"
-	    append text "Database Class:	[Bold $dbclass]\\\\\n"
+    set    text ""
+    append text "Command-Line Switch:	[Bold $name]\\\\\n"
+    append text "Database Name:	[Bold $dbname]\\\\\n"
+    append text "Database Class:	[Bold $dbclass]\\\\\n"
 
-	    if {$item} {
-		return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-	    } else {
-		return "\\item\[\] $text\n\\begin\{quote\}\n"
-	    }
-	}
-	default {return -code error "Illegal use of tkoption_def in non-tkoption list"}
+    if {$item} {
+	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
+    } else {
+	return "\\item\[\] $text\n\\begin\{quote\}\n"
     }
 }
 
 ################################################################
 
-proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
-proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
+proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
+proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
 
-proc example_begin {} {
+proc fmt_example_begin {} {
     global _in_example
     set    _in_example 1
     return {\begin{verbatim}}
 }
-proc example_end   {} {
+proc fmt_example_end   {} {
     global _in_example
     set    _in_example 0
     return {\end{verbatim}}
 }
 # No mapping of special characters
-proc example {code} { return "\\begin\{verbatim\}\n${code}\n\\end\{verbatim\}\n" }
+proc fmt_example {code} { return "\\begin\{verbatim\}\n${code}\n\\end\{verbatim\}\n" }
 
-proc nl     {}     {return}
-proc arg    {text} {return [Underline $text]}
-proc cmd    {text} {return [Bold      $text]}
-proc emph   {text} {return [Italic    $text]}
-proc strong {text} {return [Bold      $text]}
-proc opt    {text} {return ?$text?}
+proc fmt_nl     {}     {return}
+proc fmt_arg    {text} {Underline $text}
+proc fmt_cmd    {text} {Bold      $text}
+proc fmt_emph   {text} {Italic    $text}
+proc fmt_opt    {text} {return   ?$text?}
 
-proc comment {text} {
+proc fmt_comment {text} {
     set res [list]
     foreach l [split $text \n] {
 	lappend res [Comment $l]
     }
     return [join $res \n]
 }
-proc sectref {text} {strong $text}
-proc syscmd  {text} {strong $text}
-proc method  {text} {strong $text}
-proc option  {text} {strong $text}
-proc widget  {text} {strong $text}
-proc fun     {text} {strong $text}
-proc type    {text} {strong $text}
-proc package {text} {strong $text}
-proc class   {text} {strong $text}
-proc var     {text} {strong $text}
-proc file    {text} {return "\"[Italic $text]\""}
-proc uri     {text} {Underline $text}
-proc term    {text} {emph $text}
-proc const   {text} {strong $text}
+proc fmt_sectref {text} {Bold $text}
+proc fmt_syscmd  {text} {Bold $text}
+proc fmt_method  {text} {Bold $text}
+proc fmt_option  {text} {Bold $text}
+proc fmt_widget  {text} {Bold $text}
+proc fmt_fun     {text} {Bold $text}
+proc fmt_type    {text} {Bold $text}
+proc fmt_package {text} {Bold $text}
+proc fmt_class   {text} {Bold $text}
+proc fmt_var     {text} {Bold $text}
+proc fmt_file    {text} {return "\"[Italic $text]\""}
+proc fmt_uri     {text} {Underline $text}
+proc fmt_term    {text} {Italic $text}
+proc fmt_const   {text} {Bold $text}
 
 
 ################################################################
 # latex specific commands
 
-proc Comment   {text} {return "% $text"}
+proc Comment   {text} {return "% [join [split $text \n] "\n% "]"}
 proc Bold      {text} {return "\{\\bf [texEscape $text]\}"}
 proc Italic    {text} {return "\{\\it [texEscape $text]\}"}
 proc Underline {text} {return "\\underline\{[texEscape $text]\}"}
 
 ################################################################
 
-proc setx {v string} {
-    upvar $v _
-    set _ $string
-    return
-}
-
-proc appendx {v string} {
-    upvar $v _
-    append _ $string
-    return
-}
-
 proc texEscape {text} {
-    string map {_ \\_ % \\% $ \\$} $text
+    string map {_ \\_ % \\% $ \\$ < $<$ > $>$ # \\# & \\&} $text
 }
 
 ################################################################

@@ -1,5 +1,5 @@
-[manpage_begin profiler n 0.2]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin profiler n 0.2]
 [moddesc   {Tcl Profiler}]
 [titledesc {Tcl source code profiler}]
 [require Tcl 8.3]
@@ -36,35 +36,35 @@ The keys used and their values are:
 
 [list_begin definitions]
 
-[lst_item [strong totalCalls]]
+[lst_item [const totalCalls]]
 
 The total number of times [arg functionName] was called.
 
-[lst_item [strong callerDist]]
+[lst_item [const callerDist]]
 
 A list of key/value pairs mapping each calling function that called
 [arg functionName] to the number of times it called
 
 [arg functionName].
 
-[lst_item [strong compileTime]]
+[lst_item [const compileTime]]
 
 The runtime, in clock clicks, of [arg functionName] the first time
 that it was called.
 
-[lst_item [strong totalRuntime]]
+[lst_item [const totalRuntime]]
 
 The sum of the runtimes of all calls of [arg functionName].
 
-[lst_item [strong averageRuntime]]
+[lst_item [const averageRuntime]]
 
 Average runtime of [arg functionName].
 
-[lst_item [strong descendantTime]]
+[lst_item [const descendantTime]]
 
 Sum of the time spent in descendants of [arg functionName].
 
-[lst_item [strong averageDescendantTime]]
+[lst_item [const averageDescendantTime]]
 
 Average time spent in descendants of [arg functionName]. 
 
@@ -103,12 +103,12 @@ code.
 [call [cmd ::profiler::sortFunctions] [arg key]]
 
 Return a list of functions sorted by a particular profiling statistic.
-Supported values for [arg key] are: [strong calls],
+Supported values for [arg key] are: [const calls],
 
-[strong exclusiveTime], [strong compileTime], [strong nonCompileTime],
-[strong totalRuntime], [strong avgExclusiveTime], and
+[const exclusiveTime], [const compileTime], [const nonCompileTime],
+[const totalRuntime], [const avgExclusiveTime], and
 
-[strong avgRuntime].  The return result is a list of lists, where each
+[const avgRuntime].  The return result is a list of lists, where each
 sublist consists of a function name and the value of [arg key] for
 that function.
 

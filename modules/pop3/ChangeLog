@@ -1,3 +1,7 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.man: More semantic markup, less visual one.
+
 2002-10-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.test: Updated to expect 10 messages in pop3-6.0.

@@ -1,5 +1,6 @@
-[manpage_begin smtp n 1.3.2]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin smtp n 1.3.2]
+[copyright {1999-2000 Marshall T. Rose}]
 [moddesc   {smtp client}]
 [titledesc {Client-side tcl implementation of the smtp protocol}]
 [require Tcl]
@@ -23,11 +24,11 @@ of options and their associated values.  The recognized options are:
 
 [lst_item [option -servers]]
 
-A list of SMTP servers. The default is [strong localhost].
+A list of SMTP servers. The default is [const localhost].
 
 [lst_item [option -ports]]
 
-A list of SMTP ports. The default is [strong 25].
+A list of SMTP ports. The default is [const 25].
 
 [lst_item [option -queue]]
 
@@ -59,10 +60,10 @@ A list of keywords and their values (may occur zero or more times).
 [nl]
 
 If the [option -originator] option is not present, the originator
-address is taken from [strong From] (or [strong Resent-From]);
+address is taken from [const From] (or [const Resent-From]);
 similarly, if the [option -recipients] option is not present,
-recipient addresses are taken from [strong To], [strong cc], and
-[strong Bcc] (or [strong Resent-To], and so on). Note that the header
+recipient addresses are taken from [const To], [const cc], and
+[const Bcc] (or [const Resent-To], and so on). Note that the header
 key/values supplied by the [option -header] option (not those present
 in the MIME part) are consulted. Regardless, header key/values are
 added to the outgoing message as necessary to ensure that a valid

@@ -1,7 +1,29 @@
+2003-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* More doctools changes: Command [strong] is deprecated now. Added
+	  the command [copyright]. Went through all manpages to eliminate
+	  [strong]. Partial setting of copyright information, where known.
+
+2003-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mkInstallScripts.tcl: 
+	* Makefile.in (install-libraries): Added module specific
+	  installation code.
+
+	  doctools: Install message catalogs and predefined formatting
+	  engines.
+
+	  textutil: Install hyphenation files.
+
+	* Module doctools rewritten to make it a true package +
+	  application, instead of a pure application module. This means
+	  that this module now truly installs some functionality useable
+	  by other applications and packages.
+
 2003-01-03  Pat Thoyts <patthoyts@users.sourceforge.net>
 
 	* smtpd: enhanced error handling for FR #655611
-	Handle some ESMTP options.
+	  Handle some ESMTP options.
 	
 2002-11-24  Gerald Lester <gwlester@users.sourceforge.net>
 

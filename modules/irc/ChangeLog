@@ -1,13 +1,17 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* irc.man: More semantic markup, less visual one.
+
 2003-01-08  David N. Welton  <davidw@dedasys.com>
 
 	* irc.tcl: Make sure 'api' commands return strings, not lists.
-	(DispatchServerEvent): Add a missing join, to keep
+	  (DispatchServerEvent): Add a missing join, to keep
 
 2002-12-16  David N. Welton  <davidw@dedasys.com>
 
 	* irc.tcl: Use 'logger' package for error/debug reporting.
-	Cleanups with regards to possible 'bgerror' situations (network
-	input/output).  Bumped version number to 0.3.
+	  Cleanups with regards to possible 'bgerror' situations (network
+	  input/output).  Bumped version number to 0.3.
 
 2002-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

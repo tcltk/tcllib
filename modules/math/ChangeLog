@@ -1,3 +1,8 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* combinatorics.man: More semantic markup, less visual one.
+	* calculus.man:
+
 2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: updated calculus to version 0.5.
