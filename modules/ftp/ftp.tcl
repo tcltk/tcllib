@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.33 2003/07/28 18:03:43 afaupell Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.34 2003/10/21 20:52:42 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -252,19 +252,26 @@ proc ::ftp::StateHandler {s {sock ""}} {
 
             # get return code, check for multi-line text
             
-            regexp -- "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line msgtext
-            set buffer $bufline
+            if {[regexp -- "^-?(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line msgtext]} {
+		set errmsg "C: Internal Error @ line 255.\
+			Regex pattern not matching the input \"$bufline\""
+		if {$VERBOSE} {
+		    DisplayMsg $s $errmsg control
+		}
+	    } else {
+		set buffer $bufline
 			
-            # multi-line format detected ("-"), get all the lines
-            # until the real return code
+		# multi-line format detected ("-"), get all the lines
+		# until the real return code
 
-            while { [string equal $multi_line "-"] } {
-                set number [gets $sock bufline]	
-                if { $number > 0 } {
-                    append buffer \n "$bufline"
-                    regexp -- "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line
-                }
-            }
+		while { [string equal $multi_line "-"] } {
+		    set number [gets $sock bufline]	
+		    if { $number > 0 } {
+			append buffer \n "$bufline"
+			regexp -- "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line
+		    }
+		}
+	    }
         } elseif { [eof $ftp(CtrlSock)] } {
             # remote server has closed control connection
             # kill control socket, unset State to disable all following command
