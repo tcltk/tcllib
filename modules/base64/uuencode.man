@@ -1,15 +1,15 @@
 [manpage_begin uuencode n 1.1.1]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {encode/decoding a binary file}]
-[titledesc {encode/decoding a binary file}]
+[titledesc {UU-encode/decode a binary file}]
 [require Tcl 8]
 [require uuencode [opt 1.1.1]]
 [description]
 [para]
 
-This package provides a Tcl-only implementation of the uuencode(1) and
-uudecode(1) commands. This encoding packs binary data into printable
-ASCII characters.
+This package provides a Tcl-only implementation of the
+[syscmd uuencode(1)] and [syscmd uudecode(1)] commands. This encoding
+packs binary data into printable ASCII characters.
 
 [list_begin definitions]
 
@@ -56,7 +56,7 @@ default of "data.dat".
 The uuencoded data header line contains a suggested permissions bit
 pattern expressed as an octal string. To change the default of 0644
 you can set this option. For instance, 0755 would be suitable for an
-executable. See chmod(1).
+executable. See [syscmd chmod(1)].
 
 [list_end]
 

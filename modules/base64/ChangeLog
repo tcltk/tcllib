@@ -1,3 +1,10 @@
+2004-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64.tcl: Typo police.
+	* uuencode.tcl:
+	* uuencode.man:
+	* yencode.man:
+
 2004-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uuencode.man: Polished a bit (options, keywords).

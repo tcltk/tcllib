@@ -1,9 +1,16 @@
+2004-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.tcl: Typo police.
+	* asn.man:
+	* ChangeLog:
+
 2004-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.test:
-	* asn.tcl: Enhanced encoder for enums: fixed buglet for 2-byte
-	  integers (not minimal in bordercase 127), added the handling of
-	  3-byte integers. Extended testsuite to cover enums as well.
+	* asn.tcl: Enhanced encoder for enumerations: fixed buglet for
+	  2-byte integers (not minimal in border case 127), added the
+	  handling of 3-byte integers. Extended testsuite to cover
+	  enumerations as well.
 
 2004-08-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -16,7 +23,7 @@
 2004-05-27  Andreas Kupries  <andreask@activestate.com>
 
 	* New module: ASN.1 de- and encoding. This was provided to us
-	  indirectly by Joechen Loewer <loewerj@web.de>, through the ldap
+	  indirectly by Jochen Loewer <loewerj@web.de>, through the LDAP
 	  module. It contains the same functionality internally.
 
 	* Added doctools documentation. Referenced the "Layman's Guide to

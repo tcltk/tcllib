@@ -8,9 +8,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.21 2004/01/25 07:29:21 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.22 2004/08/16 02:14:17 andreas_kupries Exp $
 
-# Version 1.0   implemented Base64_Encode, Bae64_Decode
+# Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace
 # Version 2.1   fixes various decode bugs and adds options to encode
 # Version 2.2   is much faster, Tcl8.0 compatible
@@ -42,7 +42,7 @@ if {![catch {package require Trf 2.0}]} {
     
     proc ::base64::encode {args} {
 	# Set the default wrapchar and maximum line length to match the output
-	# of GNU uuencode 4.2.  Various RFC's allow for different wrapping 
+	# of GNU uuencode 4.2.  Various RFCs allow for different wrapping 
 	# characters and wraplengths, so these may be overridden by command line
 	# options.
 	set wrapchar "\n"
@@ -182,7 +182,7 @@ if {![catch {package require Trf 2.0}]} {
 	set base64_en $::base64::base64_en
 	
 	# Set the default wrapchar and maximum line length to match the output
-	# of GNU uuencode 4.2.  Various RFC's allow for different wrapping 
+	# of GNU uuencode 4.2.  Various RFCs allow for different wrapping 
 	# characters and wraplengths, so these may be overridden by command line
 	# options.
 	set wrapchar "\n"
