@@ -346,7 +346,7 @@ output format:
  % proc bold {} {return "<b>"}
  % proc /bold {} {return "</b>"}
  % ::myexp expand {Some of this text is in [bold]boldface[/bold]}
- Some of this text is in <b&>boldface</b>
+ Some of this text is in <b>boldface</b>
  %
 }]
 
