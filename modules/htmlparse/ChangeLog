@@ -1,3 +1,12 @@
+2004-09-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tcl (PrepareHtml): Fixed processing of comments
+	  [Tcllib SF Bug 861287]. A legal end of comment is allowed to
+	  have whitespace between '--' and '>'. Also recognize <-- as
+	  bogus start of a comment (Should be <!-- to be legal). Convert
+	  this to entities, making the bogus comment a PCDATA section
+	  which shows up in the when a browser renders the document.
+
 2004-09-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* htmlparse.test: Another patch coming from [Tcllib SF Bug
