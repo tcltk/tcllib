@@ -1,3 +1,10 @@
+2003-03-31  Andreas Kupries  <andreask@activestate.com>
+
+	* csv.tcl (split): Fixed bug #709123 reported by Jamie Honan
+	  <jhonan@users.sourceforge.net>. The separator character is used
+	  in regular epxressions, but was not protected against special
+	  interpretation by the RE engine.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.man: More semantic markup, less visual one.

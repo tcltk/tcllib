@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.10 2002/06/24 23:17:26 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.11 2003/03/31 22:24:41 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.3
@@ -170,8 +170,12 @@ proc ::csv::report {cmd matrix args} {
 #	A list of the values in 'line'.
 
 proc ::csv::split {line {sepChar ,}} {
-    regsub -- "$sepChar\"\"$" $line $sepChar\0\"\"\0 line
-    regsub -- "^\"\"$sepChar" $line \0\"\"\0$sepChar line
+    # Protect the sepchar from special interpretation by
+    # the regex calls below.
+
+    set sepRE \\$sepChar
+    regsub -- "$sepRE\"\"$" $line $sepChar\0\"\"\0 line
+    regsub -- "^\"\"$sepRE" $line \0\"\"\0$sepChar line
     regsub -all -- {(^\"|\"$)} $line \0 line
     set line [string map [list \
 	    $sepChar\"\"\" $sepChar\0\" \
