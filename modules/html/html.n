@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.13 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: html.n,v 1.14 2002/01/11 22:28:30 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -85,6 +85,8 @@
 .sp
 \fBhtml::minorMenu\fR \fIlist {sep { | }}\fR
 .sp
+\fBhtml::minorList\fR \fIlist {ordered { 0 }}\fR
+.sp
 \fBhtml::openTag\fR \fItag args\fR
 .sp
 \fBhtml::passwordInput\fR \fI{name password}\fR
@@ -102,6 +104,8 @@
 \fBhtml::init\fR \fI{nvlist {}}\fR
 .sp
 \fBhtml::row\fR \fIargs\fR
+.sp
+\fBhtml::paramRow\fR \fIlist {rparam {}} {cparam {}}\fR
 .sp
 \fBhtml::select\fR \fIname param choices {current {}}\fR
 .sp
@@ -347,8 +351,12 @@ Generate a series of hypertext links.
 The \fIlist\fP is a Tcl-style name, value list of
 labels and urls for the links.
 The \fIsep\fP is the text to put between each link.
-
-
+.TP
+\fBhtml::minorList\fR \fIlist {ordered { 0 }}\fR
+Generate an ordered or unordered list of links.  The \fIlist\fP is a
+Tcl-style name, value list of labels and urls for the links.
+\fIordered\fP is a boolean used to choose between an ordered or
+unordered list.
 .TP
 \fBhtml::openTag\fR \fItag args\fR
 Push \fItag\fP onto a stack and generate the opening tag
@@ -397,12 +405,18 @@ page to load after the refresh interval.
 values for items with a name of the form \fItag\fP.\fIparameter\fP.
 For example, a default with key \fBbody.bgcolor\fP defines
 the background color for the BODY tag.
-
 .TP
 \fBhtml::row\fR \fIargs\fR
 Generate a table row, including TR and TD tags.
 Each value in \fIargs\fP is place into its own table cell.
 This uses \fIhtml::cell\fP.
+.TP
+\fBhtml::paramRow\fR \fIlist {rparam {}} {cparam {}}\fR
+Generate a table row, including TR and TD tags. Each value in
+\fIlist\fP is placed into its own table cell. This uses
+\fIhtml::cell\fP. The value of \fIrparam\fP is used as parameter for
+the TR tag. The value of \fIcparam\fP is passed to \fIhtml::cell\fP as
+parameter for the TD tags.
 .TP
 \fBhtml::select\fR \fIname param choices {current {}}\fR
 Generate a SELECT form element and nested OPTION tags.
