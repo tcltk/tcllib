@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.28 2003/08/06 22:41:35 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.29 2003/09/04 00:10:44 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -625,7 +625,13 @@ proc ::fileutil::fileType {filename} {
         set type text
         set binary 0
     }
-    if { [ regexp {^\#\!(\S+)} $test -> terp ] } {
+
+    # SF Tcllib bug [795585]. Allowing whitespace between #!
+    # and path of script interpreter
+
+    set metakit 0
+
+    if { [ regexp {^\#\!\s*(\S+)} $test -> terp ] } {
         lappend type script $terp
     } elseif { $binary && [ regexp {^[\x7F]ELF} $test ] } {
         lappend type executable elf
@@ -659,14 +665,74 @@ proc ::fileutil::fileType {filename} {
         lappend type message pgp
     } elseif { $binary && [string match {IGWD*} $test] } {
         lappend type gravity_wave_data_frame
-    }    
+    } elseif {[string match "JL\x1a\x00*" $test] && ([file size $filename] >= 27)} {
+	lappend type metakit smallendian
+	set metakit 1
+    } elseif {[string match "LJ\x1a\x00*" $test] && ([file size $filename] >= 27)} {
+	lappend type metakit bigendian
+	set metakit 1
+    }
+
+    # Additional checks of file contents at the end of the file,
+    # possibly pointing into the middle too (attached metakit,
+    # attached zip).
+
+    ## Metakit File format: http://www.equi4.com/metakit/metakit-ff.html
+    ## Metakit database attached ? ##
+
+    if {!$metakit && ([file size $filename] >= 27)} {
+	# The offsets in the footer are in always bigendian format
+
+	if { [ catch {
+	    set fid [ open $filename r ]
+	    fconfigure $fid -translation binary
+	    fconfigure $fid -buffersize 1024
+	    fconfigure $fid -buffering full
+	    seek $fid -16 end
+	    set test [ read $fid 16 ]
+	    ::close $fid
+	} err ] } {
+	    catch { ::close $fid }
+	    return -code error "::fileutil::fileType: $err"
+	}
+
+	binary scan $test IIII __ hdroffset __ __
+	set hdroffset [expr {[file size $filename] - 16 - $hdroffset}]
+
+	# Further checks iff the offset is actually inside the file.
+
+	if {($hdroffset >= 0) && ($hdroffset < [file size $filename])} {
+	    # Seek to the specified location and try to match a metakit header
+	    # at this location.
+
+	    set         fid [ open $filename r ]
+	    fconfigure $fid -translation binary
+	    fconfigure $fid -buffersize 1024
+	    fconfigure $fid -buffering full
+	    seek       $fid $hdroffset start
+
+	    set test [ read $fid 16 ]
+
+	    if {[string match "JL\x1a\x00*" $test]} {
+		lappend type attached metakit smallendian
+		set metakit 1
+	    } elseif {[string match "LJ\x1a\x00*" $test]} {
+		lappend type attached metakit bigendian
+		set metakit 1
+	    }
+	}
+    }
+
+    ## Zip File Format: http://zziplib.sourceforge.net/zzip-parse.html
+    ## http://www.pkware.com/products/enterprise/white_papers/appnote.html
+
+
     ;## lastly, is it a link?
     if { ! [ catch {file readlink $filename} ] } {
         lappend type link
     }
     return $type
 }
-
 
 # ::fileutil::tempfile --
 #
@@ -683,7 +749,7 @@ proc ::fileutil::fileType {filename} {
 #
 
 proc ::fileutil::tempfile {{prefix {}}} {
-    global  tcl_platform
+    global  tcl_platform env
     switch $tcl_platform(platform) {
 	unix {
 	    set tmpdir /tmp;   # or even $::env(TMPDIR), at times.
