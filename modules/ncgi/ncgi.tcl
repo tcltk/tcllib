@@ -45,7 +45,7 @@ namespace eval ncgi {
     # This holds the URL coresponding to the current request
     # This does not include the server name.
 
-    variable urlstub
+    variable urlStub
 
     # This flags compatibility with Don Libes cgi.tcl when dealing with
     # form values that appear more than once.  This bit gets flipped when
@@ -125,7 +125,7 @@ proc ncgi::reset {args} {
     }
 }
 
-# ncgi::urlstub
+# ncgi::urlStub
 #
 #	Set or return the URL associated with the current page.
 #	This is for use by TclHttpd to override the default value
@@ -133,20 +133,22 @@ proc ncgi::reset {args} {
 #
 # Arguments:
 #	url	(option) The url of the page, not counting the server name.
-#		If not specified, the current urlstub is returned
+#		If not specified, the current urlStub is returned
 #
 # Side Effects:
-#	May affects future calls to ncgi::urlstub
+#	May affects future calls to ncgi::urlStub
 
-proc ncgi::urlstub {{url {}}} {
-    variable urlstub
+proc ncgi::urlStub {{url {}}} {
+    variable urlStub
     if {[string length $url]} {
-	set urlstub $url
-    } elseif {[info exist urlstub]} {
-	return $urlstub
+	set urlStub $url
+    } elseif {[info exist urlStub]} {
+	return $urlStub
     } elseif {[info exist env(SCRIPT_NAME)]} {
-	set urlstub $env(SCRIPT_NAME)
-	return $urlstub
+	set urlStub $env(SCRIPT_NAME)
+	return $urlStub
+    } else {
+	return ""
     }
 }
 
@@ -302,7 +304,7 @@ proc ncgi::nvlist {} {
 # ncgi::parse
 #
 #	The parses the query data and stores it into an array for later retrieval.
-#	You should use the ncgi::value or ncgi::valuelist procedures to get those
+#	You should use the ncgi::value or ncgi::valueList procedures to get those
 #	values, or you are allowed to access the ncgi::value array directly.
 #
 #	Note - all values have a level of list structure associated with them
@@ -378,7 +380,7 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 #	Return the value of a named query element, or the empty string if
 #	it was not not specified.  This only returns the first value of
 #	associated with the name.  If you want them all (like all values
-#	of a checkbox), use ncgi::valuelist
+#	of a checkbox), use ncgi::valueList
 #
 # Arguments:
 #	name	The name of the query element
@@ -408,7 +410,7 @@ proc ncgi::value {key {default {}}} {
     }
 }
 
-# ncgi::valuelist
+# ncgi::valueList
 #
 #	Return all the values of a named query element as a list, or
 #	the empty list if it was not not specified.  This always returns
@@ -421,7 +423,7 @@ proc ncgi::value {key {default {}}} {
 # Results:
 #	The first value of the named element, or ""
 
-proc ncgi::valuelist {key {default {}}} {
+proc ncgi::valueList {key {default {}}} {
     variable value
     if {[info exists value($key)]} {
 	return $value($key)
@@ -464,7 +466,7 @@ proc ncgi::import {cginame {tclname {}}} {
     set var [ncgi::value $cginame]
 }
 
-# ncgi::importall
+# ncgi::importAll
 #
 #	Map a CGI input into a Tcl variable.  This creates a Tcl variable in
 #	the callers scope for every CGI value, or just for those named values.
@@ -473,7 +475,7 @@ proc ncgi::import {cginame {tclname {}}} {
 #	args	A list of form element names.  If this is empty,
 #		then all form value are imported.
 
-proc ncgi::importall {args} {
+proc ncgi::importAll {args} {
     variable varlist
     if {[llength $args] == 0} {
 	set args $varlist
@@ -710,21 +712,21 @@ proc ncgi::multipart {type query} {
 	foreach line [split [string range $query $offset $off2] \n] {
 	    if {[regexp {([^:	 ]+):(.*)$} $line x hdrname value]} {
 		set hdrname [string tolower $hdrname]
-		set valuelist [parseMimeValue $value]
+		set valueList [parseMimeValue $value]
 		if {[string equal $hdrname "content-disposition"]} {
 
 		    # Promote Conent-Disposition parameters up to headers,
 		    # and look for the "name" that identifies the form element
 
-		    lappend headers $hdrname [lindex $valuelist 0]
-		    foreach {n v} [lindex $valuelist 1] {
+		    lappend headers $hdrname [lindex $valueList 0]
+		    foreach {n v} [lindex $valueList 1] {
 			lappend headers $n $v
 			if {[string equal $n "name"]} {
 			    set formName $v
 			}
 		    }
 		} else {
-		    lappend headers $hdrname $valuelist
+		    lappend headers $hdrname $valueList
 		}
 	    }
 	}
@@ -766,7 +768,7 @@ proc ncgi::cookie {cookie} {
     return $result
 }
 
-# ncgi::setcookie
+# ncgi::setCookie
 #
 #	Set a return cookie.  You must call this before you call
 #	ncgi::header or ncgi::redirect
@@ -782,7 +784,7 @@ proc ncgi::cookie {cookie} {
 # Side Effects:
 #	Formats and stores the Set-Cookie header for the reply.
 
-proc ncgi::setcookie {args} {
+proc ncgi::setCookie {args} {
     variable cookieOutput
     array set opt $args
     set line "$opt(-name)=$opt(-value) ;"

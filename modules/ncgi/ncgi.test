@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 #
-# RCS: @(#) $Id: ncgi.test,v 1.5 2000/04/14 19:23:22 welch Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.6 2000/04/26 19:08:44 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -178,16 +178,16 @@ test ncgi-8.3 {ncgi::value} {
     ncgi::value noname
 } {}
 
-test ncgi-9.1 {ncgi::valuelist} {
+test ncgi-9.1 {ncgi::valueList} {
     ncgi::reset "name=val+ue&name=value2"
     ncgi::parse
-    ncgi::valuelist name
+    ncgi::valueList name
 } {{val ue} value2}
 
-test ncgi-9.2 {ncgi::valuelist} {
+test ncgi-9.2 {ncgi::valueList} {
     ncgi::reset "name=val+ue&name=value2"
     ncgi::parse
-    ncgi::valuelist noname
+    ncgi::valueList noname
 } {}
 
 test ncgi-10.1 {ncgi::import} {
@@ -211,22 +211,22 @@ test ncgi-10.3 {ncgi::import} {
     set noname
 } {}
 
-test ncgi-10.4 {ncgi::importall} {
+test ncgi-10.4 {ncgi::importAll} {
     ncgi::reset "name1=val+ue&name2=value2"
     catch {unset name1}
     catch {unset name2}
     ncgi::parse
-    ncgi::importall
+    ncgi::importAll
     list $name1 $name2
 } {{val ue} value2}
 
-test ncgi-10.4 {ncgi::importall} {
+test ncgi-10.4 {ncgi::importAll} {
     ncgi::reset "name1=val+ue&name2=value2"
     catch {unset name1}
     catch {unset name2}
     catch {unset name3}
     ncgi::parse
-    ncgi::importall name2 name3
+    ncgi::importAll name2 name3
     list [info exist name1] $name2 $name3
 } {0 value2 {}}
 
@@ -260,7 +260,7 @@ test ncgi-11.2 {ncgi::redirect} {
     makeFile [format {
 	if {[catch {
 	source %s
-	ncgi::setcookie -name CookieName -value 12345
+	ncgi::setCookie -name CookieName -value 12345
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
@@ -394,7 +394,7 @@ test ncgi-12.4 {ncgi::header} {
     makeFile [format {
 	if {[catch {
 	source %s
-	ncgi::setcookie -name Name -value {The+Value}
+	ncgi::setCookie -name Name -value {The+Value}
 	ncgi::header
 	} err]} {
 	    puts $err
