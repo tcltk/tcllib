@@ -99,8 +99,9 @@ proc fmt_plain_text {text} {
 ################################################################
 # Formatting commands.
 
-c_pass 1 fmt_manpage_begin {title section version} NOP
+c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
+    c_cinit
     set module      [dt_module]
     set shortdesc   [c_get_module]
     set description [c_get_title]
@@ -129,8 +130,9 @@ c_pass 2 fmt_titledesc {desc} NOP
 c_pass 1 fmt_copyright {desc} {c_set_copyright $desc}
 c_pass 2 fmt_copyright {desc} NOP
 
-c_pass 1 fmt_manpage_end {} NOP
+c_pass 1 fmt_manpage_end {} {c_creset ; return}
 c_pass 2 fmt_manpage_end {} {
+    c_creset
     set res ""
     set copyright [c_get_copyright]
     if {$copyright != {}} {
@@ -144,8 +146,9 @@ c_pass 2 fmt_manpage_end {} {
 c_pass 1 fmt_section     {name} { set ::SectionNames($name) [c_sectionId $name] }
 c_pass 2 fmt_section     {name} {
     set id [c_sectionId $name]
-    return "[markup <]a name=[markup \"]$id[markup \"><h2>]$name[markup </h2>]"
+    return "[markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>]"
 }
+
 proc fmt_para {} {return [markup <p>]}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
@@ -162,8 +165,12 @@ c_pass 1 fmt_require {pkg {version {}}} {
 c_pass 2 fmt_usage {cmd args} NOP
 c_pass 1 fmt_usage {cmd args} {c_hold synopsis "[trtop][td]$cmd [join $args " "][markup </td></tr>]"}
 
-c_pass 1 fmt_call {cmd args} {c_hold synopsis "[trtop][td]$cmd [join $args " "][markup </td></tr>]"}
-c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]\n"}
+c_pass 1 fmt_call {cmd args} {
+    c_hold synopsis "[trtop][td][markup "<a href=\"#[c_cnext]\">"]$cmd [join $args " "][markup </a></td></tr>]"
+}
+c_pass 2 fmt_call {cmd args} {
+    return "[fmt_lst_item "[markup "<a name=\"[c_cnext]\">"]$cmd [join $args " "][markup </a>]"]\n"
+}
 
 c_pass 1 fmt_description {} NOP
 c_pass 2 fmt_description {} {
