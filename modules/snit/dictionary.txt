@@ -51,6 +51,9 @@ Snit_methodInfo         Array(method name) = {<pattern> <compName>}
 Snit_cgetCache          Array(option name) = cached command.
                         Used by $self cget.
 
+Snit_configureCache     Array(option name) = cached command.
+                        Used by $self configurelist.
+
 Snit_optionInfo         An array of option data.  The keys are as follows:
 
   General fields:
