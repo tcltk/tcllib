@@ -1,3 +1,20 @@
+2002-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_html.tcl: Added command to map HTML special
+	  characters to their escape sequences.
+
+	* mpformats/fmt.latex: Added code to disable special processing of
+	  plain text while inside of an example.
+
+	* mpformats/fmt.tmml: Added HandleText call to [example] to handle
+	  special XML characters inside of the example. Not requitred for
+	  [example_begin] / [example_end] as the text will go through
+	  HandleText automatically for that case.
+
+	* mpformats/fmt.nroff: Added split to lsearch statement in
+	  manpage_end to make the code robust against strings which are
+	  not valid lists.
+
 2001-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Added formatter for LaTeX.

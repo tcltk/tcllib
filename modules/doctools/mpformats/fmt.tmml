@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.2 2002/02/12 23:00:13 jenglish Exp $
+# $Id: fmt.tmml,v 1.3 2002/02/13 02:59:33 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -65,7 +65,7 @@ proc opt 	{text}	{ wrap $text o }
 proc example_begin {}	{ sequence [xmlContext section] "<example>" }
 proc example_end   {}	{ return "</example>" }
 
-proc example {code} 	{ sequence [xmlContext section] [wrap $code example] }
+proc example {code} 	{ sequence [xmlContext section] [wrap [HandleText $code] example] }
 
 global    state
 array set state {mdesc {}}

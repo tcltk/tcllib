@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.56 2002/01/21 17:54:32 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.57 2002/02/13 02:59:33 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -28,6 +28,9 @@ CONTROL=control
 
 # CSV processing
 CSV=csv
+
+# Documentation tools
+DOCTOOLS=doctools
 
 # File utilities (grep, find, etc.)
 FILEUTIL=fileutil
@@ -115,6 +118,7 @@ MODULES= \
 	$(CRC)		\
 	$(CSV)		\
 	$(COUNTER)	\
+	$(DOCTOOLS)	\
 	$(STRUCT)	\
 	$(FILEUTIL)	\
 	$(FTP)		\
@@ -212,7 +216,8 @@ binaries:
 
 libraries:
 
-doc:
+doc: nroff-doc html-doc tmml-doc
+
 
 install: all install-libraries install-doc
 
@@ -320,6 +325,97 @@ check:
 #========================================================================
 # End of user-definable section
 #========================================================================
+
+DOC_EXP=$(srcdir)/modules/doctools/mpexpand
+
+## Parameters:
+#
+## * DOC_FMT	output format to generate
+## * DOC_EXT	extension for the generated file
+## * DOC_MODE   which set of manpages to convert. default to 'user'.
+##              other sets: all, dev
+##              all = user + dev, dev = internal manpages for developers.
+#
+# Internal target ...
+#
+doc_generate:
+	@if [ "X$$DOC_MODE" = X ]; then DOC_MODE=user; fi ; \
+	for mod in $(MODULES); do \
+            case X$$DOC_MODE in \
+	    Xuser)  files=`ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | sed -e '/\.dev\.man$$/d'` ; \
+		;; \
+	    Xdev)   files=`ls $(srcdir)/modules/$$mod/*.dev.man 2>/dev/null` ; \
+		;; \
+	    Xall)   files=`ls $(srcdir)/modules/$$mod/*.man 2>/dev/null` ; \
+		;; \
+            *)	echo ERROR, invalid mode $$DOC_MODE ; \
+		;; \
+	    esac ; \
+	    if [ "X$$files" != X ]; then \
+		$(mkinstalldirs) doc/$(DOC_FMT) ; \
+		for file in $$files ; do \
+		    echo Gen "($(DOC_FMT)):" $$file ; \
+		    $(DOC_EXP) -module $$mod $(DOC_FMT) \
+			$$file doc/$(DOC_FMT)/`basename $$file .man`.$(DOC_EXT) ; \
+		done ; \
+	    fi ; \
+	done
+
+#========================================================================
+# Public targets for the generation of documentation.
+
+html-doc:
+	@$(MAKE) doc_generate DOC_FMT=html DOC_EXT=html
+
+nroff-doc:
+	@$(MAKE) doc_generate DOC_FMT=nroff DOC_EXT=n
+
+tmml-doc:
+	@$(MAKE) doc_generate DOC_FMT=tmml DOC_EXT=tmml
+
+latex-doc:
+	@$(MAKE) doc_generate DOC_FMT=latex DOC_EXT=tex
+	@cd doc/latex ; files=`ls *.tex  2>/dev/null` ; \
+	if [ "X$$files" != X ]; then	\
+		cd ../.. ; $(mkinstalldirs) doc/dvi doc/ps ; \
+		cd doc/dvi ; \
+		for f in $$files ; do	\
+		    echo Gen "(dvi/ps):" $$file ; \
+		    latex ../latex/$$f ; \
+		    dvips -o ../ps/`basename $$f .tex`.ps `basename $$f .tex`.dvi ; \
+		done ; \
+	fi
+
+list-doc:
+	@$(MAKE) doc_generate DOC_FMT=list DOC_EXT=l
+	@cd doc/list ; files=`ls *.l  2>/dev/null` ; \
+	if [ "X$$files" != X ]; then	\
+	    cat *.l > list ; rm *.l ; \
+	    mv list manpages.tcl ; \
+	fi
+
+#
+# The format "latex2" is currently not defined. I plan for it to
+# generate half-baked output, i.e. tex without header and trailer.
+# The half-baked files plus a boilerplate header and trailer make up
+# the file containing the full documentation. Currently the order in
+# the file is determined by sorting the filenames alphabetically. This
+# can be changed with some effort here.
+#
+
+latex2-doc:
+	$(MAKE) doc_generate DOC_FMT=latex2 DOC_EXT=tex
+	cd doc/latex2 ; files=`ls *.tex  2>/dev/null` ; \
+	if [ "X$$files" != X ]; then	\
+		cd ../.. ; $(mkinstalldirs) doc/dvi doc/ps ; \
+		cat $(srcdir)/modules/doctools/latex2.hdr doc/latex2/*.tex \
+			$(srcdir)/modules/doctools/latex2.ftr > tcllib_doc.tex ; \
+		rm doc/latex2/*.tex ; mv tcllib_doc.tex doc/latex2/tcllib_doc.tex ; \
+		cd doc/dvi ; \
+		echo Gen "(dvi/ps):" tcllib_doc.tex ; \
+		latex ../latex2/tcllib_doc.tex ; \
+		dvips -o ../ps/tcllib_doc.ps tcllib_doc.dvi ; \
+	fi
 
 #========================================================================
 # Don't modify the file to clean here.  Instead, set the "CLEANFILES"

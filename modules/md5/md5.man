@@ -1,0 +1,42 @@
+[manpage_begin md5 n 1.4.2]
+[moddesc {Perform md5 hashing}]
+[titledesc {md5 hash}]
+[require Tcl 8.2]
+[require md5 1.4.2]
+[description]
+[para]
+
+This package provides commands to compute a MD5 digests of arbitrary
+messages.
+
+[section COMMANDS]
+
+[list_begin definitions]
+[call [cmd ::md5::md5] [arg msg]]
+
+The command takes a message and returns the MD5 digest of this message
+as a hexadecimal string.
+
+[call [cmd ::md5::hmac] [arg key] [arg text]]
+
+The command takes a key string and a text and returns the hmac of the
+text under the chosen key as a hexadecimal string.
+
+[section EXAMPLES]
+[para]
+
+[example {
+% md5::md5 "hello world"
+5eb63bbbe01eeed093cb22bb8f5acdc3
+}]
+
+[para]
+
+[example {
+% md5::hmac "our little secret" "hello world"
+61a922114c8aaf5050098be6d3a7daf0
+}]
+
+[para]
+[keywords md5 hashing security]
+[manpage_end]

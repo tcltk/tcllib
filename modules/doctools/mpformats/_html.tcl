@@ -2,6 +2,48 @@
 # Helper rules for the creation of the memchan website from the .exp files.
 # General formatting instructions ...
 
+# htmlEscape text --
+#	Replaces HTML markup characters in $text with the
+#	appropriate entity references.
+#
+
+global textMap;
+set    textMap {
+    &    &amp;    <    &lt;     >    &gt;     \x7b &ob;     \x7d &cb;  
+    \xa0 &nbsp;   \xb0 &deg;    \xc0 &Agrave; \xd0 &ETH;    \xe0 &agrave; \xf0 &eth;
+    \xa1 &iexcl;  \xb1 &plusmn; \xc1 &Aacute; \xd1 &Ntilde; \xe1 &aacute; \xf1 &ntilde;
+    \xa2 &cent;	  \xb2 &sup2;   \xc2 &Acirc;  \xd2 &Ograve; \xe2 &acirc;  \xf2 &ograve;
+    \xa3 &pound;  \xb3 &sup3;   \xc3 &Atilde; \xd3 &Oacute; \xe3 &atilde; \xf3 &oacute;
+    \xa4 &curren; \xb4 &acute;  \xc4 &Auml;   \xd4 &Ocirc;  \xe4 &auml;   \xf4 &ocirc;
+    \xa5 &yen;	  \xb5 &micro;  \xc5 &Aring;  \xd5 &Otilde; \xe5 &aring;  \xf5 &otilde;
+    \xa6 &brvbar; \xb6 &para;   \xc6 &AElig;  \xd6 &Ouml;   \xe6 &aelig;  \xf6 &ouml;
+    \xa7 &sect;	  \xb7 &middot; \xc7 &Ccedil; \xd7 &times;  \xe7 &ccedil; \xf7 &divide;
+    \xa8 &uml;	  \xb8 &cedil;  \xc8 &Egrave; \xd8 &Oslash; \xe8 &egrave; \xf8 &oslash;
+    \xa9 &copy;	  \xb9 &sup1;   \xc9 &Eacute; \xd9 &Ugrave; \xe9 &eacute; \xf9 &ugrave;
+    \xaa &ordf;	  \xba &ordm;   \xca &Ecirc;  \xda &Uacute; \xea &ecirc;  \xfa &uacute;
+    \xab &laquo;  \xbb &raquo;  \xcb &Euml;   \xdb &Ucirc;  \xeb &euml;   \xfb &ucirc;
+    \xac &not;	  \xbc &frac14; \xcc &Igrave; \xdc &Uuml;   \xec &igrave; \xfc &uuml;
+    \xad &shy;	  \xbd &frac12; \xcd &Iacute; \xdd &Yacute; \xed &iacute; \xfd &yacute;
+    \xae &reg;	  \xbe &frac34; \xce &Icirc;  \xde &THORN;  \xee &icirc;  \xfe &thorn;
+    \xaf &hibar;  \xbf &iquest; \xcf &Iuml;   \xdf &szlig;  \xef &iuml;   \xff &yuml;
+    {"} &quot;
+} ; # " make the emacs highlighting code happy.
+
+proc htmlEscape {text} {
+    global textMap
+    return [string map $textMap $text]
+}
+
+
+
+# Called to handle plain text from the input
+proc HandleText {text} {
+    # TODO: Proper definition of mapping special characters to their HTML escape codes.
+    # Incomplete.
+
+    return [htmlEscape $text]
+}
+
 proc state {} [list return [file join [pwd] state]]
 
 proc use_bg {} {
