@@ -1,3 +1,9 @@
+2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* log.tcl: Restricted export list to public API.
+	  [456255]. Patch by Hemang Lavana
+	  <hemanglavana@users.sourceforge.net>
+
 2001-03-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* New module 'log', a logging facility.

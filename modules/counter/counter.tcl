@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.7 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.8 2001/09/05 23:53:52 andreas_kupries Exp $
 
 package require Tcl 8
 
@@ -38,7 +38,8 @@ namespace eval counter:: {
     }
     variable mergeInterval
 
-    namespace export *
+    namespace export init reset count exists get names start stop
+    namespace export histHtmlDisplay histHtmlDisplayRow histHtmlDisplayBarChart
 }
 
 # counter::init --

@@ -1,3 +1,9 @@
+2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Restricted export list to public API.
+	  [456255]. Patch by Hemang Lavana
+	  <hemanglavana@users.sourceforge.net>
+
 2001-08-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* All of the changes below are related to tcllib Patch [449531] by

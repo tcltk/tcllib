@@ -88,7 +88,11 @@ namespace eval ncgi {
     # I don't like importing, but this makes everything show up in 
     # pkgIndex.tcl
 
-    namespace export *
+    namespace export reset urlStub query type decode encode
+    namespace export nvlist parse input value valueList
+    namespace export setValue setValueList setDefaultValue setDefaultValueList
+    namespace export empty import importAll redirect header
+    namespace export parseMimeValue multipart cookie setCookie
 }
 
 # ncgi::reset

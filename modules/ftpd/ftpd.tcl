@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.9 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.10 2001/09/05 23:53:52 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.1
@@ -103,7 +103,9 @@ namespace eval ::ftpd {
 
     # Exported procedures
 
-    namespace export *
+    namespace export config hasCallback logStderr 
+    namespace export fileAuth anonAuth unixAuth server accept read
+    namespace export fsFile::docRoot fsFile::fs
 }
 
 # ::ftpd::config --
