@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.2 2000/02/24 20:04:53 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.3 2000/03/01 23:27:02 ericm Exp $
 
 package provide profiler 0.1
 
@@ -164,5 +164,26 @@ proc ::profiler::dump {pattern} {
 		otherRuntime $otherRuntime($name)]
     }
     return $result
+}
+
+# ::profiler::sortFunctions --
+#
+#	Return a list of functions sorted by a particular field and the
+#	value of that field.
+#
+# Arguments:
+#	field	field to sort by. (totalCalls, firstRuntime or otherRuntime)
+#
+# Results:
+#	slist	sorted list of lists, sorted by the field in question.
+
+proc ::profiler::sortFunctions {field} {
+    set var ::profiler::$field
+    upvar $var data
+    set result [list ]
+    foreach fxn [array names data] {
+	lappend result [list $fxn $data($fxn)]
+    }
+    return [lsort -integer -index 1 $result]
 }
 

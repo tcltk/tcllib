@@ -1,0 +1,6 @@
+1999-10-29  Scott Stanton  <stanton@scriptics.com>
+
+	* cmdline.tcl: Fixed bug where options that contained regexp
+	special characters would cause an error.  Cleaned up lots of
+	messy code.  Added test suite.
+

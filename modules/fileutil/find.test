@@ -1,0 +1,41 @@
+# Tests for the find function.
+#
+# Sourcing this file into Tcl runs the tests and generates output for errors.
+# No output means no errors were found.
+#
+# Copyright (c) 1998-2000 by Scriptics Corporation.
+# All rights reserved.
+#
+# RCS: @(#) $Id: find.test,v 1.1 2000/03/01 23:27:00 ericm Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+package require fileutil
+
+# Build a sample tree to search
+makeDirectory find1
+makeDirectory [file join find1 find2]
+makeFile "" [file join find1 file1]
+makeFile "test" [file join find1 find2 file2]
+set dir $::tcltest::temporaryDirectory
+
+proc fileIsBiggerThan {s f} {
+    expr {![file isdirectory $f] && [file size $f] > $s}
+}
+
+test find-1.1 {standard recursive find} {
+    lsort [fileutil::find [file join $dir find1]]
+} [list [file join $dir find1 file1] [file join $dir find1 find2] \
+	[file join $dir find1 find2 file2]]
+test find-1.2 {find directories} {
+    fileutil::find [file join $dir find1] {file isdirectory}
+} [list [file join $dir find1 find2]]
+test find-1.3 {find files bigger than a given size} {
+    fileutil::find [file join $dir find1] {fileIsBiggerThan 1}
+} [list [file join $dir find1 find2 file2]]
+
+::tcltest::cleanupTests
+return
