@@ -21,7 +21,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.8 2003/04/11 19:39:12 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.9 2003/05/08 21:38:21 hobbs Exp $
 
 package require Tcl 8.2
 
@@ -231,7 +231,7 @@ proc ::comm::comm {cmd args} {
 
     # args = ?-async? id cmd ?arg arg ...?
     set i 0
-    if {[string match -async [lindex $args $i]]} {
+    if {[string equal -async [lindex $args $i]]} {
 	set cmd async
 	incr i
     }
@@ -244,7 +244,7 @@ proc ::comm::comm {cmd args} {
     if {![info complete $args]} {
 	return -code error "Incomplete command"
     }
-    if {[string match "" $args]} {
+    if {![llength $args]} {
 	return -code error \
 		"wrong # args: should be \"send ?-async? id arg ?arg ...?\""
     }
@@ -264,7 +264,7 @@ proc ::comm::comm {cmd args} {
 
     # wait for reply if so requested
 
-    if {[string match send $cmd]} {
+    if {[string equal send $cmd]} {
 	upvar 0 comm($chan,pending,$id) pending	;# shorter variable name
 
 	lappend pending $ser
@@ -343,9 +343,9 @@ proc ::comm::commNew {ch args} {
     if {([llength $args] % 2) != 0} {
 	error "Must have an even number of config arguments"
     }
-    if {[string match ::comm::comm $ch]} {
+    if {[string equal ::comm::comm $ch]} {
 	# allow comm to be recreated after destroy
-    } elseif {![string compare $ch [info proc $ch]]} {
+    } elseif {[string equal $ch [info proc $ch]]} {
 	error "Already existing command: $ch"
     } else {
 	regsub  "set chan \[^\n\]*\n" [info body ::comm::comm] \
@@ -390,7 +390,7 @@ proc ::comm::commDestroy {} {
     unset comm($chan,serial)
     set pos [lsearch -exact $comm(chans) $chan]
     set comm(chans) [lreplace $comm(chans) $pos $pos]
-    if {[string compare ::comm::comm $chan]} {
+    if {![string equal ::comm::comm $chan]} {
 	rename $chan {}
     }
 }
@@ -476,7 +476,7 @@ proc ::comm::commConfigure {{force 0} args} {
 	    }
 	    p {
 		if {
-		    [string compare $optval ""] &&
+		    ![string equal $optval ""] &&
 		    ![string is integer $optval]
 		} {
 		    error "Non-port to configuration option: -$var"
@@ -525,7 +525,7 @@ proc ::comm::commConfigure {{force 0} args} {
 	return ""
     }
 
-    if {[info exists port] && [string match "" $comm($chan,port)]} {
+    if {[info exists port] && [string equal "" $comm($chan,port)]} {
 	set nport [incr comm(lastport)]
     } else {
 	set userport 1
@@ -542,7 +542,7 @@ proc ::comm::commConfigure {{force 0} args} {
 	}
 	if {[info exists userport] || ![string match "*already in use" $ret]} {
 	    # don't erradicate the class
-	    if {![string match ::comm::comm $chan]} {
+	    if {![string equal ::comm::comm $chan]} {
 		rename $chan {}
 	    }
 	    error $ret
@@ -680,10 +680,10 @@ proc ::comm::commIncoming {chan fid addr remport} {
 
     # If the remote host addr isn't our local host addr,
     # then add it to the remote id.
-    if {[string compare [lindex [fconfigure $fid -sockname] 0] $addr]} {
-	set id [list $remid $addr]
-    } else {
+    if {[string equal [lindex [fconfigure $fid -sockname] 0] $addr]} {
 	set id $remid
+    } else {
+	set id [list $remid $addr]
     }
 
     # Detect race condition of two comms connecting to each other
@@ -707,7 +707,7 @@ proc ::comm::commIncoming {chan fid addr remport} {
     # each supported version explicitly.  I.e., {$vers >2 && $vers < 5} is OK.
 
     switch $vers {
-	3 {				
+	3 {
 	    # Respond with the selected version number
 	    puts  $fid [list [list vers $vers]]
 	    flush $fid
@@ -854,7 +854,7 @@ proc ::comm::commHook {hook {script +}} {
     if {!$comm($hook,hook)} {
 	error "Unimplemented hook invoked"
     }
-    if {[string match + $script]} {
+    if {[string equal + $script]} {
 	if {[catch {set comm($chan,hook,$hook)} ret]} {
 	    return ""
 	}
@@ -910,7 +910,7 @@ proc ::comm::commCollect {chan fid} {
 
     while {![catch {set cmd [lindex $data 0]}]} {
 	commDebug {puts stderr "cmd <$data>"}
-	if {[string match "" $cmd]} break
+	if {[string equal "" $cmd]} break
 	if {[info complete $cmd]} {
 	    set data [lreplace $data 0 0]
 	    after idle \
@@ -1024,7 +1024,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
     commDebug {puts stderr "res <$err,$ret>"}
 
     # The double list assures that the command is a single list when read.
-    if {[string match send $cmd]} {
+    if {[string equal send $cmd]} {
 	# The catch here is just in case we lose the target.  Consider:
 	#	comm send $other comm send [comm self] exit
 	catch {
@@ -1073,7 +1073,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 #
 
 if {![info exists ::comm::comm(comm,port)]} {
-    if {[string match macintosh $tcl_platform(platform)]} {
+    if {[string equal macintosh $tcl_platform(platform)]} {
 	::comm::comm new ::comm::comm -port 0 -local 0 -listen 1
 	set ::comm::comm(localhost) \
 		[lindex [fconfigure $::comm::comm(comm,socket) -sockname] 0]
