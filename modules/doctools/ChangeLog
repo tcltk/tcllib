@@ -1,3 +1,12 @@
+2002-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpexpand: Fixed error in checker of plain text.
+
+	* mpformats/fmt.nroff: Added newlines in front of dot commands to
+	  make sure that the formatting is correct. Superfluous newliens
+	  are stripped in the post processor of this format, so
+	  unconditionally adding them does not hurt.
+
 2002-04-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/en.msg: 
