@@ -1,3 +1,13 @@
+2004-07-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/da_cons.test: Updated tests to changed error message of snit.
+	* tests/de_cons.test: 
+
+	* tests/faop_difference.test: Fixed problem with missing object
+	* tests/faop_intersect.test:  destruction uncovered by the new
+	  checks in snit which cause it to avoid overwriting an existing
+	  command.
+
 2004-05-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.test: Adapted to changes in the struct package.
