@@ -77,6 +77,8 @@ V0.97.
   The "delegate method" statement also supports hierarchical methods.
   However, hierarchical methods cannot be used with -simpledispatch.
 
+* Similarly, added support for hierarchical typemethods.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
