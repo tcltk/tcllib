@@ -16,33 +16,23 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.7 2004/07/01 21:30:46 patthoyts Exp $
+# $Id: md5x.tcl,v 1.8 2004/12/02 23:45:22 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
-    variable version 2.0.1
-    variable rcsid {$Id: md5x.tcl,v 1.7 2004/07/01 21:30:46 patthoyts Exp $}
+    variable version 2.0.2
+    variable rcsid {$Id: md5x.tcl,v 1.8 2004/12/02 23:45:22 patthoyts Exp $}
     variable usetrf  0
     variable usemd5c 0
     namespace export md5 hmac MD5Init MD5Update MD5Final
 
     # Try and load a compiled extension to help.
-    if {![catch {package require tcllibc}] 
+    if {![catch {package require xtcllibc}] 
         || ![catch {package require md5c}]} {
         set usemd5c [expr {[info command ::md5::md5c] != {}}]
-    } else {
-        catch {
-            package require Trf
-            package require Memchan
-            # Trf < 2.1p2 with Memchan < 2.2a4 is buggy for what we want to do.
-            if {[package vsatisfies \
-                     [string map {p .} [package provide Trf]] 2.1]
-                && [package vsatisfies \
-                        [string map {a .} [package provide Memchan]] 2.2.0]} {
-                set usetrf 1
-            }
-        }
+    } elseif {![catch {package require Trf}]} {
+        set usetrf 1
     }
 
     variable uid
@@ -74,16 +64,22 @@ proc ::md5::MD5Init {} {
              n 0 i "" ]
     if {$usetrf} {
         # We have Trf and Memchan so we can create a bucket with these.
-        set s [::null]
-        fconfigure $s -translation binary -buffering none
-        ::md5 -attach $s -mode write \
-            -read-type variable \
-            -read-destination [subst $token](trfread) \
-            -write-type variable \
-            -write-destination [subst $token](trfwrite)
-        set tok(trfread) 0
-        set tok(trfwrite) 0
-        set tok(trf) $s
+        set s {}
+        switch -exact -- $::tcl_platform(platform) {
+            windows { set s [open NUL w] }
+            unix    { set s [open /dev/null w] }
+        }
+        if {$s != {}} {
+            fconfigure $s -translation binary -buffering none
+            ::md5 -attach $s -mode write \
+                -read-type variable \
+                -read-destination [subst $token](trfread) \
+                -write-type variable \
+                -write-destination [subst $token](trfwrite)
+            set tok(trfread) 0
+            set tok(trfwrite) 0
+            set tok(trf) $s
+        }
     }
     return $token
 }
