@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.4 2000/03/03 22:28:01 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.5 2000/03/03 23:54:49 ericm Exp $
 
 package provide profiler 0.1
 
@@ -194,10 +194,13 @@ proc ::profiler::sortFunctions {{field ""}} {
 	}
 	"avgRuntime" -
 	"averageRuntime" {
-	    variable totalCalls
+	    variable callCount
 	    variable totalRuntime
-	    foreach fxn [array names totalCalls] {
-		set data($fxn) [expr {$totalRuntime/($totalCalls - 1)}]
+	    foreach fxn [array names callCount] {
+		if { $callCount($fxn) > 1 } {
+		    set data($fxn) \
+			    [expr {$totalRuntime($fxn)/($callCount($fxn) - 1)}]
+		}
 	    }
 	}
 	default {
