@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.12 2004/05/26 04:24:29 andreas_kupries Exp $
+# $Id: md4.tcl,v 1.13 2005/02/17 14:42:27 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
-    variable version 1.0.2
-    variable rcsid {$Id: md4.tcl,v 1.12 2004/05/26 04:24:29 andreas_kupries Exp $}
+    variable version 1.0.3
+    variable rcsid {$Id: md4.tcl,v 1.13 2005/02/17 14:42:27 patthoyts Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
@@ -386,8 +386,9 @@ proc ::md4::md4 {args} {
             -file*     { set opts(-filename) [Pop args 1] }
             -channel   { set opts(-channel) [Pop args 1] }
             -chunksize { set opts(-chunksize) [Pop args 1] }
-            --         { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0 } { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
                     must be one of $err"
@@ -437,7 +438,7 @@ proc ::md4::md4 {args} {
 # -------------------------------------------------------------------------
 
 proc ::md4::hmac {args} {
-    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096 -key {}}
+    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096}
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -key       { set opts(-key) [Pop args 1] }
@@ -445,8 +446,9 @@ proc ::md4::hmac {args} {
             -file*     { set opts(-filename) [Pop args 1] }
             -channel   { set opts(-channel) [Pop args 1] }
             -chunksize { set opts(-chunksize) [Pop args 1] }
-            --         { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0 } { Pop args; break }
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option $option:\
                     must be one of $err"
@@ -455,7 +457,7 @@ proc ::md4::hmac {args} {
         Pop args
     }
 
-    if {$opts(-key) == {}} {
+    if {![info exists opts(-key)]} {
         return -code error "wrong # args:\
             should be \"hmac ?-hex? -key key -filename file | string\""
     }
