@@ -5,9 +5,9 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.10 2003/04/14 06:21:49 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.11 2003/05/16 22:01:13 davidw Exp $
 
-package provide irc 0.3
+package provide irc 0.4
 package require Tcl 8.3
 
 package require logger
@@ -25,7 +25,7 @@ namespace eval ::irc {
 
 # ::irc::config --
 #
-# Set configuration options
+# Set configuration options.
 #
 # Arguments:
 #
@@ -79,50 +79,94 @@ proc ::irc::connection { host {port 6667} } {
 	array set dispatch {}
 	set sock {}
 	array set linedata {}
+
 	# ircsend --
 	# send text to the IRC server
 
 	proc ircsend { msg } {
 	    variable sock
+	    variable dispatch
+	    variable state
 	    ${irc::log}::debug "ircsend: '$msg'"
 	    if { [catch {puts $sock "$msg"} err] } {
+	        close $sock
+	        set state 0
+		if { [info exists dispatch(EOF)] } {
+		    eval $dispatch(EOF)
+		}
 		${irc::log}::error "Error in ircsend: $err"
 	    }
 	}
 
-	# implemented user-side commands, meaning that these commands
+	# Implemented user-side commands, meaning that these commands
 	# cause the calling user to perform the given action.
 
-	proc User { username hostname userinfo } {
-	    ircsend "USER $username $hostname $username :$userinfo"
+	proc cmd-user { username hostname servername userinfo } {
+	    ircsend "USER $username $hostname $servername :$userinfo"
 	}
 
-	proc Nick { nk } {
+	proc cmd-nick { nk } {
 	    variable nick
 	    set nick $nk
 	    ircsend "NICK $nk"
 	}
 
-	proc Ping { } {
-	    ircsend "PING: [clock seconds]"
+	proc cmd-ping { target } {
+	    ircsend "PRIVMSG $target :\001PING [clock seconds]\001"
 	}
 
-	proc Join { chan } {
-	    ircsend "JOIN $chan "
+	proc cmd-serverping { } {
+	    ircsend "PING [clock seconds]"
 	}
 
-	proc Part { chan } {
-	    ircsend "PART $chan"
+	proc cmd-ctcp { target line } {
+	    ircsend "PRIVMSG $target :\001$line\001"
 	}
 
-	proc Privmsg { target msg } {
+	proc cmd-join { chan {key {}} } {
+	    ircsend "JOIN $chan $key"
+	}
+
+	proc cmd-part { chan {msg "tcllib irc library"} } {
+	    ircsend "PART $chan :$msg"
+	}
+
+	proc cmd-quit { {msg {}} } {
+	    ircsend "QUIT :$msg"
+	}
+
+	proc cmd-privmsg { target msg } {
 	    ircsend "PRIVMSG $target :$msg"
+	}
+
+	proc cmd-notice { target msg } {
+	    ircsend "NOTICE $target :$msg"
+	}
+
+	proc cmd-kick { chan target {msg {}} } {
+	    ircsend "KICK $chan $target :$msg"
+	}
+
+	proc cmd-mode { target args } {
+	    ircsend "MODE $target [join $args]"
+	}
+
+	proc cmd-topic { chan msg } {
+	    ircsend "TOPIC $chan :$msg"
+	}
+
+	proc cmd-invite { chan target } {
+	    ircsend "INVITE $target $chan"
+	}
+
+	proc cmd-send { line } {
+	    ircsend $line
 	}
 
 	# Connect --
 	# Create the actual connection.
 
-	proc Connect { } {
+	proc cmd-connect { } {
 	    variable state
 	    variable sock
 	    variable host
@@ -138,7 +182,8 @@ proc ::irc::connection { host {port 6667} } {
 		set state 1
 		fconfigure $sock -translation crlf
 		fconfigure $sock -buffering line
-		fileevent $sock readable [format "::irc::irc%s::%s::GetEvent" $conn $host ]
+		fileevent $sock readable\
+		    [format "::irc::irc%s::%s::GetEvent" $conn $host ]
 	    }
 	    return 0
 	}
@@ -151,192 +196,178 @@ proc ::irc::connection { host {port 6667} } {
 
 	# action --
 
-	# action returns the action performed, such as KICK, PRIVMSG,
-	# MODE etc...
+	# Action returns the action performed, such as KICK, PRIVMSG,
+	# MODE etc, including numeric actions such as 001, 252, 353,
+	# and so forth.
 
 	proc action { } {
 	    variable linedata
-	    return "$linedata(action)"
+	    return $linedata(action)
 	}
 
 	# msg --
 
-	# the rest of the line, even if there is more than one target.
+	# The last argument of the line, after the last ':'.
 
 	proc msg { } {
 	    variable linedata
-	    return "$linedata(msg)"
+	    return $linedata(msg)
 	}
 
 	# who --
 
-	# who performed the action.  If the command is called as [who
-	# address], it returns the information in the form
-	# username@ip.address.net
+	# Who performed the action.  If the command is called as [who address],
+	# it returns the information in the form
+	# nick!ident@host.domain.net
 
 	proc who { {address 0} } {
 	    variable linedata
-	    set who $linedata(who)
 	    if { $address == 0 } {
-		return "[string range $who 0 [expr {[string first ! $who] - 1}]]"
+		return [lindex [split $linedata(who) !] 0]
 	    } else {
-		return "[string range $who [expr {[string last ! $who] + 1}] end]"
+		return $linedata(who)
 	    }
 	}
 
 	# target --
 
-	# to whom was this action done.
+	# To whom was this action done.
 
-	# index specifies which target number it is, if there are more
-	# than one (MODE and KICK commands, for instance).
-
-	proc target { {index 0} } {
+	proc target { } {
 	    variable linedata
-	    return "[lindex $linedata(target) $index]"
+	    return $linedata(target)
 	}
 
-	# DispatchNumeric --
-	# Dispatch a numeric event that arrives from the server
+	# additional --
 
-	proc DispatchNumeric { } {
-	    variable dispatch
+	# Returns any additional header elements beyond the target.
+
+	proc additional { } {
 	    variable linedata
-	    if { [info exists dispatch($linedata(action))] } {
-		eval $dispatch($linedata(action))
-	    } else {
-		eval $dispatch(defaultnumeric)
-	    }
+	    return $linedata(additional)
 	}
 
-	# DispatchServerEvent --
-	# Dispatch event from server
+	# header --
 
-	proc DispatchServerEvent { line } {
-	    variable dispatch
+	# Returns the entire header in list format.
+
+	proc header { } {
 	    variable linedata
-	    set splitline [split $line]
-	    set linedata(who) [lindex $splitline 0]
-	    set linedata(action) [lindex $splitline 1]
-	    set linedata(target) {}
-	    set linedata(msg) {}
-
-	    set i 2
-	    while { $i <= [llength $splitline] } {
-		set tg [lindex $splitline $i]
-		if { [string index $tg 0] == ":" } {
-		    set linedata(msg) [string range [join [lrange $splitline $i end]] 1 end]
-		    break
-		}
-		lappend linedata(target) $tg
-		incr i
-	    }
-
-	    if { [string is integer $linedata(action)] } {
-		return [DispatchNumeric]
-	    }
-
-	    if { [info exists dispatch($linedata(action))] } {
-		return [eval $dispatch($linedata(action))]
-	    } else {
-		return [eval $dispatch(defaultevent)]
-	    }
-	}
-
-	# DispatchServerCmd --
-
-	# Dispatch command from server
-
-	proc DispatchServerCmd { line } {
-	    variable dispatch
-	    variable linedata
-	    set splt [string first : $line]
-	    set linedata(action) [string range $line 0 [expr {$splt - 2}]]
-	    set linedata(msg) [string range $line $splt end]
-	    set linedata(target) ""
-	    set linedata(who) ""
-
-	    if { [info exists dispatch($linedata(action))] } {
-		eval $dispatch($linedata(action))
-	    } else {
-		eval $dispatch(defaultcmd)
-	    }
+	    return [concat [list $linedata(who) $linedata(action) $linedata(target)] \
+			$linedata(additional)]
 	}
 
 	# GetEvent --
 
-	# Get a line from the server and send it on to
-	# DispatchServerCmd/Event
+	# Get a line from the server and dispatch it.
 
 	proc GetEvent { } {
 	    variable linedata
 	    variable sock
+	    variable dispatch
+	    variable state
 	    array set linedata {}
-	    if {[catch {
-		gets $sock line
-	    } err]} {
+	    set line "eof"
+	    if { [eof $sock] || [catch {gets $sock} line] } {
 		close $sock
-		${irc::log}::error \
-			"Error receiving from network: $err"
+		set state 0
+		${irc::log}::error "Error receiving from network: $line"
+		if { [info exists dispatch(EOF)] } {
+		    eval $dispatch(EOF)
+		}
 		return
 	    }
-	    # Since we're using blocking sockets, testing the
-	    # result of [gets] is sufficient to detect EOF
-	    if {$err < 0} {
-		if {[info exists dispatch(EOF)]} {
-		    $dispatch(EOF)
-		}
-		close $sock
-	    }
-	    if {[string match :* $line]} {
-		DispatchServerEvent [string range $line 1 end]
+	    if { [set pos [string first " :" $line]] > -1 } {
+		set header [string range $line 0 [expr $pos - 1]]
+		set linedata(msg) [string range $line [expr $pos + 2] end]
 	    } else {
-		# Should this command get an empty string on
-		# end-of-file? If not, add a return after
-		# the close above.
-		DispatchServerCmd $line
+		set line [string trim $line]
+		set pos [string last " " $line]
+		set header [string range $line 0 [expr $pos - 1]]
+		set linedata(msg) [string range $line [expr $pos + 1] end]
 	    }
-	} 
+	    if { [string match :* $header] } {
+		set header [split [string trimleft $header :]]
+	    } else {
+		set header [linsert [split $header] 0 {}]
+	    }
+	    set linedata(who) [lindex $header 0]
+	    set linedata(action) [lindex $header 1]
+	    set linedata(target) [lindex $header 2]
+	    set linedata(additional) [lrange $header 3 end]
+	    if { [info exists dispatch($linedata(action))] } {
+		eval $dispatch($linedata(action))
+	    } elseif { [string match {[0-9]??} $linedata(action)] } {
+		eval $dispatch(defaultnumeric)
+	    } elseif { $linedata(who) == "" } {
+		eval $dispatch(defaultcmd)
+	    } else {
+		eval $dispatch(defaultevent)
+	    }
+	}
 
-	# RegisterEvent --
+	# registerevent --
 
 	# Register an event in the dispatch table.
 
 	# Arguments:
-
 	# evnt: name of event as sent by IRC server.
-
 	# cmd: proc to register as the event handler
 
-	proc RegisterEvent { evnt cmd } {
+	proc cmd-registerevent { evnt cmd } {
 	    variable dispatch
 	    set dispatch($evnt) $cmd
+	    if { $cmd == "" } {
+		unset dispatch($evnt)
+	    }
+	}
+
+	# getevent --
+
+	# Return the currently registered handler for the event.
+
+	# Arguments:
+	# evnt: name of event as sent by IRC server.
+
+	proc cmd-getevent { evnt } {
+	    variable dispatch
+	    if { [info exists exists dispatch($evnt)] } {
+		return $dispatch($evnt)
+	    }
+	    return {}
+	}
+
+	# eventexists --
+
+	# Return a boolean value indicating if there is a handler
+	# registered for the event.
+
+	# Arguments:
+	# evnt: name of event as sent by IRC server.
+
+	proc cmd-eventexists { evnt } {
+	    variable dispatch
+	    return [info exists dispatch($evnt)]
 	}
 
 	# network --
 
-	# Accepts user commands and dispatches them
+	# Accepts user commands and dispatches them.
 
 	# Arguments:
-
 	# cmd: command to invoke
-
 	# args: arguments to the command
 
 	proc network { cmd args } {
-	    switch $cmd {
-		connect { Connect }
-		user { User [lindex $args 0] [lindex $args 1] [lindex $args 2] }
-		nick { Nick [lindex $args 0] }
-		join { Join [lindex $args 0] }
-		privmsg { Privmsg [lindex $args 0] [lindex $args 1] }
-		send { ircsend [lindex $args 0] }
-		registerevent { RegisterEvent [lindex $args 0] [lindex $args 1] }
-		default { }
-	    }
+	    eval [namespace current]::cmd-$cmd $args
 	}
+
+	# Create default handlers.
+
+	set dispatch(PING) {network send "PONG :[msg]"}
     }
-    set returncommand [format "%s::irc%s::%s::network" [namespace current] $conn $host]
+    set returncommand [format "%s::irc%s::%s::network" [namespace current] \
+			   $conn $host]
     incr conn
     return $returncommand
 }

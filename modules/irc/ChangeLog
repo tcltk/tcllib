@@ -1,8 +1,18 @@
+2003-05-16  David N. Welton  <davidw@dedasys.com>
+
+	* irc.man: Added Aaron's updated documentation, including the new
+	  commands.
+
+	* irc.tcl: Lots of improvements by Aaron Faupell, including: new
+	  commands, and a new method of dispatching events.  Server PINGs
+	  (as opposed to CTCP PINGS) automatically generate a reply, as a
+	  convenience.  Version number 0.4.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
