@@ -11,10 +11,9 @@
 #
 
 namespace eval ::math::calculus {
-    namespace export \
-	    integral integralExpr integral2D integral3D \
-	    eulerStep heunStep rungeKuttaStep \
-	    boundaryValueSecondOrder solveTriDiagonal
+   namespace export integral integralExpr integral2D integral3D
+   namespace export eulerStep heunStep rungeKuttaStep
+   namespace export boundaryValueSecondOrder solveTriDiagonal
 }
 
 # Integral --
@@ -204,13 +203,13 @@ proc ::math::calculus::heunStep { t tstep xvec func } {
    #
    # Predictor step
    #
-   set xpred    [EulerStep $t $tstep $xvec $func]
+   set xpred    [eulerStep $t $tstep $xvec $func]
 
    #
    # Corrector step
    #
    set tcorr    [expr {$t+$tstep}]
-   set xcorr    [EulerStep $t     $tstep $xpred $func]
+   set xcorr    [eulerStep $t     $tstep $xpred $func]
 
    set result   {}
    foreach xv $xvec xc $xcorr {
@@ -239,23 +238,38 @@ proc ::math::calculus::rungeKuttaStep { t tstep xvec func } {
 
    #
    # Four steps:
-   # - t, x0 to t+Dt/2 ==> Dx1
-   # - t+Dt/2, x1 to t+Dt, x2
-   # - t+Dt/2, x1 to t+Dt, x2
-   # - t, x0 to t+Dt, x2
+   # - k1 = tstep*func(t,x0)
+   # - k2 = tstep*func(t+0.5*tstep,x0+0.5*k1)
+   # - k3 = tstep*func(t+0.5*tstep,x0+0.5*k2)
+   # - k4 = tstep*func(t+    tstep,x0+    k3)
+   # - x1 = x0 + (k1+2*k2+2*k3+k4)/6
    #
-   set xpred    [EulerStep $t $tstep $xvec $func]
+   set tstep2   [expr {$tstep/2.0}]
+   set tstep6   [expr {$tstep/6.0}]
 
-   #
-   # Corrector step
-   #
-   set tcorr    [expr {$t+$tstep}]
-   set xcorr    [EulerStep $t     $tstep $xpred $func]
+   set xk1      [$func $t $xvec]
+   set xvec2    {}
+   foreach x1 $xvec xv $xk1 {
+      lappend xvec2 [expr {$x1+$tstep2*$xv}]
+   }
 
+   set xk2      [$func [expr {$t+$tstep2}] $xvec2]
+   set xvec3    {}
+   foreach x1 $xvec xv $xk2 {
+      lappend xvec3 [expr {$x1+$tstep2*$xv}]
+   }
+
+   set xk3      [$func [expr {$t+$tstep2}] $xvec3]
+   set xvec4    {}
+   foreach x1 $xvec xv $xk3 {
+      lappend xvec4 [expr {$x1+$tstep2*$xv}]
+   }
+
+   set xk4      [$func [expr {$t+$tstep}] $xvec4]
    set result   {}
-   foreach xv $xvec xc $xcorr {
-      set xnew [expr {0.5*($xv+$xc)}]
-      lappend result $xnew
+   foreach x0 $xvec k1 $xk1 k2 $xk2 k3 $xk3 k4 $xk4 {
+      set dx [expr {$k1+2.0*$k2+2.0*$k3+$k4}]
+      lappend result [expr {$x0+$dx*$tstep6}]
    }
 
    return $result
@@ -352,7 +366,7 @@ proc ::math::calculus::boundaryValueSecondOrder {
    set D2 [expr {$D-$C*[lindex $rightbnd 1]}]
    set dvalue [concat $D1 [lrange $dvalue 1 end-1] $D2]
 
-   set yvec [SolveTriDiagonal $acoeff $bcoeff $ccoeff $dvalue]
+   set yvec [solveTriDiagonal $acoeff $bcoeff $ccoeff $dvalue]
 
    foreach x $xvec y $yvec {
       lappend result $x $y
@@ -416,4 +430,4 @@ proc ::math::calculus::solveTriDiagonal { acoeff bcoeff ccoeff dvalue } {
 }
 
 # Now we can announce our presence.
-package provide math::calculus 0.2
+package provide math::calculus 0.3
