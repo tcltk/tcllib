@@ -3555,44 +3555,32 @@ proc mime::word_decode {encoded} {
 #	Returns the decoded string in its original encoding/charset..
 
 proc mime::field_decode {field} {
+    # mime::field_decode is broken.  Here's a new version.
+    # This code is in the public domain.  Don Libes <don@libes.com>
 
-    # flatten the list of items to reconstruct the string
+    # Step through a field for mime-encoded words, building a new
+    # version with unencoded equivalents.
 
-    set field [join $field]
+    # Sorry about the grotesque regexp.  Most of it is sensible.  One
+    # notable fudge: the final $ is needed because of an apparent bug
+    # in the regexp engine where the preceding .* otherwise becomes
+    # non-greedy - perhaps because of the earlier ".*?", sigh.
 
-    set result ""
-    while {[regexp -indices -- {=\?([^?]+)\?(.)\?([^?]*)\?=} $field indices]} {
+    while {[regexp {(.*?)(=\?(?:[^?]+)\?(?:.)\?(?:[^?]*)\?=)(.*)$} $field ignore prefix encoded field]} {
+	# don't allow whitespace between encoded words per RFC 2047
+	if {"" != $prefix} {
+	    if {![string is space $prefix]} {
+		append result $prefix
+	    }
+	}
 
-	# get the indices
-
-	foreach {start end} $indices break
-
-	# extract first part of field not containing the encoded-word
-
-	append result [string range $field 0 [expr {$start-1}]]
-
-	# retrieve decoded string and convert it to Unicode
-	# from the original enconding/charset
-
-	set decoded [word_decode [string range $field $start $end]]
+	set decoded [mime::word_decode $encoded]
         foreach {charset - string} $decoded break
+
 	append result [::encoding convertfrom $charset $string]
-
-	# remove encoded-word and trailing space (RFC 2047, see part 8)
-	# from the rest of the string
-
-	incr end
-	set field [string trimleft [string range $field $end end]]
     }
 
-    # append last part of field to the result after a space (need because
-    # of the trimleft above)
-
-    if {[string length $field]} {
-	append result " "
-	append result $field
-    }
-
+    append result $field
     return $result
 }
 
