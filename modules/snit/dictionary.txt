@@ -13,6 +13,7 @@ Snit_info               Introspection Array.  Keys and values are as
                         snit::widgets.
     ns			The type namespace, "$type::". UNUSED.
     exceptmethods       Method names excluded from delegate method *.
+    excepttypemethods   Typemethod names excluded from delegate typemethod *.
     tvardecs            Type variable declarations--for dynamic
                         methods.
     ivardecs            Instance variable declarations--for dynamic

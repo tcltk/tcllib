@@ -92,7 +92,7 @@ Compilation Commands
 * proc ::snit::Comp.statement.component
 * proc ::snit::Comp.DefineComponent
 * proc ::snit::Comp.statement.delegate
-* proc ::snit::Comp.DelegatedTypeMethod
+* proc ::snit::Comp.DelegatedTypemethod
 * proc ::snit::Comp.DelegatedMethod
 * proc ::snit::Comp.DelegatedOption
 * proc ::snit::Comp.statement.expose
@@ -122,6 +122,7 @@ rather than compile time.
 ** ::snit::RT.UniqueName
 ** ::snit::RT.UniqueInstanceNamespace
 * Typecomponent Management and Typemethod Caching
+** ::snit::RT.TypecomponentTrace
 ** ::snit::RT.TypemethodCacheLookup
 * Component Management and Method Caching
 ** ::snit::RT.Component
