@@ -7,10 +7,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.7 2001/08/02 16:38:06 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.8 2001/08/24 17:01:00 andreas_kupries Exp $
 
 package require Tcl 8
-package provide fileutil 1.1
+package provide fileutil 1.2
 
 namespace eval ::fileutil {
     namespace export *
@@ -178,6 +178,93 @@ if {[string compare unix $tcl_platform(platform)]} {
 	cd $oldwd
 	return $files
     }
+
+    # end if
+}
+
+# ::fileutil::findByPattern --
+#
+#	Specialization of find. Finds files based on their names,
+#	which have to match the specified patterns. Options are used
+#	to specify which type of patterns (regexp-, glob-style) is
+#	used.
+#
+# Arguments:
+#	basedir		Directory to start searching from.
+#	args		Options (-glob, -regexp, --) followed by a
+#			list of patterns to search for.
+#
+# Results:
+#	files		a list of interesting files.
+
+proc ::fileutil::findByPattern {basedir args} {
+    set pos 0
+    set cmd ::fileutil::FindGlob
+    foreach a $args {
+	incr pos
+	switch -glob -- $a {
+	    --      {break}
+	    -regexp {set cmd ::fileutil::FindRegexp}
+	    -glob   {set cmd ::fileutil::FindGlob}
+	    -*      {return -code error "Unknown option $a"}
+	    default {incr pos -1 ; break}
+	}
+    }
+
+    set args [lrange $args $pos end]
+
+    if {[llength $args] != 1} {
+	set pname [lindex [info level 0] 0]
+	return -code error \
+		"wrong#args for \"$pname\", should be\
+		\"$pname basedir ?-regexp|-glob? ?--? patterns\""
+    }
+
+    set patterns [lindex $args 0]
+    return [find $basedir [list $cmd $patterns]]
+}
+
+
+# ::fileutil::FindRegexp --
+#
+#	Internal helper. Filter command used by 'findByPattern'
+#	to match files based on regular expressions.
+#
+# Arguments:
+#	patterns	List of regular expressions to match against.
+#	filename	Name of the file to match against the patterns.
+# Results:
+#	interesting	A boolean flag. Set to true if the file
+#			matches at least one of the patterns.
+
+proc ::fileutil::FindRegexp {patterns filename} {
+    foreach p $patterns {
+	if {[regexp -- $p $filename]} {
+	    return 1
+	}
+    }
+    return 0
+}
+
+# ::fileutil::FindGlob --
+#
+#	Internal helper. Filter command used by 'findByPattern'
+#	to match files based on glob expressions.
+#
+# Arguments:
+#	patterns	List of glob expressions to match against.
+#	filename	Name of the file to match against the patterns.
+# Results:
+#	interesting	A boolean flag. Set to true if the file
+#			matches at least one of the patterns.
+
+proc ::fileutil::FindGlob {patterns filename} {
+    foreach p $patterns {
+	if {[string match $p $filename]} {
+	    return 1
+	}
+    }
+    return 0
 }
 
 # ::fileutil::cat --
@@ -201,3 +288,43 @@ proc ::fileutil::cat {filename} {
     return $data
 }
 
+# ::fileutil::foreachLine --
+#
+#	Executes a script for every line in a file.
+#
+# Arguments:
+#	var		name of the variable to contain the lines
+#	filename	name of the file to read.
+#	cmd		The script to execute.
+#
+# Results:
+#	None.
+
+proc ::fileutil::foreachLine {var filename cmd} {
+    upvar 1 $var line
+    set fp [open $filename r]
+
+    # -future- Use try/eval from tcllib/control
+    catch {
+	set code 0
+	set result {}
+	while {[gets $fp line] >= 0} {
+	    set code [catch {uplevel 1 $cmd} result]
+	    if {($code != 0) && ($code != 4)} {break}
+	}
+    }
+    close $fp
+
+    if {($code == 0) || ($code == 3) || ($code == 4)} {
+        return $result
+    }
+    if {$code == 1} {
+        global errorCode errorInfo
+        return \
+		-code      $code      \
+		-errorcode $errorCode \
+		-errorinfo $errorInfo \
+		$result
+    }
+    return -code $code $result
+}
