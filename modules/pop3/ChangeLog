@@ -1,3 +1,9 @@
+2001-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.tcl (retrieve): Forgot several 'RETR $index'
+	  commands. Fixed now. This is tcllib bug item #490151 reported by
+	  an unknown person.
+
 2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.n:
