@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.10 2004/06/04 16:35:25 mic42 Exp $
+# $Id: logger.test,v 1.11 2004/09/06 00:59:11 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -428,6 +428,139 @@ test logger-11.0 {servicename subcommand} {
     ${log}::delete
     set name
 } {global}
+
+test logger-12.0 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::foo {
+        logger::import global
+        info "In"
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    set retval
+} {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
+
+test logger-12.1 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::foo {
+        logger::import -prefix log_ global
+        log_info "In"
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    set retval
+} {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
+
+test logger-12.2 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::bar { }
+    namespace eval ::foo {
+        logger::import -namespace ::bar global
+        ::bar::info "In"
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    namespace delete ::bar
+    set retval
+} {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
+
+test logger-12.3 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::bar { }
+    namespace eval ::foo {
+        logger::import -prefix log_ -namespace ::bar global
+        ::bar::log_info "In"
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    namespace delete ::bar
+    set retval
+} {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
+
+test logger-12.4 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::foo {
+        logger::import -all global
+        info "In"
+        set ::cmds [lsort [::info commands ::foo::*]]
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    list $retval $::cmds
+    
+} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::critical\
+     ::foo::currentloglevel ::foo::debug ::foo::delete ::foo::delproc\
+     ::foo::disable ::foo::enable ::foo::error ::foo::info\
+     ::foo::logproc ::foo::notice ::foo::servicename ::foo::services\
+     ::foo::setlevel ::foo::warn}}
+
+test logger-12.5 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::bar { }
+    namespace eval ::foo {
+        logger::import -all -namespace ::bar global
+        ::bar::info "In"
+        set ::cmds [lsort [::info commands ::bar::*]]
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    namespace delete ::bar
+    list $retval $::cmds
+    
+} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::bar::critical\
+     ::bar::currentloglevel ::bar::debug ::bar::delete ::bar::delproc\
+     ::bar::disable ::bar::enable ::bar::error ::bar::info\
+     ::bar::logproc ::bar::notice ::bar::servicename ::bar::services\
+     ::bar::setlevel ::bar::warn}}
+
 
 
 ::tcltest::cleanupTests
