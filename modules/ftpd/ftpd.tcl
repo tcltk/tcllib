@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.4 2000/10/30 19:47:11 kuchler Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.5 2000/10/30 20:01:32 kuchler Exp $
 #
 
 # Define the ftpd package version 1.1
@@ -1560,7 +1560,7 @@ proc ::ftpd::GetDone {sock sock2 f filename bytes {err {}}} {
     } else {
         puts $sock "226 Transfer complete (unique file name: $filename)."
     }
-    Log debug "GetDone $f $sock2 $bytes bytes"
+    Log debug "GetDone $f $sock2 $bytes bytes filename: $filename"
     return
 }
 
