@@ -1,3 +1,8 @@
+2004-10-04  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.tcl : Added more tests for logger::import,
+	  logger.test: minor fixes to error messages.
+	  
 2004-09-23  Andreas Kupries  <andreask@activestate.com>
 
 	* logger.tcl (logger::import): Fixed malformed return value,
