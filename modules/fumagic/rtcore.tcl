@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: rtcore.tcl,v 1.1 2005/02/10 17:34:16 andreas_kupries Exp $
+# RCS: @(#) $Id: rtcore.tcl,v 1.2 2005/02/11 05:08:53 andreas_kupries Exp $
 
 #####
 #
@@ -98,7 +98,13 @@ proc ::fileutil::magic::rt::file_start {name} {
 proc ::fileutil::magic::rt::result {{msg ""}} {
     variable result
     if {$msg ne ""} {emit $msg}
-    return -code return [join $result " "]
+    return -code return $result
+}
+
+proc ::fileutil::magic::rt::resultv {{msg ""}} {
+    variable result
+    if {$msg ne ""} {emit $msg}
+    return $result
 }
 
 # ### ### ### ######### ######### #########
