@@ -341,28 +341,6 @@ proc ::math::special::exponential_Ci {x} {
     }
 }
 
-# exponential_Ei --
-#    Compute the exponential integral of the second kind
-# Arguments:
-#    x       Value of the argument
-# Result:
-#    Principal value of the integral exp(x)/x
-#    from -infinity to x
-#
-proc ::math::special::exponential_Ei {x} {
-     variable gamma
-
-     set eps 1e-10
-     if { $x >= 100.0/3.0 } {
-        return [_eineville $eps $x]
-     } elseif { $x >= 1e-38 } {
-        return [_eiseries1 $x]
-     } else {
-        return [expr { log($x) + 0.57721566490153286 }]
-     }
-}
-
-
 # some tests --
 #    Reproduce tables 5.1, 5.2 from Abramowitz & Stegun,
 
