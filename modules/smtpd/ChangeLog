@@ -1,8 +1,13 @@
+2002-09-19  David N. Welton  <davidw@dedasys.com>
+
+	* smtpd.tcl (smtpd::service): Added Andreas' suggested changes to
+	avoid a bgerror caused by a broken pipe.
+
 2002-09-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtpd.tcl: fixed bug #609835 to cope with multiple addresses in
 	MAIL and RCPT commands without raising exception.
-	
+
 2002-04-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* smtpd.man: Added doctools manpage.
