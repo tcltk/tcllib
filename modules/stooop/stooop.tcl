@@ -5,13 +5,13 @@
 # Copyright (c) 2002 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.tcl,v 1.6 2003/04/11 20:18:45 andreas_kupries Exp $
+# $Id: stooop.tcl,v 1.7 2003/04/19 09:47:47 jfontain Exp $
 
 
 # check whether empty named arrays and array unset are supported:
 package require Tcl 8.3
 
-package provide stooop 4.4.1
+package provide stooop 4.4
 
 # rename proc before it is overloaded, ignore error in case of multiple
 # inclusion of this file:
@@ -48,9 +48,12 @@ namespace eval ::stooop {
     }
     if {[info exists ::env(STOOOPTRACEPROCEDURES)]} {
         set trace(procedureChannel) $::env(STOOOPTRACEPROCEDURES)
-        if {![regexp {^(stdout|stderr)$} $trace(procedureChannel)]} {
-            # eventually truncate output file if it exists:
-            set trace(procedureChannel) [open $::env(STOOOPTRACEPROCEDURES) w+]
+        switch $trace(procedureChannel) {
+            stdout - stderr {}
+            default {
+                # eventually truncate output file if it exists:
+                set trace(procedureChannel) [open $::env(STOOOPTRACEPROCEDURES) w+]
+            }
         }
         # default format:
         set trace(procedureFormat)\
@@ -61,9 +64,12 @@ namespace eval ::stooop {
     }
     if {[info exists ::env(STOOOPTRACEDATA)]} {
         set trace(dataChannel) $::env(STOOOPTRACEDATA)
-        if {![regexp {^(stdout|stderr)$} $trace(dataChannel)]} {
-            # eventually truncate output file if it exists
-            set trace(dataChannel) [open $::env(STOOOPTRACEDATA) w+]
+        switch $trace(dataChannel) {
+            stdout - stderr {}
+            default {
+                # eventually truncate output file if it exists
+                set trace(dataChannel) [open $::env(STOOOPTRACEDATA) w+]
+            }
         }
         # default format:
         set trace(dataFormat) {class: %C, procedure: %p, array: %A, object: %O, member: %m, operation: %o, value: %v}
@@ -188,7 +194,7 @@ _proc ::stooop::parseProcedureName {\
     # namespace argument is the current namespace (fully qualified) in which the
     # procedure is defined
     variable declared
-    upvar $fullClassVariable fullClass $procedureVariable procedure\
+    upvar 1 $fullClassVariable fullClass $procedureVariable procedure\
         $messageVariable message
 
     if {\
@@ -704,7 +710,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         className fullClassName procedureName fullProcedureName\
         thisParameterName\
     } {
-        upvar $className class $fullClassName fullClass\
+        upvar 1 $className class $fullClassName fullClass\
             $procedureName procedure $fullProcedureName fullProcedure\
             $thisParameterName thisParameter
         variable declared
