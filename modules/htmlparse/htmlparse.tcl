@@ -326,6 +326,9 @@ proc ::htmlparse::parse {args} {
 
     # Convert the HTML string into a script.
 
+    set sub "\}\n$cmd {\\1} {} {\\2} \{\}\n$cmd {\\1} {/} {} \{"
+    regsub -all -- {<([^\s>]+)\s*([^>]*)/>} $html $sub html
+
     set sub "\}\n$cmd {\\2} {\\1} {\\3} \{"
     regsub -all -- {<(/?)([^\s>]+)\s*([^>]*)>} $html $sub html
 

@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.9 2004/09/22 03:09:21 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.10 2004/09/29 18:17:30 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -424,6 +424,58 @@ test htmlparse-8.6 {html comments} {
     [list pre   {} {} &]  \
     [list pre   /  {} {}] \
     [list html  /  {} {}] ]
+
+
+
+test htmlparse-9.0 {handle empty tags} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<b><a/></b>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list b     {} {} {}] \
+    [list a     {} {} {}] \
+    [list a     /  {} {}] \
+    [list b     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-9.1 {handle empty tags, attributes} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<b><a href=\"b\"/></b>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list b     {} {} {}] \
+    [list a     {} {href="b"} {}] \
+    [list a     /  {} {}] \
+    [list b     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-9.2 {handle empty tags, text coming after} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<b><a/>xx</b>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list b     {} {} {}] \
+    [list a     {} {} {}] \
+    [list a     /  {} xx] \
+    [list b     /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-9.3 {handle empty tags, text coming before} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<b>xx<a/></b>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list b     {} {} xx] \
+    [list a     {} {} {}] \
+    [list a     /  {} {}] \
+    [list b     /  {} {}] \
+    [list html  /  {} {}] ]
+
+
 
 # Take a look at the cache.
 #parray ::htmlparse::splitdata
