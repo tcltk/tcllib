@@ -7,10 +7,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.26 2004/02/11 17:51:09 techentin Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.27 2005/03/30 22:45:11 ericm Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.2.2
+package provide profiler 0.2.3
 
 namespace eval ::profiler {
 }
@@ -133,6 +133,14 @@ proc ::profiler::Handler {name args} {
 	set caller [lindex [info level -1] 0]
 	# Remove the ORIG suffix
 	set caller [string range $caller 0 end-4]
+
+        # Make sure that caller names always include the "::" prefix;
+        # otherwise we get confused by the string inequality between
+        # "::foo" and "foo" -- even though those refer to the same proc.
+
+        if { ![string equal -length 2 $caller "::"] } {
+            set caller "::$caller"
+        }
     }
 
     ::profiler::enterHandler $name $caller
@@ -166,6 +174,14 @@ proc ::profiler::TraceHandler {name cmd args} {
     } else {
         # Get the name of the calling procedure
 	set caller [lindex [info level -1] 0]
+
+        # Make sure that caller names always include the "::" prefix;
+        # otherwise we get confused by the string inequality between
+        # "::foo" and "foo" -- even though those refer to the same proc.
+
+        if { ![string equal -length 2 $caller "::"] } {
+            set caller "::$caller"
+        }
     }
 
     set type [lindex $args end]
