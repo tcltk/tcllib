@@ -1,0 +1,131 @@
+# sasl.test - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# Tests for the Tcllib SASL package
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: sasl.test,v 1.1 2005/02/19 19:53:08 patthoyts Exp $
+
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget SASL
+catch {namespace delete ::SASL}
+if {[catch {source [file join [file dirname [info script]] sasl.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+puts "- SASL [package present SASL]"
+
+# -------------------------------------------------------------------------
+# Tests
+# -------------------------------------------------------------------------
+
+proc SASLCallback {clientblob context command args} {
+    upvar #0 $context ctx
+    switch -exact -- $command {
+        login    { return "" }
+        username { return "tester" }
+        password { return "secret" }
+        realm    { return "tcllib.sourceforge.net" }
+        hostname { return [info host] }
+        default {
+            return -code error "oops: client needs to write $command"
+        }
+    }
+}
+
+test SASL-PLAIN-1.1 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism PLAIN \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx ""
+        set r [SASL::response $ctx]
+        SASL::cleanup $ctx
+        set r
+    } res] $res
+} [list 0 "\x00tester\x00secret"]
+
+# -------------------------------------------------------------------------
+
+test SASL-LOGIN-1.1 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism LOGIN \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx "VXNlcm5hbWU6"
+        set r1 [SASL::response $ctx]
+        SASL::step $ctx "UGFzc3dvcmQ6"
+        set r2 [SASL::response $ctx]
+        SASL::cleanup $ctx
+        list $r1 $r2
+    } res] $res
+} [list 0 [list tester secret]]
+
+# -------------------------------------------------------------------------
+
+test SASL-CRAMMD5-1.1 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism CRAM-MD5 \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx "<1234.987654321@tcllib.sourceforge.net>"
+        set r [SASL::response $ctx]
+        SASL::cleanup $ctx
+        set r
+    } res] $res
+} [list 0 [list tester c7e3043702b782d70716bd1e21d6e2f7]]
+
+test SASL-CRAMMD5-1.2 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism CRAM-MD5 \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx ""
+        set r1 [SASL::response $ctx]
+        SASL::step $ctx ""
+        set r2 [SASL::response $ctx]
+        SASL::cleanup $ctx
+        list $r1 $r2
+    } res] $res
+} [list 1 "unexpected state: CRAM-MD5 has only 1 step"]
+
+# -------------------------------------------------------------------------
+
+test SASL-DIGESTMD5-1.1 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism DIGEST-MD5 \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx "nonce=\"0123456789\",realm=\"tcllib.sourceforge.net\""
+        set r [split [SASL::response $ctx] ,]
+        SASL::cleanup $ctx
+        foreach thing $r { 
+            set x [split $thing =]
+            set R([lindex $x 0]) [lindex [lindex $x 1] 0]
+        }
+        set A1 [SASL::md5_bin "tester:tcllib.sourceforge.net:secret"]
+        set A2 "AUTHENTICATE:smtp/tcllib.sourceforge.net"
+        set A3 [SASL::md5_hex "$A1:$R(nonce):$R(cnonce)"]
+        set A4 [SASL::md5_hex $A2]
+        set r [SASL::md5_hex "$A3:0123456789:$R(nc):$R(cnonce):auth:$A4"]
+        string compare $r $R(response)
+    } res] $res
+} [list 0 0]
+
+
+# -------------------------------------------------------------------------
+
+::tcltest::cleanupTests
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
