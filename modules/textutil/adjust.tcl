@@ -19,17 +19,18 @@ namespace eval ::textutil {
         variable Hyphenate    0
         variable HyphPatterns
 
-        namespace export adjust indent
+        namespace export adjust indent undent
 
         # This will be redefined later. We need it just to let
         # a chance for the next import subcommand to work
         #
         proc adjust { text args } { }
         proc indent { text args } { }
+        proc undent { text args } { }
     }
 
-    namespace import -force adjust::adjust adjust::indent
-    namespace export adjust indent
+    namespace import -force adjust::adjust adjust::indent adjust::undent
+    namespace export adjust indent undent
 
 }
 
@@ -695,13 +696,49 @@ proc ::textutil::adjust::indent {text prefix {skip 0}} {
     set res [list]
     foreach line [split $text \n] {
 	if {[string compare "" [string trim $line]] == 0} {
-	    lappend list {}
+	    lappend res {}
 	} elseif {$skip <= 0} {
-	    lappend list $prefix[string trimright $line]
+	    lappend res $prefix[string trimright $line]
 	} else {
-	    lappend list [string trimright $line]
+	    lappend res [string trimright $line]
 	}
 	if {$skip > 0} {incr skip -1}
+    }
+    return [join $res \n]
+}
+
+# Undent the block of text: Compute LCP (restricted to whitespace!)
+# and remove that from each line. Note that this preverses the
+# shaping of the paragraph (i.e. hanging indent are _not_ flattened)
+# We ignore empty lines !!
+
+proc ::textutil::adjust::undent {text} {
+
+    if {$text == {}} {return {}}
+
+    set lines [split $text \n]
+    set ne [list]
+    foreach l $lines {
+	if {[string length [string trim $l]] == 0} continue
+	lappend ne $l
+    }
+    set lcp [::textutil::longestCommonPrefixList $ne]
+
+    if {[string length $lcp] == 0} {return $text}
+
+    regexp {^([ 	]*)} $lcp -> lcp
+
+    if {[string length $lcp] == 0} {return $text}
+
+    set len [string length $lcp]
+
+    set res [list]
+    foreach l $lines {
+	if {[string length [string trim $l]] == 0} {
+	    lappend res {}
+	} else {
+	    lappend res [string range $l $len end]
+	}
     }
     return [join $res \n]
 }
