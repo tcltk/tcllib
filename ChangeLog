@@ -1,3 +1,22 @@
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
+
+2004-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* README-1.5.txt -> README-1.6.txt
+	* INSTALL.txt
+	* tcllib_version.tcl
+
+	  We have too many places which use the Tcllib CVS head under the
+	  designation Tcllib 1.5. Because of that the next officially
+	  released version is called Tcllib 1.6, skipping the number
+	  1.5. This should differentiate cleanly between the various
+	  instances of Tcllib/CVS floating around and this release, and
+	  avoid any confusion about what is which.
+
 2004-02-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl (release): Made functional, added the code which extends

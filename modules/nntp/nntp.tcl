@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.11 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.12 2004/02/16 04:14:48 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide nntp 0.2.1
@@ -125,6 +125,7 @@ proc ::nntp::nntp {{server ""} {port ""} {name ""}} {
     set data(code) 0
     set data(mesg) ""
     set data(addr) ""
+    set data(binary) 0
 
     set sock [socket $data(host) $data(port)]
 
@@ -222,6 +223,46 @@ proc ::nntp::message {name} {
 #
 # NNTP Methods
 #
+
+proc ::nntp::_cget {name option} {
+    upvar 0 ::nntp::${name}data data
+
+    if {[string equal $option -binary]} {
+	return $data(binary)
+    } else {
+	return -code error \
+		"Illegal option \"$option\", expected \"-binary\""
+    }
+}
+
+proc ::nntp::_configure {name args} {
+    upvar 0 ::nntp::${name}data data
+
+    if {[llength $args] == 0} {
+	return [list -binary $data(binary)]
+    }
+    if {[llength $args] == 1} {
+	return [_cget $name [lindex $args 0]]
+    }
+    if {([llength $args] % 2) == 1} {
+	return -code error \
+		"wrong#args: expected even number of elements"
+    }
+    foreach {o v} $args {
+	if {[string equal $o -binary]} {
+	    if {![string is boolean -strict $v]} {
+		return -code error \
+			"Expected boolean, got \"$v\""
+	    }
+	    set data(binary) $v
+	} else {
+	    return -code error \
+		    "Illegal option \"$o\", expected \"-binary\""
+	}
+    }
+    return {}
+}
+
 
 # ::nntp::_article --
 #
@@ -823,6 +864,11 @@ proc ::nntp::fetch {name} {
     }
     set sock $data(sock)
 
+    if {$data(binary)} {
+	set oldenc [fconfigure $sock -encoding]
+	fconfigure $sock -encoding binary
+    }
+
     set result [list ]
     while {![eof $sock]} {
         gets $sock line
@@ -837,6 +883,11 @@ proc ::nntp::fetch {name} {
 	    lappend result $line
 	}
     }
+
+    if {$data(binary)} {
+	fconfigure $sock -encoding $oldenc
+    }
+
     return $result
 }
 

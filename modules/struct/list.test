@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.15 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.16 2004/02/16 04:14:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -449,6 +449,48 @@ test filter-4.2 {filter command} {
 test filter-4.3 {filter command} {
     filter {3 5 7} even
 } {}
+
+test filter-4.4 {filter command} {
+    filter {2 4 6} even
+} {2 4 6}
+
+#----------------------------------------------------------------------
+
+interp alias {} lsplit {} ::struct::list::list split
+
+proc even {i} {expr {($i % 2) == 0}}
+
+test split-4.1 {split command} {
+    lsplit {1 2 3 4 5 6 7 8} even
+} {{2 4 6 8} {1 3 5 7}}
+
+test split-4.2 {split command} {
+    lsplit {} even
+} {{} {}}
+
+test split-4.3 {split command} {
+    lsplit {3 5 7} even
+} {{} {3 5 7}}
+
+test split-4.4 {split command} {
+    lsplit {2 4 6} even
+} {{2 4 6} {}}
+
+test split-4.5 {split command} {
+    list [lsplit {1 2 3 4 5 6 7 8} even pass fail] $pass $fail
+} {{4 4} {2 4 6 8} {1 3 5 7}}
+
+test split-4.6 {split command} {
+    list [lsplit {} even pass fail] $pass $fail
+} {{0 0} {} {}}
+
+test split-4.7 {split command} {
+    list [lsplit {3 5 7} even pass fail] $pass $fail
+} {{0 3} {} {3 5 7}}
+
+test split-4.8 {split command} {
+    list [lsplit {2 4 6} even pass fail] $pass $fail
+} {{3 0} {2 4 6} {}}
 
 #----------------------------------------------------------------------
 

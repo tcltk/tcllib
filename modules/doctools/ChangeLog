@@ -1,3 +1,9 @@
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
+
 2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.test: Fixed problems with Tcl 8.5, the tests were

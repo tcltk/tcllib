@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.15 2004/02/11 08:30:10 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.16 2004/02/16 04:14:50 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -727,6 +727,63 @@ proc ::struct::list::FTest {cmdprefix result item} {
     set pass [uplevel 1 [::linsert $cmdprefix end $item]]
     if {$pass} {::lappend result $item}
     return $result
+}
+
+# ::struct::list::Lsplit --
+#
+#	Apply command to each element of a list and return elements passing
+#	and failing the test. Basic idea by Salvatore Sanfilippo
+#	(http://wiki.tcl.tk/lsplit). The implementation here is mine (AK),
+#	and the interface is slightly different (Command prefix with the
+#	list element given to it as argument vs. variable + script).
+#
+# Parameters:
+#	sequence	List to operate on
+#	cmdprefix	Test to perform on the elements.
+#	args = empty | (varPass varFail)
+#
+# Results:
+#	If the variables are specified then a list containing the
+#	numbers of passing and failing elements, in this
+#	order. Otherwise a list having two elements, the lists of
+#	passing and failing elements, in this order.
+#
+# Side effects:
+#       None of its own, but the command prefix can perform arbitrary actions.
+
+proc ::struct::list::Lsplit {sequence cmdprefix args} {
+    set largs [::llength $args]
+    if {$largs == 0} {
+	# Shortcut when nothing is to be done.
+	if {[::llength $sequence] == 0} {return {{} {}}}
+	return [Lfold $sequence {} [::list ::struct::list::PFTest $cmdprefix]]
+    } elseif {$largs == 2} {
+	# Shortcut when nothing is to be done.
+	foreach {pv fv} $args break
+	upvar 1 $pv pass $fv fail
+	if {[::llength $sequence] == 0} {
+	    set pass {}
+	    set fail {}
+	    return {0 0}
+	}
+	foreach {pass fail} [Lfold $sequence {} [::list ::struct::list::PFTest $cmdprefix]] break
+	return [::list [llength $pass] [llength $fail]]
+    } else {
+	return -code error \
+		"wrong#args: should be \"::struct::list::Lsplit sequence cmdprefix ?passVar failVar?"
+    }
+}
+
+proc ::struct::list::PFTest {cmdprefix result item} {
+    set passing [uplevel 1 [::linsert $cmdprefix end $item]]
+    set pass {} ; set fail {}
+    foreach {pass fail} $result break
+    if {$passing} {
+	::lappend pass $item
+    } else {
+	::lappend fail $item
+    }
+    return [::list $pass $fail]
 }
 
 # ::struct::list::Lfold --
