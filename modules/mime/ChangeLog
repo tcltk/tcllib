@@ -1,3 +1,13 @@
+2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.n: Clarified documentation for 'parseaddress' in the wake
+	  of bug #479174 as this is the command which actually handles the
+	  value of option -recipients mentionend below.
+
+	* smtp.n: Fixed bug #479144, clarified contents of value for
+	  -recipients. Bug reported by Darren New
+	  <dnew@users.sourceforge.net>.
+
 2001-11-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl: Fixed bug #472009. Changes in the handling of
