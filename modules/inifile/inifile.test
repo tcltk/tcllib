@@ -62,27 +62,27 @@ test inifile-1.8 {ini::value} {
     ini::value ini0 \{test \}key
 } {$blah}
 
-test inifile-1. {ini::exists} {
+test inifile-1.9 {ini::exists} {
     ini::exists ini0 section1
 } {1}
 
-test inifile-1. {ini::exists} {
+test inifile-1.10 {ini::exists} {
     ini::exists ini0 section
 } {0}
 
-test inifile-1. {ini::exists} {
+test inifile-1.11 {ini::exists} {
     ini::exists ini0 section1 testkey
 } {1}
 
-test inifile-1. {ini:::exists} {
+test inifile-1.12 {ini:::exists} {
     ini::exists ini0 section1 blah
 } {0}
 
-test inifile-1. {ini:::exists} {
+test inifile-1.13 {ini:::exists} {
     ini::exists ini0 \{test
 } {1}
 
-test inifile-1. {ini:::exists} {
+test inifile-1.14 {ini:::exists} {
     ini::exists ini0 \{test \}key
 } {1}
 

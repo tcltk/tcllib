@@ -7,16 +7,43 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: multiplexer.test,v 1.4 2004/02/11 07:48:41 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-set auto_path "[file join [file dirname [info script]] .. log] $auto_path"
-set auto_path "[file dirname [info script]] $auto_path"
-package require multiplexer
+#---------------------------------------------------------------------
+# Load the multiplexer package.
+
+set plexfile [file join [file dirname [info script]] multiplexer.tcl]
+set     sub_ap $auto_path
+lappend sub_ap [file dirname [file dirname [info script]]]
+
+if {[catch {source $plexfile} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+puts "- multiplexer [package present multiplexer]"
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+# This constraint restricts certain tests to run on tcl 8.3+
+if {[package vsatisfies [package provide tcltest] 2.0]} {
+    # tcltest2.0+ has an API to specify a test constraint
+    ::tcltest::testConstraint tcl8.3plus \
+        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+} else {
+    # In tcltest1.0, a global variable needs to be set directly.
+    set ::tcltest::testConstraints(tcl8.3plus) \
+        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+}
+
+# -------------------------------------------------------------------------
+
+
 
 test multiplexer-1.0 {create multiplexer} {
     set mp [multiplexer::create]
@@ -42,7 +69,7 @@ test multiplexer-2.1 {start multiplexer} {
     set res
 } {}
 
-test multiplexer-2.2 {start & destroy multiplexer} {
+test multiplexer-2.2 {start & destroy multiplexer} {tcl8.3plus} {
     set mp [multiplexer::create]
     set startchans [lsort [file channels]]
     ${mp}::Init 37465
