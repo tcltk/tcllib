@@ -267,7 +267,9 @@ proc __help {} {
 	name     - Return tcllib package name
 
 	/Development
-	validate - Check various parts of tcllib for problems.
+	validate         - Check various parts of tcllib for problems.
+	test ?module...? - Run testsuite for listed modules.
+	                   For all modules if none specified.
 
 	/Release engineering
 	gendist  - Generate distribution from CVS snapshot
@@ -294,6 +296,23 @@ proc __major   {} {global tcllib_version ; puts [lindex [split $tcllib_version .
 
 # --------------------------------------------------------------
 # Development
+
+proc __test {} {
+    global argv distribution
+    # Run testsuite
+
+    set modules $argv
+    if {[llength $modules] == 0} {
+	set modules [modules]
+    }
+
+    exec [info nameofexecutable] \
+	    [file join $distribution all.tcl] \
+	    -modules $modules \
+	    >@ stdout 2>@ stderr
+    return
+}
+
 
 
 proc __validate {} {
