@@ -46,6 +46,15 @@ proc imodules {} {
     return $modules
 }
 
+proc loadpkglist {fname} {
+    set f [open $fname r]
+    foreach line [split [read $f] \n] {
+	foreach {n v} $line break
+	set p($n) $v
+    }
+    close $f
+    return [array get p]
+}
 
 proc packages {} {
     global distribution
@@ -322,9 +331,16 @@ proc __help {} {
 	/Development
 	modules          - Return list of modules.
 	lmodules         - See above, however one module per line
+	imodules         - Return list of modules known to hte installer.
+
 	packages         - Return packages in tcllib, plus versions,
 	                   one package per line. Extracted from the
 	                   package indices found in the modules.
+
+	vcompare pkglist - Compare package list of previous 'packages'
+	                   call with cirrent packages. Marks all new
+	                   and unchanged packages for higher attention.
+
 	validate         - Check various parts of tcllib for problems.
 	test ?module...? - Run testsuite for listed modules.
 	                   For all modules if none specified.
@@ -374,6 +390,37 @@ proc __packages {} {
     }
     return
 }
+
+
+proc __vcompare {} {
+    global argv
+    set oldplist [lindex $argv 0]
+
+    array set packages [packages]
+    array set oldpkg   [loadpkglist $oldplist]
+
+    foreach p [array names packages] {set __($p) .}
+    foreach p [array names oldpkg]   {set __($p) .}
+    set unified [lsort [array names __]]
+    unset __
+
+    set maxl 0
+    foreach name $unified {
+        if {[string length $name] > $maxl} {
+            set maxl [string length $name]
+        }
+    }
+    foreach name $unified {
+	set suffix ""
+	if {![info exists packages($name)]} {set packages($name) "--"}
+	if {![info exists oldpkg($name)]}   {set oldpkg($name)   "--" ; append suffix " NEW"}
+	if {[string equal $oldpkg($name) $packages($name)]} {append suffix " \t<<<"}
+        puts stdout [format "%-*s %-*s %-*s" $maxl $name 8 $oldpkg($name) 8 $packages($name)]$suffix
+    }
+    return
+}
+
+
 
 proc __test {} {
     global argv distribution
