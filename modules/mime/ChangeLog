@@ -1,3 +1,15 @@
+2004-05-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Fixed [SF Tcllib Bug 954328]. Same bug in different
+	  guise. This package exclusively required md5 v2. This clashed
+	  with mime's requirement of v1. Now package smtp also adapts at
+	  runtime to whatever version of package md5 has been loaded.
+
+	* mime.test:
+	* mime.tcl: Fixed [SF Tcllib Bug 954328]. The package mime now
+	  adapts at runtime to whatever version of package md5 has been
+	  loaded.
+
 2004-05-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl (::smtp::wdata): Fixed [SF Tcllib Bug 951568]. Added
