@@ -1,3 +1,8 @@
+2002-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in: Added target for generation of documentation in
+	  various formats from .man pages
+
 2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime: Applied patch 511692.
