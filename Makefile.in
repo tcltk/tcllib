@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.49 2001/08/24 17:01:00 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.50 2001/11/08 06:32:04 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -215,6 +215,9 @@ install-libraries: libraries
 		for j in $(srcdir)/modules/$$i/*.tcl ; do \
 		    $(INSTALL_DATA) $$j $(pkglibdir)/$$i ; \
 		done; \
+		if test -f $(srcdir)/modules/$$i/tclIndex ; then \
+		    $(INSTALL_DATA) $(srcdir)/modules/$$i/tclIndex $(pkglibdir)/$$i ; \
+		fi \
 	    fi; \
 	done;
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/mkIndex.tcl` `$(CYGPATH) $(pkglibdir)` tcllib $(VERSION) $(MODULES) smtp
@@ -258,16 +261,16 @@ dist:
 	    cp $(srcdir)/modules/$$j/*.html $(srcdir)/tcllib$(VERSION)/$$j ; \
 	    cp $(srcdir)/modules/$$j/*.tcl $(srcdir)/tcllib$(VERSION)/$$j ; \
 	    cp $(srcdir)/modules/$$j/*.test $(srcdir)/tcllib$(VERSION)/$$j ; \
+	    cp $(srcdir)/modules/$$j/tclIndex $(srcdir)/tcllib$(VERSION)/$$j ; \
 	done
 	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl $(srcdir)/tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
 	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl $(srcdir)/tcllib$(VERSION) tcllib $(VERSION) $(MODULES)
 	for j in license.terms README ; do \
 	    cp $(srcdir)/$$j $(srcdir)/tcllib$(VERSION)/$$j ; \
 	done
-	cd $(srcdir)
-	tar cf tcllib$(VERSION).tar tcllib$(VERSION)
-	gzip tcllib$(VERSION).tar
-	zip -r tcllib$(VERSION).zip tcllib$(VERSION)
+	cd $(srcdir) ; tar cf tcllib$(VERSION).tar tcllib$(VERSION)
+	cd $(srcdir) ; gzip tcllib$(VERSION).tar
+	cd $(srcdir) ; zip -r tcllib$(VERSION).zip tcllib$(VERSION)
 	rm -rf $(srcdir)/tcllib$(VERSION)
 
 # Check tcllib and report all modules without documentation and/or testsuite.
