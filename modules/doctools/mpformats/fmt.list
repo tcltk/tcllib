@@ -1,28 +1,23 @@
 # -*- tcl -*-
-# rules/manpage.api
+#
+# fmt.list
 #
 # (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
-
-# Defines the procedures a manpage rules file has to support for good
-# manpages. The procedures here return errors.
-
+#
+# [expand] generate processable list entry for manpage
+#
 ################################################################
 
-proc init_hook {} {return 1}
+proc here {} [list return [file dirname [info script]]]
+proc this {} [list return [file tail    [info script]]]
 
-# Define/retrieve number of current pass.
-proc _pass {{n {}}} {
-    variable _pass
-    if {$n != {}} {
-	set _pass $n
-    }
-    return $_pass
-}
+
+source [file join [here] _common.tcl]   ; # Shared code
 
 
 proc manpage_begin {title section version} {
     cpush mp
-    cset m [list manpage mem/mp/$title $title mp.$title.html]
+    cset m [list manpage $title $section $version]
     return
 }
 

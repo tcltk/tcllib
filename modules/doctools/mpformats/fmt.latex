@@ -14,8 +14,15 @@ proc this {} [list return [file tail    [info script]]]
 
 source [file join [here] _common.tcl]   ; # Shared code
 
+global _in_example
+set    _in_example 0
+
 # Called to handle plain text from the input
 proc HandleText {text} {
+    global _in_example
+    if {$_in_example} {
+	return $text
+    }
     texEscape $text
 }
 
@@ -208,9 +215,18 @@ proc lst_item {text} {
 proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
 proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
 
-proc example_begin {} { return {\begin{verbatim}} }
-proc example_end   {} { return {\end{verbatim}} }
-proc example {code} { return "\\begin{verbatim}\n${code}\n\\end{verbatim}\n" }
+proc example_begin {} {
+    global _in_example
+    set    _in_example 1
+    return {\begin{verbatim}}
+}
+proc example_end   {} {
+    global _in_example
+    set    _in_example 0
+    return {\end{verbatim}}
+}
+# No mapping of special characters
+proc example {code} { return "\\begin\{verbatim\}\n${code}\n\\end\{verbatim\}\n" }
 
 proc nl     {}     {return}
 proc arg    {text} {return [Underline $text]}
