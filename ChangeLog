@@ -1,3 +1,9 @@
+2003-05-20  Andreas Kupries  <andreask@activestate.com>
+
+	* installed_modules.tcl: Added 'multiplexer' to the list of
+	  installed modules. Tested and validqated module. Documentation
+	  looks ok for me.
+
 2003-05-13  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sak.tcl: added a critcl command to sak to build any critcl

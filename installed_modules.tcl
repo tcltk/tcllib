@@ -41,6 +41,7 @@ foreach {m pkg doc exa} {
     md5		_tcl  _man  _null
     md4		_tcl  _man  _null
     mime	_tcl  _man _exa
+    multiplexer _tcl  _man  _null
     ncgi	_tcl  _man  _null
     nntp	_tcl  _man _exa
     ntp		_tcl  _man _exa
