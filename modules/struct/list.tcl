@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.7 2003/05/21 05:33:20 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.8 2003/05/21 05:46:31 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ proc ::struct::list::list {cmd args} {
 	return -code error \
 		"bad option \"$cmd\": must be [linsert [join $xlist ", "] "end-1" "or"]"
     }
-    return [eval [linsert $args 0 ::struct::list::$sub]]
+    return [uplevel 1 [linsert $args 0 ::struct::list::$sub]]
 }
 
 ##########################

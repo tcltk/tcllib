@@ -1,5 +1,9 @@
 2003-05-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* list.tcl (dispatcher): eval => uplevel so that upvar's in the
+	  method commands do not need to know about the dispatcher frame
+	  in the stack.
+
 	* list.man:
 	* list.tcl (dbJoin(Keyed)): Extended the commands with an option
 	  -keys. Argument is the name of a variable to store the actual
