@@ -1,0 +1,5 @@
+2004-07-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* rc4.tcl:  Pure tcl implementation of the Alledged RC4 stream cipher.
+	* rc4.test: Some published test vectors for RC4.
+	* rc4.man:  Documentation.
