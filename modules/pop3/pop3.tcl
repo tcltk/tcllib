@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.6 2000/06/02 18:43:56 ericm Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.7 2000/06/03 17:40:23 redman Exp $
 
 package provide pop3 1.0
 
@@ -73,7 +73,7 @@ proc ::pop3::status {chan} {
     # Dig the sent size and count info out.
     set rawStatus [split [string trim $statusStr]]
     
-    return [list [lindex $rawStatus 0] [lindex $rawStatus 1]]
+    return [::list [lindex $rawStatus 0] [lindex $rawStatus 1]]
 }
 
 # ::pop3::last --
