@@ -1,3 +1,10 @@
+2003-01-02  Pat Thoyts  <Pat.Thoyts@bigfoot.com>
+
+	* smtpd.tcl: Added exception catching to all channel comms.
+	Added some ESMTP option handling (rudimentary).
+	Added SMTP Transparency handling. (RFC 2821: 4.5.2)
+	Improved error messages for DATA command.
+
 2002-10-25  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtpd.tcl: Implemented request #627960 to propagate the network
