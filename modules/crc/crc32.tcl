@@ -10,10 +10,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.16 2004/10/03 23:06:55 andreas_kupries Exp $
+# $Id: crc32.tcl,v 1.17 2005/03/12 02:13:50 patthoyts Exp $
 
 namespace eval ::crc {
-    variable crc32_version 1.2
+    variable crc32_version 1.3
+    variable accel
+    array set accel {critcl 0 trf 0}
 
     namespace export crc32
 
@@ -87,20 +89,101 @@ namespace eval ::crc {
     if {![info exists signbit]} {
         for {set v 1} {$v != 0} {set signbit $v; set v [expr {$v<<1}]} {}
     }
+    
+    variable uid ; if {![info exists uid]} {set uid 0}
 }
 
 # -------------------------------------------------------------------------
 
-# Description:
-#  Calculate the CRC-32 checksum of the input data.
+# crc::Crc32Init --
 #
-proc ::crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
+#	Create and initialize an crc32 context. This is cleaned up
+#	when we we call Crc32Final to obtain the result.
+#
+proc ::crc::Crc32Init {{seed 0xFFFFFFFF}} {
+    variable uid
+    variable accel
+    set token [namespace current]::[incr uid]
+    upvar #0 $token state
+    array set state [list sum $seed]
+    # If the initial seed is set to some other value we cannot use Trf.
+    if {$accel(trf) && $seed == 0xFFFFFFFF} {
+        set s {}
+        switch -exact -- $::tcl_platform(platform) {
+            windows { set s [open NUL w] }
+            unix    { set s [open /dev/null w] }
+        }
+        if {$s != {}} {
+            fconfigure $s -translation binary -buffering none
+            ::crc-zlib -attach $s -mode write \
+                -read-type variable \
+                -read-destination [subst $token](trfread) \
+                -write-type variable \
+                -write-destination [subst $token](trfwrite)
+            array set state [list trfread 0 trfwrite 0 trf $s]
+        }
+    }
+    return $token
+}
+
+# crc::Crc32Update --
+#
+#	This is called to add more data into the checksum. You may
+#	call this as many times as you require. Note that passing in
+#	"ABC" is equivalent to passing these letters in as separate
+#	calls -- hence this proc permits summing of chunked data.
+#
+#	If we have a C-based implementation available, then we will
+#	use it here in preference to the pure-Tcl implementation.
+#
+proc ::crc::Crc32Update {token data} {
+    variable accel
+    upvar #0 $token state
+    set sum $state(sum)
+    if {$accel(critcl)} {
+        set sum [Crc32_c $data $sum]
+    } elseif {[info exists state(trf)]} {
+        puts -nonewline $state(trf) $data
+        return
+    } else {
+        set sum [Crc32_tcl $data $sum]
+    }
+    set state(sum) [expr {$sum ^ 0xFFFFFFFF}]
+    return
+}
+
+# crc::Crc32Final -- 
+#
+#	This procedure is used to close the context and returns the
+#	checksum value. Once this procedure has been called the checksum
+#	context is freed and cannot be used again.  
+#
+proc ::crc::Crc32Final {token} {
+    upvar #0 $token state
+    if {[info exists state(trf)]} {
+        close $state(trf)
+        binary scan $state(trfwrite) i sum
+    } else {
+        set sum [expr {$state(sum) ^ 0xFFFFFFFF}]
+    }
+    unset state
+    return $sum
+}
+
+# crc::Crc32_tcl --
+#
+#	The pure-Tcl implementation of a table based CRC-32 checksum.
+#	The seed should always be 0xFFFFFFFF to begin with, but for
+#	successive chunks of data the seed should be set to the result
+#	of the last chunk.
+#
+proc ::crc::Crc32_tcl {data {seed 0xFFFFFFFF}} {
     variable crc32_tbl
     variable signbit
     set signmask [expr {~$signbit>>7}]
     set crcval $seed
 
-    binary scan $s c* nums
+    binary scan $data c* nums
     foreach {n} $nums {
         set ndx [expr {($crcval ^ $n) & 0xFF}]
         set lkp [lindex $crc32_tbl $ndx]
@@ -110,6 +193,11 @@ proc ::crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
     return [expr {$crcval ^ 0xFFFFFFFF}]
 }
 
+# crc::Crc32_c --
+#
+#	A C version of the CRC-32 code using the same table. This is
+#	designed to be compiled using critcl.
+#
 if {[package provide critcl] != {}} {
     namespace eval ::crc {
         critcl::ccommand Crc32_c {dummy interp objc objv} {
@@ -153,37 +241,40 @@ if {[package provide critcl] != {}} {
     }
 }
 
-# Select the Trf using version if Trf is available
-if {![catch {package require Trf 2.0}]} {
-    # Description:
-    #  Use the Trf crc-zlib function to calculate the CRC-32 checksum
-    #  and return the correct value according to our byte order.
-    #
-    proc ::crc::Crc32_trf {s {seed 0xFFFFFFFF}} {
-        if {$seed != 0xFFFFFFFF} {
-            return -code error "invalid option: the Trf crc32 command cannot\
-                                 accept a seed value"
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::crc::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        critcl {
+            if {![catch {package require tcllibc}]
+                || ![catch {package require crcc}]} {
+                set r [expr {[info command ::crc::Crc32_c] != {}}]
+            }
         }
-        binary scan [crc-zlib -- $s] i r
-        return $r
+        trf {
+            if {![catch {package require Trf}]} {
+                set r [expr {![catch {::crc-zlib aa} msg]}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
     }
-
-    interp alias {} ::crc::Crc32 {} ::crc::Crc32_trf
-} else {
-    interp alias {} ::crc::Crc32 {} ::crc::Crc32_tcl
+    set accel($name) $r
 }
 
-#crc-zlib -attach $f -mode absorb \
-#    -read-destination ::R \
-#    -read-type variable \
-#    -write-destination ::W \
-#    -write-type variable \
-#    -matchflag ::M
-
-
-# -------------------------------------------------------------------------
-# Description:
-#  Pop the nth element off a list. Used in options processing.
+# crc::Pop --
+#
+#	Pop the nth element off a list. Used in options processing.
 #
 proc ::crc::Pop {varname {nth 0}} {
     upvar $varname args
@@ -192,10 +283,11 @@ proc ::crc::Pop {varname {nth 0}} {
     return $r
 }
 
-# -------------------------------------------------------------------------
-# Description:
-#  Provide a Tcl implementation of a crc32 checksum similar to the cksum
-#  and sum unix commands.
+# crc::crc32 --
+#
+#	Provide a Tcl implementation of a crc32 checksum similar to the
+#	cksum and sum unix commands.
+#
 # Options:
 #  -filename name - return a checksum for the specified file.
 #  -format string - return the checksum using this format string.
@@ -203,8 +295,7 @@ proc ::crc::Pop {varname {nth 0}} {
 #
 proc ::crc::crc32 {args} {
     array set opts [list -filename {} -format %u -seed 0xffffffff \
-                        -channel {} -chunksize 4096 -timeout 30000 \
-                        -implementation [namespace origin Crc32]]
+                        -channel {} -chunksize 4096 -timeout 30000]
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -file*  { set opts(-filename) [Pop args 1] }
@@ -213,23 +304,15 @@ proc ::crc::crc32 {args} {
             -chunk* { set opts(-chunksize) [Pop args 1] }
             -time*  { set opts(-timeout) [Pop args 1] }
             -seed   { set opts(-seed) [Pop args 1] }
-            -impl*  { set opts(-implementation) \
-                          [uplevel 1 namespace origin [Pop args 1]] }
-            --      { Pop args ; break }
+            -impl*  { set junk [Pop args 1] }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set err [join [lsort [array names opts -*]] ", "]
                 return -code error "bad option \"$option\": must be $err"
             }
         }
         Pop args
-    }
-
-    # The Trf implementation doesn't accept an alternative CRC seed so
-    # use the Tcl implementation if this is set (unless the user has
-    # set it to some other impl).
-    if {$opts(-seed) != 0xffffffff \
-            && [string match [namespace origin Crc32] $opts(-implementation)]} {
-        set opts(-implementation) [namespace origin Crc32_tcl]
     }
 
     # If a file was given - open it
@@ -242,42 +325,36 @@ proc ::crc::crc32 {args} {
         
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be \
-                 \"crc32 ?-format string? ?-seed value? ?-impl procname?\
-                 -file name | data\""
+                 \"crc32 ?-format string? ?-seed value? \
+                 -channel chan | -file name | data\""
         }
-        set r [$opts(-implementation) [lindex $args 0] $opts(-seed)]
+        set tok [Crc32Init $opts(-seed)]
+        Crc32Update $tok [lindex $args 0]
+        set r [Crc32Final $tok]
 
     } else {
 
         set r $opts(-seed)
-        # If we are using Trf - we cannot chunk
-        if {[package provide Trf] != {} \
-                && [string match [namespace origin Crc32] \
-                        $opts(-implementation)]} {
-            set data [read $opts(-channel)]
-            set r [$opts(-implementation) $data $r]
-        } else {
-            # Process the chunks. We need to undo the final xor
-            # to obtain the seed for the following chunk. Then re-apply
-            # for the final result.
-            while {![eof $opts(-channel)]} {
-                set data [read $opts(-channel) $opts(-chunksize)]
-                set r [$opts(-implementation) $data $r]
-                set r [expr {$r ^ 0xFFFFFFFF}]
-            }
-            set r [expr {$r ^ 0xFFFFFFFF}]
+        set tok [Crc32Init $opts(-seed)]
+        while {![eof $opts(-channel)]} {
+            Crc32Update $tok [read $opts(-channel) $opts(-chunksize)]
         }
+        set r [Crc32Final $tok]
 
         if {$opts(-filename) != {}} {
             close $opts(-channel)
         }
-
     }
     
     return [format $opts(-format) $r]
 }
 
 # -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help (note - trf is fastest)
+namespace eval ::crc {
+    foreach e {trf critcl} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide crc32 $::crc::crc32_version
 
