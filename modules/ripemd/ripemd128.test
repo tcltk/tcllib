@@ -1,6 +1,6 @@
 # ripemd128.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd128.test,v 1.1 2004/02/16 22:50:40 patthoyts Exp $
+# $Id: ripemd128.test,v 1.2 2004/02/16 23:13:49 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -74,6 +74,18 @@ foreach {n msg hash} $vectors {
     test ripemd128-3.$n {HMAC RIPEMD-128 test vectors} {
         ::ripemd::hmac128 -hex -key $key $msg
     } $hash
+}
+
+# If our implementation is managing to use Trf then check the pure tcl
+# version as well.
+if {$::ripemd::usetrf} {
+    set ::ripemd::usetrf 0
+    foreach {n msg hash} $vectors {
+        test ripemd128-4.$n {HMAC RIPEMD-128 pure-Tcl} {
+            ::ripemd::hmac128 -hex -key $key $msg
+        } $hash
+    }
+    set ::ripemd::usetrf 1
 }
 
 ::tcltest::cleanupTests
