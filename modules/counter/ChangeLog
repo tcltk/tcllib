@@ -1,3 +1,7 @@
+2000-10-04  Brent Welch <welch@ajubasolutions.com>
+
+	* counter.tcl: Fixed bug in counter::MergeDay
+
 2000-10-03  Brent Welch <welch@ajubasolutions.com>
 
 	* counter.tcl: Fixed bug in label format for daily graph.

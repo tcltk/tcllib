@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.3 2000/10/03 18:01:30 welch Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.4 2000/10/04 20:01:47 welch Exp $
 
 namespace eval counter:: {
 
@@ -656,6 +656,7 @@ proc counter::MergeDay {} {
     variable dayBase
     variable hourBase
     variable tagsToMerge
+    variable secsPerMinute
 
     # Save the hours histogram into a bucket for the last day
     # counter(day,$day) is the starting time for that day bucket

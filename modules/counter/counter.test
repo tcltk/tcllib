@@ -1,4 +1,4 @@
-# Tests for the stats module.
+# Tests for the counter module.
 #
 # This file contains a collection of tests for a module in the
 # Standard Tcl Library. Sourcing this file into Tcl runs the tests and
@@ -9,20 +9,20 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.test,v 1.1 2000/10/03 03:53:00 welch Exp $
+# RCS: @(#) $Id: counter.test,v 1.2 2000/10/04 20:01:47 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
 
-catch {namespace delete stats}
+catch {namespace delete counter}
 
 proc Stamp {tag} {
     puts stderr "[clock format [clock seconds]] [clock clicks -milliseconds] $tag"
 }
 
-set myFile [file join [file dirname [info script]] stats.tcl]
+set myFile [file join [file dirname [info script]] counter.tcl]
 source $myFile
-package require stats 1.0
+package require counter 2.0
 
 test counter-1.1 {counter::init} {
     catch {counter::init} err
