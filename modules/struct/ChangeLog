@@ -1,3 +1,9 @@
+2003-05-05  Andreas Kupries  <andreask@activestate.com>
+
+	* prioqueue.tcl: Applied patch by author Michael Schlenker
+	  <mic42@users.sourceforge.net>. Refactors internals for
+	  speed. Passes the prioqueue testsuite.
+
 2003-04-25  Andreas Kupries  <andreask@activestate.com>
 
 	* queue.man: Documentation fix. peek/get throw errors if more was

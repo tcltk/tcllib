@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: prioqueue.tcl,v 1.3 2003/04/25 17:07:36 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.tcl,v 1.4 2003/05/05 16:13:07 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -40,13 +40,14 @@ namespace eval ::struct::prioqueue {
 	    ]
 
     # this is a simple design decision, that integer and real
-    # are sorted decreasing, and -ascii and -dictionary are sorted -increasing
+    # are sorted decreasing (-1), and -ascii and -dictionary are sorted -increasing (1)
+    # the values here map to the sortopt list
     # could be changed to something configurable.
     variable sortdir [list \
-	    "-decreasing" \
-	    "-decreasing" \
-	    "-increasing" \
-	    "-increasing" \
+        "-1" \
+        "-1" \
+        "1" \
+        "1" \
 	    ]
 
 
@@ -387,32 +388,89 @@ proc ::struct::prioqueue::_size {name} {
 #
 
 proc ::struct::prioqueue::__linsertsorted {list newElement sortopt sortdir} {
-    set pos 0
+    
+    set cmpcmd __elementcompare${sortopt}
+    set pos -1
     set newPrio [lindex $newElement 0]
-    foreach element $list {
+
+    # do a binary search
+    set lower -1
+    set upper [llength $list]
+    set bound [expr {$upper+1}]
+    set pivot 0
+    
+    if {$upper > 0} {
+        while {$lower +1 != $upper } {
+           
+           # get the pivot element
+           set pivot [expr {($lower + $upper) / 2}]
+           set element [lindex $list $pivot]
         set prio [lindex $element 0]
-        if {[__elementcompare $prio $newPrio $sortopt $sortdir]} break
+           
+           # check
+           set test [$cmpcmd $prio $newPrio $sortdir]
+           if {$test == 0} {
+                set pos $pivot
+                set upper $pivot
+                # now break as we need the last item
+                break
+           } elseif {$test > 0 } {
+                # search lower section
+                set upper $pivot
+                set pos -1
+           } else {
+                # search upper section
+                set lower $pivot
+                set pos $bound
+           }
+        }
+        
+        
+        if {$pos == -1} {
+            # we do an insert before the pivot element
+            set pos $pivot
+        }
+        
+        # loop to the last matching element to 
+        # keep a stable insertion order
+        while {[$cmpcmd $prio $newPrio $sortdir]==0} {
         incr pos
+            if {$pos > [llength $list]} {break}
+            set element [lindex $list $pos]
+            set prio [lindex $element 0]
+        }            
+        
+    } else {
+        set pos 0
     }
-    linsert $list $pos $newElement
+    
+    # do the insert without copying
+    linsert [K $list [set list ""]] $pos $newElement
 }
 
 # ::struct::prioqueue::__elementcompare
 #
-# Compare helper with the sort options.
+# Compare helpers with the sort options.
 #
 #
 
-proc ::struct::prioqueue::__elementcompare {prio newPrio sortopt sortdir} {
-    if {[string equal $sortopt "-integer"] || [string equal $sortopt "-real"]} {
-        set result [expr {$prio < $newPrio}]
-    } elseif {[string equal $sortopt "-ascii"]} {
-        set result [expr {[string compare $prio $newPrio] <= 0}]
-    } elseif {[string equal $sortopt "-dictionary"]} {
-        # need to use lsort to access -dictionary sorting
-        set result [string equal $prio [lindex \
-		[lsort -increasing -dictionary [list $prio $newPrio]] 0]]
-    }
-
-    return [expr {[string equal $sortdir "-decreasing"] ? $result : !$result}]
+proc ::struct::prioqueue::__elementcompare-integer {prio newPrio sortdir} {
+    return [expr {$prio < $newPrio ? -1*$sortdir : ($prio != $newPrio)*$sortdir}]
 }
+
+proc ::struct::prioqueue::__elementcompare-real {prio newPrio sortdir} {
+    return [expr {$prio < $newPrio ? -1*$sortdir : ($prio != $newPrio)*$sortdir}] 
+}
+
+proc ::struct::prioqueue::__elementcompare-ascii {prio newPrio sortdir} {
+    return [expr {[string compare $prio $newPrio]*$sortdir}]
+}
+
+proc ::struct::prioqueue::__elementcompare-dictionary {prio newPrio sortdir} {
+    # need to use lsort to access -dictionary sorting
+    set tlist [lsort -increasing -dictionary [list $prio $newPrio]]
+    set e1 [string equal [lindex $tlist 0]  $prio]
+    set e2 [string equal [lindex $tlist 1]  $prio]    
+    return [expr {$e1 > $e2 ? -1*$sortdir : ($e1 != $e2)*$sortdir}]
+}
+
