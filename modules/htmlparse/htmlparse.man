@@ -1,10 +1,10 @@
-[manpage_begin htmlparse n 0.2]
+[manpage_begin htmlparse n 0.3]
 [moddesc   {HTML Parser}]
 [titledesc {Procedures to parse HTML strings}]
 [require Tcl 8.2]
 [require struct 1]
 [require cmdline 1.1]
-[require htmlparse [opt 0.2]]
+[require htmlparse [opt 0.3]]
 [description]
 [para]
 

@@ -1,8 +1,8 @@
-[manpage_begin uuencode n 1.0]
+[manpage_begin uuencode n 1.0.1]
 [moddesc   {encode/decoding a binary file}]
 [titledesc {encode/decoding a binary file}]
 [require Tcl 8]
-[require uuencode [opt 1.0]]
+[require uuencode [opt 1.0.1]]
 [description]
 [para]
 

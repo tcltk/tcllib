@@ -2,10 +2,10 @@
 '\" Copyright (c) 2001 by ActiveState Tool Corp.
 '\" All rights reserved.
 '\"
-'\" RCS: @(#) $Id: htmlparse.n,v 1.4 2002/02/09 15:12:07 davidw Exp $
+'\" RCS: @(#) $Id: htmlparse.n,v 1.5 2002/06/03 20:21:46 andreas_kupries Exp $
 '\"
 .so man.macros
-.TH htmlparse n 0.2 Html "HTML Parser"
+.TH htmlparse n 0.3 Html "HTML Parser"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -17,7 +17,7 @@
 .sp
 \fBpackage require cmdline 1.1\fR
 .sp
-\fBpackage require htmlparse ?0.2?\fR
+\fBpackage require htmlparse ?0.3?\fR
 .sp
 \fB::htmlparse::parse\fR ?-cmd \fIcmd\fR? ?-vroot \fItag\fR? ?-split \fIn\fR? ?-incvar \fIvar\fR? ?-queue \fIq\fR? \fIhtml\fR
 .sp

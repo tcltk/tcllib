@@ -2,10 +2,10 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.16 2002/02/14 21:23:32 jenglish Exp $
+'\" RCS: @(#) $Id: html.n,v 1.17 2002/06/03 20:21:46 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH html n 1.2 Html "HTML Generation"
+.TH html n 1.2.1 Html "HTML Generation"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -14,7 +14,7 @@
 .sp
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require html ?1.2?\fR
+\fBpackage require html ?1.2.1?\fR
 .sp
 \fBhtml::author\fR \fIauthor\fR
 .sp
