@@ -1,3 +1,8 @@
+2002-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* According to Brent Welch this module is DEPRECATED. Use
+	  'counter' instead.
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stats.tcl: Restricted export list to public API.

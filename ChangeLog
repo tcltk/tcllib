@@ -1,3 +1,9 @@
+2002-04-16  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* Makefile.in (dist): Ensured that the deprecated module 'stats'
+	  is not distributed anymore. Use 'counter' instead.
+	  (*-force): Enforced generation of documentation, for developers.
+
 2002-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (MODULES): Added irc module.

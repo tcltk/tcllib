@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.68 2002/04/10 21:29:51 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.69 2002/04/16 18:22:38 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -320,6 +320,7 @@ dist:
 		done; \
 	    fi ; \
 	done ;
+	rm tcllib-$(VERSION)/modules/stats
 	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl          tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
 	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
 	tar cf - tcllib-$(VERSION) | gzip --best > tcllib-$(VERSION).tar.gz
@@ -348,7 +349,7 @@ check: check-tests check-doc
 
 check-tests:
 	@echo ~~~~~~~~~~~~~~~~~~~~~~~~
-	@for mod in `ls $(srcdir)/modules | grep -v CVS`; do \
+	@for mod in $(MODULES) ; do \
 	   if [ `ls $(srcdir)/modules/$$mod/*.test  2>/dev/null | wc -l` -lt 1 ]; then	\
 		echo '  ' without testsuite : $$mod ; \
 	   fi; \
@@ -356,7 +357,7 @@ check-tests:
 
 check-doc:
 	@echo ~~~~~~~~~~~~~~~~~~~~~~~~
-	@for mod in `ls $(srcdir)/modules | grep -v CVS`; do \
+	@for mod in $(MODULES) ; do \
 	   if [ `ls $(srcdir)/modules/$$mod/*.[13n] 2>/dev/null | wc -l` -lt 1 ]; then \
 		   if [ `ls $(srcdir)/modules/$$mod/*.man 2>/dev/null | wc -l` -lt 1 ]; then \
 			echo '  ' without '* any **' manpages : $$mod ; \
@@ -475,6 +476,25 @@ latex2-doc:
 		latex ../latex2/tcllib_doc.tex ; \
 		dvips -o ../ps/tcllib_doc.ps tcllib_doc.dvi ; \
 	fi
+
+#
+# Developer targets, usage enforces generation of documentation
+#
+
+doc-force: nroff-doc-force html-doc-force tmml-doc-force
+
+html-doc-force:
+	@rm html-doc ; $(MAKE) html-doc
+tmml-doc-force:
+	@rm tmml-doc ; $(MAKE) tmml-doc
+nroff-doc-force:
+	@rm nroff-doc ; $(MAKE) nroff-doc
+latex-doc-force:
+	@rm latex-doc ; $(MAKE) latex-doc
+latex2-doc-force:
+	@rm latex2-doc ; $(MAKE) latex2-doc
+list-doc-force:
+	@rm list-doc ; $(MAKE) list-doc
 
 #========================================================================
 # Don't modify the file to clean here.  Instead, set the "CLEANFILES"
