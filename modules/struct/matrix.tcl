@@ -7,7 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.10 2002/04/01 19:54:49 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.11 2003/02/25 21:12:47 davidw Exp $
+
+package require Tcl 8.2
 
 namespace eval ::struct {}
 
@@ -1741,7 +1743,7 @@ proc ::struct::matrix::ChkColumnIndex {name column} {
 
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub -- {end-} $column {} column
+	    set column [string map {end- ""} $column]
 	    set cc [expr {$c - 1 - $column}]
 	    if {($cc < 0) || ($cc >= $c)} {
 		return -code error "bad column index end-$column, column does not exist"
@@ -1785,7 +1787,7 @@ proc ::struct::matrix::ChkRowIndex {name row} {
 
     switch -regex -- $row {
 	{end-[0-9]+} {
-	    regsub -- {end-} $row {} row
+	    set row [string map {end- ""} $row]
 	    set rr [expr {$r - 1 - $row}]
 	    if {($rr < 0) || ($rr >= $r)} {
 		return -code error "bad row index end-$row, row does not exist"
@@ -1830,7 +1832,7 @@ proc ::struct::matrix::ChkColumnIndexNeg {name column} {
 
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub -- {end-} $column {} column
+	    set column [string map {end- ""} $column]
 	    set cc [expr {$c - 1 - $column}]
 	    if {$cc >= $c} {
 		return -code error "bad column index end-$column, column does not exist"
@@ -1872,7 +1874,7 @@ proc ::struct::matrix::ChkRowIndexNeg {name row} {
 
     switch -regex -- $row {
 	{end-[0-9]+} {
-	    regsub -- {end-} $row {} row
+	    set row [string map {end- ""} $row]
 	    set rr [expr {$r - 1 - $row}]
 	    if {$rr >= $r} {
 		return -code error "bad row index end-$row, row does not exist"
@@ -1913,7 +1915,7 @@ proc ::struct::matrix::ChkColumnIndexAll {name column} {
 
     switch -regex -- $column {
 	{end-[0-9]+} {
-	    regsub -- {end-} $column {} column
+	    set column [string map {end- ""} $column]
 	    set cc [expr {$c - 1 - $column}]
 	    return $cc
 	}
@@ -1948,7 +1950,7 @@ proc ::struct::matrix::ChkRowIndexAll {name row} {
 
     switch -regex -- $row {
 	{end-[0-9]+} {
-	    regsub -- {end-} $row {} row
+	    set row [string map {end- ""} $row]
 	    set rr [expr {$r - 1 - $row}]
 	    return $rr
 	}
