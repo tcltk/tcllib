@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.2 2003/04/02 20:52:24 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.3 2003/04/02 22:32:28 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -510,7 +510,7 @@ proc ::struct::list::Assign {sequence args} {
 proc ::struct::list::Flatten {args} {
     if {[::llength $args] < 1} {
 	return -code error \
-		"no value given for parameter \"?-full?\" to \"::struct::list::Assign\""
+		"wrong#args: should be \"::struct::list::Assign ?-full? ?--? sequence\""
     }
 
     set full 0
@@ -525,7 +525,7 @@ proc ::struct::list::Flatten {args} {
 
     if {[::llength $args] != 1} {
 	return -code error \
-		"no value given for parameter \"?-full?\" to \"::struct::list::Assign\""
+		"wrong#args: should be \"::struct::list::Assign ?-full? ?--? sequence\""
     }
 
     set sequence [::lindex $args 0]
