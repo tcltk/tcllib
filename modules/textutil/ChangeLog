@@ -1,5 +1,10 @@
 2001-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* textutil.n:
+	* adjust.tcl:
+	* adjust.tcl: Added code, tests and documentation for option
+	  -strictlength as provided by Dan Kuchler <dan@kuchler.net>.
+
 	* expander.tcl:
 	* expander.test:
 	* expander.ehtml:
