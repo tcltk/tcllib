@@ -1,0 +1,7 @@
+2003-04-15  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4.test: 
+	* md4.tcl:
+	* md4.man:
+	* ChangeLog:  Initial versions.
+
