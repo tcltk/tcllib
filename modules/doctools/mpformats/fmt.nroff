@@ -27,7 +27,6 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set description [c_get_title]
     set copyright   [c_get_copyright]
 
-    ex_cpush mp
     c_holdBuffers hdr
 
     c_hold hdr [nr_comment {}]
@@ -61,11 +60,10 @@ c_pass 2 fmt_copyright {desc} NOP
 
 c_pass 1 fmt_manpage_end {} NOP
 c_pass 2 fmt_manpage_end {} {
-    set nroff [ex_cpop mp]
-
     # Complete the generation with a copyright
     # section, if such information is available.
 
+    set nroff ""
     set copyright [c_get_copyright]
     if {$copyright != {}} {
 	append nroff [fmt_section COPYRIGHT] \n
@@ -73,7 +71,10 @@ c_pass 2 fmt_manpage_end {} {
 	append nroff $copyright \n
 	append nroff [nr_fill]
     }
+    return $nroff
+}
 
+proc fmt_postprocess {nroff} {
     # Postprocessing after generation ...
     # Strip empty lines out of the generated nroff source
     # and trim leading blanks, except in code samples.

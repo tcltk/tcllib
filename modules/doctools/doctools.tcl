@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.1 2003/01/19 07:58:44 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.2 2003/02/12 18:51:52 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -383,8 +383,8 @@ proc ::doctools::_destroy {name} {
 
 	# Expander objects have no delete/destroy method. This would
 	# be a leak if not for the fact that an expander object is a
-	# namespace, and we have arranged to make it a subnamespace of
-	# the doctools object. There tearing down our object namespace
+	# namespace, and we have arranged to make it a sub namespace of
+	# the doctools object. Therefore tearing down our object namespace
 	# also cleans up the expander object.
 	# if {$expander != ""} {$expander destroy}
 
@@ -572,6 +572,7 @@ proc ::doctools::SetupFormatter {name format} {
 
     variable here
     set mpip [interp create -safe] ; # interpreter for the formatting engine
+    #set mpip [interp create] ; # interpreter for the formatting engine
 
     $mpip invokehidden source [file join $here api.tcl]
     #$mpip eval [list source [file join $here api.tcl]]
@@ -807,7 +808,35 @@ proc ::doctools::FmtWarning {name text} {
 
 proc ::doctools::Eval {name macro} {
     upvar ::doctools::doctools${name}::chk_ip chk_ip
+
+    # Handle the [include] command directly
+    if {[string match include* $macro]} {
+	foreach {cmd filename} $macro break
+	return [ExpandInclude $name $filename]
+    }
+
     return [$chk_ip eval $macro]
+}
+
+# ::doctools::ExpandInclude --
+#
+#	Handle inclusion of files.
+#
+# Arguments:
+#	name	Name of the doctools object to query.
+#	path	Name of file to include and expand.
+#
+# Results:
+#	None.
+
+proc ::doctools::ExpandInclude {name path} {
+    set    chan [open $path r]
+    set    text [read $chan]
+    close $chan
+
+    upvar ::doctools::doctools${name}::expander  expander
+
+    return [$expander expand $text]
 }
 
 # ::doctools::GetUser --
