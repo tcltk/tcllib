@@ -1,3 +1,10 @@
+2003-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* all.tcl: Added code to try to load 'Tk'. This allows the
+	  execution of 'tk' constrained tests, if Tk is present (for
+	  example when this code is run run by 'wish'). An example of a
+	  module having such tests is 'snit'.
+
 2003-07-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/md5crypt: New module: MD5-crypt implementation
