@@ -1,9 +1,14 @@
-2002-01-17  Pat Thoyts  <Pat.Thoyts@bigfoot.com>
+2002-01-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.test, sum.test, cksum.test: Fixed SF bug #507242: failing
+	tests when running 'make test'
+
+2002-01-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.n: formatting fixes
 	* sum.n: added new manual page for package sum
 
-2002-01-16  Pat Thoyts  <Pat.Thoyts@bigfoot.com>
+2002-01-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.tcl: added -seed and -implementation options.
 	* crc32.n: updated for the -seed and -impl options
