@@ -1,3 +1,7 @@
+2003-07-09  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Added decoding for SOA response records. 
+
 2003-05-09  Andreas Kupries  <andreask@activestate.com>
 
 	* resolv.tcl (::resolv::init): Added missing [expr] bracing.
