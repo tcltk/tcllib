@@ -1,3 +1,8 @@
+2004-09-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.nroff: Removed superfluous nr_rst calls inserted
+	  at the end of a command, by the commands 'call', and 'usage'.
+
 2004-07-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_common.tcl: Made section references
