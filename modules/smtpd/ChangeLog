@@ -1,3 +1,10 @@
+2002-10-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl: Implemented feature request #531531. Added
+	-deliverMIME option to provide mail as a MIME token.
+	* smtpd.man: Updated for the new delivery option.
+	* tk_smtpdMIME: New example using the -deliverMIME option.
+	
 2002-09-25  David N. Welton  <davidw@dedasys.com>
 
 	* smtpd.man: Fixed documentation error in deliver example.

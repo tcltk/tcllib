@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded smtpd 1.0 [list source [file join $dir smtpd.tcl]]
+package ifneeded smtpd 1.1 [list source [file join $dir smtpd.tcl]]
