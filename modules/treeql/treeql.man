@@ -712,7 +712,7 @@ Replaces the current node set with a node set containing only the
 first node from the current node set
 
 
-[lst_item "[method transform] [arg var] [arg query] [arg body]"]
+[lst_item "[method transform] [arg query] [arg var] [arg body]"]
 
 First it interprets the sub-query [arg query], using the current node
 set as its initial node set.
@@ -742,7 +742,7 @@ Replaces the current node set with the literal list value [arg val].
 
 [list_begin definitions]
 
-[lst_item "[method foreach] [arg var] [arg query] [arg body]"]
+[lst_item "[method foreach] [arg query] [arg var] [arg body]"]
 
 Interprets the sub-query [arg query], then performs the equivalent of
 operator [method over] on the nodes in the node set created by that
