@@ -1,3 +1,7 @@
+2003-04-24  Andreas Kupries  <andreask@activestate.com>
+
+	* counter.test: Added missing propagation of test results.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* counter.tcl:
