@@ -1,3 +1,15 @@
+2000-04-28  Sandeep Tamhankar <sandeep@scriptics.com>
+
+	* mkInstallScripts.tcl: Fixed a bug in the UNIX shell script where
+	it was checking if TCLINSTALL was non-null, but it was using ==,
+	which isn't legal in /bin/sh.  I found this out the hard way while
+	trying to install tcllib0.4 in the default location
+	(/usr/local/lib/tcllib0.4) and because of this bug, it ended up
+	installing in /lib/tcllib0.4.  I guess users usually specify a
+	directory to install in, so they get a cryptic error from the
+	script about == being a binary operator, but otherwise it works
+	(and thus, they don't complain to us!)
+	
 2000-04-26  Brent Welch <welch@scriptics.com>
 
 	* html/html.tcl:  Added urlResove and urlParent URL parsing
