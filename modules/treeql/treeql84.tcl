@@ -195,7 +195,7 @@ snit::type ::treeql {
     method do_get {node pattern} {
 	set result {}
 	foreach key [$tree keys $node $pattern] {
-	    lappend result [list [$tree get $node $key]]
+	    set result [concat $result [$tree get $node $key]]
 	}
 	return $result
     }
