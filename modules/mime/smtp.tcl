@@ -903,14 +903,20 @@ proc smtp::wtextaux {token part} {
 
     # If trf is not available, get the contents of the message,
     # replace all '.'s that start their own line with '..'s, and
-    # then write the mime body out to the filehandle.
+    # then write the mime body out to the filehandle. Do not forget to
+    # deal with bare LF's here too (SF bug #499242).
 
     if {$trf} {
         set code [catch { mime::copymessage $part $state(sd) } result]
     } else {
         set code [catch { mime::buildmessage $part } result]
         if {$code == 0} {
-            regsub -all -- {\n\.} $result "\n.." result
+	    # Detect and transform bare LF's into proper CR/LF
+	    # sequences.
+
+	    while {[regsub -all -- {([^\r])\n} $result "\\1\r\n" result]} {}
+            regsub -all -- {\n\.}      $result "\n.."   result
+
             set state(size) [string length $result]
             puts -nonewline $state(sd) $result
             set result ""
