@@ -10,7 +10,7 @@
 [para]
 
 The [package smtp] library package provides the client side of the
-smtp protocol.
+Simple Mail Transfer Protocol (SMTP) (1) (2).
 
 [list_begin definitions]
 
@@ -58,7 +58,7 @@ A list of keywords and their values (may occur zero or more times).
 
 [lst_item [option -usetls]]
 
-This package supports the RFC 3207 TLS extension by default provided the 
+This package supports the RFC 3207 TLS extension (3) by default provided the 
 tls package is available. You can turn this off with this boolean option.
 
 [lst_item [option -tlspolicy]]
@@ -73,12 +73,13 @@ in the [option -servers] list to be tried.
 [lst_item [option -username]]
 [lst_item [option -password]]
 
-If your SMTP server requires authentication before accepting mail you can
-use [option -username] and [option -password] to provide your authentication
-details to the server. Currently this package supports CRAM-MD5, LOGIN and
-PLAIN authentication methods. The most secure method will be tried first
-and each method tried in turn until we are either authorized or we run out of
-methods. Note that if the server permits a TLS connection, then the 
+If your SMTP server requires authentication (RFC 2554 (4)) before
+accepting mail you can use [option -username] and [option -password]
+to provide your authentication details to the server. Currently this
+package supports DIGEST-MD5, CRAM-MD5, LOGIN and PLAIN authentication
+methods. The most secure method will be tried first and each method
+tried in turn until we are either authorized or we run out of
+methods. Note that if the server permits a TLS connection, then the
 authorization will occur after we begin using the secure channel.
 
 [list_end]
@@ -124,7 +125,31 @@ send_simple_message someone@somewhere.com localhost \\
     "This is the subject." "This is the message."
 }]
 
+[section {REFERENCES}]
+
+[list_begin enum]
+
+[enum]
+    Jonathan B. Postel, "SIMPLE MAIL TRANSFER PROTOCOL", RFC 821, August 1982.
+    ([uri http://www.rfc-editor.org/rfc/rfc821.txt])
+
+[enum]
+    J. Klensin, "Simple Mail Transfer Protocol", RFC 2821, April 2001.
+    ([uri http://www.rfc-editor.org/rfc/rfc2821.txt])
+
+[enum]
+    P. Hoffman, "SMTP Service Extension for Secure SMTP over Transport
+    Layer Security", RFC 3207, February 2002.
+    ([uri http://www.rfc-editor.org/rfc/rfc3207.txt])
+
+[enum]
+    J. Myers, "SMTP Service Extension for Authentication", 
+    RFC 2554, March 1999.
+    ([uri http://www.rfc-editor.org/rfc/rfc2554.txt])
+
+[list_end]
+
 [see_also mime pop3 ftp http]
 [keywords mail mail email smtp mime tls \
-     {rfc 821} {rfc 822} {rfc 3207} internet net]
+     {rfc 821} {rfc 822} {rfc 2821} {rfc 3207} {rfc 2554} internet net]
 [manpage_end]
