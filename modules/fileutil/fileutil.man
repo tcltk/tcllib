@@ -85,7 +85,16 @@ of the procedures is a list containing the matches. Each match is a
 single element of the list and contains filename, number and contents
 of the matching line, separated by a colons.
 
+[call [cmd ::fileutil::install] [opt "[option -m] [arg "mode"]"] [arg source] [arg destination]]
 
+The [cmd install] command is similar in functionality to the [syscmd install]
+command found on many unix systems, or the shell script
+distributed with many source distributions (unix/install-sh in the Tcl
+sources, for example).  It copies [arg source], which can be either a
+file or directory to [arg destination], which should be a directory,
+unless [arg source] is also a single file.  The [opt -m] option lets
+the user specify a unix-style mode (either octal or symbolic - see
+[cmd file attributes].
 
 [call [cmd ::fileutil::stripN] [arg path] [arg n]]
 

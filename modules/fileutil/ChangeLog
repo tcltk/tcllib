@@ -1,3 +1,13 @@
+2003-08-06  David N. Welton  <davidw@dedasys.com>
+
+	* fileutil.man: Added documentation for the new 'install' command.
+
+	* fileutil.tcl (::fileutil::install): Added 'install' command,
+	which is similar in functionality to the Unix install command - it
+	is basically file copy with some additional features.
+
+	* fileutil.test: Added tests for 'install' fileutil command.
+
 2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.5.1 as this is a bug fix. Any bug fixes and
