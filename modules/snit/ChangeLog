@@ -1,3 +1,8 @@
+2003-10-27  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.man:    Updated to changes in the .html files.
+	* snitfaq.man: 
+
 2003-10-25  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:  Added the "except" clause for "delegate method *" and
