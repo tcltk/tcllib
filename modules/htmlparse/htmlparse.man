@@ -203,7 +203,7 @@ with their actual characters and then returns the resulting string.
 HTML strings which do not contain escape sequences are returned
 unchanged.
 
-[call [cmd ::htmlparse::2tree] [arg "html tree"]]
+[call [cmd ::htmlparse::2tree] [arg {html tree}]]
 
 This command is a wrapper around [cmd ::htmlparse::parse] which takes
 an HTML string (in [arg html]) and converts it into a tree containing
@@ -221,6 +221,20 @@ The internal callback does some basic checking of HTML validity and
 tries to recover from the most basic errors. The command returns the
 contents of its second argument. Side effects are the creation and
 manipulation of a tree object.
+
+[nl]
+
+Each node in the generated tree represent one tag in the input. The
+name of the tag is stored in the attribute [emph type] of the
+node. Any html attributes coming with the tag are stored unmodified in
+the attribute [emph data] of the tag. In other words, the command does
+[emph not] parse html attributes into their names and values.
+
+[nl]
+
+If a tag contains text its node will have children of type
+[emph PCDATA] containing this text. The text will be stored in the
+attribute [emph data] of these children.
 
 [call [cmd ::htmlparse::removeVisualFluff] [arg tree]]
 
