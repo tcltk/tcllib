@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32bugs.test,v 1.4 2005/03/12 02:13:50 patthoyts Exp $
+# RCS: @(#) $Id: crc32bugs.test,v 1.5 2005/03/12 21:11:01 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -22,14 +22,14 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 # Ensure we test _this_ local copy and one installed somewhere else.
 #
 package forget crc32
+package forget crc16
 catch {namespace delete ::crc}
+
 if {[catch {source [file join [file dirname [info script]] crc32.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
 }
 
-package forget crc16
-#catch {namespace delete ::crc}
 if {[catch {source [file join [file dirname [info script]] crc16.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
@@ -97,10 +97,12 @@ foreach impl [implementations] {
     select_implementation $impl
     foreach {n msg expected} $tests {
         test crc32bugs-$impl-1.$n "crc32 (crc32 and and crc16 comparison)" {
-            list [catch {
+            set r [catch {
                 list [::crc::crc32 -format %x $msg] \
                     [::crc::crc-32 -format %x $msg]
-            } msg] $msg
+            } err]
+            if {$r} {lappend err $::errorInfo}
+            list $r $err
         } [list 0 [list $expected $expected]]
     }
 }
