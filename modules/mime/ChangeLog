@@ -1,3 +1,9 @@
+2002-05-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl (smtp::initialize): Fixed SF bug #561416. The reporter
+	  is unknown and provided the fix too. Fix approved by Marshall
+	  Rose <mrose@users.sourceforge.net>.
+
 2002-05-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl: Accepted patch for SF bug #553784, by Don Porter
