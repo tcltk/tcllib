@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.10 2004/02/18 23:43:49 patthoyts Exp $
+# $Id: md4.tcl,v 1.11 2004/02/24 07:31:34 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.1
-    variable rcsid {$Id: md4.tcl,v 1.10 2004/02/18 23:43:49 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.11 2004/02/24 07:31:34 andreas_kupries Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
