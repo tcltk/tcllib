@@ -1,3 +1,8 @@
+2004-11-25  Andreas Kupries <andreask@activestate.com>
+
+	* linalg.man: Fixed a formatting bug in the file, found by a
+	  regular run of the SAK tool.
+
 2004-11-25  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * Added descriptions of various linear algebra procedures
