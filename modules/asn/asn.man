@@ -158,7 +158,7 @@ stores it into the variable named by [arg data_var].
 
 Assumes that an encoded integer value is at the front of the data
 stored in the variable named [arg data_var], extracts and stores it
-into the variabled named by [arg int_var]. Additionally removes all
+into the variable named by [arg int_var]. Additionally removes all
 bytes associated with the value from the data for further processing
 by the following decoder commands.
 
@@ -166,7 +166,7 @@ by the following decoder commands.
 [call [cmd ::asn::asnGetEnumeration] [arg data_var] [arg enum_var]]
 
 Assumes that an enumeration id is at the front of the data stored in
-the variable named [arg data_var], and stores it into the variabled
+the variable named [arg data_var], and stores it into the variable
 named by [arg enum_var]. Additionally removes all bytes associated
 with the value from the data for further processing by the following
 decoder commands.
@@ -175,7 +175,7 @@ decoder commands.
 [call [cmd ::asn::asnGetOctetString] [arg data_var] [arg string_var]]
 
 Assumes that a string is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variabled named
+variable named [arg data_var], and stores it into the variable named
 by [arg string_var]. Additionally removes all bytes associated with
 the value from the data for further processing by the following
 decoder commands.
@@ -184,7 +184,7 @@ decoder commands.
 [call [cmd ::asn::asnGetSequence] [arg data_var] [arg sequence_var]]
 
 Assumes that an ASN sequence is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variabled named
+variable named [arg data_var], and stores it into the variable named
 by [arg sequence_var]. Additionally removes all bytes associated with
 the value from the data for further processing by the following
 decoder commands.
@@ -199,7 +199,7 @@ decoder commands here.
 [call [cmd ::asn::asnGetSet] [arg data_var] [arg set_var]]
 
 Assumes that an ASN set is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variabled named
+variable named [arg data_var], and stores it into the variable named
 by [arg set_var]. Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
@@ -215,7 +215,7 @@ commands here.
 
 Assumes that an ASN application construct is at the front of the data
 stored in the variable named [arg data_var], and stores its id into
-the variabled named by [arg appNumber_var]. Additionally removes all
+the variable named by [arg appNumber_var]. Additionally removes all
 bytes associated with the value from the data for further processing
 by the following decoder commands.
 

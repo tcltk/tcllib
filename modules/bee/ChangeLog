@@ -1,3 +1,9 @@
+2004-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bee.tcl: Typo police.
+	* bee.man:
+	* bee.test:
+
 2004-06-23  Andreas Kupries  <andreas_kupries@users.sourceforge.bet>
 
 	* bee.man: Polished the documentation.

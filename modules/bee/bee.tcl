@@ -88,8 +88,8 @@ proc ::bee::encodeNumber {num} {
     }
 
     # The reformatting deals with hex, octal and other tcl
-    # representation of the value. IOW we normalize the string
-    # representation of the input value.
+    # representation of the value. In other words we normalize the
+    # string representation of the input value.
 
     set num [format %d $num]
     return "i${num}e"
@@ -499,7 +499,7 @@ proc ::bee::decodeIndices {value {evar {}} {start 0}} {
 #	-prefix data		Seed for decode buffer.
 #
 # Results:
-#	A token to use when refering to the decoder.
+#	A token to use when referring to the decoder.
 #	For example when canceling it.
 
 proc ::bee::decodeChannel {chan args} {
@@ -882,7 +882,7 @@ proc ::bee::Command {token how args} {
     set cmd  $state(cmd)
     set chan $state(chan)
 
-    # We catch the fileevent's because they will fail when this is
+    # We catch the fileevents because they will fail when this is
     # called from the 'Close'. The channel will already be gone in
     # that case.
 
@@ -954,7 +954,7 @@ proc ::bee::Complete {token value} {
 #	Destroys the decoder referenced by the token.
 #
 # Arguments:
-#	token	The decoder to destory.
+#	token	The decoder to destroy.
 #
 # Results:
 #	None.
