@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.13 2004/01/25 07:29:50 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.14 2004/02/11 07:48:41 andreas_kupries Exp $
 
-package require md5  ; # tcllib | APOP
+package require md5 1; # tcllib | APOP            | v1
 package require mime ; # tcllib | storage callback
 package require log  ; # tcllib | tracing
 

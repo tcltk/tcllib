@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snitfaq n 0.92]
-[copyright {2003, by William H. Duquette}]
+[manpage_begin snitfaq n 0.93]
+[copyright {2003-2004, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc   {Snit Frequently Asked Questions}]
 [require Tcl 8.4]
-[require snit [opt 0.92]]
+[require snit [opt 0.93]]
 [description]
 [para]
 
@@ -155,23 +155,23 @@ binary tree--that is to say, in modern terms, an object.  In systems
 that include include some form of inheritance the word [term class] is
 usually used instead of [term {abstract data type}], but as Snit
 doesn't do inheritance, the older term seems more appropriate.
-Sometimes this is called object-based programming as opposed to
-object-oriented programming.
+Sometimes this is called [term {object-based}] programming as opposed
+to object-oriented programming.
 
 [para]
 
-In Snit, as in Tk, a type is a command that creates instances --
-objects -- which belong to the type.  Most types define some number of
-[term option] which can be set at creation time, and usually can be
+In Snit, as in Tk, a [term type] is a command that creates instances
+-- objects -- which belong to the type.  Most types define some number
+of [term option] which can be set at creation time, and usually can be
 changed later.
 
 [para]
 
-Further, an instance is also a Tcl command--a command that gives
-access to the operations which are defined for that abstract data
-type.  Conventionally, the operations are defined as subcommands, or
-instance methods of the instance command.  For example, to insert text
-into a Tk text widget, you use the text widget's [method insert]
+Further, an [term instance] is also a Tcl command--a command that
+gives access to the operations which are defined for that abstract
+data type.  Conventionally, the operations are defined as subcommands,
+or instance methods of the instance command.  For example, to insert
+text into a Tk text widget, you use the text widget's [method insert]
 method:
 
 [para]
@@ -182,8 +182,8 @@ method:
 }]
 [para]
 
-In this example, [cmd text] is the type command and [cmd .mytext] is
-the instance command.
+In this example, [cmd text] is the [term type] command and
+[cmd .mytext] is the [term instance] command.
 
 [para]
 [emph {What kinds of abstract data types does Snit provide?}]
@@ -228,7 +228,7 @@ system for a dog breeder, you'd need a dog type.
 [para]
 
 This definition defines a new command ([cmd ::dog], in this case)
-which can be used to define dog objects.
+that can be used to define dog objects.
 
 [para]
 
@@ -318,9 +318,9 @@ spotted
 }]
 [para]
 
-Either way, the instance name now names a new Tcl command which is
-used to manipulate the object.  For example, the following code makes
-the dog bark:
+Either way, the instance name now names a new Tcl command that is used
+to manipulate the object.  For example, the following code makes the
+dog bark:
 
 [para]
 [example {
@@ -670,8 +670,8 @@ intended to be called only by other methods of the same object.
 
 Snit doesn't implement any access control on instance methods, so all
 methods are [emph {de facto}] public.  Conventionally, though, the
-names of public methods begin with a lower case letter, and the names
-of private methods begin with an upper case letter.
+names of public methods begin with a lower-case letter, and the names
+of private methods begin with an upper-case letter.
 
 [para]
 
@@ -1545,7 +1545,7 @@ snit::type dog {
 dog spot -pedigreed 1
 dog fido
 
-foreach dog ::pedigreedDogs { ... }
+foreach dog [dog pedigreedDogs] { ... }
 }]
 [para]
 
@@ -1572,8 +1572,8 @@ of the same object.
 [para]
 
 Snit doesn't implement any access control on type methods; by
-convention, the names of public methods begin with a lower case
-letter, and the names of private methods begin with an upper case
+convention, the names of public methods begin with a lower-case
+letter, and the names of private methods begin with an upper-case
 letter.
 
 [para]
@@ -2489,7 +2489,7 @@ method to the [cmd tail]'s [cmd wiggle] method.  It's easily done:
 
 
 [emph {Can I delegate to a method with additional arguments?}]
-
+[para]
 
 Suppose the [cmd tail] object has a [method wag] method
 that takes as an argument the number of times the tail should be
@@ -2770,11 +2770,39 @@ contained within this frame.
 [cmd snit::widget]s can have their options receive default values from
 [emph {the Tk option database}].
 
-
 [list_end]
+
+
+[para]
+[emph {What is a hull component?}]
+[para]
+
+Snit can't create a Tk widget object; only Tk can do that.
+
+Thus, every instance of a [cmd snit::widget] must be wrapped around a
+genuine Tk widget; this Tk widget is called the [term {hull component}].
+
+Snit effectively piggybacks the behavior you define (methods, options,
+and so forth) on top of the hull component so that the whole thing
+behaves like a standard Tk widget.
+
+[para]
+
+For [cmd snit::widget]s the hull component must be a Tk [cmd frame] or
+[cmd toplevel] widget; any other widgets created as part of
+the [cmd snit::widget] will be contained within this frame or
+toplevel.
+
+[para]
+
+[cmd snit::widgetadaptor]s differ from [cmd snit::widget]s chiefly in
+that any kind of widget can be used as the hull component; see
+[sectref {WIDGET ADAPTORS}].
+
 
 [para]
 [emph {How can I set the hull type for a snit::widget?}]
+[para]
 
 A [cmd snit::widget]'s hull component will usually be a Tk [cmd frame]
 widget; however, it may also be a [cmd toplevel] widget.  You can
@@ -2936,7 +2964,7 @@ Yes.
 [para]
 
 At times, it can be convenient to adapt a widget created by another
-party.  For example, the Bwidgets [cmd PagesManager] widget manages a
+party.  For example, the Bwidget [cmd PagesManager] widget manages a
 set of [cmd frame] widgets, only one of which is visible at a time.
 The application chooses which [cmd frame] is visible.
 

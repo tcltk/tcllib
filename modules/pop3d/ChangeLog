@@ -1,3 +1,16 @@
+2004-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:   Both pop3d and dbox rely on 'mime', which requires
+	* pop3d.man:      Tcl 8.3. This implies that these packages require
+	* pop3d_dbox.man: Tcl 8.3 as well, and not 8.2, as advertised.
+
+	* pop3d.tcl: Requiring v1 of md5 explicitly.
+
+	* pop3d.test:      Explicitly loading the supporting packages
+	* pop3d_dbox.test: (mime, md5, dbox, udb, ...). Ensured usage of
+	  md5 v1. Excluding the whole series of tests if the interpreter
+	  is not at least 8.3. Added suppression of logger output.
+
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3d.tcl (H_quit): Remember the handle of the idle event we are

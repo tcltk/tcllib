@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.5 2004/02/11 07:48:41 andreas_kupries Exp $
 
 package provide inifile 0.1
 
@@ -33,7 +33,7 @@ proc ::ini::open {ini {mode r+}} {
         array set sections {}
     }
     ::set ::ini::${fh}::channel $tmp
-    ::set ::ini::${fh}::file    [file normalize $ini]
+    ::set ::ini::${fh}::file    [_normalize $ini]
     ::set ::ini::${fh}::mode    $mode
 
     incr nexthandle
@@ -148,9 +148,24 @@ proc ::ini::_exists {fh sec args} {
 
 # internal command to check validity of a handle
 
-proc ::ini::_valid_ns {name} {
-    if { ![namespace exists ::ini::$name] } {
-        error "$name is not an open INI file"
+if { [package vcompare [package provide Tcl] 8.4] < 0 } {
+    proc ::ini::_normalize {path} {
+	return $path
+    }
+    proc ::ini::_valid_ns {name} {
+	variable ::ini::${name}::data
+	if { ![info exists data] } {
+	    error "$name is not an open INI file"
+	}
+    }
+} else {
+    proc ::ini::_normalize {path} {
+	file normalize $path
+    }
+    proc ::ini::_valid_ns {name} {
+	if { ![namespace exists ::ini::$name] } {
+	    error "$name is not an open INI file"
+	}
     }
 }
 
