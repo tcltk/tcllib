@@ -29,11 +29,14 @@ snit::type treeql {
 
 	set result {}
 	foreach node $nodes {
-	    if {[catch {$tree {expand}$cmd $node {expand}$args} application eo]} {
-		puts stderr "Apply ERROR: $tree $cmd $node $args -> $application - $eo"
+	    if {[catch {
+		$tree {expand}$cmd $node {expand}$args
+	    } application eo]} {
+		puts stderr "apply ERROR: $tree $cmd $node $args -> $application - $eo"
+	    } else {
+		#puts stderr "Apply: $tree $cmd $node $args -> $application"
+		lappend result {expand}$application
 	    }
-	    #puts stderr "Apply: $tree $cmd $node $args -> $application"
-	    lappend result {expand}$application
 	}
 
 	return $result
@@ -45,13 +48,17 @@ snit::type treeql {
 
 	set result {}
 	foreach node $nodes {
-	    set application [$tree {expand}$cmd $node {expand}$args]
-	    #puts stderr "Filter: $tree $cmd $node $args -> $application"
-	    if {$application != {}} {
-		lappend result $application
+	    if {[catch {
+		$tree {expand}$cmd $node {expand}$args
+	    } application eo]} {
+		puts stderr "filter ERROR: $tree $cmd $node $args -> $application - $eo"
+	    } else {
+		#puts stderr "Filter: $tree $cmd $node $args -> $application"
+		if {$application != {}} {
+		    lappend result $application
+		}
 	    }
 	}
-
 	return $result
     }
 
@@ -67,10 +74,15 @@ snit::type treeql {
 	# replaced by tcllib's list filter
 	set result {}
 	foreach node $nodes {
-	    set application [$tree {expand}$cmd $node {expand}$args]
-	    #puts stderr "Bool: $tree $cmd $node $args -> $application - [$tree dump $node]"
-	    if {$application} {
-		lappend result $node
+	    if {[catch {
+		$tree {expand}$cmd $node {expand}$args
+	    } application eo]} {
+		puts stderr "bool ERROR: $tree $cmd $node $args -> $application - $eo"
+	    } else {
+		#puts stderr "Bool: $tree $cmd $node $args -> $application - [$tree dump $node]"
+		if {$application} {
+		    lappend result $node
+		}
 	    }
 	}
 
@@ -82,9 +94,14 @@ snit::type treeql {
 
 	set result {}
 	foreach node $nodes {
-	    set application [$query {expand}$cmd $node {expand}$args] 
-	    if {[llength $application]} {
-		lappend result {expand}$application
+	    if {[catch {
+		$query {expand}$cmd $node {expand}$args
+	    } application eo]} {
+		puts stderr "applyself ERROR: $tree $cmd $node $args -> $application - $eo"
+	    } else {
+		if {[llength $application]} {
+		    lappend result {expand}$application
+		}
 	    }
 	}
 
@@ -96,9 +113,14 @@ snit::type treeql {
 
 	set result {}
 	foreach node $nodes {
-	    set application [$query {expand}$cmd $node {expand}$args] 
-	    #puts stderr "Mapself: $query $cmd $node $args -> $application"
-	    lappend result $application
+	    if {[catch {
+		$query {expand}$cmd $node {expand}$args
+	    } application eo]} {
+		puts stderr "mapself ERROR: $tree $cmd $node $args -> $application - $eo"
+	    } else {
+		#puts stderr "Mapself: $query $cmd $node $args -> $application"
+		lappend result $application
+	    }
 	}
 
 	return $result
@@ -114,7 +136,8 @@ snit::type treeql {
     # filter nodes by predicate [string $op] over attribute $attr
     method stringP {op attr args} {
 	set n {}
-	foreach result [$self mapself do_attr [list string {expand}$op] $attr] node $nodes {
+	set map [$self mapself do_attr [list string {expand}$op] $attr]
+	foreach result $map node $nodes {
 	    #puts stderr "$self stringP $op $attr -> $result - $node"
 	    if {$result} {
 		lappend n $node
@@ -127,7 +150,8 @@ snit::type treeql {
     # filter nodes by negated predicate [string $op] over attribute $attr
     method stringNP {op attr args} {
 	set n {}
-	foreach result [$self mapself do_attr [list string {expand}$op] $attr] node $nodes {
+	set map [$self mapself do_attr [list string {expand}$op] $attr]
+	foreach result $map node $nodes {
 	    if {!$result} {
 		lappend n $node
 	    }
@@ -139,7 +163,8 @@ snit::type treeql {
     # filter nodes by predicate [expr {expand}$op] over attribute $attr
     method exprP {op attr args} {
 	set n {}
-	foreach result [$self mapself do_attr [list expr {expand}$op] $attr] node $nodes {
+	set map [$self mapself do_attr [list expr {expand}$op] $attr]
+	foreach result $map node $nodes {
 	    if {$result} {
 		lappend n $node
 	    }
@@ -151,7 +176,8 @@ snit::type treeql {
     # filter nodes by predicate ![expr {expand}$op] over attribute $attr
     method exprNP {op attr args} {
 	set n {}
-	foreach result [$self mapself do_attr [list expr {expand}$op] $attr] node $nodes {
+	set map [$self mapself do_attr [list expr {expand}$op] $attr]
+	foreach result $map node $nodes {
 	    if {!$result} {
 		lappend n $node
 	    }

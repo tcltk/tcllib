@@ -10,7 +10,8 @@
 	* treeql.tcl,treeql84.tcl: removed sapply and all references to it - it was improperly implemented and redundant with apply.
 	* treeql.test: changed path to list.tcl and tree.tcl to use normalize, so you can run the test from the treeql directory
 	* treeql.test: changed usage of [getvals] to [get]
-
+	* treeql.tcl,treeql84.tcl: made all mapping commands consistently handle errors.
+	
 2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* treeql84.tcl: Bugfix in 'apply'. Wrong statement was
