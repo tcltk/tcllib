@@ -7,15 +7,21 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.3 2000/03/09 15:58:37 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.4 2000/03/09 21:27:07 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require struct
-namespace import struct::*
+if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+}
+
+if { [lsearch [namespace children] ::struct] == -1 } {
+    package require struct
+    namespace import struct::*
+}
 
 test tree-0.1 {tree errors} {
     tree mytree
@@ -34,7 +40,7 @@ test tree-0.3 {tree errors} {
     catch {mytree foo} msg
     mytree destroy
     set msg
-} "bad option \"foo\": must be children, destroy, delete, depth, exists, get, insert, move, parent, set, size, swap, unset, or walk"
+} "bad option \"foo\": must be children, destroy, delete, depth, exists, get, insert, isleaf, move, parent, set, size, swap, unset, or walk"
 test tree-0.4 {tree errors} {
     catch {tree set} msg
     set msg
@@ -516,5 +522,20 @@ test tree-15.3 {unset removes a keyed value from a node} {
     mytree destroy
     set msg
 } "invalid key \"foobar\" for node \"node0\""
+
+test tree-16.1 {isleaf} {
+    tree mytree
+    set t [mytree isleaf root]
+    mytree insert root end node0
+    lappend t [mytree isleaf root] [mytree isleaf node0]
+    mytree destroy
+    set t
+} [list 1 0 1]
+test tree-16.2 {isleaf} {
+    tree mytree
+    catch {mytree isleaf node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
 
 ::tcltest::cleanupTests

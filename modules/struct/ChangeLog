@@ -1,5 +1,15 @@
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
+	* tree.test: 
+	* tree.tcl: Added isleaf function and tests [RFE: 4340]
+
+	* struct.tcl: Changed order of namespace import/namespace export
+	calls.  Added -force to namespace import calls.
+
+	* tree.test: 
+	* stack.test: 
+	* queue.test: Adapted tests to run in/out of tcllib test framework.
+
 	* tree.test:
 	* tree.tcl: Added code to auto-generate node names on insert if no
 	name is given [RFE: 4345]

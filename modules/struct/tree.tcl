@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.4 2000/03/09 15:58:37 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.5 2000/03/09 21:27:07 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -37,6 +37,7 @@ namespace eval ::struct::tree {
 	    "exists"	\
 	    "get"	\
 	    "insert"	\
+	    "isleaf"	\
 	    "move"	\
 	    "parent"	\
 	    "set"	\
@@ -329,6 +330,26 @@ proc ::struct::tree::_insert {name parentNode index args} {
     set children($parentNode) [linsert $children($parentNode) $index $node]
 
     return $node
+}
+
+# ::struct::tree::_isleaf --
+#
+#     Return whether the given node of a tree is a leaf or not.
+#
+# Arguments:
+#     name    name of the tree object.
+#     node    node to look up.
+#
+# Results:
+#     isleaf  Boolean indicator whether the node is a leaf or not.
+
+proc ::struct::tree::_isleaf {name node} {
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    
+    upvar ::struct::tree::tree${name}::children children
+    return [expr {[llength $children($node)] == 0}]
 }
 
 # ::struct::tree::_move --

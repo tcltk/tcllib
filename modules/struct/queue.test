@@ -7,15 +7,21 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.test,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+# RCS: @(#) $Id: queue.test,v 1.2 2000/03/09 21:27:07 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require struct
-namespace import struct::*
+if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+}
+
+if { [lsearch [namespace children] ::struct] == -1 } {
+    package require struct
+    namespace import struct::*
+}
 
 test queue-0.1 {queue errors} {
     queue myqueue
