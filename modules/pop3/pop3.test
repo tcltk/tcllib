@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.16 2004/10/20 03:55:03 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.17 2005/02/10 00:16:08 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -235,7 +235,7 @@ proc blot {txt sock} {
 test pop3-0.0 {bogus options} {
     catch {pop3::open -foo bar localhost ak smash 7664} msg
     set msg
-} {::pop3::open : Illegal option "foo"}
+} {::pop3::open : Illegal option "-foo"}
 
 test pop3-0.1 {bogus options} {
     catch {pop3::open -msex bar localhost ak smash 2534} msg
