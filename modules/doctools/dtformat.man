@@ -67,7 +67,7 @@ used to mark words as [emph {command arguments}], as
 [emph {command names}] and as [emph optional]. The other two are visual
 markup to emphasize words in two different ways. The term [emph words]
 is used in a loose sense here, i.e application of the commands to a
-sequence of words is entierely possible, if they are properly quoted.
+sequence of words is entirely possible, if they are properly quoted.
 
 [bullet]
 
@@ -87,7 +87,7 @@ in the section detailing the [sectref Commands].
 
 The other commands start list items and each can be used only inside a
 list of their type. In other words, [cmd bullet] is allowed in
-bulleted lists but nowhere else, [cmd enum] in enumerated lists and
+bulletted lists but nowhere else, [cmd enum] in enumerated lists and
 [cmd lst_item] and [cmd call] are for definition lists. These two
 commands also have some text directly associated with the item
 although the major bulk of the item is the text following the item
@@ -105,12 +105,12 @@ logical markup, like TMML, may not.
 [bullet]
 The command [cmd usage] is similar to [cmd call] in that it adds the
 syntax to the table of contents (synopsis) if supported by the output
-format. Unlike [cmd call],  this command doens't add any text to the
+format. Unlike [cmd call],  this command doesn't add any text to the
 output as a direct result of the command. Thus, it can be used
 anywhere within the document to add usage information. Typically it is
 used near the top of the document, in cases where it is not desireable
-to use [cmd call] elsehere in the document, or where additional usage
-information is desired (eg: to document a "package require" command).
+to use [cmd call] elsewhere in the document, or where additional usage
+information is desired (e.g.: to document a "package require" command).
 
 [list_end]
 
@@ -323,7 +323,7 @@ Ends the list opened by the last [cmd list_begin].
 
 [call [cmd bullet]]
 
-Starts a new item in a bulleted list.
+Starts a new item in a bulletted list.
 
 [call [cmd enum]]
 

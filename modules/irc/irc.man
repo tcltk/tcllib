@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin irc n 0.2]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
 [require Tcl]
@@ -114,7 +114,7 @@ format "username@address".
 
 [call [cmd action]]
 
-Returns the action perfomed, such as KICK, PRIVMSG, MODE, etc...
+Returns the action performed, such as KICK, PRIVMSG, MODE, etc...
 Normally not useful, as callbacks are bound to a particular event.
 
 [call [cmd target] [opt [arg index]]]

@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math n 4.2]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Tcl Math Library}]
 [require Tcl 8.2]
@@ -68,8 +68,8 @@ values.
 
 [call [cmd ::math::stats] [arg value] [arg value] [opt [arg {value ...}]]]
 
-Return the mean, standard deviation, and coefficient of variation as
-percent as a list.
+Return the mean, standard deviation, and coefficient of variation (as
+percent) as a list.
 
 
 [call [cmd ::math::sum] [arg value] [opt [arg {value ...}]]]

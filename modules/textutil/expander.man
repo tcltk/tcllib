@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin expander n 1.0.1]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Text expansion and template processing}]
 [titledesc {Procedures to process templates and expand text.}]
 [require Tcl 8.2]
@@ -75,7 +75,7 @@ is followed by tutorial section.
 
 The [package textutil::expander] package provides only one command,
 described below. The rest of the section is taken by a description of
-the methods for the exapnder objects created by this command.
+the methods for the expander objects created by this command.
 
 [list_begin definitions]
 
@@ -243,7 +243,7 @@ definitions.  By default, the brackets are [strong [lb]] and
 
 [call [arg expanderName] [method textcmd] [opt [arg newTextCmd]]]
 
-Returns the current command for processing polain text, which defaults
+Returns the current command for processing plain text, which defaults
 to the empty string, meaning [emph identity]. If specified,
 
 [arg newTextCmd] will be saved for future use and then returned; it
