@@ -1,9 +1,10 @@
-##
-## This is file `docstrip_util.tcl',
-## generated with the docstrip utility.
-##
+## 
+## This is the file `docstrip_util.tcl',
+## generated with the SAK utility
+## (sak docstrip/regen).
+## 
 ## The original source files were:
-##
+## 
 ## tcldocstrip.dtx  (with options: `utilpkg')
 ## 
 ## In other words:
@@ -11,7 +12,7 @@
 ## * This Source is not the True Source *
 ## **************************************
 ## the true source is the file from which this one was generated.
-## 
+##
 package require Tcl 8.4
 package provide docstrip::util 1.0
 namespace eval docstrip::util {}
@@ -72,5 +73,5 @@ proc docstrip::util::ddt2man {text} {
    return $res
 }
 ## 
-##
+## 
 ## End of file `docstrip_util.tcl'.

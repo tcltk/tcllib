@@ -1,16 +1,21 @@
+2005-04-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Extended to handle multiple versions of a package
+	  better when comparing and listing versions.
+
+	* apps/tcldocstrip:     New application, an implementation of
+	* apps/tcldocstrip.man: docstrip in Tcl, for Tcl. Incl.
+	  documentation.
+
 2005-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Added code to regenerate sources of modules whose
 	  master sources are in one or more docstrip files. 
 
-2005-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
 	* sak.tcl: Extended the code for the extraction of version
 	  information from packages with a heuristic static analysis to
 	  cut down on the expense of executing package code. Also made the
 	  code more robust for packages importing other packages.
-
-2005-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Replaced all internal 'package require' statements with
 	  calls to an internal helper which always loads from the local

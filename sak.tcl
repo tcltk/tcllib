@@ -101,6 +101,7 @@ proc imodules_mod {m} {
     return [expr {[lsearch -exact $modules $m] > 0}]
 }
 
+# Result: dict (package name --> list of package versions).
 
 proc loadpkglist {fname} {
     set f [open $fname r]
@@ -109,11 +110,14 @@ proc loadpkglist {fname} {
 	if {[string match @* $line]} continue
 	if {$line == {}} continue
 	foreach {n v} $line break
-	set p($n) $v
+	lappend p($n) $v
+	set p($n) [lsort -uniq -dict $p($n)]
     }
     close $f
     return [array get p]
 }
+
+# Result: dict (package name => list of (list of package versions, module)).
 
 proc ipackages {args} {
     # Determine indexed packages (ifneeded, pkgIndex.tcl)
@@ -136,14 +140,12 @@ proc ipackages {args} {
 	    if {![info exists p($n)]} {
 		set p($n) [list $v $m]
 	    } else {
-		# We have multiple versions of the
-		# same package. Remember only the
-		# highest version.
+		# We have multiple versions of the same package. We
+		# remember all versions.
 
-		set new [lindex [lsort -dict [list $p($n) $v]] end]
-		if {$p($n) ne $new} {
-		    set p($n) [list $new $m]
-		}
+		foreach {vlist m} $p($n) break
+		lappend vlist $v
+		set p($n) [list [lsort -uniq -dict $vlist] $m]
 	    }
 	}
 	close $f
@@ -151,6 +153,8 @@ proc ipackages {args} {
     return [array get p]
 }
 
+
+# Result: dict (package name --> list of package versions).
 
 proc ppackages {args} {
     # Determine provided packages (provide, *.tcl - pkgIndex.tcl)
@@ -212,22 +216,29 @@ proc ppackages {args} {
 	    foreach {n v} $line break
 
 	    if {[regexp {^[0-9]+(\.[0-9]+)*$} $v]} {
-		set p($n) $v
-		set pf($n) $currentfile
+		lappend p($n) $v
+		set p($n) [lsort -uniq -dict $p($n)]
+		set pf($n,$v) $currentfile
 		set ok 1
-		break
+
+		# We continue the scan. The file may provide several
+		# versions of the same package, or multiple packages.
+		continue
 	    }
 
 	    # 'package provide foo' are tests. Ignore.
 	    if {$v == ""} continue
 
-	    set ok 0
+	    # We do not set the state to bad if we found ok provide
+	    # statements before, only if nothing was found before.
+	    if {$ok < 0} {
+		set ok 0
 
-	    # No good version found on the current line. We scan
-	    # further through the file and hope for more luck.
+		# No good version found on the current line. We scan
+		# further through the file and hope for more luck.
 
-	    sakdebug {puts stderr @_$f\ _________$xline\t<$n>\t($v)}
-
+		sakdebug {puts stderr @_$f\ _________$xline\t<$n>\t($v)}
+	    }
 	}
 	close $fh
 
@@ -316,8 +327,9 @@ proc xPackage {cmd args} {
 
 	sakdebug {puts stderr \tOK\ $n\ =\ $v}
 
-	set p($n) $v
-	set pf($n) $currentfile
+	lappend p($n) $v
+	set p($n) [lsort -uniq -dict $p($n)]
+	set pf($n,$v) $currentfile
     }
     return
 }
@@ -567,16 +579,21 @@ proc gd-gen-tap {} {
 	lappend lines "# #########[::textutil::strRepeat {#} [string length $m]]" ; # {}
 	lappend lines "# Module \"$m\""
 	set n 0
-	foreach {p v} [ppackages $m] {
-	    lappend lines "# \[[format %1d [incr n]]\]    | \"$p\""
+	foreach {p vlist} [ppackages $m] {
+	    foreach v $vlist {
+		lappend lines "# \[[format %1d [incr n]]\]    | \"$p\" ($v)"
+	    }
 	}
 	if {$n > 1} {
-	    # Multiple packages. We create one hidden packages to
-	    # contain the files and let all the true packages in the
-	    # module refer to it.
+	    # Multiple packages (*). We create one hidden package to
+	    # contain all the files and then have all the true
+	    # packages in the module refer to it.
+	    #
+	    # (*) This can also be one package for which we have
+	    # several versions. Or a combination thereof.
 
 	    array set _ {}
-	    foreach {p v} [ppackages $m] {
+	    foreach {p vlist} [ppackages $m] {
 		catch {set _([lindex $pd($p) 0]) .}
 	    }
 	    set desc [string trim [join [array names _] ", "] " \n\t\r,"]
@@ -591,30 +608,38 @@ proc gd-gen-tap {} {
 	    lappend lines Hidden
 	    lappend lines "Base     @TAP_DIR@/$m"
 
-	    foreach f [modtclfiles $m] {
+	    foreach f [lsort -dict [modtclfiles $m]] {
 		lappend lines "Path     [fileutil::stripN $f $strip]"
 	    }
 
 	    # Packages in the module ...
-	    foreach {p v} [ppackages $m] {
+	    foreach {p vlist} [ppackages $m] {
+		# NO DANGER. As we are listing only the packages P for
+		# the module any other version of P in a different
+		# module is _not_ listed here.
 
 		set desc ""
 		catch {set desc [string trim [lindex $pd($p) 1]]}
 		if {$desc == ""} {set desc {Tcllib package}}
 
-		lappend lines {}
-		lappend lines [list Package [list $p $v]]
-		lappend lines "See   [list __$m]"
-		lappend lines "Platform *"
-		lappend lines "Desc     \{$desc\}"
+		foreach v $vlist {
+		    lappend lines {}
+		    lappend lines [list Package [list $p $v]]
+		    lappend lines "See   [list __$m]"
+		    lappend lines "Platform *"
+		    lappend lines "Desc     \{$desc\}"
+		}
 	    }
 	} else {
-	    # A single package in the module
+	    # A single package in the module. And only one version of
+	    # it as well. Otherwise we are in the multi-pkg branch.
 
-	    foreach {p v} [ppackages $m] break
+	    foreach {p vlist} [ppackages $m] break
 	    set desc ""
 	    catch {set desc [string trim [lindex $pd($p) 1]]}
 	    if {$desc == ""} {set desc {Tcllib package}}
+
+	    set v [lindex $vlist 0]
 
 	    lappend lines "# -------+"
 	    lappend lines {}
@@ -623,7 +648,7 @@ proc gd-gen-tap {} {
 	    lappend lines "Desc     \{$desc\}"
 	    lappend lines "Base     @TAP_DIR@/$m"
 
-	    foreach f [modtclfiles $m] {
+	    foreach f [lsort -dict [modtclfiles $m]] {
 		lappend lines "Path     [fileutil::stripN $f $strip]"
 	    }
 	}
@@ -668,7 +693,7 @@ proc getpdesc  {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.40 2005/04/01 05:10:21 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.41 2005/04/05 06:36:19 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -875,6 +900,9 @@ proc validate_imodules_mod {m} {
     return
 }
 proc validate_versions_cmp {ipvar ppvar} {
+    global pf
+    getpackage struct::set struct/sets.tcl
+
     upvar $ipvar ip $ppvar pp
     set maxl 0
     foreach name [array names ip] {if {[string length $name] > $maxl} {set maxl [string length $name]}}
@@ -887,29 +915,33 @@ proc validate_versions_cmp {ipvar ppvar} {
     }
     foreach p [lsort [array names pp]] {
 	if {![info exists ip($p)]} {
-	    puts "  Provided, not indexed:          [format "%-*s | %s" $maxl $p $::pf($p)]"
+	    foreach k [array names pf $p,*] {
+		puts "  Provided, not indexed:          [format "%-*s | %s" $maxl $p $pf($k)]"
+	    }
 	}
     }
     foreach p [lsort [array names ip]] {
-	if {
-	    [info exists pp($p)] && ![string equal $pp($p) $ip($p)]
-	} {
-	    puts "  Index/provided versions differ: [format "%-*s | %8s | %8s" $maxl $p $ip($p) $pp($p)]"
-	}
+	if {![info exists pp($p)]}               continue
+	if {[struct::set equal $pp($p) $ip($p)]} continue
+
+	# Compute intersection and set differences.
+	foreach {__ pmi imp} [struct::set intersect3 $pp($p) $ip($p)] break
+
+	puts "  Index/provided versions differ: [format "%-*s | %8s | %8s" $maxl $p $imp $pmi]"
     }
 }
 
 proc validate_versions {} {
-    foreach {p v} [ipackages] {set ip($p) [lindex $v 0]}
-    foreach {p v} [ppackages] {set pp($p) $v}
+    foreach {p vm}    [ipackages] {set ip($p) [lindex $vm 0]}
+    foreach {p vlist} [ppackages] {set pp($p) $vlist}
 
     validate_versions_cmp ip pp
     return
 }
 
 proc validate_versions_mod {m} {
-    foreach {p v} [ipackages $m] {set ip($p) [lindex $v 0]}
-    foreach {p v} [ppackages $m] {set pp($p) $v}
+    foreach {p vm}    [ipackages $m] {set ip($p) [lindex $vm 0]}
+    foreach {p vlist} [ppackages $m] {set pp($p) $vlist}
 
     validate_versions_cmp ip pp
     return
@@ -992,7 +1024,7 @@ proc run-frink {args} {
     if {[llength $args] == 0} {
 	set files [tclfiles]
     } else {
-	set files [modtclfiles $args]
+	set files [lsort -dict [modtclfiles $args]]
     }
 
     foreach f $files {
@@ -1016,7 +1048,7 @@ proc run-procheck {args} {
     if {[llength $args] == 0} {
 	set files [tclfiles]
     } else {
-	set files [modtclfiles $args]
+	set files [lsort -dict [modtclfiles $args]]
     }
 
     foreach f $files {
@@ -1035,7 +1067,7 @@ proc run-tclchecker {args} {
     if {[llength $args] == 0} {
 	set files [tclfiles]
     } else {
-	set files [modtclfiles $args]
+	set files [lsort -dict [modtclfiles $args]]
     }
 
     foreach f $files {
@@ -1066,8 +1098,8 @@ proc gd-gen-packages {} {
     puts $f ""
 
     array set packages {}
-    foreach {p v} [ipackages] {
-	set packages($p) [lindex $v 0]
+    foreach {p vm} [ipackages] {
+	set packages($p) [lindex $vm 0]
     }
 
     nparray packages $f
@@ -1482,15 +1514,17 @@ proc nparray {a {chan stdout}} {
         }
     }
     foreach name [lsort [array names packages]] {
-        puts $chan [format "%-*s %s" $maxl $name $packages($name)]
+	foreach v $packages($name) {
+	    puts $chan [format "%-*s %s" $maxl $name $v]
+	}
     }
     return
 }
 
 proc __packages {} {
     array set packages {}
-    foreach {p v} [ipackages] {
-	set packages($p) [lindex $v 0]
+    foreach {p vm} [ipackages] {
+	set packages($p) [lindex $vm 0]
     }
     nparray packages
     return
@@ -1531,6 +1565,8 @@ proc __rstatus {} {
 proc pkg-compare {oldplist} {
     global approved ; array set approved {}
 
+    getpackage struct::set struct/sets.tcl
+
     array set curpkg [ipackages]
     array set oldpkg [loadpkglist $oldplist]
     array set mod {}
@@ -1541,8 +1577,8 @@ proc pkg-compare {oldplist} {
 
     foreach p [array names curpkg] {
 	set __($p) .
-	foreach {v module} $curpkg($p) break
-	set curpkg($p) $v
+	foreach {vlist module} $curpkg($p) break
+	set curpkg($p) $vlist
 	set changed($p) [info exists mod($module)]
     }
     foreach p [array names oldpkg] {set __($p) .}
@@ -1559,17 +1595,18 @@ proc pkg-compare {oldplist} {
 	set skip 0
 	set suffix ""
 	set prefix "   "
-	if {![info exists curpkg($name)]} {set curpkg($name) "--"}
+	if {![info exists curpkg($name)]} {set curpkg($name) {}}
 	if {![info exists oldpkg($name)]} {
-	    set oldpkg($name)   "--"
+	    set oldpkg($name) {}
 	    set suffix " NEW"
 	    set prefix "Nn "
 	    set skip 1
 	}
 	if {!$skip} {
-	    # Draw attention to changed packages where version is unchanged.
+	    # Draw attention to changed packages where version is
+	    # unchanged.
 
-	    set vequal [string equal $oldpkg($name) $curpkg($name)]
+	    set vequal [struct::set equal $oldpkg($name) $curpkg($name)]
 
 	    if {$changed($name)} {
 		if {$vequal} {
@@ -1598,10 +1635,33 @@ proc pkg-compare {oldplist} {
 	    }
 	}
 
-        puts stdout ${prefix}[format "%-*s %-*s %-*s" \
-		$maxl $name \
-		8 $oldpkg($name) \
-		8 $curpkg($name)]$suffix
+	# To handle multiple versions we match the found versions up
+	# by major version. We assume that we have only one version
+	# per major version. This allows us to detect changes within
+	# each major version, new major versions, etc.
+
+	array set om {} ; foreach v $oldpkg($name) {set om([lindex [split $v .] 0]) $v}
+	array set cm {} ; foreach v $curpkg($name) {set cm([lindex [split $v .] 0]) $v}
+
+	set all [lsort -dict [struct::set union [array names om] [array names cm]]]
+
+	sakdebug {
+	    puts @@@@@@@@@@@@@@@@
+	    parray om
+	    parray cm
+	    puts all\ $all
+	    puts @@@@@@@@@@@@@@@@
+	}
+
+	foreach v $all {
+	    if {[info exists om($v)]} {set ov $om($v)} else {set ov "--"}
+	    if {[info exists cm($v)]} {set cv $cm($v)} else {set cv "--"}
+
+	    puts stdout ${prefix}[format "%-*s %-*s %-*s" \
+				      $maxl $name 8 $ov 8 $cv]$suffix
+	}
+
+	unset om cm
     }
     return
 }
@@ -2109,7 +2169,7 @@ proc __desc  {} {
     foreach m [lsort $argv] {
 	array set _ {}
 	set pkg {}
-	foreach {p v} [ppackages $m] {
+	foreach {p vlist} [ppackages $m] {
 	    catch {set _([lindex $pd($p) 0]) .}
 	    lappend pkg $p
 	}
@@ -2156,7 +2216,7 @@ proc __desc/2  {} {
 	m add row {}
 
 	set pkg {}
-	foreach {p v} [ppackages $m] {lappend pkg $p}
+	foreach {p vlist} [ppackages $m] {lappend pkg $p}
 
 	foreach p [lsort -dictionary $pkg] {
 	    set desc ""
