@@ -7,14 +7,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.1 2003/03/17 23:32:05 patthoyts Exp $
+# $Id: time.tcl,v 1.2 2003/03/20 00:41:04 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.0.0
-    variable rcsid {$Id: time.tcl,v 1.1 2003/03/17 23:32:05 patthoyts Exp $}
+    variable rcsid {$Id: time.tcl,v 1.2 2003/03/20 00:41:04 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -152,10 +152,15 @@ proc ::time::gettime {args} {
         Pop args
     }
     
-    if {[llength $args] != 1} {
-        return -code error "wrong # args: \"gettime ?options? timeserver\""
+    set len [llength $args]
+    if {$len < 1 || $len > 2} {
+        return -code error "wrong # args:
+              \"gettime ?options? timeserver ?port?\""
     }
     set State(-timeserver) [lindex $args 0]
+    if {$len == 2} {
+        set State(-port) [lindex $args 1]
+    }
 
     return [QueryTime $token]
 }
