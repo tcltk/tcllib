@@ -1,3 +1,8 @@
+2003-01-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* pkgIndex.tcl: Bump ifneeded patchlevel to match the provide in
+	  uri.tcl. See last change.
+
 2002-11-15  David N. Welton  <davidw@dedasys.com>
 
 	* uri.tcl (uri::canonicalize): Take care of trailing .., as in
