@@ -498,6 +498,7 @@ proc ::htmlparse::DoNamedMap {name endOf} {
 }
 
 proc ::htmlparse::DoDecMap {dec endOf} {
+    scan $dec %d dec
     if {$dec <= 0xFFFD} {
 	return [format %c $dec]
     } else {
