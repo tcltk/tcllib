@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: counter.n,v 1.1 2000/10/03 03:52:59 welch Exp $
+'\" RCS: @(#) $Id: counter.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH counter n 1.0 Counter "Counters and Histograms"
@@ -50,7 +50,7 @@ is passed into \fBcounter::count\fP.
 .TP
 \fB-hist\fR \fIbucketsize\fR
 Accumulate the counter into histogram buckets of size
-\fIbucketsize\fP.  For example, if the samples are millesecond
+\fIbucketsize\fP.  For example, if the samples are millisecond
 time values and \fIbucketsize\fP is 10, then each
 histogram bucket represents time values of
 0 to 10 msec, 10 to 20 msec, 20 to 30 msec, and so on.
@@ -103,14 +103,14 @@ by any value, integer or real, by specifying \fIdelta\fP.
 You must declare each counter with \fBcounter::init\fP to define
 the characteristics of counter before you start to use it.
 If the counter type is \fB-group\fP, then the counter
-indentified by \fIinstance\fP is incremented.
+identified by \fIinstance\fP is incremented.
 
 .TP
 \fBcounter::start\fR \fItag instance\fR
 Record the starting time of an interval.
 The \fItag\fP is the name of the counter defined as
 a \fB-hist\fP value-based histogram.
-The \fIinstance\fP is used to distinquish this interval from
+The \fIinstance\fP is used to distinguish this interval from
 any other intervals that might be overlapping this one.
 
 .TP

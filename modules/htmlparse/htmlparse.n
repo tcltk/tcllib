@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: htmlparse.n,v 1.1 2001/03/26 16:50:21 andreas_kupries Exp $
+'\" RCS: @(#) $Id: htmlparse.n,v 1.2 2001/07/06 18:30:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH htmlparse n 0.2 Html "HTML Parser"
@@ -76,7 +76,7 @@ store these scripts in the specified queue. It is then the
 responsibility of the caller of the parser to ensure the execution of
 the scripts in the queue.
 
-\fBNote\fR: The queue objecct given to the parser has to provide the
+\fBNote\fR: The queue object given to the parser has to provide the
 same interface as the queue defined in tcllib -> struct. This does for
 example mean that all queues created via that part of tcllib can be
 immediately used here. Still, the queue doesn't have to come from
@@ -137,7 +137,7 @@ are the same which were mentioned above. The first however is a
 placeholder string (\fB\\win\\\fR) for a clientdata value to be
 supplied later during the actual execution of the generated
 scripts. This could be a tk window path, for example. This allows the
-user of this package to preprocess HTML strings without commiting them
+user of this package to preprocess HTML strings without committing them
 to a specific window, object, whatever during parsing. This connection
 can be made later. This also means that it is possible to cache
 preprocessed HTML. Of course, nothing prevents the user of the parser
@@ -193,7 +193,7 @@ has to provide the same interface.
 
 The internal callback does some basic checking of HTML validity and
 tries to recover from the most basic errors. The command returns the
-contents of its second argument. Sideeffects are the creation and
+contents of its second argument. Side effects are the creation and
 manipulation of a tree object.
 .TP
 \fB::htmlparse::removeVisualFluff\fR \fItree\fR
