@@ -50,7 +50,9 @@ This uses [cmd ::html::checkValue].
 
 Generate a set of CHECKBOX form elements and associated labels.  The
 [arg list] should contain an alternating list of labels and values.
-This uses [cmd ::html::checkbox].
+This uses [cmd ::html::checkbox]. All the CHECKBOX buttons share the
+same [arg key] for their name. The [arg sep] is text used to separate
+the elements.
 
 
 [call [cmd ::html::checkValue] [arg name] [opt [arg value]]]
