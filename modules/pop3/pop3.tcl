@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.29 2004/10/03 23:06:57 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.30 2004/10/20 03:55:03 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -302,8 +302,8 @@ proc ::pop3::open {args} {
     log::log debug "pop3::open | authenticate $user (*password not shown*)"
 
     if {[catch {
-	::pop3::send $chan "user $user"
-	::pop3::send $chan "pass $password"
+	::pop3::send $chan "USER $user"
+	::pop3::send $chan "PASS $password"
     } errorStr]} {
 	::close $chan
 	error "POP3 LOGIN ERROR: $errorStr"
