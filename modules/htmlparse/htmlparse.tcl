@@ -16,10 +16,9 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # See the file license.terms.
 
-package require Tcl 8.2
-package require struct 1
-package require cmdline 1.1
-package provide htmlparse 0.3.1
+package require Tcl       8.2
+package require struct    2
+package require cmdline   1.1
 
 namespace eval ::htmlparse {
     namespace export		\
@@ -529,7 +528,7 @@ proc ::htmlparse::2tree {html tree} {
 
     ::struct::stack ::htmlparse::tags
     ::htmlparse::tags push root
-    $tree set root -key type root
+    $tree set root type root
 
     parse -cmd [list ::htmlparse::2treeCallback $tree] $html
 
@@ -631,7 +630,7 @@ proc ::htmlparse::2treeCallback {tree tag slash param textBehindTheTag} {
 		set level 1
 		set found 0
 		foreach n $nodes {
-		    set type [$tree get $n -key type]
+		    set type [$tree get $n type]
 		    if {0 == [string compare $tag $type]} {
 			# Found an earlier open tag -> (b).
 			set found 1
@@ -642,11 +641,11 @@ proc ::htmlparse::2treeCallback {tree tag slash param textBehindTheTag} {
 		if {$found} {
 		    ::htmlparse::tags pop $level
 		    if {$level > 1} {
-			#foreach n $nodes {lappend tstring [$tree get $n -key type]}
+			#foreach n $nodes {lappend tstring [$tree get $n type]}
 			#puts stderr "\tdesync at <$tag> ($tstring) => pop $level"
 		    }
 		} else {
-		    #foreach n $nodes {lappend tstring [$tree get $n -key type]}
+		    #foreach n $nodes {lappend tstring [$tree get $n type]}
 		    #puts stderr "\tdesync at <$tag> ($tstring) => ignore"
 		}
 	    }
@@ -660,8 +659,8 @@ proc ::htmlparse::2treeCallback {tree tag slash param textBehindTheTag} {
 	    # context.
 
 	    set        pcd  [$tree insert [::htmlparse::tags peek] end]
-	    $tree set $pcd  -key type PCDATA
-	    $tree set $pcd  -key data $textBehindTheTag
+	    $tree set $pcd  type PCDATA
+	    $tree set $pcd  data $textBehindTheTag
 	}
 
     } else {
@@ -678,8 +677,8 @@ proc ::htmlparse::2treeCallback {tree tag slash param textBehindTheTag} {
 	# is ignored under all circcumstances.
 
 	set        node [$tree insert [::htmlparse::tags peek] end]
-	$tree set $node -key type $tag
-	$tree set $node -key data $param
+	$tree set $node type $tag
+	$tree set $node data $param
 
 	if {$textBehindTheTag != {}} {
 	    switch -exact -- $tag {
@@ -690,8 +689,8 @@ proc ::htmlparse::2treeCallback {tree tag slash param textBehindTheTag} {
 		    set pcd  [$tree insert $node end]
 		}
 	    }
-	    $tree set $pcd  -key type PCDATA
-	    $tree set $pcd  -key data $textBehindTheTag
+	    $tree set $pcd type PCDATA
+	    $tree set $pcd data $textBehindTheTag
 	}
 
 	::htmlparse::tags push $node
@@ -774,7 +773,7 @@ proc ::htmlparse::removeFormDefs {tree} {
 #	None.
 
 proc ::htmlparse::RemoveVisualFluff {tree node} {
-    switch -exact -- [$tree get $node -key type] {
+    switch -exact -- [$tree get $node type] {
 	hmstart - html - font - center - div - sup - b - i {
 	    # Removes the node, but does not affect the nodes below
 	    # it. These are just made into chiildren of the parent of
@@ -808,7 +807,7 @@ proc ::htmlparse::RemoveVisualFluff {tree node} {
 #	None.
 
 proc ::htmlparse::RemoveFormDefs {tree node} {
-    switch -exact -- [$tree get $node -key type] {
+    switch -exact -- [$tree get $node type] {
 	form {
 	    $tree delete $node
 	}
@@ -836,7 +835,7 @@ proc ::htmlparse::RemoveFormDefs {tree node} {
 #	None.
 
 proc ::htmlparse::Reorder {tree node} {
-    switch -exact -- [set tp [$tree get $node -key type]] {
+    switch -exact -- [set tp [$tree get $node type]] {
 	h1 - h2 - h3 - h4 - h5 - h6 - p - li {
 	    # Look for right siblings until the next node with the
 	    # same type (or end of level) and move these below this
@@ -846,7 +845,7 @@ proc ::htmlparse::Reorder {tree node} {
 		set sibling [$tree next $node]
 		if {
 		    $sibling == {} ||
-		    (![string compare $tp [$tree get $sibling -key type]])
+		    (![string compare $tp [$tree get $sibling type]])
 		} {
 		    break
 		}
@@ -858,3 +857,7 @@ proc ::htmlparse::Reorder {tree node} {
 	}
     }
 }
+
+# ### ######### ###########################
+
+package provide htmlparse 1.0
