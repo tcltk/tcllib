@@ -1,3 +1,8 @@
+2000-03-20  Eric Melski  <ericm@scriptics.com>
+
+	* profiler.test: 
+	* profiler.tcl: Fixed issue with printing of descendants.
+
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* profiler.test: Adapted tests to work inside and outside of

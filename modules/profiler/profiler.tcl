@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.6 2000/03/09 00:07:41 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.7 2000/03/20 22:08:34 ericm Exp $
 
 package provide profiler 0.1
 
@@ -138,6 +138,7 @@ proc ::profiler::print {{pattern *}} {
     variable compileTime
     variable totalRuntime
     variable descendantTime
+    variable descendants
     variable callers
     
     set result ""
@@ -157,7 +158,8 @@ proc ::profiler::print {{pattern *}} {
 	append result "Caller distribution:\n"
 	set i [expr {[string length $name] + 1}]
 	foreach index [lsort [array names callers $name,*]] {
-	    append result "\t[string range $index $i end]:\t$callers($index)\n"
+	    append result "\t[string range \
+		    $index $i end]:\t\t$callers($index)\n"
 	}
 	append result "Compile time:            \t$compileTime($name)\n"
 	append result "Total runtime:           \t$totalRuntime($name)\n"
@@ -167,7 +169,7 @@ proc ::profiler::print {{pattern *}} {
 	append result "Descendants:\n"
 	foreach index [lsort [array names descendants $name,*]] {
 	    append result "\t[string range \
-		    $index $i end]:\t$descendants($index)\n"
+		    $index $i end]:\t\t$descendants($index)\n"
 	}
 	append result "\n"
     }
@@ -190,6 +192,7 @@ proc ::profiler::dump {{pattern *}} {
     variable totalRuntime
     variable callers
     variable descendantTime
+    variable descendants
 
     foreach name [lsort [array names callCount $pattern]] {
 	set i [expr {[string length $name] + 1}]
@@ -205,13 +208,18 @@ proc ::profiler::dump {{pattern *}} {
 	    set avgDesTime \
 		    [expr {$descendantTime($name)/$callCount($name)}]
 	}
+	set descendantList [list ]
+	foreach index [lsort [array names descendants $name,*]] {
+	    lappend descendantList [string range $index $i end]
+	}
 	lappend result $name [list callCount $callCount($name) \
 		callerDist [array get thisCallers] \
 		compileTime $compileTime($name) \
 		totalRuntime $totalRuntime($name) \
 		averageRuntime $avgRuntime \
 		descendantTime $descendantTime($name) \
-		averageDescendantTime $avgDesTime]
+		averageDescendantTime $avgDesTime \
+		descendants $descendantList]
     }
     return $result
 }
