@@ -1,9 +1,9 @@
-[manpage_begin autoproxy n 1.1.0]
+[manpage_begin autoproxy n 1.2.0]
 [moddesc   {HTTP protocol helper modules}]
 [titledesc {Automatic HTTP proxy usage and authentication}]
 [require Tcl 8.2]
 [require http [opt 2.0]]
-[require autoproxy [opt 1.1.0]]
+[require autoproxy [opt 1.2.0]]
 [description]
 [para]
 
@@ -75,6 +75,12 @@ You may manipulate the [option no_proxy] list that was setup by
 strings that are matched against the http request host using the tcl
 [cmd "string match"] command. Therefore glob patterns are permitted.
 For instance, [cmd configure] [option -no_proxy] [arg "*.localdomain"]
+
+[opt_def "authProc" "procedure"]
+This option may be used to set an application defined procedure to be
+called when [cmd configure] [option -basic] is called with either no or
+insufficient authentication details. This can be used to present a
+dialog to the user to request the additional information.
 
 [opt_def "-basic" {}]
 Following options are for configuring the Basic authentication
