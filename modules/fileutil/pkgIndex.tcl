@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded fileutil 1.6 [list source [file join $dir fileutil.tcl]]
+package ifneeded fileutil 1.6.1 [list source [file join $dir fileutil.tcl]]

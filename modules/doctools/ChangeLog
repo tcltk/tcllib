@@ -1,3 +1,9 @@
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.tcl: Updated version number to distinguish from the
+	* doctools.man: 1.6.1 release.
+	* pkgIndex.tcl:
+
 2004-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.tcl: Fixed a bug in the namespace implementation
