@@ -1,3 +1,10 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* exif.tcl:
+	* exif.man:
+	* pkgIndex.tcl: Fixed bug #614591. Set version of the package to
+	  to 1.1.
+
 2003-04-01  Andreas Kupries  <andreask@activestate.com>
 
 	* exif.man:
