@@ -1,5 +1,11 @@
-2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+2002-01-18  Don Porter <dgp@users.sourceforge.net>
 
+	* math.tcl: [namespace export Beta] got out of sync with the
+	command name.
+	* misc.tcl: removed [package provide math]; duplicated in
+	math.tcl, a sync problem waiting to happen.
+
+2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	* Bumped version to 1.2.
 
 2002-01-18  Andreas Kupries <andreas_kupries@users.sourceforge.net>
