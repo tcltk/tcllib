@@ -387,7 +387,7 @@ a Tcl-style name, value list.  The [arg param] are for the TABLE tag.
 Generate a TEXTAREA tag wrapped around its current values.
 
 
-[call [cmd ::html::textInput] [arg {name args}]]
+[call [cmd ::html::textInput] [arg {name value args}]]
 
 Generate an INPUT form tag with type TEXT.  This uses
 
@@ -395,7 +395,7 @@ Generate an INPUT form tag with type TEXT.  This uses
 you want to put into the INPUT tag.
 
 
-[call [cmd ::html::textInputRow] [arg {label name args}]]
+[call [cmd ::html::textInputRow] [arg {label name value args}]]
 
 Generate an INPUT form tag with type TEXT formatted into a table row
 with an associated label.  The args is any additional tag attributes
