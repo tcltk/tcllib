@@ -1,3 +1,10 @@
+2003-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl (smtp::hear): Integrated fix for [Bug 836442]. Limiting
+	  seconds to 600 to prevent integer wraparound when setting up a
+	  timer event. Bug reported (and fix provided) by Andreas Otto,
+	  and accepted by Marshall Rose.
+
 2003-06-25  David N. Welton  <davidw@dedasys.com>
 
 	* mime.tcl (::mime::parsedatetime): Use string map instead of
