@@ -1,3 +1,8 @@
+2003-05-17  David N. Welton  <davidw@dedasys.com>
+
+	* irc.man: Add key option to channel join command.  Provided by
+	  Aaron Faupell.
+
 2003-05-16  David N. Welton  <davidw@dedasys.com>
 
 	* irc.man: Added Aaron's updated documentation, including the new
