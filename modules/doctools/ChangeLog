@@ -1,3 +1,8 @@
+2003-03-24  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools_fmt.man: Fixed documentation bug #704187 reported by
+	  Roy Terry <royterry@users.sourceforge.net>.
+
 2003-03-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* checker.tcl:        Fixed incorrect signature of 'usage'.
