@@ -430,7 +430,15 @@ proc fmt_package {text} {strong $text}
 proc fmt_class   {text} {strong $text}
 proc fmt_var     {text} {strong $text}
 proc fmt_file    {text} {return "\"$text\""}
-proc fmt_uri     {text} {return "<URL:$text>"}
+proc fmt_namespace     {text} {strong $text}
+proc fmt_uri     {text {label {}}} {
+    if {$label == {}} {
+	# Without label we use the link directly as part of the text.
+	return "<URL:$text>"
+    } else {
+	return "[em $label] <URL:$text>"
+    }
+}
 proc fmt_term    {text} {em     $text}
 proc fmt_const   {text} {strong $text}
 

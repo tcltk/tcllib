@@ -320,7 +320,17 @@ proc fmt_package {text} {Bold $text}
 proc fmt_class   {text} {Bold $text}
 proc fmt_var     {text} {Bold $text}
 proc fmt_file    {text} {return "\"[Italic $text]\""}
-proc fmt_uri     {text} {Underline $text}
+proc fmt_namespace     {text} {Bold $text}
+proc fmt_uri     {text {label {}}} {
+    if {$label == {}} {
+	# Without label we use the link directly as part of the text.
+	return [Underline $text]
+    } else {
+	# Label is used in the text, refered link is delegated into a
+	# footnote.
+	return "[Underline $label] \\footnote\{[texEscape $text]\}"
+    }
+}
 proc fmt_term    {text} {Italic $text}
 proc fmt_const   {text} {Bold $text}
 

@@ -1,5 +1,16 @@
 2004-05-04  Andreas Kupries  <andreask@activestate.com>
 
+	* checker.tcl:         Accepted [SF Tcllib RFE 946856], an
+	* doctools_fmt.man:    extension of the uri command to allow
+	* doctools.tcl:        labels. Updated documentation, added
+	* mpformats/fmt.html:  added to highlevel implementation,
+	* mpformats/fmt.latex: updated all predefined formatters.
+	* mpformats/fmt.nroff:
+	* mpformats/fmt.null:  Accepted [SF Tcllib RFE 943145] as
+	* mpformats/fmt.text:  well, adding a namespace markup.
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.wiki:
+
 	* mpformats/_nroff.tcl: Fixed [SF Tcllib Bug 943146]. Added markup
 	* mpformats/fmt.nroff: protection code like already in use for
 	                       HTML and XML to handle nroff's special

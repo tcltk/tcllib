@@ -215,7 +215,18 @@ proc fmt_package {text} {bold $text}
 proc fmt_class   {text} {bold $text}
 proc fmt_var     {text} {bold $text}
 proc fmt_file    {text} {return "\"[underline $text]\""}
-proc fmt_uri     {text} {underline $text}
+proc fmt_namespace     {text} {bold $text}
+proc fmt_uri     {text {label {}}} {
+    if {$label == {}} {
+	# Without label we use the link directly as part of the text.
+	return [underline $text]
+    } else {
+	# with label and link we use the label directly, and the
+	# link comes in parentheses after that.
+
+	return "[underline $label] \[$text\]"
+    }
+}
 proc fmt_term    {text} {underline $text}
 proc fmt_const   {text} {bold $text}
 

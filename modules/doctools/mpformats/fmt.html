@@ -309,7 +309,10 @@ proc fmt_package {text} {strong $text}
 proc fmt_class   {text} {strong $text}
 proc fmt_var     {text} {strong $text}
 proc fmt_file    {text} {return "\"[strong $text]\""}
-proc fmt_uri     {text} {return "[markup <]a href=[markup \"]$text[markup \">]$text[markup </a>]"}
+proc fmt_uri     {text {label {}}} {
+    if {$label == {}} {set label $text}
+    return "[markup <]a href=[markup \"]$text[markup \">]$label[markup </a>]"
+}
 proc fmt_term    {text} {em [XrefMatch $text kw]}
 proc fmt_const   {text} {strong $text}
 
