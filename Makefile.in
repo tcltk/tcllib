@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.41 2001/03/26 16:50:20 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.42 2001/03/31 13:44:17 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -50,9 +50,11 @@ POP3=pop3
 # HTML generation API
 HTML=html
 
-# MIME encoder/decoder and SMTP package
-# These are modified/hacked to have a soft requirement for Trf:
-# They will encode/decode MIME messages faster if Trf is available.
+# MIME encoder/decoder and SMTP package. These are modified/hacked to
+# have a soft requirement for Trf: They will encode/decode MIME
+# messages faster if Trf is available.  Another speciality here: One
+# directory contains two packages! This requires a little hackery
+# when creating the full package index for tcllib.
 MIME=mime
 
 # URI parsing module
@@ -191,7 +193,9 @@ install-libraries: libraries
 		done; \
 	    fi; \
 	done;
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/mkIndex.tcl` `$(CYGPATH) $(pkglibdir)` tcllib $(VERSION) $(MODULES)
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/mkIndex.tcl` `$(CYGPATH) $(pkglibdir)` tcllib $(VERSION) $(MODULES) smtp
+
+# AK: Mar 26, 2001: Added 'smtp' explicitly to the list of modules (is part of 'mime').
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
