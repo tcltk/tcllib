@@ -198,6 +198,8 @@ proc ::ncgi::query {} {
 	} elseif {$env(REQUEST_METHOD) == "POST"} {
 	    if {[info exists env(CONTENT_LENGTH)] &&
 		    [string length $env(CONTENT_LENGTH)] != 0} {
+ 		## added by Steve Cassidy to try to fix binary file upload
+ 		fconfigure stdin -translation binary -encoding binary
 		set query [read stdin $env(CONTENT_LENGTH)]
 	    }
 	}
