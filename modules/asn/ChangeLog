@@ -1,3 +1,10 @@
+2004-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.test:
+	* asn.tcl: Enhanced encoder for enums: fixed buglet for 2-byte
+	  integers (not minimal in bordercase 127), added the handling of
+	  3-byte integers. Extended testsuite to cover enums as well.
+
 2004-08-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.test: New file, first test cases for asn package.
