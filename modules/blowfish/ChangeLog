@@ -1,3 +1,8 @@
+2004-12-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.tcl:  Add in support for Trfcrypt implementation.
+	* blowfish.test: Support variable key length and added tests.
+
 2004-12-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* blowfish.tcl:  Imported Frank Pilhofer's pure-Tcl implementation
