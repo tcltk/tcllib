@@ -112,8 +112,9 @@ rather than compile time.
 * Object Creation
 ** ::snit::RT.type.typemethod.create
 ** ::snit::RT.widget.typemethod.create
-** ::snit::RT.MakeInstance
+** ::snit::RT.MakeInstanceCommand
 ** ::snit::RT.InstanceTrace
+** ::snit::RT.ConstructInstance
 ** ::snit::RT.UniqueName
 ** ::snit::RT.UniqueInstanceNamespace
 ** ::snit::RT.OptionDbGet

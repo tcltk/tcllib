@@ -5081,15 +5081,17 @@ test optionsyntax-3.3 {option definition options can be set} {
             -default Bar \
             -validatemethod Validate \
             -configuremethod Configure \
-            -cgetmethod Cget
+            -cgetmethod Cget \
+            -readonly 1
     }
 
     list \
         $::dog::Snit_optionInfo(default--foo) \
         $::dog::Snit_optionInfo(validate--foo) \
         $::dog::Snit_optionInfo(configure--foo) \
-        $::dog::Snit_optionInfo(cget--foo)
-} {Bar Validate Configure Cget}
+        $::dog::Snit_optionInfo(cget--foo) \
+        $::dog::Snit_optionInfo(readonly--foo)
+} {Bar Validate Configure Cget 1}
 
 test optionsyntax-3.4 {option definition option values accumulate} {
     cleanup
@@ -5099,14 +5101,16 @@ test optionsyntax-3.4 {option definition option values accumulate} {
         option -foo -validatemethod Validate
         option -foo -configuremethod Configure
         option -foo -cgetmethod Cget
+        option -foo -readonly 1
     }
 
     list \
         $::dog::Snit_optionInfo(default--foo) \
         $::dog::Snit_optionInfo(validate--foo) \
         $::dog::Snit_optionInfo(configure--foo) \
-        $::dog::Snit_optionInfo(cget--foo)
-} {Bar Validate Configure Cget}
+        $::dog::Snit_optionInfo(cget--foo) \
+        $::dog::Snit_optionInfo(readonly--foo)
+} {Bar Validate Configure Cget 1}
 
 test optionsyntax-3.5 {option definition option values can be redefined} {
     cleanup
@@ -5116,18 +5120,54 @@ test optionsyntax-3.5 {option definition option values can be redefined} {
         option -foo -validatemethod Validate
         option -foo -configuremethod Configure
         option -foo -cgetmethod Cget
+        option -foo -readonly 1
         option -foo -default Bar2
         option -foo -validatemethod Validate2
         option -foo -configuremethod Configure2
         option -foo -cgetmethod Cget2
+        option -foo -readonly 0
     }
 
     list \
         $::dog::Snit_optionInfo(default--foo) \
         $::dog::Snit_optionInfo(validate--foo) \
         $::dog::Snit_optionInfo(configure--foo) \
-        $::dog::Snit_optionInfo(cget--foo)
-} {Bar2 Validate2 Configure2 Cget2}
+        $::dog::Snit_optionInfo(cget--foo) \
+        $::dog::Snit_optionInfo(readonly--foo)
+} {Bar2 Validate2 Configure2 Cget2 0}
+
+test optionsyntax-3.6 {option -readonly defaults to 0} {
+    cleanup
+
+    type dog {
+        option -foo
+    }
+
+    set ::dog::Snit_optionInfo(readonly--foo)
+} {0}
+
+test optionsyntax-3.7 {option -readonly can be any boolean} {
+    cleanup
+
+    type dog {
+        option -foo -readonly 0
+        option -foo -readonly 1
+        option -foo -readonly y
+        option -foo -readonly n
+    }
+} {::dog}
+
+test optionsyntax-3.8 {option -readonly must be a boolean} {
+    cleanup
+
+    catch {
+        type dog {
+            option -foo -readonly foo
+        }
+    } result
+
+    set result
+} {Error in 'option -foo...', -readonly requires a boolean, got 'foo'}
 
 #-----------------------------------------------------------------------
 # 'delegate option' Syntax tests.
@@ -5470,6 +5510,40 @@ test validatemethod-1.1 {Validate method gets correct arguments.} {
     set result
 } {::fido} 
 
+#-----------------------------------------------------------------------
+# option -readonly semantics
+
+test optionreadonly-1.1 {Readonly options can be set at creation time.} {
+    cleanup
+
+    type dog {
+        option -color \
+            -default black \
+            -readonly true
+    }
+
+    dog fido -color brown
+
+    fido cget -color
+} {brown} 
+
+test optionreadonly-1.2 {Readonly options can't be set after creation.} {
+    cleanup
+
+    type dog {
+        option -color \
+            -default black \
+            -readonly true
+    }
+
+    dog fido 
+
+    catch {
+        fido configure -color brown
+    } result
+
+    set result
+} {option -color can only be set at instance creation} 
 
 #---------------------------------------------------------------------
 # Clean up
