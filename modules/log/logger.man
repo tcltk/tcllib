@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.8 2004/02/14 05:59:20 andreas_kupries Exp $}]
-[manpage_begin logger n 0.3]
+[comment {$Id: logger.man,v 1.9 2004/05/25 17:30:25 mic42 Exp $}]
+[manpage_begin logger n 0.4]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
-[require Tcl 8]
-[require logger [opt 0.3]]
+[require Tcl 8.2]
+[require logger [opt 0.4]]
 [description]
 
 [para]
@@ -41,12 +41,15 @@ happen:
 Initializes the service [arg service] for logging.  The service names
 are actually Tcl namespace names, so they are seperated with '::'.
 
-When a logger service is initalized, it "inherits" properties from its
+When a logger service is initialized, it "inherits" properties from its
 parents.  For instance, if there were a service [term foo], and
 we did a [cmd logger::init] [arg foo::bar] (to create a [term bar]
 service underneath [term foo]), [term bar] would copy the current
 configuration of the [term foo] service, although it would of
 course, also be possible to then seperately configure [term bar].
+
+If a logger service is initialized and the parent does not yet exist, the
+parent is also created. 
 
 [call [cmd logger::services]]
 
@@ -66,6 +69,10 @@ those listed above.
 [call [cmd logger::levels]]
 
 Returns a list of the available log levels (also listed above under [cmd enable]).
+
+[call [cmd logger::servicecmd] [arg service]]
+
+Returns the [cmd \${log}] token created by [cmd logger::init] for this service.
 
 [call [cmd \${log}::debug] [arg message]]
 [call [cmd \${log}::info] [arg message]]
@@ -94,14 +101,16 @@ children, at or above the level specified.  Note that this does [emph not] disab
 Disable logging, in the service referenced by [var \${log}], and its
 children, at or below the level specified. Note that this does [emph not] enable logging above this level, so you should probably use [cmd setlevel] instead.
 
+[call [cmd \${log}::logproc] [arg level]]
 [call [cmd \${log}::logproc] [arg level] [arg command]]
 [call [cmd \${log}::logproc] [arg level] [arg argname] [arg body]]
 
-This command comes in two forms - the second, older one is deprecated
-and may be removed from future versions of the logger package.  The
-current version takes one argument, a command to be executed when the
+This command comes in three forms - the third, older one is deprecated
+and may be removed from future versions of the logger package.  
+The current set version takes one argument, a command to be executed when the
 level is called.  The callback command takes on argument, the text to
-be logged.
+be logged. If called only with a valid level [cmd logproc] returns the name of the command
+currently registered as callback command.
 
 [cmd logproc] specifies which command will perform the actual logging
 for a given level.  The logger package ships with default commands for
@@ -120,15 +129,22 @@ to a database, or anything else.  For example:
 
 [call [cmd \${log}::services]]
 
-Returns a list of all the registered logging services.
+Returns a list of the registered logging services which are children of this service.
+
+[call [cmd \${log}::servicename]]
+
+Returns the name of this service.
 
 [call [cmd \${log}::currentloglevel]]
 
 Returns the currently enabled log level for this service.
 
+[call [cmd \${log}::delproc] [arg command]]
 [call [cmd \${log}::delproc]]
 
-Set the script to call when the log instance in question is deleted.  For example:
+Set the script to call when the log instance in question is deleted.
+If called without a command it returns the currently registered command.
+For example:
 
 [example {
     ${log}::delproc [list closesock $logsock]
