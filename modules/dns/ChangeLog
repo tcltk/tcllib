@@ -1,3 +1,10 @@
+2002-06-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dns.tcl: moved var initialization code to the end, as it uses
+	  the 'dns::configure' command, and thus should be called after
+	  its definition. This is the reason for bug #564670, thus now
+	  fixed.
+
 2002-06-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dns.man: Added note to manpage regarding DNS via TCP and

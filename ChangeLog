@@ -1,3 +1,7 @@
+2002-06-07  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* dns: Fixed SF bug #564670.
+
 2002-06-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* all.tcl: Updated to use a default value for -modules if that
