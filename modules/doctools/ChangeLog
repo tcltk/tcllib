@@ -27,7 +27,6 @@
 	  usage information for the synopsis without the need to be
 	  embedded into a definition list.
 
-
 2002-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.nroff: Corrected problems with trimming lines and
