@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.17 2004/05/20 05:36:32 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.18 2004/05/20 06:12:38 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -247,58 +247,6 @@ This is a message in the scribble charset that tcl does not recognise.}
     mime::getbody $tok
 } "This is a message in the scribble charset that tcl does not recognise."
 
-test mime-3.9 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back} {
-    set msg {MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-
-Fran\xE7ois
-}
-    set tok [mime::initialize -string $msg]
-    mime::getbody $tok -decode
-} {Fran\xE7ois
-}
-
-test mime-3.10 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back (example from encoding man page)} {
-    set msg {MIME-Version: 1.0
-Content-Type: text/plain; charset=EUC-JP
-Content-Transfer-Encoding: quoted-printable
-
-=A4=CF}
-    set tok [mime::initialize -string $msg]
-    mime::getbody $tok -decode
-} "\u306F"
-
-test mime-3.11 {Parse a MIME message without a charset encoded body and use getbody -decode to get it back} {
-    set msg {MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-A plain text message.}
-    set tok [mime::initialize -string $msg]
-    mime::getbody $tok -decode
-} "A plain text message."
-
-test mime-3.12 {Parse a MIME message with a charset encoded body in an unrecognised charset and use getbody -decode to attempt to get it back} {
-    set msg {MIME-Version: 1.0
-Content-Type: text/plain; charset=SCRIBBLE
-Content-Transfer-Encoding: quoted-printable
-
-This is a message in the scribble charset that tcl does not recognise.}
-    set tok [mime::initialize -string $msg]
-    catch {mime::getbody $tok -decode} errmsg
-    set errmsg
-} "-decode failed: can't reversemap charset SCRIBBLE"
-
-test mime-3.13 {Parse a MIME message with a charset encoded body in an unrecognised charset but don't use -decode so we get it back raw} {
-    set msg {MIME-Version: 1.0
-Content-Type: text/plain; charset=SCRIBBLE
-Content-Transfer-Encoding: quoted-printable
-
-This is a message in the scribble charset that tcl does not recognise.}
-    set tok [mime::initialize -string $msg]
-    mime::getbody $tok
-} "This is a message in the scribble charset that tcl does not recognise."
-
 test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
     mime::qp_encode $str1
@@ -410,38 +358,6 @@ test mime-7.2 {Test reversemapencoding+mapencoding with alias} {
     mime::mapencoding $charset
 } {UTF-8}
 
-test mime-8.0 {Test chunk handling of copymessage and helpers} {
-    set in [makeFile [set data [string repeat [string repeat "123456789 " 10]\n 350]] input.txt]
-    set mi [makeFile {} mime.txt]
-
-    set token [mime::initialize -canonical text/plain -file $in]
-
-    set f [open $mi w]
-    fconfigure $f -translation binary
-    mime::copymessage $token $f
-    close $f
-
-    set token [mime::initialize -file $mi]
-    set newdata [mime::getbody $token]
-    set res [string compare $data $newdata]
-
-    removeFile input.txt
-    removeFile mime.txt
-    unset data newdata token f in mi
-
-    set res
-} 0
-
-
-test mime-7.1 {Test reversemapencoding+mapencoding with preferred name} {
-    set charset [mime::reversemapencoding "US-ASCII"]
-    mime::mapencoding $charset
-} {US-ASCII}
-
-test mime-7.2 {Test reversemapencoding+mapencoding with alias} {
-    set charset [mime::reversemapencoding "UTF8"]
-    mime::mapencoding $charset
-} {UTF-8}
 
 test mime-8.0 {Test chunk handling of copymessage and helpers} {
     set in [makeFile [set data [string repeat [string repeat "123456789 " 10]\n 350]] input.txt]
@@ -461,9 +377,7 @@ test mime-8.0 {Test chunk handling of copymessage and helpers} {
     removeFile input.txt
     removeFile mime.txt
     unset data newdata token f in mi
-
     set res
 } 0
-
 
 ::tcltest::cleanupTests
