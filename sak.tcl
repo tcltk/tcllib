@@ -14,10 +14,35 @@ source [file join $distribution tcllib_version.tcl] ; # Get version information.
 catch {eval file delete -force [glob [file rootname [info script]].tmp.*]}
 
 # --------------------------------------------------------------
+# SAK internal debugging support.
+
+# Configuration, change as needed
+set  debug 0
+
+if {$debug} {
+    proc sakdebug {script} {uplevel 1 $script ; return}
+} else {
+    proc sakdebug {args} {}
+}
+
+# --------------------------------------------------------------
+# Internal helper to load packages straight out of the local directory
+# tree. Not something from an installation, possibly incompatible.
+
+proc getpackage {package tclmodule} {
+    global distribution
+    if {[catch {package present $package}]} {
+	uplevel #0 [list source [file join \
+		$distribution modules \
+		$tclmodule]]
+    }
+}
+
+# --------------------------------------------------------------
 
 proc tclfiles {} {
     global distribution
-    package require fileutil
+    getpackage fileutil fileutil/fileutil.tcl
     set fl [fileutil::findByPattern $distribution -glob *.tcl]
     # Remove files under SCCS. They are repository, not sources to check.
     set tmp {}
@@ -146,9 +171,9 @@ proc ppackages {args} {
 	set files [modtclfiles $args]
     }
 
-    package require fileutil
-    set capout  [fileutil::tempfile] ; set capcout [open $capout w]
-    set caperr  [fileutil::tempfile] ; set capcerr [open $caperr w]
+    getpackage fileutil fileutil/fileutil.tcl
+    set capout [fileutil::tempfile] ; set capcout [open $capout w]
+    set caperr [fileutil::tempfile] ; set capcerr [open $caperr w]
 
     foreach f $files {
 	# We ignore package indices and all files not in a module.
@@ -156,34 +181,118 @@ proc ppackages {args} {
 	if {[string equal pkgIndex.tcl [file tail $f]]} {continue}
 	if {![regexp modules $f]}                       {continue}
 
-	set fh [open $f r]
+	# We use two methods to extract the version information from a
+	# module and its packages. First we do a static scan for
+	# appropriate statements. If that did not work out we try to
+	# execute the script in a modified interpreter which lets us
+	# pick up dynamically generated version data (like stored in
+	# variables). If the second method fails as well we give up.
 
-	# Source the code into a sub-interpreter. The sub interpreter
-	# overloads 'package provide' so that the information about
-	# new packages goes directly to us. We also make sure that the
-	# sub interpreter doesn't kill us, and will not get stuck
-	# early by trying to load other files, or when creating
-	# procedures in namespaces which do not exist due to us
-	# disabling most of the package management.
+	# Method I. Static scan.
+
+	# We do heuristic scanning of the code to locate suitable
+	# package provide statements.
+
+	set fh [open $f r]
 
 	set currentfile [eval file join [lrange [file split $f] end-1 end]]
 
-	set ip [interp create]
-	interp alias $ip package {} xPackage
-	interp alias $ip source  {} xNULL
-	interp alias $ip unknown {} xNULL
-	interp alias $ip proc    {} xNULL
-	interp alias $ip exit    {} xNULL
+	set ok -1
+	foreach line [split [read $fh] \n] {
+	    regsub "\#.*$" $line {} line
+	    if {![regexp {provide} $line]} {continue}
+	    if {![regexp {package} $line]} {continue}
 
-	$ip eval {close stdout} ; interp share {} $capcout $ip
-	$ip eval {close stderr} ; interp share {} $capcerr $ip
+	    set xline $line
+	    regsub {^.*provide } $line {} line
+	    regsub {\].*$}       $line {\1} line
 
-	if {[catch {$ip eval [read $fh]} msg]} {
-	    #puts "ERROR in $currentfile:\n$msg\n"
+	    sakdebug {puts stderr __$f\ _________$line}
+
+	    foreach {n v} $line break
+
+	    if {[regexp {^[0-9]+(\.[0-9]+)*$} $v]} {
+		set p($n) $v
+		set pf($n) $currentfile
+		set ok 1
+		break
+	    }
+
+	    # 'package provide foo' are tests. Ignore.
+	    if {$v == ""} continue
+
+	    set ok 0
+
+	    # No good version found on the current line. We scan
+	    # further through the file and hope for more luck.
+
+	    sakdebug {puts stderr @_$f\ _________$xline\t<$n>\t($v)}
+
 	}
-
 	close $fh
-	interp delete $ip
+
+	# Method II. Restricted Execution.
+	# We now try to run the code through a safe interpreter
+	# and hope for better luck regarding package information.
+
+	if {$ok == -1} {sakdebug {puts stderr $f\ IGNORE}}
+	if {$ok == 0} {
+	    sakdebug {puts -nonewline stderr $f\ EVAL}
+
+	    # Source the code into a sub-interpreter. The sub
+	    # interpreter overloads 'package provide' so that the
+	    # information about new packages goes directly to us. We
+	    # also make sure that the sub interpreter doesn't kill us,
+	    # and will not get stuck early by trying to load other
+	    # files, or when creating procedures in namespaces which
+	    # do not exist due to us disabling most of the package
+	    # management.
+
+	    set fh [open $f r]
+
+	    set ip [interp create]
+
+	    # Kill control structures. Namespace is required, but we
+	    # skip everything related to loading of packages,
+	    # i.e. 'command import'.
+
+	    $ip eval {
+		rename ::if        ::_if_
+		rename ::namespace ::_namespace_
+
+		proc ::if {args} {}
+		proc ::namespace {cmd args} {
+		    #puts stderr "_nscmd_ $cmd"
+		    ::_if_ {[string equal $cmd import]} return
+		    #puts stderr "_nsdo_ $cmd $args"
+		    return [uplevel 1 [linsert $args 0 ::_namespace_ $cmd]]
+		}
+	    }
+
+	    # Kill more package stuff, and ensure that unknown
+	    # commands are neither loaded nor abort execution. We also
+	    # stop anything trying to kill the application at large.
+
+	    interp alias $ip package {} xPackage
+	    interp alias $ip source  {} xNULL
+	    interp alias $ip unknown {} xNULL
+	    interp alias $ip proc    {} xNULL
+	    interp alias $ip exit    {} xNULL
+
+	    # From here on no redefinitions anymore, proc == xNULL !!
+
+	    $ip eval {close stdout} ; interp share {} $capcout $ip
+	    $ip eval {close stderr} ; interp share {} $capcerr $ip
+
+	    if {[catch {$ip eval [read $fh]} msg]} {
+		sakdebug {puts stderr "ERROR in $currentfile:\n$::errorInfo\n"}
+	    }
+
+	    sakdebug {puts stderr ""}
+
+	    close $fh
+	    interp delete $ip
+	}
     }
 
     close $capcout ; file delete $capout
@@ -198,7 +307,6 @@ proc ppackages {args} {
 
 proc xNULL    {args} {}
 proc xPackage {cmd args} {
-
     if {[string equal $cmd provide]} {
 	global p pf currentfile
 	foreach {n v} $args break
@@ -206,13 +314,13 @@ proc xPackage {cmd args} {
 	# No version specified, this is an inquiry, we ignore these.
 	if {$v == {}} {return}
 
+	sakdebug {puts stderr \tOK\ $n\ =\ $v}
+
 	set p($n) $v
 	set pf($n) $currentfile
     }
     return
 }
-
-
 
 proc sep {} {puts ~~~~~~~~~~~~~~~~~~~~~~~~}
 
@@ -230,10 +338,7 @@ proc gendoc {fmt ext args} {
 	file mkdir [file join doc $fmt]
     }
 
-    #package require doctools
-    if {[catch {package present doctools}]} {
-	uplevel #0 [list source [file join $distribution modules doctools doctools.tcl]]
-    }
+    getpackage doctools doctools/doctools.tcl
 
     foreach m $args {
 	::doctools::new dt \
@@ -415,8 +520,9 @@ proc gd-assemble {} {
 }
 
 proc gd-gen-tap {} {
-    package require textutil
-    package require fileutil
+    getpackage textutil textutil/textutil.tcl
+    getpackage fileutil fileutil/fileutil.tcl
+
     global tcllib_name tcllib_version distribution tcl_platform
 
     set modules   [imodules]
@@ -562,7 +668,7 @@ proc getpdesc  {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.39 2005/02/23 12:40:17 patthoyts Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.40 2005/04/01 05:10:21 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -661,7 +767,9 @@ wrapped_content: %N-%V/
 
 proc docfiles {} {
     global distribution
-    package require fileutil
+
+    getpackage fileutil fileutil/fileutil.tcl
+
     set res [list]
     foreach f [fileutil::findByPattern $distribution -glob *.man] {
 	# Remove files under SCCS. They are repository, not sources to check.
@@ -948,19 +1056,6 @@ proc write_out {f text} {
     close $of
 }
 
-proc write_out {f text} {
-    catch {file delete -force $f}
-    puts -nonewline [set of [open $f w]] $text
-    close $of
-}
-
-proc write_out {f text} {
-    catch {file delete -force $f}
-    puts -nonewline [set of [open $f w]] $text
-    close $of
-}
-
-
 proc gd-gen-packages {} {
     global tcllib_version distribution
 
@@ -1019,6 +1114,262 @@ proc modified-modules {} {
 }
 
 # --------------------------------------------------------------
+# Handle modules using docstrip
+
+proc docstripUser {m} {
+    global distribution
+
+    set mdir [file join $distribution modules $m]
+
+    if {[llength [glob -nocomplain -dir $mdir *.stitch]]} {return 1}
+    return 0
+}
+
+proc docstripRegen {m} {
+    global distribution
+    puts "$m ..."
+
+    getpackage docstrip docstrip/docstrip.tcl
+
+    set mdir [file join $distribution modules $m]
+
+    foreach sf [glob -nocomplain -dir $mdir *.stitch] {
+	puts "* [file tail $sf] ..."
+
+	set here [pwd]
+	set fail [catch {
+	    cd [file dirname $sf]
+	    docstripRunStitch [file tail $sf]
+	} msg]
+	cd $here
+	if {$fail} {
+	    puts "  [join [split $::errorInfo \n] "\n  "]"
+	}
+    }
+    return
+}
+
+proc docstripRunStitch {sf} {
+    # Run the stitch file in a restricted sandbox ...
+
+    set box [restrictedIp {
+	input   ::dsrs::Input
+	options ::dsrs::Options
+	stitch  ::dsrs::Stitch
+	reset   ::dsrs::Reset
+    }]
+
+    ::dsrs::Init
+    set fail [catch {interp eval $box [get_input $sf]} msg]
+    if {$fail} {
+	puts "    [join [split $::errorInfo \n] "\n    "]"
+    } else {
+	::dsrs::Final
+    }
+
+    interp delete $box
+    return
+}
+
+proc emptyIp {} {
+    set box [interp create]
+    foreach c [interp eval $box {info commands}] {
+	if {[string equal $c "rename"]} continue
+	interp eval $box [list rename $c {}]
+    }
+    # Rename command goes last.
+    interp eval $box [list rename rename {}]
+    return $box
+}
+
+proc restrictedIp {dict} {
+    set box [emptyIp]
+    foreach {cmd localcmd} $dict {
+	interp alias $box $cmd {} $localcmd
+    }
+    return $box
+}
+
+# --------------------------------------------------------------
+# docstrip low level operations for stitching.
+
+namespace eval ::dsrs {
+    # Standard preamble to preambles
+
+    variable preamble {}
+    append   preamble                                       \n
+    append   preamble "This is the file `@output@',"        \n
+    append   preamble "generated with the SAK utility"      \n
+    append   preamble "(sak docstrip/regen)."               \n
+    append   preamble                                       \n
+    append   preamble "The original source files were:"     \n
+    append   preamble                                       \n
+    append   preamble "@input@  (with options: `@guards@')" \n
+    append   preamble                                       \n
+
+    # Standard postamble to postambles
+
+    variable postamble {}
+    append   postamble                           \n
+    append   postamble                           \n
+    append   postamble "End of file `@output@'."
+
+    # Default values for the options which are relevant to the
+    # application itself and thus have to be defined always.
+    # They are processed as global options, as part of argv.
+
+    variable defaults {-metaprefix {%} -preamble {} -postamble {}}
+
+    variable options ; array set options {}
+    variable outputs ; array set outputs {}
+    variable inputs  ; array set inputs  {}
+    variable input   {}
+}
+
+proc ::dsrs::Init {} {
+    variable outputs ; unset outputs ; array set outputs {}
+    variable inputs  ; unset inputs  ; array set inputs  {}
+    variable input   {}
+
+    Reset ; # options
+    return
+}
+
+proc ::dsrs::Reset {} {
+    variable defaults
+    variable options ; unset options ; array set options {}
+    eval [linsert $defaults 0 Options]
+    return
+}
+
+proc ::dsrs::Input {sourcefile} {
+    # Relative to current directory = directory containing the active
+    # stitch file.
+
+    variable input $sourcefile
+}
+
+proc ::dsrs::Options {args} {
+    variable options
+    variable preamble
+    variable postamble
+
+    while {[llength $args]} {
+	set opt [lindex $args 0]
+
+	switch -exact -- $opt {
+	    -nopreamble -
+	    -nopostamble {
+		set o -[string range $opt 3 end]
+		set options($o) ""
+		set args [lrange $args 1 end]
+	    }
+	    -preamble {
+		set val $preamble[lindex $args 1]
+		set options($opt) $val
+		set args [lrange $args 2 end]
+	    }
+	    -postamble {
+		set val [lindex $args 1]$postamble
+		set options($opt) $val
+		set args [lrange $args 2 end]
+	    }
+	    -metaprefix -
+	    -onerror    -
+	    -trimlines  {
+		set val [lindex $args 1]
+		set options($opt) $val
+		set args [lrange $args 2 end]
+	    }
+	    default {
+		return -code error "Unknown option: \"$opt\""
+	    }
+	}
+    }
+    return
+}
+
+proc ::dsrs::Stitch {outputfile guards} {
+    variable options
+    variable inputs
+    variable input
+    variable outputs
+    variable preamble
+    variable postamble
+
+    if {[string equal $input {}]} {
+	return -code error "No input file defined"
+    }
+
+    if {![info exist inputs($input)]} {
+	set inputs($input) [get_input $input]
+    }
+
+    set intext $inputs($input)
+    set otext  ""
+
+    set c   $options(-metaprefix)
+    set cc  $c$c
+
+    set pmap [list @output@ $outputfile \
+		  @input@   $input  \
+		  @guards@  $guards]
+
+    if {[info exists options(-preamble)]} {
+	set pre $options(-preamble)
+
+	if {![string equal $pre ""]} {
+	    append otext [Subst $pre $pmap $cc] \n
+	}
+    }
+
+    array set o [array get options]
+    catch {unset o(-preamble)}
+    catch {unset o(-postamble)}
+    set opt [array get o]
+
+    append otext [eval [linsert $opt 0 docstrip::extract $intext $guards]]
+
+    if {[info exists options(-postamble)]} {
+	set post $options(-postamble)
+
+	if {![string equal $post ""]} {
+	    append otext [Subst $post $pmap $cc]
+	}
+    }
+
+    # Accumulate outputs in memory
+
+    append outputs($outputfile) $otext
+    return
+}
+
+proc ::dsrs::Subst {text pmap cc} {
+    return [string trim "$cc [join [split [string map $pmap $text] \n] "\n$cc "]"]
+}
+
+proc ::dsrs::Final {} {
+    variable outputs
+    foreach o [array names outputs] {
+	puts "  = Writing $o ..."
+
+	if {[string equal \
+		 docstrip/docstrip.tcl \
+		 [file join [file tail [pwd]] $o]]} {
+
+	    # We are writing over code required by ourselves.
+	    # For easy recovery in case of problems we save
+	    # the original 
+
+	    puts "    *Saving original of code important to docstrip/regen itself*"
+	    write_out $o.bak [get_input $o]
+	}
+
+	write_out $o $outputs($o)
+    }
+}
+
+# --------------------------------------------------------------
 # Help
 
 proc __help {} {
@@ -1058,8 +1409,17 @@ proc __help {} {
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
+        validate_v ?module..?   - Check listed modules for for version
+                                  problems. For all modules if none
+                                  specified.
+
 	test ?module...?        - Run testsuite for listed modules.
 	                          For all modules if none specified.
+
+        docstrip/users             - List modules using docstrip
+        docstrip/regen ?module...? - Regenerate the sources of all
+                                     or the listed modules from their
+                                     docstrip sources.
 
 	/Documentation
 	/===========================================================
@@ -1075,6 +1435,7 @@ proc __help {} {
 	ps    ?module...?    - See dvi,   + conversion to PostScript
 
 	desc  ?module...?    - Module/Package descriptions
+	desc/2 ?module...?   - Module/Package descriptions, alternate format.
 
 	/Release engineering
 	/===========================================================
@@ -1380,6 +1741,48 @@ proc critcl_module {pkg} {
 }
 
 # -------------------------------------------------------------------------
+
+proc __validate_v {} {
+    global argv
+    if {[llength $argv] == 0} {
+	_validate_all_v
+    } else {
+	if {![checkmod]} {return}
+	foreach m $argv {
+	    _validate_module_v $m
+	}
+    }
+    return
+}
+
+proc _validate_all_v {} {
+    global tcllib_name tcllib_version
+    set i 0
+
+    puts "Validating $tcllib_name $tcllib_version development"
+    puts "==================================================="
+    puts "[incr i]: Consistency of package versions ..."
+    puts "------------------------------------------------------"
+    validate_versions
+    puts "------------------------------------------------------"
+    puts ""
+    return
+}
+
+proc _validate_module_v {m} {
+    global tcllib_name tcllib_version
+    set i 0
+
+    puts "Validating $tcllib_name $tcllib_version development -- $m"
+    puts "==================================================="
+    puts "[incr i]: Consistency of package versions ..."
+    puts "------------------------------------------------------"
+    validate_versions_mod $m
+    puts "------------------------------------------------------"
+    puts ""
+    return
+}
+
 
 proc __validate {} {
     global argv
@@ -1694,8 +2097,8 @@ proc __desc  {} {
     global argv ; if {![checkmod]} return
     array set pd [getpdesc]
 
-    package require struct::matrix
-    package require textutil
+    getpackage struct::matrix struct/matrix.tcl
+    getpackage textutil       textutil/textutil.tcl
 
     struct::matrix m
     m add columns 3
@@ -1740,8 +2143,8 @@ proc __desc/2  {} {
     global argv ; if {![checkmod]} return
     array set pd [getpdesc]
 
-    package require struct::matrix
-    package require textutil
+    getpackage struct::matrix struct/matrix.tcl
+    getpackage textutil       textutil/textutil.tcl
 
     puts {Descriptions...}
     if {[llength $argv] == 0} {set argv [modules]}
@@ -1776,6 +2179,36 @@ proc __desc/2  {} {
 	m format 2chan
 	puts ""
 	m destroy
+    }
+
+    return
+}
+
+# --------------------------------------------------------------
+
+proc __docstrip/users {} {
+    # Print the list of modules using docstrip for their code.
+
+    set argv [modules]
+    foreach m [lsort $argv] {
+	if {[docstripUser $m]} {
+	    puts $m
+	}
+    }
+
+    return
+}
+
+proc __docstrip/regen {} {
+    # Regenerate modules based on docstrip.
+
+    global argv ; if {![checkmod]} return
+    if {[llength $argv] == 0} {set argv [modules]}
+
+    foreach m [lsort $argv] {
+	if {[docstripUser $m]} {
+	    docstripRegen $m
+	}
     }
 
     return
