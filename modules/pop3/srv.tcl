@@ -20,6 +20,7 @@ set log     [open $logfile w]
 
 fconfigure $log -buffering none
 proc log {txt} {global log ; puts $log $txt}
+proc log__ {l t} {log "$l $t"}
 
 fileevent stdin readable done
 fconfigure stdin -blocking 0
@@ -39,6 +40,15 @@ proc done {} {
 source [file join $popd pop3d.tcl]
 source [file join $popd pop3d_dbox.tcl]
 source [file join $popd pop3d_udb.tcl]
+
+# Prevent log messages for now, or log into server log.
+
+::log::lvCmdForall log__
+#::log::lvSuppress info
+#::log::lvSuppress notice
+#::log::lvSuppress debug
+#::log::lvSuppress warning
+
 
 # Setup basic server
 
@@ -60,7 +70,7 @@ $dbox base $dboxdir
 $dbox add         usr0
 $dbox add         usr1
 
-foreach m {10 20 30} {
+foreach m {10 20 30 40 50 60 70 80 90 100} {
     set f [open [file join $dboxdir usr0 $m] w]
     puts $f {
     }
