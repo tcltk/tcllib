@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.13.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.13.2.2 2004/08/05 05:07:29 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -2438,6 +2438,16 @@ test graph-43.1 {serialization, bogus node} {
     set result
 } {node "foo" does not exist in graph "::mygraph"}
 
+test graph-43.2 {serialization, empty graph} {
+    graph mygraph
+    set serial [mygraph serialize]
+    set result [validate_serial mygraph $serial]
+    mygraph destroy
+    set result
+
+    # serial = {{}}
+} ok
+
 test graph-43.3 {serialization, all} {
     graph mygraph
 
@@ -2653,6 +2663,15 @@ test graph-44.13 {deserialization} {
 	attr/graph/data-mismatch attr/graph/data-mismatch \
 	ok nodes/mismatch/#nodes \
 	arc/b/unknown ok]
+
+test graph-44.14 {deserialization, empty graph} {
+    graph mygraph
+    set serial {{}}
+    mygraph deserialize $serial
+    set result [validate_serial mygraph $serial]
+    mygraph destroy
+    set result
+} ok
 
 # ---------------------------------------------------  
 

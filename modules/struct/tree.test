@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.29.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.29.2.2 2004/08/05 05:07:29 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -2157,6 +2157,15 @@ test tree-5.1.4 {serialization} {
     # {%0 {} {} %3 0 {} %4 0 {foo far data {}}}
 } ok
 
+test tree-5.1.5 {serialization, empty tree} {
+    tree mytree
+    set serial [mytree serialize]
+    set result [validate_serial mytree $serial]
+    mytree destroy
+    set result
+    # serial = {root {} {}}
+} ok
+
 ############################################################
 
 test tree-5.2.1 {deserialization, wrong #args} {
@@ -2333,6 +2342,15 @@ test tree-5.2.17 {deserialization} {
 } [list node/%0/unknown node/%0/unknown root \
 	ok attr/%4/mismatch root \
 	node/root/unknown ok %0]
+
+test tree-5.2.18 {deserialization, empty tree} {
+    tree mytree
+    set serial {root {} {}}
+    mytree deserialize $serial
+    set result [validate_serial mytree $serial]
+    mytree destroy
+    set result
+} ok
 
 ############################################################
 
