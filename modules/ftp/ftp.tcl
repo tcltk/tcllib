@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.19 2001/11/16 23:36:59 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.20 2001/11/17 00:13:00 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -893,7 +893,8 @@ proc ftp::StateHandler {s {sock ""}} {
                 2 {
                     set complete_with 1
 		    set nextState 1
-		    Command $ftp(Command) get $ftp(RemoteFilename)
+		    Command $ftp(Command) get $ftp(RemoteFilename):$ftp(From):$ftp(To)
+		    unset ftp(From) ftp(To)
                 }
                 default {
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
@@ -1957,9 +1958,9 @@ proc ftp::Get {s args} {
 # 0 -			file not retrieved
 # 1 - 			OK
 
-proc ftp::Reget {s source {dest ""}} {
+proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
     upvar ::ftp::ftp$s ftp
-
+    
     if { ![info exists ftp(State)] } {
         DisplayMsg $s "Not connected!" error
         return 0
@@ -1971,11 +1972,38 @@ proc ftp::Reget {s source {dest ""}} {
 
     set ftp(RemoteFilename) $source
     set ftp(LocalFilename) $dest
+    set ftp(From) $from_bytes
+
+
+    # Assumes that the local file has a starting offset of $from_bytes
+    # The following calculation ensures that the download starts from the
+    # correct offset
 
     if { [file exists $ftp(LocalFilename)] } {
-        set ftp(FileSize) [file size $ftp(LocalFilename)]
+	set ftp(FileSize) [ expr [file size $ftp(LocalFilename)] + $from_bytes ]
+	 	
+	if { $till_bytes != -1 } {
+	    set ftp(To)   $till_bytes	
+	    set ftp(Bytes_to_go) [ expr $till_bytes - $ftp(FileSize) ]
+	
+	    if { $ftp(Bytes_to_go) <= 0 } return 0
+
+	} else {
+	    # till_bytes not set
+	    set ftp(To)   end
+	}
+
     } else {
-        set ftp(FileSize) 0
+	# local file does not exist
+        set ftp(FileSize) $from_bytes
+		  
+	if { $till_bytes != -1 } {
+	    set ftp(Bytes_to_go) [ expr $till_bytes - $from_bytes ]
+	    set ftp(To) $till_bytes
+	} else {
+	    #till_bytes not set
+	    set ftp(To)   end
+	}
     }
 	
     set ftp(State) reget_$ftp(Mode)
@@ -2237,7 +2265,8 @@ proc ftp::Open {server user passwd args} {
     if { $DEBUG } {
         DisplayMsg $s "Starting new connection with: "
     }
-	
+
+    set ftp(inline) 	0
     set ftp(User)       $user
     set ftp(Passwd) 	$passwd
     set ftp(RemoteHost) $server
@@ -2330,6 +2359,20 @@ proc ftp::CopyNext {s bytes {error {}}} {
 
     incr ftp(Total) $bytes
 
+    # update bytes_to_go and blocksize
+
+    if { [info exists ftp(Bytes_to_go)] } {
+	set ftp(Bytes_to_go) [expr $ftp(Bytes_to_go) - $bytes]
+	 
+	if { $ftp(Blocksize) <= $ftp(Bytes_to_go) } {
+	    set blocksize $ftp(Blocksize)
+	} else {
+	    set blocksize $ftp(Bytes_to_go)
+	}
+    } else {
+	set blocksize $ftp(Blocksize)
+    } 
+    
     # callback for progress bar procedure
     
     if { ([info exists ftp(Progress)]) && \
@@ -2353,7 +2396,7 @@ proc ftp::CopyNext {s bytes {error {}}} {
         unset ftp(state.data)
         DisplayMsg $s $error error
 
-    } elseif { [eof $ftp(SourceCI)] } {
+    } elseif { ([eof $ftp(SourceCI)] || ($blocksize <= 0)) } {
         close $ftp(DestCI)
         close $ftp(SourceCI)
         unset ftp(state.data)
@@ -2362,8 +2405,9 @@ proc ftp::CopyNext {s bytes {error {}}} {
         }
 
     } else {
-        fcopy $ftp(SourceCI) $ftp(DestCI) -command [list [namespace current]::CopyNext $s] -size $ftp(Blocksize)
-
+	fcopy $ftp(SourceCI) $ftp(DestCI) \
+		-command [list [namespace current]::CopyNext $s] \
+		-size $blocksize
     }
     return
 }
@@ -2417,11 +2461,28 @@ proc ftp::HandleData {s sock} {
         }
     }	
 
-    # perform fcopy
 
     set ftp(Total) 0
     set ftp(Start_Time) [clock seconds]
-    fcopy $ftp(SourceCI) $ftp(DestCI) -command [list [namespace current]::CopyNext $s] -size $ftp(Blocksize)
+	 
+    # calculate blocksize
+	 
+    if { [ info exists ftp(Bytes_to_go) ] } {
+			
+	if { $ftp(Blocksize) <= $ftp(Bytes_to_go) } {
+	    set Blocksize $ftp(Blocksize)
+	} else {
+	    set Blocksize $ftp(Bytes_to_go)
+	}
+	
+    } else {
+	set Blocksize $ftp(Blocksize)
+    }
+	
+    # perform fcopy
+    fcopy $ftp(SourceCI) $ftp(DestCI) \
+	    -command [list [namespace current]::CopyNext $s ] \
+	    -size $Blocksize
     return 1
 }
 
