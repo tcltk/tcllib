@@ -8,12 +8,13 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.11 2003/03/24 23:11:57 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.12 2003/04/02 23:21:12 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
+puts "tcltest [package present tcltest]"
 
 if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
@@ -291,7 +292,8 @@ makeFile $bzipData [file join $dir fileTypeTest bzipFile]
 
 set gzipData "\x1f\x8b"
 append gzipData "\x01\x01\x01\x00\x00"
-makeFile $gzipData [file join $dir fileTypeTest gzipFile]
+makeFile $gzipData [set f [file join $dir fileTypeTest gzipFile]]
+set fh [open $f w] ; fconfigure $fh -encoding binary ; puts -nonewline $fh $gzipData ; close $fh
 
 set jpgData "\xFF\xD8\xFF\xE0\x00\x10JFIF"
 append jpgData "\x00\x01\x02\x01\x01\x2c"
@@ -302,7 +304,8 @@ makeFile $gifData [file join $dir fileTypeTest gifFile]
 
 set pngData "\x89PNG"
 append pngData "\x00\x01\x02\x01\x01\x2c"
-makeFile $pngData [file join $dir fileTypeTest pngFile]
+makeFile $pngData [set f [file join $dir fileTypeTest pngFile]]
+set fh [open $f w] ; fconfigure $fh -encoding binary ; puts -nonewline $fh $pngData ; close $fh
 
 set tiffData "MM\x00\*"
 append tiffData "\x00\x01\x02\x01\x01\x2c"
