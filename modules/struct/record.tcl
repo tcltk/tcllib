@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.2 2002/11/06 19:32:52 schwarzkopf Exp $
+# $Id: record.tcl,v 1.3 2002/12/21 04:17:58 schwarzkopf Exp $
 #
 #============================================================
 #
@@ -69,6 +69,13 @@ namespace eval ::struct::record {
     ##
     variable commands
     set commands [list define delete exists show]
+
+    ##
+    ##  This keeps track of the level that we are in
+    ##  when handling nested records. This is kind of
+    ##  a hack, and probably can be handled better
+    ##
+    set _level 0
 
     namespace export record
 }
@@ -237,6 +244,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
     variable _count
     variable _defn
     variable _defaults
+    variable _level
 
     set inst_ [Qualify "$inst_"]
 
@@ -290,13 +298,16 @@ proc ::struct::record::Create {defn_ inst_ args} {
         ##
         if {[regexp -- {([\w]*)::([\w]*)} $V m def inst]} {
 
+            if {$_level == 0} {
+                set _level 2
+            }
 
             ##
             ##  This is to guard against if the creation
             ##  had failed, that there isn't any
             ##  lingering variables/alias around
             ##
-            set def [Qualify $def]
+            set def [Qualify $def $_level]
 
             if {![info exists _recorddefn($def)]} {
 
@@ -324,6 +335,7 @@ proc ::struct::record::Create {defn_ inst_ args} {
                     error "$inst is not a member of $defn_"
                 }
             }
+            incr _level
             eval Create $def ${inst_}.${inst} [lindex $args $cnt_plus]
             set args [lreplace $args $cnt $cnt_plus]
 
@@ -342,6 +354,8 @@ proc ::struct::record::Create {defn_ inst_ args} {
         Access $defn_ $inst_ [string trimleft "$k" -] $v
 
     }; # end foreach arg
+
+    set _level 0
     
     return $inst_
 
