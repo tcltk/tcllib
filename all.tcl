@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.19 2004/08/10 07:01:30 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.20 2004/08/26 05:27:44 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -192,6 +192,8 @@ foreach module $modules {
 		    [expr {[package vsatisfies [package provide Tcl] 8.3]}]
 	    ::tcltest::testConstraint tcl8.4plus \
 		    [expr {[package vsatisfies [package provide Tcl] 8.4]}]
+	    ::tcltest::testConstraint tcl8.5plus \
+		    [expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
 	    proc ::tcltest::queryConstraint {c} {
 		return [testConstraint $c]
@@ -204,6 +206,8 @@ foreach module $modules {
 		    [expr {[package vsatisfies [package provide Tcl] 8.3]}]
 	    set ::tcltest::testConstraints(tcl8.4plus) \
 		    [expr {[package vsatisfies [package provide Tcl] 8.4]}]
+	    set ::tcltest::testConstraints(tcl8.5plus) \
+		    [expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
 	    proc ::tcltest::queryConstraint {c} {
 		if {![info exists ::tcltest::testConstraints($c)]} {
