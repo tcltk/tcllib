@@ -123,6 +123,22 @@ test "BasicStats-1.8" "Basic statistics - missing data - var" -match almostzero 
 } -result 0.001 ;# Zero is impossible
 
 #
+# This test was added because the calculation of the standard deviation
+# could fail with uniform data (the difference of two almost equal
+# values became a small negative number)
+#
+test "BasicStats-2.1" "Basic statistics - uniform data caused sqrt domain error" -body {
+  set values [list]
+  set count 0
+  for { set i 0 } { $i < 20 } { incr i } {
+     lappend values 0.6
+     set value2 [::math::statistics::mean $values]
+     incr count
+  }
+  set count
+} -result 20 ;# We can finish the loop
+
+#
 # Histograms
 #
 test "Histogram-1.0" "Histogram - uniform data" -match glob -body {
