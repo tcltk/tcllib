@@ -10,9 +10,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.18 2000/09/19 22:13:40 mtariq Exp $
+# Originally by Brent Welch, with help from Dan Kuchler and Melissa Chawla
 
-package provide html 1.0
+package provide html 1.1
 
 namespace eval html:: {
 
@@ -38,7 +38,231 @@ namespace eval html:: {
 	body.text	black
     }
 
-    namespace export *
+    # In order to nandle nested calls to redefined control structures,
+    # we need a temporary variable that is known not to exist.  We keep this
+    # counter to append to the varname.  Each time we need a temporary
+    # variable, we increment this counter.
+
+    variable randVar 0
+
+    # No more export, because this defines things like
+    # foreach and if that do HTML things, not Tcl control
+    # namespace export *
+}
+
+# html::foreach
+#
+#	Rework the "foreach" command to blend into HTML template files.
+#	Rather than evaluating the body, we return the subst'ed body.  Each
+#	iteration of the loop causes another string to be concatenated to
+#	the result value.  No error checking is done on any arguments.
+#
+# Arguments:
+#	varlist	Variables to instantiate with values from the next argument.
+#	list	Values to set variables in varlist to.
+#	args	?varlist2 list2 ...? body, where body is the string to subst
+#		during each iteration of the loop.
+#
+# Results:
+#	Returns a string composed of multiple concatenations of the
+#	substitued body.
+#
+# Side Effects:
+#	None.
+
+proc html::foreach {vars vals args} {
+    variable randVar
+
+    # The body of the foreach loop must be run in the stack frame
+    # above this one in order to have access to local variable at that stack
+    # level.
+
+    # To support nested foreach loops, we use a uniquely named
+    # variable to store incremental results.
+    incr randVar
+    set resultVar "result_$randVar"
+
+    # Extract the body and any varlists and valuelists from the args.
+    set body [lindex $args end]
+    set varvals [linsert [lreplace $args end end] 0 $vars $vals]
+
+    # Create the script to eval in the stack frame above this one.
+    set script "::foreach"
+    ::foreach {vars vals} $varvals {
+        append script " [list $vars] [list $vals]"
+    }
+    append script " \{\n"
+    append script "  append $resultVar \[subst \{$body\}\]\n"
+    append script "\}\n"
+
+    # Create a temporary variable in the stack frame above this one,
+    # and use it to store the incremental resutls of the multiple loop
+    # iterations.  Remove the temporary variable when we're done so there's
+    # no trace of this loop left in that stack frame.
+
+    upvar $resultVar tmp
+    set tmp ""
+    uplevel $script
+    set result $tmp
+    unset tmp
+    return $result
+}
+
+# html::for
+#
+#	Rework the "for" command to blend into HTML template files.
+#	Rather than evaluating the body, we return the subst'ed body.  Each
+#	iteration of the loop causes another string to be concatenated to
+#	the result value.  No error checking is done on any arguments.
+#
+# Arguments:
+#	start	A script to evaluate once at the very beginning.
+#	test	An expression to eval before each iteration of the loop.
+#		Once the expression is false, the command returns.
+#	next	A script to evaluate after each iteration of the loop.
+#	body	The string to subst during each iteration of the loop.
+#
+# Results:
+#	Returns a string composed of multiple concatenations of the
+#	substitued body.
+#
+# Side Effects:
+#	None.
+
+proc html::for {start test next body} {
+    variable randVar
+
+    # The body of the for loop must be run in the stack frame
+    # above this one in order to have access to local variable at that stack
+    # level.
+
+    # To support nested for loops, we use a uniquely named
+    # variable to store incremental results.
+    incr randVar
+    set resultVar "result_$randVar"
+
+    # Create the script to eval in the stack frame above this one.
+    set script "::for [list $start] [list $test] [list $next] \{\n"
+    append script "  append $resultVar \[subst \{$body\}\]\n"
+    append script "\}\n"
+
+    # Create a temporary variable in the stack frame above this one,
+    # and use it to store the incremental resutls of the multiple loop
+    # iterations.  Remove the temporary variable when we're done so there's
+    # no trace of this loop left in that stack frame.
+
+    upvar $resultVar tmp
+    set tmp ""
+    uplevel $script
+    set result $tmp
+    unset tmp
+    return $result
+}
+
+# html::while
+#
+#	Rework the "while" command to blend into HTML template files.
+#	Rather than evaluating the body, we return the subst'ed body.  Each
+#	iteration of the loop causes another string to be concatenated to
+#	the result value.  No error checking is done on any arguments.
+#
+# Arguments:
+#	test	An expression to eval before each iteration of the loop.
+#		Once the expression is false, the command returns.
+#	body	The string to subst during each iteration of the loop.
+#
+# Results:
+#	Returns a string composed of multiple concatenations of the
+#	substitued body.
+#
+# Side Effects:
+#	None.
+
+proc html::while {test body} {
+    variable randVar
+
+    # The body of the while loop must be run in the stack frame
+    # above this one in order to have access to local variable at that stack
+    # level.
+
+    # To support nested while loops, we use a uniquely named
+    # variable to store incremental results.
+    incr randVar
+    set resultVar "result_$randVar"
+
+    # Create the script to eval in the stack frame above this one.
+    set script "::while [list $test] \{\n"
+    append script "  append $resultVar \[subst \{$body\}\]\n"
+    append script "\}\n"
+
+    # Create a temporary variable in the stack frame above this one,
+    # and use it to store the incremental resutls of the multiple loop
+    # iterations.  Remove the temporary variable when we're done so there's
+    # no trace of this loop left in that stack frame.
+
+    upvar $resultVar tmp
+    set tmp ""
+    uplevel $script
+    set result $tmp
+    unset tmp
+    return $result
+}
+
+# html::if
+#
+#	Rework the "if" command to blend into HTML template files.
+#	Rather than evaluating a body clause, we return the subst'ed body.
+#	No error checking is done on any arguments.
+#
+# Arguments:
+#	test	An expression to eval to decide whether to use the then body.
+#	body	The string to subst if the test case was true.
+#	args	?elseif test body2 ...? ?else bodyn?, where bodyn is the string
+#		to subst if none of the tests are true.
+#
+# Results:
+#	Returns a string composed by substituting a body clause.
+#
+# Side Effects:
+#	None.
+
+proc html::if {test body args} {
+    variable randVar
+
+    # The body of the then/else clause must be run in the stack frame
+    # above this one in order to have access to local variable at that stack
+    # level.
+
+    # To support nested if's, we use a uniquely named
+    # variable to store incremental results.
+    incr randVar
+    set resultVar "result_$randVar"
+
+    # Extract the elseif clauses and else clause if they exist.
+    set cmd [linsert $args 0 "::if" $test $body]
+
+    ::foreach {keyword test body} $cmd {
+        ::if {[string equal $keyword "else"]} {
+            append script " else \{\n"
+            set body $test
+        } else {
+            append script " $keyword [list $test] \{\n"
+        }
+        append script "  append $resultVar \[subst \{$body\}\]\n"
+        append script "\} "
+    }
+
+    # Create a temporary variable in the stack frame above this one,
+    # and use it to store the incremental resutls of the multiple loop
+    # iterations.  Remove the temporary variable when we're done so there's
+    # no trace of this loop left in that stack frame.
+
+    upvar $resultVar tmp
+    set tmp ""
+    uplevel $script
+    set result $tmp
+    unset tmp
+    return $result
 }
 
 # html::init
@@ -55,10 +279,10 @@ namespace eval html:: {
 proc html::init {{nvlist {}}} {
     variable page
     variable defaults
-    if {[info exist page]} {
+    ::if {[info exist page]} {
 	unset page
     }
-    if {[info exist defaults]} {
+    ::if {[info exist defaults]} {
 	unset defaults
     }
     array set defaults $nvlist
@@ -80,11 +304,11 @@ proc html::head {title} {
     variable page
     set html "[openTag html][openTag head]\n"
     append html "\t[html::title $title]"
-    if {[info exist page(author)]} {
+    ::if {[info exist page(author)]} {
 	append html "\t$page(author)"
     }
-    if {[info exist page(meta)]} {
-	foreach line $page(meta) {
+    ::if {[info exist page(meta)]} {
+	::foreach line $page(meta) {
 	    append html "\t$line\n"
 	}
     }
@@ -120,7 +344,7 @@ proc html::title {title} {
 
 proc html::getTitle {} {
     variable page
-    if {[info exist page(title)]} {
+    ::if {[info exist page(title)]} {
 	return $page(title)
     } else {
 	return ""
@@ -141,7 +365,7 @@ proc html::getTitle {} {
 proc html::meta {args} {
     variable page
     set html ""
-    foreach {name value} $args {
+    ::foreach {name value} $args {
 	append html "<meta name=\"$name\" value=\"[quoteFormValue $value]\">"
     }
     lappend page(meta) $html
@@ -164,7 +388,7 @@ proc html::meta {args} {
 proc html::refresh {content {url {}}} {
     variable page
     set html "<meta http-equiv=\"Refresh\" content=\"$content"
-    if {[string length $url]} {
+    ::if {[string length $url]} {
 	append html "; url=$url"
     }
     append html "\">\n"
@@ -254,7 +478,7 @@ proc html::tagParam {tag {param {}}} {
     variable defaults
 
     set def ""
-    foreach key [lsort [array names defaults $tag.*]] {
+    ::foreach key [lsort [array names defaults $tag.*]] {
 	append def [html::default $key $param]
     }
     return [string trimleft $param$def]
@@ -279,7 +503,7 @@ proc html::default {key {param {}}} {
     variable defaults
     set pname [string tolower [lindex [split $key .] 1]]
     set key [string tolower $key]
-    if {![regexp -nocase "(\[ 	\]|^)$pname=" $param] &&
+    ::if {![regexp -nocase "(\[ 	\]|^)$pname=" $param] &&
 	    [info exist defaults($key)] &&
 	    [string length $defaults($key)]} {
 	return " $pname=\"$defaults($key)\""
@@ -324,7 +548,7 @@ proc html::bodyTag {args} {
 
 proc html::formValue {name {defvalue {}}} {
     set value [ncgi::value $name]
-    if {[string length $value] == 0} {
+    ::if {[string length $value] == 0} {
 	set value $defvalue
     }
     return "name=\"$name\" value=\"[quoteFormValue $value]\""
@@ -343,7 +567,7 @@ proc html::formValue {name {defvalue {}}} {
 
 proc html::quoteFormValue {value} {
     regsub -all {&} $value {\&amp;} value
-    regsub -all {"} $value {\&#34;} value
+    regsub -all {"} $value {\&#34;} value ;# need a " for balance
     regsub -all {'} $value {\&#39;} value
     regsub -all {<} $value {\&lt;} value
     regsub -all {>} $value {\&gt;} value
@@ -364,9 +588,9 @@ proc html::quoteFormValue {value} {
 
 proc html::textInput {name args} {
     variable defaults
-    set html "<input type=\"text\" [html::formValue $name]"
+    set html "<input type=\"text\" "
+    append html [html::formValue $name [string trim [join $args]]]
     append html [html::default input.size]
-    append html [string trim [join $args]]
     append html ">\n"
     return $html
 }
@@ -453,8 +677,8 @@ proc html::checkbox {name value} {
 
 proc html::checkValue {name {value 1}} {
     variable page
-    foreach v [ncgi::valueList $name] {
-	if {[string compare $value $v] == 0} {
+    ::foreach v [ncgi::valueList $name] {
+	::if {[string compare $value $v] == 0} {
 	    return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
 	}
     }
@@ -474,7 +698,7 @@ proc html::checkValue {name {value 1}} {
 #	name="fred" value="freds value" CHECKED
 
 proc html::radioValue {name value {defaultSelection {}}} {
-    if {[string equal $value [ncgi::value $name $defaultSelection]]} {
+    ::if {[string equal $value [ncgi::value $name $defaultSelection]]} {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
     } else {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\""
@@ -489,7 +713,7 @@ proc html::radioValue {name value {defaultSelection {}}} {
 proc html::radioSet {key sep list {defaultSelection {}}} {
     set html ""
     set s ""
-    foreach {label v} $list {
+    ::foreach {label v} $list {
 	append html "$s<input type=\"radio\" [radioValue $key $v $defaultSelection]> $label"
 	set s $sep
     }
@@ -503,7 +727,7 @@ proc html::radioSet {key sep list {defaultSelection {}}} {
 
 proc html::checkSet {key sep list} {
     set s ""
-    foreach {label v} $list {
+    ::foreach {label v} $list {
 	append html "$s<input type=\"checkbox\" [checkValue $key $v]> $label"
 	set s $sep
     }
@@ -529,8 +753,8 @@ proc html::select {name param choices {current {}}} {
 
     set def [ncgi::valueList $name $current]
     set html "<select name=\"$name\"[string trimright  " $param"]>\n"
-    foreach {label v} $choices {
-	if {[lsearch -exact $def $v] != -1} {
+    ::foreach {label v} $choices {
+	::if {[lsearch -exact $def $v] != -1} {
 	    set SEL " SELECTED"
 	} else {
 	    set SEL ""
@@ -556,7 +780,7 @@ proc html::select {name param choices {current {}}} {
 
 proc html::selectPlain {name param choices {current {}}} {
     set namevalue {}
-    foreach c $choices {
+    ::foreach c $choices {
 	lappend namevalue $c $c
     }
     return [html::select $name $param $namevalue $current]
@@ -610,7 +834,7 @@ proc html::submit {label {name submit}} {
 
 proc html::varEmpty {name} {
     upvar 1 $name var
-    if {[info exist var]} {
+    ::if {[info exist var]} {
 	set value $var
     } else {
 	set value ""
@@ -631,13 +855,13 @@ proc html::varEmpty {name} {
 #	A bunch of <input type=hidden> elements
 
 proc html::getFormInfo {args} {
-    if {[llength $args] == 0} {
+    ::if {[llength $args] == 0} {
 	set args *
     }
     set html ""
-    foreach {n v} [ncgi::nvlist] {
-	foreach pat $args {
-	    if {[string match $pat $n]} {
+    ::foreach {n v} [ncgi::nvlist] {
+	::foreach pat $args {
+	    ::if {[string match $pat $n]} {
 		append html "<input type=\"hidden\" name=\"$n\" \
 				    value=\"[quoteFormValue $v]\">\n"
 	    }
@@ -707,11 +931,11 @@ proc html::openTag {tag {param {}}} {
 
 proc html::closeTag {} {
     variable page
-    if {[info exist page(stack)]} {
+    ::if {[info exist page(stack)]} {
 	set top [lindex $page(stack) end]
 	set page(stack) [lreplace $page(stack) end end]
     }
-    if {[info exist top] && [string length $top]} {
+    ::if {[info exist top] && [string length $top]} {
 	return </$top>
     } else {
 	return ""
@@ -732,7 +956,7 @@ proc html::closeTag {} {
 proc html::end {} {
     variable page
     set html ""
-    while {[llength $page(stack)]} {
+    ::while {[llength $page(stack)]} {
 	append html [closeTag]\n
     }
     return $html
@@ -751,7 +975,7 @@ proc html::end {} {
 
 proc html::row {args} {
     set html <tr>\n
-    foreach x $args {
+    ::foreach x $args {
 	append html \t[html::cell "" $x td]\n
     }
     append html "</tr>\n"
@@ -772,7 +996,7 @@ proc html::row {args} {
 proc html::hdrRow {args} {
     variable defaults
     set html <tr>\n
-    foreach x $args {
+    ::foreach x $args {
 	append html \t[html::cell "" $x th]\n
     }
     append html "</tr>\n"
@@ -794,7 +1018,7 @@ proc html::hdrRow {args} {
 
 proc html::cell {param value {tag td}} {
     set font [html::font]
-    if {[string length $font]} {
+    ::if {[string length $font]} {
 	set value $font$value</font>
     }
     return "<[string trimright "$tag $param"]>$value</$tag>"
@@ -815,10 +1039,10 @@ proc html::cell {param value {tag td}} {
 proc html::tableFromArray {arrname {param {}} {pat *}} {
     upvar 1 $arrname arr
     set html ""
-    if {[info exists arr]} {
+    ::if {[info exists arr]} {
 	append html "<TABLE $param>\n"
 	append html "<TR><TH colspan=2>$arrname</TH></TR>\n"
-	foreach name [lsort [array names arr $pat]] {
+	::foreach name [lsort [array names arr $pat]] {
 	    append html [html::row $name $arr($name)]
 	}
 	append html </TABLE>\n
@@ -839,9 +1063,9 @@ proc html::tableFromArray {arrname {param {}} {pat *}} {
 
 proc html::tableFromList {querylist {param {}}} {
     set html ""
-    if {[llength $querylist]} {
+    ::if {[llength $querylist]} {
 	append html "<TABLE $param>"
-	foreach {label value} $querylist {
+	::foreach {label value} $querylist {
 	    append html [html::row $label $value]
 	}
 	append html </TABLE>
@@ -862,7 +1086,7 @@ proc html::tableFromList {querylist {param {}}} {
 
 proc html::mailto {email {subject {}}} {
     set html "<a href=\"mailto:$email"
-    if {[string length $subject]} {
+    ::if {[string length $subject]} {
 	append html ?subject=$subject
     }
     append html "\">$email</a>"
@@ -886,7 +1110,7 @@ proc html::font {args} {
     # e.g., font.face, font.size, font.color
     set param [tagParam font [join $args]][join $args]
 
-    if {[string length $param]} {
+    ::if {[string length $param]} {
 	return "<[string trimright "font $param"]>"
     } else {
 	return ""
@@ -911,9 +1135,9 @@ proc html::minorMenu {list {sep { | }}} {
     set s ""
     set html ""
     regsub {index.h?tml$} [ncgi::urlStub] {} this
-    foreach {label url} $list {
+    ::foreach {label url} $list {
 	regsub {index.h?tml$} $url {} that
-	if {[string compare $this $that] == 0} {
+	::if {[string compare $this $that] == 0} {
 	    append html "$s$label"
 	} else {
 	    append html "$s<a href=\"$url\">$label</a>"
@@ -937,7 +1161,7 @@ proc html::minorMenu {list {sep { | }}} {
 #	returns "1" if the keyword is found, "0" otherwise
 
 proc html::extractParam {param key {varName ""}} {
-    if {$varName == ""} {
+    ::if {$varName == ""} {
 	upvar $key result
     } else {
 	upvar $varName result
@@ -945,7 +1169,7 @@ proc html::extractParam {param key {varName ""}} {
     set ws " \t\n\r"
  
     # look for name=value combinations.  Either (') or (") are valid delimeters
-    if {
+    ::if {
       [regsub -nocase [format {.*%s[%s]*=[%s]*"([^"]*).*} $key $ws $ws] $param {\1} value] ||
       [regsub -nocase [format {.*%s[%s]*=[%s]*'([^']*).*} $key $ws $ws] $param {\1} value] ||
       [regsub -nocase [format {.*%s[%s]*=[%s]*([^%s]+).*} $key $ws $ws $ws] $param {\1} value] } {
@@ -958,7 +1182,7 @@ proc html::extractParam {param key {varName ""}} {
     # inside the "value" part of some other key word - some day
 	
     set bad \[^a-zA-Z\]+
-    if {[regexp -nocase  "$bad$key$bad" -$param-]} {
+    ::if {[regexp -nocase  "$bad$key$bad" -$param-]} {
 	return 1
     } else {
 	return 0

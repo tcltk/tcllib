@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.6 2000/05/31 00:00:00 ericm Exp $
+# RCS: @(#) $Id: html.test,v 1.7 2001/06/16 01:25:46 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -507,3 +507,252 @@ test html-26.4 {html::refresh} {
 </head>
 }
 
+test html-27.1 {html::foreach--1 var, 1 iteration} {
+    html::foreach x {a} {<td>$x</td>}
+} {<td>a</td>}
+
+test html-27.2 {html::foreach--1 var, multiple iterations} {
+    html::foreach x {a b} {<td>$x</td>}
+} {<td>a</td><td>b</td>}
+
+test html-27.3 {html::foreach--1 var, 0 iterations} {
+    html::foreach x {} {<td>$x</td>}
+} {}
+
+test html-27.4 {html::foreach--multiple vars, 1 iteration} {
+    html::foreach {x y} {a b} {<td>$x</td><td>$y</td>}
+} {<td>a</td><td>b</td>}
+
+test html-27.5 {html::foreach--multiple vars, multiple iterations} {
+    html::foreach {x y} {a b c d} {<td>$x</td><td>$y</td>}
+} {<td>a</td><td>b</td><td>c</td><td>d</td>}
+
+test html-27.6 {html::foreach--multiple varlists and vallists} {
+    html::foreach {a b} {1 2 3 4} {c d} {5 6 7 8} {e f} {9 10 11 12} {
+        $a$b$c$d$e$f}
+} {
+        1256910
+        34781112}
+
+test html-27.7 {html::foreach--subst body w/ vars and procs} {
+    html::foreach x {2 8} {<td>$x</td><td>[incr x]</td>}
+} {<td>2</td><td>3</td><td>8</td><td>9</td>}
+
+test html-27.8 {html::foreach--subst body w/ nested foreach} {
+    html::foreach x {a b} {
+        [html::foreach y {c d} {$x$y}]
+    }
+} {
+        acad
+    
+        bcbd
+    }
+
+test html-27.9 {html::foreach--subst body w/ multiple nested foreach's} {
+    html::foreach x {a b} {
+        [html::foreach y {c d} {$x$y
+            [html::foreach z {e f} {$z}]
+        }]}
+} {
+        ac
+            ef
+        ad
+            ef
+        
+        bc
+            ef
+        bd
+            ef
+        }
+
+test html-28.1 {html::for--1 iteration} {
+    html::for {set i 0} {$i < 1} {incr i} {<td>$i</td>}
+} {<td>0</td>}
+
+test html-28.2 {html::for--multiple iterations} {
+    html::for {set i 0} {$i < 3} {incr i} {<td>$i</td>}
+} {<td>0</td><td>1</td><td>2</td>}
+
+test html-28.3 {html::for--0 iterations} {
+    html::for {set i 0} {$i < 0} {incr i} {<td>$i</td>}
+} {}
+
+test html-28.4 {html::for--complex start, text, and next} {
+    html::for {set i 0; set j 10} {$i < 1 && $j < 11} {incr i; incr j} {$i $j}
+} {0 10}
+
+test html-28.5 {html::for--subst body w/ vars and procs} {
+    html::for {set i 0} {$i < 3} {incr i} {$i [expr {$i + 5}] }
+} {0 5 1 6 2 7 }
+
+test html-28.6 {html::for--subst body w/ nested for} {
+    set result [html::for {set i 0} {$i < 3} {incr i} {
+        [html::for {set j $i} {$j < 3} {incr j} {${i}__${j} }]
+    }]
+    regsub -all "\n" $result " " result
+    regsub -all " +" $result " " result
+    set result
+} { 0__0 0__1 0__2 1__1 1__2 2__2 }
+
+test html-28.7 {html::for--subst body w/ multiple nested for's} {
+    set result [html::for {set i 0} {$i < 3} {incr i} {
+        [html::for {set j $i} {$j < 3} {incr j} {
+            [html::for {set k $j} {$k < 3} {incr k} {${i}__${j}__${k} }]
+        }]
+    }]
+    regsub -all "\n" $result " " result
+    regsub -all " +" $result " " result
+    set result
+} { 0__0__0 0__0__1 0__0__2 0__1__1 0__1__2 0__2__2 1__1__1 1__1__2 1__2__2 2__2__2 }
+
+test html-29.1 {html::while--1 iteration} {
+    set i 0
+    html::while {$i < 1} {<td>$i, [incr i]</td>}
+} {<td>0, 1</td>}
+
+test html-29.2 {html::while--multiple iterations} {
+    set i 0
+    html::while {$i < 3} {<td>$i, [incr i]</td>}
+} {<td>0, 1</td><td>1, 2</td><td>2, 3</td>}
+
+test html-29.3 {html::while--0 iterations} {
+    set i 0
+    html::while {$i < 0} {<td>$i</td>}
+} {}
+
+test html-29.4 {html::while--complex start, text, and next} {
+    set i 0
+    set j 10
+    html::while {$i < 1 && $j < 11} {$i $j, [incr i] [incr j]}
+} {0 10, 1 11}
+
+test html-29.5 {html::while--subst body w/ nested while} {
+    set i 0
+    set result [html::while {$i < 3} {
+        [set j $i]
+        [html::while {$j < 3} {
+            ${i}__${j}
+            [incr j]
+        }]
+        [incr i]
+    }]
+    regsub -all "\n" $result " " result
+    regsub -all " +" $result " " result
+    set result
+} { 0 0__0 1 0__1 2 0__2 3 1 1 1__1 2 1__2 3 2 2 2__2 3 3 }
+
+test html-29.7 {html::while--subst body w/ multiple nested while's} {
+    set i 0
+    set result [html::while {$i < 3} {
+        [set j $i]
+        [html::while {$j != 3} {
+            [set k $j]
+            [html::while {$k != 3} {
+                ${i}__${j}__${k}
+                [incr k]
+            }]
+            [incr j]
+        }]
+        [incr i]
+    }]
+    regsub -all "\n" $result " " result
+    regsub -all " +" $result " " result
+    set result
+} { 0 0 0__0__0 1 0__0__1 2 0__0__2 3 1 1 0__1__1 2 0__1__2 3 2 2 0__2__2 3 3 1 1 1 1__1__1 2 1__1__2 3 2 2 1__2__2 3 3 2 2 2 2__2__2 3 3 3 }
+
+test html-30.1 {html::if--eval then clause} {
+    set i 0
+    html::if {$i < 1} {$i, [incr i]}
+} {0, 1}
+
+test html-30.2 {html::if--don't eval then clause} {
+    set i 0
+    html::if {$i == 1} {$i, [incr i]}
+} {}
+
+test html-30.3 {html::if--eval else clause} {
+    set i 0
+    html::if {$i == 1} {then clause} else {$i, [incr i]}
+} {0, 1}
+
+test html-30.4 {html::if--1 elseif clause, eval else cause} {
+    set i 0
+    html::if {$i < 0} {
+        then clause
+    } elseif {$i == 1} {
+        elseif clause
+    } else {$i, [incr i]}
+} {0, 1}
+
+test html-30.5 {html::if--1 elseif clause, eval elseif cause} {
+    set i 0
+    html::if {$i < 0} {
+        then clause
+    } elseif {$i == 0} {$i, [incr i]}
+} {0, 1}
+
+test html-30.6 {html::if--1 elseif clause, eval elseif cause} {
+    set i 0
+    html::if {$i < 0} {
+        then clause
+    } elseif {$i == 1} {
+        $i, [incr i]
+    }
+} {}
+
+test html-30.7 {html::if--1 elseif clause, eval elseif cause} {
+    set i 0
+    html::if {$i < 0} {
+        then clause
+    } elseif {$i == 0} {$i, [incr i]} else {
+        else clause
+    }
+} {0, 1}
+
+test html-30.8 {html::if--1 elseif clause, eval elseif cause} {
+    set i 0
+    html::if {$i < 0} {
+        then clause
+    } elseif {$i == 1} {
+        elseif1 clause
+    } elseif {$i == 0} {$i, [incr i]} elseif {$i == 2} {
+        elseif3 clause
+    } else {
+        else clause
+    }
+} {0, 1}
+
+test html-30.9 {html::if--1 elseif clause, eval elseif cause} {
+    set i 0
+    html::if {$i < 0} {
+        then clause
+    } elseif {$i == 1} {
+        elseif3 clause
+    } elseif {$i == 2} {
+        elseif1 clause
+    } elseif {$i == 0} {$i, [incr i]} else {
+        else clause
+    }
+} {0, 1}
+
+test html-30.10 {html::if--multiple nested} {
+    set i 0
+    set result [html::if {$i < 1} {
+        begin1
+        [html::if {$i > -1} {
+            begin2
+            [html::if {$i == 0} {
+                begin3
+                [html::if {$i} {4}]
+                end3
+            }]
+            end2
+        }]
+        end1
+    }]
+    regsub -all "\n" $result " " result
+    regsub -all " +" $result " " result
+    set result
+} { begin1 begin2 begin3 end3 end2 end1 }
+
+tcltest::cleanupTests
