@@ -14,9 +14,9 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.2
+package provide html 1.2.2
 
-namespace eval html:: {
+namespace eval ::html {
 
     # State about the current page
 
@@ -52,7 +52,7 @@ namespace eval html:: {
     # namespace export *
 }
 
-# html::foreach
+# ::html::foreach
 #
 #	Rework the "foreach" command to blend into HTML template files.
 #	Rather than evaluating the body, we return the subst'ed body.  Each
@@ -72,7 +72,7 @@ namespace eval html:: {
 # Side Effects:
 #	None.
 
-proc html::foreach {vars vals args} {
+proc ::html::foreach {vars vals args} {
     variable randVar
 
     # The body of the foreach loop must be run in the stack frame
@@ -110,7 +110,7 @@ proc html::foreach {vars vals args} {
     return $result
 }
 
-# html::for
+# ::html::for
 #
 #	Rework the "for" command to blend into HTML template files.
 #	Rather than evaluating the body, we return the subst'ed body.  Each
@@ -131,7 +131,7 @@ proc html::foreach {vars vals args} {
 # Side Effects:
 #	None.
 
-proc html::for {start test next body} {
+proc ::html::for {start test next body} {
     variable randVar
 
     # The body of the for loop must be run in the stack frame
@@ -161,7 +161,7 @@ proc html::for {start test next body} {
     return $result
 }
 
-# html::while
+# ::html::while
 #
 #	Rework the "while" command to blend into HTML template files.
 #	Rather than evaluating the body, we return the subst'ed body.  Each
@@ -180,7 +180,7 @@ proc html::for {start test next body} {
 # Side Effects:
 #	None.
 
-proc html::while {test body} {
+proc ::html::while {test body} {
     variable randVar
 
     # The body of the while loop must be run in the stack frame
@@ -210,7 +210,7 @@ proc html::while {test body} {
     return $result
 }
 
-# html::if
+# ::html::if
 #
 #	Rework the "if" command to blend into HTML template files.
 #	Rather than evaluating a body clause, we return the subst'ed body.
@@ -228,7 +228,7 @@ proc html::while {test body} {
 # Side Effects:
 #	None.
 
-proc html::if {test body args} {
+proc ::html::if {test body args} {
     variable randVar
 
     # The body of the then/else clause must be run in the stack frame
@@ -267,7 +267,7 @@ proc html::if {test body args} {
     return $result
 }
 
-# html::set
+# ::html::set
 #
 #	Rework the "set" command to blend into HTML template files.
 #	The return value is always "" so nothing is appended in the
@@ -283,7 +283,7 @@ proc html::if {test body args} {
 # Side Effects:
 #	None.
 
-proc html::set {var val} {
+proc ::html::set {var val} {
 
     # The variable must be set in the stack frame above this one.
 
@@ -292,7 +292,7 @@ proc html::set {var val} {
     return ""
 }
 
-# html::eval
+# ::html::eval
 #
 #	Rework the "eval" command to blend into HTML template files.
 #	The return value is always "" so nothing is appended in the
@@ -307,14 +307,14 @@ proc html::set {var val} {
 # Side Effects:
 #	Throws an error if no arguments are given.
 
-proc html::eval {args} {
+proc ::html::eval {args} {
 
     # The args must be evaluated in the stack frame above this one.
     ::eval uplevel $args
     return ""
 }
 
-# html::init
+# ::html::init
 #
 #	Reset state that gets accumulated for the current page.
 #
@@ -325,7 +325,7 @@ proc html::eval {args} {
 # Side Effects:
 #	Wipes the page state array
 
-proc html::init {{nvlist {}}} {
+proc ::html::init {{nvlist {}}} {
     variable page
     variable defaults
     ::if {[info exists page]} {
@@ -337,7 +337,7 @@ proc html::init {{nvlist {}}} {
     array set defaults $nvlist
 }
 
-# html::head
+# ::html::head
 #
 #	Generate the <head> section.  There are a number of
 #	optional calls you make *before* this to inject
@@ -349,10 +349,10 @@ proc html::init {{nvlist {}}} {
 # Results:
 #	HTML for the <head> section
 
-proc html::head {title} {
+proc ::html::head {title} {
     variable page
     ::set html "[openTag html][openTag head]\n"
-    append html "\t[html::title $title]"
+    append html "\t[title $title]"
     ::if {[info exists page(author)]} {
 	append html "\t$page(author)"
     }
@@ -364,7 +364,7 @@ proc html::head {title} {
     append html "[closeTag]\n"
 }
 
-# html::title
+# ::html::title
 #
 #	Wrap up the <title> and tuck it away for use in the page later.
 #
@@ -374,14 +374,14 @@ proc html::head {title} {
 # Results:
 #	HTML for the <title> section
 
-proc html::title {title} {
+proc ::html::title {title} {
     variable page
     ::set page(title) $title
     ::set html "<title>$title</title>\n"
     return $html
 }
 
-# html::getTitle
+# ::html::getTitle
 #
 #	Return the title of the current page.
 #
@@ -391,7 +391,7 @@ proc html::title {title} {
 # Results:
 #	The title
 
-proc html::getTitle {} {
+proc ::html::getTitle {} {
     variable page
     ::if {[info exists page(title)]} {
 	return $page(title)
@@ -400,7 +400,7 @@ proc html::getTitle {} {
     }
 }
 
-# html::meta
+# ::html::meta
 #
 #	Generate a meta tag.  This tag gets bundled into the <head>
 #	section generated by html::head
@@ -411,7 +411,7 @@ proc html::getTitle {} {
 # Side Effects:
 #	Stores HTML for the <meta> tag for use later by html::head
 
-proc html::meta {args} {
+proc ::html::meta {args} {
     variable page
     ::set html ""
     ::foreach {name value} $args {
@@ -421,7 +421,7 @@ proc html::meta {args} {
     return ""
 }
 
-# html::refresh
+# ::html::refresh
 #
 #	Generate a meta refresh tag.  This tag gets bundled into the <head>
 #	section generated by html::head
@@ -434,7 +434,7 @@ proc html::meta {args} {
 # Side Effects:
 #	Stores HTML for the <meta> tag for use later by html::head
 
-proc html::refresh {content {url {}}} {
+proc ::html::refresh {content {url {}}} {
     variable page
     ::set html "<meta http-equiv=\"Refresh\" content=\"$content"
     ::if {[string length $url]} {
@@ -445,7 +445,7 @@ proc html::refresh {content {url {}}} {
     return ""
 }
 
-# html::headTag
+# ::html::headTag
 #
 #	Embed a tag into the HEAD section
 #	generated by html::head
@@ -456,13 +456,13 @@ proc html::refresh {content {url {}}} {
 # Side Effects:
 #	Stores HTML for the tag for use later by html::head
 
-proc html::headTag {string} {
+proc ::html::headTag {string} {
     variable page
     lappend page(meta) <$string>
     return ""
 }
 
-# html::keywords
+# ::html::keywords
 #
 #	Add META tag keywords to the <head> section.
 #	Call this before you call html::head
@@ -473,11 +473,11 @@ proc html::headTag {string} {
 # Side Effects:
 #	See html::meta
 
-proc html::keywords {args} {
+proc ::html::keywords {args} {
     html::meta keywords [join $args ", "]
 }
 
-# html::description
+# ::html::description
 #
 #	Add a description META tag to the <head> section.
 #	Call this before you call html::head
@@ -488,11 +488,11 @@ proc html::keywords {args} {
 # Side Effects:
 #	See html::meta
 
-proc html::description {description} {
+proc ::html::description {description} {
     html::meta description $description
 }
 
-# html::author
+# ::html::author
 #
 #	Add an author comment to the <head> section.
 #	Call this before you call html::head
@@ -503,13 +503,13 @@ proc html::description {description} {
 # Side Effects:
 #	sets page(author)
 
-proc html::author {author} {
+proc ::html::author {author} {
     variable page
     ::set page(author) "<!-- $author -->\n"
     return ""
 }
 
-# html::tagParam
+# ::html::tagParam
 #
 #	Return a name, value string for the tag parameters.
 #	The values come from "hard-wired" values in the 
@@ -523,17 +523,17 @@ proc html::author {author} {
 #	A string of the form:
 #		pname="keyvalue" name2="2nd value"
 
-proc html::tagParam {tag {param {}}} {
+proc ::html::tagParam {tag {param {}}} {
     variable defaults
 
     ::set def ""
     ::foreach key [lsort [array names defaults $tag.*]] {
-	append def [html::default $key $param]
+	append def [default $key $param]
     }
     return [string trimleft $param$def]
 }
 
-# html::default
+# ::html::default
 #
 #	Return a default value, if one has been registered
 #	and an overriding value does not occur in the existing
@@ -548,7 +548,7 @@ proc html::tagParam {tag {param {}}} {
 # Results
 #	pname="keyvalue"
 
-proc html::default {key {param {}}} {
+proc ::html::default {key {param {}}} {
     variable defaults
     ::set pname [string tolower [lindex [split $key .] 1]]
     ::set key [string tolower $key]
@@ -561,7 +561,7 @@ proc html::default {key {param {}}} {
     }
 }
 
-# html::bodyTag
+# ::html::bodyTag
 #
 #	Generate a body tag
 #
@@ -571,7 +571,7 @@ proc html::default {key {param {}}} {
 # Results
 #	A body tag
 
-proc html::bodyTag {args} {
+proc ::html::bodyTag {args} {
     return [openTag body [join $args]]\n
 }
 
@@ -581,7 +581,7 @@ proc html::bodyTag {args} {
 # procedure and assume that the caller has called ncgi::parse and/or
 # ncgi::init appropriately to initialize the ncgi module.
 
-# html::formValue
+# ::html::formValue
 #
 #	Return a name and value pair, where the value is initialized
 #	from existing form data, if any.
@@ -595,7 +595,7 @@ proc html::bodyTag {args} {
 #	A string like:
 #	name="fred" value="freds value"
 
-proc html::formValue {name {defvalue {}}} {
+proc ::html::formValue {name {defvalue {}}} {
     ::set value [ncgi::value $name]
     ::if {[string length $value] == 0} {
 	::set value $defvalue
@@ -603,7 +603,7 @@ proc html::formValue {name {defvalue {}}} {
     return "name=\"$name\" value=\"[quoteFormValue $value]\""
 }
 
-# html::quoteFormValue
+# ::html::quoteFormValue
 #
 #	Quote a value for use in a value=\"$value\" fragment.
 #
@@ -614,12 +614,12 @@ proc html::formValue {name {defvalue {}}} {
 #	A string like:
 #	&#34;Hello, &lt;b&gt;World!&#34;
 
-proc html::quoteFormValue {value} {
+proc ::html::quoteFormValue {value} {
     return [string map [list "&" "&amp;" "\"" "&#34;" \
 			    "'" "&#39;" "<" "&lt;" ">" "&gt;"] $value]
 }
 
-# html::textInput --
+# ::html::textInput --
 #
 #	Return an <input type=text> element.  This uses the
 #	input.size default falue.
@@ -631,11 +631,11 @@ proc html::quoteFormValue {value} {
 # Results:
 #	The html fragment
 
-proc html::textInput {name {value {}} args} {
+proc ::html::textInput {name {value {}} args} {
     variable defaults
     ::set html "<input type=\"text\" "
     append html [formValue $name $value]
-    append html [html::default input.size]
+    append html [default input.size]
     ::if {[llength $args] != 0} then {
 	append html " " [join $args]
     }
@@ -643,7 +643,7 @@ proc html::textInput {name {value {}} args} {
     return $html
 }
 
-# html::textInputRow --
+# ::html::textInputRow --
 #
 #	Format a table row containing a text input element and a label.
 #
@@ -655,13 +655,13 @@ proc html::textInput {name {value {}} args} {
 # Results:
 #	The html fragment
 
-	proc html::textInputRow {label name {value {}} args} {
+proc ::html::textInputRow {label name {value {}} args} {
     variable defaults
-    ::set html [html::row $label [::eval [list html::textInput $name $value] $args]]
+    ::set html [row $label [::eval [list html::textInput $name $value] $args]]
     return $html
 }
 
-# html::passwordInputRow --
+# ::html::passwordInputRow --
 #
 #	Format a table row containing a password input element and a label.
 #
@@ -672,13 +672,13 @@ proc html::textInput {name {value {}} args} {
 # Results:
 #	The html fragment
 
-proc html::passwordInputRow {label {name password}} {
+proc ::html::passwordInputRow {label {name password}} {
     variable defaults
-    ::set html [html::row $label [html::passwordInput $name]]
+    ::set html [row $label [passwordInput $name]]
     return $html
 }
 
-# html::passwordInput --
+# ::html::passwordInput --
 #
 #	Return an <input type=password> element.
 #
@@ -688,12 +688,12 @@ proc html::passwordInputRow {label {name password}} {
 # Results:
 #	The html fragment
 
-proc html::passwordInput {{name password}} {
+proc ::html::passwordInput {{name password}} {
     ::set html "<input type=\"password\" name=\"$name\">\n"
     return $html
 }
 
-# html::checkbox --
+# ::html::checkbox --
 #
 #	Format a checkbox so that it retains its state based on
 #	the current CGI values
@@ -705,11 +705,11 @@ proc html::passwordInput {{name password}} {
 # Results:
 #	The html fragment
 
-proc html::checkbox {name value} {
+proc ::html::checkbox {name value} {
     ::set html "<input type=\"checkbox\" [checkValue $name $value]>\n"
 }
 
-# html::checkValue
+# ::html::checkValue
 #
 #	Like html::formalue, but for checkboxes that need CHECKED
 #
@@ -723,7 +723,7 @@ proc html::checkbox {name value} {
 #	name="fred" value="freds value" CHECKED
 
 
-proc html::checkValue {name {value 1}} {
+proc ::html::checkValue {name {value 1}} {
     variable page
     ::foreach v [ncgi::valueList $name] {
 	::if {[string compare $value $v] == 0} {
@@ -733,7 +733,7 @@ proc html::checkValue {name {value 1}} {
     return "name=\"$name\" value=\"[quoteFormValue $value]\""
 }
 
-# html::radioValue
+# ::html::radioValue
 #
 #	Like html::formValue, but for radioboxes that need CHECKED
 #
@@ -745,7 +745,7 @@ proc html::checkValue {name {value 1}} {
 #	A string like:
 #	name="fred" value="freds value" CHECKED
 
-proc html::radioValue {name value {defaultSelection {}}} {
+proc ::html::radioValue {name value {defaultSelection {}}} {
     ::if {[string equal $value [ncgi::value $name $defaultSelection]]} {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
     } else {
@@ -753,12 +753,12 @@ proc html::radioValue {name value {defaultSelection {}}} {
     }
 }
 
-# html::radioSet --
+# ::html::radioSet --
 #
 #	Display a set of radio buttons while looking for an existing
 #	value from the query data, if any.
 
-proc html::radioSet {key sep list {defaultSelection {}}} {
+proc ::html::radioSet {key sep list {defaultSelection {}}} {
     ::set html ""
     ::set s ""
     ::foreach {label v} $list {
@@ -768,12 +768,12 @@ proc html::radioSet {key sep list {defaultSelection {}}} {
     return $html
 }
 
-# html::checkSet --
+# ::html::checkSet --
 #
 #	Display a set of check buttons while looking for an existing
 #	value from the query data, if any.
 
-proc html::checkSet {key sep list} {
+proc ::html::checkSet {key sep list} {
     ::set s ""
     ::foreach {label v} $list {
 	append html "$s<input type=\"checkbox\" [checkValue $key $v]> $label"
@@ -782,7 +782,7 @@ proc html::checkSet {key sep list} {
     return $html
 }
 
-# html::select --
+# ::html::select --
 #
 #	Format a <select> element that retains the state of the
 #	current CGI values.
@@ -796,7 +796,7 @@ proc html::checkSet {key sep list} {
 # Results:
 #	The html fragment
 
-proc html::select {name param choices {current {}}} {
+proc ::html::select {name param choices {current {}}} {
     variable page
 
     ::set def [ncgi::valueList $name $current]
@@ -813,7 +813,7 @@ proc html::select {name param choices {current {}}} {
     return $html
 }
 
-# html::selectPlain --
+# ::html::selectPlain --
 #
 #	Format a <select> element where the values are the same
 #	as those that are displayed.
@@ -826,15 +826,15 @@ proc html::select {name param choices {current {}}} {
 # Results:
 #	The html fragment
 
-proc html::selectPlain {name param choices {current {}}} {
+proc ::html::selectPlain {name param choices {current {}}} {
     ::set namevalue {}
     ::foreach c $choices {
 	lappend namevalue $c $c
     }
-    return [html::select $name $param $namevalue $current]
+    return [select $name $param $namevalue $current]
 }
 
-# html::textarea --
+# ::html::textarea --
 #
 #	Format a <textarea> element that retains the state of the
 #	current CGI values.
@@ -847,14 +847,14 @@ proc html::selectPlain {name param choices {current {}}} {
 # Results:
 #	The html fragment
 
-proc html::textarea {name {param {}} {current {}}} {
+proc ::html::textarea {name {param {}} {current {}}} {
     ::set value [ncgi::value $name $current]
     return "<[string trimright \
 	"textarea name=\"$name\"\
 		[tagParam textarea $param]"]>$value</textarea>\n"
 }
 
-# html::submit --
+# ::html::submit --
 #
 #	Format a submit button.
 #
@@ -866,11 +866,11 @@ proc html::textarea {name {param {}} {current {}}} {
 #	The html fragment
 
 
-proc html::submit {label {name submit}} {
+proc ::html::submit {label {name submit}} {
     ::set html "<input type=\"submit\" name=\"$name\" value=\"$label\">\n"
 }
 
-# html::varEmpty --
+# ::html::varEmpty --
 #
 #	Return true if the variable doesn't exist or is an empty string
 #
@@ -880,7 +880,7 @@ proc html::submit {label {name submit}} {
 # Results:
 #	1 if the variable doesn't exist or has the empty value
 
-proc html::varEmpty {name} {
+proc ::html::varEmpty {name} {
     upvar 1 $name var
     ::if {[info exists var]} {
 	::set value $var
@@ -890,7 +890,7 @@ proc html::varEmpty {name} {
     return [expr {[string length [string trim $value]] == 0}]
 }
 
-# html::getFormInfo --
+# ::html::getFormInfo --
 #
 #	Generate hidden fields to capture form values.
 #
@@ -902,7 +902,7 @@ proc html::varEmpty {name} {
 # Results:
 #	A bunch of <input type=hidden> elements
 
-proc html::getFormInfo {args} {
+proc ::html::getFormInfo {args} {
     ::if {[llength $args] == 0} {
 	::set args *
     }
@@ -918,7 +918,7 @@ proc html::getFormInfo {args} {
     return $html
 }
 
-# html::h1
+# ::html::h1
 #	Generate an H1 tag.
 #
 # Arguments:
@@ -928,29 +928,29 @@ proc html::getFormInfo {args} {
 # Results:
 #	Formats the tag.
 
-proc html::h1 {string {param {}}} {
+proc ::html::h1 {string {param {}}} {
     html::h 1 $string $param
 }
-proc html::h2 {string {param {}}} {
+proc ::html::h2 {string {param {}}} {
     html::h 2 $string $param
 }
-proc html::h3 {string {param {}}} {
+proc ::html::h3 {string {param {}}} {
     html::h 3 $string $param
 }
-proc html::h4 {string {param {}}} {
+proc ::html::h4 {string {param {}}} {
     html::h 4 $string $param
 }
-proc html::h5 {string {param {}}} {
+proc ::html::h5 {string {param {}}} {
     html::h 5 $string $param
 }
-proc html::h6 {string {param {}}} {
+proc ::html::h6 {string {param {}}} {
     html::h 6 $string $param
 }
-proc html::h {level string {param {}}} {
+proc ::html::h {level string {param {}}} {
     return "<[string trimright "h$level [tagParam h$level $param]"]>$string</h$level>\n"
 }
 
-# html::openTag
+# ::html::openTag
 #	Remember that a tag  is opened so it can be closed later.
 #	This is used to automatically clean up at the end of a page.
 #
@@ -962,13 +962,13 @@ proc html::h {level string {param {}}} {
 #	Formats the tag.  Also keeps it around in a per-page stack
 #	of open tags.
 
-proc html::openTag {tag {param {}}} {
+proc ::html::openTag {tag {param {}}} {
     variable page
     lappend page(stack) $tag
     return "<[string trimright "$tag [tagParam $tag $param]"]>"
 }
 
-# html::closeTag
+# ::html::closeTag
 #	Pop a tag from the stack and close it.
 #
 # Arguments:
@@ -977,7 +977,7 @@ proc html::openTag {tag {param {}}} {
 # Results:
 #	A close tag.  Also pops the stack.
 
-proc html::closeTag {} {
+proc ::html::closeTag {} {
     variable page
     ::if {[info exists page(stack)]} {
 	::set top [lindex $page(stack) end]
@@ -990,7 +990,7 @@ proc html::closeTag {} {
     }
 }
 
-# html::end
+# ::html::end
 #
 #	Close out all the open tags.  Especially useful for
 #	Tables that do not display at all if they are unclosed.
@@ -1001,7 +1001,7 @@ proc html::closeTag {} {
 # Results:
 #	Some number of close HTML tags.
 
-proc html::end {} {
+proc ::html::end {} {
     variable page
     ::set html ""
     ::while {[llength $page(stack)]} {
@@ -1010,7 +1010,7 @@ proc html::end {} {
     return $html
 }
 
-# html::row
+# ::html::row
 #
 #	Format a table row.  If the default font has been set, this
 #	takes care of wrapping the table cell contents in a font tag.
@@ -1021,16 +1021,16 @@ proc html::end {} {
 # Results:
 #	A <tr><td>...</tr> fragment
 
-proc html::row {args} {
+proc ::html::row {args} {
     ::set html <tr>\n
     ::foreach x $args {
-	append html \t[html::cell "" $x td]\n
+	append html \t[cell "" $x td]\n
     }
     append html "</tr>\n"
     return $html
 }
 
-# html::hdrRow
+# ::html::hdrRow
 #
 #	Format a table row.  If the default font has been set, this
 #	takes care of wrapping the table cell contents in a font tag.
@@ -1041,17 +1041,17 @@ proc html::row {args} {
 # Results:
 #	A <tr><th>...</tr> fragment
 
-proc html::hdrRow {args} {
+proc ::html::hdrRow {args} {
     variable defaults
     ::set html <tr>\n
     ::foreach x $args {
-	append html \t[html::cell "" $x th]\n
+	append html \t[cell "" $x th]\n
     }
     append html "</tr>\n"
     return $html
 }
 
-# html::paramRow
+# ::html::paramRow
 #
 #	Format a table row.  If the default font has been set, this
 #	takes care of wrapping the table cell contents in a font tag.
@@ -1066,16 +1066,16 @@ proc html::hdrRow {args} {
 # Results:
 #	A <tr><td>...</tr> fragment
 
-proc html::paramRow {list {rparam {}} {cparam {}}} {
+proc ::html::paramRow {list {rparam {}} {cparam {}}} {
     ::set html "<tr $rparam>\n"
     ::foreach x $list {
-	append html \t[html::cell $cparam $x td]\n
+	append html \t[cell $cparam $x td]\n
     }
     append html "</tr>\n"
     return $html
 }
 
-# html::cell
+# ::html::cell
 #
 #	Format a table cell.  If the default font has been set, this
 #	takes care of wrapping the table cell contents in a font tag.
@@ -1088,15 +1088,15 @@ proc html::paramRow {list {rparam {}} {cparam {}}} {
 # Results:
 #	<td>...</td> fragment
 
-proc html::cell {param value {tag td}} {
-    ::set font [html::font]
+proc ::html::cell {param value {tag td}} {
+    ::set font [font]
     ::if {[string length $font]} {
 	::set value $font$value</font>
     }
     return "<[string trimright "$tag $param"]>$value</$tag>"
 }
 
-# html::tableFromArray
+# ::html::tableFromArray
 #
 #	Format a Tcl array into an HTML table
 #
@@ -1108,21 +1108,21 @@ proc html::cell {param value {tag td}} {
 # Results:
 #	A <table>
 
-proc html::tableFromArray {arrname {param {}} {pat *}} {
+proc ::html::tableFromArray {arrname {param {}} {pat *}} {
     upvar 1 $arrname arr
     ::set html ""
     ::if {[info exists arr]} {
 	append html "<TABLE $param>\n"
 	append html "<TR><TH colspan=2>$arrname</TH></TR>\n"
 	::foreach name [lsort [array names arr $pat]] {
-	    append html [html::row $name $arr($name)]
+	    append html [row $name $arr($name)]
 	}
 	append html </TABLE>\n
     }
     return $html
 }
 
-# html::tableFromList
+# ::html::tableFromList
 #
 #	Format a table from a name, value list
 #
@@ -1133,19 +1133,19 @@ proc html::tableFromArray {arrname {param {}} {pat *}} {
 # Results:
 #	A <table>
 
-proc html::tableFromList {querylist {param {}}} {
+proc ::html::tableFromList {querylist {param {}}} {
     ::set html ""
     ::if {[llength $querylist]} {
 	append html "<TABLE $param>"
 	::foreach {label value} $querylist {
-	    append html [html::row $label $value]
+	    append html [row $label $value]
 	}
 	append html </TABLE>
     }
     return $html
 }
 
-# html::mailto
+# ::html::mailto
 #
 #	Format a mailto: HREF tag
 #
@@ -1156,7 +1156,7 @@ proc html::tableFromList {querylist {param {}}} {
 # Results:
 #	A <a href=mailto> tag </a>
 
-proc html::mailto {email {subject {}}} {
+proc ::html::mailto {email {subject {}}} {
     ::set html "<a href=\"mailto:$email"
     ::if {[string length $subject]} {
 	append html ?subject=$subject
@@ -1165,7 +1165,7 @@ proc html::mailto {email {subject {}}} {
     return $html
 }
 
-# html::font
+# ::html::font
 #
 #	Generate a standard <font> tag.  This depends on defaults being
 #	set via html::init
@@ -1176,7 +1176,7 @@ proc html::mailto {email {subject {}}} {
 # Results:
 #	HTML
 
-proc html::font {args} {
+proc ::html::font {args} {
     variable defaults
 
     # e.g., font.face, font.size, font.color
@@ -1189,7 +1189,7 @@ proc html::font {args} {
     }
 }
 
-# html::minorMenu
+# ::html::minorMenu
 #
 #	Create a menu of links given a list of label, URL pairs.
 #	If the URL is the current page, it is not highlighted.
@@ -1202,7 +1202,7 @@ proc html::font {args} {
 # Results:
 #	html
 
-proc html::minorMenu {list {sep { | }}} {
+proc ::html::minorMenu {list {sep { | }}} {
     global page
     ::set s ""
     ::set html ""
@@ -1219,7 +1219,7 @@ proc html::minorMenu {list {sep { | }}} {
     return $html
 }
 
-# html::minorList
+# ::html::minorList
 #
 #	Create a list of links given a list of label, URL pairs.
 #	If the URL is the current page, it is not highlighted.
@@ -1236,32 +1236,32 @@ proc html::minorMenu {list {sep { | }}} {
 #	A <ul><li><a...><\li>.....<\ul> fragment
 #    or a <ol><li><a...><\li>.....<\ol> fragment
 
-proc html::minorList {list {ordered 0}} {
+proc ::html::minorList {list {ordered 0}} {
     global page
     ::set s ""
     ::set html ""
     ::if { $ordered } {
-	append html [html::openTag ol]
+	append html [openTag ol]
     } else {
-	append html [html::openTag ul]
+	append html [openTag ul]
     }
     regsub -- {index.h?tml$} [ncgi::urlStub] {} this
     ::foreach {label url} $list {
-	append html [html::openTag li]
+	append html [openTag li]
 	regsub -- {index.h?tml$} $url {} that
 	::if {[string compare $this $that] == 0} {
 	    append html "$s$label"
 	} else {
 	    append html "$s<a href=\"$url\">$label</a>"
 	}
-	append html [html::closeTag]
+	append html [closeTag]
 	append html \n
     }
-    append html [html::closeTag]
+    append html [closeTag]
     return $html
 }
 
-# html::extractParam
+# ::html::extractParam
 #
 #	Extract a value from parameter list (this needs a re-do)
 #
@@ -1274,7 +1274,7 @@ proc html::minorList {list {ordered 0}} {
 # Results:
 #	returns "1" if the keyword is found, "0" otherwise
 
-proc html::extractParam {param key {varName ""}} {
+proc ::html::extractParam {param key {varName ""}} {
     ::if {$varName == ""} {
 	upvar $key result
     } else {
@@ -1303,7 +1303,7 @@ proc html::extractParam {param key {varName ""}} {
     }
 }
 
-# html::urlParent --
+# ::html::urlParent --
 #	This is like "file dirname", but doesn't screw with the slashes
 #       (file dirname will collapse // into /)
 #
@@ -1313,7 +1313,7 @@ proc html::extractParam {param key {varName ""}} {
 # Results:
 #	The parent directory of the URL.
 
-proc html::urlParent {url} {
+proc ::html::urlParent {url} {
     ::set url [string trimright $url /]
     regsub -- {[^/]+$} $url {} url
     return $url
