@@ -1,3 +1,11 @@
+2003-06-30  David N. Welton  <davidw@dedasys.com>
+
+	* irc_example.tcl: Rework this file to reload mainloop.tcl as
+	needs be.
+
+	* mainloop.tcl: New file: the main code is in here, in order to
+	facilitate creating a system that is reloadable.
+
 2003-05-17  David N. Welton  <davidw@dedasys.com>
 
 	* irc_example.tcl: Changes from Aaron Faupell - now uses irc 0.4.
