@@ -1,3 +1,10 @@
+2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* urn-scheme.tcl: Frink run.
+
+	* Version is now 1.1.1 to distinguish from the code in tcllib
+	  release 1.2
+
 2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.1

@@ -440,8 +440,11 @@ proc ::textutil::expander::Op_reset {name} {
 #       will be added to this context until it is popped.
 
 proc ::textutil::expander::Op_cpush {name cname} {
+    # FRINK: nocheck
     incr [Var level]
+    # FRINK: nocheck
     set [Var output-[Get level]] {}
+    # FRINK: nocheck
     set [Var name-[Get level]] $cname
 }
 
@@ -460,7 +463,7 @@ proc ::textutil::expander::Op_cpush {name cname} {
 #	false otherwise.
 
 proc ::textutil::expander::Op_cis {name cname} {
-    return [expr [string compare $cname [Op_cname $name]] == 0]
+    return [expr {[string compare $cname [Op_cname $name]] == 0}]
 }
 
 #---------------------------------------------------------------------
@@ -569,11 +572,14 @@ proc ::textutil::expander::Op_cpop {name cname} {
     }
 
     set result [Get output-[Get level]]
+    # FRINK: nocheck
     set [Var output-[Get level]] ""
+    # FRINK: nocheck
     set [Var name-[Get level]] ""
 
     array unset "Info data-[Get level]-*"
 
+    # FRINK: nocheck
     incr [Var level] -1
 
     return $result
@@ -593,6 +599,7 @@ proc ::textutil::expander::Op_cpop {name cname} {
 #       Appends the text to the accumulated output in the current context.
 
 proc ::textutil::expander::Op_cappend {name text} {
+    # FRINK: nocheck
     append [Var output-[Get level]] $text
 }
 
@@ -738,7 +745,7 @@ proc ::textutil::expander::ExtractToToken {string token mode} {
 
     # First, determine the offset
     switch $mode {
-        include { set offset [expr [string length $token] - 1] }
+        include { set offset [expr {[string length $token] - 1}] }
         exclude { set offset -1 }
         default { error "::expander::ExtractToToken: unknown mode $mode" }
     }
@@ -752,9 +759,9 @@ proc ::textutil::expander::ExtractToToken {string token mode} {
         set theText $theString
         set theString ""
     } else {
-        set newEnd [expr $tokenPos + $offset]
-        set newBegin [expr $newEnd + 1]
-        set theText [string range $theString 0 $newEnd]
+        set newEnd    [expr {$tokenPos + $offset}]
+        set newBegin  [expr {$newEnd + 1}]
+        set theText   [string range $theString 0 $newEnd]
         set theString [string range $theString $newBegin end]
     }
 
@@ -814,7 +821,7 @@ proc ::textutil::expander::StripBrackets {macro} {
     set rlen [string length [Get rb]]
     set tlen [string length $macro]
 
-    return [string range $macro $llen [expr $tlen - $rlen - 1]]
+    return [string range $macro $llen [expr {$tlen - $rlen - 1}]]
 }
 
 # Return 1 if the macro is properly bracketed, and 0 otherwise.
@@ -823,8 +830,8 @@ proc ::textutil::expander::IsBracketed {macro} {
     set rlen [string length [Get rb]]
     set tlen [string length $macro]
 
-    set leftEnd [string range $macro 0 [expr $llen - 1]]
-    set rightEnd [string range $macro [expr $tlen - $rlen] end]
+    set leftEnd  [string range $macro 0       [expr {$llen - 1}]]
+    set rightEnd [string range $macro [expr {$tlen - $rlen}] end]
 
     if {$leftEnd != [Get lb]} {
         return 0

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: geometry.tcl,v 1.4 2001/12/16 11:18:24 chdamm Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.5 2002/02/15 05:35:30 andreas_kupries Exp $
 
 namespace eval ::math::geometry {
 }
@@ -718,7 +718,7 @@ proc ::math::geometry::polylinesBoundingIntersect {polyline1 polyline2 granulari
 	    if {[rectanglesOverlap [lrange $part1bbox 0 1] [lrange $part1bbox 2 3] \
 		    [lrange $part2bbox 0 1] [lrange $part2bbox 2 3] 0]} {
 		# the lines' bounding boxes intersect
-		if $perfectmatch {
+		if {$perfectmatch} {
 		    foreach {l1x1 l1y1} [lrange $part1 0 end-2] {l1x2 l1y2} [lrange $part1 2 end] {
 			foreach {l2x1 l2y1} [lrange $part2 0 end-2] {l2x2 l2y2} [lrange $part2 2 end] {
 			    if {[lineSegmentsIntersect [list $l1x1 $l1y1 $l1x2 $l1y2] \
@@ -1063,4 +1063,4 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
 }
 
 
-package provide math::geometry 1.0
+package provide math::geometry 1.0.1

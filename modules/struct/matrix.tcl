@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.6 2002/02/01 21:51:42 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.7 2002/02/15 05:35:30 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -373,7 +373,7 @@ proc ::struct::matrix::_search {name args} {
 	    switch -exact -- $mode {
 		exact  {set matched [string equal $pattern $v]}
 		glob   {set matched [string match $pattern $v]}
-		regexp {set matched [regexp       $pattern $v]}
+		regexp {set matched [regexp --    $pattern $v]}
 	    }
 	    if {$matched} {
 		lappend matches [list $c $r]

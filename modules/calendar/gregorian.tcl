@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: gregorian.tcl,v 1.2 2002/01/14 17:05:12 kennykb Exp $
+# RCS: @(#) $Id: gregorian.tcl,v 1.3 2002/02/15 05:35:29 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -184,8 +184,10 @@ proc calendar::CommonCalendar::CivilYearToAbsolute { dateVar } {
 	CE - AD {
 	    return $date(YEAR)
 	}
+	default {
+	    return -code error "Unknown era \"$date(ERA)\""
+	}
     }
-
 }
 
 #----------------------------------------------------------------------

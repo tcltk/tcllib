@@ -269,6 +269,7 @@ proc BusyCommand {args} {
 	} else {
 		bgerror $g
 	}
+	return ""
 }
 
 # read recursive the remote directory tree
@@ -485,11 +486,11 @@ global ftp
 		if { ([file tail $i] != ".") && ([file tail $i] != "..") } {
 
 			# exist check
-			if {![file exist $i]} {
+			if {![file exists $i]} {
 				continue
 			}
 
-			if {[file isdir $i]} {
+			if {[file isdirectory $i]} {
 				lappend ftp(localFileList) $i
 				lappend ftp(localDirList) $i
 				GetLocalTree $i
@@ -509,7 +510,7 @@ global opt ftp
 	update
 
 	# local homepage directory
-	if {![file isdir $opt(localDir)]} {
+	if {![file isdirectory $opt(localDir)]} {
 		tk_messageBox -parent . -title INFO -message "Directory $opt(localDir) not found!" -type ok
 		return
 		
@@ -833,7 +834,7 @@ global opt ftp
 	
 	# get local homepage direction
 	set dir [$w.mask.local.entry get]
-	if { ![file isdir $dir] } {
+	if { ![file isdirectory $dir] } {
 		tk_messageBox -parent . -title ERROR -message "Directory \"$dir\" not found!" -type ok
 		return
 	}
@@ -1139,7 +1140,7 @@ set help(about) {
 if { $argv != "" && $argv != "{}" } {
 	if { [lindex $argv 0] == "-h" } {Usage}
 	set dir [lindex $argv 0]
-	if { [file exist $dir] && [file isdirectory $dir] } {
+	if { [file exists $dir] && [file isdirectory $dir] } {
 		set opt(localDir) $dir
 	} else {
 		puts "Directory \"$dir\" not found!"
@@ -1158,7 +1159,7 @@ set opt(ConfigFile)     $env(HOME)/hpupdate.cnf
 set opt(TsFile)         $env(HOME)/hpupdate.ts
 
 # load configuration file
-if { [file exist $opt(ConfigFile)] } {
+if { [file exists $opt(ConfigFile)] } {
 	set file [open $opt(ConfigFile) r]
 	array set opt [read $file]
 	close $file
@@ -1168,7 +1169,7 @@ set ftp::VERBOSE 0
 
 # to compare older and newer files hpupdate creates
 # a new timesstamp on file "hpupdate.ts" after every update
-if { ![file exist $opt(TsFile)] } {Touch $opt(TsFile)}
+if { ![file exists $opt(TsFile)] } {Touch $opt(TsFile)}
 set opt(Timestamp) [file mtime $opt(TsFile)]
 set status(header) " last update: [clock format $opt(Timestamp) -format %d.%m.%Y\ %H:%M:%S\ Uhr -gmt 0]"
 

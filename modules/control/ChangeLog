@@ -1,9 +1,14 @@
+2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* assert.tcl: 
+	* do.tcl: Frink run
+
 2002-01-29  Reinhard Max  <max@suse.de>
 
 	* do.test: Changed the performance comparison part at the end to
-	be skipped during "make test".
+	  be skipped during "make test".
 	
-RELEASE 0.1: bundled with tcllib 1.2
+	* RELEASE 0.1: bundled with tcllib 1.2
 
 2002-01-18  Don Porter <dgp@users.sourceforge.net>
 

@@ -8,6 +8,9 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded textutil           0.4 [list source [file join $dir textutil.tcl]]
-package ifneeded textutil::expander 1.0 [list source [file join $dir expander.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.2]} {
+    # FRINK: nocheck
+    return
+}
+package ifneeded textutil           0.5   [list source [file join $dir textutil.tcl]]
+package ifneeded textutil::expander 1.0.1 [list source [file join $dir expander.tcl]]
