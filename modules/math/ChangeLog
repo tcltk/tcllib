@@ -1,3 +1,16 @@
+2004-06-18  Kevin Kenny  <kennykb@acm.org>
+
+	* bessel.test:        Fixed several problems that were causing tests
+	* combinatorics.test: to fail or to run noisily. Corrected inconsistent
+	* interpolate.tcl:    package version number in interpolate.tcl.
+	* interpolate.test:
+	* qcomplex.test:
+
+	* optimize.man:   Added min_bound_1d and min_unbound_1d functions
+	* optimize.tcl:   to do one-dimensional function minimization,
+	* optimize.test:  constrained and unconstrained, respectively,
+	                  without derivatives.
+	
 2004-06-16  Andreas Kupries  <andreask@activestate.com>
 
 	* interpolate.man: Added a missing list_end before section
