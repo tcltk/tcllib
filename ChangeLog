@@ -1,3 +1,7 @@
+2001-11-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv: Applied patch #482570.
+
 2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* irc: New module. Internet protocol handling. Internet Relay Chat
