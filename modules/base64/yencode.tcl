@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.1 2002/04/16 23:30:37 patthoyts Exp $
+# @(#)$Id: yencode.tcl,v 1.2 2002/04/25 23:26:16 andreas_kupries Exp $
 
 package require crc32;                  # Tcllib 1.1
 
@@ -32,6 +32,7 @@ proc yencode::encode {s} {
 }
 
 proc yencode::decode {s} {
+    if {[string length $s] == 0} {return ""}
     set r {}
     set esc 0
     binary scan $s c* d

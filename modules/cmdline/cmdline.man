@@ -1,8 +1,8 @@
-[manpage_begin cmdline n 1.1.1]
+[manpage_begin cmdline n 1.2]
 [moddesc   {command line / option processing}]
 [titledesc {Procedures to process command lines and options.}]
 [require Tcl 8.2]
-[require cmdline [opt 1.1.1]]
+[require cmdline [opt 1.2]]
 [description]
 
 This package provides commands to parse command lines and options.
@@ -42,6 +42,11 @@ specified option into upon success or an error message in the case of
 failure. The stored value comes from the command line for .arg
 options, otherwise the value is 1.
 
+[call [cmd ::cmdline::getKnownOpt] [arg argvVar] [arg optstring] [arg optVar] [arg valVar]]
+
+Like [cmd ::cmdline::getopt], but ignores any unknown options in the
+input.
+
 [call [cmd ::cmdline::getoptions] [arg arglistVar] [arg optlist] [opt [arg usage]]]
 
 Processes the set of command line options found in the list variable
@@ -62,6 +67,13 @@ If [arg flag] ends in ".arg" then the value is taken from the command
 line. Otherwise it is a boolean and appears in the result if present
 on the command line. If [arg flag] ends in ".secret", it will not be
 displayed in the usage.
+
+
+[call [cmd ::cmdline::getKnownOptions] [arg arglistVar] [arg optlist] [opt [arg usage]]]
+
+Like [cmd ::cmdline::getoptions], but ignores any unknown options in the
+input.
+
 
 [call [cmd ::cmdline::usage] [arg optlist] [opt [arg usage]]]
 

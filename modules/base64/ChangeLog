@@ -1,3 +1,10 @@
+2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uuencode.tcl: 
+	* yencode.tcl:
+	* base64.tcl: Fixed decoding of empty string in tcl
+	  implementation. Fixes bug #548112.
+
 2002-04-17  Pat Thoyts  <patthoyts@users.soruceforge.net>
 
 	* yencode.tcl, yencode.test, yencode.man, yencode.test.data,
