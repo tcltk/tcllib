@@ -1,5 +1,8 @@
 2002-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* Makefile.in (doc_generate): Added 'touch' command to prevent
+	  multiple execution of target.
+
 	* struct (matrix): Fixed bug #532791.
 
 	* doctools: Fixed SF Bug #535382.
