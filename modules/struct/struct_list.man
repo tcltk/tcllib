@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.5 2004/01/15 06:36:14 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.6 2004/02/04 05:36:27 andreas_kupries Exp $}]
 [manpage_begin list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -373,7 +373,36 @@ This value will be [const true] if the two lists are equal, and
 [const false] else.
 
 
-[call [cmd ::struct::list] [method repeat] [arg value] [arg size]...]
+[call [cmd ::struct::list] [method repeat] [arg size] [arg element1] [opt "[arg element2] [arg element3]..."]]
+
+The subcommand creates a list of length
+
+"[arg size] * [emph {number of elements}]" by repeating [arg size]
+times the sequence of elements
+[arg element1] [arg element2] [arg ...].
+
+[arg size] must be a positive integer, [arg element][var n] can be any
+Tcl value.
+
+Note that [cmd {repeat 1 arg ...}]  is identical to
+[cmd {list arg ...}], though the [arg arg] is required
+with [method repeat].
+
+[nl]
+[emph Examples:]
+[nl]
+[example {
+    tclsh> ::struct::list repeat 3 a
+    a a a
+    tclsh> ::struct::list repeat 3 [::struct::list repeat 3 0]
+    {0 0 0} {0 0 0} {0 0 0}
+    tclsh> ::struct::list repeat 3 a b c
+    a b c a b c a b c
+    tclsh> ::struct::list repeat 3 [::struct::list repeat 2 a] b c
+    {a a} b c {a a} b c {a a} b c
+}]
+
+[call [cmd ::struct::list] [method repeatn] [arg value] [arg size]...]
 
 The subcommand creates a (nested) list containing the [arg value] in
 all positions. The exact size and degree of nesting is determined by
@@ -403,11 +432,11 @@ An empty list will be returned if no [arg size] arguments are present.
 
 [nl]
 [example {
-    tclsh> ::struct::list repeat  0 3 4
+    tclsh> ::struct::list repeatn  0 3 4
     {0 0 0} {0 0 0} {0 0 0} {0 0 0}
-    tclsh> ::struct::list repeat  0 {3 4}
+    tclsh> ::struct::list repeatn  0 {3 4}
     {0 0 0} {0 0 0} {0 0 0} {0 0 0}
-    tclsh> ::struct::list repeat  0 {3 4 5}
+    tclsh> ::struct::list repeatn  0 {3 4 5}
     {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
 }]
 

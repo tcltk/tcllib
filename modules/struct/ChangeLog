@@ -1,3 +1,17 @@
+2004-02-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.tcl (repeat(n)):		** API INCOMPATIBILITY **
+
+	  Renamed the existing 'repeat' to 'repeatn' to keep the
+	  functionality. Created new 'repeat' command which is
+	  functionally equivalent to the 'lrepeat' command found in the
+	  forthcoming Tcl 8.5.
+
+	* struct_set.man: New submodule for set operations. Implementation,
+	* sets.tcl:       documentation, tests, and integrated into the
+	* sets.test:      main package.
+	* struct.tcl:
+
 2004-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct_tree.man: Extended with table showing the relationship
@@ -106,13 +120,13 @@
 
 2003-07-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* graph.tcl: 
+	* graph.tcl:		** API INCOMPATIBILITY **
 	* graph.test:
 	* graph.man: Same changes in attribute handling as for
 	  'tree'. Noted that the graph attributes had neither 'append' nor
 	  'lappend' methods. Added. Documentation and testsuite updated.
 
-	* pkgIndex.tcl:
+	* pkgIndex.tcl:		** API INCOMPATIBILITY **
 	* struct_tree.man:
 	* tree.test:
 	* tree.tcl: More rework. The attribute APIs are now backward
