@@ -7,10 +7,21 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.4 2004/08/19 11:23:34 arjenmarkus Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.5 2004/09/22 11:05:52 arjenmarkus Exp $
 
-package require tcltest
-namespace import -force ::tcltest::test
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.1
+    namespace import ::tcltest::*
+} else {
+    # Ensure that 2.1 or higher present.
+
+    if {![package vsatisfies [package present tcltest] 2.1]} {
+	puts "Aborting tests for math::statistics."
+	puts "Requiring tcltest 2.1, have [package present tcltest]"
+	return
+    }
+}
 
 source [file join [file dirname [info script]] "math.tcl"]
 source [file join [file dirname [info script]] "special.tcl"]
