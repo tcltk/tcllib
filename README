@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README,v 1.6 2003/04/17 22:54:04 andreas_kupries Exp $
+RCS: @(#) $Id: README,v 1.7 2003/10/21 19:23:21 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.  This package is
 intended to be a collection of Tcl packages that provide utility
@@ -51,15 +51,38 @@ will be added to tcllib:
   not have neither.
 * the module should adhere to Tcl coding standards
 
-When adding a module to tcllib, be sure to add it to the Makefile.in
-so it will be installed.  Add a line like:
+When adding a module to tcllib, be sure to add it to the files listed below.
 
-MYNEWMODULE=mynewmodule
+* installed_modules.tcl
 
-to the list of modules at the top of the Makefile.in, and then add
-$(MYNEWMODULE) to the definition of the MODULES variable.  This will
-allow users to choose which modules to install by commenting or
-uncommenting lines in the Makefile.
+  contains a table listing all modules to be installed, modules
+  excluded, and names the actions to be taken during installation
+  of each module. Add a line to this table naming your module and
+  its actions.
+
+  Three actions have to be specified, for the package itself, its
+  documentation, and the examples demonstrating it.
+
+  The _null action can be used everywhere and signals that there is
+  nothing to do. Although it is possible to use it for the package
+  action it does make no sense there, as that means that no package
+  code is installed.
+
+  Other package actions are _tcl, _tci, and _text. The first causes
+  the installer to copy all .tcl files from the source directory for
+  the module into the appropriate module directory. _tci does all that
+  and also expects a tclIndex file to copy. _tex is like _tcl, however
+  it also copies all .tex files found in the source directory for the
+  module.
+
+  There is currently only one true documentation action. This action
+  is _doc. It converts all documentation in doctools format into the
+  format chosen by the user for installation and copies the result
+  into the appropriate directory.
+
+  There is currently one true action for examples, _exa. It copies all
+  files in the source directory for examples into the directory chosen
+  by the user as destination for examples.
 
 Each module source directory should have no subdirectories (other than
 the CVS directory), and should contain the following files:
@@ -71,5 +94,3 @@ the CVS directory), and should contain the following files:
 
 If you do not follow this directory structure, the tcllib Makefile
 will fail to locate the files from the new module.
-
-

@@ -1,5 +1,13 @@
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
+	* README: Updated to describe the new way of adding modules to
+	  tcllib.
+
+	* INSTALL.txt: Updated references to tcllib 1.4 to 1.5.
+
+	* installed_modules.tcl: Changed doc action for snit from _null to
+	  _man (We have doctools manpages for snit for a while now).
+
 	* all.tcl: Added code to try to load 'Tk'. This allows the
 	  execution of 'tk' constrained tests, if Tk is present (for
 	  example when this code is run run by 'wish'). An example of a
