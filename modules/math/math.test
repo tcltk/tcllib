@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.7 2000/10/06 21:10:41 ericm Exp $
+# RCS: @(#) $Id: math.test,v 1.8 2003/04/24 18:39:04 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -16,6 +16,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] math.tcl]
 package require math
+
+puts "math [package present math]"
 
 proc wrongNumArgs {name arglist count} {
     set ver [info patchlevel]
