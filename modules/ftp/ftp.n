@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.6 2001/11/19 21:02:19 andreas_kupries Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.7 2001/11/20 19:51:10 jenglish Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -11,51 +11,33 @@
 .SH NAME
 ftp \- Client-side tcl implementation of the ftp protocol
 .SH "SYNOPSIS"
+.nf
 package require \fBTcl\fR
 .sp
-package require \fBftp ?2.2.1?\fR
+package require \fBftp\fR ?\fB2.2.1\fR?
+package require \fBftp::geturl\fR ?\fB0.1\fR? ; # for ftp::geturl command
 .sp
-package require \fBftp::geturl ?0.1?\fR ; # for ftp::geturl command
+\fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?
+\fBftp::Close\fR \fIhandle\fR
 .sp
-\fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?\fR
-.sp
-\fBftp::Close\fR \fIhandle\fR\fR
-.sp
-\fBftp::Cd\fR \fIhandle\fR \fIdirectory\fR\fR
-.sp
-\fBftp::Pwd\fR \fIhandle\fR\fR
-.sp
-\fBftp::Type\fR \fIhandle\fR ?\fIascii|binary|tenex\fR?\fR
-.sp
-\fBftp::List\fR \fIhandle\fR ?\fIdirectory\fR?\fR
-.sp
-\fBftp::NList\fR \fIhandle\fR ?\fIdirectory\fR?\fR
-.sp
-\fBftp::FileSize\fR \fIhandle\fR \fIfile\fR\fR
-.sp
-\fBftp::ModTime\fR \fIhandle\fR \fIfile\fR\fR
-.sp
-\fBftp::Delete\fR \fIhandle\fR \fIfile\fR\fR
-.sp
-\fBftp::Rename\fR \fIhandle\fR \fIfrom\fR \fIto\fR\fR
-.sp
-\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
-.sp
-\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
-.sp
-\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?\fR
-.sp
-\fBftp::Reget\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR? ?\fIfrom\fR? ?\fIto\fR?\fR
-.sp
-\fBftp::Newer\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR?\fR
-.sp
-\fBftp::MkDir\fR \fIhandle\fR \fIdirectory\fR\fR
-.sp
-\fBftp::RmDir\fR \fIhandle\fR \fIdirectory\fR\fR
-.sp
-\fBftp::Quote\fR \fIhandle\fR \fIarg1\fR \fIarg2\fR \fI...\fR\fR
-.sp
-\fBftp::DisplayMsg\fR \fIhandle\fR \fImsg\fR ?\fIstate\fR?\fR
+\fBftp::Cd\fR \fIhandle\fR \fIdirectory\fR
+\fBftp::Pwd\fR \fIhandle\fR
+\fBftp::Type\fR \fIhandle\fR ?\fIascii|binary|tenex\fR?
+\fBftp::List\fR \fIhandle\fR ?\fIdirectory\fR?
+\fBftp::NList\fR \fIhandle\fR ?\fIdirectory\fR?
+\fBftp::FileSize\fR \fIhandle\fR \fIfile\fR
+\fBftp::ModTime\fR \fIhandle\fR \fIfile\fR
+\fBftp::Delete\fR \fIhandle\fR \fIfile\fR
+\fBftp::Rename\fR \fIhandle\fR \fIfrom\fR \fIto\fR
+\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?
+\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?
+\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?
+\fBftp::Reget\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR? ?\fIfrom\fR? ?\fIto\fR?
+\fBftp::Newer\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR?
+\fBftp::MkDir\fR \fIhandle\fR \fIdirectory\fR
+\fBftp::RmDir\fR \fIhandle\fR \fIdirectory\fR
+\fBftp::Quote\fR \fIhandle\fR \fIarg1\fR \fIarg2\fR \fI...\fR
+\fBftp::DisplayMsg\fR \fIhandle\fR \fImsg\fR ?\fIstate\fR?
 .sp
 \fBftp::geturl\fR \fIurl\fR
 .sp
@@ -119,7 +101,7 @@ the file name is the key and its attributes the associated value.
 The attributes of the link, including the path it refers to.
 .RE
 .TP
-\fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?\fR
+\fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?
 This command is used to start a FTP session by establishing a control
 connection to the FTP server. The defaults are used for any option not
 specified by the caller.
@@ -136,25 +118,25 @@ user name and password to complete the login process.
 The options overwrite some default values or set special abilities:
 .RS
 .TP
--blocksize size
+-blocksize \fIsize\fP
 The blocksize is used during data transfer. At most \fIsize\fR bytes
 are transfered at once. The default value for this option is 4096.
 The package will evaluate the \fB-progress callback\fR for the
 session after the transfer of each block.
 .TP
--timeout seconds
+-timeout \fIseconds\fP
 If \fIseconds\fR is non-zero, then \fBftp::Open\fR sets up a timeout
 which will occur after the specified number of seconds. The default
 value is 600.
 .TP
--port number
+-port \fInumber\fP
 The port \fInumber\fR specifies an alternative remote port on the ftp
 server on which the ftp service resides. Most ftp services listen for
 connection requests on the default port 21. Sometimes, usually for
 security reasons, port numbers other than 21 are used for ftp
 connections.
 .TP
--mode mode
+-mode \fImode\fP
 The transfer \fImode\fR option determines if a file transfer occurs in
 \fBactive\fR or \fBpassive\fR mode. In passive mode the client
 will ask the ftp server to listen on a data port and wait for the
@@ -162,7 +144,7 @@ connection rather than to initiate the process by itself when a data
 transfer request comes in. Passive mode is normally a requirement when
 accessing sites via a firewall. The default mode is \fBactive\fR.
 .TP
--progress callback
+-progress \fIcallback\fP
 This \fIcallback\fR is evaluated whenever a block of data was
 transfered. See the option \fB-blocksize\fR for how to specify the
 size of the transfered blocks.
@@ -171,7 +153,7 @@ When evaluating the \fIcallback\fR one argument is appended to the
 callback script, the current accumulated number of bytes transferred
 so far.
 .TP
--command callback
+-command \fIcallback\fP
 Specifying this option places the connection into asynchronous
 mode. The \fIcallback\fR is evaluated after the completion of any
 operation. When an operation is running no further operations must be
@@ -184,7 +166,7 @@ completed and any additional arguments specific to the operation.  If
 an error occured during the execution of the operation the callback is
 given the keyword \fBerror\fR.
 .TP
--output callback
+-output \fIcallback\fP
 This option has no default. If it is set the default implementation of
 \fBDisplayMsg\fR will use its value as command prefix to log all
 internal messages. The callback will have three arguments appended to
@@ -192,7 +174,7 @@ it before evaluation, the id of the session, the message itself, and
 the connection state, in this order.
 .RE
 .TP
-\fBftp::Close\fR \fIhandle\fR\fR
+\fBftp::Close\fR \fIhandle\fR
 This command terminates the specified ftp session. If no file transfer
 is in progress, the server will close the control connection
 immediately. If a file transfer is in progress however, the control
@@ -200,29 +182,26 @@ connection will remain open until the transfers completes. When that
 happens the server will write the result response for the transfer to
 it and close the conenction afterward.
 .TP
-\fBftp::Cd\fR \fIhandle\fR \fIdirectory\fR\fR
+\fBftp::Cd\fR \fIhandle\fR \fIdirectory\fR
 This command changes the current working directory on the ftp server
 to a specified target \fIdirectory\fR.  The command returns 1 if the
 current working directory was successfully changed to the specified
 directory or 0 if it fails.  The target directory can be
 .RS
-.TP
-*
+.IP *
 a subdirectory of the current directory,
-.TP
-*
-\fB..\fR (as an indicator for the parent directory of the current
-directory)
-.TP
-*
+.IP *
+.B ..
+(as an indicator for the parent directory of the current directory)
+.IP *
 or a fully qualified path to a new working directory.
 .RE
 .TP
-\fBftp::Pwd\fR \fIhandle\fR\fR
+\fBftp::Pwd\fR \fIhandle\fR
 This command returns the complete path of the current working
 directory on the ftp server, or an empty string in case of an error.
 .TP
-\fBftp::Type\fR \fIhandle\fR ?\fIascii|binary|tenex\fR?\fR
+\fBftp::Type\fR \fIhandle\fR ?\fIascii|binary|tenex\fR?
 This command sets the ftp file transfer type to either \fBascii\fR,
 \fBbinary\fR, or \fBtenex\fR. The command always returns the
 currently set type. If called without type no change is made.
@@ -235,7 +214,7 @@ machine. This mainly affects end-of-line markers. The type
 \fBbinary\fR on the other hand allows the undisturbed transfer of
 non-text files, such as compressed files, images and executables.
 .TP
-\fBftp::List\fR \fIhandle\fR ?\fIdirectory\fR?\fR
+\fBftp::List\fR \fIhandle\fR ?\fIdirectory\fR?
 This commands lists the contents of the specified a directory or other
 group of files. If no directory is specified the current remote
 directory is used instead. Wildcard expressions such as \fI*.tcl\fR
@@ -252,37 +231,37 @@ reported by this command.
 .sp
 If the command fails an empty list is returned.
 .TP
-\fBftp::NList\fR \fIhandle\fR ?\fIdirectory\fR?\fR
+\fBftp::NList\fR \fIhandle\fR ?\fIdirectory\fR?
 This command has the same behavior as the \fBftp::List\fR command,
 except that it only retrieves an abbreviated listing. This means only
 file names are returned in a sorted list.
 .TP
-\fBftp::FileSize\fR \fIhandle\fR \fIfile\fR\fR
+\fBftp::FileSize\fR \fIhandle\fR \fIfile\fR
 This command returns the size of the specified \fIfile\fR on the ftp
 server. If the command fails an empty string is returned.
 .sp
 \fBATTENTION!\fR It will not work properly when in ascii mode and
 is not supported by all ftp server implementations.
 .TP
-\fBftp::ModTime\fR \fIhandle\fR \fIfile\fR\fR
+\fBftp::ModTime\fR \fIhandle\fR \fIfile\fR
 This command retrieves the time of the last modification of the
 \fIfile\fR on the ftp server as a system dependent integer value in
 seconds or an empty string if an error occured. Use the built-in
 command \fBclock\fR to convert the retrieves value into other formats.
 .TP
-\fBftp::Delete\fR \fIhandle\fR \fIfile\fR\fR
+\fBftp::Delete\fR \fIhandle\fR \fIfile\fR
 This command deletes the specified \fIfile\fR on the ftp server. The
 command returns 1 if the specified file was successfully deleted or 0
 if it failed.
 .TP
-\fBftp::Rename\fR \fIhandle\fR \fIfrom\fR \fIto\fR\fR
+\fBftp::Rename\fR \fIhandle\fR \fIfrom\fR \fIto\fR
 This command renames the file \fIfrom\fR in the current directory of
 the ftp server to the specified new file name \fIto\fR. This new file
 name must not be the same as any existing subdirectory or file name.
 The command returns 1 if the specified file was successfully renamed
 or 0 if it failed.
 .TP
-\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
+\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?
 This command transfers a local file \fIlocal\fR to a remote file
 \fIremote\fR on the ftp server. If the file parameters passed to the
 command do not fully qualified path names the command will use the
@@ -291,22 +270,22 @@ unspecified, the server will use the name of the local file as the
 name of the remote file. The command returns 1 to indicate a sucessful
 transfer and 0 in the case of a failure.
 .sp
-If \fB-data \fIdata\fR\fR is specified instead of a local file,
+If \fB-data \fIdata\fR is specified instead of a local file,
 the system will not transfer a file, but the \fIdata\fR passed into
 it. In this case the name of the remote file has to be specified.
 .sp
-If \fB-channel \fIchan\fR\fR is specified instead of a local file, the
+If \fB-channel \fIchan\fR is specified instead of a local file, the
 system will not transfer a file, but read the contents of the channel
 \fIchan\fR and write this to the remote file. In this case the name of
 the remote file has to be specified. After the transfer \fIchan\fR
 will be closed.
 .TP
-\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
+\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?
 This command behaves like \fBftp::Puts\fR, but appends the transfered
 information to the remote file. If the file did not exist on the
 server it will be created.
 .TP
-\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?\fR
+\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?
 This command retrieves a remote file \fIremote\fR on the ftp server
 and stores its contents into the local file \fIlocal\fR. If the file
 parameters passed to the command do not fully qualified path names the
@@ -315,16 +294,16 @@ the local file name is unspecified, the server will use the name of
 the remote file as the name of the local file. The command returns 1
 to indicate a sucessful transfer and 0 in the case of a failure.
 .sp
-If \fB-variable \fIvarname\fR\fR is specified, the system will
+If \fB-variable \fIvarname\fR is specified, the system will
 store the retrieved data into the variable \fIvarname\fR instead of a
 file.
 .sp
-If \fB-channel \fIchan\fR\fR is specified, the system will write the
+If \fB-channel \fIchan\fR is specified, the system will write the
 retrieved data into the channel \fIchan\fR instead of a file. The
 system will \fBnot\fR close \fIchan\fR after the transfer, this is the
 responsibility of the caller to \fBGet\fR.
 .TP
-\fBftp::Reget\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR? ?\fIfrom\fR? ?\fIto\fR?\fR
+\fBftp::Reget\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR? ?\fIfrom\fR? ?\fIto\fR?
 This command behaves like \fBftp::Get\fR, except that if local file
 \fIlocal\fR exists and is smaller than remote file \fIremote\fR, the
 local file is presumed to be a partially transferred copy of the
@@ -338,13 +317,13 @@ specified slice of the remote file. This mode is possible only if a
 local destination is explicitly provided. Omission of \fIto\fR leads
 to downloading till the end of the file.
 .TP
-\fBftp::Newer\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR?\fR
+\fBftp::Newer\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR?
 This command behaves like \fBftp::Get\fR, except that it retrives the
 remote file only if the modification time of the remote file is more
 recent than the file on the local system. If the file does not exist
 on the local system, the remote file is considered newer.
 .TP
-\fBftp::MkDir\fR \fIhandle\fR \fIdirectory\fR\fR
+\fBftp::MkDir\fR \fIhandle\fR \fIdirectory\fR
 This command creates the specified \fIdirectory\fR on the ftp
 server. If the specified path is relative the new directory will be
 created as a subdirectory of the current working directory. Else the
@@ -352,13 +331,13 @@ created directory will have the specified path name. The command
 returns 1 to indicate a sucessful creation of the directory and 0 in
 the case of a failure.
 .TP
-\fBftp::RmDir\fR \fIhandle\fR \fIdirectory\fR\fR
+\fBftp::RmDir\fR \fIhandle\fR \fIdirectory\fR
 This command removes the specified directory on the ftp server. The
 remote directory has to be empty or the command will fail. The command
 returns 1 to indicate a sucessful removal of the directory and 0 in
 the case of a failure.
 .TP
-\fBftp::Quote\fR \fIhandle\fR \fIarg1\fR \fIarg2\fR \fI...\fR\fR
+\fBftp::Quote\fR \fIhandle\fR \fIarg1\fR \fIarg2\fR \fI...\fR
 This command is used to send an arbitrary ftp command to the
 server. It cannot be used to obtain a directory listing or for
 transferring files. It is included to allow an application to execute
@@ -369,7 +348,7 @@ In constrast to the other commands in this package this command will
 not parse the response it got from the ftp server but return it
 verbatim to the caller.
 .TP
-\fBftp::DisplayMsg\fR \fIhandle\fR \fImsg\fR ?\fIstate\fR?\fR
+\fBftp::DisplayMsg\fR \fIhandle\fR \fImsg\fR ?\fIstate\fR?
 This command is used by the package itself to show the different
 messages from the ftp sessions. The package itself declares this
 command very simple, writing the messages to \fIstdout\fR (if
