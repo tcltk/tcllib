@@ -1,13 +1,35 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.6 2004/02/24 07:31:34 andreas_kupries Exp $
+# $Id: md4.test,v 1.7 2004/09/25 14:27:23 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialize the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget md4
+catch {namespace delete ::md4}
+if {[catch {source [file join [file dirname [info script]] md4.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
 package require md4
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
 if {[package provide md4c] == {}} {
     puts "md4 [package provide md4] (pure Tcl)"
 } else {
