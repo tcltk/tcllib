@@ -85,11 +85,16 @@ is equivalent to
     mytree deserialize $b
 }]
 
-
 [list_end]
-
 [para]
 
+A general observation: The root node of the tree can be used in most
+places where a node is asked for. The default name of the rootnode is
+"root", but this can be changed with the method [method rename] (see
+below). Whatever the current name for the root node of the tree is, it
+can be retrieved by calling the method [method rootname].
+
+[para]
 The following commands are possible for tree objects:
 
 [list_begin definitions]
