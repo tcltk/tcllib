@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.44 2004/12/01 22:23:39 techentin Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.45 2005/02/02 06:48:50 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -88,7 +88,6 @@ if {[string compare unix $tcl_platform(platform)]} {
     #	files		a list of interesting files.
 
     proc ::fileutil::find {{basedir .} {filtercmd {}}} {
-
 	# Instead of getting a directory, we have received one file
 	# name.  Do not do directory operations.
 	if { [file isfile $basedir] } {
@@ -98,7 +97,13 @@ if {[string compare unix $tcl_platform(platform)]} {
 	} elseif { [file isdirectory $basedir] } {
 	    set fileisbasedir 0
 	    set oldwd [pwd]
-	    cd $basedir
+	    if {[catch {
+		cd $basedir
+	    }]} {
+		# The directory is not accessible.
+		# Ignore it. No files found.
+		return {}
+	    }
 	    set cwd [pwd]
 	    set filenames [glob -nocomplain * .*]
 	} else {
@@ -136,7 +141,6 @@ if {[string compare unix $tcl_platform(platform)]} {
     # dev/inode checking. This is not required for pre 8.4.
 
     if {[package vcompare [package present Tcl] 8.4] >= 0} {
-
 	# ::fileutil::find --
 	#
 	#	Implementation of find.  Adapted from the Tcler's Wiki.
@@ -167,7 +171,13 @@ if {[string compare unix $tcl_platform(platform)]} {
 	    } elseif { [file isdirectory $basedir] } {
 		set fileisbasedir 0
 		set oldwd [pwd]
-		cd $basedir
+		if {[catch {
+		    cd $basedir
+		}]} {
+		    # The directory is not accessible.
+		    # Ignore it. No files found.
+		    return {}
+		}
 		set cwd [pwd]
 		set filenames [glob -nocomplain * .*]
 	    } else {
@@ -260,7 +270,13 @@ if {[string compare unix $tcl_platform(platform)]} {
 	    } elseif { [file isdirectory $basedir] } {
 		set fileisbasedir 0
 		set oldwd [pwd]
-		cd $basedir
+		if {[catch {
+		    cd $basedir
+		}]} {
+		    # The directory is not accessible.
+		    # Ignore it. No files found.
+		    return {}
+		}
 		set cwd [pwd]
 		set filenames [glob -nocomplain * .*]
 	    } else {
