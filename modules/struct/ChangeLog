@@ -1,3 +1,7 @@
+2002-11-06  Brett Schwarz  <schwarzkopf@users.sourceforge.net>
+
+        * record.tcl: cleaned up code based on output from frink
+
 2002-11-05  Brett Schwarz  <schwarzkopf@users.sourceforge.net>
 
         * struct.tcl: modified to include record.tcl
