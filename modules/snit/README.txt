@@ -20,6 +20,18 @@ Changes in V0.94
   remaining cost in method invocation is the cost of declaring
   instance variables.
 
+* Snit typemethod invocation now also uses a cache.
+
+* Added the "myproc" command, which parallels "mymethod".  "codename"
+  is now deprecated.
+
+* Added the "mytypemethod" command, which parallels "mymethod".
+
+* Added the "myvar" and "mytypevar" commands.  "varname" is now
+  deprecated.
+
+* Sundry internal changes.
+
 Changes in V0.93
 --------------------------------------------------------------------
 

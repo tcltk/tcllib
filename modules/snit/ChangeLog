@@ -1,14 +1,3 @@
-2004-05-15  Will Duquette  <will@cordelia.local>
-
-	* snit.tcl:     Added a type method cache.  Type methods 
-	                (with the exception of implicit "create") are
-			now as fast as instance methods.  This is a
-			naive implementation, though--for typemethods,
-			the cache could be populated at definition
-			time, since there's no delegation.  Of course,
-			if I added typemethod delegation then what I'm
-			doing is appropriate.
-
 2004-05-15  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:     Updated version to 0.94
@@ -38,6 +27,38 @@
 
 	* snit.tcl:	Snit_comptrace now clears the method cache
 	                when a component is redefined.
+
+	* snit.tcl:     Added a type method cache.  Type methods 
+	                (with the exception of implicit "create") are
+			now as fast as instance methods.  This is a
+			naive implementation, though--for typemethods,
+			the cache could be populated at definition
+			time, since there's no delegation.  Of course,
+			if I added typemethod delegation then what I'm
+			doing is appropriate.
+
+	* snit.tcl:     Reorganized some things, in preparation to move
+	                shared code from the type definition to the 
+			snit:: namespace.
+
+	* snit.tcl:	Made %TYPE%::mymethod an alias to snit::MyMethod.
+
+	* snit.tcl:	Added %TYPE%::myproc, as an alias to 
+	* snit.test:    snit::MyProc.  "codename" is now deprecated.
+			Added tests for myproc.
+
+	* snit.tcl:     %TYPE%::codename is now an alias to
+	                snit::CodeName.
+
+	* snit.tcl:     Added %TYPE%::myvar and %TYPE%::mytypevar; these
+	                replace %TYPE%::varname and %TYPE%::typevarname,
+			which are now deprecated.  All are now implemented
+			as aliases to calls in snit::.
+
+	* snit.tcl:     %TYPE%::variable is now an alias to
+	                snit::variable.
+
+	* snit.tcl:     %TYPE%::from is now an alias to snit::From.
 
 2004-02-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
