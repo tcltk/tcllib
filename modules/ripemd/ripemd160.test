@@ -1,6 +1,6 @@
 # ripemd160.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd160.test,v 1.1 2004/02/18 14:32:04 patthoyts Exp $
+# $Id: ripemd160.test,v 1.2 2004/12/03 02:23:40 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -48,13 +48,15 @@ set vectors {
       {12A053384A9C0C88E405A06C27DCF49ADA62EB2B}
     7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
       {B0E20B6E3116640286ED3A87A5713079B21F5189}
+    8 {-} {4C3B58AA82048B1DB748E6B816165C87C551E013}
+    9 {-error} {72A9EF23F2AF0F88C39F54494347E8C63ACD067F}
 }
 lappend vectors \
-    8 [string repeat 1234567890 8] {9B752E45573D4B39F4DBD3323CAB82BF63326BFB}
+    10 [string repeat 1234567890 8] {9B752E45573D4B39F4DBD3323CAB82BF63326BFB}
 
 foreach {n msg hash} $vectors {
     test ripemd160-1.$n {RIPEMD-160 test strings} {
-        ::ripemd::ripemd160 -hex $msg
+        ::ripemd::ripemd160 -hex -- $msg
     } $hash
 }
 
@@ -64,7 +66,7 @@ if {$::ripemd::ripemd160::usetrf} {
     set ::ripemd::ripemd160::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd160-2.$n {RIPEMD-160 pure-Tcl} {
-            ::ripemd::ripemd160 -hex $msg
+            ::ripemd::ripemd160 -hex -- $msg
         } $hash
     }
     set ::ripemd::ripemd160::usetrf 1
@@ -85,13 +87,14 @@ set vectors {
       {60F5EF198A2DD5745545C1F0C47AA3FB5776F881}
     7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
       {E49C136A9E5627E0681B808A3B97E6A6E661AE79}
+    8 {-} {021B4324B528683C60A868F670E89E0BA2B0E743}
 }
 lappend vectors \
-    8 [string repeat 1234567890 8] {31BE3CC98CEE37B79B0619E3E1C2BE4F1AA56E6C}
+    9 [string repeat 1234567890 8] {31BE3CC98CEE37B79B0619E3E1C2BE4F1AA56E6C}
 
 foreach {n msg hash} $vectors {
     test ripemd160-3.$n {HMAC RIPEMD-160 test vectors} {
-        ::ripemd::hmac160 -hex -key $key $msg
+        ::ripemd::hmac160 -hex -key $key -- $msg
     } $hash
 }
 
@@ -101,7 +104,7 @@ if {$::ripemd::ripemd160::usetrf} {
     set ::ripemd::ripemd160::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd160-4.$n {HMAC RIPEMD-160 pure-Tcl} {
-            ::ripemd::hmac160 -hex -key $key $msg
+            ::ripemd::hmac160 -hex -key $key -- $msg
         } $hash
     }
     set ::ripemd::ripemd160::usetrf 1
@@ -143,6 +146,48 @@ if {$::ripemd::ripemd160::usetrf} {
     }
     set ::ripemd::ripemd160::usetrf 1
 }
+
+# -------------------------------------------------------------------------
+# RFC 2286 has a set of test vectors for HMAC-RIPEMD168 and 128.
+# This is those test vectors...
+# -------------------------------------------------------------------------
+
+set vectors \
+    [list \
+         1 [string repeat \x0b 20] "Hi There" \
+         24CB4BD67D20FC1A5D2ED7732DCC39377F0A5668 \
+         2 "Jefe" "what do ya want for nothing?" \
+         DDA6C0213A485A9E24F4742064A7F033B43C4069 \
+         3 [string repeat \xaa 20] [string repeat \xdd 50] \
+         B0B105360DE759960AB4F35298E116E295D8E7C1 \
+         4 \
+         [binary format H* 0102030405060708090a0b0c0d0e0f10111213141516171819]\
+         [string repeat \xcd 50] \
+         D5CA862F4D21D5E610E18B4CF1BEB97A4365ECF4 \
+         5 [string repeat \x0c 20] "Test With Truncation" \
+         7619693978F91D90539AE786500FF3D8E0518E39 \
+         6 [string repeat \xaa 80] \
+         "Test Using Larger Than Block-Size Key - Hash Key First" \
+         6466CA07AC5EAC29E1BD523E5ADA7605B791FD8B \
+         7 [string repeat \xaa 80] \
+         "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data" \
+         69EA60798D71616CCE5FD0871E23754CD75D5A0A \
+        ]
+foreach {n key msg hash} $vectors {
+    test ripemd160-7.$n {RFC2286 test vectors for HMAC-RIPEMD160} {
+        ::ripemd::hmac160 -hex -key $key -- $msg
+    } $hash
+}
+
+if {$::ripemd::ripemd160::usetrf} {
+    set ::ripemd::ripemd160::usetrf 0
+    foreach {n key msg hash} $vectors {
+        test ripemd160-8.$n {RFC2286 test vectors for HMAC-RIPEMD160 pure-Tcl} {
+            ::ripemd::hmac160 -hex -key $key -- $msg
+        } $hash
+    }
+    set ::ripemd::ripemd160::usetrf 1
+}    
 
 # -------------------------------------------------------------------------
 
