@@ -5,9 +5,15 @@
 #
 # Copyright (c) 2004 Reinhard Max <max@tclers.tk>
 #
-# RCS: @(#) $Id: ident.tcl,v 1.1 2004/07/09 18:13:04 rmax Exp $
+# -------------------------------------------------------------------------
+# This software is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the file 'license.terms' for
+# more details.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: ident.tcl,v 1.2 2004/07/12 14:01:04 patthoyts Exp $
 
-package provide Ident 0.42
+package provide ident 0.42
 
 namespace eval ident {
     namespace export query configure

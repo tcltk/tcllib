@@ -8,4 +8,6 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded Ident 0.42 [list source [file join $dir ident.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.2]} {return}
+package ifneeded ident 0.42 [list source [file join $dir ident.tcl]]
+
