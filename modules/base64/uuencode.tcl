@@ -6,13 +6,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.8 2003/03/24 23:21:22 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.8.2.1 2003/04/22 00:01:03 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-package require log;                    # tcllib 1.0
+catch {package require log};            # tcllib 1.0
 
 namespace eval ::uuencode {
-    variable version 1.0.2
+    variable version 1.1.0
 
     namespace export encode decode uuencode uudecode
 }
@@ -36,6 +36,7 @@ proc ::uuencode::Encode {s} {
     return $r
 }
 
+
 proc ::uuencode::Decode {s} {
     if {[string length $s] == 0} {return ""}
     set r {}
@@ -50,6 +51,102 @@ proc ::uuencode::Decode {s} {
                                    | (($c3-0x20)&0x3F) & 0xFF}]]
     }
     return $r
+}
+
+# -------------------------------------------------------------------------
+# C coded version of the Encode/Decode functions for base64c package.
+# -------------------------------------------------------------------------
+if {[package provide critcl] != {}} {
+    namespace eval ::uuencode {
+        critcl::ccode {
+            #include <string.h>
+            static unsigned char Enc(unsigned char c) {
+                return (c != 0) ? ((c & 0x3f) + 0x20) : 0x60;
+            }
+        }
+        critcl::ccommand CEncode {dummy interp objc objv} {
+            Tcl_Obj *inputPtr, *resultPtr;
+            int len, rlen, xtra;
+            unsigned char *input, *p, *r;
+            
+            if (objc !=  2) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                return TCL_ERROR;
+            }
+            
+            inputPtr = objv[1];
+            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+            if ((xtra = (3 - (len % 3))) != 3) {
+                if (Tcl_IsShared(inputPtr))
+                    inputPtr = Tcl_DuplicateObj(inputPtr);
+                input = Tcl_SetByteArrayLength(inputPtr, len + xtra);
+                memset(input + len, 0, xtra);
+                len += xtra;
+            }
+
+            rlen = (len / 3) * 4;
+            resultPtr = Tcl_GetObjResult(interp);
+            if (Tcl_IsShared(resultPtr)) {
+                resultPtr = Tcl_DuplicateObj(resultPtr);
+                Tcl_SetObjResult(interp, resultPtr);
+            }
+            r = Tcl_SetByteArrayLength(resultPtr, rlen);
+            memset(r, 0, rlen);
+            
+            for (p = input; p < input + len; p += 3) {
+                char a, b, c;
+                a = *p; b = *(p+1), c = *(p+2);
+                *r++ = Enc(a >> 2);
+                *r++ = Enc(((a << 4) & 060) | ((b >> 4) & 017));
+                *r++ = Enc(((b << 2) & 074) | ((c >> 6) & 003));
+                *r++ = Enc(c & 077);
+            }
+            
+            return TCL_OK;
+        }
+
+        critcl::ccommand CDecode {dummy interp objc objv} {
+            Tcl_Obj *inputPtr, *resultPtr;
+            int len, rlen, xtra;
+            unsigned char *input, *p, *r;
+            
+            if (objc !=  2) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data");
+                return TCL_ERROR;
+            }
+            
+            /* if input is not mod 4, extend it with nuls */
+            inputPtr = objv[1];
+            input = Tcl_GetByteArrayFromObj(inputPtr, &len);
+            if ((xtra = (4 - (len % 4))) != 4) {
+                if (Tcl_IsShared(inputPtr))
+                    inputPtr = Tcl_DuplicateObj(inputPtr);
+                input = Tcl_SetByteArrayLength(inputPtr, len + xtra);
+                memset(input + len, 0, xtra);
+                len += xtra;
+            }
+
+            /* output will be 1/3 smaller than input and a multiple of 3 */
+            rlen = (len / 4) * 3;
+            resultPtr = Tcl_GetObjResult(interp);
+            if (Tcl_IsShared(resultPtr)) {
+                resultPtr = Tcl_DuplicateObj(resultPtr);
+                Tcl_SetObjResult(interp, resultPtr);
+            }
+            r = Tcl_SetByteArrayLength(resultPtr, rlen);
+            memset(r, 0, rlen);
+            
+            for (p = input; p < input + len; p += 4) {
+                char a, b, c, d;
+                a = *p; b = *(p+1), c = *(p+2), d = *(p+3);
+                *r++ = (((a - 0x20) & 0x3f) << 2) | (((b - 0x20) & 0x3f) >> 4);
+                *r++ = (((b - 0x20) & 0x3f) << 4) | (((c - 0x20) & 0x3f) >> 2);
+                *r++ = (((c - 0x20) & 0x3f) << 6) | (((d - 0x20) & 0x3f) );
+            }
+            
+            return TCL_OK;
+        }
+    }
 }
 
 # -------------------------------------------------------------------------
@@ -74,8 +171,15 @@ proc ::uuencode::pad {s} {
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
 if {[catch {package require Trf 2.0}]} {
-    interp alias {} ::uuencode::encode {} ::uuencode::Encode
-    interp alias {} ::uuencode::decode {} ::uuencode::Decode
+    if {[catch {package require base64c}]} {    
+        # pure-tcl then
+        interp alias {} ::uuencode::encode {} ::uuencode::Encode
+        interp alias {} ::uuencode::decode {} ::uuencode::Decode
+    } else {
+        # tcllib criticl package
+        interp alias {} ::uuencode::encode {} ::uuencode::CEncode
+        interp alias {} ::uuencode::decode {} ::uuencode::CDecode
+    }
 } else {
     proc ::uuencode::encode {s} {
         return [::uuencode -mode encode -- $s]

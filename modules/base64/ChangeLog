@@ -1,3 +1,15 @@
+2003-04-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* base64c.tcl: Added file to define the base64c C coded package.
+	* uuencode.tcl: Added critcl code into the package.
+	* yencode.tcl: Added critcl code into the package.
+
+2003-04-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* all: Created DEVELOPMENT branch - tagged root-DEVELOPMENT.
+	This branch contains criticl-based C code to speed up some of the
+	computationally expensive functions - generates a base64c package.
+	
 2003-04-21  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* uuencode.test: Added code to suppress output from the log
