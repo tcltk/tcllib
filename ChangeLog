@@ -1,3 +1,8 @@
+2004-02-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/ripemd: New module: RIPEMD message-digest implementation
+	* installed_modules.tcl: Added new module.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -55,6 +55,7 @@ foreach {m pkg doc exa} {
     pop3d	_tcl  _man  _null
     profiler	_tcl  _man  _null
     report	_tcl  _man  _null
+    ripemd      _tcl  _man  _null
     sha1	_tcl  _man  _null
     smtpd	_tcl  _man _exa
     snit        _tcl  _man  _null
