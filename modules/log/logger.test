@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.16 2005/01/31 16:41:49 mic42 Exp $
+# $Id: logger.test,v 1.17 2005/01/31 16:55:50 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -757,7 +757,7 @@ test logger-13.2 {test for correct servicename, Bug 1102131} {
     foo::log::info global::child::child
     ${l1}::delete
     namespace delete ::foo
-    list $::INFO
+    set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
 test logger-13.3 {test for correct servicename, Bug 1102131} {
@@ -778,7 +778,7 @@ test logger-13.3 {test for correct servicename, Bug 1102131} {
     foo::log::info global::child::child
     ${l1}::delete
     namespace delete ::foo
-    list $::INFO
+    set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
 test logger-13.4 {test for correct servicename, Bug 1102131} {
@@ -799,7 +799,7 @@ test logger-13.4 {test for correct servicename, Bug 1102131} {
     foo::log::log_info global::child::child
     ${l1}::delete
     namespace delete ::foo
-    list $::INFO
+    set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
 test logger-13.5 {test for correct servicename, Bug 1102131} {
@@ -820,7 +820,7 @@ test logger-13.5 {test for correct servicename, Bug 1102131} {
     foo::log::log_info global::child::child
     ${l1}::delete
     namespace delete ::foo
-    list $::INFO
+    set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
 test logger-13.6 {test for correct servicename, Bug 1102131} {
@@ -841,7 +841,7 @@ test logger-13.6 {test for correct servicename, Bug 1102131} {
     foo::log_info global::child::child
     ${l1}::delete
     namespace delete ::foo
-    list $::INFO
+    set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
 test logger-13.7 {test for correct servicename, Bug 1102131} {
@@ -862,8 +862,9 @@ test logger-13.7 {test for correct servicename, Bug 1102131} {
     foo::log_info global::child::child
     ${l1}::delete
     namespace delete ::foo
-    list $::INFO
+    set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
+
 
 ::tcltest::cleanupTests
 return
