@@ -1,0 +1,201 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin math::bignum n 3.0]
+[copyright {2004 Salvatore Sanfilippo <antirez at invece dot org>}]
+[copyright {2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>}]
+[moddesc   {Math}]
+[titledesc {Arbitrary precision integer math library for Tcl}]
+
+[require Tcl [opt 8.4]]
+[require math::bignum [opt 3.0]]
+
+[description]
+[para]
+The bignum package provides arbitrary precision integer math
+(also known as "big numbers") capabilities to the Tcl language.
+Big numbers are internally represented at Tcl lists: this
+package provides a set of procedures operating against
+the internal representation in order to:
+[list_begin bullet]
+[bullet]
+perform math operations
+
+[bullet]
+convert bignums from the internal representation to a string in
+the desired radix and vice versa.
+
+[list_end]
+[para]
+
+The bignum interface is opaque, so
+operations on bignums that are not returned by procedures
+in this package (but created by hand) may lead to unspecified behaviours.
+It's safe to treat bignums as pure values, so there is no need
+to free a bignum, or to duplicate it via a special operation.
+
+[section "EXAMPLES"]
+This section shows some simple example. This library being just
+a way to perform math operations, examples may be the simplest way
+to learn how to work with it. Consult the API section of
+this man page for information about individual procedures.
+
+[para]
+[example_begin]
+    package require bignum
+
+    # Multiplication of two bignums
+    set a [lb]::bignum::fromstr 88888881111111[rb]
+    set b [lb]::bignum::fromstr 22222220000000[rb]
+    set c [lb]::bignum::mul $a $b[rb]
+    puts [lb]::bignum::tostr $c[rb] ; # => will output 1975308271604953086420000000
+    set c [lb]::bignum::sqrt $c[rb]
+    puts [lb]::bignum::tostr $c[rb] ; # => will output 44444440277777
+
+    # From/To string conversion in different radix
+    set a [lb]::bignum::fromstr 1100010101010111001001111010111 2[rb]
+    puts [lb]::bignum::tostr $a 16[rb] ; # => will output 62ab93d7
+
+    # Factorial example
+    proc fact n {
+        set z [lb]::bignum::fromstr 1[rb]
+        for {set i 2} {$i <= $n} {incr i} {
+            set z [lb]::bignum::mul $z [lb]::bignum::fromstr $i[rb][rb]
+        }
+        return $z
+    }
+
+    puts [lb]::bignum::tostr [lb]fact 100[rb][rb]
+[example_end]
+
+[section "API"]
+[list_begin definitions]
+
+[call [cmd ::bignum::fromstr] [arg string] ?[arg radix]?]
+Convert [emph string] into a bignum. If [emph radix] is omitted or zero,
+the string is interpreted in hex if prefixed with
+[emph 0x], in octal if prefixed with [emph ox],
+in binary if it's pefixed with [emph bx], as a number in
+radix 10 otherwise. If instead the [emph radix] argument
+is specified in the range 2-36, the [emph string] is interpreted
+in the given radix.
+
+[call [cmd ::bignum::tostr] [arg bignum] ?[arg radix]?]
+Convert [emph bignum] into a string representing the number
+in the specified radix. If [emph radix] is omitted, the
+default is 10.
+
+[call [cmd ::bignum::sign] [arg bignum]]
+Return the sign of the bignum.
+The procedure returns 0 if the number is positive, 1 if it's negative.
+
+[call [cmd ::bignum::abs] [arg bignum]]
+Return the absolute value of the bignum.
+
+[call [cmd ::bignum::cmp] [arg a] [arg b]]
+Compare the two bignums a and b, returning [emph 0] if [emph {a == b}],
+[emph 1] if [emph {a > b}], and [emph -1] if [emph {a < b}].
+
+[call [cmd ::bignum::iszero] [arg bignum]]
+Return true if [emph bignum] value is zero, otherwise false is returned.
+
+[call [cmd ::bignum::lt] [arg a] [arg b]]
+Return true if [emph {a < b}], otherwise false is returned.
+
+[call [cmd ::bignum::le] [arg a] [arg b]]
+Return true if [emph {a <= b}], otherwise false is returned.
+
+[call [cmd ::bignum::gt] [arg a] [arg b]]
+Return true if [emph {a > b}], otherwise false is returned.
+
+[call [cmd ::bignum::ge] [arg a] [arg b]]
+Return true if [emph {a >= b}], otherwise false is returned.
+
+[call [cmd ::bignum::eq] [arg a] [arg b]]
+Return true if [emph {a == b}], otherwise false is returned.
+
+[call [cmd ::bignum::ne] [arg a] [arg b]]
+Return true if [emph {a != b}], otherwise false is returned.
+
+[call [cmd ::bignum::isodd] [arg bignum]]
+Return true if [emph bignum] is odd.
+
+[call [cmd ::bignum::iseven] [arg bignum]]
+Return true if [emph bignum] is even.
+
+[call [cmd ::bignum::add] [arg a] [arg b]]
+Return the sum of the two bignums [emph a] and [emph b].
+
+[call [cmd ::bignum::sub] [arg a] [arg b]]
+Return the difference of the two bignums [emph a] and [emph b].
+
+[call [cmd ::bignum::mul] [arg a] [arg b]]
+Return the product of the two bignums [emph a] and [emph b].
+The implementation uses Karatsuba multiplication if both
+the numbers are bigger than a given threshold, otherwise
+the direct algorith is used.
+
+[call [cmd ::bignum::divqr] [arg a] [arg b]]
+Return a two-elements list containing as first element
+the quotient of the division between the two bignums
+[emph a] and [emph b], and the remainder of the division as second element.
+
+[call [cmd ::bignum::div] [arg a] [arg b]]
+Return the quotient of the division between the two
+bignums [emph a] and [emph b].
+
+[call [cmd ::bignum::rem] [arg a] [arg b]]
+Return the remainder of the division between the two
+bignums [emph a] and [emph b].
+
+[call [cmd ::bignum::mod] [arg n] [arg m]]
+Return [emph n] modulo [emph m]. This operation is
+called modular reduction.
+
+[call [cmd ::bignum::pow] [arg base] [arg exp]]
+Return [emph base] raised to the exponent [emph exp].
+
+[call [cmd ::bignum::powm] [arg base] [arg exp] [arg m]]
+Return [emph base] raised to the exponent [emph exp],
+modulo [emph m]. This function is often used in the field
+of cryptography.
+
+[call [cmd ::bignum::sqrt] [arg bignum]]
+Return the integer part of the square root of [emph bignum]
+
+[call [cmd ::bignum::rand] [arg bits]]
+Return a random number of at most [emph bits] bits.
+The returned number is internally generated using Tcl's [emph {expr rand()}]
+function and is not suitable where an unguessable and cryptographically
+secure random number is needed.
+
+[call [cmd ::bignum::lshift] [arg bignum] [arg bits]]
+Return the result of left shifting [emph bignum]'s binary
+representation of [emph bits] positions on the left.
+This is equivalent to multiplying by 2^[emph bits] but much faster.
+
+[call [cmd ::bignum::rshift] [arg bignum] [arg bits]]
+Return the result of right shifting [emph bignum]'s binary
+representation of [emph bits] positions on the right.
+This is equivalent to dividing by [emph 2^bits] but much faster.
+
+[call [cmd ::bignum::setbit] [arg bignumVar] [arg bit]]
+Set the bit at [emph bit] position to 1 in the bignum stored
+in the variable [emph bignumVar]. Bit 0 is the least significant.
+
+[call [cmd ::bignum::clearbit] [arg bignumVar] [arg bit]]
+Set the bit at [emph bit] position to 0 in the bignum stored
+in the variable [emph bignumVar]. Bit 0 is the least significant.
+
+[call [cmd ::bignum::testbit] [arg bignum] [arg bit]]
+Return true if the bit at the [emph bit] position of [emph bignum]
+is on, otherwise false is returned. If [emph bit] is out of
+range, it is considered as set to zero.
+
+[call [cmd ::bignum::bits] [arg bignum]]
+Return the number of bits needed to represent bignum in radix 2.
+
+[list_end]
+[para]
+
+[keywords tcl multiprecision math bignums]
+
+[manpage_end]
