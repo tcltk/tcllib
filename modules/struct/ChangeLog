@@ -1,3 +1,11 @@
+2000-03-10  Eric Melski  <ericm@scriptics.com>
+
+	* tree.n: 
+	* tree.tcl: 
+	* tree.test: Applied patch from [RFE: 4337], with enhancements for
+	better efficiency, and additional test cases; adds cut and splice
+	functions to tree.
+
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* tree.n: 

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.4 2000/03/09 23:48:58 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.5 2000/03/11 01:14:40 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -31,6 +31,11 @@ commands are possible for tree objects:
 .TP
 \fItreeName\fR \fBchildren\fR \fInode\fR
 Return a list of the children of \fInode\fR.
+.TP
+\fItreeName\fR \fBcut\fR \fInode\fR
+Removes the node specified by \fInode\fR from the tree, but not its
+children.  The children of \fInode\fR are made children of the parent of
+the \fInode\fR, at the index at which \fInode\fR was located.
 .TP
 \fItreeName\fR \fBdelete\fR \fInode\fR ?\fInode\fR ...?
 Remove the specified nodes from the tree.  All of the nodes' children
@@ -96,6 +101,18 @@ command assigns that value to the key.
 \fItreeName\fR \fBsize\fR ?\fInode\fR?
 Return a count of the number of descendants of the node \fInode\fR; if
 no node is specified, \fBroot\fR is assumed.
+.TP
+\fItreeName\fR \fBsplice\fR \fIparent\fR \fIfrom\fR ?\fIto\fR? ?\fIchild\fR?
+Insert a node named \fIchild\fR into the tree as a child of the node
+\fIparent\fR. If \fIparent\fR is \fBroot\fR, it refers to the root of
+the tree. The new node will be added to the parent node's child list
+at the index given by \fIfrom\fR.  The children of \fIparent\fR which
+are in the range of the indices \fIfrom\fR and \fIto\fR are made
+children of \fIchild\fR.  If the value of \fIto\fR is not specified it
+defaults to \fBend\fR.  If no name is given for \fIchild\fR, a name
+will be generated for the new node.  The generated name is of the form
+\fBnode\fR\fIx\fR, where \fIx\fR is a number.  The return result from
+this command is the name of the new node.
 .TP
 \fItreeName\fR \fBswap\fR \fInode1\fR \fInode2\fR
 Swap the position of \fInode1\fR and \fInode2\fR in the tree.

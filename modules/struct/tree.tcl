@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.6 2000/03/09 23:48:58 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.7 2000/03/11 01:14:40 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -31,6 +31,7 @@ namespace eval ::struct::tree {
     # commands is the list of subcommands recognized by the tree
     variable commands [list \
 	    "children"		\
+	    "cut"		\
 	    "destroy"		\
 	    "delete"		\
 	    "depth"		\
@@ -46,6 +47,7 @@ namespace eval ::struct::tree {
 	    "previous"		\
 	    "set"		\
 	    "size"		\
+	    "splice"		\
 	    "swap"		\
 	    "unset"		\
 	    "walk"		\
@@ -153,19 +155,56 @@ proc ::struct::tree::_children {name node} {
     return $children($node)
 }
 
-# ::struct::tree::_destroy --
+# ::struct::tree::_cut --
 #
-#	Destroy a tree, including its associated command and data storage.
+#	Destroys the specified node of a tree, but not its children.
+#	These children are made into children of the parent of the
+#	destroyed node at the index of the destroyed node.
 #
 # Arguments:
-#	name	name of the tree.
+#	name	name of the tree object.
+#	node	node to look up and cut.
 #
 # Results:
 #	None.
 
-proc ::struct::tree::_destroy {name} {
-    namespace delete ::struct::tree::tree$name
-    interp alias {} ::$name {}
+proc ::struct::tree::_cut {name node} {
+    if { [string equal $node "root"] } {
+	# Can't delete the special root node
+	error "cannot cut root node"
+    }
+    
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    
+    upvar ::struct::tree::tree${name}::parent   parent
+    upvar ::struct::tree::tree${name}::children children
+    
+    # Locate our parent, children and our location in the parent
+    set parentNode $parent($node)
+    set childNodes $children($node)
+    
+    set index [lsearch -exact $children($parentNode) $node]
+    
+    # Excise this node from the parent list, 
+    set newChildren [lreplace $children($parentNode) $index $index]
+
+    # Put each of the children of $node into the parent's children list,
+    # in the place of $node, and update the parent pointer of those nodes.
+    foreach child $childNodes {
+	set newChildren [linsert $newChildren $index $child]
+	set parent($child) $parentNode
+	incr index
+    }
+    set children($parentNode) $newChildren
+
+    # Remove all record of $node
+    unset parent($node)
+    unset children($node)
+    unset ::struct::tree::tree${name}::node$node
+
+    return
 }
 
 # ::struct::tree::_delete --
@@ -247,6 +286,21 @@ proc ::struct::tree::_depth {name node} {
     return $depth
 }
 
+# ::struct::tree::_destroy --
+#
+#	Destroy a tree, including its associated command and data storage.
+#
+# Arguments:
+#	name	name of the tree.
+#
+# Results:
+#	None.
+
+proc ::struct::tree::_destroy {name} {
+    namespace delete ::struct::tree::tree$name
+    interp alias {} ::$name {}
+}
+
 # ::struct::tree::_exists --
 #
 #	Test for existance of a given node in a tree.
@@ -260,6 +314,24 @@ proc ::struct::tree::_depth {name node} {
 
 proc ::struct::tree::_exists {name node} {
     return [info exists ::struct::tree::tree${name}::parent($node)]
+}
+
+# ::struct::tree::__generateUniqueNodeName --
+#
+#	Generate a unique node name for the given tree.
+#
+# Arguments:
+#	name	name of the tree.
+#
+# Results:
+#	node	name of a node guaranteed to not exist in the tree.
+
+proc ::struct::tree::__generateUniqueNodeName {name} {
+    upvar ::struct::tree::tree${name}::nextUnusedNode nextUnusedNode
+    while {[_exists $name "node${nextUnusedNode}"]} {
+	incr nextUnusedNode
+    }
+    return "node${nextUnusedNode}"
 }
 
 # ::struct::tree::_get --
@@ -334,11 +406,7 @@ proc ::struct::tree::_index {name node} {
 proc ::struct::tree::_insert {name parentNode index args} {
     if { [llength $args] == 0 } {
 	# No node name was given; generate a unique one
-	upvar ::struct::tree::tree${name}::nextUnusedNode nextUnusedNode
-	while {[_exists $name "node${nextUnusedNode}"]} {
-	    incr nextUnusedNode
-	}
-	set node "node${nextUnusedNode}"
+	set node [__generateUniqueNodeName $name]
     } else {
 	set node [lindex $args 0]
     }
@@ -637,6 +705,56 @@ proc ::struct::tree::_size {name {node root}} {
 	}
     }
     return $size
+}
+
+# ::struct::tree::_splice --
+#
+#	Add a node to a tree, making a range of children from the given 
+#	parent children of the new node.
+#
+# Arguments:
+#	name		name of the tree.
+#	parentNode	parent to add the node to.
+#	from		index at which to insert.
+#	to		end of the range of children to replace.
+#			Optional. Defaults to 'end'.
+#	node		Optional node name; if given, must be unique.  If not,
+#			a unique name will be generated.
+#
+# Results:
+#	node		name of the node added to the tree.
+
+proc ::struct::tree::_splice {name parentNode from {to end} args} {
+    if { [llength $args] == 0 } {
+	# No node name given; generate a unique node name
+	set node [__generateUniqueNodeName $name]
+    } else {
+	set node [lindex $args 0]
+    }
+
+    if { [_exists $name $node] } {
+	error "node \"$node\" already exists in tree \"$name\""
+    }
+    
+    upvar ::struct::tree::tree${name}::children children
+    upvar ::struct::tree::tree${name}::parent   parent
+
+    # Save the list of children that are moving
+    set moveChildren [lrange $children($parentNode) $from $to]
+    
+    # Remove those children from the parent
+    set children($parentNode) [lreplace $children($parentNode) $from $to]
+
+    # Add the new node
+    _insert $name $parentNode $from $node
+    
+    # Move the children
+    set children($node) $moveChildren
+    foreach child $moveChildren {
+	set parent($child) $node
+    }
+    
+    return $node
 }
 
 # ::struct::tree::_swap --
