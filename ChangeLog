@@ -1,3 +1,18 @@
+2003-05-07  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* tcllib_version.tcl: Updated to 1.4.0.1 to distinguish the CVS
+	  from the official release.
+
+	* install_action.tcl:
+	* installer.tcl:
+	* sak.tcl: Lots of changes to make a number of command
+	  module-ware. In the sense that they now work for individual
+	  modules and not only for all in one go. The most important is
+	  'validate'. IOW, it is now possible to validate a single module,
+	  making this feature more convenient for a developer, as there is
+	  less noise in the output. This required more sharing of code
+	  with the installer.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
