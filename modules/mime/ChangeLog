@@ -1,3 +1,10 @@
+2002-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Applied patch for SF bug #547336 on behalf of Marshall
+	  Rose <mrose@users.sourceforge.net>. Bug was reported by Don
+	  Porter <dgp@users.sourceforge.net>. This removes the duplicate
+	  [package require Trf] we had before.
+
 2002-04-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.man: Added doctools manpage.
