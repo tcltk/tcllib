@@ -1,3 +1,8 @@
+2004-08-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test: Added code to remove the temp. file containing the
+	  server log.
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
