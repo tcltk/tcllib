@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.20 2004/08/26 05:27:44 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.21 2004/09/25 14:26:46 patthoyts Exp $
 
 set old_auto_path $auto_path
 
@@ -90,6 +90,9 @@ if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {
 }
 
 puts stdout "tcllib tests"
+puts stdout "Test platform:\
+ \"$tcl_platform(os)-$tcl_platform(osVersion)-$tcl_platform(machine)\"\
+ using Tcl [info patchlevel]"
 puts stdout "Tests running in working dir:  $::tcltest::testsDirectory"
 if {[llength $::tcltest::skip] > 0} {
     puts stdout "Skipping tests that match:  $::tcltest::skip"
