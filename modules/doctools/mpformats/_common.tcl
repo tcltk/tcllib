@@ -70,6 +70,9 @@ proc GetDesc {key} {
 	    }
 	    return $state(tdesc)
 	}
+	default {
+	    return -code error "Illegal description key \"$key\""
+	}
     }
 }
 

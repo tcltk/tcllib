@@ -21,7 +21,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.3 2002/01/18 20:51:15 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.4 2002/02/15 05:35:30 andreas_kupries Exp $
 
 package require Tcl 8
 package provide comm 3.7.1
@@ -104,7 +104,7 @@ namespace eval ::comm {
 	#eval set [list comm([lindex $args 0],method)] [lrange $args 1 end]
     }
 
-    if 0 {
+    if {0} {
 	# Propogate result, code, and errorCode.  Can't just eval
 	# otherwise TCL_BREAK gets turrned into TCL_ERROR.
 	global errorInfo errorCode
@@ -465,8 +465,16 @@ proc ::comm::commConfigure {{force 0} args} {
 	}
 	set optval [lindex $args $opt]
 	switch $comm($var,var) {
-	    b { set $var [commBool $optval]; set skip 1 }
-	    v { set $var $optval; set skip 1 }
+	    b {
+		# FRINK: nocheck
+		set $var [commBool $optval]
+		set skip 1
+	    }
+	    v {
+		# FRINK: nocheck
+		set $var $optval
+		set skip 1
+	    }
 	    p {
 		if {
 		    [string compare $optval ""] &&
@@ -474,6 +482,7 @@ proc ::comm::commConfigure {{force 0} args} {
 		} {
 		    error "Non-port to configuration option: -$var"
 		}
+		# FRINK: nocheck
 		set $var $optval
 		set skip 1
 	    }
@@ -481,6 +490,7 @@ proc ::comm::commConfigure {{force 0} args} {
 		if {![regexp {[0-9]+} $optval]} {
 		    error "Non-integer to configuration option: -$var"
 		}
+		# FRINK: nocheck
 		set $var $optval
 		set skip 1
 	    }
@@ -492,14 +502,16 @@ proc ::comm::commConfigure {{force 0} args} {
     }
 
     foreach var {port listen local} {
+	# FRINK: nocheck
 	if {[info exists $var] && [set $var] != $comm($chan,$var)} {
 	    incr force
+	    # FRINK: nocheck
 	    set comm($chan,$var) [set $var]
 	}
     }
 
     # do not re-init socket
-    if {!$force} return
+    if {!$force} {return ""}
 
     # User is recycling object, possibly to change from local to !local
     if {[info exists comm($chan,socket)]} {
@@ -511,7 +523,7 @@ proc ::comm::commConfigure {{force 0} args} {
     set comm($chan,socket) ""
     if {!$comm($chan,listen)} {
 	set comm($chan,port) 0
-	return
+	return ""
     }
 
     if {[info exists port] && [string match "" $comm($chan,port)]} {
@@ -542,7 +554,7 @@ proc ::comm::commConfigure {{force 0} args} {
 
     # If port was 0, system allocated it for us
     set comm($chan,port) [lindex [fconfigure $ret -sockname] 2]
-    return
+    return ""
 }
 
 # ::comm::commBool --
@@ -854,6 +866,7 @@ proc ::comm::commHook {hook {script +}} {
     } else {
 	set comm($chan,hook,$hook) $script
     }
+    return ""
 }
 
 ###############################################################################

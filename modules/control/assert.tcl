@@ -2,7 +2,7 @@
 #
 #	The [assert] command of the package "control".
 #
-# RCS: @(#) $Id: assert.tcl,v 1.1 2001/08/23 04:53:15 dgp Exp $
+# RCS: @(#) $Id: assert.tcl,v 1.2 2002/02/15 05:35:30 andreas_kupries Exp $
 
 namespace eval ::control {
 
@@ -53,6 +53,7 @@ namespace eval ::control {
 		return [string equal [namespace origin EnabledAssert] \
 			[namespace origin [namespace parent]::assert]]
 	    }
+	    return ""
 	}
 
 	proc callback {args} {

@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: do.tcl,v 1.4 2002/01/18 16:42:56 rmax Exp $
+# RCS: @(#) $Id: do.tcl,v 1.5 2002/02/15 05:35:30 andreas_kupries Exp $
 #
 namespace eval ::control {
 
@@ -59,7 +59,10 @@ namespace eval ::control {
 		return -errorinfo [ErrorInfoAsCaller uplevel do]  \
 		    -errorcode $::errorCode -code error $result
 	    }
-	    3 return
+	    3 {
+		# FRINK: nocheck
+		return
+	    }
 	    4 {}
 	    default {
 		return -code $code $result

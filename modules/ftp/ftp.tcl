@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.23 2002/01/18 20:51:16 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.24 2002/02/15 05:35:30 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -2035,7 +2035,8 @@ proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
         set dest $source
     }
     if {![file exists [file dirname $dest]]} {
-	return -code error "ftp::Reget, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
+	return -code error \
+	"ftp::Reget, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
     }
 
     set ftp(RemoteFilename) $source
@@ -2048,13 +2049,13 @@ proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
     # correct offset
 
     if { [file exists $ftp(LocalFilename)] } {
-	set ftp(FileSize) [ expr [file size $ftp(LocalFilename)] + $from_bytes ]
+	set ftp(FileSize) [ expr {[file size $ftp(LocalFilename)] + $from_bytes }]
 	 	
 	if { $till_bytes != -1 } {
 	    set ftp(To)   $till_bytes	
-	    set ftp(Bytes_to_go) [ expr $till_bytes - $ftp(FileSize) ]
+	    set ftp(Bytes_to_go) [ expr {$till_bytes - $ftp(FileSize)} ]
 	
-	    if { $ftp(Bytes_to_go) <= 0 } return 0
+	    if { $ftp(Bytes_to_go) <= 0 } {return 0}
 
 	} else {
 	    # till_bytes not set
@@ -2066,7 +2067,7 @@ proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
         set ftp(FileSize) $from_bytes
 		  
 	if { $till_bytes != -1 } {
-	    set ftp(Bytes_to_go) [ expr $till_bytes - $from_bytes ]
+	    set ftp(Bytes_to_go) [ expr {$till_bytes - $from_bytes }]
 	    set ftp(To) $till_bytes
 	} else {
 	    #till_bytes not set
@@ -2433,7 +2434,7 @@ proc ftp::CopyNext {s bytes {error {}}} {
     # update bytes_to_go and blocksize
 
     if { [info exists ftp(Bytes_to_go)] } {
-	set ftp(Bytes_to_go) [expr $ftp(Bytes_to_go) - $bytes]
+	set ftp(Bytes_to_go) [expr {$ftp(Bytes_to_go) - $bytes}]
 	 
 	if { $ftp(Blocksize) <= $ftp(Bytes_to_go) } {
 	    set blocksize $ftp(Blocksize)
@@ -2960,4 +2961,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.3} 1]
+package provide ftp [lindex {Revision: 2.3.1} 1]
