@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.3 2002/12/21 04:17:58 schwarzkopf Exp $
+# $Id: record.tcl,v 1.4 2003/01/29 04:27:25 schwarzkopf Exp $
 #
 #============================================================
 #
@@ -181,8 +181,7 @@ proc ::struct::record::Define {defn_ vars_ args} {
             ##
             if {[string match "$defn_" "$new"]} {
                 Delete record $defn_
-                return -errorinfo "Can not have circular records.\
-                Structure was not created."
+                error "Can not have circular records. Structure was not created."
             }
 
             ##
