@@ -1366,8 +1366,7 @@ proc ::snit::Comp.statement.typecomponent {component args} {
 
     # NEXT, if -public specified, define the method.  
     if {$publicMethod ne ""} {
-        Comp.statement.delegate typemethod $publicMethod \
-            to $component using {%c}
+        Comp.statement.delegate typemethod [list $publicMethod *] to $component
     }
 
     # NEXT, if "-inherit 1" is specified, delegate typemethod * to 
@@ -1450,7 +1449,7 @@ proc ::snit::Comp.statement.component {component args} {
 
     # NEXT, if -public specified, define the method.  
     if {$publicMethod ne ""} {
-        Comp.statement.delegate method $publicMethod to $component using {%c}
+        Comp.statement.delegate method [list $publicMethod *] to $component
     }
 
     # NEXT, if -inherit is specified, delegate method/option * to 
@@ -3488,8 +3487,14 @@ proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
     variable ${type}::Snit_typemethodInfo
     variable ${type}::Snit_typemethodCache
 
-    # FIRST, get the explicit names.
-    set result [array names Snit_typemethodInfo -glob $pattern]
+    # FIRST, get the explicit names, skipping prefixes.
+    set result {}
+
+    foreach name [array names Snit_typemethodInfo -glob $pattern] {
+        if {[lindex $Snit_typemethodInfo($name) 0] != 1} {
+            lappend result $name
+        }
+    }
 
     # NEXT, add any from the cache that aren't explicit.
     if {[info exists Snit_typemethodInfo(*)]} {
@@ -3607,8 +3612,14 @@ proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
     variable ${type}::Snit_methodInfo
     variable ${selfns}::Snit_methodCache
 
-    # FIRST, get the explicit names.
-    set result [array names Snit_methodInfo -glob $pattern]
+    # FIRST, get the explicit names, skipping prefixes.
+    set result {}
+
+    foreach name [array names Snit_methodInfo -glob $pattern] {
+        if {[lindex $Snit_methodInfo($name) 0] != 1} {
+            lappend result $name
+        }
+    }
 
     # NEXT, add any from the cache that aren't explicit.
     if {[info exists Snit_methodInfo(*)]} {
