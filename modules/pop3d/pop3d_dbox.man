@@ -51,9 +51,15 @@ The following commands are possible for database objects:
 
 [list_begin definitions]
 
+[call [arg dbName] [method destroy]]
+
+Destroys the mailbox database and all transient data. The directory
+associated with the object is not destroyed.
+
 [call [arg dbName] [method base] [arg base]]
 
-Defines the base directory containing the mailboxes to manage.
+Defines the base directory containing the mailboxes to manage. If this
+method is not called none of the following methods will work.
 
 [call [arg dbName] [method add] [arg mbox]]
 
@@ -63,11 +69,17 @@ valid path component.
 [call [arg dbName] [method remove] [arg mbox]]
 
 Removes the mailbox specified through [arg mbox], and the mails
-contained therein, from the database.
+contained therein, from the database. This method will fail if the
+specified mailbox is locked.
 
 [call [arg dbName] [method move] [arg {old new}]]
 
 Changes the name of the mailbox [arg old] to [arg new].
+
+[call [arg dbName] [method list]]
+
+Returns a list containing the names of all mailboxes in the directory
+associated with the database.
 
 [call [arg dbName] [method exists] [arg mbox]]
 
@@ -94,17 +106,34 @@ on the specified mailbox.
 [call [arg dbName] [method stat] [arg mbox]]
 
 Determines the number of messages in the specified mailbox and returns
-this number.
+this number. This method fails if the mailbox [arg mbox] is not
+locked.
 
 [call [arg dbName] [method size] [arg {mbox msgId}]]
 
 Determines the size of the message specified through its id in
 [arg msgId], in bytes, and returns this number.
 
+The [arg msgId] has to be in the range "1 ...
+[lb][arg dbName] [method stat][rb]" or this
+call will fail. If [method stat] was not called
+before this call, [method size] will assume
+that there are zero messages in the mailbox.
+
+
 [call [arg dbName] [method dele] [arg {mbox msgList}]]
 
 Deletes the messages whose numeric ids are contained in the
 [arg msgList] from the mailbox specified via [arg mbox].
+
+The [arg msgList] must not be empty or this call will fail.
+
+The numeric ids in [arg msgList] have to be in the range "1 ...
+[lb][arg dbName] [method stat][rb]" or this
+call will fail. If [method stat] was not called
+before this call, [method dele] will assume
+that there are zero messages in the mailbox.
+
 
 [call [arg storageCmd] [method get] [arg mbox] [arg msgId]]
 
@@ -113,6 +142,13 @@ token following the interface described in the documentation of
 package [package mime]. The token is [strong read-only]. In other
 words, the caller is allowed to do anything with the token except to
 modify it.
+
+The [arg msgId] has to be in the range "1 ...
+[lb][arg dbName] [method stat][rb]" or this
+call will fail. If [method stat] was not called
+before this call, [method get] will assume
+that there are zero messages in the mailbox.
+
 
 [list_end]
 

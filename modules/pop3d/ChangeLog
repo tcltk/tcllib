@@ -1,3 +1,19 @@
+2002-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d_dbox.man:
+	* pop3d_dbox.tcl:
+	* pop3d_dbox.test: New method [destroy]. Extended
+	  documentation. Clarified interaction lock/remove and interaction
+	  lock/stat/(size/get/dele). Added checks of message ids in size,
+	  get, dele. Added general check of define base directory to all
+	  methods. Added testsuite. Bugfixes. Tcllib #532216.
+
+	* pop3d_udb.man:
+	* pop3d_udb.tcl: 
+	* pop3d_udb.test: Documented [destroy]. Fixed documentation of
+	  [lookup], refered to non-existing method [do]. Added [destroy]
+	  method. Added test suite. Tcllib #532216.
+
 2002-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* New module. Pop3 server, and associated objects for simple user
