@@ -51,7 +51,16 @@ proc _tci {module libdir} {
 proc _man {module format ext docdir} {
     global distribution argv argc argv0 config
 
-    package require doctools
+    # [SF Tcllib Bug 784519]
+    # Directly access the bundled doctools package to ensure that
+    # we have the truly latest code for that, and not the doctools
+    # the executing tclsh would find on its own. The present query is
+    # used to ensure that we load the package only once.
+
+    #package require doctools
+    if {[catch {package present doctools}]} {
+	uplevel #0 [list source [file join $distribution modules doctools doctools.tcl]]
+    }
     ::doctools::new dt -format $format -module $module
 
     foreach f [glob -nocomplain [file join $distribution modules $module *.man]] {
