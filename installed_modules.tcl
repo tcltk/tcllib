@@ -66,7 +66,6 @@ foreach {m pkg doc exa} {
     soundex	_tcl  _man  _null
     stooop	_tcl  _man  _null
     struct	_tcl  _man _exa
-    struct1	_tcl  _null _null
     textutil	 _tex _man  _null
     uri		_tcl  _man  _null
 } {
