@@ -1,0 +1,47 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin tar n 0.1]
+[moddesc   {}]
+[titledesc {}]
+[require Tcl 8.4]
+[require tar [opt 0.1]]
+[description]
+
+
+[para]
+
+[list_begin definitions]
+
+[call [cmd ::tar::contents] [arg file]]
+
+
+[call [cmd ::tar::stat] [arg file] [opt file]]
+
+
+[call [cmd ::tar::untar] [arg file] [args]]
+[list_begin opt]
+[opt_def -dir dirName]
+[opt_def -file fileName]
+[opt_def -glob pattern]
+[opt_def -nooverwrite]
+[opt_def -nomtime]
+[opt_def -noperms]
+[list_end]
+[nl]
+
+[call [cmd ::tar::get] [arg tarball] [arg fileName]]
+
+
+[call [cmd ::tar::create] [arg tarball] [arg files] [args]]
+
+[list_begin opt]
+[opt_def -dereference]
+[list_end]
+[nl]
+
+[call [cmd ::tar::append] [arg tarball] [arg files] [args]]
+
+[list_begin opt]
+[opt_def -dereference]
+[list_end]
+[nl]
+
