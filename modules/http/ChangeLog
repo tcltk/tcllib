@@ -1,5 +1,12 @@
 2004-07-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* autoproxy.tcl: Removed the stuff for Digest and NTLM until it
+	is working properly. Added an authProc configuration option to
+	permit application code to specify a procedure to get
+	authentication information from the user.
+	
+2004-07-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
 	* autoproxy.tcl: Fix the version number.
 
 2004-07-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
