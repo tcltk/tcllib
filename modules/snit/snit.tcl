@@ -17,7 +17,8 @@ package provide snit 0.94
 # Namespace
 
 namespace eval ::snit:: {
-    namespace export compile type widget widgetadaptor typemethod method
+    namespace export \
+        compile type widget widgetadaptor typemethod method macro
 }
 
 #-----------------------------------------------------------------------
@@ -2187,6 +2188,7 @@ proc ::snit::RT.ClearInstanceCaches {selfns} {
     unset -nocomplain -- ${selfns}::Snit_methodCache
     unset -nocomplain -- ${selfns}::Snit_cgetCache
     unset -nocomplain -- ${selfns}::Snit_configureCache
+    unset -nocomplain -- ${selfns}::Snit_validateCache
 }
 
 
@@ -2645,6 +2647,7 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
     variable ${type}::Snit_optionInfo
 
     foreach {option value} $optionlist {
+        # FIRST, get the configure command, caching it if need be.
         if {[catch {set ${selfns}::Snit_configureCache($option)} command]} {
             set command [snit::RT.CacheConfigureCommand \
                              $type $selfns $win $self $option]
@@ -2653,7 +2656,17 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
                 return -code error "unknown option \"$option\""
             }
         }
-            
+
+        # NEXT, the caching the configure command also cached the
+        # validate command, if any.  If we have one, run it.
+        set valcommand [set ${selfns}::Snit_validateCache($option)]
+
+        if {$valcommand ne ""} {
+            lappend valcommand $value
+            uplevel 1 $valcommand
+        }
+
+        # NEXT, configure the option with the value.
         lappend command $value
         uplevel 1 $command
     }
@@ -2662,6 +2675,9 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
 }
 
 # Retrieves and caches the command that stores the named option.
+# Also stores the command that validates the name option if any;
+# If none, the validate command is "", so that the cache is always
+# populated.
 #
 # type		The snit type
 # selfns        The instance's instance namespace
@@ -2672,13 +2688,27 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
 proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
     variable ${type}::Snit_optionInfo
     variable ${selfns}::Snit_configureCache
+    variable ${selfns}::Snit_validateCache
 
     if {[info exist Snit_optionInfo(islocal-$option)]} {
         # We know the item; it's either local, or explicitly delegated.
         
         if {$Snit_optionInfo(islocal-$option)} {
-            # It's a local option; if it has a configure method defined,
-            # use it; otherwise, just set the value.
+            # It's a local option.
+
+            # If it has a validate method, cache that for later.
+            if {$Snit_optionInfo(validate-$option) ne ""} {
+                set command [snit::RT.CacheMethodCommand \
+                                 $type $selfns $win $self \
+                                 $Snit_optionInfo(validate-$option)]
+                lappend command $option
+                set Snit_validateCache($option) $command
+            } else {
+                set Snit_validateCache($option) ""
+            }
+            
+            # If it has a configure method defined,
+            # cache it; otherwise, just set the value.
 
             if {$Snit_optionInfo(configure-$option) eq ""} {
                 set command [list set ${selfns}::options($option)]
@@ -2704,13 +2734,16 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
     } else {
         return ""
     }
+
+    # There is no validate command in this case; save an empty string.
+    set Snit_validateCache($option) ""
         
     # Get the component's object
     set obj [RT.Component $type $selfns $comp]
     
     set command [list $obj configure $target]
     set Snit_configureCache($option) $command
-    
+
     return $command
 }
 
