@@ -143,7 +143,7 @@ if {![catch {package require Trf 2.0}]} {
     proc sha1::time {} {
 	foreach len {10 50 100 500 1000 5000 10000} {
 	    set time [::time {sha1 [format %$len.0s ""]} 10]
-	    regexp -- "\[0-9]*" $time msec
+	    set msec [lindex $time 0]
 	    puts "input length $len: [expr {$msec/1000}] milliseconds per interation"
 	}
     }
