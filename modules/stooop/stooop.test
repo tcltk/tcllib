@@ -1,13 +1,14 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.2 2001/11/27 11:46:52 jfontain Exp $
+# $Id: stooop.test,v 1.3 2001/11/29 16:51:53 jfontain Exp $
 
 if {[lsearch [namespace children] ::tcltest]<0} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+set source [file join [file dirname [info script]] stooop.tcl]
 
 set dumpArraysCode {
     proc dumpArrays {args} {
@@ -26,10 +27,8 @@ test stooop-0 {
     check that the empty named array feature works
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         set (0) 0
         lappend ::result $(0)
         namespace eval n {
@@ -51,12 +50,9 @@ test stooop-1 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {new a} ::result
-
         set ::result
     }]
     interp delete $interpreter
@@ -67,10 +63,8 @@ test stooop-2 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -126,10 +120,8 @@ test stooop-3 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         catch {new a} message
         lappend ::result $message
@@ -166,11 +158,9 @@ test stooop-4 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p q} {
             lappend ::result "a::a $this"
@@ -266,13 +256,10 @@ test stooop-5 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class ::a {}
         class b::b {}
-
         set ::result {}
     }]
     interp delete $interpreter
@@ -283,11 +270,9 @@ test stooop-6 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             lappend ::result "a::a $this"
@@ -417,10 +402,8 @@ test stooop-7 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         class b {}
@@ -498,10 +481,8 @@ test stooop-8 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -684,10 +665,8 @@ test stooop-9 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {}
@@ -735,10 +714,8 @@ test stooop-10 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {}
@@ -786,10 +763,8 @@ test stooop-11 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -975,10 +950,8 @@ test stooop-12 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             virtual proc a::a {this} {}
@@ -1022,10 +995,8 @@ test stooop-13 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::~a {this} {}
@@ -1069,10 +1040,8 @@ test stooop-14 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         catch {
             class b {}
@@ -1120,10 +1089,8 @@ test stooop-15 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             virtual a::f {this} {}
@@ -1167,10 +1134,8 @@ test stooop-16 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             virtual proc f {} {}
         } message
@@ -1194,10 +1159,8 @@ test stooop-17 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::f {this}
@@ -1241,10 +1204,8 @@ test stooop-18 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class b {}
             proc b::b {this} a {}
@@ -1288,10 +1249,8 @@ test stooop-19 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class b {}
             proc b::b {this} b {} {}
@@ -1335,10 +1294,8 @@ test stooop-20 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::~a {this} {}
@@ -1385,10 +1342,8 @@ test stooop-21 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {p} {}
@@ -1435,10 +1390,8 @@ test stooop-22 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::~a {p} {}
@@ -1485,10 +1438,8 @@ test stooop-23 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             virtual proc a::f {p} {}
@@ -1535,11 +1486,9 @@ test stooop-24 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p args} {
             lappend ::result "a::a $this $p $args"
@@ -1664,10 +1613,8 @@ test stooop-25 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -1809,11 +1756,9 @@ test stooop-26 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p q args} {
             lappend ::result "a::a $this $p $q $args"
@@ -1958,11 +1903,9 @@ test stooop-27 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this args} {
             lappend ::result "a::a $this $args"
@@ -2087,11 +2030,9 @@ test stooop-28 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this args} {
             lappend ::result "a::a $this $args"
@@ -2216,10 +2157,8 @@ test stooop-29 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p q} {
             lappend ::result "a::a $this $p $q"
@@ -2305,10 +2244,8 @@ test stooop-30 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -2489,11 +2426,9 @@ test stooop-31 {
     deallocation
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             lappend ::result "a::a $this"
@@ -2690,10 +2625,8 @@ test stooop-32 {
     of base class / argument pairs
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class c {}
             proc c::c {this} a {} b {}
@@ -2738,10 +2671,8 @@ test stooop-33 {
     check that base class of class with multiple base classes is defined
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {}
@@ -2801,10 +2732,8 @@ test stooop-34 {
     constructor declaration
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {}
@@ -2860,11 +2789,9 @@ test stooop-35 {
     within base class constructors arguments
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             lappend ::result "a::a $this"
@@ -3058,11 +2985,9 @@ test stooop-36 {
     (see test 71 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             lappend ::result "a::a $this"
@@ -3216,11 +3141,9 @@ test stooop-37 {
     number of arguments (see test 72 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this args} {
             lappend ::result "a::a $this $args"
@@ -3313,11 +3236,9 @@ test stooop-38 {
     common indirect base class (see test 73 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             lappend ::result "a::a $this"
@@ -3471,11 +3392,9 @@ test stooop-39 {
     together (see test 74 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this {p 0}} {
             lappend ::result "a::a $this"
@@ -3595,10 +3514,8 @@ test stooop-40 {
     hierarchy (see test 75 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -3743,10 +3660,8 @@ test stooop-41 {
     (see 76.tcl for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -3889,11 +3804,9 @@ test stooop-42 {
     check basic cloning operation (see nested class version in test 70)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             set ($this,x) 0
@@ -3924,11 +3837,9 @@ test stooop-43 {
     check user defined cloning operation (see nested class version in test 69)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             set ($this,x) 0
@@ -3965,11 +3876,9 @@ test stooop-44 {
     check cloning operation in a 3 level deep class hierarchy
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             set ($this,x) 0
@@ -4112,10 +4021,8 @@ test stooop-45 {
     check user defined cloning operation error checking
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {
@@ -4176,10 +4083,8 @@ test stooop-46 {
     check user defined cloning operation error checking
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {
@@ -4241,11 +4146,9 @@ test stooop-47 {
     and member objects (see test 77 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             set ($this,m) $p
@@ -4371,11 +4274,9 @@ test stooop-48 {
     check basic cloning operation with array members
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             variable ${this}x
@@ -4476,10 +4377,8 @@ test stooop-49 {
     check user defined cloning operation error checking
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this copy} {}
@@ -4524,10 +4423,8 @@ test stooop-50 {
     check copy constructor base class(es) initialization errors
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this p} {}
@@ -4591,10 +4488,8 @@ test stooop-51 {
     file is sourced multiple times have no adverse effects
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         class b {}
@@ -4641,10 +4536,8 @@ test stooop-52 {
     declaration for we need ancestors for global ancestors array declaration
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::p {this} {}
@@ -4690,10 +4583,8 @@ test stooop-53 {
     interfere with variable number of arguments processing special case
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p args} {}
         proc a::~a {this} {}
@@ -4752,10 +4643,8 @@ test stooop-54 {
     as in C++ (see test 78 for nested class version)
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             a::f $this x
@@ -4846,11 +4735,9 @@ test stooop-55 {
     class constructor arguments works
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p args} {
             lappend ::result "a::a $this $p $args"
@@ -4976,11 +4863,9 @@ test stooop-56 {
     class constructor arguments works
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this args} {
             lappend ::result "a::a $this $args"
@@ -5106,11 +4991,9 @@ test stooop-57 {
     constructor constant arguments
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             lappend ::result "a::a $this $p"
@@ -5210,11 +5093,9 @@ test stooop-58 {
     constructor constant arguments
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p args} {
             lappend ::result "a::a $this $p $args"
@@ -5318,11 +5199,9 @@ test stooop-59 {
     context
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p} {
             upvar $p q
@@ -5430,10 +5309,8 @@ test stooop-60 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a::p {this} {}
@@ -5478,12 +5355,9 @@ test stooop-61 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {new 1} ::result
-
         set ::result
     }]
     interp delete $interpreter
@@ -5494,10 +5368,8 @@ test stooop-62 {
     check that multiple class definitions for the same class are possible
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this} {}
             proc ~a {this} {}
@@ -5550,11 +5422,9 @@ test stooop-63 {
     constructor arguments works
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         proc p {p} {error "::p invoked"}
 
         class a {}
@@ -5659,11 +5529,9 @@ test stooop-64 {
     check static member initialization within class body
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             set (l) {}
         }
@@ -5730,10 +5598,8 @@ test stooop-65 {
     undocumented
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         catch {
             class a {}
             proc a::a {this} {}
@@ -5783,10 +5649,8 @@ test stooop-66 {
     nested class or namespace
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             class b {
                 proc b {this} {}
@@ -5847,10 +5711,8 @@ test stooop-67 {
     namespace and is free from interferences
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this} {}
             proc p {this} {
@@ -5948,10 +5810,8 @@ test stooop-68 {
     check inheritance within a deep nested class hierarchy
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this} {
                 lappend ::result a::a
@@ -6015,11 +5875,9 @@ test stooop-69 {
     check user defined cloning operation in nested class context
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         class a::b {}
@@ -6067,11 +5925,9 @@ test stooop-70 {
     check basic cloning operation in nested class context
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         class a::b {}
@@ -6114,11 +5970,9 @@ test stooop-71 {
     deallocation with a common indirect base class
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this p} {
@@ -6302,11 +6156,9 @@ test stooop-72 {
     number of arguments
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this args} {
@@ -6426,11 +6278,9 @@ test stooop-73 {
     common indirect base class
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this p} {
@@ -6614,11 +6464,9 @@ test stooop-74 {
     together
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this {p 0}} {
@@ -6771,10 +6619,8 @@ test stooop-75 {
     hierarchy
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this} {}
@@ -6934,10 +6780,8 @@ test stooop-76 {
     configurations in a 3 level deep class hierarchy
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this} {}
@@ -7097,11 +6941,9 @@ test stooop-77 {
     and member objects
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this p} {
@@ -7277,10 +7119,8 @@ test stooop-78 {
     as in C++
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class z {}
         class z::a {}
         proc z::a::a {this} {
@@ -7378,10 +7218,8 @@ test stooop-79 {
     check that child nested class is visible within parent namespace
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -7421,13 +7259,13 @@ test stooop-80 {
     verify regular member procedure checking in procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::p {this} {}
@@ -7500,13 +7338,13 @@ test stooop-81 {
     procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -7685,13 +7523,13 @@ test stooop-82 {
     hierarchy in procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::p {this} {}
@@ -7792,13 +7630,13 @@ test stooop-83 {
     verify object identifier checking in procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::p {this} {}
@@ -7846,13 +7684,13 @@ test stooop-84 {
     verify virtual member procedure checking in procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -8061,13 +7899,13 @@ test stooop-85 {
     verify pure interface class object creation in procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {
             lappend ::result "a::a $this"
@@ -8149,13 +7987,13 @@ test stooop-86 {
     (it seems that unset tracing prevents error reporting at this time (bug?))
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKDATA) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -8304,13 +8142,13 @@ test stooop-87 {
     (it seems that unset tracing prevents error reporting at this time (bug?))
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKDATA) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {
             set (m) 0
         }
@@ -8409,13 +8247,13 @@ test stooop-88 {
     verify that object copying still works in member data checking mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKDATA) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {
             set ($this,n) 0
@@ -8456,13 +8294,13 @@ test stooop-89 {
     verify both data and procedure static access in member data checking mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKDATA) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {
             set (m) 0
         }
@@ -8649,13 +8487,13 @@ test stooop-90 {
     verify member data checking when "array set" is used
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKDATA) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -8759,18 +8597,17 @@ test stooop-91 {
     makeFile {package provide 91 1; class a {proc a {this} {}}}\
         [file join 91 p.tcl]
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # search in test directory sub-directories:
         lappend auto_path [file dirname [info script]]
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         package require 91
         new a
-
         set ::result {}
     }]
     interp delete $interpreter
@@ -8781,11 +8618,9 @@ test stooop-92 {
     check that parameter passing by reference works with virtual declarations
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -8911,13 +8746,13 @@ test stooop-93 {
     procedure checking debug mode
 } {
     set interpreter [interp create]
-    set result [$interpreter eval {
+    $interpreter eval {
         # reset any existing environment variables:
         foreach name [array names env STOOOP*] {unset env($name)}
         set env(STOOOPCHECKPROCEDURES) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
+    set result [$interpreter eval {
         class a {}
         proc a::a {this} {
             p $this
@@ -8973,17 +8808,17 @@ test stooop-94 {
     basic objects checking
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -9086,17 +8921,17 @@ test stooop-95 {
     objects checking from namespace body and namespace procedure
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this} {}
             proc ~a {this} {}
@@ -9150,17 +8985,17 @@ test stooop-96 {
     objects checking from within derived class constructor
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this i} {}
             proc ~a {this} {}
@@ -9214,17 +9049,17 @@ test stooop-97 {
     and namespace procedure
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this} {}
             proc ~a {this} {}
@@ -9270,17 +9105,17 @@ test stooop-98 {
     objects checking with missing and extra objects
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {
             proc a {this} {}
             proc ~a {this} {}
@@ -9307,17 +9142,17 @@ test stooop-98 {
 test stooop-99 {
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this} {}
         proc a::~a {this} {}
@@ -9411,17 +9246,17 @@ test stooop-100 {
     objects checking pattern matching
 } {
     set interpreter [interp create]
+    $interpreter eval {
+        # reset any existing environment variables:
+        foreach name [array names env STOOOP*] {unset env($name)}
+        set env(STOOOPCHECKOBJECTS) 1
+    }
+    $interpreter eval "source $source; namespace import stooop::*"
     # alias puts to be able to collect standard output data:
     proc appendResult {string} {lappend ::result $string}
     $interpreter alias puts appendResult
     set result {}
     $interpreter eval {
-        # reset any existing environment variables:
-        foreach name [array names env STOOOP*] {unset env($name)}
-        set env(STOOOPCHECKOBJECTS) 1
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class aa {
             proc aa {this} {}
             proc ~aa {this} {}
@@ -9478,11 +9313,9 @@ test stooop-101 {
     spacing
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p q} {
             set ($this,m) $p
@@ -9514,11 +9347,9 @@ test stooop-102 {
     spacing, with a DOS formatted file
 } {
     set interpreter [interp create]
+    $interpreter eval "source $source; namespace import stooop::*"
     $interpreter eval $dumpArraysCode
     set result [$interpreter eval {
-        source [file join [file dirname [info script]] stooop.tcl]
-        namespace import stooop::*
-
         class a {}
         proc a::a {this p q} {
             set ($this,m) $p
