@@ -1,8 +1,8 @@
-[manpage_begin comm n 3.7.1]
+[manpage_begin comm n 4.0]
 [moddesc   {remote communication}]
 [titledesc {A remote communications facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 3.7.1]]
+[require comm [opt 4.0]]
 [description]
 
 [para]
@@ -634,6 +634,11 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [strong comm] includes these releases:
 
 [list_begin definitions]
+
+[lst_item "4.0"]
+
+Per request by John LoVerso. Improved handling of error for async
+invoked commands.
 
 [lst_item "3.7"]
 
