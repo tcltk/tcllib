@@ -5,12 +5,60 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.5 2000/03/03 23:54:49 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.6 2000/03/09 00:07:41 ericm Exp $
 
 package provide profiler 0.1
 
 namespace eval ::profiler {
     variable enabled 1
+}
+
+# ::profiler::Handler --
+#
+#	Profile a function.  This function works together with profProc, which
+#	replaces the proc command.  When a new procedure is defined, it creates
+#	and alias to this function; when that procedure is called, it calls
+#	this handler first, which gathers profiling information from the call.
+#
+# Arguments:
+#	name	name of the function to profile.
+#	args	arguments to pass to the original function.
+#
+# Results:
+#	res	result from the original function.
+
+proc ::profiler::Handler {name args} {
+    variable enabled
+    if { $enabled } {
+	if { [info level] == 1 } {
+	    set caller GLOBAL
+	} else {
+	    # Get the name of the calling procedure
+	    set caller [lindex [info level -1] 0]
+	    # Remove the ORIG suffix
+	    set caller [string range $caller 0 end-4]
+	}
+	if { [catch {incr ::profiler::callers($name,$caller)}] } {
+	    set ::profiler::callers($name,$caller) 1
+	}
+	set ms [clock clicks]
+    }
+
+    set CODE [uplevel ${name}ORIG $args]
+    if { $enabled } {
+	set t [expr {[clock clicks] - $ms}]
+	if { [incr ::profiler::callCount($name)] == 1 } {
+	    set ::profiler::compileTime($name) $t
+	}
+	incr ::profiler::totalRuntime($name) $t
+	if { [catch {incr ::profiler::descendantTime($caller) $t}] } {
+	    set ::profiler::descendantTime($caller) $t
+	}
+	if { [catch {incr ::profiler::descendants($caller,$name)}] } {
+	    set ::profiler::descendants($caller,$name) 1
+	}
+    }
+    return $CODE
 }
 
 # ::profiler::profProc --
@@ -30,7 +78,8 @@ proc ::profiler::profProc {name arglist body} {
     variable callCount
     variable compileTime
     variable totalRuntime
-
+    variable descendantTime
+    
     # Get the fully qualified name of the proc
     set ns [uplevel [list namespace current]]
     # If the proc call did not happen at the global context and it did not
@@ -49,44 +98,11 @@ proc ::profiler::profProc {name arglist body} {
     set callCount($name) 0
     set compileTime($name) 0
     set totalRuntime($name) 0
+    set descendantTime($name) 0
 
-    # Add some interesting stuff to the body of the proc
-    set profBody "
-	if { \$::profiler::enabled } {
-	    upvar ::profiler::callCount callCount
-	    upvar ::profiler::compileTime compileTime
-	    upvar ::profiler::totalRuntime totalRuntime
-	    upvar ::profiler::callers callers
-	    incr callCount($name)
-	    if { \[info level\] == 1 } {
-		set caller GLOBAL
-	    } else {
-		# Get the name of the calling procedure
-		set caller \[lindex \[info level -1\] 0\]
-		# Remove the ORIG suffix
-		set caller \[string range \$caller 0 end-4\]
-	    }
-	    if { \[info exists callers($name,\$caller)\] } {
-		incr callers($name,\$caller)
-	    } else {
-		set callers($name,\$caller) 1
-	    }
-	    set ms \[clock clicks\]
-	}
-	set CODE \[uplevel ${name}ORIG \$args\]
-	if { \$::profiler::enabled } {
-	    set t \[expr {\[clock clicks\] - \$ms}\]
-            if { \${callCount($name)} == 1 } {
-		set compileTime($name) \$t
-	    } else {
-		incr totalRuntime($name) \$t
-	    }
-	}
-	return \$CODE
-    "
-	uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
-	uplevel 1 [list ::_oldProc $name args $profBody]
-	return
+    uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
+    uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
+    return
 }
 
 # ::profiler::init --
@@ -121,20 +137,38 @@ proc ::profiler::print {{pattern *}} {
     variable callCount
     variable compileTime
     variable totalRuntime
+    variable descendantTime
     variable callers
     
     set result ""
     foreach name [lsort [array names callCount $pattern]] {
+	set avgRuntime 0
+	set avgDesTime 0
+	if { $callCount($name) > 0 } {
+	    set avgRuntime \
+		    [expr {$totalRuntime($name)/($callCount($name))}]
+	    set avgDesTime \
+		    [expr {$descendantTime($name)/($callCount($name))}]
+	}
+
 	append result "Profiling information for $name\n"
 	append result "[string repeat = 80]\n"
-	append result "total calls:\t$callCount($name)\n"
-	append result "dist to callers:\n"
+	append result "Total calls:             \t$callCount($name)\n"
+	append result "Caller distribution:\n"
 	set i [expr {[string length $name] + 1}]
 	foreach index [lsort [array names callers $name,*]] {
-	    append result "[string range $index $i end]:\t$callers($index)\n"
+	    append result "\t[string range $index $i end]:\t$callers($index)\n"
 	}
-	append result "first runtime:\t$compileTime($name)\n"
-	append result "other runtime:\t$totalRuntime($name)\n"
+	append result "Compile time:            \t$compileTime($name)\n"
+	append result "Total runtime:           \t$totalRuntime($name)\n"
+	append result "Average runtime:         \t$avgRuntime\n"
+	append result "Total descendant time:   \t$descendantTime($name)\n"
+	append result "Average descendant time: \t$avgDesTime\n"
+	append result "Descendants:\n"
+	foreach index [lsort [array names descendants $name,*]] {
+	    append result "\t[string range \
+		    $index $i end]:\t$descendants($index)\n"
+	}
 	append result "\n"
     }
     return $result
@@ -155,6 +189,7 @@ proc ::profiler::dump {{pattern *}} {
     variable compileTime
     variable totalRuntime
     variable callers
+    variable descendantTime
 
     foreach name [lsort [array names callCount $pattern]] {
 	set i [expr {[string length $name] + 1}]
@@ -162,10 +197,21 @@ proc ::profiler::dump {{pattern *}} {
 	foreach index [lsort [array names callers $name,*]] {
 	    set thisCallers([string range $index $i end]) $callers($index)
 	}
+	set avgRuntime 0
+	set avgDesTime 0
+	if { $callCount($name) > 0 } {
+	    set avgRuntime \
+		    [expr {$totalRuntime($name)/$callCount($name)}]
+	    set avgDesTime \
+		    [expr {$descendantTime($name)/$callCount($name)}]
+	}
 	lappend result $name [list callCount $callCount($name) \
 		callerDist [array get thisCallers] \
 		compileTime $compileTime($name) \
-		totalRuntime $totalRuntime($name)]
+		totalRuntime $totalRuntime($name) \
+		averageRuntime $avgRuntime \
+		descendantTime $descendantTime($name) \
+		averageDescendantTime $avgDesTime]
     }
     return $result
 }
@@ -203,9 +249,37 @@ proc ::profiler::sortFunctions {{field ""}} {
 		}
 	    }
 	}
+	"exclusiveRuntime" {
+	    variable totalRuntime
+	    variable descendantTime
+	    foreach fxn [array names totalRuntime] {
+		set data($fxn) \
+			[expr {$totalRuntime($fxn) - $descendantTime($fxn)}]
+	    }
+	}
+	"avgExclusiveRuntime" {
+	    variable totalRuntime
+	    variable callCount
+	    variable descendantTime
+	    foreach fxn [array names totalRuntime] {
+		if { $callCount($fxn) } {
+		    set data($fxn) \
+			    [expr {($totalRuntime($fxn) - \
+				$descendantTime($fxn)) / $callCount($fxn)}]
+		}
+	    }
+	}
+	"nonCompileTime" {
+	    variable compileTime
+	    variable totalRuntime
+	    foreach fxn [array names totalRuntime] {
+		set data($fxn) [expr {$totalRuntime($fxn)-$compileTime($fxn)}]
+	    }
+	}
 	default {
 	    error "unknown statistic \"$field\": should be calls,\
-		    compileTime, totalRuntime, or avgRuntime"
+		    compileTime, exclusiveRuntime, nonCompileTime,\
+		    totalRuntime, avgExclusiveRuntime, or avgRuntime"
 	}
     }
 	    

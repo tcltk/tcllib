@@ -1,3 +1,8 @@
+2000-03-08  Eric Melski  <ericm@scriptics.com>
+
+	* tree.test:
+	* tree.tcl: Added check for node existance in children function [Bug: 4341]
+
 2000-03-03  Eric Melski  <ericm@scriptics.com>
 
 	* tree.tcl: Changed usage information for tree::_walk.

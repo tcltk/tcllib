@@ -1,5 +1,6 @@
 2000-03-07  Eric Melski  <ericm@scriptics.com>
 
+	* pkgIndex.tcl:
 	* math.tcl:
 	* math.test:
 	* math.n: Initial versions of files for math library.

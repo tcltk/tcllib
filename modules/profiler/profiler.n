@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: profiler.n,v 1.2 2000/03/03 22:28:01 ericm Exp $
+'\" RCS: @(#) $Id: profiler.n,v 1.3 2000/03/09 00:07:41 ericm Exp $
 '\" 
 .so man.macros
 .TH profiler n 0.1 profiler "Tcl Profiler"
@@ -56,14 +56,19 @@ A list of key/value pairs mapping each calling function that called
 .TP
 \fBcompileTime\fR
 The runtime, in clock clicks, of \fIfunctionName\fR the first time
-that it was called. This value is separated from the total amount of
-run time for \fIfunctionName\fR because the first call usually
-causes the function to be byte-compiled by the Tcl interpreter, and
-that compilation can add significantly to the runtime of the function.
+that it was called.
 .TP
 \fBtotalRuntime\fR
-The sum of the runtimes of the second and all subsequent calls of
-\fIfunctionName\fR.
+The sum of the runtimes of all calls of \fIfunctionName\fR.
+.TP
+\fBaverageRuntime\fR
+Average runtime of \fIfunctionName\fR.
+.TP
+\fBdescendantTime\fR
+Sum of the time spent in descendants of \fIfunctionName\fR.
+.TP
+\fBaverageDescendantTime\fR
+Average time spent in descendants of \fIfunctionName\fR. 
 .RE
 .TP
 \fB::profiler::print\fR ?\fIpattern\fR?
@@ -79,7 +84,8 @@ If no pattern is specified, information will be reset for all functions.
 \fB::profiler::sortFunctions\fR \fIkey\fR
 Return a list of functions sorted by a particular profiling
 statistic.  Supported values for \fIkey\fR are: \fBcalls\fR,
-\fBcompileTime\fR, \fBtotalRuntime\fR, and \fBavgRuntime\fR.  The
+\fBexclusiveTime\fR, \fBcompileTime\fR, \fBnonCompileTime\fR,
+\fBtotalRuntime\fR, \fBavgExclusiveTime\fR, and \fBavgRuntime\fR.  The
 return result is a list of lists, where each sublist consists of a
 function name and the value of \fIkey\fR for that function.
 .SH KEYWORDS

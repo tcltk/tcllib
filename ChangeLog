@@ -1,3 +1,9 @@
+2000-03-08  Eric Melski  <ericm@scriptics.com>
+
+	* Makefile.in: Commented out cgi module until it's ready for use.
+	Added checks for bogus module names in install-libraries, but
+	they're not foolproof.
+
 2000-03-07  Brent Welch <welch@scriptics.com>
 
 	* modules/mime/mime.tcl: Modified this to have a soft dependency on
@@ -7,8 +13,8 @@
 	in a string and returns that - much like mime::copymessage that
 	copies the message to a channel.
 
-	* modules/cgi/cgi.tcl: Preliminary version of a CGI module.  Still needs
-	some cookie functions, test suite, and docs...
+	* modules/cgi/cgi.tcl: Preliminary version of a CGI module.  Still
+	needs some cookie functions, test suite, and docs...
 
 2000-03-07  Eric Melski <ericm@scriptics.com>
 

@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.11 2000/03/08 22:05:55 ericm Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.12 2000/03/09 00:07:40 ericm Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -35,7 +35,7 @@ PROFILER=profiler
 POP3=pop3
 
 # CGI input processing
-#CGI=cgi
+CGI=cgi
 
 # MIME encoder/decoder and SMTP package
 # These are modified/hacked to have a soft requirement for Trf:
@@ -140,11 +140,13 @@ install-libraries: libraries
 	$(mkinstalldirs) $(pkglibdir)
 	@echo "Installing modules in $(pkglibdir)"
 	@for i in $(MODULES) ; do \
-	    echo "Installing $$i in $(pkglibdir)/$$i" ; \
-	    $(mkinstalldirs) $(pkglibdir)/$$i ; \
-	    for j in $(srcdir)/modules/$$i/*.tcl ; do \
-		$(INSTALL_DATA) $$j $(pkglibdir)/$$i ; \
-	    done; \
+	    if test -d $(srcdir)/modules/$$i; then  \
+		echo "Installing $$i in $(pkglibdir)/$$i" ; \
+		$(mkinstalldirs) $(pkglibdir)/$$i ; \
+		for j in $(srcdir)/modules/$$i/*.tcl ; do \
+		    $(INSTALL_DATA) $$j $(pkglibdir)/$$i ; \
+		done; \
+	    fi; \
 	done;
 	$(TCLSH_PROG) mkIndex.tcl $(MODULES)
 

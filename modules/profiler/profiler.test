@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.4 2000/03/03 22:28:01 ericm Exp $
+# RCS: @(#) $Id: profiler.test,v 1.5 2000/03/09 00:07:41 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -136,13 +136,13 @@ test profiler-4.1 {profiler::print produces nicer output than dump} {
 	profiler::print ::foo
     }]
     interp delete $c
-    regsub {first runtime:.*} $result {} result
+    regsub {Compile time:.*} $result {} result
     set result
 } "Profiling information for ::foo
 ================================================================================
-total calls:\t4
-dist to callers:
-GLOBAL:\t4
+Total calls:             \t4
+Caller distribution:
+\tGLOBAL:\t4
 "
 
 test profiler-5.1 {profiler respects enabled flag} {
@@ -163,13 +163,13 @@ test profiler-5.1 {profiler respects enabled flag} {
 	profiler::print ::foo
     }]
     interp delete $c
-    regsub {first runtime:.*} $result {} result
+    regsub {Compile time:.*} $result {} result
     set result
 } "Profiling information for ::foo
 ================================================================================
-total calls:\t4
-dist to callers:
-GLOBAL:\t4
+Total calls:             \t4
+Caller distribution:
+\tGLOBAL:\t4
 "
 
 test profiler-6.1 {profiler handles functions with funny names} {
@@ -199,8 +199,8 @@ test profiler-7.1 {sortFunctions} {
     }]
     interp delete $c
     set result
-} "unknown statistic \"\": should be calls, compileTime, totalRuntime, or\
-avgRuntime"
+} "unknown statistic \"\": should be calls, compileTime, exclusiveRuntime,\
+nonCompileTime, totalRuntime, avgExclusiveRuntime, or avgRuntime"
 test profiler-7.2 {sortFunctions} {
     set c [interp create]
     set result [$c eval {

@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.2 2000/03/03 22:28:02 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.3 2000/03/09 00:07:42 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -134,6 +134,10 @@ proc ::struct::tree::TreeProc {name {cmd ""} args} {
 #	children	list of children for the node.
 
 proc ::struct::tree::_children {name node} {
+    if { ![_exists $name $node] } {
+	error "node \"$node\" does not exist in tree \"$name\""
+    }
+    
     upvar ::struct::tree::tree${name}::children children
     return $children($node)
 }

@@ -1,3 +1,10 @@
+2000-03-08  Eric Melski  <ericm@scriptics.com>
+
+	* profiler.test:
+	* profiler.tcl: Added tracking of descendant time; changed definition of
+	total time to include compile time (which makes determination of exclusive
+	time (time in a function but not in its descendants) easier).
+
 2000-03-03  Eric Melski  <ericm@scriptics.com>
 
 	* profiler.tcl: Added profiler::reset function and enhanced 
