@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.10 2003/05/08 23:55:37 patthoyts Exp $
+# $Id: crc32.tcl,v 1.11 2003/05/13 01:42:11 patthoyts Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.0.2
@@ -110,6 +110,49 @@ proc ::crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
     return [expr {$crcval ^ 0xFFFFFFFF}]
 }
 
+if {[package provide critcl] != {}} {
+    namespace eval ::crc {
+        critcl::ccommand Crc32_c {dummy interp objc objv} {
+            int r = TCL_OK;
+            unsigned long t = 0xFFFFFFFFL;
+
+            if (objc < 2 || objc > 3) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
+                return TCL_ERROR;
+            }
+            
+            if (objc == 3)
+                r = Tcl_GetLongFromObj(interp, objv[2], (long *)&t);
+
+            if (r == TCL_OK) {
+                int cn, size, ndx;
+                unsigned char *data;
+                unsigned long lkp;
+                Tcl_Obj *tblPtr, *lkpPtr;
+
+                tblPtr = Tcl_GetVar2Ex(interp, "::crc::crc32_tbl", NULL,
+                                       TCL_LEAVE_ERR_MSG );
+                if (tblPtr == NULL)
+                    r = TCL_ERROR;
+                if (r == TCL_OK)
+                    data = Tcl_GetByteArrayFromObj(objv[1], &size);
+                for (cn = 0; r == TCL_OK && cn < size; cn++) {
+                    ndx = (t ^ data[cn]) & 0xFF;
+                    r = Tcl_ListObjIndex(interp, tblPtr, ndx, &lkpPtr);
+                    if (r == TCL_OK)
+                        r = Tcl_GetLongFromObj(interp, lkpPtr, &lkp);
+                    if (r == TCL_OK)
+                        t = lkp ^ (t >> 8);
+                }
+            }
+
+            if (r == TCL_OK)
+                Tcl_SetLongObj(Tcl_GetObjResult(interp), t ^ 0xFFFFFFFF);
+            return r;
+        }
+    }
+}
+
 # Select the Trf using version if Trf is available
 if {![catch {package require Trf 2.0}]} {
     # Description:
@@ -129,6 +172,14 @@ if {![catch {package require Trf 2.0}]} {
 } else {
     interp alias {} ::crc::Crc32 {} ::crc::Crc32_tcl
 }
+
+#crc-zlib -attach $f -mode absorb \
+#    -read-destination ::R \
+#    -read-type variable \
+#    -write-destination ::W \
+#    -write-type variable \
+#    -matchflag ::M
+
 
 # -------------------------------------------------------------------------
 # Description:
