@@ -1,3 +1,9 @@
+2002-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpexpand: Corrected example formatting, have to run argument
+	  through plain text handling.
+	* mpformats/fmt.wiki: Added Wiki formatting.
+
 2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: Changed bug #578465 which caused
