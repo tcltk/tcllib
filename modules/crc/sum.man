@@ -1,4 +1,5 @@
 [manpage_begin sum n 1.0.1]
+[copyright {2002, Pat Thoyts}]
 [moddesc   {sum}]
 [titledesc {calculate a sum(1) compatible checksum}]
 [require Tcl 8.2]

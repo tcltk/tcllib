@@ -1,68 +1,68 @@
-'\" sum.n - Copyright (c) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
-'\" 
-'\" -------------------------------------------------------------------------
-'\" See the file "license.terms" for information on usage and redistribution
-'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-'\" -------------------------------------------------------------------------
-'\" RCS: @(#) $Id: sum.n,v 1.2 2003/01/26 00:16:03 patthoyts Exp $
-'\" 
+'\"
+'\" Generated from file 'sum.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2002, Pat Thoyts
+'\"
 .so man.macros
-.TH "sum" n 1.0.1 tcllib "sum"
+.TH "sum" n 1.0.1  "sum"
 .BS
-'\" Note: do not modify the .SH NAME line immediately below!
-.SH NAME
-::crc::sum \- calculate a sum(1) compatible checksum
+.SH "NAME"
+sum \- calculate a sum(1) compatible checksum
 .SH "SYNOPSIS"
-\fBpackage require Tcl 8.2\fR
+package require \fBTcl  8.2\fR
 .sp
-\fBpackage require sum ?1.0.1?\fR
+package require \fBsum  ?1.0.1?\fR
 .sp
-\fB::crc::sum\fR \fI?-format string?\fR \fI-file filename\fR | \fIstring\fR
+\fB::crc::sum\fR ?-format \fIformat\fR? \fImessage\fR\fR
+.sp
+\fB::crc::sum\fR ?-format \fIformat\fR? -filename \fIfile\fR\fR
+.sp
 .BE
 .SH "DESCRIPTION"
 .PP
 This package provides a Tcl-only implementation of the sum(1) command
-which calculates a 16 bit checksum value from the input data.
-The BSD sum algorithm is used by default but the SysV algorithm is
-also available.
+which calculates a 16 bit checksum value from the input data.  The BSD
+sum algorithm is used by default but the SysV algorithm is also
+available.
 .SH "COMMANDS"
 .TP
-\fB::crc::sum\fR \fI?-format string?\fR \fI-file filename\fR | \fIstring\fR
-The command takes string data or a file name and returns
-a checksum value calculated using the sum(1) algorithm. The result is
-formatted using the \fBformat\fR(n) specifier provided or as an unsigned
-integer (%u) by default.
+\fB::crc::sum\fR ?-format \fIformat\fR? \fImessage\fR\fR
+.TP
+\fB::crc::sum\fR ?-format \fIformat\fR? -filename \fIfile\fR\fR
+The command takes string data or a file name and returns a checksum
+value calculated using the \fBsum(1)\fR algorithm. The result is
+formatted using the \fIformat\fR(n) specifier provided or as an
+unsigned integer (%u) by default.
 .SH "OPTIONS"
 .TP
-\fI-filename name\fR
+-filename \fIname\fR
 Return a checksum for the file contents instead of for parameter data.
 .TP
-\fI-format string\fR
+-format \fIstring\fR
 Return the checksum using an alternative format template.
 .SH "EXAMPLES"
 .PP
-.CS
-\fB% crc::sum "Hello, World!"\fR
+.nf
+% crc::sum "Hello, World!"
 37287
-.CE
+.fi
 .PP
-.CS
-\fB% crc::sum -format 0x%X "Hello, World!"\fR
+.nf
+% crc::sum -format 0x%X "Hello, World!"
 0x91A7
-.CE
+.fi
 .PP
-.CS
-\fB% crc::sum -file cksum.tcl\fR
+.nf
+% crc::sum -file sum.tcl
 13392
-.CE
+.fi
 .SH "SEE ALSO"
 sum(1), cksum(n), crc32(n)
 .SH "AUTHORS"
 Pat Thoyts
 .SH "KEYWORDS"
-sum, cksum, checksum, crc, crc32, cyclic redundancy check, data integrity,  
-security
-'\"
-'\" Local Variables:
-'\"   mode: nroff
-'\" End:
+sum, cksum, checksum, crc, crc32, cyclic redundancy check, data integrity, security
+.SH "COPYRIGHT"
+.nf
+Copyright (c) 2002, Pat Thoyts
+.fi
+
