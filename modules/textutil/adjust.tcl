@@ -19,16 +19,17 @@ namespace eval ::textutil {
         variable Hyphenate    0
         variable HyphPatterns
 
-        namespace export adjust
+        namespace export adjust indent
 
         # This will be redefined later. We need it just to let
         # a chance for the next import subcommand to work
         #
         proc adjust { text args } { }
+        proc indent { text args } { }
     }
 
-    namespace import -force adjust::adjust
-    namespace export adjust
+    namespace import -force adjust::adjust adjust::indent
+    namespace export adjust indent
 
 }
 
@@ -670,4 +671,37 @@ proc ::textutil::adjust::readPatterns { filNam } {
   set HyphPatterns(_LOADED_) 1;
 
   return;
+}
+
+#######################################################
+
+# @c The specified <a text>block is indented
+# @c by <a prefix>ing each line. The first
+# @c <a hang> lines ares skipped.
+#
+# @a text:   The paragraph to indent.
+# @a prefix: The string to use as prefix for each line
+# @a prefix: of <a text> with.
+# @a skip:   The number of lines at the beginning to leave untouched.
+#
+# @r Basically <a text>, but indented a certain amount.
+#
+# @i indent
+# @n This procedure is not checked by the testsuite.
+
+proc ::textutil::adjust::indent {text prefix {skip 0}} {
+    set text [string trim $text]
+
+    set res [list]
+    foreach line [split $text \n] {
+	if {[string compare "" [string trim $line]] == 0} {
+	    lappend list {}
+	} elseif {$skip <= 0} {
+	    lappend list $prefix[string trimright $line]
+	} else {
+	    lappend list [string trimright $line]
+	}
+	if {$skip > 0} {incr skip -1}
+    }
+    return [join $res \n]
 }

@@ -28,6 +28,11 @@ small enough, the returned string won't contain any newlines.
 
 [nl]
 
+Together with [cmd ::textutil::indent] it is possible to create
+properly wrapped paragraphs with arbitrary indentations.
+
+[nl]
+
 By default, any occurrence of spaces characters or tabulation are
 replaced by a single space so each word in a line is separated from
 the next one by exactly one space char, and this forms a [emph real]
@@ -150,6 +155,27 @@ filenames found in the list returned by
 command.
 
 
+[call [cmd ::textutil::indent] [arg string] [arg prefix] [opt [arg skip]]]
+
+Each line in the [arg string] indented by adding the string
+[arg prefix] at its beginning. The modified string is returned
+as the result of the command.
+
+[nl]
+
+If [arg skip] is specified the first [arg skip] lines are left
+untouched. The default for [arg skip] is [const 0], causing the
+modification of all lines. Negative values for [arg skip] are treated
+like [const 0]. In other words, [arg skip] > [const 0] creates a
+hanging indentation.
+
+[nl]
+
+Together with [cmd ::textutil::adjust] it is possible to create
+properly wrapped paragraphs with arbitrary indentations.
+
+
+
 [call [cmd ::textutil::splitx] [arg string] [opt [arg regexp]]]
 
 Split the [arg string] and return a list. The string is split
@@ -164,14 +190,14 @@ empty list, like for [cmd split]. If [arg regexp] is empty the
 The regular expression [arg regexp] defaults to "[lb]\\t \\r\\n[rb]+".
 
 
-[call [cmd ::textutil::tabify] [arg string] [opt [arg num]]]]
+[call [cmd ::textutil::tabify] [arg string] [opt [arg num]]]
 
 Tabify the [arg string] by replacing any substring of [arg num] space
 chars by a tabulation and return the result as a new string. [arg num]
 defaults to 8.
 
 
-[call [cmd ::textutil::tabify2] [arg string] [opt [arg num]]]]
+[call [cmd ::textutil::tabify2] [arg string] [opt [arg num]]]
 
 Similar to [cmd ::textutil::tabify] this command tabifies the
 
@@ -189,7 +215,7 @@ containing more than one space character and found immediately before
 a tabstop are replaced with tabs.
 
 
-[call [cmd ::textutil::trim] [arg string] [opt [arg regexp]]]]
+[call [cmd ::textutil::trim] [arg string] [opt [arg regexp]]]
 
 Remove in [arg string] any leading and trailing substring according to
 the regular expression [arg regexp] and return the result as a new
@@ -202,7 +228,7 @@ end of the string.
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
 
 
-[call [cmd ::textutil::trimleft] [arg string] [opt [arg regexp]]]]
+[call [cmd ::textutil::trimleft] [arg string] [opt [arg regexp]]]
 
 Remove in [arg string] any leading substring according to the regular
 expression [arg regexp] and return the result as a new string. This
@@ -213,7 +239,7 @@ contain no newline, between the beginning and the end of the string.
 
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
 
-[call [cmd ::textutil::trimright] [arg string] [opt [arg regexp]]]]
+[call [cmd ::textutil::trimright] [arg string] [opt [arg regexp]]]
 
 Remove in [arg string] any trailing substring according to the regular
 expression [arg regexp] and return the result as a new string. This
@@ -225,14 +251,28 @@ contain no newline, between the beginning and the end of the string.
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
 
 
-[call [cmd ::textutil::untabify] [arg string] [opt [arg num]]]]
+[call [cmd ::textutil::trimPrefix] [arg string] [arg prefix]]
+
+Removes the [arg prefix] from the beginning of [arg string] and
+returns the result. The [arg string] is left unchanged if it doesn't
+have [arg prefix] at its beginning.
+
+
+[call [cmd ::textutil::trimEmptyHeading] [arg string]]
+
+Looks for empty lines (including lines consisting of only whitespace)
+at the beginning of the [arg string] and removes it. The modified
+string is returned as the result of the command.
+
+
+[call [cmd ::textutil::untabify] [arg string] [opt [arg num]]]
 
 Untabify the [arg string] by replacing any tabulation char by a
 substring of [arg num] space chars and return the result as a new
 string. [arg num] defaults to 8.
 
 
-[call [cmd ::textutil::untabify2] [arg string] [opt [arg num]]]]
+[call [cmd ::textutil::untabify2] [arg string] [opt [arg num]]]
 
 Untabify the [arg string] by replacing any tabulation char by a
 substring of at most [arg num] space chars and return the result as a
@@ -258,6 +298,31 @@ if it is not. Returns a string containing the [arg text] repeated
 
 [arg num] times. The repetitions are joined without characters between
 them. A value of [arg num] <= 0 causes the command to return an empty
+string.
+
+
+[call [cmd ::textutil::blank] [arg num]]
+
+A convenience command. Returns a string of [arg num] spaces.
+
+[call [cmd ::textutil::chop] [arg string]]
+
+A convenience command. Removes the last character of [arg string] and
+returns the shortened string.
+
+[call [cmd ::textutil::tail] [arg string]]
+
+A convenience command. Removes the first character of [arg string] and
+returns the shortened string.
+
+[call [cmd ::textutil::cap] [arg string]]
+
+Capitalizes the first character of [arg string] and returns the modified string.
+
+[call [cmd ::textutil::uncap] [arg string]]
+
+The complementary operation to [cmd ::textutil::cap]. Forces the first
+character of [arg string] to lower case and returns the modified
 string.
 
 [list_end]
