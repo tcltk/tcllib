@@ -17,13 +17,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: resolv.tcl,v 1.3 2003/04/12 00:22:37 patthoyts Exp $
+# $Id: resolv.tcl,v 1.4 2003/04/13 23:04:00 patthoyts Exp $
 
 package require dns 1.0;                # tcllib 1.3
 
 namespace eval ::resolv {
-    variable version 1.0
-    variable rcsid {$Id: resolv.tcl,v 1.3 2003/04/12 00:22:37 patthoyts Exp $}
+    variable version 1.0.2
+    variable rcsid {$Id: resolv.tcl,v 1.4 2003/04/13 23:04:00 patthoyts Exp $}
 
     namespace export resolve init ignore hostname
 
@@ -50,9 +50,9 @@ namespace eval ::resolv {
 #    hostname	- Name of host to remove from the cache.
 #
 proc ::resolv::ignore { hostname } {
-    global ::resolv::Cache
-
-    catch "unset ::resolv::Cache($hostname)"
+    variable Cache
+    catch {unset Cache($hostname)}
+    return
 }
 
 # -------------------------------------------------------------------------
@@ -72,12 +72,18 @@ proc ::resolv::init { {defaultdns ""} {search {}}} {
     variable R
     variable Cache
 
+    # Clean the resolver cache
     catch {unset Cache}
 
+    # Record the default DNS server and search list.
     set R(dnsdefault) $defaultdns
     set R(search) $search
 
-    set res [catch {exec nslookup 127.0.0.1} lkup]
+    # Now do some intelligent lookup.  We do this on the current
+    # hostname to get a chance to get back some (full) information on
+    # ourselves.  A previous version was using 127.0.0.1, not sure
+    # what is best.
+    set res [catch [list exec nslookup [info hostname]] lkup]
     if { $res == 0 } {
 	set l [split $lkup]
 	set nl ""
@@ -87,12 +93,21 @@ proc ::resolv::init { {defaultdns ""} {search {}}} {
 	    }
 	}
 
-	set hostname ""
+        # Now, a lot of mixture to arrange so that hostname points at the
+        # DNS server that we should use for any further request.  This
+        # code is complex, but was actually tested behind a firewall
+        # during the SITI Winter Conference 2003.  There, strangly,
+        # nslookup returned an error but a DNS server was actually setup
+        # correctly...
+        set hostname ""
 	set len [llength $nl]
 	for { set i 0 } { $i < $len } { incr i } {
 	    set e [lindex $nl $i]
 	    if { [string match -nocase "*server*" $e] } {
-		set hostname [lindex $nl [expr $i + 1]]
+		set hostname [lindex $nl [expr {$i + 1}]]
+                if { [string match -nocase "UnKnown" $hostname] } {
+                    set hostname ""
+                }
 		break
 	    }
 	}
@@ -100,9 +115,54 @@ proc ::resolv::init { {defaultdns ""} {search {}}} {
 	if { $hostname != "" } {
 	    set R(dns) $hostname
 	} else {
-	    set R(dns) $R(dnsdefault)
+            for { set i 0 } { $i < $len } { incr i } {
+                set e [lindex $nl $i]
+                if { [string match -nocase "*address*" $e] } {
+                    set hostname [lindex $nl [expr {$i + 1}]]
+                    break
+                }
+            }
+            if { $hostname != "" } {
+                set R(dns) $hostname
+            }
 	}
     }
+
+    if {$R(dns) == ""} {
+        set R(dns) $R(dnsdefault)
+    }
+
+
+    # Start again to find our full name
+    set ourhost ""
+    if {$res == 0} {
+        set dot [string first "." [info hostname]]
+        if { $dot < 0 } {
+            for { set i 0 } { $i < $len } { incr i } {
+                set e [lindex $nl $i]
+                if { [string match -nocase "*name*" $e] } {
+                    set ourhost [lindex $nl [expr $i + 1]]
+                    break
+                }
+            }
+            if { $ourhost == "" } {
+                if { ! [regexp {\d+\.\d+\.\d+\.\d+} $hostname] } {
+                    set dot [string first "." $hostname]
+                    set ourhost [format "%s%s" [info hostname] \
+                                     [string range $hostname $dot end]]
+                }
+            }
+        } else {
+            set ourhost [info hostname]
+        }
+    }
+
+    if {$ourhost == ""} {
+        set R(ourhost) [info hostname]
+    } else {
+        set R(ourhost) $ourhost
+    }
+
 
     set R(initdone) 1
 
@@ -164,21 +224,22 @@ proc ::resolv::Resolve {hostname} {
     variable R
     set t [::dns::resolve $hostname -server $R(dns)]
     ::dns::wait $t;                       # wait with event processing
-    if {[::dns::status $t] == "ok"} {
+    set status [dns::status $t]
+    if {$status == "ok"} {
         set ip [lindex [::dns::address $t] 0]
         ::dns::cleanup $t
+    } elseif {$status == "error"
+              && [::dns::errorcode $t] == 3 
+              && $R(retries) < [llength $R(search)]} {
+        ::dns::cleanup $t
+        set suffix [lindex $R(search) $R(retries)]
+        incr R(retries)
+        set new [lindex [split $hostname .] 0].[string trim $suffix .]
+        set ip [Resolve $new]
     } else {
-        if {[::dns::errorcode $t] == 3 && $R(retries) < [llength $R(search)]} {
-            ::dns::cleanup $t
-            set suffix [lindex $R(search) $R(retries)]
-            incr R(retries)
-            set new [lindex [split $hostname .] 0].[string trim $suffix .]
-            set ip [Resolve $new]
-        } else {
-            set err [dns::error $t]
-            ::dns::cleanup $t
-            return -code error "dns error: $err"
-        }
+        set err [dns::error $t]
+        ::dns::cleanup $t
+        return -code error "dns error: $err"
     }
     return $ip
 }
