@@ -1,4 +1,7 @@
-# $Id: stooop.test,v 1.1 2001/11/26 11:41:26 jfontain Exp $
+# Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
+# This code may be distributed under the same terms as Tcl.
+#
+# $Id: stooop.test,v 1.2 2001/11/27 11:46:52 jfontain Exp $
 
 if {[lsearch [namespace children] ::tcltest]<0} {
     package require tcltest

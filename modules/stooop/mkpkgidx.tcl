@@ -3,7 +3,10 @@
 #     packageName file1 file2 ...
 # use wish as interpreter instead of tclsh in order to handle graphical packages
 
-set rcsId {$Id: mkpkgidx.tcl,v 1.1 2001/11/26 11:41:26 jfontain Exp $}
+# Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
+# This code may be distributed under the same terms as Tcl.
+#
+# $Id: mkpkgidx.tcl,v 1.2 2001/11/27 11:46:52 jfontain Exp $
 
 # this utility must be used to create the package index file for a package that
 # uses stooop.

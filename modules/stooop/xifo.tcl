@@ -1,4 +1,9 @@
-set rcsId {$Id: xifo.tcl,v 1.1 2001/11/26 11:41:26 jfontain Exp $}
+# The lifo and fifo classes (for the stooop object oriented extension)
+#
+# Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
+# This code may be distributed under the same terms as Tcl.
+#
+# $Id: xifo.tcl,v 1.2 2001/11/27 11:46:52 jfontain Exp $
 
 
 # Here is a sample FIFO/LIFO implementation with stooop.
