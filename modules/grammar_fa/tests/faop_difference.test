@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_difference.test,v 1.1 2004/04/04 19:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_difference.test,v 1.2 2004/07/28 08:14:11 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -28,6 +28,7 @@ test faop-difference-1.2 {difference, error} {
 test faop-difference-1.3 {difference, error} {
     grammar::fa a
     catch {grammar::fa::op::difference a b} res
+    a destroy
     set res
 } {invalid command name "b"}
 
