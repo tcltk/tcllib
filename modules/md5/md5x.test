@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.10 2005/02/20 12:16:47 patthoyts Exp $
+# RCS: @(#) $Id: md5x.test,v 1.11 2005/02/23 15:19:52 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -32,17 +32,36 @@ if {[catch {source [file join [file dirname [info script]] md5x.tcl]} msg]} {
 # Setup any constraints
 #
 
+array set preserve [array get ::md5::accel]
+
+proc have_accel {} {
+    foreach {e v} [array get ::md5::accel] { if {$v} {return 1} }
+    return 0
+}
+
+proc set_no_accel {} {
+    foreach e [array names ::md5::accel] { set ::md5::accel($e) 0 }
+}
+
+proc reset_accel {} {
+    array set ::md5::accel [array get ::preserve]
+}
+
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {$::md5::usemd5c} {
+if {$::md5::accel(critcl)} {
     puts "- md5 [package present md5] (critcl based)"
-} elseif {$::md5::usetrf} {
-    puts "- md5 [package present md5] (Trf based)"
-} else {
-    puts "- md5 [package present md5] (pure Tcl)"
 }
+if {$::md5::accel(cryptkit)} {
+    puts "- md5 [package present md5] (cryptkit based)"
+}
+if {$::md5::accel(trf)} {
+    puts "- md5 [package present md5] (Trf based)"
+}
+puts "- md5 [package present md5] (pure Tcl)"
+
 
 # -------------------------------------------------------------------------
 
@@ -87,37 +106,14 @@ foreach {n msg expected} $tests {
     } [list 0 $expected]
 }
 
-#
-# If we are using critcl, try and test using Trf too.
-# If we are using a compiled helper - check the pureTcl version too.
-#
-array set preserve [list usemd5c $::md5::usemd5c usetrf $::md5::usetrf]
-if {$::md5::usemd5c} {
-    if {![catch {package require Trf}]} {
-        set ::md5::usetrf 1
-        set ::md5::usemd5c 0
-        puts "- md5 [package present md5] (Trf based)"
-        foreach {n msg expected} $tests {
-            test md5-trf-2.$n {md5 trf implementation} {
-                list [catch {::md5::md5 -hex $msg} msg] $msg
-            } [list 0 $expected]
-        }
-        set ::md5::usetrf $preserve(usetrf)
-        set ::md5::usemd5c $preserve(usemd5c)
-    }
-}
-
-if {$::md5::usetrf || $::md5::usemd5c} {
-    set ::md5::usetrf 0
-    set ::md5::usemd5c 0
-    puts "- md5 [package present md5] (pure Tcl)"
+if {[have_accel]} {
+    set_no_accel
     foreach {n msg expected} $tests {
         test md5-tcl-2.$n {md5 pureTcl implementation} {
             list [catch {::md5::md5 -hex $msg} msg] $msg
         } [list 0 $expected]
     }
-    set ::md5::usetrf $preserve(usetrf)
-    set ::md5::usemd5c $preserve(usemd5c)
+    reset_accel
 }
 
 set vectors {
@@ -142,34 +138,14 @@ foreach {n key text expected} $vectors {
     } [list 0 $expected]
 }
 
-#
-# If we are using critcl, try and test using Trf too.
-# If we are using a compiled helper - check the pureTcl version too.
-#
-if {$::md5::usemd5c} {
-    if {![catch {package require Trf}]} {
-        set ::md5::usetrf 1
-        set ::md5::usemd5c 0
-        foreach {n key text expected} $vectors {
-            test md5-trf-4.$n {md5 trf hmac implementation} {
-                list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
-            } [list 0 $expected]
-        }
-        set ::md5::usetrf $preserve(usetrf)
-        set ::md5::usemd5c $preserve(usemd5c)
-    }
-}
-
-if {$::md5::usetrf || $::md5::usemd5c} {
-    set ::md5::usetrf 0
-    set ::md5::usemd5c 0
+if {[have_accel]} {
+    set_no_accel
     foreach {n key text expected} $vectors {
         test md5-tcl-4.$n {md5 pureTcl hmac implementation} {
             list [catch {::md5::hmac -hex -key $key -- $text} msg] $msg
         } [list 0 $expected]
     }
-    set ::md5::usetrf $preserve(usetrf)
-    set ::md5::usemd5c $preserve(usemd5c)
+    reset_accel
 }
 
 # -------------------------------------------------------------------------
@@ -204,30 +180,14 @@ foreach {n key msg hash} $vectors {
     } $hash
 }
 
-if {$::md5::usemd5c} {
-    if {![catch {package require Trf}]} {
-        set ::md5::usetrf 1
-        set ::md5::usemd5c 0
-        foreach {n key msg hash} $vectors {
-            test md5-trf-5.$n {RFC2202 test vectors for HMAC-MD5 (trf impl)} {
-                ::md5::hmac -hex -key $key -- $msg
-            } $hash
-        }        
-        set ::md5::usetrf $preserve(usetrf)
-        set ::md5::usemd5c $preserve(usemd5c)
-    }
-}
-
-if {$::md5::usetrf || $::md5::usemd5c} {
-    set ::md5::usetrf 0
-    set ::md5::usemd5c 0
+if {[have_accel]} {
+    set_no_accel
     foreach {n key msg hash} $vectors {
         test md5-tcl-5.$n {RFC2202 test vectors for HMAC-MD5 (tcl impl)} {
             ::md5::hmac -hex -key $key -- $msg
         } $hash
     }
-    set ::md5::usetrf $preserve(usetrf)
-    set ::md5::usemd5c $preserve(usemd5c)
+    reset_accel
 }
 
 # -------------------------------------------------------------------------
