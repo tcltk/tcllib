@@ -1,3 +1,9 @@
+2005-31-03 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* ini.tcl: fixed bug where ini files were corrupted when
+                   saving a shorter version. due to not closing
+                   and truncating file before writing.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
