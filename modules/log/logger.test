@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.14 2004/10/04 06:36:22 andreas_kupries Exp $
+# $Id: logger.test,v 1.15 2005/01/12 21:26:46 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -228,6 +228,26 @@ test logger-5.1 {setlevel, invalid level} {
     ${log}::delete
     list $code $msg
 } {1 {Invalid level 'badargs' - levels are debug info notice warn error critical}}
+
+test logger-5.2 {setlevel, with children} {
+    set log1 [logger::init global]
+    ${log1}::setlevel notice
+    set log2 [logger::init global::child]
+    set ::DEBUGINFO ""
+    set ::WARNINFO ""
+    ${log1}::logproc debug txt {
+    lappend ::DEBUGINFO $txt
+    }
+    ${log1}::logproc warn txt {
+    lappend ::WARNINFO $txt
+    }
+    ${log1}::debug Parent
+    ${log1}::warn Parent
+    ${log2}::debug Child
+    ${log2}::warn Child
+    ${log1}::delete
+    list $::DEBUGINFO $::WARNINFO
+} {{} {Parent Child}}
 
 test logger-6.0 {levels command} {
     logger::levels 
@@ -644,30 +664,30 @@ test logger-12.8 {import subcommand} {
 
 test logger-12.9 {import subcommand, errors} {
     set code [catch {
-    	logger::import
-	} msg]
+        logger::import
+    } msg]
     list $code $msg
 } {1 {Wrong # of arguments: "logger::import ?-all? ?-force? ?-prefix prefix? ?-namespace namespace? service"}}
 
 test logger-12.10 {import subcommand, errors} {
     set code [catch {
-    	logger::import 1 2 3 4 5 6 7 8 
-	} msg]
+        logger::import 1 2 3 4 5 6 7 8 
+    } msg]
     list $code $msg
 } {1 {Wrong # of arguments: "logger::import ?-all? ?-force? ?-prefix prefix? ?-namespace namespace? service"}}
 
 test logger-12.11 {import subcommand, errors} {
     set code [catch {
-    	logger::import -foo 1 
-	} msg]
+        logger::import -foo 1 
+    } msg]
     list $code $msg
 } {1 {Unknown argument: "-foo" :
 Usage: "logger::import ?-all? ?-force? ?-prefix prefix? ?-namespace namespace? service"}}
 
 test logger-12.12 {import subcommand, errors} {
     set code [catch {
-    	logger::import foo 
-	} msg]
+        logger::import foo 
+    } msg]
     list $code $msg
 } {1 {Service "foo" does not exist.}}
 
@@ -677,10 +697,11 @@ test logger-12.13 {import subcommand, errors} {
         proc debug {args} { }
     }
     set code [catch {
-    	logger::import -namespace ::foo global 
-	} msg]
+        logger::import -namespace ::foo global 
+    } msg]
     list $code $msg
 } {1 {can't import command "::foo::debug": already exists}}
+
 
 ::tcltest::cleanupTests
 return
