@@ -21,26 +21,29 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.14 2005/02/21 01:53:25 patthoyts Exp $
+# $Id: sha1.tcl,v 1.15 2005/02/23 00:55:47 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable version 2.0.0
-    variable rcsid {$Id: sha1.tcl,v 1.14 2005/02/21 01:53:25 patthoyts Exp $}
-    variable usetrf 0
-    variable usesha1c 0
+    variable rcsid {$Id: sha1.tcl,v 1.15 2005/02/23 00:55:47 patthoyts Exp $}
+    variable extn
+    array set extn {critcl 0 cryptkit 0 trf 0}
 
     namespace export sha1 hmac SHA1Init SHA1Update SHA1Final
 
     # Try and load a compiled extension to help.
     if {![catch {package require tcllibc}]
         || ![catch {package require sha1c}]} {
-        set usesha1c [expr {[info command ::sha1::sha1c] != {}}]
+        set extn(critcl) [expr {[info command ::sha1::sha1c] != {}}]
     }
-    if {$usesha1c == 0 && ![catch {package require Trf}]} {
+    if {!$extn(critcl) && ![catch {package require cryptkit}]} {
+        set extn(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
+    }
+    if {!$extn(critcl) && !$extn(cryptkit) && ![catch {package require Trf}]} {
         # We have this check because Trf's sha1 often doesn't work on Win32.
-        set usetrf [expr {![catch {::sha1 aa} msg]}]
+        set extn(trf) [expr {![catch {::sha1 aa} msg]}]
     }
 
     variable uid
@@ -57,7 +60,7 @@ namespace eval ::sha1 {
 #   cleaned up when we call SHA1Final
 #
 proc ::sha1::SHA1Init {} {
-    variable usetrf
+    variable extn
     variable uid
     set token [namespace current]::[incr uid]
     upvar #0 $token tok
@@ -71,7 +74,9 @@ proc ::sha1::SHA1Init {} {
              D [expr int(0x10325476)] \
              E [expr int(0xC3D2E1F0)] \
              n 0 i "" ]
-    if {$usetrf} {
+    if {$extn(cryptkit)} {
+        cryptkit::cryptCreateContext state(ckctx) CRYPT_UNUSED CRYPT_ALGO_SHA
+    } elseif {$extn(trf)} {
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -101,16 +106,19 @@ proc ::sha1::SHA1Init {} {
 #   it here in preference to the pure-Tcl implementation.
 #
 proc ::sha1::SHA1Update {token data} {
-    variable usesha1c
+    variable extn
     variable $token
     upvar #0 $token state
 
-    if {$usesha1c} {
+    if {$extn(critcl)} {
         if {[info exists state(sha1c)]} {
             set state(sha1c) [sha1c $data $state(sha1c)]
         } else {
             set state(sha1c) [sha1c $data]
         }
+        return
+    } elseif {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) $data
         return
     } elseif {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
@@ -148,6 +156,12 @@ proc ::sha1::SHA1Final {token} {
     if {[info exists state(sha1c)]} {
         set r $state(sha1c)
         unset state
+        return $r
+    } elseif {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) ""
+        cryptkit::cryptGetAttributeString $state(ckctx) \
+            CRYPT_CTXINFO_HASHVALUE r 20
+        cryptkit::cryptDestroyContext $state(ckctx)
         return $r
     } elseif {[info exists state(trf)]} {
         close $state(trf)
