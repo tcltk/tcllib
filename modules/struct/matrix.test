@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.3 2001/11/24 02:24:55 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.4 2002/02/01 21:51:42 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -144,6 +144,19 @@ test matrix-0.12 {matrix errors} {
     set msg
 } {bad row index 0, row does not exist}
 
+test matrix-0.13 {matrix errors} {
+    matrix mymatrix
+    catch {mymatrix insert foo} msg
+    mymatrix destroy
+    set msg
+} "bad option \"foo\": must be column, or row"
+
+test matrix-1.0 {create} {
+    set name [matrix]
+    set result [list $name [string equal [info commands ::$name] "::$name"]]
+    $name destroy
+    set result
+} [list matrix1 1]
 
 
 test matrix-1.1 {columns, rows & cells} {
@@ -189,6 +202,13 @@ test matrix-1.5 {columns, rows & cells} {
     set result
 } {2 2 4}
 
+test matrix-2.0 {add error} {
+    matrix mymatrix
+    catch {mymatrix add} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix add option ?arg arg ...?"}
+
 test matrix-2.1 {add column, add row} {
     matrix mymatrix
     mymatrix add column
@@ -222,17 +242,39 @@ test matrix-2.3 {add columns, add rows} {
 
 test matrix-2.4 {add columns, add rows} {
     matrix mymatrix
+    mymatrix add rows    4
+    mymatrix add columns 4
+    set result [mymatrix get rect 0 0 end end]
+    mymatrix destroy
+    set result
+} {{{} {} {} {}} {{} {} {} {}} {{} {} {} {}} {{} {} {} {}}}
+
+test matrix-2.5 {add columns, add rows} {
+    matrix mymatrix
     catch {mymatrix add columns 0} result
     mymatrix destroy
     set result
 } {A value of n <= 0 is not allowed}
 
-test matrix-2.5 {add columns, add rows} {
+test matrix-2.6 {add columns, add rows} {
     matrix mymatrix
     catch {mymatrix add rows 0} result
     mymatrix destroy
     set result
 } {A value of n <= 0 is not allowed}
+
+test matrix-2.7 {add column, add row, cut off} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2 5 6 7}
+    mymatrix add row {3 4 8 9 10}
+    set result [mymatrix get rect 0 0 end end]
+    mymatrix destroy
+    set result
+} {{1 2} {3 4}}
+
+
 
 test matrix-3.1 {sizes, widths, heights} {
     matrix mymatrix
@@ -333,23 +375,70 @@ test matrix-3.9 {sizes, widths, heights} {
     set result
 } {bad column index 5, column does not exist}
 
+test matrix-4.0 {delete error} {
+    matrix mymatrix
+    catch {mymatrix delete} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix delete option ?arg arg ...?"}
+
 test matrix-4.1 {deletion of rows and columns} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
-    mymatrix add column {2}
+    mymatrix add column {2a}
     mymatrix add row {3 4}
     mymatrix add column {5 6}
-    mymatrix add row {7 8 9}
+    mymatrix add row [list 7 8 "9\na"]
+
+    set     resa [list [mymatrix columnwidth 0]]
+    lappend resa [mymatrix columnwidth 1]
+    lappend resa [mymatrix columnwidth 2]
 
     set result [list [mymatrix get rect 0 0 end end]]
     mymatrix delete column 1
     lappend result [mymatrix get rect 0 0 end end]
     mymatrix delete row 1
     lappend result [mymatrix get rect 0 0 end end]
+
+    lappend resa [mymatrix columnwidth 0]
+    lappend resa [mymatrix columnwidth 1]
+
     mymatrix destroy
+    lappend result $resa
     set result
-} {{{1 2 5} {3 4 6} {7 8 9}} {{1 5} {3 6} {7 9}} {{1 5} {7 9}}}
+} {{{1 2a 5} {3 4 6} {7 8 {9
+a}}} {{1 5} {3 6} {7 {9
+a}}} {{1 5} {7 {9
+a}}} {1 2 1 1 1}}
+
+test matrix-4.1a {deletion of rows and columns} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2a}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row [list 7 8 "9\na"]
+
+    set     resb [list [mymatrix rowheight 0]]
+    lappend resb [mymatrix rowheight 1]
+    lappend resb [mymatrix rowheight 2]
+
+    set result [list [mymatrix get rect 0 0 end end]]
+    mymatrix delete row 1
+    mymatrix delete column 1
+    lappend result [mymatrix get rect 0 0 end end]
+
+    lappend resb [mymatrix rowheight 0]
+    lappend resb [mymatrix rowheight 1]
+
+    mymatrix destroy
+    lappend result $resb
+    set result
+} {{{1 2a 5} {3 4 6} {7 8 {9
+a}}} {{1 5} {7 {9
+a}}} {1 1 2 1 2}}
 
 test matrix-4.2 {deletion of rows and columns} {
     matrix mymatrix
@@ -437,6 +526,13 @@ test matrix-4.7 {deletion of rows and columns} {
     set result
 } {bad row index 5, row does not exist}
 
+test matrix-5.0 {format error} {
+    matrix mymatrix
+    catch {mymatrix format} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix format option ?arg arg ...?"}
+
 test matrix-5.1 {formatting} {
     matrix mymatrix
     mymatrix add column
@@ -507,6 +603,14 @@ mymatrix add rows    3
 mymatrix add columns 3
 mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
 }
+
+test matrix-6.0 {set/get error} {
+    matrix mymatrix
+    catch {mymatrix set} msga
+    catch {mymatrix get} msgb
+    mymatrix destroy
+    list $msga $msgb
+} {{wrong # args: should be "mymatrix set option ?arg arg ...?"} {wrong # args: should be "mymatrix get option ?arg arg ...?"}}
 
 test matrix-6.1 {set and get in all forms} {
     matrix mymatrix
@@ -960,7 +1064,7 @@ test matrix-6.34 {set and get in all forms} {
     set result
 } {bad row index 5, row does not exist}
 
-test matrix-6.36 {set and get in all forms} {
+test matrix-6.35 {set and get in all forms} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -973,7 +1077,7 @@ test matrix-6.36 {set and get in all forms} {
     set result
 } {bad column index 5, column does not exist}
 
-test matrix-6.40 {set and get in all forms} {
+test matrix-6.36 {set and get in all forms} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -999,6 +1103,28 @@ test matrix-6.43 {set and get in all forms} {
     mymatrix destroy
     set result
 } {Invalid cell indices, wrong ordering}
+
+test matrix-6.44 {set and get in all forms} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix set cell 0 0 foo
+    set result [list [mymatrix get rect 0 0 end end]]
+    mymatrix set cell 0 0 foo
+    lappend result [mymatrix get rect 0 0 end end]
+    mymatrix destroy
+    set result
+} {foo foo}
+
+
+
+
+test matrix-7.0 {swap error} {
+    matrix mymatrix
+    catch {mymatrix swap} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix swap option ?arg arg ...?"}
 
 test matrix-7.1 {swapping} {
     matrix mymatrix
@@ -1131,6 +1257,13 @@ test matrix-7.10 {swapping} {
     mymatrix destroy
     set result
 } {bad row index 5, row does not exist}
+
+test matrix-8.0 {insert error} {
+    matrix mymatrix
+    catch {mymatrix insert} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix insert option ?arg arg ...?"}
 
 test matrix-8.1 {insertion} {
     matrix mymatrix
@@ -1311,7 +1444,36 @@ test matrix-8.12 {insertion} {
     set result
 } {1}
 
-test matrix-9.1 {linking} {
+test matrix-9.0 {link errors} {
+    matrix mymatrix
+    catch {mymatrix link} msg
+    mymatrix destroy
+    set msg
+} {mymatrix: wrong # args: link ?-transpose? arrayvariable}
+
+test matrix-9.1 {link errors} {
+    matrix mymatrix
+    catch {mymatrix link 1 2 3} msg
+    mymatrix destroy
+    set msg
+} {mymatrix: wrong # args: link ?-transpose? arrayvariable}
+
+test matrix-9.2 {link errors} {
+    matrix mymatrix
+    catch {mymatrix link foo 2} msg
+    mymatrix destroy
+    set msg
+} {mymatrix: illegal syntax: link ?-transpose? arrayvariable}
+
+test matrix-9.3 {link errors} {
+    matrix mymatrix
+    mymatrix link foo
+    catch {mymatrix link foo} msg
+    mymatrix destroy
+    set msg
+} {mymatrix link: Variable "foo" already linked to matrix}
+
+test matrix-9.4 {linking, initial transfer} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -1325,7 +1487,7 @@ test matrix-9.1 {linking} {
     set result
 } {0,0 1 0,1 3 0,2 7 1,0 2 1,1 4 1,2 8 2,0 5 2,1 6 2,2 9}
 
-test matrix-9.2 {linking} {
+test matrix-9.5 {linking, initial transfer} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -1340,7 +1502,7 @@ test matrix-9.2 {linking} {
 } {0,0 1 0,1 2 0,2 5 1,0 3 1,1 4 1,2 6 2,0 7 2,1 8 2,2 9}
 
 
-test matrix-9.3 {linking} {
+test matrix-9.6 {linking, trace array -> matrix} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -1355,7 +1517,7 @@ test matrix-9.3 {linking} {
     set result
 } {{1 foo 5} {3 4 6} {7 8 9}}
 
-test matrix-9.4 {linking} {
+test matrix-9.7 {linking, trace array -> matrix} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -1370,7 +1532,7 @@ test matrix-9.4 {linking} {
     set result
 } {{1 2 5} {foo 4 6} {7 8 9}}
 
-test matrix-9.5 {linking} {
+test matrix-9.8 {linking, trace and unlink} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -1388,7 +1550,7 @@ test matrix-9.5 {linking} {
     set result
 } {{{1 foo 5} {3 4 6} {7 8 9}} {0,0 1 0,1 3 0,2 7 1,0 2 1,1 4 1,2 8 2,0 5 2,1 6 2,2 9}}
 
-test matrix-9.6 {linking} {
+test matrix-9.9 {linking} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -1402,20 +1564,127 @@ test matrix-9.6 {linking} {
     set result
 } {can't set "a(1,5)": bad row index 5, row does not exist}
 
+test matrix-9.10 {unlink unknown} {
+    matrix mymatrix
+    set result [list [mymatrix links]]
+    mymatrix unlink foo
+    lappend result [mymatrix links]
+    mymatrix destroy
+    set result
+} {{} {}}
+
+test matrix-9.11 {auto unlink} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row {7 8 9}
+    mymatrix link a
+    set result [list [mymatrix links]]
+    unset a
+    lappend result [mymatrix links]
+    mymatrix destroy
+    set result
+} {a {}}
+
+
+test 10.1 {search errors} {
+    matrix mymatrix
+    catch {mymatrix search} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix search ?option? (all|row row|column col|rect c r c r) pattern"}
+
+test 10.2 {search errors} {
+    matrix mymatrix
+    catch {mymatrix search 1} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix search ?option? (all|row row|column col|rect c r c r) pattern"}
+
+test 10.3 {search errors} {
+    matrix mymatrix
+    catch {mymatrix search 1 2 3 4 5} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix search ?option? (all|row row|column col|rect c r c r) pattern"}
+
+test 10.4 {search errors} {
+    matrix mymatrix
+    catch {mymatrix search 1 2 3 4 5 6 7 8} msg
+    mymatrix destroy
+    set msg
+} {wrong # args: should be "mymatrix search ?option? (all|row row|column col|rect c r c r) pattern"}
+
+test 10.5 {search errors} {
+    matrix mymatrix
+    catch {mymatrix search -foo 2 3 4} msg
+    mymatrix destroy
+    set msg
+} {invalid pattern option "-foo": should be -exact, -glob, or -regexp}
+
+test 10.6 {search errors} {
+    matrix mymatrix
+    catch {mymatrix search -exact foo 3 4} msg
+    mymatrix destroy
+    set msg
+} {invalid range spec "foo": should be all, column, row, or rect}
+
+test 10.7 {search errors} {
+    matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {1  2  3 4 5}
+    mymatrix add row {6  7  8 9 0}
+    mymatrix add row {a  b  c d e}
+    mymatrix add row {ab ba f g h}
+    mymatrix add row {cd 4d x y z}
+    catch {mymatrix search -exact rect 4 0 2 1 foo} msg
+    mymatrix destroy
+    set msg
+} {Invalid cell indices, wrong ordering}
+
+test 10.8 {search errors} {
+    matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {1  2  3 4 5}
+    mymatrix add row {6  7  8 9 0}
+    mymatrix add row {a  b  c d e}
+    mymatrix add row {ab ba f g h}
+    mymatrix add row {cd 4d x y z}
+    catch {mymatrix search -exact rect 2 1 4 0 foo} msg
+    mymatrix destroy
+    set msg
+} {Invalid cell indices, wrong ordering}
+
+
+test matrix-10.9 "searching, default" {
+    matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {1  2  3 4 5}
+    mymatrix add row {6  7  8 9 0}
+    mymatrix add row {a  b  c d e}
+    mymatrix add row {ab ba f g h}
+    mymatrix add row {cd 4d x y z}
+    set result [mymatrix search row 2 b]
+    mymatrix destroy
+    set result
+} {{1 2}}
 
 foreach {n mode range pattern result} {
-    0  -exact  {all}          {ab}  {{0 3}}
-    1  -glob   {all}          {a*}  {{0 2} {0 3}}
-    2  -regexp {all}          {b.}  {{1 3}}
-    3  -exact  {row    2}     {b}   {{1 2}}
-    4  -glob   {row    3}     {b*}  {{1 3}}
-    5  -regexp {row    4}     {d}   {{0 4} {1 4}}
-    6  -exact  {column 2}     {c}   {{2 2}}
-    7  -glob   {column 0}     {a*}  {{0 2} {0 3}}
-    8  -regexp {column 1}     {b.*} {{1 2} {1 3}}
-    9  -exact  {rect 1 1 3 3} {c}   {{2 2}}
-    10 -glob   {rect 1 1 3 3} {b*}  {{1 2} {1 3}}
-    11 -regexp {rect 1 1 3 3} {b.*} {{1 2} {1 3}}
+    10 -exact  {all}          {ab}  {{0 3}}
+    11 -glob   {all}          {a*}  {{0 2} {0 3}}
+    12 -regexp {all}          {b.}  {{1 3}}
+    13 -exact  {row    2}     {b}   {{1 2}}
+    14 -glob   {row    3}     {b*}  {{1 3}}
+    15 -regexp {row    4}     {d}   {{0 4} {1 4}}
+    16 -exact  {column 2}     {c}   {{2 2}}
+    17 -glob   {column 0}     {a*}  {{0 2} {0 3}}
+    18 -regexp {column 1}     {b.*} {{1 2} {1 3}}
+    19 -exact  {rect 1 1 3 3} {c}   {{2 2}}
+    20 -glob   {rect 1 1 3 3} {b*}  {{1 2} {1 3}}
+    21 -regexp {rect 1 1 3 3} {b.*} {{1 2} {1 3}}
 } {
     test matrix-10.$n "searching ($mode $range $pattern)" {
 	matrix mymatrix
@@ -1431,6 +1700,18 @@ foreach {n mode range pattern result} {
     } $result ; # {}
 }
 
-  
+
+# Future tests: query rowheight, column width before and after delete
+# row/column to ascertain that the cached values are correctly
+# shifted.
+
+# Test 'format 2chan', have to redirect a channel for this.
+
+# Future: Tests involving cached information (row heights, col widths)
+# should use special commands to peek at the cache only, without
+# recalculation.
+
+# Document 'links' method.
+
 ::tcltest::cleanupTests
 
