@@ -471,7 +471,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.25 2004/02/14 05:59:20 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.25.2.1 2004/05/24 02:58:08 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -1165,18 +1165,33 @@ proc __critcl {} {
     global argv critcl critclmodules tcl_platform
     if {$tcl_platform(platform) == "windows"} {
         set critcl [auto_execok tclkitsh]
-        if {$critcl != {}} {
-            set critcl [concat $critcl [auto_execok critcl.kit]]
+        if {$critcl == {}} {
+            return -code error "error: failed to find tclkitsh.exe in path"
+        } else {
+            # If the critcl.kit isn't in the path, set the CRITCL env var.
+            if {[info exists ::env(CRITCL)]} {
+                set critclkit $::env(CRITCL)
+            } else {
+                set critclkit [auto_execok critcl.kit]
+            }
+            if {$critclkit == {}} {
+                return -code error "error: failed to find critcl.kit in \
+                  path.\n\
+                  You may wish to set the CRITCL environment variable to the\
+                  location of your critcl.kit file."
+            }
+            set critcl [concat $critcl $critclkit]
         }
     } else {
+        # My, isn't it simpler under unix.
         set critcl [auto_execok critcl]
     }
 
     if {$critcl != {}} {
         if {[llength $argv] == 0} {
-            #foreach p [array names critclmodules] {
-            #    critcl_module $p
-            #}
+            puts stderr "[string repeat - 72]\nBuilding critcl components."
+            puts stderr "Note: you can ignore warnings for tcllibc.tcl,\
+                base64c.tcl and crcc.tcl.\n[string repeat - 72]"
             critcl_module tcllibc
         } else {
             foreach m $argv {

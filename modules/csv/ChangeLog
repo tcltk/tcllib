@@ -1,3 +1,8 @@
+2004-05-03  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* csv.tcl (read2matrix): Fixed bogus switch case. Had case "4"
+	  twice, second should have been "5". [SF Tcllib Bug 940651].
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

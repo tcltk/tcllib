@@ -6,10 +6,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.13 2004/01/25 07:29:21 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.13.2.1 2004/05/24 02:58:09 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-catch {package require log};            # tcllib 1.0
 
 # Try and get some compiled helper package.
 if {[catch {package require tcllibc}]} {
@@ -164,8 +163,6 @@ if {[package provide critcl] != {}} {
 #
 proc ::uuencode::pad {s} {
     if {[set mod [expr {[string length $s] % 4}]] != 0} {
-        log::log notice "invalid uuencoded string: padding string to a\
-              multiple of 4."
         append s [string repeat "`" [expr {4 - $mod}]]
     }
     return $s

@@ -1,7 +1,6 @@
-#!/bin/sh
-# the next line restarts using tclsh \
-PATH=/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin LD_LIBRARY_PATH=/usr/pkg/lib:/usr/local/lib:/usr/lib export PATH LD_LIBRARY_PATH; exec tclsh8.3 "$0" "$@"
-
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
 
 # personal.tcl - process personal mail
 #
@@ -11,6 +10,7 @@ PATH=/usr/pkg/bin:/usr/local/bin:/usr/bin:/bin LD_LIBRARY_PATH=/usr/pkg/lib:/usr
 # The original version was written in 1994!
 #
 
+package require Tcl 8.3
 
 global options
 

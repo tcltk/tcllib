@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.21 2004/02/11 07:48:40 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.21.2.1 2004/05/24 02:58:10 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -1074,7 +1074,7 @@ proc ::ftpd::command::PASS {sock list} {
         unset data(pass)
         puts $sock "551 Access Denied"
     } else {
-	puts $sock "200 OK"
+	puts $sock "230 OK"
 	set data(access) 1
     }
     return

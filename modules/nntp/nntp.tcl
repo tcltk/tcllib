@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.12 2004/02/16 04:14:48 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.12.2.1 2004/05/24 02:58:11 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide nntp 0.2.1
@@ -171,7 +171,7 @@ proc ::nntp::NntpProc {name {cmd ""} args} {
 
     # Call the appropriate command with its arguments
 
-    return [eval [list ::nntp::_$cmd $name] $args]
+    return [eval [linsert $args 0 ::nntp::_$cmd $name]]
 }
 
 # ::nntp::okprint --
@@ -803,7 +803,7 @@ proc ::nntp::cmd {name cmd} {
 }
 
 proc ::nntp::command {name args} {
-    set res [eval [list ::nntp::cmd $name] $args]
+    set res [eval [linsert $args 0 ::nntp::cmd $name]]
     
     return [::nntp::response $name]
 }

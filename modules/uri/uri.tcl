@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.25 2004/01/25 07:29:51 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.25.2.1 2004/05/24 02:58:12 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -135,7 +135,7 @@ proc ::uri::register {schemeList script} {
 
     # Now we can extend the variables which keep track of the registered schemes.
 
-    eval lappend schemes $schemeList
+    eval [linsert $schemeList 0 lappend schemes]
     set schemePattern	"([::join $schemes |]):"
 
     foreach s schemeList {
@@ -316,7 +316,7 @@ proc ::uri::SplitHttp {url} {
     if {[string match "//*" $url]} {
 	set url [string range $url 2 end]
 
-	array set parts [GetHostPort url]
+	array set parts [GetUPHP url]
     }
 
     set parts(path) [string trimleft $url /]
@@ -325,11 +325,11 @@ proc ::uri::SplitHttp {url} {
 }
 
 proc ::uri::JoinHttp {args} {
-    eval uri::JoinHttpInner http 80 $args
+    eval [linsert $args 0 uri::JoinHttpInner http 80]
 }
 
 proc ::uri::JoinHttps {args} {
-    eval uri::JoinHttpInner https 443 $args
+    eval [linsert $args 0 uri::JoinHttpInner https 443]
 }
 
 proc ::uri::JoinHttpInner {scheme defport args} {
@@ -587,7 +587,7 @@ proc ::uri::resolve {base url} {
 		    }
 		    catch { set baseparts(query) $relparts(query) }
 		    catch { set baseparts(fragment) $relparts(fragment) }
-		    return [eval join [array get baseparts]]
+            return [eval [linsert [array get baseparts] 0 join]]
 		}
 		default {
 		    return -code error "unable to resolve relative URL \"$url\""
@@ -635,7 +635,7 @@ proc ::uri::geturl {url args} {
 
     switch -- $urlparts(scheme) {
 	file {
-	    return [eval file_geturl [list $url] $args]
+        return [eval [linsert $args 0 file_geturl $url]]
 	}
 	default {
 	    # Load a geturl package for the scheme first and only if
@@ -644,7 +644,7 @@ proc ::uri::geturl {url args} {
 	    if {[catch {package require $urlparts(scheme)::geturl}]} {
 		package require $urlparts(scheme)
 	    }
-	    return [eval [list $urlparts(scheme)::geturl $url] $args]
+        return [eval [linsert $args 0 $urlparts(scheme)::geturl $url]]
 	}
     }
 }
@@ -696,7 +696,7 @@ proc ::uri::file_geturl {url args} {
 proc ::uri::join args {
     array set components $args
 
-    return [eval [list Join[string totitle $components(scheme)]] $args]
+    return [eval [linsert $args 0 Join[string totitle $components(scheme)]]]
 }
 
 # ::uri::canonicalize --
@@ -754,7 +754,7 @@ proc ::uri::canonicalize uri {
     if { $uri == ".." } { set uri "/" }
 
     set u(path) $uri
-    set uri [eval uri::join [array get u]]
+    set uri [eval [linsert [array get u] 0 uri::join]]
 
     return $uri
 }

@@ -1,4 +1,4 @@
-#- *- tcl -*-
+# -*- tcl -*-
 # MicroServer (also MicroServant)
 # aka muserv (mu = greek micron)
 #

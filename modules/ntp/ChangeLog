@@ -1,3 +1,11 @@
+2004-02-28  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl: Fix the version as 1.0.2
+
+2004-02-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl: Applied patch #905132 to better handle socket errors.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -1,3 +1,29 @@
+2004-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.tcl: The last commit of this file, not recorded in here
+	  the ChangeLog :(, not only fixed the bug with the infinite loop
+	  invoked by the tests cases 2.6 and 2.7 :), but also introduced
+	  an error with trivial a fix (usage of wrong variable) and
+	  utterly easy to detect __if the testsuite had been run before
+	  the commit__ :(. Obviously it was not. The rewritten Adjust
+	  procedure returned not only the reformatted input, but prepended
+	  this wanted result with a copy of the original unformatted
+	  input. This has been fixed.
+
+	* adjust.test: Updated the testsuite using the assumption that the
+	  currently returned formatted results are correct as is. As the
+	  tests 2.6 and 2.7 are not running into infinite loop anymore
+	  their tag 'knownBug' has been removed. These two tests are now
+	  regular tests again and will be executed as part of any run of
+	  the testsuite for textutil.
+
+2004-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust_hyph.test: Added the example of [Tcllib SF Bug 860753] as
+	  a testcase to textutil. Using tcllib 1.4 the new test
+	  fails. Using the CVS Head (== Tcllib 1.6) the reported problem
+	  could not be reproduced. IOW this problem has been fixed already.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

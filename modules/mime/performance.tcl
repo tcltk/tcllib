@@ -1,4 +1,6 @@
-#!/usr/bin/tclsh
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
 
 #package require mime
 source ./mime.tcl 

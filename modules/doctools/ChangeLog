@@ -1,3 +1,25 @@
+2004-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_text.tcl (SECT): Fixed a small problem in the text
+	  generator which was present for ages. Titles of more than one
+	  word would have braces around them. Not fatal but also not so
+	  nice looking. It was an argument versus argument list
+	  thing. Adding a lindex in the proper place gets rid of the
+	  additional level of quoting.
+
+2004-05-04  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/_nroff.tcl: Fixed [SF Tcllib Bug 943146]. Added markup
+	* mpformats/fmt.nroff: protection code like already in use for
+	                       HTML and XML to handle nroff's special
+	                       characters, i.e. the backslash properly.
+	                       Also fixed handling of leading dashes in
+	                       'opt_def'.
+
+2004-04-22  Joe English  <jenglish@users.sourceforge.net>
+
+	* mpformats/fmt.xml: BUGFIX: "puts stderr" ==> "puts_stderr".
+	
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

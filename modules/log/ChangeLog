@@ -1,3 +1,10 @@
+2004-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* log.tcl: Added initialization code to suppress the lower levels
+	  (warning notice info debug) from generating output. In other
+	  words, by default only statements with messages of level error
+	  or higher will generate output when the package is loaded.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -1,3 +1,7 @@
+2004-05-11  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* fileutil.tcl: updated the jpeg test to recognize exif format
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

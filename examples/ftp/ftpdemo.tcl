@@ -1,7 +1,7 @@
-#!/bin/sh
-# the next line restarts using wish \
-exec wish8.3 "$0" "$@"
-#
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
 #   - simple tcl/tk test script for FTP library package -
 #
 #   Required:	tcl/tk8.3
@@ -22,7 +22,7 @@ exec wish8.3 "$0" "$@"
 #
 ########################################################################
 
-package require Tcl 8
+package require Tcl 8.3
 package require Tk
 package require ftp 2.0
 

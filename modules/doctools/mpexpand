@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 # -*- tcl -*- \
 exec tclsh "$0" ${1+"$@"}
 

@@ -12,7 +12,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.3.4
+package provide mime 1.3.6
 
 if {[catch {package require Trf  2.0}]} {
 
@@ -22,7 +22,7 @@ if {[catch {package require Trf  2.0}]} {
     # that appears to work with this code here.
 
     package require base64 2.0
-    package require md5 1.0
+    set major [lindex [split [package require md5] .] 0]
 
     # Create these commands in the mime namespace so that they
     # won't collide with things at the global namespace level
@@ -34,14 +34,25 @@ if {[catch {package require Trf  2.0}]} {
         proc quoted-printable {-mode what -- chunk} {
   	    return [mime::qp_$what $chunk]
         }
-        proc md5 {-- string} {
-	    return [md5::md5 $string]
-        }
+
+	if {$::major < 2} {
+	    # md5 v1, result is hex string ready for use.
+	    proc md5 {-- string} {
+		return [md5::md5 $string]
+	    }
+	} else {
+	    # md5 v2, need option to get hex string
+	    proc md5 {-- string} {
+		return [md5::md5 -hex $string]
+	    }
+	}
         proc unstack {channel} {
 	    # do nothing
 	    return
         }
     }
+
+    unset major
 }        
 
 #
@@ -112,36 +123,37 @@ namespace eval ::mime {
     set encList [list \
             ascii US-ASCII \
             big5 Big5 \
-            cp1250 "" \
-            cp1251 "" \
-            cp1252 "" \
-            cp1253 "" \
-            cp1254 "" \
-            cp1255 "" \
-            cp1256 "" \
-            cp1257 "" \
-            cp1258 "" \
-            cp437 "" \
+            cp1250 Windows-1250 \
+            cp1251 Windows-1251 \
+            cp1252 Windows-1252 \
+            cp1253 Windows-1253 \
+            cp1254 Windows-1254 \
+            cp1255 Windows-1255 \
+            cp1256 Windows-1256 \
+            cp1257 Windows-1257 \
+            cp1258 Windows-1258 \
+            cp437 IBM437 \
             cp737 "" \
-            cp775 "" \
-            cp850 "" \
-            cp852 "" \
-            cp855 "" \
-            cp857 "" \
-            cp860 "" \
-            cp861 "" \
-            cp862 "" \
-            cp863 "" \
-            cp864 "" \
-            cp865 "" \
-            cp866 "" \
-            cp869 "" \
+            cp775 IBM775 \
+            cp850 IBM850 \
+            cp852 IBM852 \
+            cp855 IBM855 \
+            cp857 IBM857 \
+            cp860 IBM860 \
+            cp861 IBM861 \
+            cp862 IBM862 \
+            cp863 IBM863 \
+            cp864 IBM864 \
+            cp865 IBM865 \
+            cp866 IBM866 \
+            cp869 IBM869 \
             cp874 "" \
             cp932 "" \
-            cp936 "" \
+            cp936 GBK \
             cp949 "" \
             cp950 "" \
             dingbats "" \
+	    ebcdic "" \
             euc-cn EUC-CN \
             euc-jp EUC-JP \
             euc-kr EUC-KR \
@@ -160,12 +172,17 @@ namespace eval ::mime {
             iso8859-7 ISO-8859-7 \
             iso8859-8 ISO-8859-8 \
             iso8859-9 ISO-8859-9 \
+            iso8859-10 ISO-8859-10 \
+            iso8859-13 ISO-8859-13 \
+            iso8859-14 ISO-8859-14 \
             iso8859-15 ISO-8859-15 \
-            jis0201  "" \
-            jis0208 "" \
-            jis0212 "" \
+            iso8859-16 ISO-8859-16 \
+            jis0201 JIS_X0201 \
+            jis0208 JIS_C6226-1983 \
+            jis0212 JIS_X0212-1990 \
             koi8-r KOI8-R \
-            ksc5601 "" \
+            koi8-u KOI8-U \
+            ksc5601 KS_C_5601-1987 \
             macCentEuro "" \
             macCroatian "" \
             macCyrillic "" \
@@ -180,6 +197,7 @@ namespace eval ::mime {
             macUkraine "" \
             shiftjis Shift_JIS \
             symbol "" \
+            tis-620 TIS-620 \
             unicode "" \
             utf-8 UTF-8]
 
@@ -191,6 +209,129 @@ namespace eval ::mime {
             set reversemap([string tolower $mimeType]) $enc
         }
     } 
+
+    set encAliasList [list \
+            ascii ANSI_X3.4-1968 \
+            ascii iso-ir-6 \
+            ascii ANSI_X3.4-1986 \
+            ascii ISO_646.irv:1991 \
+            ascii ASCII \
+            ascii ISO646-US \
+            ascii us \
+            ascii IBM367 \
+            ascii cp367 \
+            cp437 cp437 \
+            cp437 437 \
+            cp775 cp775 \
+            cp850 cp850 \
+            cp850 850 \
+            cp852 cp852 \
+            cp852 852 \
+            cp855 cp855 \
+            cp855 855 \
+            cp857 cp857 \
+            cp857 857 \
+            cp860 cp860 \
+            cp860 860 \
+            cp861 cp861 \
+            cp861 861 \
+            cp861 cp-is \
+            cp862 cp862 \
+            cp862 862 \
+            cp863 cp863 \
+            cp863 863 \
+            cp864 cp864 \
+            cp865 cp865 \
+            cp865 865 \
+            cp866 cp866 \
+            cp866 866 \
+            cp869 cp869 \
+            cp869 869 \
+            cp869 cp-gr \
+            cp936 CP936 \
+            cp936 MS936 \
+            cp936 Windows-936 \
+            iso8859-1 ISO_8859-1:1987 \
+            iso8859-1 iso-ir-100 \
+            iso8859-1 ISO_8859-1 \
+            iso8859-1 latin1 \
+            iso8859-1 l1 \
+            iso8859-1 IBM819 \
+            iso8859-1 CP819 \
+            iso8859-2 ISO_8859-2:1987 \
+            iso8859-2 iso-ir-101 \
+            iso8859-2 ISO_8859-2 \
+            iso8859-2 latin2 \
+            iso8859-2 l2 \
+            iso8859-3 ISO_8859-3:1988 \
+            iso8859-3 iso-ir-109 \
+            iso8859-3 ISO_8859-3 \
+            iso8859-3 latin3 \
+            iso8859-3 l3 \
+            iso8859-4 ISO_8859-4:1988 \
+            iso8859-4 iso-ir-110 \
+            iso8859-4 ISO_8859-4 \
+            iso8859-4 latin4 \
+            iso8859-4 l4 \
+            iso8859-5 ISO_8859-5:1988 \
+            iso8859-5 iso-ir-144 \
+            iso8859-5 ISO_8859-5 \
+            iso8859-5 cyrillic \
+            iso8859-6 ISO_8859-6:1987 \
+            iso8859-6 iso-ir-127 \
+            iso8859-6 ISO_8859-6 \
+            iso8859-6 ECMA-114 \
+            iso8859-6 ASMO-708 \
+            iso8859-6 arabic \
+            iso8859-7 ISO_8859-7:1987 \
+            iso8859-7 iso-ir-126 \
+            iso8859-7 ISO_8859-7 \
+            iso8859-7 ELOT_928 \
+            iso8859-7 ECMA-118 \
+            iso8859-7 greek \
+            iso8859-7 greek8 \
+            iso8859-8 ISO_8859-8:1988 \
+            iso8859-8 iso-ir-138 \
+            iso8859-8 ISO_8859-8 \
+            iso8859-8 hebrew \
+            iso8859-9 ISO_8859-9:1989 \
+            iso8859-9 iso-ir-148 \
+            iso8859-9 ISO_8859-9 \
+            iso8859-9 latin5 \
+            iso8859-9 l5 \
+            iso8859-10 iso-ir-157 \
+            iso8859-10 l6 \
+            iso8859-10 ISO_8859-10:1992 \
+            iso8859-10 latin6 \
+            iso8859-14 iso-ir-199 \
+            iso8859-14 ISO_8859-14:1998 \
+            iso8859-14 ISO_8859-14 \
+            iso8859-14 latin8 \
+            iso8859-14 iso-celtic \
+            iso8859-14 l8 \
+            iso8859-15 ISO_8859-15 \
+            iso8859-15 Latin-9 \
+            iso8859-16 iso-ir-226 \
+            iso8859-16 ISO_8859-16:2001 \
+            iso8859-16 ISO_8859-16 \
+            iso8859-16 latin10 \
+            iso8859-16 l10 \
+            jis0201 X0201 \
+            jis0208 iso-ir-87 \
+            jis0208 x0208 \
+            jis0208 JIS_X0208-1983 \
+            jis0212 x0212 \
+            jis0212 iso-ir-159 \
+            ksc5601 iso-ir-149 \
+            ksc5601 KS_C_5601-1989 \
+            ksc5601 KSC5601 \
+            ksc5601 korean \
+            shiftjis MS_Kanji \
+            utf-8 UTF8]
+
+    foreach {enc mimeType} $encAliasList {
+        set reversemap([string tolower $mimeType]) $enc
+    }
 
     namespace export initialize finalize getproperty \
                      getheader setheader \
@@ -244,7 +385,7 @@ proc ::mime::initialize {args} {
     variable $token
     upvar 0 $token state
 
-    if {[set code [catch { eval [list mime::initializeaux $token] $args } \
+    if {[set code [catch { eval [linsert $args 0 mime::initializeaux $token] } \
                          result]]} {
         set ecode $errorCode
         set einfo $errorInfo
@@ -927,14 +1068,14 @@ proc ::mime::finalize {token args} {
         all {
             if {![string compare $state(value) parts]} {
                 foreach part $state(parts) {
-                    eval [list mime::finalize $part] $args
+                    eval [linsert $args 0 mime::finalize $part]
                 }
             }
         }
 
         dynamic {
             for {set cid $state(cid)} {$cid > 0} {incr cid -1} {
-                eval [list mime::finalize $token-$cid] $args
+                eval [linsert $args 0 mime::finalize $token-$cid]
             }
         }
 
@@ -1418,7 +1559,11 @@ proc ::mime::getbody {token args} {
     set ecode $errorCode
     set einfo $errorInfo    
 
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
+    if {$code} {
+        return -code $code -errorinfo $einfo -errorcode $ecode $result
+    }
+
+    return $result
 }
 
 # ::mime::getbodyaux --
@@ -1634,9 +1779,9 @@ proc ::mime::copymessageaux {token channel} {
 		    set size [expr {$size - [string length $X]}]
 		}
 		if {[string compare $converter ""]} {
-		    puts $channel [$converter -mode encode -- $X]
+		    puts -nonewline $channel [$converter -mode encode -- $X]
 		} else {
-		    puts $channel $X
+		    puts -nonewline $channel $X
 		}
 	    }
 
@@ -1684,6 +1829,9 @@ proc ::mime::copymessageaux {token channel} {
                 set blocksize 512
             }
             set blocksize [expr {($blocksize/4)*3}]
+
+	    # [893516]
+	    fconfigure $channel -buffersize $blocksize
 
             puts $channel ""
 
