@@ -1,3 +1,13 @@
+2001-11-08  Don Porter <dgp@users.sourceforge.net>
+
+	* ascaller.tcl (ErrorInfoAsCaller): new utility proc that provides
+	only ::errorInfo management, leaving return code matters to the caller.
+	* do.tcl: At the prompting of Reinhard Max, replaced use of the
+	[BodyAsCaller] and [CommandAsCaller] routines with the simpler
+	[ErrorInfoAsCaller] with big performance improvement.
+	* do.test: New tests from Reinhard Max for testing ::errorInfo.
+	* tclIndex: generated
+
 2001-11-07  Don Porter <dgp@users.sourceforge.net>
 
 	* do.tcl: updated to use [BodyAsCaller] and [CommandAsCaller]
