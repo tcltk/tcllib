@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.28.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.28.2.2 2004/08/10 06:19:45 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -593,7 +593,7 @@ proc ::struct::tree::_destroy {name} {
 
 # ::struct::tree::_exists --
 #
-#	Test for existance of a given node in a tree.
+#	Test for existence of a given node in a tree.
 #
 # Arguments:
 #	name	Name of the tree to query.
@@ -671,7 +671,7 @@ proc ::struct::tree::_getall {name node {pattern *}} {
 #	node	Node we wish to know the height for..
 #
 # Results:
-#	height	Distance to depest child of the node.
+#	height	Distance to deepest child of the node.
 
 proc ::struct::tree::_height {name node} {
     if { ![_exists $name $node] } {
@@ -725,7 +725,7 @@ proc ::struct::tree::_keys {name node {pattern *}} {
 
 # ::struct::tree::_keyexists --
 #
-#	Test for existance of a given key for a node in a tree.
+#	Test for existence of a given key for a node in a tree.
 #
 # Arguments:
 #	name	Name of the tree.
@@ -825,7 +825,7 @@ proc ::struct::tree::_insert {name parentNode index args} {
 		return -code error "cannot move root node"
 	    }
 	
-	    # Cannot make a node its own descendant (I'm my own grandpaw...)
+	    # Cannot make a node its own descendant (I'm my own grandpa...)
 	    set ancestor $parentNode
 	    while { ![string equal $ancestor $rootname] } {
 		if { [string equal $ancestor $node] } {
@@ -1864,7 +1864,7 @@ proc ::struct::tree::KillNode {name node} {
 
 # ::struct::tree::GenAttributeStorage --
 #
-#	Create an array to store the attrributes of a node in.
+#	Create an array to store the attributes of a node in.
 #
 # Arguments:
 #	name	Name of the tree containing the node
@@ -1913,12 +1913,12 @@ proc ::struct::tree::Serialize {name node tvar rootidx} {
 	upvar ${name}::$attribute($node) data
 	lappend tree [array get data]
     } else {
-	# Enoce nodes without attributes.
+	# Encode nodes without attributes.
 	lappend tree {}
     }
 
     # Build tree structure, by adding the children to the list, all
-    # refering back to their parent by index. Their own children are
+    # referring back to their parent by index. Their own children are
     # added through recursive calls.
 
     foreach c $children($node) {
@@ -1984,7 +1984,7 @@ proc ::struct::tree::CheckSerialization {ser avar pvar cvar rnvar} {
 	lappend ch($p($node)) $node
     }
 
-    # Rootnode information ok ?
+    # Root node information ok ?
 
     if {[llength $rn] < 1} {
 	return -code error \

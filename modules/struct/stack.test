@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.test,v 1.7 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.test,v 1.7.2.1 2004/08/10 06:19:45 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -23,13 +23,13 @@ test stack-0.1 {stack errors} {
     catch {stack mystack} msg
     mystack destroy
     set msg
-} "command \"mystack\" already exists, unable to create stack"
+} "command \"::mystack\" already exists, unable to create stack"
 test stack-0.2 {stack errors} {badTest} {
     stack mystack
     catch {mystack} msg
     mystack destroy
     set msg
-} "wrong # args: should be \"mystack option ?arg arg ...?\""
+} "wrong # args: should be \"::mystack option ?arg arg ...?\""
 test stack-0.3 {stack errors} {
     stack mystack
     catch {mystack foo} msg
@@ -39,7 +39,7 @@ test stack-0.3 {stack errors} {
 test stack-0.4 {stack errors} {
     catch {stack set} msg
     set msg
-} "command \"set\" already exists, unable to create stack"
+} "command \"::set\" already exists, unable to create stack"
 
 test stack-1.1 {stack creation} {
     set foo [stack mystack]
@@ -47,14 +47,14 @@ test stack-1.1 {stack creation} {
     set size [mystack size]
     mystack destroy
     list $foo $cmd $size
-} {mystack ::mystack 0}
+} {::mystack ::mystack 0}
 test stack-1.2 {stack creation} {
     set foo [stack]
     set cmd [info commands ::$foo]
     set size [$foo size]
     $foo destroy
     list $foo $cmd $size
-} {stack1 ::stack1 0}
+} {::stack1 ::stack1 0}
 
 test stack-2.1 {stack destroy} {
     stack mystack
@@ -92,7 +92,7 @@ test stack-4.1 {push operation} {
     catch {mystack push} msg
     mystack destroy
     set msg
-} "wrong # args: should be \"mystack push item ?item ...?\""
+} "wrong # args: should be \"::mystack push item ?item ...?\""
 test stack-4.2 {push operation, singleton items} {
     stack mystack
     mystack push a

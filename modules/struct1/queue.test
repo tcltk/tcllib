@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.test,v 1.2 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.test,v 1.2.2.1 2004/08/10 06:19:45 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -23,13 +23,13 @@ test queue-0.1 {queue errors} {
     catch {queue myqueue} msg
     myqueue destroy
     set msg
-} "command \"myqueue\" already exists, unable to create queue"
+} "command \"::myqueue\" already exists, unable to create queue"
 test queue-0.2 {queue errors} {
     queue myqueue
     catch {myqueue} msg
     myqueue destroy
     set msg
-} "wrong # args: should be \"myqueue option ?arg arg ...?\""
+} "wrong # args: should be \"::myqueue option ?arg arg ...?\""
 test queue-0.3 {queue errors} {
     queue myqueue
     catch {myqueue foo} msg
@@ -39,7 +39,7 @@ test queue-0.3 {queue errors} {
 test queue-0.4 {queue errors} {
     catch {queue set} msg
     set msg
-} "command \"set\" already exists, unable to create queue"
+} "command \"::set\" already exists, unable to create queue"
 
 test queue-1.1 {queue creation} {
     set foo [queue myqueue]
@@ -47,14 +47,14 @@ test queue-1.1 {queue creation} {
     set size [myqueue size]
     myqueue destroy
     list $foo $cmd $size
-} {myqueue ::myqueue 0}
+} {::myqueue ::myqueue 0}
 test queue-1.2 {queue creation} {
     set foo [queue]
     set cmd [info commands ::$foo]
     set size [$foo size]
     $foo destroy
     list $foo $cmd $size
-} {queue1 ::queue1 0}
+} {::queue1 ::queue1 0}
 
 test queue-2.1 {queue destroy} {
     queue myqueue
@@ -92,7 +92,7 @@ test queue-4.1 {put operation} {
     catch {myqueue put} msg
     myqueue destroy
     set msg
-} "wrong # args: should be \"myqueue put item ?item ...?\""
+} "wrong # args: should be \"::myqueue put item ?item ...?\""
 test queue-4.2 {put operation, singleton items} {
     queue myqueue
     myqueue put a

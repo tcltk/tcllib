@@ -34,9 +34,9 @@ Return the top [arg count] items of the stack, without removing them from
 the stack.  If [arg count] is not specified, it defaults to 1.  If
 [arg count] is 1, the result is a simple string; otherwise, it is a
 list.  If specified, [arg count] must be greater than or equal to 1.
-If there are no items on the stack, this command will return
 
-[arg count] empty strings.
+If there are not enoughs items on the stack to fulfull the request,
+this command will throw an error.
 
 
 [call [arg stackName] [cmd pop] [opt "[arg count]"]]
@@ -45,9 +45,9 @@ Return the top [arg count] items of the stack, and remove them
 from the stack.  If [arg count] is not specified, it defaults to 1.
 If [arg count] is 1, the result is a simple string; otherwise, it is a
 list.  If specified, [arg count] must be greater than or equal to 1.
-If there are no items on the stack, this command will return
 
-[arg count] empty strings.
+If there are not enoughs items on the stack to fulfull the request,
+this command will throw an error.
 
 
 [call [arg stackName] [cmd push] [arg item] [opt "[arg "item ..."]"]]

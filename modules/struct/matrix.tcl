@@ -2,7 +2,7 @@
 #
 #	Implementation of a matrix data structure for Tcl.
 #
-# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # Heapsort code Copyright (c) 2003 by Edwin A. Suominen <ed@eepatents.com>,
 # based on concepts in "Introduction to Algorithms" by Thomas H. Cormen et al.
@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.14.2.1 2004/06/02 04:40:42 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.14.2.2 2004/08/10 06:19:44 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -24,14 +24,14 @@ namespace eval ::struct::matrix {
     #
     # - Two scalar variables containing the current number of rows and columns.
     # - Four array variables containing the array data, the caches for
-    #   rowheights and columnwidths and the information about linked arrays.
+    #   row heights and column widths and the information about linked arrays.
     #
     # The variables are
     # - columns #columns in data
     # - rows    #rows in data
     # - data    cell contents
-    # - colw    cache of columnwidths
-    # - rowh    cache of rowheights
+    # - colw    cache of column widths
+    # - rowh    cache of row heights
     # - link    information about linked arrays
     # - lock    boolean flag to disable MatTraceIn while in MatTraceOut [#532783]
     # - unset   string used to convey information about 'unset' traces from MatTraceIn to MatTraceOut.
@@ -1614,7 +1614,7 @@ proc ::struct::matrix::_link {name args} {
 # ::struct::matrix::_links --
 #
 #	Retrieves the names of all array variable the matrix is
-#	officialy linked to.
+#	officially linked to.
 #
 # Arguments:
 #	name	Name of the matrix object.
@@ -1747,7 +1747,7 @@ proc ::struct::matrix::_serialize {name args} {
 #	name	Name of the matrix object.
 #	column	Column index of the cell to set.
 #	row	Row index of the cell to set.
-#	value	THe new value of the cell.
+#	value	The new value of the cell.
 #
 # Results:
 #	None.
@@ -1837,7 +1837,7 @@ proc ::struct::matrix::__set_column {name column values} {
 #
 #	Takes a list of lists of cell values and writes them into the
 #	submatrix whose top-left cell is specified by the two
-#	indices. If the sublists of the outerlist are not of equal
+#	indices. If the sublists of the outer list are not of equal
 #	length the shorter sublists will be filled with empty strings
 #	to the length of the longest sublist. If the submatrix
 #	specified by the top-left cell and the number of rows and
@@ -2203,7 +2203,7 @@ proc ::struct::matrix::_unlink {name avar} {
     variable ${name}::link
 
     if {![info exists link($avar)]} {
-	# Ignore unlinking of unkown variables.
+	# Ignore unlinking of unknown variables.
 	return
     }
 

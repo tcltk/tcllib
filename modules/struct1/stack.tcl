@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.2 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.2.2.1 2004/08/10 06:19:45 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -17,17 +17,6 @@ namespace eval ::struct::stack {
     
     # counter is used to give a unique name for unnamed stacks
     variable counter 0
-
-    # commands is the list of subcommands recognized by the stack
-    variable commands [list \
-	    "clear"	\
-	    "destroy"	\
-	    "peek"	\
-	    "pop"	\
-	    "push"	\
-	    "rotate"	\
-	    "size"	\
-	    ]
 
     # Only export one command, the one used to instantiate a new stack
     namespace export stack
@@ -44,22 +33,46 @@ namespace eval ::struct::stack {
 # Results:
 #	name	name of the stack created
 
-proc ::struct::stack::stack {{name ""}} {
+proc ::struct::stack::stack {args} {
     variable stacks
     variable counter
     
-    if { [llength [info level 0]] == 1 } {
-	incr counter
-	set name "stack${counter}"
+    switch -exact -- [llength [info level 0]] {
+	1 {
+	    # Missing name, generate one.
+	    incr counter
+	    set name "stack${counter}"
+	}
+	2 {
+	    # Standard call. New empty stack.
+	    set name [lindex $args 0]
+	}
+	default {
+	    # Error.
+	    return -code error \
+		    "wrong # args: should be \"stack ?name ?=|:=|as|deserialize source??\""
+	}
     }
 
-    if { ![string equal [info commands ::$name] ""] } {
-	error "command \"$name\" already exists, unable to create stack"
+    # FIRST, qualify the name.
+    if {![string match "::*" $name]} {
+        # Get caller's namespace; append :: if not global namespace.
+        set ns [uplevel 1 namespace current]
+        if {"::" != $ns} {
+            append ns "::"
+        }
+
+        set name "$ns$name"
     }
+    if {[llength [info commands $name]]} {
+	return -code error \
+		"command \"$name\" already exists, unable to create stack"
+    }
+
     set stacks($name) [list ]
 
     # Create the command to manipulate the stack
-    interp alias {} ::$name {} ::struct::stack::StackProc $name
+    interp alias {} $name {} ::struct::stack::StackProc $name
 
     return $name
 }
@@ -79,13 +92,26 @@ proc ::struct::stack::stack {{name ""}} {
 #	Varies based on command to perform
 
 proc ::struct::stack::StackProc {name cmd args} {
-    # Split the args into command and args components
-    if { [lsearch -exact $::struct::stack::commands $cmd] == -1 } {
-	set optlist [join $::struct::stack::commands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    # Do minimal args checks here
+    if { [llength [info level 0]] == 2 } {
+	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    eval [linsert $args 0 ::struct::stack::_$cmd $name]
+
+    # Split the args into command and args components
+    set sub _$cmd
+    if { [llength [info commands ::struct::stack::$sub]] == 0 } {
+	set optlist [lsort [info commands ::struct::stack::_*]]
+	set xlist {}
+	foreach p $optlist {
+	    set p [namespace tail $p]
+	    lappend xlist [string range $p 1 end]
+	}
+	set optlist [linsert [join $xlist ", "] "end-1" "or"]
+	return -code error \
+		"bad option \"$cmd\": must be $optlist"
+    }
+
+    uplevel 1 [linsert $args 0 ::struct::stack::$sub $name]
 }
 
 # ::struct::stack::_clear --
@@ -116,7 +142,7 @@ proc ::struct::stack::_clear {name} {
 
 proc ::struct::stack::_destroy {name} {
     unset ::struct::stack::stacks($name)
-    interp alias {} ::$name {}
+    interp alias {} $name {}
     return
 }
 
