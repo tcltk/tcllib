@@ -18,7 +18,16 @@ source [__file join [here] _common.tcl]   ; # Shared code
 ################################################################
 ## Backend for *roff markup
 
+global started
+set    started 0
+
+global precomments
+set    precomments ""
+
 proc manpage_begin {title section version} {
+    global started precomments
+    set    started 1
+
     if {[mp_pass] == 1} {return}
 
     set module      [mp_module]
@@ -30,6 +39,11 @@ proc manpage_begin {title section version} {
     append  hdr "[nr_comment {}]\n"
     append  hdr "[nr_comment "Generated from [mp_file] by mpexpand with [this]"]\n"
     append  hdr "[nr_comment {}]\n"
+
+    if {$precomments != {}} {
+	append hdr $precomments
+    }
+
     append  hdr ".so man.macros\n"
     append  hdr ".TH \"[string trimleft $title :]\" $section $version $module \"$shortdesc\"\n"
     append  hdr ".BS\n"
@@ -50,6 +64,9 @@ proc titledesc {desc} {
 }
 
 proc manpage_end {} {
+    global started
+    set    started 0
+
     # Strip empty lines out of the generated nroff source
     # and trim leading blanks, except in code samples.
     #
@@ -264,11 +281,19 @@ proc strong {text} {return [nr_bld]$text[nr_rst]}
 proc opt    {text} {return ?$text?}
 
 proc comment {text} {
+    global started
+
     set res [list]
     foreach l [split $text \n] {
 	lappend res [nr_comment $l]
     }
-    return [join $res \n]
+
+    if {$started} {
+	return [join $res \n]
+    } else {
+	global precomments
+	append precomments [join $res \n]
+    }
 }
 proc sectref {text} {strong $text}
 proc syscmd  {text} {strong $text}
