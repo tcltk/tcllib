@@ -711,36 +711,34 @@ proc ::smtp::initialize_ehlo {token} {
                 set state(tls) 0
                 if {![catch {smtp::talk $token 300 STARTTLS} resp]} {
                     array set starttls $resp
-                    if {$starttls(code)} {
-                        if {$code == 220} {
-                            fileevent $state(sd) readable {}
+                    if {$starttls(code) == 220} {
+                        fileevent $state(sd) readable {}
+                        catch {
+                            ::tls::import $state(sd)
+                            catch {::tls::handshake $state(sd)} msg
+                            set state(tls) 1
+                        } 
+                        fileevent $state(sd) readable \
+                            [list ::smtp::readable $token]
+                        return [initialize_ehlo $token]
+                    } else {
+                        # Call a TLS client policy proc here
+                        #  returns secure close and try another server.
+                        #  returns insecure continue on current socket
+                        set policy insecure
+                        if {$options(-tlspolicy) != {}} {
                             catch {
-                                ::tls::import $state(sd)
-                                catch {::tls::handshake $state(sd)} msg
-                                set state(tls) 1
-                            } 
-                            fileevent $state(sd) readable \
-                                [list ::smtp::readable $token]
-                            return [initialize_ehlo $token]
-                        } else {
-                            # Call a TLS client policy proc here
-                            #  returns secure close and try another server.
-                            #  returns insecure continue on current socket
-                            set policy insecure
-                            if {$options(-tlspolicy) != {}} {
-                                catch {
-                                    eval $options(-tlspolicy) \
-                                        [list $starttls(code)] \
-                                        [list $starttls(diagnostic)]
-                                } policy
-                            }
-                            if {$policy != "insecure"} {
-                                set code error
-                                set ecode $starttls(code)
-                                set einfo $starttls(diagnostic)
-                                catch {close $state(sd)}
-                                return {}
-                            }
+                                eval $options(-tlspolicy) \
+                                    [list $starttls(code)] \
+                                    [list $starttls(diagnostic)]
+                            } policy
+                        }
+                        if {$policy != "insecure"} {
+                            set code error
+                            set ecode $starttls(code)
+                            set einfo $starttls(diagnostic)
+                            catch {close $state(sd)}
+                            return {}
                         }
                     }
                 }
