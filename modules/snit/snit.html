@@ -54,6 +54,8 @@ introduction to Snit concepts.<p>
 
 <h3><a name="type_and_widget_definitions">Type and Widget Definitions</a></h3>
 
+Snit provides the following commands for defining new types:<p>
+
 <dl>
   <dt> <code><a name="snit::type">snit::type <i>name</i> <i>definition</i></a></code>
   <dd> Defines a new abstract data type called
@@ -398,6 +400,17 @@ introduction to Snit concepts.<p>
        the <a href="faq.html">Snit FAQ list</a> for more information
        on how <code>snit::widgetadaptors</code> 
        interact with the Tk option database.<p>
+
+  <dt> <code><a name="snit::typemethod">snit::typemethod</a> <i>type</i>
+       <i>name</i> <i>arglist</i> <i>body</i></code>
+  <dd> Defines a new typemethod (or redefines an existing typemethod)
+       for a previously existing <i>type</i>.<p>
+
+  <dt> <code><a name="snit::method">snit::method</a> <i>type</i>
+       <i>name</i> <i>arglist</i> <i>body</i></code>
+  <dd> Defines a new instance method (or redefines an existing
+       instance method) for a previously existing <i>type</i>.
+       Note that delegated instance methods can't be redefined.<p>
 </dl>
 
 <h3><a name="the_type_command">The Type Command</a></h3>
@@ -853,12 +866,12 @@ Snit has been designed and implemented from the very beginning by
 William H. Duquette.  However, much credit belongs to the following
 people for using Snit and providing me with valuable feedback: Rolf
 Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
-Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, and
-Andreas Kupries.
+Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, 
+Andreas Kupries, Marty Backe, Andy Goth, Jeff Hobbs, and Brian Griffin.
 
 
 <p><hr><p>
-Copyright &copy; 2003, by William H. Duquette.  All rights reserved.<p>
+Copyright &copy; 2004, by William H. Duquette.  All rights reserved.<p>
 
 
 </body>
