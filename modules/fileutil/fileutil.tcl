@@ -4,11 +4,12 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2002      by Phil Ehrens <phil@slug.org> (fileType)
+# Copyright (c) 2005      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.47 2005/02/10 17:16:59 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.48 2005/02/11 05:08:53 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -108,7 +109,8 @@ if {[string compare unix $tcl_platform(platform)]} {
 		return {}
 	    }
 	    set cwd [pwd]
-	    set filenames [glob -nocomplain * .*]
+	    # Use only *, on Windows dot-files are listed as well.
+	    set filenames [glob -nocomplain *]
 	} else {
 	    return -code error "$basedir does not exist"
 	}
@@ -182,6 +184,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 		    return {}
 		}
 		set cwd [pwd]
+		# Unix: Need the .* pattern as well to retrieve dot-files
 		set filenames [glob -nocomplain * .*]
 	    } else {
 		return -code error "$basedir does not exist"
@@ -281,6 +284,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 		    return {}
 		}
 		set cwd [pwd]
+		# Unix: Need the .* pattern as well to retrieve dot-files
 		set filenames [glob -nocomplain * .*]
 	    } else {
 		return -code error "$basedir does not exist"

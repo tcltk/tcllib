@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.28 2005/02/09 05:52:02 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.29 2005/02/11 05:08:53 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -75,6 +75,11 @@ puts "  - cmdline [package present cmdline]"
 #          +--{find 2}
 #          |  +--{file* 2}  (This file is unix only)
 #          +--{file 1}
+#
+#       dir2
+#       +-- dotfiles
+#           +-- .foo
+#           +-- foo
 
 catch {removeDirectory {find 1}} ; # start with a clean structure!
 
@@ -86,6 +91,14 @@ if {0 != [string compare $::tcl_platform(platform) windows]} {
     makeFile "test" [file join {find 1} {find 2} {file* 2}]
 }
 set dir $::tcltest::temporaryDirectory
+
+
+catch {removeDirectory dotfiles} ; # start with a clean structure!
+makeDirectory dotfiles
+
+makeFile "" [file join dotfiles foo]
+makeFile "" [file join dotfiles .foo]
+
 
 
 proc fileIsBiggerThan {s f} {
@@ -143,6 +156,14 @@ test find-1.8 {find file with filter - negative} {
     ::fileutil::find [file join $dir {find 1} {file [1]}] {file isdirectory}
 } {}
 
+# Behaviour of find with regard to dot-files.
+
+test find-1.9 {find file dot-files} {
+    lsort [::fileutil::find [file join $dir dotfiles]]
+} [list \
+	[file join $dir dotfiles .foo] \
+	[file join $dir dotfiles foo]  \
+	]
 
 # find by pattern tests
 
