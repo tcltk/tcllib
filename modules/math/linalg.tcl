@@ -30,7 +30,7 @@ namespace eval ::math::linearalgebra {
     namespace export axpy axpy_vect axpy_mat
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
-    namespace export scale scale_vect scale_mat
+    namespace export scale scale_vect scale_mat matmul
     namespace export rotate angle choleski
     namespace export getrow getcol getelem setrow setcol setelem
     namespace export mkVector mkMatrix mkIdentity mkDiagonal
@@ -588,19 +588,18 @@ proc ::math::linearalgebra::transpose { matrix } {
 #     The result of x*y
 #
 proc ::math::linearalgebra::matmul { mv1 mv2 } {
-    if { [llength [lindex $mv1 0]] > 0 } {
-        if { [llength [lindex $mv2 0]] > 0 } {
+    if { [llength [lindex $mv1 0]] > 1 } {
+        if { [llength [lindex $mv2 0]] > 1 } {
             return [matmul_mm $mv1 $mv2]
         } else {
             return [matmul_mv $mv1 $mv2]
         }
     } else {
-        if { [llength [lindex $mv2 0]] > 0 } {
+        if { [llength [lindex $mv2 0]] > 1 } {
             return [matmul_vm $mv1 $mv2]
         } else {
             return [matmul_vv $mv1 $mv2]
         }
-        return [sub_vect $mv1 $mv2]
     }
 }
 
@@ -612,7 +611,7 @@ proc ::math::linearalgebra::matmul { mv1 mv2 } {
 # Result:
 #     The vector A*x
 #
-proc matmul_mv { matrix vector } {
+proc ::math::linearalgebra::matmul_mv { matrix vector } {
    set newvect {}
    foreach row $matrix {
       set sum 0.0
@@ -632,7 +631,7 @@ proc matmul_mv { matrix vector } {
 # Result:
 #     The vector xtrans*A = Atrans*x
 #
-proc matmul_vm { vector matrix } {
+proc ::math::linearalgebra::matmul_vm { vector matrix } {
    return [matmul_mv [transpose $matrix] $vector]
 }
 
@@ -644,7 +643,7 @@ proc matmul_vm { vector matrix } {
 # Result:
 #     The "outer product" x*ytrans
 #
-proc matmul_vv { vect1 vect2 } {
+proc ::math::linearalgebra::matmul_vv { vect1 vect2 } {
    set newmat {}
    foreach v1 $vect1 {
       set newrow {}
@@ -668,7 +667,7 @@ proc matmul_vv { vect1 vect2 } {
 #     as rows - much easier and quicker, as they are
 #     the elements of the outermost list.
 #
-proc matmul_mm { mat1 mat2 } {
+proc ::math::linearalgebra::matmul_mm { mat1 mat2 } {
    set newmat {}
    set tmat [transpose $mat2]
    foreach row1 $mat1 {
@@ -1597,6 +1596,65 @@ proc ::math::linearalgebra::from_LA { mv } {
 }
 
 
-# Announce the presence of the package
-#
-package provide math::linearalgebra 1.0
+if { 0 } {
+Te doen:
+behoorlijke testen!
+matmul
+solveGauss_band
+join_col, join_row
+kleinste-kwadraten met SVD en met Gauss
+PCA
+}
+
+if { 0 } {
+set matrix {{1.0  2.0 -1.0}
+            {3.0  1.1  0.5}
+            {1.0 -2.0  3.0}}
+set bvect  {{1.0  2.0 -1.0}
+            {3.0  1.1  0.5}
+            {1.0 -2.0  3.0}}
+puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
+set bvect  {{4.0   2.0}
+            {12.0  1.2}
+            {4.0  -2.0}}
+puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
+}
+
+if { 0 } {
+
+   set vect1 {1.0 2.0}
+   set vect2 {3.0 4.0}
+   ::math::linearalgebra::axpy_vect 1.0 $vect1 $vect2
+   ::math::linearalgebra::add_vect      $vect1 $vect2
+   puts [time {::math::linearalgebra::axpy_vect 1.0 $vect1 $vect2} 50000]
+   puts [time {::math::linearalgebra::axpy_vect 2.0 $vect1 $vect2} 50000]
+   puts [time {::math::linearalgebra::axpy_vect 1.0 $vect1 $vect2} 50000]
+   puts [time {::math::linearalgebra::axpy_vect 1.1 $vect1 $vect2} 50000]
+   puts [time {::math::linearalgebra::add_vect      $vect1 $vect2} 50000]
+}
+
+if { 0 } {
+set M {{1 2} {2 1}}
+puts "[::math::linearalgebra::determineSVD $M]"
+}
+if { 0 } {
+set M {{1 2} {2 1}}
+puts "[::math::linearalgebra::normMatrix $M]"
+}
+if { 0 } {
+set M {{1.3 2.3} {2.123 1}}
+puts "[::math::linearalgebra::show $M]"
+set M {{1.3 2.3 45 3.} {2.123 1 5.6 0.01}}
+puts "[::math::linearalgebra::show $M]"
+puts "[::math::linearalgebra::show $M %12.4f]"
+}
+if { 0 } {
+    set M {{1 0 0}
+           {1 1 0}
+           {1 1 1}}
+    puts [::math::linearalgebra::orthonormalizeRows $M]
+}
+if { 0 } {
+    set M [::math::linearalgebra::mkMoler 5]
+    puts [::math::linearalgebra::choleski $M]
+}
