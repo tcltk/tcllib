@@ -1,3 +1,8 @@
+2004-09-13  Michael Schlenker <mic42@users.sourceforge.net>
+	* logger.tcl : Implemented and doc'ed new global logger::setlevel
+          logger.man : 
+
+
 2004-09-06  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* logger.tcl : Implemented and doc'ed new logger::import feature.
