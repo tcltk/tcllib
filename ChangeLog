@@ -1,5 +1,9 @@
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
+	* sak.tcl: Added 'vcompare' to compare the current list of
+	  packages against a list in a file. Marks new and unchanged
+	  packages for higher attention. Helper for release engineer.
+
 	* modules/base64/uuencode.n: Removed old nroff documentation. All
 	* modules/cmdline/cmdline.n: documentation is generated from the
 	* modules/comm/comm.n:       doctools manpages (.man).
