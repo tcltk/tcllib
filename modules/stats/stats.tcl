@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.13 2000/10/03 03:54:08 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.14 2000/10/03 18:01:46 welch Exp $
 
 package provide stats 1.0
 
@@ -901,7 +901,7 @@ proc stats::histHtmlDisplayRow {tag args} {
 	    }
 	    day* {
 		append result "<td>[html::font][clock format $time \
-			-format "%b %d %k:%M]</font></td></tr>\n"
+			-format "%b %d %k:%M"]</font></td></tr>\n"
 	    }
 	}
 
