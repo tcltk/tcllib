@@ -54,12 +54,25 @@ proc titledesc {desc} {
 }
 
 proc manpage_end {} {
-    # Strip empty lines out of the generated nroff source. They mess
-    # up the nroff formatting.
+    # Strip empty lines out of the generated nroff source
+    # and trim leading blanks, except in code samples.
+    #
     if {[mp_pass] == 1} {return}
-
-    regsub -all "\[\t \]*\n(\[\t \]*\n)*\[\t \]*" [cpop mp] "\n" data
-    return $data
+    set nfMode [list .nf .CS]	;# requests which start no-fill mode
+    set fiMode [list .fi .CE]	;# requests which terminate no-fill mode
+    set lines [list]
+    set trimblanks 1
+    foreach line [split [cpop mp] "\n"] {
+	if {$trimblanks} {
+	    if {[lsearch $nfMode $line] >= 0} { set trimblanks 0 }
+	    if {![string length $line]} { continue }
+	    set line [string trim $line]
+	} else {
+	    if {[lsearch $fiMode $line] >= 0} { set trimblanks 1 }
+	}
+	lappend lines $line
+    } 
+    return [join $lines "\n"]
 }
 
 proc section {name} {return ".SH \"$name\""}
@@ -162,6 +175,17 @@ proc lst_item {text} {
 
 proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
 proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
+
+proc example_begin {} { return ".nf" }
+proc example_end   {} { return ".fi" }
+proc example {code} { 
+    set lines [list "" ".nf"] 
+    foreach line [split $code "\n"] {
+    	lappend lines [HandleText $line]
+    }
+    lappend lines ".fi" ""
+    return [join $lines "\n"]
+}
 
 proc nl     {}     {nr_vspace}
 proc arg    {text} {return [nr_ul]$text[nr_rst]}

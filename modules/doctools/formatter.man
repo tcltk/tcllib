@@ -109,6 +109,6 @@ results are described in [strong expander(n)].
 [list_end]
 [list_end]
 
-[para]
+[see_also expander(n) format(n) mpexpand(n)]
 [keywords manpage interface TMML HTML nroff conversion markup]
 [manpage_end]

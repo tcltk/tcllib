@@ -73,5 +73,6 @@ conversion to an output format is described in the manpage
 
 Possible future formats are plain text, latex, pdf and postscript.
 
+[see_also expander(n) format(n) formatter(n)]
 [keywords manpage TMML HTML nroff conversion markup]
 [manpage_end]
