@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.18 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: math.tcl,v 1.19 2004/07/05 03:39:47 kennykb Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 
@@ -22,7 +22,7 @@ namespace eval ::math {
     namespace export	max		mean		min
     namespace export	product		random		sigma
     namespace export	stats		sum
-    namespace export	expectDouble
+    namespace export	expectDouble    expectInteger
 
     # combinatorics.tcl
 

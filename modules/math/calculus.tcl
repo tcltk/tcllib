@@ -3,21 +3,38 @@
 #    as the integration of a one-dimensional function and the
 #    solution of a system of first-order differential equations.
 #
-# Author: Arjen Markus (arjen.markus@wldelft.nl)
-#
+# Copyright (c) 2002, 2003, 2004 by Arjen Markus.
+# Copyright (c) 2004 by Kevin B. Kenny.  All rights reserved.
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+# RCS: @(#) $Id: calculus.tcl,v 1.5 2004/07/05 03:39:46 kennykb Exp $
+
+package require math::interpolate 0.3
+package provide math::calculus 0.6
 
 # math::calculus --
 #    Namespace for the commands
-#
-namespace eval ::math::calculus {
-   namespace export \
-          integral integralExpr integral2D integral3D \
-          eulerStep heunStep rungeKuttaStep           \
-          boundaryValueSecondOrder solveTriDiagonal   \
-          newtonRaphson newtonRaphsonParameters
 
-   variable nr_maxiter    20
-   variable nr_tolerance   0.001
+namespace eval ::math::calculus {
+
+    namespace import ::math::interpolate::neville
+
+    namespace import ::math::expectDouble ::math::expectInteger
+
+    namespace export \
+	integral integralExpr integral2D integral3D \
+	eulerStep heunStep rungeKuttaStep           \
+	boundaryValueSecondOrder solveTriDiagonal   \
+	newtonRaphson newtonRaphsonParameters
+
+    namespace export romberg romberg_infinity 
+    namespace export romberg_sqrtSingLower romberg_sqrtSingUpper
+    namespace export romberg_powerLawLower romberg_powerLawUpper
+    namespace export romberg_expLower romberg_expUpper
+
+    variable nr_maxiter    20
+    variable nr_tolerance   0.001
 
 }
 
@@ -498,5 +515,766 @@ proc ::math::calculus::newtonRaphsonParameters { maxiter tolerance } {
    }
 }
 
-# Now we can announce our presence
-package provide math::calculus 0.5.1
+#----------------------------------------------------------------------
+#
+# midpoint --
+#
+#	Perform one set of steps in evaluating an integral using the
+#	midpoint method.
+#
+# Usage:
+#	midpoint f a b s ?n?
+#
+# Parameters:
+#	f - function to integrate
+#	a - One limit of integration
+#	b - Other limit of integration.  a and b need not be in ascending
+#	    order.
+#	s - Value returned from a previous call to midpoint (see below)
+#	n - Step number (see below)
+#
+# Results:
+#	Returns an estimate of the integral obtained by dividing the
+#	interval into 3**n equal intervals and using the midpoint rule.
+#
+# Side effects:
+#	f is evaluated 2*3**(n-1) times and may have side effects.
+#
+# The 'midpoint' procedure is designed for successive approximations.
+# It should be called initially with n==0.  On this initial call, s
+# is ignored.  The function is evaluated at the midpoint of the interval, and
+# the value is multiplied by the width of the interval to give the
+# coarsest possible estimate of the integral.
+#
+# On each iteration except the first, n should be incremented by one,
+# and the previous value returned from [midpoint] should be supplied
+# as 's'.  The function will be evaluated at additional points
+# to give a total of 3**n equally spaced points, and the estimate
+# of the integral will be updated and returned
+# 
+# Under normal circumstances, user code will not call this function
+# directly. Instead, it will use ::math::calculus::romberg to
+# do error control and extrapolation to a zero step size.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::midpoint { f a b { n 0 } { s 0. } } {
+
+    if { $n == 0 } {
+
+	# First iteration.  Simply evaluate the function at the midpoint
+	# of the interval.
+
+	set cmd $f; lappend cmd [expr { 0.5 * ( $a + $b ) }]; set v [eval $cmd]
+	return [expr { ( $b - $a ) * $v }]
+
+    } else {
+
+	# Subsequent iterations. We've divided the interval into
+	# $it subintervals.  Evaluate the function at the 1/3 and
+	# 2/3 points of each subinterval.  Then update the estimate
+	# of the integral that we produced on the last step with
+	# the new sum.
+
+	set it [expr { pow( 3, $n-1 ) }]
+	set h [expr { ( $b - $a ) / ( 3. * $it ) }]
+	set h2 [expr { $h + $h }]
+	set x [expr { $a + 0.5 * $h }]
+	set sum 0
+	for { set j 0 } { $j < $it } { incr j } {
+	    set cmd $f; lappend cmd $x; set y [eval $cmd]
+	    set sum [expr { $sum + $y }]
+	    set x [expr { $x + $h2 }]
+	    set cmd $f; lappend cmd $x; set y [eval $cmd]
+	    set sum [expr { $sum + $y }]
+	    set x [expr { $x + $h}]
+	}
+	return [expr { ( $s + ( $b - $a ) * $sum / $it ) / 3. }]
+
+    }
+}
+
+#----------------------------------------------------------------------
+#
+# romberg --
+#	
+#	Compute the integral of a function over an interval using
+#	Romberg's method.
+#
+# Usage:
+#	romberg f a b ?-option value?...
+#
+# Parameters:
+#	f - Function to integrate.  Must be a single Tcl command,
+#	    to which will be appended the abscissa at which the function
+#	    should be evaluated.  f should be analytic over the
+#	    region of integration, but may have a removable singularity
+#	    at either endpoint.
+#	a - One bound of the interval
+#	b - The other bound of the interval.  a and b need not be in
+#	    ascending order.
+#
+# Options:
+#	-abserror ABSERROR
+#		Requests that the integration be performed to make
+#		the estimated absolute error of the integral less than
+#		the given value.  Default is 1.e-10.
+#	-relerror RELERROR
+#		Requests that the integration be performed to make
+#		the estimated absolute error of the integral less than
+#		the given value.  Default is 1.e-6.
+#	-degree N
+#		Specifies the degree of the polynomial that will be
+#		used to extrapolate to a zero step size.  -degree 0
+#		requests integration with the midpoint rule; -degree 1
+#		is equivalent to Simpson's 3/8 rule; higher degrees
+#		are difficult to describe but (within reason) give
+#		faster convergence for smooth functions.  Default is
+#		-degree 4.
+#	-maxiter N
+#		Specifies the maximum number of triplings of the
+#		number of steps to take in integration.  At most
+#		3**N function evaluations will be performed in
+#		integrating with -maxiter N.  The integration
+#		will terminate at that time, even if the result
+#		satisfies neither the -relerror nor -abserror tests.
+#
+# Results:
+#	Returns a two-element list.  The first element is the estimated
+#	value of the integral; the second is the estimated absolute
+#	error of the value.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg { f a b args } {
+    
+    # Replace f with a context-independent version
+
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+
+    # Assign default parameters
+
+    array set params {
+	-abserror 1.0e-10
+	-degree 4
+	-relerror 1.0e-6
+	-maxiter 14
+    }
+
+    # Extract parameters
+
+    if { ( [llength $args] % 2 ) != 0 } {
+        return -code error -errorcode [list romberg wrongNumArgs] \
+            "wrong \# args, should be\
+                 \"[lreplace [info level 0] 1 end \
+                         f x1 x2 ?-option value?...]\""
+    }
+    foreach { key value } $args {
+        if { ![info exists params($key)] } {
+            return -code error -errorcode [list romberg badoption $key] \
+                "unknown option \"$key\",\
+                     should be -abserror, -degree, -relerror, or -maxiter"
+        }
+        set params($key) $value
+    }
+
+    # Check params
+
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { ![string is double -strict $params(-abserror)] } {
+	return -code error [expectDouble $params(-abserror)]
+    }
+    if { ![string is integer -strict $params(-degree)] } {
+	return -code error [expectInteger $params(-degree)]
+    }
+    if { ![string is integer -strict $params(-maxiter)] } {
+	return -code error [expectInteger $params(-maxiter)]
+    }
+    if { ![string is double -strict $params(-relerror)] } {
+	return -code error [expectDouble $params(-relerror)]
+    }
+    foreach key {-abserror -degree -maxiter -relerror} {
+	if { $params($key) <= 0 } {
+	    return -code error -errorcode [list romberg notPositive $key] \
+		"$key must be positive"
+	}
+    }
+    if { $params(-maxiter) <= $params(-degree) } {
+	return -code error -errorcode [list romberg tooFewIter] \
+	    "-maxiter must be greater than -degree"
+    }
+
+    # Create lists of step size and sum with the given number of steps.
+
+    set x [list]
+    set y [list]
+    set s 0;				# Current best estimate of integral
+    set indx end-$params(-degree)
+    set pow3 1.;			# Current step size (times b-a)
+
+    # Perform successive integrations, tripling the number of steps each time
+
+    for { set i 0 } { $i < $params(-maxiter) } { incr i } {
+	set s [midpoint $f $a $b $i $s]
+	lappend x $pow3
+	lappend y $s
+	set pow3 [expr { $pow3 / 9. }]
+
+	# Once $degree steps have been done, start Richardson extrapolation
+	# to a zero step size.
+
+	if { $i >= $params(-degree) } {
+	    set x [lrange $x $indx end]
+	    set y [lrange $y $indx end]
+	    foreach {estimate err} [neville $x $y 0.] break
+	    if { $err < $params(-abserror)
+		 || $err < $params(-relerror) * abs($estimate) } {
+		return [list $estimate $err]
+	    }
+	}
+    }
+
+    # If -maxiter iterations have been done, give up, and return
+    # with the current error estimate.
+
+    return [list $estimate $err]
+}
+
+#----------------------------------------------------------------------
+#
+# u_infinity --
+#	Change of variable for integrating over a half-infinite
+#	interval
+#
+# Parameters:
+#	f - Function being integrated
+#	u - 1/x, where x is the abscissa where f is to be evaluated
+#
+# Results:
+#	Returns f(1/u)/(u**2)
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_infinity { f u } {
+    set cmd $f
+    lappend cmd [expr { 1.0 / $u }]
+    set y [eval $cmd]
+    return [expr { $y / ( $u * $u ) }]
+}
+
+#----------------------------------------------------------------------
+#
+# romberg_infinity --
+#	Evaluate a function on a half-open interval
+#
+# Usage:
+#	Same as 'romberg'
+#
+# The 'romberg_infinity' procedure performs Romberg integration on
+# an interval [a,b] where an infinite a or b may be represented by
+# a large number (e.g. 1.e30).  It operates by a change of variable;
+# instead of integrating f(x) from a to b, it makes a change
+# of variable u = 1/x, and integrates from 1/b to 1/a f(1/u)/u**2 du.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_infinity { f a b args } {
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a * $b <= 0. } {
+        return -code error -errorcode {romberg_infinity cross-axis} \
+            "limits of integration have opposite sign"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set f [list u_infinity $f]
+    return [eval [linsert $args 0 \
+                      romberg $f [expr { 1.0 / $b }] [expr { 1.0 / $a }]]]
+}
+
+#----------------------------------------------------------------------
+#
+# u_sqrtSingLower --
+#	Change of variable for integrating over an interval with
+#	an inverse square root singularity at the lower bound.
+#
+# Parameters:
+#	f - Function being integrated
+#	a - Lower bound
+#	u - sqrt(x-a), where x is the abscissa where f is to be evaluated
+#
+# Results:
+#	Returns 2 * u * f( a + u**2 )
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_sqrtSingLower { f a u } {
+    set cmd $f
+    lappend cmd [expr { $a + $u * $u }]
+    set y [eval $cmd]
+    return [expr { 2. * $u * $y }]
+}
+
+#----------------------------------------------------------------------
+#
+# u_sqrtSingUpper --
+#	Change of variable for integrating over an interval with
+#	an inverse square root singularity at the upper bound.
+#
+# Parameters:
+#	f - Function being integrated
+#	b - Upper bound
+#	u - sqrt(b-x), where x is the abscissa where f is to be evaluated
+#
+# Results:
+#	Returns 2 * u * f( b - u**2 )
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_sqrtSingUpper { f b u } {
+    set cmd $f
+    lappend cmd [expr { $b - $u * $u }]
+    set y [eval $cmd]
+    return [expr { 2. * $u * $y }]
+}
+
+#----------------------------------------------------------------------
+#
+# math::calculus::romberg_sqrtSingLower --
+#	Integrate a function with an inverse square root singularity
+#	at the lower bound
+#
+# Usage:
+#	Same as 'romberg'
+#
+# The 'romberg_sqrtSingLower' procedure is a wrapper for 'romberg'
+# for integrating a function with an inverse square root singularity
+# at the lower bound of the interval.  It works by making the change
+# of variable u = sqrt( x-a ).
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_sqrtSingLower { f a b args } {
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a >= $b } {
+	return -code error "limits of integration out of order"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set f [list u_sqrtSingLower $f $a]
+    return [eval [linsert $args 0 \
+			     romberg $f 0 [expr { sqrt( $b - $a ) }]]]
+}
+
+#----------------------------------------------------------------------
+#
+# math::calculus::romberg_sqrtSingUpper --
+#	Integrate a function with an inverse square root singularity
+#	at the upper bound
+#
+# Usage:
+#	Same as 'romberg'
+#
+# The 'romberg_sqrtSingUpper' procedure is a wrapper for 'romberg'
+# for integrating a function with an inverse square root singularity
+# at the upper bound of the interval.  It works by making the change
+# of variable u = sqrt( b-x ).
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_sqrtSingUpper { f a b args } {
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a >= $b } {
+	return -code error "limits of integration out of order"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set f [list u_sqrtSingUpper $f $b]
+    return [eval [linsert $args 0 \
+		      romberg $f 0. [expr { sqrt( $b - $a ) }]]]
+}
+
+#----------------------------------------------------------------------
+#
+# u_powerLawLower --
+#	Change of variable for integrating over an interval with
+#	an integrable power law singularity at the lower bound.
+#
+# Parameters:
+#	f - Function being integrated
+#	gammaover1mgamma - gamma / (1 - gamma), where gamma is the power
+#	oneover1mgamma - 1 / (1 - gamma), where gamma is the power
+#	a - Lower limit of integration
+#	u - Changed variable u == (x-a)**(1-gamma)
+#
+# Results:
+#	Returns u**(1/1-gamma) * f(a + u**(1/1-gamma) ).
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_powerLawLower { f gammaover1mgamma oneover1mgamma
+					 a u } {
+    set cmd $f
+    lappend cmd [expr { $a + pow( $u, $oneover1mgamma ) }]
+    set y [eval $cmd]
+    return [expr { $y * pow( $u, $gammaover1mgamma ) }]
+}
+
+#----------------------------------------------------------------------
+#
+# math::calculus::romberg_powerLawLower --
+#	Integrate a function with an integrable power law singularity
+#	at the lower bound
+#
+# Usage:
+#	romberg_powerLawLower gamma f a b ?-option value...?
+#
+# Parameters:
+#	gamma - Power (0<gamma<1) of the singularity
+#	f - Function to integrate.  Must be a single Tcl command,
+#	    to which will be appended the abscissa at which the function
+#	    should be evaluated.  f is expected to have an integrable
+#	    power law singularity at the lower endpoint; that is, the
+#	    integrand is expected to diverge as (x-a)**gamma.
+#	a - One bound of the interval
+#	b - The other bound of the interval.  a and b need not be in
+#	    ascending order.
+#
+# Options:
+#	-abserror ABSERROR
+#		Requests that the integration be performed to make
+#		the estimated absolute error of the integral less than
+#		the given value.  Default is 1.e-10.
+#	-relerror RELERROR
+#		Requests that the integration be performed to make
+#		the estimated absolute error of the integral less than
+#		the given value.  Default is 1.e-6.
+#	-degree N
+#		Specifies the degree of the polynomial that will be
+#		used to extrapolate to a zero step size.  -degree 0
+#		requests integration with the midpoint rule; -degree 1
+#		is equivalent to Simpson's 3/8 rule; higher degrees
+#		are difficult to describe but (within reason) give
+#		faster convergence for smooth functions.  Default is
+#		-degree 4.
+#	-maxiter N
+#		Specifies the maximum number of triplings of the
+#		number of steps to take in integration.  At most
+#		3**N function evaluations will be performed in
+#		integrating with -maxiter N.  The integration
+#		will terminate at that time, even if the result
+#		satisfies neither the -relerror nor -abserror tests.
+#
+# Results:
+#	Returns a two-element list.  The first element is the estimated
+#	value of the integral; the second is the estimated absolute
+#	error of the value.
+#
+# The 'romberg_sqrtSingLower' procedure is a wrapper for 'romberg'
+# for integrating a function with an integrable power law singularity
+# at the lower bound of the interval.  It works by making the change
+# of variable u = (x-a)**(1-gamma).
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_powerLawLower { gamma f a b args } {
+    if { ![string is double -strict $gamma] } {
+	return -code error [expectDouble $gamma]
+    }
+    if { $gamma <= 0.0 || $gamma >= 1.0 } {
+	return -code error -errorcode [list romberg gammaTooBig] \
+	    "gamma must lie in the interval (0,1)"
+    }
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a >= $b } {
+	return -code error "limits of integration out of order"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set onemgamma [expr { 1. - $gamma }]
+    set f [list u_powerLawLower $f \
+	       [expr { $gamma / $onemgamma }] \
+	       [expr { 1 / $onemgamma }] \
+	       $a]
+	
+    set limit [expr { pow( $b - $a, $onemgamma ) }]
+    set result {}
+    foreach v [eval [linsert $args 0 romberg $f 0 $limit]] {
+	lappend result [expr { $v / $onemgamma }]
+    }
+    return $result
+
+}
+
+#----------------------------------------------------------------------
+#
+# u_powerLawLower --
+#	Change of variable for integrating over an interval with
+#	an integrable power law singularity at the upper bound.
+#
+# Parameters:
+#	f - Function being integrated
+#	gammaover1mgamma - gamma / (1 - gamma), where gamma is the power
+#	oneover1mgamma - 1 / (1 - gamma), where gamma is the power
+#	b - Upper limit of integration
+#	u - Changed variable u == (b-x)**(1-gamma)
+#
+# Results:
+#	Returns u**(1/1-gamma) * f(b-u**(1/1-gamma) ).
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_powerLawUpper { f gammaover1mgamma oneover1mgamma
+					 b u } {
+    set cmd $f
+    lappend cmd [expr { $b - pow( $u, $oneover1mgamma ) }]
+    set y [eval $cmd]
+    return [expr { $y * pow( $u, $gammaover1mgamma ) }]
+}
+
+#----------------------------------------------------------------------
+#
+# math::calculus::romberg_powerLawUpper --
+#	Integrate a function with an integrable power law singularity
+#	at the upper bound
+#
+# Usage:
+#	romberg_powerLawLower gamma f a b ?-option value...?
+#
+# Parameters:
+#	gamma - Power (0<gamma<1) of the singularity
+#	f - Function to integrate.  Must be a single Tcl command,
+#	    to which will be appended the abscissa at which the function
+#	    should be evaluated.  f is expected to have an integrable
+#	    power law singularity at the upper endpoint; that is, the
+#	    integrand is expected to diverge as (b-x)**gamma.
+#	a - One bound of the interval
+#	b - The other bound of the interval.  a and b need not be in
+#	    ascending order.
+#
+# Options:
+#	-abserror ABSERROR
+#		Requests that the integration be performed to make
+#		the estimated absolute error of the integral less than
+#		the given value.  Default is 1.e-10.
+#	-relerror RELERROR
+#		Requests that the integration be performed to make
+#		the estimated absolute error of the integral less than
+#		the given value.  Default is 1.e-6.
+#	-degree N
+#		Specifies the degree of the polynomial that will be
+#		used to extrapolate to a zero step size.  -degree 0
+#		requests integration with the midpoint rule; -degree 1
+#		is equivalent to Simpson's 3/8 rule; higher degrees
+#		are difficult to describe but (within reason) give
+#		faster convergence for smooth functions.  Default is
+#		-degree 4.
+#	-maxiter N
+#		Specifies the maximum number of triplings of the
+#		number of steps to take in integration.  At most
+#		3**N function evaluations will be performed in
+#		integrating with -maxiter N.  The integration
+#		will terminate at that time, even if the result
+#		satisfies neither the -relerror nor -abserror tests.
+#
+# Results:
+#	Returns a two-element list.  The first element is the estimated
+#	value of the integral; the second is the estimated absolute
+#	error of the value.
+#
+# The 'romberg_PowerLawUpper' procedure is a wrapper for 'romberg'
+# for integrating a function with an integrable power law singularity
+# at the upper bound of the interval.  It works by making the change
+# of variable u = (b-x)**(1-gamma).
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_powerLawUpper { gamma f a b args } {
+    if { ![string is double -strict $gamma] } {
+	return -code error [expectDouble $gamma]
+    }
+    if { $gamma <= 0.0 || $gamma >= 1.0 } {
+	return -code error -errorcode [list romberg gammaTooBig] \
+	    "gamma must lie in the interval (0,1)"
+    }
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a >= $b } {
+	return -code error "limits of integration out of order"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set onemgamma [expr { 1. - $gamma }]
+    set f [list u_powerLawUpper $f \
+	       [expr { $gamma / $onemgamma }] \
+	       [expr { 1. / $onemgamma }] \
+	       $b]
+	
+    set limit [expr { pow( $b - $a, $onemgamma ) }]
+    set result {}
+    foreach v [eval [linsert $args 0 romberg $f 0 $limit]] {
+	lappend result [expr { $v / $onemgamma }]
+    }
+    return $result
+
+}
+
+#----------------------------------------------------------------------
+#
+# u_expUpper --
+#
+#	Change of variable to integrate a function that decays
+#	exponentially.
+#
+# Parameters:
+#	f - Function to integrate
+#	u - Changed variable u = exp(-x)
+#
+# Results:
+#	Returns (1/u)*f(-log(u))
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_expUpper { f u } {
+    set cmd $f
+    lappend cmd [expr { -log($u) }]
+    set y [eval $cmd]
+    return [expr { $y / $u }]
+}
+
+#----------------------------------------------------------------------
+#
+# romberg_expUpper --
+#
+#	Integrate a function that decays exponentially over a
+#	half-infinite interval.
+#
+# Parameters:
+#	Same as romberg.  The upper limit of integration, 'b',
+#	is expected to be very large.
+#
+# Results:
+#	Same as romberg.
+#
+# The romberg_expUpper function operates by making the change of
+# variable, u = exp(-x).
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_expUpper { f a b args } {
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a >= $b } {
+	return -code error "limits of integration out of order"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set f [list u_expUpper $f]
+    return [eval [linsert $args 0 \
+		      romberg $f [expr {exp(-$b)}] [expr {exp(-$a)}]]]
+}
+
+#----------------------------------------------------------------------
+#
+# u_expLower --
+#
+#	Change of variable to integrate a function that grows
+#	exponentially.
+#
+# Parameters:
+#	f - Function to integrate
+#	u - Changed variable u = exp(x)
+#
+# Results:
+#	Returns (1/u)*f(log(u))
+#
+# Side effects:
+#	Whatever f does.
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::u_expLower { f u } {
+    set cmd $f
+    lappend cmd [expr { log($u) }]
+    set y [eval $cmd]
+    return [expr { $y / $u }]
+}
+
+#----------------------------------------------------------------------
+#
+# romberg_expLower --
+#
+#	Integrate a function that grows exponentially over a
+#	half-infinite interval.
+#
+# Parameters:
+#	Same as romberg.  The lower limit of integration, 'a',
+#	is expected to be very large and negative.
+#
+# Results:
+#	Same as romberg.
+#
+# The romberg_expUpper function operates by making the change of
+# variable, u = exp(x).
+#
+#----------------------------------------------------------------------
+
+proc ::math::calculus::romberg_expLower { f a b args } {
+    if { ![string is double -strict $a] } {
+	return -code error [expectDouble $a]
+    }
+    if { ![string is double -strict $b] } {
+	return -code error [expectDouble $b]
+    }
+    if { $a >= $b } {
+	return -code error "limits of integration out of order"
+    }
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+    set f [list u_expLower $f]
+    return [eval [linsert $args 0 \
+		      romberg $f [expr {exp($a)}] [expr {exp($b)}]]]
+}

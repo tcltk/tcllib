@@ -1,3 +1,14 @@
+2004-07-05  Kevin Kenny  <kennykb@acm.org>
+
+	* calculus.man:	 		Added Romberg integration to
+	* romberg.man:			the library.  The procedures should
+	* calculus.tcl (romberg*):	provide a "production quality"
+	* calculus.test (romberg-*):	library for integrating functions
+	* math.tcl:			of one variable, including functions
+	* misc.tcl (expectInteger):	that have integrable singularities
+					and integrals over half-infinite
+					intervals.
+	
 2004-06-19  Kevin Kenny  <kennykb@acm.org>
 
 	* interpolate.man:  Added polynomial interpolation with Neville's
