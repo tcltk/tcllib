@@ -223,6 +223,7 @@ test interpolate-5.1 "neville algorithm" \
     } \
     -result {}
 
+::tcltest::cleanupTests
 
 # Local Variables:
 # mode: tcl
