@@ -91,7 +91,8 @@ set ::snit::typeTemplate {
         # Array: General Snit Info
         #
         # ns:                The type's namespace
-        # hasinstances:      1 or 0, from pragma -hasinstances.
+        # hasinstances:      T or F, from pragma -hasinstances.
+        # canreplace:        T or F, from pragma -canreplace.
         # counter:           Count of instances created so far.
         # widgetclass:       Set by widgetclass statement.
         # hulltype:          Hull type (frame or toplevel) for widgets only.
@@ -102,6 +103,7 @@ set ::snit::typeTemplate {
         typevariable Snit_info
         set Snit_info(ns)      %TYPE%::
         set Snit_info(hasinstances) 1
+        set Snit_info(canreplace) 0
         set Snit_info(counter) 0
         set Snit_info(widgetclass) {}
         set Snit_info(hulltype) frame
@@ -273,6 +275,7 @@ namespace eval ::snit:: {
     # -hastypeinfo           The -hastypeinfo pragma
     # -hastypedestroy        The -hastypedestroy pragma
     # -hasinstances          The -hasinstances pragma
+    # -canreplace            The -canreplace pragma
     variable compile
 
     # The following variable lists the reserved type definition statement
@@ -386,6 +389,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(-hastypeinfo) yes
     set compile(-hastypedestroy) yes
     set compile(-hasinstances) yes
+    set compile(-canreplace) no
 
     set isWidget [string match widget* $which]
     set isWidgetAdaptor [string match widgetadaptor $which]
@@ -401,6 +405,11 @@ proc ::snit::Comp.Compile {which type body} {
     # NEXT, Add the standard definitions
     Comp.statement.typevariable Snit_isWidget $isWidget
     Comp.statement.typevariable Snit_isWidgetAdaptor $isWidgetAdaptor
+
+    # Indicate whether the type can create instances that replace
+    # existing commands.
+    append compile(defs) "\nset %TYPE%::Snit_info(canreplace) $compile(-canreplace)\n"
+
 
     # Add the info typemethod unless the pragma forbids it.
     if {$compile(-hastypeinfo)} {
@@ -554,7 +563,8 @@ proc ::snit::Comp.statement.pragma {args} {
         switch -exact -- $opt {
             -hastypeinfo    -
             -hastypedestroy -
-            -hasinstances   {
+            -hasinstances   -
+            -canreplace     {
                 if {![string is boolean -strict $val]} {
                     error "$errRoot, '$opt' requires a boolean value."
                 }
@@ -1612,9 +1622,11 @@ proc ::snit::RT.type.typemethod.create {type name args} {
     }
 
     # NEXT, if %AUTO% appears in the name, generate a unique 
-    # command name.
+    # command name.  Otherwise, ensure that the name isn't in use.
     if {[string match "*%AUTO%*" $name]} {
         set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
+    } elseif {!$Snit_info(canreplace) && [info commands $name] ne ""} {
+        error "command \"$name\" already exists."
     }
 
     # NEXT, create the instance's namespace.
@@ -1895,7 +1907,7 @@ proc ::snit::RT.UniqueName {countervar type name} {
         }
         set auto "[namespace tail $type]$counter"
         set candidate [Expand $name %AUTO% $auto]
-        if {[info commands $candidate] == ""} {
+        if {[info commands $candidate] eq ""} {
             return $candidate
         }
     }

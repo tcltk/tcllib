@@ -5,8 +5,8 @@ TYPE VARIABLES
 Snit_info               Introspection Array.  Keys and values are as
                         follows:
     
-    hasinstances        Boolean.  Normally 1, but 0 if
-                        pragram -noinstances yes
+    hasinstances        Boolean. Normally T, but F if pragma -hasinstances no
+    canreplace          Boolean. Normally F, but T if pragma -canreplace yes
     counter		Integer counter.  Used to generate unique names.
     widgetclass         Tk widget class name for snit::widgets
     hulltype            Hull widget type (frame or toplevel) for
