@@ -171,10 +171,10 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 ################################################################
 
-proc fmt_example_begin {} { return "\n[nr_nofill]" }
+proc fmt_example_begin {} { return "\n[nr_nofill]\n" }
 proc fmt_example_end   {} { nr_fill }
 proc fmt_example {code} { 
-    set lines [list "" [nr_nofill]] 
+    set lines [list "" [nr_nofill]]
     foreach line [split $code "\n"] {
     	lappend lines [fmt_plain_text $line]
     }
