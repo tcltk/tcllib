@@ -1,5 +1,5 @@
 tcllib STATUS:
-$Id: STATUS,v 1.1 2002/12/12 21:32:50 davidw Exp $
+$Id: STATUS,v 1.2 2002/12/17 01:47:26 davidw Exp $
 
 Release:
 -------
@@ -11,13 +11,13 @@ To be done before release?
 Open Issues:
 -----------
 
-Working on 'logger' package as a next generation logging
-system. (davidw)
-
-Problems outlined here:
+Problems outlined here (bgerror):
 https://sourceforge.net/mailarchive/forum.php?thread_id=1288113&forum_id=6718
 
 	Bugs/feature requests need filing.
 
 	Several solutions offered - we need to pick one.
 
+"Feature requests" for packages doing their own output.
+
+Feature requests for packages using too much regexp/regsub.
