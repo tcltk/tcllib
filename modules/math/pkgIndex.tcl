@@ -14,3 +14,4 @@ package ifneeded math::rationalfunctions 1.0   [list source [file join $dir rati
 package ifneeded math::bignum            3.0   [list source [file join $dir bignum.tcl]]
 package ifneeded math::fourier           1.0   [list source [file join $dir fourier.tcl]]
 package ifneeded math::linearalgebra     1.0   [list source [file join $dir linalg.tcl]]
+package ifneeded math::bigfloat          1.0   [list source [file join $dir bigfloat.tcl]]

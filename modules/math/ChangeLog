@@ -1,3 +1,8 @@
+2005-01-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Added version 1.0 of Stephane Arnold's bigfloat package
+          (newer versions will come later on)
+
 2005-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* bignum.tcl:  Integrated [Tcllib SF Bug 1093414]. Basic bit
