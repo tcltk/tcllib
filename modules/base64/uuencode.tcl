@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.7 2003/01/26 00:38:28 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.8 2003/03/24 23:21:22 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
@@ -78,10 +78,10 @@ if {[catch {package require Trf 2.0}]} {
     interp alias {} ::uuencode::decode {} ::uuencode::Decode
 } else {
     proc ::uuencode::encode {s} {
-        return [::uuencode -mode encode $s]
+        return [::uuencode -mode encode -- $s]
     }
     proc ::uuencode::decode {s} {
-        return [::uuencode -mode decode [pad $s]]
+        return [::uuencode -mode decode -- [pad $s]]
     }
 }
 
