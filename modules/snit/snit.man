@@ -930,6 +930,19 @@ If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names which match the pattern are returned.
 
 
+[call [cmd {$type}] [method {info typemethods}] [opt [arg pattern]]]
+
+Returns a list of the names of the type's typemethods.  If the type
+definition includes [cmd "delegate typemethod *"], the list will
+include only the names of those implicitly delegated typemethods 
+that have been called at least once and are still in the typemethod cache.
+
+[nl]
+
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
+
+
 [call [cmd {$type}] [method {info instances}] [opt [arg pattern]]]
 
 Returns a list of the type's instances.  For [cmd snit::type]s, it
@@ -1045,6 +1058,19 @@ If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names which match the pattern are returned.
 
 
+[call [cmd {$object}] [method {info typemethods}] [opt [arg pattern]]]
+
+Returns a list of the names of the type's typemethods.  If the type
+definition includes [cmd "delegate typemethod *"], the list will
+include only the names of those implicitly delegated typemethods 
+that have been called at least once and are still in the typemethod cache.
+
+[nl]
+
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
+
+
 [call [cmd {$object}] [method {info options}] [opt [arg pattern]]]
 
 Returns a list of the object's option names.  This always includes
@@ -1064,6 +1090,19 @@ pattern; only names which match the pattern are returned.
 Note that the return value might be different for different instances
 of the same type, if component object types can vary from one instance
 to another.
+
+[call [cmd {$object}] [method {info methods}] [opt [arg pattern]]]
+
+Returns a list of the names of the instance's methods.  If the type
+definition includes [cmd "delegate method *"], the list will
+include only the names of those implicitly delegated methods that have
+been called at least once and are still in the method cache.
+
+[nl]
+
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
+
 
 [list_end]
 
