@@ -16,7 +16,7 @@ proc require     {pkg {version {}}} {return ""}
 proc description {}                 {return ""}
 proc section     {name}             {return ""}
 proc para        {}                 {return ""}
-proc list_begin  {what}             {return ""}
+proc list_begin  {what {hint {}}}   {return ""}
 proc list_end    {}                 {return ""}
 proc lst_item    {{text {}}}        {return ""}
 proc call        {cmd args}         {return ""}

@@ -37,7 +37,7 @@ proc section     {name}             {}
 proc para        {}                 {}
 proc usage       {cmd args}         {}
 proc call        {cmd args}         {}
-proc list_begin  {what}             {}
+proc list_begin  {what {hint {}}}   {}
 proc list_end    {}                 {}
 proc lst_item    {text}             {}
 proc see_also    {args}             {}

@@ -86,3 +86,21 @@ proc img {tag alt img} {
 }
 
 proc protect {text} {return [string map [list & "&amp;" < "&lt;" > "&gt;"] $text]}
+
+
+proc tag  {t} {return <$t>}
+proc taga {t av} {
+    # av = attribute value ...
+    set avt [list]
+    foreach {a v} $av {lappend avt "$a=\"$v\""}
+    return "<$t [join $avt]>"
+}
+proc tag/ {t} {return </$t>}
+proc tag_ {t block args} {
+    # args = key value ...
+    if {$args == {}} {return "[tag $t]$block[tag/ $t]"}
+    return "[taga $t $args]$block[tag/ $t]"
+}
+
+
+proc ht_comment {text}   {return "<! -- $text -->"}

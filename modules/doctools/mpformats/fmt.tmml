@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.7 2002/03/27 03:05:05 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.8 2002/04/01 14:58:06 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -179,9 +179,9 @@ array set listTypes {
     enum	ol
     definitions	dl
 }
-pass 1 list_begin {what} NOP
+pass 1 list_begin {what {hint {}}} NOP
 pass 1 list_end {} NOP
-pass 2 list_begin {what} {
+pass 2 list_begin {what {hint {}}} {
     variable listTypes
     sequence \
     	[xmlContext {section dd li}] \
