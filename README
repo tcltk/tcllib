@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README,v 1.4 2003/03/24 23:11:54 andreas_kupries Exp $
+RCS: @(#) $Id: README,v 1.5 2003/03/28 17:07:29 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.  This package is
 intended to be a collection of Tcl packages that provide utility
@@ -38,9 +38,15 @@ will be added to tcllib:
 * the module must be released under the BSD License, the terms of
   which can be found in the toplevel tcllib source directory in the file
   license.terms
-* the module should have both documentation (in XML, man, or HTML
-  form) and a test suite (in the form of a group of *.test files in
-  the module directory).
+* the module should have both documentation ([*]) and a test suite
+  (in the form of a group of *.test files in the module directory).
+
+  [*] Possible forms: doctools, TMML/XML, nroff (man), or HTML.
+      The first format is the most prefered as it can be processed with
+      tools provided by tcllib itself (See module doctools). The first
+      two are prefered in general as they are semantic markup and thus
+      easier to convert into other formats.
+
 * the module must have either documentation or a test suite.  It can
   not have neither.
 * the module should adhere to Tcl coding standards
