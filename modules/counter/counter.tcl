@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.16 2004/09/24 06:54:23 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.17 2004/09/29 19:17:25 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -683,7 +683,7 @@ proc ::counter::MergeDay {} {
         if {[info exists hourhist($i)]} {
         set dayhist($dayIndex) [expr {$dayhist($dayIndex) + $hourhist($i)}]
         if {$hourhist($i) > $max} { 
-            set mx $hourhist($i) 
+            set max $hourhist($i) 
         }
         }
     }
