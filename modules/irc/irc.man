@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin irc n 0.3]
+[manpage_begin irc n 0.4]
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
 [require Tcl]
-[require irc [opt 0.3]]
+[require irc [opt 0.4]]
 [description]
 
 This package provides low-level commands to deal with the IRC protocol
@@ -43,18 +43,27 @@ represents a connection command as returned by
 [call [arg net] [method registerevent] [arg event] [arg script]]
 
 Registers a callback handler for the specific event.  Events available
-are those described in the IRC
-
-RFC 1459 ([uri http://www.rfc-editor.org/rfc/rfc1459.txt]).
-
-In addition, there are several other events defined.
-[const defaultcommand] adds a command that is called if no other
-callback is present.  [const EOF] is called if the connection signals
-an End of File condition.
+are those described in the IRC RFC: 1459.  In addition, there are
+several other events defined. [const defaultcmd] adds a command
+that is called if no other callback is present.  [const EOF] is
+called if the connection signals an End of File condition. The events
+[const defaultcmd], [const defaultnumeric], and [const defaultevent] are
+required.
 
 [arg script] is executed in the connection namespace, which can take
 advantage of several commands (see [sectref {Callback Commands}]
 below) to aid in the parsing of data.
+
+
+[call [arg net] [method getevent] [arg event] [arg script]]
+
+Returns the current handler for the event if one exists. Otherwise an
+empty string is returned.
+
+
+[call [arg net] [method eventexists] [arg event] [arg script]]
+
+Returns a boolean value indicating the existance of the event handler.
 
 
 [call [arg net] [method connect]]
@@ -64,12 +73,12 @@ created the namespace and the commands to be used, but did not
 actually open the socket. This is done here.
 
 
-[call [arg net] [method user] [arg username] [arg localhostname] [arg userinfo]]
+[call [arg net] [method user] [arg username] [arg localhostname] [arg localdomainname] [arg userinfo]]
 
 Sends USER command to server.  [arg username] is the username you want
-to appear.  [arg localhostname] is the name of your server, and
-
-[arg userinfo] is a short description of who you are.
+to appear.  [arg localhostname] is the host portion of your hostname, [arg localdomainname]
+is your domain name, and [arg userinfo] is a short description of who you are. The 2nd and 3rd
+arguments are normally ignored by the IRC server.
 
 
 [call [arg net] [method nick] [arg nick]]
@@ -78,24 +87,70 @@ NICK command.  [arg nick] is the nickname you wish to use for the
 particular connection.
 
 
-[call [arg net] [method ping]]
+[call [arg net] [method ping] [arg target]]
 
-PING the IRC server.
+Send a CTCP PING to [arg target].
+
+
+[call [arg net] [method serverping]]
+
+PING the server.
 
 
 [call [arg net] [method join] [arg channel]]
 
 [arg channel] is the IRC channel to join.  IRC channels typically
-begin with a hashmark ("#").
+begin with a hashmark ("#") or ampersand ("&").
+
 
 [call [arg net] [method part] [arg channel]]
 
 Makes the client leave [arg channel].
 
+[call [arg net] [method quit] [opt message]]
+
+Instructs the IRC server to close the current connection
+with the message [opt message]
+
+
 [call [arg net] [method privmsg] [arg target] [arg message]]
 
 Sends [arg message] to [arg target], which can be either a channel, or
 another user, in which case their nick is used.
+
+
+[call [arg net] [method notice] [arg target] [arg message]]
+
+Sends a [const notice] with message [arg message] to [arg target],
+which can be either a channel, or another user, in which case their nick is used.
+
+
+[call [arg net] [method ctcp] [arg target] [arg message]]
+
+Sends a CTCP of type [arg message] to [arg target]
+
+
+[call [arg net] [method kick] [arg channel] [arg target] [opt message]]
+
+Kicks the user [arg target] from the channel [arg channel] with a message [opt message]
+
+
+[call [arg net] [method mode] [arg target] [arg args]]
+
+Sets the mode [arg args] on the target [target]. [target] may be a channel,
+a channel user, or yourself.
+
+
+[call [arg net] [method topic] [arg channel] [opt message]]
+
+Sets the topic on [arg channel] to [opt message] or removes the topic
+if no message is specified
+
+
+[call [arg net] [method invite] [arg channel] [arg target]]
+
+Invites [arg target] to join the channel [arg channel]
+
 
 [call [arg net] [method send] [arg text]]
 
@@ -121,12 +176,18 @@ format "username@address".
 Returns the action performed, such as KICK, PRIVMSG, MODE, etc...
 Normally not useful, as callbacks are bound to a particular event.
 
-[call [cmd target] [opt [arg index]]]
+[call [cmd target]]
 
 Returns the target of a particular command, such as the channel or
-user to whom a PRIVMSG is sent.  In the case of multiple targets, the
-optional [arg index] argument may be used to specify which one to
-return.  The default is 0.
+user to whom a PRIVMSG is sent. 
+
+[call [cmd additional]]
+
+Returns a list of any additional arguments after the target.
+
+[call [cmd header]]
+
+Returns the entire event header (everything up to the :) as a proper list.
 
 [call [cmd msg]]
 
@@ -135,5 +196,5 @@ Returns the message portion of the command (the part after the :).
 [list_end]
 
 [see_also {rfc 1459}]
-[keywords irc chat {rfc 1459}]
+[keywords irc chat]
 [manpage_end]
