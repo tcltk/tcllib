@@ -16,6 +16,8 @@
 	* README.txt    allows them to initialize array variables with
 	* snit.man      an "array set" list.
 
+	* snit.test     Fixed Snit bug 899207 (snit test failures)
+
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Implemented -configuremethod and configure command

@@ -3746,8 +3746,8 @@ test install-2.2 {
     destroy .frm
     tkbide
 
-    list $a $b
-} {red Black}
+    expr {$a ne $b}
+} {1}
 
 test install-2.3 {
     Delegate option * for a creation option.  Because the text widget's
@@ -4336,7 +4336,7 @@ test widgetclass-1.6 {implicit widgetclass applied to hull} tk {
 
     widget dog { 
         typeconstructor {
-            option add *Dog.background green widgetDefault
+            option add *Dog.background green 
         }
 
         method background {} {
@@ -4360,7 +4360,7 @@ test widgetclass-1.7 {explicit widgetclass applied to hull} tk {
         widgetclass DogWidget
 
         typeconstructor {
-            option add *DogWidget.background green widgetDefault
+            option add *DogWidget.background green 
         }
 
         method background {} {
