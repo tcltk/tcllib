@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.91
+package provide snit 0.92
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -72,17 +72,21 @@ namespace eval ::snit:: {
         # Type Introspection: info <command> <args>
         typemethod info {command args} {
             global errorInfo
+            global errorCode
 
             switch -exact $command {
                 typevars - 
                 instances {
+                    # TBD: it should be possible to delete this error
+                    # handling.
                     set errflag [catch {
                         uplevel ::snit::TypeInfo_$command \
                             $type $args
                     } result]
 
                     if {$errflag} {
-                        return -code error -errorinfo $errorInfo $result
+                        return -code error -errorinfo $errorInfo \
+                            -errorcode $errorCode $result
                     } else {
                         return $result
                     }
@@ -317,8 +321,13 @@ namespace eval ::snit:: {
             } result]
 
             if {$errcode} {
+                global errorInfo
+                global errorCode
+
+                set theInfo $errorInfo
+                set theCode $errorCode
                 Snit_cleanup $selfns $name
-                error $result
+                error "Error in constructor: $result" $theInfo $theCode
             }
 
             # NEXT, return the object's name.
@@ -409,10 +418,12 @@ namespace eval ::snit:: {
 
             if {$errcode} {
                 global errorInfo
+                global errorCode
 
-                set errInfo $errorInfo
+                set theInfo $errorInfo
+                set theCode $errorCode
                 Snit_cleanup $selfns $name
-                error "Error in constructor: $result" $errInfo
+                error "Error in constructor: $result" $theInfo $theCode
             }
             
             # NEXT, return the object's name.
@@ -955,6 +966,7 @@ namespace eval ::snit:: {
         # %TYPE% variables and methods must be qualified!
         proc %TYPE% {method args} {
             global errorInfo
+            global errorCode
 
             # First, if the typemethod is unknown, we'll assume that it's
             # an instance name if we can.
@@ -974,7 +986,10 @@ namespace eval ::snit:: {
             } result]
 
             if {$errflag} {
-                return -code error -errorinfo $errorInfo $result
+                return -code error \
+                    -errorinfo $errorInfo \
+                    -errorcode $errorCode \
+                    $result
             } else {
                 return $result
             }
@@ -1086,6 +1101,7 @@ namespace eval ::snit:: {
         # argList:      Arguments for the method.
         proc %TYPE%::Snit_dispatcher {type selfns win self method argList} {
             global errorInfo
+            global errorCode
 
             typevariable Snit_info
             typevariable Snit_methods
@@ -1125,7 +1141,8 @@ namespace eval ::snit:: {
             if {$errflag} {
 		# Used to try to fix up "bad option", but did it badly.
                 
-                return -code error -errorinfo $errorInfo $result
+                return -code error -errorinfo $errorInfo \
+                    -errorcode $errorCode $result
             } else {
                 return $result
             }

@@ -12,6 +12,13 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
+Changes in V0.92
+--------------------------------------------------------------------
+
+* Bug fix: In type methods, constructors, and methods, the "errorCode"
+  of a thrown error was not propagated properly; no matter what it was
+  set to, it always emerged as "NONE".
+
 Changes in V0.91
 --------------------------------------------------------------------
 
