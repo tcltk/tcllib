@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded des 0.8 [list source [file join $dir des.tcl]]
+package ifneeded des 0.8.1 [list source [file join $dir des.tcl]]
