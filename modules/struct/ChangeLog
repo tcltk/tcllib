@@ -1,3 +1,13 @@
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.tcl: Fixed bug #532783 reported by Ken Jones
+	  <kenj@users.sourceforge.net>. Any operation adding new material
+	  to a linked matrix causes a circular trace (op -> "MatTraceOut"
+	  -> "MatTraceIn" -> set cell) and the inbound trace fails because
+	  the data structures are not uptodate causing the range checks in
+	  "set cell" to fail. Fixed by breaking the cycle. Calls to
+	  "MatTraceIn" are now disabled while we are in "MatTraceOut".
+
 2002-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.man: Added example of formatting a matrix using tabular
