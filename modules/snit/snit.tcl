@@ -1165,7 +1165,6 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         # Delegated typemethod %METH% to %COMP%
         set  %TYPE%::Snit_typemethodInfo(%METH%) \
             {"%PATTERN%" %COMP%}
-        proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY% 
     } %METH% $method %COMP% [list $component] %PATTERN% $pattern
 
     if {![string equal $method "*"]} {
@@ -1249,7 +1248,6 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         # Delegated method %METH% to %COMP%
         set  %TYPE%::Snit_methodInfo(%METH%) \
             {"%PATTERN%" %COMP%}
-        proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
     } %METH% $method %COMP% [list $component] %PATTERN% $pattern
 
     if {![string equal $method "*"]} {
