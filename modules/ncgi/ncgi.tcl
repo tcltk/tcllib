@@ -26,7 +26,7 @@
 # We use newer string routines
 package require Tcl 8.2
 
-package provide ncgi 1.1
+package provide ncgi 1.2
 
 namespace eval ncgi {
 

@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: matrix.n,v 1.5 2001/08/02 16:38:07 andreas_kupries Exp $
+'\" RCS: @(#) $Id: matrix.n,v 1.6 2001/10/17 17:27:26 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH matrix n 1.0 Struct "Tcl Data Structures"
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require struct ?1.1?\fR
+\fBpackage require struct ?1.1.1?\fR
 .sp
 \fB::struct::matrix\fR \fImatrixName\fR
 .sp

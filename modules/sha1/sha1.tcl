@@ -328,4 +328,4 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide sha1 1.0
+package provide sha1 1.0.1

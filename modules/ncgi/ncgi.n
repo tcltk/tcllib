@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ncgi.n,v 1.7 2001/08/02 16:38:06 andreas_kupries Exp $
+'\" RCS: @(#) $Id: ncgi.n,v 1.8 2001/10/17 17:27:26 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH ncgi n 1.0 Ncgi "CGI Support"
@@ -15,7 +15,7 @@
 .sp
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require ncgi ?1.1?\fR
+\fBpackage require ncgi ?1.2?\fR
 .sp
 \fBncgi::cookie\fR \fIcookie\fR
 .sp

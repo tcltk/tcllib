@@ -1,3 +1,9 @@
+2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.n:
+	* pop3.tcl:
+	* pkgIndex.tcl: Version up to 1.5
+
 2001-08-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.tcl: Added UIDL command, patch [448634] by Mark G. Saye

@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: smtp.n,v 1.1 2001/09/13 17:38:32 andreas_kupries Exp $ smtp.n
+'\" CVS: $Id: smtp.n,v 1.2 2001/10/17 17:27:26 andreas_kupries Exp $ smtp.n
 '\"
 .so man.macros
 .TH "smtp" n 1.2 tcllib "smtp client"
@@ -15,7 +15,7 @@ package require \fBTcl\fR
 .sp
 package require \fBmime ?1.0?\fR
 .sp
-package require \fBsmtp ?1.2?\fR
+package require \fBsmtp ?1.3?\fR
 .sp
 \fBsmtp::sendmessage\fR \fItoken\fR \fIoptions\fR\fR
 .sp
