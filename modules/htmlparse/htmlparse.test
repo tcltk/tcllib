@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.10 2004/09/29 18:17:30 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.11 2004/09/30 03:07:04 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -476,6 +476,131 @@ test htmlparse-9.3 {handle empty tags, text coming before} {
     [list html  /  {} {}] ]
 
 
+
+
+# Tcllib SF Bug 861287 - Processing of comments.
+test htmlparse-7.1 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&<!-- a comment --></pre>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-7.2 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&</pre><!-- a comment -->"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-7.3 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<!-- a comment --><pre>&</pre>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+
+test htmlparse-7.4 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&<!-- a comment -- ></pre>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-7.5 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&</pre><!-- a comment -- >"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-7.6 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<!-- a comment -- ><pre>&</pre>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+
+test htmlparse-8.1 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&<-- no comment --></pre>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} {&&lt;-- no comment --&gt;}] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-8.2 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&</pre><-- no comment -->"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {&lt;-- no comment --&gt;}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-8.3 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<-- no comment --><pre>&</pre>"
+    set tags
+}  [list \
+    [list html  {} {} {&lt;-- no comment --&gt;}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+
+test htmlparse-8.4 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&<-- no comment -- ></pre>"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} {&&lt;-- no comment -- &gt;}] \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-8.5 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<pre>&</pre><-- no comment -- >"
+    set tags
+}  [list \
+    [list html  {} {} {}] \
+    [list pre   {} {} &] \
+    [list pre   /  {} {&lt;-- no comment -- &gt;}] \
+    [list html  /  {} {}] ]
+
+test htmlparse-8.6 {html comments} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<-- no comment -- ><pre>&</pre>"
+    set tags
+}  [list \
+    [list html  {} {} {&lt;-- no comment -- &gt;}] \
+    [list pre   {} {} &]  \
+    [list pre   /  {} {}] \
+    [list html  /  {} {}] ]
 
 # Take a look at the cache.
 #parray ::htmlparse::splitdata
