@@ -9,6 +9,7 @@
 # the conversion into nroff and TMML.
 #
 ################################################################
+################################################################
 
 proc here {} [list return [__file dirname [info script]]]
 proc this {} [list return [__file tail    [info script]]]
@@ -20,7 +21,105 @@ proc bgcolor {} {return ""}
 proc border  {} {return 0}
 
 ################################################################
+################################################################
 ## Backend for HTML markup
+# ==============================================================
+# Internal data structures and state
+# --------------------------------------------------------------
+# I. Internal cross references (between and to sections)
+
+global SectionNames	;# array mapping section name to refid
+
+# sectionId --
+#	Format section name as an XML ID.
+#
+proc sectionId {name} {
+    regsub -all {[^[:alnum:]]} $name {} name
+    return [string tolower $name]
+}
+
+# possibleReference text gi --
+#	Check if $text is a potential cross-reference;
+#	if so, format as a reference;
+#	otherwise format as a $gi element.
+#
+proc possibleReference {text gi} {
+    global SectionNames
+    if {[info exists SectionNames($text)]} {
+	return [taga a [list href #$SectionNames($text)]]$text[tag/ a]
+    } else {
+	return [tag $gi]$text[tag/ $gi]
+    }
+}
+
+# --------------------------------------------------------------
+# II. Description tracking: Located in the common code.
+
+# --------------------------------------------------------------
+# III. Handling of lists. Simplified, the global check of nesting and
+#      legality of list commands allows us to throw away most of the
+#      existing checks.
+
+global liststack ; # stack of list tags to use in list_end
+global hintstack ; # stack of hint information.
+global chint     ; # current hint settings
+global lmark     ; # boolean flag, 1 = list item command was last
+#                ; #               0 = something other than a list item command
+
+set    liststack [list]
+set    hintstack [list]
+set    chint     ""
+set    lmark     0
+
+proc llevel {} {global liststack ; return [llength $liststack]}
+
+proc lpush {t hint} {
+    global  liststack hintstack chint
+    lappend liststack [tag/ $t]
+    lappend hintstack $chint
+    set     chint $hint
+    return [tag $t]
+}
+
+proc lpop {} {
+    global liststack hintstack chint
+    set t         [lindex   $liststack end]
+    set liststack [lreplace $liststack end end]
+    set chint     [lindex   $hintstack end]
+    set hintstack [lreplace $hintstack end end]
+    return $t
+}
+
+proc lsmark {value} {
+    global lmark ; set lmark $value ; return
+}
+
+proc limark {} {
+    # hint and mark processing.
+    # hint: compact list, do not create additional whitespace
+    if {[lcompact]} {return ""}
+
+    # hint: wide list, create additional whitespace.
+    # mark: exception: two list items following each other have no whitespace.
+    global lmark ; if {$lmark} {return ""}
+    return [tag br][tag br]\n
+}
+
+proc lcompact {} {global chint ; string equal $chint compact}
+
+proc HandleText {text} {
+
+    set redux [string map [list " " "" "\t" "" "\n" ""] $text]
+    if {$redux != {}} {lsmark 0}
+
+    return [htmlEscape $text]
+}
+
+################################################################
+################################################################
+
+################################################################
+# Formatting commands.
 
 proc manpage_begin {title section version} {
     if {[mp_pass] == 1} {return}
@@ -110,74 +209,24 @@ proc x_synopsis {} {
     }
 }
 
-######################################################################
-# Cross-reference tracking.
-#
-
-global SectionNames	;# array mapping section name to refid
-
-# sectionId --
-#	Format section name as an XML ID.
-#
-proc sectionId {name} {
-    regsub -all {[^[:alnum:]]} $name {} name
-    return [string tolower $name]
-}
-
-# possibleReference text gi --
-#	Check if $text is a potential cross-reference;
-#	if so, format as a reference;
-#	otherwise format as a $gi element.
-#
-proc possibleReference {text gi} {
-    global SectionNames
-    if {[info exists SectionNames($text)]} {
-    	return "<a href=\"#$SectionNames($text)\">$text</a>"
-    } else {
-    	return "<${gi}>$text</${gi}>"
-    }
-}
-
 ################################################################
 
-global    list_state
-array set list_state {level -1}
-
-proc list_begin  {what} {
-    global list_state
-
+proc list_begin  {what {hint {}}} {
     switch -exact -- $what {
-	enum        {set result <ol>}
-	bullet      {set result <ul>}
-	definitions {set result <dl>}
+	enum        {set tag ol}
+	bullet      {set tag ul}
+	definitions {set tag dl}
 	default     {return -code error "Unknown list type $what"}
     }
 
-    incr list_state(level)
-    set  list_state(l,$list_state(level)) $what
-
-    return $result
+    return [if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
 }
 
-proc list_end {} {
-    global list_state
+proc list_end {} {return [lpop][lsmark 1]}
 
-    set what    $list_state(l,$list_state(level))
-    catch {unset list_state(l,$list_state(level))}
-
-    incr list_state(level) -1
-
-    switch -exact -- $what {
-	enum        {set result </ol>}
-	bullet      {set result </ul>}
-	definitions {set result </dl>}
-    }
-    return $result
-}
-
-proc lst_item {text} {return <dt>$text<dd>}
-proc bullet {} {return <li>}
-proc enum {} {return <li>}
+proc lst_item {text} {return [limark][tag dt]$text[tag dd][lsmark 1]}
+proc bullet   {}     {return [limark][tag li][lsmark 1]}
+proc enum     {}     {return [limark][tag li][lsmark 1]}
 
 ################################################################
 
@@ -185,6 +234,7 @@ proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
 proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
 
 proc example_begin {} {
+    lsmark 0
     return "<p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"
 }
 proc example_end   {} {
@@ -194,7 +244,10 @@ proc example {code} {
     return "[example_begin][HandleText $code][example_end]"
 }
 
-proc nl     {}     {return "<br>" }
+proc nl {} {
+    if {[lcompact]} {return [tag br]}
+    return [tag br][tag br]
+}
 proc arg    {text} {return "<i class='arg'>$text</i>" }
 proc cmd    {text} {return "<b class='cmd'>$text</b>" }
 
@@ -230,8 +283,6 @@ proc const   {text} {strong $text}
 
 ################################################################
 # HTML specific commands
-
-proc ht_comment {text}   {return "<! -- $text -->"}
 
 ################################################################
 

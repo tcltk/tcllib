@@ -123,7 +123,8 @@ proc x_synopsis {} {
 global    list_state
 array set list_state {level -1}
 
-proc list_begin  {what} {
+proc list_begin  {what {hint {}}} {
+    # ignoring hints.
     global list_state
 
     switch -exact -- $what {
