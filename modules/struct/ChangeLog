@@ -1,3 +1,25 @@
+2003-07-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.test:	
+	* tree.tcl: Reworked node attribute storage. Name of array to
+	  store the information is now dissociated from the name of the
+	  node. This enables the use of arbitrary node names, i.e. ':' in
+	  node names. The second benefit is that nodes without attribute
+	  data (normal) require less memory than before. Removed the now
+	  irrelevant validation of node names and updated the testsuite.
+
+	* tree.test:
+	* tree.tcl: Changed way of mapping from tree object commands to
+	  associoated namespaces. The object namespace now has the same
+	  name and location of the object command. Adapted all tests to
+	  account for this change.
+
+	* tree.test:
+	* tree.tcl: Changed dispatcher to auto-generate the list of tree
+	  commands when a wrong one is given. Updated tests to account for
+	  the now correct sort order. Changed dispatcher to uplevel 1 the
+	  method execution, updated walking system to reflect this change.
+
 2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* list.tcl: The changes in the list dispatcher required
