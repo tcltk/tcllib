@@ -1,3 +1,15 @@
+2004-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* clnt.tcl: Removed old unused code. It was part of the testsuite
+	* srv.tcl:  in the very beginning. It was unused in the first
+	  rewrite to the old sub process and dialog facility.
+
+	* pop3.test: Rewritten to use the new facilities for programmed
+	  interaction and sub processes.
+
+	* pop3.tcl (::pop3::open): Capitalized the user and pass
+	  commands. Every command in the wire is now fully capitalized.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
