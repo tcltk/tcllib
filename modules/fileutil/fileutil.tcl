@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.40 2004/05/26 04:24:28 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.41 2004/05/30 20:30:36 afaupell Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -616,13 +616,14 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
 #                       binary
 #                       text
 #                       script <interpreter>
-#                       executable elf
-#                       binary graphic [gif, jpeg, png, tiff]
+#                       executable [elf, dos, ne, pe]
+#                       binary graphic [gif, jpeg, png, tiff, bitmap]
 #                       ps, eps, pdf
 #                       html
 #                       xml <doctype>
 #                       message pgp
-#                       bzip, gzip
+#                       compressed [bzip, gzip, zip, tar]
+#                       audio [mpeg, wave]
 #                       gravity_wave_data_frame
 #                       link
 #                  
@@ -680,23 +681,41 @@ proc ::fileutil::fileType {filename} {
         lappend type script $terp
     } elseif { $binary && [ regexp {^[\x7F]ELF} $test ] } {
         lappend type executable elf
+    } elseif { $binary && [string match "MZ*" $test] } {
+        if { [scan [string index $test 24] %c] < 64 } {
+            lappend type executable dos
+        } else {
+            binary scan [string range $test 60 61] s next
+            set sig [string range $test $next [expr {$next + 1}]]
+            if { $sig == "NE" || $sig == "PE" } {
+                lappend type executable [string tolower $sig]
+            } else {
+                lappend type executable dos
+            }
+        }
     } elseif { $binary && [string match "BZh91AY\&SY*" $test] } {
         lappend type compressed bzip
     } elseif { $binary && [string match "\x1f\x8b*" $test] } {
         lappend type compressed gzip
+    } elseif { $binary && [string range $test 257 262] == "ustar\x00" } {
+        lappend type compressed tar
+    } elseif { $binary && [string match "\x50\x4b\x03\x04*" $test] } {
+        lappend type compressed zip
     } elseif { $binary && [string match "GIF*" $test] } {
         lappend type graphic gif
     } elseif { $binary && [string match "\x89PNG*" $test] } {
         lappend type graphic png
     } elseif { $binary && [string match "\xFF\xD8\xFF*" $test] } {
-        binary scan $test c3H2Sa5 id marker len txt 
-        if {$marker == "e0" && $txt == "JFIF\x00"} {
+        binary scan $test x3H2x2a5 marker txt
+        if { $marker == "e0" && $txt == "JFIF\x00" } {
             lappend type graphic jpeg jfif
         } elseif { $marker == "e1" && $txt == "Exif\x00" } {
             lappend type graphic jpeg exif
         }
     } elseif { $binary && [string match "MM\x00\**" $test] } {
         lappend type graphic tiff
+    } elseif { $binary && [string match "BM*" $test] && [string range $test 6 9] == "\x00\x00\x00\x00" } {
+        lappend type graphic bitmap
     } elseif { $binary && [string match "\%PDF\-*" $test] } {
         lappend type pdf
     } elseif { ! $binary && [string match -nocase "*\<html\>*" $test] } {
@@ -721,6 +740,12 @@ proc ::fileutil::fileType {filename} {
     } elseif {[string match "LJ\x1a\x00*" $test] && ([file size $filename] >= 27)} {
 	lappend type metakit bigendian
 	set metakit 1
+    } elseif { $binary && [string match "RIFF*" $test] && [string range $test 8 11] == "WAVE" } {
+        lappend type audio wave
+    } elseif { $binary && [string match "ID3*" $test] } {
+        lappend type audio mpeg
+    } elseif { $binary && [binary scan $test S tmp] && [expr {$tmp & 0xFFE0}] == 65504 } {
+        lappend type audio mpeg
     }
 
     # Additional checks of file contents at the end of the file,
