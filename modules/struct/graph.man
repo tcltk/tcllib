@@ -3,7 +3,7 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
 [require Tcl 8.2]
-[require graph [opt 1.2.1]]
+[require struct [opt 1.2.1]]
 [description]
 [para]
 
