@@ -7,7 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.14 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.15 2001/09/05 23:36:15 andreas_kupries Exp $
+
+package require Tcl 8.2
 
 namespace eval ::struct {}
 
@@ -414,6 +416,13 @@ proc ::struct::tree::_insert {name parentNode index args} {
     if { [llength $args] == 0 } {
 	# No node name was given; generate a unique one
 	set args [list [__generateUniqueNodeName $name]]
+    } else {
+	# Validate the node names
+	foreach child $args {
+	    if {[regexp "\[\r\t\n :\]" $child]} {
+		return -code error "invalid node name \"$child\""
+	    }
+	}
     }
 
     if { ![_exists $name $parentNode] } {
