@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.1 2003/04/02 07:29:44 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.2 2003/04/02 20:52:24 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -24,6 +24,13 @@ namespace eval ::struct::list {
 	# Possibly in the future.
 	namespace export LongestCommonSubsequence
 	namespace export LongestCommonSubsequence2
+	namespace export LcsInvert
+	namespace export LcsInvert2
+	namespace export Reverse
+	namespace export Assign
+	namespace export Flatten
+	namespace export Map
+	namespace export Fold
     }
 }
 
@@ -354,7 +361,6 @@ proc ::struct::list::LcsInvert {lcsData len1 len2} {
 }
 
 proc ::struct::list::LcsInvert2 {idx1 idx2 len1 len2} {
-
     set result {}
     set last1 -1
     set last2 -1
@@ -422,4 +428,169 @@ proc ::struct::list::LcsInvert2 {idx1 idx2 len1 len2} {
     }
 
     return $result
+}
+
+
+# ::struct::list::Reverse --
+#
+#	Reverses the contents of the list and returns the reversed
+#	list as the result of the command.
+#
+# Parameters:
+#	sequence	List to be reversed.
+#
+# Results:
+#	The sequence in reverse.
+#
+# Side effects:
+#       None.
+
+proc ::struct::list::Reverse {sequence} {
+    set l [::llength $sequence]
+
+    # Shortcut for lists where reversing yields the list itself
+    if {$l < 2} {return $sequence}
+
+    # Perform true reversal
+    set res [::list]
+    while {$l} {
+	::lappend res [::lindex $sequence [incr l -1]]
+    }
+    return $res
+}
+
+
+# ::struct::list::Assign --
+#
+#	Assign list elements to variables.
+#
+# Parameters:
+#	sequence	List to assign
+#	args		Names of the variables to assign to.
+#
+# Results:
+#	The unassigned part of the sequence. Can be empty.
+#
+# Side effects:
+#       None.
+
+proc ::struct::list::Assign {sequence args} {
+    set l [::llength $sequence]
+    set a [::llength $args]
+
+    # Nothing to assign.
+    if {$a == 0} {return $sequence}
+
+    # Perform assignments
+    set i 0
+    foreach v $args {
+	upvar 2 $v var
+	set      var [::lindex $sequence $i]
+	incr i
+    }
+
+    # Return remainder, if there is any.
+    return [::lrange $sequence $a end]
+}
+
+
+# ::struct::list::Flatten --
+#
+#	Remove nesting from the input
+#
+# Parameters:
+#	sequence	List to flatten
+#
+# Results:
+#	The input list with one or all levels of nesting removed.
+#
+# Side effects:
+#       None.
+
+proc ::struct::list::Flatten {args} {
+    if {[::llength $args] < 1} {
+	return -code error \
+		"no value given for parameter \"?-full?\" to \"::struct::list::Assign\""
+    }
+
+    set full 0
+    while {[string match -* [set opt [::lindex $args 0]]]} {
+	switch -glob -- $opt {
+	    -full   {set full 1}
+	    --      {break}
+	    default {return -code error ""}
+	}
+	set args [::lrange $args 1 end]
+    }
+
+    if {[::llength $args] != 1} {
+	return -code error \
+		"no value given for parameter \"?-full?\" to \"::struct::list::Assign\""
+    }
+
+    set sequence [::lindex $args 0]
+    set cont 1
+    while {$cont} {
+	set cont 0
+	set result [::list]
+	foreach item $sequence {
+	    eval [::list ::lappend result] $item
+	}
+	if {$full && [string compare $sequence $result]} {set cont 1}
+	set sequence $result
+    }
+    return $result
+}
+
+
+# ::struct::list::Map --
+#
+#	Apply command to each element of a list and return concatenated results.
+#
+# Parameters:
+#	sequence	List to operate on
+#	cmdprefix	Operation to perform on the elements.
+#
+# Results:
+#	List containing the result of applying cmdprefix to the elements of the
+#	sequence.
+#
+# Side effects:
+#       None of its own, but the command prefix can perform arbitry actions.
+
+proc ::struct::list::Map {sequence cmdprefix} {
+    # Shortcut when nothing is to be done.
+    if {[::llength $sequence] == 0} {return $sequence}
+
+    set res [::list]
+    foreach item $sequence {
+	lappend res [uplevel 2 [linsert $cmdprefix end $item]]
+    }
+    return $res
+}
+
+# ::struct::list::Fold --
+#
+#	Fold list into one value.
+#
+# Parameters:
+#	sequence	List to operate on
+#	cmdprefix	Operation to perform on the elements.
+#
+# Results:
+#	Result of applying cmdprefix to the elements of the
+#	sequence.
+#
+# Side effects:
+#       None of its own, but the command prefix can perform arbitry actions.
+
+proc ::struct::list::Fold {sequence initialvalue cmdprefix} {
+    # Shortcut when nothing is to be done.
+    if {[::llength $sequence] == 0} {return $initialvalue}
+
+    set res $initialvalue
+    foreach item $sequence {
+	set res [uplevel 2 [linsert $cmdprefix end $res $item]]
+    }
+    return $res
 }

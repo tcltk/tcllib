@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: list.man,v 1.1 2003/04/02 07:29:44 andreas_kupries Exp $}]
+[comment {$Id: list.man,v 1.2 2003/04/02 20:52:22 andreas_kupries Exp $}]
 [manpage_begin list n 1.2.2]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [moddesc {Tcl Data Structures}]
@@ -169,6 +169,148 @@ of a call to [method longestCommonSubsequence] this subcommand expects
 the indices for the two sequences in two separate lists.
 
 
+[call [cmd ::struct::list] [method reverse] [arg sequence]]
+
+The subcommand takes a single [arg sequence] as argument and returns a new
+sequence containing the elements of the input sequence in reverse
+order.
+
+
+[call [cmd ::struct::list] [method assign] [arg sequence] [opt [arg varname]]...]
+
+The subcommand assigns the first [var n] elements of the input
+
+[arg sequence] to the zero or more variables whose names were listed
+after the sequence, where [var n] is the number of specified
+variables.
+
+[nl]
+
+If there are more variables specified than there are elements in the
+[arg sequence] the empty string will be assigned to the superfluous
+variables.
+
+[nl]
+
+If there are more elements in the [arg sequence] than variable names
+specified the subcommand returns a list containing the unassigned
+elements. Else an empty list is returned.
+
+[example {
+    tclsh> ::struct::list assign {a b c d e} foo bar
+    c d e
+    tclsh> set foo
+    a
+    tclsh> set bar
+    b
+}]
+
+
+[call [cmd ::struct::list] [method flatten] [opt [option -full]] [opt [option --]] [arg sequence]]
+
+The subcommand takes a single [arg sequence] and returns a new
+sequence where one level of nesting was removed from the input
+sequence. In other words, the sublists in the input sequence are
+replaced by their elements.
+
+[nl]
+
+The subcommand will remove any nesting it finds if the option
+[option -full] is specified.
+
+[example {
+    tclsh> ::struct::list flatten {1 2 3 {4 5} {6 7} {{8 9}} 10}
+    1 2 3 4 5 6 7 {8 9} 10
+    tclsh> ::struct::list flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
+    1 2 3 4 5 6 7 8 9 10
+}]
+
+
+[call [cmd ::struct::list] [method map] [arg sequence] [arg cmdprefix]]
+
+The subcommand takes a [arg sequence] to operate on and a command
+prefix ([arg cmdprefix]) specifying an operation, applies the command
+prefix to each element of the sequence and returns a sequence
+consisting of the results of that application.
+
+[nl]
+
+The command prefix will be evaluated with a single word appended to
+it. The evaluation takes place in the context of the caller of the
+subcommand.
+
+[nl]
+
+[example {
+    tclsh> # squaring all elements in a list
+
+    tclsh> proc sqr {x} {expr {$x*$x}}
+    tclsh> ::struct::list map {1 2 3 4 5} sqr
+    1 4 9 16 25
+
+    tclsh> # Retrieving the second column from a matrix
+    tclsh> # given as list of lists.
+
+    tclsh> proc projection {n list} {::lindex $list $n}
+    tclsh> ::struct::list map {{a b c} {1 2 3} {d f g}} {projection 1}
+    b 2 f
+}]
+
+
+[call [cmd ::struct::list] [method fold] [arg sequence] [arg initialvalue] [arg cmdprefix]]
+
+The subcommand takes a [arg sequence] to operate on, an arbitrary
+string [arg {initial value}] and a command prefix ([arg cmdprefix])
+specifying an operation.
+
+[nl]
+
+The command prefix will be evaluated with two words appended to
+it. The second of these words will always be an element of the
+sequence. The evaluation takes place in the context of the caller of
+the subcommand.
+
+[nl]
+
+It then reduces the sequence into a single value through repeated
+application of the command prefix and returns that value. This
+reduction is done by
+
+[list_begin definitions]
+[lst_item [const 1]]
+
+Application of the command to the initial value and the first element
+of the list.
+
+[lst_item [const 2]]
+
+Application of the command to the result of the last call and the
+second element of the list.
+
+[lst_item [const ...]]
+[lst_item [const i]]
+
+Application of the command to the result of the last call and the
+[var i]'th element of the list.
+
+[lst_item [const ...]]
+[lst_item [const end]]
+
+Application of the command to the result of the last call and the last
+element of the list. The result of this call is returned as the result
+of the subcommand.
+
+[list_end]
+[nl]
+[example {
+    tclsh> # summing the elements in a list.
+    tclsh> proc + {a b} {expr {$a + $b}}
+    tclsh> ::listx fold {1 2 3 4 5} 0 +
+    15
+}]
+
+
+
 [list_end]
 
 [section {LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON}]
@@ -213,4 +355,9 @@ author's personal site: [uri http://www.cs.dartmouth.edu/~doug/]
 
 [keywords list diff differential comparison common subsequence]
 [keywords {longest common subsequence}]
+[keywords reverse]
+[keywords assign]
+[keywords flatten]
+[keywords map]
+[keywords folding reduce]
 [manpage_end]
