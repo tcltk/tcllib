@@ -1,3 +1,11 @@
+2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ncgi.tcl:  The variable '_tmpfiles' was used in conjunction with
+	* ncgi.test: some 8.4'isms. The package is certified for Tcl 8.2.
+	             Replaced the offending constructs with equivalents
+		     acceptable to the lesser cores. Spelling fixes in the
+	* formdata.txt: tests, and supporting data file.
+
 2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ncgi.man: Trival spelling fix.

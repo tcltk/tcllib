@@ -1,8 +1,14 @@
+2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* typedCmdline.test: Fixed the problems of the testsuite with
+	* cmdline.test:      Tcl 8.5. It relied on the order of data
+	                     returned by [array get].
+
 2003-08-19  David N. Welton  <davidw@dedasys.com>
 
 	* cmdline.man: Added an example.  Feel free to change/improve it,
-	but this package really needed one to show the standard usage
-	pattern.
+	  but this package really needed one to show the standard usage
+	  pattern.
 
 2003-08-07  Andreas Kupries  <andreask@activestate.com>
 
@@ -11,7 +17,7 @@
 2003-08-06  Andreas Kupries  <andreask@activestate.com>
 
 	* cmdline.tcl (getfiles): Using the [string map] fix still had
-	  problem, when mixing back- and forward slashes. Now using [file
+	  problems, when mixing back- and forward slashes. Now using [file
 	  join] on the pattern. This removed all problems with the
 	  quoting. I.e. this operation pseudo-normalizes the path. Got the
 	  trick from JeffH.

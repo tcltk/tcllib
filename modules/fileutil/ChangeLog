@@ -1,3 +1,15 @@
+2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: The tempdir tests used advanced test syntax not
+	  available before 8.4 (IIRC). Not useable for 8.2. Ditto the lot of
+	  the install tests also used 8.3 and 8.4 features. Straightened
+	  the bad syntax out (killed the tests), and added proper
+	  constraints to the tests.
+
+	* fileutil.tcl: Ooops. fileutil is certified for usage with Tcl
+	  8.2, there is no [file normalize] before 8.4. Made the usage
+	  (See 2004-02-03) conditional.
+
 2004-02-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Modified the tests a bit to use glob characters

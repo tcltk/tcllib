@@ -1,3 +1,8 @@
+2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Fixed problems with Tcl 8.5, the tests were
+	  dependent on the order of keys in the result of [array get].
+
 2003-10-21  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.wiki (fmt_manpage_end): Fixed usage of wrong
