@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.18 2002/08/06 20:52:54 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.19 2003/04/24 08:45:34 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -105,7 +105,7 @@ proc ::struct::tree::tree {{name ""}} {
 
 	# Set up a value for use in creating unique node names
 	variable nextUnusedNode
-	set nextUnusedNode 1
+	set      nextUnusedNode 1
     }
 
     # Create the command to manipulate the tree
@@ -521,7 +521,7 @@ proc ::struct::tree::_insert {name parentNode index args} {
     }
 
     foreach node $args {
-	if { [_exists $name $node] } {
+	if {[_exists $name $node] } {
 	    # Move the node to its new home
 	    if { [string equal $node "root"] } {
 		error "cannot move root node"
