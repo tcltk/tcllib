@@ -12,18 +12,29 @@
 # -------------------------------------------------------------------------
 
 package require Tcl 8.3;                # tcl minimum version
-package require log;                    # tcllib
+package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.15 2004/06/18 01:52:23 patthoyts Exp $}
-    variable version 1.2.2
+    variable rcsid {$Id: smtpd.tcl,v 1.16 2004/06/26 20:07:08 patthoyts Exp $}
+    variable version 1.3.0
     variable stopped
 
-    namespace export start stop
+    namespace export start stop configure
 
-    variable commands {EHLO HELO MAIL RCPT DATA RSET NOOP QUIT}
-    # non-minimal commands HELP VRFY EXPN VERB ETRN DSN 
+    variable commands
+    if {![info exists commands]} {
+        set commands {EHLO HELO MAIL RCPT DATA RSET NOOP QUIT HELP}
+        # non-minimal commands HELP VRFY EXPN VERB ETRN DSN 
+    }
+
+    variable extensions
+    if {! [info exists extensions]} {
+        array set extensions {
+            8BITMIME {}
+            SIZE     0
+        }
+    }
 
     variable options
     if {! [info exists options]} {
@@ -34,14 +45,39 @@ namespace eval ::smtpd {
             validate_host      {}
             validate_sender    {}
             validate_recipient {}
+            usetls             0
+            tlsopts            {}
         }
     }
+    variable tlsopts {-cadir -cafile -certfile -cipher 
+        -command -keyfile -password -request -require -ssl2 -ssl3 -tls1}
 
-    variable extensions
-    if {! [info exists extensions]} {
-        array set extensions {
-            8BITMIME {}
-            SIZE     0
+    variable log
+    if {![info exists log]} {
+        set log [logger::init smtpd]
+        ${log}::setlevel warn
+        proc ${log}::stdoutcmd {level text} {
+            variable service
+            puts "\[[clock format [clock seconds] -format {%H:%M:%S}]\
+                $service $level\] $text"
+        }
+    }
+    
+    variable Help
+    if {![info exists Help]} {
+        array set Help {
+            {}   {{Topics:} {   HELO MAIL DATA RSET NOOP QUIT} 
+                {For more information use "HELP <topic>".}}
+            HELO {{HELO <hostname>} {   Introduce yourself.}}
+            MAIL {{MAIL FROM: <sender> [ <parameters> ]}
+                {   Specify the sender of the message.}
+                {   If using ESMTP there may be additional parameters of the}
+                {   form NAME=VALUE.}}
+            DATA {{DATA} {   Send your mail message.} 
+                {   End with a line containing a single dot.}}
+            RSET {{RSET} {   Reset the session.}}
+            NOOP {{NOOP} {   Command ignored by server.}}
+            QUIT {{QUIT} {   Exit SMTP session}}
         }
     }
 }
@@ -52,12 +88,22 @@ namespace eval ::smtpd {
 #
 proc ::smtpd::cget {option} {
     variable options
+    variable tlsopts
+    variable log
     set optname [string trimleft $option -]
-    if { [info exists options($optname)] } {
+    if { [string equal option -loglevel] } {
+        return [${log}::currentloglevel]
+    } elseif { [info exists options($optname)] } {
         return $options($optname)
+    } elseif {[lsearch -exact $tlsopts -$optname] != -1} {
+        set ndx [lsearch -exact $options(tlsopts) -$optname]
+        if {$ndx != -1} {
+            return [lindex $options(tlsopts) [incr ndx]]
+        }
+        return {}
     } else {
-        return -code error "unknown option: must be one of \
-                            \"[array names options]\""
+        return -code error "unknown option \"-$optname\": \
+            must be one of -[join [array names options] {, -}]"
     }
 }
 
@@ -71,29 +117,55 @@ proc ::smtpd::cget {option} {
 #
 proc ::smtpd::configure {args} {
     variable options
+    variable commands
+    variable extensions
+    variable log
+    variable tlsopts
 
     if {[llength $args] == 0} {
+        set r [list -loglevel [${log}::currentloglevel]]
         foreach {opt value} [array get options] {
             lappend r -$opt $value
-
         }
+        lappend r -
         return $r
     }
 
-    foreach {opt value} $args {
-        switch -- $opt {
-            -deliverMIME        {set options(deliverMIME) $value}
-            -deliver            {set options(deliver) $value}
-            -validate_host      {set options(validate_host) $value}
-            -validate_sender    {set options(validate_sender) $value}
-            -validate_recipient {set options(validate_recipient) $value}
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
+            -loglevel           {${log}::setlevel [Pop args 1]}
+            -deliverMIME        {set options(deliverMIME) [Pop args 1]}
+            -deliver            {set options(deliver) [Pop args 1]}
+            -validate_host      {set options(validate_host) [Pop args 1]}
+            -validate_sender    {set options(validate_sender) [Pop args 1]}
+            -validate_recipient {set options(validate_recipient) [Pop args 1]}
+            -usetls             {
+                set usetls [Pop args 1]
+                if {$usetls && ![catch {package require tls}]} {
+                    set options(usetls) 1
+                    set extensions(STARTTLS) {}
+                    lappend commands STARTTLS
+                }
+            }
+            --                  { Pop args; break }
             default {
-                error "unknown option: \"$opt\": must be one of \
-                       -deliverMIME, -deliver,\
-                       -validate_host, -validate_recipient \
-                       or -validate_sender"
+                set failed 1
+                if {[lsearch $tlsopts $option] != -1} {
+                    set options(tlsopts) \
+                        [concat $options(tlsopts) $option [Pop args 1]]
+                    set failed 0
+                }
+                set msg "unknown option: \"$option\":\
+                           must be one of -deliverMIME, -deliver,\
+                           -validate_host, -validate_recipient,\
+                           -validate_sender or an option suitable\
+                           to tls::init"
+                if {$failed} {
+                    return -code error $msg
+                }
             }
         }
+        Pop args
     }
     return {}
 }
@@ -107,7 +179,8 @@ proc ::smtpd::start {{myaddr {}} {port 25}} {
     variable stopped
     
     if {[info exists options(socket)]} {
-        error "smtpd service already running on socket $options(socket)"
+        return -code error \
+            "smtpd service already running on socket $options(socket)"
     }
 
     if {$myaddr != {}} {
@@ -122,7 +195,7 @@ proc ::smtpd::start {{myaddr {}} {port 25}} {
     set options(socket) [eval socket \
                              -server [namespace current]::accept $myaddr $port]
     set stopped 0
-    log::log notice "smtpd service started on $options(socket)"
+    Log notice "smtpd service started on $options(socket)"
     return $options(socket)
 }
 
@@ -136,7 +209,7 @@ proc ::smtpd::stop {} {
     if {[info exists options(socket)]} {
         close $options(socket)
         set stopped 1
-        log::log notice "smtpd service stopped"
+        Log notice "smtpd service stopped"
         unset options(socket)
     }
 }
@@ -166,7 +239,7 @@ proc ::smtpd::accept {channel client_addr client_port} {
     # check host access permissions
     if {[cget -validate_host] != {}} {
         if {[catch {eval [cget -validate_host] $client_addr} msg] } {
-            log::log notice "access denied for $client_addr:$client_port: $msg"
+            Log notice "access denied for $client_addr:$client_port: $msg"
             Puts $channel "550 Access denied: $msg"
             set State(access) denied
             set accepted false
@@ -175,7 +248,7 @@ proc ::smtpd::accept {channel client_addr client_port} {
     
     if {$accepted} {
         # Accept the connection
-        log::log notice "connect from $client_addr:$client_port on $channel"
+        Log notice "connect from $client_addr:$client_port on $channel"
         Puts $channel "220 $options(serveraddr) tcllib smtpd $version; [timestamp]"
     }
     
@@ -226,12 +299,32 @@ proc ::smtpd::state {channel args} {
 
 # -------------------------------------------------------------------------
 # Description:
+#  Pop the nth element off a list. Used in options processing.
+#
+proc ::smtpd::Pop {varname {nth 0}} {
+    upvar $varname args
+    set r [lindex $args $nth]
+    set args [lreplace $args $nth $nth]
+    return $r
+}
+
+# -------------------------------------------------------------------------
+# Description:
+#  Wrapper to call our log procedure.
+#
+proc ::smtpd::Log {level text} {
+    variable log
+    ${log}::${level} $text
+}
+
+# -------------------------------------------------------------------------
+# Description:
 #   Safe puts.
 #   If the client closes the channel, then puts will throw an error. Lets
 #   terminate the session if this occurs.
 proc ::smtpd::Puts {channel args} {
     if {[catch {uplevel puts $channel $args} msg]} {
-        log::log error $msg
+        Log error $msg
         catch {
             close $channel
             # FRINK: nocheck
@@ -259,16 +352,16 @@ proc ::smtpd::service {channel} {
 
     if {[catch {gets $channel cmdline} msg]} {
         close $channel
-        log::log error $msg
+        Log error $msg
         return
     }
 
     if { $cmdline == "" && [eof $channel] } {
-        log::log warning "client has closed the channel"
+        Log warn "client has closed the channel"
         return
     }
 
-    log::log debug "received: $cmdline"
+    Log debug "received: $cmdline"
 
     # If we are handling a DATA section, keep looking for the end of data.
     if {$State(indata)} {
@@ -407,7 +500,7 @@ proc ::smtpd::deliver {channel} {
         set err [catch {$deliverMIME $tok} msg]
         mime::finalize $tok -subordinates all
         if {$err} {
-            log::log debug "error in deliver: $msg"
+            Log debug "error in deliver: $msg"
             return -code error -errorcode $::errorCode \
                     -errorinfo $::errorInfo $msg
         }        
@@ -433,7 +526,7 @@ proc ::smtpd::deliver_old {channel} {
         if {[catch {$deliver [state $channel from] \
                         [state $channel to] \
                         [state $channel data]} msg]} {
-            log::log debug "error in deliver: $msg"
+            Log debug "error in deliver: $msg"
             return -code error -errorcode $::errorCode \
                     -errorinfo $::errorInfo $msg
         }
@@ -463,20 +556,20 @@ proc ::smtpd::HELO {channel line} {
 
     if {[state $channel domain] != {}} {
         Puts $channel "503 bad sequence of commands"
-        log::log debug "HELO received out of sequence."
+        Log debug "HELO received out of sequence."
         return
     }
 
     set r [regexp -nocase {^HELO\s+([-\w\.]+)\s*$} $line -> domain]
     if {$r == 0} {
         Puts $channel "501 Syntax error in parameters or arguments"
-        log::log debug "HELO received \"$line\""
+        Log debug "HELO received \"$line\""
         return
     }
     Puts $channel "250 $options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
     state $channel domain $domain
-    log::log debug "HELO on $channel from $domain"
+    Log debug "HELO on $channel from $domain"
     return
 }
 
@@ -491,14 +584,14 @@ proc ::smtpd::EHLO {channel line} {
 
     if {[state $channel domain] != {}} {
         Puts $channel "503 bad sequence of commands"
-        log::log debug "EHLO received out of sequence."
+        Log debug "EHLO received out of sequence."
         return
     }
 
     set r [regexp -nocase {^EHLO\s+([-\w\.]+)\s*$} $line -> domain]
     if {$r == 0} {
         Puts $channel "501 Syntax error in parameters or arguments"
-        log::log debug "EHLO received \"$line\""
+        Log debug "EHLO received \"$line\""
         return
     }
     Puts $channel "250-$options(serveraddr) Hello $domain\
@@ -508,7 +601,7 @@ proc ::smtpd::EHLO {channel line} {
     }
     Puts $channel "250 Ready for mail."
     state $channel domain $domain
-    log::log debug "EHLO on $channel from $domain"
+    Log debug "EHLO on $channel from $domain"
     return
 }
 
@@ -521,7 +614,7 @@ proc ::smtpd::MAIL {channel line} {
     set r [regexp -nocase {^MAIL FROM:\s*(.*)} $line -> from]
     if {$r == 0} {
         Puts $channel "501 Syntax error in parameters or arguments"
-        log::log debug "MAIL received \"$line\""
+        Log debug "MAIL received \"$line\""
         return
     }
     if {[catch {
@@ -533,7 +626,7 @@ proc ::smtpd::MAIL {channel line} {
         set addr(error) $msg
     }
     if {$addr(error) != {} } {
-        log::log debug "MAIL failed $addr(error)"
+        Log debug "MAIL failed $addr(error)"
         Puts $channel "501 Syntax error in parameters or arguments"
         return
     }
@@ -541,14 +634,14 @@ proc ::smtpd::MAIL {channel line} {
     if {[cget -validate_sender] != {}} {
         if {[catch {eval [cget -validate_sender] $addr(address)}]} {
             # this user has been denied
-            log::log info "MAIL denied user $addr(address)"
+            Log info "MAIL denied user $addr(address)"
             Puts $channel "553 Requested action not taken:\
                             mailbox name not allowed"
             return
         }
     }
 
-    log::log debug "MAIL FROM: $addr(address)"
+    Log debug "MAIL FROM: $addr(address)"
     state $channel from $from
     state $channel options $opts
     Puts $channel "250 OK"
@@ -570,7 +663,7 @@ proc ::smtpd::RCPT {channel line} {
     set r [regexp -nocase {^RCPT TO:\s*(.*)} $line -> to]
     if {$r == 0} {
         Puts $channel "501 Syntax error in parameters or arguments"
-        log::log debug "RCPT received \"$line\""
+        Log debug "RCPT received \"$line\""
         return
     }
     if {[catch {
@@ -583,19 +676,19 @@ proc ::smtpd::RCPT {channel line} {
     }
 
     if {$addr(error) != {}} {
-        log::log debug "RCPT failed $addr(error)"
+        Log debug "RCPT failed $addr(error)"
         Puts $channel "501 Syntax error in parameters or arguments"
         return
     }
 
     if {[string match -nocase "postmaster" $addr(local)]} {
         # we MUST support this recipient somehow as mail.
-        log::log notice "RCPT to postmaster"
+        Log notice "RCPT to postmaster"
     } else {
         if {[cget -validate_recipient] != {}} {
             if {[catch {eval [cget -validate_recipient] $addr(address)}]} {
                 # this recipient has been denied
-                log::log info "RCPT denied mailbox $addr(address)"
+                Log info "RCPT denied mailbox $addr(address)"
                 Puts $channel "553 Requested action not taken:\
                             mailbox name not allowed"
                 return
@@ -603,7 +696,7 @@ proc ::smtpd::RCPT {channel line} {
         }
     }
 
-    log::log debug "RCPT TO: $addr(address)"
+    Log debug "RCPT TO: $addr(address)"
     set recipients {}
     catch {set recipients [state $channel to]}
     lappend recipients $to
@@ -631,7 +724,7 @@ proc ::smtpd::RCPT {channel line} {
 proc ::smtpd::DATA {channel line} {
     variable version
     upvar [namespace current]::state_$channel State
-    log::log debug "DATA"
+    Log debug "DATA"
     if { $State(from) == {}} {
         Puts $channel "503 bad sequence: no sender specified"
     } elseif { $State(to) == {}} {
@@ -644,8 +737,14 @@ proc ::smtpd::DATA {channel line} {
         lappend trace "Return-Path: $State(from)"
         lappend trace "Received: from [state $channel domain]\
                    \[[state $channel client_addr]\]"
-        lappend trace "\tby [info hostname] with tcllib smtpd ($version)\
-                   id $State(id); [timestamp]"
+        lappend trace "\tby [info hostname] with tcllib smtpd ($version)"
+        if {[info exists State(tls)] && $State(tls)} {
+            catch {
+                array set t [::tls::status $channel]
+                lappend trace "\t(version=TLS1/SSL3 cipher=$t(cipher) bits=$t(sbits) verify=NO)"
+            }
+        }
+        lappend trace "\tid $State(id); [timestamp]"
         set State(data) $trace
         fconfigure $channel -translation auto ;# naughty: RFC2821:2.3.7
     }
@@ -660,9 +759,9 @@ proc ::smtpd::DATA {channel line} {
 #
 proc ::smtpd::RSET {channel line} {
     upvar [namespace current]::state_$channel State
-    log::log debug "RSET on $channel"
+    Log debug "RSET on $channel"
     if {[catch {initializeState $channel} msg]} {
-        log::log warning "RSET: $msg"
+        Log warn "RSET: $msg"
     }
     Puts $channel "250 OK"
     return
@@ -694,9 +793,19 @@ proc ::smtpd::RSET {channel line} {
 # Reference:
 #   RFC2821 4.1.1.8
 #
-#proc ::smtpd::HELP {channel line} {
-#    # HELP SP String CRLF
-#}
+proc ::smtpd::HELP {channel line} {
+    variable Help
+    set cmd {}
+    regexp {^HELP\s*(\w+)?} $line -> cmd
+    if {[info exists Help($cmd)]} {
+        foreach line $Help($cmd) {
+            Puts $channel "214-$line"
+        }
+        Puts $channel "214 End of HELP"
+    } else {
+        Puts $channel "504 HELP topic \"$cmd\" unknown."
+    }
+}
 
 # -------------------------------------------------------------------------
 # Description:
@@ -707,7 +816,7 @@ proc ::smtpd::RSET {channel line} {
 proc ::smtpd::NOOP {channel line} {
     set str {}
     regexp -nocase {^NOOP (.*)$} -> str
-    log::log debug "NOOP: $str"
+    Log debug "NOOP: $str"
     Puts $channel "250 OK"
     return
 }
@@ -725,7 +834,7 @@ proc ::smtpd::QUIT {channel line} {
     variable options
     upvar [namespace current]::state_$channel State
 
-    log::log debug "QUIT on $channel"
+    Log debug "QUIT on $channel"
     Puts $channel "221 $options(serveraddr) Service closing transmission channel"
     close $channel
         
@@ -733,6 +842,42 @@ proc ::smtpd::QUIT {channel line} {
     unset State
     return
 }
+
+# -------------------------------------------------------------------------
+# Description:
+#   Implement support for secure mail transactions using the TLS package.
+# Reference:
+#   RFC3207
+# Notes:
+#
+proc ::smtpd::STARTTLS {channel line} {
+    variable options
+    upvar [namespace current]::state_$channel State
+    
+    Log debug "$line on $channel"
+    if {![string equal $line STARTTLS]} {
+        Puts $channel "501 Syntax error (no parameters allowed)"
+        return
+    }
+
+    if {[lsearch -exact $options(tlsopts) -certfile] == -1
+        || [lsearch -exact $options(tlsopts) -keyfile] == -1} {
+        Puts $channel "454 TLS not available due to temporary reason"
+        return
+    }
+    
+    set import [linsert $options(tlsopts) 0 ::tls::import $channel -server 1]
+    Puts $channel "220 Ready to start TLS"
+    if {[catch $import msg]} {
+        Puts $channel "454 TLS not available due to temporary reason"
+    } else {
+        set State(domain) {};           #  RFC3207:4.2
+        set State(tls) 1
+    }
+    return
+}
+
+# -------------------------------------------------------------------------
 
 package provide smtpd $smtpd::version
 
