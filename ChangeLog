@@ -1,3 +1,7 @@
+2003-04-15  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/md4: New module md4 created: MD4 hash algorithm.
+
 2003-04-15  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* installer.tcl: EXPERIMENTAL. New installer for tcllib. Currently
