@@ -18,6 +18,8 @@ Major Variable Definitions (this includes a whole lot of code)
     * Type namespace definition
          * User's typevariable definitions
     * Commands for use in type code
+        * alias installhull
+        * alias install
         * alias typevariable
         * alias variable
         * alias mytypevar
@@ -30,8 +32,8 @@ Major Variable Definitions (this includes a whole lot of code)
         * alias mytypemethod
         * alias from
     * Snit's internal variables
+        * See dictionary.txt
     * Template Code -- Stuff that gets filled in.
-        * proc %TYPE%
         * proc Snit_instanceVars    Initializes instance variables
         * proc Snit_typeconstructor
     * Default Procs -- Stuff that's sometimes replaced.
@@ -40,6 +42,21 @@ Major Variable Definitions (this includes a whole lot of code)
     * %COMPILEDDEFS%
     * Call the Type Constructor
 
+* ::snit::nominalTypeProc	Template for the normal type proc.
+* ::snit::simpleTypeProc        Template for the simple type proc.
+                                This is used when "-hastypemethods no";
+                                all it does is create instances.
+
+* ::snit::nominalInstanceProc	Template for the body of the normal
+                                instance proc. Supports method
+                                caching, delegation, etc.
+* ::snit::simpleInstanceProc	Template for the body of the simple
+                                instance proc, used when
+                                "-simpledispatch yes".  Doesn't
+                                support delegation, upvar,
+                                hierarchical methods, or exotic return
+                                types.
+ 
 * Snit compilation variables
     * compiler			The name of the slave interpreter used
                                 to "compile" type definitions
@@ -64,11 +81,14 @@ Compilation Commands
 * proc ::snit::Comp.statement.oncget
 * proc ::snit::Comp.statement.onconfigure
 * proc ::snit::Comp.statement.method
+* proc ::snit::Comp.CheckMethodName
 * proc ::snit::Comp.statement.typemethod
 * proc ::snit::Comp.statement.typeconstructor
 * proc ::snit::Comp.statement.proc
 * proc ::snit::Comp.statement.typevariable
 * proc ::snit::Comp.statement.variable
+* proc ::snit::Comp.statement.typecomponent
+* proc ::snit::Comp.DefineTypeComponent
 * proc ::snit::Comp.statement.component
 * proc ::snit::Comp.DefineComponent
 * proc ::snit::Comp.statement.delegate
@@ -92,6 +112,7 @@ Utility Commands
 * proc ::snit::CheckArgs
 * proc ::snit::Contains
 * proc ::snit::Capitalize
+* proc ::snit::Listify
 
 Snit Runtime Library
 
@@ -118,6 +139,7 @@ rather than compile time.
 ** ::snit::RT.Component
 ** ::snit::RT.ComponentTrace
 ** ::snit::RT.CacheMethodCommand
+** ::snit::RT.LookupMethodCommand
 ** ::snit::RT.ClearInstanceCaches
 * Component Installation
 ** ::snit::RT.installhull
@@ -133,6 +155,8 @@ rather than compile time.
 ** ::snit::RT.CallInstance
 * Utilities
 ** ::snit::RT.from
+* Type Destruction
+** ::snit::RT.typemethod.destroy
 * Option Handling
 ** ::snit::RT.method.cget
 ** ::snit::RT.CacheCgetCommand
@@ -140,8 +164,6 @@ rather than compile time.
 ** ::snit::RT.CacheConfigureCommand
 ** ::snit::RT.method.configure
 ** ::snit::RT.GetOptionDbSpec
-* Type Destruction
-** ::snit::RT.typemethod.destroy
 * Type Introspection
 ** ::snit::RT.typemethod.info
 ** ::snit::RT.typemethod.info.typevars

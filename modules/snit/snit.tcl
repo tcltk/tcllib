@@ -10,7 +10,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.96
+package provide snit 0.97
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -180,22 +180,6 @@ set ::snit::typeTemplate {
 
     #----------------------------------------------------------
     # Compiled Definitions
-
-    # The compiled definitions contain a bunch of stuff,
-    # including the following.
-            
-    # Snit_configure<option> type selfns win self value
-    #
-    # Defined for each local option.  By default, just updates the
-    # options array.  Redefined by an onconfigure definition.
-    
-    # Snit_method<name> type selfns win self args...
-    #
-    # Defined for each local instance method.
-
-    # Snit_typemethod<name> type args...
-    #
-    # Defined for each typemethod.
 
     %COMPILEDDEFS%
 

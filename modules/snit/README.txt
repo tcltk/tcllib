@@ -12,11 +12,11 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Changes in V0.96
+Changes in V0.97
 --------------------------------------------------------------------
 
-NOTE: V0.96 is a development version; when stable, it will become
-V0.97.
+The changes listed here were actually made over time in Snit V0.96;
+now that they are complete, the result has been renumbered Snit V0.97.
 
 * Bug fix: methods called via [mymethod] can now return exotic
   return codes (e.g., "return -code break").
@@ -78,6 +78,13 @@ V0.97.
   However, hierarchical methods cannot be used with -simpledispatch.
 
 * Similarly, added support for hierarchical typemethods.
+
+Changes in V0.96
+--------------------------------------------------------------------
+
+V0.96 was the development version in which most of the V0.97 changes
+were implemented.  The name was changed to V0.97 when the changes
+were complete, so that the contents of V0.97 will be stable.
 
 Changes in V0.95
 --------------------------------------------------------------------
