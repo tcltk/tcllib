@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.5 2003/01/29 06:26:03 schwarzkopf Exp $
+# $Id: record.tcl,v 1.6 2003/11/06 05:47:34 schwarzkopf Exp $
 #
 #============================================================
 #
@@ -335,7 +335,8 @@ proc ::struct::record::Create {defn_ inst_ args} {
                 }
             }
             incr _level
-            eval Create $def ${inst_}.${inst} [lindex $args $cnt_plus]
+            set narg [lindex $args $cnt_plus]
+            eval [linsert $narg 0 Create $def ${inst_}.${inst}]
             set args [lreplace $args $cnt $cnt_plus]
 
         } else {
