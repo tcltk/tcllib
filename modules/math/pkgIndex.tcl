@@ -11,3 +11,4 @@ package ifneeded math::special           0.1   [list source [file join $dir spec
 package ifneeded math::constants         1.0   [list source [file join $dir constants.tcl]]
 package ifneeded math::polynomials       1.0   [list source [file join $dir polynomials.tcl]]
 package ifneeded math::rationalfunctions 1.0   [list source [file join $dir rational_funcs.tcl]]
+package ifneeded math::bignum            3.0   [list source [file join $dir bignum.tcl]]
