@@ -1,0 +1,17 @@
+2005-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module 'fumagic'. file(1) magic(5) based file type
+	  recognition, in pure Tcl. Basic packages: runtime core,
+	  mime-type engine, and a command wrapping the functionality for
+	  easy access. The mime-type engine is not exactly so, it is
+	  possible for to produce non-mime strings. We keep it for now
+	  until the compiler has been put into this module as well.
+
+	* rtcore.tcl:     Runtime core.
+	* magic-mime.tcl: Mime engine
+	* magic.tcl:      Wrapper.
+
+	* Compiler packages now present as well
+	
+	* cgen.tcl:   Backend, tree-based code generator
+	* cfront.tcl: Frontend, parsing of magic(5) files.
