@@ -1,3 +1,23 @@
+2002-04-24  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Applied patch #540313 on behalf of Melissa Chawla
+	  <melissachawla@yahoo.com> and Don Porter
+	  <dgp@users.sourceforge.net>.
+
+	  * cmdline.test: 
+	  * cmdline.tcl: Added getKnownOpt and getKnownOptions procedures
+	    to the API.  The procedures offer a way for arguments that are
+	    not in the optionList to be ignored.  This way, you can have
+	    two independant locations in your application where
+	    commandline arguments are parsed.  I bumped the package
+	    version to 1.2.
+
+	* cmdline.man: Updated documentation.
+
+2002-04-14  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.man: Added doctools manpage.
+
 2001-10-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.n:
