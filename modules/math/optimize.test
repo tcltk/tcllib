@@ -14,6 +14,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] optimize.tcl]
 
+puts "math::optimize [package present math::optimize]"
+
 namespace eval optimizetest {
 
 #package require math::optimize

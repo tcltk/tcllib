@@ -3,7 +3,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.5 2002/05/12 10:11:11 chdamm Exp $
+# RCS: @(#) $Id: geometry.test,v 1.6 2003/04/24 18:39:04 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -12,6 +12,9 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] geometry.tcl]
 package require math::geometry
+
+puts "math::geometry [package present math::geometry]"
+
 
 proc withFourDecimals {args} {
     set res {}
