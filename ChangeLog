@@ -1,3 +1,8 @@
+2002-01-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* mkInstallScripts.tcl:
+	* Makefile.in: Added crc and smtpd modules to the installation files.
+	
 2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
 
 	* mkInstallScripts.tcl: Changed the installation process for
