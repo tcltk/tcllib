@@ -309,7 +309,7 @@ proc ::logger::init {service} {
         catch { uplevel \#0 $delcallback }
         
         # clean up the global services list
-        set idx [lsearch [logger::services] $service]
+        set idx [lsearch -exact [logger::services] $service]
         if {$idx !=-1} {
             set ::logger::services [lreplace [logger::services] $idx $idx]
         }
@@ -351,11 +351,12 @@ proc ::logger::init {service} {
 
     enable $enabled
     variable parent [namespace parent]
-    while { $parent != "::logger::tree" } {
+    while {[string compare $parent "::logger::tree"]} {
         # If the 'enabled' variable doesn't exist, create the
         # whole thing.
         if { ! [::info exists ${parent}::enabled] } {
-        logger::init [string map {::logger::tree:: ""} $parent]
+        
+        logger::init [string range $parent 16 end]
         }
         set enabled [set ${parent}::enabled]
         enable $enabled
@@ -372,7 +373,7 @@ proc ::logger::init {service} {
     # means that, if you want to share the same methods with
     # children, they should be instantiated after the parent's
     # methods have been defined.
-    if { $parent != "::logger::tree" } {
+    if {[string compare $parent "::logger::tree"]} {
         interp alias {} [namespace current]::debugcmd {} ${parent}::debugcmd
         interp alias {} [namespace current]::infocmd {} ${parent}::infocmd
         interp alias {} [namespace current]::noticecmd {} ${parent}::noticecmd
