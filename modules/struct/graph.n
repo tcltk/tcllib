@@ -2,10 +2,10 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: graph.n,v 1.7 2002/01/18 20:51:16 andreas_kupries Exp $
+'\" RCS: @(#) $Id: graph.n,v 1.8 2002/02/01 22:59:08 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH graph n 1.2 Struct "Tcl Data Structures"
+.TH graph n 1.2.1 Struct "Tcl Data Structures"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require struct ?1.2?\fR
+\fBpackage require struct ?1.2.1?\fR
 .sp
 \fB::struct::graph\fR \fIgraphName\fR
 .sp
