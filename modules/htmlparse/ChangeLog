@@ -1,5 +1,6 @@
-2003-11-17  Joe English  <jenglish@users.sourceforge.net>
-	* htmlparse.man: added SEE ALSO link to struct::tree
+2003-12-16  Joe English  <jenglish@users.sourceforge.net>
+	* htmlparse.tcl: Fix for bug #861277 (backslashes in content)
+	* htmlparse.test: Added test case.
 
 2003-10-24  Andreas Kupries  <andreask@activestate.com>
 
