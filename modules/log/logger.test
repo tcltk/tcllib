@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.18 2005/01/31 17:58:04 mic42 Exp $
+# $Id: logger.test,v 1.19 2005/02/19 01:36:20 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -864,6 +864,77 @@ test logger-13.7 {test for correct servicename, Bug 1102131} {
     namespace delete ::foo
     set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
+
+test logger-14.1 {test for a clean call stack for logprocs} {
+    namespace eval ::logtest {
+       proc mylog {txt} { set ::logtest::stack [info level]}
+       proc dolog {logger} {
+            ${logger}::info foo
+       }
+    }
+    set l1 [logger::init global]
+    ${l1}::logproc info ::logtest::mylog
+    ::logtest::dolog $l1
+    set val $::logtest::stack
+    namespace delete ::logtest
+    ${l1}::delete
+    set val
+} 2
+
+test logger-14.2 {test for a clean call stack for logprocs} {
+    namespace eval ::logtest {
+       proc mylog {txt} { set ::logtest::stack [list [info level 1] [info level 2]]}
+       proc dolog {logger} {
+            ${logger}::info foo
+       }
+    }
+    set l1 [logger::init global]
+    ${l1}::logproc info ::logtest::mylog
+    ::logtest::dolog $l1
+    set val $::logtest::stack
+    namespace delete ::logtest
+    ${l1}::delete
+    set val
+} {{::logtest::dolog ::logger::tree::global} {::logtest::mylog foo}}
+
+test logger-14.3 {test for a clean call stack for logprocs} {
+    namespace eval ::logtest {
+       proc mylog {txt} { set ::logtest::stack [list [info level 1] [info level 2]]}
+    }
+    set l1 [logger::init global]
+    ${l1}::logproc info ::logtest::mylog
+    namespace eval ::foo {
+        logger::import -force -all -prefix log_ global
+        proc dolog {logger} {
+            log_info foo
+        }        
+    }
+    ::foo::dolog $l1
+    set val $::logtest::stack
+    namespace delete ::logtest
+    namespace delete ::foo
+    ${l1}::delete
+    set val
+} {{::foo::dolog ::logger::tree::global} {::logtest::mylog foo}}
+
+test logger-14.4 {test for a clean call stack for logprocs} {
+    namespace eval ::logtest {
+       proc mylog {txt} { set ::logtest::stack [list [info level 1] [info level 2]]
+                          set ::logtest::info [uplevel 1 set someinfo]                 
+       }
+       proc dolog {logger} {
+            set someinfo bar
+            ${logger}::info foo
+       }
+    }
+    set l1 [logger::init global]
+    ${l1}::logproc info ::logtest::mylog
+    ::logtest::dolog $l1
+    set val [list $::logtest::stack $::logtest::info]
+    namespace delete ::logtest
+    ${l1}::delete
+    set val
+} {{{::logtest::dolog ::logger::tree::global} {::logtest::mylog foo}} bar}
 
 
 ::tcltest::cleanupTests
