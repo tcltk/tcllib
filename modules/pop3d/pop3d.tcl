@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.2 2002/05/16 00:48:31 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.3 2002/09/03 17:13:51 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -414,6 +414,7 @@ proc ::pop3d::HandleNewConnection {name sock rHost rPort} {
     set cstate(storage)    ""
     set cstate(deleted)    ""
     set cstate(msg)        0
+    set cstate(size)       0
 
     ::log::log notice "$name $sock state auth, waiting for logon"
 
@@ -702,8 +703,9 @@ proc ::pop3d::H_stat {name sock cmd line} {
     if {[string equal $cstate(state) auth]} {
 	Respond2Client $name $sock -ERR "client not authenticated"
     } else {
-	Respond2Client $name $sock +OK \
-		"$cstate(msg) messages waiting for retrieval"
+	# Return number of messages waiting and size of the contents
+	# of the chosen maildrop in octects.
+	Respond2Client $name $sock +OK  "$cstate(msg) $cstate(size)"
     }
 
     return
@@ -1000,6 +1002,8 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
 	if {!$noStorage} {
 	    set cstate(msg) [uplevel #0 [linsert $storCmd end \
 		    stat $cstate(storage)]]
+	    set cstate(size) [uplevel #0 [linsert $storCmd end \
+		    size $cstate(storage)]]
 	}
 	
 	::log::log notice \
@@ -1032,10 +1036,11 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
     
     ::log::log debug "$name $sock transfering data ($token)"
 
-    if {$limit != 0} {
+    if {$limit < 0} {
 	# Full transfer, we can use "copymessage" and avoid
 	# construction in memory (depending on source of token).
 	::mime::copymessage $token $sock
+	puts $sock \n.\n
     } else {
 	# As long as FR #531541 is not implemented we have to build
 	# the entire message in memory and then cut it down to the
@@ -1058,10 +1063,10 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 	regsub -- "\n\\.\n$" [join [lrange $msg 0 $limit] \n] {} data
 	puts $sock ${data}\n.\n
     }
-
     fileevent $sock readable [list ::pop3d::HandleCommand $name $sock]
     ::log::log debug "$name $sock transfer complete, listening again"
     # response already sent.
+    return
 }
 
 ##########################

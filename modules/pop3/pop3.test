@@ -1,0 +1,418 @@
+# -*- tcl -*-
+# pop3.test:  tests for the pop3 client.
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+#
+# RCS: @(#) $Id: pop3.test,v 1.1 2002/09/03 17:13:51 andreas_kupries Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+source [file join $::tcltest::testsDirectory pop3.tcl]
+package require pop3
+puts "pop3 [package present pop3]"
+
+proc bgerror {message} {
+    global errorCode errorInfo
+    puts $errorCode
+    puts $errorInfo
+    return
+}
+
+proc peek {chan} {
+    set res {}
+    array set _ $::pop3::state($chan)
+    foreach k [lsort [array names _]] {
+	lappend res $k $_($k)
+    }
+    return $res
+}
+
+# ----------------------------------------------------------------------
+# Helper functionality to create and destroy a fake pop3 server
+
+global spipe ; set spipe ""
+global cpipe ; set cpipe ""
+
+
+proc openpipe {path} {
+    global tcl_platform
+    
+    switch -exact $tcl_platform(platform) {
+	windows {
+	    return [open "|\"[info nameofexecutable]\" $path" r+]
+	}
+	default {
+	    return [open "|[info nameofexecutable] $path" r+]
+	}
+    }
+}
+
+proc newsrv {} {
+    removeFile  __script
+    set path [makeFile {} __script]
+    set    f [open $path w]
+    puts  $f [list set tmpdir  $::tcltest::temporaryDirectory]
+    puts  $f [list set testdir $::tcltest::testsDirectory]
+    puts  $f [list set logfile __script.log]
+
+    set    t [open [file join $::tcltest::testsDirectory srv.tcl] r]
+    fcopy $t $f
+    close $t
+    close $f
+
+    global spipe
+    if   {$spipe != {}} {delsrv}
+    set    spipe [openpipe $path]
+
+    set    port [gets $spipe]
+    return $port
+}
+
+proc delsrv {} {
+    global spipe
+    close $spipe
+    after 100 ; # sleep for a 1/10th second to make sure it is gone.
+    set spipe {}
+}
+
+proc newclnt {port ops} {
+    removeFile  __scriptc
+    set path [makeFile {} __scriptc]
+    set    f [open $path w]
+    puts  $f [list set tmpdir  $::tcltest::temporaryDirectory]
+    puts  $f [list set testdir $::tcltest::testsDirectory]
+    puts  $f [list set ops     $ops]
+    puts  $f [list set port    $port]
+    set    t [open [file join $::tcltest::testsDirectory clnt.tcl] r]
+    fcopy $t $f
+    close $t
+    close $f
+
+    global cpipe
+    if   {$cpipe != {}} {delclnt}
+    set    cpipe [openpipe $path]
+    return
+}
+
+proc delclnt {} {
+    global cpipe
+    puts  $cpipe exit
+    flush $cpipe
+    close $cpipe
+    after 1000 ; # sleep for a second to make sure it is gone.
+    set cpipe {}
+}
+
+proc go {} {
+    global cpipe
+    puts  $cpipe "go"
+    flush $cpipe
+    return
+}
+
+proc drain {} {
+    global data cpipe
+    while {![eof $cpipe]} {
+	gets $cpipe line
+	foreach {cmd payload} [split $line] break
+	switch -exact -- $cmd {
+	    res  {lappend data $payload}
+	    stop {break}
+	    done {break}
+	}
+    }
+    return
+}
+
+proc blot {txt sock} {
+    string map [list $sock SOCK] $txt
+}
+
+# ----------------------------------------------------------------------
+# Tests. Operations
+#
+# open, status, delete, cut, open, status | 
+# open, status, delete, close   |
+#
+# ----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Handling of 'open' alone.
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+test pop3-0.0 {bogus options} {
+    catch {pop3::open -foo bar localhost ak smash 7664} msg
+    set msg
+} {::pop3::open : Illegal option "foo"}
+
+test pop3-0.1 {bogus options} {
+    catch {pop3::open -msex bar localhost ak smash 2534} msg
+    set msg
+} {:pop3::open : Argument to -msex has to be boolean}
+
+test pop3-0.2 {bogus options} {
+    catch {pop3::open -retr-mode bar localhost ak smash 54345} msg
+    set msg
+} {:pop3::open : Argument to -retr-mode has to be one of retr, list or slow}
+
+test pop3-0.3 {not enough arguments} {
+    catch {pop3::open localhost ak} msg
+    set msg
+} {Not enough arguments to ::pop3::open}
+
+test pop3-0.4 {too many arguments} {
+    catch {pop3::open localhost ak smash 432490 dribble} msg
+    set msg
+} {To many arguments to ::pop3::open}
+
+test pop3-0.5 {connect to missing server} {
+    catch {pop3::open localhost foo foo 1111} msg
+    set msg
+} {couldn't open socket: connection refused}
+
+test pop3-0.6 {wrong type of server (smtp)} {
+    catch {pop3::open localhost foo foo 25} msg
+    regsub {^([^:]*:).*$} $msg {\1} msg
+    set msg
+} {POP3 CONNECT ERROR:}
+
+test pop3-0.7 {unknown user} {
+    set port [newsrv]
+    catch {pop3::open localhost usrX *** $port} msg
+    delsrv
+    set msg
+} {POP3 LOGIN ERROR:  authentication failed, sorry}
+
+test pop3-0.8 {open pop3 channel} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    close $psock
+    delsrv
+    regsub -all {[0-9]} $psock {} msg
+    # status data is retained if the connection is not closed through
+    # the prescribed api command.
+    lappend msg [peek $psock]
+    set msg
+} {sock {msex 0 retr_mode retr}}
+
+test pop3-0.9 {outside close} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    close $psock
+    catch {pop3::close $psock} msg
+    delsrv
+    blot $msg $psock
+} {can not find channel named "SOCK"}
+
+test pop3-0.10 {multiple open pop3 channel to same maildrop} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    catch {pop3::open localhost ak smash $port} msg
+    pop3::close $psock
+    delsrv
+    set msg
+} {POP3 LOGIN ERROR:  could not aquire lock for maildrop ak}
+
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Handling of 'status'.
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+test pop3-1.0 {status after cut} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    close $psock
+    catch {pop3::status $psock} msg
+    delsrv
+    blot $msg $psock
+} {POP3 STAT ERROR: can not find channel named "SOCK"}
+
+test pop3-1.1 {status after close} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    pop3::close $psock
+    catch {pop3::status $psock} msg
+    delsrv
+    blot $msg $psock
+} {POP3 STAT ERROR: can not find channel named "SOCK"}
+
+test pop3-1.2 {status ok} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    set status [pop3::status $psock]
+    lappend status [peek $psock]
+    pop3::close $psock
+    delsrv
+    set status
+} {3 18 {msex 0 retr_mode retr}}
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Handling of 'retrieve'.
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+test pop3-2.0 {retrieve, no arguments} {
+    catch {pop3::retrieve} msg
+    set msg
+} {no value given for parameter "chan" to "pop3::retrieve"}
+
+test pop3-2.1 {retrieve, not enough arguments} {
+    catch {pop3::retrieve sock5} msg
+    set msg
+} {no value given for parameter "start" to "pop3::retrieve"}
+
+test pop3-2.2 {retrieve, too many arguments} {
+    catch {pop3::retrieve sock5 foo bar fox} msg
+    set msg
+} {called "pop3::retrieve" with too many arguments}
+
+test pop3-2.3 {retrieve without valid channel} {
+    catch {pop3::retrieve sock5 foo bar} msg
+    set msg
+} {can't read "state(sock5)": no such element in array}
+
+test pop3-2.4 {retrieve, invalid start} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    catch {pop3::retrieve $psock foo bar} msg
+    pop3::close $psock
+    delsrv
+    set msg
+} {POP3 Retrieval error: Bad start index foo}
+
+test pop3-2.5 {retrieve, invalid end} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    catch {pop3::retrieve $psock 0 bar} msg
+    pop3::close $psock
+    delsrv
+    set msg
+} {POP3 Retrieval error: Bad end index bar}
+
+set msg {MIME-Version: 1.0
+Content-Type: text/plain;
+              charset="us-ascii"
+
+    
+
+
+}
+
+foreach {n mode} {
+    0 retr
+    1 list
+    2 slow
+} {
+    test pop3-2.6.$n "retrieval, $mode" {
+	set port [newsrv]
+	set psock [pop3::open -retr-mode $mode localhost ak smash $port]
+	set res [pop3::retrieve $psock 1]
+	pop3::close $psock
+	delsrv
+	set res
+    } [list $msg] ; # {}
+}
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Handling of 'top'.
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+test pop3-3.0 {top, no arguments} {
+    catch {pop3::top} msg
+    set msg
+} {no value given for parameter "chan" to "pop3::top"}
+
+test pop3-3.1 {top, not enough arguments} {
+    catch {pop3::top sock5} msg
+    set msg
+} {no value given for parameter "msg" to "pop3::top"}
+
+test pop3-3.2 {top, too many arguments} {
+    catch {pop3::top sock5 foo bar fox} msg
+    set msg
+} {called "pop3::top" with too many arguments}
+
+test pop3-3.3 {top without valid channel} {
+    catch {pop3::top sock5 foo bar} msg
+    set msg
+} {POP3 TOP ERROR: can not find channel named "sock5"}
+
+test pop3-3.4 {top, invalid message id} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    catch {pop3::top $psock foo bar} msg
+    pop3::close $psock
+    delsrv
+    set msg
+} {POP3 TOP ERROR:  no such message}
+
+set msg {MIME-Version: 1.0
+Content-Type: text/plain;
+              charset="us-ascii"
+
+}
+
+test pop3-3.5 {top} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    set res [pop3::top $psock 1 1]
+    pop3::close $psock
+    delsrv
+    set res
+} $msg
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Handling of 'delete'
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+
+
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Handling of 'last', 'uidl'.
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+
+## None. The server used here (tcllib/pop3d)
+## does not support the 'LAST' command, nor 'UIDL'.
+
+test pop3-5.0 {last} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    catch {pop3::last $psock} msg
+    pop3::close $psock
+    delsrv
+    set msg
+} {POP3 LAST ERROR:  unknown command 'LAST'}
+
+test pop3-5.1 {uidl} {
+    set port [newsrv]
+    set psock [pop3::open localhost ak smash $port]
+    catch {pop3::uidl $psock} msg
+    pop3::close $psock
+    delsrv
+    set msg
+} {POP3 UIDL ERROR:  unknown command 'UIDL'}
+
+
+# ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+::tcltest::cleanupTests

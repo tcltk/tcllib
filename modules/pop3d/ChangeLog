@@ -1,3 +1,33 @@
+2002-08-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Note aside: The pop3 server may understate the size of a message
+	  and of the maildrop. This happens as the package 'mime' we use
+	  to transfer a message may add additional headers not present in
+	  the original message (For example Mime-Version and/or
+	  Content-Type).
+
+	* pop3d.tcl (::pop3d::Transfer): Fixed oversight in my usage of
+	  'mime::copymessage'. This command copies a mime message to a
+	  channel, but does not know about the framing protocol. In other
+	  words, it does not write the singular dot closing a pop3 data
+	  transfer. We have to do this in the calling routine. Added such
+	  a piece of code. Fixed problem with distinguishing RETR and TOP
+	  modes, wrong conditional.
+
+	* pop3d.test: 
+	* pop3d.tcl (CheckLogin): Now additionally retrieves size of
+	  maildrop after querying the number of waiting messages.
+	  (H_stat): Returns size of maildrop as second result of
+	  STAT. Bugfix, pop3d was not rfc 1939 compliant with respect to
+	  STAT, and now is. This problem was found while working on the
+	  testsuite for the pop3 package (Result of pop3::stat was
+	  bogus). Updated the testsuite.
+
+	* pop3d_dbox.tcl: 
+	* pop3d_dbox.man: method 'size' no accepts a call without message
+	  id and returns the total size of the mail drop for that
+	  case. Reason for the change: see above.
+
 2002-06-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: Modified testsuite courtesy Gerald Lester

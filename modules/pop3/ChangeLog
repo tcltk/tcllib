@@ -1,3 +1,11 @@
+2002-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* pop3.test:
+	* clnt.tcl:
+	* srv.tcl: Added testsuite. Incomplete. No test of 'delete'
+	  command yet. The problems found by the testsuite so far were all
+	  in the used pop3 server (pop3d module of tcllib).
+
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.man: New file, doctools manpage.

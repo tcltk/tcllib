@@ -10,11 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.17 2002/01/18 20:51:16 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.18 2002/09/03 17:13:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide pop3 1.5.1
+package provide pop3 1.5.2
 
 namespace eval ::pop3 {
 
@@ -295,7 +295,7 @@ proc ::pop3::open {args} {
 #                 May be "next" (the next message after the last
 #                 one seen, see ::pop3::last), "start" (aka 1),
 #                 "end" (the last message in the spool, for 
-#                 retriving only the last message).
+#                 retrieving only the last message).
 #       end       (optional, defaults to -1) The last message
 #                 to retrieve in the range. May be "last"
 #                 (the last message viewed), "end" (the last
@@ -389,7 +389,6 @@ proc ::pop3::retrieve {chan start {end -1}} {
 		    # through LIST
 
 		    ::pop3::send $chan "RETR $index"
-
 		    set msgBuffer [RetrFast $chan $size]
 		}
 	    }
@@ -448,11 +447,11 @@ proc ::pop3::RetrFast {chan size} {
 #	The text of the retrieved message.
 
 proc ::pop3::RetrSlow {chan} {
+
     set msgBuffer ""
 	
     while {1} {
 	set line [string trimright [gets $chan] \r]
-	    
 	# End of the message is a line with just "."
 	if {$line == "."} {
 	    break
