@@ -1,3 +1,7 @@
+2001-11-30  Don Porter <dgp@users.sourceforge.net>
+
+	* control.n: Changed format to match precedent in Tcl's memory.n.
+
 2001-11-27  Don Porter <dgp@users.sourceforge.net>
 
 	* control.n: Added [control::do] to SYNOPSIS.
