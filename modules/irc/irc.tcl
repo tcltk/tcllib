@@ -5,7 +5,7 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.3 2002/02/15 05:35:30 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.4 2002/05/17 11:07:27 davidw Exp $
 
 package provide irc 0.2
 
@@ -19,7 +19,7 @@ namespace eval irc {
     set conn 0
 }
 
-# irc::config -- 
+# irc::config --
 #
 # Set configuration options
 #
@@ -97,7 +97,7 @@ proc irc::connection { host {port 6667} } {
 	}
 
 	proc Join { chan } {
-	    ircsend "JOIN $chan " 
+	    ircsend "JOIN $chan "
 	}
 
 	proc Part { chan } {
@@ -112,8 +112,8 @@ proc irc::connection { host {port 6667} } {
 	# Create the actual connection.
 
 	proc Connect { } {
-	    variable state 
-	    variable sock 
+	    variable state
+	    variable sock
 	    variable host
 	    variable conn
 	    variable port
@@ -124,7 +124,7 @@ proc irc::connection { host {port 6667} } {
 		if { ! [info exists sock] } {
 		    return -1
 		}
-		set state 1 
+		set state 1
 		fconfigure $sock -translation crlf
 		fconfigure $sock -buffering line
 		fileevent $sock readable [format "::irc::irc%s::%s::GetEvent" $conn $host ]
@@ -153,7 +153,7 @@ proc irc::connection { host {port 6667} } {
 	# the rest of the line, even if there is more than one target.
 
 	proc msg { } {
-	    variable linedata	    
+	    variable linedata
 	    return $linedata(msg)
 	}
 
@@ -162,7 +162,7 @@ proc irc::connection { host {port 6667} } {
 	# who performed the action.  If the command is called as [who
 	# address], it returns the information in the form
 	# username@ip.address.net
-	
+
 	proc who { {address 0} } {
 	    variable linedata
 	    set who $linedata(who)
@@ -174,7 +174,7 @@ proc irc::connection { host {port 6667} } {
 	}
 
 	# target --
-	
+
 	# to whom was this action done.
 
 	# index specifies which target number it is, if there are more
@@ -222,7 +222,7 @@ proc irc::connection { host {port 6667} } {
 	    }
 
 	    if { [string is integer $linedata(action)] } {
-		return [DispatchNumeric]		
+		return [DispatchNumeric]
 	    }
 
 	    if { [info exists dispatch($linedata(action))] } {
@@ -237,7 +237,7 @@ proc irc::connection { host {port 6667} } {
 	# Dispatch command from server
 
 	proc DispatchServerCmd { line } {
-	    variable dispatch 
+	    variable dispatch
 	    variable linedata
 	    set splt [string first : $line]
 	    set linedata(action) [string range $line 0 [expr {$splt - 2}]]
@@ -267,9 +267,9 @@ proc irc::connection { host {port 6667} } {
 		}
 	    }
 	    gets $sock line
-	    if { [string index $line 0] == ":" } {		
+	    if { [string index $line 0] == ":" } {
 		DispatchServerEvent [string range $line 1 end]
-	    } else { 
+	    } else {
 		DispatchServerCmd $line
 	    }
 	}
@@ -279,9 +279,9 @@ proc irc::connection { host {port 6667} } {
 	# Register an event in the dispatch table.
 
 	# Arguments:
-	
+
 	# evnt: name of event as sent by IRC server.
-	
+
 	# cmd: proc to register as the event handler
 
 	proc RegisterEvent { evnt cmd } {
@@ -290,11 +290,11 @@ proc irc::connection { host {port 6667} } {
 	}
 
 	# network --
-	
+
 	# Accepts user commands and dispatches them
-	
+
 	# Arguments:
-	
+
 	# cmd: command to invoke
 
 	# args: arguments to the command
