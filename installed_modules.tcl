@@ -35,6 +35,7 @@ foreach {m pkg doc exa} {
     fileutil	_tcl  _man  _null
     ftp		_tcl  _man _exa
     ftpd	_tcl  _man _exa
+    fumagic	_tcl  _man  _null
     grammar_fa  _tcl  _man  _null
     html	_tcl  _man  _null
     htmlparse	_tcl  _man  _null

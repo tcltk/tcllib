@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: mimetypes.tcl,v 1.2 2005/02/11 05:08:53 andreas_kupries Exp $
+# RCS: @(#) $Id: mimetypes.tcl,v 1.3 2005/02/11 06:07:31 andreas_kupries Exp $
 
 #####
 #
@@ -57,6 +57,7 @@ proc ::fileutil::magic::mimetype {file} {
     return $types
 }
 
+package provide fileutil::magic::mimetype 1.0
 # The actual recognizer is the command below.
 
 ##
@@ -574,6 +575,4 @@ proc ::fileutil::magic::mimetype::run {} {
 
 # ### ### ### ######### ######### #########
 ## Ready for use.
-
-package provide fileutil::magic::mimetype 1.0
 # EOF
