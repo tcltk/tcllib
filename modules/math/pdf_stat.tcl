@@ -23,6 +23,7 @@ namespace eval ::math::statistics {
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
     variable cdf_toms322_cached  {}
+    variable initialised_cdf     0                 
 }
 
 # pdf-normal --
@@ -295,6 +296,11 @@ proc ::math::statistics::Inverse-cdf-normal { mean stdev prob } {
     variable cdf_normal_prob
     variable cdf_normal_x
 
+    variable initialised_cdf                      
+    if { $initialised_cdf == 0 } { 
+       Initialise-cdf-normal
+    }
+
     # Look for the proper probability level first,
     # then interpolate
     #
@@ -343,6 +349,9 @@ proc ::math::statistics::Inverse-cdf-normal { mean stdev prob } {
 proc ::math::statistics::Initialise-cdf-normal { } {
     variable cdf_normal_prob
     variable cdf_normal_x
+
+    variable initialised_cdf                      
+    set initialised_cdf 1           
 
     set dx [expr {10.0/128.0}]
 
