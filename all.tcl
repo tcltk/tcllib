@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.11 2002/09/04 17:22:51 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.12 2003/03/29 02:01:23 patthoyts Exp $
 
 set old_auto_path $auto_path
 
@@ -134,6 +134,7 @@ foreach module $modules {
     interp alias $c pSet {} set
     # import the auto_path from the parent interp, so "package require" works
     $c eval {
+	set ::argv0 [pSet ::argv0]
 	set ::tcllibModule [pSet module]
 	set auto_path [pSet auto_path]
 	package require tcltest
