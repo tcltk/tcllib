@@ -1,26 +1,11 @@
 [comment {-*- tcl -*-}]
-[manpage_begin matrix n 1.2.1]
+[manpage_begin matrix n 2.0]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]
 [require Tcl 8.2]
-[require struct [opt 1.3]]
+[require struct [opt 2.0]]
 [description]
-[para]
-
-The [cmd ::struct::matrix] command creates a new matrix object with an
-associated global Tcl command whose name is [arg matrixName].  This
-command may be used to invoke various operations on the matrix.  It has
-the following general form:
-
-[list_begin definitions]
-[call [cmd matrixName] [arg option] [opt [arg "arg arg ..."]]]
-
-[arg Option] and the [arg arg]s determine the exact behavior of the
-command.
-
-[list_end]
-
 [para]
 
 A matrix is a rectangular collection of cells, i.e. organized in rows
@@ -46,13 +31,108 @@ example, to link the matrix into the display.
 
 [para]
 
+
+The main command of the package is:
+
+[list_begin definitions]
+
+[call [cmd ::struct::matrix] [opt [arg matrixName]] [opt "[const =]|[const :=]|[const as]|[const deserialize] [arg source]"]]
+
+The command creates a new matrix object with an associated global Tcl
+command whose name is [arg matrixName].  This command may be used to
+invoke various operations on the matrix.  It has the following general
+form:
+
+[list_begin definitions]
+[call [cmd matrixName] [arg option] [opt [arg "arg arg ..."]]]
+
+[arg Option] and the [arg arg]s determine the exact behavior of the
+command.
+
+[list_end]
+[nl]
+
+If [arg matrixName] is not specified a unique name will be generated
+by the package itself. If a [arg source] is specified the new matrix
+will be initialized to it. For the operators [const =], [const :=],
+and [const as] the argument [arg source] is interpreted as the name of
+another matrix object, and the assignment operator [method =] will be
+executed. For [const deserialize] the [arg source] is a serialized
+matrix object and [method deserialize] will be executed.
+
+[nl]
+
+In other words
+[nl]
+[example {
+    ::struct::matrix mymatrix = b
+}]
+[nl]
+is equivalent to
+[nl]
+[example {
+    ::struct::matrix mymatrix
+    mymatrix = b
+}]
+[nl]
+and 
+[nl]
+[example {
+    ::struct::matrix mymatrix deserialize $b
+}]
+[nl]
+is equivalent to
+[nl]
+[example {
+    ::struct::matrix mymatrix
+    mymatrix deserialize $b
+}]
+
+
+[list_end]
+
+[para]
+
 The following commands are possible for matrix objects:
 
 [list_begin definitions]
 
+[call [arg matrixName] [method =] [arg sourcematrix]]
+
+This is the assignment operator for matrix objects. It copies the matrix
+contained in the matrix object [arg sourcematrix] over the matrix data in
+[arg matrixName]. The old contents of [arg matrixName] are deleted by
+this operation.
+
+[nl]
+
+This operation is in effect equivalent to
+[nl]
+[example_begin]
+    [arg matrixName] [method deserialize] [lb][arg sourcematrix] [method serialize][rb]
+[example_end]
+
+
+[call [arg matrixName] [method -->] [arg destmatrix]]
+
+This is the reverse assignment operator for matrix objects. It copies
+the matrix contained in the matrix object [arg matrixName] over the matrix
+data in the object [arg destmatrix].
+
+The old contents of [arg destmatrix] are deleted by this operation.
+
+[nl]
+
+This operation is in effect equivalent to
+[nl]
+[example_begin]
+    [arg destmatrix] [method deserialize] [lb][arg matrixName] [method serialize][rb]
+[example_end]
+
+
 [call [arg matrixName] [method {add column}] [opt [arg values]]]
 
-Extends the matrix by one column and then acts like [method setcolumn]
+Extends the matrix by one column and then acts like [method {set column}]
 (see below) on this new column if there were [arg values]
 supplied. Without [arg values] the new cells will be set to the empty
 string. The new column is appended immediately behind the last
@@ -60,7 +140,7 @@ existing column.
 
 [call [arg matrixName] [method {add row}] [opt [arg values]]]
 
-Extends the matrix by one row and then acts like [method setrow] (see
+Extends the matrix by one row and then acts like [method {set row}] (see
 below) on this new row if there were [arg values] supplied. Without
 [arg values] the new cells will be set to the empty string. The new
 row is appended immediately behind the last existing row.
@@ -106,10 +186,36 @@ computation.
 Deletes the specified column from the matrix and shifts all columns
 with higher indices one index down.
 
+
+[call [arg matrixName] [method {delete columns}] [arg n]]
+
+Deletes [arg n] columns from the right of the matrix. The value of
+[arg n] has to satisfy the constraint
+
+"0 < [arg n] < [lb][cmd matrixName] [method columns][rb]"
+
+
 [call [arg matrixName] [method {delete row}] [arg row]]
 
 Deletes the specified row from the matrix and shifts all row with
 higher indices one index down.
+
+
+[call [arg matrixName] [method {delete rows}] [arg n]]
+
+Deletes [arg n] rows from the bottom of the matrix. The value of
+[arg n] has to satisfy the constraint
+
+"0 < [arg n] < [lb][cmd matrixName] [method rows][rb]"
+
+
+[call [arg matrixName] [method deserialize] [arg serialization]]
+
+This is the complement to [method serialize]. It replaces matrix data
+in [arg matrixName] with the matrix described by the [arg serialization]
+value. The old contents of [arg matrixName] are deleted by this
+operation.
+
 
 [call [arg matrixName] [method destroy]]
 
@@ -167,7 +273,7 @@ stored as the first element of this list.
 
 [call [arg matrixName] [method {insert column}] [arg column] [opt [arg values]]]
 
-Extends the matrix by one column and then acts like [method setcolumn]
+Extends the matrix by one column and then acts like [method {set column}]
 (see below) on this new column if there were [arg values]
 supplied. Without [arg values] the new cells will be set to the empty
 string. The new column is inserted just before the column specified by
@@ -181,7 +287,7 @@ indices are shifted one index upward.
 
 [call [arg matrixName] [method {insert row}] [arg row] [opt [arg values]]]
 
-Extends the matrix by one row and then acts like [method setrow] (see
+Extends the matrix by one row and then acts like [method {set row}] (see
 below) on this new row if there were [arg values] supplied. Without
 [arg values] the new cells will be set to the empty string. The new
 row is inserted just before the row specified by the given index. This
@@ -257,6 +363,60 @@ specified row.
 Like [method {search all}], but the search is restricted to the
 specified rectangular area of the matrix.
 
+
+[call [arg matrixName] [method serialize] [opt [arg {column_tl row_tl column_br row_br}]]]
+
+This method serializes the sub-matrix spanned up by the rectangle
+specification. In other words it returns a tcl [emph value] completely
+describing that matrix. If no rectangle is specified the whole matrix
+will be serialized.
+
+This allows, for example, the transfer of matrix objects (or parts
+thereof) over arbitrary channels, persistence, etc.
+
+This method is also the basis for both the copy constructor and the
+assignment operator.
+
+[nl]
+
+The result of this method has to be semantically identical over all
+implementations of the matrix interface. This is what will enable us
+to copy matrix data between different implementations of the same
+interface.
+
+[nl]
+
+The result is a list containing exactly three items.
+
+[nl]
+
+The first two elements of the list specify the number of rows and
+columns of the matrix, in that order. The values integer numbers
+greater than or equal to zero.
+
+[nl]
+
+The last element of the list contains the values of the matrix cells
+we have serialized, in the form of a value like it is returned by the
+[method {get rect}]. However empty cells to the right and bottom of
+the matrix can be left out of that value as the size information in
+the serialization allows the receiver the creation of a matrix with
+the proper size despite the missing values.
+
+[example {
+    # A possible serialization for the matrix structure
+    #
+    # | a b d g |
+    # | c e     |
+    # | f       |
+    #
+    # is
+    #
+    # 3 4 {{a b d g} {c e} {f}}
+}]
+[nl]
+
+
 [call [arg matrixName] [method {set cell}] [arg {column row value}]]
 
 Sets the value in the cell identified by row and column index to the
@@ -317,6 +477,13 @@ Swaps the contents of the two specified columns.
 [call [arg matrixName] [method {swap rows}] [arg {row_a row_b}]]
 
 Swaps the contents of the two specified rows.
+
+
+[call [arg matrixName] [method transpose]]
+
+Transposes the contents of the matrix, i.e. swaps rows for columns and
+vice versa.
+
 
 [call [arg matrixName] [method unlink] [arg arrayvar]]
 
