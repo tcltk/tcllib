@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.8 2003/04/24 18:39:04 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.9 2003/05/01 22:40:15 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -20,10 +20,7 @@ package require math
 puts "math [package present math]"
 
 proc wrongNumArgs {name arglist count} {
-    set ver [info patchlevel]
-    # strip "a1", etc. designations
-    regsub {(a|b)[1-9]$} $ver {} ver
-    if {[package vcompare $ver 8.4] < 0} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
 	set arg [lindex $arglist $count]
 	set msg "no value given for parameter \"$arg\" to \"$name\""
     } else {

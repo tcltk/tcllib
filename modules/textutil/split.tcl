@@ -46,27 +46,57 @@ namespace eval ::textutil {
 #     puts [time {splitx $s .}]
 # }
 #
-proc ::textutil::split::splitx {str {regexp {[\t \r\n]+}}} {
-    # Bugfix 476988
-    if {[string length $str] == 0} {
-	return {}
-    }
-    if {[string length $regexp] == 0} {
-	return [::split $str ""]
-    }
-    set list  {}
-    set start 0
-    while {[regexp -start $start -indices -- $regexp $str match submatch]} {
-        foreach {subStart subEnd} $submatch break
-        foreach {matchStart matchEnd} $match break
-        incr matchStart -1
-        incr matchEnd
-        lappend list [string range $str $start $matchStart]
-        if {$subStart >= $start} {
-            lappend list [string range $str $subStart $subEnd]
+
+if {[package vsatisfies [package provide Tcl] 8.3]} {
+
+    proc ::textutil::split::splitx {str {regexp {[\t \r\n]+}}} {
+        # Bugfix 476988
+        if {[string length $str] == 0} {
+            return {}
         }
-        set start $matchEnd
+        if {[string length $regexp] == 0} {
+            return [::split $str ""]
+        }
+        set list  {}
+        set start 0
+        while {[regexp -start $start -indices -- $regexp $str match submatch]} {
+            foreach {subStart subEnd} $submatch break
+            foreach {matchStart matchEnd} $match break
+            incr matchStart -1
+            incr matchEnd
+            lappend list [string range $str $start $matchStart]
+            if {$subStart >= $start} {
+                lappend list [string range $str $subStart $subEnd]
+            }
+            set start $matchEnd
+        }
+        lappend list [string range $str $start end]
+        return $list
     }
-    lappend list [string range $str $start end]
-    return $list
+
+} else {
+    
+    # For tcl <= 8.2 we do not have regexp -start...
+    proc ::textutil::split::splitx [list str [list regexp "\[\t \r\n\]+"]] {
+
+        if {[string length $str] == 0} {
+            return {}
+        }
+        if {[string length $regexp] == 0} {
+            return [::split $str {}]
+        }
+
+        set list  {}
+        while {[regexp -indices -- $regexp $str match submatch]} {
+            lappend list [string range $str 0 [expr {[lindex $match 0] -1}]]
+            if {[lindex $submatch 0] >= 0} {
+                lappend list [string range $str [lindex $submatch 0] \
+                                  [lindex $submatch 1]]
+            }
+            set str [string range $str [expr {[lindex $match 1]+1}] end]
+        }
+        lappend list $str
+        return $list
+    }
+    
 }
