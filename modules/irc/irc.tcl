@@ -5,7 +5,7 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.5 2003/01/03 02:52:16 davidw Exp $
+# $Id: irc.tcl,v 1.6 2003/01/09 06:12:41 davidw Exp $
 
 package provide irc 0.3
 
@@ -155,7 +155,7 @@ proc irc::connection { host {port 6667} } {
 
 	proc action { } {
 	    variable linedata
-	    return $linedata(action)
+	    return "$linedata(action)"
 	}
 
 	# msg --
@@ -164,7 +164,7 @@ proc irc::connection { host {port 6667} } {
 
 	proc msg { } {
 	    variable linedata
-	    return $linedata(msg)
+	    return "$linedata(msg)"
 	}
 
 	# who --
@@ -177,9 +177,9 @@ proc irc::connection { host {port 6667} } {
 	    variable linedata
 	    set who $linedata(who)
 	    if { $address == 0 } {
-		return [string range $who 0 [expr {[string first ! $who] - 1}]]
+		return "[string range $who 0 [expr {[string first ! $who] - 1}]]"
 	    } else {
-		return [string range $who [expr {[string last ! $who] + 1}] end]
+		return "[string range $who [expr {[string last ! $who] + 1}] end]"
 	    }
 	}
 
@@ -192,7 +192,7 @@ proc irc::connection { host {port 6667} } {
 
 	proc target { {index 0} } {
 	    variable linedata
-	    return [lindex $linedata(target) $index]
+	    return "[lindex $linedata(target) $index]"
 	}
 
 	# DispatchNumeric --
