@@ -17,7 +17,8 @@ Changes in V0.94
 
 PLEASE NOTE: V0.94 is the current development version.  All tests
 pass, or I wouldn't have checked in the code, but I'm still making
-changes (and checking them in).  Use V0.93 instead if this worries you.
+changes (and checking them in).  Use V0.93 instead if this worries
+you.
 
 * Snit method invocation (both local and delegated) has been 
   optimized by the addition of a "method cache".  The primary
@@ -35,6 +36,10 @@ changes (and checking them in).  Use V0.93 instead if this worries you.
   deprecated.
 
 * Added ::snit::macro.
+
+* Added the "component" type definition statement.  This replaces
+  "variable" for declaring components explicitly, and has two nifty 
+  options, "-public" and "-inherit".
 
 * Sundry internal changes.
 
