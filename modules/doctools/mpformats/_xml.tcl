@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.8 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: _xml.tcl,v 1.9 2004/04/22 21:16:46 jenglish Exp $
 #
 # [expand] utilities for generating XML.
 #
@@ -156,7 +156,7 @@ proc xmlContext {gis {default {}}} {
     set elementStack $origStack
     if {![string length $default]} {
     	set where "[join $elementStack /] - [info level 1]"
-	puts stderr "Warning: Cannot start context $gis ($where)"
+	puts_stderr "Warning: Cannot start context $gis ($where)"
     	set default [lindex $gis 0] 
     }
     lappend elementStack $default
