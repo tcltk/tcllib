@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.3 2000/03/01 23:27:02 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.4 2000/03/03 22:28:01 ericm Exp $
 
 package provide profiler 0.1
 
@@ -28,8 +28,8 @@ namespace eval ::profiler {
 
 proc ::profiler::profProc {name arglist body} {
     variable callCount
-    variable firstRuntime
-    variable otherRuntime
+    variable compileTime
+    variable totalRuntime
 
     # Get the fully qualified name of the proc
     set ns [uplevel [list namespace current]]
@@ -41,18 +41,21 @@ proc ::profiler::profProc {name arglist body} {
 	    set name "${ns}::${name}"
 	}
     }
+    if { ![regexp "^::" $name] } {
+	set name "::$name"
+    }
 
     # Set up accounting for this procedure
     set callCount($name) 0
-    set firstRuntime($name) 0
-    set otherRuntime($name) 0
+    set compileTime($name) 0
+    set totalRuntime($name) 0
 
     # Add some interesting stuff to the body of the proc
     set profBody "
 	if { \$::profiler::enabled } {
 	    upvar ::profiler::callCount callCount
-	    upvar ::profiler::firstRuntime firstRuntime
-	    upvar ::profiler::otherRuntime otherRuntime
+	    upvar ::profiler::compileTime compileTime
+	    upvar ::profiler::totalRuntime totalRuntime
 	    upvar ::profiler::callers callers
 	    incr callCount($name)
 	    if { \[info level\] == 1 } {
@@ -73,10 +76,10 @@ proc ::profiler::profProc {name arglist body} {
 	set CODE \[uplevel ${name}ORIG \$args\]
 	if { \$::profiler::enabled } {
 	    set t \[expr {\[clock clicks\] - \$ms}\]
-	    if { \$callCount($name) == 1 } {
-		set firstRuntime($name) \$t
+            if { \${callCount($name)} == 1 } {
+		set compileTime($name) \$t
 	    } else {
-		incr otherRuntime($name) \$t
+		incr totalRuntime($name) \$t
 	    }
 	}
 	return \$CODE
@@ -109,15 +112,15 @@ proc ::profiler::init {} {
 #	Print information about a proc.
 #
 # Arguments:
-#	pattern	pattern of the proc's to get info for.
+#	pattern	pattern of the proc's to get info for; default is *.
 #
 # Results:
 #	A human readable printout of info.
 
-proc ::profiler::print {pattern} {
+proc ::profiler::print {{pattern *}} {
     variable callCount
-    variable firstRuntime
-    variable otherRuntime
+    variable compileTime
+    variable totalRuntime
     variable callers
     
     set result ""
@@ -126,12 +129,12 @@ proc ::profiler::print {pattern} {
 	append result "[string repeat = 80]\n"
 	append result "total calls:\t$callCount($name)\n"
 	append result "dist to callers:\n"
+	set i [expr {[string length $name] + 1}]
 	foreach index [lsort [array names callers $name,*]] {
-	    regsub "^$name," $index {} caller
-	    append result "$caller:\t$callers($index)\n"
+	    append result "[string range $index $i end]:\t$callers($index)\n"
 	}
-	append result "first runtime:\t$firstRuntime($name)\n"
-	append result "other runtime:\t$otherRuntime($name)\n"
+	append result "first runtime:\t$compileTime($name)\n"
+	append result "other runtime:\t$totalRuntime($name)\n"
 	append result "\n"
     }
     return $result
@@ -142,26 +145,27 @@ proc ::profiler::print {pattern} {
 #	Dump out the information for a proc in a big blob.
 #
 # Arguments:
-#	pattern	pattern of the proc's to lookup.
+#	pattern	pattern of the proc's to lookup; default is *.
 #
 # Results:
 #	data	data about the proc's.
 
-proc ::profiler::dump {pattern} {
+proc ::profiler::dump {{pattern *}} {
     variable callCount
-    variable firstRuntime
-    variable otherRuntime
+    variable compileTime
+    variable totalRuntime
     variable callers
 
     foreach name [lsort [array names callCount $pattern]] {
+	set i [expr {[string length $name] + 1}]
+	catch {unset thisCallers}
 	foreach index [lsort [array names callers $name,*]] {
-	    regsub "^$name," $index {} caller
-	    set thisCallers($caller) $callers($index)
+	    set thisCallers([string range $index $i end]) $callers($index)
 	}
-	lappend result $name [list totalCalls $callCount($name) \
+	lappend result $name [list callCount $callCount($name) \
 		callerDist [array get thisCallers] \
-		firstRuntime $firstRuntime($name) \
-		otherRuntime $otherRuntime($name)]
+		compileTime $compileTime($name) \
+		totalRuntime $totalRuntime($name)]
     }
     return $result
 }
@@ -172,18 +176,67 @@ proc ::profiler::dump {pattern} {
 #	value of that field.
 #
 # Arguments:
-#	field	field to sort by. (totalCalls, firstRuntime or otherRuntime)
+#	field	field to sort by
 #
 # Results:
 #	slist	sorted list of lists, sorted by the field in question.
 
-proc ::profiler::sortFunctions {field} {
-    set var ::profiler::$field
-    upvar $var data
+proc ::profiler::sortFunctions {{field ""}} {
+    switch -glob -- $field {
+	"calls" {
+	    upvar ::profiler::callCount data
+	}
+	"compileTime" {
+	    upvar ::profiler::compileTime data
+	}
+	"totalRuntime" {
+	    upvar ::profiler::totalRuntime data
+	}
+	"avgRuntime" -
+	"averageRuntime" {
+	    variable totalCalls
+	    variable totalRuntime
+	    foreach fxn [array names totalCalls] {
+		set data($fxn) [expr {$totalRuntime/($totalCalls - 1)}]
+	    }
+	}
+	default {
+	    error "unknown statistic \"$field\": should be calls,\
+		    compileTime, totalRuntime, or avgRuntime"
+	}
+    }
+	    
     set result [list ]
     foreach fxn [array names data] {
 	lappend result [list $fxn $data($fxn)]
     }
     return [lsort -integer -index 1 $result]
+}
+
+# ::profiler::reset --
+#
+#	Reset collected data for functions matching a given pattern.
+#
+# Arguments:
+#	pattern		pattern of functions to reset; default is *.
+#
+# Results:
+#	None.
+
+proc ::profiler::reset {{pattern *}} {
+    variable callCount
+    variable compileTime
+    variable totalRuntime
+    variable callers
+
+    foreach name [array names callCount $pattern] {
+	set callCount($name) 0
+	set compileTime($name) 0
+	set totalRuntime($name) 0
+	foreach caller [array names callers $name,*] {
+	    unset callers($caller)
+	}
+    }
+    return
 }
 

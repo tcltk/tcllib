@@ -1,19 +1,23 @@
+2000-03-03  Eric Melski  <ericm@scriptics.com>
+
+	* profiler.tcl: Added profiler::reset function and enhanced 
+	profiler::sortFunctions
+
+	* profiler.n: Updated documentation.
+
 2000-02-24  Eric Melski  <ericm@scriptics.com>
 
-	* Makefile.in, et al: Preliminary Makefile and configure script, and
-	supporting files
-
-	* modules/profiler/profiler.tcl: Fixed dump command output to include
+	* profiler.tcl: Fixed dump command output to include
 	the name of the function being dumped.
 
 2000-02-17  Eric Melski  <ericm@scriptics.com>
 
-	* modules/profiler/pkgIndex.tcl: package index for profiler.
+	* pkgIndex.tcl: package index for profiler.
 
-	* modules/profiler/man.macros: 
-	* modules/profiler/profiler.n: Doc for profiler.
+	* man.macros: 
+	* profiler.n: Doc for profiler.
 
-	* modules/profiler/profiler.test: Tests for profiler.
+	* profiler.test: Tests for profiler.
 
-	* modules/profiler/profiler.tcl: Simple Tcl function-level profiler.
+	* profiler.tcl: Simple Tcl function-level profiler.
 

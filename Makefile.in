@@ -11,23 +11,34 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.4 2000/03/03 01:08:35 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.5 2000/03/03 22:28:01 ericm Exp $
+
+# Base64 encoder/decoder
+BASE64=base64
+
+# Option processing package (like opt)
+CMDLINE=cmdline
+
+# File utilities (grep, find, etc.)
+FILEUTIL=fileutil
+
+# Data structures (stack, queue, tree)
+STRUCT=struct
+
+# Simple function level profiler
+PROFILER=profiler
+
+# MIME encoder/decoder and SMTP package; commented out by default because of
+# dependance on TRF
+#MIME=mime
 
 MODULES= \
-	base64 \
-	cmdline \
-	fileutil \
-	mime \
-	struct \
-	profiler
-
-
-#========================================================================
-# Add additional lines to handle any additional AC_SUBST cases that
-# have been added to the configure script.
-#========================================================================
-
-SAMPLE_NEW_VAR=@SAMPLE_NEW_VAR@
+	$(BASE64)	\
+	$(CMDLINE)	\
+	$(STRUCT)	\
+	$(FILEUTIL)	\
+	$(MIME)		\
+	$(PROFILER)
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -42,24 +53,12 @@ top_srcdir = @top_srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 
-bindir = @bindir@
-sbindir = @sbindir@
-libexecdir = @libexecdir@
-datadir = @datadir@
-sysconfdir = @sysconfdir@
-sharedstatedir = @sharedstatedir@
-localstatedir = @localstatedir@
 libdir = @libdir@
-infodir = @infodir@
 mandir = @mandir@
-includedir = @includedir@
-oldincludedir = /usr/include
 
 DESTDIR =
 
-pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(prefix)/lib/@PACKAGE@
-pkgincludedir = $(includedir)/@PACKAGE@
 
 top_builddir = .
 
@@ -79,48 +78,13 @@ POST_UNINSTALL = :
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-CLEANFILES = @CLEANFILES@
-TCL_BIN_DIR = @TCL_BIN_DIR@
-TCL_DEFS = @TCL_DEFS@
-TCL_EXTRA_CFLAGS = @TCL_EXTRA_CFLAGS@
-TCL_LD_FLAGS = @TCL_LD_FLAGS@
-TCL_LIBS = @TCL_LIBS@
-TCL_SHLIB_LD_LIBS = @TCL_SHLIB_LD_LIBS@
-TCL_SRC_DIR = @TCL_SRC_DIR@
-TCL_DBGX = @TCL_DBGX@
-TCL_STUB_LIB_FILE = @TCL_STUB_LIB_FILE@
-TCL_STUB_LIB_SPEC = @TCL_STUB_LIB_SPEC@
-TCL_TOOL_DIR_NATIVE = @TCL_TOOL_DIR_NATIVE@
-TCL_TOP_DIR_NATIVE = @TCL_TOP_DIR_NATIVE@
-TCL_UNIX_DIR_NATIVE = @TCL_UNIX_DIR_NATIVE@
-TCL_WIN_DIR_NATIVE = @TCL_WIN_DIR_NATIVE@
-INCLUDE_DIR_NATIVE = @INCLUDE_DIR_NATIVE@
-TCL_BMAP_DIR_NATIVE = @TCL_BMAP_DIR_NATIVE@
-TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
-TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TCLSH_PROG = @TCLSH_PROG@
 
 AUTOCONF = autoconf
 
-LDFLAGS = $(LDFLAGS_DEFAULT)
-
-INCLUDES = @TCL_INCLUDES@
-
-EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS)
-
-DEFS = @DEFS@ $(EXTRA_CFLAGS)
-
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = mkIndex.tcl
-
-CPPFLAGS = @CPPFLAGS@
-LIBS = @LIBS@
-AR = ar
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 
 #========================================================================
 # Start of user-definable TARGETS section
@@ -156,7 +120,6 @@ install-binaries:
 #========================================================================
 # This rule installs platform-independent files, such as header files.
 #========================================================================
-# TODO:  DYNAMICALLY CREATE pkgIndex.tcl *********
 
 install-libraries: libraries
 	$(mkinstalldirs) $(pkglibdir)
@@ -168,7 +131,7 @@ install-libraries: libraries
 		$(INSTALL_DATA) $$j $(pkglibdir)/$$i ; \
 	    done; \
 	done;
-	$(TCLSH_PROG) mkIndex.tcl
+	$(TCLSH_PROG) mkIndex.tcl $(MODULES)
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
@@ -176,14 +139,14 @@ install-libraries: libraries
 #========================================================================
 
 install-doc: doc
-#	$(mkinstalldirs) $(mandir)/manni
-#	@for j in $(MODULES) ; do \
-#	    echo "Installing documentation for $$j" ; \
-#	    for i in $(srcdir)/modules/$$j/*.n ; do \
-#	        $(INSTALL_DATA) $$i $(mandir)/manni ; \
-#	        chmod 444 $(mandir)/manni/$$i ; \
-#	    done; \
-#	done
+	$(mkinstalldirs) $(mandir)/mann
+	@for j in $(MODULES) ; do \
+	    echo "Installing documentation for $$j" ; \
+	    for i in $(srcdir)/modules/$$j/*.n ; do \
+	        $(INSTALL_DATA) $$i $(mandir)/mann ; \
+	        chmod 444 $(mandir)/manni/$$i ; \
+	    done; \
+	done
 
 test:
 
@@ -199,13 +162,8 @@ depend:
 #========================================================================
 
 clean:  
-	-test -z "$(BINARIES)" || rm -f $(BINARIES)
-	-rm -f *.o core *.core
-	-rm -f *.$(OBJEXT)
-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean: clean
-	-rm -f *.tab.c
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 	-rm -f config.status
@@ -247,7 +205,6 @@ $(srcdir)/configure: $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCI
 uninstall-binaries:
 
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(libdir)
 	$(mkinstalldirs)  $(DESTDIR)$(pkglibdir)
 
 .PHONY: all binaries clean depend distclean doc install installdirs \

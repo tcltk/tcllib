@@ -1,5 +1,15 @@
 2000-03-02  Eric Melski  <ericm@scriptics.com>
 
+	* mkIndex.tcl.in: Instead of probing install dir for modules, changed to
+	take module list on command line, so that users can change what goes into
+	the pkgIndex.tcl from the Makefile.
+	
+	* Makefile.in: additional work on module list and pkgIndex.tcl generation.
+	Now changing the module list changes what is installed and what is
+	put in the pkgIndex.tcl.
+
+2000-03-02  Eric Melski  <ericm@scriptics.com>
+
     * Makefile.in: Work on install-libraries, install-doc; removed
     references to compiled bits.
 

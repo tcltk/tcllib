@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: profiler.n,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+'\" RCS: @(#) $Id: profiler.n,v 1.2 2000/03/03 22:28:01 ericm Exp $
 '\" 
 .so man.macros
 .TH profiler n 0.1 profiler "Tcl Profiler"
@@ -15,9 +15,13 @@ profiler \- Tcl source code profiler
 .sp
 \fB::profiler::init\fR
 .sp
-\fB::profiler::dump\fR \fIfunctionName\fR
+\fB::profiler::dump\fR ?\fIpattern\fR?
 .sp
-\fB::profiler::print\fR \fIfunctionName\fR
+\fB::profiler::print\fR ?\fIpattern\fR?
+.sp
+\fB::profiler::reset\fR ?\fIpattern\fR?
+.sp
+\fB::profiler::sortFunctions\fR \fIkey\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -34,11 +38,13 @@ Initiate profiling.  All procedures created after this command is
 called will be profiled.  To profile an entire application, this
 command must be called before any other commands.
 .TP
-\fB::profiler::dump\fR \fIfunctionName\fR
-Dump profiling information for the function \fIfunctionName\fR.
-\fIfunctionName\fR must be fully qualifed.  The return result is a
-list of key/value pairs, suitable for use with the \fBarray set\fR
-command.  The keys used and their values are: 
+\fB::profiler::dump\fR \fIpattern\fR
+Dump profiling information for the all functions matching
+\fIpattern\fR.  If no pattern is specified, information for all
+functions will be returned.  The result is a list of key/value pairs
+that maps function names to information about that function.  The
+information about each function is in turn a list of key/value pairs.
+The keys used and their values are: 
 .RS
 .TP
 \fBtotalCalls\fR
@@ -48,22 +54,33 @@ The total number of times \fIfunctionName\fR was called.
 A list of key/value pairs mapping each calling function that called
 \fIfunctionName\fR to the number of times it called \fIfunctionName\fR.
 .TP
-\fBfirstRuntime\fR
+\fBcompileTime\fR
 The runtime, in clock clicks, of \fIfunctionName\fR the first time
 that it was called. This value is separated from the total amount of
 run time for \fIfunctionName\fR because the first call usually
 causes the function to be byte-compiled by the Tcl interpreter, and
 that compilation can add significantly to the runtime of the function.
 .TP
-\fBotherRuntime\fR
+\fBtotalRuntime\fR
 The sum of the runtimes of the second and all subsequent calls of
 \fIfunctionName\fR.
 .RE
 .TP
-\fB::profiler::print\fR \fIfunctionName\fR
-Print profiling information for the function \fIfunctionName\fR.
-\fIfunctionName\fR must be fully qualifed.  The return result is a
-human readable display of the profiling information for \fIfunctionName\fR.
-
+\fB::profiler::print\fR ?\fIpattern\fR?
+Print profiling information for all functions matching \fIpattern\fR.
+If no pattern is specified, information about all functions will be displayed.
+The return result is a human readable display of the profiling
+information.
+.TP
+\fB::profiler::reset\fR ?\fIpattern\fR?
+Reset profiling information for all functions matching \fIpattern\fR.
+If no pattern is specified, information will be reset for all functions.
+.TP
+\fB::profiler::sortFunctions\fR \fIkey\fR
+Return a list of functions sorted by a particular profiling
+statistic.  Supported values for \fIkey\fR are: \fBcalls\fR,
+\fBcompileTime\fR, \fBtotalRuntime\fR, and \fBavgRuntime\fR.  The
+return result is a list of lists, where each sublist consists of a
+function name and the value of \fIkey\fR for that function.
 .SH KEYWORDS
 profile, performance, speed

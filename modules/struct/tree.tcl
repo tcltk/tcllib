@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.2 2000/03/03 22:28:02 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -589,22 +589,20 @@ proc ::struct::tree::_unset {name node {flag -key} {key data}} {
 
 # ::struct::tree::_walk --
 #
-#	Walk a tree using a pre-, post-, or in-order depth or breadth first
+#	Walk a tree using a pre-order depth or breadth first
 #	search. Pre-order DFS is the default.  At each node that is visited,
 #	a command will be called with the name of the tree and the node.
 #
 # Arguments:
 #	name	name of the tree.
 #	node	node at which to start.
-#	args	additional args: ?-type {bfs|dfs}? ?-order {pre|post|in}?
-#		-command cmd
+#	args	additional args: ?-type {bfs|dfs}? -command cmd
 #
 # Results:
 #	None.
 
 proc ::struct::tree::_walk {name node args} {
-    set usage "$name walk $node ?-type {bfs|dfs}?\
-		?-order {pre|post|in}? -command cmd\""
+    set usage "$name walk $node ?-type {bfs|dfs}? -command cmd\""
 
     if {[llength $args] > 6 || [llength $args] < 2} {
 	error "wrong # args: should be \"$usage\""

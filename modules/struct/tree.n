@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.2 2000/03/03 22:28:02 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -53,7 +53,7 @@ Return the value associated with the key \fIkey\fR for the node
 Insert a node named \fIchild\fR into the tree as a child of the node
 \fIparent\fR.  If \fIparent\fR is \fBroot\fR, it refers to the root of
 the tree.  The new node will be added to the \fIparent\fR node's
-childlist at the index given by \fIindex\fR.
+child list at the index given by \fIindex\fR.
 .TP
 \fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR 
 Make \fInode\fR a child of \fIparent\fR, inserting it
@@ -86,10 +86,13 @@ specified, the key \fBdata\fR is assumed.
 Perform a breadth-first or depth-first walk of the tree starting at
 the node \fInode\fR.  The type of walk, breadth-first or depth-first,
 is determined by the value of \fItype\fR; \fBbfs\fR indicates
-breadth-first, \fBdfs\fR indicates depthe-first.  Depth-first is the
-default.  As the walk progresses, the command \fIcmd\fR will be
-evaluated at each node, with the values \fItreeName\fR and the name of
-the current node appended.
+breadth-first, \fBdfs\fR indicates depth-first.  Depth-first is the
+default.  All walks are pre-order, meaning that a parent node is
+visited before any of its children.  For example, a breadth-first
+search starting from the root will visit the root, followed by all of
+the root's children, followed by all of the root's grandchildren.  As
+the walk progresses, the command \fIcmd\fR will be evaluated at each
+node, with the values \fItreeName\fR and the name of the current node appended.
 
 .SH KEYWORDS
 tree

@@ -13,70 +13,21 @@
 # If you redefine $(libdir) using the configure switch --libdir=, then
 # this script will probably fail for you.
 #
-# UNIX:
-#      exec_prefix
+#        prefix
 #           |
 #           |
 #           |
 #          lib
-#          / \
-#         /   \
-#        /     \
-#   PACKAGE   (.so files)
+#          /
+#         /
+#        /
+#   PACKAGE
 #       |
 #       |
 #       |
 #  pkgIndex.tcl
 #
-# WIN:
-#      exec_prefix
-#          / \
-#         /   \
-#        /     \
-#      bin     lib
-#       |        \
-#       |         \
-#       |          \
-# (.dll files)   PACKAGE
-#                    |
-#                    |
-#                    |
-#                pkgIndex.tcl
        
-# The pkg_mkIndex routines from Tcl 8.2 and later support stub-enabled
-# extensions.  Notify the user if this is not a valid tcl shell.
-# Exit with a status of 0 so that the make-install process does not stop.
-
-if {[catch {package require Tcl 8.2} msg]} {
-    puts stderr "**WARNING**"
-    puts stderr $msg
-    puts stderr "Could not build pkgIndex.tcl file.  You must create one by hand"
-    exit 0
-}
-
-# Nativepath --
-#
-#	Convert a Cygnus style path to a native path
-#
-# Arguments:
-#	pathName	Path to convert
-#
-# Results:
-#	The result is the native name of the input pathName.
-#	On Windows, this is z:/foo/bar, on Unix the input pathName is
-#	returned.
-
-proc Nativepath {pathName} {
-    global tcl_platform
-
-    if {![string match $tcl_platform(platform) unix]} {
-	if {[regexp {//(.)/(.*)} $pathName null driveLetter pathRemains]} {
-	    set pathName $driveLetter:/$pathRemains
-	}
-    }
-    return $pathName
-}
-
 set prefix "@prefix@"
 
 set package @PACKAGE@
@@ -85,13 +36,13 @@ set version @VERSION@
 cd [file join $prefix lib $package]
 puts "Making pkgIndex.tcl in [pwd]"
 
-set modules [list ]
-foreach f [glob -nocomplain ./*] {
-    if { [file isdirectory $f] } {
+set modules $argv
+#foreach f [glob -nocomplain ./*] {
+#    if { [file isdirectory $f] } {
 	# Found an installed module, add it to the list
-	lappend modules [file tail $f]
-    }
-}
+#	lappend modules [file tail $f]
+#    }
+#}
 
 set index [open pkgIndex.tcl w]
 puts $index "if { \[lsearch \$auto_path \[file dirname \[info script\]\]\] } {"

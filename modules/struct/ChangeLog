@@ -1,0 +1,5 @@
+2000-03-03  Eric Melski  <ericm@scriptics.com>
+
+	* tree.tcl: Changed usage information for tree::_walk.
+
+	* tree.n: Enhanced description of walk function, fixed a typo.
