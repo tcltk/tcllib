@@ -208,7 +208,7 @@ proc pruneDir {dir type} {
         }
     }
 
-    set then [expr [clock seconds]-($days*86400)]
+    set then [expr {[clock seconds]-($days*86400)}]
 
     foreach file [glob -nocomplain [file join $dir *]] {
         if {(![catch { file mtime $file } result]) \
@@ -237,7 +237,7 @@ proc tclLog {message} {
     catch { puts -nonewline $fd \
                  [format "%s %-8.8s %06d %s\n" \
                          [clock format [clock seconds] -format "%m/%d %T"] \
-                         personal [expr [pid]%65535] $message] }
+                         personal [expr {[pid]%65535}] $message] }
 
     catch { close $fd }
 }
@@ -288,12 +288,12 @@ proc dofolder {folder inF} {
                [set articleD [eval [list file join \
                                          $options(foldersDirectory)] \
                                    [lrange $folderL 0 \
-                                           [expr $folderN-2]]]]]} {
+				   [expr {$folderN-2}]]]]]} {
         file mkdir $articleD
     }
     if {![file exists [set articleF [file join $articleD \
                                           [lindex $folderL \
-                                                  [expr $folderN-1]]]]]} {
+					  [expr {$folderN-1}]]]]]} {
         set newP 1
     } else {
         set newP 0
@@ -454,7 +454,7 @@ if {[catch {
             if {![string compare $originatorAddress ""]} {
                 set line [string range $line 5 end]
                 if {[set x [string first " " $line]] > 0} {
-                    set originatorAddress [string range $line 0 [expr $x-1]]
+                    set originatorAddress [string range $line 0 [expr {$x-1}]]
                 }
             }
         } else {
@@ -598,7 +598,7 @@ if {[catch {
         }
 
         if {[set len [string length $messageID]] > 2} {
-            set messageID [string range $messageID 1 [expr $len-2]]
+            set messageID [string range $messageID 1 [expr {$len-2}]]
         }
         if {$impersonalP} {
             set prefix X-
@@ -794,7 +794,7 @@ if {[catch {
             if {([string match *$addr* $text]) \
                     || (([set x [string first @ $addr]] > 0) \
                             && ([string match \
-                                        *[string range $addr 0 [expr $x-1]]* \
+			    *[string range $addr 0 [expr {$x-1}]]* \
                                         $text]))} {
                 tclLog "failure notice: $origProper ($addr)"
 
@@ -912,7 +912,7 @@ if {[catch {
     if {([info exists options(pdaMailboxes)]) \
             && ([string compare [set text [mutl::gathertext $mime]] ""])} {
         if {[info exists options(pdaMailsize)]} {
-            set text [string range $text 0 [expr $options(pdaMailsize)-1]]
+            set text [string range $text 0 [expr {$options(pdaMailsize)-1}]]
         }
         set pda [mime::initialize \
                      -canonical text/plain \

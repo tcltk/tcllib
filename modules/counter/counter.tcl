@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.15 2004/08/18 00:18:38 mic42 Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.16 2004/09/24 06:54:23 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1193,7 +1193,7 @@ proc ::counter::start {tag instance} {
     # clock clicks can return negative values if the sign bit is set
     # Here we turn it into a 31-bit counter because we only want
     # relative differences
-    set msec [expr [clock clicks -milliseconds] & 0x7FFFFFFF]
+    set msec [expr {[clock clicks -milliseconds] & 0x7FFFFFFF}]
     set time($instance) [list $msec [clock seconds]]
 }
 
@@ -1218,10 +1218,10 @@ proc ::counter::stop {tag instance {func ::counter::Identity}} {
     upvar #0 counter::Time-$tag time
 
     if {![info exists time($instance)]} {
-    # Extra call. Ignore so we can debug error cases.
-    return
+	# Extra call. Ignore so we can debug error cases.
+	return
     }
-    set msec [expr [clock clicks -milliseconds] & 0x7FFFFFFF]
+    set msec [expr {[clock clicks -milliseconds] & 0x7FFFFFFF}]
     set now [list $msec [clock seconds]]
     set delMicros [expr {[lindex $now 0] - [lindex $time($instance) 0]}]
     if {$delMicros < 0} {

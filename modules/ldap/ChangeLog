@@ -1,3 +1,7 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ldap.tcl: Fixed expr'essions without braces.
+
 2004-04-27  Andreas Kupries  <andreask@activestate.com>
 
 	* ldap.man: small fixes in the docs, additional example for

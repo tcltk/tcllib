@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.6 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.7 2004/09/24 06:54:25 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -211,7 +211,7 @@ proc ::struct::set::Sdifference {A B} {
     return [array names tmp]
 }
 
-if 0 {
+if {0} {
     # Tcllib SF Bug 1002143. We cannot use the implementation below.
     # It will treat set elements containing '(' and ')' as array
     # elements, and this screws up the storage of elements as the name

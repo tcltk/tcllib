@@ -851,8 +851,8 @@ proc ::math::statistics::median { data } {
     if { $len % 2 } {
         lindex $data [expr {($len-1)/2}]
     } else {
-        expr {([lindex $data [expr ($len / 2) - 1]] \
-                       + [lindex $data [expr $len / 2]]) / 2.0}
+        expr {([lindex $data [expr {($len / 2) - 1}]] \
+		+ [lindex $data [expr {$len / 2}]]) / 2.0}
     }
 }
 

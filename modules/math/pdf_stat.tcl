@@ -233,7 +233,7 @@ proc ::math::statistics::cdf-exponential { mean x } {
 #
 proc ::math::statistics::Inverse-cdf-uniform { pmin pmax prob } {
 
-    if 0 {
+    if {0} {
 	if { $pmin >= $pmax } {
 	    return -code error -errorcode ARG \
 		    -errorinfo "Wrong order or zero range" \
@@ -264,7 +264,7 @@ proc ::math::statistics::Inverse-cdf-uniform { pmin pmax prob } {
 #
 proc ::math::statistics::Inverse-cdf-exponential { mean prob } {
 
-    if 0 {
+    if {0} {
 	if { $mean <= 0.0 } {
 	    return -code error -errorcode ARG \
 		    -errorinfo "Mean must be positive" \
@@ -483,7 +483,6 @@ proc ::math::statistics::Cdf-toms322 { m n x } {
     if { $m < 1 || $n < 1 } {
 	return -code error -errorcode ARG \
 		-errorinfo "Arguments m anf n must be greater/equal 1"
-	"Arguments m anf n must be greater/equal 1"
     }
 
     set a [expr {2*($m/2)-$m+2}]

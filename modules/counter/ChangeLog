@@ -1,3 +1,7 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* counter.tcl: Fixed expr'essions without braces.
+
 2004-08-18  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* counter.tcl: Error message added in counter::get if -avgn is

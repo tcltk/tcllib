@@ -1,3 +1,7 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mainloop.tcl: Fixed expr without braces.
+
 2003-06-30  David N. Welton  <davidw@dedasys.com>
 
 	* irc_example.tcl: Rework this file to reload mainloop.tcl as

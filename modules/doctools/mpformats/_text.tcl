@@ -5,7 +5,7 @@
 
 ################################################################
 
-if 0 {
+if {0} {
     catch {rename proc proc__} msg ; puts_stderr >>$msg
     proc__ proc {cmd argl body} {
 	puts_stderr "proc $cmd $argl ..."
@@ -15,7 +15,7 @@ if 0 {
 
 dt_package textutil
 
-if 0 {
+if {0} {
     puts_stderr ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     rename proc {}
     rename proc__ proc

@@ -19,8 +19,14 @@ proc tclfiles {} {
     global distribution
     package require fileutil
     set fl [fileutil::findByPattern $distribution -glob *.tcl]
-    proc tclfiles {} [list return $fl]
-    return $fl
+    # Remove files under SCCS. They are repository, not sources to check.
+    set tmp {}
+    foreach f $fl {
+	if {[string match *SCCS* $f]} continue
+	lappend tmp $f
+    }
+    proc tclfiles {} [list return $tmp]
+    return $tmp
 }
 
 proc modtclfiles {modules} {
@@ -477,7 +483,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.33 2004/08/10 07:01:30 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.34 2004/09/24 06:54:23 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -579,9 +585,11 @@ proc docfiles {} {
     package require fileutil
     set res [list]
     foreach f [fileutil::findByPattern $distribution -glob *.man] {
+	# Remove files under SCCS. They are repository, not sources to check.
+	if {[string match *SCCS* $f]} continue
 	lappend res [file rootname [file tail $f]].n
     }
-    proc tclfiles {} [list return $res]
+    proc docfiles {} [list return $res]
     return $res
 }
 

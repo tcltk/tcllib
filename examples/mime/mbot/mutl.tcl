@@ -19,7 +19,7 @@ proc mutl::exclfile {fileN {stayP 0}} {
 
     for {set i 0} {$i < 10} {incr i} {
         if {![catch { set xd [open $fileN { RDWR CREAT EXCL }] } result]} {
-            if {(![set code [catch { puts $xd [expr [pid]%65535]
+            if {(![set code [catch { puts $xd [expr {[pid]%65535}]
                                      flush $xd } result]]) \
                     && (!$stayP)} {
                 if {![set code [catch { close $xd } result]]} {
@@ -64,7 +64,7 @@ proc mutl::tmpfile {prefix {tmpD ""}} {
     }
     set file [file join $tmpD $prefix]
 
-    append file [expr [pid]%65535]
+    append file [expr {[pid]%65535}]
 
     for {set i 0} {$i < 10} {incr i} {
         if {![set code [catch { set fd [open $file$i \
