@@ -1,0 +1,177 @@
+# -*- tcl -*-
+# bibtex.test:  tests for the bibtex parser.
+#
+# Copyright (c) 2005 by Andreas Kupries <a.kupries@westend.com>
+# All rights reserved.
+#
+# RCS: @(#) $Id: bibtex.test,v 1.1 2005/03/09 05:39:53 andreas_kupries Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget bibtex
+catch {namespace delete ::bibtex}
+if {[catch {source [file join [file dirname [info script]] bibtex.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require bibtex
+puts "- bibtex [package present bibtex]"
+
+# -------------------------------------------------------------------------
+
+test bibtex-1.0 {Parse errors} {
+    set code [catch {::bibtex::parse} msg]
+    list $code $msg
+} {1 {wrong # args: should be "::bibtex::parse ?options? ?bibtex?"}}
+
+test bibtex-1.1 {Parse errors} {knownBug} {
+    set code [catch {::bibtex::parse -frob} msg]
+    list $code $msg
+    # Oops. Bad option is not recognized as bad.
+} {1 {...}}
+
+test bibtex-1.2 {Parse errors} {
+    set code [catch {::bibtex::parse -frob nibar} msg]
+    list $code $msg
+
+    # Oops. Bad option is not recognized as bad. Even if we make sure
+    # that it is not interpreted as the data to process. But we get at
+    # least some error.
+
+} {1 {no channel and no data given}}
+
+test bibtex-1.3 {Parse errors} {knownBug} {
+    set code [catch {::bibtex::parse -frob nibar fuzz} msg]
+    list $code $msg
+
+    # Oops. Bad option is not recognized as bad. Even if we make sure
+    # that it is not interpreted as the data to process. Definitely
+    # ignoring any bad option.
+
+} {1 {...}}
+
+# ... More tests of parsing errors (cmd line errors).
+
+test bibtex-2.0 {Parse string} {
+    set str [viewFile [file join [file dirname [info script]] bytecode.bib]]
+    set t [bibtex::parse $str]
+    bibtex::destroy $t
+    set t
+} {bibtex2}
+
+proc track {args} {global track ; lappend track $args ; return}
+proc addstr {token strings} {
+    track string__     $token $strings
+    bibtex::addStrings $token $strings
+}
+
+test bibtex-2.1 {Parse string} {
+    set track {}
+    set str [viewFile [file join [file dirname [info script]] bytecode.bib]]
+    set t [bibtex::parse \
+	    -progresscommand {track progress} \
+	    -commentcommand  {track comment_} \
+	    -stringcommand   {track string__} \
+	    -preamblecommand {track preamble} \
+	    -recordcommand   {track record__} \
+	    $str]
+    bibtex::destroy $t
+    set track
+} [list \
+	{progress bibtex3 100} \
+	[list record__ bibtex3 book krasner83 [list \
+	title     {Smalltalk-80: Bits of History, Words of Advice} \
+	publisher Addison-Wesley \
+	year      1983 \
+	editor    {Glen Krasner} \
+	]]]
+
+test bibtex-2.2 {Parse string} {
+    set track {}
+
+    # The contents of penn_sub.bib have been taken out of
+    # ftp://ftp.cis.upenn.edu/pub/anoop/bib/pennbib.bib
+
+    set str [viewFile [file join [file dirname [info script]] penn_sub.bib]]
+    set t [bibtex::parse \
+	    -progresscommand {track progress} \
+	    -commentcommand  {track comment_} \
+	    -stringcommand   {track string__} \
+	    -preamblecommand {track preamble} \
+	    -recordcommand   {track record__} \
+	    $str]
+    bibtex::destroy $t
+    set track
+} [list \
+	{progress bibtex4 50} \
+	{string__ bibtex4 {aaai90 {Proc. National Conference on Artificial Intelligence, Boston}}} \
+	{progress bibtex4 100} \
+	[list record__ bibtex4 inproceedings Carberry90 [list \
+	author    {Sandra Carberry} \
+	title     {Incorporating default inferences into plan recognition} \
+	booktitle aaai90 \
+	year      1990 \
+	pages     471--478 \
+	address   {Boston, MA} \
+	]]]
+
+test bibtex-2.3 {Parse string} {
+    set track {}
+    set str [viewFile [file join [file dirname [info script]] penn_sub.bib]]
+    set t [bibtex::parse \
+	    -progresscommand {track progress} \
+	    -commentcommand  {track comment_} \
+	    -stringcommand   addstr \
+	    -preamblecommand {track preamble} \
+	    -recordcommand   {track record__} \
+	    $str]
+    bibtex::destroy $t
+    set track
+} [list \
+    {progress bibtex5 50} \
+    {string__ bibtex5 {aaai90 {Proc. National Conference on Artificial Intelligence, Boston}}} \
+    {progress bibtex5 100} \
+    [list record__ bibtex5 inproceedings Carberry90 [list \
+    author    {Sandra Carberry} \
+    title     {Incorporating default inferences into plan recognition} \
+    booktitle {Proc. National Conference on Artificial Intelligence, Boston} \
+    year      1990 \
+    pages     471--478 \
+    address   {Boston, MA} \
+    ]]]
+
+# ... More tests of parsing file, channels, strings ...
+# ... Async parsing.
+
+test bibtex-3.0 {Destroying a parser} {
+    set code [catch {::bibtex::destroy} msg]
+    list $code $msg
+} [list 1 [tcltest::wrongNumArgs "::bibtex::destroy" "token" 0]]
+
+test bibtex-3.1 {Destroying a parser} {
+    set code [catch {::bibtex::destroy a b} msg]
+    list $code $msg
+} [list 1 [tcltest::tooManyArgs "::bibtex::destroy" "token"]]
+
+test bibtex-3.2 {Destroying a parser} {
+    set code [catch {::bibtex::destroy foo} msg]
+    list $code $msg
+} {1 {Illegal bibtex parser "foo"}}
+
+test bibtex-4.0 {Destroying a parser} {
+    set str [viewFile [file join [file dirname [info script]] bytecode.bib]]
+    set token [bibtex::parse $str]
+    bibtex::destroy $token
+} {}
+
+# ... Tests of addStrings ...
+#     (Requires introspection of parser state)
+
+::tcltest::cleanupTests
