@@ -9,7 +9,7 @@
 
 The [cmd ::struct::matrix] command creates a new matrix object with an
 associated global Tcl command whose name is [arg matrixName].  This
-command may be used to invoke various operations on the graph.  It has
+command may be used to invoke various operations on the matrix.  It has
 the following general form:
 
 [list_begin definitions]
