@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.14 2003/01/19 07:58:44 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.15 2003/03/12 04:48:44 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -228,8 +228,8 @@ proc formatRequire {pkg version} {
     return "package require [wrap $pkg package] $version"
 }
 
-c_pass 1 fmt_see_also	{args} { holdWrapped see_also  $args ref }
-c_pass 1 fmt_keywords {args} { holdWrapped keywords $args keyword }
+c_pass 1 fmt_see_also	{args} { holdWrapped see_also $args ref }
+c_pass 1 fmt_keywords   {args} { holdWrapped keywords $args keyword }
 c_pass 2 fmt_see_also	{args} NOP
 c_pass 2 fmt_keywords	{args} NOP
 
