@@ -1,3 +1,10 @@
+2003-05-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl:  Applied patch for SF Tcllib bug #731759, as submitted
+	* mime.test: by Matthew Walker <gunzel@users.sourceforge.net> and
+	             accepted by Marshall Rose <mrose@users.sourceforge.net>.
+		     Update of the testsuite on my own.
+
 2003-04-25  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.man: Added a section for known bugs, and recorded 447037 as
