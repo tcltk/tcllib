@@ -124,7 +124,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
     proc ::md5::time {} {
 	foreach len {10 50 100 500 1000 5000 10000} {
 	    set time [::time {md5 [format %$len.0s ""]} 100]
-	    regexp -- "\[0-9]*" $time msec
+	    set msec [lindex $time 0]
 	    puts "input length $len: [expr {$msec/1000}] milliseconds per interation"
 	}
     }
