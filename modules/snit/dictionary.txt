@@ -48,6 +48,9 @@ Snit_methodInfo         Array(method name) = {<pattern> <compName>}
                         method cache lookup to create the command for
                         the named method.
 
+Snit_cgetCache          Array(option name) = cached command.
+                        Used by $self cget.
+
 Snit_optionInfo         An array of option data.  The keys are as follows:
 
   General fields:

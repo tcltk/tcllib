@@ -1828,9 +1828,10 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
             variable ${selfns}::Snit_instance
             set Snit_instance [uplevel namespace which -command $new]
             
-            # Also, clear the method cache, as many cached commands
-            # will be invalid.
+            # Also, clear the instance caches, as many cached commands
+            # might be invalid.
             unset -nocomplain -- ${selfns}::Snit_methodCache
+            unset -nocomplain -- ${selfns}::Snit_cgetCache
         }
     } result]} {
         global errorInfo
@@ -2120,10 +2121,11 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
     # Save the new component value.
     set Snit_components($component) $cvar
 
-    # Clear the method cache.
+    # Clear the instance caches.
     # TBD: can we unset just the elements related to
     # this component?
     unset -nocomplain -- ${selfns}::Snit_methodCache
+    unset -nocomplain -- ${selfns}::Snit_cgetCache
 }
 
 # Generates and caches the command for a method.
@@ -2565,7 +2567,7 @@ proc ::snit::RT.typemethod.destroy {type} {
 # self          The instance's current name
 # option        The name of the option
 
-proc ::snit::RT.method.cget {type selfns win self option} {
+proc ::snit::RT.method.oldcget {type selfns win self option} {
     # TBD: Consider using a cget command cache.
     variable ${type}::Snit_optionInfo
     variable ${selfns}::options
@@ -2602,6 +2604,79 @@ proc ::snit::RT.method.cget {type selfns win self option} {
     # TBD: I'll probably want to fix up certain error
     # messages, but I'm not sure how yet.
     return [$obj cget $target]
+}
+
+# Implements the standard "cget" method
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# option        The name of the option
+
+proc ::snit::RT.method.cget {type selfns win self option} {
+    if {[catch {set ${selfns}::Snit_cgetCache($option)} command]} {
+        set command [snit::RT.CacheCgetCommand $type $selfns $win $self $option]
+        
+        if {[llength $command] == 0} {
+            return -code error "unknown option \"$option\""
+        }
+    }
+            
+    uplevel 1 $command
+}
+
+# Retrieves the command that implements "cget" for the specified option
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# option        The name of the option
+
+proc ::snit::RT.CacheCgetCommand {type selfns win self option} {
+    variable ${type}::Snit_optionInfo
+    variable ${selfns}::Snit_cgetCache
+                
+    if {[info exists Snit_optionInfo(islocal-$option)]} {
+        # We know the item; it's either local, or explicitly delegated.
+        if {$Snit_optionInfo(islocal-$option)} {
+            # It's a local option.  If it has a cget method defined,
+            # use it; otherwise just return the value.
+
+            if {$Snit_optionInfo(cget-$option) eq ""} {
+                set command [list set ${selfns}::options($option)]
+                set Snit_cgetCache($option) $command
+                return $command
+            } else {
+                set command [snit::RT.CacheMethodCommand \
+                                 $type $selfns $win $self \
+                                 $Snit_optionInfo(cget-$option)]
+                lappend command $option
+                set Snit_cgetCache($option) $command
+                return $command
+            }
+        }
+         
+        # Explicitly delegated option; get target
+        set comp [lindex $Snit_optionInfo(target-$option) 0]
+        set target [lindex $Snit_optionInfo(target-$option) 1]
+    } elseif {$Snit_optionInfo(starcomp) ne "" &&
+              [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
+        # Unknown option, but unknowns are delegated; get target.
+        set comp $Snit_optionInfo(starcomp)
+        set target $option
+    } else {
+        return ""
+    }
+    
+    # Get the component's object.
+    set obj [RT.Component $type $selfns $comp]
+
+    set command [list $obj cget $target]
+    set Snit_cgetCache($option) $command
+
+    return $command
 }
 
 # Implements the standard "configurelist" method
