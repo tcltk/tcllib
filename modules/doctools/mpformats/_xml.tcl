@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.3 2002/04/24 03:11:42 jenglish Exp $
+# $Id: _xml.tcl,v 1.4 2002/05/09 22:21:26 jenglish Exp $
 #
 # [expand] utilities for generating XML.
 #
@@ -145,6 +145,7 @@ proc start {gi args} {
 #
 proc xmlContext {gis {default {}}} {
     variable elementStack
+    set origStack $elementStack
     set endTags [list]
     while {[llength $elementStack]} {
 	set current [lindex $elementStack end]
@@ -155,7 +156,12 @@ proc xmlContext {gis {default {}}} {
 	set elementStack [lreplace $elementStack end end]
     }
     # Not found:
-    if {![string length $default]} { set default [join $gis .] }
+    set elementStack $origStack
+    if {![string length $default]} {
+	puts stderr "Warning: Cannot start context $gis"
+    	set default [lindex $gis 0] 
+    }
+    lappend elementStack $default
     return [startTag $default]
 }
 
