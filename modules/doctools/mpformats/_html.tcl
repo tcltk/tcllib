@@ -38,10 +38,10 @@ set    textMap {
 # with entity references.
 #
 
-variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} }
+variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} {"} {\1"} }
 
 variable finalMap $textMap
-lappend  finalMap {\1&} {&}  {\1<} {<}  {\1>} {>}
+lappend  finalMap {\1&} {&}  {\1<} {<}  {\1>} {>} {\1"} {"}
 
 
 proc htmlEscape {text} {
