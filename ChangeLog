@@ -1,3 +1,8 @@
+2004-07-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sak.tcl: Support critcl implementation of rc4.
+	* modules/tcllibc.tcl: Increment version to 0.2.0.
+
 2004-07-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* installed_modules.tcl: NEW MODULE: rc4

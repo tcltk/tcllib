@@ -9,13 +9,13 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 #
-# $Id: rc4.tcl,v 1.2 2004/07/04 00:16:53 patthoyts Exp $
+# $Id: rc4.tcl,v 1.3 2004/07/04 01:22:46 patthoyts Exp $
 
 package require Tcl 8.2
 
 namespace eval ::rc4 {
     variable version 1.0.0
-    variable rcsid {$Id: rc4.tcl,v 1.2 2004/07/04 00:16:53 patthoyts Exp $}
+    variable rcsid {$Id: rc4.tcl,v 1.3 2004/07/04 01:22:46 patthoyts Exp $}
 
     namespace export rc4
 
@@ -30,6 +30,9 @@ namespace eval ::rc4 {
     # Obviously, a compiled C version is fastest of all.
     # So lets pick the fastest method we can find...
     #
+    if {[catch {package require tcllibc}]} {
+        catch {package require rc4c}
+    }
     if {[info command ::rc4::rc4c] != {}} {
         interp alias {} ::rc4::RC4Init {} ::rc4::rc4c_init
         interp alias {} ::rc4::RC4     {} ::rc4::rc4c
