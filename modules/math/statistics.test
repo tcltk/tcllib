@@ -3,18 +3,18 @@
 #    Test cases for the ::math::statistics package
 #
 # Note:
-#    The tests assume tcltest 1.2, in order to compare
+#    The tests assume tcltest 2.1, in order to compare
 #    floating-point results
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 1.2
+    package require tcltest 2.1
     namespace import ::tcltest::*
 } else {
-    # Ensure that 1.2 or higher present.
+    # Ensure that 2.1 or higher present.
 
-    if {![package vsatisfies [package present tcltest] 1.2]} {
+    if {![package vsatisfies [package present tcltest] 2.1]} {
 	puts "Aborting tests for math::statistics."
-	puts "Requiring tcltest 1.2, have [package present tcltest]"
+	puts "Requiring tcltest 2.1, have [package present tcltest]"
 	return
     }
 }
