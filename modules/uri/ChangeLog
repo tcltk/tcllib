@@ -1,3 +1,11 @@
+2003-03-28  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.man:
+	* uri-rfc2396.test: New file. First step towards conformance with
+	  RFC 2396, a testsuite for checking conformant behaviour. Thanks
+	  to Rolf Ade <pointsman@users.sourceforge.net>. Bug
+	  #581781. Noted non-conformance in documentation, inviting help.
+
 2003-02-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uri.test (uri-4.1): Fixed bad test.
