@@ -15,7 +15,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.1 2001/11/17 21:51:11 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.2 2001/12/10 21:13:20 patthoyts Exp $}
     variable version 1.0
     variable stopped
 
@@ -278,7 +278,11 @@ proc smtpd::gmtoffset {} {
     set now [clock seconds]
     set lh [string trimleft [clock format $now -format "%H" -gmt false] 0]
     set zh [string trimleft [clock format $now -format "%H" -gmt true] 0]
-    set off [expr {$zh - $lh}]
+    if {$lh == "" || $zh == ""} {
+        set off 0
+    } else {
+        set off [expr {$zh - $lh}]
+    }
     if {$off > 0} {
         set off [format "+%02d00" $off]
     } else {
