@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.15 2003/05/02 07:42:06 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.16 2003/06/16 19:01:40 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -525,36 +525,6 @@ test ncgi-14.4 {ncgi::multipart} {
 
 }}
 
-test ncgi-14.5 {ncgi::multipart--check binary file} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
-
-    # Read the file in as though it were binary.
-    fconfigure $in -translation binary
-    set X [read $in]
-    close $in
-
-    foreach line [split $X \n] {
-	if {[string length $line] == 0} {
-	    break
-	}
-	if {[regexp {^Content-Type: (.*)$} $line x type]} {
-	    break
-	}
-    }
-    regsub ".*?\n\n" $X {} X
-
-    ncgi::reset $X $type
-    ncgi::parse
-    set content [ncgi::value the_file_naame]
-    list [ncgi::value field1] [ncgi::value field2] $content
-} "value {another value} {\r
-<center><h1>\r
-                  Netscape Address Book Sync for Palm Pilot\r
-                                         User Guide\r
-</h1></center>\r
-\r
-\r
-}"
 
 test ncgi-14.6 {ncgi::multipart setValue} {
     set in [open [file join [file dirname [info script]] formdata.txt]]
@@ -592,5 +562,153 @@ test ncgi-15.1 {ncgi::setValue} {
     ncgi::setValue bar "a b"
     list [ncgi::value nameList] [ncgi::value foo] [ncgi::value bar]
 } {{{val ue} value2} 1 {a b}}
+
+
+
+
+## ------------ tests for binary content and file upload ----------------
+
+## some utility procedures to generate content 
+
+set form_boundary {17661509020136}
+
+proc genformcontent_type {} {
+    global form_boundary
+    return "multipart/form-data; boundary=\"$form_boundary\""
+}
+
+proc genformdata {bcontent} {
+
+    global form_boundary
+
+    proc genformdatapart {name cd value} {
+	global form_boundary
+	return "--$form_boundary\nContent-Disposition: form-data; name=\"$name\"$cd\n\n$value\n"
+    }
+
+    set a [genformdatapart field1 "" {value}]
+    set b [genformdatapart field2 "" {another value}]
+    set c [genformdatapart the_file_naame "; filename=\"C:\\Program Files\\Netscape\\Communicator\\Program\\nareadme.htm\"\nContent-Type: text/html" $bcontent]
+
+    return "$a$b$c--$form_boundary--\n" 
+}
+
+set binary_content "\r
+\r
+<center><h1>\r
+                  Netscape Address Book Sync for Palm Pilot\r
+                                         User Guide\r
+</h1></center>\r
+\r
+"
+
+test ncgi-14.5 {ncgi::multipart--check binary file} {
+
+    global binary_content
+
+    set X [genformdata $binary_content]
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+    set content [ncgi::value the_file_naame]
+    list [ncgi::value field1] [ncgi::value field2] $content
+} [list value {another value} $binary_content]
+
+
+test ncgi-16.1 {ncgi::importFile} {
+
+    global binary_content
+
+    set X [genformdata $binary_content]
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+
+    ncgi::importFile -client the_file_naame
+
+} "C:\\Program Files\\Netscape\\Communicator\\Program\\nareadme.htm"
+
+test ncgi-16.2 {ncgi::importFile - content type} {
+
+    global binary_content
+
+    set X [genformdata $binary_content]
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+
+    ncgi::importFile -type the_file_naame
+
+} text/html
+
+
+test ncgi-16.3 {ncgi::importFile -- file contents} {
+
+    global binary_content
+
+    set X [genformdata $binary_content]
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+
+    ncgi::importFile -data the_file_naame
+
+} $binary_content
+
+test ncgi-16.4 {ncgi::importFile -- save file} {
+
+    global binary_content
+
+    set X [genformdata $binary_content]
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+
+    set localfile [ncgi::importFile -server the_file_naame]
+
+    # get the contents of the local file to verify
+    set in [open $localfile]
+    fconfigure $in -translation binary
+    set content [read $in]
+    close $in
+    file delete $localfile
+    set content
+
+} $binary_content
+
+test ncgi-16.5 {ncgi::importFile -- save file, given name} {
+
+    global binary_content
+
+    set X [genformdata $binary_content]
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+
+    set localfile [ncgi::importFile -server the_file_naame fofo]
+
+    # get the contents of the local file to verify
+    set in [open $localfile]
+    fconfigure $in -translation binary
+    set content [read $in]
+    close $in
+    file delete $localfile
+    set content
+
+} $binary_content
+
+
+test ncgi-16.6 {ncgi::importFile -- bad input} {
+
+    set X "bad multipart data"
+
+    ncgi::reset $X [genformcontent_type]
+    ncgi::parse
+
+    ncgi::importFile -client the_file_naame
+
+} {}
+
+
 
 ::tcltest::cleanupTests
