@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.13 2000/06/10 05:33:40 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.14 2000/07/24 22:15:14 welch Exp $
 
 package provide html 1.0
 
@@ -686,9 +686,15 @@ proc html::openTag {tag {param {}}} {
 
 proc html::closeTag {} {
     variable page
-    set top [lindex $page(stack) end]
-    set page(stack) [lreplace $page(stack) end end]
-    return </$top>
+    if {[info exist page(stack)]} {
+	set top [lindex $page(stack) end]
+	set page(stack) [lreplace $page(stack) end end]
+    }
+    if {[info exist top] && [string length $top]} {
+	return </$top>
+    } else {
+	return ""
+    }
 }
 
 # html::end

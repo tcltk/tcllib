@@ -1,3 +1,9 @@
+2000-07-24  Brent Welch <welch@scriptics.com>
+
+	* modules/html/html.tcl: Fixed html::closeTag to tolerate
+	bad calls - when noone has called openTag on anything
+	or when the tag stack is empty.
+
 2000-06-04  Brent Welch <welch@scriptics.com>
 
 	* modules/html/html.tcl: Added html::headTag to add any tag
