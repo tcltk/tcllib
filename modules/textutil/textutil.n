@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.9 2001/12/11 21:49:43 andreas_kupries Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.10 2002/01/18 00:53:38 jenglish Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -11,30 +11,21 @@
 .SH NAME
 ::textutil \- Procedures to manipulate texts and strings..
 .SH SYNOPSIS
-.BS
+.nf
 \fBpackage require Tcl 8.2\fR
-.sp
 \fBpackage require textutil ?0.3?\fR
 .sp
 \fBtextutil::adjust\fR \fIstring args\fR
-.sp
-\fBtextutil::splitx\fR \fIstring {regexp [\t \r\n\]+}\fR
-.sp
+\fBtextutil::splitx\fR \fIstring {regexp [\\t \\r\\n]+}\fR
 \fBtextutil::tabify\fR \fIstring {num 8}\fR
-.sp
 \fBtextutil::tabify2\fR \fIstring {num 8}\fR
-.sp
-\fBtextutil::trim\fR \fIstring {regexp [ \t]+}\fR
-.sp
-\fBtextutil::trimleft\fR \fIstring {regexp [ \t]+}\fR
-.sp
-\fBtextutil::trimright\fR \fIstring {regexp [ \t]+}\fR
-.sp
+\fBtextutil::trim\fR \fIstring {regexp [ \\t]+}\fR
+\fBtextutil::trimleft\fR \fIstring {regexp [ \\t]+}\fR
+\fBtextutil::trimright\fR \fIstring {regexp [ \\t]+}\fR
 \fBtextutil::untabify\fR \fIstring {num 8}\fR
-.sp
 \fBtextutil::untabify2\fR \fIstring {num 8}\fR
-.sp
 \fBtextutil::strRepeat\fR \fIstring num\fR
+.fi
 .BE
 .SH DESCRIPTION
 .PP
@@ -56,7 +47,7 @@ between the beginning of the string and a newline, or between 2
 newlines, or between a newline and the end of the string. If the
 input string is small enough, the returned string won't contain
 any newlines.
-.TP
+.sp
 By default, any occurrence of spaces characters or tabulation are
 replaced by a single space so each word in a line is separated from
 the next one by exactly one space char, and this forms a \fIreal\fR
@@ -84,7 +75,7 @@ line is justified with the \fIleft\fR value, avoiding the expansion of
 this line when it is too small. The meaning of each value is:
 .RS
 .TP
-\fIcenter\R
+\fIcenter\fR
 the real line is centered in the logical line. If needed, a set of space
 char are added at the beginning (half of the needed set) and at the end
 (half of the needed set) of the line if required (see \fI-full\fR option).
@@ -116,7 +107,7 @@ single word is longer than '-length'. If set to \fItrue\fR, words that
 are longer than '-length' are split so that no line exceeds the
 specified '-length'. Default to \fIfalse\fR.
 .TP
-\fBtextutil::splitx\fR \fIstring {regexp [\t \r\n\]+}\fR
+\fBtextutil::splitx\fR \fIstring {regexp [\\t \\r\\n]+}\fR
 Split the \fIstring\fP and return a list. The string is split
 according to the regular expression \fIregexp\fR instead of a simple
 list of chars. Note that if you add parenthesis into the \fIregexp\fR,
@@ -142,7 +133,7 @@ containing more than one space character and found immediately before
 a tabstop are replaced with tabs.
 
 .TP
-\fBtextutil::trim\fR \fIstring {regexp [ \t]+}\fR
+\fBtextutil::trim\fR \fIstring {regexp [ \\t]+}\fR
 Remove in \fIstring\fP any leading and trailing substring according to
 the regular expression \fIregexp\fR and return the result as a new string.
 This apply on any \fIline\fR in the string, that is any substring between
@@ -151,7 +142,7 @@ between a newline and the end of the string, or, if the string contain no
 newline, between the beginning and the end of the string.
 
 .TP
-\fBtextutil::trimleft\fR \fIstring {regexp [ \t]+}\fR
+\fBtextutil::trimleft\fR \fIstring {regexp [ \\t]+}\fR
 Remove in \fIstring\fP any leading substring according to the regular
 expression \fIregexp\fR and return the result as a new string. This apply
 on any \fIline\fR in the string, that is any substring between 2 newline
@@ -160,7 +151,7 @@ newline and the end of the string, or, if the string contain no newline,
 between the beginning and the end of the string.
 
 .TP
-\fBtextutil::trimright\fR \fIstring {regexp [ \t]+}\fR
+\fBtextutil::trimright\fR \fIstring {regexp [ \\t]+}\fR
 Remove in \fIstring\fP any trailing substring according to the regular
 expression \fIregexp\fR and return the result as a new string. This apply
 on any \fIline\fR in the string, that is any substring between 2 newline
@@ -197,7 +188,7 @@ it is not. Returns a string containing the \fItext\fR repeated
 them. A value of \fInum\fR <= 0 causes the command to return an empty
 string.
 
-.SH SEE ALSO
+.SH "SEE ALSO"
 regexp, split, string
 
 .SH KEYWORDS
