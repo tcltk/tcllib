@@ -15,7 +15,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.2 2001/12/10 21:13:20 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.3 2002/09/16 22:45:09 patthoyts Exp $}
     variable version 1.0
     variable stopped
 
@@ -400,8 +400,10 @@ proc smtpd::MAIL {channel line} {
         log::log debug "MAIL received \"$line\""
         return
     }
-    eval array set addr [mime::parseaddress $from]
-    if {$addr(error) != {}} {
+    if {[catch {eval array set addr [mime::parseaddress $from]} msg]} {
+        set addr(error) $msg
+    }
+    if {$addr(error) != {} } {
         log::log debug "MAIL failed $addr(error)"
         puts $channel "501 Syntax error in parameters or arguments"
         return
@@ -441,7 +443,9 @@ proc smtpd::RCPT {channel line} {
         log::log debug "RCPT received \"$line\""
         return
     }
-    eval array set addr [mime::parseaddress $to]
+    if {[catch {eval array set addr [mime::parseaddress $to]} msg]} {
+        set addr(error) $msg
+    }
     if {$addr(error) != {}} {
         log::log debug "RCPT failed $addr(error)"
         puts $channel "501 Syntax error in parameters or arguments"
