@@ -2,7 +2,7 @@
 
 	* struct (tree): Accepted FR #552972.
 
-	* mime: Fixed bug #539952.
+	* mime: Fixed bugs #539952, #553784.
 
 2002-05-08  Don Porter <dgp@users.sourceforge.net>
 
