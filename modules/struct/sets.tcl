@@ -2,14 +2,14 @@
 #
 # sets.tcl --
 #
-#	Definitions for processing of sets.
+#	Definitions for the processing of sets.
 #
 # Copyright (c) 2004 by Andreas Kupries.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.2 2004/02/09 09:32:14 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.3 2004/02/29 23:23:36 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ namespace eval ::struct::set {
 
 # ::struct::set::set --
 #
-#	Command that access all list commands.
+#	Command that access all set commands.
 #
 # Arguments:
 #	cmd	Name of the subcommand to dispatch to.
@@ -48,7 +48,7 @@ proc ::struct::set::set {cmd args} {
 	    lappend xlist [string range $p 16 end]
 	}
 	return -code error \
-		"bad option \"$cmd\": must be [linsert [join $xlist ", "] "end-1" "or"]"
+		"bad option \"$cmd\": must be [linsert [join [lsort $xlist] ", "] "end-1" "or"]"
     }
     return [uplevel 1 [linsert $args 0 ::struct::set::$sub]]
 }
@@ -302,3 +302,122 @@ proc ::struct::set::Cleanup {A} {
     foreach [lindex [list $A [unset A]] 0] {.} {break}
     return [info locals]
 }
+
+# ::struct::set::Sinclude --
+#
+#	Add an element to a set.
+#
+# Parameters:
+#	Avar	-- Reference to the set variable to extend.
+#	element	-- The item to add to the set.
+#
+# Results:
+#	None.
+#
+# Side effects:
+#       The set in the variable referenced by Avar is extended
+#	by the element (if the element was not already present).
+
+proc ::struct::set::Sinclude {Avar element} {
+    # Avar = Avar + {element}
+    upvar 1 $Avar A
+    if {![Scontains $A $element]} {
+	lappend A $element
+    }
+    return
+}
+
+# ::struct::set::Sexclude --
+#
+#	Remove an element from a set.
+#
+# Parameters:
+#	Avar	-- Reference to the set variable to shrink.
+#	element	-- The item to remove from the set.
+#
+# Results:
+#	None.
+#
+# Side effects:
+#       The set in the variable referenced by Avar is shrunk,
+#	the element remove (if the element was actually present).
+
+proc ::struct::set::Sexclude {Avar element} {
+    # Avar = Avar + {element}
+    upvar 1 $Avar A
+    while {[::set pos [lsearch -exact $A $element]] >= 0} {
+	::set A [lreplace [K $A [::set A {}]] $pos $pos]
+    }
+    return
+}
+
+# ::struct::set::Sadd --
+#
+#	Add a set to a set. Similar to 'union', but the first argument
+#	is a variable.
+#
+# Parameters:
+#	Avar	-- Reference to the set variable to extend.
+#	B	-- The set to add to the set in Avar.
+#
+# Results:
+#	None.
+#
+# Side effects:
+#       The set in the variable referenced by Avar is extended
+#	by all the elements in B.
+
+proc ::struct::set::Sadd {Avar B} {
+    # Avar = Avar + B
+    upvar 1 $Avar A
+    ::set A [Sunion [K $A [::set A {}]] $B]
+    return
+}
+
+# ::struct::set::Ssubtract --
+#
+#	Remove a set from a set. Similar to 'difference', but the first argument
+#	is a variable.
+#
+# Parameters:
+#	Avar	-- Reference to the set variable to shrink.
+#	B	-- The set to remove from the set in Avar.
+#
+# Results:
+#	None.
+#
+# Side effects:
+#       The set in the variable referenced by Avar is shrunk,
+#	all elements of B are removed.
+
+proc ::struct::set::Ssubtract {Avar B} {
+    # Avar = Avar - B
+    upvar 1 $Avar A
+    ::set A [Sdifference [K $A [::set A {}]] $B]
+    return
+}
+
+# ::struct::set::Ssubsetof --
+#
+#	A predicate checking if the first set is a subset
+#	or equal to the second set.
+#
+# Parameters:
+#	A	-- The possible subset.
+#	B	-- The set to compare to.
+#
+# Results:
+#	A boolean value, true if A is subset of or equal to B
+#
+# Side effects:
+#       None.
+
+proc ::struct::set::Ssubsetof {A B} {
+    # A subset|== B <=> (A == A*B)
+    return [Sequal $A [Sintersect $A $B]]
+}
+
+# ::struct::set::K --
+# Performance helper command.
+
+proc ::struct::set::K {x y} {::set x}
