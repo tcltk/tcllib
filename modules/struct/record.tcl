@@ -21,7 +21,7 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.4 2003/01/29 04:27:25 schwarzkopf Exp $
+# $Id: record.tcl,v 1.5 2003/01/29 06:26:03 schwarzkopf Exp $
 #
 #============================================================
 #
@@ -621,12 +621,12 @@ proc ::struct::record::Delete {sub_ item_} {
         instances -
         inst    {
 
-            set ns $_defn($item_)
 
             if {[Exists instance $item_]} {
         
+		set ns $_defn($item_)
                 foreach A [info commands ${item_}.*] {
-                     catch {uplevel #0 [list interp alias {} $A {}]}
+		    Delete inst $A
                 }
         
                 catch {
