@@ -14,7 +14,7 @@ installing tcllib for use by your existing Tcl installation:
 	install the library.
 
 	If the script is evaluated by an explictly named Tcl shell program
-	(for example: `/patch/to/tclsh install.tcl`), then the packages
+	(for example: `/path/to/tclsh install.tcl`), then the packages
 	of tcllib will be installed so that they are available for use
 	by that Tcl shell program.
 
