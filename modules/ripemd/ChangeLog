@@ -1,0 +1,6 @@
+2004-02-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ripemd128.man:   Initial implementation of RIPEMD-128 in 
+	* ripemd128.tcl:   pure-Tcl and deferring to Trf (except on Windows
+	* ripemd128.test:  where that has Trf/Memchan bugs).
+	* pkgIndex.tcl:    

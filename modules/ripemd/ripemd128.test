@@ -1,0 +1,85 @@
+# ripemd128.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
+#
+# $Id: ripemd128.test,v 1.1 2004/02/16 22:50:40 patthoyts Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+package require ripemd128
+
+if {$::ripemd::usetrf} {
+    puts "ripemd128 [package provide ripemd128] (Trf based)"
+} else {
+    puts "ripemd128 [package provide ripemd128] (pure Tcl)"
+}
+
+# -------------------------------------------------------------------------
+
+# Test vectors
+#
+set vectors {
+    1 {}    {CDF26213A150DC3ECB610F18F6B38B46}
+    2 {a}   {86BE7AFA339D0FC7CFC785E72F578D33}
+    3 {abc} {C14A12199C66E4BA84636B0F69144C77}
+    4 {message digest} {9E327B3D6E523062AFC1132D7DF9D1B8}
+    5 {abcdefghijklmnopqrstuvwxyz} {FD2AA607F71DC8F510714922B371834E}
+    6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
+      {A1AA0689D0FAFA2DDC22E88B49133A06}
+    7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+      {D1E959EB179C911FAEA4624C60C5C702}
+}
+lappend vectors \
+    8 [string repeat 1234567890 8] {3F45EF194732C2DBB2C4A2C769795FA3}
+
+foreach {n msg hash} $vectors {
+    test ripemd128-1.$n {RIPEMD-128 test strings} {
+        ::ripemd::ripemd128 -hex $msg
+    } $hash
+}
+
+# If our implementation is managing to use Trf then check the pure tcl
+# version as well.
+if {$::ripemd::usetrf} {
+    set ::ripemd::usetrf 0
+    foreach {n msg hash} $vectors {
+        test ripemd128-2.$n {RIPEMD-128 pure-Tcl} {
+            ::ripemd::ripemd128 -hex $msg
+        } $hash
+    }
+    set ::ripemd::usetrf 1
+}
+
+# -------------------------------------------------------------------------
+# HMAC test vectors
+
+set key [binary format H* 00112233445566778899aabbccddeeff]
+
+set vectors {
+    1 {}    {AD9DB2C1E22AF9AB5CA9DBE5A86F67DC}
+    2 {a}   {3BF448C762DE00BCFA0310B11C0BDE4C}
+    3 {abc} {F34EC0945F02B70B8603F89E1CE4C78C}
+    4 {message digest} {E8503A8AEC2289D82AA0D8D445A06BDD}
+    5 {abcdefghijklmnopqrstuvwxyz} {EE880B735CE3126065DE1699CC136199}
+    6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
+      {794DAF2E3BDEEA2538638A5CED154434}
+    7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+      {3A06EEF165B23625247800BE23E232B6}
+}
+lappend vectors \
+    8 [string repeat 1234567890 8] {9A4F0159C0952DA43A8D466D46B0AF58}
+
+foreach {n msg hash} $vectors {
+    test ripemd128-3.$n {HMAC RIPEMD-128 test vectors} {
+        ::ripemd::hmac128 -hex -key $key $msg
+    } $hash
+}
+
+::tcltest::cleanupTests
+
+# -------------------------------------------------------------------------
+# Local Variables:
+#   mode: tcl
+#   indent-tabs-mode: nil
+# End:
