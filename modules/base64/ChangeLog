@@ -1,3 +1,8 @@
+2002-01-12  Pat Thoyts <patthoyts@users.soruceforge.net>
+
+	* uuencode.tcl: initial import of uuencode package
+	* pkgIndex.tcl: added uuencode package
+	
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* base64.tcl: Restricted export list to public API.
