@@ -45,30 +45,7 @@ namespace eval ::snit:: {
         variable options
 
         # Instance Introspection: info <command> <args>
-        method info {command args} {
-            switch -exact $command {
-                type    -
-                vars    -
-                options -
-                typevars {
-                    set errflag [catch {
-                        uplevel ::snit::InstanceInfo_$command \
-                            $type $selfns $win $self $args
-                    } result]
-
-                    if {$errflag} {
-                        global errorInfo
-                        return -code error -errorinfo $errorInfo $result
-                    } else {
-                        return $result
-                    }
-                }
-                default {
-                    # error "'$self info $command' is not defined."
-                    return -code error "'$self info $command' is not defined."
-                }
-            }
-        }
+        delegate method info using {::snit::RT.method.info %t %n %w %s}
 
         # Type Introspection: info <command> <args>
         typemethod info {command args} {
@@ -2399,26 +2376,58 @@ proc ::snit::TypeInfo_instances {type {pattern *}} {
 #-----------------------------------------------------------------------
 # Instance Introspection
 
-# Returns the instance's type.
+# Implements the standard "info" method.
 #
 # type		The snit type
 # selfns        The instance's instance namespace
 # win           The instance's original name
 # self          The instance's current name
-#
-# TBD: Why is this command needed?  How hard is it to return $type?
+# command       The info subcommand
+# args          All other arguments.
 
-proc ::snit::InstanceInfo_type {type selfns win self} {
+proc ::snit::RT.method.info {type selfns win self command args} {
+    switch -exact $command {
+        type    -
+        vars    -
+        options -
+        typevars {
+            set errflag [catch {
+                uplevel ::snit::RT.method.info.$command \
+                    $type $selfns $win $self $args
+            } result]
+            
+            if {$errflag} {
+                global errorInfo
+                return -code error -errorinfo $errorInfo $result
+            } else {
+                return $result
+            }
+        }
+        default {
+            # error "'$self info $command' is not defined."
+            return -code error "'$self info $command' is not defined."
+        }
+    }
+}
+
+# $self info type
+#
+# Returns the instance's type
+proc ::snit::RT.method.info.type {type selfns win self} {
     return $type
 }
 
+# $self info typevars
+#
 # Returns the instance's type's typevariables
-proc ::snit::InstanceInfo_typevars {type selfns win self {pattern *}} {
+proc ::snit::RT.method.info.typevars {type selfns win self {pattern *}} {
     return [TypeInfo_typevars $type $pattern]
 }
 
+# $self info vars
+#
 # Returns the instance's instance variables
-proc ::snit::InstanceInfo_vars {type selfns win self {pattern *}} {
+proc ::snit::RT.method.info.vars {type selfns win self {pattern *}} {
     set result {}
     foreach name [info vars "${selfns}::$pattern"] {
         set tail [namespace tail $name]
@@ -2430,8 +2439,10 @@ proc ::snit::InstanceInfo_vars {type selfns win self {pattern *}} {
     return $result
 }
 
+# $self info options 
+#
 # Returns a list of the names of the instance's options
-proc ::snit::InstanceInfo_options {type selfns win self {pattern *}} {
+proc ::snit::RT.method.info.options {type selfns win self {pattern *}} {
     upvar ${type}::Snit_optiondefaults   Snit_optiondefaults
     upvar ${type}::Snit_delegatedoptions Snit_delegatedoptions
     upvar ${type}::Snit_info             Snit_info

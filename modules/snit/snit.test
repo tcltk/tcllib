@@ -3569,7 +3569,7 @@ test iinfo-1.1 {object info too few args} {
 
     catch {spot info} result
     set result
-} {wrong # args: should be "::dog::Snit_methodinfo type selfns win self command args"}
+} {wrong # args: should be "::snit::RT.method.info type selfns win self command args"}
 
 test iinfo-1.2 {object info too many args} {
     cleanup
@@ -3580,7 +3580,7 @@ test iinfo-1.2 {object info too many args} {
 
     catch {spot info type foo} result
     set result
-} {wrong # args: should be "::snit::InstanceInfo_type type selfns win self"}
+} {wrong # args: should be "::snit::RT.method.info.type type selfns win self"}
 
 test iinfo-1.3 {object info type} {
     cleanup
