@@ -25,7 +25,7 @@
 
 # We use newer string routines
 package require Tcl 8.2
-package require fileutil ; # Required by import_file.
+package require fileutil ; # Required by importFile.
 
 package provide ncgi 1.2.2
 
@@ -117,9 +117,12 @@ namespace eval ::ncgi {
 
 proc ::ncgi::reset {args} {
     global env
+    global ncgi::_tmpfiles
     variable query
     variable contenttype
     variable cookieOutput
+
+    array unset ncgi::_tmpfiles
 
     set cookieOutput {}
     if {[llength $args] == 0} {
@@ -909,39 +912,43 @@ proc ::ncgi::multipart {type query} {
 #   -type   returns the mime type of the file
 #   -data   returns the contents of the file 
 
-proc ::ncgi::import_file {cmd var {filename {}}} {
+proc ::ncgi::importFile {cmd var {filename {}}} {
 
-    set vlist [ncgi::valueList $var]
+    set vlist [valueList $var]
 
-    pre - $vlist
-
-    array set fileinfo [lindex $vlist 0]
-    set contents [lindex $vlist 1]
+    array set fileinfo [lindex [lindex $vlist 0] 0]
+    set contents [lindex [lindex $vlist 0] 1]
 
     switch -exact -- $cmd {
 	-server {
 	    ## take care not to write it out more than once
 	    global ncgi::_tmpfiles
-	    if {$filename != {}} {
-		## use supplied filename 
-		set ncgi::_tmpfiles($var) $filename
-	    } elseif {![info exists ncgi::_tmpfiles($var)]} {
-		## create a tmp file 
-		set tmpfile [::fileutil::tempfile ncgi]
-		if {[catch {open $tmpfile w} h]} {
+	    if {![info exists ncgi::_tmpfiles($var)]} {
+		if {$filename != {}} {
+		    ## use supplied filename 
+		    set ncgi::_tmpfiles($var) $filename
+		} else {
+		    ## create a tmp file 
+		    set ncgi::_tmpfiles($var) [::fileutil::tempfile ncgi]
+		}
+
+		# write out the data only if it's not been done already
+		if {[catch {open $ncgi::_tmpfiles($var) w} h]} {
 		    error "Can't open temporary file in ncgi::import_file"
 		} 
+
 		fconfigure $h -translation binary -encoding binary
 		puts -nonewline $h $contents 
 		close $h
-		set ncgi::_tmpfiles($var) $tmpfile
 	    }
 	    return $ncgi::_tmpfiles($var)
 	}
 	-client {
+	    if {![info exists fileinfo(filename)]} {return {}}
 	    return $fileinfo(filename)
 	}
 	-type {
+	    if {![info exists fileinfo(content-type)]} {return {}}
 	    return $fileinfo(content-type)
 	}
 	-data {
