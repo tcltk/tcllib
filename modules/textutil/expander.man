@@ -18,12 +18,12 @@ values, returning the new string:
 [para]
 
 [example {
- % set greeting "Howdy"
- Howdy
- % proc place {} {return "World"}
- % subst {$greeting, [place]!}
- Howdy, World!
- %
+    % set greeting "Howdy"
+    Howdy
+    % proc place {} {return "World"}
+    % subst {$greeting, [place]!}
+    Howdy, World!
+    %
 }]
 
 [para]
@@ -67,8 +67,7 @@ solve the third problem as well.
 [para]
 
 The following section describes the command API to the expander; this
-is followed by the tutorial sections, beginning at
-[sectref {TUTORIAL: Basics}].
+is followed by the tutorial sections, see [sectref TUTORIAL].
 
 [section {EXPANDER API}]
 [para]
@@ -88,7 +87,7 @@ not fully qualified it is interpreted as relative to the current
 namespace.  The command has the following general form:
 
 [example_begin]
- [arg expanderName] option [opt [arg {arg arg ...}]]
+[arg expanderName] option [opt [arg {arg arg ...}]]
 [example_end]
 
 [arg Option] and the [arg arg]s determine the exact behavior of the
@@ -168,29 +167,28 @@ Sets the macro expansion error mode to one of [const nothing],
 [const fail].  The value determines what the expander does if an
 error is detected during expansion of a macro.
 
-[list_begin bullet]
-[bullet]
+[list_begin definitions]
+[lst_item [const fail]]
 
-If the error mode is [const fail], the error propagates normally and
-can be caught or ignored by the application.
+The error propagates normally and can be caught or ignored by the
+application.
 
-[bullet]
+[lst_item [const error]]
 
-If the error mode is [const error], the macro expands into a detailed
-error message, and expansion continues.
+The macro expands into a detailed error message, and expansion
+continues.
 
-[bullet]
+[lst_item [const macro]]
 
-If the error mode is [const macro], the macro expands to itself; that
-is, it is passed along to the output unchanged.
+The macro expands to itself; that is, it is passed along to the output
+unchanged.
 
-[bullet]
+[lst_item [const nothing]]
 
-If the error mode is [const nothing], the macro expands to the empty
-string, and is effectively ignored.
+The macro expands to the empty string, and is effectively ignored.
 
 [list_end]
-
+[nl]
 
 [call [arg expanderName] [method evalcmd] [opt [arg newEvalCmd]]]
 
@@ -267,24 +265,28 @@ is run through the [arg evalcmd] for the actual evaluation. In other
 words, the [arg textcmd] is treated as a special macro implicitly
 surrounding all plain text in the template.
 
+
+[call [arg expanderName] [method where]]
+
+Returns a three-element list containing the current character
+position, line, and column the expander is at in the processing of the
+current input string.
+
 [list_end]
 
-[section {TUTORIAL: Basics}]
-
-[para]
+[section TUTORIAL]
+[subsection Basics]
 
 To begin, create an expander object:
 
 [para]
-
 [example {
- % package require expander
- 1.2
- % ::expander::expander myexp
- ::myexp
- %
+    % package require expander
+    1.2
+    % ::expander::expander myexp
+    ::myexp
+    %
 }]
-
 [para]
 
 The created [cmd ::myexp] object can be used to expand text strings
@@ -294,52 +296,44 @@ interpolate variables, since variables can be referenced by embedded
 commands:
 
 [para]
-
 [example {
- % set greeting "Howdy"
- Howdy
- % proc place {} {return "World"}
- % ::myexp expand {[set greeting], [place]!}
- Howdy, World!
- %
+    % set greeting "Howdy"
+    Howdy
+    % proc place {} {return "World"}
+    % ::myexp expand {[set greeting], [place]!}
+    Howdy, World!
+    %
 }]
 
-[para]
 
-[section {TUTORIAL: Embedding Macros}]
-
-[para]
+[subsection {Embedding Macros}]
 
 An expander macro is simply a Tcl script embedded within a text
 string.  Expander evaluates the script in the global context, and
 replaces it with its result string.  For example,
 
 [para]
-
 [example {
- % set greetings {Howdy Hi "What's up"}
- Howdy Hi "What's up"
- % ::myexp expand {There are many ways to say "Hello, World!":
- [set result {}
- foreach greeting $greetings {
-    append result "$greeting, World!\\n"
- }
- set result]
- And that's just a small sample!}
- There are many ways to say "Hello, World!":
- Howdy, World!
- Hi, World!
- What's up, World!
+    % set greetings {Howdy Hi "What's up"}
+    Howdy Hi "What's up"
+    % ::myexp expand {There are many ways to say "Hello, World!":
+    [set result {}
+    foreach greeting $greetings {
+	append result "$greeting, World!\\n"
+    }
+    set result]
+    And that's just a small sample!}
+    There are many ways to say "Hello, World!":
+    Howdy, World!
+    Hi, World!
+    What's up, World!
 
- And that's just a small sample!
- %
+    And that's just a small sample!
+    %
 }]
 
-[para]
 
-[section {TUTORIAL: Writing Macro Commands}]
-
-[para]
+[subsection {Writing Macro Commands}]
 
 More typically, [emph {macro commands}] are used to create a markup
 language.  A macro command is just a Tcl command that returns an
@@ -348,26 +342,21 @@ document markup language that can be retargeted to HTML or any other
 output format:
 
 [para]
-
 [example {
- % proc bold {} {return "<b>"}
- % proc /bold {} {return "</b>"}
- % ::myexp expand {Some of this text is in [bold]boldface[/bold]}
- Some of this text is in <b>boldface</b>
- %
+    % proc bold {} {return "<b>"}
+    % proc /bold {} {return "</b>"}
+    % ::myexp expand {Some of this text is in [bold]boldface[/bold]}
+    Some of this text is in <b>boldface</b>
+    %
 }]
-
 [para]
 
 The above definitions of [cmd bold] and [cmd /bold] returns HTML, but
 such commands can be as complicated as needed; they could, for
 example, decide what to return based on the desired output format.
 
-[para]
 
-[section {TUTORIAL: Changing the Expansion Brackets}]
-
-[para]
+[subsection {Changing the Expansion Brackets}]
 
 By default, embedded macros are enclosed in square brackets,
 
@@ -385,32 +374,26 @@ For example, you can write pseudo-html by change them to [const <]
 and [const >]:
 
 [para]
-
 [example {
- % ::myexp setbrackets < >
- % ::myexp expand {<bold>This is boldface</bold>}
- <b>This is boldface</b>
+    % ::myexp setbrackets < >
+    % ::myexp expand {<bold>This is boldface</bold>}
+    <b>This is boldface</b>
 }]
-
 [para]
 
 Alternatively, you can change the expansion brackets temporarily by
 passing the desired brackets to the [method expand] command:
 
 [para]
-
 [example {
- % ::myexp setbrackets "\\[" "\\]"
- % ::myexp expand {<bold>This is boldface</bold>} {< >}
- <b>This is boldface</b>
- %
+    % ::myexp setbrackets "\\[" "\\]"
+    % ::myexp expand {<bold>This is boldface</bold>} {< >}
+    <b>This is boldface</b>
+    %
 }]
 
-[para]
 
-[section {TUTORIAL: Customized Macro Expansion}]
-
-[para]
+[subsection {Customized Macro Expansion}]
 
 By default, macros are evaluated using the Tcl [cmd {uplevel #0}]
 command, so that the embedded code executes in the global context.
@@ -426,17 +409,13 @@ For example, the following code "evaluates" each macro by returning
 the macro text itself.
 
 [para]
-
 [example {
     proc identity {macro} {return $macro}
     ::myexp evalcmd identity
 }]
 
-[para]
 
-[section {TUTORIAL: Using the Context Stack}]
-
-[para]
+[subsection {Using the Context Stack}]
 
 Often it's desirable to define a pair of macros which operate in some
 way on the plain text between them.  Consider a set of macros for
@@ -444,12 +423,10 @@ adding footnotes to a web page: one could have implement something
 like this:
 
 [para]
-
 [example {
     Dr. Pangloss, however, thinks that this is the best of all
     possible worlds.[footnote "See Candide, by Voltaire"]
 }]
-
 [para]
 
 The [cmd footnote] macro would, presumably, assign a number to this
@@ -458,13 +435,11 @@ solution is ugly if the footnote text is long or should contain
 additional markup.  Consider the following instead:
 
 [para]
-
 [example {
     Dr. Pangloss, however, thinks that this is the best of all
     possible worlds.[footnote]See [bookTitle "Candide"], by
     [authorsName "Voltaire"], for more information.[/footnote]
 }]
-
 [para]
 
 Here the footnote text is contained between [cmd footnote] and
@@ -483,7 +458,6 @@ Then, all expanded text gets placed in that new context.
 skeleton implementation of these two macros:
 
 [para]
-
 [example {
     proc footnote {} {
         ::myexp cpush footnote
@@ -496,7 +470,6 @@ skeleton implementation of these two macros:
         # number and link.
     }
 }]
-
 [para]
 
 The [method cpush] command pushes a new context onto the stack; the
@@ -516,7 +489,6 @@ calling [method cpop].  For example, suppose the document must specify
 the footnote number explicitly:
 
 [para]
-
 [example {
     proc footnote {footnoteNumber} {
         ::myexp cpush footnote
@@ -532,7 +504,6 @@ the footnote number explicitly:
         # output.
     }
 }]
-
 [para]
 
 At times, it might be desirable to define macros that are valid only

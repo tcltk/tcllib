@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.10 2004/05/26 04:24:28 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.11 2004/07/23 03:43:58 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -472,9 +472,9 @@ proc ::doctools::_format {name text} {
 	    # Filter for checker errors and reduce them to the essential message.
 
 	    if {![regexp {^Error in} $msg]}          {return -code error $msg}
-	    set msg [join [lrange [split $msg \n] 2 end]]
+	    #set msg [join [lrange [split $msg \n] 2 end]]
 
-	    if {![regexp {^--> \(FmtError\) } $msg]} {return -code error @$msg}
+	    if {![regexp {^--> \(FmtError\) } $msg]} {return -code error "Doctools $msg"}
 	    set msg [lindex [split $msg \n] 0]
 	    regsub {^--> \(FmtError\) } $msg {} msg
 

@@ -1,3 +1,21 @@
+2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.man: Polished the expander documentation, made use of
+	  subsections, removed superfluous para's, indented examples.
+
+2004-07-22  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* expander.tcl: Bugfix in processing of plaintext. Have to save
+	  the input for location update. Do not use the result of the text
+	  processing.
+
+	* expander.tcl: Extended the method 'expand' to keep track of the
+	  location in the string, in terms of line, column, char
+	  pos. Extended 'HandleError' to report the location the problem
+	  was found at (start position, not end). Added a new method
+	  'where' which allows retrieval of the current location by the
+	  called macros.
+
 2004-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.man: Changed the reported filename to include the
