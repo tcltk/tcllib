@@ -1,3 +1,7 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* logger.tcl: Fixed bug #614591.
+
 2003-02-25  David N. Welton  <davidw@dedasys.com>
 
 	* logger.tcl: Require Tcl 8.2 - we use string map.
