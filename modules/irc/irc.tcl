@@ -5,7 +5,7 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.14 2003/06/30 10:24:17 davidw Exp $
+# $Id: irc.tcl,v 1.15 2003/07/02 18:37:39 afaupell Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
@@ -62,6 +62,35 @@ proc ::irc::connections { } {
     return $r
 }
 
+# ::irc::reload --
+#
+# Reload this file, and merge the current connections into
+# the new one.
+
+proc ::irc::reload { } {
+    variable conn
+    set oldconn $conn
+    namespace eval :: {
+	source [set ::irc::irctclfile]
+    }
+    foreach ns [namespace children] {
+        foreach var {sock state logger host port} {
+            set $var [set ${ns}::$var]
+        }
+        array set dispatch [array get ${ns}::dispatch]
+        array set config [array get ${ns}::config]
+        # make sure our new connection uses the same namespace
+        set conn [string range $ns 10 end]
+        ::irc::connection
+        foreach var {sock state logger host port} {
+            set ${ns}::$var [set $var]
+        }
+        array set ${ns}::dispatch [array get dispatch]
+        array set ${ns}::config [array get config]
+    }
+    set conn $oldconn
+}
+
 
 # ::irc::connection --
 #
@@ -76,7 +105,6 @@ proc ::irc::connection { args } {
     set name [format "%s::irc%s" [namespace current] $conn]
 
     namespace eval $name {
-	set nick ""
 	set state 0
 	set sock {}
 	set logger [logger::init [namespace qualifiers [namespace current]]]
@@ -168,8 +196,6 @@ proc ::irc::connection { args } {
 	}
 
 	proc cmd-nick { nk } {
-	    variable nick
-	    set nick $nk
 	    ircsend "NICK $nk"
 	}
 
@@ -249,37 +275,6 @@ proc ::irc::connection { args } {
 	    if { $state == 0 } { return -1 }
 	    catch { close $sock }
 	    return 0
-	}
-
-	proc cmd-reload {} {
-	    variable nick
-	    variable sock
-	    variable state
-	    variable logger
-	    variable dispatch
-	    variable host
-	    variable port
-	    # Reload this file, and merge the current connection into
-	    # the new one.
-	    set sk $sock
-	    set nk $nick
-	    set st $state
-	    set lg $logger
-	    array set ds [array get dispatch]
-	    set hs $host
-	    set pt $port
-	    namespace eval :: {
-		source [set ::irc::irctclfile]
-	    }
-	    set conn [namespace qualifiers [::irc::connection]]
-	    set ${conn}::logger $lg
-	    set ${conn}::sock $sk
-	    set ${conn}::state $st
-	    set ${conn}::nick $nk
-	    set ${conn}::port $pt
-	    set ${conn}::host $hs
-	    array set ${conn}::dispatch [array get ds]
-	    return ${conn}::network
 	}
 
 	# Connect --
@@ -396,7 +391,6 @@ proc ::irc::connection { args } {
 	    variable dispatch
 	    variable state
 	    variable logger
-	    variable nick
 	    array set linedata {}
 	    set line "eof"
 	    if { [eof $sock] || [catch {gets $sock} line] } {

@@ -14,6 +14,15 @@ communication.
 
 [list_begin definitions]
 
+
+[call [cmd ::irc::config] [arg key] [arg value]]
+
+Sets configuration [arg key] to [arg value].  Currently, the only
+config key defined is the boolean flag [const debug] which, when
+turned on, makes [package irc] print more information about what is
+going on.
+
+
 [call [cmd ::irc::connection]]
 
 The command creates a new object to deal with an IRC connection.
@@ -23,12 +32,16 @@ to interact with the new IRC connection.  NOTE: the old form of the
 connection command, which took a hostname and port as arguments, is
 deprecated.  Use [cmd connect] instead to specify this information.
 
-[call [cmd ::irc::config] [arg key] [arg value]]
 
-Sets configuration [arg key] to [arg value].  Currently, the only
-config key defined is the boolean flag [const debug] which, when
-turned on, makes [package irc] print more information about what is
-going on.
+[call [cmd ::irc::connections]]
+
+Returns a list of all the current connections that were created with
+[const connection]
+
+
+[call [cmd ::irc::destroy] [arg net]]
+
+Deletes a connection and its associated namespace and information.
 
 [list_end]
 
@@ -74,6 +87,24 @@ created the namespace and the commands to be used, but did not
 actually open the socket. This is done here.  NOTE: the older form of
 'connect' did not require the user to specify a hostname and port,
 which were specified with 'connection'.  That form is deprecated.
+
+
+[call [arg net] [method connected]]
+
+Returns a boolean value indicating if this connection is connected to a server.
+
+
+[call [arg net] [method sockname]]
+
+Returns a 3 element list consisting of the ip address, the hostname, and the port
+of the local end of the connection, if currently connected.
+
+
+[call [arg net] [method peername]]
+
+Returns a 3 element list consisting of the ip address, the hostname, and the port
+of the remote end of the connection, if currently connected.
+
 
 [call [arg net] [method user] [arg username] [arg localhostname] [arg localdomainname] [arg userinfo]]
 
