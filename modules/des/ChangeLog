@@ -1,3 +1,8 @@
+2003-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* des.tcl (DesBlock): Change the final result from binary format
+	to some bit-shifting for tcl < 8.4 to fix for 64 bit platforms.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
