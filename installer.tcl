@@ -95,7 +95,7 @@ proc _tci {module libdir} {
     global distribution
 
     _tcl $module $libdir
-    file copy [file join $distribution modules $module tclIndex] \
+    file copy -force [file join $distribution modules $module tclIndex] \
 	    [file join $libdir $module]
     return
 }
