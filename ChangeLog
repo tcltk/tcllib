@@ -1,3 +1,8 @@
+2003-04-21  Andreas Kupries  <andreask@activestate.com>
+
+	* installer.tcl: Made sure that all [file copy] operations use
+	  -force. Fix for #719616.
+
 2003-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installer.tcl: Bug fix, the modules calendar, control, and math
