@@ -10,11 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.13 2001/08/02 17:22:29 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.14 2001/08/20 23:17:33 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide pop3 1.3
+package provide pop3 1.4
 
 namespace eval ::pop3 {
 
@@ -36,6 +36,155 @@ namespace eval ::pop3 {
     variable  state
     array set state {}
 
+}
+
+# ::pop3::close --
+#
+#	Close the connection to the POP3 server.
+#
+# Arguments:
+#	chan      The channel, returned by ::pop3::open
+#
+# Results:
+#	None.
+
+proc ::pop3::close {chan} {
+    variable state
+    catch {::pop3::send $chan "QUIT"}
+    unset state($chan)
+    ::close $chan
+}
+
+# ::pop3::delete --
+#
+#	Delete messages on the POP3 server.
+#
+# Arguments:
+#	chan      The channel, returned by ::pop3::open
+#       start     The first message to delete in the range.
+#                 May be "next" (the next message after the last
+#                 one seen, see ::pop3::last), "start" (aka 1),
+#                 "end" (the last message in the spool, for 
+#                 deleting only the last message).
+#       end       (optional, defaults to -1) The last message
+#                 to delete in the range. May be "last"
+#                 (the last message viewed), "end" (the last
+#                 message in the spool), or "-1" (the default,
+#                 any negative number means delete only
+#                 one message).
+#
+# Results:
+#	None.
+#       May throw errors from the server.
+
+proc ::pop3::delete {chan start {end -1}} {
+    
+    set count [lindex [::pop3::status $chan] 0]
+    set last 0
+    catch {set last [::pop3::last $chan]}
+
+    if {![string is integer $start]} {
+	if {[string match $start "next"]} {
+	    set start $last
+	    incr start
+	} elseif {$start == "start"} {
+	    set start 1
+	} elseif {$start == "end"} {
+	    set start $count
+	} else {
+	    error "POP3 Deletion error: Bad start index $start"
+	}
+    } 
+    if {$start == 0} {
+	set start 1
+    }
+    
+    if {![string is integer $end]} {
+	if {$end == "end"} {
+	    set end $count
+	} elseif {$end == "last"} {
+	    set end $last
+	} else {
+	    error "POP3 Deletion error: Bad end index $end"
+	}
+    } elseif {$end < 0} {
+	set end $start
+    }
+
+    if {$end > $count} {
+	set end $count
+    }
+    
+    for {set index $start} {$index <= $end} {incr index} {
+	if {[catch {::pop3::send $chan "DELE $index"} errorStr]} {
+	    error "POP3 DELETE ERROR: $errorStr"
+	}
+    }
+    return {}
+}
+
+# ::pop3::last --
+#
+#	Gets the index of the last email read from the server.
+#       Note, some POP3 servers do not support this feature,
+#       in which case the value returned may always be zero,
+#       or an error may be thrown.
+#
+# Arguments:
+#	chan      The channel, returned by ::pop3::open
+#
+# Results:
+#	The index of the last email message read, which may
+#       be zero if none have been read or if the server does
+#       not support this feature.
+#       Server errors may be thrown, including some cases
+#       when the LAST command is not supported.
+
+proc ::pop3::last {chan} {
+
+    if {[catch {
+	    set resultStr [::pop3::send $chan "LAST"]
+        } errorStr]} {
+	error "POP3 LAST ERROR: $errorStr"
+    }
+    
+    return [string trim $resultStr]
+}
+
+# ::pop3::list --
+#
+#	Returns "scan listing" of the mailbox. If parameter msg
+#       is defined, then the listing only for the given message 
+#       is returned.
+#
+# Arguments:
+#	chan        The channel open to the POP3 server.
+#       msg         The message number (optional).
+#
+# Results:
+#	If msg parameter is not given, Tcl list of scan listings in 
+#       the maildrop is returned. In case msg parameter is given,
+#       a list of length one containing the specified message listing
+#       is returned.
+
+proc ::pop3::list {chan {msg ""}} {
+    global PopErrorNm PopErrorStr debug
+ 
+    if {$msg == ""} {
+	if {[catch {::pop3::send $chan "LIST"} errorStr]} {
+	    error "POP3 LIST ERROR: $errorStr"
+	}
+	set msgBuffer [RetrSlow $chan]
+    } else {
+	# argument msg given, single-line response expected
+
+	if {[catch {expr {0 + $msg}}]} {
+	    error "POP3 LIST ERROR: malformed message number '$msg'"
+	} else {
+	    set msgBuffer [string trim [::pop3::send $chan "LIST $msg"]]
+	}
+    }
+    return $msgBuffer
 }
 
 # pop3::open --
@@ -134,59 +283,6 @@ proc ::pop3::open {args} {
 
     set state($chan) [array get cstate]
     return $chan
-}
-
-# ::pop3::status --
-#
-#	Get the status of the mail spool on the POP3 server.
-#
-# Arguments:
-#	chan      The channel, returned by ::pop3::open
-#
-# Results:
-#	A list containing two elements, {msgCount octetSize},
-#       where msgCount is the number of messages in the spool
-#       and octetSize is the size (in octets, or 8 bytes) of
-#       the entire spool.
-
-proc ::pop3::status {chan} {
-
-    if {[catch {set statusStr [::pop3::send $chan "STAT"]} errorStr]} {
-	error "POP3 STAT ERROR: $errorStr"
-    }
-
-    # Dig the sent size and count info out.
-    set rawStatus [split [string trim $statusStr]]
-    
-    return [::list [lindex $rawStatus 0] [lindex $rawStatus 1]]
-}
-
-# ::pop3::last --
-#
-#	Gets the index of the last email read from the server.
-#       Note, some POP3 servers do not support this feature,
-#       in which case the value returned may always be zero,
-#       or an error may be thrown.
-#
-# Arguments:
-#	chan      The channel, returned by ::pop3::open
-#
-# Results:
-#	The index of the last email message read, which may
-#       be zero if none have been read or if the server does
-#       not support this feature.
-#       Server errors may be thrown, including some cases
-#       when the LAST command is not supported.
-
-proc ::pop3::last {chan} {
-
-    if {[catch {
-	    set resultStr [::pop3::send $chan "LAST"]
-        } errorStr]} {
-	error "POP3 LAST ERROR: $errorStr"
-    }
-    
-    return [string trim $resultStr]
 }
 
 # ::pop3::retrieve --
@@ -367,94 +463,6 @@ proc ::pop3::RetrSlow {chan} {
     return $msgBuffer
 }
 
-# ::pop3::delete --
-#
-#	Delete messages on the POP3 server.
-#
-# Arguments:
-#	chan      The channel, returned by ::pop3::open
-#       start     The first message to delete in the range.
-#                 May be "next" (the next message after the last
-#                 one seen, see ::pop3::last), "start" (aka 1),
-#                 "end" (the last message in the spool, for 
-#                 deleting only the last message).
-#       end       (optional, defaults to -1) The last message
-#                 to delete in the range. May be "last"
-#                 (the last message viewed), "end" (the last
-#                 message in the spool), or "-1" (the default,
-#                 any negative number means delete only
-#                 one message).
-#
-# Results:
-#	None.
-#       May throw errors from the server.
-
-proc ::pop3::delete {chan start {end -1}} {
-    
-    set count [lindex [::pop3::status $chan] 0]
-    set last 0
-    catch {set last [::pop3::last $chan]}
-
-    if {![string is integer $start]} {
-	if {[string match $start "next"]} {
-	    set start $last
-	    incr start
-	} elseif {$start == "start"} {
-	    set start 1
-	} elseif {$start == "end"} {
-	    set start $count
-	} else {
-	    error "POP3 Deletion error: Bad start index $start"
-	}
-    } 
-    if {$start == 0} {
-	set start 1
-    }
-	
-    
-    if {![string is integer $end]} {
-	if {$end == "end"} {
-	    set end $count
-	} elseif {$end == "last"} {
-	    set end $last
-	} else {
-	    error "POP3 Deletion error: Bad end index $end"
-	}
-    } elseif {$end < 0} {
-	set end $start
-    }
-
-    if {$end > $count} {
-	set end $count
-    }
-    
-    for {set index $start} {$index <= $end} {incr index} {
-	if {[catch {::pop3::send $chan "DELE $index"} errorStr]} {
-	    error "POP3 DELETE ERROR: $errorStr"
-	}
-    }
-    return {}
-}
-
-# ::pop3::close --
-#
-#	Close the connection to the POP3 server.
-#
-# Arguments:
-#	chan      The channel, returned by ::pop3::open
-#
-# Results:
-#	None.
-
-proc ::pop3::close {chan} {
-    variable state
-    catch {::pop3::send $chan "QUIT"}
-    unset state($chan)
-    ::close $chan
-}
-
-		
-
 # ::pop3::send --
 #
 #	Send a command string to the POP3 server.  This is an
@@ -484,58 +492,29 @@ proc ::pop3::send {chan cmdstring} {
    return [string range $popRet 3 end]
 }
 
-# ::pop3::list --
+# ::pop3::status --
 #
-#	Returns "scan listing" of the mailbox. If parameter msg
-#       is defined, then the listing only for the given message 
-#       is returned.
+#	Get the status of the mail spool on the POP3 server.
 #
 # Arguments:
-#	chan        The channel open to the POP3 server.
-#       msg         The message number (optional).
+#	chan      The channel, returned by ::pop3::open
 #
 # Results:
-#	If msg parameter is not given, Tcl list of scan listings in 
-#       the maildrop is returned. In case msg parameter is given,
-#       a list of length one containing the specified message listing
-#       is returned.
+#	A list containing two elements, {msgCount octetSize},
+#       where msgCount is the number of messages in the spool
+#       and octetSize is the size (in octets, or 8 bytes) of
+#       the entire spool.
 
-proc ::pop3::list {chan {msg ""}} {
-    global PopErrorNm PopErrorStr debug
- 
-    if {$msg == ""} {
-	if {[catch {::pop3::send $chan "LIST"} errorStr]} {
-	    error "POP3 LIST ERROR: $errorStr"
-	}
-	set msgBuffer {}
-	while {1} {
-	    set line [gets $chan]
+proc ::pop3::status {chan} {
 
-	    # End of the message is a line with just "."
-
-	    set line [string trimright $line]
-
-	    if {$line == "."} {
-		break
-	    } elseif {[string index $line 0] == "."} {
-		# Use trimright to ge rid of superfluous \r's
-		# (we get them due to binary mode)
-
-		set line [string range $line 1 end]
-	    }
-
-	    lappend msgBuffer $line
-	}
-    } else {
-	# argument msg given, single-line response expected
-
-	if {[catch {expr {0 + $msg}}]} {
-	    error "POP3 LIST ERROR: malformed message number '$msg'"
-	} else {
-	    lappend msgBuffer [string trim [::pop3::send $chan "LIST $msg"]]
-	}
+    if {[catch {set statusStr [::pop3::send $chan "STAT"]} errorStr]} {
+	error "POP3 STAT ERROR: $errorStr"
     }
-    return $msgBuffer
+
+    # Dig the sent size and count info out.
+    set rawStatus [split [string trim $statusStr]]
+    
+    return [::list [lindex $rawStatus 0] [lindex $rawStatus 1]]
 }
 
 # ::pop3::top --
@@ -559,16 +538,40 @@ proc ::pop3::top {chan msg n} {
 	error "POP3 TOP ERROR: $errorStr"
     }
 
-    while {1} {
-	set line [gets $chan]
-	# End of the message is a line with just "."
-	if {[string trimright $line] == "."} {
-	    break
-	} elseif {[string index $line 0] == "."} {
-	    # Get rid of traling \r's. We get them due to binary mode.
-	    set line [string trimright [string range $line 1 end]]
+    return [RetrSlow $chan]
+}
+
+# ::pop3::uidl --
+#
+#	Returns "uid listing" of the mailbox. If parameter msg
+#	is defined, then the listing only for the given message
+#	is returned.
+#
+# Arguments:
+#	chan        The channel open to the POP3 server.
+#	msg         The message number (optional).
+#
+# Results:
+#	If msg parameter is not given, Tcl list of uid listings in
+#	the maildrop is returned. In case msg parameter is given,
+#	a list of length one containing the uid of the specified
+#	message listing is returned.
+
+proc ::pop3::uidl {chan {msg ""}} {
+    if {$msg == ""} {
+	if {[catch {::pop3::send $chan "UIDL"} errorStr]} {
+	    error "POP3 UIDL ERROR: $errorStr"
 	}
-	append msgBuffer "$line\n"
+	set msgBuffer [RetrSlow $chan]
+    } else {
+	# argument msg given, single-line response expected
+	
+	if {[catch {expr {0 + $msg}}]} {
+	    error "POP3 UIDL ERROR: malformed message number '$msg'"
+	} else {
+	    set msgBuffer [string trim [::pop3::send $chan "UIDL $msg"]]
+	}
     }
+
     return $msgBuffer
 }
