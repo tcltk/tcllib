@@ -1,3 +1,22 @@
+2003-04-24  Andreas Kupries  <andreask@activestate.com>
+
+	* calculus.test: Converted [puts] into log statements, and
+	  suppress them by default. Reduces the noise when running the
+	  testsuite.
+
+	* math.test:          Added output listing the version of the
+	* statistics.test:    package we are testing.
+	* calculus.test:
+	* geometry.test:
+	* combinatorics.test:
+	* optimize.test:
+
+2003-04-24  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+	* liststat.tcl: Corrected the handling of the expression in the
+	  list manipulation procedures. This solves the scope problem (bug
+	  725231). AK: Lifted from the 'cvs log'. This passes the testsuite.
+
 2003-04-23  Andreas Kupries  <andreask@activestate.com>
 
 	* fuzzy.test: Re-applied bug fixes I did before (See 2003-04-13)
