@@ -123,12 +123,13 @@ proc x_synopsis {} {
 global    list_state
 array set list_state {level -1}
 
-proc list_begin  {what {hint {}}} {
+proc list_begin {what {hint {}}} {
     # ignoring hints.
     global list_state
 
     switch -exact -- $what {
-	enum - bullet - definitions {}
+	enum - bullet - definitions - arg - cmd -
+	opt - tkoption {}
 	default {return -code error "Unknown list type $what"}
     }
 
@@ -180,6 +181,66 @@ proc lst_item {text} {
     switch -exact -- $list_state(l,$list_state(level)) {
 	definitions {return ".TP\n$text"}
 	default     {return -code error "Illegal use of bullet in non-bullet list"}
+    }
+}
+
+proc arg_def {type name {mode {}}} {
+    global list_state
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	arg     {
+	    set text ".TP\n"
+	    append text [arg $name]
+	    append text " $type"
+	    if {$mode != {}} {
+		append text " ($mode)"
+	    }
+	    return $text
+	}
+	default {return -code error "Illegal use of arg_def in non-argument list"}
+    }
+}
+
+proc cmd_def {command} {
+    global list_state
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	cmd     {return ".TP\n[cmd $command]"}
+	default {return -code error "Illegal use of cmd_def in non-command list"}
+    }
+}
+
+proc opt_def {name {arg {}}} {
+    global list_state
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	opt {
+	    if {[string match -* $name]} {set    name \\-$name}
+	    set name [option $name]
+	    if {$arg != {}}              {append name " $arg"}
+	    return ".TP\n$name"
+	}
+	default {return -code error "Illegal use of opt_def in non-option list"}
+    }
+}
+
+proc tkoption_def {name dbname dbclass} {
+    global list_state
+
+    switch -exact -- $list_state(l,$list_state(level)) {
+	tkoption {
+	    set    text ""
+	    append text ".LP\n"
+	    append text ".nf\n"
+	    append text ".ta 6c\n"
+	    append text "Command-Line Switch:\t[nr_bld]$name[nr_rst]\n"
+	    append text "Database Name:\t[nr_bld]$dbname[nr_rst]\n"
+	    append text "Database Class:\t[nr_bld]$dbclass[nr_rst]\n"
+	    append text ".fi\n"
+	    append text ".IP\n"
+	    return $text
+	}
+	default {return -code error "Illegal use of tkoption_def in non-tkoption list"}
     }
 }
 
