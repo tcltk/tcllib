@@ -70,23 +70,25 @@ is used in a loose sense here, i.e application of the commands to a
 sequence of words is entierely possible, if they are properly quoted.
 
 [bullet]
-Another set of six commands is available to construct (possibly
-nested) lists. These are [cmd list_begin], [cmd list_end],
-[cmd lst_item], [cmd bullet], [cmd enum] and [cmd call].  The first
-two of these begin and end a list respectively.
+
+Another set of commands is available to construct (possibly nested)
+lists. These are [cmd list_begin], [cmd list_end], [cmd lst_item],
+[cmd bullet], [cmd enum], [cmd call], [cmd arg_def], [cmd opt_def],
+[cmd cmd_def], and [cmd tkoption_def]. The first two of these begin
+and end a list respectively.
 
 [nl]
 
-The argument to the first command is either [emph bullet], [emph enum]
-or [emph definitions] denoting the type of the list (unordered
-vs. ordered vs. definition list).
+The argument to the first command denotes the type of the list. The
+allowed values and their associated item command are explained later,
+in the section detailing the [sectref Commands].
 
 [nl]
 
 The other commands start list items and each can be used only inside a
 list of their type. In other words, [cmd bullet] is allowed in
 bulleted lists but nowhere else, [cmd enum] in enumerated lists and
-[cmd lst_item] and [cmd call] are for definition lists. The last two
+[cmd lst_item] and [cmd call] are for definition lists. These two
 commands also have some text directly associated with the item
 although the major bulk of the item is the text following the item
 until the next list command.
@@ -156,21 +158,25 @@ to be operational.
 
 [call [cmd section] [arg name]]
 
-Used to structure the body of the manpage into named sections.
+Used to structure the body of the manpage into named sections. This
+command is not allowed inside of a list or example. It implicitly
+closes the last [cmd para]graph before the command and also implicitly
+opens the first paragraph of the new section.
 
 [call [cmd para]]
 
-Used to structure sections into paragraphs.
+Used to structure sections into paragraphs. Must not be used inside of
+a list or example.
 
 [call [cmd see_also] [arg args]]
 
 Creates a section [emph {SEE ALSO}] containing the arguments as
-cross-references.
+cross-references. Must not be used inside of a list or example.
 
 [call [cmd keywords] [arg args]]
 
 Creates a section [emph KEYWORDS] containing the arguments as words
-indexing the manpage.
+indexing the manpage. Must not be used inside of a list or example.
 
 [call [cmd arg] [arg text]]
 
@@ -283,8 +289,33 @@ Formats [arg text] as a multi-line block of sample code.
 
 [call [cmd list_begin] [arg what]]
 
-Starts new list of type [arg what]. Allowed types are [emph bullet],
-[emph enum] and [emph definitions].
+Starts new list of type [arg what]. The allowed types (and their
+associated item commands) are:
+
+[list_begin definitions]
+[lst_item [emph bullet]]
+[cmd bullet]
+
+[lst_item [emph enum]]
+[cmd enum]
+
+[lst_item [emph definitions]]
+[cmd lst_item] and [cmd call]
+
+[lst_item [emph arg]]
+[cmd arg_def]
+
+[lst_item [emph cmd]]
+[cmd cmd_def]
+
+[lst_item [emph opt]]
+[cmd opt_def]
+
+[lst_item [emph tkoption]]
+[cmd tkoption_def]
+
+[list_end]
+
 
 [call [cmd list_end]]
 
@@ -307,6 +338,28 @@ defined.
 
 Starts a new item in a definition list, but the term defined by it is
 a command and its arguments.
+
+[call [cmd arg_def] [arg type] [arg name] [opt [arg mode]]]
+
+Starts a new item in an argument list. Specifies the data-[arg type]
+of the described argument, its [arg name] and possibly its
+i/o-[arg mode].
+
+[call [cmd opt_def] [arg name] [opt [arg arg]]]
+
+Starts a new item in an option list. Specifies the [arg name] of the
+option and possible (i.e. optional) [arg arg]uments.
+
+[call [cmd cmd_def] [arg command]]
+
+Starts a new item in a command list. Specifies the name of the
+[arg command].
+
+[call [cmd tkoption_def] [arg name] [arg dbname] [arg dbclass]]
+
+Starts a new item in a widget option list.  Specifies the [arg name]
+of the option, i.e.  the name used in scripts, name used by the option
+database, and the class (type) of the option.
 
 [call [cmd usage] [arg args]]
 
