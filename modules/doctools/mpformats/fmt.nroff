@@ -60,47 +60,36 @@ c_pass 2 fmt_copyright {desc} NOP
 
 c_pass 1 fmt_manpage_end {} NOP
 c_pass 2 fmt_manpage_end {} {
+
     # Complete the generation with a copyright
     # section, if such information is available.
 
     set nroff ""
-    set copyright [c_get_copyright]
-    if {$copyright != {}} {
+
+    set sa [c_xref_seealso]
+    set kw [c_xref_keywords]
+    set ct [c_get_copyright]
+
+    if {[llength $sa] > 0} {
+	append nroff [fmt_section {SEE ALSO}] \n
+	append nroff [join [lsort $sa] ", "] \n
+    }
+    if {[llength $kw] > 0} {
+	append nroff [fmt_section KEYWORDS] \n
+	append nroff [join [lsort $kw] ", "] \n
+    }
+    if {$ct != {}} {
 	append nroff [fmt_section COPYRIGHT] \n
 	append nroff [nr_nofill] \n
-	append nroff $copyright \n
+	append nroff $ct \n
 	append nroff [nr_fill]
     }
     return $nroff
 }
 
-proc fmt_postprocess {nroff} {
-    # Postprocessing after generation ...
-    # Strip empty lines out of the generated nroff source
-    # and trim leading blanks, except in code samples.
+proc fmt_postprocess {nroff} {return [nroff_postprocess $nroff]}
 
-    set nfMode [list .nf .CS]	;# requests which start no-fill mode
-    set fiMode [list .fi .CE]	;# requests which terminate no-fill mode
-    set lines [list]
-    set trimblanks 1
-
-    foreach line [split $nroff "\n"] {
-	if {$trimblanks} {
-	    if {[lsearch -exact $nfMode [split $line]] >= 0} { set trimblanks 0 }
-	    if {![string length $line]} { continue }
-	    set line [string trim $line]
-	    if {0 == [string length $line]} {
-		continue
-	    }
-	} else {
-	    if {[lsearch -exact $fiMode [split $line]] >= 0} { set trimblanks 1 }
-	}
-	lappend lines $line
-    } 
-    return [join $lines "\n"]
-}
-
-proc fmt_section {name} {return ".SH \"$name\""}
+proc fmt_section {name} {return [nr_section $name]}
 proc fmt_para {} {nr_p}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
@@ -180,9 +169,6 @@ proc fmt_tkoption_def {name dbname dbclass} {
 }
 
 ################################################################
-
-proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
-proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
 
 proc fmt_example_begin {} { return "\n[nr_nofill]" }
 proc fmt_example_end   {} { nr_fill }

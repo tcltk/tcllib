@@ -1,3 +1,25 @@
+2003-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html:  Rewrite handling of [keywords] and
+	* mpformats/fmt.latex: [see_also] to behave like for the TMML
+	* mpformats/fmt.list:  formatter: Collect all keywords and
+	* mpformats/fmt.nroff: x-references during the first pass, insert
+	* mpformats/fmt.wiki:  the results during the second pass, in
+	                       [manpage_end]. Ensures that at most one
+			       see_also / keyword section is present,
+			       ensures uniform order and handling of
+			       multiple keyword / see_also commands is
+			       now uniform too.
+
+	* examples/doctools.idx: Moved to the new examples/doctools
+	* examples/doctools.toc: directory. Thanks to Larry Virden
+		                 <lvirden@users.sourceforge.net> for
+	                         pointing out that the original location
+				 in the doctools module violated the
+				 principle of collecting examples in a
+				 separate directory, instated by
+				 myself. Stupid me.
+
 2003-03-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* A examples/doctools.idx:     Fairly extensive revamping of the

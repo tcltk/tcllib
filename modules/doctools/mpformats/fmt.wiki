@@ -79,8 +79,20 @@ c_pass 2 fmt_manpage_end {} {
     # section, if such information is available.
 
     set wiki ""
-    set copyright [c_get_copyright]
-    if {$copyright != {}} {
+
+    set sa [c_xref_seealso]
+    set kw [c_xref_keywords]
+    set ct [c_get_copyright]
+
+    if {[llength $sa] > 0} {
+	append wiki [fmt_section {SEE ALSO}] \n
+	append wiki [join [lsort $sa] ", "] \n
+    }
+    if {[llength $kw] > 0} {
+	append wiki [fmt_section KEYWORDS] \n
+	append wiki [join [lsort $kw] ", "] \n
+    }
+    if {$ct != {}} {
 	append wiki [fmt_section COPYRIGHT]
 	append wiki ". " [join [split $copyright \n] "\n. "] \n
     }
@@ -149,9 +161,6 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 global textmode
 set    textmode ""
-
-proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
-proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
 
 proc fmt_example_begin {} {
     global  mode_save textmode
