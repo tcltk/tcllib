@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.10 2004/01/30 06:58:52 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.11 2004/02/04 05:36:27 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -454,24 +454,73 @@ test iota-4.3 {iota command} {
 
 #----------------------------------------------------------------------
 
+interp alias {} repeatn {} ::struct::list::list repeatn
+
+test repeatn-4.1 {repeatn command} {
+    repeatn 0
+} {}
+
+test repeatn-4.2 {repeatn command} {
+    repeatn 0 3
+} {0 0 0}
+
+test repeatn-4.3 {repeatn command} {
+    repeatn 0 3 4
+} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
+
+test repeatn-4.4 {repeatn command} {
+    repeatn 0 {3 4}
+} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
+
+
+#----------------------------------------------------------------------
+
 interp alias {} repeat {} ::struct::list::list repeat
 
 test repeat-4.1 {repeat command} {
-    repeat 0
-} {}
+    catch {repeat} msg
+    set msg
+} {wrong # args: should be "::struct::list::Lrepeat positiveCount value args"}
 
 test repeat-4.2 {repeat command} {
-    repeat 0 3
-} {0 0 0}
+    catch {repeat a} msg
+    set msg
+} {wrong # args: should be "::struct::list::Lrepeat positiveCount value args"}
 
 test repeat-4.3 {repeat command} {
-    repeat 0 3 4
-} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
+    catch {repeat a b} msg
+    set msg
+} {Expected integer, got "a"}
 
 test repeat-4.4 {repeat command} {
-    repeat 0 {3 4}
-} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
+    catch {repeat 0 b} msg
+    set msg
+} {must have a count of at least 1}
 
+test repeat-4.5 {repeat command} {
+    catch {repeat -1 b} msg
+    set msg
+} {must have a count of at least 1}
+
+test repeat-4.6 {repeat command} {
+    repeat 1 b c
+} {b c}
+
+test repeat-4.7 {repeat command} {
+    repeat 3 a
+} {a a a}
+
+test repeat-4.8 {repeat command} {
+    repeat 3 [repeat 3 0]
+} {{0 0 0} {0 0 0} {0 0 0}}
+
+test repeat-4.9 {repeat command} {
+    repeat 3 a b c
+} {a b c a b c a b c}
+
+test repeat-4.10 {repeat command} {
+    repeat 3 [repeat 2 a] b c
+} {{a a} b c {a a} b c {a a} b c}
 
 #----------------------------------------------------------------------
 
