@@ -1,3 +1,10 @@
+2003-06-16  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* ncgi.test:
+	* ncgi.tcl (importFile): Got a rewritten version from Steve
+	  Cassidy which fixes some bugs. We now also have tests for
+	  'importFile'. See tcllib patch 611595 for the original code.
+
 2003-05-09  Andreas Kupries  <andreask@activestate.com>
 
 	* ncgi.tcl (import_file): Brace [expr].
