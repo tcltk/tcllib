@@ -2,7 +2,7 @@
 [manpage_begin inifile n 0.1]
 [moddesc   {Parsing of Windows INI files}]
 [titledesc {Parsing of Windows INI files}]
-[require Tcl]
+[require Tcl 8.4]
 [require inifile [opt 0.1]]
 [description]
 
@@ -12,7 +12,7 @@ This package provides an interface for easy manipulation of Windows INI files.
 
 [list_begin definitions]
 
-[call [cmd ::ini::open] [arg file] [opt mode]]
+[call [cmd ::ini::open] [arg file] [opt [arg mode]]]
 
 Opens an INI file and returns a handle that is used by other commands.
 Mode has the same types as the [const open] command. The default mode is [const r+].
@@ -25,6 +25,18 @@ Close the specified handle. If any changes were made and not written by
 [call [cmd ::ini::commit] [arg ini]]
 
 Writes the file and all changes to disk.
+
+
+[call [cmd ::ini::revert] [arg ini]]
+
+Rolls all changes made to the inifile object back to the last
+committed state.
+
+
+[call [cmd ::ini::filename] [arg ini]]
+
+Returns the name of the file the [arg ini] object is associated with.
+
 
 [call [cmd ::ini::sections] [arg ini]]
 
@@ -39,7 +51,7 @@ Returns a list of all they key names in the section and file specified.
 
 Returns a list of key value pairs that exist in the section and file specified.
 
-[call [cmd ::ini::exists] [arg ini] [arg section] [opt key]]
+[call [cmd ::ini::exists] [arg ini] [arg section] [opt [arg key]]]
 
 Returns a boolean value indicating the existance of the specified section as a
 whole or the specified key within that section.
@@ -53,9 +65,14 @@ Returns the value of the named key from the specified section.
 Sets the value of the key in the specified section. If the section does not
 exist then a new one is created.
 
-[call [cmd ::ini::delete] [arg ini] [arg section] [opt key]]
+[call [cmd ::ini::delete] [arg ini] [arg section] [opt [arg key]]]
 
 Removes the key or the entire section and all its keys.
+
+
+[call [cmd ::ini::comment] [arg ini] [arg section] [opt [arg key]] [opt [arg text]...]]
+
+Reads and modifies comments for sections and keys.
 
 
 [list_end]
