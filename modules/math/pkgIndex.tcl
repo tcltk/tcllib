@@ -4,3 +4,4 @@ package ifneeded math::geometry   1.0.1 [list source [file join $dir geometry.tc
 package ifneeded math::calculus   0.5   [list source [file join $dir calculus.tcl]]
 package ifneeded math::fuzzy      0.2   [list source [file join $dir fuzzy.tcl]]
 package ifneeded math::statistics 0.1   [list source [file join $dir statistics.tcl]]
+package ifneeded math::optimize   0.1   [list source [file join $dir optimize.tcl]]

@@ -1,5 +1,9 @@
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
+	* pkgIndex.tcl: Found math::optimize missing in index.
+	* optimize.man: Version number inconsistent with code,
+	  corrected.
+
 	* calculus.test: Converted [puts] into log statements, and
 	  suppress them by default. Reduces the noise when running the
 	  testsuite.
