@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_serial.test,v 1.1 2004/03/25 07:43:48 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_serial.test,v 1.2 2004/04/04 19:51:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -166,6 +166,38 @@ foreach {n code} {
 
 		grammar::fa b
 		a --> b
+		set     res [validate_serial [b serialize] a]
+		lappend res [validate_serial [a serialize] b]
+
+		a destroy
+		b destroy
+		set res
+	    } {ok ok}
+
+	    foreach op {= := <-- as} {
+		test fa-serial-6.$key.$op {construction from fa} {
+		    grammar::fa a
+		    gen $code
+		    foreach s $st  {if {[a state exists $s]} {a start add $s}}
+		    foreach s $fin {if {[a state exists $s]} {a final add $s}}
+
+		    grammar::fa b $op a
+		    set     res [validate_serial [b serialize] a]
+		    lappend res [validate_serial [a serialize] b]
+
+		    a destroy
+		    b destroy
+		    set res
+		} {ok ok}
+	    }
+
+	    test fa-serial-7.$key {construction from fa} {
+		grammar::fa a
+		gen $code
+		foreach s $st  {if {[a state exists $s]} {a start add $s}}
+		foreach s $fin {if {[a state exists $s]} {a final add $s}}
+
+		grammar::fa b deserialize [a serialize]
 		set     res [validate_serial [b serialize] a]
 		lappend res [validate_serial [a serialize] b]
 
