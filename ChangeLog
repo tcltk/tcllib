@@ -1,3 +1,10 @@
+2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installer.tcl:
+	* installed_modules.tcl: Changed mechanism for exclusion so that
+	  installer is able to install even the excluded (i.e. unofficial)
+	  modules, if so chosen (cmdline only).
+
 2003-04-30  Andreas Kupries  <andreask@activestate.com>
 
 	* sak.tcl (gd-tip55): Bugfix, location of changeLog was not computed correctly.
