@@ -1,3 +1,8 @@
+2000-02-24  Eric Melski  <ericm@scriptics.com>
+
+	* Makefile.in, et al: Preliminary Makefile and configure script, and
+	supporting files
+
 2000-02-17  Eric Melski  <ericm@scriptics.com>
 
 	* modules/profiler/pkgIndex.tcl: package index for profiler.

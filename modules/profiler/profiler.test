@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+# RCS: @(#) $Id: profiler.test,v 1.2 2000/02/24 20:04:54 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -116,7 +116,8 @@ test profiler-3.1 {profiler wrappers do profiling} {
 	profiler::dump ::foo
     }]
     interp delete $c
-    array set foo $result
+    array set bar $result
+    array set foo $bar(::foo)
     list totalCalls $foo(totalCalls) callerDist $foo(callerDist)
 } [list totalCalls 4 callerDist [list GLOBAL 4]]
 

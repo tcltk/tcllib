@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.2 2000/02/24 20:04:53 ericm Exp $
 
 package provide profiler 0.1
 
@@ -158,7 +158,7 @@ proc ::profiler::dump {pattern} {
 	    regsub "^$name," $index {} caller
 	    set thisCallers($caller) $callers($index)
 	}
-	set result [list totalCalls $callCount($name) \
+	lappend result $name [list totalCalls $callCount($name) \
 		callerDist [array get thisCallers] \
 		firstRuntime $firstRuntime($name) \
 		otherRuntime $otherRuntime($name)]
