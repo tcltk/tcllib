@@ -477,7 +477,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.30 2004/07/10 04:14:32 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.31 2004/07/12 00:06:02 patthoyts Exp $
 
 %define version @@@@
 %define directory /usr
@@ -1177,6 +1177,7 @@ array set critclmodules {
     md5c      md5/md5c.tcl
     md5cryptc md5crypt/md5cryptc.tcl
     rc4c      rc4/rc4c.tcl
+    uuid      uuid/uuid.tcl
 }
 
 # Build critcl modules. If no args then build the tcllibc module.
