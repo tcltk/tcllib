@@ -106,6 +106,38 @@ pro-apps use because they must be wrapped by a shell script.
 
 [list_end]
 
+[section {EXAMPLES}]
+
+[example {
+        set options {
+            {a          "set the atime only"}
+            {m          "set the mtime only"}
+            {c          "do not create non-existant files"}
+            {r.arg  ""  "use time from ref_file"}
+            {t.arg  -1  "use specified time"}
+        }
+        set usage ": MyCommandName\
+                      \[options] filename ...\noptions:"
+        array set params [::cmdline::getoptions argv $options $usage]
+
+        if {  $params(a) } { set set_atime "true" }
+        set has_t [expr {$params(t) != -1}]
+        set has_r [expr {[string length $params(r)] > 0}]
+        if {$has_t && $has_r} {
+            return -code error "Cannot specify both -r and -t"
+        } elseif {$has_t} {
+	    ...
+        }
+}]
+
+[para]
+
+This example, taken (and slightly modified) from the fileutil package,
+shows how to use cmdline.  First, a list of options is created, then
+the 'args' list is passed to cmdline for processing.  Subsequently,
+different options are checked to see if they have been passed to the
+script, and what their value is.
+
 [keywords {cmdline processing}]
 [manpage_end]
 
