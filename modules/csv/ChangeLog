@@ -1,3 +1,17 @@
+2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.tcl (csv::split): Fixed bug #565051, found by Tod A. olson
+	  <todolson@users.sourceforge.net>. The described bug is actually
+	  none, given the definition of the CSV format, but the examples
+	  do contain a related bug. Just swap what is seen as ok and
+	  bug. Because of this the provided patched code was rejected, and
+	  a new patch created. The patched code passes the extended
+	  testsuite (see below).
+
+	* csv.test: Extended testsuite regarding the handling of empty
+	  fields and quote characters. Part of the investigation into bug
+	  #565051.
+
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.man: Fixed formatting errors in the doctools manpage.

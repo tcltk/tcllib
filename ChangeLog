@@ -1,5 +1,7 @@
 2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* csv: Fixed bug #565051.
+
 	* mime: Fixed SF bug #548832.
 
 2002-06-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
