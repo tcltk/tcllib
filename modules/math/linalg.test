@@ -2,7 +2,14 @@
 #    Tests for the linear algebra package
 #
 # NOTE:
-#    Comparison by numbers, not strings needed!
+#    Comparison by numbers, not strings, needed!
+#
+# TODO:
+#    Tests for:
+#    - show, angle
+#    - solveGaussBand, solveTriangularBand
+#    - mkHilbert and so on
+#    - matmul
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest 2.1
@@ -334,19 +341,53 @@ test orthon-1.2 "orthonormalize rows - 3x4" -match numbers -body {
            {0 0 1 0}}
 
 #
-# Check the result by multiplying U*S*Vtrans and compare
-# to the original matrix
-# Also check: U*Utrans and V*Vtrans
+# The results from the original LA package have been used
+# as a benchmark:
 #
-test svd-1.0 "singular value decomposition - 2x2" -body {
-    set M {{1 2} {2 1}}
+#
+test svd-1.0 "singular value decomposition - 2x2" -match numbers -body {
+    set M {{1.0 2.0} {2.0 1.0}}
     determineSVD $M
-} -result ?
+} -result {
+{{0.70710678118654757  0.70710678118654746}
+ {0.70710678118654746 -0.70710678118654757}}
+ {3.0 1.0}
+{{0.70710678118654757 -0.70710678118654746}
+ {0.70710678118654746  0.70710678118654757}}
+}
 
-test svd-1.0 "singular value decomposition - 10x10" -body {
+test svd-1.0 "singular value decomposition - 10x10" -match numbers -body {
     set M [mkDingdong 10]
-    lindex [determineSVD $M] 1
-} -result ?
+    show [lindex [determineSVD $M] 1] %6.4f
+} -result {1.5708 1.5708 1.5708 1.5708 1.5708 1.5707 1.5695 1.5521 1.3935 0.6505}
+
+
+
+
+test LA-1.0 "to_LA - vector" -match numbers -body {
+    set vector {1 2 3}
+    to_LA $vector
+} -result {2 3 0 1 2 3}
+
+test LA-1.1 "to_LA - matrix" -match numbers -body {
+    set matrix {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    to_LA $matrix
+} -result {2 4 3 1 2 3 4 5 6 7 8 9 10 11 12}
+
+test LA-2.0 "from_LA - vector" -match numbers -body {
+    set vector {2 3 0 1 2 3}
+    from_LA $vector
+} -result {1 2 3}
+
+test LA-2.1 "from_LA - matrix" -match numbers -body {
+    set matrix {2 4 3 1 2 3 4 5 6 7 8 9 10 11 12}
+    from_LA $matrix
+} -result {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+
+test choleski-1.0 "choleski decomposition of Moler matrix" -match numbers -body {
+    set matrix [mkMoler 5]
+    choleski $matrix
+} -result {{1 0 0 0 0} {-1 1 0 0 0} {-1 -1 1 0 0} {-1 -1 -1 1 0} {-1 -1 -1 -1 1}}
 
 set ::tcl_precision $old_precision
 
