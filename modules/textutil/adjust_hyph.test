@@ -15,9 +15,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 }
 
-if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
-    source [file join [file dirname [info script]] textutil.tcl]
-}
+source [file join $::tcltest::testsDirectory adjust.tcl];
 
 ##########
 # German #
