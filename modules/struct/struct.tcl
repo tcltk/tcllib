@@ -1,5 +1,5 @@
 package require Tcl 8.2
-package provide struct 1.2
+package provide struct 1.2.1
 source [file join [file dirname [info script]] graph.tcl]
 source [file join [file dirname [info script]] queue.tcl]
 source [file join [file dirname [info script]] stack.tcl]

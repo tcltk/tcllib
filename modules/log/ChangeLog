@@ -1,3 +1,12 @@
+2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Version up to 1.0.1 to differentiate development from the
+	  version in the tcllib 1.2 release.
+
+	* log.tcl: 
+	* log.test: Updated code and tests to cover all paths through the
+	  code.
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* log.tcl: Restricted export list to public API.

@@ -1,3 +1,14 @@
+2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Version up to 0.3 to differentiate development from the
+	  version in the tcllib 1.2 release.
+
+	* mem_debug_bench_a.csv: New file, contains empty lines to test
+	  that part of the code. See below.
+	* csv.tcl: 
+	* csv.test: Updated code and tests to cover all paths through the
+	  code.
+
 2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 0.2

@@ -2,10 +2,10 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: matrix.n,v 1.8 2002/01/18 20:51:16 andreas_kupries Exp $
+'\" RCS: @(#) $Id: matrix.n,v 1.9 2002/02/01 22:59:08 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH matrix n 1.2 Struct "Tcl Data Structures"
+.TH matrix n 1.2.1 Struct "Tcl Data Structures"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require struct ?1.2?\fR
+\fBpackage require struct ?1.2.1?\fR
 .sp
 \fB::struct::matrix\fR \fImatrixName\fR
 .sp
