@@ -1,0 +1,62 @@
+# uuencode.test - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# Tests for the Tcllib uuencode package
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: uuencode.test,v 1.1 2002/01/16 00:51:35 patthoyts Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+package require uuencode
+
+# -------------------------------------------------------------------------
+
+test uuencode-1.0 {encode string} {
+    catch {::uuencode::encode ABC} result
+    set result
+} "04)#"
+
+test uuencode-1.1 {decode string} {
+    catch {::uuencode::decode "04)#"} result
+    set result
+} "ABC"
+
+test uuencode-1.2 {encode longer string} {
+    catch {::uuencode::encode [string repeat x 102]} result
+    set result
+} [string repeat ">'AX" 34]
+
+test uuencode-1.3 {decode longer string} {
+    catch {::uuencode::decode [string repeat ">'AX" 34]} result
+    set result
+} [string repeat x 102]
+
+set testdata {begin 644 data.dat
+75&AE(&-A="!S870@;VX@=&AE(&UA="X`
+`
+end}
+
+test uuencode-1.4 {uuencode string} {
+    catch {::uuencode::uuencode "The cat sat on the mat."} result
+    set result
+} $testdata
+
+test uuencode-1.5 {uudecode string} {
+    catch {::uuencode::uudecode $testdata} result
+    set result
+} [list [list data.dat 644 "The cat sat on the mat.\x00"]]
+
+# -------------------------------------------------------------------------
+
+::tcltest::cleanupTests
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
