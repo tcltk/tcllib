@@ -8,13 +8,13 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.9 2002/06/05 22:59:07 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.10 2002/07/02 18:37:55 dgp Exp $
 
 set old_auto_path $auto_path
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace eval ::tcltest {}
-    proc ::tcltest::processCmdLineArgsFlagsHook {} {
+    proc ::tcltest::processCmdLineArgsAddFlagsHook {} {
 	return [list -modules]
     }
     proc ::tcltest::processCmdLineArgsHook {argv} {
