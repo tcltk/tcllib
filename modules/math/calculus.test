@@ -4,6 +4,13 @@
 package require tcltest
 source [file join [pwd] [file dirname [info script]] calculus.tcl]
 
+puts "math::calculus [package present math::calculus]"
+
+
+package require log
+log::lvSuppress notice
+
+
 namespace eval ::math::calculus::test {
 
 namespace import ::tcltest::test
@@ -80,14 +87,14 @@ proc dampened_oscillator { t xvec } {
 }
 
 foreach method {eulerStep heunStep rungeKuttaStep} {
-   puts "Method: $method"
+   log::log notice "Method: $method"
 
    set xvec   0.0
    set t      0.0
    set tstep  1.0
    for { set i 0 } { $i < 10 } { incr i } {
       set result [$method $t $tstep $xvec const_func]
-      puts "Result ($t): $result"
+      log::log notice "Result ($t): $result"
       set t      [expr {$t+$tstep}]
       set xvec   $result
    }
@@ -97,7 +104,7 @@ foreach method {eulerStep heunStep rungeKuttaStep} {
    set tstep  0.1
    for { set i 0 } { $i < 20 } { incr i } {
       set result [$method $t $tstep $xvec dampened_oscillator]
-      puts "Result ($t): $result"
+      log::log notice "Result ($t): $result"
       set t      [expr {$t+$tstep}]
       set xvec   $result
    }
@@ -109,8 +116,8 @@ foreach method {eulerStep heunStep rungeKuttaStep} {
 proc coeffs { x } { return {1.0 0.0 0.0} }
 proc forces { x } { return 0.0 }
 
-puts [boundaryValueSecondOrder coeffs forces {0.0 1.0} {100.0 0.0} 10]
-puts [boundaryValueSecondOrder coeffs forces {0.0 0.0} {100.0 1.0} 10]
+log::log notice [boundaryValueSecondOrder coeffs forces {0.0 1.0} {100.0 0.0} 10]
+log::log notice [boundaryValueSecondOrder coeffs forces {0.0 0.0} {100.0 1.0} 10]
 
 #
 # Determining the root of an equation

@@ -21,6 +21,9 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] statistics.tcl]
 
+puts "math::statistics [package present math::statistics]"
+
+
 set ::data_uniform  [list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
 set ::data_missing  [list 1.0 1.0 1.0 {} 1.0 {} {} 1.0 1.0 1.0 1.0 1.0 1.0]
 set ::data_linear   [list 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
