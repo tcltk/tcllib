@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.6 2003/05/01 22:40:18 patthoyts Exp $
+# RCS: @(#) $Id: list.test,v 1.7 2003/05/16 21:47:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -45,13 +45,13 @@ interp alias {} lcs {} ::struct::list::list longestCommonSubsequence
 test list-lcs-1.1 {longestCommonSubsequence, no args} {
     catch { lcs } msg
     set msg
-} [wrongNumArgs ::struct::list::LongestCommonSubsequence \
+} [wrongNumArgs ::struct::list::LlongestCommonSubsequence \
        {sequence1 sequence2 ?maxOccurs?} 0]
 
 test list-lcs-1.2 {longestCommonSubsequence, one arg} {
     catch { lcs x } msg
     set msg
-} [wrongNumArgs ::struct::list::LongestCommonSubsequence \
+} [wrongNumArgs ::struct::list::LlongestCommonSubsequence \
        {sequence1 sequence2 ?maxOccurs?} 1]
 
 test list-lcs-2.1 {longestCommonSubsequence, two empty lists} {
@@ -158,13 +158,13 @@ interp alias {} lcs2 {} ::struct::list::list longestCommonSubsequence2
 test list-lcs2-1.1 {longestCommonSubsequence2, no args} {
     catch { lcs2 } msg
     set msg
-} [wrongNumArgs ::struct::list::LongestCommonSubsequence2 \
+} [wrongNumArgs ::struct::list::LlongestCommonSubsequence2 \
        {sequence1 sequence2 ?maxOccurs?} 0]
 
 test list-lcs2-1.2 {longestCommonSubsequence2, one arg} {
     catch { lcs2 x } msg
     set msg
-} [wrongNumArgs ::struct::list::LongestCommonSubsequence2 \
+} [wrongNumArgs ::struct::list::LlongestCommonSubsequence2 \
        {sequence1 sequence2 ?maxOccurs?} 1]
 
 test list-lcs2-2.1 {longestCommonSubsequence2, two empty lists} {
@@ -320,7 +320,7 @@ test reverse-1.3 {reverse method} {
 
 test reverse-2.1 {reverse errors} {
     list [catch {reverse} msg] $msg
-} [list 1 [wrongNumArgs ::struct::list::Reverse {sequence} 0]]
+} [list 1 [wrongNumArgs ::struct::list::Lreverse {sequence} 0]]
 
 #----------------------------------------------------------------------
 
@@ -361,7 +361,7 @@ test flatten-1.2 {flatten command} {
 
 test flatten-2.1 {flatten errors} {
     list [catch {flatten} msg] $msg
-} {1 {wrong#args: should be "::struct::list::Assign ?-full? ?--? sequence"}}
+} {1 {wrong#args: should be "::struct::list::Lflatten ?-full? ?--? sequence"}}
 
 #----------------------------------------------------------------------
 
@@ -473,3 +473,357 @@ test equal-4.3 {equal command} {
 test equal-4.4 {equal command} {
     equal {{0 2 3} 1} {{0 2 3} 1}
 } 1
+
+#----------------------------------------------------------------------
+
+interp alias {} dbjoin  {} ::struct::list::list dbJoin
+interp alias {} dbjoink {} ::struct::list::list dbJoinKeyed
+
+#----------------------------------------------------------------------
+# Input data sets ...
+
+set empty {}
+set table_as [list \
+	{0 foo} \
+	{1 snarf} \
+	{2 blue} \
+	]
+set table_am [list \
+	{0 foo} \
+	{0 bar} \
+	{1 snarf} \
+	{1 rim} \
+	{2 blue} \
+	{2 dog} \
+    ]
+set table_bs [list \
+	{0 bagel} \
+	{1 snatz} \
+	{3 driver} \
+	]
+set table_bm [list \
+	{0 bagel} \
+	{0 loaf} \
+	{1 snatz} \
+	{1 grid} \
+	{3 driver} \
+	{3 tcl} \
+	]
+set table_cs [list \
+	{0 smurf} \
+	{3 bird} \
+	{4 galapagos} \
+	]
+set table_cm [list \
+	{0 smurf} \
+	{0 blt} \
+	{3 bird} \
+	{3 itcl} \
+	{4 galapagos} \
+	{4 tk} \
+	]
+
+#----------------------------------------------------------------------
+# Result data sets ...
+
+set nyi __not_yet_written__
+
+set ijss [list \
+	[list 0 foo   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	]
+set ijsm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	]
+set ijms [list \
+	[list 0 foo   0 bagel] \
+	[list 0 bar   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list 1 rim   1 snatz] \
+	]
+set ijmm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 0 bar   0 bagel] \
+	[list 0 bar   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list 1 rim   1 snatz] \
+	[list 1 rim   1 grid] \
+    ]
+
+set ljss [list \
+	[list 0 foo   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list 2 blue {} {}] \
+	]
+set ljsm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list 2 blue {} {}] \
+	]
+set ljms [list \
+	[list 0 foo   0 bagel] \
+	[list 0 bar   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list 1 rim   1 snatz] \
+	[list 2 blue {} {}] \
+	[list 2 dog  {} {}] \
+	]
+set ljmm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 0 bar   0 bagel] \
+	[list 0 bar   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list 1 rim   1 snatz] \
+	[list 1 rim   1 grid] \
+	[list 2 blue {} {}] \
+	[list 2 dog  {} {}] \
+	]
+
+set rjss [list \
+	[list 0 foo   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list {} {}   3 driver] \
+	]
+set rjsm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list {} {}   3 driver] \
+	[list {} {}   3 tcl] \
+	]
+set rjms [list \
+	[list 0 foo   0 bagel] \
+	[list 0 bar   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list 1 rim   1 snatz] \
+	[list {} {}   3 driver] \
+	]
+set rjmm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 0 bar   0 bagel] \
+	[list 0 bar   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list 1 rim   1 snatz] \
+	[list 1 rim   1 grid] \
+	[list {} {}   3 driver] \
+	[list {} {}   3 tcl] \
+    ]
+
+set fjss [list \
+	[list 0 foo   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list 2 blue {} {}] \
+	[list {} {}   3 driver] \
+	]
+set fjsm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list 2 blue {} {}] \
+	[list {} {}   3 driver] \
+	[list {} {}   3 tcl] \
+	]
+set fjms [list \
+	[list 0 foo   0 bagel] \
+	[list 0 bar   0 bagel] \
+	[list 1 snarf 1 snatz] \
+	[list 1 rim   1 snatz] \
+	[list 2 blue {} {}] \
+	[list 2 dog  {} {}] \
+	[list {} {}   3 driver] \
+	]
+set fjmm [list \
+	[list 0 foo   0 bagel] \
+	[list 0 foo   0 loaf] \
+	[list 0 bar   0 bagel] \
+	[list 0 bar   0 loaf] \
+	[list 1 snarf 1 snatz] \
+	[list 1 snarf 1 grid] \
+	[list 1 rim   1 snatz] \
+	[list 1 rim   1 grid] \
+	[list 2 blue {} {}] \
+	[list 2 dog  {} {}] \
+	[list {} {}   3 driver] \
+	[list {} {}   3 tcl] \
+    ]
+
+set ijmmm {
+    {0 bar 0 bagel 0 blt}
+    {0 bar 0 bagel 0 smurf}
+    {0 bar 0 loaf 0 blt}
+    {0 bar 0 loaf 0 smurf}
+    {0 foo 0 bagel 0 blt}
+    {0 foo 0 bagel 0 smurf}
+    {0 foo 0 loaf 0 blt}
+    {0 foo 0 loaf 0 smurf}
+}
+set ljmmm {
+    {0 bar 0 bagel 0 blt}
+    {0 bar 0 bagel 0 smurf}
+    {0 bar 0 loaf 0 blt}
+    {0 bar 0 loaf 0 smurf}
+    {0 foo 0 bagel 0 blt}
+    {0 foo 0 bagel 0 smurf}
+    {0 foo 0 loaf 0 blt}
+    {0 foo 0 loaf 0 smurf}
+    {1 rim 1 grid {} {}}
+    {1 rim 1 snatz {} {}}
+    {1 snarf 1 grid {} {}}
+    {1 snarf 1 snatz {} {}}
+    {2 blue {} {} {} {}}
+    {2 dog {} {} {} {}}
+}
+set rjmmm {
+    {0 bar 0 bagel 0 blt}
+    {0 bar 0 bagel 0 smurf}
+    {0 bar 0 loaf 0 blt}
+    {0 bar 0 loaf 0 smurf} 
+    {0 foo 0 bagel 0 blt}
+    {0 foo 0 bagel 0 smurf}
+    {0 foo 0 loaf 0 blt}
+    {0 foo 0 loaf 0 smurf}
+    {{} {} 3 driver 3 bird}
+    {{} {} 3 driver 3 itcl}
+    {{} {} 3 tcl 3 bird}
+    {{} {} 3 tcl 3 itcl}
+    {{} {} {} {} 4 galapagos}
+    {{} {} {} {} 4 tk}
+}
+set fjmmm {
+    {0 bar 0 bagel 0 blt}
+    {0 bar 0 bagel 0 smurf}
+    {0 bar 0 loaf 0 blt}
+    {0 bar 0 loaf 0 smurf} 
+    {0 foo 0 bagel 0 blt}
+    {0 foo 0 bagel 0 smurf}
+    {0 foo 0 loaf 0 blt}
+    {0 foo 0 loaf 0 smurf}
+    {1 rim 1 grid {} {}}
+    {1 rim 1 snatz {} {}}
+    {1 snarf 1 grid {} {}}
+    {1 snarf 1 snatz {} {}}
+    {2 blue {} {} {} {}}
+    {2 dog {} {} {} {}}
+    {{} {} 3 driver 3 bird}
+    {{} {} 3 driver 3 itcl}
+    {{} {} 3 tcl 3 bird}
+    {{} {} 3 tcl 3 itcl}
+    {{} {} {} {} 4 galapagos}
+    {{} {} {} {} 4 tk}
+}
+
+#----------------------------------------------------------------------
+# Helper, translation to keyed format.
+
+proc keyed {table} {
+    # Get the key out of the row, hardwired to column 0
+    set res [list]
+    foreach row $table {lappend res [list [lindex $row 0] $row]}
+    return $res
+}
+
+#----------------------------------------------------------------------
+# I.	One table joins
+
+set n 0 ; # Counter for test cases
+foreach {jtype inout} {
+    -inner empty    -inner table_as    -inner table_am
+    -left  empty    -left  table_as    -left  table_am
+    -right empty    -right table_as    -right table_am
+    -full  empty    -full  table_as    -full  table_am
+} {
+    test dbjoin-1.$n "1-table join $jtype $inout" {
+	dbjoin $jtype 0 [set $inout]
+    } [set $inout] ; # {}
+
+    test dbjoinKeyed-1.$n "1-table join $jtype $inout" {
+	dbjoink $jtype [keyed [set $inout]]
+    } [set $inout] ; # {}
+
+    incr n
+}
+
+#----------------------------------------------------------------------
+# II.	Two table joins
+
+set n 0 ; # Counter for test cases
+foreach {jtype left right result} {
+    -inner empty    empty    empty
+    -inner empty    table_bs empty
+    -inner table_as empty    empty
+    -inner table_as table_bs ijss
+    -inner table_as table_bm ijsm
+    -inner table_am table_bs ijms
+    -inner table_am table_bm ijmm
+
+    -left  empty    empty    empty
+    -left  empty    table_bs empty
+    -left  table_as empty    table_as
+    -left  table_as table_bs ljss
+    -left  table_as table_bm ljsm
+    -left  table_am table_bs ljms
+    -left  table_am table_bm ljmm
+
+    -right empty    empty    empty
+    -right empty    table_bs table_bs
+    -right table_as empty    empty
+    -right table_as table_bs rjss
+    -right table_as table_bm rjsm
+    -right table_am table_bs rjms
+    -right table_am table_bm rjmm
+
+    -full  empty    empty    empty
+    -full  empty    table_bs table_bs
+    -full  table_as empty    table_as
+    -full  table_as table_bs fjss
+    -full  table_as table_bm fjsm
+    -full  table_am table_bs fjms
+    -full  table_am table_bm fjmm
+} {
+    test dbjoin-2.$n "2-table join $jtype ($left $right) = $result" {
+	lsort [dbjoin $jtype 0 [set $left] 0 [set $right]]
+    } [lsort [set $result]]
+
+    test dbjoinKeyed-2.$n "2-table join $jtype ($left $right) = $result" {
+	lsort [dbjoink $jtype [keyed [set $left]] [keyed [set $right]]]
+    } [lsort [set $result]]
+
+    incr n
+}
+
+#----------------------------------------------------------------------
+# III.	Three table joins
+
+set n 0 ; # Counter for test cases
+foreach {jtype left middle right result} {
+    -inner table_am table_bm table_cm ijmmm
+    -left  table_am table_bm table_cm ljmmm
+    -right table_am table_bm table_cm rjmmm
+    -full  table_am table_bm table_cm fjmmm
+} {
+    test dbjoin-3.$n "3-table join $jtype ($left $middle $right) = $result" {
+	lsort [dbjoin $jtype 0 [set $left] 0 [set $middle] 0 [set $right]]
+    } [lsort [set $result]]
+
+    test dbjoinKeyed-3.$n "3-table join $jtype ($left $middle $right) = $result" {
+	lsort [dbjoink $jtype [keyed [set $left]] [keyed [set $middle]] [keyed [set $right]]]
+    } [lsort [set $result]]
+
+    incr n
+}
+
+#----------------------------------------------------------------------
+::tcltest::cleanupTests

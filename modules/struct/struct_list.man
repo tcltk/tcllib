@@ -1,11 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.2 2003/05/14 22:26:17 andreas_kupries Exp $}]
-[manpage_begin list n 1.2.2]
+[comment {$Id: struct_list.man,v 1.3 2003/05/16 21:47:50 andreas_kupries Exp $}]
+[manpage_begin list n 1.4]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
+[copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating lists}]
 [require Tcl 8.0]
-[require struct [opt 1.3]]
+[require struct [opt 1.4]]
 [description]
 
 [para]
@@ -367,7 +368,7 @@ list the same definition of equality applies recursively.
 
 [nl]
 
-A boolean vlaue will be returned as the result of the command.
+A boolean value will be returned as the result of the command.
 This value will be [const true] if the two lists are equal, and
 [const false] else.
 
@@ -411,6 +412,58 @@ An empty list will be returned if no [arg size] arguments are present.
 }]
 
 
+[call [cmd ::struct::list] [method dbJoin] [opt [option -inner]|[option -left]|[option -right]|[option -full]] \{[arg keycol] [arg table]\}...]
+
+The method performs a table join according to relational algebra. The
+execution of any of the possible outer join operation is triggered by
+the presence of either option [option -left], [option -right], or
+[option -full]. If none of these options is present a regular inner
+join will be performed. This can also be triggered by specifying
+[option -inner]. The various possible join operations are explained in
+detail in section [sectref {TABLE JOIN}].
+
+[nl]
+
+What is left to explain is the format of the arguments.
+
+[nl]
+
+The [arg keycol] arguments are the indices of the columns in the
+tables which contain the key values to use for the joining. Each
+argument applies to the table following immediately after it. The
+columns are counted from [const 0], which references the first
+column. The table associated with the column index has to have at
+least [arg keycol]+1 columns. An error will be thrown if there are
+less.
+
+[nl]
+
+The [arg table] arguments represent a table or matrix of rows and
+columns of values. We use the same representation as generated and
+consumed by the methods [method {get rect}] and [method {set rect}] of
+[cmd matrix] objects. In other words, each argument is a list,
+representing the whole matrix.  Its elements are lists too, each
+representing a single rows of the matrix. The elements of the
+row-lists are the column values.
+
+[nl]
+
+The table resulting from the join operation is returned as the result
+of the command. We use the same representation as described above for
+the input [arg table]s.
+
+
+
+[call [cmd ::struct::list] [method dbJoinKeyed] [opt [option -inner]|[option -left]|[option -right]|[option -full]] [arg table]...]
+
+The operations performed by this method are the same as described
+above for [method dbJoin]. The only difference is in the specification
+of the keys to use. Instead of using column indices separate from the
+table here the keys are provided within the table itself. The row
+elements in each [arg table] are not the lists of column values, but a
+two-element list where the second element is the regular list of
+column values and the first element is the key to use.
+
 [list_end]
 
 [section {LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON}]
@@ -446,6 +499,99 @@ computes the longest common subsequence of infrequent elements, and
 then subdivides the subsequences that lie between the matches to
 approximate the true longest common subsequence.
 
+
+[section {TABLE JOIN}]
+
+This is an operation from relational algebra for relational databases.
+
+[para]
+
+The easiest way to understand the regular inner join is that it
+creates the cartesian product of all the tables involved first and
+then keeps only all those rows in the resulting table for which the
+values in the specified key columns are equal to each other.
+
+[para]
+
+Implementing this description naively, i.e. as described above will
+generate a [emph huge] intermediate result. To avoid this the
+cartesian product and the filtering of row are done at the same
+time. What is required is a fast way to determine if a key is present
+in a table. In a true database this is done through indices. Here we
+use arrays internally.
+
+[para]
+
+An [term outer] join is an extension of the inner join for two
+tables. There are three variants of outerjoins, called [term left],
+[term right], and [term full] outer joins. Their result always
+contains all rows from an inner join and then some additional rows.
+
+[list_begin enum]
+[enum]
+
+For the left outer join the additional rows are all rows from the left
+table for which there is no key in the right table. They are joined to
+an empty row of the right table to fit them into the result.
+
+[enum]
+
+For the right outer join the additional rows are all rows from the right
+table for which there is no key in the left table. They are joined to
+an empty row of the left table to fit them into the result.
+
+
+[enum]
+
+The full outer join combines both left and right outer join. In other
+words, the additional rows are as defined for left outer join, and
+right outer join, combined.
+
+[list_end]
+
+[para]
+
+We extend all the joins from two to [var n] tables ([var n] > 2) by
+executing
+
+[example {
+    (...((table1 join table2) join table3) ...) join tableN
+}]
+
+[para]
+
+Examples for all the joins:
+
+[example {
+    Inner Join
+
+    {0 foo}              {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} inner join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}             {3 driver}
+
+    Left Outer Join
+
+    {0 foo}                   {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} left outer join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}                  {3 driver}   {2 blue  {} {}}
+
+    Right Outer Join
+
+    {0 foo}                    {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} right outer join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}                   {3 driver}   {{} {}   3 driver}
+
+    Full Outer Join
+
+    {0 foo}                   {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} full outer join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}                  {3 driver}   {2 blue  {} {}}
+                                           {{} {}   3 driver}
+}]
+
+
+
+
 [section REFERENCES]
 
 J. W. Hunt and M. D. McIlroy, "An algorithm for differential 
@@ -461,4 +607,5 @@ author's personal site: [uri http://www.cs.dartmouth.edu/~doug/]
 [keywords map]
 [keywords folding reduce]
 [keywords equality equal repetition repeating]
+[keywords {inner join} {left outer join} {right outer join} {full outer join} {outer join} join]
 [manpage_end]
