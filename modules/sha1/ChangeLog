@@ -1,6 +1,13 @@
+2003-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sha1.tcl (sha1::sha1): Applied patch #637770 submitted by Donal
+	  Fellows to fix problems on Mac OS X machines. This possibly
+	  related to 64/32 bit arithmetic. See changes by Don Porter
+	  below.
+
 2003-02-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* sha1.tcl: Check we have a _working_ C implementation.
+	* sha1.tcl: Check that we have a _working_ C implementation.
 
 2003-02-06  David N. Welton  <davidw@dedasys.com>
 
