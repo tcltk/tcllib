@@ -1,0 +1,49 @@
+Welcome to the tcllib, the Tcl Standard Library.  This package is
+intended to be a collection of Tcl packages that provide utility
+functions useful to a large collection of Tcl programmers.
+
+The structure of the tcllib source heirarchy is:
+
+tcllib
+ +- modules
+     +- <module1>
+     +- <module2>
+     +- ...
+
+
+The install heirarchy is:
+
+.../lib/tcllib
+        +- <module1>
+        +- <module2>
+        +- ...
+
+There are some base requirements that a module must meet before it
+will be added to tcllib:
+
+* the module must be a proper Tcl package
+* the module must use a namespace for its commands and variables
+* the name of the package must be the same as the name of the
+  namespace
+* the module must reside in a subdirectory of the modules directory in
+  the source heirarchy, and that subdirectory must have the same name
+  as the package and namespace
+* the module must be released under the BSD License, the terms of
+  which can be found in the toplevel tcllib source directory
+* the module should have both documentation (in XML, man, or HTML
+  form) and a test suite (in the form of a group of *.test files in
+  the module directory).
+* the module must have either documentation or a test suite.  It can
+  not have neither.
+* the module should adhere to Tcl coding standards
+
+When adding a module to tcllib, be sure to add it to the Makefile.in
+so it will be installed.  Add a line like:
+
+MYNEWMODULE=mynewmodule
+
+to the list of modules at the top of the Makefile.in, and then add
+$(MYNEWMODULE) to the definition of the MODULES variable.  This will
+allow users to choose which modules to install by commenting or
+uncommenting lines in the Makefile.
+
