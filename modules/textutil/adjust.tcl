@@ -10,6 +10,7 @@ namespace eval ::textutil {
 
     namespace eval adjust {
 
+	variable here [file dirname [info script]]
         variable StrRepeat [ namespace parent ]::strRepeat
         variable Justify  left
         variable Length   72
@@ -24,7 +25,6 @@ namespace eval ::textutil {
         # a chance for the next import subcommand to work
         #
         proc adjust { text args } { }
-
     }
 
     namespace import -force adjust::adjust
@@ -424,7 +424,7 @@ proc ::textutil::adjust::SortList { list dir index } {
 # Returns:
 #      the hyphenated string
 
-proc textutil::adjust::Hyphenation { str } {
+proc ::textutil::adjust::Hyphenation { str } {
 
   variable HyphPatterns;                       # hyphenation patterns (TeX)
 
@@ -497,6 +497,48 @@ proc textutil::adjust::Hyphenation { str } {
   return [split $ret -];
 }
 
+# textutil::adjust::listPredefined
+#
+#      Return the names of the hyphenation files coming with the package.
+#
+# Parameters:
+#      None.
+#
+# Result:
+#	List of filenames (without directory)
+
+proc ::textutil::adjust::listPredefined {} {
+    variable here
+    return [glob -type f -directory $here -tails *.tex]
+}
+
+# textutil::adjust::getPredefined
+#
+#      Retrieve the full path for a predefined hyphenation file
+#	coming with the package.
+#
+# Parameters:
+#      name	Name of the predefined file.
+#
+# Results:
+#	Full path to the file, or an error if it doesn't
+#	exist or is matching the pattern *.tex.
+
+proc ::textutil::adjust::getPredefined {name} {
+    variable here
+
+    if {![string match *.tex $name]} {
+	return -code error \
+		"Illegal hyphenation file \"$name\""
+    }
+    set path [file join $here $name]
+    if {![file exists $path]} {
+	return -code error \
+		"Unknown hyphenation file \"$path\""
+    }
+    return $path
+}
+
 # textutil::adjust::readPatterns
 #
 #      Read hyphenation patterns from a file and store them in an array
@@ -504,7 +546,7 @@ proc textutil::adjust::Hyphenation { str } {
 # Parameters:
 #      filNam  name of the file containing the patterns
 
-proc textutil::adjust::readPatterns { filNam } {
+proc ::textutil::adjust::readPatterns { filNam } {
 
   variable HyphPatterns;                       # hyphenation patterns (TeX)
 
