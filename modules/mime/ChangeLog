@@ -1,3 +1,8 @@
+2001-08-01  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* mime.tcl: made package require 8.3 and sped up qp_encode and
+	qp_decode.
+
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl: 
