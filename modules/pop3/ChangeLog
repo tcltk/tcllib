@@ -1,3 +1,9 @@
+2003-04-21  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.test (0.6): Fixed test 0.6, removed dependency on service
+	  running on port 25 (smtp), using fake service on some free port
+	  instead.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.tcl:
