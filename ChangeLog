@@ -2,7 +2,7 @@
 
 	* Makefile.in (DOC_EXP): Use the tclsh found during configuration
 	  to run mpexpand. This ensures that mpexpand does not pick
-	  something from the path on its own, possibly something to old
+	  something from the path on its own, possibly something too old
 	  to understand TCLLIBPATH. Problem noted by Elchonon Edelson
 	  <edelson@pobox.com>.
 
