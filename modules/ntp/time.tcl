@@ -7,14 +7,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.2 2003/03/20 00:41:04 patthoyts Exp $
+# $Id: time.tcl,v 1.3 2003/03/26 22:58:59 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.0.0
-    variable rcsid {$Id: time.tcl,v 1.2 2003/03/20 00:41:04 patthoyts Exp $}
+    variable rcsid {$Id: time.tcl,v 1.3 2003/03/26 22:58:59 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -106,10 +106,7 @@ proc ::time::configure {args} {
         Pop args
     }
     
-    if {$cget} {
-        return $r
-    }
-    return
+    return $r
 }
 
 # Set/get package options.
@@ -121,7 +118,7 @@ proc ::time::SetOrGet {option {cget 0}} {
     } else {
         set options($option) [Pop args 1]
     }
-    return
+    return {}
 }
 
 # -------------------------------------------------------------------------
