@@ -1,3 +1,7 @@
+2001-11-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ftp: Fixed bug #476729.
+
 2001-11-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime: Fixed bugs #477088, #472009.

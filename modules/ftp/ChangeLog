@@ -1,3 +1,16 @@
+2001-11-04  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.n: Updated description of DisplayMsg to the changed
+	  behaviour and added a discussion of what happens should it throw
+	  errors. Also added a description of option -output to the
+	  description of ftp::Open.
+
+	* ftp.tcl: Fixed bug #476729. Instead of describing the behaviour
+	  of the default 'DisplayMsg' the procedure is changed instead to
+	  throw no errors, and to use the log module of tcllib. Thanks to
+	  Larry Virden <lvirden@users.sourceforge.net> for pointing out
+	  the deficiencies in the documentation.
+
 2001-10-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.tcl: Fixed bug #466746. Reporter of bug unknown, provided

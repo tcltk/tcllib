@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.2 2001/10/17 17:27:26 andreas_kupries Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.3 2001/11/07 02:48:29 andreas_kupries Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -78,13 +78,21 @@ codes, states, state changes and "real" ftp commands. The default
 value is \fI0\fR.
 .PP
 The procedure \fBDisplayMsg\fR is used to show the different messages
-from the ftp session. The package itself declares this command very
-simple, writing the messages to \fIstdout\fR (if \fIVERBOSE\fR was
-set, s.a.) and throwing tcl errors for error messages. It is the
-responsibility of the application to overwrite it as needed. A state
-variable for different states assigned to different colors is
-recommended by the author. The \fBlog\fR package can be useful
-for this.
+from the ftp session. The setting of \fIVERBOSE\fR determines if this
+command is called or not. The current implementation of the command
+uses the \fBlog\fR module of tcllib to write the messages to their
+final destination. This means that the behaviour of \fBDisplayMsg\fR
+can be customized without changing its implementation. For more
+radical changes overwriting its implementation by the application is
+of course still possible. Note that the default implementation honors
+the -output option to \fBftp::Open\fR for a session specific log
+command.
+.PP
+\fBCaution\fR: The default implementation logs error messages like all
+other messages. If this behaviour is changed to throwing an error
+instead all commands in the API will change their behaviour too. In
+such a case they will not return a failure code as described below but
+pass the thrown error to their caller.
 .SH "API"
 .TP
 \fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?\fR
@@ -151,6 +159,13 @@ the callback script, namely the keyword of the operation that has
 completed and any additional arguments specific to the operation.  If
 an error occured during the execution of the operation the callback is
 given the keyword \fBerror\fR.
+.TP
+-output callback
+This option has no default. If it is set the default implementation of
+\fBDisplayMsg\fR will use its value as command prefix to log all
+internal messages. The callback will have three arguments appended to
+it before evaluation, the id of the session, the message itself, and
+the connection state, in this order.
 .RE
 .TP
 \fBftp::Close\fR \fIhandle\fR\fR

@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.16 2001/10/23 03:44:06 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.17 2001/11/07 02:48:29 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -37,16 +37,16 @@
 #
 
 package require Tcl 8.2
-package provide ftp [lindex {Revision: 2.2.1} 1]
+package require log     ; # tcllib/log, general logging facility.
 
 namespace eval ftp {
-
-namespace export DisplayMsg Open Close Cd Pwd Type List NList FileSize ModTime\
-		 Delete Rename Put Append Get Reget Newer Quote MkDir RmDir 
+    namespace export DisplayMsg Open Close Cd Pwd Type List NList \
+	    FileSize ModTime Delete Rename Put Append Get Reget \
+	    Newer Quote MkDir RmDir
 	
-set serial 0
-set VERBOSE 0
-set DEBUG 0
+    set serial 0
+    set VERBOSE 0
+    set DEBUG 0
 }
 
 #############################################################################
@@ -69,32 +69,27 @@ set DEBUG 0
 proc ftp::DisplayMsg {s msg {state ""}} {
 
     upvar ::ftp::ftp$s ftp
-    variable VERBOSE 
     
     if { ([info exists ftp(Output)]) && ($ftp(Output) != "") } {
         eval [concat $ftp(Output) {$s $msg $state}]
         return
     }
+
+    # FIX #476729. Instead of changing the documentation this
+    #              procedure is changed to enforce the documented
+    #              behaviour. IOW, this procedure will not throw
+    #              errors anymore. At the same time printing to stdout
+    #              is exchanged against calls into the 'log' module
+    #              tcllib, which is much easier to customize for the
+    #              needs of any application using the ftp module. The
+    #              variable VERBOSE is still relevant as it controls
+    #              whether this procedure is called or not.
         
     switch -exact -- $state {
-        data {
-            if { $VERBOSE } {
-                puts $msg
-            }
-        }
-        control	{
-            if { $VERBOSE } {
-                puts $msg
-            }
-        }
-        error {
-            error "ERROR: $msg"
-        }
-        default	{
-            if { $VERBOSE } {
-                puts $msg
-            }
-        }
+        data    {log::log debug "$state | $msg"}
+        control {log::log debug "$state | $msg"}
+        error   {log::log error "$state | E: $msg"}
+        default {log::log debug "$state | $msg"}
     }
     return
 }
@@ -2791,3 +2786,6 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
     set ::ftp::DEBUG 0
 }
 
+# At last, everything is fine, we can provide the package.
+
+package provide ftp [lindex {Revision: 2.2.1} 1]
