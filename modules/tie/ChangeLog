@@ -1,3 +1,9 @@
+2005-03-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie.man (unsetv): Fixed a small documentation error. The
+	  argument to unsetv is not optional. Thanks to Colin McCormack
+	  <coldstore@users.sourceforge.net> for finding this.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
