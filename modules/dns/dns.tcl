@@ -12,6 +12,8 @@
 # Support for SPF (http://spf.pobox.com/rfcs.html) will need updating
 # if or when the proposed draft becomes accepted.
 #
+# Support added for RFC1886 - DNS Extensions to support IP version 6
+#
 # TODO:
 #  - When using tcp we should make better use of the open connection and
 #    send multiple queries along the same connection.
@@ -21,16 +23,17 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.20 2004/05/25 23:11:05 patthoyts Exp $
+# $Id: dns.tcl,v 1.21 2004/07/23 20:39:17 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
+package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
-    variable version 1.1
-    variable rcsid {$Id: dns.tcl,v 1.20 2004/05/25 23:11:05 patthoyts Exp $}
+    variable version 1.2.0
+    variable rcsid {$Id: dns.tcl,v 1.21 2004/07/23 20:39:17 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -58,7 +61,7 @@ namespace eval ::dns {
     array set types { 
         A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
         NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
-        SPF 16 AXFR 252  MAILB 253  MAILA 254  * 255
+        SPF 16 AAAA 28 AXFR 252  MAILB 253  MAILA 254  * 255
     } 
 
     variable classes
@@ -311,8 +314,13 @@ proc ::dns::address {token} {
         array set AN $answer
 
         if {[info exists AN(type)]} {
-            if {$AN(type) == "A"} {
-                lappend r $AN(rdata)
+            switch -exact -- $AN(type) {
+                "A" {
+                    lappend r $AN(rdata)
+                }
+                "AAAA" {
+                    lappend r $AN(rdata)
+                }
             }
         }
     }
@@ -934,7 +942,10 @@ proc ::dns::ReadAnswer {nitems data indexvar} {
 
         switch -- $type {
             A {
-                set rdata [join [Expand $rdata] .] 
+                set rdata [join [Expand $rdata] .]
+            }
+            AAAA {
+                set rdata [ip::contract [ip::ToString $rdata]]
             }
             NS - CNAME - PTR {
                 set rdata [ReadName data $index off] 
