@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.2 2000/10/30 19:38:17 kuchler Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.3 2000/10/30 19:40:47 kuchler Exp $
 #
 
 # Define the ftpd package version 1.1
@@ -1679,6 +1679,8 @@ proc ::ftpd::fsFile::fs {command path args} {
     # rmdir <path> <channel-to-write-to>
     # size  <path> <channel-to-write-size-to>
     # store <path>
+
+    global tcl_platform
 
     variable docRoot
 
