@@ -1,3 +1,12 @@
+2005-03-30  Eric Melski  <ericm@electric-cloud.com>
+
+	* profiler.tcl (::profiler::TraceHandler): Make sure that caller names
+	always have a :: prefix, to avoid getting confused by "::foo" versus
+	"foo", which actually refer to the same procedure [Bug 1172938].
+	Incremented version number to 0.2.3.
+
+	* profiler.test: Added tests to verify fix for Bug 1172938.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
