@@ -260,15 +260,31 @@ proc ::htmlparse::parse {args} {
 
     set html [PrepareHtml [lindex $args 0]]
 
-    # Handle incomplete HTML
+    # Look for incomplete HTML from the last iteration and prepend it
+    # to the input we just got.
+
+    if {$incvar != {}} {
+	upvar $incvar incomplete
+    } else {
+	set incomplete ""
+    }
+
+    if {[catch {set new $incomplete$html}]} {set new $html}
+    set html $new
+
+    # Handle incomplete HTML (Recognize incomplete tag at end, buffer
+    # it up for the next call).
 
     if {[regexp -- {[^<]*(<[^>]*)$} [lindex "\{$html\}" end] -> trailer]} {
 	if {$incvar == {}} {
 	    return -code error "::htmlparse::parse : HTML is incomplete, option -incvar is missing"
 	}
-	upvar $incvar incomplete
+
+	#  upvar $incvar incomplete -- Already done, s.a.
 	set incomplete $trailer
 	set html       [string range $html 0 [expr {[string last "<" $html] - 1}]]
+    } else {
+	set incomplete ""
     }
 
     # Convert the HTML string into a script.
