@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.10 2000/04/07 21:37:30 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.11 2000/04/27 18:42:29 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -63,10 +63,10 @@ namespace eval ::struct::tree {
 #	treeX, where X is a number.
 #
 # Arguments:
-#	name	name of the tree; if null, generate one.
+#	name	Optional name of the tree; if null or not given, generate one.
 #
 # Results:
-#	name	name of the tree created
+#	name	Name of the tree created
 
 proc ::struct::tree::tree {{name ""}} {
     variable counter
@@ -113,8 +113,9 @@ proc ::struct::tree::tree {{name ""}} {
 #	Command that processes all tree object commands.
 #
 # Arguments:
-#	name	name of the tree object to manipulate.
-#	args	command name and args for the command
+#	name	Name of the tree object to manipulate.
+#	cmd	Subcommand to invoke.
+#	args	Arguments for subcommand.
 #
 # Results:
 #	Varies based on command to perform
@@ -140,11 +141,11 @@ proc ::struct::tree::TreeProc {name {cmd ""} args} {
 #	Return the child list for a given node of a tree.
 #
 # Arguments:
-#	name	name of the tree object.
-#	node	node to look up.
+#	name	Name of the tree object.
+#	node	Node to look up.
 #
 # Results:
-#	children	list of children for the node.
+#	children	List of children for the node.
 
 proc ::struct::tree::_children {name node} {
     if { ![_exists $name $node] } {
@@ -162,8 +163,8 @@ proc ::struct::tree::_children {name node} {
 #	destroyed node at the index of the destroyed node.
 #
 # Arguments:
-#	name	name of the tree object.
-#	node	node to look up and cut.
+#	name	Name of the tree object.
+#	node	Node to look up and cut.
 #
 # Results:
 #	None.
@@ -213,8 +214,8 @@ proc ::struct::tree::_cut {name node} {
 #	removes the node's children.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to delete.
+#	name	Name of the tree.
+#	node	Node to delete.
 #
 # Results:
 #	None.
@@ -267,11 +268,11 @@ proc ::struct::tree::_delete {name node} {
 #	Return the depth (distance from the root node) of a given node.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to find.
+#	name	Name of the tree.
+#	node	Node to find.
 #
 # Results:
-#	depth	number of steps from node to the root node.
+#	depth	Number of steps from node to the root node.
 
 proc ::struct::tree::_depth {name node} {
     if { ![_exists $name $node] } {
@@ -291,7 +292,7 @@ proc ::struct::tree::_depth {name node} {
 #	Destroy a tree, including its associated command and data storage.
 #
 # Arguments:
-#	name	name of the tree.
+#	name	Name of the tree to destroy.
 #
 # Results:
 #	None.
@@ -306,8 +307,8 @@ proc ::struct::tree::_destroy {name} {
 #	Test for existance of a given node in a tree.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to look for.
+#	name	Name of the tree to query.
+#	node	Node to look for.
 #
 # Results:
 #	1 if the node exists, 0 else.
@@ -321,10 +322,10 @@ proc ::struct::tree::_exists {name node} {
 #	Generate a unique node name for the given tree.
 #
 # Arguments:
-#	name	name of the tree.
+#	name	Name of the tree to generate a unique node name for.
 #
 # Results:
-#	node	name of a node guaranteed to not exist in the tree.
+#	node	Name of a node guaranteed to not exist in the tree.
 
 proc ::struct::tree::__generateUniqueNodeName {name} {
     upvar ::struct::tree::tree${name}::nextUnusedNode nextUnusedNode
@@ -339,13 +340,13 @@ proc ::struct::tree::__generateUniqueNodeName {name} {
 #	Get a keyed value from a node in a tree.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to query.
-#	flag	-key; anything else is an error
-#	key	key to lookup; defaults to data
+#	name	Name of the tree.
+#	node	Node to query.
+#	flag	Optional flag specifier; if present, must be "-key".
+#	key	Optional key to lookup; defaults to data.
 #
 # Results:
-#	value	value associated with the key given.
+#	value	Value associated with the key given.
 
 proc ::struct::tree::_get {name node {flag -key} {key data}} {
     if { ![_exists $name $node] } {
@@ -364,8 +365,8 @@ proc ::struct::tree::_get {name node {flag -key} {key data}} {
 #	Determine the index of node with in its parent's list of children.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to look up.
+#	name	Name of the tree.
+#	node	Node to look up.
 #
 # Results:
 #	index	The index of the node in its parent
@@ -395,14 +396,14 @@ proc ::struct::tree::_index {name node} {
 #	will be moved to the given location.
 #
 # Arguments:
-#	name		name of the tree.
-#	parentNode	parent to add the node to.
-#	index		index at which to insert.
-#	args		node(s) to insert.  If none is given, the routine
-#			will generate a single unique node name.
+#	name		Name of the tree.
+#	parentNode	Parent to add the node to.
+#	index		Index at which to insert.
+#	args		Node(s) to insert.  If none is given, the routine
+#			will insert a single node with a unique name.
 #
 # Results:
-#	nodes		name of the inserted nodes.
+#	nodes		List of nodes inserted.
 
 proc ::struct::tree::_insert {name parentNode index args} {
     if { [llength $args] == 0 } {
@@ -475,11 +476,11 @@ proc ::struct::tree::_insert {name parentNode index args} {
 #	Return whether the given node of a tree is a leaf or not.
 #
 # Arguments:
-#	name	name of the tree object.
-#	node	node to look up.
+#	name	Name of the tree object.
+#	node	Node to look up.
 #
 # Results:
-#	isleaf	true if the node is a leaf; false otherwise.
+#	isleaf	True if the node is a leaf; false otherwise.
 
 proc ::struct::tree::_isleaf {name node} {
     if { ![_exists $name $node] } {
@@ -496,11 +497,12 @@ proc ::struct::tree::_isleaf {name node} {
 #	location in the tree.
 #
 # Arguments:
-#	name		name of the tree
-#	parentNode	parent to add the node to.
-#	index		index at which to insert.
-#	node		node to move; must exist.
-#	args		additional nodes to move; must exist.
+#	name		Name of the tree
+#	parentNode	Parent to add the node to.
+#	index		Index at which to insert.
+#	node		Node to move; the node must exist in the tree.
+#	args		Additional nodes to move; these nodes must exist
+#			in the tree.
 #
 # Results:
 #	None.
@@ -573,8 +575,8 @@ proc ::struct::tree::_move {name parentNode index node args} {
 #	Return the right sibling for a given node of a tree.
 #
 # Arguments:
-#	name		name of the tree object.
-#	node		node to look up.
+#	name		Name of the tree object.
+#	node		Node to retrieve right sibling for.
 #
 # Results:
 #	sibling		The right sibling for the node, or null if node was
@@ -606,11 +608,11 @@ proc ::struct::tree::_next {name node} {
 #	Return the number of immediate children for a given node of a tree.
 #
 # Arguments:
-#	name		name of the tree object.
-#	node		node to look up.
+#	name		Name of the tree object.
+#	node		Node to look up.
 #
 # Results:
-#	numchildren	number of immediate children for the node.
+#	numchildren	Number of immediate children for the node.
  
 proc ::struct::tree::_numchildren {name node} {
     if { ![_exists $name $node] } {
@@ -626,11 +628,11 @@ proc ::struct::tree::_numchildren {name node} {
 #	Return the name of the parent node of a node in a tree.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to look up.
+#	name	Name of the tree.
+#	node	Node to look up.
 #
 # Results:
-#	parent	parent of node $node
+#	parent	Parent of node $node
 
 proc ::struct::tree::_parent {name node} {
     if { ![_exists $name $node] } {
@@ -644,8 +646,8 @@ proc ::struct::tree::_parent {name node} {
 #	Return the left sibling for a given node of a tree.
 #
 # Arguments:
-#	name		name of the tree object.
-#	node		node to look up.
+#	name		Name of the tree object.
+#	node		Node to look up.
 #
 # Results:
 #	sibling		The left sibling for the node, or null if node was 
@@ -677,12 +679,14 @@ proc ::struct::tree::_previous {name node} {
 #	Set or get a value for a node in a tree.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to modify or query.
-#	args	?-key key? ?value?
+#	name	Name of the tree.
+#	node	Node to modify or query.
+#	args	Optional arguments specifying a key and a value.  Format is
+#			?-key key? ?value?
+#		If no key is specified, the key "data" is used.
 #
 # Results:
-#	val	value associated with the given key of the given node
+#	val	Value associated with the given key of the given node
 
 proc ::struct::tree::_set {name node args} {
     if { ![_exists $name $node] } {
@@ -729,11 +733,11 @@ proc ::struct::tree::_set {name node args} {
 #	is the special root node.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to start counting from (default is root).
+#	name	Name of the tree.
+#	node	Optional node to start counting from (default is root).
 #
 # Results:
-#	size	number of descendants of the node.
+#	size	Number of descendants of the node.
 
 proc ::struct::tree::_size {name {node root}} {
     if { ![_exists $name $node] } {
@@ -772,16 +776,16 @@ proc ::struct::tree::_size {name {node root}} {
 #	parent children of the new node.
 #
 # Arguments:
-#	name		name of the tree.
-#	parentNode	parent to add the node to.
-#	from		index at which to insert.
-#	to		end of the range of children to replace.
-#			Optional. Defaults to 'end'.
-#	node		Optional node name; if given, must be unique.  If not,
-#			a unique name will be generated.
+#	name		Name of the tree.
+#	parentNode	Parent to add the node to.
+#	from		Index at which to insert.
+#	to		Optional end of the range of children to replace.
+#			Defaults to 'end'.
+#	node		Optional node name; if given, must be unique.  If not
+#			given, a unique name will be generated.
 #
 # Results:
-#	node		name of the node added to the tree.
+#	node		Name of the node added to the tree.
 
 proc ::struct::tree::_splice {name parentNode from {to end} args} {
     if { [llength $args] == 0 } {
@@ -821,9 +825,9 @@ proc ::struct::tree::_splice {name parentNode from {to end} args} {
 #	Swap two nodes in a tree.
 #
 # Arguments:
-#	name	name of the tree.
-#	node1	first node to swap.
-#	node2	second node to swap.
+#	name	Name of the tree.
+#	node1	First node to swap.
+#	node2	Second node to swap.
 #
 # Results:
 #	None.
@@ -903,9 +907,11 @@ proc ::struct::tree::_swap {name node1 node2} {
 #	Remove a keyed value from a node.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node to modify.
-#	args	additional args: ?-key key?
+#	name	Name of the tree.
+#	node	Node to modify.
+#	args	Optional additional args specifying which key to unset;
+#		if given, must be of the form "-key key".  If not given,
+#		the key "data" is unset.
 #
 # Results:
 #	None.
@@ -934,9 +940,12 @@ proc ::struct::tree::_unset {name node {flag -key} {key data}} {
 #	a command will be called with the name of the tree and the node.
 #
 # Arguments:
-#	name	name of the tree.
-#	node	node at which to start.
-#	args	additional args: ?-type {bfs|dfs}? -command cmd
+#	name	Name of the tree.
+#	node	Node at which to start.
+#	args	Optional additional arguments specifying the type and order of
+#		the tree walk, and the command to execute at each node.
+#		Format is
+#		    ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd
 #
 # Results:
 #	None.
@@ -1144,8 +1153,8 @@ proc ::struct::tree::_walk {name node args} {
 #	into the command before it evaluation.
 #
 # Arguments:
-#	tree	tree we are walking
-#	node	node we are at.
+#	tree	Tree we are walking
+#	node	Node we are at.
 #	action	The current action.
 #	cmd	The command to call, already partially substituted.
 #
