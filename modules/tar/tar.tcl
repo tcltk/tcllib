@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.2 2004/08/20 17:44:47 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.3 2004/08/20 18:53:41 afaupell Exp $
 
 package provide tar 0.1
 
@@ -179,8 +179,8 @@ proc ::tar::createHeader {name dereference} {
     }
     
     set type [string map {file 0 directory 5 characterSpecial 3 blockSpecial 4 fifo 6 link 2 socket A} $stat(type)]
-    set gid [format %7o $stat(gid)]
-    set uid [format %7o $stat(uid)]
+    set gid [format %o $stat(gid)]
+    set uid [format %o $stat(uid)]
     set mtime [format %o $stat(mtime)]
     
     if {$::tcl_platform(platform) == "unix"} {
@@ -205,16 +205,16 @@ proc ::tar::createHeader {name dereference} {
         set prefix [string range $name 0 end-100]
         set name [string range $name end-99 end]
     }
-    
+
     set header [binary format a100A8A8A8A12A12A8a1a100A6a2a32a32a8a8a155a12 \
-                              $name $mode $uid $gid $size $mtime {} $type $linkname \
-                              ustar " \x00" $uname $gname $devmajor $devminor $prefix {}]
+                              $name $mode\x00 $uid\x00 $gid\x00 $size\x00 $mtime\x00 {} $type \
+                              $linkname ustar\x00 00 $uname $gname $devmajor $devminor $prefix {}]
 
     binary scan $header c* tmp
     set cksum 0
     foreach x $tmp {incr cksum $x}
 
-    return [string replace $header 148 155 [format %8o $cksum]]
+    return [string replace $header 148 155 [binary format A8 [format %o $cksum]\x00]]
 }
 
 proc ::tar::recurseDirs {files dereference} {
@@ -258,7 +258,7 @@ proc ::tar::create {tar files args} {
     return $tar
 }
 
-proc ::tar::append {tar files args} {
+proc ::tar::add {tar files args} {
     set dereference 0
     parseOpts {dereference 0} $args
     
