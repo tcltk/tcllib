@@ -74,6 +74,9 @@ proc imodules_mod {m} {
 proc loadpkglist {fname} {
     set f [open $fname r]
     foreach line [split [read $f] \n] {
+	set line [string trim $line]
+	if {[string match @* $line]} continue
+	if {$line == {}} continue
 	foreach {n v} $line break
 	set p($n) $v
     }
@@ -98,7 +101,19 @@ proc ipackages {args} {
 	    regsub {([0-9]) \[.*$}  $line {\1} line
 
 	    foreach {n v} $line break
-	    set p($n) $v
+
+	    if {![info exists p($n)]} {
+		set p($n) [list $v $m]
+	    } else {
+		# We have multiple versions of the
+		# same package. Remember only the
+		# highest version.
+
+		set new [lindex [lsort -dict [list $p($n) $v]] end]
+		if {$p($n) ne $new} {
+		    set p($n) [list $new $m]
+		}
+	    }
 	}
 	close $f
     }
@@ -454,7 +469,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.23 2004/01/15 06:36:12 andreas_kupries Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.24 2004/01/25 07:29:21 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -682,7 +697,7 @@ proc validate_versions_cmp {ipvar ppvar} {
 }
 
 proc validate_versions {} {
-    foreach {p v} [ipackages] {set ip($p) $v}
+    foreach {p v} [ipackages] {set ip($p) [lindex $v 0]}
     foreach {p v} [ppackages] {set pp($p) $v}
 
     validate_versions_cmp ip pp
@@ -690,7 +705,7 @@ proc validate_versions {} {
 }
 
 proc validate_versions_mod {m} {
-    foreach {p v} [ipackages $m] {set ip($p) $v}
+    foreach {p v} [ipackages $m] {set ip($p) [lindex $v 0]}
     foreach {p v} [ppackages $m] {set pp($p) $v}
 
     validate_versions_cmp ip pp
@@ -813,6 +828,64 @@ proc run-procheck {args} {
 
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 
+
+proc gd-gen-packages {} {
+    global tcllib_version
+
+    set P [file join $distribution PACKAGES]
+    file copy -force $P $P.LAST
+    set f [open $P w]
+    puts "@@ RELEASE $tcllib_version"
+    puts ""
+
+    array set packages {}
+    foreach {p v} [ipackages] {
+	set packages($p) [lindex $v 0]
+    }
+
+    nparray packages $f
+    close $f
+}
+
+
+
+proc modified-modules {} {
+    global distribution
+
+    set mlist [modules]
+    set modified [list]
+
+    foreach m $mlist {
+	set cl [file join $distribution modules $m ChangeLog]
+	if {![file exists $cl]} {
+	    lappend modified [list $m no-changelog]
+	    continue
+	}
+	# Look for 'Released and tagged' within
+	# the first four lines of the file. If
+	# not present assume that the line is
+	# deeper down, indicatating that the module
+	# has been modified since the last release.
+
+	set f [open $cl r]
+	set n 0
+	set mod 1
+	while {$n < 5} {
+	    gets $f line
+	    incr n
+	    if {[string match -nocase "*Released and tagged*" $line]} {
+		if {$n <= 4} {set mod 0 ; break}
+	    }
+	}
+	if {$mod} {
+	    lappend modified $m
+	}
+	close $f
+    }
+
+    return $modified
+}
+
 # --------------------------------------------------------------
 # Help
 
@@ -823,12 +896,16 @@ proc __help {} {
 	help     - This help
 
 	/Configuration
+	/===========================================================
+
 	version  - Return tcllib version number
 	major    - Return tcllib major version number
 	minor    - Return tcllib minor version number
 	name     - Return tcllib package name
 
 	/Development
+	/===========================================================
+
 	modules          - Return list of modules.
         contributors     - Print a list of contributors to tcllib.
 	lmodules         - See above, however one module per line
@@ -852,12 +929,9 @@ proc __help {} {
 	test ?module...?        - Run testsuite for listed modules.
 	                          For all modules if none specified.
 
-	/Release engineering
-	gendist  - Generate distribution from CVS snapshot
-        gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
-        yml      - Generate a YAML description file.
-
 	/Documentation
+	/===========================================================
+
 	nroff ?module...?    - Generate manpages
 	html  ?module...?    - Generate HTML pages
 	tmml  ?module...?    - Generate TMML
@@ -867,6 +941,23 @@ proc __help {} {
 	latex ?module...?    - Generate LaTeX pages
 	dvi   ?module...?    - See latex, + conversion to dvi
 	ps    ?module...?    - See dvi,   + conversion to PostScript
+
+	/Release engineering
+	/===========================================================
+
+	gendist  - Generate distribution from CVS snapshot
+
+	rpmspec  - Generate a RPM spec file for tcllib.
+        gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
+        yml      - Generate a YAML description file.
+
+	release  - Marks the current state of all files as a new
+	           release. This updates all ChangeLog's, regenerates
+	           the contents of PACKAGES, and generates
+	           DESCRIPTION.txt, YAML, RPM spec, etc.
+
+	rstatus  - Determines the status of the code base with regard
+	           to the last release.
     }
 }
 
@@ -881,12 +972,12 @@ proc __major   {} {global tcllib_version ; puts -nonewline [lindex [split $tclli
 # --------------------------------------------------------------
 # Development
 
-proc __imodules {}  {puts [imodules]}
-proc __modules {}  {puts [modules]}
+proc __imodules {} {puts [imodules]}
+proc __modules  {} {puts [modules]}
 proc __lmodules {} {puts [join [modules] \n]}
 
 
-proc nparray {a} {
+proc nparray {a {chan stdout}} {
     upvar $a packages
 
     set maxl 0
@@ -896,13 +987,16 @@ proc nparray {a} {
         }
     }
     foreach name [lsort [array names packages]] {
-        puts stdout [format "%-*s %s" $maxl $name $packages($name)]
+        puts $chan [format "%-*s %s" $maxl $name $packages($name)]
     }
     return
 }
 
 proc __packages {} {
-    array set packages [ipackages]
+    array set packages {}
+    foreach {p v} [ipackages] {
+	set packages($p) [lindex $v 0]
+    }
     nparray packages
     return
 }
@@ -917,11 +1011,45 @@ proc __provided {} {
 proc __vcompare {} {
     global argv
     set oldplist [lindex $argv 0]
+    pkg-compare $oldplist
+    return
+}
+
+proc __rstatus {} {
+    global distribution approved
+
+    catch {
+	set f [file join $distribution .APPROVE]
+	set f [open $f r]
+	while {![eof $f]} {
+	    if {[gets $f line] < 0} continue
+	    set line [string trim $line]
+	    if {$line == {}} continue
+	    set approved($line) .
+	}
+	close $f
+    }
+    pkg-compare [file join $distribution PACKAGES]
+    return
+}
+
+proc pkg-compare {oldplist} {
+    global approved ; array set approved {}
 
     array set curpkg [ipackages]
     array set oldpkg [loadpkglist $oldplist]
+    array set mod {}
+    array set changed {}
+    foreach m [modified-modules] {
+	set mod($m) .
+    }
 
-    foreach p [array names curpkg] {set __($p) .}
+    foreach p [array names curpkg] {
+	set __($p) .
+	foreach {v module} $curpkg($p) break
+	set curpkg($p) $v
+	set changed($p) [info exists mod($module)]
+    }
     foreach p [array names oldpkg] {set __($p) .}
     set unified [lsort [array names __]]
     unset __
@@ -933,11 +1061,52 @@ proc __vcompare {} {
         }
     }
     foreach name $unified {
+	set skip 0
 	set suffix ""
+	set prefix "   "
 	if {![info exists curpkg($name)]} {set curpkg($name) "--"}
-	if {![info exists oldpkg($name)]} {set oldpkg($name)   "--" ; append suffix " NEW"}
-	if {[string equal $oldpkg($name) $curpkg($name)]} {append suffix " \t<<<"}
-        puts stdout [format "%-*s %-*s %-*s" $maxl $name 8 $oldpkg($name) 8 $curpkg($name)]$suffix
+	if {![info exists oldpkg($name)]} {
+	    set oldpkg($name)   "--"
+	    set suffix " NEW"
+	    set prefix "Nn "
+	    set skip 1
+	}
+	if {!$skip} {
+	    # Draw attention to changed packages where version is unchanged.
+
+	    set vequal [string equal $oldpkg($name) $curpkg($name)]
+
+	    if {$changed($name)} {
+		if {$vequal} {
+		    # Changed according to ChangeLog, Version is not. ALERT.
+		    set prefix "!! "
+		    set suffix "\t<<< MISMATCH. Version ==, ChangeLog ++"
+		} else {
+		    # Both changelog and version number indicate a change.
+		    # Small alert, have to classify the order of changes.
+		    set prefix "cv "
+		    set suffix "\t=== Classify changes."
+		}
+	    } else {
+		if {$vequal} {
+		    # Versions are unchanged, changelog also indicates no change.
+		    # No particular attention here.
+		} else {
+		    # Versions changed, but according to changelog nothing in code. ALERT.
+		    set prefix "!! "
+		    set suffix "\t<<< MISMATCH. ChangeLog ==, Version ++"
+		}
+	    }
+	    if {[info exists approved($name)]} {
+		set prefix "   "
+		set suffix ""
+	    }
+	}
+
+        puts stdout ${prefix}[format "%-*s %-*s %-*s" \
+		$maxl $name \
+		8 $oldpkg($name) \
+		8 $curpkg($name)]$suffix
     }
     return
 }
@@ -1255,6 +1424,34 @@ proc __rpmspec {} {
     puts "Created RPM spec file \"tcllib.spec\""
 }
 
+
+proc __release {} {
+    # Regenerate spec, yaml, description, ...
+    # Regenerate PACKAGES
+
+    gd-tip55
+    gd-gen-rpmspec
+    gd-gen-tap
+    gd-gen-yml
+    gd-gen-packages
+    return
+}
+
+proc __approve {} {
+    global argv distribution
+
+    # Record the package as approved. This will suppress any alerts
+    # for that package by rstatus. Required for packages which have
+    # been classified, and for packages where a MISMATCH is bogus (due
+    # to several packages sharing a ChangeLog)
+
+    set f [open [file join $distribution .APPROVE] a]
+    foreach package $argv {
+	puts $f $package
+    }
+    close $f
+    return
+}
 
 # --------------------------------------------------------------
 # Documentation

@@ -4,7 +4,7 @@
 #
 # version 0.1: initial implementation, january 2003
 
-package provide math::statistics 0.1
+package provide math::statistics 0.1.1
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables

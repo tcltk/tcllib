@@ -7,8 +7,8 @@
 #
 
 package require Tcl 8.3
-package require mime 1.3.3
-package provide smtp 1.3.3
+package require mime 1.3.4
+package provide smtp 1.3.4
 
 #
 # state variables:

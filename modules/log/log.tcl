@@ -7,7 +7,7 @@
 # See the file license.terms.
 
 package require Tcl 8
-package provide log 1.0.2
+package provide log 1.1
 
 namespace eval ::log {
     namespace export levels lv2longform lv2color lv2priority 

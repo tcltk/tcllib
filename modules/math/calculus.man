@@ -1,8 +1,8 @@
-[manpage_begin math::calculus n 1.0]
+[manpage_begin math::calculus n 0.5.1]
 [moddesc   {Math}]
 [titledesc {Integration and ordinary differential equations}]
 [require Tcl 8]
-[require math::calculus 0.5]
+[require math::calculus 0.5.1]
 [description]
 [para]
 This package implements several simple mathematical algorithms:
