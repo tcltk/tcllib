@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.7 2003/04/09 18:46:30 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.8 2003/04/21 19:56:27 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -37,6 +37,11 @@ puts "pop3    [package present pop3]"
 set __Init [list \
 	CrLf \
 	{Send    {+OK localhost muserv ready <534358773_pop3d1_12380@localhost>}} \
+	]
+
+set __InitBad [list \
+	CrLf \
+	{Send    {Grumble}} \
 	]
 
 set     __loginOk $__Init
@@ -236,8 +241,10 @@ test pop3-0.5 {connect to missing server} {
     set msg
 } {couldn't open socket: connection refused}
 
-test pop3-0.6 {wrong type of server (smtp)} {
-    catch {pop3::open localhost foo foo 25} msg
+test pop3-0.6 {wrong type of server (fake)} {
+    set port [setupServer $__InitBad]
+    catch {pop3::open localhost foo foo $port} msg
+    ::subserv::muservStop
     regsub {^([^:]*:).*$} $msg {\1} msg
     set msg
 } {POP3 CONNECT ERROR:}
