@@ -147,8 +147,11 @@ proc ::math::constants::find_eps { } {
 namespace eval ::math::constants {
    foreach {const value descr} $constants {
       # FRINK: nocheck
-      set $const [expr 0.0+$value]
+      set [namespace current]::$const [expr 0.0+$value]
    }
+   unset value
+   unset const
+   unset descr 
 
    rename find_eps  {}
    rename find_tiny {}
