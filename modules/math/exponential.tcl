@@ -407,7 +407,6 @@ puts {}
 
 for { set x 0.00 } { $x < 0.505 } { set x [expr { $x + 0.01 }] } {
     set line [format %4.2f $x]
-    append line
     if { $x == 0.00 } {
         append line { } 1.0000000
     } else {

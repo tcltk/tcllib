@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.23 2004/05/24 04:14:46 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.24 2004/09/28 05:12:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -50,7 +50,7 @@ puts "- fileutil [package present fileutil]"
 #	dir
 #	+--{find 1}
 #          +--{find 2}
-#          |  +--{file* 2}
+#          |  +--{file* 2}  (This file is unix only)
 #          +--{file 1}
 
 catch {removeDirectory {find 1}} ; # start with a clean structure!
@@ -58,7 +58,10 @@ catch {removeDirectory {find 1}} ; # start with a clean structure!
 makeDirectory {find 1}
 makeDirectory [file join {find 1} {find 2}]
 makeFile "" [file join {find 1} {file [1]}]
-makeFile "test" [file join {find 1} {find 2} {file* 2}]
+
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    makeFile "test" [file join {find 1} {find 2} {file* 2}]
+}
 set dir $::tcltest::temporaryDirectory
 
 
@@ -66,16 +69,22 @@ proc fileIsBiggerThan {s f} {
     expr {![file isdirectory $f] && [file size $f] > $s}
 }
 
-test find-1.1 {standard recursive find} {
+test find-1.1 {standard recursive find} {macOrUnix} {
     lsort [fileutil::find [file join $dir {find 1}]]
-} [list [file join $dir {find 1} {file [1]}] [file join $dir {find 1} {find 2}] \
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2}] \
 	[file join $dir {find 1} {find 2} {file* 2}]]
 
-test find-1.2 {find directories} {
+test find-1.2 {standard recursive find} {win} {
+    lsort [fileutil::find [file join $dir {find 1}]]
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2}]]
+
+test find-1.3 {find directories} {
     fileutil::find [file join $dir {find 1}] {file isdirectory}
 } [list [file join $dir {find 1} {find 2}]]
 
-test find-1.3 {find files bigger than a given size} {
+test find-1.4 {find files bigger than a given size} {macOrUnix} {
     fileutil::find [file join $dir {find 1}] {fileIsBiggerThan 1}
 } [list [file join $dir {find 1} {find 2} {file* 2}]]
 
@@ -85,12 +94,12 @@ test find-1.3 {find files bigger than a given size} {
 #
 #	dir
 #	+--{find 1}
-#          +--{find 2}       <----------+
-#          |  +--{file* 2}		     |
+#          +--{find 2}          <----------+
+#          |  +--{file* 2}		   |
 #          |  +--{file 3} --> ../{find 2} -+
 #          +--{file [1]}
 
-test find-1.4 {handling of circular links} {unix} {
+test find-1.5 {handling of circular links} {unix} {
     catch {file delete -force [file join $dir {find 1} {find 2} {file 3}]}
     exec ln -s [file join .. {find 2}] [file join $dir {find 1} {find 2} {file 3}]
 
@@ -99,15 +108,15 @@ test find-1.4 {handling of circular links} {unix} {
 } [list [file join $dir {find 1} {file [1]}] [file join $dir {find 1} {find 2}] \
 	[file join $dir {find 1} {find 2} {file* 2}]]
 
-test find-1.5 {find file} {
+test find-1.6 {find file} {
     ::fileutil::find [file join $dir {find 1} {file [1]}]
 } [list [file join $dir {find 1} {file [1]}]]
 
-test find-1.6 {find file with filter} {
+test find-1.7 {find file with filter} {
     ::fileutil::find [file join $dir {find 1} {file [1]}] {file isfile}
 } [list [file join $dir {find 1} {file [1]}]]
 
-test find-1.7 {find file with filter - negative} {
+test find-1.8 {find file with filter - negative} {
     ::fileutil::find [file join $dir {find 1} {file [1]}] {file isdirectory}
 } {}
 
@@ -124,11 +133,15 @@ test find-2.1 {find by pattern} {
     set msg
 } {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}
 
-test find-2.2 {find by pattern} {
+test find-2.2 {find by pattern} {macOrUnix} {
     lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]
 } [list [file join $dir {find 1} {file [1]}] [file join $dir {find 1} {find 2} {file* 2}]]
 
-test find-2.3 {find by pattern} {
+test find-2.3 {find by pattern} {win} {
+    lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]
+} [list [file join $dir {find 1} {file [1]}]]
+
+test find-2.4 {find by pattern} {
     lsort [::fileutil::findByPattern [file join $dir {find 1}] -regexp {.*\\[1\\]$}]
 } [list [file join $dir {find 1} {file [1]}]]
 
@@ -138,28 +151,34 @@ catch {removeDirectory grepTest} ; # start with a clean structure!
 # Build a sample tree to search
 makeDirectory grepTest
 makeFile "zoop" [file join $dir grepTest {file [1]}]
-makeFile "zoo\nbart"  [file join $dir grepTest {file* 2}]
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    makeFile "zoo\nbart"  [file join $dir grepTest {file* 2}]
+}
 
-test grep-1.1 {normal grep} {
+test grep-1.1 {normal grep} {macOrUnix} {
     lsort [fileutil::grep "zoo" [glob [file join $dir grepTest *]]]
 } [list "[file join $dir grepTest {file [1]}]:1:zoop" \
 	"[file join $dir grepTest {file* 2}]:1:zoo"]
+
 test grep-1.2 {more restrictive grep} {
     lsort [fileutil::grep "zoo." [glob [file join $dir grepTest *]]]
 } [list "[file join $dir grepTest {file [1]}]:1:zoop"]
-test grep-1.3 {more restrictive grep} {
+
+test grep-1.3 {more restrictive grep} {macOrUnix} {
     lsort [fileutil::grep "bar" [glob [file join $dir grepTest *]]]
 } [list "[file join $dir grepTest {file* 2}]:2:bart"]
 
 makeDirectory catTest
 makeFile "foo\nbar\nbaz\n" [file join $dir catTest {file [1]}]
-makeFile "bebop" [file join $dir catTest {file* 2}]
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    makeFile "bebop" [file join $dir catTest {file* 2}]
+}
 
 test cat-1.1 {cat} {
     fileutil::cat [file join $dir catTest {file [1]}]
 } "foo\nbar\nbaz\n"
 
-test cat-1.2 {cat multiple files} {
+test cat-1.2 {cat multiple files} {macOrUnix} {
     fileutil::cat [file join $dir catTest {file [1]}] [file join $dir catTest {file* 2}]
 } "foo\nbar\nbaz\nbebop\n"
 

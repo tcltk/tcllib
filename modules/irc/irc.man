@@ -96,7 +96,7 @@ which were specified with 'connection'.  That form is deprecated.
 
 [call [arg net] [method config] [opt key] [opt value]]
 
-The same as [::irc::config] but sets and gets options for the [arg net]
+The same as [cmd ::irc::config] but sets and gets options for the [arg net]
 connection only.
 
 [call [arg net] [method log] [arg level] [arg message]]

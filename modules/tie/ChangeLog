@@ -1,3 +1,8 @@
+2004-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie_file.tcl:  Fixed problems with tests and implementation
+	* tie_file.test: on Windows.
+
 2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Fixed mismatch in the names of provided

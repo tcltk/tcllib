@@ -6,6 +6,8 @@
 	* constants.tcl (find_eps): Fixed expr'essions without braces.
 	* statistics.tcl:
 
+	* exponential.tcl (proc): Removes superfluous no-op [append].
+
 2004-09-22  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * *.test: Made sure the test files check for version 2.1 of the
