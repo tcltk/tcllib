@@ -2,6 +2,12 @@
  TODO
 ======
 
+*	docidx / doctoc package documentation - sync with code
+*	doctools package documentation		ditto
+
+
+
+
 *	Add a tk-based editor application which loads and generates
 	the format (and can invoke the processor to generate the other
 	formats).
