@@ -1,4 +1,9 @@
-2003-11-21  Will Duquette  <will@cordelia.local>
+2003-12-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit.man:    Updated to changes in the .html files.
+	* snitfaq.man: 
+
+2003-11-21  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl:      Updated version to 0.91.
 	* pkgIndex.tcl: 

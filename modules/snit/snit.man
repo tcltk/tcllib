@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 0.9]
+[manpage_begin snit n 0.91]
 [copyright {2003, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc   {Snit's Not Incr Tcl}]
 [require Tcl 8.3]
-[require snit [opt 0.9]]
+[require snit [opt 0.91]]
 [description]
 [para]
 
@@ -107,19 +107,29 @@ widget is.
 Returns the instance's type.
 
 
-[call [cmd {$object}] [method {info vars}]]
+[call [cmd {$object}] [method {info vars}] [opt [arg pattern]]]
 
 Returns a list of the object's instance variables (excluding Snit
 internal variables).  The names are fully qualified.
 
+[nl]
 
-[call [cmd {$object}] [method {info typevars}]]
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
+
+
+[call [cmd {$object}] [method {info typevars}] [opt [arg pattern]]]
 
 Returns a list of the object's type's type variables (excluding Snit
 internal variables).  The names are fully qualified.
 
+[nl]
 
-[call [cmd {$object}] [method {info options}]]
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
+
+
+[call [cmd {$object}] [method {info options}] [opt [arg pattern]]]
 
 Returns a list of the object's option names.  This always includes
 local options and explicitly delegated options.  If unknown options
@@ -127,6 +137,11 @@ are delegated as well, and if the component to which they are
 delegated responds to [cmd {$object configure}] like Tk widgets do,
 then the result will include all possible unknown options which could
 be delegated to the component.
+
+[nl]
+
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
 
 [nl]
 
@@ -630,6 +645,25 @@ the [method configure] and [method cget] instance methods.
 
 Note that an option cannot be both locally defined and delegated.
 
+
+[call [cmd expose] [arg comp]]
+[call [cmd expose] [arg comp] [const as] [arg method]]
+
+Exposes component [arg comp] as a method of the type.  In the first
+form, the method name is [arg comp]; in the second form, the method
+name is [arg method].
+
+[nl]
+
+This differs from delegation in that it maps an instance method to the
+component itself instead of to one of the component's methods.
+
+[nl]
+
+Calling the new instance method is just like calling the component,
+except that if the method is called with no arguments it returns the
+component.
+
 [list_end]
 
 
@@ -777,23 +811,36 @@ By default, any arguments following the [arg name] will be a list of
 constructor can specify a different argument list.
 
 
-[call [cmd {$type}] [method {info typevars}]]
+[call [cmd {$type}] [method {info typevars}] [opt [arg pattern]]]
 
 Returns a list of the type's type variables (excluding Snit internal
 variables); all variable names are fully-qualified.
 
+[nl]
 
-[call [cmd {$type}] [method {info instances}]]
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
+
+
+[call [cmd {$type}] [method {info instances}] [opt [arg pattern]]]
 
 Returns a list of the type's instances.  For [cmd snit::type]s, it
 will be a list of fully-qualified instance names;
 for [cmd snit::widget]s, it will be a list of Tk widget names.
+
+[nl]
+
+If [arg pattern] is given, it's used as a [cmd {string match}]
+pattern; only names which match the pattern are returned.
 
 
 [call [cmd {$type}] [method destroy]]
 
 Destroys the type's instances, the type's namespace, and the type
 command itself.
+
+This method is defined only for [cmd snit::type]s; [cmd snit::widget]s
+use the Tk [cmd destroy] command instead.
 
 [list_end]
 
