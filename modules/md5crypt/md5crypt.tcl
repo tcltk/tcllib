@@ -19,8 +19,7 @@ if {[catch {package require tcllibc}]} {
 
 namespace eval md5crypt {
     variable version 1.0.0
-    variable rcsid {$Id: md5crypt.tcl,v 1.1 2003/07/26 02:05:00 patthoyts Exp $}
-    variable magic {$1$}
+    variable rcsid {$Id: md5crypt.tcl,v 1.2 2003/07/26 15:41:26 patthoyts Exp $}
     variable itoa64 \
         {./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
 
@@ -38,8 +37,7 @@ proc ::md5crypt::to64_tcl {v n} {
     return $s
 }
 
-proc ::md5crypt::md5crypt_tcl {pw salt} {
-    variable magic
+proc ::md5crypt::md5crypt_tcl {magic pw salt} {
     set sp 0
 
     set start 0
@@ -126,9 +124,11 @@ if {[info command ::md5crypt::to64_c] == {}} {
 }
 
 if {[info command ::md5crypt::md5crypt_c] == {}} {
-    interp alias {} ::md5crypt::md5crypt {} ::md5crypt::md5crypt_tcl
+    interp alias {} ::md5crypt::md5crypt {} ::md5crypt::md5crypt_tcl {$1$}
+    interp alias {} ::md5crypt::aprcrypt {} ::md5crypt::md5crypt_tcl {$apr1$}
 } else {
-    interp alias {} ::md5crypt::md5crypt {} ::md5crypt::md5crypt_c
+    interp alias {} ::md5crypt::md5crypt {} ::md5crypt::md5crypt_c {$1$}
+    interp alias {} ::md5crypt::aprcrypt {} ::md5crypt::md5crypt_c {$apr1$}
 }
 
 # -------------------------------------------------------------------------
