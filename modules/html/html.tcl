@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.4 2000/04/19 20:52:15 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.5 2000/04/24 23:27:27 welch Exp $
 
 package provide html 1.0
 
@@ -68,7 +68,7 @@ proc html::reset {{nvlist {}}} {
 #
 #	Generate the <head> section.  There are a number of
 #	optional calls you make *before* this to inject
-#	meta tags - see everything between here and the bodytag proc.
+#	meta tags - see everything between here and the bodyTag proc.
 #
 # Arguments:
 #	title	The page title
@@ -142,7 +142,7 @@ proc html::meta {args} {
     variable page
     set html ""
     foreach {name value} $args {
-	append html "<meta name=\"$name\" value=\"[quoteformvalue $value]\">"
+	append html "<meta name=\"$name\" value=\"[quoteFormValue $value]\">"
     }
     lappend page(meta) $html
     return ""
@@ -222,7 +222,7 @@ proc html::default {key {params {}}} {
     }
 }
 
-# html::bodytag
+# html::bodyTag
 #
 #	Generate a body tag
 #
@@ -232,7 +232,7 @@ proc html::default {key {params {}}} {
 # Results
 #	A body tag
 
-proc html::bodytag {args} {
+proc html::bodyTag {args} {
     variable default
     append html "<body"
     append html [html::default body.bgcolor $args]
@@ -247,7 +247,7 @@ proc html::bodytag {args} {
 # procedure and assume that the caller has called ncgi::parse and/or
 # ncgi::reset appropriately to initialize the ncgi module.
 
-# html::formvalue
+# html::formValue
 #
 #	Return a name and value pair, where the value is initialized
 #	from existing form data, if any.
@@ -261,15 +261,15 @@ proc html::bodytag {args} {
 #	A string like:
 #	name="fred" value="freds value"
 
-proc html::formvalue {name {defvalue {}}} {
+proc html::formValue {name {defvalue {}}} {
     set value [ncgi::value $name]
     if {[string length $value] == 0} {
 	set value $defvalue
     }
-    return "name=\"$name\" value=\"[quoteformvalue $value]\""
+    return "name=\"$name\" value=\"[quoteFormValue $value]\""
 }
 
-# html::quoteformvalue
+# html::quoteFormValue
 #
 #	Quote a value for use in a value=\"$value\" fragment.
 #
@@ -280,7 +280,7 @@ proc html::formvalue {name {defvalue {}}} {
 #	A string like:
 #	&#34;Hello, &lt;b&gt;World!&#34;
 
-proc html::quoteformvalue {value} {
+proc html::quoteFormValue {value} {
     regsub -all {&} $value {\&amp;} value
     regsub -all {"} $value {\&#34;} value
     regsub -all {'} $value {\&#39;} value
@@ -289,7 +289,7 @@ proc html::quoteformvalue {value} {
     return $value
 }
 
-# html::textinput --
+# html::textInput --
 #
 #	Return an <input type=text> element.  This uses the
 #	input.size default falue.
@@ -300,15 +300,15 @@ proc html::quoteformvalue {value} {
 # Results:
 #	The html fragment
 
-proc html::textinput {name {value {}}} {
+proc html::textInput {name {value {}}} {
     variable defaults
-    set html "<input type=text [html::formvalue $name $value]"
+    set html "<input type=text [html::formValue $name $value]"
     append html [html::default input.size]
     append html ">\n"
     return $html
 }
 
-# html::textinputrow --
+# html::textInputRow --
 #
 #	Format a table row containing a text input element and a label.
 #
@@ -318,9 +318,9 @@ proc html::textinput {name {value {}}} {
 # Results:
 #	The html fragment
 
-proc html::textinputrow {label name {value {}}} {
+proc html::textInputRow {label name {value {}}} {
     variable defaults
-    set html [html::row $label [html::textinput $name $value]]
+    set html [html::row $label [html::textInput $name $value]]
     return $html
 }
 
@@ -334,7 +334,7 @@ proc html::textinputrow {label name {value {}}} {
 # Results:
 #	The html fragment
 
-proc html::passwordinput {{name password}} {
+proc html::passwordInput {{name password}} {
     set html "<input type=password name=\"$name\">\n"
     return $html
 }
@@ -352,10 +352,10 @@ proc html::passwordinput {{name password}} {
 #	The html fragment
 
 proc html::checkbox {name value} {
-    set html "<input type=checkbox [checkvalue $name $value]>\n"
+    set html "<input type=checkbox [checkValue $name $value]>\n"
 }
 
-# html::checkvalue
+# html::checkValue
 #
 #	Like html::formalue, but for checkboxes that need CHECKED
 #
@@ -369,19 +369,19 @@ proc html::checkbox {name value} {
 #	name="fred" value="freds value" CHECKED
 
 
-proc html::checkvalue {name {value 1}} {
+proc html::checkValue {name {value 1}} {
     variable page
     foreach v [ncgi::valuelist $name] {
 	if {[string compare $value $v] == 0} {
-	    return "name=\"$name\" value=\"[quoteformvalue $value]\" CHECKED"
+	    return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
 	}
     }
-    return "name=\"$name\" value=\"[quoteformvalue $value]\""
+    return "name=\"$name\" value=\"[quoteFormValue $value]\""
 }
 
-# html::radiovalue
+# html::radioValue
 #
-#	Like html::formvalue, but for radioboxes that need CHECKED
+#	Like html::formValue, but for radioboxes that need CHECKED
 #
 # Arguments:
 #	name	The name of the form element
@@ -391,38 +391,38 @@ proc html::checkvalue {name {value 1}} {
 #	A string like:
 #	name="fred" value="freds value" CHECKED
 
-proc html::radiovalue {name value} {
+proc html::radioValue {name value} {
     if {[string equal $value [ncgi::value $name]]} {
-	return "name=\"$name\" value=\"[quoteformvalue $value]\" CHECKED"
+	return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
     } else {
-	return "name=\"$name\" value=\"[quoteformvalue $value]\""
+	return "name=\"$name\" value=\"[quoteFormValue $value]\""
     }
 }
 
-# html::radioset --
+# html::radioSet --
 #
 #	Display a set of radio buttons while looking for an existing
 #	value from the query data, if any.
 
-proc html::radioset {key sep list} {
+proc html::radioSet {key sep list} {
     set html ""
     set s ""
     foreach {v label} $list {
-	append html "$s<input type=radio [radiovalue $key $v]> $label"
+	append html "$s<input type=radio [radioValue $key $v]> $label"
 	set s $sep
     }
     return $html
 }
 
-# html::checkset --
+# html::checkSet --
 #
 #	Display a set of check buttons while looking for an existing
 #	value from the query data, if any.
 
-proc html::checkset {key sep list} {
+proc html::checkSet {key sep list} {
     set s ""
     foreach {v label} $list {
-	append html "$s<input type=checkbox [checkvalue $key $v]> $label"
+	append html "$s<input type=checkbox [checkValue $key $v]> $label"
 	set s $sep
     }
     return $html
@@ -459,7 +459,7 @@ proc html::select {name param choices {current {}}} {
     return $html
 }
 
-# html::selectplain --
+# html::selectPlain --
 #
 #	Format a <select> element where the values are the same
 #	as those that are displayed.
@@ -472,7 +472,7 @@ proc html::select {name param choices {current {}}} {
 # Results:
 #	The html fragment
 
-proc html::selectplain {name param choices {current {}}} {
+proc html::selectPlain {name param choices {current {}}} {
     set namevalue {}
     foreach c $choices {
 	lappend namevalue $c $c
@@ -515,7 +515,7 @@ proc html::submit {label {name submit}} {
     set html "<input type=submit name=\"$name\" value=\"$label\">\n"
 }
 
-# html::varempty --
+# html::varEmpty --
 #
 #	Return true if the variable doesn't exist or is an empty string
 #
@@ -525,7 +525,7 @@ proc html::submit {label {name submit}} {
 # Results:
 #	1 if the variable doesn't exist or has the empty value
 
-proc html::varempty {name} {
+proc html::varEmpty {name} {
     upvar 1 $name var
     if {[info exist var]} {
 	set value $var
@@ -556,7 +556,7 @@ proc html::getFormInfo {args} {
 	foreach pat $args {
 	    if {[string match $pat $n]} {
 		append html "<input type=hidden name=\"$n\" \
-				    value=\"[quoteformvalue $v]\">\n"
+				    value=\"[quoteFormValue $v]\">\n"
 	    }
 	}
     }
@@ -599,7 +599,7 @@ proc html::h {level string {params {}}} {
     return "<[string trimright "h$level $params"]>$string</h$level>\n"
 }
 
-# html::opentag
+# html::openTag
 #	Remember that a tag  is opened so it can be closed later.
 #	This is used to automatically clean up at the end of a page.
 #
@@ -611,13 +611,13 @@ proc html::h {level string {params {}}} {
 #	Formats the tag.  Also keeps it around in a per-page stack
 #	of open tags.
 
-proc html::opentag {tag args} {
+proc html::openTag {tag args} {
     variable page
     lappend page(stack) $tag
     return <[string trimright "$tag $args"]>
 }
 
-# html::closetag
+# html::closeTag
 #	Pop a tag from the stack and close it.
 #
 # Arguments:
@@ -626,7 +626,7 @@ proc html::opentag {tag args} {
 # Results:
 #	A close tag.  Also pops the stack.
 
-proc html::closetag {} {
+proc html::closeTag {} {
     variable page
     set top [lindex $page(stack) end]
     set page(stack) [lreplace $page(stack) end end]
@@ -648,7 +648,7 @@ proc html::end {} {
     variable page
     set html ""
     while {[llength $page(stack)]} {
-	append html [html::closetag]\n
+	append html [html::closeTag]\n
     }
     return $html
 }
@@ -673,7 +673,7 @@ proc html::row {args} {
     return $html
 }
 
-# html::hdrrow
+# html::hdrRow
 #
 #	Format a table row.  If the default font has been set, this
 #	takes care of wrapping the table cell contents in a font tag.
@@ -684,7 +684,7 @@ proc html::row {args} {
 # Results:
 #	A <tr><th>...</tr> fragment
 
-proc html::hdrrow {args} {
+proc html::hdrRow {args} {
     variable defaults
     set html <tr>\n
     foreach x $args {
@@ -805,7 +805,7 @@ proc html::font {args} {
     }
 }
 
-# html::formatcode
+# html::formatCode
 #
 #	Format Tcl code for inclusion in HTML
 #
@@ -815,14 +815,11 @@ proc html::font {args} {
 # Results:
 #	HTML
 
-proc html::formatcode {code} {
-    regsub -all {&} $code {\&amp;} code
-    regsub -all {<} $code {\&lt;} code
-    regsub -all {>} $code {\&gt;} code
-    return "<PRE>$code</PRE>"
+proc html::formatCode {code} {
+    return "<PRE>[quoteFormValue $code]</PRE>"
 }
 
-# html::minormenu
+# html::minorMenu
 #
 #	Create a menu of links given a list of label, URL pairs.
 #	If the URL is the current page, it is not highlighted.
@@ -835,7 +832,7 @@ proc html::formatcode {code} {
 # Results:
 #	html
 
-proc html::minormenu {list {sep { | }}} {
+proc html::minorMenu {list {sep { | }}} {
     global page
     set s ""
     set html ""

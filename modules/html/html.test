@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.2 2000/04/19 06:08:41 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.3 2000/04/24 23:27:28 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -189,109 +189,109 @@ test html-9.4 {html::default} {
     html::default font.face "color=blue size=1"
 } { face="times"}
 
-test html-10.1 {html::bodytag} {
+test html-10.1 {html::bodyTag} {
     html::reset
-    html::bodytag
+    html::bodyTag
 } {<body>
 }
 
-test html-10.2 {html::bodytag} {
+test html-10.2 {html::bodyTag} {
     html::reset {
 	body.bgcolor	white
 	body.text	black
     }
-    html::bodytag
+    html::bodyTag
 } {<body bgcolor="white" text="black">
 }
 
-test html-10.3 {html::bodytag} {
+test html-10.3 {html::bodyTag} {
     html::reset {
 	body.bgcolor	white
 	body.text	black
     }
-    html::bodytag "text=red"
+    html::bodyTag "text=red"
 } {<body bgcolor="white" text=red>
 }
 
-test html-11.1 {html::formvalue} {
+test html-11.1 {html::formValue} {
     ncgi::reset name=value
     ncgi::parse
-    html::formvalue name
+    html::formValue name
 } {name="name" value="value"}
 
-test html-11.2 {html::formvalue} {
+test html-11.2 {html::formValue} {
     ncgi::reset name=value
     ncgi::parse
-    html::formvalue name2
+    html::formValue name2
 } {name="name2" value=""}
 
-test html-11.3 {html::formvalue} {
+test html-11.3 {html::formValue} {
     ncgi::reset "name=one+value&name2=%7e"
     ncgi::parse
-    html::formvalue name2
+    html::formValue name2
 } {name="name2" value="~"}
 
-test html-12.1 {html::quoteformvalue} {
-    html::quoteformvalue name2
+test html-12.1 {html::quoteFormValue} {
+    html::quoteFormValue name2
 } {name2}
 
-test html-12.2 {html::quoteformvalue} {
-    html::quoteformvalue {"name2"}
+test html-12.2 {html::quoteFormValue} {
+    html::quoteFormValue {"name2"}
 } {&#34;name2&#34;}
 
-test html-12.3 {html::quoteformvalue} {
-    html::quoteformvalue {"'><&}
+test html-12.3 {html::quoteFormValue} {
+    html::quoteFormValue {"'><&}
 } {&#34;&#39;&gt;&lt;&amp;}
 
-test html-13.1 {html::textinput} {
+test html-13.1 {html::textInput} {
     html::reset
     ncgi::reset
     ncgi::parse
-    html::textinput email
+    html::textInput email
 } {<input type=text name="email" value="">
 }
 
-test html-13.2 {html::textinput} {
+test html-13.2 {html::textInput} {
     html::reset
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
-    html::textinput email
+    html::textInput email
 } {<input type=text name="email" value="welch@scriptics.com">
 }
 
-test html-13.3 {html::textinput} {
+test html-13.3 {html::textInput} {
     html::reset {
 	input.size	30
     }
     ncgi::reset
     ncgi::parse
-    html::textinput email
+    html::textInput email
 } {<input type=text name="email" value="" size="30">
 }
 
-test html-13.4 {html::textinput} {
+test html-13.4 {html::textInput} {
     html::reset {
 	input.size	30
     }
     ncgi::reset
     ncgi::parse
-    html::textinput email default@foo.com
+    html::textInput email default@foo.com
 } {<input type=text name="email" value="default@foo.com" size="30">
 }
 
-test html-13.5 {html::textinput} {
+test html-13.5 {html::textInput} {
     html::reset
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
-    html::textinput email default@foo.com
+    html::textInput email default@foo.com
 } {<input type=text name="email" value="welch@scriptics.com">
 }
 
-test html-14.1 {html::textinputrow} {
+test html-14.1 {html::textInputRow} {
     html::reset
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
-    html::textinputrow Email email
+    html::textInputRow Email email
 } {<tr>
 	<td>Email</td>
 	<td><input type=text name="email" value="welch@scriptics.com">
@@ -299,13 +299,13 @@ test html-14.1 {html::textinputrow} {
 </tr>
 }
 
-test html-15.1 {html::passwordinput} {
-    html::passwordinput
+test html-15.1 {html::passwordInput} {
+    html::passwordInput
 } {<input type=password name="password">
 }
 
-test html-15.2 {html::passwordinput} {
-    html::passwordinput form_pass
+test html-15.2 {html::passwordInput} {
+    html::passwordInput form_pass
 } {<input type=password name="form_pass">
 }
 
@@ -323,33 +323,33 @@ test html-16.2 {html::checkbox} {
 } {<input type=checkbox name="email" value="value">
 }
 
-test html-17.1 {html::checkvalue} {
+test html-17.1 {html::checkValue} {
     ncgi::reset item=xyz
     ncgi::parse
     html::checkbox item xyz
 } {<input type=checkbox name="item" value="xyz" CHECKED>
 }
 
-test html-18.1 {html::radiovalue} {
+test html-18.1 {html::radioValue} {
     ncgi::reset item=xyz
     ncgi::parse
-    html::radiovalue item xyz
+    html::radioValue item xyz
 } {name="item" value="xyz" CHECKED}
 
-test html-19.1 {html::radioset} {
+test html-19.1 {html::radioSet} {
     ncgi::reset item=2
     ncgi::parse
-    html::radioset item " |\n" {
+    html::radioSet item " |\n" {
 	1 One	2 Two	3 Three
     }
 } {<input type=radio name="item" value="1"> One |
 <input type=radio name="item" value="2" CHECKED> Two |
 <input type=radio name="item" value="3"> Three}
 
-test html-20.1 {html::checkset} {
+test html-20.1 {html::checkSet} {
     ncgi::reset item=2&item=3+4&x=y
     ncgi::parse
-    html::checkset item " |\n" {
+    html::checkSet item " |\n" {
 	1 One	2 Two	{3 4} Three
     }
 } {<input type=checkbox name="item" value="1"> One |
@@ -369,10 +369,10 @@ test html-21.1 {html::select} {
 </select>
 }
 
-test html-22.1 {html::selectplain} {
+test html-22.1 {html::selectPlain} {
     ncgi::reset item=Three
     ncgi::parse
-    html::selectplain item "" {
+    html::selectPlain item "" {
 	One	Two	Three
     }
 } {<select name="item">
@@ -382,10 +382,10 @@ test html-22.1 {html::selectplain} {
 </select>
 }
 
-test html-22.2 {html::selectplain} {
+test html-22.2 {html::selectPlain} {
     ncgi::reset item=Three
     ncgi::parse
-    html::selectplain another "" {
+    html::selectPlain another "" {
 	One	Two	Three
     } One
 } {<select name="another">

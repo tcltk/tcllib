@@ -1,0 +1,245 @@
+'\"
+'\" Copyright (c) 1998-2000 by Scriptics Corporation.
+'\" All rights reserved.
+'\" 
+'\" RCS: @(#) $Id: html.n,v 1.2 2000/04/24 23:27:27 welch Exp $
+'\" 
+.so man.macros
+.TH html n 1.0 Html "HTML Generation"
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+::html \- Procedures to generate HTML structures.
+.SH SYNOPSIS
+.sp
+\fBhtml::reset\fR \fI{nvlist {}}\fR
+.sp
+\fBhtml::head\fR \fItitle\fR
+.sp
+\fBhtml::title\fR \fItitle\fR
+.sp
+\fBhtml::getTitle\fR \fI\fR
+.sp
+\fBhtml::meta\fR \fIargs\fR
+.sp
+\fBhtml::keywords\fR \fIargs\fR
+.sp
+\fBhtml::description\fR \fIdescription\fR
+.sp
+\fBhtml::author\fR \fIauthor\fR
+.sp
+\fBhtml::default\fR \fIkey {params {}}\fR
+.sp
+\fBhtml::bodyTag\fR \fIargs\fR
+.sp
+\fBhtml::formValue\fR \fIname {defvalue {}}\fR
+.sp
+\fBhtml::quoteFormValue\fR \fIvalue\fR
+.sp
+\fBhtml::textInput\fR \fIname {value {}}\fR
+.sp
+\fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
+.sp
+\fBhtml::passwordInput\fR \fI{name password}\fR
+.sp
+\fBhtml::checkbox\fR \fIname value\fR
+.sp
+\fBhtml::checkValue\fR \fIname {value 1}\fR
+.sp
+\fBhtml::radioValue\fR \fIname value\fR
+.sp
+\fBhtml::radioSet\fR \fIkey sep list\fR
+.sp
+\fBhtml::checkSet\fR \fIkey sep list\fR
+.sp
+\fBhtml::select\fR \fIname param choices {current {}}\fR
+.sp
+\fBhtml::selectPlain\fR \fIname param choices {current {}}\fR
+.sp
+\fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
+.sp
+\fBhtml::submit\fR \fIlabel {name submit}\fR
+.sp
+\fBhtml::varEmpty\fR \fIname\fR
+.sp
+\fBhtml::getFormInfo\fR \fIargs\fR
+.sp
+\fBhtml::h1\fR \fIstring {params {}}\fR
+.sp
+\fBhtml::h2\fR \fIstring {params {}}\fR
+.sp
+\fBhtml::h3\fR \fIstring {params {}}\fR
+.sp
+\fBhtml::h4\fR \fIstring {params {}}\fR
+.sp
+\fBhtml::h5\fR \fIstring {params {}}\fR
+.sp
+\fBhtml::h6\fR \fIstring {params {}}\fR
+.sp
+\fBhtml::h\fR \fIlevel string {params {}}\fR
+.sp
+\fBhtml::openTag\fR \fItag args\fR
+.sp
+\fBhtml::closeTag\fR \fI\fR
+.sp
+\fBhtml::end\fR \fI\fR
+.sp
+\fBhtml::row\fR \fIargs\fR
+.sp
+\fBhtml::hdrRow\fR \fIargs\fR
+.sp
+\fBhtml::cell\fR \fIparam value {tag td}\fR
+.sp
+\fBhtml::tableFromArray\fR \fIarrname {param {}} {pat *}\fR
+.sp
+\fBhtml::tableFromList\fR \fIquerylist {param {}}\fR
+.sp
+\fBhtml::mailto\fR \fIemail {subject {}}\fR
+.sp
+\fBhtml::font\fR \fIargs\fR
+.sp
+\fBhtml::formatCode\fR \fIcode\fR
+.sp
+\fBhtml::minorMenu\fR \fIlist {sep { | }}\fR
+.sp
+\fBhtml::extractParam\fR \fIparam key {val ""}\fR
+.BE
+.SH DESCRIPTION
+.PP
+The \fB::html\fR package provides commands that generate HTML.
+These commands typically return an HTML string as their result.
+In particular, they do not output their result to \fBstdout\fR.
+.PP
+THe \fBhtml::reset\fP procedure should be called early to initialize
+the module.  You can also use this procedure to define default values
+for HTML tag parameters.
+.IP
+\fBhtml::author\fR \fIauthor\fR
+<i>Side effect only</i>.  Call this before \fBhtml::head\fR to define an
+author for the page.  The author is noted in a comment in the
+HEAD section.
+
+.IP
+\fBhtml::bodyTag\fR \fIargs\fR
+Generate a <BODY> tag.
+The tag parameters are taken from \fIargs\P or from the
+body.* attributes define with \fBhtml::reset\fR
+
+.IP
+\fBhtml::cell\fR \fIparam value {tag td}\fR
+Generate a TD (or TH) tag, a value, and a closing TD (or TH) tag.
+The tag parameters come from \fIparam\fP or TD.* attributes
+defined with \fBhtml::reset\fR.
+
+.IP
+\fBhtml::checkbox\fR \fIname value\fR
+Generate a CHECKBOX form element with the specifed name and value.
+This uses \fBhtml::checkValue\fR.
+
+.IP
+\fBhtml::checkSet\fR \fIkey sep list\fR
+Generate a set of CHECKBOX form elements and associated labels.
+The \fIlist\fP should contain an alternating list of
+values and labels.
+This uses \fBhtml::checkbox\fR.
+
+.IP
+\fBhtml::checkValue\fR \fIname {value 1}\fR
+Generate the "name=\fIname\fP value=\fIval\fP for a CHECKBOX form element.
+If the CGI variable \fIname\fP has the value \fIval\fP, then
+SELECTED is added to the return value.
+
+.IP
+\fBhtml::closeTag\fR \fI\fR
+Pop a tag off the stack created by \fBhtml::openTag\fR
+and generate the corresponding close tag (e.g., /BODY)
+
+.IP
+\fBhtml::default\fR \fIkey {params {}}\fR
+.IP
+\fBhtml::description\fR \fIdescription\fR
+.IP
+\fBhtml::end\fR \fI\fR
+.IP
+\fBhtml::extractParam\fR \fIparam key {val ""}\fR
+.IP
+\fBhtml::font\fR \fIargs\fR
+.IP
+\fBhtml::formatCode\fR \fIcode\fR
+.IP
+\fBhtml::formValue\fR \fIname {defvalue {}}\fR
+.IP
+\fBhtml::getFormInfo\fR \fIargs\fR
+.IP
+\fBhtml::getTitle\fR \fI\fR
+.IP
+\fBhtml::h\fR \fIlevel string {params {}}\fR
+.IP
+\fBhtml::h1\fR \fIstring {params {}}\fR
+.IP
+\fBhtml::h2\fR \fIstring {params {}}\fR
+.IP
+\fBhtml::h3\fR \fIstring {params {}}\fR
+.IP
+\fBhtml::h4\fR \fIstring {params {}}\fR
+.IP
+\fBhtml::h5\fR \fIstring {params {}}\fR
+.IP
+\fBhtml::h6\fR \fIstring {params {}}\fR
+.IP
+\fBhtml::hdrRow\fR \fIargs\fR
+.IP
+\fBhtml::head\fR \fItitle\fR
+.IP
+\fBhtml::keywords\fR \fIargs\fR
+.IP
+\fBhtml::mailto\fR \fIemail {subject {}}\fR
+.IP
+\fBhtml::meta\fR \fIargs\fR
+.IP
+\fBhtml::minorMenu\fR \fIlist {sep { | }}\fR
+.IP
+\fBhtml::openTag\fR \fItag args\fR
+.IP
+\fBhtml::passwordInput\fR \fI{name password}\fR
+.IP
+\fBhtml::quoteFormValue\fR \fIvalue\fR
+.IP
+\fBhtml::radioSet\fR \fIkey sep list\fR
+.IP
+\fBhtml::radioValue\fR \fIname value\fR
+.IP
+
+\fBhtml::reset\fR \fI{nvlist {}}\fR
+\fBhtml::reset\fP accepts a name-value list that defines
+values for items with a name of the form <i>tag</i>.<i>parameter</i>.
+For example, a default with key \fBbody.bgcolor\fP defines
+the background color for the BODY tag.
+
+.IP
+\fBhtml::row\fR \fIargs\fR
+.IP
+\fBhtml::select\fR \fIname param choices {current {}}\fR
+.IP
+\fBhtml::selectPlain\fR \fIname param choices {current {}}\fR
+.IP
+\fBhtml::submit\fR \fIlabel {name submit}\fR
+.IP
+\fBhtml::tableFromArray\fR \fIarrname {param {}} {pat *}\fR
+.IP
+\fBhtml::tableFromList\fR \fIquerylist {param {}}\fR
+.IP
+\fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
+.IP
+\fBhtml::textInput\fR \fIname {value {}}\fR
+.IP
+\fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
+.IP
+\fBhtml::title\fR \fItitle\fR
+.IP
+\fBhtml::varEmpty\fR \fIname\fR
+.SH SEE ALSO
+ncgi
+
+.SH KEYWORDS
+html, form, table, checkbox, radiobutton, checkbutton
