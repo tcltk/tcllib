@@ -2,6 +2,8 @@
 
 	* snit.man: 	Documented hierarchical methods and typemethods.
 
+	* Everything:   Updated version to 0.97.
+
 2004-09-16  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	In "component foo -public name", the "-public
