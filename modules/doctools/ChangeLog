@@ -1,4 +1,11 @@
+2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: 
+	* mpformats/_html.tcl: Changes analogous to TMML (see below) to
+	  differentiate internal markup and external special characters.
+
 2002-04-24  Joe English  <jenglish@users.sourceforge.net>
+
 	* mpformats/_xml.tcl
 	* mpformats/fmt.tmml: Correctly handles XML markup characters 
 	  in macro arguments.  Also correctly escapes apostrophes

@@ -129,13 +129,13 @@ proc manpage_begin {title section version} {
     set description [GetDesc tdesc]
 
     set     hdr ""
-    append  hdr "<html><head><title>$title - $shortdesc </title></head>\n"
+    append  hdr "[markup <html><head><title>]$title - $shortdesc [markup </title></head>]\n"
     append  hdr "[ht_comment "Generated from [mp_file] by tcllib/doctools/mpexpand with [this]"]\n"
     append  hdr "[ht_comment "Copyright (c) [clock format [clock seconds] -format %Y] $::tcl_platform(user)"]\n"
     append  hdr "[ht_comment {All rights reserved}]\n"
     append  hdr "[ht_comment "CVS: \$Id\$ $title.$section"]\n"
     append  hdr "\n"
-    append  hdr "<h1> [string trimleft $title :]($section) $version $module \"$shortdesc\"</h1>\n"
+    append  hdr "[markup <h1>] [string trimleft $title :]($section) $version $module \"$shortdesc\"[markup </h1>]\n"
     append  hdr "[section NAME]\n"
     append  hdr "[para] $title - $description"
     return $hdr
@@ -152,26 +152,26 @@ proc titledesc {desc} {
     return
 }
 
-proc manpage_end {}     {return </body></html>}
+proc manpage_end {}     {return [markup </body></html>]}
 proc section     {name} {
     set ::SectionNames($name) [set id [sectionId $name]]
-    return "<a name=\"$id\"><h2>$name</h2>"
+    return "[markup <]a name=\"$id\"[markup ><h2>]$name[markup </h2>]"
 }
-proc para        {}     {return <p>}
+proc para        {}     {return [markup <p>]}
 
 proc require {pkg {version {}}} {
     Req 1
-    set result "[x_synopsis]package require <b>$pkg"
+    set result "[x_synopsis]package require [markup <b>]$pkg"
     if {$version != {}} {
 	append result " $version"
     }
-    append result "</b><br>"
+    append result [markup "</b><br>"]
     return $result
 }
 
 proc usage {cmd args} {
     if {[mp_pass] == 1} {
-	AddCall "[trtop][td]$cmd [join $args " "]</td></tr>\n"
+	AddCall "[trtop][td]$cmd [join $args " "][markup </td></tr>]\n"
 	return
     }
     return ""
@@ -179,7 +179,7 @@ proc usage {cmd args} {
 
 proc call {cmd args} {
     if {[mp_pass] == 1} {
-	AddCall "[trtop][td]$cmd [join $args " "]</td></tr>\n"
+	AddCall "[trtop][td]$cmd [join $args " "][markup </td></tr>]\n"
 	return
     }
     return "[lst_item "$cmd [join $args " "]"]\n"
@@ -189,11 +189,11 @@ proc description {} {
     set result ""
     if {[GetCall] != {}} {
 	append result [x_synopsis]
-	if {[Req]} {append result <br>}
+	if {[Req]} {append result [markup <br>]}
 
 	proc bgcolor {} {return lightyellow}
 
-	append result [btable][tr][td][table][GetCall]</table></td></tr></table>\n
+	append result [btable][tr][td][table][GetCall][markup </table></td></tr></table>]\n
 
 	proc bgcolor {} {return ""}
     }
@@ -235,10 +235,10 @@ proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
 
 proc example_begin {} {
     lsmark 0
-    return "<p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"
+    return [markup "<p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"]
 }
 proc example_end   {} {
-    return "</pre></td></tr></table></p>"
+    return [markup "</pre></td></tr></table></p>"]
 }
 proc example {code} {
     return "[example_begin][HandleText $code][example_end]"
@@ -248,8 +248,8 @@ proc nl {} {
     if {[lcompact]} {return [tag br]}
     return [tag br][tag br]
 }
-proc arg    {text} {return "<i class='arg'>$text</i>" }
-proc cmd    {text} {return "<b class='cmd'>$text</b>" }
+proc arg    {text} {return "[markup "<i class='arg'>"]$text[markup </i>]" }
+proc cmd    {text} {return "[markup "<b class='cmd'>"]$text[markup </b>]" }
 
 proc emph	{text}	{ possibleReference $text em }
 proc strong	{text}	{ possibleReference $text strong }
@@ -261,9 +261,9 @@ proc comment {text} {ht_comment $text}
 proc sectref {text} {
     global SectionNames
     if {[info exists SectionNames($text)]} {
-    	return "<a href=\"#$SectionNames($text)\">$text</a>"
+    	return "[markup <]a href=\"#$SectionNames($text)\"[markup >]$text[markup </a>]"
     } else {
-    	return "<b>$text</b>"
+    	return "[markup <b>]$text[markup </b>]"
     }
 }
 proc syscmd  {text} {strong $text}
@@ -276,7 +276,7 @@ proc package {text} {strong $text}
 proc class   {text} {strong $text}
 proc var     {text} {strong $text}
 proc file    {text} {return "\"[strong $text]\""}
-proc uri     {text} {return "<a href=\"$text\">$text</a>"}
+proc uri     {text} {return "[markup <]a href=\"$text\"[markup >]$text[markup </a>]"}
 proc term    {text} {emph $text}
 proc const   {text} {strong $text}
 
