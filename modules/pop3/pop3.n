@@ -2,10 +2,10 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.8 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.9 2002/01/18 20:51:16 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
+.TH pop3 n 1.5.1 pop3 "Tcl POP3 Client Library"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@ pop3 \- Tcl client for POP3 email protocol
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require pop3 ?1.5?\fR
+\fBpackage require pop3 ?1.5.1?\fR
 .sp
 \fB::pop3::open\fR ?-msex \fB0|1\fR? ?-retr-mode \fBretr|list|slow\fR? \fIhost user Ipassword \fR?\fIport\fR? 
 .sp

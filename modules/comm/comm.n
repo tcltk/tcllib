@@ -1,15 +1,15 @@
-.\" $Id: comm.n,v 1.3 2001/11/16 21:44:46 andreas_kupries Exp $
+.\" $Id: comm.n,v 1.4 2002/01/18 20:51:15 andreas_kupries Exp $
 .\" %%_OSF_FREE_COPYRIGHT_%%
 .\" Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
 .\" (Please see the file "comm.LICENSE" that accompanied this source)
 .\"
 .so man.macros
-.TH comm n 3.7 comm "package comm 3.7"
+.TH comm n 3.7 comm "package comm 3.7.1"
 .SH NAME
 comm.tcl \- A remote communications facility for Tcl (7.6, 8.0, and later)
 .SH SYNOPSIS
 .nf
-\fBpackage require comm ?3.7?\fR
+\fBpackage require comm ?3.7.1?\fR
 .sp
 \fIchan \fBnew \fIchan\fR ?\fIname value ...\fR?
 \fIchan \fBsend \fR?\fI-async\fR? \fIid cmd \fR?\fIarg arg ...\fR?

@@ -60,5 +60,5 @@ source [ file join [ file dirname [ info script ] ] tabify.tcl ]
 source [ file join [ file dirname [ info script ] ] trim.tcl ]
 
 # Do the [package provide] last, in case there is an error in the code above.
-package provide textutil 0.3
+package provide textutil 0.4
 

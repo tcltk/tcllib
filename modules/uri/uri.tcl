@@ -9,10 +9,10 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.11 2001/11/16 23:36:59 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.12 2002/01/18 20:51:17 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide uri 1.0
+package provide uri 1.1
 
 namespace eval uri {
 

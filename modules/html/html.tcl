@@ -13,7 +13,7 @@
 # Originally by Brent Welch, with help from Dan Kuchler and Melissa Chawla
 
 package require Tcl 8.2
-package provide html 1.1.1
+package provide html 1.2
 
 namespace eval html:: {
 

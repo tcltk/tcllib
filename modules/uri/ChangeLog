@@ -1,21 +1,25 @@
+2002-01-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Bumped version to 1.1
+
 2001-11-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* uri.n: Updated documentation to cover the change below.
 
 	* uri.tcl: Changed geturl dispatcher to load a scheme::geturl
-	  first and the scheme package only if that fails. see the ftp and
+	  first and the scheme package only if that fails. See the ftp and
 	  ftp::geturl packages. FR #476804.
 
 2001-10-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uri.tcl: Fixed the ftptype regexp so that the type identifier
-	can be extracted. Fixed the ftp join code to follow the specs for
-	the type identifier. Added tests.
+	  can be extracted. Fixed the ftp join code to follow the specs
+	  for the type identifier. Added tests.
 
 2001-10-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uri.tcl: Fixes for SF bug 474846 concerning bugs with ftp
-	userinfo and path construction.
+	  userinfo and path construction.
 
 	* uri.test: New tests to chec the above fixes.
 
