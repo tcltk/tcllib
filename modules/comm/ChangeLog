@@ -2,6 +2,7 @@
 
 	* comm.tcl (::comm::commConfigure): Use 'string is integer'
 	  instead of regexp's.
+	  Require Tcl 8.2.
 
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
