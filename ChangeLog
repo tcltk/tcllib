@@ -1,3 +1,7 @@
+2002-07-02  Don Porter <dgp@users.sourceforge.net>
+
+	* all.tcl: Corrected name of tcltest hook procedure
+
 2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv: Fixed bug #565051.
