@@ -140,11 +140,11 @@ proc fmt_list_end {} {
 proc fmt_enum     {}        {return [nr_item " \[[c_cnext]\]\n"]}
 proc fmt_bullet   {}        {return [nr_item " \\(bu"]}
 proc fmt_lst_item {text}    {return [nr_blt $text]}
-proc fmt_cmd_def  {command} {return [nr_blt [cmd $command]]}
+proc fmt_cmd_def  {command} {return [nr_blt [fmt_cmd $command]]}
 
 proc fmt_arg_def {type name {mode {}}} {
     set    text [nr_blt ""]
-    append text [arg $name]
+    append text [fmt_arg $name]
     append text " $type"
     if {$mode != {}} {append text " ($mode)"}
     return $text
