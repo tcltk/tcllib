@@ -1,3 +1,9 @@
+2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.4 ========================
+	* 
+
 2003-04-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.test: Fix for bug #709375 - test failures for bigEndian

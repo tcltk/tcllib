@@ -1,3 +1,9 @@
+2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.4 ========================
+	* 
+
 2003-04-30  Pat Thoyts  <Patrick.Thoyts@renishaw.com>
 
 	* md4.man: Added documentation for the hmac command and for the
