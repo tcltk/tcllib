@@ -29,7 +29,7 @@ as a polyline of one segment and a point set of two points.
 Currently the following types of objects are distinguished:
 [list_begin bullet]
 [bullet]
-[emph] point - a list of two coordinates representing the x- and
+[emph point] - a list of two coordinates representing the x- and
 y-coordinates respectively.
 
 [bullet]
