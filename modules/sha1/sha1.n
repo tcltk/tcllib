@@ -2,10 +2,10 @@
 '\" Copyright (c) 2001 ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: sha1.n,v 1.4 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: sha1.n,v 1.5 2002/02/08 06:05:20 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH sha1 n 1.0 Sha1 "sha1 hash"
+.TH sha1 n 1.0.2 Sha1 "sha1 hash"
 .BS
 '\" Note: do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require sha1 ?1.0.1?\fR
+\fBpackage require sha1 ?1.0.2?\fR
 .sp
 \fB::sha1::sha1\fR \fImsg\fR?
 .sp
