@@ -1,5 +1,7 @@
 2002-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* ftpd: Fixed SF Bug #531799.
+
 	* New module:  pop3d. A POP3 server.
 	* Makefile.in: Added pop3d.
 
