@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.3 2000/04/25 06:23:22 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.4 2000/05/20 06:20:06 welch Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -80,6 +80,8 @@
 \fBhtml::radioSet\fR \fIkey sep list\fR
 .sp
 \fBhtml::radioValue\fR \fIname value\fR
+.sp
+\fBhtml::refresh\fR \fIseconds {url {}}\fR
 .sp
 \fBhtml::init\fR \fI{nvlist {}}\fR
 .sp
@@ -321,6 +323,14 @@ The \fIlist\fP is a Tcl-style label, value list.
 Generate the "name=\fIname\fP value=\fIval\fP for a RADIO form element.
 If the CGI variable \fIname\fP has the value \fIval\fP, then
 SELECTED is added to the return value.
+
+.TP
+\fBhtml::refresh\fR \fIseconds url\fR
+Set up a refresh META tag. Call this before \fBhtml::head\fP and
+the HEAD section will contain a META tag that causes the
+document to refresh in \fIseconds\fP seconds.
+The \fIurl\fP is optional.  If specified, it specifies a new
+page to load after the refresh interval.
 
 .TP
 \fBhtml::init\fR \fI{list {}}\fR

@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.4 2000/04/25 06:23:22 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.5 2000/05/20 06:20:07 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -455,14 +455,13 @@ test html-25.2 {html::varEmpty} {
     catch {html::varEmpty wrong num args}
 } 1
 
-test html-25.1 {html::varEmpty} {
+test html-25.3 {html::varEmpty} {
     if {[info exist x]} {
 	unset x
     }
     html::varEmpty x
 } 1
-
-test html-25.2 {html::varEmpty} {
+test html-25.4 {html::varEmpty} {
     if {[info exist x]} {
 	unset x
     }
@@ -470,11 +469,41 @@ test html-25.2 {html::varEmpty} {
     html::varEmpty x
 } 1
 
-test html-25.2 {html::varEmpty} {
+test html-25.3 {html::varEmpty} {
     if {[info exist x]} {
 	unset x
     }
     set x "foo"
     html::varEmpty x
 } 0
+
+test html-26.1 {html::refresh} {
+    catch {html::refresh}
+} 1
+test html-26.2 {html::refresh} {
+    catch {html::refresh wrong num args}
+} 1
+test html-26.2 {html::refresh} {
+    html::refresh 4
+} {}
+test html-26.3 {html::refresh} {
+    html::init
+    html::refresh 4
+    html::head title
+} {<html><head>
+	<title>title</title>
+	<meta http-equiv="Refresh" content="4">
+
+</head>
+}
+test html-26.4 {html::refresh} {
+    html::init
+    html::refresh 9 http://www.scriptics.com
+    html::head title
+} {<html><head>
+	<title>title</title>
+	<meta http-equiv="Refresh" content="9; url=http://www.scriptics.com">
+
+</head>
+}
 
