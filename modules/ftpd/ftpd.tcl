@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.11 2001/09/07 22:21:51 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.12 2001/09/24 19:05:14 jenglish Exp $
 #
 
 # Define the ftpd package version 1.1.1
@@ -720,7 +720,7 @@ proc ::ftpd::command::APPE {sock list} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
-	puts $sock "500 Copy Failed: $path\n$f"
+	puts $sock "500 Copy Failed: $path $f"
 	::ftpd::FinishData $sock
     }
     return
@@ -1200,7 +1200,7 @@ proc ::ftpd::command::RETR {sock list} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $f $data(sock2) -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
-	puts $sock "500 Copy Failed: $path\n$f"
+	puts $sock "500 Copy Failed: $path $f"
 	::ftpd::FinishData $sock
     }
     return
@@ -1392,7 +1392,7 @@ proc ::ftpd::command::STOR {sock list} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
-	puts $sock "500 Copy Failed: $path\n$f"
+	puts $sock "500 Copy Failed: $path $f"
 	::ftpd::FinishData $sock
     }
     return
@@ -1443,7 +1443,7 @@ proc ::ftpd::command::STOU {sock list} {
 	puts $sock "150 Copy Started ($data(mode))"
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f $file]
     } else {
-	puts $sock "500 Copy Failed: $path\n$f"
+	puts $sock "500 Copy Failed: $path $f"
 	::ftpd::FinishData $sock
     }
     return
