@@ -1,3 +1,23 @@
+2000-03-28  Eric Melski  <ericm@scriptics.com>
+
+	* Makefile.in: Added $(srcdir)/ prefix to mkIndex.tcl call in the
+	install-libraries target, so that it would find the mkIndex.tcl
+	script when run outside of the source tree.  Same for man.macros
+	in the install-doc target, so it would find the file.
+
+2000-03-27  Eric Melski  <ericm@scriptics.com>
+
+	* Makefile.in: Added dist target for building distribution.
+
+	* configure.in: Removed mkIndex.tcl from AC_OUTPUT call.
+
+	* mkInstallScripts.tcl: First cut at script for autogenerating
+	simple INSTALL.BAT and install.sh files for tcllib distributions.
+
+	* mkIndex.tcl: 
+	* mkIndex.tcl.in: Replace mkIndex.tcl.in with mkIndex.tcl, which
+	now takes more args to specify values.
+
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
 	* Makefile.in: Added ncgi module, commented out until tests are done.
