@@ -239,7 +239,8 @@ proc eval_setup {} {
     }
 
     # Reroute the handling of plain text into the formatter
-    interp alias $inip __mpText__ $mpip HandleText
+    interp alias $inip __mpText__ $ckip ck_plain_text
+    interp alias $ckip HandleText $mpip HandleText
 
     # ---------------------------------------------------------------------
     # Now initialize the format checker (state, commands)
@@ -355,6 +356,18 @@ proc eval_setup {} {
 		Error end/open/mp
 	    }
 	    return
+	}
+	# -------------------------------------------------------------
+	# Plain text
+	proc ck_plain_text {text} {
+	    # Only in body, not between list_begin and first item.
+	    # Ignore everything which is only whitespace ...
+
+	    set redux [string map [list " " "" "\t" "" "\n" ""] $text]
+	    if {$redux == {}} {return}
+	    if {[IsNot body] && [IsNot example]} {Error body}
+	    if {[LOpen] && ![LItem]} {Error nolisttxt}
+	    return [HandleText $text]
 	}
 	# -------------------------------------------------------------
 	# Formatting commands
