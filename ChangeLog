@@ -1,3 +1,15 @@
+2002-01-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Tagging branch tcllib-1-2-0 as subbranch of RELEASES now.
+	  This fixes the release.
+
+	* Tagged branch RELEASES. control/rswitch is not officially
+	  released according to Don Porter, and thus not part of this
+	  branch. Additional documentation about its usage will be added
+	  to the HEAD branch.
+
+	* control 0.1 was never released, bumping version back to this.
+
 2002-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* Bumped version to 1.2, new release. Summary of changes here. See
