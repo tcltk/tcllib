@@ -43,6 +43,12 @@ server. The allowed values are [const retr], [const list] and
 [cmd ::pop3::retrieve] for more information.
 
 
+[call [cmd ::pop3::config] [arg chan]]
+
+Returns the configuration of the pop3 connection identified by [arg
+chan] as a serialized array.
+
+
 [call [cmd ::pop3::status] [arg chan]]
 
 Query the server for the status of the mail spool.  The status is
