@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.21.2.1 2004/05/24 02:58:10 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.21.2.2 2004/05/24 03:25:44 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -1749,7 +1749,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    set fhandle [open $path a]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary
+		fconfigure $fhandle -translation binary -encoding binary
 	    }
 	    return $fhandle
         }
@@ -1759,7 +1759,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    set fhandle [open $path r]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary
+		fconfigure $fhandle -translation binary -encoding binary
 	    }
 	    return $fhandle
 	}
@@ -1769,7 +1769,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    set fhandle [open $path w]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary
+		fconfigure $fhandle -translation binary -encoding binary
 	    }
 	    return $fhandle
 	}
@@ -2014,7 +2014,7 @@ proc ::ftpd::command::PASV {sock args} {
     set ans [split $ip {.}]
     lappend ans [expr {($port >> 8) & 0xff}] [expr {$port & 0xff}]
     set ans [join $ans {,}]
-    puts $sock "227 Entering Passive Mode. $ans"
+    puts $sock "227 Entering Passive Mode ($ans)."
     return
 }
 
