@@ -15,14 +15,30 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     }
 }
 
-
 #
 # TODO: conflict about "scale"?
 #
 source [file join [file dirname [info script]] "linalg.tcl"]
 namespace import -force ::math::linearalgebra::*
 
+set old_precision $::tcl_precision
 set ::tcl_precision 17
+
+#
+# Matching procedure - flatten the lists
+#
+proc matchNumbers {expected actual} {
+    set match 1
+    foreach a [join $actual] e [join $expected] {
+        if {abs($a-$e) > 0.1e-6} {
+            set match 0
+            break
+        }
+    }
+    return $match
+}
+
+customMatch numbers matchNumbers
 
 test dimshape-1.0 "dimension of scalar" -body {
     dim 1
@@ -48,37 +64,53 @@ test dimshape-2.2 "shape of matrix" -body {
     shape { {1 2 3} {4 5 6} }
 } -result {2 3}
 
-test norm-1.0 "one-norm - 5 components" -body {
+test norm-1.0 "one-norm - 5 components" -match numbers -body {
     norm {1 2 3 0 -1} 1
 } -result 7.0
 
-test norm-1.1 "one-norm - 2 components" -body {
+test norm-1.1 "one-norm - 2 components" -match numbers -body {
     norm {1 -1} 1
 } -result 2.0
 
-test norm-1.2 "two-norm - 5 components" -body {
+test norm-1.2 "two-norm - 5 components" -match numbers -body {
     norm {1 2 3 0 -1} 2
 } -result [expr {sqrt(15)}]
 
-test norm-1.3 "two-norm - 2 components" -body {
+test norm-1.3 "two-norm - 2 components" -match numbers -body {
     norm {1 -1} 2
 } -result [expr {sqrt(2)}]
 
-test norm-1.4 "two-norm - no underflow" -body {
+test norm-1.4 "two-norm - no underflow" -match numbers -body {
     norm {3.0e-140 -4.0e-140} 2
 } -result 5.0e-140
 
-test norm-1.5 "two-norm - no overflow" -body {
+test norm-1.5 "two-norm - no overflow" -match numbers -body {
     norm {3.0e140 -4.0e140} 2
 } -result 5.0e140
 
-test norm-1.6 "max-norm - 5 components" -body {
+test norm-1.6 "max-norm - 5 components" -match numbers -body {
     norm {1 2 3 0 -4} max
 } -result 4
 
-test norm-1.7 "max-norm - 2 components" -body {
+test norm-1.7 "max-norm - 2 components" -match numbers -body {
     norm {1 -1} max
 } -result 1
+
+test dotproduct-1.0" "dot-product - 2 components" -match numbers -body {
+    dotproduct {1 -1} {1 -1}
+} -result 2.0
+
+test dotproduct-1.1" "dot-product - 5 components" -match numbers -body {
+    dotproduct {1 2 3 4 5} {5 4 3 2 1}
+} -result [expr {5.0+8+9+8+5}]
+
+test normalize-1.0" "normalize - 2 components" -match numbers -body {
+    normalize {3 4}
+} -result {0.6 0.8}
+
+test normalize-1.1" "normalize - 4 components" -match numbers -body {
+    normalize {1 1 1 1}
+} -result {0.5 0.5 0.5 0.5}
 
 test axpy-1.0 "axpy - vectors" -body {
     axpy 2 {1 -1} {2 -2}
@@ -130,5 +162,104 @@ test make-2.0 "mkMatrix - create a matrix with 3 rows, 2 columns" -body {
 test make-2.1 "mkMatrix - create a matrix with 2 rows, 3 columns" -body {
     mkMatrix 2 3 1.0
 } -result {{1.0 1.0 1.0} {1.0 1.0 1.0}}
+
+test make-3.0 "mkIdentity - create an identity matrix 2x2" -body {
+    mkIdentity 2
+} -result {{1.0 0.0} {0.0 1.0}}
+
+test make-3.1 "mkIdentity - create an identity matrix 3x3" -body {
+    mkIdentity 3
+} -result {{1.0 0.0 0.0} {0.0 1.0 0.0} {0.0 0.0 1.0}}
+
+test make-4.0 "mkDiagonal - create a diagonal matrix 2x2" -body {
+    mkDiagonal {2.0 3.0}
+} -result {{2.0 0.0} {0.0 3.0}}
+
+test make-4.1 "mkDiagonal - create a diagonal matrix 3x3" -body {
+    mkDiagonal {2.0 3.0 4.0}
+} -result {{2.0 0.0 0.0} {0.0 3.0 0.0} {0.0 0.0 4.0}}
+
+test getset-1.0 "getrow - get first row from a matrix" -body {
+    getrow {{1 2 3} {4 5 6} {7 8 9} {10 11 12}} 0
+} -result {1 2 3}
+
+test getset-1.1 "getrow - get last row from a matrix" -body {
+    getrow {{1 2 3} {4 5 6} {7 8 9} {10 11 12}} 3
+} -result {10 11 12}
+
+test getset-1.2 "getcol - get first column from a matrix" -body {
+    getcol {{1 2 3} {4 5 6} {7 8 9} {10 11 12}} 0
+} -result {1 4 7 10}
+
+test getset-1.3 "getcol - get last column from a matrix" -body {
+    getcol {{1 2 3} {4 5 6} {7 8 9} {10 11 12}} 2
+} -result {3 6 9 12}
+
+test getset-2.0 "setrow - set first row in a matrix" -body {
+    set M {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    setrow M 0 {3 2 1}
+} -result {{3 2 1} {4 5 6} {7 8 9} {10 11 12}}
+
+test getset-2.1 "setrow - set last row in a matrix" -body {
+    set M {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    setrow M 3 {3 2 1}
+} -result {{1 2 3} {4 5 6} {7 8 9} {3 2 1}}
+
+test getset-2.2 "setcol - set first column in a matrix" -body {
+    set M {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    setcol M 0 {3 2 1 0}
+} -result {{3 2 3} {2 5 6} {1 8 9} {0 11 12}}
+
+test getset-2.3 "setcol - set last column in a matrix" -body {
+    set M {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    setcol M 2 {3 2 1 0}
+} -result {{1 2 3} {4 5 2} {7 8 1} {10 11 0}}
+
+test getset-3.0 "getelem - get element (0,0) in a matrix" -body {
+    getelem {{1 2 3} {4 5 6} {7 8 9} {10 11 12}} 0 0
+} -result 1
+
+test getset-3.1 "getelem - set element (1,2) in a matrix" -body {
+    getelem {{1 2 3} {4 5 6} {7 8 9} {10 11 12}} 1 2
+} -result 6
+
+test getset-3.2 "setelem - set element (0,0) in a matrix" -body {
+    set M {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    setelem M 0 0 100
+} -result {{100 2 3} {4 5 6} {7 8 9} {10 11 12}}
+
+test getset-3.3 "setelem - set element (1,2) in a matrix" -body {
+    set M {{1 2 3} {4 5 6} {7 8 9} {10 11 12}}
+    setelem M 1 2 100
+} -result {{1 2 3} {4 5 100} {7 8 9} {10 11 12}}
+
+test rotate-1.0 "rotate - over 90 degrees" -body {
+    set v1 {1 2 3}
+    set v2 {4 5 6}
+    rotate 0 1 $v1 $v2
+} -result {{-4 -5 -6} {1 2 3}}
+
+test rotate-1.1 "rotate - over 180 degrees" -body {
+    set v1 {1 2 3 4 5 6}
+    set v2 {7 8 9 10 11 12}
+    rotate -1 0 $v1 $v2
+} -result {{-1 -2 -3 -4 -5 -6} {-7 -8 -9 -10 -11 -12}}
+
+#
+# Check the result by multiplying U*S*Vtrans and compare
+# to the original matrix
+# Also check: U*Utrans and V*Vtrans
+#
+test svd-1.0 "singular value decomposition - 2x2" -body {
+    set M {{1 2} {2 1}}
+    determineSVD $M
+} -result ?
+
+test svd-1.0 "singular value decomposition - 10x10" -body {
+    set M [mkDingdong 10]
+    lindex [determineSVD $M] 1
+} -result ?
+
+set ::tcl_precision $old_precision
 
 ::tcltest::cleanupTests
