@@ -9,7 +9,7 @@
 
 global textMap;
 set    textMap {
-    &    &amp;    <    &lt;     >    &gt;     \x7b &ob;     \x7d &cb;  
+    &    &amp;    <    &lt;     >    &gt;       
     \xa0 &nbsp;   \xb0 &deg;    \xc0 &Agrave; \xd0 &ETH;    \xe0 &agrave; \xf0 &eth;
     \xa1 &iexcl;  \xb1 &plusmn; \xc1 &Aacute; \xd1 &Ntilde; \xe1 &aacute; \xf1 &ntilde;
     \xa2 &cent;	  \xb2 &sup2;   \xc2 &Acirc;  \xd2 &Ograve; \xe2 &acirc;  \xf2 &ograve;

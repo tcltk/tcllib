@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.5 2002/02/28 07:03:20 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.6 2002/03/10 02:49:52 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -207,6 +207,9 @@ pass 2 lst_item {text} {
 	[start dd] \
 	;
 }
+
+pass 1 usage {cmd args} { hold synopsis [formatCall $cmd $args] }
+pass 2 usage {cmd args} NOP
 
 pass 1 call {cmd args} { hold synopsis [formatCall $cmd $args] }
 pass 2 call {cmd args} {

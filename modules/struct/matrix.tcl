@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.7 2002/02/15 05:35:30 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.8 2002/03/10 02:49:52 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -295,36 +295,46 @@ proc ::struct::matrix::_insert {name {cmd ""} args} {
 #	Varies based on command to perform
 
 proc ::struct::matrix::_search {name args} {
-    # Possible argument signatures
+    set mode   exact
+    set nocase 0
+
+    while 1 {
+	switch -glob -- [lindex $args 0] {
+	    -exact - -glob - -regexp {
+		set mode [string range [lindex $args 0] 1 end]
+		set args [lrange $args 1 end]
+	    }
+	    -nocase {
+		set nocase 1
+	    }
+	    -* {
+		return -code error \
+			"invalid option \"[lindex $args 0]\":\
+			should be -nocase, -exact, -glob, or -regexp"
+	    }
+	    default {
+		break
+	    }
+	}
+    }
+
+    # Possible argument signatures after option processing
     #
     # \ | args
     # --+--------------------------------------------------------
     # 2 | all pattern
-    # 3 | option all pattern, row row pattern, column col pattern
-    # 4 | option row row pattern, option colun col pattern
+    # 3 | row row pattern, column col pattern
     # 6 | rect ctl rtl cbr rbr pattern
-    # 7 | option rect ctl rtl cbr rbr pattern
     #
     # All range specifications are internally converted into a
     # rectangle.
 
     switch -exact -- [llength $args] {
-	2 - 3 - 4 - 6 - 7 {}
+	2 - 3 - 6 {}
 	default {
 	    return -code error \
-		"wrong # args: should be \"$name search ?option? (all|row row|column col|rect c r c r) pattern\""
-	}
-    }
-    switch -glob -- [lindex $args 0] {
-	-exact - -glob - -regexp {
-	    set mode [string range [lindex $args 0] 1 end]
-	    set args [lrange $args 1 end]
-	}
-	-* {
-	    return -code error "invalid pattern option \"[lindex $args 0]\": should be -exact, -glob, or -regexp"
-	}
-	default {
-	    set mode exact
+		"wrong # args: should be\
+		\"$name search ?option...? (all|row row|column col|rect c r c r) pattern\""
 	}
     }
 
@@ -366,10 +376,17 @@ proc ::struct::matrix::_search {name args} {
 	}
     }
 
+    if {$nocase} {
+	set pattern [string tolower $pattern]
+    }
+
     set matches [list]
     for {set r $rtl} {$r <= $rbr} {incr r} {
 	for {set c $ctl} {$c <= $cbr} {incr c} {
 	    set v  $data($c,$r)
+	    if {$nocase} {
+		set v [string tolower $v]
+	    }
 	    switch -exact -- $mode {
 		exact  {set matched [string equal $pattern $v]}
 		glob   {set matched [string match $pattern $v]}

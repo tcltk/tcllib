@@ -1,3 +1,28 @@
+2002-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/doctools/format.man: Added documentation for [rb] and
+	  [lb]. This partially fixes bug #527025.
+
+	* modules/doctools/mpformats/_html.tcl: The patch for FR #527716
+	  also fixes a bug in the generation of HTML escapes. The table
+	  swiped from htmlparse seems to contain some non-standard
+	  escapes. Which are removed now.
+
+	* modules/doctools/format.man:
+	* modules/doctools/mpexpand:
+	* modules/doctools/mpformats/fmt.html:
+	* modules/doctools/mpformats/fmt.latex:
+	* modules/doctools/mpformats/fmt.list:
+	* modules/doctools/mpformats/fmt.nroff:
+	* modules/doctools/mpformats/fmt.null:
+	* modules/doctools/mpformats/fmt.tmml:
+	* modules/doctools/mpformats/fmt.tmml: Accepted FR #527716 by
+	  Bryan Oakley <boakley@users.sourceforge.net> which adds a
+	  command [usage] to the format. It allows the specification of
+	  usage information for the synopsis without the need to be
+	  embedded into a definition list.
+
+
 2002-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.nroff: Corrected problems with trimming lines and
