@@ -1,3 +1,9 @@
+2003-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* htmlparse.man: Extended documentation of command '2tree' with
+	  description of how the found tags and text is stored in the
+	  nodes of the tree [Bug 827645].
+
 2003-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:
