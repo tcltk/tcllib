@@ -124,23 +124,38 @@ proc ::textutil::tabify::MakeTabStr { num } {
 #		Returns the (possibly modified) line.
 #
 # 'spaces at correct positions': Only spaces which 'fill the space' between
-# an arbitrary position and the next tab stop can be replaced. The proc works
-# backwards:
+# an arbitrary position and the next tab stop can be replaced. 
+# Example: With tab size 8, spaces at positions 11 - 13 will *not* be replaced,
+#          because an expansion of a tab at position 11 will jump up to 16.
+# See also the comment at the beginning of this file why single spaces are
+# *never* replaced by a tab.
+#
+# The proc works backwards, from the end of the string up to the beginning:
 #	- Set the position to start the search from ('lastPos') to 'end'.
-#	- Find the last occurrence of ' ' in 'line' with respect to 'lastPos'.
-#	- Calculate the next and the previous tab stop with respect to this ' ',
-#	  and define the starting point for the next search.
-#	- The ' ' is only a candidate for replacement if
+#	- Find the last occurrence of ' ' in 'line' with respect to 'lastPos'
+#         ('currPos' below). This is a candidate for replacement.
+#       - Find to 'currPos' the following tab stop using the expression
+#           set nextTab [expr ($currPos + $num) - ($currPos % $num)]
+#         and get the previous tab stop as well (this will be the starting 
+#         point for the next iteration).
+#	- The ' ' at 'currPos' is only a candidate for replacement if
 #	  1) it is just one position before a tab stop *and*
 #	  2) there is at least one space at its left (see comment above on not
 #	     touching an isolated space).
 #	  Continue, if any of these conditions is not met.
 #	- Determine where to put the tab (that is: how many spaces to replace?)
-#	  by stepping backwards until
+#	  by stepping up to the beginning until
 #		-- you hit a non-space or
 #		-- you are at the previous tab position
 #	- Do the replacement and continue.
 #
+# This algorithm only works, if $line does not contain tabs. Otherwise our 
+# interpretation of any position beyond the tab will be wrong. (Imagine you 
+# find a ' ' at position 4 in $line. If you got 3 leading tabs, your *real*
+# position might be 25 (tab size of 8). Since in real life some strings might 
+# already contain tabs, we test for it (and eventually call untabifyLine).
+#
+
 proc ::textutil::tabify::tabifyLine { line num } {
     if { [string first \t $line] != -1 } { 		
 	# assure array 'Spaces' is set up 'comme il faut'
