@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: log.test,v 1.1 2001/03/26 16:50:21 andreas_kupries Exp $
+# RCS: @(#) $Id: log.test,v 1.2 2002/02/01 22:59:08 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -258,6 +258,13 @@ test log-12.1 {suppressor errors} {
     set msg
 } {"foo" is not a member of {0, 1}}
 
+test log-12.2 {suppressor errors} {
+    if {![catch {::log::lvSuppressLE error foo} msg]} {
+	error "foo should be no boolean value"
+    }
+    set msg
+} {"foo" is not a member of {0, 1}}
+
 foreach {level range} {
     emergency {1 1 1 1 1 1 1 1}
     alert     {1 1 1 0 1 1 1 1}
@@ -268,7 +275,7 @@ foreach {level range} {
     info      {0 0 1 0 0 1 0 0}
     debug     {0 0 1 0 0 0 0 0}
 } {
-    test log-12.2.$level {change suppression state, ranges} {
+    test log-12.3.$level {change suppression state, ranges} {
 	::log::lvSuppressLE emergency 0 ; # initial full unsuppressed state
 	::log::lvSuppressLE $level
 	set res [list]
@@ -289,7 +296,7 @@ foreach {level range} {
     alert     {0 0 0 1 0 0 0 0}
     emergency {0 0 0 0 0 0 0 0}
 } {
-    test log-12.3.$level {change suppression state, ranges} {
+    test log-12.4.$level {change suppression state, ranges} {
 	::log::lvSuppressLE emergency ; # initial full supressed state
 	::log::lvSuppressLE $level 0
 	set res [list]
@@ -350,6 +357,28 @@ test log-13.3 {log error} {
 } {"e" is no unique abbreviation of a level name}
 
 
+set lastlevel warning
+foreach level {alert critical debug error emergency info notice warning} {
+    test log-14.0.$level {log::Puts} {
+	makeFile {} test.log
+	::log::lvCmdForall ::log::Puts
+	::log::lvSuppressLE emergency 0
+
+	set old [::log::lv2channel $level]
+	::log::lvChannelForall {}
+	::log::lvChannel $level [open test.log w]
+
+	::log::log $level     __data__
+	::log::log $lastlevel __NOT__
+
+	close  [::log::lv2channel $level]
+	set lastlevel $level
+
+	set log [join [split [viewFile test.log] \n]]
+	list [string match *__data__* $log] [string match *__NOT__* $log]
+    } {1 0}
+}
+::log::lvChannelForall {}
 
 ::tcltest::cleanupTests
 return
