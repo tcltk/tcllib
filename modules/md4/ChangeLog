@@ -2,7 +2,10 @@
 
 	* md4.tcl: Changed the method MD4Final uses to produce the binary
 	result to avoid problems on 64bit architectures.
-
+	* md4.c:     Removed the c_src subdirectory and moved all files
+	* md4.h:     into the md4 module directory. We want to keep the
+	* md4c.tcl:  source tree as flat as possible.
+	
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
