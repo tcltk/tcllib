@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.tcl:
+	* pop3.man:
+	* pkgIndex.tcl:  Set version of the package to to 1.6
+
 2003-04-09  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.man: Documented new API.
