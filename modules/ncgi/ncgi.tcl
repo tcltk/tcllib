@@ -89,24 +89,30 @@ namespace eval ncgi {
 #	call this with the current query data
 #	so the ncgi package can be shared among TclHttpd and CGI scripts.
 #
+#	DO NOT CALL this in a standard cgi environment if you have not
+#	yet processed the query data, which will not be used after a
+#	call to ncgi::reset is made.  Instead, just call ncgi::parse
+#
 # Arguments:
-#	newquery	(optional) The raw query.  If this is specified it
-#			indicates this is either a testing situation or use
-#			within a web server context instead of external CGI.
-#	newtype		(option) The raw content type.
+#	newquery	The query data to be used instead of external CGI.
+#	newtype		The raw content type.
 #
 # Side Effects:
 #	Resets the cached query data and wipes any environment variables
 #	associated with CGI inputs (like QUERY_STRING)
 
-proc ncgi::reset {{newquery {}} {newtype {}}} {
+proc ncgi::reset {args} {
     global env
     variable query
     variable contenttype
     variable cookieOutput
 
     set cookieOutput {}
-    if {[string length $newquery] == 0} {
+    if {[llength $args] == 0} {
+
+	# We use and test args here so we can detect the
+	# difference between empty query data and a full reset.
+
 	if {[info exist query]} {
 	    unset query
 	}
@@ -114,8 +120,8 @@ proc ncgi::reset {{newquery {}} {newtype {}}} {
 	    unset contenttype
 	}
     } else {
-	set query $newquery
-	set contenttype $newtype
+	set query [lindex $args 0]
+	set contenttype [lindex $args 1]
     }
 }
 
