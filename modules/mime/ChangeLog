@@ -1,3 +1,9 @@
+2002-01-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Fixed bug #499242. Extended the non-trf branch of
+	  smtp::wtextaux to detect and transform bare LF's into proper
+	  CR/LF sequences.
+
 2002-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl (qp_encode): Implemented FR #503336, added
