@@ -110,7 +110,7 @@ logical markup, like TMML, may not.
 This command begins a manpage. Nothing is allowed to precede
 it. Arguments are the name of the command described by the manpage,
 the section of the manpages this manpages lives in, the version of the
-module containing the command, the nbame of the module itself and two
+module containing the command, the name of the module itself and two
 descriptions, one short for the command and one a bit longer for the
 module. Both have to fit on one line.
 
@@ -188,6 +188,19 @@ Another way to emphasize text in a general manner.
 Vertical space to separate text without breaking it into a new
 paragraph.
 
+[call [cmd example_begin]] 
+Formats subsequent text as a code sample:
+line breaks, spaces, and tabs are preserved and,
+where appropriate, text is presented in a fixed-width font.
+
+[call [cmd example_end]] 
+End of a code sample block.
+
+[call [cmd example] [arg text]] 
+
+Formats [arg text] as a multi-line block of sample code.
+[arg text] should be enclosed in braces.
+
 [call [cmd list_begin] [arg what]]
 
 Starts new list of type [arg what]. Allowed types are [emph bullet],
@@ -212,9 +225,11 @@ defined.
 
 [call [cmd call] [arg args]]
 
-Starts a new item in a definition list, but the term defiuned by it is
+Starts a new item in a definition list, but the term defined by it is
 a command and its arguments.
 
 [list_end]
+
+[see_also expander(n) formatter(n) mpexpand(n)]
 [keywords manpage TMML HTML nroff conversion markup]
 [manpage_end]

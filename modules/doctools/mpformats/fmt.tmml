@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.1 2001/12/14 23:10:32 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.2 2002/02/12 23:00:13 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -20,30 +20,16 @@
 #
 ######################################################################
 
-proc here {} [list return [file dirname [info script]]]
-source [file join [here] _xml.tcl]
+source [file join [file dirname [info script]] _xml.tcl]
 set this [file tail [info script]]
 
-# Called before the first pass, returns number of passes required for
-# the generation.
-
-proc NumPasses {} {return 2}
-
-# Called before the first output.
-# Reset the syn flag
-proc PassSetup {} {
-    setPassProcs [mp_pass]
-}
-
-# Called after the last pass.
-proc PostProcess {expansion} {
-    return $expansion
-}
-
-# Called to handle plain text from the input
-proc HandleText {text} {
-    xmlEscape $text
-}
+######################################################################
+# mpexpand(n) interface.
+#
+proc NumPasses {}	{ return 2 }
+proc PassSetup {}	{ setPassProcs [mp_pass] }
+proc PostProcess {text}	{ return $text }
+proc HandleText {text}	{ xmlEscape $text }
 
 ######################################################################
 # Utilities.
@@ -76,9 +62,13 @@ proc emph	{text}	{ wrap $text emph }
 proc strong	{text}	{ wrap $text emph }
 proc opt 	{text}	{ wrap $text o }
 
+proc example_begin {}	{ sequence [xmlContext section] "<example>" }
+proc example_end   {}	{ return "</example>" }
+
+proc example {code} 	{ sequence [xmlContext section] [wrap $code example] }
+
 global    state
 array set state {mdesc {}}
-
 
 pass 1 manpage_begin {args} NOP
 pass 2 manpage_begin {title section version} {

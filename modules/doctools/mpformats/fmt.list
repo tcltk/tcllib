@@ -46,6 +46,9 @@ proc list_end    {}                 {}
 proc lst_item    {text}             {}
 proc see_also    {args}             {}
 proc keywords    {args}             {}
+proc example_begin {}               {}
+proc example_end {}                 {}
+proc example     {code}             {}
 proc nl          {}                 {}
 proc bullet      {}                 {}
 proc enum        {}                 {}
@@ -55,7 +58,7 @@ proc emph        {text}             {}
 proc strong      {text}             {}
 proc setx        {v string}         {}
 proc appendx     {v string}         {}
-proc opt         {text} {}
+proc opt         {text}             {}
 
 ################################################################
 

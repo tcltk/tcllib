@@ -9,3 +9,9 @@
 	  format to TMML, nroff and HTML. Extensible, i.e. additional
 	  formats can be added without to much work (Manpages for format
 	  and internal interfaces are provided).
+
+2002-02-12  Joe English  <jenglish@users.sourceforge.net>
+
+	* Added [example_begin] and [example_end] commands.
+	  Also [example { code ... }] command.
+
