@@ -513,18 +513,26 @@ proc ncgi::importAll {args} {
 proc ncgi::redirect {url} {
     global env
 
-    # Create a canonical URL
-
-    if {[info exist env(REQUEST_URI)]} {
-	# Not all servers have the leading protocol spec
-	regsub {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
-    } elseif {[info exist env(SCRIPT_NAME)]} {
-	set request_uri $env(SCRIPT_NAME)
-    } else {
-	set request_uri /
-    }
-
     if {![regexp {^[^:]+://} $url]} {
+
+	# The url is relative (no protocol/server spec in it), so
+	# here we create a canonical URL.
+
+	# request_uri	The current URL used when dealing with relative URLs.  
+	# proto		http or https
+	# server 	The server, which we are careful to match with the
+	#		current one in base Basic Authentication is being used.
+	# port		This is set if it is not the default port.
+
+	if {[info exist env(REQUEST_URI)]} {
+	    # Not all servers have the leading protocol spec
+	    regsub {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
+	} elseif {[info exist env(SCRIPT_NAME)]} {
+	    set request_uri $env(SCRIPT_NAME)
+	} else {
+	    set request_uri /
+	}
+
 	set port ""
 	if {[info exist env(HTTPS)] && $env(HTTPS) == "on"} {
 	    set proto https
@@ -537,11 +545,18 @@ proc ncgi::redirect {url} {
 		set port :$env(SERVER_PORT)
 	    }
 	}
+	# Pick the server from REQUEST_URI so it matches the current
+	# URL.  Otherwise use SERVER_NAME.  These could be different, e.g.,
+	# "pop.scriptics.com" vs. "pop"
+
+	if {![regexp {^https?://([^/:]*)} $env(REQUEST_URI) x server]} {
+	    set server $env(SERVER_NAME)
+	}
 	if {[string match /* $url]} {
-	    set url $proto://$env(SERVER_NAME)$port$url
+	    set url $proto://$server$port$url
 	} else {
 	    regexp {^(.*/)[^/]*$} $request_uri match dirname
-	    set url $proto://$env(SERVER_NAME)$port$dirname$url
+	    set url $proto://$server$port$dirname$url
 	}
     }
     ncgi::header text/html Location $url

@@ -1,3 +1,11 @@
+2000-05-15  Brent Welch <welch@scriptics.com>
+
+	* ncgi.tcl:  Changed ncgi::redirect so it grabs the server name
+	from REQUEST_URI before using the SERVER_NAME value.  This is so
+	the server name matches the previous page better.  Otherwise a
+	transition from "www" to "www.scriptics.com" can trigger
+	Basic Authentication challenges.
+
 2000-05-02  Sandeep Tamhankar <sandeep@scriptics.com>
 
 	* ncgi.tcl: Changed ncgi::parseMimeValue such that a key-value
