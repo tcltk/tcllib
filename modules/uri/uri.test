@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.12 2002/11/15 20:32:34 davidw Exp $
+# RCS: @(#) $Id: uri.test,v 1.13 2002/11/15 23:43:57 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -248,6 +248,13 @@ test uri-5.13-0 {uri::canonicalize} {
     uri::canonicalize http://www.eldritchpress.org/jc/../help.html
 } {http://www.eldritchpress.org/help.html}
 
+test uri-5.14-0 {uri::canonicalize trailing ..} {
+    uri::canonicalize http://www.example.com/foo/bar/..
+} {http://www.example.com/foo/}
+
+test uri-5.14-0 {uri::canonicalize trailing ..} {
+    uri::canonicalize http://www.example.com/..
+} {http://www.example.com/}
 
 test uri-5.1-1 {uri::canonicalize} {
     uri::canonicalize ftp://ftp.test.net/path1/./remove/../path2/resource

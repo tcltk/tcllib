@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.17 2002/11/15 20:45:21 davidw Exp $
+# CVS: $Id: uri.tcl,v 1.18 2002/11/15 23:43:57 davidw Exp $
 
 package require Tcl 8.2
 
@@ -740,7 +740,7 @@ proc uri::canonicalize uri {
 
     set uri $u(path)
 
-    # Remove leading "./" and "../" (and "/../")
+    # Remove leading "./" "../" "/.." (and "/../")
     regsub -all -- {^(\./)+}    $uri {}  uri
     regsub -all -- {^/(\.\./)+} $uri {/} uri
     regsub -all -- {^(\.\./)+}  $uri {}  uri
@@ -749,6 +749,9 @@ proc uri::canonicalize uri {
     while {[regsub -all -- {/\./}         $uri {/} uri]} {}
     while {[regsub -all -- {/[^/]+/\.\./} $uri {/} uri]} {}
     while {[regsub -all -- {^[^/]+/\.\./} $uri {}  uri]} {}
+    # Munge trailing /..
+    while {[regsub -all -- {/[^/]+/\.\.} $uri {/} uri]} {}
+    if { $uri == ".." } { set uri "/" }
 
     set u(path) $uri
     set uri [eval uri::join [array get u]]
