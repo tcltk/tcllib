@@ -1,3 +1,11 @@
+2003-05-25  David N. Welton  <davidw@dedasys.com>
+
+	* irc.tcl: Several cleanups/improvements by Aaron Faupell.
+	(cmd-getevent) Fixed typo.
+	(cmd-user): Added backwards compatible cmd-user.
+	(cmd-connect): Minor improvements/cleanup.
+	(GetEvent): Changed parsing of $line components.
+
 2003-05-22  Andreas Kupries  <andreask@activestate.com>
 
 	* irc.man: Fixed some typos in the manpage which prevented
