@@ -1,3 +1,10 @@
+2003-04-01  Andreas Kupries  <andreask@activestate.com>
+
+	* stooop.man:
+	* stooop.htm: Renamed to 'stoop_man.html'. Updated doctools
+	  documentation to refer to manual under the new name. This
+	  resolves the circular link reported in Tcllib SF bug #687923.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stooop.man: More semantic markup, less visual one.
