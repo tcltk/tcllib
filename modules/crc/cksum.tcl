@@ -11,12 +11,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: cksum.tcl,v 1.6 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: cksum.tcl,v 1.7 2005/03/12 21:11:01 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::crc {
-    variable cksum_version 1.0.1
+    variable cksum_version 1.1.0
 
     namespace export cksum
 
@@ -72,48 +72,61 @@ namespace eval ::crc {
            0x8D79E0BE 0x803AC667 0x84FBDBD0 0x9ABC8BD5 0x9E7D9662 \
            0x933EB0BB 0x97FFAD0C 0xAFB010B1 0xAB710D06 0xA6322BDF \
            0xA2F33668 0xBCB4666D 0xB8757BDA 0xB5365D03 0xB1F740B4 ]
+
+    variable uid ; if {![info exists uid]} {set uid 0}
 }
 
-# Description:
-#  Calculate a cksum(1) compatible 32 bit checksum for the input data.
-#  
-#  This procedure has been broken into two parts to permit working on
-#  a file in small sections.
+# crc::CksumInit -- 
 #
-proc ::crc::Cksum {s} {
-    set t 0
-    set l 0
-    Cksum_chunk s t l
-    return [Cksum_finalize t l]
+#	Create and initialize a cksum context. This is cleaned up when we
+#	call CksumFinal to obtain the result.
+#
+proc ::crc::CksumInit {} {
+    variable uid
+    set token [namespace current]::[incr uid]
+    upvar #0 $token state
+    array set state {t 0 l 0}
+    return $token
 }
 
-proc ::crc::Cksum_chunk {data_var sum_var len_var} {
+proc ::crc::CksumUpdate {token data} {
     variable cksum_tbl
-    upvar $data_var s
-    upvar $sum_var t
-    upvar $len_var l
-
-    binary scan $s c* r
+    upvar #0 $token state
+    set t $state(t)
+    binary scan $data c* r
     foreach {n} $r {
         set t [expr {($t << 8)
                      ^ [lindex $cksum_tbl [expr {
                                                  (($t >> 24) \
                                                       ^ ($n & 0xFF)) & 0xFF
                                              }]]}]
-        incr l
+        incr state(l)
     }
+    set state(t) $t
+    return
 }
 
-proc ::crc::Cksum_finalize {sum_var len_var} {
+proc ::crc::CksumFinal {token} {
     variable cksum_tbl
-    upvar $sum_var t
-    upvar $len_var l
-    for {set i $l} {$i > 0} {set i [expr {$i>>8}]} {
+    upvar #0 $token state
+    set t $state(t)
+    for {set i $state(l)} {$i > 0} {set i [expr {$i>>8}]} {
         set t [expr {($t << 8) \
                          ^ [lindex $cksum_tbl \
                                 [expr {(($t >> 24) ^ $i) & 0xFF}]]}]
     }
     return [expr {~$t & 0xFFFFFFFF}]
+}
+
+# crc::Pop --
+#
+#	Pop the nth element off a list. Used in options processing.
+#
+proc ::crc::Pop {varname {nth 0}} {
+    upvar $varname args
+    set r [lindex $args $nth]
+    set args [lreplace $args $nth $nth]
+    return $r
 }
 
 # Description:
@@ -124,55 +137,55 @@ proc ::crc::Cksum_finalize {sum_var len_var} {
 #  -chunksize size - set the chunking read size
 #
 proc ::crc::cksum {args} {
-    set filename {}
-    set format %u
-    set chunksize 10240
-    while {[string match -* [lindex $args 0]]} {
-        switch -glob -- [lindex $args 0] {
-            -fi* {
-                set filename [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -fo* {
-                set format [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -ch* -
-            -bu* {
-                set chunksize [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -- {
-                set args [lreplace $args 0 0]
-                break
-            }
+    array set opts [list -filename {} -channel {} -chunksize 4096 \
+                        -format %u -command {}]
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
+            -file*   { set opts(-filename) [Pop args 1] }
+            -chan*   { set opts(-filename) [Pop args 1] }
+            -chunk*  { set opts(-filename) [Pop args 1] }
+            -for*    { set opts(-format)   [Pop args 1] }
+            -command { set opts(-command)  [Pop args 1] }
             default {
-                return -code error "bad option [lindex $args 0]:\
-                     must be -filename or -format"
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args ; break }
+                set err [koin [lsort [array names opts -*]] ", "]
+                return -code error "bad option \"option\": must be $err"
             }
         }
-        set args [lreplace $args 0 0]
+        Pop args
     }
 
-    if {$filename != {}} {
-        set cksum 0
-        set cklen 0
-        set f [open $filename r]
-        fconfigure $f -translation binary
-        while {![eof $f]} {
-            set chunk [read $f $chunksize]
-            Cksum_chunk chunk cksum cklen
-        }
-        close $f
-        set r [Cksum_finalize cksum cklen]
-    } else {
-        if {[llength $args] != 1} {
-            return -code error "wrong # args: should be \
-                 \"cksum ?-format string? -file name | data\""
-        }
-        set r [Cksum [lindex $args 0]]
+    if {$opts(-filename) != {}} {
+        set opts(-channel) [open $opts(-filename) r]
+        fconfigure $opts(-channel) -translation binary
     }
-    return [format $format $r]
+
+    if {$opts(-channel) == {}} {
+
+        if {[llength $args] != 1} {
+            return -code error "wrong # args: should be\
+                cksum ?-format string?\
+                -channel chan | -filename file | string"
+        }
+        set tok [CksumInit]
+        CksumUpdate $tok [lindex $args 0]
+        set r [CksumFinal $tok]
+    
+    } else {
+
+        set tok [CksumInit]
+        while {![eof $opts(-channel)]} {
+            CksumUpdate $tok [read $opts(-channel) $opts(-chunksize)]
+        }
+        set r [CksumFinal $tok]
+
+        if {$opts(-filename) != {}} {
+            close $opts(-channel)
+        }
+    }
+
+    return [format $opts(-format) $r]
 }
 
 # -------------------------------------------------------------------------

@@ -117,6 +117,7 @@ result is a 32 bit integer value.
 483919716
 }]
 
+[para]
 [example {
 % set tok [crc::Crc32Init]
 % crc::Crc32Update $tok "Hello, "
