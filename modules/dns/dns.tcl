@@ -20,15 +20,15 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.2 2002/06/07 17:15:00 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.3 2002/06/07 17:16:50 andreas_kupries Exp $
 
 package require log;                    # tcllib 1.0
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
-    variable version 1.0
-    variable rcsid {$Id: dns.tcl,v 1.2 2002/06/07 17:15:00 andreas_kupries Exp $}
+    variable version 1.0.1
+    variable rcsid {$Id: dns.tcl,v 1.3 2002/06/07 17:16:50 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup
