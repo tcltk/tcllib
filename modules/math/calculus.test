@@ -1,21 +1,35 @@
 # calculus.test --
 #    Test cases for the Calculus package
 #
-package require tcltest
+# This file contains a collection of tests for one or more of the Tcllib
+# procedures.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 2002, 2003, 2004 by Arjen Markus.
+# Copyright (c) 2004 by Kevin B. Kenny
+# All rights reserved.
+#
+# RCS: @(#) $Id: calculus.test,v 1.5 2004/07/05 03:39:46 kennykb Exp $
+
+package require tcltest 2
+
+source [file join [pwd] [file dirname [info script]] misc.tcl]
+source [file join [pwd] [file dirname [info script]] interpolate.tcl]
 source [file join [pwd] [file dirname [info script]] calculus.tcl]
 
-puts "math::calculus [package present math::calculus]"
-
+package require math::calculus 0.6
 
 package require log
 log::lvSuppress notice
-
 
 namespace eval ::math::calculus::test {
 
 namespace import ::tcltest::test
 namespace import ::tcltest::cleanupTests
 namespace import ::math::calculus::*
+
+set prec $::tcl_precision
+set ::tcl_precision 17
 
 #
 # Simple test functions - exact result predictable!
@@ -156,7 +170,336 @@ test "NewtonRaphson-2.1" "Result should be nearly 0.56714" {
    }
 } 1
 
+proc checkout { expr integrator a b target } {
+    set problems {}
+    proc g x [list expr $expr]
+    set cmd $integrator
+    lappend cmd g $a $b
+    foreach { s error } [eval $cmd] break
+    set diff [expr { abs( $s - $target ) }]
+    if { $diff > 1.0e-6 * $target && $diff > 1.0e-10 } {
+	append problems \n  "error underestimated!" \
+	    \n "f =" $expr ", a=" $a ", b=" $b \
+	    \n "machinery = " $integrator "," \
+	    \n "estimated " $error " actual " $diff
+    }
+    return $problems
+}
+
+test romberg-1.1 {simple integral} {
+    checkout { pow( $x, 16 ) } romberg -1. 1. [expr { 2. / 17. }]
+} {}
+test romberg-1.2 {simple integral} {
+    checkout { exp( -$x * $x / 2. ) / sqrt( 2. * 3.1415926535897932 ) } \
+	romberg -1. 1. 0.68268949213708590
+} {}
+test romberg-1.3 {simple integral} {
+    checkout { sin($x) } romberg 0 3.1415926535897932 2.0
+} {}
+
+test romberg-1.4  { Singularity where limit exists } {
+    checkout { sin($x)/$x } romberg 0 3.1415926535897932 1.8519370519824662
+} {}
+
+test romberg-1.5 { Parameter error } {
+    catch {romberg irrelevant 0 1 -degree} result
+    set result
+} "wrong \# args, should be \"romberg f x1 x2 ?-option value?...\""
+
+test romberg-1.6 { Parameter error } {
+    catch {romberg irrelevant 0 1 -bad flag} result
+    set result
+} "unknown option \"-bad\", should be -abserror, -degree, -relerror, or\
+   -maxiter"
+
+test romberg-1.7 { Max iterations exceeded } \
+    -setup {
+	proc f x { expr { pow($x,4) } }
+    } \
+    -body {
+	foreach { value error } [romberg f -1. 1. -degree 1 -maxiter 3 ] break
+	expr { abs($value - 0.4) < $error }
+    } \
+    -cleanup {
+	rename f {}
+    } \
+    -result 1
+
+test romberg-1.8 {Bad param} {
+    catch {romberg irrelevant 0 1 -degree bad} result
+    set result
+} {expected an integer but found "bad"}
+
+test romberg-1.9 {Bad param} {
+    catch {romberg irrelevant 0 1 -degree 0} result
+    set result
+} {-degree must be positive}
+
+test romberg-1.10 {Bad param} {
+    catch {romberg irrelevant 0 1 -maxiter bad} result
+    set result
+} {expected an integer but found "bad"}
+
+test romberg-1.11 {Bad param} {
+    catch {romberg irrelevant 0 1 -maxiter 0} result
+    set result
+} {-maxiter must be positive}
+
+test romberg-1.12 {Bad param} {
+    catch {romberg irrelevant 0 1 -abserror bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-1.13 {Bad param} {
+    catch {romberg irrelevant 0 1 -abserror 0.} result
+    set result
+} {-abserror must be positive}
+
+test romberg-1.14 {Bad param} {
+    catch {romberg irrelevant 0 1 -relerror bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-1.15 {Bad param} {
+    catch {romberg irrelevant 0 1 -relerror 0.} result
+    set result
+} {-relerror must be positive}
+
+test romberg-1.16 {Bad limit } {
+    catch {romberg irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-1.17 {Bad limit} {
+    catch {romberg irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-2.1 {Integral over half-infinite interval} {
+    checkout { exp( -$x * $x / 2. ) / sqrt( 2. * 3.1415926535897932 ) } \
+	romberg_infinity -30. -1. 0.15865525393145705
+} {}
+test romberg-2.2 {Integral over half-infinite interval} {
+    checkout { exp( -$x * $x / 2. ) / sqrt( 2. * 3.1415926535897932 ) } \
+	romberg_infinity 1. 30. 0.15865525393145705
+} {}
+test romberg-2.3 {Integral over half-infinite interval} {
+    checkout { exp( $x )  } romberg_infinity -1.e38 -1. [expr { exp(-1.) }]
+} {}
+test romberg-2.4 {Parameter error} {
+    catch {romberg_infinity irrelevant -1.e38 2.} result
+    set result
+} {limits of integration have opposite sign}
+
+test romberg-2.5 {Bad limit } {
+    catch {romberg_infinity irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-2.6 {Bad limit} {
+    catch {romberg_infinity irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-3.1 {Square root singularity at the upper bound} {
+    checkout { sqrt( 1.0 / ( 1.0 - $x ) ) } romberg_sqrtSingUpper 0. 1. 2.
+} {}
+
+test romberg-3.2 \
+    {Square root singularity in the derivative at the upper bound} {
+	checkout { 4. * sqrt( 1.0 - $x * $x ) } romberg_sqrtSingUpper 0. 1. \
+	    3.1415926535897932
+    } {}
+
+test romberg-3.3 {Square root singularity at the lower bound} {
+    checkout { 1.0 / sqrt($x) } romberg_sqrtSingLower 0. 4. 4.
+} {}
+
+test romberg-3.4 \
+    {Square root singularity in the derivative at the lower bound} {
+	checkout { 4. * sqrt( 1.0 - $x * $x ) } romberg_sqrtSingLower -1. 0. \
+	    3.1415926535897932
+    } {}
+
+test romberg-3.5 {Bad limit } {
+    catch {romberg_sqrtSingUpper irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-3.6 {Bad limit} {
+    catch {romberg_sqrtSingUpper irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-3.7 {Bad limits} {
+    catch {romberg_sqrtSingUpper irrelevant 1 0} result
+    set result
+} {limits of integration out of order}
+
+test romberg-3.8 {Bad limit } {
+    catch {romberg_sqrtSingLower irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-3.9 {Bad limit} {
+    catch {romberg_sqrtSingLower irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-3.10 {Bad limits} {
+    catch {romberg_sqrtSingLower irrelevant 1 0} result
+    set result
+} {limits of integration out of order}
+
+test romberg-4.1 {Power law singularity at the lower bound} {
+    checkout { 1.0 / sqrt($x) } [list romberg_powerLawLower 0.5] 0. 4. 4.
+} {}
+
+test romberg-4.2 \
+    {Power law signularity in the derivative at the lower bound.} {
+	checkout { sqrt( sqrt( $x ) ) } \
+	    [list romberg_powerLawLower 0.75] 0. 1. 0.8
+    } {}
+
+test romberg-4.3 {Power law singularity at the upper bound} {
+    checkout { 1.0 / sqrt(4.0 - $x) } \
+	[list romberg_powerLawUpper 0.5] 0. 4. 4.
+} {}
+
+test romberg-4.4 \
+    {Power law singularity in the derivative at the upper bound} {
+	checkout { sqrt( sqrt( -$x ) ) } \
+	    [list romberg_powerLawUpper 0.75] -1. 0. 0.8
+    } {}
+
+test romberg-4.5 {Bad limit } {
+    catch {romberg_powerLawUpper 0.5 irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-4.6 {Bad limit} {
+    catch {romberg_powerLawUpper 0.5 irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-4.7 {Bad limits} {
+    catch {romberg_powerLawUpper 0.5 irrelevant 1 0} result
+    set result
+} {limits of integration out of order}
+
+test romberg-4.8 {Bad limit } {
+    catch {romberg_powerLawLower 0.5 irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-4.9 {Bad limit} {
+    catch {romberg_powerLawLower 0.5 irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-4.10 {Bad limits} {
+    catch {romberg_powerLawLower 0.5 irrelevant 1 0} result
+    set result
+} {limits of integration out of order}
+
+test romberg-4.11 {Bad gamma} {
+    catch {romberg_powerLawUpper bad irrelevant 1 0} result
+    set result
+} {expected a floating-point number but found "bad"}
+test romberg-4.12 {Bad gamma} {
+    catch {romberg_powerLawUpper 0. irrelevant 1. 0.} result
+    set result
+} {gamma must lie in the interval (0,1)}
+test romberg-4.13 {Bad gamma} {
+    catch {romberg_powerLawUpper 1. irrelevant 1. 0.} result
+    set result
+} {gamma must lie in the interval (0,1)}
+test romberg-4.14 {Bad gamma} {
+    catch {romberg_powerLawLower bad irrelevant 1 0} result
+    set result
+} {expected a floating-point number but found "bad"}
+test romberg-4.15 {Bad gamma} {
+    catch {romberg_powerLawLower 0. irrelevant 1. 0.} result
+    set result
+} {gamma must lie in the interval (0,1)}
+test romberg-4.16 {Bad gamma} {
+    catch {romberg_powerLawLower 1. irrelevant 1. 0.} result
+    set result
+} {gamma must lie in the interval (0,1)}
+
+test romberg-5.1 {Function that decays exponentially} {
+    checkout { exp( -$x * $x / 2. ) / sqrt( 2. * 3.1415926535897932 ) } \
+	romberg_expUpper 1. 100. 0.15865525393145705
+} {}
+
+test romberg-5.2 {Function that grows exponentially} {
+    checkout { exp( -$x * $x / 2. ) / sqrt( 2. * 3.1415926535897932 ) } \
+	romberg_expLower -100. -1. 0.15865525393145705
+} {}
+
+test romberg-5.3 {Bad limit } {
+    catch {romberg_sqrtSingUpper irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-5.4 {Bad limit} {
+    catch {romberg_sqrtSingUpper irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-5.5 {Bad limits} {
+    catch {romberg_sqrtSingUpper irrelevant 1 0} result
+    set result
+} {limits of integration out of order}
+
+test romberg-5.6 {Bad limit } {
+    catch {romberg_sqrtSingLower irrelevant bad 1} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-5.7 {Bad limit} {
+    catch {romberg_sqrtSingLower irrelevant 0 bad} result
+    set result
+} {expected a floating-point number but found "bad"}
+
+test romberg-5.8 {Bad limits} {
+    catch {romberg_sqrtSingLower irrelevant 1 0} result
+    set result
+} {limits of integration out of order}
+
+test romberg-6.1 {Fancy integration} \
+    -setup {
+	proc v {f u} {
+	    set x [expr { sin($u) }]
+	    set cmd $f; lappend cmd $x; set y [eval $cmd]
+	    return [expr { $y * cos($u) }]
+	}
+	proc romberg_sine { f a b args } {
+	    set f [lreplace $f 0 0 \
+		       [uplevel 1 [list namespace which [lindex $f 0]]]]
+	    set f [list v $f]
+	    return [eval [linsert $args 0 \
+			      romberg $f \
+			      [expr { asin($a) }] [expr { asin($b) }]]]
+	}
+    } \
+    -body {
+	checkout { exp($x) / sqrt( 1. - $x * $x ) } romberg_sine -1. 1. \
+	    3.97746326
+    } \
+    -cleanup {
+	rename v {}
+	rename romberg_sine {}
+    } \
+    -result {}
+	    
+set ::tcl_precision $prec
+
 cleanupTests
 }
 
 namespace delete ::math::calculus::test
+
+# Local Variables:
+# mode: tcl
+# End:
