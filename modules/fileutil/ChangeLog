@@ -1,3 +1,28 @@
+2003-10-23  David N. Welton  <davidw@dedasys.com>
+
+	* fileutil.test (tempdir): Added a few very simple tests for
+	tempdir under Unix.
+
+	* fileutil.tcl (::fileutil::tempdir): Added tempdir
+	implementation.
+	(::fileutil::tempfile): Use new tempdir command.
+
+2003-10-22  David N. Welton  <davidw@dedasys.com>
+
+	* fileutil.tcl (::fileutil::find): Change Unix version of find
+	command to accept a file (as opposed to a directory) as an
+	argument.  This reflects the behavior of the Unix find
+	command. This change also needs to be added to the windows
+	version, but should probably be done by someone who can test it on
+	that platform.
+	(::fileutil::install): -m option only works on Unix, as far as I
+	know.
+	(::fileutil::install): Make sure correct thing is chmod'ed.
+
+	* fileutil.test: Added tests for find to check that it works ok
+	with a single file as an argument.  Also, error out if initial
+	file does not correspond to 'isfile' or 'isdirectory'.
+
 2003-09-03  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (fileutil::fileType): Fixed the SourceForge Tcllib
