@@ -1,5 +1,12 @@
 2002-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* comm: Fixed SF Bug #589225.
+
+	* Makefile.in (install-doc): Restored the code inlining the
+	  man.macros file into the generated nroff manpages. Got somehow
+	  deleted. Was still in the 'dist' target. Thanks to Reinhard Max
+	  <rmax@users.sourceforge.net> for noticing this.
+
 	* struct (pool): Fixed bug SF #585093.
 	* struct (tree): Fixed bug SF #587533.
 
