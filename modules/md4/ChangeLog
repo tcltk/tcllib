@@ -1,3 +1,11 @@
+2003-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4.tcl: Implemented chunked reading from file or
+	channel, added -file and -channel options to md4.
+	Implemented hmac command with -key option.
+	Provide MD4Init, MD4Update, MD4Final as per C-usage to permit use
+	on streaming data.
+	
 2003-04-15  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md4.test: 
