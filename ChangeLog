@@ -1,3 +1,8 @@
+2000-06-09  Brent Welch <welch@scriptics.com>
+
+	* configure.in: Bumped patchlevel to 0.5
+	applied tcllib-0-5 tag
+
 2000-06-02  Eric Melski  <ericm@scriptics.com>
 
 	* Makefile.in: Added ftp package.
