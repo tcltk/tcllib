@@ -61,6 +61,15 @@ A list of keywords and their values (may occur zero or more times).
 This package supports the RFC 3207 TLS extension by default provided the 
 tls package is available. You can turn this off with this boolean option.
 
+[lst_item [option -tlspolicy]]
+
+This option lets you specify a command to be called if an error occurs 
+during TLS setup. The command is called with the SMTP code and diagnostic
+message appended. The command should return 'secure' or 'insecure' where
+insecure will cause the package to continue on the unencrypted channel.
+Returning 'secure' will cause the socket to be closed and the next server
+in the [option -servers] list to be tried.
+
 [list_end]
 [nl]
 

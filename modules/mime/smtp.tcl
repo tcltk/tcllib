@@ -91,6 +91,10 @@ if {[catch {package require Trf  2.0}]} {
 #                          is 120 seconds.
 #             -usetls      A boolean flag. If the server supports it and we
 #                          have the package, use TLS to secure the connection.
+#             -tlspolicy   A command to call if the TLS negotiation fails for
+#                          some reason. Return 'insecure' to continue with
+#                          normal SMTP or 'secure' to close the connection and
+#                          try another server.
 #
 # Results:
 #	Message is sent.  On success, return "".  On failure, throw an
@@ -115,6 +119,7 @@ proc ::smtp::sendmessage {part args} {
     set servers [list localhost]
     set ports [list 25]
     set tlsP 1
+    set tlspolicy {}
 
     array set header ""
 
@@ -137,6 +142,7 @@ proc ::smtp::sendmessage {part args} {
             -debug      {set debugP [boolean $value]}
             -queue      {set queueP [boolean $value]}
             -usetls     {set tlsP   [boolean $value]}
+            -tlspolicy  {set tlspolicy $value}
 	    -maxsecs    {set maxsecs [expr {$value < 0 ? 0 : $value}]}
             -header {
                 if {[llength $value] != 2} {
@@ -390,7 +396,8 @@ proc ::smtp::sendmessage {part args} {
     set token [initialize -debug $debugP -client $client \
 		                -maxsecs $maxsecs -usetls $tlsP \
                                 -multiple $bccP -queue $queueP \
-                                -servers $servers -ports $ports]
+                                -servers $servers -ports $ports \
+                                -tlspolicy $tlspolicy]
 
     if {![string match "::smtp::*" $token]} {
 	# An error occurred and $token contains the error info
@@ -562,6 +569,7 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 #             -ports       A list of ports on mail servers that could process
 #                          the request (one port per server-- defaults to 25).
 #             -usetls      A boolean to indicate we will use TLS if possible.
+#             -tlspolicy   Command called if TLS setup fails.
 #
 # Results:
 #	On success, return an smtp token.  On failure, throw
@@ -579,7 +587,8 @@ proc ::smtp::initialize {args} {
 
     array set state [list afterID "" options "" readable 0]
     array set options [list -debug 0 -client localhost -multiple 1 \
-                            -maxsecs 120 -queue 0 -servers localhost -ports 25]
+                            -maxsecs 120 -queue 0 -servers localhost \
+                            -ports 25 -usetls 1 -tlspolicy {}]
     array set options $args
     set state(options) [array get options]
 
@@ -649,6 +658,10 @@ proc ::smtp::initialize {args} {
 
 proc ::smtp::initialize_ehlo {token} {
     global errorCode errorInfo
+    upvar einfo einfo
+    upvar ecode ecode
+    upvar code  code
+    
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -690,21 +703,46 @@ proc ::smtp::initialize_ehlo {token} {
         }
         
         # Support STARTTLS extension.
+        # The state(tls) item is used to see if we have already tried this.
         if {($options(-usetls)) && ![info exists state(tls)] \
                 && (([lsearch $response(args) STARTTLS] >= 0)
                     || ([lsearch $response(args) TLS] >= 0))} {
             if {![catch {package require tls}]} {
                 set state(tls) 0
-                if {![catch {smtp::talk $token 300 STARTTLS}]} {
-                    fileevent $state(sd) readable {}
-                    catch {
-                        ::tls::import $state(sd)
-                        catch {::tls::handshake $state(sd)} msg
-                        set state(tls) 1
-                    } 
-                    fileevent $state(sd) readable \
-                        [list ::smtp::readable $token]
-                    return [initialize_ehlo $token]
+                if {![catch {smtp::talk $token 300 STARTTLS} resp]} {
+                    array set starttls $resp
+                    if {$starttls(code)} {
+                        if {$code == 250} {
+                            fileevent $state(sd) readable {}
+                            catch {
+                                ::tls::import $state(sd)
+                                catch {::tls::handshake $state(sd)} msg
+                                set state(tls) 1
+                            } 
+                            fileevent $state(sd) readable \
+                                [list ::smtp::readable $token]
+                            return [initialize_ehlo $token]
+                        } else {
+                            # Call a TLS client policy proc here
+                            #  returns secure close and try another server.
+                            #  returns insecure continue on current socket
+                            set policy insecure
+                            if {$options(-tlspolicy) != {}} {
+                                catch {
+                                    eval $options(-tlspolicy) \
+                                        [list $starttls(code)] \
+                                        [list $starttls(diagnostic)]
+                                } policy
+                            }
+                            if {$policy != "insecure"} {
+                                set code error
+                                set ecode $starttls(code)
+                                set einfo $starttls(diagnostic)
+                                catch {close $state(sd)}
+                                return {}
+                            }
+                        }
+                    }
                 }
             }
         }
