@@ -1,6 +1,8 @@
-# Tests for [control::do]
+# do.test --
 #
-# RCS: @(#) $Id: do.test,v 1.1 2001/11/07 10:40:01 rmax Exp $
+#         Tests for [control::do]
+# 
+# RCS: @(#) $Id: do.test,v 1.2 2001/11/09 04:59:45 dgp Exp $
 #
 
 package forget control
@@ -141,6 +143,61 @@ test do-1.11 {third arg is neither while nor until} {
     list $x $result
 } {0 {bad option "foo": must be until, or while}}
 
+# ----------------------------------------
+test do-1.12 {stack traces for errors in the first iteration} {
+    proc a {} b
+    proc b {} {do c while 1}
+    proc c {} d
+    catch a
+    set ::errorInfo
+} {invalid command name "d"
+    while executing
+"d"
+    (procedure "c" line 1)
+    invoked from within
+"c"
+    ("do" body line 1)
+    invoked from within
+"do c while 1"
+    (procedure "b" line 1)
+    invoked from within
+"b"
+    (procedure "a" line 1)
+    invoked from within
+"a"}
+
+# ----------------------------------------
+test do-1.14 {stack traces for errors in subsequent iterations} {
+    proc a {} b
+    proc b {} {
+	set i 10
+	do {
+	    incr i -1
+	    c $i
+	} while {$i}
+    }
+    proc c {i} {if {$i==5} e}
+    catch a
+    set ::errorInfo
+} {invalid command name "e"
+    while executing
+"e"
+    (procedure "c" line 1)
+    invoked from within
+"c $i"
+    ("do" body line 3)
+    invoked from within
+"do {
+	    incr i -1
+	    c $i
+	} while {$i}"
+    (procedure "b" line 3)
+    invoked from within
+"b"
+    (procedure "a" line 1)
+    invoked from within
+"a"}
+
 cleanupTests
 
 # a proc that wastes some time
@@ -172,3 +229,7 @@ proc main {} {
 }
 main
 
+# Local variables:
+# mode: tcl
+# mode: font-lock
+# End:
