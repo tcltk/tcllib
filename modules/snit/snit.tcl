@@ -191,14 +191,16 @@ set ::snit::typeTemplate {
     #
     # These commands might be replaced during compilation:
 
-    # Snit_constructor type selfns win self args
-    #
-    # By default, just configures any passed options.  
-    # Redefined by the "constructor" definition, hence always redefined
-    # for widgets.
+    if 0 {
+        # Snit_constructor type selfns win self args
+        #
+        # By default, just configures any passed options.  
+        # Redefined by the "constructor" definition, hence always redefined
+        # for widgets.
 
-    proc %TYPE%::Snit_constructor {type selfns win self args} { 
-        $self configurelist $args
+        proc %TYPE%::Snit_constructor {type selfns win self args} { 
+            $self configurelist $args
+        }
     }
 
     # Snit_destructor type selfns win self
@@ -268,6 +270,8 @@ namespace eval ::snit:: {
     # tvprocdec:             Type variable proc declarations.
     # typeconstructor:       Type constructor body.
     # widgetclass:           The widgetclass, for snit::widgets, only
+    # hasoptions:            False, initially; set to true when first
+    #                        option is defined.
     # localoptions:          Names of local options.
     # delegatedoptions:      Names of delegated options.
     # localmethods:          Names of locally defined methods.
@@ -279,6 +283,8 @@ namespace eval ::snit:: {
     # typevars:              Typevariable definitions and initializations.
     # varnames:              Names of instance variables
     # typevarnames           Names of type variables
+    # hasconstructor         False, initially; true when constructor is
+    #                        defined.
     # resource-$opt          The option's resource name
     # class-$opt             The option's class
     # -default-$opt          The option's default value
@@ -383,6 +389,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(type) $type
     set compile(defs) {}
     set compile(which) $which
+    set compile(hasoptions) no
     set compile(localoptions) {}
     set compile(instancevars) {}
     set compile(typevars) {}
@@ -400,6 +407,7 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(typecomponents) {}
     set compile(varnames) {}
     set compile(typevarnames) {}
+    set compile(hasconstructor) no
     set compile(-hastypeinfo) yes
     set compile(-hasinfo) yes
     set compile(-hastypedestroy) yes
@@ -445,14 +453,30 @@ proc ::snit::Comp.Compile {which type body} {
                 using {::snit::RT.method.info %t %n %w %s}
         }
 
-        Comp.statement.variable options
+        # Add the option handling stuff if there are any options.
+        if {$compile(hasoptions)} {
+            Comp.statement.variable options
 
-        Comp.statement.delegate method cget \
-            using {::snit::RT.method.cget %t %n %w %s}
-        Comp.statement.delegate method configurelist \
-            using {::snit::RT.method.configurelist %t %n %w %s}
-        Comp.statement.delegate method configure \
-            using {::snit::RT.method.configure %t %n %w %s}
+            Comp.statement.delegate method cget \
+                using {::snit::RT.method.cget %t %n %w %s}
+            Comp.statement.delegate method configurelist \
+                using {::snit::RT.method.configurelist %t %n %w %s}
+            Comp.statement.delegate method configure \
+                using {::snit::RT.method.configure %t %n %w %s}
+        }
+
+        # Add a default constructor, if they haven't already defined one.
+        # If there are options, it will configure args; otherwise it
+        # will do nothing.
+        if {!$compile(hasconstructor)} {
+            if {$compile(hasoptions)} {
+                Comp.statement.constructor {args} {
+                    $self configurelist $args
+                }
+            } else {
+                Comp.statement.constructor {} {}
+            }
+        }
 
         if {!$isWidget} {
             Comp.statement.delegate method destroy \
@@ -662,6 +686,7 @@ proc ::snit::Comp.statement.constructor {arglist body} {
     # Next, add variable declarations to body:
     set body "%TVARDECS%%IVARDECS%\n$body"
 
+    set compile(hasconstructor) yes
     append compile(defs) "proc %TYPE%::Snit_constructor [list $arglist] [list $body]\n"
 } 
 
@@ -698,6 +723,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
 
     if {![Contains $option $compile(localoptions)]} {
         # Remember that we've seen this one.
+        set compile(hasoptions) yes
         lappend compile(localoptions) $option
         
         # Initialize compilation info for this option.
@@ -1391,6 +1417,9 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
         [string equal $target ""]} {
         set target $option
     }
+
+    # NEXT, save the delegation data.
+    set compile(hasoptions) yes
 
     if {![string equal $option "*"]} {
         lappend compile(delegatedoptions) $option
