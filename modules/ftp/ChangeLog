@@ -1,3 +1,8 @@
+2001-08-01  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* ftp.tcl: added eval in ftp::List wrapper when used in tkcon.
+	[Bug: #439779] (loring)
+
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.tcl: Frink 2.2 run, fixed dubious code.

@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.12 2001/07/10 20:39:46 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.13 2001/08/02 01:05:35 hobbs Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -2767,13 +2767,13 @@ proc ftp::Command {cb msg args} {
 
 # ?????? Hmm, how to do multithreaded for tkcon?
 # added TkCon support
-# TkCon is (c) 1995-1999 Jeffrey Hobbs, http://www.purl.org/net/hobbs/tcl/script/tkcon/
+# TkCon is (c) 1995-2001 Jeffrey Hobbs, http://tkcon.sourceforge.net/
 # started with: tkcon -load ftp
 if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 
     # new ftp::List proc makes the output more readable
     proc ::ftp::__ftp_ls {args} {
-        foreach i [::ftp::List_org $args] {
+        foreach i [eval ::ftp::List_org $args] {
             puts $i
         }
     }
