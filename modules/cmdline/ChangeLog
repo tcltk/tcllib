@@ -1,3 +1,10 @@
+2003-04-10  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl:
+	* cmdline.tcl:
+	* cmdline.man: Fixed bug #648679. Fixed bug #614591. Set version
+	  of the package to to 1.2.1
+
 2003-02-23  David N. Welton  <davidw@dedasys.com>
 
 	* cmdline.tcl (cmdline::getfiles): Use string map instead of
