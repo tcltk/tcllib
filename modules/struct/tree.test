@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.23 2003/07/07 07:00:30 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.24 2003/08/07 18:49:58 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -17,128 +17,833 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 source [file join [file dirname [info script]] tree.tcl]
 namespace import struct::tree::tree
 
-test tree-0.1 {tree errors} {
+# Takes a dictionary, returns a list containing the same dictionary,
+# however the keys are sorted alphabetically. This allows for a true
+# comparison of dictionary results.
+
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+	lappend out $key $a($key)
+    }
+    return $out
+}
+
+# Callback for tree walking. Remembers the node
+# in a global variable.
+
+proc walker {node} {
+    lappend ::FOO $node
+}
+
+# Validate a serialization against the tree it
+# was generated from.
+
+proc validate_serial {t serial {rootname {}}} {
+    if {$rootname == {}} {
+	set rootname [$t rootname]
+    }
+
+    # List length is multiple of 3
+    if {[llength $serial] % 3} {
+	return serial/wrong#elements
+    }
+
+    # Scan through list and built a number helper
+    # structures (arrays).
+
+    array set a  {}
+    array set p  {}
+    array set ch {}
+    foreach {node parent attr} $serial {
+	# Node has to exist in tree
+	if {![$t exists $node]} {
+	    return node/$node/unknown
+	}
+	if {![info exists ch($node)]} {set ch($node) {}}
+	# Parent reference has to be empty or
+	# integer, == 0 %3, >=0, < length serial
+	if {$parent != {}} {
+	    if {![string is integer -strict $parent]} {
+		return node/$node/parent/no-integer/$parent
+	    }
+	    if {$parent % 3} {
+		return node/$node/parent/not-triple/$parent
+	    }
+	    if {$parent < 0} {
+		return node/$node/parent/out-of-bounds/$parent
+	    }
+	    if {$parent >= [llength $serial]} {
+		return node/$node/parent/out-of-bounds/$parent
+	    }
+	    # Resolve parent index into node name, has to match
+	    set parentnode [lindex $serial $parent]
+	    if {![$t exists $parentnode]} {
+		return node/$node/parent/unknown/$parent/$parentnode
+	    }
+	    if {![string equal [$t parent $node] $parentnode]} {
+		return node/$node/parent/mismatch/$parent/$parentnode/[$t parent $node]
+	    }
+	    lappend ch($parentnode) $node
+	} else {
+	    set p($node) {}
+	}
+	# Attr list has to be of even length.
+	if {[llength $attr] % 2} {
+	    return attr/$node/wrong#elements
+	}
+	# Attr have to exist and match in all respects
+	if {![string equal \
+		[dictsort $attr] \
+		[dictsort [$t getall $node]]]} {
+	    return attr/$node/mismatch
+	}
+    }
+    # Second pass, check that the children information is encoded
+    # correctly. Reconstructed data has to match originals.
+
+    foreach {node parent attr} $serial {
+	if {![string equal $ch($node) [$t children $node]]} {
+	    return node/$node/children/mismatch
+	}
+    }
+
+    # Reverse check
+    # - List of nodes from the 'rootname' and check
+    #   that it and all its children are present
+    #   in the structure.
+
+    set ::FOO {}
+    mytree walk $rootname -command [list walker %n]
+
+    foreach n $::FOO {
+	if {![info exists ch($n)]} {
+	    return node/$n/mismatch/reachable/missing
+	}
+    }
+    if {[llength $::FOO] != [llength $serial]/3} {
+	return structure/mismatch/#nodes/multiples
+    }
+    if {[llength $::FOO] != [array size ch]} {
+	return structure/mismatch/#nodes/multiples/ii
+    }
+    return ok
+}
+
+############################################################
+# I. Tree object construction and destruction ...
+############################################################
+
+############################################################
+
+test tree-1.1 {tree errors} {
     tree mytree
     catch {tree mytree} msg
     mytree destroy
     set msg
-} "command \"::mytree\" already exists, unable to create tree"
-test tree-0.2 {tree errors} {
+} {command "::mytree" already exists, unable to create tree}
+
+test tree-1.2 {tree errors} {
     tree mytree
     catch {mytree} msg
     mytree destroy
     set msg
-} "wrong # args: should be \"::mytree option ?arg arg ...?\""
-test tree-0.3 {tree errors} {
+} {wrong # args: should be "::mytree option ?arg arg ...?"}
+
+test tree-1.3 {tree errors} {
     tree mytree
     catch {mytree foo} msg
     mytree destroy
     set msg
-} "bad option \"foo\": must be append, children, cut, delete, depth, destroy, exists, get, getall, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, serialize, set, size, splice, swap, unset, or walk"
-test tree-0.4 {tree errors} {
+} {bad option "foo": must be -->, =, append, children, cut, delete, depth, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, or walk}
+
+test tree-1.4 {tree errors} {
     catch {tree set} msg
     set msg
-} "command \"::set\" already exists, unable to create tree"
+} {command "::set" already exists, unable to create tree}
 
-test tree-1.1 {children} {
+test tree-1.5 {tree construction errors} {
+    catch {tree mytree foo} msg
+    set msg
+} {wrong # args: should be "tree ?name ?=|:=|as|deserialize source??"}
 
-    tree mytree
-    set result [list ]
-    lappend result [mytree children root]
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    mytree insert root end {IT::EM 2}
-    mytree insert {IT::EM 0} end {IT::EM 3}
-    mytree insert {IT::EM 0} end {IT::EM 4}
-    lappend result [mytree children root]
-    lappend result [mytree children {IT::EM 0}]
-    mytree destroy
-    set result
-} [list {} {{IT::EM 0} {IT::EM 1} {IT::EM 2}} {{IT::EM 3} {IT::EM 4}}]
-test tree-1.2 {children, bad node} {
-    tree mytree
-    set result [catch {mytree children foobar} msg]
-    mytree destroy
-    list $result $msg
-} [list 1 "node \"foobar\" does not exist in tree \"::mytree\""]
+test tree-1.6 {tree construction errors} {
+    catch {tree mytree foo far} msg
+    set msg
+} {wrong # args: should be "tree ?name ?=|:=|as|deserialize source??"}
 
-test tree-2.1 {create} {
+# Copy constructor errors are tested as part of 'deserialize'.
+# See 5.5.x at the bottom.
+
+test tree-1.7 {create} {
     tree mytree
     set result [string equal [info commands ::mytree] "::mytree"]
     mytree destroy
     set result
 } 1
-test tree-2.2 {create} {
+test tree-1.8 {create} {
     set name [tree]
     set result [list $name [string equal [info commands $name] "$name"]]
     $name destroy
     set result
-} [list ::tree1 1]
+} {::tree1 1}
 
-test tree-3.1 {destroy} {
+test tree-1.9 {destroy} {
     tree mytree
     mytree destroy
     string equal [info commands ::mytree] ""
 } 1
 
-test tree-4.1 {delete} {
+############################################################
+# II. Node attributes ...
+# - set, append, lappend
+# - get, getall
+# - unset
+# - keys, keyexists
+#
+# All operations on the root node, there is no
+# special case to think about.
+############################################################
+
+############################################################
+
+test tree-2.1.1 {set, wrong # args} {
     tree mytree
-    catch {mytree delete root} msg
+    catch {mytree set root data foo far} msg
     mytree destroy
     set msg
-} "cannot delete root node"
-test tree-4.2 {delete} {
+} {wrong # args: should be "::mytree set root key ?value?"}
+
+test tree-2.1.2 {set gives error on bogus node} {
     tree mytree
-    catch {mytree delete {IT::EM 0}} msg
+    catch {mytree set snarf data} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-4.3 {delete} {
+} {node "snarf" does not exist in tree "::mytree"}
+
+test tree-2.1.3 {set retrieves and/or sets value} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree delete {IT::EM 0}
-    set result [list [mytree exists {IT::EM 0}] [mytree children root]]
+    mytree set             root baz foobar
+    set result [mytree set root baz]
     mytree destroy
     set result
-} {0 {}}
-test tree-4.4 {delete} {
+} foobar
+
+test tree-2.1.4 {set with bad key gives error} {
+    tree mytree
+    catch {mytree set root foo} msg
+    mytree destroy
+    set msg
+} {invalid key "foo" for node "root"}
+
+test tree-2.1.5 {set with bad key gives error} {
+    tree mytree
+    mytree set root data ""
+    catch {mytree set root foo} msg
+    mytree destroy
+    set msg
+} {invalid key "foo" for node "root"}
+
+############################################################
+
+test tree-2.2.1 {append with too many args gives error} {
+    tree mytree
+    catch {mytree append root foo bar baz boo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_append name node key value"}
+
+test tree-2.2.2 {append gives error on bogus node} {
+    tree mytree
+    catch {mytree append {IT::EM 0} data foo} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.2.3 {append creates missing attribute} {
+    tree mytree
+    set     result [list]
+    lappend result [mytree keyexists root data]
+    lappend result [mytree append    root data bar]
+    lappend result [mytree keyexists root data]
+    lappend result [mytree get       root data]
+    mytree destroy
+    set result
+} {0 bar 1 bar}
+
+test tree-2.2.4 {append appends to attribute value} {
+    tree mytree
+    set result [list]
+    lappend result [mytree set    root data foo]
+    lappend result [mytree append root data bar]
+    lappend result [mytree get    root data]
+    mytree destroy
+    set result
+} {foo foobar foobar}
+
+############################################################
+
+test tree-2.3.1 {lappend with too many args gives error} {
+    tree mytree
+    catch {mytree lappend root foo bar baz boo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_lappend name node key value"}
+
+test tree-2.3.2 {lappend gives error on bogus node} {
+    tree mytree
+    catch {mytree lappend {IT::EM 0} data foo} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.3.3 {lappend creates missing attribute} {
+    tree mytree
+    set     result [list]
+    lappend result [mytree keyexists root data]
+    lappend result [mytree lappend   root data bar]
+    lappend result [mytree keyexists root data]
+    lappend result [mytree get       root data]
+    mytree destroy
+    set result
+} {0 bar 1 bar}
+
+test tree-2.3.4 {lappend appends to attribute value} {
+    tree mytree
+    set result [list]
+    lappend result [mytree set     root data foo]
+    lappend result [mytree lappend root data bar]
+    lappend result [mytree get     root data]
+    mytree destroy
+    set result
+} {foo {foo bar} {foo bar}}
+
+############################################################
+
+test tree-2.4.1 {get gives error on bogus node} {
+    tree mytree
+    catch {mytree get {IT::EM 0} data} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.4.2 {get gives error on bogus key} {
+    tree mytree
+    catch {mytree get root bogus} msg
+    mytree destroy
+    set msg
+} {invalid key "bogus" for node "root"}
+
+test tree-2.4.3 {get gives error on bogus key} {
+    tree mytree
+    mytree set root foo far
+    catch {mytree get root bogus} msg
+    mytree destroy
+    set msg
+} {invalid key "bogus" for node "root"}
+
+test tree-2.4.4 {get} {
+    tree mytree
+    mytree set root boom foobar
+    set result [mytree get root boom]
+    mytree destroy
+    set result
+} foobar
+
+############################################################
+
+test tree-2.5.1 {getall, wrong # args} {
+    tree mytree
+    catch {mytree getall root data foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_getall name node ?pattern?"}
+
+test tree-2.5.2 {getall gives error on bogus node} {
+    tree mytree
+    catch {mytree getall {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.5.3 {getall without attributes returns empty string} {
+    tree mytree
+    set results [mytree getall root]
+    mytree destroy
+    set results
+} {}
+
+test tree-2.5.4 {getall returns dictionary} {
+    tree mytree
+    mytree set root data  foobar
+    mytree set root other thing
+    set results [dictsort [mytree getall root]]
+    mytree destroy
+    set results
+} {data foobar other thing}
+
+test tree-2.5.5 {getall matches key pattern} {
+    tree mytree
+    mytree set root data  foobar
+    mytree set root other thing
+    set results [dictsort [mytree getall root d*]]
+    mytree destroy
+    set results
+} {data foobar}
+
+############################################################
+
+test tree-2.6.1 {unset, wrong # args} {
+    tree mytree
+    catch {mytree unset root flaboozle foobar} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_unset name node key"}
+
+test tree-2.6.2 {unset gives error on bogus node} {
+    tree mytree
+    catch {mytree unset {IT::EM 0} data} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.6.3 {unset does not give error on bogus key} {
+    tree mytree
+    set result [catch {mytree unset root bogus}]
+    mytree destroy
+    set result
+} 0
+
+test tree-2.6.4 {unset does not give error on bogus key} {
+    tree mytree
+    mytree set root foo ""
+    set result [catch {mytree unset root bogus}]
+    mytree destroy
+    set result
+} 0
+
+test tree-2.6.5 {unset removes attribute from node} {
+    tree mytree
+    set     result [list]
+    lappend result [mytree keyexists root foobar]
+    mytree set root foobar foobar
+    lappend result [mytree keyexists root foobar]
+    mytree unset root foobar
+    lappend result [mytree keyexists root foobar]
+    mytree destroy
+    set result
+} {0 1 0}
+
+############################################################
+
+test tree-2.7.1 {keys, wrong # args} {
+    tree mytree
+    catch {mytree keys root flaboozle foobar} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_keys name node ?pattern?"}
+
+test tree-2.7.2 {keys gives error on bogus node} {
+    tree mytree
+    catch {mytree keys {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.7.3 {keys returns empty list for nodes without attributes} {
+    tree mytree
+    set results [mytree keys root]
+    mytree destroy
+    set results
+} {}
+
+test tree-2.7.4 {keys returns list of keys} {
+    tree mytree
+    mytree set root data foobar
+    mytree set root other thing
+    set results [mytree keys root]
+    mytree destroy
+    lsort $results
+} {data other}
+
+test tree-2.7.5 {keys matches pattern} {
+    tree mytree
+    mytree set root data foobar
+    mytree set root other thing
+    set results [mytree keys root d*]
+    mytree destroy
+    set results
+} data
+
+############################################################
+
+test tree-2.8.1 {keyexists, wrong # args} {
+    tree mytree
+    catch {mytree keyexists root} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_keyexists name node key"}
+  
+test tree-2.8.2 {keyexists, wrong # args} {
+    tree mytree
+    catch {mytree keyexists root foo far} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_keyexists name node key"}
+  
+test tree-2.8.3 {keyexists gives error on bogus node} {
+    tree mytree
+    catch {mytree keyexists {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-2.8.4 {keyexists returns false on non-existant key} {
+    tree mytree
+    set result [mytree keyexists root bogus]
+    mytree destroy
+    set result
+} 0
+
+test tree-2.8.5 {keyexists returns false on non-existant key} {
+    tree mytree
+    mytree set root ok ""
+    set result [mytree keyexists root bogus]
+    mytree destroy
+    set result
+} 0
+
+test tree-2.8.6 {keyexists returns true for existing key} {
+    tree mytree
+    mytree set root ok ""
+    set result [mytree keyexists root ok]
+    mytree destroy
+    set result
+} 1
+
+############################################################
+# III. Structural operations ...
+# - isleaf, parent, children, numchildren,
+# - exists, size, depth, height
+# - insert, delete, move, cut, splice, swap
+# - rename, rootname
+############################################################
+
+############################################################
+
+test tree-3.1.1 {isleaf, wrong # args} {
+    tree mytree
+    catch {mytree isleaf {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_isleaf name node"}
+
+test tree-3.1.2 {isleaf} {
+    tree mytree
+    catch {mytree isleaf {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.1.3 {isleaf} {
+    tree mytree
+    set     result [mytree isleaf root]
+
+    mytree insert root end {IT::EM 0}
+    lappend result [mytree isleaf root]
+    lappend result [mytree isleaf {IT::EM 0}]
+    mytree destroy
+    set result
+} {1 0 1}
+
+############################################################
+
+test tree-3.2.1 {parent, wrong # args} {
+    tree mytree
+    catch {mytree parent {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_parent name node"}
+
+test tree-3.2.2 {parent gives error on fake node} {
+    tree mytree
+    catch {mytree parent {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.2.3 {parent gives correct value} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    set result [mytree parent {IT::EM 0}]
+    mytree destroy
+    set result
+} {root}
+
+test tree-3.2.4 {parent of root is empty string} {
+    tree mytree
+    set result [mytree parent root]
+    mytree destroy
+    set result
+} {}
+
+############################################################
+
+test tree-3.3.1 {children, wrong # args} {
+    tree mytree
+    catch {mytree children {IT::EM 0} foo} result
+    mytree destroy
+    set result
+} {wrong # args: should be "::struct::tree::_children name node"}
+
+test tree-3.3.2 {children, bad node} {
+    tree mytree
+    catch {mytree children {IT::EM 0}} result
+    mytree destroy
+    set result
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.3.3 {children of root, initial} {
+    tree mytree
+    set result [mytree children root]
+    mytree destroy
+    set result
+} {}
+
+test tree-3.3.4 {children} {
+    tree mytree
+    set     result [list]
+    lappend result [mytree children root]
+
+    mytree insert root       end {IT::EM 0}
+    mytree insert root       end {IT::EM 1}
+    mytree insert root       end {IT::EM 2}
+    mytree insert {IT::EM 0} end {IT::EM 3}
+    mytree insert {IT::EM 0} end {IT::EM 4}
+
+    lappend result [mytree children root]
+    lappend result [mytree children {IT::EM 0}]
+    lappend result [mytree children {IT::EM 1}]
+    mytree destroy
+    set result
+} {{} {{IT::EM 0} {IT::EM 1} {IT::EM 2}} {{IT::EM 3} {IT::EM 4}} {}}
+
+############################################################
+
+test tree-3.4.1 {numchildren, wrong #args} {
+    tree mytree
+    catch {mytree numchildren {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_numchildren name node"}
+
+test tree-3.4.2 {numchildren, bogus node} {
+    tree mytree
+    catch {mytree numchildren {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.4.3 {numchildren} {
+    tree mytree
+    set result [mytree numchildren root]
+    mytree insert root end {IT::EM 0}
+    lappend result [mytree numchildren root]
+    lappend result [mytree numchildren {IT::EM 0}]
+    mytree destroy
+    set result
+} {0 1 0}
+
+test tree-3.4.4 {children} {
+    tree mytree
+    set     result [list]
+    lappend result [mytree numchildren root]
+
+    mytree insert root       end {IT::EM 0}
+    mytree insert root       end {IT::EM 1}
+    mytree insert root       end {IT::EM 2}
+    mytree insert {IT::EM 0} end {IT::EM 3}
+    mytree insert {IT::EM 0} end {IT::EM 4}
+
+    lappend result [mytree numchildren root]
+    lappend result [mytree numchildren {IT::EM 0}]
+    lappend result [mytree numchildren {IT::EM 1}]
+    mytree destroy
+    set result
+} {0 3 2 0}
+
+############################################################
+
+test tree-3.5.1 {exists, wrong #args} {
+    tree mytree
+    catch {mytree exists {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_exists name node"}
+
+test tree-3.5.1 {exists} {
+    tree mytree
+    set     result [list]
+    lappend result [mytree exists root]
+    lappend result [mytree exists {IT::EM 0}]
+
+    mytree  insert root end {IT::EM 0}
+    lappend result [mytree exists {IT::EM 0}]
+
+    mytree  delete {IT::EM 0}
+    lappend result [mytree exists {IT::EM 0}]
+
+    mytree destroy
+    set result
+} {1 0 1 0}
+
+############################################################
+
+test tree-3.6.1 {size, wrong # args} {
+    tree mytree
+    catch {mytree size foo far} msg
+    mytree destroy
+    set msg
+} {wrong # args, should be "::mytree size ?node?"}
+
+test tree-3.6.2 {size gives error on bogus node} {
+    tree mytree
+    catch {mytree size {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.6.3 {size uses root node as default} {
+    tree mytree
+    set result [mytree size]
+    mytree destroy
+    set result
+} 0
+
+test tree-3.6.4 {size gives correct value} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert root end {IT::EM 2}
+    mytree insert root end {IT::EM 3}
+    mytree insert root end {IT::EM 4}
+    mytree insert root end {IT::EM 5}
+    set result [mytree size]
+    mytree destroy
+    set result
+} 6
+
+test tree-3.6.5 {size gives correct value} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 2}
+    mytree insert {IT::EM 0} end {IT::EM 3}
+    mytree insert {IT::EM 1} end {IT::EM 4}
+    mytree insert {IT::EM 1} end {IT::EM 5}
+    set result [mytree size {IT::EM 0}]
+    mytree destroy
+    set result
+} 5
+
+test tree-3.6.6 {size gives correct value} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 2}
+    mytree insert {IT::EM 0} end {IT::EM 3}
+    mytree insert {IT::EM 1} end {IT::EM 4}
+    mytree insert {IT::EM 1} end {IT::EM 5}
+    set result [mytree size {IT::EM 1}]
+    mytree destroy
+    set result
+} 2
+
+############################################################
+
+test tree-3.7.1 {depth, wrong # args} {
+    tree mytree
+    catch {mytree depth {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_depth name node"}
+
+test tree-3.7.2 {depth} {
+    tree mytree
+    catch {mytree depth {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.7.3 {depth of root is 0} {
+    tree mytree
+    set result [mytree depth root]
+    mytree destroy
+    set result
+} 0
+
+test tree-3.7.4 {depth is computed correctly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 1}
     mytree insert {IT::EM 1} end {IT::EM 2}
-    mytree delete {IT::EM 0}
-    set result [list [mytree exists {IT::EM 0}] \
-	    [mytree exists {IT::EM 1}] \
-	    [mytree exists {IT::EM 2}]]
+    mytree insert {IT::EM 2} end {IT::EM 3}
+    set result [mytree depth {IT::EM 3}]
     mytree destroy
     set result
-} {0 0 0}
+} 4
 
-test tree-5.1 {exists} {
+############################################################
+
+test tree-3.8.1 {height, wrong # args} {
     tree mytree
-    set result [list ]
-    lappend result [mytree exists root]
-    mytree insert root end {IT::EM 0}
-    lappend result [mytree exists {IT::EM 0}]
-    mytree delete {IT::EM 0}
-    lappend result [mytree exists {IT::EM 0}]
+    catch {mytree height {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_height name node"}
+
+test tree-3.8.2 {height for bogus node fails} {
+    tree mytree
+    catch {mytree height {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.8.3 {height of root alone is 0} {
+    tree mytree
+    set result [mytree height root]
     mytree destroy
     set result
-} {1 1 0}
+} 0
 
-test tree-6.1 {insert creates and initializes node} {
+test tree-3.8.4 {height is computed correctly} {
+    tree mytree
+    mytree insert root end 0
+    mytree insert 0 end 1
+    mytree insert 1 end 2
+    mytree insert 2 end 3
+    set result [mytree height root]
+    mytree destroy
+    set result
+} 4
+
+############################################################
+
+test tree-3.9.1 {insert creates and initializes node} {
     tree mytree
     mytree insert root end {IT::EM 0}
     set result [list ]
     lappend result [mytree exists {IT::EM 0}]
     lappend result [mytree parent {IT::EM 0}]
     lappend result [mytree children {IT::EM 0}]
-    lappend result [mytree set {IT::EM 0}]
+    lappend result [mytree set {IT::EM 0} data ""]
     lappend result [mytree children root]
     mytree destroy
     set result
 } {1 root {} {} {{IT::EM 0}}}
-test tree-6.2 {insert insert nodes in correct location} {
+
+test tree-3.9.2 {insert insert nodes in correct location} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert root end {IT::EM 1}
@@ -147,13 +852,15 @@ test tree-6.2 {insert insert nodes in correct location} {
     mytree destroy
     set result
 } {{IT::EM 2} {IT::EM 0} {IT::EM 1}}
-test tree-6.3 {insert gives error when trying to insert to a fake parent} {
+
+test tree-3.9.3 {insert gives error when trying to insert to a fake parent} {
     tree mytree
     catch {mytree insert {IT::EM 0} end {IT::EM 1}} msg
     mytree destroy
     set msg
-} "parent node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-6.4 {insert generates node name when none is given} {
+} {parent node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.9.4 {insert generates node name when none is given} {
     tree mytree
     set result [list [mytree insert root end]]
     lappend result [mytree insert root end]
@@ -161,15 +868,17 @@ test tree-6.4 {insert generates node name when none is given} {
     lappend result [mytree insert root end]
     mytree destroy
     set result
-} [list node1 node2 node3]
-test tree-6.5 {insert inserts multiple nodes properly} {
+} {node1 node2 node3}
+
+test tree-3.9.5 {insert inserts multiple nodes properly} {
     tree mytree
     mytree insert root end a b c d e f
     set result [mytree children root]
     mytree destroy
     set result
-} [list a b c d e f]
-test tree-6.6 {insert moves nodes that exist} {
+} {a b c d e f}
+
+test tree-3.9.6 {insert moves nodes that exist} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree insert {IT::EM 0} end {IT::EM 4} {IT::EM 5} {IT::EM 6}
@@ -178,7 +887,8 @@ test tree-6.6 {insert moves nodes that exist} {
     mytree destroy
     set result
 } [list [list {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3} {IT::EM 4}] [list {IT::EM 5} {IT::EM 6}]]
-test tree-6.7 {insert moves nodes that already exist properly} {
+
+test tree-3.9.7 {insert moves nodes that already exist properly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 1}
@@ -194,7 +904,8 @@ test tree-6.7 {insert moves nodes that already exist properly} {
     mytree destroy
     set result
 } [list [list {IT::EM 0} {IT::EM 1} {IT::EM 2}] {} {} root root]
-test tree-6.8 {insert moves multiple nodes properly} {
+
+test tree-3.9.8 {insert moves multiple nodes properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2}
     mytree insert root 0 {IT::EM 1} {IT::EM 2}
@@ -203,24 +914,27 @@ test tree-6.8 {insert moves multiple nodes properly} {
 	    ]
     mytree destroy
     set result
-} [list [list {IT::EM 1} {IT::EM 2} {IT::EM 0}]]
-test tree-6.9 {insert moves multiple nodes properly} {
+} {{{IT::EM 1} {IT::EM 2} {IT::EM 0}}}
+
+test tree-3.9.9 {insert moves multiple nodes properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2}
     mytree insert root 1 {IT::EM 0} {IT::EM 1}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 0} {IT::EM 1} {IT::EM 2}]
-test tree-6.10 {insert moves node within parent properly} {
+} {{IT::EM 0} {IT::EM 1} {IT::EM 2}}
+
+test tree-3.9.10 {insert moves node within parent properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree insert root 2 {IT::EM 1}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}]
-test tree-6.11 {insert moves node within parent properly} {
+} {{IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}}
+
+test tree-3.9.11 {insert moves node within parent properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree insert {IT::EM 3} end {IT::EM 4} {IT::EM 5} {IT::EM 6}
@@ -228,29 +942,33 @@ test tree-6.11 {insert moves node within parent properly} {
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 1} {IT::EM 0} {IT::EM 4} {IT::EM 5} {IT::EM 6} {IT::EM 2} {IT::EM 3}]
-test tree-6.12 {insert moves node in parent properly when oldInd < newInd} {
+} {{IT::EM 1} {IT::EM 0} {IT::EM 4} {IT::EM 5} {IT::EM 6} {IT::EM 2} {IT::EM 3}}
+
+test tree-3.9.12 {insert moves node in parent properly when oldInd < newInd} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree insert root 2 {IT::EM 0}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 1} {IT::EM 0} {IT::EM 2} {IT::EM 3}]
-test tree-6.13 {insert gives error when trying to move root} {
+} {{IT::EM 1} {IT::EM 0} {IT::EM 2} {IT::EM 3}}
+
+test tree-3.9.13 {insert gives error when trying to move root} {
     tree mytree
     catch {mytree insert root end root} msg
     mytree destroy
     set msg
-} "cannot move root node"
-test tree-6.14 {insert gives error when trying to make node its descendant} {
+} {cannot move root node}
+
+test tree-3.9.14 {insert gives error when trying to make node its descendant} {
     tree mytree
     mytree insert root end {IT::EM 0}
     catch {mytree insert {IT::EM 0} end {IT::EM 0}} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" cannot be its own descendant"
-test tree-6.15 {insert gives error when trying to make node its descendant} {
+} {node "IT::EM 0" cannot be its own descendant}
+
+test tree-3.9.15 {insert gives error when trying to make node its descendant} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 1}
@@ -258,61 +976,104 @@ test tree-6.15 {insert gives error when trying to make node its descendant} {
     catch {mytree insert {IT::EM 2} end {IT::EM 0}} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" cannot be its own descendant"
-test tree-6.17 {check node names with spaces} {
+} {node "IT::EM 0" cannot be its own descendant}
+
+test tree-3.9.17 {check node names with spaces} {
     tree mytree
     catch {mytree insert root end ":\n\t "} msg
     mytree destroy
     set msg
 } [list ":\n\t "]
-test tree-6.18 {extended node names with spaces check} {
+
+test tree-3.9.18 {extended node names with spaces check} {
     tree mytree
-    proc walker {node} {
-	lappend ::FOO $node
-    }
     set node ":\n\t "
     set msg [mytree insert root end $node]
     lappend msg [mytree isleaf $node]
     mytree insert $node end yummy
     lappend msg [mytree size $node]
     lappend msg [mytree isleaf $node]
-    mytree set $node foo
+    mytree set $node data foo
     mytree walk root -command [list walker %n]
     lappend msg $::FOO
     lappend msg [mytree keys $node]
     lappend msg [mytree parent $node]
-    lappend msg [mytree set $node]
+    lappend msg [mytree set $node data]
     mytree destroy
     set msg
 } [list ":\n\t " 1 1 0 [list root ":\n\t " yummy] data root foo]
 
-test tree-7.1 {move gives error when trying to move root} {
+############################################################
+
+test tree-3.10.1 {delete} {
+    tree mytree
+    catch {mytree delete root} msg
+    mytree destroy
+    set msg
+} {cannot delete root node}
+
+test tree-3.10.2 {delete} {
+    tree mytree
+    catch {mytree delete {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.10.3 {delete, only this node} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree delete {IT::EM 0}
+    set result [list [mytree exists {IT::EM 0}] [mytree children root]]
+    mytree destroy
+    set result
+} {0 {}}
+
+test tree-3.10.4 {delete, node and children} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 1}
+    mytree insert {IT::EM 1} end {IT::EM 2}
+    mytree delete {IT::EM 0}
+    set result [list [mytree exists {IT::EM 0}] \
+	    [mytree exists {IT::EM 1}] \
+	    [mytree exists {IT::EM 2}]]
+    mytree destroy
+    set result
+} {0 0 0}
+
+############################################################
+
+test tree-3.11.1 {move gives error when trying to move root} {
     tree mytree
     mytree insert root end {IT::EM 0}
     catch {mytree move {IT::EM 0} end root} msg
     mytree destroy
     set msg
-} "cannot move root node"
-test tree-7.2 {move gives error when trying to move non existant node} {
+} {cannot move root node}
+
+test tree-3.11.2 {move gives error when trying to move non existant node} {
     tree mytree
     catch {mytree move root end {IT::EM 0}} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-7.3 {move gives error when trying to move to non existant parent} {
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.11.3 {move gives error when trying to move to non existant parent} {
     tree mytree
     catch {mytree move {IT::EM 0} end {IT::EM 0}} msg
     mytree destroy
     set msg
-} "parent node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-7.4 {move gives error when trying to make node its own descendant} {
+} {parent node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.11.4 {move gives error when trying to make node its own descendant} {
     tree mytree
     mytree insert root end {IT::EM 0}
     catch {mytree move {IT::EM 0} end {IT::EM 0}} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" cannot be its own descendant"
-test tree-7.5 {move gives error when trying to make node its own descendant} {
+} {node "IT::EM 0" cannot be its own descendant}
+
+test tree-3.11.5 {move gives error when trying to make node its own descendant} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 1}
@@ -320,8 +1081,9 @@ test tree-7.5 {move gives error when trying to make node its own descendant} {
     catch {mytree move {IT::EM 2} end {IT::EM 0}} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" cannot be its own descendant"
-test tree-7.6 {move correctly moves a node} {
+} {node "IT::EM 0" cannot be its own descendant}
+
+test tree-3.11.6 {move correctly moves a node} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 1}
@@ -332,7 +1094,8 @@ test tree-7.6 {move correctly moves a node} {
     mytree destroy
     set result
 } {{{IT::EM 1} {IT::EM 2}} {} {IT::EM 0}}
-test tree-7.7 {move moves multiple nodes properly} {
+
+test tree-3.11.7 {move moves multiple nodes properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2}
     mytree move root 0 {IT::EM 1} {IT::EM 2}
@@ -341,24 +1104,27 @@ test tree-7.7 {move moves multiple nodes properly} {
 	    ]
     mytree destroy
     set result
-} [list [list {IT::EM 1} {IT::EM 2} {IT::EM 0}]]
-test tree-7.8 {move moves multiple nodes properly} {
+} {{{IT::EM 1} {IT::EM 2} {IT::EM 0}}}
+
+test tree-3.11.8 {move moves multiple nodes properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2}
     mytree move root 1 {IT::EM 0} {IT::EM 1}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 2} {IT::EM 0} {IT::EM 1}]
-test tree-7.9 {move moves node within parent properly} {
+} {{IT::EM 2} {IT::EM 0} {IT::EM 1}}
+
+test tree-3.11.9 {move moves node within parent properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree move root 2 {IT::EM 1}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}]
-test tree-7.10 {move moves node within parent properly} {
+} {{IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}}
+
+test tree-3.11.10 {move moves node within parent properly} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree insert {IT::EM 3} end {IT::EM 4} {IT::EM 5} {IT::EM 6}
@@ -366,170 +1132,581 @@ test tree-7.10 {move moves node within parent properly} {
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 1} {IT::EM 2} {IT::EM 0} {IT::EM 4} {IT::EM 5} {IT::EM 6} {IT::EM 3}]
-test tree-7.11 {move moves node in parent properly when oldInd < newInd} {
+} {{IT::EM 1} {IT::EM 2} {IT::EM 0} {IT::EM 4} {IT::EM 5} {IT::EM 6} {IT::EM 3}}
+
+test tree-3.11.11 {move moves node in parent properly when oldInd < newInd} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree move root 2 {IT::EM 0}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 1} {IT::EM 2} {IT::EM 0} {IT::EM 3}]
-test tree-7.12 {move node up one} {
+} {{IT::EM 1} {IT::EM 2} {IT::EM 0} {IT::EM 3}}
+
+test tree-3.11.12 {move node up one} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree move root [mytree index [mytree next {IT::EM 0}]] {IT::EM 0}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 1} {IT::EM 0} {IT::EM 2} {IT::EM 3}]
-test tree-7.13 {move node down one} {
+} {{IT::EM 1} {IT::EM 0} {IT::EM 2} {IT::EM 3}}
+
+test tree-3.11.13 {move node down one} {
     tree mytree
     mytree insert root end {IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3}
     mytree move root [mytree index [mytree previous {IT::EM 2}]] {IT::EM 2}
     set result [mytree children root]
     mytree destroy
     set result
-} [list {IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}]
+} {{IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}}
 
-test tree-8.1 {parent gives error on fake node} {
-    tree mytree
-    catch {mytree parent {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-8.2 {parent gives correct value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    set result [list [mytree parent {IT::EM 0}] [mytree parent root]]
-    mytree destroy
-    set result
-} {root {}}
+############################################################
 
-test tree-9.1 {size gives error on bogus node} {
-    tree mytree
-    catch {mytree size {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-9.2 {size uses root node as default} {
-    tree mytree
-    set result [mytree size]
-    mytree destroy
-    set result
-} 0
-test tree-9.3 {size gives correct value} {
+test tree-3.12.1 {cutting nodes} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert root end {IT::EM 1}
     mytree insert root end {IT::EM 2}
-    mytree insert root end {IT::EM 3}
-    mytree insert root end {IT::EM 4}
-    mytree insert root end {IT::EM 5}
-    set result [mytree size]
+    mytree insert {IT::EM 1} end {IT::EM 1.0}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree cut {IT::EM 1}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
     mytree destroy
-    set result
-} 6
-test tree-9.4 {size gives correct value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 1}
-    mytree insert {IT::EM 0} end {IT::EM 2}
-    mytree insert {IT::EM 0} end {IT::EM 3}
-    mytree insert {IT::EM 1} end {IT::EM 4}
-    mytree insert {IT::EM 1} end {IT::EM 5}
-    set result [mytree size {IT::EM 0}]
-    mytree destroy
-    set result
-} 5
-test tree-9.5 {size gives correct value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 1}
-    mytree insert {IT::EM 0} end {IT::EM 2}
-    mytree insert {IT::EM 0} end {IT::EM 3}
-    mytree insert {IT::EM 1} end {IT::EM 4}
-    mytree insert {IT::EM 1} end {IT::EM 5}
-    set result [mytree size {IT::EM 1}]
-    mytree destroy
-    set result
-} 2
+    set t
+} {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
 
-test tree-10.1 {set gives error on bogus node} {
+test tree-3.12.2 {cutting nodes} {
     tree mytree
-    catch {mytree set {IT::EM 0}} msg
+    catch {mytree cut root} msg
     mytree destroy
     set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-10.2 {set with node name gets/sets "data" value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foobar
-    set result [mytree set {IT::EM 0}]
-    mytree destroy
-    set result
-} "foobar"
-test tree-10.3 {set with node name and key gets/sets key value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key baz foobar
-    set result [list [mytree set {IT::EM 0}] [mytree set {IT::EM 0} -key baz]]
-    mytree destroy
-    set result
-} [list "" "foobar"]
-test tree-10.4 {set with too many args gives error} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree set {IT::EM 0} foo bar baz boo} msg
-    mytree destroy
-    set msg
-} "wrong # args: should be \"::mytree set {IT::EM 0} ?-key key? ?value?\""
-test tree-10.5 {set with bad args} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree set {IT::EM 0} foo bar} msg
-    mytree destroy
-    set msg
-} "invalid option \"foo\": should be key"
-test tree-10.6 {set with bad args} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree set {IT::EM 0} foo bar baz} msg
-    mytree destroy
-    set msg
-} "invalid option \"foo\": should be key"
-test tree-10.7 {set with bad key gives error} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree set {IT::EM 0} -key foo} msg
-    mytree destroy
-    set msg
-} "invalid key \"foo\" for node \"IT::EM 0\""
+} {cannot cut root node}
 
-test tree-11.1 {depth} {
+test tree-3.12.3 {cut sets parent values of relocated nodes} {
     tree mytree
-    catch {mytree depth {IT::EM 0}} msg
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert root end {IT::EM 2}
+    mytree insert {IT::EM 1} end {IT::EM 1.0}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree cut {IT::EM 1}
+    set res [list \
+	    [mytree parent {IT::EM 1.0}] \
+	    [mytree parent {IT::EM 1.1}] \
+	    [mytree parent {IT::EM 1.2}]]
     mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-11.2 {depth of root is 0} {
+    set res
+} {root root root}
+
+test tree-3.12.4 {cut removes node} {
     tree mytree
-    set result [mytree depth root]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert root end {IT::EM 2}
+    mytree insert {IT::EM 1} end {IT::EM 1.0}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree cut {IT::EM 1}
+    set res [mytree exists {IT::EM 1}]
     mytree destroy
-    set result
+    set res
 } 0
-test tree-11.2 {depth is computed correctly} {
+
+test tree-3.12.5 {cut removes node} {
+    tree mytree
+    catch {mytree cut {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+############################################################
+
+test tree-3.13.1 {splicing nodes} {
     tree mytree
     mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 1}
-    mytree insert {IT::EM 1} end {IT::EM 2}
-    mytree insert {IT::EM 2} end {IT::EM 3}
-    set result [mytree depth {IT::EM 3}]
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+    mytree splice root 1 3 {IT::EM 1}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
+
+test tree-3.13.2 {splicing nodes with no node name given} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+    set res [mytree splice root 1 3]
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    list $res $t
+} [list node1 {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree node1 enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}]
+
+test tree-3.13.3 {splicing nodes errors on duplicate node name} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+    catch {mytree splice root 1 3 {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" already exists in tree "::mytree"}
+
+test tree-3.13.4 {splicing node sets parent values correctly} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+    mytree splice root 1 3 {IT::EM 1}
+    set res [list \
+	    [mytree parent {IT::EM 1}] \
+	    [mytree parent {IT::EM 1.0}] \
+	    [mytree parent {IT::EM 1.1}] \
+	    [mytree parent {IT::EM 1.2}]]
+    mytree destroy
+    set res
+} {root {IT::EM 1} {IT::EM 1} {IT::EM 1}}
+
+test tree-3.13.5 {splicing node works with strange index} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+    mytree splice root -5 12 {IT::EM 1}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} {enter ::mytree root enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
+
+test tree-3.13.6 {splicing nodes with no node name and no "to" index given} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+    mytree splice root 1
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree node1 enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
+
+############################################################
+
+test tree-3.14.1 {swap gives error when trying to swap root} {
+    tree mytree
+    catch {mytree swap root {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {cannot swap root node}
+
+test tree-3.14.2 {swap gives error when trying to swap non existant node} {
+    tree mytree
+    catch {mytree swap {IT::EM 0} {IT::EM 1}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-3.14.3 {swap gives error when trying to swap non existant node} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    catch {mytree swap {IT::EM 0} {IT::EM 1}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 1" does not exist in tree "::mytree"}
+
+test tree-3.14.3 {swap gives error when trying to swap node with self} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    catch {mytree swap {IT::EM 0} {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {cannot swap node "IT::EM 0" with itself}
+
+test tree-3.14.4 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
+    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
+    mytree swap {IT::EM 0} {IT::EM 0.1}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter ::mytree root \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 0.1.1} \
+	enter ::mytree {IT::EM 0.1.2} \
+	enter ::mytree {IT::EM 0.2}]
+
+test tree-3.14.5 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
+    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
+    mytree swap {IT::EM 0} {IT::EM 0.1.1}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter ::mytree root \
+	enter ::mytree {IT::EM 0.1.1} \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 0.1.2} \
+	enter ::mytree {IT::EM 0.2}]
+
+test tree-3.14.6 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree swap {IT::EM 0} {IT::EM 1}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter ::mytree root \
+	enter ::mytree {IT::EM 1} \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 1.1}]
+
+test tree-3.14.7 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
+    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
+    mytree swap {IT::EM 0.1} {IT::EM 0}
+    set t [list ]
+    mytree walk root -command {lappend t %a %t %n}
+    mytree destroy
+    set t
+} [list enter ::mytree root      \
+	enter ::mytree {IT::EM 0.1}   \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 0.1.1} \
+	enter ::mytree {IT::EM 0.1.2} \
+	enter ::mytree {IT::EM 0.2}]
+
+############################################################
+
+test tree-3.15.1 {rootname, wrong # args} {
+    tree mytree
+    catch {mytree rootname foo far} result
     mytree destroy
     set result
-} 4
+} {wrong # args: should be "::struct::tree::_rootname name"}
 
-test tree-12.1 {pre dfs walk} {
+test tree-3.15.2 {rootname} {
+    tree mytree
+    set result [mytree rootname]
+    mytree destroy
+    set result
+} root
+
+############################################################
+
+test tree-3.16.1 {rename, wrong # args} {
+    tree mytree
+    catch {mytree rename foo far fox} result
+    mytree destroy
+    set result
+} {wrong # args: should be "::struct::tree::_rename name node newname"}
+
+test tree-3.16.2 {rename of bogus node fails} {
+    tree mytree
+    catch {mytree rename 0 foo} result
+    mytree destroy
+    set result
+} {node "0" does not exist in tree "::mytree"}
+
+test tree-3.16.3 {rename, setting to existing node fails} {
+    tree mytree
+    mytree insert root end 0
+    catch {mytree rename root 0} result
+    mytree destroy
+    set result
+} {unable to rename node to "0",  node of that name already present in the tree "::mytree"}
+
+test tree-3.16.4 {rename root, setting} {
+    tree mytree
+    set result [list]
+    lappend result [mytree rootname]
+    lappend result [mytree rename root foo]
+    lappend result [mytree rootname]
+    mytree destroy
+    set result
+} {root foo foo}
+
+test tree-3.16.5 {rename root, parents} {
+    tree mytree
+    mytree insert root end 0
+    set result [list]
+    lappend result [mytree parent 0]
+    mytree rename root foo
+    lappend result [mytree parent 0]
+    mytree destroy
+    set result
+} {root foo}
+
+test tree-3.16.6 {rename root, existence} {
+    tree mytree
+    set result [list]
+    lappend result [mytree exists root]
+    lappend result [mytree exists 0]
+    mytree rename root 0
+    lappend result [mytree exists root]
+    lappend result [mytree exists 0]
+    mytree destroy
+    set result
+} {1 0 0 1}
+
+test tree-3.16.7 {rename root, children} {
+    tree mytree
+    mytree insert root end xx
+    set result [list]
+    lappend result [mytree children root]
+    lappend result [catch {mytree children foo}]
+    mytree rename root foo
+    lappend result [mytree children foo]
+    lappend result [catch {mytree children root}]
+    mytree destroy
+    set result
+} {xx 1 xx 1}
+
+test tree-3.16.8 {rename root, attributes} {
+    tree mytree
+    mytree set root data foo
+    set result [list]
+    lappend result [mytree getall root]
+    lappend result [catch {mytree getall foo}]
+    mytree rename root foo
+    lappend result [mytree getall foo]
+    lappend result [catch {mytree getall root}]
+    mytree destroy
+    set result
+} {{data foo} 1 {data foo} 1}
+
+test tree-3.16.9 {rename node, index} {
+    tree mytree
+    set result [list]
+    mytree insert root end 0
+    mytree insert root end 1
+    mytree insert root end 2
+    lappend result [mytree index 1]
+    lappend result [mytree rename 1 foo]
+    lappend result [mytree index foo]
+    mytree destroy
+    set result
+} {1 foo 1}
+
+
+############################################################
+# IV. Navigation in the tree
+# - index, next, previous, walk
+############################################################
+
+############################################################
+
+test tree-4.1.1 {index, wrong # args} {
+    tree mytree
+    catch {mytree index root foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_index name node"}
+
+test tree-4.1.2 {index of non-existant node} {
+    tree mytree
+    catch {mytree index {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-4.1.3 {index of root fails} {
+    tree mytree
+    catch {mytree index root} msg
+    mytree destroy
+    set msg
+} {cannot determine index of root node}
+
+test tree-4.1.4 {index} {
+    tree mytree
+    mytree insert root end {IT::EM 1}
+    mytree insert root end {IT::EM 0}
+    set     result [list]
+    lappend result [mytree index {IT::EM 0}]
+    lappend result [mytree index {IT::EM 1}]
+    mytree destroy
+    set result
+} {1 0}
+
+############################################################
+
+test tree-4.2.1 {next, wrong # args} {
+    tree mytree
+    mytree insert root end 0
+    catch {mytree next 0 foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_next name node"}
+
+test tree-4.2.2 {next for bogus node} {
+    tree mytree
+    catch {mytree next {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-4.2.3 {next from root} {
+    tree mytree
+    set res [mytree next root]
+    mytree destroy
+    set res
+} {}
+
+test tree-4.2.4 {next} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    set res [list [mytree next {IT::EM 0}] [mytree next {IT::EM 1}]]
+    mytree destroy
+    set res
+} {{IT::EM 1} {}}
+
+############################################################
+
+test tree-4.3.1 {previous, wrong # args} {
+    tree mytree
+    mytree insert root end 0
+    catch {mytree previous 0 foo} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::struct::tree::_previous name node"}
+
+test tree-4.3.2 {previous for bogus node} {
+    tree mytree
+    catch {mytree previous {IT::EM 0}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-4.3.3 {previous from root} {
+    tree mytree
+    set res [mytree previous root]
+    mytree destroy
+    set res
+} {}
+
+test tree-4.3.4 {previous} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    set res [list [mytree previous {IT::EM 0}] [mytree previous {IT::EM 1}]]
+    mytree destroy
+    set res
+} {{} {IT::EM 0}}
+
+############################################################
+
+test tree-4.4.1 {walk with too few args} {badTest} {
+    tree mytree
+    catch {mytree walk} msg
+    mytree destroy
+    set msg
+} {no value given for parameter "node" to "::struct::tree::_walk"}
+
+test tree-4.4.2 {walk with too few args} {
+    tree mytree
+    catch {mytree walk root} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"}
+
+test tree-4.4.3 {walk with too many args} {
+    tree mytree
+    catch {mytree walk root -foo bar -baz boo -foo2 boo -foo3 baz} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"}
+
+test tree-4.4.4 {walk with fake node} {
+    tree mytree
+    catch {mytree walk {IT::EM 0} -command {}} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-4.4.5 {walk gives error on invalid search type} {
+    tree mytree
+    catch {mytree walk root -type foo -command foo} msg
+    mytree destroy
+    set msg
+} {invalid search type "foo": should be dfs, or bfs}
+
+test tree-4.4.6 {walk gives error on invalid search order} {
+    tree mytree
+    catch {mytree walk root -order foo -command foo} msg
+    mytree destroy
+    set msg
+} {invalid search order "foo": should be pre, post, both, or in}
+
+test tree-4.4.7 {walk gives error on invalid combination of order and type} {
+    tree mytree
+    catch {mytree walk root -order in -type bfs -command foo} msg
+    mytree destroy
+    set msg
+} {unable to do a in-order breadth first walk}
+
+test tree-4.4.8 {walk with unknown options} {
+    tree mytree
+    catch {mytree walk root -foo bar} msg
+    mytree destroy
+    set msg
+} {unknown option "-foo": should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"}
+
+test tree-4.4.9 {walk, option without value} {
+    tree mytree
+    catch {mytree walk root -type dfs -order} msg
+    mytree destroy
+    set msg
+} {value for "-order" missing: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"}
+
+test tree-4.4.10 {walk without command} {
+    tree mytree
+    catch {mytree walk root -order pre} msg
+    mytree destroy
+    set msg
+} {no command specified: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"}
+
+test tree-4.4.11.1 {pre dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -541,11 +1718,15 @@ test tree-12.1 {pre dfs walk} {
     mytree walk root -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list enter ::mytree root    enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 0.1} \
-	enter ::mytree {IT::EM 0.2} enter ::mytree {IT::EM 1} \
-	enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2}]
+} [list enter ::mytree root    \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0.2} \
+	enter ::mytree {IT::EM 1} \
+	enter ::mytree {IT::EM 1.1} \
+	enter ::mytree {IT::EM 1.2}]
 
-test tree-12.1.0 {post dfs walk} {
+test tree-4.4.11.2 {post dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -557,11 +1738,15 @@ test tree-12.1.0 {post dfs walk} {
     mytree walk root -order post -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list leave ::mytree {IT::EM 0.1} leave ::mytree {IT::EM 0.2} leave ::mytree {IT::EM 0} \
-	leave ::mytree {IT::EM 1.1} leave ::mytree {IT::EM 1.2} \
-	leave ::mytree {IT::EM 1}   leave ::mytree root]
+} [list leave ::mytree {IT::EM 0.1} \
+	leave ::mytree {IT::EM 0.2} \
+	leave ::mytree {IT::EM 0} \
+	leave ::mytree {IT::EM 1.1} \
+	leave ::mytree {IT::EM 1.2} \
+	leave ::mytree {IT::EM 1}   \
+	leave ::mytree root]
 
-test tree-12.1.1 {both dfs walk} {
+test tree-4.4.11.3 {both dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -573,13 +1758,22 @@ test tree-12.1.1 {both dfs walk} {
     mytree walk root -order both -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 0.1} \
-	leave ::mytree {IT::EM 0.1} enter ::mytree {IT::EM 0.2} leave ::mytree {IT::EM 0.2} \
-	leave ::mytree {IT::EM 0} enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 1.1} \
-	leave ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} leave ::mytree {IT::EM 1.2} \
-	leave ::mytree {IT::EM 1}   leave ::mytree root]
+} [list enter ::mytree root \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 0.1} \
+	leave ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0.2} \
+	leave ::mytree {IT::EM 0.2} \
+	leave ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 1} \
+	enter ::mytree {IT::EM 1.1} \
+	leave ::mytree {IT::EM 1.1} \
+	enter ::mytree {IT::EM 1.2} \
+	leave ::mytree {IT::EM 1.2} \
+	leave ::mytree {IT::EM 1}   \
+	leave ::mytree root]
 
-test tree-12.1.3 {in dfs walk} {
+test tree-4.4.11.4 {in dfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -591,11 +1785,15 @@ test tree-12.1.3 {in dfs walk} {
     mytree walk root -order in -type dfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list visit ::mytree {IT::EM 0.1} visit ::mytree {IT::EM 0}   visit ::mytree {IT::EM 0.2} \
-	visit ::mytree root    visit ::mytree {IT::EM 1.1} visit ::mytree {IT::EM 1} \
+} [list visit ::mytree {IT::EM 0.1} \
+	visit ::mytree {IT::EM 0}   \
+	visit ::mytree {IT::EM 0.2} \
+	visit ::mytree root    \
+	visit ::mytree {IT::EM 1.1} \
+	visit ::mytree {IT::EM 1} \
 	visit ::mytree {IT::EM 1.2}]
 
-test tree-12.1.4 {pre dfs walk, different % specifiers} {
+test tree-4.4.11.5 {pre dfs walk, different % specifiers} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -607,11 +1805,12 @@ test tree-12.1.4 {pre dfs walk, different % specifiers} {
     mytree walk root -type dfs -command {lappend t %n %%}
     mytree destroy
     set t
-} [list root % {IT::EM 0} % {IT::EM 0.1} % \
-	{IT::EM 0.2} % {IT::EM 1} % \
+} [list root % \
+	{IT::EM 0}   % {IT::EM 0.1} % \
+	{IT::EM 0.2} % {IT::EM 1}   % \
 	{IT::EM 1.1} % {IT::EM 1.2} %]
 
-test tree-12.1.5 {pre dfs walk, different % specifiers} {
+test tree-4.4.11.6 {pre dfs walk, different % specifiers} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -627,7 +1826,7 @@ test tree-12.1.5 {pre dfs walk, different % specifiers} {
 	% ::mytree % ::mytree \
 	% ::mytree % ::mytree]
 
-test tree-12.1.6 {pre dfs walk, nodes with spaces in names} {
+test tree-4.4.11.7 {pre dfs walk, nodes with spaces in names} {
     tree mytree
     set t [list ]
     mytree insert root end "node/0"
@@ -639,9 +1838,9 @@ test tree-12.1.6 {pre dfs walk, nodes with spaces in names} {
     mytree walk root -type dfs -command {lappend t %n}
     mytree destroy
     set t
-} [list root "node/0" "node/0/1" "node/0/2" "node/1" "node/1/1" "node/1/2"]
+} {root node/0 node/0/1 node/0/2 node/1 node/1/1 node/1/2}
 
-test tree-12.2 {pre bfs walk} {
+test tree-4.4.12.1 {pre bfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -653,11 +1852,15 @@ test tree-12.2 {pre bfs walk} {
     mytree walk root -type bfs -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list enter ::mytree root    enter ::mytree {IT::EM 0}   enter ::mytree {IT::EM 1}   \
-	enter ::mytree {IT::EM 0.1} enter ::mytree {IT::EM 0.2} enter ::mytree {IT::EM 1.1} \
+} [list enter ::mytree root    \
+	enter ::mytree {IT::EM 0}   \
+	enter ::mytree {IT::EM 1}   \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0.2} \
+	enter ::mytree {IT::EM 1.1} \
 	enter ::mytree {IT::EM 1.2}]
 
-test tree-12.2.0 {post bfs walk} {
+test tree-4.4.12.2 {post bfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -669,11 +1872,15 @@ test tree-12.2.0 {post bfs walk} {
     mytree walk root -type bfs -order post -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list leave ::mytree {IT::EM 1.2} leave ::mytree {IT::EM 1.1} leave ::mytree {IT::EM 0.2} \
-	leave ::mytree {IT::EM 0.1} leave ::mytree {IT::EM 1}   leave ::mytree {IT::EM 0} \
+} [list leave ::mytree {IT::EM 1.2} \
+	leave ::mytree {IT::EM 1.1} \
+	leave ::mytree {IT::EM 0.2} \
+	leave ::mytree {IT::EM 0.1} \
+	leave ::mytree {IT::EM 1}   \
+	leave ::mytree {IT::EM 0} \
 	leave ::mytree root]
 
-test tree-12.2.1 {both bfs walk} {
+test tree-4.4.12.3 {both bfs walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -685,13 +1892,22 @@ test tree-12.2.1 {both bfs walk} {
     mytree walk root -type bfs -order both -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list enter ::mytree root    enter ::mytree {IT::EM 0}   enter ::mytree {IT::EM 1}   \
-	enter ::mytree {IT::EM 0.1} enter ::mytree {IT::EM 0.2} enter ::mytree {IT::EM 1.1} \
-	enter ::mytree {IT::EM 1.2} leave ::mytree {IT::EM 1.2} leave ::mytree {IT::EM 1.1} \
-	leave ::mytree {IT::EM 0.2} leave ::mytree {IT::EM 0.1} leave ::mytree {IT::EM 1}   \
-	leave ::mytree {IT::EM 0}   leave ::mytree root]
+} [list enter ::mytree root    \
+	enter ::mytree {IT::EM 0}   \
+	enter ::mytree {IT::EM 1}   \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0.2} \
+	enter ::mytree {IT::EM 1.1} \
+	enter ::mytree {IT::EM 1.2} \
+	leave ::mytree {IT::EM 1.2} \
+	leave ::mytree {IT::EM 1.1} \
+	leave ::mytree {IT::EM 0.2} \
+	leave ::mytree {IT::EM 0.1} \
+	leave ::mytree {IT::EM 1}   \
+	leave ::mytree {IT::EM 0}   \
+	leave ::mytree root]
 
-test tree-12.3 {pre dfs is default walk} {
+test tree-4.4.13 {pre dfs is default walk} {
     tree mytree
     set t [list ]
     mytree insert root end {IT::EM 0}
@@ -703,634 +1919,331 @@ test tree-12.3 {pre dfs is default walk} {
     mytree walk root -command {lappend t %a %t %n}
     mytree destroy
     set t
-} [list enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 0.1} \
-	enter ::mytree {IT::EM 0.2} enter ::mytree {IT::EM 1} \
-	enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2}]
-test tree-12.4 {walk with too few args} {badTest} {
-    tree mytree
-    catch {mytree walk} msg
-    mytree destroy
-    set msg
-} "no value given for parameter \"node\" to \"::struct::tree::_walk\""
-test tree-12.5 {walk with too few args} {
-    tree mytree
-    catch {mytree walk root} msg
-    mytree destroy
-    set msg
-} "wrong # args: should be \"::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
-test tree-12.6 {walk with too many args} {
-    tree mytree
-    catch {mytree walk root -foo bar -baz boo -foo2 boo -foo3 baz} msg
-    mytree destroy
-    set msg
-} "wrong # args: should be \"::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
-test tree-12.7 {walk with fake node} {
-    tree mytree
-    catch {mytree walk {IT::EM 0} -command {}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-12.8 {walk gives error on invalid search type} {
-    tree mytree
-    catch {mytree walk root -type foo -command foo} msg
-    mytree destroy
-    set msg
-} {invalid search type "foo": should be dfs, or bfs}
-test tree-12.9 {walk gives error on invalid search order} {
-    tree mytree
-    catch {mytree walk root -order foo -command foo} msg
-    mytree destroy
-    set msg
-} {invalid search order "foo": should be pre, post, both, or in}
-test tree-12.10 {walk gives error on invalid combination of order and type} {
-    tree mytree
-    catch {mytree walk root -order in -type bfs -command foo} msg
-    mytree destroy
-    set msg
-} {unable to do a in-order breadth first walk}
-test tree-12.11 {walk with unknown options} {
-    tree mytree
-    catch {mytree walk root -foo bar} msg
-    mytree destroy
-    set msg
-} "unknown option \"-foo\": should be \"::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
-test tree-12.12 {walk, option without value} {
-    tree mytree
-    catch {mytree walk root -type dfs -order} msg
-    mytree destroy
-    set msg
-} "value for \"-order\" missing: should be \"::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
-test tree-12.13 {walk without command} {
-    tree mytree
-    catch {mytree walk root -order pre} msg
-    mytree destroy
-    set msg
-} "no command specified: should be \"::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd\""
+} [list enter ::mytree root \
+	enter ::mytree {IT::EM 0} \
+	enter ::mytree {IT::EM 0.1} \
+	enter ::mytree {IT::EM 0.2} \
+	enter ::mytree {IT::EM 1} \
+	enter ::mytree {IT::EM 1.1} \
+	enter ::mytree {IT::EM 1.2}]
 
 
-test tree-13.1 {swap gives error when trying to swap root} {
-    tree mytree
-    catch {mytree swap root {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "cannot swap root node"
-test tree-13.2 {swap gives error when trying to swap non existant node} {
-    tree mytree
-    catch {mytree swap {IT::EM 0} {IT::EM 1}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-13.3 {swap gives error when trying to swap non existant node} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree swap {IT::EM 0} {IT::EM 1}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 1\" does not exist in tree \"::mytree\""
-test tree-13.3 {swap gives error when trying to swap node with self} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree swap {IT::EM 0} {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "cannot swap node \"IT::EM 0\" with itself"
-test tree-13.4 {swap swaps node relationships correctly} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 0} end {IT::EM 0.2}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
-    mytree swap {IT::EM 0} {IT::EM 0.1}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} [list enter ::mytree root      enter ::mytree {IT::EM 0.1}   enter ::mytree {IT::EM 0} \
-	enter ::mytree {IT::EM 0.1.1} enter ::mytree {IT::EM 0.1.2} enter ::mytree {IT::EM 0.2}]
-test tree-13.5 {swap swaps node relationships correctly} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 0} end {IT::EM 0.2}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
-    mytree swap {IT::EM 0} {IT::EM 0.1.1}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} [list enter ::mytree root enter ::mytree {IT::EM 0.1.1} enter ::mytree {IT::EM 0.1} \
-	enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 0.1.2} enter ::mytree {IT::EM 0.2}]
-test tree-13.6 {swap swaps node relationships correctly} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 1} end {IT::EM 1.1}
-    mytree swap {IT::EM 0} {IT::EM 1}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} [list enter ::mytree root enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 0.1} \
-	enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1.1}]
-test tree-13.7 {swap swaps node relationships correctly} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 0} end {IT::EM 0.2}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
-    mytree swap {IT::EM 0.1} {IT::EM 0}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} [list enter ::mytree root      enter ::mytree {IT::EM 0.1}   enter ::mytree {IT::EM 0} \
-	enter ::mytree {IT::EM 0.1.1} enter ::mytree {IT::EM 0.1.2} enter ::mytree {IT::EM 0.2}]
+############################################################
+# V. Objects to values and back ...
+# - serialize deserialize = -->
+############################################################
 
-test tree-14.1 {get gives error on bogus node} {
+############################################################
+
+test tree-5.1.1 {serialization, wrong #args} {
     tree mytree
-    catch {mytree get {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-14.2 {get gives error on bogus key} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree get {IT::EM 0} -key bogus} msg
-    mytree destroy
-    set msg
-} "invalid key \"bogus\" for node \"IT::EM 0\""
-test tree-14.2 {get uses data as default key} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foobar
-    set result [mytree get {IT::EM 0}]
+    catch {mytree serialize foo bar} result
     mytree destroy
     set result
-} "foobar"
-test tree-14.3 {get respects -key flag} {
+} {wrong # args: should be "::mytree serialize ?node?"}
+
+test tree-5.1.2 {serialization, bogus node} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key boom foobar
-    set result [mytree get {IT::EM 0} -key boom]
+    catch {mytree serialize foo} result
     mytree destroy
     set result
-} "foobar"
+} {node "foo" does not exist in tree "::mytree"}
 
-test tree-15.1 {unset gives error on bogus node} {
+test tree-5.1.3 {serialization} {
     tree mytree
-    catch {mytree unset {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-15.2 {unset does not give error on bogus key} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    set result [catch {mytree unset {IT::EM 0} -key bogus}]
+    mytree insert root end %0
+    mytree insert root end %1
+    mytree insert root end %2
+    mytree insert %0 end %3
+    mytree insert %0 end %4
+
+    set serial [mytree serialize]
+    set result [validate_serial mytree $serial]
     mytree destroy
     set result
-} 0
-test tree-15.3 {unset removes a keyed value from a node} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key foobar foobar
-    mytree unset {IT::EM 0} -key foobar
-    catch {mytree get {IT::EM 0} -key foobar} msg
-    mytree destroy
-    set msg
-} "invalid key \"foobar\" for node \"IT::EM 0\""
-test tree-15.4 {unset requires -key} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key foobar foobar
-    catch {mytree unset {IT::EM 0} flaboozle foobar} msg
-    mytree destroy
-    set msg
-} "invalid option \"flaboozle\": should be \"::mytree unset {IT::EM 0} ?-key key?\""
+    # {{root {} %0 0 %3 2 %4 2 %1 0 %2 0} {}}
+} ok
 
-test tree-16.1 {isleaf} {
+test tree-5.1.4 {serialization} {
     tree mytree
-    set t [mytree isleaf root]
-    mytree insert root end {IT::EM 0}
-    lappend t [mytree isleaf root] [mytree isleaf {IT::EM 0}]
-    mytree destroy
-    set t
-} [list 1 0 1]
-test tree-16.2 {isleaf} {
-    tree mytree
-    catch {mytree isleaf {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
+    mytree insert root end %0
+    mytree insert root end %1
+    mytree insert root end %2
+    mytree insert %0 end %3
+    mytree insert %0 end %4
+    mytree set %4 foo far
 
-test tree-17.1 {index of root fails} {
-    tree mytree
-    catch {mytree index root} msg
-    mytree destroy
-    set msg
-} "cannot determine index of root node"
-test tree-17.2 {index} {
-    tree mytree
-    mytree insert root end {IT::EM 1}
-    mytree insert root end {IT::EM 0}
-    set result [list [mytree index {IT::EM 0}] [mytree index {IT::EM 1}]]
+    set serial [mytree serialize %0]
+    set result [validate_serial mytree $serial %0]
     mytree destroy
     set result
-} [list 1 0]
-test tree-17.3 {index of non-existant node} {
-    tree mytree
-    catch {mytree index {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
+    # {%0 {} {} %3 0 {} %4 0 {foo far data {}}}
+} ok
 
-test tree-18.1 {numchildren} {
-    tree mytree
-    set t [mytree numchildren root]
-    mytree insert root end {IT::EM 0}
-    lappend t [mytree numchildren root] [mytree numchildren {IT::EM 0}]
-    mytree destroy
-    set t
-} [list 0 1 0]
-test tree-18.2 {numchildren} {
-    tree mytree
-    catch {mytree numchildren {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
+############################################################
 
-test tree-19.1 {next from root} {
+test tree-5.2.1 {deserialization, wrong #args} {
     tree mytree
-    set res [mytree next root]
-    mytree destroy
-    set res
-} {}
-test tree-19.2 {next from fake node} {
-    tree mytree
-    catch {mytree next {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-19.3 {next} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    set res [list [mytree next {IT::EM 0}] [mytree next {IT::EM 1}]]
-    mytree destroy
-    set res
-} [list {IT::EM 1} {}]
-
-test tree-20.1 {previous from root} {
-    tree mytree
-    set res [mytree previous root]
-    mytree destroy
-    set res
-} {}
-test tree-20.2 {previous from fake node} {
-    tree mytree
-    catch {mytree previous {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-20.3 {next} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    set res [list [mytree previous {IT::EM 0}] [mytree previous {IT::EM 1}]]
-    mytree destroy
-    set res
-} [list {} {IT::EM 0}]
-
-test tree-21.1 {cutting nodes} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    mytree insert root end {IT::EM 2}
-    mytree insert {IT::EM 1} end {IT::EM 1.0}
-    mytree insert {IT::EM 1} end {IT::EM 1.1}
-    mytree insert {IT::EM 1} end {IT::EM 1.2}
-    mytree cut {IT::EM 1}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
-test tree-21.2 {cutting nodes} {
-    tree mytree
-    catch {mytree cut root} msg
-    mytree destroy
-    set msg
-} {cannot cut root node}
-test tree-21.3 {cut sets parent values of relocated nodes} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    mytree insert root end {IT::EM 2}
-    mytree insert {IT::EM 1} end {IT::EM 1.0}
-    mytree insert {IT::EM 1} end {IT::EM 1.1}
-    mytree insert {IT::EM 1} end {IT::EM 1.2}
-    mytree cut {IT::EM 1}
-    set res [list \
-	    [mytree parent {IT::EM 1.0}] \
-	    [mytree parent {IT::EM 1.1}] \
-	    [mytree parent {IT::EM 1.2}]]
-    mytree destroy
-    set res
-} [list root root root]
-test tree-21.4 {cut removes node} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    mytree insert root end {IT::EM 2}
-    mytree insert {IT::EM 1} end {IT::EM 1.0}
-    mytree insert {IT::EM 1} end {IT::EM 1.1}
-    mytree insert {IT::EM 1} end {IT::EM 1.2}
-    mytree cut {IT::EM 1}
-    set res [mytree exists {IT::EM 1}]
-    mytree destroy
-    set res
-} 0
-test tree-21.5 {cut removes node} {
-    tree mytree
-    catch {mytree cut {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-
-test tree-22.1 {splicing nodes} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1.0}
-    mytree insert root end {IT::EM 1.1}
-    mytree insert root end {IT::EM 1.2}
-    mytree insert root end {IT::EM 2}
-    mytree splice root 1 3 {IT::EM 1}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
-test tree-22.2 {splicing nodes with no node name given} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1.0}
-    mytree insert root end {IT::EM 1.1}
-    mytree insert root end {IT::EM 1.2}
-    mytree insert root end {IT::EM 2}
-    set res [mytree splice root 1 3]
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    list $res $t
-} [list node1 {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree node1 enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}]
-test tree-22.3 {splicing nodes errors on duplicate node name} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1.0}
-    mytree insert root end {IT::EM 1.1}
-    mytree insert root end {IT::EM 1.2}
-    mytree insert root end {IT::EM 2}
-    catch {mytree splice root 1 3 {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" already exists in tree \"::mytree\""
-test tree-22.4 {splicing node sets parent values correctly} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1.0}
-    mytree insert root end {IT::EM 1.1}
-    mytree insert root end {IT::EM 1.2}
-    mytree insert root end {IT::EM 2}
-    mytree splice root 1 3 {IT::EM 1}
-    set res [list \
-	    [mytree parent {IT::EM 1}] \
-	    [mytree parent {IT::EM 1.0}] \
-	    [mytree parent {IT::EM 1.1}] \
-	    [mytree parent {IT::EM 1.2}]]
-    mytree destroy
-    set res
-} [list root {IT::EM 1} {IT::EM 1} {IT::EM 1}]
-test tree-22.5 {splicing node works with strange index} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1.0}
-    mytree insert root end {IT::EM 1.1}
-    mytree insert root end {IT::EM 1.2}
-    mytree insert root end {IT::EM 2}
-    mytree splice root -5 12 {IT::EM 1}
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} {enter ::mytree root enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
-test tree-22.6 {splicing nodes with no node name and no "to" index given} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1.0}
-    mytree insert root end {IT::EM 1.1}
-    mytree insert root end {IT::EM 1.2}
-    mytree insert root end {IT::EM 2}
-    mytree splice root 1
-    set t [list ]
-    mytree walk root -command {lappend t %a %t %n}
-    mytree destroy
-    set t
-} {enter ::mytree root enter ::mytree {IT::EM 0} enter ::mytree node1 enter ::mytree {IT::EM 1.0} enter ::mytree {IT::EM 1.1} enter ::mytree {IT::EM 1.2} enter ::mytree {IT::EM 2}}
-
-test tree-23.1 {getall gives error on bogus node} {
-    tree mytree
-    catch {mytree getall {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-23.2 {getall gives error when key specified} {
-    tree mytree
-    catch {mytree getall {IT::EM 0} -key data} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-23.3 {getall with node name returns list of key/value pairs} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foobar
-    mytree set {IT::EM 0} -key other thing
-    set results [mytree getall {IT::EM 0}]
-    mytree destroy
-    lsort $results
-} "data foobar other thing"
-  
-test tree-24.1 {keys gives error on bogus node} {
-    tree mytree
-    catch {mytree keys {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-24.2 {keys gives error when key specified} {
-    tree mytree
-    catch {mytree keys {IT::EM 0} -key data} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-24.3 {keys with node name returns list of keys} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foobar
-    mytree set {IT::EM 0} -key other thing
-    set results [mytree keys {IT::EM 0}]
-    mytree destroy
-    lsort $results
-} "data other"
-  
-test tree-25.1 {keyexists gives error on bogus node} {
-    tree mytree
-    catch {mytree keyexists {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-25.2 {keyexists returns false on non-existant key} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree keyexists {IT::EM 0} -key bogus} msg
-    mytree destroy
-    set msg
-} "0"
-test tree-25.3 {keyexists uses data as default key} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foobar
-    set result [mytree keyexists {IT::EM 0}]
+    catch {mytree deserialize foo bar} result
     mytree destroy
     set result
-} "1"
-test tree-25.4 {keyexists respects -key flag} {
+} {wrong # args: should be "::struct::tree::_deserialize name serial"}
+
+test tree-5.2.2 {deserialization} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key boom foobar
-    set result [mytree keyexists {IT::EM 0} -key boom]
+    set serial {. %0 {} {} %3 0 {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: list length not a multiple of 3.}}
+
+test tree-5.2.3 {deserialization} {
+    tree mytree
+    set serial {%3 0 {} %4 0 {foo far . data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: malformed attribute dictionary.}}
+
+test tree-5.2.4 {deserialization} {
+    tree mytree
+    set serial {%3 -1 {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "-1".}}
+
+test tree-5.2.5 {deserialization} {
+    tree mytree
+    set serial {%3 .. {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "..".}}
+
+test tree-5.2.6 {deserialization} {
+    tree mytree
+    set serial {%3 .. {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "..".}}
+
+test tree-5.2.7 {deserialization} {
+    tree mytree
+    set serial {%3 1 {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "1".}}
+
+test tree-5.2.8 {deserialization} {
+    tree mytree
+    set serial {%3 2 {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "2".}}
+
+test tree-5.2.9 {deserialization} {
+    tree mytree
+    set serial {%3 8 {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "8".}}
+
+test tree-5.2.10 {deserialization} {
+    tree mytree
+    set serial {%3 6 {} %4 0 {foo far data {}}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: bad parent reference "6".}}
+
+test tree-5.2.11 {deserialization} {
+    tree mytree
+    set serial {%3 0 {} %4 0 {}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: no root specified.}}
+
+test tree-5.2.12 {deserialization} {
+    tree mytree
+    set serial {%3 {} {} %4 {} {} %x 0 {}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: multiple root nodes.}}
+
+test tree-5.2.13 {deserialization} {
+    tree mytree
+    set serial {%3 3 {} %3 {} {} %x 0 {}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: duplicate node names.}}
+
+test tree-5.2.14 {deserialization} {
+    tree mytree
+    set serial {%3 0 {} %4 {} {} %x 0 {}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: cycle detected.}}
+
+test tree-5.2.15 {deserialization} {
+    tree mytree
+    set serial {%3 3 {} %4 0 {} %x {} {}}
+    set fail [catch {mytree deserialize $serial} result]
+    mytree destroy
+    list $fail $result
+} {1 {error in serialization: cycle detected.}}
+
+
+test tree-5.2.16 {deserialization} {
+    tree mytree
+
+    # Our check of the success of the deserialization
+    # is to validate the generated tree against the
+    # serialized data.
+
+    set serial {%0 {} {} %3 0 {} %4 0 {foo far data {}}}
+
+    set     result [list]
+    lappend result [validate_serial mytree $serial]
+
+    mytree deserialize $serial
+    lappend result [validate_serial mytree $serial]
+    lappend result [mytree rootname]
+
     mytree destroy
     set result
-} "1"
+} {node/%0/unknown ok %0}
 
-test tree-26.1 {append gives error on bogus node} {
+test tree-5.2.17 {deserialization} {
     tree mytree
-    catch {mytree append {IT::EM 0}} msg
-    mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-26.2 {append with node name appends to "data" value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foo
-    set result [mytree append {IT::EM 0} bar]
+
+    # Our check of the success of the deserialization
+    # is to validate the generated tree against the
+    # serialized data.
+
+    # Applying to serialization one after the
+    # other. Checking that the second operation
+    # completely squashes the data from the first.
+
+    set seriala {root {} {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
+    set serialb {%0 {} {} %3 0 {} %4 0 {foo far data {}}}
+
+    set     result [list]
+    lappend result [validate_serial mytree $seriala]
+    lappend result [validate_serial mytree $serialb]
+    lappend result [mytree rootname]
+
+    mytree deserialize $seriala
+    lappend result [validate_serial mytree $seriala]
+    lappend result [validate_serial mytree $serialb]
+    lappend result [mytree rootname]
+
+    mytree deserialize $serialb
+    lappend result [validate_serial mytree $seriala]
+    lappend result [validate_serial mytree $serialb]
+    lappend result [mytree rootname]
+
     mytree destroy
     set result
-} "foobar"
-test tree-26.3 {append with node name and key appends key value} {
+} [list node/%0/unknown node/%0/unknown root \
+	ok attr/%4/mismatch root \
+	node/root/unknown ok %0]
+
+############################################################
+
+test tree-5.3.1 {tree assignment} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key baz foo
-    set result [mytree append {IT::EM 0} -key baz bar]
+    catch {mytree = foo bar} result
     mytree destroy
     set result
-} "foobar"
-test tree-26.4 {append with too many args gives error} {
+} {wrong # args: should be "::struct::tree::_= name source"}
+
+test tree-5.3.2 {tree assignment} {
+    set serial {root {} {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
+
     tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree append {IT::EM 0} foo bar baz boo} msg
+    tree btree
+
+    mytree deserialize $serial
+
+    set result [validate_serial btree $serial]
+    btree = mytree
+    lappend result [validate_serial btree $serial]
+
     mytree destroy
-    set msg
-} "wrong # args: should be \"::mytree set {IT::EM 0} ?-key key? value\""
-test tree-26.5 {append with bad args} {
+    btree  destroy
+    set result
+} {node/%0/unknown ok}
+
+############################################################
+
+test tree-5.4.1 {reverse tree assignment} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree append {IT::EM 0} -foo bar baz} msg
-    mytree destroy
-    set msg
-} "invalid option \"-foo\": should be -key"
-test tree-26.6 {append respects -key flag} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key baz foo
-    set result [mytree append {IT::EM 0} -key baz bar]
+    catch {mytree --> foo bar} result
     mytree destroy
     set result
-} "foobar"
+} {wrong # args: should be "::struct::tree::_--> name dest"}
 
-test tree-27.1 {lappend gives error on bogus node} {
+test tree-5.4.2 {reverse tree assignment} {
+
+    set serial {root {} {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
+
     tree mytree
-    catch {mytree lappend {IT::EM 0}} msg
+    tree btree
+
+    mytree deserialize $serial
+
+    set result [validate_serial btree $serial]
+    mytree --> btree
+    lappend result [validate_serial btree $serial]
+
     mytree destroy
-    set msg
-} "node \"IT::EM 0\" does not exist in tree \"::mytree\""
-test tree-27.2 {lappend with node name appends to "data" value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} foo
-    set result [mytree lappend {IT::EM 0} bar]
-    mytree destroy
+    btree  destroy
     set result
-} "foo bar"
-test tree-27.3 {lappend with node name and key appends key value} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key baz foo
-    set result [mytree lappend {IT::EM 0} -key baz bar]
-    mytree destroy
+} {node/%0/unknown ok}
+
+############################################################
+
+test tree-5.5.1 {copy construction, wrong # args} {
+    catch {tree mytree = a b} result
     set result
-} "foo bar"
-test tree-27.4 {lappend with too many args gives error} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree lappend {IT::EM 0} foo bar baz boo} msg
-    mytree destroy
-    set msg
-} "wrong # args: should be \"::mytree lappend {IT::EM 0} ?-key key? value\""
-test tree-27.5 {lappend with bad args} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    catch {mytree lappend {IT::EM 0} -foo bar baz} msg
-    mytree destroy
-    set msg
-} "invalid option \"-foo\": should be -key"
-test tree-27.6 {lappend respects -key flag} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree set {IT::EM 0} -key baz foo
-    set result [mytree lappend {IT::EM 0} -key baz bar]
-    mytree destroy
+} {wrong # args: should be "tree ?name ?=|:=|as|deserialize source??"}
+
+test tree-5.5.2 {copy construction, unknown operator} {
+    catch {tree mytree foo a} result
     set result
-} "foo bar"
+} {wrong # args: should be "tree ?name ?=|:=|as|deserialize source??"}
 
+test tree-5.5.3 {copy construction, value} {
+    set serial {root {} {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
 
-test tree-28.1 {serialization} {
-
-    tree mytree
-    mytree insert root end 0
-    mytree insert root end 1
-    mytree insert root end 2
-    mytree insert 0 end 3
-    mytree insert 0 end 4
-
-    set result [mytree serialize]
+    tree mytree deserialize $serial
+    set result [validate_serial mytree $serial]
     mytree destroy
+
     set result
-} {{root {{0 {{3 {}} {4 {}}}} {1 {}} {2 {}}}} {4 {} 0 {} root {} 1 {} 2 {} 3 {}}}
+} ok
 
-test tree-28.2 {serialization} {
+test tree-5.5.4 {copy construction, tree} {
+    set serial {root {} {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
 
-    tree mytree
-    mytree insert root end 0
-    mytree insert root end 1
-    mytree insert root end 2
-    mytree insert 0 end 3
-    mytree insert 0 end 4
+    tree mytree deserialize $serial
+    tree btree = mytree
 
-    set result [mytree serialize 0]
+    set result [validate_serial btree $serial]
     mytree destroy
-    set result
-} {{0 {{3 {}} {4 {}}}} {4 {} 0 {} 3 {}}}
+    btree  destroy
 
+    set result
+} ok
+
+############################################################
 ::tcltest::cleanupTests
