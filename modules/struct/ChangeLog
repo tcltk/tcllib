@@ -1,8 +1,14 @@
 2000-04-07  Eric Melski  <ericm@scriptics.com>
 
+	* stack.test: 
+	* queue.test: Changed "package require struct" to "source [file
+	join [file dirname [info script]] xxxx.tcl]", which is more reliable.
+
+	* tree.test: 
 	* tree.tcl: Added support for different walk orders (post,
 	in, and both) [RFE: 4420].  Added support for percent substitution
-	on walk command.
+	on walk command.  (WalkCall) Added protection against node/tree
+	names with spaces.
 
 	* graph.tcl: 
 	* graph.test: 

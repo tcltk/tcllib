@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.9 2000/04/07 18:59:25 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.10 2000/04/07 21:37:30 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -1153,6 +1153,11 @@ proc ::struct::tree::_walk {name node args} {
 #	None.
 
 proc ::struct::tree::WalkCall {tree node action cmd} {
-    uplevel 3 [string map [list %n $node %a $action %t $tree %% %] $cmd]
+    uplevel 3 [string map [list \
+	    %n [list $node]	\
+	    %a [list $action]	\
+	    %t [list $tree]	\
+	    %% %] 		\
+	    $cmd]
     return
 }

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.9 2000/04/07 18:59:25 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.10 2000/04/07 21:37:30 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -583,6 +583,20 @@ test tree-12.1.5 {pre dfs walk, different % specifiers} {
 } [list % mytree % mytree % mytree \
 	% mytree % mytree \
 	% mytree % mytree]
+
+test tree-12.1.6 {pre dfs walk, nodes with spaces in names} {
+    tree mytree
+    set t [list ]
+    mytree insert root end "node 0"
+    mytree insert root end "node 1"
+    mytree insert "node 0" end "node 0 1"
+    mytree insert "node 0" end "node 0 2"
+    mytree insert "node 1" end "node 1 1"
+    mytree insert "node 1" end "node 1 2"
+    mytree walk root -type dfs -command {lappend t %n}
+    mytree destroy
+    set t
+} [list root "node 0" "node 0 1" "node 0 2" "node 1" "node 1 1" "node 1 2"]
 
 test tree-12.2 {pre bfs walk} {
     tree mytree
