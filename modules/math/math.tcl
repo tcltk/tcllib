@@ -7,9 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.5 2000/06/15 23:46:45 ericm Exp $
-
-package provide math 1.0
+# RCS: @(#) $Id: math.tcl,v 1.6 2000/09/09 01:46:25 ericm Exp $
 
 namespace eval ::math {
 }
@@ -204,6 +202,36 @@ proc ::math::product {val args} {
     set prod
 }
 
+# ::math::random --
+#
+#	Return a random number in a given range.
+#
+# Arguments:
+#	args	optional arguments that specify the range within which to
+#		choose a number:
+#			(null)		choose a number between 0 and 1
+#			val		choose a number between 0 and val
+#			val1 val2	choose a number between val1 and val2
+#
+# Results:
+#	num	a random number in the range.
+
+proc ::math::random {args} {
+    set num [expr {rand()}]
+    if { [llength $args] == 0 } {
+	return $num
+    } elseif { [llength $args] == 1 } {
+	return [expr {int($num * [lindex $args 0])}]
+    } elseif { [llength $args] == 2 } {
+	foreach {lower upper} $args break
+	set range [expr {$upper - $lower}]
+	return [expr {int($num * $range) + $lower}]
+    } else {
+	set fn [lindex [info level 0] 0]
+	error "wrong # args: should be \"$fn ?value1? ?value2?\""
+    }
+}
+
 # ::math::sigma --
 #
 #	Return the standard deviation of three or more values
@@ -281,3 +309,4 @@ proc ::math::sum {val args} {
     set sum
 }
 
+package provide math 1.1

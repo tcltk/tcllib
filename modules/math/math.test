@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.5 2000/06/15 23:46:46 ericm Exp $
+# RCS: @(#) $Id: math.test,v 1.6 2000/09/09 01:46:25 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -193,5 +193,32 @@ test math-9.1 { math::integrate, insufficient data points } {
 test math-9.2 { simple math::integrate } {
      math::integrate {1 10 2 20 3 30 4 40 5 50 6 60 7 70 8 80 9 90 10 100}
 } {500.0 0.5}     
+
+test math-10.1 { math::random } {
+    set result [expr round(srand(12345) * 1000)]
+    for {set i 0} {$i < 10} {incr i} {
+        lappend result [expr round([::math::random] * 1000)]
+    }
+    set result
+} {97 834 948 36 12 51 766 585 914 784 333}
+test math-10.2 { math::random value } {
+    set result {}
+    expr {srand(12345)}
+    for {set i 0} {$i < 10} {incr i} {
+        lappend result [::math::random 10]
+    }
+    set result
+} {8 9 0 0 0 7 5 9 7 3}
+test math-10.3 { math::random value value } {
+    set result {}
+    expr {srand(12345)}
+    for {set i 0} {$i < 10} {incr i} {
+        lappend result [::math::random 5 15]
+    }
+    set result
+} {13 14 5 5 5 12 10 14 12 8}
+test math-10.4 {math::random} {
+    list [catch {::math::random foo bar baz} msg] $msg
+} [list 1 "wrong # args: should be \"::math::random ?value1? ?value2?\""]
 
 ::tcltest::cleanupTests
