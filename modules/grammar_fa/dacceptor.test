@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: dacceptor.test,v 1.1 2004/04/09 21:11:50 andreas_kupries Exp $
+# RCS: @(#) $Id: dacceptor.test,v 1.2 2004/05/30 04:45:43 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for grammar::fa::dacceptor."
@@ -24,10 +24,15 @@ package forget grammar::fa::dacceptor ; catch {namespace delete ::grammar::fa::d
 package forget grammar::fa::op        ; catch {namespace delete ::grammar::fa::op}
 package forget grammar::fa            ; catch {namespace delete ::grammar::fa}
 package forget snit                   ; catch {namespace delete ::snit}
-package forget struct                 ; catch {namespace delete ::struct}
+package forget struct::set            ; catch {namespace delete ::struct::set}
+package forget struct::list           ; catch {namespace delete ::struct::list}
 
-if {[catch {source [file join [file dirname [file dirname [info script]]] struct struct.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct.tcl): $msg"
+if {[catch {source [file join [file dirname [file dirname [info script]]] struct list.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (list.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [file dirname [info script]]] struct sets.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (sets.tcl): $msg"
     return
 }
 if {[catch {source [file join [file dirname [file dirname [info script]]] snit snit.tcl]} msg]} {
@@ -44,7 +49,7 @@ if {[catch {source [file join [file dirname [info script]] faop.tcl]} msg]} {
     puts $::errorInfo
     return
 }
-if {[catch {source [file join [file dirname [info script]] daccept.tcl]} msg]} {
+if {[catch {source [file join [file dirname [info script]] dacceptor.tcl]} msg]} {
     puts "skipped [file tail [info script]] (daccept.tcl): $msg"
     puts $::errorInfo
     return
@@ -59,7 +64,8 @@ package require grammar::fa
 puts "- grammar::fa::dacceptor [package present grammar::fa::dacceptor]"
 puts "  - grammar::fa::op [package present grammar::fa::op]"
 puts "  - grammar::fa     [package present grammar::fa]"
-puts "  - struct          [package present struct]"
+puts "  - struct::set     [package present struct::set]"
+puts "  - struct::list    [package present struct::list]"
 puts "  - snit            [package present snit]"
 
 set class ::grammar::fa::dacceptor

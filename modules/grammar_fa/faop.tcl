@@ -7,9 +7,9 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require grammar::fa ; # Tcllib | FA containers
-package require log         ; # Tcllib | Tracing and Logging
-package require struct      ; # Tcllib | extended list, set operations.
+package require grammar::fa  ; # Tcllib | FA containers
+package require struct::list ; # Tcllib | Extended list operations.
+package require struct::set  ; # Tcllib | Extended set operations.
 
 # ### ### ### ######### ######### #########
 ## Implementation

@@ -3970,7 +3970,7 @@ test expose-1.1 {can't expose nothing.} {
     } result
     
     set result
-} {wrong # args: should be "::snit::Type.Expose component ?as? ?methodname?"}
+} {wrong # args: should be "::snit::Type.Expose type component ?as? ?methodname?"}
 
 
 test expose-1.2 {expose a component that's never installed.} {
@@ -4273,100 +4273,6 @@ test emethod-1.6 {can't define external method if no type} {
     set result
 } {no such type: 'extremelyraredog'}
 
-#-----------------------------------------------------------------------
-# Macros
-
-test macro-1.1 {can't redefine non-macros.} {
-    cleanup
-
-    catch {
-        snit::macro method {} {}
-    } result
-    set result
-} {invalid macro name 'method'}
-
-test macro-1.2 {can define and use a macro.} {
-    cleanup
-
-    snit::macro hello {name} {
-        method hello {} "return {Hello, $name!}"
-    }
-
-    type dog {
-        hello World
-    }
-
-    dog spot
-
-    spot hello
-
-} {Hello, World!}
-
-test macro-1.3 {can redefine macro.} {
-    cleanup
-
-    snit::macro dup {} {}
-    snit::macro dup {} {}
-
-    set dummy "No error"
-} {No error}
-
-test macro-1.4 {can define macro in namespace.} {
-    cleanup
-
-    snit::macro ::test::goodbye {name} {
-        method goodbye {} "return {Goodbye, $name!}"
-    }
-
-    type dog {
-        ::test::goodbye World
-    }
-
-    dog spot
-
-    spot goodbye
-} {Goodbye, World!}
-
-test macro-1.5 {_proc and _variable are defined.} {
-    cleanup
-
-    snit::macro testit {} {
-        set a [info commands _variable]
-        set b [info commands _proc]
-        method testit {} "list $a $b"
-    }
-
-    type dog {
-        testit
-    }
-
-    dog spot
-
-    spot testit
-} {_variable _proc}
-
-test macro-1.6 {_variable works.} {
-    cleanup
-
-    snit::macro test1 {} {
-        _variable myvar "_variable works"
-    }
-
-    snit::macro test2 {} {
-        _variable myvar
-
-        method testit {} "return {$myvar}"
-    }
-
-    type dog {
-        test1
-        test2
-    }
-
-    dog spot
-
-    spot testit
-} {_variable works}
 
 #---------------------------------------------------------------------
 # Clean up

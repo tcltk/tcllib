@@ -1165,16 +1165,10 @@ namespace eval ::snit:: {
 # and are disposed afterwards.
 
 namespace eval ::snit:: {
-    # The compiler variable contains the name of the slave interpreter
-    # used to compile type definitions.
-    variable compiler ""
-
     # The compile array accumulates information about the type or
     # widgettype being compiled.  It is cleared before and after each
     # compilation.  It has these indices:
     #
-    # type:              The name of the type being compiled, for use
-    #                    in compilation procs.
     # defs:              Compiled definitions, both standard and client.
     # which:             type, widget, widgetadaptor
     # instancevars:      Instance variable definitions and initializations.
@@ -1188,12 +1182,9 @@ namespace eval ::snit:: {
     # delegatedmethods:  Names of delegated methods.
     # components:        Names of defined components.
     # typevars:          See 'instancevars' above, except this is for typevariables.
+
     variable compile
 
-    # The following variable lists the reserved type definition statement
-    # names, e.g., the names you can't use as macros.  It's built at
-    # compiler definition time using "info commands".
-    variable reservedwords {}
 }
 
 #-----------------------------------------------------------------------
@@ -1203,53 +1194,10 @@ namespace eval ::snit:: {
 # the type definition.  These are the procs
 # that are aliased into it.
 
-# Initialize the compiler
-proc ::snit::Init.Compiler {} {
-    variable compiler
-    variable reservedwords
-
-    if {$compiler eq ""} {
-        # Create the compiler's interpreter
-        set compiler [interp create]
-
-        # Initialize the interpreter
-	$compiler eval {
-            # Load package information
-            catch {package require snit::__does_not_exist__}
-
-            # Protect some Tcl commands our type definitions
-            # will shadow.
-            rename proc _proc
-            rename variable _variable
-        }
-
-        # Define compilation aliases.
-        $compiler alias widgetclass     ::snit::Type.Widgetclass
-        $compiler alias hulltype        ::snit::Type.Hulltype
-        $compiler alias constructor     ::snit::Type.Constructor
-        $compiler alias destructor      ::snit::Type.Destructor
-        $compiler alias option          ::snit::Type.Option
-        $compiler alias oncget          ::snit::Type.Oncget
-        $compiler alias onconfigure     ::snit::Type.Onconfigure
-        $compiler alias method          ::snit::Type.Method
-        $compiler alias typemethod      ::snit::Type.Typemethod
-        $compiler alias typeconstructor ::snit::Type.Typeconstructor
-        $compiler alias proc            ::snit::Type.Proc
-        $compiler alias typevariable    ::snit::Type.Typevariable
-        $compiler alias variable        ::snit::Type.Variable
-        $compiler alias delegate        ::snit::Type.Delegate
-        $compiler alias expose          ::snit::Type.Expose
-
-        # Get the list of reserved words
-        set reservedwords [$compiler eval {info commands}]
-    }
-}
-
-
 # Defines a widget's option class name.  
 # This statement is only available for snit::widgets,
 # not for snit::types or snit::widgetadaptors.
-proc ::snit::Type.Widgetclass {name} {
+proc ::snit::Type.Widgetclass {type name} {
     variable compile
 
     # First, widgetclass can only be set for true widgets
@@ -1279,7 +1227,7 @@ proc ::snit::Type.Widgetclass {name} {
 # Defines a widget's hull type.
 # This statement is only available for snit::widgets,
 # not for snit::types or snit::widgetadaptors.
-proc ::snit::Type.Hulltype {name} {
+proc ::snit::Type.Hulltype {type name} {
     variable compile
 
     # First, hulltype can only be set for true widgets
@@ -1305,7 +1253,7 @@ proc ::snit::Type.Hulltype {name} {
 }
 
 # Defines a constructor.
-proc ::snit::Type.Constructor {arglist body} {
+proc ::snit::Type.Constructor {type arglist body} {
     variable compile
 
     CheckArgs "constructor" $arglist
@@ -1320,7 +1268,7 @@ proc ::snit::Type.Constructor {arglist body} {
 } 
 
 # Defines a destructor.
-proc ::snit::Type.Destructor {body} {
+proc ::snit::Type.Destructor {type body} {
     variable compile
 
     # Next, add variable declarations to body:
@@ -1331,7 +1279,7 @@ proc ::snit::Type.Destructor {body} {
 
 # Defines a type option.  The option value can be a triple, specifying
 # the option's -name, resource name, and class name. 
-proc ::snit::Type.Option {optionDef {defvalue ""}} {
+proc ::snit::Type.Option {type optionDef {defvalue ""}} {
     variable compile
 
     # First, get the three option names.
@@ -1388,7 +1336,7 @@ proc ::snit::Type.Option {optionDef {defvalue ""}} {
 }
 
 # Defines an option's cget handler
-proc ::snit::Type.Oncget {option body} {
+proc ::snit::Type.Oncget {type option body} {
     variable compile
 
     if {[lsearch $compile(delegatedoptions) $option] != -1} {
@@ -1409,7 +1357,7 @@ proc ::snit::Type.Oncget {option body} {
 } 
 
 # Defines an option's configure handler.
-proc ::snit::Type.Onconfigure {option arglist body} {
+proc ::snit::Type.Onconfigure {type option arglist body} {
     variable compile
 
     if {[lsearch $compile(delegatedoptions) $option] != -1} {
@@ -1440,7 +1388,7 @@ proc ::snit::Type.Onconfigure {option arglist body} {
 } 
 
 # Defines an instance method.
-proc ::snit::Type.Method {method arglist body} {
+proc ::snit::Type.Method {type method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedmethods)]} {
@@ -1467,7 +1415,7 @@ proc ::snit::Type.Method {method arglist body} {
 } 
 
 # Defines a typemethod method.
-proc ::snit::Type.Typemethod {method arglist body} {
+proc ::snit::Type.Typemethod {type method arglist body} {
     variable compile
 
     CheckArgs "typemethod $method" $arglist
@@ -1487,7 +1435,7 @@ proc ::snit::Type.Typemethod {method arglist body} {
 } 
 
 # Defines a typemethod method.
-proc ::snit::Type.Typeconstructor {body} {
+proc ::snit::Type.Typeconstructor {type body} {
     variable compile
 
     if {"" != $compile(typeconstructor)} {
@@ -1498,7 +1446,7 @@ proc ::snit::Type.Typeconstructor {body} {
 } 
 
 # Defines a static proc in the type's namespace.
-proc ::snit::Type.Proc {proc arglist body} {
+proc ::snit::Type.Proc {type proc arglist body} {
     variable compile
 
     # If "ns" is defined, the proc can see instance variables.
@@ -1518,7 +1466,7 @@ proc ::snit::Type.Proc {proc arglist body} {
 } 
 
 # Defines a static variable in the type's namespace.
-proc ::snit::Type.Typevariable {name args} {
+proc ::snit::Type.Typevariable {type name args} {
     variable compile
 
     if {[llength $args] > 1} {
@@ -1538,7 +1486,7 @@ proc ::snit::Type.Typevariable {name args} {
 
 # Defines an instance variable; the definition will go in the
 # type's create typemethod.
-proc ::snit::Type.Variable {name args} {
+proc ::snit::Type.Variable {type name args} {
     variable compile
     
     if {[llength $args] > 1} {
@@ -1558,6 +1506,7 @@ proc ::snit::Type.Variable {name args} {
 # component and, optionally, to a particular option or method of that
 # component.
 #
+# type          The type name
 # which         method | option
 # name          The name of the method or option, or * for all unknown
 #               methods or options
@@ -1570,7 +1519,7 @@ proc ::snit::Type.Variable {name args} {
 #               handling.
 
 proc ::snit::Type.Delegate {
-    which name "to" component {"as" ""} {thing ""} args
+    type which name "to" component {"as" ""} {thing ""} args
 } {
     variable compile
 
@@ -1610,10 +1559,10 @@ proc ::snit::Type.Delegate {
     # NEXT, dispatch to method or option handler.
     switch $which {
         method {
-            DelegatedMethod $name $component $target $exceptions
+            DelegatedMethod $type $name $component $target $exceptions
         }
         option {
-            DelegatedOption $name $component $target $exceptions
+            DelegatedOption $type $name $component $target $exceptions
         }
         default {
             error "syntax error in definition: delegate $which $name..."
@@ -1621,7 +1570,7 @@ proc ::snit::Type.Delegate {
     }
 
     # NEXT, define the component
-    DefineComponent $component
+    DefineComponent $type $component
 }
 
 # Defines a name to be a component
@@ -1635,9 +1584,10 @@ proc ::snit::Type.Delegate {
 # variable get none of this special handling.  But since this handling
 # is to support the delegate statements, that's OK.
 #
+# type          The type name
 # component     The component name
 
-proc ::snit::DefineComponent {component} {
+proc ::snit::DefineComponent {type component} {
     variable compile
 
     if {[lsearch $compile(components) $component] == -1} {
@@ -1645,13 +1595,13 @@ proc ::snit::DefineComponent {component} {
         lappend compile(components) $component
 
         # Make it an instance variable with no initial value
-        Type.Variable $component ""
+        Type.Variable $type $component ""
 
         # Add a write trace to do the component thing.
         Mappend compile(instancevars) {
             trace add variable %COMP% write \
                 [list %TYPE%::Snit_comptrace $selfns %COMP%]
-        } %TYPE% $compile(type) %COMP% $component
+        } %TYPE% $type %COMP% $component
     }
 } 
 
@@ -1659,6 +1609,7 @@ proc ::snit::DefineComponent {component} {
 # component and, optionally, to a particular method of that
 # component.
 #
+# type          The type name
 # method        The name of the method
 # component     The logical name of the delegate
 # target        The name of the delegate's method, possibly with arguments,
@@ -1666,7 +1617,7 @@ proc ::snit::DefineComponent {component} {
 # exceptions    When method is "*", this can be a list of methods not to 
 #               delegate, or {}; otherwise, it's guaranteed to be {}.
 
-proc ::snit::DelegatedMethod {method component target exceptions} {
+proc ::snit::DelegatedMethod {type method component target exceptions} {
     variable compile
 
     if {![string equal $method "*"] &&
@@ -1696,13 +1647,14 @@ proc ::snit::DelegatedMethod {method component target exceptions} {
 # component and, optionally, to a particular option of that
 # component.
 #
+# type          The type name
 # option        The name of the option
 # component     The logical name of the delegate
 # target        The name of the delegate's option, or "".
 # exceptions    When option is "*", this can be a list of options not to 
 #               delegate, or {}
 
-proc ::snit::DelegatedOption {optionDef component target exceptions} {
+proc ::snit::DelegatedOption {type optionDef component target exceptions} {
     variable compile
 
     # First, get the three option names.
@@ -1767,16 +1719,17 @@ proc ::snit::DelegatedOption {optionDef component target exceptions} {
 # Exposes a component, effectively making the component's command an
 # instance method.
 #
+# type          The type name
 # component     The logical name of the delegate
 # "as"          sugar; if not "", must be "as"
 # methodname    The desired method name for the component's command, or ""
 
-proc ::snit::Type.Expose {component {"as" ""} {methodname ""}} {
+proc ::snit::Type.Expose {type component {"as" ""} {methodname ""}} {
     variable compile
 
 
     # FIRST, define the component
-    DefineComponent $component
+    DefineComponent $type $component
 
     # NEXT, define the method just as though it were in the type
     # definition.
@@ -1784,7 +1737,7 @@ proc ::snit::Type.Expose {component {"as" ""} {methodname ""}} {
         set methodname $component
     }
 
-    Type.Method $methodname args [Expand {
+    Type.Method $type $methodname args [Expand {
         if {[llength $args] == 0} {
             return $%COMPONENT%
         }
@@ -1871,32 +1824,6 @@ proc ::snit::method {type method arglist body} {
     uplevel [list proc ${type}::Snit_method$method $arglist $body]
 }
 
-# Defines a proc within the compiler; this proc can call other
-# type definition statements, and thus can be used for meta-programming.
-proc snit::macro {name arglist body} {
-    variable compiler
-    variable reservedwords
-
-    # FIRST, make sure the compiler is defined.
-    Init.Compiler
-
-    # NEXT, check the macro name against the reserved words
-    if {[lsearch -exact $reservedwords $name] != -1} {
-        error "invalid macro name '$name'"
-    }
-
-    # NEXT, see if the name has a namespace; if it does, define the
-    # namespace.
-    set ns [namespace qualifiers $name]
-
-    if {$ns ne ""} {
-        $compiler eval "namespace eval $ns {}"
-    }
-
-    # NEXT, define the macro
-    $compiler eval [list _proc $name $arglist $body]
-}
-
 
 #-----------------------------------------------------------------------
 # Definition commands
@@ -1905,7 +1832,6 @@ proc ::snit::Define {which type body} {
     variable typeTemplate
     variable defs
     variable compile
-    variable compiler
 
     # FIRST, qualify the name.
     if {![string match "::*" $type]} {
@@ -1919,33 +1845,29 @@ proc ::snit::Define {which type body} {
         set type "$ns$type"
     }
 
-    # NEXT, create and initialize the compiler, if needed.
-    Init.Compiler
-
-    # NEXT, define the Snit type definition statements.  We re-alias
-    # this for each type, since the type name is part of the alias.
-    # It would no doubt be quicker to define compile(type) instead,
-    # and alias these once.
-    if 0 {
-    $compiler alias widgetclass     ::snit::Type.Widgetclass
-    $compiler alias hulltype        ::snit::Type.Hulltype
-    $compiler alias constructor     ::snit::Type.Constructor
-    $compiler alias destructor      ::snit::Type.Destructor
-    $compiler alias option          ::snit::Type.Option
-    $compiler alias oncget          ::snit::Type.Oncget
-    $compiler alias onconfigure     ::snit::Type.Onconfigure
-    $compiler alias method          ::snit::Type.Method
-    $compiler alias typemethod      ::snit::Type.Typemethod
-    $compiler alias typeconstructor ::snit::Type.Typeconstructor
-    $compiler alias proc            ::snit::Type.Proc
-    $compiler alias typevariable    ::snit::Type.Typevariable
-    $compiler alias variable        ::snit::Type.Variable
-    $compiler alias delegate        ::snit::Type.Delegate
-    $compiler alias expose          ::snit::Type.Expose
+    # NEXT, create the class interpreter
+    if {![string length [info command class.interp]]} {
+        interp create class.interp
+	class.interp eval {catch {package require snit::__does_not_exist__}}
     }
 
+    class.interp alias widgetclass     ::snit::Type.Widgetclass     $type
+    class.interp alias hulltype        ::snit::Type.Hulltype        $type
+    class.interp alias constructor     ::snit::Type.Constructor     $type
+    class.interp alias destructor      ::snit::Type.Destructor      $type
+    class.interp alias option          ::snit::Type.Option          $type
+    class.interp alias onconfigure     ::snit::Type.Onconfigure     $type
+    class.interp alias oncget          ::snit::Type.Oncget          $type
+    class.interp alias typemethod      ::snit::Type.Typemethod      $type
+    class.interp alias typeconstructor ::snit::Type.Typeconstructor $type
+    class.interp alias method          ::snit::Type.Method          $type
+    class.interp alias proc            ::snit::Type.Proc            $type
+    class.interp alias typevariable    ::snit::Type.Typevariable    $type
+    class.interp alias variable        ::snit::Type.Variable        $type
+    class.interp alias delegate        ::snit::Type.Delegate        $type
+    class.interp alias expose          ::snit::Type.Expose          $type
+
     # NEXT, initialize the class data
-    set compile(type) $type
     set compile(defs) {}
     set compile(which) $which
     set compile(localoptions) {}
@@ -1973,14 +1895,14 @@ proc ::snit::Define {which type body} {
 
     # NEXT, Add the standard definitions; then 
     # evaluate the type's definition in the class interpreter.
-    $compiler eval [Expand $defs(common) %TYPE% $type]
-    $compiler eval [Expand $defs($which) %TYPE% $type]
-    $compiler eval $body
+    class.interp eval [Expand $defs(common) %TYPE% $type]
+    class.interp eval [Expand $defs($which) %TYPE% $type]
+    class.interp eval $body
 
     # NEXT, if this is a widget define the hull component if it isn't
     # already defined.
     if {"widget" == $which} {
-        DefineComponent hull
+        DefineComponent $type hull
     }
 
     # NEXT, substitute the compiled definition into the type template
