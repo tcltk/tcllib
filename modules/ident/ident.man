@@ -1,0 +1,46 @@
+[comment {-*- Tcl -*- doctools manpage}]
+[manpage_begin ident n 0.42]
+[copyright {2004 Reinhard Max <max@tclers.tk>}]
+[moddesc {Identification protocol client}]
+[require Tcl 8.3]
+[require ident [opt 0.42]]
+[description]
+
+The [package ident] package provides a client implementation of the ident
+protocol as defined in RFC 1413. 
+
+[list_begin definitions]
+
+[call [cmd ::ident::query] [arg socket] [opt [arg callback]]]
+
+This command queries the ident daemon on the remote side of the given
+socket, and returns the result of the query as a list of key-value
+pairs.
+
+The first key in the list is always [const resp-type], and can have
+the values [const USERID], [const ERROR], and [const FATAL].
+The response types have the following meanings:
+
+[list_begin definitions]
+
+[lst_item USERID]
+
+This indicates a successful response. Two more keys and
+values are retrned, [const opsys], and [const user-id].
+
+[lst_item ERROR]
+
+This means the ident server has returned an error.
+A second key named [const error] is present whose
+value contains the [const error-type] field from the server response.
+
+[lst_item FATAL]
+
+Fatal errors happen when no ident server is listening on the remote
+side, or when the ident server gives a response that doesn't conform
+to the RFC. A detailed error message is returned under the
+[const error] key.
+
+[list_end]
+[list_end]
+[manpage_end]
