@@ -27,11 +27,36 @@ proc modules {} {
     foreach f [glob -nocomplain [file join $distribution modules *]] {
 	if {![file isdirectory $f]} {continue}
 	if {[string match CVS [file tail $f]]} {continue}
+
+	if {![file exists [file join $f pkgIndex.tcl]]} {continue}
+
 	lappend fl [file tail $f]
     }
+    set fl [lsort $fl]
     proc modules {} [list return $fl]
     return $fl
 }
+
+proc packages {} {
+    global distribution
+    array set p {}
+    foreach m [modules] {
+	set f [open [file join $distribution modules $m pkgIndex.tcl] r]
+	foreach line [split [read $f] \n] {
+	    if { [regexp {#}        $line]} {continue}
+	    if {![regexp {ifneeded} $line]} {continue}
+	    regsub {^.*ifneeded } $line {} line
+	    regsub {([0-9]) \[.*$}  $line {\1} line
+
+	    foreach {n v} $line break
+	    set p($n) $v
+	}
+	close $f
+    }
+    return [array get p]
+}
+
+
 
 proc sep {} {puts ~~~~~~~~~~~~~~~~~~~~~~~~}
 
@@ -268,6 +293,10 @@ proc __help {} {
 
 	/Development
 	modules          - Return list of modules.
+	lmodules         - See above, however one module per line
+	packages         - Return packages in tcllib, plus versions,
+	                   one package per line. Extracted from the
+	                   package indices found in the modules.
 	validate         - Check various parts of tcllib for problems.
 	test ?module...? - Run testsuite for listed modules.
 	                   For all modules if none specified.
@@ -279,6 +308,7 @@ proc __help {} {
 	nroff    - Generate manpages
 	html     - Generate HTML pages
 	tmml     - Generate TMML
+	text     - Generate plain text
 	list     - Generate a list of manpages
 	wiki     - Generate wiki markup
 	latex    - Generate LaTeX pages
@@ -298,8 +328,23 @@ proc __major   {} {global tcllib_version ; puts [lindex [split $tcllib_version .
 # --------------------------------------------------------------
 # Development
 
-proc __modules {} {puts [modules]}
+proc __modules {}  {puts [modules]}
+proc __lmodules {} {puts [join [modules] \n]}
 
+proc __packages {} {
+    array set packages [packages]
+
+    set maxl 0
+    foreach name [lsort [array names packages]] {
+        if {[string length $name] > $maxl} {
+            set maxl [string length $name]
+        }
+    }
+    foreach name [lsort [array names packages]] {
+        puts stdout [format "%-*s %s" $maxl $name $packages($name)]
+    }
+    return
+}
 
 proc __test {} {
     global argv distribution
@@ -396,6 +441,7 @@ proc __gendist {} {
 proc __html  {} {gendoc html  html}
 proc __nroff {} {gendoc nroff n}
 proc __tmml  {} {gendoc tmml  tmml}
+proc __text  {} {gendoc text  txt}
 proc __wiki  {} {gendoc wiki  wiki}
 proc __latex {} {gendoc latex tex}
 proc __dvi   {} {
