@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.1 2000/10/28 03:46:04 kuchler Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.2 2000/10/30 19:38:17 kuchler Exp $
 #
 
 # Define the ftpd package version 1.1
@@ -1726,14 +1726,20 @@ proc ::ftpd::fsFile::fs {command path args} {
 		list {
 	            foreach f [lsort $fileList] {
 			file stat $f stat
-                        set user [file attributes $f -owner]
-                        set group [file attributes $f -group]
-			puts $outchan \
-				[format \
-				"%s %3d %s %8s %11s %s %s" \
-				[PermBits $f $stat(mode)] $stat(nlink) $user \
-				$group $stat(size) \
-                                [FormDate $stat(mtime)] [file tail $f]]
+                        if {[string equal $tcl_platform(platform) "unix"]} {
+                            set user [file attributes $f -owner]
+                            set group [file attributes $f -group]
+
+			    puts $outchan [format "%s %3d %s %8s %11s %s %s" \
+			            [PermBits $f $stat(mode)] $stat(nlink) \
+	                            $user $group $stat(size) \
+                                    [FormDate $stat(mtime)] [file tail $f]]
+                        } else {
+                            puts $outchan [format "%s %3d %11s %s %s" \
+                                    [PermBits $f $stat(mode)] $stat(nlink) \
+                                    $stat(size) [FormDate $stat(mtime)] \
+                                    [file tail $f]]
+                        }
 		    }
 		}
 		default {
