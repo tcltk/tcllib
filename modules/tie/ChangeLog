@@ -1,3 +1,12 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie_rarray_comm.test: Added code to abort tests when trying
+	* tie_rarray.test:      to run them with a Tcl < 8.4.
+	* tie_array.test:
+	* tie_file.test:
+	* tie_log.test:
+	* tie.test:
+
 2004-09-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tie_rarray_comm.test: Fixed test suite dependencies on
