@@ -76,6 +76,10 @@
 #
 #
 #   $Log: des.tcl,v $
+#   Revision 1.5  2003/05/06 23:49:01  patthoyts
+#   	* des.tcl (DesBlock): Change the final result from binary format
+#   	to some bit-shifting for tcl < 8.4 to fix for 64 bit platforms.
+#
 #   Revision 1.4  2003/05/01 00:17:40  andreas_kupries
 #
 #   	* README-1.4txt: New, overview of changes from 1.3 to 1.4.
@@ -367,7 +371,24 @@ namespace eval ::DES {
           error "DES operates only on blocks of 8 bytes, but got $l bytes!"
       }
       binary scan $in II left right
-      return [binary format I* [desAlgorithm $left $right keys]]
+      
+      if {[package vsatisfies [package provide Tcl] 8.4]} {
+          set r [binary format I* [desAlgorithm $left $right keys]]
+      } else {
+          foreach r_elt [desAlgorithm $left $right keys] {
+              append r [bytes $r_elt]
+          }
+      }
+      return $r
+  }
+
+  proc bytes {v} { 
+      #format %c%c%c%c [byte 0 $v] [byte 1 $v] [byte 2 $v] [byte 3 $v]
+      format %c%c%c%c \
+          [expr {((0xFF000000 & $v) >> 24) & 0xFF}] \
+          [expr {(0xFF0000 & $v) >> 16}] \
+          [expr {(0xFF00 & $v) >> 8}] \
+          [expr {0xFF & $v}]
   }
 
   #-------------------------------------------------------------------------
