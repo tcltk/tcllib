@@ -383,7 +383,7 @@ following:
 [example {    # TBD: This example uses the delegation syntax,
     # which isn't yet implemented.
     component mycomp
-    delegate method mymethod -to mycomp -pattern "%c"
+    delegate method mymethod to mycomp using "%c"
 }]
 
 If the [const -inherit] option is specified, then [arg flag] must be a
@@ -393,11 +393,9 @@ implies that instances of this new type inherit, in a sense, the
 methods and options of the component. That is, [const "-inherit yes"] is
 equivalent to:
 
-[example {    # TBD: This example uses the delegation syntax,
-    # which isn't yet implemented.
-    component mycomp
-    delegate option * -to mycomp
-    delegate method * -to mycomp
+[example {    component mycomp
+    delegate option * to mycomp
+    delegate method * to mycomp
 }]
 
 [call [cmd expose] [arg comp]]
@@ -843,9 +841,8 @@ equivalent:
 }]
 
 Note that whichever method is used, [arg compName] must still be
-declared in the type definition using [cmd variable], or must be
-referenced in at least one [cmd delegate] statement.  TBD: Update this
-when [cmd component] is defined.
+declared in the type definition using [cmd component], or must be
+referenced in at least one [cmd delegate] statement.
 
 [nl]
 
@@ -959,14 +956,14 @@ the fully-qualified command name, suitable for passing as a callback.
 When an object includes other objects, as when a toolbar contains
 buttons or a GUI object contains an object that references a database,
 the included object is called a component.  The standard way to handle
-component objects owned by a Snit object is to assign their names to a
-instance variable.  In the following example, a [cmd dog] object has a
-[cmd tail] object:  TBD: Update this description after
-[cmd component] is defined.
+component objects owned by a Snit object is to declare them using
+[cmd component], which creates a component instance variable.  
+In the following example, a [cmd dog] object has a
+[cmd tail] object:
 
 [para]
 [example {    snit::type dog {
-        variable mytail
+        component mytail
     
         constructor {args} {
             set mytail [tail %AUTO% -partof $self]
@@ -996,7 +993,7 @@ to create and install the component:
 
 [para]
 [example {    snit::type dog {
-        variable mytail
+        component mytail
 
         constructor {args} {
             install mytail using tail %AUTO% -partof $self
@@ -1035,7 +1032,8 @@ this:
 [para]
 
 The [cmd delegate] statement in the type definition implicitly defines
-the instance variable [var mytail] to hold the component's name; it
+the instance variable [var mytail] to hold the component's name
+(though it's good form to use [cmd component] to declare it explicitly); it
 also defines the [cmd dog] object's [method wag] method, delegating it
 to the [var tail] component.
 

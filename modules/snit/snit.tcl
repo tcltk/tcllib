@@ -910,12 +910,12 @@ namespace eval ::snit:: {
 	    typevariable Snit_typemethods
 	    array unset Snit_typemethods
 
-	    # Array: Public methods of instances of this type.
-	    # The index is the method name.  For normal methods, 
-	    # the value is "".  For delegated methods, the value is
-	    # [list $component $command].
-	    typevariable Snit_methods
-	    array unset Snit_methods
+            # Array: Public methods of instances of this type.
+            # The index is the method name, or "*".
+            # The value is [list $pattern $componentName], where
+            # $componentName is "" for normal methods.
+            typevariable Snit_methodInfo
+            array unset Snit_methodInfo
 
 	    # Array: default option values
 	    #
@@ -1095,7 +1095,6 @@ namespace eval ::snit:: {
         }
 
         # Generates and caches the command for a method.
-        # TBD: The cache needs to be cleared if certain things are renamed.
         #
         # type:		The instance's type
         # selfns:	The instance's private namespace
@@ -1106,35 +1105,40 @@ namespace eval ::snit:: {
         # argList:      Arguments for the method.
         proc %TYPE%::Snit_cacheLookup {type selfns win self method} {
             typevariable Snit_info
-            typevariable Snit_methods
+            typevariable Snit_methodInfo
             variable ${selfns}::Snit_components
             variable ${selfns}::Snit_methodCache
 
-            if {![info exists Snit_methods($method)]} {
-                if {![info exists Snit_methods(*)] ||
-                    [lsearch -exact $Snit_info(exceptmethods) $method] != -1} {
-                    return ""
-                }
-                set delegate [concat $Snit_methods(*) $method]
+            # FIRST, get the pattern data and the component name.
+            if {[info exists Snit_methodInfo($method)]} {
+                set key $method
+            } elseif {[info exists Snit_methodInfo(*)] &&
+                    [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
+                set key "*"
             } else {
-                set delegate $Snit_methods($method)
+                return ""
             }
 
-            if {[string length $delegate] == 0} {
-                set command \
-                    [list ${type}::Snit_method$method $type $selfns $win $self]
-            } else {
-                # Handle delegate
-                set component [lindex $delegate 0]
+            foreach {pattern compName} $Snit_methodInfo($key) {}
 
-                if {![info exists Snit_components($component)]} {
-                    error "$type $self delegates '$method' to undefined component '$component'."
+            # NEXT, build the substitution list
+            set subList [list \
+                             %% % \
+                             %t [list $type] \
+                             %m [list $method] \
+                             %n [list $selfns] \
+                             %w [list $win] \
+                             %s [list $self]]
+
+            if {$compName ne ""} {
+                if {![info exists Snit_components($compName)]} {
+   error "$type $self delegates '$method' to undefined component '$compName'."
                 }
 
-                set comp $Snit_components($component)
-                
-                set command [lreplace $delegate 0 0 $comp]
+                lappend subList %c [list $Snit_components($compName)]
             }
+
+            set command [string map $subList $pattern]
 
             set Snit_methodCache($method) $command
 
@@ -1462,7 +1466,8 @@ proc ::snit::Type.Method {method arglist body} {
     Mappend compile(defs) {
 
         # Method %METHOD%
-        set  %TYPE%::Snit_methods(%METHOD%) ""
+        set  %TYPE%::Snit_methodInfo(%METHOD%) \
+            {"%t::Snit_method%m %t %n %w %s" ""}
         proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body] 
 } 
@@ -1555,78 +1560,6 @@ proc ::snit::Type.Variable {name args} {
     Mappend compile(ivprocdec) {::variable ${selfns}::%N} %N $name 
 } 
 
-
-# Creates a delegated method or option, delegating it to a particular
-# component and, optionally, to a particular option or method of that
-# component.
-#
-# which         method | option
-# name          The name of the method or option, or * for all unknown
-#               methods or options
-# "to"          sugar; must be "to"
-# component     The logical name of the delegate
-# "as"          sugar; if not "", must be "as" or "except"
-# thing         The name of the delegate's option, or the delegate's method,
-#               possibly with arguments, or a list of excepted methods.
-# args          Must be {}; it's here to let Type.Delegate do better error
-#               handling.
-
-proc ::snit::Type.OldDelegate {
-    which name "to" component {"as" ""} {thing ""} args
-} {
-    variable compile
-
-    set target ""
-    set exceptions ""
-
-    # FIRST, check syntax.
-    set errFlag 0
-
-    if {![string equal $to "to"] || 
-        [llength $args] != 0} {
-        # Basic syntax
-        set errFlag 1
-    }
-
-    if {![string equal $thing ""]} {
-        # If there's a "thing", then the "as" argument indicates what kind
-        # of thing it is.
-
-        if {[string equal $as "as"] && ![string equal $name "*"]} {
-            set target $thing
-        } elseif {[string equal $as "except"] && [string equal $name "*"]} {
-            set exceptions $thing
-        } else {
-            set errFlag 1
-        }
-    } elseif {![string equal $as ""]} {
-        # If there's no "thing" then $as had better be empty.
-
-        set errFlag 1
-    }
-
-    if {$errFlag} {
-        error "syntax error in definition: delegate $which $name..."
-    }
-
-    # NEXT, dispatch to method or option handler.
-    switch $which {
-        method {
-            DelegatedMethod $name $component $target $exceptions
-        }
-        option {
-            DelegatedOption $name $component $target $exceptions
-        }
-        default {
-            error "syntax error in definition: delegate $which $name..."
-        }
-    }
-
-    # NEXT, define the component
-    DefineComponent $component
-}
-
-
 # Creates a delegated method, typemethod, or option.
 proc ::snit::Type.Delegate {what name args} {
     # FIRST, dispatch to correct handler.
@@ -1675,17 +1608,9 @@ proc ::snit::DelegatedMethod {method arglist} {
 
     foreach {opt value} $arglist {
         switch -exact $opt {
-            -to - to {
-                set component $value
-            }
-
-            -as - as {
-                set target $value
-            }
-
-            -except - except {
-                set exceptions $value
-            }
+            to     { set component $value  }
+            as     { set target $value     }
+            except { set exceptions $value }
             default {
                 error "$errRoot, unknown delegation option '$opt'."
             }
@@ -1707,6 +1632,15 @@ proc ::snit::DelegatedMethod {method arglist} {
     # NEXT, define the component
     DefineComponent $component
 
+    # NEXT, define the pattern.
+    if {$method eq "*"} {
+        set pattern "%c %m"
+    } elseif {$target ne ""} {
+        set pattern "%c $target"
+    } else {
+        set pattern "%c %m"
+    }
+
     if {![string equal $method "*"] &&
         [string equal $target ""]} {
         set target $method
@@ -1718,8 +1652,10 @@ proc ::snit::DelegatedMethod {method arglist} {
 
     Mappend compile(defs) {
         # Delegated method %METH% to %COMP%
-        set %TYPE%::Snit_methods(%METH%) [concat %COMP% %TARGET%]
-    } %METH% $method %COMP% $component %TARGET% $target
+        set  %TYPE%::Snit_methodInfo(%METH%) \
+            {"%PATTERN%" %COMP%}
+        proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
+    } %METH% $method %COMP% $component %TARGET% $target %PATTERN% $pattern
 
     if {![string equal $method "*"]} {
         lappend compile(delegatedmethods) $method
@@ -1754,17 +1690,9 @@ proc ::snit::DelegatedOption {optionDef arglist} {
 
     foreach {opt value} $arglist {
         switch -exact $opt {
-            -to - to {
-                set component $value
-            }
-
-            -as - as {
-                set target $value
-            }
-
-            -except - except {
-                set exceptions $value
-            }
+            to     { set component $value  }
+            as     { set target $value     }
+            except { set exceptions $value }
             default {
                 error "$errRoot, unknown delegation option '$opt'."
             }
@@ -1895,7 +1823,6 @@ proc ::snit::Type.Component {component args} {
     # NEXT, if -inherit is specified, delegate method/option * to 
     # this component.
     if {$inheritFlag} {
-        # TBD: When new delegation syntax is in place, use it.
         Type.Delegate method "*" to $component
         Type.Delegate option "*" to $component
     }
@@ -2013,16 +1940,16 @@ proc ::snit::method {type method arglist body} {
         error "no such type: '$type'"
     }
 
-    upvar ${type}::Snit_methods Snit_methods
-    upvar ${type}::Snit_info Snit_info
+    upvar ${type}::Snit_methodInfo  Snit_methodInfo
+    upvar ${type}::Snit_info        Snit_info
 
     if {![info exists Snit_info]} {
         error "no such type: '$type'"
     }
 
     # FIRST, can't redefine delegated methods.
-    if {[info exists Snit_methods($method)] &&
-        $Snit_methods($method) ne ""} {
+    if {[info exists Snit_methodInfo($method)] &&
+        [lindex $Snit_methodInfo($method) 1] ne ""} {
         error "Cannot define '$method', it has been delegated."
     }
 
@@ -2036,7 +1963,8 @@ proc ::snit::method {type method arglist body} {
     set body "$Snit_info(tvardecs)$Snit_info(ivardecs)\n$body"
 
     # Next, define it.
-    set Snit_methods($method) ""
+    set Snit_methodInfo($method) {"%t::Snit_method%m %t %n %w %s" ""}
+
     uplevel [list proc ${type}::Snit_method$method $arglist $body]
 }
 
