@@ -5,13 +5,13 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.tcl,v 1.3 2001/12/10 09:06:50 jfontain Exp $
+# $Id: stooop.tcl,v 1.4 2001/12/19 11:56:04 jfontain Exp $
 
 
 # check whether empty named arrays and array unset are supported:
 package require Tcl 8.3
 
-package provide stooop 4.2
+package provide stooop 4.3
 
 # rename proc before it is overloaded, ignore error in case of multiple
 # inclusion of this file:
@@ -601,7 +601,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
         _proc invokingProcedure {} {
             if {[catch {set procedure [lindex [info level -2] 0]}]} {
                 # no invoking procedure
-                return {main script}
+                return {top level}
             } elseif {[string length $procedure]==0} {
                 # invoked from a namespace body
                 return "namespace [uplevel 2 namespace current]"
@@ -630,8 +630,11 @@ if {[llength [array names ::env STOOOP*]]>0} {
                 variable creator
             }
             if {$check(procedures)} {
-                if {[scan $classOrId %u dummy]==0} {
-                    # first argument is a class
+                if {[string is integer $classOrId]} {
+                    # first argument is an object identifier
+                    # class code, if from a package, must already be loaded
+                    set fullName $fullClass($classOrId)
+                } else {                            ;# first argument is a class
                     # generate constructor name:
                     set constructor ${classOrId}::[namespace tail $classOrId]
                     # force loading in case class is in a package so namespace
@@ -647,9 +650,6 @@ if {[llength [array names ::env STOOOP*]]>0} {
                     # have yet to be stored.
                     set fullClass([expr {$newId+1}]) $fullName
                     # new identifier is really incremented in original new{}
-                } else {               ;# first argument is an object identifier
-                    # class code, if from a package, must already be loaded
-                    set fullName $fullClass($classOrId)
                 }
                 if {[info exists interface($fullName)]} {
                     error "class $fullName with pure virtual procedures should not be instanciated"
@@ -662,7 +662,21 @@ if {[llength [array names ::env STOOOP*]]>0} {
             }
             return [uplevel ::stooop::_new $classOrId $args]
         }
+    }
 
+    if {$::stooop::check(objects)} {
+        _proc ::stooop::delete {args} {
+            variable fullClass
+            variable deleter
+
+            # keep track of procedure in which deletion occured:
+            set procedure [invokingProcedure]
+            foreach id $args {
+                uplevel ::stooop::deleteObject $fullClass($id) $id
+                unset fullClass($id)
+                set deleter($id) $procedure
+            }
+        }
     }
 
     # return the unsorted list of ancestors in class hierarchy:
@@ -866,7 +880,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
             puts "stooop::printObjects invoked from [invokingProcedure]:"
             foreach id [lsort -integer [array names fullClass]] {
                 if {[string match $pattern $fullClass($id)]} {
-                    puts "$fullClass($id)\($id\) created in $creator($id)"
+                    puts "$fullClass($id)\($id\) + $creator($id)"
                 }
             }
         }
@@ -887,6 +901,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
             variable fullClass
             variable checkpointFullClass
             variable creator
+            variable deleter
 
             puts "stooop::report invoked from [invokingProcedure]:"
             set checkpointIds [lsort -integer [array names checkpointFullClass]]
@@ -896,7 +911,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
                     [string match $pattern $fullClass($id)]&&\
                     ([lsearch -exact $checkpointIds $id]<0)\
                 } {
-                    puts "+ $fullClass($id)\($id\) created in $creator($id)"
+                    puts "+ $fullClass($id)\($id\) + $creator($id)"
                 }
             }
             foreach id $checkpointIds {
@@ -904,7 +919,7 @@ if {[llength [array names ::env STOOOP*]]>0} {
                     [string match $pattern $checkpointFullClass($id)]&&\
                     ([lsearch -exact $currentIds $id]<0)\
                 } {
-                    puts "- $checkpointFullClass($id)\($id\) created in $creator($id)"
+                    puts "- $checkpointFullClass($id)\($id\) - $deleter($id) + $creator($id)"
                 }
             }
         }
