@@ -1,3 +1,15 @@
+2001-03-23 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* textutil.tcl: Reworked the implementation of 'StrRepeat', made
+	  it much faster (used code from Pool_Base). Renamed to
+	  'strRepeat' and exported.
+
+	  **Note** that the tcl implementation is one order of magnitude
+	  faster than [string repeat] for num >= 1000.
+
+	* textutil.n: Added description of 'strRepeat'.
+	* repeat.test: New file, tests 'strRepeat'.
+
 2000-11-02  Eric Melski  <ericm@ajubasolutions.com>
 
 	* textutil.test:

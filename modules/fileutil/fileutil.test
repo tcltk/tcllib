@@ -1,12 +1,14 @@
+# -*- tcl -*-
 # Tests for the find function.
 #
 # Sourcing this file into Tcl runs the tests and generates output for errors.
 # No output means no errors were found.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
+# Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.3 2000/05/31 00:00:00 ericm Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.4 2001/03/26 16:50:21 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -18,8 +20,19 @@ if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
 }
 
 package require fileutil
+puts "fileutil [package present fileutil]"
 
 # Build a sample tree to search
+# Structure
+#
+#	dir
+#	+--find1
+#          +--find2
+#          |  +--file2
+#          +--file1
+
+catch {removeDirectory find1} ; # start with a clean structure!
+
 makeDirectory find1
 makeDirectory [file join find1 find2]
 makeFile "" [file join find1 file1]
@@ -40,6 +53,29 @@ test find-1.2 {find directories} {
 test find-1.3 {find files bigger than a given size} {
     fileutil::find [file join $dir find1] {fileIsBiggerThan 1}
 } [list [file join $dir find1 find2 file2]]
+
+
+# Extend the previous sample tree
+# Extended structure:
+#
+#	dir
+#	+--find1
+#          +--find2       <----------+
+#          |  +--file2		     |
+#          |  +--file3 --> ../find2 -+
+#          +--file1
+
+test find-1.4 {handling of circular links} {unix} {
+    catch {file delete -force [file join $dir find1 find2 file3]}
+    exec ln -s ../find2 [file join $dir find1 find2 file3]
+
+    # Find has to skip 'file3'
+    lsort [fileutil::find [file join $dir find1]]
+} [list [file join $dir find1 file1] [file join $dir find1 find2] \
+	[file join $dir find1 find2 file2]]
+
+
+catch {removeDirectory grepTest} ; # start with a clean structure!
 
 # Build a sample tree to search
 makeDirectory grepTest

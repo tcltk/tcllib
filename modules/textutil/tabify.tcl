@@ -2,7 +2,7 @@ namespace eval ::textutil {
 
     namespace eval tabify {
 
-	variable StrRepeat [ namespace parent ]::StrRepeat
+	variable StrRepeat [ namespace parent ]::strRepeat
 	variable TabLen  8
 	variable TabStr  [ $StrRepeat " " $TabLen ]
 

@@ -1,0 +1,16 @@
+2001-03-23  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tcl: Changed the implementation to allow incremental
+	  processing (taken from plume, in essence). Interface is
+	  different too (more option oriented). Fixed errors in the
+	  conversion into a tree (nesting of <p>, <li> and <hxx> tags),
+	  through an internal postproessing step for the tree..
+
+	* htmlparse.n: Adapted documentstion to changes above.
+	* htmlparse.test: Created testsuite.
+
+2001-03-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* New module 'htmlparse', a HTML parser based upon Steve Uhler's
+	  venerable 'html_library' and some of my work in the book
+	  scanning project.

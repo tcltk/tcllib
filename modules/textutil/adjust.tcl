@@ -2,7 +2,7 @@ namespace eval ::textutil {
 
     namespace eval adjust {
 
-	variable StrRepeat [ namespace parent ]::StrRepeat
+	variable StrRepeat [ namespace parent ]::strRepeat
 	variable Justify  left
 	variable Length   72
 	variable FullLine 0

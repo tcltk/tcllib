@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded fileutil 1.0 [list source [file join $dir fileutil.tcl]]
+package ifneeded fileutil 1.1 [list source [file join $dir fileutil.tcl]]
