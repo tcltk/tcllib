@@ -171,7 +171,7 @@ Using the regular format the record
 
 [para]
 [example {
-123,"123,521.2","Mary says ""Hello, I am Mary"""
+123,"123,521.2","Mary says ""Hello, I am Mary""",""
 }]
 
 [para]
@@ -182,7 +182,23 @@ is parsed into the items
 a) 123
 b) 123,521.2
 c) Mary says "Hello, I am Mary"
+d) (the empty string)
 }]
+[para]
+
+Using the alternate format the result is
+
+[para]
+[example {
+a) 123
+b) 123,521.2
+c) Mary says "Hello, I am Mary"
+d) "
+}]
+
+instead. As can be seen only item (d) is different, now a " instead of
+the empty string.
+
 
 [see_also matrix queue]
 [keywords csv matrix queue package tcllib]
