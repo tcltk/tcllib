@@ -6,14 +6,39 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32.test,v 1.5 2003/01/07 00:40:03 patthoyts Exp $
+# RCS: @(#) $Id: crc32.test,v 1.6 2003/05/08 23:55:37 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require crc32
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget crc32
+#catch {namespace delete ::crc}
+if {[catch {source [file join [file dirname [info script]] crc32.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+if {[package provide Trf] == {}} {
+    puts "- crc32 [package provide crc32] (pure tcl)"
+} else {
+    puts "- crc32 [package provide crc32] (Trf based)"
+}
 
 # -------------------------------------------------------------------------
 

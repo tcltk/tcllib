@@ -1,3 +1,15 @@
+2003-05-09  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crcc.tcl: Added placeholder to get a module library for all the
+	critcl code segments from the crc module
+	* crc32.tcl: Added -channel option
+	* crc32.test:      
+	* crc32bugs.test:  Tidied up the tests
+	* sum.tcl: Refactored the code to permit chunking and reading from
+	a channel. Added critcl-dependent C code implementations.
+	* sum.test: Added new tests and generally tidied up.
+	* sum.man: Added new items to the documentation.
+	
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
