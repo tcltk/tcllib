@@ -1,3 +1,9 @@
+2003-04-02  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.test (fileutil): Fixed tcllib SF bug #714214 reported
+	  by Pat Thoyts, by working around the 'makeFile' command provided
+	  with tcltest. It seems to have issues when doing binary data.
+
 2003-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl (fileutil::touch): Applied patch #688965 provided
