@@ -1,3 +1,13 @@
+2003-02-24  David N. Welton  <davidw@dedasys.com>
+
+	* ftp.tcl (ftp::OpenControlConn): Use string map instead of
+	regsub.
+
+2003-01-28  David N. Welton  <davidw@dedasys.com>
+
+	* ftp.tcl (ftp::InitDataConn): Use 'string match' instead of
+	  regexp.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftp.man: More semantic markup, less visual one.
