@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: cksum.test,v 1.1 2002/01/15 20:54:59 patthoyts Exp $
+# RCS: @(#) $Id: cksum.test,v 1.2 2002/01/23 20:56:30 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -74,6 +74,8 @@ foreach {n msg expected} {
 
 # -------------------------------------------------------------------------
 
+set crc::testfile [info script]
+
 proc crc::loaddata {filename} {
     set f [open $filename r]
     fconfigure $f -translation binary
@@ -83,8 +85,8 @@ proc crc::loaddata {filename} {
 }
 
 test cksum-4.0 {cksum file option} {
-    set r1 [crc::cksum -file $::argv0]
-    set r2 [crc::cksum [crc::loaddata $::argv0]]
+    set r1 [crc::cksum -file $crc::testfile]
+    set r2 [crc::cksum [crc::loaddata $crc::testfile]]
     if {$r1 != $r2} {
         set r "differing results: $r1 != $r2"
     } else {
@@ -94,6 +96,7 @@ test cksum-4.0 {cksum file option} {
         
 # -------------------------------------------------------------------------
 
+catch {unset crc::testfile}
 ::tcltest::cleanupTests
 
 # Local Variables:
