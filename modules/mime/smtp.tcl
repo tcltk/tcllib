@@ -577,6 +577,7 @@ proc smtp::initialize {args} {
    
     set index 0 
     foreach server $options(-servers) {
+	set state(readable) 0
         if {[llength $options(-ports)] >= $index} {
             set port [lindex $options(-ports) $index]
         } else {
