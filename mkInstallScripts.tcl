@@ -28,7 +28,10 @@ close $f
 set installFile [file join $outdir install.sh]
 set f [open $installFile w]
 puts $f "#!/bin/sh"
-puts $f "TCLINSTALL=/usr/local"
+puts $f "TCLINSTALL=\$1"
+puts $f "if \[ \"\${TCLINSTALL\}x\" == \"x\" \] ; then \\"
+puts $f "   TCLINSTALL=/usr/local"
+puts $f "fi"
 puts $f "if \[ ! -d \$TCLINSTALL/lib/$package$version \] ; then \\"
 puts $f "    mkdir -p \$TCLINSTALL/lib/$package$version ; \\"
 puts $f "fi"

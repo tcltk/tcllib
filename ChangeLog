@@ -5,6 +5,9 @@
 	pages and test files.
 	* ncgi/ncgi.tcl, ncgi.test: changed names to get capitalization
 	right: setCookie, valueList, importAll, urlStub
+	* html/html.tcl: track name changes in ncgi
+	* mkInstallScripts.tcl: Made install directory a parameter to
+	the unix install.sh script
 
 2000-04-25  Sandeep Tamhankar <sandeep@scriptics.com>
 
