@@ -174,24 +174,84 @@ indexing the manpage.
 
 [call [cmd arg] [arg text]]
 
-Declares that the marked text is the name of a command argument.
+Declares that the marked [arg text] is the name of a command argument.
 
 [call [cmd cmd] [arg text]]
 
-Declares that the marked text is the name of a command.
+Declares that the marked [arg text] is the name of a command.
 
 [call [cmd opt] [arg text]]
 
-Declares that the marked text is something optional. Most often used
+Declares that the marked [arg text] is something optional. Most often used
 in conjunction with [cmd arg] to denote optional command arguments.
 
 [call [cmd emph] [arg text]]
 
-One way to emphasize text in a general manner.
+One way to emphasize [arg text] in a general manner.
 
 [call [cmd strong] [arg text]]
 
-Another way to emphasize text in a general manner.
+Another way to emphasize [arg text] in a general manner.
+
+[call [cmd comment] [arg text]]
+
+Declares that the marked [arg text] is a comment.
+
+[call [cmd sectref] [arg text]]
+
+Declares that the marked [arg text] is a section reference.
+
+[call [cmd syscmd] [arg text]]
+
+Declares that the marked [arg text] is a system command.
+
+[call [cmd method] [arg text]]
+
+Declares that the marked [arg text] is a object method.
+
+[call [cmd option] [arg text]]
+
+Declares that the marked [arg text] is a option.
+
+[call [cmd widget] [arg text]]
+
+Declares that the marked [arg text] is a widget.
+
+[call [cmd fun] [arg text]]
+
+Declares that the marked [arg text] is a function.
+
+[call [cmd type] [arg text]]
+
+Declares that the marked [arg text] is a data type.
+
+[call [cmd package] [arg text]]
+
+Declares that the marked [arg text] is a package.
+
+[call [cmd class] [arg text]]
+
+Declares that the marked [arg text] is a class.
+
+[call [cmd var] [arg text]]
+
+Declares that the marked [arg text] is a variable.
+
+[call [cmd file] [arg text]]
+
+Declares that the marked [arg text] is a file .
+
+[call [cmd uri] [arg text]]
+
+Declares that the marked [arg text] is a uri.
+
+[call [cmd term] [arg text]]
+
+Declares that the marked [arg text] is a unspecific terminology.
+
+[call [cmd const] [arg text]]
+
+Declares that the marked [arg text] is a constant value.
 
 [call [cmd nl]]
 
