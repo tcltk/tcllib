@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.25 2002/08/06 23:02:06 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.26 2003/01/29 06:58:50 davidw Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -57,7 +57,7 @@ namespace eval ftp {
     namespace export DisplayMsg Open Close Cd Pwd Type List NList \
 	    FileSize ModTime Delete Rename Put Append Get Reget \
 	    Newer Quote MkDir RmDir
-	
+
     set serial 0
     set VERBOSE 0
     set DEBUG 0
@@ -83,7 +83,7 @@ namespace eval ftp {
 proc ftp::DisplayMsg {s msg {state ""}} {
 
     upvar ::ftp::ftp$s ftp
-    
+
     if { ([info exists ftp(Output)]) && ($ftp(Output) != "") } {
         eval [concat $ftp(Output) {$s $msg $state}]
         return
@@ -98,7 +98,7 @@ proc ftp::DisplayMsg {s msg {state ""}} {
     #              needs of any application using the ftp module. The
     #              variable VERBOSE is still relevant as it controls
     #              whether this procedure is called or not.
-        
+
     switch -exact -- $state {
         data    {log::log debug "$state | $msg"}
         control {log::log debug "$state | $msg"}
@@ -2513,7 +2513,7 @@ proc ftp::HandleData {s sock} {
 
     # create local file for ftp::Get 
 
-    if { [regexp -- "^get" $ftp(State)]  && (!$ftp(inline))} {
+    if { [string match "get*" $ftp(State)]  && (!$ftp(inline))} {
 
 	# A channel was specified by the caller. Use that instead of a
 	# file.
@@ -2538,7 +2538,7 @@ proc ftp::HandleData {s sock} {
 
     # append local file for ftp::Reget 
 
-    if { [regexp -- "^reget" $ftp(State)] } {
+    if { [string match "reget*" $ftp(State)] } {
         set rc [catch {set ftp(DestCI) [open $ftp(LocalFilename) a]} msg]
         if { $rc != 0 } {
             DisplayMsg $s "$msg" error
@@ -2751,10 +2751,10 @@ proc ftp::InitDataConn {s sock addr port} {
 
     # assign fileevent handlers, source and destination CI (Channel Identifier)
 
-    switch -regexp -- $ftp(State) {
+    switch -- $ftp(State) {
         list {
             fileevent $sock readable [list [namespace current]::HandleList $s $sock]
-            set ftp(SourceCI) $sock		  
+            set ftp(SourceCI) $sock
         }
         get {
             if {$ftp(inline)} {
@@ -2765,7 +2765,7 @@ proc ftp::InitDataConn {s sock addr port} {
 	    } else {
                 fileevent $sock readable [list [namespace current]::HandleData $s $sock]
                 set ftp(SourceCI) $sock
-	    }			  
+	    }
         }
         append -
         put {
@@ -2776,7 +2776,7 @@ proc ftp::InitDataConn {s sock addr port} {
 	    } else {
                 fileevent $sock writable [list [namespace current]::HandleData $s $sock]
                 set ftp(DestCI) $sock
-	    }			  
+	    }
         }
 	default {
 	    error "Unknown state \"$ftp(State)\""
@@ -2952,7 +2952,7 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
     rename ::ftp::List ::ftp::List_org
 
     alias ::ftp::List	::ftp::__ftp_ls
-    alias bye		catch {::ftp::Close; exit}	
+    alias bye		catch {::ftp::Close; exit}
 
     set ::ftp::VERBOSE 1
     set ::ftp::DEBUG 0
