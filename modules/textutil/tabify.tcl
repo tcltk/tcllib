@@ -89,19 +89,11 @@ namespace eval ::textutil {
 ########################################################################
 
 proc ::textutil::tabify::tabify { string { num 8 } } {
-    
-    set str [ MakeTabStr $num ]
-    regsub -all -- $str $string "\t" string
-    
-    return $string
+    return [string map [list [MakeTabStr $num] \t] $string]
 }
 
 proc ::textutil::tabify::untabify { string { num 8 } } {
-    
-    set str [ MakeTabStr $num ]
-    regsub -all -- "\t" $string $str string
-    
-    return $string
+    return [string map [list \t [MakeTabStr $num]] $string]
 }
 
 proc ::textutil::tabify::MakeTabStr { num } {
