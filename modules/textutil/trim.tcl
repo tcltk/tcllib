@@ -7,7 +7,7 @@ namespace eval ::textutil {
 	variable StrL "^(${StrU})"
 
 	namespace export trim trimright trimleft \
-		trimPrefix trimEmpyHeading
+		trimPrefix trimEmptyHeading
 
 	# This will be redefined later. We need it just to let
 	# a chance for the next import subcommand to work
@@ -20,8 +20,8 @@ namespace eval ::textutil {
 	proc trimEmptyHeading {text} {}
     }
 
-    namespace import -force trim::trim trim::trimleft trim::trimright trim::trimPrefix trim::trimEmpyHeading
-    namespace export trim trimleft trimright trimPrefix trimEmpyHeading
+    namespace import -force trim::trim trim::trimleft trim::trimright trim::trimPrefix trim::trimEmptyHeading
+    namespace export trim trimleft trimright trimPrefix trimEmptyHeading
 }
 
 
