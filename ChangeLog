@@ -1,3 +1,7 @@
+2004-07-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* installed_modules.tcl: NEW MODULE: uuid
+
 2004-07-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sak.tcl: Support critcl implementation of rc4.
