@@ -149,6 +149,7 @@ proc ::textutil::expander::Methods {name method argList} {
         cvar -
         cpop -
         cappend -
+	where -
         reset {
             # FIRST, execute the method, first setting This to the object
             # name; then, after the method has been called, restore the
@@ -656,13 +657,20 @@ proc ::textutil::expander::Op_cappend {name text} {
 #	brackets are used.
 
 proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
-
     # FIRST, push a new context onto the stack, and save the current
     # brackets.
 
     Op_cpush $name expand
     Op_cset $name lb [Get lb]
     Op_cset $name rb [Get rb]
+
+    # Keep position information in context variables as well.
+    # Line we are in, counting from 1; column we are at,
+    # counting from 0, and index of character we are at,
+    # counting from 0. Tabs counts as '1' when computing
+    # the column.
+
+    LocInit $name
 
     # SF Tcllib Bug #530056.
     set start_level [Get level] ; # remember this for check at end
@@ -680,6 +688,7 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
         # FIRST, If there was plain text, append it to the output, and 
         # continue.
         if {$plainText != ""} {
+	    set input $plainText
 	    set tc [Get textcmd]
 	    if {[string length $tc] > 0} {
 		lappend tc $plainText
@@ -691,6 +700,8 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
 		}
 	    }
             Op_cappend $name $plainText
+	    LocUpdate  $name $input
+
             if {[string length $inputString] == 0} {
                 break
             }
@@ -704,7 +715,7 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
 	    # intercepts if the user allows the expansion to run on,
 	    # yet we must not try to run the non-existing macro.
 
-	    HandleError $name macro $inputString $macro
+	    HandleError $name {reading macro} $inputString $macro
 	    continue
         }
 
@@ -712,6 +723,13 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
         # handle an error.
         if {![catch "[Get evalcmd] [list $macro]" result]} {
             Op_cappend $name $result 
+
+	    # We have to advance the location by the length of the
+	    # macro, plus the two brackets. They were stripped by
+	    # GetMacro, so we have to add them here again to make
+	    # computation correct.
+
+	    LocUpdate $name [Get lb]${macro}[Get rb]
             continue
         } 
 
@@ -757,6 +775,24 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
 }
 
 #---------------------------------------------------------------------
+# FUNCTION:
+# 	Op_where
+#
+# INPUTS:
+#	None.
+#
+# RETURNS:
+#	The current location in the input.
+#
+# DESCRIPTION:
+#	Retrieves the current location the expander
+#	is at during processing.
+
+proc ::textutil::expander::Op_where {name} {
+    return [LocGet $name]
+}
+
+#---------------------------------------------------------------------
 # FUNCTION
 #	HandleError name title command errmsg
 #
@@ -777,17 +813,26 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
 proc ::textutil::expander::HandleError {name title command errmsg} {
     switch [Get errmode] {
 	nothing { }
-	macro { 
+	macro {
+	    # The location is irrelevant here.
 	    Op_cappend $name "[Get lb]$command[Get rb]" 
 	}
 	error {
+	    foreach {ch line col} [LocGet $name] break
+	    set display [DisplayOf $command]
+
 	    Op_cappend $name "\n=================================\n"
-	    Op_cappend $name "*** Error in $title:\n"
-	    Op_cappend $name "*** [Get lb]$command[Get rb]\n--> $errmsg\n"
+	    Op_cappend $name "*** Error in $title at line $line, column $col:\n"
+	    Op_cappend $name "*** [Get lb]$display[Get rb]\n--> $errmsg\n"
 	    Op_cappend $name "=================================\n"
 	}
 	fail   { 
-	    return -code error "Error in $title:\n[Get lb]$command[Get rb]\n--> $errmsg"
+	    foreach {ch line col} [LocGet $name] break
+	    set display [DisplayOf $command]
+
+	    return -code error "Error in $title at line $line,\
+		    column $col:\n[Get lb]$display[Get rb]\n-->\
+		    $errmsg"
 	}
 	default {
 	    return -code error "Unknown error mode: [Get errmode]"
@@ -916,6 +961,150 @@ proc ::textutil::expander::IsBracketed {macro} {
     }
 }
 
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	LocInit name
+#
+# INPUTS:
+#	name		The expander object to use.
+#
+# RETURNS:
+#	No result.
+#
+# DESCRIPTION:
+#	A convenience wrapper around LocSet. Initializes the location
+#	to the start of the input (char 0, line 1, column 0).
+
+proc ::textutil::expander::LocInit {name} {
+    LocSet $name {0 1 0}
+    return
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	LocSet name loc
+#
+# INPUTS:
+#	name		The expander object to use.
+#	loc		Location, list containing character position,
+#			line number and column, in this order.
+#
+# RETURNS:
+#	No result.
+#
+# DESCRIPTION:
+#	Sets the current location in the expander to 'loc'.
+
+proc ::textutil::expander::LocSet {name loc} {
+    foreach {ch line col} $loc break
+    Op_cset  $name char $ch
+    Op_cset  $name line $line
+    Op_cset  $name col  $col
+    return
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	LocGet name
+#
+# INPUTS:
+#	name		The expander object to use.
+#
+# RETURNS:
+#	A list containing the current character position, line number
+#	and column, in this order.
+#
+# DESCRIPTION:
+#	Returns the current location as stored in the expander.
+
+proc ::textutil::expander::LocGet {name} {
+    list [Op_cget $name char] [Op_cget $name line] [Op_cget $name col]
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	LocUpdate name text
+#
+# INPUTS:
+#	name		The expander object to use.
+#	text		The text to process.
+#
+# RETURNS:
+#	No result.
+#
+# DESCRIPTION:
+#	Takes the current location as stored in the expander, computes
+#	a new location based on the string (its length and contents
+#	(number of lines)), and makes that new location the current
+#	location.
+
+proc ::textutil::expander::LocUpdate {name text} {
+    foreach {ch line col} [LocGet $name] break
+    set numchars [string length $text]
+    set numlines [regexp -all "\n" $text]
+
+    incr ch   $numchars
+    incr line $numlines
+    if {$numlines} {
+	set col [expr {$numchars - [string last \n $text] - 1}]
+    } else {
+	incr col $numchars
+    }
+
+    LocSet $name [list $ch $line $col]
+    return
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	LocRange name text
+#
+# INPUTS:
+#	name		The expander object to use.
+#	text		The text to process.
+#
+# RETURNS:
+#	A text range description, compatible with the 'location' data
+#	used in the tcl debugger/checker.
+#
+# DESCRIPTION:
+#	Takes the current location as stored in the expander object
+#	and the length of the text to generate a character range.
+
+proc ::textutil::expander::LocRange {name text} {
+    # Note that the structure is compatible with
+    # the ranges uses by tcl debugger and checker.
+    # {line {charpos length}}
+
+    foreach {ch line col} [LocGet $name] break
+    return [list $line [list $ch [string length $text]]]
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
+# 	DisplayOf text
+#
+# INPUTS:
+#	text		The text to process.
+#
+# RETURNS:
+#	The text, cut down to at most 30 bytes.
+#
+# DESCRIPTION:
+#	Cuts the incoming text down to contain no more than 30
+#	characters of the input. Adds an ellipsis (...) if characters
+#	were actually removed from the input.
+
+proc ::textutil::expander::DisplayOf {text} {
+    set ellip ""
+    while {[string bytelength $text] > 30} {
+	set ellip ...
+	set text [string range $text 0 end-1]
+    }
+    set display $text$ellip
+}
+
+#---------------------------------------------------------------------
 # Provide the package only if the code above was read and executed
 # without error.
 

@@ -1258,8 +1258,7 @@ if {[catch {
     set mode $::dtplite::mode
     ::dtplite::Do.$mode
 } msg]} {
-    puts $::errorInfo
-
+    ## puts $::errorInfo
     ::dtplite::ArgError $msg
 }
 

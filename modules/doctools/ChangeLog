@@ -1,5 +1,14 @@
 2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* ../../apps/dtplite: Reduced error output, show only the message,
+	  not the whole stack.
+
+	* doctools.tcl: Changed processing of error messages so that
+	* doctoc.tcl:   we don't loose the location information.
+	* docidx.tcl: 
+
+2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* doctools_api.man:       Polished the manpages a bit,
 	* ../../apps/dtplite.man: for better cross-referencing.
 
