@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.4 2002/09/03 19:27:28 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.5 2002/09/04 00:47:43 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -422,7 +422,6 @@ proc ::pop3d::HandleNewConnection {name sock rHost rPort} {
 
     if {[catch {::pop3d::GreetPeer $name $sock} errmsg]} {
 	close $sock
-
 	log::log error "$name $sock greeting $errmsg"
 	unset cstate
 	unset conn($sock)
@@ -534,8 +533,6 @@ proc ::pop3d::HandleUnknownCmd {name sock cmd line} {
 }
 
 proc ::pop3d::Respond2Client {name sock ok wtext} {
-::log "$name $sock > $ok $wtext"
-
     ::log::log info "$name $sock > $ok $wtext"
     puts $sock                    "$ok $wtext"
     return
@@ -705,8 +702,6 @@ proc ::pop3d::H_stat {name sock cmd line} {
     if {[string equal $cstate(state) auth]} {
 	Respond2Client $name $sock -ERR "client not authenticated"
     } else {
-::log "STAT [array get cstate]"
-
 	# Return number of messages waiting and size of the contents
 	# of the chosen maildrop in octects.
 	Respond2Client $name $sock +OK  "$cstate(msg) $cstate(size)"
@@ -725,7 +720,6 @@ proc ::pop3d::H_dele {name sock cmd line} {
 
     # Called only in places where cstate is known!
     upvar cstate cstate
-::log "DELE [array get cstate]"
 
     if {[string equal $cstate(state) auth]} {
 	Respond2Client $name $sock -ERR "client not authenticated"
@@ -744,8 +738,6 @@ proc ::pop3d::H_dele {name sock cmd line} {
 	lappend cstate(deleted) $msgid
 	Respond2Client $name $sock +OK "message $msgid deleted"
     }
-
-::log "DELE/2 [array get cstate]"
     return
 }
 
@@ -759,7 +751,6 @@ proc ::pop3d::H_retr {name sock cmd line} {
 
     # Called only in places where cstate is known!
     upvar cstate cstate
-::log "RETR [array get cstate]"
 
     if {[string equal $cstate(state) auth]} {
 	Respond2Client $name $sock -ERR "client not authenticated"
@@ -776,8 +767,6 @@ proc ::pop3d::H_retr {name sock cmd line} {
     } else {
 	Transfer $name $sock $msgid
     }
-
-::log "RETR/2 [array get cstate]"
     return
 }
 
@@ -1070,7 +1059,7 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 	# i now refers to the line separating header and body
 
 	regsub -- "\n\\.\n$" [join [lrange $msg 0 $limit] \n] {} data
-	puts $sock ${data}\n.\n
+	puts $sock ${data}\n.
     }
     fileevent $sock readable [list ::pop3d::HandleCommand $name $sock]
     ::log::log debug "$name $sock transfer complete, listening again"
