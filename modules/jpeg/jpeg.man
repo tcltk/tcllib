@@ -46,9 +46,9 @@ JPEG information. If both are present the EXIF thumbnail will take precedence.
 Throws an error if [arg file] is not a JPEG image.
 
 
-[call [cmd ::jpeg::getExif] [arg file] [opt section]]
+[call [cmd ::jpeg::getExif] [arg file] [opt [arg section]]]
 
-[opt section] must be one of [const main] or [const thumbnail].
+[arg section] must be one of [const main] or [const thumbnail].
 The default is [const main].
 
 Returns a dictionary containing the EXIF information for the specified section.
@@ -68,14 +68,16 @@ Throws an error if [arg file] is not a JPEG image.
 
 [call [cmd ::jpeg::getComments] [arg file]]
 
-Returns a list containing all the JPEG comments found in the file.
+Returns a list containing all the JPEG comments found in
+the [arg file].
 
 Throws an error if [arg file] is not a valid JPEG image.
 
 
-[call [cmd ::jpeg::addComment] [arg file] [arg text] [args text]]
+[call [cmd ::jpeg::addComment] [arg file] [arg text]...]
 
-Adds a plain [arg text] comment to the JPEG image in [arg file].
+Adds one or more plain [arg text] comments to the JPEG image
+in [arg file].
 
 Throws an error if [arg file] is not a valid JPEG image.
 
@@ -101,17 +103,17 @@ Prints everything we know about the given file in a nice format.
 
 [call [cmd ::jpeg::markers] [arg channel]]
 
-This is an internally used command but is documented here because it
-may be of some use for advanced users. The argument [arg channel] is
-an open file handle positioned at the start of the first marker
-(usually 2 bytes). The command returns a list with
-one element for each JFIF marker found in the file. Each element consists
-of a list of the marker name, its offset in the file, and its length. The
-offset points to the beginning of the sections data, not the marker itself.
-The length is the length of the data from the offset listed to the start of
-the next marker.
+This is an internal helper command, we document it for use by advanced
+users of the package. The argument [arg channel] is an open file
+handle positioned at the start of the first marker (usually 2
+bytes). The command returns a list with one element for each JFIF
+marker found in the file. Each element consists of a list of the
+marker name, its offset in the file, and its length. The offset points
+to the beginning of the sections data, not the marker itself.  The
+length is the length of the data from the offset listed to the start
+of the next marker.
 
 [list_end]
 
-[keywords jpeg image comment exif thumbnail]
+[keywords jpeg image comment exif thumbnail jfif]
 [manpage_end]
