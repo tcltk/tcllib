@@ -1,5 +1,5 @@
 <!-- Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr> -->
-<!--$Id: stooop_man.html,v 1.1 2003/04/01 19:39:06 andreas_kupries Exp $-->
+<!--$Id: stooop_man.html,v 1.2 2003/04/23 16:23:16 jfontain Exp $-->
 <html lang="en">
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -887,19 +887,33 @@ In this example, invalid (unknown) options are simply ignored.
 
 <h4><a name="array"></a>Member array</h4>
 
-You simply cannot use a member array, as member data is already held in an array. But you can use a namespace array, with a name specific to the object, including the object identifier. Just make sure the array is deleted in the destructor.
+A true member array is not possible, as member data is already held in an array.
+<br>But there are 2 ways to get around the problem:<ul>
+  <li>embed the array and its index in member data
+  <li>use a namespace array for possibly better performance
+</ul>
 
-<p>Sample code:
+<p>For example, when embedding in member data:
+
+<pre>class container {
+    proc container {this} {}
+    proc ~container {this} {}
+    proc container::add {this index value} {
+        set ($this,array,$index) $value
+    }
+}</pre>
+
+<p>With a namespace array, use a name specific to the object, including the object identifier, and do not forget to delete the array in the destructor, as the following example shows:
 
 <pre>class container {
     proc container {this} {}
     proc ~container {this} {
-        variable ${this}data
-        unset ${this}data
+        variable ${this}array
+        unset ${this}array
     }
-    proc container::add {this item id} {
-        variable ${this}data
-        set ${this}data($id) $item
+    proc container::add {this index value} {
+        variable ${this}array
+        set ${this}array($index) $value
     }
 }</pre>
 
@@ -910,9 +924,9 @@ Memory management of the array is the programmer's responsibility, as is its dup
         ...
     }               ;# default copy constructor has been generated at this point
     proc container {this copy} {      ;# copy constructor (replaces default one)
-        variable ${this}data
-        variable ${copy}data
-        array set ${this}data [array get ${copy}data]       ;# copy member array
+        variable ${this}array
+        variable ${copy}array
+        array set ${this}array [array get ${copy}array]     ;# copy member array
     }
     ...
 }</pre>
