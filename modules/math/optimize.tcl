@@ -10,8 +10,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: optimize.tcl,v 1.4 2004/06/19 21:22:47 kennykb Exp $
+#
+# RCS: @(#) $Id: optimize.tcl,v 1.5 2004/06/22 07:45:20 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
 
@@ -43,6 +43,9 @@ namespace eval ::math::optimize {
 #    to be continuous. There is no provision for sub-intervals where
 #    the function is constant (this might happen when the maximum
 #    error is very small, < 1.0e-15)
+#
+# Warning:
+#    This procedure is deprecated - use min_bound_1d instead
 #
 proc ::math::optimize::minimum { begin end func {maxerr 1.0e-4} } {
 
@@ -81,6 +84,9 @@ proc ::math::optimize::minimum { begin end func {maxerr 1.0e-4} } {
 #    to be continuous. There is no provision for sub-intervals where
 #    the function is constant (this might happen when the maximum
 #    error is very small, < 1.0e-15)
+#
+# Warning:
+#    This procedure is deprecated - use max_bound_1d instead
 #
 proc ::math::optimize::maximum { begin end func {maxerr 1.0e-4} } {
 
@@ -162,7 +168,7 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
     set phim1 0.6180339887498949
     set twomphi 0.3819660112501051
 
-    array set params { 
+    array set params {
         -relerror 1.0e-7
         -abserror 1.0e-10
         -maxiter 100
@@ -170,7 +176,7 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
         -fguess {}
     }
     set params(-guess) [expr { $phim1 * $x1 + $twomphi * $x2 }]
-    
+
     if { ( [llength $args] % 2 ) != 0 } {
         return -code error -errorcode [list min_bound_1d wrongNumArgs] \
             "wrong \# args, should be\
@@ -189,22 +195,22 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
 
     # a and b presumably bracket the minimum of the function.  Make sure
     # they're in ascending order.
-    
+
     if { $x1 < $x2 } {
         set a $x1; set b $x2
     } else {
         set b $x1; set a $x2
     }
-    
+
     set x $params(-guess);              # Best abscissa found so far
     set w $x;                           # Second best abscissa found so far
     set v $x;                           # Most recent earlier value of w
-    
+
     set e 0.0;                          # Distance moved on the step before
 					# last.
-    
+
     # Evaluate the function at the initial guess
-    
+
     if { $params(-fguess) ne {} } {
         set fx $params(-fguess)
     } else {
@@ -215,15 +221,15 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
     }
     set fw $fx
     set fv $fx
-    
+
     for { set iter 0 } { $iter < $params(-maxiter) } { incr iter } {
-        
+
         # Find the midpoint of the current interval
-        
+
         set xm [expr { 0.5 * ( $a + $b ) }]
-        
+
         # Compute the current tolerance for x, and twice its value
-        
+
         set tol [expr { $params(-relerror) * abs($x) + $params(-abserror) }]
         set tol2 [expr { $tol + $tol }]
         if { abs( $x - $xm ) <= $tol2 - 0.5 * ($b - $a) } {
@@ -231,11 +237,11 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
         }
         set golden 1
         if { abs($e) > $tol } {
-            
+
             # Use parabolic interpolation to find a minimum determined
             # by the evaluations at x, v, and w.  The size of the step
             # to take will be $p/$q.
-            
+
             set r [expr { ( $x - $w ) * ( $fx - $fv ) }]
             set q [expr { ( $x - $v ) * ( $fx - $fw ) }]
             set p [expr { ( $x - $v ) * $q - ( $x - $w ) * $r }]
@@ -247,14 +253,14 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
             }
             set olde $e
             set e $d
-            
+
             # Test if parabolic interpolation results in less than half
             # the movement of the step two steps ago.
-            
+
             if { abs($p) < abs( .5 * $q * $olde )
                  && $p > $q * ( $a - $x )
                  && $p < $q * ( $b - $x ) } {
-                
+
                 set d [expr { $p / $q }]
                 set u [expr { $x + $d }]
                 if { ( $u - $a ) < $tol2 || ( $b - $u ) < $tol2 } {
@@ -267,10 +273,10 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
                 set golden 0
             }
         }
-        
+
         # If parabolic interpolation didn't come up with an acceptable
         # result, use Golden Section instead.
-        
+
         if { $golden } {
             if { $x >= $xm } {
                 set e [expr { $a - $x }]
@@ -279,10 +285,10 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
             }
             set d [expr { $twomphi * $e }]
         }
-        
+
         # At this point, d is the size of the step to take.  Make sure
         # that it's at least $tol.
-        
+
         if { abs($d) >= $tol } {
             set u [expr { $x + $d }]
         } elseif { $d < 0 } {
@@ -290,9 +296,9 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
         } else {
             set u [expr { $x + $tol }]
         }
-        
+
         # Evaluate the function
-        
+
         set s $f; lappend s $u; set fu [eval $s]
         if { $params(-trace) } {
             if { $golden } {
@@ -301,10 +307,10 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
                 puts stdout "f($u)=$fu (parabolic interpolation)"
             }
         }
-        
+
         if { $fu <= $fx } {
             # We've the best abscissa so far.
-            
+
             if { $u >= $x } {
                 set a $x
             } else {
@@ -317,7 +323,7 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
             set x $u
             set fx $fu
         } else {
-            
+
             if { $u < $x } {
                 set a $u
             } else {
@@ -336,10 +342,10 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
             }
         }
     }
-    
+
     return -code error -errorcode [list min_bound_1d noconverge $iter] \
         "[lindex [info level 0] 0] failed to converge after $iter steps."
-    
+
 }
 
 #----------------------------------------------------------------------
@@ -378,7 +384,7 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
     set phi 1.6180339887498949
     set epsilon 1.0e-20
     set limit 50.
-    
+
     # Choose a and b so that f(a) < f(b)
 
     set cmd $f; lappend cmd $x1; set fx1 [eval $cmd]
@@ -404,9 +410,9 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
     if { $trace } {
         puts "f($c) = $fc (initial dilatation by phi)"
     }
-    
+
     while { $fb >= $fc } {
-        
+
         # Try to do parabolic extrapolation to the minimum
 
         set r [expr { ($b - $a) * ($fb - $fc) }]
@@ -418,10 +424,10 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
         } else {
             set denom -$epsilon
         }
-        set u [expr { $b - ( (($b - $c) * $q - ($b - $a) * $r) 
+        set u [expr { $b - ( (($b - $c) * $q - ($b - $a) * $r)
                              / (2. * $denom) ) }]
         set ulimit [expr { $b + $limit * ( $c - $b ) }]
-        
+
         # Test the extrapolated abscissa
 
         if { ($b - $u) * ($u - $c) > 0 } {
@@ -439,7 +445,7 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
                 # with u as a starting guess.
 
                 return [list $b $fb $u $fu $c $fc]
-                
+
             }
 
             if { $fu > $fb } {
@@ -450,11 +456,11 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
 
                 return [list $a $fa $b $fb $u $fu]
 
-            } 
+            }
 
             # Parabolic interpolation was useless. Expand the
             # distance by a factor of phi and try again.
-            
+
             set u [expr { $c + $phi * ($c - $b) }]
             set cmd $f; lappend cmd $u; set fu [eval $cmd]
             if { $trace } {
@@ -478,7 +484,7 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
                 return [list $b $fb $c $fc $u $fu]
 
             }
-            
+
             # function is still decreasing fa > fb > fc > fu. Take
             # another factor-of-phi step.
 
@@ -516,7 +522,7 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
         set b $c; set fb $fc
         set c $u; set fc $fu
     }
-    
+
     return [list $a $fa $b $fb $c $fc]
 }
 
@@ -562,7 +568,7 @@ proc ::math::optimize::min_unbound_1d { f x1 x2 args } {
     set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
 
     array set params {
-	-relerror 1.0e-7 
+	-relerror 1.0e-7
 	-abserror 1.0e-10
 	-maxiter 100
         -trace 0

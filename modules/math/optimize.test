@@ -5,8 +5,8 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.5 2004/06/19 15:54:04 kennykb Exp $
-# 
+# $Id: optimize.test,v 1.6 2004/06/22 07:45:20 arjenmarkus Exp $
+#
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
@@ -107,7 +107,7 @@ test optimize-1.4 "Minimum of odd function, case 2" {
    within_range $result $xmin $xmax
 } 1
 
-test optmize-1.5 "Minimum of even function" {
+test optimize-1.5 "Minimum of even function" {
    set result [minimum -1.0 1.0 ::optimizetest::absfunc]
    set xmin   -0.0001
    set xmax    0.0001
@@ -121,7 +121,7 @@ test optmize-1.5 "Minimum of even function" {
 # the initial interval is chosen symmetrical, so that the
 # three function values are equal.
 #
-test optmize-2.1 "Maximum of constant function" {
+test optimize-2.1 "Maximum of constant function" {
    set result [maximum -1.0 1.0 ::optimizetest::const_func]
    within_range $result -1.0 1.0
 } 1
@@ -133,7 +133,7 @@ test optimize-2.2 "Maximum of odd function, case 1" {
    within_range $result $xmin $xmax
 } 1
 
-test optmize-2.3 "Maximum of odd function, case 2" {
+test optimize-2.3 "Maximum of odd function, case 2" {
    set result [maximum -1.0 1.0 ::optimizetest::minfunc]
    set xmin   [expr {-sqrt(1.0/3.0)-0.0001}]
    set xmax   [expr {-sqrt(1.0/3.0)+0.0001}]
@@ -157,7 +157,7 @@ test optimize-2.4 "Maximum of even function" {
 # Custom match procedure for approximate results
 
 proc withinEpsilon { shouldBe is } {
-    expr { [string is double $is] 
+    expr { [string is double $is]
 	   && abs( $is - $shouldBe ) < 1.e-07 * abs($shouldBe) }
 }
 
@@ -287,8 +287,8 @@ test linmin-3.2 {minimise cos(x), unbounded, too eager} \
 
 test linmin-3.3 {near underflow in parabolic extrapolation} \
     -setup {
-	proc f x { 
-	    expr { ( 1.12712e-22 * $x * $x * $x - 1e-15 ) * $x + 1e-15 } 
+	proc f x {
+	    expr { ( 1.12712e-22 * $x * $x * $x - 1e-15 ) * $x + 1e-15 }
 	}
     } \
     -body {
@@ -303,9 +303,9 @@ test linmin-3.3 {near underflow in parabolic extrapolation} \
 
 test linmin-3.4 {near underflow in parabolic extrapolation} \
     -setup {
-	proc f x { 
-	    expr { ( ( 1e-30 * $x * $x - 1.12712e-22 ) 
-		     * $x * $x * $x - 1e-15 ) 
+	proc f x {
+	    expr { ( ( 1e-30 * $x * $x - 1.12712e-22 )
+		     * $x * $x * $x - 1e-15 )
 		   * $x + 1e-15 }
 	}
     } \
@@ -321,10 +321,10 @@ test linmin-3.4 {near underflow in parabolic extrapolation} \
 
 test linmin-3.5 {parabolic interpolation finds a minimum - case 1} \
     -setup {
-	proc f x { 
-	    expr { ( ( ( 1e-5 * $x - 2.69672 ) 
-		       * $x + 10.0902 ) 
-		     * $x - 8.39345 ) 
+	proc f x {
+	    expr { ( ( ( 1e-5 * $x - 2.69672 )
+		       * $x + 10.0902 )
+		     * $x - 8.39345 )
 		   * $x + 1. }
 	}
     } \
@@ -359,10 +359,10 @@ test linmin-3.6 {parabolic interpolation finds a minimum - case 2} \
 test linmin-3.7 {parabolic interpolation is useless} \
     -setup {
 	proc f x {
-	    expr { ( ( ( 1e-5 * $x - 6.79171 ) 
-		       * $x + 24.8107 ) 
-		     * $x - 19.019 ) 
-		   * $x + 1. } 
+	    expr { ( ( ( 1e-5 * $x - 6.79171 )
+		       * $x + 24.8107 )
+		     * $x - 19.019 )
+		   * $x + 1. }
 	}
     } \
     -body {
