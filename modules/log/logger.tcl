@@ -12,7 +12,7 @@
 package provide logger 0.1
 package require Tcl 8.2
 
-namespace eval logger {
+namespace eval ::logger {
     namespace eval tree {}
     namespace export init enable disable services
 
@@ -23,7 +23,7 @@ namespace eval logger {
     set levels [list debug info notice warn error critical]
 }
 
-# logger::walk --
+# ::logger::walk --
 #
 #	Walk namespaces, starting in 'start', and evaluate 'code' in
 #	them.
@@ -38,7 +38,7 @@ namespace eval logger {
 # Results:
 #	None.
 
-proc logger::walk { start code } {
+proc ::logger::walk { start code } {
     set children [namespace children $start]
     foreach c $children {
 	namespace eval $c $code
@@ -46,7 +46,7 @@ proc logger::walk { start code } {
     }
 }
 
-proc logger::init {service} {
+proc ::logger::init {service} {
     variable levels
     variable services
     # We create a 'tree' namespace to house all the services, so
@@ -244,7 +244,7 @@ proc logger::init {service} {
     return ::logger::tree::${service}
 }
 
-# logger::services --
+# ::logger::services --
 #
 #	Returns a list of all active services.
 #
@@ -257,12 +257,12 @@ proc logger::init {service} {
 # Results:
 #	List of active services.
 
-proc logger::services {} {
+proc ::logger::services {} {
     variable services
     return services
 }
 
-# logger::enable --
+# ::logger::enable --
 #
 #	Global enable for a certain level.  NOTE - this implementation
 #	isn't terribly effective at the moment, because it might hit
@@ -278,14 +278,14 @@ proc logger::services {} {
 # Results:
 #	None.
 
-proc logger::enable {lv} {
+proc ::logger::enable {lv} {
     variable services
     foreach sv $services {
 	::logger::tree::${sv}::enable $lv
     }
 }
 
-proc logger::disable {lv} {
+proc ::logger::disable {lv} {
     variable services
     foreach sv $services {
 	::logger::tree::${sv}::disable $lv
