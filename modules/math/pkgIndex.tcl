@@ -9,3 +9,4 @@ package ifneeded math::interpolate     0.9   [list source [file join $dir interp
 package ifneeded math::complexnumbers  1.0   [list source [file join $dir qcomplex.tcl]]
 package ifneeded math::special         0.1   [list source [file join $dir special.tcl]]
 package ifneeded math::constants       1.0   [list source [file join $dir constants.tcl]]
+package ifneeded math::polynomials     1.0   [list source [file join $dir polynomials.tcl]]

@@ -2,11 +2,12 @@
 #    Test cases for the ::math::polynomials package
 #
 
-package require tcltest
-namespace import ::tcltest::*
+if {[lsearch [namespace children] ::tcltest] == -1} {
+   package require tcltest
+   namespace import ::tcltest::*
+}
 
-#package require math::constants
-source "polynomials.tcl"
+package require math::polynomials
 
 proc matchNumbers {expected actual} {
    set match 1
