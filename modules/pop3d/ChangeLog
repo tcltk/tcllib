@@ -1,3 +1,12 @@
+2003-04-02  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3d_dbox.tcl: Started to add log output.
+
+	* pop3d.tcl: Added "."-stuffing. Not done by mime, out of scope,
+	  has to be done by the transport, i.e. the pop3 demon. Also
+	  removed the transmission of superfluous newline at end of the
+	  message.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.man: More semantic markup, less visual one.

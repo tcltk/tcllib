@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.4 2002/10/14 21:00:16 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.5 2003/04/03 01:50:54 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -263,7 +263,7 @@ test pop3-1.2 {status ok} {
     pop3::close $psock
     delsrv
     set status
-} {10 60 {msex 0 retr_mode retr}}
+} {11 176 {msex 0 retr_mode retr}}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
@@ -314,7 +314,6 @@ Content-Type: text/plain;
               charset="us-ascii"
 
     
-
 }
 
 foreach {n mode} {
@@ -409,7 +408,7 @@ test pop3-6.0 {get and delete all message, nano-client} {
     pop3::close $psock
     delsrv
     set res
-} {10 86 86 86 86 86 86 86 86 86 86 0}
+} {11 85 85 118 85 85 85 85 85 85 85 85 0}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
@@ -438,7 +437,47 @@ test pop3-5.1 {uidl} {
     set msg
 } {POP3 UIDL ERROR:  unknown command 'UIDL'}
 
+set msg {MIME-Version: 1.0
+Content-Type: text/plain;
+              charset="us-ascii"
+
+Test1
+Test2
+Test3
+Test4
+x
+
+.
+
+--
+Done
+}
+test pop3-6.1 {fast retrieval, .-stuff border break, #528928} {
+    set port [newsrv]
+    set psock [pop3::open -retr-mode retr localhost ak smash $port]
+    set res [pop3::retrieve $psock 3]
+    pop3::close $psock
+    delsrv
+    set res
+} [list $msg] ; # {}
+
+
+### FUTURE test ### fast/slow break in terminator.
+
+set msg {MIME-Version: 1.0
+Content-Type: text/plain; charset="us-asc"
+
+y___-
+}
+test pop3-6.2 {fast retrieval, .-stuff border break, #528928} {
+    set port [newsrv]
+    set psock [pop3::open -retr-mode retr localhost ak smash $port]
+    set res [pop3::retrieve $psock 4]
+    pop3::close $psock
+    delsrv
+    set res
+} [list $msg] ; # {}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
-::tcltest::cleanupTests
+#::tcltest::cleanupTests
