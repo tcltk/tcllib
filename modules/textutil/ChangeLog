@@ -1,3 +1,8 @@
+2003-01-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* textutil.tcl: Changed patchlevel in provide to match the
+	  ifneeded in pkgIndex.tcl.
+
 2002-08-11  vogeler <vogeler@users.sourceforge.net>
 
         * adjust.tcl: added hyphenation (TeX). Hyphenation has been
