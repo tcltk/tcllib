@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* control.man:
+	* control.tcl:
+	* pkgIndex.tcl:  Set version of the package to to 0.1.2.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* control.man: More semantic markup, less visual one.
