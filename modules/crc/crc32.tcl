@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.5 2003/01/26 00:16:03 patthoyts Exp $
+# $Id: crc32.tcl,v 1.6 2003/02/11 23:51:38 patthoyts Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.0.1
@@ -97,13 +97,14 @@ namespace eval ::crc {
 proc ::crc::Crc32_tcl {s {seed 0xFFFFFFFF}} {
     variable crc32_tbl
     variable signbit
+    set signmask [expr {~$signbit>>7}]
     set crcval $seed
 
     binary scan $s c* nums
     foreach {n} $nums {
-        set crcval [expr {[lindex $crc32_tbl \
-                               [expr {($crcval ^ $n) & 0xFF}]] \
-                              ^ [expr {($crcval>>8) & ~($signbit>>7)}]}]
+        set ndx [expr {($crcval ^ $n) & 0xFF}]
+        set lkp [lindex $crc32_tbl $ndx]
+        set crcval [expr {($lkp ^ ($crcval >> 8 & $signmask)) & 0xFFFFFFFF}]
     }
     
     return [expr {$crcval ^ 0xFFFFFFFF}]
