@@ -1,3 +1,9 @@
+2002-06-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: 
+	* mpformats/_html.tcl: Added the missing handling of " (&quot;) to
+	  the format.
+
 2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_xml.tcl: args -> arguments, as the argument is not

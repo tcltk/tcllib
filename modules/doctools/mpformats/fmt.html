@@ -155,7 +155,7 @@ proc titledesc {desc} {
 proc manpage_end {}     {return [markup </body></html>]}
 proc section     {name} {
     set ::SectionNames($name) [set id [sectionId $name]]
-    return "[markup <]a name=\"$id\"[markup ><h2>]$name[markup </h2>]"
+    return "[markup <]a name=[markup \"]$id[markup \"><h2>]$name[markup </h2>]"
 }
 proc para        {}     {return [markup <p>]}
 
@@ -290,7 +290,7 @@ proc comment {text} {ht_comment $text}
 proc sectref {text} {
     global SectionNames
     if {[info exists SectionNames($text)]} {
-    	return "[markup <]a href=\"#$SectionNames($text)\"[markup >]$text[markup </a>]"
+    	return "[markup <]a href=[markup \"]#$SectionNames($text)[markup \">]$text[markup </a>]"
     } else {
     	return "[markup <b>]$text[markup </b>]"
     }
@@ -305,7 +305,7 @@ proc package {text} {strong $text}
 proc class   {text} {strong $text}
 proc var     {text} {strong $text}
 proc file    {text} {return "\"[strong $text]\""}
-proc uri     {text} {return "[markup <]a href=\"$text\"[markup >]$text[markup </a>]"}
+proc uri     {text} {return "[markup <]a href=[markup \"]$text[markup \">]$text[markup </a>]"}
 proc term    {text} {emph $text}
 proc const   {text} {strong $text}
 
