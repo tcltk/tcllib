@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.12 2004/10/01 01:21:56 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.13 2004/10/04 14:32:05 jenglish Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -241,6 +241,11 @@ test htmlparse-4.7 {numeric, hexidecimal entities; out-of-range} {
     ::htmlparse::mapEscapes {too big: &#xffff; and unharmed}
 } {too big: &#xffff; and unharmed}
 
+# Bug #1039961
+test htmlparse-4.8 {numeric character references, leading zeros} {
+    ::htmlparse::mapEscapes {Ampersand: &#038;.}
+} {Ampersand: &.}
+
 proc tlist {t n} {
     set tt [list]
     foreach c [$t children $n] {
@@ -298,8 +303,6 @@ test htmlparse-6.1 {Backslashes in content} {
     [list p     {} {} {&bsl;}] \
     [list p     /  {} {}] \
     [list html  /  {} {}] ]
-
-
 
 # Tcllib SF Bug 861287 - Processing of comments.
 test htmlparse-7.1 {html comments} {
