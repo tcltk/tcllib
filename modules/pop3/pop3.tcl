@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.18 2002/09/03 17:13:51 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.19 2002/09/03 19:27:28 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -28,8 +28,8 @@ namespace eval ::pop3 {
     # The value of "msex" influences how the translation for the
     # channel is set and is determined by the contents of the received
     # greeting. The value of "retr_mode" is initially "retr" and
-    # completely determined by the first call to [retr]. For "list" the
-    # system will use LIST before RETR to retrieve the message size.
+    # completely determined by the first call to [retrieve]. For "list"
+    # the system will use LIST before RETR to retrieve the message size.
 
     # The state can be influenced by options given to "open".
 
@@ -418,6 +418,8 @@ proc ::pop3::retrieve {chan start {end -1}} {
 proc ::pop3::RetrFast {chan size} {
     set msgBuffer [read $chan $size]
 
+puts --$msgBuffer
+
     # We might have read not enough because of .-stuffed lines.
     # Read the possible remainder in line by line fashion!
     #		    
@@ -426,8 +428,10 @@ proc ::pop3::RetrFast {chan size} {
     # need to get the real terminating "."
 
     while {[set line [gets $chan]] != ".\r"} {
+puts /-$line
 	append msgBuffer $line
     }
+puts /-$line
 
     # Map both cr+lf and cr to lf to simulate auto EOL translation, then
     # unstuff .-stuffed lines.
@@ -452,6 +456,7 @@ proc ::pop3::RetrSlow {chan} {
 	
     while {1} {
 	set line [string trimright [gets $chan] \r]
+puts *-$line
 	# End of the message is a line with just "."
 	if {$line == "."} {
 	    break
@@ -483,11 +488,19 @@ proc ::pop3::send {chan cmdstring} {
 
    if {$cmdstring != {}} {
       puts $chan $cmdstring
+puts "($chan >>> $cmdstring)" ; flush stdout
    }
    
    set popRet [string trim [gets $chan]]
+puts "($chan <<< $popRet)" ; flush stdout
 
    if {[string first "+OK" $popRet] == -1} {
+
+       if {"$cmdstring" == "STAT"} {
+   set popRet [string trim [gets $chan]]
+puts "($chan <<< $popRet)" ; flush stdout
+}
+
        error [string range $popRet 4 end]
    }
 
