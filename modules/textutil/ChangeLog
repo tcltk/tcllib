@@ -1,3 +1,10 @@
+2001-09-17    Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* tabify.tcl: Added (un)tabify code provided by Helmut Giese
+	  <hgiese@ratiosoft.com> which is more editor-like than the
+	  existing code. The existing code was not deleted so both
+	  behaviours can be used in the future. This fixes [439016].
+
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* tabify.tcl: Frink 2.2 run, fixed dubious code.
