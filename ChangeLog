@@ -1,3 +1,7 @@
+2002-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime: Applied SF patch #585455.
+
 2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct (tree): Fixed SF bug #578460.
