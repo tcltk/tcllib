@@ -4,7 +4,6 @@
 [moddesc   {Image manipulation}]
 [titledesc {JPEG querying and manipulation of meta data}]
 [require Tcl 8.2]
-[require crc32]
 [require jpeg [opt 0.1]]
 [description]
 [para]
@@ -100,10 +99,12 @@ Throws an error if [arg file] is not a valid JPEG image.
 
 Prints everything we know about the given file in a nice format.
 
-[call [cmd ::jpeg::markers] [arg file]]
+[call [cmd ::jpeg::markers] [arg channel]]
 
 This is an internally used command but is documented here because it
-may be of some use for advanced users. The command returns a list with
+may be of some use for advanced users. The argument [arg channel] is
+an open file handle positioned at the start of the first marker
+(usually 2 bytes). The command returns a list with
 one element for each JFIF marker found in the file. Each element consists
 of a list of the marker name, its offset in the file, and its length. The
 offset points to the beginning of the sections data, not the marker itself.
