@@ -1,3 +1,7 @@
+2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64: Fixed SF Tcllib Bug #548354.
+
 2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools: Fixed bug #556509.
@@ -5,7 +9,8 @@
 
 2002-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* pop3d: Bug #532216 fixed. All of pop3d now has a testsuite.
+	* pop3d: Fixed bug #532216. All parts of pop3d now have a
+	  testsuite.
 
 2002-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
