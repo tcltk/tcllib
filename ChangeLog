@@ -1,3 +1,7 @@
+2002-05-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime: Fixed bug #539952.
+
 2002-05-08  Don Porter <dgp@users.sourceforge.net>
 
 	* all.tcl: Show full stack trace when an error occurs sourcing
