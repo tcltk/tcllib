@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5.test,v 1.4.2.1 2003/07/24 23:00:53 patthoyts Exp $
+# RCS: @(#) $Id: md5x.test,v 1.1.2.1 2003/07/24 23:00:53 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -23,7 +23,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 #
 package forget md5
 catch {namespace delete ::md5}
-if {[catch {source [file join [file dirname [info script]] md5.tcl]} msg]} {
+if {[catch {source [file join [file dirname [info script]] md5x.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
 }
@@ -36,10 +36,12 @@ if {[catch {source [file join [file dirname [info script]] md5.tcl]} msg]} {
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {[catch {package present Trf}] || [catch {::md5 -- test}]} {
-    puts "- md5 [package present md5] (pure Tcl)"
-} else {
+if {[info command ::md5::md5c] != {}} {
+    puts "- md5 [package present md5] (critcl based)"
+} elseif {[package provide Trf] != {} && ![catch {::md5 -- test}]} {
     puts "- md5 [package present md5] (Trf based)"
+} else {
+    puts "- md5 [package present md5] (pure Tcl)"
 }
 
 # -------------------------------------------------------------------------
@@ -47,54 +49,54 @@ if {[catch {package present Trf}] || [catch {::md5 -- test}]} {
 test md5-1.0 {md5} {
     catch {::md5::md5} result
     set result
-} [tcltest::getErrorMessage "::md5::md5" "msg" 0]
+} [tcltest::getErrorMessage "md5" "?-hex? -filename file | string" 0]
 
 test md5-1.1 {md5} {
     catch {::md5::hmac} result
     set result
-} [tcltest::getErrorMessage "::md5::hmac" "key text" 0]
+} [tcltest::getErrorMessage "hmac" "?-hex? -key key -filename file | string" 0]
 
 test md5-1.2 {md5} {
     catch {::md5::hmac key} result
     set result
-} [tcltest::getErrorMessage "::md5::hmac" "key text" 1]
+} [tcltest::getErrorMessage "hmac" "?-hex? -key key -filename file | string" 1]
 
 
 foreach {n msg expected} {
     1    ""
-    "d41d8cd98f00b204e9800998ecf8427e"
+    "D41D8CD98F00B204E9800998ECF8427E"
     2    "a"
-    "0cc175b9c0f1b6a831c399e269772661"
+    "0CC175B9C0F1B6A831C399E269772661"
     3    "abc"
-    "900150983cd24fb0d6963f7d28e17f72"
+    "900150983CD24FB0D6963F7D28E17F72"
     4    "message digest"
-    "f96b697d7cb7938d525a2f31aaf161d0"
+    "F96B697D7CB7938D525A2F31AAF161D0"
     5    "abcdefghijklmnopqrstuvwxyz"
-    "c3fcd3d76192e4007dfb496cca67e13b"
+    "C3FCD3D76192E4007DFB496CCA67E13B"
     6    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    "d174ab98d277d9f5a5611c2c9f419d9f"
+    "D174AB98D277D9F5A5611C2C9F419D9F"
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-    "57edf4a22be3c955ac49da2e2107b67a"
+    "57EDF4A22BE3C955AC49DA2E2107B67A"
 } {
     test md5-2.$n {md5} {
-	::md5::md5 $msg
+	::md5::md5 -hex $msg
     } $expected ; # {}
 }
 
 foreach {n key text expected} {
-    1 ""     ""      "74e6f7298a9c2d168935f58c001bad88"
-    2 "foo"  "hello" "ef2ac8901530db30aa56929adfe5e13b"
-    3 "bar"  "world" "dfc05594b019ed51535922a1295446e8"
-    4 "key"  "text"  "d0ca6177c61c975fd2f8c07d8c6528c6"
-    5 "md5"  "hmac"  "d189f362daf86a5c8e14ba4aba91b260"
-    6 "hmac" "md5"   "480343cf0f2d5931ec4923e81059fb84"
-    7 "md5"  "md5"   "92c5fb986e345f21f181047ab939ec77"
-    8 "hmac" "hmac"  "08abbe58a55219789e3eede153808a56"
+    1 ""     ""      "74E6F7298A9C2D168935F58C001BAD88"
+    2 "foo"  "hello" "EF2AC8901530DB30AA56929ADFE5E13B"
+    3 "bar"  "world" "DFC05594B019ED51535922A1295446E8"
+    4 "key"  "text"  "D0CA6177C61C975FD2F8C07D8C6528C6"
+    5 "md5"  "hmac"  "D189F362DAF86A5C8E14BA4ABA91B260"
+    6 "hmac" "md5"   "480343CF0F2D5931EC4923E81059FB84"
+    7 "md5"  "md5"   "92C5FB986E345F21F181047AB939EC77"
+    8 "hmac" "hmac"  "08ABBE58A55219789E3EEDE153808A56"
     9 "01234567abcdefgh01234567abcdefgh01234567abcdefgh01234567abcdefgh==" "hello world"
-    "cf0237466f9b3c773858a1892b474c9e"
+    "CF0237466F9B3C773858A1892B474C9E"
 } {
     test md5-3.$n {hmac} {
-	::md5::hmac $key $text
+	::md5::hmac -hex -key $key $text
     } $expected ; # {}
 }
 

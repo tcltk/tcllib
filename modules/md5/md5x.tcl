@@ -3,31 +3,38 @@
 # MD5  defined by RFC 1321, "The MD5 Message-Digest Algorithm"
 # HMAC defined by RFC 2104, "Keyed-Hashing for Message Authentication"
 #
+# This is an implementation of MD5 based upon the example code given in
+# RFC 1321 and upon the tcllib MD4 implementation and taking some ideas
+# from the earlier tcllib md5 version by Don Libes.
+#
+# This implementation permits incremental updating of the hash and 
+# provides support for external compiled implementations either using
+# critcl (md5c) or Trf.
+#
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.1.2.1 2003/05/05 17:22:50 patthoyts Exp $
+# $Id: md5x.tcl,v 1.1.2.2 2003/07/24 23:00:53 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-catch {package require md5c 1.0};       # tcllib critcl alternative
+
+# Try and load a compiled extension to help.
+if {[catch {package require tcllibc}]} {
+    if {[catch {package require md5c}]} {
+        catch {
+            package requre Trf
+            package require Memchan
+        }
+    }
+}
 
 namespace eval ::md5 {
     variable version 2.0.0
-    variable rcsid {$Id: md5x.tcl,v 1.1.2.1 2003/05/05 17:22:50 patthoyts Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.1.2.2 2003/07/24 23:00:53 patthoyts Exp $}
 
     namespace export md5 hmac MD5Init MD5Update MD5Final
-
-    variable T
-    if {![info exists T]} {
-        # RFC 1321:3.4 step 4: construct 
-        set T X
-        for {set i 1} {$i < 65} {incr i} {
-            lappend T [expr {4294967296 * abs(sin($i))}]
-        }
-        unset i
-    }
 
     variable uid
     if {![info exists uid]} {
@@ -37,8 +44,10 @@ namespace eval ::md5 {
 
 # -------------------------------------------------------------------------
 
-# MD5Init - create and initialize an MD5 state variable. This will be
-# cleaned up when we call MD5Final
+# MD5Init --
+#
+#   Create and initialize an MD5 state variable. This will be
+#   cleaned up when we call MD5Final
 #
 proc ::md5::MD5Init {} {
     variable uid
@@ -56,16 +65,42 @@ proc ::md5::MD5Init {} {
     return $token
 }
 
+# MD5Update --
+#
+#   This is called to add more data into the hash. You may call this
+#   as many times as you require. Note that passing in "ABC" is equivalent
+#   to passing these letters in as separate calls -- hence this proc 
+#   permits hashing of chunked data
+#
+#   If we have a C-based implementation available, then we will use
+#   it here in preference to the pure-Tcl implementation.
+#
 proc ::md5::MD5Update {token data} {
     variable $token
     upvar 0 $token state
 
-    if {[package provide md5c] != {}} {
+    if {[info command ::md5::md5c] != {}} {
         if {[info exists state(md5c)]} {
             set state(md5c) [md5c $data $state(md5c)]
         } else {
             set state(md5c) [md5c $data]
         }
+        return
+    } elseif {[package provide Trf] != {} \
+                  && [package provide Memchan] != {} \
+                  && 0 } {
+        # FIX ME - currently Trf usage is disabled by the above line.
+        # We have Trf and Memchan so we can create a bucket with these.
+        if {![info exists state(trf)]} {
+            set state(trf) [::null]
+            ::md5 -attach $state(trf) -mode write \
+                -read-type variable \
+                -read-destination [subst $token](trfread) \
+                -write-type variable \
+                -write-destination [subst $token](trfwrite)
+            fconfigure $state(trf) -translation binary -buffering none
+        }
+        puts -nonewline $state(trf) $data
         return
     }
 
@@ -84,12 +119,26 @@ proc ::md5::MD5Update {token data} {
     return
 }
 
+# MD5Final --
+#
+#    This procedure is used to close the current hash and returns the
+#    hash data. Once this procedure has been called the hash context
+#    is freed and cannot be used again.
+#
+#    Note that the output is 128 bits represented as binary data.
+#
 proc ::md5::MD5Final {token} {
     variable $token
     upvar 0 $token state
 
-    if {[package provide md5c] != {}} {
+    # Check for either of the C-compiled versions.
+    if {[info exists state(md5c)]} {
         set r $state(md5c)
+        unset state
+        return $r
+    } elseif {[info exists state(trf)]} {
+        close $state(trf)
+        set r $state(trfwrite)
         unset state
         return $r
     }
@@ -116,7 +165,7 @@ proc ::md5::MD5Final {token} {
     }
 
     # RFC1321:3.5 - Output
-    set r [binary format i4 [list $state(A) $state(B) $state(C) $state(D)]]
+    set r [bytes $state(A)][bytes $state(B)][bytes $state(C)][bytes $state(D)]
     unset state
     return $r
 }
@@ -125,6 +174,12 @@ proc ::md5::MD5Final {token} {
 # HMAC Hashed Message Authentication (RFC 2104)
 #
 # hmac = H(K xor opad, H(K xor ipad, text))
+#
+
+# HMACInit --
+#
+#    This is equivalent to the MD5Init procedure except that a key is
+#    added into the algorithm
 #
 proc ::md5::HMACInit {K} {
 
@@ -158,11 +213,20 @@ proc ::md5::HMACInit {K} {
     return $tok
 }
 
+# HMACUpdate --
+#
+#    Identical to calling MD5Update
+#
 proc ::md5::HMACUpdate {token data} {
     MD5Update $token $data
     return
 }
 
+# HMACFinal --
+#
+#    This is equivalent to the MD5Final procedure. The hash context is
+#    closed and the binary representation of the hash result is returned.
+#
 proc ::md5::HMACFinal {token} {
     variable $token
     upvar 0 $token state
@@ -174,7 +238,14 @@ proc ::md5::HMACFinal {token} {
 }
 
 # -------------------------------------------------------------------------
-
+# Description:
+#  This is the core MD5 algorithm. It is a lot like the MD4 algorithm but
+#  includes an extra round and a set of constant modifiers throughout.
+# 
+# Note:
+#  This function body is substituted later on to inline some of the 
+#  procedures and to make is a bit more comprehensible.
+#
 set ::md5::MD5Hash_body {
     variable $token
     upvar 0 $token state
@@ -290,13 +361,23 @@ set ::md5::MD5Hash_body {
         # Then perform the following additions. (That is, increment each
         # of the four registers by the value it had before this block
         # was started.)
-        set state(A) [expr {($A + $state(A)) & 0xFFFFFFFF}]
-        set state(B) [expr {($B + $state(B)) & 0xFFFFFFFF}]
-        set state(C) [expr {($C + $state(C)) & 0xFFFFFFFF}]
-        set state(D) [expr {($D + $state(D)) & 0xFFFFFFFF}]
+        incr state(A) $A
+        incr state(B) $B
+        incr state(C) $C
+        incr state(D) $D
     }
 
     return
+}
+
+proc ::md5::byte {n v} {expr {((0xFF << (8 * $n)) & $v) >> (8 * $n)}}
+proc ::md5::bytes {v} { 
+    #format %c%c%c%c [byte 0 $v] [byte 1 $v] [byte 2 $v] [byte 3 $v]
+    format %c%c%c%c \
+        [expr {0xFF & $v}] \
+        [expr {(0xFF00 & $v) >> 8}] \
+        [expr {(0xFF0000 & $v) >> 16}] \
+        [expr {((0xFF000000 & $v) >> 24) & 0xFF}]
 }
 
 # 32bit rotate-left
@@ -361,7 +442,7 @@ regsub -all -line \
     ::md5::MD5Hash_bodyX
 
 
-# inline the values of T
+# RFC 1321:3.4 step 4: inline the set of constant modifiers.
 namespace eval md5 {
     foreach tName {
         T01 T02 T03 T04 T05 T06 T07 T08 T09 T10 
@@ -504,7 +585,7 @@ proc ::md5::md5 {args} {
 # -------------------------------------------------------------------------
 
 proc ::md5::hmac {args} {
-    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096 -key {}}
+    array set opts {-hex 0 -filename {} -channel {} -chunksize 4096}
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -key       { set opts(-key) [Pop args 1] }
@@ -522,7 +603,7 @@ proc ::md5::hmac {args} {
         Pop args
     }
 
-    if {$opts(-key) == {}} {
+    if {![info exists opts(-key)]} {
         return -code error "wrong # args:\
             should be \"hmac ?-hex? -key key -filename file | string\""
     }

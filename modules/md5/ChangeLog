@@ -1,3 +1,19 @@
+2003-05-13  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5c.tcl:  Brought in the critcl implementation of MD5
+	* md5.c:     originally by Jean-Claude Wippler <jcw@equi4.com>
+	* md5.h:     with code from RFC 1321.
+	
+	* md5x.tcl:  Version 2 md5 module. This is based upon the MD4 module 
+	* md5x.test: code and permits incremental updates into the hash.
+	             This version will use the critcl code if available.
+
+	=== VERSION INCOMPATABILITY ===
+	
+	md5 1 returns data as a hex representation.
+	md5 2 returns the data as a binary representation. If you want the
+	      hex rep, provide the -hex option to the md5 command.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* md5.tcl:
