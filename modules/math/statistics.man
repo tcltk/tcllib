@@ -1,6 +1,8 @@
-[manpage_begin math::statistics n 0.1]
+[manpage_begin math::statistics n 0.1.1]
 [moddesc {Math}]
 [titledesc {Basic statistical functions and procedures}]
+[require Tcl 8]
+[require math::statistics 0.1.1]
 [description]
 [para]
 
