@@ -1,6 +1,8 @@
 2000-04-24  Brent Welch  <welch@scriptics.com>
 	
 	* html/html.tcl, html.test: Cleanup of procedure names in html package.
+	* html/html.n:	Updates to the man page
+	* htmlhtml.test: 60% through tests
 
 2000-04-17  Brent Welch  <welch@scriptics.com>
 
