@@ -1,3 +1,12 @@
+2001-11-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test:
+	* fileutil.n:
+	* fileutil.tcl: Applied patch #477805 by Glenn Jackman
+	  <glennjnn@users.sourceforge.net> implementing the unix 'touch'
+	  command. Contains documentation and testsuite for the new
+	  command too.
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl: Restricted export list to public API.

@@ -1,3 +1,9 @@
+2001-11-06  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.tcl: Applied patch in #478478 to handle non-standard date
+	  information from servers with a buggy y2k patch. 2001 is
+	  rendered as 19101 (19*100 + 101 = 2001).
+
 2001-11-04  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.n: Updated description of DisplayMsg to the changed

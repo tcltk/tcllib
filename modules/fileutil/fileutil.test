@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.5 2001/08/24 17:01:00 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.6 2001/11/08 06:26:41 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -128,6 +128,151 @@ test foreachline-1.0 {foreachLine} {
     }
     set res
 } {/foo/bar/baz}
+
+
+
+catch {removeDirectory touchTest} ; # start with a clean structure!
+makeDirectory touchTest
+makeFile "blah" [file join $dir touchTest file1]
+
+test touch-1.1 {create file} {
+    set f [file join $dir touchTest here]
+    fileutil::touch $f
+    # reap this file on cleanup
+    lappend ::tcltest::filesmade $f
+    file exists $f
+} 1
+test touch-1.2 {'-c' prevents file creation} {
+    set f [file join $dir touchTest nothere]
+    fileutil::touch -c $f
+    file exists $f
+} 0
+test touch-1.3 {'-c' has no effect on existing files} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch -c $f
+    file exists $f
+} 1
+test touch-1.4 {test relative times} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    after 1001
+    fileutil::touch $f
+    set a2 [file atime $f]
+    set m2 [file mtime $f]
+    list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
+} [list 1 1 1 1]
+test touch-1.5 {test relative times using -a} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    after 1001
+    fileutil::touch -a $f
+    set a2 [file atime $f]
+    set m2 [file mtime $f]
+    list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
+} [list 1 0 1 0]
+test touch-1.6 {test relative times using -m} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    after 1001
+    fileutil::touch -m $f
+    set a2 [file atime $f]
+    set m2 [file mtime $f]
+    list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
+} [list 1 0 0 1]
+test touch-1.7 {test relative times using -a and -m} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    after 1001
+    fileutil::touch -a -m $f
+    set a2 [file atime $f]
+    set m2 [file mtime $f]
+    list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
+} [list 1 1 1 1]
+test touch-1.8 {test -t} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -t 42 $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == 42}] [expr {$m1 == 42}]
+} [list 1 1]
+test touch-1.9 {test -t with -a} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -t 42 -a $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == 42}] [expr {$m1 == 42}]
+} [list 1 0]
+test touch-1.10 {test -t with -m} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -t 42 -m $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == 42}] [expr {$m1 == 42}]
+} [list 0 1]
+test touch-1.11 {test -t with -a and -m} {
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -t 42 -a -m $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == 42}] [expr {$m1 == 42}]
+} [list 1 1]
+test touch-1.12 {test -r} {
+    set r [info script]
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -r $r $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
+} [list 1 1]
+test touch-1.13 {test -r with -a} {
+    set r [info script]
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -r $r -a $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
+} [list 1 0]
+test touch-1.14 {test -r with -m} {
+    set r [info script]
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -r $r -m $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
+} [list 0 1]
+test touch-1.15 {test -r with -a and -m} {
+    set r [info script]
+    set f [file join $dir touchTest file1]
+    fileutil::touch $f
+    after 1001
+    fileutil::touch -r $r -m -a $f
+    set a1 [file atime $f]
+    set m1 [file mtime $f]
+    list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
+} [list 1 1]
+
 
 ::tcltest::cleanupTests
 return
