@@ -33,11 +33,11 @@ snit::type treeql {
 
 	set result {}
 	foreach node $nodes {
-	    set application [$tree {expand}$cmd $node {expand}$args] 
-	    #puts stderr "Apply: $tree $cmd $node $args -> $application"
-	    if {[catch {lappend result {expand}$application} x eo]} {
+	    if {[catch {$tree {expand}$cmd $node {expand}$args} application eo]} {
 		puts stderr "Apply ERROR: $tree $cmd $node $args -> $application - $eo"
 	    }
+	    #puts stderr "Apply: $tree $cmd $node $args -> $application"
+	    lappend result {expand}$application
 	}
 
 	return $result

@@ -1,4 +1,9 @@
 2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* treeql84.tcl: Bugfix in 'apply'. Wrong statement was
+	* treeql.tcl:   protected against errors.
+
+2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* treeql.tcl:    New module. TreeQL = Tree Query Language
 	* treeql84.tcl:  Donated by Colin McCormack.
