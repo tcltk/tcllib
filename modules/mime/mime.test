@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.8 2003/06/06 17:21:42 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.9 2003/06/25 20:54:59 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -166,6 +166,14 @@ Content-Type: text/plain\r
 foo\r
 }"
 
+test mime-3.7 {Test mime with a bad email [SF Bug 631314 ]} {
+    set tok [mime::initialize -file badmail1.txt]
+} {}
+
+test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {
+    set tok [mime::initialize -file badmail2.txt]
+} {}
+
 test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
     mime::qp_encode $str1
@@ -258,6 +266,5 @@ foreach {n encoded expected} {
 	mime::field_decode $encoded
     } $expected ; # {}
 }
-
 
 ::tcltest::cleanupTests
