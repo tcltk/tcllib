@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.18 2004/05/15 05:31:57 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.19 2004/07/31 04:53:36 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -45,7 +45,7 @@ c_pass 2 fmt_example_end   {}	{ end example }
 c_pass 2 fmt_example {code} 	{ sequence [xmlContext $::block] [wrap $code example] }
 
 proc fmt_comment {text} {xmlComment $text}
-proc fmt_sectref {text} {c_possibleReference $text emph}
+proc fmt_sectref {text {label {}}} {c_possibleReference $text emph $label}
 proc fmt_syscmd  {text} {wrap $text syscmd}
 proc fmt_method  {text} {wrap $text method}
 proc fmt_option  {text} {wrap $text option}

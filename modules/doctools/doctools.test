@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.6 2004/05/15 05:31:57 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.7 2004/07/31 04:53:36 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -306,7 +306,9 @@ test doctools-9.0 {manpage syntax} {
     catch {mydoctools format foo} result
     mydoctools destroy
     set result
-} {Manpage error (body), "plain_text foo" : Plain text not allowed outside of the body of the manpage.}
+} {Doctools Error in plain text at line 1, column 0:
+[plain_text foo]
+--> (FmtError) Manpage error (body), "plain_text foo" : Plain text not allowed outside of the body of the manpage.}
 
 
 namespace forget ::doctools::new
