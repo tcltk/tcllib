@@ -1,3 +1,8 @@
+2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.bench: New file, beginnings of a benchmark suite for the
+	  data structure 'struct::tree'.
+
 2003-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.man: Changed name to struct_tree.man. Was in conflict with
