@@ -122,7 +122,7 @@ namespace eval ::snit:: {
             }
             
             # Get the component's object.
-            set obj [snit::Component $type $selfns $comp]
+            set obj [::snit::RT.Component $type $selfns $comp]
 
             # TBD: I'll probably want to fix up certain error
             # messages, but I'm not sure how yet.
@@ -153,7 +153,7 @@ namespace eval ::snit:: {
                 }
 
                 # Get the component's object
-                set obj [snit::Component $type $selfns $comp]
+                set obj [::snit::RT.Component $type $selfns $comp]
                     
                 $obj configure $target $value
             }
@@ -226,7 +226,7 @@ namespace eval ::snit:: {
 
                 if {![catch {$comp configure $target} result]} {
                     # Replace the delegated option name with the local name.
-                    return [snit::Expand $result $target $opt]
+                    return [::snit::Expand $result $target $opt]
                 }
 
                 # configure didn't work; return simple form.
@@ -294,12 +294,12 @@ namespace eval ::snit:: {
             # NEXT, if %AUTO% appears in the name, generate a unique 
             # command name.
             if {[string match "*%AUTO%*" $name]} {
-                set name [snit::UniqueName Snit_info(counter) $type $name]
+                set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
             }
 
             # NEXT, create the instance's namespace.
             set selfns \
-                [snit::UniqueInstanceNamespace Snit_info(counter) %TYPE%]
+                [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
             namespace eval $selfns {}
 
             # NEXT, install the dispatcher
@@ -348,12 +348,12 @@ namespace eval ::snit:: {
             # FIRST, if %AUTO% appears in the name, generate a unique 
             # command name.
             if {[string match "*%AUTO%*" $name]} {
-                set name [snit::UniqueName Snit_info(counter) $type $name]
+                set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
             }
             
             # NEXT, create the instance's namespace.
             set selfns \
-                [snit::UniqueInstanceNamespace Snit_info(counter) %TYPE%]
+                [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
             namespace eval $selfns { }
             
             # NEXT, Initialize the widget's own options to their defaults.
@@ -399,7 +399,7 @@ namespace eval ::snit:: {
                 eval Snit_constructor %TYPE% $selfns [list $name] \
                     [list $name] $args
 
-                snit::Component %TYPE% $selfns hull
+                ::snit::RT.Component %TYPE% $selfns hull
 
                 # Prepare to call the object's destructor when the
                 # <Destroy> event is received.  Use a Snit-specific bindtag
@@ -496,7 +496,7 @@ namespace eval ::snit:: {
                 # Next, delete the hull component's instance command,
                 # if there is one.
                 if {$Snit_isWidget} {
-                    set hullcmd [snit::Component %TYPE% $selfns hull]
+                    set hullcmd [::snit::RT.Component %TYPE% $selfns hull]
                 
                     catch {rename $instance ""}
 
@@ -617,50 +617,50 @@ namespace eval ::snit:: {
         # the method or proc to reference a variable in some other 
         # namespace by its bare name.  It's only valid in instance code; 
         # it requires that selfns be defined.
-        interp alias {} %TYPE%::variable {} ::snit::Variable
+        interp alias {} %TYPE%::variable {} ::snit::RT.variable
 
         # Returns the fully qualified name of a typevariable.
         # The "typevarname" form is DEPRECATED.
-        interp alias {} %TYPE%::mytypevar   {} ::snit::MyTypeVar %TYPE%
-        interp alias {} %TYPE%::typevarname {} ::snit::MyTypeVar %TYPE%
+        interp alias {} %TYPE%::mytypevar   {} ::snit::RT.mytypevar %TYPE%
+        interp alias {} %TYPE%::typevarname {} ::snit::RT.mytypevar %TYPE%
 
         # Returns the fully qualified name of an instance variable.  
         # As with "variable", must be called in the context of a method.
         # The "varname" form is DEPRECATED.
 
-        interp alias {} %TYPE%::myvar   {} ::snit::MyVar
-        interp alias {} %TYPE%::varname {} ::snit::MyVar
+        interp alias {} %TYPE%::myvar   {} ::snit::RT.myvar
+        interp alias {} %TYPE%::varname {} ::snit::RT.myvar
 
         # Returns the fully qualified name of a proc 
         # Unlike "variable", need not be called in the context of an
         # instance method.
         #
         # DEPRECATED; use myproc instead.
-        interp alias {} %TYPE%::codename {} ::snit::CodeName %TYPE%
+        interp alias {} %TYPE%::codename {} ::snit::RT.codename %TYPE%
 
         # Use this like "list" to pass a proc call to another
         # object (e.g., as a -command); it automatically qualifies
         # the proc name.
-        interp alias {} %TYPE%::myproc {} ::snit::MyProc %TYPE%
+        interp alias {} %TYPE%::myproc {} ::snit::RT.myproc %TYPE%
 
         # Use this like "list" to pass method call to another object 
         # (e.g., as a -command); it automatically inserts
         # the code at the beginning to call the right object, even if
         # the object's name has changed.  Requires that selfns be defined
         # in the calling context.
-        interp alias {} %TYPE%::mymethod {} ::snit::MyMethod 
+        interp alias {} %TYPE%::mymethod {} ::snit::RT.mymethod 
 
         # Use this like "list" to pass typemethod call to another object 
         # (e.g., as a -command); it automatically inserts the type
         # command at the beginning.
-        interp alias {} %TYPE%::mytypemethod {} ::snit::MyTypeMethod %TYPE%
+        interp alias {} %TYPE%::mytypemethod {} ::snit::RT.mytypemethod %TYPE%
 
         # Looks for the named option in the named variable.  If found,
         # it and its value are removed from the list, and the value
         # is returned.  Otherwise, the default value is returned.
         # If the option is undelegated, it's own default value will be
         # used if none is specified.
-        interp alias {} %TYPE%::from {} ::snit::From %TYPE%
+        interp alias {} %TYPE%::from {} ::snit::RT.from %TYPE%
 
         # Installs the named widget as the hull of a 
         # widgetadaptor.  Once the widget is hijacked, it's new name
@@ -1219,7 +1219,8 @@ proc ::snit::Init.Compiler {} {
         # Initialize the interpreter
 	$compiler eval {
             # Load package information
-            catch {package require snit::__does_not_exist__}
+            # TBD: see if this can be moved outside.
+            catch {package require ::snit::__does_not_exist__}
 
             # Protect some Tcl commands our type definitions
             # will shadow.
@@ -1830,11 +1831,6 @@ proc ::snit::Type.Component {component args} {
 # write trace so that when it is set, all of the component mechanisms
 # get updated.
 #
-# NOTE: This currently only gets done for components to which something
-# is delegated.  Vanilla components which are just saved to an instance
-# variable get none of this special handling.  But since this handling
-# is to support the delegate statements, that's OK.
-#
 # component     The component name
 
 proc ::snit::DefineComponent {component} {
@@ -1965,7 +1961,7 @@ proc ::snit::method {type method arglist body} {
 
 # Defines a proc within the compiler; this proc can call other
 # type definition statements, and thus can be used for meta-programming.
-proc snit::macro {name arglist body} {
+proc ::snit::macro {name arglist body} {
     variable compiler
     variable reservedwords
 
@@ -2176,7 +2172,7 @@ proc ::snit::Capitalize {text} {
 # REQUIRE: type is a fully qualified name.
 # REQUIRE: name contains "%AUTO%"
 # PROMISE: the returned command name is unused.
-proc ::snit::UniqueName {countervar type name} {
+proc ::snit::RT.UniqueName {countervar type name} {
     upvar $countervar counter 
     while 1 {
         # FIRST, bump the counter and define the %AUTO% instance name;
@@ -2187,7 +2183,7 @@ proc ::snit::UniqueName {countervar type name} {
             set counter 0
         }
         set auto "[namespace tail $type]$counter"
-        set candidate [snit::Expand $name %AUTO% $auto]
+        set candidate [Expand $name %AUTO% $auto]
         if {[info commands $candidate] == ""} {
             return $candidate
         }
@@ -2202,7 +2198,7 @@ proc ::snit::UniqueName {countervar type name} {
 # REQUIRE: type is fully qualified
 # PROMISE: The returned namespace name is unused.
 
-proc ::snit::UniqueInstanceNamespace {countervar type} {
+proc ::snit::RT.UniqueInstanceNamespace {countervar type} {
     upvar $countervar counter 
     while 1 {
         # FIRST, bump the counter and define the namespace name.
@@ -2223,7 +2219,7 @@ proc ::snit::UniqueInstanceNamespace {countervar type} {
 # Component Management
 
 # Retrieves the object name given the component name.
-proc  snit::Component {type selfns name} {
+proc ::snit::RT.Component {type selfns name} {
     variable ${selfns}::Snit_components
 
     if {[catch {set Snit_components($name)} result]} {
@@ -2239,7 +2235,7 @@ proc  snit::Component {type selfns name} {
 # Method/Variable Name Qualification
 
 # Implements %TYPE%::variable.  Requires selfns.
-proc snit::Variable {varname} {
+proc ::snit::RT.variable {varname} {
     upvar selfns selfns
 
     if {![string match "::*" $varname]} {
@@ -2255,14 +2251,14 @@ proc snit::Variable {varname} {
 #
 # This is used to implement the mytypevar command.
 
-proc snit::MyTypeVar {type name} {
+proc ::snit::RT.mytypevar {type name} {
     return ${type}::$name
 }
 
 # Fully qualifies an instance variable name.
 #
 # This is used to implement the myvar command.
-proc ::snit::MyVar {name} {
+proc ::snit::RT.myvar {name} {
     upvar selfns selfns
     return ${selfns}::$name
 }
@@ -2273,13 +2269,13 @@ proc ::snit::MyVar {name} {
 #
 # This is used to implement the "myproc" command.
 
-proc snit::MyProc {type procname args} {
+proc ::snit::RT.myproc {type procname args} {
     set procname "${type}::$procname"
     return [linsert $args 0 $procname]
 }
 
 # DEPRECATED
-proc snit::CodeName {type name} {
+proc ::snit::RT.codename {type name} {
     return "${type}::$name"
 }
 
@@ -2289,7 +2285,7 @@ proc snit::CodeName {type name} {
 #
 # This is used to implement the "mytypemethod" command.
 
-proc snit::MyTypeMethod {type args} {
+proc ::snit::RT.mytypemethod {type args} {
     return [linsert $args 0 $type]
 }
 
@@ -2302,9 +2298,9 @@ proc snit::MyTypeMethod {type args} {
 #
 # This is used to implement the "mymethod" command.
 
-proc snit::MyMethod {args} {
+proc ::snit::RT.mymethod {args} {
     upvar selfns selfns
-    return [linsert $args 0 ::snit::CallInstance ${selfns}]
+    return [linsert $args 0 ::snit::RT.CallInstance ${selfns}]
 }
 
 # Calls an instance method for an object given its
@@ -2319,7 +2315,7 @@ proc snit::MyMethod {args} {
 #
 # This is used to implement the "mymethod" command.
 
-proc ::snit::CallInstance {selfns args} {
+proc ::snit::RT.CallInstance {selfns args} {
     upvar ${selfns}::Snit_instance self
     return [uplevel 1 [linsert $args 0 $self]]
 }
@@ -2332,7 +2328,7 @@ proc ::snit::CallInstance {selfns args} {
 #
 # Implements the "from" command.
 
-proc snit::From {type argvName option {defvalue ""}} {
+proc ::snit::RT.from {type argvName option {defvalue ""}} {
     variable ${type}::Snit_optiondefaults
     upvar $argvName argv
 
