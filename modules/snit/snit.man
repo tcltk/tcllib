@@ -2,7 +2,7 @@
 [manpage_begin snit n 0.94]
 [copyright {2003-2004, by William H. Duquette}]
 [moddesc {Snit}]
-[titledesc   {Snit's Not Incr Tcl}]
+[titledesc  {Simple Now In Tcl}]
 [require Tcl 8.4]
 [require snit [opt 0.94]]
 [description]
@@ -608,6 +608,43 @@ the typecomponent. That is, [const "-inherit yes"] is equivalent to:
 [example {    typecomponent mycomp
     delegate typemethod * to mycomp
 }]
+
+[call [cmd pragma] [opt [arg options...]]]
+
+The [cmd pragma] statement provides control over how Snit generates a
+type.  It takes the following options; in each case, [arg flag] must
+be a Boolean value recognized by Tcl, e.g., 0, 1, "yes", "no", and so
+on.
+
+[nl]
+
+If the [const -hastypeinfo], [const -hastypedestroy], and
+[const -hasinstances] pragmas are all set to false, the type
+definition produces an ensemble command without any extraneous
+behavior.
+
+[list_begin definitions]
+[lst_item "[const -hastypeinfo] [arg flag]"]
+
+If true (the default), the generated type will have a typemethod
+called [cmd info] that is used for type introspection; the [cmd info]
+typemethod is documented below.  If false, it will not.
+
+[lst_item "[const -hastypedestroy] [arg flag]"]
+
+If true (the default), the generated type will have a typemethod
+called [cmd destroy] that is used to destroy the type and all of its
+instances.  The [cmd destroy] typemethod is documented below.  If
+false, it will not.
+
+[lst_item "[const -hasinstances] [arg flag]"]
+
+If true (the default), the generated type will have a typemethod 
+called [cmd create] that is used to create instances of the type,
+along with a variety of instance-related features.  If false, it will
+not. 
+
+[list_end]
 
 [call [cmd expose] [arg comp]]
 [call [cmd expose] [arg comp] [const as] [arg method]]
@@ -1935,11 +1972,6 @@ megawidgets easy.
 
 [para]
 
-I should add, I'm not particularly down on Incr Tcl.  But "Snit's Not
-Incr Tcl" occurred to me while I was casting about for a name, and I
-guess there was a certainly inevitability about it.
-
-[para]
 
 If you have any comments or suggestions (or bug reports!) don't
 hesitate to send me e-mail at [uri will@wjduquette.com].  In addition,
