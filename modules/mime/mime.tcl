@@ -22,6 +22,7 @@ if {[catch {package require Trf  2.0}]} {
     # that appears to work with this code here.
 
     package require base64 2.0
+    package require md5 1.0
 
     # Create these commands in the mime namespace so that they
     # won't collide with things at the global namespace level
@@ -34,16 +35,14 @@ if {[catch {package require Trf  2.0}]} {
   	    return [mime::qp_$what $chunk]
         }
         proc md5 {-- string} {
-	    # md5 is just used to uniquify something - bail for the moment
-	    # 31 is completely random - just want something long for boundaries
-	    return [string range $string 0 31]
+	    return [md5::md5 $string]
         }
         proc unstack {channel} {
 	    # do nothing
 	    return
         }
     }
-}
+}        
 
 #
 # state variables:
