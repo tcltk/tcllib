@@ -564,6 +564,30 @@ or any Snit type or widget definition statement, e.g., you can't
 redefine the [cmd method] or [cmd delegate] statements, or the 
 standard [cmd set], [cmd list], or [cmd string] commands.
 
+[call [cmd snit::compile] [arg which] [arg type] [arg body]]
+
+Snit defines a type, widget, or widgetadaptor by "compiling" the
+definition into a Tcl script; this script is then evaluated in the
+Tcl interpreter, which actually defines the new type.
+
+[nl]
+
+This command exposes the "compiler".  Given a definition [arg body]
+for the named [arg type], where [arg which] is [const type], 
+[const widget], or [const widgetadaptor], [cmd snit::compile] returns a list
+of two elements.  The first element is the fully qualified type name;
+the second element is the definition script.
+
+[nl]
+
+[cmd snit::compile] is useful when additional processing
+must be done on the Snit-generated code--if it must be instrumented,
+for example, or run through the TclDevKit compiler.  In addition,the
+returned script could be saved in a text file and used to define the
+type as part of an application or library, thus saving the compilation
+overhead at application start-up.  Note that the
+same version of Snit must be used at run time as at compile time.
+
 [list_end]
 
 [subsection {The Type Command}]
