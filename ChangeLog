@@ -1,3 +1,7 @@
+2002-03-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools: Fixed bug #528390.
+
 2002-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct (matrix): Accepted FR #524430 (-nocase).
