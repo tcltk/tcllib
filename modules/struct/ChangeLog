@@ -1,3 +1,12 @@
+Wed Sep 29 10:11:25 2004  Andreas Kupries <andreask@activestate.com>
+
+	* tree.tcl:        Fixed [Tcllib SF Bug 1034924]. Both tree and graph
+	* struct_tree.man: depend on struct::list for some of their methods.
+	* tree.test:       Now in the code, documented as well, testsuite
+	* graph.tcl:       header code extended.
+	* graph.man:
+	* graph.test:
+
 2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* skiplist.tcl: Fixed expr'essions without braces.

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.34 2004/08/15 03:34:07 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.35 2004/09/29 17:34:04 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -18,14 +18,23 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 # Ensure we test _this_ local copy and one installed somewhere else.
 #
 package forget struct::tree
+package forget struct::list
+
 catch {namespace delete ::struct::tree}
+catch {namespace delete ::struct::list}
+
 if {[catch {source [file join [file dirname [info script]] tree.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+    puts "skipped [file tail [info script]] (tree.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] list.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (list.tcl): $msg"
     return
 }
 
 package require struct::tree
 puts "- struct::tree [package present struct::tree]"
+puts "  - struct::list [package present struct::list]"
 
 namespace import struct::tree
 
