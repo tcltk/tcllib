@@ -14,6 +14,10 @@ set excluded [list \
 	calendar \
 	]
 
+# Notes: struct1 is a backward compatibility module for people using
+# 'struct 1.x'. The package is itself installed, but its documentation
+# is not. Nor do the struct examples belong to it.
+
 set     modules [list]
 array set guide {}
 foreach {m pkg doc exa} {
@@ -57,6 +61,7 @@ foreach {m pkg doc exa} {
     soundex	_tcl  _man  _null
     stooop	_tcl  _man  _null
     struct	_tcl  _man _exa
+    struct1	_tcl  _null _null
     textutil	 _tex _man  _null
     uri		_tcl  _man  _null
 } {
