@@ -9,15 +9,29 @@
 # Copyright (c) 2002 Michael Schlenker
 # All rights reserved.
 #
-# RCS: @(#) $Id: prioqueue.test,v 1.3 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.test,v 1.4 2004/05/19 04:34:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] prioqueue.tcl]
-namespace import -force struct::prioqueue::prioqueue
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::prioqueue
+catch {namespace delete ::struct::prioqueue}
+if {[catch {source [file join [file dirname [info script]] prioqueue.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct::prioqueue
+puts "- struct::prioqueue [package present struct::prioqueue]"
+
+namespace import -force struct::prioqueue
+
+#----------------------------------------------------------------------
 
 test prioqueue-0.1 {prioqueue errors} {
     prioqueue -integer myprioqueue

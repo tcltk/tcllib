@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.13 2004/02/09 09:32:13 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.14 2004/05/19 04:34:50 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -31,6 +31,9 @@ if {
     [package vcompare $version 0.6] > 0
 } {
     # the cgraph package takes over, so we can return
+    namespace eval ::struct {
+	namespace import -force graph::*
+    }
     return
 }
 
@@ -56,7 +59,6 @@ namespace eval ::struct::graph {
     
     # counter is used to give a unique name for unnamed graph
     variable counter 0
-
 
     # Only export one command, the one used to instantiate a new graph
     namespace export graph
@@ -2808,3 +2810,13 @@ proc ::struct::graph::luniq {list} {
     }
     return $result
 }
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'graph::graph' into the general structure namespace.
+    namespace import -force graph::graph
+    namespace export graph
+}
+package provide struct::graph 2.0

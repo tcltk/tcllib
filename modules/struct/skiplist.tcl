@@ -425,3 +425,13 @@ proc ::struct::skiplist::_dump {name} {
 	puts ""
     }
 }
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'skiplist::skiplist' into the general structure namespace.
+    namespace import -force skiplist::skiplist
+    namespace export skiplist
+}
+package provide struct::skiplist 1.3

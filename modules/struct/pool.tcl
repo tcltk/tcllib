@@ -10,7 +10,7 @@
 #     Andreas Kupries during the development of this code.
 #
 #
-# $Id: pool.tcl,v 1.5 2004/01/15 06:36:14 andreas_kupries Exp $
+# $Id: pool.tcl,v 1.6 2004/05/19 04:34:50 andreas_kupries Exp $
 #
 ################################################################################
 
@@ -697,3 +697,13 @@ proc ::struct::pool::request {poolname itemvar args} {
 
 
 # EOF pool.tcl
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'pool::pool' into the general structure namespace.
+    namespace import -force pool::pool
+    namespace export pool
+}
+package provide struct::pool 1.2.1

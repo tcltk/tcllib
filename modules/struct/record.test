@@ -15,8 +15,22 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import -force ::tcltest::*
 }
 
-source [file join [file dirname [info script]] record.tcl]
-namespace import struct::record::*
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::record
+catch {namespace delete ::struct::record}
+if {[catch {source [file join [file dirname [info script]] record.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct::record
+puts "- struct::record [package present struct::record]"
+
+namespace import struct::record
+
+#----------------------------------------------------------------------
 
 test record-0.1 {record define} {
     record define phones {home work cell}

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.5 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.6 2004/05/19 04:34:50 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -264,3 +264,13 @@ proc ::struct::stack::_rotate {name count steps} {
 proc ::struct::stack::_size {name} {
     return [llength $::struct::stack::stacks($name)]
 }
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'stack::stack' into the general structure namespace.
+    namespace import -force stack::stack
+    namespace export stack
+}
+package provide struct::stack 1.2.1

@@ -14,8 +14,20 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] skiplist.tcl]
-namespace eval ::struct {namespace import -force skiplist::*}
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::skiplist
+catch {namespace delete ::struct::skiplist}
+if {[catch {source [file join [file dirname [info script]] skiplist.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require struct::skiplist
+puts "- struct::skiplist [package present struct::skiplist]"
+
+#----------------------------------------------------------------------
 
 # ::shuffle --
 #

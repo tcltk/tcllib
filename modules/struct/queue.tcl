@@ -7,10 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.5 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.6 2004/05/19 04:34:50 andreas_kupries Exp $
 
 namespace eval ::struct {}
-
 namespace eval ::struct::queue {
     # The queues array holds all of the queues you've made
     variable queues
@@ -234,3 +233,13 @@ proc ::struct::queue::_size {name} {
     variable queues
     return [llength $queues($name)]
 }
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'queue::queue' into the general structure namespace.
+    namespace import -force queue::queue
+    namespace export queue
+}
+package provide struct::queue 1.2.1
