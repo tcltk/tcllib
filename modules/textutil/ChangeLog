@@ -1,3 +1,14 @@
+2003-04-10  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl:
+	* expander.man:
+	* expander.tcl: Set version of the package to to 1.2
+
+	* pkgIndex.tcl:
+	* textutil.man: 
+	* textutil.tcl: Fixed bug #614591. Set version
+	  of the package to to 0.5
+
 2003-03-31  Andreas Kupries  <andreask@activestate.com>
 
 	* tabify.tcl (tabify, untabify): Changed from regsub to string map
