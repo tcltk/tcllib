@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.3 2002/05/16 00:48:31 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.4 2002/09/03 17:13:52 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
 
@@ -339,7 +339,7 @@ proc ::pop3d::dbox::_stat {name mbox} {
 }
 
 
-proc ::pop3d::dbox::_size {name mbox msgId} {
+proc ::pop3d::dbox::_size {name mbox {msgId {}}} {
     # @c Determines the size of the specified message, in bytes.
     #
     # @a mbox: Reference to the mailbox to be operated on.
@@ -349,6 +349,23 @@ proc ::pop3d::dbox::_size {name mbox msgId} {
     set dir [Check $name $mbox]
 
     upvar ::pop3d::dbox::dbox::${name}::state  state
+
+    if {$msgId == {}} {
+	# Full size of the maildrop requested.
+	if {![info exists state($dir)]} {
+	    # No stat before size, assume that there are no messages
+	    # in the maildrop, which implies that the maildrop is
+	    # empty, i.e. of size 0.
+	    return 0
+	}
+
+	set n 0
+	set k [llength $state($dir)]
+	for {set id 0} {$id < $k} {incr id} {
+	    incr n [file size [lindex $state($dir) $id]]
+	}
+	return $n
+    }
 
     if {
 	($msgId < 1) ||
