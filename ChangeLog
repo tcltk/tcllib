@@ -1,3 +1,7 @@
+2002-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct (graph): Implemented FR 603924
+
 2002-10-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* pop3: Fixed bug #620062.
