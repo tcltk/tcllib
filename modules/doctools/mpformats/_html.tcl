@@ -29,20 +29,45 @@ set    textMap {
     {"} &quot;
 } ; # " make the emacs highlighting code happy.
 
+# Handling of HTML delimiters in content:
+#
+# Plain text is initially passed through unescaped;
+# internally-generated markup is protected by preceding it with \1.
+# The final PostProcess step strips the escape character from
+# real markup and replaces markup characters from content
+# with entity references.
+#
+
+variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} }
+
+variable finalMap $textMap
+lappend  finalMap {\1&} {&}  {\1<} {<}  {\1>} {>}
+
+
 proc htmlEscape {text} {
     global textMap
     return [string map $textMap $text]
 }
 
-
-
 # Called to handle plain text from the input
 proc HandleText {text} {
-    # TODO: Proper definition of mapping special characters to their HTML escape codes.
-    # Incomplete.
-
-    return [htmlEscape $text]
+    return $text
 }
+
+proc PostProcess {text}	{
+    global finalMap
+    return [string map $finalMap $text]
+}
+
+# markup text --
+#	Protect markup characters in $text with \1.
+#	These will be stripped out in PostProcess.
+#
+proc markup {text} {
+    variable markupMap
+    return [string map $markupMap $text]
+}
+
 
 proc state {} [list return [__file join [pwd] state]]
 
@@ -54,26 +79,26 @@ proc use_bg {} {
 }
 
 
-proc nbsp  {} {return "&nbsp;"}
-proc p     {} {return <p>}
-proc ptop  {} {return "<p valign=top>"}
-proc td    {} {return "<td [use_bg]>"}
-proc trtop {} {return "<tr valign=top [use_bg]>"}
-proc tr    {} {return "<tr            [use_bg]>"}
-proc sect {s} {return "<b>$s</b><br><hr>"}
-proc link {text url} {return "<a href=\"$url\">$text</a>"}
-proc table  {} {return "<table [border] width=100% cellspacing=0 cellpadding=0>"}
-proc btable {} {return "<table border=1 width=100% cellspacing=0 cellpadding=0>"}
-proc stable {} {return "<table [border] cellspacing=0 cellpadding=0>"}
+proc nbsp   {}         {return [markup "&nbsp;"]}
+proc p      {}         {return [markup <p>]}
+proc ptop   {}         {return [markup "<p valign=top>"]}
+proc td     {}         {return [markup "<td [use_bg]>"]}
+proc trtop  {}         {return [markup "<tr valign=top [use_bg]>"]}
+proc tr     {}         {return [markup "<tr            [use_bg]>"]}
+proc sect   {s}        {return [markup "<b>$s</b><br><hr>"]}
+proc link   {text url} {return [markup "<a href=\"$url\">$text</a>"]}
+proc table  {}         {return [markup "<table [border] width=100% cellspacing=0 cellpadding=0>"]}
+proc btable {}         {return [markup "<table border=1 width=100% cellspacing=0 cellpadding=0>"]}
+proc stable {}         {return [markup "<table [border] cellspacing=0 cellpadding=0>"]}
 
 
-proc tcl_cmd {cmd} {return "<b>\[$cmd]</b>"}
+proc tcl_cmd {cmd} {return "[markup <b>]\[$cmd][markup </b>]"}
 proc wget    {url} {exec /usr/bin/wget -q -O - $url 2>/dev/null}
 
 proc url {tag text url} {
     set body {
 	switch -exact -- $what {
-	    link {return {<a href="%url%">%text%</a>}}
+	    link {return {\1<a href="%url%"\1>%text%\1</a\1>}} ; ## TODO - markup
 	    text {return {%text%}}
 	    url  {return {%url%}}
 	}
@@ -82,20 +107,20 @@ proc url {tag text url} {
 }
 
 proc img {tag alt img} {
-    proc $tag {} [list return "<img alt=\"$alt\" src=\"$img\">"]
+    proc $tag {} [list return "\1<img alt=\"$alt\" src=\"$img\"\1>"]
 }
 
 proc protect {text} {return [string map [list & "&amp;" < "&lt;" > "&gt;"] $text]}
 
 
-proc tag  {t} {return <$t>}
+proc tag  {t} {return [markup <$t>]}
 proc taga {t av} {
     # av = attribute value ...
     set avt [list]
     foreach {a v} $av {lappend avt "$a=\"$v\""}
-    return "<$t [join $avt]>"
+    return [markup "<$t [join $avt]>"]
 }
-proc tag/ {t} {return </$t>}
+proc tag/ {t} {return [markup </$t>]}
 proc tag_ {t block args} {
     # args = key value ...
     if {$args == {}} {return "[tag $t]$block[tag/ $t]"}
@@ -103,4 +128,4 @@ proc tag_ {t block args} {
 }
 
 
-proc ht_comment {text}   {return "<! -- $text -->"}
+proc ht_comment {text}   {return "[markup <]! -- $text --[markup >]"}
