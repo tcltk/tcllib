@@ -20,7 +20,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.1 2002/03/02 01:37:46 patthoyts Exp $
+# $Id: dns.tcl,v 1.2 2002/06/07 17:15:00 andreas_kupries Exp $
 
 package require log;                    # tcllib 1.0
 package require uri;                    # tcllib 1.1
@@ -28,38 +28,10 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
     variable version 1.0
-    variable rcsid {$Id: dns.tcl,v 1.1 2002/03/02 01:37:46 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.2 2002/06/07 17:15:00 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup
-
-    variable options
-    if {![info exists options]} {
-        array set options {
-            port       53
-            timeout    30000
-            protocol   tcp
-            search     {}
-            nameserver {localhost}
-            loglevel   warning
-        }
-        configure -loglevel $options(loglevel)
-    }
-
-    variable types
-    array set types { 
-        A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
-        NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
-        AXFR 252  MAILB 253  MAILA 254  * 255
-    } 
-
-    variable classes
-    array set classes { IN 1  CS 2  CH  3  HS 4  * 255}
-
-    variable uid
-    if {![info exists uid]} {
-        set uid 0
-    }
 }
 
 # -------------------------------------------------------------------------
@@ -852,6 +824,39 @@ proc uri::JoinDns {args} {
         set query "//${ns}/${query}"
     }
     return "dns:$query"
+}
+
+# -------------------------------------------------------------------------
+# Initialize variables, using the procedures defined above.
+
+namespace eval dns {
+    variable options
+    if {![info exists options]} {
+        array set options {
+            port       53
+            timeout    30000
+            protocol   tcp
+            search     {}
+            nameserver {localhost}
+            loglevel   warning
+        }
+        configure -loglevel $options(loglevel)
+    }
+
+    variable types
+    array set types { 
+        A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
+        NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
+        AXFR 252  MAILB 253  MAILA 254  * 255
+    } 
+
+    variable classes
+    array set classes { IN 1  CS 2  CH  3  HS 4  * 255}
+
+    variable uid
+    if {![info exists uid]} {
+        set uid 0
+    }
 }
 
 # -------------------------------------------------------------------------
