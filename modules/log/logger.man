@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.11 2004/09/06 00:59:11 mic42 Exp $}]
-[manpage_begin logger n 0.4]
+[comment {$Id: logger.man,v 1.12 2004/09/13 23:55:42 mic42 Exp $}]
+[manpage_begin logger n 0.5]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8.2]
-[require logger [opt 0.4]]
+[require logger [opt 0.5]]
 [description]
 
 [para]
@@ -79,6 +79,11 @@ Globally enables logging at and "above" the given level.  Levels are
 Globally disables logging at and "below" the given level.  Levels are
 those listed above.
 
+[call [cmd logger::setlevel] [arg level]]
+
+Globally enable logging at and "above" the given level. Levels are those
+listed above.
+
 [call [cmd logger::levels]]
 
 Returns a list of the available log levels (also listed above under [cmd enable]).
@@ -100,7 +105,7 @@ event.  [var \${log}] is the variable obtained from [cmd logger::init].
 [call [cmd \${log}::setlevel] [arg level]]
 
 Enable logging, in the service referenced by [var \${log}], and its
-children, at or above the level specified, and disable logging below
+children, at and above the level specified, and disable logging below
 it.
 
 [call [cmd \${log}::enable] [arg level]]
