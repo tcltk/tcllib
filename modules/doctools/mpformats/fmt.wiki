@@ -11,52 +11,7 @@
 
 dt_source _common.tcl   ; # Shared code
 
-proc fmt_postprocess {text} {
-    regsub {^[ ]+} $text {} text
-    return $text
-}
-
-
-################################################################
-## Backend for *roff markup
-
-c_pass 1 fmt_manpage_begin {title section version} NOP
-c_pass 2 fmt_manpage_begin {title section version} {
-    set module      [dt_module]
-    set shortdesc   [c_get_module]
-    set description [c_get_title]
-
-    ex_cpush mp
-    set     hdr ""
-    append  hdr "$title $version '''$module''' ''$shortdesc''" \n
-    append  hdr \n
-    append  hdr "$description"
-    append  hdr \n
-    return $hdr
-}
-
-c_pass 1 fmt_moddesc   {desc} {c_set_module $desc}
-c_pass 2 fmt_moddesc   {desc} NOP
-
-c_pass 1 fmt_titledesc {desc} {c_set_title $desc}
-c_pass 2 fmt_titledesc {desc} NOP
-
-c_pass 1 fmt_copyright {desc} {c_set_copyright $desc}
-c_pass 2 fmt_copyright {desc} NOP
-
-c_pass 1 fmt_manpage_end {} NOP
-c_pass 2 fmt_manpage_end {} {
-    set wiki [ex_cpop mp]
-
-    # Complete the generation with a copyright
-    # section, if such information is available.
-
-    set copyright [c_get_copyright]
-    if {$copyright != {}} {
-	append wiki [fmt_section COPYRIGHT]
-	append wiki ". " [join [split $copyright \n] "\n. "] \n
-    }
-
+proc fmt_postprocess {wiki} {
     # Strip empty lines out of the generated wiki source
     # and trim leading blanks, except in code samples.
     #
@@ -85,7 +40,51 @@ c_pass 2 fmt_manpage_end {} {
 	    lappend lines [string map {[ [[ ] ]]} [string trimright $line]]
 	}
     }
-    return [join $lines \n]\n
+    set wiki [join $lines \n]\n
+
+    regsub {^[ ]+} $wiki {} wiki
+    return $wiki
+}
+
+
+################################################################
+## Backend for *roff markup
+
+c_pass 1 fmt_manpage_begin {title section version} NOP
+c_pass 2 fmt_manpage_begin {title section version} {
+    set module      [dt_module]
+    set shortdesc   [c_get_module]
+    set description [c_get_title]
+
+    set     hdr ""
+    append  hdr "$title $version '''$module''' ''$shortdesc''" \n
+    append  hdr \n
+    append  hdr "$description"
+    append  hdr \n
+    return $hdr
+}
+
+c_pass 1 fmt_moddesc   {desc} {c_set_module $desc}
+c_pass 2 fmt_moddesc   {desc} NOP
+
+c_pass 1 fmt_titledesc {desc} {c_set_title $desc}
+c_pass 2 fmt_titledesc {desc} NOP
+
+c_pass 1 fmt_copyright {desc} {c_set_copyright $desc}
+c_pass 2 fmt_copyright {desc} NOP
+
+c_pass 1 fmt_manpage_end {} NOP
+c_pass 2 fmt_manpage_end {} {
+    # Complete the generation with a copyright
+    # section, if such information is available.
+
+    set wiki ""
+    set copyright [c_get_copyright]
+    if {$copyright != {}} {
+	append wiki [fmt_section COPYRIGHT]
+	append wiki ". " [join [split $copyright \n] "\n. "] \n
+    }
+    return $wiki
 }
 
 proc fmt_section {name} {return "\n\n----\n'''$name'''\n\n"}

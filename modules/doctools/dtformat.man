@@ -125,6 +125,22 @@ information is desired (e.g.: to document a "package require" command).
 [section Commands]
 [list_begin definitions]
 
+[call [cmd vset] [arg varname] [arg value] ]
+
+Sets the formatter variable [arg varname] to the specified
+[arg value]. Returns the empty string.
+
+[call [cmd vset] [arg varname]]
+
+Returns the value associated with the formatter variable
+[arg varname].
+
+[call [cmd include] [arg filename]]
+
+Reads the file named [arg filename], runs it through the expansion
+process and returns the expanded result.
+
+
 [call [cmd manpage_begin] [arg command] [arg section] [arg version]]
 
 This command begins a manpage. Nothing is allowed to precede
