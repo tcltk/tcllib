@@ -1,3 +1,21 @@
+2003-10-17  Will Duquette  <will@cordelia.local.>
+
+	* snit.html: Added typeconstructor documentation.
+	* faq.html:  
+
+	* snit.tcl: Implemented typeconstructors.  A typeconstructor's
+                    body is executed as part of the compiled type
+	            definition; it has access to all of the typevariables
+	            and typemethods.  Its job is to initialize arrays,
+	            set option database values, and like that.
+	
+	* snit.test: Added tests for typeconstructors.
+
+2003-10-16  Will Duquette  <will@wjduquette.com>
+
+	* README.txt: Updated to reflect snit's presence in tcllib, and
+	  to point to this ChangeLog file.
+
 2003-09-30  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.tcl: A number of changes to the code generation part.

@@ -311,6 +311,46 @@ test type-1.5 {typemethod args can't include self} {} {
     set result
 } {typemethod foo's arglist may not contain 'self' explicitly.}
 
+#-----------------------------------------------------------------------
+# typeconstructor
+
+test typeconstructor-1.1 {a typeconstructor can be defined} {} {
+    cleanup
+
+    type dog {
+        typevariable a
+
+        typeconstructor {
+            set a 1
+        }
+
+        typemethod aget {} {
+            return $a
+        }
+    }
+
+    dog aget
+} {1}
+
+test typeconstructor-1.2 {only one typeconstructor can be defined} {} {
+    cleanup
+
+    catch {
+        type dog {
+            typevariable a
+
+            typeconstructor {
+                set a 1
+            }
+
+            typeconstructor {
+                set a 2
+            }
+        }
+    } result
+
+    set result
+} {too many typeconstructors}
 
 #-----------------------------------------------------------------------
 # type creation

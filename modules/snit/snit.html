@@ -90,6 +90,21 @@ introduction to Snit concepts.<p>
               Type variables defined in the type <i>definition</i> are
               automatically visible in the <i>body</i> of every type method.<p>
               
+         <dt> <code><a name="typeconstructor">typeconstructor <i>body</i></a></code>
+         <dd> The type constructor's <i>body</i> is executed once when the
+              type is first defined; it is typically used to
+              initialize array-valued type-variables and to add
+              entries to the Tk option database.<p>
+
+              The variable "type" is
+              automatically defined in the <i>body</i> to the type's
+              fully-qualified name.<p>
+
+              Type variables defined in the type <i>definition</i> are
+              automatically visible in the <i>body</i> of every type method.<p>
+
+              A type may define at most one type constructor.<p>
+
          <dt> <code><a name="option">option <i>name</i> ?<i>defaultValue</i>?</a></code>
          <dd> Defines an option for instances of this type, and
               optionally gives it an initial value.  (The option's
@@ -631,7 +646,10 @@ guess there was a certainly inevitability about it.<p>
 If you have any comments or suggestions (or bug reports!) don't
 hesitate to send me e-mail at <a href="mailto:will@wjduquette.com">will@wjduquette.com</a>.  In
 addition, there's now a Snit mailing list; you can find out more about
-it at the Snit home page, <a href="http://www.wjduquette.com/snit">http://www.wjduquette.com/snit</a>.<p>
+it at the Snit home page, <a
+href="http://www.wjduquette.com/snit">http://www.wjduquette.com/snit</a>.
+Finally, Snit is now part of tcllib, the standard Tcl library; you can
+also add bug reports to the tcllib bug database at SourceForge.<p>
 
 <h2><a name="credits">CREDITS</a></h2>
 
@@ -639,7 +657,8 @@ Snit has been designed and implemented from the very beginning by
 William H. Duquette.  However, much credit belongs to the following
 people for using Snit and providing me with valuable feedback: Rolf
 Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
-Egon Pasztor, David S. Cargo, Tom Krehbiel, and Michael Cleverly.
+Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, and
+Andreas Kupries.
 
 
 <p><hr><p>
