@@ -1,3 +1,9 @@
+2003-05-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sak.tcl: Added a contributors command to list the contributors
+	to the library. This is also used when generating the TIP55
+	description file. Names are extracted from the ChangeLog files.
+
 2003-05-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/base64/base64.test:      
