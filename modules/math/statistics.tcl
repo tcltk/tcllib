@@ -17,7 +17,7 @@ namespace eval ::math::statistics {
     #
     namespace export mean min max number var stdev basic-stats corr \
 	    histogram interval-mean-stdev test-mean quantiles \
-	    autocorr crosscorr filter map samplescount
+	    autocorr crosscorr filter map samplescount median
     #
     # Error messages
     #
@@ -823,6 +823,39 @@ proc ::math::statistics::linear-residuals { xdata ydata {intercept 1} } {
    }
    return $result
 }
+
+# median
+#    Determine the median from a list of data 
+#
+# Arguments:
+#    data         (Unsorted) list of data 
+#
+# Result:
+#    Median (either the middle value or the mean of two values in the 
+#    middle)
+#
+# Note:
+#    Adapted from the Wiki page "Stats", code provided by JPS
+#
+proc ::math::statistics::median { data } {
+    set org_data $data 
+    set data     {}
+    foreach value $org_data {
+        if { $value != {} } { 
+            lappend data $value
+        }
+    }
+    set len [llength $data]
+
+    set data [lsort -real $data] 
+    if { $len % 2 } {
+        lindex $data [expr {($len-1)/2}]
+    } else {
+        expr {([lindex $data [expr ($len / 2) - 1]] \
+                       + [lindex $data [expr $len / 2]]) / 2.0}
+    }
+}
+
 
 #
 # Load the auxiliary scripts

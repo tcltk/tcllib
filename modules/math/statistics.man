@@ -83,6 +83,14 @@ Determine the [emph variance] of the data in the given list
 [arg data] - List of data
 [nl]
 
+[call [cmd ::math::statistics::median] [arg data]]
+Determine the [emph median] of the data in the given list
+(Note that this requires sorting the data, which may be a
+costly operation)
+[nl]
+[arg data] - List of data
+[nl]
+
 [call [cmd ::math::statistics::basic-stats] [arg data]]
 Determine a list of all the descriptive parameters: mean, minimum,
 maximum, number of data, standard deviation and variance.
