@@ -78,7 +78,7 @@ If no pattern is specified, information about all functions will be
 displayed.  The return result is a human readable display of the
 profiling information.
 
-[call [cmd ::profiler::reset]]
+[call [cmd ::profiler::reset] [opt [arg pattern]]]
 
 Reset profiling information for all functions matching [arg pattern].
 If no pattern is specified, information will be reset for all
