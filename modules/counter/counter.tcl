@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.9 2002/08/31 06:27:47 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.10 2003/02/25 06:59:19 davidw Exp $
 
-package require Tcl 8
+package require Tcl 8.2
 
 namespace eval counter:: {
 
@@ -573,7 +573,7 @@ proc counter::names {} {
     foreach v [info vars ::counter::T-*] {
 	if {[info exists $v]} {
 	    # Declared arrays might not exist, yet
-	    regsub -- ::counter::T- $v {} v
+	    set v [string map {{::counter::T-} {}} $v]
 	    lappend result $v
 	}
     }
