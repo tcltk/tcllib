@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.37 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.37.2.1 2004/05/24 02:58:10 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -425,7 +425,7 @@ proc ::fileutil::stripPwd {path} {
     set npath [file split $path]
 
     if {[string match ${pwd}* $npath]} {
-	set path [eval file join [lrange $npath [llength $pwd] end]]
+	set path [eval [linsert [lrange $npath [llength $pwd] end] 0 file join ]]
     }
     return $path
 }
@@ -446,7 +446,7 @@ proc ::fileutil::stripN {path n} {
     if {$n >= [llength $path]} {
 	return {}
     } else {
-	return [eval file join [lrange $path $n end]]
+	return [eval [linsert [lrange $path $n end] 0 file join]]
     }
 }
 
@@ -688,8 +688,13 @@ proc ::fileutil::fileType {filename} {
         lappend type graphic gif
     } elseif { $binary && [string match "\x89PNG*" $test] } {
         lappend type graphic png
-    } elseif { $binary && [string match "\xFF\xD8\xFF\xE0\x00\x10JFIF*" $test] } {
-        lappend type graphic jpeg
+    } elseif { $binary && [string match "\xFF\xD8\xFF*" $test] } {
+        binary scan $test c3H2Sa5 id marker len txt 
+        if {$marker == "e0" && $txt == "JFIF\x00"} {
+            lappend type graphic jpeg jfif
+        } elseif { $marker == "e1" && $txt == "Exif\x00" } {
+            lappend type graphic jpeg exif
+        }
     } elseif { $binary && [string match "MM\x00\**" $test] } {
         lappend type graphic tiff
     } elseif { $binary && [string match "\%PDF\-*" $test] } {

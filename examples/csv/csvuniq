@@ -1,6 +1,7 @@
-#!/bin/sh
-# use -*- tcl -*- \
-exec tclsh "$0" "$@"
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
 # Make CSV data the specified column unique.
 
 package require csv

@@ -7,8 +7,8 @@
 #
 
 package require Tcl 8.3
-package require mime 1.3.4
-package provide smtp 1.3.5
+package require mime 1.4
+package provide smtp 1.3.6
 
 #
 # state variables:
@@ -1036,12 +1036,8 @@ proc ::smtp::wdata {token command buffer} {
     upvar 0 $token state
 
     switch -- $command {
-	create/read
-	    -
-        create/write
-            -
-        clear/write
-            -
+        create/write -
+        clear/write  -
         delete/write {
             set state(crP) 0
             set state(nlP) 1
@@ -1101,13 +1097,26 @@ proc ::smtp::wdata {token command buffer} {
             return $result
         }
 
-        create/read - 
+	create/read -
         delete/read {
 	    # Bugfix for [#539952]
         }
 
+	query/ratio {
+	    # Indicator for unseekable channel,
+	    # for versions of Trf which ask for
+	    # this.
+	    return {0 0}
+	}
+	query/maxRead {
+	    # No limits on reading bytes from the channel below, for
+	    # versions of Trf which ask for this information
+	    return -1
+	}
+
 	default {
-	    error "Unknown command \"$command\""
+	    # Silently pass all unknown commands.
+	    #error "Unknown command \"$command\""
 	}
     }
 

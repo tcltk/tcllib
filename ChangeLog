@@ -1,3 +1,60 @@
+2004-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sak.tcl: Some mods to the critcl build code for use under
+	Windows. If it cannot find critcl.kit, then use env(CRITCL) for
+	the location of the kit file.
+
+2004-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* examples/csv/csv2html.orig:		Unified the startup header of all
+	* examples/csv/csvcut.orig:		applications, using suggestions
+	* examples/csv/csvdiff.orig:		made by Stuart Cassoff <stwo@telus.net>.
+	* examples/csv/csvjoin.orig:
+	* examples/csv/csvsort.orig:
+	* examples/csv/csvuniq.orig:
+	* examples/ftp/ftpdemo.tcl.orig:
+	* examples/ftp/ftpvalid.orig:
+	* examples/ftp/hpupdate.tcl.orig:
+	* examples/ftp/mirror.tcl.orig:
+	* examples/ftp/newer.tcl.orig:
+	* examples/ftpd/ftpd.orig:
+	* examples/ftpd/ftpd.test.orig:
+	* examples/ftpd/ftpd.unix.orig:
+	* examples/irc/irc_example.tcl.orig:
+	* examples/mime/mbot/README.html.orig:
+	* examples/mime/mbot/README.txt.orig:
+	* examples/mime/mbot/README.xml.orig:
+	* examples/mime/mbot/impersonal.tcl.orig:
+	* examples/mime/mbot/personal.tcl.orig:
+	* examples/nntp/postnews.orig:
+	* examples/oreilly-oscon2001/oscon.orig:
+	* examples/smtpd/tcl_smtpd.orig:
+	* examples/smtpd/tk_smtpd.orig:
+	* examples/smtpd/tk_smtpdMIME.orig:
+	* modules/des/des.tcl.orig:
+	* modules/devtools/musub.tcl.orig:
+	* modules/doctools/mpexpand.orig:
+	* modules/doctools/mpexpand.all.orig:
+	* modules/doctools/tocexpand.orig:
+	* modules/fileutil/fileutil.test.orig:
+	* modules/mime/performance.tcl.orig:
+	* modules/pop3/clnt.tcl.orig:
+	* modules/pop3/srv.tcl.orig:
+
+2004-03-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installer.tcl: Requiring Tcl 8.2 when executing the installer,
+	  as anything below that version does not make any sense. This
+	  fixes [Tcllib SF Bug 899152].
+
+	* installer.tcl: Fixed [Tcllib SF Bug 899209] by deleting an
+	  existing file before trying to overwrite it.
+
+2004-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tcllib_version.tcl: Moving mainline to 1.6.0.1 to distinguish
+	  development from the released version.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

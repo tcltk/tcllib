@@ -7,17 +7,27 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.12 2004/02/13 06:51:37 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.12.2.1 2004/05/24 02:58:11 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+# This code loads md5x, i.e. md5 v2. Proper testing should do one run
+# using md5 v1, aka md5.tcl as well.
+
+package forget md5
+catch {namespace delete md5}
+if {[catch {source [file join [file dirname [file dirname [info script]]] md5 md5x.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (md5x.tcl): $msg"
+    return
+}
+
 package forget mime
 catch {namespace delete mime}
 if {[catch {source [file join [file dirname [info script]] mime.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+    puts "skipped [file tail [info script]] (mime.tcl): $msg"
     return
 }
 
@@ -25,6 +35,7 @@ namespace import mime::*
 
 puts "tcltest [package present tcltest]"
 puts "mime    [package present mime]"
+puts "- md5 [package present md5]"
 
 
 
@@ -284,5 +295,37 @@ foreach {bug n encoded expected} {
 	mime::field_decode $encoded
     } $expected ; # {}
 }
+
+test mime-7.1 {Test reversemapencoding+mapencoding with preferred name} {
+    set charset [mime::reversemapencoding "US-ASCII"]
+    mime::mapencoding $charset
+} {US-ASCII}
+
+test mime-7.2 {Test reversemapencoding+mapencoding with alias} {
+    set charset [mime::reversemapencoding "UTF8"]
+    mime::mapencoding $charset
+} {UTF-8}
+
+
+test mime-8.0 {Test chunk handling of copymessage and helpers} {
+    set in [makeFile [set data [string repeat [string repeat "123456789 " 10]\n 350]] input.txt]
+    set mi [makeFile {} mime.txt]
+
+    set token [mime::initialize -canonical text/plain -file $in]
+
+    set f [open $mi w]
+    fconfigure $f -translation binary
+    mime::copymessage $token $f
+    close $f
+
+    set token [mime::initialize -file $mi]
+    set newdata [mime::getbody $token]
+    set res [string compare $data $newdata]
+
+    removeFile input.txt
+    removeFile mime.txt
+    unset data newdata token f in mi
+    set res
+} 0
 
 ::tcltest::cleanupTests

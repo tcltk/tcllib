@@ -1,5 +1,7 @@
 #! /bin/sh
-#
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
 # tk_smtpd - Copyright (C) 2001 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Simple test of the mail server. All incoming messages are displayed in a 
@@ -18,11 +20,10 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the file 'license.terms' for
 # more details.
 # -------------------------------------------------------------------------
-# \
-exec wish8.3 "$0" ${1+"$@"}
 
-package require smtpd
+package require Tcl 8.3
 package require Tk
+package require smtpd
 wm withdraw .
 
 # Handle new mail by raising a message dialog for each recipient.

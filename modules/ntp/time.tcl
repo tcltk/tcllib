@@ -7,14 +7,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.9 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: time.tcl,v 1.9.2.1 2004/05/24 02:58:11 andreas_kupries Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
-    variable version 1.0.1
-    variable rcsid {$Id: time.tcl,v 1.9 2004/01/15 06:36:13 andreas_kupries Exp $}
+    variable version 1.0.2
+    variable rcsid {$Id: time.tcl,v 1.9.2.1 2004/05/24 02:58:11 andreas_kupries Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -170,7 +170,13 @@ proc ::time::QueryTime {token} {
         set State(sock) [udp_open]
         udp_conf $State(sock) $State(-timeserver) $State(-port)
     } else {
-        set State(sock) [socket $State(-timeserver) $State(-port)]
+        if {[catch {
+            set State(sock) [socket $State(-timeserver) $State(-port)]
+        } sockerror]} {
+            set State(status) error
+            set State(error) $sockerror
+            return $token
+        }
     }
 
     # setup the timeout

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.5 2004/02/11 07:48:41 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.5.2.1 2004/05/24 02:58:10 andreas_kupries Exp $
 
 package provide inifile 0.1
 
@@ -264,9 +264,9 @@ proc ::ini::comment {fh sec {key {}} args} {
         return $comments($sec\000$key)
     }
     if { $key == "" } {
-        eval [list lappend comments($sec)] $args
+        eval [linsert $args 0 lappend comments($sec)]
     } else {
-        eval [list lappend comments($sec\000$key)] $args
+        eval [linsert $args 0 lappend comments($sec\000$key)]
     }
 }
 

@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: log.test,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: log.test,v 1.3.2.1 2004/05/24 02:58:11 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -130,10 +130,15 @@ test log-6.1 {channel error} {
     set msg
 } {"foo" is no unique abbreviation of a level name}
 
-foreach level {alert critical debug error emergency info notice warning} {
+foreach level {alert critical error emergency} {
     test log-7.0.$level {query suppression state} {
 	::log::lvIsSuppressed $level
     } 0
+}
+foreach level {debug info notice warning} {
+    test log-7.0.$level {query suppression state} {
+	::log::lvIsSuppressed $level
+    } 1
 }
 
 test log-7.1 {error when querying suppression state} {

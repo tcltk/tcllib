@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.16 2004/01/25 07:29:39 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.16.2.1 2004/05/24 02:58:09 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.5
@@ -129,7 +129,7 @@ proc ::csv::read2matrix {args} {
 		set expand  $d
 	    }
 	}
-	4 {
+	5 {
 	    foreach {a b c d e} $args break
 	    if {![string equal $a "-alternate"]} {
 		return -code error "wrong#args: Should be ?-alternate? chan m ?separator? ?expand?"

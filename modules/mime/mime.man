@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin mime n 1.3.4]
+[manpage_begin mime n 1.3.6]
 [copyright {1999-2000 Marshall T. Rose}]
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [require Tcl]
-[require mime [opt 1.3.4]]
+[require mime [opt 1.3.6]]
 [description]
 [para]
 
@@ -177,7 +177,7 @@ size of each fragment passed to the callback.)
 When the end of the body is reached, the callback is invoked as:
 
 [example {
-  uplevel #0 $callback "end"
+    uplevel #0 $callback "end"
 }]
 
 [nl]
@@ -185,13 +185,13 @@ When the end of the body is reached, the callback is invoked as:
 Alternatively, if an error occurs, the callback is invoked as:
 
 [example {
-  uplevel #0 $callback [list "error" reason]
+    uplevel #0 $callback [list "error" reason]
 }]
 
 [nl]
 
 Regardless, the return value of the final invocation of the callback
-is propagated upwards by mime::getbody.
+is propagated upwards by [cmd ::mime::getbody].
 
 [nl]
 

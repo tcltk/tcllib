@@ -59,6 +59,11 @@ proc ::textutil::adjust::Configure { args } {
           set FullLine [ string is true $value ]
         }
         -hyphenate {
+          # the word exceeding the length of line is tried to be
+          # hyphenated; if a word cannot be hyphenated to fit into
+          # the line processing stops! The length of the line should
+          # be set to a reasonable value!
+
           if { ![ string is boolean -strict $value ] } then {
             error "expected boolean but got \"$value\""
           }
@@ -91,6 +96,10 @@ proc ::textutil::adjust::Configure { args } {
           set Length $value
         }
         -strictlength {
+          # the word exceeding the length of line is moved to the
+          # next line without hyphenation; words longer than given
+          # line length are cut into smaller pieces
+
           if { ![ string is boolean -strict $value ] } then {
             error "expected boolean but got \"$value\""
           }
@@ -106,297 +115,271 @@ proc ::textutil::adjust::Configure { args } {
     return ""
 }
 
+# ::textutil::adjust::Adjust
 #
-# Dies ist die relevante Routine
-#
+# History:
+#      rewritten on 2004-04-13 for bugfix tcllib-bugs-882402 (jhv)
 
 proc ::textutil::adjust::Adjust { varOrigName varNewName } {
   variable Length
+  variable FullLine
   variable StrictLength
   variable Hyphenate
 
   upvar $varOrigName orig
   upvar $varNewName  text
 
-  regsub -all -- "(\n)|(\t)"     $orig  " "  text
-  regsub -all -- " +"            $text  " "  text
-  regsub -all -- "(^ *)|( *\$)"  $text  ""   text
+  set pos 0;                                   # Cursor after writing
+  set line ""
+  set text ""
 
-  set ltext [ split $text ]
 
-  if { $StrictLength } then {
+  if {!$FullLine} {
+    regsub -all -- "(\n)|(\t)"     $orig   " "  orig
+    regsub -all -- " +"            $orig  " "   orig
+    regsub -all -- "(^ *)|( *\$)"  $orig  ""    orig
+  }
 
-    # Limit the length of a line to $Length. If any single
-    # word is long than $Length, then split the word into multiple
-    # words.
+  set words [split $orig];
+  set numWords [llength $words];
+  set numline 0;
 
-    set i 0
-    foreach tmpWord $ltext {
-      if { [ string length $tmpWord ] > $Length } then {
+  for {set cnt 0} {$cnt < $numWords} {incr cnt} {
 
-        # Since the word is longer than the line length,
-        # remove the word from the list of words.  Then
-        # we will insert several words that are less than
-        # or equal to the line length in place of this word.
+    set w [lindex $words $cnt];
+    set wLen [string length $w];
 
-        set ltext [ lreplace $ltext $i $i ]
-        incr i -1
-        set j 0
+    # the word $w doesn't fit into the present line
+    # case #1: we try to hyphenate
 
-        # Insert a series of shorter words in place of the
-        # one word that was too long.
+    if {$Hyphenate && ($pos+$wLen >= $Length)} {
+      # Hyphenation instructions
+      set w2 [textutil::adjust::Hyphenation $w];
 
-        while { $j < [ string length $tmpWord ] } {
+      set iMax [llength $w2];
+      if {$iMax == 1 && [string length $w] > $Length} {
+        # word cannot be hyphenated and exceeds linesize
 
-          # Calculate the end of the string range for this word.
+        error "Word \"$w2\" can\'t be hyphenated\
+        and exceeds linesize $Length!"
+      } else {
+        # hyphenating of $w was successfull, but we have to look
+        # that every sylable would fit into the line
 
-          if { [ expr { [string length $tmpWord ] - $j } ] > $Length } then {
-            set end [ expr { $j + $Length - 1} ]
-          } else {
-            set end [ string length $tmpWord ]
+        foreach x $w2 {
+          if {[string length $x] >= $Length} {
+            error "Word \"$w\" can\'t be hyphenated\
+            to fit into linesize $Length!"
           }
-
-          set ltext [ linsert $ltext [ expr {$i + 1} ] [ string range $tmpWord $j $end ] ]
-          incr i
-          incr j [ expr { $end - $j + 1 } ]
         }
       }
-      incr i
+
+      for {set i 0; set w3 ""} {$i < $iMax} {incr i} {
+        set syl [lindex $w2 $i];
+        if {($pos+[string length " $w3$syl-"]) > $Length} {break}
+        append w3 $syl;
+      }
+      for {set w4 ""} {$i < $iMax} {incr i} {
+        set syl [lindex $w2 $i];
+        append w4 $syl;
+      }
+
+      if {[string length $w3] && [string length $w4]} {
+        # hyphenation was successfull: redefine
+        # list of words w => {"$w3-" "$w4"}
+
+        set x [lreplace $words $cnt $cnt "$w4"];
+        set words [linsert $x $cnt "$w3-"];
+        set w [lindex $words $cnt];
+        set wLen [string length $w];
+        incr numWords;
+      }
     }
-  }
 
-  # End if { $StrictLength } ...
+    # the word $w doesn't fit into the present line
+    # case #2: we try to cut the word into pieces
 
-  set line [ lindex $ltext 0 ]
-  set pos [ string length $line ]
-  set text ""
-  set numline 0
-  set numword 1
-  set words(0) 1
-  set words(1) [ list $pos $line ]
+    if {$StrictLength && ([string length $w] > $Length)} {
+      # cut word into two pieces
+      set w2 $w;
 
-  foreach word [ lrange $ltext 1 end ] {
-    set size [ string length $word ]
-    if { ( $pos + $size ) < $Length } then {
-      # the word fits into the actual line ...
-      #
-      append line " $word"
-      incr numword
-      incr words(0)
-      set words($numword) [ list $size $word ]
-      incr pos
-      incr pos $size
-    } elseif { $Hyphenate } {
-      # the word does not fit into the line and we must try to hyphenate
+      set over [expr $pos+2+$wLen-$Length];
+      set w3 [string range $w2 0 $Length]
+      set w4 [string range $w2 [expr $Length+1] end];
 
-      set word2 [Hyphenation $word];
-      set word2 [string trim $word2];
-      set word3 "";
-      set word4 ""
-
-      set i 0;
-      set iMax [llength $word2];
-
-      # build up the part of the word to be kept in the current line
-
-      while { $i < $iMax } {
-        set syl [lindex $word2 $i]
-        if { $pos + [string length " $word3$syl-"] > $Length } { break }
-        append word3 $syl;
-        incr i;
-      }
-
-      # build up the part of the hyphenated word to be transferred to
-      # the next line
-
-      while { $i < $iMax } {
-        set syl [lindex $word2 $i];
-        append word4 $syl;
-        incr i;
-      }
-
-      # to be done in the future: code that guarantees that the
-      # parts of the hyphenated word have a minimum length ..
-
-      if {[string length $word3] && [string length $word4]} {
-        # hyphenation was succesful: keep $word3 and the hyphen in the
-        # current line and begin next line with $word4
-        #
-        # current line
-
-        append line " $word3-"
-        incr numword
-        incr words(0)
-        set words($numword) [list [string length $word3] $word3];
-        incr pos;
-        incr pos [string length $word3];
-
-        if [string length $text] { append text "\n" }
-        append text [ Justification $line [ incr numline ] words ]
-
-        # next line
-
-        set line "$word4"
-        set pos [string length $word4];
-        catch { unset words }
-        set numword 1
-        set words(0) 1
-        set words(1) [ list $size $word ]
-      } else {
-        # hyphenation failed => close current line and begin
-        # the next line with the unhyphenated word ($word)
-
-        if [string length $text] { append text "\n" }
-        append text [Justification $line [incr numline] words]
-
-        set line "$word"
-        set pos $size
-        catch { unset words }
-        set numword 1
-        set words(0) 1
-      }
+      set x [lreplace $words $cnt $cnt $w4];
+      set words [linsert $x $cnt $w3 ];
+      set w [lindex $words $cnt];
+      set wLen [string length $w];
+      incr numWords;
     } else {
-      # no hyphenation
-      if [string length $text] { append text "\n" }
-      append text [Justification $line [ incr numline ] words ]
+      ;
+    }
 
-      set line "$word"
-      set pos $size
-      catch { unset words }
-      set numword 1
-      set words(0) 1
-      set words(1) [ list $size $word ]
+    # continuing with the normal procedure
+
+    if {($pos+$wLen < $Length)} {
+      # append word to current line
+
+      if {$pos} {append line " "; incr pos}
+      append line $w;
+      incr pos $wLen;
+    } else {
+      # line full => write buffer and  begin a new line
+
+      if [string length $text] {append text "\n"}
+      append text [Justification $line [incr numline]];
+      set line $w;
+      set pos $wLen;
     }
   }
-  if [string length $text] { append text "\n" }
-  append text [Justification $line end words]
 
+  # write buffer and return!
+
+  if [string length $text] {append text "\n"}
+  append text [Justification $line end];
   return $text
 }
 
+# ::textutil::adjust::Justification
 #
-# Ende der relevanten Routine
+# justify a given line
 #
+# Parameters:
+#      line    text for justification
+#      index   index for line in text
+#
+# Returns:
+#      the justified line
+#
+# Remarks:
+#      Only lines with size not exceeding the max. linesize provided
+#      for text formatting are justified!!!
 
-proc ::textutil::adjust::Justification { line index arrayName } {
-    variable Justify
-    variable Length
-    variable FullLine
-    variable StrRepeat
+proc ::textutil::adjust::Justification { line index } {
+  variable Justify
+  variable Length
+  variable FullLine
+  variable StrRepeat
 
-    upvar $arrayName words
+  set len [string length $line];               # length of current line
 
-    set len [ string length $line ]
-    if { $Length == $len } then {
-        return $line
+  if { $Length <= $len } then {
+    # the length of current line ($len) is equal as or greater than
+    # the value provided for text formatting ($Length) => to avoid
+    # inifinite loops we leave $line unchanged and return!
+
+    return $line;
+  }
+
+  # Special case:
+  # for the last line, and if the justification is set to 'plain'
+  # the real justification is 'left' if the length of the line
+  # is less than 90% (rounded) of the max length allowed. This is
+  # to avoid expansion of this line when it is too small: without
+  # it, the added spaces will 'unbeautify' the result.
+  #
+
+  set justify $Justify;
+  if { ( "$index" == "end" ) && \
+       ( "$Justify" == "plain" ) && \
+       ( $len < round($Length * 0.90) ) } then {
+         set justify left;
+  }
+
+  # For a left justification, nothing to do, but to
+  # add some spaces at the end of the line if requested
+
+  if { "$justify" == "left" } then {
+    set jus ""
+    if { $FullLine } then {
+      set jus [ $StrRepeat " " [ expr { $Length - $len } ] ]
+    }
+    return "${line}${jus}";
+  }
+
+  # For a right justification, just add enough spaces
+  # at the beginning of the line
+
+  if { "$justify" == "right" } then {
+    set jus [ $StrRepeat " " [ expr { $Length - $len } ] ]
+    return "${jus}${line}";
+  }
+
+  # For a center justification, add half of the needed spaces
+  # at the beginning of the line, and the rest at the end
+  # only if needed.
+
+  if { "$justify" == "center" } then {
+    set mr [ expr { ( $Length - $len ) / 2 } ]
+    set ml [ expr { $Length - $len - $mr } ]
+    set jusl [ $StrRepeat " " $ml ]
+    set jusr [ $StrRepeat " " $mr ]
+    if { $FullLine } then {
+      return "${jusl}${line}${jusr}"
+    } else {
+      return "${jusl}${line}"
+    }
+  }
+
+  # For a plain justification, it's a little bit complex:
+  #
+  # if some spaces are missing, then
+  #
+  # 1) sort the list of words in the current line by decreasing size
+  # 2) foreach word, add one space before it, except if it's the
+  #    first word, until enough spaces are added
+  # 3) rebuild the line
+
+  if { "$justify" == "plain" } then {
+    set miss [ expr { $Length - [ string length $line ] } ]
+
+    # Bugfix tcllib-bugs-860753 (jhv)
+
+    set words [split $line];
+    set numWords [llength $words];
+
+    if {$numWords < 2} {
+      # current line consists of less than two words - we can't
+      # insert blanks to achieve a plain justification => leave
+      # $line unchanged and return!
+
+      return $line;
     }
 
-    # Special case:
-    # for the last line, and if the justification is set to 'plain'
-    # the real justification is 'left' if the length of the line
-    # is less than 90% (rounded) of the max length allowed. This is
-    # to avoid expansion of this line when it is too small: without
-    # it, the added spaces will 'unbeautify' the result.
-    #
-
-    set justify $Justify
-    if { ( "$index" == "end" ) && \
-             ( "$Justify" == "plain" ) && \
-             ( $len < round($Length * 0.90) ) } then {
-        set justify left
+    for {set i 0; set totalLen 0} {$i < $numWords} {incr i} {
+      set w($i) [lindex $words $i];
+      if {$i > 0} {set w($i) " $w($i)"};
+      set wLen($i) [string length $w($i)];
+      set totalLen [expr $totalLen+$wLen($i)];
     }
 
-    # For a left justification, nothing to do, but to
-    # add some spaces at the end of the line if requested
-    #
+    set miss [expr {$Length - $totalLen}];
 
-    if { "$justify" == "left" } then {
-        set jus ""
-        if { $FullLine } then {
-            set jus [ $StrRepeat " " [ expr { $Length - $len } ] ]
+    # len walks through all lengths of words of the line under
+    # consideration
+
+    for {set len 1} {$miss > 0} {incr len} {
+      for {set i 1} {($i < $numWords) && ($miss > 0)} {incr i} {
+        if {$wLen($i) == $len} {
+          set w($i) " $w($i)";
+          incr wLen($i);
+          incr miss -1;
         }
-        return "${line}${jus}"
+      }
     }
 
-    # For a right justification, just add enough spaces
-    # at the beginning of the line
-    #
-
-    if { "$justify" == "right" } then {
-        set jus [ $StrRepeat " " [ expr { $Length - $len } ] ]
-        return "${jus}${line}"
+    set line "";
+    for {set i 0} {$i < $numWords} {incr i} {
+      set line "$line$w($i)";
     }
 
-    # For a center justification, add half of the needed spaces
-    # at the beginning of the line, and the rest at the end
-    # only if needed.
+    # End of bugfix
 
-    if { "$justify" == "center" } then {
-        set mr [ expr { ( $Length - $len ) / 2 } ]
-        set ml [ expr { $Length - $len - $mr } ]
-        set jusl [ $StrRepeat " " $ml ]
-        set jusr [ $StrRepeat " " $mr ]
-        if { $FullLine } then {
-            return "${jusl}${line}${jusr}"
-        } else {
-            return "${jusl}${line}"
-        }
-    }
+    return "${line}"
+  }
 
-    # For a plain justiciation, it's a little bit complex:
-    # if some spaces are missing, then
-    # sort the list of words in the current line by
-    # decreasing size
-    # foreach word, add one space before it, except if
-    # it's the first word, until enough spaces are added
-    # then rebuild the line
-    #
-    # Idea kept but procedure modified by jhv
-
-    if { "$justify" == "plain" } then {
-        set miss [ expr { $Length - [ string length $line ] } ]
-        if { $miss == 0 } then {
-            return "${line}"
-        }
-
-        # Bugfix tcllib-bugs-860753 (jhv)
-
-        set worte [split $line];
-        set imax [llength $worte];
-
-        for {set i 0; set totalLen 0} {$i < $imax} {incr i} {
-          set elem($i) [lindex $worte $i];
-          if {$i > 0} {set elem($i) " $elem($i)"};
-          set elemLen($i) [string length $elem($i)];
-          set totalLen [expr $totalLen+$elemLen($i)];
-        }
-
-        set miss [expr {$Length - $totalLen}]
-
-        # len walks through all lengths of words of the line under
-        # consideration
-
-        for {set len 1} {$miss > 0} {incr len} {
-          for {set i 1} {($i < $imax) && ($miss > 0)} {incr i} {
-            if {$elemLen($i) == $len} {
-              set elem($i) " $elem($i)";
-              incr elemLen($i);
-              incr miss -1;
-            }
-          }
-        }
-
-        set line "";
-        for {set i 0} {$i < $imax} {incr i} {
-          set line "$line$elem($i)";
-        }
-
-        # End of bugfix
-
-        return "${line}"
-    }
-
-    error "Illegal justification key \"$justify\""
+  error "Illegal justification key \"$justify\""
 }
 
 proc ::textutil::adjust::SortList { list dir index } {
@@ -432,6 +415,11 @@ proc ::textutil::adjust::Hyphenation { str } {
     regsub -all {(\\)(-)} $str {-} tmp;
     return [split $tmp -];
   }
+
+  # Don't hyphenate very short words! Minimum length for hyphenation
+  # is set to 3 characters!
+
+  if { [string length $str] < 4 } then { return $str }
 
   # otherwise follow Knuth's algorithm
 

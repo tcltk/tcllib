@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.13 2004/01/25 07:29:21 andreas_kupries Exp $
+# $Id: crc32.tcl,v 1.13.2.1 2004/05/24 02:58:09 andreas_kupries Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.1
@@ -164,7 +164,7 @@ if {![catch {package require Trf 2.0}]} {
             return -code error "invalid option: the Trf crc32 command cannot\
                                  accept a seed value"
         }
-        binary scan [crc-zlib $s] i r
+        binary scan [crc-zlib -- $s] i r
         return $r
     }
 

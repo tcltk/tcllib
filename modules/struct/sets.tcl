@@ -2,14 +2,14 @@
 #
 # sets.tcl --
 #
-#	Definitions for processing of sets.
+#	Definitions for the processing of sets.
 #
 # Copyright (c) 2004 by Andreas Kupries.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.2 2004/02/09 09:32:14 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.2.2.1 2004/05/24 02:58:12 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ namespace eval ::struct::set {
 
 # ::struct::set::set --
 #
-#	Command that access all list commands.
+#	Command that access all set commands.
 #
 # Arguments:
 #	cmd	Name of the subcommand to dispatch to.
