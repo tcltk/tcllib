@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: calculus.tcl,v 1.7 2004/09/22 11:05:52 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.tcl,v 1.8 2004/12/06 09:27:45 arjenmarkus Exp $
 
 package require math::interpolate
 package provide math::calculus 0.6
@@ -279,20 +279,20 @@ proc ::math::calculus::rungeKuttaStep { t tstep xvec func } {
    foreach x1 $xvec xv $xk1 {
       lappend xvec2 [expr {$x1+$tstep2*$xv}]
    }
-
    set xk2      [$funcq [expr {$t+$tstep2}] $xvec2]
+
    set xvec3    {}
    foreach x1 $xvec xv $xk2 {
       lappend xvec3 [expr {$x1+$tstep2*$xv}]
    }
-
    set xk3      [$funcq [expr {$t+$tstep2}] $xvec3]
+
    set xvec4    {}
    foreach x1 $xvec xv $xk3 {
-      lappend xvec4 [expr {$x1+$tstep2*$xv}]
+      lappend xvec4 [expr {$x1+$tstep*$xv}]
    }
-
    set xk4      [$funcq [expr {$t+$tstep}] $xvec4]
+
    set result   {}
    foreach x0 $xvec k1 $xk1 k2 $xk2 k3 $xk3 k4 $xk4 {
       set dx [expr {$k1+2.0*$k2+2.0*$k3+$k4}]
