@@ -1,3 +1,7 @@
+2005-01-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Added modified Gram-Schmidt method to the linear algebra package
+
 2004-12-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
     
         * Fixed bug in rungeKuttaStep (calculus.tcl) found by Mark Stucky.
