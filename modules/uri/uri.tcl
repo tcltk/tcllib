@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.25 2004/01/25 07:29:51 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.26 2004/05/03 20:19:27 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -316,7 +316,7 @@ proc ::uri::SplitHttp {url} {
     if {[string match "//*" $url]} {
 	set url [string range $url 2 end]
 
-	array set parts [GetHostPort url]
+	array set parts [GetUPHP url]
     }
 
     set parts(path) [string trimleft $url /]
