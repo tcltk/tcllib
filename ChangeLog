@@ -6,6 +6,8 @@
 
 	* ftp, uri: Implemented FR #476804.
 
+	* ftp: Applied patch #428053.
+
 2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* irc: New module. Internet protocol handling. Internet Relay Chat
