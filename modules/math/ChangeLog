@@ -1,3 +1,8 @@
+2004-02-09  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* combinatorics.tcl (::math::factorial): correct fac 171
+	off-by-one and use of -strict in string is int|double.
+
 2003-12-22  Joe English  <jenglish@users.sourceforge.net>
 	* calculus.man (rungeKuttaStep): Add missing argument 
 	in function synopsis (bug report from Richard Body).
