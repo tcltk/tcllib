@@ -529,14 +529,16 @@ proc ::exif::makerNote {data curoffset} {
                         default {format unknown}
                     }]
                     # Field 18 - unknown
-                    set result(AFPoint) [switch -- [expr {$field(19)-0x3000}] {
-                        0 {format none}
-                        1 {format auto-selected}
-                        2 {format right}
-                        3 {format center}
-                        4 {format left}
-                        default {format unknown}
-                    }] ; # {}
+		    if {[info exists field(19)]} {
+			set result(AFPoint) [switch -- [expr {$field(19)-0x3000}] {
+			    0 {format none}
+			    1 {format auto-selected}
+			    2 {format right}
+			    3 {format center}
+			    4 {format left}
+			    default {format unknown}
+			}] ; # {}
+		    }
 		    if {[info exists field(20)]} {
 			if {$field(20) == 0} {
 			    set result(ExposureMode) [switch $field(11) {
