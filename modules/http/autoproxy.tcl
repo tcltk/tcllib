@@ -1,6 +1,6 @@
 # autoproxy.tcl - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sf.net>
 #
-# On Unix an emerging standard for identifying the local HTTP proxy server
+# On Unix the standard for identifying the local HTTP proxy server
 # seems to be to use the environment variable http_proxy or ftp_proxy and
 # no_proxy to list those domains to be excluded from proxying.
 #
@@ -13,19 +13,19 @@
 # Example:
 #   package require autoproxy
 #   autoproxy::init
-#   autoproxy::configure -basic; # enter values in dialog
+#   autoproxy::configure -basic -username ME -password SEKRET
 #   set tok [http::geturl http://wiki.tcl.tk/]
 #   http::data $tok
 #
 # There is a skeleton for supporting Digest or NTLM authorisation but
-# this is not currently supported. I can't find a proxy to test Digest
-# on and we don't yet have a Tcl implementation for NTLM.
+# this is not currently supported. This will probably need redesigning to
+# support schemes that require negotiation.
 #
-# @(#)$Id: autoproxy.tcl,v 1.1 2004/07/17 21:36:05 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.2 2004/07/19 09:22:16 patthoyts Exp $
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.1 2004/07/17 21:36:05 patthoyts Exp $}
-    variable version 1.1
+    variable rcsid {$Id: autoproxy.tcl,v 1.2 2004/07/19 09:22:16 patthoyts Exp $}
+    variable version 1.1.0
     variable options
 
     if {! [info exists options]} {
