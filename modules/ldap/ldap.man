@@ -1,0 +1,230 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin ldap n 1.2]
+[copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2004 Jochen Loewer <loewerj@web.de>}]
+[moddesc   {LDAP}]
+[titledesc {LDAP client}]
+[require Tcl 8.2]
+[require ldap [opt 1.2]]
+[description]
+[para]
+
+The [package ldap] package provides a simple Tcl-only client library
+for the LDAPv3 protocol as specified in
+
+RFC 2251 ([uri http://www.rfc-editor.org/rfc/rfc2251.txt]).
+
+It works by opening the standard (or secure) LDAP socket on the
+server, and then providing a Tcl API to access the LDAP protocol
+commands.  All server errors are returned as Tcl errors (thrown) which
+must be caught with the Tcl [cmd catch] command.
+
+
+[section COMMANDS]
+
+[list_begin definitions]
+
+[call [cmd ldap::connect] [arg host] [opt [arg port]]]
+
+Opens a LDAPv3 connection to the specified [arg host], at the given
+[arg port], and returns a token for the connection. This token is the
+[arg handle] argument for all other commands. If no [arg port] is
+specified it will default to [const 389].
+
+[nl]
+
+The command blocks until the connection has been established, or
+establishment definitely failed.
+
+
+[call [cmd ldap::secure_connect] [arg host] [opt [arg port]]]
+
+Like [cmd ldap::connect], except that the created connection is
+secured by SSL. The port defaults to [const 636].  This command
+depends on the availability of the package [package TLS], which is a
+SSL binding for Tcl. It [package TLS] is not available, then this
+command will fail.
+
+[nl]
+
+The command blocks until the connection has been established, or
+establishment definitely failed.
+
+
+[call [cmd ldap::disconnect] [arg handle]]
+
+Closes the ldap connection refered to by the token
+[arg handle]. Returns the empty string as its result.
+
+
+[call [cmd ldap::bind] [arg handle] [opt [arg name]] [opt [arg password]]]
+
+This command authenticates the ldap connection refered to by the token
+in [arg handle], with a user name and associated password. It blocks
+until a response from the ldap server arrives. Its result is the empty
+string.
+
+Both [arg name] and [arg passwd] default to the empty string if they
+are not specified.
+
+
+[call [cmd ldap::unbind] [arg handle]]
+
+This command asks the ldap server to release the last bind done for
+the connection refered to by the token in [arg handle].
+
+
+[call [cmd ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes]]
+
+This command performs a LDAP search below the [arg baseObject] tree
+using a complex LDAP search expression [arg filterString] and returns
+the specified [arg attributes] of all matching objects (DNs). If the
+list of [arg attributes] was empty all attributes are returned. The
+command blocks until it has received all results.
+
+[nl]
+An example of a search expression is
+[nl]
+[example {
+    set filterString "|(cn=Linus*)(sn=Torvalds*)"
+}]
+[nl]
+
+The return value of the command is a nested dictionary. First level
+keys are object identifiers (DNs), second levels keys are attribute
+names. In other words, it is in the form
+
+[nl]
+[example {
+    dn1 {attr1 val1 attr2 val2 ...} dn2 {a1 v1 ...} ...
+}]
+[nl]
+
+
+[call [cmd ldap::modify] [arg handle] [arg dn] \
+	[arg attrValToReplace] \
+	[opt [arg attrToDelete]] \
+	[opt [arg attrValToAdd]]]
+
+This command modifies the object [arg dn] on the ldap server we are
+connected to via [arg handle]. It replaces attributes with new values,
+deletes attributes, and adds new attributes with new values.
+
+All arguments are dictionaries mapping attribute names to values. The
+optional arguments default to the empty dictionary, which means that
+no attributes will be deleted nor added.
+
+[list_begin arg]
+[arg_def dictionary attrValToReplace in]
+
+No attributes will be changed if this argument is empty. The
+dictionary contains the new attributes and their values. They
+[emph {replace all}] attributes known to the object.
+
+[arg_def dictionary attrToDelete in]
+
+No attributes will be deleted if this argument is empty. The
+dictionary values are restrictions on the deletion. An attribute
+listed here will be deleted if and only if its current value at the
+server matches the value specified in the dictionary, or if the value
+in the dictionary is the empty string.
+
+[arg_def dictionary attrValToAdd in]
+
+No attributes will be added if this argument is empty. The dictionary
+values are the values for the new attributes.
+
+[list_end]
+[nl]
+
+The command blocks until all modifications have completed. Its result
+is the empty string.
+
+
+[call [cmd ldap::add] [arg handle] [arg dn] [arg attrValueTuples]]
+
+This command creates a new object using the specified [arg dn]. The
+attributes of the new object are set to the values in the dictionary
+[arg attrValueTuples] (which is keyed by the attribute names).
+
+The command blocks until the operation has completed. Its result
+is the empty string.
+
+
+[call [cmd ldap::delete] [arg handle] [arg dn]]
+
+This command removes the object specified by [arg dn], and all its
+attributes from the server.
+
+The command blocks until the operation has completed. Its result
+is the empty string.
+
+
+[call [cmd ldap::modifyDN] [arg handle] [arg dn] [arg newrdn] [opt [arg deleteOld]]]
+
+This command moves or copies the object specified by [arg dn]
+to a new location in the tree of object. This location is
+specified by [arg newrdn], a [emph relative] designation.
+
+The optional argument [arg deleteOld] default to to [const true],
+i.e. a move operation. If [arg deleteOld] is not set, then the
+operation will create a copy of [arg dn] in the new location.
+
+The command blocks until the operation has completed. Its result
+is the empty string.
+
+
+[list_end]
+[para]
+
+[section EXAMPLES]
+[para]
+
+A small example, extracted from the test application coming with this
+code.
+
+[para]
+[example {
+    # Connect, bind, add a new object, modify it in various ways
+
+    set handle [ldap::connect localhost 9009]
+
+    set dn "cn=Manager, o=University of Michigan, c=US"
+    set pw secret
+
+    ldap::bind $handle $dn $pw
+
+    set dn "cn=Test User,ou=People,o=University of Michigan,c=US"
+
+    ldap::add $handle $dn {
+	objectClass OpenLDAPperson
+	cn          "Test User"
+	mail        "test.user@google.com"
+	uid         "testuid"
+	sn          User
+    }
+
+    # Replace all attributes
+    ldap::modify $handle $dn [list drink icetea uid JOLO]
+
+    # Add some more
+    ldap::modify $handle $dn {} {} [list drink water \
+	    drink orangeJuice pager "+1 313 555 7671"]
+
+    # Delete
+    ldap::modify $handle $dn {} [list drink water \
+	    pager ""]
+
+    # Move
+    ldap::modifyDN $handle $dn "cn=Tester"
+
+    # Kill the test object, and shut the connection down.
+    set dn "cn=Tester,ou=People,o=University of Michigan,c=US"
+    ldap::delete $handle $dn
+ 
+    ldap::unbind     $handle
+    ldap::disconnect $handle
+}]
+
+[keywords ldap asn {rfc 2251} ber x.680 x.690 {ldap client} {directory access} internet protocol]
+[manpage_end]

@@ -1,3 +1,10 @@
+2004-04-27  Andreas Kupries  <andreask@activestate.com>
+
+	* installed_modules.tcl: Added new module.
+	* examples/ldap:
+	* modules/ldap: New module: LDAP client. Provided to us by Joechen
+	  Loewer <loewerj@web.de>.
+	
 2004-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sak.tcl: Some mods to the critcl build code for use under
