@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.11 2002/05/09 22:23:24 jenglish Exp $
+# $Id: fmt.tmml,v 1.12 2002/05/15 18:24:41 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -86,12 +86,12 @@ proc emph	{text}	{ possibleReference $text emph }
 proc strong	{text}	{ possibleReference $text emph }
 proc opt 	{text}	{ wrap $text o }
 
-proc example_begin {}	{ sequence [xmlContext $::block] [start example] }
-proc example_end   {}	{ end example }
-
-proc example {code} {
-    sequence [xmlContext $::block] [wrap $code example]
-}
+pass 1 example_begin {}	NOP
+pass 1 example_end {} 	NOP
+pass 1 example {code}	NOP
+pass 2 example_begin {}	{ sequence [xmlContext $::block] [start example] }
+pass 2 example_end   {}	{ end example }
+pass 2 example {code} 	{ sequence [xmlContext $::block] [wrap $code example] }
 
 proc comment {text} {xmlComment $text}
 proc sectref {text} {possibleReference $text emph}
