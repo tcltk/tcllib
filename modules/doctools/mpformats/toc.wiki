@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: toc.wiki,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: toc.wiki,v 1.3 2004/07/22 05:11:44 andreas_kupries Exp $
 #
 # Engine to convert a doctoc document into Wiki markup.
 #
@@ -54,10 +54,10 @@ proc fmt_plain_text {text} {if {$text != {}} {return \n} else {return {}}}
 ## Backend for wiki markup
 
 proc fmt_toc_begin      {label title} {return "Table of Contents '''$label'''\n'''[string trim $title]'''"}
-proc fmt_toc_end        {}            {return {}}
-proc fmt_division_start {title}       {return '''[string trim $title]'''}
-proc fmt_division_end   {}            {return {}}
-proc fmt_item           {file label desc}  {return "   \[$label\]:   $file -- $desc"}
-proc fmt_comment        {text}        {return {}}
+proc fmt_toc_end        {}                {return {}}
+proc fmt_division_start {title symfile}   {return '''[string trim $title]'''}
+proc fmt_division_end   {}                {return {}}
+proc fmt_item           {file label desc} {return "   \[$label\]:   $file -- $desc"}
+proc fmt_comment        {text}            {return {}}
 
 ################################################################

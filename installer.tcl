@@ -19,7 +19,7 @@ lappend auto_path  [file join $distribution modules]
 
 source [file join $distribution tcllib_version.tcl]    ; # Get version information.
 source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
-source [file join $distribution install_action.tcl]   ; # Get list of installed modules.
+source [file join $distribution install_action.tcl]    ; # Get code to perform install actions.
 
 # --------------------------------------------------------------
 # Low-level commands of the installation engine.
@@ -151,6 +151,34 @@ proc xinstall {type args} {
     return
 }
 
+proc ainstall {} {
+    global apps config tcl_platform distribution
+
+    if {[string compare $tcl_platform(platform) windows] == 0} {
+	set ext .tcl
+    } else {
+	set ext ""
+    }
+
+    foreach a $apps {
+	set aexe [file join $distribution apps $a]
+	set adst [file join $config(app,path) ${a}$ext]
+
+	catch {file delete -force $adst}
+	file copy -force $aexe $adst
+
+	if {[file exists $aexe.man]} {
+	    if {$config(doc,nroff)} {
+		_manfile $aexe.man nroff n $config(doc,nroff,path)
+	    }
+	    if {$config(doc,html)} {
+		_manfile $aexe.man html html $config(doc,html,path)
+	    }
+	}
+    }
+    return
+}
+
 proc doinstall {} {
     global config tcllib_version distribution tcllib_name modules excluded
 
@@ -162,16 +190,21 @@ proc doinstall {} {
 	}
     }
 
+    if {$config(doc,nroff)} {
+	set config(man.macros) [string trim [get_input [file join $distribution man.macros]]]
+    }
     if {$config(pkg)}       {
 	xinstall   pkg $config(pkg,path)
 	gen_main_index $config(pkg,path) $tcllib_name $tcllib_version
+	if {$config(doc,nroff)} {
+	    xinstall doc nroff n    $config(doc,nroff,path)
+	}
+	if {$config(doc,html)}  {
+	    xinstall doc html  html $config(doc,html,path)
+	}
     }
-    if {$config(doc,nroff)} {
-	set config(man.macros) [string trim [get_input [file join $distribution man.macros]]]
-	xinstall doc nroff n    $config(doc,nroff,path)
-    }
-    if {$config(doc,html)}  {xinstall doc html  html $config(doc,html,path)}
     if {$config(exa)}       {xinstall exa $config(exa,path)}
+    if {$config(app)}       {ainstall}
     log ""
     return
 }
@@ -182,6 +215,7 @@ proc doinstall {} {
 
 array set config {
     pkg 1 pkg,path {}
+    app 1 app,path {}
     doc,nroff 0 doc,nroff,path {}
     doc,html  0 doc,html,path  {}
     exa 1 exa,path {}
@@ -227,6 +261,7 @@ proc defaults {} {
 	    set htmldir [file join $libdir  tcllib${tcllib_version} tcllib_doc]
 	}
 
+	set config(app,path)       $bindir
 	set config(pkg,path)       [file join $libdir ${tcllib_name}${tcllib_version}]
 	set config(doc,nroff,path) $mandir
 	set config(doc,html,path)  $htmldir
@@ -275,6 +310,7 @@ proc showconfiguration {} {
     puts ""
 
     showpath "Packages:      " pkg
+    showpath "Applications:  " app
     showpath "Examples:      " exa
 
     if {$config(doc,nroff) || $config(doc,html)} {
@@ -319,29 +355,32 @@ proc setupgui {} {
     wm title . "Installing $tcllib_name $tcllib_version"
 
     foreach {w type cspan col row opts} {
-	.pkg checkbutton 1 0 0 {-anchor w -text {Packages:}    -variable config(pkg)}
-	.dnr checkbutton 1 0 1 {-anchor w -text {Doc. Nroff:}  -variable config(doc,nroff)}
-	.dht checkbutton 1 0 2 {-anchor w -text {Doc. HTML:}   -variable config(doc,html)}
-	.exa checkbutton 1 0 3 {-anchor w -text {Examples:}    -variable config(exa)}
+	.pkg checkbutton 1 0 0 {-anchor w -text {Packages:}     -variable config(pkg)}
+	.app checkbutton 1 0 1 {-anchor w -text {Applications:} -variable config(app)}
+	.dnr checkbutton 1 0 2 {-anchor w -text {Doc. Nroff:}   -variable config(doc,nroff)}
+	.dht checkbutton 1 0 3 {-anchor w -text {Doc. HTML:}    -variable config(doc,html)}
+	.exa checkbutton 1 0 4 {-anchor w -text {Examples:}     -variable config(exa)}
 
-	.spa frame  3 0 4 {-bg black -height 2}
+	.spa frame  3 0 5 {-bg black -height 2}
 
-	.dry checkbutton 2 0 6 {-anchor w -text {Simulate installation}   -variable config(dry)}
+	.dry checkbutton 2 0 7 {-anchor w -text {Simulate installation} -variable config(dry)}
 
 	.pkge entry 1 1 0 {-width 40 -textvariable config(pkg,path)}
-	.dnre entry 1 1 1 {-width 40 -textvariable config(doc,nroff,path)}
-	.dhte entry 1 1 2 {-width 40 -textvariable config(doc,html,path)}
-	.exae entry 1 1 3 {-width 40 -textvariable config(exa,path)}
+	.appe entry 1 1 1 {-width 40 -textvariable config(app,path)}
+	.dnre entry 1 1 2 {-width 40 -textvariable config(doc,nroff,path)}
+	.dhte entry 1 1 3 {-width 40 -textvariable config(doc,html,path)}
+	.exae entry 1 1 4 {-width 40 -textvariable config(exa,path)}
 
-	.pkgb button 1 2 0 {-text ... -command {browse Packages pkg,path}}
-	.dnrb button 1 2 1 {-text ... -command {browse Nroff    doc,nroff,path}}
-	.dhtb button 1 2 2 {-text ... -command {browse HTML     doc,html,path}}
-	.exab button 1 2 3 {-text ... -command {browse Examples exa,path}}
+	.pkgb button 1 2 0 {-text ... -command {browse Packages     pkg,path}}
+	.appb button 1 2 1 {-text ... -command {browse Applications app,path}}
+	.dnrb button 1 2 2 {-text ... -command {browse Nroff        doc,nroff,path}}
+	.dhtb button 1 2 3 {-text ... -command {browse HTML         doc,html,path}}
+	.exab button 1 2 4 {-text ... -command {browse Examples     exa,path}}
 
-	.sep  frame  3 0 7 {-bg black -height 2}
+	.sep  frame  3 0 8 {-bg black -height 2}
 
-	.run  button 1 0 8 {-text {Install} -command {set ::run 1}}
-	.can  button 1 1 8 {-text {Cancel}  -command {exit}}
+	.run  button 1 0 9 {-text {Install} -command {set ::run 1}}
+	.can  button 1 1 9 {-text {Cancel}  -command {exit}}
     } {
 	eval [list $type $w] $opts
 	grid $w -column $col -row $row -sticky ew -columnspan $cspan
@@ -396,13 +435,20 @@ proc processargs {} {
 	    -nroff       {set config(doc,nroff) 1}
 	    -examples    {set config(exa) 1}
 	    -pkgs        {set config(pkg) 1}
+	    -apps        {set config(app) 1}
 	    -no-html     {set config(doc,html) 0}
 	    -no-nroff    {set config(doc,nroff) 0}
 	    -no-examples {set config(exa) 0}
 	    -no-pkgs     {set config(pkg) 0}
+	    -no-apps     {set config(app) 0}
 	    -pkg-path {
 		set config(pkg) 1
 		set config(pkg,path) [lindex $argv 1]
+		set argv             [lrange $argv 1 end]
+	    }
+	    -app-path {
+		set config(app) 1
+		set config(app,path) [lindex $argv 1]
 		set argv             [lrange $argv 1 end]
 	    }
 	    -nroff-path {
@@ -422,7 +468,7 @@ proc processargs {} {
 	    }
 	    -help   -
 	    default {
-		puts stderr "usage: $argv0 ?-dry-run/-simulate? ?-no-wait? ?-no-gui? ?-html|-no-html? ?-nroff|-no-nroff? ?-examples|-no-examples? ?-pkgs|-no-pkgs? ?-pkg-path path? ?-nroff-path path? ?-html-path path? ?-example-path path?"
+		puts stderr "usage: $argv0 ?-dry-run/-simulate? ?-no-wait? ?-no-gui? ?-html|-no-html? ?-nroff|-no-nroff? ?-examples|-no-examples? ?-pkgs|-no-pkgs? ?-pkg-path path? ?-apps|-no-apps? ?-app-path path? ?-nroff-path path? ?-html-path path? ?-example-path path?"
 		exit 1
 	    }
 	}

@@ -1,3 +1,12 @@
+2004-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* apps/dtplite:     New application, a lightweight doctools
+	* apps/dtplite.man: processor, superceding mpexpand.
+
+	* installer.tcl:         Extended the installer with code to
+	* install_action.tcl:    handle the installation of the
+	* installed_modules.tcl: applications provided by tcllib.
+
 2004-07-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* installed_modules.tcl: NEW MODULE: http
