@@ -1,3 +1,12 @@
+2005-03-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.tcl:      Refactored the package to use a context structure
+	* crc32.man:      as done for the hash modules. This makes it easier
+	* crc32.test:     to work which chunks and event systems. We now
+	* crc32bugs.test: can support Trf for chunking too and have properly
+	                  hooked up the critcl code. Tests now test all
+			  available implementations.
+	
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
