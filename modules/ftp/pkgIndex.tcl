@@ -9,4 +9,6 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded ftp 2.2.1 [list source [file join $dir ftp.tcl]]
+
+package ifneeded ftp         2.2.1 [list source [file join $dir ftp.tcl]]
+package ifneeded ftp::geturl 0.1   [list source [file join $dir ftp_geturl.tcl]]

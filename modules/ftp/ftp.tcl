@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.18 2001/11/08 06:26:41 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.19 2001/11/16 23:36:59 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -34,7 +34,7 @@
 #			ftp::MkDir <s> <directory>
 #			ftp::RmDir <s> <directory>
 #			ftp::Quote <s> <arg1> <arg2> ...
-#
+
 
 package require Tcl 8.2
 package require log     ; # tcllib/log, general logging facility.
@@ -2774,6 +2774,7 @@ proc ftp::Command {cb msg args} {
     }
 }
 
+# ==================================================================
 # ?????? Hmm, how to do multithreaded for tkcon?
 # added TkCon support
 # TkCon is (c) 1995-2001 Jeffrey Hobbs, http://tkcon.sourceforge.net/
@@ -2797,6 +2798,7 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
     set ::ftp::DEBUG 0
 }
 
+# ==================================================================
 # At last, everything is fine, we can provide the package.
 
 package provide ftp [lindex {Revision: 2.2.1} 1]

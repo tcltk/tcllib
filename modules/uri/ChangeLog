@@ -1,3 +1,11 @@
+2001-11-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* uri.n: Updated documentation to cover the change below.
+
+	* uri.tcl: Changed geturl dispatcher to load a scheme::geturl
+	  first and the scheme package only if that fails. see the ftp and
+	  ftp::geturl packages. FR #476804.
+
 2001-10-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uri.tcl: Fixed the ftptype regexp so that the type identifier

@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.10 2001/10/31 23:54:12 patthoyts Exp $
+# CVS: $Id: uri.tcl,v 1.11 2001/11/16 23:36:59 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide uri 1.0
@@ -615,10 +615,13 @@ proc uri::geturl {url args} {
 	file {
 	    return [eval file_geturl [list $url] $args]
 	}
-
 	default {
-	    package require $urlparts(scheme)
-
+	    # Load a geturl package for the scheme first and only if
+	    # that fails the scheme package itself. This prevents
+	    # cyclic dependencies between packages.
+	    if {[catch {package require $urlparts(scheme)::geturl}]} {
+		package require $urlparts(scheme)
+	    }
 	    return [eval [list $urlparts(scheme)::geturl $url] $args]
 	}
     }
