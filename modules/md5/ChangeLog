@@ -1,3 +1,9 @@
+2004-02-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5x.tcl: Added -- to end options if using Trf's hex in case the
+	  hash begins with a - character (possible).  Streamlined the <<<
+	  proc.
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
