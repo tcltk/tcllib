@@ -1,0 +1,98 @@
+[manpage_begin jpeg n 0.1]
+[moddesc   {Image manipulation}]
+[titledesc {JPEG querying and manipulation of meta data}]
+[require Tcl 8.2]
+[require crc32]
+[require jpeg [opt 0.1]]
+[description]
+[para]
+
+This package provides commands to query and modify JPEG images. JPEG
+stands for [term {Joint Photography Experts Group}] and is a standard
+for the lossy compression of photographical images. It is specified at
+[uri LINK_HERE].
+
+[section COMMANDS]
+[list_begin definitions]
+
+[call [cmd ::jpeg::imageInfo] [arg file]]
+
+Returns a dictionary with keys [const version], [const units],
+[const xdensity], [const ydensity], [const xthumb], and
+[const ythumb]. The values are the associated properties of the JPEG
+image in [arg file].
+
+Throws an error if [arg file] is not a JPEG image.
+
+
+[call [cmd ::jpeg::dimensions] [arg file]]
+
+Returns the dimensions of the JPEG [arg file] as a list of the
+horizontal and vertical pixel count.
+
+Throws an error if [arg file] is not a JPEG image.
+
+
+[call [cmd ::jpeg::thumbnail] [arg file]]
+
+This procedure will return the binary thumbnail image data, if a JPEG
+thumbnail is included in [arg file], and the empty string
+otherwise. Note that it is possible to include thumbnails in formats
+other than JPEG although that is not common. The command finds
+thumbnails that are encoded in either the JFXX or EXIF segments of the
+JPEG information.
+
+Throws an error if [arg file] is not a JPEG image.
+
+
+[call [cmd ::jpeg::exit] [arg file]]
+
+Returns all EXIF data stored in the JPEG [arg file]. The format is a 2
+level dictionary.
+
+The two top level keys are [const main] and [const thumbnail]. The sub
+dictionaries contain the EXIF information about the main image and
+thumbnail. For example:
+
+[nl]
+[example {
+    set exif {
+	main {
+	    Make     Canon
+	    Model    {Canon DIGITAL IXUS}
+	    DateTime {2001:06:09 15:17:32}
+	}
+	thumbnail {
+	    DateTime {2000:09:30 10:59:45}
+	}
+    }
+}]
+
+Throws an error if [arg file] is not a JPEG image.
+
+
+[call [cmd ::jpeg::getComments] [arg file]]
+
+Returns a list containing all the JPEG comments found in the file.
+
+Throws an error if [arg file] is not a valid JPEG image.
+
+
+[call [cmd ::jpeg::addComment] [arg file] [arg text]]
+
+Adds a plain [arg text] comment to the JPEG image in [arg file].
+
+
+[call [cmd ::jpeg::addComment] [arg file] [arg keyword] [arg lang] [arg keyword2] [arg text]]
+
+Adds a unicode (international) comment to the JPEG image in [arg file],
+just before the first data chunk. Will throw an error if no data chunk
+is found. [arg keyword] has to be less than 80 characters long to
+conform to the JPEG specification. [arg keywords] is the translated
+[arg keyword], in the language specified by the language identifier
+[arg lang].
+
+[list_end]
+
+[keywords jpeg image comment exif thumbnail]
+[manpage_end]
