@@ -1,3 +1,9 @@
+2005-02-14  Andreas Kupries <andreask@activestate.com>
+
+	* fileutil.man (find): Documented the implicit arguments to the
+	  filter command (current working directory). This fixes [SF
+	  Tcllib Bug 1048995].
+
 2005-02-10  Andreas Kupries <andreask@activestate.com>
 
 	* fileutil.tcl (fileutil::jail): Fixed a problem reported by Pat
