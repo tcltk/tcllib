@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.1 2001/08/21 22:54:15 dgp Exp $
+'\" RCS: @(#) $Id: control.n,v 1.2 2001/08/23 04:53:15 dgp Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -12,18 +12,90 @@ control \- Procedures for control flow structures.
 .sp
 \fBpackage require control ?0.0?\fR
 .sp
+\fBcontrol::control \fIcommand option \fR?\fIarg arg ...\fR?
+.sp
+\fBcontrol::assert \fIexpr \fR?\fIarg arg ...\fR?
+.sp
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
 .BE
 .SH DESCRIPTION
 .PP
 The \fBcontrol\fR package provides a variety of commands that
 provide additional flow of control structures beyond the
-built-in ones provided by Tcl.
+built-in ones provided by Tcl.  These are commands that in
+many programming languages might be considered \fIkeywords\fR,
+or a part of the language itself.  In Tcl, control flow structures
+are just commands like everything else.
 .SH COMMANDS
 .TP
+\fBcontrol::control \fIcommand option \fR?\fIarg arg ...\fR?
+The \fBcontrol\fR command is used as a configuration command
+for customizing the other public commands of the control package.
+The \fIcommand\fR argument names the command to be customized.
+The set of valid \fIoption\fR and subsequent arguments are
+determined by the command being customized, and are documented
+with the command.
+.TP
+\fBcontrol::assert \fIexpr \fR?\fIarg arg ...\fR?
+When disabled, the \fBassert\fR command behaves exactly like
+the \fBno-op\fR command.
+
+When enabled, the \fBassert\fR command evaluates \fIexpr\fR as
+an expression (in the same way that \fBexpr\fR evaluates its
+argument).  If evaluation reveals that \fIexpr\fR is not a valid
+boolean expression (according to [\fBstring is boolean -strict\fR]),
+an error is raised.  If \fIexpr\fR evaluates to a true boolean value
+(as recognized by \fBif\fR), then \fBassert\fR returns an empty string.
+Otherwise, the remaining arguments to \fBassert\fR are used
+to construct a message string.  If there are no arguments, the
+message string is "assertion failed: $expr".  If there are arguments,
+they are joined by \fBjoin\fR to form the message string.  The 
+message string is then appended as an argument to a callback command,
+and the completed callback command is evaluated in the global namespace.
+
+The \fBassert\fR command can be customized by the \fBcontrol\fR
+command in two ways:
+
+[\fBcontrol::control assert enabled \fR?\fIboolean\fR?] queries or
+sets whether \fBcontrol::assert\fR is enabled.  When called without
+a \fIboolean\fR argument, a boolean value is returned indicating
+whether the \fBcontrol::assert\fR command is enabled.  When called
+with a valid boolean value as the \fIboolean\fR argument, the
+\fBcontrol::assert\fR command is enabled or disabled to match the
+argument, and an empty string is returned.
+
+[\fBcontrol::control assert callback \fR?\fIcommand\fR?] queries or sets
+the callback command that will be called by an enabled \fBassert\fR on
+assertion failure.  When called without a \fIcommand\fR argument, the
+current callback command is returned.  When called with a \fIcommand\fR
+argument, that argument becomes the new assertion failure callback
+command.  Note that an assertion failure callback command is always
+defined, even when \fBassert\fR is disabled.  The default callback
+command is [\fBreturn -code error\fR].
+.PP
+Note that \fBcontrol::assert\fR has been written so that in
+combination with [\fBnamespace import\fR], it is possible to
+use enabled \fBassert\fR commands in some namespaces and disabled
+\fBassert\fR commands in other namespaces at the same time.  
+.CS
+\fB% package require control
+% control::control assert enabled 1
+% namespace eval one namespace import ::control::assert
+% control::control assert enabled 0
+% namespace eval two namespace import ::control::assert
+% one::assert {1 == 0}
+assertion failed: 1 == 0
+% two::assert {1 == 0}\fR
+.CE
+This capability is useful so that debugging efforts can be independently
+controlled module by module.
+.TP
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
-Takes any number of arguments and does nothing.  Returns
-an empty string.
+The \fBno-op\fR command takes any number of arguments and does nothing.
+It returns an empty string.
+
+.SH "SEE ALSO"
+expr, if, join, namespace, return, string
 
 .SH KEYWORDS
-control, flow, structure, no-op
+control, flow, structure, no-op, assert
