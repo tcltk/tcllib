@@ -1,3 +1,15 @@
+2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Bumped version to 1.5.1 as this is a bug fix. Any bug fixes and
+	  more minor changes coming in the future do not have to bump the
+	  version number anymore until the next release. Only a major
+	  change warrants another bump before the release.
+
+	* fileutil.tcl: Fixed SF tcllib bug [647974]. We now ignore
+	  device/inode information if the current path is in a virtual
+	  filesystem. We also assume now that VFS's do not support links,
+	  thus also obviating the need for the data, circles cannot occur.
+
 2003-05-09  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::tempfile): Braced [expr].
