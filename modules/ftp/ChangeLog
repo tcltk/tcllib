@@ -1,3 +1,19 @@
+2000-08-16  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+       * README
+       * ftp.tcl
+       * pkgIndex.tcl
+       * docs/*.html: Added new optional arguments to the Get, Put, and
+       Append commands.  The Append and Put commands have a new optional
+       argument '-data "data"' that can be used to specify data to transfer
+       instead of transferring data from a local file.  The Get command has
+       a new optional argument '-variable varname' that specifies a variable
+       to store the retrieved data into, that can be used instead of
+       specifying a local filename.  Updated the documentation to reflect
+       the changes and bumped the version number from 2.0 to 2.1 because
+       new features were added.
+
+
 2000-08-10  Dan Kuchler  <kuchler@ajubasolutions.com>
 
         * ftp.tcl

@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.5 2000/08/11 01:24:34 kuchler Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.6 2000/08/16 22:02:44 kuchler Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -23,9 +23,9 @@
 #			ftp::ModTime <s> <from> <to>
 #			ftp::Delete <s> <file>
 #			ftp::Rename <s> <from> <to>
-#			ftp::Put <s> <local> <?remote?>
-#			ftp::Append <s> <local> <?remote?>
-#			ftp::Get <s> <remote> <?local?>
+#			ftp::Put <s> <(local | -data "data"> <?remote?>
+#			ftp::Append <s> <(local | -data "data"> <?remote?>
+#			ftp::Get <s> <remote> <?(local | -variable varname)?>
 #			ftp::Reget <s> <remote> <?local?>
 #			ftp::Newer <s> <remote> <?local?>
 #			ftp::MkDir <s> <directory>
@@ -33,7 +33,7 @@
 #			ftp::Quote <s> <arg1> <arg2> ...
 #
 
-package provide ftp [lindex {Revision: 2.0 } 1]
+package provide ftp [lindex {Revision: 2.1 } 1]
 
 namespace eval ftp {
 
@@ -84,7 +84,7 @@ proc ftp::DisplayMsg {s msg {state ""}} {
             }
         }
         error {
-            puts stderr "ERROR: $msg"
+            error "ERROR: $msg"
         }
         default	{
             if { $VERBOSE } {
@@ -141,6 +141,7 @@ proc ftp::WaitOrTimeout {s} {
         vwait ::ftp::ftp${s}(state.control)
         set retvar $ftp(state.control)
     }
+
     return $retvar
 }
 
@@ -1457,31 +1458,69 @@ proc ftp::ElapsedTime {s stop_time} {
 # 0 -			file not stored
 # 1 - 			OK
 
-proc ftp::Put {s source {dest ""}} {
+proc ftp::Put {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
         DisplayMsg $s "Not connected!" error
         return 0
     }
+    if {([llength $args] < 1) || ([llength $args] > 4)} {
+        DisplayMsg $s "wrong # args: should be \"ftp::Put handle (-data \"data\" | localFilename) remoteFilename\"" error
+	return 0    
+    }
 
-    if { ![file exists $source] } {
-        DisplayMsg $s "File \"$source\" not exist" error
+    set ftp(inline) 0
+    set flags 1
+    set source ""
+    set dest ""
+    foreach arg $args {
+        if {[string equal $arg "--"]} {
+            set flags 0
+        } elseif {($flags) && ([string equal $arg "-data"])} {
+            set ftp(inline) 1
+            set ftp(filebuffer) ""
+	} elseif {$source == ""} {
+            set source $arg
+	} elseif {$dest == ""} {
+            set dest $arg
+	} else {
+            DisplayMsg $s "wrong # args: should be \"ftp::Put handle (-data \"data\" | localFilename) remoteFilename\"" error
+	    return 0
+        }
+    }
+
+    if {($source == "")} {
+        DisplayMsg $s "Must specify a valid file to Put" error
         return 0
-    }
-		
-    if { $dest == "" } {
-        set dest $source
-    }
+    }        
 
-    set ftp(LocalFilename) $source
     set ftp(RemoteFilename) $dest
 
-    set ftp(SourceCI) [open $ftp(LocalFilename) r]
-    if { [string equal $ftp(Type) "ascii"] } {
-        fconfigure $ftp(SourceCI) -buffering line -blocking 1
+    if {$ftp(inline)} {
+        set ftp(PutData) $source
+        if { $dest == "" } {
+            set dest ftp.tmp
+        }
+        set ftp(RemoteFilename) $dest
     } else {
-        fconfigure $ftp(SourceCI) -buffering line -translation binary -blocking 1
+        set ftp(PutData) ""
+        if { ![file exists $source] } {
+            DisplayMsg $s "File \"$source\" not exist" error
+            return 0
+        }
+        if { $dest == "" } {
+            set dest [file tail $source]
+        }
+        set ftp(LocalFilename) $source
+        set ftp(RemoteFilename) $dest
+
+        set ftp(SourceCI) [open $ftp(LocalFilename) r]
+        if { [string equal $ftp(Type) "ascii"] } {
+            fconfigure $ftp(SourceCI) -buffering line -blocking 1
+        } else {
+            fconfigure $ftp(SourceCI) -buffering line -translation binary -blocking 1
+        }
     }
 
     set ftp(State) put_$ftp(Mode)
@@ -1517,7 +1556,7 @@ proc ftp::Put {s source {dest ""}} {
 # 0 -			file not stored
 # 1 - 			OK
 
-proc ftp::Append {s source {dest ""}} {
+proc ftp::Append {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1525,23 +1564,65 @@ proc ftp::Append {s source {dest ""}} {
         return 0
     }
 
-    if { ![file exists $source] } {
-        DisplayMsg $s "File \"$source\" not exist" error
+    if {([llength $args] < 1) || ([llength $args] > 4)} {
+        DisplayMsg $s "wrong # args: should be \"ftp::Append handle (-data \"data\" | localFilename) remoteFilename\"" error
         return 0
     }
-			
-    if { $dest == "" } {
-        set dest $source
+
+    set ftp(inline) 0
+    set flags 1
+    set source ""
+    set dest ""
+    foreach arg $args {
+        if {[string equal $arg "--"]} {
+            set flags 0
+        } elseif {($flags) && ([string equal $arg "-data"])} {
+            set ftp(inline) 1
+            set ftp(filebuffer) ""
+        } elseif {$source == ""} {
+            set source $arg
+        } elseif {$dest == ""} {
+            set dest $arg
+        } else {
+            DisplayMsg $s "wrong # args: should be \"ftp::Append handle (-data \"data\" | localFilename) remoteFilename\"" error
+            return 0
+        }
     }
 
-    set ftp(LocalFilename) $source
+    if {($source == "")} {
+        DisplayMsg $s "Must specify a valid file to Append" error
+        return 0
+    }   
+
     set ftp(RemoteFilename) $dest
 
-    set ftp(SourceCI) [open $ftp(LocalFilename) r]
-    if { [string equal $ftp(Type) "ascii"] } {
-        fconfigure $ftp(SourceCI) -buffering line -blocking 1
+    if {$ftp(inline)} {
+        set ftp(PutData) $source
+        if { $dest == "" } {
+            set dest ftp.tmp
+        }
+        set ftp(RemoteFilename) $dest
     } else {
-        fconfigure $ftp(SourceCI) -buffering line -translation binary -blocking 1
+        set ftp(PutData) ""
+        if { ![file exists $source] } {
+            DisplayMsg $s "File \"$source\" not exist" error
+            return 0
+        }
+			
+        if { $dest == "" } {
+            set dest [file tail $source]
+        }
+
+        set ftp(LocalFilename) $source
+        set ftp(RemoteFilename) $dest
+
+        set ftp(SourceCI) [open $ftp(LocalFilename) r]
+        if { [string equal $ftp(Type) "ascii"] } {
+            fconfigure $ftp(SourceCI) -buffering line -blocking 1
+        } else {
+            fconfigure $ftp(SourceCI) -buffering line -translation binary \
+                    -blocking 1
+        }
     }
 
     set ftp(State) append_$ftp(Mode)
@@ -1575,11 +1656,50 @@ proc ftp::Append {s source {dest ""}} {
 # 0 -			file not retrieved
 # 1 - 			OK
 
-proc ftp::Get {s source {dest ""}} {
+proc ftp::Get {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
         DisplayMsg $s "Not connected!" error
+        return 0
+    }
+
+    if {([llength $args] < 1) || ([llength $args] > 4)} {
+        DisplayMsg $s "wrong # args: should be \"ftp::Get handle remoteFile ?(-variable varName | localFilename)?\"" error
+	return 0    
+    }
+
+    set ftp(inline) 0
+    set flags 1
+    set source ""
+    set dest ""
+    set varname "**NONE**"
+    foreach arg $args {
+        if {[string equal $arg "--"]} {
+            set flags 0
+        } elseif {($flags) && ([string equal $arg "-variable"])} {
+            set ftp(inline) 1
+            set ftp(filebuffer) ""
+	} elseif {($ftp(inline)) && ([string equal $varname "**NONE**"])} {
+            set varname $arg
+	} elseif {$source == ""} {
+            set source $arg
+	} elseif {$dest == ""} {
+            set dest $arg
+	} else {
+            DisplayMsg $s "wrong # args: should be \"ftp::Get handle remoteFile
+?(-variable varName | localFilename)?\"" error
+	    return 0
+        }
+    }
+
+    if {($ftp(inline)) && ($dest != "")} {
+        DisplayMsg $s "Cannot return data in a variable, and place it in destination file." error
+        return 0
+    }
+
+    if {$source == ""} {
+        DisplayMsg $s "Must specify a valid file to Get" error
         return 0
     }
 
@@ -1601,8 +1721,15 @@ proc ftp::Get {s source {dest ""}} {
     set rc [WaitOrTimeout $s]
     if { $rc } {
         ElapsedTime $s [clock seconds]
+        if {$ftp(inline)} {
+            upvar $varname returnData
+            set returnData $ftp(GetData)
+        }
         return 1
     } else {
+        if {$ftp(inline)} {
+            return ""
+	}
         CloseDataConn $s
         return 0
     }
@@ -2035,7 +2162,7 @@ proc ftp::HandleData {s sock} {
 
     # create local file for ftp::Get 
 
-    if { [regexp "^get" $ftp(State)] } {
+    if { [regexp "^get" $ftp(State)]  && (!$ftp(inline))} {
         set rc [catch {set ftp(DestCI) [open $ftp(LocalFilename) w]} msg]
         if { $rc != 0 } {
             DisplayMsg $s "$msg" error
@@ -2090,6 +2217,81 @@ proc ftp::HandleList {s sock} {
             set ftp(List) [append ftp(List) $buffer]
         }	
     } else {
+        close $sock
+        unset ftp(state.data)
+        if { $VERBOSE } {
+            DisplayMsg $s "D: Port closed" data
+        }
+    }
+    return
+}
+
+#############################################################################
+#
+# HandleVar --
+#
+# Handles data transfer for get/put commands that use buffers instead
+# of files.
+# 
+# Arguments:
+# sock - 		socket name (data channel)
+
+proc ftp::HandleVar {s sock} {
+    upvar ::ftp::ftp$s ftp
+    variable VERBOSE
+
+    if {$ftp(Start_Time) == -1} {
+        set ftp(Start_Time) [clock seconds]
+    }
+
+    if { ![eof $sock] } {
+        set buffer [read $sock]
+        if { $buffer != "" } {
+            append ftp(GetData) $buffer
+            incr ftp(Total) [string length $buffer]
+        }	
+    } else {
+        close $sock
+        unset ftp(state.data)
+        if { $VERBOSE } {
+            DisplayMsg $s "D: Port closed" data
+        }
+    }
+    return
+}
+
+#############################################################################
+#
+# HandleOutput --
+#
+# Handles data transfer for get/put commands that use buffers instead
+# of files.
+# 
+# Arguments:
+# sock - 		socket name (data channel)
+
+proc ftp::HandleOutput {s sock} {
+    upvar ::ftp::ftp$s ftp
+    variable VERBOSE
+
+    if {$ftp(Start_Time) == -1} {
+        set ftp(Start_Time) [clock seconds]
+    }
+
+    if { $ftp(Total) < [string length $ftp(PutData)] } {
+        set substr [string range $ftp(PutData) $ftp(Total) \
+                [expr {$ftp(Total) + $ftp(Blocksize)}]]
+        if {[catch {puts -nonewline $sock "$substr"} result]} {
+            close $sock
+            unset ftp(state.data)
+            if { $VERBOSE } {
+                DisplayMsg $s "D: Port closed" data
+            }
+        } else {
+            incr ftp(Total) [string length $substr]
+        }
+    } else {
+        fileevent $sock writable {}		
         close $sock
         unset ftp(state.data)
         if { $VERBOSE } {
@@ -2163,13 +2365,26 @@ proc ftp::InitDataConn {s sock addr port} {
             set ftp(SourceCI) $sock		  
         }
         get {
-            fileevent $sock readable [list [namespace current]::HandleData $s $sock]
-            set ftp(SourceCI) $sock			  
+            if {$ftp(inline)} {
+                set ftp(GetData) ""
+                set ftp(Start_Time) -1
+                set ftp(Total) 0
+                fileevent $sock readable [list [namespace current]::HandleVar $s $sock]
+	    } else {
+                fileevent $sock readable [list [namespace current]::HandleData $s $sock]
+                set ftp(SourceCI) $sock
+	    }			  
         }
         append -
         put {
-            fileevent $sock writable [list [namespace current]::HandleData $s $sock]
-            set ftp(DestCI) $sock			  
+            if {$ftp(inline)} {
+                set ftp(Start_Time) -1
+                set ftp(Total) 0
+                fileevent $sock writable [list [namespace current]::HandleOutput $s $sock]
+	    } else {
+                fileevent $sock writable [list [namespace current]::HandleData $s $sock]
+                set ftp(DestCI) $sock
+	    }			  
         }
     }
 

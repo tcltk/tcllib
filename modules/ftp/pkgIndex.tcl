@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded ftp 2.0 [list source [file join $dir ftp.tcl]]
+package ifneeded ftp 2.1 [list source [file join $dir ftp.tcl]]

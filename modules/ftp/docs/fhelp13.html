@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>ftp Library Package 2.0 for Tcl/Tk help file</title>
+<title>ftp Library Package 2.1 for Tcl/Tk help file</title>
 </head>
 <body bgcolor="#ffffff" text="#000000">
 <body>
@@ -8,20 +8,22 @@
 <p>
 <dl>
   <dd>
-    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>ftp Library Package 2.0 for Tcl/Tk Manual Pages</b></font></p>
+    <p><font face="Arial,Helvetica" color="#526e9c" size="+2"><b>ftp Library Package 2.1 for Tcl/Tk Manual Pages</b></font></p>
   </dd>
 
   <dd><font face="Arial,Helvetica" size="+1"><b>COMMAND</b></font></dd>
   <dd><dl>  
-    <dd><b>ftp::Get</b><em>&nbsp; handle&nbsp; remote &nbsp;?local?</em></dd>
+    <dd><b>ftp::Get</b><em>&nbsp; handle&nbsp; remote &nbsp;?(local | -variable varname)?</em></dd>
     <dd>&nbsp;</dd>
     <dd>
 
 	The <b>ftp::Get</b> command retrieves a remote file <em>remote</em> on the
-	ftp server to a local file <em>local</em>. The file parameters passed
-	must contain a fully qualified path name, otherwise the command
-	uses the current directory. If local file name is unspecified,
-	the remote file name is assigned to the remote file name.
+	ftp server to a local file <em>local</em>. If '-variable varname' is
+        specified, then the variable 'varname' will get the retreived data
+        stored in it, rather than storing the data in a file.   The file
+	parameters passed must contain a fully qualified path name, otherwise
+	the command uses the current directory. If local file name is
+	unspecified, the remote file name is assigned to the remote file name.
 		
 	<p>If the file was successfully transferred, then the command
 	returns 1, if it fails 0. </p>
