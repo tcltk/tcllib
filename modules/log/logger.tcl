@@ -3,7 +3,7 @@
 #   Tcl implementation of a general logging facility.
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>
-# Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>
 #
 # See the file license.terms.
 
@@ -13,7 +13,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.5
+package provide logger 0.5.1
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -404,12 +404,17 @@ proc ::logger::init {service} {
             #           direct aliases to the target procs.
             interp alias {} [namespace current]::${lvl}cmd {} ${parent}::${lvl}cmd
         }
+        # inherit the starting loglevel of the parent service
+        setlevel [${parent}::currentloglevel]
+
     } else {
         foreach lvl [::logger::levels] {
             proc ${lvl}cmd {txt} "stdoutcmd $lvl \$txt"
         }
     }
     }
+    
+    
     return ::logger::tree::${service}
 }
 
@@ -566,7 +571,7 @@ proc ::logger::import {args} {
             }
             default {
                 return -code error "Unknown argument: \"$opt\" :\nUsage:\
-		        \"logger::import ?-all? ?-force?\
+                \"logger::import ?-all? ?-force?\
                         ?-prefix prefix? ?-namespace namespace? service\""
             }
         }
