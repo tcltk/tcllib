@@ -118,8 +118,24 @@ already exist. If [option -r], use the atime and mtime from
 [option -t]. If [option -a], only change the atime. If [option -m],
 only change the mtime.
 
+
+[call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
+
+The command generates a temporary file name suitable for writing to,
+and the associated file.  The file name will be unique, and the file
+will be writable and contained in the appropriate system specific temp
+directory. The name of the file will be returned as the result of the
+command.
+
+[nl]
+
+The code was taken from [uri http://wiki.tcl.tk/772], attributed to
+Igor Volobouev and anon.
+
+
+
 [list_end]
 
 
-[keywords {file utilities}]
+[keywords {file utilities} touch grep type {temp file}]
 [manpage_end]
