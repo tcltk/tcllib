@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.3 2001/07/10 20:39:47 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.4 2001/11/24 02:24:55 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -48,6 +48,7 @@ namespace eval ::struct::matrix {
 	    "link"		\
 	    "rowheight"		\
 	    "rows"		\
+	    "search"		\
 	    "set"		\
 	    "swap"		\
 	    "unlink"
@@ -280,6 +281,106 @@ proc ::struct::matrix::_insert {name {cmd ""} args} {
 	error "bad option \"$cmd\": must be $optlist"
     }
     eval [list ::struct::matrix::__insert_$cmd $name] $args
+}
+
+# ::struct::matrix::_search --
+#
+#	Command that processes all 'search' subcommands.
+#
+# Arguments:
+#	name	Name of the matrix object to manipulate.
+#	args	Arguments for search.
+#
+# Results:
+#	Varies based on command to perform
+
+proc ::struct::matrix::_search {name args} {
+    # Possible argument signatures
+    #
+    # \ | args
+    # --+--------------------------------------------------------
+    # 2 | all pattern
+    # 3 | option all pattern, row row pattern, column col pattern
+    # 4 | option row row pattern, option colun col pattern
+    # 6 | rect ctl rtl cbr rbr pattern
+    # 7 | option rect ctl rtl cbr rbr pattern
+    #
+    # All range specifications are internally converted into a
+    # rectangle.
+
+    switch -exact -- [llength $args] {
+	2 - 3 - 4 - 6 - 7 {}
+	default {
+	    return -code error \
+		"wrong # args: should be \"$name search ?option? (row row|column col|rect c r c r) pattern\""
+	}
+    }
+    switch -glob -- [lindex $args 0] {
+	-exact - -glob - -regexp {
+	    set mode [string range [lindex $args 0] 1 end]
+	    set args [lrange $args 1 end]
+	}
+	-* {
+	    return -code error "invalid pattern option \"[lindex $args 0]\""
+	}
+	default {
+	    set mode exact
+	}
+    }
+
+    set range   [lindex $args 0]
+    set pattern [lindex $args end]
+    set args    [lrange $args 1 end-1]
+
+    upvar ::struct::matrix::matrix${name}::data    data
+    upvar ::struct::matrix::matrix${name}::columns cols
+    upvar ::struct::matrix::matrix${name}::rows    rows
+
+    switch -exact -- $range {
+	all {
+	    set ctl 0 ; set cbr $cols ; incr cbr -1
+	    set rtl 0 ; set rbr $rows ; incr rbr -1
+	}
+	column {
+	    set ctl [ChkColumnIndex $name [lindex $args 0]]
+	    set cbr $ctl
+	    set rtl 0       ; set rbr $rows ; incr rbr -1
+	}
+	row {
+	    set rtl [ChkRowIndex $name [lindex $args 0]]
+	    set ctl 0    ; set cbr $cols ; incr cbr -1
+	    set rbr $rtl
+	}
+	rect {
+	    foreach {ctl rtl cbr rbr} $args break
+	    set ctl [ChkColumnIndex $name $ctl]
+	    set rtl [ChkRowIndex    $name $rtl]
+	    set cbr [ChkColumnIndex $name $cbr]
+	    set rbr [ChkRowIndex    $name $rbr]
+	    if {($ctl > $cbr) || ($rtl > $rbr)} {
+		return -code error "Invalid cell indices, wrong ordering"
+	    }
+	}
+	default {
+	    return -code error "invalid range spec \"$range\""
+	}
+    }
+
+    set matches [list]
+    for {set r $rtl} {$r <= $rbr} {incr r} {
+	for {set c $ctl} {$c <= $cbr} {incr c} {
+	    set v  $data($c,$r)
+	    switch -exact -- $mode {
+		exact  {set matched [string equal $pattern $v]}
+		glob   {set matched [string match $pattern $v]}
+		regexp {set matched [regexp       $pattern $v]}
+	    }
+	    if {$matched} {
+		lappend matches [list $c $r]
+	    }
+	}
+    }
+    return $matches
 }
 
 # ::struct::matrix::_set --
@@ -736,8 +837,47 @@ proc ::struct::matrix::_destroy {name} {
 # Results:
 #	A string containing the formatting result.
 
-proc ::struct::matrix::__format_2string {name report} {
-    return [$report printmatrix $name]
+proc ::struct::matrix::__format_2string {name {report {}}} {
+    if {$report == {}} {
+	# Use an internal hardwired simple report to format the matrix.
+	# 1. Go through all columns and compute the column widths.
+	# 2. Then iterate through all rows and dump then into a
+	#    string, formatted to the number of characters per columns
+
+	array set cw {}
+	set cols [_columns $name]
+	for {set c 0} {$c < $cols} {incr c} {
+	    set cw($c) [_columnwidth $name $c]
+	}
+
+	set result [list]
+	set n [_rows $name]
+	for {set r 0} {$r < $n} {incr r} {
+	    set rh [_rowheight $name $r]
+	    if {$rh < 2} {
+		# Simple row.
+		set line [list]
+		for {set c 0} {$c < $cols} {incr c} {
+		    set val [__get_cell $name $c $r]
+		    lappend line "$val[string repeat " " [expr {$cw($c)-[string length $val]}]]"
+		}
+		lappend result [join $line " "]
+	    } else {
+		# Complex row, multiple passes
+		for {set h 0} {$h < $rh} {incr h} {
+		    set line [list]
+		    for {set c 0} {$c < $cols} {incr c} {
+			set val [lindex [split [__get_cell $name $c $r] \n] $h]
+			lappend line "$val[string repeat " " [expr {$cw($c)-[string length $val]}]]"
+		    }
+		    lappend result [join $line " "]
+		}
+	    }
+	}
+	return [join $result \n]
+    } else {
+	return [$report printmatrix $name]
+    }
 }
 
 # ::struct::matrix::__format_2chan --
@@ -755,8 +895,14 @@ proc ::struct::matrix::__format_2string {name report} {
 # Results:
 #	None.
 
-proc ::struct::matrix::__format_2chan {name report chan} {
-    $report printmatrix2channel $name $chan
+proc ::struct::matrix::__format_2chan {name {report {}} {chan stdout}} {
+    if {$report == {}} {
+	# Use an internal hardwired simple report to format the matrix.
+	# We delegate this to the string formatter and print its result.
+	puts -nonewline [__format_2string $name]
+    } else {
+	$report printmatrix2channel $name $chan
+    }
     return
 }
 
@@ -1141,7 +1287,6 @@ proc ::struct::matrix::_rowheight {name row} {
 
 	set rh($row) $height
     }
-
     return $rh($row)
 }
 
