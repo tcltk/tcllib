@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_set.man,v 1.1 2004/02/04 05:36:27 andreas_kupries Exp $}]
-[manpage_begin set n 2.0]
+[comment {$Id: struct_set.man,v 1.2 2004/02/29 23:23:36 andreas_kupries Exp $}]
+[manpage_begin set n 2.1]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating sets}]
 [require Tcl 8.0]
-[require struct [opt 2.0]]
+[require struct [opt 2.1]]
 [description]
 
 [para]
@@ -85,11 +85,48 @@ Returns a boolean value indicating if the two sets are equal
 ([const true]) or not ([const false]).
 
 
+[call [cmd ::struct::set] [method include] [arg svar] [arg item]]
+
+The element [arg item] is added to the set specified by the variable
+name in [arg svar]. The return value of the command is empty. This is
+the equivalent of [cmd lappend] for sets.
+
+
+[call [cmd ::struct::set] [method exclude] [arg svar] [arg item]]
+
+The element [arg item] is removed from the set specified by the
+variable name in [arg svar]. The return value of the command is
+empty. This is a near-equivalent of [cmd lreplace] for sets.
+
+
+[call [cmd ::struct::set] [method add] [arg svar] [arg set]]
+
+All the element of [arg set] are added to the set specified by the
+variable name in [arg svar]. The return value of the command is
+empty. This is like the method [method include], but for the addition
+of a whole set.
+
+
+[call [cmd ::struct::set] [method subtract] [arg svar] [arg set]]
+
+All the element of [arg set] are removed from the set specified by the
+variable name in [arg svar]. The return value of the command is
+empty. This is like the method [method exclude], but for the removal
+of a whole set.
+
+
+[call [cmd ::struct::set] [method subsetof] [arg A] [arg B]]
+
+Returns a boolean value indicating if the set [arg A] is a true
+subset of or equal to the set [arg B] ([const true]), or not
+([const false]).
 
 [list_end]
 
 
 [section REFERENCES]
 
-[keywords set union intersection difference {symmetric difference} emptiness membership cardinality]
+[keywords set union intersection difference {symmetric difference}]
+[keywords emptiness membership cardinality]
+[keywords inclusion exclusion]
 [manpage_end]

@@ -10,11 +10,17 @@
 #	Test cases for snit.tcl.  Uses the ::tcltest:: harness.
 
 # Note:
+#    Snit assumes Tcl 8.4
 #    The tests assume tcltest 2.1
-
 
 #---------------------------------------------------------------------
 # Load the tcltest package, initialize some constraints.
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "Aborting tests for snit."
+    puts "Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest 2.1
@@ -23,7 +29,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     # Ensure that 2.1 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "Aborting tests for math::statistics."
+	puts "Aborting tests for snit."
 	puts "Requiring tcltest 2.1, have [package present tcltest]"
 	return
     }
@@ -52,6 +58,7 @@ if {[catch {source [file join [file dirname [info script]] snit.tcl]} msg]} {
     return
 }
 
+puts "- Tcl  [package present Tcl]"
 puts "- snit [package present snit]"
 
 namespace import ::snit::*

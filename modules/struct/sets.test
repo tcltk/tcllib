@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.3 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.4 2004/02/29 23:23:36 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -22,9 +22,9 @@ set smultiples {a b c a d f a f c h j}
 set sa {a b c d}
 set sb {e f g h}
 set sc {c d e f}
-set sd {a b c d e f}
-set se {c d e f g h}
-set sf {a b c d e f g h}
+set sd {a b c d e f}     ; # a + c
+set se {c d e f g h}     ; # b + c
+set sf {a b c d e f g h} ; # a + b
 
 interp alias {} setop {} ::struct::set::set
 
@@ -38,7 +38,7 @@ test set-1.0 {nothing} {
 test set-1.1 {bogus} {
     catch {setop foo} msg
     set msg
-} {bad option "foo": must be empty, contains, equal, intersect, symdiff, size, difference, intersect3, or union}
+} {bad option "foo": must be add, contains, difference, empty, equal, exclude, include, intersect, intersect3, size, subsetof, subtract, symdiff, or union}
 
 
 test set-2.0 {emptiness} {
@@ -364,6 +364,159 @@ test set-9.9 {equal} {
 } 1
 
 
+test set-10.0 {include} {
+    catch {setop include} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Sinclude} {Avar element} 0]
+
+test set-10.1 {include} {
+    catch {setop include A} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Sinclude} {Avar element} 1]
+
+test set-10.2 {include} {
+    catch {unset A}
+    catch {setop include A B} msg
+    set msg
+} {can't read "A": no such variable}
+
+test set-10.3 {include} {
+    catch {unset A} ; set A $sa
+    setop include A B
+    lsort $A
+} {B a b c d}
+
+test set-10.4 {include} {
+    catch {unset A} ; set A $sa
+    setop include A a
+    lsort $A
+} {a b c d}
+
+
+test set-11.0 {exclude} {
+    catch {setop exclude} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Sexclude} {Avar element} 0]
+
+test set-11.1 {exclude} {
+    catch {setop exclude A} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Sexclude} {Avar element} 1]
+
+test set-11.2 {exclude} {
+    catch {unset A}
+    catch {setop exclude A B} msg
+    set msg
+} {can't read "A": no such variable}
+
+test set-11.3 {exclude} {
+    catch {unset A} ; set A $sa
+    setop exclude A B
+    lsort $A
+} {a b c d}
+
+test set-11.4 {exclude} {
+    catch {unset A} ; set A $sa
+    setop exclude A a
+    lsort $A
+} {b c d}
+
+
+test set-12.0 {add} {
+    catch {setop add} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Sadd} {Avar B} 0]
+
+test set-12.1 {add} {
+    catch {setop add A} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Sadd} {Avar B} 1]
+
+test set-12.2 {add} {
+    catch {unset A}
+    catch {setop add A B} msg
+    set msg
+} {can't read "A": no such variable}
+
+test set-12.3 {add} {
+    catch {unset A} ; set A $sa
+    setop add A $sb
+    lsort $A
+} $sf
+
+test set-12.4 {add} {
+    catch {unset A} ; set A $sa
+    setop add A $sc
+    lsort $A
+} $sd
+
+test set-12.5 {add} {
+    catch {unset A} ; set A $sa
+    setop add A $sa
+    lsort $A
+} $sa
+
+
+test set-13.0 {subtract} {
+    catch {setop subtract} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Ssubtract} {Avar B} 0]
+
+test set-13.1 {subtract} {
+    catch {setop subtract A} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Ssubtract} {Avar B} 1]
+
+test set-13.2 {subtract} {
+    catch {unset A}
+    catch {setop subtract A B} msg
+    set msg
+} {can't read "A": no such variable}
+
+test set-13.3 {subtract} {
+    catch {unset A} ; set A $sa
+    setop subtract A $sb
+    lsort $A
+} $sa
+
+test set-13.4 {subtract} {
+    catch {unset A} ; set A $sa
+    setop subtract A $sc
+    lsort $A
+} {a b}
+
+test set-13.5 {subtract} {
+    catch {unset A} ; set A $sa
+    setop subtract A $sa
+    lsort $A
+} {}
+
+
+test set-14.0 {subsetof} {
+    catch {setop subsetof} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Ssubsetof} {A B} 0]
+
+test set-14.1 {subsetof} {
+    catch {setop subsetof A} msg
+    set msg
+} [tcltest::wrongNumArgs {::struct::set::Ssubsetof} {A B} 1]
+
+test set-14.2 {subsetof} {
+    setop subsetof $sa $sb
+} 0
+
+test set-14.3 {subsetof} {
+    setop subsetof $sa $sc
+} 0
+
+test set-14.4 {subsetof} {
+    setop subsetof $sa $sa
+} 1
+
+test set-14.5 {subsetof} {
+    setop subsetof $sa $sf
+} 1
+
 #----------------------------------------------------------------------
 ::tcltest::cleanupTests
-
