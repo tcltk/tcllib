@@ -1,3 +1,7 @@
+2001-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct.matrix: Implemented FR #481022.
+
 2001-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* irc: Added IRC example to examples section. Patch #481479.
