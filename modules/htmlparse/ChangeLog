@@ -1,3 +1,9 @@
+2004-09-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.test: Another patch coming from [Tcllib SF Bug
+	  1018574]. Extended htmlparse-4.2 for better checking of &amp
+	  handling.
+
 2004-09-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* htmlparse.tcl: Accepted patch by David Graveraux fixing a number
