@@ -1,5 +1,7 @@
 2004-07-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* dns.tcl:       Added support for IPv6 lookups (type AAAA).
+
 	* ip.tcl:        NEW: IP address package
 	* ip.test:       tests (ipv4 and ipv6)
 	* tcllib_ip.man: Manual page
