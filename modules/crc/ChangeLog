@@ -1,3 +1,8 @@
+2003-01-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* cksum.tcl: Enabled processing in chunks to reduce memory
+	consumption.
+
 2002-09-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.tcl: Fix to SF bug #579026: implementing file processing
