@@ -11,12 +11,13 @@
 # more details.
 # -------------------------------------------------------------------------
 
+package require Tcl 8.3;                # tcl minimum version
 package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.7 2003/01/03 00:39:22 patthoyts Exp $}
-    variable version 1.2
+    variable rcsid {$Id: smtpd.tcl,v 1.8 2003/01/25 23:51:55 patthoyts Exp $}
+    variable version 1.2.1
     variable stopped
 
     namespace export start stop
