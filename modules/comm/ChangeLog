@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.man:
+	* comm.tcl:
+	* pkgIndex.tcl: Set version of the package to to 4.0.1.
+
 2003-01-28  David N. Welton  <davidw@dedasys.com>
 
 	* comm.tcl (::comm::commConfigure): Use 'string is integer'
@@ -7,10 +13,6 @@
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.man: More semantic markup, less visual one.
-
-2003-01-16  Tcl Project  <akupries@shaw.ca>
-
-	* comm.man: 
 
 2002-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
