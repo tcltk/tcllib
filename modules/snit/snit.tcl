@@ -409,34 +409,6 @@ set ::snit::typeTemplate {
         %INSTANCEVARS%
     }
 
-    # Snit_comptrace 
-    #
-    # Component trace; used for write trace on component instance 
-    # variables.  Saves the new component object name, provided 
-    # that certain conditions are met.
-
-    proc %TYPE%::Snit_comptrace {selfns component n1 n2 op} {
-        typevariable Snit_isWidget
-        upvar ${selfns}::${component} cvar
-        upvar ${selfns}::Snit_components Snit_components
-        
-        # If they try to redefine the hull component after
-        # it's been defined, that's an error--but only if
-        # this is a widget or widget adaptor.
-        if {"hull" == $component && 
-            $Snit_isWidget &&
-            [info exists ${selfns}::Snit_components($component)]} {
-            set cvar $Snit_components($component)
-            error "The hull component cannot be redefined."
-        }
-
-        # Save the new component value.
-        set Snit_components($component) $cvar
-
-        # Clear the method cache.
-        unset -nocomplain -- ${selfns}::Snit_methodCache
-    }
-
     # Snit_destructor type selfns win self
     #
     # Default destructor for the type.  By default, it does
@@ -622,7 +594,7 @@ set ::snit::typeTemplate {
         rename ::$self $newName
         Snit_install $selfns $self
         
-            # Note: this relies on Snit_comptrace to do the dirty work.
+            # Note: this relies on RT.ComponentTrace to do the dirty work.
         set hull $newName
         
         return
@@ -806,7 +778,7 @@ set ::snit::typeTemplate {
         # First, if the typemethod is unknown, we'll assume that it's
         # an instance name if we can.
         if {[catch {set %TYPE%::Snit_typeMethodCache($method)} command]} {
-            set command [%TYPE%::Snit_typeCacheLookup $method]
+            set command [::snit::RT.TypemethodCacheLookup %TYPE% $method]
             
             if {[llength $command] == 0} {
                 if {[set %TYPE%::Snit_isWidget] && 
@@ -816,30 +788,13 @@ set ::snit::typeTemplate {
                 
                 set args [concat $method $args]
                 set method create
-                set command [%TYPE%::Snit_typeCacheLookup $method]
+                set command [::snit::RT.TypemethodCacheLookup %TYPE% $method]
             }
         }
         
         uplevel $command $args
     }
         
-    # Generates and caches the command for a typemethod.
-    #
-    # method:	The name of the method to call.
-    proc %TYPE%::Snit_typeCacheLookup {method} {
-        # First, if the typemethod is unknown, we'll assume that it's
-        # an instance name if we can.
-        if {[catch {set %TYPE%::Snit_typemethods($method)} procname]} {
-            return ""
-        }
-        
-        set command [concat %TYPE%::$procname %TYPE%]
-        set %TYPE%::Snit_typeMethodCache($method) $command
-        
-        return $command
-    }
-
-
     #----------------------------------------------------------------
     # Dispatcher Command
     
@@ -869,7 +824,7 @@ set ::snit::typeTemplate {
             set self [set %SELFNS%::Snit_instance]
             
             if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
-                set command [%TYPE%::Snit_cacheLookup %TYPE% %SELFNS% %WIN% $self $method]
+                set command [snit::RT.MethodCacheLookup %TYPE% %SELFNS% %WIN% $self $method]
                 
                 if {[llength $command] == 0} {
                     return -code error \
@@ -951,57 +906,6 @@ set ::snit::typeTemplate {
             puts "Error in Snit_tracer $selfns $win $old $new $op:"
             puts $ei
         }
-    }
-
-    # Generates and caches the command for a method.
-    #
-    # type:		The instance's type
-    # selfns:	The instance's private namespace
-    # win:          The instance's original name (a Tk widget name, for
-    #               snit::widgets.
-    # self:         The instance's current name.
-    # method:	The name of the method to call.
-    # argList:      Arguments for the method.
-    proc %TYPE%::Snit_cacheLookup {type selfns win self method} {
-        typevariable Snit_info
-        typevariable Snit_methodInfo
-        variable ${selfns}::Snit_components
-        variable ${selfns}::Snit_methodCache
-
-        # FIRST, get the pattern data and the component name.
-        if {[info exists Snit_methodInfo($method)]} {
-            set key $method
-        } elseif {[info exists Snit_methodInfo(*)] &&
-                  [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
-            set key "*"
-        } else {
-            return ""
-        }
-
-        foreach {pattern compName} $Snit_methodInfo($key) {}
-
-        # NEXT, build the substitution list
-        set subList [list \
-                         %% % \
-                         %t [list $type] \
-                         %m [list $method] \
-                         %n [list $selfns] \
-                         %w [list $win] \
-                         %s [list $self]]
-
-        if {$compName ne ""} {
-            if {![info exists Snit_components($compName)]} {
-                error "$type $self delegates '$method' to undefined component '$compName'."
-            }
-
-            lappend subList %c [list $Snit_components($compName)]
-        }
-
-        set command [string map $subList $pattern]
-        
-        set Snit_methodCache($method) $command
-        
-        return $command
     }
 
     #----------------------------------------------------------
@@ -1605,7 +1509,7 @@ proc ::snit::Comp.DefineComponent {component} {
         # Add a write trace to do the component thing.
         Mappend compile(instancevars) {
             trace add variable %COMP% write \
-                [list %TYPE%::Snit_comptrace $selfns %COMP%]
+                [list ::snit::RT.ComponentTrace [list %TYPE%] $selfns %COMP%]
         } %TYPE% $compile(type) %COMP% $component
     }
 } 
@@ -2070,7 +1974,30 @@ proc ::snit::RT.UniqueInstanceNamespace {countervar type} {
 }
 
 #-----------------------------------------------------------------------
-# Component Management
+# Typecomponent Management and Method Caching
+
+# Generates and caches the command for a typemethod.
+#
+# type		The type
+# method	The name of the typemethod to call.
+proc snit::RT.TypemethodCacheLookup {type method} {
+    # First, if the typemethod is unknown, we'll assume that it's
+    # an instance name if we can.
+    if {[catch {set ${type}::Snit_typemethods($method)} procname]} {
+        return ""
+    }
+    
+    upvar ${type}::Snit_typeMethodCache Snit_typeMethodCache
+
+    set command [concat ${type}::$procname $type]
+    set Snit_typeMethodCache($method) $command
+    
+    return $command
+}
+
+
+#-----------------------------------------------------------------------
+# Component Management and Method Caching
 
 # Retrieves the object name given the component name.
 proc ::snit::RT.Component {type selfns name} {
@@ -2083,6 +2010,85 @@ proc ::snit::RT.Component {type selfns name} {
     }
     
     return $result
+}
+
+# Component trace; used for write trace on component instance 
+# variables.  Saves the new component object name, provided 
+# that certain conditions are met.  Also clears the method
+# cache.
+
+proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
+    upvar ${type}::Snit_isWidget Snit_isWidget
+    upvar ${selfns}::${component} cvar
+    upvar ${selfns}::Snit_components Snit_components
+        
+    # If they try to redefine the hull component after
+    # it's been defined, that's an error--but only if
+    # this is a widget or widget adaptor.
+    if {"hull" == $component && 
+        $Snit_isWidget &&
+        [info exists Snit_components($component)]} {
+        set cvar $Snit_components($component)
+        error "The hull component cannot be redefined."
+    }
+
+    # Save the new component value.
+    set Snit_components($component) $cvar
+
+    # Clear the method cache.
+    # TBD: can we unset just the elements related to
+    # this component?
+    unset -nocomplain -- ${selfns}::Snit_methodCache
+}
+
+# Generates and caches the command for a method.
+#
+# type:		The instance's type
+# selfns:	The instance's private namespace
+# win:          The instance's original name (a Tk widget name, for
+#               snit::widgets.
+# self:         The instance's current name.
+# method:	The name of the method to call.
+proc ::snit::RT.MethodCacheLookup {type selfns win self method} {
+    variable ${type}::Snit_info
+    variable ${type}::Snit_methodInfo
+    variable ${selfns}::Snit_components
+    variable ${selfns}::Snit_methodCache
+
+    # FIRST, get the pattern data and the component name.
+    if {[info exists Snit_methodInfo($method)]} {
+        set key $method
+    } elseif {[info exists Snit_methodInfo(*)] &&
+              [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
+        set key "*"
+    } else {
+        return ""
+    }
+
+    foreach {pattern compName} $Snit_methodInfo($key) {}
+
+    # NEXT, build the substitution list
+    set subList [list \
+                     %% % \
+                     %t [list $type] \
+                     %m [list $method] \
+                     %n [list $selfns] \
+                     %w [list $win] \
+                     %s [list $self]]
+
+    if {$compName ne ""} {
+        if {![info exists Snit_components($compName)]} {
+            error "$type $self delegates '$method' to undefined component '$compName'."
+        }
+        
+        lappend subList %c [list $Snit_components($compName)]
+    }
+
+    set command [string map $subList $pattern]
+    
+    set Snit_methodCache($method) $command
+        
+    return $command
 }
 
 #-----------------------------------------------------------------------

@@ -3081,6 +3081,19 @@ test widget-1.1 {creating a widget} tk {
     list $a $b
 } {green ::hull1.frm}
 
+test widget-2.1 {can't redefine hull} tk {
+    cleanup
+
+    widget myframe {
+        method resethull {} { set hull "" }
+    }
+    
+    myframe .frm
+
+    catch {.frm resethull} result
+    set result
+} {can't set "hull": The hull component cannot be redefined.}
+
 #-----------------------------------------------------------------------
 # install
 #
