@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: logger.test,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: logger.test,v 1.5 2004/02/13 15:21:02 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -193,6 +193,76 @@ test logger-5.0 {setlevel command} {
     set ::INFO
 } {{Error Message} {Warning Message}}
 
+test logger-6.0 {levels command} {
+	logger::levels 
+} {debug info notice warn error critical}
+
+test logger-7.0 {currentloglevel} {
+	set log [logger::init global]
+	foreach lvl [logger::levels] {
+		${log}::setlevel $lvl
+		lappend result [${log}::currentloglevel]
+	}
+	${log}::delete
+	set result
+} {debug info notice warn error critical}
+
+test logger-8.0 {logproc with existing proc, non existing proc} {
+	set log [logger::init global]
+	catch { ${log}::logproc warn NoSuchProc } msg
+	${log}::delete
+	set msg
+} {Invalid cmd 'NoSuchProc' - does not exist}
+
+test logger-8.1 {logproc with existing proc, no arguments} {
+	set log [logger::init global]
+	catch { ${log}::logproc warn } msg
+	${log}::delete
+	set msg
+} "Usage: \${log}::logproc level cmd\nor \${log}::logproc level argname body"
+
+
+test logger-8.2 {logproc with existing proc} {
+	set ::INFO ""
+	set log [logger::init global]
+	proc errorlogproc {txt} {
+		lappend ::INFO "Error Message: $txt"
+	}
+	set msg [info commands errorlogproc]
+	${log}::logproc error errorlogproc 
+	${log}::error "error"
+	${log}::error "second error"
+	${log}::delete 
+	rename errorlogproc ""
+	list $msg $::INFO
+} {errorlogproc {{Error Message: error} {Error Message: second error}}}
+
+test logger-8.3 {logproc with args and body} {
+	set ::INFO ""
+	set log [logger::init global]
+	${log}::logproc error txt {lappend ::INFO "Error Message: $txt"}
+	${log}::error "error"
+	${log}::error "second error"
+	${log}::delete
+	set ::INFO
+} {{Error Message: error} {Error Message: second error}}
+
+test logger-8.4 {logproc with existing proc, survive level switching} {
+	set ::INFO ""
+	set log [logger::init global]
+	proc errorlogproc {txt} {
+		lappend ::INFO "Error Message: $txt"
+	}
+	${log}::logproc error errorlogproc 
+	${log}::error "error"
+	${log}::setlevel critical
+	${log}::error "this should not be in the logfile"
+	${log}::setlevel notice
+	${log}::error "second error"
+	${log}::delete 
+	rename errorlogproc ""
+	set ::INFO
+} {{Error Message: error} {Error Message: second error}}
 
 ::tcltest::cleanupTests
 return
