@@ -131,7 +131,8 @@ to the channel they are defined against.
 This creates a new channel and Tcl command with the given channel
 name.  This new command controls the new channel and takes all the
 same arguments as [cmd ::comm::comm].  Any remaining arguments are
-passed to the [cmd config] method.
+passed to the [cmd config] method.  The fully qualified channel
+name is returned.
 
 [call [cmd "::comm::comm channels"]]
 

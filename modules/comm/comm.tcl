@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.10 2003/05/10 01:32:09 hobbs Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.11 2003/10/21 23:18:06 hobbs Exp $
 
 package require Tcl 8.2
 
@@ -35,16 +35,17 @@ namespace eval ::comm {
     if {![info exists comm(chans)]} {
 	array set comm {
 	    debug 0 chans {} localhost 127.0.0.1
-	    connecting,hook 1
-	    connected,hook 1
-	    incoming,hook 1
-	    eval,hook 1
-	    callback,hook 1
-	    reply,hook 1
-	    lost,hook 1
-	    offerVers {3 2}
-	    acceptVers {3 2}
-	    defVers 2
+	    connecting,hook	1
+	    connected,hook	1
+	    incoming,hook	1
+	    eval,hook		1
+	    callback,hook	1
+	    reply,hook		1
+	    lost,hook		1
+	    offerVers		{3 2}
+	    acceptVers		{3 2}
+	    defVers		2
+	    defaultEncoding	"utf-8"
 	}
 	set comm(lastport) [expr {[pid] % 32768 + 9999}]
 	# fast check for acceptable versions
@@ -296,18 +297,21 @@ proc ::comm::comm_cmd_new {chan ch args} {
     if {([llength $args] % 2) != 0} {
 	return -code error "Must have an even number of config arguments"
     }
+    # ensure that the new channel name is fully qualified
+    set ch ::[string trimleft $ch :]
     if {[string equal ::comm::comm $ch]} {
 	# allow comm to be recreated after destroy
-    } elseif {[string equal $ch [info proc $ch]]} {
+    } elseif {[string equal $ch [info commands $ch]]} {
 	return -code error "Already existing command: $ch"
     } else {
-	# this is ::comm::comm, but done this way to allow precompilation
+	# Create the new channel with fully qualified proc name
 	proc $ch {cmd args} {
 	    set method [info commands ::comm::comm_cmd_$cmd*]
 
 	    if {[llength $method] == 1} {
 		# this should work right even if aliased
-		set chan [namespace tail [lindex [info level 0] 0]]
+		# it is passed to methods to identify itself
+		set chan [namespace origin [lindex [info level 0] 0]]
 		return [uplevel 1 [linsert $args 0 $method $chan]]
 	    } else {
 		foreach c [info commands ::comm::comm_cmd_*] {
@@ -327,6 +331,7 @@ proc ::comm::comm_cmd_new {chan ch args} {
     set comm($chan,listen) 0
     set comm($chan,socket) ""
     set comm($chan,local)  1
+    set comm($chan,encoding) $comm(defaultEncoding)
 
     if {[llength $args] > 0} {
 	if {[catch [linsert $args 0 commConfigure $chan 1] err]} {
@@ -334,6 +339,7 @@ proc ::comm::comm_cmd_new {chan ch args} {
 	    return -code error $err
 	}
     }
+    return $chan
 }
 
 # send --
@@ -481,6 +487,7 @@ proc ::comm::commConfVars {v t} {
 ::comm::commConfVars socket ro
 ::comm::commConfVars chan ro
 ::comm::commConfVars serial ro
+::comm::commConfVars encoding enc
 
 # ::comm::commConfigure --
 #
@@ -551,6 +558,17 @@ proc ::comm::commConfigure {chan {force 0} args} {
 		set $var $optval
 		set skip 1
 	    }
+	    enc {
+		# to configure encodings, we will need to extend the
+		# protocol to allow for handshaked encoding changes
+		return -code error "encoding not configurable"
+		if {[lsearch -exact [encoding names] $optval] == -1} {
+		    return -code error \
+			"Unknown encoding to configuration option: -$var"
+		}
+		set $var $optval
+		set skip 1
+	    }
 	    ro { return -code error "Readonly configuration option: -$var" }
 	}
     }
@@ -564,6 +582,16 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	    incr force
 	    # FRINK: nocheck
 	    set comm($chan,$var) [set $var]
+	}
+    }
+
+    if {[info exists encoding] &&
+	![string equal $encoding $comm($chan,encoding)]} {
+	# This should not be entered yet
+	set comm($chan,encoding) $encoding
+	fconfigure $comm($chan,socket) -encoding $encoding
+	foreach {i sock} [array get comm $chan,peers,*] {
+	    fconfigure $sock -encoding $encoding
 	}
     }
 
@@ -608,6 +636,7 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	set nport [incr comm(lastport)]
     }
     set comm($chan,socket) $ret
+    fconfigure $ret -translation lf -encoding $comm($chan,encoding)
 
     # If port was 0, system allocated it for us
     set comm($chan,port) [lindex [fconfigure $ret -sockname] 2]
@@ -789,7 +818,7 @@ proc ::comm::commNewConn {chan id fid} {
     	set comm($chan,peers,$id) $fid
     }
     set comm($chan,fids,$fid) $id
-    fconfigure $fid -trans binary -blocking 0
+    fconfigure $fid -translation lf -encoding $comm($chan,encoding) -blocking 0
     fileevent $fid readable [list ::comm::commCollect $chan $fid]
 }
 
@@ -1113,4 +1142,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.1
+package provide comm 4.2
