@@ -36,6 +36,12 @@
 #
 #
 #   $Log: ldap.tcl,v $
+#   Revision 1.6  2005/03/16 18:21:51  andreas_kupries
+#
+#   	* ldap.tcl (ldap::asnGetInteger): Fixed [SF Tcllib Bug 1164663], a
+#   	  copy/paste bug in the definition of this procedure. It belongs
+#   	  into the ldap namespace, not the asn namespace.
+#
 #   Revision 1.5  2005/02/16 03:54:24  andreas_kupries
 #   Reformatting for indentation, trimmed trailing whitespace.
 #
@@ -1248,7 +1254,7 @@ proc ::ldap::asnGetLength {data_var length_var} {
 # asnGetInteger : Retrieve integer.
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetInteger {data_var int_var} {
+proc ldap::asnGetInteger {data_var int_var} {
     # Tag is 0x02.
 
     upvar $data_var data $int_var int
