@@ -1,3 +1,8 @@
+2004-12-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
+    
+        * Fixed bug in rungeKuttaStep (calculus.tcl) found by Mark Stucky.
+          (Also moved the empty lines upward to better reflect the steps)
+
 2004-11-25  Andreas Kupries <andreask@activestate.com>
 
 	* linalg.man: Fixed a formatting bug in the file, found by a
