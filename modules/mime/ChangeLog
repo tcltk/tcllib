@@ -1,11 +1,21 @@
 2004-05-04  Andreas Kupries  <andreask@activestate.com>
 
+	* mime.man:
+	* mime.test:
+	* mime.tcl: Applied [SF Tcllib Patch 763712]. This extends the
+	  functionality of mime::getbody with decoding of the mime part
+	  based on the specified charset into the regular utf8
+	  form. Testsuite was updated and extended as well. Thanks to
+	  Matthew Walker <gunzel@users.sourceforge.net> for the
+	  work. Updated the documentation for mime on my own. Bumped
+	  version to 1.4.
+
 	* mime:test:
 	* mime.tcl: Applied [SF Tcllib Patch 758742], adding many more
 	  MIME types for encodings to the knowledge-base of the
 	  package. Thanks to Matthew Walker <gunzel@users.sourceforge.net>
 	  for the work, and Mikhail Teterin <kot@users.sourceforge.net>
-	  for prodding.
+	  for prodding. Bumped version to 1.3.5.
 
 	* mime.test:
 	* mime.tcl (copymessageaux): Fixed [SF Tcllib Bug 620852]. Added
