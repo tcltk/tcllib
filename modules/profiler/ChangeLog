@@ -1,3 +1,8 @@
+2003-02-24  David N. Welton  <davidw@dedasys.com>
+
+	* profiler.tcl (::profiler::tZero): Use string map instead of
+	regsub.
+
 2003-02-06  David N. Welton  <davidw@dedasys.com>
 
 	* profiler.tcl (::profiler::profProc): Use string match instead of
