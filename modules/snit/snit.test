@@ -5392,8 +5392,6 @@ test configurecache-1.1 {Instance rename invalidates cache} {
 test configurecache-1.2 {Component rename invalidates cache} {
     cleanup
 
-    puts "Begin configurecache-1.2"
-
     type tail {
         option -foo bar
     }
