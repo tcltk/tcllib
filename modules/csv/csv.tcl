@@ -2,15 +2,16 @@
 #
 #	Tcl implementations of CSV reader and writer
 #
+# Copyright (c) 2001 by Jeffrey Hobbs
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.6 2001/09/28 18:10:38 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.7 2001/10/14 20:16:50 hobbs Exp $
 
 package require Tcl 8.3
-package provide csv 0.1
+package provide csv 0.2
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queuen report 
@@ -33,7 +34,7 @@ proc ::csv::join {values {sepChar ,}} {
     set sep {}
     foreach val $values {
 	if {[string match "*\[\"$sepChar\]*" $val]} {
-	    append out $sep\"[string map [list \" \"\"] $val]\" ; # "
+	    append out $sep\"[string map [list \" \"\"] $val]\"
 	} else {
 	    append out $sep$val
 	}
@@ -60,6 +61,7 @@ proc ::csv::join {values {sepChar ,}} {
 proc ::csv::joinlist {values {sepChar ,}} {
     set out ""
     foreach record $values {
+	# note that this is ::csv::join
 	append out "[join $record $sepChar]\n"
     }
     return $out
@@ -132,13 +134,15 @@ proc ::csv::report {cmd matrix args} {
     switch -exact -- $cmd {
 	printmatrix {
 	    if {[llength $args] > 0} {
-		return -code error "wrong # args: ::csv::report printmatrix matrix"
+		return -code error "wrong # args:\
+			::csv::report printmatrix matrix"
 	    }
 	    return [joinlist [$matrix get rect 0 0 end end]]
 	}
 	printmatrix2channel {
 	    if {[llength $args] != 1} {
-		return -code error "wrong # args: ::csv::report printmatrix2channel matrix chan"
+		return -code error "wrong # args:\
+			::csv::report printmatrix2channel matrix chan"
 	    }
 	    writematrix $matrix [lindex $args 0]
 	    return ""
@@ -162,17 +166,20 @@ proc ::csv::report {cmd matrix args} {
 #	A list of the values in 'line'.
 
 proc ::csv::split {line {sepChar ,}} {
-    regsub -all -- {(\A\"|\"\Z)} $line \0 line
-    set line [string map [list $sepChar\"\"\" $sepChar\0\" \
+    regsub -all -- {(^\"|\"$)} $line \0 line
+    set line [string map [list \
+	    $sepChar\"\"\" $sepChar\0\" \
 	    \"\"\"$sepChar \"\0$sepChar \
-	    \"\" \" \" \0 ] $line]
+	    \"\"           \" \
+	    \"             \0 \
+	    ] $line]
     set end 0
-    while {[regexp -indices -start $end -- {(\0)[^\0]*(\0)} $line -> start end]} {
+    while {[regexp -indices -start $end -- {(\0)[^\0]*(\0)} $line \
+	    -> start end]} {
 	set start [lindex $start 0]
 	set end   [lindex $end 0]
 	set range [string range $line $start $end]
-	set first [string first $sepChar $range]
-	if {$first >= 0} {
+	if {[string first $sepChar $range] >= 0} {
 	    set line [string replace $line $start $end \
 		    [string map [list $sepChar \1] $range]]
 	}

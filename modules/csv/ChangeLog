@@ -1,3 +1,10 @@
+2001-10-14  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* csv.test (csv-1.7): 
+	* csv.tcl: Fixed [Bug #469855] where starting "s could not come
+	out right from csv::split.
+	Updated to 0.2
+
 2001-09-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.test: Added test to verify that the problem is fixed.
