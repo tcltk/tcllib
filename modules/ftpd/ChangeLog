@@ -1,3 +1,15 @@
+2004-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ftpd.man: Updated documentation to explain the new features (Two
+	  additional callbacks, and the variable 'CurrentSocket').
+	* ftpd.tcl (Finish): Replaced string compare with canonical
+	  'hasCallback'.
+	  (GetDone): Ditto for 'xferDoneCmd'.
+	  (command::REIN): Closing passive data server port,
+	  reinitializing to empty as well.
+	  (read): Reverted call of Finish to relative addressing of the
+	  command.
+
 2004-02-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl
