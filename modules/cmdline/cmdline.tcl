@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.20 2004/10/03 23:06:55 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.21 2004/11/08 21:48:55 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide cmdline 1.2.3
@@ -141,7 +141,7 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 		    }
 		} else {
 		    # Unknown option.
-		    set value "Illegal option \"$option\""
+		    set value "Illegal option \"-$option\""
 		    set result -1
 		}
 	    }
