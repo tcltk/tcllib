@@ -1,0 +1,5 @@
+2000-03-07  Eric Melski  <ericm@scriptics.com>
+
+	* math.tcl:
+	* math.test:
+	* math.n: Initial versions of files for math library.

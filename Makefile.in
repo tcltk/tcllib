@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.8 2000/03/07 22:05:49 stanton Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.9 2000/03/07 23:00:32 ericm Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -21,6 +21,9 @@ CMDLINE=cmdline
 
 # File utilities (grep, find, etc.)
 FILEUTIL=fileutil
+
+# Math functions
+MATH=math
 
 # Data structures (stack, queue, tree)
 STRUCT=struct
@@ -40,6 +43,7 @@ MODULES= \
 	$(CMDLINE)	\
 	$(STRUCT)	\
 	$(FILEUTIL)	\
+	$(MATH)	\
 	$(MIME)		\
 	$(POP3)		\
 	$(PROFILER)

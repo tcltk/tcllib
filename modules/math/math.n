@@ -1,0 +1,32 @@
+'\"
+'\" Copyright (c) 1998-2000 by Scriptics Corporation.
+'\" All rights reserved.
+'\" 
+'\" RCS: @(#) $Id: math.n,v 1.1 2000/03/07 23:00:34 ericm Exp $
+'\" 
+.so man.macros
+.TH math n 1.0 math "Tcl Math Library"
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+math \- Tcl math library
+.SH SYNOPSIS
+\fBpackage require math ?1.0?\fR
+.sp
+\fB::math::max\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+\fB::math::min\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+.sp
+.BE
+.SH DESCRIPTION
+.PP
+The \fBmath\fR package provides utility math functions.
+.SH COMMANDS
+.TP
+\fB::math::max\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the maximum of one or more numeric values.
+.TP
+\fB::math::min\fR \fIvalue\fR ?\fIvalue\fR? ?\fIvalue\fR \fI...\fR?
+Return the minimum of one or more numeric values.
+.SH KEYWORDS
+math

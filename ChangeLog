@@ -1,3 +1,9 @@
+2000-03-07  Eric Melski <ericm@scriptics.com>
+
+	* modules/math: math library
+
+	* Makefile.in: added math library to list of modules
+
 2000-03-07  Scott Stanton  <stanton@scriptics.com>
 
 	* configure.in: 
