@@ -237,7 +237,7 @@ proc text_plain_text {text} {
     # engine we have to retrieve this formatted text from the expander
     # or it will be lost. This is the purpose of the 'ctopandclear',
     # which retrieves the data and also clears the capture buffer. The
-    # latter to prevent us from retrieving it agasin later, after the
+    # latter to prevent us from retrieving it again later, after the
     # next macro added more data.
 
     set text [ex_ctopandclear]$text
