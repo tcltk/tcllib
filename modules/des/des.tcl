@@ -76,6 +76,10 @@
 #
 #
 #   $Log: des.tcl,v $
+#   Revision 1.2  2003/04/11 18:55:43  andreas_kupries
+#
+#   	* des.tcl:  Fixed bug #614591.
+#
 #   Revision 1.1  2003/02/11 23:32:44  patthoyts
 #   Initial import of des package.
 #
@@ -111,7 +115,7 @@
 
 ## TODO: Check for weak keys: see http://www.cs.wm.edu/~hallyn/des/weak
 
-namespace eval DES {
+namespace eval ::DES {
 
   variable version 0.8.0
 
@@ -529,7 +533,7 @@ namespace eval DES {
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
-proc DES::Pop {varname {nth 0}} {
+proc ::DES::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -538,7 +542,7 @@ proc DES::Pop {varname {nth 0}} {
 
 # -------------------------------------------------------------------------
 
-proc DES::des {args} {
+proc ::DES::des {args} {
     array set opts [list filename {} mode {encode} key {I love Tcl!}]
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
