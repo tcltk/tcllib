@@ -345,17 +345,13 @@ proc ::htmlparse::PrepareHtml {html} {
     set html [string map [list \r \n] $html]
 
     regsub -- "^.*<!DOCTYPE\[^>\]*>"       $html {}     html
-    regsub -all -- "-->"                $html "\001" html
+    set html [string map [list "-->" "\001"] $html]
     regsub -all -- "<!--\[^\001\]*\001" $html {}     html
 
     # Protect characters special to tcl (braces, slashes) by
     # converting them to their escape sequences.
 
-    regsub -all -- \{   $html {\&ob;}  html
-    regsub -all -- \}   $html {\&cb;}  html
-    regsub -all -- \\\\ $html {\&bsl;} html
-
-    return $html
+    return [string map [list "\{" "&ob;" "\}" "&cb;" "\\\\" "&bsl;"] $html]
 }
 
 
