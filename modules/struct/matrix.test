@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.2 2001/05/20 11:22:09 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -1266,6 +1266,24 @@ test matrix-8.10 {insertion} {
     mymatrix destroy
     set result
 } {{a b c} {1 2 5} {3 4 6} {7 8 9}}
+
+test matrix-8.11 {insertion} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix insert row 1 {1}
+    set result [mymatrix get rect 0 0 end end]
+    mymatrix destroy
+    set result
+} {1}
+
+test matrix-8.12 {insertion} {
+    matrix mymatrix
+    mymatrix add row
+    mymatrix insert column 1 {1}
+    set result [mymatrix get rect 0 0 end end]
+    mymatrix destroy
+    set result
+} {1}
 
 test matrix-9.1 {linking} {
     matrix mymatrix
