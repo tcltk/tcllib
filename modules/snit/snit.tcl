@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.83
+package provide snit 0.84
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -156,6 +156,7 @@ namespace eval ::snit:: {
         method configure {args} {
             typevariable Snit_delegatedoptions
             typevariable Snit_optiondefaults
+            typevariable Snit_optiondbspec
 
             # If two or more arguments, set values as usual.
             if {[llength $args] >= 2} {
@@ -177,32 +178,52 @@ namespace eval ::snit:: {
             # They want it for just one.
             upvar ${selfns}::Snit_components Snit_components
             set opt [lindex $args 0]
+
             if {[info exists options($opt)]} {
-                return [list $opt "" "" $Snit_optiondefaults($opt) \
+                # This is a locally-defined option.  Just build the
+                # list and return it.
+                set res [lindex $Snit_optiondbspec($opt) 0]
+                set cls [lindex $Snit_optiondbspec($opt) 1]
+
+                return [list $opt $res $cls $Snit_optiondefaults($opt) \
                             [$self cget $opt]]
             } elseif {[info exists Snit_delegatedoptions($opt)]} {
+                # This is an explicitly delegated option.  The only
+                # thing we don't have is the default.
+                set res [lindex $Snit_optiondbspec($opt) 0]
+                set cls [lindex $Snit_optiondbspec($opt) 1]
+
+                # Get the default
                 set logicalName [lindex $Snit_delegatedoptions($opt) 0]
-                set realOpt [lindex $Snit_delegatedoptions($opt) 1]
+                set comp $Snit_components($logicalName)
+                set target [lindex $Snit_delegatedoptions($opt) 1]
+
+                if {[catch {$comp configure $target} result]} {
+                    set defValue {}
+                } else {
+                    set defValue [lindex $result 3]
+                }
+
+                return [list $opt $res $cls $defValue [$self cget $opt]]
             } elseif {[info exists Snit_delegatedoptions(*)]} {
                 set logicalName [lindex $Snit_delegatedoptions(*) 0]
-                set realOpt $opt
+                set target $opt
+                set comp $Snit_components($logicalName)
+
+                if {[catch {set value [$comp cget $target]} result]} {
+                    error "unknown option \"$opt\""
+                }
+
+                if {![catch {$comp configure $target} result]} {
+                    # Replace the delegated option name with the local name.
+                    return [snit::Expand $result $target $opt]
+                }
+
+                # configure didn't work; return simple form.
+                return [list $opt "" "" "" $value]
             } else {
                 error "unknown option \"$opt\""
             }
-
-            set comp $Snit_components($logicalName)
-
-            if {[catch {set value [$comp cget $realOpt]} result]} {
-                error "unknown option \"$opt\""
-            }
-
-            if {![catch {$comp configure $realOpt} result]} {
-                # Replace the delegated option name with the local name.
-                return [snit::Expand $result $realOpt $opt]
-            }
-
-            # configure didn't work; return simple form.
-            return [list $opt "" "" "" $value]
         }
 
         # $type destroy
@@ -307,6 +328,7 @@ namespace eval ::snit:: {
         typemethod create {name args} {
             typevariable Snit_info
             typevariable Snit_optiondefaults
+            typevariable Snit_optiondbspec
             typevariable Snit_isWidgetAdaptor
 
             # FIRST, if %AUTO% appears in the name, generate a unique 
@@ -320,7 +342,7 @@ namespace eval ::snit:: {
                 [snit::UniqueInstanceNamespace Snit_info(counter) %TYPE%]
             namespace eval $selfns { }
             
-            # Initialize the widget's own options to their defaults.
+            # NEXT, Initialize the widget's own options to their defaults.
             upvar ${selfns}::options options
             foreach opt $Snit_info(options) {
                 set options($opt) $Snit_optiondefaults($opt)
@@ -330,11 +352,30 @@ namespace eval ::snit:: {
             Snit_instanceVars $selfns
 
             # NEXT, if this is a normal widget (not a widget adaptor) then 
-            # create a frame as its hull.
+            # create a frame as its hull.  We set the frame's -class to
+            # the user's widgetclass, or, if none, to the basename of
+            # the %TYPE% with an initial upper case letter.
             if {!$Snit_isWidgetAdaptor} {
+                # FIRST, determine the class name
+                if {"" == $Snit_info(widgetclass)} {
+                    set Snit_info(widgetclass) \
+                        [::snit::Capitalize [namespace tail %TYPE%]]
+                }
+
+                # NEXT, create the widget
                 set self $name
 		package require Tk
-                installhull [frame $name]
+                installhull using frame -class $Snit_info(widgetclass)
+
+                # NEXT, let's query the option database for our
+                # widget, now that we know that it exists.
+                foreach opt $Snit_info(options) {
+                    set dbval [Snit_optionget $name $opt]
+
+                    if {"" != $dbval} {
+                        set options($opt) $dbval
+                    }
+                }
             }
 
             # Execute the type's constructor, and verify that it
@@ -470,6 +511,16 @@ namespace eval ::snit:: {
             return $Snit_components($name)
         }
 
+        # Retrieves an option's value from the option database
+        proc %TYPE%::Snit_optionget {self opt} {
+            typevariable Snit_optiondbspec
+
+            set res [lindex $Snit_optiondbspec($opt) 0]
+            set cls [lindex $Snit_optiondbspec($opt) 1]
+
+            return [option get $self $res $cls]
+        }
+
         #----------------------------------------------------------------
         # Compiled Procs
         #
@@ -595,14 +646,17 @@ namespace eval ::snit:: {
         # Installs the named widget as the hull of a 
         # widgetadaptor.  Once the widget is hijacked, it's new name
         # is assigned to the hull component.
-        #
-        # TBD: This should only be public for widget adaptors.
-        proc %TYPE%::installhull {obj} {
+        proc %TYPE%::installhull {{using "using"} {widgetType ""} args} {
             typevariable Snit_isWidget
+            typevariable Snit_info
+            typevariable Snit_compoptions
+            typevariable Snit_delegatedoptions
             upvar self self
             upvar selfns selfns
             upvar ${selfns}::hull hull
+            upvar ${selfns}::options options
 
+            # FIRST, make sure we can do it.
             if {!$Snit_isWidget} { 
                 error "installhull is valid only for snit::widgetadaptors"
             }
@@ -611,11 +665,73 @@ namespace eval ::snit:: {
                 error "hull already installed for %TYPE% $self"
             }
 
-            if {![string equal $obj $self]} {
-                error \
-                    "hull name mismatch: '$obj' != '$self'"
+            # NEXT, has it been created yet?  If not, create it using
+            # the specified arguments.
+            if {"using" == $using} {
+                # FIRST, create the widget
+                set cmd [concat [list $widgetType $self] $args]
+                set obj [uplevel 1 $cmd]
+
+                # NEXT, for each option explicitly delegated to the hull
+                # that doesn't appear in the usedOpts list, get the
+                # option database value and apply it--provided that the
+                # real option name and the target option name are different.
+                # (If they are the same, then the option database was
+                # already queried as part of the normal widget creation.)
+                #
+                # Also, we don't need to worry about implicitly delegated
+                # options, as the option and target option names must be
+                # the same.
+                if {[info exists Snit_compoptions(hull)]} {
+
+                    # FIRST, extract all option names from args
+                    set usedOpts {}
+                    set ndx [lsearch -glob $args "-*"]
+                    foreach {opt val} [lrange $args $ndx end] {
+                        lappend usedOpts $opt
+                    }
+                
+                    foreach opt $Snit_compoptions(hull) {
+                        if {"*" == $opt} {
+                            continue
+                        }
+
+                        set target [lindex $Snit_delegatedoptions($opt) 1]
+
+                        if {"$target" == $opt} {
+                            continue
+                        }
+
+                        set result [lsearch -exact $usedOpts $target]
+
+                        if {$result != -1} {
+                            continue
+                        }
+
+                        set dbval [Snit_optionget $self $opt]
+                        $obj configure $target $dbval
+                    }
+                }
+            } else {
+                set obj $using
+
+                if {![string equal $obj $self]} {
+                    error \
+                        "hull name mismatch: '$obj' != '$self'"
+                }
             }
 
+            # NEXT, get the local option defaults.
+            foreach opt $Snit_info(options) {
+                set dbval [Snit_optionget $self $opt]
+                
+                if {"" != $dbval} {
+                    set options($opt) $dbval
+                }
+            }
+
+
+            # NEXT, do the magic
             set i 0
             while 1 {
                 incr i
@@ -632,6 +748,55 @@ namespace eval ::snit:: {
             set hull $newName
 
             return
+        }
+
+        # Creates a widget and installs it as the named component.
+        proc %TYPE%::install {compName "using" widgetType winPath args} {
+            typevariable Snit_isWidget
+            typevariable Snit_compoptions
+            typevariable Snit_delegatedoptions
+            upvar self self
+            upvar selfns selfns
+            upvar ${selfns}::$compName comp
+            upvar ${selfns}::hull hull
+
+            if {!$Snit_isWidget} {
+                error "install can only be used by snit::widgets and widgetadaptors"
+            }
+
+            if {"" == $hull} {
+                error "tried to install '$compName' before the hull exists"
+            }
+
+            # FIRST, query the option database and save the results 
+            # into args.  Insert them before the first option in the
+            # list, in case there are any non-standard parameters.
+            #
+            # Note: there might not be any delegated options; if so,
+            # don't bother.
+
+            if {[info exists Snit_compoptions($compName)]} {
+                set ndx [lsearch -glob $args "-*"]
+
+                foreach opt $Snit_compoptions($compName) {
+                    # TBD: For now, skip *
+                    if {"*" == $opt} {
+                        continue
+                    }
+
+                    set dbval [Snit_optionget $self $opt]
+                    
+                    if {"" != $dbval} {
+                        set target [lindex $Snit_delegatedoptions($opt) 1]
+                        set args [linsert $args $ndx $target $dbval]
+                    }
+                }
+            }
+
+            # NEXT, create the component and save it.
+            set cmd [concat [list $widgetType $winPath] $args]
+            set comp [uplevel 1 $cmd]
+
         }
 
         # Looks for the named option in the named variable.  If found,
@@ -668,13 +833,15 @@ namespace eval ::snit:: {
 	namespace eval %TYPE% {
 	    # Array: General Snit Info
 	    #
-	    # ns:        The type's namespace
-	    # options:   List of the names of the type's local options.
-	    # counter:   Count of instances created so far.
+	    # ns:            The type's namespace
+	    # options:       List of the names of the type's local options.
+	    # counter:       Count of instances created so far.
+            # widgetclass:   Set by widgetclass statement.
 	    typevariable Snit_info
 	    set Snit_info(ns)      %TYPE%::
 	    set Snit_info(options) {}
 	    set Snit_info(counter) 0
+            set Snit_info(widgetclass) {}
 
 	    # Array: Public methods of this type.
 	    # Index is typemethod name; value is proc name.
@@ -693,10 +860,19 @@ namespace eval ::snit:: {
 	    # $option          Default value for the option
 	    typevariable Snit_optiondefaults
 
+	    # Array: database spec values for explicitly defined
+            # options
+	    #
+	    # $option          [list resourceName className]
+	    typevariable Snit_optiondbspec
+
 	    # Array: delegated option components
 	    #
 	    # $option          Component to which the option is delegated.
 	    typevariable Snit_delegatedoptions
+
+            # Array: delegated options by component.
+            typevariable Snit_compoptions
 	}
 
         #----------------------------------------------------------
@@ -910,10 +1086,12 @@ namespace eval ::snit:: {
     # compilation.  It has these indices:
     #
     # defs:              Compiled definitions, both standard and client.
+    # which:             type, widget, widgetadaptor
     # instancevars:      Instance variable definitions and initializations.
     # ivprocdec:         Instance variable proc declarations.
     # tvprocdec:         Type variable proc declarations.
     # typeconstructor:   Type constructor body.
+    # widgetclass:       The widgetclass, for snit::widgets, only
     # localoptions:      Names of local options.
     # delegatedoptions:  Names of delegated options.
     # localmethods:      Names of locally defined methods.
@@ -931,6 +1109,36 @@ namespace eval ::snit:: {
 # The type and widgettype commands use a slave interpreter to compile
 # the type definition.  These are the procs
 # that are aliased into it.
+
+# Defines a widget's option class name.  
+# This statement is only available for snit::widgets,
+# not for snit::types or snit::widgetadaptors.
+proc ::snit::Type.Widgetclass {type name} {
+    variable compile
+
+    # First, widgetclass can only be set for true widgets
+    if {"widget" != $compile(which)} {
+        error "widgetclass cannot be set for snit::$compile(which)s"
+    }
+
+    # Next, validate the option name.  We'll require that it begin
+    # with an uppercase letter.
+    set initial [string index $name 0]
+    if {![string is upper $initial]} {
+        error "widgetclass '$name' does not begin with an uppercase letter"
+    }
+
+    if {"" != $compile(widgetclass)} {
+        error "too many widgetclass statements"
+    }
+
+    # Next, save it.
+    Mappend compile(defs) {
+        set  %TYPE%::Snit_info(widgetclass) %WIDGETCLASS%
+    } %WIDGETCLASS% [list $name]
+
+    set compile(widgetclass) $name
+}
 
 # Defines a constructor.
 proc ::snit::Type.Constructor {type arglist body} {
@@ -957,16 +1165,38 @@ proc ::snit::Type.Destructor {type body} {
     append compile(defs) "proc %TYPE%::Snit_destructor {type selfns win self} [list $body]"
 } 
 
-# Defines a type option.
-proc ::snit::Type.Option {type option {defvalue ""}} {
+# Defines a type option.  The option value can be a triple, specifying
+# the option's -name, resource name, and class name. 
+proc ::snit::Type.Option {type optionDef {defvalue ""}} {
     variable compile
 
-    if {![string match {-*} $option]} {
-        error "badly formed option '$option'"
+    # First, get the three option names.
+    set option [lindex $optionDef 0]
+    set resourceName [lindex $optionDef 1]
+    set className [lindex $optionDef 2]
+
+    # Next, validate the option name.
+    if {![string match {-*} $option] || [string match {*[A-Z ]*} $option]} {
+        error "badly named option '$option'"
     }
 
     if {[Contains $option $compile(delegatedoptions)]} {
         error "cannot delegate '$option'; it has been defined locally."
+    }
+
+    if {[Contains $option $compile(localoptions)]} {
+        error "option '$option' is multiply defined."
+    }
+
+    # Next, compute the resource and class names, if they aren't
+    # already defined.
+
+    if {"" == $resourceName} {
+        set resourceName [string range $option 1 end]
+    }
+
+    if {"" == $className} {
+        set className [Capitalize $resourceName]
     }
 
     lappend compile(localoptions) $option
@@ -976,6 +1206,7 @@ proc ::snit::Type.Option {type option {defvalue ""}} {
         lappend %TYPE%::Snit_info(options) %OPTION%
 
         set  %TYPE%::Snit_optiondefaults(%OPTION%) %DEFVALUE%
+        set  %TYPE%::Snit_optiondbspec(%OPTION%) [list %RES% %CLASS%]
 
         proc %TYPE%::Snit_configure%OPTION% {type selfns win self value} {%TVARDECS%%IVARDECS%
             set options(%OPTION%) $value
@@ -984,7 +1215,8 @@ proc ::snit::Type.Option {type option {defvalue ""}} {
         proc %TYPE%::Snit_cget%OPTION% {type selfns win self} {%TVARDECS%%IVARDECS%
             return $options(%OPTION%)
         }
-    } %OPTION% $option %DEFVALUE% [list $defvalue]
+    } %OPTION% $option %DEFVALUE% [list $defvalue] \
+        %RES% $resourceName %CLASS% $className
 }
 
 # Defines an option's cget handler
@@ -1090,7 +1322,7 @@ proc ::snit::Type.Typemethod {type method arglist body} {
 proc ::snit::Type.Typeconstructor {type body} {
     variable compile
 
-    if {$compile(typeconstructor) ne ""} {
+    if {"" != $compile(typeconstructor)} {
         error "too many typeconstructors"
     }
 
@@ -1267,29 +1499,65 @@ proc ::snit::DelegatedMethod {type method component command} {
 # component     The logical name of the delegate
 # target        The name of the delegate's option, or "".
 
-proc ::snit::DelegatedOption {type option component target} {
+proc ::snit::DelegatedOption {type optionDef component target} {
     variable compile
 
-    if {![string equal $option "*"] &&
-        [string equal $target ""]} {
-        set target $option
+    # First, get the three option names.
+    set option [lindex $optionDef 0]
+    set resourceName [lindex $optionDef 1]
+    set className [lindex $optionDef 2]
+
+    # Next, validate the option name
+
+    if {"*" != $option} {
+        if {![string match {-*} $option] || 
+            [string match {*[A-Z ]*} $option]} {
+            error "badly named option '$option'"
+        }
     }
 
     if {[Contains $option $compile(localoptions)]} {
         error "cannot delegate '$option'; it has been defined locally."
     }
 
-    append compile(defs) "
-        # Delegated option $option to $component as $target
-        [list set %TYPE%::Snit_delegatedoptions($option) [list $component $target]]
-    "
+    if {[Contains $option $compile(delegatedoptions)]} {
+        error "option '$option' is multiply defined."
+    }
+
+    # Next, define the target option, if not specified.
+    if {![string equal $option "*"] &&
+        [string equal $target ""]} {
+        set target $option
+    }
+
+    Mappend compile(defs) {
+        # Delegated option %OPT% to %COMP% as %TARGET%
+        set %TYPE%::Snit_delegatedoptions(%OPT%) [list %COMP% %TARGET%]
+        lappend %TYPE%::Snit_compoptions(%COMP%) %OPT%
+    } %OPT% $option %COMP% $component %TARGET% $target
+
 
     if {![string equal $option "*"]} {
         lappend compile(delegatedoptions) $option
-        append  compile(defs) "
-            # Delegated option $option to $component as $target
-            [list set %TYPE%::Snit_delegatedoptions($option) [list $component $target]]
-        "
+
+        # Next, compute the resource and class names, if they aren't
+        # already defined.
+
+        if {"" == $resourceName} {
+            set resourceName [string range $option 1 end]
+        }
+
+        if {"" == $className} {
+            set className [Capitalize $resourceName]
+        }
+
+        Mappend  compile(defs) {
+            # Delegated option %OPTION% to %COMP% as %TARGET%
+            set %TYPE%::Snit_delegatedoptions(%OPTION%) [list %COMP% %TARGET%]
+            set %TYPE%::Snit_optiondbspec(%OPTION%) [list %RES% %CLASS%]
+
+        } %OPTION% $option %COMP% $component %TARGET% $target \
+            %RES% $resourceName %CLASS% $className
     }
 } 
 
@@ -1329,8 +1597,29 @@ proc ::snit::Define {which type body} {
         set type "$ns$type"
     }
 
+    # NEXT, create the class interpreter
+    if {![string length [info command class.interp]]} {
+        interp create class.interp
+	class.interp eval {catch {package require snit::__does_not_exist__}}
+    }
+
+    class.interp alias widgetclass     ::snit::Type.Widgetclass     $type
+    class.interp alias constructor     ::snit::Type.Constructor     $type
+    class.interp alias destructor      ::snit::Type.Destructor      $type
+    class.interp alias option          ::snit::Type.Option          $type
+    class.interp alias onconfigure     ::snit::Type.Onconfigure     $type
+    class.interp alias oncget          ::snit::Type.Oncget          $type
+    class.interp alias typemethod      ::snit::Type.Typemethod      $type
+    class.interp alias typeconstructor ::snit::Type.Typeconstructor $type
+    class.interp alias method          ::snit::Type.Method          $type
+    class.interp alias proc            ::snit::Type.Proc            $type
+    class.interp alias typevariable    ::snit::Type.Typevariable    $type
+    class.interp alias variable        ::snit::Type.Variable        $type
+    class.interp alias delegate        ::snit::Type.Delegate        $type
+
     # NEXT, initialize the class data
     set compile(defs) {}
+    set compile(which) $which
     set compile(localoptions) {}
     set compile(instancevars) {}
     set compile(typevars) {}
@@ -1338,6 +1627,7 @@ proc ::snit::Define {which type body} {
     set compile(ivprocdec) {}
     set compile(tvprocdec) {}
     set compile(typeconstructor) {}
+    set compile(widgetclass) {}
     set compile(localmethods) {}
     set compile(delegatedmethods) {}
     set compile(components) {}
@@ -1351,24 +1641,6 @@ proc ::snit::Define {which type body} {
         # A widgetadaptor is also a widget.
         set which widget
     }
-
-    # NEXT, create the class interpreter
-    if {![string length [info command class.interp]]} {
-        interp create class.interp
-	class.interp eval {catch {package require snit::__does_not_exist__}}
-    }
-    class.interp alias constructor     ::snit::Type.Constructor     $type
-    class.interp alias destructor      ::snit::Type.Destructor      $type
-    class.interp alias option          ::snit::Type.Option          $type
-    class.interp alias onconfigure     ::snit::Type.Onconfigure     $type
-    class.interp alias oncget          ::snit::Type.Oncget          $type
-    class.interp alias typemethod      ::snit::Type.Typemethod      $type
-    class.interp alias typeconstructor ::snit::Type.Typeconstructor $type
-    class.interp alias method          ::snit::Type.Method          $type
-    class.interp alias proc            ::snit::Type.Proc            $type
-    class.interp alias typevariable    ::snit::Type.Typevariable    $type
-    class.interp alias variable        ::snit::Type.Variable        $type
-    class.interp alias delegate        ::snit::Type.Delegate        $type
 
     # NEXT, Add the standard definitions; then 
     # evaluate the type's definition in the class interpreter.
@@ -1592,7 +1864,15 @@ proc ::snit::Contains {value list} {
     }
 }
 
+# Capitalizes the first letter of a string.
+proc ::snit::Capitalize {text} {
+    set first [string index $text 0]
+    set rest [string range $text 1 end]
+    return "[string toupper $first]$rest"
+}
+
 proc ::snit::CallInstance {selfns args} {
     upvar ${selfns}::Snit_instance self
     return [uplevel 1 [linsert $args 0 $self]]
 }
+
