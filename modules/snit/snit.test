@@ -5422,6 +5422,54 @@ test configurecache-1.2 {Component rename invalidates cache} {
     fido cget -foo
 } {baz}
 
+#-----------------------------------------------------------------------
+# option -validatemethod
+
+test validatemethod-1.1 {Validate method is called.} {
+    cleanup
+
+    type dog {
+        variable flag 0
+
+        option -color \
+            -default black \
+            -validatemethod ValidateColor
+
+        method ValidateColor {option value} {
+            set flag 1
+        }
+
+        method getflag {} {
+            return $flag
+        }
+    }
+
+    dog fido -color brown
+    fido getflag
+} {1} 
+
+test validatemethod-1.1 {Validate method gets correct arguments.} {
+    cleanup
+
+    type dog {
+        option -color \
+            -default black \
+            -validatemethod ValidateColor
+
+        method ValidateColor {option value} {
+            if {$option ne "-color" ||
+                $value ne "brown"} {
+                error "Expected '-color brown'"
+            }
+        }
+    }
+
+    catch {
+        dog fido -color brown
+    }  result
+    set result
+} {::fido} 
+
 
 #---------------------------------------------------------------------
 # Clean up
