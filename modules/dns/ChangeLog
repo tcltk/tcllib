@@ -1,3 +1,14 @@
+2003-03-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: converted from the log package to logger. Enable UDP as
+	the default if available.
+
+2003-02-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* resolv.tcl: Imported Emmanuel Frecon's code from the Tclers
+	Wiki. Provides a name cache and simplifies usage of the dns
+	package.
+	
 2003-02-25  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Tested the UDP transmission using a fixed TclUDP.

@@ -18,16 +18,16 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.8 2003/02/26 01:25:18 patthoyts Exp $
+# $Id: dns.tcl,v 1.9 2003/03/04 22:08:42 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
-package require log;                    # tcllib 1.0
+package require logger;                 # tcllib 1.3
 package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
-    variable version 1.0.2
-    variable rcsid {$Id: dns.tcl,v 1.8 2003/02/26 01:25:18 patthoyts Exp $}
+    variable version 1.0.3
+    variable rcsid {$Id: dns.tcl,v 1.9 2003/03/04 22:08:42 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -42,17 +42,14 @@ namespace eval dns {
             nameserver {localhost}
             loglevel   warning
         }
-        
-        log::lvSuppressLE emergency 0
-        log::lvSuppressLE $options(loglevel) 1
-        log::lvSuppress $options(loglevel) 0
+        variable log [logger::init dns]
+        ${log}::enable $options(loglevel)
     }
 
-    #if {![catch {package require udp} msg]} { ;# tcludp 1.0
-        # When this is tested ok then we make udp be the default
-        # when it is available. For now - leave tcp.
-        #set options(protocol) udp
-    #}
+    if {![catch {package require udp 1.0.4} msg]} { ;# tcludp 1.0.4+
+        # If TclUDP 1.0.4 or better is available, use it.
+        set options(protocol) udp
+    }
 
     variable types
     array set types { 
@@ -141,10 +138,8 @@ proc dns::configure {args} {
                     return $options(loglevel)
                 } else {
                     set options(loglevel) [Pop args 1]
-                    log::lvSuppressLE emergency 0
-                    log::lvSuppressLE $options(loglevel) 1
-                    log::lvSuppress $options(loglevel) 0
-                }                    
+                    ${log}::enable $options(loglevel)
+                }
             }
             --    { Pop args ; break }
             default {
@@ -168,6 +163,8 @@ proc dns::configure {args} {
 proc dns::resolve {query args} {
     variable uid
     variable options
+    variable log
+
     set id [incr uid]
     set token [namespace current]::$id
     variable $token
@@ -196,7 +193,7 @@ proc dns::resolve {query args} {
             }   
         }
         set state(query) $URI(query)
-        log::log debug "parsed query: $query"
+        ${log}::debug "parsed query: $query"
     }
 
     while {[string match -* [lindex $args 0]]} {
@@ -655,6 +652,7 @@ proc dns::Receive {token data} {
 #  file event handler for tcp socket. Wait for the reply data.
 #
 proc dns::TcpEvent {token} {
+    variable log
     variable $token
     upvar 0 $token state
     set s $state(sock)
@@ -666,22 +664,22 @@ proc dns::TcpEvent {token} {
 
     set status [catch {read $state(sock)} result]
     if {$status != 0} {
-        log::log debug "Event error: $result"
+        ${log}::debug "Event error: $result"
         Finish $tok "error reading data: $result"
     } elseif { [string length $result] >= 0 } {
         # check the length and flags and chop off the tcp length prefix.
         binary scan $result SSS length id flags
         set payload [string range $result 2 end]
         set id [expr {$id & 0xFFFF}]
-        log::log debug "Event read: [string length $payload] should be $length"
+        ${log}::debug "Event read: [string length $payload] should be $length"
         # handle the correct request based on the contained ID
         Receive [namespace current]::$id $payload
     } elseif { [eof $state(sock)] } {
         Eof $token
     } elseif { [fblocked $state(sock)] } {
-        log::log debug "Event blocked"
+        ${log}::debug "Event blocked"
     } else {
-        log::log critical "Event error: this can't happen!"
+        ${log}::critical "Event error: this can't happen!"
         Finish $tok "Event error: this can't happen!"
     }
 }
@@ -733,6 +731,7 @@ proc dns::Flags {token {varname {}}} {
 #  Decode a DNS packet (either query or response).
 #
 proc dns::Decode {token args} {
+    variable log
     variable $token
     upvar 0 $token state
 
@@ -761,7 +760,7 @@ proc dns::Decode {token args} {
               NA: $nAN\
               NS: $nNS\
               AR: $nAR"
-    log::log debug $info
+    ${log}::debug $info
 
     set ndx 12
     set r {}
