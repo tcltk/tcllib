@@ -1,3 +1,10 @@
+2003-05-08  Andreas Kupries  <andreask@activestate.com>
+
+	* installer.tcl: Fixed typo in the code loading the new
+	  'install_action.tcl', had used '...._actions'; note the trailing
+	  's'. Thanks to Larry <lvirden@users.sourceforge.net> for
+	  reporting this.
+
 2003-05-07  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* tcllib_version.tcl: Updated to 1.4.0.1 to distinguish the CVS
