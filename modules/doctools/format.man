@@ -100,6 +100,16 @@ syntax to the table of contents (synopsis) if supported by the output
 format in question. nroff and HTML for example do. A format focused on
 logical markup, like TMML, may not.
 
+[bullet]
+The command [cmd usage] is similar to [cmd call] in that it adds the
+syntax to the table of contents (synopsis) if supported by the output
+format. Unlike [cmd call],  this command doens't add any text to the
+output as a direct result of the command. Thus, it can be used
+anywhere within the document to add usage information. Typically it is
+used near the top of the document, in cases where it is not desireable
+to use [cmd call] elsehere in the document, or where additional usage
+information is desired (eg: to document a "package require" command).
+
 [list_end]
 
 [section Commands]
@@ -188,6 +198,16 @@ Another way to emphasize text in a general manner.
 Vertical space to separate text without breaking it into a new
 paragraph.
 
+[call [cmd lb]]
+
+Introduces a left bracket into the output.
+
+[call [cmd rb]]
+
+Introduces a right bracket into the output. The bracket commands are
+necessary as plain brackets are used to denote the beginnings and
+endings of the formatting commands.
+
 [call [cmd example_begin]] 
 Formats subsequent text as a code sample:
 line breaks, spaces, and tabs are preserved and,
@@ -227,6 +247,13 @@ defined.
 
 Starts a new item in a definition list, but the term defined by it is
 a command and its arguments.
+
+[call [cmd usage] [arg args]]
+
+Defines a term to be used in the table of contents or synopsis section,
+depending on the format. This command is [emph silent], as it doesn't
+add any text to the output as a direct result of the call. It merely
+defines data to appear in another section.
 
 [list_end]
 
