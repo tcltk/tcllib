@@ -6,7 +6,7 @@
 #
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 #
-# RCS: @(#) $Id: ncgi.test,v 1.6 2000/04/26 19:08:44 welch Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.7 2000/05/02 20:42:25 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -92,6 +92,10 @@ test ncgi-3.2 {ncgi::decode} {
 test ncgi-3.3 {ncgi::decode} {
     ncgi::decode {[a%25c]def$01%7E3\x%3D}
 } {[a%c]def$01~3\x=}
+
+test ncgi-3.4 {ncgi::decode} {
+    ncgi::decode {hello+world}
+} {hello world}
 
 test ncgi-4.1 {ncgi::encode} {
     ncgi::encode abcdef0123
@@ -464,5 +468,32 @@ test ncgi-14.3 {ncgi::multipart} {
 
 
 }}}
+
+test ncgi-14.4 {ncgi::multipart} {
+    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set X [read $in]
+    close $in
+
+    foreach line [split $X \n] {
+	if {[string length $line] == 0} {
+	    break
+	}
+	if {[regexp {^Content-Type: (.*)$} $line x type]} {
+	    break
+	}
+    }
+    regsub ".*?\n\n" $X {} X
+
+    ncgi::reset $X $type
+    ncgi::parse
+    list [ncgi::value field1] [ncgi::value field2] [ncgi::value the_file_naame]
+} {value {another value} {
+<center><h1>
+                  Netscape Address Book Sync for Palm Pilot
+                                         User Guide
+</h1></center>
+
+
+}}
 
 ::tcltest::cleanupTests

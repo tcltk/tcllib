@@ -224,10 +224,15 @@ proc ncgi::type {} {
 #	The decoded value
 
 proc ncgi::decode {str} {
+    # Replace + with space
+    regsub -all {\+} $str { } str
+
     # Protect Tcl special chars
     regsub -all {[][\\\$]} $str {\\&} str
+
     # Replace %xx sequences with a format command
     regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $str {[format %c 0x\1]} str
+
     # Replace the format commands with their result
     return [subst $str]
 }
@@ -279,7 +284,6 @@ proc ncgi::nvlist {} {
 	"" -
 	application/x-www-form-urlencoded -
 	application/x-www-urlencoded {
-	    regsub -all {\+} $query { } query
 	    set result {}
 	    foreach {x} [split $query &] {
 		# Turns out you might not get an = sign,
@@ -392,19 +396,27 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 proc ncgi::value {key {default {}}} {
     variable value
     variable listRestrict
+    variable contenttype
     if {[info exists value($key)]} {
 	if {$listRestrict} {
 	    
 	    # ncgi::input was called, and it already figured out if the
 	    # user wants list structure or not.
 
-	    return $value($key)
+	    set val $value($key)
 	} else {
 
 	    # Undo the level of list structure done by ncgi::parse
 
-	    return [lindex $value($key) 0]
+	    set val [lindex $value($key) 0]
 	}
+	if {[string match multipart/* [ncgi::type]]} {
+	    
+	    # Drop the meta-data information associated with each part
+
+	    set val [lindex $val 1]
+	}
+	return $val
     } else {
 	return $default
     }

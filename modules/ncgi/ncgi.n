@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ncgi.n,v 1.1 2000/04/26 19:08:44 welch Exp $
+'\" RCS: @(#) $Id: ncgi.n,v 1.2 2000/05/02 20:42:25 welch Exp $
 '\" 
 .so man.macros
 .TH ncgi n 1.0 Ncgi "CGI Support"
@@ -137,6 +137,13 @@ the \fBncgi::value\fP procedure.
 \fBncgi::multipart\fR \fItype query\fR
 This procedure parses a multipart/form-data \fIquery\fP.
 This is used by \fBncgi::nvlist\fP and not normally called directly.
+It returns an alternating list of names and structured values.
+Each structure value is in turn a list of two elements.
+The first element is meta-data from the mutlipart/form-data structure.
+The second element is the form value.  If you use
+\fBncgi::value\fP you just get the form value.
+If you use \fBncgi::valueList\fP you get the structured value
+with meta data and the value.
 
 The \fItype\fP is the whole Content-Type, including the
 parameters like \fBboundary\fP.  This returns a list
@@ -226,11 +233,18 @@ two cases:  if \fBncgi::parse\fP was called, then
 \fBncgi::value\fR only returns the first value associated with \fIkey\fP.
 If \fBncgi::input\fP was called, then \fBncgi::value\fR returns a
 Tcl list value and \fIkey\fP must end in "List" (e.g., "skuList").
+In the case of multipart/form-data, this procedure just returns the value
+of the form element.  If you want the meta-data associated with
+each form value, then use \fBncgi::valueList\fP.
 
 .TP
 \fBncgi::valueList\fR \fIkey {default {}}\fR
 Like \fBncgi::value\fP, but this always returns a list of values
 (even if there is only one value).
+In the case of multipart/form-data, this procedure returns a list of
+two elements.  The first elemtn is meta-data in the form of a parameter, value
+list.  The second element is the form value.
+
 
 .SH SEE ALSO
 html
