@@ -21,7 +21,7 @@ cd $outdir
 puts "Making pkgIndex.tcl in [pwd]"
 
 set index [open pkgIndex.tcl w]
-puts $index "if { \[lsearch \$auto_path \[file dirname \[info script\]\]\] } {"
+puts $index "if { \[lsearch \$auto_path \[file dirname \[info script\]\]\] == -1 } {"
 puts $index "\tlappend auto_path \[file dirname \[info script\]\]"
 puts $index "}"
 puts $index "package ifneeded $package $version {"
