@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.20 2003/04/11 00:50:37 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.21 2003/04/11 21:01:28 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -164,7 +164,7 @@ proc ::uri::split {url} {
     set scheme {}
 
     # RFC 1738:	scheme = 1*[ lowalpha | digit | "+" | "-" | "." ]
-    regexp -- {^([a-z0-9+-.][a-z0-9+-.]*):} $url dummy scheme
+    regexp -- {^([a-z0-9+.-][a-z0-9+.-]*):} $url dummy scheme
 
     if {$scheme == {}} {
 	set scheme http
