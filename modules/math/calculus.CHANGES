@@ -1,0 +1,11 @@
+Package: Calculus
+-----------------
+
+This file contains information about the changes that have
+been made:
+
+Version 0.1: november 2001
+   Initial version, no differential equations yet
+
+Version 0.2: november 2001
+   Extended with Euler and Heun methods, 2D and 3D simple integration

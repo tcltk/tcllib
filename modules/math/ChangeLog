@@ -1,3 +1,11 @@
+2002-01-18  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Added calculus functionality and fuzzy FP comparison as provided
+	  by Arjen Markus <arjen.markus@wldelft.nl> as is. This code
+	  currently has neither true testsuite nor good documentation but
+	  was considered important enough to get in now. Polish has to
+	  come in the subsequent patch releases.
+
 2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
 
 	* combinatorics.tcl: Removed incorrect 'package provide'.
