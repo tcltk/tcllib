@@ -1,5 +1,8 @@
 2003-04-02  Andreas Kupries  <andreask@activestate.com>
 
+	* ../../../examples/struct: Added example applications for usage
+	  of longestCommonSubsequence and lcsInvert.
+
 	* struct.tcl: Integrated new list commands.
 
 	* list.tcl:  Added commands 'reverse', 'assign', 'flatten',
