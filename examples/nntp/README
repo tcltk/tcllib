@@ -1,17 +1,19 @@
 This directory contains examples making use of the nntp module
 provided by tcllib.
 
+The file 'nntp.examples' provides a number of very small examples on
+how to use the nntp module.
 
-Currently only one application is available, 'postnews'. This
-application is a drop-in replacement of the 'postit' application which
-came with my [1] Debian/Linux system. I wrote it because 'postit' was
-unable to post articles to the host 'news' aka 'shawnews', i.e. the
-NNTP system provided by my new ISP here in Vancouver. I had no big
-desire to look into the C code of 'postit' to find out why it was
-unable to post, wrote a hack version of 'postnews' in 15 minutes and
-when that worked my desire to debug 'postit' went below zero. Another
-half an hour was spent the next evening with 'postnews' to polish it
-and make it a nice example for 'tcllib'.
+Beyond that there is currently only one application is available,
+'postnews'. This application is a drop-in replacement of the 'postit'
+application which came with my [1] Debian/Linux system. I wrote it
+because 'postit' was unable to post articles to the host 'news' aka
+'shawnews', i.e. the NNTP system provided by my new ISP here in
+Vancouver. I had no big desire to look into the C code of 'postit' to
+find out why it was unable to post, wrote a hack version of 'postnews'
+in 15 minutes and when that worked my desire to debug 'postit' went
+below zero. Another half an hour was spent the next evening with
+'postnews' to polish it and make it a nice example for 'tcllib'.
 
 Synopsis:
 
