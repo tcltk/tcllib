@@ -483,7 +483,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.36 2005/02/20 23:02:55 patthoyts Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.37 2005/02/22 06:06:44 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -1155,6 +1155,8 @@ proc __test {} {
     if {[llength $modules] == 0} {
 	set modules [modules]
     }
+
+    puts "Shell is \"[info nameofexecutable]\""
 
     puts "Shell is \"[info nameofexecutable]\""
 
