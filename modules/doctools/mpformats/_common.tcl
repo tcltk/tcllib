@@ -39,6 +39,8 @@ proc fmt_setup {n} {
     set    state(pass)  $n  ; # We are in pass 'n' through the text.
     set    state(begun) 0   ; # No manpage_begin yet
 
+    if {$n == 1} {c_xref_init}
+
     SetPassProcs $n
     return
 }
@@ -220,5 +222,39 @@ proc c_possibleReference {text gi} {
 #
 
 c_holdBuffers synopsis see_also keywords precomments
+
+################################################################
+# Management of see-also and keyword cross-references
+
+proc c_xref_init {} {
+    global seealso  seealso__  ; set seealso  [list] ; array set seealso__  {}
+    global keywords keywords__ ; set keywords [list] ; array set keywords__ {}
+}
+
+proc c_xref_seealso  {} {global seealso  ; return $seealso}
+proc c_xref_keywords {} {global keywords ; return $keywords}
+
+c_pass 1 fmt_see_also {args} {
+    global seealso seealso__
+    foreach ref $args {
+	if {[info exists seealso__($ref)]} continue
+	lappend seealso $ref
+	set     seealso__($ref) .
+    }
+    return
+}
+
+c_pass 1 fmt_keywords {args} {
+    global keywords keywords__
+    foreach ref $args {
+	if {[info exists keywords__($ref)]} continue
+	lappend keywords $ref
+	set     keywords__($ref) .
+    }
+    return
+}
+
+c_pass 2 fmt_see_also {args} NOP
+c_pass 2 fmt_keywords {args} NOP
 
 ################################################################

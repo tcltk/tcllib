@@ -54,10 +54,6 @@ set    hintstack [list]
 set    chint     ""
 set    lmark     0
 
-global seealso  ; set seealso  [list]
-global keywords ; set keywords [list]
-
-
 proc llevel {} {global liststack ; return [llength $liststack]}
 
 proc lpush {t hint} {
@@ -106,10 +102,6 @@ proc fmt_plain_text {text} {
 
 c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
-    global seealso keywords
-    set seealso {}
-    set keywords {}
-
     c_cinit
     set module      [dt_module]
     set shortdesc   [c_get_module]
@@ -152,23 +144,24 @@ c_pass 2 fmt_copyright {desc} NOP
 
 c_pass 1 fmt_manpage_end {} {c_creset ; return}
 c_pass 2 fmt_manpage_end {} {
-    global seealso keywords
-
     c_creset
     set res ""
 
-    if {[llength $seealso] > 0} {
+    set sa [c_xref_seealso]
+    set kw [c_xref_keywords]
+    set ct [c_get_copyright]
+
+    if {[llength $sa] > 0} {
 	append res [fmt_section {SEE ALSO}] \n
-	append res [join [XrefList $seealso sa] ", "] \n
+	append res [join [XrefList [lsort $sa] sa] ", "] \n
     }
-    if {[llength $keywords] > 0} {
+    if {[llength $kw] > 0} {
 	append res [fmt_section KEYWORDS] \n
-	append res [join [XrefList $keywords kw] ", "] \n
+	append res [join [XrefList [lsort $kw] kw] ", "] \n
     }
-    set copyright [c_get_copyright]
-    if {$copyright != {}} {
+    if {$ct != {}} {
 	append res [fmt_section COPYRIGHT] \n
-	append res [join [split $copyright \n] [tag br]\n] [tag br]\n
+	append res [join [split $ct \n] [tag br]\n] [tag br]\n
     }
 
     # Engine parameter - insert 'footer'
@@ -271,18 +264,6 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 
 ################################################################
-
-proc fmt_see_also {args} {
-    global seealso
-    foreach ref $args {lappend seealso $ref}
-    return
-}
-
-proc fmt_keywords {args} {
-    global keywords
-    foreach ref $args {lappend keywords $ref}
-    return
-}
 
 proc fmt_example_begin {} {
     lsmark 0

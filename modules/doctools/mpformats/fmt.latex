@@ -74,11 +74,23 @@ c_pass 2 fmt_copyright {desc} NOP
 c_pass 1 fmt_manpage_end {} NOP
 c_pass 2 fmt_manpage_end {} {
     set    res ""
-    set copyright [c_get_copyright]
-    if {$copyright != {}} {
+
+    set sa [c_xref_seealso]
+    set kw [c_xref_keywords]
+    set ct [c_get_copyright]
+
+    if {[llength $sa] > 0} {
+	append res [fmt_section {SEE ALSO}] \n
+	append res [join [lsort $sa] ", "] \n
+    }
+    if {[llength $kw] > 0} {
+	append res [fmt_section KEYWORDS] \n
+	append res [join [lsort $kw] ", "] \n
+    }
+    if {$ct != {}} {
 	append res [fmt_section COPYRIGHT] \n
 	append res \\begin\{flushleft\} \n
-	append res [join [split $copyright \n] \\linebreak\n] \\linebreak\n
+	append res [join [split $ct \n] \\linebreak\n] \\linebreak\n
 	append res \\end\{flushleft\} \n
     }
     append  res "\\end\{document\}"
@@ -270,9 +282,6 @@ proc fmt_tkoption_def {name dbname dbclass} {
 }
 
 ################################################################
-
-proc fmt_see_also {args} {return "[fmt_section {SEE ALSO}]\n[join $args ", "]"}
-proc fmt_keywords {args} {return "[fmt_section KEYWORDS]\n[join $args ", "]"}
 
 proc fmt_example_begin {} {
     global _in_example

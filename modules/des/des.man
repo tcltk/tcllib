@@ -46,7 +46,7 @@ Encode or decode a string or file.
 }]
 
 
-[see_also md5(n) sha1(c) ]
+[see_also md5(n) sha1(n) ]
 [section AUTHORS]
 Jochen C Loewer
 
