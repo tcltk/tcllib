@@ -1,5 +1,8 @@
 2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* examples/ftp: Moved example applications out of ftp module into
+	  the example space.
+
 	* csv: Implemented FR #481023.
 
 	* textutil: Added 'expander' code by William H. Duquette

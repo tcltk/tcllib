@@ -2,7 +2,7 @@
 ftp examples README
 =======================
 
-Example #1 - Directory Mirror
+Example #1 - Directory Mirror	(mirror.tcl)
 -----------------------------
 
 The script mirror.tcl is used to mirror a complete remote directory
@@ -12,7 +12,7 @@ the hostname of the remote server, the username and the password
 for login. 
 
 
-Example #2 - Software Update
+Example #2 - Software Update	(newer.tcl)
 ----------------------------
 
 The script newer.tcl is used to detect whether a new release of
@@ -23,7 +23,7 @@ The file name for the remote copy of tclhttpd may have changed,
 and the script needs a local copy of tclhttpd's source to do
 the comparison.
 
-Example #3 - Homepage Update
+Example #3 - Homepage Update	(hpupdate.tcl)
 ----------------------------
 
 Quite a few people must have to keep permanent updating their
