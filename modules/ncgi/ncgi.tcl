@@ -381,7 +381,7 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 	if {!$exists} {
 	    lappend varlist $name
 	}
-	if {[regexp -- List$ $name]} {
+	if {[string match "*List" $name]} {
 	    # Accumulate a list of values for this name
 	    lappend value($name) $val
 	} elseif {$exists} {
@@ -802,10 +802,10 @@ proc ncgi::multipart {type query} {
     set boundary $options(boundary)
 
     # The query data is typically read in binary mode, which preserves
-    # the \r\n sequence from a Windows-based browser.  
+    # the \r\n sequence from a Windows-based browser.
     # Also, binary data may contain \r\n sequences.
 
-    if {[regexp -- $boundary\r\n $query]} {
+    if {[string match "*$boundary\r\n*" $query]} {
         set lineDelim "\r\n"
 	#	puts "DELIM"
     } else {
