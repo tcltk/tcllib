@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.1 2000/03/09 21:28:43 ericm Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.2 2000/03/10 22:59:17 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -43,8 +43,8 @@ test find-1.3 {find files bigger than a given size} {
 
 # Build a sample tree to search
 makeDirectory grepTest
-makeFile "zoop" [file join grepTest file1]
-makeFile "zoo\nbart"  [file join grepTest file2]
+makeFile "zoop" [file join $dir grepTest file1]
+makeFile "zoo\nbart"  [file join $dir grepTest file2]
 
 test grep-1.1 {normal grep} {
     lsort [fileutil::grep "zoo" [glob [file join $dir grepTest *]]]
@@ -56,6 +56,12 @@ test grep-1.2 {more restrictive grep} {
 test grep-1.3 {more restrictive grep} {
     lsort [fileutil::grep "bar" [glob [file join $dir grepTest *]]]
 } [list "[file join $dir grepTest file2]:2:bart"]
+
+makeDirectory catTest
+makeFile "foo\nbar\nbaz\n" [file join $dir catTest file1]
+test cat-1.1 {cat} {
+    fileutil::cat [file join $dir catTest file1]
+} "foo\nbar\nbaz\n"
 
 ::tcltest::cleanupTests
 return

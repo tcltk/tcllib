@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.1 2000/03/01 23:27:00 ericm Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.2 2000/03/10 22:59:17 ericm Exp $
 
 package provide fileutil 1.0
 
@@ -88,5 +88,26 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
     }
     cd $oldwd
     return $files
+}
+
+# ::fileutil::cat --
+#
+#	Tcl implementation of the UNIX "cat" command.  Returns the contents
+#	of the specified file.
+#
+# Arguments:
+#	filename	name of the file to read.
+#
+# Results:
+#	data		data read from the file.
+
+proc ::fileutil::cat {filename} {
+    # Don't bother catching errors, just let them propagate up
+    set fd [open $filename r]
+    # Use the [file size] command to get the size, which preallocates memory,
+    # rather than trying to grow it as the read progresses.
+    set data [read $fd [file size $filename]]
+    close $fd
+    return $data
 }
 
