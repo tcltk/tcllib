@@ -1,3 +1,8 @@
+2003-08-06  Andreas Kupries  <andreask@activestate.com>
+
+	* cmdline.tcl (getfiles): Corrected a bogus attempt to quote
+	  backslashes in file patterns on the windows platform.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
