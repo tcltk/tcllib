@@ -61,6 +61,8 @@ V0.97.
   pragma isn't defined, e.g., "pragma -boguspragma yes" is now an
   error.
 
+* Bug fix: -readonly options weren't.  Now they are.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
