@@ -1,3 +1,7 @@
+2005-02-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5x.test: Added the RFC 2202 HMAC-MD5 test vectors.
+
 2005-02-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5x.tcl:      Avoid raising an error if the string to be hashed
