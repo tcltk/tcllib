@@ -53,7 +53,14 @@ namespace eval ::snit:: {
     # %INSTANCEVARS%  The compiled instance variable initialization code.
     # %TYPEVARS%      The compiled type variable initialization code.
 
+    # This is the overall type template.
     variable typeTemplate
+
+    # This is the normal type proc
+    variable nominalTypeProc
+
+    # This is the "-hastypemethods no" type proc
+    variable simpleTypeProc
 }
 
 set ::snit::typeTemplate {
@@ -140,6 +147,65 @@ set ::snit::typeTemplate {
     # These commands are created or replaced during compilation:
 
 
+    # Snit_instanceVars selfns
+    #
+    # Initializes the instance variables, if any.  Called during
+    # instance creation.
+    
+    proc %TYPE%::Snit_instanceVars {selfns} {%IVARDECS%
+        %INSTANCEVARS%
+    }
+
+    # Type Constructor
+    proc %TYPE%::Snit_typeconstructor {type} {
+        %TVARDECS%
+        %TCONSTBODY%
+    }
+
+    #----------------------------------------------------------------
+    # Default Procs
+    #
+    # These commands might be replaced during compilation:
+
+    # Snit_destructor type selfns win self
+    #
+    # Default destructor for the type.  By default, it does
+    # nothing.  It's replaced by any user destructor.
+    # For types, it's called by method destroy; for widgettypes,
+    # it's called by a destroy event handler.
+
+    proc %TYPE%::Snit_destructor {type selfns win self} { }
+
+    #----------------------------------------------------------
+    # Compiled Definitions
+
+    # The compiled definitions contain a bunch of stuff,
+    # including the following.
+            
+    # Snit_configure<option> type selfns win self value
+    #
+    # Defined for each local option.  By default, just updates the
+    # options array.  Redefined by an onconfigure definition.
+    
+    # Snit_method<name> type selfns win self args...
+    #
+    # Defined for each local instance method.
+
+    # Snit_typemethod<name> type args...
+    #
+    # Defined for each typemethod.
+
+    %COMPILEDDEFS%
+
+    #----------------------------------------------------------
+    # Finally, call the Type Constructor
+
+    %TYPE%::Snit_typeconstructor %TYPE%
+}
+
+# This is the nominal type proc.  It supports typemethods and
+# delegated typemethods.
+set ::snit::nominalTypeProc {
     # Type dispatcher function.  Note: This function lives
     # in the parent of the %TYPE% namespace!  All accesses to 
     # %TYPE% variables and methods must be qualified!
@@ -185,73 +251,50 @@ set ::snit::typeTemplate {
 
         return $result
     }
+}
 
-    # Snit_instanceVars selfns
-    #
-    # Initializes the instance variables, if any.  Called during
-    # instance creation.
-    
-    proc %TYPE%::Snit_instanceVars {selfns} {%IVARDECS%
-        %INSTANCEVARS%
-    }
+# This is the simplified type proc for when there are no typemethods
+# except create.  In this case, it doesn't take a method argument;
+# the method is always "create".
+set ::snit::simpleTypeProc {
+    # Type dispatcher function.  Note: This function lives
+    # in the parent of the %TYPE% namespace!  All accesses to 
+    # %TYPE% variables and methods must be qualified!
+    proc %TYPE% {args} {
+        ::variable %TYPE%::Snit_isWidget
 
-    # Type Constructor
-    proc %TYPE%::Snit_typeconstructor {type} {
-        %TVARDECS%
-        %TCONSTBODY%
-    }
-
-    #----------------------------------------------------------------
-    # Default Procs
-    #
-    # These commands might be replaced during compilation:
-
-    if 0 {
-        # Snit_constructor type selfns win self args
-        #
-        # By default, just configures any passed options.  
-        # Redefined by the "constructor" definition, hence always redefined
-        # for widgets.
-
-        proc %TYPE%::Snit_constructor {type selfns win self args} { 
-            $self configurelist $args
-        }
-    }
-
-    # Snit_destructor type selfns win self
-    #
-    # Default destructor for the type.  By default, it does
-    # nothing.  It's replaced by any user destructor.
-    # For types, it's called by method destroy; for widgettypes,
-    # it's called by a destroy event handler.
-
-    proc %TYPE%::Snit_destructor {type selfns win self} { }
-
-    #----------------------------------------------------------
-    # Compiled Definitions
-
-    # The compiled definitions contain a bunch of stuff,
-    # including the following.
+        # FIRST, if the are no args, the single arg is %AUTO%
+        if {[llength $args] == 0} {
+            if {$Snit_isWidget} {
+                error "wrong \# args: should be \"%TYPE% name args\""
+            }
             
-    # Snit_configure<option> type selfns win self value
-    #
-    # Defined for each local option.  By default, just updates the
-    # options array.  Redefined by an onconfigure definition.
-    
-    # Snit_method<name> type selfns win self args...
-    #
-    # Defined for each local instance method.
+            lappend args %AUTO%
+        }
 
-    # Snit_typemethod<name> type args...
-    #
-    # Defined for each typemethod.
+        # NEXT, we're going to call the create method.
+        # Pass along the return code unchanged.
+        if {$Snit_isWidget} {
+            set command [list ::snit::RT.widget.typemethod.create %TYPE%]
+        } else {
+            set command [list ::snit::RT.type.typemethod.create %TYPE%]
+        }
 
-    %COMPILEDDEFS%
+        set retval [catch {uplevel $command $args} result]
 
-    #----------------------------------------------------------
-    # Finally, call the Type Constructor
+        if {$retval} {
+            if {$retval == 1} {
+                global errorInfo
+                global errorCode
+                return -code error -errorinfo $errorInfo \
+                    -errorcode $errorCode $result
+            } else {
+                return -code $retval $result
+            }
+        }
 
-    %TYPE%::Snit_typeconstructor %TYPE%
+        return $result
+    }
 }
 
 #=======================================================================
@@ -308,6 +351,7 @@ namespace eval ::snit:: {
     # -cgetmethod-$opt       The option's cget method.
     # -hastypeinfo           The -hastypeinfo pragma
     # -hastypedestroy        The -hastypedestroy pragma
+    # -hastypemethods        The -hastypemethods pragma
     # -hasinfo               The -hasinfo pragma
     # -hasinstances          The -hasinstances pragma
     # -canreplace            The -canreplace pragma
@@ -381,6 +425,8 @@ proc ::snit::Comp.Init {} {
 # body          the type definition
 proc ::snit::Comp.Compile {which type body} {
     variable typeTemplate
+    variable nominalTypeProc
+    variable simpleTypeProc
     variable compile
     variable compiler
 
@@ -423,9 +469,10 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(varnames) {}
     set compile(typevarnames) {}
     set compile(hasconstructor) no
-    set compile(-hastypeinfo) yes
-    set compile(-hasinfo) yes
     set compile(-hastypedestroy) yes
+    set compile(-hastypeinfo) yes
+    set compile(-hastypemethods) yes
+    set compile(-hasinfo) yes
     set compile(-hasinstances) yes
     set compile(-canreplace) no
 
@@ -447,16 +494,31 @@ proc ::snit::Comp.Compile {which type body} {
     append compile(defs) "\nset %TYPE%::Snit_info(canreplace) $compile(-canreplace)\n"
 
 
-    # Add the info typemethod unless the pragma forbids it.
-    if {$compile(-hastypeinfo)} {
-        Comp.statement.delegate typemethod info \
-            using {::snit::RT.typemethod.info %t}
+    # Check pragmas for conflict.
+    if {!$compile(-hastypemethods) && !$compile(-hasinstances)} {
+        error "$which $type has neither typemethods nor instances"
     }
 
-    # Add the destroy typemethod unless the pragma forbids it.
-    if {$compile(-hastypedestroy)} {
-        Comp.statement.delegate typemethod destroy \
-            using {::snit::RT.typemethod.destroy %t}
+    # If there are typemethods, define the standard typemethods and
+    # the nominal type proc.  Otherwise define the simple type proc.
+    if {$compile(-hastypemethods)} {
+        # Add the info typemethod unless the pragma forbids it.
+        if {$compile(-hastypeinfo)} {
+            Comp.statement.delegate typemethod info \
+                using {::snit::RT.typemethod.info %t}
+        }
+
+        # Add the destroy typemethod unless the pragma forbids it.
+        if {$compile(-hastypedestroy)} {
+            Comp.statement.delegate typemethod destroy \
+                using {::snit::RT.typemethod.destroy %t}
+        }
+
+        # Add the nominal type proc.
+        append compile(defs) $nominalTypeProc
+    } else {
+        # Add the simple type proc.
+        append compile(defs) $simpleTypeProc
     }
 
     # Add standard methods/typemethods that only make sense if the
@@ -467,7 +529,7 @@ proc ::snit::Comp.Compile {which type body} {
             Comp.statement.delegate method info \
                 using {::snit::RT.method.info %t %n %w %s}
         }
-
+        
         # Add the option handling stuff if there are any options.
         if {$compile(hasoptions)} {
             Comp.statement.variable options
@@ -619,6 +681,7 @@ proc ::snit::Comp.statement.pragma {args} {
         switch -exact -- $opt {
             -hastypeinfo    -
             -hastypedestroy -
+            -hastypemethods -
             -hasinstances   -
             -hasinfo        -
             -canreplace     {

@@ -91,6 +91,7 @@ proc tkbide {{msg "tkbide"} {msec 500}} {
 proc cleanupType {name} {
     if {[namespace exists $name]} {
         if {[catch {$name destroy} result]} {
+            global errorInfo
             puts $errorInfo
             error "Could not cleanup $name!"
         }
@@ -6060,6 +6061,101 @@ test hasinfo-1.2 {$obj info can be disabled} {
     set result
 } {"::spot info" is not defined} 
 
+#-----------------------------------------------------------------------
+# pragma -hastypemethods
+#
+# The "-hastypemethods yes" case is tested by the bulk of this file.
+# We'll test the "-hastypemethods no" case here.
+
+test hastypemethods-1.1 {-hastypemethods no, $type foo creates instance.} {
+    cleanup
+
+    type dog {
+        pragma -hastypemethods no
+        variable foo
+    }
+
+    set res [dog spot]
+
+    # Create a new type dog that has a destroy typemethod, so the
+    # cleanup works.
+    type dog {
+        variable foo
+    }
+
+    set res
+} {::spot} 
+
+test hastypemethods-1.2 {-hastypemethods no, $type create foo fails.} {
+    catch {cleanup}
+
+    type dog {
+        pragma -hastypemethods no
+        variable foo
+    }
+
+    catch {dog create spot} result
+
+    # Create a new type dog that has a destroy typemethod, so the
+    # cleanup works.
+    type dog {
+        variable foo
+    }
+
+    set result
+} {Error in constructor: wrong # args: should be "::dog::Snit_constructor type selfns win self"} 
+
+test hastypemethods-1.3 {-hastypemethods no, $type info fails.} {
+    catch {cleanup}
+
+    type dog {
+        pragma -hastypemethods no
+        variable foo
+    }
+
+    catch {dog info} result
+
+    # Create a new type dog that has a destroy typemethod, so the
+    # cleanup works.
+    type dog {
+        variable foo
+    }
+
+    set result
+} {command "::info" already exists} 
+
+test hastypemethods-1.4 {-hastypemethods no, [$widget] fails.} tk {
+    catch {cleanup}
+
+    widget dog {
+        pragma -hastypemethods no
+        variable foo
+    }
+
+    catch {dog} result
+
+    # Create a new type dog that has a destroy typemethod, so the
+    # cleanup works.
+    widget dog {
+        variable foo
+    }
+
+    set result
+} {wrong # args: should be "::dog name args"} 
+
+test hastypemethods-1.5 {-hastypemethods no, -hasinstances no fails.} {
+    catch {cleanup}
+
+    catch {
+        type dog {
+            pragma -hastypemethods no
+            pragma -hasinstances no
+            variable foo
+        }
+    } result
+
+    set result
+} {type ::dog has neither typemethods nor instances} 
 
 #-----------------------------------------------------------------------
 # Exotic return codes

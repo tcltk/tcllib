@@ -1,3 +1,11 @@
+2004-08-14  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl      Defined the -hastypemethods pragma, and added
+	* snit.test     relevant tests and documentation.
+	* snit.man      
+	* README.txt
+	* snitfaq.man
+
 2004-08-12  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Under appropriate conditions, calling a
