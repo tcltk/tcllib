@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.13.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.13.2.2 2004/08/05 05:07:29 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -2693,6 +2693,12 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	    $inavar  inArcs    \
 	    $outavar outArcs   \
 	    $arcnvar arcNodes
+
+    array set nodeAttr  {}
+    array set arcAttr   {}
+    array set inArcs    {}
+    array set outArcs   {}
+    array set arcNodes  {}
 
     # Overall length ok ?
     if {[llength $ser] % 3 != 1} {
