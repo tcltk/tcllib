@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.14 2003/08/06 17:01:12 davidw Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.15 2003/08/11 20:48:35 davidw Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -79,9 +79,11 @@ test find-1.1 {standard recursive find} {
     lsort [fileutil::find [file join $dir find1]]
 } [list [file join $dir find1 file1] [file join $dir find1 find2] \
 	[file join $dir find1 find2 file2]]
+
 test find-1.2 {find directories} {
     fileutil::find [file join $dir find1] {file isdirectory}
 } [list [file join $dir find1 find2]]
+
 test find-1.3 {find files bigger than a given size} {
     fileutil::find [file join $dir find1] {fileIsBiggerThan 1}
 } [list [file join $dir find1 find2 file2]]
@@ -105,6 +107,18 @@ test find-1.4 {handling of circular links} {unix} {
     lsort [fileutil::find [file join $dir find1]]
 } [list [file join $dir find1 file1] [file join $dir find1 find2] \
 	[file join $dir find1 find2 file2]]
+
+test find-1.5 {find file} {
+    ::fileutil::find [file join $dir find1 file1]
+} [file join $dir find1 file1]
+
+test find-1.6 {find file with filter} {
+    ::fileutil::find [file join $dir find1 file1] {file isfile}
+} [file join $dir find1 file1]
+
+test find-1.7 {find file with filter - negative} {
+    ::fileutil::find [file join $dir find1 file1] {file isdirectory}
+} {}
 
 
 # find by pattern tests
@@ -595,6 +609,7 @@ test install-2.1 {install a directory} {
 } {subfile1 subfile2 subfile3}
 
 test install-3.1 {install a directory, set permissions} {unix} {
+    set res {}
     fileutil::install -m go+rw [file join installSrc subdir2] installDst
     foreach fl [glob [file join installDst subdir2 *]] {
 	append res [file attributes $fl -permissions]
