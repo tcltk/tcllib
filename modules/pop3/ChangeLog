@@ -1,3 +1,10 @@
+2000-05-18  Scott Redman  <redman@scriptics.com>
+
+	* pop3.tcl:
+	* pop3.n:  Applied patch from Petteri Kettunen to add the LIST and
+	TOP implementations.  See RFC1939.  Also removed a spurious puts
+	command.  [bug: 5426]
+
 2000-05-17  Scott Redman  <redman@scriptics.com>
 
 	* pop3.tcl:  Remove extra '.'s added by the POP3 server.  If a
