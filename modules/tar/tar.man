@@ -20,9 +20,9 @@ Returns a list of the files contained in [arg tarball].
 
 
 
-[call [cmd ::tar::untar] [arg tarball] [args]]
+[call [cmd ::tar::untar] [arg tarball] [arg args]]
 
-Extracts [tarball]
+Extracts [arg tarball]
 
 [list_begin opt]
 [opt_def -dir dirName]
@@ -36,9 +36,9 @@ Extracts [tarball]
 
 [call [cmd ::tar::get] [arg tarball] [arg fileName]]
 
-Returns the contents of [fileName] from the [tarball]
+Returns the contents of [arg fileName] from the [arg tarball]
 
-[call [cmd ::tar::create] [arg tarball] [arg files] [args]]
+[call [cmd ::tar::create] [arg tarball] [arg files] [arg args]]
 
 Creates a new tar file containing the [arg files]
 
@@ -47,7 +47,7 @@ Creates a new tar file containing the [arg files]
 [list_end]
 [nl]
 
-[call [cmd ::tar::add] [arg tarball] [arg files] [args]]
+[call [cmd ::tar::add] [arg tarball] [arg files] [arg args]]
 
 Appends [arg files] to the end of the existing [arg tarball]
 
@@ -56,3 +56,6 @@ Appends [arg files] to the end of the existing [arg tarball]
 [list_end]
 [nl]
 
+[list_end]
+
+[manpage_end]
