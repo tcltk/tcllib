@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.13 2004/02/09 09:32:13 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.14 2004/02/11 08:30:10 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -355,9 +355,18 @@ test assign-4.3 {assign method} {
     list [assign {foo bar} x y z] $x $y $z
 } {{} foo bar {}}
 
+if {[package vcompare [package provide Tcl] 8.5] < 0} {
+    set err [wrongNumArgs {::struct::list::Lassign} {sequence v args} 1]
+} else {
+    set err [wrongNumArgs {lassign} {list varname ?varname ...?} 1]
+}
 test assign-4.4 {assign method} {
-    assign {foo bar}
-} {foo bar}
+    catch {assign {foo bar}} msg ; set msg
+} $err
+
+test assign-4.5 {assign method} {
+    list [assign {foo bar} x] $x
+} {bar foo}
 
 catch {unset x y z}
 
@@ -513,15 +522,26 @@ test repeatn-4.4 {repeatn command} {
 
 interp alias {} repeat {} ::struct::list::list repeat
 
+if {[package vcompare [package provide Tcl] 8.5] < 0} {
+    set err [wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 0]
+} else {
+    set err [wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 0]
+}
 test repeat-4.1 {repeat command} {
     catch {repeat} msg
     set msg
-} [wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 0]
+} $err
 
+
+if {[package vcompare [package provide Tcl] 8.5] < 0} {
+    set err [wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 1]
+} else {
+    set err [wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 1]
+}
 test repeat-4.2 {repeat command} {
     catch {repeat a} msg
     set msg
-} [wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 1]
+} $err
 
 test repeat-4.3 {repeat command} {
     catch {repeat a b} msg

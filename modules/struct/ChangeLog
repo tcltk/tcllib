@@ -1,3 +1,10 @@
+2004-02-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.tcl (assign): Synchronized API to Tcl 8.5 lassign.
+	* struct_list.man:
+
+	* list.test: Added conditionals for version dependent results.
+
 2004-02-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.man:  Added new method 'arc attr' ad 'node attr' to
