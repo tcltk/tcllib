@@ -1,6 +1,6 @@
-Package: Calculus
-----------------
-The Calculus package is an all-Tcl package that implements
+Package: math::calculus
+-----------------------
+The math::calculus package is an all-Tcl package that implements 
 several basic numerical algorithms, such as the integration
 of functions of one variable or the integration of ordinary
 differential equations.
@@ -12,7 +12,10 @@ calculus.tcl   - The source code for the package
 calculus.test  - Several simple tests
 calculus.html  - Documentation of the package
 
-The current version is: 0.3, the first public release, march 2002
+The current version is: 0.5, may 2002
+
+This package is available as part of Tcllib at:
+   http://tcllib.sourceforge.net
 
 Please contact Arjen Markus (arjen.markus@wldelft.nl) for questions,
 bug reports, enhancements and so on.

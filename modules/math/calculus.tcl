@@ -9,14 +9,19 @@
 # math::calculus --
 #    Namespace for the commands
 #
-
 namespace eval ::math::calculus {
-   namespace export integral integralExpr integral2D integral3D
-   namespace export eulerStep heunStep rungeKuttaStep
-   namespace export boundaryValueSecondOrder solveTriDiagonal
+   namespace export \
+          integral integralExpr integral2D integral3D \
+          eulerStep heunStep rungeKuttaStep           \
+          boundaryValueSecondOrder solveTriDiagonal   \
+          newtonRaphson newtonRaphsonParameters
+
+   variable nr_maxiter    20
+   variable nr_tolerance   0.001
+
 }
 
-# Integral --
+# integral --
 #    Integrate a function over a given interval using the Simpson rule
 #
 # Arguments:
@@ -34,11 +39,11 @@ proc ::math::calculus::integral { begin end nosteps func } {
    set hdelta   [expr {$delta/2.0}]
    set result   0.0
    set xval     $begin
-   set func_end [$func $xval]
+   set func_end [uplevel 1 $func $xval]
    for { set i 1 } { $i <= $nosteps } { incr i } {
       set func_begin  $func_end
-      set func_middle [$func [expr {$xval+$hdelta}]]
-      set func_end    [$func [expr {$xval+$delta}]]
+      set func_middle [uplevel 1 $func [expr {$xval+$hdelta}]]
+      set func_end    [uplevel 1 $func [expr {$xval+$delta}]]
       set result      [expr  {$result+$func_begin+4.0*$func_middle+$func_end}]
 
       set xval        [expr {$begin+double($i)*$delta}]
@@ -47,7 +52,7 @@ proc ::math::calculus::integral { begin end nosteps func } {
    return [expr {$result*$delta/6.0}]
 }
 
-# IntegralExpr --
+# integralExpr --
 #    Integrate an expression with "x" as the integrate according to the
 #    Simpson rule
 #
@@ -83,7 +88,7 @@ proc ::math::calculus::integralExpr { begin end nosteps expression } {
    return [expr {$result*$delta/6.0}]
 }
 
-# Integral2D --
+# integral2D --
 #    Integrate a given fucntion of two variables over a block,
 #    using bilinear interpolation (for this moment: block function)
 #
@@ -109,7 +114,7 @@ proc ::math::calculus::integral2D { xinterval yinterval func } {
       set y [expr {$hydelta+double($j)*$ydelta}]
       for { set i 0 } { $i < $xnumber } { incr i } {
          set x           [expr {$hxdelta+double($i)*$xdelta}]
-         set func_value  [$func $x $y]
+         set func_value  [uplevel 1 $func $x $y]
          set result      [expr {$result+$func_value}]
       }
    }
@@ -117,7 +122,7 @@ proc ::math::calculus::integral2D { xinterval yinterval func } {
    return [expr {$result*$dxdy}]
 }
 
-# Integral3D --
+# integral3D --
 #    Integrate a given fucntion of two variables over a block,
 #    using trilinear interpolation (for this moment: block function)
 #
@@ -149,7 +154,7 @@ proc ::math::calculus::integral3D { xinterval yinterval zinterval func } {
          set y [expr {$hydelta+double($j)*$ydelta}]
          for { set i 0 } { $i < $xnumber } { incr i } {
             set x           [expr {$hxdelta+double($i)*$xdelta}]
-            set func_value  [$func $x $y $z]
+            set func_value  [uplevel 1 $func $x $y $z]
             set result      [expr {$result+$func_value}]
          }
       }
@@ -158,7 +163,7 @@ proc ::math::calculus::integral3D { xinterval yinterval zinterval func } {
    return [expr {$result*$dxdydz}]
 }
 
-# EulerStep --
+# eulerStep --
 #    Integrate a system of ordinary differential equations of the type
 #    x' = f(x,t), where x is a vector of quantities. Integration is
 #    done over a single step according to Euler's method.
@@ -174,7 +179,7 @@ proc ::math::calculus::integral3D { xinterval yinterval zinterval func } {
 #
 proc ::math::calculus::eulerStep { t tstep xvec func } {
 
-   set xderiv   [$func $t $xvec]
+   set xderiv   [uplevel 1 $func $t [list $xvec]]
    set result   {}
    foreach xv $xvec dx $xderiv {
       set xnew [expr {$xv+$tstep*$dx}]
@@ -184,7 +189,7 @@ proc ::math::calculus::eulerStep { t tstep xvec func } {
    return $result
 }
 
-# HeunStep --
+# heunStep --
 #    Integrate a system of ordinary differential equations of the type
 #    x' = f(x,t), where x is a vector of quantities. Integration is
 #    done over a single step according to Heun's method.
@@ -203,13 +208,14 @@ proc ::math::calculus::heunStep { t tstep xvec func } {
    #
    # Predictor step
    #
-   set xpred    [eulerStep $t $tstep $xvec $func]
+   set funcq    [uplevel 1 namespace which -command $func]
+   set xpred    [eulerStep $t $tstep $xvec $funcq]
 
    #
    # Corrector step
    #
    set tcorr    [expr {$t+$tstep}]
-   set xcorr    [eulerStep $t     $tstep $xpred $func]
+   set xcorr    [eulerStep $t     $tstep $xpred $funcq]
 
    set result   {}
    foreach xv $xvec xc $xcorr {
@@ -220,7 +226,7 @@ proc ::math::calculus::heunStep { t tstep xvec func } {
    return $result
 }
 
-# RungeKuttaStep --
+# rungeKuttaStep --
 #    Integrate a system of ordinary differential equations of the type
 #    x' = f(x,t), where x is a vector of quantities. Integration is
 #    done over a single step according to Runge-Kutta 4th order.
@@ -236,6 +242,8 @@ proc ::math::calculus::heunStep { t tstep xvec func } {
 #
 proc ::math::calculus::rungeKuttaStep { t tstep xvec func } {
 
+   set funcq    [uplevel 1 namespace which -command $func]
+
    #
    # Four steps:
    # - k1 = tstep*func(t,x0)
@@ -247,25 +255,25 @@ proc ::math::calculus::rungeKuttaStep { t tstep xvec func } {
    set tstep2   [expr {$tstep/2.0}]
    set tstep6   [expr {$tstep/6.0}]
 
-   set xk1      [$func $t $xvec]
+   set xk1      [$funcq $t $xvec]
    set xvec2    {}
    foreach x1 $xvec xv $xk1 {
       lappend xvec2 [expr {$x1+$tstep2*$xv}]
    }
 
-   set xk2      [$func [expr {$t+$tstep2}] $xvec2]
+   set xk2      [$funcq [expr {$t+$tstep2}] $xvec2]
    set xvec3    {}
    foreach x1 $xvec xv $xk2 {
       lappend xvec3 [expr {$x1+$tstep2*$xv}]
    }
 
-   set xk3      [$func [expr {$t+$tstep2}] $xvec3]
+   set xk3      [$funcq [expr {$t+$tstep2}] $xvec3]
    set xvec4    {}
    foreach x1 $xvec xv $xk3 {
       lappend xvec4 [expr {$x1+$tstep2*$xv}]
    }
 
-   set xk4      [$func [expr {$t+$tstep}] $xvec4]
+   set xk4      [$funcq [expr {$t+$tstep}] $xvec4]
    set result   {}
    foreach x0 $xvec k1 $xk1 k2 $xk2 k3 $xk3 k4 $xk4 {
       set dx [expr {$k1+2.0*$k2+2.0*$k3+$k4}]
@@ -275,7 +283,7 @@ proc ::math::calculus::rungeKuttaStep { t tstep xvec func } {
    return $result
 }
 
-# BoundaryValueSecondOrder --
+# boundaryValueSecondOrder --
 #    Integrate a second-order differential equation and solve for
 #    given boundary values.
 #
@@ -301,6 +309,9 @@ proc ::math::calculus::rungeKuttaStep { t tstep xvec func } {
 proc ::math::calculus::boundaryValueSecondOrder {
    coeff_func force_func leftbnd rightbnd nostep } {
 
+   set coeffq    [uplevel 1 namespace which -command $coeff_func]
+   set forceq    [uplevel 1 namespace which -command $force_func]
+
    if { [llength $leftbnd] != 2 || [llength $rightbnd] != 2 } {
       error "Boundary condition(s) incorrect"
    }
@@ -322,7 +333,7 @@ proc ::math::calculus::boundaryValueSecondOrder {
    set dvalue {}
 
    set x $xleft
-   foreach {A B C} [$coeff_func $x] { break }
+   foreach {A B C} [$coeffq $x] { break }
 
    set A1 [expr {$A/$xstep-0.5*$B}]
    set B1 [expr {$A/$xstep+0.5*$B+0.5*$C*$xstep}]
@@ -333,7 +344,7 @@ proc ::math::calculus::boundaryValueSecondOrder {
       if { [expr {abs($x)-0.5*abs($xstep)}] < 0.0 } {
          set x 0.0
       }
-      foreach {A B C} [$coeff_func $x] { break }
+      foreach {A B C} [$coeffq $x] { break }
 
       set A2 0.0
       set B2 [expr {$A/$xstep-0.5*$B+0.5*$C*$xstep}]
@@ -352,7 +363,7 @@ proc ::math::calculus::boundaryValueSecondOrder {
          set x 0.0
       }
       lappend xvec   $x
-      lappend dvalue [expr {$xstep*[$force_func $x]}]
+      lappend dvalue [expr {$xstep*[$forceq $x]}]
    }
 
    #
@@ -374,7 +385,7 @@ proc ::math::calculus::boundaryValueSecondOrder {
    return $result
 }
 
-# SolveTriDiagonal --
+# solveTriDiagonal --
 #    Solve a system of equations Ax = b where A is a tridiagonal matrix
 #
 # Arguments:
@@ -429,5 +440,63 @@ proc ::math::calculus::solveTriDiagonal { acoeff bcoeff ccoeff dvalue } {
    return $yvec
 }
 
-# Now we can announce our presence.
-package provide math::calculus 0.3
+# newtonRaphson --
+#    Determine the root of an equation via the Newton-Raphson method
+#
+# Arguments:
+#    func        Function (proc) in x
+#    deriv       Derivative (proc) of func w.r.t. x
+#    initval     Initial value for x
+# Return value:
+#    Estimate of root
+#
+proc ::math::calculus::newtonRaphson { func deriv initval } {
+   variable nr_maxiter
+   variable nr_tolerance
+
+   set funcq  [uplevel 1 namespace which -command $func]
+   set derivq [uplevel 1 namespace which -command $deriv]
+
+   set value $initval
+   set diff  [expr {10.0*$nr_tolerance}]
+
+   for { set i 0 } { $i < $nr_maxiter } { incr i } {
+      if { $diff < $nr_tolerance } {
+         break
+      }
+
+      set newval [expr {$value-[$funcq $value]/[$derivq $value]}]
+      if { $value != 0.0 } {
+         set diff   [expr {abs($newval-$value)/abs($value)}]
+      } else {
+         set diff   [expr {abs($newval-$value)}]
+      }
+      set value $newval
+   }
+
+   return $newval
+}
+
+# newtonRaphsonParameters --
+#    Set the parameters for the Newton-Raphson method
+#
+# Arguments:
+#    maxiter     Maximum number of iterations
+#    tolerance   Relative precisiion of the result
+# Return value:
+#    None
+#
+proc ::math::calculus::newtonRaphsonParameters { maxiter tolerance } {
+   variable nr_maxiter
+   variable nr_tolerance
+
+   if { $maxiter > 0 } {
+      set nr_maxiter $maxiter
+   }
+   if { $tolerance > 0 } {
+      set nr_tolerance $tolerance
+   }
+}
+
+# Now we can announce our presence
+package provide math::calculus 0.5
