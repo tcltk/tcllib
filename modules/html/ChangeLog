@@ -1,3 +1,10 @@
+2002-01-11  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* html.n:
+	* html.tcl: Accepted patch #484117 provided by Decoster Jos
+	  <decosterjos@users.sourceforge.net> providing two new function
+	  to generated lists and parameterized table rows.
+
 2001-10-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* html.n:
