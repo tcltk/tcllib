@@ -1,3 +1,9 @@
+2003-05-23  Andreas Kupries  <andreask@activestate.com>
+
+	* sak.tcl (gd-gen-rpmspec): Added functions to generate a .spec
+	  file (RPM build specification). Added method 'rpmspec' to
+	  generate tcllib.spec.
+
 2003-05-20  Andreas Kupries  <andreask@activestate.com>
 
 	* installed_modules.tcl: Added 'multiplexer' to the list of
