@@ -1,3 +1,10 @@
+2002-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl:
+	* fileutil.man:
+	* fileutil.test: Accepted enhanced format detection by Philip
+	  Ehrens <pehrens@ligo.caltech.edu>.
+
 2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl (cat): Fixed bug #556504, reported by Michael
