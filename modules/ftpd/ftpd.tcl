@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.21.2.2 2004/05/24 03:25:44 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.21.2.3 2004/05/27 02:47:40 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -1996,7 +1996,7 @@ proc ::ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.2
+package provide ftpd 1.2.1
 
 
 ##

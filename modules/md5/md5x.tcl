@@ -16,7 +16,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.3.2.1 2004/05/24 03:13:33 andreas_kupries Exp $
+# $Id: md5x.tcl,v 1.3.2.2 2004/05/27 02:47:42 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -31,8 +31,8 @@ if {[catch {package require tcllibc}]} {
 }
 
 namespace eval ::md5 {
-    variable version 2.0.0
-    variable rcsid {$Id: md5x.tcl,v 1.3.2.1 2004/05/24 03:13:33 andreas_kupries Exp $}
+    variable version 2.0.1
+    variable rcsid {$Id: md5x.tcl,v 1.3.2.2 2004/05/27 02:47:42 andreas_kupries Exp $}
 
     namespace export md5 hmac MD5Init MD5Update MD5Final
 

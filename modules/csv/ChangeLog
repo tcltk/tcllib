@@ -1,3 +1,15 @@
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.tcl: Rel. engineering. Updated version number 
+	* csv.man: of csv to reflect its changes, to 0.5.1.
+	* pkgIndex.tcl:
+
 2004-05-03  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* csv.tcl (read2matrix): Fixed bogus switch case. Had case "4"

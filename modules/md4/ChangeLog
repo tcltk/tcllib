@@ -1,3 +1,15 @@
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md4.tcl: Rel. engineering. Updated version number 
+	* md4.man: of md4 to reflect its changes, to 1.0.2.
+	* pkgIndex.tcl:
+
 2004-02-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md4.tcl: Streamlined the rotate-left function and fixed a rare

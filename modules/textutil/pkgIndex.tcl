@@ -12,5 +12,5 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {
     # FRINK: nocheck
     return
 }
-package ifneeded textutil           0.6   [list source [file join $dir textutil.tcl]]
+package ifneeded textutil           0.6.1 [list source [file join $dir textutil.tcl]]
 package ifneeded textutil::expander 1.2.1 [list source [file join $dir expander.tcl]]
