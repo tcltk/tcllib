@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.7 2003/05/05 07:14:50 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.8 2003/06/06 17:21:42 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -210,6 +210,13 @@ test mime-5.4 {Test encode+decode with base64 method} {
     mime::word_decode $enc
 } {iso8859-1 base64 {Test de contrôle effectué}}
 
+test mime-5.5 {Test decode with lowercase quoted-printable method} {
+	mime::word_decode "=?ISO-8859-1?q?Test_lowercase_q?="
+} {iso8859-1 quoted-printable {Test lowercase q}}
+
+test mime-5.6 {Test decode with lowercase base64 method} {
+	mime::word_decode "=?ISO-8859-1?b?VGVzdCBsb3dlcmNhc2UgYg==?="
+} {iso8859-1 base64 {Test lowercase b}}
 
 test mime-6.1 {Test field_decode (from RFC 2047, part 8)} {
     mime::field_decode {=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>}
