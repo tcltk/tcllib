@@ -1,3 +1,7 @@
+2005-02-09  Michael Schlenker <mic42@users.sourceforge.net>
+	* logger.tcl : Added fix for sideeffect of bugfix [1102131].
+	  The callstack for a logproc now looks nice again.
+
 2005-01-31  Michael Schlenker <mic42@users.sourceforge.net>
 	* logger.test : Added tests for bug [1102131]. 
 	  The logger servicename can not be detected correctly.
