@@ -1,9 +1,9 @@
-[manpage_begin md5 n 2.0.1]
+[manpage_begin md5 n 2.0.2]
 [moddesc {Perform md5 hashing}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5 Message-Digest Algorithm}]
 [require Tcl 8.2]
-[require md5 [opt 2.0.1]]
+[require md5 [opt 2.0.2]]
 [description]
 [para]
 
@@ -78,8 +78,9 @@ release any resources and obtain the hash value, you then call
 
 If you have [package critcl] and have built the [package tcllibc] package
 then the implementation of the hashing function will be performed by compiled
-code - otherwise there is a pure-tcl equivalent. The programming
-interface remains the same, however.
+code. Failing that if you have the [package Trf] package then this can
+be used otherwise there is a pure-tcl equivalent. The programming
+interface remains the same in all cases.
 
 [list_begin definitions]
 
