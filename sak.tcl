@@ -56,7 +56,9 @@ proc loadpkglist {fname} {
     return [array get p]
 }
 
-proc packages {} {
+proc ipackages {} {
+    # Determine indexed packages (ifneeded, pkgIndex.tcl)
+
     global distribution
     array set p {}
     foreach m [modules] {
@@ -75,6 +77,42 @@ proc packages {} {
     return [array get p]
 }
 
+
+proc ppackages {} {
+    # Determine provided packages (provide, *.tcl - pkgIndex.tcl)
+
+    array set p {}
+    foreach f [tclfiles] {
+	if {[string equal pkgIndex.tcl [file tail $f]]} {continue}
+	if {![regexp modules $f]}                       {continue}
+
+	set fh [open $f r]
+
+	foreach line [split [read $fh] \n] {
+	    regsub {#.*$} $line {} line
+	    #if { [regexp {#}        $line]} {continue}
+	    if {![regexp {package[ 	]*provide} $line]} {continue}
+	    if { [regexp {provide[ 	]*Tcl}     $line]} {continue}
+	    if { [regexp {if \{}     $line]} {continue}
+	    regsub {^.*provide } $line {} line
+
+	    if {[regexp {^\[} $line]} {
+		set pos [string last { } $line]
+		set n [string range $line 0 [incr pos -1]]
+		set v [string range $line [incr pos 2] end]
+	    } else {
+		set pos [string first { } $line]
+		set n [string range $line 0 [incr pos -1]]
+		set v [string range $line [incr pos 2] end]
+	    }
+	    set p($n) [string trim $v]
+	    set ::pf($n) [eval file join [lrange [file split $f] end-1 end]]
+	}
+	close $fh
+    }
+
+    return [array get p]
+}
 
 
 proc sep {} {puts ~~~~~~~~~~~~~~~~~~~~~~~~}
@@ -241,6 +279,34 @@ proc validate_imodules {} {
 }
 
 
+proc validate_versions {} {
+    foreach {p v} [ipackages] {set ip($p) $v}
+    foreach {p v} [ppackages] {set pp($p) $v}
+
+    set maxl 0
+    foreach name [array names ip] {if {[string length $name] > $maxl} {set maxl [string length $name]}}
+    foreach name [array names pp] {if {[string length $name] > $maxl} {set maxl [string length $name]}}
+
+    foreach p [lsort [array names ip]] {
+	if {![info exists pp($p)]} {
+	    puts "  Indexed, no provider:           $p"
+	}
+    }
+    foreach p [lsort [array names pp]] {
+	if {![info exists ip($p)]} {
+	    puts "  Provided, not indexed:          [format "%-*s | %s" $maxl $p $::pf($p)]"
+	}
+    }
+    foreach p [lsort [array names ip]] {
+	if {
+	    [info exists pp($p)] && ![string equal $pp($p) $ip($p)]
+	} {
+	    puts "  Index/provided versions differ: [format "%-*s | %8s | %8s" $maxl $p $ip($p) $pp($p)]"
+	}
+    }
+    return
+}
+
 proc validate_testsuites {} {
     global distribution
     foreach m [modules] {
@@ -333,12 +399,13 @@ proc __help {} {
 	lmodules         - See above, however one module per line
 	imodules         - Return list of modules known to hte installer.
 
-	packages         - Return packages in tcllib, plus versions,
+	packages         - Return indexed packages in tcllib, plus versions,
 	                   one package per line. Extracted from the
 	                   package indices found in the modules.
-
+	provided         - Return list and versions of provided packages
+	                   (in contrast to indexed).
 	vcompare pkglist - Compare package list of previous 'packages'
-	                   call with cirrent packages. Marks all new
+	                   call with current packages. Marks all new
 	                   and unchanged packages for higher attention.
 
 	validate         - Check various parts of tcllib for problems.
@@ -376,8 +443,9 @@ proc __imodules {}  {puts [imodules]}
 proc __modules {}  {puts [modules]}
 proc __lmodules {} {puts [join [modules] \n]}
 
-proc __packages {} {
-    array set packages [packages]
+
+proc nparray {a} {
+    upvar $a packages
 
     set maxl 0
     foreach name [lsort [array names packages]] {
@@ -391,16 +459,28 @@ proc __packages {} {
     return
 }
 
+proc __packages {} {
+    array set packages [ipackages]
+    nparray packages
+    return
+}
+
+proc __provided {} {
+    array set packages [ppackages]
+    nparray packages
+    return
+}
+
 
 proc __vcompare {} {
     global argv
     set oldplist [lindex $argv 0]
 
-    array set packages [packages]
-    array set oldpkg   [loadpkglist $oldplist]
+    array set curpkg [ipackages]
+    array set oldpkg [loadpkglist $oldplist]
 
-    foreach p [array names packages] {set __($p) .}
-    foreach p [array names oldpkg]   {set __($p) .}
+    foreach p [array names curpkg] {set __($p) .}
+    foreach p [array names oldpkg] {set __($p) .}
     set unified [lsort [array names __]]
     unset __
 
@@ -412,10 +492,10 @@ proc __vcompare {} {
     }
     foreach name $unified {
 	set suffix ""
-	if {![info exists packages($name)]} {set packages($name) "--"}
-	if {![info exists oldpkg($name)]}   {set oldpkg($name)   "--" ; append suffix " NEW"}
-	if {[string equal $oldpkg($name) $packages($name)]} {append suffix " \t<<<"}
-        puts stdout [format "%-*s %-*s %-*s" $maxl $name 8 $oldpkg($name) 8 $packages($name)]$suffix
+	if {![info exists curpkg($name)]} {set curpkg($name) "--"}
+	if {![info exists oldpkg($name)]} {set oldpkg($name)   "--" ; append suffix " NEW"}
+	if {[string equal $oldpkg($name) $curpkg($name)]} {append suffix " \t<<<"}
+        puts stdout [format "%-*s %-*s %-*s" $maxl $name 8 $oldpkg($name) 8 $curpkg($name)]$suffix
     }
     return
 }
@@ -455,6 +535,12 @@ proc __validate {} {
     puts "[incr i]: Existence of package indices ..."
     puts "------------------------------------------------------"
     validate_pkgIndex
+    puts "------------------------------------------------------"
+    puts ""
+
+    puts "[incr i]: Consistency of package versions ..."
+    puts "------------------------------------------------------"
+    validate_versions
     puts "------------------------------------------------------"
     puts ""
 
