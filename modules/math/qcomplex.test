@@ -1,11 +1,17 @@
 # qcomplex.test --
 #    Basic tests for the complexnumbers module
 #
-package require tcltest 2.2
-namespace import ::tcltest::*
 
-#package require complexnumbers
-source qcomplex.tcl
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::test
+    namespace import ::tcltest::customMatch
+}
+
+source [file join [file dirname [info script]] math.tcl]
+source [file join [file dirname [info script]] qcomplex.tcl]
+
+package require math
 namespace import ::math::complexnumbers::*
 
 proc matchNumbers { expected actual } {

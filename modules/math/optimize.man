@@ -68,6 +68,73 @@ one argument).
 [nl]
 [arg maxerr] - Maximum relative error (defaults to 1.0e-4)
 
+[call [cmd ::math::optimize::min_bound_1d] [arg func] [arg begin] [arg end] [opt "[option -relerror] [arg reltol]"] [opt "[option -abserror] [arg abstol]"] [opt "[option -maxiter] [arg maxiter]"] [opt "[option -trace] [arg traceflag]"]]
+
+Miminizes a function of one variable in the given interval.  The procedure
+uses Brent's method of parabolic interpolation, protected by golden-section
+subdivisions if the interpolation is not converging.  No guarantee is made
+that a [emph global] minimum is found.  The function to evaluate, [arg func],
+must be a single Tcl command; it will be evaluated with an abscissa appended
+as the last argument.  
+[nl]
+[arg x1] and [arg x2] are the two bounds of
+the interval in which the minimum is to be found.  They need not be in
+increasing order.  
+[nl]
+[arg reltol], if specified, is the desired upper bound
+on the relative error of the result; default is 1.0e-7.  The given value
+should never be smaller than the square root of the machine's floating point
+precision, or else convergence is not guaranteed.  [arg abstol], if specified,
+is the desired upper bound on the absolute error of the result; default
+is 1.0e-10.  Caution must be used with small values of [arg abstol] to
+avoid overflow/underflow conditions; if the minimum is expected to lie
+about a small but non-zero abscissa, you consider either shifting the
+function or changing its length scale.
+[nl]
+[arg maxiter] may be used to constrain the number of function evaluations
+to be performed; default is 100.  If the command evaluates the function
+more than [arg maxiter] times, it returns an error to the caller.
+[nl]
+[arg traceFlag] is a Boolean value. If true, it causes the command to
+print a message on the standard output giving the abscissa and ordinate
+at each function evaluation, together with an indication of what type
+of interpolation was chosen.  Default is 0.
+
+[call [cmd ::math::optimize::min_unbound_1d] [arg func] [arg begin] [arg end] [opt "[option -relerror] [arg reltol]"] [opt "[option -abserror] [arg abstol]"] [opt "[option -maxiter] [arg maxiter]"] [opt "[option -trace] [arg traceflag]"]]
+
+Miminizes a function of one variable over the entire real number line.  
+The procedure uses parabolic extrapolation combined with golden-section
+dilatation to search for a region where a minimum exists, followed by
+Brent's method of parabolic interpolation, protected by golden-section
+subdivisions if the interpolation is not converging.  No guarantee is made
+that a [emph global] minimum is found.  The function to evaluate, [arg func],
+must be a single Tcl command; it will be evaluated with an abscissa appended
+as the last argument.  
+[nl]
+[arg x1] and [arg x2] are two initial guesses at where the minimum
+may lie.  [arg x1] is the starting point for the minimization, and
+the difference between [arg x2] and [arg x1] is used as a hint at the
+characteristic length scale of the problem.
+[nl]
+[arg reltol], if specified, is the desired upper bound
+on the relative error of the result; default is 1.0e-7.  The given value
+should never be smaller than the square root of the machine's floating point
+precision, or else convergence is not guaranteed.  [arg abstol], if specified,
+is the desired upper bound on the absolute error of the result; default
+is 1.0e-10.  Caution must be used with small values of [arg abstol] to
+avoid overflow/underflow conditions; if the minimum is expected to lie
+about a small but non-zero abscissa, you consider either shifting the
+function or changing its length scale.
+[nl]
+[arg maxiter] may be used to constrain the number of function evaluations
+to be performed; default is 100.  If the command evaluates the function
+more than [arg maxiter] times, it returns an error to the caller.
+[nl]
+[arg traceFlag] is a Boolean value. If true, it causes the command to
+print a message on the standard output giving the abscissa and ordinate
+at each function evaluation, together with an indication of what type
+of interpolation was chosen.  Default is 0.
+
 [call [cmd ::math::optimize::solveLinearProgram] [arg constraints] [arg objective]]
 Solve a [emph "linear program"] in standard form using a straightforward
 implementation of the Simplex algorithm. (In the explanation below: The
