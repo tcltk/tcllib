@@ -1,3 +1,19 @@
+2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.man: Fixed typo (graph -> matrix).
+
+	* struct.tcl: Added pool files to list of files to source.
+
+	* pool.man: New documentation for pool based upon the original
+	  HTML manpage.
+
+	* pool.html:
+	* pooltest.tcl:
+	* pool.tcl: New data structure, pool, by Erik Leunissen
+	  <e.leunissen@hccnet.nl>. Modified code to be a sub-namespace of
+	  ::struct, made it a part of the struct package. No regular
+	  testsuite yet (see pooltest.tcl for the irregular testsuite).
+
 2002-05-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.n: This file is out of sync.
