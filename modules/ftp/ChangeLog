@@ -1,3 +1,10 @@
+2003-03-31  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (ModTime): Applied patch #659238 supplied by Dan Rogahn
+	  <ddrogahn@users.sourceforge.net> to allow setting the
+	  modification time of a file, assuming the server allows this as
+	  well.
+
 2003-03-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ftp.tcl (ftp::InitDataConn): revert -regexp to fix bug 701288.
