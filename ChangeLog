@@ -1,3 +1,9 @@
+2002-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct (matrix): Accepted FR #524430 (-nocase).
+
+	* doctools: FR #527716 accepted. Bug #527025 partially fixed.
+
 2002-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>  
 
 	* Makefile.in (doc_generate): Added "TCLLIBPATH=$(srcdir)/modules"
