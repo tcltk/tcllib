@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: calculus.tcl,v 1.5 2004/07/05 03:39:46 kennykb Exp $
+# RCS: @(#) $Id: calculus.tcl,v 1.6 2004/09/09 13:07:58 arjenmarkus Exp $
 
 package require math::interpolate 0.3
 package provide math::calculus 0.6
@@ -32,6 +32,8 @@ namespace eval ::math::calculus {
     namespace export romberg_sqrtSingLower romberg_sqrtSingUpper
     namespace export romberg_powerLawLower romberg_powerLawUpper
     namespace export romberg_expLower romberg_expUpper
+
+    namespace export regula_falsi
 
     variable nr_maxiter    20
     variable nr_tolerance   0.001
@@ -1277,4 +1279,62 @@ proc ::math::calculus::romberg_expLower { f a b args } {
     set f [list u_expLower $f]
     return [eval [linsert $args 0 \
 		      romberg $f [expr {exp($a)}] [expr {exp($b)}]]]
+}
+
+
+# regula_falsi --
+#    Compute the zero of a function via regula falsi
+# Arguments:
+#    f       Name of the procedure/command that evaluates the function
+#    xb      Start of the interval that brackets the zero
+#    xe      End of the interval that brackets the zero
+#    eps     Relative error that is allowed (default: 1.0e-4)
+# Result:
+#    Estimate of the zero, such that the estimated (!)
+#    error < eps * abs(xe-xb)
+# Note:
+#    f(xb)*f(xe) must be negative and eps must be positive
+#
+proc ::math::calculus::regula_falsi { f xb xe {eps 1.0e-4} } {
+    if { $eps <= 0.0 } {
+       return -code error "Relative error must be positive"
+    }
+
+    set fb [$f $xb]
+    set fe [$f $xe]
+
+    if { $fb * $fe > 0.0 } {
+       return -code error "Interval must be chosen such that the \
+function has a different sign at the beginning than at the end"
+    }
+
+    set max_error [expr {$eps * abs($xe-$xb)}]
+    set interval  [expr {abs($xe-$xb)}]
+
+    while { $interval > $max_error } {
+       set coeff [expr {($fe-$fb)/($xe-$xb)}]
+       set xi    [expr {$xb-$fb/$coeff}]
+       set fi    [$f $xi]
+
+       if { $fi == 0.0 } {
+          break
+       }
+       set diff1 [expr {abs($xe-$xi)}]
+       set diff2 [expr {abs($xb-$xi)}]
+       if { $diff1 > $diff2 } {
+          set interval $diff2
+       } else {
+          set interval $diff1
+       }
+
+       if { $fb*$fi < 0.0 } {
+          set xe $xi
+          set fe $fi
+       } else {
+          set xb $xi
+          set fb $fi
+       }
+    }
+
+    return $xi
 }
