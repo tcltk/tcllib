@@ -1,0 +1,830 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin snit n 0.81.1]
+[copyright {2003, by William H. Duquette}]
+[moddesc {Snit}]
+[titledesc   {Snit's Not Incr Tcl}]
+[require Tcl 8.3]
+[require snit [opt 0.81.1]]
+[description]
+[para]
+
+Snit is yet another pure Tcl object and megawidget system.  It's
+unique among Tcl object systems (so far as I know) in that it's a
+system based not on inheritance but on delegation.  Object systems
+based on inheritance only allow you to inherit from classes defined
+using the same system, and that's a shame.  In Tcl, an object is
+anything that acts like an object; it shouldn't matter how the object
+was implemented.  I designed Snit to help me build applications out of
+the materials at hand; thus, Snit is designed to be able to
+incorporate and build on any object, whether it's a hand-coded object,
+a [package Tk] widget, an [package {Incr Tcl}] object,
+a [package BWidget] or almost anything else.
+
+[para]
+
+This man page is intended to be a reference only; see the accompanying
+[cmd snitfaq] for a gentler, more tutorial introduction to Snit
+concepts.
+
+
+[section REFERENCE]
+
+[emph {The Instance Command}]
+[para]
+
+A Snit type or widget's [method create] type method creates objects of
+the type; each object has a unique name which is also a Tcl command.
+This command is used to access the object's methods and data, and has
+this form:
+
+[para]
+
+[list_begin definitions]
+[call [cmd {$object}] [arg method] [arg args...]]
+
+The [arg method] can be any of the standard instance methods defined
+in the next section, or any instance method defined in the type
+definition.
+
+The subsequent [arg args] depend on the specific [arg method] chosen.
+
+[list_end]
+
+
+[emph {Standard Instance Methods}]
+[para]
+
+In addition to any delegated or locally-defined instance methods in
+the type's definition, all Snit objects will have at least the
+following methods:
+
+[para]
+
+[list_begin definitions]
+[call [cmd {$object}] [method configure] [opt [arg option]] [opt [arg value]] ...]
+
+Assigns new values to one or more options.  If called with one
+argument, an [arg option] name, returns a list describing the option,
+as Tk widgets do; if called with no arguments, returns a list of lists
+describing all options, as Tk widgets do.
+
+[nl]
+
+Two warnings.
+
+First, unlike Tk widget options, locally-defined [cmd snit::type] and
+[cmd snit::widget] options do not have a [term dbname]
+
+or [term classname]; Snit never queries the Tk option database.  These
+fields in the returned information will be set to the empty string,
+{}.
+
+Second, the information will be available for delegated options only
+if the component to which they are delegated has a [method configure]
+method that returns this same kind of information.
+
+
+[call [cmd {$object}] [method configurelist] [arg optionlist]]
+
+Like [method configure], but takes one argument, a list of options and
+their values.  It's mostly useful in the type constructor, but can be
+used anywhere.
+
+
+[call [cmd {$object}] [method cget] [arg option]]
+
+Returns the option's value.
+
+
+[call [cmd {$object}] [method destroy]]
+
+Destroys the object, calling the [cmd destructor] and freeing all
+related memory.
+
+[nl]
+
+[emph Note:]
+
+The [method destroy] method isn't defined for [cmd snit::widget] or
+[cmd snit::widgetadaptor] objects; instances of these are destroyed by
+calling the [package Tk] [cmd destroy] command, just as a normal
+widget is.
+
+
+[call [cmd {$object}] [method {info type}]]
+
+Returns the instance's type.
+
+
+[call [cmd {$object}] [method {info vars}]]
+
+Returns a list of the object's instance variables (excluding Snit
+internal variables).  The names are fully qualified.
+
+
+[call [cmd {$object}] [method {info typevars}]]
+
+Returns a list of the object's type's type variables (excluding Snit
+internal variables).  The names are fully qualified.
+
+
+[call [cmd {$object}] [method {info options}]]
+
+Returns a list of the object's option names.  This always includes
+local options and explicitly delegated options.  If unknown options
+are delegated as well, and if the component to which they are
+delegated responds to [cmd {$object configure}] like Tk widgets do,
+then the result will include all possible unknown options which could
+be delegated to the component.
+
+[nl]
+
+Note that the return value might be different for different instances
+of the same type, if component object types can vary from one instance
+to another.
+
+[list_end]
+
+
+[emph {Commands for use in Object Code}]
+[para]
+
+Snit defines the following commands for use in object code: type
+methods, instance methods, constructors, destructors, onconfigure
+handlers, oncget handlers, and procs.  They do not reside in the
+::snit:: namespace; instead, they are created with the type, and are
+directly available.
+
+
+[list_begin definitions]
+[call [cmd varname] [arg name]]
+
+Given an instance variable name, returns the fully qualified name.
+Use this if you're passing the variable to some other object, e.g., as
+a [option -textvariable] to a Tk label widget.
+
+
+[call [cmd typevarname] [arg name]]
+
+Given an type variable name, returns the fully qualified name.  Use
+this if you're passing the variable to some other object, e.g., as a
+[option -textvariable] to a Tk label widget.
+
+
+[call [cmd codename] [arg name]]
+
+Given the name of a proc (but not a type or instance method), returns
+the fully-qualified command name, suitable for passing as a callback.
+
+
+[call [cmd from] [arg argvName] [arg option] [opt [arg defvalue]]]
+
+The [cmd from] command plucks an option value from a list of options
+and their values, such as is passed into a type's [cmd constructor].
+[arg argvName] must be the name of a variable containing such a list;
+[arg option] is the name of the specific option.
+
+[nl]
+
+[cmd from] looks for [arg option] in the option list.  If it is found,
+it and its value are removed from the list, and the value is returned.
+If [arg option] doesn't appear in the list, then the [arg defvalue] is
+returned.
+
+If the option is a normal (undelegated) option, and [arg defvalue] is
+not specified, then the option's default value as specified in the
+type definition will be returned instead.
+
+       
+[call [cmd variable] [arg name]]
+
+Normally, instance variables are defined in the type definition along
+with the options, methods, and so forth; such instance variables are
+automatically visible in all instance-specific code.  However,
+instance code (e.g., method bodies) can declare such variables
+explicitly using the [cmd variable] command, if desired; or, instance
+code can use the [cmd variable] command to declare instance variables
+that don't appear in the type definition.
+
+[nl]
+
+It's generally best to define all instance variables in the type
+definition, and omit declaring them in methods and so forth.
+
+[nl]
+
+Note that this is not the same as the standard Tcl [cmd ::variable]
+command.
+
+
+[call [cmd typevariable] [arg name]]
+
+Normally, type variables are defined in the type definition, along
+with the instance variables; such type variables are automatically
+visible in all of the type's code.  However, type methods, instance
+methods and so forth can use [cmd typevariable] to declare type
+variables explicitly, if desired; or, they can use [cmd typevariable]
+to declare type variables that don't appear in the type definition.
+
+[nl]
+
+It's generally best to declare all type variables in the type
+definition, and omit declaring them in methods, type methods, and so
+forth.
+
+
+[call [cmd installhull] [arg name]]
+
+The constructor of a [cmd snit::widgetadaptor] must create a widget to
+be the object's hull component; the widget is installed as the hull
+component using this command.  Note that the installed widget's name
+must be [const {$win}].
+
+[nl]
+
+The command which creates the hull widget usually just passes its
+result to [cmd installhull] as follows:
+
+[nl]
+[example {
+    installhull [frame $win options....]
+}]
+
+
+[list_end]
+
+
+[emph {Type and Widget Definitions}]
+[para]
+
+[list_begin definitions]
+
+[call [cmd snit::type] [arg name] [arg definition]]
+
+Defines a new abstract data type called [arg name].  If [arg name] is
+not a fully qualified command name, it is assumed to be a name in the
+namespace in which the snit::type command appears (usually the global
+namespace).  It returns the fully qualified type name.
+
+[nl]
+
+The type name is then a command which is used to create objects of the
+new type, along with other activities.
+
+[nl]
+
+The snit::type [arg definition] block is a script which may contain
+the following definitions:
+
+[nl]
+[list_begin definitions]
+[call [cmd typevariable] [arg name] [opt [arg value]]]
+
+Defines a type variable with the specified [arg name], and optionally
+the specified [arg value].  Type variables are shared by all instances
+of the type.  This definition can be used to define array variables,
+but cannot initialize their elements.
+
+       
+[call [cmd typemethod] [arg name] [arg arglist] [arg body]]
+
+Defines a type method with the specified name, argument list, and
+body.
+
+The variable [var type] is automatically defined in the [arg body] to
+the type's fully-qualified name.
+
+[nl]
+
+The [arg arglist] is a normal Tcl argument list and may contain
+default arguments and the [var args] argument; however, it may not
+contain the argument names [var type], [var self], [var selfns], or
+[var win].
+
+[nl]
+
+Type variables defined in the type [arg definition] are automatically
+visible in the [arg body] of every type method.
+
+
+[call [cmd option] [arg name] [opt [arg defaultValue]]]
+
+Defines an option for instances of this type, and optionally gives it
+an initial value.  (The option's value defaults to the empty string if
+no initial value is specified.)  The option's [arg name] must begin
+with a hyphen, [const -].  Options are normally set and retrieved
+using the standard [method configure] and [method cget] instance
+methods.
+
+[nl]
+
+An option defined in this way is said to be [term {locally defined}].
+
+
+[call [cmd variable] [arg name] [opt [arg value]]]
+
+Defines an instance variable, a private variable associated with each
+instance of this type, and optionally its initial value.  This
+definition can be used to define array instance variables, but cannot
+initialize their elements.
+
+[nl]
+
+Note that the [cmd delegate] statement implicitly defines an instance
+variable for the named component.
+
+       
+[call [cmd method] [arg name] [arg arglist] [arg body]]
+
+Defines an instance method, a subcommand of each instance of this
+type, with the specified name, argument list and body.
+
+The [arg arglist] is a standard Tcl argument list, and may contain
+default values and the argument names.
+
+The [arg arglist] is a normal Tcl argument list and may contain
+default arguments and the [var args] argument.  In addition, the
+method is implicitly passed the following arguments as well:
+
+[var type], which contains the fully-qualified type name; [var self],
+which contains the current instance command name; [var selfns], which
+contains the name of the instance's private namespace; and [var win],
+which contains the original instance name.
+
+Consequently, the [arg arglist] may not contain the argument names
+[const type], [const self], [const selfns], or [const win].
+
+[nl]
+
+An instance method defined in this way is said to be
+
+[term {locally defined}].
+
+[nl]
+
+Type and instance variables defined in the type [arg definition] are
+automatically visible in all instance methods.  If the type has
+locally defined options, the [var options] array is also visible.
+
+
+[call [cmd constructor] [arg arglist] [arg body]]
+
+The constructor definition specifies a [arg body] of code to be
+executed when a new instance is created.
+
+[nl]
+
+The [arg arglist] is a normal Tcl argument list and may contain
+default arguments and the [var args] argument.  As with methods, the
+arguments [var type], [var self], [var selfns], and [var win], are
+defined implicitly.
+
+[nl]
+
+If the constructor is not defined, it defaults to this:
+
+[nl]
+[example {
+    constructor {args} {
+        $self configurelist $args
+    }
+}]
+[nl]
+
+For standard Tk widget behavior (or to achieve the behavior of
+previous versions of snit) the argument list should be the single name
+[const args], as shown.
+
+
+[call [cmd destructor] [arg body]]
+
+The destructor is used to code any actions which must take place when
+an instance of the type is destroyed: typically, the destruction of
+anything created in the constructor.
+
+[nl]
+
+As with arguments, the parameters [var type], [var self],
+[var selfns], and [var win], are defined implicitly.
+
+
+[call [cmd onconfigure] [arg name] [arg arglist] [arg body]]
+
+Every locally-defined option has an [cmd onconfigure] handler which is
+called when the option is set to a new value by the [method configure]
+or [method configurelist] instance method.
+
+[nl]
+
+The [arg arglist] may contain exactly one argument name. As with
+methods, the arguments [var type], [var self], [var selfns], and
+[var win], are defined implicitly.
+
+[nl]
+
+If no explicit onconfigure handler is defined for an option, the
+handler is defined as follows:
+
+[nl]
+[example {
+    onconfigure name {value} {
+        set options(name) $value
+    }
+}]
+[nl]
+
+If an explicit onconfigure handler is defined, the options array will
+be updated with the new value only if the handler so updates it.
+
+
+[call [cmd oncget] [arg name] [arg body]]
+
+Every locally-defined option has an [cmd oncget] handler which is
+called when the option's value is retrieved.
+
+Although there is no explicit argument list, the arguments [var type],
+[var self], [var selfns], and [var win], are defined implicitly, just
+as they are for methods.
+
+[nl] 
+
+The variables [var type], [var self], [var selfns], and [var win] are
+defined as usual in the handler's [arg body].  Whatever the handler
+returns will be the return value of the call to the [method cget]
+instance method.
+
+[nl]
+
+If no explicit oncget handler is defined for an option, the handler is
+defined as follows:
+
+[nl]
+[example {
+    oncget name {
+        return $options(name)
+    }
+}]
+
+
+[call [cmd proc] [arg name] [arg args] [arg body]]
+
+Defines a new Tcl procedure in the type's namespace.  The new proc
+differs from a normal Tcl proc in that all type variables defined in
+the type [arg definition] are automatically visible.
+
+[nl]
+
+Although they are not implicitly defined for procs, the argument names
+[const type], [const self], [const selfns], and [const win] should be
+avoided.
+
+
+[call [cmd delegate] [const method] [arg name] [const to] [arg comp] [opt "[const as] [arg {compmethod compargs...}]"]]
+
+Defines a delegated instance method.  When instance method [arg name]
+is used with an instance of this type, it will automatically be
+delegated to the named component as though the method were defined as
+follows:
+
+[nl]
+[example {
+    method name {args...} {
+        $comp mymethod args...
+    }
+}]
+[nl]
+
+If desired, the delegated method may target a method with a different
+name by using the [const as] clause; it may also add arguments to the
+beginning of the argument list.  In that case, it's as though the
+delegated method were defined as follows:
+
+[nl]
+[example {
+    method name {args...} {
+        $comp compmethod \
+            compargs...  args...
+    }
+}]
+[nl]
+
+If the specified method [arg name] is [const *], then all unknown
+method names passed to the instance will be passed along to the
+specified [arg comp].  In this case, the [const as] clause is not
+allowed.
+
+[nl]
+
+A method cannot be both locally defined and delegated.
+
+
+[call [cmd delegate] [const option] [arg name] [const to] [arg comp] [opt "[const as] [arg compoption]"]]
+
+Defines a delegated option.
+
+When the [method configure], [method configurelist], or [method cget]
+instance method is used to set or retrieve the option's value, the
+equivalent [method configure] or [method cget] command will be applied
+to the component as though these [cmd onconfigure] and [cmd oncget]
+handlers were defined:
+
+[nl]
+[example {
+    onconfigure name {value} {
+        $comp configure compoption $value
+    }
+
+    oncget name {
+        return [$comp cget compoption]
+    }
+}]
+[nl]
+
+If the [const as] clause is omitted, the [arg compoption] name is the
+same as [arg name].
+
+[nl]
+
+Warning: options can only be delegated to a component if it supports
+the [method configure] and [method cget] instance methods.
+
+[list_end]
+
+
+[call [cmd snit::widget] [arg name] [arg definition]]
+
+This command defines a Snit megawidget type with the specified
+
+[arg name].
+
+The [arg definition] is defined identically to that for
+
+[cmd snit::type]. A [cmd snit::widget] differs from a [cmd snit::type]
+in these ways:
+
+[nl]
+[list_begin bullet]
+[bullet]
+
+Every [cmd snit::widget] instance has an automatically-created
+component called [var hull], which is a Tk frame widget.  Other
+widgets created as part of the megawidget will be created within this
+frame.
+
+[nl]
+
+The hull component is initially created with the requested widget
+name; then Snit does some magic, renaming the hull component and
+installing its own instance command in its place.
+
+The hull component's new name is saved in an instance variable called
+[var hull].
+
+[bullet]
+
+The name of an instance must be valid Tk window name, and the parent
+window must exist.
+
+[list_end]
+
+       
+[call [cmd snit::widgetadaptor] [arg name] [arg definition]]
+
+This command defines a Snit megawidget type with the specified name.
+It differs from [cmd snit::widget] in that the instance's [var hull]
+component is not created automatically, but is created in the
+constructor and installed using the [cmd installhull] command.  Once
+the hull is installed, its instance command is renamed and replaced as
+with normal [cmd snit::widget]s.  The original command is again
+accessible in the instance variable [var hull].
+
+[list_end]
+
+
+[emph {The Type Command}]
+[para]
+
+A type or widget definition creates a type command, which is used to
+create instances of the type.  The type command this form.
+
+[para]
+[list_begin definitions]
+[call [cmd {$type}] [arg typemethod] [arg args]...]
+
+The [arg typemethod] can be any of the standard type methods defined
+in the next section, or any type method defined in the type
+definition.
+
+The subsequent [arg args] depend on the specific [arg typemethod]
+chosen.
+
+[list_end]
+
+
+[emph {Standard Type Methods}]
+[para]
+
+In addition to any typemethods in the type's definition, all types and
+widgets will have at least the following method:
+
+[para]
+
+[list_begin definitions]
+
+[call [cmd {$type}] [method create] [arg name] [opt "[arg option] [arg value] ..."]]
+
+Creates a new instance of the type, giving it the specified [arg name]
+and calling the type's constructor.
+
+[nl]
+
+For [cmd snit::type]s, if [arg name] is not a fully-qualified command
+name, it is assumed to be a name in the namespace in which the call to
+[cmd snit::type] appears.  The method returns the fully-qualified
+instance name.
+
+[nl]
+
+For [cmd snit::widgets] and [cmd snit::widgetadaptors], [arg name]
+must be a valid widget name; the method returns the widget name.
+
+[nl]
+
+So long as [arg name] does not conflict with any defined type method
+name, the [method create] keyword may be omitted.
+
+[nl]
+
+If the [arg name] includes the string [const %AUTO%], it will be
+replaced with the string [const {$type$counter}] where [const {$type}] is
+the type name and [const {$counter}] is a counter that increments each
+time [const %AUTO%] is used for this type.
+
+[nl]
+
+By default, any arguments following the [arg name] will be a list of
+[arg option] names and their [arg value]s; however, a type's
+constructor can specify a different argument list.
+
+
+[call [cmd {$type}] [method {info typevars}]]
+
+Returns a list of the type's type variables (excluding Snit internal
+variables); all variable names are fully-qualified.
+
+
+[call [cmd {$type}] [method {info instances}]]
+
+Returns a list of the type's instances.  For snit::types, it will be a
+list of fully-qualified instance names; for snit::widgets, it will be
+a list of Tk widget names.
+
+
+[call [cmd {$type}] [method destroy]]
+
+Destroys the type's instances, the type's namespace, and the type
+command itself.
+
+[list_end]
+
+
+[emph {Components and Delegation}]
+[para]
+
+When an object includes other objects, as when a toolbar contains
+buttons or a GUI object contains an object that references a database,
+the included object is called a component.  The standard way to handle
+component objects owned by a Snit object is to assign their names to a
+instance variable.  In the following example, a [cmd dog] object has a
+[cmd tail] object:
+
+[para]
+[example {
+    snit::type dog {
+        variable mytail
+    
+        constructor {args} {
+            set mytail [tail %AUTO% -partof $self]
+            $self configurelist $args
+        }
+    
+        method wag {} {
+            $mytail wag
+        }
+    }
+    
+    snit::type tail {
+        option -length 5
+        option -partof
+        method wag {} { return "Wag, wag, wag."}
+    }
+}]
+[para]
+
+Because the [cmd tail] object's name is stored in an instance
+variable, it's easily accessible in any method.
+
+[para]
+
+In the above example, the [cmd dog] object's [method wag] method
+simply calls the [cmd tail] component's [method wag] method.  In OO
+circles, this is called delegation.  Snit provides an easier way to do
+this, as shown:
+
+[para]
+[example {
+    snit::type dog {
+        delegate method wag to mytail
+    
+        constructor {args} {
+            set mytail [tail %AUTO% -partof $self]
+            $self configurelist $args
+        }
+    }
+    
+    snit::type tail {
+        option -length 5
+        option -partof
+        method wag {} { return "Wag, wag, wag."}
+    }
+}]
+[para]
+
+The [cmd delegate] statement in the type definition implicitly defines
+the instance variable [var mytail] to hold the component's name; it
+also defines the [cmd dog] object's [method wag] method, delegating it
+to the [var tail] component.
+
+
+[section {KNOWN BUGS}]
+
+[list_begin bullet]
+[bullet]
+
+Error stack traces returned by Snit are extremely ugly and typically
+contain far too much information about Snit internals.
+
+[list_end]
+
+
+[section HISTORY]
+
+During the course of developing Notebook
+
+(See [uri http://www.wjduquette.com/notebook]), my Tcl-based personal
+notebook application, I found I was writing it as a collection of
+objects.  I wasn't using any particular object-oriented framework; I
+was just writing objects in pure Tcl following the guidelines in my
+Guide to Object Commands
+
+(See [uri http://www.wjduquette.com/tcl/objects.html]), along with a
+few other tricks I'd picked up since.  And it was working very well.
+But on the other hand, it was getting tiresome.  Writing objects in
+pure Tcl is straightforward, once you figure it out, but there's a
+fair amount of boilerplate code to write for each one, especially if
+you're trying to create megawidgets or create objects with options,
+like Tk widgets have.
+
+[para]
+
+So that was one thing--tedium is a powerful motivator.  But the other
+thing I noticed is that I wasn't using inheritance at all, and I
+wasn't missing it.  Instead, I was using delegation: objects that
+created other objects and delegated methods to them.
+
+[para]
+
+And I said to myself, "This is getting tedious...there has got to be a
+better way."  And one afternoon, on a whim, I started working on Snit,
+an object system that works the way Tcl works.  Snit doesn't support
+inheritance, but it's great at delegation, and it makes creating
+megawidgets easy.
+
+[para]
+
+I should add, I'm not particularly down on Incr Tcl.  But "Snit's Not
+Incr Tcl" occurred to me while I was casting about for a name, and I
+guess there was a certainly inevitability about it.
+
+[para]
+
+If you have any comments or suggestions (or bug reports!) don't
+hesitate to send me e-mail at [uri will@wjduquette.com].  In addition,
+there's now a Snit mailing list; you can find out more about it at the
+Snit home page, see [uri http://www.wjduquette.com/snit].
+
+[para]
+
+
+[section CREDITS]
+
+Snit has been designed and implemented from the very beginning by
+William H. Duquette.  However, much credit belongs to the following
+people for using Snit and providing me with valuable feedback: Rolf
+Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
+Egon Pasztor, David S. Cargo, Tom Krehbiel, and Michael Cleverly.
+
+[keywords class {object oriented} object C++]
+[keywords {Incr Tcl} BWidget]
+[keywords widget adaptors {widget adaptors} {mega widget}]
+[manpage_end]
