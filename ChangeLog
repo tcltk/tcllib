@@ -1,3 +1,8 @@
+2005-01-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/sasl:          NEW MODULE: sasl
+	* installed_modules.tcl: 'Simple Authentication and Security Layer'
+
 2005-01-28  Andreas Kupries <andreask@activestate.com>
 
 	* modules/rcs:           NEW MODULE: rcs
@@ -14,7 +19,7 @@
 
 2004-12-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* modules/blowfish:        NEW MODULE: blowfish
+	* modules/blowfish:      NEW MODULE: blowfish
 	* installed_modules.tcl:   
 
 2004-10-13  Pat Thoyts  <patthoyts@users.sourceforge.net>
