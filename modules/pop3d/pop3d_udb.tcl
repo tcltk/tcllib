@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_udb.tcl,v 1.4 2003/04/25 04:52:18 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_udb.tcl,v 1.5 2003/05/01 00:17:41 andreas_kupries Exp $
 
 namespace eval ::pop3d::udb {
     # Data storage in the pop3d::udb module
@@ -31,6 +31,8 @@ namespace eval ::pop3d::udb {
 	    "save"		\
 	    "who"		\
 	    ]
+
+    variable version ; set version 1.1
 }
 
 
@@ -298,7 +300,5 @@ proc ::pop3d::udb::_read {name path} {
 
 ##########################
 # Module initialization
-# See devdoc/notes.txt before using the variable in the provide statement.
 
-set ::pop3d::udb::version  1.1
-package provide pop3d::udb 1.1
+package provide pop3d::udb $::pop3d::udb::version

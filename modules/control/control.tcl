@@ -4,11 +4,12 @@
 #	"control".  It provides commands that govern the flow of
 #	control of a program.
 #
-# RCS: @(#) $Id: control.tcl,v 1.12 2003/04/25 00:22:38 andreas_kupries Exp $
+# RCS: @(#) $Id: control.tcl,v 1.13 2003/05/01 00:17:40 andreas_kupries Exp $
 
 package require Tcl 8.2
 
 namespace eval ::control {
+    variable version 0.1.2
     namespace export assert control do no-op rswitch
 
     proc control {command args} {
@@ -22,7 +23,6 @@ namespace eval ::control {
 	lappend ::auto_path $home
     }
 
-    variable        version 0.1.2
-    package provide control 0.1.2
+    package provide [namespace tail [namespace current]] $version
 }
 

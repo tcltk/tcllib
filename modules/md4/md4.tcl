@@ -8,13 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.4 2003/04/25 04:52:17 andreas_kupries Exp $
+# $Id: md4.tcl,v 1.5 2003/05/01 00:17:41 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
-    variable rcsid {$Id: md4.tcl,v 1.4 2003/04/25 04:52:17 andreas_kupries Exp $}
+    variable version 1.0.0
+    variable rcsid {$Id: md4.tcl,v 1.5 2003/05/01 00:17:41 andreas_kupries Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
@@ -479,13 +480,13 @@ proc ::md4::hmac {args} {
 }
 
 # -------------------------------------------------------------------------
-# See devdoc/notes.txt before using the variable in the provide statement.
 
-set ::md4::version  1.0.0
-package provide md4 1.0.0
+package provide md4 $::md4::version
 
 # -------------------------------------------------------------------------
 # Local Variables:
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
+
+
