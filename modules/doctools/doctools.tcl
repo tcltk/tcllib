@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.4 2003/03/13 23:08:00 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.5 2003/03/30 07:50:25 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -635,11 +635,15 @@ proc ::doctools::SetupFormatter {name format} {
 
     variable here
     set mpip [interp create -safe] ; # interpreter for the formatting engine
+    $mpip eval [list set auto_path $::auto_path]
     #set mpip [interp create] ; # interpreter for the formatting engine
 
     $mpip invokehidden source [file join $here api.tcl]
     #$mpip eval [list source [file join $here api.tcl]]
-    interp alias $mpip dt_source   {} ::doctools::Source $mpip [file dirname $format]
+    interp alias $mpip dt_source   {} ::doctools::Source  $mpip [file dirname $format]
+    interp alias $mpip dt_package  {} ::doctools::Package $mpip
+    interp alias $mpip file        {} ::doctools::FileOp  $mpip
+    interp alias $mpip puts_stderr {} ::puts stderr
     $mpip invokehidden source $format
     #$mpip eval [list source $format]
 
@@ -705,10 +709,9 @@ proc ::doctools::SetupFormatter {name format} {
     interp alias $mpip dt_user      {} ::doctools::GetUser      $name
     interp alias $mpip dt_lnesting  {} ::doctools::ListLevel    $name
     interp alias $mpip dt_fmap      {} ::doctools::MapFile      $name
-    interp alias $mpip puts_stderr  {} ::puts stderr
     interp alias $mpip file         {} ::doctools::FileCmd
 
-    foreach cmd {cappend cget cis cname cpop cpush cset lb rb} {
+    foreach cmd {cappend cget cis cname cpop cpush ctopandclear cset lb rb} {
 	interp alias $mpip ex_$cmd {} $expander $cmd
     }
 
@@ -761,7 +764,7 @@ proc ::doctools::SetupChecker {name} {
     # Simple expander commands are directly routed back into it, no
     # checking required.
 
-    foreach cmd {cappend cget cis cname cpop cpush cset lb rb} {
+    foreach cmd {cappend cget cis cname cpop cpush ctopandclear cset lb rb} {
 	interp alias $chk_ip $cmd {} $expander $cmd
     }
 
@@ -1090,7 +1093,51 @@ proc ::doctools::MapFile {name fname} {
 #	Boolean flag.
 
 proc ::doctools::Source {ip path file} {
+    #puts stderr "$ip (source $path $file)"
+
     $ip invokehidden source [file join $path [file tail $file]]
+    #$ip eval [list source [file join $path [file tail $file]]]
+    return
+}
+
+
+proc ::doctools::Locate {p} {
+    catch {package require doctools::__undefined__}
+
+    #puts stderr "auto_path = [join $::auto_path \n]"
+
+    # Check if requested package is in the list of loadable packages.
+    # Then get the highest possible version, and then the index script
+
+    if {[lsearch -exact [package names] $p] < 0} {
+	return -code error "Unknown package $p"
+    }
+
+    set v  [lindex [lsort -increasing [package versions $p]] end]
+
+    #puts stderr "Package $p = $v"
+
+    return [package ifneeded $p $v]
+}
+
+proc ::doctools::FileOp {ip args} {
+    #puts stderr "$ip (file $args)"
+    # -- FUTURE -- disallow unsafe operations --
+
+    return [eval [linsert $args 0 file]]
+}
+
+
+proc ::doctools::Package {ip pkg} {
+    #puts stderr "$ip package require $pkg"
+
+    set indexScript [Locate $pkg]
+
+    $ip expose source
+    $ip expose load
+    $ip eval		$indexScript
+    $ip hide   source
+    $ip hide   load
     #$ip eval [list source [file join $path [file tail $file]]]
     return
 }

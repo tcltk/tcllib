@@ -1,3 +1,26 @@
+2003-03-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.tcl (SetupFormatter): Moved error output command to the
+	  front, so that the code loading the engine can use it too, and
+	  not only the engine procedures. Added alias for 'file', and a
+	  special command which is a shortcut for 'package require' so
+	  that engines can load packages. This was required for the plain
+	  text engine which makes heavy use of the formatting commands in
+	  'textutil'. Added setup of 'ctopandclear'.
+	  (SetupChecker): Added setup of 'ctopandclear'.
+	  (Package, Locate): New commands supporting package
+	  require. Instead of trying to enable every command in the safe
+	  interpreter required for package management we use the standard
+	  package commands to locate the index for thr requested package
+	  and evaluate just that in the safe interpreter, after
+	  temporarily enabling source and load commands.
+
+	* checker.tcl: Added code for debugging, like already present in
+	  the files checker_doc*.tcl.
+
+	* mpformats/_text.tcl: Core for plain text engines.
+	* mpformats/fmt.text: New engine. Generates output in plain text.
+
 2003-03-28  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: added 'doctools::cvs' and 'doctools::changelog' to
