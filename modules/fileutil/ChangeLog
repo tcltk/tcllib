@@ -1,3 +1,10 @@
+2003-08-12  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.man: Fixed a bad call of [cmd] in the documentation of
+	  the new install command. Always use 'sak validate moldule' to
+	  validate the whole module, or 'sak text module' when wishing to
+	  validate only the documentation.
+
 2003-08-06  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (find): The fix for SF tcllib bug [647974]
