@@ -1,3 +1,8 @@
+2003-05-09  Andreas Kupries  <andreask@activestate.com>
+
+	* sak.tcl (modules_mod): Fixed incorrect check. Caused first
+	  module to be reported as bogus although it isn't.
+
 2003-05-08  Andreas Kupries  <andreask@activestate.com>
 
 	* installer.tcl: Fixed typo in the code loading the new
@@ -5,7 +10,7 @@
 	  's'. Thanks to Larry <lvirden@users.sourceforge.net> for
 	  reporting this.
 
-2003-05-07  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-05-07  Andreas Kupries  <andreask@activestate.com>
 
 	* tcllib_version.tcl: Updated to 1.4.0.1 to distinguish the CVS
 	  from the official release.
@@ -299,7 +304,7 @@
 
 	* modules/md4: New module md4 created: MD4 hash algorithm.
 
-2003-04-15  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-04-15  Andreas Kupries  <andreask@activestate.com>
 
 	* installer.tcl: EXPERIMENTAL. New installer for tcllib. Currently
 	  only cmdline based. Use -help to get help.

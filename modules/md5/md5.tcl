@@ -346,7 +346,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 		#   S$i -> (0x7fffffff >> (31-$i))
 		#
 
-		expr { ($x << $i) | (($x >> R$i) & S$i)}
+		expr { ($x << $i) | (($x >> [set R$i]) & [set S$i])}
 	    }
 	}
 	# inline <<<
