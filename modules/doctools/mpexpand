@@ -58,24 +58,24 @@ proc fmthelp {} {
 	    * see_also      - cross reference declaration\n\
 	    * keywords      - keyword declaration\n\
 	    * nl            - paragraph break in list items\n\
-	    * arg           - structural markup - argument\n\
-	    * cmd           - structural markup - command\n\
-	    * opt           - structural markup - optional data\n\
-	    * comment       - structural markup - comment\n\
-	    * sectref       - structural markup - section reference\n\
-	    * syscmd        - structural markup - system command\n\
-	    * method        - structural markup - object method\n\
-	    * option        - structural markup - option\n\
-	    * widget        - structural markup - widget\n\
-	    * fun           - structural markup - function\n\
-	    * type          - structural markup - data type\n\
-	    * package       - structural markup - package\n\
-	    * class         - structural markup - class\n\
-	    * var           - structural markup - variable\n\
-	    * file          - structural markup - file \n\
-	    * uri           - structural markup - uri\n\
-	    * term          - structural markup - unspecific terminology\n\
-	    * const         - structural markup - constant value\n\
+	    * arg           - semantic markup - argument\n\
+	    * cmd           - semantic markup - command\n\
+	    * opt           - semantic markup - optional data\n\
+	    * comment       - semantic markup - comment\n\
+	    * sectref       - semantic markup - section reference\n\
+	    * syscmd        - semantic markup - system command\n\
+	    * method        - semantic markup - object method\n\
+	    * option        - semantic markup - option\n\
+	    * widget        - semantic markup - widget\n\
+	    * fun           - semantic markup - function\n\
+	    * type          - semantic markup - data type\n\
+	    * package       - semantic markup - package\n\
+	    * class         - semantic markup - class\n\
+	    * var           - semantic markup - variable\n\
+	    * file          - semantic markup - file \n\
+	    * uri           - semantic markup - uri\n\
+	    * term          - semantic markup - unspecific terminology\n\
+	    * const         - semantic markup - constant value\n\
 	    * emph          - visual markup - light emphasis, usage is discouraged\n\
 	    * strong        - visual markup - strong emphasis, usage is discouraged\n\
 	    "
@@ -396,11 +396,11 @@ proc eval_setup {} {
 	    if {[LOpen]}      {Error nolistcmd}
 	    para
 	}
-	proc ck_list_begin {what} {
+	proc ck_list_begin {what {hint {}}} {
 	    if {[IsNot body]}        {Error bodycmd}
 	    if {[LOpen] && ![LItem]} {Error nolisthdr}
 	    LPush      $what
-	    list_begin $what
+	    list_begin $what $hint
 	}
 	proc ck_list_end {} {
 	    if {[IsNot body]} {Error bodycmd}
