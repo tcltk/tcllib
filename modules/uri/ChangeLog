@@ -1,3 +1,9 @@
+2004-08-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* urn-scheme.tcl: Fixed the unquote function which was broken.
+	* urn.test:       Added some tests from RFC 2324 to check the
+	                  quote and unquote procedures.
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri.tcl: Updated version number to sync with 1.6.1

@@ -1,27 +1,18 @@
-# urn-scheme.tcl - Copyright (C) 2001 Pat Thoyts <Pat.Thoyts@bigfoot.com>
+# urn-scheme.tcl - Copyright (C) 2001 Pat Thoyts <patthoyts@users.sf.net>
 #
 # extend the uri package to deal with URN (RFC 2141)
 # see http://www.normos.org/ietf/rfc/rfc2141.txt
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.7 2004/01/15 06:36:14 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.8 2004/08/03 09:25:10 patthoyts Exp $
 # -------------------------------------------------------------------------
 
-package provide uri::urn 1.0.1
 package require uri      1.1.2
 
 namespace eval ::uri {}
-namespace eval ::uri::urn {}
-
-::uri::register {urn URN} {
-	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
-        variable esc {%[0-9a-fA-F]{2}}
-        variable trans {a-zA-Z0-9$_.+!*'(,):=@;-}
-        variable NSSpart "($esc|\[$trans\])+"
-        variable URNpart "($NIDpart):($NSSpart)"
-        variable schemepart $URNpart
-	variable url "urn:$NIDpart:$NSSpart"
+namespace eval ::uri::urn {
+    variable version 1.0.2
 }
 
 # -------------------------------------------------------------------------
@@ -91,17 +82,33 @@ proc ::uri::urn::quote {url} {
 
 # Perform the reverse of urn::quote.
 proc ::uri::urn::unquote {url} {
-    set ndx 0
-    while {[regexp -start $ndx -indices {%([0-9a-zA-Z]{2})} $url r]} {
-        set first [lindex $r 0]
-        set last [lindex $r 1]
-        set str [string replace [string range $url $first $last] 0 0 0x]
-        set c [format %c $str]
-        set url [string replace $url $first $last $c]
-        set ndx [expr {$last + 1}]
+    set result ""
+    set start 0
+    while {[regexp -start $start -indices {%[0-9a-fA-F]{2}} $url match]} {
+        foreach {first last} $match break
+        append result [string range $url $start [expr {$first - 1}]]
+        append result [format %c 0x[string range $url [incr first] $last]]
+        set start [incr last]
     }
-    return $url
+    append result [string range $url $start end]
+    return $result
 }
+
+# -------------------------------------------------------------------------
+
+::uri::register {urn URN} {
+	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
+        variable esc {%[0-9a-fA-F]{2}}
+        variable trans {a-zA-Z0-9$_.+!*'(,):=@;-}
+        variable NSSpart "($esc|\[$trans\])+"
+        variable URNpart "($NIDpart):($NSSpart)"
+        variable schemepart $URNpart
+	variable url "urn:$NIDpart:$NSSpart"
+}
+
+# -------------------------------------------------------------------------
+
+package provide uri::urn $::uri::urn::version
 
 # -------------------------------------------------------------------------
 # Local Variables:
