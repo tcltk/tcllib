@@ -1,3 +1,8 @@
+2002-01-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ftp_geturl.tcl: Re-opened FR #476804 to add support for
+	username and password and for non-unix based FTP servers.
+
 2002-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 2.3
