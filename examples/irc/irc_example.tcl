@@ -3,7 +3,7 @@
 	exec tclsh "$0" "$@"
 
 # irc example script, by David N. Welton <davidw@dedasys.com>
-# $Id: irc_example.tcl,v 1.1 2001/11/20 00:01:09 andreas_kupries Exp $
+# $Id: irc_example.tcl,v 1.2 2002/07/27 00:01:16 davidw Exp $
 
 set nick TclIrc
 set channel \#tcl
@@ -30,7 +30,7 @@ proc client::connect { nick } {
 	network send "PONG [msg]"
 	set ::PING 1
     }
-	
+
     $cn registerevent defaultcmd {
 	puts "[action] [msg]"
     }
@@ -51,9 +51,9 @@ proc client::connect { nick } {
 	puts "[who] KICKed [target 1] from [target] : [msg]"
     }
 
-    $cn connect 
+    $cn connect
 
-    $cn user $nick localhost "www.tcl-tk.net"
+    $cn user $nick localhost "www.tcl.tk"
     $cn nick $nick
 
     vwait ::PING
