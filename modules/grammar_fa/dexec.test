@@ -1,0 +1,74 @@
+# -*- tcl -*-
+# dexec.test:  tests for the grammar::fa::dexec - DFA executor class
+#
+# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#
+# RCS: @(#) $Id: dexec.test,v 1.1 2004/04/12 05:11:58 andreas_kupries Exp $
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "Aborting tests for grammar::fa::dexec."
+    puts "Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and not one installed somewhere else.
+# We also ensure to use local copies of the prerquisite packages.
+
+package forget grammar::fa::dexec ; catch {namespace delete ::grammar::fa::dexec}
+package forget grammar::fa::op    ; catch {namespace delete ::grammar::fa::op}
+package forget grammar::fa        ; catch {namespace delete ::grammar::fa}
+package forget snit               ; catch {namespace delete ::snit}
+package forget struct             ; catch {namespace delete ::struct}
+
+if {[catch {source [file join [file dirname [file dirname [info script]]] struct struct.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (struct.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [file dirname [info script]]] snit snit.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (snit.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] fa.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (fa.tcl): $msg"
+    puts $::errorInfo
+    return
+}
+if {[catch {source [file join [file dirname [info script]] faop.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (faop.tcl): $msg"
+    puts $::errorInfo
+    return
+}
+if {[catch {source [file join [file dirname [info script]] dexec.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (dexec.tcl): $msg"
+    puts $::errorInfo
+    return
+}
+if {[catch {source [file join [file dirname [info script]] tests.support]} msg]} {
+    puts "skipped [file tail [info script]] (tests.support): $msg"
+    puts $::errorInfo
+    return
+}
+
+package require grammar::fa
+puts "- grammar::fa::dexec [package present grammar::fa::dexec]"
+puts "  - grammar::fa::op [package present grammar::fa::op]"
+puts "  - grammar::fa     [package present grammar::fa]"
+puts "  - struct          [package present struct]"
+puts "  - snit            [package present snit]"
+
+set class ::grammar::fa::dexec
+
+# -------------------------------------------------------------------------
+
+foreach f [lsort [glob -nocomplain -dir [file join [file dirname [info script]] tests] de_*.test]] {
+    puts   \ \ \ \ [file tail $f]\ \t[expr {double([lindex [time {source $f} 1] 0])/1000000}]\ seconds
+}
+
+# -------------------------------------------------------------------------
+::tcltest::cleanupTests
