@@ -1,3 +1,7 @@
+2002-03-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ftpd.man: New, doctools manpage.
+
 2002-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:
