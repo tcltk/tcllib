@@ -1555,6 +1555,7 @@ proc ::snit::Type.Variable {name args} {
     Mappend compile(ivprocdec) {::variable ${selfns}::%N} %N $name 
 } 
 
+
 # Creates a delegated method or option, delegating it to a particular
 # component and, optionally, to a particular option or method of that
 # component.
@@ -1570,7 +1571,7 @@ proc ::snit::Type.Variable {name args} {
 # args          Must be {}; it's here to let Type.Delegate do better error
 #               handling.
 
-proc ::snit::Type.Delegate {
+proc ::snit::Type.OldDelegate {
     which name "to" component {"as" ""} {thing ""} args
 } {
     variable compile
@@ -1625,50 +1626,86 @@ proc ::snit::Type.Delegate {
     DefineComponent $component
 }
 
-# Defines a name to be a component
-# 
-# The name becomes an instance variable; in addition, it gets a 
-# write trace so that when it is set, all of the component mechanisms
-# get updated.
-#
-# NOTE: This currently only gets done for components to which something
-# is delegated.  Vanilla components which are just saved to an instance
-# variable get none of this special handling.  But since this handling
-# is to support the delegate statements, that's OK.
-#
-# component     The component name
 
-proc ::snit::DefineComponent {component} {
+# Creates a delegated method, typemethod, or option.
+proc ::snit::Type.Delegate {what name args} {
+    # FIRST, dispatch to correct handler.
+    switch $what {
+        typemethod { DelegatedTypemethod $name $args }
+        method     { DelegatedMethod     $name $args }
+        option     { DelegatedOption     $name $args }
+        default {
+            error "syntax error in definition: delegate $what $name..."
+        }
+    }
+
+    if {([llength $args] % 2) != 0} {
+        error "syntax error in definition: delegate $what $name..."
+    }
+}
+
+# Creates a delegated typemethod delegating it to a particular
+# typecomponent or an arbitrary command.
+#
+# typemethod    The name of the method
+# arglist       Delegation options
+
+proc ::snit::DelegatedTypeMethod {typemethod arglist} {
     variable compile
 
-    if {[lsearch $compile(components) $component] == -1} {
-        # Remember we've done this.
-        lappend compile(components) $component
+    error "delegate typemethod is not yet implemented."
+}
 
-        # Make it an instance variable with no initial value
-        Type.Variable $component ""
-
-        # Add a write trace to do the component thing.
-        Mappend compile(instancevars) {
-            trace add variable %COMP% write \
-                [list %TYPE%::Snit_comptrace $selfns %COMP%]
-        } %TYPE% $compile(type) %COMP% $component
-    }
-} 
 
 # Creates a delegated method delegating it to a particular
-# component and, optionally, to a particular method of that
-# component.
+# component or command.
 #
 # method        The name of the method
-# component     The logical name of the delegate
-# target        The name of the delegate's method, possibly with arguments,
-#               or "".
-# exceptions    When method is "*", this can be a list of methods not to 
-#               delegate, or {}; otherwise, it's guaranteed to be {}.
+# arglist       Delegation options.
 
-proc ::snit::DelegatedMethod {method component target exceptions} {
+proc ::snit::DelegatedMethod {method arglist} {
     variable compile
+
+    set errRoot "error in 'delegate method [list $method]...'"
+
+    # Next, parse the delegation options.
+    set component ""
+    set target ""
+    set exceptions {}
+
+    foreach {opt value} $arglist {
+        switch -exact $opt {
+            -to - to {
+                set component $value
+            }
+
+            -as - as {
+                set target $value
+            }
+
+            -except - except {
+                set exceptions $value
+            }
+            default {
+                error "$errRoot, unknown delegation option '$opt'."
+            }
+        }
+    }
+
+    if {$component eq ""} {
+        error "$errRoot, missing '-to'."
+    }
+
+    if {$method eq "*" && $target ne ""} {
+        error "$errRoot, cannot specify '-as' with method '*'"
+    }
+
+    if {$method ne "*" && $exceptions ne ""} {
+        error "$errRoot, can only specify '-except' with method '*'" 
+    }
+
+    # NEXT, define the component
+    DefineComponent $component
 
     if {![string equal $method "*"] &&
         [string equal $target ""]} {
@@ -1676,7 +1713,7 @@ proc ::snit::DelegatedMethod {method component target exceptions} {
     }
 
     if {[Contains $method $compile(localmethods)]} {
-        error "cannot delegate '$method'; it has been defined locally."
+        error "$errRoot, '$method' has been defined locally."
     }
 
     Mappend compile(defs) {
@@ -1697,13 +1734,10 @@ proc ::snit::DelegatedMethod {method component target exceptions} {
 # component and, optionally, to a particular option of that
 # component.
 #
-# option        The name of the option
-# component     The logical name of the delegate
-# target        The name of the delegate's option, or "".
-# exceptions    When option is "*", this can be a list of options not to 
-#               delegate, or {}
+# optionDef     The option definition
+# args          definition arguments.
 
-proc ::snit::DelegatedOption {optionDef component target exceptions} {
+proc ::snit::DelegatedOption {optionDef arglist} {
     variable compile
 
     # First, get the three option names.
@@ -1711,22 +1745,63 @@ proc ::snit::DelegatedOption {optionDef component target exceptions} {
     set resourceName [lindex $optionDef 1]
     set className [lindex $optionDef 2]
 
+    set errRoot "error in 'delegate option [list $optionDef]...'"
+
+    # Next, parse the delegation options.
+    set component ""
+    set target ""
+    set exceptions {}
+
+    foreach {opt value} $arglist {
+        switch -exact $opt {
+            -to - to {
+                set component $value
+            }
+
+            -as - as {
+                set target $value
+            }
+
+            -except - except {
+                set exceptions $value
+            }
+            default {
+                error "$errRoot, unknown delegation option '$opt'."
+            }
+        }
+    }
+
+    if {$component eq ""} {
+        error "$errRoot, missing '-to'."
+    }
+
+    if {$option eq "*" && $target ne ""} {
+        error "$errRoot, cannot specify '-as' with 'delegate option *'"
+    }
+
+    if {$option ne "*" && $exceptions ne ""} {
+        error "$errRoot, can only specify '-except' with 'delegate option *'" 
+    }
+
     # Next, validate the option name
 
     if {"*" != $option} {
         if {![string match {-*} $option] || 
             [string match {*[A-Z ]*} $option]} {
-            error "badly named option '$option'"
+            error "$errRoot, badly named option '$option'"
         }
     }
 
     if {[Contains $option $compile(localoptions)]} {
-        error "cannot delegate '$option'; it has been defined locally."
+        error "$errRoot, '$option' has been defined locally."
     }
 
     if {[Contains $option $compile(delegatedoptions)]} {
-        error "option '$option' is multiply defined."
+        error "$errRoot, '$option' is multiply delegated."
     }
+
+    # NEXT, define the component
+    DefineComponent $component
 
     # Next, define the target option, if not specified.
     if {![string equal $option "*"] &&
@@ -1826,6 +1901,37 @@ proc ::snit::Type.Component {component args} {
     }
 }
 
+
+# Defines a name to be a component
+# 
+# The name becomes an instance variable; in addition, it gets a 
+# write trace so that when it is set, all of the component mechanisms
+# get updated.
+#
+# NOTE: This currently only gets done for components to which something
+# is delegated.  Vanilla components which are just saved to an instance
+# variable get none of this special handling.  But since this handling
+# is to support the delegate statements, that's OK.
+#
+# component     The component name
+
+proc ::snit::DefineComponent {component} {
+    variable compile
+
+    if {[lsearch $compile(components) $component] == -1} {
+        # Remember we've done this.
+        lappend compile(components) $component
+
+        # Make it an instance variable with no initial value
+        Type.Variable $component ""
+
+        # Add a write trace to do the component thing.
+        Mappend compile(instancevars) {
+            trace add variable %COMP% write \
+                [list %TYPE%::Snit_comptrace $selfns %COMP%]
+        } %TYPE% $compile(type) %COMP% $component
+    }
+} 
 
 # Exposes a component, effectively making the component's command an
 # instance method.

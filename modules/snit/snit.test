@@ -1616,7 +1616,7 @@ test option-4.4 {delegated option name must begin with hyphen} {
     } result
 
     set result
-} {badly named option 'nohyphen'}
+} {error in 'delegate option nohyphen...', badly named option 'nohyphen'}
 
 test option-4.5 {delegated option name must be lower case} {
     cleanup
@@ -1628,7 +1628,7 @@ test option-4.5 {delegated option name must be lower case} {
     } result
 
     set result
-} {badly named option '-Upper'}
+} {error in 'delegate option -Upper...', badly named option '-Upper'}
 
 test option-4.6 {delegated option name may not contain spaces} {
     cleanup
@@ -1640,7 +1640,7 @@ test option-4.6 {delegated option name may not contain spaces} {
     } result
 
     set result
-} {badly named option '-with space'}
+} {error in 'delegate option {"-with space"}...', badly named option '-with space'}
 
 test option-5.1 {local widget options read from option database} tk {
     cleanup
@@ -1964,7 +1964,7 @@ test delegate-1.2 {"to" must appear in the right place} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method foo...}
+} {error in 'delegate method foo...', unknown delegation option 'from'.}
 
 test delegate-1.3 {"as" must have a target} {} {
     cleanup
@@ -1990,7 +1990,7 @@ test delegate-1.4 {"as" must have a single target} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method foo...}
+} {error in 'delegate method foo...', unknown delegation option 'quux'.}
 
 test delegate-1.5 {"as" doesn't work with "*"} {} {
     cleanup
@@ -2003,7 +2003,7 @@ test delegate-1.5 {"as" doesn't work with "*"} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method *...}
+} {error in 'delegate method *...', cannot specify '-as' with method '*'}
 
 test delegate-1.6 {"except" must have a target} {} {
     cleanup
@@ -2029,7 +2029,7 @@ test delegate-1.7 {"except" must have a single target} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method *...}
+} {error in 'delegate method *...', unknown delegation option 'quux'.}
 
 test delegate-1.8 {"except" works only with "*"} {} {
     cleanup
@@ -2037,12 +2037,12 @@ test delegate-1.8 {"except" works only with "*"} {} {
     set result ""
     catch {
         type dog {
-            delegate method foo hull except bar
+            delegate method foo to hull except bar
         }
     } result
 
     set result
-} {syntax error in definition: delegate method foo...}
+} {error in 'delegate method foo...', can only specify '-except' with method '*'}
 
 test delegate-1.9 {only "as" or "except"} {} {
     cleanup
@@ -2055,7 +2055,7 @@ test delegate-1.9 {only "as" or "except"} {} {
     } result
 
     set result
-} {syntax error in definition: delegate method foo...}
+} {error in 'delegate method foo...', unknown delegation option 'with'.}
 
 
 #-----------------------------------------------------------------------
@@ -2152,7 +2152,7 @@ test dmethod-1.6 {can't delegate local method: order 1} {
     } result
 
     set result
-} {cannot delegate 'foo'; it has been defined locally.}
+} {error in 'delegate method foo...', 'foo' has been defined locally.}
 
 test dmethod-1.7 {can't delegate local method: order 2} {
     cleanup
@@ -2165,7 +2165,7 @@ test dmethod-1.7 {can't delegate local method: order 2} {
     } result
 
     set result
-} {cannot delegate 'foo'; it has been defined locally.}
+} {error in 'delegate method foo...', 'foo' has been defined locally.}
 
 test dmethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -2374,7 +2374,7 @@ test doption-1.8 {can't delegate local option: order 1} {
     } result
 
     set result
-} {cannot delegate '-color'; it has been defined locally.}
+} {error in 'delegate option -color...', '-color' has been defined locally.}
 
 test doption-1.9 {can't delegate local option: order 2} {
     cleanup
