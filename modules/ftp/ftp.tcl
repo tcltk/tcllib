@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.8 2000/09/25 22:59:32 sandeep Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.9 2000/09/28 21:28:37 kuchler Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -490,7 +490,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 1 {}
 		2 {
 		    set nextState 1
-		    if {![info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
+		    if {[info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
 			Command $ftp(Command) list [ListPostProcess $ftp(List)]
 		    } else {
 			set complete_with 1
