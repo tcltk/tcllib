@@ -1,3 +1,15 @@
+2004-08-05  Andreas Kupries  <andreask@activestate.com>
+
+	* tests/fa_is_deterministic.test:
+	* tests/fa_is_useful.test:
+	* tests/da_cons.test:   Introduced constraint 'runtotal'.
+	* tests/de_cons.test:   Skip the most timeconsuming tests
+	* tests/fa_serial.test: if the constraint is off (default).
+	* tests/faop_trim.test: Reduces #tests from 58143 to 2410.
+	 (fa_serial, faop_trim are the biggest hitters).
+
+	* ../../all.tcl: Added command 'queryConstraint' for portability.
+
 2004-07-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/da_cons.test: Updated tests to changed error message of snit.
@@ -7,6 +19,13 @@
 	* tests/faop_intersect.test:  destruction uncovered by the new
 	  checks in snit which cause it to avoid overwriting an existing
 	  command.
+
+2004-07-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* faop.man: Inserted the correct package names into the
+	* fa.man:   manpage headers.
+	* dexec.man:
+	* dacceptor.man:
 
 2004-05-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -22,13 +41,6 @@
 	* dexec.man: 
 	* fa.man: 
 	* faop.man: 
-
-2004-05-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	* faop.man: Inserted the correct package names into the
-	* fa.man:   manpage headers.
-	* dexec.man:
-	* dacceptor.man:
 
 2004-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
