@@ -12,8 +12,9 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require snit   ; # Tcllib | OO system used
-package require struct ; # Tcllib | extended list, set operations.
+package require snit         ; # Tcllib | OO system used
+package require struct::list ; # Tcllib | Extended list operations.
+package require struct::set  ; # Tcllib | Extended set operations.
 
 # ### ### ### ######### ######### #########
 ## Implementation

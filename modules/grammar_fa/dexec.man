@@ -4,6 +4,7 @@
 [moddesc   {Grammar operations and usage}]
 [titledesc {Execute deterministic finite automatons}]
 [require Tcl 8.4]
+[require snit]
 [require grammar::dexec [opt 0.1]]
 [description]
 [keywords execution running grammar automaton {finite automaton}]
