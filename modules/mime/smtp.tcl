@@ -964,6 +964,7 @@ proc ::smtp::wtextaux {token part} {
     upvar 0 $token state
 
     # Workaround a bug with stacking channels on top of TLS.
+    # FRINK: nocheck
     set trf [set [namespace current]::trf]
     if {[info exists state(tls)] && $state(tls)} {
         set trf 0
