@@ -1,0 +1,54 @@
+# eliptic.test --
+#    Test cases for the ::math::special package (Elliptic integrals)
+#
+
+package require tcltest
+namespace import ::tcltest::*
+
+#package require math::constants
+source "constants.tcl"
+source "elliptic.tcl"
+
+#
+# As the values were given with four digits, an absolute
+# error is most appropriate
+#
+proc matchNumbers {expected actual} {
+   set match 1
+   foreach a $actual e $expected {
+      #puts "abs($a-$e) = [expr {abs($a-$e)}]"
+      if {abs($a-$e) > 0.1e-5} {
+         set match 0
+         break
+      }
+   }
+   return $match
+}
+
+customMatch numbers matchNumbers
+
+test "Elliptic-1.0" "Complete elliptic integral of the first kind" \
+   -match numbers -body {
+   set result {}
+   foreach k2 {0.0 0.1 0.2 0.4 0.5 0.7 0.8 0.95} {
+      set k [expr {sqrt($k2)}]
+      lappend result [::math::special::elliptic_K $k]
+   }
+   set result
+} -result {1.570796 1.612441 1.659624 1.777519 1.854075
+           2.075363 2.257205 2.908337}
+
+test "Elliptic-2.0" "Complete elliptic integral of the second kind" \
+   -match numbers -body {
+   set result {}
+   foreach k2 {0.0 0.1 0.2 0.4 0.5 0.7 0.8 0.95} {
+      set k [expr {sqrt($k2)}]
+      lappend result [::math::special::elliptic_E $k]
+   }
+   set result
+} -result {1.570796 1.530758 1.489035 1.399392 1.350644
+           1.241671 1.17849  1.060474}
+
+
+# End of test cases
+tcltest::cleanupTests
