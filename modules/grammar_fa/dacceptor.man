@@ -38,7 +38,7 @@ operations on the acceptor. It has the following general form:
 [call [cmd daName] [arg option] [opt [arg "arg arg ..."]]]
 
 [arg Option] and the [arg arg]s determine the exact behavior of the
-command. See section [sectref {DA METHODS}] for more explanations.
+command. See section [sectref {ACCEPTOR METHODS}] for more explanations.
 
 [nl]
 
@@ -57,7 +57,7 @@ before proceeding with the processing.
 [list_end]
 [list_end]
 
-[section {DA METHODS}]
+[section {ACCEPTOR METHODS}]
 [para]
 
 All acceptors provide the following methods for their manipulation:
