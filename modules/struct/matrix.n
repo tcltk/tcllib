@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: matrix.n,v 1.9 2002/02/01 22:59:08 andreas_kupries Exp $
+'\" RCS: @(#) $Id: matrix.n,v 1.10 2002/03/10 02:49:52 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH matrix n 1.2.1 Struct "Tcl Data Structures"
@@ -188,7 +188,7 @@ number of lines spanned by a cell over all cells in the row.
 \fImatrixName\fR \fBrows\fR
 Returns the number of rows currently managed by the matrix.
 .TP
-\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBall\fR \fIpattern\fR
+\fImatrixName\fR \fBsearch\fR ?-nocase? ?-exact|-glob|-regexp? \fBall\fR \fIpattern\fR
 Searches the whole matrix for cells matching the \fIpattern\fR and
 returns a list with all matches. Each item in the aforementioned list
 is a list itself and contains the column and row index of the matching
@@ -201,15 +201,15 @@ The type of the pattern (string, glob, regular expression) is
 determined by the option after the \fBsearch\fR keyword. If no option
 is given it defaults to \fB-exact\fR.
 .TP
-\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBcolumn\fR \fIcolumn pattern\fR
+\fImatrixName\fR \fBsearch\fR ?-nocase? ?-exact|-glob|-regexp? \fBcolumn\fR \fIcolumn pattern\fR
 Like \fBsearch all\fR, but the search is restricted to the specified
 column.
 .TP
-\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBrow\fR    \fIrow pattern\fR
+\fImatrixName\fR \fBsearch\fR ?-nocase? ?-exact|-glob|-regexp? \fBrow\fR    \fIrow pattern\fR
 Like \fBsearch all\fR, but the search is restricted to the specified
 row.
 .TP
-\fImatrixName\fR \fBsearch\fR ?-exact|-glob|-regexp? \fBrect\fR \fIcolumn_tl row_tl column_br row_br pattern\fR
+\fImatrixName\fR \fBsearch\fR ?-nocase? ?-exact|-glob|-regexp? \fBrect\fR \fIcolumn_tl row_tl column_br row_br pattern\fR
 Like \fBsearch all\fR, but the search is restricted to the specified
 rectangular area of the matrix.
 .TP

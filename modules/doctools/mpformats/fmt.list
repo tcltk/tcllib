@@ -35,6 +35,7 @@ proc require     {pkg {version {}}} {}
 proc description {}                 {}
 proc section     {name}             {}
 proc para        {}                 {}
+proc usage       {cmd args}         {}
 proc call        {cmd args}         {}
 proc list_begin  {what}             {}
 proc list_end    {}                 {}

@@ -1,10 +1,20 @@
+2002-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* matrix.n:
+	* matrix.man:
+	* matrix.test:
+	* matrix.tcl: Accepted FR #524430 and added option -nocase to the
+	  'search' method.
+
+	* matrix.man: Added doctools manpage.
+
 2002-03-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* graph.man: Added doctools manpage
+	* graph.man: Added doctools manpage.
 
 2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* matrix.tcl: Frink run
+	* matrix.tcl: Frink run.
 
 2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

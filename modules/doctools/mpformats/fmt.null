@@ -4,7 +4,7 @@
 # (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Defines the procedures a manpage rules file has to support for good
-# manpages. The procedures here return errors.
+# manpages. The procedures here return nothing.
 
 ################################################################
 
@@ -20,6 +20,7 @@ proc list_begin  {what}             {return ""}
 proc list_end    {}                 {return ""}
 proc lst_item    {{text {}}}        {return ""}
 proc call        {cmd args}         {return ""}
+proc usage       {cmd args}         {return ""}
 proc bullet      {}                 {return ""}
 proc enum        {}                 {return ""}
 proc see_also    {args}             {return ""}

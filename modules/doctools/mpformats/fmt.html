@@ -70,6 +70,14 @@ proc require {pkg {version {}}} {
     return $result
 }
 
+proc usage {cmd args} {
+    if {[mp_pass] == 1} {
+	AddCall "[trtop][td]$cmd [join $args " "]</td></tr>\n"
+	return
+    }
+    return ""
+}
+
 proc call {cmd args} {
     if {[mp_pass] == 1} {
 	AddCall "[trtop][td]$cmd [join $args " "]</td></tr>\n"

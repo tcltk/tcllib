@@ -132,7 +132,7 @@ proc eval_setup {} {
 	section para list_begin list_end lst_item call bullet enum
 	example example_begin example_end see_also keywords nl arg cmd opt
 	comment sectref syscmd method option widget fun type package
-	class var file uri     
+	class var file uri usage
     } {
 	interp alias $inip $cmd $mpip $cmd
     }
