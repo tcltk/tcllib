@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin htmlparse n 0.3.1]
+[manpage_begin htmlparse n 1.0]
 [moddesc   {HTML Parser}]
 [titledesc {Procedures to parse HTML strings}]
 [require Tcl 8.2]
 [require struct 1]
 [require cmdline 1.1]
-[require htmlparse [opt 0.3.1]]
+[require htmlparse [opt 1.0]]
 [description]
 [para]
 
@@ -241,5 +241,5 @@ form elements. Its only argument is the name of the tree to cut down.
 
 [list_end]
 
-[keywords html parsing]
+[keywords html parsing tree queue]
 [manpage_end]
