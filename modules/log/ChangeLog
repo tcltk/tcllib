@@ -1,3 +1,13 @@
+2004-05-26  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.tcl: Fixed bug with enable/disable
+	  wrong enabled value was reported if disable critical was used.
+	  Added "none" as result for currentloglevel for this situation.
+	* logger.test: Added tests 7.1-7.4 to check for the above bug.
+	* logger.man: Fixed docs and replaced the nonsensical "or" with 
+	  the correct "and" in enable/disable docs. Added a comment how
+	  to completely disable logging for a service and its children. 
+
 2004-05-25  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* logger.tcl: Fixed bug [948273] in ::logger::services
