@@ -1,0 +1,59 @@
+=======================
+ftp_lib examples README
+=======================
+
+Example #1 - Directory Mirror
+-----------------------------
+
+The script mirror.tcl is used to mirror a complete remote directory
+structure. It creates an exact copy of this structure on the locale
+machine. Three parameters needs to be modified to work properly, 
+the hostname of the remote server, the username and the password 
+for login. 
+
+
+Example #2 - Software Update
+----------------------------
+
+The script newer.tcl is used to detect whether a new release of
+Brent Welch's phantastic tcl-httpd is present at scriptics ftp
+server. If FTP::Newer detects a newer file then it causes the
+upload process and sends me (as root) an email to inform about. 
+
+
+Example #3 - Homepage Update
+----------------------------
+
+Quite a few people must have to keep permanent updating their
+homepages on a ISP server. Hpupdate.tcl is a tk-program for
+the interactive comparsion of the homepage directory on the local
+computer with the same directories on the remote homepage server. 
+
+It is based on File Transfer Protocol. This process can be automated
+easily by hpupdate. It makes it quick and easy to keep the track of
+new/old or changed files.
+
+Brief overview: 
+
+     - FTP connection to remote server
+     - Processing subdirectories 
+     - Display of summary used and selected disk space 
+     - Automatically all superfluous directories/files of remote
+       homepage server will be deleted 
+     - Automatically all new/updated files will be uploaded 
+     - Tested under Linux, should also run without problems under
+       Windows 95/NT and on Macintosh computers 
+
+Example #4 - TkCon command line ftp client
+------------------------------------------
+
+Loading the FTP Library Package into Jeffrey Hobbs' TkCon rovides
+a simple ftp command line utility with command history. TkCon is a
+replacement for the standard console that comes with Tk. It must be
+started with the "package" option: 
+
+      tkcon -package FTP
+
+to load ftp_lib automatically. TkCon is available at
+
+	http://www.purl.org/net/hobbs/tcl/script/tkcon
