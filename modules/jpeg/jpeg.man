@@ -66,6 +66,14 @@ For example:
 Throws an error if [arg file] is not a JPEG image.
 
 
+[call [cmd ::jpeg::removeExif] [arg file]]]
+
+Removes the Exif data segment from the specified file and replaces
+it with a standard JFIF segment.
+
+Throws an error if [arg file] is not a JPEG image.
+
+
 [call [cmd ::jpeg::getComments] [arg file]]
 
 Returns a list containing all the JPEG comments found in
