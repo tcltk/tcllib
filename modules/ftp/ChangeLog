@@ -1,3 +1,15 @@
+2000-08-29  Steve Ball   <Steve.Ball@zveno.com>
+
+       * README
+       * ftp.tcl
+       * pkgIndex.tcl
+       * docs/Open.html: Added '-command' configuration to the Open
+       command.  This option indicates that all operations performed
+       on this connection are to be made asynchronously.  The value
+       given to the option is a script which is invoked when operations
+       have finished.  Updated documentation and bumped the version
+       number from 2.1 to 2.2 because a new feature was added.
+
 2000-08-16  Dan Kuchler  <kuchler@ajubasolutions.com>
 
        * README

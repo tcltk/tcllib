@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>ftp Library Package 2.1 for Tcl/Tk help file</title>
+<title>ftp Library Package 2.2 for Tcl/Tk help file</title>
 </head>
 <body bgcolor="#ffffff" text="#000000">
 <body>
@@ -64,6 +64,23 @@
 
 	<pre>proc Progress {total} {
 	puts "$total bytes transfered!"
+}</pre></dd></dl></p>
+
+	<p><b>-command callback</b><dl><dd>
+	Specifying this option puts the connection in asynchronous mode.
+	The <em>callback</em> is made after each operation has been
+	completed.  The callback gets as an additional argument
+	a keyword of the operation that has completed plus
+	additional arguments specific to the operation.
+	If an error occurs the callback is made with the keyword
+	"error".  When an operation, such as "Cd", "Get", and so on,
+	has been started no further operations should be started
+	until a callback has been received for the current
+	operation.
+	A template for the callback is:<br>
+
+	<pre>proc Callback {what args} {
+    puts "Operation $what $args completed"
 }</pre></dd></dl></p>
 
     </dd>

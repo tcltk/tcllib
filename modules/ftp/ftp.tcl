@@ -2,15 +2,18 @@
 #
 #	FTP library package for Tcl 8.2+.  Originally written by Steffen
 #	Traeger (Steffen.Traeger@t-online.de); modified by Peter MacDonald
-#	(peter@pdqi.com) to support multiple simultaneous FTP sessions.
+#	(peter@pdqi.com) to support multiple simultaneous FTP sessions;
+#	Modified by Steve Ball (Steve.Ball@zveno.com) to support
+#	asynchronous operation.
 #
 # Copyright (c) 1996-1999 by Steffen Traeger <Steffen.Traeger@t-online.de>
 # Copyright (c) 2000 by Ajuba Solutions
+# Copyright (c) 2000 by Zveno Pty Ltd
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.6 2000/08/16 22:02:44 kuchler Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.7 2000/09/04 06:20:02 steve Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -33,7 +36,7 @@
 #			ftp::Quote <s> <arg1> <arg2> ...
 #
 
-package provide ftp [lindex {Revision: 2.1 } 1]
+package provide ftp [lindex {Revision: 2.2 } 1]
 
 namespace eval ftp {
 
@@ -111,6 +114,7 @@ proc ftp::Timeout {s} {
     set ftp(state.control) 1
 
     DisplayMsg "" "Timeout of control connection after $ftp(Timeout) sec.!" error
+    Command $ftp(Command) timeout
     return
 }
 
@@ -134,7 +138,7 @@ proc ftp::WaitOrTimeout {s} {
 
     set retvar 1
 
-    if { [info exists ftp(state.control)] } {
+    if { ![string length $ftp(Command)] && [info exists ftp(state.control)] } {
 
         set ftp(Wait) [after [expr {$ftp(Timeout) * 1000}] [list [namespace current]::Timeout $s]]
 
@@ -161,11 +165,15 @@ proc ftp::WaitOrTimeout {s} {
 proc ftp::WaitComplete {s value} {
     upvar ::ftp::ftp$s ftp
 
-    if { [info exists ftp(state.data)] } {
+    if {![info exists ftp(Command)]} {
+	set ftp(state.control) $value
+	return $value
+    }
+    if { ![string length $ftp(Command)] && [info exists ftp(state.data)] } {
         vwait ::ftp::ftp${s}(state.data)
     }
 
-    after cancel $ftp(Wait)
+    catch {after cancel $ftp(Wait)}
     set ftp(state.control) $value
     return $ftp(state.control)
 }
@@ -218,6 +226,7 @@ proc ftp::StateHandler {s {sock ""}} {
     # there is no socket (and no channel to get) if called from a procedure
 
     set rc "   "
+    set msgtext {}
 
     if { $sock != "" } {
 
@@ -251,6 +260,7 @@ proc ftp::StateHandler {s {sock ""}} {
             DisplayMsg $s "Service not available!" error
             CloseDataConn $s
             WaitComplete $s 0
+	    Command $ftp(Command) terminated
             catch {unset ftp(State)}
             catch {close $ftp(CtrlSock); unset ftp(CtrlSock)}
             return
@@ -259,8 +269,11 @@ proc ftp::StateHandler {s {sock ""}} {
     } 
 	
     if { $DEBUG } {
-        DisplayMsg $s "-> rc=\"$rc\"\n-> state=\"$ftp(State)\""
+        DisplayMsg $s "-> rc=\"$rc\"\n-> msgtext=\"$msgtext\"\n-> state=\"$ftp(State)\""
     }
+
+    # In asynchronous mode, should we move on to the next state?
+    set nextState 0
 	
     # system status replay
     if { [string equal $rc "211"] } {
@@ -276,10 +289,12 @@ proc ftp::StateHandler {s {sock ""}} {
                 2 {
                     PutsCtrlSock $s "USER $ftp(User)"
                     set ftp(State) passwd
+		    Command $ftp(Command) user
                 }
                 default {
                     set errmsg "Error connecting! $msgtext"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -287,28 +302,43 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    Command $ftp(Command) password
                 }
                 3 {
                     PutsCtrlSock $s "PASS $ftp(Passwd)"
                     set ftp(State) connect
+		    Command $ftp(Command) password
                 }
                 default {
                     set errmsg "Error connecting! $msgtext"
                     set complete_with 0
+		    Command $ftp(Command) error $msgtext
                 }
             }
         }
         connect {
             switch -exact -- $rc {
                 2 {
-                    set complete_with 1
+		    # The type is set after this, and we want to report
+		    # that the connection is complete once the type is done
+		    set nextState 1
+		    if {![info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
+			Command $ftp(Command) connect $s
+		    } else {
+			set complete_with 1
+		    }
                 }
                 default {
                     set errmsg "Error connecting! $msgtext"
                     set complete_with 0
+		    Command $ftp(Command) error $msgtext
                 }
             }
         }   
+	connect_last {
+	    Command $ftp(Command) connect $s
+	    set complete_with 1
+	}
         quit {
             PutsCtrlSock $s "QUIT"
             set ftp(State) quit_sent
@@ -317,10 +347,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) quit
                 }
                 default {
                     set errmsg "Error disconnecting! $msgtext"
                     set complete_with 0
+		    Command $ftp(Command) error $msgtext
                 }
             }
         }
@@ -331,6 +364,8 @@ proc ftp::StateHandler {s {sock ""}} {
         quote_sent {
             set complete_with 1
             set ftp(Quote) $buffer
+	    set nextState 1
+	    Command $ftp(Command) quote $buffer
         }
         type {
             if { [string equal $ftp(Type) "ascii"] } {
@@ -344,13 +379,21 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) type $ftp(Type)
                 }
                 default {
                     set errmsg "Error setting type \"$ftp(Type)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error "error setting type \"$ftp(Type)\""
                 }
             }
         }
+	type_change {
+	    set ftp(Type) $ftp(type:changeto)
+	    set ftp(State) type
+	    StateHandler $s
+	}
         nlist_active {
             if { [OpenActiveConn $s] } {
                 PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
@@ -365,11 +408,13 @@ proc ftp::StateHandler {s {sock ""}} {
         }
         nlist_open {
             switch -exact -- $rc {
-                2 {
+                1 {}
+		2 {
                     if { [string equal $ftp(Mode) "passive"] } {
                         if { ![OpenPassiveConn $s $buffer] } {
                             set errmsg "Error setting PASSIVE mode!"
                             set complete_with 0
+			    Command $ftp(Command) error "error setting passive mode"
                         }
                     }   
                     PutsCtrlSock $s "NLST$ftp(Dir)"
@@ -382,6 +427,7 @@ proc ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting port!"
                     }  
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -391,6 +437,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 set ftp(State) list_open
             } else {
                 set errmsg "Error setting port!"
+		Command $ftp(Command) error $errmsg
             }
         }
         list_passive {
@@ -399,11 +446,13 @@ proc ftp::StateHandler {s {sock ""}} {
         }
         list_open {
             switch -exact -- $rc {
-                2 {
+                1 {}
+		2 {
                     if { [string equal $ftp(Mode) "passive"] } {
                         if { ![OpenPassiveConn $s $buffer] } {
                             set errmsg "Error setting PASSIVE mode!"
                             set complete_with 0
+			    Command $ftp(Command) error $errmsg
                         }
                     }   
                     PutsCtrlSock $s "LIST$ftp(Dir)"
@@ -416,12 +465,14 @@ proc ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting port!"
                     }  
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
         list_sent {
             switch -exact -- $rc {
-                1 {
+                1 -
+		2 {
                     set ftp(State) list_close
                 }
                 default {  
@@ -430,20 +481,32 @@ proc ftp::StateHandler {s {sock ""}} {
                     }    
                     set errmsg "Error getting directory listing!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
         list_close {
             switch -exact -- $rc {
-                2 {
-                    set complete_with 1
+                1 {}
+		2 {
+		    set nextState 1
+		    if {![info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
+			Command $ftp(Command) list [ListPostProcess $ftp(List)]
+		    } else {
+			set complete_with 1
+		    }
                 }
                 default {
                     set errmsg "Error receiving list!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
+	list_last {
+	    Command $ftp(Command) list [ListPostProcess $ftp(List)]
+	    set complete_with 1
+	}
         size {
             PutsCtrlSock $s "SIZE $ftp(File)"
             set ftp(State) size_sent
@@ -453,10 +516,13 @@ proc ftp::StateHandler {s {sock ""}} {
                 2 {
                     regexp "^\[0-9\]+ (.*)$" $buffer all ftp(FileSize)
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) size $ftp(File) $ftp(FileSize)
                 }
                 default {
                     set errmsg "Error getting file size!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         } 
@@ -469,10 +535,13 @@ proc ftp::StateHandler {s {sock ""}} {
                 2 {
                     regexp "^\[0-9\]+ (.*)$" $buffer all ftp(DateTime)
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) modtime $ftp(File) [ModTimePostProcess $ftp(DateTime)]
                 }
                 default {
                     set errmsg "Error getting modification time!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         } 
@@ -485,10 +554,13 @@ proc ftp::StateHandler {s {sock ""}} {
                 2 {
                     regexp "^.*\"(.*)\"" $buffer temp ftp(Dir)
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) pwd $ftp(Dir)
                 }
                 default {
                     set errmsg "Error getting working dir!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -498,12 +570,16 @@ proc ftp::StateHandler {s {sock ""}} {
         }
         cd_sent {
             switch -exact -- $rc {
-                2 {
+                1 {}
+		2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) cd $ftp(Dir)
                 }
                 default {
-                    set errmsg "Error changing directory!"
+                    set errmsg "Error changing directory to \"$ftp(Dir)\""
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -515,10 +591,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) mkdir $ftp(Dir)
                 }
                 default {
                     set errmsg "Error making dir \"$ftp(Dir)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -530,10 +609,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) rmdir $ftp(Dir)
                 }
                 default {
                     set errmsg "Error removing directory!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -545,10 +627,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) delete $ftp(File)
                 }
                 default {
                     set errmsg "Error deleting file \"$ftp(File)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -565,6 +650,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 default {
                     set errmsg "Error renaming file \"$ftp(RenameFrom)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -572,10 +658,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) rename $ftp(RenameFrom) $ftp(RenameTo)
                 }
                 default {
                     set errmsg "Error renaming file \"$ftp(RenameFrom)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -585,6 +674,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 set ftp(State) put_open
             } else {
                 set errmsg "Error setting port!"
+		Command $ftp(Command) error $errmsg
             }
         }
         put_passive {
@@ -593,11 +683,13 @@ proc ftp::StateHandler {s {sock ""}} {
         }
         put_open {
             switch -exact -- $rc {
-                2 {
+                1 -
+		2 {
                     if { [string equal $ftp(Mode) "passive"] } {
                         if { ![OpenPassiveConn $s $buffer] } {
                             set errmsg "Error setting PASSIVE mode!"
                             set complete_with 0
+			    Command $ftp(Command) error $errmsg
                         }
                     } 
                     PutsCtrlSock $s "STOR $ftp(RemoteFilename)"
@@ -610,12 +702,14 @@ proc ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting port!"
                     }  
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
         put_sent {
             switch -exact -- $rc {
-                1 {
+                1 -
+		2 {
                     set ftp(State) put_close
                 }
                 default {
@@ -625,17 +719,26 @@ proc ftp::StateHandler {s {sock ""}} {
                     }  
                     set errmsg "Error opening connection!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
         put_close {
             switch -exact -- $rc {
+		1 {
+		    # Keep going
+		    return {}
+		}
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) put $ftp(RemoteFilename)
                 }
                 default {
-                    set errmsg "Error storing file \"$ftp(RemoteFilename)\"!"
+		    DisplayMsg $s "rc = $rc msgtext = \"$msgtext\""
+                    set errmsg "Error storing file \"$ftp(RemoteFilename)\" due to \"$msgtext\""
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -645,6 +748,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 set ftp(State) append_open
             } else {
                 set errmsg "Error setting port!"
+		Command $ftp(Command) error $errmsg
             }
         }
         append_passive {
@@ -653,11 +757,13 @@ proc ftp::StateHandler {s {sock ""}} {
         }
         append_open {
             switch -exact -- $rc {
+		1 -
                 2 {
                     if { [string equal $ftp(Mode) "passive"] } {
                         if { ![OpenPassiveConn $s $buffer] } {
                             set errmsg "Error setting PASSIVE mode!"
                             set complete_with 0
+			    Command $ftp(Command) error $errmsg
                         }
                     }   
                     PutsCtrlSock $s "APPE $ftp(RemoteFilename)"
@@ -670,6 +776,7 @@ proc ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting port!"
                     }  
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -685,6 +792,7 @@ proc ftp::StateHandler {s {sock ""}} {
                     }  
                     set errmsg "Error opening connection!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -692,10 +800,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) append $ftp(RemoteFilename)
                 }
                 default {
                     set errmsg "Error storing file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -705,6 +816,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 set ftp(State) reget_restart
             } else {
                 set errmsg "Error setting port!"
+		Command $ftp(Command) error $errmsg
             }
         }
         reget_passive {
@@ -718,6 +830,7 @@ proc ftp::StateHandler {s {sock ""}} {
                         if { ![OpenPassiveConn $s $buffer] } {
                             set errmsg "Error setting PASSIVE mode!"
                             set complete_with 0
+			    Command $ftp(Command) error $errmsg
                         }
                     }   
                     if { $ftp(FileSize) != 0 } {
@@ -731,6 +844,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 default {
                     set errmsg "Error restarting filetransfer of \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -748,6 +862,7 @@ proc ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting port!"
                     }  
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -763,6 +878,7 @@ proc ftp::StateHandler {s {sock ""}} {
                     }  
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -770,10 +886,13 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    Command $ftp(Command) get $ftp(RemoteFilename)
                 }
                 default {
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -783,6 +902,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 set ftp(State) get_open
             } else {
                 set errmsg "Error setting port!"
+		Command $ftp(Command) error $errmsg
             }
         } 
         get_passive {
@@ -791,12 +911,14 @@ proc ftp::StateHandler {s {sock ""}} {
         }
         get_open {
             switch -exact -- $rc {
-                2 -
+                1 -
+		2 -
                 3 {
                     if { [string equal $ftp(Mode) "passive"] } {
                         if { ![OpenPassiveConn $s $buffer] } {
                             set errmsg "Error setting PASSIVE mode!"
                             set complete_with 0
+			    Command $ftp(Command) error $errmsg
                         }
                     }   
                     PutsCtrlSock $s "RETR $ftp(RemoteFilename)"
@@ -809,6 +931,7 @@ proc ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting port!"
                     }  
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -824,6 +947,7 @@ proc ftp::StateHandler {s {sock ""}} {
                     }  
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -831,10 +955,19 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 2 {
                     set complete_with 1
+		    set nextState 1
+		    if {$ftp(inline)} {
+			upvar #0 $ftp(get:varname) returnData
+			set returnData $ftp(GetData)
+			Command $ftp(Command) get $ftp(GetData)
+		    } else {
+			Command $ftp(Command) get $ftp(RemoteFilename)
+		    }
                 }
                 default {
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
+		    Command $ftp(Command) error $errmsg
                 }
             }
         }
@@ -858,6 +991,14 @@ proc ftp::StateHandler {s {sock ""}} {
     if { [info exists errmsg] } {
         set ftp(Error) $errmsg
         DisplayMsg $s $errmsg error
+    }
+
+    # If operating asynchronously, commence next state
+    if {$nextState && [info exists ftp(NextState)] && [llength $ftp(NextState)]} {
+	# Pop the head of the NextState queue
+	set ftp(State) [lindex $ftp(NextState) 0]
+	set ftp(NextState) [lreplace $ftp(NextState) 0 0]
+	StateHandler $s
     }
 
     # enable fileevent on control socket again
@@ -954,6 +1095,12 @@ proc ftp::NList {s { dir ""}} {
     # save current type and force ascii mode
     set old_type $ftp(Type)
     if { $ftp(Type) != "ascii" } {
+	if {[string length $ftp(Command)]} {
+	    set ftp(NextState) [list nlist_$ftp(Mode) type_change list_last]
+	    set ftp(type:changeto) $old_type
+	    Type $s ascii
+	    return {}
+	}
         Type $s ascii
     }
 
@@ -1020,6 +1167,12 @@ proc ftp::List {s {dir ""}} {
 
     set old_type $ftp(Type)
     if { ![string equal "$ftp(Type)" "ascii"] } {
+	if {[string length $ftp(Command)]} {
+	    set ftp(NextState) [list list_$ftp(Mode) type_change list_last]
+	    set ftp(type:changeto) $old_type
+	    Type $s ascii
+	    return {}
+	}
         Type $s ascii
     }
 
@@ -1038,27 +1191,31 @@ proc ftp::List {s {dir ""}} {
 
     unset ftp(Dir)
     if { $rc } { 
-		
-        # clear "total"-line
-
-        set l [split $ftp(List) "\n"]
-        set index [lsearch -regexp $l "^total"]
-        if { $index != "-1" } { 
-            set l [lreplace $l $index $index]
-        }
-
-        # clear blank line
-
-        set index [lsearch -regexp $l "^$"]
-        if { $index != "-1" } { 
-            set l [lreplace $l $index $index]
-        }
-
-        return $l
+	return [ListPostProcess $ftp(List)]
     } else {
         CloseDataConn $s
         return {}
     }
+}
+
+proc ftp::ListPostProcess l {
+
+    # clear "total"-line
+
+    set l [split $l "\n"]
+    set index [lsearch -regexp $l "^total"]
+    if { $index != "-1" } { 
+	set l [lreplace $l $index $index]
+    }
+
+    # clear blank line
+
+    set index [lsearch -regexp $l "^$"]
+    if { $index != "-1" } { 
+	set l [lreplace $l $index $index]
+    }
+
+    return $l
 }
 
 #############################################################################
@@ -1067,7 +1224,7 @@ proc ftp::List {s {dir ""}} {
 #
 # REMOTE FILE SIZE - This command gets the file size of the
 # file on the remote machine. 
-# ATTENTION! Doesn't work properly in ascci mode!
+# ATTENTION! Doesn't work properly in ascii mode!
 # (exported)
 # 
 # Arguments:
@@ -1101,7 +1258,9 @@ proc ftp::FileSize {s {filename ""}} {
     # wait for synchronization
     set rc [WaitOrTimeout $s]
 	
-    unset ftp(File)
+    if {![string length $ftp(Command)]} {
+	unset ftp(File)
+    }
 		
     if { $rc } {
         return $ftp(FileSize)
@@ -1152,16 +1311,22 @@ proc ftp::ModTime {s {filename ""}} {
     # wait for synchronization
     set rc [WaitOrTimeout $s]
 	
-    unset ftp(File)
+    if {![string length $ftp(Command)]} {
+	unset ftp(File)
+    }
 		
-    if { $rc } {
-        scan $ftp(DateTime) "%4s%2s%2s%2s%2s%2s" year month day hour min sec
-        set clock [clock scan "$month/$day/$year $hour:$min:$sec" -gmt 1]
-        unset year month day hour min sec
-        return $clock
+    if { ![string length $ftp(Command)] && $rc } {
+        return [ModTimePostProcess $ftp(DateTime)]
     } else {
         return {}
     }
+}
+
+proc ftp::ModTimePostProcess clock {
+    foreach {year month day hour min sec} {1 1 1 1 1 1} break
+    scan $clock "%4s%2s%2s%2s%2s%2s" year month day hour min sec
+    set clock [clock scan "$month/$day/$year $hour:$min:$sec" -gmt 1]
+    return $clock
 }
 
 #############################################################################
@@ -1242,7 +1407,9 @@ proc ftp::Cd {s {dir ""}} {
     # wait for synchronization
     set rc [WaitOrTimeout $s] 
 
-    unset ftp(Dir)
+    if {![string length $ftp(Command)]} {
+	unset ftp(Dir)
+    }
 	
     if { $rc } {
         return 1
@@ -1283,7 +1450,9 @@ proc ftp::MkDir {s dir} {
     # wait for synchronization
     set rc [WaitOrTimeout $s] 
 
-    unset ftp(Dir)
+    if {![string length $ftp(Command)]} {
+	unset ftp(Dir)
+    }
 	
     if { $rc } {
         return 1
@@ -1324,7 +1493,9 @@ proc ftp::RmDir {s dir} {
     # wait for synchronization
     set rc [WaitOrTimeout $s] 
 
-    unset ftp(Dir)
+    if {![string length $ftp(Command)]} {
+	unset ftp(Dir)
+    }
 	
     if { $rc } {
         return 1
@@ -1364,7 +1535,9 @@ proc ftp::Delete {s file} {
     # wait for synchronization
     set rc [WaitOrTimeout $s] 
 
-    unset ftp(File)
+    if {![string length $ftp(Command)]} {
+	unset ftp(File)
+    }
 	
     if { $rc } {
         return 1
@@ -1408,8 +1581,10 @@ proc ftp::Rename {s from to} {
     # wait for synchronization
     set rc [WaitOrTimeout $s] 
 
-    unset ftp(RenameFrom)
-    unset ftp(RenameTo)
+    if {![string length $ftp(Command)]} {
+	unset ftp(RenameFrom)
+	unset ftp(RenameTo)
+    }
 	
     if { $rc } {
         return 1
@@ -1515,6 +1690,7 @@ proc ftp::Put {s args} {
         set ftp(LocalFilename) $source
         set ftp(RemoteFilename) $dest
 
+	# TODO: read from source file asynchronously
         set ftp(SourceCI) [open $ftp(LocalFilename) r]
         if { [string equal $ftp(Type) "ascii"] } {
             fconfigure $ftp(SourceCI) -buffering line -blocking 1
@@ -1529,7 +1705,9 @@ proc ftp::Put {s args} {
     # wait for synchronization
     set rc [WaitOrTimeout $s]
     if { $rc } {
-        ElapsedTime $s [clock seconds]
+	if {![string length $ftp(Command)]} {
+	    ElapsedTime $s [clock seconds]
+	}
         return 1
     } else {
         CloseDataConn $s
@@ -1631,7 +1809,9 @@ proc ftp::Append {s args} {
     # wait for synchronization
     set rc [WaitOrTimeout $s]
     if { $rc } {
-        ElapsedTime $s [clock seconds]
+	if {![string length $ftp(Command)]} {
+	    ElapsedTime $s [clock seconds]
+	}
         return 1
     } else {
         CloseDataConn $s
@@ -1682,6 +1862,7 @@ proc ftp::Get {s args} {
             set ftp(filebuffer) ""
 	} elseif {($ftp(inline)) && ([string equal $varname "**NONE**"])} {
             set varname $arg
+	    set ftp(get:varname) $varname
 	} elseif {$source == ""} {
             set source $arg
 	} elseif {$dest == ""} {
@@ -1720,11 +1901,13 @@ proc ftp::Get {s args} {
     # wait for synchronization
     set rc [WaitOrTimeout $s]
     if { $rc } {
-        ElapsedTime $s [clock seconds]
-        if {$ftp(inline)} {
-            upvar $varname returnData
-            set returnData $ftp(GetData)
-        }
+	if {![string length $ftp(Command)]} {
+	    ElapsedTime $s [clock seconds]
+	    if {$ftp(inline)} {
+		upvar $varname returnData
+		set returnData $ftp(GetData)
+	    }
+	}
         return 1
     } else {
         if {$ftp(inline)} {
@@ -1779,7 +1962,9 @@ proc ftp::Reget {s source {dest ""}} {
     # wait for synchronization
     set rc [WaitOrTimeout $s]
     if { $rc } {
-        ElapsedTime $s [clock seconds]
+	if {![string length $ftp(Command)]} {
+	    ElapsedTime $s [clock seconds]
+	}
         return 1
     } else {
         CloseDataConn $s
@@ -1812,6 +1997,10 @@ proc ftp::Newer {s source {dest ""}} {
     if { ![info exists ftp(State)] } {
         DisplayMsg $s "Not connected!" error
         return 0
+    }
+
+    if {[string length $ftp(Command)]} {
+	return -code error "unable to retrieve file asynchronously (not implemented yet)"
     }
 
     if { $dest == "" } {
@@ -1868,6 +2057,7 @@ proc ftp::Quote {s args} {
     }
 
     set ftp(Cmd) $args
+    set ftp(Quote) {}
 
     set ftp(State) quote
     StateHandler $s
@@ -1990,6 +2180,8 @@ proc ftp::LazyClose {s } {
 #			-mode mode		switch active or passive file transfer
 #						(default active)
 #			-port number		alternative port (default 21)
+#			-command proc		callback for completion notification
+#						(no default)
 # 
 # Returns:
 # 0 -			Not logged in
@@ -2031,6 +2223,7 @@ proc ftp::Open {server user passwd args} {
     set ftp(Type) 		{}
     set ftp(Error) 		{}
     set ftp(Progress) 	{}
+    set ftp(Command)	{}
     set ftp(Output) 	{}
     set ftp(Blocksize) 	4096	
     set ftp(Timeout) 	600	
@@ -2043,7 +2236,7 @@ proc ftp::Open {server user passwd args} {
     set ftp(state.control) ""
 	
     # Get and set possible options
-    set options {-blocksize -timeout -mode -port -progress -output}
+    set options {-blocksize -timeout -mode -port -progress -output -command}
     foreach {option value} $args {
         if { [lsearch -exact $options $option] != "-1" } {
             if { $DEBUG } {
@@ -2061,6 +2254,7 @@ proc ftp::Open {server user passwd args} {
     if {[info exists \
             connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid)]} {
         after cancel $connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid)
+	Command $ftp(Command) connect $connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost))
         return $connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost))
     }
 
@@ -2070,17 +2264,23 @@ proc ftp::Open {server user passwd args} {
     # by a fileevent for the control channel.
 
     # Try to open a control connection
-    if { ![OpenControlConn $s] } {
+    if { ![OpenControlConn $s [expr {[string length $ftp(Command)] > 0}]] } {
         return -1
     }
 
     # waits for synchronization
     #   0 ... Not logged in
     #   1 ... User logged in
-    if { [WaitOrTimeout $s] } {
+    if {[string length $ftp(Command)]} {
+	# Don't wait - asynchronous operation
+	set ftp(NextState) {type connect_last}
+        set connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost)) $s
+	return $s
+    } elseif { [WaitOrTimeout $s] } {
         # default type is binary
         Type $s binary
         set connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost)) $s
+	Command $ftp(Command) connect $s
         return $s
     } else {
         # close connection if not logged in
@@ -2109,13 +2309,15 @@ proc ftp::CopyNext {s bytes {error {}}} {
 
     # callback for progress bar procedure
     
-    if { ([info exists ftp(Progress)]) && ([info commands [lindex $ftp(Progress) 0]] != "") } { 
+    if { ([info exists ftp(Progress)]) && \
+	    [string length $ftp(Progress)] && \
+	    ([info commands [lindex $ftp(Progress) 0]] != "") } { 
         eval $ftp(Progress) $ftp(Total)
     }
 
     # setup new timeout handler
 
-    after cancel $ftp(Wait)
+    catch {after cancel $ftp(Wait)}
     set ftp(Wait) [after [expr {$ftp(Timeout) * 1000}] [namespace current]::Timeout $s]
 
     if { $DEBUG } {
@@ -2145,7 +2347,7 @@ proc ftp::CopyNext {s bytes {error {}}} {
 
 #############################################################################
 #
-# HandleList --
+# HandleData --
 #
 # Handles ascii/binary data transfer for Put and Get 
 # 
@@ -2168,6 +2370,7 @@ proc ftp::HandleData {s sock} {
             DisplayMsg $s "$msg" error
             return 0
         }
+	# TODO: Use non-blocking I/O
         if { [string equal $ftp(Type) "ascii"] } {
             fconfigure $ftp(DestCI) -buffering line -blocking 1
         } else {
@@ -2183,6 +2386,7 @@ proc ftp::HandleData {s sock} {
             DisplayMsg $s "$msg" error
             return 0
         }
+	# TODO: Use non-blocking I/O
         if { [string equal $ftp(Type) "ascii"] } {
             fconfigure $ftp(DestCI) -buffering line -blocking 1
         } else {
@@ -2218,7 +2422,7 @@ proc ftp::HandleList {s sock} {
         }	
     } else {
         close $sock
-        unset ftp(state.data)
+        catch {unset ftp(state.data)}
         if { $VERBOSE } {
             DisplayMsg $s "D: Port closed" data
         }
@@ -2252,7 +2456,7 @@ proc ftp::HandleVar {s sock} {
         }	
     } else {
         close $sock
-        unset ftp(state.data)
+        catch {unset ftp(state.data)}
         if { $VERBOSE } {
             DisplayMsg $s "D: Port closed" data
         }
@@ -2293,7 +2497,7 @@ proc ftp::HandleOutput {s sock} {
     } else {
         fileevent $sock writable {}		
         close $sock
-        unset ftp(state.data)
+        catch {unset ftp(state.data)}
         if { $VERBOSE } {
             DisplayMsg $s "D: Port closed" data
         }
@@ -2349,12 +2553,17 @@ proc ftp::InitDataConn {s sock addr port} {
 
     set ftp(state.data) 0
 
-    # Configure translation mode
+    # Configure translation and blocking modes
+
+    set blocking 1
+    if {[string length $ftp(Command)]} {
+	set blocking 0
+    }
 
     if { [string equal $ftp(Type) "ascii"] } {
-        fconfigure $sock -buffering line -blocking 1
+        fconfigure $sock -buffering line -blocking $blocking
     } else {
-        fconfigure $sock -buffering line -translation binary -blocking 1
+        fconfigure $sock -buffering line -translation binary -blocking $blocking
     }
 
     # assign fileevent handlers, source and destination CI (Channel Identifier)
@@ -2474,13 +2683,14 @@ proc ftp::OpenPassiveConn {s buffer} {
 # Opens a ftp control connection
 # 
 # Arguments:
-# None.
+#	s	connection id
+#	block	blocking or non-blocking mode
 # 
 # Returns:
 # 0 -			no connection
 # 1 - 			connection established
 
-proc ftp::OpenControlConn {s } {
+proc ftp::OpenControlConn {s {block 1}} {
     upvar ::ftp::ftp$s ftp
     variable DEBUG
     variable VERBOSE
@@ -2501,7 +2711,7 @@ proc ftp::OpenControlConn {s } {
 
     # configure control channel
 
-    fconfigure $ftp(CtrlSock) -buffering line -blocking 1 -translation {auto crlf}
+    fconfigure $ftp(CtrlSock) -buffering line -blocking $block -translation {auto crlf}
     fileevent $ftp(CtrlSock) readable [list [namespace current]::StateHandler $s $ftp(CtrlSock)]
 	
     # prepare local ip address for PORT command (convert pointed format
@@ -2518,6 +2728,24 @@ proc ftp::OpenControlConn {s } {
     }
 	
     return 1
+}
+
+# ftp::Command --
+#
+#	Wrapper for evaluated user-supplied command callback
+#
+# Arguments:
+#	cb	callback script
+#	msg	what happened
+#	args	additional info
+#
+# Results:
+#	Depends on callback script
+
+proc ftp::Command {cb msg args} {
+    if {[string length $cb]} {
+	uplevel #0 $cb [list $msg] $args
+    }
 }
 
 # ?????? Hmm, how to do multithreaded for tkcon?

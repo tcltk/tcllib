@@ -1,5 +1,5 @@
 =========================
-ftp 2.1 (08/16/2000)
+ftp 2.2 (08/16/2000)
 =========================
 
 files:
@@ -41,7 +41,7 @@ The FTP Library Package extends tcl/tk with commands to support the
 FTP protocol. The library package is 100% tcl code, no extensions, no
 C stuff. It is easily to include in programs with 
 
-             package require ftp 2.1
+             package require ftp 2.2
 
 Now everybody can write an own ftp program with an own GUI. It works
 with Windows, UNIX, and also, but not tested on Mac. The ftp package
