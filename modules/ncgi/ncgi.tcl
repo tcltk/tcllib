@@ -2,7 +2,7 @@
 #
 # Basic support for CGI programs
 
-# Please note that Don Libe's has a "cgi.tcl" that implements version 1.0
+# Please note that Don Libes' has a "cgi.tcl" that implements version 1.0
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures
 # (it doesn't use the ::cgi:: namespace) and has a wealth of procedures for
 # generating HTML.  In contract, the package provided here is primarly

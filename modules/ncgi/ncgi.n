@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ncgi.n,v 1.2 2000/05/02 20:42:25 welch Exp $
+'\" RCS: @(#) $Id: ncgi.n,v 1.3 2000/05/04 04:40:37 welch Exp $
 '\" 
 .so man.macros
 .TH ncgi n 1.0 Ncgi "CGI Support"
@@ -62,27 +62,24 @@ code.  Use the \fB::ncgi\fP package to query these values,
 set and get cookies, and encode and decode www-url-encoded values.
 
 .PP
+In the simplest case, a CGI script first calls
+\fBncgi::parse\fP and then calls \fBncgi::value\fP to get different
+form values.  If a CGI value is repeated, you should use
+\fBncgi::valueList\fP to get back the complete list of values.
+
+.PP
+An alternative to \fBncgi::parse\fP is \fBncgi::input\fP,
+which has semanatics similar to Don Libes' \fBcgi_input\fP procedure.
+\fBncgi::input\fP restricts repeated CGI values to have names
+that end with "List".  In this case, \fBncgi::value\fP will return
+the complete list of values, and \fBncgi::input\fP will raise
+errors if it find repeated form elements without the right name.
+
+.PP
 The \fBncgi::reset\fP procedure can be used in test suites and
 Web servers to initialize the source of the CGI values.
 Otherwise the values are read in from the CGI environment.
 
-.PP
-The \fBncgi::parse\fP and \fBncgi::input\fP procedures are similar
-in function.  Both procedures read and decode the CGI values and
-store them for later retrieval with \fBncgi::value\fP,
-\fBncgi::nvlist\fP.  These procedures differ in how they deal with
-repeated form values.  
-.PP
-\fBncgi::input\fP behaves like Don Libe's
-\fBcgi_input\fP procedure.  It enforces a
-restriction that repeated form elements must have a name that
-ends with "List", like "fruitList" or "productList".
-\fBncgi::value\fP will return the list of values.
-.PP
-\fBncgi::parse\fP places no restrictions on the form element names.
-The \fBncgi::value\fP procedure always returns the first value
-in the case a form value is repeated.
-The \fBncgi::valueList\fP procedure should be used to get the complete list.
 .PP
 The complete set of procedures is described below.
 
