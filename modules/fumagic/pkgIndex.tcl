@@ -1,6 +1,7 @@
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 
-# Recognizer
+# Recognizers
+package ifneeded fileutil::magic::filetype 1.0 [list source [file join $dir filetypes.tcl]]
 package ifneeded fileutil::magic::mimetype 1.0 [list source [file join $dir mimetypes.tcl]]
 
 # Runtime
