@@ -3,27 +3,43 @@
 # Cyclic Redundancy Check - this is a Tcl implementation of a general
 # table-driven CRC implementation. This code should be able to generate
 # the lookup table and implement the correct algorithm for most types
-# of CRC. CRC-16, CRC-32 and the CITT version of CRC-16.
+# of CRC. CRC-16, CRC-32 and the CCITT version of CRC-16. [1][2][3]
+# Most transmission CRCs use the CCITT polynomial (including X.25, SDLC
+# and Kermit).
 #
-# See http://www.microconsultants.com/tips/crc/crc.txt for the reference
-# implementation and http://www.embedded.com/internet/0001/0001connect.htm
-# for another good discussion of why things are the way they are.
+# [1] http://www.microconsultants.com/tips/crc/crc.txt for the reference
+#     implementation 
+# [2] http://www.embedded.com/internet/0001/0001connect.htm
+#     for another good discussion of why things are the way they are.
+# [3] "Numerical Recipes in C", Press WH et al. Chapter 20.
 #
 # Checks: a crc for the string "123456789" should give:
 #   CRC16:     0xBB3D
 #   CRC-CCITT: 0x29B1
+#   XMODEM:    0x31C3
 #   CRC-32:    0xCBF43926
 #
 # eg: crc::crc16 "123456789"
 #     crc::crc-ccitt "123456789"
 # or  crc::crc16 -file tclsh.exe
 #
+# Note:
+#  The CCITT CRC can very easily be checked for the accuracy of transmission
+#  as the CRC of the message plus the CRC values will be 0. That is:
+#   % set msg {123456789]
+#   % set crc [crc::crc-ccitt $msg]
+#   % crc::crc-ccitt $msg[binary format S $crc]
+#   0
+#
+#  The same is true of other CRCs but some operate in reverse bit order:
+#   % crc::crc16 $msg[binary format s [crc::crc16 $msg]]
+#   0
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.8 2003/05/08 23:55:37 patthoyts Exp $
+# $Id: crc16.tcl,v 1.9 2003/05/29 00:06:49 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -36,7 +52,7 @@ namespace eval ::crc {
     # Standard CRC generator polynomials.
     variable polynomial
     set polynomial(crc16) [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
-    set polynomial(citt)  [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(ccitt) [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
     set polynomial(crc32) [expr {(1<<32) | (1<<26) | (1<<23) | (1<<22) 
                                  | (1<<16) | (1<<12) | (1<<11) | (1<<10)
                                  | (1<<8) | (1<<7) | (1<<5) | (1<<4)
@@ -60,9 +76,9 @@ namespace eval ::crc {
 # Setting 'reflected' changes the bit order for input bytes.
 # Returns a list or 255 elements.
 #
-# CRC-32:     Crc_table 32 $crc::polynomial(crc32) 1
-# CRC-16:     Crc_table 16 $crc::polynomial(crc16) 1
-# CRC16/CITT: Crc_table 16 $crc::polynomial(citt)  0
+# CRC-32:      Crc_table 32 $crc::polynomial(crc32) 1
+# CRC-16:      Crc_table 16 $crc::polynomial(crc16) 1
+# CRC16/CCITT: Crc_table 16 $crc::polynomial(ccitt) 0
 #
 proc ::crc::Crc_table {width poly reflected} {
     set tbl {}
@@ -175,14 +191,14 @@ proc ::crc::CRC16 {s {seed 0}} {
 # -------------------------------------------------------------------------
 # Specialisation of the general crc procedure to perform the CCITT telecoms
 # flavour of the CRC16 checksum
-proc ::crc::CRC-CCITT {s {seed 0xFFFF}} {
+proc ::crc::CRC-CCITT {s {seed 0}} {
     variable table
-    if {![info exists table(citt)]} {
+    if {![info exists table(ccitt)]} {
         variable polynomial
-        set table(citt) [Crc_table 16 $polynomial(citt) 0]
+        set table(ccitt) [Crc_table 16 $polynomial(ccitt) 0]
     }
 
-    return [Crc $s 16 [namespace current]::table(citt) $seed 0 0]
+    return [Crc $s 16 [namespace current]::table(ccitt) $seed 0 0]
 }
 
 # -------------------------------------------------------------------------
@@ -202,15 +218,19 @@ proc ::crc::CRC-32 {s {seed 0xFFFFFFFF}} {
 # -------------------------------------------------------------------------
 # User level CRC command.
 proc ::crc::crc {args} {
-    array set opts [list filename {} format %u seed 0 impl [namespace origin CRC16]]
+    array set opts [list filename {} channel {} chunksize 4096 \
+                        format %u  seed 0 \
+                        impl [namespace origin CRC16]]
     
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
-            -fi* { set opts(filename) [Pop args 1] }
-            -fo* { set opts(format) [Pop args 1] }
-            -i*  { set opts(impl) [uplevel 1 namespace origin [Pop args 1]] }
-            -s*  { set opts(seed) [Pop args 1] }
-            -- { Pop args ; break }
+            -fi*  { set opts(filename) [Pop args 1] }
+            -cha* { set opts(channel) [Pop args 1] }
+            -chu* { set opts(chunksize) [Pop args 1] }
+            -fo*  { set opts(format) [Pop args 1] }
+            -i*   { set opts(impl) [uplevel 1 namespace origin [Pop args 1]] }
+            -s*   { set opts(seed) [Pop args 1] }
+            --    { Pop args ; break }
             default {
                 set options [join [lsort [array names opts]] ", -"]
                 return -code error "bad option $option:\
@@ -221,14 +241,22 @@ proc ::crc::crc {args} {
     }
 
     if {$opts(filename) != {}} {
+        set opts(channel) [open $opts(filename) r]
+        fconfigure $opts(channel) -translation binary
+    }
+
+    if {$opts(channel) != {}} {
         set r $opts(seed)
-        set f [open $opts(filename) r]
-        fconfigure $f -translation binary
-        while {![eof $f]} {
-            set chunk [read $f 4096]
+        set trans [fconfigure $opts(channel) -translation]
+        fconfigure $opts(channel) -translation binary
+        while {![eof $opts(channel)]} {
+            set chunk [read $opts(channel) $opts(chunksize)]
             set r [$opts(impl) $chunk $r]
         }
-        close $f
+        fconfigure $opts(channel) -translation $trans
+        if {$opts(filename) != {}} {
+            close $opts(channel)
+        }
     } else {
         if {[llength $args] != 1} {
             return -code error "wrong \# args: should be\
@@ -244,15 +272,21 @@ proc ::crc::crc {args} {
 # The user commands. See 'crc'
 #
 proc ::crc::crc16 {args} {
-    return [eval crc -impl [namespace origin CRC16] $args]
+    return [eval [list crc -impl [namespace origin CRC16]] $args]
 }
 
 proc ::crc::crc-ccitt {args} {
-    return [eval crc -impl [namespace origin CRC-CCITT] -seed 0xFFFF $args]
+    return [eval [list crc -impl [namespace origin CRC-CCITT] -seed 0xFFFF]\
+                $args]
+}
+
+proc ::crc::xmodem {args} {
+    return [eval [list crc -impl [namespace origin CRC-CCITT] -seed 0] $args]
 }
 
 proc ::crc::crc-32 {args} {
-    return [eval crc -impl [namespace origin CRC-32] -seed 0xFFFFFFFF $args]
+    return [eval [list crc -impl [namespace origin CRC-32] -seed 0xFFFFFFFF]\
+                $args]
 }
 
 # -------------------------------------------------------------------------

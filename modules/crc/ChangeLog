@@ -1,3 +1,9 @@
+2003-05-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc16.tcl: Added XMODEM CRC algorithm - as used in the
+	XMODEM-CRC protocol. (Simple XMODEM uses a SysV type checksum).
+	Also added a -channel option to the crc command.
+
 2003-05-09  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crcc.tcl: Added placeholder to get a module library for all the
