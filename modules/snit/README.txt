@@ -24,6 +24,11 @@ V0.97.
 * Added the -hasinfo pragma, which controls whether there's an
   "info" instance method or not.  By default, there is.
 
+* POSSIBLE INCOMPATIBILITY: If no options are defined for a type, neither
+  locally nor delegated, then Snit will not define the "configure", 
+  "configurelist", and "cget" instance methods or the "options" 
+  instance variable.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
