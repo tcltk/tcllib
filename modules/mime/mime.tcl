@@ -10,8 +10,26 @@
 
 package provide mime 1.2
 
-package require Trf  2.0
+if {[catch {package require Trf  2.0}]} {
 
+    # Fall-back to tcl-based procedures of base64 and quoted-printable encoders
+    # Warning!
+    # These are a fragile emulations of the more general calling sequence
+    # that appears to work with this code here.
+
+    package require base64 2.0
+    proc base64 {-mode what -- chunk} {
+	return [base64::$what $chunk]
+    }
+    proc quoted-printable {-mode what -- chunk} {
+	return [mime::qp_$what $chunk]
+    }
+    proc md5 {-- string} {
+	# md5 is just used to uniquify something - bail for the moment
+	# 31 is completely random - just want something long for boundaries
+	return [string range $string 0 31]
+    }
+}
 
 #
 # state variables:
@@ -1169,7 +1187,7 @@ proc mime::copymessageaux {token channel} {
     } elseif {([string match multipart/* $state(content)]) \
                     && (![string compare $boundary ""])} {
 # we're doing everything in one pass...
-        set key [info hostname]$token[clock seconds][array get state]
+        set key [clock seconds]$token[info hostname][array get state]
         set seqno 8
         while {[incr seqno -1] >= 0} {
             set key [md5 -- $key]
@@ -1285,6 +1303,200 @@ proc mime::copymessageaux {token channel} {
     if {[info exists state(error)]} {
         error $state(error)
     }
+}
+
+#
+# The following is a clone of the copymessage code to build up the
+# result in memory, and, unfortunately, without using a memory channel.
+# I considered parameterizing the "puts" calls in copy message, but
+# the need for this procedure may go away, so I'm living with it for
+# the moment.
+#
+
+proc mime::buildmessage {token} {
+    global errorCode errorInfo
+
+    variable $token
+    upvar 0 $token state
+
+    set openP [info exists state(fd)]
+
+    set code [catch { mime::buildmessageaux $token } result]
+    set ecode $errorCode
+    set einfo $errorInfo
+
+    if {(!$openP) && ([info exists state(fd)])} {
+        if {![info exists state(root)]} {
+            catch { close $state(fd) }
+        }
+        unset state(fd)
+    }
+
+    return -code $code -errorinfo $einfo -errorcode $ecode $result
+}
+
+proc mime::buildmessageaux {token} {
+    variable $token
+    upvar 0 $token state
+
+    array set header $state(header)
+
+    set result ""
+    if {[string compare $state(version) ""]} {
+        append result "MIME-Version: $state(version)\n"
+    }
+    foreach lower $state(lowerL) mixed $state(mixedL) {
+        foreach value $header($lower) {
+            append result "$mixed: $value\n"
+        }
+    }
+    if {(!$state(canonicalP)) \
+            && ([string compare [set encoding $state(encoding)] ""])} {
+        append result "Content-Transfer-Encoding: $encoding\n"
+    }
+
+    append result "Content-Type: $state(content)"
+    set boundary ""
+    foreach {k v} $state(params) {
+        if {![string compare $k boundary]} {
+            set boundary $v
+        }
+
+        append result ";\n              $k=\"$v\""
+    }
+
+    set converter ""
+    set encoding ""
+    if {[string compare $state(value) parts]} {
+        append result \n
+
+        if {$state(canonicalP)} {
+            if {![string compare [set encoding $state(encoding)] ""]} {
+                set encoding [mime::encoding $token]
+            }
+            if {[string compare $encoding ""]} {
+                append result "Content-Transfer-Encoding: $encoding\n"
+            }
+            switch -- $encoding {
+                base64
+                    -
+                quoted-printable {
+                    set converter $encoding
+                }
+            }
+        }
+    } elseif {([string match multipart/* $state(content)]) \
+                    && (![string compare $boundary ""])} {
+# we're doing everything in one pass...
+        set key [clock seconds]$token[info hostname][array get state]
+        set seqno 8
+        while {[incr seqno -1] >= 0} {
+            set key [md5 -- $key]
+        }
+        set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
+
+        append result ";\n              boundary=\"$boundary\"\n"
+    } else {
+        append result \n
+    }
+
+    catch { unset state(error) }
+                
+    switch -- $state(value) {
+        file {
+            set closeP 1
+            if {[info exists state(root)]} {
+                variable $state(root)
+                upvar 0 $state(root) root 
+
+                if {[info exists root(fd)]} {
+                    set fd $root(fd)
+                    set closeP 0
+                } else {
+                    set fd [set state(fd) \
+                                [open $state(file) { RDONLY }]]
+                }
+                set size $state(count)
+            } else {
+                set fd [set state(fd) [open $state(file) { RDONLY }]]
+                set size -1	;# Read until EOF
+            }
+            seek $fd $state(offset) start
+            if {$closeP} {
+                fconfigure $fd -translation binary
+            }
+
+            append result \n
+
+	    while {($size != 0) && (![eof $state(fd)])} {
+		if {$size < 0 || $size > 32768} {
+		    set X [read $state(fd) 32768]
+		} else {
+		    set X [read $state(fd)]
+		}
+		if {$size > 0} {
+		    set size [expr {$size - [string length $X]}]
+		}
+		if {[string compare $converter ""]} {
+		    append result [$converter -mode encode -- $X]
+		} else {
+		    append result $X
+		}
+	    }
+
+            if {$closeP} {
+                catch { close $state(fd) }
+                unset state(fd)
+            }
+        }
+
+        parts {
+            if {(![info exists state(root)]) \
+                    && ([info exists state(file)])} {
+                set state(fd) [open $state(file) { RDONLY }]
+                fconfigure $state(fd) -translation binary
+            }
+
+            switch -glob -- $state(content) {
+                message/* {
+                    append result \n
+                    foreach part $state(parts) {
+                        mime::buildmessage $part
+                        break
+                    }
+                }
+
+                default {
+                    foreach part $state(parts) {
+                        append result "\n--$boundary\n"
+                        mime::buildmessage $part
+                    }
+                    append result "\n--$boundary--\n"
+                }
+            }
+
+            if {[info exists state(fd)]} {
+                catch { close $state(fd) }
+                unset state(fd)
+            }
+        }
+
+        string {
+
+            append result "\n"
+
+	    if {[string compare $converter ""]} {
+		append result [$converter -mode encode -- $state(string)]
+	    } else {
+		append result $state(string)
+	    }
+        }
+    }
+
+    if {[info exists state(error)]} {
+        error $state(error)
+    }
+    return $result
 }
 
 
@@ -1457,6 +1669,61 @@ proc mime::scopy {token channel offset len blocksize} {
     }
 }
 
+# Tcl version of quote-printable encode/decode
+
+proc mime::qp_encode {string} {
+
+    # Protect Tcl special chars
+    regsub -all {[][\\\$]} $string {\\&} string
+
+    # Replace outlying characters with =xx sequence
+    regsub -all \[\x00-\x08\x0B-\x1E=\x7F-\xFF] $string \
+		{[scan & %c c; format "=%02X" $c]} string
+
+    # soft/hard newlines
+    regsub -all {[ 	]\n} $string "=\n\n" string
+
+    # Funky cases for SMTP compatibility
+    regsub -all "\n.\n" $string "\n=2E\n" string
+    regsub -all "\nFrom " $string "\n=46rom " string
+
+    # Replace the format commands with their result
+    set string [subst $string]
+
+    # Break long lines - ugh
+    set result ""
+    foreach line [split $string \n] {
+	while {[string length $line] > 72} {
+	    set chunk [string range $line 0 72]
+	    if {[regexp (=|=.)$ $chunk dummy end]} {
+		# Don't break in the middle of a code
+		set len [expr {72 - [string length $end]}]
+		set chunk [string range $line 0 $len]
+		incr len
+		set line [string range $line $len end]
+	    } else {
+		set line [string range $line 73 end]
+	    }
+	    append result $chunk=\n
+	}
+	append result $line\n
+    }
+    return $result
+}
+
+proc mime::qp_decode {string} {
+
+    # Protect Tcl special chars
+    regsub -all {[][\\\$]} $string {\\&} string
+
+    # smash soft newlines
+    regsub -all {=\n} $string {} string
+
+    # Decode specials
+    regsub -all =(..) $string {[format %c 0x\1]} string
+
+    return [subst $string]
+}
 
 #
 # address handling
