@@ -1,0 +1,586 @@
+########################################################################
+# BigFloat for Tcl
+# Copyright (C) 2003-2004  ARNOLD Stephane
+#
+# BIGFLOAT LICENSE TERMS
+#
+# This software is copyrighted by Stephane ARNOLD, (stephanearnold <at> yahoo.fr).
+# The following terms apply to all files associated
+# with the software unless explicitly disclaimed in individual files.
+#
+# The authors hereby grant permission to use, copy, modify, distribute,
+# and license this software and its documentation for any purpose, provided
+# that existing copyright notices are retained in all copies and that this
+# notice is included verbatim in any distributions. No written agreement,
+# license, or royalty fee is required for any of the authorized uses.
+# Modifications to this software may be copyrighted by their authors
+# and need not follow the licensing terms described here, provided that
+# the new terms are clearly indicated on the first page of each file where
+# they apply.
+#
+# IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
+# FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+# ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
+# DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
+# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
+# IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
+# NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+# MODIFICATIONS.
+#
+# GOVERNMENT USE: If you are acquiring this software on behalf of the
+# U.S. government, the Government shall have only "Restricted Rights"
+# in the software and related documentation as defined in the Federal
+# Acquisition Regulations (FARs) in Clause 52.227.19 (c) (2).  If you
+# are acquiring the software on behalf of the Department of Defense, the
+# software shall be classified as "Commercial Computer Software" and the
+# Government shall have only "Restricted Rights" as defined in Clause
+# 252.227-7013 (c) (1) of DFARs.  Notwithstanding the foregoing, the
+# authors grant the U.S. Government and others acting in its behalf
+# permission to use and distribute the software in accordance with the
+# terms specified in this license.
+#
+# Web site : http://sarnold.free.fr/
+########################################################################
+
+package forget bigfloat
+catch { namespace delete ::math::bigfloat }
+
+# Direct loading of provide script -- support testing even
+# when not installed.  And be sure we test the local copy
+# and not some later version that may be installed.
+source [file join [file dirname [info script]] bigfloat.tcl]
+
+
+package require tcltest
+proc assert {code result} {
+    #puts "bigfloat : eval $code"
+    tcltest::test bigfloat-1.0 "'$code' in bigfloat" {uplevel 1 $code} $result
+    return
+}
+
+
+proc Zero {x} {
+    global tcl_precision
+    set x [expr {abs($x)}]
+    set x [string trimright $x 0]
+    set epsilon 10.0e-$tcl_precision
+    return [expr {$x<$epsilon}]
+}
+
+proc fassert {code result} {
+    #puts "bigfloat : eval $code"
+    set tested [uplevel 1 $code]
+    if {[Zero $tested]} {
+        tcltest::test bigfloat-1.0 "'$code' in bigfloat" {return [Zero $result]} 1
+        return
+    }
+    set resultat [Zero [expr {($tested-$result)/((abs($tested)>1)?($tested):1.0)}]]
+    tcltest::test bigfloat-1.0 "'$code' in bigfloat" {return $resultat} 1
+    return
+}
+# preprocessing is done
+#set n ::math::bigfloat::
+
+
+######################################################
+# Begin testsuite
+######################################################
+
+
+
+# adds 999..9 and 1 -> 1000..0
+for {set i 1} {$i<15} {incr i} {
+    assert {::math::bigfloat::add [string repeat 999 $i] 1} 1[string repeat 000 $i]
+}
+# sub 1000..0 1 -> 999..9
+for {set i 1} {$i<15} {incr i} {
+    assert {::math::bigfloat::sub 1[string repeat 000 $i] 1} [string repeat 999 $i]
+}
+# mul 10001000..1000 with 1..9
+for {set i 1} {$i<15} {incr i} {
+    foreach j {1 2 3 4 5 6 7 8 9} {
+        assert {::math::bigfloat::mul [string repeat 1000 $i] $j} [string repeat ${j}000 $i]
+    }
+}
+# div 10^8 by 1 .. 9
+for {set i 1} {$i<=9} {incr i} {
+    assert {::math::bigfloat::div 100000000 $i} [expr {wide(100000000)/$i}]
+}
+
+# 10^8 modulo 1 .. 9
+for {set i 1} {$i<=9} {incr i} {
+    assert {::math::bigfloat::mod 100000000 $i} [expr {wide(100000000)%$i}]
+}
+################################################################################
+# abs()
+################################################################################
+proc abs {x} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::abs [::math::bigfloat::fromstr $x]]} [expr {abs($x)}]
+}
+abs 1.000
+abs -1.000
+abs -0.10
+rename abs ""
+
+################################################################################
+# opposite
+################################################################################
+proc opp {x} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::opp [::math::bigfloat::fromstr $x]]} [expr {-$x}]
+}
+opp 1.00
+opp -1.00
+opp 0.10
+opp -0.10
+opp 0.00
+rename opp ""
+
+################################################################################
+# equal
+################################################################################
+proc equal {x y} {
+    ::math::bigfloat::equal [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]
+}
+assert {equal 0.0 0.1} 1
+assert {equal 0.00 0.10} 0
+assert {equal 0.0 -0.1} 1
+assert {equal 0.00 -0.10} 0
+
+################################################################################
+# compare
+################################################################################
+proc compare {x y} {
+    ::math::bigfloat::compare [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]
+}
+fassert {compare 0.0 0.10} 0
+fassert {compare 0.1 0.3} 0
+fassert {compare 0.0 -1.0} 1
+fassert {compare -1.0 0.0} -1
+fassert {compare 0.00 0.10} -1
+
+################################################################################
+# round
+################################################################################
+proc round {x} {
+    assert {::math::bigfloat::round [::math::bigfloat::fromstr $x]} [expr {round($x)}]
+}
+round 0.10
+round 0.0
+round 0.50
+round 0.40
+round 1.0
+round -0.40
+round -0.50
+round -1.0
+
+# cleanup
+rename round ""
+
+################################################################################
+# floor
+################################################################################
+proc floor {x} {
+    assert {::math::bigfloat::floor [::math::bigfloat::fromstr $x]} [expr {int(floor($x))}]
+}
+floor 0.10
+floor 0.90
+floor 1.0
+floor -0.10
+floor -1.0
+
+# cleanup
+rename floor ""
+
+################################################################################
+# ceil
+################################################################################
+proc ceil {x} {
+    assert {::math::bigfloat::ceil [::math::bigfloat::fromstr $x]} [expr {int(ceil($x))}]
+}
+ceil 0.10
+ceil 0.90
+ceil 1.0
+ceil -0.10
+ceil -1.0
+ceil 0.0
+
+# cleanup
+rename ceil ""
+
+
+################################################################################
+# addition
+################################################################################
+proc add {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::add [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x+$y}]
+}
+proc addxInt {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::add $x [::math::bigfloat::fromstr $y]]} [expr {$x+$y}]
+}
+proc addyInt {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::add [::math::bigfloat::fromstr $x] $y]} [expr {$x+$y}]
+}
+add 1.00 2.00
+add -1.00 2.00
+add 1.00 -2.00
+add -1.00 -2.00
+add 0.00 1.00
+add 0.00 -1.00
+addxInt 1 2.00
+addxInt 1 -2.00
+addxInt 0 1.00
+addxInt 0 -1.00
+addyInt 2.00 1
+addyInt -2.00 1
+addyInt 1.00 0
+addyInt -1.00 0
+#cleanup
+rename add ""
+rename addxInt ""
+rename addyInt ""
+
+################################################################################
+# substraction
+################################################################################
+proc sub {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::sub [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x-$y}]
+}
+proc subxInt {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::sub $x [::math::bigfloat::fromstr $y]]} [expr {$x-$y}]
+}
+proc subyInt {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::sub [::math::bigfloat::fromstr $x] $y]} [expr {$x-$y}]
+}
+sub 1.00 2.00
+sub -1.00 2.00
+sub 1.00 -2.00
+sub -1.00 -2.00
+sub 0.00 1.00
+sub 0.00 -1.00
+subxInt 1 2.00
+subxInt 1 -2.00
+subxInt 0 2.00
+subxInt 0 -2.00
+subxInt 2 0.00
+subyInt 2.00 1
+subyInt 1.00 2
+subyInt -1.00 1
+subyInt 0.00 2
+subyInt 2.00 0
+# cleanup
+rename sub ""
+rename subxInt ""
+rename subyInt ""
+
+
+################################################################################
+# multiplication
+################################################################################
+proc mul {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::mul [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x*$y}]
+}
+proc mulxInt {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::mul $x [::math::bigfloat::fromstr $y]]} [expr {$x*$y}]
+}
+proc mulyInt {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::mul [::math::bigfloat::fromstr $x] $y]} [expr {$x*$y}]
+}
+proc mulInt {x y} {
+    mulxInt $x $y
+    mulyInt $y $x
+}
+mul 1.00 2.00
+mul -1.00 2.00
+mul 1.00 -2.00
+mul -1.00 -2.00
+mul 0.00 1.00
+mul 0.00 -1.00
+mul 1.00 10.0
+mulInt 1 2.00
+mulInt 1 -2.00
+mulInt 0 2.00
+mulInt 0 -2.00
+mulInt 10 2.00
+mulInt 10 -2.00
+mulInt 1 0.00
+
+
+# cleanup
+rename mul ""
+rename mulxInt ""
+rename mulyInt ""
+rename mulInt ""
+
+################################################################################
+# division
+################################################################################
+proc div {x y} {
+    
+    fassert {::math::bigfloat::tostr [::math::bigfloat::div [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x/$y}]
+}
+
+
+div 1.00 2.00
+div 2.00 1.00
+div -1.00 2.00
+div 1.00 -2.00
+div 2.00 -1.00
+div -2.00 1.00
+div -1.00 -2.00
+div -2.00 -1.00
+div 0.0 1.0
+div 0.0 -1.0
+
+# cleanup
+rename div ""
+
+################################################################################
+# rest of the division
+################################################################################
+proc mod {x y expected} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::mod [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} $expected
+}
+proc intmod {x y expected} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::mod [::math::bigfloat::fromstr $x] $y]} $expected
+}
+
+mod 1.00 2.00 1.0
+mod 2.00 1.00 0.0
+mod -1.00 2.00 1.0
+mod 1.00 -2.00 -1.0
+mod 2.00 -1.00 0.0
+mod -2.00 1.00 0.0
+mod -1.00 -2.00 -1.0
+mod -2.00 -1.00 0.0
+mod 0.0 1.0 0.0
+mod 0.0 -1.0 0.0
+
+intmod 1.00 2 1.0
+intmod 2.00 1 0.0
+intmod -1.00 2 1.0
+intmod -2.00 1 0.0
+intmod 0.0 1 0.0
+intmod 1.50 1 0.5
+
+# cleanup
+rename mod ""
+rename intmod ""
+
+################################################################################
+# intdiv : divide a float by an integer
+################################################################################
+proc intdiv {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::div [::math::bigfloat::fromstr $x] $y]} \
+            [expr {double(round(1000*$x/$y))/1000.0}]
+}
+
+foreach a {1.0000 -1.0000} {
+    foreach b {2 3} {
+        intdiv $a $b
+    }
+}
+
+# cleanup
+rename intdiv ""
+
+################################################################################
+# pow : takes a float to an integer power (>0)
+################################################################################
+proc pow {x y} {
+    fassert {::math::bigfloat::tostr [::math::bigfloat::pow [::math::bigfloat::fromstr $x] $y]} \
+            [expr [join [string repeat "$x " $y] *]]
+}
+proc intpow {x y} {
+    assert {::math::bigfloat::pow $x $y} \
+            [expr [join [string repeat "$x " $y] *]]
+}
+
+foreach a {1 -1 2 -2 5 -5} {
+    foreach b {2 3 7 16} {
+        pow $a.[::math::bigfloat::zero [expr {$b*6}]] $b
+    }
+}
+
+foreach a {1 2 3} {
+    foreach b {2 3 5 8} {
+        intpow $a $b
+    }
+}
+
+# cleanup
+rename pow ""
+rename intpow ""
+
+
+################################################################################
+# pi constant
+################################################################################
+fassert {::math::bigfloat::tostr [::math::bigfloat::pi 12]} 3.14159265359
+
+################################################################################
+# isnull : the precision is too small to determinate the number
+################################################################################
+
+assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 0]} 1
+assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 0.0]} 1
+assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 1]} 1
+assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 1.0]} 0
+assert {::math::bigfloat::isnull [::math::bigfloat::fromstr -1]} 1
+assert {::math::bigfloat::isnull [::math::bigfloat::fromstr -1.0]} 0
+
+################################################################################
+# sqrt : square root
+################################################################################
+proc sqrt {x} {
+    fassert {::math::bigfloat::todouble [::math::bigfloat::sqrt [::math::bigfloat::fromstr $x]]} [expr {sqrt($x)}]
+}
+sqrt 1.[::math::bigfloat::zero 16]
+sqrt 0.001[::math::bigfloat::zero 16]
+sqrt 0.004[::math::bigfloat::zero 16]
+sqrt 4.[::math::bigfloat::zero 16]
+
+# cleanup
+rename sqrt ""
+
+
+
+################################################################################
+# exp : exponential function
+################################################################################
+proc exp {x} {
+    fassert {::math::bigfloat::todouble [::math::bigfloat::exp [::math::bigfloat::fromstr $x]]} [expr {exp($x)}]
+}
+
+exp 1.[::math::bigfloat::zero 16]
+exp 0.001[::math::bigfloat::zero 20]
+exp 0.004[::math::bigfloat::zero 20]
+exp 40.[::math::bigfloat::zero 20]
+exp -0.001[::math::bigfloat::zero 20]
+
+# cleanup
+rename exp ""
+
+################################################################################
+# log : logarithm
+################################################################################
+proc log {x} {
+    fassert {::math::bigfloat::todouble [::math::bigfloat::log [::math::bigfloat::fromstr $x]]} [expr {log($x)}]
+}
+
+log 1.[::math::bigfloat::zero 16]
+log 0.001[::math::bigfloat::zero 20]
+log 0.004[::math::bigfloat::zero 20]
+log 40.[::math::bigfloat::zero 24]
+log 1[::math::bigfloat::zero 10].0
+
+# cleanup
+rename log ""
+
+################################################################################
+# cos & sin : trigonometry
+################################################################################
+proc cosEtSin {x} {
+    fassert {::math::bigfloat::todouble [::math::bigfloat::cos $x]} [expr {cos([::math::bigfloat::todouble $x])}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::sin $x]} [expr {sin([::math::bigfloat::todouble $x])}]
+}
+
+cosEtSin [list 1 [::math::bigfloat::zero 13] -12 1]
+set pi [::math::bigfloat::pi 20]
+foreach i {1 3 5 7} {
+    cosEtSin [::math::bigfloat::intdiv [::math::bigfloat::intmul $pi $i] 4]
+}
+foreach i {1 2} {
+    cosEtSin [::math::bigfloat::intmul $pi $i]
+}
+foreach i {1 3} {
+    cosEtSin [::math::bigfloat::intdiv [::math::bigfloat::intmul $pi $i] 2]
+}
+
+
+# cleanup
+rename cosEtSin ""
+
+################################################################################
+# tan & cotan : trigonometry
+################################################################################
+proc tanCotan {i} {
+    global pi
+    set x [::math::bigfloat::intdiv [::math::bigfloat::intmul $pi $i] 10]
+    set double [expr {atan(1)*(double($i)*0.4)}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::cos $x]} [expr {cos($double)}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::sin $x]} [expr {sin($double)}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::tan $x]} [expr {tan($double)}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::cotan $x]} [expr {double(1.0)/tan($double)}]
+}
+
+set pi [::math::bigfloat::pi 30]
+foreach i {1 2 3 6 7 8 9} {
+    tanCotan $i
+}
+
+
+# cleanup
+rename tanCotan ""
+
+
+################################################################################
+# atan , asin & acos : trigonometry (inverse functions)
+################################################################################
+proc atan {x} {
+    global pi
+    set f [::math::bigfloat::fromstr $x[::math::bigfloat::zero 20]]
+    if {abs($x)<=1.0} {
+        fassert {::math::bigfloat::todouble [::math::bigfloat::acos $f]} [expr {acos($x)}]
+        fassert {::math::bigfloat::todouble [::math::bigfloat::asin $f]} [expr {asin($x)}]
+    }
+    fassert {::math::bigfloat::todouble [::math::bigfloat::atan $f]} [expr {atan($x)}]
+}
+
+atan 0.0
+foreach i {1 2 3 4 5 6 7 8 9} {
+    atan 0.$i
+    atan $i.0
+    atan -0.$i
+    atan -$i.0
+}
+
+# cleanup
+rename atan ""
+
+################################################################################
+# cosh , sinh & tanh : hyperbolic functions
+################################################################################
+proc hyper {x} {
+    set f [::math::bigfloat::fromstr $x[::math::bigfloat::zero 20]]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::cosh $f]} [expr {cosh($x)}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::sinh $f]} [expr {sinh($x)}]
+    fassert {::math::bigfloat::todouble [::math::bigfloat::tanh $f]} [expr {tanh($x)}]
+}
+
+hyper 0.0
+foreach i {1 2 3 4 5 6 7 8 9} {
+    hyper 0.$i
+    hyper $i.0
+    hyper -0.$i
+    hyper -$i.0
+}
+
+# cleanup
+rename hyper ""
+
+
+
+################################################################################
+# end of testsuite for bigfloat 1.0
+################################################################################
+#puts "bigfloat : Testsuite completed"
+# cleanup global procs
+rename assert ""
+rename fassert ""
+rename Zero ""
+
+tcltest::cleanupTests
