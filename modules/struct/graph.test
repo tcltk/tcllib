@@ -8,21 +8,41 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.13 2004/02/14 05:59:22 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.14 2004/05/19 04:34:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] graph.tcl]
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::graph
+package forget struct::list
+
+catch {namespace delete ::struct::graph}
+catch {namespace delete ::struct::list}
+
+if {[catch {source [file join [file dirname [info script]] graph.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (graph.tcl): $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] list.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (list.tcl): $msg"
+    return
+}
+
+package require struct::graph
+package require struct::list
+
+puts "- struct::graph [package present struct::graph]"
+catch {puts "  - cgraph [package present cgraph]"}
+puts "  - struct::list [package present struct::list]"
+
 namespace import ::struct::graph::graph
 
-source [file join [file dirname [info script]] list.tcl]
-namespace eval ::struct {namespace import -force list::*}
-
-catch {puts "-- cgraph [package present cgraph]"}
-
+#----------------------------------------------------------------------
 
 # Takes a dictionary, returns a list containing the same dictionary,
 # however the keys are sorted alphabetically. This allows for a true

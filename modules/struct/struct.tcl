@@ -1,29 +1,18 @@
 package require Tcl 8.2
-package provide struct 2.1
-
-source [file join [file dirname [info script]] graph.tcl]
-source [file join [file dirname [info script]] queue.tcl]
-source [file join [file dirname [info script]] stack.tcl]
-source [file join [file dirname [info script]] tree.tcl]
-source [file join [file dirname [info script]] matrix.tcl]
-source [file join [file dirname [info script]] pool.tcl]
-source [file join [file dirname [info script]] record.tcl]
-source [file join [file dirname [info script]] list.tcl]
-source [file join [file dirname [info script]] sets.tcl]
-source [file join [file dirname [info script]] prioqueue.tcl]
-source [file join [file dirname [info script]] skiplist.tcl]
+package require struct::graph     2.0
+package require struct::queue     1.2.1
+package require struct::stack     1.2.1
+package require struct::tree      2.0
+package require struct::matrix    2.0
+package require struct::pool      1.2.1
+package require struct::record    1.2.1
+package require struct::list      1.4
+package require struct::set       2.1
+package require struct::prioqueue 1.3
+package require struct::skiplist  1.3
 
 namespace eval ::struct {
-    namespace import -force graph::*
-    namespace import -force queue::*
-    namespace import -force stack::*
-    namespace import -force tree::*
-    namespace import -force matrix::*
-    namespace import -force pool::*
-    namespace import -force record::*
-    namespace import -force list::*
-    namespace import -force set::*
-    namespace import -force prioqueue::*
-    namespace import -force skiplist::*
     namespace export *
 }
+
+package provide struct 2.1

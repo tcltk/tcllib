@@ -8,16 +8,29 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.test,v 1.6 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.test,v 1.7 2004/05/19 04:34:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-source [file join [file dirname [info script]] queue.tcl]
-namespace import struct::queue::queue
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget struct::queue
+catch {namespace delete ::struct::queue}
+if {[catch {source [file join [file dirname [info script]] queue.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
 
+package require struct::queue
+puts "- struct::queue [package present struct::queue]"
+
+namespace import struct::queue
+
+#----------------------------------------------------------------------
 test queue-0.1 {queue errors} {
     queue myqueue
     catch {queue myqueue} msg

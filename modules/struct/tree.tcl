@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.28 2004/02/09 09:32:14 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.29 2004/05/19 04:34:50 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -2049,3 +2049,13 @@ proc ::struct::tree::ldelete {var index {end {}}} {
     set list [lreplace [K $list [set list {}]] $index $end]
     return
 }
+
+# ### ### ### ######### ######### #########
+## Ready
+
+namespace eval ::struct {
+    # Get 'tree::tree' into the general structure namespace.
+    namespace import -force tree::tree
+    namespace export tree
+}
+package provide struct::tree 2.0
