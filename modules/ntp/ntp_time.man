@@ -1,17 +1,20 @@
-[manpage_begin ntp_time n 1.0.2]
+[manpage_begin ntp_time n 1.0.3]
 [copyright {2002, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {ntp}]
 [titledesc {Tcl Time Service Client}]
-[require Tcl 8.2]
-[require time [opt 1.0.2]]
+[require Tcl 8.0]
+[require time [opt 1.0.3]]
 [description]
 [para]
 
 This package implements a client for the RFC 868 TIME protocol
-([uri http://www.rfc-editor.org/rfc/rfc868.txt]).
+([uri http://www.rfc-editor.org/rfc/rfc868.txt]) and also a minimal
+client for the RFC 2030 Simple Network Time Protocol 
+([uri http://www.rfc-editor.org/rfc/rfc2030.txt]).
 
-This simple protocol returns the time in seconds since 1 January 1900
-to either tcp or udp clients.
+RFC 868 returns the time in seconds since 1 January 1900
+to either tcp or udp clients. RFC 2030 also gives this time but also
+provides a fractional part which is not used in this client.
 
 [section COMMANDS]
 
@@ -23,7 +26,14 @@ Get the time from [arg timeserver]. You may specify any of the options
 listed for the [cmd configure] command here. This command returns a
 token which must then be used with the remaining commands in this
 package. Once you have finished, you should use [cmd cleanup] to
-release all resources.
+release all resources. The default port is [const 37].
+
+[call [cmd ::time::getsntp] [opt [arg "options"]] [arg timeserver] [opt [arg "port"]]]
+
+Get the time from an SNTP server. This accepts exactly the same
+arguments as [cmd ::time::gettime] except that the default port is 
+[const 123]. The result is a token as per [cmd ::time::gettime] and
+should be handled in the same way.
 
 [call [cmd ::time::configure] [opt [arg "options"]]]
 
@@ -36,7 +46,8 @@ pairs of option name and value.
   Set the default network protocol. This defaults to udp if the tcludp
   package is available. Otherwise it will use tcp.
 [lst_item "[cmd -port] [arg number]"]
-  Set the default port to use. RFC 868 uses port 37.
+  Set the default port to use. RFC 868 uses port [const 37], RFC 2030 uses
+port [const 123].
 [lst_item "[cmd -timeout] [arg number]"]
   Set the default timeout value in milliseconds. The default is 10 seconds.
 [lst_item "[cmd -command] [arg number]"]
@@ -83,9 +94,15 @@ Get the current value for the named configuration option.
 % ::time::cleanup $tok
 }]
 
+[example {
+% set tok [::time::getsntp ntp.blueyonder.co.uk]
+% set t [::time::unixtime $tok]
+% ::time::cleanup $tok
+}]
+
 [see_also ntp]
 [section AUTHORS]
 Pat Thoyts
 
-[keywords time NTP {rfc 868}]
+[keywords time NTP {rfc 868} SNTP {rfc 2030}]
 [manpage_end]
