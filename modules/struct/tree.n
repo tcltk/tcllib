@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.5 2000/03/11 01:14:40 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.6 2000/03/14 23:10:55 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -26,8 +26,17 @@ following general form:
 \fItreeName option \fR?\fIarg arg ...\fR?
 .CE
 \fIOption\fR and the \fIarg\fRs
-determine the exact behavior of the command.  The following
-commands are possible for tree objects:
+determine the exact behavior of the command.  
+.PP
+A tree is a collection of elements, called nodes, one of which is
+distinguished as a root, along with a relation ("parenthood") that
+places a hierarchical structure on the nodes. (\fIData Structures and
+Algorithms\fR; Aho, Hopcroft and Ullman; Addison-Wesley, 1987).  In
+addition to maintaining the node relationships, this tree
+implementation allows any number of keyed values to be associated with
+each node.
+.PP
+The following commands are possible for tree objects:
 .TP
 \fItreeName\fR \fBchildren\fR \fInode\fR
 Return a list of the children of \fInode\fR.
@@ -72,7 +81,7 @@ return result from this command is the name of the new node.
 Returns true if \fInode\fR is a leaf of the tree (if \fInode\fR has no
 children), false otherwise.
 .TP
-\fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR 
+\fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR
 Make \fInode\fR a child of \fIparent\fR, inserting it
 into the parent's child list at the index given by \fIindex\fR.
 .TP

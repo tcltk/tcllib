@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.6 2000/03/11 01:14:40 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.7 2000/03/14 23:10:55 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -174,7 +174,7 @@ test tree-6.5 {insert generates node name when none is given} {
     mytree destroy
     set result
 } [list node1 node2 node4]
-    
+	
 test tree-7.1 {move gives error when trying to move root} {
     tree mytree
     mytree insert root end node0
