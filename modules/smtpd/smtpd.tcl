@@ -15,7 +15,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.5 2002/10/08 20:23:29 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.6 2002/10/26 21:53:03 patthoyts Exp $}
     variable version 1.1
     variable stopped
 
@@ -27,6 +27,7 @@ namespace eval smtpd {
     variable options
     if {! [info exists options]} {
         array set options {
+            serveraddr         {}
             deliverMIME        {}
             deliver            {}
             validate_host      {}
@@ -101,8 +102,14 @@ proc smtpd::start {{myaddr {}} {port 25}} {
     }
 
     if {$myaddr != {}} {
+        set options(serveraddr) $myaddr
         set myaddr "-myaddr $myaddr"
+    } else {
+        if {$options(serveraddr) == {}} {
+            set options(serveraddr) [info hostname]
+        }
     }
+
     set options(socket) [eval socket \
                              -server [namespace current]::accept $myaddr $port]
     set stopped 0
@@ -160,7 +167,7 @@ proc smtpd::accept {channel client_addr client_port} {
     if {$accepted} {
         # Accept the connection
         log::log notice "connect from $client_addr:$client_port on $channel"
-        puts $channel "220 [info hostname] tcllib smtpd $version; [timestamp]"
+        puts $channel "220 $options(serveraddr) tcllib smtpd $version; [timestamp]"
     }
     
     return
@@ -224,9 +231,17 @@ proc smtpd::service {channel} {
         if {$cmdline == "."} {
             state $channel indata 0
             fconfigure $channel -translation crlf
-            puts $channel "250 [state $channel id]\
-                            Message accepted for delivery"
-            deliver $channel
+            if {[catch {deliver $channel} err]} {
+                # permit delivery handler to return SMTP errors in errorCode
+                if {[regexp {\d{3}} $::errorCode]} {
+                    puts $channel "$::errorCode $err"
+                } else {
+                    puts $channel "554 Transaction failed: $err"
+                }
+            } else {
+                puts $channel "250 [state $channel id]\
+                        Message accepted for delivery"
+            }
         } else {
             # FRINK: nocheck
             lappend [namespace current]::[subst state_$channel](data) $cmdline
@@ -333,24 +348,27 @@ proc smtpd::server_ip {} {
 proc smtpd::deliver {channel} {
     set deliverMIME [cget deliverMIME]
     if { $deliverMIME != {} \
-             && [state $channel from] != {} \
-             && [state $channel to] != {} \
-             && [state $channel data] != {} } {
-
-        # create a MIME token from the mail message.
+            && [state $channel from] != {} \
+            && [state $channel to] != {} \
+            && [state $channel data] != {} } {
+        
+        # create a MIME token from the mail message.        
         set tok [mime::initialize -string \
-                     [join [state $channel data] "\n"]]
+                [join [state $channel data] "\n"]]
         mime::setheader $tok "From" [state $channel from]
         foreach recipient [state $channel to] {
             mime::setheader $tok "To" $recipient -mode append
         }
         
-        if {[catch {$deliverMIME $tok} msg]} {
-            log::log debug "error in deliver: $msg"
-        }
-
+        # catch and rethrow any errors.
+        set err [catch {$deliverMIME $tok} msg]
         mime::finalize $tok -subordinates all
-
+        if {$err} {
+            log::log debug "error in deliver: $msg"
+            return -code error -errorcode $::errorCode \
+                    -errorinfo $::errorInfo $msg
+        }        
+        
     } else {
         # Try the old interface
         deliver_old $channel
@@ -373,6 +391,8 @@ proc smtpd::deliver_old {channel} {
                         [state $channel to] \
                         [state $channel data]} msg]} {
             log::log debug "error in deliver: $msg"
+            return -code error -errorcode $::errorCode \
+                    -errorinfo $::errorInfo $msg
         }
     }
 }
@@ -386,6 +406,8 @@ proc smtpd::deliver_old {channel} {
 #   RFC2821 4.1.1.1
 #
 proc smtpd::HELO {channel line} {
+    variable options
+
     if {[state $channel domain] != {}} {
         puts $channel "503 bad sequence of commands"
         log::log debug "HELO received out of sequence."
@@ -398,7 +420,7 @@ proc smtpd::HELO {channel line} {
         log::log debug "HELO received \"$line\""
         return
     }
-    puts $channel "250-[info hostname] Hello $domain\
+    puts $channel "250-$options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
     puts $channel "250 Ready for mail."
     state $channel domain $domain
@@ -411,6 +433,8 @@ proc smtpd::HELO {channel line} {
 # Reference:
 #   RFC2821 4.1.1.1
 proc smtpd::EHLO {channel line} {
+    variable options
+
     if {[state $channel domain] != {}} {
         puts $channel "503 bad sequence of commands"
         log::log debug "EHLO received out of sequence."
@@ -423,7 +447,7 @@ proc smtpd::EHLO {channel line} {
         log::log debug "EHLO received \"$line\""
         return
     }
-    puts $channel "250-[info hostname] Hello $domain\
+    puts $channel "250-$options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
     puts $channel "250 Ready for mail."
     state $channel domain $domain
@@ -628,12 +652,13 @@ proc smtpd::NOOP {channel line} {
 #   a QUIT message.
 #
 proc smtpd::QUIT {channel line} {
+    variable options
     log::log debug "QUIT on $channel"
-    puts $channel "221 [info hostname] Service closing transmission channel"
+    puts $channel "221 $options(serveraddr) Service closing transmission channel"
     close $channel
         
     # cleanup the session state array.
-    #unset [namespace current]::state_$channel
+    unset [namespace current]::state_$channel
     return
 }
 
