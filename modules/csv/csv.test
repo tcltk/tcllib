@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.7 2003/03/31 22:24:41 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.8 2003/04/23 23:18:28 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -454,6 +454,224 @@ test csv-7.6 {report error} {
     set msg
 } {Unknown method foocmd}
 
+
+## ============================================================
+## Test new restrictions on argument syntax of split.
+
+test csv-8.0 {csv argument error} {
+    catch {::csv::split} msg
+    set msg
+} {wrong#args: Should be ?-alternate? line ?separator?}
+
+test csv-8.1 {csv argument error} {
+    catch {::csv::split a b c d} msg
+    set msg
+} {wrong#args: Should be ?-alternate? line ?separator?}
+
+test csv-8.2 {csv argument error} {
+    catch {::csv::split a b c} msg
+    set msg
+} {wrong#args: Should be ?-alternate? line ?separator?}
+
+test csv-8.4 {csv argument error} {
+    catch {::csv::split -alternate b {}} msg
+    set msg
+} {illegal separator character "", is empty}
+
+test csv-8.5 {csv argument error} {
+    catch {::csv::split -alternate b foo} msg
+    set msg
+} {illegal separator character "foo", is a string}
+
+test csv-8.6 {csv argument error} {
+    catch {::csv::split b {}} msg
+    set msg
+} {illegal separator character "", is empty}
+
+test csv-8.7 {csv argument error} {
+    catch {::csv::split b foo} msg
+    set msg
+} {illegal separator character "foo", is a string}
+
+## ============================================================
+## Tests for alternate syntax.
+
+
+test csv-91.1 {split} {
+    csv::split -alternate $str1
+} {123 {"a"} {} hello}
+
+test csv-91.2 {split} {
+    csv::split -alternate $str2
+} {1 { o, "a" ,b } { 3}}
+
+test csv-91.3 {split} {knownBug} {
+    csv::split -alternate $str3
+} {1 { o, "," ,b } { 3}}
+
+test csv-91.4 {split} {
+    csv::split -alternate $str4
+} {1 { foo,bar,baz} { 3}}
+
+test csv-91.5 {split} {
+    csv::split -alternate $str5
+} {1 {""a""} b}
+
+test csv-91.6 {split} {
+    csv::split -alternate $str6
+} {123 123,521.2 {Mary says "Hello, I am Mary"}}
+
+test csv-91.7 {split on join} {
+    # csv 0.1 was exposed to the RE \A matching problem with regsub -all
+    set x [list "\"hello, you\"" a b c]
+    ::csv::split -alternate [::csv::join $x]
+} [list "\"hello, you\"" a b c]
+
+test csv-91.8-1 {split empty fields} {
+    csv::split -alternate {1 2 "" ""} { }
+} {1 2 {} {}}
+
+test csv-91.9-1 {split empty fields} {
+    csv::split -alternate {1 2 3 ""} { }
+} {1 2 3 {}}
+
+test csv-91.10-1 {split empty fields} {
+    csv::split -alternate {"" "" 1 2} { }
+} {{} {} 1 2}
+
+test csv-91.11-1 {split empty fields} {
+    csv::split -alternate {"" 0 1 2} { }
+} {{} 0 1 2}
+
+test csv-91.12-1 {split empty fields} {
+    csv::split -alternate {"" ""} { }
+} {{} {}}
+
+test csv-91.13-1 {split empty fields} {
+    csv::split -alternate {"" "" ""} { }
+} {{} {} {}}
+
+test csv-91.14-1 {split empty fields} {
+    csv::split -alternate {"" 0 "" 2} { }
+} {{} 0 {} 2}
+
+test csv-91.15-1 {split empty fields} {
+    csv::split -alternate {1 "" 3 ""} { }
+} {1 {} 3 {}}
+
+test csv-91.8-2 {split empty fields} {
+    csv::split -alternate "1,2,,"
+} {1 2 {} {}}
+
+test csv-91.9-2 {split empty fields} {
+    csv::split -alternate "1,2,3,"
+} {1 2 3 {}}
+
+test csv-91.10-2 {split empty fields} {
+    csv::split -alternate ",,1,2"
+} {{} {} 1 2}
+
+test csv-91.11-2 {split empty fields} {
+    csv::split -alternate ",0,1,2"
+} {{} 0 1 2}
+
+test csv-91.12-2 {split empty fields} {
+    csv::split -alternate ","
+} {{} {}}
+
+test csv-91.13-2 {split empty fields} {
+    csv::split -alternate ",,"
+} {{} {} {}}
+
+test csv-91.14-2 {split empty fields} {
+    csv::split -alternate ",0,,2"
+} {{} 0 {} 2}
+
+test csv-91.15-2 {split empty fields} {
+    csv::split -alternate "1,,3,"
+} {1 {} 3 {}}
+
+test csv-91.8-3 {split empty fields} {
+    csv::split -alternate {1 2  } { }
+} {1 2 {} {}}
+
+test csv-91.9-3 {split empty fields} {
+    csv::split -alternate {1 2 3 } { }
+} {1 2 3 {}}
+
+test csv-91.10-3 {split empty fields} {
+    csv::split -alternate {  1 2} { }
+} {{} {} 1 2}
+
+test csv-91.11-3 {split empty fields} {
+    csv::split -alternate { 0 1 2} { }
+} {{} 0 1 2}
+
+test csv-91.12-3 {split empty fields} {
+    csv::split -alternate { } { }
+} {{} {}}
+
+test csv-91.13-3 {split empty fields} {
+    csv::split -alternate {  } { }
+} {{} {} {}}
+
+test csv-91.14-3 {split empty fields} {
+    csv::split -alternate { 0  2} { }
+} {{} 0 {} 2}
+
+test csv-91.15-3 {split empty fields} {
+    csv::split -alternate {1  3 } { }
+} {1 {} 3 {}}
+
+
+test csv-91.8-4 {split empty fields} {
+    csv::split -alternate {1,2,"",""}
+} {1 2 {} {}}
+
+test csv-91.9-4 {split empty fields} {
+    csv::split -alternate {1,2,3,""}
+} {1 2 3 {}}
+
+test csv-91.10-4 {split empty fields} {
+    csv::split -alternate {"","",1,2}
+} {{} {} 1 2}
+
+test csv-91.11-4 {split empty fields} {
+    csv::split -alternate {"",0,1,2}
+} {{} 0 1 2}
+
+test csv-91.12-4 {split empty fields} {
+    csv::split -alternate {"",""}
+} {{} {}}
+
+test csv-91.13-4 {split empty fields} {
+    csv::split -alternate {"","",""}
+} {{} {} {}}
+
+test csv-91.14-4 {split empty fields} {
+    csv::split -alternate {"",0,"",2}
+} {{} 0 {} 2}
+
+test csv-91.15-4 {split empty fields} {
+    csv::split -alternate {1,"",3,""}
+} {1 {} 3 {}}
+
+
+test csv-92.0.1 {split} {
+    csv::split {"xxx",yyy}
+} {xxx yyy}
+
+test csv-92.0.2 {split} {
+    csv::split -alternate {"xxx",yyy}
+} {xxx yyy}
+
+test csv-92.1.1 {split} {
+    csv::split {"xx""x",yyy}
+} {xx\"x yyy}
+
+test csv-92.1.2 {split} {
+    csv::split -alternate {"xx""x",yyy}
+} {xx\"x yyy}
 
 
 ::tcltest::cleanupTests
