@@ -410,6 +410,251 @@ test typeconstructor-1.3 {type proc is destroyed on error} {} {
     list [namespace exists ::dog] [info command ::dog]
 } {0 {}}
 
+#-----------------------------------------------------------------------
+# Type components 
+
+test typecomponent-1.1 {typecomponent defines typevariable} {} {
+    cleanup
+    type dog {
+        typecomponent mycomp
+
+        typemethod test {} {
+            return $mycomp
+        }
+    }
+
+    dog test
+} {}
+
+test typecomponent-1.2 {typecomponent trace executes} {} {
+    cleanup
+    type dog {
+        typecomponent mycomp
+
+        typemethod test {} {
+            typevariable Snit_typecomponents
+            set mycomp foo
+            return $Snit_typecomponents(mycomp)
+        }
+    }
+
+    dog test
+} {foo}
+
+#-----------------------------------------------------------------------
+# Typemethod delegation
+
+test dtypemethod-1.1 {delegate typemethod to non-existent component} {} {
+    cleanup
+
+    set result ""
+
+    type dog {
+        delegate typemethod foo to bar
+    }
+
+    catch {dog foo} result
+    set result
+} {::dog delegates typemethod 'foo' to undefined typecomponent 'bar'.}
+
+test dtypemethod-1.2 {delegating to existing typecomponent.} {
+    cleanup
+
+    type dog {
+        delegate typemethod length to string
+
+        typeconstructor {
+            set string string
+        }
+    }
+
+    dog length foo
+} {3}
+
+test dtypemethod-1.3 {delegating to existing typecomponent with error.} {
+    cleanup
+
+    type dog {
+        delegate typemethod length to string
+
+        typeconstructor {
+            set string string
+        }
+    }
+
+    set result ""
+    catch {dog length foo bar} result
+    set result
+} {wrong # args: should be "string length string"}
+
+test dtypemethod-1.4 {delegating unknown typemethods to existing typecomponent} {
+    cleanup
+
+    type dog {
+        delegate typemethod * to string
+
+        typeconstructor {
+            set string string
+        }
+    }
+
+    dog length foo
+} {3}
+
+test dtypemethod-1.5 {delegating unknown typemethod to existing typecomponent with error} {
+    cleanup
+
+    type dog {
+        delegate typemethod * to stringhandler
+
+        typeconstructor {
+            set stringhandler string
+        }
+    }
+
+    set result ""
+    catch {dog foo bar} result
+    set result
+} {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+
+
+test dtypemethod-1.6 {can't delegate local typemethod: order 1} {
+    cleanup
+
+    catch {
+        type dog {
+            typemethod foo {} {}
+            delegate typemethod foo to bar
+        }
+    } result
+
+    set result
+} {error in 'delegate typemethod foo...', 'foo' has been defined locally.}
+
+test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate typemethod foo to bar
+            typemethod foo {} {}
+        }
+    } result
+
+    set result
+} {error in 'delegate typemethod foo...', 'foo' has been defined locally.}
+
+test dtypemethod-1.8 {excepted methods are caught properly} {
+    cleanup
+
+    type dog {
+        delegate typemethod * to string except {match index}
+
+        typeconstructor {
+            set string string
+        }
+    }
+
+    catch {dog length foo} a
+    catch {dog match foo}  b
+    catch {dog index foo}  c
+    
+    list $a $b $c
+} {3 {"::dog match" is not defined} {"::dog index" is not defined}}
+
+test dtypemethod-1.9 {as clause can include arguments} {
+    cleanup
+
+    proc tail {a b} {
+        return "<$a $b>"
+    }
+
+    type dog {
+        delegate typemethod wag to tail as {wag briskly}
+
+        typeconstructor {
+            set tail tail
+        }
+    }
+
+    dog wag
+} {<wag briskly>}
+
+test dtypemethod-2.1 {'using "%c %m"' gets normal behavior} {
+    cleanup
+
+    type dog {
+        delegate typemethod length to string using {%c %m}
+
+        typeconstructor {
+            set string string
+        }
+    }
+
+    dog length foo
+} {3}
+
+test dtypemethod-2.2 {All relevant 'using' conversions are converted} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate typemethod wag using {echo %% %t %m %n %w %s %c}
+    }
+
+    dog wag
+} {%|::dog|wag|%n|%w|%s|%c}
+
+test dtypemethod-2.3 {"%%" is handled properly} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate typemethod wag using {echo %%m %%%m}
+    }
+
+    dog wag
+} {%m|%wag}
+
+test dtypemethod-2.4 {Method "*" and "using"} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate typemethod * using {echo %m}
+    }
+
+    list [dog wag] [dog bark loudly]
+} {wag bark|loudly}
+
+
+test dtypemethod-3.1 {typecomponent names can be changed dynamically} {
+    cleanup
+
+    proc echo {args} { join $args "|" }
+
+    type dog {
+        delegate typemethod length to mycomp
+
+        typeconstructor {
+            set mycomp string
+        }
+
+        typemethod switchit {} {
+            set mycomp echo
+        }
+    }
+
+    set a [dog length foo]
+    dog switchit
+    set b [dog length foo]
+    
+    list $a $b
+} {3 length|foo}
+
 
 #-----------------------------------------------------------------------
 # type creation
@@ -435,7 +680,7 @@ test creation-1.3 {"create" method is optional} {} {
     cleanup
 
     type dog { }
-    
+
     dog fido
 } {::fido}
 
@@ -2084,7 +2329,7 @@ test dmethod-1.1 {delegate method to non-existent component} {} {
     dog create spot
     catch {spot foo} result
     set result
-} {::dog ::spot delegates 'foo' to undefined component 'bar'.}
+} {::dog ::spot delegates method 'foo' to undefined component 'bar'.}
 
 test dmethod-1.2 {delegating to existing component.} {
     cleanup
@@ -2170,8 +2415,8 @@ test dmethod-1.7 {can't delegate local method: order 2} {
 
     catch {
         type cat {
-            method foo {} {}
             delegate method foo to hull
+            method foo {} {}
         }
     } result
 

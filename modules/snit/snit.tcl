@@ -716,15 +716,16 @@ set ::snit::typeTemplate {
     namespace eval %TYPE% {
         # Array: General Snit Info
         #
-        # ns:            The type's namespace
-        # options:       List of the names of the type's local options.
-        # counter:       Count of instances created so far.
-        # widgetclass:   Set by widgetclass statement.
-        # hulltype:      Hull type (frame or toplevel) for widgets only.
-        # exceptmethods: Methods explicitly not delegated to *
-        # exceptopts:    Options explicitly not delegated to *
-        # tvardecs:      Type variable declarations--for dynamic methods
-        # ivardecs:      Instance variable declarations--for dyn. methods
+        # ns:                The type's namespace
+        # options:           List of the names of the type's local options.
+        # counter:           Count of instances created so far.
+        # widgetclass:       Set by widgetclass statement.
+        # hulltype:          Hull type (frame or toplevel) for widgets only.
+        # exceptmethods:     Methods explicitly not delegated to *
+        # excepttypemethods: Methods explicitly not delegated to *
+        # exceptopts    :    Options explicitly not delegated to *
+        # tvardecs:          Type variable declarations--for dynamic methods
+        # ivardecs:          Instance variable declarations--for dyn. methods
         typevariable Snit_info
         set Snit_info(ns)      %TYPE%::
         set Snit_info(options) {}
@@ -732,6 +733,7 @@ set ::snit::typeTemplate {
         set Snit_info(widgetclass) {}
         set Snit_info(hulltype) frame
         set Snit_info(exceptmethods) {}
+        set Snit_info(excepttypemethods) {}
         set Snit_info(exceptopts) {}
         set Snit_info(tvardecs) {%TVARDECS%}
         set Snit_info(ivardecs) {%IVARDECS%}
@@ -783,14 +785,7 @@ set ::snit::typeTemplate {
             set command [::snit::RT.TypemethodCacheLookup %TYPE% $method]
             
             if {[llength $command] == 0} {
-                if {[set %TYPE%::Snit_isWidget] && 
-                    ![string match ".*" $method]} {
-                    return -code error  "\"%TYPE% $method\" is not defined"
-                }
-                
-                set args [concat $method $args]
-                set method create
-                set command [::snit::RT.TypemethodCacheLookup %TYPE% $method]
+                return -code error  "\"%TYPE% $method\" is not defined"
             }
         }
         
@@ -948,21 +943,24 @@ namespace eval ::snit:: {
     # widgettype being compiled.  It is cleared before and after each
     # compilation.  It has these indices:
     #
-    # type:              The name of the type being compiled, for use
-    #                    in compilation procs.
-    # defs:              Compiled definitions, both standard and client.
-    # which:             type, widget, widgetadaptor
-    # instancevars:      Instance variable definitions and initializations.
-    # ivprocdec:         Instance variable proc declarations.
-    # tvprocdec:         Type variable proc declarations.
-    # typeconstructor:   Type constructor body.
-    # widgetclass:       The widgetclass, for snit::widgets, only
-    # localoptions:      Names of local options.
-    # delegatedoptions:  Names of delegated options.
-    # localmethods:      Names of locally defined methods.
-    # delegatedmethods:  Names of delegated methods.
-    # components:        Names of defined components.
-    # typevars:          See 'instancevars' above, except this is for typevariables.
+    # type:                  The name of the type being compiled, for use
+    #                        in compilation procs.
+    # defs:                  Compiled definitions, both standard and client.
+    # which:                 type, widget, widgetadaptor
+    # instancevars:          Instance variable definitions and initializations.
+    # ivprocdec:             Instance variable proc declarations.
+    # tvprocdec:             Type variable proc declarations.
+    # typeconstructor:       Type constructor body.
+    # widgetclass:           The widgetclass, for snit::widgets, only
+    # localoptions:          Names of local options.
+    # delegatedoptions:      Names of delegated options.
+    # localmethods:          Names of locally defined methods.
+    # delegatedmethods:      Names of delegated methods.
+    # components:            Names of defined components.
+    # localtypemethods:      Names of locally defined methods.
+    # delegatedtypemethods:  Names of delegated typemethods.
+    # typecomponents:        Names of defined typecomponents.
+    # typevars:              Typevariable definitions and initializations.
     variable compile
 
     # The following variable lists the reserved type definition statement
@@ -1013,6 +1011,7 @@ proc ::snit::Comp.Init {} {
         $compiler alias proc            ::snit::Comp.statement.proc
         $compiler alias typevariable    ::snit::Comp.statement.typevariable
         $compiler alias variable        ::snit::Comp.statement.variable
+        $compiler alias typecomponent   ::snit::Comp.statement.typecomponent
         $compiler alias component       ::snit::Comp.statement.component
         $compiler alias delegate        ::snit::Comp.statement.delegate
         $compiler alias expose          ::snit::Comp.statement.expose
@@ -1065,7 +1064,10 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(hulltype) {}
     set compile(localmethods) {}
     set compile(delegatedmethods) {}
+    set compile(localtypemethods) {}
+    set compile(delegatedtypemethods) {}
     set compile(components) {}
+    set compile(typecomponents) {}
 
     append compile(defs) \
 	    "set %TYPE%::Snit_isWidget        [string match widget* $which]\n"
@@ -1328,7 +1330,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedmethods)]} {
-        error "cannot delegate '$method'; it has been defined locally."
+        error "error in 'delegate method $method...', '$method' has been defined locally."
     }
 
     lappend compile(localmethods) $method
@@ -1354,6 +1356,12 @@ proc ::snit::Comp.statement.method {method arglist body} {
 # Defines a typemethod method.
 proc ::snit::Comp.statement.typemethod {method arglist body} {
     variable compile
+
+    if {[Contains $method $compile(delegatedtypemethods)]} {
+        error "error in 'delegate typemethod $method...', '$method' has been defined locally."
+    }
+
+    lappend compile(localtypemethods) $method
 
     CheckArgs "typemethod $method" $arglist
 
@@ -1439,6 +1447,48 @@ proc ::snit::Comp.statement.variable {name args} {
 
     append  compile(ivprocdec) "\n\t    "
     Mappend compile(ivprocdec) {::variable ${selfns}::%N} %N $name 
+} 
+
+# Defines a typecomponent, and handles component options.
+#
+# component     The logical name of the delegate
+# args          options.
+
+proc ::snit::Comp.statement.typecomponent {component args} {
+    variable compile
+
+    # FIRST, define the component
+    Comp.DefineTypecomponent $component
+
+    # TBD: Add -public and -inherit after typemethod delegation
+    # is working.
+}
+
+
+# Defines a name to be a typecomponent
+# 
+# The name becomes a typevariable; in addition, it gets a 
+# write trace so that when it is set, all of the component mechanisms
+# get updated.
+#
+# component     The component name
+
+proc ::snit::Comp.DefineTypecomponent {component} {
+    variable compile
+
+    if {[lsearch $compile(typecomponents) $component] == -1} {
+        # Remember we've done this.
+        lappend compile(typecomponents) $component
+
+        # Make it a type variable with no initial value
+        Comp.statement.typevariable $component ""
+
+        # Add a write trace to do the component thing.
+        Mappend compile(typevars) {
+            trace add variable %COMP% write \
+                [list ::snit::RT.TypecomponentTrace [list %TYPE%] %COMP%]
+        } %TYPE% $compile(type) %COMP% $component
+    }
 } 
 
 # Defines a component, and handles component options.
@@ -1538,13 +1588,82 @@ proc ::snit::Comp.statement.delegate {what name args} {
 # Creates a delegated typemethod delegating it to a particular
 # typecomponent or an arbitrary command.
 #
-# typemethod    The name of the method
+# method    The name of the method
 # arglist       Delegation options
 
-proc ::snit::Comp.DelegatedTypeMethod {typemethod arglist} {
+proc ::snit::Comp.DelegatedTypemethod {method arglist} {
     variable compile
 
-    error "delegate typemethod is not yet implemented."
+    set errRoot "error in 'delegate typemethod [list $method]...'"
+
+    # Next, parse the delegation options.
+    set component ""
+    set target ""
+    set exceptions {}
+    set pattern ""
+
+    foreach {opt value} $arglist {
+        switch -exact $opt {
+            to     { set component $value  }
+            as     { set target $value     }
+            except { set exceptions $value }
+            using  { set pattern $value    }
+            default {
+                error "$errRoot, unknown delegation option '$opt'."
+            }
+        }
+    }
+
+    if {$component eq "" && $pattern eq ""} {
+        error "$errRoot, missing 'to'."
+    }
+
+    if {$method eq "*" && $target ne ""} {
+        error "$errRoot, cannot specify 'as' with method '*'"
+    }
+
+    if {$method ne "*" && $exceptions ne ""} {
+        error "$errRoot, can only specify 'except' with method '*'" 
+    }
+
+    if {$pattern ne "" && $target ne ""} {
+        error "$errRoot, cannot specify both 'as' and 'using'"
+    }
+
+    # NEXT, define the component
+    if {$component ne ""} {
+        Comp.DefineTypecomponent $component
+    }
+
+    # NEXT, define the pattern.
+    if {$pattern eq ""} {
+        if {$method eq "*"} {
+            set pattern "%c %m"
+        } elseif {$target ne ""} {
+            set pattern "%c $target"
+        } else {
+            set pattern "%c %m"
+        }
+    }
+
+    if {[Contains $method $compile(localtypemethods)]} {
+        error "$errRoot, '$method' has been defined locally."
+    }
+
+    Mappend compile(defs) {
+        # Delegated typemethod %METH% to %COMP%
+        set  %TYPE%::Snit_typemethodInfo(%METH%) \
+            {"%PATTERN%" %COMP%}
+        proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY% 
+    } %METH% $method %COMP% [list $component] %PATTERN% $pattern
+
+    if {![string equal $method "*"]} {
+        lappend compile(delegatedtypemethods) $method
+    } else {
+        Mappend compile(defs) {
+            set %TYPE%::Snit_info(excepttypemethods) %EXCEPT%
+        } %EXCEPT% [list $exceptions]
+    }
 }
 
 
@@ -1803,9 +1922,15 @@ proc ::snit::typemethod {type method arglist body} {
     upvar ${type}::Snit_info           Snit_info
     upvar ${type}::Snit_typemethodInfo Snit_typemethodInfo
 
+    # FIRST, can't redefine delegated methods.
+    if {[info exists Snit_typemethodInfo($method)] &&
+        [lindex $Snit_typemethodInfo($method) 1] ne ""} {
+        error "Cannot define '$method', it has been delegated."
+    }
+
     CheckArgs "snit::typemethod $type $method" $arglist
 
-    # First, add magic reference to type.
+    # Next, add magic reference to type.
     set arglist [concat type $arglist]
 
     # Next, add typevariable declarations to body:
@@ -1981,22 +2106,59 @@ proc ::snit::RT.UniqueInstanceNamespace {countervar type} {
 #-----------------------------------------------------------------------
 # Typecomponent Management and Method Caching
 
+# Typecomponent trace; used for write trace on typecomponent 
+# variables.  Saves the new component object name, provided 
+# that certain conditions are met.  Also clears the typemethod
+# cache.
+
+proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
+    upvar ${type}::Snit_isWidget Snit_isWidget
+    upvar ${type}::${component} cvar
+    upvar ${type}::Snit_typecomponents Snit_typecomponents
+        
+    # Save the new component value.
+    set Snit_typecomponents($component) $cvar
+
+    # Clear the typemethod cache.
+    # TBD: can we unset just the elements related to
+    # this component?
+    unset -nocomplain -- ${type}::Snit_typemethodCache
+}
+
 # Generates and caches the command for a typemethod.
 #
 # type		The type
 # method	The name of the typemethod to call.
 proc snit::RT.TypemethodCacheLookup {type method} {
-    upvar ${type}::Snit_typemethodInfo Snit_typemethodInfo
-    upvar ${type}::Snit_typecomponents Snit_typecomponents
+    upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
+    upvar ${type}::Snit_typecomponents  Snit_typecomponents
     upvar ${type}::Snit_typemethodCache Snit_typemethodCache
+    upvar ${type}::Snit_info            Snit_info
     
     # FIRST, get the pattern data and the typecomponent name.
+    set implicitCreate 0
+    set instanceName ""
+
     if {[info exists Snit_typemethodInfo($method)]} {
         set key $method
+    } elseif {[info exists Snit_typemethodInfo(*)]} {
+        if {[lsearch -exact $Snit_info(excepttypemethods) $method] == -1} {
+            set key "*"
+        } else {
+            return ""
+        }
     } else {
-        # TBD: Eventually, we'll handle the "*" case in another
-        # branch of the if test.
-        return ""
+        # Assume the unknown name is an instance name to create, unless
+        # this is a widget and the style of the name is wrong.
+        if {[set ${type}::Snit_isWidget] && 
+            ![string match ".*" $method]} {
+            return ""
+        }
+
+        set implicitCreate 1
+        set instanceName $method
+        set key create
+        set method create
     }
     
     foreach {pattern compName} $Snit_typemethodInfo($key) {}
@@ -2009,7 +2171,7 @@ proc snit::RT.TypemethodCacheLookup {type method} {
     
     if {$compName ne ""} {
         if {![info exists Snit_typecomponents($compName)]} {
-            error "$type delegates '$method' to undefined typecomponent '$compName'."
+            error "$type delegates typemethod '$method' to undefined typecomponent '$compName'."
         }
         
         lappend subList %c [list $Snit_typecomponents($compName)]
@@ -2017,7 +2179,14 @@ proc snit::RT.TypemethodCacheLookup {type method} {
 
     set command [string map $subList $pattern]
 
-    set Snit_typemethodCache($method) $command
+    if {$implicitCreate} {
+        # In this case, $method is the name of the instance to
+        # create.  Don't cache, as we usually won't do this one
+        # again.
+        lappend command $instanceName
+    } else {
+        set Snit_typemethodCache($method) $command
+    }
 
     return $command
 }
@@ -2105,7 +2274,7 @@ proc ::snit::RT.MethodCacheLookup {type selfns win self method} {
 
     if {$compName ne ""} {
         if {![info exists Snit_components($compName)]} {
-            error "$type $self delegates '$method' to undefined component '$compName'."
+            error "$type $self delegates method '$method' to undefined component '$compName'."
         }
         
         lappend subList %c [list $Snit_components($compName)]
