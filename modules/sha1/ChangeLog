@@ -1,3 +1,8 @@
+2002-02-20  Don Porter  <dgp@users.sf.net>
+
+	* sha1.tcl (sha1): Force 32-bit register arithmetic so that
+	the right answers are computed even on 64-bit platforms. [446997]
+
 2002-02-20  Donal K. Fellows  <fellowsd@cs.man.ac.uk>
 
 	* sha1.tcl (initK,sha1): Force 32-bit interpretation of constants

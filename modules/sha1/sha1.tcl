@@ -261,11 +261,11 @@ if {![catch {package require Trf 2.0}]} {
 		set A $TEMP
 	    }
 
-	    incr H0 $A
-	    incr H1 $B
-	    incr H2 $C
-	    incr H3 $D
-	    incr H4 $E
+	    set H0 [expr {($H0 + $A) & 0xffffffff}]
+	    set H1 [expr {($H1 + $B) & 0xffffffff}]
+	    set H2 [expr {($H2 + $C) & 0xffffffff}]
+	    set H3 [expr {($H3 + $D) & 0xffffffff}]
+	    set H4 [expr {($H4 + $E) & 0xffffffff}]
 	}
 
 	return [format %0.8x%0.8x%0.8x%0.8x%0.8x $H0 $H1 $H2 $H3 $H4]
