@@ -7,8 +7,11 @@
 			  variable/typevariable and component/typecomponent 
 			  names do not collide.  Updated a number of 
 			  compilation error messages for consistency.
-			  Added/modified relevant tests, and updated the 
-			  roadmap and dictionary files.
+			  Moved the remaining typemethod definitions from the 
+			  template code and replaced them delegations to
+			  the Snit runtime library.  Added/modified
+			  relevant tests, and updated the roadmap and 
+			  dictionary files.  
 
 2004-07-15  Will Duquette  <will@wjduquette.com>
 

@@ -61,232 +61,27 @@ set ::snit::defs(common) {
     #----------------------
     # Standard Typemethods
 
-    # Type Introspection: info <command> <args>
-    typemethod info {command args} {
-        global errorInfo
-        global errorCode
-
-        switch -exact $command {
-            typevars - 
-            instances {
-                # TBD: it should be possible to delete this error
-                # handling.
-                set errflag [catch {
-                    uplevel ::snit::TypeInfo_$command \
-                        $type $args
-                } result]
-                
-                if {$errflag} {
-                    return -code error -errorinfo $errorInfo \
-                        -errorcode $errorCode $result
-                } else {
-                    return $result
-                }
-            }
-            default {
-                error "'$type info $command' is not defined."
-            }
-        }
-    }
-
-
-    # $type destroy
-    #
-    # Destroys a type completely.
-    typemethod destroy {} {
-        typevariable Snit_isWidget
-        
-        # FIRST, destroy all instances
-        foreach selfns [namespace children $type] {
-            if {![namespace exists $selfns]} {
-                continue
-            }
-            upvar ${selfns}::Snit_instance obj
-            
-            if {$Snit_isWidget} {
-                destroy $obj
-            } else {
-                if {"" != [info commands $obj]} {
-                    $obj destroy
-                }
-            }
-        }
-
-        # NEXT, destroy the type's data.
-        namespace delete $type
-
-        # NEXT, get rid of the type command.
-        rename $type ""
-    }
+    delegate typemethod info     using {::snit::RT.typemethod.info %t}
+    delegate typemethod destroy  using {::snit::RT.typemethod.destroy %t}
 }
 
 # Methods specific to plain types.
 set ::snit::defs(type) {
-    #----------------------------------
-    # Standard methods for plain types
+    #------------------------------------------------------------------------
+    # Delegations for standard methods and typemethods for plain snit::types.
 
     delegate method destroy using {::snit::RT.method.destroy %t %n %w %s}
 
-    #--------------------------------------
-    # Standard typemethods for plain types
-
-    # Creates a new instance of the type given its name and the args.
-    typemethod create {name args} {
-        typevariable Snit_info
-        typevariable Snit_optiondefaults
-
-        # FIRST, qualify the name.
-        if {![string match "::*" $name]} {
-            # Get caller's namespace; 
-            # append :: if not global namespace.
-            set ns [uplevel 1 namespace current]
-            if {"::" != $ns} {
-                append ns "::"
-            }
-        
-            set name "$ns$name"
-        }
-
-        # NEXT, if %AUTO% appears in the name, generate a unique 
-        # command name.
-        if {[string match "*%AUTO%*" $name]} {
-            set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
-        }
-
-        # NEXT, create the instance's namespace.
-        set selfns \
-            [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
-        namespace eval $selfns {}
-
-        # NEXT, install the dispatcher
-        Snit_install $selfns $name
-
-        # Initialize the options to their defaults. 
-
-        upvar ${selfns}::options options
-        foreach opt $Snit_info(options) {
-            set options($opt) $Snit_optiondefaults($opt)
-        }
-        
-        # Initialize the instance vars to their defaults.
-        # selfns must be defined, as it is used implicitly.
-        Snit_instanceVars $selfns
-
-        # Execute the type's constructor.
-        set errcode [catch {
-            eval Snit_constructor %TYPE% $selfns \
-                [list $name] [list $name] $args
-        } result]
-
-        if {$errcode} {
-            global errorInfo
-            global errorCode
-
-            set theInfo $errorInfo
-            set theCode $errorCode
-            Snit_cleanup $selfns $name
-            error "Error in constructor: $result" $theInfo $theCode
-        }
-
-        # NEXT, return the object's name.
-        return $name
-    }
+    delegate typemethod create using {::snit::RT.type.typemethod.create %t}
 }
 
 
 # Methods specific to widgets.
 set snit::defs(widget) {
-    # Creates a new instance of the widget, given the name and args.
-    typemethod create {name args} {
-        typevariable Snit_info
-        typevariable Snit_optiondefaults
-        typevariable Snit_isWidgetAdaptor
+    #------------------------------------------------------------------------
+    # Delegations for standard methods and typemethods for widget types.
 
-        # FIRST, if %AUTO% appears in the name, generate a unique 
-        # command name.
-        if {[string match "*%AUTO%*" $name]} {
-            set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
-        }
-            
-        # NEXT, create the instance's namespace.
-        set selfns \
-            [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
-        namespace eval $selfns { }
-            
-        # NEXT, Initialize the widget's own options to their defaults.
-        upvar ${selfns}::options options
-        foreach opt $Snit_info(options) {
-            set options($opt) $Snit_optiondefaults($opt)
-        }
-
-        # Initialize the instance vars to their defaults.
-        Snit_instanceVars $selfns
-
-        # NEXT, if this is a normal widget (not a widget adaptor) then 
-        # create a frame as its hull.  We set the frame's -class to
-        # the user's widgetclass, or, if none, to the basename of
-        # the %TYPE% with an initial upper case letter.
-        if {!$Snit_isWidgetAdaptor} {
-            # FIRST, determine the class name
-            if {"" == $Snit_info(widgetclass)} {
-                set Snit_info(widgetclass) \
-                    [::snit::Capitalize [namespace tail %TYPE%]]
-            }
-
-            # NEXT, create the widget
-            set self $name
-            package require Tk
-            installhull using \
-                $Snit_info(hulltype) -class $Snit_info(widgetclass)
-
-            # NEXT, let's query the option database for our
-            # widget, now that we know that it exists.
-            foreach opt $Snit_info(options) {
-                set dbval [Snit_optionget $name $opt]
-                
-                if {"" != $dbval} {
-                    set options($opt) $dbval
-                }
-            }
-        }
-
-        # Execute the type's constructor, and verify that it
-        # has a hull.
-        set errcode [catch {
-            eval Snit_constructor %TYPE% $selfns [list $name] \
-                [list $name] $args
-            
-            ::snit::RT.Component %TYPE% $selfns hull
-            
-            # Prepare to call the object's destructor when the
-            # <Destroy> event is received.  Use a Snit-specific bindtag
-            # so that the widget name's tag is unencumbered.
-            
-            bind Snit%TYPE%$name <Destroy> [::snit::Expand {
-                %TYPE%::Snit_cleanup %NS% %W
-            } %NS% $selfns]
-            
-            # Insert the bindtag into the list of bindtags right
-            # after the widget name.
-            set taglist [bindtags $name]
-            set ndx [lsearch $taglist $name]
-            incr ndx
-            bindtags $name [linsert $taglist $ndx Snit%TYPE%$name]
-        } result]
-        
-        if {$errcode} {
-            global errorInfo
-            global errorCode
-
-            set theInfo $errorInfo
-            set theCode $errorCode
-            Snit_cleanup $selfns $name
-            error "Error in constructor: $result" $theInfo $theCode
-        }
-        
-        # NEXT, return the object's name.
-        return $name
-    }
+    delegate typemethod create using {::snit::RT.widget.typemethod.create %t}
 }
 
 #-----------------------------------------------------------------------
@@ -331,6 +126,7 @@ set ::snit::typeTemplate {
     # called when any instance is destroyed, e.g., by "$object destroy"
     # for types, and by the <Destroy> event for widgets.
 
+    # TBD: Move this to Snit runtime
     proc %TYPE%::Snit_cleanup {selfns win} {
         typevariable Snit_isWidget
 
@@ -376,6 +172,7 @@ set ::snit::typeTemplate {
     }
 
     # Retrieves an option's value from the option database
+    # TBD: Move this to Snit runtime
     proc %TYPE%::Snit_optionget {self opt} {
         typevariable Snit_optiondbspec
         
@@ -437,65 +234,26 @@ set ::snit::typeTemplate {
     # Defined for each typemethod.
 
     #----------------------------------------------------------------
-    # Snit variable management 
-
-    # typevariable Declares that a variable is a static type variable.
-    # It's equivalent to "::variable", operating in the %TYPE%
-    # namespace.
-    interp alias {} %TYPE%::typevariable {} ::variable
-
-    # Declares an instance variable in a method or proc, -OR- allows
-    # the method or proc to reference a variable in some other 
-    # namespace by its bare name.  It's only valid in instance code; 
-    # it requires that selfns be defined.
-    interp alias {} %TYPE%::variable {} ::snit::RT.variable
-
-    # Returns the fully qualified name of a typevariable.
-    # The "typevarname" form is DEPRECATED.
-    interp alias {} %TYPE%::mytypevar   {} ::snit::RT.mytypevar %TYPE%
-    interp alias {} %TYPE%::typevarname {} ::snit::RT.mytypevar %TYPE%
-    
-    # Returns the fully qualified name of an instance variable.  
-    # As with "variable", must be called in the context of a method.
-    # The "varname" form is DEPRECATED.
-
-    interp alias {} %TYPE%::myvar   {} ::snit::RT.myvar
-    interp alias {} %TYPE%::varname {} ::snit::RT.myvar
-
-    # Returns the fully qualified name of a proc 
-    # Unlike "variable", need not be called in the context of an
-    # instance method.
+    # Commands for use in methods, typemethods, etc.
     #
-    # DEPRECATED; use myproc instead.
-    interp alias {} %TYPE%::codename {} ::snit::RT.codename %TYPE%
+    # These are mostly implemented as aliases into the Snit runtime library.
 
-    # Use this like "list" to pass a proc call to another
-    # object (e.g., as a -command); it automatically qualifies
-    # the proc name.
-    interp alias {} %TYPE%::myproc {} ::snit::RT.myproc %TYPE%
-
-    # Use this like "list" to pass method call to another object 
-    # (e.g., as a -command); it automatically inserts
-    # the code at the beginning to call the right object, even if
-    # the object's name has changed.  Requires that selfns be defined
-    # in the calling context.
-    interp alias {} %TYPE%::mymethod {} ::snit::RT.mymethod 
-
-    # Use this like "list" to pass typemethod call to another object 
-    # (e.g., as a -command); it automatically inserts the type
-    # command at the beginning.
+    interp alias {} %TYPE%::typevariable {} ::variable
+    interp alias {} %TYPE%::variable     {} ::snit::RT.variable
+    interp alias {} %TYPE%::mytypevar    {} ::snit::RT.mytypevar %TYPE%
+    interp alias {} %TYPE%::typevarname  {} ::snit::RT.mytypevar %TYPE%
+    interp alias {} %TYPE%::myvar        {} ::snit::RT.myvar
+    interp alias {} %TYPE%::varname      {} ::snit::RT.myvar
+    interp alias {} %TYPE%::codename     {} ::snit::RT.codename %TYPE%
+    interp alias {} %TYPE%::myproc       {} ::snit::RT.myproc %TYPE%
+    interp alias {} %TYPE%::mymethod     {} ::snit::RT.mymethod 
     interp alias {} %TYPE%::mytypemethod {} ::snit::RT.mytypemethod %TYPE%
-
-    # Looks for the named option in the named variable.  If found,
-    # it and its value are removed from the list, and the value
-    # is returned.  Otherwise, the default value is returned.
-    # If the option is undelegated, it's own default value will be
-    # used if none is specified.
-    interp alias {} %TYPE%::from {} ::snit::RT.from %TYPE%
+    interp alias {} %TYPE%::from         {} ::snit::RT.from %TYPE%
 
     # Installs the named widget as the hull of a 
     # widgetadaptor.  Once the widget is hijacked, it's new name
     # is assigned to the hull component.
+    # TBD: Make this an alias to RT.installhull
     proc %TYPE%::installhull {{using "using"} {widgetType ""} args} {
         typevariable Snit_isWidget
         typevariable Snit_info
@@ -601,6 +359,7 @@ set ::snit::typeTemplate {
     }
 
     # Creates a widget and installs it as the named component.
+    # TBD: Make this an alias to RT.install
     proc %TYPE%::install {compName "using" widgetType winPath args} {
         typevariable Snit_isWidget
         typevariable Snit_compoptions
@@ -708,10 +467,6 @@ set ::snit::typeTemplate {
 
     #----------------------------------------------------------------
     # Snit variables 
-    #
-    # TBD: At some point I really need to review all of these variables
-    # and see if there's more a straightforward, clearer way to store
-    # all of the same information.
 
     namespace eval %TYPE% {
         # Array: General Snit Info
@@ -800,6 +555,7 @@ set ::snit::typeTemplate {
     # Creates the instance proc.
     # "instance" is the initial name of the instance, and "selfns" is
     # the instance namespace.
+    # TBD: Move this to Snit runtime
     proc %TYPE%::Snit_install {selfns instance} {
         typevariable Snit_isWidget
         
@@ -840,6 +596,7 @@ set ::snit::typeTemplate {
     }
 
     # Snit_removetrace selfns instance
+    # TBD: Move this to Snit runtime
     proc %TYPE%::Snit_removetrace {selfns win instance} {
         typevariable Snit_isWidget
 
@@ -869,6 +626,7 @@ set ::snit::typeTemplate {
     # traces aren't propagated correctly.  Instead, they silently
     # vanish.  Add a catch to output any error message.
 
+    # TBD: Move this to Snit runtime
     proc %TYPE%::Snit_tracer {selfns win old new op} {
         typevariable Snit_isWidget
 
@@ -2120,6 +1878,172 @@ proc ::snit::Capitalize {text} {
 #-----------------------------------------------------------------------
 # Object Creation
 
+# Creates a new instance of the snit::type given its name and the args.
+#
+# type		The snit::type
+# name		The instance name
+# args		Args to pass to the constructor
+
+proc ::snit::RT.type.typemethod.create {type name args} {
+    variable ${type}::Snit_info
+    variable ${type}::Snit_optiondefaults
+
+    # FIRST, qualify the name.
+    if {![string match "::*" $name]} {
+        # Get caller's namespace; 
+        # append :: if not global namespace.
+        set ns [uplevel 1 namespace current]
+        if {"::" != $ns} {
+            append ns "::"
+        }
+        
+        set name "$ns$name"
+    }
+
+    # NEXT, if %AUTO% appears in the name, generate a unique 
+    # command name.
+    if {[string match "*%AUTO%*" $name]} {
+        set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
+    }
+
+    # NEXT, create the instance's namespace.
+    set selfns \
+        [::snit::RT.UniqueInstanceNamespace Snit_info(counter) $type]
+    namespace eval $selfns {}
+
+    # NEXT, install the dispatcher
+    ${type}::Snit_install $selfns $name
+
+    # Initialize the options to their defaults. 
+
+    upvar ${selfns}::options options
+    foreach opt $Snit_info(options) {
+        set options($opt) $Snit_optiondefaults($opt)
+    }
+        
+    # Initialize the instance vars to their defaults.
+    # selfns must be defined, as it is used implicitly.
+    ${type}::Snit_instanceVars $selfns
+
+    # Execute the type's constructor.
+    set errcode [catch {
+        eval ${type}::Snit_constructor $type $selfns \
+            [list $name] [list $name] $args
+    } result]
+
+    if {$errcode} {
+        global errorInfo
+        global errorCode
+        
+        set theInfo $errorInfo
+        set theCode $errorCode
+        ${type}::Snit_cleanup $selfns $name
+        error "Error in constructor: $result" $theInfo $theCode
+    }
+
+    # NEXT, return the object's name.
+    return $name
+}
+
+# Creates a new instance of the snit::widget or snit::widgetadaptor
+# given its name and the args.
+#
+# type		The snit::widget or snit::widgetadaptor
+# name		The instance name
+# args		Args to pass to the constructor
+
+proc ::snit::RT.widget.typemethod.create {type name args} {
+    variable ${type}::Snit_info
+    variable ${type}::Snit_optiondefaults
+    variable ${type}::Snit_isWidgetAdaptor
+
+    # FIRST, if %AUTO% appears in the name, generate a unique 
+    # command name.
+    if {[string match "*%AUTO%*" $name]} {
+        set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
+    }
+            
+    # NEXT, create the instance's namespace.
+    set selfns \
+        [::snit::RT.UniqueInstanceNamespace Snit_info(counter) $type]
+    namespace eval $selfns { }
+            
+    # NEXT, Initialize the widget's own options to their defaults.
+    upvar ${selfns}::options options
+    foreach opt $Snit_info(options) {
+        set options($opt) $Snit_optiondefaults($opt)
+    }
+
+    # Initialize the instance vars to their defaults.
+    ${type}::Snit_instanceVars $selfns
+
+    # NEXT, if this is a normal widget (not a widget adaptor) then 
+    # create a frame as its hull.  We set the frame's -class to
+    # the user's widgetclass, or, if none, to the basename of
+    # the $type with an initial upper case letter.
+    if {!$Snit_isWidgetAdaptor} {
+        # FIRST, determine the class name
+        if {"" == $Snit_info(widgetclass)} {
+            set Snit_info(widgetclass) \
+                [::snit::Capitalize [namespace tail $type]]
+        }
+
+        # NEXT, create the widget
+        set self $name
+        package require Tk
+        ${type}::installhull using \
+            $Snit_info(hulltype) -class $Snit_info(widgetclass)
+
+        # NEXT, let's query the option database for our
+        # widget, now that we know that it exists.
+        foreach opt $Snit_info(options) {
+            set dbval [${type}::Snit_optionget $name $opt]
+
+            if {"" != $dbval} {
+                set options($opt) $dbval
+            }
+        }
+    }
+
+    # Execute the type's constructor, and verify that it
+    # has a hull.
+    set errcode [catch {
+        eval ${type}::Snit_constructor $type $selfns [list $name] \
+            [list $name] $args
+            
+        ::snit::RT.Component $type $selfns hull
+            
+        # Prepare to call the object's destructor when the
+        # <Destroy> event is received.  Use a Snit-specific bindtag
+        # so that the widget name's tag is unencumbered.
+            
+        bind Snit$type$name <Destroy> [::snit::Expand {
+            %TYPE%::Snit_cleanup %NS% %W
+        } %TYPE% $type %NS% $selfns]
+            
+        # Insert the bindtag into the list of bindtags right
+        # after the widget name.
+        set taglist [bindtags $name]
+        set ndx [lsearch $taglist $name]
+        incr ndx
+        bindtags $name [linsert $taglist $ndx Snit$type$name]
+    } result]
+        
+    if {$errcode} {
+        global errorInfo
+        global errorCode
+
+        set theInfo $errorInfo
+        set theCode $errorCode
+        ${type}::Snit_cleanup $selfns $name
+        error "Error in constructor: $result" $theInfo $theCode
+    }
+        
+    # NEXT, return the object's name.
+    return $name
+}
+
+
 # Returns a unique command name.  
 #
 # REQUIRE: type is a fully qualified name.
@@ -2478,6 +2402,40 @@ proc ::snit::RT.from {type argvName option {defvalue ""}} {
 }
 
 #-----------------------------------------------------------------------
+# Type Destruction
+
+# Implements the standard "destroy" typemethod:
+# Destroys a type completely.
+#
+# type		The snit type
+
+proc ::snit::RT.typemethod.destroy {type} {
+    variable ${type}::Snit_isWidget
+        
+    # FIRST, destroy all instances
+    foreach selfns [namespace children $type] {
+        if {![namespace exists $selfns]} {
+            continue
+        }
+        upvar ${selfns}::Snit_instance obj
+            
+        if {$Snit_isWidget} {
+            destroy $obj
+        } else {
+            if {"" != [info commands $obj]} {
+                $obj destroy
+            }
+        }
+    }
+
+    # NEXT, destroy the type's data.
+    namespace delete $type
+
+    # NEXT, get rid of the type command.
+    rename $type ""
+}
+
+#-----------------------------------------------------------------------
 # Object Destruction
 
 # Implements the standard "destroy" method
@@ -2681,6 +2639,40 @@ proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
 #
 # TBD: Rename this after typemethod delegation is implemented.
 
+# Implements the standard "info" typemethod.
+#
+# type		The snit type
+# command       The info subcommand
+# args          All other arguments.
+
+proc ::snit::RT.typemethod.info {type command args} {
+    global errorInfo
+    global errorCode
+
+    switch -exact $command {
+        typevars - 
+        instances {
+            # TBD: it should be possible to delete this error
+            # handling.
+            set errflag [catch {
+                uplevel ::snit::RT.typemethod.info.$command \
+                    $type $args
+            } result]
+                
+            if {$errflag} {
+                return -code error -errorinfo $errorInfo \
+                    -errorcode $errorCode $result
+            } else {
+                return $result
+            }
+        }
+        default {
+            error "'$type info $command' is not defined."
+        }
+    }
+}
+
+
 # Returns a list of the type's typevariables whose names match a 
 # pattern, excluding Snit internal variables.
 #
@@ -2688,7 +2680,7 @@ proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
 # pattern       Optional.  The glob pattern to match.  Defaults
 #               to *.
 
-proc ::snit::TypeInfo_typevars {type {pattern *}} {
+proc ::snit::RT.typemethod.info.typevars {type {pattern *}} {
     set result {}
     foreach name [info vars "${type}::$pattern"] {
         set tail [namespace tail $name]
@@ -2709,7 +2701,7 @@ proc ::snit::TypeInfo_typevars {type {pattern *}} {
 #
 # REQUIRE: type is fully qualified.
 
-proc ::snit::TypeInfo_instances {type {pattern *}} {
+proc ::snit::RT.typemethod.info.instances {type {pattern *}} {
     set result {}
 
     foreach selfns [namespace children $type] {
@@ -2771,7 +2763,7 @@ proc ::snit::RT.method.info.type {type selfns win self} {
 #
 # Returns the instance's type's typevariables
 proc ::snit::RT.method.info.typevars {type selfns win self {pattern *}} {
-    return [TypeInfo_typevars $type $pattern]
+    return [RT.typemethod.info.typevars $type $pattern]
 }
 
 # $self info vars
