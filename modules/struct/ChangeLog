@@ -1,3 +1,11 @@
+2003-04-02  Andreas Kupries  <andreask@activestate.com>
+
+	* struct.tcl: Integrated new list commands.
+
+	* list.tcl:  Added commands 'reverse', 'assign', 'flatten',
+	* list.man:  'map', and 'fold' to the suite of list functions.
+	* list.test: 
+
 2003-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* list.man:  New files, extended list manipulation

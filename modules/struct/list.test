@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.1 2003/04/02 07:29:44 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.2 2003/04/02 20:52:24 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -40,6 +40,8 @@ proc wrongNumArgs {name arglist count} {
     }
     return $msg
 }
+
+#----------------------------------------------------------------------
 
 interp alias {} lcs {} ::struct::list::list longestCommonSubsequence
 
@@ -152,6 +154,7 @@ test list-lcs-3.4 {longestCommonSubsequence, stupid length limit} {
 } {0 {{} {}}}
 
 
+#----------------------------------------------------------------------
 
 interp alias {} lcs2 {} ::struct::list::list longestCommonSubsequence2
 
@@ -264,6 +267,8 @@ test list-lcs2-3.4 {longestCommonSubsequence2, stupid length limit} {
 } {0 {{0 1 3 4 5 6 7} {1 2 4 5 8 9 10}}}
 
 
+#----------------------------------------------------------------------
+
 interp alias {} lcsi {} ::struct::list::list lcsInvert
 
 test list-lcsInv-4.0 {longestCommonSubsequence, mixed changes} {
@@ -280,3 +285,117 @@ test list-lcsInv-4.0 {longestCommonSubsequence, mixed changes} {
 
     list [catch {lcsi [lcs {a b r a c a d a b r a} {b r i c a b r a c}] 11 9} msg] $msg
 } {0 {{deleted {0 0} {-1 0}} {changed {3 3} {2 2}} {deleted {6 7} {4 5}} {added {10 11} {8 8}}}}
+
+#----------------------------------------------------------------------
+
+interp alias {} reverse {} ::struct::list::list reverse
+
+test reverse-1.1 {reverse method} {
+    reverse {a b c}
+} {c b a}
+
+test reverse-1.2 {reverse method} {
+    reverse a
+} {a}
+
+test reverse-1.3 {reverse method} {
+    reverse {}
+} {}
+
+test reverse-2.1 {reverse errors} {
+    list [catch {reverse} msg] $msg
+} [list 1 [wrongNumArgs ::struct::list::Reverse {sequence} 0]]
+
+#----------------------------------------------------------------------
+
+interp alias {} assign {} ::struct::list::list assign
+
+test assign-4.1 {assign method} {
+    catch {unset ::x ::y}
+    list [assign {foo bar} x y] $x $y
+} {{} foo bar}
+
+test assign-4.2 {assign method} {
+    catch {unset x y}
+    list [assign {foo bar baz} x y] $x $y
+} {baz foo bar}
+
+test assign-4.3 {assign method} {
+    catch {unset x y z}
+    list [assign {foo bar} x y z] $x $y $z
+} {{} foo bar {}}
+
+test assign-4.4 {assign method} {
+    assign {foo bar}
+} {foo bar}
+
+catch {unset x y z}
+
+#----------------------------------------------------------------------
+
+interp alias {} flatten {} ::struct::list::list flatten
+
+test flatten-1.1 {flatten command} {
+    flatten {1 2 3 {4 5} {6 7} {{8 9}} 10}
+} {1 2 3 4 5 6 7 {8 9} 10}
+
+test flatten-1.2 {flatten command} {
+    flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
+} {1 2 3 4 5 6 7 8 9 10}
+
+test flatten-2.1 {flatten errors} {
+    list [catch {flatten} msg] $msg
+} [list 1 [wrongNumArgs ::struct::list::Assign {?-full? ?--? sequence} 0]]
+
+#----------------------------------------------------------------------
+
+interp alias {} map {} ::struct::list::list map
+
+proc cc {a} {return $a$a}
+proc +  {a} {expr {$a + $a}}
+proc *  {a} {expr {$a * $a}}
+proc projection {n list} {::lindex $list $n}
+
+test map-4.1 {map command} {
+    map {a b c d} cc
+} {aa bb cc dd}
+
+test map-4.2 {map command} {
+    map {1 2 3 4 5} +
+} {2 4 6 8 10}
+
+test map-4.3 {map command} {
+    map {1 2 3 4 5} *
+} {1 4 9 16 25}
+
+test map-4.4 {map command} {
+    map {} *
+} {}
+
+test map-4.5 {map command} {
+    map {{a b c} {1 2 3} {d f g}} {projection 1}
+} {b 2 f}
+
+#----------------------------------------------------------------------
+
+interp alias {} fold {} ::struct::list::list fold
+
+proc cc {a b} {return $a$b}
+proc +  {a b} {expr {$a + $b}}
+proc *  {a b} {expr {$a * $b}}
+
+test fold-4.1 {fold command} {
+    fold {a b c d} {} cc
+} {abcd}
+
+test fold-4.2 {fold command} {
+    fold {1 2 3 4 5} 0 +
+} {15}
+
+test fold-4.3 {fold command} {
+    fold {1 2 3 4 5} 1 *
+} {120}
+
+test fold-4.4 {fold command} {
+    fold {} 1 *
+} {1}
