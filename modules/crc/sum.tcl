@@ -13,25 +13,31 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: sum.tcl,v 1.4 2003/05/01 00:17:40 andreas_kupries Exp $
+# $Id: sum.tcl,v 1.5 2003/05/08 23:55:37 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
+catch {package require crcc};           # critcl enhanced crc module
 
 namespace eval ::crc {
-    variable sum_version 1.0.1
+    variable sum_version 1.1.0
     namespace export sum
+
+    variable uid
+    if {![info exists uid]} {
+        set uid 0
+    }
 }
 
+# -------------------------------------------------------------------------
 # Description:
 #  The SysV algorithm is fairly naive. The byte values are summed and any
 #  overflow is discarded. The lowest 16 bits are returned as the checksum.
 # Notes:
 #  Input with the same content but different ordering will give the same 
 #  result.
-#  This is pretty dependant on using a 32 bit accumulator.
 #
-proc ::crc::sum-sysv {s} {
-    set t 0
+proc ::crc::SumSysV {s {seed 0}} {
+    set t $seed
     binary scan $s c* r
     foreach n $r {
         incr t [expr {$n & 0xFF}]
@@ -39,14 +45,13 @@ proc ::crc::sum-sysv {s} {
     return [expr {$t % 0xFFFF}]
 }
 
+# -------------------------------------------------------------------------
 # Description:
 #  This algorithm is similar to the SysV version but includes a bit rotation
 #  step which provides a dependency on the order of the data values.
-# Notes:
-#  Once again this depends upon a 32 bit accumulator.
 #
-proc ::crc::sum-bsd {s} {
-    set t 0
+proc ::crc::SumBsd {s {seed 0}} {
+    set t $seed
     binary scan $s c* r
     foreach n $r {
         set t [expr {($t & 1) ? (($t >> 1) + 0x8000) : ($t >> 1)}]
@@ -55,6 +60,120 @@ proc ::crc::sum-bsd {s} {
     return $t
 }
 
+# -------------------------------------------------------------------------
+
+if {[package provide critcl] != {}} {
+    namespace eval ::crc {
+        critcl::ccommand SumSysV_c {dummy interp objc objv} {
+            int r = TCL_OK;
+            unsigned int t = 0;
+
+            if (objc < 2 || objc > 3) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
+                return TCL_ERROR;
+            }
+            
+            if (objc == 3)
+                r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t);
+
+            if (r == TCL_OK) {
+                int cn, size;
+                unsigned char *data;
+
+                data = Tcl_GetByteArrayFromObj(objv[1], &size);
+                for (cn = 0; cn < size; cn++)
+                    t += data[cn];
+            }
+
+            Tcl_SetIntObj(Tcl_GetObjResult(interp), t & 0xFFFF);
+            return r;
+        }
+
+        critcl::ccommand SumBsd_c {dummy interp objc objv} {
+            int r = TCL_OK;
+            unsigned int t = 0;
+
+            if (objc < 2 || objc > 3) {
+                Tcl_WrongNumArgs(interp, 1, objv, "data ?seed?");
+                return TCL_ERROR;
+            }
+            
+            if (objc == 3)
+                r = Tcl_GetIntFromObj(interp, objv[2], (int *)&t);
+
+            if (r == TCL_OK) {
+                int cn, size;
+                unsigned char *data;
+
+                data = Tcl_GetByteArrayFromObj(objv[1], &size);
+                for (cn = 0; cn < size; cn++) {
+                    t = (t & 1) ? ((t >> 1) + 0x8000) : (t >> 1);
+                    t = (t + data[cn]) & 0xFFFF;
+                }
+            }
+
+            Tcl_SetIntObj(Tcl_GetObjResult(interp), t & 0xFFFF);
+            return r;
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# Switch from pure tcl to compiled if available.
+#
+if {[package provide crcc] == {}} {
+    interp alias {} ::crc::sum-bsd  {} ::crc::SumBsd
+    interp alias {} ::crc::sum-sysv {} ::crc::SumSysV
+} else {
+    interp alias {} ::crc::sum-bsd  {} ::crc::SumBsd_c
+    interp alias {} ::crc::sum-sysv {} ::crc::SumSysV_c
+}
+
+# -------------------------------------------------------------------------
+# Description:
+#  Pop the nth element off a list. Used in options processing.
+#
+proc ::crc::Pop {varname {nth 0}} {
+    upvar $varname args
+    set r [lindex $args $nth]
+    set args [lreplace $args $nth $nth]
+    return $r
+}
+
+# -------------------------------------------------------------------------
+# timeout handler for the chunked file handling
+# This avoids us waiting for ever
+#
+proc ::crc::SumTimeout {token} {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    set state(error) "operation timed out"
+    set state(reading) 0
+}
+
+# -------------------------------------------------------------------------
+# fileevent handler for chunked file handling.
+#
+proc ::crc::SumChunk {token channel} {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    
+    if {[eof $channel]} {
+        fileevent $channel readable {}
+        set state(reading) 0
+    }
+    
+    after cancel $state(after)
+    set state(after) [after $state(timeout) \
+                          [list [namespace origin SumTimeout] $token]]
+    set state(result) [$state(algorithm) \
+                           [read $channel $state(chunksize)] \
+                           $state(result)]
+}
+
+# -------------------------------------------------------------------------
 # Description:
 #  Provide a Tcl equivalent of the unix sum(1) command. We default to the
 #  BSD algorithm and return a checkum for the input string unless a filename
@@ -67,51 +186,79 @@ proc ::crc::sum-bsd {s} {
 #  -format string - return the checksum using this format string
 #
 proc ::crc::sum {args} {
-    set algorithm [namespace current]::sum-bsd
-    set filename {}
-    set format %u
-    while {[string match -* [lindex $args 0]]} {
-        switch -glob -- [lindex $args 0] {
-            -b* {
-                set algorithm [namespace current]::sum-bsd
-            }
-            -s* {
-                set algorithm [namespace current]::sum-sysv
-            }
-            -fi* {
-                set filename [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -fo* {
-                set format [lindex $args 1]
-                set args [lreplace $args 0 0]
-            }
-            -- {
-                set args [lreplace $args 0 0]
-                break
-            }
+    array set opts [list -filename {} -channel {} -chunksize 4096 \
+                        -timeout 30000 -bsd 1 -sysv 0 -format %u \
+                        algorithm [namespace origin sum-bsd]]
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
+            -bsd    { set opts(-bsd) 1 ; set opts(-sysv) 0 }
+            -sysv   { set opts(-bsd) 0 ; set opts(-sysv) 1 }
+            -file*  { set opts(-filename) [Pop args 1] }
+            -for*   { set opts(-format) [Pop args 1] }
+            -chan*  { set opts(-channel) [Pop args 1] }
+            -chunk* { set opts(-chunksize) [Pop args 1] }
+            -time*  { set opts(-timeout) [Pop args 1] }
+            --      { Pop args ; break }
             default {
-                return -code error "bad option [lindex $args 0]:\
-                     must be -bsd, -sysv, -filename or -format"
+                set err [join [lsort [array names opts -*]] ", "]
+                return -code error "bad option $option:\
+                    must be one of $err"
             }
         }
-        set args [lreplace $args 0 0]
+        Pop args
     }
 
-    if {$filename != {}} {
-        set f [open $filename r]
-        fconfigure $f -translation binary
-        set data [read $f]
-        close $f
-        set r [$algorithm $data]
-    } else {
+    # Set the correct sum algorithm
+    if {$opts(-sysv)} {
+        set opts(algorithm) [namespace origin sum-sysv]
+    }
+
+    # If a file was given - open it for binary reading.
+    if {$opts(-filename) != {}} {
+        set opts(-channel) [open $opts(-filename) r]
+        fconfigure $opts(-channel) -translation binary
+    }
+
+    if {$opts(-channel) == {}} {
+
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be \
-                 \"sum ?-bsd|-sysv? ?-format string? -file name | data\""
+                 \"sum ?-bsd|-sysv? ?-format string? ?-chunksize size? \
+                 ?-timeout ms? -file name | -channel chan | data\""
         }
-        set r [$algorithm [lindex $args 0]]
+        set r [$opts(algorithm) [lindex $args 0]]
+
+    } else {
+
+        # Create a unique token for the event handling
+        variable uid
+        set token [namespace current]::[incr uid]
+        upvar #0 $token tok
+        array set tok [list reading 1 result 0 timeout $opts(-timeout) \
+                           chunksize $opts(-chunksize) \
+                           algorithm $opts(algorithm)]
+        set tok(after) [after $tok(timeout) \
+                            [list [namespace origin SumTimeout] $token]]
+
+        fileevent $opts(-channel) readable \
+            [list [namespace origin SumChunk] $token $opts(-channel)]
+        vwait [subst $token](reading)
+
+        # If we opened the channel we must close it too.
+        if {$opts(-filename) != {}} {
+            close $opts(-channel)
+        }
+
+        # Extract the result or error message if there was a problem.
+        set r $tok(result)
+        if {[info exists tok(error)]} {
+            return -code error $tok(error)
+        }
+
+        unset tok
     }
-    return [format $format $r]
+
+    return [format $opts(-format) $r]
 }
 
 # -------------------------------------------------------------------------

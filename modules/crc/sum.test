@@ -6,21 +6,51 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sum.test,v 1.2 2002/01/23 20:56:30 patthoyts Exp $
+# RCS: @(#) $Id: sum.test,v 1.3 2003/05/08 23:55:37 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialize the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require sum
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget sum
+#catch {namespace delete ::csv}
+if {[catch {source [file join [file dirname [info script]] sum.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+if {[package provide crcc] == {}} {
+    puts "- sum [package present sum] (pure tcl)"
+} else {
+    puts "- sum [package present sum] (critcl based [package provide crcc])"
+}
 
 # -------------------------------------------------------------------------
 
 test sum-1.0 {sum with no parameters } {
-    catch {::crc::sum} result
-    set result
-} {wrong # args: should be  "sum ?-bsd|-sysv? ?-format string? -file name | data"}
+    list [catch {::crc::sum} result] \
+        [string match "wrong \# args: *" $result]
+} {1 1}
+
+test sum-1.1 {sum with incorrect parameters } {
+    list [catch {::crc::sum -zxcv} result] \
+        [string match "bad option -zxcv: *" $result]
+} {1 1}
 
 # -------------------------------------------------------------------------
 
@@ -79,7 +109,7 @@ foreach {n msg expected} {
 
 set crc::testfile [info script]
 
-proc crc::loaddata {filename} {
+proc ::crc::loaddata {filename} {
     set f [open $filename r]
     fconfigure $f -translation binary
     set data [read $f]
@@ -88,8 +118,8 @@ proc crc::loaddata {filename} {
 }
 
 test sum-4.0 {sum file option (BSD)} {
-    set r1 [crc::sum -bsd -file $crc::testfile]
-    set r2 [crc::sum -bsd [crc::loaddata $crc::testfile]]
+    set r1 [::crc::sum -bsd -file $::crc::testfile]
+    set r2 [::crc::sum -bsd [::crc::loaddata $::crc::testfile]]
     if {$r1 != $r2} {
         set r "differing results: $r1 != $r2"
     } else {
@@ -98,8 +128,34 @@ test sum-4.0 {sum file option (BSD)} {
 } {ok}
 
 test sum-4.1 {sum file option (SysV)} {
-    set r1 [crc::sum -sysv -file $crc::testfile]
-    set r2 [crc::sum -sysv [crc::loaddata $crc::testfile]]
+    set r1 [::crc::sum -sysv -file $::crc::testfile]
+    set r2 [::crc::sum -sysv [::crc::loaddata $crc::testfile]]
+    if {$r1 != $r2} {
+        set r "differing results: $r1 != $r2"
+    } else {
+        set r ok
+    }
+} {ok}
+
+test sum-4.2 {sum -channel option (BSD)} {
+    set r1 [::crc::sum -bsd [::crc::loaddata $::crc::testfile]]
+    set f [open $::crc::testfile r]
+    fconfigure $f -translation binary
+    set r2 [::crc::sum -bsd -channel $f]
+    close $f
+    if {$r1 != $r2} {
+        set r "differing results: $r1 != $r2"
+    } else {
+        set r ok
+    }
+} {ok}
+
+test sum-4.3 {sum -channel option (SysV)} {
+    set r1 [::crc::sum -sysv -file $::crc::testfile]
+    set f [open $::crc::testfile r]
+    fconfigure $f -translation binary
+    set r2 [::crc::sum -sysv -channel $f]
+    close $f
     if {$r1 != $r2} {
         set r "differing results: $r1 != $r2"
     } else {
@@ -110,16 +166,16 @@ test sum-4.1 {sum file option (SysV)} {
 # -------------------------------------------------------------------------
 
 test sum-5.0 {sum format option (BSD)} {
-    crc::sum -bsd -format 0x%X [string repeat x 200]
+    ::crc::sum -bsd -format 0x%X [string repeat x 200]
 } {0xF8EE}
 
 test sum-5.1 {sum format option (SysV)} {
-    crc::sum -sysv -format 0x%X [string repeat x 200]
+    ::crc::sum -sysv -format 0x%X [string repeat x 200]
 } {0x5DC0}
 
 # -------------------------------------------------------------------------
 
-catch {unset crc::testfile}
+catch {unset ::crc::testfile}
 ::tcltest::cleanupTests
 
 # Local Variables:
