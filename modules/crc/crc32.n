@@ -4,10 +4,10 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\" -------------------------------------------------------------------------
-'\" RCS: @(#) $Id: crc32.n,v 1.4 2002/01/17 23:33:08 patthoyts Exp $
+'\" RCS: @(#) $Id: crc32.n,v 1.5 2003/01/26 00:16:03 patthoyts Exp $
 '\" 
 .so man.macros
-.TH "crc32" n 1.0 tcllib "Cyclic Redundancy Check (crc32)"
+.TH "crc32" n 1.0.1 tcllib "Cyclic Redundancy Check (crc32)"
 .BS
 '\" Note: do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -15,7 +15,7 @@
 .SH "SYNOPSIS"
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require crc32 ?1.0?\fR
+\fBpackage require crc32 ?1.0.1?\fR
 .sp
 \fB::crc::crc32\fR \fI?-format string?\fR \fI?-seed value?\fR
 \fI?-implementation procname?\fR \fImessage\fR
