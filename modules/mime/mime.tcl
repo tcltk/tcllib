@@ -1767,16 +1767,16 @@ proc ::mime::buildmessageaux {token} {
 
     set result ""
     if {[string compare $state(version) ""]} {
-        append result "MIME-Version: $state(version)\n"
+        append result "MIME-Version: $state(version)\r\n"
     }
     foreach lower $state(lowerL) mixed $state(mixedL) {
         foreach value $header($lower) {
-            append result "$mixed: $value\n"
+            append result "$mixed: $value\r\n"
         }
     }
     if {(!$state(canonicalP)) \
             && ([string compare [set encoding $state(encoding)] ""])} {
-        append result "Content-Transfer-Encoding: $encoding\n"
+        append result "Content-Transfer-Encoding: $encoding\r\n"
     }
 
     append result "Content-Type: $state(content)"
@@ -1786,20 +1786,20 @@ proc ::mime::buildmessageaux {token} {
             set boundary $v
         }
 
-        append result ";\n              $k=\"$v\""
+        append result ";\r\n              $k=\"$v\""
     }
 
     set converter ""
     set encoding ""
     if {[string compare $state(value) parts]} {
-        append result \n
+        append result \r\n
 
         if {$state(canonicalP)} {
             if {![string compare [set encoding $state(encoding)] ""]} {
                 set encoding [encoding $token]
             }
             if {[string compare $encoding ""]} {
-                append result "Content-Transfer-Encoding: $encoding\n"
+                append result "Content-Transfer-Encoding: $encoding\r\n"
             }
             switch -- $encoding {
                 base64
@@ -1826,9 +1826,9 @@ proc ::mime::buildmessageaux {token} {
         }
         set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
 
-        append result ";\n              boundary=\"$boundary\"\n"
+        append result ";\r\n              boundary=\"$boundary\"\r\n"
     } else {
-        append result "\n"
+        append result "\r\n"
     }
 
     if {[info exists state(error)]} {
@@ -1860,7 +1860,7 @@ proc ::mime::buildmessageaux {token} {
                 fconfigure $fd -translation binary
             }
 
-            append result "\n"
+            append result "\r\n"
 
 	    while {($size != 0) && (![eof $fd])} {
 		if {$size < 0 || $size > 32766} {
@@ -1872,9 +1872,9 @@ proc ::mime::buildmessageaux {token} {
 		    set size [expr {$size - [string length $X]}]
 		}
 		if {[string compare $converter ""]} {
-		    append result "[$converter -mode encode -- $X]\n"
+		    append result "[$converter -mode encode -- $X]\r\n"
 		} else {
-		    append result "$X\n"
+		    append result "$X\r\n"
 		}
 	    }
 
@@ -1893,7 +1893,7 @@ proc ::mime::buildmessageaux {token} {
 
             switch -glob -- $state(content) {
                 message/* {
-                    append result "\n"
+                    append result "\r\n"
                     foreach part $state(parts) {
                         append result [buildmessage $part]
                         break
@@ -1902,10 +1902,10 @@ proc ::mime::buildmessageaux {token} {
 
                 default {
                     foreach part $state(parts) {
-                        append result "\n--$boundary\n"
+                        append result "\r\n--$boundary\r\n"
                         append result [buildmessage $part]
                     }
-                    append result "\n--$boundary--\n"
+                    append result "\r\n--$boundary--\r\n"
                 }
             }
 
@@ -1917,12 +1917,12 @@ proc ::mime::buildmessageaux {token} {
 
         string {
 
-            append result "\n"
+            append result "\r\n"
 
 	    if {[string compare $converter ""]} {
-		append result "[$converter -mode encode -- $state(string)]\n"
+		append result "[$converter -mode encode -- $state(string)]\r\n"
 	    } else {
-		append result "$state(string)\n"
+		append result "$state(string)\r\n"
 	    }
         }
 	default {
