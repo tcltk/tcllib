@@ -232,15 +232,32 @@ set ::snit::nominalTypeProc {
             }
         }
 
-        # Next, if the typemethod is unknown, we'll assume that it's
-        # an instance name if we can.
-        if {[catch {set %TYPE%::Snit_typemethodCache($method)} command]} {
-            set command [::snit::RT.CacheTypemethodCommand %TYPE% $method]
+        # Next, retrieve the command.
+        while 1 {
+            if {[catch {set %TYPE%::Snit_typemethodCache($method)} commandRec]} {
+                set commandRec [::snit::RT.CacheTypemethodCommand %TYPE% $method]
 
-            if {[llength $command] == 0} {
-                return -code error  "\"%TYPE% $method\" is not defined"
+                if {[llength $commandRec] == 0} {
+                    return -code error  "\"%TYPE% $method\" is not defined"
+                }
             }
+
+            # If we've got a real command, break.
+            if {[lindex $commandRec 0] == 0} {
+                break
+            }
+
+            # Otherwise, we need to look up again...if we can.
+            if {[llength $args] == 0} {
+                return -code error \
+                 "wrong number args: should be \"%TYPE% $method method args\""
+            }
+
+            lappend method [lindex $args 0]
+            set args [lrange $args 1 end]
         }
+
+        set command [lindex $commandRec 1]
 
         # Pass along the return code unchanged.
         set retval [catch {uplevel $command $args} result]
@@ -420,12 +437,13 @@ namespace eval ::snit:: {
     # localoptions:          Names of local options.
     # delegatedoptions:      Names of delegated options.
     # localmethods:          Names of locally defined methods.
-    # methodprefixes:        Names of method prefixes
     # delegatedmethods:      Names of delegated methods (except *)
+    # methodprefixes:        Names of methods with submethods.
     # delegatesmethods:      no if no delegated methods, yes otherwise.
     # components:            Names of defined components.
     # localtypemethods:      Names of locally defined methods.
     # delegatedtypemethods:  Names of delegated typemethods.
+    # typemethodprefixes:    Names of typemethods with submethods.
     # typecomponents:        Names of defined typecomponents.
     # typevars:              Typevariable definitions and initializations.
     # varnames:              Names of instance variables
@@ -551,11 +569,12 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(widgetclass) {}
     set compile(hulltype) {}
     set compile(localmethods) {}
-    set compile(methodprefixes) {}
     set compile(delegatedmethods) {}
+    set compile(methodprefixes) {}
     set compile(delegatesmethods) no
     set compile(localtypemethods) {}
     set compile(delegatedtypemethods) {}
+    set compile(typemethodprefixes) {}
     set compile(components) {}
     set compile(typecomponents) {}
     set compile(varnames) {}
@@ -1078,7 +1097,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     # Handle hierarchical case.
     Comp.CheckPrefixes $method "Error in \"method [list $method]...\""
 
-    # Handle simple case
+    # Remeber this method
     lappend compile(localmethods) $method
 
     CheckArgs "method [list $method]" $arglist
@@ -1110,7 +1129,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     }
 } 
 
-# Defines an instance method.
+# Checks for method name collisions.
 proc ::snit::Comp.CheckPrefixes {method errmsg} {
     variable compile
 
@@ -1154,6 +1173,9 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
         error "Error in \"delegate typemethod $method...\", \"$method\" has been defined locally"
     }
 
+    # Handle hierarchical case.
+    Comp.CheckTypePrefixes $method "Error in \"typemethod [list $method]...\""
+    
     lappend compile(localtypemethods) $method
 
     CheckArgs "typemethod $method" $arglist
@@ -1164,17 +1186,66 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
     # Next, add typevariable declarations to body:
     set body "%TVARDECS%\n$body"
 
-    Mappend compile(defs) {
+    # Next, save the definition script
+    if {[llength $method] == 1} {
+        Mappend compile(defs) {
 
-        # Typemethod %METHOD%
-        set  %TYPE%::Snit_typemethodInfo(%METHOD%) \
-            {"%t::Snit_typemethod%m %t" ""}
+            # Typemethod %METHOD%
+            set  %TYPE%::Snit_typemethodInfo(%METHOD%) \
+                {0 "%t::Snit_typemethod%m %t" ""}
 
-        proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
-    } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
+            proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
+        } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
+    } else {
+        Mappend compile(defs) {
+
+            # Typemethod %METHOD%
+            set  %TYPE%::Snit_typemethodInfo([list %METHOD%]) \
+                {0 "%t::Snit_htypemethod%m %t" ""}
+
+            proc %TYPE%::Snit_htypemethod%JMETHOD% %ARGLIST% %BODY%
+        } %METHOD% $method %JMETHOD% [join $method _] \
+            %ARGLIST% [list $arglist] %BODY% [list $body]
+    }
 } 
 
-# Defines a typemethod method.
+# Checks for type method name collisions.
+proc ::snit::Comp.CheckTypePrefixes {method errmsg} {
+    variable compile
+
+    # Handle hierarchical case.
+    foreach prefix $compile(typemethodprefixes) {
+        if {$method eq $prefix} {
+            error "$errmsg, \"$method\" has submethods."
+        }
+    }
+
+    if {[llength $method] > 1} {
+        set prefix {}
+        set tokens $method
+        while {[llength $tokens] > 1} {
+            lappend prefix [lindex $tokens 0]
+            set tokens [lrange $tokens 1 end]
+
+            set methods [concat $compile(localtypemethods) \
+                             $compile(delegatedtypemethods)]
+
+            if {[Contains $prefix $methods]} {
+                error "$errmsg, \"$prefix\" has no submethods."
+            }
+
+            # Define prefix
+            lappend compile(typemethodprefixes) $prefix
+            
+            Mappend compile(defs) {
+                set %TYPE%::Snit_typemethodInfo([list %PREFIX%]) [list 1]
+            } %PREFIX% $prefix
+        }
+    }
+} 
+
+
+# Defines a type constructor.
 proc ::snit::Comp.statement.typeconstructor {body} {
     variable compile
 
@@ -1513,7 +1584,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         } elseif {$target ne ""} {
             set pattern "%c $target"
         } else {
-            set pattern "%c %m"
+            set pattern "%c $method"
         }
     }
 
@@ -1521,10 +1592,12 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         error "$errRoot, \"$method\" has been defined locally"
     }
 
+    Comp.CheckTypePrefixes $method $errRoot
+
     Mappend compile(defs) {
         # Delegated typemethod %METH% to %COMP%
-        set  %TYPE%::Snit_typemethodInfo(%METH%) \
-            {"%PATTERN%" %COMP%}
+        set  %TYPE%::Snit_typemethodInfo([list %METH%]) \
+            {0 "%PATTERN%" %COMP%}
     } %METH% $method %COMP% [list $component] %PATTERN% $pattern
 
     if {![string equal $method "*"]} {
@@ -1808,12 +1881,41 @@ proc ::snit::typemethod {type method arglist body} {
     upvar ${type}::Snit_info           Snit_info
     upvar ${type}::Snit_typemethodInfo Snit_typemethodInfo
 
-    # FIRST, can't redefine delegated methods.
-    if {[info exists Snit_typemethodInfo($method)] &&
-        [lindex $Snit_typemethodInfo($method) 1] ne ""} {
-        error "Cannot define \"$method\", it has been delegated"
+    # FIRST, see if the method already exists.  We can only redefine
+    # it if it's a normal typemethod. 
+    if {![catch {set Snit_typemethodInfo($method)} data]} {
+        # We can't redefine type methods with submethods.
+        if {[lindex $data 0] == 1} {
+            error "Cannot redefine \"$method\", \"$method\" has submethods."
+        }
+       
+        # We can't redefine delegated type methods.
+        if {[lindex $data 2] ne ""} {
+            error "Cannot define \"$method\", it has been delegated"
+        }
     }
 
+    # Handle hierarchical case.
+    if {[llength $method] > 1} {
+        set prefix {}
+        set tokens $method
+        while {[llength $tokens] > 1} {
+            lappend prefix [lindex $tokens 0]
+            set tokens [lrange $tokens 1 end]
+
+            if {![catch {set Snit_typemethodInfo($prefix)} result]} {
+                # Prefix is known.  If it's not a prefix, throw an
+                # error.
+                if {[lindex $result 0] == 0} {
+                    error "Cannot define \"$method\", \"$prefix\" has no submethods."
+                }
+            }
+            
+            set Snit_typemethodInfo($prefix) [list 1]
+        }
+    }
+
+    # NEXT, check the arguments
     CheckArgs "snit::typemethod $type $method" $arglist
 
     # Next, add magic reference to type.
@@ -1823,9 +1925,14 @@ proc ::snit::typemethod {type method arglist body} {
     set body "$Snit_info(tvardecs)\n$body"
 
     # Next, define it.
-    set Snit_typemethodInfo($method) {"%t::Snit_typemethod%m %t" ""}
-    
-    uplevel [list proc ${type}::Snit_typemethod$method $arglist $body]
+    if {[llength $method] == 1} {
+        set Snit_typemethodInfo($method) {0 "%t::Snit_typemethod%m %t" ""}
+        uplevel [list proc ${type}::Snit_typemethod$method $arglist $body]
+    } else {
+        set Snit_typemethodInfo($method) {0 "%t::Snit_htypemethod%m %t" ""}
+        set suffix [join $method _]
+        uplevel [list proc ${type}::Snit_htypemethod$suffix $arglist $body]
+    }
 }
 
 proc ::snit::method {type method arglist body} {
@@ -1844,7 +1951,7 @@ proc ::snit::method {type method arglist body} {
     }
 
     # NEXT, can't redefine methods with submethods.
-    if {![catch {set ${type}::Snit_methodInfo($method)} result]} {
+    if {![catch {set Snit_methodInfo($method)} result]} {
         # Method is known.  If it's got subcommands, throw an
         # error.
         if {[lindex $result 0] == 1} {
@@ -1860,7 +1967,7 @@ proc ::snit::method {type method arglist body} {
             lappend prefix [lindex $tokens 0]
             set tokens [lrange $tokens 1 end]
 
-            if {![catch {set ${type}::Snit_methodInfo($prefix)} result]} {
+            if {![catch {set Snit_methodInfo($prefix)} result]} {
                 # Prefix is known.  If it's not a prefix, throw an
                 # error.
                 if {[lindex $result 0] == 0} {
@@ -1868,11 +1975,9 @@ proc ::snit::method {type method arglist body} {
                 }
             }
             
-            set ${type}::Snit_methodInfo($prefix) [list 1]
+            set Snit_methodInfo($prefix) [list 1]
         }
     }
-
-    
 
     # NEXT, check the arguments
     CheckArgs "snit::method $type $method" $arglist
@@ -2448,6 +2553,13 @@ proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
 #
 # type		The type
 # method	The name of the typemethod to call.
+#
+# The return value is one of the following lists:
+#
+#    {}              There's no such method.
+#    {1}             The method has submethods; look again.
+#    {0 <command>}   Here's the command to execute.
+
 proc snit::RT.CacheTypemethodCommand {type method} {
     upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
     upvar ${type}::Snit_typecomponents  Snit_typecomponents
@@ -2464,7 +2576,7 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         if {[lsearch -exact $Snit_info(excepttypemethods) $method] == -1} {
             set key "*"
         } else {
-            return ""
+            return [list ]
         }
     } elseif {$Snit_info(hasinstances)} {
         # Assume the unknown name is an instance name to create, unless
@@ -2473,14 +2585,14 @@ proc snit::RT.CacheTypemethodCommand {type method} {
 
         if {[set ${type}::Snit_info(isWidget)] && 
             ![string match ".*" $method]} {
-            return ""
+            return [list ]
         }
 
         # Without this check, the call "$type info" will redefine the
         # standard "::info" command, with disastrous results.  Since it's
         # a likely thing to do if !-typeinfo, put in an explicit check.
         if {$method eq "info" || $method eq "destroy"} {
-            return ""
+            return [list ]
         }
 
         set implicitCreate 1
@@ -2488,16 +2600,20 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         set key create
         set method create
     } else {
-        return ""
+        return [list ]
     }
     
-    foreach {pattern compName} $Snit_typemethodInfo($key) {}
+    foreach {flag pattern compName} $Snit_typemethodInfo($key) {}
+
+    if {$flag == 1} {
+        return [list 1]
+    }
 
     # NEXT, build the substitution list
     set subList [list \
                      %% % \
                      %t [list $type] \
-                     %m [list $method]]
+                     %m [join $method _]]
     
     if {$compName ne ""} {
         if {![info exists Snit_typecomponents($compName)]} {
@@ -2515,10 +2631,10 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         # again.
         lappend command $instanceName
     } else {
-        set Snit_typemethodCache($method) $command
+        set Snit_typemethodCache($method) [list 0 $command]
     }
 
-    return $command
+    return [list 0 $command]
 }
 
 
@@ -2575,6 +2691,13 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
 #               snit::widgets.
 # self:         The instance's current name.
 # method:	The name of the method to call.
+#
+# The return value is one of the following lists:
+#
+#    {}              There's no such method.
+#    {1}             The method has submethods; look again.
+#    {0 <command>}   Here's the command to execute.
+
 proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
     variable ${type}::Snit_info
     variable ${type}::Snit_methodInfo
