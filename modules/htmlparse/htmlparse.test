@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.7 2004/09/02 04:31:48 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.8 2004/09/09 02:19:21 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -215,8 +215,8 @@ test htmlparse-4.1 {non entities unharmed} {
 } {this&that&those as well}
 
 test htmlparse-4.2 {loose SGML parsing for entities} {
-    ::htmlparse::mapEscapes "&amp &amp\n&amp"
-} {& &
+    ::htmlparse::mapEscapes "&amp&amp &amp\n&amp"
+} {&& &
 &}
 
 test htmlparse-4.3 {numeric, decimal entities} {
