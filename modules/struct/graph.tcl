@@ -7,7 +7,15 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.7 2002/11/06 04:08:01 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.8 2003/04/14 06:58:16 andreas_kupries Exp $
+
+# Try to load the cgraph package
+# Get it at http://physnet.uni-oldenburg.de/~schlenk/tcl/graph/ 
+
+if {![catch {package require cgraph 0.6}]} {
+    # the cgraph package takes over, so we can return
+    return
+}
 
 namespace eval ::struct {}
 

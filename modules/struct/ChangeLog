@@ -1,3 +1,13 @@
+2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.test:
+	* graph.man:
+	* graph.tcl: Added code to look for the C-implementation, cgraph,
+	  first, and to fall back to the Tcl implementation if cgraph is
+	  not present (#720348). The documentation links to the place
+	  where cgraph can be had from. Note presence of cgraph when
+	  executing the testsuite.
+
 2003-04-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* list.man: Changed name to tcllib_list.man to prevent a clash
