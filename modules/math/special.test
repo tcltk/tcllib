@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: special.test,v 1.3 2004/07/05 15:33:22 kennykb Exp $
+# $Id: special.test,v 1.4 2004/07/07 12:05:09 arjenmarkus Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -13,8 +13,8 @@
 
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
+     package require tcltest
+     namespace import ::tcltest::*
 }
 
 source [file join [file dirname [info script]] math.tcl]
@@ -26,58 +26,58 @@ package require math
 # Expect an accuracy of at least four decimals
 #
 proc matchNumbers {expected actual} {
-   set match 1
-   foreach a $actual e $expected {
-      if {abs($a-$e) > 1.0e-4} {
-         set match 0
-         break
-      }
-   }
-   return $match
+    set match 1
+    foreach a $actual e $expected {
+        if {abs($a-$e) > 1.0e-4} {
+            set match 0
+            break
+        }
+    }
+    return $match
 }
 
 #
 # Expect an accuracy of some three decimals (Fresnel)
 #
 proc matchFresnel {expected actual} {
-   set match 1
-   foreach a $actual e $expected {
-      if {abs($a-$e) > 2.0e-3} {
-         set match 0
-         break
-      }
-   }
-   return $match
+    set match 1
+    foreach a $actual e $expected {
+        if {abs($a-$e) > 2.0e-3} {
+            set match 0
+            break
+        }
+    }
+    return $match
 }
 
 customMatch numbers         matchNumbers
 customMatch numbers-fresnel matchFresnel
 
 test "Erf-1.0" "Values of the error function" \
-   -match numbers -body {
-   set result {}
-   foreach x {0.0 0.1 0.2 0.5 1.0 2.0 -0.1 -0.2 -0.5 -1.0 -2.0} {
-      lappend result [::math::special::erf $x]
-   }
-   set result
+    -match numbers -body {
+    set result {}
+    foreach x {0.0 0.1 0.2 0.5 1.0 2.0 -0.1 -0.2 -0.5 -1.0 -2.0} {
+        lappend result [::math::special::erf $x]
+    }
+    set result
 } -result {0.0  0.1124629  0.2227026  0.5204999  0.8427008  0.9953227
                -0.1124629 -0.2227026 -0.5204999 -0.8427008 -0.9953227}
 
 proc make_erfc {erf_values} {
-   set result {}
-   foreach v $erf_values {
-      lappend result [expr {1.0-$v}]
-   }
-   return $result
+    set result {}
+    foreach v $erf_values {
+        lappend result [expr {1.0-$v}]
+    }
+    return $result
 }
 
 test "Erf-1.1" "Values of the complementary error function" \
-   -match numbers -body {
-   set result {}
-   foreach x {0.0 0.1 0.2 0.5 1.0 2.0 -0.1 -0.2 -0.5 -1.0 -2.0} {
-      lappend result [::math::special::erfc $x]
-   }
-   set result
+    -match numbers -body {
+    set result {}
+    foreach x {0.0 0.1 0.2 0.5 1.0 2.0 -0.1 -0.2 -0.5 -1.0 -2.0} {
+        lappend result [::math::special::erfc $x]
+    }
+    set result
 } -result [make_erfc {0.0  0.1124629  0.2227026  0.5204999  0.8427008 0.9953227
                           -0.1124629 -0.2227026 -0.5204999 -0.8427008 -0.9953227}]
 

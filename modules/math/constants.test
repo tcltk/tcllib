@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: constants.test,v 1.2 2004/07/05 15:33:21 kennykb Exp $
+# RCS: @(#) $Id: constants.test,v 1.3 2004/07/07 12:05:09 arjenmarkus Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -19,20 +19,20 @@ package require math::constants
 # Test: do we get the constants into our namespace?
 #
 test "Constants-1.0" "Get constants into our namespace" -body {
-   ::math::constants::constants pi e
-   expr {[info exists pi] && [info exists e]}
+    ::math::constants::constants pi e
+    expr {[info exists pi] && [info exists e]}
 } -result 1
 
 test "Constants-1.1" "Get constants with the right values" -body {
-   #
-   # Only needed once!
-   #
-   #::math::constants::constants pi e
-   set result1 [expr {abs($pi-4.0*atan(1.0))<1.0e-10?1:0}]
-   set result2 [expr {abs($e-exp(1.0))<1.0e-10?1:0}]
-   expr {$result1+$result2}
+    #
+    # Only needed once!
+    #
+    #::math::constants::constants pi e
+    set result1 [expr {abs($pi-4.0*atan(1.0))<1.0e-10?1:0}]
+    set result2 [expr {abs($e-exp(1.0))<1.0e-10?1:0}]
+    expr {$result1+$result2}
 
-   # Note: this should enough accuracy!
+    # Note: this should enough accuracy!
 } -result 2
 
 #
