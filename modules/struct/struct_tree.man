@@ -5,6 +5,7 @@
 [titledesc {Create and manipulate tree objects}]
 [require Tcl 8.2]
 [require struct::tree [opt 2.0]]
+[require struct::list [opt 1.4]]
 [description]
 [para]
 
