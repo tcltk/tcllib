@@ -7,14 +7,15 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: ncgi.test,v 1.3 2000/03/15 22:39:25 welch Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.4 2000/03/20 22:12:38 ericm Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+set ncgiFile [file join [file dirname [info script]] ncgi.tcl]
+source $ncgiFile
 package require ncgi 1.0
 
 test ncgi-1.1 {ncgi::reset} {
@@ -55,11 +56,11 @@ test ncgi-2.4 {ncgi::query POST} {
     catch {unset env(QUERY_STRING)}
     set env(REQUEST_METHOD) POST
     set env(CONTENT_LENGTH) 10
-    makeFile {
-	source ncgi.tcl
+    makeFile [format {
+	source %s
 	ncgi::query
 	puts $ncgi::query
-    } test1
+    } $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     puts $f "name=value"
     flush $f
@@ -195,12 +196,12 @@ test ncgi-11.1 {ncgi::redirect} {
     set env(SERVER_PORT) 80
     makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $URL] test1
+    } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL\n\nPlease go to <a href=\"$URL\">$URL</a>\n"
@@ -215,12 +216,12 @@ test ncgi-11.2 {ncgi::redirect} {
     set env(SERVER_PORT) 80
     makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $URL] test1
+    } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -235,12 +236,12 @@ test ncgi-11.3 {ncgi::redirect} {
     set env(SERVER_PORT) 80
     makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $URL] test1
+    } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -255,12 +256,12 @@ test ncgi-11.4 {ncgi::redirect} {
     set env(SERVER_PORT) 80
     makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $URL] test1
+    } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -275,12 +276,12 @@ test ncgi-11.5 {ncgi::redirect} {
     set env(SERVER_PORT) 8000
     makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $URL] test1
+    } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
@@ -296,51 +297,51 @@ test ncgi-11.6 {ncgi::redirect} {
     set env(HTTPS) "on"
     makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
 	}
-    } $URL] test1
+    } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 test ncgi-12.1 {ncgi::header} {
-    makeFile {
+    makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::header
 	} err]} {
 	    puts $err
 	}
-    } test1
+    } $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\n\n"
 
 test ncgi-12.2 {ncgi::header} {
-    makeFile {
+    makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::header text/plain
 	} err]} {
 	    puts $err
 	}
-    } test1
+    } $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/plain\n\n"
 
 test ncgi-12.3 {ncgi::header} {
-    makeFile {
+    makeFile [format {
 	if {[catch {
-	source ncgi.tcl
+	source %s
 	ncgi::header text/html X-Comment "This is a test"
 	} err]} {
 	    puts $err
 	}
-    } test1
+    } $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nX-Comment: This is a test\n\n"

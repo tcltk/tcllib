@@ -1,3 +1,9 @@
+2000-03-20  Eric Melski  <ericm@scriptics.com>
+
+	* ncgi.test: Fixed tests that created files with "source ncgi.tcl"
+	in them to use full path for sourcing, so that tests could be run
+	from any directory. [Bug: 4393]
+
 2000-03-15  Brent Welch <welch@scriptics.com>
 
 	* ncgi.tcl: added ncgi::reset so the ncgi package can be used inside
