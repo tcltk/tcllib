@@ -1,3 +1,8 @@
+2003-04-15  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* installer.tcl: EXPERIMENTAL. New installer for tcllib. Currently
+	  only cmdline based. Use help to get help.
+
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (check-doc-markup): Fixed setting for DOC_FLAGS. The
