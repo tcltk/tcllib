@@ -183,6 +183,22 @@ proc smtp::sendmessage {part args} {
 
     if {[string compare $recipients ""]} {
         set who -recipients
+
+	# Reset To list and get rid of cc, bcc, and dcc, since -recipients
+	# overrides all of them.
+	set header($toL) $recipients
+	if {[set x [lsearch -exact $lowerL $toL]]==-1} {
+	    lappend lowerL $toL
+	    lappend mixedL $toM
+	}
+	
+	foreach elt [list $ccL $bccL $dccL] {
+	    if {[set x [lsearch -exact $lowerL $elt]]>-1} {
+		unset header($ccL)
+		set lowerL [lreplace $lowerL $x $x]
+		set mixedL [lreplace $mixedL $x $x]
+	    }
+	}
     } elseif {[catch { set recipients [smtp::merge $header($toL)] }]} {
         error "need -header \"$toM ...\""
     } else {
