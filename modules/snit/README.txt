@@ -1,4 +1,4 @@
-Snit's Not Incr Tcl README.txt
+Simple Now In Tcl README.txt
 -----------------------------------------------------------------
 
 Snit is pure-Tcl object and megawidget framework.  See snit.html
@@ -11,6 +11,15 @@ http://www.wjduquette.com/snit.  If you have any questions, bug
 reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
+
+Changes in V0.96
+--------------------------------------------------------------------
+
+NOTE: V0.96 is a development version; when stable, it will become
+V0.97.
+
+* Bug fix: methods called via [mymethod] can now return exotic
+  return codes (e.g., "return -code break").
 
 Changes in V0.95
 --------------------------------------------------------------------

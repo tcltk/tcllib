@@ -5986,6 +5986,22 @@ test break-1.2 {Typemethods can "return -code break"} {
     catch {dog bark} result
 } {3}
 
+test break-1.3 {Methods called via mymethod "return -code break"} {
+    cleanup
+    
+    snit::type dog {
+        method bark {} {return -code break "Breaking"}
+
+        method getbark {} {
+            return [mymethod bark]
+        }
+    }
+
+    dog spot
+
+    catch {uplevel \#0 [spot getbark]} result
+} {3}
+
 
 
 
