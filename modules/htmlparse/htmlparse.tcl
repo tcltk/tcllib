@@ -440,22 +440,50 @@ proc ::htmlparse::debugCallback {args} {
 #	The argument string with all escape sequences replaced with
 #	their actual characters.
 
-proc ::htmlparse::mapEscapes {html} {
-    variable escapes
-    # Find HTML escape characters of the form &xxx;
+if { [package vcompare [package provide Tcl] 8.3] < 0 } {
+    # 8.2 implementation, no inline operation of 'scan'.
+    proc ::htmlparse::mapEscapes {html} {
+	variable escapes
+	# Find HTML escape characters of the form &xxx;
 
-    if { ! [string match "*&*" $html] } {
-	# HTML not containing escape sequences is returned unchanged.
-	return $html
+	if { ! [string match "*&*" $html] } {
+	    # HTML not containing escape sequences is returned unchanged.
+	    return $html
+	}
+
+	set new [string map $escapes $html]
+	regsub -all -- {&[a-zA-Z];?} $new {?} new 
+	# Inline 'scan' is not an 8.2 feature.
+	regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[DoMap \1]} new
+	return [subst $new]
     }
 
-    set new [string map $escapes $html]
-    regsub -all -- {&[a-zA-Z];?} $new {?} new 
-    regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d]]} new
-    return [subst $new]
+    # Helper to convert numeric entities. Without inline scan we need
+    # a temporary variable.
 
+    proc ::htmlparse::DoMap {text} {
+	scan $text %d value
+	return [format %c $value]
+    }
+
+} else {
+    # 8.3+
+    proc ::htmlparse::mapEscapes {html} {
+	variable escapes
+	# Find HTML escape characters of the form &xxx;
+
+	if { ! [string match "*&*" $html] } {
+	    # HTML not containing escape sequences is returned unchanged.
+	    return $html
+	}
+
+	set new [string map $escapes $html]
+	regsub -all -- {&[a-zA-Z];?} $new {?} new 
+	# Inline 'scan' is not an 8.2 feature.
+	regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d]]} new
+	return [subst $new]
+    }
 }
-
 
 # htmlparse::2tree --
 #
@@ -501,7 +529,9 @@ proc ::htmlparse::2tree {html tree} {
     # A bit hackish, correct the ordering of nodes for the optional
     # tag types, over a larger area when was seen by the parser itself.
 
-    $tree walk root -order post -command [list ::htmlparse::Reorder %t %n]
+    $tree walk root -order post n {
+	::htmlparse::Reorder $tree $n
+    }
 
     ::htmlparse::tags destroy
     return $tree
@@ -694,9 +724,9 @@ proc ::htmlparse::2treeCallback {tree tag slash param textBehindTheTag} {
 #	None.
 
 proc ::htmlparse::removeVisualFluff {tree} {
-    $tree walk root \
-	    -order post \
-	    -command [list ::htmlparse::RemoveVisualFluff %t %n]
+    $tree walk root -order post n {
+	::htmlparse::RemoveVisualFluff $tree $n
+    }
     return
 }
 
@@ -717,9 +747,9 @@ proc ::htmlparse::removeVisualFluff {tree} {
 #	None.
 
 proc ::htmlparse::removeFormDefs {tree} {
-    $tree walk root \
-	    -order post \
-	    -command {::htmlparse::RemoveFormDefs %t %n}
+    $tree walk root -order post n {
+	::htmlparse::RemoveFormDefs $tree $n
+    }
     return
 }
 
