@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1.test,v 1.1 2001/06/22 14:33:07 andreas_kupries Exp $
+# RCS: @(#) $Id: sha1.test,v 1.2 2001/08/20 20:35:12 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -26,17 +26,17 @@ if {[catch {package present Trf}]} {
 test sha1-1.0 {sha1} {
     catch {::sha1::sha1} result
     set result
-} {no value given for parameter "msg" to "::sha1::sha1"}
+} [tcltest::getErrorMessage "::sha1::sha1" "msg" 0]
 
 test sha1-1.1 {sha1} {
     catch {::sha1::hmac} result
     set result
-} {no value given for parameter "key" to "::sha1::hmac"}
+} [tcltest::getErrorMessage "::sha1::hmac" "key text" 0]
 
 test sha1-1.2 {sha1} {
     catch {::sha1::hmac key} result
     set result
-} {no value given for parameter "text" to "::sha1::hmac"}
+} [tcltest::getErrorMessage "::sha1::hmac" "key text" 1]
 
 
 foreach {n msg expected} {
