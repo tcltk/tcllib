@@ -1,3 +1,7 @@
+2001-11-27  Don Porter <dgp@users.sourceforge.net>
+
+	* control.n: Added [control::do] to SYNOPSIS.
+
 2001-11-09  Don Porter <dgp@users.sourceforge.net>
 
 	* control.n: Some revisions to [control::do] documentation,
