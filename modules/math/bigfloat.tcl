@@ -57,6 +57,7 @@ namespace eval ::math::bigfloat {
     variable Log2
     # Pi with arb. precision
     variable Pi
+    variable _pi0
     # ten
     variable ten
     set ten [::math::bignum::fromstr 10]
@@ -334,6 +335,7 @@ proc ::math::bigfloat::_asin {x} {
 ################################################################################
 proc ::math::bigfloat::atan {x} {
     checkFloat x
+    variable one
     foreach {dummy mantissa exp delta} $x {break}
     if {$exp>=0} {
         error "not enough precision to compute atan"
@@ -341,7 +343,7 @@ proc ::math::bigfloat::atan {x} {
     set precision [expr {-$exp}]
     # atan(0)=0
     if {[iszero $x]} {
-        return [list F [fromstr 0] -$precision $::math::bigfloat::one]
+        return [list F [fromstr 0] -$precision $one]
     }
     # atan(-x)=-atan(x)
     if {[::math::bignum::sign $mantissa]} {
@@ -350,8 +352,8 @@ proc ::math::bigfloat::atan {x} {
     # now x is strictly positive
     # at this moment, we are trying to limit |x| to a fair acceptable number
     # to ensure that Taylor development will converge quickly
-    set un [list F [::math::bignum::lshift $::math::bigfloat::one $precision] -$precision $::math::bigfloat::one]
-    if {[compare $un $x]<0} {
+    set float1 [list F [::math::bignum::lshift $one $precision] -$precision $one]
+    if {[compare $float1 $x]<0} {
         # compare x to 2.4142
         if {[compare $x [fromstr 2.4142]]<0} {
             # atan(x)=Pi/4 + atan((x-1)/(x+1))
@@ -360,12 +362,12 @@ proc ::math::bigfloat::atan {x} {
             # that equals  ]0,0.414[
             set pi_sur_quatre [div [pi $precision] [fromstr 4]]
             return [add $pi_sur_quatre [atan \
-                    [div [sub $x $un] [add $x $un]]]]
+                    [div [sub $x $float1] [add $x $float1]]]]
         }
         # atan(x)=Pi/2-atan(1/x)
         # 1/x < 1/2.414 so the argument is lower than 0.414
         set pi_sur_deux [div [pi $precision] [fromstr 2]]
-        return [sub $pi_sur_deux [atan [div $un $x]]]
+        return [sub $pi_sur_deux [atan [div $float1 $x]]]
     }
     if {[compare $x [fromstr 0.4142]]>0} {
         # atan(x)=Pi/4 + atan((x-1)/(x+1))
@@ -374,7 +376,7 @@ proc ::math::bigfloat::atan {x} {
         # x<1 so (x-1)/(x+1)<0
         set pi_sur_quatre [div [pi $precision] [fromstr 4]]
         return [add $pi_sur_quatre [atan \
-                [div [sub $x $un] [add $x $un]]]]
+                [div [sub $x $float1] [add $x $float1]]]]
     }
     # precision increment : to have less uncertainty
     # we add a little more precision so that the result would be more accurate
@@ -614,16 +616,17 @@ proc ::math::bigfloat::_cos2 {x precision delta} {
 # 3. the uncertainty (doubt range)
 ################################################################################
 proc ::math::bigfloat::_cos {x precision delta} {
-    set un [::math::bignum::lshift $::math::bigfloat::one $precision]
+    variable one
+    set float1 [::math::bignum::lshift $::math::bigfloat::one $precision]
     # Taylor development follows :
     # cos(x)=1-x^2/2 + x^4/4! ... + (-1)^(2n)*x^(2n)/2n!
-    set s $un
+    set s $float1
     # 'd' is the uncertainty on x^2
     set d [::math::bignum::mul $x [::math::bignum::lshift $delta 1]]
     set d [::math::bignum::rshift $d $precision]
-    # x=x^2 (because in the Taylor development, there are only even powers of x)
+    # x=x^2 (because in this Taylor development, there are only even powers of x)
     set x [intMulShift $x $x $precision]
-    set denom1 $::math::bigfloat::one
+    set denom1 $one
     set two [fromstr 2]
     set denom2 $two
     set t [opp [::math::bignum::rshift $x 1]]
@@ -693,6 +696,7 @@ proc ::math::bigfloat::divPiQuarter {integer precision} {
 # throw error : divide by zero
 ################################################################################
 proc ::math::bigfloat::div {a b} {
+    variable one
     checkNumber a b
     # dispatch to an appropriate procedure 
     if {[isInt $a]} {
@@ -737,16 +741,17 @@ proc ::math::bigfloat::div {a b} {
     # Q=A/B
     # dQ=dA/B + dB*A/B*B
     # dQ is "delta"
-    set delta [::math::bignum::div [::math::bignum::mul $deltaB [abs $integerA]] [abs $integerB]]
+    set delta [::math::bignum::div [::math::bignum::mul $deltaB \
+            [abs $integerA]] [abs $integerB]]
     set delta [::math::bignum::div [::math::bignum::add\
-            [::math::bignum::add $delta $::math::bigfloat::one]\
+            [::math::bignum::add $delta $one]\
             $deltaA] [abs $integerB]]
     set quotient [::math::bignum::div $integerA $integerB]
     if {[::math::bignum::sign $integerB]+[::math::bignum::sign $integerA]==1} {
-        set quotient [::math::bignum::sub $quotient $::math::bigfloat::one]
+        set quotient [::math::bignum::sub $quotient $one]
     }
     return [normalize [list F $quotient $exp [::math::bignum::add $delta\
-            $::math::bigfloat::one]]]
+            $one]]]
 }
 
 
@@ -757,6 +762,7 @@ proc ::math::bigfloat::div {a b} {
 # throw error : divide by zero
 ################################################################################
 proc ::math::bigfloat::divFloatByInt {a b} {
+    variable one
     # type check
     checkFloat a
     if {![isInt $b]} {
@@ -775,7 +781,7 @@ proc ::math::bigfloat::divFloatByInt {a b} {
     set integer [::math::bignum::div $integer $b]
     # the uncertainty is always evaluated to the ceil value
     # and as an absolute value
-    set delta [::math::bignum::add [::math::bignum::div $delta [abs $b]] $::math::bigfloat::one]
+    set delta [::math::bignum::add [::math::bignum::div $delta [abs $b]] $one]
     return [normalize [list F $integer $exp $delta]]
 }
 
@@ -877,7 +883,8 @@ proc ::math::bigfloat::exp {x} {
 #                  2. the doubt limit, or uncertainty
 ################################################################################
 proc ::math::bigfloat::_exp {integer precision delta} {
-    set oneShifted [::math::bignum::lshift $::math::bigfloat::one $precision]
+    variable one
+    set oneShifted [::math::bignum::lshift $one $precision]
     if {[::math::bignum::iszero $integer]} {
         # exp(0)=1
         return [list $oneShifted $delta]
@@ -923,6 +930,7 @@ proc ::math::bigfloat::floatRShift {float {n 1}} {
 # returns : the floor value as a BigInt
 ################################################################################
 proc ::math::bigfloat::floor {number} {
+    variable one
     checkFloat number
     set number [normalize $number]
     if {[::math::bignum::iszero $number]} {
@@ -944,7 +952,7 @@ proc ::math::bigfloat::floor {number} {
     }
     # floor(-n.xxxx)=-(n+1) when xxxx!=0
     if {![equal [::math::bignum::lshift $try [expr {-$exp}]] $integer]} {
-        set try [::math::bignum::add $try $::math::bigfloat::one]
+        set try [::math::bignum::add $try $one]
     }
     ::math::bignum::setsign try $sign
     return $try
@@ -1032,8 +1040,10 @@ proc ::math::bigfloat::fromstr {args} {
 # private procedure to transform decimal floats into binary ones
 ################################################################################
 proc ::math::bigfloat::_fromstr {number exp} {
+    variable one
+    variable five
     if {$exp==0} {
-        return [list F $number 0 $::math::bigfloat::one]
+        return [list F $number 0 $one]
     }
     if {$exp>0} {
         # mul by 10^exp and then normalize
@@ -1052,11 +1062,10 @@ proc ::math::bigfloat::_fromstr {number exp} {
     if {$diff<0} {
         error "internal error"
     }
-    set fivePow [::math::bignum::pow $::math::bigfloat::five \
-            [::math::bignum::fromstr [expr {-$exp}]]]
+    set fivePow [::math::bignum::pow $five [::math::bignum::fromstr [expr {-$exp}]]]
     set number [::math::bignum::div [::math::bignum::lshift $number \
             $diff] $fivePow]
-    set delta [::math::bignum::div [::math::bignum::lshift $::math::bigfloat::one \
+    set delta [::math::bignum::div [::math::bignum::lshift $one \
             $diff] $fivePow]
     return [normalize [list F $number [expr {-$binaryExp}] [intIncr $delta]]]
 }
@@ -1284,17 +1293,18 @@ proc ::math::bigfloat::__logbis {precision} {
 # retrieves log(2) with 'precision' bits
 ################################################################################
 proc ::math::bigfloat::_log2 {precision} {
-    if {![info exists ::math::bigfloat::Log2]} {
+    variable Log2
+    if {![info exists Log2]} {
         __logbis $precision
     } else {
         # the constant is cached and computed again when more precision is needed
-        set l [::math::bignum::bits $::math::bigfloat::Log2]
+        set l [::math::bignum::bits $Log2]
         if {$precision>$l} {
             __logbis $precision
         }
     }
     # return log(2) with 'precision' bits even when the cached value has more bits
-    return [_round $::math::bigfloat::Log2 $precision]
+    return [_round $Log2 $precision]
 }
 
 
@@ -1431,15 +1441,15 @@ proc ::math::bigfloat::_pi {precision} {
     # so we need 2 digits to store the digit '3'
     # and then we will have precision bits after the dot
     incr precision 2
-    if {![info exists ::math::bigfloat::_pi0]} {
-        set ::math::bigfloat::_pi0 [__pi $precision]
+    variable _pi0
+    if {![info exists _pi0]} {
+        set _pi0 [__pi $precision]
     }
-    set lenPiGlobal [::math::bignum::bits $::math::bigfloat::_pi0]
+    set lenPiGlobal [::math::bignum::bits $_pi0]
     if {$lenPiGlobal<$precision} {
-        set ::math::bigfloat::_pi0 [__pi $precision]
+        set _pi0 [__pi $precision]
     }
-    return [::math::bignum::rshift $::math::bigfloat::_pi0 \
-            [expr {[::math::bignum::bits $::math::bigfloat::_pi0] - $precision}]]
+    return [::math::bignum::rshift $_pi0 [expr {[::math::bignum::bits $_pi0] - $precision}]]
 }
 
 ################################################################################
@@ -1479,7 +1489,13 @@ proc ::math::bigfloat::pow {a b} {
     if {![isInt $b]} {
         error "pow : exponent is not a positive integer"
     }
-    set res $::math::bigfloat::one
+    # case where it is obvious that we should use the appropriate command
+    # from math::bignum (added 5th March 2005)
+    if {[isInt $a]} {
+        return [::math::bignum::pow $a $b]
+    }
+    variable one
+    set res $one
     while {1} {
         set remainder [::math::bignum::testbit $b 0]
         set b [::math::bignum::rshift $b 1]
@@ -1652,11 +1668,12 @@ proc ::math::bigfloat::_sin {x precision delta} {
 # procedure for extracting the square root of a BigFloat
 ################################################################################
 proc ::math::bigfloat::sqrt {x} {
+    variable one
     checkFloat x
     foreach {dummy integer exp delta} $x {break}
     # si x=0, retourner 0
     if {[iszero $x]} {
-        return [list F [fromstr 0] $exp $::math::bigfloat::one]
+        return [list F [fromstr 0] $exp $one]
     }
     # we cannot get sqrt(x) if x<0
     if {[lindex $integer 0]<0} {
@@ -1685,7 +1702,7 @@ proc ::math::bigfloat::sqrt {x} {
     set integer [::math::bignum::sqrt $integer]
     # delta has to be multiplied by the square root
     set delta [::math::bignum::rshift [::math::bignum::mul $delta $integer] $precision]
-    set delta [::math::bignum::add $delta $::math::bigfloat::one]
+    set delta [::math::bignum::add $delta $one]
     return [normalize [list F $integer [expr {$exp/2}] $delta]]
 }
 
@@ -1696,6 +1713,7 @@ proc ::math::bigfloat::sqrt {x} {
 # the returned value is a relative uncertainty
 ################################################################################
 proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
+    variable one
     set l [::math::bignum::bits $integer]
     set x [::math::bignum::div [::math::bignum::lshift $delta $l] $integer]
     set two [fromstr 2]
@@ -1707,7 +1725,7 @@ proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
     set temp [::math::bignum::div [::math::bignum::div $temp $two] $fact]
     set result [::math::bignum::add $result $temp]
     set numerator [fromstr 3]
-    set fact [::math::bignum::add $fact $::math::bigfloat::one]
+    set fact [::math::bignum::add $fact $one]
     # (eps^3)*3/(3!*2^2)
     set temp [::math::bignum::div [::math::bignum::mul $temp $delta] $integer]
     set temp [::math::bignum::div [::math::bignum::mul $temp $numerator] $two]
@@ -1715,7 +1733,7 @@ proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
     while {![::math::bignum::iszero $temp]} {
         set result [::math::bignum::add $result $temp]
         set numerator [::math::bignum::add $numerator $two]
-        set fact [::math::bignum::add $fact $::math::bigfloat::one]
+        set fact [::math::bignum::add $fact $one]
         # u_n+1= u_n*(2n+1)/2n*eps
         set temp [::math::bignum::div [::math::bignum::mul $temp $delta] $integer]
         set temp [::math::bignum::div [::math::bignum::mul $temp $numerator] $two]
@@ -1813,6 +1831,7 @@ proc ::math::bigfloat::todouble {x} {
 # converts a number stored as a list to a string in which all digits are true
 ################################################################################
 proc ::math::bigfloat::tostr {number} {
+    variable five
     if {[isInt $number]} {
         return [::math::bignum::tostr $number]
     }
@@ -1832,9 +1851,9 @@ proc ::math::bigfloat::tostr {number} {
         if {$binExp<0} {
             error "internal error"
         }
-        set fivePower [::math::bignum::pow $::math::bigfloat::five \
-                [::math::bignum::fromstr $newExp]]
-        set integer [::math::bignum::div [::math::bignum::lshift $integer $binExp] $fivePower]
+        set fivePower [::math::bignum::pow $five [::math::bignum::fromstr $newExp]]
+        set integer [::math::bignum::div [::math::bignum::lshift $integer $binExp] \
+                $fivePower]
         set delta [::math::bignum::div [::math::bignum::lshift $delta $binExp] $fivePower]
         set exp $newExp
     } elseif {$exp<0} {
@@ -1843,7 +1862,7 @@ proc ::math::bigfloat::tostr {number} {
         set newExp [expr {int(floor(-$exp*log(2)/log(10)))}]
         # 'integer' <- 'integer' * 10^newExp / 2^(-exp)
         # equals 'integer' * 5^(newExp) / 2^(-exp-newExp)
-        set fivePower [::math::bignum::pow $::math::bigfloat::five \
+        set fivePower [::math::bignum::pow $five \
                 [::math::bignum::fromstr $newExp]]
         set binShift [expr {-$exp-$newExp}]
         set integer [::math::bignum::rshift [::math::bignum::mul $integer $fivePower] \
