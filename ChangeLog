@@ -1,5 +1,46 @@
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
+	* modules/base64/uuencode.n: Removed old nroff documentation. All
+	* modules/cmdline/cmdline.n: documentation is generated from the
+	* modules/comm/comm.n:       doctools manpages (.man).
+	* modules/control/control.n:
+	* modules/counter/counter.n:
+	* modules/crc/cksum.n:
+	* modules/crc/crc32.n:
+	* modules/crc/sum.n:
+	* modules/csv/csv.n:
+	* modules/exif/exif.n:
+	* modules/fileutil/fileutil.n:
+	* modules/ftp/ftp.n:
+	* modules/ftpd/ftpd.n:
+	* modules/html/html.n:
+	* modules/htmlparse/htmlparse.n:
+	* modules/irc/irc.n:
+	* modules/javascript/javascript.n:
+	* modules/log/log.n:
+	* modules/math/combinatorics.n:
+	* modules/math/math.n:
+	* modules/md5/md5.n:
+	* modules/mime/mime.n:
+	* modules/mime/smtp.n:
+	* modules/ncgi/ncgi.n:
+	* modules/nntp/nntp.n:
+	* modules/pop3/pop3.n:
+	* modules/profiler/profiler.n:
+	* modules/report/report.n:
+	* modules/sha1/sha1.n:
+	* modules/smtpd/smtpd.n:
+	* modules/stooop/stooop.n:
+	* modules/struct/graph.n:
+	* modules/struct/matrix.n:
+	* modules/struct/queue.n:
+	* modules/struct/record.n:
+	* modules/struct/stack.n:
+	* modules/struct/tree.n:
+	* modules/textutil/expander.n:
+	* modules/textutil/textutil.n:
+	* modules/uri/uri.n:
+
 	* Makefile.in (install): Merged the code for the partial install
 	  targets into one call for full normal install, and dropped the
 	  link between install and the partial install targets.
