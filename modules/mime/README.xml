@@ -91,11 +91,17 @@ Tcl MIME includes an implementation of the smtp package.</t>
 <t>This package requires:
 <list style="symbols">
 <t><eref target="http://www.scriptics.com/software/8.1.html">Tcl/Tk version 8.0.3</eref>
+</list>
 or later</t>
-
+<t>In addition, this package requires one of the following:</t>
+<list style="symbols">
 <t><eref target="http://www.oche.de/~akupries/soft/trf/">Trf version 2.0p5</eref>
 or later</t>
+<t><eref target="http://dev.ajubasolutions.com/software/tcllib/">base 64 version 2.0</eref> or later (included with tcllib)</t>
 </list></t>
+<t>If it is available, Trf will be used to provide better performance;
+if not, Tcl-only equivalent functions, based on the base64 package,
+are used.</t>
 </section>
 
 <section title="Copyrights">

@@ -123,7 +123,15 @@ README                          Tcl MIME                   February 2000
 
    o  Tcl/Tk version 8.0.3[4] or later
 
+   In addition, this package requires one of the following:
+
    o  Trf version 2.0p5[5] or later
+
+   o  base64 version 2.0 or later (included with tcllib)
+
+   If it is available, Trf will be used to provide better performance;
+   if not, Tcl-only equivalent functions, based on the base64 package,
+   are used.
 
 1.2 Copyrights
 
