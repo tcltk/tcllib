@@ -1,3 +1,15 @@
+2003-04-02  Andreas Kupries  <andreask@activestate.com>
+
+	* srv.tcl:
+	* pop3.test: Added tests and messages for bug #528928.
+
+	* pop3.tcl (pop3::open): Bug fix, close channel to server when
+	  talking to it fails (no greeting, login failure). This cleans up
+	  a leak of open sockets.
+
+	  (pop3::RetrFast): Fixed bug #528928 where a .-stuffed line was
+	  misinterpreted as mail terminator.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.man: More semantic markup, less visual one.

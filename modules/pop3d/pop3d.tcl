@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.5 2002/09/04 00:47:43 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.6 2003/04/03 01:50:54 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -1037,7 +1037,17 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
     if {$limit < 0} {
 	# Full transfer, we can use "copymessage" and avoid
 	# construction in memory (depending on source of token).
-	::mime::copymessage $token $sock
+
+	log::log debug "$name Transfer $msgid /full"
+
+	#::mime::copymessage $token $sock
+
+	# We do "."-stuffing here. This is not in the scope of the
+	# MIME library we use, but a transport dependent thing.
+
+log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n])"
+
+	puts $sock [string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n]
 	puts $sock .
     } else {
 	# As long as FR #531541 is not implemented we have to build
@@ -1058,7 +1068,7 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 	}
 	# i now refers to the line separating header and body
 
-	regsub -- "\n\\.\n$" [join [lrange $msg 0 $limit] \n] {} data
+	regsub -- "\n\\.\n$" [string map [list "\n." "\n.."] [join [lrange $msg 0 $limit] \n]] {} data
 	puts $sock ${data}\n.
     }
     fileevent $sock readable [list ::pop3d::HandleCommand $name $sock]

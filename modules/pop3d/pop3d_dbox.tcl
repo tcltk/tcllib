@@ -11,9 +11,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.4 2002/09/03 17:13:52 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.5 2003/04/03 01:50:54 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
+package require log  ; # tcllib | Logging package
 
 namespace eval ::pop3d::dbox {
     # Data storage in the pop3d::dbox module
@@ -295,7 +296,7 @@ proc ::pop3d::dbox::_lock {name mbox} {
     upvar ::pop3d::dbox::dbox::${name}::state  state
     upvar ::pop3d::dbox::dbox::${name}::locked locked
 
-    set  state($dir)  [glob -nocomplain [file join $dir *]]
+    set  state($dir)  [lsort [glob -nocomplain [file join $dir *]]]
     set locked($dir) 1
     return 1
 }
@@ -346,11 +347,17 @@ proc ::pop3d::dbox::_size {name mbox {msgId {}}} {
     # @a msgId: Numerical index of the message to look at.
     # @r size of the message in bytes.
 
+    log::log debug "$name size $mbox ($msgId)"
+
     set dir [Check $name $mbox]
+
+    log::log debug "$name mbox dir = $dir"
 
     upvar ::pop3d::dbox::dbox::${name}::state  state
 
     if {$msgId == {}} {
+	log::log debug "$name size /full"
+
 	# Full size of the maildrop requested.
 	if {![info exists state($dir)]} {
 	    # No stat before size, assume that there are no messages
@@ -375,6 +382,10 @@ proc ::pop3d::dbox::_size {name mbox {msgId {}}} {
 	return -code error "id \"$msgId\" out of range"
     }
     incr msgId -1
+
+    ## log::log debug "$name msg mails = $state($dir)"
+    log::log debug "$name msg file = [lindex $state($dir) $msgId]"
+
     return [file size [lindex $state($dir) $msgId]]
 }
 
