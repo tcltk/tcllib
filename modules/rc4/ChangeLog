@@ -1,5 +1,9 @@
 2004-07-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* rc4.test: Added basic command tests.
+	* rc4c.tcl: Critcl implementation.
+	* rc4.tcl:  Support critcl implementation.
+
 	* rc4.tcl:  Storing the state as a list and using lset is faster
 	than using an array provided we have a built-in lset
 	command. Added both versions and switch appropriately to get the
