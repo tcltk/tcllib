@@ -1,11 +1,14 @@
 2004-07-17  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	  Added "delegate typemethod ..." in all its glory,
-	* snit.test	  including "delegate typemethod *".  Added relevant
-	* dictionary.txt  tests, and updated the internal documentation
-			  files.
-	* roadmap.txt
-	
+	* snit.test	  including "delegate typemethod *".  Made it 
+	* dictionary.txt  Possible to delegate an instance method to a
+	* roadmap.txt	  typecomponent.  Added tests to ensure that
+			  variable/typevariable and component/typecomponent 
+			  names do not collide.  Updated a number of 
+			  compilation error messages for consistency.
+			  Added/modified relevant tests, and updated the 
+			  roadmap and dictionary files.
 
 2004-07-15  Will Duquette  <will@wjduquette.com>
 
