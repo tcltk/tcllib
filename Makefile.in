@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.14 2000/03/10 19:44:24 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.15 2000/03/10 19:54:35 ericm Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -28,14 +28,14 @@ MATH=math
 # Data structures (stack, queue, tree)
 STRUCT=struct
 
+# CGI input processing
+#NCGI=ncgi
+
 # Simple function level profiler
 PROFILER=profiler
 
 # POP3 email client API
 POP3=pop3
-
-# CGI input processing
-#CGI=cgi
 
 # MIME encoder/decoder and SMTP package
 # These are modified/hacked to have a soft requirement for Trf:
@@ -50,6 +50,7 @@ MODULES= \
 	$(FILEUTIL)	\
 	$(MATH)		\
 	$(MIME)		\
+	$(NCGI)		\
 	$(POP3)		\
 	$(PROFILER)
 

@@ -1,5 +1,9 @@
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
+	* Makefile.in: Added ncgi module, commented out until tests are done.
+
+2000-03-09  Eric Melski  <ericm@scriptics.com>
+
 	* Makefile.in: Updated test target to call out to all.tcl.
 
 	* all.tcl: First checkin of all.tcl, the magic that hides behind

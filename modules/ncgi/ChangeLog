@@ -1,0 +1,9 @@
+2000-03-10  Eric Melski  <ericm@scriptics.com>
+
+	* pkgIndex.tcl: Added package index file.
+
+	* ncgi.test: Added code to add source dir to auto_path, so that 
+	tests could be run on uninstalled package.  Added call to 
+	tcltest::cleanupTests.
+
+
