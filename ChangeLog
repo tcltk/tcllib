@@ -1,7 +1,10 @@
-2001-11-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv: Implemented FR #481023.
 
 	* textutil: Added 'expander' code by William H. Duquette
-	  <will@wjduquette.com>.
+	  <will@wjduquette.com>. Added option -strictlength to
+	  adjust. Code by Dan Kuchler <dan@kuchler.net>.
 
 2001-11-09  Joe English  <jenglish@users.sourceforge.net>
 

@@ -1,3 +1,11 @@
+2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.test:
+	* cvs.n:
+	* csv.tcl (split2matrix, read2matrix): Implemented FR
+	  #481023. Added additional expansion behaviours, controlled via
+	  an optional argument.
+
 2001-10-14  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* csv.test (csv-1.7): 
