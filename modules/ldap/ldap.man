@@ -24,7 +24,7 @@ must be caught with the Tcl [cmd catch] command.
 
 [list_begin definitions]
 
-[call [cmd ldap::connect] [arg host] [opt [arg port]]]
+[call [cmd ::ldap::connect] [arg host] [opt [arg port]]]
 
 Opens a LDAPv3 connection to the specified [arg host], at the given
 [arg port], and returns a token for the connection. This token is the
@@ -37,12 +37,12 @@ The command blocks until the connection has been established, or
 establishment definitely failed.
 
 
-[call [cmd ldap::secure_connect] [arg host] [opt [arg port]]]
+[call [cmd ::ldap::secure_connect] [arg host] [opt [arg port]]]
 
-Like [cmd ldap::connect], except that the created connection is
+Like [cmd ::ldap::connect], except that the created connection is
 secured by SSL. The port defaults to [const 636].  This command
 depends on the availability of the package [package TLS], which is a
-SSL binding for Tcl. It [package TLS] is not available, then this
+SSL binding for Tcl. If [package TLS] is not available, then this
 command will fail.
 
 [nl]
@@ -51,13 +51,13 @@ The command blocks until the connection has been established, or
 establishment definitely failed.
 
 
-[call [cmd ldap::disconnect] [arg handle]]
+[call [cmd ::ldap::disconnect] [arg handle]]
 
 Closes the ldap connection refered to by the token
 [arg handle]. Returns the empty string as its result.
 
 
-[call [cmd ldap::bind] [arg handle] [opt [arg name]] [opt [arg password]]]
+[call [cmd ::ldap::bind] [arg handle] [opt [arg name]] [opt [arg password]]]
 
 This command authenticates the ldap connection refered to by the token
 in [arg handle], with a user name and associated password. It blocks
@@ -68,13 +68,13 @@ Both [arg name] and [arg passwd] default to the empty string if they
 are not specified.
 
 
-[call [cmd ldap::unbind] [arg handle]]
+[call [cmd ::ldap::unbind] [arg handle]]
 
 This command asks the ldap server to release the last bind done for
 the connection refered to by the token in [arg handle].
 
 
-[call [cmd ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes]]
+[call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes]]
 
 This command performs a LDAP search below the [arg baseObject] tree
 using a complex LDAP search expression [arg filterString] and returns
@@ -90,18 +90,18 @@ An example of a search expression is
 }]
 [nl]
 
-The return value of the command is a nested dictionary. First level
-keys are object identifiers (DNs), second levels keys are attribute
-names. In other words, it is in the form
+The return value of the command is a list of nested dictionaries. The
+first level keys are object identifiers (DNs), second levels keys are
+attribute names. In other words, it is in the form
 
 [nl]
 [example {
-    dn1 {attr1 val1 attr2 val2 ...} dn2 {a1 v1 ...} ...
+    {dn1 {attr1 val1 attr2 val2 ...}} {dn2 {a1 v1 ...}} ...
 }]
 [nl]
 
 
-[call [cmd ldap::modify] [arg handle] [arg dn] \
+[call [cmd ::ldap::modify] [arg handle] [arg dn] \
 	[arg attrValToReplace] \
 	[opt [arg attrToDelete]] \
 	[opt [arg attrValToAdd]]]
@@ -141,7 +141,7 @@ The command blocks until all modifications have completed. Its result
 is the empty string.
 
 
-[call [cmd ldap::add] [arg handle] [arg dn] [arg attrValueTuples]]
+[call [cmd ::ldap::add] [arg handle] [arg dn] [arg attrValueTuples]]
 
 This command creates a new object using the specified [arg dn]. The
 attributes of the new object are set to the values in the dictionary
@@ -151,7 +151,7 @@ The command blocks until the operation has completed. Its result
 is the empty string.
 
 
-[call [cmd ldap::delete] [arg handle] [arg dn]]
+[call [cmd ::ldap::delete] [arg handle] [arg dn]]
 
 This command removes the object specified by [arg dn], and all its
 attributes from the server.
@@ -160,7 +160,7 @@ The command blocks until the operation has completed. Its result
 is the empty string.
 
 
-[call [cmd ldap::modifyDN] [arg handle] [arg dn] [arg newrdn] [opt [arg deleteOld]]]
+[call [cmd ::ldap::modifyDN] [arg handle] [arg dn] [arg newrdn] [opt [arg deleteOld]]]
 
 This command moves or copies the object specified by [arg dn]
 to a new location in the tree of object. This location is
@@ -185,6 +185,8 @@ code.
 
 [para]
 [example {
+    package require ldap
+
     # Connect, bind, add a new object, modify it in various ways
 
     set handle [ldap::connect localhost 9009]
@@ -223,6 +225,48 @@ code.
     ldap::delete $handle $dn
  
     ldap::unbind     $handle
+    ldap::disconnect $handle
+}]
+[para]
+
+And a another example, a simple query, and processing the
+results.
+
+[para]
+[example {
+    package require ldap
+    set handle [ldap::connect ldap.acme.com 389]
+    ldap::bind $handle
+    set results [ldap::search $handle "o=acme,dc=com" "(uid=jdoe)" {}]
+    foreach result $results {
+	foreach {object attributes} $result break
+
+	# The processing here is similar to what 'parray' does.
+	# I.e. finding the longest attribute name and then
+	# generating properly aligned output listing all attributes
+	# and their values.
+
+	set width 0
+	set sortedAttribs {}
+	foreach {type values} $attributes {
+	    if {[string length $type] > $width} {
+		set width [string length $type] 
+	    }
+	    lappend sortedAttribs [list $type $values]
+	}     
+
+	puts "object='$object'"
+
+	foreach sortedAttrib  $sortedAttribs {
+	    foreach {type values} $sortedAttrib break
+	    foreach value $values {
+		regsub -all "\[\x01-\x1f\]" $value ? value
+		puts [format "  %-${width}s %s" $type $value]
+	    }
+	}
+	puts ""
+    }
+    ldap::unbind $handle
     ldap::disconnect $handle
 }]
 
