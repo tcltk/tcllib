@@ -1,8 +1,9 @@
-[manpage_begin yencode n 1.0]
+[manpage_begin yencode n 1.0.1]
+[copyright {2002, Pat Thoyts}]
 [moddesc   {encode/decoding a binary file}]
 [titledesc {encode/decoding a binary file}]
-[require Tcl 8]
-[require yencode [opt 1.0]]
+[require Tcl 8.2]
+[require yencode [opt 1.0.1]]
 [description]
 [para]
 

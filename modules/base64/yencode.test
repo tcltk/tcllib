@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: yencode.test,v 1.2 2002/05/28 05:23:00 andreas_kupries Exp $
+# RCS: @(#) $Id: yencode.test,v 1.3 2003/01/26 00:38:28 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -15,7 +15,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 package require yencode
 
-proc yencode::loaddata {filename {translation auto}} {
+proc ::yencode::loaddata {filename {translation auto}} {
     set f [open $filename r]
     fconfigure $f -translation $translation
     set data [read $f]
@@ -28,9 +28,9 @@ proc yencode::loaddata {filename {translation auto}} {
 set datafile [file join $::tcltest::testsDirectory yencode.test.data]
 
 test yencode-1.0 {yencode yEnc test file} {
-    set enc [yencode::yencode -file $datafile]
-    set dec [yencode::ydecode $enc]
-    set chk [yencode::loaddata $datafile]
+    set enc [::yencode::yencode -file $datafile]
+    set dec [::yencode::ydecode $enc]
+    set chk [::yencode::loaddata $datafile]
     string match $dec $chk
 } {0}
     
@@ -39,7 +39,7 @@ test yencode-1.0 {yencode yEnc test file} {
 
 catch {
     unset datafile
-    rename yencode::loaddata {}
+    rename ::yencode::loaddata {}
 }
 ::tcltest::cleanupTests
 

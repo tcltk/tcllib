@@ -1,4 +1,5 @@
 [manpage_begin uuencode n 1.0.1]
+[copyright {2002, Pat Thoyts}]
 [moddesc   {encode/decoding a binary file}]
 [titledesc {encode/decoding a binary file}]
 [require Tcl 8]
