@@ -1,3 +1,7 @@
+2002-08-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* typeCmdline.tcl: Updated 'info exist' to 'info exists'.
+
 2002-04-24  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Applied patch #540313 on behalf of Melissa Chawla

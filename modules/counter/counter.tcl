@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.8 2001/09/05 23:53:52 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.9 2002/08/31 06:27:47 andreas_kupries Exp $
 
 package require Tcl 8
 
@@ -33,7 +33,7 @@ namespace eval counter:: {
     # of counters to do mergeing on.
 
     variable tagsToMerge
-    if {![info exist tagsToMerge]} {
+    if {![info exists tagsToMerge]} {
 	set tagsToMerge {}
     }
     variable mergeInterval
@@ -95,7 +95,7 @@ proc counter::init {tag args} {
 		for {set i 0} {$i < 24} {incr i} {
 		    set hourhist($i) 0
 		}
-		if {[info exist dayhist]} {
+		if {[info exists dayhist]} {
 		    unset dayhist
 		}
 		set dayhist(0) 0
@@ -121,7 +121,7 @@ proc counter::init {tag args} {
 		# and starting times to keep them all synchronized.
 		# So, we only initialize these parameters once.
 
-		if {![info exist secsPerMinute]} {
+		if {![info exists secsPerMinute]} {
 		    set secsPerMinute $value
 
 		    set startTime [clock seconds]
@@ -170,7 +170,7 @@ proc counter::init {tag args} {
 		# Cluster a set of counters with a single total
 
 		upvar #0 counter::H-$tag histogram
-		if {[info exist histogram]} {
+		if {[info exists histogram]} {
 		    unset histogram
 		}
 		set counter(group) $value
@@ -181,7 +181,7 @@ proc counter::init {tag args} {
 		upvar #0 counter::V-$tag vector
 		set counter(lastn) $value
 		set counter(index) 0
-		if {[info exist vector]} {
+		if {[info exists vector]} {
 		    unset vector
 		}
 		for {set i 0} {$i < $value} {incr i} {
@@ -192,7 +192,7 @@ proc counter::init {tag args} {
 		# A value-based histogram with buckets for different values.
 
 		upvar #0 counter::H-$tag histogram
-		if {[info exist histogram]} {
+		if {[info exists histogram]} {
 		    unset histogram
 		}
 		set counter(bucketsize) $value
@@ -200,7 +200,7 @@ proc counter::init {tag args} {
 	    }
 	    -hist2x {
 		upvar #0 counter::H-$tag histogram
-		if {[info exist histogram]} {
+		if {[info exists histogram]} {
 		    unset histogram
 		}
 		set counter(bucketsize) $value
@@ -208,7 +208,7 @@ proc counter::init {tag args} {
 	    }
 	    -hist10x {
 		upvar #0 counter::H-$tag histogram
-		if {[info exist histogram]} {
+		if {[info exists histogram]} {
 		    unset histogram
 		}
 		set counter(bucketsize) $value
@@ -216,7 +216,7 @@ proc counter::init {tag args} {
 	    }
 	    -histlog {
 		upvar #0 counter::H-$tag histogram
-		if {[info exist histogram]} {
+		if {[info exists histogram]} {
 		    unset histogram
 		}
 		set counter(bucketsize) $value
@@ -272,14 +272,14 @@ proc counter::reset {tag args} {
 	}
 	-group {
 	    upvar #0 counter::H-$tag histogram
-	    if {[info exist histogram]} {
+	    if {[info exists histogram]} {
 		unset histogram
 	    }
 	    set args [list -group $counter(group)]
 	}
 	-lastn {
 	    upvar #0 counter::V-$tag vector
-	    if {[info exist vector]} {
+	    if {[info exists vector]} {
 		unset vector
 	    }
 	    set args [list -lastn $counter(lastn)]
@@ -289,7 +289,7 @@ proc counter::reset {tag args} {
 	-histlog -
 	-hist2x {
 	    upvar #0 counter::H-$tag histogram
-	    if {[info exist histogram]} {
+	    if {[info exists histogram]} {
 		unset histogram
 	    }
 	    set args [list $counter(type) $counter(bucketsize)]
@@ -297,7 +297,7 @@ proc counter::reset {tag args} {
 	-timehist {
 	    foreach h [list counter::H-$tag counter::Hour-$tag counter::Day-$tag] {
 		upvar #0 $h histogram
-		if {[info exist histogram]} {
+		if {[info exists histogram]} {
 		    unset histogram
 		}
 	    }
@@ -356,7 +356,7 @@ proc counter::count {tag {delta 1} args} {
 	    -hist {
 		upvar #0 counter::H-$tag histogram
 		set bucket [expr {int($delta / $counter(bucketsize))}]
-		if {![info exist histogram($bucket)]} {
+		if {![info exists histogram($bucket)]} {
 		    set histogram($bucket) 0
 		}
 		incr histogram($bucket)
@@ -369,7 +369,7 @@ proc counter::count {tag {delta 1} args} {
 			{set max [expr {$max * $counter(mult)}]} {
 		    incr bucket
 		}
-		if {![info exist histogram($bucket)]} {
+		if {![info exists histogram($bucket)]} {
 		    set histogram($bucket) 0
 		}
 		incr histogram($bucket)
@@ -377,7 +377,7 @@ proc counter::count {tag {delta 1} args} {
 	    -histlog {
 		upvar #0 counter::H-$tag histogram
 		set bucket [expr {int(log($delta)*$counter(bucketsize))}]
-		if {![info exist histogram($bucket)]} {
+		if {![info exists histogram($bucket)]} {
 		    set histogram($bucket) 0
 		}
 		incr histogram($bucket)
@@ -483,7 +483,7 @@ proc counter::get {tag {option -total} args} {
 	    if {[llength $args]} {
 		# Return particular bucket
 		set bucket [lindex $args 0]
-		if {[info exist histogram($bucket)]} {
+		if {[info exists histogram($bucket)]} {
 		    return $histogram($bucket)
 		} else {
 		    return 0
@@ -571,7 +571,7 @@ proc counter::get {tag {option -total} args} {
 proc counter::names {} {
     set result {}
     foreach v [info vars ::counter::T-*] {
-	if {[info exist $v]} {
+	if {[info exists $v]} {
 	    # Declared arrays might not exist, yet
 	    regsub -- ::counter::T- $v {} v
 	    lappend result $v
@@ -603,7 +603,7 @@ proc counter::MergeHour {interval} {
     variable secsPerMinute
 
     after $interval [list counter::MergeHour $interval]
-    if {![info exist hourBase] || $hourIndex == 0} {
+    if {![info exists hourBase] || $hourIndex == 0} {
 	set hourBase $minuteBase
     }
     set minuteBase [clock seconds]
@@ -666,7 +666,7 @@ proc counter::MergeDay {} {
     # Save the hours histogram into a bucket for the last day
     # counter(day,$day) is the starting time for that day bucket
 
-    if {![info exist dayBase]} {
+    if {![info exists dayBase]} {
 	set dayBase $hourBase
     }
     foreach tag $tagsToMerge {
@@ -676,7 +676,7 @@ proc counter::MergeDay {} {
 	set dayhist($dayIndex) 0
 	set max 0
 	for {set i 0} {$i < 24} {incr i} {
-	    if {[info exist hourhist($i)]} {
+	    if {[info exists hourhist($i)]} {
 		set dayhist($dayIndex) [expr {$dayhist($dayIndex) + $hourhist($i)}]
 		if {$hourhist($i) > $max} { 
 		    set mx $hourhist($i) 
@@ -779,7 +779,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 	min* {
 	    upvar #0 counter::H-$tag histogram
 	    set histname counter::H-$tag
-	    if {![info exist minuteBase]} {
+	    if {![info exists minuteBase]} {
 		return "<!-- No time-based histograms defined -->"
 	    }
 	    set time $minuteBase
@@ -792,7 +792,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 	hour* {
 	    upvar #0 counter::Hour-$tag histogram
 	    set histname counter::Hour-$tag
-	    if {![info exist hourBase]} {
+	    if {![info exists hourBase]} {
 		return "<!-- Hour merge has not occurred -->"
 	    }
 	    set time $hourBase
@@ -808,7 +808,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 	day* {
 	    upvar #0 counter::Day-$tag histogram
 	    set histname counter::Day-$tag
-	    if {![info exist dayBase]} {
+	    if {![info exists dayBase]} {
 		return "<!-- Hour merge has not occurred -->"
 	    }
 	    set time $dayBase
@@ -941,7 +941,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 	if {$options(-max) < 0} {
 	    set options(-max) [lindex $ix end]
 	}
-	if {![info exist options(-min)]} {
+	if {![info exists options(-min)]} {
 	    set options(-min) [lindex $ix 0]
 	}
     }
@@ -998,7 +998,7 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
     set ix [lsort -integer [array names histogram]]
 
     for {set t $options(-min)} {$t < $options(-max)} {incr t} {
-	if {![info exist histogram($t)]} {
+	if {![info exists histogram($t)]} {
 	    set value 0
 	} else {
 	    set value $histogram($t)
@@ -1210,7 +1210,7 @@ proc counter::start {tag instance} {
 proc counter::stop {tag instance {func ::counter::Identity}} {
     upvar #0 counter::Time-$tag time
 
-    if {![info exist time($instance)]} {
+    if {![info exists time($instance)]} {
 	# Extra call. Ignore so we can debug error cases.
 	return
     }

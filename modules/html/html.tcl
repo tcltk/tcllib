@@ -327,10 +327,10 @@ proc html::eval {args} {
 proc html::init {{nvlist {}}} {
     variable page
     variable defaults
-    ::if {[info exist page]} {
+    ::if {[info exists page]} {
 	unset page
     }
-    ::if {[info exist defaults]} {
+    ::if {[info exists defaults]} {
 	unset defaults
     }
     array set defaults $nvlist
@@ -352,10 +352,10 @@ proc html::head {title} {
     variable page
     ::set html "[openTag html][openTag head]\n"
     append html "\t[html::title $title]"
-    ::if {[info exist page(author)]} {
+    ::if {[info exists page(author)]} {
 	append html "\t$page(author)"
     }
-    ::if {[info exist page(meta)]} {
+    ::if {[info exists page(meta)]} {
 	::foreach line $page(meta) {
 	    append html "\t$line\n"
 	}
@@ -392,7 +392,7 @@ proc html::title {title} {
 
 proc html::getTitle {} {
     variable page
-    ::if {[info exist page(title)]} {
+    ::if {[info exists page(title)]} {
 	return $page(title)
     } else {
 	return ""
@@ -552,7 +552,7 @@ proc html::default {key {param {}}} {
     ::set pname [string tolower [lindex [split $key .] 1]]
     ::set key [string tolower $key]
     ::if {![regexp -nocase "(\[ 	\]|^)$pname=" $param] &&
-	    [info exist defaults($key)] &&
+	    [info exists defaults($key)] &&
 	    [string length $defaults($key)]} {
 	return " $pname=\"$defaults($key)\""
     } else {
@@ -889,7 +889,7 @@ proc html::submit {label {name submit}} {
 
 proc html::varEmpty {name} {
     upvar 1 $name var
-    ::if {[info exist var]} {
+    ::if {[info exists var]} {
 	::set value $var
     } else {
 	::set value ""
@@ -986,11 +986,11 @@ proc html::openTag {tag {param {}}} {
 
 proc html::closeTag {} {
     variable page
-    ::if {[info exist page(stack)]} {
+    ::if {[info exists page(stack)]} {
 	::set top [lindex $page(stack) end]
 	::set page(stack) [lreplace $page(stack) end end]
     }
-    ::if {[info exist top] && [string length $top]} {
+    ::if {[info exists top] && [string length $top]} {
 	return </$top>
     } else {
 	return ""
