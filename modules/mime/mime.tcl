@@ -3513,9 +3513,11 @@ proc ::mime::word_decode {encoded} {
     }
 
     switch -exact -- $method {
+	b -
 	B {
             set method base64
         }
+	q -
 	Q {
             set method quoted-printable
         }
