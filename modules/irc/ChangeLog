@@ -1,3 +1,8 @@
+2004-01-20 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* irc.tcl Fixed incorrect usage of linsert in previous change.
+	Removed uneeded state variable.
+
 2003-10-22  David N. Welton  <davidw@dedasys.com>
 
 	* irc.tcl (network): Fixed usage of eval - thanks to Jeff Hobbs.
