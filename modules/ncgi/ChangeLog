@@ -1,3 +1,7 @@
+2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ncgi.tcl: Added missing [global env]. Bug [458023].
+
 2001-08-01  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* ncgi.tcl: made require Tcl 8.1+, sped up encode and decode.
