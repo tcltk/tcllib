@@ -9,6 +9,8 @@
 package require Tcl 8
 package provide log 1.1
 
+# ### ### ### ######### ######### #########
+
 namespace eval ::log {
     namespace export levels lv2longform lv2color lv2priority 
     namespace export lv2cmd lv2channel lvCompare
@@ -748,3 +750,10 @@ proc ::log::Puts {level text} {
     puts $chan "$level$fill($level) $text"
     return
 }
+
+# ### ### ### ######### ######### #########
+## Initialization code. Disable logging for the lower levels by
+## default.
+
+## log::lvSuppressLE emergency
+log::lvSuppressLE warning
