@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.33 2004/01/25 07:29:39 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.34 2004/01/30 06:58:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -58,7 +58,7 @@ proc ::fileutil::grep {pattern {files {}}} {
 
 # ::fileutil::find ==
 #
-# Two different implementations of this command, one for unix with its
+# Two different implementations of this command, one for Unix with its
 # softlinks, the other for the Win* platform. The trouble with
 # softlink is that they can generate circles in the directory and/or
 # file structure, leading a simple recursion into infinity. So we
@@ -88,10 +88,23 @@ if {[string compare unix $tcl_platform(platform)]} {
     #	files		a list of interesting files.
 
     proc ::fileutil::find {{basedir .} {filtercmd {}}} {
-	set oldwd [pwd]
-	cd $basedir
-	set cwd [pwd]
-	set filenames [glob -nocomplain * .*]
+
+	# Instead of getting a directory, we have received one file
+	# name.  Do not do directory operations.
+	if { [file isfile $basedir] } {
+	    set cwd "" ; # This variable is needed below.
+	    set fileisbasedir 1
+	    set filenames [list $basedir]
+	} elseif { [file isdirectory $basedir] } {
+	    set fileisbasedir 0
+	    set oldwd [pwd]
+	    cd $basedir
+	    set cwd [pwd]
+	    set filenames [glob -nocomplain * .*]
+	} else {
+	    return -code error "$basedir does not exist"
+	}
+
 	set files {}
 	set filt [string length $filtercmd]
 	# If we don't remove . and .. from the file list, we'll get stuck in
@@ -110,7 +123,9 @@ if {[string compare unix $tcl_platform(platform)]} {
 		set files [concat $files [find $filename $filtercmd]]
 	    }
 	}
-	cd $oldwd
+	if { ! $fileisbasedir } {
+	    cd $oldwd
+	}
 	return $files
     }
 } else {
@@ -118,7 +133,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 
     # SF tcllib bug [784157], distinguish between pre and post Tcl
     # 8.4. In 8.4 and post 8.4. we have to conditionally exclude
-    # dev/inde checking. This is not required for pre 8.4.
+    # dev/inode checking. This is not required for pre 8.4.
 
     if {[package vcompare [package present Tcl] 8.4] >= 0} {
 
@@ -148,7 +163,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 	    if { [file isfile $basedir] } {
 		set cwd "" ; # This variable is needed below.
 		set fileisbasedir 1
-		set filenames $basedir
+		set filenames [list $basedir]
 	    } elseif { [file isdirectory $basedir] } {
 		set fileisbasedir 0
 		set oldwd [pwd]
@@ -156,7 +171,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 		set cwd [pwd]
 		set filenames [glob -nocomplain * .*]
 	    } else {
-		error "$basedir does not exist"
+		return -code error "$basedir does not exist"
 	    }
 
 	    set files {}
@@ -180,7 +195,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 		# SF [ 647974 ] find has problems recursing a metakit fs ...
 		#
 		# The following code is a HACK / workaround. We assume that virtual
-		# FS's do not suport links, and therefore there is no need for
+		# FS's do not support links, and therefore there is no need for
 		# keeping track of device/inode information. A good thing as the 
 		# the virtual FS's usually give us bad data for these anyway, as
 		# illustrated by the bug referenced above.
@@ -236,10 +251,22 @@ if {[string compare unix $tcl_platform(platform)]} {
 		upvar $nodeVar inodes
 	    }
 
-	    set oldwd [pwd]
-	    cd $basedir
-	    set cwd [pwd]
-	    set filenames [glob -nocomplain * .*]
+	    # Instead of getting a directory, we have received one file
+	    # name.  Do not do directory operations.
+	    if { [file isfile $basedir] } {
+		set cwd "" ; # This variable is needed below.
+		set fileisbasedir 1
+		set filenames [list $basedir]
+	    } elseif { [file isdirectory $basedir] } {
+		set fileisbasedir 0
+		set oldwd [pwd]
+		cd $basedir
+		set cwd [pwd]
+		set filenames [glob -nocomplain * .*]
+	    } else {
+		return -code error "$basedir does not exist"
+	    }
+
 	    set files {}
 	    set filt [string length $filtercmd]
 	    # If we don't remove . and .. from the file list, we'll get stuck in
@@ -856,7 +883,7 @@ proc ::fileutil::tempfile {{prefix {}}} {
  		if {!$checked_dir_writable} {
  		    set dirname [file dirname $newname]
  		    if {![file writable $dirname]} {
- 			error "Directory $dirname is not writable"
+ 			return -code error "Directory $dirname is not writable"
  		    }
  		    set checked_dir_writable 1
  		}
@@ -899,7 +926,7 @@ proc ::fileutil::install {args} {
     array set params [::cmdline::getoptions args $options $usage]
     # Args should now just be the source and destination.
     if { [llength $args] < 2 } {
-	error $usage
+	return -code error $usage
     }
     set src [lindex $args 0]
     set dst [lindex $args 1]

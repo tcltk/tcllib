@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.25 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.26 2004/01/30 06:58:52 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -182,7 +182,18 @@ proc ::struct::tree::TreeProc {name {cmd ""} args} {
 	return -code error \
 		"bad option \"$cmd\": must be $optlist"
     }
-    return [uplevel 1 [linsert $args 0 ::struct::tree::$sub $name]]
+
+    set code [catch {uplevel 1 [linsert $args 0 ::struct::tree::$sub $name]} result]
+    switch -exact -- $code {
+	1 {
+	    return -errorinfo [ErrorInfoAsCaller uplevel $sub]  \
+		    -errorcode $::errorCode -code error $result
+	}
+	2 {
+	    return -code $code $result
+	}
+    }
+    return $result
 }
 
 # ::struct::tree::_:= --
@@ -1380,15 +1391,15 @@ proc ::struct::tree::_unset {name node key} {
 #	args	Optional additional arguments specifying the type and order of
 #		the tree walk, and the command to execute at each node.
 #		Format is
-#		    ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd
+#		    ?-type {bfs|dfs}? ?-order {pre|post|in|both}? a n script
 #
 # Results:
 #	None.
 
 proc ::struct::tree::_walk {name node args} {
-    set usage "$name walk $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? -command cmd"
+    set usage "$name walk $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"
 
-    if {[llength $args] > 6 || [llength $args] < 2} {
+    if {[llength $args] > 7 || [llength $args] < 2} {
 	return -code error "wrong # args: should be \"$usage\""
     }
 
@@ -1401,31 +1412,54 @@ proc ::struct::tree::_walk {name node args} {
     set order pre
     set cmd ""
 
-    for {set i 0} {$i < [llength $args]} {incr i} {
-	set flag [lindex $args $i]
-	incr i
-	if { $i >= [llength $args] } {
-	    return -code error "value for \"$flag\" missing: should be \"$usage\""
-	}
-	switch -glob -- $flag {
+    while {[llength $args]} {
+	set flag [lindex $args 0]
+	switch -exact -- $flag {
 	    "-type" {
-		set type [string tolower [lindex $args $i]]
+		if {[llength $args] < 2} {
+		    return -code error "value for \"$flag\" missing: should be \"$usage\""
+		}
+		set type [string tolower [lindex $args 1]]
+		set args [lrange $args 2 end]
 	    }
 	    "-order" {
-		set order [string tolower [lindex $args $i]]
+		if {[llength $args] < 2} {
+		    return -code error "value for \"$flag\" missing: should be \"$usage\""
+		}
+		set order [string tolower [lindex $args 1]]
+		set args [lrange $args 2 end]
 	    }
-	    "-command" {
-		set cmd [lindex $args $i]
+	    "--" {
+		set args [lrange $args 1 end]
+		break
 	    }
 	    default {
-		return -code error "unknown option \"$flag\": should be \"$usage\""
+		break
 	    }
 	}
     }
 
-    # Make sure we have a command to run, otherwise what's the point?
-    if { [string equal $cmd ""] } {
-	return -code error "no command specified: should be \"$usage\""
+    if {[llength $args] == 0} {
+	return -code error "wrong # args: should be \"$usage\""
+    }
+    if {[llength $args] != 2} {
+	return -code error "unknown option \"$flag\": should be \"$usage\""
+    } ; # else: Remainder is 'a n script' {}
+
+    foreach {loopvariables script} $args break
+
+    if {[llength $loopvariables] > 2} {
+	return -code error "too many loop variables, at most two allowed"
+    } elseif {[llength $loopvariables] == 2} {
+	foreach {avar nvar} $loopvariables break
+    } else {
+	set nvar [lindex $loopvariables 0]
+	set avar {}
+    }
+
+    # Make sure we have a script to run, otherwise what's the point?
+    if { [string equal $script ""] } {
+	return -code error "no script specified, or empty: should be \"$usage\""
     }
 
     # Validate that the given type is good
@@ -1472,7 +1506,10 @@ proc ::struct::tree::_walk {name node args} {
 	set lvlabel visit
     }
 
-    if { [string equal $type "dfs"] } {
+    set rcode 0
+    set rvalue {}
+
+    if {[string equal $type "dfs"]} {
 	# Depth-first walk, several orders of visiting nodes
 	# (pre, post, both, in)
 
@@ -1488,8 +1525,8 @@ proc ::struct::tree::_walk {name node args} {
 		ldelete st end
 
 		if {$leave || $touch} {
-		    # Evaluate the command at this node
-		    WalkCall $name $node $lvlabel $cmd
+		    # Evaluate the script at this node
+		    WalkCall $avar $nvar $name $node $lvlabel $script
 		}
 	    } else {
 		# First visit of this 'node'.
@@ -1500,8 +1537,13 @@ proc ::struct::tree::_walk {name node args} {
 		set visited($node) .
 
 		if {$enter} {
-		    # Evaluate the command at this node (pre, both)
-		    WalkCall $name $node "enter" $cmd
+		    # Evaluate the script at this node (pre, both).
+		    #
+		    # Note: As this is done before the children are
+		    # looked at the script may change the children of
+		    # this node and thus affect the walk.
+
+		    WalkCall $avar $nvar $name $node "enter" $script
 		}
 
 		# Add the children of this node to the stack.
@@ -1541,8 +1583,8 @@ proc ::struct::tree::_walk {name node args} {
 	    ldelete st 0
 
 	    if {$enter} {
-		# Evaluate the command at this node
-		WalkCall $name $node "enter" $cmd
+		# Evaluate the script at this node
+		WalkCall $avar $nvar $name $node "enter" $script
 	    }
 
 	    # Add this node's children
@@ -1558,10 +1600,14 @@ proc ::struct::tree::_walk {name node args} {
 
 	if {$leave} {
 	    foreach node $backward {
-		# Evaluate the command at this node
-		WalkCall $name $node "leave" $cmd
+		# Evaluate the script at this node
+		WalkCall $avar $nvar $name $node "leave" $script
 	    }
 	}
+    }
+
+    if {$rcode != 0} {
+	return -code $rcode $rvalue
     }
     return
 }
@@ -1582,10 +1628,58 @@ proc ::struct::tree::_walk {name node args} {
 # Results:
 #	None.
 
-proc ::struct::tree::WalkCall {tree node action cmd} {
-    set subs [list %n [list $node] %a [list $action] %t [list $tree] %% %]
-    uplevel 2 [string map $subs $cmd]
-    return
+proc ::struct::tree::WalkCall {avar nvar tree node action cmd} {
+
+    if {$avar != {}} {
+	upvar 2 $avar a ; set a $action
+    }
+    upvar 2 $nvar n ; set n $node
+
+    #set subs [list %n [list $node] %a [list $action] %t [list $tree] %% %]
+    #set code [catch {uplevel 2 [string map $subs $cmd]} result]
+    set code [catch {uplevel 2 $cmd} result]
+
+    # decide what to do upon the return code:
+    #
+    #               0 - the body executed successfully
+    #               1 - the body raised an error
+    #               2 - the body invoked [return]
+    #               3 - the body invoked [break]
+    #               4 - the body invoked [continue]
+    # everything else - return and pass on the results
+    #
+    switch -exact -- $code {
+	0 {}
+	1 {
+	    return -errorinfo [ErrorInfoAsCaller uplevel WalkCall]  \
+		    -errorcode $::errorCode -code error $result
+	}
+	3 {
+	    # FRINK: nocheck
+	    return -code break
+	}
+	4 {}
+	default {
+	    upvar 1 rcode rcode rvalue rvalue
+	    set rcode $code
+	    set rvalue $result
+	    return -code break
+	    #return -code $code $result
+	}
+    }
+    return {}
+}
+
+proc ::struct::tree::ErrorInfoAsCaller {find replace} {
+    set info $::errorInfo
+    set i [string last "\n    (\"$find" $info]
+    if {$i == -1} {return $info}
+    set result [string range $info 0 [incr i 6]]	;# keep "\n    (\""
+    append result $replace			;# $find -> $replace
+    incr i [string length $find]
+    set j [string first ) $info [incr i]]	;# keep rest of parenthetical
+    append result [string range $info $i $j]
+    return $result
 }
 
 # ::struct::tree::GenerateUniqueNodeName --
