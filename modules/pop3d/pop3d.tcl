@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.16 2004/10/03 23:06:57 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.17 2004/10/20 04:57:34 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -421,13 +421,13 @@ proc ::pop3d::HandleNewConnection {name sock rHost rPort} {
     set cstate(msg)        0
     set cstate(size)       0
 
-    ::log::log notice "$name $sock state auth, waiting for logon"
+    ::log::log notice "pop3d $name $sock state auth, waiting for logon"
 
     fconfigure $sock -buffering line -translation crlf -blocking 0
 
     if {[catch {::pop3d::GreetPeer $name $sock} errmsg]} {
 	close $sock
-	log::log error "$name $sock greeting $errmsg"
+	log::log error "pop3d $name $sock greeting $errmsg"
 	unset cstate
 	unset conn($sock)
 	return
@@ -447,17 +447,17 @@ proc ::pop3d::CloseConnection {name sock} {
     # Kill a pending idle event for CloseConnection, we are closing now.
     catch {after cancel $cstate(idlepending)}
 
-    ::log::log debug "$name $sock closing connection"
+    ::log::log debug "pop3d $name $sock closing connection"
 
     if {[catch {close $sock} msg]} {
-	::log::log error "$name $sock close: $msg"
+	::log::log error "pop3d $name $sock close: $msg"
     }
     if {$storCmd != {}} {
 	# remove possible lock set in storage facility.
 	if {[catch {
 	    uplevel #0 [linsert $storCmd end unlock $cstate(storage)]
 	} msg]} {
-	    ::log::log error "$name $sock storage unlock: $msg"
+	    ::log::log error "pop3d $name $sock storage unlock: $msg"
 	    # -W- future ? kill all connections, execute clean up of storage
 	    # -W-          facility.
 	}
@@ -466,7 +466,7 @@ proc ::pop3d::CloseConnection {name sock} {
     unset cstate
     unset conn($sock)
 
-    ::log::log notice "$name $sock closed"
+    ::log::log notice "pop3d $name $sock closed"
 
     if {[string equal $state existing] && ([array size conn] == 0)} {
 	_destroy $name
@@ -495,7 +495,7 @@ proc ::pop3d::HandleCommand {name sock} {
     upvar $conn($sock)                   cstate
     variable                             cmdMap
 
-    ::log::log info "$name $sock < $line"
+    ::log::log info "pop3d $name $sock < $line"
 
     set fail [catch {
 	set cmd [string toupper [lindex $line 0]]
@@ -514,7 +514,7 @@ proc ::pop3d::HandleCommand {name sock} {
 	# Handled by closing the connection.
 	# (We do not know how to relay the internal error to the client)
 
-	::log::log error "$name $sock $cmd: $errmsg"
+	::log::log error "pop3d $name $sock $cmd: $errmsg"
 	CloseConnection $name $sock
     }
     return
@@ -543,8 +543,8 @@ proc ::pop3d::HandleUnknownCmd {name sock cmd line} {
 }
 
 proc ::pop3d::Respond2Client {name sock ok wtext} {
-    ::log::log info "$name $sock > $ok $wtext"
-    puts $sock                    "$ok $wtext"
+    ::log::log info "pop3d $name $sock > $ok $wtext"
+    puts $sock                          "$ok $wtext"
     return
 }
 
@@ -606,14 +606,14 @@ proc ::pop3d::H_pass {name sock cmd line} {
 	set pwd [lindex [split $line] 1]
 
 	if {![uplevel #0 [linsert $authCmd end exists $cstate(name)]]} {
-	    ::log::log warning "$name $sock $authCmd lookup $cstate(name) : user does not exist"
+	    ::log::log warning "pop3d $name $sock $authCmd lookup $cstate(name) : user does not exist"
 	    CheckLogin $name $sock "" "" ""
 	    return
 	}
 	if {[catch {
 	    set info [uplevel #0 [linsert $authCmd end lookup $cstate(name)]]
 	} msg]} {
-	    ::log::log error "$name $sock $authCmd lookup $cstate(name) : $msg"
+	    ::log::log error "pop3d $name $sock $authCmd lookup $cstate(name) : $msg"
 	    CheckLogin $name $sock "" "" ""
 	    return
 	}
@@ -660,14 +660,14 @@ proc ::pop3d::H_apop {name sock cmd line} {
     set digest  [lindex $line 2]
 
     if {![uplevel #0 [linsert $authCmd end exists $cstate(name)]]} {
-	::log::log warning "$name $sock $authCmd lookup $cstate(name) : user does not exist"
+	::log::log warning "pop3d $name $sock $authCmd lookup $cstate(name) : user does not exist"
 	CheckLogin $name $sock "" "" ""
 	return
     }
     if {[catch {
 	set info [uplevel #0 [linsert $authCmd end lookup $cstate(name)]]
     } msg]} {
-	::log::log error "$name $sock $authCmd lookup $cstate(name) : $msg"
+	::log::log error "pop3d $name $sock $authCmd lookup $cstate(name) : $msg"
 	CheckLogin $name $sock "" "" ""
 	return
     }
@@ -675,7 +675,7 @@ proc ::pop3d::H_apop {name sock cmd line} {
     set pwd     [lindex $info 0]
     set storage [lindex $info 1]
 
-    ::log::log debug "$name $sock info = <$info>"
+    ::log::log debug "pop3d $name $sock info = <$info>"
 
     if {$storage == {}} {
 	# user does not exist, skip over digest computation
@@ -690,9 +690,9 @@ proc ::pop3d::H_apop {name sock cmd line} {
 
     set ourDigest [Md5 "$cstate(id)$pwd"]
 
-    ::log::log debug "$name $sock digest input <$cstate(id)$pwd>"
-    ::log::log debug "$name $sock digest outpt <$ourDigest>"
-    ::log::log debug "$name $sock digest given <$digest>"
+    ::log::log debug "pop3d $name $sock digest input <$cstate(id)$pwd>"
+    ::log::log debug "pop3d $name $sock digest outpt <$ourDigest>"
+    ::log::log debug "pop3d $name $sock digest given <$digest>"
 
     CheckLogin $name $sock $digest $ourDigest $storage
     return
@@ -975,7 +975,7 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
 	set cstate(state) auth
 	set cstate(logon) ""
 
-	::log::log notice "$name $sock state auth, no maildrop"
+	::log::log notice "pop3d $name $sock state auth, no maildrop"
 	Respond2Client $name $sock -ERR "authentication failed, sorry"
 
     } elseif {[string compare $clientid $serverid] != 0} {
@@ -984,7 +984,7 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
 	set cstate(state) auth
 	set cstate(logon) ""
 
-	::log::log notice "$name $sock state auth, secret does not match"
+	::log::log notice "pop3d $name $sock state auth, secret does not match"
 	Respond2Client $name $sock -ERR "authentication failed, sorry"
 
     } elseif {
@@ -996,7 +996,7 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
 	set cstate(state) auth
 	set cstate(logon) ""
 
-	::log::log notice "$name $sock state auth, maildrop already locked"
+	::log::log notice "pop3d $name $sock state auth, maildrop already locked"
 	Respond2Client $name $sock -ERR \
 		"could not aquire lock for maildrop $cstate(name)"
     } else {
@@ -1015,8 +1015,8 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
 	}
 	
 	::log::log notice \
-		"$name $sock login $cstate(name) $storage $cstate(msg)"
-	::log::log notice "$name $sock state trans"
+		"pop3d $name $sock login $cstate(name) $storage $cstate(msg)"
+	::log::log notice "pop3d $name $sock state trans"
 
 	Respond2Client $name $sock +OK "congratulations"
     }
@@ -1042,20 +1042,20 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 
     set token [uplevel #0 [linsert $storCmd end get $cstate(storage) $msgid]]
     
-    ::log::log debug "$name $sock transfering data ($token)"
+    ::log::log debug "pop3d $name $sock transfering data ($token)"
 
     if {$limit < 0} {
 	# Full transfer, we can use "copymessage" and avoid
 	# construction in memory (depending on source of token).
 
-	log::log debug "$name Transfer $msgid /full"
+	log::log debug "pop3d $name Transfer $msgid /full"
 
 	#::mime::copymessage $token $sock
 
 	# We do "."-stuffing here. This is not in the scope of the
 	# MIME library we use, but a transport dependent thing.
 
-log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n])"
+	log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n])"
 
 	puts $sock [string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n]
 	puts $sock .
@@ -1082,7 +1082,7 @@ log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildm
 	puts $sock ${data}\n.
     }
     fileevent $sock readable [list ::pop3d::HandleCommand $name $sock]
-    ::log::log debug "$name $sock transfer complete, listening again"
+    ::log::log debug "pop3d $name $sock transfer complete, listening again"
     # response already sent.
     return
 }
