@@ -1,3 +1,7 @@
+2002-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.man: New file, doctools manpage.
+
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.tcl: Fixed bug #532783 reported by Ken Jones
