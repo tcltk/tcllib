@@ -1,0 +1,7 @@
+2003-07-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5crypt.tcl:   Initial version of a pure-Tcl and
+	* md5crypt.test:  critcl-enhanced implementation of
+	* md5cryptc.tcl:  the BSD MD5-crypt algorithm.
+	* pkgIndex.tcl:   
+	* ChangeLog:      
