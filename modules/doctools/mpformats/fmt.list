@@ -1,0 +1,61 @@
+# -*- tcl -*-
+# rules/manpage.api
+#
+# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+
+# Defines the procedures a manpage rules file has to support for good
+# manpages. The procedures here return errors.
+
+################################################################
+
+proc init_hook {} {return 1}
+
+# Define/retrieve number of current pass.
+proc _pass {{n {}}} {
+    variable _pass
+    if {$n != {}} {
+	set _pass $n
+    }
+    return $_pass
+}
+
+
+proc manpage_begin {title section version} {
+    cpush mp
+    cset m [list manpage mem/mp/$title $title mp.$title.html]
+    return
+}
+
+proc manpage_end {} {
+    set res [cget m]
+    cpop mp
+    set res
+}
+
+################################################################
+
+proc moddesc     {desc}             {}
+proc titledesc   {desc}             {}
+proc require     {pkg {version {}}} {}
+proc description {}                 {}
+proc section     {name}             {}
+proc para        {}                 {}
+proc call        {cmd args}         {}
+proc list_begin  {what}             {}
+proc list_end    {}                 {}
+proc lst_item    {text}             {}
+proc see_also    {args}             {}
+proc keywords    {args}             {}
+proc nl          {}                 {}
+proc bullet      {}                 {}
+proc enum        {}                 {}
+proc arg         {text}             {}
+proc cmd         {text}             {}
+proc emph        {text}             {}
+proc strong      {text}             {}
+proc setx        {v string}         {}
+proc appendx     {v string}         {}
+proc opt         {text} {}
+
+################################################################
+

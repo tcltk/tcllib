@@ -1,0 +1,77 @@
+[manpage_begin mpexpand n 1.0]
+[moddesc   {Documentation toolbox}]
+[titledesc {Markup processor}]
+[description]
+[para]
+
+This manpage describes the processor / converter for manpages in the
+format described in the manpage [strong mp_rules].
+
+[list_begin definitions]
+[call [cmd mpexpand] [opt "-module [arg module]"] [arg format] [arg infile]|- [arg outfile]|-]
+
+The processor takes three arguments, namely the code describing which
+formatting to generate as the output, the file to read the markup
+from, and the file to write the generated output into. If the
+[arg infile] is "[strong -]" the processor will read from
+[strong stdin]. If [arg outfile] is "[strong -]" the processor will
+write to [strong stdout].
+
+[nl]
+
+If the option [arg -module] is present its value overides the internal
+definition of the module name.
+
+[nl]
+
+The currently known output formats are
+
+[list_begin definitions]
+
+[lst_item [strong nroff]]
+
+The processor generates *roff output, the standard format for unix
+manpages.
+
+[lst_item [strong html]]
+
+The processor generates HTML output, for usage in and display by web
+browsers.
+
+[lst_item [strong tmml]]
+
+The processor generates TMML output, the Tcl Manpage Markup Language,
+a derivative of XML.
+
+[lst_item [strong latex]]
+
+The processor generates LaTeX output.
+
+[list_end]
+
+[call [cmd mpexpand.all] [opt [arg -verbose]] [opt [arg module]]]
+
+This command uses [strong mpexpand] to generate all possible output
+formats for all manpages in the current directory. The manpages are
+recognized through the extension [strong .man]. If [arg -verbose] is
+specified the command will list its actions before executing them.
+
+[nl]
+
+The [arg module] information is passed to [cmd mpexpand].
+
+[list_end]
+
+[section NOTES]
+[para]
+
+The interface between the manpage processor and a file specifying the
+conversion to an output format is described in the manpage
+[strong formatter(n)].
+
+[para]
+
+Possible future formats are plain text, latex, pdf and postscript.
+
+[keywords manpage TMML HTML nroff conversion markup]
+[manpage_end]
