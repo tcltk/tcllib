@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.12 2000/06/16 20:15:32 ericm Exp $
+# RCS: @(#) $Id: tree.test,v 1.13 2001/09/05 23:36:15 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -258,6 +258,12 @@ test tree-6.15 {insert gives error when trying to make node its descendant} {
     mytree destroy
     set msg
 } "node \"node0\" cannot be its own descendant"
+test tree-6.16 {insert gives error for invalid node names} {
+    tree mytree
+    catch {mytree insert root end ":\n\t "} msg
+    mytree destroy
+    set msg
+} "invalid node name \":\n\t \""
 
 test tree-7.1 {move gives error when trying to move root} {
     tree mytree
@@ -587,16 +593,16 @@ test tree-12.1.5 {pre dfs walk, different % specifiers} {
 test tree-12.1.6 {pre dfs walk, nodes with spaces in names} {
     tree mytree
     set t [list ]
-    mytree insert root end "node 0"
-    mytree insert root end "node 1"
-    mytree insert "node 0" end "node 0 1"
-    mytree insert "node 0" end "node 0 2"
-    mytree insert "node 1" end "node 1 1"
-    mytree insert "node 1" end "node 1 2"
+    mytree insert root end "node/0"
+    mytree insert root end "node/1"
+    mytree insert "node/0" end "node/0/1"
+    mytree insert "node/0" end "node/0/2"
+    mytree insert "node/1" end "node/1/1"
+    mytree insert "node/1" end "node/1/2"
     mytree walk root -type dfs -command {lappend t %n}
     mytree destroy
     set t
-} [list root "node 0" "node 0 1" "node 0 2" "node 1" "node 1 1" "node 1 2"]
+} [list root "node/0" "node/0/1" "node/0/2" "node/1" "node/1/1" "node/1/2"]
 
 test tree-12.2 {pre bfs walk} {
     tree mytree

@@ -1,3 +1,15 @@
+2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* The changes below fix bug [458011].
+
+	* tree.test (6.16): New test. Checks verificator of forbidden names.
+
+	* tree.tcl (::struct::tree::_insert): Added verification that node
+	  names do not contain forbidden characters.
+
+	* tree.n: Documented limitations on node names. Documented allowed
+	  index "end" for insert.
+
 2001-07-10  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* matrix.tcl: Frink 2.2 run, fixed dubious code.

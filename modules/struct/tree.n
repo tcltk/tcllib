@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.11 2001/08/02 16:38:07 andreas_kupries Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.12 2001/09/05 23:36:15 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -75,7 +75,8 @@ Insert one or more nodes into the tree as children of the node
 \fIparent\fR.  The nodes will be added in the order they are given.
 If \fIparent\fR is \fBroot\fR, it refers to the root of the tree.  The
 new nodes will be added to the \fIparent\fR node's child list at the
-index given by \fIindex\fR.
+index given by \fIindex\fR. The \fIindex\fR can be \fBend\fR in which
+case the new nodes will be added after the current last child.
 
 If any of the specified children already exist in \fItreeName\fR,
 those nodes will be moved from their original location to the new
@@ -83,7 +84,8 @@ location indicated by this command.
 
 If no \fIchild\fR is specified, a single node will be added, and a
 name will be generated for the new node. The generated name is of the
-form \fBnode\fR\fIx\fR, where \fIx\fR is a number.
+form \fBnode\fR\fIx\fR, where \fIx\fR is a number. If names are
+specified they must neither contain whitespace nor colons (\fB:\fR).
 
 The return result from this command is a list of nodes added.
 .TP
