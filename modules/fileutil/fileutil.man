@@ -102,7 +102,9 @@ the user specify a unix-style mode (either octal or symbolic - see
 
 Removes the first [arg n] elements from the specified [arg path] and
 returns the modified path. If [arg n] is greater than the number of
-components in [arg path] an empty string is returned.
+components in [arg path] an empty string is returned. The number of
+components in a given path may be determined by performing
+[cmd llength] on the list returned by [cmd file split].
 
 [call [cmd ::fileutil::stripPwd] [arg path]]
 
