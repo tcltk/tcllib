@@ -1,3 +1,4 @@
+[comment {-*- tcl -*-}]
 [manpage_begin queue n 1.2.1]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
@@ -34,9 +35,9 @@ Return the front [arg count] items of the queue and remove them from
 the queue.  If [arg count] is not specified, it defaults to 1.  If
 [arg count] is 1, the result is a simple string; otherwise, it is a
 list.  If specified, [arg count] must be greater than or equal to 1.
-If there are no items in the queue, this command will return
 
-[arg count] empty strings.
+If there are not enoughs items in the queue to fulfull the request,
+this command will throw an error.
 
 
 [call [arg queueName] [cmd peek] [opt "[arg count]"]]
@@ -45,9 +46,9 @@ Return the front [arg count] items of the queue, without removing them
 from the queue.  If [arg count] is not specified, it defaults to 1.
 If [arg count] is 1, the result is a simple string; otherwise, it is a
 list.  If specified, [arg count] must be greater than or equal to 1.
-If there are no items in the queue, this command will return
 
-[arg count] empty strings.
+If there are not enoughs items in the queue to fulfull the request,
+this command will throw an error.
 
 
 [call [arg queueName] [cmd put] [arg item] [opt "[arg "item ..."]"]]
