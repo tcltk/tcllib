@@ -1,3 +1,15 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* struct.tcl:
+	* list.man:
+	* matrix.man:
+	* pool.man:
+	* queue.man:
+	* record.man:
+	* stack.man:
+	* tree.man:
+	* pkgIndex.tcl:  Set version of the package to 1.3.
+
 2003-04-09  Andreas Kupries  <andreask@activestate.com>
 
 	* list.man:
