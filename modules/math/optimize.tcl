@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: optimize.tcl,v 1.3 2004/06/19 15:54:04 kennykb Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.4 2004/06/19 21:22:47 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ proc ::math::optimize::maximum { begin end func {maxerr 1.0e-4} } {
 
 proc ::math::optimize::min_bound_1d { f x1 x2 args } {
 
-    set f [uplevel 1 [list namespace code $f]]
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
 
     set phim1 0.6180339887498949
     set twomphi 0.3819660112501051
@@ -373,7 +373,7 @@ proc ::math::optimize::min_bound_1d { f x1 x2 args } {
 
 proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
 
-    set f [uplevel 1 [list namespace code $f]]
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
 
     set phi 1.6180339887498949
     set epsilon 1.0e-20
@@ -559,7 +559,7 @@ proc ::math::optimize::brackmin { f x1 x2 {trace 0} } {
 
 proc ::math::optimize::min_unbound_1d { f x1 x2 args } {
 
-    set f [uplevel 1 [list namespace code $f]]
+    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
 
     array set params {
 	-relerror 1.0e-7 
