@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.1 2002/01/16 00:51:35 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.2 2002/01/17 01:46:59 patthoyts Exp $
 
 namespace eval uuencode {
     namespace export encode decode uuencode uudecode
@@ -20,7 +20,7 @@ proc uuencode::Enc {c} {
     return [format %c [expr {($c != 0) ? (($c & 0x3f) + 0x20) : 0x60}]]
 }
 
-proc uuencode::encode {s} {
+proc uuencode::Encode {s} {
     set r {}
     binary scan $s c* d
     foreach {c1 c2 c3} $d {
@@ -35,7 +35,7 @@ proc uuencode::encode {s} {
     return $r
 }
 
-proc uuencode::decode {s} {
+proc uuencode::Decode {s} {
     set r {}
     binary scan $s c* d
     if {[expr {[llength $d] % 4}] != 0} {
@@ -52,6 +52,22 @@ proc uuencode::decode {s} {
                                    | (($c3-0x20)&0x3F) & 0xFF}]]
     }
     return $r
+}
+
+# -------------------------------------------------------------------------
+
+# If the Trf package is available then we shall use this by default but the
+# Tcllib implementations are always visible if needed (ie: for testing)
+if {[catch {package require Trf 2.0}]} {
+    interp alias {} uuencode::encode {} uuencode::Encode
+    interp alias {} uuencode::decode {} uuencode::Decode
+} else {
+    proc uuencode::encode {s} {
+        return [::uuencode -mode encode $s]
+    }
+    proc uuencode::decode {s} {
+        return [::uuencode -mode decode $s]
+    }
 }
 
 # -------------------------------------------------------------------------
@@ -173,7 +189,7 @@ proc uuencode::uudecode {args} {
                     set state false
                     lappend result [list $opts(name) $opts(mode) $r]
                 } else {
-                    set n [expr {([scan $line %c] - 0x20) & 0x3F}]
+                    set n [expr {([scan $line %c] - 0x21)}]
                     append r [string range \
                                   [decode [string range $line 1 end]] 0 $n]
                 }
