@@ -1,4 +1,12 @@
 
+2000-09-20  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+        * smtp.tcl
+        * mime.tcl: namespaced the procs that are created to replace
+        the Trf functions when Trf isn't available.  This way they
+        are not created in the global namespace, and there isn't any
+        risk that they will collide with other global functions.
+
 2000-09-04  Dan Kuchler  <kuchler@ajubasolutions.com>
 
         * README.xml

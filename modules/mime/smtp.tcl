@@ -13,11 +13,20 @@ package require mime 1.0
 
 if {[catch {package require Trf  2.0}]} {
     # Trf is not available, but we can live without it as long as the
-    # transform proc is defined.
+    # unstack and transform procs are defined.
 
-    proc transform {args} {
-	upvar state mystate
-	set mystate(size) 1
+    # Create these commands in the smtp namespace so that they
+    # won't collide with things at the global namespace level
+
+    namespace eval smtp {
+        proc transform {args} {
+ 	    upvar state mystate
+	    set mystate(size) 1
+        }
+        proc unstack {channel} {
+            # do nothing
+            return
+        }
     }
 }
 

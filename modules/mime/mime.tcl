@@ -20,20 +20,26 @@ if {[catch {package require Trf  2.0}]} {
     # that appears to work with this code here.
 
     package require base64 2.0
-    proc base64 {-mode what -- chunk} {
-	return [base64::$what $chunk]
-    }
-    proc quoted-printable {-mode what -- chunk} {
-	return [mime::qp_$what $chunk]
-    }
-    proc md5 {-- string} {
-	# md5 is just used to uniquify something - bail for the moment
-	# 31 is completely random - just want something long for boundaries
-	return [string range $string 0 31]
-    }
-    proc unstack {channel} {
-	# do nothing
-	return
+
+    # Create these commands in the mime namespace so that they
+    # won't collide with things at the global namespace level
+
+    namespace eval mime {
+        proc base64 {-mode what -- chunk} {
+   	    return [base64::$what $chunk]
+        }
+        proc quoted-printable {-mode what -- chunk} {
+  	    return [mime::qp_$what $chunk]
+        }
+        proc md5 {-- string} {
+	    # md5 is just used to uniquify something - bail for the moment
+	    # 31 is completely random - just want something long for boundaries
+	    return [string range $string 0 31]
+        }
+        proc unstack {channel} {
+	    # do nothing
+	    return
+        }
     }
 }
 
