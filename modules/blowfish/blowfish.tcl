@@ -21,7 +21,9 @@ package require Tcl 8.4
 
 namespace eval blowfish {
     variable version 1.0.0
-    variable rcsid {$Id: blowfish.tcl,v 1.1 2004/12/06 16:15:29 patthoyts Exp $}
+    variable rcsid {$Id: blowfish.tcl,v 1.2 2004/12/07 07:11:52 patthoyts Exp $}
+
+    variable usetrf
 
     variable uid
     if {![info exists uid]} {
@@ -593,8 +595,8 @@ proc ::blowfish::Pop {varname {nth 0}} {
     return $r
 }
 
-proc ::blowfish::blowfish {args} {
-    array set opts {-dir enc -mode cbc -key {} -in {} -out {} -hex 0}
+proc ::blowfish::blowfish_tcl {args} {
+    array set opts {-dir enc -mode cbc -key {} -in {} -out {}}
     set opts(-chunksize) 4096
     set opts(-iv) [string repeat \0 8]
     set modes {ecb cbc}
@@ -603,12 +605,11 @@ proc ::blowfish::blowfish {args} {
         switch -exact -- $option {
             -mode       { set opts(-mode) [SetOneOf $modes [Pop args 1]] }
             -dir        { set opts(-dir) [SetOneOf $dirs [Pop args 1]] }
-            -key        { set opts(-key) [Check64Bit -key [Pop args 1]] }
+            -key        { set opts(-key) [Pop args 1] }
             -iv         { set opts(-iv)  [Check64Bit -iv [Pop args 1]] }
             -in         { set opts(-in) [Pop args 1] }
             -out        { set opts(-out) [Pop args 1] }
             -chunksize  { set opts(-chunksize) [Pop args 1] }
-            -hex        { set opts(-hex) 1 }
             --          { Pop args; break }
             default {
                 set err [join [lsort [array names opts]] ", "]
@@ -676,10 +677,18 @@ proc ::blowfish::blowfish {args} {
         }
         Final $token
     }
-    if {$opts(-hex)} {
-        set r [Hex $r]
-    }
     return $r
+}
+
+# If we can use the Trfcrypt C implementation.
+if {![info exists ::blowfish::usetrf]} {
+    if {[package require Trfcrypt] && [info command ::blowfish] != {}} {
+        set ::blowfish::usetrf 1
+        interp alias {} ::blowfish::blowfish {} ::blowfish
+    } else {
+        set ::blowfish::usetrf 0
+        interp alias {} ::blowfish::blowfish {} ::blowfish::blowfish_tcl
+    }
 }
 
 # -------------------------------------------------------------------------
