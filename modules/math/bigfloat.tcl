@@ -371,12 +371,14 @@ proc ::math::bigfloat::intDivqr {a b} {
         # splitting B into $dmin$e
         set e [Dec [string range $dmin end-15 end]]
         set dmin [string range $dmin 0 end-16]
-        while {wide($e)==0} {
+        while {wide($e)<=1} {
+            # when the divider equals 1, it would loop endlessly if
+            # we did not assume e=0.
             # split again B into $dmin$e * 10**16
             # A=$cmax * 10**16
             # Quand le dénominateur se termine par 16 zéros
             # le numérateur peut être décalé de 16 chiffres vers la droite
-            set cmax [string range $cmax 0 end-16]
+            set cmax [_intAdd [string range $cmax 0 end-16] $e]
             set e [Dec [string range $dmin end-15 end]]
             set dmin [string range $dmin 0 end-16]
         }
@@ -394,6 +396,9 @@ proc ::math::bigfloat::intDivqr {a b} {
             set cmin [string range $cmin 0 end-16]
             set e [Dec [string range $dmax end-15 end]]
             set dmax [string range $dmax 0 end-16]
+        }
+        if {wide($e)==1} {
+            set e 2
         }
         set dmax [intAdd [_intDiv $dmax[format %016s 0] $e] 2]
         set cmin [_intDiv $cmin [expr {wide($e)+1}]]
@@ -1755,4 +1760,4 @@ proc ::math::bigfloat::tanh {x} {
 
 
 
-package provide bigfloat 1.0
+package provide math::bigfloat 1.0
