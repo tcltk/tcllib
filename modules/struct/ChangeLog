@@ -1,4 +1,9 @@
-2003-04-22  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.man: Changed name to struct_tree.man. Was in conflict with
+	  tree manpage of BLT.
+
+2003-04-22  Andreas Kupries  <andreask@activestate.com>
 
 	* graph.man: Switched cgraph reference to a purl supplied by the
 	  cgraph author, and added wiki reference.
