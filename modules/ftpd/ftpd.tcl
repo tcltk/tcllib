@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.3 2000/10/30 19:40:47 kuchler Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.4 2000/10/30 19:47:11 kuchler Exp $
 #
 
 # Define the ftpd package version 1.1
@@ -1535,6 +1535,9 @@ proc ::ftpd::command::USER {sock list} {
 #       sock -                   The channel for this connection to the ftpd.
 #       sock2 -                  The data socket data(sock2).
 #       f -                      The file channel.
+#       filename -               The name of the unique file (if a unique
+#                                transfer was requested), and the empty string
+#                                otherwise
 #       bytes -                  The number of bytes that were copied.
 #       err -                    Passed if an error occurred during the fcopy.
 #
@@ -1545,7 +1548,7 @@ proc ::ftpd::command::USER {sock list} {
 #       The open file channel is closed and a 'complete' message is printed to
 #       the socket.
 
-proc ::ftpd::GetDone {sock sock2 f bytes filename {err {}}} {
+proc ::ftpd::GetDone {sock sock2 f filename bytes {err {}}} {
     upvar #0 ::ftpd::$sock data
     close $f
     FinishData $sock
