@@ -1,3 +1,11 @@
+2003-01-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* dns.man:   Added Tcl 8.2 as minimum Tcl version to resolve bug
+	* dns.tcl:   #674330. Upped version to 1.0.2
+	* dns.test:  Added some tests for the dns uri handling and fixed a
+	bug in decoding the class and type section.
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dns.man: More semantic markup, less visual one.

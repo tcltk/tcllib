@@ -8,4 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded dns 1.0.1 [list source [file join $dir dns.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.2]} {return}
+package ifneeded dns 1.0.2 [list source [file join $dir dns.tcl]]
