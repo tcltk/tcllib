@@ -91,6 +91,15 @@ proc _tex {module libdir} {
     return
 }
 
+proc _tci {module libdir} {
+    global distribution
+
+    _tcl $module $libdir
+    file copy [file join $distribution modules $module tclIndex] \
+	    [file join $libdir $module]
+    return
+}
+
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 proc write_out {f text} {
     global config
@@ -153,10 +162,10 @@ set     modules [list]
 array set guide {}
 foreach {m pkg doc exa} {
     base64	_tcl  _man  _null
-    calendar	_tcl  _man  _null
+    calendar	 _tci _man  _null
     cmdline	_tcl  _man  _null
     comm	_tcl  _man  _null
-    control	_tcl  _man  _null
+    control	 _tci _man  _null
     counter	_tcl  _man  _null
     crc		_tcl  _man  _null
     csv		_tcl  _man _exa
@@ -172,7 +181,7 @@ foreach {m pkg doc exa} {
     irc		_tcl  _man _exa
     javascript	_tcl  _man  _null
     log		_tcl  _man  _null
-    math	_tcl  _man  _null
+    math	 _tci _man  _null
     md5		_tcl  _man  _null
     md4		_tcl  _man  _null
     mime	_tcl  _man _exa
@@ -242,11 +251,11 @@ proc xinstall {type args} {
 }
 
 proc doinstall {} {
-    global config tcllib_version distribution
+    global config tcllib_version distribution tcllib_name
 
     if {$config(pkg)}       {
 	xinstall   pkg $config(pkg,path)
-	gen_main_index $config(pkg,path) tcllib $tcllib_version
+	gen_main_index $config(pkg,path) $tcllib_name $tcllib_version
     }
     if {$config(doc,nroff)} {
 	set config(man.macros) [string trim [get_input [file join $distribution man.macros]]]
@@ -275,7 +284,7 @@ array set config {
 # Determine a default configuration, if possible
 
 proc defaults {} {
-    global tcl_platform config tcllib_version distribution
+    global tcl_platform config tcllib_version tcllib_name distribution
 
     if {[string compare $distribution [info nameofexecutable]] == 0} {
 	# Starpack. No defaults for location.
@@ -309,7 +318,7 @@ proc defaults {} {
 	    set htmldir [file join $libdir  tcllib${tcllib_version} tcllib_doc]
 	}
 
-	set config(pkg,path)       [file join $libdir tcllib${tcllib_version}]
+	set config(pkg,path)       [file join $libdir ${tcllib_name}${tcllib_version}]
 	set config(doc,nroff,path) $mandir
 	set config(doc,html,path)  $htmldir
 	set config(exa,path)       [file join $bindir tcllib_examples${tcllib_version}]

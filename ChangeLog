@@ -1,3 +1,8 @@
+2003-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installer.tcl: Bug fix, the modules calendar, control, and math
+	  have a "tclIndex" file which has to be installed too.
+
 2003-04-17  Andreas Kupries  <andreask@activestate.com>
 
 	* configure.in: Switched over from the original build system
