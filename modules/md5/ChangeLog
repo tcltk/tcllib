@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* md5.tcl:
+	* md5.man:
+	* pkgIndex.tcl: Set version of the package to to 1.4.3.
+
 2003-02-05  David N. Welton  <davidw@dedasys.com>
 
 	* md5.tcl (::md5::time): Used lindex instead of regexp to fish the
