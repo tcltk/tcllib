@@ -5,7 +5,7 @@
 #		Tests for [calendar::CommonCalendar] and 
 #	[calendar::GregorianCalendar]
 #
-# RCS: @(#) $Id: gregorian.test,v 1.1 2002/01/11 23:48:24 kennykb Exp $
+# RCS: @(#) $Id: gregorian.test,v 1.2 2002/01/14 17:05:12 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -163,6 +163,41 @@ proc testWeekInMonth { y m d } {
     return
 }
 
+# Procedure that tests day-of-week-from-end-ofmonth for a given year-month-day.
+# Assumes that days of month are presented in reverse order.
+
+proc testWeekFromEndOfMonth { y m d } {
+    global count lastYM
+    if { ![info exists lastYM]
+	 || [string compare $lastYM [list $y $m]] } {
+	set lastYM [list $y $m]
+	for { set dw 0 } { $dw < 7 } { incr dw } {
+	    set count($dw) 0
+	}
+    }
+    set date(ERA) CE
+    set date(YEAR) $y
+    set date(MONTH) $m
+    set date(DAY_OF_MONTH) $d
+    set jd [calendar::GregorianCalendar::EYMDToJulianDay date]
+
+    set s [clock scan "$m/$d/$y" -gmt true]
+    set dw [clock format $s -format "%w" -gmt true]
+    incr count($dw) -1
+
+    foreach field {ERA YEAR MONTH} {
+	set date2($field) $date($field)
+    }
+    set date2(DAY_OF_WEEK_IN_MONTH) $count($dw)
+    set date2(DAY_OF_WEEK) $dw
+    set jd2 [calendar::GregorianCalendar::EYMWDToJulianDay date2]
+    if { $jd2 != $jd } {
+	error "EYMWDToJulianDate computed wrong day $jd2\
+                       for $y-$m-$d (week $count($dw), day $dw) should be $jd"
+    }
+    return
+}
+
 test calendar-1.1 {Julian Day converting to/from Gregorian year-month-day} {
     
     set n 0
@@ -303,6 +338,47 @@ test calendar-3.1 {Day-of-week-in-month} {
     } {
 	for { set d 1 } { $d <= $l } { incr d } {
 	    testWeekInMonth $y $m $d
+	}
+    }
+    concat
+} {}
+
+test calendar-3.2 {Day-of-week from end of month} {
+    # Test each day of month for one month of each possible length
+    # starting on each day of the week.
+
+    foreach { y m l } {
+	2001 1 31
+	2001 11 30
+	2001 2 28
+	2001 3 31
+	2001 4 30
+	2001 5 31
+	2001 6 30
+	2001 7 31
+	2001 8 31
+	2001 9 30
+	2002 2 28
+	2002 3 31
+	2002 4 30
+	2003 2 28
+	2003 3 31
+	2003 4 30
+	2004 2 29
+	2004 9 30
+	2005 2 28
+	2006 2 28
+	2008 2 29
+	2009 2 28
+	2010 2 28
+	2012 2 29
+	2016 2 29
+	2020 2 29
+	2024 2 29
+	2028 2 29
+    } {
+	for { set d $l } { $d >= 1 } { incr d -1 } {
+	    testWeekFromEndOfMonth $y $m $d
 	}
     }
     concat
