@@ -2,7 +2,7 @@
 #
 # Exercise the tcllib time package.
 #
-# $Id: time.test,v 1.6 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: time.test,v 1.7 2004/08/19 09:09:34 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -16,7 +16,7 @@ if {[catch {source [file join [file dirname [info script]] time.tcl]} msg]} {
     return
 }
 
-puts "- tcltest [package present tcltest]"
+#puts "- tcltest [package present tcltest]"
 puts "- time    [package present time]"
 
 
@@ -109,7 +109,7 @@ test time-1.5 {time::cleanup} {
 } {0 {}}
 
 # -------------------------------------------------------------------------
-#file delete -force $::testScript
+file delete -force $::testScript
 ::tcltest::cleanupTests
 return
 

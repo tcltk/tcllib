@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.13 2004/05/26 04:24:30 andreas_kupries Exp $
+# $Id: time.tcl,v 1.14 2004/08/19 09:09:34 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.1
-    variable rcsid {$Id: time.tcl,v 1.13 2004/05/26 04:24:30 andreas_kupries Exp $}
+    variable rcsid {$Id: time.tcl,v 1.14 2004/08/19 09:09:34 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -100,8 +100,8 @@ proc ::time::configure {args} {
             }
             --        { Pop args ; break }
             default {
-                set err [join [lsort [array names State -*]] ", "]
-                return -code error "bad option $option: must be $err"
+                set err [join [lsort [array names options -*]] ", "]
+                return -code error "bad option \"$option\": must be $err"
             }
         }
         Pop args
@@ -148,7 +148,7 @@ proc ::time::gettime {args} {
             --        { Pop args ; break }
             default {
                 set err [join [lsort [array names State -*]] ", "]
-                return -code error "bad option $option: must be $err"
+                return -code error "bad option \"$option\": must be $err"
             }
         }
         Pop args
@@ -156,8 +156,11 @@ proc ::time::gettime {args} {
     
     set len [llength $args]
     if {$len < 1 || $len > 2} {
-        return -code error "wrong # args:
-              \"gettime ?options? timeserver ?port?\""
+        if {[catch {info level -1} arg0]} {
+            set arg0 [info level 0]
+        }
+        return -code error "wrong # args: should be\
+              \"$arg0 ?options? timeserver ?port?\""
     }
     set State(-timeserver) [lindex $args 0]
     if {$len == 2} {
