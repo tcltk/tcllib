@@ -1,0 +1,120 @@
+[comment {-*- tcl -*-}]
+[manpage_begin pop3d::dbox n 1.0]
+[moddesc   {Tcl POP3 Server Package}]
+[titledesc {Simple mailbox database for pop3d}]
+[require Tcl 8.2]
+[require pop3d::dbox [opt 1.0]]
+[description]
+[para]
+
+The package [package pop3d::dbox] provides simple/basic mailbox
+management facilities. Each mailbox object manages a single base
+directory whose subdirectories represent the managed mailboxes. Mails
+in a mailbox are represented by files in a mailbox directory, where
+each of these files contains a single mail, both headers and body, in
+RFC822 conformant format.
+
+[para]
+
+Any mailbox object following the interface described below can be used
+in conjunction with the pop3 server core provided by the package
+[package pop3d]. It is especially possible to directly use the objects
+created by this package in the storage callback of pop3 servers
+following the same interface as servers created by the package
+[package pop3d].
+
+[para]
+
+[list_begin definitions]
+
+[call [cmd ::pop3d::dbox::new] [opt [arg dbName]]]
+
+This command creates a new database object with an associated global
+Tcl command whose name is [arg dbName].
+
+[list_end]
+
+The command [cmd dbName] may be used to invoke various operations on
+the database.  It has the following general form:
+
+[list_begin definitions]
+[call [cmd dbName] [arg option] [opt [arg "arg arg ..."]]]
+
+[arg Option] and the [arg arg]s determine the exact behavior of the
+command.
+
+[list_end]
+
+[para]
+
+The following commands are possible for database objects:
+
+[list_begin definitions]
+
+[call [arg dbName] [method base] [arg base]]
+
+Defines the base directory containing the mailboxes to manage.
+
+[call [arg dbName] [method add] [arg mbox]]
+
+Adds a mailbox of name [arg mbox] to the database. The name must be a
+valid path component.
+
+[call [arg dbName] [method remove] [arg mbox]]
+
+Removes the mailbox specified through [arg mbox], and the mails
+contained therein, from the database.
+
+[call [arg dbName] [method move] [arg {old new}]]
+
+Changes the name of the mailbox [arg old] to [arg new].
+
+[call [arg dbName] [method exists] [arg mbox]]
+
+Returns true if the mailbox with name [arg mbox] exists in the
+database, or false if not.
+
+[call [arg dbName] [method locked] [arg mbox]]
+
+Checks if the mailbox specified through [arg mbox] is currently locked.
+
+[call [arg dbName] [method lock] [arg mbox]]
+
+This method locks the specified mailbox for use by a single connection
+to the server. This is necessary to prevent havoc if several
+connections to the same mailbox are open. The complementary method is
+[method unlock]. The command will return true if the lock could be set
+successfully or false if not.
+
+[call [arg dbName] [method unlock] [arg mbox]]
+
+This is the complementary method to [method lock], it revokes the lock
+on the specified mailbox.
+
+[call [arg dbName] [method stat] [arg mbox]]
+
+Determines the number of messages in the specified mailbox and returns
+this number.
+
+[call [arg dbName] [method size] [arg {mbox msgId}]]
+
+Determines the size of the message specified through its id in
+[arg msgId], in bytes, and returns this number.
+
+[call [arg dbName] [method dele] [arg {mbox msgList}]]
+
+Deletes the messages whose numeric ids are contained in the
+[arg msgList] from the mailbox specified via [arg mbox].
+
+[call [arg storageCmd] [method get] [arg mbox] [arg msgId]]
+
+Returns a handle for the specified message. This handle is a mime
+token following the interface described in the documentation of
+package [package mime]. The token is [strong read-only]. In other
+words, the caller is allowed to do anything with the token except to
+modify it.
+
+[list_end]
+
+[keywords pop3 internet network protocol rfc1939]
+[manpage_end]
