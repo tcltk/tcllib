@@ -1,3 +1,7 @@
+2004-09-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bignum.test: Boilerplate reading file under test.
+
 2004-09-30  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * Added a first set of test cases for the bignum module 
@@ -104,18 +108,6 @@
 2004-06-16  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* added the modules complexnumbers, special, interpolate, constants
-
-2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	*
-	* Released and tagged Tcllib 1.6.1 ========================
-	* 
-
-2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	*
-	* Released and tagged Tcllib 1.6.1 ========================
-	* 
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
