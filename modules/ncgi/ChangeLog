@@ -1,3 +1,9 @@
+2000-07-31  Brent Welch <welch@scriptics.com>
+
+	* ncgi.tcl:  Added ncgi::setValue, ncgi::setValueList,
+	ncgi::setDefaultValue, ncgi::setDefaultValueList to push values
+	back into the CGI environment.
+
 2000-05-26  Melissa Chawla  <hershey@scriptics.com>
 
 	* ncgi.tcl: fixed bug 5727 where Netscape prepends an extra \n to

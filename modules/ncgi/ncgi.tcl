@@ -23,7 +23,7 @@
 # repeated.  The names and values are encoded, and this module takes care
 # of decoding them.
 
-package provide ncgi 1.0
+package provide ncgi 1.1
 
 namespace eval ncgi {
 
@@ -37,10 +37,10 @@ namespace eval ncgi {
 
     variable contenttype
 
-    # value is an array of parsed query data.  If a value occurs more than
-    # one time in the query data then the value is turned into a list.
-    # You have to know if your form has repeated values to know whether or
-    # not to expect the list structure.
+    # value is an array of parsed query data.  Each array element is a list
+    # of values, and the array index is the form element name.
+    # See the differences among ncgi::parse, ncgi::input, ncgi::value
+    # and ncgi::valuelist for the various approaches to handling these values.
 
     variable value
 
@@ -277,6 +277,9 @@ proc ncgi::encode {string} {
 #
 #	This parses the query data and returns it as a name, value list
 #
+# 	Note: If you use ncgi::setValue or ncgi::setDefaultValue, this
+#	nvlist procedure doesn't see the effect of that.
+#
 # Arguments:
 #	none
 #
@@ -399,7 +402,7 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
 #	of a checkbox), use ncgi::valueList
 #
 # Arguments:
-#	name	The name of the query element
+#	key	The name of the query element
 #	default	The value to return if the value is not present
 #
 # Results:
@@ -442,7 +445,7 @@ proc ncgi::value {key {default {}}} {
 #	ncgi::value instead.
 #
 # Arguments:
-#	name	The name of the query element
+#	key	The name of the query element
 #
 # Results:
 #	The first value of the named element, or ""
@@ -453,6 +456,92 @@ proc ncgi::valueList {key {default {}}} {
 	return $value($key)
     } else {
 	return $default
+    }
+}
+
+# ncgi::setValue
+#
+#	Jam a new value into the CGI environment.  This is handy for preliminary
+#	processing that does data validation and cleanup.
+#
+# Arguments:
+#	key	The name of the query element
+#	value	This is a single value, and this procedure wraps it up in a list
+#		for compatibility with the ncgi::value array usage.  If you
+#		want a list of values, use ngci::setValueList
+#		
+#
+# Side Effects:
+#	Alters the ncgi::value and possibly the ncgi::valueList variables
+
+proc ncgi::setValue {key value} {
+    variable listRestrict
+    if {$listRestrict} {
+	ncgi::setValueList $key $value
+    } else {
+	ncgi::setValueList $key [list $value]
+    }
+}
+
+# ncgi::setValueList
+#
+#	Jam a list of new values into the CGI environment.
+#
+# Arguments:
+#	key		The name of the query element
+#	valuelist	This is a list of values, e.g., for checkbox or multiple
+#			selections sets.
+#		
+# Side Effects:
+#	Alters the ncgi::value and possibly the ncgi::valueList variables
+
+proc ncgi::setValueList {key valuelist} {
+    variable value
+    variable varlist
+    if {![info exist value($key)]} {
+	lappend varlist $key
+    }
+    set value($key) $valuelist
+    return ""
+}
+
+# ncgi::setDefaultValue
+#
+#	Set a new value into the CGI environment if there is not already one there.
+#
+# Arguments:
+#	key	The name of the query element
+#	value	This is a single value, and this procedure wraps it up in a list
+#		for compatibility with the ncgi::value array usage.
+#		
+#
+# Side Effects:
+#	Alters the ncgi::value and possibly the ncgi::valueList variables
+
+proc ncgi::setDefaultValue {key value} {
+    ncgi::setDefaultValueList $key [list $value]
+}
+
+# ncgi::setDefaultValueList
+#
+#	Jam a list of new values into the CGI environment if the CGI value
+#	is not already defined.
+#
+# Arguments:
+#	key		The name of the query element
+#	valuelist	This is a list of values, e.g., for checkbox or multiple
+#			selections sets.
+#		
+# Side Effects:
+#	Alters the ncgi::value and possibly the ncgi::valueList variables
+
+proc ncgi::setDefaultValueList {key valuelist} {
+    variable value
+    if {![info exist value($key)]} {
+	ncgi::setValueList $key $valuelist
+	return ""
+    } else {
+	return ""
     }
 }
 

@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ncgi.n,v 1.4 2000/05/31 00:00:02 ericm Exp $
+'\" RCS: @(#) $Id: ncgi.n,v 1.5 2000/08/01 01:56:37 welch Exp $
 '\" 
 .so man.macros
 .TH ncgi n 1.0 Ncgi "CGI Support"
@@ -44,6 +44,14 @@
 \fBncgi::reset\fR \fIargs\fR
 .sp
 \fBncgi::setCookie\fR \fIargs\fR
+.sp
+\fBncgi::setDefaultValue\fR \fIkey defvalue\fR
+.sp
+\fBncgi::setDefaultValueList\fR \fIkey defvaluelist\fR
+.sp
+\fBncgi::setValue\fR \fIkey value\fR
+.sp
+\fBncgi::setValueList\fR \fIkey valuelist\fR
 .sp
 \fBncgi::type\fR \fI\fR
 .sp
@@ -208,6 +216,27 @@ The \fIargs\fP are a set of flags and values:
 -path \fIpath restriction\fP
 -domain \fIdomain restriction\fP
 .DE
+
+.TP
+\fBncgi::setDefaultValue\fR \fIkey defvalue\fR
+Set a CGI value if it does not already exists.
+This affects future calls to \fBncgi::value\fR (but not future
+calls to \fBncgi::nvlist\fR).
+If the CGI value already is present, then this procedure has
+no side effects.
+.TP
+\fBncgi::setDefaultValueList\fR \fIkey defvaluelist\fR
+Like \fBncgi::setDefaultValue\fR except that the value already
+has list structure to reprent multiple checkboxes or a multi-selection.
+.TP
+\fBncgi::setValue\fR \fIkey value\fR
+Set a CGI value, overridding whatever was present in the CGI environment already.
+This affects future calls to \fBncgi::value\fR (but not future
+calls to \fBncgi::nvlist\fR).
+.TP
+\fBncgi::setValueList\fR \fIkey valuelist\fR
+Like \fBncgi::setValue\fR except that the value already
+has list structure to reprent multiple checkboxes or a multi-selection.
 
 .TP
 \fBncgi::type\fR \fI\fR
