@@ -1,3 +1,14 @@
+# png.tcl --
+#
+#       Querying and modifying PNG image files.
+#
+# Copyright (c) 2004    Aaron Faupell <afaupell@users.sourceforge.net>
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+# RCS: @(#) $Id: png.tcl,v 1.2 2004/05/11 06:51:54 andreas_kupries Exp $
+
 package provide png 0.1
 package require crc32
 
