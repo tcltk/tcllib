@@ -1,3 +1,10 @@
+2002-10-25  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl: Implemented request #627960 to propagate the network
+	interface name into the server messages. Added a catch around the
+	deliver call and permit the deliver code to return SMTP failure
+	codes via ::errorCode.
+	
 2002-10-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtpd.tcl: Implemented feature request #531531. Added
