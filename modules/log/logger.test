@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.11 2004/09/06 00:59:11 mic42 Exp $
+# $Id: logger.test,v 1.12 2004/09/15 21:55:36 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -445,7 +445,9 @@ test logger-12.0 {import subcommand} {
     ${log}::info "Out"
     lappend retval $::INFO
     namespace delete ::foo
+    ${log}::delete
     set retval
+
 } {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
 
 test logger-12.1 {import subcommand} {
@@ -464,6 +466,7 @@ test logger-12.1 {import subcommand} {
     ${log}::info "Out"
     lappend retval $::INFO
     namespace delete ::foo
+    ${log}::delete
     set retval
 } {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
 
@@ -485,6 +488,7 @@ test logger-12.2 {import subcommand} {
     lappend retval $::INFO
     namespace delete ::foo
     namespace delete ::bar
+    ${log}::delete
     set retval
 } {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
 
@@ -506,6 +510,7 @@ test logger-12.3 {import subcommand} {
     lappend retval $::INFO
     namespace delete ::foo
     namespace delete ::bar
+    ${log}::delete
     set retval
 } {{LOGGED: Out} {LOGGED: In} {LOGGED: Out}}
 
@@ -526,6 +531,7 @@ test logger-12.4 {import subcommand} {
     ${log}::info "Out"
     lappend retval $::INFO
     namespace delete ::foo
+    ${log}::delete
     list $retval $::cmds
     
 } {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::critical\
@@ -553,6 +559,8 @@ test logger-12.5 {import subcommand} {
     lappend retval $::INFO
     namespace delete ::foo
     namespace delete ::bar
+    ${log}::delete
+    
     list $retval $::cmds
     
 } {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::bar::critical\
@@ -561,7 +569,78 @@ test logger-12.5 {import subcommand} {
      ::bar::logproc ::bar::notice ::bar::servicename ::bar::services\
      ::bar::setlevel ::bar::warn}}
 
+test logger-12.6 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::bar { 
+        proc services {} {}
+    }
+    namespace eval ::foo {
+        set ::code [catch {logger::import -all -namespace ::bar global} ::msg]
+    }
+    namespace delete ::foo
+    namespace delete ::bar
+    ${log}::delete
 
+    list $::code $::msg
+        
+} [list 1 "can't import command \"::bar::services\": already exists" ]
+
+test logger-12.7 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::bar { 
+        proc services {} {}
+    }
+    namespace eval ::foo {
+        set ::code [catch {logger::import -all -force -namespace ::bar global} ::msg]
+    }
+    namespace delete ::foo
+    namespace delete ::bar
+    ${log}::delete
+
+    list $::code $::msg
+        
+} [list 0 "" ]
+
+test logger-12.8 {import subcommand} {
+    set retval ""
+    set log [logger::init global]
+    ${log}::logproc info txt {
+    set ::INFO "LOGGED: $txt"
+    }
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace eval ::bar { }
+    namespace eval ::foo {
+        logger::import -all -namespace bar global
+        ::foo::bar::info "In"
+        set ::cmds [lsort [::info commands ::foo::bar::*]]
+    }
+    lappend retval $::INFO
+    ${log}::info "Out"
+    lappend retval $::INFO
+    namespace delete ::foo
+    namespace delete ::bar
+    ${log}::delete
+    
+    list $retval $::cmds
+    
+} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::bar::critical\
+     ::foo::bar::currentloglevel ::foo::bar::debug ::foo::bar::delete ::foo::bar::delproc\
+     ::foo::bar::disable ::foo::bar::enable ::foo::bar::error ::foo::bar::info\
+     ::foo::bar::logproc ::foo::bar::notice ::foo::bar::servicename ::foo::bar::services\
+     ::foo::bar::setlevel ::foo::bar::warn}}
 
 ::tcltest::cleanupTests
 return
