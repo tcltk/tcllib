@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.17 2000/08/22 20:54:13 kuchler Exp $
+# RCS: @(#) $Id: html.tcl,v 1.18 2000/09/19 22:13:40 mtariq Exp $
 
 package provide html 1.0
 
@@ -527,10 +527,10 @@ proc html::checkSet {key sep list} {
 proc html::select {name param choices {current {}}} {
     variable page
 
-    set def [ncgi::value $name $current]
+    set def [ncgi::valueList $name $current]
     set html "<select name=\"$name\"[string trimright  " $param"]>\n"
     foreach {label v} $choices {
-	if {[string equal $def $v]} {
+	if {[lsearch -exact $def $v] != -1} {
 	    set SEL " SELECTED"
 	} else {
 	    set SEL ""
