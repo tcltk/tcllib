@@ -10,7 +10,7 @@
 #
 
 namespace eval ::math::complexnumbers {
-   namespace export + - / * conj exp sin cos tan real imag mod arg log pow sqrt tostring
+    namespace export + - / * conj exp sin cos tan real imag mod arg log pow sqrt tostring
 }
 
 # complex --
@@ -22,7 +22,7 @@ namespace eval ::math::complexnumbers {
 #    New complex number
 #
 proc ::math::complexnumbers::complex {real imag} {
-   return [list $real $imag]
+    return [list $real $imag]
 }
 
 # binary operations --
@@ -34,38 +34,38 @@ proc ::math::complexnumbers::complex {real imag} {
 #    New complex number
 #
 proc ::math::complexnumbers::+ {z1 z2} {
-   set result {}
-   foreach c $z1 d $z2 {
-      lappend result [expr {$c+$d}]
-   }
-   return $result
+    set result {}
+    foreach c $z1 d $z2 {
+        lappend result [expr {$c+$d}]
+    }
+    return $result
 }
 proc ::math::complexnumbers::- {z1 {z2 {}}} {
-   if { $z2 == {} } {
-      set z2 $z1
-      set z1 {0.0 0.0}
-   }
-   set result {}
-   foreach c $z1 d $z2 {
-      lappend result [expr {$c-$d}]
-   }
-   return $result
+    if { $z2 == {} } {
+        set z2 $z1
+        set z1 {0.0 0.0}
+    }
+    set result {}
+    foreach c $z1 d $z2 {
+        lappend result [expr {$c-$d}]
+    }
+    return $result
 }
 proc ::math::complexnumbers::* {z1 z2} {
-   set result {}
-   foreach {c1 d1} $z1 {break}
-   foreach {c2 d2} $z2 {break}
+    set result {}
+    foreach {c1 d1} $z1 {break}
+    foreach {c2 d2} $z2 {break}
 
-   return [list [expr {$c1*$c2-$d1*$d2}] [expr {$c1*$d2+$c2*$d1}]]
+    return [list [expr {$c1*$c2-$d1*$d2}] [expr {$c1*$d2+$c2*$d1}]]
 }
 proc ::math::complexnumbers::/ {z1 z2} {
-   set result {}
-   foreach {c1 d1} $z1 {break}
-   foreach {c2 d2} $z2 {break}
+    set result {}
+    foreach {c1 d1} $z1 {break}
+    foreach {c2 d2} $z2 {break}
 
-   set denom [expr {$c2*$c2+$d2*$d2}]
-   return [list [expr {($c1*$c2+$d1*$d2)/$denom}] \
-                [expr {(-$c1*$d2+$c2*$d1)/$denom}]]
+    set denom [expr {$c2*$c2+$d2*$d2}]
+    return [list [expr {($c1*$c2+$d1*$d2)/$denom}] \
+                 [expr {(-$c1*$d2+$c2*$d1)/$denom}]]
 }
 
 # unary operations --
@@ -76,28 +76,28 @@ proc ::math::complexnumbers::/ {z1 z2} {
 #    New complex number
 #
 proc ::math::complexnumbers::conj {z1} {
-   foreach {c d} $z1 {break}
-   return [list $c [expr {-$d}]]
+    foreach {c d} $z1 {break}
+    return [list $c [expr {-$d}]]
 }
 proc ::math::complexnumbers::real {z1} {
-   foreach {c d} $z1 {break}
-   return $c
+    foreach {c d} $z1 {break}
+    return $c
 }
 proc ::math::complexnumbers::imag {z1} {
-   foreach {c d} $z1 {break}
-   return $d
+    foreach {c d} $z1 {break}
+    return $d
 }
 proc ::math::complexnumbers::mod {z1} {
-   foreach {c d} $z1 {break}
-   return [expr {hypot($c,$d)}]
+    foreach {c d} $z1 {break}
+    return [expr {hypot($c,$d)}]
 }
 proc ::math::complexnumbers::arg {z1} {
-   foreach {c d} $z1 {break}
-   if { $c != 0.0 || $d != 0.0 } {
-      return [expr {atan2($d,$c)}]
-   } else {
-      return 0.0
-   }
+    foreach {c d} $z1 {break}
+    if { $c != 0.0 || $d != 0.0 } {
+        return [expr {atan2($d,$c)}]
+    } else {
+        return 0.0
+    }
 }
 
 # elementary functions --
@@ -109,31 +109,30 @@ proc ::math::complexnumbers::arg {z1} {
 #    New complex number
 #
 proc ::math::complexnumbers::exp {z1} {
-   foreach {c d} $z1 {break}
-   return [list [expr {exp($c)*cos($d)}] [expr {exp($c)*sin($d)}]]
+    foreach {c d} $z1 {break}
+    return [list [expr {exp($c)*cos($d)}] [expr {exp($c)*sin($d)}]]
 }
 proc ::math::complexnumbers::cos {z1} {
-   foreach {c d} $z1 {break}
-   return [list [expr {cos($c)*cosh($d)}] [expr {sin($c)*sinh($d)}]]
-
+    foreach {c d} $z1 {break}
+    return [list [expr {cos($c)*cosh($d)}] [expr {sin($c)*sinh($d)}]]
 }
 proc ::math::complexnumbers::sin {z1} {
-   foreach {c d} $z1 {break}
-   return [list [expr {sin($c)*cosh($d)}] [expr {cos($c)*sinh($d)}]]
+    foreach {c d} $z1 {break}
+    return [list [expr {sin($c)*cosh($d)}] [expr {cos($c)*sinh($d)}]]
 }
 proc ::math::complexnumbers::tan {z1} {
-   return [/ [sin $z1] [cos $z1]]
+    return [/ [sin $z1] [cos $z1]]
 }
 proc ::math::complexnumbers::log {z1} {
-   return [list [expr {log([mod $z1])}] [arg $z1]]
+    return [list [expr {log([mod $z1])}] [arg $z1]]
 }
 proc ::math::complexnumbers::sqrt {z1} {
-   set argz [expr {0.5*[arg $z1]}]
-   set modz [expr {sqrt([mod $z1])}]
-   return [list [expr {$modz*cos($argz)}] [expr {$modz*sin($argz)}]]
+    set argz [expr {0.5*[arg $z1]}]
+    set modz [expr {sqrt([mod $z1])}]
+    return [list [expr {$modz*cos($argz)}] [expr {$modz*sin($argz)}]]
 }
 proc ::math::complexnumbers::pow {z1 z2} {
-   return [exp [* [log $z1] $z2]]
+    return [exp [* [log $z1] $z2]]
 }
 # transformational functions --
 #    Implement transformational functions
@@ -143,34 +142,34 @@ proc ::math::complexnumbers::pow {z1 z2} {
 #    String like 1+i
 #
 proc ::math::complexnumbers::tostring {z1} {
-   foreach {c d} $z1 {break}
-   if { $d == 0.0 } {
-      return "$c"
-   } else {
-      if { $c == 0.0 } {
-         if { $d == 1.0 } {
-            return "i"
-         } elseif { $d == -1.0 } {
-            return "-i"
-         } else {
-            return "${d}i"
-         }
-      } else {
-         if { $d > 0.0 } {
+    foreach {c d} $z1 {break}
+    if { $d == 0.0 } {
+        return "$c"
+    } else {
+        if { $c == 0.0 } {
             if { $d == 1.0 } {
-               return "$c+i"
+                return "i"
+            } elseif { $d == -1.0 } {
+                return "-i"
             } else {
-               return "$c+${d}i"
+                return "${d}i"
             }
-         } else {
-            if { $d == -1.0 } {
-               return "$c-i"
+        } else {
+            if { $d > 0.0 } {
+                if { $d == 1.0 } {
+                    return "$c+i"
+                } else {
+                    return "$c+${d}i"
+                }
             } else {
-               return "$c${d}i"
+                if { $d == -1.0 } {
+                    return "$c-i"
+                } else {
+                    return "$c${d}i"
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }
 
 #

@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: bessel.test,v 1.4 2004/06/25 11:27:09 arjenmarkus Exp $
+# $Id: bessel.test,v 1.5 2004/07/07 12:05:09 arjenmarkus Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -13,8 +13,8 @@
 
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
+     package require tcltest
+     namespace import ::tcltest::*
 }
 
 source [file join [file dirname [info script]] math.tcl]
@@ -27,14 +27,14 @@ package require math
 # error is most appropriate
 #
 proc matchNumbers {expected actual} {
-   set match 1
-   foreach a $actual e $expected {
-      if {abs($a-$e) > 0.7e-4} {
-         set match 0
-         break
-      }
-   }
-   return $match
+    set match 1
+    foreach a $actual e $expected {
+        if {abs($a-$e) > 0.7e-4} {
+            set match 0
+            break
+        }
+    }
+    return $match
 }
 
 customMatch numbers matchNumbers
@@ -47,11 +47,11 @@ customMatch numbers matchNumbers
 #       of at most 0.7e-4.
 #
 test "Bessel-1.0" "Values of the zeroth-order Bessel function" \
-   -match numbers -body {
-   set result {}
-   foreach x {0.0 1.0 2.0 5.0 7.0 10.0 11.0 14.0} {
-      lappend result [::math::special::J0 $x]
-   }
+    -match numbers -body {
+    set result {}
+    foreach x {0.0 1.0 2.0 5.0 7.0 10.0 11.0 14.0} {
+        lappend result [::math::special::J0 $x]
+    }
    set result
 } -result {1.0 0.7652 0.2239 -0.1777 0.3001 -0.2459 -0.1712 0.1711}
 
@@ -63,12 +63,12 @@ test "Bessel-1.0" "Values of the zeroth-order Bessel function" \
 #       of at most 0.7e-4.
 #
 test "Bessel-1.1" "Values of the first-order Bessel function" \
-   -match numbers -body {
-   set result {}
-   foreach x {0.0 1.0 2.0 5.0 7.0 10.0 11.0 14.0} {
-      lappend result [::math::special::J1 $x]
-   }
-   set result
+    -match numbers -body {
+    set result {}
+    foreach x {0.0 1.0 2.0 5.0 7.0 10.0 11.0 14.0} {
+        lappend result [::math::special::J1 $x]
+    }
+    set result
 } -result {0.0 0.4401 0.5767 -0.3272 -0.0047 0.0435 -0.1768 0.1334}
 
 #
