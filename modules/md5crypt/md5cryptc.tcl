@@ -49,14 +49,10 @@ namespace eval ::md5crypt {
             putchar('\n');
         }
         
-        static char * md5crypt(const char *pw, const char *salt)
+        static char * md5crypt(const char *pw,
+                               const char *salt,
+                               const char *magic)
         {
-            /*
-             * This string is magic for this algorithm.  Having
-             * it this way, we can get get better later on
-             */
-            static unsigned char	*magic = (unsigned char *)"$1$";
-            
             static char     passwd[120], *p;
             static const unsigned char *sp,*ep;
             unsigned char	final[16];
@@ -166,8 +162,8 @@ namespace eval ::md5crypt {
         return TCL_OK;
     }
 
-    critcl::cproc md5crypt_c {Tcl_Interp* interp char* pw char* salt} ok {
-        char* s = md5crypt(pw, salt);
+    critcl::cproc md5crypt_c {Tcl_Interp* interp char* magic char* pw char* salt} ok {
+        char* s = md5crypt(pw, salt, magic);
         Tcl_SetStringObj(Tcl_GetObjResult(interp), s, strlen(s));
         return TCL_OK;
     }
