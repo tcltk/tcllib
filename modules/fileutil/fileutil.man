@@ -1,5 +1,5 @@
-[manpage_begin fileutil n 1.4]
 [comment {-*- tcl -*- doctools manpage}]
+[manpage_begin fileutil n 1.4]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [require Tcl 8]
@@ -28,8 +28,10 @@ file, from most general (eg, "binary" or "text") to most specific (eg,
 "gif").  For example, the return value for a GIF file would be "binary
 graphic gif".  The command will detect the following types of files:
 directory, empty, binary, text, script (with interpreter), executable
-elf, graphic gif, graphic jpeg, html, xml (with doctype if available),
-message pgp, and link.
+elf, graphic gif, graphic jpeg, graphic png, graphic tiff, html,
+xml (with doctype if available), message pgp, binary pdf, text ps,
+text eps, binary gravity_wave_data_frame, compressed bzip,
+compressed gzip, and link.
 
 
 [call [cmd ::fileutil::find] [opt "[arg basedir] [opt [arg filtercmd]]"]]

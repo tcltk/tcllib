@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.9 2002/05/15 16:59:47 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.10 2002/10/10 02:39:45 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -280,16 +280,48 @@ fileutil::touch [file join $dir fileTypeTest emptyFile]
 
 makeFile "\u0000" [file join $dir fileTypeTest binaryFile]
 
-set elfData "\xF0"
+set elfData "\x7F"
 append elfData "ELF"
 append elfData "\x01\x01\x01\x00\x00"
 makeFile $elfData [file join $dir fileTypeTest elfFile]
 
-set jpgData "\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x02\x01\x01\x2c"
+set bzipData "BZh91AY&SY"
+append bzipData "\x01\x01\x01\x00\x00"
+makeFile $bzipData [file join $dir fileTypeTest bzipFile]
+
+set gzipData "\x1f\x8b"
+append gzipData "\x01\x01\x01\x00\x00"
+makeFile $gzipData [file join $dir fileTypeTest gzipFile]
+
+set jpgData "\xFF\xD8\xFF\xE0\x00\x10JFIF"
+append jpgData "\x00\x01\x02\x01\x01\x2c"
 makeFile $jpgData [file join $dir fileTypeTest jpegFile]
 
 set gifData "GIF89a\x2b\x00\x40\x00\xf7\xff\x00"
 makeFile $gifData [file join $dir fileTypeTest gifFile]
+
+set pngData "\x89PNG"
+append pngData "\x00\x01\x02\x01\x01\x2c"
+makeFile $pngData [file join $dir fileTypeTest pngFile]
+
+set tiffData "MM\x00\*"
+append tiffData "\x00\x01\x02\x01\x01\x2c"
+makeFile $tiffData [file join $dir fileTypeTest tiffFile]
+
+set psData "%!PS-"
+append psData "ADOBO-123 EPSF-1.4"
+makeFile $psData [file join $dir fileTypeTest psFile]
+
+set pdfData "%PDF-"
+append pdfData "1.2 \x00\x01\x02\x01\x01\x2c"
+makeFile $pdfData [file join $dir fileTypeTest pdfFile]
+
+set epsData $psData
+makeFile $psData [file join $dir fileTypeTest epsFile]
+
+set igwdData "IGWD"
+append igwdData "\x00\x01\x02\x01\x01\x2c"
+makeFile $igwdData [file join $dir fileTypeTest igwdFile]
 
 makeFile "simple text" [file join $dir fileTypeTest textFile]
 makeFile "#!/bin/tclsh" [file join $dir fileTypeTest scriptFile]
@@ -382,6 +414,47 @@ test fileType-1.13 {test binary graphic gif} {
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list binary graphic gif]]
+test fileType-1.14 {test binary graphic png} {
+    set f [file join $dir fileTypeTest pngFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary graphic png]]
+test fileType-1.15 {test binary graphic tiff} {
+    set f [file join $dir fileTypeTest tiffFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary graphic tiff]]
+test fileType-1.16 {test binary pdf} {
+    set f [file join $dir fileTypeTest pdfFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary pdf]]
+test fileType-1.17 {test text ps} {
+    set f [file join $dir fileTypeTest psFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list text ps eps]]
+test fileType-1.18 {test text eps} {
+    set f [file join $dir fileTypeTest epsFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list text ps eps]]
+test fileType-1.19 {test binary gravity_wave_data_frame} {
+    set f [file join $dir fileTypeTest igwdFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary gravity_wave_data_frame]]
+test fileType-1.20 {test binary compressed bzip} {
+    set f [file join $dir fileTypeTest bzipFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary compressed bzip]]
+test fileType-1.21 {test binary compressed gzip} {
+    set f [file join $dir fileTypeTest gzipFile]
+    set res [catch {fileutil::fileType $f} msg]
+    list $res $msg
+} [list 0 [list binary compressed gzip]]
+
 
 
 # stripPwd/N -----------------------------------------------------
