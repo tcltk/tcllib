@@ -6,17 +6,19 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.2 2002/04/25 23:26:16 andreas_kupries Exp $
+# @(#)$Id: yencode.tcl,v 1.3 2003/01/26 00:38:28 patthoyts Exp $
 
-package require crc32;                  # Tcllib 1.1
+package require Tcl 8.2;                # tcl minimum version
+package require crc32;                  # tcllib 1.1
 
-namespace eval yencode {
+namespace eval ::yencode {
+    variable version 1.0.1
     namespace export encode decode yencode ydecode
 }
 
 # -------------------------------------------------------------------------
 
-proc yencode::encode {s} {
+proc ::yencode::encode {s} {
     set r {}
     binary scan $s c* d
     foreach {c} $d {
@@ -31,7 +33,7 @@ proc yencode::encode {s} {
     return $r
 }
 
-proc yencode::decode {s} {
+proc ::yencode::decode {s} {
     if {[string length $s] == 0} {return ""}
     set r {}
     set esc 0
@@ -55,7 +57,7 @@ proc yencode::decode {s} {
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
-proc yencode::Pop {varname {nth 0}} {
+proc ::yencode::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -64,7 +66,7 @@ proc yencode::Pop {varname {nth 0}} {
 
 # -------------------------------------------------------------------------
 
-proc yencode::yencode {args} {
+proc ::yencode::yencode {args} {
     array set opts {mode 0644 filename {} name {} line 128 crc32 1}
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
@@ -134,7 +136,7 @@ proc yencode::yencode {args} {
 #  three element list of the provided filename, the file size and the 
 #  data itself.
 #
-proc yencode::ydecode {args} {
+proc ::yencode::ydecode {args} {
     array set opts {mode 0644 filename {} name default.bin}
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
@@ -198,7 +200,7 @@ proc yencode::ydecode {args} {
 
 # -------------------------------------------------------------------------
 
-package provide yencode 1.0
+package provide yencode $::yencode::version
 
 # -------------------------------------------------------------------------
 #
