@@ -4,13 +4,13 @@
 # the STARTTLS feature if available to switch to a secure link before 
 # negotiating authentication using SASL.
 #
-# $Id: saslclient.tcl,v 1.2 2005/02/01 16:52:35 patthoyts Exp $
+# $Id: saslclient.tcl,v 1.3 2005/02/11 02:47:58 patthoyts Exp $
 
 source [file join [file dirname [info script]] sasl.tcl]
 
-package require sasl
+package require SASL
 package require base64
-catch {package require sasl::ntlm}
+catch {package require SASL::NTLM}
 
 # SASLCallback --
 #
@@ -95,12 +95,12 @@ proc Callback {chan eof line} {
             if {$tls} {
                 Write $chan STARTTLS
             } else {
-                set supported [sasl::mechanisms]
+                set supported [SASL::mechanisms]
                 puts "SASL mechanisms: $mechs\ncan do $supported"
                 foreach mech $mechs {
                     if {[lsearch -exact $supported $mech] != -1} {
                         
-                        set ctx [sasl::new \
+                        set ctx [SASL::new \
                                      -mechanism $mech \
                                      -callback [list [namespace origin SASLCallback] "client blob" $chan]]
                         Write $chan "AUTH $mech"
@@ -120,6 +120,7 @@ proc Callback {chan eof line} {
             }
         }
         "235 *" {
+            SASL::cleanup $ctx
             Write $chan "QUIT" 
         }
         "334 *" {
@@ -130,9 +131,9 @@ proc Callback {chan eof line} {
                 set challenge $dec
             }
             #puts "> $challenge"
-            set code [catch {sasl::step $ctx $challenge} err]
+            set code [catch {SASL::step $ctx $challenge} err]
             if {! $code} {
-                set rsp [sasl::response $ctx]
+                set rsp [SASL::response $ctx]
                 #puts "< $rsp"
                 Write $chan [join [base64::encode $rsp] {}]
             } else {
