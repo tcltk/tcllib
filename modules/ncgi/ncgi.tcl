@@ -27,7 +27,7 @@
 package require Tcl 8.2
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.2.2
+package provide ncgi 1.2.3
 
 namespace eval ::ncgi {
 

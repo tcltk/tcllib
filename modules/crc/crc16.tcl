@@ -39,7 +39,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.10 2004/01/15 06:36:12 andreas_kupries Exp $
+# $Id: crc16.tcl,v 1.11 2004/01/25 07:29:21 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -47,7 +47,7 @@ namespace eval ::crc {
     
     namespace export crc16 crc-ccitt crc-32
 
-    variable crc16_version 1.0.1
+    variable crc16_version 1.1
 
     # Standard CRC generator polynomials.
     variable polynomial

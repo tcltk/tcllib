@@ -1,3 +1,18 @@
+2004-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Added a very primitive approval mechanism to suppress
+	  output from the package comparison in 'status'. Allows to work
+	  through a set of problems with repeated comparison, approving
+	  packages when done.
+
+	* sak.tcl: Extended functionality for release engineering. Better
+	  comparison of current state against last release. Alerts for
+	  mismatches in version numbers of packages versus changes made to
+	  them.
+
+	* PACKAGES: New file. Always carries the package information from
+	  the last release. Basis for the release status work above.
+
 2003-12-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: Added 'struct1', the v1.x version of the

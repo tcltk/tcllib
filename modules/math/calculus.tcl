@@ -499,4 +499,4 @@ proc ::math::calculus::newtonRaphsonParameters { maxiter tolerance } {
 }
 
 # Now we can announce our presence
-package provide math::calculus 0.5
+package provide math::calculus 0.5.1

@@ -21,7 +21,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.18 2004/01/22 21:28:13 patthoyts Exp $
+# $Id: dns.tcl,v 1.19 2004/01/25 07:29:39 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -29,8 +29,8 @@ package require uri;                    # tcllib 1.1
 package require uri::urn;               # tcllib 1.2
 
 namespace eval ::dns {
-    variable version 1.0.5
-    variable rcsid {$Id: dns.tcl,v 1.18 2004/01/22 21:28:13 patthoyts Exp $}
+    variable version 1.1
+    variable rcsid {$Id: dns.tcl,v 1.19 2004/01/25 07:29:39 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode

@@ -1,3 +1,7 @@
+2004-01-24  Andreas Kupries  <andreask@activestate.com>
+
+	* irc.man: Small documentation cleanups.
+
 2004-01-20 Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* irc.tcl Fixed incorrect usage of linsert in previous change.

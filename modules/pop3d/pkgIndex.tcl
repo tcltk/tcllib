@@ -10,6 +10,6 @@
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 
-package ifneeded pop3d       1.0.1 [list source [file join $dir pop3d.tcl]]
+package ifneeded pop3d       1.0.2 [list source [file join $dir pop3d.tcl]]
 package ifneeded pop3d::udb  1.1   [list source [file join $dir pop3d_udb.tcl]]
 package ifneeded pop3d::dbox 1.0.1 [list source [file join $dir pop3d_dbox.tcl]]
