@@ -2567,53 +2567,6 @@ proc ::snit::RT.typemethod.destroy {type} {
 # self          The instance's current name
 # option        The name of the option
 
-proc ::snit::RT.method.oldcget {type selfns win self option} {
-    # TBD: Consider using a cget command cache.
-    variable ${type}::Snit_optionInfo
-    variable ${selfns}::options
-                
-    if {[info exists Snit_optionInfo(islocal-$option)]} {
-        # We know the item; it's either local, or explicitly delegated.
-        if {$Snit_optionInfo(islocal-$option)} {
-            # It's a local option.  If it has a cget method defined,
-            # use it; otherwise just return the value.
-
-            if {$Snit_optionInfo(cget-$option) eq ""} {
-                return $options($option)
-            } else {
-                return [$self $Snit_optionInfo(cget-$option) $option]
-            }
-        }
-         
-        # Explicitly delegated option; get target
-        set comp [lindex $Snit_optionInfo(target-$option) 0]
-        set target [lindex $Snit_optionInfo(target-$option) 1]
-    } elseif {$Snit_optionInfo(starcomp) ne "" &&
-              [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
-        # Unknown option, but unknowns are delegated; get target.
-        set comp $Snit_optionInfo(starcomp)
-        set target $option
-    } else {
-        # Use quotes because Tk does.
-        error "unknown option \"$option\""
-    }
-    
-    # Get the component's object.
-    set obj [RT.Component $type $selfns $comp]
-    
-    # TBD: I'll probably want to fix up certain error
-    # messages, but I'm not sure how yet.
-    return [$obj cget $target]
-}
-
-# Implements the standard "cget" method
-#
-# type		The snit type
-# selfns        The instance's instance namespace
-# win           The instance's original name
-# self          The instance's current name
-# option        The name of the option
-
 proc ::snit::RT.method.cget {type selfns win self option} {
     if {[catch {set ${selfns}::Snit_cgetCache($option)} command]} {
         set command [snit::RT.CacheCgetCommand $type $selfns $win $self $option]
@@ -2626,7 +2579,8 @@ proc ::snit::RT.method.cget {type selfns win self option} {
     uplevel 1 $command
 }
 
-# Retrieves the command that implements "cget" for the specified option
+# Retrieves and caches the command that implements "cget" for the 
+# specified option.
 #
 # type		The snit type
 # selfns        The instance's instance namespace
