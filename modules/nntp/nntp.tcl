@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.8 2003/02/06 19:31:26 davidw Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.9 2003/02/25 07:04:44 davidw Exp $
 
 package require Tcl 8.2
 package provide nntp 0.2
@@ -911,7 +911,9 @@ proc ::nntp::squirt {name {body ""}} {
     foreach line $body {
         # Print each line, possibly prepending a dot for lines
         # starting with a dot and trimming any trailing \n.
-        regsub -- {^\.} $line {..} line
+	if { [string match ".*" $line] } {
+	    set line ".$line"
+	}
         puts $data(sock) $line
     }
     puts $data(sock) "."
