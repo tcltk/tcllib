@@ -9,9 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cfront.tcl,v 1.1 2005/02/10 17:34:16 andreas_kupries Exp $
-
-# 8.5 features - expand, lrepeat
+# RCS: @(#) $Id: cfront.tcl,v 1.2 2005/02/11 06:07:31 andreas_kupries Exp $
 
 #####
 #
@@ -32,6 +30,9 @@ package require Tcl 8.4
 package require fileutil              ; # File processing (input)
 package require fileutil::magic::cgen ; # Code generator.
 package require fileutil::magic::rt   ; # Runtime (typemap)
+package require struct::list          ; # lrepeat.
+
+package provide fileutil::magic::cfront 1.0
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -277,7 +278,7 @@ proc ::fileutil::magic::cfront::process {file {maxlevel 10000}} {
    	    lappend script $record
    	} else {
    	    # find the growing edge of the script
-   	    set depth [lrepeat [expr $level] end]
+   	    set depth [::struct::list repeat [expr $level] end]
    	    while {[catch {
    		# get the insertion point
    		set insertion [eval [linsert $depth 0 lindex $script]]
@@ -351,7 +352,7 @@ proc ::fileutil::magic::cfront::procdef {procname path} {
     lappend script "namespace eval [list ${pspace}] \{"
     lappend script "    namespace import ::fileutil::magic::rt::*"
     lappend script "\}"
-    lappend script [list proc ${procname} {} [magic::compile $arg]]
+    lappend script [list proc ${procname} {} [compile $arg]]
     return [join $script \n]
 }
 
@@ -390,6 +391,4 @@ if {!$::fileutil::magic::cfront::debug} {
 
 # ### ### ### ######### ######### #########
 ## Ready for use.
-
-package provide fileutil::magic::cfront 1.0
 # EOF

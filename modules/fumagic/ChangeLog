@@ -1,5 +1,17 @@
 2005-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* cgen.tcl: Removed usage of catch 8.5 feature.
+	* cfront.tcl: Fixed bad reference to file/scope local
+	  command. Repaced usage 0f 8.5 feature 'lrepeat' with forward
+	  compatibility command provided by 'struct::list'.
+
+	* cgen.tcl: Moved the 'provide' definition to the front, so that
+	* cfront.tcl: sak recognizes it and registers the provision of a
+	* mimetypes.tcl: package when validating the module.
+
+	* mimetypes.man: Basic documentation for the main recognizer
+	  command.
+
 	* mimetypes.test: Copied the filetype tests from fileutil over for
 	  use by the mimetype command, and adapted the results. Only four
 	  places where the result can be said to be bogus
