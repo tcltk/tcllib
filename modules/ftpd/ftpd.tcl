@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.13 2002/06/03 20:21:46 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.14 2002/08/31 06:27:47 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -22,25 +22,25 @@ namespace eval ::ftpd {
     variable port 21
 
     variable contact
-    if {![info exist contact]} {
+    if {![info exists contact]} {
         global tcl_platform
 	set contact "$tcl_platform(user)@[info hostname]"
     }
 
     variable cwd
-    if {![info exist cwd]} {
+    if {![info exists cwd]} {
 	set cwd ""
     }
     
     variable welcome
-    if {![info exist welcome]} {
+    if {![info exists welcome]} {
 	set welcome "[info hostname] FTP server ready."
     }
 
     # Global configuration.
 
     variable cfg
-    if {![info exist cfg]} {
+    if {![info exists cfg]} {
 	array set cfg [list \
 	    authIpCmd  {} \
 	    authUsrCmd {::ftpd::anonAuth} \
@@ -50,7 +50,7 @@ namespace eval ::ftpd {
     }
 
     variable commands
-    if {![info exist commands]} {
+    if {![info exists commands]} {
 	array set commands [list \
 	    ABOR       {ABOR (abort operation)} \
 	    ACCT       {(specify account); unimplemented.} \
@@ -442,7 +442,7 @@ proc ::ftpd::accept {sock ipaddr client_port} {
     variable cfg
     variable cwd
 
-    if {[info exist data]} {
+    if {[info exists data]} {
 	unset data
     }
 
@@ -1619,7 +1619,7 @@ namespace eval ::ftpd::fsFile {
     # Our document root directory
 
     variable docRoot
-    if {![info exist docRoot]} {
+    if {![info exists docRoot]} {
 	set docRoot /
     }
 

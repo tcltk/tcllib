@@ -432,7 +432,7 @@ global ftp
 proc ShowStatus {} {
 global status
 	if {([info exists ftp(conn)]) &&
-            ([info exist ftp::ftp${ftp(conn)}(State)])} {
+            ([info exists ftp::ftp${ftp(conn)}(State)])} {
 		.view.conn.led1 configure -bg $status(on) 
 		.view.conn.lab1 configure -text "connected"
 		update idletasks
@@ -467,7 +467,7 @@ proc Showselected {mode} {
 global ftp
 	set sum 0
 	set count 0
-	if { ([info exist ftp(${mode}SizeList)]) && ([llength $ftp(${mode}SizeList)] != 0) } {
+	if { ([info exists ftp(${mode}SizeList)]) && ([llength $ftp(${mode}SizeList)] != 0) } {
 		foreach i [.view.$mode.list curselection] {
 			incr sum [lindex $ftp(${mode}SizeList) $i]
 			incr count
@@ -673,7 +673,7 @@ global ftp
 	  	}
 
 	  update {
-		if {![winfo exist $w]} {return}  
+		if {![winfo exists $w]} {return}  
 		set ftp(ProgressProz) "[expr {round( $bytes * 100 / $ftp(progress_sum))}]%"
 		set cur_width [expr {round($bytes * 200 / $ftp(progress_sum))}]
 		$w.frame.bar.pbar configure -width $cur_width -bg #000080
