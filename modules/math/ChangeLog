@@ -1,3 +1,8 @@
+2002-04-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* combinatorics.man: Added doctools manpage.
+	* math.man: Added doctools manpage.
+
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* calculus.man: Fixed formatting errors in the doctools manpage.
