@@ -1,3 +1,15 @@
+2004-05-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* png.tcl: Fixed a problem with the reading of crc data from png
+	  files. The 'binary scan' may return a negative integer, but the
+	  check is against unsigned data. Added code to check for this and
+	  compute the proper unsigned number for correct comparison.
+
+	* png.test: New file. A testsuite for the module. Incomplete.
+	  Tests the validation, signature, retrieval of image information,
+	  and of timestamps. The image files used are from the official
+	  PNG testsuite.
+
 2004-05-20  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* png.tcl: moved file opening and signature validation to
@@ -6,5 +18,5 @@
 
 2004-05-07  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-	* New module for querying PMG images, and manipulating their
+	* New module for querying PNG images, and manipulating their
 	  comments, and timestamp.
