@@ -134,6 +134,13 @@ output in that context.  The context must be named [arg cname], or an
 error results.
 
 
+[call [arg expanderName] [method ctopandclear]]
+
+Returns the output currently captured in the topmost context and
+clears that buffer. This is similar to a combination of [method cpop]
+followed by [method cpush], except that internal state (brackets) is
+preserved here.
+
 [call [arg expanderName] [method cpush] [arg cname]]
 
 Pushes a context named [arg cname] onto the context stack.  The
