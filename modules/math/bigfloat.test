@@ -43,541 +43,550 @@
 # permission to use and distribute the software in accordance with the
 # terms specified in this license.
 #
-# Web site : http://sarnold.free.fr/
 ########################################################################
 
-package forget bigfloat
+package forget math::bigfloat
 catch { namespace delete ::math::bigfloat }
 
 # Direct loading of provide script -- support testing even
 # when not installed.  And be sure we test the local copy
 # and not some later version that may be installed.
+catch {source [file join [file dirname [info script]] bignum.tcl]}
 source [file join [file dirname [info script]] bigfloat.tcl]
 
 
 package require tcltest
-proc assert {code result} {
-    #puts "bigfloat : eval $code"
-    tcltest::test bigfloat-1.0 "'$code' in bigfloat" {uplevel 1 $code} $result
+proc assert {name code result} {
+    #puts -nonewline .
+    tcltest::test bigfloat-$name-1.0 "eval : '$code'" {uplevel 1 $code} $result
     return
 }
 
-
+interp alias {} zero {} string repeat 0
+# S.ARNOLD 08/01/2005
+# trying to set the precision of the comparisons to 15 digits
+set tcl_precision 15
 proc Zero {x} {
     global tcl_precision
     set x [expr {abs($x)}]
-    set x [string trimright $x 0]
     set epsilon 10.0e-$tcl_precision
     return [expr {$x<$epsilon}]
 }
 
-proc fassert {code result} {
-    #puts "bigfloat : eval $code"
+proc fassert {name code result} {
+    #puts -nonewline .
     set tested [uplevel 1 $code]
     if {[Zero $tested]} {
-        tcltest::test bigfloat-1.0 "'$code' in bigfloat" {return [Zero $result]} 1
+        tcltest::test bigfloat-$name-1.0 "eval : '$code'" {return [Zero $result]} 1
         return
     }
     set resultat [Zero [expr {($tested-$result)/((abs($tested)>1)?($tested):1.0)}]]
-    tcltest::test bigfloat-1.0 "'$code' in bigfloat" {return $resultat} 1
+    tcltest::test bigfloat-$name-1.0 "eval : '$code' compare '$tested' and '$result'" {return $resultat} 1
     return
 }
 # preprocessing is done
-#set n ::math::bigfloat::
+#set n
 
 
 ######################################################
 # Begin testsuite
 ######################################################
 
-
-
-# adds 999..9 and 1 -> 1000..0
-for {set i 1} {$i<15} {incr i} {
-    assert {::math::bigfloat::add [string repeat 999 $i] 1} 1[string repeat 000 $i]
-}
-# sub 1000..0 1 -> 999..9
-for {set i 1} {$i<15} {incr i} {
-    assert {::math::bigfloat::sub 1[string repeat 000 $i] 1} [string repeat 999 $i]
-}
-# mul 10001000..1000 with 1..9
-for {set i 1} {$i<15} {incr i} {
-    foreach j {1 2 3 4 5 6 7 8 9} {
-        assert {::math::bigfloat::mul [string repeat 1000 $i] $j} [string repeat ${j}000 $i]
-    }
-}
-# div 10^8 by 1 .. 9
-for {set i 1} {$i<=9} {incr i} {
-    assert {::math::bigfloat::div 100000000 $i} [expr {wide(100000000)/$i}]
-}
-
-# 10^8 modulo 1 .. 9
-for {set i 1} {$i<=9} {incr i} {
-    assert {::math::bigfloat::mod 100000000 $i} [expr {wide(100000000)%$i}]
-}
-################################################################################
-# abs()
-################################################################################
-proc abs {x} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::abs [::math::bigfloat::fromstr $x]]} [expr {abs($x)}]
-}
-abs 1.000
-abs -1.000
-abs -0.10
-rename abs ""
-
-################################################################################
-# opposite
-################################################################################
-proc opp {x} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::opp [::math::bigfloat::fromstr $x]]} [expr {-$x}]
-}
-opp 1.00
-opp -1.00
-opp 0.10
-opp -0.10
-opp 0.00
-rename opp ""
-
-################################################################################
-# equal
-################################################################################
-proc equal {x y} {
-    ::math::bigfloat::equal [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]
-}
-assert {equal 0.0 0.1} 1
-assert {equal 0.00 0.10} 0
-assert {equal 0.0 -0.1} 1
-assert {equal 0.00 -0.10} 0
-
-################################################################################
-# compare
-################################################################################
-proc compare {x y} {
-    ::math::bigfloat::compare [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]
-}
-fassert {compare 0.0 0.10} 0
-fassert {compare 0.1 0.3} 0
-fassert {compare 0.0 -1.0} 1
-fassert {compare -1.0 0.0} -1
-fassert {compare 0.00 0.10} -1
-
-################################################################################
-# round
-################################################################################
-proc round {x} {
-    assert {::math::bigfloat::round [::math::bigfloat::fromstr $x]} [expr {round($x)}]
-}
-round 0.10
-round 0.0
-round 0.50
-round 0.40
-round 1.0
-round -0.40
-round -0.50
-round -1.0
-
-# cleanup
-rename round ""
-
-################################################################################
-# floor
-################################################################################
-proc floor {x} {
-    assert {::math::bigfloat::floor [::math::bigfloat::fromstr $x]} [expr {int(floor($x))}]
-}
-floor 0.10
-floor 0.90
-floor 1.0
-floor -0.10
-floor -1.0
-
-# cleanup
-rename floor ""
-
-################################################################################
-# ceil
-################################################################################
-proc ceil {x} {
-    assert {::math::bigfloat::ceil [::math::bigfloat::fromstr $x]} [expr {int(ceil($x))}]
-}
-ceil 0.10
-ceil 0.90
-ceil 1.0
-ceil -0.10
-ceil -1.0
-ceil 0.0
-
-# cleanup
-rename ceil ""
-
-
-################################################################################
-# addition
-################################################################################
-proc add {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::add [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x+$y}]
-}
-proc addxInt {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::add $x [::math::bigfloat::fromstr $y]]} [expr {$x+$y}]
-}
-proc addyInt {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::add [::math::bigfloat::fromstr $x] $y]} [expr {$x+$y}]
-}
-add 1.00 2.00
-add -1.00 2.00
-add 1.00 -2.00
-add -1.00 -2.00
-add 0.00 1.00
-add 0.00 -1.00
-addxInt 1 2.00
-addxInt 1 -2.00
-addxInt 0 1.00
-addxInt 0 -1.00
-addyInt 2.00 1
-addyInt -2.00 1
-addyInt 1.00 0
-addyInt -1.00 0
-#cleanup
-rename add ""
-rename addxInt ""
-rename addyInt ""
-
-################################################################################
-# substraction
-################################################################################
-proc sub {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::sub [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x-$y}]
-}
-proc subxInt {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::sub $x [::math::bigfloat::fromstr $y]]} [expr {$x-$y}]
-}
-proc subyInt {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::sub [::math::bigfloat::fromstr $x] $y]} [expr {$x-$y}]
-}
-sub 1.00 2.00
-sub -1.00 2.00
-sub 1.00 -2.00
-sub -1.00 -2.00
-sub 0.00 1.00
-sub 0.00 -1.00
-subxInt 1 2.00
-subxInt 1 -2.00
-subxInt 0 2.00
-subxInt 0 -2.00
-subxInt 2 0.00
-subyInt 2.00 1
-subyInt 1.00 2
-subyInt -1.00 1
-subyInt 0.00 2
-subyInt 2.00 0
-# cleanup
-rename sub ""
-rename subxInt ""
-rename subyInt ""
-
-
-################################################################################
-# multiplication
-################################################################################
-proc mul {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::mul [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x*$y}]
-}
-proc mulxInt {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::mul $x [::math::bigfloat::fromstr $y]]} [expr {$x*$y}]
-}
-proc mulyInt {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::mul [::math::bigfloat::fromstr $x] $y]} [expr {$x*$y}]
-}
-proc mulInt {x y} {
-    mulxInt $x $y
-    mulyInt $y $x
-}
-mul 1.00 2.00
-mul -1.00 2.00
-mul 1.00 -2.00
-mul -1.00 -2.00
-mul 0.00 1.00
-mul 0.00 -1.00
-mul 1.00 10.0
-mulInt 1 2.00
-mulInt 1 -2.00
-mulInt 0 2.00
-mulInt 0 -2.00
-mulInt 10 2.00
-mulInt 10 -2.00
-mulInt 1 0.00
-
-
-# cleanup
-rename mul ""
-rename mulxInt ""
-rename mulyInt ""
-rename mulInt ""
-
-################################################################################
-# division
-################################################################################
-proc div {x y} {
+proc testSuite {} {
     
-    fassert {::math::bigfloat::tostr [::math::bigfloat::div [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} [expr {$x/$y}]
-}
-
-
-div 1.00 2.00
-div 2.00 1.00
-div -1.00 2.00
-div 1.00 -2.00
-div 2.00 -1.00
-div -2.00 1.00
-div -1.00 -2.00
-div -2.00 -1.00
-div 0.0 1.0
-div 0.0 -1.0
-
-# cleanup
-rename div ""
-
-################################################################################
-# rest of the division
-################################################################################
-proc mod {x y expected} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::mod [::math::bigfloat::fromstr $x] [::math::bigfloat::fromstr $y]]} $expected
-}
-proc intmod {x y expected} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::mod [::math::bigfloat::fromstr $x] $y]} $expected
-}
-
-mod 1.00 2.00 1.0
-mod 2.00 1.00 0.0
-mod -1.00 2.00 1.0
-mod 1.00 -2.00 -1.0
-mod 2.00 -1.00 0.0
-mod -2.00 1.00 0.0
-mod -1.00 -2.00 -1.0
-mod -2.00 -1.00 0.0
-mod 0.0 1.0 0.0
-mod 0.0 -1.0 0.0
-
-intmod 1.00 2 1.0
-intmod 2.00 1 0.0
-intmod -1.00 2 1.0
-intmod -2.00 1 0.0
-intmod 0.0 1 0.0
-intmod 1.50 1 0.5
-
-# cleanup
-rename mod ""
-rename intmod ""
-
-################################################################################
-# intdiv : divide a float by an integer
-################################################################################
-proc intdiv {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::div [::math::bigfloat::fromstr $x] $y]} \
+    
+    # adds 999..9 and 1 -> 1000..0
+    for {set i 1} {$i<15} {incr i} {
+        assert add {tostr [add \
+                    [fromstr [string repeat 999 $i]] [fromstr 1]]
+        } 1[string repeat 000 $i]
+    }
+    # sub 1000..0 1 -> 999..9
+    for {set i 1} {$i<15} {incr i} {
+        assert sub {tostr [sub [fromstr 1[string repeat 000 $i]] [fromstr 1]]} \
+                [string repeat 999 $i]
+    }
+    # mul 10001000..1000 with 1..9
+    for {set i 1} {$i<15} {incr i} {
+        foreach j {1 2 3 4 5 6 7 8 9} {
+            assert mul {tostr [mul [fromstr [string repeat 1000 $i]] [fromstr $j]]} \
+                    [string repeat ${j}000 $i]
+        }
+    }
+    # div 10^8 by 1 .. 9
+    for {set i 1} {$i<=9} {incr i} {
+        assert div {tostr [div [fromstr 100000000] [fromstr $i]]} [expr {wide(100000000)/$i}]
+    }
+    
+    
+    # 10^8 modulo 1 .. 9
+    for {set i 1} {$i<=9} {incr i} {
+        assert mod {tostr [mod [fromstr 100000000] [fromstr $i]]} [expr {wide(100000000)%$i}]
+    }
+    ################################################################################
+    # abs()
+    ################################################################################
+    proc absTest {x {int 0}} {
+        if {!$int} {
+            fassert abs {
+                tostr [abs [fromstr $x]]
+            } [expr {abs($x)}]
+        } else {
+            assert abs {
+                tostr [abs [fromstr $x]]
+            } [expr {($x<0)?(-$x):$x}]
+        }
+        
+    }
+    absTest 1.000
+    absTest -1.000
+    absTest -0.10
+    absTest 0 1
+    absTest 1 1
+    absTest 10000 1
+    absTest -1 1
+    absTest -10000 1
+    rename absTest ""
+    
+    ################################################################################
+    # opposite
+    ################################################################################
+    proc oppTest {x {int 0}} {
+        if {$int} {
+            assert opp {tostr [opp [fromstr $x]]} [expr {-$x}]
+        } else {
+            fassert opp {tostr [opp [fromstr $x]]} [expr {-$x}]
+        }
+        
+    }
+    oppTest 1.00
+    oppTest -1.00
+    oppTest 0.10
+    oppTest -0.10
+    oppTest 0.00
+    oppTest 1 1
+    oppTest -1 1
+    oppTest 0 1
+    oppTest 100000000 1
+    oppTest -100000000 1
+    rename oppTest ""
+    
+    ################################################################################
+    # equal
+    ################################################################################
+    proc equalTest {x y} {
+        equal [fromstr $x] [fromstr $y]
+    }
+    assert equal {equalTest 0.0 0.1} 1
+    assert equal {equalTest 0.00 0.10} 0
+    assert equal {equalTest 0.0 -0.1} 1
+    assert equal {equalTest 0.00 -0.10} 0
+    
+    rename equalTest ""
+    ################################################################################
+    # compare
+    ################################################################################
+    proc compareTest {x y} {
+        compare [fromstr $x] [fromstr $y]
+    }
+    assert cmp {compareTest 0.00 0.10} -1
+    assert cmp {compareTest 0.1 0.4} -1
+    assert cmp {compareTest 0.0 -1.0} 1
+    assert cmp {compareTest -1.0 0.0} -1
+    assert cmp {compareTest 0.00 0.10} -1
+    
+    # cleanup
+    rename compareTest ""
+    
+    ################################################################################
+    # round
+    ################################################################################
+    proc roundTest {x} {
+        assert round {tostr [round [fromstr $x]]} [expr {round($x)}]
+    }
+    roundTest 0.10
+    roundTest 0.0
+    roundTest 0.50
+    roundTest 0.40
+    roundTest 1.0
+    roundTest -0.40
+    roundTest -0.50
+    roundTest -1.0
+    
+    # cleanup
+    rename roundTest ""
+    
+    ################################################################################
+    # floor
+    ################################################################################
+    proc floorTest {x} {
+        assert floor {tostr [floor [fromstr $x]]} [expr {int(floor($x))}]
+    }
+    floorTest 0.10
+    floorTest 0.90
+    floorTest 1.0
+    floorTest -0.10
+    floorTest -1.0
+    
+    # cleanup
+    rename floorTest ""
+    
+    ################################################################################
+    # ceil
+    ################################################################################
+    proc ceilTest {x} {
+        assert ceil {tostr [ceil [fromstr $x]]} [expr {int(ceil($x))}]
+    }
+    ceilTest 0.10
+    ceilTest 0.90
+    ceilTest 1.0
+    ceilTest -0.10
+    ceilTest -1.0
+    ceilTest 0.0
+    
+    # cleanup
+    rename ceilTest ""
+    
+    ################################################################################
+    # addition
+    ################################################################################
+    proc addTest {x y} {
+        fassert add {todouble [add [fromstr $x] [fromstr $y]]} [expr {$x+$y}]
+    }
+    addTest 1.00 2.00
+    addTest -1.00 2.00
+    addTest 1.00 -2.00
+    addTest -1.00 -2.00
+    addTest 0.00 1.00
+    addTest 0.00 -1.00
+    addTest 1 2.00
+    addTest 1 -2.00
+    addTest 0 1.00
+    addTest 0 -1.00
+    addTest 2.00 1
+    addTest -2.00 1
+    addTest 1.00 0
+    addTest -1.00 0
+    #cleanup
+    rename addTest ""
+    
+    ################################################################################
+    # substraction
+    ################################################################################
+    proc subTest {x y} {
+        fassert sub {todouble [sub [fromstr $x] [fromstr $y]]} [expr {$x-$y}]
+    }
+    subTest 1.00 2.00
+    subTest -1.00 2.00
+    subTest 1.00 -2.00
+    subTest -1.00 -2.00
+    subTest 0.00 1.00
+    subTest 0.00 -1.00
+    subTest 1 2.00
+    subTest 1 -2.00
+    subTest 0 2.00
+    subTest 0 -2.00
+    subTest 2 0.00
+    subTest 2.00 1
+    subTest 1.00 2
+    subTest -1.00 1
+    subTest 0.00 2
+    subTest 2.00 0
+    # cleanup
+    rename subTest ""
+    
+    ################################################################################
+    # multiplication
+    ################################################################################
+    proc mulTest {x y} {
+        fassert mul {todouble [mul [fromstr $x] [fromstr $y]]} [expr {$x*$y}]
+    }
+    proc mulInt {x y} {
+        mulTest $x $y
+        mulTest $y $x
+    }
+    mulTest 1.00 2.00
+    mulTest -1.00 2.00
+    mulTest 1.00 -2.00
+    mulTest -1.00 -2.00
+    mulTest 0.00 1.00
+    mulTest 0.00 -1.00
+    mulTest 1.00 10.0
+    mulInt 1 2.00
+    mulInt 1 -2.00
+    mulInt 0 2.00
+    mulInt 0 -2.00
+    mulInt 10 2.00
+    mulInt 10 -2.00
+    mulInt 1 0.00
+    
+    
+    # cleanup
+    rename mulTest ""
+    rename mulInt ""
+    
+    ################################################################################
+    # division
+    ################################################################################
+    proc divTest {x y} {
+        fassert div {
+            string trimright [todouble [div [fromstr $x] [fromstr $y]]] 0
+        } [string trimright [expr {$x/$y}] 0]
+    }
+    
+    
+    divTest 1.00 2.00
+    divTest 2.00 1.00
+    divTest -1.00 2.00
+    divTest 1.00 -2.00
+    divTest 2.00 -1.00
+    divTest -2.00 1.00
+    divTest -1.00 -2.00
+    divTest -2.00 -1.00
+    divTest 0.0 1.0
+    divTest 0.0 -1.0
+    
+    # cleanup
+    rename divTest ""
+    
+    ################################################################################
+    # rest of the division
+    ################################################################################
+    proc modTest {x y} {
+        fassert mod {
+            todouble [mod [fromstr $x] [fromstr $y]]
+        } [expr {fmod($x,$y)}]
+    }
+    
+    modTest 1.00 2.00
+    modTest 2.00 1.00
+    modTest -1.00 2.00
+    modTest 1.00 -2.00
+    modTest 2.00 -1.00
+    modTest -2.00 1.00
+    modTest -1.00 -2.00
+    modTest -2.00 -1.00
+    modTest 0.0 1.0
+    modTest 0.0 -1.0
+    
+    modTest 1.00 2
+    modTest 2.00 1
+    modTest -1.00 2
+    modTest -2.00 1
+    modTest 0.0 1
+    modTest 1.50 1
+    
+    # cleanup
+    rename modTest ""
+    
+    ################################################################################
+    # divide a BigFloat by an integer
+    ################################################################################
+    proc divTest {x y} {
+        fassert div {todouble [div [fromstr $x] [fromstr $y]]} \
             [expr {double(round(1000*$x/$y))/1000.0}]
-}
-
-foreach a {1.0000 -1.0000} {
-    foreach b {2 3} {
-        intdiv $a $b
     }
-}
-
-# cleanup
-rename intdiv ""
-
-################################################################################
-# pow : takes a float to an integer power (>0)
-################################################################################
-proc pow {x y} {
-    fassert {::math::bigfloat::tostr [::math::bigfloat::pow [::math::bigfloat::fromstr $x] $y]} \
-            [expr [join [string repeat "$x " $y] *]]
-}
-proc intpow {x y} {
-    assert {::math::bigfloat::pow $x $y} \
-            [expr [join [string repeat "$x " $y] *]]
-}
-
-foreach a {1 -1 2 -2 5 -5} {
-    foreach b {2 3 7 16} {
-        pow $a.[::math::bigfloat::zero [expr {$b*6}]] $b
+    
+    foreach a {1.0000 -1.0000} {
+        foreach b {2 3} {
+            divTest $a $b
+        }
     }
-}
-
-foreach a {1 2 3} {
-    foreach b {2 3 5 8} {
-        intpow $a $b
+    
+    # cleanup
+    rename divTest ""
+    
+    ################################################################################
+    # pow : takes a float to an integer power (>0)
+    ################################################################################
+    proc powTest {x y {int 0}} {
+        if {!$int} {
+            fassert pow {todouble [pow [fromstr $x 14] [fromstr $y]]}\
+                    [expr [join [string repeat "[string trimright $x 0] " $y] *]]
+        } else  {
+            assert pow {tostr [pow [fromstr $x] [fromstr $y]]}\
+                    [expr [join [string repeat "$x " $y] *]]
+        }
     }
-}
-
-# cleanup
-rename pow ""
-rename intpow ""
-
-
-################################################################################
-# pi constant
-################################################################################
-fassert {::math::bigfloat::tostr [::math::bigfloat::pi 12]} 3.14159265359
-
-################################################################################
-# isnull : the precision is too small to determinate the number
-################################################################################
-
-assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 0]} 1
-assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 0.0]} 1
-assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 1]} 1
-assert {::math::bigfloat::isnull [::math::bigfloat::fromstr 1.0]} 0
-assert {::math::bigfloat::isnull [::math::bigfloat::fromstr -1]} 1
-assert {::math::bigfloat::isnull [::math::bigfloat::fromstr -1.0]} 0
-
-################################################################################
-# sqrt : square root
-################################################################################
-proc sqrt {x} {
-    fassert {::math::bigfloat::todouble [::math::bigfloat::sqrt [::math::bigfloat::fromstr $x]]} [expr {sqrt($x)}]
-}
-sqrt 1.[::math::bigfloat::zero 16]
-sqrt 0.001[::math::bigfloat::zero 16]
-sqrt 0.004[::math::bigfloat::zero 16]
-sqrt 4.[::math::bigfloat::zero 16]
-
-# cleanup
-rename sqrt ""
-
-
-
-################################################################################
-# exp : exponential function
-################################################################################
-proc exp {x} {
-    fassert {::math::bigfloat::todouble [::math::bigfloat::exp [::math::bigfloat::fromstr $x]]} [expr {exp($x)}]
-}
-
-exp 1.[::math::bigfloat::zero 16]
-exp 0.001[::math::bigfloat::zero 20]
-exp 0.004[::math::bigfloat::zero 20]
-exp 40.[::math::bigfloat::zero 20]
-exp -0.001[::math::bigfloat::zero 20]
-
-# cleanup
-rename exp ""
-
-################################################################################
-# log : logarithm
-################################################################################
-proc log {x} {
-    fassert {::math::bigfloat::todouble [::math::bigfloat::log [::math::bigfloat::fromstr $x]]} [expr {log($x)}]
-}
-
-log 1.[::math::bigfloat::zero 16]
-log 0.001[::math::bigfloat::zero 20]
-log 0.004[::math::bigfloat::zero 20]
-log 40.[::math::bigfloat::zero 24]
-log 1[::math::bigfloat::zero 10].0
-
-# cleanup
-rename log ""
-
-################################################################################
-# cos & sin : trigonometry
-################################################################################
-proc cosEtSin {x} {
-    fassert {::math::bigfloat::todouble [::math::bigfloat::cos $x]} [expr {cos([::math::bigfloat::todouble $x])}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::sin $x]} [expr {sin([::math::bigfloat::todouble $x])}]
-}
-
-cosEtSin [list 1 [::math::bigfloat::zero 13] -12 1]
-set pi [::math::bigfloat::pi 20]
-foreach i {1 3 5 7} {
-    cosEtSin [::math::bigfloat::intdiv [::math::bigfloat::intmul $pi $i] 4]
-}
-foreach i {1 2} {
-    cosEtSin [::math::bigfloat::intmul $pi $i]
-}
-foreach i {1 3} {
-    cosEtSin [::math::bigfloat::intdiv [::math::bigfloat::intmul $pi $i] 2]
-}
-
-
-# cleanup
-rename cosEtSin ""
-
-################################################################################
-# tan & cotan : trigonometry
-################################################################################
-proc tanCotan {i} {
-    global pi
-    set x [::math::bigfloat::intdiv [::math::bigfloat::intmul $pi $i] 10]
-    set double [expr {atan(1)*(double($i)*0.4)}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::cos $x]} [expr {cos($double)}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::sin $x]} [expr {sin($double)}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::tan $x]} [expr {tan($double)}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::cotan $x]} [expr {double(1.0)/tan($double)}]
-}
-
-set pi [::math::bigfloat::pi 30]
-foreach i {1 2 3 6 7 8 9} {
-    tanCotan $i
-}
-
-
-# cleanup
-rename tanCotan ""
-
-
-################################################################################
-# atan , asin & acos : trigonometry (inverse functions)
-################################################################################
-proc atan {x} {
-    global pi
-    set f [::math::bigfloat::fromstr $x[::math::bigfloat::zero 20]]
-    if {abs($x)<=1.0} {
-        fassert {::math::bigfloat::todouble [::math::bigfloat::acos $f]} [expr {acos($x)}]
-        fassert {::math::bigfloat::todouble [::math::bigfloat::asin $f]} [expr {asin($x)}]
+    
+    foreach a {1 -1 2 -2 5 -5} {
+        foreach b {2 3 7 16} {
+            powTest $a. $b
+        }
     }
-    fassert {::math::bigfloat::todouble [::math::bigfloat::atan $f]} [expr {atan($x)}]
+    
+    foreach a {1 2 3} {
+        foreach b {2 3 5 8} {
+            powTest $a $b 1
+        }
+    }
+    
+    # cleanup
+    rename powTest ""
+    
+    
+    ################################################################################
+    # pi constant and angles conversion
+    ################################################################################
+    fassert pi {todouble [pi 16]} [expr {atan(1)*4}]
+    # converts Pi -> 180°
+    fassert rad2deg {todouble [rad2deg [pi 20]]} 180.0
+    # converts 180° -> Pi
+    fassert deg2rad {todouble [deg2rad [fromstr 180.0 20]]} [expr {atan(1.0)*4}]
+    
+    
+    ################################################################################
+    # iszero : the precision is too small to determinate the number
+    ################################################################################
+    
+    assert iszero {iszero [fromstr 0]} 1
+    assert iszero {iszero [fromstr 0.0]} 1
+    assert iszero {iszero [fromstr 1]} 0
+    assert iszero {iszero [fromstr 1.0]} 0
+    assert iszero {iszero [fromstr -1]} 0
+    assert iszero {iszero [fromstr -1.0]} 0
+    
+    ################################################################################
+    # sqrt : square root
+    ################################################################################
+    proc sqrtTest {x} {
+        fassert sqrt {todouble [sqrt [fromstr $x 18]]} [expr {sqrt($x)}]
+    }
+    sqrtTest 1.
+    sqrtTest 0.001
+    sqrtTest 0.004
+    sqrtTest 4.
+    
+    # cleanup
+    rename sqrtTest ""
+    
+    
+    ################################################################################
+    # expTest : exponential function
+    ################################################################################
+    proc expTest {x} {
+        fassert exp {todouble [exp [fromstr $x 17]]} [expr {exp($x)}]
+    }
+    
+    expTest 1.
+    expTest 0.001
+    expTest 0.004
+    expTest 40.
+    expTest -0.001
+    
+    # cleanup
+    rename expTest ""
+    
+    ################################################################################
+    # logTest : logarithm
+    ################################################################################
+    proc logTest {x} {
+        fassert log {todouble [log [fromstr $x 17]]} [expr {log($x)}]
+    }
+    
+    logTest  1.0
+    logTest 0.001
+    logTest 0.004
+    logTest 40.
+    logTest 1[zero 10].0
+    
+    # cleanup
+    rename logTest ""
+    
+    ################################################################################
+    # cos & sin : trigonometry
+    ################################################################################
+    proc cosEtSin {quartersOfPi} {
+        set x [div [mul [pi 18] [fromstr $quartersOfPi]] [fromstr 4]]
+        #fassert cos {todouble [cos $x]} [expr {cos(atan(1)*$quartersOfPi)}]
+        #fassert sin {todouble [sin $x]} [expr {sin(atan(1)*$quartersOfPi)}]
+        fassert cos {todouble [cos $x]} [expr {cos([todouble $x])}]
+        fassert sin {todouble [sin $x]} [expr {sin([todouble $x])}]
+    }
+    
+    fassert cos {todouble [cos [fromstr 0. 17]]} [expr {cos(0)}]
+    fassert sin {todouble [sin [fromstr 0. 17]]} [expr {sin(0)}]
+    foreach i {1 2 3 4 5 6 7 8} {
+        cosEtSin $i
+    }
+    
+    
+    # cleanup
+    rename cosEtSin ""
+    
+    ################################################################################
+    # tan & cotan : trigonometry
+    ################################################################################
+    proc tanCotan {i} {
+        upvar pi pi
+        set x [div [mul $pi [fromstr $i]] [fromstr 10]]
+        set double [expr {atan(1)*(double($i)*0.4)}]
+        fassert cos {todouble [cos $x]} [expr {cos($double)}]
+        fassert sin {todouble [sin $x]} [expr {sin($double)}]
+        fassert tan {todouble [tan $x]} [expr {tan($double)}]
+        fassert cotan {todouble [cotan $x]} [expr {double(1.0)/tan($double)}]
+    }
+    
+    set pi [pi 20]
+    foreach i {1 2 3 6 7 8 9} {
+        tanCotan $i
+    }
+    
+    
+    # cleanup
+    rename tanCotan ""
+    
+    
+    ################################################################################
+    # atan , asin & acos : trigonometry (inverse functions)
+    ################################################################################
+    proc atanTest {x} {
+        set f [fromstr $x 20]
+        if {abs($x)<=1.0} {
+            fassert acos {todouble [acos $f]} [expr {acos($x)}]
+            fassert asin {todouble [asin $f]} [expr {asin($x)}]
+        }
+        fassert atan {todouble [atan $f]} [expr {atan($x)}]
+    }
+    
+    atanTest 0.0
+    foreach i {1 2 3 4 5 6 7 8 9} {
+        atanTest 0.$i
+        atanTest $i.0
+        atanTest -0.$i
+        atanTest -$i.0
+    }
+    
+    # cleanup
+    rename atanTest ""
+    
+    ################################################################################
+    # cosh , sinh & tanh : hyperbolic functions
+    ################################################################################
+    proc hyper {x} {
+        set f [fromstr $x 18]
+        fassert cosh {todouble [cosh $f]} [expr {cosh($x)}]
+        fassert sinh {todouble [sinh $f]} [expr {sinh($x)}]
+        fassert tanh {todouble [tanh $f]} [expr {tanh($x)}]
+    }
+    
+    hyper 0.0
+    foreach i {1 2 3 4 5 6 7 8 9} {
+        hyper 0.$i
+        hyper $i.0
+        hyper -0.$i
+        hyper -$i.0
+    }
+    
+    # cleanup
+    rename hyper ""
+    
 }
 
-atan 0.0
-foreach i {1 2 3 4 5 6 7 8 9} {
-    atan 0.$i
-    atan $i.0
-    atan -0.$i
-    atan -$i.0
-}
-
-# cleanup
-rename atan ""
-
-################################################################################
-# cosh , sinh & tanh : hyperbolic functions
-################################################################################
-proc hyper {x} {
-    set f [::math::bigfloat::fromstr $x[::math::bigfloat::zero 20]]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::cosh $f]} [expr {cosh($x)}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::sinh $f]} [expr {sinh($x)}]
-    fassert {::math::bigfloat::todouble [::math::bigfloat::tanh $f]} [expr {tanh($x)}]
-}
-
-hyper 0.0
-foreach i {1 2 3 4 5 6 7 8 9} {
-    hyper 0.$i
-    hyper $i.0
-    hyper -0.$i
-    hyper -$i.0
-}
-
-# cleanup
-rename hyper ""
-
-
-
+testSuite
 ################################################################################
 # end of testsuite for bigfloat 1.0
 ################################################################################
-#puts "bigfloat : Testsuite completed"
 # cleanup global procs
 rename assert ""
 rename fassert ""
