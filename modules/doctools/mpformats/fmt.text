@@ -11,7 +11,7 @@
 
 dt_source _common.tcl
 dt_source _text.tcl
-proc c_copyrightsymbol {} {markup "(c)"}
+proc c_copyrightsymbol {} {return "(c)"}
 
 rename fmt_initialize     BaseInitialize
 proc   fmt_initialize {} {BaseInitialize ; TextInitialize ; return}
@@ -211,7 +211,7 @@ c_pass 2 fmt_manpage_end {} {
     CloseParagraph
     if {[llength $sa] > 0} {Section {SEE ALSO} ; Text [join [lsort $sa] ", "] ; CloseParagraph}
     if {[llength $kw] > 0} {Section KEYWORDS   ; Text [join [lsort $kw] ", "] ; CloseParagraph}
-    if {$ct != {}}         {Section COPYRIGHT  ; Text $ct ; CloseParagraph}
+    if {$ct != {}}         {Section COPYRIGHT  ; Text $ct ; CloseParagraph [Verbatim]}
     return
 }
 
@@ -244,8 +244,12 @@ c_pass 2 fmt_description {} {
 
     if {$syn != {} || $req != {}} {
 	Section SYNOPSIS
-	if {$req != {}} {Text $req}
-	if {$syn != {}} {Text $syn}
+	if {($req != {}) && ($syn != {})} {
+	    Text $req\n\n$syn
+	} else {
+	    if {$req != {}} {Text $req}
+	    if {$syn != {}} {Text $syn}
+	}
 	CloseParagraph [Verbatim]
     }
 

@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.85 2003/03/17 23:42:20 patthoyts Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.86 2003/04/01 21:24:15 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -87,6 +87,8 @@ IRC=irc
 # when creating the full package index for tcllib.
 MIME=mime
 
+SOUNDEX=soundex
+
 # URI parsing module
 URI=uri
 
@@ -153,6 +155,7 @@ MODULES= \
 	$(POP3D)	\
 	$(PROFILER)	\
 	$(SMTPD)	\
+	$(SOUNDEX)	\
 	$(TEXTUTIL)	\
 	$(URI)		\
 	$(LOGGER)	\
