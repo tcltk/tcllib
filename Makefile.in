@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.51 2001/11/26 11:46:31 jfontain Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.52 2002/01/11 22:44:01 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -239,7 +239,9 @@ install-doc: doc
 	-for j in $(MODULES) ; do \
 	    echo "Installing documentation for $$j" ; \
 	    for i in $(srcdir)/modules/$$j/*.n ; do \
-	        $(INSTALL_DATA) $$i $(mandir)/mann ; \
+		sed -e '/man\.macros/r $(srcdir)/man.macros' -e '/man\.macros/d' $$i > $$$$ ; \
+	        $(INSTALL_DATA) $$$$ $(mandir)/mann/`basename $$i` ; \
+		rm $$$$ ; \
 	    done; \
 	done
 	-chmod 444 $(mandir)/mann/*
