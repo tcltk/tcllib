@@ -1,5 +1,7 @@
 2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* mime: Fixed bug #479174.
+
 	* mkInstallScripts.tcl: Added code to install tclIndex files.
 
 	* Makefile.in (install-libraries, dist): Added commands to copy
