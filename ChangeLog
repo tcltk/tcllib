@@ -1,3 +1,8 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (MODULES): Added module 'sha1'. This is another
+	  message digest like 'md5'.
+
 2001-05-01  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (MODULES):  Added module 'report'.

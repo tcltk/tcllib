@@ -2,6 +2,14 @@
 
 	* md5.n: Fixed nroff trouble.
 
+2001-06-02  Miguel Sofer  <mig@utdt.edu>
+
+	* md5.tcl: modified the pure Tcl code to run almost 5 times
+	  faster, by inlining (via regsub) function calls and using local
+	  variables instead of arrays.
+
+          Bumped version number to 1.4
+
 2001-04-25  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* md5.test: Added tests of "md5::hmac". This allows us to test the

@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded base64 2.2 [list source [file join $dir base64.tcl]]
+package ifneeded sha1 1.0 [list source [file join $dir sha1.tcl]]

@@ -1,3 +1,14 @@
+2001-06-02  Miguel Sofer  <mig@utdt.edu>
+
+	* base64.tcl: Greatly increased speed, obtained by: using lists
+	  instead of arrays, splitting the input with [binary scan],
+	  taking the bytes to be encoded three at a time, and
+	  reformulating the decoding algorithm to be purely
+	  arithmetic. Improved backwards compatibility, now runs with
+	  Tcl8.0.
+
+	  Nudged version to 2.2
+
 2000-10-11  Brent Welch  <welch@ajubasolutions.com>
 
 	* base64.tcl: Fixed bug in base64::decode where trailing
