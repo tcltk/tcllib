@@ -1,5 +1,9 @@
 2004-06-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* pkgIndex.tcl:  Incremented version to 1.2.2
+	* smtpd.man:
+	* smtpd.tcl:
+
 	* smtpd.tcl (::smtpd::gmtoffset): Fixed bug #934134. The TZ
 	calculation was inverted and failed to cope with times spanning
 	midnight.
