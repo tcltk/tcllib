@@ -21,10 +21,9 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.4 2002/02/15 05:35:30 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.5 2002/03/06 19:15:05 andreas_kupries Exp $
 
 package require Tcl 8
-package provide comm 3.7.1
 
 namespace eval ::comm {
     namespace export comm comm_send
@@ -1046,6 +1045,26 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	    flush $fid
 	}
     }
+
+    if {$err == 1} {
+	# SF Tcllib Patch #526499
+	# (See http://sourceforge.net/tracker/?func=detail&aid=526499&group_id=12883&atid=312883
+	#  for initial request and comments)
+	#
+	# Error in async call. Look for [bgerror] to report it. Same
+	# logic as in Tcl itself. Errors thrown by bgerror itself get
+	# reported to stderr.
+
+	if {[catch {
+	    bgerror $ret
+	} msg]} {
+	    puts stderr "bgerror failed to handle background error."
+	    puts stderr "    Original error: $ret"
+	    puts stderr "    Error in bgerror: $msg"
+	    flush stderr
+	}
+    }
+    return
 }
 
 ###############################################################################
@@ -1065,3 +1084,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
+package provide comm 4.0
