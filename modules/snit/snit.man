@@ -53,12 +53,13 @@ The [cmd snit::type] [arg definition] block is a script that may
 contain the following definitions:
 
 [list_begin definitions]
-[call [cmd typevariable] [arg name] [opt [arg value]]]
+[call [cmd typevariable] [arg name] [opt [const -array]] [opt [arg value]]]
 
 Defines a type variable with the specified [arg name], and optionally
 the specified [arg value].  Type variables are shared by all instances
-of the type.  This definition can be used to define array variables,
-but cannot initialize their elements.
+of the type.  If the [const -array] option is included, then 
+[arg value] should be a list of keyword/value pairs; it will be
+assigned to the variable in the manner of [cmd "array set"].
 
 [call [cmd typemethod] [arg name] [arg arglist] [arg body]]
 
@@ -95,12 +96,13 @@ constructor.
 
 A type may define at most one type constructor.
 
-[call [cmd variable] [arg name] [opt [arg value]]]
+[call [cmd variable] [arg name] [opt [const -array]] [opt [arg value]]]
 
 Defines an instance variable, a private variable associated with each
-instance of this type, and optionally its initial value.  This
-definition can be used to define array instance variables, but cannot
-initialize their elements.
+instance of this type, and optionally its initial value.  
+If the [const -array] option is included, then 
+[arg value] should be a list of keyword/value pairs; it will be
+assigned to the variable in the manner of [cmd "array set"].
 
 [call [cmd method] [arg name] [arg arglist] [arg body]]
 
@@ -627,7 +629,7 @@ behavior.
 [lst_item "[const -canreplace] [arg flag]"]
 
 If false (the default) Snit will not create an instance of a
-snit::type that has the same name as an existing command; this
+[cmd snit::type] that has the same name as an existing command; this
 prevents subtle errors.  Setting this pragma to true restores the
 behavior of Snit V0.93 and earlier versions.
 

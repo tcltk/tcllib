@@ -11,6 +11,11 @@
 	* snit.man      Setting "pragma -canreplace yes" restores the
 	* dictionary    previous behavior.
 
+	* snit.tcl	The type definition statements "variable" and
+	* snit.test     "typevariable" now take a "-array" option that
+	* README.txt    allows them to initialize array variables with
+	* snit.man      an "array set" list.
+
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Implemented -configuremethod and configure command
