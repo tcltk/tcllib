@@ -26,3 +26,26 @@ mcset c cmd_list         "Command restricted to usage in command lists"
 mcset c opt_list         "Command restricted to usage in option lists"
 mcset c tkoption_list    "Command restricted to usage in tkoption lists"
 mcset c depr_strong      "Deprecated command \"%s\".\n\tPlease consider appropriate semantic markup or \[emph\] instead."
+
+# TOC messages
+
+mcset c end/open/toc  "\[toc_end\] missing."
+mcset c toc/plaintext "Plain text beyond whitespace is not allowed."
+mcset c toc/begincmd  "Command not allowed here."
+mcset c toc/endcmd    "Command not allowed here."
+mcset c toc/titlecmd  "Command not allowed here."
+mcset c toc/sectcmd   "Command not allowed here."
+mcset c toc/sectecmd  "Command not allowed here."
+mcset c toc/itemcmd   "Command not allowed here."
+mcset c toc/nodonecmd "Command not allowed after \[toc_end\]"
+
+# IDX messages
+
+mcset c end/open/idx   "\[index_end\] missing."
+mcset c idx/plaintext  "Plain text beyond whitespace is not allowed."
+mcset c idx/begincmd   "Command not allowed here."
+mcset c idx/endcmd     "Command not allowed here."
+mcset c idx/keycmd     "Command not allowed here."
+mcset c idx/manpagecmd "Command not allowed here."
+mcset c idx/urlcmd     "Command not allowed here."
+mcset c idx/nodonecmd  "Command not allowed after \[index_end\]"

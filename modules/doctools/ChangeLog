@@ -1,4 +1,84 @@
-2003-02-12  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-03-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* A examples/doctools.idx:     Fairly extensive revamping of the
+	* A examples/doctools.toc:     codebase. Added a format for
+	* A mpformats/_idx_common.tcl: indices, formatting engines, a
+	* A mpformats/_toc_common.tcl: package for handling it. Extended
+	* A mpformats/idx.html:        all packages to allow engine
+	* A mpformats/idx.nroff:       parameters and mapping from
+	* A mpformats/idx.null:        symbolic to actual filenames or
+	* A mpformats/idx.wiki:        urls. Right now only the HTML
+	* A mpformats/toc.html:        engines actually provide
+	* A mpformats/toc.nroff:       parameters. Added testsuites for
+	* A mpformats/toc.null:        doctoc and docidx. Revamped the
+	* A mpformats/toc.tmml:        documentation to cross-reference
+	* A mpformats/toc.wiki:        each other better, more uniform in
+	* A api_idx.tcl:               structure (not complete), naming of
+	* A api_toc.tcl:               the manpages for this module is now
+	* A checker_idx.tcl:           uniform. Added examples for doctoc
+	* A checker_toc.tcl:           and docidx formats, both in the
+	* A docidx.man:                manpages, and as separate files.
+	* A docidx.tcl:
+	* A docidx.test:
+	* A docidx_api.man:
+	* A docidx_fmt.man:
+	* A doctoc.man:
+	* A doctoc.tcl:
+	* A doctoc.test:
+	* A doctoc_api.man:
+	* A doctoc_fmt.man:
+	* A doctools_api.man:
+	* A doctools_fmt.man:
+	* A tocexpand:
+	* M ChangeLog:
+	* M NOTES:
+	* M api.tcl:
+	* M checker.tcl:
+	* M doctools.man:
+	* M doctools.tcl:
+	* M doctools.test:
+	* M pkgIndex.tcl:
+	* M mpformats/_common.tcl:
+	* M mpformats/_nroff.tcl:
+	* M mpformats/c.msg:
+	* M mpformats/de.msg:
+	* M mpformats/en.msg:
+	* M mpformats/fmt.html:
+	* M mpformats/fmt.latex:
+	* M mpformats/fmt.list:
+	* R dtformat.man:
+	* R dtformatter.man:
+
+2003-02-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.list: Modified to extract all meta information out
+	  of the page. Changed the output format. Argument to the
+	  'manpage' command in the output is now a key/value list
+	  acceptable to 'array set' instead of a simple list with fixed
+	  positions for the various data elements.
+
+2003-02-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctoc.tcl:                Specified a new portable format for
+	* api_toc.tcl:	             writing a table of contents. Wrote a
+	* checker_toc.tcl:           package to handle input that format
+	* dtocformat.man:            and a number of formatting engines
+	* dtocengine.man:            plugging into this package to
+	* mpformats/_toc_common.tcl: generate output in various formats.
+	* mpformats/toc.html:        This required additional checker code
+	* mpformats/toc.nroff:       and more messages in the message
+	* mpformats/toc.null:        catalogs. 
+	* mpformats/toc.tmml:
+	* mpformats/toc.wiki:
+	* pkgIndex.tcl:
+	* mpformats/c.msg:
+	* mpformats/en.msg:
+	* mpformats/de.msg:
+	* mpformats/_nroff.tcl:
+
+	* doctools.tcl: Rephrased documentation of SetupChecker a bit.
+
+2003-02-12  Andreas Kupries  <andreask@activestate.com>
 
 	* dtformatter.man: Updated the documentation to include the
 	* dtformat.man:    two new commands (vset, include).

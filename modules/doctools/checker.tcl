@@ -14,7 +14,7 @@ proc ::msgcat::mcunknown {locale code} {
     return "unknown error code \"$code\" (for locale $locale)"
 }
 
-if 0 {
+if {0} {
     puts stderr "Locale [::msgcat::mcpreferences]"
     foreach path [dt_search] {
 	puts stderr "Catalogs: [::msgcat::mcload $path] - $path"
@@ -200,7 +200,7 @@ proc vset {var args} {
 	    # Set contents of variable VAR
 	    global __$var
 	    set    __$var [lindex $args 0]
-	    return ; # Empty string ! Nothing for output.
+	    return "" ; # Empty string ! Nothing for output.
 	}
 	default {
 	    return -code error "wrong#args: set var ?value?"

@@ -1,25 +1,24 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools n 1.0]
+[manpage_begin doctoc n 1.0]
 [copyright {2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
-[titledesc {Create and manipulate doctools converter object}]
+[titledesc {Create and manipulate doctoc converter objects}]
 [require Tcl 8.2]
-[require doctools [opt 1.0]]
+[require doctools::toc [opt 1.0]]
 [description]
 
 This package provides objects which can be used to convert text
-written in the doctools format as specified in [cmd dtformat(n)]
-into any output format X, assuming that a formatting engine for X is
-available and provides the interface specified in
-[cmd dtformatter(n)].
+written in the doctoc format as specified in [syscmd doctoc_fmt] into
+any output format X, assuming that a formatting engine for X is
+available and provides the interface specified in [syscmd doctoc_api].
 
 [section API]
 
 [list_begin definitions]
 
-[call [cmd ::doctools::new] [arg objectName] [opt [arg "option value"]...]]
+[call [cmd ::doctools::toc::new] [arg objectName] [opt [arg "option value"]...]]
 
-Creates a new doctools object with an associated global Tcl command
+Creates a new doctoc object with an associated global Tcl command
 whose name is [arg objectName]. This command is explained in full
 detail in the sections [sectref {OBJECT COMMAND}] and
 
@@ -30,7 +29,7 @@ detail in the sections [sectref {OBJECT COMMAND}] and
 The list of options and values coming after the name of the object is
 used to set the initial configuration of the object.
 
-[call [cmd ::doctools::help]]
+[call [cmd ::doctools::toc::help]]
 
 This is a pure convenience command for applications which want to
 provide their user with a reminder of the available formatting
@@ -38,7 +37,7 @@ commands and their meanings. It returns a string containing a standard
 help for this purpose.
 
 
-[call [cmd ::doctools::search] [arg path]]
+[call [cmd ::doctools::toc::search] [arg path]]
 
 Whenever the package has to map the name of a format to the file
 containing the code for its formatting engine it will search the file
@@ -62,7 +61,7 @@ not a directory, or is not readable.
 
 [section {OBJECT COMMAND}]
 
-All commands created by [cmd ::doctools::new] have the following
+All commands created by [cmd ::doctools::toc::new] have the following
 general form and may be used to invoke various operations on the
 object they are associated with.
 
@@ -124,14 +123,14 @@ for the object.
 
 [nl]
 
-The method assumes that the [arg text] is in doctools format as
+The method assumes that the [arg text] is in doctoc format as
 specified in [cmd dtformat(n)]. Errors will be thrown otherwise.
 
 
 [call [arg objectName] [method search] [arg path]]
 
 This method extends the per-object list of paths searched for
-formatting engines. See also [cmd ::doctools::search] on how to extend
+formatting engines. See also [cmd ::doctools::toc::search] on how to extend
 the global (per-package) list of paths.
 
 [nl]
@@ -147,7 +146,7 @@ during the last invocation of method [method format].
 
 [section {OBJECT CONFIGURATION}]
 
-All doctools objects understand the following configuration options:
+All doctoc objects understand the following configuration options:
 
 [list_begin definitions]
 
@@ -229,19 +228,19 @@ object method [method search].
 
 If not, the list of global (package) paths is searched. For each
 directory in the list the package checks if that directory contains a
-file [file fmt.[term foo]]. If yes, that file is taken as the
+file [file toc.[term foo]]. If yes, that file is taken as the
 implementation.
 
 [nl]
 
 This list of paths contains initially one path and can be extended
-through the command [cmd ::doctools::search].
+through the command [cmd ::doctools::toc::search].
 
 [nl]
 
 The initial (standard) path is the sub directory [file mpformats] of
 the directory the package itself is located in. In other words, if the
-package implementation [file doctools.tcl] is installed in the
+package implementation [file doctoc.tcl] is installed in the
 directory [file /usr/local/lib/tcllib/doctools] then it will by
 default search the directory
 
@@ -299,6 +298,6 @@ Wippler's [syscmd wikit] application.
 
 [list_end]
 
-[see_also doctools_api doctools_fmt]
+[see_also doctoc_api doctoc_fmt]
 [keywords toc {table of contents} index documentation manpage TMML HTML nroff conversion markup]
 [manpage_end]

@@ -1,19 +1,20 @@
-# doctools.tcl --
+# doctoc.tcl --
 #
-#	Implementation of doctools objects for Tcl.
+#	Implementation of doctoc objects for Tcl.
 #
 # Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.3 2003/03/05 06:50:33 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.1 2003/03/05 06:50:33 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
 
-namespace eval ::doctools {
-    # Data storage in the doctools module
+namespace eval ::doctools {}
+namespace eval ::doctools::toc {
+    # Data storage in the doctools::toc module
     # -------------------------------
     #
     # One namespace per object, containing
@@ -22,18 +23,13 @@ namespace eval ::doctools {
     #     The paths in the list are searched before the standard paths.
     #  2) Configuration information
     #     a) string:  The format to use when converting the input.
-    #     b) boolean: A flag telling us whether to warn when visual markup
-    #        is used in the input, or not.
-    #     c) File information associated with the input, if any.
-    #     d) Module information associated with the input, if any.
-    #     e) Copyright information, if any
     #  4) Name of the interpreter used to perform the syntax check of the
     #     input (= allowed order of formatting commands).
     #  5) Name of the interpreter containing the code coming from the format
     #     definition file.
     #  6) Name of the expander object used to interpret the input to convert.
 
-    # commands is the list of subcommands recognized by the doctools objects
+    # commands is the list of subcommands recognized by the doctoc objects
     variable commands [list		\
 	    "cget"			\
 	    "configure"			\
@@ -59,7 +55,7 @@ namespace eval ::doctools {
     variable here [file dirname [info script]]
 }
 
-# ::doctools::search --
+# ::doctools::toc::search --
 #
 #	Extend the list of paths used when searching for format definition files.
 #
@@ -75,18 +71,18 @@ namespace eval ::doctools {
 #	paths. This means that the new path is search before the
 #	standard paths set at module initialization time.
 
-proc ::doctools::search {path} {
+proc ::doctools::toc::search {path} {
     variable paths
 
-    if {![file exists      $path]} {return -code error "doctools::search: path does not exist"}
-    if {![file isdirectory $path]} {return -code error "doctools::search: path is not a directory"}
-    if {![file readable    $path]} {return -code error "doctools::search: path cannot be read"}
+    if {![file exists      $path]} {return -code error "doctools::toc::search: path does not exist"}
+    if {![file isdirectory $path]} {return -code error "doctools::toc::search: path is not a directory"}
+    if {![file readable    $path]} {return -code error "doctools::toc::search: path cannot be read"}
 
     set paths [linsert $paths 0 $path]
     return
 }
 
-# ::doctools::help --
+# ::doctools::toc::help --
 #
 #	Return a string containing short help
 #	regarding the existing formatting commands.
@@ -97,72 +93,33 @@ proc ::doctools::search {path} {
 # Results:
 #	A string.
 
-proc ::doctools::help {} {
+proc ::doctools::toc::help {} {
     return "formatting commands\n\
-	    * manpage_begin - begin of manpage\n\
-	    * moddesc       - module description\n\
-	    * titledesc     - manpage title\n\
-	    * copyright     - copyright assignment\n\
-	    * manpage_end   - end of manpage\n\
-	    * require       - package requirement\n\
-	    * description   - begin of manpage body\n\
-	    * section       - begin new section of body\n\
-	    * para          - begin new paragraph\n\
-	    * list_begin    - begin a list\n\
-	    * list_end      - end of a list\n\
-	    * lst_item      - begin item of definition list\n\
-	    * call          - command definition, adds to synopsis\n\
-	    * usage         - see above, without adding to synopsis\n\
-	    * bullet        - begin item in bulleted list\n\
-	    * enum          - begin item in enumerated list\n\
-	    * arg_def       - begin item in argument list\n\
-	    * cmd_def       - begin item in command list\n\
-	    * opt_def       - begin item in option list\n\
-	    * tkoption_def  - begin item in tkoption list\n\
-	    * example       - example block\n\
-	    * example_begin - begin example\n\
-	    * example_end   - end of example\n\
-	    * see_also      - cross reference declaration\n\
-	    * keywords      - keyword declaration\n\
-	    * nl            - paragraph break in list items\n\
-	    * arg           - semantic markup - argument\n\
-	    * cmd           - semantic markup - command\n\
-	    * opt           - semantic markup - optional data\n\
-	    * comment       - semantic markup - comment\n\
-	    * sectref       - semantic markup - section reference\n\
-	    * syscmd        - semantic markup - system command\n\
-	    * method        - semantic markup - object method\n\
-	    * option        - semantic markup - option\n\
-	    * widget        - semantic markup - widget\n\
-	    * fun           - semantic markup - function\n\
-	    * type          - semantic markup - data type\n\
-	    * package       - semantic markup - package\n\
-	    * class         - semantic markup - class\n\
-	    * var           - semantic markup - variable\n\
-	    * file          - semantic markup - file \n\
-	    * uri           - semantic markup - uri\n\
-	    * term          - semantic markup - unspecific terminology\n\
-	    * const         - semantic markup - constant value\n\
-	    * emph          - emphasis\n\
-	    * strong        - emphasis, deprecated, usage is discouraged\n\
+	    * toc_begin      - begin of table of contents\n\
+	    * toc_end        - end of toc\n\
+	    * division_start - begin of toc division\n\
+	    * division_end   - end of toc division\n\
+	    * item           - toc element\n\
+	    * vset           - set/get variable values\n\
+	    * include        - insert external file\n\
+	    * lb, rb         - left/right brackets\n\
 	    "
 }
 
-# ::doctools::new --
+# ::doctools::toc::new --
 #
-#	Create a new doctools object with a given name. May configure the object.
+#	Create a new doctoc object with a given name. May configure the object.
 #
 # Arguments:
-#	name	Name of the doctools object.
+#	name	Name of the doctoc object.
 #	args	Options configuring the new object.
 #
 # Results:
 #	name	Name of the doctools created
 
-proc ::doctools::new {name args} {
-    
-    if { [llength [info commands ::$name]] } {
-	return -code error "command \"$name\" already exists, unable to create doctools object"
+proc ::doctools::toc::new {name args} {
+        if { [llength [info commands ::$name]] } {
+	return -code error "command \"$name\" already exists, unable to create doctoc object"
     }
     if {[llength $args] % 2 == 1} {
 	return -code error "wrong # args: doctools::new name ?opt val...??"
@@ -170,26 +127,23 @@ proc ::doctools::new {name args} {
 
     # The arguments seem to be ok, setup the namespace for the object
 
-    namespace eval ::doctools::doctools$name {
+    namespace eval ::doctools::toc::doctoc$name {
 	variable paths      [list]
+	variable file       ""
 	variable format     ""
 	variable formatfile ""
-	variable deprecated 0
-	variable file       ""
-	variable module     ""
-	variable copyright  ""
 	variable format_ip  ""
 	variable chk_ip     ""
 	variable expander   "[namespace current]::ex"
 	variable ex_ok      0
 	variable msg        [list]
-	variable param      [list]
 	variable map ;      array set map {}
+	variable param      [list]
     }
 
     # Create the command to manipulate the object
-    #                 $name -> ::doctools::DoctoolsProc $name
-    interp alias {} ::$name {} ::doctools::DoctoolsProc $name
+    #                 $name -> ::doctools::toc::DocTocProc $name
+    interp alias {} ::$name {} ::doctools::toc::DocTocProc $name
 
     # If the name was followed by arguments use them to configure the
     # object before returning its handle to the caller.
@@ -204,21 +158,21 @@ proc ::doctools::new {name args} {
 ##########################
 # Private functions follow
 
-# ::doctools::DoctoolsProc --
+# ::doctools::toc::DocTocProc --
 #
-#	Command that processes all doctools object commands.
+#	Command that processes all doctoc object commands.
 #	Dispatches any object command to the appropriate internal
 #	command implementing its functionality.
 #
 # Arguments:
-#	name	Name of the doctools object to manipulate.
+#	name	Name of the doctoc object to manipulate.
 #	cmd	Subcommand to invoke.
 #	args	Arguments for subcommand.
 #
 # Results:
 #	Varies based on command to perform
 
-proc ::doctools::DoctoolsProc {name {cmd ""} args} {
+proc ::doctools::toc::DocTocProc {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
 	error "wrong # args: should be \"$name option ?arg arg ...?\""
@@ -226,39 +180,39 @@ proc ::doctools::DoctoolsProc {name {cmd ""} args} {
     
     # Split the args into command and args components
 
-    if { [llength [info commands ::doctools::_$cmd]] == 0 } {
+    if { [llength [info commands ::doctools::toc::_$cmd]] == 0 } {
 	variable commands
 	set optlist [join $commands ", "]
 	set optlist [linsert $optlist "end-1" "or"]
 	return -code error "bad option \"$cmd\": must be $optlist"
     }
-    return [eval [list ::doctools::_$cmd $name] $args]
+    return [eval [list ::doctools::toc::_$cmd $name] $args]
 }
 
 ##########################
 # Method implementations follow (these are also private commands)
 
-# ::doctools::_cget --
+# ::doctools::toc::_cget --
 #
 #	Retrieve the current value of a particular option
 #
 # Arguments:
-#	name	Name of the doctools object to query
+#	name	Name of the doctoc object to query
 #	option	Name of the option whose value we are asking for.
 #
 # Results:
 #	The value of the option
 
-proc ::doctools::_cget {name option} {
+proc ::doctools::toc::_cget {name option} {
     _configure $name $option
 }
 
-# ::doctools::_configure --
+# ::doctools::toc::_configure --
 #
-#	Configure a doctools object, or query its configuration.
+#	Configure a doctoc object, or query its configuration.
 #
 # Arguments:
-#	name	Name of the doctools object to configure
+#	name	Name of the doctoc object to configure
 #	args	Options and their values.
 #
 # Results:
@@ -266,27 +220,16 @@ proc ::doctools::_cget {name option} {
 #	A list of all options and their values if called without arguments.
 #	The value of one particular option if called with a single argument.
 
-proc ::doctools::_configure {name args} {
-    upvar ::doctools::doctools${name}::format_ip  format_ip
-    upvar ::doctools::doctools${name}::chk_ip     chk_ip
-    upvar ::doctools::doctools${name}::expander   expander
-    upvar ::doctools::doctools${name}::passes     passes
-
+proc ::doctools::toc::_configure {name args} {
     if {[llength $args] == 0} {
 	# Retrieve the current configuration.
 
-	upvar ::doctools::doctools${name}::file       file
-	upvar ::doctools::doctools${name}::module     module
-	upvar ::doctools::doctools${name}::format     format
-	upvar ::doctools::doctools${name}::copyright  copyright
-	upvar ::doctools::doctools${name}::deprecated deprecated
+	upvar ::doctools::toc::doctoc${name}::file    file
+	upvar ::doctools::toc::doctoc${name}::format  format
 
 	set     res [list]
 	lappend res -file       $file
-	lappend res -module     $module
 	lappend res -format     $format
-	lappend res -copyright  $copyright
-	lappend res -deprecated $deprecated
 	return $res
 
     } elseif {[llength $args] == 1} {
@@ -294,74 +237,46 @@ proc ::doctools::_configure {name args} {
 
 	switch -exact -- [lindex $args 0] {
 	    -file {
-		upvar ::doctools::doctools${name}::file file
+		upvar ::doctools::toc::doctoc${name}::file file
 		return $file
 	    }
-	    -module {
-		upvar ::doctools::doctools${name}::module module
-		return $module
-	    }
-	    -copyright {
-		upvar ::doctools::doctools${name}::copyright copyright
-		return $copyright
-	    }
 	    -format {
-		upvar ::doctools::doctools${name}::format format
+		upvar ::doctools::toc::doctoc${name}::format format
 		return $format
-	    }
-	    -deprecated {
-		upvar ::doctools::doctools${name}::deprecated deprecated
-		return $deprecated
 	    }
 	    default {
 		return -code error \
-			"doctools::_configure: Unknown option \"[lindex $args 0]\", expected\
-			-copyright, -file, -module, -format, or -deprecated"
+			"doctools::toc::_configure: Unknown option \"[lindex $args 0]\", expected\
+			-file, or -format"
 	    }
 	}
     } else {
 	# Reconfigure the object.
 
 	if {[llength $args] % 2 == 1} {
-	    return -code error "wrong # args: doctools::_configure name ?opt val...??"
+	    return -code error "wrong # args: doctools::toc::_configure name ?opt val...??"
 	}
 
 	foreach {option value} $args {
 	    switch -exact -- $option {
 		-file {
-		    upvar ::doctools::doctools${name}::file file
+		    upvar ::doctools::toc::doctoc${name}::file file
 		    set file $value
-		}
-		-module {
-		    upvar ::doctools::doctools${name}::module module
-		    set module $value
-		}
-		-copyright {
-		    upvar ::doctools::doctools${name}::copyright copyright
-		    set copyright $value
 		}
 		-format {
 		    if {[catch {
 			set fmtfile [LookupFormat $name $value]
 			SetupFormatter $name $fmtfile
-			upvar ::doctools::doctools${name}::format format
+			upvar ::doctools::toc::doctoc${name}::format format
 			set format $value
 		    } msg]} {
-			return -code error "doctools::_configure: -format: $msg"
+			return -code error "doctools::toc::_configure: -format: $msg"
 		    }
-		}
-		-deprecated {
-		    if {![string is boolean $value]} {
-			return -code error \
-				"doctools::_configure: -deprecated expected a boolean, got \"$value\""
-		    }
-		    upvar ::doctools::doctools${name}::deprecated deprecated
-		    set deprecated $value
 		}
 		default {
 		    return -code error \
-			    "doctools::_configure: Unknown option \"$option\", expected\
-			    -copyright, -file, -module, -format, or -deprecated"
+			    "doctools::toc::_configure: Unknown option \"$option\", expected\
+			    -file, or -format"
 		}
 	    }
 	}
@@ -369,85 +284,85 @@ proc ::doctools::_configure {name args} {
     return ""
 }
 
-# ::doctools::_destroy --
+# ::doctools::toc::_destroy --
 #
-#	Destroy a doctools object, including its associated command and data storage.
+#	Destroy a doctoc object, including its associated command and data storage.
 #
 # Arguments:
-#	name	Name of the doctools object to destroy.
+#	name	Name of the doctoc object to destroy.
 #
 # Results:
 #	None.
 
-proc ::doctools::_destroy {name} {
+proc ::doctools::toc::_destroy {name} {
     # Check the object for sub objects which have to destroyed before
     # the namespace is torn down.
-    namespace eval ::doctools::doctools$name {
+    namespace eval ::doctools::toc::doctoc$name {
 	if {$format_ip != ""} {interp delete $format_ip}
 	if {$chk_ip    != ""} {interp delete $chk_ip}
 
 	# Expander objects have no delete/destroy method. This would
 	# be a leak if not for the fact that an expander object is a
 	# namespace, and we have arranged to make it a sub namespace of
-	# the doctools object. Therefore tearing down our object namespace
+	# the doctoc object. Therefore tearing down our object namespace
 	# also cleans up the expander object.
 	# if {$expander != ""} {$expander destroy}
 
     }
-    namespace delete ::doctools::doctools$name
+    namespace delete ::doctools::toc::doctoc$name
     interp alias {} ::$name {}
     return
 }
 
-# ::doctools::_map --
+# ::doctools::toc::_map --
 #
 #	Add a mapping from symbolic to actual filename to the object.
 #
 # Arguments:
-#	name	Name of the doctools object to use
+#	name	Name of the doctoc object to use
 #	sfname	Symbolic filename to map
 #	afname	Actual filename
 #
 # Results:
 #	None.
 
-proc ::doctools::_map {name sfname afname} {
-    upvar ::doctools::doctools${name}::map map
+proc ::doctools::toc::_map {name sfname afname} {
+    upvar ::doctools::toc::doctoc${name}::map map
     set map($sfname) $afname
     return
 }
 
-# ::doctools::_format --
+# ::doctools::toc::_format --
 #
 #	Convert some text in doctools format
 #	according to the configuration in the object.
 #
 # Arguments:
-#	name	Name of the doctools object to use
+#	name	Name of the doctoc object to use
 #	text	Text to convert.
 #
 # Results:
 #	The conversion result.
 
-proc ::doctools::_format {name text} {
-    upvar ::doctools::doctools${name}::format format
+proc ::doctools::toc::_format {name text} {
+    upvar ::doctools::toc::doctoc${name}::format format
     if {$format == ""} {
 	return -code error "$name: No format was specified"
     }
 
-    upvar ::doctools::doctools${name}::format_ip format_ip
-    upvar ::doctools::doctools${name}::chk_ip    chk_ip
-    upvar ::doctools::doctools${name}::ex_ok     ex_ok
-    upvar ::doctools::doctools${name}::expander  expander
-    upvar ::doctools::doctools${name}::passes    passes
-    upvar ::doctools::doctools${name}::msg       warnings
+    upvar ::doctools::toc::doctoc${name}::format_ip format_ip
+    upvar ::doctools::toc::doctoc${name}::chk_ip    chk_ip
+    upvar ::doctools::toc::doctoc${name}::ex_ok     ex_ok
+    upvar ::doctools::toc::doctoc${name}::expander  expander
+    upvar ::doctools::toc::doctoc${name}::passes    passes
+    upvar ::doctools::toc::doctoc${name}::msg       warnings
 
     if {!$ex_ok}       {SetupExpander  $name}
     if {$chk_ip == ""} {SetupChecker   $name}
     # assert (format_ip != "")
 
     set warnings [list]
-    if {[catch {$format_ip eval fmt_initialize}]} {
+    if {[catch {$format_ip eval toc_initialize}]} {
 	return -code error "Could not initialize engine"
     }
     set result ""
@@ -459,14 +374,14 @@ proc ::doctools::_format {name text} {
     } {
 	incr p -1 ; incr n
     } {
-	if {[catch {$format_ip eval [list fmt_setup $n]}]} {
-	    catch {$format_ip eval fmt_shutdown}
+	if {[catch {$format_ip eval [list toc_setup $n]}]} {
+	    catch {$format_ip eval toc_shutdown}
 	    return -code "Could not initialize pass $n of engine"
 	}
 	$chk_ip eval ck_initialize
 
 	if {[catch {set result [$expander expand $text]} msg]} {
-	    catch {$format_ip eval fmt_shutdown}
+	    catch {$format_ip eval toc_shutdown}
 	    # Filter for checker errors and reduce them to the essential message.
 
 	    if {![regexp {^Error in} $msg]}          {return -code error $msg}
@@ -482,49 +397,49 @@ proc ::doctools::_format {name text} {
 	$chk_ip eval ck_complete
     }
 
-    if {[catch {set result [$format_ip eval [list fmt_postprocess $result]]}]} {
+    if {[catch {set result [$format_ip eval [list toc_postprocess $result]]}]} {
 	return -code error "Unable to post process final result"
     }
-    if {[catch {$format_ip eval fmt_shutdown}]} {
+    if {[catch {$format_ip eval toc_shutdown}]} {
 	return -code error "Could not shut engine down"
     }
     return $result
 
 }
 
-# ::doctools::_search --
+# ::doctools::toc::_search --
 #
 #	Add a search path to the object.
 #
 # Arguments:
-#	name	Name of the doctools object to extend
+#	name	Name of the doctoc object to extend
 #	path	Search path to add.
 #
 # Results:
 #	None.
 
-proc ::doctools::_search {name path} {
+proc ::doctools::toc::_search {name path} {
     if {![file exists      $path]} {return -code error "$name search: path does not exist"}
     if {![file isdirectory $path]} {return -code error "$name search: path is not a directory"}
     if {![file readable    $path]} {return -code error "$name search: path cannot be read"}
 
-    upvar ::doctools::doctools${name}::paths paths
+    upvar ::doctools::toc::doctoc${name}::paths paths
     set paths [linsert $paths 0 $path]
     return
 }
 
-# ::doctools::_warnings --
+# ::doctools::toc::_warnings --
 #
 #	Return the warning accumulated during the last invocation of 'format'.
 #
 # Arguments:
-#	name	Name of the doctools object to query
+#	name	Name of the doctoc object to query
 #
 # Results:
 #	A list of warnings.
 
-proc ::doctools::_warnings {name} {
-    upvar ::doctools::doctools${name}::msg msg
+proc ::doctools::toc::_warnings {name} {
+    upvar ::doctools::toc::doctoc${name}::msg msg
     return $msg
 }
 
@@ -539,8 +454,8 @@ proc ::doctools::_warnings {name} {
 # Results:
 #	A list of parameter names
 
-proc ::doctools::_parameters {name} {
-    upvar ::doctools::doctools${name}::param param
+proc ::doctools::toc::_parameters {name} {
+    upvar ::doctools::toc::doctoc${name}::param param
     return $param
 }
 
@@ -556,33 +471,33 @@ proc ::doctools::_parameters {name} {
 # Results:
 #	None.
 
-proc ::doctools::_setparam {name param value} {
-    upvar ::doctools::doctools${name}::format_ip format_ip
+proc ::doctools::toc::_setparam {name param value} {
+    upvar ::doctools::toc::doctoc${name}::format_ip format_ip
 
     if {$format_ip == {}} {
 	return -code error \
 		"Unable to set parameters without a valid format"
     }
 
-    $format_ip eval [list fmt_varset $param $value]
+    $format_ip eval [list toc_varset $param $value]
     return
 }
 
 ##########################
 # Support commands
 
-# ::doctools::LookupFormat --
+# ::doctools::toc::LookupFormat --
 #
 #	Search a format definition file based upon its name
 #
 # Arguments:
-#	name	Name of the doctools object to use
+#	name	Name of the doctoc object to use
 #	format	Name of the format to look for.
 #
 # Results:
 #	The file containing the format definition
 
-proc ::doctools::LookupFormat {name format} {
+proc ::doctools::toc::LookupFormat {name format} {
     # Order of searching
     # 1) Is the name of the format an existing file ?
     #    If yes, take this file.
@@ -593,9 +508,9 @@ proc ::doctools::LookupFormat {name format} {
 	return $format
     }
 
-    upvar ::doctools::doctools${name}::paths opaths
+    upvar ::doctools::toc::doctoc${name}::paths opaths
     foreach path $opaths {
-	set f [file join $path fmt.$format]
+	set f [file join $path toc.$format]
 	if {[file exists $f]} {
 	    return $f
 	}
@@ -603,7 +518,7 @@ proc ::doctools::LookupFormat {name format} {
 
     variable paths
     foreach path $paths {
-	set f [file join $path fmt.$format]
+	set f [file join $path toc.$format]
 	if {[file exists $f]} {
 	    return $f
 	}
@@ -612,19 +527,19 @@ proc ::doctools::LookupFormat {name format} {
     return -code error "Unknown format \"$format\""
 }
 
-# ::doctools::SetupFormatter --
+# ::doctools::toc::SetupFormatter --
 #
 #	Create and initializes an interpreter containing a
 #	formatting engine
 #
 # Arguments:
-#	name	Name of the doctools object to manipulaye
+#	name	Name of the doctoc object to manipulaye
 #	format	Name of file containing the code of the engine
 #
 # Results:
 #	None.
 
-proc ::doctools::SetupFormatter {name format} {
+proc ::doctools::toc::SetupFormatter {name format} {
 
     # Create and initialize the interpreter first.
     # Use a transient variable. Interrogate the
@@ -637,22 +552,22 @@ proc ::doctools::SetupFormatter {name format} {
     set mpip [interp create -safe] ; # interpreter for the formatting engine
     #set mpip [interp create] ; # interpreter for the formatting engine
 
-    $mpip invokehidden source [file join $here api.tcl]
-    #$mpip eval [list source [file join $here api.tcl]]
-    interp alias $mpip dt_source   {} ::doctools::Source $mpip [file dirname $format]
+    $mpip invokehidden source [file join $here api_toc.tcl]
+    #$mpip eval [list source [file join $here api_toc.tcl]]
+    interp alias $mpip dt_source   {} ::doctools::toc::Source $mpip [file dirname $format]
     $mpip invokehidden source $format
     #$mpip eval [list source $format]
 
     # Check the engine for useability in doctools.
 
     foreach api {
-	fmt_numpasses
-	fmt_initialize
-	fmt_setup
-	fmt_postprocess
-	fmt_shutdown
-	fmt_listvariables
-	fmt_varset
+	toc_numpasses
+	toc_initialize
+	toc_setup
+	toc_postprocess
+	toc_shutdown
+	toc_listvariables
+	toc_varset
     } {
 	if {[$mpip eval [list info commands $api]] == {}} {
 	    interp delete $mpip
@@ -660,7 +575,7 @@ proc ::doctools::SetupFormatter {name format} {
 	}
     }
     if {[catch {
-	set passes [$mpip eval fmt_numpasses]
+	set passes [$mpip eval toc_numpasses]
     }]} {
 	interp delete $mpip
 	error "$format error: Unable to query for number of passes"
@@ -670,7 +585,7 @@ proc ::doctools::SetupFormatter {name format} {
 	error "$format error: illegal number of passes \"$passes\""
     }
     if {[catch {
-	set parameters [$mpip eval fmt_listvariables]
+	set parameters [$mpip eval toc_listvariables]
     }]} {
 	interp delete $mpip
 	error "$format error: Unable to query for list of parameters"
@@ -682,12 +597,12 @@ proc ::doctools::SetupFormatter {name format} {
     # now invalid. It will be recreated during the
     # next call of 'format'.
 
-    upvar ::doctools::doctools${name}::formatfile formatfile
-    upvar ::doctools::doctools${name}::format_ip  format_ip
-    upvar ::doctools::doctools${name}::chk_ip     chk_ip
-    upvar ::doctools::doctools${name}::expander   expander
-    upvar ::doctools::doctools${name}::passes     xpasses
-    upvar ::doctools::doctools${name}::param      xparam
+    upvar ::doctools::toc::doctoc${name}::formatfile formatfile
+    upvar ::doctools::toc::doctoc${name}::format_ip  format_ip
+    upvar ::doctools::toc::doctoc${name}::chk_ip     chk_ip
+    upvar ::doctools::toc::doctoc${name}::expander   expander
+    upvar ::doctools::toc::doctoc${name}::passes     xpasses
+    upvar ::doctools::toc::doctoc${name}::param      xparam
 
     if {$chk_ip != {}}    {interp delete $chk_ip}
     if {$format_ip != {}} {interp delete $format_ip}
@@ -697,16 +612,9 @@ proc ::doctools::SetupFormatter {name format} {
 
     # Now link engine API into it.
 
-    interp alias $mpip dt_file      {} ::doctools::GetFile      $name
-    interp alias $mpip dt_fileid    {} ::doctools::GetFileId    $name
-    interp alias $mpip dt_module    {} ::doctools::GetModule    $name
-    interp alias $mpip dt_copyright {} ::doctools::GetCopyright $name
-    interp alias $mpip dt_format    {} ::doctools::GetFormat    $name
-    interp alias $mpip dt_user      {} ::doctools::GetUser      $name
-    interp alias $mpip dt_lnesting  {} ::doctools::ListLevel    $name
-    interp alias $mpip dt_fmap      {} ::doctools::MapFile      $name
-    interp alias $mpip puts_stderr  {} ::puts stderr
-    interp alias $mpip file         {} ::doctools::FileCmd
+    interp alias $mpip dt_format    {} ::doctools::toc::GetFormat    $name
+    interp alias $mpip dt_user      {} ::doctools::toc::GetUser      $name
+    interp alias $mpip dt_fmap      {} ::doctools::toc::MapFile      $name
 
     foreach cmd {cappend cget cis cname cpop cpush cset lb rb} {
 	interp alias $mpip ex_$cmd {} $expander $cmd
@@ -719,30 +627,30 @@ proc ::doctools::SetupFormatter {name format} {
     return
 }
 
-# ::doctools::SetupChecker --
+# ::doctools::toc::SetupChecker --
 #
 #	Create and initializes an interpreter for checking the usage of
-#	doctools formatting commands
+#	doctoc formatting commands
 #
 # Arguments:
-#	name	Name of the doctools object to manipulaye
+#	name	Name of the doctoc object to manipulaye
 #
 # Results:
 #	None.
 
-proc ::doctools::SetupChecker {name} {
-    # Create an interpreter for checking the usage of doctools formatting commands
+proc ::doctools::toc::SetupChecker {name} {
+    # Create an interpreter for checking the usage of doctoc formatting commands
     # and initialize it: Link it to the interpreter doing the formatting, the
     # expander object and the configuration information. All of which
     # is accessible through the token/handle (name of state/object array).
 
     variable here
 
-    upvar ::doctools::doctools${name}::chk_ip    chk_ip
+    upvar ::doctools::toc::doctoc${name}::chk_ip    chk_ip
     if {$chk_ip != ""} {return}
 
-    upvar ::doctools::doctools${name}::expander  expander
-    upvar ::doctools::doctools${name}::format_ip format_ip
+    upvar ::doctools::toc::doctoc${name}::expander  expander
+    upvar ::doctools::toc::doctoc${name}::format_ip format_ip
 
     set chk_ip [interp create] ; # interpreter hosting the formal format checker
 
@@ -750,13 +658,12 @@ proc ::doctools::SetupChecker {name} {
 
     foreach {cmd ckcmd} {
 	dt_search     SearchPaths
-	dt_deprecated Deprecated
 	dt_error      FmtError
 	dt_warning    FmtWarning
     } {
-	interp alias $chk_ip $cmd {} ::doctools::$ckcmd $name
+	interp alias $chk_ip $cmd {} ::doctools::toc::$ckcmd $name
     }
-    $chk_ip eval [list source [file join $here checker.tcl]]
+    $chk_ip eval [list source [file join $here checker_toc.tcl]]
 
     # Simple expander commands are directly routed back into it, no
     # checking required.
@@ -769,53 +676,49 @@ proc ::doctools::SetupChecker {name} {
     # 'fmt_' to distinguish them from the checking commands.
 
     foreach cmd {
-	manpage_begin moddesc titledesc copyright manpage_end require
-	description section para list_begin list_end lst_item call
-	bullet enum example example_begin example_end see_also
-	keywords nl arg cmd opt comment sectref syscmd method option
-	widget fun type package class var file uri usage term const
-	arg_def cmd_def opt_def tkoption_def emph strong plain_text
+	toc_begin toc_end division_start division_end item
+	comment plain_text
     } {
 	interp alias $chk_ip fmt_$cmd $format_ip fmt_$cmd
     }
     return
 }
 
-# ::doctools::SetupExpander --
+# ::doctools::toc::SetupExpander --
 #
 #	Create and initializes the expander for input
 #
 # Arguments:
-#	name	Name of the doctools object to manipulaye
+#	name	Name of the doctoc object to manipulaye
 #
 # Results:
 #	None.
 
-proc ::doctools::SetupExpander {name} {
-    upvar ::doctools::doctools${name}::ex_ok    ex_ok
+proc ::doctools::toc::SetupExpander {name} {
+    upvar ::doctools::toc::doctoc${name}::ex_ok    ex_ok
     if {$ex_ok} {return}
 
-    upvar ::doctools::doctools${name}::expander expander
+    upvar ::doctools::toc::doctoc${name}::expander expander
     ::textutil::expander $expander
-    $expander evalcmd [list ::doctools::Eval $name]
+    $expander evalcmd [list ::doctools::toc::Eval $name]
     $expander textcmd plain_text
     set ex_ok 1
     return
 }
 
-# ::doctools::SearchPaths --
+# ::doctools::toc::SearchPaths --
 #
 #	API for checker. Returns list of search paths for format
 #	definitions. Used to look for message catalogs as well.
 #
 # Arguments:
-#	name	Name of the doctools object to query.
+#	name	Name of the doctoc object to query.
 #
 # Results:
 #	None.
 
-proc ::doctools::SearchPaths {name} {
-    upvar ::doctools::doctools${name}::paths opaths
+proc ::doctools::toc::SearchPaths {name} {
+    upvar ::doctools::toc::doctoc${name}::paths opaths
     variable paths
 
     set p $opaths
@@ -823,69 +726,51 @@ proc ::doctools::SearchPaths {name} {
     return $p
 }
 
-# ::doctools::Deprecated --
-#
-#	API for checker. Returns flag determining
-#	whether visual markup is warned against, or not.
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	None.
-
-proc ::doctools::Deprecated {name} {
-    upvar ::doctools::doctools${name}::deprecated deprecated
-    return $deprecated
-}
-
-# ::doctools::FmtError --
+# ::doctools::toc::FmtError --
 #
 #	API for checker. Called when an error occured.
 #
 # Arguments:
-#	name	Name of the doctools object to query.
+#	name	Name of the doctoc object to query.
 #	text	Error message
 #
 # Results:
 #	None.
 
-proc ::doctools::FmtError {name text} {
+proc ::doctools::toc::FmtError {name text} {
     return -code error "(FmtError) $text"
 }
 
-# ::doctools::FmtWarning --
+# ::doctools::toc::FmtWarning --
 #
 #	API for checker. Called when a warning was generated
 #
 # Arguments:
-#	name	Name of the doctools object
+#	name	Name of the doctoc object
 #	text	Warning message
 #
 # Results:
 #	None.
 
-proc ::doctools::FmtWarning {name text} {
-    upvar ::doctools::doctools${name}::msg msg
+proc ::doctools::toc::FmtWarning {name text} {
+    upvar ::doctools::toc::doctoc${name}::msg msg
     lappend msg $text
     return
 }
 
-# ::doctools::Eval --
+# ::doctools::toc::Eval --
 #
 #	API for expander. Routes the macro invocations
 #	into the checker interpreter
 #
 # Arguments:
-#	name	Name of the doctools object to query.
+#	name	Name of the doctoc object to query.
 #
 # Results:
 #	None.
 
-proc ::doctools::Eval {name macro} {
-    upvar ::doctools::doctools${name}::chk_ip chk_ip
-
-    #puts stderr "\t\t$name [lindex [split $macro] 0]"
+proc ::doctools::toc::Eval {name macro} {
+    upvar ::doctools::toc::doctoc${name}::chk_ip chk_ip
 
     # Handle the [include] command directly
     if {[string match include* $macro]} {
@@ -896,19 +781,24 @@ proc ::doctools::Eval {name macro} {
     return [$chk_ip eval $macro]
 }
 
-# ::doctools::ExpandInclude --
+# ::doctools::toc::ExpandInclude --
 #
 #	Handle inclusion of files.
 #
 # Arguments:
-#	name	Name of the doctools object to query.
+#	name	Name of the doctoc object to query.
 #	path	Name of file to include and expand.
 #
 # Results:
 #	None.
 
-proc ::doctools::ExpandInclude {name path} {
-    upvar ::doctools::doctools${name}::file file
+proc ::doctools::toc::ExpandInclude {name path} {
+    # Look for the file relative to the directory of the
+    # main file we are converting. If that fails try to
+    # use the current working directory. Throw an error
+    # if the file couldn't be found.
+
+    upvar ::doctools::toc::doctoc${name}::file file
 
     set ipath [file join [file dirname $file] $path]
     if {![file exists $ipath]} {
@@ -922,139 +812,42 @@ proc ::doctools::ExpandInclude {name path} {
     set    text [read $chan]
     close $chan
 
-    upvar ::doctools::doctools${name}::expander  expander
+    upvar ::doctools::toc::doctoc${name}::expander  expander
 
     return [$expander expand $text]
 }
 
-# ::doctools::GetUser --
+# ::doctools::toc::GetUser --
 #
 #	API for formatter. Returns name of current user
 #
 # Arguments:
-#	name	Name of the doctools object to query.
+#	name	Name of the doctoc object to query.
 #
 # Results:
 #	String, name of current user.
 
-proc ::doctools::GetUser {name} {
+proc ::doctools::toc::GetUser {name} {
     global  tcl_platform
     return $tcl_platform(user)
 }
 
-# ::doctools::GetFile --
-#
-#	API for formatter. Returns file information
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	File information
-
-proc ::doctools::GetFile {name} {
-
-    #puts stderr "GetFile $name"
-
-    upvar ::doctools::doctools${name}::file file
-
-    #puts stderr "ok $file"
-    return $file
-}
-
-# ::doctools::GetFileId --
-#
-#	API for formatter. Returns file information (truncated to stem of filename)
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	File information
-
-proc ::doctools::GetFileId {name} {
-    return [file rootname [file tail [GetFile $name]]]
-}
-
-# ::doctools::FileCmd --
-#
-#	API for formatter. Restricted implementation of file.
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	Module information
-
-proc ::doctools::FileCmd {cmd args} {
-    switch -exact -- $cmd {
-	split {return [eval file split $args]}
-	join  {return [eval file join $args]}
-    }
-    return -code error "Illegal subcommand: $cmd $args"
-}
-
-# ::doctools::GetModule --
-#
-#	API for formatter. Returns module information
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	Module information
-
-proc ::doctools::GetModule {name} {
-    upvar ::doctools::doctools${name}::module module
-    return   $module
-}
-
-# ::doctools::GetCopyright --
-#
-#	API for formatter. Returns copyright information
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	Copyright information
-
-proc ::doctools::GetCopyright {name} {
-    upvar ::doctools::doctools${name}::copyright copyright
-    return   $copyright
-}
-
-# ::doctools::GetFormat --
+# ::doctools::toc::GetFormat --
 #
 #	API for formatter. Returns format information
 #
 # Arguments:
-#	name	Name of the doctools object to query.
+#	name	Name of the doctoc object to query.
 #
 # Results:
 #	Format information
 
-proc ::doctools::GetFormat {name} {
-    upvar ::doctools::doctools${name}::format format
+proc ::doctools::toc::GetFormat {name} {
+    upvar ::doctools::toc::doctoc${name}::format format
     return $format
 }
 
-# ::doctools::ListLevel --
-#
-#	API for formatter. Returns numer of open lists
-#
-# Arguments:
-#	name	Name of the doctools object to query.
-#
-# Results:
-#	Boolean flag.
-
-proc ::doctools::ListLevel {name} {
-    upvar ::doctools::doctools${name}::chk_ip chk_ip
-    return [$chk_ip eval LNest]
-}
-
-# ::doctools::MapFile --
+# ::doctools::toc::MapFile --
 #
 #	API for formatter. Maps symbolic to actual filename in a toc
 #	item. If no mapping is found it is assumed that the symbolic
@@ -1067,29 +860,26 @@ proc ::doctools::ListLevel {name} {
 # Results:
 #	Actual name of the file.
 
-proc ::doctools::MapFile {name fname} {
-    upvar ::doctools::doctools${name}::map map
-
-    #parray map
-
+proc ::doctools::toc::MapFile {name fname} {
+    upvar ::doctools::toc::doctoc${name}::map map
     if {[info exists map($fname)]} {
 	return $map($fname)
     }
     return $fname
 }
 
-# ::doctools::Source --
+# ::doctools::toc::Source --
 #
 #	API for formatter. Used by engine to ask for
 #	additional script files support it.
 #
 # Arguments:
-#	name	Name of the doctools object to change.
+#	name	Name of the doctoc object to change.
 #
 # Results:
 #	Boolean flag.
 
-proc ::doctools::Source {ip path file} {
+proc ::doctools::toc::Source {ip path file} {
     $ip invokehidden source [file join $path [file tail $file]]
     #$ip eval [list source [file join $path [file tail $file]]]
     return
@@ -1098,10 +888,10 @@ proc ::doctools::Source {ip path file} {
 #------------------------------------
 # Module initialization
 
-namespace eval ::doctools {
+namespace eval ::doctools::toc {
     # Reverse order of searching. First to search is specified last.
 
-    # FOO/doctools.tcl
+    # FOO/doctoc.tcl
     # => FOO/mpformats
 
     #catch {search [file join $here                lib doctools mpformats]}
@@ -1109,4 +899,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.0
+package provide doctools::toc 0.1
