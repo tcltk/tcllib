@@ -394,7 +394,7 @@ following example is identical to the previous example:<p>
 This document generally uses the shorter form.<p>
 
 If the <code>dog</code> type defines <a href="#options">options</a>, these can
-given defaults at creation time:<p>
+be given defaults at creation time:<p>
 
 <pre>% snit::type dog {
     option -breed mongrel
@@ -405,10 +405,10 @@ given defaults at creation time:<p>
 ::dog
 % dog create spot -breed dalmation -color spotted
 ::spot
-% dog cget -breed
-::cget
-% dog cget -color
-::cget
+% spot cget -breed
+dalmation
+% spot cget -color
+spotted
 %</pre><p>
 
 Either way, the instance name now names a new Tcl command which is
@@ -461,9 +461,9 @@ If you'd like Snit to generate an object name for you, use the
 The "%AUTO%" keyword can be embedded in a longer string:<p>
 
 <pre>% set d [dog dog%AUTO%]
-::dogdog4
+::dogdog5
 % $d bark
-::dogdog4 barks.
+::dogdog5 barks.
 %</pre>
 
 
@@ -533,7 +533,8 @@ some consequences:<p>
 
   <li> When a snit::widget's instance command is renamed, its Tk window
        name remains the same--and is still extremely important.
-       Consequently, the Tk window name is available in snit::widget
+       Consequently, the Tk window name is available in
+       <code>snit::widget</code>
        method bodies, etc., as "$win".  This value is constant for the
        life of the object.  When creating child windows, it's best to 
        use "$win.child" rather than "$self.child" as the name of the
@@ -2218,7 +2219,7 @@ statements, plus a couple of others which will be mentioned below.<p>
        predefined component called its <code>hull</code> component.
        The hull is a Tk <code>frame</code> or <code>toplevel</code>
        widget; any other widgets created as 
-       part of the <code>snit::widget</code> will usually contained within
+       part of the <code>snit::widget</code> will usually be contained within
        this frame or toplevel.<p>
 
   <li> <code>snit::widgets</code> can have their options receive
@@ -2232,7 +2233,8 @@ statements, plus a couple of others which will be mentioned below.<p>
 A <code>snit::widget</code>'s hull component will usually be a Tk
 <code>frame</code> widget; however, it may also be a
 <code>toplevel</code> widget.  You can explicitly choose one or the
-other by include the <code>hulltype</code> command in the widget definition:<p>
+other by including the <code>hulltype</code> command in the widget
+definition:<p>
 
 <pre>snit::widget mytoplevel {
     hulltype toplevel
