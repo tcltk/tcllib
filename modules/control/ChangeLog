@@ -5,6 +5,7 @@
 	* rswitch.tcl:
 	* rswitch.test: removed files from HEAD branch that aren't yet
 	ready for release.
+	* tclIndex: ran genIndex
 
 2002-02-21  Reinhard Max  <max@suse.de>
 
