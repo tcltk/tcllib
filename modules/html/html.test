@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.14 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: html.test,v 1.15 2005/01/19 20:51:33 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -804,5 +804,14 @@ test html-32.7 {error in eval'ed command} {
     catch {html::eval {error "test error"}} msg
     set msg
 } {test error}
+
+
+test html-33.0 {html::font} {
+    html::font
+} {}
+
+test html-33.1 {html::font} {
+    html::font size=18
+} {<font size=18>}
 
 tcltest::cleanupTests

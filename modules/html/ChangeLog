@@ -1,3 +1,10 @@
+2005-01-19  Andreas Kupries <andreask@activestate.com>
+
+	* html.tcl (::html::font): Fixed [Tcllib SF Bug 1105010], reported
+	  by Luciano <lucianoes@users.sourceforge.net>. The parameters for
+	  the font tag were duplicated.
+	* html.texst: Added tests for "html::font".
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
