@@ -798,7 +798,7 @@ proc ncgi::cookie {cookie} {
     set result ""
     if {[info exist env(HTTP_COOKIE)]} {
 	foreach pair [split $env(HTTP_COOKIE) \;] {
-	    lassign [split [string trim $pair] =] key value
+	    foreach {key value} [split [string trim $pair] =] { break ;# lassign }
 	    if {[string compare $cookie $key] == 0} {
 		lappend result $value
 	    }
