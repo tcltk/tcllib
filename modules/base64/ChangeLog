@@ -44,6 +44,18 @@
 	* uuencode.man: of uuencode to reflect its changes, to 1.1.1.
 	* pkgIndex.tcl:
 
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uuencode.tcl: Rel. engineering. Updated version number 
+	* uuencode.man: of uuencode to reflect its changes, to 1.1.1.
+	* pkgIndex.tcl:
+
 2004-03-09  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* uuencode.tcl (::uuencode::pad): don't use log package
