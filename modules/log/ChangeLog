@@ -1,3 +1,10 @@
+2003-04-21  Andreas Kupries  <andreask@activestate.com>
+
+	* loggerperformance.test: Renaming to 'loggerperformance'. This is
+	  neither a .tcl file of the package itself, nor does it belong
+	  into the testsuite (which is about functionality, not speed). It
+	  is a benchmark application.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* log.man:
