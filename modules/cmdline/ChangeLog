@@ -1,6 +1,25 @@
-2000-03-27  Eric Melski  <ericm@scriptics.com>
+2000-04-07  Eric Melski  <ericm@scriptics.com>
 
-	* cmdline.tcl: Fixed text in comment.
+	* typedCmdline.test: Changed sourcing bits at start of file to
+	work better with updated file dependancies.
+
+	* typedCmdline.tcl: Removed "package provide"; that should occur
+	only in one file per package.  Reformatted function headers to
+	comply with Tcl coding standard.  Renamed "cmdline::lsearch" to
+	"cmdline::prefixSearch" to avoid confusion, and removed code thus
+	made obsolete.
+
+	* cmdline.tcl: Added call to source typedCmdline.tcl
+
+2000-04-04  Ross Mohn  <rpmohn@panix.com>
+
+	* typedCmdline.tcl: Added typed versions of getopt, getoptions,
+	and usage. Types supported are all character classes available
+	for the Tcl "string in" command.
+
+	* typedCmdline.test: Added tests for typed procedures.
+
+	* cmdline.tcl: Corrected some documentation errors and omissions.
 
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 

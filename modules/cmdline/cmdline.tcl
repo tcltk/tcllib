@@ -8,12 +8,15 @@
 # Copyright (c) 1998 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.2 2000/03/28 02:28:24 ericm Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.3 2000/04/07 16:35:43 ericm Exp $
 
-package provide cmdline 1.0
+package provide cmdline 1.1
 namespace eval cmdline {
     namespace export getArgv0 getopt getfiles getoptions usage
 }
+
+# Load the typed versions of these functions
+source [file join [file dirname [info script]] typedCmdline.tcl]
 
 # cmdline::getopt --
 #
@@ -34,8 +37,8 @@ namespace eval cmdline {
 #	optVar		Upon success, the variable pointed to by optVar
 #			contains the option that was found (without the
 #			leading '-' and without the .arg extension).  If
-#			getopt fails the variable is set to the empty
-#			string.
+#			getopt fails the variable is filled with an error
+#			message.
 #	argVar		Upon success, the variable pointed to by argVar
 #			contains the argument for the specified option.
 #			If getopt fails, the argVar is filled with an
@@ -46,10 +49,10 @@ namespace eval cmdline {
 # 	options were found, and -1 if an error occurred.
 
 proc cmdline::getopt {argvVar optstring optVar argVar} {
-    upvar $argvVar argsList
+    upvar 1 $argvVar argsList
 
-    upvar $optVar retvar
-    upvar $argVar optarg
+    upvar 1 $optVar retvar
+    upvar 1 $argVar optarg
 
     # default settings for a normal return
     set optarg ""
@@ -110,7 +113,10 @@ proc cmdline::getopt {argvVar optstring optVar argVar} {
 #				flag default comment
 #			If flag ends in ".arg" then the value is taken from the
 #			command line. Otherwise it is a boolean and appears in
-#			the result if present on the command line. 
+#			the result if present on the command line. If flag ends
+#			in ".secret", it will not be displayed in the usage.
+#	usage		Text to include in the usage display. Defaults to
+#			"options:"
 #
 # Results
 #	Name value pairs suitable for using with array set.
@@ -152,6 +158,8 @@ proc cmdline::getoptions {arglistVar optlist {usage options:}} {
 #
 # Arguments:
 #	optlist		As for cmdline::getoptions
+#	usage		Text to include in the usage display. Defaults to
+#			"options:"
 #
 # Results
 #	A formatted usage message
