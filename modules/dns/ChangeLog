@@ -1,3 +1,8 @@
+2003-01-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Implemented UDP transmission. Currently not tested
+	because tcludp doesn't handle binary data.
+
 2003-01-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* pkgIndex.tcl:
