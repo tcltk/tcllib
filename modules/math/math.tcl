@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.12 2002/01/18 20:51:16 andreas_kupries Exp $
+# RCS: @(#) $Id: math.tcl,v 1.13 2002/01/19 01:32:28 dgp Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 
@@ -27,7 +27,7 @@ namespace eval ::math {
     # combinatorics.tcl
 
     namespace export	ln_Gamma	factorial	choose
-    namespace export	beta
+    namespace export	Beta
 
     # Set up for auto-loading
 
