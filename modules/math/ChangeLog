@@ -1,3 +1,10 @@
+2004-07-19  Andreas Kupries  <andreask@activestate.com>
+
+	* combinatorics.man: Polished minimally, name of manpage.
+
+	* qcomplex.tcl: Polished minimally, changed package name
+	* qcomplex.man: to math::complexnumbers.
+
 2004-07-07  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* bessel,tcl:		Indentation adjusted to conform to

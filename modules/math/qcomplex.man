@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin complexnumbers n 1.0]
+[manpage_begin math::complexnumbers n 1.0]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   complexnumbers]
 [titledesc {Straightforward complex number package}]
 [require Tcl 8.3]
-[require complexnumbers [opt 1.0]]
+[require math::complexnumbers [opt 1.0]]
 
 [description]
 [para]
@@ -295,5 +295,5 @@ The complex power to be used
 [list_end]
 
 
-[keywords {math} {complex numbers}]
+[keywords math {complex numbers}]
 [manpage_end]
