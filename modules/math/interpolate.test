@@ -202,3 +202,28 @@ test "Interpolate-4.2" "Spatial interpolation - 2" \
 #
 # Test TODO: parameters for spatial interpolation
 #
+
+test interpolate-5.1 "neville algorithm" \
+    -body {
+	set problems {}
+	namespace import ::math::interpolate::neville
+	set xtable [list 0. 30. 45. 60. 90. 120. 135. 150. 180.]
+	set ytable [list 0. 0.5 [expr sqrt(0.5)] [expr sqrt(0.75)] 1. \
+			[expr sqrt(0.75)] [expr sqrt(0.5)] 0.5 0.]
+	for { set x -15 } { $x <= 195 } { incr x } {
+	    foreach { y error } [neville $xtable $ytable $x] break
+	    set diff [expr { abs( $y - sin( $x*3.1415926535897932/180. ) ) }]
+	    if { $error > 3.e-4 || ( $diff > $error && $diff > 1.e-8 ) } {
+		append problems \n "interpolating for sine of " $x " degrees" \
+		    \n "value was " $y " +/- " $error \
+		    \n "actual error was " $diff
+	    }
+	}
+	set problems
+    } \
+    -result {}
+
+
+# Local Variables:
+# mode: tcl
+# End:
