@@ -490,3 +490,68 @@ proc ::logger::servicecmd {service} {
     }
     return "::logger::tree::${service}"
 }
+
+# ::logger::import --
+#
+#   Import the logging commands.
+#
+# Arguments:
+#   service - name of the service.
+#
+# Side Effects:
+#   creates aliases in the target namespace
+#
+# Results:
+#   none
+
+proc ::logger::import {args} {
+    variable services
+    
+    if {[llength $args] == 0 || [llength $args] > 6} {
+    return -code error "Wrong # of arguments: \"logger::import ?-all? \
+                        ?-prefix prefix? ?-namespace namespace? service\""
+    }
+    
+    set import_all 0
+    set prefix ""
+    set ns [uplevel 1 namespace current]
+    while {[llength $args] > 1} {
+        set opt [lindex $args 0]
+        set args [lrange $args 1 end]
+        switch  -exact -- $opt {
+            -all    { set import_all 1}
+            -prefix { set prefix [lindex $args 0]
+                      set args [lrange $args 1 end]        
+                    }
+            -namespace {
+                      set ns [lindex $args 0]
+                      set args [lrange $args 1 end]
+            }
+            default {
+                return -code error "Unknown argument: \"$opt\" :\n"\
+                        Usage: \"logger::import ?-all? \
+                        ?-prefix prefix? ?-namespace namespace? service\""
+            }
+        }
+    }
+    if {![uplevel 1 [linsert $ns 0 namespace exists]]} {
+        return -code error "Invalid or non-existing namespace \"$ns\""
+    }
+    set cmds [logger::levels]
+    if {$import_all} {
+        lappend cmds setlevel enable disable logproc delproc services 
+        lappend cmds servicename currentloglevel delete
+    }
+    
+    set service [lindex $args 0]
+    if {[lsearch -exact $services $service] == -1} {
+            return -code error "Service \"$service\" does not exist."
+    }
+    
+    set sourcens [logger::servicecmd $service] 
+    
+    foreach cmd $cmds {
+        interp alias {} ${ns}::${prefix}$cmd {} ${sourcens}::${cmd}
+    }
+    return
+}

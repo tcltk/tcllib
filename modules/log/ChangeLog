@@ -1,5 +1,11 @@
 2004-09-06  Michael Schlenker <mic42@users.sourceforge.net>
 
+	* logger.tcl : Implemented and doc'ed new logger::import feature.
+          logger.man : Needs more tests.
+          logger.test:
+          
+2004-09-06  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* logger.tcl: Removed hardcoded level names in logger::init.
 
 2004-06-18  Andreas Kupries  <andreask@activestate.com>
