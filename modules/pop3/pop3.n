@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: pop3.n,v 1.4 2001/07/06 18:30:52 andreas_kupries Exp $
+'\" RCS: @(#) $Id: pop3.n,v 1.5 2001/08/02 16:22:26 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
@@ -11,9 +11,9 @@
 .SH NAME
 pop3 \- Tcl client for POP3 email protocol
 .SH SYNOPSIS
-\fBpackage require pop3 ?1.0?\fR
+\fBpackage require pop3 ?1.3?\fR
 .sp
-\fB::pop3::open\fR \fIhost user Ipassword \fR?\fIport\fR? 
+\fB::pop3::open\fR ?-msex \fB0|1\fR? ?-retr-mode \fBretr|list|slow\fR? \fIhost user Ipassword \fR?\fIport\fR? 
 .sp
 \fB::pop3::status\fR \fIchan\fR
 .sp
@@ -40,12 +40,22 @@ are returned as Tcl errors (thrown) which must be caught with the Tcl
 \fBcatch\fR command.
 .SH COMMANDS
 .TP
-\fB::pop3::open\fR \fIhost username password \fR?\fIport\fR?
+\fB::pop3::open\fR ?-msex \fB0|1\fR? ?-retr-mode \fBretr|list|slow\fR? \fIhost username password \fR?\fIport\fR?
 Open a socket connection to the server specified by \fIhost\fR,
 transmit the \fIusername\fR and \fIpassword\fR as login information to
 the server.  The default port number is 110, which can be overridden
 using the optional \fIport\fR argument.  The return value is a channel
 used by all of the other ::pop3 functions.
+
+The command recognizes the options \fI-msex\fR and
+\fI-retr-mode\fR. The first of them can be used to notify the package
+of the fact that the server to talk to is an MS Exchange server (which
+has some oddities we have to work around). The default is 0.
+
+The retrieval mode determines how exactly messages are read from the
+server. The allowed values are \fBretr\fR, \fBlist\fR and
+\fBslow\fR. The default is \fBretr\fR. See \fB::pop3::retrieve\fR for
+more information.
 .TP
 \fB::pop3::status\fR \fIchan\fR
 Query the server for the status of the mail spool.  The status is
@@ -64,6 +74,20 @@ Retrieve a range of messages from the server.  If the \fIendIndex\fR
 is not specified, only one message will be retrieved.  The return
 value is a list containing each message as a separate element.  See
 the \fIstartIndex\fR and \fIendIndex\fR descriptions below.
+
+The retrieval mode determines how exactly messages are read from the
+server. The mode \fBretr\fR assumes that the RETR command delivers the
+size of the message as part of the command status and uses this to
+read the message efficiently. In mode \fBlist\fR RETR does not deliver
+the size, but the LIST command does and we use this to retrieve the
+message size before the actual retrieval, which can then be done
+efficiently. In the last mode, \fBslow\fR, the system is unable to
+obtain the size of the message to retrieve in any manner and falls
+back to reading the message from the server line by line.
+
+It should also be noted that the system checks upon the configured
+mode and falls back to the slower modes if the above assumptions are
+not true.
 .TP
 \fB::pop3::delete\fR \fIchan startIndex \fR?\fIendIndex\fR
 Delete a range of messages from the server.  If the \fIendIndex\fR is
