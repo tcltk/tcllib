@@ -1,3 +1,9 @@
+2002-03-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* New module: dns
+	* Makefile.in: updated for new module
+	
+
 2002-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>  
 
 	* doctools: Done FR #517599. FR #520269.
