@@ -8,20 +8,51 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.12 2003/04/02 23:21:12 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.13 2003/05/01 22:40:15 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
-puts "tcltest [package present tcltest]"
 
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget fileutil
+catch {namespace delete ::fileutil}
 if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
 }
+if {[catch {source [file join [file dirname [info script]] fileutil.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
 
-package require fileutil
-puts "fileutil [package present fileutil]"
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+# This constraint restricts certain tests to run on tcl 8.3+
+if {[package vsatisfies [package provide tcltest] 2.0]} {
+    # tcltest2.0+ has an API to specify a test constraint
+    ::tcltest::testConstraint tcl8.3plus \
+        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+} else {
+    # In tcltest1.0, a global variable needs to be set directly.
+    set ::tcltest::testConstraints(tcl8.3plus) \
+        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+}
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+puts "- tcltest [package present tcltest]"
+puts "- fileutil [package present fileutil]"
+
+# -------------------------------------------------------------------------
 
 # Build a sample tree to search
 # Structure
@@ -136,24 +167,27 @@ catch {removeDirectory touchTest} ; # start with a clean structure!
 makeDirectory touchTest
 makeFile "blah" [file join $dir touchTest file1]
 
-test touch-1.1 {create file} {
+test touch-1.1 {create file} tcl8.3plus {
     set f [file join $dir touchTest here]
     fileutil::touch $f
     # reap this file on cleanup
     lappend ::tcltest::filesmade $f
     file exists $f
 } 1
-test touch-1.2 {'-c' prevents file creation} {
+
+test touch-1.2 {'-c' prevents file creation} tcl8.3plus {
     set f [file join $dir touchTest nothere]
     fileutil::touch -c $f
     file exists $f
 } 0
-test touch-1.3 {'-c' has no effect on existing files} {
+
+test touch-1.3 {'-c' has no effect on existing files} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch -c $f
     file exists $f
 } 1
-test touch-1.4 {test relative times} {
+
+test touch-1.4 {test relative times} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -164,7 +198,8 @@ test touch-1.4 {test relative times} {
     set m2 [file mtime $f]
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } [list 1 1 1 1]
-test touch-1.5 {test relative times using -a} {
+
+test touch-1.5 {test relative times using -a} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -175,7 +210,8 @@ test touch-1.5 {test relative times using -a} {
     set m2 [file mtime $f]
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } [list 1 0 1 0]
-test touch-1.6 {test relative times using -m} {
+
+test touch-1.6 {test relative times using -m} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -186,7 +222,8 @@ test touch-1.6 {test relative times using -m} {
     set m2 [file mtime $f]
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } [list 1 0 0 1]
-test touch-1.7 {test relative times using -a and -m} {
+
+test touch-1.7 {test relative times using -a and -m} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     set a1 [file atime $f]
@@ -197,7 +234,8 @@ test touch-1.7 {test relative times using -a and -m} {
     set m2 [file mtime $f]
     list [expr {$a1 == $m1}] [expr {$a2 == $m2}] [expr {$a1 < $a2}] [expr {$m1 < $m2}]
 } [list 1 1 1 1]
-test touch-1.8 {test -t} {
+
+test touch-1.8 {test -t} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     after 1001
@@ -206,7 +244,8 @@ test touch-1.8 {test -t} {
     set m1 [file mtime $f]
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } [list 1 1]
-test touch-1.9 {test -t with -a} {
+
+test touch-1.9 {test -t with -a} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     after 1001
@@ -215,7 +254,8 @@ test touch-1.9 {test -t with -a} {
     set m1 [file mtime $f]
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } [list 1 0]
-test touch-1.10 {test -t with -m} {
+
+test touch-1.10 {test -t with -m} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     after 1001
@@ -224,7 +264,8 @@ test touch-1.10 {test -t with -m} {
     set m1 [file mtime $f]
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } [list 0 1]
-test touch-1.11 {test -t with -a and -m} {
+
+test touch-1.11 {test -t with -a and -m} tcl8.3plus {
     set f [file join $dir touchTest file1]
     fileutil::touch $f
     after 1001
@@ -233,7 +274,8 @@ test touch-1.11 {test -t with -a and -m} {
     set m1 [file mtime $f]
     list [expr {$a1 == 42}] [expr {$m1 == 42}]
 } [list 1 1]
-test touch-1.12 {test -r} {
+
+test touch-1.12 {test -r} tcl8.3plus {
     set r [info script]
     set f [file join $dir touchTest file1]
     fileutil::touch $f
@@ -243,7 +285,8 @@ test touch-1.12 {test -r} {
     set m1 [file mtime $f]
     list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
 } [list 1 1]
-test touch-1.13 {test -r with -a} {
+
+test touch-1.13 {test -r with -a} tcl8.3plus {
     set r [info script]
     set f [file join $dir touchTest file1]
     fileutil::touch $f
@@ -253,7 +296,8 @@ test touch-1.13 {test -r with -a} {
     set m1 [file mtime $f]
     list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
 } [list 1 0]
-test touch-1.14 {test -r with -m} {
+
+test touch-1.14 {test -r with -m} tcl8.3plus {
     set r [info script]
     set f [file join $dir touchTest file1]
     fileutil::touch $f
@@ -263,7 +307,8 @@ test touch-1.14 {test -r with -m} {
     set m1 [file mtime $f]
     list [expr {$a1 == [file atime $r]}] [expr {$m1 == [file mtime $r]}]
 } [list 0 1]
-test touch-1.15 {test -r with -a and -m} {
+
+test touch-1.15 {test -r with -a and -m} tcl8.3plus {
     set r [info script]
     set f [file join $dir touchTest file1]
     fileutil::touch $f
@@ -277,7 +322,9 @@ test touch-1.15 {test -r with -a and -m} {
 
 catch {removeDirectory fileTypeTest} ; # start with a clean structure!
 makeDirectory fileTypeTest
-fileutil::touch [file join $dir fileTypeTest emptyFile]
+# Can't use for tcl < 8.3
+#fileutil::touch [file join $dir fileTypeTest emptyFile]
+set _f [open [file join $dir fileTypeTest emptyFile] a] ; close $_f
 
 makeFile "\u0000" [file join $dir fileTypeTest binaryFile]
 

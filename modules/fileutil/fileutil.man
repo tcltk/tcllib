@@ -118,6 +118,9 @@ already exist. If [option -r], use the atime and mtime from
 [option -t]. If [option -a], only change the atime. If [option -m],
 only change the mtime.
 
+[nl]
+[emph {This command is not available for Tcl versions less than 8.3.}]
+
 
 [call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
 

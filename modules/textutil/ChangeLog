@@ -1,3 +1,8 @@
+2003-05-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* split.tcl: Use the old non -start using version for < 8.3 
+	* expander.tcl: Avoid use of [array unset] for Tcl 8.2 compat.
+
 2003-04-10  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl:

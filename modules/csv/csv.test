@@ -7,20 +7,36 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.9 2003/04/24 00:12:21 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.10 2003/05/01 22:40:14 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget csv
+catch {namespace delete ::csv}
+if {[catch {source [file join [file dirname [info script]] csv.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
 }
 
-package require csv
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
 package require struct
-puts "csv [package present csv]"
+puts "- csv [package present csv]"
 puts "- struct [package present struct]"
 
 set str1 {"123","""a""",,hello}
