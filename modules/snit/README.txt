@@ -21,6 +21,9 @@ V0.97.
 * Bug fix: methods called via [mymethod] can now return exotic
   return codes (e.g., "return -code break").
 
+* Added the -hasinfo pragma, which controls whether there's an
+  "info" instance method or not.  By default, there is.
+
 Changes in V0.95
 --------------------------------------------------------------------
 
