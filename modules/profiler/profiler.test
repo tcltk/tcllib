@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.9 2000/06/15 23:46:59 ericm Exp $
+# RCS: @(#) $Id: profiler.test,v 1.10 2001/08/21 23:36:32 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -163,7 +163,7 @@ test profiler-4.1 {profiler::print produces nicer output than dump} {
     Caller distribution:
   GLOBAL:  4"
 
-test profiler-5.1 {profiler respects enabled flag} {
+test profiler-5.1 {profiler respects suspend/resume} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -177,10 +177,12 @@ test profiler-5.1 {profiler respects enabled flag} {
 	foo
 	foo
 	foo
-	set profiler::enabled 0
+	profiler::suspend ::foo ; # note the qualification, has to match proc!
 	foo
 	foo
-	profiler::print ::foo
+	set res [profiler::print ::foo]
+	profiler::resume
+	set res
     }]
     interp delete $c
     regsub {Compile time:.*} $result {} result
