@@ -521,12 +521,16 @@ proc ::logger::servicecmd {service} {
 proc ::logger::import {args} {
     variable services
     
-    if {[llength $args] == 0 || [llength $args] > 6} {
+    if {[llength $args] == 0 || [llength $args] > 7} {
     return -code error "Wrong # of arguments: \"logger::import ?-all? \
+                        ?-force? \
                         ?-prefix prefix? ?-namespace namespace? service\""
     }
     
+    # process options
+    #
     set import_all 0
+    set force 0
     set prefix ""
     set ns [uplevel 1 namespace current]
     while {[llength $args] > 1} {
@@ -541,31 +545,73 @@ proc ::logger::import {args} {
                       set ns [lindex $args 0]
                       set args [lrange $args 1 end]
             }
+            -force {
+                     set force 1
+            }
             default {
                 return -code error "Unknown argument: \"$opt\" :\n"\
-                        Usage: \"logger::import ?-all? \
+                        Usage: \"logger::import ?-all? ?-force?\
                         ?-prefix prefix? ?-namespace namespace? service\""
             }
         }
     }
-    if {![uplevel 1 [linsert $ns 0 namespace exists]]} {
-        return -code error "Invalid or non-existing namespace \"$ns\""
-    }
+    
+    #
+    # build the list of commands to import
+    #
+    
     set cmds [logger::levels]
     if {$import_all} {
         lappend cmds setlevel enable disable logproc delproc services 
         lappend cmds servicename currentloglevel delete
     }
     
+    #
+    # check the service argument
+    #
+    
     set service [lindex $args 0]
     if {[lsearch -exact $services $service] == -1} {
             return -code error "Service \"$service\" does not exist."
     }
+
+    #
+    # setup the namespace for the import
+    #
+
+    set sourcens [logger::servicecmd $service]     
+    set localns  [uplevel 1 namespace current]
     
-    set sourcens [logger::servicecmd $service] 
+    if {[string match ::* $ns]} {
+        set importns $ns
+    } else {
+        set importns ${localns}::$ns
+    }    
     
-    foreach cmd $cmds {
-        interp alias {} ${ns}::${prefix}$cmd {} ${sourcens}::${cmd}
+    if {![namespace exists $importns]} {
+        namespace eval $importns {}
     }
-    return
+
+    
+    #
+    # prepare the import
+    #
+    
+    set imports ""
+    foreach cmd $cmds {
+        set cmdname ${importns}::${prefix}$cmd
+        set collision [llength [info commands $cmdname]]
+        if {$collision && !$force} {
+            return -code error "can't import command \"$cmdname\": already exists"
+        }
+        lappend imports ${importns}::${prefix}$cmd ${sourcens}::${cmd}
+    }
+    
+    #
+    # and execute the aliasing after checking all is well
+    #
+    
+    foreach {target source} $imports {
+        interp alias {} $target {} $source
+    }
 }
