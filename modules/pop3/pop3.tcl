@@ -9,7 +9,7 @@
 #
 # All rights reserved.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.1 2000/03/06 18:57:56 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.2 2000/03/22 03:40:32 redman Exp $
 
 package provide pop3 1.0
 
@@ -167,8 +167,7 @@ proc ::pop3::retrieve {chan start {end -1}} {
     set result {}
 
     for {set index $start} {$index <= $end} {incr index} {
-	if {[catch {set resultStr \
-		[::pop3::send $chan "RETR $index"]} errorStr]} {
+	if {[catch {::pop3::send $chan "RETR $index"} errorStr]} {
 	    error "POP3 RETRIEVE ERROR: $errorStr"
 	}
 	
