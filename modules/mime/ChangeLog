@@ -1,3 +1,7 @@
+2002-09-16  David N. Welton  <davidw@dedasys.com>
+
+	* smtp.man: Added example from http://mini.net/tcl/1256.
+
 2002-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.test: Extended field_decode tests with the examples from
