@@ -288,7 +288,9 @@ variables are automatically visible in its [arg body].
 [nl]
 
 If the [arg definition] doesn't explicitly define the constructor,
-Snit defines one implicitly:
+Snit defines one implicitly.  If the type declares at least one option
+(whether locally or by delegation), the default constructor will 
+be defined as follows:
 
 [example {    constructor {args} {
         $self configurelist $args
@@ -297,6 +299,14 @@ Snit defines one implicitly:
 
 For standard Tk widget behavior, the argument list should be 
 the single name [const args], as shown.
+
+[nl]
+
+If the [arg definition] defines neither a constructor nor
+any options, the default constructor is defined as follows:
+
+[example {    constructor {} {}
+}]
 
 [call [cmd destructor] [arg body]]
 
@@ -1019,6 +1029,10 @@ Warning: This information will be available for delegated options only
 if the component to which they are delegated has a [method configure]
 method that returns this same kind of information.
 
+[nl]
+
+Note: Snit defines this method only if the type has at least one
+option.
 
 [call [cmd {$object}] [method configurelist] [arg optionlist]]
 
@@ -1026,10 +1040,19 @@ Like [method configure], but takes one argument, a list of options and
 their values.  It's mostly useful in the type constructor, but can be
 used anywhere.
 
+[nl]
+
+Note: Snit defines this method only if the type has at least one
+option.
 
 [call [cmd {$object}] [method cget] [arg option]]
 
 Returns the option's value.
+
+[nl]
+
+Note: Snit defines this method only if the type has at least one
+option.
 
 [call [cmd {$object}] [method destroy]]
 

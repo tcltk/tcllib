@@ -2086,10 +2086,30 @@ test option-5.2 {local option database values available in constructor} tk {
     set result
 } {bb}
 
+test option-6.1 {if no options, no options variable} {
+    cleanup
+    
+    type dog {
+        variable dummy
+    }
+
+    dog spot
+    spot info vars options
+} {}
+
+test option-6.2 {if no options, no options methods} {
+    cleanup
+    
+    type dog {
+        variable dummy
+    }
+
+    dog spot
+    spot info methods c*
+} {}
 
 #-----------------------------------------------------------------------
 # onconfigure
-
 
 test onconfigure-1.1 {invalid onconfigure methods are caught} {} {
     cleanup
@@ -2196,7 +2216,6 @@ test constructor-1.1 {constructor can do things} {} {
         variable a
         variable b
         constructor {args} {
-            $self configurelist $args
             set a 1
             set b 2
         }
@@ -2264,6 +2283,29 @@ test constructor-1.5 {constructor with list as one list arg} {} {
     dog spot {retriever golden}
     spot cget -value
 } {{retriever golden}}
+
+test constructor-1.6 {default constructor configures options} {} {
+    cleanup
+
+    type dog {
+        option -color brown
+        option -breed mutt
+    }
+
+    dog spot -color golden -breed retriever
+    list [spot cget -color] [spot cget -breed]
+} {golden retriever}
+
+test constructor-1.7 {default constructor takes no args if no options} {} {
+    cleanup
+
+    type dog {
+        variable color
+    }
+
+    catch {dog spot -color golden} result
+    set result
+} {Error in constructor: wrong # args: should be "::dog::Snit_constructor type selfns win self"}
 
 
 #-----------------------------------------------------------------------
@@ -4026,7 +4068,7 @@ test iinfo-1.5 {object info vars} {
 
     dog create spot
     lsort [spot info vars]
-} {::dog::Snit_inst1::hervar ::dog::Snit_inst1::hisvar ::dog::Snit_inst1::options}
+} {::dog::Snit_inst1::hervar ::dog::Snit_inst1::hisvar}
 
 test iinfo-1.6 {object info no vars defined} {
     cleanup
@@ -4035,7 +4077,7 @@ test iinfo-1.6 {object info no vars defined} {
 
     dog create spot
     list [spot info vars] [spot info typevars]
-} {::dog::Snit_inst1::options {}}
+} {{} {}}
 
 test iinfo-1.7 {info options with no options} {
     cleanup
@@ -4222,7 +4264,7 @@ test iinfo-1.18 {info methods, simple case} {
     dog spot
 
     spot info methods
-} {info destroy configure configurelist cget}
+} {info destroy}
 
 test iinfo-1.19 {info type, with pattern} {
     cleanup
@@ -4231,8 +4273,8 @@ test iinfo-1.19 {info type, with pattern} {
 
     dog spot
 
-    spot info methods c*
-} {configure configurelist cget}
+    spot info methods i*
+} {info}
 
 test iinfo-1.20 {info methods, with explicit methods} {
     cleanup
@@ -4245,7 +4287,7 @@ test iinfo-1.20 {info methods, with explicit methods} {
     dog spot
 
     spot info methods 
-} {info foo bar destroy configure configurelist cget}
+} {info foo bar destroy}
 
 test iinfo-1.21 {info typemethods, with implicit typemethods} {
     cleanup
@@ -4270,7 +4312,7 @@ test iinfo-1.21 {info typemethods, with implicit typemethods} {
     set c [spot info methods len*]
 
     list $a $b $c
-} {{info destroy configure configurelist cget} {info destroy configure configurelist cget is length} length}
+} {{info destroy} {info destroy is length} length}
 
 #-----------------------------------------------------------------------
 # Type Introspection
@@ -5973,7 +6015,7 @@ test hasinfo-1.1 {$obj info is defined by default} {
 
     dog spot
     spot info vars
-} {::dog::Snit_inst1::foo ::dog::Snit_inst1::options} 
+} {::dog::Snit_inst1::foo} 
 
 test hasinfo-1.2 {$obj info can be disabled} {
     cleanup

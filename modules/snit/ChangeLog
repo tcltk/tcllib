@@ -5,6 +5,12 @@
 	* snit.man
 	* README.txt
 
+	* snit.tcl      The "configure", "configurelist" and "cget"
+	* snit.test     instance methods, along with the "options"
+	* snit.man      instance variable, are defined only if the
+	* README.txt    type defines at least one option (either
+	                locally or by delegation).
+
 2004-08-07  Will Duquette  <will@wjduquette.com>
 
 	* All files     Updated to Snit V0.96 for post-0.95 development.
