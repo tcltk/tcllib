@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.3 2000/09/21 03:14:22 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.4 2000/09/21 06:26:02 welch Exp $
 
 package provide stats 1.0
 
@@ -30,7 +30,7 @@ namespace eval stats:: {
     variable dayIndex
 
     # The time-based histogram uses an after event and a list
-    # of counters to do mergeing on
+    # of counters to do mergeing on.
 
     variable tagsToMerge
     if {![info exist tagsToMerge]} {
@@ -41,7 +41,7 @@ namespace eval stats:: {
     namespace export *
 }
 
-# stats::countInit
+# stats::countInit --
 #
 #	Set up a counter.
 #
@@ -49,6 +49,9 @@ namespace eval stats:: {
 #	tag	The identifier for the counter.  Pass this to stats::count
 #	args	option values pairs that define characteristics of the counter:
 #		See the man page for definitons.
+#
+# Results:
+#	None.
 #
 # Side Effects:
 #	Initializes state about a counter.
@@ -110,9 +113,6 @@ proc stats::countInit {tag args} {
 		    set dayIndex 0
 
 		    # Align the minute base to the start of a minute
-		    # The minuteEpoch is used to detect idle hours.
-		    # It is moved forward in time as samples are taken.
-		    # If it is still empty, there were no samples that "hour".
 
 		    set minuteBase [clock scan [clock format $startTime \
 				-format %H:%M]]
@@ -135,7 +135,7 @@ proc stats::countInit {tag args} {
 		    # After the first timer, the event occurs once each "hour"
 
 		    set mergeInterval [expr {60 * $secsPerMinute * 1000}]
-		    after [expr {$secs * 1000}] [list stats::countMergeHour $mergeInterval]
+		    after [expr {$secs * 1000}] [list stats::MergeHour $mergeInterval]
 		}
 		if {[lsearch $tagsToMerge $tag] < 0} {
 		    lappend tagsToMerge $tag
@@ -150,6 +150,9 @@ proc stats::countInit {tag args} {
 		# Cluster a set of counters with a single total
 
 		upvar #0 stats::H-$tag histogram
+		if {[info exist histogram]} {
+		    unset histogram
+		}
 		set counter(group) $value
 	    }
 	    -lastn {
@@ -158,6 +161,12 @@ proc stats::countInit {tag args} {
 		upvar #0 stats::V-$tag vector
 		set counter(lastn) $value
 		set counter(index) 0
+		if {[info exist vector]} {
+		    unset vector
+		}
+		for {set i 0} {$i < $value} {incr i} {
+		    set vector($i) 0
+		}
 	    }
 	    -hist {
 		# A value-based histogram with buckets for different values.
@@ -186,10 +195,13 @@ proc stats::countInit {tag args} {
 	    }
 	    default {
 		return -code error "Unsupported option $option.\
-			Must be -timehist, -lastn, -hist, -hist2x, or -hist10x."
+			Must be -timehist, -group, -lastn, -hist, -hist2x, or -hist10x."
 	    }
 	}
 	if {[string length $option]} {
+	    # In case an option doesn't change the type, but
+	    # this feature of the interface isn't used, etc.
+
 	    lappend counter(type) $option
 	}
     }
@@ -199,79 +211,81 @@ proc stats::countInit {tag args} {
 
     if {[llength $counter(type)] > 1} {
 	return -code error "Multiple type attributes not supported.  Use only one of\
-		-timehist, -lastn, -hist, -hist2x, or -hist10x."
+		-timehist, -group, -lastn, -hist, -hist2x, or -hist10x."
     }
     return ""
 }
 
-# stats::countReset
+# stats::countReset --
 #
 #	Reset a counter.
 #
 # Arguments:
-#	tag	The identifier for the counter.  Pass this to stats::count
-#	args	option values pairs that affect the reset.
-#		See the man page for definitons.
+#	tag	The identifier for the counter.
+#
+# Results:
+#	None.
 #
 # Side Effects:
-#	Re-Initializes state about a counter.
+#	Deletes the counter and calls stats::countInit again for it.
 
 proc stats::countReset {tag args} {
     upvar #0 stats::T-$tag counter
-    set counter(N) 0	;# Number of samples
-    set counter(total) 0
-    set counter(resetDate) [clock seconds]
 
-    # With an empty type the counter is a simple accumulator
-    # for which we can compute an average.  Here we loop through
-    # the args to determine what additional counter attributes
-    # we need to maintain in stats::count
+    # Layer reset on top of init.  Here we figure out what
+    # we need to pass into the init procedure to recreate it.
 
     switch -- $counter(type) {
 	""	{
-	    # Simple counter
-	    return
+	    set args ""
 	}
 	-group {
 	    upvar #0 stats::H-$tag histogram
 	    if {[info exist histogram]} {
 		unset histogram
 	    }
+	    set args [list -group $counter(group)]
 	}
 	-lastn {
 	    upvar #0 stats::V-$tag vector
 	    if {[info exist vector]} {
 		unset vector
 	    }
-	    set counter(index) 0
+	    set args [list -lastn $counter(lastn)]
 	}
-	-hist {
-	    upvar #0 stats::H-$tag histogram
-	    if {[info exist histogram]} {
-		unset histogram
-	    }
-	}
+	-hist -
 	-hist10x -
 	-hist2x {
 	    upvar #0 stats::H-$tag histogram
 	    if {[info exist histogram]} {
 		unset histogram
 	    }
+	    set args [list $counter(type) $counter(bucketsize)]
 	}
 	-timehist {
-	    # Too lazy to reset - do nothing
-	    return
+	    foreach h [list stats::H-$tag stats::Hour-$tag stats::Day-$tag] {
+		upvar #0 $h histogram
+		if {[info exist histogram]} {
+		    unset histogram
+		}
+	    }
+	    set args [list -timehist $stats::secsPerMinute]
 	}
     }
+    unset counter
+    eval {stats::countInit $tag} $args
+    set counter(resetDate) [clock seconds]
+    return ""
 }
 
-# stats::count
+# stats::count --
 #
 #	Accumulate statistics.
 #
 # Arguments:
 #	tag	The counter identifier.
 #	delta	The increment amount.  Defaults to 1.
+#	arg	For -group types, this is the histogram index.
 #
 # Results:
 #	None
@@ -351,14 +365,14 @@ proc stats::count {tag {delta 1} args} {
 		    }
 		    set counter(lastMinute) $minute
 		}
-		incr histogram($minute) $delta
+		set histogram($minute) [expr {$histogram($minute) + $delta}]
 	    }
 	}
 #   }
     return ""
 }
 
-# stats::countExists
+# stats::countExists --
 #
 #	Return true if the counter exists.
 #
@@ -376,7 +390,7 @@ proc stats::countExists {tag} {
     return [info exists counter]
 }
 
-# stats::countGet
+# stats::countGet --
 #
 #	Return statistics.
 #
@@ -397,6 +411,9 @@ proc stats::countGet {tag {option -total} args} {
 	-total {
 	    return $counter(total)
 	}
+	-totalVar {
+	    return ::stats::T-$tag\(total)
+	}
 	-N {
 	    return $counter(N)
 	}
@@ -410,7 +427,7 @@ proc stats::countGet {tag {option -total} args} {
 	-avgn {
 	    upvar #0 stats::V-$tag vector
 	    set sum 0
-	    for {set i 0} {[info exist vector($i)]} {incr i} {
+	    for {set i 0} {($i < $counter(N)) && ($i < $counter(lastn))} {incr i} {
 		set sum [expr {$sum + $vector($i)}]
 	    }
 	    if {$i == 0} {
@@ -440,10 +457,7 @@ proc stats::countGet {tag {option -total} args} {
 	    }
 	}
 	-histVar {
-	    return stats::H-$tag
-	}
-	-totalVar {
-	    return stats::T-$tag\(total)
+	    return ::stats::H-$tag
 	}
 	-histHour {
 	    upvar #0 stats::Hour-$tag histogram
@@ -454,7 +468,7 @@ proc stats::countGet {tag {option -total} args} {
 	    return $result
 	}
 	-histHourVar {
-	    return stats::Hour-$tag
+	    return ::stats::Hour-$tag
 	}
 	-histDay {
 	    upvar #0 stats::Day-$tag histogram
@@ -465,7 +479,7 @@ proc stats::countGet {tag {option -total} args} {
 	    return $result
 	}
 	-histDayVar {
-	    return stats::Day-$tag
+	    return ::stats::Day-$tag
 	}
 	-resetDate {
 	    if {[info exists counter(resetDate)]} {
@@ -477,26 +491,40 @@ proc stats::countGet {tag {option -total} args} {
 	-all {
 	    return [array get counter]
 	}
-	-allTagNames {
-	    set result {}
-	    foreach v [info vars ::stats::T-*] {
-		if {[info exist $v]} {
-		    # Declared arrays might not exist, yet
-		    regsub ::stats::T- $v {} v
-		    lappend result $v
-		}
-	    }
-	    return $result
-	}
 	default {
 	    return -code error "Invalid option $option.\
 		Should be -all, -total, -N, -avg, -avgn, -hist, -histHour,\
-		-histDay, -totalVar, -histVar, -histHourVar, -histDayVar."
+		-histDay, -totalVar, -histVar, -histHourVar, -histDayVar -resetDate."
 	}
     }
 }
 
-# stats::countMergeHour
+# stats::countNames --
+#
+#	Return the list of defined counters.
+#
+# Arguments:
+#	none
+#
+# Results:
+#	A list of counter tags.
+#
+# Side Effects:
+#	None.
+
+proc stats::countNames {} {
+    set result {}
+    foreach v [info vars ::stats::T-*] {
+	if {[info exist $v]} {
+	    # Declared arrays might not exist, yet
+	    regsub ::stats::T- $v {} v
+	    lappend result $v
+	}
+    }
+    return $result
+}
+
+# stats::MergeHour --
 #
 #	Sum the per-minute histogram into the next hourly bucket.
 #	On 24-hour boundaries, sum the hourly buckets into the next day bucket.
@@ -511,15 +539,14 @@ proc stats::countGet {tag {option -total} args} {
 # Side Effects:
 #	See description.
 
-proc stats::countMergeHour {interval} {
+proc stats::MergeHour {interval} {
     variable hourIndex
     variable minuteBase
-    variable minuteEpoch
     variable hourBase
     variable tagsToMerge
     variable secsPerMinute
 
-    after $interval [list stats::countMergeHour $interval]
+    after $interval [list stats::MergeHour $interval]
     if {$hourIndex == 0} {
 	set hourBase $minuteBase
     }
@@ -546,11 +573,11 @@ proc stats::countMergeHour {interval} {
     }
     set hourIndex [expr {($hourIndex + 1) % 24}]
     if {$hourIndex == 0} {
-	stats::countMergeDay
+	stats::MergeDay
     }
 
 }
-# stats::countMergeDay
+# stats::MergeDay --
 #
 #	Sum the per-minute histogram into the next hourly bucket.
 #	On 24-hour boundaries, sum the hourly buckets into the next day bucket.
@@ -565,7 +592,7 @@ proc stats::countMergeHour {interval} {
 # Side Effects:
 #	See description.
 
-proc stats::countMergeDay {} {
+proc stats::MergeDay {} {
     variable dayIndex
     variable dayBase
     variable hourBase
@@ -589,7 +616,8 @@ proc stats::countMergeDay {} {
     }
     incr dayIndex
 }
-# stats::histHtmlDisplay
+
+# stats::histHtmlDisplay --
 #
 #	Create an html display of the histogram.
 #
@@ -607,14 +635,14 @@ proc stats::countMergeDay {} {
 #		-width	Pixel width of each bar
 #		-skip	Buckets to skip when labeling value-based histograms
 #		-format Format used to display labels of buckets.
-#		-text	If 0, a text version of the histogram is dumped,
+#		-text	If 1, a text version of the histogram is dumped,
 #			otherwise a graphical one is generated.
 #
 # Results:
 #	HTML for the display.
 #
 # Side Effects:
-#	See description.
+#	None.
 
 proc stats::histHtmlDisplay {tag args} {
     upvar #0 stats::T-$tag counter
@@ -747,15 +775,20 @@ proc stats::histHtmlDisplay {tag args} {
     return $result
 }
 
-# stats::histHtmlDisplayBarChart
+# stats::histHtmlDisplayBarChart --
 #
 #	Create an html display of the histogram.
 #
 # Arguments:
-#	none
+#	tag		The counter tag.
+#	histVar		The name of the histogram array
+#	max		The maximum counter value in a histogram bucket.
+#	curIndex	The "current" histogram index, for time-base histograms.
+#	time		The base, or starting time, for the time-based histograms.
+#	args		The array get of the options passed into histHtmlDisplay
 #
 # Results:
-#	none
+#	HTML for the bar chart.
 #
 # Side Effects:
 #	See description.
@@ -871,7 +904,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
     return $result
 }
 
-# stats::countStart
+# stats::countStart --
 #
 #	Start an interval timer.  This should be pre-declared with
 #	type either -hist, -hist2x, or -hist20x
@@ -893,7 +926,7 @@ proc stats::countStart {tag instance} {
 	    [clock seconds]]
 }
 
-# stats::countStop
+# stats::countStop --
 #
 #	Record an interval timer.
 #

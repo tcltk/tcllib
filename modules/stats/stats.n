@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: stats.n,v 1.1 2000/09/19 15:03:39 welch Exp $
+'\" RCS: @(#) $Id: stats.n,v 1.2 2000/09/21 06:26:01 welch Exp $
 '\" 
 .so man.macros
 .TH stats n 1.0 Stats "Statistics and Counters"
@@ -15,7 +15,7 @@
 .sp
 \fBstats::countInit\fR \fItag\fR \fIargs\fR
 .sp
-\fBstats::count\fR \fItag {delta 1}\fR
+\fBstats::count\fR \fItag {delta 1} args\fR
 .sp
 \fBstats::countReset\fR \fItag\fR
 .sp
@@ -24,6 +24,10 @@
 \fBstats::countStart\fR \fItag\fR
 .sp
 \fBstats::countStop\fR \fItag\fR
+.sp
+\fBstats::countExists\fR \fItag\fR
+.sp
+\fBstats::countNames\fR \fItag\fR
 .sp
 \fBstats::histHtmlDisplay\fR \fItag args\fR
 .BE
@@ -36,23 +40,16 @@ can compute statistics and histograms over the collected data.
 \fBstats::countInit\fR \fItag args\fR
 This defines a counter with the name \fItag\fP.
 The \fIargs\fP determines the characteristics of the counter.
-If you just want a simple counter you can skip the
-\fBstats::countInit\fR call.  The \fIargs\fP are
+The \fIargs\fP are
+
 .TP
-\fB-label\fR \fIstring\fR
-Defines the label associated with the counter
-when displaying the values.
-.TP
-\fB-unit\fR \fIunit\fR
-The units of the counter, for display purposes.
-.TP
-\fB-lastn\fR \fIN\fR
-Save the last \fIN\fP values of the counter to maintain
-a "running average" of the counter.
+\fB-group\fR \fIname\fR
+Keep a grouped counter where the name of the histogram bucket
+is passed into \fBstats::count\fP.
 
 .TP
 \fB-hist\fR \fIbucketsize\fR
-Accumulate the statistic into histogram buckets of size
+Accumulate the counter into histogram buckets of size
 \fIbucketsize\fP.  For example, if the samples are millesecond
 time values and \fIbucketsize\fP is 10, then each
 histogram bucket represents time values of
@@ -79,6 +76,11 @@ histogram bucket represents time values of
 0 to 10 msec, 10 to 100 msec, 100 to 1000 msec, and so on.
 
 .TP
+\fB-lastn\fR \fIN\fR
+Save the last \fIN\fP values of the counter to maintain
+a "running average" over the last \fIN\fP values.
+
+.TP
 \fB-timehist\fR \fIsecsPerMinute\fR
 Keep a time-based histogram.
 The counter is summed into a histogram bucket based on the current time.
@@ -94,12 +96,14 @@ The stats package keeps all time-based histograms in sync, so the first
 time-based histograms.
 
 .TP
-\fBstats::count\fR \fItag {delta 1}\fR
+\fBstats::count\fR \fItag {delta 1} {instance {}}\fR
 Increment the counter identified by \fItag\fP.
 The default increment is 1, although you can increment
 by any value, integer or real, by specifying \fIdelta\fP.
 You must declare each counter with \fBstats::countInit\fP to define
 the characteristics of counter before you start to use it.
+If the counter type is \fB-group\fP, then the counter
+indentified by \fIinstance\fP is incremented.
 
 .TP
 \fBstats::countStart\fR \fItag instance\fR
@@ -115,3 +119,112 @@ Record the ending time of an interval.
 The delta time since the corresponding \fBcountStart\fP call
 for \fIinstance\fP is recorded in the histogram
 identified by \fItag\fP.
+
+.TP
+\fBstats::countGet\fR \fItag args\fR
+Return statistics about a counter
+identified by \fItag\fP.
+The \fIargs\fP determine what value to return:
+.TP
+\fB-total\fP
+Return the total value of the counter.  This is the default
+if \fIargs\fP is not specified.
+.TP
+\fB-totalVar\fP
+Return the name of the total variable.  Useful for
+specifying with -textvariable in a Tk widget.
+.TP
+\fB-N\fP
+Return the number of samples accumulated into the counter.
+.TP
+\fB-avg\fP
+Return the average of samples accumulated into the counter.
+.TP
+\fB-avgn\fP
+Return the average over the last \fIN\fP samples taken.
+The \fIN\fP value is set in the \fBstats::countInit\fP call.
+.TP
+\fB-hist\fP \fIbucket\fP
+If \fIbucket\fP is specified, then the value in that bucket
+of the histogram is returned.
+Otherwise the complete histogram is returned
+in array get format sorted by bucket.
+.TP
+\fB-histVar\fP
+Return the name of the histogram array variable.
+.TP
+\fB-histHour\fP
+Return the complete hourly histogram
+in array get format sorted by bucket.
+.TP
+\fB-histHourVar\fP
+Return the name of the hourly histogram array variable.
+.TP
+\fB-histDay\fP
+Return the complete daily histogram
+in array get format sorted by bucket.
+.TP
+\fB-histDayVar\fP
+Return the name of the daily histogram array variable.
+.TP
+\fB-resetDate\fP
+Return the clock seconds value recorded when the
+counter was last reset.
+.TP
+\fB-all\fP
+Return an array get of the array used to store the counter.
+This includes the total, the number of samples (N), and any
+type-specific information.  This does not include the
+histogram array.
+
+.TP
+\fBstats::countExists\fR \fItag\fR
+Returns 1 if the counter is defined.
+
+.TP
+\fBstats::countNames\fR
+Returns a list of all counters defined.
+
+.TP
+\fBstats::histHtmlDisplay\fR \fItag args\fR
+Generate HTML to display a histogram for a counter.
+The \fIargs\fP control the format of the display.
+They are:
+
+.TP
+\fB-title\fI string\fP
+Label to display above bar chart
+.TP
+\fB-unit\fI unit\fP
+Specify \fBminutes\fP, \fBhours\fP, or \fBdays\fP for the time-base histograms.
+For value-based histograms, the \fIunit\fP is used in the title.
+.TP
+\fB-images\fI url\fP
+URL of /images directory.
+.TP
+\fB-gif\fI filename\fP
+Image for normal histogram bars.
+The \fIfilename\fP is relative to the \fP-images\fP directory.
+.TP
+\fB-ongif\fI filename\fP
+Image for the active histogram bar.
+The \fIfilename\fP is relative to the \fP-images\fP directory.
+.TP
+\fB-max\fI N\fP
+Maximum number of value-based buckets to display.
+.TP
+\fB-height\fI N\fP
+Pixel height of the highest bar.
+.TP
+\fB-width\fI N\fP
+Pixel width of each bar.
+.TP
+\fB-skip\fI N\fP
+Buckets to skip when labeling value-based histograms.
+.TP
+\fB-format\fI string\fP
+Format used to display labels of buckets.
+.TP
+\fB-text\fI boolean\fP
+If 1, a text version of the histogram is dumped,
+otherwise a graphical one is generated.

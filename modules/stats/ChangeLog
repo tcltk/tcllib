@@ -2,6 +2,8 @@
 
 	* modules/stats/stats.tcl: Refined the countGet routine to return things
 	needed by the TclHttpd status module.  Refined the value-based histogram display.
+	* modules/stats/stats.tests: Added more tests.
+	* modules/stats/stats.n: Completed the man page.
 
 2000-09-15  Brent Welch <welch@ajubasolutions.com>
 

@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.test,v 1.1 2000/09/19 15:03:39 welch Exp $
+# RCS: @(#) $Id: stats.test,v 1.2 2000/09/21 06:26:02 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -29,9 +29,9 @@ test stats-1.1 {stats::countInit} {
 } {1}
 
 set x 0
-puts "incr [time {incr x} 100]"
+puts "incr scaler [time {incr x} 100]"
 set a(x) 0
-puts "incr [time {incr a(x)} 100]"
+puts "incr array [time {incr a(x)} 100]"
 set a(x) 0
 set a(n) 0
 puts "rawcount [time {
@@ -55,6 +55,18 @@ test stats-avg {stats::count} {
     stats::count avg 9.8
     stats::countGet avg -avg
 } {5.1}
+
+test stats-avg {stats::count} {
+    stats::countInit avg
+    stats::countGet avg -avg
+} {0}
+
+test stats-lastn {averge over lastn} {
+    stats::countInit lastn -lastn 4
+    stats::count lastn 2.2
+    stats::count lastn 4.6
+    stats::countGet lastn -avgn
+} {3.4}
 
 test stats-lastn {averge over lastn} {
     stats::countInit lastn -lastn 4
@@ -141,13 +153,16 @@ test stats-timehist {stats::count} {
     stats::countInit hits -timehist 4
     catch {puts stderr "Pausing during timehist tests"}
     stats::count hits 2
-    after [expr 4200]
+    # We need to reach in and find out what bucket was used
+    array set info [stats::countGet hits -all]
+    set min0 $info(lastMinute)
+    after [expr 4000]
     stats::count hits 4
-    after [expr 4200]
+    after [expr 4000]
     stats::count hits 8
     foreach {n v} [stats::countGet hits -hist] {
 	if {$v > 0} {
-	    lappend result $n $v
+	    lappend result [expr {$n - $min0}] $v
 	}
     }
     set result
@@ -155,3 +170,27 @@ test stats-timehist {stats::count} {
 
 puts "timehist [time {stats::count hits} 100]"
 
+test stats-countNames {stats::countNames} {
+    stats::countInit simple
+    stats::countInit avg
+    stats::countInit lastn -lastn 4
+    stats::countInit hist -hist 10
+    stats::countInit hits -timehist 4
+    lsort [stats::countNames]
+} {avg hist hits lastn simple}
+
+test stats-countExists {stats::countExist} {
+    stats::countInit simple
+    stats::countInit lastn -lastn 4
+    unset stats::T-lastn 
+    list [stats::countExists simple] [stats::countExists lastn]
+} {1 0}
+
+test stats-countReset {stats::countReset} {
+    stats::countInit simple
+    stats::count simple 1
+    stats::count simple 1
+    stats::count simple 1
+    stats::countReset simple
+    stats::countGet simple
+} {0}
