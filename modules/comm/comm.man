@@ -1,9 +1,9 @@
-[manpage_begin comm n 4.0]
+[manpage_begin comm n 4.0.1]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [moddesc   {remote communication}]
 [titledesc {A remote communications facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.0]]
+[require comm [opt 4.0.1]]
 [description]
 
 [para]
