@@ -1,5 +1,7 @@
 2002-08-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* nntp: Updated documentation, see Tcllib SF #597102.
+
 	* Makefile.in (install-doc): Fixed problem noted by Elchonon
 	  Edelson. Code to inline man.macros appended to existing
 	  files. Multiple execution of 'make install-doc' thus extended
