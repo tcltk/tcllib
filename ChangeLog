@@ -1,3 +1,11 @@
+2002-11-24 Gerald Lester <gwlester@users.sourceforge.net>
+
+	* html: Fixed bug #643337 (changes made though 2002-12-2)
+	
+2002-11-24 Gerald Lester <gwlester@users.sourceforge.net>
+
+	* html: Fixed bug #596000
+	
 2002-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct (graph): Implemented FR 603924
