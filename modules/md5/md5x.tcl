@@ -16,25 +16,34 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.6 2004/05/26 04:24:29 andreas_kupries Exp $
+# $Id: md5x.tcl,v 1.7 2004/07/01 21:30:46 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
-# Try and load a compiled extension to help.
-if {[catch {package require tcllibc}]} {
-    if {[catch {package require md5c}]} {
-        catch {
-            package requre Trf
-            package require Memchan
-        }
-    }
-}
-
 namespace eval ::md5 {
     variable version 2.0.1
-    variable rcsid {$Id: md5x.tcl,v 1.6 2004/05/26 04:24:29 andreas_kupries Exp $}
-
+    variable rcsid {$Id: md5x.tcl,v 1.7 2004/07/01 21:30:46 patthoyts Exp $}
+    variable usetrf  0
+    variable usemd5c 0
     namespace export md5 hmac MD5Init MD5Update MD5Final
+
+    # Try and load a compiled extension to help.
+    if {![catch {package require tcllibc}] 
+        || ![catch {package require md5c}]} {
+        set usemd5c [expr {[info command ::md5::md5c] != {}}]
+    } else {
+        catch {
+            package require Trf
+            package require Memchan
+            # Trf < 2.1p2 with Memchan < 2.2a4 is buggy for what we want to do.
+            if {[package vsatisfies \
+                     [string map {p .} [package provide Trf]] 2.1]
+                && [package vsatisfies \
+                        [string map {a .} [package provide Memchan]] 2.2.0]} {
+                set usetrf 1
+            }
+        }
+    }
 
     variable uid
     if {![info exists uid]} {
@@ -50,6 +59,7 @@ namespace eval ::md5 {
 #   cleaned up when we call MD5Final
 #
 proc ::md5::MD5Init {} {
+    variable usetrf
     variable uid
     set token [namespace current]::[incr uid]
     upvar #0 $token tok
@@ -62,6 +72,19 @@ proc ::md5::MD5Init {} {
              C [expr 0x98badcfe] \
              D [expr 0x10325476] \
              n 0 i "" ]
+    if {$usetrf} {
+        # We have Trf and Memchan so we can create a bucket with these.
+        set s [::null]
+        fconfigure $s -translation binary -buffering none
+        ::md5 -attach $s -mode write \
+            -read-type variable \
+            -read-destination [subst $token](trfread) \
+            -write-type variable \
+            -write-destination [subst $token](trfwrite)
+        set tok(trfread) 0
+        set tok(trfwrite) 0
+        set tok(trf) $s
+    }
     return $token
 }
 
@@ -76,30 +99,18 @@ proc ::md5::MD5Init {} {
 #   it here in preference to the pure-Tcl implementation.
 #
 proc ::md5::MD5Update {token data} {
+    variable usemd5c
     variable $token
     upvar 0 $token state
 
-    if {[info command ::md5::md5c] != {}} {
+    if {$usemd5c} {
         if {[info exists state(md5c)]} {
             set state(md5c) [md5c $data $state(md5c)]
         } else {
             set state(md5c) [md5c $data]
         }
         return
-    } elseif {[package provide Trf] != {} \
-                  && [package provide Memchan] != {} \
-                  && 0 } {
-        # FIX ME - currently Trf usage is disabled by the above line.
-        # We have Trf and Memchan so we can create a bucket with these.
-        if {![info exists state(trf)]} {
-            set state(trf) [::null]
-            ::md5 -attach $state(trf) -mode write \
-                -read-type variable \
-                -read-destination [subst $token](trfread) \
-                -write-type variable \
-                -write-destination [subst $token](trfwrite)
-            fconfigure $state(trf) -translation binary -buffering none
-        }
+    } elseif {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
         return
     }
