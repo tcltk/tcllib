@@ -23,6 +23,14 @@ command.
 
 [para]
 
+[emph Note:] A C-implementation of the command can be had from the
+location [uri http://physnet.uni-oldenburg.de/~schlenk/tcl/graph/].
+This implementation uses a bit less memory than the tcl version
+provided here directly, and is faster.
+
+
+[para]
+
 A directed graph is a structure containing two collections of
 elements, called [emph nodes] and [emph arcs] respectively, together
 with a relation ("connectivity") that places a general structure upon
@@ -386,5 +394,5 @@ a node [const enter]s it, the second visit [const leave]s it.
 
 [list_end]
 
-[keywords graph]
+[keywords graph cgraph]
 [manpage_end]
