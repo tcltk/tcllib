@@ -1227,13 +1227,21 @@ proc mime::copymessageaux {token channel} {
 
             puts $channel ""
 
-            if {[string compare $converter ""]} {
-                flush $channel
-                eval $converter -attach $channel -mode encode
-            }
-            eval [list ::fcopy $fd $channel] $size \
-                       [list -command [list mime::fcopy $token]]
-            vwait $token
+	    while {($size != 0) && (![eof $state(fd)])} {
+		if {$size < 0 || $size > 32768} {
+		    set X [read $state(fd) 32768]
+		} else {
+		    set X [read $state(fd)]
+		}
+		if {$size > 0} {
+		    set size [expr {$size - [string length $X]}]
+		}
+		if {[string compare $converter ""]} {
+		    puts $channel [$converter -mode encode -- $X]
+		} else {
+		    puts $channel $X
+		}
+	    }
 
             if {$closeP} {
                 catch { close $state(fd) }
@@ -1283,15 +1291,10 @@ proc mime::copymessageaux {token channel} {
             puts $channel ""
 
             if {[string compare $converter ""]} {
-                flush $channel
-                eval $converter -attach $channel -mode encode
-            }
-
-            fileevent $channel writable \
-                      [list mime::scopy $token $channel \
-                                        0 [string length $state(string)] \
-                                        $blocksize]
-            vwait $token
+                puts $channel [$converter -mode encode -- $state(string)]
+            } else {
+		puts $channel $state(string)
+	    }
         }
     }
 
@@ -1461,7 +1464,7 @@ proc mime::buildmessageaux {token} {
                 message/* {
                     append result \n
                     foreach part $state(parts) {
-                        mime::buildmessage $part
+                        append result [mime::buildmessage $part]
                         break
                     }
                 }
@@ -1469,7 +1472,7 @@ proc mime::buildmessageaux {token} {
                 default {
                     foreach part $state(parts) {
                         append result "\n--$boundary\n"
-                        mime::buildmessage $part
+                        append result [mime::buildmessage $part]
                     }
                     append result "\n--$boundary--\n"
                 }
