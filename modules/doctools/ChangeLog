@@ -32,3 +32,11 @@
 	* Added [example_begin] and [example_end] commands.
 	  Also [example { code ... }] command.
 
+2002-02-13  Joe English  <jenglish@users.sourceforge.net>
+
+	* mpformats/fmt.tmml:  [example_begin] inside lists was
+	  not handled correctly.
+
+	* mpformats/fmt.tmml:  Detect section cross-references
+	  in [emph] and [strong].
+
