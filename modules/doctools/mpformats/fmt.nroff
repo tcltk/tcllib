@@ -10,10 +10,10 @@
 #
 ################################################################
 
-proc here {} [list return [file dirname [info script]]]
-proc this {} [list return [file tail    [info script]]]
+proc here {} [list return [__file dirname [info script]]]
+proc this {} [list return [__file tail    [info script]]]
 
-source [file join [here] _common.tcl]   ; # Shared code
+source [__file join [here] _common.tcl]   ; # Shared code
 
 ################################################################
 ## Backend for *roff markup
@@ -193,6 +193,26 @@ proc cmd    {text} {return [nr_bld]$text[nr_rst]}
 proc emph   {text} {return [nr_ul]$text[nr_rst]}
 proc strong {text} {return [nr_bld]$text[nr_rst]}
 proc opt    {text} {return ?$text?}
+
+proc comment {text} {
+    set res [list]
+    foreach l [split $text \n] {
+	lappend res [nr_comment $l]
+    }
+    return [join $res \n]
+}
+proc sectref {text} {strong $text}
+proc syscmd  {text} {strong $text}
+proc method  {text} {strong $text}
+proc option  {text} {strong $text}
+proc widget  {text} {strong $text}
+proc fun     {text} {strong $text}
+proc type    {text} {strong $text}
+proc package {text} {strong $text}
+proc class   {text} {strong $text}
+proc var     {text} {strong $text}
+proc file    {text} {return "\"[emph $text]\""}
+proc uri     {text} {Underline $text}
 
 ################################################################
 # nroff specific commands
