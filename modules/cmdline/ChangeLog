@@ -1,3 +1,7 @@
+2000-03-09  Eric Melski  <ericm@scriptics.com>
+
+	* cmdline.test: Adapted tests to work with tcllib test framework.
+
 1999-10-29  Scott Stanton  <stanton@scriptics.com>
 
 	* cmdline.tcl: Fixed bug where options that contained regexp
