@@ -1,3 +1,8 @@
+2003-11-25  Andreas Kupries  <andreask@activestate.com>
+
+	* log.tcl (log::log): Added better handling of multiple lines in log message.
+	  (log::logarray): New command to dump the contents of an array into the log.
+
 2003-06-25  David N. Welton  <davidw@dedasys.com>
 
 	* log.man: Fixed spelling bug (Supress -> Suppress), thanks to
