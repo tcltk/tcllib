@@ -1,7 +1,7 @@
 2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_xml.tcl: args -> arguments, as the argument is not
-	  the last one. The code as is was not erroneous, but a pissible
+	  the last one. The code as is was not erroneous, but a possible
 	  trouble spot should tcl ever be more strict with 'args'.
 
 2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
