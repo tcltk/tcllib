@@ -1,3 +1,12 @@
+2005-01-10  Andreas Kupries <andreask@activestate.com>
+
+	* Makefile.in: Added -no-apps, and -app-path to the installer
+	  targets, to ensure that a configure --bin-path is handled
+	  correctly.
+
+	  Thanks to Gregor Leusch <gleusch@users.sourceforge.net> for both
+	  diagnosis and patch ([Tcllib SF Bug 1099727]).
+
 2004-12-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/blowfish:        NEW MODULE: blowfish
