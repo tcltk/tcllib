@@ -21,8 +21,17 @@ cd $outdir
 puts "Making pkgIndex.tcl in [pwd]"
 
 set index [open pkgIndex.tcl w]
-puts $index "if { \[lsearch \$auto_path \[file dirname \[info script\]\]\] == -1 } {"
-puts $index "\tlappend auto_path \[file dirname \[info script\]\]"
+puts $index "if { \[lsearch \$auto_path \$dir\] == -1 } {"
+puts $index "\tlappend auto_path \$dir"
+puts $index "\tif {!\[catch {package vcompare \[info patchlevel\] \[info patchlevel\]}\]} {"
+puts $index "\t\tif {!\[package vsatisfies \[info patchlevel\] 8.3.1\]} {"
+puts $index "\t\t\tforeach tlf \[glob -nocomplain \[file join \$dir * pkgIndex.tcl\]\] {"
+puts $index "\t\t\t\tset dir \[file dirname \$tlf\]"
+puts $index "\t\t\t\tsource \$tlf"
+puts $index "\t\t\t}"
+puts $index "\t\t\tcatch {unset tlf}"
+puts $index "\t\t}"
+puts $index "\t}"
 puts $index "}"
 puts $index "package ifneeded $package $version {"
 foreach module $modules {
