@@ -318,7 +318,7 @@ includes the root, but not the node itself.
 [lst_item [method rootpath]]
 
 Replaces the current node set with the ancestors for all nodes [var N]
-in the node set, should [var N] have parent. In other words, nodes
+in the node set, should [var N] have a parent. In other words, nodes
 without a parent do not contribute to the new node set.
 
 In contrast to the operator [method ancestors] the nodes are added in
