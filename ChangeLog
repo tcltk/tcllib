@@ -1,5 +1,8 @@
 2001-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* examples/nntp: Moved example applications out of the nntp module
+	  into the example space.
+
 	* examples/ftpd: Moved example applications out of the ftpd module
 	  into the example space.
 
