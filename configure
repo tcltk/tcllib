@@ -556,6 +556,16 @@ NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
 
 
 
+case "`uname -s`" in
+    *win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
+	CYGPATH="cygpath -w"
+	;;
+    *)
+	CYGPATH=echo
+	;;
+esac
+
+
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
 # incompatible versions:
@@ -568,7 +578,7 @@ NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 echo $ac_n "checking for a BSD compatible install""... $ac_c" 1>&6
-echo "configure:572: checking for a BSD compatible install" >&5
+echo "configure:582: checking for a BSD compatible install" >&5
 if test -z "$INSTALL"; then
 if eval "test \"`echo '$''{'ac_cv_path_install'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -622,7 +632,7 @@ test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 
     echo $ac_n "checking executable extension based on host type""... $ac_c" 1>&6
-echo "configure:626: checking executable extension based on host type" >&5
+echo "configure:636: checking executable extension based on host type" >&5
 
     case "`uname -s`" in
 	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
@@ -638,7 +648,7 @@ echo "configure:626: checking executable extension based on host type" >&5
 
 
     echo $ac_n "checking for tclsh""... $ac_c" 1>&6
-echo "configure:642: checking for tclsh" >&5
+echo "configure:652: checking for tclsh" >&5
 
     if eval "test \"`echo '$''{'ac_cv_path_tclsh'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -817,6 +827,7 @@ s%@mandir@%$mandir%g
 s%@CONFIGDIR@%$CONFIGDIR%g
 s%@PACKAGE@%$PACKAGE%g
 s%@VERSION@%$VERSION%g
+s%@CYGPATH@%$CYGPATH%g
 s%@INSTALL_PROGRAM@%$INSTALL_PROGRAM%g
 s%@INSTALL_SCRIPT@%$INSTALL_SCRIPT%g
 s%@INSTALL_DATA@%$INSTALL_DATA%g
