@@ -1,0 +1,93 @@
+# -*- tcl -*-
+# Tests for module 'inifile'
+
+#---------------------------------------------------------------------
+# Load the tcltest package
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import -force ::tcltest::*
+}
+
+if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+}
+
+#---------------------------------------------------------------------
+# Load the inifile package.
+
+set inifile [file join [file dirname [info script]] ini.tcl]
+set     sub_ap $auto_path
+lappend sub_ap [file dirname [file dirname [info script]]]
+
+if {[catch {source $inifile} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+puts "- inifile [package present inifile]"
+
+#---------------------------------------------------------------------
+
+set testini [file join [file dirname [info script]] test.ini]
+
+test inifile-1.1 {ini::open} {
+   ini::open $testini
+} {ini0}
+
+test inifile-1.2 {ini::sections} {
+    ini::sections ini0
+} {emptysection section1 \{test section2}
+
+test inifile-1.3 {ini::keys} {
+    ini::keys ini0 section1
+} {testkey key}
+
+test inifile-1.4 {ini::keys} {
+    ini::keys ini0 \{test
+} {\}key}
+
+test inifile-1.5 {ini::get} {
+    ini::get ini0 section1
+} {testkey hi key value}
+
+test inifile-1.6 {ini::get} {
+    ini::get ini0 \{test
+} {\}key {$blah}}
+
+test inifile-1.7 {ini::value} {
+    ini::value ini0 section1 key
+} {value}
+
+test inifile-1.8 {ini::value} {
+    ini::value ini0 \{test \}key
+} {$blah}
+
+test inifile-1. {ini::exists} {
+    ini::exists ini0 section1
+} {1}
+
+test inifile-1. {ini::exists} {
+    ini::exists ini0 section
+} {0}
+
+test inifile-1. {ini::exists} {
+    ini::exists ini0 section1 testkey
+} {1}
+
+test inifile-1. {ini:::exists} {
+    ini::exists ini0 section1 blah
+} {0}
+
+test inifile-1. {ini:::exists} {
+    ini::exists ini0 \{test
+} {1}
+
+test inifile-1. {ini:::exists} {
+    ini::exists ini0 \{test \}key
+} {1}
+
+
+#---------------------------------------------------------------------
+# Clean up
+
+::tcltest::cleanupTests
