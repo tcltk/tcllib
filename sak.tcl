@@ -477,7 +477,7 @@ proc gd-gen-tap {} {
 proc gd-gen-rpmspec {} {
     global tcllib_version tcllib_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.31 2004/07/12 00:06:02 patthoyts Exp $
+    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.32 2004/07/12 14:10:53 andreas_kupries Exp $
 
 %define version @@@@
 %define directory /usr
@@ -835,6 +835,12 @@ proc run-procheck {args} {
 }
 
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
+
+proc write_out {f text} {
+    catch {file delete -force $f}
+    puts -nonewline [set of [open $f w]] $text
+    close $of
+}
 
 proc write_out {f text} {
     catch {file delete -force $f}
