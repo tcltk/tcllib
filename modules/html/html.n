@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.7 2000/07/29 00:32:49 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.8 2000/08/01 01:56:07 welch Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -103,11 +103,9 @@
 .sp
 \fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
 .sp
-\fBhtml::textInput\fR \fIname {value {}}\fR
+\fBhtml::textInput\fR \fIname args\fR
 .sp
-\fBhtml::textInputRow\fR \fIname {value {}}\fR
-.sp
-\fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
+\fBhtml::textInputRow\fR \fIlabel name args\fR
 .sp
 \fBhtml::title\fR \fItitle\fR
 .sp
@@ -396,15 +394,19 @@ The \fIparam\fP are for the TABLE tag.
 Generate a TEXTAREA tag wrapped around its current values.
 
 .TP
-\fBhtml::textInput\fR \fIname {value {}}\fR
+\fBhtml::textInput\fR \fIname args\fR
 Generate an INPUT form tag with type TEXT.
 This uses
 \fBhtml::formValue\fP.
+The args is any additional tag attributes you want
+to put into the INPUT tag.
 
 .TP
-\fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
+\fBhtml::textInputRow\fR \fIlabel name args\fR
 Generate an INPUT form tag with type TEXT formatted into
 a table row with an associated label.
+The args is any additional tag attributes you want
+to put into the INPUT tag.
 
 .TP
 \fBhtml::title\fR \fItitle\fR

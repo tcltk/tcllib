@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.15 2000/07/29 00:32:49 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.16 2000/08/01 01:56:07 welch Exp $
 
 package provide html 1.0
 
@@ -316,7 +316,7 @@ proc html::bodyTag {args} {
 # Arguments:
 #	name		The name of the form element
 #	defvalue	A default value to use, if not appears in the CGI
-#			inputs
+#			inputs.  DEPRECATED - use ncgi::defValue instead.
 #
 # Retults:
 #	A string like:
@@ -356,15 +356,17 @@ proc html::quoteFormValue {value} {
 #	input.size default falue.
 #
 # Arguments:
-#	name	The form element name
+#	name		The form element name
+#	args		Additional attributes for the INPUT tag
 #
 # Results:
 #	The html fragment
 
-proc html::textInput {name {value {}}} {
+proc html::textInput {name args} {
     variable defaults
-    set html "<input type=\"text\" [html::formValue $name $value]"
+    set html "<input type=\"text\" [html::formValue $name]"
     append html [html::default input.size]
+    append html [string trim [join $args]]
     append html ">\n"
     return $html
 }
@@ -374,14 +376,16 @@ proc html::textInput {name {value {}}} {
 #	Format a table row containing a text input element and a label.
 #
 # Arguments:
+#	label	Label to display next to the form element
 #	name	The form element name
+#	args	Additional attributes for the INPUT tag
 #
 # Results:
 #	The html fragment
 
-proc html::textInputRow {label name {value {}}} {
+proc html::textInputRow {label name args} {
     variable defaults
-    set html [html::row $label [html::textInput $name $value]]
+    set html [html::row $label [eval [list html::textInput $name] $args]]
     return $html
 }
 
@@ -390,6 +394,7 @@ proc html::textInputRow {label name {value {}}} {
 #	Format a table row containing a password input element and a label.
 #
 # Arguments:
+#	label	Label to display next to the form element
 #	name	The form element name
 #
 # Results:
@@ -468,7 +473,7 @@ proc html::checkValue {name {value 1}} {
 #	A string like:
 #	name="fred" value="freds value" CHECKED
 
-    proc html::radioValue {name value {defaultSelection {}}} {
+proc html::radioValue {name value {defaultSelection {}}} {
     if {[string equal $value [ncgi::value $name $defaultSelection]]} {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
     } else {
@@ -481,7 +486,7 @@ proc html::checkValue {name {value 1}} {
 #	Display a set of radio buttons while looking for an existing
 #	value from the query data, if any.
 
-	proc html::radioSet {key sep list {defaultSelection {}}} {
+proc html::radioSet {key sep list {defaultSelection {}}} {
     set html ""
     set s ""
     foreach {label v} $list {

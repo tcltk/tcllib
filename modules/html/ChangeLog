@@ -1,3 +1,10 @@
+2000-07-31  Brent Welch <welch@scriptics.com>
+
+	* modules/html/html.tcl:
+	Changed html::textInput to take "args" for additional stuff to
+	put into the <text> tag instead of "defaultValue".  The ncgi
+	module now has ncgi::setDefaultValue for that purpose.
+
 2000-07-28  Brent Welch <welch@scriptics.com>
 
 	* modules/html/html.tcl, html.n: Added html::passwordInputRow
