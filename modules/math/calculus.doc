@@ -1,4 +1,18 @@
 [pageheader "Package: Calculus"]
+[synopsis \
+{package require Tcl 8.2
+package require math::calculus 0.5
+::math::calculus::integral begin end nosteps func
+::math::calculus::integralExpr begin end nosteps expression
+::math::calculus::integral2D xinterval yinterval func
+::math::calculus::integral3D xinterval yinterval zinterval func
+::math::calculus::eulerStep t tstep xvec func
+::math::calculus::heunStep t tstep xvec func
+::math::calculus::rungeKuttaStep tstep xvec func
+::math::calculus::boundaryValueSecondOrder coeff_func force_func leftbnd rightbnd nostep}]
+::math::calculus::newtonRaphson func deriv initval
+::math::calculus::newtonRaphsonParameters maxiter tolerance
+
 [section "Introduction"]
 The package Calculus implements several simple mathematical algorithms,
 such as the integration of a function over an interval and the numerical
@@ -11,7 +25,7 @@ been used in a straightforward manner.
 This document describes the procedures and explains their usage.
 
 [section "Version and copyright"]
-This document describes [italic Calculus], version 0.3, december 2001.
+This document describes [italic ::math::calculus], version 0.5, may 2002.
 [par]
 Usage of Calculus is free, as long as you acknowledge the
 author, Arjen Markus (e-mail: arjen.markus@wldelft.nl).
@@ -21,7 +35,7 @@ There is no guarantee nor claim that the results are accurate.
 [section "Procedures"]
 The Calculus package defines the following public procedures:
 [ulist]
-[item][italic "Integral begin end nosteps func"]
+[item][italic "integral begin end nosteps func"]
       [break]
       Determine the integral of the given function using the Simpson
       rule. The interval for the integration is [lb]begin,end[rb].
@@ -34,7 +48,7 @@ The Calculus package defines the following public procedures:
       single argument.
       [par]
 
-[item][italic "IntegralExpr begin end nosteps expression"]
+[item][italic "integralExpr begin end nosteps expression"]
       [break]
       Similar to the previous proc, this one determines the integral of
       the given [italic expression] using the Simpson rule.
@@ -48,9 +62,9 @@ The Calculus package defines the following public procedures:
       use the variable "x" as the only variable (the "integrate")
       [par]
 
-[item][italic "Integral2D xinterval yinterval func"]
+[item][italic "integral2D xinterval yinterval func"]
       [break]
-      The [italic Integral2D] procedure calculates the integral of
+      The [italic integral2D] procedure calculates the integral of
       a function of two variables over the rectangle given by the
       first two arguments, each a list of three items, the start and
       stop interval for the variable and the number of steps.
@@ -64,15 +78,15 @@ The Calculus package defines the following public procedures:
       value.
       [par]
 
-[item][italic "Integral3D xinterval yinterval zinterval func"]
+[item][italic "integral3D xinterval yinterval zinterval func"]
       [break]
-      The [italic Integral3D] procedure is the three-dimensional
-      equivalent of [italic Intergral2D]. The function taking three
+      The [italic integral3D] procedure is the three-dimensional
+      equivalent of [italic intergral2D]. The function taking three
       arguments is integrated over the block in 3D space given by the
       intervals.
       [par]
 
-[item][italic "EulerStep t tstep xvec func"]
+[item][italic "eulerStep t tstep xvec func"]
       [break]
       Set a single step in the numerical integration of a system of
       differential equations. The method used is Euler's.
@@ -89,7 +103,7 @@ The Calculus package defines the following public procedures:
       xvec and the return value of "func" must match).
       [par]
 
-[item][italic "HeunStep t tstep xvec func"]
+[item][italic "heunStep t tstep xvec func"]
       [break]
       Set a single step in the numerical integration of a system of
       differential equations. The method used is Heun's.
@@ -106,7 +120,7 @@ The Calculus package defines the following public procedures:
       xvec and the return value of "func" must match).
       [par]
 
-[item][italic "RungeKuttaStep tstep xvec func"]
+[item][italic "rungeKuttaStep tstep xvec func"]
       [break]
       Set a single step in the numerical integration of a system of
       differential equations. The method used is Runge-Kutta 4th
@@ -124,7 +138,7 @@ The Calculus package defines the following public procedures:
       xvec and the return value of "func" must match).
       [par]
 
-[item][italic "BoundaryValueSecondOrder coeff_func force_func leftbnd rightbnd nostep"]
+[item][italic "boundaryValueSecondOrder coeff_func force_func leftbnd rightbnd nostep"]
       [break]
       Solve a second order linear differential equation with boundary
       values at two sides. The equation has to be of the form:
@@ -164,7 +178,7 @@ The Calculus package defines the following public procedures:
       values of the solution.
       [par]
 
-[item][italic "SolveTriDiagonal acoeff bcoeff ccoeff dvalue"
+[item][italic "solveTriDiagonal acoeff bcoeff ccoeff dvalue"]
       [break]
       Solve a system of linear equations Ax = b with A a tridiagonal
       matrix. Returns the solution as a list.
@@ -173,13 +187,60 @@ The Calculus package defines the following public procedures:
       [italic bcoeff] - List of values on the main diagonal
       [italic ccoeff] - List of values on the upper diagonal
       [italic dvalue] - List of values on the righthand-side
+      [par]
+
+[item][italic "newtonRaphson func deriv initval"]
+      [break]
+      Determine the root of an equation given by [italic "f(x) = 0"],
+      using the Newton-Raphson method.
+      [break]
+      [italic func]    - Name of the procedure that calculates the function value
+      [italic deriv    - Name of the procedure that calculates the derivative of the function
+      [italic initval] - Initial value for the iteration
+      [par]
+
+[item][italic "newtonRaphsonParameters maxiter tolerance"]
+      [break]
+      Set new values for the two parameters that gouvern the Newton-Raphson method.
+      [break]
+      [italic maxiter]   - Maximum number of iterations
+      [italic tolerance] - Relative error in the calculation
+      [par]
 [endlist]
 
-[italic Note:]
+[italic Notes:]
 [break]
-The integration of the differential equations via Runge-Kutta
-is yet to be implemented.
-[break]
+Several of the above procedures take the [italic names] of procedures as
+arguments. To avoid problems with the [italic visibility] of these
+procedures, the fully-qualified name of these procedures is determined
+inside the calculus routines. For the user this has only one
+consequence: the named procedure must be visible in the calling
+procedure. For instance:
+
+[preserve]
+    namespace eval ::mySpace {
+       namespace export calcfunc
+       proc calcfunc { x } { return $x }
+    }
+    #
+    # Use a fully-qualified name
+    #
+    namespace eval ::myCalc {
+       proc detIntegral { begin end } {
+          return [lb]integral $begin $end 100 ::mySpace::calcfunc[rb]
+       }
+    }
+    #
+    # Import the name
+    #
+    namespace eval ::myCalc {
+       namespace import ::mySpace::calcfunc
+       proc detIntegral { begin end } {
+          return [lb]integral $begin $end 100 calcfunc[rb]
+       }
+    }
+[endpreserve]
+[par]
 Enhancements for the second-order boundary value problem:
 [ulist]
 [item]Other types of boundary conditions (zero gradient, zero flux)
@@ -193,11 +254,11 @@ Let us take a few simple examples:
 Integrate x over the interval [lb]0,100[rb] (20 steps):
 [preserve]
 proc linear_func { x } { return $x }
-puts "Integral: ::Calculus::Integral 0 100 20 linear_func"
+puts "Integral: [lb]::math::calculus::Integral 0 100 20 linear_func[rb]"
 [endpreserve]
 For simple functions, the alternative could be:
 [preserve]
-puts "Integral: ::Calculus::IntegralExpr 0 100 20 {$x}"
+puts "Integral: [lb]::math::calculus::IntegralExpr 0 100 20 {$x}[rb]"
 [endpreserve]
 Do not forget the braces!
 [par]
@@ -213,19 +274,19 @@ can be split into a system of first-order equations:
 Then this system can be solved with code like this:
 [preserve]
 proc dampened_oscillator { t xvec } {
-   set x  [lb]lindex $xvec 0[rb]
-   set x1 [lb]lindex $xvec 1[rb]
-   return [lb]list $x1 [lb]expr {-$x1-$x}[rb][rb]
+   set x  [lb]lindex \$xvec 0[rb]
+   set x1 [lb]lindex \$xvec 1[rb]
+   return [lb]list \$x1 [lb]expr {-\$x1-\$x}[rb][rb]
 }
 
 set xvec   { 1.0 0.0 }
 set t      0.0
 set tstep  0.1
-for { set i 0 } { $i < 20 } { incr i } {
-   set result [lb]::Calculus::EulerStep $t $tstep $xvec dampened_oscillator[rb]
-   puts "Result ($t): $result"
-   set t      [lb]expr {$t+$tstep}[rb]
-   set xvec   $result
+for { set i 0 } { \$i < 20 } { incr i } {
+   set result [lb]::math::calculus::eulerStep \$t \$tstep \$xvec dampened_oscillator[rb]
+   puts "Result (\$t): \$result"
+   set t      [lb]expr {\$t+\$tstep}[rb]
+   set xvec   \$result
 }
 [endpreserve]
 Suppose we have the boundary value problem:
@@ -239,12 +300,12 @@ decaying substance.
 [par]
 It can be solved with the following fragment:
 [preserve]
-   proc coeffs { x } { return [list $::Diff 0.0 $::decay] }
+   proc coeffs { x } { return [lb]list \$::Diff 0.0 \$::decay[rb] }
    proc force  { x } { return 0.0 }
 
    set Diff   1.0e-2
    set decay  0.0001
    set length 100.0
-   set y [lb]::Calculus::BoundaryValueSecondOrder coeffs force {0.0 1.0} \
-      [list $length 0.0] 100
+   set y [lb]::math::calculus::boundaryValueSecondOrder coeffs force {0.0 1.0} \
+      [lb]list \$length 0.0[rb] 100[rb]
 [endpreserve]
