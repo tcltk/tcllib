@@ -1,5 +1,5 @@
-# split.test:  tests for the split sub-package of the textutil package.
 # -*- tcl -*-
+# split.test:  tests for the split sub-package of the textutil package.
 #
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
@@ -14,6 +14,37 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
     source [file join [file dirname [info script]] textutil.tcl]
 }
+
+###################################################
+
+test splitn-0.1 {split empty string} {
+    ::textutil::splitn ""
+} [list]
+
+test splitn-0.2 {split empty string with explicit lenght 1} {
+    ::textutil::splitn "" 1
+} [list]
+
+test splitn-0.3 {split empty string with explicit lenght 2} {
+    ::textutil::splitn "" 2
+} [list]
+
+test splitn-1.1 {split simple string} {
+    ::textutil::splitn "abc"
+} [list a b c]
+
+test splitn-1.2 {split simple string with explicit length 1} {
+    ::textutil::splitn "abc" 1
+} [list a b c]
+
+test splitn-1.3 {split simple string with explicit length 2} {
+    ::textutil::splitn "abc" 2
+} [list ab c]
+
+test splitn-2.1 {split with nonpositive lenght ->error!} {
+    catch {::textutil::splitn "abc" 0} msg
+    set msg
+} {len must be > 0}
 
 ###################################################
 
