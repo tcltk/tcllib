@@ -5,6 +5,7 @@
 # doctools formatting commands.
 #
 # Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2004 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # L10N
 
@@ -42,7 +43,7 @@ global state lstctx lstitem
 #  for "done"	| syscmd method option	|
 #		| widget fun type class	|
 #		| package var file uri	|
-#		| strong emph		|
+#		| strong emph namespace	|
 # --------------+-----------------------+----------------------
 # manpage_begin	| manpage_begin		| header
 # --------------+-----------------------+----------------------
@@ -456,9 +457,21 @@ proc file {text} {
     if {[Is done]} {Error nodonecmd}
     fmt_file $text
 }
-proc uri {text} {
+proc namespace {text} {
     if {[Is done]} {Error nodonecmd}
-    fmt_uri $text
+    fmt_namespace $text
+}
+proc uri {text {label {}}} {
+    if {[Is done]} {Error nodonecmd}
+    # The label argument is left out when undefined so that we can
+    # control old formatters as well, if the input is not using uri
+    # labels.
+
+    if {$label == {}} {
+	fmt_uri $text
+    } else {
+	fmt_uri $text $label
+    }
 }
 proc usage {args} {
     if {[Is done]} {Error nodonecmd}

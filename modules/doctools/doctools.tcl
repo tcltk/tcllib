@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.7 2004/01/25 07:29:39 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.8 2004/05/04 22:10:20 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -132,6 +132,7 @@ proc ::doctools::help {} {
 	    * sectref       - semantic markup - section reference\n\
 	    * syscmd        - semantic markup - system command\n\
 	    * method        - semantic markup - object method\n\
+	    * namespace     - semantic markup - namespace name\n\
 	    * option        - semantic markup - option\n\
 	    * widget        - semantic markup - widget\n\
 	    * fun           - semantic markup - function\n\
@@ -140,7 +141,7 @@ proc ::doctools::help {} {
 	    * class         - semantic markup - class\n\
 	    * var           - semantic markup - variable\n\
 	    * file          - semantic markup - file \n\
-	    * uri           - semantic markup - uri\n\
+	    * uri           - semantic markup - uri (optional label)\n\
 	    * term          - semantic markup - unspecific terminology\n\
 	    * const         - semantic markup - constant value\n\
 	    * emph          - emphasis\n\
@@ -778,6 +779,7 @@ proc ::doctools::SetupChecker {name} {
 	keywords nl arg cmd opt comment sectref syscmd method option
 	widget fun type package class var file uri usage term const
 	arg_def cmd_def opt_def tkoption_def emph strong plain_text
+	namespace
     } {
 	interp alias $chk_ip fmt_$cmd $format_ip fmt_$cmd
     }
