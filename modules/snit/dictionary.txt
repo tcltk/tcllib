@@ -1,4 +1,4 @@
-Last updated: Snit V0.94 of 5/29/2004.
+Last updated: Snit V0.94
 
 TYPE VARIABLES
 
@@ -6,8 +6,6 @@ Snit_info               Introspection Array.  Keys and values are as
                         follows:
     
     counter		Integer counter.  Used to generate unique names.
-    exceptopts          Option names excluded from delegate option *.
-    options		Names of local options.
     widgetclass         Tk widget class name for snit::widgets
     hulltype            Hull widget type (frame or toplevel) for
                         snit::widgets.
@@ -31,38 +29,6 @@ Snit_isWidgetAdaptor    Boolean; true if the object is a
                         * Could live in Snit_info.
                         * Can this be resolved at compile time?
 
-Snit_optiondefaults     Array(local option name) = default value
-                        Used to determine whether option is local.
-                        Used in "configure" introspection.
-                        Used to initialize options.
-
-                        * If an option command cache were implemented,
-                          this could become a dict in Snit_info.
-
-Snit_delegatedoptions   Array(delegated option name) = 
-                            [list component targetOptionName]
-                        Index * has info for delegate option *.
-                        Used to determine whether option is delegated.
-                        Used in option introspection and component 
-                        installation.
-
-                        * If an option command cache were implemented,
-                          this info could go in Snit_info.
-                        * The delegated option design is likely to
-                          to be generalized anyway.
-
-Snit_compoptions        Array(component name) = List of option names
-                        delegated to the component. 
-                        Used during component installation, and at no
-                        other time.
-
-                        * Move to Snit_info?
-
-Snit_optiondbspec       Array(local option name) = 
-                            [list resourceName className]
-                        Used in "configure" introspection.
-                        Used in widget creation.
-
 Snit_typemethodInfo     Array(method name) = {<pattern> <compName>}
                         where <compName> is "" for normal typemethods
                         and "method name" can be "*".  Used in
@@ -81,7 +47,44 @@ Snit_methodInfo         Array(method name) = {<pattern> <compName>}
                         "method name" can be "*".  Used in 
                         method cache lookup to create the command for
                         the named method.
-    
+
+Snit_optionInfo         An array of option data.  The keys are as follows:
+
+  General fields:
+
+    local               List of local option names.
+
+    delegated           List of explicitly delegated option names.
+
+    except              List of option names explicitly NOT delegated 
+                        by "delegate option *".
+
+  Fields defined for all locally defined and explicitly delegated options:
+
+    islocal-$opt         1 if local, 0 otherwise.
+
+    resource-$opt        The option's resource name.
+                
+    class-$opt           The option's class name.
+
+  Fields defined only for locally defined options
+
+    default-$localOpt    Default value.
+
+    validate-$localOpt   The name of the validate method, or "".
+
+    configure-$localOpt  The name of the configure method, or "".
+
+    cget-$localOpt       The name of the cget method, or "".
+
+  Fields defined only for delegated options, including "*".
+
+    delegated-$comp      List of option names delegated to this component.
+
+    target-$opt         [list component targetOptionName].
+                        The target option name is missing for
+                        option "*".
+
 INSTANCE VARIABLES
 
 Snit_instance           Current name of the instance command.
@@ -92,3 +95,5 @@ Snit_components         Array(component name) = command_name
 
 Snit_methodCache        Array(method name) = cached command
                         Used during method dispatch.
+
+

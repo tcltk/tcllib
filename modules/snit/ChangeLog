@@ -1,3 +1,14 @@
+2004-07-24  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	Consolidated the option typevariables into a
+	* dictionary	single array, Snit_optionInfo.  Implemented
+	* roadmap.txt	parsing of the new option definition syntax;
+	* snit.test	the -validatemethod, -configuremethod, and
+			-cgetmethod options as yet have no effect.
+			Added tests to ensure that the 'option' and
+			'delegate option' statements populate
+			Snit_optionInfo properly.
+
 2004-07-21  Will Duquette  <will@wjduquette.com>
 
 	* README.txt 	Updated to reflect recent changes.
