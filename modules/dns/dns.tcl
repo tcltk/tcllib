@@ -13,14 +13,13 @@
 #  - When using tcp we should make better use of the open connection and
 #    send multiple queries along the same connection.
 #  - Implement a name cache to reduce the number of queries made.
-#  - Implement UDP support.
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.6 2003/01/30 23:02:34 patthoyts Exp $
+# $Id: dns.tcl,v 1.7 2003/02/25 21:39:11 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
@@ -29,7 +28,7 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
     variable version 1.0.2
-    variable rcsid {$Id: dns.tcl,v 1.6 2003/01/30 23:02:34 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.7 2003/02/25 21:39:11 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup
@@ -213,7 +212,8 @@ proc dns::resolve {query args} {
             -pr*  { set state(-protocol) [Pop args 1] }
             -sea* { set state(-search) [Pop args 1] }
             -re*  { set state(-recurse) [Pop args 1] }
-            --    { Pop args ; break }
+            -inv* { set state(opcode) 1 }
+            -status {set state(opcode) 2}
             default {
                 set opts [join [lsort [array names state -*]] ", "]
                 return -code error "bad option [lindex $args 0]: \
@@ -254,12 +254,37 @@ proc dns::resolve {query args} {
 #
 proc dns::name {token} {
     set r {}
+    Flags $token flags
     array set reply [Decode $token]
-    foreach answer $reply(AN) {
-        array set AN $answer
 
-        if {[info exists AN(name)]} {
-            lappend r $AN(name)
+    switch -exact -- $flags(opcode) {
+        0 {
+            # QUERY
+            foreach answer $reply(AN) {
+                array set AN $answer
+                if {![info exists AN(type)]} {set AN(type) {}}
+                switch -exact -- $AN(type) {
+                    MX - NS {
+                        if {[info exists AN(rdata)]} {lappend r $AN(rdata)}
+                    }
+                    default {
+                        if {[info exists AN(name)]} {
+                            lappend r $AN(name)
+                        }
+                    }
+                }
+            }
+        }
+
+        1 {
+            # IQUERY
+            foreach answer $reply(QD) {
+                array set QD $answer
+                lappend r $QD(name)
+            }
+        }
+        default {
+            return -code error "not supported for this query type"
         }
     }
     return $r
@@ -448,10 +473,36 @@ proc dns::BuildMessage {token} {
             $classes($state(-class))]
     incr qdcount
 
-    set state(request) [binary format SSSSSS $state(id) \
-            [expr {($state(opcode) << 11) | ($state(-recurse) << 8)}] \
-            $qdcount 0 0 0]
-    append state(request) $qsection
+    switch -exact -- $state(opcode) {
+        0 {
+            # QUERY
+            set state(request) [binary format SSSSSS $state(id) \
+                [expr {($state(opcode) << 11) | ($state(-recurse) << 8)}] \
+                $qdcount 0 0 0]
+            append state(request) $qsection
+        }
+        1 {
+            # IQUERY            
+            set state(request) [binary format SSSSSS $state(id) \
+                [expr {($state(opcode) << 11) | ($state(-recurse) << 8)}] \
+                0 $qdcount 0 0 0]
+            append state(request) \
+                [binary format cSSI 0 \
+                     $types($state(-type)) $classes($state(-class)) 0]
+            switch -exact -- $state(-type) {
+                A {
+                    append state(request) \
+                        [binary format Sc4 4 [split $state(query) .]]
+                }
+                default {
+                    return -code "inverse query not supported for this type"
+                }
+            }
+        }
+        default {
+            return -code error "operation not supported"
+        }
+    }
 
     return
 }
@@ -509,6 +560,7 @@ proc dns::UdpTransmit {token} {
     set state(sock) [udp_open]
     udp_conf $state(sock) $state(-nameserver) $state(-port)
     fconfigure $state(sock) -translation binary -buffering none
+    set state(status) connect
     puts -nonewline $state(sock) $state(request)
     
     fileevent $state(sock) readable [list [namespace current]::UdpEvent $token]
@@ -610,7 +662,6 @@ proc dns::TcpEvent {token} {
         binary scan $result SSS length id flags
         set payload [string range $result 2 end]
         set id [expr {$id & 0xFFFF}]
-        set trunc [expr {$flags & 0x0040}]
         log::log debug "Event read: [string length $payload] should be $length"
         # handle the correct request based on the contained ID
         Receive [namespace current]::$id $payload
@@ -633,15 +684,38 @@ proc dns::UdpEvent {token} {
     upvar 0 $token state
     set s $state(sock)
 
-    log::log debug "UdpEvent $token"
     set payload [read $state(sock)]
     binary scan $payload SS id flags
     set id [expr {$id & 0xFFFF}]
-    set trunc [expr {$flags & 0x0400}]
-    if {$trunc != 0} {log::log warning "truncated result!!!"}
     Receive [namespace current]::$id $payload
 }
     
+# -------------------------------------------------------------------------
+
+proc dns::Flags {token {varname {}}} {
+    variable $token
+    upvar 0 $token state
+    
+    if {$varname != {}} {
+        upvar $varname flags
+    }
+
+    array set flags {query 0 opcode 0 authoritative 0 
+        truncated 0 recursion_desired 0 recursion_allowed 0}
+
+    binary scan $state(reply) SSSSSS mid hdr nQD nAN nNS nAR
+
+    set flags(response)           [expr {($hdr & 0x8000) >> 15}]
+    set flags(opcode)             [expr {($hdr & 0x7800) >> 11}]
+    set flags(authoritative)      [expr {($hdr & 0x0400) >> 10}]
+    set flags(truncated)          [expr {($hdr & 0x0200) >> 9}]
+    set flags(recursion_desired)  [expr {($hdr & 0x0100) >> 8}]
+    set flafs(recursion_allowed)  [expr {($hdr & 0x0080) >> 7}]
+    set flags(code)               [expr {($hdr & 0x000F)}]
+
+    return [array get flags]
+}
+
 # -------------------------------------------------------------------------
 
 # Description:
@@ -653,8 +727,25 @@ proc dns::Decode {token args} {
 
     binary scan $state(reply) SSSSSSc* mid hdr nQD nAN nNS nAR data
 
-    set info "Message ID: $mid\
-              Flags: [format 0x%02X [expr {$hdr & 0xFFFF}]]\
+    set fResponse      [expr {($hdr & 0x8000) >> 15}]
+    set fOpcode        [expr {($hdr & 0x7800) >> 11}]
+    set fAuthoritative [expr {($hdr & 0x0400) >> 10}]
+    set fTrunc         [expr {($hdr & 0x0200) >> 9}]
+    set fRecurse       [expr {($hdr & 0x0100) >> 8}]
+    set fCanRecurse    [expr {($hdr & 0x0080) >> 7}]
+    set fRCode         [expr {($hdr & 0x000F)}]
+    set flags ""
+
+    if {$fResponse} {set flags "QR"} else {set flags "Q"}
+    set opcodes [list QUERY IQUERY STATUS]
+    lappend flags [lindex $opcodes $fOpcode]
+    if {$fAuthoritative} {lappend flags "AA"}
+    if {$fTrunc} {lappend flags "TC"}
+    if {$fRecurse} {lappend flags "RD"}
+    if {$fCanRecurse} {lappend flags "RA"}
+
+    set info "ID: $mid\
+              Fl: [format 0x%02X [expr {$hdr & 0xFFFF}]] ($flags)\
               NQ: $nQD\
               NA: $nAN\
               NS: $nNS\
@@ -684,6 +775,7 @@ proc dns::Expand {data} {
     }
     return $r
 }
+
 
 # -------------------------------------------------------------------------
 # Description:
@@ -826,6 +918,43 @@ proc dns::ReadName {datavar index usedvar} {
     set used [expr {$index - $startindex}]
     return [join $r .]
 }
+
+# -------------------------------------------------------------------------
+
+# Experimental support for finding the nameservers to use on a Windows
+# machine
+# For unix we can just parse the /etc/resolv.conf if it exists.
+# Of couse, some unices use /etc/resolver and other things (NIS for instance)
+#
+if {$::tcl_platform(platform) == "Windows"} {
+
+proc dns::Win32_NameServers {} {
+    package require registry
+    set base {HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip}
+    set param "$base\\Parameters"
+    set interfaces "$param\\Interfaces"
+    set nameservers {}
+    AppendRegistryValue $param NameServer nameservers
+    AppendRegistryValue $param DhcpNameServer nameservers
+    foreach i [registry keys $interfaces] {
+        AppendRegistryValue "$interfaces\\$i" NameServer nameservers
+        AppendRegistryValue "$interfaces\\$i" DhcpNameServer nameservers
+    }
+
+    # FIX ME: this doesn't preserve the original preference ordering
+    return [lsort -unique $nameservers]
+}
+
+
+proc dns::AppendRegistryValue {key val listName} {
+    upvar $listName lst
+    if {![catch {registry get $key $val} v]} {
+        set lst [concat $lst $v]
+    }
+}
+
+}
+
 
 # -------------------------------------------------------------------------
 # Possible support for the DNS URL scheme.
