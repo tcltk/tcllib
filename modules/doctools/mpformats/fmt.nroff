@@ -44,7 +44,7 @@ c_pass 2 fmt_manpage_begin {title section version} {
     c_hold hdr [nr_title "\"[string trimleft $title :]\" $section $version $module \"$shortdesc\""]
     c_hold hdr [nr_bolds]
     c_hold hdr [fmt_section NAME]
-    c_hold hdr "$title \\- $description"
+    c_hold hdr "$title \1\\- $description"
 
     return [c_held hdr]
 }
@@ -138,7 +138,7 @@ proc fmt_list_end {} {
 }
 
 proc fmt_enum     {}        {return [nr_item " \[[c_cnext]\]\n"]}
-proc fmt_bullet   {}        {return [nr_item " \\(bu"]}
+proc fmt_bullet   {}        {return [nr_item " \1\\(bu"]}
 proc fmt_lst_item {text}    {return [nr_blt $text]}
 proc fmt_cmd_def  {command} {return [nr_blt [fmt_cmd $command]]}
 
@@ -150,7 +150,7 @@ proc fmt_arg_def {type name {mode {}}} {
     return $text
 }
 proc fmt_opt_def {name {arg {}}} {
-    if {[string match -* $name]} {set name \\-$name}
+    #if {[string match -* $name]} {set name \1\\$name}
     set name [fmt_option $name]
     if {$arg != {}} {append name " $arg"}
     return [nr_blt $name]

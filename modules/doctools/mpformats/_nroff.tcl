@@ -15,11 +15,11 @@
 
 proc nr_lp      {}          {return \n.LP}
 proc nr_ta      {{text {}}} {return ".ta$text"}
-proc nr_bld     {}          {return \\fB}
-proc nr_ul      {}          {return \\fI}
-proc nr_rst     {}          {return \\fR}
+proc nr_bld     {}          {return \1\\fB}
+proc nr_ul      {}          {return \1\\fI}
+proc nr_rst     {}          {return \1\\fR}
 proc nr_p       {}          {return \n.PP\n}
-proc nr_comment {text}      {return "'\\\" [join [split $text \n] "\n'\\\" "]"} ; # "
+proc nr_comment {text}      {return "'\1\\\" [join [split $text \n] "\n'\1\\\" "]"} ; # "
 proc nr_enum    {num}       {nr_item " \[$num\]"}
 proc nr_item    {{text {}}} {return "\n.IP$text"}
 proc nr_vspace  {}          {return \n.sp}
@@ -39,7 +39,42 @@ proc nr_section {name}      {return "\n.SH \"$name\""}
 
 ################################################################
 
+# Handling of nroff special characters in content:
+#
+# Plain text is initially passed through unescaped;
+# internally-generated markup is protected by preceding it with \1.
+# The final PostProcess step strips the escape character from
+# real markup and replaces unadorned special characters in content
+# with proper escapes.
+#
+
+global   markupMap
+set      markupMap [list "\\" "\1\\"]
+global   finalMap
+set      finalMap [list \
+	"\1\\" "\\" \
+	"\\"   "\\\\"]
+global   textMap
+set      textMap [list "\\" "\\\\"]
+
+
+proc nroffEscape {text} {
+    global textMap
+    return [string map $textMap $text]
+}
+
+# markup text --
+#	Protect markup characters in $text.
+#	These will be stripped out in PostProcess.
+#
+proc nroffMarkup {text} {
+    global markupMap
+    return [string map $markupMap $text]
+}
+
 proc nroff_postprocess {nroff} {
+    global finalMap
+
     # Postprocessing final nroff text.
     # - Strip empty lines out of the text
     # - Remove leading and trailing whitespace from lines.
@@ -79,5 +114,6 @@ proc nroff_postprocess {nroff} {
 	lappend lines $line
     }
     # Return the modified result buffer
-    return [join $lines "\n"]
+    return [string map $finalMap [join $lines "\n"]]
 }
+
