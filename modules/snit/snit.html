@@ -26,7 +26,7 @@
 <h2><a name="synopsis">SYNOPSIS</a></h2>
 
 <pre>
-    package require snit 0.9
+    package require snit 0.91
     ::snit::type <i>name</i> <i>definition</i>
     ::snit::widget <i>name</i> <i>definition</i>
     ::snit::widgetadaptor <i>name</i> <i>definition</i>
@@ -326,6 +326,20 @@ introduction to Snit concepts.<p>
               methods.<p>
 
               Note that an option cannot be both locally defined and delegated.<p>
+
+         <dt> <code>expose <i>comp</i></code>
+         <dt> <code>expose <i>comp</i> as <i>method</i></code>
+         <dd> Exposes component <i>comp</i> as a method of the type.
+              In the first form, the method name is <i>comp</i>; in
+              the second form, the method name is <i>method</i>.<p>
+
+              This differs from delegation in that it maps an instance method to
+              the component itself instead of to one of
+              the component's methods.<p>
+
+              Calling the new instance method is just like calling the
+              component, except that if the method is called
+              with no arguments it returns the component.<p>
        </dl>
   <dt> <code><a name="snit::widget">snit::widget <i>name</i> <i>definition</i></a></code>
   <dd> This command defines a Snit megawidget type with the specified

@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.9
+package provide snit 0.91
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -1707,6 +1707,44 @@ proc ::snit::DelegatedOption {type optionDef component target exceptions} {
     }
 } 
 
+# Exposes a component, effectively making the component's command an
+# instance method.
+#
+# type          The type name
+# component     The logical name of the delegate
+# "as"          sugar; if not "", must be "as"
+# methodname    The desired method name for the component's command, or ""
+
+proc ::snit::Type.Expose {type component {"as" ""} {methodname ""}} {
+    variable compile
+
+
+    # FIRST, define the component
+    DefineComponent $type $component
+
+    # NEXT, define the method just as though it were in the type
+    # definition.
+    if {[string equal $methodname ""]} {
+        set methodname $component
+    }
+
+    Type.Method $type $methodname args [Expand {
+        if {[llength $args] == 0} {
+            return $%COMPONENT%
+        }
+
+        if {[string equal $%COMPONENT% ""]} {
+            error "undefined component '%COMPONENT%'"
+        }
+
+
+        set cmd [linsert $args 0 $%COMPONENT%]
+        return [uplevel 1 $cmd]
+    } %COMPONENT% $component]
+}
+
+
+
 #-----------------------------------------------------------------------
 # Public commands
 
@@ -1763,6 +1801,7 @@ proc ::snit::Define {which type body} {
     class.interp alias typevariable    ::snit::Type.Typevariable    $type
     class.interp alias variable        ::snit::Type.Variable        $type
     class.interp alias delegate        ::snit::Type.Delegate        $type
+    class.interp alias expose          ::snit::Type.Expose          $type
 
     # NEXT, initialize the class data
     set compile(defs) {}
