@@ -1,3 +1,11 @@
+2000-04-14  Brent Welch <welch@scriptics.com>
+	
+	* ncgi.tcl: Changed ncgi::list to ncgi::nvlist (for "name value list") becauase
+	of the inevitable conflict with the global list command.
+	Added ncgi::importall to import a set of cgi variables
+	Added multipart/form-data parsing
+	Added ncgi::cookie and ncgi::setcookie
+
 2000-03-20  Eric Melski  <ericm@scriptics.com>
 
 	* ncgi.test: Fixed tests that created files with "source ncgi.tcl"

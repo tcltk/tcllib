@@ -5,14 +5,11 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 1998-2000 by Scriptics Corporation.
-# All rights reserved.
 #
-# RCS: @(#) $Id: ncgi.test,v 1.4 2000/03/20 22:12:38 ericm Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.5 2000/04/14 19:23:22 welch Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+package require tcltest
+namespace import -force ::tcltest::*
 
 set ncgiFile [file join [file dirname [info script]] ncgi.tcl]
 source $ncgiFile
@@ -20,18 +17,22 @@ package require ncgi 1.0
 
 test ncgi-1.1 {ncgi::reset} {
     ncgi::reset
-    info exist ncgi::query
-} 0
+    list [info exist ncgi::query] [info exist ncgi::contenttype] 
+} {0 0}
 
-test ncgi-1.1 {ncgi::reset} {
+test ncgi-1.2 {ncgi::reset} {
     ncgi::reset query=reset
-    set ncgi::query
-} query=reset
+    list $ncgi::query $ncgi::contenttype
+} {query=reset {}}
+
+test ncgi-1.3 {ncgi::reset} {
+    ncgi::reset query=reset text/plain
+    list $ncgi::query $ncgi::contenttype
+} {query=reset text/plain}
 
 test ncgi-2.1 {ncgi::query fake query data} {
-    ncgi::reset
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::query "fake=query"
+    ncgi::reset "fake=query"
+    ncgi::query
     set ncgi::query
 } "fake=query"
 
@@ -39,7 +40,7 @@ test ncgi-2.2 {ncgi::query GET} {
     ncgi::reset
     set env(REQUEST_METHOD) GET
     set env(QUERY_STRING) name=value
-    ncgi::query "fake=query"
+    ncgi::query
     set ncgi::query
 } "name=value"
 
@@ -47,7 +48,7 @@ test ncgi-2.3 {ncgi::query HEAD} {
     ncgi::reset
     set env(REQUEST_METHOD) HEAD
     catch {unset env(QUERY_STRING)}
-    ncgi::query "fake=query"
+    ncgi::query
     set ncgi::query
 } ""
 
@@ -67,6 +68,18 @@ test ncgi-2.4 {ncgi::query POST} {
     gets $f line
     set line
 } "name=value"
+
+test ncgi-2.5 {ncgi::test} {
+    ncgi::reset
+    set env(CONTENT_TYPE) text/html
+    ncgi::type
+} text/html
+
+test ncgi-2.6 {ncgi::test} {
+    ncgi::reset foo=bar text/plain
+    set env(CONTENT_TYPE) text/html
+    ncgi::type
+} text/plain
 
 test ncgi-3.1 {ncgi::decode} {
     ncgi::decode abcdef0123
@@ -96,24 +109,35 @@ test ncgi-4.4 {ncgi::encode} {
     ncgi::encode "hello\nworld\r\tbar"
 } {hello%0D%0Aworld%0D%09bar}
 
-test ncgi-5.1 {ncgi::list} {
-    ncgi::reset
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::list "name=hello+world&name2=%7ewelch"
+test ncgi-5.1 {ncgi::nvlist} {
+    ncgi::reset "name=hello+world&name2=%7ewelch"
+    ncgi::nvlist
 } {name {hello world} name2 ~welch}
 
-test ncgi-5.2 {ncgi::list} {
-    ncgi::reset  "name=&name2"
-    ncgi::list
+test ncgi-5.2 {ncgi::nvlist} {
+    ncgi::reset  "name=&name2"	application/x-www-urlencoded
+    ncgi::nvlist
 } {name {} anonymous name2}
 
-test ncgi-6.1 {ncgi::parse} {
-    ncgi::reset
-    catch {unset env(REQUEST_METHOD)}
-    ncgi::parse "name=&name2"
+test ncgi-5.3 {ncgi::nvlist} {
+    ncgi::reset  "name=&name2"	application/x-www-form-urlencoded
+    ncgi::nvlist
+} {name {} anonymous name2}
+
+test ncgi-5.4 {ncgi::nvlist} {
+    ncgi::reset  "name=&name2"	application/xyzzy
+    set code [catch ncgi::nvlist err]
+    list $code $err
+} {1 {Unknown Content-Type: application/xyzzy}}
+
+# multipart tests at the end because I'm too lazy to renumber the tests
+
+test ncgi-6.1 {ncgi::parse, anonymous values} {
+    ncgi::reset "name=&name2"
+    ncgi::parse
 } {name anonymous}
 
-test ncgi-6.2 {ncgi::parse} {
+test ncgi-6.2 {ncgi::parse, no list restrictions} {
     ncgi::reset "name=value&name=value2"
     ncgi::parse 
 } {name}
@@ -160,10 +184,10 @@ test ncgi-9.1 {ncgi::valuelist} {
     ncgi::valuelist name
 } {{val ue} value2}
 
-test ncgi-9.2 {ncgi::value} {
+test ncgi-9.2 {ncgi::valuelist} {
     ncgi::reset "name=val+ue&name=value2"
     ncgi::parse
-    ncgi::value noname
+    ncgi::valuelist noname
 } {}
 
 test ncgi-10.1 {ncgi::import} {
@@ -180,12 +204,31 @@ test ncgi-10.2 {ncgi::import} {
     set myx
 } {{val ue} value2}
 
-test ncgi-10.1 {ncgi::import} {
+test ncgi-10.3 {ncgi::import} {
     ncgi::reset "nameList=val+ue&nameList=value2"
     ncgi::input
     ncgi::import noname
     set noname
 } {}
+
+test ncgi-10.4 {ncgi::importall} {
+    ncgi::reset "name1=val+ue&name2=value2"
+    catch {unset name1}
+    catch {unset name2}
+    ncgi::parse
+    ncgi::importall
+    list $name1 $name2
+} {{val ue} value2}
+
+test ncgi-10.4 {ncgi::importall} {
+    ncgi::reset "name1=val+ue&name2=value2"
+    catch {unset name1}
+    catch {unset name2}
+    catch {unset name3}
+    ncgi::parse
+    ncgi::importall name2 name3
+    list [info exist name1] $name2 $name3
+} {0 value2 {}}
 
 set URL http://www.tcltk.com/index.html
 test ncgi-11.1 {ncgi::redirect} {
@@ -217,6 +260,7 @@ test ncgi-11.2 {ncgi::redirect} {
     makeFile [format {
 	if {[catch {
 	source %s
+	ncgi::setcookie -name CookieName -value 12345
 	ncgi::redirect %s
 	} err]} {
 	    puts $err
@@ -224,7 +268,7 @@ test ncgi-11.2 {ncgi::redirect} {
     } $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
-} "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
+} "Content-Type: text/html\nLocation: $URL2\nSet-Cookie: CookieName=12345 ;\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 set URL foo.html
 set URL2 http://www.scriptics.com/cgi-bin/foo.html
@@ -345,5 +389,80 @@ test ncgi-12.3 {ncgi::header} {
     set f [open "|[list $::tcltest::tcltest test1]" r+]
     read $f
 } "Content-Type: text/html\nX-Comment: This is a test\n\n"
+
+test ncgi-12.4 {ncgi::header} {
+    makeFile [format {
+	if {[catch {
+	source %s
+	ncgi::setcookie -name Name -value {The+Value}
+	ncgi::header
+	} err]} {
+	    puts $err
+	}
+    } $ncgiFile] test1
+    set f [open "|[list $::tcltest::tcltest test1]" r+]
+    read $f
+} "Content-Type: text/html\nSet-Cookie: Name=The+Value ;\n\n"
+
+test ncgi-13.1 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue text/html
+} text/html
+
+test ncgi-13.2 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue "text/html; charset=iso-8859-1"
+} {text/html {charset iso-8859-1}}
+
+test ncgi-13.3 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue "text/html; charset='iso-8859-1'"
+} {text/html {charset iso-8859-1}}
+
+test ncgi-13.4 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue "text/html; charset=\"iso-8859-1\""
+} {text/html {charset iso-8859-1}}
+
+test ncgi-13.5 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue "text/html; charset=\"iso-8859-1\"; ignored"
+} {text/html {charset iso-8859-1}}
+
+test ncgi-13.6 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue "text/html; charset=\"iso-8859-1\"morecrap"
+} {text/html {charset iso-8859-1}}
+
+
+test ncgi-14.1 {ncgi::multipart} {
+    catch {ncgi::multipart "application/x-www-urlencoded" name=val+ue} err
+    set err
+} {Not a multipart Content-Type: application/x-www-urlencoded}
+
+test ncgi-14.2 {ncgi::multipart} {
+    catch {ncgi::multipart "multipart/form-data" {}} err
+    set err
+} {No boundary given for multipart document}
+
+test ncgi-14.3 {ncgi::multipart} {
+    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set X [read $in]
+    close $in
+
+    foreach line [split $X \n] {
+	if {[string length $line] == 0} {
+	    break
+	}
+	if {[regexp {^Content-Type: (.*)$} $line x type]} {
+	    break
+	}
+    }
+    regsub ".*?\n\n" $X {} X
+
+    ncgi::reset $X $type
+    ncgi::multipart $type $X
+} {field1 {{content-disposition form-data name field1} value} field2 {{content-disposition form-data name field2} {another value}} the_file_naame {{content-disposition form-data name the_file_naame filename {C:\Program Files\Netscape\Communicator\Program\nareadme.htm} content-type text/html} {
+<center><h1>
+                  Netscape Address Book Sync for Palm Pilot
+                                         User Guide
+</h1></center>
+
+
+}}}
 
 ::tcltest::cleanupTests

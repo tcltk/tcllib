@@ -27,6 +27,10 @@ namespace eval ncgi {
 
     variable query
 
+    # This is the content-type which affects how the query is parsed
+
+    variable contenttype
+
     # value is an array of parsed query data.  If a value occurs more than
     # one time in the query data then the value is turned into a list.
     # You have to know if your form has repeated values to know whether or
@@ -43,6 +47,10 @@ namespace eval ncgi {
     # you use the ncgi::input procedure to parse inputs.
 
     variable listRestrict 0
+
+    # This is the set of cookies that are pending for output
+
+    variable cookieOutput
 
     # Support for x-www-urlencoded character mapping
     # The spec says: "non-alphanumeric characters are replaced by '%HH'"
@@ -80,20 +88,29 @@ namespace eval ncgi {
 #	newquery	(optional) The raw query.  If this is specified it
 #			indicates this is either a testing situation or use
 #			within a web server context instead of external CGI.
+#	newtype		(option) The raw content type.
 #
 # Side Effects:
 #	Resets the cached query data and wipes any environment variables
 #	associated with CGI inputs (like QUERY_STRING)
 
-proc ncgi::reset {{newquery {}}} {
+proc ncgi::reset {{newquery {}} {newtype {}}} {
     global env
     variable query
+    variable contenttype
+    variable cookieOutput
+
+    set cookieOutput {}
     if {[string length $newquery] == 0} {
 	if {[info exist query]} {
 	    unset query
 	}
+	if {[info exist contenttype]} {
+	    unset contenttype
+	}
     } else {
 	set query $newquery
+	set contenttype $newtype
     }
 }
 
@@ -103,36 +120,59 @@ proc ncgi::reset {{newquery {}}} {
 #	on if it is a POST or GET request.
 #
 # Arguments:
-#	fakeinput	The raw query for use in testing.  This is used if
-#			the environment suggests the program is being
-#			run from outside a web server.
+#	none
 #
 # Results:
 #	The raw query data.
 
-proc ncgi::query {{fakeinput {}}} {
+proc ncgi::query {} {
     global env
     variable query
 
     if {[info exist query]} {
-	# This ensures you can call ncgi::query more than once 
+	# This ensures you can call ncgi::query more than once,
+	# and that you can use it with ncgi::reset
 	return $query
     }
 
     set query ""
-    if {![info exist env(REQUEST_METHOD)]} {
-	set query $fakeinput
-    } elseif {$env(REQUEST_METHOD) == "GET"} {
-	if {[info exists env(QUERY_STRING)]} {
-	    set query $env(QUERY_STRING)
-	}
-    } elseif {$env(REQUEST_METHOD) == "POST"} {
-	if {[info exists env(CONTENT_LENGTH)] &&
-		[string length $env(CONTENT_LENGTH)] != 0} {
-	    set query [read stdin $env(CONTENT_LENGTH)]
+    if {[info exist env(REQUEST_METHOD)]} {
+	if {$env(REQUEST_METHOD) == "GET"} {
+	    if {[info exists env(QUERY_STRING)]} {
+		set query $env(QUERY_STRING)
+	    }
+	} elseif {$env(REQUEST_METHOD) == "POST"} {
+	    if {[info exists env(CONTENT_LENGTH)] &&
+		    [string length $env(CONTENT_LENGTH)] != 0} {
+		set query [read stdin $env(CONTENT_LENGTH)]
+	    }
 	}
     }
     return $query
+}
+
+# ncgi::type
+#
+#	This returns the content type of the query data.
+#
+# Arguments:
+#	none
+#
+# Results:
+#	The content type of the query data.
+
+proc ncgi::type {} {
+    global env
+    variable contenttype
+
+    if {![info exist contenttype]} {
+	if {[info exist env(CONTENT_TYPE)]} {
+	    set contenttype $env(CONTENT_TYPE)
+	} else {
+	    return ""
+	}
+    }
+    return $contenttype
 }
 
 # ncgi::decode
@@ -184,29 +224,43 @@ proc ncgi::encode {string} {
 }
 
 
-# ncgi::list
+# ncgi::nvlist
 #
 #	This parses the query data and returns it as a name, value list
 #
 # Arguments:
-#	fakeinput	See ncgi::query
+#	none
 #
 # Results:
 #	An alternating list of names and values
 
-proc ncgi::list {{fakeinput {}}} {
-    set query [ncgi::query $fakeinput]
-    regsub -all {\+} $query { } query
-    set result {}
-    foreach {x} [split $query &] {
-	# Turns out you might not get an = sign, expecially with <isindex> forms.
-	if {![regexp (.*)=(.*) $x dummy varname val]} {
-	    set varname anonymous
-	    set val $x
+proc ncgi::nvlist {} {
+    set query [ncgi::query]
+    set type [ncgi::type]
+    switch -glob -- $type {
+	"" -
+	application/x-www-form-urlencoded -
+	application/x-www-urlencoded {
+	    regsub -all {\+} $query { } query
+	    set result {}
+	    foreach {x} [split $query &] {
+		# Turns out you might not get an = sign,
+		# especially with <isindex> forms.
+		if {![regexp (.*)=(.*) $x dummy varname val]} {
+		    set varname anonymous
+		    set val $x
+		}
+		lappend result [ncgi::decode $varname] [ncgi::decode $val]
+	    }
+	    return $result
 	}
-	lappend result [ncgi::decode $varname] [ncgi::decode $val]
+	multipart/* {
+	    return [ncgi::multipart $type $query]
+	}
+	default {
+	    return -code error "Unknown Content-Type: $type"
+	}
     }
-    return $result
 }
 
 # ncgi::parse
@@ -219,19 +273,19 @@ proc ncgi::list {{fakeinput {}}} {
 #	to allow for multiple values for a given form element (e.g., a checkbox)
 #
 # Arguments:
-#	fakeinput	See ncgi::query
+#	none
 #
 # Results:
 #	A list of names of the query values
 
-proc ncgi::parse {{fakeinput {}}} {
+proc ncgi::parse {} {
     variable value
     variable listRestrict 0
     variable varlist {}
     if {[info exist value]} {
 	unset value
     }
-    foreach {name val} [ncgi::list $fakeinput] {
+    foreach {name val} [ncgi::nvlist] {
 	if {![info exist value($name)]} {
 	    lappend varlist $name
 	}
@@ -247,7 +301,7 @@ proc ncgi::parse {{fakeinput {}}} {
 #	listified, otherwise this raises errors if an element appears twice.
 #
 # Arguments:
-#	fakeinput	See ncgi::query
+#	fakeinput	See ncgi::reset
 #	fakecookie	The raw cookie string to use when testing.
 #
 # Results:
@@ -260,7 +314,10 @@ proc ncgi::input {{fakeinput {}} {fakecookie {}}} {
     if {[info exist value]} {
 	unset value
     }
-    foreach {name val} [ncgi::list $fakeinput] {
+    if {[string length $fakeinput]} {
+	ncgi::reset $fakeinput
+    }
+    foreach {name val} [ncgi::nvlist] {
 	set exists [info exist value($name)]
 	if {!$exists} {
 	    lappend varlist $name
@@ -356,7 +413,25 @@ proc ncgi::import {cginame {tclname {}}} {
     set var [ncgi::value $cginame]
 }
 
-# Should add some COOKIE support
+# ncgi::importall
+#
+#	Map a CGI input into a Tcl variable.  This creates a Tcl variable in
+#	the callers scope for every CGI value, or just for those named values.
+#
+# Arguments:
+#	args	A list of form element names.  If this is empty,
+#		then all form value are imported.
+
+proc ncgi::importall {args} {
+    variable varlist
+    if {[llength $args] == 0} {
+	set args $varlist
+    }
+    foreach cginame $args {
+	upvar 1 $cginame var
+	set var [ncgi::value $cginame]
+    }
+}
 
 # ncgi::redirect
 #
@@ -404,10 +479,8 @@ proc ncgi::redirect {url} {
 	    set url $proto://$env(SERVER_NAME)$port$dirname$url
 	}
     }
-    puts stdout "Content-Type: text/html
-Location: $url
-
-Please go to <a href=\"$url\">$url</a>"
+    ncgi::header text/html Location $url
+    puts "Please go to <a href=\"$url\">$url</a>"
 }
 
 # ncgi:header
@@ -422,10 +495,258 @@ Please go to <a href=\"$url\">$url</a>"
 #	Outputs a normal header
 
 proc ncgi::header {{type text/html} args} {
+    variable cookieOutput
     puts "Content-Type: $type"
     foreach {n v} $args {
 	puts "$n: $v"
     }
+    if {[info exist cookieOutput]} {
+	foreach line $cookieOutput {
+	    puts "Set-Cookie: $line"
+	}
+    }
     puts ""
     flush stdout
+}
+
+# ncgi::parseMimeValue
+#
+#	Parse a MIME header value, which has the form
+#	value; param=value; param2="value2"; param3='value3'
+#
+# Arguments:
+#	value	The mime header value.  This does not include the mime
+#		header field name, but everything after it.
+#
+# Results:
+#	A two-element list, the first is the primary value,
+#	the second is in turn a name-value list corresponding to the
+#	parameters.  Given the above example, the return value is
+#	{
+#		value
+#		{param value param2 value param3 value3}
+#	}
+
+proc ncgi::parseMimeValue {value} {
+    set parts [split $value \;]
+    set results [list [string trim [lindex $parts 0]]]
+    set paramList [list]
+    foreach sub [lrange $parts 1 end] {
+	if {[regexp {([^=]+)=(.+)} $sub match key val]} {
+            set key [string trim [string tolower $key]]
+            set val [string trim $val]
+            # Allow single as well as double quotes
+            if {[regexp {^["']} $val quote]} {
+                if {[regexp ^${quote}(\[^$quote\]+)$quote $val x val2]} {
+                    # Trim quotes and any extra crap after close quote
+                    set val $val2
+                }
+            }
+            lappend paramList $key $val
+	}
+    }
+    if {[llength $paramList]} {
+	lappend results $paramList
+    }
+    return $results
+}
+
+# ncgi::multipart
+#
+#	This parses multipart form data.
+#	Based on work by Steve Ball for TclHttpd, but re-written to use
+#	string first with an offset to iterate through the data instead
+#	of using a regsub/subst combo.
+#
+# Arguments:
+#	type	The Content-Type, because we need boundary options
+#	query	The raw multipart query data
+#
+# Results:
+#	An alternating list of names and values
+#	In this case, the value is a two element list:
+#		headers, which in turn is a list names and values
+#		content, which is the main value of the element
+#	The header name/value pairs come primarily from the MIME headers
+#	like Content-Type that appear in each part.  However, the
+#	Content-Disposition header is handled specially.  It has several
+#	parameters like "name" and "filename" that are important, so they
+#	are promoted to to the same level as Content-Type.  Otherwise,
+#	if a header like Content-Type has parameters, they appear as a list
+#	after the primary value of the header.  For example, if the
+#	part has these two headers:
+#
+#	Content-Disposition: form-data; name="Foo"; filename="/a/b/C.txt"
+#	Content-Type: text/html; charset="iso-8859-1"; mumble='extra'
+#	
+#	Then the header list will have this structure:
+#	{
+#		content-disposition form-data
+#		name Foo
+#		filename /a/b/C.txt
+#		content-type {text/html {charset iso-8859-1 mumble extra}}
+#	}
+#	Note that the header names are mapped to all lowercase.  You can
+#	use "array set" on the header list to easily find things like the
+#	filename or content-type.  You should always use [lindex $value 0]
+#	to account for values that have parameters, like the content-type
+#	example above.  Finally, not that if the value has a second element,
+#	which are the parameters, you can "array set" that as well.
+#	
+
+
+proc ncgi::multipart {type query} {
+
+    set parsedType [ncgi::parseMimeValue $type]
+    if {![string match multipart/* [lindex $parsedType 0]]} {
+	return -code error "Not a multipart Content-Type: [lindex $parsedType 0]"
+    }
+    array set options [lindex $parsedType 1]
+    if {![info exists options(boundary)]} {
+	return -code error "No boundary given for multipart document"
+    }
+
+    # Iterate over the boundary string and chop into parts
+
+    set boundary $options(boundary)
+    set len [string length $query]
+    # "3" is for \n--
+    set blen [expr {3 + [string length $boundary]}]
+    set first 1
+    set results [list]
+    set offset 0
+
+    # Ensuring the query data starts
+    # with a newline makes the string first test simpler
+
+    if {![string equal [string index $query 0] \n]} {
+	set query \n$query
+    }
+    while {[set offset [string first \n--$boundary $query $offset]] >= 0} {
+	if {!$first} {
+	    lappend results $formName [list $headers \
+		[string range $query $off2 [expr {$offset -1}]]]
+	} else {
+	    set first 0
+	}
+	incr offset $blen
+
+	# Check for the ending boundary, which is signaled by --$boundary--
+
+	if {[string equal "--" \
+		[string range $query $offset [expr {$offset + 1}]]]} {
+	    break
+	}
+
+	# Split headers out from content
+	# The headers become a nested list structure:
+	#	{header-name {
+	#		value {
+	#			paramname paramvalue ... }
+	#		}
+	#	}
+
+	set off2 [string first \n\n $query $offset]
+	set headers [list]
+	set formName ""
+	foreach line [split [string range $query $offset $off2] \n] {
+	    if {[regexp {([^:	 ]+):(.*)$} $line x hdrname value]} {
+		set hdrname [string tolower $hdrname]
+		set valuelist [parseMimeValue $value]
+		if {[string equal $hdrname "content-disposition"]} {
+
+		    # Promote Conent-Disposition parameters up to headers,
+		    # and look for the "name" that identifies the form element
+
+		    lappend headers $hdrname [lindex $valuelist 0]
+		    foreach {n v} [lindex $valuelist 1] {
+			lappend headers $n $v
+			if {[string equal $n "name"]} {
+			    set formName $v
+			}
+		    }
+		} else {
+		    lappend headers $hdrname $valuelist
+		}
+	    }
+	}
+
+	if {$off2 > 0} {
+	    # +2 for the \n\n
+	    incr off2 2
+	    set offset $off2
+	} else {
+	    break
+	}
+    }
+    return $results
+}
+
+# ncgi::cookie
+#
+#	Return a *list* of cookie values, if present, else ""
+#	It is possible for multiple cookies with the same key
+#	to be present, so we return a list.
+#
+# Arguments:
+#	cookie	The name of the cookie (the key)
+#
+# Results:
+#	A list of values for the cookie
+
+proc ncgi::cookie {cookie} {
+    global env
+    set result ""
+    if {[info exist env(HTTP_COOKIE)]} {
+	foreach pair [split $env(HTTP_COOKIE) \;] {
+	    lassign [split [string trim $pair] =] key value
+	    if {[string compare $cookie $key] == 0} {
+		lappend result $value
+	    }
+	}
+    }
+    return $result
+}
+
+# ncgi::setcookie
+#
+#	Set a return cookie.  You must call this before you call
+#	ncgi::header or ncgi::redirect
+#
+# Arguments:
+#	args	Name value pairs, where the names are:
+#		-name	Cookie name
+#		-value	Cookie value
+#		-path	Path restriction
+#		-domain	domain restriction
+#		-expires	Time restriction
+#
+# Side Effects:
+#	Formats and stores the Set-Cookie header for the reply.
+
+proc ncgi::setcookie {args} {
+    variable cookieOutput
+    array set opt $args
+    set line "$opt(-name)=$opt(-value) ;"
+    foreach extra {path domain} {
+	if {[info exist opt(-$extra)]} {
+	    append line " $extra=$opt(-$extra) ;"
+	}
+    }
+    if {[info exist opt(-expires)]} {
+	switch -glob -- $opt(-expires) {
+	    *GMT {
+		set expires $opt(-expires)
+	    }
+	    default {
+		set expires [clock format [clock scan $opt(-expires)] \
+			-format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
+	    }
+	}
+	append line " expires=$expires ;"
+    }
+    if {[info exist opt(-secure)]} {
+	append line " secure "
+    }
+    lappend cookieOutput $line
 }
