@@ -323,7 +323,7 @@ URL: http://tcllib.sourceforge.net/
 Architecture: tcl
 }
 
-    set f [open ChangeLog r]
+    set f [open [file join $distribution ChangeLog] r]
     array set names {}
     while {![eof $f]} {
         gets $f line
