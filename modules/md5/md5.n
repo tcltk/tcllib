@@ -1,8 +1,7 @@
-'\" -*- nroff -*-
 '\" Copyright (c) 2001 ActiveState Tool Corp.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: md5.n,v 1.1 2001/04/24 23:21:44 andreas_kupries Exp $
+'\" RCS: @(#) $Id: md5.n,v 1.2 2001/06/19 17:21:57 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH md5 n 1.0 Md5 "md5 hash"

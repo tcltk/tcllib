@@ -1,8 +1,7 @@
-'\" -*- nroff -*-
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: report.n,v 1.1 2001/05/01 19:01:24 andreas_kupries Exp $
+'\" RCS: @(#) $Id: report.n,v 1.2 2001/06/19 17:21:57 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH report n 1.0 Report "Matrix reports"
