@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.2 2003/01/19 07:58:44 andreas_kupries Exp $}]
+[comment {$Id: logger.man,v 1.3 2003/05/20 09:35:05 davidw Exp $}]
 [manpage_begin logger n 0.1.0]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -73,15 +73,22 @@ those listed above.
 These are the commands called to actually log a message about an
 event.  [var \${log}] is the variable obtained from [cmd logger::init].
 
+[call [cmd \${log}::setlevel] [arg level]]
+
+Enable logging, in the service referenced by [var \${log}], and its
+children, at or above the level specified, and disable logging below
+it.
+
 [call [cmd \${log}::enable] [arg level]]
 
 Enable logging, in the service referenced by [var \${log}], and its
-children.
+children, at or above the level specified.  Note that this does [emph not] disable logging below this level, so you should probably use
+[cmd setlevel] instead.
 
 [call [cmd \${log}::disable] [arg level]]
 
-Disable logging, in the service referenced by [var \${log}], and
-its children.
+Disable logging, in the service referenced by [var \${log}], and its
+children, at or below the level specified. Note that this does [emph not] enable logging above this level, so you should probably use [cmd setlevel] instead.
 
 [call [cmd \${log}::logproc] [arg level] [arg argname] [arg body]]
 
