@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: log.test,v 1.4 2004/03/10 06:44:01 andreas_kupries Exp $
+# RCS: @(#) $Id: log.test,v 1.5 2004/03/25 07:23:59 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
