@@ -13,9 +13,9 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-namespace eval ::sasl {
+namespace eval ::SASL {
     variable version 1.0.0
-    variable rcsid {$Id: sasl.tcl,v 1.2 2005/02/01 16:52:35 patthoyts Exp $}
+    variable rcsid {$Id: sasl.tcl,v 1.3 2005/02/11 02:47:58 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -28,7 +28,7 @@ namespace eval ::sasl {
 
 # -------------------------------------------------------------------------
 
-proc ::sasl::mechanisms {} {
+proc ::SASL::mechanisms {} {
     variable mechanisms
     set r [list]
     foreach mech $mechanisms {
@@ -37,30 +37,30 @@ proc ::sasl::mechanisms {} {
     return $r
 }
 
-proc ::sasl::register {mechanism preference clientproc {serverproc {}}} {
+proc ::SASL::register {mechanism preference clientproc {serverproc {}}} {
     variable mechanisms
     lappend mechanisms [list $preference $mechanism $clientproc $serverproc]
     set mechanisms [lsort -index 0 -decreasing -integer $mechanisms]
     return
 }
 
-proc ::sasl::uid {} {
+proc ::SASL::uid {} {
     variable uid
     return [incr uid]
 }
 
-proc ::sasl::response {context} {
+proc ::SASL::response {context} {
     upvar #0 $context ctx
     return $ctx(response)
 }
 
-proc ::sasl::reset {context} {
+proc ::SASL::reset {context} {
     upvar #0 $context ctx
     array set ctx [list step 0 response "" valid false]
     return $context
 }
 
-proc ::sasl::cleanup {context} {
+proc ::SASL::cleanup {context} {
     if {[info exists $context]} {
         unset $context
     }
@@ -71,21 +71,27 @@ proc ::sasl::cleanup {context} {
 #
 #	Create a new client connection context.
 #
-proc ::sasl::new {args} {
+proc ::SASL::new {args} {
     set context [namespace current]::[uid]
     variable $context
     upvar #0 $context ctx
-    array set ctx [list mech {} callback {} proc {} \
+    array set ctx [list mech {} callback {} proc {} service {} server {} \
                        step 0 response "" valid false type client]
     eval [linsert $args 0 [namespace origin configure] $context]
     return $context
 }
 
-proc ::sasl::configure {context args} {
+proc ::SASL::configure {context args} {
     variable mechanisms
     upvar #0 $context ctx
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -exact -- $option {
+            -service {
+                set ctx(service) [Pop args 1]
+            }
+            -server - -serverFQDN {
+                set ctx(server) [Pop args 1]
+            }
             -mech - -mechanism {
                 set mech [string toupper [Pop args 1]]
                 set ctx(proc) {}
@@ -105,7 +111,7 @@ proc ::sasl::configure {context args} {
                         must be one of those given by \[sasl::mechanisms\]"
                 }
             }
-            -callback {
+            -callback - -callbacks {
                 set ctx(callback) [Pop args 1]
             }
             -type {
@@ -122,7 +128,8 @@ proc ::sasl::configure {context args} {
             }
             default {
                 return -code error "bad option \"$option\":\
-                    must be one of -mechanism or -callbacks"
+                    must be one of -mechanism, -service, -server -type\
+                    or -callbacks"
             }
         }
         Pop args
@@ -130,20 +137,20 @@ proc ::sasl::configure {context args} {
         
 }
 
-proc ::sasl::step {context challenge args} {
+proc ::SASL::step {context challenge args} {
     upvar #0 $context ctx
     return [eval [linsert $args 0 $ctx(proc) $context $challenge]]
 }
 
 
-proc ::sasl::Pop {varname {nth 0}} {
+proc ::SASL::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
     return $r
 }
 
-proc ::sasl::md5_init {} {
+proc ::SASL::md5_init {} {
     variable md5_inited
     if {[info exists md5_inited]} {return} else {set md5_inited 1}
     # Deal with either version of md5. We'd like version 2 but someone
@@ -151,16 +158,16 @@ proc ::sasl::md5_init {} {
     set md5major [lindex [split [package require md5] .] 0]
     if {$md5major < 2} {
         # md5 v1, no options, and returns a hex string ready for us.
-        proc ::sasl::md5_hex {data} { return [::md5::md5 $data] }
-        proc ::sasl::md5_bin {data} { return [binary format H* [::md5::md5 $data]] }
-        proc ::sasl::hmac_hex {pass data} { return [::md5::hmac $pass $data] }
-        proc ::sasl::hmac_bin {pass data} { return [binary format H* [::md5::hmac $pass $data]] }
+        proc ::SASL::md5_hex {data} { return [::md5::md5 $data] }
+        proc ::SASL::md5_bin {data} { return [binary format H* [::md5::md5 $data]] }
+        proc ::SASL::hmac_hex {pass data} { return [::md5::hmac $pass $data] }
+        proc ::SASL::hmac_bin {pass data} { return [binary format H* [::md5::hmac $pass $data]] }
     } else {
         # md5 v2 requires -hex to return hash as hex-encoded non-binary string.
-        proc ::sasl::md5_hex {data} { return [string tolower [::md5::md5 -hex $data]] }
-        proc ::sasl::md5_bin {data} { return [::md5::md5 $data] }
-        proc ::sasl::hmac_hex {pass data} { return [::md5::hmac -hex -key $pass $data] }
-        proc ::sasl::hmac_bin {pass data} { return [::md5::hmac -key $pass $data] }
+        proc ::SASL::md5_hex {data} { return [string tolower [::md5::md5 -hex $data]] }
+        proc ::SASL::md5_bin {data} { return [::md5::md5 $data] }
+        proc ::SASL::hmac_hex {pass data} { return [::md5::hmac -hex -key $pass $data] }
+        proc ::SASL::hmac_bin {pass data} { return [::md5::hmac -key $pass $data] }
     }
 }
 
@@ -178,7 +185,7 @@ proc ::sasl::md5_init {} {
 #	The downside of this protocol is that the server must have access
 #	to the plaintext password.
 #
-proc ::sasl::CRAM-MD5:client {context challenge args} {
+proc ::SASL::CRAM-MD5:client {context challenge args} {
     upvar #0 $context ctx
     md5_init
     if {$ctx(step) != 0} {
@@ -193,7 +200,7 @@ proc ::sasl::CRAM-MD5:client {context challenge args} {
     return 0
 }
 
-proc ::sasl::CRAM-MD5:server {context clientrsp args} {
+proc ::SASL::CRAM-MD5:server {context clientrsp args} {
     upvar #0 $context ctx
     md5_init
     incr ctx(step)
@@ -221,7 +228,7 @@ proc ::sasl::CRAM-MD5:server {context clientrsp args} {
     }
 }
 
-::sasl::register CRAM-MD5 30 ::sasl::CRAM-MD5:client ::sasl::CRAM-MD5:server
+::SASL::register CRAM-MD5 30 ::SASL::CRAM-MD5:client ::SASL::CRAM-MD5:server
 
 # -------------------------------------------------------------------------
 # PLAIN SASL MECHANISM
@@ -234,17 +241,17 @@ proc ::sasl::CRAM-MD5:server {context clientrsp args} {
 #	text. This should not be used unless the channel is secured by
 #	some other means (such as SSL/TLS).
 #
-proc ::sasl::PLAIN:client {context challenge args} {
+proc ::SASL::PLAIN:client {context challenge args} {
     upvar #0 $context ctx
     incr ctx(step)
     set authzid  [eval $ctx(callback) [list $context login]]
     set username [eval $ctx(callback) [list $context username]]
     set password [eval $ctx(callback) [list $context password]]
-    set ctx(response) "$login\x00$username\x00$password"
+    set ctx(response) "$authzid\x00$username\x00$password"
     return 0
 }
 
-proc ::sasl::PLAIN:server {context clientrsp args} {
+proc ::SASL::PLAIN:server {context clientrsp args} {
     upvar \#0 $context ctx
     if {[string length $clientrsp] < 1} {
         set ctx(response) ""
@@ -260,7 +267,7 @@ proc ::sasl::PLAIN:server {context clientrsp args} {
     }
 }
 
-::sasl::register PLAIN 10 ::sasl::PLAIN:client ::sasl::PLAIN:server
+::SASL::register PLAIN 10 ::SASL::PLAIN:client ::SASL::PLAIN:server
 
 # -------------------------------------------------------------------------
 # LOGIN SASL MECHANISM
@@ -274,7 +281,7 @@ proc ::sasl::PLAIN:server {context clientrsp args} {
 #
 #	NOT RECOMMENDED for use in new protocol implementations.
 #
-proc ::sasl::LOGIN:client {context challenge args} {
+proc ::SASL::LOGIN:client {context challenge args} {
     upvar #0 $context ctx
     incr ctx(step)
     switch -exact -- $ctx(step) {
@@ -294,7 +301,7 @@ proc ::sasl::LOGIN:client {context challenge args} {
     return $r
 }
 
-proc ::sasl::LOGIN:server {context clientrsp args} {
+proc ::SASL::LOGIN:server {context clientrsp args} {
     upvar #0 $context ctx
     incr ctx(step)
     switch -exact -- $ctx(step) {
@@ -321,7 +328,7 @@ proc ::sasl::LOGIN:server {context clientrsp args} {
     }
 }
 
-::sasl::register LOGIN 20 ::sasl::LOGIN:client ::sasl::LOGIN:server
+::SASL::register LOGIN 20 ::SASL::LOGIN:client ::SASL::LOGIN:server
 
 # -------------------------------------------------------------------------
 # ANONYMOUS SASL MECHANISM
@@ -331,13 +338,13 @@ proc ::sasl::LOGIN:server {context clientrsp args} {
 # Comments:
 #
 # 
-proc ::sasl::ANONYMOUS:client {context challenge args} {
+proc ::SASL::ANONYMOUS:client {context challenge args} {
     upvar #0 $context ctx
     set ctx(response) [lindex $args 0]
     return 0
 }
 
-proc ::sasl::ANONYMOUS:server {context clientrsp args} {
+proc ::SASL::ANONYMOUS:server {context clientrsp args} {
     upvar #0 $context ctx
     set ctx(response) ""
     if {[string length $clientrsp] < 1} {
@@ -348,7 +355,7 @@ proc ::sasl::ANONYMOUS:server {context clientrsp args} {
     }
 }
 
-::sasl::register ANONYMOUS 5 ::sasl::ANONYMOUS:client ::sasl::ANONYMOUS:server
+::SASL::register ANONYMOUS 5 ::SASL::ANONYMOUS:client ::SASL::ANONYMOUS:server
 
 # -------------------------------------------------------------------------
 
@@ -358,7 +365,7 @@ proc ::sasl::ANONYMOUS:server {context clientrsp args} {
 #
 # Comments:
 #
-proc ::sasl::DIGEST-MD5:client {context challenge args} {
+proc ::SASL::DIGEST-MD5:client {context challenge args} {
     variable digest_md5_noncecount
     upvar #0 $context ctx
     md5_init
@@ -421,7 +428,7 @@ proc ::sasl::DIGEST-MD5:client {context challenge args} {
 # Get 16 random bytes for a nonce value. If we can use /dev/random, do so
 # otherwise we hash some values.
 #
-proc ::sasl::CreateNonce {} {
+proc ::SASL::CreateNonce {} {
     set bytes {}
     if {[file readable /dev/random]} {
         catch {
@@ -437,7 +444,7 @@ proc ::sasl::CreateNonce {} {
     return [binary scan $bytes h* r; set r]
 }
 
-sasl::register DIGEST-MD5 40 ::sasl::DIGEST-MD5:client
+::SASL::register DIGEST-MD5 40 ::SASL::DIGEST-MD5:client
 
 # -------------------------------------------------------------------------
 #
@@ -446,7 +453,7 @@ sasl::register DIGEST-MD5 40 ::sasl::DIGEST-MD5:client
 # End:
 # -------------------------------------------------------------------------
 
-package provide sasl $::sasl::version
+package provide SASL $::SASL::version
 
 # -------------------------------------------------------------------------
 #

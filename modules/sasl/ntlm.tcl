@@ -12,23 +12,23 @@
 # -------------------------------------------------------------------------
 
 package require Tcl 8.4;                # tcl minimum version
-package require sasl;                   # tcllib 1.7
+package require SASL;                   # tcllib 1.7
 package require tclDES;                 # TclDES 0.7
 package require md4;                    # tcllib 1.4
 
 #package require log;                   # tcllib 1.4
 #log::lvSuppressLE emerg 0
 
-namespace eval ::sasl {
+namespace eval ::SASL {
     namespace eval NTLM {
         variable version 1.0.0
-        variable rcsid {$Id: ntlm.tcl,v 1.2 2005/02/01 16:52:35 patthoyts Exp $}
+        variable rcsid {$Id: ntlm.tcl,v 1.3 2005/02/11 02:47:58 patthoyts Exp $}
     }
 }
 
 # -------------------------------------------------------------------------
 
-proc ::sasl::NTLM::NTLM {context challenge args} {
+proc ::SASL::NTLM::NTLM {context challenge args} {
     upvar #0 $context ctx
     incr ctx(step)
     switch -exact -- $ctx(step) {
@@ -66,7 +66,7 @@ proc ::sasl::NTLM::NTLM {context challenge args} {
 # This message contains the hostname (not domain qualified) and the 
 # NT domain name for authentication.
 #
-proc ::sasl::NTLM::CreateGreeting {domainname hostname} {
+proc ::SASL::NTLM::CreateGreeting {domainname hostname} {
     set domain [encoding convertto ascii $domainname]
     set host [encoding convertto ascii $hostname]
     set d_len [string length $domain]
@@ -83,7 +83,7 @@ proc ::sasl::NTLM::CreateGreeting {domainname hostname} {
 # Compose the final client response. This contains the encoded username
 # and password, along with the server nonce value.
 #
-proc ::sasl::NTLM::CreateResponse {domainname hostname username passwd nonce} {
+proc ::SASL::NTLM::CreateResponse {domainname hostname username passwd nonce} {
     set lm_resp [LMhash $passwd $nonce]
     set nt_resp [NThash $passwd $nonce]
 
@@ -121,7 +121,7 @@ proc ::sasl::NTLM::CreateResponse {domainname hostname username passwd nonce} {
 }
 
 
-proc ::sasl::NTLM::Decode {msg} {
+proc ::SASL::NTLM::Decode {msg} {
     binary scan $msg a7ci protocol zero type
 
     switch -exact -- $type {
@@ -168,7 +168,7 @@ proc ::sasl::NTLM::Decode {msg} {
     }
 }
 
-proc ::sasl::NTLM::decodeflags {value} {
+proc ::SASL::NTLM::decodeflags {value} {
     set flags {
         0x0001 unicode 0x0002 oem    0x0004 req_target 0x0008 unknown 
         0x0010 sign    0x0020 seal   0x0040 datagram   0x0080 lmkey 
@@ -186,7 +186,7 @@ proc ::sasl::NTLM::decodeflags {value} {
     return $r
 }
 
-proc ::sasl::NTLM::LMhash {password nonce} {
+proc ::SASL::NTLM::LMhash {password nonce} {
     set magic "\x4b\x47\x53\x21\x40\x23\x24\x25"
     set hash ""
     set password [string range [string toupper $password][string repeat \0 14] 0 13]
@@ -207,7 +207,7 @@ proc ::sasl::NTLM::LMhash {password nonce} {
     return $res
 }
 
-proc ::sasl::NTLM::NThash {password nonce} {
+proc ::SASL::NTLM::NThash {password nonce} {
     set pass [encoding convertto unicode $password]
     set hash [md4::md4 $pass]
     append hash [string repeat \x00 5]
@@ -226,7 +226,7 @@ proc ::sasl::NTLM::NThash {password nonce} {
 # We do NOT fix the parity of each byte. If we did, then bit 0 of each
 # byte should be adjusted to give the byte odd parity.
 #
-proc ::sasl::NTLM::CreateDesKeys {key} {
+proc ::SASL::NTLM::CreateDesKeys {key} {
     # pad to 7 byte boundary with nuls.
     set mod [expr {[string length $key] % 7}]
     if {$mod != 0} {
@@ -251,7 +251,7 @@ proc ::sasl::NTLM::CreateDesKeys {key} {
 }
 
 # This is slower than the above in Tcl 8.4.9
-proc ::sasl::NTLM::CreateDesKeys2 {key} {
+proc ::SASL::NTLM::CreateDesKeys2 {key} {
     # pad to 7 byte boundary with nuls.
     append key [string repeat "\0" [expr {7 - ([string length $key] % 7)}]]
     binary scan $key B* bin
@@ -268,11 +268,11 @@ proc ::sasl::NTLM::CreateDesKeys2 {key} {
 
 # Register this SASL mechanism with the Tcllib SASL package.
 #
-if {[package provide sasl] ne ""} {
-    sasl::register NTLM 50 ::sasl::NTLM::NTLM
+if {[package provide SASL] ne ""} {
+    ::SASL::register NTLM 50 ::SASL::NTLM::NTLM
 }
 
-package provide sasl::ntlm $::sasl::NTLM::version
+package provide SASL::NTLM $::SASL::NTLM::version
 
 # -------------------------------------------------------------------------
 #
