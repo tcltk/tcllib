@@ -15,11 +15,10 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.4 2002/09/19 18:21:24 davidw Exp $}
-    variable version 1.0
+    variable rcsid {$Id: smtpd.tcl,v 1.5 2002/10/08 20:23:29 patthoyts Exp $}
+    variable version 1.1
     variable stopped
 
-    package provide smtpd $version
     namespace export start stop
 
     variable commands {EHLO HELO MAIL RCPT DATA RSET NOOP QUIT}
@@ -28,6 +27,7 @@ namespace eval smtpd {
     variable options
     if {! [info exists options]} {
         array set options {
+            deliverMIME        {}
             deliver            {}
             validate_host      {}
             validate_sender    {}
@@ -72,13 +72,15 @@ proc smtpd::configure {args} {
 
     foreach {opt value} $args {
         switch -- $opt {
+            -deliverMIME        {set options(deliverMIME) $value}
             -deliver            {set options(deliver) $value}
             -validate_host      {set options(validate_host) $value}
             -validate_sender    {set options(validate_sender) $value}
             -validate_recipient {set options(validate_recipient) $value}
             default {
                 error "unknown option: \"$opt\": must be one of \
-                       -deliver, -validate_host, -validate_recipient \
+                       -deliverMIME, -deliver,\
+                       -validate_host, -validate_recipient \
                        or -validate_sender"
             }
         }
@@ -322,11 +324,46 @@ proc smtpd::server_ip {} {
 
 # -------------------------------------------------------------------------
 # Description:
+#   deliver is called once a mail transaction is completed and there is
+#   no deliver procedure defined
+#   The configured -deliverMIME procedure is called with a MIME token.
+#   If no such callback is defined then try the -deliver option and use
+#   the old API.
+#
+proc smtpd::deliver {channel} {
+    set deliverMIME [cget deliverMIME]
+    if { $deliverMIME != {} \
+             && [state $channel from] != {} \
+             && [state $channel to] != {} \
+             && [state $channel data] != {} } {
+
+        # create a MIME token from the mail message.
+        set tok [mime::initialize -string \
+                     [join [state $channel data] "\n"]]
+        mime::setheader $tok "From" [state $channel from]
+        foreach recipient [state $channel to] {
+            mime::setheader $tok "To" $recipient -mode append
+        }
+        
+        if {[catch {$deliverMIME $tok} msg]} {
+            log::log debug "error in deliver: $msg"
+        }
+
+        mime::finalize $tok -subordinates all
+
+    } else {
+        # Try the old interface
+        deliver_old $channel
+    }
+}
+
+# -------------------------------------------------------------------------
+# Description:
 #   Deliver is called once a mail transaction is completed (defined as the
 #   completion of a DATA command). The configured -deliver procedure is called
 #   with the sender, list of recipients and the text of the mail.
 #
-proc smtpd::deliver {channel} {
+proc smtpd::deliver_old {channel} {
     set deliver [cget deliver]
     if { $deliver != {} \
              && [state $channel from] != {} \
@@ -599,6 +636,8 @@ proc smtpd::QUIT {channel line} {
     #unset [namespace current]::state_$channel
     return
 }
+
+package provide smtpd $smtpd::version
 
 # -------------------------------------------------------------------------
 # Local variables:
