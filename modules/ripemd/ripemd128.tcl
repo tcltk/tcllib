@@ -23,7 +23,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd128.tcl,v 1.3 2004/02/18 23:09:52 patthoyts Exp $
+# $Id: ripemd128.tcl,v 1.4 2004/02/18 23:49:09 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
@@ -31,7 +31,7 @@ package require Tcl 8.2;                # tcl minimum version
 namespace eval ::ripemd {
     namespace eval ripemd128 {
         variable version 1.0.0
-        variable rcsid {$Id: ripemd128.tcl,v 1.3 2004/02/18 23:09:52 patthoyts Exp $}
+        variable rcsid {$Id: ripemd128.tcl,v 1.4 2004/02/18 23:49:09 patthoyts Exp $}
         variable usetrf 0
 
         # Trf 2.1p1 is buggy for what we want to do.
@@ -516,7 +516,7 @@ proc ::ripemd::ripemd128::RIPEMD128Hash {token msg} $::ripemd::ripemd128::RIPEMD
 # -------------------------------------------------------------------------
 
 if {[package provide Trf] != {}} {
-    interp alias {} ::ripemd::ripemd128::Hex {} ::hex -mode encode
+    interp alias {} ::ripemd::ripemd128::Hex {} ::hex -mode encode --
 } else {
     proc ::ripemd::ripemd128::Hex {data} {
         set result {}
