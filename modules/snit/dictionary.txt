@@ -48,16 +48,6 @@ Snit_methodInfo         Array(method name) = {<pattern> <compName>}
                         method cache lookup to create the command for
                         the named method.
 
-Snit_cgetCache          Array(option name) = cached command.
-                        Used by $self cget.
-
-Snit_configureCache     Array(option name) = cached command.
-                        Used by $self configurelist.
-
-Snit_validateCache      Array(option name) = cached command.
-                        Used by $self configurelist.  The entry is ""
-                        if there is no validate command.
-
 Snit_optionInfo         An array of option data.  The keys are as follows:
 
   General fields:
@@ -89,6 +79,8 @@ Snit_optionInfo         An array of option data.  The keys are as follows:
 
     cget-$localOpt       The name of the cget method, or "".
 
+    readonly-$localOpt   true or false.  (false is the default).
+
   Fields defined only for delegated options
 
     delegated-$comp      List of option names delegated to this component.
@@ -98,13 +90,33 @@ Snit_optionInfo         An array of option data.  The keys are as follows:
 
 INSTANCE VARIABLES
 
+Snit_iinfo              Array, instance info.  At some point,
+                        Snit_instance and Snit_components should
+                        probably be consolidated into it.  The fields
+                        are:
+
+    constructed         0 during instance construction, and 1 after.
+
 Snit_instance           Current name of the instance command.
 
 Snit_components         Array(component name) = command_name
                         Used whenever we need to retrieve the
                         component's command.
 
+Consider consolidating the following arrays into a single array, since
+they are all cleared at the same time.
+
 Snit_methodCache        Array(method name) = cached command
                         Used during method dispatch.
+
+Snit_cgetCache          Array(option name) = cached command.
+                        Used by $self cget.
+
+Snit_configureCache     Array(option name) = cached command.
+                        Used by $self configurelist.
+
+Snit_validateCache      Array(option name) = cached command.
+                        Used by $self configurelist.  The entry is ""
+                        if there is no validate command.
 
 

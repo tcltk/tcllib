@@ -511,20 +511,22 @@ proc ::snit::Comp.SaveOptionInfo {} {
             # Option %OPTION%
             lappend %TYPE%::Snit_optionInfo(local) %OPTION%
 
+            set %TYPE%::Snit_optionInfo(islocal-%OPTION%)   1
             set %TYPE%::Snit_optionInfo(resource-%OPTION%)  %RESOURCE%
             set %TYPE%::Snit_optionInfo(class-%OPTION%)     %CLASS%
             set %TYPE%::Snit_optionInfo(default-%OPTION%)   %DEFAULT%
             set %TYPE%::Snit_optionInfo(validate-%OPTION%)  %VALIDATE%
             set %TYPE%::Snit_optionInfo(configure-%OPTION%) %CONFIGURE%
             set %TYPE%::Snit_optionInfo(cget-%OPTION%)      %CGET%
-            set %TYPE%::Snit_optionInfo(islocal-%OPTION%)   1
+            set %TYPE%::Snit_optionInfo(readonly-%OPTION%)  %READONLY%
         }   %OPTION%    $option \
             %RESOURCE%  $compile(resource-$option) \
             %CLASS%     $compile(class-$option) \
             %DEFAULT%   [list $compile(-default-$option)] \
             %VALIDATE%  [list $compile(-validatemethod-$option)] \
             %CONFIGURE% [list $compile(-configuremethod-$option)] \
-            %CGET%      [list $compile(-cgetmethod-$option)]
+            %CGET%      [list $compile(-cgetmethod-$option)] \
+            %READONLY%  $compile(-readonly-$option)
     }
 }
 
@@ -655,15 +657,6 @@ proc ::snit::Comp.statement.option {optionDef args} {
         # Remember that we've seen this one.
         lappend compile(localoptions) $option
         
-        Mappend compile(defs) {
-            # Option %OPTION%
-            proc %TYPE%::Snit_configure%OPTION% {type selfns win self value} {
-                %TVARDECS%
-                %IVARDECS%
-                set options(%OPTION%) $value
-            }
-        } %OPTION% $option 
-
         # Initialize compilation info for this option.
         set compile(resource-$option)         ""
         set compile(class-$option)            ""
@@ -671,6 +664,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
         set compile(-validatemethod-$option)  ""
         set compile(-configuremethod-$option) ""
         set compile(-cgetmethod-$option)      ""
+        set compile(-readonly-$option)        0
     }
 
     # NEXT, see if we have a resource name.  If so, make sure it
@@ -707,6 +701,12 @@ proc ::snit::Comp.statement.option {optionDef args} {
                 -validatemethod  -
                 -configuremethod -
                 -cgetmethod      {
+                    set compile($optopt-$option) $val
+                }
+                -readonly        {
+                    if {![string is boolean  $val]} {
+                        error "$errRoot, -readonly requires a boolean, got '$val'"
+                    }
                     set compile($optopt-$option) $val
                 }
                 default {
@@ -1608,7 +1608,7 @@ proc ::snit::RT.type.typemethod.create {type name args} {
     namespace eval $selfns {}
 
     # NEXT, install the dispatcher
-    RT.MakeInstance $type $selfns $name
+    RT.MakeInstanceCommand $type $selfns $name
 
     # Initialize the options to their defaults. 
     upvar ${selfns}::options options
@@ -1622,8 +1622,7 @@ proc ::snit::RT.type.typemethod.create {type name args} {
 
     # Execute the type's constructor.
     set errcode [catch {
-        eval ${type}::Snit_constructor $type $selfns \
-            [list $name] [list $name] $args
+        RT.ConstructInstance $type $selfns $name $args
     } result]
 
     if {$errcode} {
@@ -1703,8 +1702,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
     # Execute the type's constructor, and verify that it
     # has a hull.
     set errcode [catch {
-        eval ${type}::Snit_constructor $type $selfns [list $name] \
-            [list $name] $args
+        RT.ConstructInstance $type $selfns $name $args
             
         ::snit::RT.Component $type $selfns hull
             
@@ -1739,7 +1737,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
 }
 
 
-# RT.MakeInstance type selfns instance
+# RT.MakeInstanceCommand type selfns instance
 #
 # type        The object type
 # selfns      The instance namespace
@@ -1747,7 +1745,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
 #
 # Creates the instance proc.
 
-proc ::snit::RT.MakeInstance {type selfns instance} {
+proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
     variable ${type}::Snit_isWidget
         
     # FIRST, remember the instance name.  The Snit_instance variable
@@ -1837,6 +1835,32 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
         puts "Error in ::snit::RT.InstanceTrace $type $selfns $win $old $new $op:"
         puts $ei
     }
+}
+
+# Calls the instance constructor and handles related housekeeping.
+proc ::snit::RT.ConstructInstance {type selfns instance arglist} {
+    variable ${type}::Snit_optionInfo
+    variable ${selfns}::Snit_iinfo
+
+    # Track whether we are constructed or not.
+    set Snit_iinfo(constructed) 0
+
+    # Call the user's constructor
+    eval [list ${type}::Snit_constructor $type $selfns \
+              $instance $instance] $arglist
+
+    set Snit_iinfo(constructed) 1
+
+    # Unset the configure cache for all -readonly options.
+    # This ensures that the next time anyone tries to 
+    # configure it, an error is thrown.
+    foreach opt $Snit_optionInfo(local) {
+        if {$Snit_optionInfo(readonly-$opt)} {
+            unset -nocomplain ${selfns}::configureCache($opt)
+        }
+    }
+
+    return
 }
 
 # Returns a unique command name.  
@@ -2293,7 +2317,7 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
     }
         
     rename ::$self $newName
-    RT.MakeInstance $type $selfns $self
+    RT.MakeInstanceCommand $type $selfns $self
         
     # Note: this relies on RT.ComponentTrace to do the dirty work.
     set hull $newName
@@ -2696,6 +2720,14 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
         if {$Snit_optionInfo(islocal-$option)} {
             # It's a local option.
 
+            # If it's readonly, it throws an error if we're already 
+            # constructed.
+            if {$Snit_optionInfo(readonly-$option)} {
+                if {[set ${selfns}::Snit_iinfo(constructed)]} {
+                    error "option $option can only be set at instance creation"
+                }
+            }
+
             # If it has a validate method, cache that for later.
             if {$Snit_optionInfo(validate-$option) ne ""} {
                 set command [snit::RT.CacheMethodCommand \
@@ -2850,8 +2882,6 @@ proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
 
 #-----------------------------------------------------------------------
 # Type Introspection
-#
-# TBD: Rename this after typemethod delegation is implemented.
 
 # Implements the standard "info" typemethod.
 #
