@@ -697,8 +697,15 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
         }
 
         # NEXT, A macro is the next thing; process it.
-        if {[catch "GetMacro inputString" macro]} {
-            error "Error reading macro: $macro"
+        if {[catch {GetMacro inputString} macro]} {
+	    # SF tcllib bug 781973 ... Do not throw a regular
+	    # error. Use HandleError to give the user control of the
+	    # situation, via the defined error mode. The continue
+	    # intercepts if the user allows the expansion to run on,
+	    # yet we must not try to run the non-existing macro.
+
+	    HandleError $name macro $inputString $macro
+	    continue
         }
 
         # Expand the macro, and output the result, or
@@ -912,4 +919,4 @@ proc ::textutil::expander::IsBracketed {macro} {
 # Provide the package only if the code above was read and executed
 # without error.
 
-package provide textutil::expander 1.2
+package provide textutil::expander 1.2.1
