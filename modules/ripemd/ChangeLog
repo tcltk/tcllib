@@ -1,3 +1,7 @@
+2004-02-16  Pat Thoyts  <pat@zsplat.freeserve.co.uk>
+
+	* ripemd128.test:  Add pure-Tcl HMAC tests.
+
 2004-02-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ripemd128.man:   Initial implementation of RIPEMD-128 in 
