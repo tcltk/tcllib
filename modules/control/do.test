@@ -2,7 +2,7 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.3 2002/01/18 16:43:06 rmax Exp $
+# RCS: @(#) $Id: do.test,v 1.4 2002/01/29 11:46:22 rmax Exp $
 #
 
 package forget control
@@ -252,34 +252,36 @@ test do-2.4 {one-shot do with error} {
 
 cleanupTests
 
-# a proc that wastes some time
-proc something {n} {
-    for {set i 0} {$i < $n} {incr i} {}
-}
-
-proc main {} {
-    # run it for the first time to get it byte compiled
-    something 1
-
-    set payload {
-	something 10
-	incr x
+if {[info exists ::argv0] && $::argv0 == [info script]} {
+    # a proc that wastes some time
+    proc something {n} {
+	for {set i 0} {$i < $n} {incr i} {}
     }
-    puts "\nComparing performance of do-while, do-until and builtin while..."
-    set format "%-8s : %20s for %4d iteration(s)."
-    foreach c {1 10 5000} {
-	puts ""
-	foreach {descr script} {
-	    {do while} {do $payload while {$x < $c}}
-	    {do until} {do $payload until {$x == $c}}
-	    {while} {while {$x < $c} $payload}
-	} {
-	    set x 0
-	    puts [format $format $descr [lrange [time $script 1] 0 1] $x]
+    
+    proc main {} {
+	# run it for the first time to get it byte compiled
+	something 1
+	
+	set payload {
+	    something 10
+	    incr x
+	}
+	puts "\nComparing performance of do-while, do-until and builtin while..."
+	set format "%-8s : %20s for %4d iteration(s)."
+	foreach c {1 10 5000} {
+	    puts ""
+	    foreach {descr script} {
+		{do while} {do $payload while {$x < $c}}
+		{do until} {do $payload until {$x == $c}}
+		{while} {while {$x < $c} $payload}
+	    } {
+		set x 0
+		puts [format $format $descr [lrange [time $script 1] 0 1] $x]
+	    }
 	}
     }
+    main
 }
-main
 
 # Local variables:
 # mode: tcl
