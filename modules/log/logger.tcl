@@ -13,7 +13,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.5.2
+package provide logger 0.5.3
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -659,7 +659,7 @@ proc ::logger::import {args} {
     #
     
     foreach {target source} $imports {
-        proc $target {args} "interp eval \{\} \[list $source\] \$args"
+        proc $target {args} "uplevel 1 \[linsert \$args 0 interp eval \{\} \[list $source\]]"
         #interp alias {} $target {} $source
     }
 }
