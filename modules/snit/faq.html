@@ -1,10 +1,10 @@
 <html><head>
-    <title>Snit V0.92 Frequently Asked Questions</title>
+    <title>Snit V0.93 Frequently Asked Questions</title>
 </head>
 
 <BODY>
 
-<h1>Snit V0.92 Frequently Asked Questions</h1>
+<h1>Snit V0.93 Frequently Asked Questions</h1>
 
 
 <p><hr><p>
@@ -152,6 +152,7 @@
 <li><a href="#what_is_a_snitwidget">What is a snit::widget?</a>
 <li><a href="#how_do_i_define_a_snitwidget">How do I define a snit::widget?</a>
 <li><a href="#how_do_snitwidgets_differ_from_snittypes">How do snit::widgets differ from snit::types?</a>
+<li><a href="#what_is_a_hull_component">What is a hull component?</a>
 <li><a href="#how_can_i_set_the_hull_type_for_a_snitwidget">How can I set the hull type for a snit::widget?</a>
 <li><a href="#how_should_i_name_widgets_which_are_components_of_a_snitwidget">How should I name widgets which are components of a snit::widget?</a>
 </ul><p>
@@ -227,7 +228,8 @@ In developing Snit I had the following goals:<p>
        indistinguishable in interface from Tk widgets.<p>
 
   <li> Snit should be Tclish--that is, rather than trying to emulate
-       C++, Smalltalk, or anything else, it should try to emulate Tcl itself.
+       C++, Smalltalk, or anything else, it should try to emulate Tcl
+       itself.<p>
 
   <li> It should have a simple, easy-to-use, easy-to-remember syntax.<p>
 </ul><p>
@@ -289,16 +291,16 @@ binary tree--that is to say, in modern terms, an object.  In systems
 that include include some form of inheritance the word "class" is
 usually used instead of "abstract data type", but as Snit doesn't do
 inheritance, the older term seems more appropriate.  Sometimes this is
-called object-based programming as opposed to object-oriented
+called <i>object-based</i> programming as opposed to <i>object-oriented</i>
 programming.<p>
 
-In Snit, as in Tk, a type is a command that creates
-instances--objects--which belong to the type.  Most types define some
-number of "options" which can be set at creation time, and usually can
+In Snit, as in Tk, a <i>type</i> is a command that creates
+instances--objects--that belong to the type.  Most types define some
+number of "options" that can be set at creation time, and usually can
 be changed later.<p>
 
-Further, an instance is also a Tcl command--a command that gives
-access to the operations which are defined for that abstract data
+Further, an <i>instance</i> is also a Tcl command--a command that gives
+access to the operations that are defined for that abstract data
 type.  Conventionally, the operations are defined as subcommands, or
 <a href="#instance_methods">instance methods</a> of
 the instance command.  For example, to insert text into a Tk text
@@ -310,8 +312,8 @@ widget, you use the text widget's "insert" method:<p>
     .mytext insert end "Howdy!"
 </pre>
 
-In this example, "text" is the type command and ".mytext" is the
-instance command.<p>
+In this example, "text" is the <i>type</i> command and ".mytext" is the
+<i>instance</i> command.<p>
 
 
 <h4><a name="what_kinds_of_abstract_data_types_does_snit_provide">What kinds of abstract data types does Snit provide?</a></h4>
@@ -342,7 +344,7 @@ a kennel management system for a dog breeder, you'd need a dog type.<p>
 %</pre>
 
 This definition defines a new command (<code>::dog</code>, in this
-case) which can be used to define dog objects.<p>
+case) that can be used to define dog objects.<p>
 
 An instance of a <code>snit::type</code> can have
 <a href="#instance_methods">instance methods</a>,
@@ -364,7 +366,7 @@ very similar to a <code>snit::type</code>.  See <a href="#widgets">WIDGETS</a>.<
 A <code>snit::widgetadaptor</code> uses Snit to wrap an existing
 widget type (e.g., a Tk label), modifying its interface to a lesser or
 greater extent.  It is very similar to a <code>snit::widget</code>.  See
-<a href="#widget_adaptors">WIDGET ADAPTORS</a>.<p>
+<a href="#widgetadaptors">WIDGETADAPTORS</a>.<p>
 
 <h4><a name="how_do_i_create_an_instance_of_a_snittype">How do I create an instance of a snit::type?</a></h4>
 
@@ -415,7 +417,7 @@ dalmation
 spotted
 %</pre><p>
 
-Either way, the instance name now names a new Tcl command which is
+Either way, the instance name now names a new Tcl command that is
 used to manipulate the object.  For example, the following code makes
 the dog bark:<p>
 
@@ -680,8 +682,8 @@ intended to be called only by other methods of the same object.<p>
 
 Snit doesn't implement any access control on instance methods, so all
 methods are <i>de facto</i> public.  Conventionally, though, 
-the names of public methods begin with a lower case
-letter, and the names of private methods begin with an upper case
+the names of public methods begin with a lower-case
+letter, and the names of private methods begin with an upper-case
 letter.<p>
 
 For example, suppose our simulated dogs only bark in response to other
@@ -854,8 +856,9 @@ command.<p>
 Now, this will work--provided that <code>.spot</code> is never
 renamed.  But why should <code>.spot</code> be renamed?  Surely
 renaming widgets is abnormal?  And so it is--unless <code>.spot</code>
-is the hull component of a <code>snit::widgetadaptor</code>.  If it
-is, then it will be renamed, and <code>.spot</code> will name the
+is the <a href="#what_is_a_hull_component">hull component</a> of a
+<code>snit::widgetadaptor</code>.
+If it is, then it will be renamed, and <code>.spot</code> will name the
 <code>snit::widgetadaptor</code> object.  When the button is pressed,
 the command "<code>$self bark</code>" will be handled by the
 <code>snit::widgetadaptor</code>, which might or might not do the
@@ -1368,7 +1371,7 @@ The method name becomes a subcommand of the type's command.  For example,<p>
 dog spot -pedigreed 1
 dog fido
 
-foreach dog ::pedigreedDogs { ... }</pre>
+foreach dog [dog pedigreedDogs] { ... }</pre>
 
 <h4><a name="are_there_any_limitations_on_type_method_names">Are there any limitations on type method names?</a></h4>
 
@@ -1386,8 +1389,8 @@ intended to be called only by other type or instance methods of the
 same object.<p>
 
 Snit doesn't implement any access control on type methods; by
-convention, the names of public methods begin with a lower case
-letter, and the names of private methods begin with an upper case
+convention, the names of public methods begin with a lower-case
+letter, and the names of private methods begin with an upper-case
 letter.<p>
 
 Alternatively, a Snit "proc" can be used as a private type method; see
@@ -2363,6 +2366,26 @@ statements, plus a couple of others which will be mentioned below.<p>
        default values from <a href="#the_tk_option_database">the Tk option database</a>.<p>
 </ul>
 
+<h4><a name="what_is_a_hull_component">What is a hull component?</a></h4>
+
+
+
+Snit can't create a Tk widget object; only Tk can do that.  Thus,
+every instance of a <code>snit::widget</code> must be wrapped around
+a genuine Tk widget; this Tk widget is called the <i>hull
+component</i>.  Snit effectively piggybacks the behavior you define
+(methods, options, and so forth) on top of the hull component so that
+the whole thing behaves like a standard Tk widget.<p>
+
+For <code>snit::widgets</code> the hull component must be a
+Tk <code>frame</code> or <code>toplevel</code> widget; any other
+widgets created as part of the <code>snit::widget</code> will
+be contained within this frame or toplevel.<p>
+
+<code>snit::widgetadaptors</code> differ from
+<code>snit::widgets</code> chiefly in that any kind of widget can be
+used as the hull component; see <a href="#widgetadaptors">WIDGETADAPTORS</a>.<p>
+
 <h4><a name="how_can_i_set_the_hull_type_for_a_snitwidget">How can I set the hull type for a snit::widget?</a></h4>
 
 
@@ -2495,7 +2518,7 @@ prior to calling <code>installhull</code> will fail.<p>
 Yes.<p>
 
 At times, it can be convenient to adapt a widget created by another
-party.  For example, the Bwidgets <code>PagesManager</code> widget
+party.  For example, the Bwidget <code>PagesManager</code> widget
 manages a set of <code>frame</code> widgets, only one of which is
 visible at a time.  The application chooses which <code>frame</code>
 is visible.  These <code>frames</code> are created by the
