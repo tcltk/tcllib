@@ -1,3 +1,15 @@
+2005-04-05  Andreas Kupries <andreask@activestate.com>
+
+	* treeql.test:  Added tests for 'over', 'foreach', 'with', and
+	* treeql84.tcl: 'transform'. Also for the new 'map'. New method
+	* treeql.tcl:   'map', which is to 'transform' what 'over' is to
+	* treeql.man:   'foreach'. Added documentation for it as well,
+	* pkgIndex.tcl: bumped the version number to 1.3 and synchronized
+	  all places listing the version number. Added proper 'uplevel'
+	  calls for the correct scoping of the body of all iteration query
+	  operators. Made the scoping of the iterator body explicit in the
+	  documentation.
+
 2005-01-11  Andreas Kupries <andreask@activestate.com>
 
 	* treeql.man: Mini typo fix.
