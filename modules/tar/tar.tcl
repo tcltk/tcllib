@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.3 2004/08/20 18:53:41 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.4 2004/09/10 23:02:53 afaupell Exp $
 
 package provide tar 0.1
 
@@ -267,7 +267,7 @@ proc ::tar::add {tar files args} {
     seek $fh -1024 end
 
     foreach x [recurseDirs $files $dereference] {
-        write $x $fh $dereference
+        writefile $x $fh $dereference
     }
     puts -nonewline $fh [string repeat \x00 1024]
 
