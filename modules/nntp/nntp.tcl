@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: nntp.tcl,v 1.7 2002/01/18 20:51:16 andreas_kupries Exp $
+# RCS: @(#) $Id: nntp.tcl,v 1.8 2003/02/06 19:31:26 davidw Exp $
 
 package require Tcl 8.2
 package provide nntp 0.2
@@ -828,11 +828,14 @@ proc ::nntp::fetch {name} {
         gets $sock line
         regsub -- {\015?\012$} $line $data(eol) line
 
-        if {[regexp -- {^\.$} $line]} {
+        if {[string match "." $line]} {
             break
         }
-        regsub -- {^\.\.} $line {.} line
-        lappend result $line
+	if { [string match "..*" $line] } {
+	    lappend result [string range $line 1 end]
+	} else {
+	    lappend result $line
+	}
     }
     return $result
 }
