@@ -1,7 +1,12 @@
 2005-01-31  Michael Schlenker <mic42@users.sourceforge.net>
 	* logger.test : Added tests for bug [1102131]. 
 	  The logger servicename can not be detected correctly.
-	  No good fix yet.
+	  logger.tcl  : Fix for bug [1102131]. There is 
+	  still no way for a proc given to logproc to discover
+	  the servicename, that requires an extension to the
+	  logproc API (extra argument).
+	  See the 13.x tests for an example how to get the
+	  servicename with the help of the old logproc syntax.
 
 2005-01-12  Michael Schlenker <mic42@users.sourceforge.net>
 
