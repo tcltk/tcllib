@@ -5305,6 +5305,62 @@ test optionsyntax-2.4 {* doesn't get resource and class} {
         [info exist ::dog::Snit_optionInfo(class-*)]
 } {0 0}
 
+#-----------------------------------------------------------------------
+# Cget cache
+
+test cgetcache-1.1 {Instance rename invalidates cache} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -cgetmethod getfoo
+
+        method getfoo {option} {
+            return $options($option)
+        }
+    }
+
+    dog fido -foo quux
+
+    # Cache the cget command.
+    fido cget -foo
+        
+    rename fido spot
+        
+    spot cget -foo
+} {quux}
+
+test cgetcache-1.2 {Component rename invalidates cache} {
+    cleanup
+
+    type tail {
+        option -foo bar
+    }
+
+    type dog {
+        delegate option -foo to tail
+
+        constructor {args} {
+            set tail [tail %AUTO%]
+            $tail configure -foo quux
+        }
+
+        method retail {} {
+            set tail [tail %AUTO%]
+        }
+    }
+
+    dog fido
+
+    # Cache the cget command.
+    fido cget -foo
+
+    # Invalidate the cache
+    fido retail
+
+    fido cget -foo
+} {bar}
+
+
 #---------------------------------------------------------------------
 # Clean up
 
