@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.13 2002/05/15 20:54:33 jenglish Exp $
+# $Id: fmt.tmml,v 1.14 2003/01/19 07:58:44 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -16,56 +16,8 @@
 #
 ######################################################################
 
-source [__file join [__file dirname [info script]] _xml.tcl]
-set this [__file tail [info script]]
-
-######################################################################
-# mpexpand(n) interface.
-#
-proc NumPasses {}	{ return 2 }
-proc PassSetup {}	{ setPassProcs [mp_pass] }
-
-######################################################################
-# Utilities.
-#
-
-proc NOP {args} { }		;# do nothing
-proc NYI {{message {}}} {
-    return -code error [append message " Not Yet Implemented"]
-}
-
-proc provenance {} {
-    variable this
-    return "Generated from [mp_file] by tcllib/doctools/mpexpand with $this"
-}
-
-######################################################################
-# Cross-reference tracking.
-#
-
-global SectionNames	;# array mapping section name to refid
-
-# sectionId --
-#	Format section name as an XML ID.
-#
-proc sectionId {name} {
-    regsub -all {[^[:alnum:]]} $name {} name
-    return [string tolower $name]
-}
-
-# possibleReference text gi --
-#	Check if $text is a potential cross-reference;
-#	if so, format as a reference;
-#	otherwise format as a $gi element.
-#
-proc possibleReference {text gi} {
-    global SectionNames
-    if {[info exists SectionNames($text)]} {
-    	return "[startTag ref refid $SectionNames($text)]$text[endTag ref]"
-    } else {
-    	return [wrap $text $gi]
-    }
-}
+dt_source _common.tcl
+dt_source _xml.tcl
 
 ######################################################################
 # Conversion specification.
@@ -75,91 +27,92 @@ proc possibleReference {text gi} {
 # produces output.
 #
 
-holdBuffers synopsis see_also keywords
+c_holdBuffers synopsis see_also keywords
 
 variable block {section dd li}	;# block context elements
 
-proc nl  	{}	{ emptyElement br }
-proc arg 	{text}	{ wrap $text m }
-proc cmd	{text}	{ wrap $text cmd }
-proc emph	{text}	{ possibleReference $text emph }
-proc strong	{text}	{ possibleReference $text emph }
-proc opt 	{text}	{ wrap $text o }
+proc fmt_nl  	{}	{ emptyElement br }
+proc fmt_arg 	{text}	{ wrap $text m }
+proc fmt_cmd	{text}	{ wrap $text cmd }
+proc fmt_emph	{text}	{ c_possibleReference $text emph }
+proc fmt_opt 	{text}	{ wrap $text o }
 
-pass 1 example_begin {}	NOP
-pass 1 example_end {} 	NOP
-pass 1 example {code}	NOP
-pass 2 example_begin {}	{ sequence [xmlContext $::block] [start example] }
-pass 2 example_end   {}	{ end example }
-pass 2 example {code} 	{ sequence [xmlContext $::block] [wrap $code example] }
+c_pass 1 fmt_example_begin {}	NOP
+c_pass 1 fmt_example_end {} 	NOP
+c_pass 1 fmt_example {code}	NOP
+c_pass 2 fmt_example_begin {}	{ sequence [xmlContext $::block] [start example] }
+c_pass 2 fmt_example_end   {}	{ end example }
+c_pass 2 fmt_example {code} 	{ sequence [xmlContext $::block] [wrap $code example] }
 
-proc comment {text} {xmlComment $text}
-proc sectref {text} {possibleReference $text emph}
-proc syscmd  {text} {wrap $text syscmd}
-proc method  {text} {wrap $text method}
-proc option  {text} {wrap $text option}
-proc widget  {text} {wrap $text widget}
-proc fun     {text} {wrap $text fun}
-proc type    {text} {wrap $text type}
-proc package {text} {wrap $text package}
-proc class   {text} {wrap $text class}
-proc var     {text} {wrap $text variable}
-proc file    {text} {wrap $text file}
-proc uri     {text} {wrap $text url}
-proc term    {text} {wrap $text term}
-proc const   {text} {wrap $text l}
+proc fmt_comment {text} {xmlComment $text}
+proc fmt_sectref {text} {c_possibleReference $text emph}
+proc fmt_syscmd  {text} {wrap $text syscmd}
+proc fmt_method  {text} {wrap $text method}
+proc fmt_option  {text} {wrap $text option}
+proc fmt_widget  {text} {wrap $text widget}
+proc fmt_fun     {text} {wrap $text fun}
+proc fmt_type    {text} {wrap $text type}
+proc fmt_package {text} {wrap $text package}
+proc fmt_class   {text} {wrap $text class}
+proc fmt_var     {text} {wrap $text variable}
+proc fmt_file    {text} {wrap $text file}
+proc fmt_uri     {text} {wrap $text url}
+proc fmt_term    {text} {wrap $text term}
+proc fmt_const   {text} {wrap $text l}
 
-global    state
-array set state {mdesc {}}
 
-pass 1 manpage_begin {args} NOP
-pass 2 manpage_begin {title section version} {
-    global state
-    if {[catch {set description $state(tdesc)}]} {
-	set description $state(mdesc)
+c_pass 1 fmt_manpage_begin {args} NOP
+c_pass 2 fmt_manpage_begin {title section version} {
+    set headInfo [list]
+    foreach copyrightLine [split [c_get_copyright] "\n"] {
+    	lappend headInfo [emptyElement info key copyright value $copyrightLine] 
     }
+    # ... other metadata here if needed ...
 
     sequence \
-	[xmlComment [provenance]] \
+	[xmlComment [c_provenance]] \
 	[start manpage \
-	    id  	[__file rootname [__file tail [mp_file]]] \
+	    id  	[dt_fileid] \
 	    cat 	cmd \
 	    title	$title \
 	    version	$version \
-	    package	[mp_module]] \
+	    package	[dt_module]] \
+	[wrapLines? [join $headInfo \n] head] \
 	[start namesection] \
 	[wrap $title name] \
-	[wrap $description desc] \
+	[wrap [c_get_title] desc] \
 	[end namesection] \
 	;
 }
 
-pass 1 moddesc     {desc} {global state ; set state(mesc)  $desc}
-pass 1 titledesc   {desc} {global state ; set state(tdesc) $desc}
+c_pass 1 fmt_moddesc   {desc} {c_set_module $desc}
+c_pass 1 fmt_titledesc {desc} {c_set_title $desc}
+c_pass 1 fmt_copyright {desc} {c_set_copyright $desc}
 
-pass 2 moddesc     {args} NOP
-pass 2 titledesc   {args} NOP
+c_pass 2 fmt_moddesc     {args} NOP
+c_pass 2 fmt_titledesc   {args} NOP
+c_pass 2 fmt_copyright   {desc} NOP
 
-pass 1 description {} NOP
-pass 2 description {} {
+c_pass 1 fmt_description {} NOP
+c_pass 2 fmt_description {} {
     sequence \
 	[xmlContext manpage] \
-	[wrapLines? [held synopsis] syntax synopsis] \
+	[wrapLines? [c_held synopsis] syntax synopsis] \
 	[start section] \
 	[wrap "DESCRIPTION" title] \
 	;
 }
 
-pass 1 section {name} { set ::SectionNames($name) [sectionId $name] }
-pass 2 section {name} {
+c_pass 1 fmt_section {name} { set ::SectionNames($name) [c_sectionId $name] }
+c_pass 2 fmt_section {name} {
     sequence \
 	[xmlContext manpage] \
-    	[start section id [sectionId $name]] \
+    	[start section id [c_sectionId $name]] \
 	[wrap [string toupper $name] title] \
 	;
 }
-pass 1 para {} NOP
-pass 2 para {} { sequence [xmlContext section] [start p] }
+c_pass 1 fmt_para {} NOP
+c_pass 2 fmt_para {} { sequence [xmlContext section] [start p] }
 
 foreach {type gi} {
     bullet	ul
@@ -174,16 +127,16 @@ foreach {type gi} {
     lappend listGIs $gi
 }
 
-pass 1 list_begin {what {hint {}}} NOP
-pass 1 list_end {} NOP
-pass 2 list_begin {what {hint {}}} {
+c_pass 1 fmt_list_begin {what {hint {}}} NOP
+c_pass 1 fmt_list_end {} NOP
+c_pass 2 fmt_list_begin {what {hint {}}} {
     variable listTypes
     sequence \
     	[xmlContext {section dd li}] \
 	[start $listTypes($what)] \
 	;
 }
-pass 2 list_end {} {
+c_pass 2 fmt_list_end {} {
     variable listGIs
     sequence \
 	[xmlContext $listGIs] \
@@ -191,13 +144,13 @@ pass 2 list_end {} {
 	;
 }
 
-pass 1 bullet {}	NOP
-pass 1 enum {} 		NOP
-pass 2 bullet {} 	{ sequence [xmlContext {ul ol}] [start li] }
-pass 2 enum {} 		{ sequence [xmlContext {ul ol}] [start li] }
+c_pass 1 fmt_bullet {}	NOP
+c_pass 1 fmt_enum {} 		NOP
+c_pass 2 fmt_bullet {} 	{ sequence [xmlContext {ul ol}] [start li] }
+c_pass 2 fmt_enum {} 		{ sequence [xmlContext {ul ol}] [start li] }
 
-pass 1 lst_item {text} NOP
-pass 2 lst_item {text} {
+c_pass 1 fmt_lst_item {text} NOP
+c_pass 2 fmt_lst_item {text} {
     sequence \
     	[xmlContext dl] \
 	[start dle] \
@@ -206,8 +159,8 @@ pass 2 lst_item {text} {
 	;
 }
 
-pass 1 arg_def {type name {mode {}}} NOP
-pass 2 arg_def {type name {mode {}}} {
+c_pass 1 fmt_arg_def {type name {mode {}}} NOP
+c_pass 2 fmt_arg_def {type name {mode {}}} {
     sequence \
     	[xmlContext arglist] \
 	[start argdef] \
@@ -218,8 +171,8 @@ pass 2 arg_def {type name {mode {}}} {
 	;
 }
 
-pass 1 cmd_def {command} NOP
-pass 2 cmd_def {command} {
+c_pass 1 fmt_cmd_def {command} NOP
+c_pass 2 fmt_cmd_def {command} {
     sequence \
     	[xmlContext commandlist] \
 	[start commanddef] \
@@ -228,8 +181,8 @@ pass 2 cmd_def {command} {
 	;
 }
 
-pass 1 opt_def {name {arg {}}} NOP
-pass 2 opt_def {name {arg {}}} {
+c_pass 1 fmt_opt_def {name {arg {}}} NOP
+c_pass 2 fmt_opt_def {name {arg {}}} {
     sequence \
     	[xmlContext optlist] \
 	[start optdef] \
@@ -239,8 +192,8 @@ pass 2 opt_def {name {arg {}}} {
 	;
 }
 
-pass 1 tkoption_def {name dbname dbclass}  NOP
-pass 2 tkoption_def {name dbname dbclass} {
+c_pass 1 fmt_tkoption_def {name dbname dbclass}  NOP
+c_pass 2 fmt_tkoption_def {name dbname dbclass} {
     sequence \
     	[xmlContext optionlist] \
 	[start optiondef] \
@@ -251,11 +204,11 @@ pass 2 tkoption_def {name dbname dbclass} {
 	;
 }
 
-pass 1 usage {cmd args} { hold synopsis [formatCall $cmd $args] }
-pass 2 usage {cmd args} NOP
+c_pass 1 fmt_usage {cmd args} { c_hold synopsis [formatCall $cmd $args] }
+c_pass 2 fmt_usage {cmd args} NOP
 
-pass 1 call {cmd args} { hold synopsis [formatCall $cmd $args] }
-pass 2 call {cmd args} {
+c_pass 1 fmt_call {cmd args} { c_hold synopsis [formatCall $cmd $args] }
+c_pass 2 fmt_call {cmd args} {
     sequence \
     	[xmlContext dl] \
 	[start dle] \
@@ -267,33 +220,33 @@ proc formatCall {cmd arglist} {
     return "$cmd [join $arglist { }]"	;# OR: wrap "..." command
 }
 
-pass 1 require {pkg {version {}}} {
-    hold synopsis [formatRequire $pkg $version]
+c_pass 1 fmt_require {pkg {version {}}} {
+    c_hold synopsis [formatRequire $pkg $version]
 }
-pass 2 require {pkg {version {}}} NOP
+c_pass 2 fmt_require {pkg {version {}}} NOP
 proc formatRequire {pkg version} {
     return "package require [wrap $pkg package] $version"
 }
 
-pass 1 see_also	{args} { holdWrapped see_also  $args ref }
-pass 1 keywords {args} { holdWrapped keywords $args keyword }
-pass 2 see_also	{args} NOP
-pass 2 keywords	{args} NOP
+c_pass 1 fmt_see_also	{args} { holdWrapped see_also  $args ref }
+c_pass 1 fmt_keywords {args} { holdWrapped keywords $args keyword }
+c_pass 2 fmt_see_also	{args} NOP
+c_pass 2 fmt_keywords	{args} NOP
 
 # holdWrapped --
 #	Common factor of [see_also] and [keywords].
 #
 proc holdWrapped {buffer arglist gi} {
-    foreach arg $arglist { hold $buffer [wrap $arg $gi] }
+    foreach arg $arglist { c_hold $buffer [wrap $arg $gi] }
     return
 }
 
-pass 1 manpage_end {} NOP
-pass 2 manpage_end {} {
+c_pass 1 fmt_manpage_end {} NOP
+c_pass 2 fmt_manpage_end {} {
     sequence \
 	[xmlContext manpage] \
-	[wrapLines? [held see_also] seealso] \
-	[wrapLines? [held keywords] keywords] \
+	[wrapLines? [c_held see_also] seealso] \
+	[wrapLines? [c_held keywords] keywords] \
 	[end manpage] \
 	;
 }

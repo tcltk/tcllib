@@ -1,3 +1,7 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* control.man: More semantic markup, less visual one.
+
 2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* control.man: Fixed formatting errors in the doctools manpage.

@@ -1,64 +1,30 @@
 # -*- tcl -*-
-# rules/manpage.api
 #
-# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+# -- Null format
+#
+# Copyright (c) 2001-2002 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003      Andreas Kupries <andreas_kupries@sourceforge.net>
 
-# Defines the procedures a manpage rules file has to support for good
-# manpages. The procedures here return nothing.
+# This is a null format which does return no output at all.
 
 ################################################################
 
-proc manpage_begin {title section version} {return ""}
-proc moddesc     {desc}             {return ""}
-proc titledesc   {desc}             {return ""}
-proc manpage_end {}                 {return ""}
-proc require     {pkg {version {}}} {return ""}
-proc description {}                 {return ""}
-proc section     {name}             {return ""}
-proc para        {}                 {return ""}
-proc list_begin  {what {hint {}}}   {return ""}
-proc list_end    {}                 {return ""}
-proc lst_item    {{text {}}}        {return ""}
-proc call        {cmd args}         {return ""}
-proc usage       {cmd args}         {return ""}
-proc bullet      {}                 {return ""}
-proc enum        {}                 {return ""}
-proc arg_def      {type name {mode {}}} {return ""}
-proc cmd_def      {command}             {return ""}
-proc opt_def      {name {arg {}}}       {return ""}
-proc tkoption_def {name dbname dbclass} {return ""}
-proc see_also    {args}             {return ""}
-proc keywords    {args}             {return ""}
-proc example     {code}             {return ""}
-proc example_begin {}               {return ""}
-proc example_end {}                 {return ""}
-proc nl          {}                 {return ""}
-proc arg         {text}             {return ""}
-proc cmd         {text}             {return ""}
-proc opt         {text}             {return ""}
-proc emph        {text}             {return ""}
-proc strong      {text}             {return ""}
-proc comment     {text}             {return ""}
-proc sectref     {text}             {return ""}
-proc syscmd      {text}             {return ""}
-proc method      {text}             {return ""}
-proc option      {text}             {return ""}
-proc widget      {text}             {return ""}
-proc fun         {text}             {return ""}
-proc type        {text}             {return ""}
-proc package     {text}             {return ""}
-proc class       {text}             {return ""}
-proc var         {text}             {return ""}
-proc file        {text}             {return ""}
-proc uri         {text}             {return ""}
-proc term        {text}             {return ""}
-proc const       {text}             {return ""}
+proc fmt_initialize  {}     {return}
+proc fmt_shutdown    {}     {return}
+proc fmt_numpasses   {}     {return 1}
+proc fmt_postprocess {text} {return ""}
+proc fmt_plain_text  {text} {return ""}
+proc fmt_setup       {n}    {return}
 
-
-proc PostProcess {expansion} {return ""}
-proc HandleText  {text} {return ""}
-proc NumPasses   {} {return 1}
-proc PassSetup   {} {}
-
+foreach p {
+    manpage_begin moddesc titledesc manpage_end require description
+    section para list_begin list_end lst_item call usage bullet enum
+    arg_def cmd_def opt_def tkoption_def see_also keywords example
+    example_begin example_end nl arg cmd opt emph comment
+    sectref syscmd method option widget fun type package class var
+    file uri term const copyright
+} {
+    proc $p {args} {return ""}
+}
 
 ################################################################

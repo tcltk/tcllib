@@ -1,4 +1,5 @@
 [manpage_begin dns n 1.0.1]
+[copyright {2002, Pat Thoyts}]
 [moddesc   {dns}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
@@ -22,7 +23,7 @@ command can handle DNS URIs or simple domain names as a query.
 
 [para]
 
-[strong Note:] This package uses TCP to query DNS servers as the tcl
+[emph Note:] This package uses TCP to query DNS servers as the tcl
 core does not implement UDP networking. This means that this module
 will not work if DNS over TCP is blocked by a firewall, or not
 accepted by the chosen nameserver.
@@ -34,7 +35,7 @@ accepted by the chosen nameserver.
 
 [call [cmd ::dns::resolve] [arg query] [opt [arg "options"]]]
 
-Resolve a domain name using the [strong DNS] protocol. [arg query] is
+Resolve a domain name using the [term DNS] protocol. [arg query] is
 the domain name to be lookup up. This should be either a fully
 qualified domain name or a DNS URI.
 

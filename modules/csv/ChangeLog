@@ -1,3 +1,7 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.man: More semantic markup, less visual one.
+
 2002-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.tcl (csv::split): Fixed bug #565051, found by Tod A. olson

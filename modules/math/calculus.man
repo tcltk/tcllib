@@ -260,10 +260,10 @@ Relative precision (defaults to 0.001)
 [list_end]
 [para]
 
-[strong Notes:]
+[emph Notes:]
 [para]
-Several of the above procedures take the [strong names] of procedures as
-arguments. To avoid problems with the [strong visibility] of these
+Several of the above procedures take the [emph names] of procedures as
+arguments. To avoid problems with the [emph visibility] of these
 procedures, the fully-qualified name of these procedures is determined
 inside the calculus routines. For the user this has only one
 consequence: the named procedure must be visible in the calling

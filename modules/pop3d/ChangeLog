@@ -1,3 +1,9 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.man: More semantic markup, less visual one.
+	* pop3d_dbox.man:
+	* pop3d_udb.man: 
+
 2002-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.tcl (Transfer): Use a single dot to write the

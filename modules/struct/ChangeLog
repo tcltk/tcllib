@@ -1,3 +1,11 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.man: More semantic markup, less visual one.
+	* matrix.man:
+	* pool.man:
+	* record.man:
+	* tree.man:
+
 2002-11-06  Brett Schwarz  <schwarzkopf@users.sourceforge.net>
 
         * record.tcl: cleaned up code based on output from frink

@@ -355,7 +355,6 @@ proc ::textutil::expander::Op_errmode {name {newErrmode ""}} {
 
 proc ::textutil::expander::Op_evalcmd {name {newEvalCmd ""}} {
     if {[string length $newEvalCmd] != 0} {
-
         Set evalcmd $newEvalCmd
     }
     return [Get evalcmd]

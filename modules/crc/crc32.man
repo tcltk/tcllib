@@ -10,7 +10,7 @@ This package provides a Tcl-only implementation of the CRC-32
 algorithm based upon information provided at
 http://www.naaccr.org/standard/crc32/document.html
 
-If the [strong Trf] package is available then the [cmd crc-zlib]
+If the [package Trf] package is available then the [cmd crc-zlib]
 command is used to perform the calculation.
 
 [section COMMANDS]
@@ -49,7 +49,7 @@ calculating the CRC of the next member.
 
 [nl]
 
-Note that as the [strong Trf] command [cmd crc-zlib] cannot accept a
+Note that as the [package Trf] command [cmd crc-zlib] cannot accept a
 seed value, use of this option will force the use of the Tcl only
 implementation.
 
@@ -57,7 +57,7 @@ implementation.
 
 This hook is provided to allow users to provide their own
 implementation (perhaps a C compiled extension) or to explicitly
-request use of the Tcl only implementation when [strong Trf] is
+request use of the Tcl only implementation when [package Trf] is
 installed (by setting [arg "-implementation crc::Crc32_tcl"]. The
 procedure specfied is called with two parameters. The first is the
 data to be checksummed and the second is the seed value. A 32bit

@@ -1,3 +1,7 @@
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* profiler.man: More semantic markup, less visual one.
+
 2002-10-14  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* profiler.tcl (dump): required result initialization. [Bug #564767]

@@ -1,3 +1,12 @@
+2003-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust_hyph.test: Rewrote the file into a proper testsuite.
+
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.man: More semantic markup, less visual one.
+	* textutil.man:
+
 2003-01-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* textutil.tcl: Changed patchlevel in provide to match the
