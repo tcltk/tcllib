@@ -145,12 +145,16 @@ proc enum {} {return <li>}
 proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
 proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
 
-proc nl     {}     {return <br>}
-proc arg    {text} {return <i>$text</i>}
-proc cmd    {text} {return <b>$text</b>}
-proc emph   {text} {return <i>$text</i>}
-proc strong {text} {return <b>$text</b>}
-proc opt    {text} {return ?$text?}
+proc example_begin {} { return "<pre class='sample'>" }
+proc example_end   {} { return "</pre>" }
+proc example {code} { return "<pre class='sample'>[HandleText $code]</pre>" }
+
+proc nl     {}     {return "<br>" }
+proc arg    {text} {return "<i class='arg'>$text</i>" }
+proc cmd    {text} {return "<b class='cmd'>$text</b>" }
+proc emph   {text} {return "<em>$text</em>" }
+proc strong {text} {return "<strong>$text</strong>" }
+proc opt    {text} {return "?$text?" }
 
 ################################################################
 # HTML specific commands

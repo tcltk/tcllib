@@ -208,6 +208,10 @@ proc lst_item {text} {
 proc see_also {args} {return "[section {SEE ALSO}]\n[join $args ", "]"}
 proc keywords {args} {return "[section KEYWORDS]\n[join $args ", "]"}
 
+proc example_begin {} { return {\begin{verbatim}} }
+proc example_end   {} { return {\end{verbatim}} }
+proc example {code} { return "\\begin{verbatim}\n${code}\n\\end{verbatim}\n" }
+
 proc nl     {}     {return}
 proc arg    {text} {return [Underline $text]}
 proc cmd    {text} {return [Bold      $text]}
