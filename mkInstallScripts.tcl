@@ -43,8 +43,11 @@ puts $f "for j in $modules ; do \\"
 puts $f "    if \[ ! -d \$TCLINSTALL/lib/$package$version/\$j \] ; then \\"
 puts $f "        mkdir \$TCLINSTALL/lib/$package$version/\$j ; \\"
 puts $f "    fi; \\"
-puts $f "    cp -f \$j/*.tcl \$TCLINSTALL/lib/$package$version/\$j ; \\"
-puts $f "    cp -f \$j/*.n   \$TCLINSTALL/man/mann ; \\"
+puts $f "    cp -f \$j/*.tcl    \$TCLINSTALL/lib/$package$version/\$j ; \\"
+puts $f "    if \[ -f \$j/tclIndex \] ; then \\"
+puts $f "        cp -f \$j/tclIndex \$TCLINSTALL/lib/$package$version/\$j ; \\"
+puts $f "    fi ; \\"
+puts $f "    cp -f \$j/*.n      \$TCLINSTALL/man/mann ; \\"
 puts $f "done"
 close $f
 file attributes $installFile -permissions 0755
