@@ -1,4 +1,12 @@
-# rswitch.tcl - Copyright (C) 2001 Don Porter <dgp@users.sourceforge.net>
+# rswitch.tcl - 
+#	Originally written: 	2001 Nov 2
+#	Original author:	Don Porter <dgp@users.sourceforge.net>
+#
+#	This software was developed at the National Institute of Standards
+#	and Technology by employees of the Federal Government in the course
+#	of their official duties. Pursuant to title 17 Section 105 of the
+#	United States Code this software is not subject to copyright
+#	protection and is in the public domain. 
 #
 #       The [rswitch] command of the package "control".
 #       See TIP 70 for a description.
@@ -29,7 +37,7 @@
 #
 # -------------------------------------------------------------------------
 #
-# RCS: @(#) $Id: rswitch.tcl,v 1.1 2001/11/03 01:11:28 patthoyts Exp $
+# RCS: @(#) $Id: rswitch.tcl,v 1.2 2001/11/03 04:10:42 dgp Exp $
 
 namespace eval ::control {
 
