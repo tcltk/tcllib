@@ -1,3 +1,9 @@
+2005-02-18  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.test : Added tests for the clean callstack (14.x)
+	  to satisfy RFE 1120152. logger should not appear in the
+	  callstacks of the logprocs from now on.
+	  
 2005-02-09  Michael Schlenker <mic42@users.sourceforge.net>
 	* logger.tcl : Added fix for sideeffect of bugfix [1102131].
 	  The callstack for a logproc now looks nice again.
