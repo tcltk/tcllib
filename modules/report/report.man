@@ -332,8 +332,7 @@ both sides of a [arg column]. If the [arg padstring] is not specified
 it defaults to a single space character. [strong Note]: An alternative
 way of specifying the padding is to use vertical separator strings
 longer than one character in the templates (See section
-
-[sectref BTEMPLATES]).
+[sectref TEMPLATES]).
 
 [nl]
 
