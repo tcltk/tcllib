@@ -14,13 +14,14 @@ communication.
 
 [list_begin definitions]
 
-[call [cmd ::irc::connection] [arg hostname]]
+[call [cmd ::irc::connection]]
 
 The command creates a new object to deal with an IRC connection.
 Creating this IRC object does not automatically create the network
 connection.  It returns a new irc namespace command which can be used
-to interact with the new IRC connection.
-
+to interact with the new IRC connection.  NOTE: the old form of the
+connection command, which took a hostname and port as arguments, is
+deprecated.  Use [cmd connect] instead to specify this information.
 
 [call [cmd ::irc::config] [arg key] [arg value]]
 
@@ -66,12 +67,13 @@ empty string is returned.
 Returns a boolean value indicating the existance of the event handler.
 
 
-[call [arg net] [method connect]]
+[call [arg net] [method connect] [arg hostname] [opt port]]
 
 This causes the socket to be established.  [cmd ::irc::connection]
 created the namespace and the commands to be used, but did not
-actually open the socket. This is done here.
-
+actually open the socket. This is done here.  NOTE: the older form of
+'connect' did not require the user to specify a hostname and port,
+which were specified with 'connection'.  That form is deprecated.
 
 [call [arg net] [method user] [arg username] [arg localhostname] [arg localdomainname] [arg userinfo]]
 
