@@ -1,3 +1,12 @@
+2003-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.man:  New files, extended list manipulation
+	* list.tcl:  facilities. Started out with Kevin Kenny's
+	* list.test: implementation of the algorithm to find the longest
+	             common subsequence of two sequences, aka lists.
+		     Added myself a method to invert a LCS into a
+		     description of differences instead.
+
 2003-04-01  Andreas Kupries  <andreask@activestate.com>
 
 	* record.test: Applied changes provided by Brett Schwarz
