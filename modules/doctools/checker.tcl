@@ -101,7 +101,7 @@ proc Error {code {text {}}} {
     set cmd  [lindex [info level 1] 0]
     set args [lrange [info level 1] 1 end]
     if {$args != {}} {append cmd " [join $args]"}
-    
+
     # Use a message catalog to map the error code into a legible message.
     set msg [::msgcat::mc $code]
 
@@ -127,8 +127,8 @@ proc LPush {l} {
 }
 proc LPop {} {
     global lstctx lstitem
-    set lstitem [lindex $lstctx 1]
-    set lstctx  [lrange $lstctx 2 end]
+    set    lstitem [lindex $lstctx 1]
+    set    lstctx  [lrange $lstctx 2 end]
     return
 }
 proc LSItem {} {global lstitem ; set lstitem 1}
@@ -185,6 +185,29 @@ proc plain_text {text} {
     if {[LOpen] && ![LItem]} {Error nolisttxt}
     return [fmt_plain_text $text]
 }
+
+# -------------------------------------------------------------
+# Variable handling ...
+
+proc vset {var args} {
+    switch -exact -- [llength $args] {
+	0 {
+	    # Retrieve contents of variable VAR
+	    upvar #0 __$var data
+	    return $data
+	}
+	1 {
+	    # Set contents of variable VAR
+	    global __$var
+	    set    __$var [lindex $args 0]
+	    return ; # Empty string ! Nothing for output.
+	}
+	default {
+	    return -code error "wrong#args: set var ?value?"
+	}
+    }
+}
+
 # -------------------------------------------------------------
 # Formatting commands
 proc manpage_begin {title section version} {
