@@ -15,7 +15,7 @@ exec tclsh "$0" ${1+"$@"}
 
 set modules [file dirname $testdir]
 set popd    [file join $modules pop3d]
-set logfile [file join $tmpdir $logfile]
+##set logfile [file join $tmpdir $logfile]
 set log     [open $logfile w]
 
 fconfigure $log -buffering none
@@ -26,7 +26,9 @@ fconfigure stdin -blocking 0
 proc done {} {
     gets stdin
     if {[eof stdin]} {
+	global dboxdir
 	log "shutdown through caller"
+	catch {file delete -force $dboxdir}
 	exit
     }
 }
@@ -86,4 +88,5 @@ log "server up at $port"
 
 vwait forever
 log "reached infinity"
+catch {file delete -force $dboxdir}
 exit
