@@ -1,3 +1,9 @@
+2003-08-19  David N. Welton  <davidw@dedasys.com>
+
+	* cmdline.man: Added an example.  Feel free to change/improve it,
+	but this package really needed one to show the standard usage
+	pattern.
+
 2003-08-07  Andreas Kupries  <andreask@activestate.com>
 
 	* Bumped version information to 1.2.2 for the bugfix.
