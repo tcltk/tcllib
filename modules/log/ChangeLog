@@ -1,5 +1,8 @@
 2003-06-25  David N. Welton  <davidw@dedasys.com>
 
+	* log.man: Fixed spelling bug (Supress -> Suppress), thanks to
+	Aaron Faupell.
+
 	* logger.man: Updated documentation example - destroy should have
 	been delete.  Thanks to Aaron Faupell.
 
