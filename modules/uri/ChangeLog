@@ -1,3 +1,7 @@
+2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri-rfc2396.test: Added constraint 'knownBug' to these tests.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* uri.test:
