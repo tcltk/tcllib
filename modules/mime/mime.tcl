@@ -3167,8 +3167,7 @@ proc ::mime::parsedatetime {value property} {
         }
 
         zone {
-            regsub -all -- "\t" $value " " value
-            set value [string trim $value]
+	    set value [string trim [string map [list "\t" " "] $value]]
             if {[set x [string last " " $value]] < 0} {
                 return 0
             }
