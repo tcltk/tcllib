@@ -1,0 +1,6 @@
+2001-11-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl: Tcl SMTP server package.
+	* smtpd.n: Manual page for the Tcl SMTP server.
+	* example.tcl: Simple demo of server use and authentication.
+
