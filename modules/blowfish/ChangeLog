@@ -1,0 +1,8 @@
+2004-12-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.tcl:  Imported Frank Pilhofer's pure-Tcl implementation
+	* blowfish.test: from the Tcler's wiki. Modified to remove the
+	Itcl code and to conform to the tcllib programming standards and
+	conventions. Test file includes standard test vectors.
+	
+
