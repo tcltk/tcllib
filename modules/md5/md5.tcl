@@ -449,5 +449,5 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
     }
 }
 
-package provide md5 1.4.2
+package provide md5 1.4.3
 
