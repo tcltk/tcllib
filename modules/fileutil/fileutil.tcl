@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.30 2003/10/23 12:37:26 davidw Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.31 2003/11/15 00:23:46 davidw Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -429,26 +429,28 @@ proc ::fileutil::stripN {path n} {
 #	of the specified file.
 #
 # Arguments:
-#	filename	name of the file to read.
+#	args	name of the files to read.
 #
 # Results:
 #	data		data read from the file.
 
-proc ::fileutil::cat {filename} {
-    # Don't bother catching errors, just let them propagate up
-    set fd [open $filename r]
-    # Use the [file size] command to get the size, which preallocates memory,
-    # rather than trying to grow it as the read progresses.
-    set size [file size $filename]
-    if {$size} {
-        set data [read $fd $size]
-    } else {
-        # if the file has zero bytes it is either empty, or something 
-        # where [file size] reports 0 but the file actually has data (like
-        # the files in the /proc filesystem on Linux)
-        set data [read $fd]
+proc ::fileutil::cat {args} {
+    foreach filename $args {
+	# Don't bother catching errors, just let them propagate up
+	set fd [open $filename r]
+	# Use the [file size] command to get the size, which preallocates memory,
+	# rather than trying to grow it as the read progresses.
+	set size [file size $filename]
+	if {$size} {
+	    append data [read $fd $size]
+	} else {
+	    # if the file has zero bytes it is either empty, or something 
+	    # where [file size] reports 0 but the file actually has data (like
+	    # the files in the /proc filesystem on Linux)
+	    append data [read $fd]
+	}
+	close $fd
     }
-    close $fd
     return $data
 }
 
@@ -764,8 +766,8 @@ proc ::fileutil::fileType {filename} {
 #       4. A platform-specific location:
 #            * On Macintosh, the `Temporary Items' folder.
 #
-#            * On Windows, the directories `C:$\$TEMP', `C:$\$TMP',
-#              `$\$TEMP', and `$\$TMP', in that order.
+#            * On Windows, the directories `C:\\TEMP', `C:\\TMP',
+#              `\\TEMP', and `\\TMP', in that order.
 #
 #            * On all other platforms, the directories `/tmp',
 #              `/var/tmp', and `/usr/tmp', in that order.
