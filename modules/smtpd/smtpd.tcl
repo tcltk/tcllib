@@ -16,8 +16,8 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.12 2004/01/15 06:36:14 andreas_kupries Exp $}
-    variable version 1.2.1
+    variable rcsid {$Id: smtpd.tcl,v 1.12.2.1 2004/06/18 04:43:09 andreas_kupries Exp $}
+    variable version 1.2.2
     variable stopped
 
     namespace export start stop
@@ -346,18 +346,14 @@ proc ::smtpd::uid {} {
 #
 proc ::smtpd::gmtoffset {} {
     set now [clock seconds]
-    set lh [string trimleft [clock format $now -format "%H" -gmt false] 0]
-    set zh [string trimleft [clock format $now -format "%H" -gmt true] 0]
-    if {$lh == "" || $zh == ""} {
-        set off 0
-    } else {
-        set off [expr {$zh - $lh}]
-    }
-    if {$off > 0} {
-        set off [format "+%02d00" $off]
-    } else {
-        set off [format "-%02d00" [expr {abs($off)}]]
-    }
+    set local [clock format $now -format "%j %H" -gmt false]
+    set zulu  [clock format $now -format "%j %H" -gmt true]
+    set lh [expr {([scan [lindex $local 0] %d] * 24) \
+                      + [scan [lindex $local 1] %d]}]
+    set zh [expr {([scan [lindex $zulu 0] %d] * 24) \
+                      + [scan [lindex $zulu 1] %d]}]
+    set off [expr {$lh - $zh}]
+    set off [format "%+03d00" $off]
     return $off
 }
 
@@ -477,9 +473,8 @@ proc ::smtpd::HELO {channel line} {
         log::log debug "HELO received \"$line\""
         return
     }
-    Puts $channel "250-$options(serveraddr) Hello $domain\
+    Puts $channel "250 $options(serveraddr) Hello $domain\
                      \[[state $channel client_addr]\], pleased to meet you"
-    Puts $channel "250 Ready for mail."
     state $channel domain $domain
     log::log debug "HELO on $channel from $domain"
     return
