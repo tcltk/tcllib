@@ -1,3 +1,7 @@
+2000-03-06  Scott Redman  <redman@scriptics.com>
+
+	* Makefile.in:  added pop3 module.
+
 2000-03-02  Eric Melski  <ericm@scriptics.com>
 
 	* mkIndex.tcl.in: Instead of probing install dir for modules, changed to

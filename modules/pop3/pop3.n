@@ -1,0 +1,109 @@
+'\"
+'\" Copyright (c) 2000 by Scriptics Corporation.
+'\" All rights reserved.
+'\" 
+'\" RCS: @(#) $Id: pop3.n,v 1.1 2000/03/06 18:57:55 redman Exp $
+'\" 
+.so man.macros
+.TH pop3 n 1.0 pop3 "Tcl POP3 Client Library"
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+pop3 \- Tcl client for POP3 email protocol
+.SH SYNOPSIS
+\fBpackage require pop3 ?1.0?\fR
+.sp
+\fB::pop3::open\fR \fIhost user Ipassword \fR?\fIport\fR? 
+.sp
+\fB::pop3::status\fR \fIchan\fR
+.sp
+\fB::pop3::last\fR \fIchan\fR
+.sp
+\fB::pop3::retrieve\fR \fIchan startIndex \fR?\fIendIndex\fR?
+.sp
+\fB::pop3::delete\fR \fIchan startIndex \fR?\fIendIndex\fR?
+.sp
+\fB::pop3::close\fR \fIchan\fR
+.sp
+.BE
+.SH DESCRIPTION
+.PP
+The \fBpop3\fR package provides a simple Tcl-only client library for
+the POP3 email protocol.  It works by opening the standard POP3 socket
+on the server, transmitting the username and password, then providing
+a Tcl API to access the POP3 protocol commmands.  All server errors
+are returned as Tcl errors (thrown) which must be caught with the Tcl
+\fBcatch\fR command.
+.SH COMMANDS
+.TP
+\fB::pop3::open\fR \fIhost username password \fR?\fIport\fR?
+Open a socket connection to the server specified by \fIhost\fR,
+transmit the \fIusername\fR and \fIpassword\fR as login information to
+the server.  The default port number is 110, which can be overridden
+using the optional \fIport\fR argument.  The return value is a channel
+used by all of the other ::pop3 functions.
+.TP
+\fB::pop3::status\fR \fIchan\fR
+Query the server for the status of the mail spool.  The status is
+returned as a list containing two elements, the first is the number of
+email messages on the server and the second is the size (in octets, 8
+byte blocks) of the entire mail spool.
+.TP
+\fB::pop3::last\fR \fIchan\fR
+Query the server for the last email message read from the spool.  This
+value includes all messages read from all clients connecting to the
+login account.  This command may not be supported by the email
+server, in which case the server may return 0 or an error.
+.TP
+\fB::pop3::retrieve\fR \fIchan startIndex \fR?\fIendIndex\fR
+Retrieve a range of messages from the server.  If the \fIendIndex\fR
+is not specified, only one message will be retrieved.  The return
+value is a list containing each message as a separate element.  See
+the \fIstartIndex\fR and \fIendIndex\fR descriptions below.
+.TP
+\fB::pop3::delete\fR \fIchan startIndex \fR?\fIendIndex\fR
+Delete a range of messages from the server.  If the \fIendIndex\fR is
+not specified, only one message will be deleted.  Note, the indices
+are not reordered on the server, so if you delete message 1, then the
+first message in the queue is message 2 (message index 1 is no longer
+valid).  See the \fIstartIndex\fR and \fIendIndex\fR descriptions below.
+.TP
+\fIstartIndex\fR
+The \fIstartIndex\fR may be an index of a specific message starting
+with the index 1, or it have any of the following values:
+.RS
+.TP
+\fBstart\fR
+This is a logical value for the first message in the spool, equivalent
+to the value 1.
+.TP
+\fBnext\fR
+The message immediately following the last message read, see
+\fB::pop3::last\fR. 
+.TP
+\fBend\fR
+The most recent message in the spool (the end of the spool).  This is
+useful to retrieve only the most recent message.
+.RE
+.TP
+\fIendIndex\fR
+The \fIendIndex\fR is an optional parameter and defaults to the value -1,
+which indicates to only retrieve the one message specified by
+\fIstartIndex\fR.  If specified, it may be an index of a specific
+message starting with the index 1, or it have any of the following
+values:
+.RS
+.TP
+\fBlast\fR
+The message is the last message read by a POP3 client, see
+\fB::pop3::last\fR.
+.TP
+\fBend\fR
+The most recent message in the spool (the end of the spool).
+.RE
+.TP
+\fB::pop3::close\fR \fIchan\fR
+Gracefully close the connect after sending a POP3 QUIT command down
+the socket.
+.SH KEYWORDS
+mail, email, pop, pop3

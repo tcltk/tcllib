@@ -1,0 +1,8 @@
+2000-03-06  Scott Redman  <redman@scriptics.com>
+
+	* ChangeLog:
+	* man.macros:
+	* pkgIndex.tcl:
+	* pop3.n:
+	* pop3.tcl:  New POP3 email client API, inspired by Scott
+	Beasley's "frenchie" email client program.  
