@@ -103,13 +103,6 @@ instance of this type, and optionally its initial value.  This
 definition can be used to define array instance variables, but cannot
 initialize their elements.
 
-[nl]
-
-Note that the [cmd delegate] statement implicitly defines an instance
-variable for the named component.  TBD: Fix this statement when the 
-[cmd component] command is defined.
-
-
 [call [cmd method] [arg name] [arg arglist] [arg body]]
 
 Defines an instance method, a subcommand of each instance of this
@@ -373,6 +366,40 @@ the [method configure] and [method cget] instance methods.
 
 Note that an option cannot be both locally defined and delegated.
 
+[call [cmd component] [arg comp] \
+     [opt "[const -public] [arg method]"] \
+     [opt "[const -inherit] [arg flag]"]]
+
+Explicitly declares a component called [arg comp], and automatically
+defines the component's instance variable.  
+
+[nl]
+
+If the [const -public] option is specified, then the option is made
+public by defining a [arg method] that is delegated to the component's
+command itself, e.g., specifying [const -public] is equivalent to the
+following:
+
+[example {    # TBD: This example uses the delegation syntax,
+    # which isn't yet implemented.
+    component mycomp
+    delegate method mymethod -to mycomp -pattern "%c"
+}]
+
+If the [const -inherit] option is specified, then [arg flag] must be a
+Boolean value; if [arg flag] is true then all unknown methods and
+options will be delegated to this component.  The name [const -inherit]
+implies that instances of this new type inherit, in a sense, the
+methods and options of the component. That is, [const "-inherit yes"] is
+equivalent to:
+
+[example {    # TBD: This example uses the delegation syntax,
+    # which isn't yet implemented.
+    component mycomp
+    delegate option * -to mycomp
+    delegate method * -to mycomp
+}]
+
 [call [cmd expose] [arg comp]]
 [call [cmd expose] [arg comp] [const as] [arg method]]
 
@@ -381,21 +408,8 @@ Note that an option cannot be both locally defined and delegated.
     there's no good way to do it, so I'm using "const".
 }]
 
-[const Deprecated.]
-
-Exposes component [arg comp] as a method of the type.  In the first
-form, the method name is [arg comp]; in the second form, the method
-name is [arg method].
-
-[nl]
-
-This differs from delegation in that it maps an instance method to the
-component itself instead of to one of the component's methods.
-
-[nl]
-
-Calling the new instance method is just like calling the component
-directly.
+[const Deprecated.]  To expose component [arg comp] publicly, use
+[cmd component]'s [const -public] option.
 
 [list_end]
 

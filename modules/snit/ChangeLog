@@ -1,3 +1,9 @@
+2004-06-26  Will Duquette  <will@cordelia.local>
+
+	* snit.tcl	Added the "component" statement, with two options, 
+	* snit.test     -public and -inherit.  Added all relevant tests.
+	* snit.man      Updated the man page to describe it.
+
 2004-05-30  Will Duquette  <will@wjduquette.com>
 
 	* snit.man      Updated per 0.94 changes to date; also I made a

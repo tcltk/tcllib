@@ -949,7 +949,7 @@ namespace eval ::snit:: {
             if {[catch {set %TYPE%::Snit_typeMethodCache($method)} command]} {
                 set command [%TYPE%::Snit_typeCacheLookup $method]
 
-                if {[llength $command] eq 0} {
+                if {[llength $command] == 0} {
                     if {[set %TYPE%::Snit_isWidget] && 
                         ![string match ".*" $method]} {
                         return -code error  "\"%TYPE% $method\" is not defined"
@@ -1238,6 +1238,7 @@ proc ::snit::Init.Compiler {} {
         $compiler alias typevariable    ::snit::Type.Typevariable
         $compiler alias variable        ::snit::Type.Variable
         $compiler alias delegate        ::snit::Type.Delegate
+        $compiler alias component       ::snit::Type.Component
         $compiler alias expose          ::snit::Type.Expose
 
         # Get the list of reserved words
@@ -1763,6 +1764,68 @@ proc ::snit::DelegatedOption {optionDef component target exceptions} {
         } %EXCEPT% [list $exceptions]
     }
 } 
+
+# Defines a component, and handles component options.
+#
+# component     The logical name of the delegate
+# args          options.
+#
+# TBD: Ideally, it should be possible to call this statement multiple
+# times, possibly changing the option values.  To do that, I'd need
+# to cache the option values and not act on them until *after* I'd
+# read the entire type definition.
+
+proc ::snit::Type.Component {component args} {
+    variable compile
+
+    # FIRST, define the component
+    DefineComponent $component
+
+    # NEXT, handle the options.
+    set publicMethod ""
+    set inheritFlag 0
+
+    foreach {opt val} $args {
+        switch -exact -- $opt {
+            -public {
+                set publicMethod $val
+            }
+            -inherit {
+                set inheritFlag $val
+                if {![string is boolean $inheritFlag]} {
+    error "component $component -inherit: expected boolean value, got '$val'."
+                }
+            }
+            default {
+                error "component $component: Invalid option '$opt'"
+            }
+        }
+    }
+
+    # NEXT, if -public specified, define the method.  
+    if {$publicMethod ne ""} {
+        # TBD: For now, define a normal method; once the new delegate
+        # syntax is in place, just delegate it.
+
+        Type.Method $publicMethod args [Expand {
+            if {[string equal $%COMPONENT% ""]} {
+                error "undefined component '%COMPONENT%'"
+            }
+
+            set cmd [linsert $args 0 $%COMPONENT%]
+            return [uplevel 1 $cmd]
+        } %COMPONENT% $component]
+    }
+
+    # NEXT, if -inherit is specified, delegate method/option * to 
+    # this component.
+    if {$inheritFlag} {
+        # TBD: When new delegation syntax is in place, use it.
+        Type.Delegate method "*" to $component
+        Type.Delegate option "*" to $component
+    }
+}
+
 
 # Exposes a component, effectively making the component's command an
 # instance method.
