@@ -4871,8 +4871,8 @@ test iinfo-7.1 {info typemethods, simple case} {
 
     dog spot
 
-    spot info typemethods
-} {info create destroy}
+    lsort [spot info typemethods]
+} {create destroy info}
 
 test iinfo-7.2 {info typemethods, with pattern} {
     cleanup
@@ -4894,8 +4894,8 @@ test iinfo-7.3 {info typemethods, with explicit typemethods} {
 
     dog spot
 
-    spot info typemethods
-} {foo info create bar destroy}
+    lsort [spot info typemethods]
+} {bar create destroy foo info}
 
 test iinfo-7.4 {info typemethods, with implicit typemethods} {
     cleanup
@@ -4910,17 +4910,17 @@ test iinfo-7.4 {info typemethods, with implicit typemethods} {
 
     dog create spot
 
-    set a [spot info typemethods]
+    set a [lsort [spot info typemethods]]
 
     dog length foo
     dog is boolean yes
 
-    set b [spot info typemethods]
+    set b [lsort [spot info typemethods]]
 
     set c [spot info typemethods len*]
 
     list $a $b $c
-} {{info create destroy} {info create destroy is length} length}
+} {{create destroy info} {create destroy info is length} length}
 
 test iinfo-7.5 {info typemethods, with hierarchical typemethods} {
     cleanup
@@ -4933,8 +4933,8 @@ test iinfo-7.5 {info typemethods, with hierarchical typemethods} {
 
     dog create spot
 
-    spot info typemethods
-} {{comp bar} info create destroy {comp foo}}
+    lsort [spot info typemethods]
+} {{comp bar} {comp foo} create destroy info}
 
 
 test iinfo-8.1 {info methods, simple case} {
@@ -4944,8 +4944,8 @@ test iinfo-8.1 {info methods, simple case} {
 
     dog spot
 
-    spot info methods
-} {info destroy}
+    lsort [spot info methods]
+} {destroy info}
 
 test iinfo-8.2 {info methods, with pattern} {
     cleanup
@@ -4967,8 +4967,8 @@ test iinfo-8.3 {info methods, with explicit methods} {
 
     dog spot
 
-    spot info methods 
-} {foo info bar destroy}
+    lsort [spot info methods]
+} {bar destroy foo info}
 
 test iinfo-8.4 {info methods, with implicit methods} {
     cleanup
@@ -4983,17 +4983,17 @@ test iinfo-8.4 {info methods, with implicit methods} {
 
     dog create spot
 
-    set a [spot info methods]
+    set a [lsort [spot info methods]]
 
     spot length foo
     spot is boolean yes
 
-    set b [spot info methods]
+    set b [lsort [spot info methods]]
 
     set c [spot info methods len*]
 
     list $a $b $c
-} {{info destroy} {info destroy is length} length}
+} {{destroy info} {destroy info is length} length}
 
 test iinfo-8.5 {info methods, with hierarchical methods} {
     cleanup
@@ -5006,8 +5006,8 @@ test iinfo-8.5 {info methods, with hierarchical methods} {
 
     dog create spot
 
-    spot info methods
-} {{comp bar} info destroy {comp foo}}
+    lsort [spot info methods]
+} {{comp bar} {comp foo} destroy info}
 
 
 #-----------------------------------------------------------------------
@@ -5123,8 +5123,8 @@ test tinfo-5.1 {type info typemethods, simple case} {
 
     type dog { }
 
-    dog info typemethods
-} {info create destroy}
+    lsort [dog info typemethods]
+} {create destroy info}
 
 test tinfo-5.2 {type info typemethods, with pattern} {
     cleanup
@@ -5142,8 +5142,8 @@ test tinfo-5.3 {type info typemethods, with explicit typemethods} {
         delegate typemethod bar to comp
     }
 
-    dog info typemethods
-} {foo info create bar destroy}
+    lsort [dog info typemethods]
+} {bar create destroy foo info}
 
 test tinfo-5.4 {type info typemethods, with implicit typemethods} {
     cleanup
@@ -5156,17 +5156,17 @@ test tinfo-5.4 {type info typemethods, with implicit typemethods} {
         }
     }
 
-    set a [dog info typemethods]
+    set a [lsort [dog info typemethods]]
 
     dog length foo
     dog is boolean yes
 
-    set b [dog info typemethods]
+    set b [lsort [dog info typemethods]]
 
     set c [dog info typemethods len*]
 
     list $a $b $c
-} {{info create destroy} {info create destroy is length} length}
+} {{create destroy info} {create destroy info is length} length}
 
 test tinfo-5.5 {info typemethods, with hierarchical typemethods} {
     cleanup
@@ -5177,8 +5177,8 @@ test tinfo-5.5 {info typemethods, with hierarchical typemethods} {
         typemethod {comp bar} {} {}
     }
 
-    dog info typemethods
-} {{comp bar} info create destroy {comp foo}}
+    lsort [dog info typemethods]
+} {{comp bar} {comp foo} create destroy info}
 
 
 #-----------------------------------------------------------------------

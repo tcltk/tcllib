@@ -1,3 +1,10 @@
+2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit.test: Fixed the tests which were dependent on the exact
+	  order of results returned by [array names]. Which failed for Tcl
+	  8.5. Added lsort and updated expected results, for canonical
+	  comparison.
+
 2004-09-18  Will Duquette  <will@wjduquette.com>
 
 	* snit.man: 	Documented hierarchical methods and typemethods.
