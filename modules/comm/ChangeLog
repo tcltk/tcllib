@@ -1,3 +1,11 @@
+2001-11-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* comm.n: Updated to reflect the changes in the comm code
+	  (namespaces). This fixes SF item #480227.
+
+	* comm.tcl: Fixed two places where namespacing was not handled
+	  correctly.
+
 2001-08-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Integrated into tcllib.
