@@ -277,6 +277,9 @@ proc text_postprocess {text} {
 
 proc SECT {text} {
     upvar linebuffer linebuffer
+
+    # text is actually the list of arguments, having one element, the text.
+    set text [lindex $text 0]
     #puts_stderr "SECT $text"
     #puts_stderr ""
 
