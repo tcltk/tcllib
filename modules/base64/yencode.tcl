@@ -6,14 +6,14 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.8 2004/01/25 07:29:21 andreas_kupries Exp $
+# @(#)$Id: yencode.tcl,v 1.9 2004/10/03 23:06:55 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require crc32};          # tcllib 1.1
 catch {package require tcllibc};        # critcl enhancements for tcllib
 
 namespace eval ::yencode {
-    variable version 1.1
+    variable version 1.1.1
     namespace export encode decode yencode ydecode
 }
 

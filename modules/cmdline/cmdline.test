@@ -7,7 +7,7 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.9 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.10 2004/10/03 23:06:55 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -299,7 +299,7 @@ test cmdline-4.9 {cmdline::getfiles, silent no match} {
 
 test cmdline-4.10 {cmdline::getfiles, backslashes on windows} {pc} {
     runGetFilesTest {
-	set result [cmdline::getfiles {cmdlineJunk\foo*} 1]
+	set result [cmdline::getfiles {cmdlineJunk\\foo*} 1]
 	puts -nonewline [lsort $result]
     }
 } [list \

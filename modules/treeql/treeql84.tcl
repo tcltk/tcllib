@@ -61,7 +61,6 @@ snit::type ::treeql {
 		}
 	    }
 	}
-
 	return $result
     }
 

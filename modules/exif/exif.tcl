@@ -45,7 +45,7 @@
 # There's probably something here I'm using without knowing it.
 package require Tcl 8.3
 
-package provide exif 1.1.1 ; # first release
+package provide exif 1.1.2 ; # first release
 
 namespace eval ::exif {
     namespace export analyze analyzeFile fieldnames
