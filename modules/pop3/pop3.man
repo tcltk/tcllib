@@ -7,11 +7,12 @@
 [description]
 
 The [package pop3] package provides a simple Tcl-only client library
-for the POP3 email protocol (RFC1939). It works by opening the
-standard POP3 socket on the server, transmitting the username and
-password, then providing a Tcl API to access the POP3 protocol
-commands.  All server errors are returned as Tcl errors (thrown) which
-must be caught with the Tcl [cmd catch] command.
+for the POP3 email protocol as specified in
+RFC 1939 ([uri http://www.rfc-editor.org/rfc/rfc1939.txt]). It works
+by opening the standard POP3 socket on the server, transmitting the
+username and password, then providing a Tcl API to access the POP3
+protocol commands.  All server errors are returned as Tcl errors
+(thrown) which must be caught with the Tcl [cmd catch] command.
 
 [section COMMANDS]
 
@@ -177,5 +178,5 @@ the socket.
 
 [list_end]
 
-[keywords mail email pop pop3 RFC1939]
+[keywords mail email pop pop3 {rfc 1939}]
 [manpage_end]

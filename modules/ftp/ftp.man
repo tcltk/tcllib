@@ -10,8 +10,9 @@
 
 [para]
 
-The ftp package provides the client side of the ftp protocol.  The
-package implements both active (default) and passive ftp sessions.
+The ftp package provides the client side of the ftp protocol as
+specified in RFC 959 ([uri http://www.rfc-editor.org/rfc/rfc959.txt]).
+The package implements both active (default) and passive ftp sessions.
 
 [para]
 
@@ -455,5 +456,5 @@ run into persistent errors or infinite loops. The solution to this
 problem is to use [cmd {update idletasks}] instead of [cmd update].
 
 [see_also ftpd smtp pop3 mime]
-[keywords ftp rfc959 internet net]
+[keywords ftp {rfc 959} internet net]
 [manpage_end]

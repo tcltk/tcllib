@@ -13,7 +13,8 @@ management facilities. Each mailbox object manages a single base
 directory whose subdirectories represent the managed mailboxes. Mails
 in a mailbox are represented by files in a mailbox directory, where
 each of these files contains a single mail, both headers and body, in
-RFC822 conformant format.
+RFC 822 ([uri http://www.rfc-editor.org/rfc/rfc822.txt]) conformant
+format.
 
 [para]
 
@@ -155,5 +156,5 @@ that there are zero messages in the mailbox.
 
 [list_end]
 
-[keywords pop3 internet network protocol rfc1939]
+[keywords pop3 internet network protocol {rfc 822}]
 [manpage_end]

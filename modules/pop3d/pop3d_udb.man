@@ -104,5 +104,5 @@ remembered internally so that it can be used in the next call of
 
 [list_end]
 
-[keywords pop3 internet network protocol rfc1939]
+[keywords pop3 internet network protocol]
 [manpage_end]
