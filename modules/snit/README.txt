@@ -98,6 +98,9 @@ you.
 * In type and widget definitions, the "variable" and "typevariable"
   statements can now initialize arrays as well as scalars.
 
+* Added new introspection commands "$type info typemethods",
+  "$self info methods", and "$self info typemethods".
+
 * Sundry other internal changes.
 
 Changes in V0.93
