@@ -15,10 +15,6 @@ if {[catch {package require Trf  2.0}]} {
     # Trf is not available, but we can live without it as long as the
     # transform proc is defined.
 
-    # Warning!
-    # This is a fragile emulation of the more general calling sequence
-    # that appears to work with this code here.
-
     proc transform {args} {
 	upvar state mystate
 	set mystate(size) 1
@@ -42,11 +38,28 @@ if {[catch {package require Trf  2.0}]} {
 
 
 namespace eval smtp {
+    variable trf 1
     variable smtp
     array set smtp { uid 0 }
 
     namespace export sendmessage
 }
+
+if {[catch {package require Trf  2.0}]} {
+    # Trf is not available, but we can live without it as long as the
+    # transform proc is defined.
+
+    # Warning!
+    # This is a fragile emulation of the more general calling sequence
+    # that appears to work with this code here.
+
+    proc transform {args} {
+	upvar state mystate
+	set mystate(size) 1
+    }
+    set ::smtp::trf 0
+}
+
 
 # smtp::sendmessage --
 #
@@ -244,7 +257,9 @@ proc smtp::sendmessage {part args} {
         set from [join $header($fromL) ,]
         if {[lsearch -exact $lowerL $senderL] < 0 && \
                 [string compare $originator $from]} {
-            catch { unset aprops }
+            if {[info exists aprops]} {
+                unset aprops
+            }
             array set aprops [lindex [mime::parseaddress $from] 0]
             if {$aprops(error) != ""} {
                 error "error in $fromM: $aprops(error)"
@@ -293,7 +308,9 @@ proc smtp::sendmessage {part args} {
 	# Build valid bcc list and remove bcc element of header array (so that
 	# bcc info won't be sent with mail).
         foreach addr [mime::parseaddress [join $header($bccL) ,]] {
-            catch { unset aprops }
+            if {[info exists aprops]} {
+                unset aprops
+            }
             array set aprops $addr
             if {$aprops(error) != ""} {
                 error "error in $bccM: $aprops(error)"
@@ -319,7 +336,9 @@ proc smtp::sendmessage {part args} {
 
     set vrecipients ""
     foreach addr [mime::parseaddress $recipients] {
-        catch { unset aprops }
+        if {[info exists aprops]} {
+            unset aprops
+        }
         array set aprops $addr
         if {$aprops(error) != ""} {
             error "error in $who: $aprops(error)"
@@ -573,7 +592,10 @@ proc smtp::initialize {args} {
             flush stderr
         }
 
-        catch { unset state(sd) }
+        if {[info exists state(sd)]} {
+            unset state(sd)
+        }
+
         if {[set code [catch {
             set state(sd) [socket -async $server $port]
             fconfigure $state(sd) -blocking off -translation binary
@@ -855,7 +877,7 @@ proc smtp::wtext {token part} {
 
 proc smtp::wtextaux {token part} {
     global errorCode errorInfo
-
+    variable trf
     variable $token
     upvar 0 $token state
 
@@ -864,7 +886,21 @@ proc smtp::wtextaux {token part} {
     transform -attach $state(sd) -command [list smtp::wdata $token]
     fileevent $state(sd) readable [list smtp::readable $token]
 
-    set code [catch { mime::copymessage $part $state(sd) } result]
+    # If trf is not available, get the contents of the message,
+    # replace all '.'s that start their own line with '..'s, and
+    # then write the mime body out to the filehandle.
+
+    if {$trf} {
+        set code [catch { mime::copymessage $part $state(sd) } result]
+    } else {
+        set code [catch { mime::buildmessage $part } result]
+        if {$code == 0} {
+            regsub -all {\n\.} $result "\n.." result
+            set state(size) [string length $result]
+            puts -nonewline $state(sd) $result
+            set result ""
+	}
+    }
     set ecode $errorCode
     set einfo $errorInfo
 

@@ -314,8 +314,9 @@ proc mime::initializeaux {token args} {
                 set state(string) $value
             }
 
-# the following are internal options
             -root {
+                # the following are internal options
+
                 set state(root) $value
             }
 
@@ -1289,7 +1290,9 @@ proc mime::copymessageaux {token channel} {
         puts $channel ""
     }
 
-    catch { unset state(error) }
+    if {[info exists state(error)]} {
+        unset state(error)
+    }
                 
     switch -- $state(value) {
         file {
@@ -1491,10 +1494,12 @@ proc mime::buildmessageaux {token} {
 
         append result ";\n              boundary=\"$boundary\"\n"
     } else {
-        append result \n
+        append result "\n"
     }
 
-    catch { unset state(error) }
+    if {[info exists state(error)]} {
+        unset state(error)
+    }
                 
     switch -- $state(value) {
         file {
@@ -1520,7 +1525,7 @@ proc mime::buildmessageaux {token} {
                 fconfigure $fd -translation binary
             }
 
-            append result \n
+            append result "\n"
 
 	    while {($size != 0) && (![eof $fd])} {
 		if {$size < 0 || $size > 32766} {
@@ -1532,9 +1537,9 @@ proc mime::buildmessageaux {token} {
 		    set size [expr {$size - [string length $X]}]
 		}
 		if {[string compare $converter ""]} {
-		    append result [$converter -mode encode -- $X]
+		    append result "[$converter -mode encode -- $X]\n"
 		} else {
-		    append result $X
+		    append result "$X\n"
 		}
 	    }
 
@@ -1553,7 +1558,7 @@ proc mime::buildmessageaux {token} {
 
             switch -glob -- $state(content) {
                 message/* {
-                    append result \n
+                    append result "\n"
                     foreach part $state(parts) {
                         append result [mime::buildmessage $part]
                         break
@@ -1580,9 +1585,9 @@ proc mime::buildmessageaux {token} {
             append result "\n"
 
 	    if {[string compare $converter ""]} {
-		append result [$converter -mode encode -- $state(string)]
+		append result "[$converter -mode encode -- $state(string)]\n"
 	    } else {
-		append result $state(string)
+		append result "$state(string)\n"
 	    }
         }
     }
@@ -1989,9 +1994,8 @@ proc mime::addr_next {token} {
                     -
                 LX_END {
                 }
-
-# catch trailing comments...
                 default {
+                    # catch trailing comments...
                     set lookahead $state(input)
                     mime::parselexeme $token
                     set state(input) $lookahead
