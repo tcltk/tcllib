@@ -1,4 +1,8 @@
 
+2000-08-23  Brent Welch <welch@ajubasolutions.com>
+
+	* Makefile.in: fixed typo
+
 2000-08-22  Brent Welch <welch@ajubasolutions.com>
 
 	* configure.in: Bumped patchlevel to 0.6.1

@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.33 2000/08/23 00:09:45 welch Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.34 2000/08/23 17:08:38 build Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -179,9 +179,9 @@ install-libraries: libraries
 
 install-doc: doc
 	$(mkinstalldirs) $(mandir)/mann
-	@for j in $(MODULES) ; do \
+	-for j in $(MODULES) ; do \
 	    echo "Installing documentation for $$j" ; \
-	    -for i in $(srcdir)/modules/$$j/*.n ; do \
+	    for i in $(srcdir)/modules/$$j/*.n ; do \
 	        $(INSTALL_DATA) $$i $(mandir)/mann ; \
 	    done; \
 	done
