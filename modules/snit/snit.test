@@ -4158,7 +4158,121 @@ test iinfo-1.13 {info options with pattern} tk {
     set a
 } {-class -colormap -container -cursor}
 
+test iinfo-1.14 {info typemethods, simple case} {
+    cleanup
 
+    type dog { }
+
+    dog spot
+
+    spot info typemethods
+} {create info destroy}
+
+test iinfo-1.15 {info typemethods, with pattern} {
+    cleanup
+
+    type dog { }
+
+    dog spot
+
+    spot info typemethods i*
+} {info}
+
+test iinfo-1.16 {info typemethods, with explicit typemethods} {
+    cleanup
+
+    type dog { 
+        typemethod foo {} {}
+        delegate typemethod bar to comp
+    }
+
+    dog spot
+
+    spot info typemethods
+} {create info foo bar destroy}
+
+test iinfo-1.17 {info typemethods, with implicit typemethods} {
+    cleanup
+
+    type dog { 
+        delegate typemethod * to comp
+
+        typeconstructor {
+            set comp string
+        }
+    }
+
+    dog create spot
+
+    set a [spot info typemethods]
+
+    dog length foo
+    dog is boolean yes
+
+    set b [spot info typemethods]
+
+    set c [spot info typemethods len*]
+
+    list $a $b $c
+} {{create info destroy} {create info destroy is length} length}
+
+test iinfo-1.18 {info methods, simple case} {
+    cleanup
+
+    type dog { }
+
+    dog spot
+
+    spot info methods
+} {info destroy configure configurelist cget}
+
+test iinfo-1.19 {info type, with pattern} {
+    cleanup
+
+    type dog { }
+
+    dog spot
+
+    spot info methods c*
+} {configure configurelist cget}
+
+test iinfo-1.20 {info methods, with explicit methods} {
+    cleanup
+
+    type dog { 
+        method foo {} {}
+        delegate method bar to comp
+    }
+
+    dog spot
+
+    spot info methods 
+} {info foo bar destroy configure configurelist cget}
+
+test iinfo-1.21 {info typemethods, with implicit typemethods} {
+    cleanup
+
+    type dog { 
+        delegate method * to comp
+
+        constructor {args} {
+            set comp string
+        }
+    }
+
+    dog create spot
+
+    set a [spot info methods]
+
+    spot length foo
+    spot is boolean yes
+
+    set b [spot info methods]
+
+    set c [spot info methods len*]
+
+    list $a $b $c
+} {{info destroy configure configurelist cget} {info destroy configure configurelist cget is length} length}
 
 #-----------------------------------------------------------------------
 # Type Introspection
@@ -4267,6 +4381,57 @@ test tinfo-1.8 {type info instances with pattern} {
 
     dog info instances "*f*"
 } {::fido}
+
+test tinfo-1.9 {type info typemethods, simple case} {
+    cleanup
+
+    type dog { }
+
+    dog info typemethods
+} {create info destroy}
+
+test tinfo-1.10 {type info typemethods, with pattern} {
+    cleanup
+
+    type dog { }
+
+    dog info typemethods i*
+} {info}
+
+test tinfo-1.11 {type info typemethods, with explicit typemethods} {
+    cleanup
+
+    type dog { 
+        typemethod foo {} {}
+        delegate typemethod bar to comp
+    }
+
+    dog info typemethods
+} {create info foo bar destroy}
+
+test tinfo-1.12 {type info typemethods, with implicit typemethods} {
+    cleanup
+
+    type dog { 
+        delegate typemethod * to comp
+
+        typeconstructor {
+            set comp string
+        }
+    }
+
+    set a [dog info typemethods]
+
+    dog length foo
+    dog is boolean yes
+
+    set b [dog info typemethods]
+
+    set c [dog info typemethods len*]
+
+    list $a $b $c
+} {{create info destroy} {create info destroy is length} length}
+
 
 #-----------------------------------------------------------------------
 # Setting the widget class explicitly

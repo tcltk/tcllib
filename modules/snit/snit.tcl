@@ -2946,7 +2946,8 @@ proc ::snit::RT.typemethod.info {type command args} {
     global errorCode
 
     switch -exact $command {
-        typevars - 
+        typevars    -
+        typemethods -
         instances {
             # TBD: it should be possible to delete this error
             # handling.
@@ -2988,6 +2989,39 @@ proc ::snit::RT.typemethod.info.typevars {type {pattern *}} {
     return $result
 }
 
+# Returns a list of the type's methods whose names match a 
+# pattern.  If "delegate typemethod *" is used, the list may
+# not be complete.
+#
+# type		A Snit type
+# pattern       Optional.  The glob pattern to match.  Defaults
+#               to *.
+
+proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
+    variable ${type}::Snit_typemethodInfo
+    variable ${type}::Snit_typemethodCache
+
+    # FIRST, get the explicit names.
+    set result [array names Snit_typemethodInfo -glob $pattern]
+
+    # NEXT, add any from the cache that aren't explicit.
+    if {[info exists Snit_typemethodInfo(*)]} {
+        # First, remove "*" from the list.
+        set ndx [lsearch -exact $result "*"]
+        if {$ndx != -1} {
+            set result [lreplace $result $ndx $ndx]
+        }
+
+        foreach name [array names Snit_typemethodCache -glob $pattern] {
+            if {[lsearch -exact $result $name] == -1} {
+                lappend result $name
+            }
+        }
+    }
+
+    return $result
+}
+
 # Returns a list of the type's instances whose names match
 # a pattern.
 #
@@ -3025,10 +3059,12 @@ proc ::snit::RT.typemethod.info.instances {type {pattern *}} {
 
 proc ::snit::RT.method.info {type selfns win self command args} {
     switch -exact $command {
-        type    -
-        vars    -
-        options -
-        typevars {
+        type        -
+        vars        -
+        options     -
+        methods     -
+        typevars    -
+        typemethods {
             set errflag [catch {
                 uplevel ::snit::RT.method.info.$command \
                     $type $selfns $win $self $args
@@ -3060,6 +3096,49 @@ proc ::snit::RT.method.info.type {type selfns win self} {
 # Returns the instance's type's typevariables
 proc ::snit::RT.method.info.typevars {type selfns win self {pattern *}} {
     return [RT.typemethod.info.typevars $type $pattern]
+}
+
+# $self info typemethods
+#
+# Returns the instance's type's typemethods
+proc ::snit::RT.method.info.typemethods {type selfns win self {pattern *}} {
+    return [RT.typemethod.info.typemethods $type $pattern]
+}
+
+# Returns a list of the instance's methods whose names match a 
+# pattern.  If "delegate method *" is used, the list may
+# not be complete.
+#
+# type		A Snit type
+# selfns        The instance namespace
+# win		The original instance name
+# self          The current instance name
+# pattern       Optional.  The glob pattern to match.  Defaults
+#               to *.
+
+proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
+    variable ${type}::Snit_methodInfo
+    variable ${selfns}::Snit_methodCache
+
+    # FIRST, get the explicit names.
+    set result [array names Snit_methodInfo -glob $pattern]
+
+    # NEXT, add any from the cache that aren't explicit.
+    if {[info exists Snit_methodInfo(*)]} {
+        # First, remove "*" from the list.
+        set ndx [lsearch -exact $result "*"]
+        if {$ndx != -1} {
+            set result [lreplace $result $ndx $ndx]
+        }
+
+        foreach name [array names Snit_methodCache -glob $pattern] {
+            if {[lsearch -exact $result $name] == -1} {
+                lappend result $name
+            }
+        }
+    }
+
+    return $result
 }
 
 # $self info vars
