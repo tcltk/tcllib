@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.8 2002/03/10 02:49:52 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.9 2002/03/25 18:54:35 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -28,6 +28,7 @@ namespace eval ::struct::matrix {
     # - colw    cache of columnwidths
     # - rowh    cache of rowheights
     # - link    information about linked arrays
+    # - lock    boolean flag to disable MatTraceIn while in MatTraceOut [#532783]
     
     # counter is used to give a unique name for unnamed matrixs
     variable counter 0
@@ -99,11 +100,13 @@ proc ::struct::matrix::matrix {{name ""}} {
 	variable colw
 	variable rowh
 	variable link
+	variable lock
 
 	array set data {}
 	array set colw {}
 	array set rowh {}
 	array set link {}
+	set       lock 0
     }
 
     # Create the command to manipulate the matrix
@@ -1975,6 +1978,9 @@ proc ::struct::matrix::ChkRowIndexAll {name row} {
 proc ::struct::matrix::MatTraceIn {avar name var idx op} {
     # Propagate changes in the linked array back into the matrix.
 
+    upvar ::struct::matrix::matrix${name}::lock lock
+    if {$lock} {return}
+
     if {![string compare $op u]} {
 	# External array was destroyed, perform automatic unlink.
 	$name unlink $avar
@@ -2014,11 +2020,15 @@ proc ::struct::matrix::MatTraceIn {avar name var idx op} {
 proc ::struct::matrix::MatTraceOut {avar name var idx op} {
     # Propagate changes in the matrix data array into the linked array.
 
+    upvar ::struct::matrix::matrix${name}::lock lock
+    set lock 1 ; # Disable MatTraceIn [#532783]
+
     upvar #0 $avar                              array
     upvar ::struct::matrix::matrix${name}::data data
     upvar ::struct::matrix::matrix${name}::link link
 
     set transpose $link($avar)
+
     if {$transpose} {
 	foreach {r c} [split $idx ,] break
     } else {
@@ -2026,5 +2036,6 @@ proc ::struct::matrix::MatTraceOut {avar name var idx op} {
     }
 
     set array($c,$r) $data($idx)
+    set lock 0
     return
 }

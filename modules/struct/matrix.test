@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.5 2002/03/10 02:49:52 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.6 2002/03/25 18:54:35 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -1589,6 +1589,35 @@ test matrix-9.11 {auto unlink} {
     set result
 } {a {}}
 
+test matrix-9.12 {unset in linked array} {
+    matrix mymatrix
+    mymatrix add columns 3
+    mymatrix add row {1 2 3}
+    mymatrix add row {a b c}
+
+    catch {unset a}
+    mymatrix link a
+
+    set     result [list]
+    lappend result [aget a]
+    unset a(0,0)
+    lappend result [mymatrix get rect 0 0 end end]
+
+    mymatrix destroy
+    set result
+} {{0,0 1 0,1 a 1,0 2 1,1 b 2,0 3 2,1 c} {{1 2 3} {a b c}}}
+
+test matrix-9.13 {operation on linked matrix} {
+    catch {unset a}
+    matrix mymatrix
+    mymatrix add columns 4
+    mymatrix add row {1 2 3}
+    mymatrix link a
+    mymatrix add row {a b c d}
+    set result [mymatrix get rect 0 0 end end]
+    mymatrix destroy
+    set result
+} {{1 2 3 {}} {a b c d}}}
 
 test 10.1 {search errors} {
     matrix mymatrix
