@@ -1,3 +1,9 @@
+2000-09-06  Brent Welch  <welch@ajubasolutions.com>
+
+	* uri.tcl:
+	* uri.test:
+	Added https support
+
 2000-07-20  Eric Melski  <ericm@ajubasolutions.com>
 
 	* uri.test:

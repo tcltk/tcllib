@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.3 2000/07/20 18:44:41 ericm Exp $
+# CVS: $Id: uri.tcl,v 1.4 2000/09/07 06:09:51 welch Exp $
 
 package provide uri 1.0
 
@@ -383,6 +383,10 @@ proc uri::JoinFtp args {
     return ftp://${userPwd}$components(host)${port}$components(path)$type
 }
 
+proc uri::SplitHttps {url} {
+    uri::SplitHttp $url
+}
+
 proc uri::SplitHttp {url} {
     # @c Splits the given http-<a url> into its constituents.
     # @a url: The url to split, without! scheme specification.
@@ -445,14 +449,22 @@ proc uri::SplitHttp {url} {
     return [array get parts]
 }
 
-proc uri::JoinHttp args {
-    array set components {
-	host {} port 80 path {} query {}
-    }
+proc uri::JoinHttp {args} {
+    eval uri::JoinHttpInner http 80 $args
+}
+
+proc uri::JoinHttps {args} {
+    eval uri::JoinHttpInner https 443 $args
+}
+
+proc uri::JoinHttpInner {scheme defport args} {
+    array set components [list \
+	host {} port $defport path {} query {} \
+    ]
     array set components $args
 
     set port {}
-    if {[string length $components(port)] && $components(port) != 80} {
+    if {[string length $components(port)] && $components(port) != $defport} {
 	set port :$components(port)
     }
 
@@ -463,7 +475,7 @@ proc uri::JoinHttp args {
 
     regsub {^/} $components(path) {} components(path)
 
-    return http://$components(host)$port/$components(path)$query
+    return $scheme://$components(host)$port/$components(path)$query
 }
 
 proc uri::SplitFile {url} {
@@ -662,6 +674,7 @@ proc uri::resolve {base url} {
 
 	    switch -- $baseparts(scheme) {
 		http -
+		https -
 		ftp -
 		file {
 		    if {[string match /* $url]} {
