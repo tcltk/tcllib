@@ -1,3 +1,29 @@
+2004-04-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dacceptor.tcl:  New package, deterministic acceptors
+	* dacceptor.man:  out of deterministic finite automaton.
+	* dacceptor.test: Acceptors do only this check, and cannot
+	* fa.man:         be manipulated. Added reference to this
+	                  package to the FA documenation.
+	* tests/da_cons.test:
+	* tests/da_accept.test:
+
+	* fa.tcl:  Added fromRegex constructor operation. Updated
+	* fa.man:  the documentation, and testsuite. Typo fixes in
+	* fa.test: documentation as well.
+
+2004-04-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* faop.tcl: Complement requires deterministic input for a correct
+	* faop.man: result. Fixed. Updated documentation as well. Typo
+	  fixes in doc.
+
+2004-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* test_support.tcl: Renamed to tests.support. Prevents the
+	* fa.test:          installation of this internal file.
+	* faop.test:        Updated the test suites.
+
 2004-04-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* All files: Bugfixes in basic FA support. Updated tests, updated
