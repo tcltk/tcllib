@@ -1,3 +1,9 @@
+2003-04-30  Pat Thoyts  <Patrick.Thoyts@renishaw.com>
+
+	* md4.man: Added documentation for the hmac command and for the
+	programming interface to the MD4 algorithm.
+	* md4c.tcl: Fixed md5c attribution.
+
 2003-04-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md4c.tcl: Added critcl-based C implementation md4c.
