@@ -1,0 +1,9 @@
+2002-01-11  Kevin Kenny  <kennykb@users.sourceforge.net>
+
+	* ChangeLog, calendar.tcl, gregorian.tcl, gregorian.test:
+	* pkgIndex.tcl, tclIndex:
+	Created an initial 'calendar' module.  Functionality at this
+	point includes conversion between Julian Day and several formats:
+	year/day-of-year, year/month/day, year/week/day-of-week, and
+	year/month/day-of-week-in-month (e.g, the second Friday of
+	February).
