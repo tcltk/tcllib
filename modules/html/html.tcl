@@ -1180,7 +1180,7 @@ proc ::html::font {args} {
     variable defaults
 
     # e.g., font.face, font.size, font.color
-    ::set param [tagParam font [join $args]][join $args]
+    ::set param [tagParam font [join $args]]
 
     ::if {[string length $param]} {
 	return "<[string trimright "font $param"]>"
