@@ -1,4 +1,9 @@
-2003-04-10  Pat Thoyts  <patthoyts@users.sourceforge.net>
+2003-04-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.man: *Renamed* to tcllib_dns.man to avoid a name clash with
+	the dns manpage from the scotty package.
+
+2003-04-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Try to read the whole reply when using tcp. Added a 
 	catch to avoid bgerrors within the handler.
