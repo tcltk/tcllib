@@ -1,3 +1,11 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl:
+	* ftp.man:
+	* ftp_geturl.tcl:
+	* pkgIndex.tcl: Fixed bug #614591. Set version of the package to
+	  to 2.4. Set version of geturl package to 0.2.
+
 2003-03-31  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.tcl (ModTime): Applied patch #659238 supplied by Dan Rogahn

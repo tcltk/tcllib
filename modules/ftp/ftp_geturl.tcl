@@ -7,16 +7,16 @@
 package require ftp
 package require uri
 
-namespace eval ftp {
+namespace eval ::ftp {
     namespace export geturl
 }
 
-# ftp::geturl
+# ::ftp::geturl
 #
 # Command useable by uri to retrieve the contents of an ftp url.
 # Returns the contents of the requested url.
 
-proc ftp::geturl {url} {
+proc ::ftp::geturl {url} {
     # FUTURE: -validate to validate existence of url, but no download
     # of contents.
 
@@ -102,7 +102,7 @@ proc ftp::geturl {url} {
 # Internal helper to parse a directory listing into something which
 # can be better handled by tcl than raw ls -l format.
 
-proc ftp::ParseList {flist} {
+proc ::ftp::ParseList {flist} {
     array set data {}
     foreach item $flist {
 	foreach {mode dummy owner group size month day yrtime name} $item break
@@ -128,4 +128,4 @@ proc ftp::ParseList {flist} {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp::geturl [lindex {Revision: 0.1} 1]
+package provide ftp::geturl [lindex {Revision: 0.2} 1]
