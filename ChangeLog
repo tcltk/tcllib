@@ -1,3 +1,7 @@
+2002-08-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse: Fixed SF bug #579853.
+
 2002-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (dist): Fixed SF Bug #567079, reported by Don Porter
