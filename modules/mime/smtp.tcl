@@ -712,7 +712,7 @@ proc ::smtp::initialize_ehlo {token} {
                 if {![catch {smtp::talk $token 300 STARTTLS} resp]} {
                     array set starttls $resp
                     if {$starttls(code)} {
-                        if {$code == 250} {
+                        if {$code == 220} {
                             fileevent $state(sd) readable {}
                             catch {
                                 ::tls::import $state(sd)
