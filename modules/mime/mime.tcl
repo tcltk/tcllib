@@ -863,9 +863,19 @@ proc mime::parsetypeaux {token string} {
             }
         }
 
-        if {[string compare [mime::parselexeme $token] LX_ATOM]} {
-            error [format "expecting attribute (found %s)" $state(buffer)]
+        switch -- [mime::parselexeme $token] {
+            LX_END {
+                return [list $type [array get params]]
+            }
+
+            LX_ATOM {
+            }
+
+            default {
+                error [format "expecting attribute (found %s)" $state(buffer)]
+            }
         }
+
         set attribute [string tolower $state(buffer)]
 
         if {[string compare [mime::parselexeme $token] LX_EQUALS]} {
