@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.5 2003/05/01 00:17:41 andreas_kupries Exp $
+# $Id: md4.tcl,v 1.6 2003/05/06 23:16:33 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.0
-    variable rcsid {$Id: md4.tcl,v 1.5 2003/05/01 00:17:41 andreas_kupries Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.6 2003/05/06 23:16:33 patthoyts Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
@@ -106,7 +106,7 @@ proc ::md4::MD4Final {token} {
     }
 
     # RFC1320:3.5 - Output
-    set r [binary format i4 [list $state(A) $state(B) $state(C) $state(D)]]
+    set r [bytes $state(A)][bytes $state(B)][bytes $state(C)][bytes $state(D)]
     unset state
     return $r
 }
@@ -255,13 +255,23 @@ set ::md4::MD4Hash_body {
         # Then perform the following additions. (That is, increment each
         # of the four registers by the value it had before this block
         # was started.)
-        set state(A) [expr {($A + $state(A)) & 0xFFFFFFFF}]
-        set state(B) [expr {($B + $state(B)) & 0xFFFFFFFF}]
-        set state(C) [expr {($C + $state(C)) & 0xFFFFFFFF}]
-        set state(D) [expr {($D + $state(D)) & 0xFFFFFFFF}]
+        incr state(A) $A
+        incr state(B) $B
+        incr state(C) $C
+        incr state(D) $D
     }
 
     return
+}
+
+proc ::md4::byte {n v} {expr {((0xFF << (8 * $n)) & $v) >> (8 * $n)}}
+proc ::md4::bytes {v} { 
+    #format %c%c%c%c [byte 0 $v] [byte 1 $v] [byte 2 $v] [byte 3 $v]
+    format %c%c%c%c \
+        [expr {0xFF & $v}] \
+        [expr {(0xFF00 & $v) >> 8}] \
+        [expr {(0xFF0000 & $v) >> 16}] \
+        [expr {((0xFF000000 & $v) >> 24) & 0xFF}]
 }
 
 # 32bit rotate-left
