@@ -37,6 +37,16 @@ proc modules {} {
     return $fl
 }
 
+
+proc imodules {} {
+    global distribution
+    source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
+
+    proc imodules {} [list return $modules]
+    return $modules
+}
+
+
 proc packages {} {
     global distribution
     array set p {}
@@ -204,6 +214,24 @@ proc gd-assemble {} {
     return
 }
 
+
+proc validate_imodules {} {
+    foreach m [imodules] {set im($m) .}
+    foreach m [modules]  {set dm($m) .}
+    foreach m [imodules] {
+	if {![info exists dm($m)]} {
+	    puts "  Installed, does not exist: $m"
+	}
+    }
+    foreach m [modules] {
+	if {![info exists im($m)]} {
+	    puts "  Missing in installer:      $m"
+	}
+    }
+    return
+}
+
+
 proc validate_testsuites {} {
     global distribution
     foreach m [modules] {
@@ -328,6 +356,7 @@ proc __major   {} {global tcllib_version ; puts [lindex [split $tcllib_version .
 # --------------------------------------------------------------
 # Development
 
+proc __imodules {}  {puts [imodules]}
 proc __modules {}  {puts [modules]}
 proc __lmodules {} {puts [join [modules] \n]}
 
@@ -382,6 +411,11 @@ proc __validate {} {
     puts "------------------------------------------------------"
     puts ""
 
+    puts "[incr i]: Installed vs. developed modules ..."
+    puts "------------------------------------------------------"
+    validate_imodules
+    puts "------------------------------------------------------"
+    puts ""
 
     puts "[incr i]: Existence of documentation ..."
     puts "------------------------------------------------------"
