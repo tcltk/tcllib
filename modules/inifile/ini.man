@@ -24,7 +24,9 @@ Close the specified handle. If any changes were made and not written by
 
 [call [cmd ::ini::commit] [arg ini]]
 
-Writes the file and all changes to disk.
+Writes the file and all changes to disk. The sections are written in
+arbitrary order. The keys in a section are written in alphabetical
+order.
 
 
 [call [cmd ::ini::revert] [arg ini]]
