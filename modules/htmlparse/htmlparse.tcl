@@ -393,11 +393,19 @@ proc ::htmlparse::PrepareHtml {html} {
     #
     # Also normalize the line endings (\r -> \n).
 
+    # Tcllib SF Bug 861287 - Processing of comments.
+    # Recognize EOC by RE, instead of fixed string.
+
     set html [string map [list \r \n] $html]
 
-    regsub -- "^.*<!DOCTYPE\[^>\]*>"       $html {}     html
-    set html [string map [list "-->" "\001"] $html]
-    regsub -all -- "<!--\[^\001\]*\001" $html {}     html
+    regsub -- "^.*<!DOCTYPE\[^>\]*>"    $html {}     html
+    regsub -all -- "--(\[ \t\n\]*)>"      $html "\001\\1\002" html
+
+    # Recognize borken beginnings of a comment and convert them to PCDATA.
+    regsub -all -- "<--(\[^\001\]*)\001(\[^\002\]*)\002" $html {\&lt;--\1--\2\&gt;} html
+
+    # And now recognize true comments, remove them.
+    regsub -all -- "<!--\[^\001\]*\001(\[^\002\]*)\002"  $html {}                   html
 
     # Protect characters special to tcl (braces, slashes) by
     # converting them to their escape sequences.
