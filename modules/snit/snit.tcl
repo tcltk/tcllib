@@ -704,7 +704,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
                     set compile($optopt-$option) $val
                 }
                 -readonly        {
-                    if {![string is boolean  $val]} {
+                    if {![string is boolean -strict $val]} {
                         error "$errRoot, -readonly requires a boolean, got '$val'"
                     }
                     set compile($optopt-$option) $val
