@@ -178,6 +178,7 @@ set ::snit::typeTemplate {
         array unset Snit_optionInfo
         set Snit_optionInfo(local)     {}
         set Snit_optionInfo(delegated) {}
+        set Snit_optionInfo(starcomp)  {}
         set Snit_optionInfo(except)    {}
     }
 
@@ -254,11 +255,6 @@ set ::snit::typeTemplate {
     # Defined for each local option.  By default, just updates the
     # options array.  Redefined by an onconfigure definition.
     
-    # Snit_cget<option> type selfns win self value
-    #
-    # Defined for each local option.  By default, just retrieves the
-    # element from the options array.  Redefined by an oncget definition.
-
     # Snit_method<name> type selfns win self args...
     #
     # Defined for each local instance method.
@@ -665,12 +661,6 @@ proc ::snit::Comp.statement.option {optionDef args} {
                 %IVARDECS%
                 set options(%OPTION%) $value
             }
-
-            proc %TYPE%::Snit_cget%OPTION% {type selfns win self} {
-                %TVARDECS%
-                %IVARDECS%
-                return $options(%OPTION%)
-            }
         } %OPTION% $option 
 
         # Initialize compilation info for this option.
@@ -739,21 +729,21 @@ proc ::snit::Comp.OptionNameIsValid {option} {
 proc ::snit::Comp.statement.oncget {option body} {
     variable compile
 
+    set errRoot "Error in 'oncget $option...'"
+
     if {[lsearch $compile(delegatedoptions) $option] != -1} {
-        error "oncget $option: option '$option' is delegated."
+        error "$errRoot, option '$option' is delegated."
     }
 
     if {[lsearch $compile(localoptions) $option] == -1} {
-        error "oncget $option: option '$option' unknown."
+        error "$errRoot, option '$option' unknown."
     }
 
     # Next, add variable declarations to body:
     set body "%TVARDECS%%IVARDECS%\n$body"
 
-    append compile(defs) "
-
-        proc [list %TYPE%::Snit_cget$option] {type selfns win self} [list $body]
-    "
+    Comp.statement.method _cget$option {option} $body
+    Comp.statement.option $option -cgetmethod _cget$option
 } 
 
 # Defines an option's configure handler.
@@ -1341,13 +1331,6 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
         set target $option
     }
 
-    Mappend compile(defs) {
-        # Delegated option %OPT% to %COMP% as %TARGET%
-        lappend %TYPE%::Snit_optionInfo(delegated-%COMP%) %OPTION%
-        set %TYPE%::Snit_optionInfo(target-%OPTION%) [list %COMP% %TARGET%]
-    } %OPTION% $option %COMP% $component %TARGET% $target
-
-
     if {![string equal $option "*"]} {
         lappend compile(delegatedoptions) $option
 
@@ -1367,11 +1350,18 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
             set %TYPE%::Snit_optionInfo(resource-%OPTION%) %RES%
             set %TYPE%::Snit_optionInfo(class-%OPTION%) %CLASS%
             lappend %TYPE%::Snit_optionInfo(delegated) %OPTION%
-        } %OPTION% $option %RES% $resourceName %CLASS% $className
+            set %TYPE%::Snit_optionInfo(target-%OPTION%) [list %COMP% %TARGET%]
+            lappend %TYPE%::Snit_optionInfo(delegated-%COMP%) %OPTION%
+        }   %OPTION% $option \
+            %COMP% $component \
+            %TARGET% $target \
+            %RES% $resourceName \
+            %CLASS% $className 
     } else {
         Mappend  compile(defs) {
+            set %TYPE%::Snit_optionInfo(starcomp) %COMP%
             set %TYPE%::Snit_optionInfo(except) %EXCEPT%
-        } %EXCEPT% [list $exceptions]
+        } %COMP% $component %EXCEPT% [list $exceptions]
     }
 } 
 
@@ -2238,10 +2228,6 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
             }
                 
             foreach opt $Snit_optionInfo(delegated-hull) {
-                if {"*" == $opt} {
-                    continue
-                }
-
                 set target [lindex $Snit_optionInfo(target-$opt) 1]
                 
                 if {"$target" == $opt} {
@@ -2324,18 +2310,10 @@ proc ::snit::RT.install {type compName "using" widgetType winPath args} {
         # Note: there might not be any delegated options; if so,
         # don't bother.
 
-        set gotStar 0
-
         if {[info exists Snit_optionInfo(delegated-$compName)]} {
             set ndx [lsearch -glob $args "-*"]
                 
             foreach opt $Snit_optionInfo(delegated-$compName) {
-                # Handle * later
-                if {"*" == $opt} {
-                    set gotStar 1
-                    continue
-                }
-
                 set dbval [RT.OptionDbGet $type $self $opt]
                     
                 if {"" != $dbval} {
@@ -2352,7 +2330,7 @@ proc ::snit::RT.install {type compName "using" widgetType winPath args} {
 
     # NEXT, handle the option database for "delegate option *",
     # in widgets only.
-    if {$Snit_isWidget && $gotStar} {
+    if {$Snit_isWidget && $Snit_optionInfo(starcomp) eq $compName} {
         # FIRST, get the list of option specs from the widget.
         # If configure doesn't work, skip it.
         if {[catch {$comp configure} specs]} {
@@ -2576,20 +2554,28 @@ proc ::snit::RT.typemethod.destroy {type} {
 proc ::snit::RT.method.cget {type selfns win self option} {
     # TBD: Consider using a cget command cache.
     variable ${type}::Snit_optionInfo
+    variable ${selfns}::options
                 
     if {[info exists Snit_optionInfo(islocal-$option)]} {
+        # We know the item; it's either local, or explicitly delegated.
         if {$Snit_optionInfo(islocal-$option)} {
-            # Local option; return it.
-            return [${type}::Snit_cget$option $type $selfns $win $self]
+            # It's a local option.  If it has a cget method defined,
+            # use it; otherwise just return the value.
+
+            if {$Snit_optionInfo(cget-$option) eq ""} {
+                return $options($option)
+            } else {
+                return [$self $Snit_optionInfo(cget-$option) $option]
+            }
         }
          
         # Explicitly delegated option; get target
         set comp [lindex $Snit_optionInfo(target-$option) 0]
         set target [lindex $Snit_optionInfo(target-$option) 1]
-    } elseif {[info exists Snit_optionInfo(target-*)] &&
+    } elseif {$Snit_optionInfo(starcomp) ne "" &&
               [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
         # Unknown option, but unknowns are delegated; get target.
-        set comp [lindex $Snit_optionInfo(target-*) 0]
+        set comp $Snit_optionInfo(starcomp)
         set target $option
     } else {
         # Use quotes because Tk does.
@@ -2626,10 +2612,10 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
             # Delegated option: get target.
             set comp [lindex $Snit_optionInfo(target-$option) 0]
             set target [lindex $Snit_optionInfo(target-$option) 1]
-        } elseif {[info exists Snit_optionInfo(target-*)] &&
+        } elseif {$Snit_optionInfo(starcomp) != "" &&
                   [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
             # Unknown option, but unknowns are delegated.
-            set comp [lindex $Snit_optionInfo(target-*) 0]
+            set comp $Snit_optionInfo(starcomp)
             set target $option
         } else {
             # Use quotes because Tk does.
@@ -2725,9 +2711,9 @@ proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
         }
 
         return [list $opt $res $cls $defValue [$self cget $opt]]
-    } elseif {[info exists Snit_optionInfo(target-*)] &&
+    } elseif {$Snit_optionInfo(starcomp) ne "" &&
               [lsearch -exact $Snit_optionInfo(except) $opt] == -1} {
-        set logicalName [lindex $Snit_optionInfo(target-*) 0]
+        set logicalName $Snit_optionInfo(starcomp)
         set target $opt
         set comp $Snit_components($logicalName)
 
@@ -2905,9 +2891,9 @@ proc ::snit::RT.method.info.options {type selfns win self {pattern *}} {
 
     # If "configure" works as for Tk widgets, add the resulting
     # options to the list.  Skip excepted options
-    if {[info exists Snit_optionInfo(target-*)]} {
+    if {$Snit_optionInfo(starcomp) ne ""} {
         upvar ${selfns}::Snit_components Snit_components
-        set logicalName [lindex $Snit_optionInfo(target-*) 0]
+        set logicalName $Snit_optionInfo(starcomp)
         set comp $Snit_components($logicalName)
 
         if {![catch {$comp configure} records]} {
