@@ -1,7 +1,11 @@
+2003-05-05  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl: Resynced package version numbers for this module.
+
 2003-05-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.tcl (unixtime): Applied patch from Andreas Kupries to
-	ensure the result is always an integer. 
+	  ensure the result is always an integer. 
 	* time.test: Make sure the server returns integer values and check
 	the range is valid (rather than just checking for integer).
 
