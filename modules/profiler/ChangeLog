@@ -1,3 +1,10 @@
+2003-04-13  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* profiler.test:
+	* profiler.tcl: Accepted patch #575376 by Hemang Lavana
+	  <hemanglavana@users.sourceforge.net> reorganizing the internals
+	  a bit and using the 8.4 specific trace support if possible.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* profiler.tcl:
