@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin bibtex n 0.4]
+[manpage_begin bibtex n 0.5]
 [copyright {2005 for documentation, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {bibtex}]
 [titledesc {Parse bibtex files}]
 [require Tcl 8.4]
-[require bibtex [opt 0.4]]
+[require bibtex [opt 0.5]]
 [description]
 [para]
 
@@ -141,6 +141,12 @@ In the case of incremental processing the perecentage will always be
 
 [list_end]
 [nl]
+
+
+[call [cmd ::bibtex::wait] [arg token]]
+
+This command waits for the parser represented by the [arg token] to
+complete and then returns. The returned result is the empty string.
 
 
 [call [cmd ::bibtex::destroy] [arg token]]
