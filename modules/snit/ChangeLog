@@ -1,3 +1,8 @@
+2003-10-28  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.man:    Fixed typos in documentation.
+	* snitfaq.man: 
+
 2003-10-27  Will Duquette  <will@wjduquette.com>
 
 	* snit.html: Fixed typos in documentation.

@@ -311,9 +311,9 @@ at creation time:
 ::dog
 % dog create spot -breed dalmation -color spotted
 ::spot
-% dog cget -breed
+% spot cget -breed
 dalmation
-% dog cget -color
+% spot cget -color
 spotted
 }]
 [para]
