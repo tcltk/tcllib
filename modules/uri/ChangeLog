@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* uri.tcl: Fixed dubious code reported by frink.
+
 2000-09-06  Brent Welch  <welch@ajubasolutions.com>
 
 	* uri.tcl:

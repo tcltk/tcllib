@@ -68,4 +68,5 @@ proc ::textutil::trim::MakeStr { string pos }  {
         return $StrR
     }
 
+    error "Panic, illegal position key \"$pos\""
 }

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.14 2000/10/03 18:01:46 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.15 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide stats 1.0
 
@@ -131,12 +131,12 @@ proc stats::countInit {tag args} {
 		    
 		    # Figure out what "hour" we are
 
-		    set delta [expr $startTime - $dayStart]
-		    set hourIndex [expr $delta / ($secsPerMinute * 60)]
-		    set day [expr $hourIndex / 24]
-		    set hourIndex [expr $hourIndex % 24]
+		    set delta [expr {$startTime - $dayStart}]
+		    set hourIndex [expr {$delta / ($secsPerMinute * 60)}]
+		    set day [expr {$hourIndex / 24}]
+		    set hourIndex [expr {$hourIndex % 24}]
 
-		    set hourBase [expr $dayStart + $day * $secsPerMinute * 60 * 24]
+		    set hourBase [expr {$dayStart + $day * $secsPerMinute * 60 * 24}]
 		    set minuteBase [expr {$hourBase + $hourIndex * 60 * $secsPerMinute}]
 
 		    set partialHour [expr {$startTime -
@@ -302,6 +302,9 @@ proc stats::countReset {tag args} {
 	    }
 	    set args [list -timehist $stats::secsPerMinute]
 	}
+	default {
+	    error "Unknown counter type \"$counter(type)\""
+	}
     }
     unset counter
     eval {stats::countInit $tag} $args
@@ -406,9 +409,12 @@ proc stats::count {tag {delta 1} args} {
 		}
 		set histogram($minute) [expr {$histogram($minute) + $delta}]
 	    }
+	    default {
+		error "Unknown counter type \"$counter(type)\""
+	    }
 	}
 #   }
-    return ""
+    return
 }
 
 # stats::countExists --
@@ -903,6 +909,9 @@ proc stats::histHtmlDisplayRow {tag args} {
 		append result "<td>[html::font][clock format $time \
 			-format "%b %d %k:%M"]</font></td></tr>\n"
 	    }
+	    default {
+		error "Unknown unit of time \"$options(-unit)\""
+	    }
 	}
 
     } else {
@@ -1106,6 +1115,9 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 		}
 		set deltaT [expr {$secsPerMinute * 60 * 24}]
 		set wrapDeltaT 0
+	    }
+	    default {
+		error "Unknown unit of time \"$options(-unit)\""
 	    }
 	}
 	# These are tick marks

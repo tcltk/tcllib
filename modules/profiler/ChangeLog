@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* profilertcl: Fixed dubious code reported by frink.
+
 2000-09-20  Eric Melski  <ericm@ajubasolutions.com>
 
 	* profiler.tcl: Corrected some non-Tcl-style-guide conforming

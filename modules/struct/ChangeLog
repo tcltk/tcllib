@@ -1,3 +1,8 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* tree.tcl:
+	* graph.tcl: Fixed dubious code reported by frink.
+
 2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* matrix.n: Fixed nroff trouble.

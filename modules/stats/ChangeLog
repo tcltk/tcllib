@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* stats.tcl: Fixed dubious code reported by frink.
+
 2000-10-02  Brent Welch <welch@ajubasolutions.com>
 
 	* modules/stats/stats.tcl: Added stats::htmlHistDisplayRow

@@ -39,12 +39,12 @@ namespace eval ::textutil {
 proc ::textutil::split::splitx [list str [list regexp "\[\t \r\n\]+"]] {
     set list  {}
     while {[regexp -indices -- $regexp $str match submatch]} {
-	lappend list [string range $str 0 [expr [lindex $match 0] -1]]
+	lappend list [string range $str 0 [expr {[lindex $match 0] -1}]]
 	if {[lindex $submatch 0]>=0} {
 	    lappend list [string range $str [lindex $submatch 0]\
 			      [lindex $submatch 1]]
 	}
-	set str [string range $str [expr [lindex $match 1]+1] end]
+	set str [string range $str [expr {[lindex $match 1]+1}] end]
     }
     lappend list $str
     return $list

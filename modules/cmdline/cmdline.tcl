@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.6 2000/06/02 18:43:53 ericm Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.7 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide cmdline 1.1
 namespace eval cmdline {
@@ -93,6 +93,9 @@ proc cmdline::getopt {argvVar optstring optVar valVar} {
 		    set value "Illegal option \"$option\""
 		    set result -1
 		}
+	    }
+	    default {
+		# Skip ahead
 	    }
 	}
     }

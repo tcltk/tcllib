@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* report.tcl: Fixed dubious code reported by frink.
+
 2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* report.n: Fixed nroff trouble.

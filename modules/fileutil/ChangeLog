@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Fixed dubious code reported by frink.
+
 2001-03-20  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl: [Bug #410104, Patch #410106]

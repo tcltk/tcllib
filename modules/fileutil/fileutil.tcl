@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.5 2001/03/26 16:50:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.6 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide fileutil 1.1
 
@@ -33,7 +33,7 @@ proc ::fileutil::grep {pattern {files {}}} {
 	set lnum 0
 	while {[gets stdin line] >= 0} {
 	    incr lnum
-	    if {[regexp $pattern $line]} {
+	    if {[regexp -- $pattern $line]} {
 		lappend result "${lnum}:${line}"
 	    }
 	}
@@ -43,7 +43,7 @@ proc ::fileutil::grep {pattern {files {}}} {
 	    set lnum 0
 	    while {[gets $file line] >= 0} {
 		incr lnum
-		if {[regexp $pattern $line]} {
+		if {[regexp -- $pattern $line]} {
 		    lappend result "${filename}:${lnum}:${line}"
 		}
 	    }

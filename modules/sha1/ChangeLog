@@ -1,3 +1,7 @@
+2001-06-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* md5.tcl: Fixed dubious code reported by frink.
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* New module, 'sha1'. The code is Don Libes's <libes@nist.gov>

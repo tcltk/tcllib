@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* csv.tcl: Fixed dubious code reported by frink and procheck.
+
 2001-06-19  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* csv.n: Fixed nroff trouble.

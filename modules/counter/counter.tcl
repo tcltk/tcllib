@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.4 2000/10/04 20:01:47 welch Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.5 2001/06/22 15:29:18 andreas_kupries Exp $
 
 namespace eval counter:: {
 
@@ -129,12 +129,12 @@ proc counter::init {tag args} {
 		    
 		    # Figure out what "hour" we are
 
-		    set delta [expr $startTime - $dayStart]
-		    set hourIndex [expr $delta / ($secsPerMinute * 60)]
-		    set day [expr $hourIndex / 24]
-		    set hourIndex [expr $hourIndex % 24]
+		    set delta [expr {$startTime - $dayStart}]
+		    set hourIndex [expr {$delta / ($secsPerMinute * 60)}]
+		    set day [expr {$hourIndex / 24}]
+		    set hourIndex [expr {$hourIndex % 24}]
 
-		    set hourBase [expr $dayStart + $day * $secsPerMinute * 60 * 24]
+		    set hourBase [expr {$dayStart + $day * $secsPerMinute * 60 * 24}]
 		    set minuteBase [expr {$hourBase + $hourIndex * 60 * $secsPerMinute}]
 
 		    set partialHour [expr {$startTime -
@@ -300,6 +300,7 @@ proc counter::reset {tag args} {
 	    }
 	    set args [list -timehist $counter::secsPerMinute]
 	}
+	default {#ignore}
     }
     unset counter
     eval {counter::init $tag} $args
@@ -404,9 +405,10 @@ proc counter::count {tag {delta 1} args} {
 		}
 		set histogram($minute) [expr {$histogram($minute) + $delta}]
 	    }
+	    default {#ignore}
 	}
 #   }
-    return ""
+    return
 }
 
 # counter::exists --
@@ -902,6 +904,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 		append result "<td>[html::font][clock format $time \
 			-format "%b %d %k:%M"]</font></td></tr>\n"
 	    }
+	    default {#ignore}
 	}
 
     } else {
@@ -1112,6 +1115,7 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 		set deltaT [expr {$secsPerMinute * 60 * 24}]
 		set wrapDeltaT 0
 	    }
+	    default {#ignore}
 	}
 	# These are tick marks
 

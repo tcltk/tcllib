@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* math.tcl: Fixed dubious code reported by frink.
+
 2000-10-06  Eric Melski  <ericm@ajubasolutions.com>
 
 	* math.test: 

@@ -244,6 +244,7 @@ proc ::textutil::adjust::Justification { line index arrayName } {
 	return "${line}"
     }
 
+    error "Illegal justification key \"$justify\""
 }
 
 proc ::textutil::adjust::SortList { list dir index } {

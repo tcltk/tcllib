@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: typedCmdline.tcl,v 1.2 2000/06/02 18:43:53 ericm Exp $
+# RCS: @(#) $Id: typedCmdline.tcl,v 1.3 2001/06/22 15:29:18 andreas_kupries Exp $
 
 namespace eval cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -22,8 +22,8 @@ namespace eval cmdline {
 
     variable charclasses
     catch {string is . .} charclasses
-    regexp {must be (.+)$} $charclasses dummy charclasses
-    regsub -all {, (or )?} $charclasses {|} charclasses
+    regexp -- {must be (.+)$} $charclasses dummy charclasses
+    regsub -all -- {, (or )?} $charclasses {|} charclasses
 
 }
 
@@ -151,7 +151,7 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
                     set opt [lindex $optstring $i]
 
                     set quantifier "none"
-                    if {[regexp {\.[^.]+([?+*])$} $opt dummy quantifier]} {
+                    if {[regexp -- {\.[^.]+([?+*])$} $opt dummy quantifier]} {
                         set opt [string range $opt 0 end-1]
                     }
 
@@ -160,11 +160,11 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
                         set retvar $opt
                         set argsList [lrange $argsList 1 end]
 
-                    } elseif {[regexp "\\.(arg|$charclasses)\$" $opt dummy charclass]
-                            || [regexp {\.\(([^)]+)\)} $opt dummy charclass]} {
-                        if [string equal arg $charclass] {
+                    } elseif {[regexp -- "\\.(arg|$charclasses)\$" $opt dummy charclass]
+                            || [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]} {
+				if {[string equal arg $charclass]} {
                             set type arg
-                        } elseif [regexp "^($charclasses)\$" $charclass] {
+			} elseif {[regexp -- "^($charclasses)\$" $charclass]} {
                             set type class
                         } else {
                             set type oneof
@@ -173,7 +173,7 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
                         set argsList [lrange $argsList 1 end]
                         set opt [file rootname $opt]
 
-                        while 1 {
+                        while {1} {
                             if {[llength $argsList] == 0
                                     || [string equal "--" [lindex $argsList 0]]} {
                                 if {[string equal "--" [lindex $argsList 0]]} {
@@ -236,7 +236,7 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
                                 }
                                 set quantifier ""
                             }
-                             if {![regexp {[+*]} $quantifier]} {
+                             if {![regexp -- {[+*]} $quantifier]} {
                                 break;
                             }
                         }
@@ -250,6 +250,9 @@ proc cmdline::typedGetopt {argvVar optstring optVar argVar} {
                     set retval -1
                 }
             }
+	    default {
+		# Skip ahead
+	    }
         }
     }
 
@@ -397,8 +400,8 @@ proc cmdline::typedUsage {optlist {usage {options:}}} {
                 # Display something about multiple options
             }
 
-            if {[regexp "\\.(arg|$charclasses)\$" $name dummy charclass]
-                    || [regexp {\.\(([^)]+)\)} $opt dummy charclass]} {
+            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass]
+                    || [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]} {
                    regsub "\\..+\$" $name {} name
                 set comment [lindex $opt 2]
                 set default "<[lindex $opt 1]>"

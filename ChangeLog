@@ -1,5 +1,10 @@
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
+	* Ran frink and procheck over all modules and fixed the reported
+	  problems. As far as they actually were problems.
+
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
 	* Makefile.in (MODULES): Added module 'sha1'. This is another
 	  message digest like 'md5'.
 

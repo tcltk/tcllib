@@ -1,3 +1,7 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tcl: Fixed dubious code reported by frink.
+
 2001-03-23  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* htmlparse.tcl: Changed the implementation to allow incremental

@@ -235,6 +235,8 @@ proc ::htmlparse::parse {args} {
 		if {[string length $arg] == 0} {
 		    return -code error "::htmlparse::parse : -$opt illegal argument (empty)"
 		}
+		# Each option has an variable with the same name associated with it.
+		# FRINK: nocheck
 		set $opt $arg
 	    }
 	    split  {
@@ -243,6 +245,7 @@ proc ::htmlparse::parse {args} {
 		}
 		set split $arg
 	    }
+	    default {# Can't happen}
 	}
     }
 
@@ -257,13 +260,13 @@ proc ::htmlparse::parse {args} {
 
     # Handle incomplete HTML
 
-    if {[regexp {[^<]*(<[^>]*)$} [lindex "\{$html\}" end] -> trailer]} {
+    if {[regexp -- {[^<]*(<[^>]*)$} [lindex "\{$html\}" end] -> trailer]} {
 	if {$incvar == {}} {
 	    return -code error "::htmlparse::parse : HTML is incomplete, option -incvar is missing"
 	}
 	upvar $incvar incomplete
 	set incomplete $trailer
-	set html       [string range $html 0 [expr [string last "<" $html] - 1]]
+	set html       [string range $html 0 [expr {[string last "<" $html] - 1}]]
     }
 
     # Convert the HTML string into a script.
@@ -415,7 +418,7 @@ proc ::htmlparse::debugCallback {args} {
 proc ::htmlparse::mapEscapes {html} {
     # Find HTML escape characters of the form &xxx;
 
-    if {![regexp & $html]} {
+    if {![regexp -- & $html]} {
 	# HTML not containing escape sequences is returned unchanged.
 	return $html
     }
@@ -769,6 +772,9 @@ proc ::htmlparse::RemoveVisualFluff {tree node} {
 	    # Removes this node and everything below it.
 	    $tree delete $node
 	}
+	default {
+	    # Ignore tag
+	}
     }
 }
 
@@ -791,6 +797,9 @@ proc ::htmlparse::RemoveFormDefs {tree node} {
     switch -exact -- [$tree get $node -key type] {
 	form {
 	    $tree delete $node
+	}
+	default {
+	    # Ignore tag
 	}
     }
 }
@@ -829,6 +838,9 @@ proc ::htmlparse::Reorder {tree node} {
 		}
 		$tree move $node end $sibling
 	    }
+	}
+	default {
+	    # Ignore tag
 	}
     }
 }

@@ -1,3 +1,9 @@
+2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* split.tcl:
+	* adjust.tcl:
+	* trim.tcl: Fixed dubious code reported by frink.
+
 2001-03-23 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* textutil.tcl: Reworked the implementation of 'StrRepeat', made

@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.10 2000/10/02 02:23:44 kuchler Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.11 2001/06/22 15:29:18 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -242,7 +242,7 @@ proc ftp::StateHandler {s {sock ""}} {
 
             # get return code, check for multi-line text
             
-            regexp "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line msgtext
+            regexp -- "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line msgtext
             set buffer $bufline
 			
             # multi-line format detected ("-"), get all the lines
@@ -252,7 +252,7 @@ proc ftp::StateHandler {s {sock ""}} {
                 set number [gets $sock bufline]	
                 if { $number > 0 } {
                     append buffer \n "$bufline"
-                    regexp "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line
+                    regexp -- "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line
                 }
             }
         } elseif { [eof $ftp(CtrlSock)] } {
@@ -287,7 +287,7 @@ proc ftp::StateHandler {s {sock ""}} {
     }
 
     # use only the first digit 
-    regexp "^\[0-9\]?" $rc rc
+    regexp -- "^\[0-9\]?" $rc rc
 	
     switch -exact -- $ftp(State) {
         user { 
@@ -522,7 +522,7 @@ proc ftp::StateHandler {s {sock ""}} {
         size_sent {
             switch -exact -- $rc {
                 2 {
-                    regexp "^\[0-9\]+ (.*)$" $buffer all ftp(FileSize)
+                    regexp -- "^\[0-9\]+ (.*)$" $buffer all ftp(FileSize)
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) size $ftp(File) $ftp(FileSize)
@@ -541,7 +541,7 @@ proc ftp::StateHandler {s {sock ""}} {
         modtime_sent {
             switch -exact -- $rc {
                 2 {
-                    regexp "^\[0-9\]+ (.*)$" $buffer all ftp(DateTime)
+                    regexp -- "^\[0-9\]+ (.*)$" $buffer all ftp(DateTime)
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) modtime $ftp(File) [ModTimePostProcess $ftp(DateTime)]
@@ -560,7 +560,7 @@ proc ftp::StateHandler {s {sock ""}} {
         pwd_sent {
             switch -exact -- $rc {
                 2 {
-                    regexp "^.*\"(.*)\"" $buffer temp ftp(Dir)
+                    regexp -- "^.*\"(.*)\"" $buffer temp ftp(Dir)
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) pwd $ftp(Dir)
@@ -735,7 +735,7 @@ proc ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
 		1 {
 		    # Keep going
-		    return {}
+		    return
 		}
                 2 {
                     set complete_with 1
@@ -979,6 +979,9 @@ proc ftp::StateHandler {s {sock ""}} {
                 }
             }
         }
+	default {
+	    error "Unknown state \"$ftp(State)\""
+	}
     }
 
     # finish waiting 
@@ -2147,6 +2150,7 @@ proc ftp::Close {s } {
 
     catch {close $ftp(CtrlSock)}
     catch {unset ftp}
+    return 1
 }
 
 proc ftp::LazyClose {s } {
@@ -2162,7 +2166,7 @@ proc ftp::LazyClose {s } {
         set connections($ftp(User),$ftp(Passwd),$ftp(RemoteHost),afterid) \
                 [after 5000 [list ftp::Close $s]]
     }
-    return
+    return 1
 }
 
 #############################################################################
@@ -2252,7 +2256,7 @@ proc ftp::Open {server user passwd args} {
             if { $DEBUG } {
                 DisplayMsg $s "  $option = $value"
             }
-            regexp {^-(.?)(.*)$} $option all first rest
+            regexp -- {^-(.?)(.*)$} $option all first rest
             set option "[string toupper $first]$rest"
             set ftp($option) $value
         } 
@@ -2374,7 +2378,7 @@ proc ftp::HandleData {s sock} {
 
     # create local file for ftp::Get 
 
-    if { [regexp "^get" $ftp(State)]  && (!$ftp(inline))} {
+    if { [regexp -- "^get" $ftp(State)]  && (!$ftp(inline))} {
         set rc [catch {set ftp(DestCI) [open $ftp(LocalFilename) w]} msg]
         if { $rc != 0 } {
             DisplayMsg $s "$msg" error
@@ -2390,7 +2394,7 @@ proc ftp::HandleData {s sock} {
 
     # append local file for ftp::Reget 
 
-    if { [regexp "^reget" $ftp(State)] } {
+    if { [regexp -- "^reget" $ftp(State)] } {
         set rc [catch {set ftp(DestCI) [open $ftp(LocalFilename) a]} msg]
         if { $rc != 0 } {
             DisplayMsg $s "$msg" error
@@ -2409,7 +2413,7 @@ proc ftp::HandleData {s sock} {
     set ftp(Total) 0
     set ftp(Start_Time) [clock seconds]
     fcopy $ftp(SourceCI) $ftp(DestCI) -command [list [namespace current]::CopyNext $s] -size $ftp(Blocksize)
-    return
+    return 1
 }
 
 #############################################################################
@@ -2605,6 +2609,9 @@ proc ftp::InitDataConn {s sock addr port} {
                 set ftp(DestCI) $sock
 	    }			  
         }
+	default {
+	    error "Unknown state \"$ftp(State)\""
+	}
     }
 
     if { $VERBOSE } {
@@ -2667,7 +2674,7 @@ proc ftp::OpenActiveConn {s } {
 proc ftp::OpenPassiveConn {s buffer} {
     upvar ::ftp::ftp$s ftp
 
-    if { [regexp {([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)} $buffer all a1 a2 a3 a4 p1 p2] } {
+    if { [regexp -- {([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)} $buffer all a1 a2 a3 a4 p1 p2] } {
         set ftp(LocalAddr) "$a1.$a2.$a3.$a4"
         set ftp(DataPort) "[expr {$p1 * 256 + $p2}]"
 

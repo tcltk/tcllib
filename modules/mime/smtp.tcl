@@ -206,7 +206,9 @@ proc smtp::sendmessage {part args} {
 
     foreach mixed {From Sender To cc Dcc Bcc Date Message-ID} {
         set lower [string tolower $mixed]
+	# FRINK: nocheck
         set ${lower}L $prefixL$lower
+	# FRINK: nocheck
         set ${lower}M $prefixM$mixed
     }
 
@@ -576,7 +578,7 @@ proc smtp::initialize {args} {
     variable smtp
 
     set token [namespace current]::[incr smtp(uid)]
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -711,7 +713,7 @@ proc smtp::initialize {args} {
 
 proc smtp::finalize {token args} {
     global errorCode errorInfo
-
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -751,6 +753,7 @@ proc smtp::finalize {token args} {
     foreach name [array names state] {
         unset state($name)
     }
+    # FRINK: nocheck
     unset $token
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
@@ -774,6 +777,7 @@ proc smtp::finalize {token args} {
 #       error occurs, throw an exception.
 
 proc smtp::winit {token originator {mode MAIL}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -808,6 +812,7 @@ proc smtp::winit {token originator {mode MAIL}} {
 #       error occurs, throw an exception.
 
 proc smtp::waddr {token recipient} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -841,6 +846,7 @@ proc smtp::waddr {token recipient} {
 #       error occurs, throw an exception.
 
 proc smtp::wtext {token part} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -887,6 +893,7 @@ proc smtp::wtext {token part} {
 proc smtp::wtextaux {token part} {
     global errorCode errorInfo
     variable trf
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -939,6 +946,7 @@ proc smtp::wtextaux {token part} {
 #       value.
 
 proc smtp::wdata {token command buffer} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1005,7 +1013,12 @@ proc smtp::wdata {token command buffer} {
             incr state(size) [string length $result]
             return $result
         }
+	default {
+	    error "Unknown command \"$command\""
+	}
     }
+
+    return ""
 }
 
 # smtp::talk --
@@ -1022,6 +1035,7 @@ proc smtp::wdata {token command buffer} {
 #       an exception.
 
 proc smtp::talk {token secs command} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1038,7 +1052,7 @@ proc smtp::talk {token secs command} {
     }
 
     if {$secs == 0} {
-        return
+        return ""
     }
 
     return [smtp::hear $token $secs]
@@ -1056,6 +1070,7 @@ proc smtp::talk {token secs command} {
 #	Response is returned.
 
 proc smtp::hear {token secs} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1142,6 +1157,7 @@ proc smtp::hear {token secs} {
 #       1   if reading from socket was successful
 
 proc smtp::readable {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -1185,6 +1201,7 @@ proc smtp::readable {token} {
 #	Sets state(readable) to -1 and state(error) to an error message.
 
 proc smtp::timer {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 

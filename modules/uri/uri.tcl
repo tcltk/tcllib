@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.4 2000/09/07 06:09:51 welch Exp $
+# CVS: $Id: uri.tcl,v 1.5 2001/06/22 15:29:18 andreas_kupries Exp $
 
 package provide uri 1.0
 
@@ -132,7 +132,7 @@ namespace eval uri {
 		    "//${login}(/${path}(${typepart})?)?"
 
 	    variable	url		"ftp:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes ftp
 	}
 
@@ -143,7 +143,7 @@ namespace eval uri {
 
 	    variable	schemepart	"//(${host}|localhost)?/${path}"
 	    variable	url		"file:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes file
 	}
 
@@ -162,7 +162,7 @@ namespace eval uri {
 		    "//${hostOrPort}(/${path}(\\?${search})?)?"
 
 	    variable	url		"http:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes http
 	}
 
@@ -178,7 +178,7 @@ namespace eval uri {
 	    variable	schemepart	\
 		    "//${hostOrPort}(/(${type}(${selector}(%09${search}(%09${string})?)?)?)?)?"
 	    variable	url		"gopher:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes gopher
 	}
 	
@@ -189,7 +189,7 @@ namespace eval uri {
 
 	    variable	schemepart	"$xChar+(@${host})?"
 	    variable	url		"mailto:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes mailto
 	}
 
@@ -206,7 +206,7 @@ namespace eval uri {
 	    variable	article		"${aChar}+@${host}"
 	    variable	schemepart	"\\*|${group}|${article}"
 	    variable	url		"news:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes news
 	}
 
@@ -232,7 +232,7 @@ namespace eval uri {
 		    "//${hostOrPort}/${db}((\\?${search})|(/${type}/${path}))?"
 
 	    variable	url		"wais:${schemepart}"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes wais
 	}
 
@@ -251,7 +251,7 @@ namespace eval uri {
 
 	    variable	schemepart	"//${hostOrPort}/${path}(${fieldspec})*"
 	    variable	url		"prospero:$schemepart"
-
+	    # FRINK: nocheck
 	    lappend [namespace current]::schemes prospero
 	}
 
@@ -264,7 +264,9 @@ namespace eval uri {
 	variable url2part
 
 	foreach scheme $schemes {
+	    # FRINK: nocheck
 	    append url "(${scheme}:[set ${scheme}::schemepart])|"
+	    # FRINK: nocheck
 	    set url2part($scheme) "${scheme}:[set ${scheme}::schemepart]"
 	}
 	set   url [string trimright $url |]
@@ -290,7 +292,7 @@ proc uri::split {url} {
     set scheme {}
 
     # RFC 1738:	scheme = 1*[ lowalpha | digit | "+" | "-" | "." ]
-    regexp {^([a-z0-9+-.][a-z0-9+-.]*):} $url dummy scheme
+    regexp -- {^([a-z0-9+-.][a-z0-9+-.]*):} $url dummy scheme
 
     if {$scheme == {}} {
 	set scheme http
@@ -335,7 +337,7 @@ proc uri::SplitFtp {url} {
 
     # slash off possible type specification
 
-    if {[regexp -indices "${ftptype}$" $url dummy ftype]} {
+    if {[regexp -indices -- "${ftptype}$" $url dummy ftype]} {
 	set from	[lindex $ftype 0]
 	set to		[lindex $ftype 1]
 
@@ -418,7 +420,7 @@ proc uri::SplitHttp {url} {
 
     # slash off possible query
 
-    if {[regexp -indices $searchPattern $url match query]} {
+    if {[regexp -indices -- $searchPattern $url match query]} {
 	set from [lindex $query 0]
 	set to   [lindex $query 1]
 
@@ -429,7 +431,7 @@ proc uri::SplitHttp {url} {
 
     # slash off possible fragment
 
-    if {[regexp -indices $fragmentPattern $url match fragment]} {
+    if {[regexp -indices -- $fragmentPattern $url match fragment]} {
 	set from [lindex $fragment 0]
 	set to   [lindex $fragment 1]
 
@@ -490,7 +492,7 @@ proc uri::SplitFile {url} {
 	set url [string range $url 2 end]
 
 	set hostPattern "^($hostname|$hostnumber)"
-	switch $::tcl_platform(platform) {
+	switch -exact -- $::tcl_platform(platform) {
 	    windows {
 		# Catch drive letter
 		append hostPattern :?
@@ -500,7 +502,7 @@ proc uri::SplitFile {url} {
 	    }
 	}
 
-	if {[regexp -indices $hostPattern $url match host]} {
+	if {[regexp -indices -- $hostPattern $url match host]} {
 	    set fh	[lindex $host 0]
 	    set th	[lindex $host 1]
 
@@ -524,7 +526,7 @@ proc uri::JoinFile args {
     }
     array set components $args
 
-    switch $::tcl_platform(platform) {
+    switch -exact -- $::tcl_platform(platform) {
 	windows {
 	    if {[string length $components(host)]} {
 		return file://$components(host):$components(path)
@@ -543,7 +545,7 @@ proc uri::SplitMailto {url} {
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
 
-    if {[regexp @ $url]} {
+    if {[regexp -- @ $url]} {
 	set url [::split $url @]
 	return [list user [lindex $url 0] host [lindex $url 1]]
     } else {
@@ -584,7 +586,7 @@ proc uri::GetUPHP {urlvar} {
 
     set upPattern "^(${user})(:(${password}))?@"
 
-    if {[regexp -indices $upPattern $url dummy theUser c d thePassword]} {
+    if {[regexp -indices -- $upPattern $url dummy theUser c d thePassword]} {
 	set fu	[lindex $theUser 0]
 	set tu	[lindex $theUser 1]
 	    
@@ -602,7 +604,7 @@ proc uri::GetUPHP {urlvar} {
 
     set hpPattern "^($hostname|$hostnumber)(:($port))?"
 
-    if {[regexp -indices $hpPattern $url match theHost c d e f g h thePort]} {
+    if {[regexp -indices -- $hpPattern $url match theHost c d e f g h thePort]} {
 	set fh	[lindex $theHost 0]
 	set th	[lindex $theHost 1]
 
@@ -636,7 +638,7 @@ proc uri::GetHostPort {urlvar} {
 
     set pattern "^(${hostname}|${hostnumber})(:(${port}))?"
 
-    if {[regexp -indices $pattern $url match host c d e f g h thePort]} {
+    if {[regexp -indices -- $pattern $url match host c d e f g h thePort]} {
 	set fromHost	[lindex $host 0]
 	set toHost	[lindex $host 1]
 
@@ -715,7 +717,7 @@ proc uri::resolve {base url} {
 #	Returns 1 if the URL is relative, 0 otherwise
 
 proc uri::isrelative url {
-    return [expr ![regexp {^[a-z0-9+-.][a-z0-9+-.]*:} $url]]
+    return [expr {![regexp -- {^[a-z0-9+-.][a-z0-9+-.]*:} $url]}]
 }
 
 # geturl --
@@ -818,10 +820,10 @@ proc uri::canonicalize uri {
     # Remove single dots (.)  => pwd not changing
     # Remove double dots (..) => gobble previous segment of path
 
-    while {[regexp {/\./} $uri]} {
+    while {[regexp -- {/\./} $uri]} {
         regsub -all {/\./} $uri {/} uri
     }
-    while {[regexp {/\.\./} $uri]} {
+    while {[regexp -- {/\.\./} $uri]} {
 	if {![regsub {/[^./]*/\.\./} $uri {/} uri]} {
 	    # The regexp found 'foo://bar.com/../baz', but this
 	    # cannot be handled by the regsub. Simply remove the
