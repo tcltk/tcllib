@@ -23,25 +23,21 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd160.tcl,v 1.3 2004/02/18 23:49:09 patthoyts Exp $
+# $Id: ripemd160.tcl,v 1.4 2004/12/03 02:23:40 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
 
 namespace eval ::ripemd {
     namespace eval ripemd160 {
-        variable version 1.0.0
-        variable rcsid {$Id: ripemd160.tcl,v 1.3 2004/02/18 23:49:09 patthoyts Exp $}
+        variable version 1.0.1
+        variable rcsid {$Id: ripemd160.tcl,v 1.4 2004/12/03 02:23:40 patthoyts Exp $}
         variable usetrf 0
 
-        # Trf 2.1p1 is buggy for what we want to do.
-        catch {
-            package require Trf
-            package require Memchan
-            if {[package vsatisfies \
-                     [string map {p .} [package provide Trf]] 2.1.2]} {
-                set usetrf 1
-            }
+        
+        # See if we can use Trf
+        if {![catch {package require Trf}]} {
+            set usetrf 1
         }
 
         variable uid
@@ -76,16 +72,20 @@ proc ::ripemd::ripemd160::RIPEMD160Init {} {
              E [expr {0xc3d2e1f0}] \
              n 0 i "" ]
     if {$usetrf} {
-        catch {
-            set s [::null]
-            set tok(trfread) 0
-            set tok(trfwrite) 0
+        set s {}
+        switch -exact -- $::tcl_platform(platform) {
+            windows { set s [open NUL w] }
+            unix    { set s [open /dev/null w] }
+        }
+        if {$s != {}} {
             fconfigure $s -translation binary -buffering none
-            ::ripemd160 -attach $s -mode transparent \
+            ::ripemd160 -attach $s -mode write \
                 -read-type variable \
                 -read-destination [subst $token](trfread) \
                 -write-type variable \
                 -write-destination [subst $token](trfwrite)
+            set tok(trfread) 0
+            set tok(trfwrite) 0
             set tok(trf) $s
         }
     }

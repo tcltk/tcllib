@@ -1,6 +1,6 @@
 # ripemd128.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd128.test,v 1.3 2004/02/18 14:32:04 patthoyts Exp $
+# $Id: ripemd128.test,v 1.4 2004/12/03 02:23:40 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -50,23 +50,24 @@ set vectors {
       {A1AA0689D0FAFA2DDC22E88B49133A06}
     7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
       {D1E959EB179C911FAEA4624C60C5C702}
+    8 {-} {CCE66016F96D83CBC625AD3970B9706E}
 }
 lappend vectors \
-    8 [string repeat 1234567890 8] {3F45EF194732C2DBB2C4A2C769795FA3}
+    9 [string repeat 1234567890 8] {3F45EF194732C2DBB2C4A2C769795FA3}
 
 foreach {n msg hash} $vectors {
     test ripemd128-1.$n {RIPEMD-128 test strings} {
-        ::ripemd::ripemd128 -hex $msg
+        ::ripemd::ripemd128 -hex -- $msg
     } $hash
 }
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
 if {$::ripemd::ripemd128::usetrf} {
-    set ::ripemd::usetrf 0
+    set ::ripemd::ripemd128::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd128-2.$n {RIPEMD-128 pure-Tcl} {
-            ::ripemd::ripemd128 -hex $msg
+            ::ripemd::ripemd128 -hex -- $msg
         } $hash
     }
     set ::ripemd::ripemd128::usetrf 1
@@ -93,17 +94,17 @@ lappend vectors \
 
 foreach {n msg hash} $vectors {
     test ripemd128-3.$n {HMAC RIPEMD-128 test vectors} {
-        ::ripemd::hmac128 -hex -key $key $msg
+        ::ripemd::hmac128 -hex -key $key -- $msg
     } $hash
 }
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
 if {$::ripemd::ripemd128::usetrf} {
-    set ::ripemd::usetrf 0
+    set ::ripemd::ripemd128::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd128-4.$n {HMAC RIPEMD-128 pure-Tcl} {
-            ::ripemd::hmac128 -hex -key $key $msg
+            ::ripemd::hmac128 -hex -key $key -- $msg
         } $hash
     }
     set ::ripemd::ripemd128::usetrf 1
@@ -130,21 +131,63 @@ lappend vectors \
 
 foreach {n msg hash} $vectors {
     test ripemd128-5.$n {HMAC RIPEMD-128 test vectors} {
-        ::ripemd::hmac128 -hex -key $key $msg
+        ::ripemd::hmac128 -hex -key $key -- $msg
     } $hash
 }
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
 if {$::ripemd::ripemd128::usetrf} {
-    set ::ripemd::usetrf 0
+    set ::ripemd::ripemd128::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd128-6.$n {HMAC RIPEMD-128 pure-Tcl} {
-            ::ripemd::hmac128 -hex -key $key $msg
+            ::ripemd::hmac128 -hex -key $key -- $msg
         } $hash
     }
     set ::ripemd::ripemd128::usetrf 1
 }
+
+# -------------------------------------------------------------------------
+# RFC 2286 has a set of test vectors for HMAC-RIPEMD168 and 128.
+# This is those test vectors...
+# -------------------------------------------------------------------------
+
+set vectors \
+    [list \
+         1 [string repeat \x0b 16] "Hi There" \
+         FBF61F9492AA4BBF81C172E84E0734DB \
+         2 "Jefe" "what do ya want for nothing?" \
+         875F828862B6B334B427C55F9F7FF09B \
+         3 [string repeat \xaa 16] [string repeat \xdd 50] \
+         09F0B2846D2F543DA363CBEC8D62A38D \
+         4 \
+         [binary format H* 0102030405060708090a0b0c0d0e0f10111213141516171819]\
+         [string repeat \xcd 50] \
+         BDBBD7CF03E44B5AA60AF815BE4D2294 \
+         5 [string repeat \x0c 16] "Test With Truncation" \
+         E79808F24B25FD031C155F0D551D9A3A \
+         6 [string repeat \xaa 80] \
+         "Test Using Larger Than Block-Size Key - Hash Key First" \
+         DC732928DE98104A1F59D373C150ACBB \
+         7 [string repeat \xaa 80] \
+         "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data" \
+         5C6BEC96793E16D40690C237635F30C5 \
+        ]
+foreach {n key msg hash} $vectors {
+    test ripemd128-7.$n {RFC2286 test vectors for HMAC-RIPEMD128} {
+        ::ripemd::hmac128 -hex -key $key -- $msg
+    } $hash
+}
+
+if {$::ripemd::ripemd128::usetrf} {
+    set ::ripemd::ripemd128::usetrf 0
+    foreach {n key msg hash} $vectors {
+        test ripemd128-8.$n {RFC2286 test vectors for HMAC-RIPEMD128 pure-Tcl} {
+            ::ripemd::hmac128 -hex -key $key -- $msg
+        } $hash
+    }
+    set ::ripemd::ripemd128::usetrf 1
+}    
 
 # -------------------------------------------------------------------------
 
