@@ -7,7 +7,7 @@
 
 # This file may be distributed under the same terms as Tcl.
 
-# $Id: multiplexer.tcl,v 1.2 2003/05/19 13:40:22 davidw Exp $
+# $Id: multiplexer.tcl,v 1.3 2003/05/20 23:01:47 andreas_kupries Exp $
 
 package provide multiplexer 0.2
 package require logger
@@ -138,7 +138,7 @@ proc ::multiplexer::create {} {
 	    variable log
 
 	    foreach c [array names clients] {
-		if { $config(sendtoorigin) == 1 } {
+		if { $config(sendtoorigin) } {
 		    puts -nonewline $c "$data"
 		} else {
 		    if { $chan != $c } {
