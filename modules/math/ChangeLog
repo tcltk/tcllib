@@ -1,3 +1,7 @@
+2005-03-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Corrected problem with exponential_Ei - doubly defined
+
 2005-01-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Added version 1.0 of Stephane Arnold's bigfloat package
