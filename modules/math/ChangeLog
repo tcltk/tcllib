@@ -1,3 +1,7 @@
+2005-01-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Added tests for matmul (and corrected the implementation)
+
 2005-01-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Expanded the documentation (it should now describe all
