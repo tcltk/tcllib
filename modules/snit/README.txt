@@ -82,6 +82,13 @@ you.
   option's value can be set at creation time (i.e., in the type's
   constructor) but not afterwards.
 
+* There's a new type definition statement called "pragma" that 
+  allows you to control how Snit generates the type from the
+  definition.  For example, you can disable all standard typemethods
+  (including "create"); this allows you to use snit::type to define
+  an ensemble command (like "string" or "file") using typevariables
+  and typemethods.
+
 * Sundry other internal changes.
 
 Changes in V0.93
