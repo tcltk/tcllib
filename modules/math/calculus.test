@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.5 2004/07/05 03:39:46 kennykb Exp $
+# RCS: @(#) $Id: calculus.test,v 1.6 2004/09/09 13:07:58 arjenmarkus Exp $
 
 package require tcltest 2
 
@@ -492,6 +492,57 @@ test romberg-6.1 {Fancy integration} \
 	rename romberg_sine {}
     } \
     -result {}
+
+
+proc matchNumbers {expected actual} {
+   set match 1
+   foreach a $actual e $expected {
+      if {abs($a-$e) > 0.1e-6} {
+         set match 0
+         break
+      }
+   }
+   return $match
+}
+
+customMatch numbers matchNumbers
+
+proc ::f1 {x} {expr {1.0-$x}}
+proc ::f2 {x} {expr {1.0-$x*$x}}
+proc ::f3 {x} {expr {cos($x)}}
+
+test "regula-1.0" "Zero of linear function" \
+   -match numbers -body {
+   set x1 [::math::calculus::regula_falsi ::f1 0.0 5.0]
+} -result 1.0
+
+test "regula-1.1" "Zero of quadratic function" \
+   -match numbers -body {
+   set x1 [::math::calculus::regula_falsi ::f2 0.0 5.0]
+} -result 0.99909822
+
+test "regula-1.2" "Zero of quadratic function (more accurate)" \
+   -match numbers -body {
+   set x1 [::math::calculus::regula_falsi ::f2 0.0 5.0 1.0e-6]
+} -result 0.99999305
+
+test "regula-1.3" "Zero of cosine" \
+   -match numbers -body {
+   set x1 [::math::calculus::regula_falsi ::f3 0.0 3.0]
+} -result 1.5707963
+
+test "regula-2.1" "Negative relative error" \
+   -match glob -body {
+   set x1 [::math::calculus::regula_falsi ::f1 0.0 3.0 -1.0e-4]
+} -result "Relative *" -returnCodes error
+
+test "regula-2.2" "Invalid interval" \
+   -match glob -body {
+   set x1 [::math::calculus::regula_falsi ::f3 0.0 5.0]
+} -result "Interval must be *" -returnCodes error
+
+# End of test cases
+tcltest::cleanupTests
 	    
 set ::tcl_precision $prec
 
