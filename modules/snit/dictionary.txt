@@ -73,13 +73,6 @@ Snit_methodInfo         Array(method name) = {<pattern> <compName>}
 Snit_typeMethodCache    Array(typemethod name) = cached command
                         Used in typemethod dispatch.
 
-                        * Unless we allow delegation of type methods,
-                          this should be precomputed.  At present, it
-                          isn't.
-                        * It's not clear that this is really needed.
-                          The 90% case is implicit "create", which
-                          can't be cached.
-
 INSTANCE VARIABLES
 
 Snit_instance           Current name of the instance command.
@@ -87,8 +80,6 @@ Snit_instance           Current name of the instance command.
 Snit_components         Array(component name) = name command_name
                         Used whenever we need to retrieve the
                         component command.
-    
-                        * Try to do more caching.
 
 Snit_methodCache        Array(method name) = cached command
                         Used during method dispatch.
