@@ -306,6 +306,33 @@ test solve-1.3 "solveGauss - 3x3 matrix - less trivial" -match numbers -body {
     solveGauss $M $b
 } -result {{1 0 1} {0 -1 0} {1 0 1}}
 
+test orthon-1.0 "orthonormalize columns - 3x3" -match numbers -body {
+    set M {{1 1 1}
+           {0 1 1}
+           {0 0 1}}
+    orthonormalizeColumns $M
+} -result {{1 0 0}
+           {0 1 0}
+           {0 0 1}}
+
+test orthon-1.1 "orthonormalize rows - 3x3" -match numbers -body {
+    set M {{1 0 0}
+           {1 1 0}
+           {1 1 1}}
+    orthonormalizeRows $M
+} -result {{1 0 0}
+           {0 1 0}
+           {0 0 1}}
+
+test orthon-1.2 "orthonormalize rows - 3x4" -match numbers -body {
+    set M {{1 0 0 0}
+           {1 1 0 0}
+           {1 1 1 0}}
+    orthonormalizeRows $M
+} -result {{1 0 0 0}
+           {0 1 0 0}
+           {0 0 1 0}}
+
 #
 # Check the result by multiplying U*S*Vtrans and compare
 # to the original matrix
