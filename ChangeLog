@@ -1,6 +1,7 @@
 2002-08-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct (pool): Fixed bug SF #585093.
+	* struct (tree): Fixed bug SF #587533.
 
 2002-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
