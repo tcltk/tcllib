@@ -1,3 +1,7 @@
+2003-05-09  Andreas Kupries  <andreask@activestate.com>
+
+	* ncgi.tcl (import_file): Brace [expr].
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

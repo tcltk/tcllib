@@ -17,13 +17,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: resolv.tcl,v 1.6 2003/05/01 00:17:40 andreas_kupries Exp $
+# $Id: resolv.tcl,v 1.7 2003/05/09 21:28:43 andreas_kupries Exp $
 
 package require dns 1.0;                # tcllib 1.3
 
 namespace eval ::resolv {
     variable version 1.0.2
-    variable rcsid {$Id: resolv.tcl,v 1.6 2003/05/01 00:17:40 andreas_kupries Exp $}
+    variable rcsid {$Id: resolv.tcl,v 1.7 2003/05/09 21:28:43 andreas_kupries Exp $}
 
     namespace export resolve init ignore hostname
 
@@ -141,7 +141,7 @@ proc ::resolv::init { {defaultdns ""} {search {}}} {
             for { set i 0 } { $i < $len } { incr i } {
                 set e [lindex $nl $i]
                 if { [string match -nocase "*name*" $e] } {
-                    set ourhost [lindex $nl [expr $i + 1]]
+                    set ourhost [lindex $nl [expr {$i + 1}]]
                     break
                 }
             }
