@@ -94,7 +94,7 @@ sources, for example).  It copies [arg source], which can be either a
 file or directory to [arg destination], which should be a directory,
 unless [arg source] is also a single file.  The [opt -m] option lets
 the user specify a unix-style mode (either octal or symbolic - see
-[cmd file attributes].
+[cmd {file attributes}].
 
 [call [cmd ::fileutil::stripN] [arg path] [arg n]]
 
