@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.7 2000/09/04 06:20:02 steve Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.8 2000/09/25 22:59:32 sandeep Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -322,7 +322,7 @@ proc ftp::StateHandler {s {sock ""}} {
 		    # The type is set after this, and we want to report
 		    # that the connection is complete once the type is done
 		    set nextState 1
-		    if {![info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
+		    if {[info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
 			Command $ftp(Command) connect $s
 		    } else {
 			set complete_with 1

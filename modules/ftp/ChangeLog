@@ -1,3 +1,9 @@
+2000-09-25  Sandeep Tamhankar <sandeep@ajubasolutions.com>
+
+        * ftp.tcl: Fixed a line of code in the "connect" state of StateHandler,
+        switching a ![info exists... to [info exists...  It was originally
+        stack tracing when opening a connection.
+
 2000-08-29  Steve Ball   <Steve.Ball@zveno.com>
 
        * README
