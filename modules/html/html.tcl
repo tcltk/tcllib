@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.9 2000/05/02 22:25:46 mtariq Exp $
+# RCS: @(#) $Id: html.tcl,v 1.10 2000/05/04 18:56:48 mtariq Exp $
 
 package provide html 1.0
 
@@ -411,8 +411,8 @@ proc html::checkValue {name {value 1}} {
 #	A string like:
 #	name="fred" value="freds value" CHECKED
 
-proc html::radioValue {name value} {
-    if {[string equal $value [ncgi::value $name]]} {
+    proc html::radioValue {name value {defaultSelection {}}} {
+    if {[string equal $value [ncgi::value $name $defaultSelection]]} {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
     } else {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\""
@@ -428,7 +428,7 @@ proc html::radioValue {name value} {
     set html ""
     set s ""
     foreach {label v} $list {
-	append html "$s<input type=\"radio\" [radioValue $key $v]$defaultSelection> $label"
+	append html "$s<input type=\"radio\" [radioValue $key $v $defaultSelection]> $label"
 	set s $sep
     }
     return $html
