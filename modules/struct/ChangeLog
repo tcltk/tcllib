@@ -1,3 +1,10 @@
+2004-08-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.test: Fixed [SF Tcllib Bug 1000716]: Unset of last
+	* tree.test:  attribute followed by delete does not result
+	* graph.tcl:  in error anymore. Thanks to Brian Theado
+	* tree.tcl:   <btheado@users.sf.net> for both report and fix.
+
 2004-06-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix.tcl (_search): Fixed bug reported by Joachim Kock

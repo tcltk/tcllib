@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.28 2004/02/09 09:32:14 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.28.2.1 2004/08/04 03:34:37 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1507,7 +1507,7 @@ proc ::struct::tree::_unset {name node key} {
 
     if {[array size data] == 0} {
 	# No attributes stored for this node, squash the whole array.
-	set attribute($node) {}
+	unset attribute($node)
 	unset data
     }
     return
