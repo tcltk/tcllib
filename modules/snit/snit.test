@@ -1758,7 +1758,7 @@ test destroy-1.2 {incomplete objects are destroyed} {} {
     catch {dog create spot -color red} result
     set names [array names ::dog::snit_ivars]
     list $result $names [info commands ::dog::spot]
-} {{No Red Dogs!} {} {}}
+} {{Error in constructor: No Red Dogs!} {} {}}
 
 test destroy-1.3 {user-defined destructors are called} {} {
     cleanup
@@ -2178,7 +2178,7 @@ test doption-1.7 {delegating unknown options to existing component: error} {
     set result {}
     catch {dog create spot -colour blue} result
     set result
-} {unknown option "-colour"}
+} {Error in constructor: unknown option "-colour"}
 
 test doption-1.8 {can't delegate local option: order 1} {
     cleanup
@@ -3854,6 +3854,116 @@ test expose-1.4 {exposed method calls component methods.} {
     list [fido tail wag] [fido tail wag abc] [fido tail wag abc def] \
         [fido tail droop]
 } {wag<> wag<abc> {wag<abc def>} droop}
+
+#-----------------------------------------------------------------------
+# Error handling
+#
+# This section verifies that errorInfo and errorCode are propagated
+# appropriately on error.
+
+test error-1.1 {typemethod errors propagate properly} {
+    cleanup
+
+    type dog {
+        typemethod generr {} {
+            error bogusError bogusInfo bogusCode
+        }
+    }
+
+    catch {dog generr} result
+
+    global errorInfo errorCode
+
+    list $result [string match "*bogusInfo*" $errorInfo] $errorCode
+} {bogusError 1 bogusCode}
+
+test error-1.2 {snit::type constructor errors propagate properly} {
+    cleanup
+
+    type dog {
+        constructor {} {
+            error bogusError bogusInfo bogusCode
+        }
+    }
+
+    catch {dog fido} result
+
+    global errorInfo errorCode
+
+    list $result [string match "*bogusInfo*" $errorInfo] $errorCode
+} {{Error in constructor: bogusError} 1 bogusCode}
+
+test error-1.3 {snit::widget constructor errors propagate properly} tk {
+    cleanup
+
+    widget dog {
+        constructor {args} {
+            error bogusError bogusInfo bogusCode
+        }
+    }
+
+    catch {dog .fido} result
+
+    global errorInfo errorCode
+
+    list $result [string match "*bogusInfo*" $errorInfo] $errorCode
+} {{Error in constructor: bogusError} 1 bogusCode}
+
+test error-1.4 {method errors propagate properly} {
+    cleanup
+
+    type dog {
+        method generr {} {
+            error bogusError bogusInfo bogusCode
+        }
+    }
+
+    dog fido
+    catch {fido generr} result
+
+    global errorInfo errorCode
+
+    list $result [string match "*bogusInfo*" $errorInfo] $errorCode
+} {bogusError 1 bogusCode}
+
+test error-1.5 {onconfigure errors propagate properly} {
+    cleanup
+
+    type dog {
+        option -generr
+
+        onconfigure -generr {value} {
+            error bogusError bogusInfo bogusCode
+        }
+    }
+
+    dog fido
+    catch {fido configure -generr 0} result
+
+    global errorInfo errorCode
+
+    list $result [string match "*bogusInfo*" $errorInfo] $errorCode
+} {bogusError 1 bogusCode}
+
+test error-1.6 {oncget errors propagate properly} {
+    cleanup
+
+    type dog {
+        option -generr
+
+        oncget -generr {
+            error bogusError bogusInfo bogusCode
+        }
+    }
+
+    dog fido
+    catch {fido cget -generr} result
+
+    global errorInfo errorCode
+
+    list $result [string match "*bogusInfo*" $errorInfo] $errorCode
+} {bogusError 1 bogusCode}
+
 
 #---------------------------------------------------------------------
 # Clean up
