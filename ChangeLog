@@ -1,6 +1,8 @@
 2001-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* pop3: Bugfix for item #490151.
+	* pop3:     Bugfix for item #490151.
+
+	* textutil: Bugfix for item #476988.
 
 2001-12-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
