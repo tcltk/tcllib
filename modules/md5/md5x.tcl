@@ -16,23 +16,28 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.12 2005/02/20 08:25:02 patthoyts Exp $
+# $Id: md5x.tcl,v 1.13 2005/02/23 15:19:52 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
-    variable version 2.0.3
-    variable rcsid {$Id: md5x.tcl,v 1.12 2005/02/20 08:25:02 patthoyts Exp $}
-    variable usetrf  0
-    variable usemd5c 0
+    variable version 2.0.4
+    variable rcsid {$Id: md5x.tcl,v 1.13 2005/02/23 15:19:52 patthoyts Exp $}
+    variable accel
+    array set accel {critcl 0 cryptkit 0 trf 0}
+
     namespace export md5 hmac MD5Init MD5Update MD5Final
 
     # Try and load a compiled extension to help.
     if {![catch {package require tcllibc}] 
         || ![catch {package require md5c}]} {
-        set usemd5c [expr {[info command ::md5::md5c] != {}}]
-    } elseif {![catch {package require Trf}]} {
-        set usetrf 1
+        set accel(critcl) [expr {[info command ::md5::md5c] != {}}]
+    }
+    if {!$accel(critcl) && ![catch {package require cryptkit}]} {
+        set accel(cryptkit) [expr {![catch {cryptkit::cryptInit}]}]
+    }
+    if {!$accel(critcl) && !$accel(cryptkit) && ![catch {package require Trf}]} {
+        set accel(trf) [expr {![catch {::md5 abc}]}]
     }
 
     variable uid
@@ -49,7 +54,7 @@ namespace eval ::md5 {
 #   cleaned up when we call MD5Final
 #
 proc ::md5::MD5Init {} {
-    variable usetrf
+    variable accel
     variable uid
     set token [namespace current]::[incr uid]
     upvar #0 $token tok
@@ -57,12 +62,14 @@ proc ::md5::MD5Init {} {
     # RFC1321:3.3 - Initialize MD5 state structure
     array set tok \
         [list \
-             A [expr 0x67452301] \
-             B [expr 0xefcdab89] \
-             C [expr 0x98badcfe] \
-             D [expr 0x10325476] \
+             A [expr {0x67452301}] \
+             B [expr {0xefcdab89}] \
+             C [expr {0x98badcfe}] \
+             D [expr {0x10325476}] \
              n 0 i "" ]
-    if {$usetrf} {
+    if {$accel(cryptkit)} {
+        cryptkit::cryptCreateContext state(ckctx) CRYPT_UNUSED CRYPT_ALGO_MD5
+    } elseif {$accel(trf)} {
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -92,16 +99,18 @@ proc ::md5::MD5Init {} {
 #   it here in preference to the pure-Tcl implementation.
 #
 proc ::md5::MD5Update {token data} {
-    variable usemd5c
-    variable $token
-    upvar 0 $token state
+    variable accel
+    upvar #0 $token state
 
-    if {$usemd5c} {
+    if {$accel(critcl)} {
         if {[info exists state(md5c)]} {
             set state(md5c) [md5c $data $state(md5c)]
         } else {
             set state(md5c) [md5c $data]
         }
+        return
+    } elseif {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) $data
         return
     } elseif {[info exists state(trf)]} {
         puts -nonewline $state(trf) $data
@@ -132,12 +141,18 @@ proc ::md5::MD5Update {token data} {
 #    Note that the output is 128 bits represented as binary data.
 #
 proc ::md5::MD5Final {token} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     # Check for either of the C-compiled versions.
     if {[info exists state(md5c)]} {
         set r $state(md5c)
+        unset state
+        return $r
+    } elseif {[info exists state(ckctx)]} {
+        cryptkit::cryptEncrypt $state(ckctx) ""
+        cryptkit::cryptGetAttributeString $state(ckctx) \
+            CRYPT_CTXINFO_HASHVALUE r 16
+        cryptkit::cryptDestroyContext $state(ckctx)
         unset state
         return $r
     } elseif {[info exists state(trf)]} {
@@ -212,6 +227,7 @@ proc ::md5::HMACInit {K} {
     MD5Update $tok $Ki;                 # initialize with the inner pad
     
     # preserve the Ko value for the final stage.
+    # FRINK: nocheck
     set [subst $tok](Ko) $Ko
 
     return $tok
@@ -232,8 +248,7 @@ proc ::md5::HMACUpdate {token data} {
 #    closed and the binary representation of the hash result is returned.
 #
 proc ::md5::HMACFinal {token} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     set tok [MD5Init];                  # init the outer hashing function
     MD5Update $tok $state(Ko);          # prepare with the outer pad.
@@ -516,8 +531,7 @@ proc ::md5::Pop {varname {nth 0}} {
 # fileevent handler for chunked file hashing.
 #
 proc ::md5::Chunk {token channel {chunksize 4096}} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     
     if {[eof $channel]} {
         fileevent $channel readable {}
@@ -566,6 +580,7 @@ proc ::md5::md5 {args} {
     } else {
 
         set tok [MD5Init]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
@@ -630,6 +645,7 @@ proc ::md5::hmac {args} {
     } else {
 
         set tok [HMACInit $opts(-key)]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
