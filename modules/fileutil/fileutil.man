@@ -131,6 +131,12 @@ only change the mtime.
 [emph {This command is not available for Tcl versions less than 8.3.}]
 
 
+[call [cmd ::fileutil::tempdir]]
+
+The command returns the path of the directory where the caller can
+place temporary files.
+
+
 [call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
 
 The command generates a temporary file name suitable for writing to,
