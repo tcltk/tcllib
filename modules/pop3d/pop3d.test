@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.2 2002/06/17 20:33:45 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.3 2002/09/03 17:13:51 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -380,7 +380,7 @@ test pop3-srv-4.0 {connection introspection} {
     set res [ppcstate $res]
     delsrv
     set res
-} {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 state auth storage {}}
+} {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
 
 
 test pop3-srv-5.0 {initial contact, greeting} {
@@ -421,13 +421,13 @@ test pop3-srv-6.0 {unknown command} {
 # Database of possible responses and server states.
 
 array set cstate {
+    0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
+    1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
     2 {}
-    0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost 127.0.0.1 remoteport {} server 1 state auth storage {}}
-    1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 state auth storage {}}
-    3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost 127.0.0.1 remoteport {} server 1 state auth storage {}}
-    5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost 127.0.0.1 remoteport {} server 1 state auth storage {}}
-    4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost 127.0.0.1 remoteport {} server 1 state trans storage usr0}
-    6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost 127.0.0.1 remoteport {} server 1 state trans storage usr0}
+    3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
+    4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost 127.0.0.1 remoteport {} server 1 size 3 state trans storage usr0}
+    5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
+    6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost 127.0.0.1 remoteport {} server 1 size 3 state trans storage usr0}
 }
 array set log {
     0  {+OK please send PASS command}
@@ -438,7 +438,7 @@ array set log {
     5  {+OK congratulations -ERR client already authenticated}
     6  {+OK congratulations}
     7  {-ERR client already authenticated}
-    8  {+OK 3 messages waiting for retrieval}
+    8  {+OK 3 3}
     9  {+OK message 1 deleted}
     10 {+OK 1 octets}
     11 {+OK }

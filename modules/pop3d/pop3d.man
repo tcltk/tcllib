@@ -200,10 +200,11 @@ successfully or false if not.
 This is the complementary method to [method lock], it revokes the lock
 on the specified mailbox.
 
-[call [arg storageCmd] [method size] [arg mbox] [arg msgId]]
+[call [arg storageCmd] [method size] [arg mbox] [opt [arg msgId]]]
 
 Determines the size of the message specified through its id in
-[arg msgId], in bytes, and returns this number.
+[arg msgId], in bytes, and returns this number. The command will
+return the size of the whole maildrop if no message id was specified.
 
 [call [arg storageCmd] [method stat] [arg mbox]]
 
