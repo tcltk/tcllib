@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.1.2.1 2003/07/24 23:00:53 patthoyts Exp $
+# RCS: @(#) $Id: md5x.test,v 1.1.2.2 2004/09/25 14:23:30 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -49,17 +49,17 @@ if {[info command ::md5::md5c] != {}} {
 test md5-1.0 {md5} {
     catch {::md5::md5} result
     set result
-} [tcltest::getErrorMessage "md5" "?-hex? -filename file | string" 0]
+} [tcltest::wrongNumArgs "md5" "?-hex? -filename file | string" 0]
 
 test md5-1.1 {md5} {
     catch {::md5::hmac} result
     set result
-} [tcltest::getErrorMessage "hmac" "?-hex? -key key -filename file | string" 0]
+} [tcltest::wrongNumArgs "hmac" "?-hex? -key key -filename file | string" 0]
 
 test md5-1.2 {md5} {
     catch {::md5::hmac key} result
     set result
-} [tcltest::getErrorMessage "hmac" "?-hex? -key key -filename file | string" 1]
+} [tcltest::wrongNumArgs "hmac" "?-hex? -key key -filename file | string" 1]
 
 
 foreach {n msg expected} {
