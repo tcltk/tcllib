@@ -13,14 +13,19 @@ package require cmdline
 # Argument processing and checks.
 
 set sepChar ,
-set usage   "Usage: $argv0 ?-sep sepchar? ?-key LIST? file1 file2\n\tLIST=idx,...\n\tidx in \{n, -m, n-, n-m\}"
+set usage   "Usage: $argv0 ?-n? ?-sep sepchar? ?-key LIST? file1 file2\n\tLIST=idx,...\n\tidx in \{n, -m, n-, n-m\}"
 set keySpec "0-"
 
-while {[set ok [cmdline::getopt argv {sep.arg key.arg} opt val]] > 0} {
+# lineout = boolean flag, indicates if linenumbers has to be written
+# as part of the output (1) or not (0). Defaults to 0.
+
+set lineout 0
+while {[set ok [cmdline::getopt argv {sep.arg key.arg n} opt val]] > 0} {
     #puts stderr "= $opt $val"
     switch -exact -- $opt {
 	sep   {set sepChar $val}
 	key   {set keySpec $val}
+	n     {set lineout 1}
     }
 }
 if {($ok < 0) || ([llength $argv] != 2)} {
@@ -28,7 +33,7 @@ if {($ok < 0) || ([llength $argv] != 2)} {
     exit -1
 }
 
-foreach {inA inB} $argv break
+foreach {fileA fileB} $argv break
 
 
 if {[llength $keySpec] == 0} {
@@ -61,8 +66,8 @@ foreach i $keySpec {
 set keySpec $idx
 
 
-set inA [open $inA r]
-set inB [open $inB r]
+set inA [open $fileA r]
+set inB [open $fileB r]
 
 # ----------------------------------------------------
 # Actual processing, uses the following information from the
@@ -75,9 +80,9 @@ set inB [open $inB r]
 # We read file2 completely and then go through the records of
 # file1. For any record we don't find we write a "deleted" record. If
 # we find the matching record we remove it from the internal
-# storage. In a second sweep through internal array we write "added"
-# records for the remaining data as that was not in file1 but is in
-# file2.
+# storage. In a second sweep through the internal array we write
+# "added" records for the remaining data as that was not in file1 but
+# is in file2.
 
 proc keyof {data} {
     global keySpec
@@ -93,37 +98,65 @@ proc keyof {data} {
 
 set order [list]
 array set map {}
+set linenum 0
 while {![eof $inB]} {
     if {[gets $inB line] < 0} {
 	continue
     }
+    incr linenum
+    set  data [::csv::split $line $sepChar]
+    set  key  [keyof $data]
 
-    set data [::csv::split $line $sepChar]
-    set key [keyof $data]
-    set map($key) .
+    if {[info exist map($key)]} {
+	puts stderr "warning: $key occurs multiple times in $fileB (lines $linenum and $map($key))"
+    }
+    set map($key) $linenum
     lappend order $data
 }
 close $inB
+
+set linenum 0
+
+if {$lineout} {
+    array set lmap {}
+}
 
 while {![eof $inA]} {
     if {[gets $inA line] < 0} {
 	continue
     }
-    set data [::csv::split $line $sepChar]
+    incr linenum
+    set  data [::csv::split $line $sepChar]
+    set  key  [keyof $data]
 
-    set key [keyof $data]
+    if {$lineout} {set lmap($key) $linenum}
+
     if {[info exists map($key)]} {
-	unset map($key)
+	if {$map($key) < 0} {
+	    puts stderr "warning: $key occurs multiple times\
+		    in $fileA (lines $linenum and [expr {-$map($key)}]"
+	} else {
+	    set map($key) [expr {-$linenum}]
+	}
 	continue
     }
 
-    puts stdout [::csv::join [linsert $data 0 -] $sepChar]
+    if {$lineout} {
+	puts stdout [::csv::join [linsert $data 0 - $linenum] $sepChar]
+    } else {
+	puts stdout [::csv::join [linsert $data 0 -] $sepChar]
+    }
 }
+close $inA
 
 foreach data $order {
     set key [keyof $data]
-    if {[info exists map($key)]} {
-	puts stdout [::csv::join [linsert $data 0 +] $sepChar]
+    if {$map($key) > 0} {
+	if {$lineout} {
+	    puts stdout [::csv::join [linsert $data 0 + $lmap($key)] $sepChar]
+	} else {
+	    puts stdout [::csv::join [linsert $data 0 +] $sepChar]
+	}
     }
 }
 
