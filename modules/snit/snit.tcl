@@ -1004,7 +1004,6 @@ namespace eval ::snit:: {
         #
         # method:	The name of the method to call.
         proc %TYPE%::Snit_typeCacheLookup {method} {
-            puts "typeCacheLookup: %TYPE% $method"
             # First, if the typemethod is unknown, we'll assume that it's
             # an instance name if we can.
             if {[catch {set %TYPE%::Snit_typemethods($method)} procname]} {
