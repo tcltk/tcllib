@@ -8,13 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.2 2003/04/16 19:39:02 patthoyts Exp $
+# $Id: md4.tcl,v 1.3 2003/04/18 22:28:24 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
+catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.0
-    variable rcsid {$Id: md4.tcl,v 1.2 2003/04/16 19:39:02 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.3 2003/04/18 22:28:24 patthoyts Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
@@ -22,7 +23,6 @@ namespace eval ::md4 {
     if {![info exists uid]} {
         set uid 0
     }
-        
 }
 
 # -------------------------------------------------------------------------
@@ -50,6 +50,15 @@ proc ::md4::MD4Update {token data} {
     variable $token
     upvar 0 $token state
 
+    if {[package provide md4c] != {}} {
+        if {[info exists state(md4c)]} {
+            set state(md4c) [md4c $data $state(md4c)]
+        } else {
+            set state(md4c) [md4c $data]
+        }
+        return
+    }
+
     # Update the state values
     incr state(n) [string length $data]
     append state(i) $data
@@ -68,6 +77,12 @@ proc ::md4::MD4Update {token data} {
 proc ::md4::MD4Final {token} {
     variable $token
     upvar 0 $token state
+
+    if {[package provide md4c] != {}} {
+        set r $state(md4c)
+        unset state
+        return $r
+    }
 
     # RFC1320:3.1 - Padding
     #

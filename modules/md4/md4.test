@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.2 2003/04/17 23:29:13 patthoyts Exp $
+# $Id: md4.test,v 1.3 2003/04/18 22:28:24 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -8,6 +8,11 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 package require md4
+if {[package provide md4c] == {}} {
+    puts "md4 [package provide md4] (pure Tcl)"
+} else {
+    puts "md4 [package provide md4] (using md4c)"
+}
 
 # -------------------------------------------------------------------------
 
