@@ -1,6 +1,16 @@
+2002-12-16  David N. Welton  <davidw@dedasys.com>
+
+	* logger.test: Logger tests.
+
+	* loggerperformance.tcl : Logger performance testing.
+
+	* logger.man : Logger documentation.
+
+	* logger.tcl: Initial commit of logger package.
+
 2002-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* log.n: 
+	* log.n:
 	* log.man: Rewrote the introduction to the module for better
 	  understanding by novices. Added examples to highlight use cases
 	  from the simplest to more complex ones.
@@ -10,7 +20,7 @@
 	* Version up to 1.0.1 to differentiate development from the
 	  version in the tcllib 1.2 release.
 
-	* log.tcl: 
+	* log.tcl:
 	* log.test: Updated code and tests to cover all paths through the
 	  code.
 
