@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ross Palmer Mohn.
 # All rights reserved.
 #
-# RCS: @(#) $Id: typedCmdline.test,v 1.3 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.test,v 1.4 2004/08/26 05:27:44 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -113,12 +113,23 @@ test cmdline-6.13 {cmdline::typedGetopt, integer options} {
     set argList {-foo 123}
     list [cmdline::typedGetopt argList {a.arg foo.integer b} opt arg] $argList $opt $arg
 } {1 {} foo 123}
-test cmdline-6.14 {cmdline::typedGetopt, integer options} {
-    catch {unset opt}
-    catch {unset arg}
-    set argList {-foo 123}
-    list [catch {cmdline::typedGetopt argList {a.arg foo.bar b} opt arg} msg] $msg $argList $opt $arg
-} [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|digit|double|false|graph|integer|lower|print|punct|space|true|upper|wordchar|xdigit} {-foo 123} {} {}]
+
+if {[::tcltest::queryConstraint tcl8.5plus]} {
+    test cmdline-6.14 {cmdline::typedGetopt, integer options} {
+	catch {unset opt}
+	catch {unset arg}
+	set argList {-foo 123}
+	list [catch {cmdline::typedGetopt argList {a.arg foo.bar b} opt arg} msg] $msg $argList $opt $arg
+    } [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|digit|double|false|graph|integer|lower|print|punct|space|true|upper|wideinteger|wordchar|xdigit} {-foo 123} {} {}]
+} else {
+    test cmdline-6.14 {cmdline::typedGetopt, integer options} {
+	catch {unset opt}
+	catch {unset arg}
+	set argList {-foo 123}
+	list [catch {cmdline::typedGetopt argList {a.arg foo.bar b} opt arg} msg] $msg $argList $opt $arg
+    } [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|digit|double|false|graph|integer|lower|print|punct|space|true|upper|wordchar|xdigit} {-foo 123} {} {}]
+}
+
 test cmdline-6.15 {cmdline::typedGetopt, integer options} {
     catch {unset opt}
     catch {unset arg}
