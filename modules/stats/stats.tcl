@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.9 2000/09/24 07:21:46 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.10 2000/09/24 07:31:32 welch Exp $
 
 package provide stats 1.0
 
@@ -946,7 +946,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 		    set skip 4
 		}
 		set deltaT $secsPerMinute
-		set wrapDeltaT [expr {$secsPerMinute * -60}]
+		set wrapDeltaT [expr {$secsPerMinute * -59}]
 	    }
 	    hour*	{
 		if {$secsPerMinute != 60} {
@@ -957,7 +957,7 @@ proc stats::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 		    set skip 2
 		}
 		set deltaT [expr {$secsPerMinute * 60}]
-		set wrapDeltaT [expr {$secsPerMinute * 60 * -24}]
+		set wrapDeltaT [expr {$secsPerMinute * 60 * -23}]
 	    }
 	    day* {
 		if {$secsPerMinute != 60} {
