@@ -1,3 +1,8 @@
+2003-03-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* checker.tcl:        Fixed incorrect signature of 'usage'.
+	* mpformats/fmt.null: Bugfix in naming of the procedures.
+
 2003-03-13  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/_common.tcl: Fixed initialization error for
