@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.11 2002/06/05 22:59:07 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.12 2002/11/15 20:32:34 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -61,6 +61,14 @@ test uri-1.7 {uri::split - ftp with type} {
 test uri-1.8 {uri::split - ftp with port} {
     eval kvsort [uri::split {ftp://localhost:21/a/b/c.d}]
 } {host localhost path a/b/c.d port 21 pwd {} scheme ftp type {} user {}}
+
+test uri-1.9 {uri::split - news with message-id} {
+    eval kvsort [uri::split {news:87lm40t3v7.fsf@dedasys.com}]
+} {message-id 87lm40t3v7.fsf@dedasys.com scheme news}
+
+test uri-1.10 {uri::split - news with newsgroup-name} {
+    eval kvsort [uri::split {news:comp.lang.tcl}]
+} {newsgroup-name comp.lang.tcl scheme news}
 
 # -------------------------------------------------------------------------
 
@@ -123,6 +131,15 @@ test uri-2.14 {uri::join - ftp w/- invalid type} {
     eval uri::join scheme ftp host localhost path a/b/c.d type X
 } {ftp://localhost/a/b/c.d;type=X}
 
+test uri-2.15 {uri::join - news message-id} {
+    eval uri::join scheme news message-id 87lm40t3v7.fsf@dedasys.com
+} {news:87lm40t3v7.fsf@dedasys.com}
+
+test uri-2.16 {uri::join - news newsgroup-name} {
+    eval uri::join scheme news newsgroup-name comp.lang.tcl
+} {news:comp.lang.tcl}
+
+
 # -------------------------------------------------------------------------
 
 test uri-3.1 {uri::resolve - relative URL, base trailing slash} {
@@ -148,6 +165,24 @@ test uri-3.5 {uri::resolve - relative URL w/- query} {
 test uri-3.6 {uri::resolve - absolute URL} {
     uri::resolve http://www.w3.org/path/ http://test.net/test.html
 } http://test.net/test.html
+
+test uri-3.7 {uri::resolve - two queries - one sans path} {
+    uri::resolve http://www.example.com/foo/bar.rvt?foo=bar ?shoo=bee
+} http://www.example.com/foo/bar.rvt?shoo=bee
+
+test uri-3.8 {uri::resolve - two queries} {
+    uri::resolve http://www.example.com/baz/?foo=bar ?shoo=bee
+} http://www.example.com/baz/?shoo=bee
+
+test uri-3.9 {uri::resolve - two absolute URL's with queries} {
+    uri::resolve http://www.example.com/?foo=bar http://www.example.com/?shoo=bee
+} http://www.example.com/?shoo=bee
+
+test uri-3.10 {uri::resolve - two queries,
+    one absolute URL, one absolute path} {
+    uri::resolve http://www.example.com/baz?foo=bar /baz?shoo=bee
+} http://www.example.com/baz?shoo=bee
+
 
 # -------------------------------------------------------------------------
 
@@ -362,6 +397,10 @@ test uri-6.0 {uri::canonicalize} {
     uri::canonicalize telnet://goo.test.net/
 } telnet://goo.test.net/
 
+test uri-7.0 {uri::split & uri::join} {
+    set ls [uri::split http://tcl.apache.org/websh/faq.ws3\#generic?foo=bar]
+    eval uri::join $ls
+} {http://tcl.apache.org/websh/faq.ws3#generic?foo=bar}
 
 # -------------------------------------------------------------------------
 
