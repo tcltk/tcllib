@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.16 2004/02/13 06:51:37 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.17 2004/02/14 05:59:20 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -161,7 +161,7 @@ foreach module $modules {
 	# 'wrong#args' situations. The format of the messages changed
 	# for 8.4
 
-	proc ::tcltest::getErrorMessage {functionName argList missingIndex} {
+	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    # if oldstyle errors:
 	    if {[package vcompare [package provide Tcl] 8.4] < 0} {
 		set msg "no value given for parameter "
@@ -173,7 +173,7 @@ foreach module $modules {
 	    return $msg
 	}
 
-	proc ::tcltest::tooManyMessage {functionName argList} {
+	proc ::tcltest::tooManyArgs {functionName argList} {
 	    # if oldstyle errors:
 	    if {[package vcompare [package provide Tcl] 8.4] < 0} {
 		set msg "called \"$functionName\" with too many arguments"
@@ -181,6 +181,25 @@ foreach module $modules {
 		set msg "wrong # args: should be \"$functionName $argList\""
 	    }
 	    return $msg
+	}
+
+	# This constraint restricts certain tests to run on tcl 8.3+, and tcl8.4+
+	if {[package vsatisfies [package provide tcltest] 2.0]} {
+	    # tcltest2.0+ has an API to specify a test constraint
+	    ::tcltest::testConstraint tcl8.3only \
+		    [expr {![package vsatisfies [package provide Tcl] 8.4]}]
+	    ::tcltest::testConstraint tcl8.3plus \
+		    [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+	    ::tcltest::testConstraint tcl8.4plus \
+		    [expr {[package vsatisfies [package provide Tcl] 8.4]}]
+	} else {
+	    # In tcltest1.0, a global variable needs to be set directly.
+	    set ::tcltest::testConstraints(tcl8.3only) \
+		    [expr {![package vsatisfies [package provide Tcl] 8.4]}]
+	    set ::tcltest::testConstraints(tcl8.3plus) \
+		    [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+	    set ::tcltest::testConstraints(tcl8.4plus) \
+		    [expr {[package vsatisfies [package provide Tcl] 8.4]}]
 	}
     }
     interp alias $c ::tcltest::cleanupTestsHook {} \

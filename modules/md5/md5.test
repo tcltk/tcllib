@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5.test,v 1.7 2004/02/13 06:51:37 andreas_kupries Exp $
+# RCS: @(#) $Id: md5.test,v 1.8 2004/02/14 05:59:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -43,34 +43,21 @@ if {[catch {package present Trf}] || [catch {::md5 -- test}]} {
 }
 
 # -------------------------------------------------------------------------
-# Service procedure to develop the error message for "wrong # args"
-
-proc wrongNumArgs {name arglist count} {
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	set arg [lindex $arglist $count]
-	set msg "no value given for parameter \"$arg\" to \"$name\""
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
-}
-
-# -------------------------------------------------------------------------
 
 test md5-1.0 {md5} {
     catch {::md5::md5} result
     set result
-} [tcltest::getErrorMessage "::md5::md5" "msg" 0]
+} [tcltest::wrongNumArgs "::md5::md5" "msg" 0]
 
 test md5-1.1 {md5} {
     catch {::md5::hmac} result
     set result
-} [tcltest::getErrorMessage "::md5::hmac" "key text" 0]
+} [tcltest::wrongNumArgs "::md5::hmac" "key text" 0]
 
 test md5-1.2 {md5} {
     catch {::md5::hmac key} result
     set result
-} [tcltest::getErrorMessage "::md5::hmac" "key text" 1]
+} [tcltest::wrongNumArgs "::md5::hmac" "key text" 1]
 
 
 foreach {n msg expected} {

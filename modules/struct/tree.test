@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.28 2004/02/09 09:32:14 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.29 2004/02/14 05:59:22 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -131,29 +131,6 @@ proc validate_serial {t serial {rootname {}}} {
     return ok
 }
 
-# ---------------------------------------------------
-
-# Service procedure to develop the error message for "wrong # args"
-
-proc wrongNumArgs {name arglist count} {
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	set arg [lindex $arglist $count]
-	set msg "no value given for parameter \"$arg\" to \"$name\""
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
-}
-
-proc tooManyArgs {name arglist} {
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	set msg "called \"$name\" with too many arguments"
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
-}
-
 ############################################################
 # I. Tree object construction and destruction ...
 ############################################################
@@ -275,7 +252,7 @@ test tree-2.2.1 {append with too many args gives error} {
     catch {mytree append root foo bar baz boo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_append} {name node key value}]
+} [tcltest::tooManyArgs {::struct::tree::_append} {name node key value}]
 
 test tree-2.2.2 {append gives error on bogus node} {
     tree mytree
@@ -312,7 +289,7 @@ test tree-2.3.1 {lappend with too many args gives error} {
     catch {mytree lappend root foo bar baz boo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_lappend} {name node key value}]
+} [tcltest::tooManyArgs {::struct::tree::_lappend} {name node key value}]
 
 test tree-2.3.2 {lappend gives error on bogus node} {
     tree mytree
@@ -381,7 +358,7 @@ test tree-2.5.1 {getall, wrong # args} {
     catch {mytree getall root data foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_getall} {name node ?pattern?}]
+} [tcltest::tooManyArgs {::struct::tree::_getall} {name node ?pattern?}]
 
 test tree-2.5.2 {getall gives error on bogus node} {
     tree mytree
@@ -422,7 +399,7 @@ test tree-2.6.1 {unset, wrong # args} {
     catch {mytree unset root flaboozle foobar} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_unset} {name node key}]
+} [tcltest::tooManyArgs {::struct::tree::_unset} {name node key}]
 
 test tree-2.6.2 {unset gives error on bogus node} {
     tree mytree
@@ -465,7 +442,7 @@ test tree-2.7.1 {keys, wrong # args} {
     catch {mytree keys root flaboozle foobar} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_keys} {name node ?pattern?}]
+} [tcltest::tooManyArgs {::struct::tree::_keys} {name node ?pattern?}]
 
 test tree-2.7.2 {keys gives error on bogus node} {
     tree mytree
@@ -506,14 +483,14 @@ test tree-2.8.1 {keyexists, wrong # args} {
     catch {mytree keyexists root} msg
     mytree destroy
     set msg
-} [wrongNumArgs {::struct::tree::_keyexists} {name node key} 2]
+} [tcltest::wrongNumArgs {::struct::tree::_keyexists} {name node key} 2]
   
 test tree-2.8.2 {keyexists, wrong # args} {
     tree mytree
     catch {mytree keyexists root foo far} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_keyexists} {name node key}]
+} [tcltest::tooManyArgs {::struct::tree::_keyexists} {name node key}]
   
 test tree-2.8.3 {keyexists gives error on bogus node} {
     tree mytree
@@ -560,7 +537,7 @@ test tree-3.1.1 {isleaf, wrong # args} {
     catch {mytree isleaf {IT::EM 0} foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_isleaf} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_isleaf} {name node}]
 
 test tree-3.1.2 {isleaf} {
     tree mytree
@@ -587,7 +564,7 @@ test tree-3.2.1 {parent, wrong # args} {
     catch {mytree parent {IT::EM 0} foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_parent} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_parent} {name node}]
 
 test tree-3.2.2 {parent gives error on fake node} {
     tree mytree
@@ -708,7 +685,7 @@ test tree-3.4.1 {numchildren, wrong #args} {
     catch {mytree numchildren {IT::EM 0} foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_numchildren} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_numchildren} {name node}]
 
 test tree-3.4.2 {numchildren, bogus node} {
     tree mytree
@@ -752,7 +729,7 @@ test tree-3.5.1 {exists, wrong #args} {
     catch {mytree exists {IT::EM 0} foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_exists} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_exists} {name node}]
 
 test tree-3.5.1 {exists} {
     tree mytree
@@ -839,7 +816,7 @@ test tree-3.7.1 {depth, wrong # args} {
     catch {mytree depth {IT::EM 0} foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_depth} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_depth} {name node}]
 
 test tree-3.7.2 {depth} {
     tree mytree
@@ -873,7 +850,7 @@ test tree-3.8.1 {height, wrong # args} {
     catch {mytree height {IT::EM 0} foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_height} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_height} {name node}]
 
 test tree-3.8.2 {height for bogus node fails} {
     tree mytree
@@ -1495,7 +1472,7 @@ test tree-3.15.1 {rootname, wrong # args} {
     catch {mytree rootname foo far} result
     mytree destroy
     set result
-} [tooManyArgs {::struct::tree::_rootname} {name}]
+} [tcltest::tooManyArgs {::struct::tree::_rootname} {name}]
 
 test tree-3.15.2 {rootname} {
     tree mytree
@@ -1511,7 +1488,7 @@ test tree-3.16.1 {rename, wrong # args} {
     catch {mytree rename foo far fox} result
     mytree destroy
     set result
-} [tooManyArgs {::struct::tree::_rename} {name node newname}]
+} [tcltest::tooManyArgs {::struct::tree::_rename} {name node newname}]
 
 test tree-3.16.2 {rename of bogus node fails} {
     tree mytree
@@ -1613,7 +1590,7 @@ test tree-4.1.1 {index, wrong # args} {
     catch {mytree index root foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_index} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_index} {name node}]
 
 test tree-4.1.2 {index of non-existant node} {
     tree mytree
@@ -1648,7 +1625,7 @@ test tree-4.2.1 {next, wrong # args} {
     catch {mytree next 0 foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_next} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_next} {name node}]
 
 test tree-4.2.2 {next for bogus node} {
     tree mytree
@@ -1681,7 +1658,7 @@ test tree-4.3.1 {previous, wrong # args} {
     catch {mytree previous 0 foo} msg
     mytree destroy
     set msg
-} [tooManyArgs {::struct::tree::_previous} {name node}]
+} [tcltest::tooManyArgs {::struct::tree::_previous} {name node}]
 
 test tree-4.3.2 {previous for bogus node} {
     tree mytree
@@ -2175,7 +2152,7 @@ test tree-5.2.1 {deserialization, wrong #args} {
     catch {mytree deserialize foo bar} result
     mytree destroy
     set result
-} [tooManyArgs {::struct::tree::_deserialize} {name serial}]
+} [tcltest::tooManyArgs {::struct::tree::_deserialize} {name serial}]
 
 test tree-5.2.2 {deserialization} {
     tree mytree
@@ -2352,7 +2329,7 @@ test tree-5.3.1 {tree assignment} {
     catch {mytree = foo bar} result
     mytree destroy
     set result
-} [tooManyArgs {::struct::tree::_=} {name source}]
+} [tcltest::tooManyArgs {::struct::tree::_=} {name source}]
 
 test tree-5.3.2 {tree assignment} {
     set serial {root {} {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
@@ -2378,7 +2355,7 @@ test tree-5.4.1 {reverse tree assignment} {
     catch {mytree --> foo bar} result
     mytree destroy
     set result
-} [tooManyArgs {::struct::tree::_-->} {name dest}]
+} [tcltest::tooManyArgs {::struct::tree::_-->} {name dest}]
 
 test tree-5.4.2 {reverse tree assignment} {
 
@@ -2451,7 +2428,7 @@ test tree-6.0 {attribute search} {
     catch {mytree attr} msg
     mytree destroy
     set msg
-} [wrongNumArgs {::struct::tree::_attr} {name key args} 1]
+} [tcltest::wrongNumArgs {::struct::tree::_attr} {name key args} 1]
 
 test tree-6.1 {attribute search} {
     gentree mytree

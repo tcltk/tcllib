@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.13 2004/01/25 06:15:05 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.14 2004/02/14 05:59:21 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -362,17 +362,17 @@ test pop3-1.2 {status ok} {
 test pop3-2.0 {retrieve, no arguments} {
     catch {pop3::retrieve} msg
     set msg
-} [tcltest::getErrorMessage "pop3::retrieve" "chan start ?end?" 0]
+} [tcltest::wrongNumArgs "pop3::retrieve" "chan start ?end?" 0]
 
 test pop3-2.1 {retrieve, not enough arguments} {
     catch {pop3::retrieve sock5} msg
     set msg
-} [tcltest::getErrorMessage "pop3::retrieve" "chan start ?end?" 1]
+} [tcltest::wrongNumArgs "pop3::retrieve" "chan start ?end?" 1]
 
 test pop3-2.2 {retrieve, too many arguments} {
     catch {pop3::retrieve sock5 foo bar fox} msg
     set msg
-} [tcltest::tooManyMessage "pop3::retrieve" "chan start ?end?"]
+} [tcltest::tooManyArgs "pop3::retrieve" "chan start ?end?"]
 
 test pop3-2.3 {retrieve without valid channel} {
     catch {pop3::retrieve sock5 foo bar} msg
@@ -468,17 +468,17 @@ test pop3-2.9 {fast retrieval, .-stuff border break} {
 test pop3-3.0 {top, no arguments} {
     catch {pop3::top} msg
     set msg
-} [tcltest::getErrorMessage "pop3::top" "chan msg n" 0]
+} [tcltest::wrongNumArgs "pop3::top" "chan msg n" 0]
 
 test pop3-3.1 {top, not enough arguments} {
     catch {pop3::top sock5} msg
     set msg
-} [tcltest::getErrorMessage "pop3::top" "chan msg n" 1]
+} [tcltest::wrongNumArgs "pop3::top" "chan msg n" 1]
 
 test pop3-3.2 {top, too many arguments} {
     catch {pop3::top sock5 foo bar fox} msg
     set msg
-} [tcltest::tooManyMessage "pop3::top" "chan msg n"]
+} [tcltest::tooManyArgs "pop3::top" "chan msg n"]
 
 test pop3-3.3 {top without valid channel} {
     catch {pop3::top sockXXX foo bar} msg

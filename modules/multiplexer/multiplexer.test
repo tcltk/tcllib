@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.4 2004/02/11 07:48:41 andreas_kupries Exp $
+# $Id: multiplexer.test,v 1.5 2004/02/14 05:59:21 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -29,17 +29,6 @@ puts "- multiplexer [package present multiplexer]"
 
 # -------------------------------------------------------------------------
 # Setup any constraints
-#
-# This constraint restricts certain tests to run on tcl 8.3+
-if {[package vsatisfies [package provide tcltest] 2.0]} {
-    # tcltest2.0+ has an API to specify a test constraint
-    ::tcltest::testConstraint tcl8.3plus \
-        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
-} else {
-    # In tcltest1.0, a global variable needs to be set directly.
-    set ::tcltest::testConstraints(tcl8.3plus) \
-        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
-}
 
 # -------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.21 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.22 2004/02/14 05:59:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -34,21 +34,6 @@ if {[catch {source [file join [file dirname [info script]] fileutil.tcl]} msg]} 
 
 # -------------------------------------------------------------------------
 # Setup any constraints
-#
-# This constraint restricts certain tests to run on tcl 8.3+
-if {[package vsatisfies [package provide tcltest] 2.0]} {
-    # tcltest2.0+ has an API to specify a test constraint
-    ::tcltest::testConstraint tcl8.3plus \
-        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
-    ::tcltest::testConstraint tcl8.4plus \
-        [expr {[package vsatisfies [package provide Tcl] 8.4]}]
-} else {
-    # In tcltest1.0, a global variable needs to be set directly.
-    set ::tcltest::testConstraints(tcl8.3plus) \
-        [expr {[package vsatisfies [package provide Tcl] 8.3]}]
-    set ::tcltest::testConstraints(tcl8.4plus) \
-        [expr {[package vsatisfies [package provide Tcl] 8.4]}]
-}
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
