@@ -1,3 +1,29 @@
+2004-12-29  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* asn.tcl: 
+	* asn.man:  
+	* asn.test: Added more encoder functions
+	  to the module. 
+	* Added math::bignum support for encoding
+	  and decoding large integers. Interface not
+	  final, so no docs yet.
+	* Fixed bug with negative 3-byte integers in 
+	  asn::asnInteger, those were padded with 0x00 instead 
+	  of 0xff and added test for this (2.25).
+	* Added tests for null, boolean encoding and decoding
+	  and for bignum integer encoding (5.x-9.x).
+	* Removed second signed-unsigned conversion for the tags
+	  in error messages, asnGetByte returns unsigned tags.
+	* bumped version number to 0.3
+	
+2004-10-05  Michael Schlenker <mic42@users.sourceforge.net>
+        
+        * asn.tcl: Added more decoder functions to the module.
+        * asn.man: New primitve Types supported:
+          OBJECT IDENTIFIER,BIT STRING,UTCTIME,BOOLEAN,
+          PRINTABLE STRING, IA5 STRING, NULL
+          New structure element: Context tagging 
+        
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
