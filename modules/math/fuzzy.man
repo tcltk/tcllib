@@ -1,6 +1,8 @@
-[manpage_begin math::fuzzy n 1.0]
-[moddesc {Math}]
+[manpage_begin math::fuzzy n 0.2]
+[moddesc {Tcl Math Library}]
 [titledesc {Fuzzy comparison of floating-point numbers}]
+[require Tcl [opt 8.3]]
+[require math::fuzzy [opt 0.2]]
 [description]
 [para]
 The package Fuzzy is meant to solve common problems with floating-point

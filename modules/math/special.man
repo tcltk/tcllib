@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::special n 0.1]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
-[moddesc   {Math}]
+[moddesc   {Tcl Math Library}]
 [titledesc {Special mathematical functions}]
 
 [require Tcl [opt 8.3]]

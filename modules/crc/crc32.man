@@ -1,6 +1,6 @@
 [manpage_begin crc32 n 1.2]
 [copyright {2002, Pat Thoyts}]
-[moddesc   {Cyclic Redundancy Check (crc32)}]
+[moddesc   {Cyclic Redundancy Checks}]
 [titledesc {Perform a 32bit Cyclic Redundancy Check}]
 [require Tcl 8.2]
 [require crc32 [opt 1.2]]

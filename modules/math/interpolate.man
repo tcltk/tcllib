@@ -2,7 +2,7 @@
 [manpage_begin math::interpolate n 0.2]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
-[moddesc   {Math}]
+[moddesc   {Tcl Math Library}]
 [titledesc {Interpolation routines}]
 
 [require Tcl [opt 8.3]]

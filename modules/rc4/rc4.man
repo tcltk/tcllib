@@ -1,5 +1,5 @@
 [manpage_begin rc4 n 1.0.1]
-[moddesc   {rc4}]
+[moddesc   {RC4 Stream Cipher}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {RC4 Stream Cipher}]
 [require Tcl 8.2]
