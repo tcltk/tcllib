@@ -1,5 +1,11 @@
 2004-07-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* uuid.tcl:   Changed uuid compare to uuid equal (bug #987305)
+	* uuid.man:
+	* uuid.test:
+	
 	* uuid.tcl:   Package for UUID generation and comparison.
 	* uuid.test:
 	* uuid.man:
+	
+

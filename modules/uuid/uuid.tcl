@@ -9,10 +9,13 @@
 # http://www.globecom.net/ietf/draft/draft-kindel-uuid-uri-00.html
 #
 # Usage: uuid::uuid generate
-#        uuid::uuid compare $idA $idB
+#        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
     variable version 1.0.0
+
+    namespace export uuid
+
     variable uid
     if {![info exists uid]} {
         set uid 1
@@ -79,16 +82,16 @@ proc ::uuid::fromstring {uuid} {
     return [binary format H* [string map {- {}} $uuid]]
 }
 
-# Compare two uuids
+# Compare two uuids for equality.
 #
-proc ::uuid::compare {left right} {
+proc ::uuid::equal {left right} {
     set l [fromstring $left]
     set r [fromstring $right]
-    return [string compare $l $r]
+    return [string equal $l $r]
 }
 
 # uuid generate -> string rep of a new uuid
-# uuid compare uuid1 uuid2
+# uuid equal uuid1 uuid2
 #
 proc uuid::uuid {cmd args} {
     switch -exact -- $cmd {
@@ -99,16 +102,16 @@ proc uuid::uuid {cmd args} {
             }
             return [tostring [generate]]
         }
-        compare {
+        equal {
             if {[llength $args] != 2} {
                 return -code error "wrong \# args:\
-                    should be \"uuid compare uuid1 uuid2\""
+                    should be \"uuid equal uuid1 uuid2\""
             }
-            return [eval [linsert $args 0 compare]]
+            return [eval [linsert $args 0 equal]]
         }
         default {
             return -code error "bad option \"$cmd\":\
-                must be generate or compare"
+                must be generate or equal"
         }
     }
 }
