@@ -29,8 +29,6 @@ Changes in V0.91
 * The "info" type and instance methods now take "string match"
   patterns as appropriate.
 
-* NOTE: V0.91 is not yet complete; there are more changes to come.
-
 Changes in V0.9
 --------------------------------------------------------------------
 
