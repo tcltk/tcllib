@@ -2,7 +2,7 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: csv.n,v 1.5 2001/08/02 16:38:06 andreas_kupries Exp $
+'\" RCS: @(#) $Id: csv.n,v 1.6 2001/11/12 22:24:04 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH csv n 1.0 Csv "CSV processing"
@@ -19,13 +19,15 @@
 .sp
 \fB::csv::joinlist\fR \fIvalues {sepChar ,}\fR
 .sp
-\fB::csv::read2matrix\fR \fIchan m {sepChar ,}\fR
+\fB::csv::read2matrix\fR \fIchan m {sepChar ,} {expand none}\fR
 .sp
 \fB::csv::read2queue\fR \fIchan q {sepChar ,}\fR
 .sp
 \fB::csv::report\fR \fIcmd matrix ?chan?\fR
 .sp
 \fB::csv::split\fR \fIline {sepChar ,}\fR
+.sp
+\fB::csv::split2matrix\fR \fIq line {sepChar ,} {expand none}\fR
 .sp
 \fB::csv::split2queue\fR \fIq line {sepChar ,}\fR
 .sp
@@ -55,10 +57,11 @@ outer list is considered a record, these are separated by newlines in
 the result. The elements of each record are formatted as usual (via
 \fB::csv::join\fR).
 .TP
-\fB::csv::read2matrix\fR \fIchan m {sepChar ,}\fR
+\fB::csv::read2matrix\fR \fIchan m {sepChar ,} {expand none}\fR
 A wrapper around \fB::csv::split2matrix\fR (see below) reading from
 CSV-formatted lines from the specified channel (until EOF) and adding
-it to the given matrix.
+it to the given matrix. For an explanation of the \fIexpand\fR
+argument see \fB::csv::split2matrix\fR.
 .TP
 \fB::csv::read2queue\fR \fIchan q {sepChar ,}\fR
 A wrapper around \fB::csv::split2queue\fR (see below) reading from
@@ -79,12 +82,33 @@ contained in the line. The character used to separate the values from
 each other can be defined by the caller, via \fIsepChar\fR, but this
 is optional. The default is ",".
 .TP
-\fB::csv::split2matrix\fR \fIm line {sepChar ,}\fR
+\fB::csv::split2matrix\fR \fIm line {sepChar ,} {expand none}\fR
 The same as \fB::csv::split\fR, but appends the resulting list as a
-new row to the matrix \fIm\fR, using the method \fBadd row\fR. It is the
-responsibility of the caller to ensure that the matrix has enough
-columns to contain the full line. If there are not enough columns the
-list of values is silently truncated at the end to fit.
+new row to the matrix \fIm\fR, using the method \fBadd row\fR. The
+expansion mode specified via \fIexpand\fR determines how the command
+handles a matrix with less columns than contained in \fIline\fR. The
+allowed modes are:
+.RS
+.TP
+\fBnone\fR
+This is the \fBdefault mode\fR. In this mode it is the responsibility
+of the caller to ensure that the matrix has enough columns to contain
+the full line. If there are not enough columns the list of values is
+silently truncated at the end to fit.
+.TP
+\fBempty\fR
+In this mode the command expands an empty matrix to hold all columns
+of the specified line, but goes no further. The overall effect is that
+the first of a series of lines determines the number of columns in the
+matrix and all following lines are truncated to that size, as if mode
+\fBnone\fR was set.
+.TP
+\fBauto\fR
+In this mode the command expands the matrix as needed to hold all
+columns contained in \Iline\fR. The overall effect is that after
+adding a series of lines the matrix will have enough columns to hold
+all columns of the longest line encoutered so far.
+.RE
 .TP
 \fB::csv::split2queue\fR \fIq line {sepChar ,}\fR
 The same as \fB::csv::split\fR, but appending the resulting list as a

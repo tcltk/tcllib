@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.3 2001/10/14 20:16:50 hobbs Exp $
+# RCS: @(#) $Id: csv.test,v 1.4 2001/11/12 22:24:04 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -161,6 +161,27 @@ test csv-5.4 {reading csv files, linking} {
     set result
 } {1255}
 
+
+test csv-5.5 {reading csv files, empty expansion mode} {
+    set f [open [file join $::tcltest::testsDirectory mem_debug_bench.csv] r]
+    ::struct::matrix m
+    ::csv::read2matrix $f m , empty
+    close $f
+    set result [m get rect 0 227 end 231]
+    m destroy
+    set result
+} {{227 {STR append (1MB + 1MB * 3)} 125505 327765 38.29} {228 {STR append (1MB + 1MB * 5)} 158507 855295 18.53} {229 {STR append (1MB + (1b + 1K + 1b) * 100)} 33101 174031 19.02} {230 {STR info locals match} 946 1521 62.20} {231 {TRACE no trace set} 34 121 28.10}}
+
+test csv-5.6 {reading csv files, auto expansion mode} {
+    set f [open [file join $::tcltest::testsDirectory mem_debug_bench.csv] r]
+    ::struct::matrix m
+    m add columns 1
+    ::csv::read2matrix $f m , auto
+    close $f
+    set result [m get rect 0 227 end 231]
+    m destroy
+    set result
+} {{227 {STR append (1MB + 1MB * 3)} 125505 327765 38.29} {228 {STR append (1MB + 1MB * 5)} 158507 855295 18.53} {229 {STR append (1MB + (1b + 1K + 1b) * 100)} 33101 174031 19.02} {230 {STR info locals match} 946 1521 62.20} {231 {TRACE no trace set} 34 121 28.10}}
 
 tcltest::makeFile {} eval-out1.csv
 tcltest::makeFile {} eval-out2.csv
