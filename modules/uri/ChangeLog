@@ -1,3 +1,24 @@
+2002-11-15  David N. Welton  <davidw@dedasys.com>
+
+	* uri.test: Added tests for 'news' splitting and joining.
+
+	* uri.man: Added 'news' to list of supported uri's.
+
+	* uri.tcl (uri::SplitNews) (uri::JoinNews): Join and split 'news'
+	URI's.  Fixes 636977.
+
+	* uri.test: Added test to make sure that a URI can be split and
+	then joined. to make sure the change below works.
+
+	* uri.tcl (uri::JoinHttpInner): Make this proc deal with
+	'fragments' - i.e. the #foo part of a URI.  Fixes 638075.
+
+	* uri.test: Added tests relevant to the fix below.
+
+	* uri.tcl (uri::resolve): Fix handling of queries so that the
+	'new' query overrides the 'old' one.  This is how browsers do it.
+	Fixes 639036.
+
 2002-06-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* urn-scheme.tcl: Moved provide up to the front to prevent

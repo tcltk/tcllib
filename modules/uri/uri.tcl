@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.15 2002/02/26 04:59:44 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.16 2002/11/15 20:32:32 davidw Exp $
 
 package require Tcl 8.2
 
@@ -22,7 +22,7 @@ namespace eval uri {
     namespace export register
 
     variable file:counter 0
-    
+
     # extend these variable in the coming namespaces
     variable schemes       {}
     variable schemePattern ""
@@ -47,11 +47,11 @@ namespace eval uri {
 	variable	hex		{[0-9A-Fa-f]}
 	variable	alphaDigit	{[A-Za-z0-9]}
 	variable	alphaDigitMinus	{[A-Za-z0-9-]}
-	
+
 	# next is <national | punctuation>
 	variable	unsafe		{[][<>"#%\{\}|\\^~`]} ;#" emacs hilit
 	variable	escape		"%${hex}${hex}"
-	
+
 	#	unreserved	= alpha | digit | safe | extra
 	#	xchar		= unreserved | reserved | escape
 
@@ -254,7 +254,7 @@ proc uri::JoinFtp args {
     if {[string length $components(type)]} {
 	set type \;type=$components(type)
     }
-    
+
     return ftp://${userPwd}$components(host)${port}/[string trimleft $components(path) /]$type
 }
 
@@ -350,7 +350,13 @@ proc uri::JoinHttpInner {scheme defport args} {
 
     regsub -- {^/} $components(path) {} components(path)
 
-    return $scheme://$components(host)$port/$components(path)$query
+    if { [info exists components(fragment)] && $components(fragment) != "" } {
+	set components(fragment) "#$components(fragment)"
+    } else {
+	set components(fragment) ""
+    }
+
+    return $scheme://$components(host)$port/$components(path)$components(fragment)$query
 }
 
 proc uri::SplitFile {url} {
@@ -435,6 +441,22 @@ proc uri::JoinMailto args {
     return mailto:$components(user)@$components(host)
 }
 
+proc uri::SplitNews {url} {
+    if { [string first @ $url] >= 0 } {
+	return [list message-id $url]
+    } else {
+	return [list newsgroup-name $url]
+    }
+}
+
+proc uri::JoinNews args {
+    array set components {
+	message-id {} newsgroup-name {}
+    }
+    array set components $args
+    return news:$components(message-id)$components(newsgroup-name)
+}
+
 proc uri::GetUPHP {urlvar} {
     # @c Parse user, password host and port out of the url stored in
     # @c variable <a urlvar>.
@@ -462,7 +484,7 @@ proc uri::GetUPHP {urlvar} {
     if {[regexp -indices -- $upPattern $url match theUser c d thePassword]} {
 	set fu	[lindex $theUser 0]
 	set tu	[lindex $theUser 1]
-	    
+
 	set fp	[lindex $thePassword 0]
 	set tp	[lindex $thePassword 1]
 
@@ -552,20 +574,21 @@ proc uri::resolve {base url} {
 		https -
 		ftp -
 		file {
-		    if {[string match /* $url]} {
-			array set relparts [split "$baseparts(scheme)://$url"]
-			array set baseparts [list path $relparts(path)]
-			catch {array set baseparts [list query $relparts(query)]}
-			return [eval join [array get baseparts]]
-		    } elseif {[string match */ $baseparts(path)]} {
-			return ${base}$url
+		    array set relparts [split $url]
+		    if { [string match /* $url] } {
+			catch { set baseparts(path) $relparts(path) }
+		    } elseif { [string match */ $baseparts(path)] } {
+			set baseparts(path) "$baseparts(path)$relparts(path)"
 		    } else {
-			set path [lreplace [::split $baseparts(path) /] end end]
-			array set baseparts [list path [::join $path /]/$url]
-			return [eval join [array get baseparts]]
+			if { [string length $relparts(path)] > 0 } {
+			    set path [lreplace [::split $baseparts(path) /] end end]
+			    set baseparts(path) "[::join $path /]/$relparts(path)"
+			}
 		    }
+		    catch { set baseparts(query) $relparts(query) }
+		    catch { set baseparts(fragment) $relparts(fragment) }
+		    return [eval join [array get baseparts]]
 		}
-
 		default {
 		    return -code error "unable to resolve relative URL \"$url\""
 		}
@@ -775,7 +798,7 @@ proc uri::canonicalize uri {
 uri::register ftp {
     set escape [set [namespace parent [namespace current]]::basic::escape]
     set login  [set [namespace parent [namespace current]]::basic::login]
-    
+
     variable	charN	{[a-zA-Z0-9$_.+!*'(,)?:@&=-]}
     variable	char	"(${charN}|${escape})"
     variable	segment	"${char}*"
@@ -828,7 +851,7 @@ uri::register gopher {
 	    "//${hostOrPort}(/(${type}(${selector}(%09${search}(%09${string})?)?)?)?)?"
     variable	url		"gopher:${schemepart}"
 }
-	
+
 # MAILTO
 uri::register mailto {
     set xChar	[set [namespace parent [namespace current]]::basic::xChar]
@@ -847,9 +870,9 @@ uri::register news {
     variable	aCharN		{[a-zA-Z0-9$_.+!*'(,);/?:&=-]}
     variable	aChar		"($aCharN|${escape})"
     variable	gChar		{[a-zA-Z0-9$_.+-]}
-    variable	group		"${alpha}${gChar}*"
-    variable	article		"${aChar}+@${host}"
-    variable	schemepart	"\\*|${group}|${article}"
+    variable	newsgroup-name	"${alpha}${gChar}*"
+    variable	message-id	"${aChar}+@${host}"
+    variable	schemepart	"\\*|${newsgroup-name}|${message-id}"
     variable	url		"news:${schemepart}"
 }
 
