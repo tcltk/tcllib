@@ -121,8 +121,12 @@ proc sep {} {puts ~~~~~~~~~~~~~~~~~~~~~~~~}
 
 proc gendoc {fmt ext {mode user} {flags {}}} {
     global distribution
+    global tcl_platform
 
     set mpe [file join $distribution modules doctools mpexpand]
+    if {$tcl_platform(platform) == "windows"} {
+        set mpe [list [auto_execok tclsh] $mpe]
+    }
     set ::env(TCLLIBPATH) [file join $distribution modules]
 
     foreach m [modules] {
@@ -138,25 +142,38 @@ proc gendoc {fmt ext {mode user} {flags {}}} {
 
 	if {$flags == {}} {
 	    foreach f $fl {
+                set target [file join doc $fmt \
+                                [file rootname [file tail $f]].$ext]
+                if {[file exists $target] 
+                    && [file mtime $target] > [file mtime $f]} {
+                    continue
+                }
 		puts "Gen ($fmt): $f"
 		if {[catch {
-		    exec \
-			[list $mpe] -module [list $m] \
-			$fmt [list $f] [list [file join doc $fmt [file rootname [file tail $f]].$ext]] \
-			>@ stdout 2>@ stderr
+		    eval exec \
+			$mpe [list -module [list $m] \
+                                  $fmt [list $f] [list $target] \
+                                  >@ stdout 2>@ stderr]
 		} msg]} {
 		    puts $msg
 		}
 	    }
 	} else {
 	    foreach f $fl {
+                set target [file join doc $fmt \
+                                [file rootname [file tail $f]].$ext]
+                if {[file exists $target] 
+                    && [file mtime $target] > [file mtime $f]} {
+                    continue
+                }
+
 		puts "Gen ($fmt): $f"
 		if {[catch {
-		    exec \
-			[list $mpe] -module [list $m] \
-			$flags \
-			$fmt [list $f] [list [file join doc $fmt [file rootname [file tail $f]].$ext]] \
-			>@ stdout 2>@ stderr
+		    eval exec \
+			$mpe [list -module [list $m] \
+                                  $flags \
+                                  $fmt [list $f] [list $target] \
+                                  >@ stdout 2>@ stderr]
 		} msg]} {
 		    puts $msg
 		}
@@ -164,7 +181,6 @@ proc gendoc {fmt ext {mode user} {flags {}}} {
 	}
     }
 }
-
 
 proc gd-cleanup {} {
     global tcllib_version
@@ -184,16 +200,26 @@ proc gd-gen-archives {} {
 
     puts {Generating archives...}
 
-    puts "    Gzipped tarball (tcllib-${tcllib_version}.tar.gz)..."
-    exec tar cf - tcllib-${tcllib_version} | gzip --best > tcllib-${tcllib_version}.tar.gz 
+    set tar [auto_execok tar]
+    if {$tar != {}} {
+        puts "    Gzipped tarball (tcllib-${tcllib_version}.tar.gz)..."
+        catch {
+            exec $tar cf - tcllib-${tcllib_version} | gzip --best > tcllib-${tcllib_version}.tar.gz
+        }
 
-    puts "    Zip archive     (tcllib-${tcllib_version}.zip)..."
-    exec zip -r   tcllib-${tcllib_version}.zip             tcllib-${tcllib_version}
+        set bzip [auto_execok bzip2]
+        if {$bzip != {}} {
+            puts "    Bzipped tarball (tcllib-${tcllib_version}.tar.bz2)..."
+            exec tar cf - tcllib-${tcllib_version} | bzip2 > tcllib-${tcllib_version}.tar.bz2
+        }
+    }
 
-    set bzip [auto_execok bzip2]
-    if {$bzip != {}} {
-	puts "    Bzipped tarball (tcllib-${tcllib_version}.tar.bz2)..."
-	exec tar cf - tcllib-${tcllib_version} | bzip2 > tcllib-${tcllib_version}.tar.bz2
+    set zip [auto_execok zip]
+    if {$zip != {}} {
+        puts "    Zip archive     (tcllib-${tcllib_version}.zip)..."
+        catch {
+            exec $zip -r   tcllib-${tcllib_version}.zip             tcllib-${tcllib_version}
+        }
     }
 
     set sdx [auto_execok sdx]
@@ -223,7 +249,7 @@ proc gd-gen-archives {} {
 
 proc xcopy {src dest recurse {pattern *}} {
     file mkdir $dest
-    foreach file [glob [file join $src $pattern]] {
+    foreach file [glob -nocomplain [file join $src $pattern]] {
         set base [file tail $file]
 	set sub  [file join $dest $base]
 
@@ -263,6 +289,45 @@ proc gd-assemble {} {
     return
 }
 
+proc gd-tip55 {} {
+    global tcllib_version tcllib_name distribution
+
+    set md {Identifier: %N
+Title:  Tcl Standard Library
+Description: This package is intended to be a collection of
+    Tcl packages that provide utility functions useful to a
+    large collection of Tcl programmers.
+Rights: BSD
+Version: %V
+URL: http://tcllib.sourceforge.net/
+Architecture: tcl
+}
+
+    set f [open ChangeLog r]
+    array set names {}
+    while {![eof $f]} {
+        gets $f line
+        if {[regexp {^[\d-]+\s+(.*?)<(.*?)>} $line r name mail]} {
+            set name [string trim $name]
+            if {![info exists names($name)]} {
+                regsub {@}  $mail " at " mail
+                regsub -all {\.} $mail " dot " mail
+                set names($name) $mail
+            }
+        }
+    }
+    close $f
+
+    regsub {Version: %V} $md "Version: $tcllib_version" md
+    regsub {Identifier: %N} $md "Identifier: $tcllib_name" md
+    foreach person [lsort [array names names]] {
+        append md "Contributor: $person <$names($person)>\n"
+    }
+
+    set f [open [file join $distribution DESCRIPTION.txt] w]
+    puts $f $md
+    close $f
+}
 
 proc validate_imodules {} {
     foreach m [imodules] {set im($m) .}
@@ -416,6 +481,7 @@ proc __help {} {
 
 	/Release engineering
 	gendist  - Generate distribution from CVS snapshot
+        gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
 
 	/Documentation
 	nroff    - Generate manpages
@@ -597,10 +663,17 @@ proc __validate {} {
 
 proc __gendist {} {
     gd-cleanup
+    gd-tip55
     gd-assemble
     gd-gen-archives
 
     puts ...Done
+    return
+}
+
+proc __gentip55 {} {
+    gd-tip55
+    puts "Created DESCRIPTION.txt"
     return
 }
 
@@ -636,8 +709,19 @@ proc __ps   {} {
 
 proc __list  {} {
     gendoc list l
-    exec cat [glob -nocomplain doc/list/*.l] > doc/list/manpages.tcl
-    eval file delete -force [glob -nocomplain doc/list/*.l]
+    
+    set FILES [glob -nocomplain doc/list/*.l]
+    set LIST [open [file join doc list manpages.tcl] w]
+
+    foreach file $FILES {
+        set f [open $file r]
+        puts $LIST [read $f]
+        close $f
+    }
+    close $LIST
+
+    eval file delete -force $FILES
+
     return
 }
 
