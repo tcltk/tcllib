@@ -1,3 +1,11 @@
+2003-03-24  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.test:
+	* fileutil.man:
+	* fileutil.tcl: Fixed bug #707009, reported by Helmut Giese
+	  <hgiese@users.sourceforge.net>, also updated the documentation
+	  and the testsuite.
+
 2003-01-28  David N. Welton  <davidw@dedasys.com>
 
 	* fileutil.tcl (::fileutil::fileType): Use 'string match' instead
