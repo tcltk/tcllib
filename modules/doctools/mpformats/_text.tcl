@@ -96,6 +96,8 @@ proc IsOff {}        {global off ; return [expr {$off == 1}]}
 proc NewEnv {name script} {
     global currentId  nextId currentEnv
 
+    #puts_stderr "NewEnv ($name)"
+
     set    parentId  $currentId
     set    currentId $nextId
     incr              nextId
@@ -103,6 +105,10 @@ proc NewEnv {name script} {
     append currentEnv(NAME) -$parentId-$name
     set currentEnv(parent) $parentId
     set currentEnv(id)     $currentId
+
+    # Always squash a verbatim environment inherited from the previous
+    # environment ...
+    catch {unset currentEnv(verbenv)}
 
     uplevel $script
     SaveEnv
@@ -152,8 +158,9 @@ proc Section {name} {Store SECT $name ; return}
 proc CloseParagraph {{id {}}} {
     global para currentId
     if {$para != {}} {
-    if {$id == {}} {set id $currentId}
+	if {$id == {}} {set id $currentId}
 	Store PARA $id $para
+	#puts_stderr "CloseParagraph $id"
     }
     set para ""
     return
@@ -163,7 +170,7 @@ proc SaveContext {} {
     global  contexts  currentId
     lappend contexts $currentId
 
-    #puts_stderr "Save>> $currentId"
+    #global currentEnv ; puts_stderr "Save>> $currentId ($currentEnv(NAME))"
     return
 }
 
@@ -172,7 +179,7 @@ proc RestoreContext {} {
     SetContext   [lindex $contexts end]
     set contexts [lrange $contexts 0 end-1]
 
-    #global currentId ; puts_stderr "<<Restored $currentId"
+    #global currentId currentEnv ; puts_stderr "<<Restored $currentId ($currentEnv(NAME))"
     return
 }
 
@@ -185,7 +192,7 @@ proc SetContext {id} {
     unset     currentEnv
     array set currentEnv $pEnv($currentId)
 
-    #puts_stderr "--Set $currentId"
+    #puts_stderr "--Set $currentId ($currentEnv(NAME))"
     return
 }
 
@@ -193,6 +200,27 @@ proc SaveEnv {} {
     global pEnv  currentId             currentEnv
     set    pEnv($currentId) [array get currentEnv]
     return
+}
+
+################################################################
+
+proc NewVerbatim {} {
+    global currentEnv
+    return [NewEnv Verbatim {set currentEnv(verbatim) 1}]
+}
+
+proc Verbatim {} {
+    global currentEnv
+    if {![info exists currentEnv(verbenv)]} {
+	SaveContext
+	set verb [NewVerbatim]
+	RestoreContext
+
+	# Remember verbatim mode in the base environment
+	set currentEnv(verbenv) $verb
+	SaveEnv
+    }
+    return $currentEnv(verbenv)
 }
 
 ################################################################
