@@ -1,3 +1,8 @@
+2001-11-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* rswitch.tcl: checked in Don's usenet posted implementation
+	* rswitch.test: some tests for the rswitch.tcl command.
+
 2001-08-21  Don Porter <dgp@users.sourceforge.net>
 
 	* control.tcl:
