@@ -1,3 +1,10 @@
+2005-02-14  Andreas Kupries <andreask@activestate.com>
+
+	* apps/dtplite (::dtplite::processCmdline): Fixed the [SF Tcllib
+	  Bug 1111364]. The extension has to be set up before the creation
+	  of the filename (for a directory output path), otherwise the
+	  result will have no extension.
+
 2005-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/fumagic:       NEW MODULE: fileutil::magic.
