@@ -6,14 +6,40 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: yencode.test,v 1.3 2003/01/26 00:38:28 patthoyts Exp $
+# RCS: @(#) $Id: yencode.test,v 1.3.2.1 2003/05/13 01:04:27 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialize the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require yencode
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget yencode
+catch {namespace delete ::yencode}
+if {[catch {source [file join [file dirname [info script]] yencode.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+if {[info command ::yencode::CEncode] != {}} {
+    puts "- yencode [package provide yencode] (critcl based)"
+} else {
+    puts "- yencode [package provide yencode] (pure tcl)"
+}
+
 
 proc ::yencode::loaddata {filename {translation auto}} {
     set f [open $filename r]
@@ -34,6 +60,40 @@ test yencode-1.0 {yencode yEnc test file} {
     string match $dec $chk
 } {0}
     
+
+# -------------------------------------------------------------------------
+
+foreach {n in out} {
+    0 A        {k}
+    1 ABC      {klm}
+    2 \0\1\2   {*+,}
+    3 "\r\n\t" {743}
+    4 "\xd6\xe0\xe3" {=*=4=7}
+} {
+    test yencode-2.$n.a {check the pure tcl encode} {
+        list [catch {::yencode::Encode $in} r] $r
+    } [list 0 $out]
+    test yencode-2.$n.b {check the pure tcl decode} {
+        list [catch {::yencode::Decode $out} r] $r
+    } [list 0 $in]
+}
+
+if {[info command ::yencode::CEncode] != {}} {
+    foreach {n in out} {
+        0 A        {k}
+        1 ABC      {klm}
+        2 \0\1\2   {*+,}
+        3 "\r\n\t" {743}
+        4 "\xd6\xe0\xe3" {=*=4=7}
+    } {
+        test yencode-3.$n.a {check the critcl encode} {
+            list [catch {::yencode::Encode $in} r] $r
+        } [list 0 $out]
+        test yencode-3.$n.b {check the critcl decode} {
+            list [catch {::yencode::Decode $out} r] $r
+        } [list 0 $in]
+    }
+}
 
 # -------------------------------------------------------------------------
 

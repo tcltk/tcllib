@@ -6,14 +6,42 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: uuencode.test,v 1.6 2003/04/21 20:16:53 andreas_kupries Exp $
+# RCS: @(#) $Id: uuencode.test,v 1.6.2.1 2003/05/13 01:04:27 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialize the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require uuencode
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget uuencode
+catch {namespace delete ::uuencode}
+if {[catch {source [file join [file dirname [info script]] uuencode.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+if {[info command ::uuencode::CEncode] != {}} {
+    puts "- uuencode [package provide uuencode] (critcl based)"
+} elseif {[package provide Trf] != {}} {
+    puts "- uuencode [package provide uuencode] (Trf based)"
+} else {
+    puts "- uuencode [package provide uuencode] (pure tcl)"
+}
+
 package require log
 log::lvSuppress notice
 
@@ -41,13 +69,13 @@ test uuencode-1.3 {decode longer string} {
 
 # Trf uses a different padding character.
 if {[catch {package present Trf}]} {
+    # critcl / pure tcl based
     set testdata {begin 644 data.dat
 75&AE(&-A="!S870@;VX@=&AE(&UA="X`
 `
 end}
 } else {
-    puts "Trf present"
-
+    # Trf based
     set testdata {begin 644 data.dat
 75&AE(&-A="!S870@;VX@=&AE(&UA="X~
 `
@@ -99,6 +127,18 @@ test uuencode-2.2 {uudecode DOS line endings} {
     catch {::uuencode::uudecode -file uuencode.test.data} result
     set result
 } [list [list data.dat 644 "The cat sat on the mat."]]
+
+foreach {n in out} {
+    0 a   {80``}
+    1 abc {86)C}
+    2 \0  {````}
+    3 "\r\n\t" {#0H)}
+    4 "hello world" {:&5L;&\@=V]R;&0`}
+} {
+    test uuencode-3.$n {check the pure tcl encoder} {
+        list [catch {::uuencode::Encode $in} r] $r
+    } [list 0 $out]
+}
 
 # -------------------------------------------------------------------------
 

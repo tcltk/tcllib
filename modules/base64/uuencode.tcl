@@ -6,10 +6,15 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.8.2.1 2003/04/22 00:01:03 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.8.2.2 2003/05/13 01:04:27 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require log};            # tcllib 1.0
+
+# Try and get some compiled helper package.
+if {[catch {package require tcllibc}]} {
+    catch {package require Trf}
+}
 
 namespace eval ::uuencode {
     variable version 1.1.0
@@ -170,23 +175,21 @@ proc ::uuencode::pad {s} {
 
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
-if {[catch {package require Trf 2.0}]} {
-    if {[catch {package require base64c}]} {    
-        # pure-tcl then
-        interp alias {} ::uuencode::encode {} ::uuencode::Encode
-        interp alias {} ::uuencode::decode {} ::uuencode::Decode
-    } else {
-        # tcllib criticl package
-        interp alias {} ::uuencode::encode {} ::uuencode::CEncode
-        interp alias {} ::uuencode::decode {} ::uuencode::CDecode
-    }
-} else {
+if {[info command ::uuencode::CDecode] != {}} {    
+    # tcllib criticl package
+    interp alias {} ::uuencode::encode {} ::uuencode::CEncode
+    interp alias {} ::uuencode::decode {} ::uuencode::CDecode
+} elseif {[package provide Trf] != {}} {
     proc ::uuencode::encode {s} {
         return [::uuencode -mode encode -- $s]
     }
     proc ::uuencode::decode {s} {
         return [::uuencode -mode decode -- [pad $s]]
     }
+} else {
+    # pure-tcl then
+    interp alias {} ::uuencode::encode {} ::uuencode::Encode
+    interp alias {} ::uuencode::decode {} ::uuencode::Decode
 }
 
 # -------------------------------------------------------------------------

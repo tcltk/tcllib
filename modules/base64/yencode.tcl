@@ -6,10 +6,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.3.2.1 2003/04/22 00:01:03 patthoyts Exp $
+# @(#)$Id: yencode.tcl,v 1.3.2.2 2003/05/13 01:04:27 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require crc32};          # tcllib 1.1
+catch {package require tcllibc};        # critcl enhancements for tcllib
 
 namespace eval ::yencode {
     variable version 1.0.1
@@ -62,7 +63,7 @@ if {[package provide critcl] != {}} {
         critcl::ccode {
             #include <string.h>
         }
-        critcl::ccommand cencode {dummy interp objc objv} {
+        critcl::ccommand CEncode {dummy interp objc objv} {
             Tcl_Obj *inputPtr, *resultPtr;
             int len, rlen, xtra;
             unsigned char *input, *p, *r, v;
@@ -105,7 +106,7 @@ if {[package provide critcl] != {}} {
             return TCL_OK;
         }
 
-        critcl::ccommand cdecode {dummy interp objc objv} {
+        critcl::ccommand CDecode {dummy interp objc objv} {
             Tcl_Obj *inputPtr, *resultPtr;
             int len, rlen, esc;
             unsigned char *input, *p, *r, v;
@@ -148,12 +149,12 @@ if {[package provide critcl] != {}} {
     }
 }
 
-if {[catch {package require base64c}]} {
+if {[info command ::yencode::CEncode] != {}} {
+    interp alias {} ::yencode::encode {} ::yencode::CEncode
+    interp alias {} ::yencode::decode {} ::yencode::CDecode
+} else {
     interp alias {} ::yencode::encode {} ::yencode::Encode
     interp alias {} ::yencode::decode {} ::yencode::Decode
-} else {
-    interp alias {} ::yencode::encode {} ::yencode::cencode
-    interp alias {} ::yencode::decode {} ::yencode::cdecode
 }
 
 # -------------------------------------------------------------------------
