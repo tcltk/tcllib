@@ -1,11 +1,15 @@
 2004-11-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* dns.tcl:     Incremented the version to 1.2.1 and updated the
+	* ip.tcl:      manual. 
+	
 	* dns.tcl:     Added support for RFC2782 (DNS SRV) which provides
 	               for service discovery via DNS. 
 		       Added dns::nameservers command to return the list
 	               of nameservers configured -- this is not
 	               necessarily all that reliable but should be useful.
 		       Implemented for Windows and Unix.
+
 	* ip.tcl:      Added an error message to deal with invalid address
 	               formats during normalization.
 	
