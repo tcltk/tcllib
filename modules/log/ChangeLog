@@ -1,17 +1,24 @@
+2004-09-23  Andreas Kupries  <andreask@activestate.com>
+
+	* logger.tcl: A small fix in the new command [nsExists] for Tcl
+	  8.[23]. The condition was revers.
+
 2004-09-23  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* logger.tcl : Added a workaround for non-existing
 	  namespace exists in logger::import, so we can
 	  stay at Tcl 8.2.
 	
 2004-09-13  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* logger.tcl : Changed defaults for logger::import,
           logger.man : added a -force option and some more tests
           logger.test:
 
 2004-09-13  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* logger.tcl : Implemented and doc'ed new global logger::setlevel
           logger.man : 
-
 
 2004-09-06  Michael Schlenker <mic42@users.sourceforge.net>
 
