@@ -38,375 +38,254 @@ namespace eval ::snit:: {
     # %TYPE%    The type name
     #
     variable defs
+}
 
-    # Methods common to both types and widgettypes.
-    set defs(common) {
-        # Options array
-        variable options
 
-        # Instance Introspection: info <command> <args>
-        delegate method info using {::snit::RT.method.info %t %n %w %s}
+# Methods common to both types and widgettypes.
+set ::snit::defs(common) {
+    # Options array
+    variable options
 
-        # Type Introspection: info <command> <args>
-        typemethod info {command args} {
+    #------------------
+    # Standard Methods
+
+    delegate method info \
+        using {::snit::RT.method.info %t %n %w %s}
+    delegate method cget \
+        using {::snit::RT.method.cget %t %n %w %s}
+    delegate method configurelist \
+        using {::snit::RT.method.configurelist %t %n %w %s}
+    delegate method configure \
+        using {::snit::RT.method.configure %t %n %w %s}
+
+    #----------------------
+    # Standard Typemethods
+
+    # Type Introspection: info <command> <args>
+    typemethod info {command args} {
+        global errorInfo
+        global errorCode
+
+        switch -exact $command {
+            typevars - 
+            instances {
+                # TBD: it should be possible to delete this error
+                # handling.
+                set errflag [catch {
+                    uplevel ::snit::TypeInfo_$command \
+                        $type $args
+                } result]
+                
+                if {$errflag} {
+                    return -code error -errorinfo $errorInfo \
+                        -errorcode $errorCode $result
+                } else {
+                    return $result
+                }
+            }
+            default {
+                error "'$type info $command' is not defined."
+            }
+        }
+    }
+
+
+    # $type destroy
+    #
+    # Destroys a type completely.
+    typemethod destroy {} {
+        typevariable Snit_isWidget
+        
+        # FIRST, destroy all instances
+        foreach selfns [namespace children $type] {
+            if {![namespace exists $selfns]} {
+                continue
+            }
+            upvar ${selfns}::Snit_instance obj
+            
+            if {$Snit_isWidget} {
+                destroy $obj
+            } else {
+                if {"" != [info commands $obj]} {
+                    $obj destroy
+                }
+            }
+        }
+
+        # NEXT, destroy the type's data.
+        namespace delete $type
+
+        # NEXT, get rid of the type command.
+        rename $type ""
+    }
+}
+
+# Methods specific to plain types.
+set ::snit::defs(type) {
+    #----------------------------------
+    # Standard methods for plain types
+
+    delegate method destroy using {::snit::RT.method.destroy %t %n %w %s}
+
+    #--------------------------------------
+    # Standard typemethods for plain types
+
+    # Creates a new instance of the type given its name and the args.
+    typemethod create {name args} {
+        typevariable Snit_info
+        typevariable Snit_optiondefaults
+
+        # FIRST, qualify the name.
+        if {![string match "::*" $name]} {
+            # Get caller's namespace; 
+            # append :: if not global namespace.
+            set ns [uplevel 1 namespace current]
+            if {"::" != $ns} {
+                append ns "::"
+            }
+        
+            set name "$ns$name"
+        }
+
+        # NEXT, if %AUTO% appears in the name, generate a unique 
+        # command name.
+        if {[string match "*%AUTO%*" $name]} {
+            set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
+        }
+
+        # NEXT, create the instance's namespace.
+        set selfns \
+            [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
+        namespace eval $selfns {}
+
+        # NEXT, install the dispatcher
+        Snit_install $selfns $name
+
+        # Initialize the options to their defaults. 
+
+        upvar ${selfns}::options options
+        foreach opt $Snit_info(options) {
+            set options($opt) $Snit_optiondefaults($opt)
+        }
+        
+        # Initialize the instance vars to their defaults.
+        # selfns must be defined, as it is used implicitly.
+        Snit_instanceVars $selfns
+
+        # Execute the type's constructor.
+        set errcode [catch {
+            eval Snit_constructor %TYPE% $selfns \
+                [list $name] [list $name] $args
+        } result]
+
+        if {$errcode} {
             global errorInfo
             global errorCode
 
-            switch -exact $command {
-                typevars - 
-                instances {
-                    # TBD: it should be possible to delete this error
-                    # handling.
-                    set errflag [catch {
-                        uplevel ::snit::TypeInfo_$command \
-                            $type $args
-                    } result]
-
-                    if {$errflag} {
-                        return -code error -errorinfo $errorInfo \
-                            -errorcode $errorCode $result
-                    } else {
-                        return $result
-                    }
-                }
-                default {
-                    error "'$type info $command' is not defined."
-                }
-            }
+            set theInfo $errorInfo
+            set theCode $errorCode
+            Snit_cleanup $selfns $name
+            error "Error in constructor: $result" $theInfo $theCode
         }
 
-        method cget {option} {
-            # TBD: Consider using a cget command cache.
-            typevariable Snit_optiondefaults
-            typevariable Snit_delegatedoptions
-            typevariable Snit_info
-                
-            if {[info exists Snit_optiondefaults($option)]} {
-                # Normal option; return it.
-                return [Snit_cget$option $type $selfns $win $self]
-            } elseif {[info exists Snit_delegatedoptions($option)]} {
-                # Delegated option: get target.
-                set comp [lindex $Snit_delegatedoptions($option) 0]
-                set target [lindex $Snit_delegatedoptions($option) 1]
-            } elseif {[info exists Snit_delegatedoptions(*)] &&
-                      [lsearch -exact $Snit_info(exceptopts) $option] == -1} {
-                # Unknown option, but unknowns are delegated; get target.
-                set comp [lindex $Snit_delegatedoptions(*) 0]
-                set target $option
-            } else {
-                # Use quotes because Tk does.
-                error "unknown option \"$option\""
-            }
-            
-            # Get the component's object.
-            set obj [::snit::RT.Component $type $selfns $comp]
-
-            # TBD: I'll probably want to fix up certain error
-            # messages, but I'm not sure how yet.
-            return [$obj cget $target]
-        }
-
-        method configurelist {optionlist} {
-            typevariable Snit_optiondefaults
-            typevariable Snit_delegatedoptions
-            typevariable Snit_info
-
-            foreach {option value} $optionlist {
-                if {[info exist Snit_optiondefaults($option)]} {
-                    Snit_configure$option $type $selfns $win $self $value
-                    continue
-                } elseif {[info exists Snit_delegatedoptions($option)]} {
-                    # Delegated option: get target.
-                    set comp [lindex $Snit_delegatedoptions($option) 0]
-                    set target [lindex $Snit_delegatedoptions($option) 1]
-                } elseif {[info exists Snit_delegatedoptions(*)] &&
-                      [lsearch -exact $Snit_info(exceptopts) $option] == -1} {
-                    # Unknown option, but unknowns are delegated.
-                    set comp [lindex $Snit_delegatedoptions(*) 0]
-                    set target $option
-                } else {
-                    # Use quotes because Tk does.
-                    error "unknown option \"$option\""
-                }
-
-                # Get the component's object
-                set obj [::snit::RT.Component $type $selfns $comp]
-                    
-                $obj configure $target $value
-            }
-            
-            return
-        }
-
-        method configure {args} {
-            typevariable Snit_delegatedoptions
-            typevariable Snit_optiondefaults
-            typevariable Snit_optiondbspec
-            typevariable Snit_info
-
-            # If two or more arguments, set values as usual.
-            if {[llength $args] >= 2} {
-                $self configurelist $args
-                return
-            }
-
-            # If zero arguments, acquire data for each known option
-            # and return the list
-            if {[llength $args] == 0} {
-                set result {}
-                foreach opt [$self info options] {
-                    lappend result [$self configure $opt]
-                }
-
-                return $result
-            }
-
-            # They want it for just one.
-            upvar ${selfns}::Snit_components Snit_components
-            set opt [lindex $args 0]
-
-            if {[info exists options($opt)]} {
-                # This is a locally-defined option.  Just build the
-                # list and return it.
-                set res [lindex $Snit_optiondbspec($opt) 0]
-                set cls [lindex $Snit_optiondbspec($opt) 1]
-
-                return [list $opt $res $cls $Snit_optiondefaults($opt) \
-                            [$self cget $opt]]
-            } elseif {[info exists Snit_delegatedoptions($opt)]} {
-                # This is an explicitly delegated option.  The only
-                # thing we don't have is the default.
-                set res [lindex $Snit_optiondbspec($opt) 0]
-                set cls [lindex $Snit_optiondbspec($opt) 1]
-
-                # Get the default
-                set logicalName [lindex $Snit_delegatedoptions($opt) 0]
-                set comp $Snit_components($logicalName)
-                set target [lindex $Snit_delegatedoptions($opt) 1]
-
-                if {[catch {$comp configure $target} result]} {
-                    set defValue {}
-                } else {
-                    set defValue [lindex $result 3]
-                }
-
-                return [list $opt $res $cls $defValue [$self cget $opt]]
-            } elseif {[info exists Snit_delegatedoptions(*)] &&
-                      [lsearch -exact $Snit_info(exceptopts) $opt] == -1} {
-                set logicalName [lindex $Snit_delegatedoptions(*) 0]
-                set target $opt
-                set comp $Snit_components($logicalName)
-
-                if {[catch {set value [$comp cget $target]} result]} {
-                    error "unknown option \"$opt\""
-                }
-
-                if {![catch {$comp configure $target} result]} {
-                    # Replace the delegated option name with the local name.
-                    return [::snit::Expand $result $target $opt]
-                }
-
-                # configure didn't work; return simple form.
-                return [list $opt "" "" "" $value]
-            } else {
-                error "unknown option \"$opt\""
-            }
-        }
-
-        # $type destroy
-        #
-        # Destroys a type completely.
-        typemethod destroy {} {
-            typevariable Snit_isWidget
-
-            # FIRST, destroy all instances
-            foreach selfns [namespace children $type] {
-                if {![namespace exists $selfns]} {
-                    continue
-                }
-                upvar ${selfns}::Snit_instance obj
-                
-                if {$Snit_isWidget} {
-                    destroy $obj
-                } else {
-                    if {"" != [info commands $obj]} {
-                        $obj destroy
-                    }
-                }
-            }
-
-            # NEXT, destroy the type's data.
-            namespace delete $type
-
-            # NEXT, get rid of the type command.
-            rename $type ""
-        }
+        # NEXT, return the object's name.
+        return $name
     }
+}
 
-    # Methods specific to plain types.
-    set defs(type) {
-        # Calls Snit_cleanup, which (among other things) calls the
-        # user's destructor.
-        method destroy {} {
-            Snit_cleanup $selfns $win
+
+# Methods specific to widgets.
+set snit::defs(widget) {
+    # Creates a new instance of the widget, given the name and args.
+    typemethod create {name args} {
+        typevariable Snit_info
+        typevariable Snit_optiondefaults
+        typevariable Snit_isWidgetAdaptor
+
+        # FIRST, if %AUTO% appears in the name, generate a unique 
+        # command name.
+        if {[string match "*%AUTO%*" $name]} {
+            set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
+        }
+            
+        # NEXT, create the instance's namespace.
+        set selfns \
+            [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
+        namespace eval $selfns { }
+            
+        # NEXT, Initialize the widget's own options to their defaults.
+        upvar ${selfns}::options options
+        foreach opt $Snit_info(options) {
+            set options($opt) $Snit_optiondefaults($opt)
         }
 
-        # Creates a new instance of the type given its name and the args.
-        typemethod create {name args} {
-            typevariable Snit_info
-            typevariable Snit_optiondefaults
+        # Initialize the instance vars to their defaults.
+        Snit_instanceVars $selfns
 
-            # FIRST, qualify the name.
-            if {![string match "::*" $name]} {
-                # Get caller's namespace; 
-                # append :: if not global namespace.
-                set ns [uplevel 1 namespace current]
-                if {"::" != $ns} {
-                    append ns "::"
+        # NEXT, if this is a normal widget (not a widget adaptor) then 
+        # create a frame as its hull.  We set the frame's -class to
+        # the user's widgetclass, or, if none, to the basename of
+        # the %TYPE% with an initial upper case letter.
+        if {!$Snit_isWidgetAdaptor} {
+            # FIRST, determine the class name
+            if {"" == $Snit_info(widgetclass)} {
+                set Snit_info(widgetclass) \
+                    [::snit::Capitalize [namespace tail %TYPE%]]
+            }
+
+            # NEXT, create the widget
+            set self $name
+            package require Tk
+            installhull using \
+                $Snit_info(hulltype) -class $Snit_info(widgetclass)
+
+            # NEXT, let's query the option database for our
+            # widget, now that we know that it exists.
+            foreach opt $Snit_info(options) {
+                set dbval [Snit_optionget $name $opt]
+                
+                if {"" != $dbval} {
+                    set options($opt) $dbval
                 }
+            }
+        }
+
+        # Execute the type's constructor, and verify that it
+        # has a hull.
+        set errcode [catch {
+            eval Snit_constructor %TYPE% $selfns [list $name] \
+                [list $name] $args
+            
+            ::snit::RT.Component %TYPE% $selfns hull
+            
+            # Prepare to call the object's destructor when the
+            # <Destroy> event is received.  Use a Snit-specific bindtag
+            # so that the widget name's tag is unencumbered.
+            
+            bind Snit%TYPE%$name <Destroy> [::snit::Expand {
+                %TYPE%::Snit_cleanup %NS% %W
+            } %NS% $selfns]
+            
+            # Insert the bindtag into the list of bindtags right
+            # after the widget name.
+            set taglist [bindtags $name]
+            set ndx [lsearch $taglist $name]
+            incr ndx
+            bindtags $name [linsert $taglist $ndx Snit%TYPE%$name]
+        } result]
         
-                set name "$ns$name"
-            }
+        if {$errcode} {
+            global errorInfo
+            global errorCode
 
-            # NEXT, if %AUTO% appears in the name, generate a unique 
-            # command name.
-            if {[string match "*%AUTO%*" $name]} {
-                set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
-            }
-
-            # NEXT, create the instance's namespace.
-            set selfns \
-                [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
-            namespace eval $selfns {}
-
-            # NEXT, install the dispatcher
-            Snit_install $selfns $name
-
-            # Initialize the options to their defaults. 
-
-            upvar ${selfns}::options options
-            foreach opt $Snit_info(options) {
-                set options($opt) $Snit_optiondefaults($opt)
-            }
-
-            # Initialize the instance vars to their defaults.
-            # selfns must be defined, as it is used implicitly.
-            Snit_instanceVars $selfns
-
-            # Execute the type's constructor.
-            set errcode [catch {
-                eval Snit_constructor %TYPE% $selfns \
-                    [list $name] [list $name] $args
-            } result]
-
-            if {$errcode} {
-                global errorInfo
-                global errorCode
-
-                set theInfo $errorInfo
-                set theCode $errorCode
-                Snit_cleanup $selfns $name
-                error "Error in constructor: $result" $theInfo $theCode
-            }
-
-            # NEXT, return the object's name.
-            return $name
+            set theInfo $errorInfo
+            set theCode $errorCode
+            Snit_cleanup $selfns $name
+            error "Error in constructor: $result" $theInfo $theCode
         }
-    }
-
-    # Methods specific to widgets.
-    set defs(widget) {
-        # Creates a new instance of the widget, given the name and args.
-        typemethod create {name args} {
-            typevariable Snit_info
-            typevariable Snit_optiondefaults
-            typevariable Snit_isWidgetAdaptor
-
-            # FIRST, if %AUTO% appears in the name, generate a unique 
-            # command name.
-            if {[string match "*%AUTO%*" $name]} {
-                set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
-            }
-            
-            # NEXT, create the instance's namespace.
-            set selfns \
-                [::snit::RT.UniqueInstanceNamespace Snit_info(counter) %TYPE%]
-            namespace eval $selfns { }
-            
-            # NEXT, Initialize the widget's own options to their defaults.
-            upvar ${selfns}::options options
-            foreach opt $Snit_info(options) {
-                set options($opt) $Snit_optiondefaults($opt)
-            }
-
-            # Initialize the instance vars to their defaults.
-            Snit_instanceVars $selfns
-
-            # NEXT, if this is a normal widget (not a widget adaptor) then 
-            # create a frame as its hull.  We set the frame's -class to
-            # the user's widgetclass, or, if none, to the basename of
-            # the %TYPE% with an initial upper case letter.
-            if {!$Snit_isWidgetAdaptor} {
-                # FIRST, determine the class name
-                if {"" == $Snit_info(widgetclass)} {
-                    set Snit_info(widgetclass) \
-                        [::snit::Capitalize [namespace tail %TYPE%]]
-                }
-
-                # NEXT, create the widget
-                set self $name
-		package require Tk
-                installhull using \
-                    $Snit_info(hulltype) -class $Snit_info(widgetclass)
-
-                # NEXT, let's query the option database for our
-                # widget, now that we know that it exists.
-                foreach opt $Snit_info(options) {
-                    set dbval [Snit_optionget $name $opt]
-
-                    if {"" != $dbval} {
-                        set options($opt) $dbval
-                    }
-                }
-            }
-
-            # Execute the type's constructor, and verify that it
-            # has a hull.
-            set errcode [catch {
-                eval Snit_constructor %TYPE% $selfns [list $name] \
-                    [list $name] $args
-
-                ::snit::RT.Component %TYPE% $selfns hull
-
-                # Prepare to call the object's destructor when the
-                # <Destroy> event is received.  Use a Snit-specific bindtag
-                # so that the widget name's tag is unencumbered.
-
-                bind Snit%TYPE%$name <Destroy> [::snit::Expand {
-                    %TYPE%::Snit_cleanup %NS% %W
-                } %NS% $selfns]
-                
-                # Insert the bindtag into the list of bindtags right
-                # after the widget name.
-                set taglist [bindtags $name]
-                set ndx [lsearch $taglist $name]
-                incr ndx
-                bindtags $name [linsert $taglist $ndx Snit%TYPE%$name]
-            } result]
-
-            if {$errcode} {
-                global errorInfo
-                global errorCode
-
-                set theInfo $errorInfo
-                set theCode $errorCode
-                Snit_cleanup $selfns $name
-                error "Error in constructor: $result" $theInfo $theCode
-            }
-            
-            # NEXT, return the object's name.
-            return $name
-        }
+        
+        # NEXT, return the object's name.
+        return $name
     }
 }
 
@@ -431,713 +310,716 @@ namespace eval ::snit:: {
     # %INSTANCEVARS%  The compiled instance variable initialization code.
     # %TYPEVARS%      The compiled type variable initialization code.
 
-    variable typeTemplate {
+    variable typeTemplate
+}
 
-        #----------------------------------------------------------------
-        # Snit Internals
-        #
-        # These commands are used internally by Snit, and are not to be
-        # used directly by any client code.  Nevertheless they are
-        # defined here so that they live in the correct namespace.
+set ::snit::typeTemplate {
 
-	namespace eval %TYPE% {%TYPEVARS%
-        }
+    #----------------------------------------------------------------
+    # Snit Internals
+    #
+    # These commands are used internally by Snit, and are not to be
+    # used directly by any client code.  Nevertheless they are
+    # defined here so that they live in the correct namespace.
+    
+    namespace eval %TYPE% {%TYPEVARS%
+    }
 
-        # Snit_cleanup selfns win
-        #
-        # This is the function that really cleans up; it's automatically 
-        # called when any instance is destroyed, e.g., by "$object destroy"
-        # for types, and by the <Destroy> event for widgets.
+    # Snit_cleanup selfns win
+    #
+    # This is the function that really cleans up; it's automatically 
+    # called when any instance is destroyed, e.g., by "$object destroy"
+    # for types, and by the <Destroy> event for widgets.
 
-        proc %TYPE%::Snit_cleanup {selfns win} {
-            typevariable Snit_isWidget
+    proc %TYPE%::Snit_cleanup {selfns win} {
+        typevariable Snit_isWidget
 
-            # If the variable Snit_instance doesn't exist then there's no
-            # instance command for this object -- it's most likely a 
-            # widgetadaptor. Consequently, there are some things that
-            # we don't need to do.
-            if {[info exists ${selfns}::Snit_instance]} {
-                upvar ${selfns}::Snit_instance instance
-
-                # First, remove the trace on the instance name, so that we
-                # don't call Snit_cleanup recursively.
-                Snit_removetrace $selfns $win $instance
-
-                # Next, call the user's destructor
-                Snit_destructor %TYPE% $selfns $win $instance
-
-                # Next, if this isn't a widget, delete the instance command.
-                # If it is a widget, get the hull component's name, and rename
-                # it back to the widget name
-                
-                # Next, delete the hull component's instance command,
-                # if there is one.
-                if {$Snit_isWidget} {
-                    set hullcmd [::snit::RT.Component %TYPE% $selfns hull]
-                
-                    catch {rename $instance ""}
-
-                    # Clear the bind event
-                    bind Snit%TYPE%$win <Destroy> ""
-
-                    if {[info command $hullcmd] != ""} {
-                        rename $hullcmd ::$instance
-                    }
-                } else {
-                    catch {rename $instance ""}
-                }
-            }
-
-            # Next, delete the instance's namespace.  This kills any
-            # instance variables.
-            namespace delete $selfns
-        }
-
-        # Retrieves an option's value from the option database
-        proc %TYPE%::Snit_optionget {self opt} {
-            typevariable Snit_optiondbspec
-
-            set res [lindex $Snit_optiondbspec($opt) 0]
-            set cls [lindex $Snit_optiondbspec($opt) 1]
-
-            return [option get $self $res $cls]
-        }
-
-        #----------------------------------------------------------------
-        # Compiled Procs
-        #
-        # These commands are created or replaced during compilation:
-
-        # Snit_constructor type selfns win self args
-        #
-        # By default, just configures any passed options.  
-        # Redefined by the "constructor" definition, hence always redefined
-        # for widgets.
-
-        proc %TYPE%::Snit_constructor {type selfns win self args} { 
-            $self configurelist $args
-        }
-
-        # Snit_instanceVars selfns
-        #
-        # Initializes the instance variables, if any.  Called during
-        # instance creation.
-
-        proc %TYPE%::Snit_instanceVars {selfns} {%IVARDECS%
-            %INSTANCEVARS%
-        }
-
-        # Snit_comptrace 
-        #
-        # Component trace; used for write trace on component instance 
-        # variables.  Saves the new component object name, provided 
-        # that certain conditions are met.
-
-        proc %TYPE%::Snit_comptrace {selfns component n1 n2 op} {
-            typevariable Snit_isWidget
-            upvar ${selfns}::${component} cvar
-            upvar ${selfns}::Snit_components Snit_components
-
-            # If they try to redefine the hull component after
-            # it's been defined, that's an error--but only if
-            # this is a widget or widget adaptor.
-            if {"hull" == $component && 
-                $Snit_isWidget &&
-                [info exists ${selfns}::Snit_components($component)]} {
-                set cvar $Snit_components($component)
-                error "The hull component cannot be redefined."
-            }
-
-            # Save the new component value.
-            set Snit_components($component) $cvar
-
-            # Clear the method cache.
-            unset -nocomplain -- ${selfns}::Snit_methodCache
-        }
-
-        # Snit_destructor type selfns win self
-        #
-        # Default destructor for the type.  By default, it does
-        # nothing.  It's replaced by any user destructor.
-        # For types, it's called by method destroy; for widgettypes,
-        # it's called by a destroy event handler.
-
-        proc %TYPE%::Snit_destructor {type selfns win self} { }
-
-        # Snit_configure<option> type selfns win self value
-        #
-        # Defined for each local option.  By default, just updates the
-        # options array.  Redefined by an onconfigure definition.
-
-        # Snit_cget<option> type selfns win self value
-        #
-        # Defined for each local option.  By default, just retrieves the
-        # element from the options array.  Redefined by an oncget definition.
-
-        # Snit_method<name> type selfns win self args...
-        #
-        # Defined for each local instance method.
-
-        # Snit_typemethod<name> type args...
-        #
-        # Defined for each typemethod.
-
-        #----------------------------------------------------------------
-        # Snit variable management 
-
-        # typevariable Declares that a variable is a static type variable.
-        # It's equivalent to "::variable", operating in the %TYPE%
-        # namespace.
-        interp alias {} %TYPE%::typevariable {} ::variable
-
-        # Declares an instance variable in a method or proc, -OR- allows
-        # the method or proc to reference a variable in some other 
-        # namespace by its bare name.  It's only valid in instance code; 
-        # it requires that selfns be defined.
-        interp alias {} %TYPE%::variable {} ::snit::RT.variable
-
-        # Returns the fully qualified name of a typevariable.
-        # The "typevarname" form is DEPRECATED.
-        interp alias {} %TYPE%::mytypevar   {} ::snit::RT.mytypevar %TYPE%
-        interp alias {} %TYPE%::typevarname {} ::snit::RT.mytypevar %TYPE%
-
-        # Returns the fully qualified name of an instance variable.  
-        # As with "variable", must be called in the context of a method.
-        # The "varname" form is DEPRECATED.
-
-        interp alias {} %TYPE%::myvar   {} ::snit::RT.myvar
-        interp alias {} %TYPE%::varname {} ::snit::RT.myvar
-
-        # Returns the fully qualified name of a proc 
-        # Unlike "variable", need not be called in the context of an
-        # instance method.
-        #
-        # DEPRECATED; use myproc instead.
-        interp alias {} %TYPE%::codename {} ::snit::RT.codename %TYPE%
-
-        # Use this like "list" to pass a proc call to another
-        # object (e.g., as a -command); it automatically qualifies
-        # the proc name.
-        interp alias {} %TYPE%::myproc {} ::snit::RT.myproc %TYPE%
-
-        # Use this like "list" to pass method call to another object 
-        # (e.g., as a -command); it automatically inserts
-        # the code at the beginning to call the right object, even if
-        # the object's name has changed.  Requires that selfns be defined
-        # in the calling context.
-        interp alias {} %TYPE%::mymethod {} ::snit::RT.mymethod 
-
-        # Use this like "list" to pass typemethod call to another object 
-        # (e.g., as a -command); it automatically inserts the type
-        # command at the beginning.
-        interp alias {} %TYPE%::mytypemethod {} ::snit::RT.mytypemethod %TYPE%
-
-        # Looks for the named option in the named variable.  If found,
-        # it and its value are removed from the list, and the value
-        # is returned.  Otherwise, the default value is returned.
-        # If the option is undelegated, it's own default value will be
-        # used if none is specified.
-        interp alias {} %TYPE%::from {} ::snit::RT.from %TYPE%
-
-        # Installs the named widget as the hull of a 
-        # widgetadaptor.  Once the widget is hijacked, it's new name
-        # is assigned to the hull component.
-        proc %TYPE%::installhull {{using "using"} {widgetType ""} args} {
-            typevariable Snit_isWidget
-            typevariable Snit_info
-            typevariable Snit_compoptions
-            typevariable Snit_delegatedoptions
-            upvar self self
-            upvar selfns selfns
-            upvar ${selfns}::hull hull
-            upvar ${selfns}::options options
-
-            # FIRST, make sure we can do it.
-            if {!$Snit_isWidget} { 
-                error "installhull is valid only for snit::widgetadaptors"
-            }
+        # If the variable Snit_instance doesn't exist then there's no
+        # instance command for this object -- it's most likely a 
+        # widgetadaptor. Consequently, there are some things that
+        # we don't need to do.
+        if {[info exists ${selfns}::Snit_instance]} {
+            upvar ${selfns}::Snit_instance instance
             
-            if {[info exists ${selfns}::Snit_instance]} {
-                error "hull already installed for %TYPE% $self"
-            }
+            # First, remove the trace on the instance name, so that we
+            # don't call Snit_cleanup recursively.
+            Snit_removetrace $selfns $win $instance
+            
+            # Next, call the user's destructor
+            Snit_destructor %TYPE% $selfns $win $instance
 
-            # NEXT, has it been created yet?  If not, create it using
-            # the specified arguments.
-            if {"using" == $using} {
-                # FIRST, create the widget
-                set cmd [concat [list $widgetType $self] $args]
-                set obj [uplevel 1 $cmd]
-
-                # NEXT, for each option explicitly delegated to the hull
-                # that doesn't appear in the usedOpts list, get the
-                # option database value and apply it--provided that the
-                # real option name and the target option name are different.
-                # (If they are the same, then the option database was
-                # already queried as part of the normal widget creation.)
-                #
-                # Also, we don't need to worry about implicitly delegated
-                # options, as the option and target option names must be
-                # the same.
-                if {[info exists Snit_compoptions(hull)]} {
-
-                    # FIRST, extract all option names from args
-                    set usedOpts {}
-                    set ndx [lsearch -glob $args "-*"]
-                    foreach {opt val} [lrange $args $ndx end] {
-                        lappend usedOpts $opt
-                    }
+            # Next, if this isn't a widget, delete the instance command.
+            # If it is a widget, get the hull component's name, and rename
+            # it back to the widget name
                 
-                    foreach opt $Snit_compoptions(hull) {
-                        if {"*" == $opt} {
-                            continue
-                        }
+            # Next, delete the hull component's instance command,
+            # if there is one.
+            if {$Snit_isWidget} {
+                set hullcmd [::snit::RT.Component %TYPE% $selfns hull]
+                
+                catch {rename $instance ""}
 
-                        set target [lindex $Snit_delegatedoptions($opt) 1]
+                # Clear the bind event
+                bind Snit%TYPE%$win <Destroy> ""
 
-                        if {"$target" == $opt} {
-                            continue
-                        }
-
-                        set result [lsearch -exact $usedOpts $target]
-
-                        if {$result != -1} {
-                            continue
-                        }
-
-                        set dbval [Snit_optionget $self $opt]
-                        $obj configure $target $dbval
-                    }
+                if {[info command $hullcmd] != ""} {
+                    rename $hullcmd ::$instance
                 }
             } else {
-                set obj $using
-
-                if {![string equal $obj $self]} {
-                    error \
-                        "hull name mismatch: '$obj' != '$self'"
-                }
+                catch {rename $instance ""}
             }
-
-            # NEXT, get the local option defaults.
-            foreach opt $Snit_info(options) {
-                set dbval [Snit_optionget $self $opt]
-                
-                if {"" != $dbval} {
-                    set options($opt) $dbval
-                }
-            }
-
-
-            # NEXT, do the magic
-            set i 0
-            while 1 {
-                incr i
-                set newName "::hull${i}$self"
-                if {"" == [info commands $newName]} {
-                    break
-                }
-            }
-
-            rename ::$self $newName
-            Snit_install $selfns $self
-
-            # Note: this relies on Snit_comptrace to do the dirty work.
-            set hull $newName
-
-            return
         }
 
-        # Creates a widget and installs it as the named component.
-        proc %TYPE%::install {compName "using" widgetType winPath args} {
-            typevariable Snit_isWidget
-            typevariable Snit_compoptions
-            typevariable Snit_delegatedoptions
-            typevariable Snit_optiondbspec
-            typevariable Snit_info
-            upvar self self
-            upvar selfns selfns
-            upvar ${selfns}::$compName comp
-            upvar ${selfns}::hull hull
+        # Next, delete the instance's namespace.  This kills any
+        # instance variables.
+        namespace delete $selfns
+    }
 
+    # Retrieves an option's value from the option database
+    proc %TYPE%::Snit_optionget {self opt} {
+        typevariable Snit_optiondbspec
+        
+        set res [lindex $Snit_optiondbspec($opt) 0]
+        set cls [lindex $Snit_optiondbspec($opt) 1]
+        
+        return [option get $self $res $cls]
+    }
 
-            # We do the magic option database stuff only if $self is
-            # a widget.
-            if {$Snit_isWidget} {
-                if {"" == $hull} {
-                    error "tried to install '$compName' before the hull exists"
-                }
+    #----------------------------------------------------------------
+    # Compiled Procs
+    #
+    # These commands are created or replaced during compilation:
 
-                # FIRST, query the option database and save the results 
-                # into args.  Insert them before the first option in the
-                # list, in case there are any non-standard parameters.
-                #
-                # Note: there might not be any delegated options; if so,
-                # don't bother.
+    # Snit_constructor type selfns win self args
+    #
+    # By default, just configures any passed options.  
+    # Redefined by the "constructor" definition, hence always redefined
+    # for widgets.
 
-                set gotStar 0
+    proc %TYPE%::Snit_constructor {type selfns win self args} { 
+        $self configurelist $args
+    }
 
-                if {[info exists Snit_compoptions($compName)]} {
-                    set ndx [lsearch -glob $args "-*"]
+    # Snit_instanceVars selfns
+    #
+    # Initializes the instance variables, if any.  Called during
+    # instance creation.
+    
+    proc %TYPE%::Snit_instanceVars {selfns} {%IVARDECS%
+        %INSTANCEVARS%
+    }
 
-                    foreach opt $Snit_compoptions($compName) {
-                        # Handle * later
-                        if {"*" == $opt} {
-                            set gotStar 1
-                            continue
-                        }
+    # Snit_comptrace 
+    #
+    # Component trace; used for write trace on component instance 
+    # variables.  Saves the new component object name, provided 
+    # that certain conditions are met.
 
-                        set dbval [Snit_optionget $self $opt]
-                    
-                        if {"" != $dbval} {
-                            set target [lindex $Snit_delegatedoptions($opt) 1]
-                            set args [linsert $args $ndx $target $dbval]
-                        }
-                    }
-                }
-            }
-             
-            # NEXT, create the component and save it.
-            set cmd [concat [list $widgetType $winPath] $args]
-            set comp [uplevel 1 $cmd]
+    proc %TYPE%::Snit_comptrace {selfns component n1 n2 op} {
+        typevariable Snit_isWidget
+        upvar ${selfns}::${component} cvar
+        upvar ${selfns}::Snit_components Snit_components
+        
+        # If they try to redefine the hull component after
+        # it's been defined, that's an error--but only if
+        # this is a widget or widget adaptor.
+        if {"hull" == $component && 
+            $Snit_isWidget &&
+            [info exists ${selfns}::Snit_components($component)]} {
+            set cvar $Snit_components($component)
+            error "The hull component cannot be redefined."
+        }
 
-            # NEXT, handle the option database for "delegate option *",
-            # in widgets only.
-            if {$Snit_isWidget && $gotStar} {
-                # FIRST, get the list of option specs from the widget.
-                # If configure doesn't work, skip it.
-                if {[catch {$comp configure} specs]} {
-                    return
-                }
+        # Save the new component value.
+        set Snit_components($component) $cvar
 
-                # NEXT, get the set of explicitly used options from args
+        # Clear the method cache.
+        unset -nocomplain -- ${selfns}::Snit_methodCache
+    }
+
+    # Snit_destructor type selfns win self
+    #
+    # Default destructor for the type.  By default, it does
+    # nothing.  It's replaced by any user destructor.
+    # For types, it's called by method destroy; for widgettypes,
+    # it's called by a destroy event handler.
+
+    proc %TYPE%::Snit_destructor {type selfns win self} { }
+
+    # Snit_configure<option> type selfns win self value
+    #
+    # Defined for each local option.  By default, just updates the
+    # options array.  Redefined by an onconfigure definition.
+    
+    # Snit_cget<option> type selfns win self value
+    #
+    # Defined for each local option.  By default, just retrieves the
+    # element from the options array.  Redefined by an oncget definition.
+
+    # Snit_method<name> type selfns win self args...
+    #
+    # Defined for each local instance method.
+
+    # Snit_typemethod<name> type args...
+    #
+    # Defined for each typemethod.
+
+    #----------------------------------------------------------------
+    # Snit variable management 
+
+    # typevariable Declares that a variable is a static type variable.
+    # It's equivalent to "::variable", operating in the %TYPE%
+    # namespace.
+    interp alias {} %TYPE%::typevariable {} ::variable
+
+    # Declares an instance variable in a method or proc, -OR- allows
+    # the method or proc to reference a variable in some other 
+    # namespace by its bare name.  It's only valid in instance code; 
+    # it requires that selfns be defined.
+    interp alias {} %TYPE%::variable {} ::snit::RT.variable
+
+    # Returns the fully qualified name of a typevariable.
+    # The "typevarname" form is DEPRECATED.
+    interp alias {} %TYPE%::mytypevar   {} ::snit::RT.mytypevar %TYPE%
+    interp alias {} %TYPE%::typevarname {} ::snit::RT.mytypevar %TYPE%
+    
+    # Returns the fully qualified name of an instance variable.  
+    # As with "variable", must be called in the context of a method.
+    # The "varname" form is DEPRECATED.
+
+    interp alias {} %TYPE%::myvar   {} ::snit::RT.myvar
+    interp alias {} %TYPE%::varname {} ::snit::RT.myvar
+
+    # Returns the fully qualified name of a proc 
+    # Unlike "variable", need not be called in the context of an
+    # instance method.
+    #
+    # DEPRECATED; use myproc instead.
+    interp alias {} %TYPE%::codename {} ::snit::RT.codename %TYPE%
+
+    # Use this like "list" to pass a proc call to another
+    # object (e.g., as a -command); it automatically qualifies
+    # the proc name.
+    interp alias {} %TYPE%::myproc {} ::snit::RT.myproc %TYPE%
+
+    # Use this like "list" to pass method call to another object 
+    # (e.g., as a -command); it automatically inserts
+    # the code at the beginning to call the right object, even if
+    # the object's name has changed.  Requires that selfns be defined
+    # in the calling context.
+    interp alias {} %TYPE%::mymethod {} ::snit::RT.mymethod 
+
+    # Use this like "list" to pass typemethod call to another object 
+    # (e.g., as a -command); it automatically inserts the type
+    # command at the beginning.
+    interp alias {} %TYPE%::mytypemethod {} ::snit::RT.mytypemethod %TYPE%
+
+    # Looks for the named option in the named variable.  If found,
+    # it and its value are removed from the list, and the value
+    # is returned.  Otherwise, the default value is returned.
+    # If the option is undelegated, it's own default value will be
+    # used if none is specified.
+    interp alias {} %TYPE%::from {} ::snit::RT.from %TYPE%
+
+    # Installs the named widget as the hull of a 
+    # widgetadaptor.  Once the widget is hijacked, it's new name
+    # is assigned to the hull component.
+    proc %TYPE%::installhull {{using "using"} {widgetType ""} args} {
+        typevariable Snit_isWidget
+        typevariable Snit_info
+        typevariable Snit_compoptions
+        typevariable Snit_delegatedoptions
+        upvar self self
+        upvar selfns selfns
+        upvar ${selfns}::hull hull
+        upvar ${selfns}::options options
+
+        # FIRST, make sure we can do it.
+        if {!$Snit_isWidget} { 
+            error "installhull is valid only for snit::widgetadaptors"
+        }
+            
+        if {[info exists ${selfns}::Snit_instance]} {
+            error "hull already installed for %TYPE% $self"
+        }
+
+        # NEXT, has it been created yet?  If not, create it using
+        # the specified arguments.
+        if {"using" == $using} {
+            # FIRST, create the widget
+            set cmd [concat [list $widgetType $self] $args]
+            set obj [uplevel 1 $cmd]
+            
+            # NEXT, for each option explicitly delegated to the hull
+            # that doesn't appear in the usedOpts list, get the
+            # option database value and apply it--provided that the
+            # real option name and the target option name are different.
+            # (If they are the same, then the option database was
+            # already queried as part of the normal widget creation.)
+            #
+            # Also, we don't need to worry about implicitly delegated
+            # options, as the option and target option names must be
+            # the same.
+            if {[info exists Snit_compoptions(hull)]} {
+                
+                # FIRST, extract all option names from args
                 set usedOpts {}
                 set ndx [lsearch -glob $args "-*"]
                 foreach {opt val} [lrange $args $ndx end] {
                     lappend usedOpts $opt
                 }
-
-                # NEXT, "delegate option *" matches all options defined
-                # by this widget that aren't defined by the widget as a whole,
-                # and that aren't excepted.  Plus, we skip usedOpts.  So build 
-                # a list of the invalid option names.
-                set skiplist [concat $usedOpts $Snit_info(exceptopts) \
-                                  [array names Snit_optiondbspec]]
-
-                # NEXT, loop over all of the component's options, and set
-                # any not in the skip list for which there is an option 
-                # database value.
-                foreach spec $specs {
-                    # Skip aliases
-                    if {[llength $spec] != 5} {
+                
+                foreach opt $Snit_compoptions(hull) {
+                    if {"*" == $opt} {
                         continue
                     }
 
-                    set opt [lindex $spec 0]
-
-                    if {[lsearch -exact $skiplist $opt] != -1} {
+                    set target [lindex $Snit_delegatedoptions($opt) 1]
+                    
+                    if {"$target" == $opt} {
+                        continue
+                    }
+                    
+                    set result [lsearch -exact $usedOpts $target]
+                    
+                    if {$result != -1} {
                         continue
                     }
 
-                    set res [lindex $spec 1]
-                    set cls [lindex $spec 2]
-
-                    set dbvalue [option get $self $res $cls]
-
-                    if {"" != $dbvalue} {
-                        $comp configure $opt $dbvalue
-                    }
+                    set dbval [Snit_optionget $self $opt]
+                    $obj configure $target $dbval
                 }
             }
-
-
-            return
+        } else {
+            set obj $using
+            
+            if {![string equal $obj $self]} {
+                error \
+                    "hull name mismatch: '$obj' != '$self'"
+            }
         }
 
-        #----------------------------------------------------------------
-        # Snit variables 
-        #
-        # TBD: At some point I really need to review all of these variables
-        # and see if there's more a straightforward, clearer way to store
-        # all of the same information.
-
-	namespace eval %TYPE% {
-	    # Array: General Snit Info
-	    #
-	    # ns:            The type's namespace
-	    # options:       List of the names of the type's local options.
-	    # counter:       Count of instances created so far.
-            # widgetclass:   Set by widgetclass statement.
-            # hulltype:      Hull type (frame or toplevel) for widgets only.
-            # exceptmethods: Methods explicitly not delegated to *
-            # exceptopts:    Options explicitly not delegated to *
-            # tvardecs:      Type variable declarations--for dynamic methods
-            # ivardecs:      Instance variable declarations--for dyn. methods
-	    typevariable Snit_info
-	    set Snit_info(ns)      %TYPE%::
-	    set Snit_info(options) {}
-	    set Snit_info(counter) 0
-            set Snit_info(widgetclass) {}
-            set Snit_info(hulltype) frame
-            set Snit_info(exceptmethods) {}
-            set Snit_info(exceptopts) {}
-            set Snit_info(tvardecs) {%TVARDECS%}
-            set Snit_info(ivardecs) {%IVARDECS%}
-
-	    # Array: Public methods of this type.
-	    # Index is typemethod name; value is proc name.
-	    typevariable Snit_typemethods
-	    array unset Snit_typemethods
-
-            # Array: Public methods of instances of this type.
-            # The index is the method name, or "*".
-            # The value is [list $pattern $componentName], where
-            # $componentName is "" for normal methods.
-            typevariable Snit_methodInfo
-            array unset Snit_methodInfo
-
-	    # Array: default option values
-	    #
-	    # $option          Default value for the option
-	    typevariable Snit_optiondefaults
-
-	    # Array: database spec values for explicitly defined
-            # options
-	    #
-	    # $option          [list resourceName className]
-	    typevariable Snit_optiondbspec
-
-	    # Array: delegated option components
-	    #
-	    # $option          Component to which the option is delegated.
-	    typevariable Snit_delegatedoptions
-
-            # Array: delegated options by component.
-            typevariable Snit_compoptions
-	}
-
-        #----------------------------------------------------------
-        # Type Command
-
-        # Type dispatcher function.  Note: This function lives
-        # in the parent of the %TYPE% namespace!  All accesses to 
-        # %TYPE% variables and methods must be qualified!
-        proc %TYPE% {method args} {
-            # First, if the typemethod is unknown, we'll assume that it's
-            # an instance name if we can.
-            if {[catch {set %TYPE%::Snit_typeMethodCache($method)} command]} {
-                set command [%TYPE%::Snit_typeCacheLookup $method]
-
-                if {[llength $command] == 0} {
-                    if {[set %TYPE%::Snit_isWidget] && 
-                        ![string match ".*" $method]} {
-                        return -code error  "\"%TYPE% $method\" is not defined"
-                    }
-
-                    set args [concat $method $args]
-                    set method create
-                    set command [%TYPE%::Snit_typeCacheLookup $method]
-                }
+        # NEXT, get the local option defaults.
+        foreach opt $Snit_info(options) {
+            set dbval [Snit_optionget $self $opt]
+            
+            if {"" != $dbval} {
+                set options($opt) $dbval
             }
+        }
 
-            uplevel $command $args
+
+        # NEXT, do the magic
+        set i 0
+        while 1 {
+            incr i
+            set newName "::hull${i}$self"
+            if {"" == [info commands $newName]} {
+                break
+            }
         }
         
-        # Generates and caches the command for a typemethod.
-        #
-        # method:	The name of the method to call.
-        proc %TYPE%::Snit_typeCacheLookup {method} {
-            # First, if the typemethod is unknown, we'll assume that it's
-            # an instance name if we can.
-            if {[catch {set %TYPE%::Snit_typemethods($method)} procname]} {
-                return ""
-            }
-
-            set command [concat %TYPE%::$procname %TYPE%]
-            set %TYPE%::Snit_typeMethodCache($method) $command
-
-            return $command
-        }
-
-
-        #----------------------------------------------------------------
-        # Dispatcher Command
-
-        # Snit_install selfns instance
-        #
-        # Creates the instance proc.
-        # "instance" is the initial name of the instance, and "selfns" is
-        # the instance namespace.
-        proc %TYPE%::Snit_install {selfns instance} {
-            typevariable Snit_isWidget
-
-            # FIRST, remember the instance name.  The Snit_instance variable
-            # allows the instance to figure out its current name given the
-            # instance namespace.
-            upvar ${selfns}::Snit_instance Snit_instance
-            set Snit_instance $instance
-
-            # NEXT, qualify the proc name if it's a widget.
-            if {$Snit_isWidget} {
-                set procname ::$instance
-            } else {
-                set procname $instance
-            }
-
-            # NEXT, install the new proc
-            set body [string map [list %SELFNS% $selfns %WIN% $instance] {
-                set self [set %SELFNS%::Snit_instance]
-
-                if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
-                    set command [%TYPE%::Snit_cacheLookup %TYPE% %SELFNS% %WIN% $self $method]
-                    
-                    if {[llength $command] == 0} {
-                        return -code error \
-                            "'$self $method' is not defined."
-                    }
-                }
-
-                uplevel 1 $command $args
-            }]
-
-            proc $procname {method args} $body
-
-            # NEXT, add the trace.
-            trace add command $procname {rename delete} \
-                [list %TYPE%::Snit_tracer $selfns $instance]
-        }
-
-        # Snit_removetrace selfns instance
-        proc %TYPE%::Snit_removetrace {selfns win instance} {
-            typevariable Snit_isWidget
-
-            if {$Snit_isWidget} {
-                set procname ::$instance
-            } else {
-                set procname $instance
-            }
-
-            # NEXT, remove any trace on this name
-	    catch {
-		trace remove command $procname {rename delete} \
-			[list %TYPE%::Snit_tracer $selfns $win]
-	    }
-        }
-
-        # Snit_tracer old new op
-        #
-        # This proc is called when the instance command is renamed.  old
-        # is the old name, new is the new name, and op is rename or delete.
-        # If op is delete, then new will always be "", so op is redundant.
-        #
-        # If the op is delete, we need to clean up the object; otherwise,
-        # we need to track the change.
-        #
-        # NOTE: In Tcl 8.4.2 there's a bug: errors in rename and delete
-        # traces aren't propagated correctly.  Instead, they silently
-        # vanish.  Add a catch to output any error message.
-
-        proc %TYPE%::Snit_tracer {selfns win old new op} {
-            typevariable Snit_isWidget
-
-	    # Note to developers ...
-	    # For Tcl 8.4.0, errors thrown in trace handlers vanish silently.
-	    # Therefore we catch them here and create some output to help in
-	    # debugging such problems.
-
-            if {[catch {
-                # FIRST, clean up if necessary
-                if {"" == $new} {
-                    if {$Snit_isWidget} {
-                        destroy $win
-                    } else {
-                        Snit_cleanup $selfns $win
-                    }
-                } else {
-                    # Otherwise, track the change.
-                    ::variable ${selfns}::Snit_instance Snit_instance
-                    set Snit_instance [uplevel namespace which -command $new]
-
-                    # Also, clear the method cache, as many cached commands
-                    # will be invalid.
-                    unset -nocomplain -- ${selfns}::Snit_methodCache
-                }
-            } result]} {
-                global errorInfo
-                # Pop up the console on Windows wish, to enable stdout.
-		# This clobbers errorInfo unix, so save it.
-		set ei $errorInfo
-                catch {console show}
-                puts "Error in Snit_tracer $selfns $win $old $new $op:"
-                puts $ei
-            }
-        }
-
-        # Generates and caches the command for a method.
-        #
-        # type:		The instance's type
-        # selfns:	The instance's private namespace
-        # win:          The instance's original name (a Tk widget name, for
-        #               snit::widgets.
-        # self:         The instance's current name.
-        # method:	The name of the method to call.
-        # argList:      Arguments for the method.
-        proc %TYPE%::Snit_cacheLookup {type selfns win self method} {
-            typevariable Snit_info
-            typevariable Snit_methodInfo
-            variable ${selfns}::Snit_components
-            variable ${selfns}::Snit_methodCache
-
-            # FIRST, get the pattern data and the component name.
-            if {[info exists Snit_methodInfo($method)]} {
-                set key $method
-            } elseif {[info exists Snit_methodInfo(*)] &&
-                    [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
-                set key "*"
-            } else {
-                return ""
-            }
-
-            foreach {pattern compName} $Snit_methodInfo($key) {}
-
-            # NEXT, build the substitution list
-            set subList [list \
-                             %% % \
-                             %t [list $type] \
-                             %m [list $method] \
-                             %n [list $selfns] \
-                             %w [list $win] \
-                             %s [list $self]]
-
-            if {$compName ne ""} {
-                if {![info exists Snit_components($compName)]} {
-   error "$type $self delegates '$method' to undefined component '$compName'."
-                }
-
-                lappend subList %c [list $Snit_components($compName)]
-            }
-
-            set command [string map $subList $pattern]
-
-            set Snit_methodCache($method) $command
-
-            return $command
-        }
-
-        #----------------------------------------------------------
-        # Compiled Definitions
-            
-        %COMPILEDDEFS%
-
-        #----------------------------------------------------------
-        # Type Constructor
-
-        proc %TYPE%::Snit_typeconstructor {type} {
-            %TVARDECS%
-            %TCONSTBODY%
-        }
-
-        %TYPE%::Snit_typeconstructor %TYPE%
+        rename ::$self $newName
+        Snit_install $selfns $self
+        
+            # Note: this relies on Snit_comptrace to do the dirty work.
+        set hull $newName
+        
+        return
     }
+
+    # Creates a widget and installs it as the named component.
+    proc %TYPE%::install {compName "using" widgetType winPath args} {
+        typevariable Snit_isWidget
+        typevariable Snit_compoptions
+        typevariable Snit_delegatedoptions
+        typevariable Snit_optiondbspec
+        typevariable Snit_info
+        upvar self self
+        upvar selfns selfns
+        upvar ${selfns}::$compName comp
+        upvar ${selfns}::hull hull
+
+
+        # We do the magic option database stuff only if $self is
+        # a widget.
+        if {$Snit_isWidget} {
+            if {"" == $hull} {
+                error "tried to install '$compName' before the hull exists"
+            }
+            
+            # FIRST, query the option database and save the results 
+            # into args.  Insert them before the first option in the
+            # list, in case there are any non-standard parameters.
+            #
+            # Note: there might not be any delegated options; if so,
+            # don't bother.
+
+            set gotStar 0
+
+            if {[info exists Snit_compoptions($compName)]} {
+                set ndx [lsearch -glob $args "-*"]
+                
+                foreach opt $Snit_compoptions($compName) {
+                    # Handle * later
+                    if {"*" == $opt} {
+                        set gotStar 1
+                        continue
+                    }
+
+                    set dbval [Snit_optionget $self $opt]
+                    
+                    if {"" != $dbval} {
+                        set target [lindex $Snit_delegatedoptions($opt) 1]
+                        set args [linsert $args $ndx $target $dbval]
+                    }
+                }
+            }
+        }
+             
+        # NEXT, create the component and save it.
+        set cmd [concat [list $widgetType $winPath] $args]
+        set comp [uplevel 1 $cmd]
+
+        # NEXT, handle the option database for "delegate option *",
+        # in widgets only.
+        if {$Snit_isWidget && $gotStar} {
+            # FIRST, get the list of option specs from the widget.
+            # If configure doesn't work, skip it.
+            if {[catch {$comp configure} specs]} {
+                return
+            }
+
+            # NEXT, get the set of explicitly used options from args
+            set usedOpts {}
+            set ndx [lsearch -glob $args "-*"]
+            foreach {opt val} [lrange $args $ndx end] {
+                lappend usedOpts $opt
+            }
+
+            # NEXT, "delegate option *" matches all options defined
+            # by this widget that aren't defined by the widget as a whole,
+            # and that aren't excepted.  Plus, we skip usedOpts.  So build 
+            # a list of the invalid option names.
+            set skiplist [concat $usedOpts $Snit_info(exceptopts) \
+                              [array names Snit_optiondbspec]]
+
+            # NEXT, loop over all of the component's options, and set
+            # any not in the skip list for which there is an option 
+            # database value.
+            foreach spec $specs {
+                # Skip aliases
+                if {[llength $spec] != 5} {
+                    continue
+                }
+
+                set opt [lindex $spec 0]
+
+                if {[lsearch -exact $skiplist $opt] != -1} {
+                    continue
+                }
+
+                set res [lindex $spec 1]
+                set cls [lindex $spec 2]
+
+                set dbvalue [option get $self $res $cls]
+
+                if {"" != $dbvalue} {
+                    $comp configure $opt $dbvalue
+                }
+            }
+        }
+
+        
+        return
+    }
+
+    #----------------------------------------------------------------
+    # Snit variables 
+    #
+    # TBD: At some point I really need to review all of these variables
+    # and see if there's more a straightforward, clearer way to store
+    # all of the same information.
+
+    namespace eval %TYPE% {
+        # Array: General Snit Info
+        #
+        # ns:            The type's namespace
+        # options:       List of the names of the type's local options.
+        # counter:       Count of instances created so far.
+        # widgetclass:   Set by widgetclass statement.
+        # hulltype:      Hull type (frame or toplevel) for widgets only.
+        # exceptmethods: Methods explicitly not delegated to *
+        # exceptopts:    Options explicitly not delegated to *
+        # tvardecs:      Type variable declarations--for dynamic methods
+        # ivardecs:      Instance variable declarations--for dyn. methods
+        typevariable Snit_info
+        set Snit_info(ns)      %TYPE%::
+        set Snit_info(options) {}
+        set Snit_info(counter) 0
+        set Snit_info(widgetclass) {}
+        set Snit_info(hulltype) frame
+        set Snit_info(exceptmethods) {}
+        set Snit_info(exceptopts) {}
+        set Snit_info(tvardecs) {%TVARDECS%}
+        set Snit_info(ivardecs) {%IVARDECS%}
+
+        # Array: Public methods of this type.
+        # Index is typemethod name; value is proc name.
+        typevariable Snit_typemethods
+        array unset Snit_typemethods
+
+        # Array: Public methods of instances of this type.
+        # The index is the method name, or "*".
+        # The value is [list $pattern $componentName], where
+        # $componentName is "" for normal methods.
+        typevariable Snit_methodInfo
+        array unset Snit_methodInfo
+
+        # Array: default option values
+        #
+        # $option          Default value for the option
+        typevariable Snit_optiondefaults
+
+        # Array: database spec values for explicitly defined
+        # options
+        #
+        # $option          [list resourceName className]
+        typevariable Snit_optiondbspec
+
+        # Array: delegated option components
+        #
+        # $option          Component to which the option is delegated.
+        typevariable Snit_delegatedoptions
+
+        # Array: delegated options by component.
+        typevariable Snit_compoptions
+    }
+
+    #----------------------------------------------------------
+    # Type Command
+    
+    # Type dispatcher function.  Note: This function lives
+    # in the parent of the %TYPE% namespace!  All accesses to 
+    # %TYPE% variables and methods must be qualified!
+    proc %TYPE% {method args} {
+        # First, if the typemethod is unknown, we'll assume that it's
+        # an instance name if we can.
+        if {[catch {set %TYPE%::Snit_typeMethodCache($method)} command]} {
+            set command [%TYPE%::Snit_typeCacheLookup $method]
+            
+            if {[llength $command] == 0} {
+                if {[set %TYPE%::Snit_isWidget] && 
+                    ![string match ".*" $method]} {
+                    return -code error  "\"%TYPE% $method\" is not defined"
+                }
+                
+                set args [concat $method $args]
+                set method create
+                set command [%TYPE%::Snit_typeCacheLookup $method]
+            }
+        }
+        
+        uplevel $command $args
+    }
+        
+    # Generates and caches the command for a typemethod.
+    #
+    # method:	The name of the method to call.
+    proc %TYPE%::Snit_typeCacheLookup {method} {
+        # First, if the typemethod is unknown, we'll assume that it's
+        # an instance name if we can.
+        if {[catch {set %TYPE%::Snit_typemethods($method)} procname]} {
+            return ""
+        }
+        
+        set command [concat %TYPE%::$procname %TYPE%]
+        set %TYPE%::Snit_typeMethodCache($method) $command
+        
+        return $command
+    }
+
+
+    #----------------------------------------------------------------
+    # Dispatcher Command
+    
+    # Snit_install selfns instance
+    #
+    # Creates the instance proc.
+    # "instance" is the initial name of the instance, and "selfns" is
+    # the instance namespace.
+    proc %TYPE%::Snit_install {selfns instance} {
+        typevariable Snit_isWidget
+        
+        # FIRST, remember the instance name.  The Snit_instance variable
+        # allows the instance to figure out its current name given the
+        # instance namespace.
+        upvar ${selfns}::Snit_instance Snit_instance
+        set Snit_instance $instance
+
+        # NEXT, qualify the proc name if it's a widget.
+        if {$Snit_isWidget} {
+            set procname ::$instance
+        } else {
+            set procname $instance
+        }
+
+        # NEXT, install the new proc
+        set body [string map [list %SELFNS% $selfns %WIN% $instance] {
+            set self [set %SELFNS%::Snit_instance]
+            
+            if {[catch {set %SELFNS%::Snit_methodCache($method)} command]} {
+                set command [%TYPE%::Snit_cacheLookup %TYPE% %SELFNS% %WIN% $self $method]
+                
+                if {[llength $command] == 0} {
+                    return -code error \
+                        "'$self $method' is not defined."
+                }
+            }
+            
+            uplevel 1 $command $args
+        }]
+
+        proc $procname {method args} $body
+
+        # NEXT, add the trace.
+        trace add command $procname {rename delete} \
+            [list %TYPE%::Snit_tracer $selfns $instance]
+    }
+
+    # Snit_removetrace selfns instance
+    proc %TYPE%::Snit_removetrace {selfns win instance} {
+        typevariable Snit_isWidget
+
+        if {$Snit_isWidget} {
+            set procname ::$instance
+        } else {
+            set procname $instance
+        }
+        
+        # NEXT, remove any trace on this name
+        catch {
+            trace remove command $procname {rename delete} \
+                [list %TYPE%::Snit_tracer $selfns $win]
+        }
+    }
+
+    # Snit_tracer old new op
+    #
+    # This proc is called when the instance command is renamed.  old
+    # is the old name, new is the new name, and op is rename or delete.
+    # If op is delete, then new will always be "", so op is redundant.
+    #
+    # If the op is delete, we need to clean up the object; otherwise,
+    # we need to track the change.
+    #
+    # NOTE: In Tcl 8.4.2 there's a bug: errors in rename and delete
+    # traces aren't propagated correctly.  Instead, they silently
+    # vanish.  Add a catch to output any error message.
+
+    proc %TYPE%::Snit_tracer {selfns win old new op} {
+        typevariable Snit_isWidget
+
+        # Note to developers ...
+        # For Tcl 8.4.0, errors thrown in trace handlers vanish silently.
+        # Therefore we catch them here and create some output to help in
+        # debugging such problems.
+
+        if {[catch {
+            # FIRST, clean up if necessary
+            if {"" == $new} {
+                if {$Snit_isWidget} {
+                    destroy $win
+                } else {
+                    Snit_cleanup $selfns $win
+                }
+            } else {
+                # Otherwise, track the change.
+                ::variable ${selfns}::Snit_instance Snit_instance
+                set Snit_instance [uplevel namespace which -command $new]
+
+                # Also, clear the method cache, as many cached commands
+                # will be invalid.
+                unset -nocomplain -- ${selfns}::Snit_methodCache
+            }
+        } result]} {
+            global errorInfo
+            # Pop up the console on Windows wish, to enable stdout.
+            # This clobbers errorInfo unix, so save it.
+            set ei $errorInfo
+            catch {console show}
+            puts "Error in Snit_tracer $selfns $win $old $new $op:"
+            puts $ei
+        }
+    }
+
+    # Generates and caches the command for a method.
+    #
+    # type:		The instance's type
+    # selfns:	The instance's private namespace
+    # win:          The instance's original name (a Tk widget name, for
+    #               snit::widgets.
+    # self:         The instance's current name.
+    # method:	The name of the method to call.
+    # argList:      Arguments for the method.
+    proc %TYPE%::Snit_cacheLookup {type selfns win self method} {
+        typevariable Snit_info
+        typevariable Snit_methodInfo
+        variable ${selfns}::Snit_components
+        variable ${selfns}::Snit_methodCache
+
+        # FIRST, get the pattern data and the component name.
+        if {[info exists Snit_methodInfo($method)]} {
+            set key $method
+        } elseif {[info exists Snit_methodInfo(*)] &&
+                  [lsearch -exact $Snit_info(exceptmethods) $method] == -1} {
+            set key "*"
+        } else {
+            return ""
+        }
+
+        foreach {pattern compName} $Snit_methodInfo($key) {}
+
+        # NEXT, build the substitution list
+        set subList [list \
+                         %% % \
+                         %t [list $type] \
+                         %m [list $method] \
+                         %n [list $selfns] \
+                         %w [list $win] \
+                         %s [list $self]]
+
+        if {$compName ne ""} {
+            if {![info exists Snit_components($compName)]} {
+                error "$type $self delegates '$method' to undefined component '$compName'."
+            }
+
+            lappend subList %c [list $Snit_components($compName)]
+        }
+
+        set command [string map $subList $pattern]
+        
+        set Snit_methodCache($method) $command
+        
+        return $command
+    }
+
+    #----------------------------------------------------------
+    # Compiled Definitions
+            
+    %COMPILEDDEFS%
+
+    #----------------------------------------------------------
+    # Type Constructor
+
+    proc %TYPE%::Snit_typeconstructor {type} {
+        %TVARDECS%
+        %TCONSTBODY%
+    }
+
+    %TYPE%::Snit_typeconstructor %TYPE%
 }
+
 
 #-----------------------------------------------------------------------
 # Snit Compilation Variables
@@ -2371,6 +2253,205 @@ proc ::snit::TypeInfo_instances {type {pattern *}} {
     }
 
     return $result
+}
+
+#-----------------------------------------------------------------------
+# Object Destruction
+
+# Implements the standard "destroy" method
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+
+proc ::snit::RT.method.destroy {type selfns win self} {
+    # Calls Snit_cleanup, which (among other things) calls the
+    # user's destructor.
+    ${type}::Snit_cleanup $selfns $win
+}
+
+#-----------------------------------------------------------------------
+# Option Handling
+
+# Implements the standard "cget" method
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# option        The name of the option
+
+proc ::snit::RT.method.cget {type selfns win self option} {
+    # TBD: Consider using a cget command cache.
+    upvar ${type}::Snit_optiondefaults   Snit_optiondefaults
+    upvar ${type}::Snit_delegatedoptions Snit_delegatedoptions
+    upvar ${type}::Snit_info             Snit_info
+                
+    if {[info exists Snit_optiondefaults($option)]} {
+        # Normal option; return it.
+        return [${type}::Snit_cget$option $type $selfns $win $self]
+    } elseif {[info exists Snit_delegatedoptions($option)]} {
+        # Delegated option: get target.
+        set comp [lindex $Snit_delegatedoptions($option) 0]
+        set target [lindex $Snit_delegatedoptions($option) 1]
+    } elseif {[info exists Snit_delegatedoptions(*)] &&
+              [lsearch -exact $Snit_info(exceptopts) $option] == -1} {
+        # Unknown option, but unknowns are delegated; get target.
+        set comp [lindex $Snit_delegatedoptions(*) 0]
+        set target $option
+    } else {
+        # Use quotes because Tk does.
+        error "unknown option \"$option\""
+    }
+    
+    # Get the component's object.
+    set obj [RT.Component $type $selfns $comp]
+    
+    # TBD: I'll probably want to fix up certain error
+    # messages, but I'm not sure how yet.
+    return [$obj cget $target]
+}
+
+# Implements the standard "configurelist" method
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# optionlist    A list of options and their values.
+
+proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
+    upvar ${type}::Snit_optiondefaults   Snit_optiondefaults
+    upvar ${type}::Snit_delegatedoptions Snit_delegatedoptions
+    upvar ${type}::Snit_info             Snit_info
+
+    foreach {option value} $optionlist {
+        if {[info exist Snit_optiondefaults($option)]} {
+            ${type}::Snit_configure$option $type $selfns $win $self $value
+            continue
+        } elseif {[info exists Snit_delegatedoptions($option)]} {
+            # Delegated option: get target.
+            set comp [lindex $Snit_delegatedoptions($option) 0]
+            set target [lindex $Snit_delegatedoptions($option) 1]
+        } elseif {[info exists Snit_delegatedoptions(*)] &&
+                  [lsearch -exact $Snit_info(exceptopts) $option] == -1} {
+            # Unknown option, but unknowns are delegated.
+            set comp [lindex $Snit_delegatedoptions(*) 0]
+            set target $option
+        } else {
+            # Use quotes because Tk does.
+            error "unknown option \"$option\""
+        }
+        
+        # Get the component's object
+        set obj [RT.Component $type $selfns $comp]
+        
+        # Might want some special error handling here.
+        $obj configure $target $value
+    }
+    
+    return
+}
+
+# Implements the standard "configure" method
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# args          A list of options and their values, possibly empty.
+
+proc ::snit::RT.method.configure {type selfns win self args} {
+    # If two or more arguments, set values as usual.
+    if {[llength $args] >= 2} {
+        ::snit::RT.method.configurelist $type $selfns $win $self $args
+        return
+    }
+
+    # If zero arguments, acquire data for each known option
+    # and return the list
+    if {[llength $args] == 0} {
+        set result {}
+        foreach opt [RT.method.info.options $type $selfns $win $self] {
+            # Refactor this, so that we don't need to call via $self.
+            lappend result [RT.GetOptionDbSpec \
+                                $type $selfns $win $self $opt]
+        }
+        
+        return $result
+    }
+
+    # They want it for just one.
+    set opt [lindex $args 0]
+
+    return [RT.GetOptionDbSpec $type $selfns $win $self $opt]
+}
+
+
+# Retrieves the option database spec for a single option.
+#
+# type		The snit type
+# selfns        The instance's instance namespace
+# win           The instance's original name
+# self          The instance's current name
+# option        The name of an option
+
+proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
+    upvar ${type}::Snit_optiondefaults   Snit_optiondefaults
+    upvar ${type}::Snit_delegatedoptions Snit_delegatedoptions
+    upvar ${type}::Snit_optiondbspec     Snit_optiondbspec
+    upvar ${type}::Snit_info             Snit_info
+
+    upvar ${selfns}::Snit_components Snit_components
+    upvar ${selfns}::options         options
+    
+    if {[info exists options($opt)]} {
+        # This is a locally-defined option.  Just build the
+        # list and return it.
+        set res [lindex $Snit_optiondbspec($opt) 0]
+        set cls [lindex $Snit_optiondbspec($opt) 1]
+
+        return [list $opt $res $cls $Snit_optiondefaults($opt) \
+                    [RT.method.cget $type $selfns $win $self $opt]]
+    } elseif {[info exists Snit_delegatedoptions($opt)]} {
+        # This is an explicitly delegated option.  The only
+        # thing we don't have is the default.
+        set res [lindex $Snit_optiondbspec($opt) 0]
+        set cls [lindex $Snit_optiondbspec($opt) 1]
+        
+        # Get the default
+        set logicalName [lindex $Snit_delegatedoptions($opt) 0]
+        set comp $Snit_components($logicalName)
+        set target [lindex $Snit_delegatedoptions($opt) 1]
+
+        if {[catch {$comp configure $target} result]} {
+            set defValue {}
+        } else {
+            set defValue [lindex $result 3]
+        }
+
+        return [list $opt $res $cls $defValue [$self cget $opt]]
+    } elseif {[info exists Snit_delegatedoptions(*)] &&
+              [lsearch -exact $Snit_info(exceptopts) $opt] == -1} {
+        set logicalName [lindex $Snit_delegatedoptions(*) 0]
+        set target $opt
+        set comp $Snit_components($logicalName)
+
+        if {[catch {set value [$comp cget $target]} result]} {
+            error "unknown option \"$opt\""
+        }
+
+        if {![catch {$comp configure $target} result]} {
+            # Replace the delegated option name with the local name.
+            return [::snit::Expand $result $target $opt]
+        }
+
+        # configure didn't work; return simple form.
+        return [list $opt "" "" "" $value]
+    } else {
+        error "unknown option \"$opt\""
+    }
 }
 
 #-----------------------------------------------------------------------
