@@ -644,8 +644,9 @@ if {[info tclversion] > 8.1} {
 proc html::textInput {name args} {
     variable defaults
     ::set html "<input type=\"text\" "
-    append html [html::formValue $name [string trim [join $args]]]
+    append html "name=\"$name\" "
     append html [html::default input.size]
+    append html [join $args]
     append html ">\n"
     return $html
 }
