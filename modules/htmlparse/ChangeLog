@@ -1,3 +1,11 @@
+2003-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.test: Added htmlparse-3.4 to exercise the fix.
+	* htmlparse.tcl (::htmlparse::parse): Fixed bug #640932, reported
+	  by Scott Goodwin <scottg@users.sourceforge.net>. Cause of the
+	  bug: Incomplete tags were correctly detected and stored for the
+	  next call, but incorrectly not used in said next call.
+
 2003-02-24  David N. Welton  <davidw@dedasys.com>
 
 	* htmlparse.tcl (::htmlparse::PrepareHtml): Use string map instead
