@@ -1,3 +1,8 @@
+2003-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4.tcl: Changed the method MD4Final uses to produce the binary
+	result to avoid problems on 64bit architectures.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
