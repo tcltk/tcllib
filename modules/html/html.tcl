@@ -614,20 +614,9 @@ proc html::formValue {name {defvalue {}}} {
 #	A string like:
 #	&#34;Hello, &lt;b&gt;World!&#34;
 
-if {[info tclversion] > 8.1} {
-    proc html::quoteFormValue {value} {
-	return [string map [list "&" "&amp;" "\"" "&#34;" \
-		"'" "&#39;" "<" "&lt;" ">" "&gt;"] $value]
-    }
-} else {
-    proc html::quoteFormValue {value} {
-	regsub -all -- {&} $value {\&amp;} value
-	regsub -all -- {"} $value {\&#34;} value ;# need a " for balance
-	regsub -all -- {'} $value {\&#39;} value
-	regsub -all -- {<} $value {\&lt;} value
-	regsub -all -- {>} $value {\&gt;} value
-	return $value
-    }
+proc html::quoteFormValue {value} {
+    return [string map [list "&" "&amp;" "\"" "&#34;" \
+			    "'" "&#39;" "<" "&lt;" ">" "&gt;"] $value]
 }
 
 # html::textInput --
