@@ -1,3 +1,10 @@
+2003-03-28  Andreas Kupries  <andreask@activestate.com>
+
+	* cvs.tcl (toChangeLog): Using the new textutil commands 'indent'
+	  and 'undent' for proper alignment of the comments extracted from
+	  the log.
+	* pkgIndex.tcl: added 'doctools::cvs' to package index.
+
 2003-03-27  Andreas Kupries  <andreask@activestate.com>
 
 	* cvs.man:
