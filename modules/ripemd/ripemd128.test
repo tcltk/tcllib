@@ -1,19 +1,40 @@
 # ripemd128.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd128.test,v 1.2 2004/02/16 23:13:49 patthoyts Exp $
+# $Id: ripemd128.test,v 1.3 2004/02/18 14:32:04 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget ripemd128
+catch {namespace delete ::ripemd::ripemd128}
+if {[catch {source [file join [file dirname [info script]] ripemd128.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
 package require ripemd128
 
-if {$::ripemd::usetrf} {
+if {$::ripemd::::ripemd128::usetrf} {
     puts "ripemd128 [package provide ripemd128] (Trf based)"
 } else {
     puts "ripemd128 [package provide ripemd128] (pure Tcl)"
 }
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
 
@@ -41,14 +62,14 @@ foreach {n msg hash} $vectors {
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
-if {$::ripemd::usetrf} {
+if {$::ripemd::ripemd128::usetrf} {
     set ::ripemd::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd128-2.$n {RIPEMD-128 pure-Tcl} {
             ::ripemd::ripemd128 -hex $msg
         } $hash
     }
-    set ::ripemd::usetrf 1
+    set ::ripemd::ripemd128::usetrf 1
 }
 
 # -------------------------------------------------------------------------
@@ -78,15 +99,54 @@ foreach {n msg hash} $vectors {
 
 # If our implementation is managing to use Trf then check the pure tcl
 # version as well.
-if {$::ripemd::usetrf} {
+if {$::ripemd::ripemd128::usetrf} {
     set ::ripemd::usetrf 0
     foreach {n msg hash} $vectors {
         test ripemd128-4.$n {HMAC RIPEMD-128 pure-Tcl} {
             ::ripemd::hmac128 -hex -key $key $msg
         } $hash
     }
-    set ::ripemd::usetrf 1
+    set ::ripemd::ripemd128::usetrf 1
 }
+
+# -------------------------------------------------------------------------
+# HMAC test vectors - key 2
+
+set key [binary format H* 0123456789abcdeffedcba9876543210]
+
+set vectors {
+    1 {}    {8931EEEE56A6B257FD1AB5418183D826}
+    2 {a}   {DBBCF169EA7419D5BA7BD8EB3673FF2D}
+    3 {abc} {2C4CD07D3162D6A0E338004D6B6FBC9A}
+    4 {message digest} {75BFB25888F4BB77C77AE83AD0817447}
+    5 {abcdefghijklmnopqrstuvwxyz} {B1B5DC0FCB7258758855DD1840FCDCE4}
+    6 {abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq}
+      {670D0F7A697B18F1A8AB7D2A2A00DBC1}
+    7 {ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+      {54E315FDB34A61C0475392E5C7852998}
+}
+lappend vectors \
+    8 [string repeat 1234567890 8] {AD04354D8AA2A623E72E3594EE3535C0}
+
+foreach {n msg hash} $vectors {
+    test ripemd128-5.$n {HMAC RIPEMD-128 test vectors} {
+        ::ripemd::hmac128 -hex -key $key $msg
+    } $hash
+}
+
+# If our implementation is managing to use Trf then check the pure tcl
+# version as well.
+if {$::ripemd::ripemd128::usetrf} {
+    set ::ripemd::usetrf 0
+    foreach {n msg hash} $vectors {
+        test ripemd128-6.$n {HMAC RIPEMD-128 pure-Tcl} {
+            ::ripemd::hmac128 -hex -key $key $msg
+        } $hash
+    }
+    set ::ripemd::ripemd128::usetrf 1
+}
+
+# -------------------------------------------------------------------------
 
 ::tcltest::cleanupTests
 

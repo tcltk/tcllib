@@ -1,42 +1,56 @@
 # ripemd128.tcl - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
 # This is a Tcl-only implementation of the RIPEMD-128 hash algorithm as 
-# described in Fast Software Encryption, LNCS 1039, D. Gollmann, Ed., 
-# Springer-Verlag, 1996, pp. 71-82
+# described in [RIPE].
+# Included is an implementation of keyed message authentication using 
+# the RIPEMD-128 function [HMAC].
+#
 # See http://www.esat.kuleuven.ac.be/~cosicart/pdf/AB-9601/
-# 
-# ( http://www.esat.kuleuven.ac.be/~cosicart/ps/AB-9601/rmd128.c)
+#
+# [RIPE] Dobbertin, H., Bosselaers A., and Preneel, B.
+#        "RIPEMD-160: A Strengthened Version of RIPEMD" 
+#        Fast Software Encryption, LNCS 1039, D. Gollmann, Ed., 
+#        Springer-Verlag, 1996, pp. 71-82
+# [HMAC] Krawczyk, H., Bellare, M., and R. Canetti, 
+#       "HMAC: Keyed-Hashing for Message Authentication",
+#        RFC 2104, February 1997.
+#
+# RFC 2286, ``Test cases for HMAC-RIPEMD160 and HMAC-RIPEMD128,''
+# Internet Request for Comments 2286, J. Kapp, 
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd128.tcl,v 1.1 2004/02/16 22:50:40 patthoyts Exp $
+# $Id: ripemd128.tcl,v 1.2 2004/02/18 14:32:04 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
 
 namespace eval ::ripemd {
-    variable version 1.0.0
-    variable rcsid {$Id: ripemd128.tcl,v 1.1 2004/02/16 22:50:40 patthoyts Exp $}
-    variable usetrf 0
+    namespace eval ripemd128 {
+        variable version 1.0.0
+        variable rcsid {$Id: ripemd128.tcl,v 1.2 2004/02/18 14:32:04 patthoyts Exp $}
+        variable usetrf 0
 
-    namespace export ripemd128 ripehmac128 \
-        RIPEMD128Init RIPEMD128Update RIPEMD128Final
-
-    # Buggy under windows.
-    if {$::tcl_platform(platform) != "windows"} {
+        # Trf 2.1p1 is buggy for what we want to do.
         catch {
             package require Trf
             package require Memchan
-            set usetrf 1
+            if {[string map {. {} p {}} [package provide Trf]] > 211} {
+                set usetrf 1
+            }
         }
-    }
 
-    variable uid
-    if {![info exists uid]} {
-        set uid 0
+        variable uid
+        if {![info exists uid]} {
+            set uid 0
+        }
+
+        namespace export ripemd128 hmac128 Hex \
+            RIPEMD128Init RIPEMD128Update RIPEMD128Final \
+            RIPEHMAC128Init RIPEHMAC128Update RIPEHMAC128Final
     }
 }
 
@@ -45,7 +59,7 @@ namespace eval ::ripemd {
 # RIPEMD128Init - create and initialize an MD4 state variable. This will be
 # cleaned up when we call MD4Final
 #
-proc ::ripemd::RIPEMD128Init {} {
+proc ::ripemd::ripemd128::RIPEMD128Init {} {
     variable usetrf
     variable uid
     set token [namespace current]::[incr uid]
@@ -74,7 +88,7 @@ proc ::ripemd::RIPEMD128Init {} {
     return $token
 }
 
-proc ::ripemd::RIPEMD128Update {token data} {
+proc ::ripemd::ripemd128::RIPEMD128Update {token data} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -99,7 +113,7 @@ proc ::ripemd::RIPEMD128Update {token data} {
     return
 }
 
-proc ::ripemd::RIPEMD128Final {token} {
+proc ::ripemd::ripemd128::RIPEMD128Final {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -143,7 +157,7 @@ proc ::ripemd::RIPEMD128Final {token} {
 #
 # hmac = H(K xor opad, H(K xor ipad, text))
 #
-proc ::ripemd::RIPEHMAC128Init {K} {
+proc ::ripemd::ripemd128::RIPEHMAC128Init {K} {
 
     # Key K is adjusted to be 64 bytes long. If K is larger, then use
     # the RIPEMD-128 digest of K and pad this instead.
@@ -176,12 +190,12 @@ proc ::ripemd::RIPEHMAC128Init {K} {
     return $tok
 }
 
-proc ::ripemd::RIPEHMAC128Update {token data} {
+proc ::ripemd::ripemd128::RIPEHMAC128Update {token data} {
     RIPEMD128Update $token $data
     return
 }
 
-proc ::ripemd::RIPEHMAC128Final {token} {
+proc ::ripemd::ripemd128::RIPEHMAC128Final {token} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -194,7 +208,7 @@ proc ::ripemd::RIPEHMAC128Final {token} {
 
 # -------------------------------------------------------------------------
 
-set ::ripemd::RIPEMD128Hash_body {
+set ::ripemd::ripemd128::RIPEMD128Hash_body {
     variable $token
     upvar 0 $token state
 
@@ -426,8 +440,8 @@ set ::ripemd::RIPEMD128Hash_body {
     return
 }
 
-proc ::ripemd::byte {n v} {expr {((0xFF << (8 * $n)) & $v) >> (8 * $n)}}
-proc ::ripemd::bytes {v} { 
+proc ::ripemd::ripemd128::byte {n v} {expr {((0xFF << (8 * $n)) & $v) >> (8 * $n)}}
+proc ::ripemd::ripemd128::bytes {v} { 
     #format %c%c%c%c [byte 0 $v] [byte 1 $v] [byte 2 $v] [byte 3 $v]
     format %c%c%c%c \
         [expr {0xFF & $v}] \
@@ -437,7 +451,7 @@ proc ::ripemd::bytes {v} {
 }
 
 # 32bit rotate-left
-proc ::ripemd::<<< {v n} {
+proc ::ripemd::ripemd128::<<< {v n} {
     set v [expr {(($v << $n) | (($v >> (32 - $n)) & (0x7FFFFFFF >> (31 - $n))))}]
     return [expr {$v & 0xFFFFFFFF}]
 }
@@ -445,63 +459,63 @@ proc ::ripemd::<<< {v n} {
 # Convert our <<< pseuodo-operator into a procedure call.
 regsub -all -line \
     {\[expr {(.*) <<< (\d+)}\]} \
-    $::ripemd::RIPEMD128Hash_body \
+    $::ripemd::ripemd128::RIPEMD128Hash_body \
     {[<<< [expr {\1}] \2]} \
-    ::ripemd::RIPEMD128Hash_body
+    ::ripemd::ripemd128::RIPEMD128Hash_body
 
 #  F(x,y,z) = x ^ y ^ z
-proc ::ripemd::F {X Y Z} {
+proc ::ripemd::ripemd128::F {X Y Z} {
     return [expr {$X ^ $Y ^ $Z}]
 }
 # Inline the F function F
 regsub -all -line \
     {\[F (\$[ABCD]{1,2}) (\$[ABCD]{1,2}) (\$[ABCD]{1,2})\]} \
-    $::ripemd::RIPEMD128Hash_body \
+    $::ripemd::ripemd128::RIPEMD128Hash_body \
     {(\1 ^ \2 ^ \3)} \
-    ::ripemd::RIPEMD128Hash_body
+    ::ripemd::ripemd128::RIPEMD128Hash_body
     
 # G(x,y,z) = (x & y) | (~x & z)
-proc ::ripemd::G {X Y Z} {
+proc ::ripemd::ripemd128::G {X Y Z} {
     return [expr {($X & $Y) | (~$X & $Z)}]
 }
 # Inline the G function
 regsub -all -line \
     {\[G (\$[ABCD]{1,2}) (\$[ABCD]{1,2}) (\$[ABCD]{1,2})\]} \
-    $::ripemd::RIPEMD128Hash_body \
+    $::ripemd::ripemd128::RIPEMD128Hash_body \
     {((\1 \& \2) | (~\1 \& \3))} \
-    ::ripemd::RIPEMD128Hash_body
+    ::ripemd::ripemd128::RIPEMD128Hash_body
 
 # H(x,y,z) = (x | ~y) ^ z
-proc ::ripemd::H {X Y Z} {
+proc ::ripemd::ripemd128::H {X Y Z} {
     return [expr {($X | ~$Y) ^ $Z}]
 }
 # Inline the H function
 regsub -all -line \
     {\[H (\$[ABCD]{1,2}) (\$[ABCD]{1,2}) (\$[ABCD]{1,2})\]} \
-    $::ripemd::RIPEMD128Hash_body \
+    $::ripemd::ripemd128::RIPEMD128Hash_body \
     {( (\1 | ~\2) ^ \3)} \
-    ::ripemd::RIPEMD128Hash_body
+    ::ripemd::ripemd128::RIPEMD128Hash_body
 
 # I(x,y,z) = (x & z) | (y & ~z)
-proc ::ripemd::I {X Y Z} {
+proc ::ripemd::ripemd128::I {X Y Z} {
     return [expr {($X & $Z) | ($Y & ~$Z)}]
 }
 # Inline the I function
 regsub -all -line \
     {\[I (\$[ABCD]{1,2}) (\$[ABCD]{1,2}) (\$[ABCD]{1,2})\]} \
-    $::ripemd::RIPEMD128Hash_body \
+    $::ripemd::ripemd128::RIPEMD128Hash_body \
     {( (\1 \& \3) | (\2 \& ~\3) )} \
-    ::ripemd::RIPEMD128Hash_body
+    ::ripemd::ripemd128::RIPEMD128Hash_body
 
 # Define the MD4 hashing procedure with inline functions.
-proc ::ripemd::RIPEMD128Hash {token msg} $::ripemd::RIPEMD128Hash_body
+proc ::ripemd::ripemd128::RIPEMD128Hash {token msg} $::ripemd::ripemd128::RIPEMD128Hash_body
 
 # -------------------------------------------------------------------------
 
 if {[package provide Trf] != {}} {
-    interp alias {} ::ripemd::Hex {} ::hex -mode encode
+    interp alias {} ::ripemd::ripemd128::Hex {} ::hex -mode encode
 } else {
-    proc ::ripemd::Hex {data} {
+    proc ::ripemd::ripemd128::Hex {data} {
         set result {}
         binary scan $data c* r
         foreach c $r {
@@ -516,7 +530,7 @@ if {[package provide Trf] != {}} {
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
-proc ::ripemd::Pop {varname {nth 0}} {
+proc ::ripemd::ripemd128::Pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -527,7 +541,7 @@ proc ::ripemd::Pop {varname {nth 0}} {
 
 # fileevent handler for chunked file hashing.
 #
-proc ::ripemd::Chunk {token channel {chunksize 4096}} {
+proc ::ripemd::ripemd128::Chunk {token channel {chunksize 4096}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -542,7 +556,7 @@ proc ::ripemd::Chunk {token channel {chunksize 4096}} {
 
 # -------------------------------------------------------------------------
 
-proc ::ripemd::ripemd128 {args} {
+proc ::ripemd::ripemd128::ripemd128 {args} {
     array set opts {-hex 0 -filename {} -channel {} -chunksize 4096}
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
@@ -600,7 +614,7 @@ proc ::ripemd::ripemd128 {args} {
 
 # -------------------------------------------------------------------------
 
-proc ::ripemd::hmac128 {args} {
+proc ::ripemd::ripemd128::hmac128 {args} {
     array set opts {-hex 0 -filename {} -channel {} -chunksize 4096 -key {}}
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
@@ -664,7 +678,18 @@ proc ::ripemd::hmac128 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide ripemd128 $::ripemd::version
+namespace eval ::ripemd {
+
+    namespace import -force [namespace current]::ripemd128::*
+
+    namespace export ripemd128 hmac128 \
+        RIPEMD128Init RIPEMD128Update RIPEMD128Final \
+        RIPEHMAC128Init RIPEHMAC128Update RIPEHMAC128Final
+}
+
+# -------------------------------------------------------------------------
+
+package provide ripemd128 $::ripemd::ripemd128::version
 
 # -------------------------------------------------------------------------
 # Local Variables:
