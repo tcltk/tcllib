@@ -238,6 +238,20 @@ test Contains-1.2 {does not contain element} -setup {
     unset mylist
 }
 
+#-----------------------------------------------------------------------
+# type compilation
+
+# snit::compile returns two values, the qualified type name
+# and the script to execute to define the type.  This section
+# only checks the length of the list and the type name;
+# the content of the script is validated by the remainder
+# of this test suite.
+
+test compile-1.1 {compile returns qualified type} {} {
+    set compResult [compile type dog { }]
+
+    list [llength $compResult] [lindex $compResult 0]
+} {2 ::dog}
 
 #-----------------------------------------------------------------------
 # type destruction
@@ -1381,7 +1395,7 @@ test option-2.2 {configure -opt returns info, local options only} {} {
 
 test option-2.3 {configure -opt returns info, explicit options} {} {
     cleanup
-catch {
+
     type papers {
         option -akcflag 1
     }
@@ -1397,9 +1411,6 @@ catch {
     dog create spot
     spot configure -akc 0
     spot configure -akc
-} result
-
-    set result
 } {-akc akc Akc 1 0}
 
 test option-2.4 {configure -unknownopt} {} {
@@ -4054,7 +4065,7 @@ test expose-1.1 {can't expose nothing.} {
     } result
     
     set result
-} {wrong # args: should be "::snit::Type.Expose component ?as? ?methodname?"}
+} {wrong # args: should be "::snit::Comp.statement.expose component ?as? ?methodname?"}
 
 
 test expose-1.2 {expose a component that's never installed.} {
