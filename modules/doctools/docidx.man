@@ -26,7 +26,7 @@ the formatting engines they require.
 
 [list_begin definitions]
 
-[call [cmd ::doctools::idx::new] [arg objectName] [opt  "[option -option] [arg value] ..."]]
+[call [cmd ::doctools::idx::new] [arg objectName] [opt "[option -option] [arg value] ..."]]
 
 This command creates a new docidx object with an associated Tcl
 command whose name is [arg objectName]. This [term object] command is
@@ -79,7 +79,7 @@ not a directory, or is not readable.
 
 All commands created by [cmd ::doctools::idx::new] have the following
 general form and may be used to invoke various operations on their
-doctoc converter object.
+docidx converter object.
 
 [list_begin definitions]
 
@@ -161,7 +161,7 @@ configured formatting engine through the command [cmd dt_fmap].
 
 This command is described in more detail in the companion document
 [term docidx_api] which specifies the API between the object and
-formatting engines.
+index formatting engines.
 
 
 [call [arg objectName] [method parameters]]
@@ -174,7 +174,7 @@ specific format.
 
 [call [arg objectName] [method search] [arg path]]
 
-This method extends the per-object list of paths searched for
+This method extends the per-object list of paths searched for index
 formatting engines. See also the command [cmd ::doctools::idx::search]
 on how to extend the per-package list of paths. Note that the path
 entered last will be searched first.
@@ -229,26 +229,6 @@ The configured formatting engine should interpret the value as the
 name of the file containing the document which is currently processed.
 
 
-[opt_def -module [arg text]]
-
-The argument of this option is stored in the object made available to
-the configured formatting engine through the command [cmd dt_module].
-
-This command is described in more detail in the companion document
-[term docidx_api] which specifies the API between the object and
-formatting engines.
-
-[nl]
-
-Its default value is the empty string.
-
-[nl]
-
-The configured formatting engine should interpret the value as the
-name of the module the file containing the document currently
-processed belongs to.
-
-
 [opt_def -format [arg text]]
 
 The argument of this option specifies the format to generate and by
@@ -268,16 +248,6 @@ configured format is left untouched.
 
 The section [sectref {FORMAT MAPPING}] explains in detail how the
 package and object will look for engine implementations.
-
-
-[opt_def -deprecated [arg boolean]]
-
-This option is a boolean flag. The object will generate warnings if
-this flag is set and the text given to method [method format] contains
-deprecated markup command [cmd strong].
-
-Its default value is [const FALSE]. In other words, no warnings will
-be generated.
 
 [list_end]
 
