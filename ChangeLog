@@ -1,3 +1,10 @@
+2003-04-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sak.tcl: Various fixes to enable document generation under
+	Windows.  Gracefully avoid non-present archivers (tar or zip).
+	Support for generating a TIP55 style metadata file (gentip55).
+	Added a file mtime check to avoid unecessary document generation.
+
 2003-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/base64/yencode.tcl:    Modified the [package provide]'s
