@@ -755,48 +755,103 @@ namespace eval ::snit:: {
             typevariable Snit_isWidget
             typevariable Snit_compoptions
             typevariable Snit_delegatedoptions
+            typevariable Snit_optiondbspec
             upvar self self
             upvar selfns selfns
             upvar ${selfns}::$compName comp
             upvar ${selfns}::hull hull
 
-            if {!$Snit_isWidget} {
-                error "install can only be used by snit::widgets and widgetadaptors"
-            }
 
-            if {"" == $hull} {
-                error "tried to install '$compName' before the hull exists"
-            }
+            # We do the magic option database stuff only if $self is
+            # a widget.
+            if {$Snit_isWidget} {
+                if {"" == $hull} {
+                    error "tried to install '$compName' before the hull exists"
+                }
 
-            # FIRST, query the option database and save the results 
-            # into args.  Insert them before the first option in the
-            # list, in case there are any non-standard parameters.
-            #
-            # Note: there might not be any delegated options; if so,
-            # don't bother.
+                # FIRST, query the option database and save the results 
+                # into args.  Insert them before the first option in the
+                # list, in case there are any non-standard parameters.
+                #
+                # Note: there might not be any delegated options; if so,
+                # don't bother.
 
-            if {[info exists Snit_compoptions($compName)]} {
-                set ndx [lsearch -glob $args "-*"]
+                set gotStar 0
 
-                foreach opt $Snit_compoptions($compName) {
-                    # TBD: For now, skip *
-                    if {"*" == $opt} {
-                        continue
-                    }
+                if {[info exists Snit_compoptions($compName)]} {
+                    set ndx [lsearch -glob $args "-*"]
 
-                    set dbval [Snit_optionget $self $opt]
+                    foreach opt $Snit_compoptions($compName) {
+                        # Handle * later
+                        if {"*" == $opt} {
+                            set gotStar 1
+                            continue
+                        }
+
+                        set dbval [Snit_optionget $self $opt]
                     
-                    if {"" != $dbval} {
-                        set target [lindex $Snit_delegatedoptions($opt) 1]
-                        set args [linsert $args $ndx $target $dbval]
+                        if {"" != $dbval} {
+                            set target [lindex $Snit_delegatedoptions($opt) 1]
+                            set args [linsert $args $ndx $target $dbval]
+                        }
                     }
                 }
             }
-
+             
             # NEXT, create the component and save it.
             set cmd [concat [list $widgetType $winPath] $args]
             set comp [uplevel 1 $cmd]
 
+            # NEXT, handle the option database for "delegate option *",
+            # in widgets only.
+            if {$Snit_isWidget && $gotStar} {
+                # FIRST, get the list of option specs from the widget.
+                # If configure doesn't work, skip it.
+                if {[catch {$comp configure} specs]} {
+                    return
+                }
+
+                # NEXT, get the set of explicitly used options from args
+                set usedOpts {}
+                set ndx [lsearch -glob $args "-*"]
+                foreach {opt val} [lrange $args $ndx end] {
+                    lappend usedOpts $opt
+                }
+
+                # NEXT, "delegate option *" matches all options defined
+                # by this widget that aren't defined by the widget as a whole.
+                # Plus, we skip usedOpts.  So build a list of the invalid
+                # option names.
+                set skiplist [concat $usedOpts [array names Snit_optiondbspec]]
+
+                # NEXT, loop over all of the component's options, and set
+                # any not in the skip list for which there is an option 
+                # database value.
+                foreach spec $specs {
+                    # Skip aliases
+                    if {[llength $spec] != 5} {
+                        continue
+                    }
+
+                    set opt [lindex $spec 0]
+
+                    if {[lsearch -exact $skiplist $opt] != -1} {
+                        continue
+                    }
+
+                    set res [lindex $spec 1]
+                    set cls [lindex $spec 2]
+
+                    set dbvalue [option get $self $res $cls]
+
+                    if {"" != $dbvalue} {
+                        $comp configure $opt $dbvalue
+                    }
+                }
+            }
+
+
+            return
         }
 
         # Looks for the named option in the named variable.  If found,

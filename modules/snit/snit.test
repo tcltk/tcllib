@@ -2675,8 +2675,12 @@ test install-1.6 {option db works with targetted options} tk {
     set a
 } {Courier}
 
-test install-1.7 {install doesn't work in snit::types} {
+test install-1.7 {install works for snit::types} {
     cleanup
+
+    type tail {
+        option -tailcolor black
+    }
 
     type dog {
         delegate option -tailcolor to tail
@@ -2686,14 +2690,11 @@ test install-1.7 {install doesn't work in snit::types} {
         }
     }
 
-    catch {
-        dog fido
-    } result
+    dog fido
+    fido cget -tailcolor
+} {black}
 
-    set result
-} {install can only be used by snit::widgets and widgetadaptors}
-
-test install-1.7 {install can install non-widget components} {
+test install-1.8 {install can install non-widget components} tk {
     cleanup
 
     type dog {
@@ -2720,7 +2721,7 @@ test install-1.7 {install can install non-widget components} {
 
 } {green}
 
-test install-1.8 {ok if no options are delegated to component} {
+test install-1.9 {ok if no options are delegated to component} tk {
     cleanup
 
     type dog {
@@ -2740,6 +2741,98 @@ test install-1.8 {ok if no options are delegated to component} {
     # Test passes if no error is raised.
     list ok
 } {ok}
+
+test install-2.1 {
+    delegate option * for a non-shadowed option.  The text widget's 
+    -foreground and -font options should be set according to what's 
+    in the option database on the widgetclass.
+} tk {
+    cleanup
+
+    widget myframe {
+        delegate option * to text
+
+        typeconstructor {
+            option add *Myframe.foreground red
+            option add *Myframe.font {Times 14}
+        }
+
+        constructor {args} {
+            install text using text $win.text
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -foreground]
+    set b [.frm cget -font]
+    destroy .frm
+    tkbide
+
+    list $a $b
+} {red {Times 14}}
+
+test install-2.2 {
+    Delegate option * for a shadowed option.  Foreground is declared
+    as a non-delegated option, hence it will pick up the option database
+    default.  -foreground is not included in the "delegate option *", so
+    the text widget's -foreground option will not be set from the
+    option database.
+} tk {
+    cleanup
+
+    widget myframe {
+        option -foreground white
+        delegate option * to text
+
+        typeconstructor {
+            option add *Myframe.foreground red
+        }
+
+        constructor {args} {
+            install text using text $win.text
+        }
+
+        method getit {} {
+            $text cget -foreground
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -foreground]
+    set b [.frm getit]
+    destroy .frm
+    tkbide
+
+    list $a $b
+} {red Black}
+
+test install-2.3 {
+    Delegate option * for a creation option.  Because the text widget's
+    -foreground is set explicitly by the constructor, that always 
+    overrides the option database.
+} tk {
+    cleanup
+
+    widget myframe {
+        delegate option * to text
+
+        typeconstructor {
+            option add *Myframe.foreground red
+        }
+
+        constructor {args} {
+            install text using text $win.text -foreground blue
+        }
+    }
+
+    myframe .frm
+    set a [.frm cget -foreground]
+    destroy .frm
+    tkbide
+
+    set a
+} {blue}
+
 
 #-----------------------------------------------------------------------
 # Advanced installhull tests
