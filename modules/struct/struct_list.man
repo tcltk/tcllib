@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.1 2003/04/15 17:44:51 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.2 2003/05/14 22:26:17 andreas_kupries Exp $}]
 [manpage_begin list n 1.2.2]
 [copyright {2003 by Kevin B. Kenny. All rights reserved}]
 [moddesc {Tcl Data Structures}]
@@ -343,7 +343,7 @@ of the subcommand.
 [example {
     tclsh> # summing the elements in a list.
     tclsh> proc + {a b} {expr {$a + $b}}
-    tclsh> ::listx fold {1 2 3 4 5} 0 +
+    tclsh> ::struct::list fold {1 2 3 4 5} 0 +
     15
 }]
 
@@ -402,11 +402,11 @@ An empty list will be returned if no [arg size] arguments are present.
 
 [nl]
 [example {
-    tclsh> lrepeat  0 3 4
+    tclsh> ::struct::list repeat  0 3 4
     {0 0 0} {0 0 0} {0 0 0} {0 0 0}
-    tclsh> lrepeat  0 {3 4}
+    tclsh> ::struct::list repeat  0 {3 4}
     {0 0 0} {0 0 0} {0 0 0} {0 0 0}
-    tclsh> lrepeat  0 {3 4 5}
+    tclsh> ::struct::list repeat  0 {3 4 5}
     {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
 }]
 
