@@ -1087,6 +1087,9 @@ proc ::smtp::hear {token secs} {
     set firstP 1
     while {1} {
         if {$secs >= 0} {
+	    ## SF [ 836442 ] timeout with large data
+	    ## correction, aotto 031105 -
+	    if {$secs > 600} {set secs 600}
             set state(afterID) [after [expr {$secs*1000}] \
                                       [list ::smtp::timer $token]]
         }
