@@ -10,7 +10,7 @@
 #     Andreas Kupries during the development of this code.
 #
 #
-# $Id: pool.tcl,v 1.3 2003/11/19 06:39:11 andreas_kupries Exp $
+# $Id: pool.tcl,v 1.4 2003/11/19 06:48:52 andreas_kupries Exp $
 #
 ################################################################################
 
@@ -215,7 +215,7 @@ proc ::struct::pool::poolCmd {poolname subcmd args} {
     
     # pass the call to the pool command indicated by the subcmd argument,
     # and return the result from that command.
-    return [eval ::struct::pool::$subcmd $poolname $args]
+    return [eval [linsert $args 0 ::struct::pool::$subcmd $poolname]]
 }
 
 
