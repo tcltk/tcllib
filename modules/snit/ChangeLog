@@ -9,6 +9,18 @@
 			'delegate option' statements populate
 			Snit_optionInfo properly.
 
+			Added "starcomp" to the Snit_optionInfo array.
+			When "delegate option *" is used, "*" no longer 
+			has a "target-$opt" entry, nor does it appear
+			in "delegated-$comp".  Instead, "starcomp" is the
+			name of the component to which option "*" is
+			delegated, or "".
+
+			Reimplemented user-defined "cget" handlers using
+			the "-cgetmethod" option definition option.  
+			The "oncget" statement now defines a method, and
+			sets the option.
+
 2004-07-21  Will Duquette  <will@wjduquette.com>
 
 	* README.txt 	Updated to reflect recent changes.
