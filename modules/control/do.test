@@ -2,7 +2,7 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.4 2002/01/29 11:46:22 rmax Exp $
+# RCS: @(#) $Id: do.test,v 1.5 2002/02/21 11:40:45 rmax Exp $
 #
 
 package forget control
@@ -223,10 +223,18 @@ test do-2.2 {wrong no of arguments} {
 "do {incr x} foo"}}
 
 # ----------------------------------------
-test do-2.3 {wrong no of arguments} {
-    set res [catch do] 
+test do-2.3 {wrong no of arguments} {} {
+    set res [catch do]
+    if {[string match \
+	     {no value given for parameter "body" to "do"*} \
+	     $::errorInfo]
+    } then {
+	set ::errorInfo {wrong # args: should be "do body args"
+    while executing
+"do"}
+    }
     list $res $::errorInfo
-} {1 {no value given for parameter "body" to "do"
+} {1 {wrong # args: should be "do body args"
     while executing
 "do"}}
 
