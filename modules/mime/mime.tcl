@@ -161,6 +161,7 @@ namespace eval mime {
             iso8859-7 ISO-8859-7 \
             iso8859-8 ISO-8859-8 \
             iso8859-9 ISO-8859-9 \
+            iso8859-15 ISO-8859-15 \
             jis0201  "" \
             jis0208 "" \
             jis0212 "" \
@@ -296,7 +297,7 @@ proc mime::initializeaux {token args} {
         if {[incr argx] >= $argc} {
             error "missing argument to $option"
         }
-        set value [lindex $args $argx]
+	set value [lindex $args $argx]
 
         switch -- $option {
             -canonical {
@@ -362,6 +363,10 @@ proc mime::initializeaux {token args} {
 
             -string {
                 set state(string) $value
+
+		set state(lines) [split $value "\n"]
+		set state(lines.count) [llength $state(lines)]
+		set state(lines.current) 0
             }
 
             -root {
@@ -378,12 +383,21 @@ proc mime::initializeaux {token args} {
                 set state(count) $value
             }
 
+	    -lineslist { 
+		set state(lines) $value 
+		set state(lines.count) [llength $state(lines)]
+		set state(lines.current) 0
+		#state(string) is needed, but will be built when required
+		set state(string) ""
+	    }
+
             default {
                 error "unknown option $option"
             }
         }
     }
 
+    #We only want one of -file, -parts or -string:
     set valueN 0
     foreach value [list file parts string] {
         if {[info exists state($value)]} {
@@ -391,7 +405,7 @@ proc mime::initializeaux {token args} {
             incr valueN
         }
     }
-    if {$valueN != 1} {
+    if {$valueN != 1 && ![info exists state(lines)]} {
         error "specify exactly one of -file, -parts, or -string"
     }
 
@@ -517,36 +531,26 @@ proc mime::parsepart {token} {
                 incr pos [expr {$x+1}]
             }
         } else {
-            if {[string length $string] == 0} {
-                set blankP 1
-            } else {
-                switch -- [set pos [string first "\n" $string]] {
-                    -1 {
-                        set line $string
-                        set string ""
-                    }
-    
-                    0 {
-                        set blankP 1
-                        set line ""
-                        set string [string range $string 1 end]
-                    }
-    
-                    default {
-                        set line [string range $string 0 [expr {$pos-1}]]
-                        set string [string range $string [expr {$pos+1}] end]
-                    }
-                }
-                set x [string length $line]
-            }
+
+	    if { $state(lines.current) >= $state(lines.count) } {
+		set blankP 1
+		set line ""
+	    } else {
+		set line [lindex $state(lines) $state(lines.current)]
+		incr state(lines.current)
+		set x [string length $line]
+		if { $x == 0 } { set blankP 1 }
+	    }
+
         }
 
-        if {(!$blankP) && ([string last "\r" $line] == [expr {$x-1}])} {
-            set line [string range $line 0 [expr {$x-2}]]
-            if {$x == 1} {
-                set blankP 1
-            }
-        }
+         if {(!$blankP) && ([string last "\r" $line] == [expr {$x-1}])} {
+	    
+             set line [string range $line 0 [expr {$x-2}]]
+             if {$x == 1} {
+                 set blankP 1
+             }
+         }
 
         if {(!$blankP) \
                 && (([string first " " $line] == 0) \
@@ -632,7 +636,9 @@ proc mime::parsepart {token} {
             incr state(count) [expr {$state(offset)-$x}]
             set state(offset) $x
         } else {
-            set state(string) $string
+	    # rebuild string, this is cheap and needed by other functions    
+	    set state(string) [join [lrange $state(lines) \
+					 $state(lines.current) end] "\n"]
         }
 
         if {[string match message/* $state(content)]} {
@@ -646,12 +652,14 @@ proc mime::parsepart {token} {
                     -file $state(file) -root $state(root) \
                     -offset $state(offset) -count $state(count)
             } else {
-                mime::initializeaux $child -string $state(string)
+		mime::initializeaux $child \
+		    -lineslist [lrange $state(lines) \
+				    $state(lines.current) end] 
             }
         }
 
         return
-    }
+    } 
 
     set state(value) parts
 
@@ -687,25 +695,15 @@ proc mime::parsepart {token} {
            }
             incr pos [expr {$x+1}]
         } else {
-            if {[string length $string] == 0} {
-                error "end-of-string encountered while parsing $state(content)"
-            }
-            switch -- [set pos [string first "\n" $string]] {
-                -1 {
-                    set line $string
-                    set string ""
-                }
 
-                0 {
-                    set line ""
-                    set string [string range $string 1 end]
-                }
+	    if { $state(lines.current) >= $state(lines.count) } {
+		error "end-of-string encountered while parsing $state(content)"
+	    } else {
+		set line [lindex $state(lines) $state(lines.current)]
+		incr state(lines.current)
+		set x [string length $line]
+	    }
 
-                default {
-                    set line [string range $string 0 [expr {$pos-1}]]
-                    set string [string range $string [expr {$pos+1}] end]
-                }
-            }
             set x [string length $line]
         }
         if {[string last "\r" $line] == [expr {$x-1}]} {
@@ -713,11 +711,11 @@ proc mime::parsepart {token} {
         }
 
         if {[string first "--$boundary" $line] != 0} {
-            if {$inP && !$fileP} {
-                append start $line "\n"
-            }
+             if {$inP && !$fileP} {
+ 		lappend start $line
+             }
 
-            continue
+             continue
         }
 
         if {!$inP} {
@@ -726,7 +724,7 @@ proc mime::parsepart {token} {
                 if {$fileP} {
                     set start $pos
                 } else {
-                    set start ""
+		    set start [list]
                 }
             }
 
@@ -736,7 +734,7 @@ proc mime::parsepart {token} {
         if {([set moreP [string compare $line "--$boundary--"]]) \
                 && ([string compare $line "--$boundary"])} {
             if {$inP && !$fileP} {
-                append start $line "\n"
+		lappend start $line
             }
             continue
         }
@@ -756,9 +754,7 @@ proc mime::parsepart {token} {
 
             seek $state(fd) [set start $pos] start
         } else {
-            mime::initializeaux $child -string \
-                    [string range $start 0 [expr {[string length $start]-2}]]
-
+	    mime::initializeaux $child -lineslist $start
             set start ""
         }
     }
