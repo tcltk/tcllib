@@ -1,3 +1,11 @@
+2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* examples/ftp/ftpvalid: New example, using ftp and uri
+	  modules. Validation of ftp urls.
+
+	* fileutil: Accepted Patch #477805.
+	* ftp:      Accepted Patch #478478.
+
 2001-11-07  Reinhard Max  <max@suse.de>
 
 	* control: added implementation for a 'do ... while/until' loop.
