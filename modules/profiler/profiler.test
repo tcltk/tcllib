@@ -1,0 +1,173 @@
+# Profiler tests.
+#
+# Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 1998-2000 by Scriptics Corporation.
+# All rights reserved.
+#
+# RCS: @(#) $Id: profiler.test,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+test profiler-1.0 {profiler::init redirects the proc command} {
+    set c [interp create]
+    set result [$c eval {
+	#	package require profiler
+	source profiler.tcl
+	profiler::init
+	list [interp alias {} proc] [info commands ::_oldProc]
+    }]
+    interp delete $c
+    set result
+} [list ::profiler::profProc ::_oldProc]
+
+test profiler-2.0 {profiler creates two wrapper proc and real proc} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	proc foo {} {
+	    puts "foo!"
+	}
+	list [info commands foo] [info commands fooORIG]
+    }]
+    interp delete $c
+    set result
+} [list foo fooORIG]
+test profiler-2.1 {profiler creates procs in correct scope} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	namespace eval foo {}
+	proc ::foo::foo {} {
+	    puts "foo!"
+	}
+	list [info commands ::foo::foo] [info commands ::foo::fooORIG]
+    }]
+    interp delete $c
+    set result
+} [list ::foo::foo ::foo::fooORIG]
+test profiler-2.2 {profiler creates procs in correct scope} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	namespace eval foo {
+	    proc foo {} {
+		puts "foo!"
+	    }
+	}
+	list [info commands ::foo::foo] [info commands ::foo::fooORIG]
+    }]
+    interp delete $c
+    set result
+} [list ::foo::foo ::foo::fooORIG]
+test profiler-2.3 {profiler creates procs in correct scope} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	namespace eval foo {
+	    namespace eval bar {}
+	    proc bar::foo {} {
+		puts "foo!"
+	    }
+	}
+	list [info commands ::foo::bar::foo] \
+		[info commands ::foo::bar::fooORIG]
+    }]
+    interp delete $c
+    set result
+} [list ::foo::bar::foo ::foo::bar::fooORIG]
+test profiler-2.4 {profiler creates procs in correct scope} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	namespace eval foo {
+	    proc ::foo {} {
+		puts "foo!"
+	    }
+	}
+	list [info commands ::foo] \
+		[info commands ::fooORIG]
+    }]
+    interp delete $c
+    set result
+} [list ::foo ::fooORIG]
+
+test profiler-3.1 {profiler wrappers do profiling} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	proc ::foo {} {
+	    set foobar 0
+	}
+	foo
+	foo
+	foo
+	foo
+	profiler::dump ::foo
+    }]
+    interp delete $c
+    array set foo $result
+    list totalCalls $foo(totalCalls) callerDist $foo(callerDist)
+} [list totalCalls 4 callerDist [list GLOBAL 4]]
+
+test profiler-4.1 {profiler::print produces nicer output than dump} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	proc ::foo {} {
+	    set foobar 0
+	}
+	foo
+	foo
+	foo
+	foo
+	profiler::print ::foo
+    }]
+    interp delete $c
+    regsub {first runtime:.*} $result {} result
+    set result
+} "Profiling information for ::foo
+================================================================================
+total calls:\t4
+dist to callers:
+GLOBAL:\t4
+"
+test profiler-5.1 {profiler respects enabled flag} {
+    set c [interp create]
+    set result [$c eval {
+	source profiler.tcl
+	profiler::init
+	proc ::foo {} {
+	    set foobar 0
+	}
+	foo
+	foo
+	foo
+	foo
+	set profiler::enabled 0
+	foo
+	foo
+	profiler::print ::foo
+    }]
+    interp delete $c
+    regsub {first runtime:.*} $result {} result
+    set result
+} "Profiling information for ::foo
+================================================================================
+total calls:\t4
+dist to callers:
+GLOBAL:\t4
+"
+
+::tcltest::cleanupTests

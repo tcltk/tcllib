@@ -1,0 +1,11 @@
+2000-02-17  Eric Melski  <ericm@scriptics.com>
+
+	* modules/profiler/pkgIndex.tcl: package index for profiler.
+
+	* modules/profiler/man.macros: 
+	* modules/profiler/profiler.n: Doc for profiler.
+
+	* modules/profiler/profiler.test: Tests for profiler.
+
+	* modules/profiler/profiler.tcl: Simple Tcl function-level profiler.
+

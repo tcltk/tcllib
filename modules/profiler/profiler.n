@@ -1,0 +1,69 @@
+'\"
+'\" Copyright (c) 1998-2000 by Scriptics Corporation.
+'\" All rights reserved.
+'\" 
+'\" RCS: @(#) $Id: profiler.n,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+'\" 
+.so man.macros
+.TH profiler n 0.1 profiler "Tcl Profiler"
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+profiler \- Tcl source code profiler
+.SH SYNOPSIS
+\fBpackage require profiler ?0.1?\fR
+.sp
+\fB::profiler::init\fR
+.sp
+\fB::profiler::dump\fR \fIfunctionName\fR
+.sp
+\fB::profiler::print\fR \fIfunctionName\fR
+.sp
+.BE
+.SH DESCRIPTION
+.PP
+The \fBprofiler\fR package provides a simple Tcl source code
+profiler.  It is a function-level profiler; that is, it collects only
+function-level information, not the more detailed line-level
+information.  It operates by redefining the Tcl \fBproc\fR command.
+Profiling is initiated via the \fB::profiler::init\fR command.
+.SH COMMANDS
+.TP
+\fB::profiler::init\fR
+Initiate profiling.  All procedures created after this command is
+called will be profiled.  To profile an entire application, this
+command must be called before any other commands.
+.TP
+\fB::profiler::dump\fR \fIfunctionName\fR
+Dump profiling information for the function \fIfunctionName\fR.
+\fIfunctionName\fR must be fully qualifed.  The return result is a
+list of key/value pairs, suitable for use with the \fBarray set\fR
+command.  The keys used and their values are: 
+.RS
+.TP
+\fBtotalCalls\fR
+The total number of times \fIfunctionName\fR was called.
+.TP
+\fBcallerDist\fB
+A list of key/value pairs mapping each calling function that called
+\fIfunctionName\fR to the number of times it called \fIfunctionName\fR.
+.TP
+\fBfirstRuntime\fR
+The runtime, in clock clicks, of \fIfunctionName\fR the first time
+that it was called. This value is separated from the total amount of
+run time for \fIfunctionName\fR because the first call usually
+causes the function to be byte-compiled by the Tcl interpreter, and
+that compilation can add significantly to the runtime of the function.
+.TP
+\fBotherRuntime\fR
+The sum of the runtimes of the second and all subsequent calls of
+\fIfunctionName\fR.
+.RE
+.TP
+\fB::profiler::print\fR \fIfunctionName\fR
+Print profiling information for the function \fIfunctionName\fR.
+\fIfunctionName\fR must be fully qualifed.  The return result is a
+human readable display of the profiling information for \fIfunctionName\fR.
+
+.SH KEYWORDS
+profile, performance, speed

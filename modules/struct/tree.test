@@ -1,0 +1,505 @@
+# tree.test:  tests for the tree structure.
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 1998-2000 by Scriptics Corporation.
+# All rights reserved.
+#
+# RCS: @(#) $Id: tree.test,v 1.1.1.1 2000/02/24 17:44:43 ericm Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+package require struct
+namespace import struct::*
+
+test tree-0.1 {tree errors} {
+    tree mytree
+    catch {tree mytree} msg
+    mytree destroy
+    set msg
+} "command \"mytree\" already exists, unable to create tree"
+test tree-0.2 {tree errors} {
+    tree mytree
+    catch {mytree} msg
+    mytree destroy
+    set msg
+} "wrong # args: should be \"mytree option ?arg arg ...?\""
+test tree-0.3 {tree errors} {
+    tree mytree
+    catch {mytree foo} msg
+    mytree destroy
+    set msg
+} "bad option \"foo\": must be children, destroy, delete, depth, exists, get, insert, move, parent, set, size, swap, unset, or walk"
+test tree-0.4 {tree errors} {
+    catch {tree set} msg
+    set msg
+} "command \"set\" already exists, unable to create tree"
+
+test tree-1.1 {children} {
+    tree mytree
+    set result [list ]
+    lappend result [mytree children root]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert root end node2
+    mytree insert node0 end node3
+    mytree insert node0 end node4
+    lappend result [mytree children root]
+    lappend result [mytree children node0]
+    mytree destroy
+    set result
+} [list {} {node0 node1 node2} {node3 node4}]
+
+test tree-2.1 {create} {
+    tree mytree
+    set result [string equal [info commands ::mytree] "::mytree"]
+    mytree destroy
+    set result
+} 1
+test tree-2.2 {create} {
+    set name [tree]
+    set result [list $name [string equal [info commands ::$name] "::$name"]]
+    $name destroy
+    set result
+} [list tree1 1]
+
+test tree-3.1 {destroy} {
+    tree mytree
+    mytree destroy
+    string equal [info commands ::mytree] ""
+} 1
+
+test tree-4.1 {delete} {
+    tree mytree
+    catch {mytree delete root} msg
+    mytree destroy
+    set msg
+} "cannot delete root node"
+test tree-4.2 {delete} {
+    tree mytree
+    catch {mytree delete node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-4.3 {delete} {
+    tree mytree
+    mytree insert root end node0
+    mytree delete node0
+    set result [list [mytree exists node0] [mytree children root]]
+    mytree destroy
+    set result
+} {0 {}}
+test tree-4.4 {delete} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node1 end node2
+    mytree delete node0
+    set result [list [mytree exists node0] \
+	    [mytree exists node1] \
+	    [mytree exists node2]]
+    mytree destroy
+    set result
+} {0 0 0}
+
+test tree-5.1 {exists} {
+    tree mytree
+    set result [list ]
+    lappend result [mytree exists root]
+    mytree insert root end node0
+    lappend result [mytree exists node0]
+    mytree delete node0
+    lappend result [mytree exists node0]
+    mytree destroy
+    set result
+} {1 1 0}
+
+test tree-6.1 {insert gives error on duplicate node name} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree insert root end node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" already exists in tree \"mytree\""
+test tree-6.2 {insert creates and initializes node} {
+    tree mytree
+    mytree insert root end node0
+    set result [list ]
+    lappend result [mytree exists node0]
+    lappend result [mytree parent node0]
+    lappend result [mytree children node0]
+    lappend result [mytree set node0]
+    lappend result [mytree children root]
+    mytree destroy
+    set result
+} {1 root {} {} node0}
+test tree-6.3 {insert insert nodes in correct location} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert root 0 node2
+    set result [mytree children root]
+    mytree destroy
+    set result
+} {node2 node0 node1}
+test tree-6.4 {insert gives error when trying to insert to a fake parent} {
+    tree mytree
+    catch {mytree insert node0 end node1} msg
+    mytree destroy
+    set msg
+} "parent node \"node0\" does not exist in tree \"mytree\""
+
+test tree-7.1 {move gives error when trying to move root} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree move node0 end root} msg
+    mytree destroy
+    set msg
+} "cannot move root node"
+test tree-7.2 {move gives error when trying to move non existant node} {
+    tree mytree
+    catch {mytree move root end node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-7.3 {move gives error when trying to move to non existant parent} {
+    tree mytree
+    catch {mytree move node0 end node0} msg
+    mytree destroy
+    set msg
+} "parent node \"node0\" does not exist in tree \"mytree\""
+test tree-7.4 {move gives error when trying to make node its own descendant} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree move node0 end node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" cannot be its own descendant"
+test tree-7.5 {move gives error when trying to make node its own descendant} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node1 end node2
+    catch {mytree move node2 end node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" cannot be its own descendant"
+test tree-7.6 {move correctly moves a node} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node1 end node2
+    mytree move node0 end node2
+    set result [list [mytree children node0] [mytree children node1]]
+    lappend result [mytree parent node2]
+    mytree destroy
+    set result
+} {{node1 node2} {} node0}
+
+test tree-8.1 {parent gives error on fake node} {
+    tree mytree
+    catch {mytree parent node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-8.2 {parent gives correct value} {
+    tree mytree
+    mytree insert root end node0
+    set result [list [mytree parent node0] [mytree parent root]]
+    mytree destroy
+    set result
+} {root {}}
+
+test tree-9.1 {size gives error on bogus node} {
+    tree mytree
+    catch {mytree size node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-9.2 {size uses root node as default} {
+    tree mytree
+    set result [mytree size]
+    mytree destroy
+    set result
+} 0
+test tree-9.3 {size gives correct value} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert root end node2
+    mytree insert root end node3
+    mytree insert root end node4
+    mytree insert root end node5
+    set result [mytree size]
+    mytree destroy
+    set result
+} 6
+test tree-9.4 {size gives correct value} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node0 end node2
+    mytree insert node0 end node3
+    mytree insert node1 end node4
+    mytree insert node1 end node5
+    set result [mytree size node0]
+    mytree destroy
+    set result
+} 5
+test tree-9.5 {size gives correct value} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node0 end node2
+    mytree insert node0 end node3
+    mytree insert node1 end node4
+    mytree insert node1 end node5
+    set result [mytree size node1]
+    mytree destroy
+    set result
+} 2
+
+test tree-10.1 {set gives error on bogus node} {
+    tree mytree
+    catch {mytree set node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-10.2 {set with node name gets/sets "data" value} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foobar
+    set result [mytree set node0]
+    mytree destroy
+    set result
+} "foobar"
+test tree-10.3 {set with node name and key gets/sets key value} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key baz foobar
+    set result [list [mytree set node0] [mytree set node0 -key baz]]
+    mytree destroy
+    set result
+} [list "" "foobar"]
+test tree-10.4 {set with too many args gives error} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree set node0 foo bar baz boo} msg
+    mytree destroy
+    set msg
+} "wrong # args: should be \"mytree set node0 ?-key key? ?value?\""
+test tree-10.5 {set with bad args} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree set node0 foo bar} msg
+    mytree destroy
+    set msg
+} "invalid option \"foo\": should be key"
+test tree-10.6 {set with bad args} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree set node0 foo bar baz} msg
+    mytree destroy
+    set msg
+} "invalid option \"foo\": should be key"
+test tree-10.7 {set with bad key gives error} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree set node0 -key foo} msg
+    mytree destroy
+    set msg
+} "invalid key \"foo\" for node \"node0\""
+
+test tree-11.1 {depth} {
+    tree mytree
+    catch {mytree depth node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-11.2 {depth of root is 0} {
+    tree mytree
+    set result [mytree depth root]
+    mytree destroy
+    set result
+} 0
+test tree-11.2 {depth is computed correctly} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node1
+    mytree insert node1 end node2
+    mytree insert node2 end node3
+    set result [mytree depth node3]
+    mytree destroy
+    set result
+} 4
+
+test tree-12.1 {dfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type dfs -command {lappend t}
+    mytree destroy
+    set t
+} [list mytree root mytree node0 mytree node0.1 mytree node0.2 mytree node1 \
+	mytree node1.1 mytree node1.2]
+test tree-12.2 {bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -type bfs -command {lappend t}
+    mytree destroy
+    set t
+} [list mytree root mytree node0 mytree node1 mytree node0.1 mytree node0.2 \
+	mytree node1.1 mytree node1.2]
+test tree-12.3 {dfs is default walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node1 end node1.1
+    mytree insert node1 end node1.2
+    mytree walk root -command {lappend t}
+    mytree destroy
+    set t
+} [list mytree root mytree node0 mytree node0.1 mytree node0.2 mytree node1 \
+	mytree node1.1 mytree node1.2]
+
+test tree-13.1 {swap gives error when trying to swap root} {
+    tree mytree
+    catch {mytree swap root node0} msg
+    mytree destroy
+    set msg
+} "cannot swap root node"
+test tree-13.2 {swap gives error when trying to swap non existant node} {
+    tree mytree
+    catch {mytree swap node0 node1} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-13.3 {swap gives error when trying to swap non existant node} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree swap node0 node1} msg
+    mytree destroy
+    set msg
+} "node \"node1\" does not exist in tree \"mytree\""
+test tree-13.3 {swap gives error when trying to swap node with self} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree swap node0 node0} msg
+    mytree destroy
+    set msg
+} "cannot swap node \"node0\" with itself"
+test tree-13.4 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node0.1 end node0.1.1
+    mytree insert node0.1 end node0.1.2
+    mytree swap node0 node0.1
+    set t [list ]
+    mytree walk root -command {lappend t}
+    mytree destroy
+    set t
+} [list mytree root mytree node0.1 mytree node0 mytree node0.1.1 \
+	mytree node0.1.2 mytree node0.2]
+test tree-13.5 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert node0 end node0.1
+    mytree insert node0 end node0.2
+    mytree insert node0.1 end node0.1.1
+    mytree insert node0.1 end node0.1.2
+    mytree swap node0 node0.1.1
+    set t [list ]
+    mytree walk root -command {lappend t}
+    mytree destroy
+    set t
+} [list mytree root mytree node0.1.1 mytree node0.1 mytree node0 \
+	mytree node0.1.2 mytree node0.2]
+test tree-13.6 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end node0
+    mytree insert root end node1
+    mytree insert node0 end node0.1
+    mytree insert node1 end node1.1
+    mytree swap node0 node1
+    set t [list ]
+    mytree walk root -command {lappend t}
+    mytree destroy
+    set t
+} [list mytree root mytree node1 mytree node0.1 mytree node0 \
+	mytree node1.1]
+
+test tree-14.1 {get gives error on bogus node} {
+    tree mytree
+    catch {mytree get node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-14.2 {get gives error on bogus key} {
+    tree mytree
+    mytree insert root end node0
+    catch {mytree get node0 -key bogus} msg
+    mytree destroy
+    set msg
+} "invalid key \"bogus\" for node \"node0\""
+test tree-14.2 {get uses data as default key} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 foobar
+    set result [mytree get node0]
+    mytree destroy
+    set result
+} "foobar"
+test tree-14.3 {get respects -key flag} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key boom foobar
+    set result [mytree get node0 -key boom]
+    mytree destroy
+    set result
+} "foobar"
+
+test tree-15.1 {unset gives error on bogus node} {
+    tree mytree
+    catch {mytree unset node0} msg
+    mytree destroy
+    set msg
+} "node \"node0\" does not exist in tree \"mytree\""
+test tree-15.2 {unset does not give error on bogus key} {
+    tree mytree
+    mytree insert root end node0
+    set result [catch {mytree unset node0 -key bogus}]
+    mytree destroy
+    set result
+} 0
+test tree-15.3 {unset removes a keyed value from a node} {
+    tree mytree
+    mytree insert root end node0
+    mytree set node0 -key foobar foobar
+    mytree unset node0 -key foobar
+    catch {mytree get node0 -key foobar} msg
+    mytree destroy
+    set msg
+} "invalid key \"foobar\" for node \"node0\""
+
+::tcltest::cleanupTests
