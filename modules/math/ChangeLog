@@ -1,3 +1,8 @@
+2004-06-16  Andreas Kupries  <andreask@activestate.com>
+
+	* interpolate.man: Added a missing list_end before section
+	  examples. Fixed usage of braces in the example as well.
+
 2004-06-16  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* added the modules complexnumbers, special, interpolate, constants

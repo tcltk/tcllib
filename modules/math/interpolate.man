@@ -151,10 +151,10 @@ inverse distance to interpolate in 2D and N-dimensional space
 [nl]
 The list xyvalues is a list of lists:
 [example {
-   { {x1 y1 z1 {v11 v12 v13 v14}
-     {x2 y2 z2 {v21 v22 v23 v24}
-     ...
-   }
+    {   {x1 y1 z1 {v11 v12 v13 v14}}
+	{x2 y2 z2 {v21 v22 v23 v24}}
+	...
+    }
 }]
 The last element of each inner list is either a single number or a list in itself.
 In the latter case the return value is a list with the same number of elements.
@@ -182,6 +182,7 @@ Set the parameters for spatial interpolation
 
 [arg_def integer power in] Power for the distance (either 1 or 2; defaults to 2)
 
+[list_end]
 [list_end]
 
 
