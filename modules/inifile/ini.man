@@ -50,7 +50,7 @@ Returns the value of the named key from the specified section.
 
 [call [cmd ::ini::set] [arg ini] [arg section] [arg key] [arg value]]
 
-Sets the value of the key in the specified section. if the section does not
+Sets the value of the key in the specified section. If the section does not
 exist then a new one is created.
 
 [call [cmd ::ini::delete] [arg ini] [arg section] [opt key]]
