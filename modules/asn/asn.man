@@ -1,0 +1,237 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin asn n 0.1]
+[copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2004 Jochen Loewer <loewerj@web.de>}]
+[moddesc   {ASN.1}]
+[titledesc {ASN.1 BER encoder/decoder}]
+[require Tcl 8.2]
+[require asn [opt 0.1]]
+[description]
+[para]
+
+The [package asn] package provides [emph partial] de- and encoder
+commands for BER encoded ASN.1 data.
+
+[para]
+
+ASN.1 is a standard [term {Abstract Syntax Notation}], and BER are its
+[term {Basic Encoding Rules}].
+
+[para]
+
+See [uri http://asn1.elibel.tm.fr/en/standards/index.htm] for more
+information about the standard.
+
+[para]
+
+Also see [uri http://luca.ntop.org/Teaching/Appunti/asn1.html] for
+[emph {A Layman's Guide to a Subset of ASN.1, BER, and DER}], an RSA
+Laboratories Technical Note by Burton S. Kaliski Jr. (Revised November
+1, 1993). A text version of this note is part of the module sources
+and should be read by any implementor.
+
+
+[section {PUBLIC API}]
+
+[subsection ENCODER]
+
+[list_begin definitions]
+
+[call [cmd ::asn::asnSequence] [arg evalue]...]
+
+Takes zero or more encoded values, packs them into an ASN sequence and
+returns its encoded binary form.
+
+[nl]
+[emph NOTE:] Shouldn't that be [emph {one or more}] ?! However the
+command does no checking of this.
+
+
+[call [cmd ::asn::asnSet] [arg evalue]...]
+
+Takes zero or more encoded values, packs them into an ASN set and
+returns its encoded binary form.
+
+[nl]
+[emph NOTE:] Shouldn't that be [emph {one or more}] ?! However the
+command does no checking of this.
+
+
+[call [cmd ::asn::asnApplicationConstr] [arg appNumber] [arg evalue]...]
+
+Takes zero or more encoded values, packs them into an ASN application
+construct and returns its encoded binary form.
+
+[nl]
+[emph NOTE:] Shouldn't that be [emph {one or more}] ?! However the
+command does no checking of this.
+
+
+[call [cmd ::asn::asnApplication] [arg appNumber] [arg data]]
+
+Takes a single encoded value [arg data], packs it into an ASN
+application construct and returns its encoded binary form.
+
+
+[call [cmd ::asn::asnChoice] [arg appNumber] [arg evalue]...]
+
+Takes zero or more encoded values, packs them into an ASN choice
+construct and returns its encoded binary form.
+
+[nl]
+[emph NOTE:] Shouldn't that be [emph {one or more}] ?! However the
+command does no checking of this.
+
+
+[call [cmd ::asn::asnChoiceConstr] [arg appNumber] [arg evalue]...]
+
+Takes zero or more encoded values, packs them into an ASN choice
+construct and returns its encoded binary form.
+
+[nl]
+[emph NOTE:] Shouldn't that be [emph {one or more}] ?! However the
+command does no checking of this.
+
+[nl]
+The only difference between this and the [cmd ::asn::asnChoice] coming
+before seems to lie in the tag value.
+
+
+[call [cmd ::asn::asnInteger] [arg number]]
+
+Returns the encoded form of the specified integer
+[arg number].
+
+
+[call [cmd ::asn::asnEnumeration] [arg number]]
+
+Returns the encoded form of the specified enumeration id
+[arg number].
+
+
+[call [cmd ::asn::asnBoolean] [arg bool]]
+
+Returns the encoded form of the specified boolean value
+[arg bool].
+
+
+[call [cmd ::asn::asnOctetString] [arg string]]
+
+Returns the encoded form of the specified [arg string].
+
+
+[list_end]
+[para]
+
+[subsection DECODER]
+
+General notes:
+
+[list_begin enum]
+[enum]
+All decoder commands take two arguments. These arguments are variable
+names, except for [cmd ::asn::asnGetResponse]. The first variable
+contains the encoded ASN value to decode at the beginning, and more,
+and the second variable is where the value is stored to. The remainder
+of the input after the decoded value is stored back into the
+datavariable.
+
+[enum]
+After extraction the data variable is always modified first, before by
+writing the extracted value to its variable. This means that if both
+arguments refer to the same variable, it will always contain the
+extracted value after the call, and not the remainder of the input.
+
+[list_end]
+
+
+[para]
+[list_begin definitions]
+
+[call [cmd ::asn::asnGetResponse] [arg chan] [arg data_var]]
+
+Reads an encoded ASN [emph sequence] from the channel [arg chan] and
+stores it into the variable named by [arg data_var].
+
+
+[call [cmd ::asn::asnGetInteger] [arg data_var] [arg int_var]]
+
+Assumes that an encoded integer value is at the front of the data
+stored in the variable named [arg data_var], extracts and stores it
+into the variabled named by [arg int_var]. Additionally removes all
+bytes associated with the value from the data for further processing
+by the following decoder commands.
+
+
+[call [cmd ::asn::asnGetEnumeration] [arg data_var] [arg enum_var]]
+
+Assumes that an enumeration id is at the front of the data stored in
+the variable named [arg data_var], and stores it into the variabled
+named by [arg enum_var]. Additionally removes all bytes associated
+with the value from the data for further processing by the following
+decoder commands.
+
+
+[call [cmd ::asn::asnGetOctetString] [arg data_var] [arg string_var]]
+
+Assumes that a string is at the front of the data stored in the
+variable named [arg data_var], and stores it into the variabled named
+by [arg string_var]. Additionally removes all bytes associated with
+the value from the data for further processing by the following
+decoder commands.
+
+
+[call [cmd ::asn::asnGetSequence] [arg data_var] [arg sequence_var]]
+
+Assumes that an ASN sequence is at the front of the data stored in the
+variable named [arg data_var], and stores it into the variabled named
+by [arg sequence_var]. Additionally removes all bytes associated with
+the value from the data for further processing by the following
+decoder commands.
+
+[nl]
+
+The data in [arg sequence_var] is encoded binary and has to be
+further decoded according to the definition of the sequence, using the
+decoder commands here.
+
+
+[call [cmd ::asn::asnGetSet] [arg data_var] [arg set_var]]
+
+Assumes that an ASN set is at the front of the data stored in the
+variable named [arg data_var], and stores it into the variabled named
+by [arg set_var]. Additionally removes all bytes associated with the
+value from the data for further processing by the following decoder
+commands.
+
+[nl]
+
+The data in [arg set_var] is encoded binary and has to be further
+decoded according to the definition of the set, using the decoder
+commands here.
+
+
+[call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var]]
+
+Assumes that an ASN application construct is at the front of the data
+stored in the variable named [arg data_var], and stores its id into
+the variabled named by [arg appNumber_var]. Additionally removes all
+bytes associated with the value from the data for further processing
+by the following decoder commands.
+
+[nl]
+
+It is the responsibility of the caller to decode the remainder of the
+application construct based on the id retrieved by this command, using
+the decoder commands here.
+
+[list_end]
+[para]
+
+[section EXAMPLES]
+
+Examples for the usage of this package can be found in the
+implementation of package [package ldap].
+
+[keywords asn x.208 ber x.209 der cer internet protocol]
+[manpage_end]

@@ -1,0 +1,9 @@
+2004-05-27  Andreas Kupries  <andreask@activestate.com>
+
+	* New module: ASN.1 de- and encoding. This was provided to us
+	  indirectly by Joechen Loewer <loewerj@web.de>, through the ldap
+	  module. It contains the same functionality internally.
+
+	* Added doctools documentation. Referenced the "Layman's Guide to
+	  a Subset of ASN.1, BER, and DER" and added text version to the
+	  sources, to guide future work.
