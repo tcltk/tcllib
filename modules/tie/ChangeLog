@@ -1,3 +1,9 @@
+2004-09-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie_rarray_comm.test: Fixed test suite dependencies on
+	* tie_test:             'cmdline', ensuring source of local
+	                        implementation.
+
 2004-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Bumped version to 1.0.

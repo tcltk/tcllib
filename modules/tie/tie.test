@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie.test,v 1.1 2004/09/20 00:47:34 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.test,v 1.2 2004/09/23 02:03:28 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -20,10 +20,16 @@ if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
 
 package forget tie
 package forget snit
+package forget cmdline
 
 catch {namespace delete tie}
 catch {namespace delete snit}
+catch {namespace delete cmdline}
 
+if {[catch {source [file join [file dirname [info script]] .. cmdline cmdline.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (cmdline.tcl): $msg"
+    return
+}
 if {[catch {source [file join [file dirname [info script]] .. snit snit.tcl]} msg]} {
     puts "skipped [file tail [info script]] (snit.tcl): $msg"
     return
@@ -40,6 +46,7 @@ if {[catch {source [file join [file dirname [info script]] tie_dsource.tcl]} msg
 puts "tie       [package present tie]"
 puts "- dsource [package present tie::std::dsource]"
 puts "- snit    [package present snit]"
+puts "- cmdline [package present cmdline]"
 
 # -------------------------------------------------------------------------
 # Takes a dictionary, returns a list containing the same dictionary,
