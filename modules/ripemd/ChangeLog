@@ -1,5 +1,9 @@
 2004-02-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* ripemd160.tcl:  Inlined the algorithm functions. This makes the
+	pure-Tcl code about 2x faster than the proc calling version.
+	* ripemd128.tcl:  Streamlined the <<< implementation a bit.
+	
 	* ripemd160.man:  Initial implementation of RIPEMD-160 in
 	* ripemd160.tcl:  pure-Tcl as per ripemd128.
 	* ripemd160.test:

@@ -23,7 +23,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd128.tcl,v 1.2 2004/02/18 14:32:04 patthoyts Exp $
+# $Id: ripemd128.tcl,v 1.3 2004/02/18 23:09:52 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
@@ -31,14 +31,15 @@ package require Tcl 8.2;                # tcl minimum version
 namespace eval ::ripemd {
     namespace eval ripemd128 {
         variable version 1.0.0
-        variable rcsid {$Id: ripemd128.tcl,v 1.2 2004/02/18 14:32:04 patthoyts Exp $}
+        variable rcsid {$Id: ripemd128.tcl,v 1.3 2004/02/18 23:09:52 patthoyts Exp $}
         variable usetrf 0
 
         # Trf 2.1p1 is buggy for what we want to do.
         catch {
             package require Trf
             package require Memchan
-            if {[string map {. {} p {}} [package provide Trf]] > 211} {
+            if {[package vsatisfies \
+                     [string map {p .} [package provide Trf]] 2.1.2]} {
                 set usetrf 1
             }
         }
@@ -452,8 +453,10 @@ proc ::ripemd::ripemd128::bytes {v} {
 
 # 32bit rotate-left
 proc ::ripemd::ripemd128::<<< {v n} {
-    set v [expr {(($v << $n) | (($v >> (32 - $n)) & (0x7FFFFFFF >> (31 - $n))))}]
-    return [expr {$v & 0xFFFFFFFF}]
+    return [expr {((($v << $n) \
+                        | (($v >> (32 - $n)) \
+                               & (0x7FFFFFFF >> (31 - $n))))) \
+                      & 0xFFFFFFFF}]
 }
 
 # Convert our <<< pseuodo-operator into a procedure call.

@@ -23,7 +23,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd160.tcl,v 1.1 2004/02/18 14:32:04 patthoyts Exp $
+# $Id: ripemd160.tcl,v 1.2 2004/02/18 23:09:52 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
@@ -31,14 +31,15 @@ package require Tcl 8.2;                # tcl minimum version
 namespace eval ::ripemd {
     namespace eval ripemd160 {
         variable version 1.0.0
-        variable rcsid {$Id: ripemd160.tcl,v 1.1 2004/02/18 14:32:04 patthoyts Exp $}
+        variable rcsid {$Id: ripemd160.tcl,v 1.2 2004/02/18 23:09:52 patthoyts Exp $}
         variable usetrf 0
 
         # Trf 2.1p1 is buggy for what we want to do.
         catch {
             package require Trf
             package require Memchan
-            if {[string map {. {} p {}} [package provide Trf]] > 211} {
+            if {[package vsatisfies \
+                     [string map {p .} [package provide Trf]] 2.1.2]} {
                 set usetrf 1
             }
         }
@@ -77,12 +78,14 @@ proc ::ripemd::ripemd160::RIPEMD160Init {} {
     if {$usetrf} {
         catch {
             set s [::null]
-            ::ripemd160 -attach $s -mode write \
+            set tok(trfread) 0
+            set tok(trfwrite) 0
+            fconfigure $s -translation binary -buffering none
+            ::ripemd160 -attach $s -mode transparent \
                 -read-type variable \
                 -read-destination [subst $token](trfread) \
                 -write-type variable \
                 -write-destination [subst $token](trfwrite)
-            fconfigure $s -translation binary -buffering none
             set tok(trf) $s
         }
     }
@@ -509,10 +512,119 @@ proc ::ripemd::ripemd160::JJJ {a b c d e x s} {
 
 # 32bit rotate-left
 proc ::ripemd::ripemd160::<<< {v n} {
-    set v [expr {(($v << $n) | (($v >> (32 - $n)) & (0x7FFFFFFF >> (31 - $n))))}]
-    return [expr {$v & 0xFFFFFFFF}]
+    return [expr {((($v << $n) \
+                        | (($v >> (32 - $n)) \
+                               & (0x7FFFFFFF >> (31 - $n))))) \
+                      & 0xFFFFFFFF}]
 }
 
+# -------------------------------------------------------------------------
+# Inline the algorithm functions
+#
+# On my test system inlining the functions like this improves
+#   time {ripmd::ripmd160 [string repeat a 100]} 100
+# from 28ms per iteration to 13ms per iteration.
+#
+# This means that the functions above (F - J, FF - JJ and FFF-JJJ) are
+# not actually required for the code to operate. However, they provide
+# a readable way to document what is going on so have been left in.
+#
+namespace eval ::ripemd::ripemd160 {
+
+    # Inline function FF and FFF
+    set Split {(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\d+)}
+    
+    regsub -all -line \
+        "^\\s+FFF?\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + ($\2 ^ $\3 ^ $\4) + \6}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+    
+    # Inline function GG
+    regsub -all -line \
+        "^\\s+GG\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + (($\2 \& $\3) | (~$\2 \& $\4)) + \6 \
+                                + 0x5a827999}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function GGG
+    regsub -all -line \
+        "^\\s+GGG\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + (($\2 \& $\3) | (~$\2 \& $\4)) + \6 \
+                                + 0x7a6d76e9}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function HH
+    regsub -all -line \
+        "^\\s+HH\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + (($\2 | ~$\3) ^ $\4) + \6 \
+                                + 0x6ed9eba1}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function HHH
+    regsub -all -line \
+        "^\\s+HHH\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + (($\2 | ~$\3) ^ $\4) + \6 \
+                                + 0x6d703ef3}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function II
+    regsub -all -line \
+        "^\\s+II\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + (($\2 \& $\4) | ($\3 \& ~$\4)) + \6 \
+                                + 0x8f1bbcdc}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function III
+    regsub -all -line \
+        "^\\s+III\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + (($\2 \& $\4) | ($\3 \& ~$\4)) + \6 \
+                                + 0x5c4dd124}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function JJ
+    regsub -all -line \
+        "^\\s+JJ\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + ($\2 ^ ($\3 | ~$\4)) + \6 \
+                                + 0xa953fd4e}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline function JJJ
+    regsub -all -line \
+        "^\\s+JJJ\\s+$Split$" \
+        $RIPEMD160Hash_body \
+        {set \1 [<<< [expr {$\1 + ($\2 ^ ($\3 | ~$\4)) + \6 \
+                                + 0x50a28be6}] \7];\
+             incr \1 $\5; set \3 [<<< $\3 10]} \
+        RIPEMD160Hash_body
+
+    # Inline simple <<<
+    regsub -all -line \
+        {\[<<< (\$\S+)\s+(\d+)\]$} \
+        $RIPEMD160Hash_body \
+        {[expr {(((\1 << \2) \
+                      | ((\1 >> (32 - \2)) \
+                             \& (0x7FFFFFFF >> (31 - \2))))) \
+                    \& 0xFFFFFFFF}]} \
+        RIPEMD160Hash_body
+}
+
+# -------------------------------------------------------------------------
 
 # Define the hashing procedure with inline functions.
 proc ::ripemd::ripemd160::RIPEMD160Hash {token msg} \
