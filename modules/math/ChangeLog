@@ -1,5 +1,8 @@
 2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* pkgIndex.tcl: updated calculus to version 0.5.
+	* calculus.man: Added [require] declarations.
+
 	* calculus.README:
 	* calculus.CHANGES:
 	* calculus.tcl:
