@@ -212,7 +212,7 @@ proc exif::exifSubIFD {data curoffset} {
             set result(UserComment) "$offset - [string range $data $offset [expr {$offset+8}]]"
             set result(UserComment) [string trim $result(UserComment) "\0"]
         } elseif {$tag==0xA000} {
-            set result(FlashPixVersion) $offset
+            set result(FlashPixVersion) [string range $entry 8 11]
         } elseif {$tag==0xA300} {
             # 3 means digital camera
             if {$offset == 3} {
@@ -258,7 +258,7 @@ proc exif::exifSubIFD {data curoffset} {
                 } else {
                     set value [expr {int($value + 0.49)}]
                 }
-                set result(ShutterSpeedValue) $value
+                set result(ShutterSpeedValue) "$value Hz"
             } elseif {$tag == 0x9202} {
                 set value [expr {int(pow(sqrt(2.0), $value) * 10 + 0.5) / 10.0}]
                 set result(AperatureValue) $value
@@ -380,7 +380,7 @@ proc exif::makerNote {data curoffset} {
                         5 {format "Super fine"}
                         default {format ""}
                     }]
-                    set result(Flash) [switch $field(4) {
+                    set result(FlashMode) [switch $field(4) {
                         0 {format off}
                         1 {format auto}
                         2 {format on}
@@ -498,21 +498,18 @@ proc exif::makerNote {data curoffset} {
                     # Field 26-28 are unknown.
 		    if {[info exists field(29)]} {
 			if {$field(29) & 0x0010} {
-			    append result(FlashMode) "FP_sync_enabled "
+			    lappend result(FlashMode) "FP_sync_enabled"
 			}
 			if {$field(29) & 0x0800} {
-			    append result(FlashMode) "FP_sync_used "
+			    lappend result(FlashMode) "FP_sync_used"
 			}
 			if {$field(29) & 0x2000} {
-			    append result(FlashMode) "internal_flash"
+			    lappend result(FlashMode) "internal_flash"
 			}
 			if {$field(29) & 0x4000} {
-			    append result(FlashMode) "external_E-TTL"
+			    lappend result(FlashMode) "external_E-TTL"
 			}
 		    }
-                    if {[info exists result(FlashMode)]} {
-                        set result(FlashMode) [string trim $result(FlashMode)]
-                    }
                     if {[info exists field(34)] \
 			    [regexp -nocase pro90 $cameraModel]} {
                         if {$field(34)} {

@@ -1,6 +1,6 @@
 2002-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* exif: Applied patch #582828.
+	* exif: Applied patch #582828. Partially applied #530970.
 
 2002-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
