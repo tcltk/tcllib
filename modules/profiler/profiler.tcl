@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.21 2003/04/11 20:13:28 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.22 2003/04/14 07:08:36 andreas_kupries Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2.1
@@ -106,10 +106,11 @@ proc ::profiler::stats {args} {
 
 # ::profiler::Handler --
 #
-#	Profile a function.  This function works together with profProc, which
-#	replaces the proc command.  When a new procedure is defined, it creates
-#	and alias to this function; when that procedure is called, it calls
-#	this handler first, which gathers profiling information from the call.
+#	Profile a function (tcl8.3).  This function works together with 
+#       profProc, which replaces the proc command.  When a new procedure
+#       is defined, it creates and alias to this function; when that
+#       procedure is called, it calls this handler first, which gathers
+#       profiling information from the call.
 #
 # Arguments:
 #	name	name of the function to profile.
@@ -120,38 +121,112 @@ proc ::profiler::stats {args} {
 
 proc ::profiler::Handler {name args} {
     variable enabled
-    if { $enabled($name) } {
-	if { [info level] == 1 } {
-	    set caller GLOBAL
-	} else {
-	    # Get the name of the calling procedure
-	    set caller [lindex [info level -1] 0]
-	    # Remove the ORIG suffix
-	    set caller [string range $caller 0 end-4]
-	}
-	if { [catch {incr ::profiler::callers($name,$caller)}] } {
-	    set ::profiler::callers($name,$caller) 1
-	}
-	::profiler::tZero $name.$caller
+
+    if { [info level] == 1 } {
+        set caller GLOBAL
+    } else {
+        # Get the name of the calling procedure
+	set caller [lindex [info level -1] 0]
+	# Remove the ORIG suffix
+	set caller [string range $caller 0 end-4]
     }
 
+    ::profiler::enterHandler $name $caller
     set CODE [uplevel 1 [list ${name}ORIG] $args]
-    if { $enabled($name) } {
-	set t [::profiler::tMark $name.$caller]
-	lappend ::profiler::statTime($name) $t
-
-	if { [incr ::profiler::callCount($name)] == 1 } {
-	    set ::profiler::compileTime($name) $t
-	}
-	incr ::profiler::totalRuntime($name) $t
-	if { [catch {incr ::profiler::descendantTime($caller) $t}] } {
-	    set ::profiler::descendantTime($caller) $t
-	}
-	if { [catch {incr ::profiler::descendants($caller,$name)}] } {
-	    set ::profiler::descendants($caller,$name) 1
-	}
-    }
+    ::profiler::leaveHandler $name $caller
     return $CODE
+}
+
+# ::profiler::TraceHandler --
+#
+#	Profile a function (tcl8.4+).  This function works together with
+#       profProc, which replaces the proc command.  When a new procedure
+#       is defined, it creates an execution trace on the function; when
+#       that function is called, 'enter' and 'leave' traces invoke this
+#       handler first, which gathers profiling information from the call.
+#
+# Arguments:
+#	name	name of the function to profile.
+#	cmd	command name and its expanded arguments.
+#	args	for 'enter' operation, value of args is "enter"
+#	    	for 'leave' operation, args is list of
+#               3 elements: <code> <result> "leave"
+#
+# Results:
+#	None
+
+proc ::profiler::TraceHandler {name cmd args} {
+
+    if { [info level] == 1 } {
+        set caller GLOBAL
+    } else {
+        # Get the name of the calling procedure
+	set caller [lindex [info level -1] 0]
+    }
+
+    set type [lindex $args end]
+    ::profiler::${type}Handler $name $caller
+}
+
+# ::profiler::enterHandler --
+#
+#	Profile a function.  This function works together with Handler and
+#       TraceHandler to collect profiling information just before it invokes
+#       the function.
+#
+# Arguments:
+#	name	name of the function to profile.
+#	caller	name of the function that calls the profiled function.
+#
+# Results:
+#	None
+
+proc ::profiler::enterHandler {name caller} {
+    variable enabled
+
+    if { !$enabled($name) } {
+        return
+    }
+
+    if { [catch {incr ::profiler::callers($name,$caller)}] } {
+        set ::profiler::callers($name,$caller) 1
+    }
+    ::profiler::tZero $name.$caller
+}
+
+# ::profiler::leaveHandler --
+#
+#	Profile a function.  This function works together with Handler and
+#       TraceHandler to collect profiling information just after it invokes
+#       the function.
+#
+# Arguments:
+#	name	name of the function to profile.
+#	caller	name of the function that calls the profiled function.
+#
+# Results:
+#	None
+
+proc ::profiler::leaveHandler {name caller} {
+    variable enabled
+
+    if { !$enabled($name) } {
+        return
+    }
+
+    set t [::profiler::tMark $name.$caller]
+    lappend ::profiler::statTime($name) $t
+
+    if { [incr ::profiler::callCount($name)] == 1 } {
+        set ::profiler::compileTime($name) $t
+    }
+    incr ::profiler::totalRuntime($name) $t
+    if { [catch {incr ::profiler::descendantTime($caller) $t}] } {
+        set ::profiler::descendantTime($caller) $t
+    }
+    if { [catch {incr ::profiler::descendants($caller,$name)}] } {
+        set ::profiler::descendants($caller,$name) 1
+    }
 }
 
 # ::profiler::profProc --
@@ -198,8 +273,14 @@ proc ::profiler::profProc {name arglist body} {
     set statTime($name) {}
     set enabled($name) [expr {!$paused}]
 
-    uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
-    uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
+    if {[package vsatisfies [package provide Tcl] 8.4]} {
+        uplevel 1 [list ::_oldProc $name $arglist $body]
+        trace add execution $name {enter leave} \
+                 [list ::profiler::TraceHandler $name]
+    } else {
+        uplevel 1 [list ::_oldProc ${name}ORIG $arglist $body]
+        uplevel 1 [list interp alias {} $name {} ::profiler::Handler $name]
+    }
     return
 }
 
