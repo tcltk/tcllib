@@ -1,0 +1,7 @@
+2004-07-09  Reinhard Max  <max@suse.de>
+
+	* ident.tcl:   Ident client implementation, test suite,
+	* ident.test:  and documentation
+	* ident.man:
+
+	* rfc1413.txt: RFC describing the Identification Protocol
