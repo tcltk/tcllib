@@ -1,0 +1,8 @@
+2003-07-04  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ini.tcl: Added a comment header for RCS id, copyright notices,
+	  etc. Slight reformatting of the code. Slight code changes to
+	  make 'procheck' complain less (proper import of variables into
+	  the scope).
+
+	  Documented possible bug.
