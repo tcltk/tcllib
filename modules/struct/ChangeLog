@@ -1,3 +1,16 @@
+2003-05-14  Andreas Kupries  <andreask@activestate.com>
+
+	* tree.tcl: Added some [list]'s to show node names containing
+	  spaces properly in error messages.
+
+	* tree.test: Reworked to test handling of item nodes
+	  containing spaces.
+
+	* tree.bench: Reworked, added helper procedures, testcases are now
+	  simpler.
+
+	* struct_list.man: Fixed typos in the examples.
+
 2003-05-06  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* tree.test: 
