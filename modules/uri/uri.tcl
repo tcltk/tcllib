@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.8 2001/10/23 03:44:06 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.9 2001/10/31 16:39:53 patthoyts Exp $
 
 package require Tcl 8.2
 package provide uri 1.0
@@ -235,14 +235,14 @@ proc uri::SplitFtp {url} {
 
 proc uri::JoinFtp args {
     array set components {
-	user {} password {} host {} port {}
+	user {} pwd {} host {} port {}
 	path {} type {}
     }
     array set components $args
 
     set userPwd {}
-    if {[string length $components(user)] || [string length $components(password)]} {
-	set userPwd $components(user)[expr {[string length $components(password)] ? ":$components(password)" : {}}]@
+    if {[string length $components(user)] || [string length $components(pwd)]} {
+	set userPwd $components(user)[expr {[string length $components(pwd)] ? ":$components(pwd)" : {}}]@
     }
 
     set port {}
@@ -254,8 +254,8 @@ proc uri::JoinFtp args {
     if {[string length $components(type)]} {
 	set type \;$components(type)
     }
-
-    return ftp://${userPwd}$components(host)${port}$components(path)$type
+    
+    return ftp://${userPwd}$components(host)${port}/[string trimleft $components(path) /]$type
 }
 
 proc uri::SplitHttps {url} {
@@ -443,11 +443,11 @@ proc uri::GetUPHP {urlvar} {
     # @r 'array set'.
     # @a urlvar: Name of the variable containing the url to parse.
 
-    upvar #0 [namespace current]::basic::user		user
-    upvar #0 [namespace current]::basic::password	password
-    upvar #0 [namespace current]::basic::hostname	hostname
-    upvar #0 [namespace current]::basic::hostnumber	hostnumber
-    upvar #0 [namespace current]::basic::port		port
+    upvar \#0 [namespace current]::basic::user		user
+    upvar \#0 [namespace current]::basic::password	password
+    upvar \#0 [namespace current]::basic::hostname	hostname
+    upvar \#0 [namespace current]::basic::hostnumber	hostnumber
+    upvar \#0 [namespace current]::basic::port		port
 
     upvar $urlvar url
 
@@ -459,7 +459,7 @@ proc uri::GetUPHP {urlvar} {
 
     set upPattern "^(${user})(:(${password}))?@"
 
-    if {[regexp -indices -- $upPattern $url dummy theUser c d thePassword]} {
+    if {[regexp -indices -- $upPattern $url match theUser c d thePassword]} {
 	set fu	[lindex $theUser 0]
 	set tu	[lindex $theUser 1]
 	    
@@ -469,7 +469,7 @@ proc uri::GetUPHP {urlvar} {
 	set parts(user)	[string range $url $fu $tu]
 	set parts(pwd)	[string range $url $fp $tp]
 
-	set  matchEnd   [lindex $user 1]
+	set  matchEnd   [lindex $match 1]
 	incr matchEnd
 
 	set url	[string range $url $matchEnd end]
