@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.4 2003/06/25 18:46:30 davidw Exp $}]
+[comment {$Id: logger.man,v 1.5 2003/12/17 23:17:29 davidw Exp $}]
 [manpage_begin logger n 0.1.0]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -107,6 +107,14 @@ the network, to a database, or anything else.  For example:
 [call [cmd \${log}::services]]
 
 Returns a list of all the registered logging services.
+
+[call [cmd \${log}::delproc]]
+
+Set the script to call when the log instance in question is deleted.  For example:
+
+[example {
+    ${log}::delproc [list closesock $logsock]
+}]
 
 [call [cmd \${log}::delete]]
 
