@@ -1,3 +1,8 @@
+2003-04-25  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.man: Added a section for known bugs, and recorded 447037 as
+	  such.
+
 2003-04-10  Andreas Kupries  <andreask@activestate.com>
 
 	* smtp.tcl:
