@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.7 2003/05/16 21:47:50 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.8 2003/07/05 05:29:49 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -301,6 +301,20 @@ test list-lcsInv-4.1 {longestCommonSubsequence, mixed changes} {
 
     list [catch {lcsim [lcs {a b r a c a d a b r a} {b r i c a b r a c}] 11 9} msg] $msg
 } {0 {{deleted {0 0} {-1 0}} {unchanged {1 2} {0 1}} {changed {3 3} {2 2}} {unchanged {4 5} {3 4}} {deleted {6 7} {4 5}} {unchanged {8 10} {5 7}} {added {10 11} {8 8}}}}
+
+
+proc diff2 {s1 s2} {
+    set l1 [split $s1 {}]
+    set l2 [split $s2 {}]
+    set x [lcs $l1 $l2]
+    lcsim $x [llength $l1] [llength $l2]
+}
+test list-lcsInv-4.2 {lcsInvertMerge} {
+    # Handling of 'unchanged' chunks at the beginning of the result
+    # (when result actually empty).
+
+    diff2 ab "a b" 
+} {{unchanged {-1 0} {-1 0}} {added {0 1} {1 1}}}
 
 #----------------------------------------------------------------------
 
