@@ -4,11 +4,23 @@
 # NOTE:
 #    Comparison by numbers, not strings needed!
 
-package require tcltest 2.1
-namespace import ::tcltest::*
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.1
+    namespace import ::tcltest::*
+} else {
+    if {![package vsatisfies [package present tcltest] 2.0]} {
+        puts "Aborting tests for math::linearalgebra"
+        puts "Requiring tcltest 2.1, have [package present tcltest]"
+        return
+    }
+}
 
-source linalg.tcl
-namespace import ::math::linearalgebra::*
+
+#
+# TODO: conflict about "scale"?
+#
+source [file join [file dirname [info script]] "linalg.tcl"]
+namespace import -force ::math::linearalgebra::*
 
 set ::tcl_precision 17
 

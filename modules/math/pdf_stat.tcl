@@ -679,13 +679,6 @@ proc ::math::statistics::histogram-uniform { min max limits number } {
     return [HistogramMake $cdf_result $number]
 }
 
-# Initialisation --
-#    Initialise some parameters
-#
-namespace eval ::math::statistics {
-    Initialise-cdf-normal
-}
-
 #
 # Simple numerical tests
 #
