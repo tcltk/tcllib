@@ -1,3 +1,9 @@
+2004-07-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* docidx.man:    Overhaul of documentation.
+	* cvs.man: 
+	* changelog.man: 
+
 2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ../../apps/dtplite: Reduced error output, show only the message,
