@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README,v 1.7 2003/10/21 19:23:21 andreas_kupries Exp $
+RCS: @(#) $Id: README,v 1.8 2004/01/15 06:36:11 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.  This package is
 intended to be a collection of Tcl packages that provide utility

@@ -4,7 +4,7 @@
 #	It accepts any number of arguments and does nothing.
 #	It returns an empty string.
 #
-# RCS: @(#) $Id: no-op.tcl,v 1.1 2001/08/21 22:54:15 dgp Exp $
+# RCS: @(#) $Id: no-op.tcl,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
 
 namespace eval ::control {
 

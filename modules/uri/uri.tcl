@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.23 2003/08/27 21:26:19 patthoyts Exp $
+# CVS: $Id: uri.tcl,v 1.24 2004/01/15 06:36:14 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -704,7 +704,7 @@ proc ::uri::join args {
 #	Canonicalize a URL
 #
 # Acknowledgements:
-#	Andreas Kupries, a.kupries@westend.com
+#	Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # Arguments:
 #	uri	URI (which contains a path component)

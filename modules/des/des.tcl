@@ -76,6 +76,36 @@
 #
 #
 #   $Log: des.tcl,v $
+#   Revision 1.7  2004/01/15 06:36:12  andreas_kupries
+#
+#   	* matrix.man:  Implemented Ed Suominen's sort methods, with
+#   	* matrix.tcl:  modifications to speed things up, and to have
+#   	* matrix.test: a more standard API (-options).
+#
+#   	* matrix.man: Documented method links.
+#
+#   	* matrix.test: Updated test to cover for method links.
+#   	* matrix.tcl: Changed the code to determine the list of available
+#   	  methods automatically for use in the error message when an
+#   	  unknown method is called.
+#
+#   	* matrix.test:
+#   	* matrix.tcl: Namespaces of objects now standalone, and not inside
+#   	  of struct::matrix anymore. Arbitrary placement of objects is now
+#   	  possible, including nested namespaces. Cleanup of all references
+#   	  to instance variables.
+#
+#   	* matrix.tcl: Made the return of errors more regular.
+#
+#   	* matrix.tcl: Changed a number of eval calls to the more proper
+#   	  'uplevel 1'. This means that an implementation of a method can
+#   	  now assume that it is called on the same stack level as the
+#   	  method itself.
+#
+#   	* matrix.tcl: Typo in comments fixed.
+#   	* matrix.tcl (__set_rect): Fixed typos in var names causing the
+#   	  system to retain bogus cache data.
+#
 #   Revision 1.6  2003/05/07 21:51:30  patthoyts
 #   	* des.tcl, des.man, pkgIndex.tcl: Hiked the version to 0.8.1
 #

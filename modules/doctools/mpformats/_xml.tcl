@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.7 2003/01/19 07:58:44 andreas_kupries Exp $
+# $Id: _xml.tcl,v 1.8 2004/01/15 06:36:12 andreas_kupries Exp $
 #
 # [expand] utilities for generating XML.
 #

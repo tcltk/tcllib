@@ -6,7 +6,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: mkpkgidx.tcl,v 1.2 2001/11/27 11:46:52 jfontain Exp $
+# $Id: mkpkgidx.tcl,v 1.3 2004/01/15 06:36:14 andreas_kupries Exp $
 
 # this utility must be used to create the package index file for a package that
 # uses stooop.

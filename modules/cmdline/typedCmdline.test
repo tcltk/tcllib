@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ross Palmer Mohn.
 # All rights reserved.
 #
-# RCS: @(#) $Id: typedCmdline.test,v 1.1 2000/04/07 16:35:44 ericm Exp $
+# RCS: @(#) $Id: typedCmdline.test,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
