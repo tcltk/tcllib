@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.5 2000/10/11 01:31:41 ericm Exp $
+# RCS: @(#) $Id: base64.test,v 1.6 2000/10/11 17:21:49 welch Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -18,7 +18,7 @@ if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
 }
 
-package require base64
+source [file join [file dirname [info script]] base64.tcl]
 
 test base64-1.1 {base64::encode} {
     base64::encode "this is a test\n"
@@ -84,6 +84,14 @@ test base64-2.4 {base64::decode handles equal sign padding} {
 test base64-3.1 {base64 identity test} {
 	base64::decode [base64::encode "this is a test"]
 } "this is a test"
+test base64-3.2 {base64 identity test} {
+    # This test fails on version 1.5 because of the format %04x bug
+    # when handling the last characters
+    set x \f\xee
+    set y [base64::decode [base64::encode $x]]
+    string compare $x $y
+} 0
+
 
 ::tcltest::cleanupTests
 return

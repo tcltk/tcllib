@@ -1,3 +1,10 @@
+2000-10-11  Brent Welch  <welch@ajubasolutions.com>
+
+	* base64.tcl: Fixed bug in base64::decode where trailing
+	bytes were not always decoded correctly (!).  This only
+	shows up with low-valued characters (less than 0x10) near
+	the end of a string that was padded with =
+
 2000-10-10  Eric Melski  <ericm@ajubasolutions.com>
 
 	* base64.tcl: Extending base64::encode to accept optional

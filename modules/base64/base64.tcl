@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.6 2000/10/11 01:31:41 ericm Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.7 2000/10/11 17:21:49 welch Exp $
 
 package provide base64 2.0
 
@@ -112,6 +112,17 @@ proc base64::encode {args} {
     return $result
 }
 
+# base64::decode --
+#
+#	Base64 decode a given string.
+#
+# Arguments:
+#	string	The string to decode.  Characters not in the base64
+#		alphabet are ignored (e.g., newlines)
+#
+# Results:
+#	The decoded value.
+
 proc base64::decode {string} {
     variable base64
 
@@ -124,6 +135,7 @@ proc base64::decode {string} {
 	    # of the Base64 alphabet must be ignored, and that the decoder
 	    # can optionally emit a warning or reject the message.  We opt
 	    # not to do so, but to just ignore the character.
+
 	    if { ![info exists base64($char)] } {
 		continue
 	    }
@@ -138,10 +150,15 @@ proc base64::decode {string} {
 	} else {
 	    # = indicates end of data.  Output whatever chars are left.
 	    # The encoding algorithm dictates that we can only have 1 or 2
-	    # padding characters.  If j is 6, we have 12 bits of good input 
-	    # (enough for 1 8-bit output).  If j is 6, we have 18 bits of good
+	    # padding characters.  If j is 6, we have 12 bits of input 
+	    # (enough for 1 8-bit output).  If j is 0, we have 18 bits of
 	    # input (enough for 2 8-bit outputs).
-	    scan [format %04x $group] %2x%2x a b
+	    # It is crucial to scan three hex digits even though we
+	    # discard c - older code used %04x and scanned 2 hex digits
+	    # but really ended up generating 5 or 6 (not 4!) digits and
+	    # resulted in alignment errors.
+
+	    scan [format %06x $group] %2x%2x%2x a b c
 	    if {$j == 6} {
 		append output [format %c $a]
 	    } elseif {$j == 0} {
@@ -152,5 +169,3 @@ proc base64::decode {string} {
     }
     return $output
 }
-
-
