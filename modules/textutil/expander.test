@@ -328,6 +328,21 @@ test expander-5.1 {new evalcmd} {} {
 } {{uplevel #0} identity {+++Bogus Macro+++}}
 
 #---------------------------------------------------------------------
+# Test cases 5.x: Replacing the textcmd.
+
+proc count {text} {
+    return [string length $text]
+}
+
+test expander-6.1 {new evalcmd} {} {
+    catch {::textutil::expander exp}
+    exp reset
+    set oldcmd [exp textcmd]
+    exp textcmd count
+    list $oldcmd [exp textcmd] [exp expand {++++++}]
+} {{} count 6}
+
+#---------------------------------------------------------------------
 # Clean up
 
 ::tcltest::cleanupTests

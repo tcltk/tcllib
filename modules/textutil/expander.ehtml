@@ -336,9 +336,22 @@ subcommands:<p>
        bracket definitions.  By default, the brackets are "[lb]" and
        "[rb]", but any non-empty string can be used; for example,
        "<" and ">" or "(*" and "*)" or even "Hello," and "World!".<p>
-<p>
-</dl>
 
+  <dt> [commanddef textcmd ?<i>newTextCmd</i>?]
+  <dd> Returns the current command for processing polain text, which
+       defaults to the empty string, meaning <i>identity</i>. If
+       specified, <i>newTextCmd</i> will be saved for future use and
+       then returned; it must be a Tcl command expecting one
+       additional argument: the text to process. The expander object
+       will this command for all plain text it encounters, giving the
+       user of the object the ability to process all plain text in
+       some standard way before writing it to the output. The object
+       expects that the command returns the processed plain text.<p>
+       <b>Note</b> that the combination of <i>textcmd plaintext</i> is
+       run through the <i>evalcmd</i> for the actual evaluation. In
+       other words, the <i>textcmd</i> is treated as a special macro
+       implicitly surrounding all plain text in the template.<p>
+</dl>
 
 [section "HISTORY"]
 
