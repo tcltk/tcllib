@@ -1093,7 +1093,7 @@ proc smtp::hear {token secs} {
         }
 
         if {!$state(readable)} {
-            vwait $token
+            vwait ${token}(readable)
         }
 
         # Wait until socket is readable.
@@ -1173,12 +1173,14 @@ proc smtp::readable {token} {
     }
 
     set state(line) ""
-    if {[eof $state(sd)]} {
-        set state(readable) -3
-        set state(error) "premature end-of-file from server"
-    } elseif {[catch { gets $state(sd) state(line) } result]} {
+    if {[catch { gets $state(sd) state(line) } result]} {
         set state(readable) -2
         set state(error) $result
+    } elseif {$result == -1} {
+        if {[eof $state(sd)]} {
+            set state(readable) -3
+            set state(error) "premature end-of-file from server"
+        }
     } else {
         # If the line ends in \r, remove the \r.
         if {![string compare [string index $state(line) end] "\r"]} {
@@ -1187,7 +1189,7 @@ proc smtp::readable {token} {
         set state(readable) 1
     }
 
-    if {$state(readable) != 1} {
+    if {$state(readable) < 0} {
         if {$options(-debug)} {
             puts stderr "    ... $state(error) ..."
             flush stderr
