@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.9 2004/05/25 17:30:25 mic42 Exp $}]
+[comment {$Id: logger.man,v 1.10 2004/05/26 01:09:36 mic42 Exp $}]
 [manpage_begin logger n 0.4]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -57,13 +57,13 @@ Returns a list of all the available services.
 
 [call [cmd logger::enable] [arg level]]
 
-Globally enables logging at or "above" the given level.  Levels are
+Globally enables logging at and "above" the given level.  Levels are
 [const debug], [const info], [const notice], [const warn], [const error],
 [const critical].
 
 [call [cmd logger::disable] [arg level]]
 
-Globally disables logging at or "below" the given level.  Levels are
+Globally disables logging at and "below" the given level.  Levels are
 those listed above.
 
 [call [cmd logger::levels]]
@@ -93,13 +93,15 @@ it.
 [call [cmd \${log}::enable] [arg level]]
 
 Enable logging, in the service referenced by [var \${log}], and its
-children, at or above the level specified.  Note that this does [emph not] disable logging below this level, so you should probably use
+children, at and above the level specified.  Note that this does [emph not] disable logging below this level, so you should probably use
 [cmd setlevel] instead.
 
 [call [cmd \${log}::disable] [arg level]]
 
 Disable logging, in the service referenced by [var \${log}], and its
-children, at or below the level specified. Note that this does [emph not] enable logging above this level, so you should probably use [cmd setlevel] instead.
+children, at and below the level specified. Note that this does [emph not] enable logging above this level, 
+so you should probably use [cmd setlevel] instead.
+Disabling the loglevel [const critical] switches logging off for the service and its children.
 
 [call [cmd \${log}::logproc] [arg level]]
 [call [cmd \${log}::logproc] [arg level] [arg command]]
@@ -137,7 +139,7 @@ Returns the name of this service.
 
 [call [cmd \${log}::currentloglevel]]
 
-Returns the currently enabled log level for this service.
+Returns the currently enabled log level for this service. If no logging is enabled returns [const none].
 
 [call [cmd \${log}::delproc] [arg command]]
 [call [cmd \${log}::delproc]]
