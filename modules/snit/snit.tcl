@@ -578,7 +578,7 @@ namespace eval ::snit:: {
         # in the calling context.
         proc mymethod {args} {
             upvar selfns selfns
-            return $[concat ${selfns}::Snit_instance $args]
+            return [linsert $args 0 ::snit::CallInstance ${selfns}]
         }
 
 
@@ -1552,4 +1552,9 @@ proc ::snit::Contains {value list} {
     } else {
         return 0
     }
+}
+
+proc ::snit::CallInstance {selfns args} {
+    upvar ${selfns}::Snit_instance self
+    return [uplevel 1 [linsert $args 0 $self]]
 }
