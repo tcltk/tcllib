@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.11 2005/02/23 12:48:02 patthoyts Exp $
+# $Id: md4.test,v 1.12 2005/02/24 03:25:49 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -26,32 +26,42 @@ package require md4
 # Setup any constraints
 #
 
-array set preserve [array get ::md4::accel]
-
-proc have_accel {} {
-    foreach {e v} [array get ::md4::accel] { if {$v} {return 1} }
-    return 0
-}
-
-proc set_no_accel {} {
-    foreach e [array names ::md4::accel] { set ::md4::accel($e) 0 }
-}
-
-proc reset_accel {} {
-    array set ::md4::accel [array get ::preserve]
-}
-
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {$::md4::accel(critcl)} {
-    puts "- md4 [package provide md4] (using md4c)"
+if {[::md4::LoadAccelerator critcl]} {
+    puts "- md4 [package provide md4] (using critcl)"
 }
-if {$::md4::accel(cryptkit)} {
+if {[::md4::LoadAccelerator cryptkit]} {
     puts "- md4 [package provide md4] (using cryptkit)"
 }
 puts "- md4 [package provide md4] (pure Tcl)"
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::md4::accel]
+
+proc implementations {} {
+    variable ::md4::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::md4::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::md4::accel
+    array set accel [array get ::preserve]
+}
 
 # -------------------------------------------------------------------------
 
@@ -69,20 +79,14 @@ set vectors {
       {E33B4DDC9C38F2199C3E7B164FCC0536}
 }
 
-foreach {n txt dgst} $vectors {
-    test md4-1.$n {md4 RFC test strings} {
-        list [catch {::md4::md4 -hex $txt} r] $r
-    } [list 0 $dgst]
-}
-
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n txt dgst} $vectors {
-        test md4-tcl-1.$n {md4 RFC test strings (pure Tcl impl)} {
+        test md4-$impl-1.$n "md4 RFC test strings ($impl impl)" {
             list [catch {::md4::md4 -hex $txt} r] $r
         } [list 0 $dgst]
     }
-    reset_accel
+    reset_implementation
 }
 
 # Block length checks
@@ -242,24 +246,16 @@ set vectors {
     149 84D82189C5458F8647D338FD62EF1667
 } 
 
-foreach {n hash} $vectors {
-    test md4-2.$n "md4 block size checks: length $n" {
-        list [catch {
-            ::md4::md4 -hex [string repeat a $n]
-        } msg] $msg
-    } [list 0 $hash]
-}
-
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n hash} $vectors {
-        test md4-tcl-2.$n "md4 (pure tcl) block size checks: length $n" {
+        test md4-$impl-2.$n "md4 block size checks: length $n ($impl)" {
             list [catch {
                 ::md4::md4 -hex [string repeat a $n]
             } msg] $msg
         } [list 0 $hash]
     }
-    reset_accel
+    reset_implementation
 }
 
 # -------------------------------------------------------------------------
