@@ -1,3 +1,7 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* des.tcl:  Fixed bug #614591.
+
 2003-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* des.tcl: Imported and tcllib-ised the DES package
