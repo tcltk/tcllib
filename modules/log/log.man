@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin log n 1.0.1]
 [moddesc   {Logging facility}]
 [titledesc {Procedures to log messages of libraries and applications.}]
@@ -7,21 +8,83 @@
 
 [para]
 
-The [strong log] package provides commands that allow libraries and
+The [package log] package provides commands that allow libraries and
 applications to selectively log information about their internal
 operation and state.
 
 [para]
 
-Each message given to the log facility is associated with a
+To use the package just execute
+[para]
 
-[arg level] determining the importance of the message. The user can
-then select which levels to log, what commands to use for the logging
-of each level and the channel to write the message to. The latter is
-relevant only if the standard command ([cmd ::log::Puts]) to log
-messages provided by [strong log] is used. Apprehending the usage of
-this facility in graphical applications, i.e. [strong tk]-based ones,
-it also allows the user to associate colors with the message levels.
+[example {
+    package require log
+    log::log notice "Some message"
+}]
+[para]
+
+As can be seen above, each message given to the log facility is
+associated with a [emph level] determining the importance of the
+message. The user can then select which levels to log, what commands
+to use for the logging of each level and the channel to write the
+message to. In the following example the logging of all message with
+level [strong debug] is deactivated.
+
+[para]
+
+[example {
+    package require log
+    log::lvSupress debug
+    log::log debug "Unseen message" ; # No output
+}]
+[para]
+
+By default all messages associated with an error-level
+
+([strong emergency], [strong alert], [strong critical], and
+
+[strong error]) are written to [strong stderr]. Messages with any
+other level are written to [strong stdout]. In the following example
+the log module is reconfigured to write [strong debug] messages to
+[strong stderr] too.
+
+[para]
+
+[example {
+    package require log
+    log::lvChannel debug stderr
+    log::log debug "Written to stderr"
+}]
+
+[para]
+
+Each message level is also associated with a command to use when
+logging a message with that level. The behaviour above for example
+relies on the fact that all message levels use by default the standard
+command [cmd ::log::Puts] to log any message. In the following example
+all messages of level [strong notice] are given to the non-standard
+command [cmd toText] for logging. This disables the channel setting
+for such messages, assuming that [cmd toText] does not use it by
+itself.
+
+[para]
+
+[example {
+    package require log
+    log::lvCmd notice toText
+    log::log notice "Handled by \"toText\""
+}]
+
+[para]
+
+Another database maintained by this facility is a map from message
+levels to colors. The information in this database has [strong no]
+influence on the behaviour of the module. It is merely provided as a
+convenience and in anticipation of the usage of this facility in
+[package tk]-based application which may want to colorize message
+logs.
+
+[section API]
 
 [para]
 
