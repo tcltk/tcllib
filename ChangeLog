@@ -1,3 +1,8 @@
+2002-05-08  Don Porter <dgp@users.sourceforge.net>
+
+	* all.tcl: Show full stack trace when an error occurs sourcing
+	a test file.
+
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cmdline: Accepted patch #540313
