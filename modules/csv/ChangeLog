@@ -1,3 +1,8 @@
+2003-05-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.man: Changed the phrasing for the alternate format a bit,
+	  and reworded the text enclosing the example.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
