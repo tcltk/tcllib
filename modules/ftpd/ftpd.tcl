@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.23 2004/05/23 18:10:44 gwlester Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.24 2004/05/23 18:17:17 gwlester Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -2014,7 +2014,7 @@ proc ::ftpd::command::PASV {sock args} {
     set ans [split $ip {.}]
     lappend ans [expr {($port >> 8) & 0xff}] [expr {$port & 0xff}]
     set ans [join $ans {,}]
-    puts $sock "227 Entering Passive Mode. $ans"
+    puts $sock "227 Entering Passive Mode ($ans)."
     return
 }
 
