@@ -1,3 +1,9 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* nntp.man:
+	* nntp.tcl:
+	* pkgIndex.tcl:  Set version of the package to to 0.2.1
+
 2003-02-24  David N. Welton  <davidw@dedasys.com>
 
 	* nntp.tcl (::nntp::squirt): Use if, string match instead of
