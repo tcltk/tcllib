@@ -1,3 +1,8 @@
+2003-04-16  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.man:      Renamed the man page to avoid clashing with
+	* ntp_time.man:  the tcl time.n manual page.
+
 2003-03-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.test: Added a test package.

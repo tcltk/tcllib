@@ -1,4 +1,4 @@
-[manpage_begin time n 1.0.0]
+[manpage_begin ntp_time n 1.0.0]
 [copyright {2002, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {ntp}]
 [titledesc {Tcl Time Service Client}]
