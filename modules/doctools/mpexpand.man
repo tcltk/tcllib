@@ -19,7 +19,7 @@ write to [strong stdout].
 
 [nl]
 
-If the option [arg -module] is present its value overides the internal
+If the option [arg -module] is present its value overrides the internal
 definition of the module name.
 
 [nl]

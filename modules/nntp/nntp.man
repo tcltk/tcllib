@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin nntp n 1.5.1]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl NNTP Client Library}]
 [titledesc {Tcl client for the NNTP protocol}]
 [require Tcl  8.2]
@@ -124,7 +124,7 @@ Query the server for a list of all the new newsgroups created since the time
 specified by the argument [arg since].  The argument [arg since] can be any
 time string that is understood by [cmd {clock scan}]. The tcl list of newsgroups
 is returned in a similar form to the list of groups returned by the
-[cmd {BnntpName list}] command.  Each element of the list has the form:
+[cmd {[strong nntpName ] list}] command.  Each element of the list has the form:
 .sp
       group last first p
 .sp

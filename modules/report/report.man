@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin report n 0.3]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Matrix reports}]
 [titledesc {Create and manipulate report objects}]
 [require Tcl 8.2]

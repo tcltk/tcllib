@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin log n 1.0.1]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Logging facility}]
 [titledesc {Procedures to log messages of libraries and applications.}]
 [require Tcl 8]

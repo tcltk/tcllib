@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftp n 2.3.1]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {ftp client}]
 [titledesc {Client-side tcl implementation of the ftp protocol}]
 [require Tcl 8.2]
@@ -169,7 +169,7 @@ operation.
 When evaluating the [arg callback] several arguments are appended to
 the callback script, namely the keyword of the operation that has
 completed and any additional arguments specific to the operation.  If
-an error occured during the execution of the operation the callback is
+an error occurred during the execution of the operation the callback is
 given the keyword [strong error].
 
 [lst_item "[option -output] [arg callback]"]
@@ -189,7 +189,7 @@ is in progress, the server will close the control connection
 immediately. If a file transfer is in progress however, the control
 connection will remain open until the transfers completes. When that
 happens the server will write the result response for the transfer to
-it and close the conenction afterward.
+it and close the connection afterward.
 
 [call [cmd ::ftp::Cd] [arg handle] [arg directory]]
 
@@ -280,7 +280,7 @@ is not supported by all ftp server implementations.
 This command retrieves the time of the last modification of the
 
 [arg file] on the ftp server as a system dependent integer value in
-seconds or an empty string if an error occured. Use the built-in
+seconds or an empty string if an error occurred. Use the built-in
 command [cmd clock] to convert the retrieves value into other formats.
 
 [call [cmd ::ftp::Delete] [arg handle] [arg file]]
@@ -305,7 +305,7 @@ This command transfers a local file [arg local] to a remote file
 command do not fully qualified path names the command will use the
 current directory on local and remote host. If the remote file name is
 unspecified, the server will use the name of the local file as the
-name of the remote file. The command returns 1 to indicate a sucessful
+name of the remote file. The command returns 1 to indicate a successful
 transfer and 0 in the case of a failure.
 
 [nl]
@@ -337,7 +337,7 @@ parameters passed to the command are not fully qualified path names
 the command will use the current directory on local and remote
 host. If the local file name is unspecified, the server will use the
 name of the remote file as the name of the local file. The command
-returns 1 to indicate a sucessful transfer and 0 in the case of a
+returns 1 to indicate a successful transfer and 0 in the case of a
 failure. The command will throw an error if the directory the file
 [arg local] is to be placed in does not exist.
 
@@ -388,14 +388,14 @@ This command creates the specified [arg directory] on the ftp
 server. If the specified path is relative the new directory will be
 created as a subdirectory of the current working directory. Else the
 created directory will have the specified path name. The command
-returns 1 to indicate a sucessful creation of the directory and 0 in
+returns 1 to indicate a successful creation of the directory and 0 in
 the case of a failure.
 
 [call [cmd ::ftp::RmDir] [arg handle] [arg directory]]
 
 This command removes the specified directory on the ftp server. The
 remote directory has to be empty or the command will fail. The command
-returns 1 to indicate a sucessful removal of the directory and 0 in
+returns 1 to indicate a successful removal of the directory and 0 in
 the case of a failure.
 
 [call [cmd ::ftp::Quote] [arg handle] [arg arg1] [arg arg2] [arg ...]]
@@ -408,7 +408,7 @@ The arguments are sent verbatim, i.e. as is, with no changes.
 
 [nl]
 
-In constrast to the other commands in this package this command will
+In contrast to the other commands in this package this command will
 not parse the response it got from the ftp server but return it
 verbatim to the caller.
 

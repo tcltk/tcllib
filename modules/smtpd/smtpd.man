@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin smtpd n 1.0]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl SMTP Server Package}]
 [titledesc {Tcl SMTP server implementation}]
 [require Tcl 8.3]
@@ -77,10 +77,10 @@ The [var ::smtpd::stopped] variable is set for use with
 [nl]
 
 It should be noted that stopping the server does not disconnect any
-currently active sessions as these are operating over an independant
+currently active sessions as these are operating over an independent
 channel. Only explicitly tracking and closing these sessions, or
 exiting the server process will close down all the running
-sessions. This is similar to the ususal unix daemon practice where the
+sessions. This is similar to the usual unix daemon practice where the
 server performs a [syscmd fork](2) and the client session continues on
 the child process.
 
