@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.2 2004/01/15 06:36:14 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.3 2004/02/09 09:32:14 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -64,6 +64,19 @@ proc aget {avar} {
 
 set matdata {{2 0 f j} {c g b a} {a 02 01 3}}
 
+# Service procedure to develop the error message for "wrong # args"
+
+proc wrongNumArgs {name arglist count} {
+    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+	set arg [lindex $arglist $count]
+	set msg "no value given for parameter \"$arg\" to \"$name\""
+    } else {
+	set msg "wrong # args: should be \"$name $arglist\""
+    }
+    return $msg
+}
+
+#----------------------------------------------------------------------
 
 test matrix-0.1 {matrix errors} {
     matrix mymatrix
@@ -1759,14 +1772,15 @@ test matrix-11.0 {sorting matrices: not enough arguments} {
     catch {mymatrix sort} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "::struct::matrix::_sort name cmd args"}
+} [wrongNumArgs {::struct::matrix::_sort} {name cmd args} 1]
+
 
 test matrix-11.1 {sorting matrices: not enough arguments} {
     matrix mymatrix
     catch {mymatrix sort} msg
     mymatrix destroy
     set msg
-} {wrong # args: should be "::struct::matrix::_sort name cmd args"}
+} [wrongNumArgs {::struct::matrix::_sort} {name cmd args} 1]
 
 test matrix-11.2 {sorting matrices: bad method} {
     matrix mymatrix

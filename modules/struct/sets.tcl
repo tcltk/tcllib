@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.1 2004/02/04 05:36:27 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.2 2004/02/09 09:32:14 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -201,22 +201,38 @@ proc ::struct::set::Intersect {A B} {
 # Side effects:
 #       None.
 
-proc ::struct::set::Sdifference {A B} {
-    if {[llength $A] == 0} {return {}}
-    if {[llength $B] == 0} {return $A}
+if {[package vcompare [package provide Tcl] 8.4] < 0} {
+    # Tcl 8.[23]. Use explicit array to perform the operation.
 
-    # Get the variable B out of the way, avoid collisions
-    # prepare for "pure list optimization"
-    ::set ::struct::set::tmp [lreplace $B -1 -1 unset -nocomplain]
-    unset B
+    proc ::struct::set::Sdifference {A B} {
+	if {[llength $A] == 0} {return {}}
+	if {[llength $B] == 0} {return $A}
 
-    # unset A early: no local variables left
-    foreach [lindex [list $A [unset A]] 0] {.} {break}
+	array set tmp {}
+	foreach x $A {::set tmp($x) .}
+	foreach x $B {catch {unset tmp($x)}}
+	return [array names tmp]
+    }
 
-    eval $::struct::set::tmp
-    return [info locals]
+} else {
+    # Tcl 8.4+, has 'unset -nocomplain'
+
+    proc ::struct::set::Sdifference {A B} {
+	if {[llength $A] == 0} {return {}}
+	if {[llength $B] == 0} {return $A}
+
+	# Get the variable B out of the way, avoid collisions
+	# prepare for "pure list optimization"
+	::set ::struct::set::tmp [lreplace $B -1 -1 unset -nocomplain]
+	unset B
+
+	# unset A early: no local variables left
+	foreach [lindex [list $A [unset A]] 0] {.} {break}
+
+	eval $::struct::set::tmp
+	return [info locals]
+    }
 }
-
 
 # ::struct::set::Ssymdiff --
 #

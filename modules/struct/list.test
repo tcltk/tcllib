@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.12 2004/02/06 08:27:18 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.13 2004/02/09 09:32:13 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -516,17 +516,17 @@ interp alias {} repeat {} ::struct::list::list repeat
 test repeat-4.1 {repeat command} {
     catch {repeat} msg
     set msg
-} {wrong # args: should be "::struct::list::Lrepeat positiveCount value args"}
+} [wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 0]
 
 test repeat-4.2 {repeat command} {
     catch {repeat a} msg
     set msg
-} {wrong # args: should be "::struct::list::Lrepeat positiveCount value args"}
+} [wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 1]
 
 test repeat-4.3 {repeat command} {
     catch {repeat a b} msg
     set msg
-} {Expected integer, got "a"}
+} {expected integer but got "a"}
 
 test repeat-4.4 {repeat command} {
     catch {repeat 0 b} msg
