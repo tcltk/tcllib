@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.29 2003/03/31 22:42:31 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.30 2003/04/11 18:39:17 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -53,7 +53,7 @@
 package require Tcl 8.2
 package require log     ; # tcllib/log, general logging facility.
 
-namespace eval ftp {
+namespace eval ::ftp {
     namespace export DisplayMsg Open Close Cd Pwd Type List NList \
 	    FileSize ModTime Delete Rename Put Append Get Reget \
 	    Newer Quote MkDir RmDir
@@ -80,7 +80,7 @@ namespace eval ftp {
 # msg - 		message string
 # state -		different states {normal, data, control, error}
 #
-proc ftp::DisplayMsg {s msg {state ""}} {
+proc ::ftp::DisplayMsg {s msg {state ""}} {
 
     upvar ::ftp::ftp$s ftp
 
@@ -117,7 +117,7 @@ proc ftp::DisplayMsg {s msg {state ""}} {
 # Arguments:
 #  -
 #
-proc ftp::Timeout {s} {
+proc ::ftp::Timeout {s} {
     upvar ::ftp::ftp$s ftp
 
     after cancel $ftp(Wait)
@@ -143,7 +143,7 @@ proc ftp::Timeout {s} {
 #  -		
 #
 
-proc ftp::WaitOrTimeout {s} {
+proc ::ftp::WaitOrTimeout {s} {
     upvar ::ftp::ftp$s ftp
 
     set retvar 1
@@ -178,7 +178,7 @@ proc ftp::WaitOrTimeout {s} {
 #			1 ... OK
 #
 
-proc ftp::WaitComplete {s value} {
+proc ::ftp::WaitComplete {s value} {
     upvar ::ftp::ftp$s ftp
 
     if {![info exists ftp(Command)]} {
@@ -205,7 +205,7 @@ proc ftp::WaitComplete {s value} {
 # command - 		ftp command
 #
 
-proc ftp::PutsCtrlSock {s {command ""}} {
+proc ::ftp::PutsCtrlSock {s {command ""}} {
     upvar ::ftp::ftp$s ftp
     variable DEBUG
 	
@@ -231,7 +231,7 @@ proc ftp::PutsCtrlSock {s {command ""}} {
 # 			If called from a fileevent than this argument contains
 #			the socket channel identifier.
 
-proc ftp::StateHandler {s {sock ""}} {
+proc ::ftp::StateHandler {s {sock ""}} {
     upvar ::ftp::ftp$s ftp
     variable DEBUG 
     variable VERBOSE
@@ -1053,7 +1053,7 @@ proc ftp::StateHandler {s {sock ""}} {
 # Returns:
 # type	-		returns the current type or {} if an error occurs
 
-proc ftp::Type {s {type ""}} {
+proc ::ftp::Type {s {type ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1107,7 +1107,7 @@ proc ftp::Type {s {type ""}} {
 # Returns:
 # sorted list of files or {} if listing fails
 
-proc ftp::NList {s { dir ""}} {
+proc ::ftp::NList {s { dir ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1177,7 +1177,7 @@ proc ftp::NList {s { dir ""}} {
 # Returns:
 # list of files or {} if listing fails
 
-proc ftp::List {s {dir ""}} {
+proc ::ftp::List {s {dir ""}} {
 
     upvar ::ftp::ftp$s ftp
 
@@ -1232,7 +1232,7 @@ proc ftp::List {s {dir ""}} {
     }
 }
 
-proc ftp::ListPostProcess l {
+proc ::ftp::ListPostProcess l {
 
     # clear "total"-line
 
@@ -1267,7 +1267,7 @@ proc ftp::ListPostProcess l {
 # Returns:
 # size -		files size in bytes or {} in error cases
 
-proc ftp::FileSize {s {filename ""}} {
+proc ::ftp::FileSize {s {filename ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1322,7 +1322,7 @@ proc ftp::FileSize {s {filename ""}} {
 #			error cases
 # if MDTM not supported on server, returns original timestamp
 
-proc ftp::ModTime {s {filename ""} {datetime ""}} {
+proc ::ftp::ModTime {s {filename ""} {datetime ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1361,7 +1361,7 @@ proc ftp::ModTime {s {filename ""} {datetime ""}} {
     }
 }
 
-proc ftp::ModTimePostProcess {clock} {
+proc ::ftp::ModTimePostProcess {clock} {
     foreach {year month day hour min sec} {1 1 1 1 1 1} break
 
     # Bug #478478. Special code to detect ftp servers with a Y2K patch
@@ -1392,7 +1392,7 @@ proc ftp::ModTimePostProcess {clock} {
 # Returns:
 # current directory name
 
-proc ftp::Pwd {s } {
+proc ::ftp::Pwd {s } {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1433,7 +1433,7 @@ proc ftp::Pwd {s } {
 # 0 -			ERROR
 # 1 - 			OK
 
-proc ftp::Cd {s {dir ""}} {
+proc ::ftp::Cd {s {dir ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1484,7 +1484,7 @@ proc ftp::Cd {s {dir ""}} {
 # 0 -			ERROR
 # 1 - 			OK
 
-proc ftp::MkDir {s dir} {
+proc ::ftp::MkDir {s dir} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1527,7 +1527,7 @@ proc ftp::MkDir {s dir} {
 # 0 -			ERROR
 # 1 - 			OK
 
-proc ftp::RmDir {s dir} {
+proc ::ftp::RmDir {s dir} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1569,7 +1569,7 @@ proc ftp::RmDir {s dir} {
 # 0 -			ERROR
 # 1 - 			OK
 
-proc ftp::Delete {s file} {
+proc ::ftp::Delete {s file} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1613,7 +1613,7 @@ proc ftp::Delete {s file} {
 # 0 -			ERROR
 # 1 - 			OK
 
-proc ftp::Rename {s from to} {
+proc ::ftp::Rename {s from to} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1652,7 +1652,7 @@ proc ftp::Rename {s from to} {
 # Arguments:
 # stop_time - 		ending time
 
-proc ftp::ElapsedTime {s stop_time} {
+proc ::ftp::ElapsedTime {s stop_time} {
     upvar ::ftp::ftp$s ftp
 
     set elapsed [expr {$stop_time - $ftp(Start_Time)}]
@@ -1683,7 +1683,7 @@ proc ftp::ElapsedTime {s stop_time} {
 # 0 -			file not stored
 # 1 - 			OK
 
-proc ftp::Put {s args} {
+proc ::ftp::Put {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1798,7 +1798,7 @@ proc ftp::Put {s args} {
 # 0 -			file not stored
 # 1 - 			OK
 
-proc ftp::Append {s args} {
+proc ::ftp::Append {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -1913,7 +1913,7 @@ proc ftp::Append {s args} {
 # 0 -			file not retrieved
 # 1 - 			OK
 
-proc ftp::Get {s args} {
+proc ::ftp::Get {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -2036,7 +2036,7 @@ proc ftp::Get {s args} {
 # 0 -			file not retrieved
 # 1 - 			OK
 
-proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
+proc ::ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
     upvar ::ftp::ftp$s ftp
     
     if { ![info exists ftp(State)] } {
@@ -2123,7 +2123,7 @@ proc ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
 # 0 -			file not retrieved
 # 1 - 			OK
 
-proc ftp::Newer {s source {dest ""}} {
+proc ::ftp::Newer {s source {dest ""}} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -2183,7 +2183,7 @@ proc ftp::Newer {s source {dest ""}} {
 #  string sent back by the remote ftp server or null string if any error
 #
 
-proc ftp::Quote {s args} {
+proc ::ftp::Quote {s args} {
     upvar ::ftp::ftp$s ftp
 
     if { ![info exists ftp(State)] } {
@@ -2249,7 +2249,7 @@ proc ftp::Quote {s args} {
 # 0 -			ERROR
 # 1 - 			OK
 
-proc ftp::Close {s } {
+proc ::ftp::Close {s } {
     variable connections
     upvar ::ftp::ftp$s ftp
 
@@ -2275,7 +2275,7 @@ proc ftp::Close {s } {
     return 1
 }
 
-proc ftp::LazyClose {s } {
+proc ::ftp::LazyClose {s } {
     variable connections
     upvar ::ftp::ftp$s ftp
 
@@ -2323,7 +2323,7 @@ proc ftp::LazyClose {s } {
 # 0 -			Not logged in
 # 1 - 			User logged in
 
-proc ftp::Open {server user passwd args} {
+proc ::ftp::Open {server user passwd args} {
     variable DEBUG 
     variable VERBOSE
     variable serial
@@ -2435,7 +2435,7 @@ proc ftp::Open {server user passwd args} {
 # Arguments:
 # bytes - 		indicates how many bytes were written on $ftp(DestCI)
 
-proc ftp::CopyNext {s bytes {error {}}} {
+proc ::ftp::CopyNext {s bytes {error {}}} {
     upvar ::ftp::ftp$s ftp
     variable DEBUG
     variable VERBOSE
@@ -2516,7 +2516,7 @@ proc ftp::CopyNext {s bytes {error {}}} {
 # Arguments:
 # sock - 		socket name (data channel)
 
-proc ftp::HandleData {s sock} {
+proc ::ftp::HandleData {s sock} {
     upvar ::ftp::ftp$s ftp
 
     # Turn off any fileevent handlers
@@ -2599,7 +2599,7 @@ proc ftp::HandleData {s sock} {
 # Arguments:
 # sock - 		socket name (data channel)
 
-proc ftp::HandleList {s sock} {
+proc ::ftp::HandleList {s sock} {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
 
@@ -2628,7 +2628,7 @@ proc ftp::HandleList {s sock} {
 # Arguments:
 # sock - 		socket name (data channel)
 
-proc ftp::HandleVar {s sock} {
+proc ::ftp::HandleVar {s sock} {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
 
@@ -2662,7 +2662,7 @@ proc ftp::HandleVar {s sock} {
 # Arguments:
 # sock - 		socket name (data channel)
 
-proc ftp::HandleOutput {s sock} {
+proc ::ftp::HandleOutput {s sock} {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
 
@@ -2705,7 +2705,7 @@ proc ftp::HandleOutput {s sock} {
 # Returns:
 # None.
 #
-proc ftp::CloseDataConn {s } {
+proc ::ftp::CloseDataConn {s } {
     upvar ::ftp::ftp$s ftp
 
     # Protect the destination channel from destruction if it came
@@ -2739,7 +2739,7 @@ proc ftp::CloseDataConn {s } {
 #			of the client's host,
 # port -		the client's port number
 
-proc ftp::InitDataConn {s sock addr port} {
+proc ::ftp::InitDataConn {s sock addr port} {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
 
@@ -2816,7 +2816,7 @@ proc ftp::InitDataConn {s sock addr port} {
 # 0 -			no connection
 # 1 - 			connection established
 
-proc ftp::OpenActiveConn {s } {
+proc ::ftp::OpenActiveConn {s } {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
 
@@ -2854,7 +2854,7 @@ proc ftp::OpenActiveConn {s } {
 # 0 -			no connection
 # 1 - 			connection established
 
-proc ftp::OpenPassiveConn {s buffer} {
+proc ::ftp::OpenPassiveConn {s buffer} {
     upvar ::ftp::ftp$s ftp
 
     if { [regexp -- {([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)} $buffer all a1 a2 a3 a4 p1 p2] } {
@@ -2890,7 +2890,7 @@ proc ftp::OpenPassiveConn {s buffer} {
 # 0 -			no connection
 # 1 - 			connection established
 
-proc ftp::OpenControlConn {s {block 1}} {
+proc ::ftp::OpenControlConn {s {block 1}} {
     upvar ::ftp::ftp$s ftp
     variable DEBUG
     variable VERBOSE
@@ -2930,7 +2930,7 @@ proc ftp::OpenControlConn {s {block 1}} {
     return 1
 }
 
-# ftp::Command --
+# ::ftp::Command --
 #
 #	Wrapper for evaluated user-supplied command callback
 #
@@ -2942,7 +2942,7 @@ proc ftp::OpenControlConn {s {block 1}} {
 # Results:
 #	Depends on callback script
 
-proc ftp::Command {cb msg args} {
+proc ::ftp::Command {cb msg args} {
     if {[string length $cb]} {
 	uplevel #0 $cb [list $msg] $args
     }
@@ -2975,4 +2975,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.3.1} 1]
+package provide ftp [lindex {Revision: 2.4} 1]
