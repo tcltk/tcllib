@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.10 2002/04/24 03:19:32 jenglish Exp $
+# $Id: fmt.tmml,v 1.11 2002/05/09 22:23:24 jenglish Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -31,7 +31,7 @@ proc PassSetup {}	{ setPassProcs [mp_pass] }
 
 proc NOP {args} { }		;# do nothing
 proc NYI {{message {}}} {
-    return -code error [append $message " Not Yet Implemented"]
+    return -code error [append message " Not Yet Implemented"]
 }
 
 proc provenance {} {
@@ -161,11 +161,19 @@ pass 2 section {name} {
 pass 1 para {} NOP
 pass 2 para {} { sequence [xmlContext section] [start p] }
 
-array set listTypes {
+foreach {type gi} {
     bullet	ul
     enum	ol
     definitions	dl
+    arg		arglist
+    cmd		commandlist
+    opt		optlist
+    tkoption	optionlist
+} {
+    set listTypes($type) $gi
+    lappend listGIs $gi
 }
+
 pass 1 list_begin {what {hint {}}} NOP
 pass 1 list_end {} NOP
 pass 2 list_begin {what {hint {}}} {
@@ -176,8 +184,9 @@ pass 2 list_begin {what {hint {}}} {
 	;
 }
 pass 2 list_end {} {
+    variable listGIs
     sequence \
-	[xmlContext {ul ol dl}] \
+	[xmlContext $listGIs] \
 	[end] \
 	;
 }
@@ -194,6 +203,44 @@ pass 2 lst_item {text} {
 	[start dle] \
 	[wrap $text dt] \
 	[start dd] \
+	;
+}
+
+pass 1 arg_def {type name {mode {}}} NOP
+pass 2 arg_def {type name {mode {}}} {
+    sequence \
+    	[xmlContext arglist] \
+	[start argdef] \
+	[wrap $type argtype] \
+	[wrap $name name] \
+	[wrap? $mode argmode] \
+	[start desc] \
+	;
+}
+
+pass 1 cmd_def {command} NOP
+pass 2 cmd_def {command} NYI
+
+pass 1 opt_def {name {arg {}}} NOP
+pass 2 opt_def {name {arg {}}} {
+    sequence \
+    	[xmlContext optlist] \
+	[start optdef] \
+	[wrap $name optname] \
+	[wrap? $arg optarg] \
+	[start desc] \
+	;
+}
+
+pass 1 tkoption_def {name dbname dbclass}  NOP
+pass 2 tkoption_def {name dbname dbclass} {
+    sequence \
+    	[xmlContext optionlist] \
+	[start optiondef] \
+	[wrap $name name] \
+	[wrap $dbname dbname] \
+	[wrap $dbclass dbclass] \
+	[start desc] \
 	;
 }
 
