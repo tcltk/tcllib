@@ -1,3 +1,16 @@
+2001-12-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.test:
+	* expander.tcl:
+	* expander.n:
+	* expander.ehtml:
+	* expander.html:
+	* expander_notes.txt: Applied update I got from William
+	  implementing the 'evalcmd' feature, i.e. instead of using
+	  'uplevel #0' directly expander objects now have a configurable
+	  callback for the execution of macros. The default is still
+	  'uplevel #0' but this can be changed.
+
 2001-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.test: Fixed a problem with the expander testsuite. It

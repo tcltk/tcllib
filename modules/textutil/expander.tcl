@@ -20,7 +20,8 @@
 #
 # CHANGE LOG:
 #
-#       10/31/01: V1.0 code is complete.
+#       10/31/01: V0.9 code is complete.
+#       11/23/01: Added "evalcmd"; V1.0 code is complete.
 
 # Provide the package.
 
@@ -34,6 +35,7 @@ namespace eval ::textutil {
 	# rb		    The right bracket sequence
 	# errmode	    How to handle macro errors: 
 	#		    nothing, macro, error, fail.
+        # evalcmd           The evaluation command.
 	# level		    The context level
 	# output-$level     The accumulated text at this context level.
 	# name-$level       The tag name of this context level
@@ -135,6 +137,7 @@ proc ::textutil::expander::Methods {name method argList} {
         rb -
         setbrackets -
         errmode -
+        evalcmd -
         cpush -
         cis -
         cname -
@@ -336,6 +339,28 @@ proc ::textutil::expander::Op_errmode {name {newErrmode ""}} {
 
 #---------------------------------------------------------------------
 # FUNCTION:
+# 	Op_evalcmd ?newEvalCmd?
+#
+# INPUTS:
+#	newEvalCmd		If given, the new eval command.
+#
+# RETURNS:
+#	The current eval command
+#
+# DESCRIPTION:
+#	Returns the current eval command.  This is the command used to
+#	evaluate macros; it defaults to "uplevel #0".
+
+proc ::textutil::expander::Op_evalcmd {name {newEvalCmd ""}} {
+    if {[string length $newEvalCmd] != 0} {
+
+        Set evalcmd $newEvalCmd
+    }
+    return [Get evalcmd]
+}
+
+#---------------------------------------------------------------------
+# FUNCTION:
 # 	Op_reset
 #
 # INPUTS:
@@ -357,6 +382,7 @@ proc ::textutil::expander::Op_reset {name} {
     set Info($name-lb) "\["
     set Info($name-rb) "\]"
     set Info($name-errmode) "fail"
+    set Info($name-evalcmd) "uplevel #0"
     set Info($name-level) 0
     set Info($name-output-0) ""
     set Info($name-name-0) ":0"
@@ -597,7 +623,7 @@ proc ::textutil::expander::Op_expand {name inputString {brackets ""}} {
 
         # Expand the macro, and output the result, or
         # handle an error.
-        if {![catch "uplevel #0 [list $macro]" result]} {
+        if {![catch "[Get evalcmd] [list $macro]" result]} {
             Op_cappend $name $result 
             continue
         } 
@@ -752,4 +778,4 @@ proc ::textutil::expander::IsBracketed {macro} {
 # Provide the package only if the code above was read and executed
 # without error.
 
-package provide textutil::expander 0.9
+package provide textutil::expander 1.0
