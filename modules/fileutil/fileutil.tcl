@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.21 2003/04/11 19:44:23 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.22 2003/04/24 01:19:34 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -491,7 +491,6 @@ proc ::fileutil::touch {args} {
 #                       link
 #                  
 
-
 proc ::fileutil::fileType {filename} {
     ;## existence test
     if { ! [ file exists $filename ] } {
@@ -575,4 +574,73 @@ proc ::fileutil::fileType {filename} {
         lappend type link
     }
     return $type
+}
+
+
+# ::fileutil::tempfile --
+#
+#   generate a temporary file name suitable for writing to
+#   the file name will be unique, writable and will be in the 
+#   appropriate system specific temp directory
+#   Code taken from http://mini.net/tcl/772 attributed to
+#    Igor Volobouev and anon.
+#
+# Arguments:
+#   prefix     - a prefix for the filename, p
+# Results:
+#   returns a file name
+#
+
+proc ::fileutil::tempfile {{prefix {}}} {
+    global  tcl_platform
+    switch $tcl_platform(platform) {
+	unix {
+	    set tmpdir /tmp;   # or even $::env(TMPDIR), at times.
+	} macintosh {
+	    set tmpdir $env(TRASH_FOLDER)  ;# a better place?
+	} default {
+	    set tmpdir [pwd]
+	    catch {set tmpdir $env(TMP)}
+	    catch {set tmpdir $env(TEMP)}
+	}
+    }
+
+    set chars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    set nrand_chars 10
+    set maxtries 10
+    set access [list RDWR CREAT EXCL TRUNC]
+    set permission 0600
+    set channel ""
+    set checked_dir_writable 0
+    set mypid [pid]
+    for {set i 0} {$i < $maxtries} {incr i} {
+ 	set newname $prefix
+ 	for {set j 0} {$j < $nrand_chars} {incr j} {
+ 	    append newname [string index $chars \
+				[expr ([clock clicks] ^ $mypid) % 62]]
+ 	}
+	set newname [file join $tmpdir $newname]
+ 	if {[file exists $newname]} {
+ 	    after 1
+ 	} else {
+ 	    if {[catch {open $newname $access $permission} channel]} {
+ 		if {!$checked_dir_writable} {
+ 		    set dirname [file dirname $newname]
+ 		    if {![file writable $dirname]} {
+ 			error "Directory $dirname is not writable"
+ 		    }
+ 		    set checked_dir_writable 1
+ 		}
+ 	    } else {
+ 		# Success
+		close $channel
+ 		return $newname
+ 	    }
+ 	}
+    }
+    if {[string compare $channel ""]} {
+ 	return -code error "Failed to open a temporary file: $channel"
+    } else {
+ 	return -code error "Failed to find an unused temporary file name"
+    }
 }
