@@ -16,7 +16,7 @@ messages used by BitTorrent.
 
 [section {PUBLIC API}]
 
-[comment {[subsection ENCODER]}]
+[subsection ENCODER]
 
 The package provides one encoder command for each of the basic forms,
 and two commands per container, one taking a proper tcl data structure
@@ -66,13 +66,13 @@ itself.
 [para]
 
 
-[comment {[subsection DECODER]}]
+[subsection DECODER]
 
-The package provides two decoder commands, one for decoding a string
-expected to contain a complete data structure, the other for the
-incremental decoding of a value arriving on a channel. The latter
-command is asynchronous and returns the completed decoded value
-through a command callback.
+The package provides two main decoder commands, one for decoding a
+string expected to contain a complete data structure, the other for
+the incremental decoding of bee-values arriving on a channel. The
+latter command is asynchronous and provides the completed decoded
+values to the user through a command callback.
 
 
 [para]
@@ -167,7 +167,7 @@ i.e. serviceable as keys, they are not easy to navigate when trying to
 find particular element. Using the actual keys makes this much easier.
 
 [list_end]
-
+[nl]
 
 
 [call [cmd ::bee::decodeChannel] [arg chan] \
@@ -175,9 +175,6 @@ find particular element. Using the actual keys makes this much easier.
 	[opt [option -exact]] \
 	[opt "[option -prefix] [arg data]"] \
 ]
-
-[emph {This command has not been implemented yet.}]
-[nl]
 
 The command creates a decoder for a series of bee-values arriving on
 the channel [arg chan] and returns its handle. This handle can be used
@@ -187,7 +184,6 @@ Setting up another bee decoder on [arg chan] while a bee decoder is
 still active will fail with an error message.
 
 [nl]
-
 [list_begin definitions]
 [lst_item [option -command]]
 
@@ -255,6 +251,7 @@ data from the channel to determine if it should create the decoder or
 not. Without the option this data would be lost to the decoding.
 
 [list_end]
+[nl]
 
 [call [cmd ::bee::decodeCancel] [arg token]]
 

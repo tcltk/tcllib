@@ -1,3 +1,7 @@
+2004-06-23  Andreas Kupries  <andreas_kupries@users.sourceforge.bet>
+
+	* bee.man: Polished the documentation.
+
 2004-06-21  Andreas Kupries  <andreas_kupries@users.sourceforge.bet>
 
 	* bee.tcl: Completed the implementation.
