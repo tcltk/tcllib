@@ -8,18 +8,6 @@ Major Variable Definitions (this includes a whole lot of code)
 * ::snit:: variable definitions:
     * reservedArgs
     * prettyStackTrace          Not used currently
-    * defs                      Array of definition templates.
-                                Content is parsed as though it were part
-                                of the user's class definition.
-* ::snit::defs(common)          Definitions shared by all Snit classes.
-    * options array
-    * common method and typemethod delegations
-
-* ::snit::defs(type)            Definitions for snit::types.
-    * method and typemethod delegations
-
-* ::snit::defs(widget)          Definitions for snit::widget(adaptor)s.
-    * typemethod delegations
 
 * ::snit::typeTemplate          Template code shared by all Snit types.
                                 As the type definition is parsed, it
@@ -66,6 +54,7 @@ Compilation Commands
 * proc ::snit::Comp.Compile
 * proc ::snit::Comp.SaveOptionInfo
 * proc ::snit::Comp.Define
+* proc ::snit::Comp.statement.pragma
 * proc ::snit::Comp.statement.widgetclass
 * proc ::snit::Comp.statement.hulltype
 * proc ::snit::Comp.statement.constructor

@@ -5557,6 +5557,120 @@ test optionreadonly-1.2 {Readonly options can't be set after creation.} {
     set result
 } {option -color can only be set at instance creation} 
 
+#-----------------------------------------------------------------------
+# Pragma -hastypeinfo
+
+test hastypeinfo-1.1 {$type info is defined by default.} {
+    cleanup
+
+    type dog {
+        typevariable foo
+    }
+
+    dog info typevars
+} {::dog::foo} 
+
+test hastypeinfo-1.2 {$type info can be disabled.} {
+    cleanup
+
+    type dog {
+        pragma -hastypeinfo no
+        typevariable foo
+    }
+
+    catch {
+        dog info typevars
+    } result
+    set result
+} {"::dog info" is not defined} 
+
+
+#-----------------------------------------------------------------------
+# Pragma -hastypedestroy
+
+test hastypedestroy-1.1 {$type destroy is defined by default.} {
+    cleanup
+
+    type dog { 
+        typevariable foo
+    }
+
+    dog destroy
+
+    catch {
+        ::dog info typevars
+    } result
+
+    set result
+} {invalid command name "::dog"} 
+
+test hastypedestroy-1.2 {$type destroy can be disabled.} {
+    cleanup
+
+    type dog {
+        pragma -hastypedestroy no
+        typevariable foo
+    }
+
+    catch {
+        dog destroy
+    } result
+
+    # If we don't delete the type explicitly, "cleanup" will 
+    # fail in the next test.
+    namespace delete ::dog
+    rename ::dog ""
+
+    set result
+} {"::dog destroy" is not defined} 
+
+#-----------------------------------------------------------------------
+# Pragma -hasinstances
+
+test hasinstances-1.1 {-hasinstances is true by default.} {
+    cleanup
+
+    catch {
+        type dog { 
+            method bark {} {
+                return "Woof"
+            }
+        }
+        
+        dog fido
+        fido bark
+    } result
+
+    set result
+} {Woof} 
+
+test hasinstances-1.2 {'-hasinstances no' disables explicit object creation.} {
+    cleanup
+
+    type dog { 
+        pragma -hasinstances no
+    }
+
+    catch {
+        dog create fido
+    } result
+    set result
+} {"::dog create" is not defined} 
+
+test hasinstances-1.3 {'-hasinstances no' disables implicit object creation.} {
+    cleanup
+
+    type dog { 
+        pragma -hasinstances no
+    }
+
+    catch {
+        dog fido
+    } result
+    set result
+} {"::dog fido" is not defined} 
+
+
 #---------------------------------------------------------------------
 # Clean up
 
