@@ -47,6 +47,12 @@ missing data chunk(s).
 missing end marker.
 [list_end]
 
+[call [cmd ::png::isPNG] [arg file]]
+
+Returns a boolean value indicating if the file [arg file] starts with
+a PNG signature. This is a much faster and less intensive check than
+[cmd ::png::validate] as it does not check if the PNG data is valid.
+
 [call [cmd ::png::imageInfo] [arg file]]
 
 Returns a dictionary with keys [const width], [const height],
