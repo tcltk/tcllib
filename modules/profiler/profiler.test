@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.12 2003/05/01 22:40:17 patthoyts Exp $
+# RCS: @(#) $Id: profiler.test,v 1.13 2003/05/02 19:27:36 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -221,7 +221,8 @@ test profiler-6.1 {profiler handles functions with funny names} {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
-	set auto_path [parentSet auto_path]
+	set     auto_path [parentSet auto_path]
+	lappend auto_path [file dirname [file dirname [info script]]]
 	package require profiler
 	profiler::init
 	proc ::foo(bar) {} {
