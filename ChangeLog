@@ -1,3 +1,8 @@
+2004-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules.tcl: New module 'tie added to installer. Tcl
+	  files and documentation, no examples.
+
 2004-08-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* all.tcl: Added constraint 'tcl8.5plus'.
