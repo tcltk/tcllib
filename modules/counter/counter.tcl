@@ -7,11 +7,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.10 2003/02/25 06:59:19 davidw Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.11 2003/04/11 19:01:06 andreas_kupries Exp $
 
 package require Tcl 8.2
 
-namespace eval counter:: {
+namespace eval ::counter {
 
     # Variables of name counter::T-$tagname
     # are created as arrays to support each counter.
@@ -42,7 +42,7 @@ namespace eval counter:: {
     namespace export histHtmlDisplay histHtmlDisplayRow histHtmlDisplayBarChart
 }
 
-# counter::init --
+# ::counter::init --
 #
 #	Set up a counter.
 #
@@ -57,7 +57,7 @@ namespace eval counter:: {
 # Side Effects:
 #	Initializes state about a counter.
 
-proc counter::init {tag args} {
+proc ::counter::init {tag args} {
     upvar #0 counter::T-$tag counter
     if {[info exists counter]} {
 	unset counter
@@ -247,7 +247,7 @@ proc counter::init {tag args} {
     return ""
 }
 
-# counter::reset --
+# ::counter::reset --
 #
 #	Reset a counter.
 #
@@ -260,7 +260,7 @@ proc counter::init {tag args} {
 # Side Effects:
 #	Deletes the counter and calls counter::init again for it.
 
-proc counter::reset {tag args} {
+proc ::counter::reset {tag args} {
     upvar #0 counter::T-$tag counter
 
     # Layer reset on top of init.  Here we figure out what
@@ -311,7 +311,7 @@ proc counter::reset {tag args} {
     return ""
 }
 
-# counter::count --
+# ::counter::count --
 #
 #	Accumulate statistics.
 #
@@ -326,7 +326,7 @@ proc counter::reset {tag args} {
 # Side Effects:
 #	Accumlate statistics.
 
-proc counter::count {tag {delta 1} args} {
+proc ::counter::count {tag {delta 1} args} {
     upvar #0 counter::T-$tag counter
     set counter(total) [expr {$counter(total) + $delta}]
     incr counter(N)
@@ -414,7 +414,7 @@ proc counter::count {tag {delta 1} args} {
     return
 }
 
-# counter::exists --
+# ::counter::exists --
 #
 #	Return true if the counter exists.
 #
@@ -427,12 +427,12 @@ proc counter::count {tag {delta 1} args} {
 # Side Effects:
 #	None.
 
-proc counter::exists {tag} {
+proc ::counter::exists {tag} {
     upvar #0 counter::T-$tag counter
     return [info exists counter]
 }
 
-# counter::get --
+# ::counter::get --
 #
 #	Return statistics.
 #
@@ -447,7 +447,7 @@ proc counter::exists {tag} {
 # Side Effects:
 #	None.
 
-proc counter::get {tag {option -total} args} {
+proc ::counter::get {tag {option -total} args} {
     upvar #0 counter::T-$tag counter
     switch -- $option {
 	-total {
@@ -555,7 +555,7 @@ proc counter::get {tag {option -total} args} {
     }
 }
 
-# counter::names --
+# ::counter::names --
 #
 #	Return the list of defined counters.
 #
@@ -568,7 +568,7 @@ proc counter::get {tag {option -total} args} {
 # Side Effects:
 #	None.
 
-proc counter::names {} {
+proc ::counter::names {} {
     set result {}
     foreach v [info vars ::counter::T-*] {
 	if {[info exists $v]} {
@@ -580,7 +580,7 @@ proc counter::names {} {
     return $result
 }
 
-# counter::MergeHour --
+# ::counter::MergeHour --
 #
 #	Sum the per-minute histogram into the next hourly bucket.
 #	On 24-hour boundaries, sum the hourly buckets into the next day bucket.
@@ -595,7 +595,7 @@ proc counter::names {} {
 # Side Effects:
 #	See description.
 
-proc counter::MergeHour {interval} {
+proc ::counter::MergeHour {interval} {
     variable hourIndex
     variable minuteBase
     variable hourBase
@@ -641,7 +641,7 @@ proc counter::MergeHour {interval} {
     }
 
 }
-# counter::MergeDay --
+# ::counter::MergeDay --
 #
 #	Sum the per-minute histogram into the next hourly bucket.
 #	On 24-hour boundaries, sum the hourly buckets into the next day bucket.
@@ -656,7 +656,7 @@ proc counter::MergeHour {interval} {
 # Side Effects:
 #	See description.
 
-proc counter::MergeDay {} {
+proc ::counter::MergeDay {} {
     variable dayIndex
     variable dayBase
     variable hourBase
@@ -695,7 +695,7 @@ proc counter::MergeDay {} {
     incr dayIndex
 }
 
-# counter::histHtmlDisplay --
+# ::counter::histHtmlDisplay --
 #
 #	Create an html display of the histogram.
 #
@@ -722,14 +722,14 @@ proc counter::MergeDay {} {
 # Side Effects:
 #	None.
 
-proc counter::histHtmlDisplay {tag args} {
+proc ::counter::histHtmlDisplay {tag args} {
     append result "<p>\n<table border=0 cellpadding=0 cellspacing=0>\n"
     append result [eval {counter::histHtmlDisplayRow $tag} $args]
     append result </table>
     return $result
 }
 
-# counter::histHtmlDisplayRow --
+# ::counter::histHtmlDisplayRow --
 #
 #	Create an html display of the histogram.
 #
@@ -743,7 +743,7 @@ proc counter::histHtmlDisplay {tag args} {
 # Side Effects:
 #	None.
 
-proc counter::histHtmlDisplayRow {tag args} {
+proc ::counter::histHtmlDisplayRow {tag args} {
     upvar #0 counter::T-$tag counter
     variable secsPerMinute
     variable minuteBase
@@ -969,7 +969,7 @@ proc counter::histHtmlDisplayRow {tag args} {
     return $result
 }
 
-# counter::histHtmlDisplayBarChart --
+# ::counter::histHtmlDisplayBarChart --
 #
 #	Create an html display of the histogram.
 #
@@ -987,7 +987,7 @@ proc counter::histHtmlDisplayRow {tag args} {
 # Side Effects:
 #	See description.
 
-proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
+proc ::counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
     upvar #0 counter::T-$tag counter
     upvar 1 $histVar histogram
     variable secsPerMinute
@@ -1168,7 +1168,7 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
     return $result
 }
 
-# counter::start --
+# ::counter::start --
 #
 #	Start an interval timer.  This should be pre-declared with
 #	type either -hist, -hist2x, or -hist20x
@@ -1184,13 +1184,13 @@ proc counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
 # Side Effects:
 #	Records the starting time for the instance of this interval.
 
-proc counter::start {tag instance} {
+proc ::counter::start {tag instance} {
     upvar #0 counter::Time-$tag time
     set time($instance) [list [clock clicks] \
 	    [clock seconds]]
 }
 
-# counter::stop --
+# ::counter::stop --
 #
 #	Record an interval timer.
 #
@@ -1207,7 +1207,7 @@ proc counter::start {tag instance} {
 # Side Effects:
 #	Computes the current interval and adds it to the histogram.
 
-proc counter::stop {tag instance {func ::counter::Identity}} {
+proc ::counter::stop {tag instance {func ::counter::Identity}} {
     upvar #0 counter::Time-$tag time
 
     if {![info exists time($instance)]} {
@@ -1230,7 +1230,7 @@ proc counter::stop {tag instance {func ::counter::Identity}} {
     counter::count $tag [$func $delSecond.[format %06d $delMicros]]
 }
 
-# counter::Identity --
+# ::counter::Identity --
 #
 #	Return its argument.  This is used as the default function
 #	to apply to an interval timer.
@@ -1245,9 +1245,9 @@ proc counter::stop {tag instance {func ::counter::Identity}} {
 #	None
 
 
-proc counter::Identity {x} {
+proc ::counter::Identity {x} {
     return $x
 }
 
-package provide counter 2.0
+package provide counter 2.0.1
 
