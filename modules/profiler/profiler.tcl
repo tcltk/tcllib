@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.11 2000/06/15 23:46:59 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.12 2000/09/20 17:23:14 ericm Exp $
 
 package provide profiler 0.1
 
@@ -15,18 +15,36 @@ namespace eval ::profiler {
     variable enabled 1
 }
 
-# start a timer instance "$tag"
+# ::profiler::tZero --
 #
+#	Start a named timer instance
+#
+# Arguments:
+#	tag	name for the timer instance; if none is given, defaults to ""
+#
+# Results:
+#	None.
+
 proc ::profiler::tZero { { tag "" } } {
-     set ms [ clock clicks -milliseconds ]
-     set us [ clock clicks ]
-     regsub -all {:} $tag {} tag
-     set ::profiler::T$tag [ list $us $ms ] 
+    set ms [ clock clicks -milliseconds ]
+    set us [ clock clicks ]
+    regsub -all {:} $tag {} tag
+    set ::profiler::T$tag [ list $us $ms ] 
+    return
 }
 
-# return a delta time since last __t::start was issued
-# for the given tag
+# ::profiler::tMark --
 #
+#	Return the delta time since the start of a named timer.
+#
+# Arguments:
+#	tag	Tag for which to return a delta; if none is given, defaults to
+#		"" 
+#
+# Results:
+#	dt	Time difference between start of the timer and the current
+#		time, in microseconds.
+
 proc ::profiler::tMark { { tag "" } } {
      set ut [ clock clicks ]
      set mt [ clock clicks -milliseconds ]
@@ -41,8 +59,18 @@ proc ::profiler::tMark { { tag "" } } {
      set dt
 }
 
-# statistical functions for this package
+# ::profiler::stats --
 #
+#	Compute statistical information for a set of values, including
+#	the mean, the standard deviation, and the covariance.
+#
+# Arguments:
+#	args	Values for which to compute information.
+#
+# Results:
+#	A list with three elements:  the mean, the standard deviation, and the
+#	covariance.
+
 proc ::profiler::stats {args} {
      set sum      0
      set mean     0

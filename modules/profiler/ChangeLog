@@ -1,7 +1,13 @@
+2000-09-20  Eric Melski  <ericm@ajubasolutions.com>
+
+	* profiler.tcl: Corrected some non-Tcl-style-guide conforming
+	function headers.
+
 2000-06-15  Eric Melski  <ericm@ajubasolutions.com>
 
-	* profiler.tcl: Added mods from Philip Ehrens <pehrens@ligo.caltech.edu>
-	to changed formatting, add additional statistics. [RFE: 5060]
+	* profiler.tcl: Added mods from Philip Ehrens
+	<pehrens@ligo.caltech.edu> to changed formatting, add additional
+	statistics. [RFE: 5060]
 
 2000-03-27  Eric Melski  <ericm@scriptics.com>
 
