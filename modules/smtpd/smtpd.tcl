@@ -15,8 +15,8 @@ package require Tcl 8.3;                # tcl minimum version
 package require log;                    # tcllib
 package require mime;                   # tcllib
 
-namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.8 2003/01/25 23:51:55 patthoyts Exp $}
+namespace eval ::smtpd {
+    variable rcsid {$Id: smtpd.tcl,v 1.9 2003/04/11 01:08:03 andreas_kupries Exp $}
     variable version 1.2.1
     variable stopped
 
@@ -50,7 +50,7 @@ namespace eval smtpd {
 # Description:
 #   Obtain configuration options for the server.
 #
-proc smtpd::cget {option} {
+proc ::smtpd::cget {option} {
     variable options
     set optname [string trimleft $option -]
     if { [info exists options($optname)] } {
@@ -69,7 +69,7 @@ proc smtpd::cget {option} {
 #   resources once the deliver proc has completed.
 #   An example might be to exec procmail to deliver the mail to users.
 #
-proc smtpd::configure {args} {
+proc ::smtpd::configure {args} {
     variable options
 
     if {[llength $args] == 0} {
@@ -102,7 +102,7 @@ proc smtpd::configure {args} {
 # Description:
 #   Start the server on the given interface and port.
 #
-proc smtpd::start {{myaddr {}} {port 25}} {
+proc ::smtpd::start {{myaddr {}} {port 25}} {
     variable options
     variable stopped
     
@@ -130,7 +130,7 @@ proc smtpd::start {{myaddr {}} {port 25}} {
 # Description:
 #  Stop a running server. Do nothing if the server isn't running.
 #
-proc smtpd::stop {} {
+proc ::smtpd::stop {} {
     variable options
     variable stopped
     if {[info exists options(socket)]} {
@@ -146,7 +146,7 @@ proc smtpd::stop {} {
 #   Accept a new connection and setup a fileevent handler to process the new
 #   session. Performs a host id validation step before allowing access.
 #
-proc smtpd::accept {channel client_addr client_port} {
+proc ::smtpd::accept {channel client_addr client_port} {
     variable options
     variable version
     upvar [namespace current]::state_$channel State
@@ -186,7 +186,7 @@ proc smtpd::accept {channel client_addr client_port} {
 # Description:
 #   Initialize the channel state array. Called by accept and RSET.
 #
-proc smtpd::initializeState {channel} {
+proc ::smtpd::initializeState {channel} {
     upvar [namespace current]::state_$channel State
     set State(indata) 0
     set State(to) {}
@@ -201,7 +201,7 @@ proc smtpd::initializeState {channel} {
 #   of the state array name. Called with no value, it returns the current
 #   value of the item (or {} if not defined).
 #
-proc smtpd::state {channel args} {
+proc ::smtpd::state {channel args} {
     if {[llength $args] == 0} {
         return [array get [namespace current]::state_$channel]
     }
@@ -229,7 +229,7 @@ proc smtpd::state {channel args} {
 #   Safe puts.
 #   If the client closes the channel, then puts will throw an error. Lets
 #   terminate the session if this occurs.
-proc smtpd::Puts {channel args} {
+proc ::smtpd::Puts {channel args} {
     if {[catch {uplevel puts $channel $args} msg]} {
         log::log error $msg
         catch {
@@ -247,7 +247,7 @@ proc smtpd::Puts {channel args} {
 #   the connected socket and executes commands according to the state of the
 #   session.
 #
-proc smtpd::service {channel} {
+proc ::smtpd::service {channel} {
     variable commands
     variable options
     upvar [namespace current]::state_$channel State
@@ -320,7 +320,7 @@ proc smtpd::service {channel} {
 # Description:
 #  Generate a random ASCII character for use in mail identifiers.
 #
-proc smtpd::uidchar {} {
+proc ::smtpd::uidchar {} {
     set c .
     while {! [string is alnum $c]} {
         set n [expr {int(rand() * 74 + 48)}]
@@ -332,7 +332,7 @@ proc smtpd::uidchar {} {
 # Description:
 #  Generate a unique random identifier using only ASCII alphanumeric chars.
 #
-proc smtpd::uid {} {
+proc ::smtpd::uid {} {
     set r {}
     for {set cn 0} {$cn < 12} {incr cn} {
         append r [uidchar]
@@ -344,7 +344,7 @@ proc smtpd::uid {} {
 # Description:
 #   Calculate the local offset from GMT in hours for use in the timestamp
 #
-proc smtpd::gmtoffset {} {
+proc ::smtpd::gmtoffset {} {
     set now [clock seconds]
     set lh [string trimleft [clock format $now -format "%H" -gmt false] 0]
     set zh [string trimleft [clock format $now -format "%H" -gmt true] 0]
@@ -366,7 +366,7 @@ proc smtpd::gmtoffset {} {
 #   Generate a standard SMTP compliant timestamp. That is a local time but with
 #   the timezone represented as an offset.
 #
-proc smtpd::timestamp {} {
+proc ::smtpd::timestamp {} {
     set ts [clock format [clock seconds] \
                 -format "%a, %d %b %Y %H:%M:%S" -gmt false]
     append ts " " [gmtoffset]
@@ -377,7 +377,7 @@ proc smtpd::timestamp {} {
 # Description:
 #   Get the servers ip address (from http://purl.org/mini/tcl/526.html)
 #
-proc smtpd::server_ip {} {
+proc ::smtpd::server_ip {} {
     set me [socket -server xxx -myaddr [info hostname] 0]
     set ip [lindex [fconfigure $me -sockname] 0]
     close $me
@@ -392,7 +392,7 @@ proc smtpd::server_ip {} {
 #   If no such callback is defined then try the -deliver option and use
 #   the old API.
 #
-proc smtpd::deliver {channel} {
+proc ::smtpd::deliver {channel} {
     set deliverMIME [cget deliverMIME]
     if { $deliverMIME != {} \
             && [state $channel from] != {} \
@@ -428,7 +428,7 @@ proc smtpd::deliver {channel} {
 #   completion of a DATA command). The configured -deliver procedure is called
 #   with the sender, list of recipients and the text of the mail.
 #
-proc smtpd::deliver_old {channel} {
+proc ::smtpd::deliver_old {channel} {
     set deliver [cget deliver]
     if { $deliver != {} \
              && [state $channel from] != {} \
@@ -445,7 +445,7 @@ proc smtpd::deliver_old {channel} {
 }
 
 # -------------------------------------------------------------------------
-proc smtpd::split_address {address} {
+proc ::smtpd::split_address {address} {
     set start [string first < $address]
     set end [string last > $address]
     set addr [string range $address $start $end]
@@ -462,7 +462,7 @@ proc smtpd::split_address {address} {
 # Reference:
 #   RFC2821 4.1.1.1
 #
-proc smtpd::HELO {channel line} {
+proc ::smtpd::HELO {channel line} {
     variable options
 
     if {[state $channel domain] != {}} {
@@ -490,7 +490,7 @@ proc smtpd::HELO {channel line} {
 #   Initiate an ESMTP session
 # Reference:
 #   RFC2821 4.1.1.1
-proc smtpd::EHLO {channel line} {
+proc ::smtpd::EHLO {channel line} {
     variable options
     variable extensions
 
@@ -522,7 +522,7 @@ proc smtpd::EHLO {channel line} {
 # Reference:
 #   RFC2821 4.1.1.2
 #
-proc smtpd::MAIL {channel line} {
+proc ::smtpd::MAIL {channel line} {
     set r [regexp -nocase {^MAIL FROM:\s*(.*)} $line -> from]
     if {$r == 0} {
         Puts $channel "501 Syntax error in parameters or arguments"
@@ -571,7 +571,7 @@ proc smtpd::MAIL {channel line} {
 # Notes:
 #   The postmaster mailbox MUST be supported. (RFC2821: 4.5.1)
 #
-proc smtpd::RCPT {channel line} {
+proc ::smtpd::RCPT {channel line} {
     set r [regexp -nocase {^RCPT TO:\s*(.*)} $line -> to]
     if {$r == 0} {
         Puts $channel "501 Syntax error in parameters or arguments"
@@ -633,7 +633,7 @@ proc smtpd::RCPT {channel line} {
 #   'service' procedure for the handling of DATA lines.
 #   We also insert trace information as per RFC2821:4.4
 #
-proc smtpd::DATA {channel line} {
+proc ::smtpd::DATA {channel line} {
     variable version
     upvar [namespace current]::state_$channel State
     log::log debug "DATA"
@@ -663,7 +663,7 @@ proc smtpd::DATA {channel line} {
 # Reference:
 #   RFC2821 4.1.1.5
 #
-proc smtpd::RSET {channel line} {
+proc ::smtpd::RSET {channel line} {
     upvar [namespace current]::state_$channel State
     log::log debug "RSET on $channel"
     if {[catch {initializeState $channel} msg]} {
@@ -679,7 +679,7 @@ proc smtpd::RSET {channel line} {
 # Reference:
 #   RFC2821 4.1.1.6
 #
-#proc smtpd::VRFY {channel line} {
+#proc ::smtpd::VRFY {channel line} {
 #    # VRFY SP String CRLF
 #}
 
@@ -689,7 +689,7 @@ proc smtpd::RSET {channel line} {
 # Reference:
 #   RFC2821 4.1.1.7
 #
-#proc smtpd::EXPN {channel line} {
+#proc ::smtpd::EXPN {channel line} {
 #    # EXPN SP String CRLF
 #}
 
@@ -699,7 +699,7 @@ proc smtpd::RSET {channel line} {
 # Reference:
 #   RFC2821 4.1.1.8
 #
-#proc smtpd::HELP {channel line} {
+#proc ::smtpd::HELP {channel line} {
 #    # HELP SP String CRLF
 #}
 
@@ -709,7 +709,7 @@ proc smtpd::RSET {channel line} {
 # Reference:
 #   RFC2821 4.1.1.9
 #
-proc smtpd::NOOP {channel line} {
+proc ::smtpd::NOOP {channel line} {
     set str {}
     regexp -nocase {^NOOP (.*)$} -> str
     log::log debug "NOOP: $str"
@@ -726,7 +726,7 @@ proc smtpd::NOOP {channel line} {
 #   The server is only permitted to close the channel once it has received 
 #   a QUIT message.
 #
-proc smtpd::QUIT {channel line} {
+proc ::smtpd::QUIT {channel line} {
     variable options
     upvar [namespace current]::state_$channel State
 
