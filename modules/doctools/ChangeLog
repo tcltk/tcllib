@@ -1,3 +1,8 @@
+2004-11-01  Andreas Kupries <andreask@activestate.com>
+
+	* mpformats/fmt.html (fmt_namespace): Added HTML backend code for
+	  the namespace command.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
