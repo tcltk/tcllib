@@ -1,9 +1,18 @@
+2004-07-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.tcl (LocUpdate): 'regexp -all' is 8.4'ism, and this
+	  package is for 8.2/3 as well. Replaced with a x-version
+	  construct.
+
+	* expander.test: Updated tests of error output to contain line/col
+	  information. Also added test case actually counting the input.
+
 2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.man: Polished the expander documentation, made use of
 	  subsections, removed superfluous para's, indented examples.
 
-2004-07-22  Andreas Kupries  <andreask@pliers.activestate.com>
+2004-07-22  Andreas Kupries  <andreask@activestate.com>
 
 	* expander.tcl: Bugfix in processing of plaintext. Have to save
 	  the input for location update. Do not use the result of the text
