@@ -659,8 +659,7 @@ proc ::logger::import {args} {
     #
     
     foreach {target source} $imports {
-        proc $target {args} "uplevel 1 \[linsert \$args 0 interp eval \{\} \[list $source\]]"
-        #interp alias {} $target {} $source
+        proc $target {args} "uplevel 1 \[linsert \$args 0 $source \]"
     }
 }
 
