@@ -1,4 +1,15 @@
-2003-03-27  Andreas Kupries  <andreask@pliers.activestate.com>
+2003-03-28  Andreas Kupries  <andreask@activestate.com>
+
+	* adjust.test:
+	* textutil.test: Added testsuite for new commands. Fixed typo bug
+	  in yesterday's 'blank' and 'indent'.
+
+	* adjust.tcl: New command 'undent'.
+	* textutil.tcl: New command 'longestCommonPrefix'.
+
+	* textutil.man: documented the new commands.
+
+2003-03-27  Andreas Kupries  <andreask@activestate.com>
 
 	* textutil.man:
 	* adjust.tcl:
@@ -6,7 +17,7 @@
 	* textutil.tcl: New commands: blank, chop, tail, cap, uncap,
 	  indent, trimPrefix, and trimEmptyHeading. Imported from my own
 	  Pool library. Also fixed some typos in the manpage: Superfluous
-	  closing brackets.
+	  closing brackets. ... This closes Tcllib FR #514476.
 
 2003-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
