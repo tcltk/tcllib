@@ -430,7 +430,7 @@ proc exif::makerNote {data curoffset} {
                     }
                     set result(Contrast) [switch $field(13) $NHL]
                     set result(Saturation) [switch $field(14) $NHL]
-                    set result(Sharpness) [switch $field(15) $NHL]
+		    set result(Sharpness) [switch $field(15) $NHL]
                     set result(ISO) [switch $field(16) {
                         15 {format Auto}
                         16 {format 50}
@@ -453,59 +453,68 @@ proc exif::makerNote {data curoffset} {
                         3 {format center}
                         4 {format left}
                         default {format unknown}
-                    }]
-                    if {$field(20) == 0} {
-                        set result(ExposureMode) [switch $field(11) {
-                            0 {format auto}
-                            1 {format manual}
-                            2 {format landscape}
-                            3 {format "fast shutter"}
-                            4 {format "slow shutter"}
-                            5 {format "night scene"}
-                            6 {format "black and white"}
-                            7 {format sepia}
-                            8 {format portrait}
-                            9 {format sports}
-                            10 {format close-up}
-                            11 {format "pan focus"}
-                            default {format unknown}
-                        }]
-                    } elseif {$field(20) == 1} {
-                        set result(ExposureMode) program
-                    } elseif {$field(20) == 2} {
-                        set result(ExposureMode) Tv
-                    } elseif {$field(20) == 3} {
-                        set result(ExposureMode) Av
-                    } elseif {$field(20) == 4} {
-                        set result(ExposureMode) manual
-                    } elseif {$field(20) == 5} {
-                        set result(ExposureMode) A-DEP
-                    } else {
-                        set result(ExposureMode) unknown
-                    }
+                    }] ; # {}
+		    if {[info exists field(20)]} {
+			if {$field(20) == 0} {
+			    set result(ExposureMode) [switch $field(11) {
+				0 {format auto}
+				1 {format manual}
+				2 {format landscape}
+				3 {format "fast shutter"}
+				4 {format "slow shutter"}
+				5 {format "night scene"}
+				6 {format "black and white"}
+				7 {format sepia}
+				8 {format portrait}
+				9 {format sports}
+				10 {format close-up}
+				11 {format "pan focus"}
+				default {format unknown}
+			    }] ; # {}
+			} elseif {$field(20) == 1} {
+			    set result(ExposureMode) program
+			} elseif {$field(20) == 2} {
+			    set result(ExposureMode) Tv
+			} elseif {$field(20) == 3} {
+			    set result(ExposureMode) Av
+			} elseif {$field(20) == 4} {
+			    set result(ExposureMode) manual
+			} elseif {$field(20) == 5} {
+			    set result(ExposureMode) A-DEP
+			} else {
+			    set result(ExposureMode) unknown
+			}
+		    }
                     # Field 21 and 22 are unknown
                     # Field 23: max focal len, 24 min focal len, 25 units per mm
-                    set result(MaxFocalLength) \
-                        "[expr {1.0 * $field(23) / $field(25)}] mm"
-                    set result(MinFocalLength) \
-                        "[expr {1.0 * $field(24) / $field(25)}] mm"
+		    if {[info exists field(23)] && [info exists field(25)]} {
+			set result(MaxFocalLength) \
+				"[expr {1.0 * $field(23) / $field(25)}] mm"
+		    }
+                    if {[info exists field(24)] && [info exists field(25)]} {
+			set result(MinFocalLength) \
+				"[expr {1.0 * $field(24) / $field(25)}] mm"
+		    }
                     # Field 26-28 are unknown.
-                    if {$field(29) & 0x0010} {
-                        append result(FlashMode) "FP_sync_enabled "
-                    }
-                    if {$field(29) & 0x0800} {
-                        append result(FlashMode) "FP_sync_used "
-                    }
-                    if {$field(29) & 0x2000} {
-                        append result(FlashMode) "internal_flash"
-                    }
-                    if {$field(29) & 0x4000} {
-                        append result(FlashMode) "external_E-TTL"
-                    }
+		    if {[info exists field(29)]} {
+			if {$field(29) & 0x0010} {
+			    append result(FlashMode) "FP_sync_enabled "
+			}
+			if {$field(29) & 0x0800} {
+			    append result(FlashMode) "FP_sync_used "
+			}
+			if {$field(29) & 0x2000} {
+			    append result(FlashMode) "internal_flash"
+			}
+			if {$field(29) & 0x4000} {
+			    append result(FlashMode) "external_E-TTL"
+			}
+		    }
                     if {[info exists result(FlashMode)]} {
                         set result(FlashMode) [string trim $result(FlashMode)]
                     }
-                    if {[regexp -nocase pro90 $cameraModel]} {
+                    if {[info exists field(34)] \
+			    [regexp -nocase pro90 $cameraModel]} {
                         if {$field(34)} {
                             set result(ImageStabilisation) on
                         } else {
@@ -536,11 +545,15 @@ proc exif::makerNote {data curoffset} {
                             append result(AFPointsUsed) " right"
                         }
                     }
-                    set v $field(15)
-                    if {32768 < $v} {incr v -65536}
-                    set v [compensationFraction [expr {$v / 32.0}]]
-                    set result(FlashExposureCompensation) $v
-                    set result(SubjectDistance) "$field(19) m"
+		    if {[info exists field(15)]} {
+			set v $field(15)
+			if {32768 < $v} {incr v -65536}
+			set v [compensationFraction [expr {$v / 32.0}]]
+			set result(FlashExposureCompensation) $v
+		    }
+		    if {[info exists field(19)]} {
+			set result(SubjectDistance) "$field(19) m"
+		    }
                 } elseif {$tag == 15} {
                     foreach k [array names field] {
                         set func [expr {($field($k) >> 8) & 0xFF}]
