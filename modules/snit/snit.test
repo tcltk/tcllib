@@ -5361,6 +5361,70 @@ test cgetcache-1.2 {Component rename invalidates cache} {
 } {bar}
 
 
+#-----------------------------------------------------------------------
+# Configure cache
+
+test configurecache-1.1 {Instance rename invalidates cache} {
+    cleanup
+
+    type dog {
+        option -foo -default bar -configuremethod setfoo
+
+        method setfoo {option value} {
+            $self setoption $option $value
+        }
+
+        method setoption {option value} {
+            set options($option) $value
+        }
+    }
+
+    # Set the option on creation; this will cache the 
+    # configure command.
+    dog fido -foo quux
+
+    rename fido spot
+    
+    spot configure -foo baz
+    spot cget -foo
+} {baz}
+
+test configurecache-1.2 {Component rename invalidates cache} {
+    cleanup
+
+    puts "Begin configurecache-1.2"
+
+    type tail {
+        option -foo bar
+    }
+
+    type dog {
+        delegate option -foo to tail
+
+        constructor {args} {
+            set tail [tail thistail]
+            $self configurelist $args
+        }
+
+        method retail {} {
+            # Give it a new component
+            set tail [tail thattail]
+        }
+    }
+
+    # Set the tail's -foo, and cache the command.
+    dog fido -foo quux
+
+    # Invalidate the cache
+    fido retail
+
+    # Should recache, and set the new tail's option.
+    fido configure -foo baz
+
+    fido cget -foo
+} {baz}
+
+
 #---------------------------------------------------------------------
 # Clean up
 
