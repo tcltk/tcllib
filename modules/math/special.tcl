@@ -13,6 +13,7 @@ namespace eval ::math::special {
    # Define a number of common mathematical constants
    #
    ::math::constants::constants pi
+   variable halfpi [expr {$pi/2.0}]
 
    #
    # Functions defined in other math submodules
@@ -22,7 +23,7 @@ namespace eval ::math::special {
    #
    # Export the various functions
    #
-   namespace export Beta Gamma erf erfc
+   namespace export Beta Gamma erf erfc fresnel_C fresnel_S
 }
 
 # Gamma --
@@ -78,6 +79,75 @@ proc ::math::special::erfc {x} {
    } else {
       return 1.0
    }
+}
+
+# ComputeFG --
+#    Compute the auxiliary functions f and g
+#
+# Arguments:
+#    x            Parameter of the integral (x>=0)
+# Result:
+#    Approximate values for f and g
+# Note:
+#    See Abramowitz and Stegun. The accuracy is 2.0e-3.
+#
+proc ::math::special::ComputeFG {x} {
+   list [expr {(1.0+0.926*$x)/(2.0+1.792*$x+3.104*$x*$x)}] \
+        [expr {1.0/(2.0+4.142*$x+3.492*$x*$x+6.670*$x*$x*$x)}]
+}
+
+# fresnel_C --
+#    Compute the Fresnel cosine integral
+#
+# Arguments:
+#    x            Parameter of the integral (x>=0)
+# Result:
+#    Value of C(x) = integral from 0 to x of cos(0.5*pi*x^2)
+# Note:
+#    This relies on a rational approximation of the two auxiliary functions f and g
+#
+proc ::math::special::fresnel_C {x} {
+   variable halfpi
+   if { $x < 0.0 } {
+      error "Domain error: x must be non-negative"
+   }
+
+   if { $x == 0.0 } {
+      return 0.0
+   }
+
+   foreach {f g} [ComputeFG $x] {break}
+
+   set xarg [expr {$halfpi*$x*$x}]
+
+   return [expr {0.5+$f*sin($xarg)-$g*cos($xarg)}]
+}
+
+# fresnel_S --
+#    Compute the Fresnel sine integral
+#
+# Arguments:
+#    x            Parameter of the integral (x>=0)
+# Result:
+#    Value of S(x) = integral from 0 to x of sin(0.5*pi*x^2)
+# Note:
+#    This relies on a rational approximation of the two auxiliary functions f and g
+#
+proc ::math::special::fresnel_S {x} {
+   variable halfpi
+   if { $x < 0.0 } {
+      error "Domain error: x must be non-negative"
+   }
+
+   if { $x == 0.0 } {
+      return 0.0
+   }
+
+   foreach {f g} [ComputeFG $x] {break}
+
+   set xarg [expr {$halfpi*$x*$x}]
+
+   return [expr {0.5-$f*cos($xarg)-$g*sin($xarg)}]
 }
 
 # Bessel functions and elliptic integrals --
