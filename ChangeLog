@@ -1,3 +1,11 @@
+2003-07-04  Miguel Sofer <msofer@users.sf.net>
+
+	* modules/ftpd.man:
+	* modules/ftpd.tcl (::ftpd::server): the variable ::ftpd::port is
+	now updated to reflect the port were the server was opened. This
+	is only relevant when a server was requested at port 0 - ie, at a
+	port determined by the OS.	
+
 2003-05-26  Andreas Kupries  <andreask@activestate.com>
 
 	* sak.tcl: Updated rpm spec generator using the latest .spec by
