@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.2 2000/04/24 23:27:27 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.3 2000/04/25 06:23:22 welch Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -11,98 +11,99 @@
 .SH NAME
 ::html \- Procedures to generate HTML structures.
 .SH SYNOPSIS
-.sp
-\fBhtml::reset\fR \fI{nvlist {}}\fR
-.sp
-\fBhtml::head\fR \fItitle\fR
-.sp
-\fBhtml::title\fR \fItitle\fR
-.sp
-\fBhtml::getTitle\fR \fI\fR
-.sp
-\fBhtml::meta\fR \fIargs\fR
-.sp
-\fBhtml::keywords\fR \fIargs\fR
-.sp
-\fBhtml::description\fR \fIdescription\fR
+.BS
 .sp
 \fBhtml::author\fR \fIauthor\fR
 .sp
-\fBhtml::default\fR \fIkey {params {}}\fR
-.sp
 \fBhtml::bodyTag\fR \fIargs\fR
-.sp
-\fBhtml::formValue\fR \fIname {defvalue {}}\fR
-.sp
-\fBhtml::quoteFormValue\fR \fIvalue\fR
-.sp
-\fBhtml::textInput\fR \fIname {value {}}\fR
-.sp
-\fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
-.sp
-\fBhtml::passwordInput\fR \fI{name password}\fR
-.sp
-\fBhtml::checkbox\fR \fIname value\fR
-.sp
-\fBhtml::checkValue\fR \fIname {value 1}\fR
-.sp
-\fBhtml::radioValue\fR \fIname value\fR
-.sp
-\fBhtml::radioSet\fR \fIkey sep list\fR
-.sp
-\fBhtml::checkSet\fR \fIkey sep list\fR
-.sp
-\fBhtml::select\fR \fIname param choices {current {}}\fR
-.sp
-\fBhtml::selectPlain\fR \fIname param choices {current {}}\fR
-.sp
-\fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
-.sp
-\fBhtml::submit\fR \fIlabel {name submit}\fR
-.sp
-\fBhtml::varEmpty\fR \fIname\fR
-.sp
-\fBhtml::getFormInfo\fR \fIargs\fR
-.sp
-\fBhtml::h1\fR \fIstring {params {}}\fR
-.sp
-\fBhtml::h2\fR \fIstring {params {}}\fR
-.sp
-\fBhtml::h3\fR \fIstring {params {}}\fR
-.sp
-\fBhtml::h4\fR \fIstring {params {}}\fR
-.sp
-\fBhtml::h5\fR \fIstring {params {}}\fR
-.sp
-\fBhtml::h6\fR \fIstring {params {}}\fR
-.sp
-\fBhtml::h\fR \fIlevel string {params {}}\fR
-.sp
-\fBhtml::openTag\fR \fItag args\fR
-.sp
-\fBhtml::closeTag\fR \fI\fR
-.sp
-\fBhtml::end\fR \fI\fR
-.sp
-\fBhtml::row\fR \fIargs\fR
-.sp
-\fBhtml::hdrRow\fR \fIargs\fR
 .sp
 \fBhtml::cell\fR \fIparam value {tag td}\fR
 .sp
-\fBhtml::tableFromArray\fR \fIarrname {param {}} {pat *}\fR
+\fBhtml::checkbox\fR \fIname value\fR
 .sp
-\fBhtml::tableFromList\fR \fIquerylist {param {}}\fR
+\fBhtml::checkSet\fR \fIkey sep list\fR
 .sp
-\fBhtml::mailto\fR \fIemail {subject {}}\fR
+\fBhtml::checkValue\fR \fIname {value 1}\fR
+.sp
+\fBhtml::closeTag\fR \fI\fR
+.sp
+\fBhtml::default\fR \fIkey {param {}}\fR
+.sp
+\fBhtml::description\fR \fIdescription\fR
+.sp
+\fBhtml::end\fR \fI\fR
+.sp
+\fBhtml::extractParam\fR \fIparam key {val ""}\fR
 .sp
 \fBhtml::font\fR \fIargs\fR
 .sp
 \fBhtml::formatCode\fR \fIcode\fR
 .sp
+\fBhtml::formValue\fR \fIname {defvalue {}}\fR
+.sp
+\fBhtml::getFormInfo\fR \fIargs\fR
+.sp
+\fBhtml::getTitle\fR \fI\fR
+.sp
+\fBhtml::h\fR \fIlevel string {param {}}\fR
+.sp
+\fBhtml::h1\fR \fIstring {param {}}\fR
+.sp
+\fBhtml::h2\fR \fIstring {param {}}\fR
+.sp
+\fBhtml::h3\fR \fIstring {param {}}\fR
+.sp
+\fBhtml::h4\fR \fIstring {param {}}\fR
+.sp
+\fBhtml::h5\fR \fIstring {param {}}\fR
+.sp
+\fBhtml::h6\fR \fIstring {param {}}\fR
+.sp
+\fBhtml::hdrRow\fR \fIargs\fR
+.sp
+\fBhtml::head\fR \fItitle\fR
+.sp
+\fBhtml::keywords\fR \fIargs\fR
+.sp
+\fBhtml::mailto\fR \fIemail {subject {}}\fR
+.sp
+\fBhtml::meta\fR \fIargs\fR
+.sp
 \fBhtml::minorMenu\fR \fIlist {sep { | }}\fR
 .sp
-\fBhtml::extractParam\fR \fIparam key {val ""}\fR
+\fBhtml::openTag\fR \fItag args\fR
+.sp
+\fBhtml::passwordInput\fR \fI{name password}\fR
+.sp
+\fBhtml::quoteFormValue\fR \fIvalue\fR
+.sp
+\fBhtml::radioSet\fR \fIkey sep list\fR
+.sp
+\fBhtml::radioValue\fR \fIname value\fR
+.sp
+\fBhtml::init\fR \fI{nvlist {}}\fR
+.sp
+\fBhtml::row\fR \fIargs\fR
+.sp
+\fBhtml::select\fR \fIname param choices {current {}}\fR
+.sp
+\fBhtml::selectPlain\fR \fIname param choices {current {}}\fR
+.sp
+\fBhtml::submit\fR \fIlabel {name submit}\fR
+.sp
+\fBhtml::tableFromArray\fR \fIarrname {param {}} {pat *}\fR
+.sp
+\fBhtml::tableFromList\fR \fIquerylist {param {}}\fR
+.sp
+\fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
+.sp
+\fBhtml::textInput\fR \fIname {value {}}\fR
+.sp
+\fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
+.sp
+\fBhtml::title\fR \fItitle\fR
+.sp
+\fBhtml::varEmpty\fR \fIname\fR
 .BE
 .SH DESCRIPTION
 .PP
@@ -110,134 +111,284 @@ The \fB::html\fR package provides commands that generate HTML.
 These commands typically return an HTML string as their result.
 In particular, they do not output their result to \fBstdout\fR.
 .PP
-THe \fBhtml::reset\fP procedure should be called early to initialize
+The \fBhtml::init\fP procedure should be called early to initialize
 the module.  You can also use this procedure to define default values
 for HTML tag parameters.
-.IP
+.TP
 \fBhtml::author\fR \fIauthor\fR
-<i>Side effect only</i>.  Call this before \fBhtml::head\fR to define an
+\fISide effect only\fP.  Call this before \fBhtml::head\fR to define an
 author for the page.  The author is noted in a comment in the
 HEAD section.
 
-.IP
+.TP
 \fBhtml::bodyTag\fR \fIargs\fR
-Generate a <BODY> tag.
-The tag parameters are taken from \fIargs\P or from the
-body.* attributes define with \fBhtml::reset\fR
+Generate a BODY tag.
+The tag parameters are taken from \fIargs\fP or from the
+body.* attributes define with \fBhtml::init\fR
 
-.IP
+.TP
 \fBhtml::cell\fR \fIparam value {tag td}\fR
 Generate a TD (or TH) tag, a value, and a closing TD (or TH) tag.
 The tag parameters come from \fIparam\fP or TD.* attributes
-defined with \fBhtml::reset\fR.
+defined with \fBhtml::init\fR.
+This uses \fBhtml::font\fP to insert a standard FONT tag
+into the table cell.
 
-.IP
+.TP
 \fBhtml::checkbox\fR \fIname value\fR
 Generate a CHECKBOX form element with the specifed name and value.
 This uses \fBhtml::checkValue\fR.
 
-.IP
+.TP
 \fBhtml::checkSet\fR \fIkey sep list\fR
 Generate a set of CHECKBOX form elements and associated labels.
 The \fIlist\fP should contain an alternating list of
-values and labels.
+labels and values.
 This uses \fBhtml::checkbox\fR.
 
-.IP
+.TP
 \fBhtml::checkValue\fR \fIname {value 1}\fR
 Generate the "name=\fIname\fP value=\fIval\fP for a CHECKBOX form element.
 If the CGI variable \fIname\fP has the value \fIval\fP, then
 SELECTED is added to the return value.
 
-.IP
+.TP
 \fBhtml::closeTag\fR \fI\fR
 Pop a tag off the stack created by \fBhtml::openTag\fR
 and generate the corresponding close tag (e.g., /BODY)
 
-.IP
-\fBhtml::default\fR \fIkey {params {}}\fR
-.IP
-\fBhtml::description\fR \fIdescription\fR
-.IP
-\fBhtml::end\fR \fI\fR
-.IP
-\fBhtml::extractParam\fR \fIparam key {val ""}\fR
-.IP
-\fBhtml::font\fR \fIargs\fR
-.IP
-\fBhtml::formatCode\fR \fIcode\fR
-.IP
-\fBhtml::formValue\fR \fIname {defvalue {}}\fR
-.IP
-\fBhtml::getFormInfo\fR \fIargs\fR
-.IP
-\fBhtml::getTitle\fR \fI\fR
-.IP
-\fBhtml::h\fR \fIlevel string {params {}}\fR
-.IP
-\fBhtml::h1\fR \fIstring {params {}}\fR
-.IP
-\fBhtml::h2\fR \fIstring {params {}}\fR
-.IP
-\fBhtml::h3\fR \fIstring {params {}}\fR
-.IP
-\fBhtml::h4\fR \fIstring {params {}}\fR
-.IP
-\fBhtml::h5\fR \fIstring {params {}}\fR
-.IP
-\fBhtml::h6\fR \fIstring {params {}}\fR
-.IP
-\fBhtml::hdrRow\fR \fIargs\fR
-.IP
-\fBhtml::head\fR \fItitle\fR
-.IP
-\fBhtml::keywords\fR \fIargs\fR
-.IP
-\fBhtml::mailto\fR \fIemail {subject {}}\fR
-.IP
-\fBhtml::meta\fR \fIargs\fR
-.IP
-\fBhtml::minorMenu\fR \fIlist {sep { | }}\fR
-.IP
-\fBhtml::openTag\fR \fItag args\fR
-.IP
-\fBhtml::passwordInput\fR \fI{name password}\fR
-.IP
-\fBhtml::quoteFormValue\fR \fIvalue\fR
-.IP
-\fBhtml::radioSet\fR \fIkey sep list\fR
-.IP
-\fBhtml::radioValue\fR \fIname value\fR
-.IP
+.TP
+\fBhtml::default\fR \fIkey {param {}}\fR
+This procedure is used by 
+\fBhtml::tagParam\fP
+to generate the name, value list of parameters for a tag.
+The \fBhtml::default\fR procedure is used to generate default
+values for those items not already in \fIparam\fP.
+If the value identified by \fIkey\fP matches a value in \fIparam\fP
+then this procedure returns the empty string.
+Otherwise, it returns
+a \fIparameter=value\fR string for a form element identified by
+\fIkey\fP.
+The \fIkey\fP has the form \fItag.parameter\fR
+(e.g., body.bgcolor).
+Use \fBhtml::init\fP to register default values.  
 
-\fBhtml::reset\fR \fI{nvlist {}}\fR
-\fBhtml::reset\fP accepts a name-value list that defines
-values for items with a name of the form <i>tag</i>.<i>parameter</i>.
+.TP
+\fBhtml::description\fR \fIdescription\fR
+\fISide effect only\fP.  Call this before \fBhtml::head\fR to define a
+description META tag for the page.
+This tag is generated later in the call to \fBhtml::head\fR.
+
+.TP
+\fBhtml::end\fR \fI\fR
+Pop all open tags from the stack and generate the corresponding
+close HTML tags, (e.g., </body></html>).
+
+.TP
+\fBhtml::extractParam\fR \fIparam key {varName ""}\fR
+This is a parsing procedure that extracts the value of \fIkey\fP
+from \fIparam\fP,
+which is a HTML-style \fIname=quotedvalue\fP list.
+\fIvarName\fP is used as the name of a Tcl variable that is
+changed to have the value found in the parameters.
+The function returns 1 if the parameter was found in \fIparam\fP,
+otherwise it returns 0.
+If the \fIvarName\fP is not specified, then \fIkey\fP is
+used as the variable name.
+
+.TP
+\fBhtml::font\fR \fIargs\fR
+Generate a standard FONT tag.
+The parameters to the tag are taken from \fIargs\fP
+and the HTML defaults defined with \fBhtml::init\fP.
+
+.TP
+\fBhtml::formValue\fR \fIname {defvalue {}}\fR
+Return a name and value pair, where the value is initialized
+from existing CGI data, if any.
+The result has this form:
+.DS
+name="fred" value="freds value"
+.DE
+
+.TP
+\fBhtml::getFormInfo\fR \fIargs\fR
+Generate hidden fields to capture form values.
+If \fIargs\fP is empty, then hidden fields are generated
+for all CGI values.
+Otherwise args is a list of string match patterns for
+form element names.
+
+.TP
+\fBhtml::getTitle\fR \fI\fR
+Return the title string, with out the surrounding TITLE tag,
+set with a previous call to \fBhtml::title\fP.
+
+.TP
+\fBhtml::h\fR \fIlevel string {param {}}\fR
+Generate a heading (e.g., H1) tag.
+The \fIstring\fP is nested in the heading, and
+\fIparam\fP is used for the tag parameters.
+.TP
+\fBhtml::h1\fR \fIstring {param {}}\fR
+Generate an H1 tag.  See \fBhtml::h\fR
+.TP
+\fBhtml::h2\fR \fIstring {param {}}\fR
+Generate an H2 tag.  See \fBhtml::h\fR
+.TP
+\fBhtml::h3\fR \fIstring {param {}}\fR
+Generate an H3 tag.  See \fBhtml::h\fR
+.TP
+\fBhtml::h4\fR \fIstring {param {}}\fR
+Generate an H4 tag.  See \fBhtml::h\fR
+.TP
+\fBhtml::h5\fR \fIstring {param {}}\fR
+Generate an H5 tag.  See \fBhtml::h\fR
+.TP
+\fBhtml::h6\fR \fIstring {param {}}\fR
+Generate an H6 tag.  See \fBhtml::h\fR
+
+.TP
+\fBhtml::hdrRow\fR \fIargs\fR
+Generate a table row, including TR and TH tags.
+Each value in \fIargs\fP is place into its own table cell.
+This uses \fIhtml::cell\fP.
+
+.TP
+\fBhtml::head\fR \fItitle\fR
+Generate the HEAD section that includes the page TITLE.
+If previous calls have been made to
+\fBhtml::author\fP, 
+\fBhtml::keywords\fP, 
+\fBhtml::description\fP, 
+of
+\fBhtml::meta\fP
+then additional tags are inserted into the HEAD section.
+This leaves an open HTML tag pushed on the stack with
+\fBopenTag\fP.
+
+.TP
+\fBhtml::keywords\fR \fIargs\fR
+\fISide effect only\fP.  Call this before \fBhtml::head\fR to define a
+keyword META tag for the page.
+The META tag is included in the result of \fBhtml::head\fP.
+
+.TP
+\fBhtml::mailto\fR \fIemail {subject {}}\fR
+Generate a hypertext link to a mailto: URL.
+
+.TP
+\fBhtml::meta\fR \fIargs\fR
+\fISide effect only\fP.  Call this before \fBhtml::head\fR to define a
+META tag for the page.
+The \fIargs\fP is a Tcl-style name, value list that is used
+for the name= and value= parameters for the META tag.
+The META tag is included in the result of \fBhtml::head\fP.
+
+.TP
+\fBhtml::minorMenu\fR \fIlist {sep { | }}\fR
+Generate a series of hypertext links.
+The \fIlist\fP is a Tcl-style name, value list of
+labels and urls for the links.
+The \fIsep\fP is the text to put between each link.
+
+
+.TP
+\fBhtml::openTag\fR \fItag args\fR
+Push \fItag\fP onto a stack and generate the opening tag
+for \fItag\fP.  Use \fBhtml::closeTag\fP to pop the tag
+from the stack.
+
+.TP
+\fBhtml::passwordInput\fR \fI{name password}\fR
+Generate an INPUT tag of type PASSWORD.
+
+.TP
+\fBhtml::quoteFormValue\fR \fIvalue\fR
+Quote special characters in \fIvalue\fP by replacing them
+with HTML entities for quotes, ampersand, and angle brackets.
+
+.TP
+\fBhtml::radioSet\fR \fIkey sep list\fR
+Generate a set of INPUT tags of type RADIO and an associated text label.
+All the radio buttons
+share the same \fIkey\fP for their name.
+The \fIsep\fP is text used to separate the elements.
+The \fIlist\fP is a Tcl-style label, value list.
+
+.TP
+\fBhtml::radioValue\fR \fIname value\fR
+Generate the "name=\fIname\fP value=\fIval\fP for a RADIO form element.
+If the CGI variable \fIname\fP has the value \fIval\fP, then
+SELECTED is added to the return value.
+
+.TP
+\fBhtml::init\fR \fI{list {}}\fR
+\fBhtml::init\fP accepts a Tcl-style name-value list that defines
+values for items with a name of the form \fItag\fP.\fIparameter\fP.
 For example, a default with key \fBbody.bgcolor\fP defines
 the background color for the BODY tag.
 
-.IP
+.TP
 \fBhtml::row\fR \fIargs\fR
-.IP
+Generate a table row, including TR and TD tags.
+Each value in \fIargs\fP is place into its own table cell.
+This uses \fIhtml::cell\fP.
+.TP
 \fBhtml::select\fR \fIname param choices {current {}}\fR
-.IP
+Generate a SELECT form element and nested OPTION tags.
+The \fIname\fP and \fIparam\fP are used to generate the
+SELECT tag.  The \fIchoice\fP list is a Tcl-style 
+name, value
+list.
+
+.TP
 \fBhtml::selectPlain\fR \fIname param choices {current {}}\fR
-.IP
+Like \fBhtml::select\fP except that \fIchoices\fP is a Tcl list
+of values used for the OPTION tags.  The label and the value for
+each OPTION are the same.
+.TP
 \fBhtml::submit\fR \fIlabel {name submit}\fR
-.IP
+Generate an INPUT tag of type SUBMIT.
+
+.TP
 \fBhtml::tableFromArray\fR \fIarrname {param {}} {pat *}\fR
-.IP
+Generate a TABLE and nested rows to display a Tcl array.
+The \fIparam\fP are for the TABLE tag.
+The \fIpat\fP is a string match pattern used to select
+array elements.
+
+.TP
 \fBhtml::tableFromList\fR \fIquerylist {param {}}\fR
-.IP
+Generate a TABLE and nested rows to display \fIquerylist\fP,
+which is a Tcl-style name, value list.
+The \fIparam\fP are for the TABLE tag.
+
+.TP
 \fBhtml::textarea\fR \fIname {param {}} {current {}}\fR
-.IP
+Generate a TEXTAREA tag wrapped around its current values.
+
+.TP
 \fBhtml::textInput\fR \fIname {value {}}\fR
-.IP
+Generate an INPUT form tag with type TEXT.
+This uses
+\fBhtml::formValue\fP.
+
+.TP
 \fBhtml::textInputRow\fR \fIlabel name {value {}}\fR
-.IP
+Generate an INPUT form tag with type TEXT formatted into
+a table row with an associated label.
+
+.TP
 \fBhtml::title\fR \fItitle\fR
-.IP
+\fISide effect only\fP.  Call this before \fBhtml::head\fR to define 
+the TITLE for a page.
+
+.TP
 \fBhtml::varEmpty\fR \fIname\fR
+This returns 1 if the named variable either does not exist or
+has the emptry string for its value.
+
 .SH SEE ALSO
 ncgi
 

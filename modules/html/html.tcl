@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.tcl,v 1.5 2000/04/24 23:27:27 welch Exp $
+# RCS: @(#) $Id: html.tcl,v 1.6 2000/04/25 06:23:22 welch Exp $
 
 package provide html 1.0
 
@@ -41,7 +41,7 @@ namespace eval html:: {
     namespace export *
 }
 
-# html::reset
+# html::init
 #
 #	Reset state that gets accumulated for the current page.
 #
@@ -52,7 +52,7 @@ namespace eval html:: {
 # Side Effects:
 #	Wipes the page state array
 
-proc html::reset {{nvlist {}}} {
+proc html::init {{nvlist {}}} {
     variable page
     variable defaults
     if {[info exist page]} {
@@ -78,7 +78,7 @@ proc html::reset {{nvlist {}}} {
 
 proc html::head {title} {
     variable page
-    set html "<html><head>\n"
+    set html "[openTag html][openTag head]\n"
     append html "\t[html::title $title]"
     if {[info exist page(author)]} {
 	append html "\t$page(author)"
@@ -88,7 +88,7 @@ proc html::head {title} {
 	    append html "\t$line\n"
 	}
     }
-    append html "</head>\n"
+    append html "[closeTag]\n"
 }
 
 # html::title
@@ -195,6 +195,30 @@ proc html::author {author} {
     return ""
 }
 
+# html::tagParam
+#
+#	Return a name, value string for the tag parameters.
+#	The values come from "hard-wired" values in the 
+#	param agrument, or from the defaults set with html::init.
+#
+# Arguments:
+#	tag	Name of the HTML tag (case insensitive).
+#	param	pname=value info that overrides any default values
+#
+# Results
+#	A string of the form:
+#		pname="keyvalue" name2="2nd value"
+
+proc html::tagParam {tag {param {}}} {
+    variable defaults
+
+    set def ""
+    foreach key [lsort [array names defaults $tag.*]] {
+	append def [html::default $key $param]
+    }
+    return [string trimleft $param$def]
+}
+
 # html::default
 #
 #	Return a default value, if one has been registered
@@ -202,18 +226,19 @@ proc html::author {author} {
 #	tag parameters.
 #
 # Arguments:
-#	key	Index into the defaults array defined by html::reset
+#	key	Index into the defaults array defined by html::init
 #		This is expected to be in the form tag.pname where
 #		the pname part is used in the tag parameter name
-#	params	pname=value info that overrides any default values
+#	param	pname=value info that overrides any default values
 #
 # Results
 #	pname="keyvalue"
 
-proc html::default {key {params {}}} {
+proc html::default {key {param {}}} {
     variable defaults
-    set pname [lindex [split $key .] 1]
-    if {![regexp "(\[ 	\]|^)$pname=" $params] &&
+    set pname [string tolower [lindex [split $key .] 1]]
+    set key [string tolower $key]
+    if {![regexp -nocase "(\[ 	\]|^)$pname=" $param] &&
 	    [info exist defaults($key)] &&
 	    [string length $defaults($key)]} {
 	return " $pname=\"$defaults($key)\""
@@ -233,19 +258,14 @@ proc html::default {key {params {}}} {
 #	A body tag
 
 proc html::bodyTag {args} {
-    variable default
-    append html "<body"
-    append html [html::default body.bgcolor $args]
-    append html [html::default body.text $args]
-    append html "[string trimright " $args"]>\n"
-    return $html
+    return [openTag body [join $args]]\n
 }
 
 # The following procedures are all related to generating form elements
 # that are initialized to store the current value of the form element
 # based on the CGI state.  These functions depend on the ncgi::value
 # procedure and assume that the caller has called ncgi::parse and/or
-# ncgi::reset appropriately to initialize the ncgi module.
+# ncgi::init appropriately to initialize the ncgi module.
 
 # html::formValue
 #
@@ -302,7 +322,7 @@ proc html::quoteFormValue {value} {
 
 proc html::textInput {name {value {}}} {
     variable defaults
-    set html "<input type=text [html::formValue $name $value]"
+    set html "<input type=\"text\" [html::formValue $name $value]"
     append html [html::default input.size]
     append html ">\n"
     return $html
@@ -335,7 +355,7 @@ proc html::textInputRow {label name {value {}}} {
 #	The html fragment
 
 proc html::passwordInput {{name password}} {
-    set html "<input type=password name=\"$name\">\n"
+    set html "<input type=\"password\" name=\"$name\">\n"
     return $html
 }
 
@@ -352,7 +372,7 @@ proc html::passwordInput {{name password}} {
 #	The html fragment
 
 proc html::checkbox {name value} {
-    set html "<input type=checkbox [checkValue $name $value]>\n"
+    set html "<input type=\"checkbox\" [checkValue $name $value]>\n"
 }
 
 # html::checkValue
@@ -407,8 +427,8 @@ proc html::radioValue {name value} {
 proc html::radioSet {key sep list} {
     set html ""
     set s ""
-    foreach {v label} $list {
-	append html "$s<input type=radio [radioValue $key $v]> $label"
+    foreach {label v} $list {
+	append html "$s<input type=\"radio\" [radioValue $key $v]> $label"
 	set s $sep
     }
     return $html
@@ -421,8 +441,8 @@ proc html::radioSet {key sep list} {
 
 proc html::checkSet {key sep list} {
     set s ""
-    foreach {v label} $list {
-	append html "$s<input type=checkbox [checkValue $key $v]> $label"
+    foreach {label v} $list {
+	append html "$s<input type=\"checkbox\" [checkValue $key $v]> $label"
 	set s $sep
     }
     return $html
@@ -447,7 +467,7 @@ proc html::select {name param choices {current {}}} {
 
     set def [ncgi::value $name $current]
     set html "<select name=\"$name\"[string trimright  " $param"]>\n"
-    foreach {v label} $choices {
+    foreach {label v} $choices {
 	if {[string equal $def $v]} {
 	    set SEL " SELECTED"
 	} else {
@@ -495,8 +515,9 @@ proc html::selectPlain {name param choices {current {}}} {
 
 proc html::textarea {name {param {}} {current {}}} {
     set value [ncgi::value $name $current]
-    set html "<textarea name=\"$name\"[string trimright " $param"]>$value</textarea>\n"
-    return $html
+    return "<[string trimright \
+	"textarea name=\"$name\"\
+		[tagParam textarea $param]"]>$value</textarea>\n"
 }
 
 # html::submit --
@@ -512,7 +533,7 @@ proc html::textarea {name {param {}} {current {}}} {
 
 
 proc html::submit {label {name submit}} {
-    set html "<input type=submit name=\"$name\" value=\"$label\">\n"
+    set html "<input type=\"submit\" name=\"$name\" value=\"$label\">\n"
 }
 
 # html::varEmpty --
@@ -555,7 +576,7 @@ proc html::getFormInfo {args} {
     foreach {n v} [ncgi::nvlist] {
 	foreach pat $args {
 	    if {[string match $pat $n]} {
-		append html "<input type=hidden name=\"$n\" \
+		append html "<input type=\"hidden\" name=\"$n\" \
 				    value=\"[quoteFormValue $v]\">\n"
 	    }
 	}
@@ -568,35 +589,31 @@ proc html::getFormInfo {args} {
 #
 # Arguments:
 #	string
-#	params
+#	param
 #
 # Results:
 #	Formats the tag.
 
-proc html::h1 {string {params {}}} {
-    html::h 1 $string $params
+proc html::h1 {string {param {}}} {
+    html::h 1 $string $param
 }
-proc html::h2 {string {params {}}} {
-    html::h 2 $string $params
+proc html::h2 {string {param {}}} {
+    html::h 2 $string $param
 }
-proc html::h3 {string {params {}}} {
-    html::h 3 $string $params
+proc html::h3 {string {param {}}} {
+    html::h 3 $string $param
 }
-proc html::h4 {string {params {}}} {
-    html::h 4 $string $params
+proc html::h4 {string {param {}}} {
+    html::h 4 $string $param
 }
-proc html::h5 {string {params {}}} {
-    html::h 5 $string $params
+proc html::h5 {string {param {}}} {
+    html::h 5 $string $param
 }
-proc html::h6 {string {params {}}} {
-    html::h 6 $string $params
+proc html::h6 {string {param {}}} {
+    html::h 6 $string $param
 }
-proc html::h {level string {params {}}} {
-    global defaults
-    foreach def [array names defaults h$level.*] {
-	append params [html::default $def $params]
-    }
-    return "<[string trimright "h$level $params"]>$string</h$level>\n"
+proc html::h {level string {param {}}} {
+    return "<[string trimright "h$level [tagParam h$level $param]"]>$string</h$level>\n"
 }
 
 # html::openTag
@@ -605,16 +622,16 @@ proc html::h {level string {params {}}} {
 #
 # Arguments:
 #	tag	The HTML tag name
-#	args	Any parameters for the tag
+#	param	Any parameters for the tag
 #
 # Results:
 #	Formats the tag.  Also keeps it around in a per-page stack
 #	of open tags.
 
-proc html::openTag {tag args} {
+proc html::openTag {tag {param {}}} {
     variable page
     lappend page(stack) $tag
-    return <[string trimright "$tag $args"]>
+    return "<[string trimright "$tag [tagParam $tag $param]"]>"
 }
 
 # html::closeTag
@@ -648,7 +665,7 @@ proc html::end {} {
     variable page
     set html ""
     while {[llength $page(stack)]} {
-	append html [html::closeTag]\n
+	append html [closeTag]\n
     }
     return $html
 }
@@ -787,7 +804,7 @@ proc html::mailto {email {subject {}}} {
 # html::font
 #
 #	Generate a standard <font> tag.  This depends on defaults being
-#	set via html::reset
+#	set via html::init
 #
 # Arguments:
 #	args	Font parameters.  
@@ -797,26 +814,15 @@ proc html::mailto {email {subject {}}} {
 
 proc html::font {args} {
     variable defaults
-    set param [html::default font.face $args][html::default font.size $args][html::default font.color]
-    if {[string length $param$args]} {
-	return <[string trimright "font $param $args"]>
+
+    # e.g., font.face, font.size, font.color
+    set param [tagParam font [join $args]][join $args]
+
+    if {[string length $param]} {
+	return "<[string trimright "font $param"]>"
     } else {
 	return ""
     }
-}
-
-# html::formatCode
-#
-#	Format Tcl code for inclusion in HTML
-#
-# Arguments:
-#	code	The code
-#
-# Results:
-#	HTML
-
-proc html::formatCode {code} {
-    return "<PRE>[quoteFormValue $code]</PRE>"
 }
 
 # html::minorMenu
@@ -857,16 +863,16 @@ proc html::minorMenu {list {sep { | }}} {
 #   param	A parameter list.  It should alredy have been processed to
 #		remove any entity references
 #   key		The parameter name
-#   val		The variable to put the value into (use key as default)
+#   varName	The variable to put the value into (use key as default)
 #
 # Results:
 #	returns "1" if the keyword is found, "0" otherwise
 
-proc html::extractParam {param key {val ""}} {
-    if {$val == ""} {
+proc html::extractParam {param key {varName ""}} {
+    if {$varName == ""} {
 	upvar $key result
     } else {
-	upvar $val result
+	upvar $varName result
     }
     set ws " \t\n\r"
  

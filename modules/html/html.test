@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.3 2000/04/24 23:27:28 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.4 2000/04/25 06:23:22 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -21,15 +21,15 @@ package require html 1.0
 source [file join [file dirname [info script]] ../ncgi/ncgi.tcl]
 package require ncgi
 
-test html-1.1 {html::reset} {
-    html::reset
+test html-1.1 {html::init} {
+    html::init
     list [array exists html::defaults] \
 	[array size html::defaults] \
 	[info exists html::page]
 } {1 0 0}
 
-test html-1.2 {html::reset} {
-    html::reset {
+test html-1.2 {html::init} {
+    html::init {
 	font.face	arial
 	body.bgcolor	white
 	body.text	black
@@ -37,12 +37,12 @@ test html-1.2 {html::reset} {
     lsort [array names html::defaults]
 } {body.bgcolor body.text font.face}
 
-test html-1.3 {html::reset} {
-    catch {html::reset wrong num args}
+test html-1.3 {html::init} {
+    catch {html::init wrong num args}
 } 1
 
-test html-1.4 {html::reset} {
-    catch {html::reset {wrong num args}}
+test html-1.4 {html::init} {
+    catch {html::init {wrong num args}}
 } 1
 
 test html-2.1 {html::head} {
@@ -77,88 +77,96 @@ test html-3.2 {html::title} {
 } "<title>blah blah</title>\n"
 
 test html-4.1 {html::getTitle} {
-    html::reset
+    html::init
     html::getTitle
 } ""
 
 test html-4.2 {html::getTitle} {
-    html::reset
+    html::init
     html::title "blah blah"
     html::getTitle
 } {blah blah}
 
 test html-5.1 {html::meta} {
-    html::reset
+    html::init
     html::meta one two
 } {}
 
 test html-5.2 {html::meta} {
-    html::reset
+    html::init
     html::meta one two
     lindex $html::page(meta) 0
 } {<meta name="one" value="two">}
 
 test html-5.3 {html::meta} {
-    html::reset
+    html::init
     html::meta one {"one val"}
     lindex $html::page(meta) 0
 } {<meta name="one" value="&#34;one val&#34;">}
 
 test html-6.1 {html::keywords} {
-    html::reset
+    html::init
     html::keywords one two
 } {}
 
 test html-6.2 {html::keywords} {
-    html::reset
+    html::init
     html::keywords one two
     lindex $html::page(meta) 0
 } {<meta name="keywords" value="one, two">}
 
 test html-6.3 {html::keywords} {
-    html::reset
+    html::init
     html::keywords one {"one val"} &
     lindex $html::page(meta) 0
 } {<meta name="keywords" value="one, &#34;one val&#34;, &amp;">}
 
 test html-7.1 {html::description} {
-    html::reset
+    html::init
     html::description "This is the description."
 } {}
 
 test html-7.2 {html::description} {
-    html::reset
+    html::init
     html::description "This is the description."
     lindex $html::page(meta) 0
 } {<meta name="description" value="This is the description.">}
 
 test html-7.3 {html::description} {
-    html::reset
+    html::init
     html::description {one "one val" &}
     lindex $html::page(meta) 0
 } {<meta name="description" value="one &#34;one val&#34; &amp;">}
 
 test html-8.1 {html::author} {
-    html::reset
+    html::init
     html::author "This is the author."
 } {}
 
 test html-8.2 {html::author} {
-    html::reset
+    html::init
     html::author "This is the author."
     set html::page(author)
 } {<!-- This is the author. -->
 }
 
 test html-8.3 {html::author} {
-    html::reset
+    html::init
     html::author {one "one val" &}
     set html::page(author)
 } {<!-- one "one val" & -->
 }
 
+test html-2.1 {html::tagParams} {
+    html::init {
+	body.bgcolor	red
+	font.face	times
+    }
+    html::tagParam font color="red"
+} {color="red" face="times"}
+
 test html-9.1 {html::default} {
-    html::reset {
+    html::init {
 	body.bgcolor	red
 	font.face	times
     }
@@ -166,7 +174,7 @@ test html-9.1 {html::default} {
 } {}
 
 test html-9.2 {html::default} {
-    html::reset {
+    html::init {
 	body.bgcolor	red
 	font.face	times
     }
@@ -174,7 +182,7 @@ test html-9.2 {html::default} {
 } { bgcolor="red"}
 
 test html-9.3 {html::default} {
-    html::reset {
+    html::init {
 	body.bgcolor	red
 	font.face	times
     }
@@ -182,7 +190,7 @@ test html-9.3 {html::default} {
 } {}
 
 test html-9.4 {html::default} {
-    html::reset {
+    html::init {
 	body.bgcolor	red
 	font.face	times
     }
@@ -190,13 +198,13 @@ test html-9.4 {html::default} {
 } { face="times"}
 
 test html-10.1 {html::bodyTag} {
-    html::reset
+    html::init
     html::bodyTag
 } {<body>
 }
 
 test html-10.2 {html::bodyTag} {
-    html::reset {
+    html::init {
 	body.bgcolor	white
 	body.text	black
     }
@@ -205,12 +213,12 @@ test html-10.2 {html::bodyTag} {
 }
 
 test html-10.3 {html::bodyTag} {
-    html::reset {
+    html::init {
 	body.bgcolor	white
 	body.text	black
     }
     html::bodyTag "text=red"
-} {<body bgcolor="white" text=red>
+} {<body text=red bgcolor="white">
 }
 
 test html-11.1 {html::formValue} {
@@ -243,91 +251,95 @@ test html-12.3 {html::quoteFormValue} {
     html::quoteFormValue {"'><&}
 } {&#34;&#39;&gt;&lt;&amp;}
 
+test html-12.4 {html::quoteFormValue} {
+    html::quoteFormValue "This is the value."
+} {This is the value.}
+
 test html-13.1 {html::textInput} {
-    html::reset
+    html::init
     ncgi::reset
     ncgi::parse
     html::textInput email
-} {<input type=text name="email" value="">
+} {<input type="text" name="email" value="">
 }
 
 test html-13.2 {html::textInput} {
-    html::reset
+    html::init
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
     html::textInput email
-} {<input type=text name="email" value="welch@scriptics.com">
+} {<input type="text" name="email" value="welch@scriptics.com">
 }
 
 test html-13.3 {html::textInput} {
-    html::reset {
+    html::init {
 	input.size	30
     }
     ncgi::reset
     ncgi::parse
     html::textInput email
-} {<input type=text name="email" value="" size="30">
+} {<input type="text" name="email" value="" size="30">
 }
 
 test html-13.4 {html::textInput} {
-    html::reset {
+    html::init {
 	input.size	30
     }
     ncgi::reset
     ncgi::parse
     html::textInput email default@foo.com
-} {<input type=text name="email" value="default@foo.com" size="30">
+} {<input type="text" name="email" value="default@foo.com" size="30">
 }
 
 test html-13.5 {html::textInput} {
-    html::reset
+    html::init
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
     html::textInput email default@foo.com
-} {<input type=text name="email" value="welch@scriptics.com">
+} {<input type="text" name="email" value="welch@scriptics.com">
 }
 
 test html-14.1 {html::textInputRow} {
-    html::reset
+    html::init
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
     html::textInputRow Email email
 } {<tr>
 	<td>Email</td>
-	<td><input type=text name="email" value="welch@scriptics.com">
+	<td><input type="text" name="email" value="welch@scriptics.com">
 </td>
 </tr>
 }
 
 test html-15.1 {html::passwordInput} {
     html::passwordInput
-} {<input type=password name="password">
+} {<input type="password" name="password">
 }
 
 test html-15.2 {html::passwordInput} {
     html::passwordInput form_pass
-} {<input type=password name="form_pass">
+} {<input type="password" name="form_pass">
 }
 
 test html-16.1 {html::checkbox} {
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
     html::checkbox item value
-} {<input type=checkbox name="item" value="value">
+} {<input type="checkbox" name="item" value="value">
 }
 
 test html-16.2 {html::checkbox} {
     ncgi::reset email=welch@scriptics.com
     ncgi::parse
     html::checkbox email value
-} {<input type=checkbox name="email" value="value">
+} {<input type="checkbox" name="email" value="value">
 }
 
 test html-17.1 {html::checkValue} {
     ncgi::reset item=xyz
     ncgi::parse
     html::checkbox item xyz
-} {<input type=checkbox name="item" value="xyz" CHECKED>
+} {<input type="checkbox" name="item" value="xyz" CHECKED>
 }
 
 test html-18.1 {html::radioValue} {
@@ -340,27 +352,33 @@ test html-19.1 {html::radioSet} {
     ncgi::reset item=2
     ncgi::parse
     html::radioSet item " |\n" {
-	1 One	2 Two	3 Three
+	One	1
+	Two	2
+	Three	3
     }
-} {<input type=radio name="item" value="1"> One |
-<input type=radio name="item" value="2" CHECKED> Two |
-<input type=radio name="item" value="3"> Three}
+} {<input type="radio" name="item" value="1"> One |
+<input type="radio" name="item" value="2" CHECKED> Two |
+<input type="radio" name="item" value="3"> Three}
 
 test html-20.1 {html::checkSet} {
     ncgi::reset item=2&item=3+4&x=y
     ncgi::parse
     html::checkSet item " |\n" {
-	1 One	2 Two	{3 4} Three
+	One	1
+	Two	2
+	Three	{3 4}
     }
-} {<input type=checkbox name="item" value="1"> One |
-<input type=checkbox name="item" value="2" CHECKED> Two |
-<input type=checkbox name="item" value="3 4" CHECKED> Three}
+} {<input type="checkbox" name="item" value="1"> One |
+<input type="checkbox" name="item" value="2" CHECKED> Two |
+<input type="checkbox" name="item" value="3 4" CHECKED> Three}
 
 test html-21.1 {html::select} {
     ncgi::reset item=2&x=y
     ncgi::parse
     html::select item "multiple" {
-	1 One	2 Two	{3 4} Three
+	One	1
+	Two	2
+	Three	{3 4}
     }
 } {<select name="item" multiple>
 <option value="1">One
@@ -401,3 +419,62 @@ test html-23.1 {html::textarea} {
     html::textarea info
 } {<textarea name="info"></textarea>
 }
+test html-23.2 {html::textarea} {
+    html::init {
+	textarea.cols 50
+	textarea.rows 8
+    }
+    ncgi::reset info=[ncgi::encode "The textarea value."]
+    ncgi::parse
+    html::textarea info
+} {<textarea name="info" cols="50" rows="8">The textarea value.</textarea>
+}
+
+test html-24.1 {html::submit} {
+    catch {html::submit}
+} {1}
+
+test html-24.1 {html::submit} {
+    catch {html::submit wrong num args}
+} {1}
+
+test html-24.1 {html::submit} {
+    html::submit "Push Me"
+} {<input type="submit" name="submit" value="Push Me">
+}
+
+test html-24.2 {html::submit} {
+    html::submit "Push Me" push
+} {<input type="submit" name="push" value="Push Me">
+}
+
+test html-25.1 {html::varEmpty} {
+    catch {html::varEmpty}
+} 1
+test html-25.2 {html::varEmpty} {
+    catch {html::varEmpty wrong num args}
+} 1
+
+test html-25.1 {html::varEmpty} {
+    if {[info exist x]} {
+	unset x
+    }
+    html::varEmpty x
+} 1
+
+test html-25.2 {html::varEmpty} {
+    if {[info exist x]} {
+	unset x
+    }
+    set x ""
+    html::varEmpty x
+} 1
+
+test html-25.2 {html::varEmpty} {
+    if {[info exist x]} {
+	unset x
+    }
+    set x "foo"
+    html::varEmpty x
+} 0
+
