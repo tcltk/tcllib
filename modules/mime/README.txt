@@ -26,9 +26,13 @@ Table of Contents
    3.5  mime::setheader  . . . . . . . . . . . . . . . . . . . . . .   6
    3.6  mime::getbody  . . . . . . . . . . . . . . . . . . . . . . .   6
    3.7  mime::copymessage  . . . . . . . . . . . . . . . . . . . . .   7
-   3.8  smtp::sendmessage  . . . . . . . . . . . . . . . . . . . . .   7
-   3.9  mime::parseaddress . . . . . . . . . . . . . . . . . . . . .   8
-   3.10 mime::parsedatetime  . . . . . . . . . . . . . . . . . . . .   9
+   3.8  mime::buildmessage . . . . . . . . . . . . . . . . . . . . .   7
+   3.9  smtp::sendmessage  . . . . . . . . . . . . . . . . . . . . .   7
+   3.10 mime::parseaddress . . . . . . . . . . . . . . . . . . . . .   8
+   3.11 mime::parsedatetime  . . . . . . . . . . . . . . . . . . . .   9
+   3.12 mime::mapencodings . . . . . . . . . . . . . . . . . . . . .   9
+   3.13 mime::reversemapencodings  . . . . . . . . . . . . . . . . .   9
+
    4.   EXAMPLES . . . . . . . . . . . . . . . . . . . . . . . . . .  10
         References . . . . . . . . . . . . . . . . . . . . . . . . .  12
         Author's Address . . . . . . . . . . . . . . . . . . . . . .  12
@@ -197,8 +201,11 @@ README                          Tcl MIME                   February 2000
    mime::copymessage (Section 3.7) returns an empty string. Parameters:
        token channel
 
+   mime::buildmessage (Section 3.7) returns a string. Parameters:
+       token
+
    smtp::sendmessage (Section 3.8) returns a list. Parameters:
-       token ?-servers list?
+       token ?-servers list? ?-ports list?
              ?-queue boolean?     ?-atleastone boolean?
              ?-originator string? ?-recipients string?
              ?-header {key value}?...
@@ -210,13 +217,11 @@ README                          Tcl MIME                   February 2000
    mime::parsedatetime (Section 3.10) returns a string. Parameters:
        [string | -now] property
 
+   mime::mapencodings (Section 3.10) returns a string. Parameters:
+       encoding_name
 
-
-
-
-
-
-
+   mime::reversemapencodings (Section 3.10) returns a string. Parameters:
+       charset_type
 
 
 
@@ -358,6 +363,12 @@ README                          Tcl MIME                   February 2000
    mime::copymessage operates synchronously, and uses fileevent to
    allow asynchronous operations to proceed independently.
 
+3.7 mime::buildmessage
+
+   mime::buildmessage returns the MIME part as a string.  It is similar
+   to mime::copymessage, only it returns the data as a return string
+   instead of writing to a channel.
+
 3.8 smtp::sendmessage
 
    smtp::sendmessage sends a MIME part to an SMTP server. (Note that
@@ -366,6 +377,8 @@ README                          Tcl MIME                   February 2000
    The options are: 
 
       -servers: a list of SMTP servers (the default is "localhost");
+
+      -ports: a list of SMTP ports (the default is 25)
 
       -queue: indicates that the SMTP server should be asked to queue
       the message for later processing;
@@ -443,7 +456,6 @@ README                          Tcl MIME                   February 2000
 
 
 
-
 Rose                                                            [Page 8]
 
 README                          Tcl MIME                   February 2000
@@ -474,16 +486,16 @@ README                          Tcl MIME                   February 2000
        year         1900 ...
        zone         -720 .. 720 (minutes east of GMT)
 
+3.10 mime::mapencodings
 
+   mime::mapencodings maps tcl encodings onto the proper names for their
+   MIME charset type.  This is only done for encodings whose charset types
+   were known.  The remaining encodings return "" for now.
 
+3.10 mime::reversemapencodings
 
-
-
-
-
-
-
-
+   mime::reversemapencodings maps MIME charset types onto tcl encoding names.
+   Those that are unknown return "".
 
 
 

@@ -79,12 +79,19 @@ mime::setheader<br></b>
 mime::getbody<br></b>
 <b><a href="#mime_copymessage">3.7</a>&nbsp;
 mime::copymessage<br></b>
+<b><a href="#mime_buildmessage">3.7</a>&nbsp;
+mime::buildmessage<br></b>
 <b><a href="#smtp_sendmessage">3.8</a>&nbsp;
 smtp::sendmessage<br></b>
 <b><a href="#mime_parseaddress">3.9</a>&nbsp;
 mime::parseaddress<br></b>
 <b><a href="#mime_parsedatetime">3.10</a>&nbsp;
 mime::parsedatetime<br></b>
+<b><a href="#mime_mapencodings">3.10</a>&nbsp;
+mime::mapencodings<br></b>
+<b><a href="#mime_reversemapencodings">3.10</a>&nbsp;
+mime::reversemapencodings<br></b>
+
 <b><a href="#anchor6">4.</a>&nbsp;
 EXAMPLES<br></b>
 <b><a href="#rfc.references">&#167;</a>&nbsp;
@@ -275,11 +282,19 @@ Parameters:
 </pre><font face="verdana, helvetica, arial, sans-serif" size="2">
 
 <p>
+<a href="#mime_buildmessage">mime::buildmessage</a>
+returns a string.
+Parameters:
+</p>
+</font><pre>    token
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
 <a href="#smtp_sendmessage">smtp::sendmessage</a>
 returns a list.
 Parameters:
 </p>
-</font><pre>    token ?-servers list?
+</font><pre>    token ?-servers list? ?-ports list?
           ?-queue boolean?     ?-atleastone boolean?
           ?-originator string? ?-recipients string?
           ?-header {key value}?...
@@ -299,6 +314,22 @@ returns a string.
 Parameters:
 </p>
 </font><pre>    [string | -now] property
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+<a href="#mime_mapencodings">mime::mapencodings</a>
+returns a string.
+Parameters:
+</p>
+</font><pre>    encoding_name
+</pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<p>
+<a href="#mime_reversemapencodings">mime::reversemapencodings</a>
+returns a string.
+Parameters:
+</p>
+</font><pre>    mime_charset
 </pre><font face="verdana, helvetica, arial, sans-serif" size="2">
 
 <a name="anchor5"><br><hr size="1" shade="0"></a>
@@ -515,6 +546,15 @@ and uses fileevent to allow asynchronous operations to proceed
 independently.
 </p>
 
+<h4><a name="mime_buildmessage">3.7</a>&nbsp;mime::buildmessage</h4>
+
+<p>
+mime::buildmessage returns the MIME part as a string.  It is similar
+to mime::copymessage, only it returns the data as a return string
+instead of writing to a channel.
+</p>
+
+
 <h4><a name="smtp_sendmessage">3.8</a>&nbsp;smtp::sendmessage</h4>
 
 <p>
@@ -532,6 +572,12 @@ The options are:
 <dd>
 a list of SMTP servers
 (the default is "localhost");
+</dd>
+
+<dt>   -ports:</dt>
+<dd>
+a list of SMTP ports
+(the default is 25);
 </dd>
 
 <dt>   -queue:</dt>
@@ -655,6 +701,24 @@ The list of properties and their ranges are:
     year         1900 ...
     zone         -720 .. 720 (minutes east of GMT)
 </pre><font face="verdana, helvetica, arial, sans-serif" size="2">
+
+<h4><a name="mime_mapencodings">3.10</a>&nbsp;mime::mapencodings</h4>
+
+<p>
+mime::mapencodings takes a string containing the name of a
+tcl encoding (see [encoding names]) and returns the MIME
+charset name for that encoding (or "" if the charset name
+is unknown).
+</p>
+
+<h4><a name="mime_reversemapencodings">3.10</a>&nbsp;mime::reversemapencodings</h4>
+
+<p>
+mime::reversemapencodings takes a string containing the name of a
+MIME charset tcl encoding (see [encoding names]) and returns the MIME
+charset name for that encoding (or "" if no known tcl encoding maps to
+the mime charset type).
+</p>
 
 <a name="anchor6"><br><hr size="1" shade="0"></a>
 <table border="0" cellpadding="0" cellspacing="2" width="30" height="15" align="right"><tr><td bgcolor="#990000" align="center" width="30" height="15"><a href="#toc" CLASS="link2"><font face="monaco, MS Sans Serif" color="#ffffff" size="1"><b>&nbsp;TOC&nbsp;</b></font></a><br></td></tr></table>

@@ -1,3 +1,20 @@
+2000-08-03  Dan Kuchler <kuchler@ajubasolutions.com>
+
+        * README.txt
+        * README.xml
+        * README.html
+        * mime/smtp.tcl: Added a '-ports' option to smtp::sendmessage.
+        The '-ports' option takes a list that should mirror the list of
+        SMTP servers specified with the '-servers' flag. Documented the
+        mime::reversemapencodings, mime::mapencodings, and
+        smtp::buildmessage functions
+
+        * mime/mime.tcl: Added mime::mapencoding and
+        mime::reversemapencoding functions to map tcl encodings
+        to their charset types, and back again.
+
+        * mime/pkgIndex.tcl: Bumped the revision number from 1.1 to 1.2
+
 2000-06-21  Sandeep Tamhankar  <sandeep@scriptics.com>
 
 	* mime/smtp.tcl: Undid the #5693 fix.  It turns out there are situations

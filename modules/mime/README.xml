@@ -166,10 +166,18 @@ Parameters:</preamble>
 </figure>
 
 <figure>
+<preamble><xref target="mime_buildmessage">mime::buildmessage</xref>
+returns an empty string.
+Parameters:</preamble>
+<artwork><![CDATA[    token
+]]></artwork>
+</figure>
+
+<figure>
 <preamble><xref target="smtp_sendmessage">smtp::sendmessage</xref>
 returns a list.
 Parameters:</preamble>
-<artwork><![CDATA[    token ?-servers list?
+<artwork><![CDATA[    token ?-servers list? ?-ports list?
           ?-queue boolean?     ?-atleastone boolean?
           ?-originator string? ?-recipients string?
           ?-header {key value}?...
@@ -191,6 +199,23 @@ Parameters:</preamble>
 <artwork><![CDATA[    [string | -now] property
 ]]></artwork>
 </figure>
+
+<figure>
+<preamble><xref target="mime_mapencodings">mime::mapencodings</xref>
+returns a string.
+Parameters:</preamble>
+<artwork><![CDATA[    encoding_name
+]]></artwork>
+</figure>
+
+<figure>
+<preamble><xref target="mime_reversemapencodings">mime::reversemapencodings</xref>
+returns a string.
+Parameters:</preamble>
+<artwork><![CDATA[    content_type
+]]></artwork>
+</figure>
+
 </section>
 
 <section title="SEMANTICS">
@@ -342,6 +367,12 @@ and uses fileevent to allow asynchronous operations to proceed
 independently.</t>
 </section>
 
+<section anchor="mime_buildmessage" title="mime::buildmessage">
+<t>mime::buildmessage returns the MIME part as a string.  It is similar
+to mime::copymessage, only it returns the data as a return string
+instead of writing to a channel.</t>
+</section>
+
 <section anchor="smtp_sendmessage" title="smtp::sendmessage">
 <t>smtp::sendmessage sends a MIME part to an SMTP server.
 (Note that this procedure is in the "smtp" package,
@@ -351,6 +382,9 @@ not the "mime" package.)</t>
 <list style="hanging">
 <t hangText="   -servers:">a list of SMTP servers
 (the default is "localhost");</t>
+
+<t hangText="   -ports:">a list of SMTP ports
+(the default is 25);</t>
 
 <t hangText="   -queue:">indicates that the SMTP server should be
 asked to queue the message for later processing;</t>
@@ -447,6 +481,18 @@ date-time specification and returns the specified property.</t>
 ]]></artwork>
 </figure>
 </section>
+
+<section anchor="mime_mapencodings" title="mime::mapencodings">
+<t>mime::mapencodings maps tcl encodings onto the proper names for their
+MIME charset type.  This is only done for encodings whose charset types
+were known.  The remaining encodings return "" for now.</t>
+</section>
+
+<section anchor="mime_reversemapencodings" title="mime::reversemapencodings">
+<t>mime::reversemapencodings maps MIME charset types onto tcl encoding names.
+Those that are unknown return "".</t>
+</section>
+
 </section>
 
 <section title="EXAMPLES">

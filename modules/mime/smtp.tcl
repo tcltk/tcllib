@@ -78,6 +78,8 @@ namespace eval smtp {
 #                          specified with -header.
 #             -servers     A list of mail servers that could process the
 #                          request.
+#             -ports       A list of SMTP ports to use for each SMTP server
+#                          specified
 #
 # Results:
 #	Message is sent.  On success, return "".  On failure, throw an
@@ -99,6 +101,7 @@ proc smtp::sendmessage {part args} {
     set originator ""
     set recipients ""
     set servers [list localhost]
+    set ports [list 25]
 
     array set header ""
 
@@ -156,6 +159,10 @@ proc smtp::sendmessage {part args} {
 
             -servers {
                 set servers $value
+            }
+
+            -ports {
+                set ports $value
             }
 
             default {
@@ -359,7 +366,7 @@ proc smtp::sendmessage {part args} {
     # server.
     set token [smtp::initialize -debug $debugP -client $client \
                                 -multiple $bccP -queue $queueP \
-                                -servers $servers]
+                                -servers $servers -ports $ports]
 
     if {![string match "::smtp::*" $token]} {
 	# An error occurred and $token contains the error info
@@ -528,6 +535,8 @@ proc smtp::sendmessageaux {token part originator recipients aloP} {
 #                          being sent should be queued for later delivery.
 #             -servers     A list of mail servers that could process the
 #                          request.
+#             -ports       A list of ports on mail servers that could process
+#                          the request (one port per server-- defaults to 25).
 #
 # Results:
 #	On success, return an smtp token.  On failure, throw
@@ -545,14 +554,20 @@ proc smtp::initialize {args} {
 
     array set state [list afterID "" options "" readable 0]
     array set options [list -debug 0 -client localhost -multiple 1 \
-                            -queue 0 -servers localhost]
+                            -queue 0 -servers localhost -ports 25]
     array set options $args
     set state(options) [array get options]
 
     # Iterate through servers until one accepts a connection (and responds
     # nicely).
-    
+   
+    set index 0 
     foreach server $options(-servers) {
+        if {[llength $options(-ports)] >= $index} {
+            set port [lindex $options(-ports) $index]
+        } else {
+            set port 25
+        }
         if {$options(-debug)} {
             puts stderr "Trying $server..."
             flush stderr
@@ -560,7 +575,7 @@ proc smtp::initialize {args} {
 
         catch { unset state(sd) }
         if {[set code [catch {
-            set state(sd) [socket -async $server 25]
+            set state(sd) [socket -async $server $port]
             fconfigure $state(sd) -blocking off -translation binary
             fileevent $state(sd) readable [list smtp::readable $token]
         } result]]} {
@@ -631,6 +646,7 @@ proc smtp::initialize {args} {
             # is happier.
             catch {close $state(sd)}
         }
+        incr index
     }
 
     # None of the servers accepted our connection, so close everything up and

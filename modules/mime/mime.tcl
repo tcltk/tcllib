@@ -102,10 +102,94 @@ namespace eval mime {
                                LX_EQUALS    LX_SOLIDUS  \
                                LX_QUOTE]
 
+    set encList [list \
+            ascii US-ASCII \
+            big5 Big5 \
+            cp1250 "" \
+            cp1251 "" \
+            cp1252 "" \
+            cp1253 "" \
+            cp1254 "" \
+            cp1255 "" \
+            cp1256 "" \
+            cp1257 "" \
+            cp1258 "" \
+            cp437 "" \
+            cp737 "" \
+            cp775 "" \
+            cp850 "" \
+            cp852 "" \
+            cp855 "" \
+            cp857 "" \
+            cp860 "" \
+            cp861 "" \
+            cp862 "" \
+            cp863 "" \
+            cp864 "" \
+            cp865 "" \
+            cp866 "" \
+            cp869 "" \
+            cp874 "" \
+            cp932 "" \
+            cp936 "" \
+            cp949 "" \
+            cp950 "" \
+            dingbats "" \
+            euc-cn EUC-CN \
+            euc-jp EUC-JP \
+            euc-kr EUC-KR \
+            gb12345 GB12345 \
+            gb1988 GB1988 \
+            gb2312 GB2312 \
+            iso2022 ISO-2022 \
+            iso2022-jp ISO-2022-JP \
+            iso2022-kr ISO-2022-KR \
+            iso8859-1 ISO-8859-1 \
+            iso8859-2 ISO-8859-2 \
+            iso8859-3 ISO-8859-3 \
+            iso8859-4 ISO-8859-4 \
+            iso8859-5 ISO-8859-5 \
+            iso8859-6 ISO-8859-6 \
+            iso8859-7 ISO-8859-7 \
+            iso8859-8 ISO-8859-8 \
+            iso8859-9 ISO-8859-9 \
+            jis0201  "" \
+            jis0208 "" \
+            jis0212 "" \
+            koi8-r KOI8-R \
+            ksc5601 "" \
+            macCentEuro "" \
+            macCroatian "" \
+            macCyrillic "" \
+            macDingbats "" \
+            macGreek "" \
+            macIceland "" \
+            macJapan "" \
+            macRoman "" \
+            macRomania "" \
+            macThai "" \
+            macTurkish "" \
+            macUkraine "" \
+            shiftjis Shift_JIS \
+            symbol "" \
+            unicode "" \
+            utf-8 ""]
+
+    variable encodings
+    array set encodings $encList
+    variable reversemap
+    foreach {enc mimeType} $encList {
+        if {$mimeType != ""} {
+            set reversemap($mimeType) $enc
+        }
+    } 
+
     namespace export initialize finalize getproperty \
                      getheader setheader \
                      getbody \
                      copymessage \
+                     mapencoding \
+                     reversemapencoding \
                      parseaddress \
                      parsedatetime \
                      uniqueID
@@ -2646,3 +2730,24 @@ proc mime::parselexeme {token} {
 
     return [set state(lastC) LX_ATOM]
 }
+
+proc mime::mapencoding {enc} {
+
+    variable encodings
+
+    if {[info exists encodings($enc)]} {
+        return $encodings($enc)
+    }
+    return ""
+}
+
+proc mime::reversemapencoding {mimeType} {
+
+    variable reversemap
+
+    if {[info exists reversemap($mimeType)]} {
+        return $reversemap($mimeType)
+    }
+    return ""
+}
+
