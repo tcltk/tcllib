@@ -379,7 +379,7 @@ complexity of generation, but [i7/ad] is not too bad either.
 
 Other opinions:
 
-      	Don Porter prefers [i7/ad], and [6/dr] as second choice.  Also
+      	Don Porter prefers [i7/ad], and [i6/dr] as second choice.  Also
 	as [i7/ad] fallback for older Tcl before 8.3.1
 
 	Joe English strictly opposes any solution modifying the
@@ -390,7 +390,18 @@ Other opinions:
 Chosen solution for Tcllib 1.4
 ------------------------------
 
-Not yet, ask for a second round of comments first.
+After comparing the code for the combination of [i7/ad] and [i6/dr] as
+submitted by Don Porter, and for [i4/sd] as submitted by myself
+(Andreas), and a small discussion on the Tcl'ers chat between Don and
+me we took [i4/sd] for the main body of the idnex, and the header of
+Don's code. Basically the chosen package index is a combination of
+[i7/id] and of [i4/sd] as fallback.
+
+This is still as easy to generate as [4/sd], the index is also only a
+bit more complex, and speed should be ok too.
+
+Don convinced me that while extending auto_path is definitely bad in
+the long-term it is still ok for the short-term and release 1.4.
 
 
 Roadmap
