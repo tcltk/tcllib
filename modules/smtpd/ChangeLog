@@ -1,3 +1,13 @@
+2004-06-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl: Implemented RFC3207 - Secure SMTP over TLS. This adds
+	a number of configuration options and a new command (available if
+	the tls package is provided and -usetls is set to true.) Also
+	implemented the SMTP HELP command and switched to using the logger
+	package from tcllib.
+	* /examples/smtpd/tk_smtpdTLS: New demo server to show off the 
+	TLS features added here.
+
 2004-06-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* pkgIndex.tcl:  Incremented version to 1.2.2
