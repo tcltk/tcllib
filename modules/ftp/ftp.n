@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.8 2001/11/21 03:25:33 jenglish Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.9 2002/01/16 19:00:57 andreas_kupries Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -290,11 +290,13 @@ server it will be created.
 \fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?
 This command retrieves a remote file \fIremote\fR on the ftp server
 and stores its contents into the local file \fIlocal\fR. If the file
-parameters passed to the command do not fully qualified path names the
+parameters passed to the command are not fully qualified path names the
 command will use the current directory on local and remote host. If
 the local file name is unspecified, the server will use the name of
 the remote file as the name of the local file. The command returns 1
-to indicate a sucessful transfer and 0 in the case of a failure.
+to indicate a sucessful transfer and 0 in the case of a failure. The
+command will throw an error if the directory the file \fIlocal\fR is
+to be placed in does not exist.
 .sp
 If \fB-variable \fIvarname\fR is specified, the system will
 store the retrieved data into the variable \fIvarname\fR instead of a
@@ -310,8 +312,10 @@ This command behaves like \fBftp::Get\fR, except that if local file
 \fIlocal\fR exists and is smaller than remote file \fIremote\fR, the
 local file is presumed to be a partially transferred copy of the
 remote file and the transfer is continued from the apparent point of
-failure. This command is useful when transferring very large files
-over networks that tend to drop connections.
+failure.  The command will throw an error if the directory the file
+\fIlocal\fR is to be placed in does not exist. This command is useful
+when transferring very large files over networks that tend to drop
+connections.
 .sp
 Specifying the additional byte offsets \fIfrom\fR and \fIto\fR will
 cause the command to change its behaviour and to download exactly the
@@ -320,10 +324,12 @@ local destination is explicitly provided. Omission of \fIto\fR leads
 to downloading till the end of the file.
 .TP
 \fBftp::Newer\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR?
-This command behaves like \fBftp::Get\fR, except that it retrives the
+This command behaves like \fBftp::Get\fR, except that it retrieves the
 remote file only if the modification time of the remote file is more
 recent than the file on the local system. If the file does not exist
-on the local system, the remote file is considered newer.
+on the local system, the remote file is considered newer. The command
+will throw an error if the directory the file \fIlocal\fR is to be
+placed in does not exist.
 .TP
 \fBftp::MkDir\fR \fIhandle\fR \fIdirectory\fR
 This command creates the specified \fIdirectory\fR on the ftp
