@@ -129,7 +129,7 @@ xvec and the return value of "func" must match).
 [nl]
 
 
-[call [cmd ::math::calculus::rungeKuttaStep] [arg tstep] [arg xvec] [arg func]]
+[call [cmd ::math::calculus::rungeKuttaStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
 differential equations. The method used is Runge-Kutta 4th
 order.
