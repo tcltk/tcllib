@@ -1,13 +1,14 @@
 # all.tcl --
 #
 # This file contains a top-level script to run all of the Tcl
-# tests.  Execute it by invoking "source all.test" when running tcltest
-# in this directory.
+# tests.  Execute it by invoking "tclsh all.test" in this directory.
+#
+# To test a subset of the modules, invoke it by 'tclsh all.test -modules "<module list>"'
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.8 2002/05/08 17:05:52 dgp Exp $
+# RCS: @(#) $Id: all.tcl,v 1.9 2002/06/05 22:59:07 andreas_kupries Exp $
 
 set old_auto_path $auto_path
 
@@ -18,7 +19,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     }
     proc ::tcltest::processCmdLineArgsHook {argv} {
 	array set foo $argv
-	set ::modules $foo(-modules)
+	catch {set ::modules $foo(-modules)}
     }
     proc ::tcltest::cleanupTestsHook {{c {}}} {
 	if { [string equal $c ""] } {
@@ -41,7 +42,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 		set res ""
 	    }
 	    set res
-	}]
+	}] ; # {}
 	if { ![string equal $f ""] } {
 	    lappend ::tcltest::failFiles $f
 	}
@@ -103,6 +104,18 @@ puts stdout "Tests began at [eval $timeCmd]"
 set auto_path $old_auto_path
 set auto_path [linsert $auto_path 0 [file join $root modules]]
 set old_apath $auto_path
+
+##
+## Take default action if the modules are not specified
+##
+
+if {![info exists modules]} then {
+    foreach module [glob [file join $root modules]/*/*.test] {
+	set tmp([lindex [file split $module] end-1]) 1
+    }
+    set modules [array names tmp]
+    unset tmp
+}
 
 foreach module $modules {
     set ::tcltest::testsDirectory [file join $root modules $module]
@@ -166,4 +179,3 @@ puts stdout "\nTests ended at [eval $timeCmd]"
 ::tcltest::cleanupTests 1
 # FRINK: nocheck
 return
-
