@@ -2,14 +2,17 @@
 #    Test cases for the ::math::interpolate package
 #
 
-package require tcltest
-namespace import ::tcltest::*
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::test
+    namespace import ::tcltest::customMatch
+}
 
+source [file join [file dirname [info script]] math.tcl]
+source [file join [file dirname [info script]] interpolate.tcl]
+
+package require math
 package require struct
-
-#package require math::interpolate
-source "interpolate.tcl"
-
 
 #
 # Minimisation via steepest-descent

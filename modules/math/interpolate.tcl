@@ -418,8 +418,7 @@ proc ::math::interpolate::interp-spatial-params { max_search {power 2} } {
       set inv_dist_pow 2
    }
 }
-
 #
 # Announce our presence
 #
-package provide math::interpolate 1.0
+# package provide math::interpolate 0.2 # done above

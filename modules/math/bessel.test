@@ -2,11 +2,16 @@
 #    Test cases for the ::math::special package (Bessel functions)
 #
 
-package require tcltest
-namespace import ::tcltest::*
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::test
+    namespace import ::tcltest::customMatch
+}
 
-#package require math::constants
-source "bessel.tcl"
+source [file join [file dirname [info script]] math.tcl]
+source [file join [file dirname [info script]] bessel.tcl]
+
+package require math
 
 #
 # As the values were given with four digits, an absolute
@@ -15,7 +20,6 @@ source "bessel.tcl"
 proc matchNumbers {expected actual} {
    set match 1
    foreach a $actual e $expected {
-      puts "abs($a-$e) = [expr {abs($a-$e)}]"
       if {abs($a-$e) > 0.7e-4} {
          set match 0
          break
