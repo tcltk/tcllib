@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.14 2004/02/11 07:48:41 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.15 2004/08/26 05:50:39 andreas_kupries Exp $
 
-package require md5 1; # tcllib | APOP            | v1
+package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
 package require log  ; # tcllib | tracing
 
@@ -688,7 +688,7 @@ proc ::pop3d::H_apop {name sock cmd line} {
     # using tcl 8.x there is need to use channels, an immediate
     # computation is possible.
 
-    set ourDigest [md5::md5 "$cstate(id)$pwd"]
+    set ourDigest [Md5 "$cstate(id)$pwd"]
 
     ::log::log debug "$name $sock digest input <$cstate(id)$pwd>"
     ::log::log debug "$name $sock digest outpt <$ourDigest>"
@@ -1086,6 +1086,14 @@ log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildm
     # response already sent.
     return
 }
+
+set major [lindex [split [package require md5] .] 0]
+if {$::major < 2} {
+    proc ::pop3d::Md5 {text} {md5::md5 $text}
+} else {
+    proc ::pop3d::Md5 {text} {string tolower [md5::md5 -hex $text]}
+}
+unset major
 
 ##########################
 # Module initialization
