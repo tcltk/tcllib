@@ -6,7 +6,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.3 2002/01/17 23:09:40 patthoyts Exp $
+# @(#)$Id: uuencode.tcl,v 1.4 2002/04/16 23:10:40 patthoyts Exp $
+
+package require log;                    # tcllib 1.0
 
 namespace eval uuencode {
     namespace export encode decode uuencode uudecode
@@ -33,11 +35,7 @@ proc uuencode::Encode {s} {
 
 proc uuencode::Decode {s} {
     set r {}
-    binary scan $s c* d
-    if {[expr {[llength $d] % 4}] != 0} {
-        return -code error "invalid uuencoded string: length must be a\
-              multiple of 4"
-    }
+    binary scan [pad $s] c* d
         
     foreach {c0 c1 c2 c3} $d {
         append r [format %c [expr {((($c0-0x20)&0x3F) << 2) & 0xFF
@@ -52,6 +50,23 @@ proc uuencode::Decode {s} {
 
 # -------------------------------------------------------------------------
 
+# Description:
+#  Permit more tolerant decoding of invalid input strings by padding to
+#  a multiple of 4 bytes with nulls.
+# Result:
+#  Returns the input string - possibly padded with uuencoded null chars.
+#
+proc uuencode::pad {s} {
+    if {[set mod [expr {[string length $s] % 4}]] != 0} {
+        log::log notice "invalid uuencoded string: padding string to a\
+              multiple of 4."
+        append s [string repeat "`" [expr {4 - $mod}]]
+    }
+    return $s
+}
+
+# -------------------------------------------------------------------------
+
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
 if {[catch {package require Trf 2.0}]} {
@@ -62,7 +77,7 @@ if {[catch {package require Trf 2.0}]} {
         return [::uuencode -mode encode $s]
     }
     proc uuencode::decode {s} {
-        return [::uuencode -mode decode $s]
+        return [::uuencode -mode decode [pad $s]]
     }
 }
 
@@ -156,7 +171,6 @@ proc uuencode::uudecode {args} {
 
     if {$opts(filename) != {}} {
         set f [open $opts(filename) r]
-        fconfigure $f -translation binary
         set data [read $f]
         close $f
     } else {
