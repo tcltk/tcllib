@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.6 2003/02/11 23:51:38 patthoyts Exp $
+# $Id: crc32.tcl,v 1.7 2003/04/02 21:24:11 patthoyts Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.0.1
@@ -121,13 +121,7 @@ if {![catch {package require Trf 2.0}]} {
             return -code error "invalid option: the Trf crc32 command cannot\
                                  accept a seed value"
         }
-        if {$::tcl_platform(byteOrder) == "littleEndian"} {
-            set conv i
-        } else {
-            set conv I
-        }
-        
-        binary scan [crc-zlib $s] $conv r
+        binary scan [crc-zlib $s] i r
         return $r
     }
 
