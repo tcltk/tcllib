@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.1 2003/05/19 08:28:48 davidw Exp $
+# $Id: multiplexer.test,v 1.2 2003/05/19 13:40:22 davidw Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -42,6 +42,21 @@ test multiplexer-2.1 {start multiplexer} {
     set res
 } {}
 
+test multiplexer-2.2 {start & destroy multiplexer} {
+    set mp [multiplexer::create]
+    set startchans [lsort [file channels]]
+    ${mp}::Init 37465
+
+    set sk [socket localhost 37465]
+    catch { close $sk }
+
+    ${mp}::destroy
+    set chans [lsort [file channels]]
+    string compare $chans $startchans
+} {0}
+
+
+
 proc Get {chan} {
     gets $chan line
     if { [info exists ::forever] } {
@@ -55,7 +70,6 @@ test multiplexer-3.1 {send multiplexer - line buffered} {
     set ::forever 0
     set mp [multiplexer::create]
     ${mp}::Init 37465
-    set res ""
     set sk1 [socket localhost 37465]
     set sk2 [socket localhost 37465]
     set sk3 [socket localhost 37465]
@@ -78,7 +92,6 @@ test multiplexer-3.1 {send multiplexer - line buffered} {
 
 proc Get2 {chan} {
     set line [read -nonewline $chan]
-    puts $line
     if { [info exists ::forever] } {
 	incr ::forever
     } else {
@@ -90,7 +103,6 @@ test multiplexer-3.2 {send multiplexer - not buffered} {
     set ::forever 0
     set mp [multiplexer::create]
     ${mp}::Init 37465
-    set res ""
     set sk1 [socket localhost 37465]
     set sk2 [socket localhost 37465]
     set sk3 [socket localhost 37465]
@@ -112,24 +124,21 @@ test multiplexer-3.2 {send multiplexer - not buffered} {
 } {2}
 
 
-proc TestAccessFilter {data chan clientaddress clientport} {
-    puts "$data $chan $clientaddress $clientport"
-    return "This data has been filtered!\r\n"
+proc TestFilter {data chan clientaddress clientport} {
+    #puts "$data $chan $clientaddress $clientport"
+    return "Filtered data: $data"
 }
 
 proc Get3 {chan} {
-    set line [read -nonewline $chan]
-    puts $line
+    gets $chan line
     set ::forever $line
 }
 
-
-test multiplexer-4.1 {add access filter} {
+test multiplexer-4.1 {add filter} {
     set ::forever 0
     set mp [multiplexer::create]
     ${mp}::Init 37465
-    ${mp}::AddFilter TestAccessFilter
-    set res ""
+    ${mp}::AddFilter TestFilter
     set sk1 [socket localhost 37465]
     set sk2 [socket localhost 37465]
     fileevent $sk2 readable [list Get3 $sk2]
@@ -144,7 +153,51 @@ test multiplexer-4.1 {add access filter} {
     vwait ::forever
     ${mp}::destroy
     set ::forever
-} {1}
+} {Filtered data: Multiplexer test message 4.1}
+
+proc TestAccessFilter {chan clientaddress clientport} {
+    lappend ::forever $clientaddress
+    return 0
+}
+
+test multiplexer-5.1 {add access filter} {
+    set ::forever {}
+    set mp [multiplexer::create]
+    ${mp}::Init 37465
+    ${mp}::AddAccessFilter TestAccessFilter
+    update
+    set sk1 [socket localhost 37465]
+    set sk2 [socket localhost 37465]
+
+    vwait ::forever
+    vwait ::forever
+    ${mp}::destroy
+    set ::forever
+} {127.0.0.1 127.0.0.1}
+
+proc DenyAccessFilter {chan clientaddress clientport} {
+    return -1
+}
+
+test multiplexer-5.2 {add access filter which denies access} {
+    set ::forever {}
+    set mp [multiplexer::create]
+    ${mp}::Init 37465
+    ${mp}::AddAccessFilter DenyAccessFilter
+    set sk1 [socket localhost 37465]
+    set sk2 [socket localhost 37465]
+    update
+    fconfigure $sk1 -buffering none
+    if { [catch {
+	puts $sk1 "boom"
+    } err] } {
+	set result "socket blocked"
+    } else {
+	set result "socket not blocked"
+    }
+    ${mp}::destroy
+    set result
+} {socket blocked}
 
 
 ::tcltest::cleanupTests
