@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.7 2003/05/07 22:30:51 patthoyts Exp $
+# $Id: md4.tcl,v 1.8 2003/05/08 20:19:45 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.1
-    variable rcsid {$Id: md4.tcl,v 1.7 2003/05/07 22:30:51 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.8 2003/05/08 20:19:45 patthoyts Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
@@ -38,15 +38,16 @@ proc ::md4::MD4Init {} {
     # RFC1320:3.3 - Initialize MD4 state structure
     array set tok \
         [list \
-             A [expr 0x67452301] \
-             B [expr 0xefcdab89] \
-             C [expr 0x98badcfe] \
-             D [expr 0x10325476] \
+             A [expr {0x67452301}] \
+             B [expr {0xefcdab89}] \
+             C [expr {0x98badcfe}] \
+             D [expr {0x10325476}] \
              n 0 i "" ]
     return $token
 }
 
 proc ::md4::MD4Update {token data} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -75,6 +76,7 @@ proc ::md4::MD4Update {token data} {
 }
 
 proc ::md4::MD4Final {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -143,6 +145,7 @@ proc ::md4::HMACInit {K} {
     MD4Update $tok $Ki;                 # initialize with the inner pad
     
     # preserve the Ko value for the final stage.
+    # FRINK: nocheck
     set [subst $tok](Ko) $Ko
 
     return $tok
@@ -154,6 +157,7 @@ proc ::md4::HMACUpdate {token data} {
 }
 
 proc ::md4::HMACFinal {token} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
@@ -358,6 +362,7 @@ proc ::md4::Pop {varname {nth 0}} {
 # fileevent handler for chunked file hashing.
 #
 proc ::md4::Chunk {token channel {chunksize 4096}} {
+    # FRINK: nocheck
     variable $token
     upvar 0 $token state
     
@@ -407,6 +412,7 @@ proc ::md4::md4 {args} {
     } else {
 
         set tok [MD4Init]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
@@ -470,6 +476,7 @@ proc ::md4::hmac {args} {
     } else {
 
         set tok [HMACInit $opts(-key)]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
