@@ -1,3 +1,11 @@
+2004-08-28  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl:     Minor tweaks to instance creation to improve
+	* dictionary    speed.  No major gain.  Also, -simpledispatch yes
+	* snit.man	now supports instance renaming again.
+	* snitfaq.man
+	
+
 2004-08-22  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Defined the -simpledispatch pragma.  Updated
