@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by nobody :-)
 '\" All rights not reserved.
 '\" 
-'\" RCS: @(#) $Id: textutil.n,v 1.7 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: textutil.n,v 1.8 2001/11/12 18:33:10 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH textutil n 1.0 Textutil "Texts and strings utils"
@@ -109,6 +109,12 @@ space chars at the beginning, despite of the \fI-full\fR option.
 \fI-length integer\fR
 set the length of the \fIlogical\fR line in the string to \fIinteger\fR.
 \fIinteger\fR must be a positive integer value. Default to \fI72\fR.
+.TP
+\fI-strictlength boolean\fR
+if set to \fIfalse\fR, a line can exceed the specified '-length' if a
+single word is longer than '-length'. If set to \fItrue\fR, words that
+are longer than '-length' are split so that no line exceeds the
+specified '-length'. Default to \fIfalse\fR.
 
 .TP
 \fBtextutil::splitx\fR \fIstring {regexp [\t \r\n\]+}\fR

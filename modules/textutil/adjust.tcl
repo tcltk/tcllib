@@ -6,6 +6,7 @@ namespace eval ::textutil {
 	variable Justify  left
 	variable Length   72
 	variable FullLine 0
+	variable StrictLength 0
 	
 	namespace export adjust
 
@@ -39,6 +40,7 @@ proc ::textutil::adjust::Configure { args } {
     variable Justify   left
     variable Length    72
     variable FullLine  0
+    variable StrictLength 0
 
     set args [ lindex $args 0 ]
     foreach { option value } $args {
@@ -72,8 +74,14 @@ proc ::textutil::adjust::Configure { args } {
 		}
 		set Length $value
 	    }
+	    -strictlength {
+		if { ![ string is boolean -strict $value ] } then {
+		    error "expected boolean but got \"$value\""
+		}
+		set StrictLength [ string is true $value ]
+            }
 	    default {
-		error "bad option \"$option\": must be -full, -justify or -length"
+		error "bad option \"$option\": must be -full, -justify, -length, or -strictlength"
 	    }
 	}
     }
@@ -83,6 +91,7 @@ proc ::textutil::adjust::Configure { args } {
 
 proc ::textutil::adjust::Adjust { varOrigName varNewName } {
     variable Length
+    variable StrictLength
 
     upvar $varOrigName orig
     upvar $varNewName  text
@@ -92,6 +101,48 @@ proc ::textutil::adjust::Adjust { varOrigName varNewName } {
     regsub -all -- "(^ *)|( *\$)"  $text  ""   text
 
     set ltext [ split $text ]
+
+    if { $StrictLength } then {
+
+        # Limit the length of a line to $Length. If any single
+        # word is long than $Length, then split the word into multiple
+        # words.
+ 
+        set i 0
+        foreach tmpWord $ltext {
+            if { [ string length $tmpWord ] > $Length } then {
+ 
+                # Since the word is longer than the line length,
+                # remove the word from the list of words.  Then
+                # we will insert several words that are less than
+                # or equal to the line length in place of this word.
+ 
+                set ltext [ lreplace $ltext $i $i ]
+                incr i -1
+                set j 0
+ 
+                # Insert a series of shorter words in place of the
+                # one word that was too long.
+ 
+                while { $j < [ string length $tmpWord ] } {
+ 
+                    # Calculate the end of the string range for this word.
+ 
+                    if { [ expr { [string length $tmpWord ] - $j } ] > $Length } then {
+                        set end [ expr { $j + $Length - 1} ]
+                    } else {
+                        set end [ string length $tmpWord ]
+                    }
+ 
+                    set ltext [ linsert $ltext [ expr {$i + 1} ] [ string range $tmpWord $j $end ] ]
+                    incr i
+                    incr j [ expr { $end - $j + 1 } ]
+                }
+            }
+            incr i
+        }
+    }
+
     set line [ lindex $ltext 0 ]
     set pos [ string length $line ]
     set text ""
@@ -224,10 +275,10 @@ proc ::textutil::adjust::Justification { line index arrayName } {
 	    set elem [ lreplace $elem 3 3 $nb ]
 	    set list [ lreplace $list $i $i $elem ]
 	    incr miss -1
-	    if { $i == $words(0) } then {
-		set i -1
-	    }
 	    incr i
+	    if { $i == $words(0) } then {
+		set i 0
+	    }
 	}
 	set list [ SortList $list increasing 0 ]
 	set line ""
