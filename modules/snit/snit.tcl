@@ -6,8 +6,7 @@
 #	Will Duquette
 #
 # DESCRIPTION:
-#       Snit's Not Incr Tcl: yet another simple object system in Pure Tcl, 
-#	just because I wanted to.
+#       Simple Now In Tcl, a simple object system in Pure Tcl.
 #
 #-----------------------------------------------------------------------
 
@@ -557,7 +556,7 @@ proc ::snit::Comp.Define {compResult} {
 proc ::snit::Comp.statement.pragma {args} {
     variable compile
 
-    set errRoot "Error in 'pragma...'"
+    set errRoot "Error in \"pragma...\""
 
     foreach {opt val} $args {
         switch -exact -- $opt {
@@ -566,7 +565,7 @@ proc ::snit::Comp.statement.pragma {args} {
             -hasinstances   -
             -canreplace     {
                 if {![string is boolean -strict $val]} {
-                    error "$errRoot, '$opt' requires a boolean value."
+                    error "$errRoot, \"$opt\" requires a boolean value"
                 }
                 set compile($opt) $val
             }
@@ -589,7 +588,7 @@ proc ::snit::Comp.statement.widgetclass {name} {
     # with an uppercase letter.
     set initial [string index $name 0]
     if {![string is upper $initial]} {
-        error "widgetclass '$name' does not begin with an uppercase letter"
+        error "widgetclass \"$name\" does not begin with an uppercase letter"
     }
 
     if {"" != $compile(widgetclass)} {
@@ -617,7 +616,7 @@ proc ::snit::Comp.statement.hulltype {name} {
 
     # Next, it must be either "frame" or "toplevel"
     if {"frame" != $name && "toplevel" != $name} {
-        error "invalid hulltype '$name', should be 'frame' or 'toplevel'"
+        error "invalid hulltype \"$name\", should be \"frame\" or \"toplevel\""
     }
 
     if {"" != $compile(hulltype)} {
@@ -667,15 +666,15 @@ proc ::snit::Comp.statement.option {optionDef args} {
     set resourceName [lindex $optionDef 1]
     set className [lindex $optionDef 2]
 
-    set errRoot "Error in 'option [list $optionDef]...'"
+    set errRoot "Error in \"option [list $optionDef]...\""
 
     # Next, validate the option name.
     if {![Comp.OptionNameIsValid $option]} {
-        error "$errRoot, badly named option '$option'"
+        error "$errRoot, badly named option \"$option\""
     }
 
     if {[Contains $option $compile(delegatedoptions)]} {
-        error "$errRoot, cannot define '$option' locally, it has been delegated."
+        error "$errRoot, cannot define \"$option\" locally, it has been delegated"
     }
 
     if {![Contains $option $compile(localoptions)]} {
@@ -700,7 +699,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
             set compile(resource-$option) $resourceName
         } elseif {$resourceName ne $compile(resource-$option)} {
             # It's been redefined differently.
-            error "$errRoot, resource name redefined from '$compile(resource-$option)' to '$resourceName'."
+            error "$errRoot, resource name redefined from \"$compile(resource-$option)\" to \"$resourceName\""
         }
     }
 
@@ -712,7 +711,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
             set compile(class-$option) $className
         } elseif {$className ne $compile(class-$option)} {
             # It's been redefined differently.
-            error "$errRoot, class name redefined from '$compile(class-$option)' to '$className'."
+            error "$errRoot, class name redefined from \"$compile(class-$option)\" to \"$className\""
         }
     }
 
@@ -730,12 +729,12 @@ proc ::snit::Comp.statement.option {optionDef args} {
                 }
                 -readonly        {
                     if {![string is boolean -strict $val]} {
-                        error "$errRoot, -readonly requires a boolean, got '$val'"
+                        error "$errRoot, -readonly requires a boolean, got \"$val\""
                     }
                     set compile($optopt-$option) $val
                 }
                 default {
-                    error "$errRoot, unknown option definition option '$optopt'."
+                    error "$errRoot, unknown option definition option \"$optopt\""
                 }
             }
         }
@@ -755,14 +754,14 @@ proc ::snit::Comp.OptionNameIsValid {option} {
 proc ::snit::Comp.statement.oncget {option body} {
     variable compile
 
-    set errRoot "Error in 'oncget $option...'"
+    set errRoot "Error in \"oncget $option...\""
 
     if {[lsearch $compile(delegatedoptions) $option] != -1} {
-        error "$errRoot, option '$option' is delegated."
+        error "$errRoot, option \"$option\" is delegated"
     }
 
     if {[lsearch $compile(localoptions) $option] == -1} {
-        error "$errRoot, option '$option' unknown."
+        error "$errRoot, option \"$option\" unknown"
     }
 
     # Next, add variable declarations to body:
@@ -777,16 +776,16 @@ proc ::snit::Comp.statement.onconfigure {option arglist body} {
     variable compile
 
     if {[lsearch $compile(delegatedoptions) $option] != -1} {
-        error "onconfigure $option: option '$option' is delegated."
+        error "onconfigure $option: option \"$option\" is delegated"
     }
 
     if {[lsearch $compile(localoptions) $option] == -1} {
-        error "onconfigure $option: option '$option' unknown."
+        error "onconfigure $option: option \"$option\" unknown"
     }
 
     if {[llength $arglist] != 1} {
         error \
-       "onconfigure $option handler should have one argument, got '$arglist'."
+       "onconfigure $option handler should have one argument, got \"$arglist\""
     }
 
     CheckArgs "onconfigure $option" $arglist
@@ -803,7 +802,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedmethods)]} {
-        error "Error in 'delegate method $method...', '$method' has been defined locally."
+        error "Error in \"delegate method $method...\", \"$method\" has been defined locally"
     }
 
     lappend compile(localmethods) $method
@@ -831,7 +830,7 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
     variable compile
 
     if {[Contains $method $compile(delegatedtypemethods)]} {
-        error "Error in 'delegate typemethod $method...', '$method' has been defined locally."
+        error "Error in \"delegate typemethod $method...\", \"$method\" has been defined locally"
     }
 
     lappend compile(localtypemethods) $method
@@ -889,17 +888,17 @@ proc ::snit::Comp.statement.proc {proc arglist body} {
 proc ::snit::Comp.statement.typevariable {name args} {
     variable compile
 
-    set errRoot "Error in 'typevariable $name...'"
+    set errRoot "Error in \"typevariable $name...\""
 
     set len [llength $args]
     
     if {$len > 2 ||
         ($len == 2 && [lindex $args 0] ne "-array")} {
-        error "$errRoot, too many initializers."
+        error "$errRoot, too many initializers"
     }
 
     if {[lsearch -exact $compile(varnames) $name] != -1} {
-        error "$errRoot, '$name' is already an instance variable."
+        error "$errRoot, \"$name\" is already an instance variable"
     }
 
     lappend compile(typevarnames) $name
@@ -925,17 +924,17 @@ proc ::snit::Comp.statement.typevariable {name args} {
 proc ::snit::Comp.statement.variable {name args} {
     variable compile
 
-    set errRoot "Error in 'variable $name...'"
+    set errRoot "Error in \"variable $name...\""
 
     set len [llength $args]
     
     if {$len > 2 ||
         ($len == 2 && [lindex $args 0] ne "-array")} {
-        error "$errRoot, too many initializers."
+        error "$errRoot, too many initializers"
     }
 
     if {[lsearch -exact $compile(typevarnames) $name] != -1} {
-        error "$errRoot, '$name' is already a typevariable."
+        error "$errRoot, \"$name\" is already a typevariable"
     }
 
     lappend compile(varnames) $name
@@ -960,7 +959,7 @@ proc ::snit::Comp.statement.variable {name args} {
 proc ::snit::Comp.statement.typecomponent {component args} {
     variable compile
 
-    set errRoot "Error in 'typecomponent $component...'"
+    set errRoot "Error in \"typecomponent $component...\""
 
     # FIRST, define the component
     Comp.DefineTypecomponent $component $errRoot
@@ -977,11 +976,11 @@ proc ::snit::Comp.statement.typecomponent {component args} {
             -inherit {
                 set inheritFlag $val
                 if {![string is boolean $inheritFlag]} {
-    error "typecomponent $component -inherit: expected boolean value, got '$val'."
+    error "typecomponent $component -inherit: expected boolean value, got \"$val\""
                 }
             }
             default {
-                error "typecomponent $component: Invalid option '$opt'"
+                error "typecomponent $component: Invalid option \"$opt\""
             }
         }
     }
@@ -1013,7 +1012,7 @@ proc ::snit::Comp.DefineTypecomponent {component {errRoot "Error"}} {
     variable compile
 
     if {[lsearch -exact $compile(varnames) $component] != -1} {
-        error "$errRoot, '$component' is already an instance variable."
+        error "$errRoot, \"$component\" is already an instance variable"
     }
 
     if {[lsearch $compile(typecomponents) $component] == -1} {
@@ -1044,7 +1043,7 @@ proc ::snit::Comp.DefineTypecomponent {component {errRoot "Error"}} {
 proc ::snit::Comp.statement.component {component args} {
     variable compile
 
-    set errRoot "Error in 'component $component...'"
+    set errRoot "Error in \"component $component...\""
 
     # FIRST, define the component
     Comp.DefineComponent $component $errRoot
@@ -1061,11 +1060,11 @@ proc ::snit::Comp.statement.component {component args} {
             -inherit {
                 set inheritFlag $val
                 if {![string is boolean $inheritFlag]} {
-    error "component $component -inherit: expected boolean value, got '$val'."
+    error "component $component -inherit: expected boolean value, got \"$val\""
                 }
             }
             default {
-                error "component $component: Invalid option '$opt'"
+                error "component $component: Invalid option \"$opt\""
             }
         }
     }
@@ -1096,7 +1095,7 @@ proc ::snit::Comp.DefineComponent {component {errRoot "Error"}} {
     variable compile
 
     if {[lsearch -exact $compile(typevarnames) $component] != -1} {
-        error "$errRoot, '$component' is already a typevariable."
+        error "$errRoot, \"$component\" is already a typevariable"
     }
 
     if {[lsearch $compile(components) $component] == -1} {
@@ -1122,12 +1121,12 @@ proc ::snit::Comp.statement.delegate {what name args} {
         method     { Comp.DelegatedMethod     $name $args }
         option     { Comp.DelegatedOption     $name $args }
         default {
-            error "Error in 'delegate $what $name...', '$what'?"
+            error "Error in \"delegate $what $name...\", \"$what\"?"
         }
     }
 
     if {([llength $args] % 2) != 0} {
-        error "Error in 'delegate $what $name...', invalid syntax"
+        error "Error in \"delegate $what $name...\", invalid syntax"
     }
 }
 
@@ -1140,7 +1139,7 @@ proc ::snit::Comp.statement.delegate {what name args} {
 proc ::snit::Comp.DelegatedTypemethod {method arglist} {
     variable compile
 
-    set errRoot "Error in 'delegate typemethod [list $method]...'"
+    set errRoot "Error in \"delegate typemethod [list $method]...\""
 
     # Next, parse the delegation options.
     set component ""
@@ -1155,30 +1154,30 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
             except { set exceptions $value }
             using  { set pattern $value    }
             default {
-                error "$errRoot, unknown delegation option '$opt'."
+                error "$errRoot, unknown delegation option \"$opt\""
             }
         }
     }
 
     if {$component eq "" && $pattern eq ""} {
-        error "$errRoot, missing 'to'."
+        error "$errRoot, missing \"to\""
     }
 
     if {$method eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify 'as' with method '*'"
+        error "$errRoot, cannot specify \"as\" with method \"*\""
     }
 
     if {$method ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify 'except' with method '*'" 
+        error "$errRoot, can only specify \"except\" with method \"*\"" 
     }
 
     if {$pattern ne "" && $target ne ""} {
-        error "$errRoot, cannot specify both 'as' and 'using'"
+        error "$errRoot, cannot specify both \"as\" and \"using\""
     }
 
     # Make sure the pattern is a valid list.
     if {[catch {lindex $pattern 0} result]} {
-        error "$errRoot, the -pattern, '$pattern', is not a valid list."
+        error "$errRoot, the -pattern, \"$pattern\", is not a valid list"
     }
 
     # NEXT, define the component
@@ -1198,7 +1197,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
     }
 
     if {[Contains $method $compile(localtypemethods)]} {
-        error "$errRoot, '$method' has been defined locally."
+        error "$errRoot, \"$method\" has been defined locally"
     }
 
     Mappend compile(defs) {
@@ -1226,7 +1225,7 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
 proc ::snit::Comp.DelegatedMethod {method arglist} {
     variable compile
 
-    set errRoot "Error in 'delegate method [list $method]...'"
+    set errRoot "Error in \"delegate method [list $method]...\""
 
     # Next, parse the delegation options.
     set component ""
@@ -1241,30 +1240,30 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
             except { set exceptions $value }
             using  { set pattern $value    }
             default {
-                error "$errRoot, unknown delegation option '$opt'."
+                error "$errRoot, unknown delegation option \"$opt\""
             }
         }
     }
 
     if {$component eq "" && $pattern eq ""} {
-        error "$errRoot, missing 'to'."
+        error "$errRoot, missing \"to\""
     }
 
     if {$method eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify 'as' with method '*'"
+        error "$errRoot, cannot specify \"as\" with method \"*\""
     }
 
     if {$method ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify 'except' with method '*'" 
+        error "$errRoot, can only specify \"except\" with method \"*\"" 
     }
 
     if {$pattern ne "" && $target ne ""} {
-        error "$errRoot, cannot specify both 'as' and 'using'"
+        error "$errRoot, cannot specify both \"as\" and \"using\""
     }
 
     # Make sure the pattern is a valid list.
     if {[catch {lindex $pattern 0} result]} {
-        error "$errRoot, the -pattern, '$pattern', is not a valid list."
+        error "$errRoot, the -pattern, \"$pattern\", is not a valid list"
     }
 
     # NEXT, define the component.  Allow typecomponents.
@@ -1286,7 +1285,7 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
     }
 
     if {[Contains $method $compile(localmethods)]} {
-        error "$errRoot, '$method' has been defined locally."
+        error "$errRoot, \"$method\" has been defined locally"
     }
 
     Mappend compile(defs) {
@@ -1319,7 +1318,7 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
     set resourceName [lindex $optionDef 1]
     set className [lindex $optionDef 2]
 
-    set errRoot "Error in 'delegate option [list $optionDef]...'"
+    set errRoot "Error in \"delegate option [list $optionDef]...\""
 
     # Next, parse the delegation options.
     set component ""
@@ -1332,37 +1331,37 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
             as     { set target $value     }
             except { set exceptions $value }
             default {
-                error "$errRoot, unknown delegation option '$opt'."
+                error "$errRoot, unknown delegation option \"$opt\""
             }
         }
     }
 
     if {$component eq ""} {
-        error "$errRoot, missing 'to'."
+        error "$errRoot, missing \"to\""
     }
 
     if {$option eq "*" && $target ne ""} {
-        error "$errRoot, cannot specify 'as' with 'delegate option *'"
+        error "$errRoot, cannot specify \"as\" with \"delegate option *\""
     }
 
     if {$option ne "*" && $exceptions ne ""} {
-        error "$errRoot, can only specify 'except' with 'delegate option *'" 
+        error "$errRoot, can only specify \"except\" with \"delegate option *\"" 
     }
 
     # Next, validate the option name
 
     if {"*" != $option} {
         if {![Comp.OptionNameIsValid $option]} {
-            error "$errRoot, badly named option '$option'"
+            error "$errRoot, badly named option \"$option\""
         }
     }
 
     if {[Contains $option $compile(localoptions)]} {
-        error "$errRoot, '$option' has been defined locally."
+        error "$errRoot, \"$option\" has been defined locally"
     }
 
     if {[Contains $option $compile(delegatedoptions)]} {
-        error "$errRoot, '$option' is multiply delegated."
+        error "$errRoot, \"$option\" is multiply delegated"
     }
 
     # NEXT, define the component
@@ -1434,7 +1433,7 @@ proc ::snit::Comp.statement.expose {component {"as" ""} {methodname ""}} {
         }
 
         if {[string equal $%COMPONENT% ""]} {
-            error "undefined component '%COMPONENT%'"
+            error "undefined component \"%COMPONENT%\""
         }
 
 
@@ -1474,7 +1473,7 @@ proc ::snit::widgetadaptor {type body} {
 proc ::snit::typemethod {type method arglist body} {
     # Make sure the type exists.
     if {![info exists ${type}::Snit_info]} {
-        error "no such type: '$type'"
+        error "no such type: \"$type\""
     }
 
     upvar ${type}::Snit_info           Snit_info
@@ -1483,7 +1482,7 @@ proc ::snit::typemethod {type method arglist body} {
     # FIRST, can't redefine delegated methods.
     if {[info exists Snit_typemethodInfo($method)] &&
         [lindex $Snit_typemethodInfo($method) 1] ne ""} {
-        error "Cannot define '$method', it has been delegated."
+        error "Cannot define \"$method\", it has been delegated"
     }
 
     CheckArgs "snit::typemethod $type $method" $arglist
@@ -1503,20 +1502,16 @@ proc ::snit::typemethod {type method arglist body} {
 proc ::snit::method {type method arglist body} {
     # Make sure the type exists.
     if {![info exists ${type}::Snit_info]} {
-        error "no such type: '$type'"
+        error "no such type: \"$type\""
     }
 
     upvar ${type}::Snit_methodInfo  Snit_methodInfo
     upvar ${type}::Snit_info        Snit_info
 
-    if {![info exists Snit_info]} {
-        error "no such type: '$type'"
-    }
-
     # FIRST, can't redefine delegated methods.
     if {[info exists Snit_methodInfo($method)] &&
         [lindex $Snit_methodInfo($method) 1] ne ""} {
-        error "Cannot define '$method', it has been delegated."
+        error "Cannot define \"$method\", it has been delegated"
     }
 
     # NEXT, check the arguments
@@ -1545,7 +1540,7 @@ proc ::snit::macro {name arglist body} {
 
     # NEXT, check the macro name against the reserved words
     if {[lsearch -exact $reservedwords $name] != -1} {
-        error "invalid macro name '$name'"
+        error "invalid macro name \"$name\""
     }
 
     # NEXT, see if the name has a namespace; if it does, define the
@@ -1584,7 +1579,7 @@ proc ::snit::CheckArgs {which arglist} {
     
     foreach name $reservedArgs {
         if {[Contains $name $arglist]} {
-            error "$which's arglist may not contain '$name' explicitly."
+            error "$which's arglist may not contain \"$name\" explicitly"
         }
     }
 }
@@ -1640,7 +1635,7 @@ proc ::snit::RT.type.typemethod.create {type name args} {
     if {[string match "*%AUTO%*" $name]} {
         set name [::snit::RT.UniqueName Snit_info(counter) $type $name]
     } elseif {!$Snit_info(canreplace) && [info commands $name] ne ""} {
-        error "command \"$name\" already exists."
+        error "command \"$name\" already exists"
     }
 
     # NEXT, create the instance's namespace.
@@ -1811,7 +1806,7 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
                 
             if {[llength $command] == 0} {
                 return -code error \
-                    "'$self $method' is not defined."
+                    "\"$self $method\" is not defined"
             }
         }
             
@@ -2132,7 +2127,7 @@ proc snit::RT.CacheTypemethodCommand {type method} {
     
     if {$compName ne ""} {
         if {![info exists Snit_typecomponents($compName)]} {
-            error "$type delegates typemethod '$method' to undefined typecomponent '$compName'."
+            error "$type delegates typemethod \"$method\" to undefined typecomponent \"$compName\""
         }
         
         lappend subList %c [list $Snit_typecomponents($compName)]
@@ -2163,7 +2158,7 @@ proc ::snit::RT.Component {type selfns name} {
     if {[catch {set Snit_components($name)} result]} {
         variable ${selfns}::Snit_instance
 
-        error "component '$name' is undefined in $type $Snit_instance."
+        error "component \"$name\" is undefined in $type $Snit_instance"
     }
     
     return $result
@@ -2186,7 +2181,7 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
         $Snit_isWidget &&
         [info exists Snit_components($component)]} {
         set cvar $Snit_components($component)
-        error "The hull component cannot be redefined."
+        error "The hull component cannot be redefined"
     }
 
     # Save the new component value.
@@ -2240,7 +2235,7 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
         } elseif {[info exists Snit_typecomponents($compName)]} {
             set compCmd $Snit_typecomponents($compName)
         } else {
-            error "$type $self delegates method '$method' to undefined component '$compName'."
+            error "$type $self delegates method \"$method\" to undefined component \"$compName\""
         }
         
         lappend subList %c [list $compCmd]
@@ -2344,7 +2339,7 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
         
         if {![string equal $obj $self]} {
             error \
-                "hull name mismatch: '$obj' != '$self'"
+                "hull name mismatch: \"$obj\" != \"$self\""
         }
     }
 
@@ -2395,7 +2390,7 @@ proc ::snit::RT.install {type compName "using" widgetType winPath args} {
     # a widget.
     if {$Snit_isWidget} {
         if {"" == $hull} {
-            error "tried to install '$compName' before the hull exists"
+            error "tried to install \"$compName\" before the hull exists"
         }
             
         # FIRST, query the option database and save the results 
@@ -2964,7 +2959,7 @@ proc ::snit::RT.typemethod.info {type command args} {
             }
         }
         default {
-            error "'$type info $command' is not defined."
+            error "\"$type info $command\" is not defined"
         }
     }
 }
@@ -3078,8 +3073,8 @@ proc ::snit::RT.method.info {type selfns win self command args} {
             }
         }
         default {
-            # error "'$self info $command' is not defined."
-            return -code error "'$self info $command' is not defined."
+            # error "\"$self info $command\" is not defined"
+            return -code error "\"$self info $command\" is not defined"
         }
     }
 }

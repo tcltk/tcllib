@@ -27,7 +27,11 @@
 	* snit.man      Reviewed the entire man page, and made copious
 	                changes and fixes.
 
-
+	* snit.tcl	Revised many of the error messages to be more 
+	* snit.test     Tcl/Tk-like.  Double-quotes are used instead of
+			single quotes, and terminal periods are omitted.
+	
+	
 2004-07-26  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Implemented -configuremethod and configure command

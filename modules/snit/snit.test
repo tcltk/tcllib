@@ -341,7 +341,7 @@ test type-1.4 {typemethod args can't include type} {} {
         }
     } result
     set result
-} {typemethod foo's arglist may not contain 'type' explicitly.}
+} {typemethod foo's arglist may not contain "type" explicitly}
 
 test type-1.5 {typemethod args can't include self} {} {
     cleanup
@@ -352,7 +352,7 @@ test type-1.5 {typemethod args can't include self} {} {
         }
     } result
     set result
-} {typemethod foo's arglist may not contain 'self' explicitly.}
+} {typemethod foo's arglist may not contain "self" explicitly}
 
 test type-1.6 {typemethod args can span multiple lines} {} {
     cleanup
@@ -498,9 +498,9 @@ test dtypemethod-1.1 {delegate typemethod to non-existent component} {} {
 
     catch {dog foo} result
     set result
-} {::dog delegates typemethod 'foo' to undefined typecomponent 'bar'.}
+} {::dog delegates typemethod "foo" to undefined typecomponent "bar"}
 
-test dtypemethod-1.2 {delegating to existing typecomponent.} {
+test dtypemethod-1.2 {delegating to existing typecomponent} {
     cleanup
 
     type dog {
@@ -514,7 +514,7 @@ test dtypemethod-1.2 {delegating to existing typecomponent.} {
     dog length foo
 } {3}
 
-test dtypemethod-1.3 {delegating to existing typecomponent with error.} {
+test dtypemethod-1.3 {delegating to existing typecomponent with error} {
     cleanup
 
     type dog {
@@ -572,7 +572,7 @@ test dtypemethod-1.6 {can't delegate local typemethod: order 1} {
     } result
 
     set result
-} {Error in 'delegate typemethod foo...', 'foo' has been defined locally.}
+} {Error in "delegate typemethod foo...", "foo" has been defined locally}
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
     cleanup
@@ -585,7 +585,7 @@ test dtypemethod-1.7 {can't delegate local typemethod: order 2} {
     } result
 
     set result
-} {Error in 'delegate typemethod foo...', 'foo' has been defined locally.}
+} {Error in "delegate typemethod foo...", "foo" has been defined locally}
 
 test dtypemethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -737,7 +737,7 @@ test creation-1.4 {constructor arg can't be type} {} {
         }
     } result
     set result
-} {constructor's arglist may not contain 'type' explicitly.}
+} {constructor's arglist may not contain "type" explicitly}
 
 test creation-1.5 {constructor arg can't be self} {} {
     cleanup
@@ -748,7 +748,7 @@ test creation-1.5 {constructor arg can't be self} {} {
         }
     } result
     set result
-} {constructor's arglist may not contain 'self' explicitly.}
+} {constructor's arglist may not contain "self" explicitly}
 
 test creation-1.6 {weird names are OK} {} {
     cleanup
@@ -857,7 +857,7 @@ test method-1.5 {unknown methods get an error} {} {
     set result ""
     catch {spot chase} result
     set result
-} {'::spot chase' is not defined.}
+} {"::spot chase" is not defined}
 
 test method-1.6 {info type method returns the object's type} {} {
     cleanup
@@ -936,7 +936,7 @@ test method-1.11 {method args can't include type} {} {
         }
     } result
     set result
-} {method foo's arglist may not contain 'type' explicitly.}
+} {method foo's arglist may not contain "type" explicitly}
 
 test method-1.12 {method args can't include self} {} {
     cleanup
@@ -947,7 +947,7 @@ test method-1.12 {method args can't include self} {} {
         }
     } result
     set result
-} {method foo's arglist may not contain 'self' explicitly.}
+} {method foo's arglist may not contain "self" explicitly}
 
 test method-1.13 {method args can span multiple lines} {} {
     cleanup
@@ -980,7 +980,7 @@ test rename-1.1 {mymethod uses name of instance name variable} {} {
     fido mymethod
 } {{::snit::RT.CallInstance ::dog::Snit_inst1} {::snit::RT.CallInstance ::dog::Snit_inst1 {A B}} {::snit::RT.CallInstance ::dog::Snit_inst1 A B}}
 
-test rename-1.2 {instances can be renamed.} {} {
+test rename-1.2 {instances can be renamed} {} {
     cleanup
 
     type dog { 
@@ -997,7 +997,7 @@ test rename-1.2 {instances can be renamed.} {} {
     concat $a $b
 } {{::snit::RT.CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::fido {::snit::RT.CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::spot}
 
-test rename-1.3 {rename to "" deletes an instance.} {} {
+test rename-1.3 {rename to "" deletes an instance} {} {
     cleanup
 
     type dog { }
@@ -1007,7 +1007,7 @@ test rename-1.3 {rename to "" deletes an instance.} {} {
     namespace children ::dog
 } {}
 
-test rename-1.4 {rename to "" deletes an instance even after a rename.} {} {
+test rename-1.4 {rename to "" deletes an instance even after a rename} {} {
     cleanup
 
     type dog { }
@@ -1018,7 +1018,7 @@ test rename-1.4 {rename to "" deletes an instance even after a rename.} {} {
     namespace children ::dog
 } {}
 
-test rename-1.5 {creating an object twice destroys the first instance.} {} {
+test rename-1.5 {creating an object twice destroys the first instance} {} {
     cleanup
 
     type dog { 
@@ -1282,7 +1282,7 @@ test typevariable-1.7 {mytypevar qualifies typevariables} {} {
     spot tvname myvar
 } {::dog::myvar}
 
-test typevariable-1.8 {typevariable with too many initializers throws an error.} {} {
+test typevariable-1.8 {typevariable with too many initializers throws an error} {} {
     cleanup
 
     catch {
@@ -1292,9 +1292,9 @@ test typevariable-1.8 {typevariable with too many initializers throws an error.}
     } result
 
     set result
-} {Error in 'typevariable color...', too many initializers.}
+} {Error in "typevariable color...", too many initializers}
 
-test typevariable-1.9 {typevariable with too many initializers throws an error.} {} {
+test typevariable-1.9 {typevariable with too many initializers throws an error} {} {
     cleanup
 
     catch {
@@ -1304,9 +1304,9 @@ test typevariable-1.9 {typevariable with too many initializers throws an error.}
     } result
 
     set result
-} {Error in 'typevariable color...', too many initializers.}
+} {Error in "typevariable color...", too many initializers}
 
-test typevariable-1.10 {typevariable can initialize array variables.} {} {
+test typevariable-1.10 {typevariable can initialize array variables} {} {
     cleanup
 
     type dog { 
@@ -1440,7 +1440,7 @@ test ivariable-1.6 {instance variables can be initialized in the definition} {} 
     spot list
 } {{Hi Howdy} {}}
 
-test ivariable-1.7 {variable is illegal when selfns is undefined.} {} {
+test ivariable-1.7 {variable is illegal when selfns is undefined} {} {
     cleanup
 
     type dog { 
@@ -1459,7 +1459,7 @@ test ivariable-1.7 {variable is illegal when selfns is undefined.} {} {
     set result
 } {can't read "selfns": no such variable}
 
-test ivariable-1.8 {myvar is illegal when selfns is undefined.} {} {
+test ivariable-1.8 {myvar is illegal when selfns is undefined} {} {
     cleanup
 
     type dog { 
@@ -1478,7 +1478,7 @@ test ivariable-1.8 {myvar is illegal when selfns is undefined.} {} {
     set result
 } {can't read "selfns": no such variable}
 
-test ivariable-1.9 {procs which define selfns see instance variables.} {} {
+test ivariable-1.9 {procs which define selfns see instance variables} {} {
     cleanup
 
     type dog { 
@@ -1498,7 +1498,7 @@ test ivariable-1.9 {procs which define selfns see instance variables.} {} {
     spot caller
 } {Howdy}
 
-test ivariable-1.10 {in methods, variable works with fully qualified names.} {} {
+test ivariable-1.10 {in methods, variable works with fully qualified names} {} {
     cleanup
 
     namespace eval ::somenamespace:: {
@@ -1517,7 +1517,7 @@ test ivariable-1.10 {in methods, variable works with fully qualified names.} {} 
     spot get
 } {somevalue}
 
-test ivariable-1.11 {variable with too many initializers throws an error.} {} {
+test ivariable-1.11 {variable with too many initializers throws an error} {} {
     cleanup
 
     catch {
@@ -1527,9 +1527,9 @@ test ivariable-1.11 {variable with too many initializers throws an error.} {} {
     } result
 
     set result
-} {Error in 'variable color...', too many initializers.}
+} {Error in "variable color...", too many initializers}
 
-test ivariable-1.12 {variable with too many initializers throws an error.} {} {
+test ivariable-1.12 {variable with too many initializers throws an error} {} {
     cleanup
 
     catch {
@@ -1539,9 +1539,9 @@ test ivariable-1.12 {variable with too many initializers throws an error.} {} {
     } result
 
     set result
-} {Error in 'variable color...', too many initializers.}
+} {Error in "variable color...", too many initializers}
 
-test ivariable-1.13 {variable can initialize array variables.} {} {
+test ivariable-1.13 {variable can initialize array variables} {} {
     cleanup
 
     type dog { 
@@ -1974,7 +1974,7 @@ test option-4.1 {local option name must begin with hyphen} {
     } result
 
     set result
-} {Error in 'option nohyphen...', badly named option 'nohyphen'}
+} {Error in "option nohyphen...", badly named option "nohyphen"}
 
 test option-4.2 {local option name must be lower case} {
     cleanup
@@ -1986,7 +1986,7 @@ test option-4.2 {local option name must be lower case} {
     } result
 
     set result
-} {Error in 'option -Upper...', badly named option '-Upper'}
+} {Error in "option -Upper...", badly named option "-Upper"}
 
 test option-4.3 {local option name may not contain spaces} {
     cleanup
@@ -1998,7 +1998,7 @@ test option-4.3 {local option name may not contain spaces} {
     } result
 
     set result
-} {Error in 'option {"-with space"}...', badly named option '-with space'}
+} {Error in "option {"-with space"}...", badly named option "-with space"}
 
 test option-4.4 {delegated option name must begin with hyphen} {
     cleanup
@@ -2010,7 +2010,7 @@ test option-4.4 {delegated option name must begin with hyphen} {
     } result
 
     set result
-} {Error in 'delegate option nohyphen...', badly named option 'nohyphen'}
+} {Error in "delegate option nohyphen...", badly named option "nohyphen"}
 
 test option-4.5 {delegated option name must be lower case} {
     cleanup
@@ -2022,7 +2022,7 @@ test option-4.5 {delegated option name must be lower case} {
     } result
 
     set result
-} {Error in 'delegate option -Upper...', badly named option '-Upper'}
+} {Error in "delegate option -Upper...", badly named option "-Upper"}
 
 test option-4.6 {delegated option name may not contain spaces} {
     cleanup
@@ -2034,7 +2034,7 @@ test option-4.6 {delegated option name may not contain spaces} {
     } result
 
     set result
-} {Error in 'delegate option {"-with space"}...', badly named option '-with space'}
+} {Error in "delegate option {"-with space"}...", badly named option "-with space"}
 
 test option-5.1 {local widget options read from option database} tk {
     cleanup
@@ -2091,7 +2091,7 @@ test option-5.2 {local option database values available in constructor} tk {
 # onconfigure
 
 
-test onconfigure-1.1 {invalid onconfigure methods are caught.} {} {
+test onconfigure-1.1 {invalid onconfigure methods are caught} {} {
     cleanup
 
     catch {
@@ -2100,9 +2100,9 @@ test onconfigure-1.1 {invalid onconfigure methods are caught.} {} {
         }
     } result
     set result
-} {onconfigure -color: option '-color' unknown.}
+} {onconfigure -color: option "-color" unknown}
 
-test onconfigure-1.2 {onconfigure methods take one argument.} {} {
+test onconfigure-1.2 {onconfigure methods take one argument} {} {
     cleanup
 
     catch {
@@ -2113,9 +2113,9 @@ test onconfigure-1.2 {onconfigure methods take one argument.} {} {
         }
     } result
     set result
-} {onconfigure -color handler should have one argument, got 'value badarg'.}
+} {onconfigure -color handler should have one argument, got "value badarg"}
 
-test onconfigure-1.3 {onconfigure methods work.} {} {
+test onconfigure-1.3 {onconfigure methods work} {} {
     cleanup
 
     type dog { 
@@ -2131,7 +2131,7 @@ test onconfigure-1.3 {onconfigure methods work.} {} {
     spot cget -color
 } {*brown*}
 
-test onconfigure-1.4 {onconfigure arg can't be type.} {} {
+test onconfigure-1.4 {onconfigure arg can't be type} {} {
     cleanup
 
     catch {
@@ -2141,9 +2141,9 @@ test onconfigure-1.4 {onconfigure arg can't be type.} {} {
         }
     } result
     set result
-} {onconfigure -color's arglist may not contain 'type' explicitly.}
+} {onconfigure -color's arglist may not contain "type" explicitly}
 
-test onconfigure-1.5 {onconfigure arg can't be self.} {} {
+test onconfigure-1.5 {onconfigure arg can't be self} {} {
     cleanup
 
     catch {
@@ -2153,12 +2153,12 @@ test onconfigure-1.5 {onconfigure arg can't be self.} {} {
         }
     } result
     set result
-} {onconfigure -color's arglist may not contain 'self' explicitly.}
+} {onconfigure -color's arglist may not contain "self" explicitly}
 
 #-----------------------------------------------------------------------
 # oncget
 
-test oncget-1.1 {invalid oncget methods are caught.} {} {
+test oncget-1.1 {invalid oncget methods are caught} {} {
     cleanup
 
     catch {
@@ -2167,9 +2167,9 @@ test oncget-1.1 {invalid oncget methods are caught.} {} {
         }
     } result
     set result
-} {Error in 'oncget -color...', option '-color' unknown.}
+} {Error in "oncget -color...", option "-color" unknown}
 
-test oncget-1.2 {oncget methods work.} {} {
+test oncget-1.2 {oncget methods work} {} {
     cleanup
 
     type dog { 
@@ -2346,7 +2346,7 @@ test delegate-1.1 {can only delegate methods or options} {} {
     } result
 
     set result
-} {Error in 'delegate foo bar...', 'foo'?}
+} {Error in "delegate foo bar...", "foo"?}
 
 test delegate-1.2 {"to" must appear in the right place} {} {
     cleanup
@@ -2359,7 +2359,7 @@ test delegate-1.2 {"to" must appear in the right place} {} {
     } result
 
     set result
-} {Error in 'delegate method foo...', unknown delegation option 'from'.}
+} {Error in "delegate method foo...", unknown delegation option "from"}
 
 test delegate-1.3 {"as" must have a target} {} {
     cleanup
@@ -2372,7 +2372,7 @@ test delegate-1.3 {"as" must have a target} {} {
     } result
 
     set result
-} {Error in 'delegate method foo...', invalid syntax}
+} {Error in "delegate method foo...", invalid syntax}
 
 test delegate-1.4 {"as" must have a single target} {} {
     cleanup
@@ -2385,7 +2385,7 @@ test delegate-1.4 {"as" must have a single target} {} {
     } result
 
     set result
-} {Error in 'delegate method foo...', unknown delegation option 'quux'.}
+} {Error in "delegate method foo...", unknown delegation option "quux"}
 
 test delegate-1.5 {"as" doesn't work with "*"} {} {
     cleanup
@@ -2398,7 +2398,7 @@ test delegate-1.5 {"as" doesn't work with "*"} {} {
     } result
 
     set result
-} {Error in 'delegate method *...', cannot specify 'as' with method '*'}
+} {Error in "delegate method *...", cannot specify "as" with method "*"}
 
 test delegate-1.6 {"except" must have a target} {} {
     cleanup
@@ -2411,7 +2411,7 @@ test delegate-1.6 {"except" must have a target} {} {
     } result
 
     set result
-} {Error in 'delegate method *...', invalid syntax}
+} {Error in "delegate method *...", invalid syntax}
 
 test delegate-1.7 {"except" must have a single target} {} {
     cleanup
@@ -2424,7 +2424,7 @@ test delegate-1.7 {"except" must have a single target} {} {
     } result
 
     set result
-} {Error in 'delegate method *...', unknown delegation option 'quux'.}
+} {Error in "delegate method *...", unknown delegation option "quux"}
 
 test delegate-1.8 {"except" works only with "*"} {} {
     cleanup
@@ -2437,7 +2437,7 @@ test delegate-1.8 {"except" works only with "*"} {} {
     } result
 
     set result
-} {Error in 'delegate method foo...', can only specify 'except' with method '*'}
+} {Error in "delegate method foo...", can only specify "except" with method "*"}
 
 test delegate-1.9 {only "as" or "except"} {} {
     cleanup
@@ -2450,7 +2450,7 @@ test delegate-1.9 {only "as" or "except"} {} {
     } result
 
     set result
-} {Error in 'delegate method foo...', unknown delegation option 'with'.}
+} {Error in "delegate method foo...", unknown delegation option "with"}
 
 
 #-----------------------------------------------------------------------
@@ -2468,9 +2468,9 @@ test dmethod-1.1 {delegate method to non-existent component} {} {
     dog create spot
     catch {spot foo} result
     set result
-} {::dog ::spot delegates method 'foo' to undefined component 'bar'.}
+} {::dog ::spot delegates method "foo" to undefined component "bar"}
 
-test dmethod-1.2 {delegating to existing component.} {
+test dmethod-1.2 {delegating to existing component} {
     cleanup
 
     type dog {
@@ -2485,7 +2485,7 @@ test dmethod-1.2 {delegating to existing component.} {
     spot length foo
 } {3}
 
-test dmethod-1.3 {delegating to existing component with error.} {
+test dmethod-1.3 {delegating to existing component with error} {
     cleanup
 
     type dog {
@@ -2534,8 +2534,6 @@ test dmethod-1.5 {delegating unknown method to existing component with error} {
     set result
 } {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
-# {'::spot foo' is not defined.}
-
 test dmethod-1.6 {can't delegate local method: order 1} {
     cleanup
 
@@ -2547,7 +2545,7 @@ test dmethod-1.6 {can't delegate local method: order 1} {
     } result
 
     set result
-} {Error in 'delegate method foo...', 'foo' has been defined locally.}
+} {Error in "delegate method foo...", "foo" has been defined locally}
 
 test dmethod-1.7 {can't delegate local method: order 2} {
     cleanup
@@ -2560,7 +2558,7 @@ test dmethod-1.7 {can't delegate local method: order 2} {
     } result
 
     set result
-} {Error in 'delegate method foo...', 'foo' has been defined locally.}
+} {Error in "delegate method foo...", "foo" has been defined locally}
 
 test dmethod-1.8 {excepted methods are caught properly} {
     cleanup
@@ -2587,7 +2585,7 @@ test dmethod-1.8 {excepted methods are caught properly} {
     catch {fifi tuck}   c
     
     list $a $b $c
-} {flaunted {'::fifi wag' is not defined.} {'::fifi tuck' is not defined.}}
+} {flaunted {"::fifi wag" is not defined} {"::fifi tuck" is not defined}}
 
 test dmethod-1.9 {as clause can include arguments} {
     cleanup
@@ -2720,7 +2718,7 @@ test doption-1.1 {delegate option to non-existent component} {} {
     dog create spot
     catch {spot cget -foo} result
     set result
-} {component 'bar' is undefined in ::dog ::spot.}
+} {component "bar" is undefined in ::dog ::spot}
 
 test doption-1.2 {delegating option to existing component: cget} {
     cleanup
@@ -2802,7 +2800,7 @@ test doption-1.5 {can't oncget for delegated option} {
         }
     } result
     set result
-} {Error in 'oncget -color...', option '-color' is delegated.}
+} {Error in "oncget -color...", option "-color" is delegated}
 
 test doption-1.6 {can't onconfigure for delegated option} {
     cleanup
@@ -2816,7 +2814,7 @@ test doption-1.6 {can't onconfigure for delegated option} {
         }
     } result
     set result
-} {onconfigure -color: option '-color' is delegated.}
+} {onconfigure -color: option "-color" is delegated}
 
 test doption-1.7 {delegating unknown options to existing component: error} {
     cleanup
@@ -2852,7 +2850,7 @@ test doption-1.8 {can't delegate local option: order 1} {
     } result
 
     set result
-} {Error in 'delegate option -color...', '-color' has been defined locally.}
+} {Error in "delegate option -color...", "-color" has been defined locally}
 
 test doption-1.9 {can't delegate local option: order 2} {
     cleanup
@@ -2865,7 +2863,7 @@ test doption-1.9 {can't delegate local option: order 2} {
     } result
 
     set result
-} {Error in 'option -color...', cannot define '-color' locally, it has been delegated.}
+} {Error in "option -color...", cannot define "-color" locally, it has been delegated}
 
 test doption-1.10 {excepted options are caught properly on cget} {
     cleanup
@@ -3202,7 +3200,7 @@ test widgetadaptor-1.8 {"create" is optional} tk {
     set a
 } {Howdy!}
 
-test widgetadaptor-1.9 {"create" is optional, but must be a valid name.} tk {
+test widgetadaptor-1.9 {"create" is optional, but must be a valid name} tk {
     cleanup
 
     widgetadaptor mylabel {
@@ -3258,9 +3256,9 @@ test widgetadaptor-1.11 {destroy method not defined for widget types} tk {
     destroy .label
     tkbide
     set result
-} {'.label destroy' is not defined.}
+} {".label destroy" is not defined}
 
-test widgetadaptor-1.12 {hull can be repeatedly renamed.} tk {
+test widgetadaptor-1.12 {hull can be repeatedly renamed} tk {
     cleanup
 
     widgetadaptor basetype { 
@@ -3288,7 +3286,7 @@ test widgetadaptor-1.12 {hull can be repeatedly renamed.} tk {
     set a
 } {.foo}
 
-test widgetadaptor-1.13 {widget names can be generated.} tk {
+test widgetadaptor-1.13 {widget names can be generated} tk {
     cleanup
 
     # Don't use this widget type name in any other test.
@@ -3304,7 +3302,7 @@ test widgetadaptor-1.13 {widget names can be generated.} tk {
     set w
 } {.unique1}
 
-test widgetadaptor-1.14 {snit::widgetadaptor as hull.} tk {
+test widgetadaptor-1.14 {snit::widgetadaptor as hull} tk {
     cleanup
 
     widgetadaptor mylabel {
@@ -3394,7 +3392,7 @@ test widgetadaptor-1.15 {snit::widgetadaptor as hull; use rename} tk {
     list $a $b $c $d $e $f $g
 } {{method2: method1} {Some Text} {More Text} ::mylabel2::Snit_inst1 ::mylabel::Snit_inst1 {} {}}
 
-test widgetadaptor-1.16 {BWidget Label as hull.} bwidget {
+test widgetadaptor-1.16 {BWidget Label as hull} bwidget {
     cleanup
 
     widgetadaptor mylabel {
@@ -3476,7 +3474,7 @@ test widget-2.1 {can't redefine hull} tk {
 
     catch {.frm resethull} result
     set result
-} {can't set "hull": The hull component cannot be redefined.}
+} {can't set "hull": The hull component cannot be redefined}
 
 #-----------------------------------------------------------------------
 # install
@@ -3550,7 +3548,7 @@ test install-1.3 {can't install until hull exists} tk {
     } result
 
     set result
-} {Error in constructor: tried to install 'text' before the hull exists}
+} {Error in constructor: tried to install "text" before the hull exists}
 
 test install-1.4 {install queries option database} tk {
     cleanup
@@ -4470,7 +4468,7 @@ test widgetclass-1.3 {widgetclass must begin with uppercase letter} tk {
     } result
     
     set result
-} {widgetclass 'dog' does not begin with an uppercase letter}
+} {widgetclass "dog" does not begin with an uppercase letter}
 
 test widgetclass-1.4 {widgetclass can only be defined once} tk {
     cleanup
@@ -4617,7 +4615,7 @@ test hulltype-1.5 {hulltype can only be defined once} tk {
 #-----------------------------------------------------------------------
 # expose statement
 
-test expose-1.1 {can't expose nothing.} {
+test expose-1.1 {can't expose nothing} {
     cleanup
 
     catch {
@@ -4630,7 +4628,7 @@ test expose-1.1 {can't expose nothing.} {
 } {wrong # args: should be "::snit::Comp.statement.expose component ?as? ?methodname?"}
 
 
-test expose-1.2 {expose a component that's never installed.} {
+test expose-1.2 {expose a component that's never installed} {
     cleanup
 
     type dog { 
@@ -4644,9 +4642,9 @@ test expose-1.2 {expose a component that's never installed.} {
     } result
     
     set result
-} {undefined component 'tail'}
+} {undefined component "tail"}
 
-test expose-1.3 {exposed method returns component command.} {
+test expose-1.3 {exposed method returns component command} {
     cleanup
 
     type tail {  }
@@ -4668,7 +4666,7 @@ test expose-1.3 {exposed method returns component command.} {
     fido tail
 } {::fido.tail}
 
-test expose-1.4 {exposed method calls component methods.} {
+test expose-1.4 {exposed method calls component methods} {
     cleanup
 
     type tail {
@@ -4806,7 +4804,7 @@ test error-1.6 {oncget errors propagate properly} {
 #-----------------------------------------------------------------------
 # Externally defined typemethods
 
-test etypemethod-1.1 {external typemethods can be called as expected.} {
+test etypemethod-1.1 {external typemethods can be called as expected} {
     cleanup
 
     type dog { }
@@ -4849,12 +4847,12 @@ test etypemethod-1.4 {can't define external typemethod if no type} {
     } result 
 
     set result
-} {no such type: 'extremelyraredog'}
+} {no such type: "extremelyraredog"}
 
 #-----------------------------------------------------------------------
 # Externally defined methods
 
-test emethod-1.1 {external methods can be called as expected.} {
+test emethod-1.1 {external methods can be called as expected} {
     cleanup
 
     type dog { }
@@ -4918,7 +4916,7 @@ test emethod-1.5 {delegated methods can't be redefined} {
     } result
         
     set result
-} {Cannot define 'bark', it has been delegated.}
+} {Cannot define "bark", it has been delegated}
 
 test emethod-1.6 {can't define external method if no type} {
     cleanup
@@ -4928,21 +4926,21 @@ test emethod-1.6 {can't define external method if no type} {
     } result 
 
     set result
-} {no such type: 'extremelyraredog'}
+} {no such type: "extremelyraredog"}
 
 #-----------------------------------------------------------------------
 # Macros
 
-test macro-1.1 {can't redefine non-macros.} {
+test macro-1.1 {can't redefine non-macros} {
     cleanup
 
     catch {
         snit::macro method {} {}
     } result
     set result
-} {invalid macro name 'method'}
+} {invalid macro name "method"}
 
-test macro-1.2 {can define and use a macro.} {
+test macro-1.2 {can define and use a macro} {
     cleanup
 
     snit::macro hello {name} {
@@ -4959,7 +4957,7 @@ test macro-1.2 {can define and use a macro.} {
 
 } {Hello, World!}
 
-test macro-1.3 {can redefine macro.} {
+test macro-1.3 {can redefine macro} {
     cleanup
 
     snit::macro dup {} {}
@@ -4968,7 +4966,7 @@ test macro-1.3 {can redefine macro.} {
     set dummy "No error"
 } {No error}
 
-test macro-1.4 {can define macro in namespace.} {
+test macro-1.4 {can define macro in namespace} {
     cleanup
 
     snit::macro ::test::goodbye {name} {
@@ -4984,7 +4982,7 @@ test macro-1.4 {can define macro in namespace.} {
     spot goodbye
 } {Goodbye, World!}
 
-test macro-1.5 {_proc and _variable are defined.} {
+test macro-1.5 {_proc and _variable are defined} {
     cleanup
 
     snit::macro testit {} {
@@ -5002,7 +5000,7 @@ test macro-1.5 {_proc and _variable are defined.} {
     spot testit
 } {_variable _proc}
 
-test macro-1.6 {_variable works.} {
+test macro-1.6 {_variable works} {
     cleanup
 
     snit::macro test1 {} {
@@ -5028,7 +5026,7 @@ test macro-1.6 {_variable works.} {
 #-----------------------------------------------------------------------
 # Component Statement
 
-test component-1.1 {component defines an instance variable.} {
+test component-1.1 {component defines an instance variable} {
     cleanup
     type dog {
         component tail
@@ -5039,7 +5037,7 @@ test component-1.1 {component defines an instance variable.} {
     namespace tail [spot info vars tail]
 } {tail}
 
-test component-1.2 {-public exposes the component.} {
+test component-1.2 {-public exposes the component} {
     cleanup
 
     type tail {
@@ -5061,7 +5059,7 @@ test component-1.2 {-public exposes the component.} {
     spot mytail wag
 } {Wag, wag}
 
-test component-1.3 {-inherit requires a boolean value.} {
+test component-1.3 {-inherit requires a boolean value} {
     cleanup
 
     catch {
@@ -5071,9 +5069,9 @@ test component-1.3 {-inherit requires a boolean value.} {
     } result
 
     set result
-} {component animal -inherit: expected boolean value, got 'foo'.}
+} {component animal -inherit: expected boolean value, got "foo"}
 
-test component-1.4 {-inherit delegates unknown methods to the component.} {
+test component-1.4 {-inherit delegates unknown methods to the component} {
     cleanup
 
     type animal {
@@ -5095,7 +5093,7 @@ test component-1.4 {-inherit delegates unknown methods to the component.} {
     spot eat
 } {Eat, eat.}
 
-test component-1.5 {-inherit delegates unknown options to the component.} {
+test component-1.5 {-inherit delegates unknown options to the component} {
     cleanup
     
     type animal {
@@ -5129,7 +5127,7 @@ test typevar_var-1.1 {variable/typevariable collisions not allowed: order 1} {
     } result
 
     set result
-} {Error in 'variable var...', 'var' is already a typevariable.}
+} {Error in "variable var...", "var" is already a typevariable}
 
 test typevar_var-1.2 {variable/typevariable collisions not allowed: order 2} {
     cleanup
@@ -5142,7 +5140,7 @@ test typevar_var-1.2 {variable/typevariable collisions not allowed: order 2} {
     } result
 
     set result
-} {Error in 'typevariable var...', 'var' is already an instance variable.}
+} {Error in "typevariable var...", "var" is already an instance variable}
 
 test typevar_var-1.3 {component/typecomponent collisions not allowed: order 1} {
     cleanup
@@ -5155,7 +5153,7 @@ test typevar_var-1.3 {component/typecomponent collisions not allowed: order 1} {
     } result
 
     set result
-} {Error in 'component comp...', 'comp' is already a typevariable.}
+} {Error in "component comp...", "comp" is already a typevariable}
 
 test typevar_var-1.4 {component/typecomponent collisions not allowed: order 2} {
     cleanup
@@ -5168,7 +5166,7 @@ test typevar_var-1.4 {component/typecomponent collisions not allowed: order 2} {
     } result
 
     set result
-} {Error in 'typecomponent comp...', 'comp' is already an instance variable.}
+} {Error in "typecomponent comp...", "comp" is already an instance variable}
 
 test typevar_var-1.5 {can't delegate options to typecomponents} {
     cleanup
@@ -5182,7 +5180,7 @@ test typevar_var-1.5 {can't delegate options to typecomponents} {
     } result
 
     set result
-} {Error in 'delegate option -opt...', 'comp' is already a typevariable.}
+} {Error in "delegate option -opt...", "comp" is already a typevariable}
 
 test typevar_var-1.5 {can't delegate typemethods to instance components} {
     cleanup
@@ -5196,7 +5194,7 @@ test typevar_var-1.5 {can't delegate typemethods to instance components} {
     } result
 
     set result
-} {Error in 'delegate typemethod foo...', 'comp' is already an instance variable.}
+} {Error in "delegate typemethod foo...", "comp" is already an instance variable}
 
 test typevar_var-1.6 {can delegate methods to typecomponents} {
     cleanup
@@ -5295,7 +5293,7 @@ test optionsyntax-2.4 {can't redefine explicit resource} {
     } result
 
     set result
-} {Error in 'option {-foo foo}...', resource name redefined from 'ffoo' to 'foo'.}
+} {Error in "option {-foo foo}...", resource name redefined from "ffoo" to "foo"}
 
 test optionsyntax-2.5 {can't redefine explicit class} {
     cleanup
@@ -5308,7 +5306,7 @@ test optionsyntax-2.5 {can't redefine explicit class} {
     } result
 
     set result
-} {Error in 'option {-foo ffoo FFoo}...', class name redefined from 'Ffoo' to 'FFoo'.}
+} {Error in "option {-foo ffoo FFoo}...", class name redefined from "Ffoo" to "FFoo"}
 
 test optionsyntax-2.6 {can redefine implicit resource and class} {
     cleanup
@@ -5435,7 +5433,7 @@ test optionsyntax-3.8 {option -readonly must be a boolean} {
     } result
 
     set result
-} {Error in 'option -foo...', -readonly requires a boolean, got 'foo'}
+} {Error in "option -foo...", -readonly requires a boolean, got "foo"}
 
 test optionsyntax-3.9 {option -readonly can't be empty} {
     cleanup
@@ -5447,7 +5445,7 @@ test optionsyntax-3.9 {option -readonly can't be empty} {
     } result
 
     set result
-} {Error in 'option -foo...', -readonly requires a boolean, got ''}
+} {Error in "option -foo...", -readonly requires a boolean, got ""}
 
 #-----------------------------------------------------------------------
 # 'delegate option' Syntax tests.
@@ -5745,7 +5743,7 @@ test configurecache-1.2 {Component rename invalidates cache} {
 #-----------------------------------------------------------------------
 # option -validatemethod
 
-test validatemethod-1.1 {Validate method is called.} {
+test validatemethod-1.1 {Validate method is called} {
     cleanup
 
     type dog {
@@ -5768,7 +5766,7 @@ test validatemethod-1.1 {Validate method is called.} {
     fido getflag
 } {1} 
 
-test validatemethod-1.1 {Validate method gets correct arguments.} {
+test validatemethod-1.1 {Validate method gets correct arguments} {
     cleanup
 
     type dog {
@@ -5784,16 +5782,13 @@ test validatemethod-1.1 {Validate method gets correct arguments.} {
         }
     }
 
-    catch {
-        dog fido -color brown
-    }  result
-    set result
+    dog fido -color brown
 } {::fido} 
 
 #-----------------------------------------------------------------------
 # option -readonly semantics
 
-test optionreadonly-1.1 {Readonly options can be set at creation time.} {
+test optionreadonly-1.1 {Readonly options can be set at creation time} {
     cleanup
 
     type dog {
@@ -5807,7 +5802,7 @@ test optionreadonly-1.1 {Readonly options can be set at creation time.} {
     fido cget -color
 } {brown} 
 
-test optionreadonly-1.2 {Readonly options can't be set after creation.} {
+test optionreadonly-1.2 {Readonly options can't be set after creation} {
     cleanup
 
     type dog {
@@ -5828,7 +5823,7 @@ test optionreadonly-1.2 {Readonly options can't be set after creation.} {
 #-----------------------------------------------------------------------
 # Pragma -hastypeinfo
 
-test hastypeinfo-1.1 {$type info is defined by default.} {
+test hastypeinfo-1.1 {$type info is defined by default} {
     cleanup
 
     type dog {
@@ -5838,7 +5833,7 @@ test hastypeinfo-1.1 {$type info is defined by default.} {
     dog info typevars
 } {::dog::foo} 
 
-test hastypeinfo-1.2 {$type info can be disabled.} {
+test hastypeinfo-1.2 {$type info can be disabled} {
     cleanup
 
     type dog {
@@ -5856,7 +5851,7 @@ test hastypeinfo-1.2 {$type info can be disabled.} {
 #-----------------------------------------------------------------------
 # Pragma -hastypedestroy
 
-test hastypedestroy-1.1 {$type destroy is defined by default.} {
+test hastypedestroy-1.1 {$type destroy is defined by default} {
     cleanup
 
     type dog { 
@@ -5872,7 +5867,7 @@ test hastypedestroy-1.1 {$type destroy is defined by default.} {
     set result
 } {invalid command name "::dog"} 
 
-test hastypedestroy-1.2 {$type destroy can be disabled.} {
+test hastypedestroy-1.2 {$type destroy can be disabled} {
     cleanup
 
     type dog {
@@ -5895,7 +5890,7 @@ test hastypedestroy-1.2 {$type destroy can be disabled.} {
 #-----------------------------------------------------------------------
 # Pragma -hasinstances
 
-test hasinstances-1.1 {-hasinstances is true by default.} {
+test hasinstances-1.1 {-hasinstances is true by default} {
     cleanup
 
     catch {
@@ -5912,7 +5907,7 @@ test hasinstances-1.1 {-hasinstances is true by default.} {
     set result
 } {Woof} 
 
-test hasinstances-1.2 {'-hasinstances no' disables explicit object creation.} {
+test hasinstances-1.2 {'-hasinstances no' disables explicit object creation} {
     cleanup
 
     type dog { 
@@ -5925,7 +5920,7 @@ test hasinstances-1.2 {'-hasinstances no' disables explicit object creation.} {
     set result
 } {"::dog create" is not defined} 
 
-test hasinstances-1.3 {'-hasinstances no' disables implicit object creation.} {
+test hasinstances-1.3 {'-hasinstances no' disables implicit object creation} {
     cleanup
 
     type dog { 
@@ -5941,7 +5936,7 @@ test hasinstances-1.3 {'-hasinstances no' disables implicit object creation.} {
 #-----------------------------------------------------------------------
 # pragma -canreplace
 
-test canreplace-1.1 {By default, "-canreplace no".} {
+test canreplace-1.1 {By default, "-canreplace no"} {
     cleanup
 
     type dog { 
@@ -5953,9 +5948,9 @@ test canreplace-1.1 {By default, "-canreplace no".} {
         dog fido
     } result
     set result
-} {command "::fido" already exists.} 
+} {command "::fido" already exists} 
 
-test canreplace-1.2 {Can replace commands when "-canreplace yes".} {
+test canreplace-1.2 {Can replace commands when "-canreplace yes"} {
     cleanup
 
     type dog { 
