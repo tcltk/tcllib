@@ -8,7 +8,7 @@
 
 package require Tcl 8.3
 package require mime 1.3.4
-package provide smtp 1.3.4
+package provide smtp 1.3.5
 
 #
 # state variables:
@@ -89,6 +89,8 @@ if {[catch {package require Trf  2.0}]} {
 #             -maxsecs     Maximum number of seconds to allow the SMTP server
 #                          to accept the message. If not specified, the default
 #                          is 120 seconds.
+#             -usetls      A boolean flag. If the server supports it and we
+#                          have the package, use TLS to secure the connection.
 #
 # Results:
 #	Message is sent.  On success, return "".  On failure, throw an
@@ -112,6 +114,7 @@ proc ::smtp::sendmessage {part args} {
     set recipients ""
     set servers [list localhost]
     set ports [list 25]
+    set tlsP 1
 
     array set header ""
 
@@ -133,6 +136,7 @@ proc ::smtp::sendmessage {part args} {
             -atleastone {set aloP   [boolean $value]}
             -debug      {set debugP [boolean $value]}
             -queue      {set queueP [boolean $value]}
+            -usetls     {set tlsP   [boolean $value]}
 	    -maxsecs    {set maxsecs [expr {$value < 0 ? 0 : $value}]}
             -header {
                 if {[llength $value] != 2} {
@@ -384,7 +388,7 @@ proc ::smtp::sendmessage {part args} {
     # Create smtp token, which essentially means begin talking to the SMTP
     # server.
     set token [initialize -debug $debugP -client $client \
-		                -maxsecs $maxsecs \
+		                -maxsecs $maxsecs -usetls $tlsP \
                                 -multiple $bccP -queue $queueP \
                                 -servers $servers -ports $ports]
 
@@ -557,6 +561,7 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 #                          request.
 #             -ports       A list of ports on mail servers that could process
 #                          the request (one port per server-- defaults to 25).
+#             -usetls      A boolean to indicate we will use TLS if possible.
 #
 # Results:
 #	On success, return an smtp token.  On failure, throw
@@ -627,48 +632,10 @@ proc ::smtp::initialize {args} {
                 continue
             }
         }
-        
-        # Try enhanced SMTP first.
-        
-        if {[set code [catch {smtp::talk $token 300 "EHLO $options(-client)"} \
-                   result]]} {
-            array set response [list code 400 diagnostic $result args ""]
-        } else {
-            array set response $result
-        }
-        set ecode $errorCode
-        set einfo $errorInfo
-        if {(500 <= $response(code)) && ($response(code) <= 599)} {
-            if {[set code [catch { talk $token 300 \
-                                              "HELO $options(-client)" } \
-                       result]]} {
-                array set response [list code 400 diagnostic $result \
-                                    args ""]
-            } else {
-                array set response $result
-            }
-            set ecode $errorCode
-            set einfo $errorInfo
-        }
-        
-        if {$response(code) == 250} {
-            # Successful response to HELO or EHLO command, so set up queuing
-            # and whatnot and return the token.
 
-            if {(!$options(-multiple)) \
-                    && ([lsearch $response(args) ONEX] >= 0)} {
-                catch {smtp::talk $token 300 ONEX}
-            }
-            if {($options(-queue)) \
-                    && ([lsearch $response(args) XQUE] >= 0)} {
-                catch {smtp::talk $token 300 QUED}
-            }
-
-            return $token
-        } else {
-            # Bad response; close the connection and hope the next server
-            # is happier.
-            catch {close $state(sd)}
+        set r [initialize_ehlo $token]
+        if {$r != {}} {
+            return $r
         }
         incr index
     }
@@ -678,6 +645,77 @@ proc ::smtp::initialize {args} {
     finalize $token -close drop
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
+}
+
+proc ::smtp::initialize_ehlo {token} {
+    global errorCode errorInfo
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    array set options $state(options)
+
+    # Try enhanced SMTP first.
+
+    if {[set code [catch {smtp::talk $token 300 "EHLO $options(-client)"} \
+                       result]]} {
+        array set response [list code 400 diagnostic $result args ""]
+    } else {
+        array set response $result
+    }
+    set ecode $errorCode
+    set einfo $errorInfo
+    if {(500 <= $response(code)) && ($response(code) <= 599)} {
+        if {[set code [catch { talk $token 300 \
+                                   "HELO $options(-client)" } \
+                           result]]} {
+            array set response [list code 400 diagnostic $result args ""]
+        } else {
+            array set response $result
+        }
+        set ecode $errorCode
+        set einfo $errorInfo
+    }
+    
+    if {$response(code) == 250} {
+        # Successful response to HELO or EHLO command, so set up queuing
+        # and whatnot and return the token.
+        
+        if {(!$options(-multiple)) \
+                && ([lsearch $response(args) ONEX] >= 0)} {
+            catch {smtp::talk $token 300 ONEX}
+        }
+        if {($options(-queue)) \
+                && ([lsearch $response(args) XQUE] >= 0)} {
+            catch {smtp::talk $token 300 QUED}
+        }
+        
+        # Support STARTTLS extension.
+        if {($options(-usetls)) && ![info exists state(tls)] \
+                && (([lsearch $response(args) STARTTLS] >= 0)
+                    || ([lsearch $response(args) TLS] >= 0))} {
+            if {![catch {package require tls}]} {
+                set state(tls) 0
+                if {![catch {smtp::talk $token 300 STARTTLS}]} {
+                    fileevent $state(sd) readable {}
+                    catch {
+                        ::tls::import $state(sd)
+                        catch {::tls::handshake $state(sd)} msg
+                        set state(tls) 1
+                    } 
+                    fileevent $state(sd) readable \
+                        [list ::smtp::readable $token]
+                    return [initialize_ehlo $token]
+                }
+            }
+        }
+        
+        return $token
+    } else {
+        # Bad response; close the connection and hope the next server
+        # is happier.
+        catch {close $state(sd)}
+    }
+    return {}
 }
 
 # ::smtp::finalize --
@@ -884,14 +922,24 @@ proc ::smtp::wtext {token part} {
 
 proc ::smtp::wtextaux {token part} {
     global errorCode errorInfo
-    variable trf
+
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
+    # Workaround a bug with stacking channels on top of TLS.
+    set trf [set [namespace current]::trf]
+    if {[info exists state(tls)] && $state(tls)} {
+        set trf 0
+    }
+
     flush $state(sd)
     fileevent $state(sd) readable ""
-    transform -attach $state(sd) -command [list ::smtp::wdata $token]
+    if {$trf} {
+        transform -attach $state(sd) -command [list ::smtp::wdata $token]
+    } else {
+        set state(size) 1
+    }
     fileevent $state(sd) readable [list ::smtp::readable $token]
 
     # If trf is not available, get the contents of the message,
@@ -920,7 +968,9 @@ proc ::smtp::wtextaux {token part} {
 
     flush $state(sd)
     fileevent $state(sd) readable ""
-    unstack $state(sd)
+    if {$trf} {
+        unstack $state(sd)
+    }
     fileevent $state(sd) readable [list ::smtp::readable $token]
 
     return -code $code -errorinfo $einfo -errorcode $ecode $result
