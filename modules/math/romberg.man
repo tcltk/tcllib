@@ -1,4 +1,7 @@
 [manpage_begin math::calculus::romberg n 0.6]
+[copyright "2004 Kevin B. Kenny <kennykb@acm.org>. All rights\
+reserved. Redistribution permitted under the terms of the Open\
+Publication License <http://www.opencontent.org/openpub/>"]
 [moddesc Math]
 [titledesc {Romberg integration}]
 [require Tcl 8.2]
