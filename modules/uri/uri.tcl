@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.14 2002/02/25 20:15:37 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.15 2002/02/26 04:59:44 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -725,6 +725,7 @@ proc uri::canonicalize uri {
     # Remove inner /./ and /../
     while {[regsub -all -- {/\./}         $uri {/} uri]} {}
     while {[regsub -all -- {/[^/]+/\.\./} $uri {/} uri]} {}
+    while {[regsub -all -- {^[^/]+/\.\./} $uri {}  uri]} {}
 
     set u(path) $uri
     set uri [eval uri::join [array get u]]
