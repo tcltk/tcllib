@@ -1,5 +1,11 @@
 2003-04-21  Andreas Kupries  <andreask@activestate.com>
 
+	* devdoc/indexing.txt:
+	* installer.tcl: Extended [gen_main_index] to include the header
+	  of Don's generated package index. This makes the final chosen
+	  master index a combination of [i7/ad] and [i4/sd] as the
+	  fallback position.
+
 	* installer.tcl: Made sure that all [file copy] operations use
 	  -force. Fix for #719616.
 
