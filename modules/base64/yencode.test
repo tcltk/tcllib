@@ -1,0 +1,49 @@
+# yencode.test - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# Tests for the Tcllib yencode package
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: yencode.test,v 1.1 2002/04/16 23:30:38 patthoyts Exp $
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+package require yencode
+
+proc yencode::loaddata {filename {translation auto}} {
+    set f [open $filename r]
+    fconfigure $f -translation $translation
+    set data [read $f]
+    close $f
+    return $data
+}
+
+# -------------------------------------------------------------------------
+
+set datafile "yencode.test.data"
+
+test yencode-1.0 {yencode yEnc test file} {
+    set enc [yencode::yencode -file $datafile]
+    set dec [yencode::ydecode $d]
+    set chk [yencode::loaddata $datafile]
+    string match $dec $chk
+} {0}
+    
+
+# -------------------------------------------------------------------------
+
+catch {
+    unset datafile
+    rename yencode::loaddata {}
+}
+::tcltest::cleanupTests
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

@@ -1,5 +1,11 @@
 2002-04-17  Pat Thoyts  <patthoyts@users.soruceforge.net>
 
+	* yencode.tcl, yencode.test, yencode.man, yencode.test.data,
+	* yencode.test.out: initial import of yEnc encode/decode package
+	plus man page and test.
+
+2002-04-17  Pat Thoyts  <patthoyts@users.soruceforge.net>
+
 	* uuencode.tcl: fixed bug #544452 to handle DOS input files and
 	tolerate incorrect uuencoded line lengths.
 	* uuencode.test: added tests for the above bug conditions.
