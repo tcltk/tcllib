@@ -180,6 +180,47 @@ Appends a [arg value] to one of the keyed values associated with an
 [arg arc]. Returns the new value given to the attribute [arg key].
 
 
+[call [arg graphName] [method {arc attr}] [arg key]]
+[call [arg graphName] [method {arc attr}] [arg key] [option -arcs] [arg list]]
+[call [arg graphName] [method {arc attr}] [arg key] [option -glob] [arg globpattern]]
+[call [arg graphName] [method {arc attr}] [arg key] [option -regexp] [arg repattern]]
+
+This method retrieves the value of the attribute named [arg key], for
+all arcs in the graph (matching the restriction specified via one of
+the possible options) and having the specified attribute.
+
+[nl]
+
+The result is a dictionary mapping from arc names to the value of
+attribute [arg key] at that arc.
+
+Arcs not having the attribute [arg key], or not passing a
+specified restriction, are not listed in the result.
+
+[nl]
+
+The possible restrictions are:
+
+[list_begin opt]
+[opt_def -arcs]
+
+The value is a list of arcs. Only the arcs mentioned in this list
+are searched for the attribute.
+
+[opt_def -glob]
+
+The value is a glob pattern. Only the arcs in the graph whose names
+match this pattern are searched for the attribute.
+
+[opt_def -regexp]
+
+The value is a regular expression. Only the arcs in the graph whose
+names match this pattern are searched for the attribute.
+
+[list_end]
+[nl]
+
+
 [call [arg graphName] [method {arc delete}] [arg arc] [opt "[arg arc] ..."]]
 
 Remove the specified arcs from the graph.
@@ -267,14 +308,15 @@ Remove a keyed value from the arc [arg arc]. The method will do
 nothing if the [arg key] does not exist.
 
 
-[call [arg graphName] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-in|-out|-adj|-inner|-embedding [arg nodelist]"]]
+[call [arg graphName] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-filter [arg cmdprefix]"] [opt "-in|-out|-adj|-inner|-embedding [arg nodelist]"]]
 
 Return a list of arcs in the graph. If no restriction is specified a
 list containing all arcs is returned. Restrictions can limit the list
 of returned arcs based on the nodes that are connected by the arc, on
-the keyed values associated with the arc, or both. The restrictions
-that involve connected nodes have a list of nodes as argument,
-specified after the name of the restriction itself.
+the keyed values associated with the arc, or both. A general filter
+command can be used as well. The restrictions that involve connected
+nodes have a list of nodes as argument, specified after the name of
+the restriction itself.
 
 [list_begin definitions]
 [lst_item [option -in]]
@@ -319,7 +361,27 @@ This restriction can only be used in combination with
 [option -key]. It limits the list of arcs that are returned to those
 arcs whose associated key [arg key] has the value [arg value].
 
+
+[lst_item "[option -filter] [arg cmdrefix]"]
+
+Limit the list of arcs that are returned to those arcs that pass the
+test. The command in [arg cmdprefix] is called with two arguments, the
+name of the graph object, and the name of the arc in question. It is
+executed in the context of the caller and has to return a boolean
+value. Arcs for which the command returns [const false] are removed
+from the result list before it is returned to the caller.
+
 [list_end]
+[nl]
+
+The restrictions imposed by either [option -in], [option -out],
+[option -adj], [option -inner], or [option -embedded] are applied
+first.
+
+After that the restrictions set via [option -key]
+(and [option -value]) are applied.
+
+Any restriction set through [option -filter] is applied last.
 
 
 [call [arg graphName] [method lappend] [arg key] [arg value]]
@@ -333,6 +395,47 @@ attribute [arg key].
 
 Appends a [arg value] to one of the keyed values associated with an
 [arg node]. Returns the new value given to the attribute [arg key].
+
+
+[call [arg graphName] [method {node attr}] [arg key]]
+[call [arg graphName] [method {node attr}] [arg key] [option -nodes] [arg list]]
+[call [arg graphName] [method {node attr}] [arg key] [option -glob] [arg globpattern]]
+[call [arg graphName] [method {node attr}] [arg key] [option -regexp] [arg repattern]]
+
+This method retrieves the value of the attribute named [arg key], for
+all nodes in the graph (matching the restriction specified via one of
+the possible options) and having the specified attribute.
+
+[nl]
+
+The result is a dictionary mapping from node names to the value of
+attribute [arg key] at that node.
+
+Nodes not having the attribute [arg key], or not passing a
+specified restriction, are not listed in the result.
+
+[nl]
+
+The possible restrictions are:
+
+[list_begin opt]
+[opt_def -nodes]
+
+The value is a list of nodes. Only the nodes mentioned in this list
+are searched for the attribute.
+
+[opt_def -glob]
+
+The value is a glob pattern. Only the nodes in the graph whose names
+match this pattern are searched for the attribute.
+
+[opt_def -regexp]
+
+The value is a regular expression. Only the nodes in the graph whose
+names match this pattern are searched for the attribute.
+
+[list_end]
+[nl]
 
 
 [call [arg graphName] [method {node degree}] [opt -in|-out] [arg node]]
@@ -424,7 +527,7 @@ Remove a keyed value from the node [arg node]. The method will do
 nothing if the [arg key] does not exist.
 
 
-[call [arg graphName] [method nodes] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-in|-out|-adj|-inner|-embedding [arg nodelist]"]]
+[call [arg graphName] [method nodes] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-filter [arg cmdprefix]"] [opt "-in|-out|-adj|-inner|-embedding [arg nodelist]"]]
 
 Return a list of nodes in the graph. Restrictions can limit the list
 of returned nodes based on neighboring nodes, or based on the keyed
@@ -438,7 +541,12 @@ The possible restrictions are the same as for method
 
 [method arcs]. The set of nodes to return is computed as the union of
 all source and target nodes for all the arcs satisfying the
-restriction as defined for [method arcs].
+restrictions as defined for [method arcs].
+
+[nl]
+
+[emph Note] that here the [option -filter] command is applied to the
+list of nodes, not arcs.
 
 
 [call [arg graphName] [method get] [arg key]]
