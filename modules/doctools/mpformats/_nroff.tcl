@@ -2,7 +2,7 @@
 #
 # -- nroff commands
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2005 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 
 ################################################################
@@ -19,7 +19,7 @@ proc nr_bld     {}          {return \1\\fB}
 proc nr_ul      {}          {return \1\\fI}
 proc nr_rst     {}          {return \1\\fR}
 proc nr_p       {}          {return \n.PP\n}
-proc nr_comment {text}      {return "'\1\\\" [join [split $text \n] "\n'\1\\\" "]"} ; # "
+proc nr_comment {text}      {return "\1'\1\\\" [join [split $text \n] "\n\1'\1\\\" "]"} ; # "
 proc nr_enum    {num}       {nr_item " \[$num\]"}
 proc nr_item    {{text {}}} {return "\n.IP$text"}
 proc nr_vspace  {}          {return \n.sp}
@@ -54,6 +54,7 @@ set      markupMap [list "\\" "\1\\"]
 global   finalMap
 set      finalMap [list \
 	"\1\\" "\\" \
+        "\1'" "'" \
 	"\\"   "\\\\"]
 global   textMap
 set      textMap [list "\\" "\\\\"]
@@ -114,6 +115,14 @@ proc nroff_postprocess {nroff} {
 		set last  [lindex   $lines end]
 		set lines [lreplace $lines end end]
 		set line "$last $line"
+	    } elseif {[string match '* $line]} {
+		# Apostrophes at the beginning of a line have to
+		# quoted to prevent misinterpretation as comments.
+		# The apostrophes for true comments are quoted with \1
+		# already and will therefore not detected by the code
+		# here.
+
+		set line \1\\$line
 	    }
 	} else {
 	    # No-fill mode. We remove trailing whitespace, but keep

@@ -193,6 +193,17 @@ Together with [cmd ::textutil::adjust] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
 
 
+[call [cmd ::textutil::splitn] [arg string] [opt [arg len]]]
+
+This command splits the given [arg string] into chunks of [arg len]
+characters and returns a list containing these chunks. The argument
+[arg len] defaults to [const 1] if none is specified. A negative
+length is not allowed and will cause the command to throw an
+error. Providing an empty string as input is allowed, the command will
+then return an empty list. If the length of the [arg string] is not an
+entire multiple of the chunk length, then the last chunk in the
+generated list will be shorter than [arg len].
+
 [call [cmd ::textutil::splitx] [arg string] [opt [arg regexp]]]
 
 Split the [arg string] and return a list. The string is split

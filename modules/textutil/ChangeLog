@@ -1,3 +1,10 @@
+2005-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* split.tcl:   Accepted [SF Tcllib Patch 1063774] and added
+	* splitn.test: the proposed splitn command. The testsuite has
+	* textutil.man: been extended as well, and the documentation
+	  too.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
