@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.13 2004/05/21 03:11:57 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.14 2004/06/02 04:39:30 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -1926,6 +1926,7 @@ foreach {n mode range pattern result} {
     19 -exact  {rect 1 1 3 3} {c}   {{2 2}}
     20 -glob   {rect 1 1 3 3} {b*}  {{1 2} {1 3}}
     21 -regexp {rect 1 1 3 3} {b.*} {{1 2} {1 3}}
+    22 -nocase {rect 1 1 3 3} {C}   {{2 2}}
 } {
     test matrix-10.$n "searching ($mode $range $pattern)" {
 	matrix mymatrix
