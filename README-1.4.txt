@@ -17,7 +17,7 @@ log             logger          --              0.1             Alternate loggin
 math            statistics      --              0.1             Statistics package
 math            optimization    --              0.1             Optimization package
 md4                             --              1.0             Another hash algorithm
-ntp             time            --              1.0.0           TIME protocol
+ntp             time            --              1.0.1           TIME protocol
 ------          -------         -----------     -----------     -------------------------------
 struct                          1.2.1           1.3       
                 record          /                               Variable record's
