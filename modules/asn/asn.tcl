@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
-#   Copyright (C) 2004 Michael Schlenker (mic42@users.sourceforge.net)
+#   Copyright (C) 2004,2005 Michael Schlenker (mic42@users.sourceforge.net)
 #-----------------------------------------------------------------------------
 #   
 #   A partial ASN decoder/encoder implementation in plain Tcl. 
@@ -38,11 +38,14 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.6 2004/12/29 01:20:27 mic42 Exp $
+#   $Id: asn.tcl,v 1.7 2005/02/15 17:50:21 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
 package require log
+
+# needed for using wide()
+package require Tcl 8.4
 
 namespace eval asn {
     # Encoder commands
@@ -113,15 +116,60 @@ namespace eval asn {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnLength {len} {
+    
+    if {$len < 0} {
+        return -code error "Negative length octet requested"
+    }
     if {$len < 128} {
+        # short form: ISO X.690 8.1.3.4 
         return [binary format c $len]
     }
-    if {$len < 65536} {
+    # long form: ISO X.690 8.1.3.5
+    # try to use a minimal encoding, 
+    # even if not required by BER, but it is required by DER
+    # take care for signed vs. unsigned issues
+    if {$len < 256  } {
+        return [binary format H2c 81 [expr {$len - 256}]]
+    }
+    if {$len < 32769} {
+        # two octet signed value
         return [binary format H2S 82 $len]
     }
-    return [binary format H2I 84 $len]
+    if {$len < 65536} {
+        return [binary format H2S 82 [expr {$len - 65536}]]
+    }
+    if {$len < 8388608} {
+        # three octet signed value    
+        return [binary format H2cS 83 [expr {$len >> 16}] [expr {($len & 0xFFFF) - 65536}]] 
+    }    
+    if {$len < 16777216} {
+        # three octet signed value    
+        return [binary format H2cS 83 [expr {($len >> 16) -256}] [expr {($len & 0xFFFF) -65536}]] 
+    }
+    if {$len < 2147483649} { 
+        # four octet signed value
+        return [binary format H2I 84 $len]
+    }
+    if {$len < 4294967296} {
+        # four octet unsigned value
+        return [binary format H2I 84 [expr {$len - 4294967296}]]
+    }
+    if {$len < 1099511627776} {
+        # five octet unsigned value
+        return [binary format H2 85][string range [binary format W $len] 3 end]  
+    }
+    if {$len < 281474976710656} {
+        # six octet unsigned value
+        return [binary format H2 86][string range [binary format W $len] 2 end]
+    }
+    if {$len < 72057594037927936} {
+        # seven octet value
+        return [binary format H2 87][string range [binary format W $len] 1 end]
+    }
+    
+    # must be a 64-bit wide signed value
+    return [binary format H2W 88 $len] 
 }
-
 
 #-----------------------------------------------------------------------------
 # asnSequence : Assumes that the arguments are already ASN encoded.
@@ -246,9 +294,13 @@ proc ::asn::asnIntegerOrEnum {tag number} {
     # single byte. This can be done directly, no need to go through
     # asnLength. The value itself is written in big-endian.
 
-    # Known bug/issue: The command cannot handle wide integers, i.e.
-    # anything between 5 to 8 bytes length. Use asnBignumInteger for those.
-
+    # Known bug/issue: The command cannot handle very wide integers, i.e.
+    # anything above 8 bytes length. Use asnBignumInteger for those.
+    
+    # check if we really have an int
+    set num $number
+    incr num
+    
     if {($number >= -128) && ($number < 128)} {
         return [binary format H2H2c $tag 01 $number]
     }
@@ -256,11 +308,33 @@ proc ::asn::asnIntegerOrEnum {tag number} {
         return [binary format H2H2S $tag 02 $number]
     }
     if {($number >= -8388608) && ($number < 8388608)} {
-    set numberb [expr {$number & 0xFFFF}]
-    set numbera [expr {($number >> 16) & 0xFF}]
-    return [binary format H2H2cS $tag 03 $numbera $numberb]
+        set numberb [expr {$number & 0xFFFF}]
+        set numbera [expr {($number >> 16) & 0xFF}]
+        return [binary format H2H2cS $tag 03 $numbera $numberb]
     }
-    return [binary format H2H2I $tag 04 $number]
+    if {($number >= -2147483648) && ($number < 2147483648)} {
+        return [binary format H2H2I $tag 04 $number]
+    }
+    if {($number >= -549755813888) && ($number < 549755813888)} {
+        set numberb [expr {$number & 0xFFFFFFFF}]
+        set numbera [expr {($number >> 32) & 0xFF}]
+        return [binary format H2H2cI $tag 05 $numbera $numberb]
+    }
+    if {($number >= -140737488355328) && ($number < 140737488355328)} {
+        set numberb [expr {$number & 0xFFFFFFFF}]
+        set numbera [expr {($number >> 32) & 0xFFFF}]
+        return [binary format H2H2SI $tag 06 $numbera $numberb]        
+    }
+    if {($number >= -36028797018963968) && ($number < 36028797018963968)} {
+        set numberc [expr {$number & 0xFFFFFFFF}]
+        set numberb [expr {($number >> 32) & 0xFFFF}]
+        set numbera [expr {($number >> 48) & 0xFF}]
+        return [binary format H2H2cSI $tag 07 $numbera $numberb $numberc]        
+    }    
+    if {($number >= -9223372036854775808) && ($number <= 9223372036854775807)} {
+        return [binary format H2H2W $tag 08 $number]
+    }
+    return -code error "Integer value to large to encode, use asnBigInteger" 
 }
 
 #-----------------------------------------------------------------------------
@@ -590,14 +664,17 @@ proc ::asn::asnGetBytes {data_var length bytes_var} {
 
 
 #-----------------------------------------------------------------------------
-# asnGetLength : Retrieve an ASN length value (What comes after the tag (See notes))
+# asnGetLength : Decode an ASN length value (See notes)
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetLength {data_var length_var} {
     upvar $data_var data  $length_var length
 
     asnGetByte data length
-    if {$length >= 0x080} {
+    if {$length == 0x080} {
+        return -code error "Indefinite length BER encoding not yet supported"
+    }
+    if {$length > 0x080} {
     # The retrieved byte is a prefix value, and the integer in the
     # lower nibble tells us how many bytes were used to encode the
     # length data following immediately after this prefix.
@@ -619,20 +696,74 @@ proc ::asn::asnGetLength {data_var length_var} {
             binary scan $lengthBytes     c length 
             set length [expr {($length + 0x100) % 0x100}]
             }
-            2 { binary scan $lengthBytes     S length }
-            3 { binary scan \x00$lengthBytes I length }
-            4 { binary scan $lengthBytes     I length }
-            default {
-                if {[catch {package require bignum}]} {
-                return -code error "length information too long"
+            2 { binary scan $lengthBytes     S length 
+            set length [expr {($length + 0x10000) % 0x10000}]
+            }
+            3 { binary scan \x00$lengthBytes I length 
+            set length [expr {($length + 0x1000000) % 0x1000000}]
+            }
+            4 { binary scan $lengthBytes     I length 
+            set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
+            }
+            default {                
+                binary scan $lengthBytes H* hexstr
+                # skip leading zeros which are allowed by BER
+                set hexlen [string trimleft $hexstr 0] 
+                # check if it fits into a 64-bit signed integer
+                if {[string length $hexlen] > 16} {
+                    return -code {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} { 
+                    # check most significant bit, if set we need bignum
+                    return -code {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                } else {
+                    scan $hexstr "%lx" length
                 }
-                
-                binary scan $lengthBytes H* hexlen
-                set length [math::bignum::fromstr $hexlen 16]
             }
         }
     }
     ::log::log debug "asnGetLength -> length = $length"
+    return
+}
+
+
+#-----------------------------------------------------------------------------
+# asnGetBigLength : Retrieve a length that can not be represented in 63-bit
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetBigLength {data_var biglength_var} {
+
+    # Does any real world code really need this? 
+    # If we encounter this, we are doomed to fail anyway, 
+    # (there would be an Exabyte inside the data_var, )
+    #
+    # So i implement it just for completness.
+    # 
+    package require math::bignum
+    
+    upvar $data_var data  $length_var length
+
+    asnGetByte data length
+    if {$length == 0x080} {
+        return -code error "Indefinite length BER encoding not yet supported"
+    }
+    if {$length > 0x080} {
+    # The retrieved byte is a prefix value, and the integer in the
+    # lower nibble tells us how many bytes were used to encode the
+    # length data following immediately after this prefix.
+
+        set len_length [expr {$length & 0x7f}]
+        
+        if {[string length $data] < $len_length} {
+            return -code error "length information invalid, not enough octets left" 
+        }
+        
+        asnGetBytes data $len_length lengthBytes
+        binary scan $lengthBytes H* hexlen
+        set length [math::bignum::fromstr $hexlen 16]
+    }
+    ::log::log debug "asnGetBigLength -> length = [math::bignum::tostr $length]"
     return
 }
 
@@ -641,9 +772,7 @@ proc ::asn::asnGetLength {data_var length_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetInteger {data_var int_var} {
-    # Tag is 0x02. We expect that the length of the integer is coded with
-    # maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
-    # is used this decoder will fail.
+    # Tag is 0x02. 
 
     upvar $data_var data $int_var int
 
@@ -665,13 +794,27 @@ proc ::asn::asnGetInteger {data_var int_var} {
         2 { binary scan $integerBytes     S int }
         3 { 
             # check for negative int and pad 
-            if {[string index $integerBytes 0] & 128} {
+            scan [string index $integerBytes 0] %c byte
+            if {$byte & 128} {
                 binary scan \xff$integerBytes I int
             } else {
                 binary scan \x00$integerBytes I int 
             }
           }
         4 { binary scan $integerBytes     I int }
+        5 -
+        6 -
+        7 -
+        8 {
+            # check for negative int and pad
+            scan [string index $integerBytes 0] %c byte
+            if {$byte & 128} {
+                set pad [string repeat \xff [expr {8-$len}]]
+            } else {
+                set pad [string repeat \x00 [expr {8-$len}]]
+            }
+            binary scan $pad$integerBytes W int 
+        }
         default {
         # Too long, or prefix coding was used.
             return -code error "length information too long"
@@ -1031,4 +1174,4 @@ proc asn::asnGetNull {data_var} {
 
 
 #-----------------------------------------------------------------------------
-package provide asn 0.3
+package provide asn 0.4
