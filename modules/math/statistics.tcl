@@ -4,8 +4,10 @@
 #
 # version 0.1:   initial implementation, january 2003
 # version 0.1.1: added linear regression, june 2004
+# version 0.1.2: border case in stdev taken care of 
+# version 0.1.3: moved initialisation of CDF to first call, november 2004
 
-package provide math::statistics 0.1.2
+package provide math::statistics 0.1.3
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
