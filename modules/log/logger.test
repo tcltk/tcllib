@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.19 2005/02/19 01:36:20 mic42 Exp $
+# $Id: logger.test,v 1.20 2005/03/04 16:44:13 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -398,7 +398,7 @@ test logger-8.6 {logproc with args and body, introspection} {
     set cmd [${log}::logproc error]
     ${log}::delete
     set cmd
-} {::logger::tree::global::errorcmd}
+} {::logger::tree::global::errorcustomcmd}
 
 test logger-8.7 {logproc with too many args} {
     set log [logger::init global]
@@ -865,6 +865,29 @@ test logger-13.7 {test for correct servicename, Bug 1102131} {
     set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
+test logger-13.7 {test for logproc interations with childs} {
+    set l1 [logger::init global]
+    set l2 [logger::init global::child]
+    set l3 [logger::init global::child::child]
+    
+    namespace eval ::logtest {
+        proc mylogproc {args} {
+            variable len
+            lappend len [llength $args]
+        }
+    }
+    ${l1}::logproc info ::logtest::mylogproc
+    ${l1}::info global
+    ${l2}::info global::child
+    ${l3}::info global::child::child
+    ${l1}::delete
+    set len $::logtest::len
+    namespace delete ::logtest
+    set len
+} [list 1 1 1] 
+
+
+
 test logger-14.1 {test for a clean call stack for logprocs} {
     namespace eval ::logtest {
        proc mylog {txt} { set ::logtest::stack [info level]}
@@ -937,5 +960,82 @@ test logger-14.4 {test for a clean call stack for logprocs} {
 } {{{::logtest::dolog ::logger::tree::global} {::logtest::mylog foo}} bar}
 
 
+test logger-15.0 {test for logger levelchange callbacks} {
+    namespace eval ::logtest {
+        proc lvlchange {old new} {
+            variable changes 
+            lappend changes [list $old $new]
+            return
+        }
+    }
+    set l [logger::init global]
+    set default [list [${l}::lvlchangeproc]]
+    ${l}::lvlchangeproc ::logtest::lvlchange
+    lappend default [${l}::lvlchangeproc]
+    ${l}::delete
+    namespace delete ::logtest
+    set default
+} {{} ::logtest::lvlchange}
+
+test logger-15.1 {test for logger levelchange callbacks} {
+    set l [logger::init global]
+    set ok [catch {${l}::lvlchangeproc a b} msg]
+    ${l}::delete
+    list $ok $msg
+} [list 1 {Wrong # of arguments. Usage: ${log}::lvlchangeproc ?cmd?} ]
+
+test logger-15.2 {test for logger levelchange callbacks} {
+    namespace eval ::logtest {
+        proc lvlchange {old new} {
+            variable changes 
+            lappend changes [list $old $new]
+            return
+        }
+    }
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    ${l}::lvlchangeproc ::logtest::lvlchange
+    set rlvl [list]
+    foreach {lvl} [logger::levels] {
+        ${l}::setlevel $lvl
+        set rlvl [linsert $rlvl 0 $lvl] 
+    } 
+    foreach {lvl} $rlvl {
+        ${l}::setlevel $lvl
+    }
+    set changes $::logtest::changes
+    ${l}::delete
+    namespace delete ::logtest
+    set changes
+} [list {debug info} {info notice} {notice warn} {warn error} {error critical} \
+        {critical error} {error warn} {warn notice} {notice info} {info debug}]
+
+test logger-15.3 {test for logger levelchange callbacks} {
+    namespace eval ::logtest {
+        proc lvlchange {old new} {
+            variable changes 
+            lappend changes [list $old $new]
+            return
+        }
+    }
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set lc [logger::init global::child]
+    ${lc}::lvlchangeproc ::logtest::lvlchange
+    set rlvl [list]
+    foreach {lvl} [logger::levels] {
+        ${l}::setlevel $lvl
+        set rlvl [linsert $rlvl 0 $lvl] 
+    } 
+    foreach {lvl} $rlvl {
+        ${l}::setlevel $lvl
+    }
+    set changes $::logtest::changes
+    ${l}::delete
+    namespace delete ::logtest
+    set changes
+} [list {debug info} {info notice} {notice warn} {warn error} {error critical} \
+        {critical error} {error warn} {warn notice} {notice info} {info debug}]
+    
 ::tcltest::cleanupTests
 return
