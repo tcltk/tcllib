@@ -1,3 +1,8 @@
+2004-11-25  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Added descriptions of various linear algebra procedures
+        * Updated the code and expanded test cases
+
 2004-11-22  Andreas Kupries <andreask@activestate.com>
 
 	* rational_funcs.tcl: Removed bad source'ing of file
