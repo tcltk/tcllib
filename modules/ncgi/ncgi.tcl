@@ -305,6 +305,7 @@ proc ::ncgi::nvlist {} {
     set type  [type]
     switch -glob -- $type {
 	"" -
+	text/xml -
 	application/x-www-form-urlencoded -
 	application/x-www-urlencoded {
 	    set result {}
