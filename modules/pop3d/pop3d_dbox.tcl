@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.5 2003/04/03 01:50:54 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.6 2003/04/11 20:11:26 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
 package require log  ; # tcllib | Logging package
@@ -43,7 +43,7 @@ namespace eval ::pop3d::dbox {
 	    "unlock"	\
 	    ]
 
-    variable version ; set version 1.0
+    variable version ; set version 1.1
 }
 
 
