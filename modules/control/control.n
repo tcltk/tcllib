@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.6 2001/11/10 00:21:14 dgp Exp $
+'\" RCS: @(#) $Id: control.n,v 1.7 2001/11/27 23:03:38 dgp Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -10,11 +10,15 @@ control \- Procedures for control flow structures.
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require control ?0.0?\fR
+\fBpackage require control ?0.1?\fR
 .sp
 \fBcontrol::control \fIcommand option \fR?\fIarg arg ...\fR?
 .sp
 \fBcontrol::assert \fIexpr \fR?\fIarg arg ...\fR?
+.sp
+\fBcontrol::do \fIbody \fBwhile \fItest\fR
+.sp
+\fBcontrol::do \fIbody \fBuntil \fItest\fR
 .sp
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
 .BE
@@ -91,7 +95,9 @@ assertion failed: 1 == 0
 % two::assert {1 == 0}\fR
 .CE
 .TP
-\fBcontrol::do \fIbody while|until test\fR
+\fBcontrol::do \fIbody while test\fR
+.TP
+\fBcontrol::do \fIbody until test\fR
 The \fBdo\fR command evaluates the script \fIbody\fR repeatedly \fBuntil\fR
 the expression \fBtest\fR becomes true or as long as (\fBwhile\fR)
 \fBtest\fR is true, depending on the second argument. 
