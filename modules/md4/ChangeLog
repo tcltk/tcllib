@@ -1,5 +1,13 @@
 2003-04-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* md4c.tcl: Added critcl-based C implementation md4c.
+	* md4.tcl:  Enable use of md4c if available.
+	* md4.test: Report the implmentation (C or pure-tcl)
+	* c_src/md4.h:  The md4 implementation from RFC1320
+	* c_src/md4.c: 
+	
+2003-04-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
 	* md4.test: Added a series of tests to check all lengths of input
 	up to over 2 MD4 block lengths.
 	* md4_check.c: Included the C code used to generate the new test
