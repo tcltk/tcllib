@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin profiler n 0.2]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl Profiler}]
 [titledesc {Tcl source code profiler}]
 [require Tcl 8.3]

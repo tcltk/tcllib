@@ -1,5 +1,5 @@
-[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftpd n 1.1.2]
+[comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl FTP Server Package}]
 [titledesc {Tcl FTP server implementation}]
 [require Tcl 8.3]

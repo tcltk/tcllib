@@ -1,6 +1,6 @@
+[manpage_begin pool n 1.2.1]
 [comment {-*- tcl -*-}]
 [comment {Author: Erik Leunissen <e.leunissen@hccnet.nl>}]
-[manpage_begin pool n 1.2.1]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate pool objects (of discrete items)}]
 [require Tcl 8.2]
@@ -51,7 +51,7 @@ Examples of a pool of discrete items are:
 [list_begin bullet]
 
 [bullet]
-the seats in a cinema, theatre, train etc.. for which visitors/travellers can  make a reservation;
+the seats in a cinema, theatre, train etc.. for which visitors/travelers can  make a reservation;
 [bullet]
 the dynamic IP-addresses that an ISP can dole out  to subscribers;
 [bullet]
@@ -322,7 +322,7 @@ In this example, brand names are used to label the various
 items. However, a brand name could be regarded as a property of an
 item. Because the pool command is not designed to manage properties of
 items, they need to be managed separately. In the latter case the
-items should be labelled with more neutral names such as: car1, car2,
+items should be labeled with more neutral names such as: car1, car2,
 car3 , etc ... and a separate database or array should hold the brand
 names associated with the car labels.
 
@@ -374,7 +374,7 @@ Note how the [cmd if] command uses the value returned by the
 
 [para]
 [example {      
-     # Suppose mr. Wiggly has a preference for the Trabant:
+     # Suppose Mr. Wiggly has a preference for the Trabant:
      if { [CarPool request car -allocID "Mr. Wiggly" -prefer Trabant] }  {
          # request was honoured, process the variable `car'
          puts "$car has been allocated to [CarPool info allocID $car]."

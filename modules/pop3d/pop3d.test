@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.1 2002/05/21 17:31:17 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.2 2002/06/17 20:33:45 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -92,13 +92,13 @@ foreach {n opt val} {
 	set res [$srv cget $opt]
 	$srv destroy
 	set res
-    } $val
+    } $val ; # {}
     test pop3-srv-2.2.$n {configure get} {
 	set srv [::pop3d::new]
 	set res [$srv configure $opt]
 	$srv destroy
 	set res
-    } $val
+    } $val ; # {}
 }
 
 foreach {n opt val} {
@@ -112,7 +112,7 @@ foreach {n opt val} {
 	set res [$srv cget $opt]
 	$srv destroy
 	set res
-    } $val
+    } $val ; # {}
 }
 
 test pop3-srv-2.3.1 {configure set/get} {
@@ -227,6 +227,19 @@ test pop3-srv-3.1 {basic up & down} {
 # (Which will be the client), to create a server in a specific
 # initial state, and to perform specific queries of the state.
 
+proc openpipe {} {
+    global tcl_platform
+    
+    switch -exact $tcl_platform(platform) {
+	windows {
+	    return [open "|\"[info nameofexecutable]\" __script" r]
+	}
+	default {
+	    return [open "|[info nameofexecutable] __script" r]
+	}
+    }
+}
+
 proc subshell {script args} {
     global pipe
     removeFile  __script
@@ -241,7 +254,7 @@ proc subshell {script args} {
     close $f
 
     set ::result [list]
-    set        pipe [open "|[info nameofexecutable] __script" r]
+    set        pipe [openpipe]
     fileevent $pipe readable [list subget $pipe]
     vwait ::stop
     if {[catch {close $pipe} msg]} {
@@ -266,7 +279,7 @@ proc subshellpar {script myscript args} {
     ## global srv ; file copy __script __script.$srv
 
     set ::result [list]
-    set        pipe [open "|[info nameofexecutable] __script" r]
+    set        pipe [openpipe]
     fileevent $pipe readable [list subget $pipe]
     uplevel 1 $myscript
     vwait ::stop
@@ -724,7 +737,7 @@ test pop3-srv-7.7 "DELE, abort" {
 	    set res [$srv conn state [$srv conn list]]
 	}
     } port [$srv cget -port]] ; # {}
-	
+    
     # Postprocess state to remove variable data from comparison
     set res [ppcstate $res]
     delfsrv
@@ -751,7 +764,7 @@ test pop3-srv-7.8 "DELE, complete" {
 	lappend res $line
 	puts $res
     } port [$srv cget -port]] ; # {}
-	
+    
     delfsrv
     set trace
 } [list 1 1 0 $log(9)] ; # {}

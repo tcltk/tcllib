@@ -103,7 +103,7 @@ The [cmd eval] hook (described below) can be used to change from
 [para]
 
 More than one [cmd comm] channel (or [emph listener]) can be created
-in each Tcl interpeter.  This allows flexibility to create full and
+in each Tcl interpreter.  This allows flexibility to create full and
 restricted channels.  For instance, [strong hook] scripts are specific
 to the channel they are defined against.
 
@@ -216,7 +216,7 @@ it can carry send traffic in both directions).
 [para]
 
 By default, each channel is restricted to accepting connections from
-the local system.  This can be overriden by using the
+the local system.  This can be overridden by using the
 
 [strong "-local 0"] configuration option For such channels, the
 
@@ -379,7 +379,7 @@ Variables:
 [nl]
 
 This hook is invoked after collecting a complete script from a remote
-but [strong before] evalutating it.  This allows complete control over
+but [strong before] evaluating it.  This allows complete control over
 the processing of incoming commands.  [arg cmd] contains either
 [strong send] or [strong async].  [arg buffer] holds the script to
 evaluate.  At the time the hook is called, [arg "\$chan remoteid"] is
@@ -418,7 +418,7 @@ augmenting a command
 }]
 
 [enum]
-short circuting a command
+short circuiting a command
 [nl]
 [example {
  % ::comm::comm hook eval {puts "would have executed $buffer"; return 0}
@@ -485,7 +485,7 @@ Variables:
 [nl]
 
 This hook is invoked after collecting a complete reply script from a
-remote but [strong before] evalutating it.  This allows complete
+remote but [strong before] evaluating it.  This allows complete
 control over the processing of replies to sent commands.  The reply
 [arg buffer] is in one of the following forms
 
@@ -673,7 +673,7 @@ the lost connection.  [cmd "comm ids"] is now an alias for
 Since the method invocation change of 3.0, break and other exceptional
 conditions were not being returned correctly from [cmd "comm send"].
 This has been fixed by removing the extra level of indirection into
-the internal procedure [strong commSend ].  Also added propogation of
+the internal procedure [strong commSend ].  Also added propagation of
 the [arg errorCode] variable.  This means that these commands return
 exactly as they would with [cmd send ]:
 
