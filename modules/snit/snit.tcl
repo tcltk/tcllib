@@ -171,17 +171,6 @@ set ::snit::typeTemplate {
         namespace delete $selfns
     }
 
-    # Retrieves an option's value from the option database
-    # TBD: Move this to Snit runtime
-    proc %TYPE%::Snit_optionget {self opt} {
-        typevariable Snit_optiondbspec
-        
-        set res [lindex $Snit_optiondbspec($opt) 0]
-        set cls [lindex $Snit_optiondbspec($opt) 1]
-        
-        return [option get $self $res $cls]
-    }
-
     #----------------------------------------------------------------
     # Compiled Procs
     #
@@ -316,7 +305,7 @@ set ::snit::typeTemplate {
                         continue
                     }
 
-                    set dbval [Snit_optionget $self $opt]
+                    set dbval [::snit::RT.OptionDbGet %TYPE% $self $opt]
                     $obj configure $target $dbval
                 }
             }
@@ -331,7 +320,7 @@ set ::snit::typeTemplate {
 
         # NEXT, get the local option defaults.
         foreach opt $Snit_info(options) {
-            set dbval [Snit_optionget $self $opt]
+            set dbval [::snit::RT.OptionDbGet %TYPE% $self $opt]
             
             if {"" != $dbval} {
                 set options($opt) $dbval
@@ -398,7 +387,7 @@ set ::snit::typeTemplate {
                         continue
                     }
 
-                    set dbval [Snit_optionget $self $opt]
+                    set dbval [::snit::RT.OptionDbGet %TYPE% $self $opt]
                     
                     if {"" != $dbval} {
                         set target [lindex $Snit_delegatedoptions($opt) 1]
@@ -1997,7 +1986,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
         # NEXT, let's query the option database for our
         # widget, now that we know that it exists.
         foreach opt $Snit_info(options) {
-            set dbval [${type}::Snit_optionget $name $opt]
+            set dbval [RT.OptionDbGet $type $name $opt]
 
             if {"" != $dbval} {
                 set options($opt) $dbval
@@ -2091,6 +2080,18 @@ proc ::snit::RT.UniqueInstanceNamespace {countervar type} {
         }
     }
 }
+
+# Retrieves an option's value from the option database.
+# Returns "" if no value is found.
+proc ::snit::RT.OptionDbGet {type self opt} {
+    variable ${type}::Snit_optiondbspec
+        
+    set res [lindex $Snit_optiondbspec($opt) 0]
+    set cls [lindex $Snit_optiondbspec($opt) 1]
+        
+    return [option get $self $res $cls]
+}
+
 
 #-----------------------------------------------------------------------
 # Typecomponent Management and Method Caching
