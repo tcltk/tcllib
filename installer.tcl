@@ -15,7 +15,7 @@ lappend auto_path  [file join $distribution modules]
 
 source [file join $distribution tcllib_version.tcl]    ; # Get version information.
 source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
-source [file join $distribution install_actions.tcl]   ; # Get list of installed modules.
+source [file join $distribution install_action.tcl]   ; # Get list of installed modules.
 
 # --------------------------------------------------------------
 # Low-level commands of the installation engine.
