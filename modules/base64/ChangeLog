@@ -1,3 +1,9 @@
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64.man: Cleaned the doc up a bit. Especially highlighted the
+	  recently added note recording binary by separating it from the
+	  general description a bit (same location, new paragraph).
+
 2005-02-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* base64.man: Added some examples and attempted to point out that
@@ -30,18 +36,6 @@
 
 	* uuencode.tcl: Updated version number to sync with 1.6.1
 	* uuencode.man: release
-	* pkgIndex.tcl:
-
-2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	*
-	* Released and tagged Tcllib 1.6.1 ========================
-	* 
-
-2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	* uuencode.tcl: Rel. engineering. Updated version number 
-	* uuencode.man: of uuencode to reflect its changes, to 1.1.1.
 	* pkgIndex.tcl:
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
