@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.61 2002/02/18 23:32:57 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.62 2002/02/27 21:12:49 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -238,7 +238,7 @@ install-libraries: libraries
 	    if test -d $(srcdir)/modules/$$i; then  \
 		echo "Installing $$i in $(pkglibdir)/$$i" ; \
 		$(mkinstalldirs) $(pkglibdir)/$$i ; \
-		for j in $(srcdir)/modules/$$i/*.tcl ; do \
+		for j in `ls $(srcdir)/modules/$$i/*.tcl 2>/dev/null` ; do \
 		    $(INSTALL_DATA) $$j $(pkglibdir)/$$i ; \
 		done; \
 		if test -f $(srcdir)/modules/$$i/tclIndex ; then \
@@ -257,9 +257,9 @@ install-libraries: libraries
 
 install-doc: doc
 	$(mkinstalldirs) $(mandir)/mann
-	-for j in $(MODULES) ; do \
+	-@for j in $(MODULES) ; do \
 	    echo "Installing documentation for $$j" ; \
-	    for i in $(srcdir)/modules/$$j/*.n ; do \
+	    for i in `ls $(srcdir)/modules/$$j/*.n 2>/dev/null` ; do \
 		sed -e '/man\.macros/r $(srcdir)/man.macros' -e '/man\.macros/d' $$i > $$$$ ; \
 	        $(INSTALL_DATA) $$$$ $(mandir)/mann/`basename $$i` ; \
 		rm $$$$ ; \
