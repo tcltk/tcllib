@@ -1,3 +1,10 @@
+2002-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Bumped version number to 4.0 per request by John LoVerso.
+
+	* comm.tcl: Applied patch #526499 improving the handling of errors
+	  for async invoked commands.
+
 2002-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.tcl: Frink run.
