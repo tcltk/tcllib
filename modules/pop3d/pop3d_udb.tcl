@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_udb.tcl,v 1.2 2002/05/15 16:59:47 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_udb.tcl,v 1.3 2003/04/11 20:11:26 andreas_kupries Exp $
 
 namespace eval ::pop3d::udb {
     # Data storage in the pop3d::udb module
@@ -32,7 +32,7 @@ namespace eval ::pop3d::udb {
 	    "who"		\
 	    ]
 
-    variable version ; set version 1.0
+    variable version ; set version 1.1
 }
 
 

@@ -1,3 +1,15 @@
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3d.tcl:
+	* pop3d.man:
+	* pop3d_dbox.tcl:
+	* pop3d_dbox.man:
+	* pop3d_udb.tcl:
+	* pop3d_udbx.man:
+	* pkgIndex.tcl: Set version of the package 'pop3d' to to
+	  1.0.1. 'dbox' is now at version 1.1. 'udb' is now at version
+	  1.0.1.
+
 2003-04-09  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3d.tcl: A bit more logging of internals.
