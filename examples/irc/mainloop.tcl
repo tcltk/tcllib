@@ -33,9 +33,9 @@ $cn registerevent PRIVMSG {
 if 0 {
 $cn registerevent PRIVMSG {
     puts "[who] says to [target] [msg]"
-    if { [msg] == "RELOAD" && [target] == $nick } {
+    if { [msg] == "RELOAD" && [target] == $::ircclient::nick } {
 	if [catch {
-	    set ::ircclient:cn [cmd-reload]
+	    ::irc::reload
 	} err] {
 	    puts "Error: $err"
 	}
