@@ -22,10 +22,9 @@ Creates a type 4 uuid by MD5 hashing a number of bits of variant data
 including the time and hostname.
 Returns the string representation of the new uuid.
 
-[call [cmd "::uuid::uuid compare"] [arg "id1"] [arg "id2"]]
+[call [cmd "::uuid::uuid equal"] [arg "id1"] [arg "id2"]]
 
-Compares two uuids. If equal the result is 0 otherwise the result will
-be either +1 or -1.
+Compares two uuids and returns true if both arguments are the same uuid.
 
 [list_end]
 
