@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1.test,v 1.7 2005/02/21 10:01:52 patthoyts Exp $
+# RCS: @(#) $Id: sha1.test,v 1.8 2005/02/23 00:55:47 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -32,16 +32,32 @@ if {[catch {source [file join [file dirname [info script]] sha1.tcl]} msg]} {
 # Setup any constraints
 #
 
-array set preserve [list usesha1c $::sha1::usesha1c usetrf $::sha1::usetrf]
+array set preserve [array get ::sha1::extn]
+
+proc have_extn {} {
+    foreach {e v} [array get ::sha1::extn] { if {$v} {return 1} }
+    return 0
+}
+
+proc set_no_extn {} {
+    foreach e [array names ::sha1::extn] { set ::sha1::extn($e) 0 }
+}
+
+proc reset_extn {} {
+    array set ::sha1::extn [array get ::preserve]
+}
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {$::sha1::usesha1c} {
+if {$::sha1::extn(critcl)} {
     puts "- sha1 [package present sha1] (critcl based)"
 }
-if {$::sha1::usetrf} {
+if {$::sha1::extn(cryptkit)} {
+    puts "- sha1 [package present sha1] (cryptkit based)"
+}
+if {$::sha1::extn(trf)} {
     puts "- sha1 [package present sha1] (Trf based)"
 }
 puts "- sha1 [package present sha1] (pure Tcl)"
@@ -74,14 +90,14 @@ foreach {n msg expected} $vectors {
     } $expected ; # {}
 }
 
-if {$::sha1::usetrf || $::sha1::usesha1c} {
-    foreach v {usetrf usesha1c} {set ::sha1::$v 0}
+if {[have_extn]} {
+    set_no_extn
     foreach {n msg expected} $vectors {
         test sha1-tcl-2.$n {sha1 (pure tcl)} {
             ::sha1::sha1 $msg
         } $expected ; # {}
     }
-    foreach v {usetrf usesha1c} {set ::sha1::$v $preserve($v)}
+    reset_extn
 }
 
 
@@ -103,14 +119,14 @@ foreach {n key text expected} $vectors {
     } $expected ; # {}
 }
 
-if {$::sha1::usetrf || $::sha1::usesha1c} {
-    foreach v {usetrf usesha1c} {set ::sha1::$v 0}
+if {[have_extn]} {
+    set_no_extn
     foreach {n key text expected} $vectors {
         test sha1-tcl-3.$n {hmac (pure tcl)} {
             ::sha1::hmac $key $text
         } $expected ; # {}
     }
-    foreach v {usetrf usesha1c} {set ::sha1::$v $preserve($v)}
+    reset_extn
 }
 
 # -------------------------------------------------------------------------
@@ -145,14 +161,14 @@ foreach {n key msg hash} $vectors {
     } $hash
 }
 
-if {$::sha1::usetrf || $::sha1::usesha1c} {
-    foreach v {usetrf usesha1c} {set ::sha1::$v 0}
+if {[have_extn]} {
+    set_no_extn
     foreach {n key msg hash} $vectors {
         test sha1-tcl-4.$n {RFC2202 test vectors for HMAC-SHA1 pure-Tcl} {
             ::sha1::hmac $key $msg
         } $hash
     }
-    foreach v {usetrf usesha1c} {set ::sha1::$v $preserve($v)}
+    reset_extn
 }    
 
 # -------------------------------------------------------------------------
