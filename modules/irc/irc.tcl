@@ -5,15 +5,18 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.4 2002/05/17 11:07:27 davidw Exp $
+# $Id: irc.tcl,v 1.5 2003/01/03 02:52:16 davidw Exp $
 
-package provide irc 0.2
+package provide irc 0.3
+
+package require logger
 
 namespace eval irc {
     variable conn
 
     # configuration information
     set config(debug) 0
+    set log [logger::init irc]
 
     # counter used to differentiate connections
     set conn 0
@@ -31,6 +34,13 @@ namespace eval irc {
 
 proc irc::config { key value } {
     variable config
+    if { $key == "debug" } {
+	if { $value > 0 } {
+	    ${irc::log}::enable debug
+	} else {
+	    ${irc::log}::disable notice
+	}
+    }
     set config($key) $value
 }
 
@@ -73,9 +83,9 @@ proc irc::connection { host {port 6667} } {
 
 	proc ircsend { msg } {
 	    variable sock
-	    puts $sock "$msg"
-	    if { $irc::config(debug) > 0 } {
-		puts "ircsend: $msg"
+	    ${irc::log}::debug "ircsend: '$msg'"
+	    if { [catch {puts $sock "$msg"} err] } {
+		${irc::log}::error "Error in ircsend: $err"
 	    }
 	}
 
@@ -266,7 +276,12 @@ proc irc::connection { host {port 6667} } {
 		    $dispatch(EOF)
 		}
 	    }
-	    gets $sock line
+	    if { [catch {
+		gets $sock line
+	    } err] } {
+		close $sk
+		${irc::log}::error "Error receiving from network: $err"
+	    }
 	    if { [string index $line 0] == ":" } {
 		DispatchServerEvent [string range $line 1 end]
 	    } else {
