@@ -1,0 +1,6 @@
+
+2000-10-27  Dan Kuchler  <kuchler@ajubasolutions.com>
+
+        * Initial revision of tcllib ftpd.  Based off of the ftpd in
+          the stdtcl distribution.
+
