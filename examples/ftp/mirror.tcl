@@ -1,7 +1,8 @@
-#!/bin/sh
-# the next line restarts using tclsh \
-exec tclsh8.3 "$0" -- "$@"
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
 
+package require Tcl 8.3
 package require ftp 2.0
 
 # user configuration
