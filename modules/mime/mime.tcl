@@ -1634,9 +1634,9 @@ proc ::mime::copymessageaux {token channel} {
 		    set size [expr {$size - [string length $X]}]
 		}
 		if {[string compare $converter ""]} {
-		    puts $channel [$converter -mode encode -- $X]
+		    puts -nonewline $channel [$converter -mode encode -- $X]
 		} else {
-		    puts $channel $X
+		    puts -nonewline $channel $X
 		}
 	    }
 
