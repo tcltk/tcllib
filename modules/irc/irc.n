@@ -1,9 +1,9 @@
 '\"
 '\" Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 '\" All rights reserved.
-'\" 
-'\" $Id: irc.n,v 1.4 2002/05/17 11:07:27 davidw Exp $
-'\" 
+'\"
+'\" $Id: irc.n,v 1.5 2003/01/03 02:52:16 davidw Exp $
+'\"
 '\"	# CS - begin code excerpt
 .de CS
 .RS
@@ -46,7 +46,7 @@ the new IRC connection.
 In the following list of available connection methods \fInet\fR
 represents a connection command as returned by \fB::irc::connection\fR.
 .TP
-\fInet \fBregisterevent\fR \fIevent\fR \fIscript\fR 
+\fInet \fBregisterevent\fR \fIevent\fR \fIscript\fR
 Registers a callback handler for the specific event.  Events available
 are those described in the IRC RFC: 1459.  In addition, there are
 several other events defined. \fBdefaultcommand\fR adds a command that
