@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.20 2003/05/14 22:26:17 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.21 2003/05/16 21:47:50 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -42,8 +42,6 @@ test tree-0.4 {tree errors} {
 
 test tree-1.1 {children} {
 
-catch {
-
     tree mytree
     set result [list ]
     lappend result [mytree children root]
@@ -55,9 +53,7 @@ catch {
     lappend result [mytree children root]
     lappend result [mytree children {ITEM 0}]
     mytree destroy
-} result
-global errorInfo
-    set errorInfo
+    set result
 } [list {} {{ITEM 0} {ITEM 1} {ITEM 2}} {{ITEM 3} {ITEM 4}}]
 test tree-1.2 {children, bad node} {
     tree mytree
