@@ -1,3 +1,7 @@
+2002-03-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* ftp.man: New, doctools manpage.
+
 2002-02-14  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* ftp.tcl: Frink run.
