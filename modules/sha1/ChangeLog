@@ -1,5 +1,9 @@
 2005-02-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* sha1c.tcl: Imported the sha1 implementation from the Tcl sample
+	* sample.h:  extension and created a critcl wrapper.
+	* sample.c:  Added to the sak.tcl critcl generation code.
+	
 	* sha1.tcl:  Re-implemented to support hashing data in chunks
 	* sha1.test: Included tests from RFC 2202 for HMAC-SHA1.
 	* sha1.man:  This time we have kept the same API but with optional

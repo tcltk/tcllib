@@ -21,19 +21,24 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.12 2005/02/20 22:05:35 patthoyts Exp $
+# $Id: sha1.tcl,v 1.13 2005/02/20 22:58:58 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable version 2.0.0
-    variable rcsid {$Id: sha1.tcl,v 1.12 2005/02/20 22:05:35 patthoyts Exp $}
+    variable rcsid {$Id: sha1.tcl,v 1.13 2005/02/20 22:58:58 patthoyts Exp $}
     variable usetrf 0
     variable usesha1c 0
 
     namespace export sha1 hmac SHA1Init SHA1Update SHA1Final
 
-    if {![catch {package require Trf}]} {
+    # Try and load a compiled extension to help.
+    if {![catch {package require tcllibc}]
+        || ![catch {package require sha1c}]} {
+        set usesha1c [expr {[info command ::sha1::sha1c] != {}}]
+    }
+    if {$usesha1c == 0 && ![catch {package require Trf}]} {
         # We have this check because Trf's sha1 often doesn't work on Win32.
         set usetrf [expr {![catch {::sha1 aa} msg]}]
     }
