@@ -1,5 +1,14 @@
 2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* mkInstallScripts.tcl: Added code to install tclIndex files.
+
+	* Makefile.in (install-libraries, dist): Added commands to copy
+	  'tclIndex' files into installation and distribution. This fixes
+	  the remainder of #475846.
+	  (dist): Fixed error in generation of tar/zip files too.
+
+2001-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* examples/ftp/ftpvalid: New example, using ftp and uri
 	  modules. Validation of ftp urls.
 
