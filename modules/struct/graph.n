@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: graph.n,v 1.5 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: graph.n,v 1.6 2001/11/19 23:32:48 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH graph n 1.0 Struct "Tcl Data Structures"
@@ -94,36 +94,47 @@ Return the node the given \fIarc\fR ends at.
 Remove a keyed value from the arc \fIarc\fR.  If no key is
 specified, the key \fBdata\fR is assumed.
 .TP
-\fIgraphName\fR \fBarcs\fR ?-in|-out|-adj|-inner|-embedding \fInodelist\fR?
-
+\fIgraphName\fR \fBarcs\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-in|-out|-adj|-inner|-embedding \fInodelist\fR?
 Return a list of arcs in the graph. If no restriction is specified a
-list containing all arcs is returned. If one of the five possible
-restrictions is specified only arcs satisfying that restriction are
-returned. All restrictions involve a list of nodes, specified after
-the key for the restriction itself.
-.IP
+list containing all arcs is returned. Restrictions can limit the list
+of returned arcs based on the nodes that are connected by the arc, on
+the keyed values associated with the arc, or both. The restrictions
+that involve connected nodes have a list of nodes as argument,
+specified after the name of the restriction itself.
+.RS
+.TP
 \fB-in\fR
 Return a list of all arcs whose target is one of the nodes in the
 \fInodelist\fR.
-.IP
+.TP
 \fB-out\fR
 Return a list of all arcs whose source is one of the nodes in the
 \fInodelist\fR.
-.IP
+.TP
 \fB-adj\fR
 Return a list of all arcs adjacent to at least one of the nodes in
 the \fInodelist\fR. This is the union of the nodes returned by
 \fB-in\fR and \fB-out\fR.
-.IP
+.TP
 \fB-inner\fR
 Return a list of all arcs adjacent to two of the nodes in the
 \fInodelist\fR. This is the set of arcs in the subgraph spawned by
 the specified nodes.
-.IP
+.TP
 \fB-embedding\fR
 Return a list of all arcs adjacent to exactly one of the nodes in the
 \fInodelist\fR. This is the set of arcs connecting the subgraph
 spawned by the specified nodes to the rest of the graph.
+.TP
+\fB-key\fR \fIkey\fR
+Limit the list of arcs that are returned to those arcs that have an
+associated key \fIkey\fR.
+.TP
+\fB-value\fR \fIvalue\fR
+This restriction can only be used in combination with \fB-key\fR. It
+limits the list of arcs that are returned to those arcs whose
+associated key \fIkey\fR has the value \fIvalue\fR.
+.RE
 .TP
 \fIgraphName\fR \fBnode degree\fR ?-in|-out? \fInode\fR
 Return the number of arcs adjacent to the specified \fInode\fR. If
@@ -163,20 +174,37 @@ command assigns that value to the key.
 Remove a keyed value from the node \fInode\fR.  If no key is
 specified, the key \fBdata\fR is assumed.
 .TP
-\fIgraphName\fR \fBnodes\fR ?-in|-out|-adj|-inner|-embedding \fInodelist\fR?
-Return a list of nodes in the graph. If no restriction is specified a
-list containing all nodes is returned. If one of the five possible
-restrictions is specified only nodes satisfying that restriction are
-returned. All restrictions involve a list of nodes, specified after
-the key for the restriction itself.
-
+\fIgraphName\fR \fBnodes\fR ?-key \fIkey\fR? ?-value \fIvalue\fR? ?-in|-out|-adj|-inner|-embedding \fInodelist\fR?
+Return a list of nodes in the graph. Restrictions can limit the list
+of returned nodes based on neighboring nodes, or based on the keyed
+values associated with the node. The restrictions that involve
+neighboring nodes have a list of nodes as argument, specified after
+the name of the restriction itself.
+.sp
 The possible restrictions are the same as for method \fBarcs\fR. The
 set of nodes to return is computed as the union of all source and
 target nodes for all the arcs satisfying the restriction as defined
 for \fBarcs\fR.
 .TP
+\fIgraphName\fR \fBget\fR ?\fI-key key\fR?
+Return the value associated with the key \fIkey\fR for the graph. If
+no key is specified, the key \fBdata\fR is assumed.
+.TP
+\fIgraphName\fR \fBset\fR ?\fI-key key\fR? ?\fIvalue\fR?
+Set or get one of the keyed values associated with a graph. If no key
+is specified, the key \fBdata\fR is assumed. Each graph has the value
+"" assigned to the key \fBdata\fR automatically. A graph may have any
+number of keyed values associated with it. If \fIvalue\fR is not
+specified, this command returns the current value assigned to the key;
+if \fIvalue\fR is specified, this command assigns that value to the
+key.
+.TP
 \fIgraphName\fR \fBswap\fR \fInode1\fR \fInode2\fR
 Swap the position of \fInode1\fR and \fInode2\fR in the graph.
+.TP
+\fIgraphName\fR \fBunset\fR ?\fI-key key\fR?
+Remove a keyed value from the graph. If no key is specified, the key
+\fBdata\fR is assumed.
 .TP
 \fIgraphName\fR \fBwalk\fR \fInode\fR ?\fI-order order\fR? ?\fI-type type\fR? ?\fI-dir direction\fR? \fI-command cmd\fR
 
