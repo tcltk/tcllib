@@ -1,3 +1,11 @@
+2000-05-03  Brent Welch <welch@scriptics.com>
+
+	* cmdline/cmdline.tcl:
+	Changed cmdline::getopt to set boolean arguments to
+	0 or 1 explicitly.  Previously it just set the value
+	to "" if it was present, or did nothing.  This vfixes
+	the -verbose command line bug in connect.
+
 2000-05-02  Brent Welch <welch@scriptics.com>
 
 	* ncgi/ncgi.tcl:
