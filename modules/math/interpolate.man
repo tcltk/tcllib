@@ -1,8 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::interpolate n 0.2]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
+[copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Math}]
-[titledesc {Optimisation routines}]
+[titledesc {Interpolation routines}]
 
 [require Tcl [opt 8.3]]
 [require struct]
@@ -25,6 +26,9 @@ Lagrange interpolation. This is mainly of theoretical interest, because there is
 no guarantee about error bounds. One possible use: if you need a line or
 a parabola through given points (it will calculate the values, but not return
 the coefficients).
+[nl]
+A variation is Neville's method which has better behaviour and error
+bounds.
 
 [bullet]
 Spatial interpolation using a straightforward distance-weight method. This procedure
@@ -73,22 +77,6 @@ each dependent column.
 [arg_def string name in] Name of an existing table
 
 [arg_def float xval in] Value of the independent [emph row] variable
-
-[list_end]
-
-[nl]
-
-
-[call [cmd ::math::interpolate::interp-table] [arg name] [arg xval] [arg yval]]
-
-Interpolate into the two-dimensional table "name" and return the interpolated value.
-
-[list_begin arg]
-[arg_def string name in] Name of an existing table
-
-[arg_def float xval in] Value of the independent [emph row] variable
-
-[arg_def float yval in] Value of the independent [emph column] variable
 
 [list_end]
 
@@ -186,7 +174,7 @@ Set the parameters for spatial interpolation
 
 [call [cmd ::math::interpolate::neville] [arg xlist] [arg ylist] [arg x]]
 
-Interpolates between the tabulated values of a function 
+Interpolates between the tabulated values of a function
 whose abscissae are [arg xlist]
 and whose ordinates are [arg ylist] to produce an estimate for the value
 of the function at [arg x].  The result is a two-element list; the first
