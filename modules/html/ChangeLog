@@ -1,3 +1,11 @@
+2001-06-19  Melissa Chawla <melissachawla@yahoo.com>
+
+	* modules/html/html.tcl: Added set and eval commands to this
+ 	package.  These commands have the same syntax as those built in to
+ 	Tcl, but they are reworked return "" so they blend into HTML
+ 	template files without appending unwanted results.  The html::set
+ 	command must take two arguments.
+
 2001-06-15  Brent Welch <welch@panasas.com>
 
 	* modules/html/html.tcl: Updated the version to 1.1
@@ -7,7 +15,7 @@
 2001-06-15  Melissa Chawla <melissachawla@yahoo.com>
 
 	* modules/html/html.tcl: Added if, for, foreach, and while control
- 	structures to this package.  The control structure have the same
+ 	structures to this package.  The control structures have the same
  	syntax as those built in to Tcl, but these are reworked to blend
  	into HTML template files.  Rather than evaluating a body clause,
  	we return the subst'ed body (concatenated to eachother in cases

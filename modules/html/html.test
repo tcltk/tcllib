@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.7 2001/06/16 01:25:46 welch Exp $
+# RCS: @(#) $Id: html.test,v 1.8 2001/06/20 17:39:28 welch Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -248,7 +248,7 @@ test html-12.2 {html::quoteFormValue} {
 } {&#34;name2&#34;}
 
 test html-12.3 {html::quoteFormValue} {
-    html::quoteFormValue {"'><&}
+    html::quoteFormValue {"'><&} ;# need a " for balance
 } {&#34;&#39;&gt;&lt;&amp;}
 
 test html-12.4 {html::quoteFormValue} {
@@ -754,5 +754,47 @@ test html-30.10 {html::if--multiple nested} {
     regsub -all " +" $result " " result
     set result
 } { begin1 begin2 begin3 end3 end2 end1 }
+
+test html-31.1 {html::set--set a new variable} {
+  set result [html::set x 1]
+  list $result $x
+} {{} 1}
+
+test html-31.2 {html::set--set an existing variable} {
+  set x 0
+  set result [html::set x 1]
+  list $result $x
+} {{} 1}
+
+test html-32.1 {single argument} {
+    set x 0
+    set result [html::eval {set x [format 22]}]
+    list $result $x
+} {{} 22}
+test html-32.2 {multiple arguments} {
+    set a {$b}
+    set b xyzzy
+    set x 0
+    set result [html::eval {set x [eval format $a]}]
+    list $result $x
+} {{} xyzzy}
+test html-32.3 {single argument} {
+    set x [list]
+    set y 1
+    set result [html::eval lappend x a b c d {$y} e f g]
+    list $result $x
+} {{} {a b c d 1 e f g}}
+test html-32.4 {error: not enough arguments} {catch html::eval} 1
+test html-32.5 {error: not enough arguments} {
+    catch html::eval msg
+    set msg
+} {wrong # args: should be "uplevel ?level? command ?arg ...?"}
+test html-32.6 {error in eval'ed command} {
+    catch {html::eval {error "test error"}}
+} 1
+test html-32.7 {error in eval'ed command} {
+    catch {html::eval {error "test error"}} msg
+    set msg
+} {test error}
 
 tcltest::cleanupTests

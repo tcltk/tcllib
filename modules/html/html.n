@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: html.n,v 1.9 2001/06/16 01:25:46 welch Exp $
+'\" RCS: @(#) $Id: html.n,v 1.10 2001/06/20 17:39:27 welch Exp $
 '\" 
 .so man.macros
 .TH html n 1.0 Html "HTML Generation"
@@ -32,6 +32,8 @@
 \fBhtml::description\fR \fIdescription\fR
 .sp
 \fBhtml::end\fR \fI\fR
+.sp
+\fBhtml::eval\fR \fIarg ?args?\fR
 .sp
 \fBhtml::extractParam\fR \fIparam key {val ""}\fR
 .sp
@@ -100,6 +102,8 @@
 \fBhtml::select\fR \fIname param choices {current {}}\fR
 .sp
 \fBhtml::selectPlain\fR \fIname param choices {current {}}\fR
+.sp
+\fBhtml::set\fR \fIvar val\fR
 .sp
 \fBhtml::submit\fR \fIlabel {name submit}\fR
 .sp
@@ -197,6 +201,12 @@ This tag is generated later in the call to \fBhtml::head\fR.
 \fBhtml::end\fR \fI\fR
 Pop all open tags from the stack and generate the corresponding
 close HTML tags, (e.g., </body></html>).
+
+.TP
+\fBhtml::eval\fR \fIarg ?args?\fR
+This procedure is similar to the built-in Tcl \fBeval\fR command.  The
+only difference is that it returns "" so it can be called from an HTML
+template file without appending unwanted results.
 
 .TP
 \fBhtml::extractParam\fR \fIparam key {varName ""}\fR
@@ -405,6 +415,13 @@ each OPTION are the same.
 .TP
 \fBhtml::submit\fR \fIlabel {name submit}\fR
 Generate an INPUT tag of type SUBMIT.
+
+.TP
+\fBhtml::set\fR \fIvar val\fR
+This procedure is similar to the built-in Tcl \fBset\fR command.  The
+main difference is that it returns "" so it can be called from an HTML
+template file without appending unwanted results.  The other
+difference is that it must take two arguments.
 
 .TP
 \fBhtml::tableFromArray\fR \fIarrname {param {}} {pat *}\fR
