@@ -1,3 +1,19 @@
+2003-04-01  Andreas Kupries  <andreask@activestate.com>
+
+	* exif.man:
+	* exif.tcl: Applied patch for SF tcllib bug #665737 provided by
+	  Tim J. Edwards <timje@users.sourceforge.net>. This not only
+	  fixes the bug mentioned above, but also corrects some spelling
+	  mistakes, adds support for a number of additional EXIF tags, and
+	  provides functionality to dump a thumbnail image contained in
+	  the data to a file.
+
+	  The change in the interface of 'analyze' (stream -> file) was
+	  reverted and an additional file based command provided
+	  instead. This command is a wrapper around the stream interface.
+
+	  Updated the documentation.
+
 2003-02-06  David N. Welton  <davidw@dedasys.com>
 
 	* exif.tcl (exif::makerNote): Use string match instead of regexp.

@@ -20,7 +20,7 @@ such information.
 
 [list_begin definitions]
 
-[call [cmd exif::analyze] [arg channel]]
+[call [cmd exif::analyze] [arg channel] [opt [arg thumbnail]]]
 
 [arg channel] should be an open file handle rewound to the start.  It
 does not need to be seekable.  [arg channel] will be set to binary
@@ -29,6 +29,19 @@ the end of the file or the start of the image data.  You must open and
 close the stream yourself.  If no error is thrown, the return value is
 a serialized array with informative English text about what was found
 in the EXIF block.  Failure during parsing or I/O throw errors.
+
+[nl]
+
+If [arg thumbnail] is present and not the empty string it will be
+interpreted as the name of a file, and the thumbnail image contained
+in the exif data will be written into it.
+
+[call [cmd exif::analyzeFile] [arg filename] [opt [arg thumbnail]]]
+
+This is a file-based wrapper around [cmd exif::analyze]. Instead of
+taking a stream it takes a [arg filename] and analyzes the contents of
+the specified file.
+
 
 [call [cmd exif::fieldnames]]
 
