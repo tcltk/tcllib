@@ -9,86 +9,22 @@
 #	protection and is in the public domain. 
 #
 #       The [rswitch] command of the package "control".
-#       See TIP 70 for a description.
+#	Inspired by TIP 70.  Amended to the syntax:
 #
+# 		rswitch $formatString {
+#		    $sub1 $body1
+#		    ...
+#		    $subN $bodyN
+#		}
+#
+#	See documentation in control.n
 # -------------------------------------------------------------------------
 #
-# Inserted from a usenet post comp.lang.tcl:156140
-#
-# Don Porter wrote:
-# > Rather than defining two forms of the command, mono-conditional
-# > and bi-conditional, why not use the power of Tcl to allow for both
-# > and even more possibilities within a single form?
-# > 
-# > rswitch $formatString {
-# >     $sub1 $body1
-# >     ...
-# >     $subN $bodyN
-# > }
-#
-# Here's an implementation of that alternative.  It's suitable for
-# dropping into tcllib's control package, or it can just be 
-# [source]d directly.
-#
-# Apologies about the complexity and lack of comments in the support
-# routines.  Comments will be added, but getting the processing of
-# ::errorInfo right just requires that much complexity.  It's just
-# that big of a mess.
-#
-# -------------------------------------------------------------------------
-#
-# RCS: @(#) $Id: rswitch.tcl,v 1.2 2001/11/03 04:10:42 dgp Exp $
+# RCS: @(#) $Id: rswitch.tcl,v 1.3 2001/11/07 21:59:24 dgp Exp $
 
 namespace eval ::control {
 
     namespace export rswitch
-
-    proc CommandAsCaller {cmdVar resultVar {where {}} {codeVar code}} {
-	set x [expr {[string equal "" $where] 
-		? {} : [subst -nobackslashes {\n    ($where)}]}]
-	set script [subst -nobackslashes -nocommands {
-	    set $codeVar [catch {uplevel 1 $$cmdVar} $resultVar]
-	    if {$$codeVar > 1} {
-		return -code $$codeVar $$resultVar
-	    }
-	    if {$$codeVar == 1} {
-		if {[string equal {"uplevel 1 $$cmdVar"} \
-			[lindex [split [set ::errorInfo] \n] end]]} {
-		    set $codeVar [join \
-			    [lrange [split [set ::errorInfo] \n] 0 \
-			    end-[expr {4+[llength [split $$cmdVar \n]]}]] \n]
-		} else {
-		    set $codeVar [join \
-			    [lrange [split [set ::errorInfo] \n] 0 end-1] \n]
-		}
-		return -code error -errorcode [set ::errorCode] \
-			-errorinfo "$$codeVar$x" $$resultVar
-	    }
-	}]
-	return $script
-    }
-
-    proc BodyAsCaller {bodyVar resultVar codeVar {where {}}} {
-	set x [expr {[string equal "" $where]
-		? {} : [subst -nobackslashes -nocommands \
-		{\n    ($where[string map {{    ("uplevel"} {}} \
-		[lindex [split [set ::errorInfo] \n] end]]}]}]
-	set script [subst -nobackslashes -nocommands {
-	    set $codeVar [catch {uplevel 1 $$bodyVar} $resultVar]
-	    if {$$codeVar == 1} {
-		if {[string equal {"uplevel 1 $$bodyVar"} \
-			[lindex [split [set ::errorInfo] \n] end]]} {
-		    set ::errorInfo [join \
-			    [lrange [split [set ::errorInfo] \n] 0 end-2] \n]
-		} 
-		set $codeVar [join \
-			[lrange [split [set ::errorInfo] \n] 0 end-1] \n]
-		return -code error -errorcode [set ::errorCode] \
-			-errorinfo "$$codeVar$x" $$resultVar
-	    }
-	}]
-	return $script
-    }
 
     proc rswitch {formatString actionList} {
 	if {[catch {llength $actionList} actionListLength]} {
