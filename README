@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README,v 1.5 2003/03/28 17:07:29 andreas_kupries Exp $
+RCS: @(#) $Id: README,v 1.6 2003/04/17 22:54:04 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.  This package is
 intended to be a collection of Tcl packages that provide utility
@@ -67,8 +67,9 @@ the CVS directory), and should contain the following files:
 * source code		*.tcl
 * package index		pkgIndex.tcl
 * tests			*.test
-* documentation		*.n, *.xml
+* documentation		*.man, *.n, *.xml
 
 If you do not follow this directory structure, the tcllib Makefile
 will fail to locate the files from the new module.
+
 

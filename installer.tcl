@@ -2,6 +2,9 @@
 # -*- tcl -*- \
 exec tclsh "$0" ${1+"$@"}
 
+# --------------------------------------------------------------
+# Installer for Tcllib
+
 set distribution   [file dirname [info script]]
 lappend auto_path  [file join $distribution modules]
 
@@ -10,10 +13,10 @@ source [file join $distribution tcllib_version.tcl] ; # Get version information.
 # --------------------------------------------------------------
 # Low-level commands of the installation engine.
 
-proc gen_main_index {outdir package version distribution} {
+proc gen_main_index {outdir package version} {
     global config
 
-    puts "\nGenerating [file join $outdir pkgIndex.tcl]"
+    log "\nGenerating [file join $outdir pkgIndex.tcl]"
     if {$config(dry)} {return}
 
     set   index [open [file join $outdir pkgIndex.tcl] w]
@@ -22,7 +25,7 @@ proc gen_main_index {outdir package version distribution} {
     puts $index ""
     puts $index "set maindir \$dir"
 
-    foreach pi [lsort [glob -nocomplain [file join $distribution * pkgIndex.tcl]]] {
+    foreach pi [lsort [glob -nocomplain [file join $outdir * pkgIndex.tcl]]] {
 	set subdir [file tail [file dirname $pi]]
 	puts $index "set dir \[file join \$maindir [list $subdir]\] ;\t source \[file join \$dir pkgIndex.tcl\]"
     }
@@ -91,10 +94,7 @@ proc _tex {module libdir} {
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 proc write_out {f text} {
     global config
-    if {$config(dry)} {
-	puts "Generate $f"
-	return
-    }
+    if {$config(dry)} {log "Generate $f" ; return}
     puts -nonewline [set of [open $f w]] $text
     close $of
 }
@@ -109,16 +109,28 @@ proc _man {module format ext docdir} {
 
 	set out [file join $docdir [file rootname [file tail $f]]].$ext
 
-	puts "Generating $out"
+	log "Generating $out"
 	if {$config(dry)} {continue}
 
 	dt configure -file $f
 	file mkdir [file dirname $out]
-	write_out $out [dt format [get_input $f]]
+
+	set data [dt format [get_input $f]]
+	switch -exact -- $format {
+	    nroff {
+		set data [string map \
+			[list \
+			{.so man.macros} \
+			$config(man.macros)] \
+			$data]
+	    }
+	    html {}
+	}
+	write_out $out $data
 
 	set warnings [dt warnings]
 	if {[llength $warnings] > 0} {
-	    puts stderr [join $warnings \n]
+	    log [join $warnings \n]
 	}
     }
     dt destroy
@@ -188,16 +200,36 @@ foreach {m pkg doc exa} {
 # --------------------------------------------------------------
 # Use configuration to perform installation
 
+proc clear {}     {global message ; set     message ""}
+proc msg   {text} {global message ; append  message $text \n ; return}
+proc get   {}     {global message ; return $message}
+
+proc log {text} {
+    global config
+    if {!$config(gui)} {puts stdout $text ; flush stdout return}
+    .l.t insert end $text\n
+    .l.t see    end
+    update
+    return
+}
+proc log* {text} {
+    global config
+    if {!$config(gui)} {puts -nonewline stdout $text ; flush stdout return}
+    .l.t insert end $text
+    .l.t see    end
+    update
+    return
+}
+
 proc run {args} {
     global config
     if {$config(dry)} {
-	puts stderr [join $args]
+	log [join $args]
 	return
     }
     eval $args
 
-    puts  -nonewline stdout .
-    flush stdout
+    log* .
     return
 }
 
@@ -214,12 +246,15 @@ proc doinstall {} {
 
     if {$config(pkg)}       {
 	xinstall   pkg $config(pkg,path)
-	gen_main_index $config(pkg,path) tcllib $tcllib_version [file join $distribution modules]
+	gen_main_index $config(pkg,path) tcllib $tcllib_version
     }
-    if {$config(doc,nroff)} {xinstall doc nroff n    $config(doc,nroff,path)}
+    if {$config(doc,nroff)} {
+	set config(man.macros) [string trim [get_input [file join $distribution man.macros]]]
+	xinstall doc nroff n    $config(doc,nroff,path)
+    }
     if {$config(doc,html)}  {xinstall doc html  html $config(doc,html,path)}
     if {$config(exa)}       {xinstall exa $config(exa,path)}
-    puts ""
+    log ""
     return
 }
 
@@ -233,6 +268,7 @@ array set config {
     doc,html  0 doc,html,path  {}
     exa 1 exa,path {}
     dry 0 wait 1 valid 1
+    gui 0
 }
 
 # --------------------------------------------------------------
@@ -297,6 +333,7 @@ proc showpath {prefix key} {
 	if {[string length $config($key,path)] == 0} {
 	    puts "${prefix}Empty path, invalid."
 	    set config(valid) 0
+	    msg "Invalid path: [string trim $prefix " 	:"]"
 	} else {
 	    puts "${prefix}$config($key,path)"
 	}
@@ -336,10 +373,83 @@ proc showconfiguration {} {
 # --------------------------------------------------------------
 # Setup the installer user interface
 
-proc handlegui {} {
-    handlecmdline ; return
+proc browse {label key} {
+    global config
 
-    ... TODO ...
+    set  initial $config($key)
+    if {$initial == {}} {set initial [pwd]}
+
+    set dir [tk_chooseDirectory \
+	    -title    "Select directory for $label" \
+	    -parent    . \
+	    -initialdir $initial \
+	    ]
+
+    if {$dir == {}} {return} ; # Cancellation
+
+    set config($key)  $dir
+    return
+}
+
+proc setupgui {} {
+    global config tcllib_name tcllib_version
+    set config(gui) 1
+
+    wm withdraw .
+    wm title . "Installing $tcllib_name $tcllib_version"
+
+    foreach {w type cspan col row opts} {
+	.pkg checkbutton 1 0 0 {-anchor w -text {Packages:}    -variable config(pkg)}
+	.dnr checkbutton 1 0 1 {-anchor w -text {Doc. Nroff:}  -variable config(doc,nroff)}
+	.dht checkbutton 1 0 2 {-anchor w -text {Doc. HTML:}   -variable config(doc,html)}
+	.exa checkbutton 1 0 3 {-anchor w -text {Examples:}    -variable config(exa)}
+
+	.spa frame  3 0 4 {-bg black -height 2}
+
+	.dry checkbutton 2 0 6 {-anchor w -text {Simulate installation}   -variable config(dry)}
+
+	.pkge entry 1 1 0 {-width 40 -textvariable config(pkg,path)}
+	.dnre entry 1 1 1 {-width 40 -textvariable config(doc,nroff,path)}
+	.dhte entry 1 1 2 {-width 40 -textvariable config(doc,html,path)}
+	.exae entry 1 1 3 {-width 40 -textvariable config(exa,path)}
+
+	.pkgb button 1 2 0 {-text ... -command {browse Packages pkg,path}}
+	.dnrb button 1 2 1 {-text ... -command {browse Nroff    doc,nroff,path}}
+	.dhtb button 1 2 2 {-text ... -command {browse HTML     doc,html,path}}
+	.exab button 1 2 3 {-text ... -command {browse Examples exa,path}}
+
+	.sep  frame  3 0 7 {-bg black -height 2}
+
+	.run  button 1 0 8 {-text {Install} -command {set ::run 1}}
+	.can  button 1 1 8 {-text {Cancel}  -command {exit}}
+    } {
+	eval [list $type $w] $opts
+	grid $w -column $col -row $row -sticky ew -columnspan $cspan
+	grid rowconfigure . $row -weight 0
+    }
+
+    grid .can -sticky e
+
+    grid rowconfigure    . 9 -weight 1
+    grid columnconfigure . 0 -weight 0
+    grid columnconfigure . 1 -weight 1
+
+    wm deiconify .
+    return
+}
+
+proc handlegui {} {
+    setupgui
+    vwait ::run
+    showconfiguration
+    validate
+
+    toplevel .l
+    wm title .l "Install log"
+    text     .l.t -width 70 -height 25 -relief sunken -bd 2
+    pack     .l.t -expand 1 -fill both
+
+    return
 }
 
 # --------------------------------------------------------------
@@ -405,10 +515,19 @@ proc validate {} {
 
     if {$config(valid)} {return}
 
-    puts stdout "Invalid configuration detected, aborting."
-    puts stdout ""
-    puts stdout "Please use the option -help to get more information"
-    puts stdout ""
+    puts "Invalid configuration detected, aborting."
+    puts ""
+    puts "Please use the option -help to get more information"
+    puts ""
+
+    if {$config(gui)} {
+	tk_messageBox \
+		-icon error -type ok \
+		-default ok \
+		-title "Illegal configuration" \
+		-parent . -message [get]
+	clear
+    }
     exit 1
 }
 

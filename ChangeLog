@@ -1,5 +1,14 @@
 2003-04-17  Andreas Kupries  <andreask@activestate.com>
 
+	* installer.tcl: Added GUI.
+
+	* main.tcl: New file, entrypoint for *kit, *pack, redirects to
+	  'installer.tcl'.
+
+	* sak.tcl: Helper tool for tcllib development (Generate
+	  distribution, various forms of documentation, check the bundle
+	  of packages for problems.
+
 	* Makefile.in: Added des to the list of modules. (That is the good
 	  thing which came out of the erroneous commit, we found this
 	  error.)
