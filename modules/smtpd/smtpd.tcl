@@ -15,7 +15,7 @@ package require log;                    # tcllib
 package require mime;                   # tcllib
 
 namespace eval smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.3 2002/09/16 22:45:09 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.4 2002/09/19 18:21:24 davidw Exp $}
     variable version 1.0
     variable stopped
 
@@ -185,7 +185,7 @@ proc smtpd::state {channel args} {
         }
         return $r
     }
-    
+
     foreach {name value} $args {
         # FRINK: nocheck
         set [namespace current]::[subst state_$channel]($name) $value
@@ -202,13 +202,19 @@ proc smtpd::state {channel args} {
 proc smtpd::service {channel} {
     variable commands
     variable options
-    
+
     if {[eof $channel]} {
         close $channel
         return
     }
-    
+
     gets $channel cmdline
+
+    if { $cmdline == "" && [eof $channel] } {
+        log::log warning "channel closed"
+        return
+    }
+
     log::log debug "received: $cmdline"
 
     # If we are handling a DATA section, keep looking for the end of data.
@@ -242,7 +248,7 @@ proc smtpd::service {channel} {
     } else {
         puts $channel "500 Invalid command"
     }
-    
+
     return
 }
 
