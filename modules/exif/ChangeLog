@@ -1,5 +1,23 @@
 2002-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* exif.tcl: Applied patch for bug report SF #530907 partially.
+
+	  Parts of the patch are accepted and applied
+	  * FlashPixVersion
+	  * Construction of FlashMode
+
+	  Not applied parts:
+	  * SubjectDistance. Patch assumes that unit is millimeter and
+	    converts to meter. Spec says that unit _is_ meter. (*). Is it
+	    possible that the specific camera of the submitter implements
+	    the standard incorrectly ?
+
+	  * ShutterSpeedValue. Instead of logical inversion (1/value
+	    seconds) I added the proper unit for frequency (Hz).
+
+	  (*) http://www.media.mit.edu/pia/Research/deepview/exif.html
+	  	0x9206 SubjectDistance  signed rational 1  Distance to focus point, unit is meter 
+
 	* exif.tcl: Applied patch SF #582828 provided by Anselm Lingnau
 	  <lingnau@users.sourceforge.net> to make the module work with
 	  Digital IXUS.
