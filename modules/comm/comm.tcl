@@ -21,7 +21,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.5 2002/03/06 19:15:05 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.6 2003/01/29 05:42:14 davidw Exp $
 
 package require Tcl 8
 
@@ -477,7 +477,7 @@ proc ::comm::commConfigure {{force 0} args} {
 	    p {
 		if {
 		    [string compare $optval ""] &&
-		    ![regexp {[0-9]+} $optval]
+		    ![string is integer $optval]
 		} {
 		    error "Non-port to configuration option: -$var"
 		}
@@ -486,7 +486,7 @@ proc ::comm::commConfigure {{force 0} args} {
 		set skip 1
 	    }
 	    i {
-		if {![regexp {[0-9]+} $optval]} {
+		if {![string is integer $optval]} {
 		    error "Non-integer to configuration option: -$var"
 		}
 		# FRINK: nocheck
