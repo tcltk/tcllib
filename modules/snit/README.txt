@@ -12,10 +12,40 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Changes in Later Versions
+Changes in V0.9
 --------------------------------------------------------------------
 
-Please see the file ChangeLog in this directory.
+For specific changes, please see the file ChangeLog in this directory.
+Here are the highlights:
+
+* Snit widgets and widget adaptors now support the Tk option database.
+
+* It's possible set the hull type of a Snit widget to be either a
+  frame or a toplevel.
+
+* It's possible to explicitly set the widget class of a Snit widget.
+
+* It's possible to explicitly set the resource and class names for
+  all locally defined and explicitly delegated options.
+
+* Option and method names can be excluded from "delegate option *" by
+  using the "except" clause, e.g.,
+
+     delegate option * to hull except {-borderwidth -background}
+
+* Any Snit type or widget can define a "type constructor": a body of
+  code that's executed when the type is defined.  The type constructor
+  is typically used to initialize array-valued type variables, and to
+  add values to the Tk option database.
+
+* Components should generally be created and installed using the new
+  "install" command.
+
+* snit::widgetadaptor hulls should generally be created and installed
+  using the new "installhull using" form of the "installhull" command.
+
+See the Snit man page and FAQ list for more information on these new 
+features.
 
 
 Changes in V0.81

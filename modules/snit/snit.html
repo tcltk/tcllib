@@ -18,7 +18,6 @@
          <li> <a href="#standard_instance_methods">Standard Instance Methods</a>
          <li> <a href="#commands_for_use_in_object_code">Commands for use in Object Code</a>
          <li> <a href="#components_and_delegation">Components and Delegation</a>
-         <li> <a href="#the_tk_option_database">The Tk Option Database</a>
        </ul>
   <li> <a href="#history">HISTORY</a>
   <li> <a href="#credits">CREDITS</a>
@@ -27,7 +26,7 @@
 <h2><a name="synopsis">SYNOPSIS</a></h2>
 
 <pre>
-    package require snit 0.84
+    package require snit 0.9
     ::snit::type <i>name</i> <i>definition</i>
     ::snit::widget <i>name</i> <i>definition</i>
     ::snit::widgetadaptor <i>name</i> <i>definition</i>
@@ -128,10 +127,8 @@ introduction to Snit concepts.<p>
 
               <pre>option -font {Courier 12}</pre><p>
               
-              See
-              <a href="#the_tk_option_database">The Tk Option
-              Database</a> for more information about resource and
-              class names.<p>
+              See the <a href="faq.html">Snit FAQ list</a> for more
+              information about resource and class names.<p>
               
               Options are normally set and retrieved using the
               standard <code><a href="#configure">configure</a></code>
@@ -260,9 +257,12 @@ introduction to Snit concepts.<p>
               argument names "type", "self", "selfns", and "win"
               should be avoided.<p>
               
-         <dt> <code><a name="delegate">delegate method <i>name</i> to <i>comp</i> ?as <i>compmethod compargs...</i>?</a></code>
-         <dd> Defines a delegated instance method.  When instance
-              method <i>name</i> is used with an instance of this
+         <dt> <code><a name="delegate_method">delegate method <i>name</i> to <i>comp</i></a></code>
+         <dt> <code>delegate method <i>name</i> to <i>comp</i> as <i>target</i></code>
+         <dt> <code>delegate method * to <i>comp</i></code>
+         <dt> <code>delegate method * to <i>comp</i> except <i>exceptions</i></code>
+         <dd> Delegates one or more instance methods to a component of
+              the object.  When a method <i>name</i> is explicitly state,
               type, it will automatically be delegated to the named
               component as though the method were defined as follows:<p>
 
@@ -272,27 +272,23 @@ introduction to Snit concepts.<p>
               }
               </pre>
 
-              If desired, the delegated method may target a method
-              with a different name by using the "as" clause; it may
-              also add arguments to the beginning of the argument
-              list.  In that case, it's as though the delegated method
-              were defined as follows:<p>
+              If desired, the delegated method may <i>target</i> a method
+              with a different name by using the "as" clause; the
+              <i>target</i> may also include arguments to add to the
+              beginning of the argument list.<p>
 
-              <pre>
-              method <i>name</i> {<i>args...</i>} {
-                  $<i>comp</i> <i>compmethod</i> \
-                      <i>compargs...</i>  <i>args...</i>
-              }
-              </pre>
-
-              If the specified method <i>name</i> is "*", then all
-              unknown method names passed to the instance will be
-              passed along to the specified <i>comp</i>.  In this
-              case, the "as" clause is not allowed.<p>
+              The form "delegate method *" delegates all
+              unknown method names to the specified <i>comp</i>.  The "except"
+              clause can be used to specify a list of
+              <i>exceptions</i>, i.e., method names that will not be
+              so delegated.<p>
 
               A method cannot be both locally defined and delegated.<p>
               
-         <dt> <code><a name="delegate">delegate option <i>namespec</i> to <i>comp</i> ?as <i>compoption</i>?</a></code>
+         <dt> <code><a name="delegate_option">delegate option <i>namespec</i> to <i>comp</i></a></code>
+         <dt> <code>delegate option <i>namespec</i> to <i>comp</i> as <i>target</i></code>
+         <dt> <code>delegate option * to <i>comp</i></code>
+         <dt> <code>delegate option * to <i>comp</i> except <i>target</i></code>
          <dd> Defines a delegated option; the <i>namespec</i> is
               defined as for the <code><a href="#option">option</a></code>
               statement.   When the
@@ -308,19 +304,28 @@ introduction to Snit concepts.<p>
 
               <pre>
               onconfigure <i>name</i> {value} {
-                  $<i>comp</i> configure <i>compoption</i> $value
+                  $<i>comp</i> configure <i>name</i> $value
               }
               
               oncget <i>name</i> {
-                  return [$<i>comp</i> cget <i>compoption</i>]
+                  return [$<i>comp</i> cget <i>name</i>]
               }
               </pre>
 
-              If the "as" clause is omitted, the <i>compoption</i>
-              name is the same as <i>name</i>.<p>
+              If the "as" clause is specified, then the <i>target</i>
+              option name is used in place of <i>name</i>.<p>
+
+              The form "delegate option *" delegates all
+              unknown method names to the specified <i>comp</i>.  The "except"
+              clause can be used to specify a list of
+              <i>exceptions</i>, i.e., option names that will not be
+              so delegated.<p>
 
               Warning: options can only be delegated to a component if
-              it supports the "configure" and "cget" instance methods.<p>
+              it supports the "configure" and "cget" instance
+              methods.<p>
+
+              Note that an option cannot be both locally defined and delegated.<p>
        </dl>
   <dt> <code><a name="snit::widget">snit::widget <i>name</i> <i>definition</i></a></code>
   <dd> This command defines a Snit megawidget type with the specified
@@ -353,8 +358,8 @@ introduction to Snit concepts.<p>
          <dt> <code><a name="widgetclass">widgetclass <i>name</i></a></code>
          <dd> Sets the <code>snit::widget</code>'s widget class
               to <i>name</i>, overriding the default.  See
-              <a href="#the_tk_option_database">The Tk Option
-              Database</a> for more information.<p>
+              the <a href="faq.html">Snit FAQ list</a> for more
+              information about the Tk option database.<p>
 
          <dt> <code><a name="hulltype">hulltype <i>type</i></a></code>
          <dd> Determined the kind of widget used as the
@@ -376,9 +381,9 @@ introduction to Snit concepts.<p>
        Note that in general it is not possible to change the
        <a href="#widgetclass">widget class</a> of a
        <code>snit::widgetadaptor</code>'s hull widget.  See
-       <a href="#the_tk_option_database">The Tk Option Database</a>
-       for information on how <code>snit::widgetadaptors</code>
-       interact with the option database.<p>
+       the <a href="faq.html">Snit FAQ list</a> for more information
+       on how <code>snit::widgetadaptors</code> 
+       interact with the Tk option database.<p>
 </dl>
 
 <h3><a name="the_type_command">The Type Command</a></h3>
@@ -611,8 +616,9 @@ directly available.
        delegated to component <i>compName</i>, then those options
        will receive default values from the Tk option database.  Note
        that it doesn't matter whether the component to be installed is
-       a widget or not.  See <a href="#the_tk_option_database">The Tk
-       Option Database</a> for more information.<p>
+       a widget or not.  See the <a href="faq.html">Snit FAQ list</a>
+       for more information about the Tk
+       Option Database.<p>
 
   <dt> <code>installhull using <i>widgetType</i> <i>args...</i></a></code>
   <dt> <code><a name="installhull">installhull <i>name</i></a></code>
@@ -631,10 +637,9 @@ directly available.
        In the second form, the hull widget has already been created;
        note that its name must be "$win".  In this case, the Tk
        option database is <b>not</b> queried for any options
-       delegated to the hull.  See <a
-       href="#the_tk_option_database">The Tk Option Database</a> for
-       more information about <code>snit::widgetadaptors</code> and
-       the option database.<p>
+       delegated to the hull.  See the <a href="faq.html">Snit FAQ
+       list</a> for more information about
+       <code>snit::widgetadaptors</code> and the Tk option database.<p>
 
        The longer form is preferred; however, the shorter form allows
        the programmer to adapt a widget created elsewhere, which is
@@ -698,7 +703,8 @@ snit::type dog {
 For <code>snit::types</code>, the two methods are equivalent; for
 <code>snit::widgets</code> and <code>snit::widgetadaptors</code>,
 the "install" command properly initializes delegated options by
-querying <a href="#the_tk_option_database">the Tk option database</a>.
+querying the Tk option database.  See the <a href="faq.html">Snit FAQ
+list</a> for more information.
 
 In the above examples, the <code>dog</code> object's "wag" method
 simply calls the <code>tail</code> component's "wag" method.  In OO
@@ -744,359 +750,8 @@ Any other method, being recognized by neither <code>dog</code> nor
 
 Option delegation is similar to method delegation, except for the
 interactions with the Tk option database; this is described in the
-next section.<p>
-
-<h3><a name="the_tk_option_database">The Tk Option Database</a></h3>
-
-This section describes how Snit interacts with the Tk option
-database, and assumes the reader has a working knowledge of the option
-database and its uses.  The book <i>Practical Programming in Tcl and
-Tk</i> by Welch et al has a good introduction to the option database,
-as does <i>Effective Tcl/Tk Programming</i><p>
-
-Snit is implemented so that most of the time it will simply do the
-right thing with respect to the option database, provided that the
-widget developer does the right thing by Snit.  The body of this
-section goes into great deal about what Snit requires.  The following
-is a brief statement of the requirements, for reference.<p>
-
-<ul>
-  <li> If the widget's default widget class is not what is desired, set it
-       explicitly using <code><a
-       href="#widgetclass">widgetclass</a></code> in the widget
-       definition.<p>
-
-  <li> When defining or delegating options, specify the resource and
-       class names explicitly when necessary.<p>
-
-  <li> Use <code><a href="#installhull">installhull
-       using</a></code> to install the hull for
-       <code>snit::widgetadaptors</code>.<p>
-
-  <li> Use <code><a href="#install">install</a></code> to install all
-       other components.<p>
-</ul>
-
-The interaction of Tk widgets with the option database is a complex
-thing; the interaction of Snit with the option database is even more
-so, and repays attention to detail.<p>
-
-<b>Setting the widget class:</b> Every Tk widget has a widget class.
-For Tk widgets, the widget class name is the just the widget type name
-with an initial capital letter, e.g., the widget class for
-<code>button</code> widgets is "Button".<p>
-
-Similarly, the widget class of a <code>snit::widget</code> defaults
-to the unqualified type name with the first letter capitalized.  For
-example, the widget class of<p>
-
-<pre>snit::widget ::mylibrary::scrolledText { ... }</pre><p>
-
-is "ScrolledText".  The widget class can also be set explicitly using
-the <a href="#widgetclass">widgetclass</a> statement within the
-<code>snit::widget</code> definition.<p>
-
-Note that only <code>frame</code> and <code>toplevel</code> widgets
-allow the user to change the widget class name, which is why they are
-the allowable hull types for normal <code>snit::widgets</code>.<p>
-
-The widget class of a <code>snit::widgetadaptor</code> is just the
-widget class of its hull widget; this cannot be changed unless the
-hull widget is a <code>frame</code> or <code>toplevel</code>, in
-which case it will usually make more sense to use
-<code>snit::widget</code> rather than
-<code>snit::widgetadaptor</code>.<p>
-
-<b>Setting option resource names and classes:</b>  In Tk, every
-option has three names: the option name, the resource name, and
-the class name.  The option name begins with a hyphen is all
-lowercase; it's used when creating widgets, and with the
-<code>configure</code> and <code>cget</code> commands.<p>
-
-The resource and class names are used to initialize option
-default values by querying the Tk option database.
-The resource name is usually just the option
-name minus the hyphen, but may contain uppercase letters at word
-boundaries; the class name is usually just the resource
-name with an initial capital, but not always.  For example, here are
-the option, resource, and class names for several <code>text</code>
-widget options:<p>
-
-<pre>
--background         background         Background 
--borderwidth        borderWidth        BorderWidth 
--insertborderwidth  insertBorderWidth  BorderWidth 
--padx               padX               Pad 
-</pre>
-
-As is easily seen, sometimes the resource and class names can be
-inferred from the option name, but not always.<p>
-
-Snit options also have a resource name and a class name.  By
-default, these names follow the rule given above: the resource name
-is the option name without the hyphen, and the class name is the
-resource name with an initial capital.  This is true for both
-locally-defined options and explicitly delegated options:<p>
-
-<pre>
-snit::widget mywidget {
-    option -background
-    delegate option -borderwidth to hull
-    delegate option * to text
-    # ...
-}
-</pre>
-
-In this case, the widget class name is "Mywidget".  The widget has the
-following options: -background, which is locally defined,
--borderwidth, which is explicitly delegated; all other widgets are
-delegated to a component called "text", which is probably a Tk
-<code>text</code> widget.  If so, <code>mywidget</code> has all the
-same options as a <code>text</code> widget.  The
-option, resource, and class names are as follows:<p>
-
-<pre>
--background  background  Background
--borderwidth borderwidth Borderwidth
--padx        padX        Pad
-</pre>
-
-Note that the locally defined option, "-background", happens to have
-the same three names as the standard Tk "-background" option; and
-"-pad", which is delegated implicitly to the "text" component has the
-same three names for <code>mywidget</code> as it does for the
-<code>text</code> widget.  "-borderwidth", on the other hand, has
-different resource and class names than usual, because the internal
-word "width" isn't capitalized.  For consistency, it should be; this
-is done as shown:<p>
-
-<pre>
-snit::widget mywidget {
-    option -background
-    delegate option {-borderwidth borderWidth} to hull
-    delegate option * to text
-    # ...
-}
-</pre>
-
-The class name will default to "BorderWidth", as expected.<p>
-
-Suppose, however, that <code>mywidget</code> also delegated
-"-padx" and -pady to the hull.  In this case, both the resource name
-and the class name must be specified explicitly:<p>
-
-<pre>
-snit::widget mywidget {
-    option -background
-    delegate option {-borderwidth borderWidth} to hull
-    delegate option {-padx padX Pad} to hull
-    delegate option {-pady padY Pad} to hull
-    delegate option * to text
-    # ...
-}
-</pre>
-
-<b>Querying the option database:</b> If you set your widgetclass and
-option names as described above, Snit will query the option database
-when each instance is created, and will generally do the right
-thing when it comes to querying the option database.  The remainder
-of this section goes into the gory details.<p>
-
-<b>Initializing locally defined options:</b>
-
-When an instance of a snit::widget is created, its locally
-defined options are initialized as follows:  each option's resource
-and class names are used to query the Tk option database.  If the
-result is non-empty, it is used as the option's default; otherwise,
-the default hardcoded in the type definition is used.  In either
-case, the default can be overridden by the caller.  For example,
-
-<pre>
-option add *Mywidget.texture pebbled
-
-snit::widget mywidget {
-     option -texture smooth
-     # ...
-}
-
-mywidget .mywidget -texture greasy
-</pre>
-
-Here, "-texture" would normally default to "smooth", but because of
-the entry added to the option database it defaults to "pebbled".
-However, the caller has explicitly overridden the default, and so the
-new widget will be "greasy".<p>
-
-<b>Initializing options delegated to the hull:</b>
-
-A <code>snit::widget</code>'s hull is a widget, and given that its
-class has been set it is expected to query the option database for
-itself.  The only exception concerns options that are delegated to it
-with a different name.  Consider the following code:<p>
-
-<pre>
-option add *Mywidget.borderWidth 5
-option add *Mywidget.relief sunken
-option add *Mywidget.hullbackground red
-option add *Mywidget.background green
-
-snit::widget mywidget {
-    delegate option -borderwidth to hull
-    delegate option -hullbackground to hull as -background
-    delegate option * to hull
-    # ...
-}
-
-mywidget .mywidget
-
-set A [.mywidget cget -relief]
-set B [.mywidget cget -hullbackground]
-set C [.mywidget cget -background]
-set D [.mywidget cget -borderwidth]
-</pre>
-
-The question is, what are the values of variables A, B, C and D?<p>
-
-The value of A is "sunken".  The hull is a Tk frame which has been
-given the widget class "Mywidget"; it will automatically query the
-option database and pick up this value.  Since the -relief option
-is implicitly delegated to the hull, Snit takes no action.<p>
-
-The value of B is "red".  The hull will automatically pick up the
-value "green" for its -background option, just as it picked up the
--relief value.  However, Snit knows that -hullbackground is mapped
-to the hull's  -background option; hence, it queries the option
-database for -hullbackground and gets "red" and updates the hull
-accordingly.<p>
-
-The value of C is also "red", because -background is implicitly
-delegated to the hull; thus, retrieving it is the same as retrieving
--hullbackground.  Note that this case is unusual; in practice,
--background would probably be explicitly delegated to some other
-component.<p>
-
-The value of D is "5", but not for the reason you think.  Note that
-as it is defined above, the resource name for -borderwidth defaults
-to "borderwidth", whereas the option database entry is "borderWidth".
-As with -relief, the hull picks up its own "-borderwidth" option
-before Snit does anything.  Because the option is delegated under its
-own name, Snit assumes that the correct thing has happened, and
-doesn't worry about it any further.<p>
-
-For <code>snit::widgetadaptors</code>, the case is somewhat altered.
-Widget adaptors retain the widget class of their hull, and the
-hull is not created automatically by Snit.  Instead, the
-<code>snit::widgetadaptor</code> must call
-<code><a href="#installhull">installhull</a></code> in its
-constructor.  The normal way to do this is as follows:<p>
-
-<pre>
-snit::widgetadaptor mywidget {
-    # ...
-    constructor {args} {
-        # ...
-        installhull using text -foreground white
-        #
-    }
-    #...
-}
-</pre>
-
-In this case, the <code><a href="#installhull">installhull</a></code>
-command will create the hull using a command like this:<p>
-
-<pre>
-    set hull [text $win -foreground white]
-</pre>
-
-The hull is a <code>text</code> widget, so its widget class
-is "Text".  Just as with <code>snit::widget</code> hulls,
-Snit assumes that it will pick up all of its normal option values
-automatically; options delegated from a different name are
-initialized from the option database in the same way.<p>
-
-<b>Initializing options delegated to other components:</b>
-
-Non-hull components are matched against the option database
-in two ways.  First, a component widget remains a widget still,
-and therefore is initialized from the option database in the usual
-way.  Second, the option database is queried for all options delegated
-to the component, and the component is initialized
-accordingly--provided that the <code><a
-href="#install">install</a></code>
-command is used to create it.<p>
-
-Before option database support was added to Snit, the usual way to
-create a component was to simply create it in the constructor and
-assign its command name to the component variable:<p>
-
-<pre>
-snit::widget mywidget
-    delegate option -background to myComp
-
-    constructor {args} {
-        set myComp [text $win.text -foreground black]
-    }
-}
-</pre>
-
-The drawback of this method is that Snit has no opportunity to
-initialize the component properly.  Hence, the following approach is
-now used:<p>
-
-<pre>
-snit::widget mywidget
-    delegate option -background to myComp
-
-    constructor {args} {
-        install myComp using text $win.text -foreground black
-    }
-}
-</pre>
-
-The <code><a href="#install">install</a></code> command does the
-following:<p>
-
-<ul>
-  <li> Builds a list of the options explicitly included in the
-       <code><a href="#install">install</a></code> command--in this
-       case, -foreground.<p>
-       
-  <li> Queries the option database for all options delegated
-       explicitly to the named component.<p>
-
-  <li> Creates the component using the specified command, after
-       inserting into it a list of options and values read from the
-       option database.  Thus, the explicitly include options
-       (-foreground) will override anything read from the option
-       database.<p>
-
-  <li> If the widget definition implicitly delegated options to the
-       component using "delegate option *", then Snit calls the newly
-       created component's <code><a
-       href="#configure">configure</a></code> method to receive a
-       list of all of the component's options.  From this Snit builds
-       a list of options implicitly delegated to the component which
-       were not explicitly included in the
-       <code><a href="#install">install</a></code> command.  For all
-       such options, Snit queries the option database and configures
-       the component accordingly.       
-</ul>
-
-<b>Non-widget components:</b>  The option database is never queried
-for <code>snit::types</code>, since it can only be queried given a Tk
-widget name.  However, <code>snit::widgets</code> can have non-widget
-components.  And if options are delegated to those components, and if
-the <code><a href="#install">install</a></code> command is used to
-install those components, then they will be initialized from the
-option database just as widget components are.<p>
-
-<h2><a name="known_bugs">KNOWN BUGS</a></h2>
-
-<ul>
-  <li> Error stack traces returned by Snit are extremely ugly and
-       typically contain far too much information about Snit internals.<p>
-</ul>
+<a href="faq.html">Snit FAQ
+list</a>.<p>
 
 <h2><a name="history">HISTORY</a></h2>
 
