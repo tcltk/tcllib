@@ -22,6 +22,10 @@ Changes in V0.91
   From now on, all pre-1.0 Snit version numbers will have two
   digits.
 
+* Bug fix: If a method or typemethod had an argument list which was
+  broken onto multiple lines, the type definition would fail. It now
+  works as expected.
+
 * Added the "expose" statement; this allows you to expose an entire
   component as part of your type's public interface.  See the man page
   and the Snit FAQ list for more information.
