@@ -1,3 +1,9 @@
+2001-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.test: Fixed a problem with the expander testsuite. It
+	  checked for the wrong namespace and thus did not load the
+	  functionality to be tested.
+
 2001-11-28  Reinhard Max  <max@suse.de>
 
 	* split.tcl: Speed improvement by using [regexp -start] instead of
