@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.16 2002/11/15 20:32:32 davidw Exp $
+# CVS: $Id: uri.tcl,v 1.17 2002/11/15 20:45:21 davidw Exp $
 
 package require Tcl 8.2
 
@@ -915,4 +915,4 @@ uri::register prospero {
     variable	url		"prospero:$schemepart"
 }
 
-package provide uri 1.1.1
+package provide uri 1.1.2

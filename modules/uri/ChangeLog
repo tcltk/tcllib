@@ -1,5 +1,7 @@
 2002-11-15  David N. Welton  <davidw@dedasys.com>
 
+	* uri.tcl: Bump patchlevel in 'package provide'.
+
 	* uri.test: Added tests for 'news' splitting and joining.
 
 	* uri.man: Added 'news' to list of supported uri's.
