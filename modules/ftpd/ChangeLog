@@ -1,3 +1,10 @@
+2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* ftpd.tcl:
+	* ftpd.n:
+	* ftpd.man: Bumped to version 1.1.2.
+
 2002-03-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftpd.man: New, doctools manpage.

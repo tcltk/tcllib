@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ftpd n 1.1]
+[manpage_begin ftpd n 1.1.2]
 [moddesc   {Tcl FTP Server Package}]
 [titledesc {Tcl FTP server implementation}]
 [require Tcl 8.3]
-[require ftpd [opt 1.1]]
+[require ftpd [opt 1.1.2]]
 [description]
 
 The [package ftpd] package provides a simple Tcl-only server library

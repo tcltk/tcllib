@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.5 2002/04/25 23:26:16 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.6 2002/06/03 20:21:46 andreas_kupries Exp $
 
 package require log;                    # tcllib 1.0
 
@@ -213,7 +213,7 @@ proc uuencode::uudecode {args} {
 
 # -------------------------------------------------------------------------
 
-package provide uuencode 1.0
+package provide uuencode 1.0.1
 
 # -------------------------------------------------------------------------
 #

@@ -1,3 +1,15 @@
+2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:
+	* base64.tcl:
+	* base64.n:
+	* base64.man: Bumped base64 to version 2.2.1.
+
+	* pkgIndex.tcl:
+	* uuencode.tcl:
+	* uuencode.n:
+	* uuencode.man: Bumped uuencode to version 1.0.1.
+
 2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* yencode.test: Fixed SF Tcllib Bug #548354 so that the datafile
@@ -13,23 +25,23 @@
 	* base64.tcl: Fixed decoding of empty string in tcl
 	  implementation. Fixes bug #548112.
 
-2002-04-17  Pat Thoyts  <patthoyts@users.soruceforge.net>
+2002-04-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* yencode.tcl, yencode.test, yencode.man, yencode.test.data,
 	* yencode.test.out: initial import of yEnc encode/decode package
 	plus man page and test.
 
-2002-04-17  Pat Thoyts  <patthoyts@users.soruceforge.net>
+2002-04-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uuencode.tcl: fixed bug #544452 to handle DOS input files and
 	tolerate incorrect uuencoded line lengths.
 	* uuencode.test: added tests for the above bug conditions.
 
-2002-01-17  Pat Thoyts <patthoyts@users.soruceforge.net>
+2002-01-17  Pat Thoyts <patthoyts@users.sourceforge.net>
 
 	* uuencode.tcl: added support for Trf and fixed length bug
 	
-2002-01-16  Pat Thoyts <patthoyts@users.soruceforge.net>
+2002-01-16  Pat Thoyts <patthoyts@users.sourceforge.net>
 
 	* uuencode.tcl: initial import of uuencode package
 	* pkgIndex.tcl: added uuencode package

@@ -2,10 +2,10 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ftpd.n,v 1.4 2002/03/19 23:07:58 andreas_kupries Exp $
+'\" RCS: @(#) $Id: ftpd.n,v 1.5 2002/06/03 20:21:46 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH ftpd n 1.1 ftpd "Tcl FTP Server Package"
+.TH ftpd n 1.1.2 ftpd "Tcl FTP Server Package"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@ ftpd \- Tcl FTP server implementation
 .SH SYNOPSIS
 \fBpackage require Tcl 8.3\fR
 .sp
-\fBpackage require ftpd ?1.1?\fR
+\fBpackage require ftpd ?1.1.2?\fR
 .sp
 \fB::ftpd::server\fR \fR?\fImyaddr\fR?\fR
 .sp
