@@ -5,14 +5,14 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.8 2003/01/25 18:25:32 davidw Exp $
+# $Id: irc.tcl,v 1.9 2003/04/11 18:19:18 andreas_kupries Exp $
 
 package provide irc 0.3
 package require Tcl 8.3
 
 package require logger
 
-namespace eval irc {
+namespace eval ::irc {
     variable conn
 
     # configuration information
@@ -23,7 +23,7 @@ namespace eval irc {
     set conn 0
 }
 
-# irc::config --
+# ::irc::config --
 #
 # Set configuration options
 #
@@ -33,7 +33,7 @@ namespace eval irc {
 #
 # value	value of the configuration option.
 
-proc irc::config { key value } {
+proc ::irc::config { key value } {
     variable config
     if { $key == "debug" } {
 	if { $value > 0 } {
@@ -45,7 +45,7 @@ proc irc::config { key value } {
     set config($key) $value
 }
 
-# irc::connection --
+# ::irc::connection --
 
 # Create an IRC connection namespace and associated commands.  Do not
 # actually make the socket.
@@ -56,7 +56,7 @@ proc irc::config { key value } {
 
 # port	port to use - usually 6667
 
-proc irc::connection { host {port 6667} } {
+proc ::irc::connection { host {port 6667} } {
     variable conn
     variable config
 
