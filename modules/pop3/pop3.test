@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.1 2002/09/03 17:13:51 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.2 2002/09/03 19:27:28 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -308,7 +308,6 @@ Content-Type: text/plain;
 
     
 
-
 }
 
 foreach {n mode} {
@@ -383,7 +382,27 @@ test pop3-3.5 {top} {
 # ----------------------------------------------------------------------
 
 
-
+test pop3-6.0 {get and delete all message, nano-client} {
+    set res ""
+    set port [newsrv]
+    set psock [pop3::open -retr-mode slow localhost ak smash $port]
+    set x [lindex [pop3::status $psock] 0]
+    lappend res $x
+    for {set i 0 } {$i < $x} {incr i} {
+	set j [expr {$i + 1}]
+	set msg [pop3::retrieve $psock $j]
+	lappend res [string length $msg]
+	pop3::delete $psock $j
+    }
+    pop3::close $psock
+    # Check that all messages are gone now.
+    set psock [pop3::open localhost ak smash $port]
+    set x [lindex [pop3::status $psock] 0]
+    lappend res $x
+    pop3::close $psock
+    delsrv
+    set res
+} {3 86 86 86 0}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
