@@ -7,7 +7,7 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.8 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.9 2004/02/10 06:44:21 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -15,6 +15,23 @@ namespace import -force ::tcltest::*
 set cmdLineFile [file join [file dirname [info script]] cmdline.tcl]
 source $cmdLineFile
 set argv0 "argv0"
+
+# ---------------------------------------------------
+
+# Takes a dictionary, returns a list containing the same dictionary,
+# however the keys are sorted alphabetically. This allows for a true
+# comparison of dictionary results.
+
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+	lappend out $key $a($key)
+    }
+    return $out
+}
+
+# ---------------------------------------------------
 
 # cmdline::getopt
 
@@ -113,8 +130,8 @@ test cmdline-2.6 {cmdline::getoptions, flag with arg, default value} {
 } {{foo bar} {}}
 test cmdline-2.7 {cmdline::getoptions, multiple flags with arg, default value} {
     set argList {}
-    list [cmdline::getoptions argList {{foo.arg blat} {a.arg b}}] $argList
-} {{foo blat a b} {}}
+    list [dictsort [cmdline::getoptions argList {{foo.arg blat} {a.arg b}}]] $argList
+} {{a b foo blat} {}}
 test cmdline-2.8 {cmdline::getoptions, errors} {
     set argList {-a -foo}
     list [catch {cmdline::getoptions argList {{foo.arg blat} a}} msg] $msg $argList
@@ -430,8 +447,8 @@ test cmdline-7.6 {cmdline::getKnownOptions, flag with arg, default value} {
 } {{foo bar} {}}
 test cmdline-7.7 {cmdline::getKnownOptions, multiple flags with arg, default value} {
     set argList {}
-    list [cmdline::getKnownOptions argList {{foo.arg blat} {a.arg b}}] $argList
-} {{foo blat a b} {}}
+    list [dictsort [cmdline::getKnownOptions argList {{foo.arg blat} {a.arg b}}]] $argList
+} {{a b foo blat} {}}
 test cmdline-7.8 {cmdline::getKnownOptions, ignore unknown option} {
     set argList {-unknown -foo buzz}
     list [cmdline::getKnownOptions argList {{foo.arg blat}}] $argList

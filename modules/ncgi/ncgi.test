@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.17 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.18 2004/02/10 06:44:21 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -489,7 +489,7 @@ test ncgi-14.3 {ncgi::multipart} {
 
     ncgi::reset $X $type
     ncgi::multipart $type $X
-} {field1 {{content-disposition form-data name field1} value} field2 {{content-disposition form-data name field2} {another value}} the_file_naame {{content-disposition form-data name the_file_naame filename {C:\Program Files\Netscape\Communicator\Program\nareadme.htm} content-type text/html} {
+} {field1 {{content-disposition form-data name field1} value} field2 {{content-disposition form-data name field2} {another value}} the_file_name {{content-disposition form-data name the_file_name filename {C:\Program Files\Netscape\Communicator\Program\nareadme.htm} content-type text/html} {
 <center><h1>
                   Netscape Address Book Sync for Palm Pilot
                                          User Guide
@@ -515,7 +515,7 @@ test ncgi-14.4 {ncgi::multipart} {
 
     ncgi::reset $X $type
     ncgi::parse
-    list [ncgi::value field1] [ncgi::value field2] [ncgi::value the_file_naame]
+    list [ncgi::value field1] [ncgi::value field2] [ncgi::value the_file_name]
 } {value {another value} {
 <center><h1>
                   Netscape Address Book Sync for Palm Pilot
@@ -545,7 +545,7 @@ test ncgi-14.6 {ncgi::multipart setValue} {
     ncgi::parse
     ncgi::setValue userval1 foo
     ncgi::setValue userval2 "a b"
-    list [ncgi::value field1] [ncgi::value field2] [ncgi::value userval1] [ncgi::value userval2] [ncgi::value the_file_naame]
+    list [ncgi::value field1] [ncgi::value field2] [ncgi::value userval1] [ncgi::value userval2] [ncgi::value the_file_name]
 } {value {another value} foo {a b} {
 <center><h1>
                   Netscape Address Book Sync for Palm Pilot
@@ -588,7 +588,7 @@ proc genformdata {bcontent} {
 
     set a [genformdatapart field1 "" {value}]
     set b [genformdatapart field2 "" {another value}]
-    set c [genformdatapart the_file_naame "; filename=\"C:\\Program Files\\Netscape\\Communicator\\Program\\nareadme.htm\"\nContent-Type: text/html" $bcontent]
+    set c [genformdatapart the_file_name "; filename=\"C:\\Program Files\\Netscape\\Communicator\\Program\\nareadme.htm\"\nContent-Type: text/html" $bcontent]
 
     return "$a$b$c--$form_boundary--\n" 
 }
@@ -610,7 +610,7 @@ test ncgi-14.5 {ncgi::multipart--check binary file} {
 
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
-    set content [ncgi::value the_file_naame]
+    set content [ncgi::value the_file_name]
     list [ncgi::value field1] [ncgi::value field2] $content
 } [list value {another value} $binary_content]
 
@@ -624,7 +624,7 @@ test ncgi-16.1 {ncgi::importFile} {
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
 
-    ncgi::importFile -client the_file_naame
+    ncgi::importFile -client the_file_name
 
 } "C:\\Program Files\\Netscape\\Communicator\\Program\\nareadme.htm"
 
@@ -637,7 +637,7 @@ test ncgi-16.2 {ncgi::importFile - content type} {
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
 
-    ncgi::importFile -type the_file_naame
+    ncgi::importFile -type the_file_name
 
 } text/html
 
@@ -651,7 +651,7 @@ test ncgi-16.3 {ncgi::importFile -- file contents} {
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
 
-    ncgi::importFile -data the_file_naame
+    ncgi::importFile -data the_file_name
 
 } $binary_content
 
@@ -664,7 +664,7 @@ test ncgi-16.4 {ncgi::importFile -- save file} {
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
 
-    set localfile [ncgi::importFile -server the_file_naame]
+    set localfile [ncgi::importFile -server the_file_name]
 
     # get the contents of the local file to verify
     set in [open $localfile]
@@ -685,7 +685,7 @@ test ncgi-16.5 {ncgi::importFile -- save file, given name} {
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
 
-    set localfile [ncgi::importFile -server the_file_naame fofo]
+    set localfile [ncgi::importFile -server the_file_name fofo]
 
     # get the contents of the local file to verify
     set in [open $localfile]
@@ -705,7 +705,7 @@ test ncgi-16.6 {ncgi::importFile -- bad input} {
     ncgi::reset $X [genformcontent_type]
     ncgi::parse
 
-    ncgi::importFile -client the_file_naame
+    ncgi::importFile -client the_file_name
 
 } {}
 

@@ -85,7 +85,12 @@ namespace eval ::ncgi {
     array set map {
 	" " +   \n %0D%0A
     }
- 
+
+    # Map of transient files
+
+    variable  _tmpfiles
+    array set _tmpfiles {}
+
     # I don't like importing, but this makes everything show up in 
     # pkgIndex.tcl
 
@@ -117,12 +122,13 @@ namespace eval ::ncgi {
 
 proc ::ncgi::reset {args} {
     global env
-    global ncgi::_tmpfiles
+    variable _tmpfiles
     variable query
     variable contenttype
     variable cookieOutput
 
-    array unset ncgi::_tmpfiles
+    # array unset _tmpfiles -- Not a Tcl 8.2 idiom
+    unset _tmpfiles ; array set _tmpfiles {}
 
     set cookieOutput {}
     if {[llength $args] == 0} {
@@ -922,26 +928,26 @@ proc ::ncgi::importFile {cmd var {filename {}}} {
     switch -exact -- $cmd {
 	-server {
 	    ## take care not to write it out more than once
-	    global ncgi::_tmpfiles
-	    if {![info exists ncgi::_tmpfiles($var)]} {
+	    variable _tmpfiles
+	    if {![info exists _tmpfiles($var)]} {
 		if {$filename != {}} {
 		    ## use supplied filename 
-		    set ncgi::_tmpfiles($var) $filename
+		    set _tmpfiles($var) $filename
 		} else {
 		    ## create a tmp file 
-		    set ncgi::_tmpfiles($var) [::fileutil::tempfile ncgi]
+		    set _tmpfiles($var) [::fileutil::tempfile ncgi]
 		}
 
 		# write out the data only if it's not been done already
-		if {[catch {open $ncgi::_tmpfiles($var) w} h]} {
-		    error "Can't open temporary file in ncgi::import_file"
+		if {[catch {open $_tmpfiles($var) w} h]} {
+		    error "Can't open temporary file in ncgi::importFile ($h)"
 		} 
 
 		fconfigure $h -translation binary -encoding binary
 		puts -nonewline $h $contents 
 		close $h
 	    }
-	    return $ncgi::_tmpfiles($var)
+	    return $_tmpfiles($var)
 	}
 	-client {
 	    if {![info exists fileinfo(filename)]} {return {}}

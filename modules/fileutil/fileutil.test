@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.20 2004/02/06 08:27:18 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.21 2004/02/10 06:44:21 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -40,10 +40,14 @@ if {[package vsatisfies [package provide tcltest] 2.0]} {
     # tcltest2.0+ has an API to specify a test constraint
     ::tcltest::testConstraint tcl8.3plus \
         [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+    ::tcltest::testConstraint tcl8.4plus \
+        [expr {[package vsatisfies [package provide Tcl] 8.4]}]
 } else {
     # In tcltest1.0, a global variable needs to be set directly.
     set ::tcltest::testConstraints(tcl8.3plus) \
         [expr {[package vsatisfies [package provide Tcl] 8.3]}]
+    set ::tcltest::testConstraints(tcl8.4plus) \
+        [expr {[package vsatisfies [package provide Tcl] 8.4]}]
 }
 
 # -------------------------------------------------------------------------
@@ -611,12 +615,24 @@ test install-1.1 {install a file} {
     file exists [file join installDst {file [1]}]
 } {1}
 
-test install-2.1 {install a directory} {
+makeDirectory installDst
+test install-2.1 {install a directory} {tcl8.4plus} {
     fileutil::install [file join installSrc subdir] installDst
-    lsort [glob -tails -directory [file join installDst subdir] [file join . / *]]
+    set result [lsort [glob -tails -directory [file join installDst subdir] [file join . / *]]]
+    file delete -force installDst
+    set result
 } {subfile1 subfile2 subfile3}
 
-test install-3.1 {install a directory, set permissions} {unix} {
+makeDirectory installDst
+test install-2.2 {install a directory} {tcl8.3plus} {
+    fileutil::install [file join installSrc subdir] installDst
+    set result [lsort [glob -directory [file join installDst subdir] [file join . / *]]]
+    file delete -force installDst
+    set result
+} {installDst/subdir/subfile1 installDst/subdir/subfile2 installDst/subdir/subfile3}
+
+makeDirectory installDst
+test install-3.1 {install a directory, set permissions} {unix tcl8.3plus} {
     set res {}
     fileutil::install -m go+rw [file join installSrc subdir2] installDst
     foreach fl [glob [file join installDst subdir2 *]] {
@@ -625,23 +641,19 @@ test install-3.1 {install a directory, set permissions} {unix} {
     set res
 } {006660066600666}
 
-test tempdir-1.1 {return the correct directorary for temporary files} -constraints {
-    unix
-} -body {
+test tempdir-1.1 {return the correct directorary for temporary files} {unix} {
     set ::env(TMPDIR) [pwd] ;# Most high-priority source, and existing directory!
-    ::fileutil::tempdir
-} -cleanup {
-    unset env(TMPDIR)
-} -result [pwd]
+    set result [::fileutil::tempdir]
+    unset ::env(TMPDIR)
+    set result
+} [pwd]
 
-test tempdir-1.2 {return the correct directorary for temporary files} -constraints {
-    unix
-} -body {
+test tempdir-1.2 {return the correct directorary for temporary files} {unix} {
     catch {unset ::env(TMPDIR)}
     catch {unset ::env(TEMPDIR)}
     catch {unset ::env(TMP)}
     ::fileutil::tempdir
-} -result {/tmp}
+} {/tmp}
 
 ::tcltest::cleanupTests
 return
