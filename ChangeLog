@@ -1,6 +1,7 @@
 2000-04-17  Brent Welch  <welch@scriptics.com>
 
 	* html/html.tcl: Added html generation module
+	* ncgi/ncgi.tcl: Fixed ncgi::reset with no query data.
 
 2000-04-10  Brent Welch  <welch@scriptics.com>
 
