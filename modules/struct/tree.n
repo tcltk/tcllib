@@ -2,7 +2,7 @@
 '\" Copyright (c) 1998-2000 by Scriptics Corporation.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: tree.n,v 1.2 2000/03/03 22:28:02 ericm Exp $
+'\" RCS: @(#) $Id: tree.n,v 1.3 2000/03/09 15:58:37 ericm Exp $
 '\" 
 .so man.macros
 .TH tree n 1.0 Struct "Tcl Data Structures"
@@ -49,11 +49,14 @@ Remove true if the specified node exists in the tree.
 Return the value associated with the key \fIkey\fR for the node
 \fInode\fR.  If no key is specified, the key \fBdata\fR is assumed.
 .TP
-\fItreeName \fBinsert\fR \fIparent\fR \fIindex\fR \fIchild\fR
+\fItreeName \fBinsert\fR \fIparent\fR \fIindex\fR ?\fIchild\fR?
 Insert a node named \fIchild\fR into the tree as a child of the node
 \fIparent\fR.  If \fIparent\fR is \fBroot\fR, it refers to the root of
 the tree.  The new node will be added to the \fIparent\fR node's
-child list at the index given by \fIindex\fR.
+child list at the index given by \fIindex\fR.  If \fIchild\fR is not
+specified, a name will be generated for the new node.  The generated
+name is of the form \fBnode\fR\fIx\fR, where \fIx\fR is a number.  The
+return result from this command is the name of the new node.
 .TP
 \fItreeName\fR \fBmove\fR \fIparent\fR \fIindex\fR \fInode\fR 
 Make \fInode\fR a child of \fIparent\fR, inserting it

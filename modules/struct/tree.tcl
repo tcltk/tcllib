@@ -5,7 +5,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: tree.tcl,v 1.3 2000/03/09 00:07:42 ericm Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.4 2000/03/09 15:58:37 ericm Exp $
 
 namespace eval ::struct {}
 
@@ -75,15 +75,21 @@ proc ::struct::tree::tree {{name ""}} {
 
     # Set up the namespace
     namespace eval ::struct::tree::tree$name {
+	# Set up root node's child list
 	variable children
 	set children(root) [list ]
 
+	# Set root node's parent
 	variable parent
 	set parent(root) [list ]
 
 	# Set up the root node's data
 	variable noderoot
 	set noderoot(data) ""
+
+	# Set up a value for use in creating unique node names
+	variable nextUnusedNode
+	set nextUnusedNode 1
     }
 
     # Create the command to manipulate the tree
@@ -284,12 +290,24 @@ proc ::struct::tree::_get {name node {flag -key} {key data}} {
 #	name		name of the tree.
 #	parentNode	parent to add the node to.
 #	index		index at which to insert.
-#	node		node to insert; must be unique.
+#	args		node to insert; must be unique.  If none is given,
+#			the routine will generate a unique node name.
 #
 # Results:
-#	None.
+#	node		name of the inserted node.
 
-proc ::struct::tree::_insert {name parentNode index node} {
+proc ::struct::tree::_insert {name parentNode index args} {
+    if { [llength $args] == 0 } {
+	# No node name was given; generate a unique one
+	upvar ::struct::tree::tree${name}::nextUnusedNode nextUnusedNode
+	while {[_exists $name "node${nextUnusedNode}"]} {
+	    incr nextUnusedNode
+	}
+	set node "node${nextUnusedNode}"
+    } else {
+	set node [lindex $args 0]
+    }
+
     if { [_exists $name $node] } {
 	error "node \"$node\" already exists in tree \"$name\""
     }
@@ -310,7 +328,7 @@ proc ::struct::tree::_insert {name parentNode index node} {
     # Add this node to its parent's children list
     set children($parentNode) [linsert $children($parentNode) $index $node]
 
-    return
+    return $node
 }
 
 # ::struct::tree::_move --
