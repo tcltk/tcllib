@@ -689,6 +689,29 @@ an instance method called [method info] that is used for
 instance introspection; the [method info]
 method is documented below.  If false, it will not.
 
+[lst_item "[const -simpledispatch] [arg flag]"]
+
+This pragma is intended to make simple, heavily-used abstract
+data types (e.g., stacks and queues) more efficient.
+
+[nl]
+
+If false (the default), instance methods are dispatched normally.  If
+true, a faster dispatching scheme is used instead.
+The speed comes at a price; with [const "-simpledispatch yes"] you 
+get the following limitations:
+
+[list_begin bullet]
+
+[bullet] Methods cannot be delegated.
+[bullet] Instance commands cannot be renamed.
+[bullet] [cmd uplevel] and [cmd upvar] do not work as expected: the
+caller's scope is two levels up rather than one.
+[bullet] The option-handling methods 
+([cmd cget], [cmd configure], and [cmd configurelist]) are very
+slightly slower.
+[list_end]
+
 [list_end]
 
 [call [cmd expose] [arg comp]]

@@ -6,6 +6,7 @@ Snit_info               Introspection Array.  Keys and values are as
                         follows:
     
     hasinstances        Boolean. Normally T, but F if pragma -hasinstances no
+    simpledispatch      Uses a very simple method dispatcher.
     canreplace          Boolean. Normally F, but T if pragma -canreplace yes
     counter		Integer counter.  Used to generate unique names.
     widgetclass         Tk widget class name for snit::widgets
@@ -18,6 +19,9 @@ Snit_info               Introspection Array.  Keys and values are as
                         methods.
     ivardecs            Instance variable declarations--for dynamic
                         methods.
+
+Snit_methods            List of method names; defined only when
+                        -simpledispatch yes.
 
 Snit_isWidget           Boolean; true if the object is a widget or 
                         widgetadaptor. 
