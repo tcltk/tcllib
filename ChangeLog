@@ -1,5 +1,9 @@
 2001-08-22  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
+	* examples/nntp: Added new example application 'postnews'. This is
+	  an example how to use the 'nntp'-client library provided by
+	  tcllib.
+
  	* Makefile.in (MODULES):  Added package 'comm'.
 
 2001-08-21  Don Porter <dgp@users.sourceforge.net>
