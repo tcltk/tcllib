@@ -33,7 +33,7 @@ namespace eval ::logger {
 
 if {[package vcompare [package provide Tcl] 8.4] < 0} {
     proc ::logger::_nsExists {ns} {
-        catch {namespace parent $ns}
+        expr {![catch {namespace parent $ns}]}
     }
 } else {
     proc ::logger::_nsExists {ns} {
