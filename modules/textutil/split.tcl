@@ -2,16 +2,17 @@ namespace eval ::textutil {
 
     namespace eval split {
 
-	namespace export splitx
+	namespace export splitx splitn
 
 	# This will be redefined later. We need it just to let
 	# a chance for the next import subcommand to work
 	#
 	proc splitx [list str [list regexp "\[\t \r\n\]+"]] {}
+	proc splitn {str {len 1}} {}
     }
 
-    namespace import -force split::splitx
-    namespace export splitx
+    namespace import -force split::splitx split::splitn
+    namespace export splitx splitn
 
 }
 
@@ -99,4 +100,53 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
         return $list
     }
     
+}
+
+#
+# splitn --
+#
+# splitn splits the string $str into chunks of length $len.  These
+# chunks are returned as a list.
+#
+# If $str really contains a ByteArray object (as retrieved from binary
+# encoded channels) splitn must honor this by splitting the string
+# into chunks of $len bytes.
+#
+# It is an error to call splitn with a nonpositive $len.
+#
+# If splitn is called with an empty string, it returns the empty list.
+#
+# If the length of $str is not an entire multiple of the chunk length,
+# the last chunk in the generated list will be shorter than $len.
+#
+# The implementation presented here was given by Bryan Oakley, as
+# part of a ``contest'' I staged on c.l.t in July 2004.  I selected
+# this version, as it does not rely on runtime generated code, is
+# very fast for chunk size one, not too bad in all the other cases,
+# and uses [split] or [string range] which have been around for quite
+# some time.
+#
+# -- Robert Suetterlin (robert@mpe.mpg.de)
+#
+proc ::textutil::split::splitn {str {len 1}} {
+
+    if {$len <= 0} {
+        return -code error "len must be > 0"
+    }
+
+    if {$len == 1} {
+        return [split $str {}]
+    }
+
+    set result [list]
+    set max [string length $str]
+    set i 0
+    set j [expr {$len -1}]
+    while {$i < $max} {
+        lappend result [string range $str $i $j]
+        incr i $len
+        incr j $len
+    }
+
+    return $result
 }
