@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.35 2004/01/30 19:22:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.36 2004/02/03 22:28:20 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -840,7 +840,7 @@ proc ::fileutil::tempdir {} {
 
     foreach tmp $attempdirs {
 	if { [file isdirectory $tmp] && [file writable $tmp] } {
-	    return $tmp
+	    return [file normalize $tmp]
 	}
     }
 
@@ -895,7 +895,7 @@ proc ::fileutil::tempfile {{prefix {}}} {
  	    } else {
  		# Success
 		close $channel
- 		return $newname
+ 		return [file normalize $newname]
  	    }
  	}
     }

@@ -1,3 +1,8 @@
+2004-02-03  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (tempdir, tempfile): Now [file normalize]'ing the
+	  results of these two commands. More windows friendly.
+
 2004-01-28  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (fileutil::find): Fixed bug in handling a single
