@@ -3,10 +3,21 @@
 exec tclsh "$0" ${1+"$@"}
 
 ##################################################################
-# Main programme to test adjust/hyphenation                      #
+# Main programme to test adjust/hyphenation: shows some examples #
+# of hyphenated text                                             #
+#                                                                #
+# Note: the files dehypht.tex, eshyph_vo.tex and ithyph.tex must #
+# reside in the same directory as adjust_hyph.test               #
 ##################################################################
 
-source adjust.tcl
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
+    source [file join [file dirname [info script]] textutil.tcl]
+}
 
 ##########
 # German #
