@@ -3,7 +3,7 @@
 [copyright {2003 Michael Schlenker <mic42@users.sourceforge.net>}]
 [titledesc {Create and manipulate prioqueue objects}]
 [require Tcl 8.2]
-[require struct [opt 1.3]]
+[require struct::prioqueue [opt 1.3]]
 [description]
 
 This package implements a simple priority queue using nested tcl lists.

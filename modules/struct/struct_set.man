@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_set.man,v 1.3 2004/05/19 04:34:50 andreas_kupries Exp $}]
+[comment {$Id: struct_set.man,v 1.4 2004/05/21 03:11:57 andreas_kupries Exp $}]
 [manpage_begin struct::set n 2.1]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating sets}]
 [require Tcl 8.0]
-[require struct [opt 2.1]]
+[require struct::set [opt 2.1]]
 [description]
 
 [para]
