@@ -109,16 +109,18 @@ Determines the number of messages in the specified mailbox and returns
 this number. This method fails if the mailbox [arg mbox] is not
 locked.
 
-[call [arg dbName] [method size] [arg {mbox msgId}]]
+[call [arg dbName] [method size] [arg mbox] [opt [arg msgId]]]
 
 Determines the size of the message specified through its id in
-[arg msgId], in bytes, and returns this number.
 
-The [arg msgId] has to be in the range "1 ...
-[lb][arg dbName] [method stat][rb]" or this
-call will fail. If [method stat] was not called
-before this call, [method size] will assume
-that there are zero messages in the mailbox.
+[arg msgId], in bytes, and returns this number. The command will
+return the size of the whole maildrop if no message id was specified.
+
+If specified the [arg msgId] has to be in the range "1 ... [lb][arg dbName] [method stat][rb]"
+
+or this call will fail. If [method stat] was not called before this
+call, [method size] will assume that there are zero messages in the
+mailbox.
 
 
 [call [arg dbName] [method dele] [arg {mbox msgList}]]
