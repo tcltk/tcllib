@@ -116,7 +116,7 @@ test expander-2.5 {cget error} {} {
     exp cpush FOO
     catch {exp cget BAR} result
     set result
-} {::exp cget: BAR doesn't exist in this context}
+} {::exp cget: BAR doesn't exist in this context (1)}
 
 test expander-2.6 {cpop mismatch} {} {
     catch {::textutil::expander exp}
