@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop.test,v 1.1 2004/04/04 19:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: faop.test,v 1.2 2004/04/09 21:11:50 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for grammar::fa."
@@ -42,8 +42,8 @@ if {[catch {source [file join [file dirname [info script]] faop.tcl]} msg]} {
     puts $::errorInfo
     return
 }
-if {[catch {source [file join [file dirname [info script]] test_support.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (test_support.tcl): $msg"
+if {[catch {source [file join [file dirname [info script]] tests.support]} msg]} {
+    puts "skipped [file tail [info script]] (tests.support): $msg"
     puts $::errorInfo
     return
 }
