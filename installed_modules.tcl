@@ -63,6 +63,7 @@ foreach {m pkg doc exa} {
     rc4         _tcl  _man  _null
     rcs         _tcl  _man  _null
     ripemd      _tcl  _man  _null
+    sasl        _tcl  _man  _null
     sha1	_tcl  _man  _null
     smtpd	_tcl  _man _exa
     snit        _tcl  _man  _null
