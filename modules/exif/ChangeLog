@@ -1,3 +1,10 @@
+Wed Sep 29 15:11:35 2004  Andreas Kupries <andreask@activestate.com>
+
+	* exif.tcl (makerNote): Fixed [Tcllib SF Bug 1028668]. There are
+ 	* exif.test:            images in the wild which do not provide
+	                        AFPoint information in the makerNote Exif
+				data. Test suite is new.
+
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
