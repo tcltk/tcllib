@@ -3,7 +3,7 @@
 [moddesc   {dns}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
-[require dns [opt 1.2.0]]
+[require dns [opt 1.2.1]]
 [description]
 [para]
 
@@ -57,10 +57,11 @@ qualified domain name or a DNS URI.
 [lst_item "[cmd -type] [arg TYPE]"]
   Specify the type of DNS record you are interested in. Valid values
   are A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, 
-  MINFO, MX, TXT, SPF, AAAA, AXFR, MAILB, MAILA and *. 
+  MINFO, MX, TXT, SPF, SRV, AAAA, AXFR, MAILB, MAILA and *. 
   See RFC1035 for details about the return values.
   See [uri http://spf.pobox.com/] about SPF.
-  See (3) about AAAA records.
+  See (3) about AAAA records and RFC2782 for details of SRV records.
+
 [lst_item "[cmd -class] [arg CLASS]"]
   Specify the class of domain name. This is usually IN but may be one
   of IN for internet domain names, CS, CH, HS or * for any class.
@@ -198,6 +199,12 @@ localhost
     Josefsson, S., "Domain Name System Uniform Resource Identifiers",
     Internet-Draft, October 2003,
     ([uri http://www.ietf.org/internet-drafts/draft-josefsson-dns-url-09.txt])
+
+[enum]
+    Gulbrandsen, A., Vixie, P. and Esibov, L.,
+    "A DNS RR for specifying the location of services (DNS SRV)",
+    RFC 2782, February 2000,
+    ([uri http://www.ietf.org/rfc/rfc2782.txt])
 
 [list_end]
 
