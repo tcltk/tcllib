@@ -148,6 +148,7 @@ proc ncgi::reset {args} {
 #	May affects future calls to ncgi::urlStub
 
 proc ncgi::urlStub {{url {}}} {
+    global   env
     variable urlStub
     if {[string length $url]} {
 	set urlStub $url
