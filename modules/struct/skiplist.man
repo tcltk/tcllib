@@ -18,7 +18,7 @@ with an associated global Tcl command whose name is
 operations on the skiplist. It has the following general form:
 
 [list_begin definitions]
-[call [cmd graphName] [arg option] [opt [arg "arg arg ..."]]]
+[call [cmd skiplistName] [arg option] [opt [arg "arg arg ..."]]]
 
 [arg Option] and the [arg arg]s determine the exact behavior of the
 command.
