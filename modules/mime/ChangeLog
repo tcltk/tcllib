@@ -1,3 +1,9 @@
+2004-05-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl (::smtp::wdata): Fixed [SF Tcllib Bug 951568]. Added
+	  handlers for the query/* commands from Trf. Also changed the
+	  default to sliently pass all unknowns in the future.
+
 2004-05-10  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl (copymessageaux): Applied the patch for [SF Tcllib Bug
