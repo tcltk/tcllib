@@ -1,3 +1,8 @@
+2002-03-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: Removed 'center' alignment from
+	  examples. Tcllib Bug #528390.
+
 2002-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/doctools/format.man: Added documentation for [rb] and
