@@ -1,3 +1,11 @@
+2001-09-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.test: Added test to verify that the problem is fixed.
+
+	* csv.tcl (joinlist): Fixed bug [#465210] "::csv::joinlist
+	  sepChar handling". The "sepChar" was not propagated to the
+	  actual join operation.
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.tcl: Restricted export list to public API.
