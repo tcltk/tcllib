@@ -1,3 +1,9 @@
+2004-09-24 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* irc.tcl: removed package require for logger and added config
+	option to use logger. removed backwards compatibility code from
+	connection and connect. added log and logname commands.
+
 2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* irc.tcl: Fixed expr'essions without braces.

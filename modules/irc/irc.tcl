@@ -5,11 +5,10 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.21 2004/09/24 06:54:24 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.22 2004/09/24 17:55:41 afaupell Exp $
 
 package provide irc 0.4
 package require Tcl 8.3
-package require logger
 
 namespace eval ::irc {
     # counter used to differentiate connections
@@ -18,6 +17,7 @@ namespace eval ::irc {
     variable irctclfile [info script]
     array set config {
         debug 0
+        logger 0
     }
 }
 
@@ -31,15 +31,17 @@ namespace eval ::irc {
 #
 # value	value of the configuration option.
 
-proc ::irc::config { key args } {
+proc ::irc::config { args } {
     variable config
     if { [llength $args] == 0 } {
-	return $config($key)
+        return [array get config]
+    } elseif { [llength $args] == 1 } {
+        return $config($key)
+    } elseif { [llength $args] > 2 } {
+        error "wrong # args: should be \"config key ?val?\""
     }
-    if { [llength $args] > 1 } {
-	error "wrong # args: should be \"config key ?val?\""
-    }
-    set value [lindex $args 0]
+    set key [lindex $args 0]
+    set value [lindex $args 1]
     foreach ns [namespace children] {
         if { [info exists config($key)] && [info exists ${ns}::config($key)] \
                 && [set ${ns}::config($key)] == $config($key)} {
@@ -91,7 +93,6 @@ proc ::irc::reload { } {
     set conn $oldconn
 }
 
-
 # ::irc::connection --
 #
 # Create an IRC connection namespace and associated commands.
@@ -106,14 +107,15 @@ proc ::irc::connection { args } {
 
     namespace eval $name {
 	set sock {}
-	set logger [logger::init [namespace qualifiers [namespace current]]]
 	array set dispatch {}
 	array set linedata {}
 	array set config [array get ::irc::config]
-
-	if { !$config(debug) } {
-	    ${logger}::disable debug
-	}
+	if { $config(logger) || $config(debug)} {
+	    package require logger
+            set logger [logger::init [namespace tail [namespace current]]]
+            if { !$config(debug) } { ${logger}::disable debug }
+        }
+	
 
 	# ircsend --
 	# send text to the IRC server
@@ -121,16 +123,15 @@ proc ::irc::connection { args } {
 	proc ircsend { msg } {
 	    variable sock
 	    variable dispatch
-	    variable logger
 	    if { $sock == "" } { return }
-	    ${logger}::debug "ircsend: '$msg'"
+	    cmd-log debug "ircsend: '$msg'"
 	    if { [catch {puts $sock $msg} err] } {
 	        catch { close $sock }
 	        set sock {}
 		if { [info exists dispatch(EOF)] } {
 		    eval $dispatch(EOF)
 		}
-		${logger}::error "Error in ircsend: $err"
+		cmd-log error "Error in ircsend: $err"
 	    }
 	}
 
@@ -151,27 +152,50 @@ proc ::irc::connection { args } {
         #
         # value	value (optional) of the configuration option.
 
-        proc cmd-config { key args } {
+        proc cmd-config { args } {
             variable config
 	    variable logger
-
+	    
 	    if { [llength $args] == 0 } {
+		return [array get config]
+	    } elseif { [llength $args] == 1 } {
 		return $config($key)
+	    } elseif { [llength $args] > 2 } {
+		error "wrong # args: should be \"config key ?val?\""
 	    }
-	    if { [llength $args] > 1 } {
-		error "wrong # args: should be \"cmd-config key ?val?\""
-	    }
-	    set value [lindex $args 0]
+	    set key [lindex $args 0]
+	    set value [lindex $args 1]
             if { $key == "debug" } {
-                if { $value > 0 } {
+                if {$value} {
+                    if { !$config(logger) } { cmd-config logger 1 }
                     ${logger}::enable debug
-                } else {
+                } elseif { [info exists logger] } {
                     ${logger}::disable debug
+	        }
+            }
+            if { $key == "logger" } {
+                if { $value && !$config(logger)} {
+                    package require logger
+                    set logger [logger::init [namespace tail [namespace current]]]
+                } elseif { [info exists logger] } {
+                    ${logger}::delete
+                    unset logger
 	        }
             }
             set config($key) $value
         }
-
+        
+        proc cmd-log {level text} {
+	    variable logger
+            if { ![info exists logger] } return
+            ${logger}::$level $text
+        }
+        
+        proc cmd-logname { } {
+            variable logger
+            if { ![info exists logger] } return
+            return $logger
+        }
 
         # cmd-destroy --
         #
@@ -180,7 +204,7 @@ proc ::irc::connection { args } {
         proc cmd-destroy { } {
             variable logger
             variable sock
-            ${logger}::delete
+            if { [info exists logger] } { ${logger}::delete }
             catch {close $sock}
             namespace delete [namespace current]
         }
@@ -282,25 +306,13 @@ proc ::irc::connection { args } {
 	# Connect --
 	# Create the actual tcp connection.
 
-	proc cmd-connect { args } {
+	proc cmd-connect { h {p 6667} } {
 	    variable sock
-	    variable logger
 	    variable host
 	    variable port
 
-	    # FIXME: This should be REMOVED for the tcllib 1.6 release
-	    # cycle.
-	    # It is for backwards compatibility only!
-	    if { [llength $args] < 1 } {
-		${logger}::warn "You are using a deprecated API - correct usage: 'connect host ?port?'"
-	    } else {
-		set host [lindex $args 0]
-		if { [llength $args] > 1 } {
-		    set port [lindex $args 1]
-		} else {
-		    set port 6667
-		}
-	    }
+	   set host $h
+	   set port $p
 
 	    if { $sock == "" } {
 		set sock [socket $host $port]
@@ -387,19 +399,18 @@ proc ::irc::connection { args } {
 	    variable linedata
 	    variable sock
 	    variable dispatch
-	    variable logger
 	    array set linedata {}
 	    set line "eof"
 	    if { [eof $sock] || [catch {gets $sock} line] } {
 		close $sock
 		set sock {}
-		${logger}::error "Error receiving from network: $line"
+		cmd-log error "Error receiving from network: $line"
 		if { [info exists dispatch(EOF)] } {
 		    eval $dispatch(EOF)
 		}
 		return
 	    }
-	    ${logger}::debug "Recieved: $line"
+	    cmd-log debug "Recieved: $line"
 	    if { [set pos [string first " :" $line]] > -1 } {
 		set header [string range $line 0 [expr {$pos - 1}]]
 		set linedata(msg) [string range $line [expr {$pos + 2}] end]
@@ -490,19 +501,6 @@ proc ::irc::connection { args } {
 	set dispatch(defaultevent) #
 	set dispatch(defaultcmd) #
 	set dispatch(defaultnumeric) #
-    }
-
-    # FIXME: This should be REMOVED for the tcllib 1.6 release cycle.
-    # It is for backwards compatibility only!
-    if { [llength $args] > 0 } {
-	[set ${name}::logger]::warn "'connection' no longer takes args - use the 'connect' call to specifiy the host and port."
-	set host [lindex $args 0]
-	if { [llength $args] > 1 } {
-	    set port [lindex $args 1]
-	} else {
-	    set port 6667
-	}
-	${name}::cmd-connect $host $port
     }
 
     set returncommand [format "%s::irc%s::network" [namespace current] $conn]
