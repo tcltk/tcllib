@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.84 2003/03/13 22:56:11 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.85 2003/03/17 23:42:20 patthoyts Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -93,6 +93,9 @@ URI=uri
 # NNTP client module
 NNTP=nntp
 
+# NTP network time protocols
+NTP=ntp
+
 # Text utilities
 TEXTUTIL=textutil
 
@@ -145,6 +148,7 @@ MODULES= \
 	$(MIME)		\
 	$(NCGI)		\
 	$(NNTP)         \
+	$(NTP)		\
 	$(POP3)		\
 	$(POP3D)	\
 	$(PROFILER)	\
