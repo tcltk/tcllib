@@ -16,19 +16,19 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.8 2004/12/02 23:45:22 patthoyts Exp $
+# $Id: md5x.tcl,v 1.9 2004/12/02 23:52:07 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
     variable version 2.0.2
-    variable rcsid {$Id: md5x.tcl,v 1.8 2004/12/02 23:45:22 patthoyts Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.9 2004/12/02 23:52:07 patthoyts Exp $}
     variable usetrf  0
     variable usemd5c 0
     namespace export md5 hmac MD5Init MD5Update MD5Final
 
     # Try and load a compiled extension to help.
-    if {![catch {package require xtcllibc}] 
+    if {![catch {package require tcllibc}] 
         || ![catch {package require md5c}]} {
         set usemd5c [expr {[info command ::md5::md5c] != {}}]
     } elseif {![catch {package require Trf}]} {
