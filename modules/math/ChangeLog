@@ -1,4 +1,10 @@
+2003-04-21  Andreas Kupries  <andreask@activestate.com>
+
+	* optimize.test: Corrected errors in loading the functionality
+	  under test, and of accessing tcltest. Now functional.
+
 2003-04-18  Joe English  <jenglish@flightlab.com
+
 	* optimize.man: fix minor markup errors that doctools and tmml 
 	  were complaining about. 
 
