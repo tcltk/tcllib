@@ -1,12 +1,18 @@
+2005-02-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/fumagic:       NEW MODULE: fileutil::magic.
+	* installed_modules.tcl: Magic(5) based file recognizers and
+	  support code. Currently only one recognizer, for mime-types.
+
 2005-01-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/sasl:          NEW MODULE: sasl
 	* installed_modules.tcl: 'Simple Authentication and Security Layer'
 
-2005-01-28  Andreas Kupries <andreask@activestate.com>
+2005-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/rcs:           NEW MODULE: rcs
-	* installed_modules.tcl:   
+	* installed_modules.tcl: Utilities to deal with 'diff -n' patches.
 
 2005-01-10  Andreas Kupries <andreask@activestate.com>
 
