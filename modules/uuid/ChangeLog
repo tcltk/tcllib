@@ -1,3 +1,7 @@
+2005-02-10  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* uuid.tcl: Fixed missing include in the critcl code.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
