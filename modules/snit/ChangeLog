@@ -1,3 +1,19 @@
+2004-07-26  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	Implemented -configuremethod and configure command
+	* snit.test     caching; added tests to ensure that the cache is
+	* roadmap.txt   cleared when necessary.  Implemented -validatemethod
+	* dictionary    and added tests.  Implemented -readonly and added
+	* README.txt    tests.
+
+	* snit.man      Updated the man page with the new option
+			definition syntax.
+
+	* snit.tcl      Added the "pragma" statement, and three pragma
+	* snit.test     options, -hastypeinfo, -hastypedestroy, and
+	* roadmap.txt   -hasinstances, plus related tests.  It still
+	* dictionary    needs to be documented.
+
 2004-07-25  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl 	Renamed some procs for clarity, and repaired some

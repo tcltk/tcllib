@@ -22,7 +22,7 @@ namespace eval ::snit:: {
 }
 
 #-----------------------------------------------------------------------
-# Standard method and typemethod definition templates
+# Some Snit variables
 
 namespace eval ::snit:: {
     variable reservedArgs {type selfns win self}
@@ -31,58 +31,6 @@ namespace eval ::snit:: {
     # stack trace.
     # NOTE: Not Yet Implemented
     variable prettyStackTrace 1
-
-    # The elements of defs are standard methods and typemethods; it's
-    # most convenient to define these as though they'd been typed in by
-    # the class author.  The following tokens will be substituted:
-    #
-    # %TYPE%    The type name
-    #
-    variable defs
-}
-
-
-# Methods common to both types and widgettypes.
-set ::snit::defs(common) {
-    # Options array
-    variable options
-
-    #------------------
-    # Standard Methods
-
-    delegate method info \
-        using {::snit::RT.method.info %t %n %w %s}
-    delegate method cget \
-        using {::snit::RT.method.cget %t %n %w %s}
-    delegate method configurelist \
-        using {::snit::RT.method.configurelist %t %n %w %s}
-    delegate method configure \
-        using {::snit::RT.method.configure %t %n %w %s}
-
-    #----------------------
-    # Standard Typemethods
-
-    delegate typemethod info     using {::snit::RT.typemethod.info %t}
-    delegate typemethod destroy  using {::snit::RT.typemethod.destroy %t}
-}
-
-# Methods specific to plain types.
-set ::snit::defs(type) {
-    #------------------------------------------------------------------------
-    # Delegations for standard methods and typemethods for plain snit::types.
-
-    delegate method destroy using {::snit::RT.method.destroy %t %n %w %s}
-
-    delegate typemethod create using {::snit::RT.type.typemethod.create %t}
-}
-
-
-# Methods specific to widgets.
-set snit::defs(widget) {
-    #------------------------------------------------------------------------
-    # Delegations for standard methods and typemethods for widget types.
-
-    delegate typemethod create using {::snit::RT.widget.typemethod.create %t}
 }
 
 #-----------------------------------------------------------------------
@@ -143,6 +91,7 @@ set ::snit::typeTemplate {
         # Array: General Snit Info
         #
         # ns:                The type's namespace
+        # hasinstances:      1 or 0, from pragma -hasinstances.
         # counter:           Count of instances created so far.
         # widgetclass:       Set by widgetclass statement.
         # hulltype:          Hull type (frame or toplevel) for widgets only.
@@ -152,6 +101,7 @@ set ::snit::typeTemplate {
         # ivardecs:          Instance variable declarations--for dyn. methods
         typevariable Snit_info
         set Snit_info(ns)      %TYPE%::
+        set Snit_info(hasinstances) 1
         set Snit_info(counter) 0
         set Snit_info(widgetclass) {}
         set Snit_info(hulltype) frame
@@ -197,7 +147,7 @@ set ::snit::typeTemplate {
         # an instance name if we can.
         if {[catch {set %TYPE%::Snit_typemethodCache($method)} command]} {
             set command [::snit::RT.CacheTypemethodCommand %TYPE% $method]
-            
+
             if {[llength $command] == 0} {
                 return -code error  "\"%TYPE% $method\" is not defined"
             }
@@ -320,6 +270,9 @@ namespace eval ::snit:: {
     # -validatemethod-$opt   The option's validate method
     # -configuremethod-$opt  The option's configure method
     # -cgetmethod-$opt       The option's cget method.
+    # -hastypeinfo           The -hastypeinfo pragma
+    # -hastypedestroy        The -hastypedestroy pragma
+    # -hasinstances          The -hasinstances pragma
     variable compile
 
     # The following variable lists the reserved type definition statement
@@ -357,6 +310,7 @@ proc ::snit::Comp.Init {} {
         }
 
         # Define compilation aliases.
+        $compiler alias pragma          ::snit::Comp.statement.pragma
         $compiler alias widgetclass     ::snit::Comp.statement.widgetclass
         $compiler alias hulltype        ::snit::Comp.statement.hulltype
         $compiler alias constructor     ::snit::Comp.statement.constructor
@@ -389,7 +343,6 @@ proc ::snit::Comp.Init {} {
 # body          the type definition
 proc ::snit::Comp.Compile {which type body} {
     variable typeTemplate
-    variable defs
     variable compile
     variable compiler
 
@@ -430,22 +383,64 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(typecomponents) {}
     set compile(varnames) {}
     set compile(typevarnames) {}
+    set compile(-hastypeinfo) yes
+    set compile(-hastypedestroy) yes
+    set compile(-hasinstances) yes
 
-    append compile(defs) \
-	    "set %TYPE%::Snit_isWidget        [string match widget* $which]\n"
-    append compile(defs) \
-	    "\tset %TYPE%::Snit_isWidgetAdaptor [string match widgetadaptor $which]"
+    set isWidget [string match widget* $which]
+    set isWidgetAdaptor [string match widgetadaptor $which]
 
-    if {"widgetadaptor" == $which} {
+    if {$isWidgetAdaptor} {
         # A widgetadaptor is also a widget.
         set which widget
     }
 
-    # NEXT, Add the standard definitions; then 
-    # evaluate the type's definition in the class interpreter.
-    $compiler eval [Expand $defs(common) %TYPE% $type]
-    $compiler eval [Expand $defs($which) %TYPE% $type]
+    # NEXT, Evaluate the type's definition in the class interpreter.
     $compiler eval $body
+
+    # NEXT, Add the standard definitions
+    Comp.statement.typevariable Snit_isWidget $isWidget
+    Comp.statement.typevariable Snit_isWidgetAdaptor $isWidgetAdaptor
+
+    # Add the info typemethod unless the pragma forbids it.
+    if {$compile(-hastypeinfo)} {
+        Comp.statement.delegate typemethod info \
+            using {::snit::RT.typemethod.info %t}
+    }
+
+    # Add the destroy typemethod unless the pragma forbids it.
+    if {$compile(-hastypedestroy)} {
+        Comp.statement.delegate typemethod destroy \
+            using {::snit::RT.typemethod.destroy %t}
+    }
+
+    # Add standard methods/typemethods that only make sense if the
+    # type has instances.
+    if {$compile(-hasinstances)} {
+        Comp.statement.variable options
+
+        Comp.statement.delegate method info \
+            using {::snit::RT.method.info %t %n %w %s}
+        Comp.statement.delegate method cget \
+            using {::snit::RT.method.cget %t %n %w %s}
+        Comp.statement.delegate method configurelist \
+            using {::snit::RT.method.configurelist %t %n %w %s}
+        Comp.statement.delegate method configure \
+            using {::snit::RT.method.configure %t %n %w %s}
+
+        if {!$isWidget} {
+            Comp.statement.delegate method destroy \
+                using {::snit::RT.method.destroy %t %n %w %s}
+
+            Comp.statement.delegate typemethod create \
+                using {::snit::RT.type.typemethod.create %t}
+        } else {
+            Comp.statement.delegate typemethod create \
+                using {::snit::RT.widget.typemethod.create %t}
+        }
+    } else {
+        append compile(defs) "\nset %TYPE%::Snit_info(hasinstances) 0\n"
+    }
 
     # NEXT, compiling the type definition built up a set of information
     # about the type's locally defined options; add this information to
@@ -454,7 +449,7 @@ proc ::snit::Comp.Compile {which type body} {
 
     # NEXT, if this is a widget define the hull component if it isn't
     # already defined.
-    if {"widget" == $which} {
+    if {$isWidget} {
         Comp.DefineComponent hull
     }
 
@@ -547,6 +542,26 @@ proc ::snit::Comp.Define {compResult} {
     }
 
     return $type
+}
+
+# Sets pragma options which control how the type is defined.
+proc ::snit::Comp.statement.pragma {args} {
+    variable compile
+
+    set errRoot "Error in 'pragma...'"
+
+    foreach {opt val} $args {
+        switch -exact -- $opt {
+            -hastypeinfo    -
+            -hastypedestroy -
+            -hasinstances   {
+                if {![string is boolean -strict $val]} {
+                    error "$errRoot, '$opt' requires a boolean value."
+                }
+                set compile($opt) $val
+            }
+        }
+    }
 }
 
 # Defines a widget's option class name.  
@@ -2056,11 +2071,20 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         } else {
             return ""
         }
-    } else {
+    } elseif {$Snit_info(hasinstances)} {
         # Assume the unknown name is an instance name to create, unless
-        # this is a widget and the style of the name is wrong.
+        # this is a widget and the style of the name is wrong, or the
+        # name mimics a standard typemethod.
+
         if {[set ${type}::Snit_isWidget] && 
             ![string match ".*" $method]} {
+            return ""
+        }
+
+        # Without this check, the call "$type info" will redefine the
+        # standard "::info" command, with disastrous results.  Since it's
+        # a likely thing to do if !-typeinfo, put in an explicit check.
+        if {$method eq "info" || $method eq "destroy"} {
             return ""
         }
 
@@ -2068,6 +2092,8 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         set instanceName $method
         set key create
         set method create
+    } else {
+        return ""
     }
     
     foreach {pattern compName} $Snit_typemethodInfo($key) {}
