@@ -10,11 +10,31 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.10 2001/06/22 15:29:18 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.11 2001/08/02 16:22:26 andreas_kupries Exp $
 
-package provide pop3 1.2
+package require cmdline
+package provide pop3 1.3
 
 namespace eval ::pop3 {
+
+    # The state variable remembers information about the open pop3
+    # connection. It is indexed by channel id. The information is
+    # a keyed list, with keys "msex" and "retr_mode". The value
+    # associated with "msex" is boolean, a true value signals that the
+    # server at the other end is MS Exchange. The value associated
+    # with "retr_mode" is one of {retr, list, slow}.
+
+    # The value of "msex" influences how the translation for the
+    # channel is set and is determined by the contents of the received
+    # greeting. The value of "retr_mode" is initially "retr" and
+    # completely determined by the first call to [retr]. For "list" the
+    # system will use LIST before RETR to retrieve the message size.
+
+    # The state can be influenced by options given to "open".
+
+    variable  state
+    array set state {}
+
 }
 
 # pop3::open --
@@ -22,6 +42,10 @@ namespace eval ::pop3 {
 #	Opens a connection to a POP3 mail server.
 #
 # Arguments:
+#       args     A list of options and values, possibly empty,
+#		 followed by the regular arguments, i.e. host, user,
+#		 passwd and port. The latter is optional.
+#
 #	host     The name or IP address of the POP3 server host.
 #       user     The username to use when logging into the server.
 #       passwd   The password to use when logging into the server.
@@ -32,14 +56,70 @@ namespace eval ::pop3 {
 #	The connection channel (a socket).
 #       May throw errors from the server.
 
-proc ::pop3::open {host user password {port 110}} {
+proc ::pop3::open {args} {
+    variable state
+    array set cstate {msex 0 retr_mode retr}
+
+    while {[set err [cmdline::getopt args {msex.arg retr-mode.arg} opt arg]]} {
+	if {$err < 0} {
+	    return -code error "::pop3::open : $arg"
+	}
+	switch -exact -- $opt {
+	    msex {
+		if {![string is boolean $arg]} {
+		    return -code error \
+			    ":pop3::open : Argument to -msex has to be boolean"
+		}
+		set cstate(msex) $arg
+	    }
+	    retr-mode {
+		switch -exact -- $arg {
+		    retr - list - slow {
+			set cstate(retr_mode) $arg
+		    }
+		    default {
+			return -code error \
+				":pop3::open : Argument to -retr-mode has to be one of retr, list or slow"
+		    }
+		}
+	    }
+	    default {# Can't happen}
+	}
+    }
+
+    if {[llength $args] > 4} {
+	return -code error "To many arguments to ::pop3::open"
+    }
+    if {[llength $args] < 3} {
+	return -code error "Not enough arguments to ::pop3::open"
+    }
+    foreach {host user password port} $args break
+    if {$port == {}} {
+	set port 110
+    }
+
+    # Argument processing is finally complete, now open the channel
 
     set chan [socket $host $port]
     fconfigure $chan -buffering none
-    fconfigure $chan -translation binary
-    
+
+    if {$cstate(msex)} {
+	# We are talking to MS Exchange. Work around its quirks.
+	fconfigure $chan -translation binary
+    } else {
+	fconfigure $chan -translation {binary crlf}
+    }
+
     if {[catch {::pop3::send $chan {}} errorStr]} {
 	error "POP3 CONNECT ERROR: $errorStr"
+    }
+
+    if {0} {
+	# -FUTURE- Identify MS Exchange servers
+	set cstate(msex) 1
+
+	# We are talking to MS Exchange. Work around its quirks.
+	fconfigure $chan -translation binary
     }
 
     if {[catch {
@@ -49,6 +129,9 @@ proc ::pop3::open {host user password {port 110}} {
 	error "POP3 LOGIN ERROR: $errorStr"
     }
 
+    # Remember the state.
+
+    set state($chan) [array get cstate]
     return $chan
 }
 
@@ -128,6 +211,8 @@ proc ::pop3::last {chan} {
 #       May throw errors from the server.
 
 proc ::pop3::retrieve {chan start {end -1}} {
+    variable state
+    array set cstate $state($chan)
     
     set count [lindex [::pop3::status $chan] 0]
     set last 0
@@ -148,7 +233,6 @@ proc ::pop3::retrieve {chan start {end -1}} {
     if {$start == 0} {
 	set start 1
     }
-	
     
     if {![string is integer $end]} {
 	if {$end == "end"} {
@@ -169,21 +253,117 @@ proc ::pop3::retrieve {chan start {end -1}} {
     set result {}
 
     for {set index $start} {$index <= $end} {incr index} {
+	switch -exact -- $cstate(retr_mode) {
+	    retr {
+		set sizeStr [::pop3::send $chan "RETR $index"]
 
-	set sizeStr [::pop3::send $chan "RETR $index"]
+		if {[scan $sizeStr {%d %s} size dummy] < 0} {
+		    # The server did not deliver the size information.
+		    # Switch our mode to "list" and use the slow
+		    # method this time. The next call will use LIST before
+		    # RETR to get the size information. If even that fails
+		    # the system will fall back to slow mode all the time.
 
-	scan $sizeStr {%d %s} size dummy
-	
-	set msgBuffer [read $chan $size]
+		    set cstate(retr_mode) list
+		    set state($chan) [array get cstate]
 
-	# get the terminating "."
-	# sometimes the gets returns nothing, 
-	# need to get the real terminating "."
-	while {[gets $chan] != ".\r"} {}
+		    # Retrieve in slow motion.
+		    set msgBuffer [RetrSlow $chan]
+		} else {
+		    set msgBuffer [RetrFast $chan $size]
+		}
+	    }
+	    list {
+		set sizeStr [::pop3::send $chan "LIST $index"]
 
+		if {[scan $sizeStr {%d %d %s} dummy size dummy] < 0} {
+		    # Not even LIST generates the necessary size information.
+		    # Switch to full slow mode and don't bother anymore.
+
+		    set cstate(retr_mode) slow
+		    set state($chan) [array get cstate]
+
+		    # Retrieve in slow motion.
+		    set msgBuffer [RetrSlow $chan]
+		} else {
+		    # Ignore response of RETR, already know the size
+		    # through LIST
+
+		    ::pop3::send $chan "RETR $index"
+
+		    set msgBuffer [RetrFast $chan $size]
+		}
+	    }
+	    slow {
+		# Retrieve in slow motion.
+
+		set msgBuffer [RetrSlow $chan]
+	    }
+	}
 	lappend result $msgBuffer
     }
     return $result
+}
+
+# ::pop3::RetrFast --
+#
+#	Fast retrieval of a message from the pop3 server.
+#	Internal helper to prevent code bloat in "pop3::retrieve"
+#
+# Arguments:
+#	chan	The channel to read the message from.
+#
+# Results:
+#	The text of the retrieved message.
+
+proc ::pop3::RetrFast {chan size} {
+    set msgBuffer [read $chan $size]
+
+    # We might have read not enough because of .-stuffed lines.
+    # Read the possible remainder in line by line fashion!
+    #		    
+    # get the terminating "."
+    # sometimes the gets returns nothing, 
+    # need to get the real terminating "."
+
+    while {[set line [gets $chan]] != ".\r"} {
+	append msgBuffer $line
+    }
+
+    # Map both cr+lf and cr to lf to simulate auto EOL translation, then
+    # unstuff .-stuffed lines.
+
+    return [string map [list \n.. \n.] [string map [list \r \n] [string map [list \r\n \n] $msgBuffer]]]
+}
+
+# ::pop3::RetrSlow --
+#
+#	Slow retrieval of a message from the pop3 server.
+#	Internal helper to prevent code bloat in "pop3::retrieve"
+#
+# Arguments:
+#	chan	The channel to read the message from.
+#
+# Results:
+#	The text of the retrieved message.
+
+proc ::pop3::RetrSlow {chan} {
+    set msgBuffer ""
+	
+    while {1} {
+	set line [string trimright [gets $chan] \r]
+	    
+	# End of the message is a line with just "."
+	if {$line == "."} {
+	    break
+	} elseif {[string index $line 0] == "."} {
+	    set line [string range $line 1 end]
+	}
+		
+	append msgBuffer $line "\n"
+    }
+
+    return $msgBuffer
 }
 
 # ::pop3::delete --
@@ -266,7 +446,9 @@ proc ::pop3::delete {chan start {end -1}} {
 #	None.
 
 proc ::pop3::close {chan} {
+    variable state
     catch {::pop3::send $chan "QUIT"}
+    unset state($chan)
     ::close $chan
 }
 
@@ -324,21 +506,26 @@ proc ::pop3::list {chan {msg ""}} {
 	if {[catch {::pop3::send $chan "LIST"} errorStr]} {
 	    error "POP3 LIST ERROR: $errorStr"
 	}
+	set msgBuffer {}
 	while {1} {
 	    set line [gets $chan]
 
 	    # End of the message is a line with just "."
 
-	    if {[string trimright $line] == "."} {
+	    set line [string trimright $line]
+
+	    if {$line == "."} {
 		break
 	    } elseif {[string index $line 0] == "."} {
+		# Use trimright to ge rid of superfluous \r's
+		# (we get them due to binary mode)
+
 		set line [string range $line 1 end]
 	    }
 
 	    lappend msgBuffer $line
 	}
     } else {
-
 	# argument msg given, single-line response expected
 
 	if {[catch {expr {0 + $msg}}]} {
@@ -377,10 +564,10 @@ proc ::pop3::top {chan msg n} {
 	if {[string trimright $line] == "."} {
 	    break
 	} elseif {[string index $line 0] == "."} {
-	    set line [string range $line 1 end]
+	    # Get rid of traling \r's. We get them due to binary mode.
+	    set line [string trimright [string range $line 1 end]]
 	}
 	append msgBuffer "$line\n"
     }
     return $msgBuffer
 }
-

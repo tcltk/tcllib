@@ -1,3 +1,33 @@
+2001-08-02  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* pop3.n: Updated to new package version, see [447013] too.
+
+	* pop3.tcl: Lots of changes with regard to items [443613] and
+	  [443645]. Switched auto back to binary (or else the counting of
+	  octects is not right and we will hang trying to read more than
+	  is coming from the server). This means we have to perform EOL
+	  translation on the message on our own, this was effectively an
+	  unreported bug. also unreported was that the faster code did not
+	  do .-unstuffing, which the slower line-by-line code did. This is
+	  now fixed too. My thanks to Ashwin Hirschi
+	  <deery@users.sourceforge.net> for his help in testing the code.
+
+2001-07-31  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Updated to reflect pkg version in the code. After
+	  the fact comment: This also fixes SF bug [447013]
+
+	* pop3.tcl: Added 'state' variable to remember state information
+	  about the active (= open) pop3 connections. This state includes
+	  information about the retrieval mode to use and whether we are
+	  talking to an MS Exchange server or not. MS Exchange can't be
+	  set automatically for now, but the retrieval mode is
+	  auto-detected. Because of the former, pop3::open now accepts the
+	  options -msex and -retr-mode. This should allay and fix the SF
+	  bugs [443613] and [443645].
+
+	  (pop3::list): Fixed bug [443619].
+
 2001-06-21  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* pop3.tcl: Fixed dubious code reported by frink.
