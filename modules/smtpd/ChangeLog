@@ -3,6 +3,9 @@
 	* smtpd.tcl (::smtpd::gmtoffset): Fixed bug #934134. The TZ
 	calculation was inverted and failed to cope with times spanning
 	midnight.
+	* smtpd.tcl (::smtpd::HELO): Shortened the response to a single
+	line which is a more common smtpd response and may help with
+	simple clients.
 
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
