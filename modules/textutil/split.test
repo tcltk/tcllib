@@ -1,4 +1,5 @@
 # split.test:  tests for the split sub-package of the textutil package.
+# -*- tcl -*-
 #
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
@@ -76,9 +77,9 @@ subexpression to the right in exp , and so on.
 " "\[ ,()\.\t\r\n\]+"
 } [ list {} Determines whether the regular expression exp matches part or all of string and returns 1 if it does 0 if it doesn't unless -inline is specified see below Regular expression matching is described in the re_syntax reference page If additional arguments are specified after string then they are treated as the names of variables in which to return information about which part s of string matched exp MatchVar will be set to the range of string that matched all of exp The first subMatchVar will contain the characters in string that matched the leftmost parenthesized subexpression within exp the next subMatchVar will contain the characters that matched the next parenthesized subexpression to the right in exp and so on {} ]
 
-# these tests show the effect inducted by the usage of parenthesed in the regexp
-# Basically, the parenthesed operator is returned with the splitted list
-# The 3.5 and 3.6 show complexe cases. Try to understand.
+# these tests show the effect inducted by the usage of parenthesed in
+# the regexp Basically, the parenthesed operator is returned with the
+# splitted list The 3.5 and 3.6 show complex cases. Try to understand.
 
 test splitx-3.1 {split string with simple regexp} {
     ::textutil::splitx "Nobody is perfect" "\[oe\]+"
@@ -104,3 +105,19 @@ test splitx-3.6 {split string with a totally parenthesed regexp} {
     ::textutil::splitx "Nobody is perfect" "(\[oe\]+|rf)"
 } [ list N o b o [ list dy is p ] e {} rf {} e ct ]
 
+
+test splitx-4.0 {splitting of empty strings} {
+    ::textutil::splitx "" "f"
+} {}
+
+test splitx-4.1 {splitting of empty strings} {
+    ::textutil::splitx ""
+} {}
+
+test splitx-4.2 {splitting of empty strings} {
+    ::textutil::splitx "" ""
+} {}
+
+test splitx-5.0 {splitting using an empty regexp} {
+    ::textutil::splitx "fooo bar bas" ""
+} {f o o o { } b a r { } b a s}

@@ -1,3 +1,13 @@
+2001-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* textutil.n:
+	* split.test:
+	* split.tcl: Fixed item #476988, the handling of the empty input
+	  string, reported by Glenn Jackman
+	  <glennjnn@users.sourceforge.net>. Also added code to detect and
+	  handle an empty regular expression. In that case "splitx"
+	  degenerates to a simple "split".
+
 2001-12-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.test:
