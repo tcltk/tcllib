@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.26 2004/12/01 22:23:47 techentin Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.27 2005/02/02 06:48:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -153,6 +153,33 @@ test find-2.3 {find by pattern} {win} {
 test find-2.4 {find by pattern} {
     lsort [::fileutil::findByPattern [file join $dir {find 1}] -regexp {.*\\[1\\]$}]
 } [list [file join $dir {find 1} {file [1]}]]
+
+# Finding inaccessible directories (unix only) (I do not know howe
+# make the directory inaccessible on Windows, and then reaccessible
+# again)
+
+makeDirectory find3
+makeDirectory find3/find4
+makeFile {}   find3/find4/file5
+
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    exec chmod -x [file join $dir find3/find4]
+}
+
+test find-3.0 {inaccessible directory} {unix} {
+    lsort [fileutil::find [file join $dir find3]]
+} [list [file join $dir find3 find4]]
+
+test find-3.1 {inaccessible directory} {unix} {
+    lsort [fileutil::find [file join $dir find3 find4]]
+} {}
+
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    exec chmod +x [file join $dir find3/find4]
+}
+removeFile      find3/find4/file5
+removeDirectory find3/find4
+removeDirectory find3
 
 
 catch {removeDirectory grepTest} ; # start with a clean structure!
