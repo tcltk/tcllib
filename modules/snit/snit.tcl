@@ -17,7 +17,7 @@ package provide snit 0.93
 # Namespace
 
 namespace eval ::snit:: {
-    namespace export type widget widgetadaptor
+    namespace export type widget widgetadaptor typemethod method
 }
 
 #-----------------------------------------------------------------------
@@ -925,6 +925,8 @@ namespace eval ::snit:: {
             # hulltype:      Hull type (frame or toplevel) for widgets only.
             # exceptmethods: Methods explicitly not delegated to *
             # exceptopts:    Options explicitly not delegated to *
+            # tvardecs:      Type variable declarations--for dynamic methods
+            # ivardecs:      Instance variable declarations--for dyn. methods
 	    typevariable Snit_info
 	    set Snit_info(ns)      %TYPE%::
 	    set Snit_info(options) {}
@@ -933,6 +935,8 @@ namespace eval ::snit:: {
             set Snit_info(hulltype) frame
             set Snit_info(exceptmethods) {}
             set Snit_info(exceptopts) {}
+            set Snit_info(tvardecs) {%TVARDECS%}
+            set Snit_info(ivardecs) {%IVARDECS%}
 
 	    # Array: Public methods of this type.
 	    # Index is typemethod name; value is proc name.
@@ -1783,6 +1787,61 @@ proc ::snit::widgetadaptor {type body} {
 
 proc ::snit::widget {type body} {
     return [Define widget $type $body]
+}
+
+proc ::snit::typemethod {type method arglist body} {
+    # Make sure the type exists.
+    if {![info exists ${type}::Snit_info]} {
+        error "no such type: '$type'"
+    }
+
+    upvar ${type}::Snit_info Snit_info
+    upvar ${type}::Snit_typemethods Snit_typemethods
+
+    CheckArgs "snit::typemethod $type $method" $arglist
+
+    # First, add magic reference to type.
+    set arglist [concat type $arglist]
+
+    # Next, add typevariable declarations to body:
+    set body "$Snit_info(tvardecs)\n$body"
+
+    # Next, define it.
+    set Snit_typemethods($method) Snit_typemethod$method
+    uplevel [list proc ${type}::Snit_typemethod$method $arglist $body]
+}
+
+proc ::snit::method {type method arglist body} {
+    # Make sure the type exists.
+    if {![info exists ${type}::Snit_info]} {
+        error "no such type: '$type'"
+    }
+
+    upvar ${type}::Snit_methods Snit_methods
+    upvar ${type}::Snit_info Snit_info
+
+    if {![info exists Snit_info]} {
+        error "no such type: '$type'"
+    }
+
+    # FIRST, can't redefine delegated methods.
+    if {[info exists Snit_methods($method)] &&
+        $Snit_methods($method) ne ""} {
+        error "Cannot define '$method', it has been delegated."
+    }
+
+    # NEXT, check the arguments
+    CheckArgs "snit::method $type $method" $arglist
+
+    # Next, add magic references to type and self.
+    set arglist [concat type selfns win self $arglist]
+
+    # Next, add variable declarations to body:
+    set body "$Snit_info(tvardecs)$Snit_info(ivardecs)\n$body"
+
+    # Next, define it.
+    set Snit_methods($method) ""
+    uplevel [list proc ${type}::Snit_method$method $arglist $body]
 }
 
 
