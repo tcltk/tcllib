@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.24 2003/05/09 21:28:43 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.25 2003/07/05 04:14:11 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.5
+package provide fileutil 1.5.1
 
 namespace eval ::fileutil {
     namespace export grep find findByPattern cat foreachLine
@@ -159,14 +159,24 @@ if {[string compare unix $tcl_platform(platform)]} {
 		continue
 	    }
 
-	    # No skip over previously recorded files/directories and
-	    # record the new files/directories.
+	    # SF [ 647974 ] find has problems recursing a metakit fs ...
+	    #
+	    # The following code is a HACK / workaround. We assume that virtual
+	    # FS's do not suport links, and therefore there is no need for
+	    # keeping track of device/inode information. A good thing as the 
+	    # the virtual FS's usually give us bad data for these anyway, as
+	    # illustrated by the bug referenced above.
 
-	    set key "$stat(dev),$stat(ino)"
-	    if {[info exists inodes($key)]} {
-		continue
+	    if {[string equal native [lindex [file system $full] 0]]} {
+		# No skip over previously recorded files/directories and
+		# record the new files/directories.
+
+		set key "$stat(dev),$stat(ino)"
+		if {[info exists inodes($key)]} {
+		    continue
+		}
+		set inodes($key) 1
 	    }
-	    set inodes($key) 1
 
 	    # Use uplevel to eval the command, not eval, so that variable 
 	    # substitutions occur in the right context.
