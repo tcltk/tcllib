@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: nntp.n,v 1.1 2000/06/16 20:54:23 kuchler Exp $
+'\" RCS: @(#) $Id: nntp.n,v 1.2 2000/06/18 16:47:15 kuchler Exp $
 '\" 
 .so man.macros
 .TH nntp n 0.1 nntp "Tcl NNTP Client Library"
@@ -216,7 +216,8 @@ All messages between msgid1 and msgid2 (including msgid1 and msgid2) are queried
 .TP
 \fBnntpName xpat\fR \fIfield\fR \fIrange\fR \fI?\fIpattern_list\fR?\fR
 Returns the specified header field value for a specified message or for a
-list of messages from the current group.  \fIfield\fR is the title of a
+list of messages from the current group where the messages match the
+pattern(s) given in the pattern_list.  \fIfield\fR is the title of a
 field in the header such as from, subject, date, etc.  The information is
 returned in a tcl list where each element is of the form:
 .sp
