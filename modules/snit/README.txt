@@ -12,6 +12,27 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
+Changes in V0.93
+--------------------------------------------------------------------
+
+* Documentation fixes: a number of minor corrections were made to the
+  Snit man page and FAQ.
+
+* Bug fix: when using %AUTO% to create object names, the counter 
+  will wrap around to 0 after it reaches (2^32 - 1), to prevent 
+  integer overflow errors.
+
+* Bug fix: in a normal Tcl proc, the command
+
+    variable ::my::namespace::var
+
+  makes variable "::my::namespace::var" available to the proc under the 
+  local name "var".  Snit redefines the "variable" command for use in
+  instance methods, and had lost this behavior.  
+
+* Bug fix: in some cases, the "info vars" instance method didn't
+  include the "options" instance variable in its output.
+
 Changes in V0.92
 --------------------------------------------------------------------
 

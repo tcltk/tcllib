@@ -26,7 +26,7 @@
 <h2><a name="synopsis">SYNOPSIS</a></h2>
 
 <pre>
-    package require snit 0.92
+    package require snit 0.93
     ::snit::type <i>name</i> <i>definition</i>
     ::snit::widget <i>name</i> <i>definition</i>
     ::snit::widgetadaptor <i>name</i> <i>definition</i>
@@ -559,11 +559,11 @@ following methods:<p>
 
 <h3><a name="commands_for_use_in_object_code">Commands for use in Object Code</a></h3>
 
-Snit defines the following commands for use in object code:
-type methods, instance methods, constructors, destructors, onconfigure
-handlers, oncget handlers, and procs.  They do not reside in the
-::snit:: namespace; instead, they are created with the type, and are
-directly available.
+Snit defines the following commands for use in your object code:
+that is, for use in type methods, instance methods, constructors,
+destructors, onconfigure handlers, oncget handlers, and procs.
+They do not reside in the ::snit:: namespace; instead, they are
+created with the type, and can be used without qualification.
 
 <dl>
   <dt> <code><a name="varname">varname <i>name</i></a></code>
@@ -683,6 +683,25 @@ directly available.
        sometimes useful.  For example, it can be used to adapt a
        "page" widget created by a BWidgets tabbed notebook or pages
        manager widget.<p>
+
+  <dt> <code><a name="mymethod">mymethod <i>name</i> ?<i>args...</i>?</a></code>
+  <dd> The <code>mymethod</code> command is used for formatting
+       callback commands to be passed to other objects.  It returns a
+       command that when called will invoke method <i>name</i> with
+       the specified arguments, plus of course any arguments added by
+       the caller.  In other words, both of the following commands
+       will cause my object's <code>dosomething</code> method to be
+       called when <code>$button</code> is pressed:<p>
+
+<pre>
+       $button configure -command [list $self dosomething myargument]
+       
+       $button configure -command [mymethod dosomething myargument]
+</pre>
+
+       The chief distinction between the two is that the latter form
+       will not break if the creator of my object renames its object
+       command.<p>
 </dl>
 
 <h3><a name="components_and_delegation">Components and Delegation</a></h3>

@@ -1,3 +1,23 @@
+2004-02-07  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl:    Fixed bug: "$obj info vars" used to leave out "options"
+	* snit.test:   if no options were defined.  It's clearer if the 
+	               behavior is always the same.
+
+		       Fixed tcllib bugs item #852945: variable.  The
+		       statement "variable ::my::qualified::name" in an
+		       instance method now makes "name" available, just
+		       as the standard "variable" command does.
+
+2004-02-07  Will Duquette  <will@wjduquette.com>
+
+	* All:         Updated version to 0.93.
+	* snit.tcl:    The %AUTO% name counter wraps around to 0 when it
+	               reaches 2^31 - 1, to prevent integer overflow
+		       errors.
+	* snit.html:   Minor corrections and updates.
+	* faq.html
+
 2003-12-06  Will Duquette  <will@wjduquette.com>
 
 	* All:         Updated version to 0.92.

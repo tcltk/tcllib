@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.92
+package provide snit 0.93
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -621,12 +621,20 @@ namespace eval ::snit:: {
         # namespace.
         interp alias {} %TYPE%::typevariable {} ::variable
 
-        # Declares an instance variable in a method or proc.  It's
-        # only valid in instance code; it requires that selfns be defined.
+        # Declares an instance variable in a method or proc, -OR- allows
+        # the method or proc to reference a variable in some other 
+        # namespace by its bare name.  It's only valid in instance code; 
+        # it requires that selfns be defined.
         proc %TYPE%::variable {varname} {
             upvar selfns selfns
 
-            uplevel upvar ${selfns}::$varname $varname
+            if {![string match "::*" $varname]} {
+                uplevel upvar ${selfns}::$varname $varname
+            } else {
+                # varname is fully qualified; let the standard
+                # "variable" command handle it.
+                uplevel ::variable $varname
+            }
         }
 
         # Returns the fully qualified name of a typevariable.
@@ -1507,7 +1515,7 @@ proc ::snit::Type.Variable {type name args} {
     }
 
     append  compile(ivprocdec) "\n\t    "
-    Mappend compile(ivprocdec) {upvar ${selfns}::%N %N} %N $name 
+    Mappend compile(ivprocdec) {::variable ${selfns}::%N} %N $name 
 } 
 
 # Creates a delegated method or option, delegating it to a particular
@@ -2037,8 +2045,12 @@ proc ::snit::UniqueName {countervar type name} {
     upvar $countervar counter 
     while 1 {
         # FIRST, bump the counter and define the %AUTO% instance name;
-        # then substitute it into the specified name.
+        # then substitute it into the specified name.  Wrap around at
+        # 2^31 - 1 to prevent overflow problems.
         incr counter
+        if {$counter > 2147483647} {
+            set counter 0
+        }
         set auto "[namespace tail $type]$counter"
         set candidate [snit::Expand $name %AUTO% $auto]
         if {[info commands $candidate] == ""} {
