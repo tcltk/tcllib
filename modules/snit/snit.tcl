@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.82
+package provide snit 0.83
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -393,8 +393,10 @@ namespace eval ::snit:: {
     # %IVARDECS%      Instance variable declarations
     # %TVARDECS%      Type variable declarations
     # %INSTANCEVARS%  The compiled instance variable initialization code.
-    
+    # %TYPEVARS%      The compiled type variable initialization code.
+
     variable typeTemplate {
+
         #----------------------------------------------------------------
         # Snit Internals
         #
@@ -402,12 +404,16 @@ namespace eval ::snit:: {
         # used directly by any client code.  Nevertheless they are
         # defined here so that they live in the correct namespace.
 
+	namespace eval %TYPE% {%TYPEVARS%
+        }
+
         # Snit_cleanup selfns win
         #
         # This is the function that really cleans up; it's automatically 
         # called when any instance is destroyed, e.g., by "$object destroy"
         # for types, and by the <Destroy> event for widgets.
-        proc Snit_cleanup {selfns win} {
+
+        proc %TYPE%::Snit_cleanup {selfns win} {
             typevariable Snit_isWidget
 
             # If the variable Snit_instance doesn't exist then there's no
@@ -452,7 +458,7 @@ namespace eval ::snit:: {
         }
 
         # Retrieves the object name given the component name.
-        proc Snit_component {selfns name} {
+        proc  %TYPE%::Snit_component {selfns name} {
             upvar ${selfns}::Snit_components Snit_components
             upvar ${selfns}::Snit_instance self
 
@@ -473,7 +479,8 @@ namespace eval ::snit:: {
         # By default, just configures any passed options.  
         # Redefined by the "constructor" definition, hence always redefined
         # for widgets.
-        proc Snit_constructor {type selfns win self args} { 
+
+        proc %TYPE%::Snit_constructor {type selfns win self args} { 
             $self configurelist $args
         }
 
@@ -481,8 +488,8 @@ namespace eval ::snit:: {
         #
         # Initializes the instance variables, if any.  Called during
         # instance creation.
-        proc Snit_instanceVars {selfns} {
-            %IVARDECS%
+
+        proc %TYPE%::Snit_instanceVars {selfns} {%IVARDECS%
             %INSTANCEVARS%
         }
 
@@ -491,7 +498,8 @@ namespace eval ::snit:: {
         # Component trace; used for write trace on component instance 
         # variables.  Saves the new component object name, provided 
         # that certain conditions are met.
-        proc Snit_comptrace {selfns component n1 n2 op} {
+
+        proc %TYPE%::Snit_comptrace {selfns component n1 n2 op} {
             typevariable Snit_isWidget
             upvar ${selfns}::${component} cvar
             upvar ${selfns}::Snit_components Snit_components
@@ -516,7 +524,8 @@ namespace eval ::snit:: {
         # nothing.  It's replaced by any user destructor.
         # For types, it's called by method destroy; for widgettypes,
         # it's called by a destroy event handler.
-        proc Snit_destructor {type selfns win self} { }
+
+        proc %TYPE%::Snit_destructor {type selfns win self} { }
 
         # Snit_configure<option> type selfns win self value
         #
@@ -546,20 +555,20 @@ namespace eval ::snit:: {
 
         # Declares an instance variable in a method or proc.  It's
         # only valid in instance code; it requires that selfns be defined.
-        proc variable {varname} {
+        proc %TYPE%::variable {varname} {
             upvar selfns selfns
 
             uplevel upvar ${selfns}::$varname $varname
         }
 
         # Returns the fully qualified name of a typevariable.
-        proc typevarname {name} {
+        proc %TYPE%::typevarname {name} {
             return %TYPE%::$name
         }
 
         # Returns the fully qualified name of an instance variable.  
         # As with "variable", must be called in the context of a method.
-        proc varname {name} {
+        proc %TYPE%::varname {name} {
             upvar selfns selfns
             return ${selfns}::$name
         }
@@ -567,7 +576,7 @@ namespace eval ::snit:: {
         # Returns the fully qualified name of a proc (or typemethod).  
         # Unlike "variable", need not be called in the context of an
         # instance method.
-        proc codename {name} {
+        proc %TYPE%::codename {name} {
             return %TYPE%::$name
         }
 
@@ -576,7 +585,7 @@ namespace eval ::snit:: {
         # the code at the beginning to call the right object, even if
         # the object's name has changed.  Requires that selfns be defined
         # in the calling context.
-        proc mymethod {args} {
+        proc %TYPE%::mymethod {args} {
             upvar selfns selfns
             return [linsert $args 0 ::snit::CallInstance ${selfns}]
         }
@@ -587,7 +596,7 @@ namespace eval ::snit:: {
         # is assigned to the hull component.
         #
         # TBD: This should only be public for widget adaptors.
-        proc installhull {obj} {
+        proc %TYPE%::installhull {obj} {
             typevariable Snit_isWidget
             upvar self self
             upvar selfns selfns
@@ -629,7 +638,7 @@ namespace eval ::snit:: {
         # is returned.  Otherwise, the default value is returned.
         # If the option is undelegated, it's own default value will be
         # used if none is specified.
-        proc from {argvName option {defvalue ""}} {
+        proc %TYPE%::from {argvName option {defvalue ""}} {
             typevariable Snit_optiondefaults
             upvar $argvName argv
 
@@ -655,38 +664,39 @@ namespace eval ::snit:: {
         #----------------------------------------------------------------
         # Snit variables 
 
-        # Array: General Snit Info
-        #
-        # ns:        The type's namespace
-        # options:   List of the names of the type's local options.
-        # counter:   Count of instances created so far.
-        typevariable Snit_info
-        set Snit_info(ns)      %TYPE%::
-        set Snit_info(options) {}
-        set Snit_info(counter) 0
+	namespace eval %TYPE% {
+	    # Array: General Snit Info
+	    #
+	    # ns:        The type's namespace
+	    # options:   List of the names of the type's local options.
+	    # counter:   Count of instances created so far.
+	    typevariable Snit_info
+	    set Snit_info(ns)      %TYPE%::
+	    set Snit_info(options) {}
+	    set Snit_info(counter) 0
 
-        # Array: Public methods of this type.
-        # Index is typemethod name; value is proc name.
-        typevariable Snit_typemethods
-        array unset Snit_typemethods
+	    # Array: Public methods of this type.
+	    # Index is typemethod name; value is proc name.
+	    typevariable Snit_typemethods
+	    array unset Snit_typemethods
 
-        # Array: Public methods of instances of this type.
-        # The index is the method name.  For normal methods, 
-        # the value is "".  For delegated methods, the value is
-        # [list $component $command].
-        typevariable Snit_methods
-        array unset Snit_methods
+	    # Array: Public methods of instances of this type.
+	    # The index is the method name.  For normal methods, 
+	    # the value is "".  For delegated methods, the value is
+	    # [list $component $command].
+	    typevariable Snit_methods
+	    array unset Snit_methods
 
-        # Array: default option values
-        #
-        # $option          Default value for the option
-        typevariable Snit_optiondefaults
+	    # Array: default option values
+	    #
+	    # $option          Default value for the option
+	    typevariable Snit_optiondefaults
 
-        # Array: delegated option components
-        #
-        # $option          Component to which the option is delegated.
-        typevariable Snit_delegatedoptions
-
+	    # Array: delegated option components
+	    #
+	    # $option          Component to which the option is delegated.
+	    typevariable Snit_delegatedoptions
+	}
 
         #----------------------------------------------------------
         # Type Command
@@ -728,7 +738,7 @@ namespace eval ::snit:: {
         # Creates the instance proc, which calls the Snit_dispatcher.
         # "self" is the initial name of the instance, and "selfns" is
         # the instance namespace.
-        proc Snit_install {selfns instance} {
+        proc %TYPE%::Snit_install {selfns instance} {
             typevariable Snit_isWidget
 
             # FIRST, remember the instance name.  The Snit_instance variable
@@ -754,7 +764,7 @@ namespace eval ::snit:: {
         }
 
         # Snit_removetrace selfns instance
-        proc Snit_removetrace {selfns win instance} {
+        proc %TYPE%::Snit_removetrace {selfns win instance} {
             typevariable Snit_isWidget
 
             if {$Snit_isWidget} {
@@ -783,7 +793,7 @@ namespace eval ::snit:: {
         # traces aren't propagated correctly.  Instead, they silently
         # vanish.  Add a catch to output any error message.
 
-        proc Snit_tracer {selfns win old new op} {
+        proc %TYPE%::Snit_tracer {selfns win old new op} {
             typevariable Snit_isWidget
 
 	    # Note to developers ...
@@ -824,7 +834,7 @@ namespace eval ::snit:: {
         # self:         The instance's current name.
         # method:	The name of the method to call.
         # argList:      Arguments for the method.
-        proc Snit_dispatcher {type selfns win self method argList} {
+        proc %TYPE%::Snit_dispatcher {type selfns win self method argList} {
             global errorInfo
 
             typevariable Snit_methods
@@ -897,6 +907,8 @@ namespace eval ::snit:: {
     # localmethods:      Names of locally defined methods.
     # delegatedmethods:  Names of delegated methods.
     # components:        Names of defined components.
+    # typevars:          See 'instancevars' above, except this is for typevariables.
+
     variable compile
 
 }
@@ -918,9 +930,9 @@ proc ::snit::Type.Constructor {type arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%\n%IVARDECS%\n$body"
+    set body "%TVARDECS%%IVARDECS%\n$body"
 
-    append compile(defs) "proc Snit_constructor [list $arglist] [list $body]\n"
+    append compile(defs) "proc %TYPE%::Snit_constructor [list $arglist] [list $body]\n"
 } 
 
 # Defines a destructor.
@@ -928,9 +940,9 @@ proc ::snit::Type.Destructor {type body} {
     variable compile
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%\n%IVARDECS%\n$body"
+    set body "%TVARDECS%%IVARDECS%\n$body"
 
-    append compile(defs) "proc Snit_destructor {type selfns win self} [list $body]"
+    append compile(defs) "proc %TYPE%::Snit_destructor {type selfns win self} [list $body]"
 } 
 
 # Defines a type option.
@@ -946,28 +958,21 @@ proc ::snit::Type.Option {type option {defvalue ""}} {
     }
 
     lappend compile(localoptions) $option
+    Mappend compile(defs) {
 
-    set map [list %OPTION% $option %DEFVALUE% [list $defvalue]]
-    
-    append compile(defs) [string map $map {
-        
         # Option $option
-        lappend Snit_info(options) %OPTION%
+        lappend %TYPE%::Snit_info(options) %OPTION%
 
-        set Snit_optiondefaults(%OPTION%) %DEFVALUE%
+        set  %TYPE%::Snit_optiondefaults(%OPTION%) %DEFVALUE%
 
-        proc Snit_configure%OPTION% {type selfns win self value} {
-            %TVARDECS%
-            %IVARDECS%
+        proc %TYPE%::Snit_configure%OPTION% {type selfns win self value} {%TVARDECS%%IVARDECS%
             set options(%OPTION%) $value
         }
 
-        proc Snit_cget%OPTION% {type selfns win self} {
-            %TVARDECS%
-            %IVARDECS%
+        proc %TYPE%::Snit_cget%OPTION% {type selfns win self} {%TVARDECS%%IVARDECS%
             return $options(%OPTION%)
         }
-    }]
+    } %OPTION% $option %DEFVALUE% [list $defvalue]
 }
 
 # Defines an option's cget handler
@@ -983,12 +988,12 @@ proc ::snit::Type.Oncget {type option body} {
     }
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%\n%IVARDECS%\n$body"
+    set body "%TVARDECS%%IVARDECS%\n$body"
 
-    append compile(defs) [subst {
+    append compile(defs) "
 
-        proc Snit_cget$option {type selfns win self} [list $body]
-    }]
+        proc [list %TYPE%::Snit_cget$option] {type selfns win self} [list $body]
+    "
 } 
 
 # Defines an option's configure handler.
@@ -1014,12 +1019,12 @@ proc ::snit::Type.Onconfigure {type option arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%\n%IVARDECS%\n$body"
+    set body "%TVARDECS%%IVARDECS%\n$body"
 
-    append compile(defs) [subst {
+    append compile(defs) "
 
-        proc Snit_configure$option [list $arglist] [list $body]
-    }]
+        proc [list %TYPE%::Snit_configure$option $arglist $body]
+    "
 } 
 
 # Defines an instance method.
@@ -1038,15 +1043,14 @@ proc ::snit::Type.Method {type method arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%\n%IVARDECS%\n$body"
+    set body "%TVARDECS%%IVARDECS%\n$body"
 
     # Next, save the definition script.
     Mappend compile(defs) {
 
         # Method %METHOD% %ARGLIST%
-        set Snit_methods(%METHOD%) ""
-
-        proc Snit_method%METHOD% %ARGLIST% %BODY% 
+        set  %TYPE%::Snit_methods(%METHOD%) ""
+        proc %TYPE%::Snit_method%METHOD% %ARGLIST% %BODY% 
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body] 
 } 
 
@@ -1062,12 +1066,11 @@ proc ::snit::Type.Typemethod {type method arglist body} {
     # Next, add typevariable declarations to body:
     set body "%TVARDECS%\n$body"
 
-
     Mappend compile(defs) {
 
         # Typemethod %METHOD% %ARGLIST%
-        set Snit_typemethods(%METHOD%) Snit_typemethod%METHOD%
-        proc Snit_typemethod%METHOD% %ARGLIST% %BODY%
+        set  %TYPE%::Snit_typemethods(%METHOD%) Snit_typemethod%METHOD%
+        proc %TYPE%::Snit_typemethod%METHOD% %ARGLIST% %BODY%
     } %METHOD% $method %ARGLIST% [list $arglist] %BODY% [list $body]
 } 
 
@@ -1084,12 +1087,11 @@ proc ::snit::Type.Proc {type proc arglist body} {
     # The proc can always see typevariables.
     set body "%TVARDECS%\n$body"
 
+    append compile(defs) "
 
-    append compile(defs) [subst {
-
-        # Proc $proc $arglist
-        proc $proc [list $arglist] [list $body]
-    }]
+        # Proc [list $proc $arglist]
+        proc [list %TYPE%::$proc $arglist $body]
+    "
 } 
 
 # Defines a static variable in the type's namespace.
@@ -1101,16 +1103,14 @@ proc ::snit::Type.Typevariable {type name args} {
     }
 
     if {[llength $args] == 1} {
-        append compile(defs) [subst {
-            [list typevariable $name [lindex $args 0]]
-        }]
+        append compile(typevars) \
+		"\n\t    [list ::variable $name [lindex $args 0]]"
     } else {
-        append compile(defs) [subst {
-            [list typevariable $name]
-        }]
+        append compile(typevars) \
+		"\n\t    [list ::variable $name]"
     }
 
-    Mappend compile(tvprocdec) "upvar ${type}::${name} $name\n"
+    append compile(tvprocdec) "\n\t    typevariable ${name}"
 } 
 
 # Defines an instance variable; the definition will go in the
@@ -1123,14 +1123,12 @@ proc ::snit::Type.Variable {type name args} {
     }
 
     if {[llength $args] == 1} {
-        append compile(instancevars) [subst {
-            [list set $name [lindex $args 0]]
-        }]
+        append compile(instancevars) \
+		"\n\t    [list set $name [lindex $args 0]]"
     }
 
-    Mappend compile(ivprocdec) {upvar ${selfns}::%N %N} \
-        %N $name 
-    append compile(ivprocdec) "\n"
+    append  compile(ivprocdec) "\n\t    "
+    Mappend compile(ivprocdec) {upvar ${selfns}::%N %N} %N $name 
 } 
 
 # Creates a delegated method or option, delegating it to a particular
@@ -1231,10 +1229,10 @@ proc ::snit::DelegatedMethod {type method component command} {
         lappend compile(delegatedmethods) $method
     }
 
-    append compile(defs) [subst {
+    append compile(defs) "
         # Delegated method $method to $component as $command
-        [list set Snit_methods($method) [concat $component $command]]
-    }]
+        [list set %TYPE%::Snit_methods($method) [concat $component $command]]
+    "
 } 
 
 # Creates a delegated option, delegating it to a particular
@@ -1258,17 +1256,17 @@ proc ::snit::DelegatedOption {type option component target} {
         error "cannot delegate '$option'; it has been defined locally."
     }
 
-    append compile(defs) [subst {
+    append compile(defs) "
         # Delegated option $option to $component as $target
-        [list set Snit_delegatedoptions($option) [list $component $target]]
-    }]
+        [list set %TYPE%::Snit_delegatedoptions($option) [list $component $target]]
+    "
 
     if {![string equal $option "*"]} {
         lappend compile(delegatedoptions) $option
-        append compile(defs) [subst {
+        append  compile(defs) "
             # Delegated option $option to $component as $target
-            [list set Snit_delegatedoptions($option) [list $component $target]]
-        }]
+            [list set %TYPE%::Snit_delegatedoptions($option) [list $component $target]]
+        "
     }
 } 
 
@@ -1312,6 +1310,7 @@ proc ::snit::Define {which type body} {
     set compile(defs) {}
     set compile(localoptions) {}
     set compile(instancevars) {}
+    set compile(typevars) {}
     set compile(delegatedoptions) {}
     set compile(ivprocdec) {}
     set compile(tvprocdec) {}
@@ -1320,9 +1319,9 @@ proc ::snit::Define {which type body} {
     set compile(components) {}
 
     append compile(defs) \
-        "typevariable Snit_isWidget [string match widget* $which]\n\n"
+	    "set %TYPE%::Snit_isWidget        [string match widget* $which]\n"
     append compile(defs) \
-    "typevariable Snit_isWidgetAdaptor [string match widgetadaptor $which]\n\n"
+	    "\tset %TYPE%::Snit_isWidgetAdaptor [string match widgetadaptor $which]"
 
     if {"widgetadaptor" == $which} {
         # A widgetadaptor is also a widget.
@@ -1366,24 +1365,37 @@ proc ::snit::Define {which type body} {
     # NEXT, substitute the defined macros into the type definition script.
     # This is done as a separate step so that the compile(defs) can 
     # contain the macros defined below.
+
     set defscript [Expand $defscript \
                        %TYPE%         $type \
                        %IVARDECS%     $compile(ivprocdec) \
                        %TVARDECS%     $compile(tvprocdec) \
-                       %INSTANCEVARS% $compile(instancevars)]
+                       %INSTANCEVARS% $compile(instancevars) \
+                       %TYPEVARS%     $compile(typevars) \
+		       ]
 
     array unset compile
 
+    return [DefineDo $which $type $defscript]
+}
+
+proc ::snit::DefineDo {which type body} {
+    # Do something with the collected and generated snit
+    # definition. The regular action is to execute the type definition
+    # script, IOW to instantiate the type in the interpreter, and to
+    # return the name of the new type (== namespace it is in).
+
     # NEXT, execute the type definition script.
 
-    #puts "#----\nnamespace eval $type\{$defscript\n\}\n#-----"
-    if {[catch {namespace eval $type $defscript} result]} {
+    #puts "eval $body\n"
+    if {[catch {eval $body} result]} {
         namespace delete $type
         error $result
     }
 
     return $type
 }
+
 
 
 #-----------------------------------------------------------------------
