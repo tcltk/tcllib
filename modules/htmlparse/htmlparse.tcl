@@ -30,26 +30,16 @@ namespace eval ::htmlparse {
 	    removeFormDefs
 
     # Table of escape characters. Maps from their names to the actual
-    # character.
+    # character.  See http://htmlhelp.org/reference/html40/entities/
 
-    variable escapes
+    variable namedEntities
 
-    # I. Standard escapes. (ISO latin-1 esc's are in a different table)
-
-    variable  tmp ; # Ensure that 'tmp' is in this namespace.
-    array set tmp {
-	lt <   gt >  quot \"   copy \xa9
-	reg \xae   ob \x7b   cb \x7d   nbsp \xa0
-	bsl \\ amp &#38; 
-    } ; # " make the emacs highlighting code happy.
-
-    # II. ISO Latin-1 escape codes
-
-    array set tmp {
+    # I. Latin-1 Entities (HTML 4.01)
+    array set namedEntities {
 	nbsp \xa0 iexcl \xa1 cent \xa2 pound \xa3 curren \xa4
 	yen \xa5 brvbar \xa6 sect \xa7 uml \xa8 copy \xa9
 	ordf \xaa laquo \xab not \xac shy \xad reg \xae
-	hibar \xaf deg \xb0 plusmn \xb1 sup2 \xb2 sup3 \xb3
+	macr \xaf deg \xb0 plusmn \xb1 sup2 \xb2 sup3 \xb3
 	acute \xb4 micro \xb5 para \xb6 middot \xb7 cedil \xb8
 	sup1 \xb9 ordm \xba raquo \xbb frac14 \xbc frac12 \xbd
 	frac34 \xbe iquest \xbf Agrave \xc0 Aacute \xc1 Acirc \xc2
@@ -68,14 +58,48 @@ namespace eval ::htmlparse {
 	yuml \xff
     }
 
-    set escapes [list]
-    foreach esc [array names tmp] {
-        # create both valid forms, in the right order for string map
-        lappend escapes "&$esc;" $tmp($esc) "&$esc" $tmp($esc)
+    # II. Entities for Symbols and Greek Letters (HTML 4.01)
+    array set namedEntities {
+	fnof \u192 Alpha \u391 Beta \u392 Gamma \u393 Delta \u394
+	Epsilon \u395 Zeta \u396 Eta \u397 Theta \u398 Iota \u399
+	Kappa \u39A Lambda \u39B Mu \u39C Nu \u39D Xi \u39E
+	Omicron \u39F Pi \u3A0 Rho \u3A1 Sigma \u3A3 Tau \u3A4
+	Upsilon \u3A5 Phi \u3A6 Chi \u3A7 Psi \u3A8 Omega \u3A9
+	alpha \u3B1 beta \u3B2 gamma \u3B3 delta \u3B4 epsilon \u3B5
+	zeta \u3B6 eta \u3B7 theta \u3B8 iota \u3B9 kappa \u3BA
+	lambda \u3BB mu \u3BC nu \u3BD xi \u3BE omicron \u3BF
+	pi \u3C0 rho \u3C1 sigmaf \u3C2 sigma \u3C3 tau \u3C4
+	upsilon \u3C5 phi \u3C6 chi \u3C7 psi \u3C8 omega \u3C9
+	thetasym \u3D1 upsih \u3D2 piv \u3D6 bull \u2022
+	hellip \u2026 prime \u2032 Prime \u2033 oline \u203E
+	frasl \u2044 weierp \u2118 image \u2111 real \u211C
+	trade \u2122 alefsym \u2135 larr \u2190 uarr \u2191
+	rarr \u2192 darr \u2193 harr \u2194 crarr \u21B5
+	lArr \u21D0 uArr \u21D1 rArr \u21D2 dArr \u21D3 hArr \u21D4
+	forall \u2200 part \u2202 exist \u2203 empty \u2205
+	nabla \u2207 isin \u2208 notin \u2209 ni \u220B prod \u220F
+	sum \u2211 minus \u2212 lowast \u2217 radic \u221A
+	prop \u221D infin \u221E ang \u2220 and \u2227 or \u2228
+	cap \u2229 cup \u222A int \u222B there4 \u2234 sim \u223C
+	cong \u2245 asymp \u2248 ne \u2260 equiv \u2261 le \u2264
+	ge \u2265 sub \u2282 sup \u2283 nsub \u2284 sube \u2286
+	supe \u2287 oplus \u2295 otimes \u2297 perp \u22A5
+	sdot \u22C5 lceil \u2308 rceil \u2309 lfloor \u230A
+	rfloor \u230B lang \u2329 rang \u232A loz \u25CA
+	spades \u2660 clubs \u2663 hearts \u2665 diams \u2666
     }
-    # and add the Tcl special chars
-    lappend escapes \] \\\] \[ \\\[ \$ \\\$ \\ \\\\ 
-    unset tmp
+
+    # III. Special Entities (HTML 4.01)
+    array set namedEntities {
+	quot \x22 amp \x26 lt \x3C gt \x3E OElig \u152 oelig \u153
+	Scaron \u160 scaron \u161 Yuml \u178 circ \u2C6
+	tilde \u2DC ensp \u2002 emsp \u2003 thinsp \u2009
+	zwnj \u200C zwj \u200D lrm \u200E rlm \u200F ndash \u2013
+	mdash \u2014 lsquo \u2018 rsquo \u2019 sbquo \u201A
+	ldquo \u201C rdquo \u201D bdquo \u201E dagger \u2020
+	Dagger \u2021 permil \u2030 lsaquo \u2039 rsaquo \u203A
+	euro \u20AC
+    }
 
     # Internal cache for the foreach variable-lists and the
     # substitution strings used to split a HTML string into
@@ -428,7 +452,8 @@ proc ::htmlparse::debugCallback {args} {
 #
 #	Takes a HTML string, substitutes all escape sequences with
 #	their actual characters and returns the resulting string.
-#	HTML not containing escape sequences is returned unchanged.
+#	HTML not containing escape sequences or invalid escape
+#	sequences is returned unchanged.
 #
 # Arguments:
 #	html	The string to modify
@@ -440,48 +465,43 @@ proc ::htmlparse::debugCallback {args} {
 #	The argument string with all escape sequences replaced with
 #	their actual characters.
 
-if { [package vcompare [package provide Tcl] 8.3] < 0 } {
-    # 8.2 implementation, no inline operation of 'scan'.
-    proc ::htmlparse::mapEscapes {html} {
-	variable escapes
-	# Find HTML escape characters of the form &xxx;
+proc ::htmlparse::mapEscapes {html} {
+    # Find HTML escape characters of the form &xxx(;|EOW)
 
-	if { ! [string match "*&*" $html] } {
-	    # HTML not containing escape sequences is returned unchanged.
-	    return $html
-	}
+    # Quote special Tcl chars so they pass through [subst] unharmed.
+    set new [string map [list \] \\\] \[ \\\[ \$ \\\$ \\ \\\\] $html]
+    regsub -all -- {&([[:alnum:]]{2,7})(;|\M)} $new {[DoNamedMap \1 {\2}]} new
+    regsub -all -- {&#([[:digit:]]{1,5})(;|\M)} $new {[DoDecMap \1 {\2}]} new
+    regsub -all -- {&#x([[:xdigit:]]{1,4})(;|\M)} $new {[DoHexMap \1 {\2}]} new
+    return [subst $new]
+}
 
-	set new [string map $escapes $html]
-	regsub -all -- {&[a-zA-Z];?} $new {?} new 
-	# Inline 'scan' is not an 8.2 feature.
-	regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[DoMap \1]} new
-	return [subst $new]
+proc ::htmlparse::DoNamedMap {name endOf} {
+    variable namedEntities
+    if {[info exist namedEntities($name)]} {
+	return $namedEntities($name)
+    } else {
+	# Put it back..
+	return "&$name$endOf"
     }
+}
 
-    # Helper to convert numeric entities. Without inline scan we need
-    # a temporary variable.
+proc ::htmlparse::DoDecMap {dec endOf} {
+    if {$dec <= 0xFFFD} {
+	return [format %c $dec]
+    } else {
+	# Put it back..
+	return "&#$dec$endOf"
+    }
+}
 
-    proc ::htmlparse::DoMap {text} {
-	scan $text %d value
+proc ::htmlparse::DoHexMap {hex endOf} {
+    scan $hex %x value
+    if {$value <= 0xFFFD} {
 	return [format %c $value]
-    }
-
-} else {
-    # 8.3+
-    proc ::htmlparse::mapEscapes {html} {
-	variable escapes
-	# Find HTML escape characters of the form &xxx;
-
-	if { ! [string match "*&*" $html] } {
-	    # HTML not containing escape sequences is returned unchanged.
-	    return $html
-	}
-
-	set new [string map $escapes $html]
-	regsub -all -- {&[a-zA-Z];?} $new {?} new 
-	# Inline 'scan' is not an 8.2 feature.
-	regsub -all -- {&#([0-9][0-9]?[0-9]?);?} $new {[format %c [scan \1 %d]]} new
-	return [subst $new]
+    } else {
+	# Put it back..
+	return "&#x$hex$endOf"
     }
 }
 
