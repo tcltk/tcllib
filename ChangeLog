@@ -1,3 +1,8 @@
+2000-05-16  Brent Welch <welch@scriptics.com>
+
+	* modules/html/html.tcl: Added html::refresh to generate
+	META tags that cause a page to refresh.
+
 2000-05-06  Sandeep Tamhankar  <sandeep@scriptics.com>
 
 	* mime/smtp.tcl: Fixed bug 5383, where smtp wouldn't work because
