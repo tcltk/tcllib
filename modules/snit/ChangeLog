@@ -1,3 +1,19 @@
+2004-09-14  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	Modified the implementation of hierarchical methods;
+	* snit.test	this involved extending the syntax of method
+			"using" patterns to better support the 
+			hiearchical case.
+
+2004-09-12  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	Added support for hierarchical type methods,
+	* snit.test	analogously to the support for regular methods.
+	* README.txt
+
+	* snit.tcl	Refactored the compilation of hierarchical
+	* snit.test	methods and typemethods to remove duplicated code.
+
 2004-09-10  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl      Added support for hierarchical methods: methods
