@@ -113,6 +113,7 @@ A wrapper around [cmd ::csv::join] taking all items in the queue
 [arg q] (assumes that they are lists) and writing them CSV formatted
 into the channel [arg chan].
 
+[list_end]
 
 [section FORMAT]
 [para]
