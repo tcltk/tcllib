@@ -1,3 +1,9 @@
+2003-02-06  David N. Welton  <davidw@dedasys.com>
+
+	* nntp.tcl (::nntp::fetch): Use 'string match' instead of regexp.
+	  Use if string match ... string range instead of regsub (it's
+	  about twice as fast in a small test I ran).
+
 2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* nntp.man: More semantic markup, less visual one.
