@@ -53,6 +53,18 @@
 	* md5.man:  of md5 v2 to reflect its changes, to 2.0.1.
 	* pkgIndex.tcl:
 
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5x.tcl: Rel. engineering. Updated version number 
+	* md5.man:  of md5 v2 to reflect its changes, to 2.0.1.
+	* pkgIndex.tcl:
+
 2004-02-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5x.tcl: Added -- to end options if using Trf's hex in case the
