@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: prioqueue.tcl,v 1.4 2003/05/05 16:13:07 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.tcl,v 1.5 2003/11/19 06:48:52 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -160,7 +160,7 @@ proc ::struct::prioqueue::QueueProc {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    return [eval [list ::struct::prioqueue::_$cmd $name] $args]
+    return [eval [linsert $args 0 ::struct::prioqueue::_$cmd $name]]
 }
 
 # ::struct::prioqueue::_clear --

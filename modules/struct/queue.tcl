@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.3 2000/06/02 18:43:56 ericm Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.4 2003/11/19 06:48:52 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -92,7 +92,7 @@ proc ::struct::queue::QueueProc {name {cmd ""} args} {
 	set optlist [linsert $optlist "end-1" "or"]
 	error "bad option \"$cmd\": must be $optlist"
     }
-    return [eval [list ::struct::queue::_$cmd $name] $args]
+    return [eval [linsert $args 0 ::struct::queue::_$cmd $name]]
 }
 
 # ::struct::queue::_clear --
