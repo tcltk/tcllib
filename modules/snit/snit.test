@@ -2064,7 +2064,7 @@ test oncget-1.1 {invalid oncget methods are caught.} {} {
         }
     } result
     set result
-} {oncget -color: option '-color' unknown.}
+} {Error in 'oncget -color...', option '-color' unknown.}
 
 test oncget-1.2 {oncget methods work.} {} {
     cleanup
@@ -2699,7 +2699,7 @@ test doption-1.5 {can't oncget for delegated option} {
         }
     } result
     set result
-} {oncget -color: option '-color' is delegated.}
+} {Error in 'oncget -color...', option '-color' is delegated.}
 
 test doption-1.6 {can't onconfigure for delegated option} {
     cleanup
@@ -5187,13 +5187,15 @@ test delegateoptionsyntax-1.5 {'delegated-$comp' lists options for the component
         delegate option -foo to comp1
         delegate option -bar to comp1
         delegate option -baz to comp2
+
+        # The * won't show up.
         delegate option * to comp2
     }
 
     list \
         $::dog::Snit_optionInfo(delegated-comp1) \
         $::dog::Snit_optionInfo(delegated-comp2)
-} {{-foo -bar} {-baz *}}
+} {{-foo -bar} -baz}
 
 test delegateoptionsyntax-1.6 {'except' is empty by default} {
     cleanup
@@ -5235,14 +5237,24 @@ test delegateoptionsyntax-1.9 {'target-$opt' set explicitly} {
     set ::dog::Snit_optionInfo(target--foo)
 } {comp -bar}
 
-test delegateoptionsyntax-1.10 {'target-$opt' set for *} {
+test delegateoptionsyntax-1.10 {'starcomp' is {} by default} {
+    cleanup
+
+    type dog {
+        delegate option -foo to comp
+    }
+
+    set ::dog::Snit_optionInfo(starcomp)
+} {}
+
+test delegateoptionsyntax-1.11 {'starcomp' set for *} {
     cleanup
 
     type dog {
         delegate option * to comp
     }
 
-    set ::dog::Snit_optionInfo(target-*)
+    set ::dog::Snit_optionInfo(starcomp)
 } {comp}
 
 test delegatedoptionsyntax-2.1 {implicit resource and class} {
