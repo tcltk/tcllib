@@ -65,7 +65,7 @@ release any resources and obtain the hash value, you then call
 
 [para]
 
-If you have [package critcl] and have built the [package md4c] package
+If you have [package critcl] and have built the [package tcllibc] package
 then the implementation of the hashing function will be performed by compiled
 code - otherwise there is a pure-tcl equivalent. The programming
 interface remains the same, however.
