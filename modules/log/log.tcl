@@ -690,7 +690,7 @@ proc ::log::loghex {level text data} {
 
     set len [string length $data]
 
-    eval [linsert $cmd end $level "$info ($len bytes):"]
+    eval [linsert $cmd end $level "$text ($len bytes):"]
 
     set address ""
     set hexnums ""
