@@ -97,9 +97,12 @@ components in [arg path] an empty string is returned.
 
 If the [arg path] is inside of the directory returned by
 
-[lb][cmd pwd][rb] it is made relative to that directory. In other
-words, the current working directory is stripped from the [arg path].
-The possibly modified path is returned as the result of the command.
+[lb][cmd pwd][rb] (or the current working directory itself) it is made
+relative to that directory. In other words, the current working
+directory is stripped from the [arg path].  The possibly modified path
+is returned as the result of the command. If the current working
+directory itself was specified for [arg path] the result is the string
+"[const .]".
 
 
 [call [cmd ::fileutil::touch] [opt [option -a]] [opt [option -c]] [opt [option -m]] [opt "[option -r] [arg ref_file]"] [opt "[option -t] [arg time]"] [arg filename] [opt [arg ...]]]

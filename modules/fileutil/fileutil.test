@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.10 2002/10/10 02:39:45 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.11 2003/03/24 23:11:57 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -471,6 +471,10 @@ test stripPwd-1.1 {pwd-relative path} {
 test stripPwd-1.2 {pwd-relative path} {
     fileutil::stripPwd [file join [pwd] $dir find1 find2]
 } [file join find1 find2]
+
+test stripPwd-1.3 {pwd itself} {
+    fileutil::stripPwd [pwd]
+} .
 
 
 test stripN-1.0 {remove nothing} {
