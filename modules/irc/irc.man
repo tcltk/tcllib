@@ -15,12 +15,14 @@ communication.
 [list_begin definitions]
 
 
-[call [cmd ::irc::config] [arg key] [arg value]]
+[call [cmd ::irc::config] [opt key] [opt value]]
 
-Sets configuration [arg key] to [arg value].  Currently, the only
-configuration key defined is the boolean flag [const debug] which,
-when turned on, makes [package irc] print more information about what
-is going on.
+Sets configuration [opt key] to [opt value]. The configuration keys
+currently defined are the boolean flags [const logger] and [const debug].
+[const logger] makes [package irc] use the logger package for printing
+error. [const debug] requires [const logger] and prints extra debug output.
+
+If no [opt key] or [opt value] is given the current values are returned.
 
 
 [call [cmd ::irc::connection]]
@@ -84,7 +86,7 @@ empty string is returned.
 Returns a boolean value indicating the existence of the event handler.
 
 
-[call [arg net] [method connect] [arg hostname] [opt [arg port]]]
+[call [arg net] [method connect] [arg hostname] [opt port]]
 
 This causes the socket to be established.  [cmd ::irc::connection]
 created the namespace and the commands to be used, but did not
@@ -92,6 +94,19 @@ actually open the socket. This is done here.  NOTE: the older form of
 'connect' did not require the user to specify a hostname and port,
 which were specified with 'connection'.  That form is deprecated.
 
+[call [arg net] [method config] [opt key] [opt value]]
+
+The same as [::irc::config] but sets and gets options for the [arg net]
+connection only.
+
+[call [arg net] [method log] [arg level] [arg message]]
+
+If logger is turned on by [method config] this will write a log [arg message]
+at [arg level].
+
+[call [arg net] [method logname]]
+
+Returns the name of the logger instance if logger is turned on.
 
 [call [arg net] [method connected]]
 
