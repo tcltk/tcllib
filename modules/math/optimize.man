@@ -1,6 +1,8 @@
-[manpage_begin math::optimize n 1.0]
+[manpage_begin math::optimize n 0.1]
 [moddesc   {Math}]
 [titledesc {Optimisation routines}]
+[require Tcl 8.2]
+[require math::optimize [opt 0.1]]
 [description]
 [para]
 This package implements several optimisation algorithms:
