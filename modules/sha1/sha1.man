@@ -14,7 +14,7 @@ input. The SHA1 algorithm is related to the MD4 algorith (2) but has
 been strengthend against certain types of cryptographic attack. SHA1
 should be used in preference to MD4 or MD5 in new applications.
 
-[nl]
+[para]
 
 This package also includes support for creating keyed message-digests
 using the HMAC algorithm from RFC 2104 (3) with SHA1 as the
