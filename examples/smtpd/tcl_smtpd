@@ -1,11 +1,9 @@
 #! /bin/sh
 #
-# tk_smtpd - Copyright (C) 2001 Pat Thoyts <patthoyts@users.sourceforge.net>
+# tcl_smtpd - Copyright (C) 2001 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# Simple test of the mail server. All incoming messages are displayed in a 
-# message dialog.
-#
-# This example works nicely under Windows or within tkcon.
+# Simple test of the mail server. All incoming messages are displayed to
+# stdout.
 #
 # Usage tk_smtpd 0.0.0.0 8025
 #    or tk_smtpd 127.0.0.1 2525
@@ -19,13 +17,11 @@
 # more details.
 # -------------------------------------------------------------------------
 # \
-exec wish8.3 "$0" ${1+"$@"}
+exec tclsh8.3 "$0" ${1+"$@"}
 
 package require smtpd
-package require Tk
-wm withdraw .
 
-# Handle new mail by raising a message dialog for each recipient.
+# In this example application we just print received mail to stdout.
 proc deliver {sender recipients data} {
     if {[catch {eval array set saddr [mime::parseaddress $sender]}]} {
         error "invalid sender address \"$sender\""
@@ -35,28 +31,28 @@ proc deliver {sender recipients data} {
 
     foreach rcpt $recipients {
         if {! [catch {eval array set addr [mime::parseaddress $rcpt]}]} {
-            tk_messageBox -title "To: $addr(address)" -message $mail
+            puts $mail
         }
     }
 }
 
-# Accept everyone except those spammers on 192.168.1.* :)
+# Deny only hosts from 192.168.1.*
 proc validate_host {ipnum} {
     if {[string match "192.168.1.*" $ipnum]} {
         error "your domain is not allowed to post, Spammers!"
     }
 }
 
-# Accept mail from anyone except user 'denied'
+# Only reject sender 'denied'
 proc validate_sender {address} {
     eval array set addr [mime::parseaddress $address]
     if {[string match "denied" $addr(local)]} {
         error "mailbox $addr(local) denied"
     }
-    return    
+    return
 }
 
-# Only reject mail for recipients beginning with 'bogus'
+# Only reject recipients beginning with 'bogus'
 proc validate_recipient {address} {
     eval array set addr [mime::parseaddress $address]
     if {[string match "bogus*" $addr(local)]} {
@@ -65,7 +61,7 @@ proc validate_recipient {address} {
     return
 }
 
-# Setup the mail server
+# Set up the server
 smtpd::configure \
     -deliver            ::deliver \
     -validate_host      ::validate_host \
@@ -88,8 +84,10 @@ if {$argc > 1} {
 
 smtpd::start $iface $port
 
+vwait forever
+
 #
 # Local variables:
-#  mode: tcl
-#  indent-tabs-mode: nil
+#   mode: tcl
+#   indent-tabs-mode: nil
 # End:
