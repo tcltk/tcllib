@@ -1,3 +1,9 @@
+2001-09-17 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* example/hpupdate.tcl: Some cleanups in the example code,
+	  provided by Larry Virden <lvirden@users.sourceforge.net>. This
+	  fixes [440064].
+
 2001-09-12  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* Added manpages for ftp package.

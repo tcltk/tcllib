@@ -221,7 +221,7 @@ global ftp
 proc ftp::DisplayMsg {s msg {state normal}} {
 global status
 
-	switch $state {
+	switch -- $state {
 	  data	        {return}
 	  control       {return}
 	  normal        {.status.head.label configure -fg black}
@@ -364,7 +364,7 @@ global ftp opt
 # shine a light 
 proc Blink {mode} {
 global status
-	switch $mode {
+	switch -- $mode {
 	  on {
 		.view.conn.led1 configure -bg $status(on)
 		update idletasks
@@ -615,7 +615,7 @@ global ftp
 proc ProgressBar {state {bytes 0} {filename ""}} {
 global ftp
 	set w .progress
-	switch $state {
+	switch -- $state {
 	  init	{
 		set ftp(Filename) ""
 		set ftp(ProgressProz) "0%"
@@ -706,19 +706,19 @@ global ftp opt status
 	if {(![info exists ftp(conn)]) ||
             (![info exists ftp::ftp${ftp(conn)}(State)]) } {
 		tk_messageBox -parent . -title INFO -message "No connection!" -type ok
-		return
+		return 0
 	}
 	
 	# nothing selected 
 	if { [.view.local.list curselection] == {} } {
-		return
+		return 0
 	}
 	
 	# ask user
 	set count [llength [.view.local.list curselection]]
 	set rc [tk_messageBox -parent . -title UPLOAD -message "Do you really want to upload the $count selected file(s)?" -type yesno]
 	if { $rc == "no" } {
-		return
+		return 0
 	}
 	
 	# create list of uploading files
@@ -730,7 +730,7 @@ global ftp opt status
 	# empty list?
 	if { $upload_list == {} } {
 		tk_messageBox -parent . -title INFO -type ok -message "Nothing selected for upload!!"
-		return
+		return 0
 	}
 	focus .view.local.list
 
@@ -782,6 +782,7 @@ global ftp opt status
 	set opt(Timestamp) [file mtime $opt(TsFile)]
 	Refresh
 	set status(header) " last update: [clock format $opt(Timestamp) -format %d.%m.%Y\ %H:%M:%S\ Uhr -gmt 0]"
+	return 0
 }
 
 # Refresh
