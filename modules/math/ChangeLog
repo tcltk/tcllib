@@ -1,3 +1,11 @@
+2003-10-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+	* statistics.tcl (BasicStat): Applied fix for [SF Tcllib Bug
+	  820807]. Uniform data may cause a small negative value when
+	  computing the base value for a standard deviation, instead of
+	  the correct 0.0. The fix now enforces 0.0 when encountering this
+	  situation. This entry in the ChangeLog by Andreas Kupries.
+
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
