@@ -1,3 +1,11 @@
+2002-08-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tcl: Fixed SF bug #579853. Added an 'bsl' key and
+	  value to 'htmlparse::escapes' required to reconvert the
+	  backslash escapes inserted by 'htmlparse::PrepareHtml'. Thanks
+	  to Michael Cleverly <cleverly@users.sourceforge.net> for the
+	  report.
+
 2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:
