@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.67 2002/04/01 20:29:20 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.68 2002/04/10 21:29:51 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -77,6 +77,9 @@ POP3D=pop3d
 # HTML generation API
 HTML=html
 
+# IRC
+IRC=irc
+
 # MIME encoder/decoder and SMTP package. These are modified/hacked to
 # have a soft requirement for Trf: They will encode/decode MIME
 # messages faster if Trf is available.  Another speciality here: One
@@ -136,6 +139,7 @@ MODULES= \
 	$(FTPD)         \
 	$(JAVASCRIPT)   \
 	$(HTML)         \
+	$(IRC)          \
 	$(MATH)		\
 	$(MD5)		\
 	$(MIME)		\
