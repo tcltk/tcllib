@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: nntp.n,v 1.3 2001/07/06 18:30:52 andreas_kupries Exp $
+'\" RCS: @(#) $Id: nntp.n,v 1.4 2001/07/10 23:56:55 andreas_kupries Exp $
 '\" 
 .so man.macros
 .TH nntp n 0.1 nntp "Tcl NNTP Client Library"
@@ -55,7 +55,7 @@ in the list is one line of the article.
 Send authentication information (username and password) to the server.
 .TP
 \fBnntpName body\fR \fR?\fImsgid\fR?\fR
-Query the server for the body of the article \FImsgid\fR from the current
+Query the server for the body of the article \fImsgid\fR from the current
 group.  The body of the article is returned as a valid tcl list. Each element
 in the list is one line of the body of the article.
 .TP
@@ -70,7 +70,7 @@ the group followed by the number of the first article in the group, followed
 by the last article in the group, followed by the name of the group.
 .TP
 \fBnntpName head\fR \fR?\fImsgid\fR?\fR
-Query the server for the headers of the article \FImsgid\fR from the current
+Query the server for the headers of the article \fImsgid\fR from the current
 group.  The headers of the article are returned as a valid tcl list. Each element
 in the list is one line of the headers of the article.
 .TP
