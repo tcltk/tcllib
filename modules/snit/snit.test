@@ -4696,7 +4696,7 @@ test iinfo-1.2 {object info too many args} {
     set result
 } {wrong # args: should be "::snit::RT.method.info.type type selfns win self"}
 
-test iinfo-1.3 {object info type} {
+test iinfo-2.1 {object info type} {
     cleanup
 
     type dog { }
@@ -4705,7 +4705,7 @@ test iinfo-1.3 {object info type} {
     spot info type
 } {::dog}
 
-test iinfo-1.4 {object info typevars} {
+test iinfo-3.1 {object info typevars} {
     cleanup
 
     type dog { 
@@ -4720,7 +4720,22 @@ test iinfo-1.4 {object info typevars} {
     lsort [spot info typevars]
 } {::dog::thatvar ::dog::thisvar}
 
-test iinfo-1.5 {object info vars} {
+test iinfo-3.2 {object info typevars with pattern} {
+    cleanup
+
+    type dog { 
+        typevariable thisvar 1
+
+        constructor {args} {
+            typevariable thatvar 2
+        }
+    }
+
+    dog create spot
+    spot info typevars *this*
+} {::dog::thisvar}
+
+test iinfo-4.1 {object info vars} {
     cleanup
 
     type dog { 
@@ -4736,7 +4751,23 @@ test iinfo-1.5 {object info vars} {
     lsort [spot info vars]
 } {::dog::Snit_inst1::hervar ::dog::Snit_inst1::hisvar}
 
-test iinfo-1.6 {object info no vars defined} {
+test iinfo-4.2 {object info vars with pattern} {
+    cleanup
+
+    type dog { 
+        variable hisvar 1
+
+        constructor {args} {
+            variable hervar
+            set hervar 2
+        }
+    }
+
+    dog create spot
+    spot info vars "*his*"
+} {::dog::Snit_inst1::hisvar}
+
+test iinfo-5.1 {object info no vars defined} {
     cleanup
 
     type dog { }
@@ -4745,7 +4776,7 @@ test iinfo-1.6 {object info no vars defined} {
     list [spot info vars] [spot info typevars]
 } {{} {}}
 
-test iinfo-1.7 {info options with no options} {
+test iinfo-6.1 {info options with no options} {
     cleanup
 
     type dog { }
@@ -4754,7 +4785,7 @@ test iinfo-1.7 {info options with no options} {
     llength [spot info options]
 } {0}
 
-test iinfo-1.8 {info options with only local options} {
+test iinfo-6.2 {info options with only local options} {
     cleanup
 
     type dog { 
@@ -4766,7 +4797,7 @@ test iinfo-1.8 {info options with only local options} {
     lsort [spot info options]
 } {-bar -foo}
 
-test iinfo-1.9 {info options with local and delegated options} {
+test iinfo-6.3 {info options with local and delegated options} {
     cleanup
 
     type dog { 
@@ -4779,7 +4810,7 @@ test iinfo-1.9 {info options with local and delegated options} {
     lsort [spot info options]
 } {-bar -foo -quux}
 
-test iinfo-1.9 {info options with unknown delegated options} tk {
+test iinfo-6.4 {info options with unknown delegated options} tk {
     cleanup
 
     widgetadaptor myframe { 
@@ -4797,7 +4828,7 @@ test iinfo-1.9 {info options with unknown delegated options} tk {
     set a
 } {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
 
-test iinfo-1.10 {info options with exceptions} tk {
+test iinfo-6.5 {info options with exceptions} tk {
     cleanup
 
     widgetadaptor myframe { 
@@ -4815,38 +4846,7 @@ test iinfo-1.10 {info options with exceptions} tk {
     set a
 } {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
 
-test iinfo-1.11 {object info typevars with pattern} {
-    cleanup
-
-    type dog { 
-        typevariable thisvar 1
-
-        constructor {args} {
-            typevariable thatvar 2
-        }
-    }
-
-    dog create spot
-    spot info typevars *this*
-} {::dog::thisvar}
-
-test iinfo-1.12 {object info vars with pattern} {
-    cleanup
-
-    type dog { 
-        variable hisvar 1
-
-        constructor {args} {
-            variable hervar
-            set hervar 2
-        }
-    }
-
-    dog create spot
-    spot info vars "*his*"
-} {::dog::Snit_inst1::hisvar}
-
-test iinfo-1.13 {info options with pattern} tk {
+test iinfo-6.6 {info options with pattern} tk {
     cleanup
 
     widgetadaptor myframe { 
@@ -4864,7 +4864,7 @@ test iinfo-1.13 {info options with pattern} tk {
     set a
 } {-class -colormap -container -cursor}
 
-test iinfo-1.14 {info typemethods, simple case} {
+test iinfo-7.1 {info typemethods, simple case} {
     cleanup
 
     type dog { }
@@ -4874,7 +4874,7 @@ test iinfo-1.14 {info typemethods, simple case} {
     spot info typemethods
 } {info create destroy}
 
-test iinfo-1.15 {info typemethods, with pattern} {
+test iinfo-7.2 {info typemethods, with pattern} {
     cleanup
 
     type dog { }
@@ -4884,7 +4884,7 @@ test iinfo-1.15 {info typemethods, with pattern} {
     spot info typemethods i*
 } {info}
 
-test iinfo-1.16 {info typemethods, with explicit typemethods} {
+test iinfo-7.3 {info typemethods, with explicit typemethods} {
     cleanup
 
     type dog { 
@@ -4897,7 +4897,7 @@ test iinfo-1.16 {info typemethods, with explicit typemethods} {
     spot info typemethods
 } {foo info create bar destroy}
 
-test iinfo-1.17 {info typemethods, with implicit typemethods} {
+test iinfo-7.4 {info typemethods, with implicit typemethods} {
     cleanup
 
     type dog { 
@@ -4922,7 +4922,22 @@ test iinfo-1.17 {info typemethods, with implicit typemethods} {
     list $a $b $c
 } {{info create destroy} {info create destroy is length} length}
 
-test iinfo-1.18 {info methods, simple case} {
+test iinfo-7.5 {info typemethods, with hierarchical typemethods} {
+    cleanup
+
+    type dog { 
+        delegate typemethod {comp foo} to comp
+        
+        typemethod {comp bar} {} {}
+    }
+
+    dog create spot
+
+    spot info typemethods
+} {{comp bar} info create destroy {comp foo}}
+
+
+test iinfo-8.1 {info methods, simple case} {
     cleanup
 
     type dog { }
@@ -4932,7 +4947,7 @@ test iinfo-1.18 {info methods, simple case} {
     spot info methods
 } {info destroy}
 
-test iinfo-1.19 {info type, with pattern} {
+test iinfo-8.2 {info methods, with pattern} {
     cleanup
 
     type dog { }
@@ -4942,7 +4957,7 @@ test iinfo-1.19 {info type, with pattern} {
     spot info methods i*
 } {info}
 
-test iinfo-1.20 {info methods, with explicit methods} {
+test iinfo-8.3 {info methods, with explicit methods} {
     cleanup
 
     type dog { 
@@ -4955,7 +4970,7 @@ test iinfo-1.20 {info methods, with explicit methods} {
     spot info methods 
 } {foo info bar destroy}
 
-test iinfo-1.21 {info typemethods, with implicit typemethods} {
+test iinfo-8.4 {info methods, with implicit methods} {
     cleanup
 
     type dog { 
@@ -4980,6 +4995,21 @@ test iinfo-1.21 {info typemethods, with implicit typemethods} {
     list $a $b $c
 } {{info destroy} {info destroy is length} length}
 
+test iinfo-8.5 {info methods, with hierarchical methods} {
+    cleanup
+
+    type dog { 
+        delegate method {comp foo} to comp
+        
+        method {comp bar} {} {}
+    }
+
+    dog create spot
+
+    spot info methods
+} {{comp bar} info destroy {comp foo}}
+
+
 #-----------------------------------------------------------------------
 # Type Introspection
 
@@ -5001,7 +5031,7 @@ test tinfo-1.2 {type info too many args} {
     set result
 } {wrong # args: should be "::snit::RT.typemethod.info.instances type ?pattern?"}
 
-test tinfo-1.3 {type info typevars} {
+test tinfo-2.1 {type info typevars} {
     cleanup
 
     type dog { 
@@ -5016,7 +5046,7 @@ test tinfo-1.3 {type info typevars} {
     lsort [dog info typevars]
 } {::dog::thatvar ::dog::thisvar}
 
-test tinfo-1.4 {type info instances} {
+test tinfo-3.1 {type info instances} {
     cleanup
 
     type dog { }
@@ -5027,7 +5057,7 @@ test tinfo-1.4 {type info instances} {
     lsort [dog info instances]
 } {::fido ::spot}
 
-test tinfo-1.5 {widget info instances} tk {
+test tinfo-3.2 {widget info instances} tk {
     cleanup
 
     widgetadaptor mylabel { 
@@ -5048,7 +5078,7 @@ test tinfo-1.5 {widget info instances} tk {
     lsort $result
 } {.lab1 .lab2}
 
-test tinfo-1.6 {type info instances with non-global namespaces} {
+test tinfo-3.3 {type info instances with non-global namespaces} {
     cleanup
 
     type dog { }
@@ -5062,7 +5092,18 @@ test tinfo-1.6 {type info instances with non-global namespaces} {
     list $qname [lsort [dog info instances]]
 } {::dogs::fido {::dogs::fido ::spot}}
 
-test tinfo-1.7 {type info typevars with pattern} {
+test tinfo-3.4 {type info instances with pattern} {
+    cleanup
+
+    type dog { }
+
+    dog create spot
+    dog create fido
+
+    dog info instances "*f*"
+} {::fido}
+
+test tinfo-4.1 {type info typevars with pattern} {
     cleanup
 
     type dog { 
@@ -5077,18 +5118,7 @@ test tinfo-1.7 {type info typevars with pattern} {
     dog info typevars *this*
 } {::dog::thisvar}
 
-test tinfo-1.8 {type info instances with pattern} {
-    cleanup
-
-    type dog { }
-
-    dog create spot
-    dog create fido
-
-    dog info instances "*f*"
-} {::fido}
-
-test tinfo-1.9 {type info typemethods, simple case} {
+test tinfo-5.1 {type info typemethods, simple case} {
     cleanup
 
     type dog { }
@@ -5096,7 +5126,7 @@ test tinfo-1.9 {type info typemethods, simple case} {
     dog info typemethods
 } {info create destroy}
 
-test tinfo-1.10 {type info typemethods, with pattern} {
+test tinfo-5.2 {type info typemethods, with pattern} {
     cleanup
 
     type dog { }
@@ -5104,7 +5134,7 @@ test tinfo-1.10 {type info typemethods, with pattern} {
     dog info typemethods i*
 } {info}
 
-test tinfo-1.11 {type info typemethods, with explicit typemethods} {
+test tinfo-5.3 {type info typemethods, with explicit typemethods} {
     cleanup
 
     type dog { 
@@ -5115,7 +5145,7 @@ test tinfo-1.11 {type info typemethods, with explicit typemethods} {
     dog info typemethods
 } {foo info create bar destroy}
 
-test tinfo-1.12 {type info typemethods, with implicit typemethods} {
+test tinfo-5.4 {type info typemethods, with implicit typemethods} {
     cleanup
 
     type dog { 
@@ -5137,6 +5167,18 @@ test tinfo-1.12 {type info typemethods, with implicit typemethods} {
 
     list $a $b $c
 } {{info create destroy} {info create destroy is length} length}
+
+test tinfo-5.5 {info typemethods, with hierarchical typemethods} {
+    cleanup
+
+    type dog { 
+        delegate typemethod {comp foo} to comp
+        
+        typemethod {comp bar} {} {}
+    }
+
+    dog info typemethods
+} {{comp bar} info create destroy {comp foo}}
 
 
 #-----------------------------------------------------------------------

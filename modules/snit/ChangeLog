@@ -1,3 +1,13 @@
+2004-09-16  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl	In "component foo -public name", the "-public
+        		name" part is now implemented as "delegate method
+			{name *} to foo".
+	* snit.test     Added tests for "$type info typemethods", "$self
+			info typemethods" and "$self info methods" for the
+			case of hierarchical methods/typemethods, and
+			fixed related bugs in snit.tcl.
+
 2004-09-14  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Modified the implementation of hierarchical methods;
