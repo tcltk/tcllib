@@ -244,7 +244,7 @@ proc ::mime::initialize {args} {
     variable $token
     upvar 0 $token state
 
-    if {[set code [catch { eval [list mime::initializeaux $token] $args } \
+    if {[set code [catch { eval [linsert $args 0 mime::initializeaux $token] } \
                          result]]} {
         set ecode $errorCode
         set einfo $errorInfo
@@ -927,14 +927,14 @@ proc ::mime::finalize {token args} {
         all {
             if {![string compare $state(value) parts]} {
                 foreach part $state(parts) {
-                    eval [list mime::finalize $part] $args
+                    eval [linsert $args 0 mime::finalize $part]
                 }
             }
         }
 
         dynamic {
             for {set cid $state(cid)} {$cid > 0} {incr cid -1} {
-                eval [list mime::finalize $token-$cid] $args
+                eval [linsert $args 0 mime::finalize $token-$cid]
             }
         }
 
