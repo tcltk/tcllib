@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stats.tcl,v 1.12 2000/10/02 16:24:15 welch Exp $
+# RCS: @(#) $Id: stats.tcl,v 1.13 2000/10/03 03:54:08 welch Exp $
 
 package provide stats 1.0
 
@@ -220,12 +220,12 @@ proc stats::countInit {tag args} {
 		}
 		set counter(bucketsize) $value
 	    }
-	    -disabled {
-		# Type to disable counting
+	    -simple {
+		# Useful when disabling predefined -timehist or -group counter
 	    }
 	    default {
 		return -code error "Unsupported option $option.\
-	    Must be -timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog, or -disabled."
+	    Must be -timehist, -group, -lastn, -hist, -hist2x, -hist10x, -histlog, or -simple."
 	    }
 	}
 	if {[string length $option]} {
@@ -489,7 +489,12 @@ proc stats::countGet {tag {option -total} args} {
 		# Dump the whole histogram
 
 		set result {}
-		foreach x [lsort -integer [array names histogram]] {
+		if {$counter(type) == "-group"} {
+		    set sort -dictionary
+		} else {
+		    set sort -integer
+		}
+		foreach x [lsort $sort [array names histogram]] {
 		    lappend result $x $histogram($x)
 		}
 		return $result
