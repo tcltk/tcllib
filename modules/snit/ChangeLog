@@ -1,9 +1,19 @@
 2004-07-11  Will Duquette  <will@wjduquette.com>
 
 	* snit.tcl	Renamed a number of internal commands, for
-	                clarity.  Refactored the standard method bodies
+	                clarity.  
+
+			Refactored the standard method bodies
 			out of the type definition and into the Snit
 	                runtime using delegation.
+
+			Defined snit::compile which compiles a 
+			type definition into the Tcl script which
+			actually defines the type.
+
+	* snit.test     Added and modified appropriate tests.
+
+	* README.txt    Added a bullet about snit::compile.
 
 2004-07-05  Will Duquette  <will@wjduquette.com>
 
