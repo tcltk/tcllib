@@ -486,6 +486,124 @@ test typecomponent-1.4 {typecomponent -inherit yes} {} {
 
 
 #-----------------------------------------------------------------------
+# hierarchical type methods
+
+test htypemethod1.1 {hierarchical method, two tokens} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} {
+            return "wags tail"
+        }
+    }
+
+    dog wag tail
+} {wags tail}
+
+test htypemethod1.2 {hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail proudly} {} {
+            return "wags tail proudly"
+        }
+    }
+
+    dog wag tail proudly
+} {wags tail proudly}
+
+test htypemethod1.3 {hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail really high} {} {
+            return "wags tail really high"
+        }
+    }
+
+    dog wag tail really high
+} {wags tail really high}
+
+test htypemethod1.4 {redefinition is OK} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} {
+            return "wags tail"
+        }
+        typemethod {wag tail} {} {
+            return "wags tail briskly"
+        }
+    }
+
+    dog wag tail
+} {wags tail briskly}
+
+test htypemethod1.5 {proper error on missing submethod} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} { }
+    }
+
+    catch {dog wag} result
+    set result
+} {wrong number args: should be "::dog wag method args"}
+
+
+test htypemethod2.1 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            typemethod wag {} {}
+            typemethod {wag tail} {} {}
+        }
+    } result
+
+    set result
+} {Error in "typemethod {wag tail}...", "wag" has no submethods.}
+
+test htypemethod2.2 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            typemethod {wag tail} {} {}
+            typemethod wag {} {}
+        }
+    } result
+
+    set result
+} {Error in "typemethod wag...", "wag" has submethods.}
+
+test htypemethod2.3 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            typemethod {wag tail} {} {}
+            typemethod {wag tail proudly} {} {}
+        }
+    } result
+
+    set result
+} {Error in "typemethod {wag tail proudly}...", "wag tail" has no submethods.}
+
+test htypemethod2.4 {prefix/method collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            typemethod {wag tail proudly} {} {}
+            typemethod {wag tail} {} {}
+        }
+    } result
+
+    set result
+} {Error in "typemethod {wag tail}...", "wag tail" has submethods.}
+
+#-----------------------------------------------------------------------
 # Typemethod delegation
 
 test dtypemethod-1.1 {delegate typemethod to non-existent component} {} {
@@ -698,6 +816,146 @@ test dtypemethod-3.1 {typecomponent names can be changed dynamically} {
     
     list $a $b
 } {3 length|foo}
+
+test dtypemethod-4.1 {hierarchical typemethod, two tokens} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags tail"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {wag tail} to tail as wag
+    }
+
+    dog wag tail
+} {wags tail}
+
+test dtypemethod-4.2 {hierarchical typemethod, three tokens} {} {
+    cleanup 
+
+    type tail {
+        method wag {} {return "wags tail"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {wag tail proudly} to tail as wag
+    }
+
+    dog wag tail proudly
+} {wags tail}
+
+test dtypemethod-4.3 {hierarchical typemethod, three tokens} {} {
+    cleanup
+
+    type tail {
+        method wag {} {return "wags tail"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {wag tail really high} to tail as wag
+    }
+
+    dog wag tail really high
+} {wags tail}
+
+test dtypemethod-4.4 {redefinition is OK} {} {
+    cleanup
+
+    type tail {
+        method {wag tail}    {} {return "wags tail"}
+        method {wag briskly} {} {return "wags tail briskly"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {wag tail} to tail as {wag tail}
+        delegate typemethod {wag tail} to tail as {wag briskly}
+    }
+
+    dog wag tail
+} {wags tail briskly}
+
+test dtypemethod-4.5 {all tokens are used by default} {} {
+    cleanup
+
+    type tail {
+        method {wag tail}    {} {return "wags tail"}
+    }
+
+    type dog {
+        typeconstructor {
+            set tail [tail]
+        }
+        delegate typemethod {wag tail} to tail
+    }
+
+    dog wag tail
+} {wags tail}
+
+test dtypemethod-5.1 {prefix/typemethod collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate typemethod wag to tail
+            delegate typemethod {wag tail} to tail as wag
+        }
+    } result
+
+    set result
+} {Error in "delegate typemethod {wag tail}...", "wag" has no submethods.}
+
+test dtypemethod-5.2 {prefix/typemethod collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate typemethod {wag tail} to tail as wag
+            delegate typemethod wag to tail
+        }
+    } result
+
+    set result
+} {Error in "delegate typemethod wag...", "wag" has submethods.}
+
+test dtypemethod-5.3 {prefix/typemethod collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate typemethod {wag tail} to tail
+            delegate typemethod {wag tail proudly} to tail as wag
+        }
+    } result
+
+    set result
+} {Error in "delegate typemethod {wag tail proudly}...", "wag tail" has no submethods.}
+
+test dtypemethod-5.4 {prefix/typemethod collision} {} {
+    cleanup
+
+    catch {
+        type dog {
+            delegate typemethod {wag tail proudly} to tail as wag
+            delegate typemethod {wag tail} to tail
+        }
+    } result
+
+    set result
+} {Error in "delegate typemethod {wag tail}...", "wag tail" has submethods.}
+
 
 
 #-----------------------------------------------------------------------
@@ -5193,6 +5451,109 @@ test etypemethod-1.4 {can't define external typemethod if no type} {
     set result
 } {no such type: "extremelyraredog"}
 
+test etypemethod-2.1 {external hierarchical method, two tokens} {} {
+    cleanup
+
+    type dog { }
+    typemethod dog {wag tail} {} {
+        return "wags tail"
+    }
+
+    dog wag tail
+} {wags tail}
+
+test etypemethod-2.2 {external hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog { }
+    typemethod dog {wag tail proudly} {} {
+        return "wags tail proudly"
+    }
+
+    dog wag tail proudly
+} {wags tail proudly}
+
+test etypemethod-2.3 {external hierarchical method, three tokens} {} {
+    cleanup
+
+    type dog { }
+    typemethod dog {wag tail really high} {} {
+        return "wags tail really high"
+    }
+
+    dog wag tail really high
+} {wags tail really high}
+
+test etypemethod-2.4 {redefinition is OK} {} {
+    cleanup
+
+    type dog { }
+    typemethod dog {wag tail} {} {
+        return "wags tail"
+    }
+    typemethod dog {wag tail} {} {
+        return "wags tail briskly"
+    }
+
+    dog wag tail
+} {wags tail briskly}
+
+test etypemethod-3.1 {prefix/method collision} {} {
+    cleanup
+
+    type dog { 
+        typemethod wag {} {}
+    }
+
+    catch {
+        typemethod dog {wag tail} {} {}
+    } result
+
+    set result
+} {Cannot define "wag tail", "wag" has no submethods.}
+
+test etypemethod-3.2 {prefix/method collision} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} {}
+    }
+
+    catch {
+        typemethod dog wag {} {}
+    } result
+
+    set result
+} {Cannot redefine "wag", "wag" has submethods.}
+
+test etypemethod-3.3 {prefix/method collision} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} {}
+    }
+
+    catch {
+        typemethod dog {wag tail proudly} {} {}
+    } result
+
+    set result
+} {Cannot define "wag tail proudly", "wag tail" has no submethods.}
+
+test etypemethod-3.4 {prefix/method collision} {} {
+    cleanup
+
+    type dog {
+        typemethod {wag tail proudly} {} {}
+    }
+
+    catch {
+        typemethod dog {wag tail} {} {}
+    } result
+
+    set result
+} {Cannot redefine "wag tail", "wag tail" has submethods.}
+
 #-----------------------------------------------------------------------
 # Externally defined methods
 
@@ -5339,7 +5700,7 @@ test emethod-3.1 {prefix/method collision} {} {
     set result
 } {Cannot define "wag tail", "wag" has no submethods.}
 
-test hmethod-3.2 {prefix/method collision} {} {
+test emethod-3.2 {prefix/method collision} {} {
     cleanup
 
     type dog {
@@ -5355,7 +5716,7 @@ test hmethod-3.2 {prefix/method collision} {} {
     set result
 } {Cannot redefine "wag", "wag" has submethods.}
 
-test hmethod-3.3 {prefix/method collision} {} {
+test emethod-3.3 {prefix/method collision} {} {
     cleanup
 
     type dog {
@@ -5371,7 +5732,7 @@ test hmethod-3.3 {prefix/method collision} {} {
     set result
 } {Cannot define "wag tail proudly", "wag tail" has no submethods.}
 
-test hmethod-3.4 {prefix/method collision} {} {
+test emethod-3.4 {prefix/method collision} {} {
     cleanup
 
     type dog {
