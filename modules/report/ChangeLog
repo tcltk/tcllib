@@ -1,3 +1,8 @@
+2002-03-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* report.n: 
+	* report.man: Corrected example for "captionedtable".
+
 2002-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* report.man: Added example of formatting a matrix using tabular
