@@ -23,10 +23,9 @@ a list of key/value pairs suitable for [cmd "array set"] containing
 the constituents of the [arg url]. If the scheme is missing from the
 url it defaults to [strong http]. Currently only the schemes
 
-[strong http], [strong ftp], [strong mailto], [strong urn] and
-
-[strong file] are supported. See section [strong EXTENDING] on how to
-expand that range.
+[strong http], [strong ftp], [strong mailto], [strong urn], [strong news],
+and [strong file] are supported. See section [strong EXTENDING]
+on how to expand that range.
 
 
 [call [cmd uri::join] [opt "[arg key] [arg value]"]...]
@@ -35,8 +34,8 @@ expand that range.
 
 [cmd uri::split], for example) and returns the canonical url they
 represent. Currently only the schemes [strong http], [strong ftp],
-[strong mailto], [strong urn] and [strong file] are supported. See
-section [strong EXTENDING] on how to expand that range.
+[strong mailto], [strong urn], [strong news], and [strong file] are
+supported. See section [strong EXTENDING] on how to expand that range.
 
 
 [call [cmd uri::resolve] [arg base] [arg url]]
@@ -143,5 +142,6 @@ and  [cmd "Join[lb]string totitle <scheme>[rb]"] respectively.
 Original code by Andreas Kupries.
 Modularisation by Steve Ball.
 
-[keywords uri url {fetching information} www http ftp mailto gopher wais prospero file]
+[keywords uri url {fetching information} www http ftp mailto news gopher wais prospero file] 
+
 [manpage_end]
