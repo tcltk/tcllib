@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 0.84]
+[manpage_begin snit n 0.9]
 [copyright {2003, by William H. Duquette}]
 [moddesc {Snit}]
 [titledesc   {Snit's Not Incr Tcl}]
 [require Tcl 8.3]
-[require snit [opt 0.84]]
+[require snit [opt 0.9]]
 [description]
 [para]
 
@@ -548,9 +548,14 @@ Although they are not implicitly defined for procs, the argument names
 avoided.
 
 
-[call [cmd delegate] [const method] [arg name] [const to] [arg comp] [opt "[const as] [arg {compmethod compargs...}]"]]
+[call [cmd delegate] [const method] [arg name] [const to] [arg comp]]
+[call [cmd delegate] [const method] [arg name] [const to] [arg comp] [const as] [arg target]]
+[call [cmd delegate] [const method] [const *] [const to] [arg comp]]
+[call [cmd delegate] [const method] [const *] [const to] [arg comp] [const except] [arg exceptions]]
 
-Defines a delegated instance method.  When instance method [arg name]
+
+Delegates one or more instance methods to a component of
+the object. When instance method [arg name]
 is used with an instance of this type, it will automatically be
 delegated to the named component as though the method were defined as
 follows:
@@ -563,31 +568,27 @@ follows:
 }]
 [nl]
 
-If desired, the delegated method may target a method with a different
-name by using the [const as] clause; it may also add arguments to the
-beginning of the argument list.  In that case, it's as though the
-delegated method were defined as follows:
+If desired, the delegated method may [arg target] a method with a
+different name by using the [const as] clause; the [arg target] may
+also include arguments add to the beginning of the argument list.
 
 [nl]
-[example {
-    method name {args...} {
-        $comp compmethod \
-            compargs...  args...
-    }
-}]
-[nl]
 
-If the specified method [arg name] is [const *], then all unknown
-method names passed to the instance will be passed along to the
-specified [arg comp].  In this case, the [const as] clause is not
-allowed.
+The form "delegate method *" delegates all unknown method names to the
+specified [arg comp]onent.  The [const except] clause can be used to
+specify a list of [arg exceptions], i.e., method names that will not
+be so delegated.
 
 [nl]
 
 A method cannot be both locally defined and delegated.
 
 
-[call [cmd delegate] [const option] [arg namespec] [const to] [arg comp] [opt "[const as] [arg compoption]"]]
+[call [cmd delegate] [const option] [arg namespec] [const to] [arg comp]]
+[call [cmd delegate] [const option] [arg namespec] [const to] [arg comp] [const as] [arg target]]
+
+[call [cmd delegate] [const option] [const *] [const to] [arg comp]]
+[call [cmd delegate] [const option] [const *] [const to] [arg comp] [const except] [arg exceptions]]
 
 Defines a delegated option; the [arg namespec] is defined as for the
 [cmd option] statement.
@@ -602,22 +603,33 @@ handlers were defined, where [arg name] is the option name from the
 [nl]
 [example {
     onconfigure name {value} {
-        $comp configure compoption $value
+        $comp configure name $value
     }
 
     oncget name {
-        return [$comp cget compoption]
+        return [$comp cget name]
     }
 }]
 [nl]
 
-If the [const as] clause is omitted, the [arg compoption] name is the
-same as [arg name].
+If the [const as] clause is specified, then the [arg target] option
+name is used in place of [arg name].
+
+[nl]
+
+The form "delegate option *" delegates all unknown method names to the
+specified [arg comp].  The [const except] clause can be used to
+specify a list of [arg exceptions], i.e., option names that will not
+be so delegated.
 
 [nl]
 
 Warning: options can only be delegated to a component if it supports
 the [method configure] and [method cget] instance methods.
+
+[nl]
+
+Note that an option cannot be both locally defined and delegated.
 
 [list_end]
 
