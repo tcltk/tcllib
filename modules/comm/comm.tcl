@@ -6,6 +6,7 @@
 # Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
 # (Please see the file "comm.LICENSE" that accompanied this source,
 #  or http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html)
+# Copyright (c) 2003 ActiveState Corporation
 #
 # This is the 'comm' package written by Jon Robert LoVerso, placed
 # into its own namespace during integration into tcllib.
@@ -21,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.9 2003/05/08 21:38:21 hobbs Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.10 2003/05/10 01:32:09 hobbs Exp $
 
 package require Tcl 8.2
 
@@ -38,6 +39,7 @@ namespace eval ::comm {
 	    connected,hook 1
 	    incoming,hook 1
 	    eval,hook 1
+	    callback,hook 1
 	    reply,hook 1
 	    lost,hook 1
 	    offerVers {3 2}
@@ -53,10 +55,9 @@ namespace eval ::comm {
     }
 
     # Class variables:
-    #	lastport		saves last default listening port allocated 
+    #	lastport		saves last default listening port allocated
     #	debug			enable debug output
     #	chans			list of allocated channels
-    #	$meth,method		body of method
     #
     # Channel instance variables:
     # comm()
@@ -72,36 +73,9 @@ namespace eval ::comm {
     #	$ch,vers,$id		negotiated protocol version for id
     #	$ch,pending,$id		list of outstanding send serial numbers for id
     #
-    #	$ch,buf,$fid		buffer to collect incoming data		
+    #	$ch,buf,$fid		buffer to collect incoming data
     #	$ch,result,$serial	result value set here to wake up sender
     #	$ch,return,$serial	return codes to go along with result
-
-    # Special initialization, defines the method 'method' to be used
-    # for the definition of new methods (sic!). The code is executed
-    # in the scope of the procedure '::comm::comm''. This means that
-    # they have only access to the 'args' argument and the 'chan'
-    # variable. This includes 'method' itself.
-
-    # Create the methods on comm
-    # Perhaps this shouldn't store them as procs?
-
-    set comm(method,method) {
-	# args[0]      = name of method
-	# args[1..end] = body of method
-
-	if {[llength $args] == 1} {
-	    # No body given, call is query for body.
-	    if [info exists comm([lindex $args 0],method)] {
-		return $comm([lindex $args 0],method)
-	    } else {
-		error "No such method"
-	    }
-	}
-	# Define new method.
-	eval [linsert [lrange $args 1 end] 0 \
-		set [list comm([lindex $args 0],method)]]
-	#eval set [list comm([lindex $args 0],method)] [lrange $args 1 end]
-    }
 
     if {0} {
 	# Propogate result, code, and errorCode.  Can't just eval
@@ -127,15 +101,13 @@ namespace eval ::comm {
 proc ::comm::comm_send {} {
     proc send {args} {
 	# Use pure lists to speed this up.
-	eval [linsert $args 0 ::comm::comm send]
-	#eval comm send $args
+	uplevel 1 [linsert $args 0 ::comm::comm send]
     }
     rename winfo tk_winfo
     proc winfo {cmd args} {
 	if {![string match in* $cmd]} {
 	    # Use pure lists to speed this up ...
-	    return [eval [linsert $args 0 tk_winfo $cmd]]
-	    #return [eval [list tk_winfo $cmd] $args]
+	    return [uplevel 1 [linsert $args 0 tk_winfo $cmd]]
 	}
 	return [::comm::comm interps]
     }
@@ -156,83 +128,239 @@ proc ::comm::comm_send {} {
 #	As of the invoked method.
 
 proc ::comm::comm {cmd args} {
-    variable comm
-    set chan ::comm::comm ; # chan is used in the code of the declared methods.
-
-    set method [array names comm $cmd*,method]	;# min unique
+    set method [info commands ::comm::comm_cmd_$cmd*]
 
     if {[llength $method] == 1} {
-	return [eval $comm($method)]
+	set chan ::comm::comm; # passed to methods
+	return [uplevel 1 [linsert $args 0 $method $chan]]
     } else {
-	foreach c [array names comm *,method] {
-	    lappend cmds [lindex [split $c ,] 0]
+	foreach c [info commands ::comm::comm_cmd_*] {
+	    # remove ::comm::comm_cmd_
+	    lappend cmds [string range $c 17 end]
 	}
-        error "bad subcommand \"$cmd\": should be [join [lsort $cmds] ", "]"
+        return -code error "unknown subcommand \"$cmd\":\
+		must be one of [join [lsort $cmds] {, }]"
     }
 }
 
-::comm::comm method connect {
-    #eval commConnect $args
-    eval [linsert $args 0 commConnect]
+proc ::comm::comm_cmd_connect {chan args} {
+    uplevel 1 [linsert $args 0 [namespace current]::commConnect $chan]
 }
-::comm::comm method self {
-    set comm($chan,port)
+proc ::comm::comm_cmd_self {chan args} {
+    variable comm
+    return $comm($chan,port)
 }
-::comm::comm method channels {
-    set comm(chans)
+proc ::comm::comm_cmd_channels {chan args} {
+    variable comm
+    return $comm(chans)
 }
-::comm::comm method new	{
-    #eval commNew $args
-    eval [linsert $args 0 commNew]
+proc ::comm::comm_cmd_configure {chan args} {
+    uplevel 1 [linsert $args 0 [namespace current]::commConfigure $chan 0]
 }
-::comm::comm method configure {
-    #eval commConfigure 0 $args
-    eval [linsert $args 0 commConfigure 0]
-}
-::comm::comm method shutdown {
-    eval commShutdown $args
-    #eval commShutdown $args
-}
-::comm::comm method abort {
-    eval [linsert $args 0 commAbort]
-    #eval commAbort $args
-}
-::comm::comm method destroy {
-    eval [linsert $args 0 commDestroy]
-    #eval commDestroy $args
-}
-::comm::comm method hook {
-    eval [linsert $args 0 commHook]
-    #eval commHook $args
-}
-::comm::comm method ids {
+proc ::comm::comm_cmd_ids {chan args} {
+    variable comm
     set res $comm($chan,port)
     foreach {i id} [array get comm $chan,fids,*] {lappend res $id}
-    set res
+    return $res
 }
-::comm::comm method interps \
-	[::comm::comm method ids]
-::comm::comm method remoteid {
+interp alias {} ::comm::comm_cmd_interps {} ::comm::comm_cmd_ids
+proc ::comm::comm_cmd_remoteid {chan args} {
+    variable comm
     if {[info exists comm($chan,remoteid)]} {
 	set comm($chan,remoteid)
     } else {
-	error "No remote commands processed yet"
+	return -code error "No remote commands processed yet"
     }
 }
-::comm::comm method debug {
-    set comm(debug) \
-	    [switch -exact -- $args on - 1 {subst 1} default {subst 0}]
+proc ::comm::comm_cmd_debug {chan bool} {
+    variable comm
+    return [set comm(debug) [string is true -strict $bool]]
 }
-::comm::comm method init {
-    error "This method is no longer supported"
+
+# hook --
+#
+#	Internal command. Implements 'comm hook'.
+#
+# Arguments:
+#	hook	hook to modify
+#	script	Script to add/remove to/from the hook
+#
+# Results:
+#	None.
+#
+proc ::comm::comm_cmd_hook {chan hook {script +}} {
+    variable comm
+    if {![info exists comm($hook,hook)]} {
+	return -code error "Unknown hook invoked"
+    }
+    if {!$comm($hook,hook)} {
+	return -code error "Unimplemented hook invoked"
+    }
+    if {[string equal + $script]} {
+	if {[catch {set comm($chan,hook,$hook)} ret]} {
+	    return
+	}
+	return $ret
+    }
+    if {[string match +* $script]} {
+	append comm($chan,hook,$hook) \n [string range $script 1 end]
+    } else {
+	set comm($chan,hook,$hook) $script
+    }
+    return
 }
-::comm::comm method send {
+
+# abort --
+#
+#	Close down all peer connections.
+#	Implements the 'comm abort' method.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::comm::comm_cmd_abort {chan} {
+    variable comm
+
+    foreach pid [array names comm $chan,peers,*] {
+	commLostConn $chan $comm($pid) "Connection aborted by request"
+    }
+}
+
+# destroy --
+#
+#	Destroy the channel invoking it.
+#	Implements the 'comm destroy' method.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+#
+proc ::comm::comm_cmd_destroy {chan} {
+    variable comm
+    catch {close $comm($chan,socket)}
+    comm_cmd_abort $chan
+    catch {unset comm($chan,port)}
+    catch {unset comm($chan,local)}
+    catch {unset comm($chan,socket)}
+    unset comm($chan,serial)
+    set pos [lsearch -exact $comm(chans) $chan]
+    set comm(chans) [lreplace $comm(chans) $pos $pos]
+    if {![string equal ::comm::comm $chan]} {
+	rename $chan {}
+    }
+}
+
+# shutdown --
+#
+#	Close down a peer connection.
+#	Implements the 'comm shutdown' method.
+#
+# Arguments:
+#	id	Reference to the remote interp
+#
+# Results:
+#	None.
+#
+proc ::comm::comm_cmd_shutdown {chan id} {
+    variable comm
+
+    if {[info exists comm($chan,peers,$id)]} {
+	commLostConn $chan $comm($chan,peers,$id) \
+	    "Connection shutdown by request"
+    }
+}
+
+# new --
+#
+#	Create a new comm channel/instance.
+#	Implements the 'comm new' method.
+#
+# Arguments:
+#	ch	Name of the new channel
+#	args	Configuration, in the form of -option value pairs.
+#
+# Results:
+#	None.
+#
+proc ::comm::comm_cmd_new {chan ch args} {
+    variable comm
+
+    if {[lsearch -exact $comm(chans) $ch] >= 0} {
+	return -code error "Already existing channel: $ch"
+    }
+    if {([llength $args] % 2) != 0} {
+	return -code error "Must have an even number of config arguments"
+    }
+    if {[string equal ::comm::comm $ch]} {
+	# allow comm to be recreated after destroy
+    } elseif {[string equal $ch [info proc $ch]]} {
+	return -code error "Already existing command: $ch"
+    } else {
+	# this is ::comm::comm, but done this way to allow precompilation
+	proc $ch {cmd args} {
+	    set method [info commands ::comm::comm_cmd_$cmd*]
+
+	    if {[llength $method] == 1} {
+		# this should work right even if aliased
+		set chan [namespace tail [lindex [info level 0] 0]]
+		return [uplevel 1 [linsert $args 0 $method $chan]]
+	    } else {
+		foreach c [info commands ::comm::comm_cmd_*] {
+		    # remove ::comm::comm_cmd_
+		    lappend cmds [string range $c 17 end]
+		}
+		return -code error "unknown subcommand \"$cmd\":\
+			must be one of [join [lsort $cmds] {, }]"
+	    }
+	}
+    }
+    lappend comm(chans) $ch
+    set chan $ch
+    set comm($chan,serial) 0
+    set comm($chan,chan)   $chan
+    set comm($chan,port)   0
+    set comm($chan,listen) 0
+    set comm($chan,socket) ""
+    set comm($chan,local)  1
+
+    if {[llength $args] > 0} {
+	if {[catch [linsert $args 0 commConfigure $chan 1] err]} {
+	    comm_cmd_destroy $chan
+	    return -code error $err
+	}
+    }
+}
+
+# send --
+#
+#	Send command to a specified channel.
+#	Implements the 'comm send' method.
+#
+# Arguments:
+#	args	see inside
+#
+# Results:
+#	varies.
+#
+proc ::comm::comm_cmd_send {chan args} {
+    variable comm
+
     set cmd send
 
-    # args = ?-async? id cmd ?arg arg ...?
+    # args = ?-async | -command command? id cmd ?arg arg ...?
     set i 0
-    if {[string equal -async [lindex $args $i]]} {
+    set opt [lindex $args $i]
+    if {[string equal -async $opt]} {
 	set cmd async
+	incr i
+    } elseif {[string equal -command $opt]} {
+	set cmd command
+	set callback [lindex $args [incr i]]
 	incr i
     }
     # args = id cmd ?arg arg ...?
@@ -248,7 +376,7 @@ proc ::comm::comm {cmd args} {
 	return -code error \
 		"wrong # args: should be \"send ?-async? id arg ?arg ...?\""
     }
-    if {[catch {commConnect $id} fid]} {
+    if {[catch {commConnect $chan $id} fid]} {
 	return -code error "Connect to remote failed: $fid"
     }
 
@@ -264,7 +392,13 @@ proc ::comm::comm {cmd args} {
 
     # wait for reply if so requested
 
-    if {[string equal send $cmd]} {
+    if {[string equal command $cmd]} {
+	# In this case, don't wait on the command result.  Set the callback
+	# in the return and that will be invoked by the result.
+	lappend comm($chan,pending,$id) [list $ser callback]
+	set comm($chan,return,$ser) $callback
+	return $ser
+    } elseif {[string equal send $cmd]} {
 	upvar 0 comm($chan,pending,$id) pending	;# shorter variable name
 
 	lappend pending $ser
@@ -315,83 +449,10 @@ proc ::comm::comm {cmd args} {
 # Results:
 #	None.
 
-proc ::comm::commDebug {arg} {
+proc ::comm::commDebug {cmd} {
     variable comm
     if {$comm(debug)} {
-	uplevel 1 $arg
-    }
-}
-
-# ::comm::commNew --
-#
-#	Internal command. Create a new comm channel/instance.
-#	Implements the 'comm new' method.
-#
-# Arguments:
-#	ch	Name of the new channel
-#	args	Configuration, in the form of -option value pairs.
-#
-# Results:
-#	None.
-
-proc ::comm::commNew {ch args} {
-    variable comm
-
-    if {[lsearch -exact $comm(chans) $ch] >= 0} {
-	error "Already existing channel: $ch"
-    }
-    if {([llength $args] % 2) != 0} {
-	error "Must have an even number of config arguments"
-    }
-    if {[string equal ::comm::comm $ch]} {
-	# allow comm to be recreated after destroy
-    } elseif {[string equal $ch [info proc $ch]]} {
-	error "Already existing command: $ch"
-    } else {
-	regsub  "set chan \[^\n\]*\n" [info body ::comm::comm] \
-		"set chan $ch\n" nbody
-	proc $ch {cmd args} $nbody
-    }
-    lappend comm(chans) $ch
-    set chan $ch
-    set comm($chan,serial) 0
-    set comm($chan,chan) $chan
-    set comm($chan,port) 0
-    set comm($chan,listen) 0
-    set comm($chan,socket) ""
-    set comm($chan,local) 1
-
-    if {[llength $args] > 0} {
-	eval [linsert $args 0 commConfigure 1]
-	#eval commConfigure 1 $args
-    }
-    # XXX need to destroy chan if config failed
-}
-
-# ::comm::commDestroy --
-#
-#	Internal command. Destroy the channel invoking it.
-#	Implements the 'comm destroy' method.
-#
-# Arguments:
-#	None.
-#
-# Results:
-#	None.
-
-proc ::comm::commDestroy {} {
-    upvar chan chan
-    variable comm
-    catch {close $comm($chan,socket)}
-    commAbort
-    catch {unset comm($chan,port)}
-    catch {unset comm($chan,local)}
-    catch {unset comm($chan,socket)}
-    unset comm($chan,serial)
-    set pos [lsearch -exact $comm(chans) $chan]
-    set comm(chans) [lreplace $comm(chans) $pos $pos]
-    if {![string equal ::comm::comm $chan]} {
-	rename $chan {}
+	uplevel 1 $cmd
     }
 }
 
@@ -432,25 +493,20 @@ proc ::comm::commConfVars {v t} {
 # Results:
 #	None.
 
-proc ::comm::commConfigure {{force 0} args} {
-    upvar chan chan
+proc ::comm::commConfigure {chan {force 0} args} {
     variable comm
 
     # query
-    switch [llength $args] {
-	0 {
-	    foreach v $comm(vars) {lappend res -$v $comm($chan,$v)}
-	    return $res
+    if {[llength $args] == 0} {
+	foreach v $comm(vars) {lappend res -$v $comm($chan,$v)}
+	return $res
+    } elseif {[llength $args] == 1} {
+	set arg [lindex $args 0]
+	set var [string range $arg 1 end]
+	if {![string match -* $arg] || ![info exists comm($var,var)]} {
+	    return -code error "Unknown configuration option: $arg"
 	}
-	1 {
-	    set arg [lindex $args 0]
-	    set var [string range $arg 1 end]
-	    if {[string match -* $arg] && [info exists comm($var,var)]} {
-		return $comm($chan,$var)
-	    } else {
-		error "Unknown configuration option: $arg"
-	    }
-	}
+	return $comm($chan,$var)
     }
 
     # set
@@ -460,13 +516,13 @@ proc ::comm::commConfigure {{force 0} args} {
 	if {[info exists skip]} {unset skip; continue}
 	set var [string range $arg 1 end]
 	if {![string match -* $arg] || ![info exists comm($var,var)]} {
-	    error "Unknown configuration option: $arg"
+	    return -code error "Unknown configuration option: $arg"
 	}
 	set optval [lindex $args $opt]
 	switch $comm($var,var) {
 	    b {
 		# FRINK: nocheck
-		set $var [commBool $optval]
+		set $var [string is true -strict $optval]
 		set skip 1
 	    }
 	    v {
@@ -479,7 +535,8 @@ proc ::comm::commConfigure {{force 0} args} {
 		    ![string equal $optval ""] &&
 		    ![string is integer $optval]
 		} {
-		    error "Non-port to configuration option: -$var"
+		    return -code error \
+			"Non-port to configuration option: -$var"
 		}
 		# FRINK: nocheck
 		set $var $optval
@@ -487,17 +544,18 @@ proc ::comm::commConfigure {{force 0} args} {
 	    }
 	    i {
 		if {![string is integer $optval]} {
-		    error "Non-integer to configuration option: -$var"
+		    return -code error \
+			"Non-integer to configuration option: -$var"
 		}
 		# FRINK: nocheck
 		set $var $optval
 		set skip 1
 	    }
-	    ro { error "Readonly configuration option: -$var" }
+	    ro { return -code error "Readonly configuration option: -$var" }
 	}
     }
     if {[info exists skip]} {
-	error "Missing value for option: $arg"
+	return -code error "Missing value for option: $arg"
     }
 
     foreach var {port listen local} {
@@ -514,7 +572,7 @@ proc ::comm::commConfigure {{force 0} args} {
 
     # User is recycling object, possibly to change from local to !local
     if {[info exists comm($chan,socket)]} {
-	commAbort
+	comm_cmd_abort $chan
 	catch {close $comm($chan,socket)}
 	unset comm($chan,socket)
     }
@@ -530,7 +588,7 @@ proc ::comm::commConfigure {{force 0} args} {
     } else {
 	set userport 1
 	set nport $comm($chan,port)
-    } 
+    }
     while {1} {
 	set cmd [list socket -server [list ::comm::commIncoming $chan]]
 	if {$comm($chan,local)} {
@@ -545,7 +603,7 @@ proc ::comm::commConfigure {{force 0} args} {
 	    if {![string equal ::comm::comm $chan]} {
 		rename $chan {}
 	    }
-	    error $ret
+	    return -code error $ret
 	}
 	set nport [incr comm(lastport)]
     }
@@ -554,21 +612,6 @@ proc ::comm::commConfigure {{force 0} args} {
     # If port was 0, system allocated it for us
     set comm($chan,port) [lindex [fconfigure $ret -sockname] 2]
     return ""
-}
-
-# ::comm::commBool --
-#
-#	Internal command. Used by commConfigure to process boolean values.
-#
-# Arguments:
-#	b	Value to process.
-#
-# Results:
-#	bool	0 - false, 1 - true
-
-proc ::comm::commBool {b} {
-    switch -glob -- $b 0 - {[fF]*} - {[oO][fF]*} {return 0}
-    return 1
 }
 
 # ::comm::commConnect --
@@ -584,8 +627,7 @@ proc ::comm::commBool {b} {
 # Results:
 #	fid	channel handle of the socket the connection goes through.
 
-proc ::comm::commConnect {id} {
-    upvar chan chan
+proc ::comm::commConnect {chan id} {
     variable comm
 
     commDebug {puts stderr "commConnect $id"}
@@ -599,7 +641,7 @@ proc ::comm::commConnect {id} {
 	return $comm($chan,peers,$id)
     }
     if {[lindex $id 0] == 0} {
-	error "Remote comm is anonymous; cannot connect"
+	return -code error "Remote comm is anonymous; cannot connect"
     }
 
     if {[llength $id] > 1} {
@@ -621,7 +663,7 @@ proc ::comm::commConnect {id} {
     }
 
     # commit new connection
-    commNewConn $id $fid
+    commNewConn $chan $id $fid
 
     # send offered protocols versions and id to identify ourselves to remote
     puts $fid [list $comm(offerVers) $comm($chan,port)]
@@ -695,8 +737,8 @@ proc ::comm::commIncoming {chan fid addr remport} {
 	puts stderr "peers=$comm($chan,peers,$id) port=$comm($chan,port)"
 
 	# To avoid the race, we really want to terminate one connection.
-	# However, both sides are commited to using it.  commConnect
-	# needs to be sychronous and detect the close.
+	# However, both sides are commited to using it.
+	# commConnect needs to be sychronous and detect the close.
 	# close $fid
 	# return $comm($chan,peers,$id)
     }
@@ -715,7 +757,7 @@ proc ::comm::commIncoming {chan fid addr remport} {
     }
 
     # commit new connection
-    commNewConn $id $fid
+    commNewConn $chan $id $fid
     set comm($chan,vers,$id) $vers
 }
 
@@ -730,8 +772,7 @@ proc ::comm::commIncoming {chan fid addr remport} {
 # Results:
 #	None.
 
-proc ::comm::commNewConn {id fid} {
-    upvar chan chan
+proc ::comm::commNewConn {chan id fid} {
     variable comm
 
     commDebug {puts stderr "commNewConn $id $fid"}
@@ -752,46 +793,6 @@ proc ::comm::commNewConn {id fid} {
     fileevent $fid readable [list ::comm::commCollect $chan $fid]
 }
 
-# ::comm::commShutdown --
-#
-#	Internal command. Close down a peer connection.
-#	Implements the 'comm shutdown' method.
-#
-# Arguments:
-#	id	Reference to the remote interp
-#
-# Results:
-#	None.
-
-proc ::comm::commShutdown {id} {
-    upvar chan chan
-    variable comm
-
-    if {[info exists comm($chan,peers,$id)]} {
-	commLostConn $comm($chan,peers,$id) "Connection shutdown by request"
-    }
-}
-
-# ::comm::commAbort --
-#
-#	Internal command. Close down all peer connections.
-#	Implements the 'comm abort' method.
-#
-# Arguments:
-#	None.
-#
-# Results:
-#	None.
-
-proc ::comm::commAbort {} {
-    upvar chan chan
-    variable comm
-
-    foreach pid [array names comm $chan,peers,*] {
-	commLostConn $comm($pid) "Connection aborted by request"
-    }
-}
-
 # ::comm::commLostConn --
 #
 #	Internal command. Called to tidy up a lost connection,
@@ -805,10 +806,7 @@ proc ::comm::commAbort {} {
 # Results:
 #	reason
 
-proc ::comm::commLostConn {
-    fid {reason "target application died or connection lost"}
-} {
-    upvar chan chan
+proc ::comm::commLostConn {chan fid reason} {
     variable comm
 
     commDebug {puts stderr "commLostConn $fid $reason"}
@@ -818,8 +816,25 @@ proc ::comm::commLostConn {
     set id $comm($chan,fids,$fid)
 
     foreach s $comm($chan,pending,$id) {
-	set comm($chan,return,$s) {-code error}
-	set comm($chan,result,$s) $reason
+	if {[string equal "callback" [lindex $s end]]} {
+	    set ser [lindex $s 0]
+	    if {[info exists comm($chan,return,$ser)]} {
+		set args [list -id       $id \
+			      -serial    $ser \
+			      -chan      $chan \
+			      -code      -1 \
+			      -errorcode NONE \
+			      -errorinfo "" \
+			      -result    $reason \
+			     ]
+		if {[catch {uplevel #0 $comm($chan,return,$ser) $args} err]} {
+		    commBgerror $err
+		}
+	    }
+	} else {
+	    set comm($chan,return,$s) {-code error}
+	    set comm($chan,result,$s) $reason
+	}
     }
     unset comm($chan,pending,$id)
     unset comm($chan,fids,$fid)
@@ -832,40 +847,20 @@ proc ::comm::commLostConn {
     return $reason
 }
 
-###############################################################################
-
-# ::comm::commHook --
-#
-#	Internal command. Implements 'comm hook'.
-#
-# Arguments:
-#	hook	hook to modify
-#	script	Script to add/remove to/from the hook
-#
-# Results:
-#	None.
-
-proc ::comm::commHook {hook {script +}} {
-    upvar chan chan
-    variable comm
-    if {![info exists comm($hook,hook)]} {
-	error "Unknown hook invoked"
+proc ::comm::commBgerror {err} {
+    # SF Tcllib Patch #526499
+    # (See http://sourceforge.net/tracker/?func=detail&aid=526499&group_id=12883&atid=312883
+    #  for initial request and comments)
+    #
+    # Error in async call. Look for [bgerror] to report it. Same
+    # logic as in Tcl itself. Errors thrown by bgerror itself get
+    # reported to stderr.
+    if {[catch {bgerror $err} msg]} {
+	puts stderr "bgerror failed to handle background error."
+	puts stderr "    Original error: $err"
+	puts stderr "    Error in bgerror: $msg"
+	flush stderr
     }
-    if {!$comm($hook,hook)} {
-	error "Unimplemented hook invoked"
-    }
-    if {[string equal + $script]} {
-	if {[catch {set comm($chan,hook,$hook)} ret]} {
-	    return ""
-	}
-	return $ret
-    }
-    if {[string match +* $script]} {
-	append comm($chan,hook,$hook) \n [string range $script 1 end]
-    } else {
-	set comm($chan,hook,$hook) $script
-    }
-    return ""
 }
 
 ###############################################################################
@@ -888,9 +883,9 @@ proc ::comm::commCollect {chan fid} {
     upvar #0 comm($chan,buf,$fid) data
 
     # Tcl8 may return an error on read after a close
-    if {[catch {read $fid} nbuf] || [eof $fid]} { 
+    if {[catch {read $fid} nbuf] || [eof $fid]} {
 	fileevent $fid readable {}		;# be safe
-	commLostConn $fid
+	commLostConn $chan $fid "target application died or connection lost"
 	return
     }
     append data $nbuf
@@ -935,13 +930,12 @@ proc ::comm::commCollect {chan fid} {
 #	None.
 
 proc ::comm::commExec {chan fid remoteid buf} {
+    variable comm
 
     # buffer should contain:
     #	send # {cmd}		execute cmd and send reply with serial #
     #	async # {cmd}		execute cmd but send no reply
     #	reply # {cmd}		execute cmd as reply to serial #
-    
-    variable comm
 
     # these variables are documented in the hook interface
     set cmd [lindex $buf 0]
@@ -950,7 +944,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
     set buffer [lindex $buf 0]
 
     # Save remoteid for "comm remoteid".  This will only be valid
-    # if retrieved before any additional events occur # on this channel.   
+    # if retrieved before any additional events occur # on this channel.
     # N.B. we could have already lost the connection to remote, making
     # this id be purely informational!
     set comm($chan,remoteid) [set id $remoteid]
@@ -958,7 +952,58 @@ proc ::comm::commExec {chan fid remoteid buf} {
     commDebug {puts stderr "exec <$cmd,$ser,$buf>"}
 
     switch -- $cmd {
-	send - async {}
+	send - async - command {}
+	callback {
+	    if {![info exists comm($chan,return,$ser)]} {
+	        commDebug {puts stderr "No one waiting for serial \"$ser\""}
+		return
+	    }
+
+	    # Decompose reply command to assure it only uses "return"
+	    # with no side effects.
+
+	    array set return {-code "" -errorinfo "" -errorcode ""}
+	    set ret [lindex $buffer end]
+	    set len [llength $buffer]
+	    incr len -2
+	    foreach {sw val} [lrange $buffer 1 $len] {
+		if {![info exists return($sw)]} continue
+		set return($sw) $val
+	    }
+
+	    if {[info exists comm($chan,hook,callback)]} {
+		catch $comm($chan,hook,callback)
+	    }
+
+	    # this wakes up the sender
+	    commDebug {puts stderr "--<<wakeup $chan $ser>>--"}
+
+	    # the return holds the callback command
+	    # string map the optional %-subs
+	    set args [list -id       $id \
+			  -serial    $ser \
+			  -chan      $chan \
+			  -code      $return(-code) \
+			  -errorcode $return(-errorcode) \
+			  -errorinfo $return(-errorinfo) \
+			  -result    $ret \
+			 ]
+	    set code [catch {uplevel #0 $comm($chan,return,$ser) $args} err]
+	    catch {unset comm($chan,return,$ser)}
+
+	    # remove pending serial
+	    upvar 0 comm($chan,pending,$id) pending
+	    if {[info exists pending]} {
+		set pos [lsearch -exact $pending [list $ser callback]]
+		if {$pos != -1} {
+		    set pending [lreplace $pending $pos $pos]
+		}
+	    }
+	    if {$code} {
+		commBgerror $err
+	    }
+	    return
+	}
 	reply {
 	    if {![info exists comm($chan,return,$ser)]} {
 	        commDebug {puts stderr "No one waiting for serial \"$ser\""}
@@ -1018,51 +1063,35 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	# variables buffer and ret.  These cannot simply be global because
 	# commExec is reentrant (i.e., they could be linked to an allocated
 	# serial number).
-	set err [catch [concat uplevel #0 $buffer] ret]
+	set err [catch [concat [list uplevel #0] $buffer] ret]
     }
 
     commDebug {puts stderr "res <$err,$ret>"}
 
     # The double list assures that the command is a single list when read.
-    if {[string equal send $cmd]} {
+    if {[string equal send $cmd] || [string equal command $cmd]} {
 	# The catch here is just in case we lose the target.  Consider:
 	#	comm send $other comm send [comm self] exit
 	catch {
-	    set return return
+	    set return [list return -code $err]
 	    # send error or result
-	    switch $err {
-		0 {}
-		1 {
-		    global errorInfo errorCode
-		    lappend return -code $err \
-			    -errorinfo $errorInfo \
-			    -errorcode $errorCode
-		}
-		default { lappend return -code $err}
+	    if {$err == 1} {
+		global errorInfo errorCode
+		lappend return -errorinfo $errorInfo -errorcode $errorCode
 	    }
 	    lappend return $ret
-	    puts $fid [list [list reply $ser $return]]
+	    if {[string equal send $cmd]} {
+		set reply reply
+	    } else {
+		set reply callback
+	    }
+	    puts $fid [list [list $reply $ser $return]]
 	    flush $fid
 	}
     }
 
     if {$err == 1} {
-	# SF Tcllib Patch #526499
-	# (See http://sourceforge.net/tracker/?func=detail&aid=526499&group_id=12883&atid=312883
-	#  for initial request and comments)
-	#
-	# Error in async call. Look for [bgerror] to report it. Same
-	# logic as in Tcl itself. Errors thrown by bgerror itself get
-	# reported to stderr.
-
-	if {[catch {
-	    bgerror $ret
-	} msg]} {
-	    puts stderr "bgerror failed to handle background error."
-	    puts stderr "    Original error: $ret"
-	    puts stderr "    Error in bgerror: $msg"
-	    flush stderr
-	}
+	commBgerror $ret
     }
     return
 }
@@ -1076,7 +1105,7 @@ if {![info exists ::comm::comm(comm,port)]} {
     if {[string equal macintosh $tcl_platform(platform)]} {
 	::comm::comm new ::comm::comm -port 0 -local 0 -listen 1
 	set ::comm::comm(localhost) \
-		[lindex [fconfigure $::comm::comm(comm,socket) -sockname] 0]
+	    [lindex [fconfigure $::comm::comm(::comm::comm,socket) -sockname] 0]
 	::comm::comm config -local 1
     } else {
 	::comm::comm new ::comm::comm -port 0 -local 1 -listen 1
@@ -1084,4 +1113,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.0.1
+package provide comm 4.1

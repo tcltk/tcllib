@@ -1,9 +1,10 @@
-[manpage_begin comm n 4.0.1]
+[manpage_begin comm n 4.1]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
+[copyright {2003 ActiveState Corporation.}]
 [moddesc   {remote communication}]
 [titledesc {A remote communications facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.0.1]]
+[require comm [opt 4.1]]
 [description]
 
 [para]
@@ -44,11 +45,26 @@ The following four methods make up the basic [package comm] interface.
 
 [list_begin definitions]
 
-[call [cmd "::comm::comm send"] [opt -async] [arg id] [arg cmd] [opt "[arg "arg arg ..."]"]]
+[call [cmd "::comm::comm send"] [opt -async] [opt "-command [arg callback]"] [arg id] [arg cmd] [opt "[arg "arg arg ..."]"]]
 
-This invokes the given command in the interpreter named by [arg id].
-The command waits for the result and remote errors are returned unless
-the [option -async] option is given.
+This invokes the given command in the interpreter named by [arg id].  The
+command waits for the result and remote errors are returned unless the
+[option -async] or [option -command] option is given.  If [option -async]
+is given, send returns immediately and there is no further notification of
+result.  If [option -command] is used, [emph callback] specifies a command
+to invoke when the result is received.  These options are mutually
+exclusive.  The callback will receive arguments in the form
+[emph "-option value"], suitable for [cmd "array set"].
+The options are: [emph -id], the comm id of the interpreter that received
+the command; [emph -serial], a unique serial for each command sent to a
+particular comm interpreter; [emph -chan], the comm channel name;
+[emph -code], the result code of the command; [emph -errorcode], the
+errorcode, if any, of the command; [emph -errorinfo], the errorinfo, if
+any, of the command; and [emph -result], the return value of the command.
+If connection is lost before a reply is received, the callback will be
+invoked with a connection lost message with -code equal to -1.  When
+[option -command] is used, the command returns the unique serial for the
+command.
 
 [call [cmd "::comm::comm self"]]
 
@@ -515,6 +531,13 @@ Any of these may be the empty string.  Modifying these four variables
 can change the return value, whereas modifying [arg buffer] has no
 effect.
 
+[lst_item [const callback]]
+
+Variables:
+[arg "chan id buffer ret return()"]
+[nl]
+
+Similar to [emph reply], but used for callbacks.
 
 [lst_item [const lost]]
 
@@ -635,6 +658,11 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[lst_item "4.1"]
+
+Rewrite of internal code to remove old pseudo-object model.  Addition
+of send -command asynchronous callback option.
 
 [lst_item "4.0"]
 
