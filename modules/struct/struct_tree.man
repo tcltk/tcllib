@@ -1,6 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin tree n 2.0]
-[copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2002-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
 [require Tcl 8.2]
@@ -422,7 +422,7 @@ Remove a keyed value from the node [arg node]. The method will do
 nothing if the [arg key] does not exist.
 
 
-[call [arg treeName] [method walk] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [option -command] [arg cmd]]
+[call [arg treeName] [method walk] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [arg loopvar] [arg script]]
 
 Perform a breadth-first or depth-first walk of the tree starting at
 the node [arg node].  The type of walk, breadth-first or depth-first,
@@ -445,33 +445,26 @@ walking means that a parent node is visited before [emph and] after
 any of its children. In-order walking means that a parent node is
 visited after its first child and before the second. This is a
 generalization of in-order walking for binary trees and will do the
-right thing if a binary is walked. The combination of a breadth-first
+right thing if a binary tree is walked. The combination of a breadth-first
 walk with in-order is illegal.
 
 [nl]
 
-As the walk progresses, the command [arg cmd] will be evaluated at
-each node.  Percent substitution will be performed on [arg cmd] before
-evaluation, just as in a [cmd bind] script.  The following
-substitutions are recognized:
+As the walk progresses, the [arg script] will be evaluated at each
+node. The evaluation takes place in the context of the caller of the
+method.
 
-[list_begin definitions]
+Regarding loop variables, these are listed in [arg loopvar]. If one
+only one variable is specified it will be set to the id of the
+node. When two variables are specified, i.e. [arg loopvar] is a true
+list, then the first variable will be set to the action performed at
+the node, and the other to the id of the node itself.
 
-[lst_item [const %%]]
+All loop variables are created in the context of the caller.
 
-Insert the literal % character.
+[nl]
 
-[lst_item [const %t]]
-
-Name of the tree object.
-
-[lst_item [const %n]]
-
-Name of the current node.
-
-[lst_item [const %a]]
-
-Name of the action occurring; one of [const enter], [const leave],
+There are three possible actions: [const enter], [const leave],
 or [const visit].  [const enter] actions occur during pre-order
 walks; [const leave] actions occur during post-order walks;
 
@@ -480,7 +473,43 @@ walk, the command will be evaluated twice for each node; the action is
 [const enter] for the first evaluation, and [const leave] for the
 second.
 
-[list_end]
+[nl]
+
+[emph Note]: The [const enter] action for a node is always performed
+before the walker will look at the children of that node. This means
+that changes made by the [arg script] to the children of the node
+will immediately influence the walker and the steps it will take.
+
+[nl]
+
+Any other manipulation, for example of nodes higher in the tree (i.e
+already visited), or upon leaving will have undefined results. They
+may succeed, error out, silently compute the wrong result, or anything
+in between.
+
+[nl]
+
+At last a small table showing the relationship between the various
+options and the possible actions.
+
+[nl]
+[example {
+order       type    actions         notes
+-----       ----    -----           -----
+pre         dfs     enter           parent before children
+post        dfs     leave           parent after children
+in          dfs     visit           parent between first and second child.
+both        dfs     enter, leave    parent before and after children
+-----       ----    -----           -----
+pre         bfs     enter           parent before children
+post        bfs     leave           parent after children
+in          bfs             -- illegal --
+both        bfs     enter, leave    parent before and after children
+-----       ----    -----           -----
+}]
+
+
+
 [list_end]
 
 [section {Changes for 2.0}]
@@ -540,9 +569,37 @@ the transfer of tree objects over arbitrary channels and for easy
 persistence.
 
 
+[enum]
 
+The walker API has been streamlined and made more similar to the
+command [cmd foreach]. In detail:
+
+[list_begin bullet]
+
+[bullet]
+
+The superfluous option [option -command] has been removed.
+
+[bullet]
+
+Ditto for the place holders. Instead of the placeholders two loop
+variables have to be specified to contain node and action infromation.
+
+[bullet]
+
+The old command argument has been documented as a script now, which it
+was in the past too.
+
+[bullet]
+
+The fact that [const enter] actions are called before the walker looks
+at the children of a node has been documented now. In other words it
+is now officially allowed to manipulate the list of children for a
+node under [emph these] circumstances. It has been made clear that changes under any other circumstances will have undefined results, from silently computing the wrong result to erroring out.
+
+[list_end]
 [list_end]
 
 
-[keywords tree serialization]
+[keywords tree serialization node pre-order post-order in-order depth-first breadth-first]
 [manpage_end]
