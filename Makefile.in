@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.69 2002/04/16 18:22:38 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.70 2002/04/23 23:36:59 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -392,8 +392,9 @@ DOC_EXP=$(srcdir)/modules/doctools/mpexpand
 ## * DOC_FLAGS  additional flags, or empty
 ## * DOC_EXT	extension for the generated file
 ## * DOC_MODE   which set of manpages to convert. default to 'user'.
-##              other sets: all, dev
+##              other sets: all, dev, single
 ##              all = user + dev, dev = internal manpages for developers.
+##              single = file is explicitly specified (DOC_FILE)
 #
 # Internal target ...
 #
@@ -406,6 +407,8 @@ doc_generate:
 	    Xdev)   files=`ls $(srcdir)/modules/$$mod/*.dev.man 2>/dev/null` ; \
 		;; \
 	    Xall)   files=`ls $(srcdir)/modules/$$mod/*.man 2>/dev/null` ; \
+		;; \
+	    Xsingle) files=$$DOC_FILE ; \
 		;; \
             *)	echo ERROR, invalid mode $$DOC_MODE ; \
 		;; \

@@ -1,3 +1,8 @@
+2002-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* format.man: Added descriptions for all the commands performing
+	  semantic markup. This closes bug #527025.
+
 2002-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpexpand: Fixed error in checker of plain text.
