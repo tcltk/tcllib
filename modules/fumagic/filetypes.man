@@ -1,32 +1,36 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil n 1.7]
 [moddesc   {file utilities}]
-[titledesc {Procedures implementing mime-type recognition}]
+[titledesc {Procedures implementing file-type recognition}]
 [require Tcl 8.4]
-[require fileutil::magic::mime [opt 1.0]]
+[require fileutil::magic::file [opt 1.0]]
 [description]
 [para]
 
 This package provides a command for the recognition of file types in
-pure Tcl. The output is standardized to mime-types.
+pure Tcl.
 
 [para]
 
 The core part of the recognizer was generated from a "magic(5)" file
 containing the checks to perform to recognize files, and associated
-mime-types.
+file-types.
+
+[para]
+
+[emph Beware!] This recognizer is large, about 276 Kilobyte of
+generated Tcl code.
 
 [list_begin definitions]
 
-[call [cmd ::fileutil::magic::mime] [arg filename]]
+[call [cmd ::fileutil::magic::file] [arg filename]]
 
 This command is similar to the command [cmd fileutil::fileType].
 
 [nl]
 
-The output of the command for the specified file is not a list of
-attributes describing the type of the file, but a list of standard
-mime-types the file may have.
+The output of the command for the specified file is a string
+describing the type of the file.
 
 [nl]
 
@@ -47,5 +51,5 @@ generate this recognizer.
 [list_end]
 
 [see_also fileutil file(1) magic(5)]
-[keywords type mime {file utilities} {file type} {file recognition}]
+[keywords type {file utilities} {file type} {file recognition}]
 [manpage_end]
