@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: report.test,v 1.2 2001/08/20 20:35:12 andreas_kupries Exp $
+# RCS: @(#) $Id: report.test,v 1.3 2002/02/02 01:07:51 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -18,7 +18,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 package require report
 package require struct
 puts "report [package present report]"
-puts "- struct [package present struct]"
+puts "- struct  [package present struct]"
 
 namespace import ::report::report
 
@@ -73,6 +73,16 @@ test report-2.5 {style definition error} {
     set result
 } {Found argument without default after arguments having defaults}
 
+test report-2.6 {style definition error} {
+    catch {::report::defstyle foo {a {a b c}} {}} result
+    set result
+} {Illegal length of value "a b c"}
+
+test report-2.7 {style definition error} {
+    catch {::report::defstyle foo {a {}} {}} result
+    set result
+} {Illegal length of value ""}
+
 
 test report-3.0 {style deletion errors} {
     catch {::report::rmstyle} result
@@ -120,6 +130,15 @@ test report-4.4 {style introspection} {
 } {{a b} bar}
 
 test report-4.5 {style introspection} {
+    ::report::defstyle foo {a args} {bar}
+    set     result [list]
+    lappend result [::report::stylearguments foo]
+    lappend result [::report::stylebody      foo]
+    ::report::rmstyle foo
+    set result
+} {{a args} bar}
+
+test report-4.6 {style introspection} {
     set     result [list]
     lappend result [::report::stylearguments plain]
     lappend result [::report::stylebody      plain]
@@ -144,6 +163,32 @@ test report-4.5 {style introspection} {
     topcapsep enable
     tcaption $n
 }
+::report::defstyle bcaptionedtable {{n 1}} {
+    simpletable
+    topdata   set [data get]
+    topcapsep set [top  get]
+    topcapsep enable
+    tcaption $n
+    botdata   set [data   get]
+    botcapsep set [bottom get]
+    botcapsep enable
+    bcaption $n
+}
+::report::defstyle bdcaptionedtable {{n 1}} {
+    simpletable
+    topdata    set [data get]
+    topcapsep  set [top  get]
+    topdatasep set [top  get]
+    topcapsep  enable
+    topdatasep enable
+    tcaption $n
+    botdata    set [data   get]
+    botcapsep  set [bottom get]
+    botdatasep set [top  get]
+    botcapsep  enable
+    botdatasep enable
+    bcaption $n
+}
 
 # ---------------------------------------------------------------------
 
@@ -153,11 +198,16 @@ test report-5.0 {style application errors} {
 } {wrong # args: report name columns ?"style" styleName ?arg...??}
 
 test report-5.1 {style application errors} {
+    catch {report myreport 3 blarg foo ...} result
+    set result
+} {wrong # args: report name columns ?"style" styleName ?arg...??}
+
+test report-5.2 {style application errors} {
     catch {report myreport 3 style foo} result
     set result
 } {style "foo" is not known}
 
-test report-5.2 {style application errors} {
+test report-5.3 {style application errors} {
     ::report::defstyle foo {a b} {}
     catch {report myreport 3 style foo} result
     ::report::rmstyle foo
@@ -166,14 +216,14 @@ test report-5.2 {style application errors} {
 
 # [tcltest::getErrorMessage "foo" "a b" 0]
 
-test report-5.3 {style application errors} {
+test report-5.4 {style application errors} {
     ::report::defstyle foo {a b} {}
     catch {report myreport 5 style foo a b c d e} result
     ::report::rmstyle foo
     set result
 } {called style "foo" with too many arguments}
 
-test report-5.4 {style application} {
+test report-5.5 {style application} {
     report myreport 3 style simpletable
 
     set     result [list]
@@ -188,6 +238,26 @@ test report-5.4 {style application} {
     myreport destroy
     set result
 } {{| | | |} {+ - + - + - +} {+ - + - + - +} {{} {} {} {} {} {} {}} 1 1 0}
+
+test report-5.6 {style application} {
+
+    set result [list]
+    ::report::defstyle foo {a b args} {
+	# Hack to transfer information out of the safe interp to the
+	# test environment.
+	botcapsep set [list $a $b $args]
+    }
+    report mr 1 style foo A B       ; lappend result [mr botcapsep get]
+    mr destroy
+    report mr 1 style foo A B C     ; lappend result [mr botcapsep get]
+    mr destroy
+    report mr 1 style foo A B C D E ; lappend result [mr botcapsep get]
+    mr destroy
+    ::report::rmstyle foo
+
+    set result
+} {{A B {}} {A B C} {A B {C D E}}}
+
 
 # reports .............................................................
 
@@ -255,9 +325,11 @@ foreach {n m} {
 	lappend result [myreport $m]
 	myreport $m 0
 	lappend result [myreport $m]
+	myreport $m 0
+	lappend result [myreport $m]
 	myreport destroy
 	set result
-    } {0 5 0}
+    } {0 5 0 0}
 
     test report-$n.1 {captions} {
 	report myreport 3
@@ -338,6 +410,17 @@ test report-10.8 {column sizes} {
     myreport destroy
     set result
 } {dyn 5}
+
+test report-10.9 {column sizes} {
+    report myreport 3
+    set result [myreport size 0]
+    myreport size 0 5
+    lappend result [myreport size 0]
+    myreport size 0 dyn
+    lappend result [myreport size 0]
+    myreport destroy
+    set result
+} {dyn 5 dyn}
 
 
 test report-11.0 {column sizes} {
@@ -849,6 +932,54 @@ test report-27.7 {formatting} {
 -+------+------------------------+---------+---------+-------+-
 }
 
+test report-27.7.1 {formatting} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        68      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row {005 {IF elseif true numeric}    15      47    31.91}
+
+    report myreport 5 ; # plain
+    myreport top       set  {-+ -/ + -/ + -/ + -/ + -/ +-}
+    myreport topdata   set {{ |}   |    |    |    |   {| }}
+    myreport topcapsep set  {=+ *= + *= + *= + *= + *= +=}
+    myreport data      set {{ |}   |    |    |    |   {| }}
+    myreport bottom    set  {-+ -  + -  + -  + -  + -  +-}
+    myreport top       enable
+    myreport topcapsep enable
+    myreport bottom    enable
+    myreport tcaption 1
+    myreport sizes {2 5 7 7 5}
+    myreport pad     0 right
+    myreport pad     1 both
+    myreport pad     2 both
+    myreport pad     3 both
+    myreport pad     4 both
+    myreport justify 0 center
+    myreport justify 1 right
+    myreport justify 2 right
+    myreport justify 3 right
+    myreport justify 3 right
+
+    set result [myreport printmatrix mymatrix]
+    myreport destroy
+    mymatrix destroy
+
+    set result
+} {-+-/-+-/-/-/-+-/-/-/-/-+-/-/-/-/-+-/-/-/-+-
+ |00 | VERSI | 2:8.4a3 | 1:8.4a3 | .4a3% | 
+=+*=*+*=*=*=*+*=*=*=*=*+*=*=*=*=*+*=*=*=*+=
+ |00 | CATCH |       7 |      13 | 53.85 | 
+ |00 | CATCH |      68 |      91 | 74.73 | 
+ |00 | CATCH |       7 |      14 | 50.00 | 
+ |00 | IF if |      12 |      33 | 36.36 | 
+ |00 | IF el |      15 |      47 | 31.91 | 
+-+---+-------+---------+---------+-------+-
+}
+
 test report-27.8 {formatting, rowheight > 1} {
     ::struct::matrix mymatrix
     mymatrix add columns 5
@@ -1103,5 +1234,116 @@ true numeric}    15      47    31.91}
 |005|IF elseif          |15     |47     |31.91   |
 |   |true numeric       |       |       |        |
 +---+-------------------+-------+-------+--------+}
+
+
+
+test report-28.10 {formatting, rowheight > 1} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        68      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row {005 {IF elseif
+true numeric}    15      47    31.91}
+
+    set f [open rep5 w]
+    report myreport 5 style captionedtable 2
+    myreport printmatrix2channel mymatrix $f
+    myreport destroy
+    mymatrix destroy
+    close $f
+
+    ::tcltest::viewFile rep5
+} {+---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|001|CATCH return ok    |7      |13     |53.85   |
+|002|CATCH return error |68     |91     |74.73   |
+|003|CATCH no catch used|7      |14     |50.00   |
+|004|IF if true numeric |12     |33     |36.36   |
+|005|IF elseif          |15     |47     |31.91   |
+|   |true numeric       |       |       |        |
++---+-------------------+-------+-------+--------+}
+
+test report-28.11 {formatting, rowheight > 1} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        68      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row {005 {IF elseif
+true numeric}    15      47    31.91}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+
+    set f [open rep5 w]
+    report myreport 5 style bdcaptionedtable 2
+    myreport printmatrix2channel mymatrix $f
+    myreport destroy
+    mymatrix destroy
+    close $f
+
+    ::tcltest::viewFile rep5
+} {+---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|001|CATCH return ok    |7      |13     |53.85   |
+|002|CATCH return error |68     |91     |74.73   |
+|003|CATCH no catch used|7      |14     |50.00   |
+|004|IF if true numeric |12     |33     |36.36   |
+|005|IF elseif          |15     |47     |31.91   |
+|   |true numeric       |       |       |        |
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+}
+
+test report-28.12 {formatting, rowheight > 1} {
+    ::struct::matrix mymatrix
+    mymatrix add columns 5
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {001 {CATCH return ok}            7      13    53.85}
+    mymatrix add row {002 {CATCH return error}        68      91    74.73}
+    mymatrix add row {003 {CATCH no catch used}        7      14    50.00}
+    mymatrix add row {004 {IF if true numeric}        12      33    36.36}
+    mymatrix add row {005 {IF elseif
+true numeric}    15      47    31.91}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+    mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
+
+    report myreport 5 style bdcaptionedtable 2
+    set result [myreport printmatrix mymatrix]
+    myreport destroy
+    mymatrix destroy
+
+    set result
+} {+---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|001|CATCH return ok    |7      |13     |53.85   |
+|002|CATCH return error |68     |91     |74.73   |
+|003|CATCH no catch used|7      |14     |50.00   |
+|004|IF if true numeric |12     |33     |36.36   |
+|005|IF elseif          |15     |47     |31.91   |
+|   |true numeric       |       |       |        |
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+}
 
 ::tcltest::cleanupTests

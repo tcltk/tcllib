@@ -1,3 +1,12 @@
+2002-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Version up to 0.3 to differentiate development from the
+	  version in the tcllib 1.2 release.
+
+	* report.tcl: 
+	* report.test: Updated code and tests to cover all paths through the
+	  code.
+
 2001-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* report.n:
