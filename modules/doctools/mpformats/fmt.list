@@ -68,6 +68,8 @@ proc class       {text}             {}
 proc var         {text}             {}
 proc file        {text}             {}
 proc uri         {text}             {}
+proc term        {text}             {}
+proc const       {text}             {}
 
 ################################################################
 

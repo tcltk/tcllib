@@ -49,6 +49,8 @@ proc class       {text}             [__ class]
 proc var         {text}             [__ var]
 proc file        {text}             [__ file]
 proc uri         {text}             [__ uri]
+proc term        {text}             [__ term]
+proc const       {text}             [__ const]
 
 ################################################################
 rename __ {}

@@ -1,11 +1,9 @@
-2002-03-25  Tcl Project  <akupries@shaw.ca>
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools: Implemented FR #530059 and FR #527029.
 
 	* Fixed minor formatting errors in several existing doctools
 	  manpages.
-
-2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct (matrix): Fixed bug #532783.
 

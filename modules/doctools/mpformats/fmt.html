@@ -223,7 +223,9 @@ proc package {text} {strong $text}
 proc class   {text} {strong $text}
 proc var     {text} {strong $text}
 proc file    {text} {return "\"[strong $text]\""}
-proc uri     {text} {emph $text}
+proc uri     {text} {return "<a href=\"$text\">$text</a>"}
+proc term    {text} {emph $text}
+proc const   {text} {strong $text}
 
 
 ################################################################
