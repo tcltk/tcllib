@@ -1,3 +1,11 @@
+2002-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* yencode.test: Fixed SF Tcllib Bug #548354 so that the datafile
+	  used by the test is found even if the build directory is outside
+	  of the tcllib directory hierarchy. Original patch provided by Larry
+	  Virden <lvirden@users.sourceforge.net>, changed by me to work in
+	  my configuration too.
+
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uuencode.tcl: 
