@@ -1,3 +1,21 @@
+2003-04-03  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.tcl: Fixed bug in the new code which wasn't found because
+	  that case was untestable when using a full-blown pop3 demon (Was
+	  unable to construct a message which caused the boundary
+	  condition to ocur in the client). Found using the microserver
+	  code.
+
+	* pop3.test: Removed test case planned to test the above mentioned
+	  boundary case. Added code for a microserver based testcase which
+	  does exercize the condition. Deactivated as microserver is not
+	  yet part of tcllib.
+
+	* pop3.test:
+	* srv.tcl: Corrected leftover changes from yesterday which should
+	  not have been in the commit. I.e. reactivated reporting and
+	  correct cleanup.
+
 2003-04-02  Andreas Kupries  <andreask@activestate.com>
 
 	* srv.tcl:

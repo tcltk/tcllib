@@ -29,7 +29,7 @@ proc done {} {
     if {[eof stdin]} {
 	global dboxdir
 	log "shutdown through caller"
-	#catch {file delete -force $dboxdir}
+	catch {file delete -force $dboxdir}
 	exit
     }
 }
@@ -99,14 +99,6 @@ x
 Done}
 close $f
 
-set    f [open [file join $dboxdir usr0 16] w]
-puts  $f {MIME-Version: 1.0
-Content-Type: text/plain; charset="us-asc"
-
-y___-}
-close $f
-
-
 # Configure the authentication ...
 
 $udb add ak smash usr0
@@ -123,5 +115,5 @@ log "server up at $port"
 
 vwait forever
 log "reached infinity"
-#catch {file delete -force $dboxdir}
+catch {file delete -force $dboxdir}
 exit
