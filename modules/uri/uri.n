@@ -24,6 +24,7 @@ uri \- URI utilities
 \fB uri::isrelative \fIurl\fR
 \fB uri::geturl     \fIurl\fR ?\fIoptions\fR...?
 \fB uri::canonicalize \fIuri\fR
+\fB uri::register \fIschemeList\fR \fIscript\fR
 .BE
 .SH "DESCRIPTION"
 .PP
@@ -76,6 +77,14 @@ the \fBgeturl\fR-command for the scheme the request was dispatched to.
 \fBuri::canonicalize\fR returns the canonical form of a URI.
 The canonical form of a URI is one where relative path specifications,
 ie. . and .., have been resolved.
+.PP
+\fBuri::register\fR registers the first element of \fIschemeList\fR as
+a new scheme and the remaining elements as aliases for this scheme. It
+creates the namespace for the scheme and executes the \fIscript\fR in
+the new namespace. The script has to declare variables containing the
+regular expressions relevant to the scheme. At least the variable
+\fBschemepart\fR has to be declared as that one is used to extend the
+variables keeping track of the registered schemes.
 .SH "SCHEMES"
 In addition to the commands mentioned above this package provides
 regular expression to recognize urls for a number of url schemes.
@@ -86,7 +95,7 @@ variable \fBurl\fR whose contents are a regular expression to
 recognize urls of that scheme. Additional variables may contain
 regular expressions for parts of urls for that scheme.
 .PP
-The variable boldt uri::schemes] contains a list of all supported
+The variable \fBuri::schemes\fR contains a list of all supported
 schemes. Currently these are \fBftp\fR, \fBfile\fR, \fBhttp\fR,
 \fBgopher\fR, \fBmailto\fR, \fBnews\fR, \fBwais\fR and
 \fBprospero\fR.

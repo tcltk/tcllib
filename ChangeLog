@@ -1,3 +1,12 @@
+2001-10-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri: Accepted patch #470211.
+
+2001-10-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ncgi: Fixed bug #464560.
+	* ftp:  Fixed bug #466746.
+
 2001-10-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tcllib moved to version 1.1
@@ -19,6 +28,7 @@
 	* csv.tcl: moved to v0.2
 
 2001-09-24   Joe English  <jenglish@sourceforge.net>
+
 	* modules/ftpd/ftpd.tcl: fix improperly-formatted multi-line 
 	  replies.  See SF tracker ID #424797
 
