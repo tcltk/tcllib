@@ -5,16 +5,16 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.4 2002/06/05 22:59:07 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.5 2003/04/11 00:50:37 andreas_kupries Exp $
 # -------------------------------------------------------------------------
 
-package provide uri::urn 1.0
-package require uri      1.1.1
+package provide uri::urn 1.0.1
+package require uri      1.1.2
 
-namespace eval uri {}
-namespace eval uri::urn {}
+namespace eval ::uri {}
+namespace eval ::uri::urn {}
 
-uri::register {urn URN} {
+::uri::register {urn URN} {
 	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
         variable esc {%[0-9a-fA-F]{2}}
         variable trans {a-zA-Z0-9$_.+!*'(,):=@;-}
@@ -29,7 +29,7 @@ uri::register {urn URN} {
 # Description:
 #   Called by uri::split with a url to split into its parts.
 #
-proc uri::SplitUrn {uri} {
+proc ::uri::SplitUrn {uri} {
     #@c Split the given uri into then URN component parts
     #@a uri: the URI to split without it's scheme part.
     #@r List of the component parts suitable for 'array set'
@@ -46,7 +46,7 @@ proc uri::SplitUrn {uri} {
 
 # -------------------------------------------------------------------------
 
-proc uri::JoinUrn args {
+proc ::uri::JoinUrn args {
     #@c Join the parts of a URN scheme URI
     #@a list of nid value nss value
     #@r a valid string representation for your URI
@@ -65,7 +65,7 @@ proc uri::JoinUrn args {
 
 # Quote the disallowed characters according to the RFC for URN scheme.
 # ref: RFC2141 sec2.2
-proc uri::urn::quote {url} {
+proc ::uri::urn::quote {url} {
     variable trans
 
     set ndx 0
@@ -85,7 +85,7 @@ proc uri::urn::quote {url} {
 # -------------------------------------------------------------------------
 
 # Perform the reverse of urn::quote.
-proc uri::urn::unquote {url} {
+proc ::uri::urn::unquote {url} {
     set ndx 0
     while {[regexp -start $ndx -indices {%([0-9a-zA-Z]{2})} $url r]} {
         set first [lindex $r 0]
