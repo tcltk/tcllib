@@ -22,7 +22,7 @@ if {[catch {package require Trf  2.0}]} {
     # that appears to work with this code here.
 
     package require base64 2.0
-    package require md5 1.0
+    set major [lindex [split [package require md5] .] 0]
 
     # Create these commands in the mime namespace so that they
     # won't collide with things at the global namespace level
@@ -34,14 +34,25 @@ if {[catch {package require Trf  2.0}]} {
         proc quoted-printable {-mode what -- chunk} {
   	    return [mime::qp_$what $chunk]
         }
-        proc md5 {-- string} {
-	    return [md5::md5 $string]
-        }
+
+	if {$::major < 2} {
+	    # md5 v1, result is hex string ready for use.
+	    proc md5 {-- string} {
+		return [md5::md5 $string]
+	    }
+	} else {
+	    # md5 v2, need option to get hex string
+	    proc md5 {-- string} {
+		return [md5::md5 -hex $string]
+	    }
+	}
         proc unstack {channel} {
 	    # do nothing
 	    return
         }
     }
+
+    unset major
 }        
 
 #
