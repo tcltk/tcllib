@@ -1,3 +1,41 @@
+2003-09-30  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.tcl: A number of changes to the code generation part.
+	  - Usage of [subst]'s was superfluous, removed, simple string
+	    interpolation now.
+
+	  - Now 'namespace eval type' enclosing the generated code
+	    anymore. Such an eval is now done only at the top of the
+	    generated code to define the namespace, and to
+	    define/initialize the typevariables. All procedure definitions
+	    are now outside of 'namespace eval' and use fully qualified
+	    command names instead.
+
+	  - Moved the code in [snit::Define] which instantiated the class
+	    using the generated code into it own helper command,
+	    [snit::DefineDo]. Overiding this command allows users of the
+	    snit package perform other actions on the newly defined
+	    class. One example is that of a snit-compiler which goes
+	    through a file containing tcl code and replaces all snit::*
+	    definitions with the generated code.
+
+	  Motivation for the change: When applying procomp to procedure
+	  definitions inside of a 'namespace eval' they are not
+	  byte-compiled, but kept as encoded literal. This is a direct
+	  consequence of 'namespace eval' not having a compile
+	  function. It also means that introspection, i.e. [info body]
+	  does recover the actual procedure definition. By using procedure
+	  definitions outside of namespace eval, but fully qualified names
+	  this limitation of procomp is avoided. The aforementioned snit
+	  compiler application is another part for this, ensuring that
+	  instead of keeping the whole class definition as one literal for
+	  the snit::* call we actually have tcl code to compile and hide.
+
+	* snit.tcl:     Updated the version number to 0.83
+	* pkgIndex.tcl:
+	* snit.man:
+	* snitfaq.man:
+
 2003-07-18  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.test: Fixed SF tcllib bug #772535. Instead of using a
