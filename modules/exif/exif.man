@@ -1,8 +1,8 @@
-[manpage_begin exif n 1.1]
+[manpage_begin exif n 1.1.1]
 [moddesc   {EXIF parsing}]
 [titledesc {Tcl EXIF extracts and parses EXIF fields from digital images}]
 [require Tcl 8.2]
-[require exif [opt 1.1]]
+[require exif [opt 1.1.1]]
 [description]
 [para]
 

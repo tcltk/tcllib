@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.20 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.21 2004/01/25 07:29:21 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Bae64_Decode
 # Version 2.0   uses the base64 namespace
@@ -16,6 +16,7 @@
 # Version 2.2   is much faster, Tcl8.0 compatible
 # Version 2.2.1 bugfixes
 # Version 2.2.2 bugfixes
+# Version 2.3   bugfixes and extended to support Trf
 
 package require Tcl 8.2
 namespace eval ::base64 {
@@ -321,5 +322,4 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide base64 2.2.2
-
+package provide base64 2.3
