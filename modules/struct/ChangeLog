@@ -1,3 +1,9 @@
+2003-04-09  Andreas Kupries  <andreask@activestate.com>
+
+	* list.man:
+	* list.test:
+	* list.tcl: Added 'lcsInvertMerge'.
+
 2003-04-08  Andreas Kupries  <andreask@activestate.com>
 
 	* list.man:
