@@ -3,20 +3,24 @@
 	exec tclsh "$0" "$@"
 
 # irc example script, by David N. Welton <davidw@dedasys.com>
-# $Id: irc_example.tcl,v 1.2 2002/07/27 00:01:16 davidw Exp $
+# $Id: irc_example.tcl,v 1.3 2002/12/16 08:39:32 davidw Exp $
 
-set nick TclIrc
+if { [lindex $argv 0] != "" } {
+    set nick [lindex $argv 0]
+} else {
+    set nick TclIrc
+}
 set channel \#tcl
 
 if { [catch {package require irc}] } {
-    set here [file dirname [info script]]
-    source [file join $here .. .. modules irc irc.tcl]
+    source [file join [file dirname [info script]] \
+		.. .. modules irc irc.tcl]
 }
 
 proc bgerror { args } {
-    puts $args
+    puts stderr "Error in irc_example.tcl: $args"
     if { [info exists errorInfo] } {
-	puts $errorInfo
+	puts stderr "errorInfo: $errorInfo"
     }
 }
 
@@ -28,6 +32,10 @@ proc client::connect { nick } {
 
     $cn registerevent PING {
 	network send "PONG [msg]"
+	set ::PING 1
+    }
+
+    $cn registerevent 376 {
 	set ::PING 1
     }
 
