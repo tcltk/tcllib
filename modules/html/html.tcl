@@ -80,14 +80,14 @@ proc html::foreach {vars vals args} {
     # To support nested foreach loops, we use a uniquely named
     # variable to store incremental results.
     incr randVar
-    set resultVar "result_$randVar"
+    ::set resultVar "result_$randVar"
 
     # Extract the body and any varlists and valuelists from the args.
-    set body [lindex $args end]
-    set varvals [linsert [lreplace $args end end] 0 $vars $vals]
+    ::set body [lindex $args end]
+    ::set varvals [linsert [lreplace $args end end] 0 $vars $vals]
 
     # Create the script to eval in the stack frame above this one.
-    set script "::foreach"
+    ::set script "::foreach"
     ::foreach {vars vals} $varvals {
         append script " [list $vars] [list $vals]"
     }
@@ -101,9 +101,9 @@ proc html::foreach {vars vals args} {
     # no trace of this loop left in that stack frame.
 
     upvar $resultVar tmp
-    set tmp ""
+    ::set tmp ""
     uplevel $script
-    set result $tmp
+    ::set result $tmp
     unset tmp
     return $result
 }
@@ -139,10 +139,10 @@ proc html::for {start test next body} {
     # To support nested for loops, we use a uniquely named
     # variable to store incremental results.
     incr randVar
-    set resultVar "result_$randVar"
+    ::set resultVar "result_$randVar"
 
     # Create the script to eval in the stack frame above this one.
-    set script "::for [list $start] [list $test] [list $next] \{\n"
+    ::set script "::for [list $start] [list $test] [list $next] \{\n"
     append script "  append $resultVar \[subst \{$body\}\]\n"
     append script "\}\n"
 
@@ -152,9 +152,9 @@ proc html::for {start test next body} {
     # no trace of this loop left in that stack frame.
 
     upvar $resultVar tmp
-    set tmp ""
+    ::set tmp ""
     uplevel $script
-    set result $tmp
+    ::set result $tmp
     unset tmp
     return $result
 }
@@ -188,10 +188,10 @@ proc html::while {test body} {
     # To support nested while loops, we use a uniquely named
     # variable to store incremental results.
     incr randVar
-    set resultVar "result_$randVar"
+    ::set resultVar "result_$randVar"
 
     # Create the script to eval in the stack frame above this one.
-    set script "::while [list $test] \{\n"
+    ::set script "::while [list $test] \{\n"
     append script "  append $resultVar \[subst \{$body\}\]\n"
     append script "\}\n"
 
@@ -201,9 +201,9 @@ proc html::while {test body} {
     # no trace of this loop left in that stack frame.
 
     upvar $resultVar tmp
-    set tmp ""
+    ::set tmp ""
     uplevel $script
-    set result $tmp
+    ::set result $tmp
     unset tmp
     return $result
 }
@@ -236,15 +236,15 @@ proc html::if {test body args} {
     # To support nested if's, we use a uniquely named
     # variable to store incremental results.
     incr randVar
-    set resultVar "result_$randVar"
+    ::set resultVar "result_$randVar"
 
     # Extract the elseif clauses and else clause if they exist.
-    set cmd [linsert $args 0 "::if" $test $body]
+    ::set cmd [linsert $args 0 "::if" $test $body]
 
     ::foreach {keyword test body} $cmd {
         ::if {[string equal $keyword "else"]} {
             append script " else \{\n"
-            set body $test
+            ::set body $test
         } else {
             append script " $keyword [list $test] \{\n"
         }
@@ -258,11 +258,58 @@ proc html::if {test body args} {
     # no trace of this loop left in that stack frame.
 
     upvar $resultVar tmp
-    set tmp ""
+    ::set tmp ""
     uplevel $script
-    set result $tmp
+    ::set result $tmp
     unset tmp
     return $result
+}
+
+# html::set
+#
+#	Rework the "set" command to blend into HTML template files.
+#	The return value is always "" so nothing is appended in the
+#	template.  No error checking is done on any arguments.
+#
+# Arguments:
+#	var	The variable to set.
+#	val	The new value to give the variable.
+#
+# Results:
+#	Returns "".
+#
+# Side Effects:
+#	None.
+
+proc html::set {var val} {
+
+    # The variable must be set in the stack frame above this one.
+
+    ::set cmd [list set $var $val]
+    uplevel $cmd
+    return ""
+}
+
+# html::eval
+#
+#	Rework the "eval" command to blend into HTML template files.
+#	The return value is always "" so nothing is appended in the
+#	template.  No error checking is done on any arguments.
+#
+# Arguments:
+#	args	The args to evaluate.  At least one must be given.
+#
+# Results:
+#	Returns "".
+#
+# Side Effects:
+#	Throws an error if no arguments are given.
+
+proc html::eval {args} {
+
+    # The args must be evaluated in the stack frame above this one.
+    ::eval uplevel $args
+    return ""
 }
 
 # html::init
@@ -302,7 +349,7 @@ proc html::init {{nvlist {}}} {
 
 proc html::head {title} {
     variable page
-    set html "[openTag html][openTag head]\n"
+    ::set html "[openTag html][openTag head]\n"
     append html "\t[html::title $title]"
     ::if {[info exist page(author)]} {
 	append html "\t$page(author)"
@@ -327,8 +374,8 @@ proc html::head {title} {
 
 proc html::title {title} {
     variable page
-    set page(title) $title
-    set html "<title>$title</title>\n"
+    ::set page(title) $title
+    ::set html "<title>$title</title>\n"
     return $html
 }
 
@@ -364,7 +411,7 @@ proc html::getTitle {} {
 
 proc html::meta {args} {
     variable page
-    set html ""
+    ::set html ""
     ::foreach {name value} $args {
 	append html "<meta name=\"$name\" value=\"[quoteFormValue $value]\">"
     }
@@ -387,7 +434,7 @@ proc html::meta {args} {
 
 proc html::refresh {content {url {}}} {
     variable page
-    set html "<meta http-equiv=\"Refresh\" content=\"$content"
+    ::set html "<meta http-equiv=\"Refresh\" content=\"$content"
     ::if {[string length $url]} {
 	append html "; url=$url"
     }
@@ -456,7 +503,7 @@ proc html::description {description} {
 
 proc html::author {author} {
     variable page
-    set page(author) "<!-- $author -->\n"
+    ::set page(author) "<!-- $author -->\n"
     return ""
 }
 
@@ -477,7 +524,7 @@ proc html::author {author} {
 proc html::tagParam {tag {param {}}} {
     variable defaults
 
-    set def ""
+    ::set def ""
     ::foreach key [lsort [array names defaults $tag.*]] {
 	append def [html::default $key $param]
     }
@@ -501,8 +548,8 @@ proc html::tagParam {tag {param {}}} {
 
 proc html::default {key {param {}}} {
     variable defaults
-    set pname [string tolower [lindex [split $key .] 1]]
-    set key [string tolower $key]
+    ::set pname [string tolower [lindex [split $key .] 1]]
+    ::set key [string tolower $key]
     ::if {![regexp -nocase "(\[ 	\]|^)$pname=" $param] &&
 	    [info exist defaults($key)] &&
 	    [string length $defaults($key)]} {
@@ -547,9 +594,9 @@ proc html::bodyTag {args} {
 #	name="fred" value="freds value"
 
 proc html::formValue {name {defvalue {}}} {
-    set value [ncgi::value $name]
+    ::set value [ncgi::value $name]
     ::if {[string length $value] == 0} {
-	set value $defvalue
+	::set value $defvalue
     }
     return "name=\"$name\" value=\"[quoteFormValue $value]\""
 }
@@ -588,7 +635,7 @@ proc html::quoteFormValue {value} {
 
 proc html::textInput {name args} {
     variable defaults
-    set html "<input type=\"text\" "
+    ::set html "<input type=\"text\" "
     append html [html::formValue $name [string trim [join $args]]]
     append html [html::default input.size]
     append html ">\n"
@@ -609,7 +656,7 @@ proc html::textInput {name args} {
 
 proc html::textInputRow {label name args} {
     variable defaults
-    set html [html::row $label [eval [list html::textInput $name] $args]]
+    ::set html [html::row $label [::eval [list html::textInput $name] $args]]
     return $html
 }
 
@@ -626,7 +673,7 @@ proc html::textInputRow {label name args} {
 
 proc html::passwordInputRow {label {name password}} {
     variable defaults
-    set html [html::row $label [html::passwordInput $name]]
+    ::set html [html::row $label [html::passwordInput $name]]
     return $html
 }
 
@@ -641,7 +688,7 @@ proc html::passwordInputRow {label {name password}} {
 #	The html fragment
 
 proc html::passwordInput {{name password}} {
-    set html "<input type=\"password\" name=\"$name\">\n"
+    ::set html "<input type=\"password\" name=\"$name\">\n"
     return $html
 }
 
@@ -658,7 +705,7 @@ proc html::passwordInput {{name password}} {
 #	The html fragment
 
 proc html::checkbox {name value} {
-    set html "<input type=\"checkbox\" [checkValue $name $value]>\n"
+    ::set html "<input type=\"checkbox\" [checkValue $name $value]>\n"
 }
 
 # html::checkValue
@@ -711,11 +758,11 @@ proc html::radioValue {name value {defaultSelection {}}} {
 #	value from the query data, if any.
 
 proc html::radioSet {key sep list {defaultSelection {}}} {
-    set html ""
-    set s ""
+    ::set html ""
+    ::set s ""
     ::foreach {label v} $list {
 	append html "$s<input type=\"radio\" [radioValue $key $v $defaultSelection]> $label"
-	set s $sep
+	::set s $sep
     }
     return $html
 }
@@ -726,10 +773,10 @@ proc html::radioSet {key sep list {defaultSelection {}}} {
 #	value from the query data, if any.
 
 proc html::checkSet {key sep list} {
-    set s ""
+    ::set s ""
     ::foreach {label v} $list {
 	append html "$s<input type=\"checkbox\" [checkValue $key $v]> $label"
-	set s $sep
+	::set s $sep
     }
     return $html
 }
@@ -751,13 +798,13 @@ proc html::checkSet {key sep list} {
 proc html::select {name param choices {current {}}} {
     variable page
 
-    set def [ncgi::valueList $name $current]
-    set html "<select name=\"$name\"[string trimright  " $param"]>\n"
+    ::set def [ncgi::valueList $name $current]
+    ::set html "<select name=\"$name\"[string trimright  " $param"]>\n"
     ::foreach {label v} $choices {
 	::if {[lsearch -exact $def $v] != -1} {
-	    set SEL " SELECTED"
+	    ::set SEL " SELECTED"
 	} else {
-	    set SEL ""
+	    ::set SEL ""
 	}
 	append html "<option value=\"$v\"$SEL>$label\n"
     }
@@ -779,7 +826,7 @@ proc html::select {name param choices {current {}}} {
 #	The html fragment
 
 proc html::selectPlain {name param choices {current {}}} {
-    set namevalue {}
+    ::set namevalue {}
     ::foreach c $choices {
 	lappend namevalue $c $c
     }
@@ -800,7 +847,7 @@ proc html::selectPlain {name param choices {current {}}} {
 #	The html fragment
 
 proc html::textarea {name {param {}} {current {}}} {
-    set value [ncgi::value $name $current]
+    ::set value [ncgi::value $name $current]
     return "<[string trimright \
 	"textarea name=\"$name\"\
 		[tagParam textarea $param]"]>$value</textarea>\n"
@@ -819,7 +866,7 @@ proc html::textarea {name {param {}} {current {}}} {
 
 
 proc html::submit {label {name submit}} {
-    set html "<input type=\"submit\" name=\"$name\" value=\"$label\">\n"
+    ::set html "<input type=\"submit\" name=\"$name\" value=\"$label\">\n"
 }
 
 # html::varEmpty --
@@ -835,9 +882,9 @@ proc html::submit {label {name submit}} {
 proc html::varEmpty {name} {
     upvar 1 $name var
     ::if {[info exist var]} {
-	set value $var
+	::set value $var
     } else {
-	set value ""
+	::set value ""
     }
     return [expr {[string length [string trim $value]] == 0}]
 }
@@ -856,9 +903,9 @@ proc html::varEmpty {name} {
 
 proc html::getFormInfo {args} {
     ::if {[llength $args] == 0} {
-	set args *
+	::set args *
     }
-    set html ""
+    ::set html ""
     ::foreach {n v} [ncgi::nvlist] {
 	::foreach pat $args {
 	    ::if {[string match $pat $n]} {
@@ -932,8 +979,8 @@ proc html::openTag {tag {param {}}} {
 proc html::closeTag {} {
     variable page
     ::if {[info exist page(stack)]} {
-	set top [lindex $page(stack) end]
-	set page(stack) [lreplace $page(stack) end end]
+	::set top [lindex $page(stack) end]
+	::set page(stack) [lreplace $page(stack) end end]
     }
     ::if {[info exist top] && [string length $top]} {
 	return </$top>
@@ -955,7 +1002,7 @@ proc html::closeTag {} {
 
 proc html::end {} {
     variable page
-    set html ""
+    ::set html ""
     ::while {[llength $page(stack)]} {
 	append html [closeTag]\n
     }
@@ -974,7 +1021,7 @@ proc html::end {} {
 #	A <tr><td>...</tr> fragment
 
 proc html::row {args} {
-    set html <tr>\n
+    ::set html <tr>\n
     ::foreach x $args {
 	append html \t[html::cell "" $x td]\n
     }
@@ -995,7 +1042,7 @@ proc html::row {args} {
 
 proc html::hdrRow {args} {
     variable defaults
-    set html <tr>\n
+    ::set html <tr>\n
     ::foreach x $args {
 	append html \t[html::cell "" $x th]\n
     }
@@ -1017,9 +1064,9 @@ proc html::hdrRow {args} {
 #	<td>...</td> fragment
 
 proc html::cell {param value {tag td}} {
-    set font [html::font]
+    ::set font [html::font]
     ::if {[string length $font]} {
-	set value $font$value</font>
+	::set value $font$value</font>
     }
     return "<[string trimright "$tag $param"]>$value</$tag>"
 }
@@ -1038,7 +1085,7 @@ proc html::cell {param value {tag td}} {
 
 proc html::tableFromArray {arrname {param {}} {pat *}} {
     upvar 1 $arrname arr
-    set html ""
+    ::set html ""
     ::if {[info exists arr]} {
 	append html "<TABLE $param>\n"
 	append html "<TR><TH colspan=2>$arrname</TH></TR>\n"
@@ -1062,7 +1109,7 @@ proc html::tableFromArray {arrname {param {}} {pat *}} {
 #	A <table>
 
 proc html::tableFromList {querylist {param {}}} {
-    set html ""
+    ::set html ""
     ::if {[llength $querylist]} {
 	append html "<TABLE $param>"
 	::foreach {label value} $querylist {
@@ -1085,7 +1132,7 @@ proc html::tableFromList {querylist {param {}}} {
 #	A <a href=mailto> tag </a>
 
 proc html::mailto {email {subject {}}} {
-    set html "<a href=\"mailto:$email"
+    ::set html "<a href=\"mailto:$email"
     ::if {[string length $subject]} {
 	append html ?subject=$subject
     }
@@ -1108,7 +1155,7 @@ proc html::font {args} {
     variable defaults
 
     # e.g., font.face, font.size, font.color
-    set param [tagParam font [join $args]][join $args]
+    ::set param [tagParam font [join $args]][join $args]
 
     ::if {[string length $param]} {
 	return "<[string trimright "font $param"]>"
@@ -1132,8 +1179,8 @@ proc html::font {args} {
 
 proc html::minorMenu {list {sep { | }}} {
     global page
-    set s ""
-    set html ""
+    ::set s ""
+    ::set html ""
     regsub {index.h?tml$} [ncgi::urlStub] {} this
     ::foreach {label url} $list {
 	regsub {index.h?tml$} $url {} that
@@ -1142,7 +1189,7 @@ proc html::minorMenu {list {sep { | }}} {
 	} else {
 	    append html "$s<a href=\"$url\">$label</a>"
 	}
-	set s $sep
+	::set s $sep
     }
     return $html
 }
@@ -1166,14 +1213,14 @@ proc html::extractParam {param key {varName ""}} {
     } else {
 	upvar $varName result
     }
-    set ws " \t\n\r"
+    ::set ws " \t\n\r"
  
     # look for name=value combinations.  Either (') or (") are valid delimeters
     ::if {
       [regsub -nocase [format {.*%s[%s]*=[%s]*"([^"]*).*} $key $ws $ws] $param {\1} value] ||
       [regsub -nocase [format {.*%s[%s]*=[%s]*'([^']*).*} $key $ws $ws] $param {\1} value] ||
       [regsub -nocase [format {.*%s[%s]*=[%s]*([^%s]+).*} $key $ws $ws $ws] $param {\1} value] } {
-        set result $value
+        ::set result $value
         return 1
     }
 
@@ -1181,7 +1228,7 @@ proc html::extractParam {param key {varName ""}} {
     # I should strip out name=value pairs, so we don't end up with "name"
     # inside the "value" part of some other key word - some day
 	
-    set bad \[^a-zA-Z\]+
+    ::set bad \[^a-zA-Z\]+
     ::if {[regexp -nocase  "$bad$key$bad" -$param-]} {
 	return 1
     } else {
@@ -1200,7 +1247,7 @@ proc html::extractParam {param key {varName ""}} {
 #	The parent directory of the URL.
 
 proc html::urlParent {url} {
-    set url [string trimright $url /]
+    ::set url [string trimright $url /]
     regsub {[^/]+$} $url {} url
     return $url
 }
