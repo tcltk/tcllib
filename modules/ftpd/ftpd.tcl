@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.16 2003/07/04 15:56:51 msofer Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.17 2003/07/05 04:59:35 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -1769,7 +1769,14 @@ proc ::ftpd::fsFile::fs {command path args} {
 	            }
 	        }
 		list {
+		    # [ 766112 ] report . and .. directories (linux)
+		    # Copied the code from 'nlst' above to handle this.
+
 	            foreach f [lsort $fileList] {
+                        if {[string equal [file tail $f] "."] || \
+                                [string equal [file tail $f] ".."]} {
+                            continue
+                        }
 			file stat $f stat
                         if {[string equal $tcl_platform(platform) "unix"]} {
                             set user [file attributes $f -owner]
