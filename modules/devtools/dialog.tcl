@@ -34,11 +34,12 @@ proc ::dialog::setup {type cookie} {
 	set responses {}
 	set trace     {}
 	set received  {}
+	set conn      {}
 
 	proc Log {text} {
 	    global trace ; lappend trace $text
 	}
-	proc Exit {sock reason} {Log $reason ; close $sock ; Done}
+	proc Exit {sock reason} {Log [list $reason $sock] ; close $sock ; Done}
 	proc Done {} {
 	    global main trace
 	    comm::comm send $main [list dialog::done $trace]
@@ -59,7 +60,7 @@ proc ::dialog::setup {type cookie} {
 	    set now       [lindex $responses 0]
 	    set responses [lrange $responses 1 end]
 
-	    Log  [list ** $now]
+	    Log  [list ** $sock $now]
 	    eval [linsert $now end $sock]
 	}
 
@@ -112,6 +113,8 @@ proc ::dialog::setup {type cookie} {
 	    set aid [after 10000 [list Timeout $sock]]
 	    fileevent $sock readable [list Input $aid $sock]
 	    # No "Step" here. Comes through input.
+
+	    Log "   Waiting    \[$aid\]"
 	    return
 	}
 	proc Input {aid sock} {
@@ -120,12 +123,18 @@ proc ::dialog::setup {type cookie} {
 		Exit $sock close
 		return
 	    }
-	    if {[gets $sock line] < 0} return
+	    if {[gets $sock line] < 0} {
+		Log "   **|////|**"
+		return
+	    }
+
+	    Log "-- -v-"
+	    Log "   Events off \[$aid, $sock\]"
+	    fileevent    $sock readable {}
 	    after cancel $aid
 
 	    Log [list << $line]
 	    lappend received $line
-	    fileevent $sock readable {}
 
 	    # Now we can step further
 	    Step $sock
@@ -150,10 +159,15 @@ proc ::dialog::setup {type cookie} {
 	}
 
 	proc Client {port} {
-	    set sock [socket localhost $port]
+	    global conn
+	    catch {close $conn}
+
+	    set conn [set sock [socket localhost $port]]
 	    fconfigure $sock -blocking 0
 	    ClearTrace
-	    Step $sock	    
+	    Log [list Client @ $port = $sock]
+	    Log [list Channels $port = [lsort [file channels]]]
+	    Step $sock
 	}
     }
 
@@ -193,6 +207,7 @@ proc ::dialog::end {} {
     set responses [::coserv::run $id [list set responses]]
     ::coserv::run $id {set received {}}
     log::log debug |\t[join $responses \n|\t]
+    log::log debug +---------------------------------------------
     return
 }
 
