@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: combinatorics.tcl,v 1.1 2002/01/12 00:55:13 kennykb Exp $
+# RCS: @(#) $Id: combinatorics.tcl,v 1.2 2002/01/12 01:06:55 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -439,5 +439,3 @@ namespace eval ::math {
     InitializeFactorial
     InitializePascal
 }
-
-package provide math 1.1
