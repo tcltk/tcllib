@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: special.tcl,v 1.4 2004/07/05 15:33:22 kennykb Exp $
+# RCS: @(#) $Id: special.tcl,v 1.5 2004/07/12 09:59:59 arjenmarkus Exp $
 #
 package require math
 package require math::constants
@@ -162,6 +162,8 @@ proc ::math::special::fresnel_S {x} {
 # Bessel functions and elliptic integrals --
 #
 source [file join [file dirname [info script]] "bessel.tcl"]
+source [file join [file dirname [info script]] "classic_polyns.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
+source [file join [file dirname [info script]] "exponential.tcl"]
 
 
