@@ -21,8 +21,8 @@
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha2 {
-    variable version 1.0.0
-    variable rcsid {$Id: sha256.tcl,v 1.2 2005/02/22 14:17:28 patthoyts Exp $}
+    variable version 1.0.1
+    variable rcsid {$Id: sha256.tcl,v 1.3 2005/02/24 03:25:51 patthoyts Exp $}
 
     namespace export sha256 hmac SHA256Init SHA256Update SHA256Final
 
@@ -71,14 +71,14 @@ proc ::sha2::SHA256Init {} {
     # FIPS 180-2: 5.3.2 Setting the initial hash value
     array set tok \
         [list \
-             A [expr int(0x6a09e667)] \
-             B [expr int(0xbb67ae85)] \
-             C [expr int(0x3c6ef372)] \
-             D [expr int(0xa54ff53a)] \
-             E [expr int(0x510e527f)] \
-             F [expr int(0x9b05688c)] \
-             G [expr int(0x1f83d9ab)] \
-             H [expr int(0x5be0cd19)] \
+             A [expr {int(0x6a09e667)}] \
+             B [expr {int(0xbb67ae85)}] \
+             C [expr {int(0x3c6ef372)}] \
+             D [expr {int(0xa54ff53a)}] \
+             E [expr {int(0x510e527f)}] \
+             F [expr {int(0x9b05688c)}] \
+             G [expr {int(0x1f83d9ab)}] \
+             H [expr {int(0x5be0cd19)}] \
              n 0 i "" v 256]
     return $token
 }
@@ -170,14 +170,14 @@ proc ::sha2::SHA224Init {} {
     # FIPS 180-2 (change notice 1) (1): SHA-224 initialization values
     array set tok \
         [list \
-             A [expr int(0xc1059ed8)] \
-             B [expr int(0x367cd507)] \
-             C [expr int(0x3070dd17)] \
-             D [expr int(0xf70e5939)] \
-             E [expr int(0xffc00b31)] \
-             F [expr int(0x68581511)] \
-             G [expr int(0x64f98fa7)] \
-             H [expr int(0xbefa4fa4)] \
+             A [expr {int(0xc1059ed8)}] \
+             B [expr {int(0x367cd507)}] \
+             C [expr {int(0x3070dd17)}] \
+             D [expr {int(0xf70e5939)}] \
+             E [expr {int(0xffc00b31)}] \
+             F [expr {int(0x68581511)}] \
+             G [expr {int(0x64f98fa7)}] \
+             H [expr {int(0xbefa4fa4)}] \
              n 0 i "" v 224]
     return $token
 }
@@ -235,6 +235,7 @@ proc ::sha2::HMACInit {K} {
     SHA256Update $tok $Ki;                 # initialize with the inner pad
     
     # preserve the Ko value for the final stage.
+    # FRINK: nocheck
     set [subst $tok](Ko) $Ko
 
     return $tok
@@ -255,8 +256,7 @@ proc ::sha2::HMACUpdate {token data} {
 #    closed and the binary representation of the hash result is returned.
 #
 proc ::sha2::HMACFinal {token} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     set tok [SHA256Init];                 # init the outer hashing function
     SHA256Update $tok $state(Ko);         # prepare with the outer pad.
@@ -275,8 +275,10 @@ set ::sha2::SHA256Transform_body {
 
     # FIPS 180-2: 6.2.2 SHA-256 Hash computation.
     binary scan $msg I* blocks
-    foreach {W0 W1 W2 W3 W4 W5 W6 W7 W8 W9 W10 W11 W12 W13 W14 W15} $blocks {
-        
+    set blockLen [llength $blocks]
+    for {set i 0} {$i < $blockLen} {incr i 16} {
+        set W [lrange $blocks $i [expr {$i+15}]]
+
         # FIPS 180-2: 6.2.2 (1) Prepare the message schedule
         # For t = 16 to 64 
         #   let Wt = (sigma1(Wt-2) + Wt-7 + sigma0(Wt-15) + Wt-16)
@@ -285,9 +287,10 @@ set ::sha2::SHA256Transform_body {
         set t15  0
         set t16 -1
         for {set t 16} {$t < 64} {incr t} {
-            set W$t [expr {[sigma1 [set W[incr t2]]] + [set W[incr t7]] \
-                               + [sigma0 [set W[incr t15]]] \
-                               + [set W[incr t16]] }]
+            lappend W [expr {[sigma1 [lindex $W [incr t2]]] \
+                                 + [lindex $W [incr t7]] \
+                                 + [sigma0 [lindex $W [incr t15]]] \
+                                 + [lindex $W [incr t16]]}]
         }
         
         # FIPS 180-2: 6.2.2 (2) Initialise the working variables
@@ -309,7 +312,7 @@ set ::sha2::SHA256Transform_body {
         #
         for {set t 0} {$t < 64} {incr t} {
             set T1 [expr {($H + [SIGMA1 $E] + [Ch $E $F $G] 
-                          + [lindex $K $t] + [set W$t]) & 0xffffffff}]
+                          + [lindex $K $t] + [lindex $W $t]) & 0xffffffff}]
             set T2 [expr {([SIGMA0 $A] + [Maj $A $B $C]) & 0xffffffff}]
             set H $G
             set G $F
@@ -471,8 +474,7 @@ proc ::sha2::Pop {varname {nth 0}} {
 # fileevent handler for chunked file hashing.
 #
 proc ::sha2::Chunk {token channel {chunksize 4096}} {
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     
     if {[eof $channel]} {
         fileevent $channel readable {}
@@ -527,10 +529,12 @@ proc ::sha2::_sha256 {ver args} {
     } else {
 
         set tok [SHA${ver}Init]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
                  $tok $opts(-channel) $opts(-chunksize)]
+        # FRINK: nocheck
         vwait [subst $tok](reading)
         set r [SHA${ver}Final $tok]
 
@@ -601,10 +605,12 @@ proc ::sha2::hmac {args} {
     } else {
 
         set tok [HMACInit $opts(-key)]
+        # FRINK: nocheck
         set [subst $tok](reading) 1
         fileevent $opts(-channel) readable \
             [list [namespace origin Chunk] \
                  $tok $opts(-channel) $opts(-chunksize)]
+        # FRINK: nocheck
         vwait [subst $tok](reading)
         set r [HMACFinal $tok]
 

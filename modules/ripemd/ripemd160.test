@@ -1,6 +1,6 @@
 # ripemd160.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd160.test,v 1.4 2005/02/23 12:41:37 patthoyts Exp $
+# $Id: ripemd160.test,v 1.5 2005/02/24 03:25:50 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -24,37 +24,44 @@ if {[catch {source [file join [file dirname [info script]] ripemd160.tcl]} msg]}
 # Setup any constraints
 #
 
-array set preserve [array get ::ripemd::ripemd160::accel]
-
-proc have_accel {} {
-    variable ripemd::ripemd160::accel
-    foreach {e v} [array get accel] { if {$v} {return 1} }
-    return 0
-}
-
-proc set_no_accel {} {
-    variable ripemd::ripemd160::accel
-    foreach e [array names accel] { set accel($e) 0 }
-}
-
-proc reset_accel {} {
-    variable ripemd::ripemd160::accel
-    array set accel [array get ::preserve]
-}
-
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
 package require ripemd160
 
-if {$::ripemd::ripemd160::accel(cryptkit)} {
+if {[ripemd::ripemd160::LoadAccelerator cryptkit]} {
     puts "- ripemd160 [package present ripemd160] (cryptkit based)"
 }
-if {$::ripemd::ripemd160::accel(trf)} {
+if {[::ripemd::ripemd160::LoadAccelerator trf]} {
     puts "- ripemd160 [package present ripemd160] (Trf based)"
 }
 puts "- ripemd160 [package present ripemd160] (pure Tcl)"
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::ripemd::ripemd160::accel]
+
+proc implementations {} {
+    variable ::ripemd::ripemd160::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::ripemd::ripemd160::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::ripemd::ripemd160::accel
+    array set accel [array get ::preserve]
+}
 
 # -------------------------------------------------------------------------
 
@@ -76,22 +83,14 @@ set vectors {
 lappend vectors \
     10 [string repeat 1234567890 8] {9b752e45573d4b39f4dbd3323cab82bf63326bfb}
 
-foreach {n msg hash} $vectors {
-    test ripemd160-1.$n {RIPEMD-160 test strings} {
-        ::ripemd::ripemd160 -hex -- $msg
-    } $hash
-}
-
-# If our implementation is managing to use Trf then check the pure tcl
-# version as well.
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n msg hash} $vectors {
-        test ripemd160-tcl-1.$n {RIPEMD-160 pure-Tcl} {
-            ::ripemd::ripemd160 -hex -- $msg
-        } $hash
+        test ripemd160-$impl-1.$n "RIPEMD-160 test strings ($impl impl)" {
+            list [catch {::ripemd::ripemd160 -hex -- $msg} r] $r
+        } [list 0 $hash]
     }
-    reset_accel
+    reset_implementation
 }
 
 # -------------------------------------------------------------------------
@@ -114,22 +113,14 @@ set vectors {
 lappend vectors \
     9 [string repeat 1234567890 8] {31be3cc98cee37b79b0619e3e1c2be4f1aa56e6c}
 
-foreach {n msg hash} $vectors {
-    test ripemd160-2.$n {HMAC RIPEMD-160 test vectors} {
-        ::ripemd::hmac160 -hex -key $key -- $msg
-    } $hash
-}
-
-# If our implementation is managing to use Trf then check the pure tcl
-# version as well.
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n msg hash} $vectors {
-        test ripemd160-tcl-2.$n {HMAC RIPEMD-160 pure-Tcl} {
+        test ripemd160-$impl-2.$n "HMAC RIPEMD-160 test vectors ($impl)" {
             ::ripemd::hmac160 -hex -key $key -- $msg
         } $hash
     }
-    reset_accel
+    reset_implementation
 }
 
 # -------------------------------------------------------------------------
@@ -151,22 +142,14 @@ set vectors {
 lappend vectors \
     8 [string repeat 1234567890 8] {85f164703e61a63131be7e45958e0794123904f9}
 
-foreach {n msg hash} $vectors {
-    test ripemd160-3.$n {HMAC RIPEMD-160 test vectors} {
-        ::ripemd::hmac160 -hex -key $key $msg
-    } $hash
-}
-
-# If our implementation is managing to use Trf then check the pure tcl
-# version as well.
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n msg hash} $vectors {
-        test ripemd160-tcl-3.$n {HMAC RIPEMD-160 pure-Tcl} {
-            ::ripemd::hmac160 -hex -key $key $msg
-        } $hash
+        test ripemd160-$impl-3.$n "HMAC RIPEMD-160 test vectors ($impl)" {
+            list [catch {::ripemd::hmac160 -hex -key $key $msg} r] $r
+        } [list 0 $hash]
     }
-    reset_accel
+    reset_implementation
 }
 
 # -------------------------------------------------------------------------
@@ -195,21 +178,16 @@ set vectors \
          "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data" \
          69ea60798d71616cce5fd0871e23754cd75d5a0a \
         ]
-foreach {n key msg hash} $vectors {
-    test ripemd160-4.$n {RFC2286 test vectors for HMAC-RIPEMD160} {
-        ::ripemd::hmac160 -hex -key $key -- $msg
-    } $hash
-}
 
-if {[have_accel]} {
-    set_no_accel
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {n key msg hash} $vectors {
-        test ripemd160-tcl-4.$n {RFC2286 test vectors for HMAC-RIPEMD160 pure-Tcl} {
-            ::ripemd::hmac160 -hex -key $key -- $msg
-        } $hash
+        test ripemd160-$impl-4.$n {RFC2286 test vectors for HMAC-RIPEMD160} {
+            list [catch {::ripemd::hmac160 -hex -key $key -- $msg} r] $r
+        } [list 0 $hash]
     }
-    reset_accel
-}    
+    reset_implementation
+}
 
 # -------------------------------------------------------------------------
 

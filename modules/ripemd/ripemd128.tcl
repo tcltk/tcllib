@@ -23,20 +23,16 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd128.tcl,v 1.7 2005/02/23 12:41:37 patthoyts Exp $
+# $Id: ripemd128.tcl,v 1.8 2005/02/24 03:25:50 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::ripemd {
     namespace eval ripemd128 {
         variable version 1.0.3
-        variable rcsid {$Id: ripemd128.tcl,v 1.7 2005/02/23 12:41:37 patthoyts Exp $}
+        variable rcsid {$Id: ripemd128.tcl,v 1.8 2005/02/24 03:25:50 patthoyts Exp $}
         variable accel
         array set accel {trf 0}
-
-        if {![catch {package require Trf}]} {
-            set accel(trf) [expr {![catch {::ripemd128 abc} msg]}]
-        }
 
         variable uid
         if {![info exists uid]} {
@@ -58,10 +54,10 @@ proc ::ripemd::ripemd128::RIPEMD128Init {} {
     variable accel
     variable uid
     set token [namespace current]::[incr uid]
-    upvar #0 $token tok
+    upvar #0 $token state
 
     # Initialize RIPEMD-128 state structure (same as MD4).
-    array set tok \
+    array set state \
         [list \
              A [expr {0x67452301}] \
              B [expr {0xefcdab89}] \
@@ -81,9 +77,7 @@ proc ::ripemd::ripemd128::RIPEMD128Init {} {
                 -read-destination [subst $token](trfread) \
                 -write-type variable \
                 -write-destination [subst $token](trfwrite)
-            set tok(trfread) 0
-            set tok(trfwrite) 0
-            set tok(trf) $s
+            array set state [list trfread 0 trfwrite 0 trf $s]
         }
     }
     return $token
@@ -518,6 +512,44 @@ proc ::ripemd::ripemd128::Hex {data} {
 
 # -------------------------------------------------------------------------
 
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::ripemd::ripemd128::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        #critcl {
+        #    if {![catch {package require tcllibc}]
+        #        || ![catch {package require sha1c}]} {
+        #        set r [expr {[info command ::sha1::sha1c] != {}}]
+        #    }
+        #}
+        #cryptkit {
+        #    if {![catch {package require cryptkit}]} {
+        #        set r [expr {![catch {cryptkit::cryptInit}]}]
+        #    }
+        #}
+        trf {
+            if {![catch {package require Trf}]} {
+                set r [expr {![catch {::ripemd128 aa} msg]}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
+    }
+    set accel($name) $r
+}
+
+# -------------------------------------------------------------------------
+
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
@@ -681,6 +713,11 @@ namespace eval ::ripemd {
 }
 
 # -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help.
+namespace eval ::ripemd::ripemd128 {
+    foreach e {trf} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide ripemd128 $::ripemd::ripemd128::version
 
