@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: docidx.test,v 1.3 2004/02/14 05:59:20 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.test,v 1.4 2004/07/31 04:53:27 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -270,7 +270,9 @@ test docidx-9.0 {docidx syntax} {
     catch {mydocidx format foo} result
     mydocidx destroy
     set result
-} {IDX error (idx/plaintext), "plain_text foo" : Plain text beyond whitespace is not allowed..}
+} {Docidx Error in plain text at line 1, column 0:
+[plain_text foo]
+--> (FmtError) IDX error (idx/plaintext), "plain_text foo" : Plain text beyond whitespace is not allowed..}
 
 
 namespace forget ::doctools::idx::new

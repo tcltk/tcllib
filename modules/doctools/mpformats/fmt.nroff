@@ -205,7 +205,10 @@ proc fmt_comment {text} {
 	return ""
     }
 }
-proc fmt_sectref {text} {bold $text}
+proc fmt_sectref {text {label {}}} {
+    if {![string length $label]} {set label $text}
+    bold $label
+}
 proc fmt_syscmd  {text} {bold $text}
 proc fmt_method  {text} {bold $text}
 proc fmt_option  {text} {bold $text}

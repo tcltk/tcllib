@@ -196,7 +196,10 @@ proc fmt_cmd     {text} {return '''$text'''}
 proc fmt_emph    {text} {return ''$text''}
 proc fmt_opt     {text} {return ?$text?}
 proc fmt_comment {text} {return {}}
-proc fmt_sectref {text} {strong $text}
+proc fmt_sectref {text {label {}}} {
+    if {![string length $label]} {set label $text}
+    strong $label
+}
 proc fmt_syscmd  {text} {strong $text}
 proc fmt_method  {text} {strong $text}
 proc fmt_option  {text} {strong $text}
