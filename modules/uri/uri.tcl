@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.18 2002/11/15 23:43:57 davidw Exp $
+# CVS: $Id: uri.tcl,v 1.19 2003/02/07 03:06:48 davidw Exp $
 
 package require Tcl 8.2
 
@@ -424,7 +424,7 @@ proc uri::SplitMailto {url} {
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
 
-    if {[regexp -- @ $url]} {
+    if {[string match "*@*" $url]} {
 	set url [::split $url @]
 	return [list user [lindex $url 0] host [lindex $url 1]]
     } else {
