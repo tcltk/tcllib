@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin snit n 0.97]
 [copyright {2003-2004, by William H. Duquette}]
-[moddesc {Snit}]
+[moddesc {Simple Now In Tcl, OO system}]
 [titledesc  {Simple Now In Tcl}]
 [require Tcl 8.4]
 [require snit [opt 0.97]]

@@ -1,5 +1,5 @@
 [manpage_begin md5crypt n 1.0.0]
-[moddesc   {md5crypt}]
+[moddesc   {MD5-based password encryption}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5-based password encryption}]
 [require Tcl 8.2]

@@ -2,7 +2,7 @@
 [manpage_begin ldap n 1.2]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
-[moddesc   {LDAP}]
+[moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [require Tcl 8.2]
 [require ldap [opt 1.2]]
