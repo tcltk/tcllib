@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.24 2004/12/29 01:18:20 mic42 Exp $
+# RCS: @(#) $Id: all.tcl,v 1.25 2005/01/04 18:14:25 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
