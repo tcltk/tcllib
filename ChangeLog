@@ -1,3 +1,13 @@
+2003-07-15  Andreas Kupries  <andreask@activestate.com>
+
+	* modules/snit: New module, William Duquette's oo package 'snit'
+	  (aka Snit Is Not IncrTcl).
+
+	* tcllib_version.tcl: Upped to 1.5 because of the new modules
+	  (snit, inifile).
+
+	* installed_modules.tcl: Added 'snit' to list of modules.
+
 2003-07-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: Added the new module 'inifile' to the

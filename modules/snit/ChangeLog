@@ -1,0 +1,12 @@
+2003-07-15  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.tcl:    Imported new module into tcllib.
+	* snit.test:   snit = Snit Is Not IncrTcl
+	* snit.html:   Author: William Duquette
+	* faq.html:    OO package + megawidget framework.
+	* README.txt:
+	* license.txt:
+	* pkgIndex.tcl:
+	* snit.man:
+	* snitfaq.man:
+
