@@ -1,3 +1,7 @@
+2002-10-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* pop3: Fixed bug #620062.
+
 2002-10-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (install-libraries): Added code to skip directories

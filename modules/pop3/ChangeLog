@@ -1,3 +1,9 @@
+2002-10-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.tcl (pop3::retrieve): Changed conditionals around [scan] to
+	  check for the actual number of conversions required to make the
+	  code work, instead of < 0. This fixes bug 620062.
+
 2002-09-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* srv.tcl: Extended to cleanup the fake maildrop directories when
