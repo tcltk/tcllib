@@ -29,8 +29,6 @@ proc ::math::special::elliptic_K {k} {
         return $halfpi
     }
 
-    return $k
-
     set a 1.0
     set b [expr {sqrt(1.0-$k*$k)}]
 
