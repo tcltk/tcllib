@@ -1,3 +1,13 @@
+2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools_api.man:       Polished the manpages a bit,
+	* ../../apps/dtplite.man: for better cross-referencing.
+
+	* mpformats/fmt.html: Fixed initialization bug regarding
+	  cross-references. Added xref matching to the formatting commands
+	  'term' and 'package'. Extended matching to allow multiple
+	  prefixes, and to search for the word in lowercase.
+
 2004-07-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* apps/dtplite.man: New application for doctools processing.

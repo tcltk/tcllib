@@ -8,14 +8,15 @@
 [para]
 
 This manpage specifies the interface between formatting engines for
-data in the [syscmd doctools] format as specified in
-[syscmd doctools_fmt], and [package doctools], the package for the
-generic handling of such data, as described in [syscmd doctools].
+documents written in the [term doctools] format as specified
+
+by [term doctools_fmt], and the package [package doctools], which is
+the package for the generic handling of such data.
 
 [para]
 
 Each formatting engine has to implement the conversion of input in
-[syscmd doctools] format to one particular output format as chosen by
+[term doctools] format to one particular output format as chosen by
 the author of the formatting engine.
 
 [section INTERFACE]

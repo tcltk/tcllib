@@ -1,3 +1,8 @@
+2004-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.man: Changed the reported filename to include the
+	  namespace.
+
 2004-06-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* trim.tcl: Fixed typo in 'trimEmptyHeading'.

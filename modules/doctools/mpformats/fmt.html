@@ -102,6 +102,7 @@ proc fmt_plain_text {text} {
 
 c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; c_clrSections ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
+    XrefInit
     c_cinit
     set module      [dt_module]
     set shortdesc   [c_get_module]
@@ -347,7 +348,7 @@ proc fmt_option  {text} {strong $text}
 proc fmt_widget  {text} {strong $text}
 proc fmt_fun     {text} {strong $text}
 proc fmt_type    {text} {strong $text}
-proc fmt_package {text} {strong $text}
+proc fmt_package {text} {strong [XrefMatch $text sa kw]}
 proc fmt_class   {text} {strong $text}
 proc fmt_var     {text} {strong $text}
 proc fmt_file    {text} {return "\"[strong $text]\""}
@@ -355,7 +356,7 @@ proc fmt_uri     {text {label {}}} {
     if {$label == {}} {set label $text}
     return "[markup <]a href=[markup \"]$text[markup \">]$label[markup </a>]"
 }
-proc fmt_term    {text} {em [XrefMatch $text kw]}
+proc fmt_term    {text} {em [XrefMatch $text kw sa]}
 proc fmt_const   {text} {strong $text}
 
 ################################################################
@@ -392,25 +393,39 @@ proc XrefInit {} {
     return
 }
 
-proc XrefMatch {word ext} {
+proc XrefMatch {word args} {
     global xref
 
-    #puts_stderr "$word $ext"
-    #foreach {k v} [array get xref] {puts_stderr "$k\t $v"}
-
-    if {$ext != {}} {
-	if {[info exists xref($ext,$word)]} {
-	    return [XrefLink $xref($ext,$word) $word]
+    foreach ext $args {
+	if {$ext != {}} {
+	    if {[info exists xref($ext,$word)]} {
+		return [XrefLink $xref($ext,$word) $word]
+	    }
 	}
     }
     if {[info exists xref($word)]} {
 	return [XrefLink $xref($word) $word]
     }
+
+    # Convert the word to all-lower case and then try again.
+
+    set lword [string tolower $word]
+
+    foreach ext $args {
+	if {$ext != {}} {
+	    if {[info exists xref($ext,$lword)]} {
+		return [XrefLink $xref($ext,$lword) $word]
+	    }
+	}
+    }
+    if {[info exists xref($lword)]} {
+	return [XrefLink $xref($lword) $word]
+    }
+
     return $word
 }
 
 proc XrefList {list {ext {}}} {
-    XrefInit
     set res [list]
     foreach w $list {lappend res [XrefMatch $w $ext]}
     return $res
