@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.17 2003/01/29 06:51:29 davidw Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.18 2003/03/24 23:11:56 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -271,22 +271,27 @@ proc ::fileutil::FindGlob {patterns filename} {
 
 # ::fileutil::stripPwd --
 #
-#	If the specified path references a sub directory of [pwd] it
-#	is made relative to [pwd]. Otehrwise it is left unchanged.
+#	If the specified path references is path in [pwd] (or [pwd] itself) it
+#	is made relative to [pwd]. Otherwise it is left unchanged.
 #
 # Arguments:
 #	path		path to modify
 #
 # Results:
-#	path		The (possibly) modified path
+#	path		The (possibly) modified path.
 
 proc ::fileutil::stripPwd {path} {
 
-    # [file split[ is used to generate a canonical form for both
+    # [file split] is used to generate a canonical form for both
     # paths, for easy comparison, and also one which is easy to modify
     # using list commands.
 
-    set pwd   [file split [pwd]]
+    set pwd [pwd]
+    if {[string equal $pwd $path]} {
+	return "."
+    }
+
+    set pwd   [file split $pwd]
     set npath [file split $path]
 
     if {[string match ${pwd}* $npath]} {

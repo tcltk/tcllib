@@ -1,3 +1,9 @@
+2003-03-24  Andreas Kupries  <andreask@activestate.com>
+
+	* README: Updated to refer to the SF website for Tcllib. Thanks to
+	  Larry Virden <lvirden@users.sourceforge.net> for the report and
+	  fix. [Bug #707607].
+
 2003-03-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/ntp: New module ntp created for time related network
