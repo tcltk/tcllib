@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.8 2004/05/26 16:41:33 mic42 Exp $
+# $Id: logger.test,v 1.9 2004/06/04 16:19:44 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -195,6 +195,13 @@ test logger-4.5 {test method inheritance} {
     set ::INFO
 } {Danger Will Robinson!}
 
+test logger-4.6 {disable bad args} {
+    set log [logger::init global]
+    catch { ${log}::disable badargs } err
+    ${log}::delete
+    set err
+} {Invalid level 'badargs' - levels are debug info notice warn error critical}
+
 test logger-5.0 {setlevel command} {
     set ::INFO ""
     set log1 [logger::init global]
@@ -214,6 +221,13 @@ test logger-5.0 {setlevel command} {
     ${log1}::delete
     set ::INFO
 } {{Error Message} {Warning Message}}
+
+test logger-5.1 {setlevel, invalid level} {
+    set log [logger::init global]
+    set code [catch {${log}::setlevel badargs} msg]
+    ${log}::delete
+    list $code $msg
+} {1 {Invalid level 'badargs' - levels are debug info notice warn error critical}}
 
 test logger-6.0 {levels command} {
     logger::levels 
@@ -366,6 +380,14 @@ test logger-8.6 {logproc with args and body, introspection} {
     set cmd
 } {::logger::tree::global::errorcmd}
 
+test logger-8.7 {logproc with too many args} {
+    set log [logger::init global]
+    set code [catch {${log}::logproc error too many args]} msg]
+    ${log}::delete
+    list $code $msg
+} [list 1 [subst -novariable -nocommands \
+     "Usage: \${log}::logproc level ?cmd?\nor \${log}::logproc level argname body"]]
+
 test logger-9.0 {services subcommand} {
     set log [logger::init global]
     set result [logger::services]
@@ -394,6 +416,12 @@ test logger-10.0 {servicecmd test} {
     ${log}::delete
     list $log $cmd
 } {::logger::tree::global ::logger::tree::global}
+
+test logger-10.1 {servicecmd, nonexistent service} {
+    set code [catch {logger::servicecmd nonexistant} msg]
+    list $code $msg
+} {1 {Service "nonexistant" does not exist.}}
+
 
 ::tcltest::cleanupTests
 return
