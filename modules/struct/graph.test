@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.12 2004/02/09 09:32:13 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.13 2004/02/14 05:59:22 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -156,29 +156,6 @@ proc validate_serial {g serial {nodes {}}} {
     }
 
     return ok
-}
-
-# ---------------------------------------------------
-
-# Service procedure to develop the error message for "wrong # args"
-
-proc wrongNumArgs {name arglist count} {
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	set arg [lindex $arglist $count]
-	set msg "no value given for parameter \"$arg\" to \"$name\""
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
-}
-
-proc tooManyArgs {name arglist} {
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	set msg "called \"$name\" with too many arguments"
-    } else {
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
 }
 
 #----------------------------------------------------------------------
@@ -496,7 +473,7 @@ test graph-9.1 {arc unset, wrong # args} {
     catch {mygraph arc unset root flaboozle foobar} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__arc_unset} {name arc key}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_unset} {name arc key}]
 
 test graph-9.2 {arc unset gives error on bogus arc} {
     graph mygraph
@@ -992,7 +969,7 @@ test graph-18.1 {node unset, wrong # args} {
     catch {mygraph node unset root flaboozle foobar} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__node_unset} {name node key}]
+} [tcltest::tooManyArgs {::struct::graph::__node_unset} {name node key}]
 
 test graph-18.2 {node unset gives error on bogus node} {
     graph mygraph
@@ -1264,7 +1241,7 @@ test graph-22.1 {arc getall, wrong # args} {
     catch {mygraph arc getall root data foo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__arc_getall} {name arc ?pattern?}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_getall} {name arc ?pattern?}]
 
 test graph-22.2 {arc getall gives error on bogus arc} {
     graph mygraph
@@ -1314,7 +1291,7 @@ test graph-23.1 {node getall, wrong # args} {
     catch {mygraph node getall root data foo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__node_getall} {name node ?pattern?}]
+} [tcltest::tooManyArgs {::struct::graph::__node_getall} {name node ?pattern?}]
 
 test graph-23.2 {node getall gives error on bogus arc} {
     graph mygraph
@@ -1358,7 +1335,7 @@ test graph-24.1 {arc keys, wrong # args} {
     catch {mygraph arc keys root flaboozle foobar} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__arc_keys} {name arc ?pattern?}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_keys} {name arc ?pattern?}]
 
 test graph-24.2 {arc keys gives error on bogus arc} {
     graph mygraph
@@ -1408,7 +1385,7 @@ test graph-25.1 {node keys, wrong # args} {
     catch {mygraph node keys root flaboozle foobar} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__node_keys} {name node ?pattern?}]
+} [tcltest::tooManyArgs {::struct::graph::__node_keys} {name node ?pattern?}]
 
 test graph-25.2 {node keys gives error on bogus arc} {
     graph mygraph
@@ -1452,14 +1429,14 @@ test graph-26.1 {arc keyexists, wrong # args} {
     catch {mygraph arc keyexists root} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::__arc_keyexists} {name arc key} 2]
+} [tcltest::wrongNumArgs {::struct::graph::__arc_keyexists} {name arc key} 2]
   
 test graph-26.2 {arc keyexists, wrong # args} {
     graph mygraph
     catch {mygraph arc keyexists root foo far} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__arc_keyexists} {name arc key}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_keyexists} {name arc key}]
   
 test graph-26.3 {arc keyexists gives error on bogus node} {
     graph mygraph
@@ -1507,14 +1484,14 @@ test graph-27.1 {node keyexists, wrong # args} {
     catch {mygraph node keyexists root} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::__node_keyexists} {name node key} 2]
+} [tcltest::wrongNumArgs {::struct::graph::__node_keyexists} {name node key} 2]
   
 test graph-27.2 {node keyexists, wrong # args} {
     graph mygraph
     catch {mygraph node keyexists root foo far} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__node_keyexists} {name node key}]
+} [tcltest::tooManyArgs {::struct::graph::__node_keyexists} {name node key}]
   
 test graph-27.3 {node keyexists gives error on bogus node} {
     graph mygraph
@@ -1556,7 +1533,7 @@ test graph-28.1 {arc append with too many args gives error} {
     catch {mygraph arc append root foo bar baz boo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__arc_append} {name arc key value}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_append} {name arc key value}]
 
 test graph-28.2 {arc append gives error on bogus arc} {
     graph mygraph
@@ -1599,7 +1576,7 @@ test graph-29.1 {arc lappend with too many args gives error} {
     catch {mygraph arc lappend root foo bar baz boo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__arc_lappend} {name arc key value}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_lappend} {name arc key value}]
 
 test graph-29.2 {arc lappend gives error on bogus arc} {
     graph mygraph
@@ -1642,7 +1619,7 @@ test graph-30.1 {node append with too many args gives error} {
     catch {mygraph node append root foo bar baz boo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__node_append} {name node key value}]
+} [tcltest::tooManyArgs {::struct::graph::__node_append} {name node key value}]
 
 test graph-30.2 {node append gives error on bogus node} {
     graph mygraph
@@ -1683,7 +1660,7 @@ test graph-31.1 {node lappend with too many args gives error} {
     catch {mygraph node lappend root foo bar baz boo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::__node_lappend} {name node key value}]
+} [tcltest::tooManyArgs {::struct::graph::__node_lappend} {name node key value}]
 
 test graph-31.2 {node lappend gives error on bogus node} {
     graph mygraph
@@ -2020,7 +1997,7 @@ test graph-35.1 {unset, wrong # args} {
     catch {mygraph unset flaboozle foobar} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::_unset} {name key}]
+} [tcltest::tooManyArgs {::struct::graph::_unset} {name key}]
 
 test graph-35.2 {unset does not give error on bogus key} {
     graph mygraph
@@ -2056,7 +2033,7 @@ test graph-36.1 {getall, wrong # args} {
     catch {mygraph getall data foo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::_getall} {name ?pattern?}]
+} [tcltest::tooManyArgs {::struct::graph::_getall} {name ?pattern?}]
 
 test graph-36.2 {getall without attributes returns empty string} {
     graph mygraph
@@ -2090,7 +2067,7 @@ test graph-37.1 {keys, wrong # args} {
     catch {mygraph keys flaboozle foobar} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::_keys} {name ?pattern?}]
+} [tcltest::tooManyArgs {::struct::graph::_keys} {name ?pattern?}]
 
 test graph-37.2 {keys returns empty list without attributes} {
     graph mygraph
@@ -2124,14 +2101,14 @@ test graph-38.1 {keyexists, wrong # args} {
     catch {mygraph keyexists} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::_keyexists} {name key} 1]
+} [tcltest::wrongNumArgs {::struct::graph::_keyexists} {name key} 1]
   
 test graph-38.2 {keyexists, wrong # args} {
     graph mygraph
     catch {mygraph keyexists foo far} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::_keyexists} {name key}]
+} [tcltest::tooManyArgs {::struct::graph::_keyexists} {name key}]
   
 test graph-38.3 {keyexists returns false on non-existant key} {
     graph mygraph
@@ -2163,14 +2140,14 @@ test graph-39.1 {append with too many args gives error} {
     catch {mygraph append foo bar baz boo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::_append} {name key value}]
+} [tcltest::tooManyArgs {::struct::graph::_append} {name key value}]
 
 test graph-39.2 {append gives if not enough arguments} {
     graph mygraph
     catch {mygraph append} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::_append} {name key value} 1]
+} [tcltest::wrongNumArgs {::struct::graph::_append} {name key value} 1]
 
 test graph-39.3 {append creates missing attribute} {
     graph mygraph
@@ -2200,14 +2177,14 @@ test graph-40.1 {lappend with too many args gives error} {
     catch {mygraph lappend foo bar baz boo} msg
     mygraph destroy
     set msg
-} [tooManyArgs {::struct::graph::_lappend} {name key value}]
+} [tcltest::tooManyArgs {::struct::graph::_lappend} {name key value}]
 
 test graph-40.2 {lappend gives error if not enough arguments} {
     graph mygraph
     catch {mygraph lappend} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::_lappend} {name key value} 1]
+} [tcltest::wrongNumArgs {::struct::graph::_lappend} {name key value} 1]
 
 test graph-40.3 {lappend creates missing attribute} {
     graph mygraph
@@ -2237,7 +2214,7 @@ test graph-41.1 {node rename, wrong # args} {
     catch {mygraph node rename foo far fox} result
     mygraph destroy
     set result
-} [tooManyArgs {::struct::graph::__node_rename} {name node newname}]
+} [tcltest::tooManyArgs {::struct::graph::__node_rename} {name node newname}]
 
 test graph-41.2 {node rename of bogus node fails} {
     graph mygraph
@@ -2346,7 +2323,7 @@ test graph-42.1 {arc rename, wrong # args} {
     catch {mygraph arc rename foo far fox} result
     mygraph destroy
     set result
-} [tooManyArgs {::struct::graph::__arc_rename} {name arc newname}]
+} [tcltest::tooManyArgs {::struct::graph::__arc_rename} {name arc newname}]
 
 test graph-42.2 {arc rename of bogus arc fails} {
     graph mygraph
@@ -2515,7 +2492,7 @@ test graph-44.1 {deserialization, wrong #args} {
     catch {mygraph deserialize foo bar} result
     mygraph destroy
     set result
-} [tooManyArgs {::struct::graph::_deserialize} {name serial}]
+} [tcltest::tooManyArgs {::struct::graph::_deserialize} {name serial}]
 
 test graph-44.2 {deserialization} {
     graph mygraph
@@ -2656,7 +2633,7 @@ test graph-45.1 {graph assignment} {
     catch {mygraph = foo bar} result
     mygraph destroy
     set result
-} [tooManyArgs {::struct::graph::_=} {name source}]
+} [tcltest::tooManyArgs {::struct::graph::_=} {name source}]
 
 test graph-45.2 {graph assignment} {
     set serial {%3 {} {{f 6 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
@@ -2682,7 +2659,7 @@ test graph-46.1 {reverse graph assignment} {
     catch {mygraph --> foo bar} result
     mygraph destroy
     set result
-} [tooManyArgs {::struct::graph::_-->} {name dest}]
+} [tcltest::tooManyArgs {::struct::graph::_-->} {name dest}]
 
 test graph-46.2 {reverse graph assignment} {
 
@@ -2762,7 +2739,7 @@ test graph-48.0 {attribute search} {
     catch {mygraph arc attr} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::__arc_attr} {name key args} 1]
+} [tcltest::wrongNumArgs {::struct::graph::__arc_attr} {name key args} 1]
 
 test graph-48.1 {attribute search} {
     gengraph mygraph
@@ -2843,7 +2820,7 @@ test graph-49.0 {attribute search} {
     catch {mygraph node attr} msg
     mygraph destroy
     set msg
-} [wrongNumArgs {::struct::graph::__node_attr} {name key args} 1]
+} [tcltest::wrongNumArgs {::struct::graph::__node_attr} {name key args} 1]
 
 test graph-49.1 {attribute search} {
     gengraph mygraph

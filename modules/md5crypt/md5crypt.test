@@ -7,7 +7,7 @@
 #
 # Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# RCS: @(#) $Id: md5crypt.test,v 1.4 2004/02/13 06:51:37 andreas_kupries Exp $
+# RCS: @(#) $Id: md5crypt.test,v 1.5 2004/02/14 05:59:21 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -53,33 +53,17 @@ if {[info command ::md5crypt::md5crypt_c] != {}} {
 
 test md5crypt-1.0 {md5crypt basic usage} {
     catch {::md5crypt::md5crypt} result
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-        set result [string match {no value given for parameter "pw" to "*"} $result]
-    } else {
-        set result [string match {wrong # args: *} $result]
-    }
-    set result
+    string match [tcltest::wrongNumArgs {*} {pw salt} 0] $result
 } 1
 
 test md5crypt-1.1 {md5crypt basic usage} {
     catch {::md5crypt::md5crypt pw} result
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-        set result [string match {no value given for parameter "salt" to "*"} $result]
-    } else {
-        set result [string match {wrong # args: *} $result]
-    }
-    set result
+    string match [tcltest::wrongNumArgs {*} {pw salt} 1] $result
 } 1
 
 test md5crypt-1.2 {md5crypt basic usage} {
     catch {::md5crypt::md5crypt pw salt other} result
-
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-        set result [string match {called "*" with too many arguments} $result]
-    } else {
-        set result [string match {wrong # args: *} $result]
-    }
-    set result
+    string match [tcltest::tooManyArgs {*} {pw salt}] $result
 } 1
 
 # -------------------------------------------------------------------------

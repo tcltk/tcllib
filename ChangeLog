@@ -1,3 +1,19 @@
+2004-02-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl (release): Made functional, added the code which extends
+	  all the ChangeLogs with the release notice.
+	  (gd-assemble): Extended to exclude SCCS and BitKeeper files from
+	  the distribution.
+	  (gd-gen-packages): Fixed problem with missing global variable.
+
+	* all.tcl: 'getErrorMessage' and 'tooManyMessage' renamed to
+	  'wrongNumArgs' anfd 'tooManyArg'. Also placed the common
+	  constraints (checking Tcl version: 8.3 only, 8.3+, 8.4+) in
+	  here, and removed their declaration from all test files using
+	  them.
+
+	* README-1.5.txt: Updated logger version info to 0.3.
+
 2004-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Added a very primitive approval mechanism to suppress
