@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.22 2004/05/21 04:23:58 gwlester Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.23 2004/05/23 18:10:44 gwlester Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -1749,7 +1749,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    set fhandle [open $path a]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary
+		fconfigure $fhandle -translation binary -encoding binary
 	    }
 	    return $fhandle
         }
@@ -1759,7 +1759,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    set fhandle [open $path r]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary
+		fconfigure $fhandle -translation binary -encoding binary
 	    }
 	    return $fhandle
 	}
@@ -1769,7 +1769,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	    #
 	    set fhandle [open $path w]
 	    if {[lindex $args 0] == "binary"} {
-		fconfigure $fhandle -translation binary
+		fconfigure $fhandle -translation binary -encoding binary
 	    }
 	    return $fhandle
 	}
