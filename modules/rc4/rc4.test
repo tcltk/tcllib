@@ -1,6 +1,6 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: rc4.test,v 1.5 2004/08/10 07:01:33 andreas_kupries Exp $
+# $Id: rc4.test,v 1.6 2005/02/20 01:56:20 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -29,8 +29,6 @@ if {[catch {source [file join [file dirname [info script]] rc4.tcl]} msg]} {
 
 if {[info command ::rc4::rc4c] != {}} {
     puts "- rc4 [package present rc4] (critcl)"
-} else {
-    puts "- rc4 [package present rc4] (pure Tcl)"
 }
 
 # -------------------------------------------------------------------------
@@ -95,14 +93,63 @@ lappend tests \
                0f a4 89 34 16 3d dd e5 42 a6 58 55 40 fd 68 3c bf d8 c0 0f\
                12 12 9a 28 4d ea cc 4c de fe 58 be 71 37 54 1c 04 71 26 c8\
                d4 9e 27 55 ab 18 1a b7 e9 40 b0 c0" {}]]
-      
+
+if {[llength [info command ::rc4::rc4c]] != 0} {
+    set n 0
+    foreach {key input output} $tests {
+        test rc4-critcl-2.$n {rc4 test vectors (critcl based)} {
+            list [catch {::rc4::rc4 -key $key $input} msg] $msg
+        } [list 0 $output]
+        incr n
+    }
+}
+
+puts "- rc4 [package present rc4] (pure Tcl - array based)"
 set n 0
+interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_Array
+interp alias {} ::rc4::RC4     {} ::rc4::RC4_Array
 foreach {key input output} $tests {
-    test rc4-2.$n {md5} {
-	list [catch {::rc4::rc4 -key $key $input} msg] $msg
+    test rc4-array-2.$n {rc4 test vectors (pure tcl array based)} {
+        list [catch {::rc4::rc4 -key $key $input} msg] $msg
     } [list 0 $output]
     incr n
 }
+
+puts "- rc4 [package present rc4] (pure Tcl - list based)"
+set n 0
+interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_List
+interp alias {} ::rc4::RC4     {} ::rc4::RC4_List
+foreach {key input output} $tests {
+    test rc4-list-2.$n {rc4 test vectors (pure tcl list based)} {
+        list [catch {::rc4::rc4 -key $key $input} msg] $msg
+    } [list 0 $output]
+    incr n
+}
+
+test rc4-3.0 {rc4 check hyphen handling} {
+    list [catch {rc4::rc4 -hex -key - \0} msg] $msg
+} {0 9d}
+
+test rc4-3.1 {rc4 check hyphen handling} {
+    list [catch {rc4::rc4 -hex -key -- \0} msg] $msg
+} {0 9d}
+
+test rc4-3.2 {rc4 check hyphen handling} {
+    list [catch {rc4::rc4 -hex -key - -} msg] $msg
+} {0 b0}
+
+test rc4-3.3 {rc4 check hyphen handling} {
+    list [catch {rc4::rc4 -hex -key - --} msg] $msg
+} {0 b046}
+
+test rc4-3.4 {rc4 check hyphen handling} {
+    list [catch {rc4::rc4 -hex -key - -- -} msg] $msg
+} {0 b0}
+
+test rc4-3.5 {rc4 check hyphen handling} {
+    list [catch {rc4::rc4 -hex -key - -- --} msg] $msg
+} {0 b046}
+
 
 # -------------------------------------------------------------------------
 
