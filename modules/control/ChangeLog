@@ -1,12 +1,16 @@
 2001-11-03  Don Porter <dgp@users.sourceforge.net>
 
+	* rswitch.tcl: Replaced bogus copyright notice with public
+	domain boilerplate.
+	* rswitch.test: Added tests and test source material.
+
 	* pkgIndex.tcl:
 	* control.tcl: Addition of rswitch means bump 0.0 -> 0.1.
 	
 	* genIndex (new file):
 	* index.tcl (deleted file): renamed index.tcl -> genIndex so
 	it won't be mistakenly installed anymore.  Purpose of genIndex
-	is to regenerate the tclIndex file.
+	is to regenerate the tclIndex file.  [Bug 475846]
 	* tclIndex: Generated.
 
 2001-11-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
