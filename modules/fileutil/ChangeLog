@@ -1,3 +1,13 @@
+2003-09-03  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (fileutil::fileType): Fixed the SourceForge Tcllib
+	  bug [795585]. We are now allowing whitespace between the #! and
+	  path of the script interpreter. Extended to identify metakit
+	  databases, also when attached to another file.
+
+	  (tempfile): Added 'global env', access to 'env' was bad, causing
+	  malfunction on windows.
+
 2003-08-12  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.man: Fixed a bad call of [cmd] in the documentation of
