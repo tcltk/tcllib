@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.38 2004/05/03 22:56:16 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.39 2004/05/11 19:14:28 afaupell Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -688,8 +688,13 @@ proc ::fileutil::fileType {filename} {
         lappend type graphic gif
     } elseif { $binary && [string match "\x89PNG*" $test] } {
         lappend type graphic png
-    } elseif { $binary && [string match "\xFF\xD8\xFF\xE0\x00\x10JFIF*" $test] } {
-        lappend type graphic jpeg
+    } elseif { $binary && [string match "\xFF\xD8\xFF*" $test] } {
+        binary scan $test c3H2Sa5 id marker len txt 
+        if {$marker == "e0" && $txt == "JFIF\x00"} {
+            lappend type graphic jpeg jfif
+        } elseif { $marker == "e1" && $txt == "Exif\x00" } {
+            lappend type graphic jpeg exif
+        }
     } elseif { $binary && [string match "MM\x00\**" $test] } {
         lappend type graphic tiff
     } elseif { $binary && [string match "\%PDF\-*" $test] } {
