@@ -1,3 +1,8 @@
+2002-07-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: Changed bug #578465 which caused
+	  mis-generation of angle-brackets and quotes.
+
 2002-06-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: 
