@@ -1,3 +1,9 @@
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
 2004-08-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtp.tcl:     Do not try to authenticate if no username is

@@ -1,3 +1,9 @@
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
 2004-07-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* uuid.tcl:   Added a critcl version for generating uuids on Win32.
