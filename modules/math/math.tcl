@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.10 2002/01/12 00:55:13 kennykb Exp $
+# RCS: @(#) $Id: math.tcl,v 1.11 2002/01/18 20:28:22 andreas_kupries Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 
@@ -32,11 +32,9 @@ namespace eval ::math {
     # Set up for auto-loading
 
     variable home [file join [pwd] [file dirname [info script]]]
-        if {[lsearch -exact $::auto_path $home] == -1} {
+    if {[lsearch -exact $::auto_path $home] == -1} {
 	lappend ::auto_path $home
     }
 
     package provide [namespace tail [namespace current]] $version
-
-
 }
