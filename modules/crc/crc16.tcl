@@ -23,7 +23,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.2 2002/10/11 22:13:51 patthoyts Exp $
+# $Id: crc16.tcl,v 1.3 2003/01/06 22:08:32 patthoyts Exp $
 
 
 namespace eval crc {
@@ -96,7 +96,7 @@ proc crc::Crc_table {width poly reflected} {
 }
 
 # -------------------------------------------------------------------------
-# Calculate the CRC checksum for the data in 's' using aprecalculated
+# Calculate the CRC checksum for the data in 's' using a precalculated
 # table.
 #  s the input data
 #  width - the width in bits of the CRC algorithm
@@ -108,6 +108,8 @@ proc crc::Crc_table {width poly reflected} {
 #              in transmission order (ie: bit0, bit1, ..., bit7)
 proc crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
     upvar $table tbl
+    variable signbit
+    set signmask [expr {~$signbit>>7}]
 
     if {$width < 32} {
         set mask   [expr {(1 << $width) - 1}]
@@ -121,13 +123,13 @@ proc crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
     binary scan $s c* data
     foreach {datum} $data {
         if {$reflected} {
-            set crc [expr {[lindex $tbl \
-                                [expr {($crc ^ $datum) & 0xFF}]] \
-                               ^ [expr {($crc>>8)}]}]
+            set ndx [expr {($crc ^ $datum) & 0xFF}]
+            set lkp [lindex $tbl $ndx]
+            set crc [expr {($lkp ^ ($crc >> 8 & $signmask)) & $mask}]
         } else {
-            set crc [expr {[lindex $tbl \
-                                [expr {(($crc >> $rot) ^ $datum) & 0xFF}]] \
-                               ^ ($crc << 8) & $mask}]
+            set ndx [expr {(($crc >> $rot) ^ $datum) & 0xFF}]
+            set lkp [lindex $tbl $ndx]
+            set crc [expr {($lkp ^ ($crc << 8 & $signmask)) & $mask}]
         }
     }
 
