@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.7 2002/11/06 04:08:02 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.8 2003/04/14 06:58:16 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -17,6 +17,10 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] graph.tcl]
 namespace import ::struct::graph::graph
+
+catch {puts "-- cgraph [package present cgraph]"}
+
+
 
 # ---------------------------------------------------
 
