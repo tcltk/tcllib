@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.70 2002/04/23 23:36:59 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.71 2002/06/05 22:59:06 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -232,8 +232,12 @@ binaries:
 
 libraries:
 
-doc: nroff-doc html-doc tmml-doc
-
+# Generation of documentation is platform dependent
+doc:
+	$(MAKE) html-doc
+	if [ `echo 'puts $$tcl_platform(platform) ; exit' | $(TCLSH_PROG)` = unix ] ; then \
+	    $(MAKE) nroff-doc ; \
+	fi
 
 install: all install-libraries install-doc
 
@@ -258,9 +262,8 @@ install-libraries: libraries
 		fi \
 	    fi; \
 	done;
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/mkIndex.tcl` `$(CYGPATH) $(pkglibdir)` tcllib $(VERSION) $(MODULES) smtp
-
-# AK: Mar 26, 2001: Added 'smtp' explicitly to the list of modules (is part of 'mime').
+	$(MAKE) gen-main-index "PKGDIR=$(srcdir)"
+	cp $(srcdir)/pkgIndex.tcl $(pkglibdir)
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
@@ -268,17 +271,15 @@ install-libraries: libraries
 #========================================================================
 
 install-doc: doc
-	$(mkinstalldirs) $(mandir)/mann
-	-@for j in $(MODULES) ; do \
-	    echo "Installing documentation for $$j" ; \
-	    for i in `ls $(srcdir)/modules/$$j/*.n 2>/dev/null` ; do \
-		sed -e '/man\.macros/r $(srcdir)/man.macros' -e '/man\.macros/d' $$i > $$$$ ; \
-	        $(INSTALL_DATA) $$$$ $(mandir)/mann/`basename $$i` ; \
-		rm $$$$ ; \
-	    done; \
-	done
-	-chmod 444 $(mandir)/mann/*
-	$(INSTALL_DATA) $(srcdir)/man.macros $(mandir)
+	@echo Installing documentation for $(PACKAGE)
+	@if [ `echo 'puts $$tcl_platform(platform) ; exit' | $(TCLSH_PROG)` = unix ] ; then \
+	    $(mkinstalldirs) $(mandir)/mann ; \
+	    cp doc/nroff/*.n $(mandir)/mann ; \
+	    chmod 444 $(mandir)/mann/* ; \
+	    $(INSTALL_DATA) $(srcdir)/man.macros $(mandir) ; \
+	fi
+	$(mkinstalldirs)   $(pkglibdir)/htmldoc
+	cp doc/html/*.html $(pkglibdir)/htmldoc
 
 test:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/all.tcl` -modules "$(MODULES)"
@@ -306,10 +307,11 @@ depend:
 # - Generate pkgIndex and installation scripts
 # - Generate the archives and release the temp dir
 
-dist:
+dist: html-doc nroff-doc
 	rm -rf tcllib-$(VERSION) tcllib-$(VERSION).tar.gz tcllib-$(VERSION).zip
 	@mkdir tcllib-$(VERSION)
 	cp -r $(srcdir)/* tcllib-$(VERSION) ;
+	cp -r doc         tcllib-$(VERSION) ;
 	find tcllib-$(VERSION) -name CVS -prune -exec rm -rf {} \;
 	for j in $(MODULES) ; do \
 	    doc=`ls $(srcdir)/modules/$$j/*.n 2>/dev/null` ; \
@@ -320,12 +322,24 @@ dist:
 		done; \
 	    fi ; \
 	done ;
-	rm tcllib-$(VERSION)/modules/stats
-	$(TCLSH_PROG) $(srcdir)/mkIndex.tcl          tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
+	rm -rf tcllib-$(VERSION)/modules/ftp/example
+	rm -rf tcllib-$(VERSION)/modules/ftpd/examples
+	rm -rf tcllib-$(VERSION)/modules/stats
+	rm -rf tcllib-$(VERSION)/modules/fileinput
+	$(MAKE) gen-main-index "PKGDIR=tcllib-$(VERSION)"
 	$(TCLSH_PROG) $(srcdir)/mkInstallScripts.tcl tcllib-$(VERSION) tcllib $(VERSION) $(MODULES)
 	tar cf - tcllib-$(VERSION) | gzip --best > tcllib-$(VERSION).tar.gz
 	zip -r tcllib-$(VERSION).zip tcllib-$(VERSION)
 	rm -rf tcllib-$(VERSION)
+
+# Internal target. Used by both 'make dist' and 'make install' to
+# generate the package index for tcllib.  Variable to set by the
+# caller:
+#
+# PKGDIR = Installation directory of the package.
+
+gen-main-index:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/mkIndex.tcl` `$(CYGPATH) $(PKGDIR)` tcllib $(VERSION)
 
 
 #========================================================================

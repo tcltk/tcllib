@@ -5,10 +5,14 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.3 2002/02/15 05:35:30 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.4 2002/06/05 22:59:07 andreas_kupries Exp $
 # -------------------------------------------------------------------------
 
-package require uri 1.1.1
+package provide uri::urn 1.0
+package require uri      1.1.1
+
+namespace eval uri {}
+namespace eval uri::urn {}
 
 uri::register {urn URN} {
 	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
@@ -93,8 +97,6 @@ proc uri::urn::unquote {url} {
     }
     return $url
 }
-
-package provide uri::urn 1.0
 
 # -------------------------------------------------------------------------
 # Local Variables:

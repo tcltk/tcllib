@@ -1,3 +1,32 @@
+2002-06-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* all.tcl: Updated to use a default value for -modules if that
+	  option is not present.
+
+	* install.tcl: New file, alternate installer for unix and
+	  windows. Execute with any tclsh and tcllib 1.3 is installed in
+	  the parent directory of the tcl script library
+	  directory. Courtesy Gerald Lester
+	  <gwlester@users.sourceforge.net>.
+
+	* Makefile.in (install-doc): Changed to use the doctools generated
+	  nroff and html files instead of the manually written .n files.
+
+	* configure.in (MINOR_VERSION): Updated to version 1.3
+
+	* Makefile.in (doc): Removed tmml-doc from default set of
+	  documentation.
+	
+	* Makefile.in (dist, install): New target 'gen-main-index'
+	  encapsulates the generation of the package index for
+	  tcllib. This target is used by both the direct installation
+	  (install) and during the generation of a source distribution
+	  (dist).
+
+	* mkIndex.tcl: Rewritten to make use of 'pkg_mkIndex' to get the
+	  list of all packages in tcllib. Added a message which deprecates
+	  [package require tcllib] if it is used.
+
 2002-06-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* math (calculus): Fixed SF Tcllib Bug #553773.
