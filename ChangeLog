@@ -1,5 +1,11 @@
 2002-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* Makefile.in (DOC_EXP): Use the tclsh found during configuration
+	  to run mpexpand. This ensures that mpexpand does not pick
+	  something from the path on its own, possibly something to oold
+	  to understand TCLLIBPATH. Problem noted by Elchonon Edelson
+	  <edelson@pobox.com>.
+
 	* mime: Accepted SF Tcllib FR #595240. This entails the donation
 	  of the personal mail filter mbot, as written and used by
 	  Marshall T. Rose, as an example of the usage of the mime and
