@@ -1,4 +1,16 @@
 
+2000-09-19  Brent Welch <welch@ajubasolutions.com>
+
+	* Makefile.in: 
+	Added the stats module.
+	* configure.in: 
+	Increased version number to 0.7
+	* modules/stats/stats.tcl:
+	* modules/stats/stats.n:
+	* modules/stats/stats.test:
+	* modules/stats/pkgIndex.tcl:
+	Initial version of the stats package.
+
 2000-08-23  Brent Welch <welch@ajubasolutions.com>
 
 	* Makefile.in: fixed typo

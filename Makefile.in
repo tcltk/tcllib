@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.34 2000/08/23 17:08:38 build Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.35 2000/09/19 15:03:06 welch Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -57,6 +57,9 @@ NNTP=nntp
 # Text utilities
 TEXTUTIL=textutil
 
+# Counters and statistics
+STATS=stats
+
 MODULES= \
 	$(BASE64)	\
 	$(CMDLINE)	\
@@ -70,6 +73,7 @@ MODULES= \
 	$(NNTP)         \
 	$(POP3)		\
 	$(PROFILER)	\
+	$(STATS)	\
 	$(TEXTUTIL)	\
 	$(URI)
 
