@@ -1,3 +1,8 @@
+2004-02-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* profiler.tcl (stats): Bugfix by Bob Techentin, preventing a
+	  division by zero if the average time has become zero.
+
 2003-10-29  Andreas Kupries  <andreask@activestate.com>
 
 	* profiler.man: Updated documented signature of 'reset', missed
