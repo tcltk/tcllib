@@ -1,5 +1,17 @@
 2004-07-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* ../../apps/dtplite: Revamped the whole file mapping. Actually
+	  ripped it out. Is not needed, the formatting engine does the
+	  necessary parts for us, if we feed it the correct -file
+	  options. This kills the outstanding bug with xref links.
+	
+	* ../../apps/dtplite: Bugfix. Added checks to prevent duplicate
+	  entries in the keyword index. Without these checks going through
+	  a set of packages twice for merging will create double links for
+	  each actual entry. Changed the representation of the index saved
+	  between merge invokations to keep the array for the voiding of
+	  duplicates around.
+
 	* docidx.man:    Overhaul of documentation.
 	* cvs.man: 
 	* changelog.man: 
