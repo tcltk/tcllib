@@ -1,3 +1,19 @@
+2005-02-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_list.man: Extended to cover the new functionality.
+
+	* list.tests: Extended testsuite for the new functionality, see
+	  below.
+	
+	* list.tcl: New functionality. Exchange of two elements of a list,
+	  and handling of list permutations (first, next, all, foreach).
+	  The code has been taken from the Wiki, page 11262. The swap code
+	  by Richard Suchenwirth. The 'firstperm' code by Kevin Kenny. The
+	  'nextperm' algorithm by Donal E. Knuth [*], as translated to Tcl
+	  by Kevin Kenny. Generation of all permutations and looping over
+	  them by myself, using code from the module 'control' as well.
+	  -- [*] Detailed references in the documentation.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

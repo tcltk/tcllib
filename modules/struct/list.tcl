@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.17 2004/05/19 04:34:50 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.18 2005/02/24 05:33:26 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -42,6 +42,11 @@ namespace eval ::struct::list {
 	namespace export Lshift
 	namespace export LdbJoin
 	namespace export LdbJoinOuter
+	namespace export Lswap
+	namespace export Lpermutations
+	namespace export Lfirstperm
+	namespace export Lnextperm
+	namespace export Lforeachperm
     }
 }
 
@@ -1471,6 +1476,249 @@ proc ::struct::list::Dekey {keyedtable} {
     set table [::list]
     foreach row $keyedtable {lappend table [lindex $row 1]}
     return $table
+}
+
+# ::struct::list::Lswap --
+#
+#	Exchange two elements of a list.
+#
+# Parameters:
+#	listvar	Name of the variable containing the list to manipulate.
+#	i, j	Indices of the list elements to exchange.
+#
+# Results:
+#	The modified list
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Lswap {listvar i j} {
+    upvar $listvar list
+
+    if {($i < 0) || ($j < 0)} {
+	return -code error {list index out of range}
+    }
+    set len [llength $list]
+    if {($i >= $len) || ($j >= $len)} {
+	return -code error {list index out of range}
+    }
+
+    if {$i != $j} {
+	set tmp      [lindex $list $i]
+	lset list $i [lindex $list $j]
+	lset list $j $tmp
+    }
+    return $list
+}
+
+# ::struct::list::Lfirstperm --
+#
+#	Returns the lexicographically first permutation of the
+#	specified list.
+#
+# Parameters:
+#	list	The list whose first permutation is sought.
+#
+# Results:
+#	A modified list containing the lexicographically first
+#	permutation of the input.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Lfirstperm {list} {
+    return [lsort $list]
+}
+
+# ::struct::list::Lnextperm --
+#
+#	Accepts a permutation of a set of elements and returns the
+#	next permutatation in lexicographic sequence.
+#
+# Parameters:
+#	list	The list containing the current permutation.
+#
+# Results:
+#	A modified list containing the lexicographically next
+#	permutation after the input permutation.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Lnextperm {perm} {
+    # Find the smallest subscript j such that we have already visited
+    # all permutations beginning with the first j elements.
+
+    set len [expr {[llength $perm] - 1}]
+
+    set j $len
+    set ajp1 [lindex $perm $j]
+    while { $j > 0 } {
+	incr j -1
+	set aj [lindex $perm $j]
+	if { [string compare $ajp1 $aj] > 0 } {
+	    set foundj {}
+	    break
+	}
+	set ajp1 $aj
+    }
+    if { ![info exists foundj] } return
+
+    # Find the smallest element greater than the j'th among the elements
+    # following aj. Let its index be l, and interchange aj and al.
+
+    set l $len
+    while { $aj >= [set al [lindex $perm $l]] } {
+	incr l -1
+    }
+    lset perm $j $al
+    lset perm $l $aj
+
+    # Reverse a_j+1 ... an
+
+    set k [expr {$j + 1}]
+    set l $len
+    while { $k < $l } {
+	set al [lindex $perm $l]
+	lset perm $l [lindex $perm $k]
+	lset perm $k $al
+	incr k
+	incr l -1
+    }
+
+    return $perm
+}
+
+# ::struct::list::Lpermutations --
+#
+#	Returns a list containing all the permutations of the
+#	specified list, in lexicographic order.
+#
+# Parameters:
+#	list	The list whose permutations are sought.
+#
+# Results:
+#	A list of lists, containing all	permutations of the
+#	input.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Lpermutations {list} {
+
+    if {[llength $list] < 2} {
+	return [list $list]
+    }
+
+    set res {}
+    set p [Lfirstperm $list]
+    while {[llength $p]} {
+	lappend res $p
+	set p [Lnextperm $p]
+    }
+    return $res
+}
+
+# ::struct::list::Lforeachperm --
+#
+#	Executes a script for all the permutations of the
+#	specified list, in lexicographic order.
+#
+# Parameters:
+#	var	Name of the loop variable.
+#	list	The list whose permutations are sought.
+#	body	The tcl script to run per permutation of
+#		the input.
+#
+# Results:
+#	The empty string.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Lforeachperm {var list body} {
+    upvar $var loopvar
+
+    if {[llength $list] < 2} {
+	set loopvar $list
+	# TODO run body.
+
+	# The first invocation of the body, also the last, as only one
+	# permutation is possible. That makes handling of the result
+	# codes easier.
+
+	set code [catch {uplevel 1 $body} result]
+
+	# decide what to do upon the return code:
+	#
+	#               0 - the body executed successfully
+	#               1 - the body raised an error
+	#               2 - the body invoked [return]
+	#               3 - the body invoked [break]
+	#               4 - the body invoked [continue]
+	# everything else - return and pass on the results
+	#
+	switch -exact -- $code {
+	    0 {}
+	    1 {
+		return -errorinfo [ErrorInfoAsCaller uplevel foreachperm]  \
+		    -errorcode $::errorCode -code error $result
+	    }
+	    3 {}
+	    4 {}
+	    default {
+		# Includes code 2
+		return -code $code $result
+	    }
+	}
+	return
+    }
+
+    set p [Lfirstperm $list]
+    while {[llength $p]} {
+	set loopvar $p
+
+	set code [catch {uplevel 1 $body} result]
+
+	# decide what to do upon the return code:
+	#
+	#               0 - the body executed successfully
+	#               1 - the body raised an error
+	#               2 - the body invoked [return]
+	#               3 - the body invoked [break]
+	#               4 - the body invoked [continue]
+	# everything else - return and pass on the results
+	#
+	switch -exact -- $code {
+	    0 {}
+	    1 {
+		return -errorinfo [ErrorInfoAsCaller uplevel foreachperm]  \
+		    -errorcode $::errorCode -code error $result
+	    }
+	    3 {
+		# FRINK: nocheck
+		return
+	    }
+	    4 {}
+	    default {
+		return -code $code $result
+	    }
+	}
+	set p [Lnextperm $p]
+    }
+    return
+}
+
+proc ::struct::list::ErrorInfoAsCaller {find replace} {
+    set info $::errorInfo
+    set i [string last "\n    (\"$find" $info]
+    if {$i == -1} {return $info}
+    set result [string range $info 0 [incr i 6]]	;# keep "\n    (\""
+    append result $replace			;# $find -> $replace
+    incr i [string length $find]
+    set j [string first ) $info [incr i]]	;# keep rest of parenthetical
+    append result [string range $info $i $j]
+    return $result
 }
 
 # ### ### ### ######### ######### #########
