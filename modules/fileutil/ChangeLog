@@ -1,3 +1,9 @@
+2003-04-23  Andreas Kupries  <andreask@pliers.activestate.com>
+
+	* fileutil.man:
+	* fileutil.tcl: Added command [tempfile]. Was part of tcllib patch
+	  611595, but has a better place here.
+
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.man:
