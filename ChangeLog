@@ -1,5 +1,7 @@
 2003-04-30  Andreas Kupries  <andreask@activestate.com>
 
+	* sak.tcl (gd-tip55): Bugfix, location of changeLog was not computed correctly.
+
 	* README-1.4txt: New, overview of changes from 1.3 to 1.4.
 
 	* installed_modules.tcl: Excluded 'calendar' form the list of
