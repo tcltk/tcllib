@@ -642,12 +642,14 @@ if {[info tclversion] > 8.1} {
 # Results:
 #	The html fragment
 
-proc html::textInput {name args} {
+proc html::textInput {name {value {}} args} {
     variable defaults
     ::set html "<input type=\"text\" "
-    append html "name=\"$name\" "
+    append html [formValue $name $value]
     append html [html::default input.size]
-    append html [join $args]
+    ::if {[llength $args] != 0} then {
+	append html " " [join $args]
+    }
     append html ">\n"
     return $html
 }
@@ -664,9 +666,9 @@ proc html::textInput {name args} {
 # Results:
 #	The html fragment
 
-proc html::textInputRow {label name args} {
+	proc html::textInputRow {label name {value {}} args} {
     variable defaults
-    ::set html [html::row $label [::eval [list html::textInput $name] $args]]
+    ::set html [html::row $label [::eval [list html::textInput $name $value] $args]]
     return $html
 }
 
@@ -687,7 +689,7 @@ proc html::passwordInputRow {label {name password}} {
     return $html
 }
 
-# html::passwordInpupt --
+# html::passwordInput --
 #
 #	Return an <input type=password> element.
 #
