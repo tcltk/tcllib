@@ -420,7 +420,7 @@ proc ::htmlparse::debugCallback {args} {
 proc ::htmlparse::mapEscapes {html} {
     # Find HTML escape characters of the form &xxx;
 
-    if { ! [strimg match "*&*" $html] } {
+    if { ! [string match "*&*" $html] } {
 	# HTML not containing escape sequences is returned unchanged.
 	return $html
     }
