@@ -8,20 +8,27 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.13 2005/02/17 14:42:27 patthoyts Exp $
+# $Id: md4.tcl,v 1.14 2005/02/17 22:20:13 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.3
-    variable rcsid {$Id: md4.tcl,v 1.13 2005/02/17 14:42:27 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.14 2005/02/17 22:20:13 patthoyts Exp $}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
 
     variable uid
     if {![info exists uid]} {
         set uid 0
+    }
+
+    # Try and use the critcl extension.
+    variable usemd4c 0
+    if {![catch {package require tcllibc}] \
+            || ![catch {package require md4::md4c}]} {
+        set usemd4c [expr {[info command ::md4::md4c] != {}}]
     }
 }
 
@@ -47,11 +54,12 @@ proc ::md4::MD4Init {} {
 }
 
 proc ::md4::MD4Update {token data} {
+    variable usemd4c
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
-    if {[package provide md4c] != {}} {
+    if {$usemd4c} {
         if {[info exists state(md4c)]} {
             set state(md4c) [md4c $data $state(md4c)]
         } else {
@@ -76,11 +84,12 @@ proc ::md4::MD4Update {token data} {
 }
 
 proc ::md4::MD4Final {token} {
+    variable usemd4c
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
 
-    if {[package provide md4c] != {}} {
+    if {$usemd4c} {
         set r $state(md4c)
         unset state
         return $r
@@ -338,12 +347,8 @@ if {[package provide Trf] != {}} {
     interp alias {} ::md4::Hex {} ::hex -mode encode --
 } else {
     proc ::md4::Hex {data} {
-        set result {}
-        binary scan $data c* r
-        foreach c $r {
-            append result [format "%02X" [expr {$c & 0xff}]]
-        }
-        return $result
+        binary scan $data H* result
+        return [string toupper $result]
     }
 }
 

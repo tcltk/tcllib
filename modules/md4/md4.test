@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.8 2005/02/17 14:42:27 patthoyts Exp $
+# $Id: md4.test,v 1.9 2005/02/17 22:20:13 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -30,11 +30,10 @@ package require md4
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-if {[package provide md4c] == {}} {
-    puts "md4 [package provide md4] (pure Tcl)"
-} else {
+if {$::md4::usemd4c} {
     puts "md4 [package provide md4] (using md4c)"
 }
+puts "md4 [package provide md4] (pure Tcl)"
 
 # -------------------------------------------------------------------------
 
@@ -54,6 +53,14 @@ foreach {n msg hash} {
     test md4-1.$n {md4 RFC test strings} {
         ::md4::md4 -hex $msg
     } $hash
+
+    if {$::md4::usemd4c} {
+        set ::md4::usemd4c 0
+        test md4-tcl-1.$n {md4 RFC test strings (pure Tcl impl)} {
+            ::md4::md4 -hex $msg
+        } $hash
+        set ::md4::usemd4c 1
+    }
 }
 
 # Block length checks
@@ -217,9 +224,19 @@ foreach {n hash} {
             ::md4::md4 -hex [string repeat a $n]
         } msg] $msg
     } [list 0 $hash]
+
+    if {$::md4::usemd4c} {
+        set ::md4::usemd4c 0
+        test md4-tcl-2.$n "md4 (pure tcl) block size checks: length $n" {
+            list [catch {
+                ::md4::md4 -hex [string repeat a $n]
+            } msg] $msg
+        } [list 0 $hash]
+        set ::md4::usemd4c 1
+    }
 }
 
-
+# -------------------------------------------------------------------------
 
 test md4-3.1 {Check hashing data that begins with hyphen} {
     list [catch {::md4::md4 -hex -hello} msg] $msg
