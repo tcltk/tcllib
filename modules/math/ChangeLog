@@ -1,3 +1,12 @@
+2005-01-10  Andreas Kupries <andreask@activestate.com>
+
+	* bignum.tcl:  Integrated [Tcllib SF Bug 1093414]. Basic bit
+	* bignum.test: operations (and, or, xor) on big numbers. Correct
+	* bignum.man:  operation is limited to positive numbers (including
+	  zero). The basic code was provided by Aamer Aakther
+	  <aakther@users.sourceforge.net>, modifications of docs, and
+	  small testsuite by myself.
+
 2005-01-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Added tests for matmul (and corrected the implementation)

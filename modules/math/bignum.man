@@ -177,6 +177,24 @@ Return the result of right shifting [emph bignum]'s binary
 representation of [emph bits] positions on the right.
 This is equivalent to dividing by [emph 2^bits] but much faster.
 
+[call [cmd ::math::bignum::bitand] [arg a] [arg b]]
+Return the result of doing a bitwise AND operation on a
+and b. The operation is restricted to positive numbers,
+including zero. When negative numbers are provided as
+arguments the result is undefined.
+
+[call [cmd ::math::bignum::bitor] [arg a] [arg b]]
+Return the result of doing a bitwise OR operation on a
+and b. The operation is restricted to positive numbers,
+including zero. When negative numbers are provided as
+arguments the result is undefined.
+
+[call [cmd ::math::bignum::bitxor] [arg a] [arg b]]
+Return the result of doing a bitwise XOR operation on a
+and b. The operation is restricted to positive numbers,
+including zero. When negative numbers are provided as
+arguments the result is undefined.
+
 [call [cmd ::math::bignum::setbit] [arg bignumVar] [arg bit]]
 Set the bit at [emph bit] position to 1 in the bignum stored
 in the variable [emph bignumVar]. Bit 0 is the least significant.
