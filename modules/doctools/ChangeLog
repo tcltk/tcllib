@@ -1,3 +1,14 @@
+2002-05-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	* mpexpand:
+	* mpformats/c.msg:
+	* mpformats/de.msg:
+	* mpformats/en.msg:
+	* mpformats/fmt.latex:
+	* mpformats/fmt.list:
+	* mpformats/fmt.nroff:
+	* mpformats/fmt.null:  Added new list types for arguments, options,
+	  commands, and Tk options.
+
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: 

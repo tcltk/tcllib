@@ -20,3 +20,7 @@ mcset en enumlist         "Dieser Befehl darf nur in Aufzaehlungs-Listen benutzt
 mcset en examplecmd       "Dieser Befehl kann nur zum Schliessen eines Beispieles benutzt werden"
 mcset en listcmd          "Dieser Befehl ist ausserhalb einer Liste nicht erlaubt"
 mcset en nodonecmd        "Dieser Befehl ist nach Ausfuehrung von \[manpage_end\] nicht mehr erlaubt"
+mcset en arg_list         "Dieser Befehl darf nur in Argument-Listen benutzt werden"
+mcset en cmd_list         "Dieser Befehl darf nur in Befehls-Listen benutzt werden"
+mcset en opt_list         "Dieser Befehl darf nur in Options-Listen benutzt werden"
+mcset en tkoption_list    "Dieser Befehl darf nur in TkOptions-Listen benutzt werden"
