@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.8 2001/11/30 18:00:33 dgp Exp $
+'\" RCS: @(#) $Id: control.n,v 1.9 2002/01/18 16:42:47 rmax Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -16,7 +16,7 @@ control \- Procedures for control flow structures.
 .sp
 \fBcontrol::assert \fIexpr \fR?\fIarg arg ...\fR?
 .sp
-\fBcontrol::do \fIbody \fB[until|while] \fItest\fR
+\fBcontrol::do \fIbody \fR?\fIoption test\fR?
 .sp
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
 .BE
@@ -93,14 +93,17 @@ assertion failed: 1 == 0
 % two::assert {1 == 0}\fR
 .CE
 .TP
-\fBcontrol::do \fIbody [until|while] test\fR
-The \fBdo\fR command evaluates the script \fIbody\fR repeatedly \fBuntil\fR
-the expression \fBtest\fR becomes true or as long as (\fBwhile\fR)
-\fBtest\fR is true, depending on the second argument. 
-After normal completion, \fBwhile\fR returns an empty string.
-Exceptional return codes (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR, etc.) 
-during the evaluation of \fIbody\fR are handled in the same way the
-\fBwhile\fR command handles them, except as noted in \fBLIMITATIONS\fR, below.
+\fBcontrol::do \fIbody \fR?\fIoption test\fR?  
+The \fBdo\fR command evaluates the script \fIbody\fR repeatedly
+\fBuntil\fR the expression \fBtest\fR becomes true or as long as
+(\fBwhile\fR) \fBtest\fR is true, depending on the value of
+\fIoption\fR being \fBuntil\fR or \fBwhile\fR. If \fIoption\fR and
+\fItest\fR are omitted the body is evaluated exactly once. After
+normal completion, \fBwhile\fR returns an empty string.  Exceptional
+return codes (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR, etc.) during
+the evaluation of \fIbody\fR are handled in the same way the
+\fBwhile\fR command handles them, except as noted in
+\fBLIMITATIONS\fR, below.
 .TP
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
 The \fBno-op\fR command takes any number of arguments and does nothing.
