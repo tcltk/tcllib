@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cvs.tcl,v 1.2 2003/03/28 20:01:27 andreas_kupries Exp $
+# RCS: @(#) $Id: cvs.tcl,v 1.3 2003/03/31 22:00:13 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil
@@ -60,7 +60,7 @@ proc ::doctools::cvs::scanLog {text evar cvar fvar} {
 		incr i
 		set line [lindex $text $i]
 		# [TR]: use regexp here to see if log ends:
-		while { ! [regexp "(-----*)|(=====*)" $line] } {
+		while {(![regexp "(-----*)|(=====*)" $line]) && ($i < $n)} {
 		    append comment $line "\n"
 		    incr i
 		    set line [lindex $text $i]
