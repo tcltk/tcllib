@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.2 2004/07/05 15:33:21 kennykb Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.3 2004/07/07 12:05:09 arjenmarkus Exp $
 
 package require tcltest
 namespace import -force ::tcltest::test
@@ -32,6 +32,7 @@ proc matchNumbers {expected actual} {
 }
 
 customMatch numbers matchNumbers
+
 
 test "Elliptic-1.0" "Complete elliptic integral of the first kind" \
     -match numbers -body {
