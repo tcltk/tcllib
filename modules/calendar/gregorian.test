@@ -5,7 +5,7 @@
 #		Tests for [calendar::CommonCalendar] and 
 #	[calendar::GregorianCalendar]
 #
-# RCS: @(#) $Id: gregorian.test,v 1.3 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: gregorian.test,v 1.3.2.1 2004/06/25 04:37:23 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -29,6 +29,15 @@ namespace import -force tcltest::test ::tcltest::cleanupTests
 
 # Unix epoch
 
+array set gregChange {
+    ERA CE
+    YEAR 1752
+    MONTH 9
+    DAY_OF_MONTH 14
+}
+set gregChangeJ [calendar::GregorianCalendar::EYMDToJulianDay gregChange]
+puts "Gregorian calendar was adopted in England on Julian Day $gregChangeJ"
+
 array set gregUnixEpoch {
 	ERA CE 
 	YEAR 1970 
@@ -36,6 +45,7 @@ array set gregUnixEpoch {
 	DAY_OF_MONTH 1
 }
 set unixEpoch [calendar::GregorianCalendar::EYMDToJulianDay gregUnixEpoch]
+puts "Posix epoch is Julian day $unixEpoch"
 
 # Procedure that tests EYMDToJulianDay, EYDToJulianDay, JulianDayToEYD,
 # and JulianDayToEYMD
