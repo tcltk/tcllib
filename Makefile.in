@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.65 2002/03/07 19:35:57 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.66 2002/03/19 22:56:15 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -70,6 +70,9 @@ PROFILER=profiler
 
 # POP3 email client API
 POP3=pop3
+
+# POP3 email server
+POP3D=pop3d
 
 # HTML generation API
 HTML=html
@@ -139,6 +142,7 @@ MODULES= \
 	$(NCGI)		\
 	$(NNTP)         \
 	$(POP3)		\
+	$(POP3D)	\
 	$(PROFILER)	\
 	$(SMTPD)	\
 	$(TEXTUTIL)	\
