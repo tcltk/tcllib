@@ -21,6 +21,9 @@ determining eigenvectors and eigenvalues of symmetric matrices
 [bullet]
 various decompositions of general matrices or matrices of a specific
 form
+[bullet]
+(limited) support for matrices in band storage, a common type of sparse
+matrices
 [list_end]
 
 It arose as a re-implementation of Hume's LA package and the desire to
@@ -64,6 +67,45 @@ the number of rows and columns for a matrix)
 [list_end]
 
 [nl]
+[call [cmd ::math::linearalgebra::conforming] [arg type] [arg obj1] [arg obj2]]
+
+Checks if two objects (vector or matrix) have conforming shapes, that is
+if they can be applied in an operation like addition or matrix
+multiplication.
+
+[list_begin arg]
+
+[arg_def string type] Type of check:
+[list_begin bullet]
+[bullet]
+"shape" - the two objects have the same shape (for all element-wise
+operations)
+[bullet]
+"rows" - the two objects have the same number of rows (for use as A and
+b in a system of linear equations [emph "Ax = b"]
+[bullet]
+"matmul" - the first object has the same number of columns as the number
+of rows of the second object. Useful for matrix-matrix or matrix-vector
+multiplication.
+[list_end]
+
+[arg_def list obj1] First vector or matrix (left operand)
+[arg_def list obj2] Second vector or matrix (right operand)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::symmetric] [arg matrix] [opt eps]]
+
+Checks if the given (square) matrix is symmetric. The argument eps
+is the tolerance.
+
+[list_begin arg]
+[arg_def list matrix] Matrix to be inspected
+[arg_def float eps] Tolerance for determining approximate equality
+(defaults to 1.0e-8)
+[list_end]
+
+[nl]
 [call [cmd ::math::linearalgebra::norm] [arg vector] [arg type]]
 
 Returns the norm of the given vector. The type argument can be: 1,
@@ -76,7 +118,7 @@ Euclidean norm or the max norm.
 [list_end]
 
 [nl]
-[call [cmd ::math::linearalgebra::norm_matrix] [arg matrix] [arg type]]
+[call [cmd ::math::linearalgebra::normMatrix] [arg matrix] [arg type]]
 
 Returns the norm of the given matrix. The type argument can be: 1,
 2, inf or max, respectively the sum of absolute values, the ordinary
@@ -105,6 +147,17 @@ Return a vector in the same direction with length 1.
 
 [list_begin arg]
 [arg_def list vector] Vector to be normalized
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::normalizeStat] [arg mv]]
+
+Normalize the matrix or vector in a statistical sense: the mean of the
+elements of the columns of the result is zero and the standard deviation
+is 1.
+
+[list_begin arg]
+[arg_def list mv] Vector or matrix to be normalized in the above sense
 [list_end]
 
 [nl]
@@ -230,14 +283,104 @@ Create an identity matrix of dimension [emph size].
 [arg_def integer size] Dimension of the matrix
 [list_end]
 
+[nl]
+[call [cmd ::math::linearalgebra::mkHilbert] [arg size]]
+
+Create a Hilbert matrix of dimension [emph size].
+Hilbert matrices are very ill-conditioned with respect to
+eigenvalue/eigenvector problems. Therefore they
+are good candidates for testing the accuracy
+of algorithms and implementations.
+
+[list_begin arg]
+[arg_def integer size] Dimension of the matrix
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::mkDingdong] [arg size]]
+
+Create a "dingdong" matrix of dimension [emph size].
+Dingdong matrices are imprecisely represented,
+but have the property of being very stable in
+such algorithms as Gauss elimination.
+
+[list_begin arg]
+[arg_def integer size] Dimension of the matrix
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::mkOnes] [arg size]]
+
+Create a sqaure matrix of dimension [emph size] whose entries are all 1.
+
+[list_begin arg]
+[arg_def integer size] Dimension of the matrix
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::solveGauss] [arg matrix] [arg bvect]]
+
+Solve a system of linear equations (Ax=b) using Gauss elimination.
+Returns the solution (x) as a vector or matrix of the same shape as
+bvect.
+
+[list_begin arg]
+[arg_def list matrix] Square matrix (matrix A)
+[arg_def list bvect] Vector or matrix whose columns are the individual
+b-vectors
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::solveTriangular] [arg matrix] [arg bvect]]
+
+Solve a system of linear equations (Ax=b) by backward substitution. The
+matrix is supposed to be upper-triangular.
+
+[list_begin arg]
+[arg_def list matrix] Upper-triangular matrix (matrix A)
+[arg_def list bvect] Vector or matrix whose columns are the individual
+b-vectors
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::determineSVD] [arg A] [arg eps]]
+
+Determines the Singular Value Decomposition of a matrix: A = U S Vtrans.
+Returns a list with the matrix U, the vector of singular values S and
+the matrix V.
+
+[list_begin arg]
+[arg_def list A] Matrix to be decomposed
+[arg_def float eps] Tolerance (defaults to 2.3e-16)
+b-vectors
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::eigenvectorsSVD] [arg A] [arg eps]]
+
+Determines the eigenvectors and eigenvalues of a real [emph
+symmetric] matrix, using SVD. Returns a list with the matrix of
+normalized eigenvectors and their eigenvalues.
+
+[list_begin arg]
+[arg_def list A] Matrix whose eigenvalues must be determined
+[arg_def float eps] Tolerance (defaults to 2.3e-16)
+b-vectors
+[list_end]
+
 [list_end]
 
 TODO: all the other procedures and algorithms
 
+get/set procedures
+
+angle
 solveGauss, solveGaussBand
 determineQR, determineSVD, cholesky
+modified Gram-Schmidt
 leastSquaresSVD, leastSquares
-symmetric, certainlyPositive, diagonallyDominant
+certainlyPositive, diagonallyDominant
+
 
 [section "REMARKS ON THE IMPLEMENTATION"]
 
