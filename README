@@ -1,3 +1,5 @@
+RCS: @(#) $Id: README,v 1.2 2000/03/06 19:28:04 ericm Exp $
+
 Welcome to the tcllib, the Tcl Standard Library.  This package is
 intended to be a collection of Tcl packages that provide utility
 functions useful to a large collection of Tcl programmers.
@@ -29,7 +31,8 @@ will be added to tcllib:
   the source heirarchy, and that subdirectory must have the same name
   as the package and namespace
 * the module must be released under the BSD License, the terms of
-  which can be found in the toplevel tcllib source directory
+  which can be found in the toplevel tcllib source directory in the file
+  license.terms
 * the module should have both documentation (in XML, man, or HTML
   form) and a test suite (in the form of a group of *.test files in
   the module directory).
@@ -46,4 +49,15 @@ to the list of modules at the top of the Makefile.in, and then add
 $(MYNEWMODULE) to the definition of the MODULES variable.  This will
 allow users to choose which modules to install by commenting or
 uncommenting lines in the Makefile.
+
+Each module source directory should have no subdirectories (other than
+the CVS directory), and should contain the following files:
+
+* source code		*.tcl
+* package index		pkgIndex.tcl
+* tests			*.test
+* documentation		*.n, *.xml
+
+If you do not follow this directory structure, the tcllib Makefile
+will fail to locate the files from the new module.
 
