@@ -13,3 +13,4 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 package ifneeded grammar::fa            0.1 [list source [file join $dir fa.tcl]]
 package ifneeded grammar::fa::op        0.1 [list source [file join $dir faop.tcl]]
 package ifneeded grammar::fa::dacceptor 0.1 [list source [file join $dir daccept.tcl]]
+package ifneeded grammar::fa::dexec     0.1 [list source [file join $dir dexec.tcl]]

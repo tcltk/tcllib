@@ -23,11 +23,12 @@ symbols.
 
 Use the packages [package grammar::fa::op],
 [package grammar::fa::dacceptor], and
-[package grammar::fa::interpreter] for that.
+[package grammar::fa::dexec] for that.
 
 Another package related to this is [package grammar::fa::compiler]. It
 turns a FA into an executor class which has the definition of the FA
-hardwired into it.
+hardwired into it. The output of this package is configurable to suit
+a large number of different implementation languages and paradigms.
 
 [para]
 
