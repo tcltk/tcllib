@@ -1,3 +1,11 @@
+2005-02-15  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* ldap.tcl
+	  Fixed various issue with signed/unsigned integers
+	  in length and integer encoding/decoding, by crossporting
+	  the 64-bit aware integer and length code from the
+	  asn module. 
+	
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

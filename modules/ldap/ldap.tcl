@@ -36,6 +36,9 @@
 #
 #
 #   $Log: ldap.tcl,v $
+#   Revision 1.4  2005/02/15 19:05:16  mic42
+#   Fixed various issues with signed/unsigned values in the ldap module by crossporting from the asn module
+#
 #   Revision 1.3  2004/09/24 06:54:24  andreas_kupries
 #   Scattered small fixes, mostly adding braces to unbraced
 #   expressions.
@@ -45,12 +48,12 @@
 #
 #   Revision 1.1  2004/04/27 19:45:35  andreas_kupries
 #
-#   	* installed_modules.tcl: Added new module.
-#   	* examples/ldap:
-#   	* modules/ldap: New module: LDAP client. Provided to us by Joechen
-#   	  Loewer <loewerj@web.de>.
+#       * installed_modules.tcl: Added new module.
+#       * examples/ldap:
+#       * modules/ldap: New module: LDAP client. Provided to us by Joechen
+#         Loewer <loewerj@web.de>.
 #
-#   	* Added doctools documentation.
+#       * Added doctools documentation.
 #
 #   Revision 1.1  2000/03/23  17:40:22  17:40:22  jolo (Jochen Loewer)
 #   Initial revision
@@ -61,7 +64,7 @@
 #
 #-----------------------------------------------------------------------------
 
-
+package require Tcl 8.4
 package provide ldap 1.2
 
 
@@ -826,14 +829,58 @@ proc ldap::debugData { info data } {
 #
 #-----------------------------------------------------------------------------
 proc ldap::asnLength { len } {
-
+    if {$len < 0} {
+        return -code error "Negative length octet requested"
+    }
     if {$len < 128} {
+        # short form: ISO X.690 8.1.3.4 
         return [binary format c $len]
     }
-    if {$len < 65536} {
+    # long form: ISO X.690 8.1.3.5
+    # try to use a minimal encoding, 
+    # even if not required by BER, but it is required by DER
+    # take care for signed vs. unsigned issues
+    if {$len < 256  } {
+        return [binary format H2c 81 [expr {$len - 256}]]
+    }
+    if {$len < 32769} {
+        # two octet signed value
         return [binary format H2S 82 $len]
     }
-    return [binary format H2I 84 $len]
+    if {$len < 65536} {
+        return [binary format H2S 82 [expr {$len - 65536}]]
+    }
+    if {$len < 8388608} {
+        # three octet signed value    
+        return [binary format H2cS 83 [expr {$len >> 16}] [expr {($len & 0xFFFF) - 65536}]] 
+    }    
+    if {$len < 16777216} {
+        # three octet signed value    
+        return [binary format H2cS 83 [expr {($len >> 16) -256}] [expr {($len & 0xFFFF) -65536}]] 
+    }
+    if {$len < 2147483649} { 
+        # four octet signed value
+        return [binary format H2I 84 $len]
+    }
+    if {$len < 4294967296} {
+        # four octet unsigned value
+        return [binary format H2I 84 [expr {$len - 4294967296}]]
+    }
+    if {$len < 1099511627776} {
+        # five octet unsigned value
+        return [binary format H2 85][string range [binary format W $len] 3 end]  
+    }
+    if {$len < 281474976710656} {
+        # six octet unsigned value
+        return [binary format H2 86][string range [binary format W $len] 2 end]
+    }
+    if {$len < 72057594037927936} {
+        # seven octet value
+        return [binary format H2 87][string range [binary format W $len] 1 end]
+    }
+    
+    # must be a 64-bit wide signed value
+    return [binary format H2W 88 $len] 
 }
 
 
@@ -924,36 +971,74 @@ proc ldap::asnChoiceConstr { appNumber args } {
     return [binary format ca*a$len $code [asnLength $len] $out]
 }
 
-
 #-----------------------------------------------------------------------------
-#    asnInteger
-#
+# asnInteger : Encode integer value.
 #-----------------------------------------------------------------------------
-proc ldap::asnInteger { number } {
 
-    if {($number >= -128) && ($number < 128)} {
-        return [binary format H2H2c 02 01 $number]
-    }
-    if {($number >= -32768) && ($number < 32767)} {
-        return [binary format H2H2S 02 02 $number]
-    }
-    return [binary format H2H2I 02 04 $number]
+proc ::ldap::asnInteger {number} {
+    asnIntegerOrEnum 02 $number
 }
 
+#-----------------------------------------------------------------------------
+# asnEnumeration : Encode enumeration value.
+#-----------------------------------------------------------------------------
+
+proc ::ldap::asnEnumeration {number} {
+    asnIntegerOrEnum 0a $number
+}
 
 #-----------------------------------------------------------------------------
-#    asnEnumeration
-#
+# asnIntegerOrEnum : Common code for Integers and Enumerations
+#                    No Bignum version, as we do not expect large Enums.
 #-----------------------------------------------------------------------------
-proc ldap::asnEnumeration { number } {
 
+proc ::ldap::asnIntegerOrEnum {tag number} {
+    # The integer tag is 0x02 , the Enum Tag 0x0a otherwise identical. 
+    # The length is 1, 2, 3, or 4, coded in a
+    # single byte. This can be done directly, no need to go through
+    # asnLength. The value itself is written in big-endian.
+
+    # Known bug/issue: The command cannot handle very wide integers, i.e.
+    # anything above 8 bytes length. Use asnBignumInteger for those.
+    
+    # check if we really have an int
+    set num $number
+    incr num
+    
     if {($number >= -128) && ($number < 128)} {
-        return [binary format H2H2c 0a 01 $number]
+        return [binary format H2H2c $tag 01 $number]
     }
-    if {($number >= -32768) && ($number < 32767)} {
-        return [binary format H2H2S 0a 02 $number]
+    if {($number >= -32768) && ($number < 32768)} {
+        return [binary format H2H2S $tag 02 $number]
     }
-    return [binary format H2H2I 0a 04 $number]
+    if {($number >= -8388608) && ($number < 8388608)} {
+        set numberb [expr {$number & 0xFFFF}]
+        set numbera [expr {($number >> 16) & 0xFF}]
+        return [binary format H2H2cS $tag 03 $numbera $numberb]
+    }
+    if {($number >= -2147483648) && ($number < 2147483648)} {
+        return [binary format H2H2I $tag 04 $number]
+    }
+    if {($number >= -549755813888) && ($number < 549755813888)} {
+        set numberb [expr {$number & 0xFFFFFFFF}]
+        set numbera [expr {($number >> 32) & 0xFF}]
+        return [binary format H2H2cI $tag 05 $numbera $numberb]
+    }
+    if {($number >= -140737488355328) && ($number < 140737488355328)} {
+        set numberb [expr {$number & 0xFFFFFFFF}]
+        set numbera [expr {($number >> 32) & 0xFFFF}]
+        return [binary format H2H2SI $tag 06 $numbera $numberb]        
+    }
+    if {($number >= -36028797018963968) && ($number < 36028797018963968)} {
+        set numberc [expr {$number & 0xFFFFFFFF}]
+        set numberb [expr {($number >> 32) & 0xFFFF}]
+        set numbera [expr {($number >> 48) & 0xFF}]
+        return [binary format H2H2cSI $tag 07 $numbera $numberb $numberc]        
+    }    
+    if {($number >= -9223372036854775808) && ($number <= 9223372036854775807)} {
+        return [binary format H2H2W $tag 08 $number]
+    }
+    return -code error "Integer value to large to encode, use asnBigInteger" 
 }
 
 
@@ -997,15 +1082,39 @@ proc ldap::asnGetResponse { sock data_var } {
             set len_length [expr {$length & 0x7f}]
             set lengthBytes [read $sock $len_length]
             switch $len_length {
-                1 { binary scan $lengthBytes     c length 
-		    set length [expr {($length + 0x100) % 0x100}]
+            1 {
+            # Efficiently coded data will not go through this
+            # path, as small length values can be coded directly,
+            # without a prefix.
+
+                binary scan $lengthBytes     c length 
+                set length [expr {($length + 0x100) % 0x100}]
+            }
+            2 { binary scan $lengthBytes     S length 
+                set length [expr {($length + 0x10000) % 0x10000}]
+            }
+            3 { binary scan \x00$lengthBytes I length 
+                set length [expr {($length + 0x1000000) % 0x1000000}]
+            }
+            4 { binary scan $lengthBytes     I length 
+                set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
+            }
+            default {                
+                binary scan $lengthBytes H* hexstr
+                # skip leading zeros which are allowed by BER
+                set hexlen [string trimleft $hexstr 0] 
+                # check if it fits into a 64-bit signed integer
+                if {[string length $hexlen] > 16} {
+                    return -code {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} { 
+                    # check most significant bit, if set we need bignum
+                    return -code {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                } else {
+                    scan $hexstr "%lx" length
                 }
-                2 { binary scan $lengthBytes     S length }
-                3 { binary scan \x00$lengthBytes I length }
-                4 { binary scan $lengthBytes     I length }
-                default {
-                    error "length information too long ($len_length)"
-                }
+            }
             }
         }
         set rest [read $sock $length]
@@ -1050,65 +1159,127 @@ proc ldap::asnGetBytes { data_var length bytes_var } {
     debugData asnGetBytes $bytes
 }
 
-
 #-----------------------------------------------------------------------------
-#    asnGetLength
-#
+# asnGetLength : Decode an ASN length value (See notes)
 #-----------------------------------------------------------------------------
-proc ldap::asnGetLength { data_var length_var } {
 
+proc ::ldap::asnGetLength {data_var length_var} {
     upvar $data_var data  $length_var length
 
     asnGetByte data length
+    if {$length == 0x080} {
+        return -code error "Indefinite length BER encoding not yet supported"
+    }
+    if {$length > 0x080} {
+    # The retrieved byte is a prefix value, and the integer in the
+    # lower nibble tells us how many bytes were used to encode the
+    # length data following immediately after this prefix.
 
-    if {$length  >= 0x080} {
         set len_length [expr {$length & 0x7f}]
+        
+        if {[string length $data] < $len_length} {
+            return -code error "length information invalid, not enough octets left" 
+        }
+        
         asnGetBytes data $len_length lengthBytes
+
         switch $len_length {
-            1 { binary scan $lengthBytes     c length 
-	        set length [expr {($length + 0x100) % 0x100}]
+            1 {
+        # Efficiently coded data will not go through this
+        # path, as small length values can be coded directly,
+        # without a prefix.
+
+            binary scan $lengthBytes     c length 
+            set length [expr {($length + 0x100) % 0x100}]
             }
-            2 { binary scan $lengthBytes     S length }
-            3 { binary scan \x00$lengthBytes I length }
-            4 { binary scan $lengthBytes     I length }
-            default {
-                error "length information too long"
+            2 { binary scan $lengthBytes     S length 
+            set length [expr {($length + 0x10000) % 0x10000}]
+            }
+            3 { binary scan \x00$lengthBytes I length 
+            set length [expr {($length + 0x1000000) % 0x1000000}]
+            }
+            4 { binary scan $lengthBytes     I length 
+            set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
+            }
+            default {                
+                binary scan $lengthBytes H* hexstr
+                # skip leading zeros which are allowed by BER
+                set hexlen [string trimleft $hexstr 0] 
+                # check if it fits into a 64-bit signed integer
+                if {[string length $hexlen] > 16} {
+                    return -code {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} { 
+                    # check most significant bit, if set we need bignum
+                    return -code {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                } else {
+                    scan $hexstr "%lx" length
+                }
             }
         }
     }
     trace "asnGetLength -> length = $length"
+    return
 }
 
+#-----------------------------------------------------------------------------
+# asnGetInteger : Retrieve integer.
+#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-#    asnGetInteger
-#
-#-----------------------------------------------------------------------------
-proc ldap::asnGetInteger { data_var int_var } {
+proc ::asn::asnGetInteger {data_var int_var} {
+    # Tag is 0x02. 
 
     upvar $data_var data $int_var int
 
     asnGetByte   data tag
+
+    if {$tag != 0x02} {
+        return -code error \
+            [format "Expected Integer (0x02), but got %02x" $tag]
+    }
+
     asnGetLength data len
     asnGetBytes  data $len integerBytes
 
-    if {$tag != 0x02} {
-        error "Expected Integer, but got $tag"
-    }
     set int ?
 
     trace "asnGetInteger len=$len"
     switch $len {
         1 { binary scan $integerBytes     c int }
         2 { binary scan $integerBytes     S int }
-        3 { binary scan \x00$integerBytes I int }
+        3 { 
+            # check for negative int and pad 
+            scan [string index $integerBytes 0] %c byte
+            if {$byte & 128} {
+                binary scan \xff$integerBytes I int
+            } else {
+                binary scan \x00$integerBytes I int 
+            }
+          }
         4 { binary scan $integerBytes     I int }
+        5 -
+        6 -
+        7 -
+        8 {
+            # check for negative int and pad
+            scan [string index $integerBytes 0] %c byte
+            if {$byte & 128} {
+                set pad [string repeat \xff [expr {8-$len}]]
+            } else {
+                set pad [string repeat \x00 [expr {8-$len}]]
+            }
+            binary scan $pad$integerBytes W int 
+        }
         default {
-            error "length information too long"
+        # Too long
+            return -code error "length information too long"
         }
     }
     trace "asnGetInteger int=$int"
+    return
 }
+
 
 
 #-----------------------------------------------------------------------------
