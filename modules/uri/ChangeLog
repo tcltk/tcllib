@@ -1,3 +1,7 @@
+2003-02-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* uri.test (uri-4.1): Fixed bad test.
+
 2003-02-06  David N. Welton  <davidw@dedasys.com>
 
 	* uri.tcl (uri::SplitMailto): Use 'string match' instead of
