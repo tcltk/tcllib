@@ -1,5 +1,15 @@
 2003-04-24  Andreas Kupries  <andreask@activestate.com>
 
+	* sak.tcl: New command 'provided' to list packages provided by tcl
+	  code. Extended the 'validate' command to compare the lists of
+	  provided and indexed packages. Note: A number of packages use
+	  variable in provide commands. These will show up as
+	  differences. They need higher attention to ensure version
+	  consistency.
+
+	  Modified some modules (calendar, exif, control, math) to reduce
+	  the number of reported false positives.
+
 	* sak.tcl: Added 'vcompare' to compare the current list of
 	  packages against a list in a file. Marks new and unchanged
 	  packages for higher attention. Helper for release engineer.

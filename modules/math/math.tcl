@@ -8,13 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: math.tcl,v 1.15 2003/04/11 19:59:42 andreas_kupries Exp $
+# RCS: @(#) $Id: math.tcl,v 1.16 2003/04/25 00:22:38 andreas_kupries Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 
 namespace eval ::math {
-
-    variable version 1.2.2
 
     # misc.tcl
 
@@ -36,5 +34,6 @@ namespace eval ::math {
 	lappend ::auto_path $home
     }
 
-    package provide [namespace tail [namespace current]] $version
+    variable     version 1.2.2
+    package provide math 1.2.2
 }

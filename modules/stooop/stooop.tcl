@@ -5,13 +5,13 @@
 # Copyright (c) 2002 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.tcl,v 1.7 2003/04/19 09:47:47 jfontain Exp $
+# $Id: stooop.tcl,v 1.8 2003/04/25 00:22:38 andreas_kupries Exp $
 
 
 # check whether empty named arrays and array unset are supported:
 package require Tcl 8.3
 
-package provide stooop 4.4
+package provide stooop 4.4.1
 
 # rename proc before it is overloaded, ignore error in case of multiple
 # inclusion of this file:
