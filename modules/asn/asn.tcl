@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.5 2004/12/01 00:42:05 mic42 Exp $
+#   $Id: asn.tcl,v 1.6 2004/12/29 01:20:27 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -56,8 +56,14 @@ namespace eval asn {
         asnInteger \
         asnEnumeration \
         asnBoolean \
-        asnOctetString
-
+        asnOctetString \
+        asnUTCTime \
+        asnPrintableString \
+        asnBitString \
+        asnObjectIdentifer \
+        asnNumericString \
+        asnIA5String
+        
     # Decoder commands
     namespace export \
         asnGetResponse \
@@ -68,6 +74,7 @@ namespace eval asn {
         asnGetSet \
         asnGetApplication \
         asnGetPrintableString \
+        asnGetIA5String \
         asnGetObjectIdentifier \
         asnGetBoolean \
         asnGetUTCTime \
@@ -217,25 +224,7 @@ proc ::asn::asnChoiceConstr {appNumber args} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnInteger {number} {
-    # The integer tag is 0x02. The length is 1, 2, 3, or 4, coded in a
-    # single byte. This can be done directly, no need to go through
-    # asnLength. The value itself is written in big-endian.
-
-    # Known bug/issue: The command cannot handle wide integers, i.e.
-    # anything between 5 to 8 bytes length.
-
-    if {($number >= -128) && ($number < 128)} {
-        return [binary format H2H2c 02 01 $number]
-    }
-    if {($number >= -32768) && ($number < 32768)} {
-        return [binary format H2H2S 02 02 $number]
-    }
-    if {($number >= -8388608) && ($number < 8388608)} {
-    set numberb [expr {$number & 0xFFFF}]
-    set numbera [expr {($number >> 16) & 0xFF}]
-    return [binary format H2H2cS 02 03 $numbera $numberb]
-    }
-    return [binary format H2H2I 02 04 $number]
+    asnIntegerOrEnum 02 $number
 }
 
 #-----------------------------------------------------------------------------
@@ -243,26 +232,82 @@ proc ::asn::asnInteger {number} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnEnumeration {number} {
-    # The enumeration tag is 0x0A. The length is 1, 2, or 4, coded in
-    # a single byte. This can be done directly, no need to go through
+    asnIntegerOrEnum 0a $number
+}
+
+#-----------------------------------------------------------------------------
+# asnIntegerOrEnum : Common code for Integers and Enumerations
+#                    No Bignum version, as we do not expect large Enums.
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnIntegerOrEnum {tag number} {
+    # The integer tag is 0x02 , the Enum Tag 0x0a otherwise identical. 
+    # The length is 1, 2, 3, or 4, coded in a
+    # single byte. This can be done directly, no need to go through
     # asnLength. The value itself is written in big-endian.
 
     # Known bug/issue: The command cannot handle wide integers, i.e.
-    # anything between 5 to 8 bytes length.
+    # anything between 5 to 8 bytes length. Use asnBignumInteger for those.
 
     if {($number >= -128) && ($number < 128)} {
-        return [binary format H2H2c 0a 01 $number]
+        return [binary format H2H2c $tag 01 $number]
     }
     if {($number >= -32768) && ($number < 32768)} {
-        return [binary format H2H2S 0a 02 $number]
+        return [binary format H2H2S $tag 02 $number]
     }
     if {($number >= -8388608) && ($number < 8388608)} {
     set numberb [expr {$number & 0xFFFF}]
     set numbera [expr {($number >> 16) & 0xFF}]
-    return [binary format H2H2cS 0a 03 $numbera $numberb]
+    return [binary format H2H2cS $tag 03 $numbera $numberb]
     }
-    return [binary format H2H2I 0a 04 $number]
+    return [binary format H2H2I $tag 04 $number]
 }
+
+#-----------------------------------------------------------------------------
+# asnBigInteger : Encode a long integer value using math::bignum
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnBigInteger {bignum} {
+    # require math::bignum only if it is used
+    package require math::bignum
+    
+    # this is a hack to check for bignum...
+    if {[llength $bignum] < 2 || ([lindex $bignum 0] ne "bignum")} {
+        return -code error "expected math::bignum value got \"$bignum\""
+    }
+    if {[math::bignum::sign $bignum]} {
+        # generate two's complement form
+        set bits [math::bignum::bits $bignum]
+        set padding [expr {$bits % 8}]
+        set len [expr {int(ceil($bits / 8.0))}]
+        if {$padding == 0} {
+            # we need a complete extra byte for the sign
+            # unless this is a base 2 multiple
+            set test [math::bignum::fromstr 0]
+            math::bignum::setbit test [expr {$bits-1}]
+            if {[math::bignum::ne [math::bignum::abs $bignum] $test]} {
+                incr len
+            }
+        }
+        set exp [math::bignum::pow [math::bignum::fromstr 256] [math::bignum::fromstr $len]]
+        set bignum [math::bignum::add $bignum $exp]
+        set hex [math::bignum::tostr $bignum 16]
+    } else {
+        set bits [math::bignum::bits $bignum]
+        if {($bits % 8) == 0 && $bits > 0} {
+            set pad "00"
+        } else {
+            set pad ""
+        }
+        set hex $pad[math::bignum::tostr $bignum 16]
+    }
+    if {[string length $hex]%2} {
+        set hex "0$hex"
+    }
+    set octets [expr {(([string length $hex]+1)/2)}]
+    return [binary format H2a*H* 02 [asnLength $octets] $hex]   
+}
+
 
 #-----------------------------------------------------------------------------
 # asnBoolean : Encode a boolean value.
@@ -286,6 +331,148 @@ proc ::asn::asnOctetString {string} {
 
     set len [string length $string]
     return [binary format H2a*a$len 04 [asnLength $len] $string]
+}
+
+#-----------------------------------------------------------------------------
+# asnNull : Encode a null value
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnNull {} {
+    # Null has only one valid encoding
+    return \x05\x00
+}
+
+#-----------------------------------------------------------------------------
+# asnBitstring : Encode a Bit String value
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnBitString {bitstring} {
+    # The bit string tag is 0x03.
+    # Bit strings can be either simple or constructed
+    # we always use simple encoding
+    
+    set bitlen [string length $bitstring]
+    set padding [expr {(8 - ($bitlen % 8)) % 8}]
+    set len [expr {($bitlen / 8) + 1}]
+    if {$padding != 0} {incr len}
+    
+    return [binary format H2a*B* 03 [asnLength $len] $bitstring]    
+}
+
+#-----------------------------------------------------------------------------
+# asnUTCTime : Encode an UTC time string
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnUTCTime {UTCtimestring} {
+    # the utc time tag is 0x17.
+    # 
+    # BUG: we do not check the string for well formedness
+    
+    set ascii [encoding convertto ascii $UTCtimestring]
+    set len [string length $ascii]
+    return [binary format H2a*a* 17 [asnLength $len] $ascii]
+}
+
+#-----------------------------------------------------------------------------
+# asnPrintableString : Encode a printable string
+#-----------------------------------------------------------------------------
+proc ::asn::asnPrintableString {string} {
+    # the printable string tag is 0x13
+    # it is basically a restricted ascii string
+    if {[regexp {[^A-Za-z0-9'()+,.:/?=-]} $string ]} {
+        return -code error "Illegal character in PrintableString."
+    }
+    
+    # check characters
+    set ascii [encoding convertto ascii $string]
+    return [asnEncodeString 13 $ascii]
+}
+
+#-----------------------------------------------------------------------------
+# asnIA5String : Encode an Ascii String
+#-----------------------------------------------------------------------------
+proc ::asn::asnIA5String {string} {
+    # the IA5 string tag is 0x16
+    
+    set ascii [encoding convertto ascii $string]
+    return [asnEncodeString 16 $ascii]
+}
+
+#-----------------------------------------------------------------------------
+# asnNumericString : Encode a Numeric String type
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnNumericString {string} {
+    # the Numeric String type has tag 0x1c
+    
+    if {[regexp {[^0-9 ]} $string]} {
+        return -code error "Illegal character in Numeric String."
+    }
+    
+    return [asnEncodeString 1c $string]
+}
+
+#-----------------------------------------------------------------------------
+# asnEncodeString : Encode an RestrictedCharacter String
+#-----------------------------------------------------------------------------
+proc ::asn::asnEncodeString {tag string} {
+    set len [string length $string]
+    return [binary format H2a*a$len $tag [asnLength $len] $string]    
+}
+
+#-----------------------------------------------------------------------------
+# asnObjectIdentifier : Encode an Object Identifier value
+#-----------------------------------------------------------------------------
+proc ::asn::asnObjectIdentifier {oid} {
+    # the object identifier tag is 0x06
+    
+    if {[llength $oid] < 2} {
+        return -code error "OID must have at least two subidentifiers."
+    }
+    
+    # basic check that it is valid
+    foreach identifier $oid {
+        if {$identifier < 0} {
+            return -code error "Malformed OID. Identifiers must be positive Integers."
+        }
+    }
+    
+    if {[lindex $oid 0] > 2} {
+            return -code error "First subidentifier must be 0,1 or 2"
+    }
+    if {[lindex $oid 1] > 39} {
+            return -code error "Second subidentifier must be between 0 and 39"
+    }
+    
+    # handle the special cases directly
+    switch [llength $oid] {
+        2  {  return [binary format H2H2c 06 01 [expr {[lindex $oid 0]*40+[lindex $oid 1]}]] }
+        default {
+              # This can probably be written much shorter. 
+              # Just a first try that works...
+              #
+              set octets [binary format c [expr {[lindex $oid 0]*40+[lindex $oid 1]}]]
+              foreach identifier [lrange $oid 2 end] {
+                  set d 128
+                  set subidentifier [list]
+                  # find the largest divisor
+                  while {($identifier / $d) >= 128} { set d [expr {$d * 128}] }
+                  # and construct the subidentifiers
+                  set remainder $identifier
+                  while {$d >= 128} {
+                       set coefficient [expr {($remainder / $d) | 0x80}]
+                       set remainder [expr {$remainder % $d}]
+                       set d [expr {$d / 128}]
+                       lappend subidentifier $coefficient
+                  }
+                  lappend subidentifier $remainder
+                  append octets [binary format c* $subidentifier]
+                  puts [string length $octets]
+              }
+              return [binary format H2a*a* 06 [asnLength [string length $octets]] $octets]
+        }
+    }
+
 }
 
 #-----------------------------------------------------------------------------
@@ -416,14 +603,11 @@ proc ::asn::asnGetLength {data_var length_var} {
     # length data following immediately after this prefix.
 
         set len_length [expr {$length & 0x7f}]
-
-    # BUG: We should not perform the value extraction for an
-    # BUG: improper length. It cannot cause us trouble [1], even
-    # BUG: if we try to read much more data then we have bytes,
-    # BUG: but it does waste cycles.
-    #
-    # [1] In contrast to reading from a channel (See asnGetResponse).
-
+        
+        if {[string length $data] < $len_length} {
+            return -code error "length information invalid, not enough octets left" 
+        }
+        
         asnGetBytes data $len_length lengthBytes
 
         switch $len_length {
@@ -432,14 +616,19 @@ proc ::asn::asnGetLength {data_var length_var} {
         # path, as small length values can be coded directly,
         # without a prefix.
 
-        binary scan $lengthBytes     c length 
+            binary scan $lengthBytes     c length 
             set length [expr {($length + 0x100) % 0x100}]
             }
             2 { binary scan $lengthBytes     S length }
             3 { binary scan \x00$lengthBytes I length }
             4 { binary scan $lengthBytes     I length }
             default {
+                if {[catch {package require bignum}]} {
                 return -code error "length information too long"
+                }
+                
+                binary scan $lengthBytes H* hexlen
+                set length [math::bignum::fromstr $hexlen 16]
             }
         }
     }
@@ -456,26 +645,32 @@ proc ::asn::asnGetInteger {data_var int_var} {
     # maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
     # is used this decoder will fail.
 
-    # BUG: Extracting length, and later payload before the validation
-    # BUG: is wasting cycles.
-
     upvar $data_var data $int_var int
 
     asnGetByte   data tag
+
+    if {$tag != 0x02} {
+        return -code error \
+            [format "Expected Integer (0x02), but got %02x" $tag]
+    }
+
     asnGetLength data len
     asnGetBytes  data $len integerBytes
 
-    if {$tag != 0x02} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Integer (0x02), but got $tag_hex"
-    }
     set int ?
 
     ::log::log debug "asnGetInteger len=$len"
     switch $len {
         1 { binary scan $integerBytes     c int }
         2 { binary scan $integerBytes     S int }
-        3 { binary scan \x00$integerBytes I int }
+        3 { 
+            # check for negative int and pad 
+            if {[string index $integerBytes 0] & 128} {
+                binary scan \xff$integerBytes I int
+            } else {
+                binary scan \x00$integerBytes I int 
+            }
+          }
         4 { binary scan $integerBytes     I int }
         default {
         # Too long, or prefix coding was used.
@@ -487,25 +682,59 @@ proc ::asn::asnGetInteger {data_var int_var} {
 }
 
 #-----------------------------------------------------------------------------
+# asnGetBigInteger : Retrieve a big integer.
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetBigInteger {data_var bignum_var} {
+    # require math::bignum only if it is used
+    package require math::bignum
+
+    # Tag is 0x02. We expect that the length of the integer is coded with
+    # maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
+    # is used this decoder will fail.
+
+    upvar $data_var data $bignum_var bignum
+
+    asnGetByte   data tag
+
+    if {$tag != 0x02} {
+        return -code error \
+            [format "Expected Integer (0x02), but got %02x" $tag]
+    }
+
+    asnGetLength data len
+    asnGetBytes  data $len integerBytes
+    
+    binary scan $integerBytes H* hex
+    set bignum [math::bignum::fromstr $hex 16]
+    set bits [math::bignum::bits $bignum]
+    set exp [math::bignum::pow [math::bignum::fromstr 2] [math::bignum::fromstr $bits]]
+    set big [math::bignum::sub $bignum $exp]
+    set bignum $big
+    
+    return    
+}
+
+
+
+#-----------------------------------------------------------------------------
 # asnGetEnumeration : Retrieve an enumeration id
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetEnumeration {data_var enum_var} {
     # This is like 'asnGetInteger', except for a different tag.
 
-    # BUG: Extracting length, and later payload before the validation
-    # BUG: is wasting cycles.
-
     upvar $data_var data $enum_var enum
 
     asnGetByte   data tag
-    asnGetLength data len
-    asnGetBytes  data $len integerBytes
 
     if {$tag != 0x0a} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Enumeration (0x0a), but got $tag_hex"
+        return -code error \
+            [format "Expected Enumeration (0x0a), but got %02x" $tag]
     }
+
+    asnGetLength data len
+    asnGetBytes  data $len integerBytes
     set enum ?
 
     ::log::log debug "asnGetEnumeration  len=$len"
@@ -533,8 +762,8 @@ proc ::asn::asnGetOctetString {data_var string_var} {
     
     asnGetByte data tag
     if {$tag != 0x04} { 
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Octet String (0x04), but got $tag_hex"
+        return -code error \
+            [format "Expected Octet String (0x04), but got %02x" $tag]
     }
     asnGetLength data length
     asnGetBytes  data $length temp
@@ -553,8 +782,8 @@ proc ::asn::asnGetSequence {data_var sequence_var} {
 
     asnGetByte data tag
     if {$tag != 0x030} { 
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Sequence (0x30), but got $tag_hex"
+        return -code error \
+            [format "Expected Sequence (0x30), but got %02x" $tag]
     }    
     asnGetLength data length
     asnGetBytes  data $length temp
@@ -573,8 +802,8 @@ proc ::asn::asnGetSet {data_var set_var} {
 
     asnGetByte data tag
     if {$tag != 0x031} { 
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Set (0x31), but got $tag_hex"
+        return -code error \
+            [format "Expected Set (0x31), but got %02x" $tag]
     }    
     asnGetLength data length
     asnGetBytes  data $length temp
@@ -593,8 +822,8 @@ proc ::asn::asnGetApplication {data_var appNumber_var} {
     asnGetLength data length
 
     if {($tag & 0xE0) != 0x060} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Application (0x60), but got $tag_hex"
+        return -code error \
+            [format "Expected Application (0x60), but got %02x" $tag]
     }    
     set appNumber [expr {$tag & 0x1F}]
     return
@@ -609,8 +838,8 @@ proc asn::asnGetBoolean {data_var bool_var} {
 
     asnGetByte data tag
     if {$tag != 0x01} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Boolean (0x01), but got $tag_hex"
+        return -code error \
+            [format "Expected Boolean (0x01), but got %02x" $tag]
     }
 
     asnGetLength data length
@@ -630,8 +859,8 @@ proc asn::asnGetUTCTime {data_var utc_var} {
 
     asnGetByte data tag
     if {$tag != 0x17} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected UTCTime (0x17), but got $tag_hex"
+        return -code error \
+            [format "Expected UTCTime (0x17), but got %02x" $tag]
     }
 
     asnGetLength data length
@@ -644,6 +873,7 @@ proc asn::asnGetUTCTime {data_var utc_var} {
     return
 }
 
+
 #-----------------------------------------------------------------------------
 # asnGetBitString: Extract a Bit String value (a string of 0/1s) from the
 #                  ASN.1 data.
@@ -655,8 +885,8 @@ proc asn::asnGetBitString {data_var bitstring_var} {
 
     asnGetByte data tag
     if {$tag != 0x03} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Bit String (0x03), but got $tag_hex"
+        return -code error \
+            [format "Expected Bit String (0x03), but got %02x" $tag]
     }
     
     asnGetLength data length
@@ -681,8 +911,8 @@ proc asn::asnGetObjectIdentifier {data_var oid_var} {
 
       asnGetByte data tag
       if {$tag != 0x06} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Object Identifier (0x06), but got $tag_hex"  
+        return -code error \
+            [format "Expected Object Identifier (0x06), but got %02x" $tag]  
       }
       asnGetLength data length
       
@@ -734,8 +964,8 @@ proc ::asn::asnGetContext {data_var contextNumber_var} {
     asnGetLength data length
 
     if {($tag & 0xE0) != 0x0A0} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Context (0xa0), but got $tag_hex"
+        return -code error \
+            [format "Expected Context (0xa0), but got %02x" $tag]
     }    
     set contextNumber [expr {$tag & 0x1F}]
     return
@@ -750,8 +980,8 @@ proc ::asn::asnGetPrintableString {data_var print_var} {
 
     asnGetByte data tag
     if {$tag != 0x13} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Printable String (0x13), but got $tag_hex"  
+        return -code error \
+            [format "Expected Printable String (0x13), but got %02x" $tag]  
     }
     asnGetLength data length 
     asnGetBytes data $length string
@@ -768,8 +998,8 @@ proc ::asn::asnGetIA5String {data_var string_var} {
 
     asnGetByte data tag
     if {$tag != 0x16} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected Printable String (0x13), but got $tag_hex"  
+        return -code error \
+            [format "Expected IA5String (0x16), but got %02x" $tag]  
     }
     asnGetLength data length 
     asnGetBytes data $length string
@@ -786,8 +1016,8 @@ proc asn::asnGetNull {data_var} {
 
     asnGetByte data tag
     if {$tag != 0x05} {
-        binary scan $tag H2 tag_hex
-        return -code error "Expected NULL (0x05), but got $tag_hex"
+        return -code error \
+            [format "Expected NULL (0x05), but got %02x" $tag]
     }
 
     asnGetLength data length
@@ -801,4 +1031,4 @@ proc asn::asnGetNull {data_var} {
 
 
 #-----------------------------------------------------------------------------
-package provide asn 0.2
+package provide asn 0.3
