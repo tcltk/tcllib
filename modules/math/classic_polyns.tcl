@@ -162,8 +162,6 @@ proc ::math::special::hermite {n} {
     return $pnp1
 }
 
-package provide math::classicpolynomials 0.1
-
 # some tests --
 #
 if { 0 } {

@@ -171,15 +171,7 @@ proc ::math::special::I_n {n x} {
     expr {$result/$quotient}
 }
 
-
-
-
-
 #
-# Announce the package
-#
-package provide math::special 0.1
-
 # some tests --
 #
 if { 0 } {
