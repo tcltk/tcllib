@@ -454,7 +454,7 @@ global test
 	if {!$test(afile)} {return}
 
 	ftp::DisplayMsg $test(conn) "*** TEST $loop.4 (put/get ascii files) ***" header
-	set ascii_file ftp.tcl
+	set ascii_file ftpdemo.tcl
 	set lsize [file size $ascii_file]
 	ftp::Type $test(conn) ascii	
 	ftp::Put $test(conn) $ascii_file ignore$test(pid).tmp
@@ -554,7 +554,7 @@ global test tk_library
 	if {!$test(append)} {return}
 
 	ftp::DisplayMsg $test(conn) "*** TEST $loop.7 (append ascii file) ***" header
-	set ascii_file ftp.tcl
+	set ascii_file ftpdemo.tcl
 	set lsize [file size $ascii_file]
 	ftp::Type $test(conn) ascii	
 	ftp::Append $test(conn) $ascii_file ignore$test(pid).tmp
