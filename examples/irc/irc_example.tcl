@@ -3,7 +3,7 @@
 	exec tclsh "$0" "$@"
 
 # irc example script, by David N. Welton <davidw@dedasys.com>
-# $Id: irc_example.tcl,v 1.4 2003/01/31 02:52:49 davidw Exp $
+# $Id: irc_example.tcl,v 1.5 2003/05/16 22:05:32 davidw Exp $
 
 # Pick up a nick from the command line, or default to TclIrc.
 
@@ -18,28 +18,18 @@ if { [lindex $argv 0] != "" } {
 
 set auto_path "[file join [file dirname [info script]] .. .. modules irc] $auto_path"
 set auto_path "[file join [file dirname [info script]] .. .. modules log] $auto_path"
-package require irc 0.3
+package require irc 0.4
 
 namespace eval client {
     variable channel \#tcl
 }
 
-proc client::connect { nick } {
+proc ircclient::connect { nick } {
     variable channel
     set cn [::irc::connection irc.freenode.net 6667]
     set ns [namespace qualifiers $cn]
 
-    # Register an event for the PING command that comes from the
-    # server.
-    $cn registerevent PING {
-	network send "PONG [msg]"
-	set ::PING 1
-    }
-
-
-    $cn registerevent 376 {
-	set ::PING 1
-    }
+    $cn registerevent 001 "$cn join $channel"
 
     # Register a default action for commands from the server.
     $cn registerevent defaultcmd {
@@ -68,14 +58,10 @@ proc client::connect { nick } {
 
     # Connect to the server.
     $cn connect
-    $cn user $nick localhost "www.tcl.tk"
+    $cn user $nick localhost domain "www.tcl.tk"
     $cn nick $nick
-    $cn join $channel
-
-    vwait ::PING
-    $cn join $channel
 }
 
 # Start things in motion.
-client::connect $nick
+ircclient::connect $nick
 vwait forever
