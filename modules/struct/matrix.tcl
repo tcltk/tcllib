@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.15 2004/05/19 04:34:50 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.16 2004/06/02 04:39:30 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -411,6 +411,7 @@ proc ::struct::matrix::_search {name args} {
 	    }
 	    -nocase {
 		set nocase 1
+		set args [lrange $args 1 end]
 	    }
 	    -* {
 		return -code error \
