@@ -5,9 +5,10 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.7 2003/01/09 07:34:03 davidw Exp $
+# $Id: irc.tcl,v 1.8 2003/01/25 18:25:32 davidw Exp $
 
 package provide irc 0.3
+package require Tcl 8.3
 
 package require logger
 

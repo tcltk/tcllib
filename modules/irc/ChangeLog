@@ -1,3 +1,7 @@
+2003-01-25  David N. Welton  <davidw@dedasys.com>
+
+	* irc.tcl: Added Tcl requirement to package itself.
+
 2003-01-24  David N. Welton  <davidw@dedasys.com>
 
 	* pkgIndex.tcl: Added dependency on Tcl 8.3 in the pkgIndex.tcl
