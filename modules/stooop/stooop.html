@@ -1,5 +1,5 @@
 <!-- Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr> -->
-<!--$Id: stooop.html,v 1.3 2001/12/10 09:08:35 jfontain Exp $-->
+<!--$Id: stooop.html,v 1.4 2001/12/19 11:57:15 jfontain Exp $-->
 <html lang="en">
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -1072,35 +1072,35 @@ class: graphic, procedure: destructor, array: graphic::, object: 2, member: item
 
 Objects checking can be activated by setting the single environment variable STOOOPCHECKOBJECTS to a true value. The following stooop namespace procedures then become available for debugging; <i>printObjects</i>, <i>record</i> and <i>report</i>.
 
-<p>Before outputting any data, all the object checking procedures print which procedure they were invoked from, or the namespace name if invoked from a namespace body or "<i>main script</i>" if invoked outside any procedure or namespace.
+<p>Before outputting any data, all the object checking procedures print which procedure they were invoked from, or the namespace name if invoked from a namespace body or "<i>top level</i>" if invoked outside any procedure or namespace.
 
 <h5><a name="objects.printing"></a>Printing</h5>
 
-The <i>stooop::printObjects</i> procedure when invoked prints an ordered list of existing objects. The objects are printed in creation order, with the oldest (lowest identifier) first. The printObjects procedure takes an optional class pattern (as in the Tcl "<i>array names</i>" or "<i>string match</i>" commands) for limiting the output to objects of certain classes, as the following example shows (classes are assumed to exist and be valid):
+The <i>stooop::printObjects</i> procedure when invoked prints an ordered list of existing objects with their creation location (a fully qualified procedure name or "<i>top level</i>") after a <b>+</b> sign. The objects are printed in creation order, with the oldest (lowest identifier) first. The printObjects procedure takes an optional class pattern (as in the Tcl "<i>array names</i>" or "<i>string match</i>" commands) for limiting the output to objects of certain classes, as the following example shows (classes are assumed to exist and be valid):
 
 <pre>% new foo
 1
 % stooop::printObjects
-stooop::printObjects invoked from main script:
-::foo(1) created in main script
+stooop::printObjects invoked from top level:
+::foo(1) + top level
 % new bar
 2
 % stooop::printObjects
-stooop::printObjects invoked from main script:
-::foo(1) created in main script
-::bar(2) created in main script
+stooop::printObjects invoked from top level:
+::foo(1) + top level
+::bar(2) + top level
 % new Foo
 3
 % stooop::printObjects ::?oo
-stooop::printObjects invoked from main script:
-::foo(1) created in main script
-::Foo(3) created in main script
+stooop::printObjects invoked from top level:
+::foo(1) + top level
+::Foo(3) + top level
 % new barmaid
 4
 % stooop::printObjects ::bar*
-stooop::printObjects invoked from main script:
-::bar(2) created in main script
-::barmaid(4) created in main script</pre>
+stooop::printObjects invoked from top level:
+::bar(2) + top level
+::barmaid(4) + top level</pre>
 
 Please note that all object classes are always fully qualified, so do not forget about the <b>::</b> header in the patterns.
 
@@ -1112,7 +1112,7 @@ By invoking the <i>stooop::record</i> procedure, you take a snapshot of all exis
 
 <h5><a name="objects.reporting"></a>Reporting</h5>
 
-The <i>stooop::report</i> procedure prints the created and deleted objects since the stooop::record procedure was invoked last. It optionally takes a pattern argument in order to limit the output to a specific set of classes, as for the printObjects procedure. A <b>+</b> sign is placed at the beginning of each created object description line in the output trace. A <b>-</b> sign is placed at the beginning of each deleted object description line in the output trace.
+The <i>stooop::report</i> procedure prints the created and deleted objects since the stooop::record procedure was invoked last. It optionally takes a pattern argument in order to limit the output to a specific set of classes, as for the printObjects procedure. A <b>+</b> sign is placed at the beginning of each created object description line in the output trace, followed by another <b>+</b> sign and the creation location (a fully qualified procedure name or "<i>top level</i>"). A <b>-</b> sign is placed at the beginning of each deleted object description line in the output trace, followed by another <b>-</b> sign, the deletion location (a fully qualified procedure name or "<i>top level</i>"), a <b>+</b> sign and the creation location (a fully qualified procedure name or "<i>top level</i>").
 
 <p>Reporting is typically used between 2 spots in the debugged application code: the first spot where a bunch of objects (which can include sub objects) are created, the second spot where all or most of these objects are supposed to be deleted. On the first spot, stooop::record is invoked whereas on the second spot, the stooop::report invocation will print the created and/or deleted objects, in other words the "object difference" between the 2 spots. In most cases, the programmer would expect a difference of 0 objects, sign of a well behaved application, memory wise.
 
@@ -1137,12 +1137,12 @@ stooop::report</pre>
 
 It gives the following result:
 
-<pre>stooop::record invoked from main script
-stooop::report invoked from main script:
-+ ::foo(2) created in ::bar::bar
-stooop::record invoked from main script
-stooop::report invoked from main script:
-- ::foo(2) created in ::bar::bar</pre>
+<pre>stooop::record invoked from top level
+stooop::report invoked from top level:
++ ::foo(2) + ::bar::bar
+stooop::record invoked from top level
+stooop::report invoked from top level:
+- ::foo(2) - top level + ::bar::bar</pre>
 
 Examining the printout, one can see that the bar class does not properly clean things up as the foo sub object is left undeleted.
 
