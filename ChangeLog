@@ -2,6 +2,7 @@
 
 	* html/html.tcl: Added html generation module
 	* ncgi/ncgi.tcl: Fixed ncgi::reset with no query data.
+	Fixed ncgi::multipart because it usually gets \r\n data
 
 2000-04-10  Brent Welch  <welch@scriptics.com>
 
