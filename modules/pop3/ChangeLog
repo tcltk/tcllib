@@ -1,3 +1,10 @@
+2000-05-17  Scott Redman  <redman@scriptics.com>
+
+	* pop3.tcl:  Remove extra '.'s added by the POP3 server.  If a
+	line begins with a '.', the server will add a '.' to the line to
+	prevent confusion with the end-of-message character (which is also
+	'.'). [bug: 5522]
+
 2000-03-06  Scott Redman  <redman@scriptics.com>
 
 	* ChangeLog:

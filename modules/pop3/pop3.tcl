@@ -9,7 +9,7 @@
 #
 # All rights reserved.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.2 2000/03/22 03:40:32 redman Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.3 2000/05/18 00:00:38 redman Exp $
 
 package provide pop3 1.0
 
@@ -179,7 +179,11 @@ proc ::pop3::retrieve {chan start {end -1}} {
 	    # End of the message is a line with just "."
 	    if {$line == "."} {
 		break
+	    } elseif {[string index $line 0] == "."} {
+		puts aha
+		set line [string range $line 1 end]
 	    }
+		
 	    append msgBuffer $line "\n"
 	}
 	lappend result $msgBuffer
