@@ -1,0 +1,5 @@
+2001-04-24  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* New module, 'md5'. The code Don Libes's <libes@nist.gov>
+	  md5pure, extended with a soft dependency on Trf to allow higher
+	  speed if the environment is right.
