@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.3 2000/05/31 00:00:01 ericm Exp $
+# RCS: @(#) $Id: mime.test,v 1.4 2000/09/02 02:30:31 kuchler Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -56,12 +56,14 @@ Content-ID: [^\n]+
 Content-Type: text/plain
 
 jack and jill
+
 --bndry
 MIME-Version: 1.0
 Content-ID: [^\n]+
 Content-Type: text/plain
 
 james
+
 --bndry--
 } $msg
 } 1
@@ -125,7 +127,8 @@ msg1}
 } {msg1 {MIME-Version: 2.0
 Content-Type: text/plain
 
-msg1}}
+msg1
+}}
 
 test mime-3.5 {Try to parse a MIME message with no newline between headers and data} {
     set msg2 {MIME-Version: 1.0
@@ -150,7 +153,8 @@ foo}
 } {foo {MIME-Version: 1.0
 Content-Type: text/plain
 
-foo}}
+foo
+}}
 
 test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
@@ -168,3 +172,43 @@ test mime-4.3 {mime::decode data that might come from an MUA} {
     set enc "I'm the =22 message =\nwith some new lines=  \n but with some extra space, too.   "
     mime::qp_decode $enc
 } "I'm the \" message with some new lines but with some extra space, too."
+
+test mime-4.4 {Test qp_encode with non-US_ASCCI characters.} {
+    set str1 "Test de caractères accentués : â î é ç et quelques contrôles \"\[|\]()\""
+    mime::qp_encode $str1
+} "Test de caract=E8res accentu=E9s : =E2 =EE =E9 =E7 et quelques contr=F4le=\ns =22=5B=7C=5D()=22"
+
+
+
+
+
+test mime-5.1 {Test word_encode with quoted-printable method} {
+    mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué"
+} "=?ISO-8859-1?Q?Test_de_contr=F4le_effectu=E9?="
+
+test mime-5.2 {Test word_encode with base64 method} {
+    mime::word_encode iso8859-1 base64 "Test de contrôle effectué"
+} "=?ISO-8859-1?B?VGVzdCBkZSBjb250cvRsZSBlZmZlY3R16Q==?="
+
+test mime-5.3 {Test encode+decode with quoted-printable method} {
+    set enc [mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué"]
+    mime::word_decode $enc
+} {iso8859-1 quoted-printable {Test de contrôle effectué}}
+
+test mime-5.4 {Test encode+decode with base64 method} {
+    set enc [mime::word_encode iso8859-1 base64 "Test de contrôle effectué"]
+    mime::word_decode $enc
+} {iso8859-1 base64 {Test de contrôle effectué}}
+
+test mime-5.5 {Test field_decode (from RFC 2047, part 8)} {
+    mime::field_decode {=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>}
+} {Keith Moore <moore@cs.utk.edu>}
+
+test mime-5.6 {Test field_decode (from RFC 2047, part 8)} {
+    mime::field_decode {=?ISO-8859-1?Q?Patrik_F=E4ltstr=F6m?= <paf@nada.kth.se>}
+} {Patrik Fältström <paf@nada.kth.se>}
+
+test mime-5.7 {Test field_decode (from RFC 2047, part 8)} {
+    mime::field_decode {=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+			=?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=}
+} {If you can read this you understand the example.}
