@@ -5,7 +5,7 @@
 # Copyright (c) 2001 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.9 2003/04/11 18:19:18 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.10 2003/04/14 06:21:49 andreas_kupries Exp $
 
 package provide irc 0.3
 package require Tcl 8.3
@@ -272,23 +272,31 @@ proc ::irc::connection { host {port 6667} } {
 	    variable linedata
 	    variable sock
 	    array set linedata {}
-	    if { [eof $sock] } {
-		if { [info exists dispatch(EOF)] } {
+	    if {[catch {
+		gets $sock line
+	    } err]} {
+		close $sock
+		${irc::log}::error \
+			"Error receiving from network: $err"
+		return
+	    }
+	    # Since we're using blocking sockets, testing the
+	    # result of [gets] is sufficient to detect EOF
+	    if {$err < 0} {
+		if {[info exists dispatch(EOF)]} {
 		    $dispatch(EOF)
 		}
+		close $sock
 	    }
-	    if { [catch {
-		gets $sock line
-	    } err] } {
-		close $sk
-		${irc::log}::error "Error receiving from network: $err"
-	    }
-	    if { [string index $line 0] == ":" } {
+	    if {[string match :* $line]} {
 		DispatchServerEvent [string range $line 1 end]
 	    } else {
+		# Should this command get an empty string on
+		# end-of-file? If not, add a return after
+		# the close above.
 		DispatchServerCmd $line
 	    }
-	}
+	} 
 
 	# RegisterEvent --
 
