@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.27 2003/08/06 17:01:12 davidw Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.28 2003/08/06 22:41:35 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -116,58 +116,134 @@ if {[string compare unix $tcl_platform(platform)]} {
 } else {
     # Unix, record dev/inode to detect and break circles
 
-    # ::fileutil::find --
-    #
-    #	Implementation of find.  Adapted from the Tcler's Wiki.
-    #
-    # Arguments:
-    #	basedir		directory to start searching from; default is .
-    #	filtercmd	command to use to evaluate interest in each file.
-    #			If NULL, all files are interesting.
-    #
-    # Results:
-    #	files		a list of interesting files.
+    # SF tcllib bug [784157], distinguish between pre and post Tcl
+    # 8.4. In 8.4 and post 8.4. we have to conditionally exclude
+    # dev/inde checking. This is not required for pre 8.4.
 
-    proc ::fileutil::find {{basedir .} {filtercmd {}} {nodeVar {}}} {
-	if {$nodeVar == {}} {
-	    # Main call, setup the device/inode structure
-	    array set inodes {}
-	} else {
-	    # Recursive call, import the device/inode record from the caller.
-	    upvar $nodeVar inodes
-	}
+    if {[package vcompare [package present Tcl] 8.4] >= 0} {
 
-	set oldwd [pwd]
-	cd $basedir
-	set cwd [pwd]
-	set filenames [glob -nocomplain * .*]
-	set files {}
-	set filt [string length $filtercmd]
-	# If we don't remove . and .. from the file list, we'll get stuck in
-	# an infinite loop in an infinite loop in an infinite loop in an inf...
-	foreach special [list "." ".."] {
-	    set index [lsearch -exact $filenames $special]
-	    set filenames [lreplace $filenames $index $index]
-	}
-	foreach filename $filenames {
-	    # Stat each file/directory get exact information about its identity
-	    # (device, inode). Non-'stat'able files are either junk (link to
-	    # non-existing target) or not readable, i.e. inaccessible. In both
-	    # cases it makes sense to ignore them.
+	# ::fileutil::find --
+	#
+	#	Implementation of find.  Adapted from the Tcler's Wiki.
+	#
+	# Arguments:
+	#	basedir		directory to start searching from; default is .
+	#	filtercmd	command to use to evaluate interest in each file.
+	#			If NULL, all files are interesting.
+	#
+	# Results:
+	#	files		a list of interesting files.
 
-	    if {[catch {file stat [set full [file join $cwd $filename]] stat}]} {
-		continue
+	proc ::fileutil::find {{basedir .} {filtercmd {}} {nodeVar {}}} {
+	    if {$nodeVar == {}} {
+		# Main call, setup the device/inode structure
+		array set inodes {}
+	    } else {
+		# Recursive call, import the device/inode record from the caller.
+		upvar $nodeVar inodes
 	    }
 
-	    # SF [ 647974 ] find has problems recursing a metakit fs ...
-	    #
-	    # The following code is a HACK / workaround. We assume that virtual
-	    # FS's do not suport links, and therefore there is no need for
-	    # keeping track of device/inode information. A good thing as the 
-	    # the virtual FS's usually give us bad data for these anyway, as
-	    # illustrated by the bug referenced above.
+	    set oldwd [pwd]
+	    cd $basedir
+	    set cwd [pwd]
+	    set filenames [glob -nocomplain * .*]
+	    set files {}
+	    set filt [string length $filtercmd]
+	    # If we don't remove . and .. from the file list, we'll get stuck in
+	    # an infinite loop in an infinite loop in an infinite loop in an inf...
+	    foreach special [list "." ".."] {
+		set index [lsearch -exact $filenames $special]
+		set filenames [lreplace $filenames $index $index]
+	    }
+	    foreach filename $filenames {
+		# Stat each file/directory get exact information about its identity
+		# (device, inode). Non-'stat'able files are either junk (link to
+		# non-existing target) or not readable, i.e. inaccessible. In both
+		# cases it makes sense to ignore them.
 
-	    if {[string equal native [lindex [file system $full] 0]]} {
+		if {[catch {file stat [set full [file join $cwd $filename]] stat}]} {
+		    continue
+		}
+
+		# SF [ 647974 ] find has problems recursing a metakit fs ...
+		#
+		# The following code is a HACK / workaround. We assume that virtual
+		# FS's do not suport links, and therefore there is no need for
+		# keeping track of device/inode information. A good thing as the 
+		# the virtual FS's usually give us bad data for these anyway, as
+		# illustrated by the bug referenced above.
+
+		if {[string equal native [lindex [file system $full] 0]]} {
+		    # No skip over previously recorded files/directories and
+		    # record the new files/directories.
+
+		    set key "$stat(dev),$stat(ino)"
+		    if {[info exists inodes($key)]} {
+			continue
+		    }
+		    set inodes($key) 1
+		}
+
+		# Use uplevel to eval the command, not eval, so that variable 
+		# substitutions occur in the right context.
+		if {!$filt || [uplevel $filtercmd [list $filename]]} {
+		    lappend files $full
+		}
+		if {[file isdirectory $filename]} {
+		    set files [concat $files [find $filename $filtercmd inodes]]
+		}
+	    }
+	    cd $oldwd
+	    return $files
+	}
+
+    } else {
+	# Unix, pre 8.4. No virtual file system is present, therefore there is no
+	# need to conditionally exclude dev/inode checking.
+
+	# ::fileutil::find --
+	#
+	#	Implementation of find.  Adapted from the Tcler's Wiki.
+	#
+	# Arguments:
+	#	basedir		directory to start searching from; default is .
+	#	filtercmd	command to use to evaluate interest in each file.
+	#			If NULL, all files are interesting.
+	#
+	# Results:
+	#	files		a list of interesting files.
+
+	proc ::fileutil::find {{basedir .} {filtercmd {}} {nodeVar {}}} {
+	    if {$nodeVar == {}} {
+		# Main call, setup the device/inode structure
+		array set inodes {}
+	    } else {
+		# Recursive call, import the device/inode record from the caller.
+		upvar $nodeVar inodes
+	    }
+
+	    set oldwd [pwd]
+	    cd $basedir
+	    set cwd [pwd]
+	    set filenames [glob -nocomplain * .*]
+	    set files {}
+	    set filt [string length $filtercmd]
+	    # If we don't remove . and .. from the file list, we'll get stuck in
+	    # an infinite loop in an infinite loop in an infinite loop in an inf...
+	    foreach special [list "." ".."] {
+		set index [lsearch -exact $filenames $special]
+		set filenames [lreplace $filenames $index $index]
+	    }
+	    foreach filename $filenames {
+		# Stat each file/directory get exact information about its identity
+		# (device, inode). Non-'stat'able files are either junk (link to
+		# non-existing target) or not readable, i.e. inaccessible. In both
+		# cases it makes sense to ignore them.
+
+		if {[catch {file stat [set full [file join $cwd $filename]] stat}]} {
+		    continue
+		}
+
 		# No skip over previously recorded files/directories and
 		# record the new files/directories.
 
@@ -176,21 +252,21 @@ if {[string compare unix $tcl_platform(platform)]} {
 		    continue
 		}
 		set inodes($key) 1
-	    }
 
-	    # Use uplevel to eval the command, not eval, so that variable 
-	    # substitutions occur in the right context.
-	    if {!$filt || [uplevel $filtercmd [list $filename]]} {
-		lappend files $full
+		# Use uplevel to eval the command, not eval, so that variable 
+		# substitutions occur in the right context.
+		if {!$filt || [uplevel $filtercmd [list $filename]]} {
+		    lappend files $full
+		}
+		if {[file isdirectory $filename]} {
+		    set files [concat $files [find $filename $filtercmd inodes]]
+		}
 	    }
-	    if {[file isdirectory $filename]} {
-		set files [concat $files [find $filename $filtercmd inodes]]
-	    }
+	    cd $oldwd
+	    return $files
 	}
-	cd $oldwd
-	return $files
-    }
 
+    }
     # end if
 }
 
