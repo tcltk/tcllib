@@ -1,3 +1,10 @@
+2003-05-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test: Creating the name of the file containing the fake
+	  server only once. Because the tcltest 1.0 [makeFile] coming with
+	  Tcl 8.2 will return the fully generated name only once, and not
+	  everytime it is called.
+
 2003-04-21  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.test (0.6): Fixed test 0.6, removed dependency on service

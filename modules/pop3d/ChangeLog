@@ -1,3 +1,9 @@
+2003-05-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: Added propagation of auto_path so that
+	  sub-processes are able to find additional packages even if
+	  tcllib is not installed.
+
 2003-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: Updated to new version number.
