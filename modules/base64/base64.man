@@ -18,6 +18,9 @@ Base64 encodes the given binary [arg "string"] and returns the encoded
 result. Inserts the character [arg "wrapchar"] every [arg "maxlen"]
 characters of output. [arg "wrapchar"] defaults to newline.
 
+Note well - if your string is not simple ascii you should fix the
+string encoding before base64 encoding. See the examples.
+
 [arg "maxlen"] defaults to 60.
 
 [call [cmd ::base64::decode] [arg "string"]]
@@ -26,6 +29,30 @@ Base64 decodes the given [arg "string"] and returns the binary data.
 The decoder ignores whitespace in the string.
 
 [list_end]
+
+[section {EXAMPLES}]
+
+[example {
+% base64::encode "Hello, world"
+SGVsbG8sIHdvcmxk
+}]
+
+[example {
+% base64::encode [string repeat xyz 20]
+eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
+eHl6eHl6eHl6
+% base64::encode -wrapchar "" [string repeat xyz 20]
+eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
+}]
+
+[example {
+# NOTE: base64 encodes BINARY strings.
+% set chemical [encoding convertto utf-8 "C\u2088H\u2081\u2080N\u2084O\u2082"]
+% set encoded [base64::encode $chemical]
+Q+KCiEjigoHigoBO4oKET+KCgg==
+% set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
+}]
+
 
 [keywords encoding base64]
 [manpage_end]
