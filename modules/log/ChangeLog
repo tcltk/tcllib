@@ -1,3 +1,8 @@
+2004-09-23  Michael Schlenker <mic42@users.sourceforge.net>
+	* logger.tcl : Added a workaround for non-existing
+	  namespace exists in logger::import, so we can
+	  stay at Tcl 8.2.
+	
 2004-09-13  Michael Schlenker <mic42@users.sourceforge.net>
 	* logger.tcl : Changed defaults for logger::import,
           logger.man : added a -force option and some more tests
