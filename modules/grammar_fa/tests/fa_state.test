@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_state.test,v 1.1 2004/03/25 07:43:48 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_state.test,v 1.2 2004/04/04 19:51:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -207,6 +207,17 @@ test fa-state-3.3 {state delete, inbound transition} {
     a destroy
     set res
 } {y {}}
+
+
+test fa-state-3.4 {state delete, outbound transition} {
+    grammar::fa a
+    gen xy-
+    a state delete x
+    a state delete y
+    a symbol delete @
+    a destroy
+    set res {}
+} {}
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -33,6 +33,7 @@ snit::type ::grammar::fa {
 
     method serialize {} {}
     method deserialize {value} {}
+    method deserialize_merge {value} {}
 
     method states {} {}
     method state {cmd s args} {}
@@ -73,21 +74,81 @@ snit::type ::grammar::fa {
     # ### ### ### ######### ######### #########
     ## Instance API. FA operations. Defering to the operations package.
 
-    method complement  {}   {package require grammar::fa::op ; op::complement  $self}
-    method kleene      {}   {package require grammar::fa::op ; op::kleene      $self}
-    method optional    {}   {package require grammar::fa::op ; op::optional    $self}
-    method complete    {}   {package require grammar::fa::op ; op::complete    $self}
-    method reverse     {}   {package require grammar::fa::op ; op::reverse     $self}
-    method remove_eps  {}   {package require grammar::fa::op ; op::remove_ops  $self}
-    method determinize {}   {package require grammar::fa::op ; op::determinize $self}
-    method minimize    {}   {package require grammar::fa::op ; op::minimize    $self}
-    method union       {fa} {package require grammar::fa::op ; op::union       $self $fa}
-    method intersect   {fa} {package require grammar::fa::op ; op::intersect   $self $fa}
-    method concatenate {fa} {package require grammar::fa::op ; op::concatenate $self $fa}
-    method cross       {fa} {package require grammar::fa::op ; op::cross       $self $fa}
+    method reverse {} {
+	package require grammar::fa::op
+	op::reverse $self
+    }
 
-    method trim       {{what !reachable|!useful}} {package require grammar::fa::op ; op::cross       $self $what}
-    method =regex     {regex} {package require grammar::fa::op ; op::regexp $self $regex}
+    method complete {{sink {}}} {
+	package require grammar::fa::op
+	op::complete $self $sink
+    }
+
+    method remove_eps {} {
+	package require grammar::fa::op
+	op::remove_eps $self
+    }
+
+    method trim {{what !reachable|!useful}} {
+	package require grammar::fa::op
+	op::trim $self $what
+    }
+
+    method determinize {{mapvar {}}} {
+	if {$mapvar ne ""} {upvar 1 $mapvar map}
+	package require grammar::fa::op
+	op::determinize $self map
+    }
+
+    method minimize {{mapvar {}}} {
+	if {$mapvar ne ""} {upvar 1 $mapvar map}
+	package require grammar::fa::op
+	op::minimize $self map
+    }
+
+    method complement {} {
+	package require grammar::fa::op
+	op::complement $self
+    }
+
+    method kleene {} {
+	package require grammar::fa::op
+	op::kleene $self
+    }
+
+    method optional {} {
+	package require grammar::fa::op
+	op::optional $self
+    }
+
+    method union {fa {mapvar {}}} {
+	if {$mapvar ne ""} {upvar 1 $mapvar map}
+	package require grammar::fa::op
+	op::union $self $fa map
+    }
+
+    method intersect {fa {mapvar {}}} {
+	if {$mapvar ne ""} {upvar 1 $mapvar map}
+	package require grammar::fa::op
+	op::intersect $self $fa map
+    }
+
+    method difference {fa {mapvar {}}} {
+	if {$mapvar ne ""} {upvar 1 $mapvar map}
+	package require grammar::fa::op
+	op::difference $self $fa map
+    }
+
+    method concatenate {fa {mapvar {}}} {
+	if {$mapvar ne ""} {upvar 1 $mapvar map}
+	package require grammar::fa::op
+	op::concatenate $self $fa map
+    }
+
+    method fromRegex {regex {over {}}} {
+	package require grammar::fa::op
+	op::fromRegex $self $regex $over
+    }
 
     # ### ### ### ######### ######### #########
     ## Internal data structures.
@@ -138,6 +199,7 @@ snit::type ::grammar::fa {
     ## - Usefulvalid : Boolean flag. True iff the useful cache contains valid data
     ## - Nondete     : Set of states which are non-deterministic, because they have
     #                  epsilon-transitions.
+    # -  EC          : Cache of epsilon-closures
 
     variable reach      {} ; # Set of states reachable from 'start'.
     variable reachvalid 0  ; # Boolean flag, if 'reach' is valid.
@@ -148,38 +210,40 @@ snit::type ::grammar::fa {
     variable nondete    {} ; # Set of non-deterministic states, by epsilon/non-epsilon.
     variable nondets       ; # Per non-det state the set of symbols it is non-det in.
 
+    variable ec            ; # Cache of epsilon-closures for states.
+
+
     # ### ### ### ######### ######### #########
     ## Instance API Implementation.
 
     constructor {args} {
 	set alen [llength $args]
 	if {($alen != 2) && ($alen != 0)} {
-	    return -code error "wrong#args: $self ?=|:=|<-- a'?"
+	    return -code error "wrong#args: $self ?=|:=|<--|as|deserialize a'?"
 	}
 
-	array set order    {}
-	array set start    {}
-	array set final    {}
-	array set symbol   {}
-	array set transym  {}
-	array set transinv {}
+	array set order    {} ; set nondete     {}
+	array set start    {} ; set scount      0 
+	array set final    {} ; set reach       {}
+	array set symbol   {} ; set reachvalid  0 
+	array set transym  {} ; set useful      {}
+	array set transinv {} ; set usefulvalid 0
 	array set nondets  {}
-	set nondete    {}
-	set scount     0
-	set reach      {}
-	set reachvalid 0
-	set useful     {}
-	set usefulvalid 0
+	array set ec       {}
 
 	if {$alen == 0} return
 
 	foreach {cmd object} $args break
 	switch -exact -- $cmd {
-	    = - := - <-- {
+	    = - := - <-- - as {
 		$self = $object
 	    }
+	    deserialize {
+		# Object is actually a value, the deserialization to use.
+		$self deserialize $object
+	    }
 	    default {
-		return -code error "bad assignment: $self ?=|:=|<-- a'?"
+		return -code error "bad assignment: $self ?=|:=|<--|as|deserialize a'?"
 	    }
 	}
 	return
@@ -248,6 +312,18 @@ snit::type ::grammar::fa {
 	return
     }
 
+    method deserialize_merge {value} {
+	$self CheckSerialization $value st states acc tr newsymbols
+
+	foreach s   $states     {set order($s)    [incr scount]}
+	foreach sym $newsymbols {set symbol($sym) .}
+	foreach s   $acc        {set final($s)    .}
+	foreach s   $st         {set start($s)    .}
+
+	foreach {sa sym se} $tr {$self Next $sa $sym $se}
+	return
+    }
+
     # --- --- --- --------- --------- ---------
 
     method states {} {
@@ -287,9 +363,20 @@ snit::type ::grammar::fa {
 
 		    # We remove transition data only after the inbound
 		    # ones. Otherwise we screw up the removal of
-		    # looping transitions.
+		    # looping transitions. We have to consider the
+		    # backpointers to us in transinv as well.
 
-		    unset -nocomplain ${selfns}::trans_$order($s) ; # Transitions from s
+		    upvar #0  ${selfns}::trans_$order($s) jump
+		    if {[info exists jump]} {
+			foreach sym [array names jump] {
+			    $self !Transym $s $sym
+			    foreach nexts $jump($sym) {
+				$self !Transinv $s $sym $nexts
+			    }
+			}
+
+			unset ${selfns}::trans_$order($s) ; # Transitions from s
+		    }
 		    unset order($s)                               ; # State ordering
 
 		    # Removal of a state may break the automaton into
@@ -704,12 +791,21 @@ snit::type ::grammar::fa {
 	    complete {
 		# The FA is complete if Trans(State, Sym) != {} for all
 		# states and symbols (Not counting epsilon transitions).
+		# Without symbols the FA is deemed complete. Note:
+		# States with epsilon transitions can use symbols
+		# indirectly! Need their closures for exact
+		# computation.
+
 		set nsymbols [llength [array names symbol]]
+		if {$nsymbols == 0} {return 1}
 		foreach s [array names order] {
 		    upvar #0 ${selfns}::trans_$order($s) jump
 		    if {![info exists jump]} {return 0}
 		    set njsym [array size jump]
-		    if {[info exists jump()]} {incr njsym -1}
+		    if {[info exists jump()]} {
+			set  njsym [llength [$self symbols@set [$self epsilon_closure $s]]]
+			incr njsym -1
+		    }
 		    if {$njsym != $nsymbols}  {return 0}
 		}
 		return 1
@@ -850,37 +946,38 @@ snit::type ::grammar::fa {
 
 	$self StateCheck $s
 
+	# Prefer cached information
+	if {[info exists ec($s)]} {
+	    return $ec($s)
+	}
+
 	set closure [list $s]
 	set pending [list $s]
 	array set visited {}
 	while {[llength $pending]} {
-	    set s [struct::list shift pending]
-	    if {[info exists visited($s)]} continue
-	    set visited($s) .
-	    upvar #0 ${selfns}::trans_$order($s) jump
+	    set t [struct::list shift pending]
+	    if {[info exists visited($t)]} continue
+	    set visited($t) .
+	    upvar #0 ${selfns}::trans_$order($t) jump
 	    if {![info exists jump()]} continue
 	    struct::set add closure $jump()
 	    struct::set add pending $jump()
 	}
+	set ec($s) $closure
 	return $closure
     }
 
     # --- --- --- --------- --------- ---------
 
     method clear {} {
-	unset order    ; array set order    {}
-	unset start    ; array set start    {}
-	unset final    ; array set final    {}
-	unset symbol   ; array set symbol   {}
-	unset transym  ; array set transym  {}
-	unset transinv ; array set transinv {}
-	unset nondets  ; array set nondets  {}
-	set nondete    {}
-	set scount     0
-	set reach      {}
-	set reachvalid 0
-	set useful     {}
-	set usefulvalid 0
+	array unset order    ; set nondete     {}
+	array unset start    ; set scount      0 
+	array unset final    ; set reach       {}
+	array unset symbol   ; set reachvalid  0 
+	array unset transym  ; set useful      {}
+	array unset transinv ; set usefulvalid 0
+	array unset nondets
+	array unset ec
 
 	# Locate all 'trans_' arrays and remove them as well.
 
@@ -950,6 +1047,8 @@ snit::type ::grammar::fa {
 
 	$self InvalidateReach
 	$self InvalidateUseful
+	# Clear closure cache when epsilons change.
+	if {$sym eq ""} {array unset ec}
 
 	if {[info exists transym($sym)]} {
 	    struct::set include transym($sym) $s
@@ -978,6 +1077,8 @@ snit::type ::grammar::fa {
 	if {![info exists jump($sym)]} return
 	$self InvalidateReach
 	$self InvalidateUseful
+	# Clear closure cache when epsilons change.
+	if {$sym eq ""} {array unset ec}
 
 	if {![llength $args]} {
 	    # Unset all transitions for (s, sym)
