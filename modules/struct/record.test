@@ -33,6 +33,14 @@ test record-0.1 {record define - multi line} {
     }
 } ::contact
 
+test record-0.1 {record define - multi line} {
+    record define mycontact {
+        age
+        sex
+        {record contact cont}
+    }
+} ::mycontact
+
 test record-0.1 {definition with instantiation} {
     record define location {
         street
@@ -57,6 +65,10 @@ test record-0.1 {auto instance} {
     contact #auto
 } ::contact0
 
+test record-0.1 {instance of double nested record} {
+    mycontact #auto
+} ::mycontact0
+
 test record-0.1 {setting a instance var via alias} {
 	cont(1).first Brett
 } Brett
@@ -65,13 +77,25 @@ test record-0.1 {setting a nested instance var via alias} {
 	cont(1).phlist.cell 425-555-1212
 } 425-555-1212
 
+test record-0.1 {setting a double nested instance var via alias} {
+    mycontact0.cont.phlist.cell 206-555-1212
+} 206-555-1212
+
 test record-0.1 {setting values via config} {
     cont(1) config -middle Allen -last Schwarz
+} ""
+
+test record-0.1 {setting a double nested instance  via config} {
+    mycontact0 config -cont.phlist.cell 206-555-1212
 } ""
 
 test record-0.1 {get a value via cget} {
     cont(1) cget -first -middle -last
 } [list Brett Allen Schwarz]
+
+test record-0.1 {get a double nested value via cget} {
+    mycontact0 cget -cont.phlist.cell
+} 206-555-1212
 
 test record-0.1 {get a value via alias} {
     cont(1).first
@@ -135,7 +159,7 @@ test record-0.1 {copy one definition to another definition} {
 
 test record-0.1 {show defined records} {
     record show records
-} [lsort [list ::phones ::contact ::location ::new_contact]]
+} [lsort [list ::phones ::contact ::location ::new_contact ::mycontact]]
 
 test record-0.1 {show members} {
     record show members phones
@@ -320,7 +344,7 @@ test record-0.1 {get the above values via alias} {
 
 test record-0.1 {show defined records} {
     record show records
-} [lsort [list ::contact ::myns::phones ::myns::contact ::myns::location ::new_contact ::phones]]
+} [lsort [list ::contact ::myns::phones ::myns::contact ::myns::location ::new_contact ::phones ::mycontact]]
 
 test record-0.1 {show members} {
     record show members myns::phones
