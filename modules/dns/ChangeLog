@@ -1,4 +1,8 @@
-2004-05-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
+2004-06-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* spf.tcl:      NEW: Implementation of SPF using our dns package.
+	* spf.test:     NEW: tests for SPF package.
+	* pkgIndex.tcl: Updated to include SPF.
 
 	* dns-url.txt: Updated the dns-url document to -09 version. This
 	implementation is still valid so no changes to the uri code.
