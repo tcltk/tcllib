@@ -17,7 +17,7 @@
 # See the file license.terms.
 
 package require Tcl       8.2
-package require struct    2
+package require struct::stack
 package require cmdline   1.1
 
 namespace eval ::htmlparse {
