@@ -133,7 +133,7 @@ proc cmdline {} {
 }
 
 # ---------------------------------------------------------------------
-#  2. Read formatting macros and setup evalutin environment
+#  2. Read formatting macros and setup evalution environment.
 
 proc format_find {} {
     global format fmtfile argv0
