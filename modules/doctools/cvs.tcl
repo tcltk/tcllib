@@ -7,9 +7,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cvs.tcl,v 1.1 2003/03/27 23:37:48 andreas_kupries Exp $
+# RCS: @(#) $Id: cvs.tcl,v 1.2 2003/03/28 20:01:27 andreas_kupries Exp $
 
 package require Tcl 8.2
+package require textutil
 
 namespace eval ::doctools {}
 namespace eval ::doctools::cvs {
@@ -114,44 +115,17 @@ proc ::doctools::cvs::toChangeLog {evar cvar fvar} {
 
 	set clist [lsort -unique $comments($date,$author)]
 
-	## AK -- FUTURE ## Use textutil formatting routines (indent, unindent)
-	## AK -- FUTURE ## to properly align all comments.
-
-	if {[llength $clist] == 1} {
-	    set c [lindex $clist 0]
-
+	foreach c $clist {
 	    #  Print all files for a given comment
 	    foreach f [lsort -unique $files($date,$author,$c)] {
 		lappend linebuffer "\t* $f:"
 	    }
-	    # Auto-indent ...
-	    lappend linebuffer "\t  $c"
-	} else {
-	    foreach c $clist {
 
-		#  Print all files for a given comment
-		foreach f [lsort -unique $files($date,$author,$c)] {
-		    lappend linebuffer "\t* $f:"
-		}
+	    #  Format and print the comment
 
-		#  Format and print the comment
-		#  (note that we saved the newlines, just in case
-		#   somebody wants to print the comment without
-		#   reformatting.)
-
-		lappend linebuffer $c
-		continue
-
-		set c [string map {"\n" " "} $c]
-		set len 60
-		while { [string length $c] > 0 } {
-		    set brk [string last " " $c $len]
-		    if { $brk < 0 } {set brk $len}
-		    lappend linebuffer "\t[string range $c 0 $brk]"
-		    set c [string range $c [expr {$brk+1}] end]
-		}
-		lappend linebuffer ""
-	    }
+	    lappend linebuffer [textutil::indent [textutil::undent $c] "\t  "]
+	    lappend linebuffer ""
+	    continue
 	}
     }
 
@@ -161,4 +135,4 @@ proc ::doctools::cvs::toChangeLog {evar cvar fvar} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::cvs 1.0
+package provide doctools::cvs 0.1
