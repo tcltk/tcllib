@@ -2,7 +2,7 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.5 2001/11/17 00:13:00 andreas_kupries Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.6 2001/11/19 21:02:19 andreas_kupries Exp $ ftp.n
 '\"
 .so man.macros
 .TH "ftp" n 2.2 tcllib "ftp client"
@@ -39,11 +39,11 @@ package require \fBftp::geturl ?0.1?\fR ; # for ftp::geturl command
 .sp
 \fBftp::Rename\fR \fIhandle\fR \fIfrom\fR \fIto\fR\fR
 .sp
-\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR) ?\fIremote\fR?\fR
+\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
 .sp
-\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR) ?\fIremote\fR?\fR
+\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
 .sp
-\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR)?\fR
+\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?\fR
 .sp
 \fBftp::Reget\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR? ?\fIfrom\fR? ?\fIto\fR?\fR
 .sp
@@ -282,7 +282,7 @@ name must not be the same as any existing subdirectory or file name.
 The command returns 1 if the specified file was successfully renamed
 or 0 if it failed.
 .TP
-\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR) ?\fIremote\fR?\fR
+\fBftp::Put\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
 This command transfers a local file \fIlocal\fR to a remote file
 \fIremote\fR on the ftp server. If the file parameters passed to the
 command do not fully qualified path names the command will use the
@@ -294,13 +294,19 @@ transfer and 0 in the case of a failure.
 If \fB-data \fIdata\fR\fR is specified instead of a local file,
 the system will not transfer a file, but the \fIdata\fR passed into
 it. In this case the name of the remote file has to be specified.
+.sp
+If \fB-channel \fIchan\fR\fR is specified instead of a local file, the
+system will not transfer a file, but read the contents of the channel
+\fIchan\fR and write this to the remote file. In this case the name of
+the remote file has to be specified. After the transfer \fIchan\fR
+will be closed.
 .TP
-\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR) ?\fIremote\fR?\fR
+\fBftp::Append\fR \fIhandle\fR (\fIlocal\fR | -data \fIdata\fR | -channel \fIchan\fR) ?\fIremote\fR?\fR
 This command behaves like \fBftp::Puts\fR, but appends the transfered
 information to the remote file. If the file did not exist on the
 server it will be created.
 .TP
-\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR)?\fR
+\fBftp::Get\fR \fIhandle\fR \fIremote\fR ?(\fIlocal\fR | -variable \fIvarname\fR | -channel \fIchan\fR)?\fR
 This command retrieves a remote file \fIremote\fR on the ftp server
 and stores its contents into the local file \fIlocal\fR. If the file
 parameters passed to the command do not fully qualified path names the
@@ -312,6 +318,11 @@ to indicate a sucessful transfer and 0 in the case of a failure.
 If \fB-variable \fIvarname\fR\fR is specified, the system will
 store the retrieved data into the variable \fIvarname\fR instead of a
 file.
+.sp
+If \fB-channel \fIchan\fR\fR is specified, the system will write the
+retrieved data into the channel \fIchan\fR instead of a file. The
+system will \fBnot\fR close \fIchan\fR after the transfer, this is the
+responsibility of the caller to \fBGet\fR.
 .TP
 \fBftp::Reget\fR \fIhandle\fR \fIremote\fR ?\fIlocal\fR? ?\fIfrom\fR? ?\fIto\fR?\fR
 This command behaves like \fBftp::Get\fR, except that if local file
