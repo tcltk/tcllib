@@ -2,10 +2,10 @@
 '\" Copyright (c) 2000 Andreas Kupries
 '\" All right reserved
 '\"
-'\" CVS: $Id: ftp.n,v 1.9 2002/01/16 19:00:57 andreas_kupries Exp $ ftp.n
+'\" CVS: $Id: ftp.n,v 1.10 2002/01/18 20:51:16 andreas_kupries Exp $ ftp.n
 '\"
 .so man.macros
-.TH "ftp" n 2.2 tcllib "ftp client"
+.TH "ftp" n 2.3 tcllib "ftp client"
 .BS
 '\" Note: do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -14,7 +14,7 @@ ftp \- Client-side tcl implementation of the ftp protocol
 .nf
 package require \fBTcl\fR
 .sp
-package require \fBftp\fR ?\fB2.2.1\fR?
+package require \fBftp\fR ?\fB2.3\fR?
 package require \fBftp::geturl\fR ?\fB0.1\fR? ; # for ftp::geturl command
 .sp
 \fBftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?

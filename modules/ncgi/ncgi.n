@@ -2,10 +2,10 @@
 '\" Copyright (c) 1998-2000 by Ajuba Solutions.
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: ncgi.n,v 1.8 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: ncgi.n,v 1.9 2002/01/18 20:51:16 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH ncgi n 1.0 Ncgi "CGI Support"
+.TH ncgi n 1.2.1 Ncgi "CGI Support"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -15,7 +15,7 @@
 .sp
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require ncgi ?1.2?\fR
+\fBpackage require ncgi ?1.2.1?\fR
 .sp
 \fBncgi::cookie\fR \fIcookie\fR
 .sp

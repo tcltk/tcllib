@@ -5,10 +5,10 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.1 2001/10/23 03:44:06 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.2 2002/01/18 20:51:17 andreas_kupries Exp $
 # -------------------------------------------------------------------------
 
-package require uri 1.0
+package require uri 1.1
 
 uri::register {urn URN} {
 	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}

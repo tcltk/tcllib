@@ -21,10 +21,10 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.2 2001/11/16 21:44:46 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.3 2002/01/18 20:51:15 andreas_kupries Exp $
 
 package require Tcl 8
-package provide comm 3.7
+package provide comm 3.7.1
 
 namespace eval ::comm {
     namespace export comm comm_send
