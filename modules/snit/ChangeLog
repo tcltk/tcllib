@@ -1,3 +1,44 @@
+2004-05-15  Will Duquette  <will@cordelia.local>
+
+	* snit.tcl:     Added a type method cache.  Type methods 
+	                (with the exception of implicit "create") are
+			now as fast as instance methods.  This is a
+			naive implementation, though--for typemethods,
+			the cache could be populated at definition
+			time, since there's no delegation.  Of course,
+			if I added typemethod delegation then what I'm
+			doing is appropriate.
+
+2004-05-15  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl:     Updated version to 0.94
+	* pkgIndex.tcl: 
+
+	* snit.tcl:     Modified the Snit_dispatcher function to
+	                use a method command cache.  Method commands
+			are assembled in Snit_cacheLookup only if
+			they aren't found in the cache.  The 
+			new Snit_dispatcher was much shorter,
+			so its code was moved into the object's
+			instance command, and Snit_dispatcher
+			was deleted altogether.  These changes 
+			speed up method calls considerably.
+
+			Snit_tracer was then modified to clear the
+			method cache when the instance command is 
+			renamed--the cached commands contained the
+			old instance command name.
+
+	* snit.test:    Components can be changed dynamically; the
+	                method cache breaks this, because the 
+			previous component's command is still
+			cached.  Added a test that checks whether
+			the method cache is cleared properly when
+			a component is changed.
+
+	* snit.tcl:	Snit_comptrace now clears the method cache
+	                when a component is redefined.
+
 2004-02-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snit.test:    Codified the requirement of Tcl 8.4 into
