@@ -16,13 +16,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.10 2005/02/17 14:29:30 patthoyts Exp $
+# $Id: md5x.tcl,v 1.11 2005/02/19 19:54:09 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
     variable version 2.0.3
-    variable rcsid {$Id: md5x.tcl,v 1.10 2005/02/17 14:29:30 patthoyts Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.11 2005/02/19 19:54:09 patthoyts Exp $}
     variable usetrf  0
     variable usemd5c 0
     namespace export md5 hmac MD5Init MD5Update MD5Final
@@ -497,12 +497,8 @@ if {[package provide Trf] != {}} {
     interp alias {} ::md5::Hex {} ::hex -mode encode --
 } else {
     proc ::md5::Hex {data} {
-        set result {}
-        binary scan $data c* r
-        foreach c $r {
-            append result [format "%02X" [expr {$c & 0xff}]]
-        }
-        return $result
+        binary scan $data H* result
+        return [string toupper $result]
     }
 }
 
