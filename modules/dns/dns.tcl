@@ -12,14 +12,13 @@
 # TODO:
 #  - When using tcp we should make better use of the open connection and
 #    send multiple queries along the same connection.
-#  - Implement a name cache to reduce the number of queries made.
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.7 2003/02/25 21:39:11 patthoyts Exp $
+# $Id: dns.tcl,v 1.8 2003/02/26 01:25:18 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require log;                    # tcllib 1.0
@@ -28,10 +27,10 @@ package require uri::urn;               # tcllib 1.2
 
 namespace eval dns {
     variable version 1.0.2
-    variable rcsid {$Id: dns.tcl,v 1.7 2003/02/25 21:39:11 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.8 2003/02/26 01:25:18 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
-        status reset wait cleanup
+        status reset wait cleanup errorcode
 
     variable options
     if {![info exists options]} {
@@ -346,6 +345,18 @@ proc dns::error {token} {
 	return $state(error)
     }
     return ""
+}
+
+# Description
+#  Get the error code. This is 0 for a successful transaction.
+#
+proc dns::errorcode {token} {
+    variable $token
+    upvar 0 $token state
+    set flags [Flags $token]
+    set ndx [lsearch -exact $flags errorcode]
+    incr ndx
+    return [lindex $flags $ndx]
 }
 
 # Description:
@@ -700,7 +711,7 @@ proc dns::Flags {token {varname {}}} {
         upvar $varname flags
     }
 
-    array set flags {query 0 opcode 0 authoritative 0 
+    array set flags {query 0 opcode 0 authoritative 0 errorcode 0
         truncated 0 recursion_desired 0 recursion_allowed 0}
 
     binary scan $state(reply) SSSSSS mid hdr nQD nAN nNS nAR
@@ -711,7 +722,7 @@ proc dns::Flags {token {varname {}}} {
     set flags(truncated)          [expr {($hdr & 0x0200) >> 9}]
     set flags(recursion_desired)  [expr {($hdr & 0x0100) >> 8}]
     set flafs(recursion_allowed)  [expr {($hdr & 0x0080) >> 7}]
-    set flags(code)               [expr {($hdr & 0x000F)}]
+    set flags(errorcode)          [expr {($hdr & 0x000F)}]
 
     return [array get flags]
 }

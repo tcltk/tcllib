@@ -2,7 +2,8 @@
 
 	* dns.tcl: Tested the UDP transmission using a fixed TclUDP.
 	* dns.tcl: Implemented inverse queries. (Pretty useless though).
-
+	* dns.tcl: Added errorcode procedure.
+	
 2003-01-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Implemented UDP transmission. Currently not tested
