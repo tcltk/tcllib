@@ -1,8 +1,8 @@
-[manpage_begin md5 n 1.4.2]
+[manpage_begin md5 n 1.4.3]
 [moddesc {Perform md5 hashing}]
 [titledesc {md5 hash}]
 [require Tcl 8.2]
-[require md5 1.4.2]
+[require md5 1.4.3]
 [description]
 [para]
 
