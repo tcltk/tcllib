@@ -2,10 +2,10 @@
 '\" Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 '\" All rights reserved.
 '\" 
-'\" RCS: @(#) $Id: report.n,v 1.5 2001/10/17 17:27:26 andreas_kupries Exp $
+'\" RCS: @(#) $Id: report.n,v 1.6 2002/02/02 01:07:51 andreas_kupries Exp $
 '\" 
 .so man.macros
-.TH report n 1.0 Report "Matrix reports"
+.TH report n 0.3 Report "Matrix reports"
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
@@ -13,7 +13,7 @@
 .SH SYNOPSIS
 \fBpackage require Tcl 8.2\fR
 .sp
-\fBpackage require report ?0.2?\fR
+\fBpackage require report ?0.3?\fR
 .sp
 \fB::report::report\fR \fIreportName columns\fR ?\fBstyle\fR \fIstyle arg...\fR?
 .sp
