@@ -1,3 +1,7 @@
+2000-04-10  Brent Welch  <welch@scriptics.com>
+
+	* Makefile.in: restored ncgi module
+
 2000-04-07  Eric Melski  <ericm@scriptics.com>
 
 	* configure: 
