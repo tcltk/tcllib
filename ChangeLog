@@ -1,3 +1,9 @@
+2000-05-23  Sandeep Tamhankar  <sandeep@scriptics.com>
+
+	* mime/mime.tcl
+	* mime/mime.test: Fixed bugs 5521 and 5659, where qp_encode and
+	qp_decode had numerous bugs.  See #5659 for details.
+
 2000-05-22  Sandeep Tamhankar  <sandeep@scriptics.com>
 
 	* mime/smtp.tcl: Fixed a bug where if the requested mail server

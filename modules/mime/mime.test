@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Scriptics Corporation.
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.1 2000/04/26 03:24:56 sandeep Exp $
+# RCS: @(#) $Id: mime.test,v 1.2 2000/05/24 03:50:53 sandeep Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -151,3 +151,20 @@ foo}
 Content-Type: text/plain
 
 foo}}
+
+test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {
+    set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
+    mime::qp_encode $str1
+} "foo=21=22\t barbaz =24 =60 =7B =23 jack and jill went up a hill to fetch a=\n pail of water. Jack fell down and said =21=22=23=24=40=5B=5C=5D=5E=60=7B=\n=7C=7D=7E =20\nJill said, =22Oh my=22"
+
+test mime-4.2 {Check that encode/decode yields original string} {
+    set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\"  "
+    set enc [mime::qp_encode $str1]
+    set dec [mime::qp_decode $enc]
+    string equal $dec $str1
+} {1}
+
+test mime-4.3 {mime::decode data that might come from an MUA} {
+    set enc "I'm the =22 message =\nwith some new lines=  \n but with some extra space, too.   "
+    mime::qp_decode $enc
+} "I'm the \" message with some new lines but with some extra space, too."
