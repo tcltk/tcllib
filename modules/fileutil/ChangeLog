@@ -1,3 +1,33 @@
+2005-02-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Completed implementation and testing of the 'jail'
+	  command which ensures that a path is inside a specific
+	  directory. Implemented a 'LexNormalize' helper
+	  command.
+
+	* fileutil.test: Added additional test for 'jail' beyond our
+	  current suite.
+
+2005-02-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Implemented command 'stripPath'. Like 'stripPwd'
+	  for a general prefix path [SF Tcllib RFE 1040372].
+
+	* fileutil.test: Added tests for 'stripPath.
+	* fileutil.man: Documented 'stripPath'.
+
+2005-02-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Added tests for the 'Normalize' forward
+	  compatibility wrapper. Got them from the Tcl testsuite for 'file
+	  normalize'. Added tests for the new 'jail' command.
+	
+	* fileutil.tcl: Wrote a forward compatibility implementation of
+	  'file normalize', for use with a Tcl core < 8.4. Updated the
+	  (non)use of 'file normalize' by 'tempdir' and 'tempfile'.
+	  Updated the namespace export clause. Implemented the 'jail'
+	  command [SF Tcllib RFE 111076].
+
 2005-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Extended tests for the case of inacessible
