@@ -81,8 +81,10 @@ test record-0.7 {auto instance} {
 } ::contact0
 
 test record-0.8 {instance of double nested record} {
-    mycontact #auto
-} ::mycontact0
+    set res [mycontact #auto]
+    lappend res [record show values $res]
+    set res
+} {::mycontact0 {-age {} -sex {} -cont {-first {} -middle {} -last {} -phlist {-home {} -work {} -cell {}}}}}
 
 test record-0.9 {setting a instance var via alias} {
     cont(1).first Brett
@@ -424,3 +426,46 @@ test record-9.0 {auto instance & deletion} {
 
 } {::contact1 ::contact2 ::contact3}
 
+test record-10.0 {nesting records more than one level} {
+    set jmod aMacro
+
+    record define fitParams {
+	amp
+	unmod
+	jcoup
+	t2star
+    }
+
+    record define fitData {
+	delays
+	values
+    }
+
+    record define fitInput {
+	{reps 30}
+	{sdev 0.1}
+	{seed 12345}
+	{record fitParams params}
+	{record fitData data}
+    }
+
+    record define fitXYData {
+	silent
+	verbose
+	macro
+	confidence
+	{record fitInput input}
+    }
+
+    set fitXYInputData [fitXYData #auto]
+
+    $fitXYInputData.silent true
+    $fitXYInputData.verbose true
+    $fitXYInputData.macro $jmod
+    $fitXYInputData.confidence 0.9
+
+    set res [record show values $fitXYInputData]
+
+    record delete instance $fitXYInputData
+    set res
+} {-silent true -verbose true -macro aMacro -confidence 0.9 -input {-reps 30 -sdev 0.1 -seed 12345 -params {-amp {} -unmod {} -jcoup {} -t2star {}} -data {-delays {} -values {}}}}
