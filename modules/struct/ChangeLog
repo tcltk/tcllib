@@ -1,5 +1,14 @@
 2004-08-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* sets.tests:
+	* sets.tcl (::struct::set::Sdifference): Fixed the [Tcllib SF Bug
+	  1002143]. Thanks to Todd Coram <maroc@users.sourceforge.net> for
+	  the report. Set elements containing parentheses screw up the
+	  special implementation using the elements as names for local
+	  vars, as they are not seen as regular locals, but as array
+	  elements. Disabled the special implementation, using the regular
+	  one across versions. Extended the testsuite.
+
 	* graph.test: Fixed [SF Tcllib Bug 1003671]: Ensured that
 	* tree.test:  (de)serialization of empty graph/tree is
 	* graph.tcl:  working properly. Thanks to Bhushit Joshipura
