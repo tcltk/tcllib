@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: png.tcl,v 1.4 2004/05/23 05:47:33 andreas_kupries Exp $
+# RCS: @(#) $Id: png.tcl,v 1.5 2004/08/25 17:43:51 afaupell Exp $
 
 package provide png 0.1
 
@@ -80,7 +80,7 @@ proc ::png::getTimestamp {file} {
             set r [read $fh [expr {$len + 4}]]
             binary scan $r Sccccc year month day hour minute second
             close $fh
-            return [clock scan "$month/$day/$year $hour:$minute:$second"]
+            return [clock scan "$month/$day/$year $hour:$minute:$second" -gmt 1]
         }
         seek $fh [expr {$len + 4}] current
     }
