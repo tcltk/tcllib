@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: _xml.tcl,v 1.1 2001/12/14 23:10:32 andreas_kupries Exp $
+# $Id: _xml.tcl,v 1.2 2002/04/24 01:40:31 jenglish Exp $
 #
 # [expand] utilities for generating XML.
 #
@@ -105,27 +105,35 @@ variable elementStack [list]
 #	As a side-effect, pushes $gi onto the element stack.
 #
 proc start {gi args} {
+    if {[llength $args] == 1} { set args [lindex $args 0] }
     variable elementStack
     lappend elementStack $gi
     return [startTag $gi $args]
 }
 
-# xmlContext {gi1 ... giN}  --
+# xmlContext {gi1 ... giN} ?default?  --
 #	Pops elements off the element stack until one of
 #	the specified element types is found.
 #
 #	Returns: sequence of end-tags for each element popped.
 #
-proc xmlContext {gis} {
+#	If none of the specified elements are found, returns
+# 	a start-tag for $default.
+#
+proc xmlContext {gis {default {}}} {
     variable elementStack
     set endTags [list]
-    while {    [llength $elementStack]
-            && [lsearch $gis [set current [lindex $elementStack end]]] < 0
-    } {
+    while {[llength $elementStack]} {
+	set current [lindex $elementStack end]
+	if {[lsearch $gis $current] >= 0} {
+	    return [join $endTags \n]
+	}
 	lappend endTags "</$current>"
 	set elementStack [lreplace $elementStack end end]
     }
-    return [join $endTags \n]
+    # Not found:
+    if {![string length $default]} { set default [join $gis .] }
+    return [startTag $default]
 }
 
 # end ? gi ? --
