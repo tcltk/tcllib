@@ -285,7 +285,13 @@ proc ncgi::nvlist {} {
 	application/x-www-form-urlencoded -
 	application/x-www-urlencoded {
 	    set result {}
-	    foreach {x} [split $query &] {
+
+	    # Any whitespace at the beginning or end of urlencoded data is not
+	    # considered to be part of that data, so we trim it off.  One special
+	    # case in which post data is preceded by a \n occurs when posting
+	    # with HTTPS in Netscape.
+
+	    foreach {x} [split [string trim $query] &] {
 		# Turns out you might not get an = sign,
 		# especially with <isindex> forms.
 		if {![regexp (.*)=(.*) $x dummy varname val]} {

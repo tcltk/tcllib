@@ -1,3 +1,10 @@
+2000-05-26  Melissa Chawla  <hershey@scriptics.com>
+
+	* ncgi.tcl: fixed bug 5727 where Netscape prepends an extra \n to
+	post data sent via HTTPS.  Urlencoded post does not include
+	preceding or trailing whitespace, so to be safe, we trim
+	whitespace off the post data before parsing the attributes.
+
 2000-05-15  Brent Welch <welch@scriptics.com>
 
 	* ncgi.tcl:  Changed ncgi::redirect so it grabs the server name
