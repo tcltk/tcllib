@@ -1,3 +1,10 @@
+2003-05-09  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* comm.man: updated comm to v4.1
+	* comm.tcl: rewrite of code to remove pseudo-object model.
+	Clean up code, add send -command callback to allow for
+	notification of results for asynchronous sends.
+
 2003-05-09  Andreas Kupries  <andreask@activestate.com>
 
 	* sak.tcl (modules_mod): Fixed incorrect check. Caused first
