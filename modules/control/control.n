@@ -1,5 +1,5 @@
 '\"
-'\" RCS: @(#) $Id: control.n,v 1.3 2001/10/17 19:38:45 dgp Exp $
+'\" RCS: @(#) $Id: control.n,v 1.4 2001/11/07 10:40:01 rmax Exp $
 '\" 
 .so man.macros
 .TH control n 0.0 control "Tcl Control Flow Commands"
@@ -90,12 +90,22 @@ assertion failed: 1 == 0
 This capability is useful so that debugging efforts can be independently
 controlled module by module.
 .TP
+\fBcontrol::do \fIbody while|until test\fR
+The \fBdo\fR command executes body as a script repeatedly \fBuntil\fR
+the expression \fBtest\fR becomes true or as long as (\fBwhile\fR)
+\fBtest\fR is true, depending on the second argument. It handles all
+exceptional cases (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR, etc.) 
+correctly, except [\fBreturn -code\fR] which is impossible to handle
+by script-only control structures. For more details see the
+documentation of the \fBwhile\fR command which this implementation is
+internally based on.
+.TP
 \fBcontrol::no-op \fR?\fIarg arg ...\fR?
 The \fBno-op\fR command takes any number of arguments and does nothing.
 It returns an empty string.
 
 .SH "SEE ALSO"
-expr, if, join, namespace, return, string
+expr, if, join, namespace, return, string, while
 
 .SH KEYWORDS
-control, flow, structure, no-op, assert
+control, flow, structure, no-op, assert, do

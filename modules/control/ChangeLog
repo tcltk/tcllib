@@ -1,3 +1,11 @@
+2001-11-07  Reinhard Max  <max@suse.de>
+
+	* do.tcl: 
+	* do.test: New files: define and test [control::do].
+	* control.tcl:
+	* control.n: Added support and documentation for [control::do].
+	* tclIndex: Generated.
+
 2001-11-07  Don Porter <dgp@users.sourceforge.net>
 
 	* rswitch.test: corrected syntax error [Bug 478989]

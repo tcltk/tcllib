@@ -1,3 +1,7 @@
+2001-11-07  Reinhard Max  <max@suse.de>
+
+	* control: added implementation for a 'do ... while/until' loop.
+
 2001-11-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftp: Fixed bug #476729.
