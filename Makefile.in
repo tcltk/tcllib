@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.78 2002/08/15 20:51:48 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.79 2002/08/19 18:28:05 andreas_kupries Exp $
 
 # Base64 encoder/decoder
 BASE64=base64
@@ -276,7 +276,7 @@ install-doc: doc
 	    $(mkinstalldirs) $(mandir)/mann ; \
 	    for f in doc/nroff/*.n ; do \
 		sed -e '/man\.macros/r man.macros' -e '/man\.macros/d' \
-			$$f >> $(mandir)/mann/`basename $$f` ; \
+			$$f > $(mandir)/mann/`basename $$f` ; \
 	    done ; \
 	fi
 	$(mkinstalldirs)   $(pkglibdir)/htmldoc
