@@ -124,6 +124,15 @@ the argument "x"
 [arg_def float x] Argument for the function
 [list_end]
 
+[call [cmd ::math::special::elliptic_K] [arg k]]
+
+Compute the complete elliptic integral of the first kind
+for the argument "k"
+
+[list_begin arg]
+[arg_def float k] Argument for the function
+[list_end]
+
 [list_end]
 
 [section "REMARKS ON THE IMPLEMENTATION"]
@@ -150,6 +159,16 @@ minimal function from recurrence relations.
 The computation of the Gamma and Beta functions relies on the
 combinatorics package, whereas that of the error functions relies on the
 statistics package.
+
+[para]
+The computation of the complete elliptic integrals uses the AGM
+algorithm.
+
+[para]
+Much information about these functions can be found in:
+[para]
+Abramowitz and Stegun: [emph "Handbook of Mathematical Functions"]
+(Dover, ISBN 486-61272-4)
 
 
 [keywords math "special functions" "Bessel functions" "error function"]

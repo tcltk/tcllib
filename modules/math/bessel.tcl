@@ -10,6 +10,11 @@ namespace eval ::math::special {
    # Define a number of common mathematical constants
    #
    variable pi 3.1415926
+
+   #
+   # Export the functions
+   #
+   namespace export J0 J1 J1/2 I_n
 }
 
 # J0 --

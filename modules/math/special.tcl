@@ -22,8 +22,7 @@ namespace eval ::math::special {
    #
    # Export the various functions
    #
-   namespace export Beta
-   namespace export Gamma
+   namespace export Beta Gamma erf erfc
 }
 
 # Gamma --
@@ -81,8 +80,9 @@ proc ::math::special::erfc {x} {
    }
 }
 
-# Bessel functions --
+# Bessel functions and elliptic integrals --
 #
 source [file join [file dirname [info script]] "bessel.tcl"]
+source [file join [file dirname [info script]] "elliptic.tcl"]
 
 
