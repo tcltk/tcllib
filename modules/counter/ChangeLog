@@ -1,3 +1,9 @@
+2005-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* counter.tcl: Replace usage of the 'alt' attribute in a the <img>
+	  tag with the 'title' attribute. Fixed [SF Tcllib Bug 1176744].
+	  Reported by David Gravereaux <davygrvy@users.sourceforge.net>.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -17,9 +23,9 @@ Wed Sep 29 12:13:38 2004  Andreas Kupries <andreask@activestate.com>
 2004-08-18  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* counter.tcl: Error message added in counter::get if -avgn is
-	  used on a non -lastn counter.
-	  Replaced fragile prefix stripping with string map in 
-	  counter::names with a more robust string range based version.
+	  used on a non -lastn counter. Replaced fragile prefix stripping
+	  with string map in counter::names with a more robust string
+	  range based version.
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
