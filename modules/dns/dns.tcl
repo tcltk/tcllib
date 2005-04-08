@@ -25,7 +25,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.26 2004/11/21 11:41:25 patthoyts Exp $
+# $Id: dns.tcl,v 1.27 2005/04/08 05:27:16 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -35,7 +35,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.2.1
-    variable rcsid {$Id: dns.tcl,v 1.26 2004/11/21 11:41:25 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.27 2005/04/08 05:27:16 andreas_kupries Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -724,7 +724,7 @@ proc ::dns::TcpEvent {token} {
     set status [catch {read $state(sock)} result]
     if {$status != 0} {
         ${log}::debug "Event error: $result"
-        Finish $tok "error reading data: $result"
+        Finish $token "error reading data: $result"
     } elseif { [string length $result] >= 0 } {
         if {[catch {
             # Handle incomplete reads - check the size and keep reading.
@@ -744,7 +744,7 @@ proc ::dns::TcpEvent {token} {
                    [string length $state(reply)] should be $state(size)"
             }
         } err]} {
-            Finish $tok "Event error: $err"
+            Finish $token "Event error: $err"
         }
     } elseif { [eof $state(sock)] } {
         Eof $token
@@ -752,7 +752,7 @@ proc ::dns::TcpEvent {token} {
         ${log}::debug "Event blocked"
     } else {
         ${log}::critical "Event error: this can't happen!"
-        Finish $tok "Event error: this can't happen!"
+        Finish $token "Event error: this can't happen!"
     }
 }
 

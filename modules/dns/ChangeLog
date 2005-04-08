@@ -1,3 +1,9 @@
+2005-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dns.tcl (TcpEvent): Fixed [SF Tcllib Bug 1173444]. The cause was
+	  a series of typos, the procedure argument 'token' was referenced
+	  to in the code via 'tok'.
+
 2004-11-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl:     Fixed bug in ReadUShort.
