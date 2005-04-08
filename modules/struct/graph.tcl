@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.21 2004/09/29 17:34:04 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.22 2005/04/08 05:18:50 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -26,10 +26,14 @@ namespace eval ::struct::graph {}
 #
 # '[package vcompare $version 0.6] > 0' <=> '$version > 0.6'
 
+namespace eval ::struct::graph {}
+
 if {
-    ![catch {package require cgraph} version] &&
-    [package vcompare $version 0.6] > 0
+    ![catch {package require cgraph} ::struct::graph::version] &&
+    ([package vcompare $::struct::graph::version 0.6] > 0)
 } {
+    unset ::struct::graph::version
+
     # the cgraph package takes over, so we can return
     namespace eval ::struct {
 	namespace import -force graph::*
@@ -39,7 +43,6 @@ if {
 
 package require struct::list
 
-namespace eval ::struct {}
 namespace eval ::struct::graph {
     # Data storage in the graph module
     # -------------------------------

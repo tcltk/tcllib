@@ -1,3 +1,10 @@
+2005-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.tcl: Replaced the use of the global variable 'version'
+	  with a properly namespaced form. This fixes the [SF Tcllib Bug
+	  1177108], reported by Stephen Huntley
+	  <blacksqr@users.sourceforge.net>.
+
 2005-02-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct_list.man: Extended to cover the new functionality.
