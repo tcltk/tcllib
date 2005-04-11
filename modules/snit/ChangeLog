@@ -1,3 +1,7 @@
+2005-04-11  Marty Backe <marty@lucidway.org>
+
+    * snit.man: Fixed typo in the -configuremethod example.
+
 2005-02-14  Andreas Kupries <andreask@activestate.com>
 
 	* snitfaq.man: Fixed a number of typos reported by Bob Techentin,
