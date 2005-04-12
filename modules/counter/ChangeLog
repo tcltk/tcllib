@@ -1,3 +1,9 @@
+2005-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* counter.tcl: Re-added the 'alt' attribute, i.e. the output now
+	  contains both 'title' and 'alt', so that all browsers will be
+	  satisfied, whichever attribute they use for their tooltips.
+
 2005-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* counter.tcl: Replace usage of the 'alt' attribute in a the <img>
