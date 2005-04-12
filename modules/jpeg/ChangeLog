@@ -9,12 +9,6 @@
 	potential incompatibility due to inverting the return value
 	of isJPEG.
 
-2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-
-	*
-	* Released and tagged Tcllib 1.7 ========================
-	* 
-
 2004-10-05  Andreas Kupries <andreask@activestate.com>
 
 	* jpeg.tcl: Accepted last-minute fixes from Aaron in the exif
