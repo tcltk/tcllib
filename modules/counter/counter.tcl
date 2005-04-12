@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.19 2005/04/08 06:08:58 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.20 2005/04/12 02:35:14 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1019,7 +1019,7 @@ proc ::counter::histHtmlDisplayBarChart {tag histVar max curIndex time args} {
         set img src=$options(-images)/$options(-gif)
     }
     append result "<td valign=bottom><img $img height=$height\
-        width=$options(-width) title=$value></td>\n"
+        width=$options(-width) title=$value alt=$value></td>\n"
     }
     append result "</tr>"
 
