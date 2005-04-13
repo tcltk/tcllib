@@ -12,6 +12,18 @@
 
 	* profiler.test: Added tests to verify fix for Bug 1172938.
 
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
