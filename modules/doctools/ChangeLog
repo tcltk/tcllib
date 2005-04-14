@@ -1,3 +1,13 @@
+2005-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Testsuite package requirements fixed to ensure
+	* docidx.test:   use of local packages.
+	* doctoc.test:
+
+	* doctools.tcl: Typo police.
+	* docidx.tcl: 
+	* doctoc.tcl: 
+
 2005-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_nroff.tcl: Fixed problem with comment

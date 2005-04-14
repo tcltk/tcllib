@@ -8,15 +8,40 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctoc.test,v 1.5 2004/08/10 07:01:31 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.test,v 1.6 2005/04/14 06:07:31 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and not one installed somewhere else.
+#
+
+package forget doctools::toc
+package forget textutil::expander
+
+catch {namespace delete ::doctools::toc}
+catch {namespace delete ::textutil::expander}
+
+if {[catch {source [file join [file dirname [info script]] doctoc.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] textutil expander.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (textutil/expander.tcl): $msg"
+    return
+}
+
 package require doctools::toc
-puts "doctools::toc [package present doctools::toc]"
+package require textutil::expander
+
+puts "doctools::toc        [package present doctools::toc]"
+puts "- textutil::expander [package present textutil::expander]"
+
+# -------------------------------------------------------------------------
 
 namespace import ::doctools::toc::new
 
