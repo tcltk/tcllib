@@ -2,12 +2,12 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2005 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.7 2004/10/03 23:06:56 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.8 2005/04/14 06:07:31 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -533,7 +533,7 @@ proc ::doctools::toc::LookupFormat {name format} {
 #	formatting engine
 #
 # Arguments:
-#	name	Name of the doctoc object to manipulaye
+#	name	Name of the doctoc object to manipulate
 #	format	Name of file containing the code of the engine
 #
 # Results:
@@ -636,7 +636,7 @@ proc ::doctools::toc::SetupFormatter {name format} {
 #	doctoc formatting commands
 #
 # Arguments:
-#	name	Name of the doctoc object to manipulaye
+#	name	Name of the doctoc object to manipulate
 #
 # Results:
 #	None.
@@ -692,7 +692,7 @@ proc ::doctools::toc::SetupChecker {name} {
 #	Create and initializes the expander for input
 #
 # Arguments:
-#	name	Name of the doctoc object to manipulaye
+#	name	Name of the doctoc object to manipulate
 #
 # Results:
 #	None.
@@ -731,7 +731,7 @@ proc ::doctools::toc::SearchPaths {name} {
 
 # ::doctools::toc::FmtError --
 #
-#	API for checker. Called when an error occured.
+#	API for checker. Called when an error occurred.
 #
 # Arguments:
 #	name	Name of the doctoc object to query.
