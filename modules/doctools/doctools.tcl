@@ -2,12 +2,12 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2005 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.12 2004/08/10 07:01:31 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.13 2005/04/14 06:07:31 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -620,7 +620,7 @@ proc ::doctools::LookupFormat {name format} {
 #	formatting engine
 #
 # Arguments:
-#	name	Name of the doctools object to manipulaye
+#	name	Name of the doctools object to manipulate
 #	format	Name of file containing the code of the engine
 #
 # Results:
@@ -730,7 +730,7 @@ proc ::doctools::SetupFormatter {name format} {
 #	doctools formatting commands
 #
 # Arguments:
-#	name	Name of the doctools object to manipulaye
+#	name	Name of the doctools object to manipulate
 #
 # Results:
 #	None.
@@ -792,7 +792,7 @@ proc ::doctools::SetupChecker {name} {
 #	Create and initializes the expander for input
 #
 # Arguments:
-#	name	Name of the doctools object to manipulaye
+#	name	Name of the doctools object to manipulate
 #
 # Results:
 #	None.
@@ -847,7 +847,7 @@ proc ::doctools::Deprecated {name} {
 
 # ::doctools::FmtError --
 #
-#	API for checker. Called when an error occured.
+#	API for checker. Called when an error occurred.
 #
 # Arguments:
 #	name	Name of the doctools object to query.
@@ -929,7 +929,7 @@ proc ::doctools::ExpandInclude {name path} {
     if {![file exists $ipath]} {
 	set ipath $path
 	if {![file exists $ipath]} {
-	    return -code error "Unable to fine include file \"$path\""
+	    return -code error "Unable to find include file \"$path\""
 	}
     }
 
@@ -1056,7 +1056,7 @@ proc ::doctools::GetFormat {name} {
 
 # ::doctools::ListLevel --
 #
-#	API for formatter. Returns numer of open lists
+#	API for formatter. Returns number of open lists
 #
 # Arguments:
 #	name	Name of the doctools object to query.
@@ -1071,12 +1071,12 @@ proc ::doctools::ListLevel {name} {
 
 # ::doctools::MapFile --
 #
-#	API for formatter. Maps symbolic to actual filename in a toc
-#	item. If no mapping is found it is assumed that the symbolic
-#	name is also the actual name.
+#	API for formatter. Maps symbolic to actual filename in a doctools
+#	item. If no mapping is found it is assumed that the symbolic name
+#	is also the actual name.
 #
 # Arguments:
-#	name	Name of the doctoc object to query.
+#	name	Name of the doctools object to query.
 #	fname	Symbolic name of the file.
 #
 # Results:

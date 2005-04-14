@@ -1,3 +1,8 @@
+2005-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.test: Testsuite package requirements fixed to ensure use of
+	  local packages.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
