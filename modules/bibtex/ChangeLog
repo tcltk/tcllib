@@ -1,3 +1,8 @@
+2005-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* example.tcl: Moved out of the module into a new directory
+	  'bibtex/' under the examples tree.
+
 2005-03-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bibtex.test: Updated testsuite to handle the more rigorous
