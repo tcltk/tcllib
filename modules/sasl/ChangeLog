@@ -1,3 +1,8 @@
+2005-04-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* saslclient.tcl: Moved example out of the module into a new
+	  directory 'sasl/' under the examples tree.
+
 2005-02-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sasl.test:  Added some tests.
