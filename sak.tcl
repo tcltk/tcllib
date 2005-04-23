@@ -9,7 +9,33 @@ exec tclsh "$0" ${1+"$@"}
 set distribution   [file dirname [info script]]
 lappend auto_path  [file join $distribution modules]
 
-source [file join $distribution tcllib_version.tcl] ; # Get version information.
+set critcldefault {}
+set critclnotes   {}
+set dist_excluded {}
+
+proc package_name    {text} {global package_name    ; set package_name    $text}
+proc package_version {text} {global package_version ; set package_version $text}
+proc dist_exclude    {path} {global dist_excluded   ; lappend dist_excluded $path}
+proc critcl {name files} {
+    global critclmodules
+    set    critclmodules($name) $files
+    return
+}
+proc critcl_main {name files} {
+    global critcldefault
+    set critcldefault $name
+    critcl $name $files
+    return
+}
+proc critcl_notes {text} {
+    global critclnotes
+    set critclnotes [string map {{\n    } \n} $text]
+    return
+}
+
+source [file join $distribution package_version.tcl] ; # Get version information.
+
+set package_nv ${package_name}-${package_version}
 
 catch {eval file delete -force [glob [file rootname [info script]].tmp.*]}
 
@@ -32,9 +58,15 @@ if {$debug} {
 proc getpackage {package tclmodule} {
     global distribution
     if {[catch {package present $package}]} {
-	uplevel #0 [list source [file join \
+	set src [file join \
 		$distribution modules \
-		$tclmodule]]
+		$tclmodule]
+	if {[file exists $src]} {
+	    uplevel #0 [list source $src]
+	} else {
+	    # Fallback
+	    package require $package
+	}
     }
 }
 
@@ -88,7 +120,7 @@ proc modules_mod {m} {
 proc load_modinfo {} {
     global distribution modules guide
     source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
-    source [file join $distribution install_action.tcl] ; # Get list of installed modules.
+    source [file join $distribution install_action.tcl]    ; # Get installer support code.
     proc load_modinfo {} {}
     return
 }
@@ -401,11 +433,11 @@ proc gendoc {fmt ext args} {
 }
 
 proc gd-cleanup {} {
-    global tcllib_version
+    global package_nv
 
     puts {Cleaning up...}
 
-    set        fl [glob -nocomplain tcllib-${tcllib_version}*]
+    set        fl [glob -nocomplain ${package_nv}*]
     foreach f $fl {
 	puts "    Deleting $f ..."
 	catch {file delete -force $f}
@@ -414,49 +446,49 @@ proc gd-cleanup {} {
 }
 
 proc gd-gen-archives {} {
-    global tcllib_version
+    global package_name package_nv
 
     puts {Generating archives...}
 
     set tar [auto_execok tar]
     if {$tar != {}} {
-        puts "    Gzipped tarball (tcllib-${tcllib_version}.tar.gz)..."
+        puts "    Gzipped tarball (${package_nv}.tar.gz)..."
         catch {
-            exec $tar cf - tcllib-${tcllib_version} | gzip --best > tcllib-${tcllib_version}.tar.gz
+            exec $tar cf - ${package_nv} | gzip --best > ${package_nv}.tar.gz
         }
 
         set bzip [auto_execok bzip2]
         if {$bzip != {}} {
-            puts "    Bzipped tarball (tcllib-${tcllib_version}.tar.bz2)..."
-            exec tar cf - tcllib-${tcllib_version} | bzip2 > tcllib-${tcllib_version}.tar.bz2
+            puts "    Bzipped tarball (${package_nv}.tar.bz2)..."
+            exec tar cf - ${package_nv} | bzip2 > ${package_nv}.tar.bz2
         }
     }
 
     set zip [auto_execok zip]
     if {$zip != {}} {
-        puts "    Zip archive     (tcllib-${tcllib_version}.zip)..."
+        puts "    Zip archive     (${package_nv}.zip)..."
         catch {
-            exec $zip -r   tcllib-${tcllib_version}.zip             tcllib-${tcllib_version}
+            exec $zip -r ${package_nv}.zip ${package_nv}
         }
     }
 
     set sdx [auto_execok sdx]
     if {$sdx != {}} {
-	file rename tcllib-${tcllib_version} tcllib.vfs
+	file rename ${package_nv} ${package_name}.vfs
 
-	puts "    Starkit         (tcllib-${tcllib_version}.kit)..."
-	exec sdx wrap tcllib
-	file rename   tcllib tcllib-${tcllib_version}.kit
+	puts "    Starkit         (${package_nv}.kit)..."
+	exec sdx wrap ${package_name}
+	file rename   ${package_name} ${package_nv}.kit
 
 	if {![file exists tclkit]} {
 	    puts "    No tclkit present in current working directory, no starpack."
 	} else {
-	    puts "    Starpack        (tcllib-${tcllib_version}.exe)..."
-	    exec sdx wrap tcllib -runtime tclkit
-	    file rename   tcllib tcllib-${tcllib_version}.exe
+	    puts "    Starpack        (${package_nv}.exe)..."
+	    exec sdx wrap ${package_name} -runtime tclkit
+	    file rename   ${package_name} ${package_nv}.exe
 	}
 
-	file rename tcllib.vfs tcllib-${tcllib_version}
+	file rename ${package_name}.vfs ${package_nv}
     }
 
     puts {    Keeping directory for other archive types}
@@ -489,6 +521,8 @@ proc xcopy {src dest recurse {pattern *}} {
 
 
 proc xxcopy {src dest recurse {pattern *}} {
+    global package_name
+
     file mkdir $dest
     foreach file [glob -nocomplain [file join $src $pattern]] {
         set base [file tail $file]
@@ -497,11 +531,11 @@ proc xxcopy {src dest recurse {pattern *}} {
 	# Exclude CVS, SCCS, ... automatically, and possibly the temp
 	# hierarchy itself too.
 
-	if {0 == [string compare CVS       $base]} {continue}
-	if {0 == [string compare SCCS      $base]} {continue}
-	if {0 == [string compare BitKeeper $base]} {continue}
-	if {[string match tcllib-*         $base]} {continue}
-	if {[string match *~               $base]} {continue}
+	if {0 == [string compare CVS        $base]} {continue}
+	if {0 == [string compare SCCS       $base]} {continue}
+	if {0 == [string compare BitKeeper  $base]} {continue}
+	if {[string match ${package_name}-* $base]} {continue}
+	if {[string match *~                $base]} {continue}
 
         if {[file isdirectory $file]} then {
 	    if {$recurse} {
@@ -516,17 +550,15 @@ proc xxcopy {src dest recurse {pattern *}} {
 }
 
 proc gd-assemble {} {
-    global tcllib_version distribution
+    global package_nv distribution dist_excluded
 
-    puts "Assembling distribution in directory 'tcllib-${tcllib_version}'"
+    puts "Assembling distribution in directory '${package_nv}'"
 
-    xxcopy $distribution tcllib-${tcllib_version} 1
-    file delete -force \
-	    tcllib-${tcllib_version}/config \
-	    tcllib-${tcllib_version}/modules/ftp/example \
-	    tcllib-${tcllib_version}/modules/ftpd/examples \
-	    tcllib-${tcllib_version}/modules/stats \
-	    tcllib-${tcllib_version}/modules/fileinput
+    xxcopy $distribution ${package_nv} 1
+
+    foreach f $dist_excluded {
+	file delete -force [file join $package_nv $f]
+    }
     puts ""
     return
 }
@@ -535,7 +567,9 @@ proc gd-gen-tap {} {
     getpackage textutil textutil/textutil.tcl
     getpackage fileutil fileutil/fileutil.tcl
 
-    global tcllib_name tcllib_version distribution tcl_platform
+    global package_name package_version distribution tcl_platform
+
+    set pname [textutil::cap $package_name]
 
     set modules   [imodules]
     array set pd  [getpdesc]
@@ -549,7 +583,7 @@ proc gd-gen-tap {} {
     lappend lines "##  By       : $tcl_platform(user)"
     lappend lines {##}
     lappend lines "##  Generated by \"[file tail [info script]] tap\""
-    lappend lines "##  of $tcllib_name $tcllib_version"
+    lappend lines "##  of $package_name $package_version"
     lappend lines {}
     lappend lines {########}
     lappend lines {#####}
@@ -562,10 +596,10 @@ proc gd-gen-tap {} {
     lappend lines {# ###############}
     lappend lines {# Complete bundle}
     lappend lines {}
-    lappend lines [list Package [list $tcllib_name $tcllib_version]]
+    lappend lines [list Package [list $package_name $package_version]]
     lappend lines "Base     @TAP_DIR@"
     lappend lines "Platform *"
-    lappend lines "Desc     {Tcllib: Bundle of all packages}"
+    lappend lines "Desc     \{$pname: Bundle of all packages\}"
     lappend lines "Path     pkgIndex.tcl"
     lappend lines "Path     [join $modules "\nPath     "]"
 
@@ -597,7 +631,7 @@ proc gd-gen-tap {} {
 		catch {set _([lindex $pd($p) 0]) .}
 	    }
 	    set desc [string trim [join [array names _] ", "] " \n\t\r,"]
-	    if {$desc == ""} {set desc {Tcllib module}}
+	    if {$desc == ""} {set desc "$pname module"}
 	    unset _
 
 	    lappend lines "# -------+"
@@ -620,7 +654,7 @@ proc gd-gen-tap {} {
 
 		set desc ""
 		catch {set desc [string trim [lindex $pd($p) 1]]}
-		if {$desc == ""} {set desc {Tcllib package}}
+		if {$desc == ""} {set desc "$pname package"}
 
 		foreach v $vlist {
 		    lappend lines {}
@@ -637,7 +671,7 @@ proc gd-gen-tap {} {
 	    foreach {p vlist} [ppackages $m] break
 	    set desc ""
 	    catch {set desc [string trim [lindex $pd($p) 1]]}
-	    if {$desc == ""} {set desc {Tcllib package}}
+	    if {$desc == ""} {set desc "$pname package"}
 
 	    set v [lindex $vlist 0]
 
@@ -665,7 +699,7 @@ proc gd-gen-tap {} {
     lappend lines {########}
 
     # Write definition
-    set    f [open [file join $distribution tcllib.tap] w]
+    set    f [open [file join $distribution ${package_name}.tap] w]
     puts  $f [join $lines \n]
     close $f
     return
@@ -691,103 +725,34 @@ proc getpdesc  {} {
 }
 
 proc gd-gen-rpmspec {} {
-    global tcllib_version tcllib_name distribution
+    global package_version package_name distribution
 
-    set header [string map [list @@@@ $tcllib_version @__@ $tcllib_name] {# $Id: sak.tcl,v 1.41 2005/04/05 06:36:19 andreas_kupries Exp $
+    set in  [file join $distribution package_rpm.txt]
+    set out [file join $distribution ${package_name}.spec]
 
-%define version @@@@
-%define directory /usr
-
-Summary: The standard Tcl library
-Name: @__@
-Version: %{version}
-Release: 2
-Copyright: BSD
-Group: Development/Languages
-Source: %{name}-%{version}.tar.bz2
-URL: http://tcllib.sourceforge.net/
-Packager: Jean-Luc Fontaine <jfontain@free.fr>
-BuildArchitectures: noarch
-Prefix: /usr
-Requires: tcl >= 8.3.1
-BuildRequires: tcl >= 8.3.1
-Buildroot: /var/tmp/%{name}-%{version}
-
-%description
-Tcllib, the Tcl Standard Library is a collection of Tcl packages
-that provide utility functions useful to a large collection of Tcl
-programmers.
-The home web site for this code is http://tcllib.sourceforge.net/.
-At this web site, you will find mailing lists, web forums, databases
-for bug reports and feature requests, the CVS repository (browsable
-on the web, or read-only accessible via CVS ), and more.
-Note: also grab source tarball for more documentation, examples, ...
-
-%prep
-
-%setup -q
-
-%install
-# compensate for missing manual files:
-echo 'not available' > modules/calendar/calendar.n
-/usr/bin/tclsh installer.tcl -no-gui -no-wait -no-html -no-examples\
-    -pkg-path $RPM_BUILD_ROOT/usr/lib/%{name}-%{version}\
-    -nroff-path $RPM_BUILD_ROOT/usr/share/man/mann/
-# install HTML documentation to specific modules sub-directories:
-cd modules
-mkdir ../ftp; mv ftp/docs/*.html ../ftp/
-for module in exif mime textutil stooop struct; do
-    mkdir ../$module && mv $module/*.html ../$module/;
-done
-# generate list of files in the package (man pages are compressed):
-find $RPM_BUILD_ROOT ! -type d |\
-    sed -e "s,^$RPM_BUILD_ROOT,,;" -e 's,\.n$,\.n\.gz,;' >\
-    %{_builddir}/%{name}-%{version}/files
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%files -f %{_builddir}/%{name}-%{version}/files
-%defattr(-,root,root)
-%doc README ChangeLog license.terms exif/ ftp/ mime/ stooop/ struct/ textutil/
-}]
-
-    set    f [open [file join $distribution tcllib.spec] w]
-    puts  $f $header
-    close $f
+    write_out $out [string map \
+			[list \
+			     @PACKAGE_VERSION@ $package_version \
+			     @PACKAGE_NAME@    $package_name] \
+			[get_input $in]]
     return
 }
 
 proc gd-gen-yml {} {
     # YAML is the format used for the FreePAN archive network.
     # http://freepan.org/
-    global tcllib_version tcllib_name distribution
-    set yml [string map \
-                 [list %V $tcllib_version %N $tcllib_name] \
-                 {dist_id: tcllib
-version: %V
-language: tcl
-description: |
-   This package is intended to be a collection of Tcl packages that provide
-   utility functions useful to a large collection of Tcl programmers.
 
-   The home web site for this code is http://tcllib.sourceforge.net/.
-   At this web site, you will find mailing lists, web forums, databases
-   for bug reports and feature requests, the CVS repository (browsable
-   on the web, or read-only accessible via CVS ), and more.
+    global package_version package_name distribution
 
-categories: 
-  - Library/Utility
-  - Library/Mail
-  - Library/Cryptography
-  - Library/Math
-license: BSD
-owner_id: AndreasKupries
-wrapped_content: %N-%V/
-}]
-    set f [open [file join $distribution tcllib.yml] w]
-    puts $f $yml
-    close $f
+    set in  [file join $distribution package_yml.txt]
+    set out [file join $distribution ${package_name}.yml]
+
+    write_out $out [string map \
+			[list \
+			     @PACKAGE_VERSION@ $package_version \
+			     @PACKAGE_NAME@    $package_name] \
+			[get_input $in]]
+    return
 }
 
 proc docfiles {} {
@@ -806,22 +771,18 @@ proc docfiles {} {
 }
 
 proc gd-tip55 {} {
-    global tcllib_version tcllib_name distribution contributors
+    global package_version package_name distribution contributors
     contributors
 
-    set md {Identifier: %N
-Title:  Tcl Standard Library
-Description: This package is intended to be a collection of
-    Tcl packages that provide utility functions useful to a
-    large collection of Tcl programmers.
-Rights: BSD
-Version: %V
-URL: http://tcllib.sourceforge.net/
-Architecture: tcl
-}
+    set in  [file join $distribution package_tip55.txt]
+    set out [file join $distribution DESCRIPTION.txt]
 
-    regsub {Version: %V} $md "Version: $tcllib_version" md
-    regsub {Identifier: %N} $md "Identifier: $tcllib_name" md
+    set md [string map \
+		[list \
+		     @PACKAGE_VERSION@ $package_version \
+		     @PACKAGE_NAME@    $package_name] \
+		[get_input $in]]
+
     foreach person [lsort [array names contributors]] {
         set mail $contributors($person)
         regsub {@}  $mail " at " mail
@@ -829,13 +790,12 @@ Architecture: tcl
         append md "Contributor: $person <$mail>\n"
     }
 
-    set f [open [file join $distribution DESCRIPTION.txt] w]
-    puts $f $md
-    close $f
+    write_out $out $md
+    return
 }
 
-# Fill the global array of contributors to tcllib by processing the
-# ChangeLog entries.
+# Fill the global array of contributors to the bundle by processing
+# the ChangeLog entries.
 #
 proc contributors {} {
     global distribution contributors
@@ -1089,12 +1049,12 @@ proc write_out {f text} {
 }
 
 proc gd-gen-packages {} {
-    global tcllib_version distribution
+    global package_version distribution
 
     set P [file join $distribution PACKAGES]
     file copy -force $P $P.LAST
     set f [open $P w]
-    puts $f "@@ RELEASE $tcllib_version"
+    puts $f "@@ RELEASE $package_version"
     puts $f ""
 
     array set packages {}
@@ -1405,7 +1365,9 @@ proc ::dsrs::Final {} {
 # Help
 
 proc __help {} {
-    puts stdout {
+    global critcldefault
+
+    puts stdout [string map [list @@ $critcldefault] {
 	Commands avalable through the swiss army knife aka SAK:
 
 	help     - This help
@@ -1413,21 +1375,21 @@ proc __help {} {
 	/Configuration
 	/===========================================================
 
-	version  - Return tcllib version number
-	major    - Return tcllib major version number
-	minor    - Return tcllib minor version number
-	name     - Return tcllib package name
+	version  - Return the bundle's version number
+	major    - Return the bundle's major version number
+	minor    - Return the bundle's minor version number
+	name     - Return the bundle's package name
 
 	/Development
 	/===========================================================
 
 	modules          - Return list of modules.
-        contributors     - Print a list of contributors to tcllib.
+        contributors     - Print a list of contributors to the bundle.
 	lmodules         - See above, however one module per line
 	imodules         - Return list of modules known to the installer.
         critcl-modules   - Return a list of modules with critcl enhancements.
 
-	packages         - Return indexed packages in tcllib, plus versions,
+	packages         - Return indexed packages in the bundle, plus versions,
 	                   one package per line. Extracted from the
 	                   package indices found in the modules.
 	provided         - Return list and versions of provided packages
@@ -1436,7 +1398,7 @@ proc __help {} {
 	                   call with current packages. Marks all new
 	                   and unchanged packages for higher attention.
 
-        critcl ?module?  - Build a critcl module [default is tcllibc].
+        critcl ?module?  - Build a critcl module [default is @@].
 
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
@@ -1474,7 +1436,7 @@ proc __help {} {
 
 	gendist  - Generate distribution from CVS snapshot
 
-	rpmspec  - Generate a RPM spec file for tcllib.
+	rpmspec  - Generate a RPM spec file for the bundle.
         gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
         yml      - Generate a YAML description file.
 
@@ -1485,16 +1447,16 @@ proc __help {} {
 
 	rstatus  - Determines the status of the code base with regard
 	           to the last release.
-    }
+    }]
 }
 
 # --------------------------------------------------------------
 # Configuration
 
-proc __name    {} {global tcllib_name    ; puts -nonewline $tcllib_name}
-proc __version {} {global tcllib_version ; puts -nonewline $tcllib_version}
-proc __minor   {} {global tcllib_version ; puts -nonewline [lindex [split $tcllib_version .] 1]}
-proc __major   {} {global tcllib_version ; puts -nonewline [lindex [split $tcllib_version .] 0]}
+proc __name    {} {global package_name    ; puts -nonewline $package_name}
+proc __version {} {global package_version ; puts -nonewline $package_version}
+proc __minor   {} {global package_version ; puts -nonewline [lindex [split $package_version .] 1]}
+proc __major   {} {global package_version ; puts -nonewline [lindex [split $package_version .] 0]}
 
 # --------------------------------------------------------------
 # Development
@@ -1706,21 +1668,9 @@ proc checkmod {} {
 # Critcl stuff
 # -------------------------------------------------------------------------
 
-array set critclmodules {
-    tcllibc   {}
-    base64c   {base64/base64c.tcl base64/uuencode.tcl base64/yencode.tcl}
-    crcc      {crc/crcc.tcl crc/sum.tcl crc/crc32.tcl}
-    md4c      md4/md4c.tcl
-    md5c      md5/md5c.tcl
-    md5cryptc md5crypt/md5cryptc.tcl
-    rc4c      rc4/rc4c.tcl
-    sha1c     sha1/sha1c.tcl
-    uuid      uuid/uuid.tcl
-}
-
-# Build critcl modules. If no args then build the tcllibc module.
+# Build critcl modules. If no args then build the default critcl module.
 proc __critcl {} {
-    global argv critcl critclmodules tcl_platform
+    global argv critcl critclmodules critcldefault critclnotes tcl_platform
     if {$tcl_platform(platform) == "windows"} {
         set critcl [auto_execok tclkitsh]
         if {$critcl == {}} {
@@ -1747,10 +1697,14 @@ proc __critcl {} {
 
     if {$critcl != {}} {
         if {[llength $argv] == 0} {
-            puts stderr "[string repeat - 72]\nBuilding critcl components."
-            puts stderr "Note: you can ignore warnings for tcllibc.tcl,\
-                base64c.tcl and crcc.tcl.\n[string repeat - 72]"
-            critcl_module tcllibc
+            puts stderr "[string repeat - 72]"
+	    puts stderr "Building critcl components."
+	    if {$critclnotes != {}} {
+		puts stderr $critclnotes
+	    }
+	    puts stderr "[string repeat - 72]"
+
+            critcl_module $critcldefault
         } else {
             foreach m $argv {
                 if {[info exists critclmodules($m)]} {
@@ -1769,19 +1723,26 @@ proc __critcl {} {
 
 # Prints a list of all the modules supporting critcl enhancement.
 proc __critcl-modules {} {
-    global critclmodules
-    puts tcllibc
-    foreach m [array names critclmodules] {
-        puts $m
+    global critclmodules critcldefault
+    foreach m [lsort -dict [array names critclmodules]] {
+	if {$m == $critcldefault} {
+	    puts "$m **"
+	} else {
+	    puts $m
+	}
     }
     return
 }
 
 proc critcl_module {pkg} {
-    global critcl distribution critclmodules
-    if {$pkg == "tcllibc"} {
-        set files [file join $distribution modules tcllibc.tcl]
+    global critcl distribution critclmodules critcldefault
+    if {$pkg == $critcldefault} {
+	set files {}
+	foreach f $critclmodules($critcldefault) {
+	    lappend files [file join $distribution modules $f]
+	}
         foreach m [array names critclmodules] {
+	    if {$m == $critcldefault} continue
             foreach f $critclmodules($m) {
                 lappend files [file join $distribution modules $f]
             }
@@ -1816,10 +1777,10 @@ proc __validate_v {} {
 }
 
 proc _validate_all_v {} {
-    global tcllib_name tcllib_version
+    global package_name package_version
     set i 0
 
-    puts "Validating $tcllib_name $tcllib_version development"
+    puts "Validating $package_name $package_version development"
     puts "==================================================="
     puts "[incr i]: Consistency of package versions ..."
     puts "------------------------------------------------------"
@@ -1830,10 +1791,10 @@ proc _validate_all_v {} {
 }
 
 proc _validate_module_v {m} {
-    global tcllib_name tcllib_version
+    global package_name package_version
     set i 0
 
-    puts "Validating $tcllib_name $tcllib_version development -- $m"
+    puts "Validating $package_name $package_version development -- $m"
     puts "==================================================="
     puts "[incr i]: Consistency of package versions ..."
     puts "------------------------------------------------------"
@@ -1858,10 +1819,10 @@ proc __validate {} {
 }
 
 proc _validate_all {} {
-    global tcllib_name tcllib_version
+    global package_name package_version
     set i 0
 
-    puts "Validating $tcllib_name $tcllib_version development"
+    puts "Validating $package_name $package_version development"
     puts "==================================================="
     puts "[incr i]: Existence of testsuites ..."
     puts "------------------------------------------------------"
@@ -1932,10 +1893,10 @@ proc _validate_all {} {
 }
 
 proc _validate_module {m} {
-    global tcllib_name tcllib_version
+    global package_name package_version
     set i 0
 
-    puts "Validating $tcllib_name $tcllib_version development -- $m"
+    puts "Validating $package_name $package_version development -- $m"
     puts "==================================================="
     puts "[incr i]: Existence of testsuites ..."
     puts "------------------------------------------------------"
@@ -2023,8 +1984,9 @@ proc __gentip55 {} {
 }
 
 proc __yml {} {
+    global package_name
     gd-gen-yml
-    puts "Created YAML spec file \"tcllib.yml\""
+    puts "Created YAML spec file \"${package_name}.yml\""
     return
 }
 
@@ -2038,20 +2000,24 @@ proc __contributors {} {
 }
 
 proc __tap {} {
+    global package_name
     gd-gen-tap
-    puts "Created Tcl Dev Kit \"tcllib.tap\""
+    puts "Created Tcl Dev Kit \"${package_name}.tap\""
 }
 
 proc __rpmspec {} {
+    global package_name
     gd-gen-rpmspec
-    puts "Created RPM spec file \"tcllib.spec\""
+    puts "Created RPM spec file \"${package_name}.spec\""
 }
 
 
 proc __release {} {
     # Regenerate PACKAGES, and extend
 
-    global argv argv0 distribution tcllib_version
+    global argv argv0 distribution package_name package_version
+
+    getpackage textutil textutil/textutil.tcl
 
     if {[llength $argv] != 2} {
 	puts stderr "$argv0: wrong#args: release name sf-user-id"
@@ -2060,11 +2026,12 @@ proc __release {} {
 
     foreach {name sfuser} $argv break
     set email "<${sfuser}@users.sourceforge.net>"
+    set pname [textutil::cap $package_name]
 
     set notice "[clock format [clock seconds] -format "%Y-%m-%d"]  $name  $email
 
 	*
-	* Released and tagged Tcllib $tcllib_version ========================
+	* Released and tagged $pname $package_version ========================
 	* 
 
 "

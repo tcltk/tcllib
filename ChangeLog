@@ -1,3 +1,23 @@
+2005-04-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Should be bundle independent now, with (undocumented)
+	  API to the bundle specific information (package_* files).
+
+	* sak.tcl: Moved existing name/version variables over to package
+	  neutral names. Moved meta data file to package neutral
+	  name. Changed the API between sak and meta data file, it is now
+	  command oriented. Replaced hardwired package labeling with
+	  variables. Moved the bundle specific release cleanup into the
+	  meta data file, and made the cleanup code generic. Ditto for the
+	  bundle specific critcl definitions. Modified package load to
+	  fall back to a regular 'require' if there is no local
+	  file containing the package implementation.
+
+	* sak.tcl:         Moved the bundle specific template data
+	* package_rpm.txt: into separate file and rewrote the code
+	* package_yml.txt: using them to be more regular.
+	* package_tip55.txt:
+
 2005-04-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Extended to handle multiple versions of a package
