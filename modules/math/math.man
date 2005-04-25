@@ -45,7 +45,7 @@ Return the mean, or "average" of one or more numeric values.
 Return the minimum of one or more numeric values.
 
 
-[call [cmd ::math::prod] [arg value] [opt [arg {value ...}]]]
+[call [cmd ::math::product] [arg value] [opt [arg {value ...}]]]
 
 Return the product of one or more numeric values.
 

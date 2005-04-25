@@ -1,3 +1,7 @@
+2005-04-25  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Corrected documentation of math::product (was math::prod)
+
 2005-03-16  Andreas Kupries <andreask@activestate.com>
 
 	* bigfloat.tcl: Added package require math::bignum. If we use the
