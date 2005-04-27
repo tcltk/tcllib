@@ -5,7 +5,7 @@
 #     
 #     (c) 2005 Michael Schlenker <mic42@users.sourceforge.net>
 #     
-#     $Id: snit-logger.tcl,v 1.1 2005/04/25 22:52:36 mic42 Exp $
+#     $Id: snit-logger.tcl,v 1.2 2005/04/27 02:40:40 andreas_kupries Exp $
 #
 #################################################################################
 
