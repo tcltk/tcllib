@@ -1,3 +1,13 @@
+2005-04-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.tcl (indent): Fixed bug in handling of leading
+	  whitespace. We must not remove it before indentation. We can
+	  remove only trailing whitespace (text, and per line). Did a
+	  little micro-optimization to reduce the size of the bytecode.
+
+	* adjust.test: Added tests which check the non-removal of leading
+	  whitespace by 'indent'.
+
 2005-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* split.tcl:   Accepted [SF Tcllib Patch 1063774] and added
