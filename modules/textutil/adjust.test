@@ -11,9 +11,17 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 }
 
-if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
-    source [file join [file dirname [info script]] textutil.tcl]
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget textutil
+catch {namespace delete ::textutil}
+if {[catch {source [file join [file dirname [info script]] textutil.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
 }
+
+# -------------------------------------------------------------------------
 
 set string "        hello,        world        "
 
@@ -298,7 +306,25 @@ bar
 
 bob}
 
+test indent-1.6 {indent text with leading spaces} {
+    ::textutil::indent {  foo
+  bar
 
+  bob} {    } 0
+} {      foo
+      bar
+
+      bob}
+
+test indent-1.7 {indent text with leading spaces, removal of traling spaces} {
+    ::textutil::indent {  foo  
+  bar    
+
+  bob   } {    } 0
+} {      foo
+      bar
+
+      bob}
 
 test undent-1.0 {undent, empty line, completely empty} {
     ::textutil::undent {    foo

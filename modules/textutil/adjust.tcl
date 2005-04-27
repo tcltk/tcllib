@@ -686,17 +686,20 @@ proc ::textutil::adjust::readPatterns { filNam } {
 # @n This procedure is not checked by the testsuite.
 
 proc ::textutil::adjust::indent {text prefix {skip 0}} {
-    set text [string trim $text]
+    set text [string trimright $text]
 
     set res [list]
     foreach line [split $text \n] {
         if {[string compare "" [string trim $line]] == 0} {
             lappend res {}
-        } elseif {$skip <= 0} {
-            lappend res $prefix[string trimright $line]
         } else {
-            lappend res [string trimright $line]
-        }
+	    set line [string trimright $line]
+	    if {$skip <= 0} {
+		lappend res $prefix$line
+	    } else {
+		lappend res $line
+	    }
+	}
         if {$skip > 0} {incr skip -1}
     }
     return [join $res \n]
