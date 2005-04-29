@@ -17,9 +17,19 @@ lappend auto_path  [file join $distribution modules]
 # Version information for tcllib.
 # List of modules to install (and definitions guiding the process)
 
-source [file join $distribution tcllib_version.tcl]    ; # Get version information.
+proc package_name    {text} {global package_name    ; set package_name    $text}
+proc package_version {text} {global package_version ; set package_version $text}
+proc dist_exclude    {path} {}
+proc critcl       {name files} {}
+proc critcl_main  {name files} {}
+proc critcl_notes {text} {}
+
+source [file join $distribution package_version.tcl]   ; # Get version information.
 source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
 source [file join $distribution install_action.tcl]    ; # Get code to perform install actions.
+
+set package_nv ${package_name}-${package_version}
+set package_name_cap [string toupper [string index $package_name 0]][string range $package_name 1 end]
 
 # --------------------------------------------------------------
 # Low-level commands of the installation engine.
@@ -164,9 +174,12 @@ proc ainstall {} {
 	set aexe [file join $distribution apps $a]
 	set adst [file join $config(app,path) ${a}$ext]
 
-	file mkdir [file dirname  $adst]
-	catch {file delete -force $adst}
-	file copy -force $aexe    $adst
+	log "\nGenerating $adst"
+	if {!$config(dry)} {
+	    file mkdir [file dirname  $adst]
+	    catch {file delete -force $adst}
+	    file copy -force $aexe    $adst
+	}
 
 	if {[file exists $aexe.man]} {
 	    if {$config(doc,nroff)} {
@@ -181,7 +194,7 @@ proc ainstall {} {
 }
 
 proc doinstall {} {
-    global config tcllib_version distribution tcllib_name modules excluded
+    global config package_version distribution package_name modules excluded
 
     if {!$config(no-exclude)} {
 	foreach p $excluded {
@@ -196,7 +209,7 @@ proc doinstall {} {
     }
     if {$config(pkg)}       {
 	xinstall   pkg $config(pkg,path)
-	gen_main_index $config(pkg,path) $tcllib_name $tcllib_version
+	gen_main_index $config(pkg,path) $package_name $package_version
 	if {$config(doc,nroff)} {
 	    xinstall doc nroff n    $config(doc,nroff,path)
 	}
@@ -228,7 +241,7 @@ array set config {
 # Determine a default configuration, if possible
 
 proc defaults {} {
-    global tcl_platform config tcllib_version tcllib_name distribution
+    global tcl_platform config package_version package_name distribution
 
     if {[string compare $distribution [info nameofexecutable]] == 0} {
 	# Starpack. No defaults for location.
@@ -256,17 +269,17 @@ proc defaults {} {
 
 	if {[string compare $tcl_platform(platform) windows] == 0} {
 	    set mandir  {}
-	    set htmldir [file join $basedir tcllib_doc]
+	    set htmldir [file join $basedir ${package_name}_doc]
 	} else {
 	    set mandir  [file join $basedir man mann]
-	    set htmldir [file join $libdir  tcllib${tcllib_version} tcllib_doc]
+	    set htmldir [file join $libdir  ${package_name}${package_version} ${package_name}_doc]
 	}
 
 	set config(app,path)       $bindir
-	set config(pkg,path)       [file join $libdir ${tcllib_name}${tcllib_version}]
+	set config(pkg,path)       [file join $libdir ${package_name}${package_version}]
 	set config(doc,nroff,path) $mandir
 	set config(doc,html,path)  $htmldir
-	set config(exa,path)       [file join $bindir tcllib_examples${tcllib_version}]
+	set config(exa,path)       [file join $bindir ${package_name}_examples${package_version}]
     }
 
     if {[string compare $tcl_platform(platform) windows] == 0} {
@@ -299,9 +312,9 @@ proc showpath {prefix key} {
 }
 
 proc showconfiguration {} {
-    global config tcllib_version
+    global config package_version package_name_cap
 
-    puts "Installing Tcllib $tcllib_version"
+    puts "Installing $package_name_cap $package_version"
     if {$config(dry)} {
 	puts "\tDry run, simulation, no actual activity."
 	puts ""
@@ -349,11 +362,11 @@ proc browse {label key} {
 }
 
 proc setupgui {} {
-    global config tcllib_name tcllib_version
+    global config package_name_cap package_version
     set config(gui) 1
 
     wm withdraw .
-    wm title . "Installing $tcllib_name $tcllib_version"
+    wm title . "Installing $package_name_cap $package_version"
 
     foreach {w type cspan col row opts} {
 	.pkg checkbutton 1 0 0 {-anchor w -text {Packages:}     -variable config(pkg)}
