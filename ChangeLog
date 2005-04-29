@@ -1,3 +1,9 @@
+2005-04-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installer.tcl: Fixed installer, updated to the new file and API
+	  for package meta information. Fixed bug in app installation,
+	  forgot to skip actual copy operations when in simulate-mode.
+
 2005-04-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Should be bundle independent now, with (undocumented)
