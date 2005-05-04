@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: optimize.tcl,v 1.6 2004/09/22 11:05:52 arjenmarkus Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.7 2005/05/04 13:28:49 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
 
@@ -601,7 +601,6 @@ if { 0 } {
 #
 # Some simple tests
 #
-if {[file tail $::argv0] == [info script]} {
    namespace import ::math::optimize::*
    proc f1 { x } { expr {$x*$x} }
    proc f2 { x } { expr {cos($x)} }
@@ -629,6 +628,4 @@ if {[file tail $::argv0] == [info script]} {
    puts "Between 0 and 1:  [maximum 0.0 1.0  f4 ] (expected: 0.5)"
    puts "Between -1 and 3: [maximum -1.0 3.0 f4 ] (expected: 0.5)"
    puts "Between  1 and 3: [maximum 1.0 3.0  f4 ] (expected: 1)"
-
-}
 }
