@@ -1,3 +1,8 @@
+2005-05-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * Removed reference to argv0 in optimize.tcl (in response
+          to a complaint by Bob Techentin)
+
 2005-04-25  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Corrected documentation of math::product (was math::prod)
