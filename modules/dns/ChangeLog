@@ -1,3 +1,8 @@
+2005-05-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ip.tcl:   Added some support for acceping RFC3056 6to4 addresses
+	* ip.test:  of the form 2002:<ipv4 address>::/48
+
 2005-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dns.tcl (TcpEvent): Fixed [SF Tcllib Bug 1173444]. The cause was

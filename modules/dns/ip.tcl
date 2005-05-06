@@ -9,13 +9,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.5 2004/11/21 00:49:07 patthoyts Exp $
+# $Id: ip.tcl,v 1.6 2005/05/06 00:54:10 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
     variable version 1.0.0
-    variable rcsid {$Id: ip.tcl,v 1.5 2004/11/21 00:49:07 patthoyts Exp $}
+    variable rcsid {$Id: ip.tcl,v 1.6 2005/05/06 00:54:10 patthoyts Exp $}
 
     namespace export is version normalize equal type contract mask
     #catch {namespace ensemble create}
@@ -36,7 +36,9 @@ namespace eval ip {
     variable IPv6Ranges
     if {![info exists IPv6Ranges]} {
         # RFC 3513: 2.4
+        # RFC 3056: 2
         array set IPv6Ranges {
+            2002::/16 "6to4 unicast"
             fe80::/10 "link local"
             fec0::/10 "site local"
             ff00::/8  "multicast"
@@ -178,6 +180,7 @@ proc ::ip::IPv6? {ip} {
         if {[string length $octet] < 1} continue
         if {[regexp {^[a-fA-F\d]{1,4}$} $octet]} continue
         if {$ndx >= [llength $octets] && [IPv4? $octet]} continue
+        if {$ndx == 2 && [lindex $octets 0] == 2002 && [IPv4? $octet]} continue
         #"Invalid IPv6 address \"$ip\""
         return 0
     }
