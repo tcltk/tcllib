@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ip.test,v 1.1 2004/07/23 12:44:37 patthoyts Exp $
+# RCS: @(#) $Id: ip.test,v 1.2 2005/05/06 00:54:10 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -36,6 +36,7 @@ puts "- ip [package present ip]"
 set Data {
     127.0.0.1 4 0.0.0.0 4 192.168.0.4 4 255.255.255.255 4 127/8 4 192/16 4
     :: 6 ::1 6 fec0::1 6 ::192.168.0.4 6 fec0:0:0:0:0:0:0:1 6 fffe:0:0::2 6
+    2002:192.168.0.4:: 6 2001:192.168.0.4:: -1 2002:127.0.0.1::1 6
     hello -1 -1 -1
 }
 set n 0
@@ -78,6 +79,7 @@ set Data {
     ::ffff:192.168.0.4  0000:0000:0000:0000:0000:ffff:c0a8:0004
     fec0::1/16     fec0:0000:0000:0000:0000:0000:0000:0001/16
     fec0::1/128    fec0:0000:0000:0000:0000:0000:0000:0001
+    2002:127.0.0.1::1 2002:7f00:0001:0000:0000:0000:0000:0001
 }
 set n 0
 foreach {addr result} $Data {
