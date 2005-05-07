@@ -59,6 +59,66 @@
 	* modules/bibtex:        NEW MODULE: Parser for BibTeX bibliographies.
 	* installed_modules.tcl: Added to the list of installed modules.
 
+2005-02-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/asn/asn.man:          Used the new functionality in sak
+	* modules/base64/base64.man:    to look over the package descriptions.
+	* modules/base64/uuencode.man:  Tightened them a bit, consolidating
+	* modules/base64/yencode.man:   especially differing module descriptions.
+	* modules/cmdline/cmdline.man:  Added some missing descriptions.
+	* modules/comm/comm.man:
+	* modules/crc/cksum.man:
+	* modules/crc/crc16.man:
+	* modules/crc/crc32.man:
+	* modules/crc/sum.man:
+	* modules/dns/tcllib_dns.man:
+	* modules/dns/tcllib_ip.man:
+	* modules/fumagic/cfront.tcl
+	* modules/grammar_fa/dacceptor.man:
+	* modules/grammar_fa/dexec.man:
+	* modules/grammar_fa/fa.man:
+	* modules/grammar_fa/faop.man:
+	* modules/jpeg/jpeg.man:
+	* modules/ldap/ldap.man:
+	* modules/math/bigfloat.man:
+	* modules/math/bignum.man:
+	* modules/math/calculus.man:
+	* modules/math/constants.man:
+	* modules/math/fourier.man:
+	* modules/math/fuzzy.man:
+	* modules/math/geometry.man:
+	* modules/math/interpolate.man:
+	* modules/math/linalg.man:
+	* modules/math/optimize.man:
+	* modules/math/polynomials.man:
+	* modules/math/qcomplex.man:
+	* modules/math/romberg.man:
+	* modules/math/special.man:
+	* modules/math/statistics.man:
+	* modules/md4/md4.man:
+	* modules/md5/md5.man:
+	* modules/md5crypt/md5crypt.man:
+	* modules/multiplexer/multiplexer.man:
+	* modules/ntp/ntp_time.man:
+	* modules/rc4/rc4.man:
+	* modules/ripemd/ripemd128.man:
+	* modules/ripemd/ripemd160.man:
+	* modules/sha1/sha1.man:
+	* modules/snit/snit.man:
+	* modules/snit/snitfaq.man:
+	* modules/textutil/expander.man:
+	* modules/textutil/textutil.man:
+
+	* sak.tcl: Extended with code to extract package descriptions from
+	  the module manpages. The association between packages and
+	  manpages is made through the manpage title and require
+	  statements. Added sub commands which format and print the found
+	  information.  Extended the tap generator to insert such
+	  information into its result.
+
+	* modules/doctools/fmt.desc: New format, used for the basic data
+	  extraction mentioned above.
+
 2005-02-14  Andreas Kupries <andreask@activestate.com>
 
 	* modules/docstrip:       NEW MODULE: docstrip.
