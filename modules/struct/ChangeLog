@@ -1,3 +1,24 @@
+2005-05-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_tree.man:
+	* tree.test:
+	* tree.tcl: New method 'walkproc'. Like walk, but calls a command
+	  prefix (three arguments). Extended documentation, testsuite.
+
+	* tree.tcl: Minor touchup of object creation.
+	* graph.tcl: Minor touchup of object creation.
+	* stack.tcl: Minor touchup of object creation.
+	* queue.tcl: Minor touchup of object creation.
+	* matrix.tcl: Minor touchup of object creation.
+
+2005-05-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.tcl:        Added two methods to the class, returning the
+	* tree.test:       list of all nodes, or the list of leaf nodes.
+	* struct_tree.man: Both are easy to determine by the object
+	  itself, and require either a walk or (children -all) otherwise,
+	  both expensive.
+
 2005-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.tcl: Replaced the use of the global variable 'version'

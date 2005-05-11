@@ -399,6 +399,11 @@ associated with an [arg node]. Returns the new value given to the
 attribute [arg key].
 
 
+[call [arg treeName] [method leaves]]
+
+Return a list containing all leaf nodes known to the tree.
+
+
 [call [arg treeName] [method move] [arg parent] [arg index] [arg node] [opt "[arg node] ..."]]
 
 Make the specified nodes children of [arg parent], inserting them into
@@ -420,6 +425,11 @@ Return the right sibling of [arg node], or the empty string if
 [call [arg treeName] [method numchildren] [arg node]]
 
 Return the number of immediate children of [arg node].
+
+
+[call [arg treeName] [method nodes]]
+
+Return a list containing all nodes known to the tree.
 
 
 [call [arg treeName] [method parent] [arg node]]
@@ -655,6 +665,15 @@ in the walk script to force the command to ignore the children of the
 node we are currently at. It will throw an error if the order of
 traversal is either [const post] or [const in] as these modes visit
 the children before their parent, making pruning non-sensical.
+
+
+[call [arg treeName] [method walkproc] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [arg cmdprefix]]
+
+This method is like method [method walk] in all essentials, except the
+interface to the user code. This method invokes a command prefix with
+three additional arguments (tree, node, and action), instead of
+evaluating a script and passing the node via a loop variable.
+
 
 [list_end]
 
