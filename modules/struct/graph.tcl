@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.22 2005/04/08 05:18:50 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.23 2005/05/11 04:19:01 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -122,7 +122,7 @@ proc ::struct::graph::graph {args} {
     # FIRST, qualify the name.
     if {![string match "::*" $name]} {
         # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 namespace current]
+        set ns [uplevel 1 [list namespace current]]
         if {"::" != $ns} {
             append ns "::"
         }

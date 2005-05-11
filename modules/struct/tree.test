@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.37 2004/10/01 01:21:57 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.38 2005/05/11 04:19:01 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -58,6 +58,50 @@ proc dictsort {dict} {
 
 proc walker {node} {
     lappend ::FOO $node
+}
+
+proc pwalker {tree n a} {
+    lappend ::t $a $n
+}
+
+proc pwalkern {tree n a} {
+    lappend ::t $n
+}
+
+proc pwalkercont {tree n a} {
+    if {[string equal $n "b"]} {lappend ::t . ; return -code continue}
+    lappend ::t $a $n
+}
+
+proc pwalkerbreak {tree n a} {
+    if {[string equal $n "b"]} {lappend ::t . ; return -code break}
+    lappend ::t $a $n
+}
+
+proc pwalkerret {tree n a} {
+    if {[string equal $n "b"]} {
+	lappend ::t .
+	return -code return good-return
+    }
+    lappend ::t $a $n
+}
+
+proc pwalkererr {tree n a} {
+    if {[string equal $n "b"]} {
+	lappend ::t .
+	error fubar
+    }
+    lappend ::t $a $n
+}
+
+proc pwalkerprune {tree n a} {
+    lappend ::t $a $n
+    if {$::prune && ($n == 2)} {struct::tree::prune}
+}
+
+proc pwalkerpruneb {tree n a} {
+    lappend ::t $a $n
+    if {($n == 2)} {struct::tree::prune}
 }
 
 # Validate a serialization against the tree it
@@ -179,7 +223,7 @@ test tree-1.3 {tree errors} {
     catch {mytree foo} msg
     mytree destroy
     set msg
-} {bad option "foo": must be -->, =, ancestors, append, attr, children, cut, delete, depth, descendants, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, move, next, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, or walk}
+} {bad option "foo": must be -->, =, ancestors, append, attr, children, cut, delete, depth, descendants, deserialize, destroy, exists, get, getall, height, index, insert, isleaf, keyexists, keys, lappend, leaves, move, next, nodes, numchildren, parent, previous, rename, rootname, serialize, set, size, splice, swap, unset, walk, or walkproc}
 
 test tree-1.4 {tree errors} {
     catch {tree set} msg
@@ -560,6 +604,7 @@ test tree-2.8.6 {keyexists returns true for existing key} {
 ############################################################
 # III. Structural operations ...
 # - isleaf, parent, children, numchildren, ancestors, descendants
+# - nodes, leaves
 # - exists, size, depth, height
 # - insert, delete, move, cut, splice, swap
 # - rename, rootname
@@ -1694,6 +1739,73 @@ test tree-3.18.2 {descendants, filtering} {
 } {{0 5} 5}
 
 ############################################################
+
+test tree-3.19.1 {nodes, wrong # args} {
+    tree mytree
+    catch {mytree nodes {IT::EM 0} foo} result
+    mytree destroy
+    set result
+} {wrong # args: should be "::struct::tree::_nodes name"}
+
+test tree-3.19.2 {nodes of initial tree} {
+    tree mytree
+    set result [mytree nodes]
+    mytree destroy
+    set result
+} {root}
+
+test tree-3.19.3 {nodes} {
+    tree mytree
+    set     result [list]
+
+    lappend result [mytree nodes]
+
+    mytree insert root       end {IT::EM 0}
+    mytree insert root       end {IT::EM 1}
+    mytree insert root       end {IT::EM 2}
+    mytree insert {IT::EM 0} end {IT::EM 3}
+    mytree insert {IT::EM 0} end {IT::EM 4}
+
+    lappend result [lsort [mytree nodes]]
+    mytree destroy
+    set result
+} {root {{IT::EM 0} {IT::EM 1} {IT::EM 2} {IT::EM 3} {IT::EM 4} root}}
+
+
+############################################################
+
+test tree-3.20.1 {leaves, wrong # args} {
+    tree mytree
+    catch {mytree leaves {IT::EM 0} foo} result
+    mytree destroy
+    set result
+} {wrong # args: should be "::struct::tree::_leaves name"}
+
+test tree-3.20.2 {leaves of initial tree} {
+    tree mytree
+    set result [mytree leaves]
+    mytree destroy
+    set result
+} {root}
+
+test tree-3.20.3 {leaves} {
+    tree mytree
+    set     result [list]
+
+    lappend result [mytree leaves]
+
+    mytree insert root       end {IT::EM 0}
+    mytree insert root       end {IT::EM 1}
+    mytree insert root       end {IT::EM 2}
+    mytree insert {IT::EM 0} end {IT::EM 3}
+    mytree insert {IT::EM 0} end {IT::EM 4}
+
+    lappend result [lsort [mytree leaves]]
+    mytree destroy
+    set result
+} {root {{IT::EM 1} {IT::EM 2} {IT::EM 3} {IT::EM 4}}}
+
+############################################################
 # IV. Navigation in the tree
 # - index, next, previous, walk
 ############################################################
@@ -2129,7 +2241,7 @@ if {[package vcompare [package provide Tcl] 8.3] < 0} {
     ("WalkCall" body line 4)
     invoked from within
 "WalkCall $avar $nvar $name $node "enter" $script"
-    (procedure "::struct::tree::_walk" line 148)
+    (procedure "::struct::tree::_walk" line 88)
     invoked from within
 "::struct::tree::_walk ::mytree root {a n} {
 	    if {[string equal $n "b"]} {
@@ -2162,7 +2274,7 @@ if {[package vcompare [package provide Tcl] 8.3] < 0} {
     ("WalkCall" body line 2)
     invoked from within
 "WalkCall $avar $nvar $name $node "enter" $script"
-    (procedure "::struct::tree::_walk" line 148)
+    (procedure "::struct::tree::_walk" line 88)
     invoked from within
 "::struct::tree::_walk ::mytree root {a n} {
 	    if {[string equal $n "b"]} {
@@ -2252,6 +2364,413 @@ foreach {n type order} {
     } "Illegal attempt to prune ${order}-order walking" ;# {}
 }
 
+
+test tree-4.6.1 {walkproc with too few args} {badTest} {
+    tree mytree
+    catch {mytree walkproc} msg
+    mytree destroy
+    set msg
+} {no value given for parameter "node" to "::struct::tree::_walkproc"}
+
+test tree-4.6.2 {walkproc with too few args} {
+    tree mytree
+    catch {mytree walkproc root} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+
+test tree-4.6.3 {walkproc with too many args} {
+    tree mytree
+    catch {mytree walkproc root -foo bar -baz boo -foo2 boo -foo3 baz -foo4 gnar -foo5 schnurr} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+
+test tree-4.6.4 {walkproc with fake node} {
+    tree mytree
+    catch {mytree walkproc {IT::EM 0} foo} msg
+    mytree destroy
+    set msg
+} {node "IT::EM 0" does not exist in tree "::mytree"}
+
+test tree-4.6.5 {walkproc gives error on invalid search type} {
+    tree mytree
+    catch {mytree walkproc root -type foo foo} msg
+    mytree destroy
+    set msg
+} {invalid search type "foo": should be dfs, or bfs}
+
+test tree-4.6.6 {walkproc gives error on invalid search order} {
+    tree mytree
+    catch {mytree walkproc root -order foo foo} msg
+    mytree destroy
+    set msg
+} {invalid search order "foo": should be pre, post, both, or in}
+
+test tree-4.6.7 {walkproc gives error on invalid combination of order and type} {
+    tree mytree
+    catch {mytree walkproc root -order in -type bfs foo} msg
+    mytree destroy
+    set msg
+} {unable to do a in-order breadth first walk}
+
+test tree-4.6.8 {walkproc with unknown options} {
+    tree mytree
+    catch {mytree walkproc root -foo bar foo} msg
+    mytree destroy
+    set msg
+} {unknown option "-foo": should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+
+test tree-4.6.9 {walkproc, option without value} {
+    tree mytree
+    catch {mytree walkproc root -type dfs -order} msg
+    mytree destroy
+    set msg
+} {value for "-order" missing: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+
+test tree-4.6.10 {walkproc without command} {
+    tree mytree
+    catch {mytree walkproc root -order pre} msg
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+
+test tree-4.6.11.1 {pre dfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -type dfs pwalker
+    mytree destroy
+    set t
+} [list enter root    \
+	enter {IT::EM 0} \
+	enter {IT::EM 0.1} \
+	enter {IT::EM 0.2} \
+	enter {IT::EM 1} \
+	enter {IT::EM 1.1} \
+	enter {IT::EM 1.2}]
+
+test tree-4.6.11.2 {post dfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -order post -type dfs pwalker
+    mytree destroy
+    set t
+} [list leave {IT::EM 0.1} \
+	leave {IT::EM 0.2} \
+	leave {IT::EM 0} \
+	leave {IT::EM 1.1} \
+	leave {IT::EM 1.2} \
+	leave {IT::EM 1}   \
+	leave root]
+
+test tree-4.6.11.3 {both dfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -order both -type dfs pwalker
+    mytree destroy
+    set t
+} [list enter root \
+	enter {IT::EM 0} \
+	enter {IT::EM 0.1} \
+	leave {IT::EM 0.1} \
+	enter {IT::EM 0.2} \
+	leave {IT::EM 0.2} \
+	leave {IT::EM 0} \
+	enter {IT::EM 1} \
+	enter {IT::EM 1.1} \
+	leave {IT::EM 1.1} \
+	enter {IT::EM 1.2} \
+	leave {IT::EM 1.2} \
+	leave {IT::EM 1}   \
+	leave root]
+
+test tree-4.6.11.4 {in dfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -order in -type dfs pwalker
+    mytree destroy
+    set t
+} [list visit {IT::EM 0.1} \
+	visit {IT::EM 0}   \
+	visit {IT::EM 0.2} \
+	visit root    \
+	visit {IT::EM 1.1} \
+	visit {IT::EM 1} \
+	visit {IT::EM 1.2}]
+
+test tree-4.6.11.7 {pre dfs walk, nodes with spaces in names} {
+    tree mytree
+    set t [list ]
+    mytree insert root end "node 0"
+    mytree insert root end "node 1"
+    mytree insert "node 0" end "node 0 1"
+    mytree insert "node 0" end "node 0 2"
+    mytree insert "node 1" end "node 1 1"
+    mytree insert "node 1" end "node 1 2"
+    mytree walkproc root -type dfs pwalkern
+    mytree destroy
+    set t
+} {root {node 0} {node 0 1} {node 0 2} {node 1} {node 1 1} {node 1 2}}
+
+test tree-4.6.12.1 {pre bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -type bfs pwalker
+    mytree destroy
+    set t
+} [list enter root    \
+	enter {IT::EM 0}   \
+	enter {IT::EM 1}   \
+	enter {IT::EM 0.1} \
+	enter {IT::EM 0.2} \
+	enter {IT::EM 1.1} \
+	enter {IT::EM 1.2}]
+
+test tree-4.6.12.2 {post bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -type bfs -order post pwalker
+    mytree destroy
+    set t
+} [list leave {IT::EM 1.2} \
+	leave {IT::EM 1.1} \
+	leave {IT::EM 0.2} \
+	leave {IT::EM 0.1} \
+	leave {IT::EM 1}   \
+	leave {IT::EM 0} \
+	leave root]
+
+test tree-4.6.12.3 {both bfs walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root -type bfs -order both pwalker
+    mytree destroy
+    set t
+} [list enter root    \
+	enter {IT::EM 0}   \
+	enter {IT::EM 1}   \
+	enter {IT::EM 0.1} \
+	enter {IT::EM 0.2} \
+	enter {IT::EM 1.1} \
+	enter {IT::EM 1.2} \
+	leave {IT::EM 1.2} \
+	leave {IT::EM 1.1} \
+	leave {IT::EM 0.2} \
+	leave {IT::EM 0.1} \
+	leave {IT::EM 1}   \
+	leave {IT::EM 0}   \
+	leave root]
+
+test tree-4.6.13 {pre dfs is default walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1}
+    mytree insert {IT::EM 0} end {IT::EM 0.1}
+    mytree insert {IT::EM 0} end {IT::EM 0.2}
+    mytree insert {IT::EM 1} end {IT::EM 1.1}
+    mytree insert {IT::EM 1} end {IT::EM 1.2}
+    mytree walkproc root pwalker
+    mytree destroy
+    set t
+} [list enter root \
+	enter {IT::EM 0} \
+	enter {IT::EM 0.1} \
+	enter {IT::EM 0.2} \
+	enter {IT::EM 1} \
+	enter {IT::EM 1.1} \
+	enter {IT::EM 1.2}]
+
+
+test tree-4.6.14 {continue in walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end 0 1 2
+    mytree insert 0 end a b c
+    lappend t ==
+    mytree walkproc root pwalkercont
+    lappend t ==
+    mytree destroy
+    set t
+} {== enter root enter 0 enter a . enter c enter 1 enter 2 ==}
+
+test tree-4.6.15 {break in walk} {
+    tree mytree
+    set t [list ]
+    mytree insert root end 0 1 2 3
+    mytree insert 0 end a b c
+    lappend t ==
+    mytree walkproc root pwalkerbreak
+    lappend t ==
+    mytree destroy
+    set t
+} {== enter root enter 0 enter a . ==}
+
+
+test tree-4.6.16 {return in walk} {
+    set t [list ]
+    proc foo {} {
+	global t
+	tree mytree
+	mytree insert root end 0 1 2 3
+	mytree insert 0 end a b c
+	lappend t ==
+	mytree walkproc root pwalkerret
+	lappend t ==
+	return bad-return
+    }
+    lappend t [foo]
+    mytree destroy
+    set t
+} {== enter root enter 0 enter a . good-return}
+
+
+
+if {[package vcompare [package provide Tcl] 8.3] < 0} {
+    set t4417estack {fubar
+    while executing
+"error fubar"
+    ("WalkCall" body line 4)
+    invoked from within
+"WalkCall $avar $nvar $name $node "enter" $script"
+    (procedure "::struct::tree::_walk" line 148)
+    invoked from within
+"::struct::tree::_walk ::mytree root {a n} {
+	    if {[string equal $n "b"]} {
+		lappend t .
+		error fubar
+	    }
+	    lappend t $a $n
+	}"
+    ("_walk" body line 1)
+    invoked from within
+"mytree walk root {a n} {
+	    if {[string equal $n "b"]} {
+		lappend t .
+		error fubar
+	    }
+	    lappend t $a $n
+	}"
+    (procedure "foo" line 7)
+    invoked from within
+"foo"}
+} else {
+    set t4417estack {fubar
+    while executing
+"error fubar"
+    (procedure "pwalkererr" line 4)
+    invoked from within
+"pwalkererr ::mytree b enter"
+    ("WalkCallProc" body line 1)
+    invoked from within
+"WalkCallProc $name $node "enter" $script"
+    (procedure "::struct::tree::_walkproc" line 79)
+    invoked from within
+"::struct::tree::_walkproc ::mytree root pwalkererr"
+    ("_walkproc" body line 1)
+    invoked from within
+"mytree walkproc root pwalkererr"
+    (procedure "foo" line 7)
+    invoked from within
+"foo"}
+}
+
+test tree-4.6.17 {error in walk} {
+    set t [list ]
+    proc foo {} {
+	global t
+	tree mytree
+	mytree insert root end 0 1 2 3
+	mytree insert 0 end a b c
+	lappend t ==
+	mytree walkproc root pwalkererr
+	lappend t ==
+	return bad-return
+    }
+    catch {lappend t [foo]} result
+    mytree destroy
+    list $t $result $::errorInfo
+} [list {== enter root enter 0 enter a .} fubar $t4417estack]
+
+
+foreach {n prune type order log} {
+    0 0 dfs pre  {enter 0 enter 1 enter 2 enter 4 enter 5 enter 6 enter 3}
+    1 1 dfs pre  {enter 0 enter 1 enter 2 enter 3}
+    2 0 dfs both {enter 0 enter 1 leave 1 enter 2 enter 4 leave 4 enter 5 leave 5 enter 6 leave 6 leave 2 enter 3 leave 3 leave 0}
+    3 1 dfs both {enter 0 enter 1 leave 1 enter 2 leave 2 enter 3 leave 3 leave 0}
+    4 0 bfs pre  {enter 0 enter 1 enter 2 enter 3 enter 4 enter 5 enter 6}
+    5 1 bfs pre  {enter 0 enter 1 enter 2 enter 3}
+    6 0 bfs both {enter 0 enter 1 enter 2 enter 3 enter 4 enter 5 enter 6 leave 6 leave 5 leave 4 leave 3 leave 2 leave 1 leave 0}
+    7 1 bfs both {enter 0 enter 1 enter 2 enter 3 leave 3 leave 2 leave 1 leave 0}
+} {
+    test tree-4.7.$n {pruning} {
+	# (0 (1 2 (4 5 6) 3))
+	tree mytree deserialize {0 {} {} 1 0 {} 2 0 {} 4 6 {} 5 6 {} 6 6 {} 3 0 {}}
+	set t {}
+	mytree walkproc 0 -type $type -order $order pwalkerprune
+	mytree destroy
+	set t
+    } $log ;# {}
+}
+
+foreach {n type order} {
+    8  dfs post
+    9  bfs post
+    10 dfs in
+} {
+    test tree-4.7.$n {prune errors} {
+	# (0 (1 2 (4 5)))
+	tree mytree deserialize {0 {} {} 1 0 {} 2 0 {} 4 6 {} 5 6 {}}
+	set t {}
+	catch {
+	    mytree walkproc 0 -type $type -order $order pwalkerpruneb
+	} res ; # {}
+	mytree destroy
+	set res
+    } "Illegal attempt to prune ${order}-order walking" ;# {}
+}
 
 ############################################################
 # V. Objects to values and back ...

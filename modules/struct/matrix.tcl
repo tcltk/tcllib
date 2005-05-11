@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.18 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.19 2005/05/11 04:19:01 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -96,7 +96,7 @@ proc ::struct::matrix::matrix {args} {
     # FIRST, qualify the name.
     if {![string match "::*" $name]} {
         # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 namespace current]
+        set ns [uplevel 1 [list namespace current]]
         if {"::" != $ns} {
             append ns "::"
         }

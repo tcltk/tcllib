@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.34 2004/09/29 17:34:04 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.35 2005/05/11 04:19:01 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require struct::list
@@ -90,7 +90,7 @@ proc ::struct::tree::tree {args} {
     # FIRST, qualify the name.
     if {![string match "::*" $name]} {
         # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 namespace current]
+        set ns [uplevel 1 [list namespace current]]
         if {"::" != $ns} {
             append ns "::"
         }
@@ -206,14 +206,12 @@ proc ::struct::tree::TreeProc {name {cmd ""} args} {
     }
 
     set code [catch {uplevel 1 [linsert $args 0 ::struct::tree::$sub $name]} result]
-    switch -exact -- $code {
-	1 {
-	    return -errorinfo [ErrorInfoAsCaller uplevel $sub]  \
-		    -errorcode $::errorCode -code error $result
-	}
-	2 {
-	    return -code $code $result
-	}
+
+    if {$code == 1} {
+	return -errorinfo [ErrorInfoAsCaller uplevel $sub]  \
+		-errorcode $::errorCode -code error $result
+    } elseif {$code == 2} {
+	return -code $code $result
     }
     return $result
 }
@@ -1111,6 +1109,21 @@ proc ::struct::tree::_numchildren {name node} {
     return [llength $children($node)]
 }
 
+# ::struct::tree::_nodes --
+#
+#	Return a list containing all nodes known to the tree.
+#
+# Arguments:
+#	name		Name of the tree object.
+#
+# Results:
+#	nodes	List of nodes in the tree.
+
+proc ::struct::tree::_nodes {name} {
+    variable ${name}::children
+    return [array names children]
+}
+
 # ::struct::tree::_parent --
 #
 #	Return the name of the parent node of a node in a tree.
@@ -1367,6 +1380,27 @@ proc ::struct::tree::_lappend {name node key value} {
 
     upvar ${name}::$attribute($node) data
     return [lappend data($key) $value]
+}
+
+# ::struct::tree::_leaves --
+#
+#	Return a list containing all leaf nodes known to the tree.
+#
+# Arguments:
+#	name		Name of the tree object.
+#
+# Results:
+#	nodes	List of leaf nodes in the tree.
+
+proc ::struct::tree::_leaves {name} {
+    variable ${name}::children
+
+    set res {}
+    foreach n [array names children] {
+	if {[llength $children($n)]} continue
+	lappend res $n
+    }
+    return $res
 }
 
 # ::struct::tree::_size --
@@ -1642,44 +1676,8 @@ proc ::struct::tree::_walk {name node args} {
 	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
 
-    # Set defaults
-    set type dfs
-    set order pre
-    set cmd ""
-
-    while {[llength $args]} {
-	set flag [lindex $args 0]
-	switch -exact -- $flag {
-	    "-type" {
-		if {[llength $args] < 2} {
-		    return -code error "value for \"$flag\" missing: should be \"$usage\""
-		}
-		set type [string tolower [lindex $args 1]]
-		set args [lrange $args 2 end]
-	    }
-	    "-order" {
-		if {[llength $args] < 2} {
-		    return -code error "value for \"$flag\" missing: should be \"$usage\""
-		}
-		set order [string tolower [lindex $args 1]]
-		set args [lrange $args 2 end]
-	    }
-	    "--" {
-		set args [lrange $args 1 end]
-		break
-	    }
-	    default {
-		break
-	    }
-	}
-    }
-
-    if {[llength $args] == 0} {
-	return -code error "wrong # args: should be \"$usage\""
-    }
-    if {[llength $args] != 2} {
-	return -code error "unknown option \"$flag\": should be \"$usage\""
-    } ; # else: Remainder is 'a n script' {}
+    set args [WalkOptions $args 2 $usage]
+    # Remainder is 'a n script'
 
     foreach {loopvariables script} $args break
 
@@ -1695,31 +1693,6 @@ proc ::struct::tree::_walk {name node args} {
     # Make sure we have a script to run, otherwise what's the point?
     if { [string equal $script ""] } {
 	return -code error "no script specified, or empty: should be \"$usage\""
-    }
-
-    # Validate that the given type is good
-    switch -exact -- $type {
-	"dfs" - "bfs" {
-	    set type $type
-	}
-	default {
-	    return -code error "invalid search type \"$type\": should be dfs, or bfs"
-	}
-    }
-
-    # Validate that the given order is good
-    switch -exact -- $order {
-	"pre" - "post" - "in" - "both" {
-	    set order $order
-	}
-	default {
-	    return -code error "invalid search order \"$order\":\
-		    should be pre, post, both, or in"
-	}
-    }
-
-    if {[string equal $order "in"] && [string equal $type "bfs"]} {
-	return -code error "unable to do a ${order}-order breadth first walk"
     }
 
     # Do the walk
@@ -1850,6 +1823,224 @@ proc ::struct::tree::_walk {name node args} {
     return
 }
 
+proc ::struct::tree::_walkproc {name node args} {
+    set usage "$name walkproc $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"
+
+    if {[llength $args] > 6 || [llength $args] < 1} {
+	return -code error "wrong # args: should be \"$usage\""
+    }
+
+    if { ![_exists $name $node] } {
+	return -code error "node \"$node\" does not exist in tree \"$name\""
+    }
+
+    set args [WalkOptions $args 1 $usage]
+    # Remainder is 'n cmdprefix'
+
+    set script [lindex $args 0]
+
+    # Make sure we have a script to run, otherwise what's the point?
+    if { ![llength $script] } {
+	return -code error "no script specified, or empty: should be \"$usage\""
+    }
+
+    # Do the walk
+    variable ${name}::children
+    set st [list ]
+    lappend st $node
+
+    # Compute some flags for the possible places of command evaluation
+    set leave [expr {[string equal $order post] || [string equal $order both]}]
+    set enter [expr {[string equal $order pre]  || [string equal $order both]}]
+    set touch [string equal $order in]
+
+    if {$leave} {
+	set lvlabel leave
+    } elseif {$touch} {
+	# in-order does not provide a sense
+	# of nesting for the parent, hence
+	# no enter/leave, just 'visit'.
+	set lvlabel visit
+    }
+
+    set rcode 0
+    set rvalue {}
+
+    if {[string equal $type "dfs"]} {
+	# Depth-first walk, several orders of visiting nodes
+	# (pre, post, both, in)
+
+	array set visited {}
+
+	while { [llength $st] > 0 } {
+	    set node [lindex $st end]
+
+	    if {[info exists visited($node)]} {
+		# Second time we are looking at this 'node'.
+		# Pop it, then evaluate the command (post, both, in).
+
+		ldelete st end
+
+		if {$leave || $touch} {
+		    # Evaluate the script at this node
+		    WalkCallProc $name $node $lvlabel $script
+		    # prune stops execution of loop here.
+		}
+	    } else {
+		# First visit of this 'node'.
+		# Do *not* pop it from the stack so that we are able
+		# to visit again after its children
+
+		# Remember it.
+		set visited($node) .
+
+		if {$enter} {
+		    # Evaluate the script at this node (pre, both).
+		    #
+		    # Note: As this is done before the children are
+		    # looked at the script may change the children of
+		    # this node and thus affect the walk.
+
+		    WalkCallProc $name $node "enter" $script
+		    # prune stops execution of loop here.
+		}
+
+		# Add the children of this node to the stack.
+		# The exact behaviour depends on the chosen
+		# order. For pre, post, both-order we just
+		# have to add them in reverse-order so that
+		# they will be popped left-to-right. For in-order
+		# we have rearrange the stack so that the parent
+		# is revisited immediately after the first child.
+		# (but only if there is ore than one child,)
+
+		set clist        $children($node)
+		set len [llength $clist]
+
+		if {$touch && ($len > 1)} {
+		    # Pop node from stack, insert into list of children
+		    ldelete st end
+		    set clist [linsert $clist 1 $node]
+		    incr len
+		}
+
+		for {set i [expr {$len - 1}]} {$i >= 0} {incr i -1} {
+		    lappend st [lindex $clist $i]
+		}
+	    }
+	}
+    } else {
+	# Breadth first walk (pre, post, both)
+	# No in-order possible. Already captured.
+
+	if {$leave} {
+	    set backward $st
+	}
+
+	while { [llength $st] > 0 } {
+	    set node [lindex   $st 0]
+	    ldelete st 0
+
+	    if {$enter} {
+		# Evaluate the script at this node
+		WalkCallProc $name $node "enter" $script
+		# prune stops execution of loop here.
+	    }
+
+	    # Add this node's children
+	    # And create a mirrored version in case of post/both order.
+
+	    foreach child $children($node) {
+		lappend st $child
+		if {$leave} {
+		    set backward [linsert $backward 0 $child]
+		}
+	    }
+	}
+
+	if {$leave} {
+	    foreach node $backward {
+		# Evaluate the script at this node
+		WalkCallProc $name $node "leave" $script
+	    }
+	}
+    }
+
+    if {$rcode != 0} {
+	return -code $rcode $rvalue
+    }
+    return
+}
+
+proc ::struct::tree::WalkOptions {theargs n usage} {
+    upvar 1 type type order order
+
+    # Set defaults
+    set type dfs
+    set order pre
+
+    while {[llength $theargs]} {
+	set flag [lindex $theargs 0]
+	switch -exact -- $flag {
+	    "-type" {
+		if {[llength $theargs] < 2} {
+		    return -code error "value for \"$flag\" missing: should be \"$usage\""
+		}
+		set type [string tolower [lindex $theargs 1]]
+		set theargs [lrange $theargs 2 end]
+	    }
+	    "-order" {
+		if {[llength $theargs] < 2} {
+		    return -code error "value for \"$flag\" missing: should be \"$usage\""
+		}
+		set order [string tolower [lindex $theargs 1]]
+		set theargs [lrange $theargs 2 end]
+	    }
+	    "--" {
+		set theargs [lrange $theargs 1 end]
+		break
+	    }
+	    default {
+		break
+	    }
+	}
+    }
+
+    if {[llength $theargs] == 0} {
+	return -code error "wrong # args: should be \"$usage\""
+    }
+    if {[llength $theargs] != $n} {
+	return -code error "unknown option \"$flag\": should be \"$usage\""
+    }
+
+    # Validate that the given type is good
+    switch -exact -- $type {
+	"dfs" - "bfs" {
+	    set type $type
+	}
+	default {
+	    return -code error "invalid search type \"$type\": should be dfs, or bfs"
+	}
+    }
+
+    # Validate that the given order is good
+    switch -exact -- $order {
+	"pre" - "post" - "in" - "both" {
+	    set order $order
+	}
+	default {
+	    return -code error "invalid search order \"$order\":\
+		    should be pre, post, both, or in"
+	}
+    }
+
+    if {[string equal $order "in"] && [string equal $type "bfs"]} {
+	return -code error "unable to do a ${order}-order breadth first walk"
+    }
+
+    return $theargs
+}
+
 # ::struct::tree::WalkCall --
 #
 #	Helper command to 'walk' handling the evaluation
@@ -1873,8 +2064,6 @@ proc ::struct::tree::WalkCall {avar nvar tree node action cmd} {
     }
     upvar 2 $nvar n ; set n $node
 
-    #set subs [list %n [list $node] %a [list $action] %t [list $tree] %% %]
-    #set code [catch {uplevel 2 [string map $subs $cmd]} result]
     set code [catch {uplevel 2 $cmd} result]
 
     # decide what to do upon the return code:
@@ -1911,6 +2100,49 @@ proc ::struct::tree::WalkCall {avar nvar tree node action cmd} {
 	    set rvalue $result
 	    return -code break
 	    #return -code $code $result
+	}
+    }
+    return {}
+}
+
+proc ::struct::tree::WalkCallProc {tree node action cmd} {
+
+    lappend cmd $tree $node $action
+    set code [catch {uplevel 2 $cmd} result]
+
+    # decide what to do upon the return code:
+    #
+    #               0 - the body executed successfully
+    #               1 - the body raised an error
+    #               2 - the body invoked [return]
+    #               3 - the body invoked [break]
+    #               4 - the body invoked [continue]
+    #               5 - the body invoked [struct::tree::prune]
+    # everything else - return and pass on the results
+    #
+    switch -exact -- $code {
+	0 {}
+	1 {
+	    return -errorinfo [ErrorInfoAsCaller uplevel WalkCallProc]  \
+		    -errorcode $::errorCode -code error $result
+	}
+	3 {
+	    # FRINK: nocheck
+	    return -code break
+	}
+	4 {}
+	5 {
+	    upvar order order
+	    if {[string equal $order post] || [string equal $order in]} {
+		return -code error "Illegal attempt to prune ${order}-order walking"
+	    }
+	    return -code continue
+	}
+	default {
+	    upvar 1 rcode rcode rvalue rvalue
+	    set rcode $code
+	    set rvalue $result
+	    return -code break
 	}
     }
     return {}
