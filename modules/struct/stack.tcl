@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.9 2004/08/18 01:59:37 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.10 2005/05/11 04:19:01 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -57,7 +57,7 @@ proc ::struct::stack::stack {args} {
     # FIRST, qualify the name.
     if {![string match "::*" $name]} {
         # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 namespace current]
+        set ns [uplevel 1 [list namespace current]]
         if {"::" != $ns} {
             append ns "::"
         }
