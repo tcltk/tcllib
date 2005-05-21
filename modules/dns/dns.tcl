@@ -25,7 +25,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.27 2005/04/08 05:27:16 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.28 2005/05/21 00:05:49 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -35,7 +35,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.2.1
-    variable rcsid {$Id: dns.tcl,v 1.27 2005/04/08 05:27:16 andreas_kupries Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.28 2005/05/21 00:05:49 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -54,9 +54,14 @@ namespace eval ::dns {
         ${log}::setlevel $options(loglevel)
     }
 
+    # We can use either ceptcl or tcludp for UDP support.
     if {![catch {package require udp 1.0.4} msg]} { ;# tcludp 1.0.4+
         # If TclUDP 1.0.4 or better is available, use it.
         set options(protocol) udp
+    } else {
+        if {![catch {package require ceptcl} msg]} {
+            set options(protocol) udp
+        }
     }
 
     variable types
@@ -237,8 +242,10 @@ proc ::dns::resolve {query args} {
     }
 
     if {$state(-protocol) == "udp"} {
-        if {[package provide udp] == {}} {
-            return -code error "udp support is not available, get tcludp"
+        if {[llength [package provide ceptcl]] == 0 \
+                && [llength [package provide udp]] == 0} {
+            return -code error "udp support is not available,\
+                get ceptcl or tcludp"
         }
     }
     
@@ -621,8 +628,15 @@ proc ::dns::UdpTransmit {token} {
                                   "operation timed out"]]
     }
     
-    set state(sock) [udp_open]
-    udp_conf $state(sock) $state(-nameserver) $state(-port)
+    if {[llength [package provide ceptcl]] > 0} {
+        # using ceptcl
+        set state(sock) [cep -type datagram $state(-nameserver) $state(-port)]
+        fconfigure $state(sock) -blocking 0
+    } else {
+        # using tcludp
+        set state(sock) [udp_open]
+        udp_conf $state(sock) $state(-nameserver) $state(-port)
+    }
     fconfigure $state(sock) -translation binary -buffering none
     set state(status) connect
     puts -nonewline $state(sock) $state(request)
