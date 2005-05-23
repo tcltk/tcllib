@@ -1,3 +1,15 @@
+2005-05-23  Andreas Kupries <andreask@activestate.com>
+
+	* list.test:
+	* list.tcl (::struct::list::Lflatten): Fixed [SF Tcllib Bug
+	  1206499] Replaced the 'eval' construction with a more basic
+	  check for list syntax and handling of the data. The removed
+	  construct was unable to handle elements containing special
+	  characters (Brackets, Braces, Double-apostrophes, etc.)
+	  correctly. The bug was reported by Yahalom Emet
+	  <yahalom@users.sourceforge.net>. This is actually something we
+	  created Tcl 8.5's {expand} for. Extended the testsuite as well.
+
 2005-05-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct_tree.man:
