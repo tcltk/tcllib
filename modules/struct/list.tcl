@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.18 2005/02/24 05:33:26 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.19 2005/05/23 20:32:06 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -673,7 +673,20 @@ proc ::struct::list::Lflatten {args} {
 	set cont 0
 	set result [::list]
 	foreach item $sequence {
-	    eval [::list ::lappend result] $item
+	    # catch/llength detects if the item is following the list
+	    # syntax.
+
+	    if {[catch {llength $item} len]} {
+		# Element is not a list in itself, no flatten, add it
+		# as is.
+		lappend result $item
+	    } else {
+		# Element is parseable as list, add all sub-elements
+		# to the result.
+		foreach e $item {
+		    lappend result $e
+		}
+	    }
 	}
 	if {$full && [string compare $sequence $result]} {set cont 1}
 	set sequence $result
