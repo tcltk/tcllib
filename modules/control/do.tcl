@@ -10,11 +10,15 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: do.tcl,v 1.5.2.1 2005/05/24 14:21:00 dgp Exp $
+# RCS: @(#) $Id: do.tcl,v 1.5.2.2 2005/05/24 19:19:09 dgp Exp $
 #
 namespace eval ::control {
+    variable ReturnOptions [package vsatisfies [package provide Tcl] 8.5]
 
     proc do {body args} {
+	variable ReturnOptions
+	variable DoResult
+	variable DoOptions
 
 	#
 	# Implements a "do body while|until test" loop
@@ -23,9 +27,9 @@ namespace eval ::control {
 	# more than just a few iterations.
 	#
 
+	set proc [lindex [info level 0] 0]
 	set len [llength $args]
 	if {$len !=2 && $len != 0} {
-	    set proc [namespace current]::[lindex [info level 0] 0]
 	    return -code error "wrong # args: should be \"$proc body\" or \"$proc body \[until|while\] test\""
 	}
 	set test 0
@@ -42,10 +46,15 @@ namespace eval ::control {
 	}
 
 	# the first invocation of the body
-	set code [catch { uplevel 1 $body } result]
+	if {$ReturnOptions} {
+	    set code [uplevel 1 [list ::catch $body \
+		    [namespace which -variable DoResult] \
+		    [namespace which -variable DoOptions]]]
+	} else {
+	    set code [catch { uplevel 1 $body } DoResult]
+	}
 
 	# decide what to do upon the return code:
-	#
 	#               0 - the body executed successfully
 	#               1 - the body raised an error
 	#               2 - the body invoked [return]
@@ -56,8 +65,24 @@ namespace eval ::control {
 	switch -exact -- $code {
 	    0 {}
 	    1 {
-		return -errorinfo [ErrorInfoAsCaller uplevel do]  \
-		    -errorcode $::errorCode -code error $result
+		if {$ReturnOptions} {
+		    set line [dict get $DoOptions -errorline]
+		    dict append DoOptions -errorinfo \
+			    "\n    (\"$proc\" body line $line)"
+		    dict incr DoOptions -level
+		    return -options $DoOptions $DoResult
+		} else {
+		    return -errorinfo [ErrorInfoAsCaller uplevel do]  \
+			    -errorcode $::errorCode -code error $DoResult
+		}
+	    }
+	    2 {
+		if {$ReturnOptions} {
+		    dict incr DoOptions -level
+		    return -options $DoOptions $DoResult
+		} else {
+		    return -code $code $DoResult
+		}
 	    }
 	    3 {
 		# FRINK: nocheck
@@ -65,16 +90,34 @@ namespace eval ::control {
 	    }
 	    4 {}
 	    default {
-		return -code $code $result
+		return -code $code $DoResult
 	    }
 	}
 	# the rest of the loop
-	set code [catch {uplevel 1 [list while $test $body]} result]
-	if {$code == 1} {
-	    return -errorinfo [ErrorInfoAsCaller while do] \
-		-errorcode $::errorCode -code error $result
+	if {$ReturnOptions} {
+	    set code [uplevel 1 [list ::catch [list ::while $test $body] \
+		    [namespace which -variable DoResult] \
+		    [namespace which -variable DoOptions]]]
+	} else {
+	    set code [catch { uplevel 1 [list ::while $test $body] } DoResult]
 	}
-	return -code $code $result
+	if {$code == 1} {
+	    if {$ReturnOptions} {
+		set line [dict get $DoOptions -errorline]
+		dict append DoOptions -errorinfo \
+			"\n    (\"$proc\" body line $line)"
+		dict incr DoOptions -level
+		return -options $DoOptions $DoResult
+	    } else {
+		return -errorinfo [ErrorInfoAsCaller while do]  \
+			-errorcode $::errorCode -code error $DoResult
+	    }
+	}
+	if {$ReturnOptions && $code} {
+	    dict incr DoOptions -level
+	    return -options $DoOptions $DoResult
+	}
+	return -code $code $DoResult
 	
     }
 

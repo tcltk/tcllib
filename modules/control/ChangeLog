@@ -1,5 +1,8 @@
 2005-05-24  Don Porter <dgp@users.sourceforge.net>
 
+	* do.tcl:	Updates to use Tcl 8.5 [return] and [catch] extensions
+	* control.man:	when availble to overcome LIMITATIONS.
+
 	* wait-for-any.tcl:	New command: control::waitForAny.
 	* wait-for-any.test:
 	* tclIndex:
@@ -8,6 +11,7 @@
 	* pkgIndex.tcl:
 
 	* do.test (do-2.3):	Update to accept newer error message format.
+	          (do-2.2):	Error message refer to called command name.
 
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

@@ -2,7 +2,7 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.5.2.2 2005/05/24 15:08:51 dgp Exp $
+# RCS: @(#) $Id: do.test,v 1.5.2.3 2005/05/24 19:19:09 dgp Exp $
 #
 
 package forget control
@@ -218,7 +218,7 @@ test do-2.2 {wrong no of arguments} {
     set x 0
     set res [catch {do {incr x} foo} ret]
     list $x $res $errorInfo
-} {0 1 {wrong # args: should be "::control::do body" or "::control::do body [until|while] test"
+} {0 1 {wrong # args: should be "do body" or "do body [until|while] test"
     while executing
 "do {incr x} foo"}}
 

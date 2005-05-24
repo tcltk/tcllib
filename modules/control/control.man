@@ -122,8 +122,9 @@ nothing.  It returns an empty string.
 
 Several of the commands provided by the [cmd control] package accept
 arguments that are scripts to be evaluated.  Due to fundamental
-limitations of Tcl's [cmd catch] and [cmd return] commands, it is not
-possible for these commands to properly evaluate the command
+limitations of Tcl's [cmd catch] and [cmd return] commands before
+Tcl release 8.5, it is not possible for these commands to properly evaluate
+the command
 
 [lb][cmd "return -code \$code"][rb] within one of those script
 arguments for any value of [arg \$code] other than [arg ok].  In this
@@ -143,6 +144,9 @@ provided by packages coded in C.  An example of this difference:
 % catch b
 0
 }]
+
+If the control package is used in an interpreter for Tcl 8.5 or
+later, this limitation will not be present.
 
 [see_also expr if join namespace return string while break continue]
 [keywords control flow structure no-op assert do]
