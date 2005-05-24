@@ -6,7 +6,7 @@
 #	a good stack trace in ::errorInfo as appropriate.
 # -------------------------------------------------------------------------
 #
-# RCS: @(#) $Id: ascaller.tcl,v 1.2 2001/11/09 04:59:45 dgp Exp $
+# RCS: @(#) $Id: ascaller.tcl,v 1.2.6.1 2005/05/24 14:20:59 dgp Exp $
 
 namespace eval ::control {
 

@@ -1,8 +1,8 @@
-[manpage_begin control n 0.1]
+[manpage_begin control n 0.1.2]
 [moddesc   {Tcl Control Flow Commands}]
 [titledesc {Procedures for control flow structures.}]
 [require Tcl 8.2]
-[require control [opt 0.1]]
+[require control [opt 0.1.2]]
 [description]
 [para]
 
@@ -98,10 +98,10 @@ assertion failed: 1 == 0
 [call [cmd control::do] [arg body] [opt [arg "option test"]]]
 
 The [cmd do] command evaluates the script [arg body] repeatedly
-[strong until] the expression [arg test] becomes true or as long as
-([strong while]) [arg test] is true, depending on the value of
+[emph until] the expression [arg test] becomes true or as long as
+([emph while]) [arg test] is true, depending on the value of
 
-[arg option] being [strong "until"] or [strong "while"]. If
+[arg option] being [const until] or [const while]. If
 
 [arg option] and [arg test] are omitted the body is evaluated exactly
 once. After normal completion, [cmd do] returns an empty string.
@@ -109,7 +109,7 @@ Exceptional return codes ([cmd break], [cmd continue], [cmd error],
 etc.) during the evaluation of [arg body] are handled in the same way
 the [cmd while] command handles them, except as noted in
 
-[strong LIMITATIONS], below.
+[sectref LIMITATIONS], below.
 
 [call [cmd control::no-op] [opt [arg "arg arg ..."]]]
 

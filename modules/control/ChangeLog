@@ -1,3 +1,54 @@
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
+
+2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.4 ========================
+	* 
+
+2003-05-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* do.test: Skip test 1.14 if tcl < 8.3.
+
+2003-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* control.man:
+	* control.tcl:
+	* pkgIndex.tcl:  Set version of the package to to 0.1.2.
+
+2003-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* control.man: More semantic markup, less visual one.
+
+2002-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* control.man: Fixed formatting errors in the doctools manpage.
+
+2002-02-21  Don Porter <dgp@users.sourceforge.net>
+
+	* control.tcl:
+	* pkgIndex.tcl: Bumped to 0.1.1.
+	* rswitch.tcl:
+	* rswitch.test: removed files from HEAD branch that aren't yet
+	ready for release.
+	* tclIndex: ran genIndex
+
 2002-02-21  Reinhard Max  <max@suse.de>
 
 	* do.test: Updated do-2.3 to reflect the change of the standard

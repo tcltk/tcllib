@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: do.tcl,v 1.5 2002/02/15 05:35:30 andreas_kupries Exp $
+# RCS: @(#) $Id: do.tcl,v 1.5.2.1 2005/05/24 14:21:00 dgp Exp $
 #
 namespace eval ::control {
 

@@ -2,7 +2,7 @@
 #
 #	The [assert] command of the package "control".
 #
-# RCS: @(#) $Id: assert.tcl,v 1.2 2002/02/15 05:35:30 andreas_kupries Exp $
+# RCS: @(#) $Id: assert.tcl,v 1.2.2.1 2005/05/24 14:21:00 dgp Exp $
 
 namespace eval ::control {
 
