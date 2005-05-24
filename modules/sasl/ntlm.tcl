@@ -22,7 +22,7 @@ package require md4;                    # tcllib 1.4
 namespace eval ::SASL {
     namespace eval NTLM {
         variable version 1.0.0
-        variable rcsid {$Id: ntlm.tcl,v 1.3 2005/02/11 02:47:58 patthoyts Exp $}
+        variable rcsid {$Id: ntlm.tcl,v 1.4 2005/05/24 15:32:23 patthoyts Exp $}
     }
 }
 
@@ -107,19 +107,27 @@ proc ::SASL::NTLM::CreateResponse {domainname hostname username passwd nonce} {
     set u_off [expr {0x40 + $d_len}]
     set h_off [expr {0x40 + $d_len + $u_len}]
 
-    set msg [binary format a8is4s4s4s4s4is4 \
+    set msg [binary format a8is4s4s4s4s4iii \
                  "NTLMSSP\x00" 3 \
                  [list $l_len $l_len $l_off 0] \
                  [list $n_len $n_len $n_off 0] \
                  [list $d_len $d_len $d_off 0] \
                  [list $u_len $u_len $u_off 0] \
                  [list $h_len $h_len $h_off 0] \
-                 0 [list $m_len 0 [expr {0x0201}] 0]]
+                 $m_len 0x0201 0]
     append msg $domain $user $host $lm_resp $nt_resp
 
     return $msg
 }
 
+proc ::SASL::NTLM::Debug {msg} {
+    array set d [Decode $msg]
+    if {[info exists d(flags)]}  { set d(flags) [list [format 0x%08x $d(flags)] [decodeflags $d(flags)]] }
+    if {[info exists d(nonce)]}  { set d(nonce) [base64::encode $d(nonce)] }
+    if {[info exists d(lmhash)]} { set d(lmhash) [base64::encode $d(lmhash)] }
+    if {[info exists d(nthash)]} { set d(nthash) [base64::encode $d(nthash)] }
+    return [array get d]
+}
 
 proc ::SASL::NTLM::Decode {msg} {
     binary scan $msg a7ci protocol zero type
