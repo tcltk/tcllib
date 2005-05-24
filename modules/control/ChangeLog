@@ -1,3 +1,14 @@
+2005-05-24  Don Porter <dgp@users.sourceforge.net>
+
+	* wait-for-any.tcl:	New command: control::waitForAny.
+	* wait-for-any.test:
+	* tclIndex:
+
+	* control.tcl:		Bump to version 0.2
+	* pkgIndex.tcl:
+
+	* do.test (do-2.3):	Update to accept newer error message format.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

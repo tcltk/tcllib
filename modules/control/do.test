@@ -2,7 +2,7 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.5.2.1 2005/05/24 14:21:00 dgp Exp $
+# RCS: @(#) $Id: do.test,v 1.5.2.2 2005/05/24 15:08:51 dgp Exp $
 #
 
 package forget control
@@ -14,7 +14,7 @@ catch {namespace delete control}
 source [file join [file dirname [info script]] control.tcl]
 namespace import ::control::do
 
-package require tcltest
+package require tcltest 2
 namespace import -force tcltest::test ::tcltest::cleanupTests
 
 # ----------------------------------------
@@ -223,7 +223,7 @@ test do-2.2 {wrong no of arguments} {
 "do {incr x} foo"}}
 
 # ----------------------------------------
-test do-2.3 {wrong no of arguments} {} {
+test do-2.3 {wrong no of arguments} -body {
     set res [catch do]
     if {[string match \
 	     {no value given for parameter "body" to "do"*} \
@@ -234,7 +234,7 @@ test do-2.3 {wrong no of arguments} {} {
 "do"}
     }
     list $res $::errorInfo
-} {1 {wrong # args: should be "do body args"
+} -match glob -result {1 {wrong # args: should be "do body *"
     while executing
 "do"}}
 

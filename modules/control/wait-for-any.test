@@ -1,0 +1,144 @@
+# control.test --
+#
+#       Unit tests for the control package.
+#
+# Original author: kenstir
+#
+# $Id: wait-for-any.test,v 1.1.2.1 2005/05/24 15:08:51 dgp Exp $
+
+# Standard tcltest startup.
+# 8/2/01 kenstir: Due to tcltest-1.0 strangeness, this doesn't successfully
+# import the ::tcltest::test proc.  Switching to fully-qualified name.
+#if {[lsearch [namespace children] ::tcltest] == -1} {
+#    package require tcltest
+#    namespace import ::tcltest::*
+#}
+package require tcltest
+
+# Source our pkg file.
+set dirname [file dirname [info script]]
+source [file join $dirname control.tcl]
+package require control
+namespace import -force control::*
+
+::tcltest::test wait-scalar {wait for 1 scalar} {
+    after 0 {set ::a0 1}
+    waitForAny ::a0
+} {::a0}
+
+::tcltest::test wait-scalar-namespace {wait for a scalar in a namespace} {
+    after 0 {set ::control::a0 1}
+    waitForAny ::control::a0
+} {::control::a0}
+
+::tcltest::test wait-multiple-scalars {wait for multiple scalars} {
+    # Kick off a bunch of events to happen in the near future.  Keep track
+    # of outstanding events in array `arr'.
+    after 2000 {set ::a 1} ; set arr(::a) 1
+    after 2000 {set ::b 1} ; set arr(::b) 1
+    after 2000 {set ::c 1} ; set arr(::c) 1
+    after 1000 {set ::d 1} ; set arr(::d) 1
+    after 0000 {set ::e 1} ; set arr(::e) 1
+
+    # Loop until no more events are outstanding.
+    while {[array size arr] > 0} {
+        puts "Waiting for: [lsort [array names arr]]"
+        set r [eval waitForAny [array names arr]]
+        puts "Got [llength $r] results: $r"
+        foreach e $r {
+            unset arr($e)
+        }
+    }
+
+    # Any problems will manifest as errors, so we don't expect any results.
+} {}
+
+::tcltest::test wait-timeout {wait with timeout} {
+    after 2000 {set ::f 1}
+
+    set r [waitForAny 10 ::f]
+    puts "Got [llength $r] results: $r"
+
+    set r2 [waitForAny ::f]
+    puts "Got [llength $r2] results: $r2"
+
+    list $r $r2
+} {timeout ::f}
+
+::tcltest::test wait-timeout-2 {wait with timeout that doesn't generate a timeout} {
+    after 0 {set ::f 1}
+
+    set r [waitForAny 1000 ::f]
+    puts "Got [llength $r] results: $r"
+
+    set r
+} {::f}
+
+::tcltest::test wait-array-index {wait on array(index)} {
+    after 2000 {set ::g(a) 1}
+    set r [waitForAny ::g(a)]
+    puts "Got [llength $r] results: $r"
+    set r
+} {::g(a)}
+
+::tcltest::test wait-entire-array {wait on entire array} {
+    set outstandingEvents 0
+    after 0 {set ::h(a) 1} ; incr outstandingEvents
+    after 0 {set ::i(a) 1} ; incr outstandingEvents
+    while {$outstandingEvents > 0} {
+        set r [waitForAny ::h ::i]
+        puts "Got [llength $r] results: $r"
+        incr outstandingEvents -[llength $r]
+    }
+
+    # Any problems will manifest as errors, so we don't expect any results.
+} {}
+
+::tcltest::test neg-extra-wait {wait when no events are outstanding} {knownBug} {
+    # This wait should throw with "would wait forever".  I'm not sure why,
+    # but that error doesn't happen on Windows 2000/tcl8.3.3; instead,
+    # vwait waits forever.
+    set caught [catch {waitForAny ::a} result]
+    puts result=$result
+    list $caught [string match {*would wait forever} $result]
+} {1 1}
+
+::tcltest::test wait-scalar-upvar {wait for 1 scalar aliased through an upvar} {
+    upvar 0 ::a0 my_a
+    after 0 {set my_a 1}
+    waitForAny ::a0
+} {::a0}
+
+::tcltest::test wait-array-upvar {wait on array(index) aliased through an upvar} {
+    upvar 0 ::g my_g
+    after 0 {set my_g(a) 1}
+    set r [waitForAny ::g(a)]
+    puts "Got [llength $r] results: $r"
+    set r
+} {::g(a)}
+
+# Waiting separately for two scalars does not work.  The 2nd waitForAny
+# results in "would wait forever", because by that time, the 2nd `after'
+# was already reaped.  This needs to be handled by one call to
+# waitForAny.
+#::tcltest::test wait-scalar-separately {wait for 2 scalars separately} {
+#    after 0 {set a 1}
+#    after 0 {set b 1}
+#    set r [waitForAny a]
+#    set r2 [waitForAny b]
+#    list $r $r2
+#} {a b}
+
+::tcltest::test wait-no-duplicates {multiple sets still only cause a single return} {
+    after 0 {set a 1 ; set a 2}
+    after 0 {set a 3}
+    set r [waitForAny a]
+    list $r $a
+} {a 3}
+
+::tcltest::cleanupTests
+return
+
+# Local Variables:
+# tcl-indent-level:4
+# End:
