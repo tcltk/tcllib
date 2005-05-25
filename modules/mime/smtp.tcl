@@ -259,6 +259,7 @@ proc ::smtp::sendmessage {part args} {
         if {[llength $addrs] > 1} {
             error "too many mailboxes in $who: $originator"
         }
+        array set aprops {error "invalid address \"$from\""}
         array set aprops [lindex $addrs 0]
         if {$aprops(error) != ""} {
             error "error in $who: $aprops(error)"
@@ -277,6 +278,7 @@ proc ::smtp::sendmessage {part args} {
             if {[info exists aprops]} {
                 unset aprops
             }
+            array set aprops {error "invalid address \"$from\""}
             array set aprops [lindex [::mime::parseaddress $from] 0]
             if {$aprops(error) != ""} {
                 error "error in $fromM: $aprops(error)"
@@ -328,6 +330,7 @@ proc ::smtp::sendmessage {part args} {
             if {[info exists aprops]} {
                 unset aprops
             }
+            array set aprops {error "invalid address \"$from\""}
             array set aprops $addr
             if {$aprops(error) != ""} {
                 error "error in $bccM: $aprops(error)"
@@ -356,6 +359,7 @@ proc ::smtp::sendmessage {part args} {
         if {[info exists aprops]} {
             unset aprops
         }
+        array set aprops {error "invalid address \"$from\""}
         array set aprops $addr
         if {$aprops(error) != ""} {
             error "error in $who: $aprops(error)"
