@@ -4,7 +4,7 @@
 #
 # (c) 2005 Michael Schlenker <mic42@users.sourceforge.net>
 #
-# $Id: logtotext.tcl,v 1.1 2005/05/18 22:29:46 mic42 Exp $
+# $Id: logtotext.tcl,v 1.2 2005/06/01 03:09:49 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require Tk
