@@ -22,7 +22,7 @@ package forget treeql 1.0
 package forget struct::tree
 package forget struct::list
 package forget struct::set
-package forget struct::snit
+package forget snit
 
 catch {namespace delete ::treeql}
 catch {namespace delete ::struct::tree}
