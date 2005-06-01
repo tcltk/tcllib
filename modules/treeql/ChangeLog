@@ -1,3 +1,8 @@
+2005-05-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* treeql.test: Typo fix, used wrong package name for snit when
+	  cleaning up.
+
 2005-04-05  Andreas Kupries <andreask@activestate.com>
 
 	* treeql.test:  Added tests for 'over', 'foreach', 'with', and
