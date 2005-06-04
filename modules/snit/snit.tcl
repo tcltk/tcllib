@@ -6,11 +6,11 @@
 #	Will Duquette
 #
 # DESCRIPTION:
-#       Simple Now In Tcl, a simple object system in Pure Tcl.
+#       Snit's Not Incr Tcl, a simple object system in Pure Tcl.
 #
 #-----------------------------------------------------------------------
 
-package provide snit 0.97
+package provide snit 0.98
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -217,8 +217,9 @@ set ::snit::nominalTypeProc {
         }
 
         # Next, retrieve the command.
+	variable %TYPE%::Snit_typemethodCache
         while 1 {
-            if {[catch {set %TYPE%::Snit_typemethodCache($method)} commandRec]} {
+            if {[catch {set Snit_typemethodCache($method)} commandRec]} {
                 set commandRec [::snit::RT.CacheTypemethodCommand %TYPE% $method]
 
                 if {[llength $commandRec] == 0} {
@@ -244,7 +245,7 @@ set ::snit::nominalTypeProc {
         set command [lindex $commandRec 1]
 
         # Pass along the return code unchanged.
-        set retval [catch {uplevel $command $args} result]
+        set retval [catch {uplevel 1 $command $args} result]
 
         if {$retval} {
             if {$retval == 1} {
@@ -288,7 +289,7 @@ set ::snit::simpleTypeProc {
             set command [list ::snit::RT.type.typemethod.create %TYPE%]
         }
 
-        set retval [catch {uplevel $command $args} result]
+        set retval [catch {uplevel 1 $command $args} result]
 
         if {$retval} {
             if {$retval == 1} {
@@ -534,7 +535,7 @@ proc ::snit::Comp.Compile {which type body} {
     if {![string match "::*" $type]} {
         # Get caller's namespace; 
         # append :: if not global namespace.
-        set ns [uplevel 2 namespace current]
+        set ns [uplevel 2 [list namespace current]]
         if {"::" != $ns} {
             append ns "::"
         }
@@ -1045,12 +1046,12 @@ proc ::snit::Comp.statement.oncget {option body} {
 
     set errRoot "Error in \"oncget $option...\""
 
-    if {[lsearch $compile(delegatedoptions) $option] != -1} {
-        error "$errRoot, option \"$option\" is delegated"
+    if {[lsearch -exact $compile(delegatedoptions) $option] != -1} {
+        return -code error "$errRoot, option \"$option\" is delegated"
     }
 
-    if {[lsearch $compile(localoptions) $option] == -1} {
-        error "$errRoot, option \"$option\" unknown"
+    if {[lsearch -exact $compile(localoptions) $option] == -1} {
+        return -code error "$errRoot, option \"$option\" unknown"
     }
 
     # Next, add variable declarations to body:
@@ -1064,12 +1065,12 @@ proc ::snit::Comp.statement.oncget {option body} {
 proc ::snit::Comp.statement.onconfigure {option arglist body} {
     variable compile
 
-    if {[lsearch $compile(delegatedoptions) $option] != -1} {
-        error "onconfigure $option: option \"$option\" is delegated"
+    if {[lsearch -exact $compile(delegatedoptions) $option] != -1} {
+        return -code error "onconfigure $option: option \"$option\" is delegated"
     }
 
-    if {[lsearch $compile(localoptions) $option] == -1} {
-        error "onconfigure $option: option \"$option\" unknown"
+    if {[lsearch -exact $compile(localoptions) $option] == -1} {
+        return -code error "onconfigure $option: option \"$option\" unknown"
     }
 
     if {[llength $arglist] != 1} {
@@ -1377,7 +1378,7 @@ proc ::snit::Comp.DefineTypecomponent {component {errRoot "Error"}} {
         error "$errRoot, \"$component\" is already an instance variable"
     }
 
-    if {[lsearch $compile(typecomponents) $component] == -1} {
+    if {[lsearch -exact $compile(typecomponents) $component] == -1} {
         # Remember we've done this.
         lappend compile(typecomponents) $component
 
@@ -1460,7 +1461,7 @@ proc ::snit::Comp.DefineComponent {component {errRoot "Error"}} {
         error "$errRoot, \"$component\" is already a typevariable"
     }
 
-    if {[lsearch $compile(components) $component] == -1} {
+    if {[lsearch -exact $compile(components) $component] == -1} {
         # Remember we've done this.
         lappend compile(components) $component
 
@@ -1869,11 +1870,11 @@ proc ::snit::typemethod {type method arglist body} {
     # Next, define it.
     if {[llength $method] == 1} {
         set Snit_typemethodInfo($method) {0 "%t::Snit_typemethod%m %t" ""}
-        uplevel [list proc ${type}::Snit_typemethod$method $arglist $body]
+        uplevel 1 [list proc ${type}::Snit_typemethod$method $arglist $body]
     } else {
         set Snit_typemethodInfo($method) {0 "%t::Snit_htypemethod%j %t" ""}
         set suffix [join $method _]
-        uplevel [list proc ${type}::Snit_htypemethod$suffix $arglist $body]
+        uplevel 1 [list proc ${type}::Snit_htypemethod$suffix $arglist $body]
     }
 }
 
@@ -1903,12 +1904,12 @@ proc ::snit::method {type method arglist body} {
     # Next, define it.
     if {[llength $method] == 1} {
         set Snit_methodInfo($method) {0 "%t::Snit_method%m %t %n %w %s" ""}
-        uplevel [list proc ${type}::Snit_method$method $arglist $body]
+        uplevel 1 [list proc ${type}::Snit_method$method $arglist $body]
     } else {
         set Snit_methodInfo($method) {0 "%t::Snit_hmethod%j %t %n %w %s" ""}
 
         set suffix [join $method _]
-        uplevel [list proc ${type}::Snit_hmethod$suffix $arglist $body]
+        uplevel 1 [list proc ${type}::Snit_hmethod$suffix $arglist $body]
     }
 }
 
@@ -2020,7 +2021,7 @@ proc ::snit::RT.type.typemethod.create {type name args} {
     if {![string match "::*" $name]} {
         # Get caller's namespace; 
         # append :: if not global namespace.
-        set ns [uplevel 1 namespace current]
+        set ns [uplevel 1 [list namespace current]]
         if {"::" != $ns} {
             append ns "::"
         }
@@ -2136,25 +2137,25 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
     # has a hull.
     set errcode [catch {
         RT.ConstructInstance $type $selfns $name $args
-            
+
         ::snit::RT.Component $type $selfns hull
-            
+
         # Prepare to call the object's destructor when the
         # <Destroy> event is received.  Use a Snit-specific bindtag
         # so that the widget name's tag is unencumbered.
-            
+
         bind Snit$type$name <Destroy> [::snit::Expand {
             ::snit::RT.DestroyObject %TYPE% %NS% %W
         } %TYPE% $type %NS% $selfns]
-            
+
         # Insert the bindtag into the list of bindtags right
         # after the widget name.
         set taglist [bindtags $name]
-        set ndx [lsearch $taglist $name]
+        set ndx [lsearch -exact $taglist $name]
         incr ndx
         bindtags $name [linsert $taglist $ndx Snit$type$name]
     } result]
-        
+
     if {$errcode} {
         global errorInfo
         global errorCode
@@ -2164,7 +2165,7 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
         ::snit::RT.DestroyObject $type $selfns $name
         error "Error in constructor: $result" $theInfo $theCode
     }
-        
+
     # NEXT, return the object's name.
     return $name
 }
@@ -2247,7 +2248,7 @@ proc ::snit::RT.InstanceTrace {type selfns win old new op} {
         } else {
             # Otherwise, track the change.
             variable ${selfns}::Snit_instance
-            set Snit_instance [uplevel namespace which -command $new]
+            set Snit_instance [uplevel 1 [list namespace which -command $new]]
             
             # Also, clear the instance caches, as many cached commands
             # might be invalid.
@@ -2342,7 +2343,7 @@ proc ::snit::RT.UniqueInstanceNamespace {countervar type} {
 # Returns "" if no value is found.
 proc ::snit::RT.OptionDbGet {type self opt} {
     variable ${type}::Snit_optionInfo
-        
+
     return [option get $self \
                 $Snit_optionInfo(resource-$opt) \
                 $Snit_optionInfo(class-$opt)]
@@ -2751,7 +2752,7 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
     # the specified arguments.
     if {"using" == $using} {
         # FIRST, create the widget
-        set cmd [concat [list $widgetType $self] $args]
+        set cmd [linsert $args 0 $widgetType $self]
         set obj [uplevel 1 $cmd]
             
         # NEXT, for each option explicitly delegated to the hull
@@ -2793,7 +2794,7 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
     } else {
         set obj $using
         
-        if {![string equal $obj $self]} {
+        if {$obj ne $self} {
             error \
                 "hull name mismatch: \"$obj\" != \"$self\""
         }
@@ -2937,11 +2938,11 @@ proc ::snit::RT.variable {varname} {
     upvar selfns selfns
 
     if {![string match "::*" $varname]} {
-        uplevel upvar ${selfns}::$varname $varname
+        uplevel 1 [list upvar 1 ${selfns}::$varname $varname]
     } else {
         # varname is fully qualified; let the standard
         # "variable" command handle it.
-        uplevel ::variable $varname
+        uplevel 1 [list ::variable $varname]
     }
 }
 
@@ -3193,7 +3194,7 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
         if {[catch {set ${selfns}::Snit_configureCache($option)} command]} {
             set command [snit::RT.CacheConfigureCommand \
                              $type $selfns $win $self $option]
-        
+
             if {[llength $command] == 0} {
                 return -code error "unknown option \"$option\""
             }
@@ -3203,7 +3204,7 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
         # validate command, if any.  If we have one, run it.
         set valcommand [set ${selfns}::Snit_validateCache($option)]
 
-        if {$valcommand ne ""} {
+        if {[llength $valcommand]} {
             lappend valcommand $value
             uplevel 1 $valcommand
         }
@@ -3422,10 +3423,10 @@ proc ::snit::RT.typemethod.info {type command args} {
             # TBD: it should be possible to delete this error
             # handling.
             set errflag [catch {
-                uplevel ::snit::RT.typemethod.info.$command \
-                    $type $args
+                uplevel 1 [linsert $args 0 \
+			       ::snit::RT.typemethod.info.$command $type]
             } result]
-                
+
             if {$errflag} {
                 return -code error -errorinfo $errorInfo \
                     -errorcode $errorCode $result
@@ -3542,10 +3543,10 @@ proc ::snit::RT.method.info {type selfns win self command args} {
         typevars    -
         typemethods {
             set errflag [catch {
-                uplevel ::snit::RT.method.info.$command \
-                    $type $selfns $win $self $args
+                uplevel 1 [linsert $args 0 ::snit::RT.method.info.$command \
+			       $type $selfns $win $self]
             } result]
-            
+
             if {$errflag} {
                 global errorInfo
                 return -code error -errorinfo $errorInfo $result

@@ -1,6 +1,15 @@
+2005-06-04  Will Duquette  <will@wjduquette.com>
+
+	* snit.tcl: Checked a number of small optimizations Jeff Hobbs
+	sent me. Bumped the version number to 0.98.
+	* pkgIndex.tcl: Bumped the version number to 0.98.
+	* dictionary.txt: Bumped the version number to 0.98.
+	* snit.man: Bumped the version number to 0.98.
+	* snitfaq.man: Bumped the version number to 0.98.
+
 2005-04-11  Marty Backe <marty@lucidway.org>
 
-    * snit.man: Fixed typo in the -configuremethod example.
+        * snit.man: Fixed typo in the -configuremethod example.
 
 2005-02-14  Andreas Kupries <andreask@activestate.com>
 
