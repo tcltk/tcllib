@@ -1,4 +1,4 @@
-Last updated: Snit V0.98
+Last updated: Snit V1.0
 
 TYPE VARIABLES
 

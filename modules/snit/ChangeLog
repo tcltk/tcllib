@@ -1,5 +1,13 @@
 2005-06-04  Will Duquette  <will@wjduquette.com>
 
+	* snit.tcl: Bumped the version number to 1.0
+	* pkgIndex.tcl: Bumped the version number to 1.0.
+	* dictionary.txt: Bumped the version number to 1.0.
+	* snit.man: Bumped the version number to 1.0.
+	* snitfaq.man: Bumped the version number to 1.0.
+	
+2005-06-04  Will Duquette  <will@wjduquette.com>
+
 	* snit.tcl (::snit::RT.DestroyObject)
 	* snit.test (test bug-2.1, bug-2.2): 
 	  Fixed [SF Tcllib Bug 1106375].
