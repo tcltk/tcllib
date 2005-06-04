@@ -23,6 +23,10 @@ Changes in V0.98
 * Fixed SourceForge Tcllib Bug 1161779; it's no longer an error
   if the destructor is defined before the constructor.
 
+* Fixed SourceForge Tcllib Bug 1106375; the hull widget is now
+  destroyed properly if there's an error in the constructor of 
+  a widget or widgetadaptor.
+
 Changes in V0.97
 --------------------------------------------------------------------
 
