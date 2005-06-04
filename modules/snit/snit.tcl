@@ -2405,7 +2405,14 @@ proc ::snit::RT.DestroyObject {type selfns win} {
             bind Snit$type$win <Destroy> ""
 
             if {[info command $hullcmd] != ""} {
+                # FIRST, rename the hull back to its original name.
+                # If the hull is itself a megawidget, it will have its
+                # own cleanup to do, and it might not do it properly
+                # if it doesn't have the right name.
                 rename $hullcmd ::$instance
+
+                # NEXT, destroy it.
+                destroy $instance
             }
         } else {
             catch {rename $instance ""}
