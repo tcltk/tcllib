@@ -12,8 +12,10 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Changes in V0.98
+Changes in V1.0
 --------------------------------------------------------------------
+
+Functionally, V1.0 is identical to version V0.97.
 
 * Added a number of speed optimizations provided by Jeff Hobbs.
   (Thanks, Jeff!)
