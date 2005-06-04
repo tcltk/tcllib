@@ -942,7 +942,7 @@ proc ::snit::Comp.statement.destructor {body} {
     # Next, add variable declarations to body:
     set body "%TVARDECS%%IVARDECS%\n$body"
 
-    append compile(defs) "proc %TYPE%::Snit_destructor {type selfns win self} [list $body]"
+    append compile(defs) "proc %TYPE%::Snit_destructor {type selfns win self} [list $body]\n\n"
 } 
 
 # Defines a type option.  The option value can be a triple, specifying
