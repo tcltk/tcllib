@@ -7298,6 +7298,26 @@ test break-1.3 {Methods called via mymethod "return -code break"} {
     catch {uplevel \#0 [spot getbark]} result
 } {3}
 
+#-----------------------------------------------------------------------
+# Bug Fixes
+
+test bug-1.1 {Bug 1161779: destructor can't precede constructor} \
+    -cleanup {rename ::dummy ""} \
+    -body {
+        type dummy {
+            destructor {
+                # No content
+            }
+
+            constructor {args} {
+                $self configurelist $args
+            }
+            
+        }
+    } -result ::dummy
+
+
+
 
 
 
