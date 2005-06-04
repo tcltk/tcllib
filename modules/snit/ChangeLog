@@ -1,5 +1,12 @@
 2005-06-04  Will Duquette  <will@wjduquette.com>
 
+	* snit.tcl, snit.man, snitfaq.man: Updated the copyright
+	information to 2005.
+	* snit.html, faq.html: Removed these files, as they are obsolete.
+	snit.man and snitfaq.man contain the up-to-date documentation.
+
+2005-06-04  Will Duquette  <will@wjduquette.com>
+
 	* snit.tcl: Bumped the version number to 1.0
 	* pkgIndex.tcl: Bumped the version number to 1.0.
 	* dictionary.txt: Bumped the version number to 1.0.
