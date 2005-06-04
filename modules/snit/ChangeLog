@@ -1,5 +1,11 @@
 2005-06-04  Will Duquette  <will@wjduquette.com>
 
+	* snit.tcl (::snit::Comp.statement.destructor):
+	* snit.test (test bug-1.1)
+	  Fixed [SF Tcllib Bug 1161779].
+
+2005-06-04  Will Duquette  <will@wjduquette.com>
+
 	* snit.tcl: Checked a number of small optimizations Jeff Hobbs
 	sent me. Bumped the version number to 0.98.
 	* pkgIndex.tcl: Bumped the version number to 0.98.

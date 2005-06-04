@@ -15,8 +15,13 @@ http://www.wjduquette.com/snit for details).
 Changes in V0.98
 --------------------------------------------------------------------
 
-* Committed a number of optimizations provided by Jeff Hobbs.
+* Added a number of speed optimizations provided by Jeff Hobbs.
+  (Thanks, Jeff!)
+
 * Returned to the name "Snit's Not Incr Tcl".
+
+* Fixed SourceForge Tcllib Bug 1161779; it's no longer an error
+  if the destructor is defined before the constructor.
 
 Changes in V0.97
 --------------------------------------------------------------------
