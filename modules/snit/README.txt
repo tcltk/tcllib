@@ -1,4 +1,4 @@
-Simple Now In Tcl README.txt
+Snit's Not Incr Tcl README.txt
 -----------------------------------------------------------------
 
 Snit is pure-Tcl object and megawidget framework.  See snit.html
@@ -11,6 +11,12 @@ http://www.wjduquette.com/snit.  If you have any questions, bug
 reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
+
+Changes in V0.98
+--------------------------------------------------------------------
+
+* Committed a number of optimizations provided by Jeff Hobbs.
+* Returned to the name "Snit's Not Incr Tcl".
 
 Changes in V0.97
 --------------------------------------------------------------------
