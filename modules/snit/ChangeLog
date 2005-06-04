@@ -1,5 +1,11 @@
 2005-06-04  Will Duquette  <will@wjduquette.com>
 
+	* snit.tcl (::snit::RT.DestroyObject)
+	* snit.test (test bug-2.1, bug-2.2): 
+	  Fixed [SF Tcllib Bug 1106375].
+
+2005-06-04  Will Duquette  <will@wjduquette.com>
+
 	* snit.tcl (::snit::Comp.statement.destructor):
 	* snit.test (test bug-1.1)
 	  Fixed [SF Tcllib Bug 1161779].
