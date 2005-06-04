@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin snit n 1.0]
-[copyright {2003-2004, by William H. Duquette}]
+[copyright {2003-2005, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
 [require Tcl 8.4]

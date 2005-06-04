@@ -8,6 +8,9 @@
 # DESCRIPTION:
 #       Snit's Not Incr Tcl, a simple object system in Pure Tcl.
 #
+#       Copyright (C) 2003-2005 by William H. Duquette
+#       This code is licensed as described in license.txt.
+#
 #-----------------------------------------------------------------------
 
 package provide snit 1.0
