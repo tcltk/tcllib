@@ -1,3 +1,9 @@
+2005-06-07  Kevin Kenny <kennykb@acm.org>
+
+	* constants.tcl: Corrected ::math::constants::find_huge 
+	                 and ::math::constants::find_tiny to not go
+			 into an infinite loop when overflow is not an error.
+	
 2005-05-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
         * Removed reference to argv0 in optimize.tcl (in response

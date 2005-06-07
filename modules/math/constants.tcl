@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: constants.tcl,v 1.6 2004/09/24 06:54:24 andreas_kupries Exp $
+# RCS: @(#) $Id: constants.tcl,v 1.7 2005/06/07 14:21:18 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -96,16 +96,29 @@ proc ::math::constants::print-constants {args} {
 proc ::math::constants::find_huge {} {
 
     set result 1.0
-
-    while {! [catch {set result [expr {10.0*$result}]}] } {
-        set prev_result $result
+    set Inf Inf
+    while {1} {
+	if {[catch {expr {2.0 * $result}} result]} {
+	    break
+	}
+	if { $result == $Inf } {
+	    break
+	}
+	set prev_result $result
     }
     set result $prev_result
-    while {! [catch {set result [expr {1.0001*$result}]}] } {
-        set prev_result $result
+    set adder [expr { $result / 2. }]
+    while { $adder != 0.0 } {
+	if {![catch {expr {$adder + $prev_result}} result]} {
+	    if { $result == $prev_result } break
+	    if { $result != $Inf } {
+		set prev_result $result
+	    }
+	}
+	set adder [expr { $adder / 2. }]
     }
-
     return $prev_result
+
 }
 
 # find_tiny --
@@ -120,15 +133,9 @@ proc ::math::constants::find_tiny {} {
 
     set result 1.0
 
-    while { ! [catch {set result [expr {$result/10.0}]}] && $result > 0.0 } {
+    while { ! [catch {set result [expr {$result/2.0}]}] && $result > 0.0 } {
         set prev_result $result
     }
-    set result $prev_result
-
-    while { ! [catch {set result [expr {$result/1.1}]}] && $result < $prev_result } {
-        set prev_result $result
-    }
-
     return $prev_result
 }
 
