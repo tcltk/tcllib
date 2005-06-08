@@ -7317,6 +7317,7 @@ test bug-1.1 {Bug 1161779: destructor can't precede constructor} \
     } -result ::dummy
 
 test bug-2.1 {Bug 1106375: Widget Error on failed object's construction} \
+    -constraints tk \
     -cleanup {::mylabel destroy} \
     -body {
         ::snit::widgetadaptor mylabel {
@@ -7335,6 +7336,7 @@ test bug-2.1 {Bug 1106375: Widget Error on failed object's construction} \
     } -result {{} {Error in constructor: simulated error}}
 
 test bug-2.2 {Bug 1106375: Widget Error on failed object's construction} \
+    -constraints tk \
     -cleanup {::myframe destroy} \
     -body {
         ::snit::widget myframe {
