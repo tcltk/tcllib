@@ -1,3 +1,8 @@
+2005-06-14  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl: The -deliver options should accept a script prefix
+	not just a command. Set version to 1.4.0
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
