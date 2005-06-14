@@ -16,8 +16,8 @@ package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.16 2004/06/26 20:07:08 patthoyts Exp $}
-    variable version 1.3.0
+    variable rcsid {$Id: smtpd.tcl,v 1.17 2005/06/14 09:11:39 patthoyts Exp $}
+    variable version 1.4.0
     variable stopped
 
     namespace export start stop configure
@@ -497,7 +497,7 @@ proc ::smtpd::deliver {channel} {
 #        }
         
         # catch and rethrow any errors.
-        set err [catch {$deliverMIME $tok} msg]
+        set err [catch {eval $deliverMIME [list $tok]} msg]
         mime::finalize $tok -subordinates all
         if {$err} {
             Log debug "error in deliver: $msg"
