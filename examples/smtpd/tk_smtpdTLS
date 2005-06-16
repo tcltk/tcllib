@@ -31,9 +31,29 @@ exec wish "$0" ${1+"$@"}
 package require Tcl   8.3
 package require Tk    8.3
 package require mime  1.3
-package require smtpd 1.3
+package require smtpd 1.4
 
-wm withdraw .
+variable options
+if {![info exists options]} {
+    set dir [file dirname [info script]]
+    array set options [list \
+        loglevel   debug    \
+        interface  0.0.0.0  \
+        port       2525     \
+        usetls     1        \
+        require    0        \
+        request    1        \
+        certfile           [file join $dir server-public.pem] \
+        keyfile            [file join $dir server-private.key] \
+    ]
+}
+
+variable forever
+if {![info exists forever]} { set forever 0 }
+variable console
+if {![info exists console]} { set console 0 }
+
+wm title . "Tcllib SMTPd [package provide smtpd] Demo"
 set _dlgid 0
 
 # Handle new mail by raising a message dialog for each recipient.
@@ -95,38 +115,110 @@ proc validate_recipient {address} {
     return
 }
 
-# Setup the mail server with TLS support.
-set dir [file dirname [info script]]
-smtpd::configure \
-    -loglevel           debug \
-    -deliverMIME        ::deliverMIME \
-    -validate_host      ::validate_host \
-    -validate_recipient ::validate_recipient \
-    -validate_sender    ::validate_sender \
-    -certfile           [file join $dir server-public.pem] \
-    -keyfile            [file join $dir server-private.key] \
-    -usetls             1 \
-    -ssl2               1 \
-    -ssl3               1 \
-    -tls1               1 \
-    -require            0 \
-    -request            1
+# -------------------------------------------------------------------------
 
-# For windows, display the console for the log messages.
-if {[info command console] != {}} {
-    console show
-    console eval {wm title . "Test SMTPD"}
+proc Start {} {
+    variable options
+    smtpd::configure \
+        -loglevel           $options(loglevel) \
+        -deliverMIME        ::deliverMIME \
+        -validate_host      ::validate_host \
+        -validate_recipient ::validate_recipient \
+        -validate_sender    ::validate_sender \
+        -certfile           $options(certfile) \
+        -keyfile            $options(keyfile) \
+        -usetls             $options(usetls) \
+        -ssl2               1 \
+        -ssl3               1 \
+        -tls1               1 \
+        -require            $options(require) \
+        -request            $options(request) \
+        -command            ::smtpd::tlscallback
+
+    smtpd::start $options(interface) $options(port)
 }
-proc ::tkerror {err} {puts stderr $err}
-catch {set ::tls::debug 2}
-smtpd::Log debug "[smtpd::configure]"
+
+proc Stop {} {
+    smtpd::stop
+}
+
+proc Exit {} {
+    variable forever
+    Stop
+    set forever 1
+}
+
+proc ${::smtpd::log}::stdoutcmd {level text} {
+    .t insert end "$text\n" $level
+    .t see end
+}
+
+proc tkerror {msg} {
+    .t insert end "$msg\n" error
+    .t see end
+}
+
+proc ToggleConsole {} {
+    variable console
+    if {[info command console] ne {}} {
+        if {$console} {
+            console hide ; set console 0
+        } else {
+            console show ; set console 1
+        }
+    }
+}
+
+# Configure a GUI
+proc Main {} {
+    variable options
+    label .l1 -text "Address" -anchor nw
+    entry .e1 -textvariable ::options(interface)
+    label .l2 -text "Port" -anchor nw
+    entry .e2 -textvariable ::options(port)
+    label .l3 -text "Public certificate file" -anchor nw
+    entry .e3 -textvariable ::options(certfile)
+    label .l4 -text "Private key file" -anchor nw
+    entry .e4 -textvariable ::options(keyfile)
+    label .l5 -text "Log level" -anchor nw
+    entry .e5 -textvariable ::options(loglevel)
+
+    frame .f3 -borderwidth 0
+    checkbutton .c1 -text "Support TLS" -variable ::options(usetls)
+    checkbutton .c2 -text "Request cerificate" -variable ::options(request)
+    checkbutton .c3 -text "Require certificate" -variable ::options(require)
+    grid .c1 .c2 .c3 -in .f3 -sticky news
+
+    frame .f1 -borderwidth 0
+    text .t -height 10 -yscrollcommand [list .sb set]
+    scrollbar .sb -command [list .t yview]
+    grid .t .sb -in .f1 -sticky news
+    
+    frame  .f2 -borderwidth 0
+    button .b1 -width -12 -text Start -command Start
+    button .b2 -width -12 -text Stop -command Stop
+    button .b3 -width -12 -text Exit -command Exit
+    grid   .b1 .b2 .b3 -in .f2 -sticky ne -padx 1 -pady 2
+
+    grid .l1 .e1 .l2 .e2  -sticky news
+    grid .f3 -   -   -   -sticky news
+    grid .l3 .e3 -   -    -sticky news
+    grid .l4 .e4 -   -    -sticky news
+    grid .f1 -   -   -    -sticky news
+    grid .l5 .e5 .f2 -    -sticky ne
+    grid rowconfigure    . 4 -weight 1
+    grid columnconfigure . 3 -weight 1
+    grid rowconfigure    .f1 0 -weight 1
+    grid columnconfigure .f1 0 -weight 1
+
+    bind . <F2> {ToggleConsole}
+}
+
+# -------------------------------------------------------------------------
 
 # Run the server on the default port 25. For unix change to 
 # a high numbered port eg: 2525 or 8025 etc with
 # smtpd::start 127.0.0.1 8025 or smtpd::start 0.0.0.0 2525
-
-set iface 0.0.0.0
-set port 25
 
 if {$tcl_interactive } {
 
@@ -140,8 +232,10 @@ if {$tcl_interactive } {
     if {$argc > 1} {
         set port [lindex $argv 1]
     }
-        
-    smtpd::start $iface $port
+
+    Main
+    tkwait variable forever
+    destroy .
 }
 
 #
