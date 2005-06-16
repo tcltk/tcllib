@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin smtpd n 1.2.2]
+[manpage_begin smtpd n 1.4]
 [copyright {Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Tcl SMTP Server Package}]
 [titledesc {Tcl SMTP server implementation}]
 [require Tcl 8.3]
-[require smtpd [opt 1.2.2]]
+[require smtpd [opt 1.4]]
 [description]
 [para]
 
@@ -146,7 +146,7 @@ return the value of that option.
 [section CALLBACKS]
 
 [list_begin definitions]
-[lst_item "[cmd validate_host] callback"]]
+[lst_item "[cmd validate_host] callback"]
 
 This procedure is called with the clients ip address as soon as a
 connection request has been accepted and before any protocol commands
@@ -177,7 +177,7 @@ the client to send a QUIT command. Any other commands cause a
 
 [const {503 Bad Sequence}] error.
 
-[lst_item "[cmd validate_sender] callback"]]
+[lst_item "[cmd validate_sender] callback"]
 
 The validate_sender callback is called with the senders mail address
 during processing of a MAIL command to allow you to accept or reject
@@ -187,8 +187,7 @@ an error. For example, to reject mail from user "denied":
 [nl]
 [example {
  proc validate_sender {address} {
-    eval array set addr \\
-         [mime::parseaddress $address]
+    eval array set addr [mime::parseaddress $address]
     if {[string match "denied" $addr(local)]} {
          error "mailbox $addr(local) denied"
     }
@@ -200,7 +199,7 @@ an error. For example, to reject mail from user "denied":
 
 The content of any error message will not be passed back to the client.
 
-[lst_item "[cmd validate_recipient] callback"]]
+[lst_item "[cmd validate_recipient] callback"]
 
 The validate_recipient callback is similar to the validate_sender
 callback and permits you to verify a local mailbox and accept mail for
@@ -226,7 +225,7 @@ up so if the user wishes to preserve the data she must make a copy.
  }
 }]
 
-[lst_item "[cmd deliver] callback"]]
+[lst_item "[cmd deliver] callback"]
 
 The deliver callback is called once a mail message has been
 successfully passed to the server and there is no -deliverMIME option
