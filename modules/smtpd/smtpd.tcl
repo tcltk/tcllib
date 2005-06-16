@@ -16,7 +16,7 @@ package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.17 2005/06/14 09:11:39 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.18 2005/06/16 00:39:05 patthoyts Exp $}
     variable version 1.4.0
     variable stopped
 
@@ -875,6 +875,37 @@ proc ::smtpd::STARTTLS {channel line} {
         set State(tls) 1
     }
     return
+}
+
+# -------------------------------------------------------------------------
+# Logging callback for use with tls - you must specify this when configuring
+# smtpd if you wan to use it.
+#
+proc ::smtpd::tlscallback {option args} {
+    switch -exact -- $option {
+        "error" {
+            foreach {chan msg} $args break
+            Log error "TLS error '$msg'"
+        } 
+        "verify" {
+            foreach {chan depth cert rc err} $args break
+            if {$rc ne "1"} {
+                Log error "TLS verify/$depth Bad cert '$err' (rc=$rc)"
+            } else {
+                array set c $cert
+                Log notice "TLS verify/$depth: $c(subject)"
+            }
+            return $rc
+        }
+        "info" {
+            foreach {chan major minor state msg} $args break
+            if {$msg ne ""} { append state ": $msg" }
+            Log debug "TLS ${major}.${minor} $state"
+        }
+        default  {
+            Log warn "bad option \"$option\" in smtpd::callback"
+        }
+    }
 }
 
 # -------------------------------------------------------------------------
