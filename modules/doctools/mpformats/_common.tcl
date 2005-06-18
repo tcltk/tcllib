@@ -198,6 +198,7 @@ set    SectionList {}   ;# order of definition.
 #
 proc c_sectionId {name} {
     regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
+    regsub -all {"} $id _ id
     return $id
 }
 
