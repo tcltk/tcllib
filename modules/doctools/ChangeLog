@@ -1,3 +1,8 @@
+2005-06-17  Andreas Kupries <andreask@activestate.com>
+
+	* mpformats/_common.tcl (c_sectionId): Converting quotes into
+	  underscores. Fixes [SF Tcllib Bug 1220089].
+
 2005-06-06  Andreas Kupries <andreask@activestate.com>
 
 	* mpformats/fr.msg: Fixed [Tcllib SF Bug 1213636], reported by
