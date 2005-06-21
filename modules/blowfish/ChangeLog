@@ -1,3 +1,7 @@
+2005-06-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.man: new file
+
 2004-12-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* blowfish.tcl: Fixed bug in search for Trfcrypt (noticed by
