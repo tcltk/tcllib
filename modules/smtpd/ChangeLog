@@ -1,3 +1,9 @@
+2005-06-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtpd.tcl: bug #1224575 - as per RFC2821:3.7 we must accept null
+	return path addresses. The programmers validate_sender proc can
+	then decide to accept or reject such a submission.
+
 2005-06-14  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtpd.tcl: The -deliver options should accept a script prefix
