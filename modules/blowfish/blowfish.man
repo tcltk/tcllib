@@ -1,0 +1,94 @@
+[manpage_begin blowfish n 1.0.0]
+[moddesc   {Blowfish Block Cipher}]
+[copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
+[titledesc {Blowfish Block Cipher}]
+[require Tcl 8.4]
+[require blowfish [opt 1.0.0]]
+[description]
+[para]
+
+This package is an implementation in Tcl of the Blowfish algorithm
+developed by Brice Schneier [lb]1[rg]. Blowfish is a 64-bit block cipher
+designed to operate quickly on 32 bit architectures and accepting a
+variable key length. This implementation supports ECB and CBC mode
+blowfish encryption.
+
+[section {COMMANDS}]
+
+[list_begin definitions]
+
+[call [cmd "::blowfish::blowfish"] \
+        [opt [arg "-mode [lb]ecb|cbc[rb]"]] \
+        [opt [arg "-dir [lb]encrypt|decrypt[rb]"]] \
+        [arg "-key keydata"] \
+        [opt [arg "-iv vector"]] \
+        [opt [arg "-out channel"]] \
+        [opt [arg "-chunksize size"]] \
+        [lb] [arg "-in channel"] | \
+        [arg "data"] [rb]]
+
+Perform the [package blowfish] algorithm on either the data provided
+by the argument or on the data read from the [arg "-in"] channel. If
+an [arg "-out"] channel is given then the result will be written to
+this channel.
+
+[nl]
+
+The [arg -key] option must be given. This parameter takes a binary
+string of variable length and is used to generate the 
+[package blowfish] key schedule. You should be aware that creating a key
+schedule is quite an expensive operation in blowfish so it is worth
+reusing the key where possible. See [cmd Reset].
+API.
+
+[nl]
+
+The [arg -mode] and [arg -dir] options are optional and default to cbc
+mode and encrypt respectively. The initialization vector [arg -iv]
+takes an 8 byte binary argument. This defaults to 8 zeros.
+
+[nl]
+
+Blowfish is a 64-bit block cipher. This means that the data must be
+provided in units that are a multiple of 8 bytes.
+
+[list_end]
+
+[section "PROGRAMMING INTERFACE"]
+
+[list_begin definitions]
+
+[call [cmd "::blowfish::Init"] [arg "mode"] [arg "key"] [arg "iv"]]
+
+[call [cmd "::blowfish::Encrypt"] [arg "token"] [arg "data"]]
+
+[call [cmd "::blowfish::Decrypt"] [arg "token"] [arg "data"]]
+
+[call [cmd "::blowfish::Reset"] [arg "token"] [arg "iv"]]
+
+[call [cmd "::blowfish::Final"] [arg "token"]]
+
+[list_end]
+
+
+[section "EXAMPLES"]
+
+[example {
+% blowfish::blowfish -hex -key secret "hello, world!!!!"
+b7611eabdfc1f73b48708411d67d5e5c
+}]
+
+[section "REFERENCES"]
+
+[list_begin enum]
+
+[enum]
+    Schneier, B. "Applied Cryptography, 2nd edition", 1996,
+    ISBN 0-471-11709-9, pub. John Wiley & Sons.
+
+[list_end]
+
+[see_also des 3des rc4]
+
+[keywords blowfish {block cipher} security encryption cryptography]
+[manpage_end]
