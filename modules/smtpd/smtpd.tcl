@@ -16,7 +16,7 @@ package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.18 2005/06/16 00:39:05 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.19 2005/06/21 13:42:23 patthoyts Exp $}
     variable version 1.4.0
     variable stopped
 
@@ -622,6 +622,10 @@ proc ::smtpd::MAIL {channel line} {
         set opts [lindex $from 1]
         set from [lindex $from 0]
         eval array set addr [mime::parseaddress $from]
+        # RFC2821 3.7: we must accept null return path addresses.
+        if {[string equal "<>" $from]} {
+            set addr(error) {}
+        }
     } msg]} {
         set addr(error) $msg
     }
