@@ -1,3 +1,7 @@
+2005-06-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* blowfish.man: Fixed a typo.
+
 2005-06-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* blowfish.man: new file
