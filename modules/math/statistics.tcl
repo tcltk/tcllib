@@ -4,7 +4,7 @@
 #
 # version 0.1:   initial implementation, january 2003
 # version 0.1.1: added linear regression, june 2004
-# version 0.1.2: border case in stdev taken care of 
+# version 0.1.2: border case in stdev taken care of
 # version 0.1.3: moved initialisation of CDF to first call, november 2004
 
 package provide math::statistics 0.1.3
@@ -19,7 +19,9 @@ namespace eval ::math::statistics {
     #
     namespace export mean min max number var stdev basic-stats corr \
 	    histogram interval-mean-stdev test-mean quantiles \
-	    autocorr crosscorr filter map samplescount median
+	    autocorr crosscorr filter map samplescount median \
+	    test-2x2 print-2x2 control-xbar test_xbar \
+	    control-Rchart test-Rchart
     #
     # Error messages
     #
@@ -32,6 +34,18 @@ namespace eval ::math::statistics {
     #
     variable factorNormalPdf
     set factorNormalPdf [expr {sqrt(8.0*atan(1.0))}]
+
+    # xbar/R-charts:
+    # Data from:
+    #    Peter W.M. John:
+    #    Statistical methods in engineering and quality assurance
+    #    Wiley and Sons, 1990
+    #
+    variable control_factors {
+        A2 {1.880 1.093 0.729 0.577 0.483 0.419 0.419}
+        D3 {0.0   0.0   0.0   0.0   0.0   0.076 0.076}
+        D4 {3.267 2.574 2.282 2.114 2.004 1.924 1.924}
+    }
 }
 
 # mean, min, max, number, var, stdev --
@@ -827,29 +841,29 @@ proc ::math::statistics::linear-residuals { xdata ydata {intercept 1} } {
 }
 
 # median
-#    Determine the median from a list of data 
+#    Determine the median from a list of data
 #
 # Arguments:
-#    data         (Unsorted) list of data 
+#    data         (Unsorted) list of data
 #
 # Result:
-#    Median (either the middle value or the mean of two values in the 
+#    Median (either the middle value or the mean of two values in the
 #    middle)
 #
 # Note:
 #    Adapted from the Wiki page "Stats", code provided by JPS
 #
 proc ::math::statistics::median { data } {
-    set org_data $data 
+    set org_data $data
     set data     {}
     foreach value $org_data {
-        if { $value != {} } { 
+        if { $value != {} } {
             lappend data $value
         }
     }
     set len [llength $data]
 
-    set data [lsort -real $data] 
+    set data [lsort -real $data]
     if { $len % 2 } {
         lindex $data [expr {($len-1)/2}]
     } else {
@@ -857,6 +871,251 @@ proc ::math::statistics::median { data } {
 		+ [lindex $data [expr {$len / 2}]]) / 2.0}
     }
 }
+
+# test-2x2 --
+#     Compute the chi-square statistic for a 2x2 table
+#
+# Arguments:
+#     a           Element upper-left
+#     b           Element upper-right
+#     c           Element lower-left
+#     d           Element lower-right
+# Return value:
+#     Chi-square
+# Note:
+#     There is only one degree of freedom - this is important
+#     when comparing the value to the tabulated values
+#     of chi-square
+#
+proc ::math::statistics::test-2x2 { a b c d } {
+    set ab     [expr {$a+$b}]
+    set ac     [expr {$a+$c}]
+    set bd     [expr {$b+$d}]
+    set cd     [expr {$c+$d}]
+    set N      [expr {$a+$b+$c+$d}]
+    set det    [expr {$a*$d-$b*$c}]
+    set result [expr {double($N*$det*$det)/double($ab*$cd*$ac*$bd)}]
+}
+
+# print-2x2 --
+#     Print a 2x2 table
+#
+# Arguments:
+#     a           Element upper-left
+#     b           Element upper-right
+#     c           Element lower-left
+#     d           Element lower-right
+# Return value:
+#     Printed version with marginals
+#
+proc ::math::statistics::print-2x2 { a b c d } {
+    set ab     [expr {$a+$b}]
+    set ac     [expr {$a+$c}]
+    set bd     [expr {$b+$d}]
+    set cd     [expr {$c+$d}]
+    set N      [expr {$a+$b+$c+$d}]
+    set chisq  [test-2x2 $a $b $c $d]
+
+    set    line   [string repeat - 10]
+    set    result [format "%10d%10d | %10d\n" $a $b $ab]
+    append result [format "%10d%10d | %10d\n" $c $d $cd]
+    append result [format "%10s%10s + %10s\n" $line $line $line]
+    append result [format "%10d%10d | %10d\n" $ac $bd $N]
+    append result "Chisquare = $chisq\n"
+    append result "Difference is significant?\n"
+    append result "   at 95%: [expr {$chisq<3.84146? "no":"yes"}]\n"
+    append result "   at 99%: [expr {$chisq<6.63490? "no":"yes"}]"
+}
+
+# control-xbar --
+#     Determine the control lines for an x-bar chart
+#
+# Arguments:
+#     data        List of observed values (at least 20*nsamples)
+#     nsamples    Number of data per subsamples (default: 4)
+# Return value:
+#     List of: mean, lower limit, upper limit, number of data per
+#     subsample. Can be used in the test-xbar procedure
+#
+proc ::math::statistics::control-xbar { data {nsamples 4} } {
+    variable TOOFEWDATA
+    variable control_factors
+
+    #
+    # Check the number of data
+    #
+    if { $nsamples <= 1 } {
+        return -code error -errorcode DATA -errorinfo $OUTOFRANGE \
+            "Number of data per subsample must be at least 2"
+    }
+    if { [llength $data] < 20*$nsamples } {
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+    }
+
+    set nogroups [expr {[llength $data]/$nsamples}]
+    set mrange   0.0
+    set xmeans   0.0
+    for { set i 0 } { $i < $nogroups } { incr i } {
+        set subsample [lrange $data [expr {$i*$nsamples}] [expr {$i*$nsamples+$nsamples-1}]]
+
+        set xmean 0.0
+        set xmin  [lindex $subsample 0]
+        set xmax  $xmin
+        foreach d $subsample {
+            set xmean [expr {$xmean+$d}]
+            set xmin  [expr {$xmin<$d? $xmin : $d}]
+            set xmax  [expr {$xmax>$d? $xmax : $d}]
+        }
+        set xmean [expr {$xmean/double($nsamples)}]
+
+        set xmeans [expr {$xmeans+$xmean}]
+        set mrange [expr {$mrange+($xmax-$xmin)}]
+    }
+
+    #
+    # Determine the control lines
+    #
+    set xmeans [expr {$xmeans/double($nogroups)}]
+    set mrange [expr {$mrange/double($nogroups)}]
+    set A2     [lindex [lindex $control_factors 1] $nsamples]
+    if { $A2 == "" } { set A2 [lindex [lindex $control_factors 1] end] }
+
+    return [list $xmeans [expr {$xmeans-$A2*$mrange}] \
+                         [expr {$xmeans+$A2*$mrange}] $nsamples]
+}
+
+# test-xbar --
+#     Determine if any data points lie outside the x-bar control limits
+#
+# Arguments:
+#     control     List returned by control-xbar with control data
+#     data        List of observed values
+# Return value:
+#     Indices of any subsamples that violate the control limits
+#
+proc ::math::statistics::test-xbar { control data } {
+    foreach {xmean xlower xupper nsamples} $control {break}
+
+    if { [llength $data] < 1 } {
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+    }
+
+    set nogroups [expr {[llength $data]/$nsamples}]
+    if { $nogroups <= 0 } {
+        set nogroup  1
+        set nsamples [llength $data]
+    }
+
+    set result {}
+
+    for { set i 0 } { $i < $nogroups } { incr i } {
+        set subsample [lrange $data [expr {$i*$nsamples}] [expr {$i*$nsamples+$nsamples-1}]]
+
+        set xmean 0.0
+        foreach d $subsample {
+            set xmean [expr {$xmean+$d}]
+        }
+        set xmean [expr {$xmean/double($nsamples)}]
+
+        if { $xmean < $xlower } { lappend result $i }
+        if { $xmean > $xupper } { lappend result $i }
+    }
+
+    return $result
+}
+
+# control-Rchart --
+#     Determine the control lines for an R chart
+#
+# Arguments:
+#     data        List of observed values (at least 20*nsamples)
+#     nsamples    Number of data per subsamples (default: 4)
+# Return value:
+#     List of: mean range, lower limit, upper limit, number of data per
+#     subsample. Can be used in the test-Rchart procedure
+#
+proc ::math::statistics::control-Rchart { data {nsamples 4} } {
+    variable TOOFEWDATA
+    variable control_factors
+
+    #
+    # Check the number of data
+    #
+    if { $nsamples <= 1 } {
+        return -code error -errorcode DATA -errorinfo $OUTOFRANGE \
+            "Number of data per subsample must be at least 2"
+    }
+    if { [llength $data] < 20*$nsamples } {
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+    }
+
+    set nogroups [expr {[llength $data]/$nsamples}]
+    set mrange   0.0
+    for { set i 0 } { $i < $nogroups } { incr i } {
+        set subsample [lrange $data [expr {$i*$nsamples}] [expr {$i*$nsamples+$nsamples-1}]]
+
+        set xmin  [lindex $subsample 0]
+        set xmax  $xmin
+        foreach d $subsample {
+            set xmin  [expr {$xmin<$d? $xmin : $d}]
+            set xmax  [expr {$xmax>$d? $xmax : $d}]
+        }
+        set mrange [expr {$mrange+($xmax-$xmin)}]
+    }
+
+    #
+    # Determine the control lines
+    #
+    set mrange [expr {$mrange/double($nogroups)}]
+    set D3     [lindex [lindex $control_factors 3] $nsamples]
+    set D4     [lindex [lindex $control_factors 5] $nsamples]
+    if { $D3 == "" } { set D3 [lindex [lindex $control_factors 3] end] }
+    if { $D4 == "" } { set D4 [lindex [lindex $control_factors 5] end] }
+
+    return [list $mrange [expr {$D3*$mrange}] \
+                         [expr {$D4*$mrange}] $nsamples]
+}
+
+# test-Rchart --
+#     Determine if any data points lie outside the R-chart control limits
+#
+# Arguments:
+#     control     List returned by control-xbar with control data
+#     data        List of observed values
+# Return value:
+#     Indices of any subsamples that violate the control limits
+#
+proc ::math::statistics::test-Rchart { control data } {
+    foreach {rmean rlower rupper nsamples} $control {break}
+
+    #
+    # Check the number of data
+    #
+    if { [llength $data] < 1 } {
+        return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
+    }
+
+    set nogroups [expr {[llength $data]/$nsamples}]
+
+    set result {}
+    for { set i 0 } { $i < $nogroups } { incr i } {
+        set subsample [lrange $data [expr {$i*$nsamples}] [expr {$i*$nsamples+$nsamples-1}]]
+
+        set xmin  [lindex $subsample 0]
+        set xmax  $xmin
+        foreach d $subsample {
+            set xmin  [expr {$xmin<$d? $xmin : $d}]
+            set xmax  [expr {$xmax>$d? $xmax : $d}]
+        }
+        set range [expr {$xmax-$xmin}]
+
+        if { $range < $rlower } { lappend result $i }
+        if { $range > $rupper } { lappend result $i }
+    }
+
+    return $result
+}
+
 
 
 #
@@ -979,3 +1238,29 @@ if { [file tail [info script]] == [file tail $::argv0] } {
     puts [::math::statistics::minmax-histogram-limits 1.0 10.0 10]
 
 }
+
+#
+# Test xbar/R-chart procedures
+#
+if { 0 } {
+    set data {}
+    for { set i 0 } { $i < 500 } { incr i } {
+        lappend data [expr {rand()}]
+    }
+    set limits [::math::statistics::control-xbar $data]
+    puts $limits
+
+    puts "Outliers? [::math::statistics::test-xbar $limits $data]"
+
+    set newdata {1.0 1.0 1.0 1.0 0.5 0.5 0.5 0.5 10.0 10.0 10.0 10.0}
+    puts "Outliers? [::math::statistics::test-xbar $limits $newdata] -- 0 2"
+
+    set limits [::math::statistics::control-Rchart $data]
+    puts $limits
+
+    puts "Outliers? [::math::statistics::test-Rchart $limits $data]"
+
+    set newdata {0.0 1.0 2.0 1.0 0.4 0.5 0.6 0.5 10.0  0.0 10.0 10.0}
+    puts "Outliers? [::math::statistics::test-Rchart $limits $newdata] -- 0 2"
+}
+

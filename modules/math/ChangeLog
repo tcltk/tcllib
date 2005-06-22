@@ -1,3 +1,13 @@
+2005-06-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+        * statistics.tcl/test/man: 
+          Added several methods: 2x2 tables and two quality
+          control charts
+
+        * elliptic.tcl/man:
+          Added functions cn, dn and sn. Test cases still
+          needed.
+
 2005-06-07  Kevin Kenny <kennykb@acm.org>
 
 	* constants.tcl: Corrected ::math::constants::find_huge 

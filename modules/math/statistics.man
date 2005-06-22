@@ -270,6 +270,83 @@ predicted values.
 [arg intercept] - (Optional) compute the intercept (1, default) or fit
 to a line through the origin (0)
 
+[call [cmd ::math::statistics::test-2x2] [arg n11] [arg n21] [arg n12] [arg n22]]
+Determine if two set of samples, each from a binomial distribution,
+differ significantly or not (implying a different parameter).
+[nl]
+Returns the "chi-square" value, which can be used to the determine the
+significance.
+[nl]
+[arg n11] - Number of outcomes with the first value from the first sample.
+[nl]
+[arg n21] - Number of outcomes with the first value from the second sample.
+[nl]
+[arg n12] - Number of outcomes with the second value from the first sample.
+[nl]
+[arg n22] - Number of outcomes with the second value from the second sample.
+[nl]
+
+[call [cmd ::math::statistics::print-2x2] [arg n11] [arg n21] [arg n12] [arg n22]]
+Determine if two set of samples, each from a binomial distribution,
+differ significantly or not (implying a different parameter).
+[nl]
+Returns a short report, useful in an interactive session.
+[nl]
+[arg n11] - Number of outcomes with the first value from the first sample.
+[nl]
+[arg n21] - Number of outcomes with the first value from the second sample.
+[nl]
+[arg n12] - Number of outcomes with the second value from the first sample.
+[nl]
+[arg n22] - Number of outcomes with the second value from the second sample.
+[nl]
+
+[call [cmd ::math::statistics::control-xbar] [arg data] [opt nsamples]]
+Determine the control limits for an xbar chart. The number of data
+in each subsample defaults to 4. At least 20 subsamples are required.
+[nl]
+Returns the mean, the lower limit, the upper limit and the number of
+data per subsample.
+[nl]
+[arg data] - List of observed data
+[nl]
+[arg nsamples] - Number of data per subsample
+[nl]
+
+[call [cmd ::math::statistics::control-Rchart] [arg data] [opt nsamples]]
+Determine the control limits for an R chart. The number of data
+in each subsample defaults to 4. At least 20 subsamples are required.
+[nl]
+Returns the mean range, the lower limit, the upper limit and the number
+of data per subsample.
+[nl]
+[arg data] - List of observed data
+[nl]
+[arg nsamples] - Number of data per subsample
+[nl]
+
+[call [cmd ::math::statistics::test-xbar] [arg control] [arg data]]
+Determine if the data exceed the control limits for the xbar chart.
+[nl]
+Returns a list of subsamples (their indices) that indeed violate the
+limits.
+[nl]
+[arg control] - Control limits as returned by the "control-xbar" procedure
+[nl]
+[arg data] - List of observed data
+[nl]
+
+[call [cmd ::math::statistics::test-Rchart] [arg control] [arg data]]
+Determine if the data exceed the control limits for the R chart.
+[nl]
+Returns a list of subsamples (their indices) that indeed violate the
+limits.
+[nl]
+[arg control] - Control limits as returned by the "control-Rchart" procedure
+[nl]
+[arg data] - List of observed data
+[nl]
+
 [list_end]
 
 [section "STATISTICAL DISTRIBUTIONS"]
