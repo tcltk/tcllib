@@ -1,12 +1,24 @@
 # elliptic.tcl --
-#    Compute elliptic integrals
+#    Compute elliptic functions and integrals
+#
+#    Computation of elliptic functions cn, dn and sn
+#    adapted from:
+#        Michael W. Pashea
+#        Numerical computation of elliptic functions
+#        Doctor Dobbs' Journal, May 2005
 #
 
 # namespace ::math::special
 #
 namespace eval ::math::special {
+    namespace export cn sn dn
+
     ::math::constants::constants pi
+
     variable halfpi [expr {$pi/2.0}]
+    variable tol
+
+    set tol 1.0e-10
 }
 
 # elliptic_K --
@@ -85,6 +97,127 @@ proc ::math::special::elliptic_E {k} {
 
    set Kk [expr {$halfpi/$a}]
    return [expr {(1.0-$sumc)*$Kk}]
+}
+
+namespace eval ::math::special {
+}
+
+# Nextk --
+#     Auxiliary function for computing next value of k
+#
+# Arguments:
+#     k           Parameter
+# Return value:
+#     Next value to be used
+#
+proc ::math::special::Nextk { k } {
+    set ksq [expr {sqrt(1.0-$k*$k)}]
+    return [expr {(1.0-$ksq)/(1+$ksq)}]
+}
+
+# IterateUK --
+#     Auxiliary function to compute the raw value (phi)
+#
+# Arguments:
+#     u           Independent variable
+#     k           Parameter
+# Return value:
+#     phi
+#
+proc ::math::special::IterateUK { u k } {
+    variable tol
+    set kvalues {}
+    set nmax    1
+    while { $k > $tol } {
+        set k [Nextk $k]
+        set kvalues [concat $k $kvalues]
+        set u [expr {$u*2.0/(1.0+$k)}]
+        incr nmax
+        puts "$nmax -$u - $k"
+    }
+    foreach k $kvalues {
+        set u [expr {( $u + asin($k*sin($u)) )/2.0}]
+    }
+    return $u
+}
+
+# cn --
+#     Compute the elliptic function cn
+#
+# Arguments:
+#     u           Independent variable
+#     k           Parameter
+# Return value:
+#     cn(u,k)
+# Note:
+#     If k == 1, then the iteration does not stop
+#
+proc ::math::special::cn { u k } {
+    if { $k > 1.0 } {
+        return -code error "Parameter out of range - must be <= 1.0"
+    }
+    if { $k == 1.0 } {
+        return [expr {1.0/cosh($u)}]
+    } else {
+        set u [IterateUK $u $k]
+        return [expr {cos($u)}]
+    }
+}
+
+# sn --
+#     Compute the elliptic function sn
+#
+# Arguments:
+#     u           Independent variable
+#     k           Parameter
+# Return value:
+#     sn(u,k)
+# Note:
+#     If k == 1, then the iteration does not stop
+#
+proc ::math::special::sn { u k } {
+    if { $k > 1.0 } {
+        return -code error "Parameter out of range - must be <= 1.0"
+    }
+    if { $k == 1.0 } {
+        return [expr {tanh($u)}]
+    } else {
+        set u [IterateUK $u $k]
+        return [expr {sin($u)}]
+    }
+}
+
+# dn --
+#     Compute the elliptic function sn
+#
+# Arguments:
+#     u           Independent variable
+#     k           Parameter
+# Return value:
+#     dn(u,k)
+# Note:
+#     If k == 1, then the iteration does not stop
+#
+proc ::math::special::sn { u k } {
+    if { $k > 1.0 } {
+        return -code error "Parameter out of range - must be <= 1.0"
+    }
+    if { $k == 1.0 } {
+        return [expr {1.0/cosh($u)}]
+    } else {
+        set u [IterateUK $u $k]
+        return [expr {sqrt(1.0-$k*$k*sin($u)}]
+    }
+}
+
+
+# main --
+#    Simple tests
+#
+if { 0 } {
+puts "Special cases:"
+puts "cos(1):    [::math::special::cn 1.0 0.0] -- [expr {cos(1.0)}]"
+puts "1/cosh(1): [::math::special::cn 1.0 0.999] -- [expr {1.0/cosh(1.0)}]"
 }
 
 # some tests --

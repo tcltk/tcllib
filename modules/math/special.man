@@ -69,6 +69,9 @@ Bessel       | J0, J1,     | all of R    | n = integer |   < 1.0e-8
 Bessel       | J1/2, J-1/2,|  x > 0      | n = integer |   exact
 Bessel       | I_n         | all of R    | n = integer |   < 1.0e-6
              |             |             |             |
+Elliptic     | cn          | 0 <= x <= 1 |     --      |   < 1.0e-10
+functions    | dn          | 0 <= x <= 1 |     --      |   < 1.0e-10
+             | sn          | 0 <= x <= 1 |     --      |   < 1.0e-10
 Elliptic     | K           | 0 <= x < 1  |     --      |   < 1.0e-6
 integrals    | E           | 0 <= x < 1  |     --      |   < 1.0e-6
              |             |             |             |
@@ -222,6 +225,36 @@ the argument "x"
 [list_begin arg]
 [arg_def int x] Positive integer order of the function
 [arg_def float x] Argument for the function
+[list_end]
+
+[call [cmd ::math::special::cn] [arg u] [arg k]]
+
+Compute the elliptic function [emph cn] for the argument "u" and
+parameter "k".
+
+[list_begin arg]
+[arg_def float u] Argument for the function
+[arg_def float k] Parameter
+[list_end]
+
+[call [cmd ::math::special::dn] [arg u] [arg k]]
+
+Compute the elliptic function [emph dn] for the argument "u" and
+parameter "k".
+
+[list_begin arg]
+[arg_def float u] Argument for the function
+[arg_def float k] Parameter
+[list_end]
+
+[call [cmd ::math::special::sn] [arg u] [arg k]]
+
+Compute the elliptic function [emph sn] for the argument "u" and
+parameter "k".
+
+[list_begin arg]
+[arg_def float u] Argument for the function
+[arg_def float k] Parameter
 [list_end]
 
 [call [cmd ::math::special::elliptic_K] [arg k]]
