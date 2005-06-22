@@ -1,3 +1,10 @@
+2005-06-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Fixed a bug in find, where it excluded symbolic
+	* fileutil.tcl:  links if the destination was circular. This is
+	  wrong. The link itself can be listed in the result, it just must
+	  not be followed. Otherwise even non-circular links are not listed.
+
 2005-02-14  Andreas Kupries <andreask@activestate.com>
 
 	* fileutil.man (find): Documented the implicit arguments to the
@@ -80,7 +87,7 @@
 2005-01-26  David N. Welton  <davidw@dedasys.com>
 
 	* fileutil.man: Added a small note on the measure used to count
-	elements in fileutil::stripN.
+	  elements in fileutil::stripN.
 
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

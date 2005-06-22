@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.29 2005/02/11 05:08:53 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.30 2005/06/22 02:36:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -139,9 +139,13 @@ test find-1.5 {handling of circular links} {unix} {
     catch {file delete -force [file join $dir {find 1} {find 2} {file 3}]}
     exec ln -s [file join .. {find 2}] [file join $dir {find 1} {find 2} {file 3}]
 
-    # Find has to skip '{file 3}'
+    # Find has to skip '{file 3}'. Actually not. It should include
+    # {file 3} itself in the result, but must not follow it further.
+
     lsort [fileutil::find [file join $dir {find 1}]]
-} [list [file join $dir {find 1} {file [1]}] [file join $dir {find 1} {find 2}] \
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2}] \
+	[file join $dir {find 1} {find 2} {file 3}] \
 	[file join $dir {find 1} {find 2} {file* 2}]]
 
 test find-1.6 {find file} {
@@ -179,7 +183,10 @@ test find-2.1 {find by pattern} {
 
 test find-2.2 {find by pattern} {macOrUnix} {
     lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]
-} [list [file join $dir {find 1} {file [1]}] [file join $dir {find 1} {find 2} {file* 2}]]
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2} {file 3}] \
+	[file join $dir {find 1} {find 2} {file* 2}] \
+	]
 
 test find-2.3 {find by pattern} {win} {
     lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]

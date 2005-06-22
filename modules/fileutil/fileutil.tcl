@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.48 2005/02/11 05:08:53 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.49 2005/06/22 02:36:36 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -204,7 +204,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 		# non-existing target) or not readable, i.e. inaccessible. In both
 		# cases it makes sense to ignore them.
 
-		if {[catch {file stat [set full [file join $cwd $filename]] stat}]} {
+		if {[catch {file lstat [set full [file join $cwd $filename]] stat}]} {
 		    continue
 		}
 
@@ -304,7 +304,7 @@ if {[string compare unix $tcl_platform(platform)]} {
 		# non-existing target) or not readable, i.e. inaccessible. In both
 		# cases it makes sense to ignore them.
 
-		if {[catch {file stat [set full [file join $cwd $filename]] stat}]} {
+		if {[catch {file lstat [set full [file join $cwd $filename]] stat}]} {
 		    continue
 		}
 
