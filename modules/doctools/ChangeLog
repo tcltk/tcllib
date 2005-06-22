@@ -19,6 +19,27 @@
 	* docidx.tcl: 
 	* doctoc.tcl: 
 
+2005-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_nroff.tcl: Fixed problem with comment
+	  handling. Before the fix we could generate output where nroff
+	  would misinterpret a string in apostrophes at the beginning of a
+	  line as comment. Regular comments now have the special \1
+	  quoting for markup.
+
+	* fmt.nroff: Fixed list processing. The commands stating list
+	  items needed newlines to ensure proper separation if the input
+	  has text immediately following the command, and not on the next
+	  line. Superfluous newlines coming from text stating in the next
+	  line is automatically excised during post-processing.
+
+2005-01-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_nroff.tcl: Extended the post processing to regularize
+	  confusing *roff formatting at the beginning of lines. This fixes
+	  Tcllib SF Bug 1094294, which was reported by Rolf Ade
+	  <pointsman@users.sourceforge.net>.
+
 2005-01-11  Andreas Kupries <andreask@activestate.com>
 
 	* mpformats/fmt.nroff:  Fixed bad nroff formatting for examples
