@@ -8,7 +8,7 @@
 [para]
 
 This package is an implementation in Tcl of the Blowfish algorithm
-developed by Brice Schneier [lb]1[rg]. Blowfish is a 64-bit block cipher
+developed by Brice Schneier [lb]1[rb]. Blowfish is a 64-bit block cipher
 designed to operate quickly on 32 bit architectures and accepting a
 variable key length. This implementation supports ECB and CBC mode
 blowfish encryption.
