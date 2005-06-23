@@ -1963,6 +1963,8 @@ namespace eval ::math::bigfloat {
         namespace export $function
     }
 }
-namespace import ::math::bigfloat::*
+
+# (AM) No "namespace import" - this should be left to the user!
+#namespace import ::math::bigfloat::*
 
 package provide math::bigfloat 1.2
