@@ -365,7 +365,7 @@ test "Median-1.3" "Median - missing data" -body {
    set median [::math::statistics::median $data]
 } -result 1.5
 
-test "test2x2-1.0" "Test 2x2" -match tolerant -body {
+test "test-2x2-1.0" "Test 2x2" -match tolerant -body {
    set data [::math::statistics::test-2x2 170 94 30 6]
 } -result 5.1136364
 

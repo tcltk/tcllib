@@ -1,3 +1,10 @@
+2005-06-23  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * bigfloat.tcl: Removed the namespace import statement
+        * bigfloat.test: Explicitly import the bigfloat procedures
+        * qcomplex.test: Force the import of complex number procedures
+                         (conflict with bigfloat's sqrt)
+
 2005-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* statistics.test: Corrected typos in the test suite for the new
