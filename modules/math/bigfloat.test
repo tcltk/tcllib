@@ -249,6 +249,22 @@ proc testSuite {} {
     rename ceilTest ""
     
     ################################################################################
+    # BigInt to BigFloat conversion
+    ################################################################################
+    proc convTest {x {decimals 1}} {
+        assert int2float {tostr [int2float [fromstr $x] $decimals]} \
+                $x.[string repeat 0 [expr {$decimals-1}]]
+    }
+    foreach decimals {1 2 5 10 100} {
+        assert int2float {tostr [int2float [fromstr 0] $decimals]} 0
+        convTest 1 $decimals
+        convTest 5 $decimals
+        convTest 5000000000 $decimals
+    }
+    #cleanup
+    rename convTest ""
+    
+    ################################################################################
     # addition
     ################################################################################
     proc addTest {x y} {
