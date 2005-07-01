@@ -1080,6 +1080,28 @@ proc ::math::bigfloat::intIncr {n} {
 }
 
 ################################################################################
+# converts a BigInt into a BigFloat with a given decimal precision
+################################################################################
+proc ::math::bigfloat::int2float {int {decimals 1}} {
+    # it seems like we need some kind of type handling
+    # very odd in this Tcl world :-(
+    if {![isInt $int]} {
+        error "first argument is not an integer"
+    }
+    if {$decimals<1} {
+        error "non-positive decimals number"
+    }
+    # the lowest number of decimals is 1, because
+    # [tostr [fromstr 10.0]] returns 10.
+    # (we lose 1 digit when converting back to string)
+    set int [::math::bignum::mul $int [tenPow $decimals]]
+    return [_fromstr $int [expr {-$decimals}]]
+    
+}
+
+
+
+################################################################################
 # multiplies 'leftop' by 'rightop' and rshift the result by 'shift'
 ################################################################################
 proc ::math::bigfloat::intMulShift {leftop rightop shift} {
@@ -1953,7 +1975,7 @@ namespace eval ::math::bigfloat {
     foreach function {
         add mul sub div mod pow
         iszero compare equal
-        fromstr tostr todouble
+        fromstr tostr todouble int2float
         isInt isFloat
         exp log sqrt round ceil floor
         sin cos tan cotan asin acos atan
