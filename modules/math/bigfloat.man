@@ -79,6 +79,9 @@ set n [lb]fromstr 1[lb]string repeat 0 10[rb][rb]
 [call [cmd tostr] [arg number]]
 Returns a string form of a BigFloat, in which all digits are exacts,
 or the string form of a BigInt if [emph number] is not a BigFloat.
+There is an issue with number equal to zero
+(see section [sectref PRECISION]) : even if the precision about 0 is
+more than one digit, it will always be displayed as the '[emph 0]' string.
 
 [call [cmd todouble] [arg number]]
 Returns a double, that may be used in [emph expr],
@@ -89,6 +92,12 @@ Returns 1 if [emph number] is a BigInt, 0 otherwise.
 
 [call [cmd isFloat] [arg number]]
 Returns 1 if [emph number] is a BigFloat, 0 otherwise.
+
+[call [cmd int2float] [arg integer] ?[arg decimals]?]
+Converts a BigInt to a BigFloat with [emph decimals] trailing zeroes.
+When converting back to string, one decimal is lost.
+That is why the default, and minimal, number of [emph decimals] is 1.
+
 
 [list_end]
 
@@ -246,10 +255,13 @@ and never call [emph fromstr] with the result of [emph tostr].
 It is better to always keep operands in their internal representation.
 
 [section "NAMESPACES AND OTHER PACKAGES"]
-When you have to load another package, there may be a conflict between the public procedures.
-It may be slower than calling commands directly, but it might help you to use this package :
+You might import public commands with the following :
 [example_begin]
-package require math::bignum
+namespace import ::math::bigfloat::*
+[example_end]
+If you matter much about avoiding names conflicts, I considere it should be resolved by the following :
+[example_begin]
+# the math::bignum package is required by the following statement
 package require math::bigfloat
 proc bigfloat {subcmd args} {
     uplevel 1 [lb]concat ::math::bigfloat::$subcmd $args[rb]
@@ -257,7 +269,33 @@ proc bigfloat {subcmd args} {
 set a [lb]bigfloat sub [lb]bigfloat fromstr 2.000[rb] [lb]bigfloat fromstr 0.530[rb][rb]
 puts [lb]bigfloat tostr $a[rb]
 [example_end]
-It might be useful for debugging and tracing, too.
+[section "EXAMPLES"]
+Guess what happens when you are doing some astronomy. Here is an example :
+[example_begin]
+# convert acurrate angles with a millisecond-rated accuracy
+proc degree-angle {degrees minutes seconds milliseconds} {
+    set result [lb]fromstr 0[rb]
+    set div [lb]fromstr 1[rb]
+    foreach factor {1 1000 60 60} var [lb]list $milliseconds $seconds $minutes $degrees[rb] {
+        # we convert each entry var into milliseconds
+        set factor [lb]fromstr $factor[rb]
+        set div [lb]mul $div $factor[rb]
+        set result [lb]add $result [lb]mul [lb]fromstr $var[rb] $div[rb][rb]
+    }
+    return [lb]div [lb]int2float $result[rb] $div[rb]
+}
+# load the package
+package require math::bigfloat
+namespace import ::math::bigfloat::*
+# work with angles : a standard formula for navigation (taking bearings)
+set angle1 [lb]deg2rad [lb]degree-angle 20 30 40   0[rb][rb]
+set angle2 [lb]deg2rad [lb]degree-angle 21  0 50 500[rb][rb]
+set opposite3 [lb]deg2rad [lb]degree-angle 51  0 50 500[rb][rb]
+set sinProduct [lb]mul [lb]sin $angle1[rb] [lb]sin $angle2[rb][rb]
+set cosProduct [lb]mul [lb]cos $angle1[rb] [lb]cos $angle2[rb][rb]
+set angle3 [lb]asin [lb]add [lb]mul $sinProduct [lb]cos $opposite3[rb][rb] $cosProduct[rb][rb]
+puts "angle3 : [lb]tostr [lb]rad2deg $angle3[rb][rb]"
+[example_end]
 [keywords tcl multiprecision math floating-point]
 
 [manpage_end]
