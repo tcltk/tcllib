@@ -1,6 +1,6 @@
 ########################################################################
 # BigFloat for Tcl
-# Copyright (C) 2003-2004  ARNOLD Stephane
+# Copyright (C) 2003-2005  ARNOLD Stephane
 #
 # BIGFLOAT LICENSE TERMS
 #
@@ -45,8 +45,8 @@
 #
 ########################################################################
 
-package require math::bignum
 package require math::bigfloat
+namespace import ::math::bigfloat::*
 
 set nbButtons 0
 proc addButton {command} {
@@ -138,7 +138,7 @@ proc drawStack {args} {
 }
 
 proc init {} {
-    wm title . "BigFloatDemo 1.1"
+    wm title . "BigFloatDemo 1.2"
     # the stack (for RPN)
     frame .stack
     pack .stack
@@ -192,6 +192,7 @@ proc init {} {
     addButtonOne pi
     addButtonOne rad2deg
     addButtonOne deg2rad
+    addButtonOne int2float
     addButton del
     addButton swap
     addButton help
