@@ -1,6 +1,6 @@
 ########################################################################
 # BigFloat for Tcl
-# Copyright (C) 2003-2004  ARNOLD Stephane
+# Copyright (C) 2003-2005  ARNOLD Stephane
 #
 # BIGFLOAT LICENSE TERMS
 #
