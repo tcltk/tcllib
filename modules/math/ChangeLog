@@ -1,4 +1,9 @@
 2005-07-01  Stephane Arnold <sarnold75@users.sourceforge.net>
+	* bigfloat.man,bigfloat.test,bigfloat.tcl : updated
+	  copyright 2005
+	* bigfloat.man : put the correct package version (1.2)
+
+2005-07-01  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat.tcl : new [int2float] conversion procedure
 	* bigfloat.test : updated test suite for the new procedure
