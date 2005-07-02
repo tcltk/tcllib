@@ -1,5 +1,5 @@
-[manpage_begin math::bigfloat n 1.1]
-[copyright {2004 Stephane Arnold <stephanearnold at yahoo dot fr>}]
+[manpage_begin math::bigfloat n 1.2]
+[copyright {2004-2005 Stephane Arnold <stephanearnold at yahoo dot fr>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Arbitrary precision floating-point numbers}]
 
