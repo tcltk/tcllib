@@ -13,7 +13,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.6
+package provide logger 0.6.1
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -39,6 +39,30 @@ if {[package vcompare [package provide Tcl] 8.4] < 0} {
     proc ::logger::_nsExists {ns} {
         namespace exists $ns
     }
+}
+
+# ::logger::_cmdPrefixExists --
+#
+# Utility function to check if a given callback prefix exists,
+# this should catch all oddities in prefix names, including spaces, 
+# glob patterns, non normalized namespaces etc.
+#
+# Arguments:
+#   prefix - The command prefix to check
+#   
+# Results:
+#   1 or 0 for yes or no
+#
+proc ::logger::_cmdPrefixExists {prefix} {
+    set cmd [lindex $prefix 0]
+    set full [namespace eval :: namespace which [list $cmd]]
+    if {[string equal $full ""]} {return 0} else {return 1}
+    # normalize namespaces
+    set ns [namespace qualifiers $cmd]
+    set cmd ${ns}::[namespace tail $cmd]
+    set matches [::info command ${ns}::*]
+    if {[lsearch -exact $matches $cmd] != -1} {return 1}
+    return 0
 }
 
 # ::logger::walk --
@@ -90,17 +114,17 @@ proc ::logger::init {service} {
     variable enabled "debug"
 
     # Callback to use when the service in question is shut down.
-    variable delcallback {}
+    variable delcallback [namespace current]::no-op
 
     # Callback when the loglevel is changed
-    variable levelchangecallback {}
+    variable levelchangecallback [namespace current]::no-op
     
     # State variable to decide when to call levelcallback
     variable inSetLevel 0
     
     # The currently configured levelcommands
-    variable lvlcmds
-    
+    variable lvlcmds 
+    array set lvlcmds {}
     # We use this to disable a service completely.  In Tcl 8.4
     # or greater, by using this, disabled log calls are a
     # no-op!
@@ -288,7 +312,13 @@ proc ::logger::init {service} {
         
         switch -exact -- [llength [::info level 0]] {
                 1   {return $levelchangecallback}
-                2   {set levelchangecallback [lindex $args 0]}
+                2   {
+                     if {[::logger::_cmdPrefixExists [lindex $args 0]]} {
+                        set levelchangecallback [lindex $args 0]
+                     } else {
+                        return -code error "Invalid cmd '[lindex $args 0]' - does not exist"
+                     }    
+                    }
                 default {
                     return -code error "Wrong # of arguments. Usage: \${log}::lvlchangeproc ?cmd?"
                 }
@@ -303,9 +333,13 @@ proc ::logger::init {service} {
         
         # no action if level does not change
         if {[string equal $old $new]} {return}
+        
         variable levelchangecallback
+        # no action if levelchangecallback isn't a valid command
+        if {[::logger::_cmdPrefixExists $levelchangecallback]} {
         catch {
-            uplevel #0 $levelchangecallback $old $new
+            uplevel \#0 [linsert $levelchangecallback end $old $new]
+        }
         }
     }
     
@@ -348,6 +382,7 @@ proc ::logger::init {service} {
            }
         1  {
             set cmd [lindex $args 0]
+            if {[string equal "[namespace current]::${lv}cmd" $cmd]} {return} 
             if {[llength [::info commands $cmd]]} {
                 proc ${lv}cmd {args} "uplevel 1 \[list $cmd \[lindex \$args end\]\]"
             } else {
@@ -390,7 +425,12 @@ proc ::logger::init {service} {
         
         switch -exact -- [llength [::info level 0]] {
                 1   {return $delcallback}
-                2   {set delcallback [lindex $args 0]}
+                2   { if {[::logger::_cmdPrefixExists [lindex $args 0]]} {
+                            set delcallback [lindex $args 0]
+                      } else {
+                        return -code error "Invalid cmd '[lindex $args 0]' - does not exist"                      
+                      }
+                    }
                 default {
                     return -code error "Wrong # of arguments. Usage: \${log}::delproc ?cmd?"
                 }
@@ -405,10 +445,11 @@ proc ::logger::init {service} {
     proc delete {} {
         variable delcallback
         variable service
-
-        logger::walk [namespace current] delete
-        catch { uplevel \#0 $delcallback }
         
+        logger::walk [namespace current] delete
+        if {[::logger::_cmdPrefixExists $delcallback]} {
+             uplevel \#0 [lrange $delcallback 0 end]  
+        } 
         # clean up the global services list
         set idx [lsearch -exact [logger::services] $service]
         if {$idx !=-1} {

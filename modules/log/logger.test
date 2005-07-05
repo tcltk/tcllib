@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.20 2005/03/04 16:44:13 mic42 Exp $
+# $Id: logger.test,v 1.21 2005/07/05 13:50:29 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -15,7 +15,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 set auto_path "[file dirname [info script]] $auto_path"
-package require logger 0.4
+package require logger 
 
 test logger-1.0 {init basic} {
     set log [logger::init global]
@@ -88,6 +88,15 @@ test logger-2.3 {delproc introspection} {
     ${log}::delete
     set cmd
 } {dellog ::logger::tree::global sock1}
+
+test logger-2.4 {delproc with nonexisting proc} {
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::delproc ""} msg]
+    ${l}::delete
+    list $code $msg
+
+} {1 {Invalid cmd '' - does not exist}}
 
 test logger-3.0 {log} {
     set log [logger::init global]
@@ -975,7 +984,7 @@ test logger-15.0 {test for logger levelchange callbacks} {
     ${l}::delete
     namespace delete ::logtest
     set default
-} {{} ::logtest::lvlchange}
+} {::logger::tree::global::no-op ::logtest::lvlchange}
 
 test logger-15.1 {test for logger levelchange callbacks} {
     set l [logger::init global]
@@ -1036,6 +1045,128 @@ test logger-15.3 {test for logger levelchange callbacks} {
     set changes
 } [list {debug info} {info notice} {notice warn} {warn error} {error critical} \
         {critical error} {error warn} {warn notice} {notice info} {info debug}]
-    
+
+test logger-15.4 {test for logger with empty levelchange callback} {
+    set ::gotcalled 0
+    proc ::debug {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc ""} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    rename ::debug ""
+    list $::gotcalled $code $msg
+} {0 1 {Invalid cmd '' - does not exist}}
+
+test logger-15.5 {test for strange callback names, glob pattern ::*} {
+    set ::gotcalled 0
+    proc ::* {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc ::*} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    rename ::* ""
+    list $::gotcalled $code $msg
+} {1 0 ::*}
+
+test logger-15.6 {test for other [] glob pattern} {
+    set ::gotcalled 0
+    proc ::\[info\] {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::[info]}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    rename {::[info]} ""
+    list $::gotcalled $code $msg
+} {1 0 {::[info]}}
+
+test logger-15.7 {test for spaces in commands support} {
+    set ::gotcalled 0
+    proc what\ a\ stupid\ proc {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc [list {what a stupid proc}]} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    rename {what a stupid proc} ""
+    list $::gotcalled $code $msg
+} {1 0 {{what a stupid proc}}}
+
+test logger-15.8 {test for other []* glob pattern} {
+    set ::gotcalled 0
+    proc ::\[info\]* {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::[info]*}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    rename {::[info]*} ""
+    list $::gotcalled $code $msg
+} {1 0 {::[info]*}}
+
+test logger-15.9 {test for other []* glob pattern} {
+    set ::gotcalled 0
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::[info]*}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    list $::gotcalled $code $msg
+} {0 1 {Invalid cmd '::[info]*' - does not exist}}
+
+test logger-15.10 {test for non normalized namespace names} {
+    set ::gotcalled 0
+    namespace eval ::logtest {}
+    proc ::logtest::test {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::::logtest:::test}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    namespace delete ::logtest
+    list $::gotcalled $code $msg
+} {1 0 ::::logtest:::test}
+
+test logger-15.11 {test for non normalized namespace names} {
+    set ::gotcalled 0
+    namespace eval ::logtest {}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::::logtest:::test}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    namespace delete ::logtest
+    list $::gotcalled $code $msg
+} {0 1 {Invalid cmd '::::logtest:::test' - does not exist}}
+
+test logger-15.12 {test for namespace with glob pattern} {
+    set ::gotcalled 0
+    namespace eval ::logtest {}
+    namespace eval ::logtest::* {}
+    proc ::logtest::*::test {args} {set ::gotcalled 1}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::logtest::*::test}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    namespace delete ::logtest
+    list $::gotcalled $code $msg
+} {1 0 ::logtest::*::test}
+
+test logger-15.13 {test for namespace with glob pattern} {
+    set ::gotcalled 0
+    namespace eval ::logtest {}
+    namespace eval ::logtest::* {}
+    set l [logger::init global]
+    ${l}::setlevel [lindex [logger::levels] 0]
+    set code [catch {${l}::lvlchangeproc {::logtest::*::test}} msg]
+    ${l}::setlevel warn
+    ${l}::delete
+    namespace delete ::logtest
+    list $::gotcalled $code $msg
+} {0 1 {Invalid cmd '::logtest::*::test' - does not exist}}
+
 ::tcltest::cleanupTests
 return
