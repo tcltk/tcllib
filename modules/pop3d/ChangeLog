@@ -1,3 +1,9 @@
+2005-07-06  Reinhard Max  <max@suse.de>
+
+	* pop3d.tcl:  Added a -socket option to server objects, so that
+	* pop3d.man:  e.g. SSL sockets from the tls extension can be
+	* pop3d.test: used. Bumped version number to 1.1.0.
+ 
 2004-10-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: Made verbosity easier to switch, and log output a

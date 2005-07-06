@@ -150,6 +150,11 @@ server will claim that all mailboxes are empty. The interface which
 has to be provided by the command prefix is described in section
 [sectref MAILBOXES].
 
+[lst_item "[option -socket] [arg command]"]
+Defines a [arg command] prefix to call for opening the listening socket.
+This can be used to make the pop3 server listen on a SSL socket
+as provided by the tls package.
+
 [list_end]
 
 [section AUTHENTICATION]
