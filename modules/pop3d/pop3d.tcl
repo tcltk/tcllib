@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.17 2004/10/20 04:57:34 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.18 2005/07/06 17:41:58 rmax Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -34,6 +34,7 @@ namespace eval ::pop3d {
     # sock    - listening socket
     # authCmd - authentication callback
     # storCmd - storage callback
+    # sockCmd - command prefix for openin the server socket
     # state   - state of the server (up, down, exiting)
     # conn    - map : sock -> state array
     # counter - counter for state arrays
@@ -62,7 +63,7 @@ namespace eval ::pop3d {
 	    "up"		\
 	    ]
 
-    variable version ; set version 1.0.3
+    variable version ; set version 1.1.0
     variable server  "tcllib/pop3d-$version"
 
     variable cmdMap ; array set cmdMap {
@@ -112,6 +113,7 @@ proc ::pop3d::new {{name ""}} {
 	variable port     110
 	variable trueport 110
 	variable sock     {}
+	variable sockCmd  socket
 	variable authCmd  {}
 	variable storCmd  {}
 	variable state    down
@@ -169,6 +171,7 @@ proc ::pop3d::_up {name} {
     upvar ::pop3d::pop3d::${name}::port     port
     upvar ::pop3d::pop3d::${name}::trueport trueport
     upvar ::pop3d::pop3d::${name}::state    state
+    upvar ::pop3d::pop3d::${name}::sockCmd  sockCmd
     upvar ::pop3d::pop3d::${name}::sock     sock
 
     log::log debug "pop3d $name up"
@@ -176,7 +179,10 @@ proc ::pop3d::_up {name} {
 
     log::log debug "pop3d $name listening, requested port $port"
 
-    set s [socket -server [list ::pop3d::HandleNewConnection $name] $port]
+    set cmd $sockCmd
+    lappend cmd -server [list ::pop3d::HandleNewConnection $name] $port
+    puts $cmd
+    set s [eval $cmd]
     set trueport [lindex [fconfigure $s -sockname] 2]
 
     ::log::log debug "pop3d $name listening on $trueport, socket $s ([fconfigure $s -sockname])"
@@ -285,10 +291,14 @@ proc ::pop3d::_cget {name anoption} {
 	    upvar ::pop3d::pop3d::${name}::storCmd storCmd
 	    return $storCmd
 	}
+	-socket {
+	    upvar ::pop3d::pop3d::${name}::sockCmd sockCmd
+	    return $sockCmd
+	}
 	default {
 	    return -code error \
 		    "Unknown option \"$anoption\":\
-		    Expected \"-state\", \"-port\", \"-auth\", or \"-storage\""
+		    Expected \"-state\", \"-port\", \"-auth\", \"-socket\", or \"-storage\""
 	}
     }
     # return - in all branches
@@ -319,6 +329,7 @@ proc ::pop3d::_configure {name args} {
     upvar ::pop3d::pop3d::${name}::port     port
     upvar ::pop3d::pop3d::${name}::authCmd  authCmd
     upvar ::pop3d::pop3d::${name}::storCmd  storCmd
+    upvar ::pop3d::pop3d::${name}::sockCmd  sockCmd
     upvar ::pop3d::pop3d::${name}::state    state
 
     if {$argc == 0} {
@@ -327,7 +338,8 @@ proc ::pop3d::_configure {name args} {
 		-port    $trueport \
 		-auth    $authCmd  \
 		-storage $storCmd  \
-		-state   $state
+		-socket  $sockCmd \
+		-state   $state \
 		]
     }
 
@@ -337,6 +349,7 @@ proc ::pop3d::_configure {name args} {
 	switch -exact -- $option {
 	    -auth    {set authCmd $value}
 	    -storage {set storCmd $value}
+	    -socket  {set sockCmd $value}
 	    -port    {
 		set port $value
 
@@ -353,7 +366,7 @@ proc ::pop3d::_configure {name args} {
 	    default {
 		return -code error \
 			"Unknown option \"$option\":\
-			Expected \"-port\", \"-auth\", or \"-storage\""
+			Expected \"-port\", \"-auth\", \"-socket\", or \"-storage\""
 	    }
 	}
 	set args [lrange $args 2 end]
