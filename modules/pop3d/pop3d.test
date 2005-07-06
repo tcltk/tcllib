@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.12 2004/10/20 04:57:34 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.13 2005/07/06 17:41:58 rmax Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {
     return
@@ -120,13 +120,14 @@ test pop3-srv-2.0 {base configuration} {
     set res [$srv configure]
     $srv destroy
     set res
-} {-port 110 -auth {} -storage {} -state down}
+} {-port 110 -auth {} -storage {} -socket socket -state down}
 
 foreach {n opt val} {
     0 -port    110
     1 -state   down
     2 -auth    {}
     3 -storage {}
+    4 -socket  socket
 } {
     test pop3-srv-2.1.$n {cget} {
 	set srv [::pop3d::new]
@@ -146,6 +147,7 @@ foreach {n opt val} {
     0 -port    2048
     2 -auth    p3udb54
     3 -storage p3dbox128
+    4 -socket  s0ck3t
 } {
     test pop3-srv-2.3.$n {configure set/get} {
 	set srv [::pop3d::new]
@@ -165,11 +167,11 @@ test pop3-srv-2.3.1 {configure set/get} {
 
 test pop3-srv-2.4 {configure set/get} {
     set srv [::pop3d::new]
-    $srv configure -port 2048 -auth p3udb54 -storage p3dbox128
+    $srv configure -port 2048 -auth p3udb54 -storage p3dbox128 -socket s0ck3t
     set res [$srv configure]
     $srv destroy
     set res
-} {-port 2048 -auth p3udb54 -storage p3dbox128 -state down}
+} {-port 2048 -auth p3udb54 -storage p3dbox128 -socket s0ck3t -state down}
 
 test pop3-srv-2.5 {configure} {
     set srv [::pop3d::new]
