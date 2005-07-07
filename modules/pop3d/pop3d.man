@@ -165,6 +165,11 @@ of this module are able to use it.
 
 [list_begin definitions]
 
+[call [arg authCmd] [method exists] [arg name]]
+
+This method is given a user[arg name] and has to return a boolean
+value telling whether or not the specified user exists.
+
 [call [arg authCmd] [method lookup] [arg name]]
 
 This method is given a user[arg name] and has to return a two-element
