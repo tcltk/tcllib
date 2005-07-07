@@ -8,14 +8,14 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.13 2005/07/06 17:41:58 rmax Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.14 2005/07/07 17:17:24 rmax Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {
     return
 }
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
+    package require tcltest 2
     namespace import ::tcltest::*
 }
 
@@ -380,7 +380,7 @@ test pop3-srv-4.0 {connection introspection} {
 } {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
 
 
-test pop3-srv-5.0 {initial contact, greeting} {
+test pop3-srv-5.0 {initial contact, greeting} -body {
     newsrv
     dialog::dialog_set {
 	dialog::crlf.      ; # Network EOL setting
@@ -392,7 +392,7 @@ test pop3-srv-5.0 {initial contact, greeting} {
     set res [talk traceonly]
     delsrv
     set res
-} {+OK %% tcllib/pop3d-1.0.3 ready <==@%%>}
+} -result {+OK %% tcllib/pop3d-* ready <==@%%>} -match glob
 
 
 test pop3-srv-6.0 {unknown command} {
@@ -425,7 +425,7 @@ array set cstate {
 }
 array set log {
     0  {+OK please send PASS command}
-    1  {+OK %% tcllib/pop3d-1.0.3 shutting down}
+    1  {+OK %% tcllib/pop3d-* shutting down}
     2  {-ERR client not authenticated}
     3  {-ERR authentication failed, sorry}
     4  {-ERR login mechanism USER/PASS was chosen}
@@ -441,29 +441,31 @@ array set log {
     14 {+OK 1 1}
     15 {+OK 3 messages 1 1 2 1 3 1}
     16 {+OK 0 messages}
+    17 {+OK Capability list follows}
 }
 
 # ======================================================================
 # ======================================================================
 # AUTHORIZATION state - Initial state, after the greeting.
-# Allowed commands: USER, APOP, QUIT
+# Allowed commands: USER, APOP, QUIT, CAPA
 # Not permitted:    PASS, STAT, DELE, RETR, TOP, RSET, LIST, NOOP
 # 
 
 foreach {n cmd lidx cidx} {
-    0  {USER foo}     0 0
-    1  {APOP foo bar} 3 3
-    2  {QUIT}         1 2
-    3  {STAT}         2 1
-    4  {DELE 1}       2 1
-    5  {RETR 1}       2 1
-    6  {TOP 1 10}     2 1
-    7  {RSET}         2 1
-    8  {LIST}         2 1
-    9  {NOOP}         2 1
-    10 {PASS xxx}     3 1
+    0  {USER foo}      0 0
+    1  {APOP foo bar}  3 3
+    2  {QUIT}          1 2
+    3  {STAT}          2 1
+    4  {DELE 1}        2 1
+    5  {RETR 1}        2 1
+    6  {TOP 1 10}      2 1
+    7  {RSET}          2 1
+    8  {LIST}          2 1
+    9  {NOOP}          2 1
+    10 {PASS xxx}      3 1
+    11 {CAPA}         17 1
 } {
-    test pop3-srv-7.0.$n "auth, $cmd" {
+    test pop3-srv-7.0.$n "auth, $cmd" -body {
 	newfsrv
 	dialog::dialog_set {
 	    dialog::crlf.      ; # Network EOL setting
@@ -476,7 +478,7 @@ foreach {n cmd lidx cidx} {
 	set res [talk trace+res]
 	delfsrv
 	set res
-    } [list $log($lidx) $cstate($cidx)] ; # {}
+    } -match glob -result [list $log($lidx) $cstate($cidx)]
 }
 
 # ----------------------------------------------------------------------
@@ -570,7 +572,7 @@ foreach {n user pass lidx cidx} {
 # ======================================================================
 # ======================================================================
 # TRANSACTION state - after successful authentication.
-# Allowed commands: QUIT, STAT, DELE, RETR, TOP, RSET, LIST, NOOP
+# Allowed commands: QUIT, STAT, DELE, RETR, TOP, RSET, LIST, NOOP, CAPA
 # Not permitted:    USER, PASS, APOP
 # 
 
@@ -585,8 +587,9 @@ foreach {n cmd lidx cidx} {
     7  {RSET}         12 4
     9  {NOOP}         11 4
     10 {PASS xxx}      7 4
+    11 {CAPA}         17 4
 } {
-    test pop3-srv-7.5.$n "trans, $cmd" {
+    test pop3-srv-7.5.$n "trans, $cmd" -body {
 	newfsrv
 	dialog::dialog_set {
 	    dialog::crlf.      ; # Network EOL setting
@@ -601,7 +604,7 @@ foreach {n cmd lidx cidx} {
 	set res [talk trace+res]
 	delfsrv
 	set res
-    } [list $log($lidx) $cstate($cidx)] ; # {}
+    }  -match glob -result [list $log($lidx) $cstate($cidx)]
 }
 
 # ======================================================================

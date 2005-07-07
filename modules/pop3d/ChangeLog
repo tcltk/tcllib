@@ -1,3 +1,16 @@
+2005-07-07  Reinhard Max  <max@suse.de>
+
+	* pop3d.test: Using wildcards in some expected results so that
+	they don't need adjustments every time the version number is
+	bumped. Added tests for CAPA.
+ 
+	* pop3d.tcl: Added basic support for the CAPA command as specified
+	in RFC2449. Cleaned up and optimized pop3d::Transfer.
+	
+	* pop3d.man: Added documentation for [autCmd exists].
+
+	* rfc2449.txt: New file: "POP3 Extension Mechanism".
+	
 2005-07-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.man: Bumped version number to 1.1.0.
