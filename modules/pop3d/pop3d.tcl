@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.18 2005/07/06 17:41:58 rmax Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.19 2005/07/07 17:17:24 rmax Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -67,6 +67,7 @@ namespace eval ::pop3d {
     variable server  "tcllib/pop3d-$version"
 
     variable cmdMap ; array set cmdMap {
+	CAPA H_capa
 	USER H_user
 	PASS H_pass
 	APOP H_apop
@@ -79,6 +80,18 @@ namespace eval ::pop3d {
 	RSET H_rset
 	LIST H_list
     }
+
+    # Capabilities to be reported by the CAPA command. The list
+    # contains pairs of capability strings and the connection state in
+    # which they are reported. The state can be "auth", "trans", or
+    # "both".
+    variable capabilities \
+	[list \
+	     USER			both \
+	     PIPELINING			both \
+	     "IMPLEMENTATION $server"	trans \
+	    ]
+    
     # -- UIDL -- not implemented --
 
     # Only export one command, the one used to instantiate a new server
@@ -565,6 +578,26 @@ proc ::pop3d::Respond2Client {name sock ok wtext} {
 ##########################
 # Command implementations.
 
+proc ::pop3d::H_capa {name sock cmd line} {
+    # @c Handle CAPA command.
+
+    # Capabilities should better be configurable and handled per
+    # server object, so that e.g. USER/PASS authentication can be
+    # turned off.
+
+    upvar cstate cstate
+    variable capabilities
+
+    Respond2Client $name $sock +OK "Capability list follows"
+    foreach {capability state} $capabilities {
+	if {$state eq "both" || $state eq $cstate(state)} {
+	    puts $sock $capability
+	}
+    }
+    puts $sock .
+    return
+}
+
 proc ::pop3d::H_user {name sock cmd line} {
     # @c Handle USER command.
     #
@@ -1043,8 +1076,6 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
     upvar cstate cstate
     upvar ::pop3d::pop3d::${name}::storCmd storCmd
 
-    fileevent $sock readable {}
-
     if {$limit < 0} {
 	Respond2Client $name $sock +OK \
 		"[uplevel #0 [linsert $storCmd end \
@@ -1063,15 +1094,15 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 
 	log::log debug "pop3d $name Transfer $msgid /full"
 
-	#::mime::copymessage $token $sock
-
 	# We do "."-stuffing here. This is not in the scope of the
 	# MIME library we use, but a transport dependent thing.
 
-	log::log debug "([string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n])"
-
-	puts $sock [string trimright [string map [list "\n." "\n.."] [mime::buildmessage $token]] \n]
+	set msg [string trimright [string map [list "\n." "\n.."] \
+				       [mime::buildmessage $token]] \n]
+	log::log debug "($msg)"
+	puts $sock $msg
 	puts $sock .
+
     } else {
 	# As long as FR #531541 is not implemented we have to build
 	# the entire message in memory and then cut it down to the
@@ -1094,8 +1125,7 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
 	regsub -- "\n\\.\n$" [string map [list "\n." "\n.."] [join [lrange $msg 0 $limit] \n]] {} data
 	puts $sock ${data}\n.
     }
-    fileevent $sock readable [list ::pop3d::HandleCommand $name $sock]
-    ::log::log debug "pop3d $name $sock transfer complete, listening again"
+    ::log::log debug "pop3d $name $sock transfer complete"
     # response already sent.
     return
 }
