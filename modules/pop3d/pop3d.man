@@ -1,10 +1,10 @@
 [comment {-*- tcl -*-}]
-[manpage_begin pop3d n 1.0.3]
+[manpage_begin pop3d n 1.1.0]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Tcl POP3 server implementation}]
 [require Tcl 8.3]
-[require pop3d [opt 1.0.3]]
+[require pop3d [opt 1.1.0]]
 [description]
 [para]
 
