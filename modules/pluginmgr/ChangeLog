@@ -1,0 +1,29 @@
+2005-07-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pluginmgr.tcl: Added and documented option -setup,
+	* pluginmgr.man: and clone method.
+
+2005-06-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pluginmgr.tcl: Validation now reports missing API commands. Set
+	  plugin name before external check, so that the callback can use
+	  'do' when inspecting the plugin. Command setup has no need for
+	  alias deletion, interpreters are always new and clean.
+
+	* plugin.tcl: Changed completely to a package based approach,
+	* plugin.man: using the safe base for proper package
+	  handling. Plugins are packages. Framework has to perform only
+	  validation and initialization, not search.
+
+2005-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* plugin.tcl: Updated to changed method names in path, added
+	* plugin.man: method 'interpreter', and fixed bug in alias
+	  creation.
+
+2005-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* plugin.man: New module for the management of plugins.
+	* plugin.tcl:
+	* pkgIndex.tcl:
+
