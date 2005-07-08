@@ -1,3 +1,7 @@
+2005-07-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/pluginmgr:  New module for the management of plugins.
+
 2005-04-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installer.tcl: Fixed installer, updated to the new file and API
