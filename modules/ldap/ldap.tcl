@@ -36,11 +36,15 @@
 #
 #
 #   $Log: ldap.tcl,v $
+#   Revision 1.7  2005/07/20 11:58:17  mic42
+#      * ldap.tcl: Applied fix for bug 1239915. Thanks to Pierre David for the patch.
+#      * pkgIndex.tcl: Version raised to 1.2.1
+#
 #   Revision 1.6  2005/03/16 18:21:51  andreas_kupries
 #
-#   	* ldap.tcl (ldap::asnGetInteger): Fixed [SF Tcllib Bug 1164663], a
-#   	  copy/paste bug in the definition of this procedure. It belongs
-#   	  into the ldap namespace, not the asn namespace.
+#       * ldap.tcl (ldap::asnGetInteger): Fixed [SF Tcllib Bug 1164663], a
+#         copy/paste bug in the definition of this procedure. It belongs
+#         into the ldap namespace, not the asn namespace.
 #
 #   Revision 1.5  2005/02/16 03:54:24  andreas_kupries
 #   Reformatting for indentation, trimmed trailing whitespace.
@@ -84,7 +88,7 @@
 #-----------------------------------------------------------------------------
 
 package require Tcl 8.4
-package provide ldap 1.2
+package provide ldap 1.2.1
 
 
 namespace eval ldap {
@@ -348,23 +352,48 @@ proc ldap::buildUpFilter { filter } {
             return [asnChoiceConstr 5 [asnOctetString $attributetype] \
                                       [asnOctetString $value]         ]
         }
-        ^[0-9A-z.]*=\\*[^*]*\\* {  #--- substrings (any) -----------------
-            regexp {^([0-9A-z.]*)=\*(.*)\*$} $first all attributetype value
-            trace "any substrings: attributetype='$attributetype' value='$value'"
+        ^[0-9A-z.]*=.*\\*.* {  #--- substrings -----------------
+            regexp {^([0-9A-z.]*)=(.*)$} $first all attributetype value
+            regsub -all {\*+} $value {*} value
+            set value [split $value "*"]
+            
+            set firstsubstrtype 0       ;# initial
+            set lastsubstrtype  2       ;# final
+            if {[string equal [lindex $value 0] ""]} {
+                set firstsubstrtype 1       ;# any
+                set value [lreplace $value 0 0]
+            }
+            if {[string equal [lindex $value end] ""]} {
+                set lastsubstrtype 1        ;# any
+                set value [lreplace $value end end]
+            }
+        
+            set n [llength $value]
+        
+            set i 1
+            set l {}
+            set substrtype 0            ;# initial
+            foreach str $value {
+            if {$i == 1 && $i == $n} {
+                if {$firstsubstrtype == 0} {
+                set substrtype 0    ;# initial
+                } elseif {$lastsubstrtype == 2} {
+                set substrtype 2    ;# final
+                } else {
+                set substrtype 1    ;# any
+                }
+            } elseif {$i == 1} {
+                set substrtype $firstsubstrtype
+            } elseif {$i == $n} {
+                set substrtype $lastsubstrtype
+            } else {
+                set substrtype 1        ;# any
+            }
+            lappend l [asnChoice $substrtype $str]
+            incr i
+            }
             return [asnChoiceConstr 4 [asnOctetString $attributetype]     \
-                                      [asnSequence [asnChoice 1 $value] ] ]
-        }
-        ^[0-9A-z.]*=[^*]*\\*$ {  #--- substrings (initial) -------------------
-            regexp {^([0-9A-z.]*)=(.*)\*$} $first all attributetype value
-            trace "initial substrings: attributetype='$attributetype' value='$value'"
-            return [asnChoiceConstr 4 [asnOctetString $attributetype]     \
-                                      [asnSequence [asnChoice 0 $value] ] ]
-        }
-        ^[0-9A-z.]*=\\*[^*]*$ {  #--- substrings (final) -----------------
-            regexp {^([0-9A-z.]*)=\*(.*)$} $first all attributetype value
-            trace "final substrings: attributetype='$attributetype' value='$value'"
-            return [asnChoiceConstr 4 [asnOctetString $attributetype]     \
-                                      [asnSequence [asnChoice 2 $value] ] ]
+                      [asnSequenceFromList $l] ]
         }
         ^[0-9A-z.]*= {  #--- equal ---------------------------------
             regexp {^([0-9A-z.]*)=(.*)$} $first all attributetype value
@@ -909,8 +938,18 @@ proc ldap::asnLength { len } {
 #-----------------------------------------------------------------------------
 proc ldap::asnSequence { args } {
 
+    return [asnSequenceFromList $args]
+}
+
+
+#-----------------------------------------------------------------------------
+#    asnSequenceFromList
+#
+#-----------------------------------------------------------------------------
+proc ldap::asnSequenceFromList { lst } {
+
     set out ""
-    foreach part $args {
+    foreach part $lst {
         append out $part
     }
     set len [string length $out]
@@ -1102,23 +1141,23 @@ proc ldap::asnGetResponse { sock data_var } {
             set lengthBytes [read $sock $len_length]
             switch $len_length {
             1 {
-		# Efficiently coded data will not go through this
-		# path, as small length values can be coded directly,
-		# without a prefix.
+        # Efficiently coded data will not go through this
+        # path, as small length values can be coded directly,
+        # without a prefix.
 
                 binary scan $lengthBytes     c length
                 set length [expr {($length + 0x100) % 0x100}]
             }
             2 {
-		binary scan $lengthBytes     S length
+        binary scan $lengthBytes     S length
                 set length [expr {($length + 0x10000) % 0x10000}]
             }
             3 {
-		binary scan \x00$lengthBytes I length
+        binary scan \x00$lengthBytes I length
                 set length [expr {($length + 0x1000000) % 0x1000000}]
             }
             4 {
-		binary scan $lengthBytes     I length
+        binary scan $lengthBytes     I length
                 set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
             }
             default {
@@ -1207,24 +1246,24 @@ proc ::ldap::asnGetLength {data_var length_var} {
 
         switch $len_length {
             1 {
-		# Efficiently coded data will not go through this
-		# path, as small length values can be coded directly,
-		# without a prefix.
+        # Efficiently coded data will not go through this
+        # path, as small length values can be coded directly,
+        # without a prefix.
 
-		binary scan $lengthBytes     c length
-		set length [expr {($length + 0x100) % 0x100}]
+        binary scan $lengthBytes     c length
+        set length [expr {($length + 0x100) % 0x100}]
             }
             2 {
-		binary scan $lengthBytes     S length
-		set length [expr {($length + 0x10000) % 0x10000}]
+        binary scan $lengthBytes     S length
+        set length [expr {($length + 0x10000) % 0x10000}]
             }
             3 {
-		binary scan \x00$lengthBytes I length
-		set length [expr {($length + 0x1000000) % 0x1000000}]
+        binary scan \x00$lengthBytes I length
+        set length [expr {($length + 0x1000000) % 0x1000000}]
             }
             4 {
-		binary scan $lengthBytes     I length
-		set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
+        binary scan $lengthBytes     I length
+        set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
             }
             default {
                 binary scan $lengthBytes H* hexstr
@@ -1234,12 +1273,12 @@ proc ::ldap::asnGetLength {data_var length_var} {
                 if {[string length $hexlen] > 16} {
                     return -code {ARITH IOVERFLOW
                             {Length value too large for normal use, try asnGetBigLength}} \
-				    "Length value to large"
+                    "Length value to large"
                 } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} {
                     # check most significant bit, if set we need bignum
                     return -code {ARITH IOVERFLOW
                             {Length value too large for normal use, try asnGetBigLength}} \
-				    "Length value to large"
+                    "Length value to large"
                 } else {
                     scan $hexstr "%lx" length
                 }
