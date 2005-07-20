@@ -1,3 +1,9 @@
+2005-07-20  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* ldap.tcl    :
+	  pkgIndex.tcl: Applied fix for [SF Tcllib Bug 1239915].
+	  Thanks to Pierre David for the patch. Version number now 1.2.1.
+	
 2005-03-16  Andreas Kupries <andreask@activestate.com>
 
 	* ldap.tcl (ldap::asnGetInteger): Fixed [SF Tcllib Bug 1164663], a
