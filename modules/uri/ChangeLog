@@ -1,3 +1,8 @@
+2005-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri.tcl: Fixed bug 1243171, reported by Jean-Luc Fontaine. The
+	  list variable in a foreach had no $-prefix. D'oh.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
