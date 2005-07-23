@@ -9,7 +9,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.28 2004/05/26 04:24:30 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.29 2005/07/23 04:44:26 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -138,7 +138,7 @@ proc ::uri::register {schemeList script} {
     eval [linsert $schemeList 0 lappend schemes]
     set schemePattern	"([::join $schemes |]):"
 
-    foreach s schemeList {
+    foreach s $schemeList {
 	# FRINK: nocheck
 	set url2part($s) "${s}:[set ${scheme}::schemepart]"
 	# FRINK: nocheck
