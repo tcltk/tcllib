@@ -199,6 +199,7 @@ proc init {} {
     addButton save
     addButton exit
     drawButtons
+    raise .
 }
 
 ################################################################################
@@ -239,7 +240,7 @@ proc ShowFile {filename buttonText} {
     .help.licence.t insert 0.0 [read $fd]
     close $fd
     .help.licence.t configure -state disabled
-    button .help.bouton -text $buttonText -command {destroy .help}
+    button .help.bouton -text $buttonText -command {destroy .help;raise .}
     pack .help.bouton -in .help
     focus -force .help
 }
