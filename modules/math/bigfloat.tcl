@@ -116,7 +116,8 @@ proc ::math::bigfloat::acos {x} {
     foreach {dummy entier exp delta} $x {break}
     set precision [expr {($exp<0)?(-$exp):1}]
     # acos(0.0)=Pi/2
-    set piOverTwo [floatRShift [pi $precision]]
+    # 26/07/2005 : changed precision from decimal to binary
+    set piOverTwo [floatRShift [pi $precision 1]]
     if {[iszero $x]} {
         return $piOverTwo
     }
@@ -257,7 +258,8 @@ proc ::math::bigfloat::asin {x} {
     if {[::math::bignum::sign $entier]} {
         return [opp [asin [abs $x]]]
     }
-    set piOverTwo [floatRShift [pi $precision]]
+    # 26/07/2005 : changed precision from decimal to binary
+    set piOverTwo [floatRShift [pi $precision 1]]
     # now a little trick : asin(x)=Pi/2-asin(sqrt(1-x^2))
     # so we can limit the entry of the Taylor development
     # to 1/sqrt(2)~0.7071
@@ -362,13 +364,13 @@ proc ::math::bigfloat::atan {x} {
             # as 1<x<2.4142 : (x-1)/(x+1)=1-2/(x+1) belongs to
             # the range :  ]0,1-2/3.414[
             # that equals  ]0,0.414[
-            set pi_sur_quatre [div [pi $precision] [fromstr 4]]
+            set pi_sur_quatre [div [pi $precision 1] [fromstr 4]]
             return [add $pi_sur_quatre [atan \
                     [div [sub $x $float1] [add $x $float1]]]]
         }
         # atan(x)=Pi/2-atan(1/x)
         # 1/x < 1/2.414 so the argument is lower than 0.414
-        set pi_sur_deux [div [pi $precision] [fromstr 2]]
+        set pi_sur_deux [div [pi $precision 1] [fromstr 2]]
         return [sub $pi_sur_deux [atan [div $float1 $x]]]
     }
     if {[compare $x [fromstr 0.4142]]>0} {
@@ -376,7 +378,7 @@ proc ::math::bigfloat::atan {x} {
         # x>0.420 so (x-1)/(x+1)=1 - 2/(x+1) > 1-2/1.414
         #                                    > -0.414
         # x<1 so (x-1)/(x+1)<0
-        set pi_sur_quatre [div [pi $precision] [fromstr 4]]
+        set pi_sur_quatre [div [pi $precision 1] [fromstr 4]]
         return [add $pi_sur_quatre [atan \
                 [div [sub $x $float1] [add $x $float1]]]]
     }
@@ -598,6 +600,7 @@ proc ::math::bigfloat::cos {x} {
 # 3. the uncertainty (doubt range)
 ################################################################################
 proc ::math::bigfloat::_cos2 {x precision delta} {
+    # precision bits after the dot
     set pi [_pi $precision]
     set pis4 [::math::bignum::rshift $pi 2]
     set pis2 [::math::bignum::rshift $pi 1]
@@ -660,7 +663,7 @@ proc ::math::bigfloat::cotan {x} {
 proc ::math::bigfloat::deg2rad {x} {
     checkFloat x
     set xLen [expr {-[lindex $x 2]}]
-    if {$xLen<1} {
+    if {$xLen<3} {
         error "number too loose to convert to radians"
     }
     set pi [pi $xLen 1]
@@ -675,13 +678,13 @@ proc ::math::bigfloat::deg2rad {x} {
 # used by cos , sin & others
 ################################################################################
 proc ::math::bigfloat::divPiQuarter {integer precision} {
-    incr precision
+    incr precision 2
     set integer [::math::bignum::lshift $integer 1]
-    set dpi [_pi [expr {1+$precision}]]
+    set dpi [_pi $precision]
     # modulo 2Pi
     foreach {n integer} [::math::bignum::divqr $integer $dpi] {break}
-    # fin modulo 2Pi
-    set pi [_pi $precision]
+    # end modulo 2Pi
+    set pi [::math::bignum::rshift $dpi 1]
     foreach {n integer} [::math::bignum::divqr $integer $pi] {break}
     # now divide by Pi/2
     # multiply n by 2
@@ -1453,7 +1456,7 @@ proc ::math::bigfloat::pi {precision {binary 0}} {
         }
     }
     if {!$binary} {
-        # convert bit length into decimal digit length
+        # convert decimal digit length into bit length
         set precision [expr {int(ceil($precision*log(10)/log(2)))}]
     }
     return [list F [_pi $precision] -$precision $::math::bigfloat::one]
@@ -1463,8 +1466,7 @@ proc ::math::bigfloat::pi {precision {binary 0}} {
 proc ::math::bigfloat::_pi {precision} {
     # the constant Pi begins with 3.xxx
     # so we need 2 digits to store the digit '3'
-    # and then we will have precision bits after the dot
-    incr precision 2
+    # and then we will have precision+2 bits in the mantissa
     variable _pi0
     if {![info exists _pi0]} {
         set _pi0 [__pi $precision]
@@ -1473,7 +1475,7 @@ proc ::math::bigfloat::_pi {precision} {
     if {$lenPiGlobal<$precision} {
         set _pi0 [__pi $precision]
     }
-    return [::math::bignum::rshift $_pi0 [expr {[::math::bignum::bits $_pi0] - $precision}]]
+    return [::math::bignum::rshift $_pi0 [expr {[::math::bignum::bits $_pi0]-2-$precision}]]
 }
 
 ################################################################################
@@ -1542,7 +1544,7 @@ proc ::math::bigfloat::pow {a b} {
 proc ::math::bigfloat::rad2deg {x} {
     checkFloat x
     set xLen [expr {-[lindex $x 2]}]
-    if {$xLen<1} {
+    if {$xLen<3} {
         error "number too loose to convert to degrees"
     }
     set pi [pi $xLen 1]
@@ -1647,9 +1649,9 @@ proc ::math::bigfloat::sin {x} {
 }
 
 proc ::math::bigfloat::_sin2 {x precision delta} {
-    set pi [_pi [expr {1+$precision}]]
-    set pis2 [::math::bignum::rshift $pi 2]
-    set pis4 [::math::bignum::rshift $pi 3]
+    set pi [_pi $precision]
+    set pis2 [::math::bignum::rshift $pi 1]
+    set pis4 [::math::bignum::rshift $pi 2]
     if {[::math::bignum::cmp $x $pis4]>=0} {
         # sin(Pi/2-x)=cos(x)
         set delta [intIncr $delta]
