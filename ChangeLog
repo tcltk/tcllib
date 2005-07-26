@@ -1,3 +1,6 @@
+2005-07-26  Stephane Arnold <sarnold75@users.sourceforge.net>
+	* install_modules.tcl : registered math example
+
 2005-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* config/config.guess: Updated to newer versions.
