@@ -1672,23 +1672,50 @@ proc checkmod {} {
 proc __critcl {} {
     global argv critcl critclmodules critcldefault critclnotes tcl_platform
     if {$tcl_platform(platform) == "windows"} {
-        set critcl [auto_execok tclkitsh]
-        if {$critcl == {}} {
-            return -code error "error: failed to find tclkitsh.exe in path"
-        } else {
-            # If the critcl.kit isn't in the path, set the CRITCL env var.
+
+	# Windows is a bit more complicated. We have to choose an
+	# interpreter, and a starkit for it, and call both.
+	#
+	# We prefer tclkitsh, but try to make do with a tclsh. That
+	# one will have to have all the necessary packages to support
+	# starkits. ActiveTcl for example.
+
+	set interpreter {}
+	foreach i {critcl.exe tclkitsh tclsh} {
+	    set interpreter [auto_execok $i]
+	    if {$interpreter != {}} break
+	}
+
+	if {$interpreter == {}} {
+            return -code error \
+		    "failed to find either tclkitsh.exe or tclsh.exe in path"
+	}
+
+	# The critcl starkit can come out of the environment, or we
+	# try to locate it using several possible names. We try to
+	# find it if and only if we did not find a critcl starpack
+	# before.
+
+	if {[file tail $interpreter] == "critcl.exe"} {
+	    set critcl $interpreter
+	} else {
+	    set kit {}
             if {[info exists ::env(CRITCL)]} {
-                set critclkit $::env(CRITCL)
+                set kit $::env(CRITCL)
             } else {
-                set critclkit [auto_execok critcl.kit]
+		foreach k {critcl.kit critcl} {
+		    set kit [auto_execok $k]
+		    if {$kit != {}} break
+		}
             }
-            if {$critclkit == {}} {
-                return -code error "error: failed to find critcl.kit in \
+
+            if {$kit == {}} {
+                return -code error "failed to find critcl.kit or critcl in \
                   path.\n\
                   You may wish to set the CRITCL environment variable to the\
-                  location of your critcl.kit file."
+                  location of your critcl(.kit) file."
             }
-            set critcl [concat $critcl $critclkit]
+            set critcl [concat $interpreter $kit]
         }
     } else {
         # My, isn't it simpler under unix.

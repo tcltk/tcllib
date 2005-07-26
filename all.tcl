@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.25 2005/01/04 18:14:25 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.26 2005/07/26 02:21:28 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -172,11 +172,12 @@ foreach module $modules {
     proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
         # if oldstyle errors:
         if {[package vcompare [package provide Tcl] 8.4] < 0} {
-        set msg "no value given for parameter "
-        append msg "\"[lindex $argList $missingIndex]\" to "
-        append msg "\"$functionName\""
+	    set msg "no value given for parameter "
+	    append msg "\"[lindex $argList $missingIndex]\" to "
+	    append msg "\"$functionName\""
         } else {
-        set msg "wrong # args: should be \"$functionName $argList\""
+	    if {$argList != {}} {set argList " $argList"}
+	    set msg "wrong # args: should be \"$functionName$argList\""
         }
         return $msg
     }
