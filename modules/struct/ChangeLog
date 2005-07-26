@@ -1,3 +1,17 @@
+2005-07-25  Andreas Kupries <andreask@activestate.com>
+
+	* struct_tree.man: Added clarifications regarding acceptable
+	  arguments.
+
+	* tree.tcl: Smoothed error messages, added some missing argument
+	  checks, rewrote handling of index arguments to make code mmore
+	  clear. Fixing bugs in constructor, was not cleaning up a
+	  partially build object when deserialization failed.
+
+	* tree.test: Adapted to changed error messages. Added tests to
+	  for a number of problems which had been forgotten so far. Made
+	  the output of a number of tests (tree structure) unambigous.
+
 2005-05-23  Andreas Kupries <andreask@activestate.com>
 
 	* list.test:
