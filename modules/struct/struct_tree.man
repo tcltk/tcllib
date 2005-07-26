@@ -367,6 +367,7 @@ Insert one or more nodes into the tree as children of the node
 new nodes will be added to the [arg parent] node's child list at the
 index given by [arg index]. The [arg index] can be [const end] in
 which case the new nodes will be added after the current last child.
+Indices of the form "end-[var n]" are accepted as well.
 
 [nl]
 
@@ -559,6 +560,11 @@ defaults to [const end].  If no name is given for [arg child], a name
 will be generated for the new node.  The generated name is of the form
 [emph node][var x], where [var x] is a number.  The return result
 from this command is the name of the new node.
+
+[nl]
+
+The arguments [arg from] and [arg to] are regular list indices, i.e.
+the form "end-[var n]" is accepted as well.
 
 
 [call [arg treeName] [method swap] [arg node1] [arg node2]]
