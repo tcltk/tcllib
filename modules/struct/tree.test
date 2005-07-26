@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.38 2005/05/11 04:19:01 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.39 2005/07/26 03:43:08 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -280,7 +280,7 @@ test tree-2.1.1 {set, wrong # args} {
     catch {mytree set root data foo far} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree set root key ?value?"}
+} {wrong # args: should be "::mytree set node key ?value?"}
 
 test tree-2.1.2 {set gives error on bogus node} {
     tree mytree
@@ -755,8 +755,154 @@ test tree-3.3.6 {children, filtering} {
     lappend result [lsort [mytree children      root filter vol]]
     lappend result [lsort [mytree children      root filter vgt40]]
     mytree destroy
+    rename vol   {}
+    rename vgt40 {}
     set result
 } {{0 5} 5 0 {}}
+
+test tree-3.3.7 {children, bad filter keyword} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return 1}
+
+    catch {mytree children root snarf ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {wrong # args: should be "::mytree children ?-all? node ?filter cmd?"}
+
+test tree-3.3.8 {children, bad filter keyword, -all case} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return 1}
+
+    catch {mytree children -all root snarf ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {wrong # args: should be "::mytree children ?-all? node ?filter cmd?"}
+
+test tree-3.3.9 {children, empty filter} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree children root filter {}} msg
+
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree children ?-all? node ?filter cmd?"}
+
+test tree-3.3.10 {children, empty filter, -all case} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree children -all root filter {}} msg
+
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree children ?-all? node ?filter cmd?"}
+
+test tree-3.3.11 {children, filter cmdprefix not a list} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree children root filter "\{"} msg
+
+    mytree destroy
+    set msg
+} {unmatched open brace in list}
+
+test tree-3.3.12 {children, filter cmdprefix not a list, -all case} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree children -all root filter "\{"} msg
+
+    mytree destroy
+    set msg
+} {unmatched open brace in list}
+
+test tree-3.3.13 {children, filter, unknown command} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree children root filter ::bogus} msg
+
+    mytree destroy
+    set msg
+} {invalid command name "::bogus"}
+
+test tree-3.3.14 {children, filter, unknown command, -all case} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree children -all root filter ::bogus} msg
+
+    mytree destroy
+    set msg
+} {invalid command name "::bogus"}
+
+test tree-3.3.15 {children, filter returning error} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return -code error "boo"}
+
+    catch {mytree children root filter ::ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {boo}
+
+test tree-3.3.16 {children, filter returning error, -all case} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return -code error "boo"}
+
+    catch {mytree children -all root filter ::ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {boo}
+
+test tree-3.3.17 {children, filter result not boolean} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return "boo"}
+
+    catch {mytree children root filter ::ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {expected boolean value but got "boo"}
+
+test tree-3.3.18 {children, filter result not boolean, -all case} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return "boo"}
+
+    catch {mytree children -all root filter ::ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {expected boolean value but got "boo"}
 
 ############################################################
 
@@ -784,7 +930,7 @@ test tree-3.4.3 {numchildren} {
     set result
 } {0 1 0}
 
-test tree-3.4.4 {children} {
+test tree-3.4.4 {numchildren} {
     tree mytree
     set     result [list]
     lappend result [mytree numchildren root]
@@ -811,7 +957,7 @@ test tree-3.5.1 {exists, wrong #args} {
     set msg
 } [tcltest::tooManyArgs {::struct::tree::_exists} {name node}]
 
-test tree-3.5.1 {exists} {
+test tree-3.5.2 {exists} {
     tree mytree
     set     result [list]
     lappend result [mytree exists root]
@@ -834,7 +980,7 @@ test tree-3.6.1 {size, wrong # args} {
     catch {mytree size foo far} msg
     mytree destroy
     set msg
-} {wrong # args, should be "::mytree size ?node?"}
+} {wrong # args: should be "::mytree size ?node?"}
 
 test tree-3.6.2 {size gives error on bogus node} {
     tree mytree
@@ -1123,6 +1269,7 @@ test tree-3.9.18 {extended node names with spaces check} {
     lappend msg [mytree size $node]
     lappend msg [mytree isleaf $node]
     mytree set $node data foo
+    set ::FOO {}
     mytree walk root n {walker $n}
     lappend msg $::FOO
     lappend msg [mytree keys $node]
@@ -1131,6 +1278,24 @@ test tree-3.9.18 {extended node names with spaces check} {
     mytree destroy
     set msg
 } [list ":\n\t " 1 1 0 [list root ":\n\t " yummy] data root foo]
+
+test tree-3.9.19 {insert fails for a bad index} {
+    tree mytree
+    catch {mytree insert root foo new-node} msg
+    mytree destroy
+    set msg
+} {bad index "foo": must be integer or end?-integer?}
+
+test tree-3.9.20 {insert insert nodes in correct location} {
+    tree mytree
+    mytree insert root end   a
+    mytree insert root end   b
+    mytree insert root 0     c
+    mytree insert root end-1 d
+    set result [mytree children root]
+    mytree destroy
+    set result
+} {c a d b}
 
 ############################################################
 
@@ -1290,6 +1455,31 @@ test tree-3.11.13 {move node down one} {
     set result
 } {{IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}}
 
+test tree-3.11.14 {move fails for a bad index} {
+    tree mytree
+    mytree insert root end node-to-move
+    catch {mytree move root foo node-to-move} msg
+    mytree destroy
+    set msg
+} {bad index "foo": must be integer or end?-integer?}
+
+test tree-3.11.15 {move correctly moves a node} {
+    tree mytree
+    mytree insert root end a
+    mytree insert a    end b
+    mytree insert a    end d
+    mytree insert a    end e
+    mytree insert b    end c
+
+    mytree move a end-1 c
+    set     result {}
+    lappend result [mytree children a]
+    lappend result [mytree children b]
+    lappend result [mytree parent c]
+    mytree destroy
+    set result
+} {{b d c e} {} a}
+
 ############################################################
 
 test tree-3.12.1 {cutting nodes} {
@@ -1354,6 +1544,13 @@ test tree-3.12.5 {cut removes node} {
 
 ############################################################
 
+test tree-3.13.0 {splicing nodes with bad parent node} {
+    tree mytree
+    catch {mytree splice foo 0 end} msg
+    mytree destroy
+    set msg
+} {node "foo" does not exist in tree "::mytree"}
+
 test tree-3.13.1 {splicing nodes} {
     tree mytree
     mytree insert root end {IT::EM 0}
@@ -1361,12 +1558,36 @@ test tree-3.13.1 {splicing nodes} {
     mytree insert root end {IT::EM 1.1}
     mytree insert root end {IT::EM 1.2}
     mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # * 1.0     - 1
+    # * 1.1       - 1.0
+    # * 1.2       - 1.1
+    # - 2         - 1.2
+    #           - 2
+
     mytree splice root 1 3 {IT::EM 1}
     set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     set t
-} {enter root enter {IT::EM 0} enter {IT::EM 1} enter {IT::EM 1.0} enter {IT::EM 1.1} enter {IT::EM 1.2} enter {IT::EM 2}}
+} [list \
+	enter root \
+	enter {IT::EM 0} \
+	leave {IT::EM 0} \
+	enter {IT::EM 1} \
+	enter {IT::EM 1.0} \
+	leave {IT::EM 1.0} \
+	enter {IT::EM 1.1} \
+	leave {IT::EM 1.1} \
+	enter {IT::EM 1.2} \
+	leave {IT::EM 1.2} \
+	leave {IT::EM 1} \
+	enter {IT::EM 2} \
+	leave {IT::EM 2} \
+	leave root \
+	]
 
 test tree-3.13.2 {splicing nodes with no node name given} {
     tree mytree
@@ -1375,12 +1596,36 @@ test tree-3.13.2 {splicing nodes with no node name given} {
     mytree insert root end {IT::EM 1.1}
     mytree insert root end {IT::EM 1.2}
     mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # * 1.0     - node1
+    # * 1.1       - 1.0
+    # * 1.2       - 1.1
+    # - 2         - 1.2
+    #           - 2
+
     set res [mytree splice root 1 3]
     set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     list $res $t
-} [list node1 {enter root enter {IT::EM 0} enter node1 enter {IT::EM 1.0} enter {IT::EM 1.1} enter {IT::EM 1.2} enter {IT::EM 2}}]
+} [list node1 [list \
+	enter root \
+	enter {IT::EM 0} \
+	leave {IT::EM 0} \
+	enter node1 \
+	enter {IT::EM 1.0} \
+	leave {IT::EM 1.0} \
+	enter {IT::EM 1.1} \
+	leave {IT::EM 1.1} \
+	enter {IT::EM 1.2} \
+	leave {IT::EM 1.2} \
+	leave node1 \
+	enter {IT::EM 2} \
+	leave {IT::EM 2} \
+	leave root \
+	]]
 
 test tree-3.13.3 {splicing nodes errors on duplicate node name} {
     tree mytree
@@ -1401,6 +1646,15 @@ test tree-3.13.4 {splicing node sets parent values correctly} {
     mytree insert root end {IT::EM 1.1}
     mytree insert root end {IT::EM 1.2}
     mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # * 1.0     - 1
+    # * 1.1       - 1.0
+    # * 1.2       - 1.1
+    # - 2         - 1.2
+    #           - 2
+
     mytree splice root 1 3 {IT::EM 1}
     set res [list \
 	    [mytree parent {IT::EM 1}] \
@@ -1418,12 +1672,36 @@ test tree-3.13.5 {splicing node works with strange index} {
     mytree insert root end {IT::EM 1.1}
     mytree insert root end {IT::EM 1.2}
     mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 1
+    # * 1.0       - 0
+    # * 1.1       - 1.0
+    # * 1.2       - 1.1
+    # - 2         - 1.2
+    #             - 2
+
     mytree splice root -5 12 {IT::EM 1}
     set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     set t
-} {enter root enter {IT::EM 1} enter {IT::EM 0} enter {IT::EM 1.0} enter {IT::EM 1.1} enter {IT::EM 1.2} enter {IT::EM 2}}
+} [list \
+       enter root \
+       enter {IT::EM 1} \
+       enter {IT::EM 0} \
+       leave {IT::EM 0} \
+       enter {IT::EM 1.0} \
+       leave {IT::EM 1.0} \
+       enter {IT::EM 1.1} \
+       leave {IT::EM 1.1} \
+       enter {IT::EM 1.2} \
+       leave {IT::EM 1.2} \
+       enter {IT::EM 2} \
+       leave {IT::EM 2} \
+       leave {IT::EM 1} \
+       leave root \
+      ]
 
 test tree-3.13.6 {splicing nodes with no node name and no "to" index given} {
     tree mytree
@@ -1432,12 +1710,188 @@ test tree-3.13.6 {splicing nodes with no node name and no "to" index given} {
     mytree insert root end {IT::EM 1.1}
     mytree insert root end {IT::EM 1.2}
     mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # - 1.0     - node1
+    # - 1.1       - 1.0
+    # - 1.2       - 1.1
+    # - 2         - 1.2
+    #             - 2
+
     mytree splice root 1
     set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     set t
-} {enter root enter {IT::EM 0} enter node1 enter {IT::EM 1.0} enter {IT::EM 1.1} enter {IT::EM 1.2} enter {IT::EM 2}}
+} [list \
+       enter root \
+       enter {IT::EM 0} \
+       leave {IT::EM 0} \
+       enter node1 \
+       enter {IT::EM 1.0} \
+       leave {IT::EM 1.0} \
+       enter {IT::EM 1.1} \
+       leave {IT::EM 1.1} \
+       enter {IT::EM 1.2} \
+       leave {IT::EM 1.2} \
+       enter {IT::EM 2} \
+       leave {IT::EM 2} \
+       leave node1 \
+       leave root \
+      ]
+
+test tree-3.13.7 {splicing nodes with to == end} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # - 1.0     - node1
+    # - 1.1       - 1.0
+    # - 1.2       - 1.1
+    # - 2         - 1.2
+    #             - 2
+
+    mytree splice root 1 end
+    set t [list ]
+    mytree walk root -order both {a n} {lappend t $a $n}
+    mytree destroy
+    set t
+} [list \
+       enter root \
+       enter {IT::EM 0} \
+       leave {IT::EM 0} \
+       enter node1 \
+       enter {IT::EM 1.0} \
+       leave {IT::EM 1.0} \
+       enter {IT::EM 1.1} \
+       leave {IT::EM 1.1} \
+       enter {IT::EM 1.2} \
+       leave {IT::EM 1.2} \
+       enter {IT::EM 2} \
+       leave {IT::EM 2} \
+       leave node1 \
+       leave root \
+      ]
+
+test tree-3.13.8 {splicing nodes with to == end-1} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # - 1.0     - node1
+    # - 1.1       - 1.0
+    # - 1.2       - 1.1
+    # - 2         - 1.2
+    #           - 2
+
+    mytree splice root 1 end-1
+    set t [list ]
+    mytree walk root -order both {a n} {lappend t $a $n}
+    mytree destroy
+    set t
+} [list \
+       enter root \
+       enter {IT::EM 0} \
+       leave {IT::EM 0} \
+       enter node1 \
+       enter {IT::EM 1.0} \
+       leave {IT::EM 1.0} \
+       enter {IT::EM 1.1} \
+       leave {IT::EM 1.1} \
+       enter {IT::EM 1.2} \
+       leave {IT::EM 1.2} \
+       leave node1 \
+       enter {IT::EM 2} \
+       leave {IT::EM 2} \
+       leave root \
+      ]
+
+test tree-3.13.9 {splicing nodes} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # - 1.0     - node1
+    # - 1.1       - 1.0
+    # - 1.2       - 1.1
+    # - 2         - 1.2
+    #             - 2
+
+    mytree splice root end-3 end
+    set t [list ]
+    mytree walk root -order both {a n} {lappend t $a $n}
+    mytree destroy
+    set t
+} [list \
+       enter root \
+       enter {IT::EM 0} \
+       leave {IT::EM 0} \
+       enter node1 \
+       enter {IT::EM 1.0} \
+       leave {IT::EM 1.0} \
+       enter {IT::EM 1.1} \
+       leave {IT::EM 1.1} \
+       enter {IT::EM 1.2} \
+       leave {IT::EM 1.2} \
+       enter {IT::EM 2} \
+       leave {IT::EM 2} \
+       leave node1 \
+       leave root \
+      ]
+
+test tree-3.13.10 {splicing nodes} {
+    tree mytree
+    mytree insert root end {IT::EM 0}
+    mytree insert root end {IT::EM 1.0}
+    mytree insert root end {IT::EM 1.1}
+    mytree insert root end {IT::EM 1.2}
+    mytree insert root end {IT::EM 2}
+
+    # root  --> root
+    # - 0       - 0
+    # - 1.0     - node1
+    # - 1.1       - 1.0
+    # - 1.2       - 1.1
+    # - 2         - 1.2
+    #           - 2
+
+    mytree splice root end-3 end-1
+    set t [list ]
+    mytree walk root -order both {a n} {lappend t $a $n}
+    mytree destroy
+    set t
+} [list \
+       enter root \
+       enter {IT::EM 0} \
+       leave {IT::EM 0} \
+       enter node1 \
+       enter {IT::EM 1.0} \
+       leave {IT::EM 1.0} \
+       enter {IT::EM 1.1} \
+       leave {IT::EM 1.1} \
+       enter {IT::EM 1.2} \
+       leave {IT::EM 1.2} \
+       leave node1 \
+       enter {IT::EM 2} \
+       leave {IT::EM 2} \
+       leave root \
+      ]
 
 ############################################################
 
@@ -1463,7 +1917,7 @@ test tree-3.14.3 {swap gives error when trying to swap non existant node} {
     set msg
 } {node "IT::EM 1" does not exist in tree "::mytree"}
 
-test tree-3.14.3 {swap gives error when trying to swap node with self} {
+test tree-3.14.4 {swap gives error when trying to swap node with self} {
     tree mytree
     mytree insert root end {IT::EM 0}
     catch {mytree swap {IT::EM 0} {IT::EM 0}} msg
@@ -1471,79 +1925,137 @@ test tree-3.14.3 {swap gives error when trying to swap node with self} {
     set msg
 } {cannot swap node "IT::EM 0" with itself}
 
-test tree-3.14.4 {swap swaps node relationships correctly} {
-    tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 0} end {IT::EM 0.2}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
-    mytree swap {IT::EM 0} {IT::EM 0.1}
-    set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
-    mytree destroy
-    set t
-} [list enter root \
-	enter {IT::EM 0.1} \
-	enter {IT::EM 0} \
-	enter {IT::EM 0.1.1} \
-	enter {IT::EM 0.1.2} \
-	enter {IT::EM 0.2}]
-
 test tree-3.14.5 {swap swaps node relationships correctly} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 0} end {IT::EM 0.2}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
-    mytree swap {IT::EM 0} {IT::EM 0.1.1}
-    set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree insert root end 0
+    mytree insert 0 end 0.1
+    mytree insert 0 end 0.2
+    mytree insert 0.1 end 0.1.1
+    mytree insert 0.1 end 0.1.2
+
+    # root     --> root        
+    # * 0	   * 0.1       
+    #   * 0.1	     * 0       
+    #     - 0.1.1      - 0.1.1 
+    #     - 0.1.2      - 0.1.2 
+    #   - 0.2	     - 0.2     
+
+    mytree swap 0 0.1
+    set t [list]
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     set t
-} [list enter root \
-	enter {IT::EM 0.1.1} \
-	enter {IT::EM 0.1} \
-	enter {IT::EM 0} \
-	enter {IT::EM 0.1.2} \
-	enter {IT::EM 0.2}]
+} [list enter root  \
+	enter 0.1   \
+	enter 0     \
+	enter 0.1.1 \
+	leave 0.1.1 \
+	enter 0.1.2 \
+	leave 0.1.2 \
+	leave 0     \
+	enter 0.2   \
+	leave 0.2   \
+	leave 0.1   \
+	leave root  \
+	]
 
 test tree-3.14.6 {swap swaps node relationships correctly} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert root end {IT::EM 1}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 1} end {IT::EM 1.1}
-    mytree swap {IT::EM 0} {IT::EM 1}
+    mytree insert root end 0
+    mytree insert 0 end 0.1
+    mytree insert 0 end 0.2
+    mytree insert 0.1 end 0.1.1
+    mytree insert 0.1 end 0.1.2
+
+    # root    --> root       
+    # * 0	  * 0.1.1    
+    #   - 0.1	    - 0.1    
+    #     * 0.1.1     * 0    
+    #     - 0.1.2     - 0.1.2
+    #   - 0.2	    - 0.2    
+
+    mytree swap 0 0.1.1
     set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     set t
-} [list enter root \
-	enter {IT::EM 1} \
-	enter {IT::EM 0.1} \
-	enter {IT::EM 0} \
-	enter {IT::EM 1.1}]
+} [list enter root  \
+	enter 0.1.1 \
+	enter 0.1   \
+	enter 0     \
+	leave 0     \
+	enter 0.1.2 \
+	leave 0.1.2 \
+	leave 0.1   \
+	enter 0.2   \
+	leave 0.2   \
+	leave 0.1.1 \
+	leave root  \
+	]
 
 test tree-3.14.7 {swap swaps node relationships correctly} {
     tree mytree
-    mytree insert root end {IT::EM 0}
-    mytree insert {IT::EM 0} end {IT::EM 0.1}
-    mytree insert {IT::EM 0} end {IT::EM 0.2}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.1}
-    mytree insert {IT::EM 0.1} end {IT::EM 0.1.2}
-    mytree swap {IT::EM 0.1} {IT::EM 0}
+    mytree insert root end 0
+    mytree insert root end 1
+    mytree insert 0 end 0.1
+    mytree insert 1 end 1.1
+
+    # root --> root   
+    # * 0      * 1    
+    #   - 0.1    - 0.1
+    # * 1      * 0    
+    #   - 1.1    - 1.1
+
+    mytree swap 0 1
     set t [list ]
-    mytree walk root {a n} {lappend t $a $n}
+    mytree walk root -order both {a n} {lappend t $a $n}
     mytree destroy
     set t
-} [list enter root      \
-	enter {IT::EM 0.1}   \
-	enter {IT::EM 0} \
-	enter {IT::EM 0.1.1} \
-	enter {IT::EM 0.1.2} \
-	enter {IT::EM 0.2}]
+} [list enter root \
+	enter 1    \
+	enter 0.1  \
+	leave 0.1  \
+	leave 1    \
+	enter 0    \
+	enter 1.1  \
+	leave 1.1  \
+	leave 0    \
+	leave root \
+	]
+
+test tree-3.14.8 {swap swaps node relationships correctly} {
+    tree mytree
+    mytree insert root end 0
+    mytree insert 0 end 0.1
+    mytree insert 0 end 0.2
+    mytree insert 0.1 end 0.1.1
+    mytree insert 0.1 end 0.1.2
+
+    # root     --> root        
+    # * 0	   * 0.1       
+    #   * 0.1	     * 0       
+    #     - 0.1.1      - 0.1.1 
+    #     - 0.1.2      - 0.1.2 
+    #   - 0.2	     - 0.2
+
+    mytree swap 0.1 0
+    set t [list ]
+    mytree walk root -order both {a n} {lappend t $a $n}
+    mytree destroy
+    set t
+} [list enter root  \
+	enter 0.1   \
+	enter 0     \
+	enter 0.1.1 \
+	leave 0.1.1 \
+	enter 0.1.2 \
+	leave 0.1.2 \
+	leave 0     \
+	enter 0.2   \
+	leave 0.2   \
+	leave 0.1   \
+	leave root  \
+	]
 
 ############################################################
 
@@ -1583,7 +2095,7 @@ test tree-3.16.3 {rename, setting to existing node fails} {
     catch {mytree rename root 0} result
     mytree destroy
     set result
-} {unable to rename node to "0",  node of that name already present in the tree "::mytree"}
+} {unable to rename node to "0", node of that name already present in the tree "::mytree"}
 
 test tree-3.16.4 {rename root, setting} {
     tree mytree
@@ -1737,6 +2249,78 @@ test tree-3.18.2 {descendants, filtering} {
     mytree destroy
     set result
 } {{0 5} 5}
+
+test tree-3.18.3 {descendants, bad filter keyword} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return 1}
+
+    catch {mytree descendants root snarf ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {wrong # args: should be "::mytree descendants node ?filter cmd?"}
+
+test tree-3.18.4 {descendants, empty filter} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree descendants root filter {}} msg
+
+    mytree destroy
+    set msg
+} {wrong # args: should be "::mytree descendants node ?filter cmd?"}
+
+test tree-3.18.5 {descendants, filter cmdprefix not a list} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree descendants root filter "\{"} msg
+
+    mytree destroy
+    set msg
+} {unmatched open brace in list}
+
+test tree-3.18.6 {descendants, filter, unknown command} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+
+    catch {mytree descendants root filter ::bogus} msg
+
+    mytree destroy
+    set msg
+} {invalid command name "::bogus"}
+
+test tree-3.18.7 {descendants, filter returning error} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return -code error "boo"}
+
+    catch {mytree descendants root filter ::ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {boo}
+
+test tree-3.18.8 {descendants, filter result not boolean} {
+    tree mytree
+    mytree insert root end a
+    mytree insert root end b
+    proc ff {t n} {return "boo"}
+
+    catch {mytree descendants root filter ::ff} msg
+
+    mytree destroy
+    rename ff {}
+    set msg
+} {expected boolean value but got "boo"}
 
 ############################################################
 
@@ -1924,14 +2508,14 @@ test tree-4.4.2 {walk with too few args} {
     catch {mytree walk root} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
+} {wrong # args: should be "::mytree walk node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
 
 test tree-4.4.3 {walk with too many args} {
     tree mytree
     catch {mytree walk root -foo bar -baz boo -foo2 boo -foo3 baz -foo4 gnar -foo5 schnurr} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
+} {wrong # args: should be "::mytree walk node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
 
 test tree-4.4.4 {walk with fake node} {
     tree mytree
@@ -1945,14 +2529,14 @@ test tree-4.4.5 {walk gives error on invalid search type} {
     catch {mytree walk root -type foo {a n} foo} msg
     mytree destroy
     set msg
-} {invalid search type "foo": should be dfs, or bfs}
+} {bad search type "foo": must be bfs or dfs}
 
 test tree-4.4.6 {walk gives error on invalid search order} {
     tree mytree
     catch {mytree walk root -order foo {a n} foo} msg
     mytree destroy
     set msg
-} {invalid search order "foo": should be pre, post, both, or in}
+} {bad search order "foo": must be both, in, pre, or post}
 
 test tree-4.4.7 {walk gives error on invalid combination of order and type} {
     tree mytree
@@ -1966,21 +2550,21 @@ test tree-4.4.8 {walk with unknown options} {
     catch {mytree walk root -foo bar {a n} foo} msg
     mytree destroy
     set msg
-} {unknown option "-foo": should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
+} {unknown option "-foo"}
 
 test tree-4.4.9 {walk, option without value} {
     tree mytree
     catch {mytree walk root -type dfs -order} msg
     mytree destroy
     set msg
-} {value for "-order" missing: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
+} {value for "-order" missing}
 
 test tree-4.4.10 {walk without command} {
     tree mytree
     catch {mytree walk root -order pre} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree walk root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
+} {wrong # args: should be "::mytree walk node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"}
 
 test tree-4.4.10.1 {walk with too many loop variables} {
     tree mytree
@@ -1988,6 +2572,13 @@ test tree-4.4.10.1 {walk with too many loop variables} {
     mytree destroy
     set msg
 } {too many loop variables, at most two allowed}
+
+test tree-4.4.10.2 {walk with empty script} {
+    tree mytree
+    catch {mytree walk root {a n} {}} msg
+    mytree destroy
+    set msg
+} {no script specified, or empty}
 
 test tree-4.4.11.1 {pre dfs walk} {
     tree mytree
@@ -2177,62 +2768,88 @@ test tree-4.4.13 {pre dfs is default walk} {
 	enter {IT::EM 1.1} \
 	enter {IT::EM 1.2}]
 
-
-test tree-4.4.14 {continue in walk} {
-    tree mytree
-    set t [list ]
-    mytree insert root end 0 1 2
-    mytree insert 0 end a b c
-    lappend t ==
-    mytree walk root {a n} {
-	if {[string equal $n "b"]} {lappend t . ; continue}
-	lappend t $a $n
-    }
-    lappend t ==
-    mytree destroy
-    set t
-} {== enter root enter 0 enter a . enter c enter 1 enter 2 ==}
-
-test tree-4.4.15 {break in walk} {
-    tree mytree
-    set t [list ]
-    mytree insert root end 0 1 2 3
-    mytree insert 0 end a b c
-    lappend t ==
-    mytree walk root {a n} {
-	if {[string equal $n "b"]} {lappend t . ; break}
-	lappend t $a $n
-    }
-    lappend t ==
-    mytree destroy
-    set t
-} {== enter root enter 0 enter a . ==}
-
-
-test tree-4.4.16 {return in walk} {
-    set t [list ]
-    proc foo {} {
-	global t
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a . enter c enter 1 enter 2 ==}
+    1 dfs post {== leave a . leave c leave 0 leave 1 leave 2 leave root ==}
+    2 dfs both {== enter root enter 0 enter a leave a . . enter c leave c leave 0 enter 1 leave 1 enter 2 leave 2 leave root ==}
+    3 dfs in   {== visit a visit 0 . visit c visit root visit 1 visit 2 ==}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter a . enter c ==}
+    5 bfs post {== leave c . leave a leave 2 leave 1 leave 0 leave root ==}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter a . enter c leave c . leave a leave 2 leave 1 leave 0 leave root ==}
+} {
+    test tree-4.4.14.$n "continue in walk $type/$order" {
 	tree mytree
-	mytree insert root end 0 1 2 3
+	set t [list ]
+	mytree insert root end 0 1 2
 	mytree insert 0 end a b c
 	lappend t ==
-	mytree walk root {a n} {
-	    if {[string equal $n "b"]} {
-		lappend t .
-		return good-return
-	    }
+	mytree walk root -type $type -order $order {a n} {
+	    if {[string equal $n "b"]} {lappend t . ; continue}
 	    lappend t $a $n
 	}
 	lappend t ==
-	return bad-return
-    }
-    lappend t [foo]
-    mytree destroy
-    set t
-} {== enter root enter 0 enter a . good-return}
+	mytree destroy
+	set t
+    } $log
+}
 
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a . ==}
+    1 dfs post {== leave a . ==}
+    2 dfs both {== enter root enter 0 enter a leave a . ==}
+    3 dfs in   {== visit a visit 0 . ==}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter 3 enter a . ==}
+    5 bfs post {== leave c . ==}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter 3 enter a . leave c . ==}
+} {
+    test tree-4.4.15.$n "break in walk $type/$order" {
+	tree mytree
+	set t [list ]
+	mytree insert root end 0 1 2 3
+	mytree insert 0 end a b c
+	lappend t ==
+	mytree walk root -type $type -order $order {a n} {
+	    if {[string equal $n "b"]} {lappend t . ; break}
+	    lappend t $a $n
+	}
+	lappend t ==
+	mytree destroy
+	set t
+    } $log
+}
 
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a . good-return}
+    1 dfs post {== leave a . good-return}
+    2 dfs both {== enter root enter 0 enter a leave a . good-return}
+    3 dfs in   {== visit a visit 0 . good-return}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter 3 enter a . good-return}
+    5 bfs post {== leave c . good-return}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter 3 enter a . leave c . good-return}
+} {
+    test tree-4.4.16.$n "return in walk $type/$order" {
+	set t [list ]
+	proc foo {} {
+	    global t type order
+	    tree mytree
+	    mytree insert root end 0 1 2 3
+	    mytree insert 0 end a b c
+	    lappend t ==
+	    mytree walk root -type $type -order $order {a n} {
+		if {[string equal $n "b"]} {
+		    lappend t .
+		    return good-return
+		}
+		lappend t $a $n
+	    }
+	    lappend t ==
+	    return bad-return
+	}
+	lappend t [foo]
+	mytree destroy
+	set t
+    } $log
+}
 
 if {[package vcompare [package provide Tcl] 8.3] < 0} {
     set t4417estack {fubar
@@ -2320,6 +2937,38 @@ test tree-4.4.17 {error in walk} {
     list $t $result $::errorInfo
 } [list {== enter root enter 0 enter a .} fubar $t4417estack]
 
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a .}
+    1 dfs post {== leave a .}
+    2 dfs both {== enter root enter 0 enter a leave a .}
+    3 dfs in   {== visit a visit 0 .}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter 3 enter a .}
+    5 bfs post {== leave c .}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter 3 enter a .}
+} {
+    test tree-4.4.17.$n "error in walk $type/$order" {
+	set t [list ]
+	proc foo {} {
+	    global t type order
+	    tree mytree
+	    mytree insert root end 0 1 2 3
+	    mytree insert 0 end a b c
+	    lappend t ==
+	    mytree walk root -type $type -order $order {a n} {
+		if {[string equal $n "b"]} {
+		    lappend t .
+		    error fubar
+		}
+		lappend t $a $n
+	    }
+	    lappend t ==
+	    return bad-return
+	}
+	catch {lappend t [foo]} result
+	mytree destroy
+	list $t $result
+    } [list $log fubar]
+}
 
 foreach {n prune type order log} {
     0 0 dfs pre  {enter 0 enter 1 enter 2 enter 4 enter 5 enter 6 enter 3}
@@ -2377,14 +3026,14 @@ test tree-4.6.2 {walkproc with too few args} {
     catch {mytree walkproc root} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+} {wrong # args: should be "::mytree walkproc node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
 
 test tree-4.6.3 {walkproc with too many args} {
     tree mytree
     catch {mytree walkproc root -foo bar -baz boo -foo2 boo -foo3 baz -foo4 gnar -foo5 schnurr} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+} {wrong # args: should be "::mytree walkproc node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
 
 test tree-4.6.4 {walkproc with fake node} {
     tree mytree
@@ -2398,14 +3047,14 @@ test tree-4.6.5 {walkproc gives error on invalid search type} {
     catch {mytree walkproc root -type foo foo} msg
     mytree destroy
     set msg
-} {invalid search type "foo": should be dfs, or bfs}
+} {bad search type "foo": must be bfs or dfs}
 
 test tree-4.6.6 {walkproc gives error on invalid search order} {
     tree mytree
     catch {mytree walkproc root -order foo foo} msg
     mytree destroy
     set msg
-} {invalid search order "foo": should be pre, post, both, or in}
+} {bad search order "foo": must be both, in, pre, or post}
 
 test tree-4.6.7 {walkproc gives error on invalid combination of order and type} {
     tree mytree
@@ -2419,21 +3068,42 @@ test tree-4.6.8 {walkproc with unknown options} {
     catch {mytree walkproc root -foo bar foo} msg
     mytree destroy
     set msg
-} {unknown option "-foo": should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+} {unknown option "-foo"}
 
 test tree-4.6.9 {walkproc, option without value} {
     tree mytree
     catch {mytree walkproc root -type dfs -order} msg
     mytree destroy
     set msg
-} {value for "-order" missing: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+} {value for "-order" missing}
 
 test tree-4.6.10 {walkproc without command} {
     tree mytree
     catch {mytree walkproc root -order pre} msg
     mytree destroy
     set msg
-} {wrong # args: should be "::mytree walkproc root ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+} {wrong # args: should be "::mytree walkproc node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"}
+
+test tree-4.6.10.1 {walkproc with empty command} {
+    tree mytree
+    catch {mytree walkproc root -order pre {}} msg
+    mytree destroy
+    set msg
+} {no script specified, or empty}
+
+test tree-4.6.10.2 {walkproc, cmdprefix is not a list} {
+    tree mytree
+    catch {mytree walkproc root -order pre "\{"} msg
+    mytree destroy
+    set msg
+} {unmatched open brace in list}
+
+test tree-4.6.10.3 {walkproc with unknown command} {
+    tree mytree
+    catch {mytree walkproc root -order pre ::bogus} msg
+    mytree destroy
+    set msg
+} {invalid command name "::bogus"}
 
 test tree-4.6.11.1 {pre dfs walk} {
     tree mytree
@@ -2623,50 +3293,76 @@ test tree-4.6.13 {pre dfs is default walk} {
 	enter {IT::EM 1.1} \
 	enter {IT::EM 1.2}]
 
-
-test tree-4.6.14 {continue in walk} {
-    tree mytree
-    set t [list ]
-    mytree insert root end 0 1 2
-    mytree insert 0 end a b c
-    lappend t ==
-    mytree walkproc root pwalkercont
-    lappend t ==
-    mytree destroy
-    set t
-} {== enter root enter 0 enter a . enter c enter 1 enter 2 ==}
-
-test tree-4.6.15 {break in walk} {
-    tree mytree
-    set t [list ]
-    mytree insert root end 0 1 2 3
-    mytree insert 0 end a b c
-    lappend t ==
-    mytree walkproc root pwalkerbreak
-    lappend t ==
-    mytree destroy
-    set t
-} {== enter root enter 0 enter a . ==}
-
-
-test tree-4.6.16 {return in walk} {
-    set t [list ]
-    proc foo {} {
-	global t
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a . enter c enter 1 enter 2 ==}
+    1 dfs post {== leave a . leave c leave 0 leave 1 leave 2 leave root ==}
+    2 dfs both {== enter root enter 0 enter a leave a . . enter c leave c leave 0 enter 1 leave 1 enter 2 leave 2 leave root ==}
+    3 dfs in   {== visit a visit 0 . visit c visit root visit 1 visit 2 ==}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter a . enter c ==}
+    5 bfs post {== leave c . leave a leave 2 leave 1 leave 0 leave root ==}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter a . enter c leave c . leave a leave 2 leave 1 leave 0 leave root ==}
+} {
+    test tree-4.6.14.$n "continue in walk $type/$order" {
 	tree mytree
+	set t [list ]
+	mytree insert root end 0 1 2
+	mytree insert 0 end a b c
+	lappend t ==
+	mytree walkproc root -type $type -order $order pwalkercont
+	lappend t ==
+	mytree destroy
+	set t
+    } $log
+}
+
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a . ==}
+    1 dfs post {== leave a . ==}
+    2 dfs both {== enter root enter 0 enter a leave a . ==}
+    3 dfs in   {== visit a visit 0 . ==}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter 3 enter a . ==}
+    5 bfs post {== leave c . ==}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter 3 enter a . leave c . ==}
+} {
+    test tree-4.6.15.$n "break in walk $type/$order" {
+	tree mytree
+	set t [list ]
 	mytree insert root end 0 1 2 3
 	mytree insert 0 end a b c
 	lappend t ==
-	mytree walkproc root pwalkerret
+	mytree walkproc root -type $type -order $order pwalkerbreak
 	lappend t ==
-	return bad-return
-    }
-    lappend t [foo]
-    mytree destroy
-    set t
-} {== enter root enter 0 enter a . good-return}
+	mytree destroy
+	set t
+    } $log
+}
 
-
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a . good-return}
+    1 dfs post {== leave a . good-return}
+    2 dfs both {== enter root enter 0 enter a leave a . good-return}
+    3 dfs in   {== visit a visit 0 . good-return}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter 3 enter a . good-return}
+    5 bfs post {== leave c . good-return}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter 3 enter a . leave c . good-return}
+} {
+    test tree-4.6.16.$n "return in walk $type/$order" {
+	set t [list ]
+	proc foo {} {
+	    global t type order
+	    tree mytree
+	    mytree insert root end 0 1 2 3
+	    mytree insert 0 end a b c
+	    lappend t ==
+	    mytree walkproc root -type $type -order $order pwalkerret
+	    lappend t ==
+	    return bad-return
+	}
+	lappend t [foo]
+	mytree destroy
+	set t
+    } $log
+}
 
 if {[package vcompare [package provide Tcl] 8.3] < 0} {
     set t4417estack {fubar
@@ -2734,6 +3430,32 @@ test tree-4.6.17 {error in walk} {
     list $t $result $::errorInfo
 } [list {== enter root enter 0 enter a .} fubar $t4417estack]
 
+foreach {n type order log} {
+    0 dfs pre  {== enter root enter 0 enter a .}
+    1 dfs post {== leave a .}
+    2 dfs both {== enter root enter 0 enter a leave a .}
+    3 dfs in   {== visit a visit 0 .}
+    4 bfs pre  {== enter root enter 0 enter 1 enter 2 enter 3 enter a .}
+    5 bfs post {== leave c .}
+    6 bfs both {== enter root enter 0 enter 1 enter 2 enter 3 enter a .}
+} {
+    test tree-4.6.17.$n "error in walk $type/$order" {
+	set t [list ]
+	proc foo {} {
+	    global t type order
+	    tree mytree
+	    mytree insert root end 0 1 2 3
+	    mytree insert 0 end a b c
+	    lappend t ==
+	    mytree walkproc root -type $type -order $order pwalkererr
+	    lappend t ==
+	    return bad-return
+	}
+	catch {lappend t [foo]} result
+	mytree destroy
+	list $t $result
+    } [list $log fubar]
+}
 
 foreach {n prune type order log} {
     0 0 dfs pre  {enter 0 enter 1 enter 2 enter 4 enter 5 enter 6 enter 3}
@@ -2852,7 +3574,7 @@ test tree-5.2.2 {deserialization} {
 
 test tree-5.2.3 {deserialization} {
     tree mytree
-    set serial {%3 0 {} %4 0 {foo far . data {}}}
+    set serial {%3 {} {} %4 0 {foo far . data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2860,7 +3582,7 @@ test tree-5.2.3 {deserialization} {
 
 test tree-5.2.4 {deserialization} {
     tree mytree
-    set serial {%3 -1 {} %4 0 {foo far data {}}}
+    set serial {%3 -1 {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2868,7 +3590,7 @@ test tree-5.2.4 {deserialization} {
 
 test tree-5.2.5 {deserialization} {
     tree mytree
-    set serial {%3 .. {} %4 0 {foo far data {}}}
+    set serial {%3 .. {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2876,7 +3598,7 @@ test tree-5.2.5 {deserialization} {
 
 test tree-5.2.6 {deserialization} {
     tree mytree
-    set serial {%3 .. {} %4 0 {foo far data {}}}
+    set serial {%3 .. {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2884,7 +3606,7 @@ test tree-5.2.6 {deserialization} {
 
 test tree-5.2.7 {deserialization} {
     tree mytree
-    set serial {%3 1 {} %4 0 {foo far data {}}}
+    set serial {%3 1 {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2892,7 +3614,7 @@ test tree-5.2.7 {deserialization} {
 
 test tree-5.2.8 {deserialization} {
     tree mytree
-    set serial {%3 2 {} %4 0 {foo far data {}}}
+    set serial {%3 2 {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2900,7 +3622,7 @@ test tree-5.2.8 {deserialization} {
 
 test tree-5.2.9 {deserialization} {
     tree mytree
-    set serial {%3 8 {} %4 0 {foo far data {}}}
+    set serial {%3 8 {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2908,7 +3630,7 @@ test tree-5.2.9 {deserialization} {
 
 test tree-5.2.10 {deserialization} {
     tree mytree
-    set serial {%3 6 {} %4 0 {foo far data {}}}
+    set serial {%3 6 {} %4 {} {foo far data {}}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2916,7 +3638,7 @@ test tree-5.2.10 {deserialization} {
 
 test tree-5.2.11 {deserialization} {
     tree mytree
-    set serial {%3 0 {} %4 0 {}}
+    set serial {%3 3 {} %4 0 {}}
     set fail [catch {mytree deserialize $serial} result]
     mytree destroy
     list $fail $result
@@ -2953,7 +3675,6 @@ test tree-5.2.15 {deserialization} {
     mytree destroy
     list $fail $result
 } {1 {error in serialization: cycle detected.}}
-
 
 test tree-5.2.16 {deserialization} {
     tree mytree
@@ -3019,6 +3740,13 @@ test tree-5.2.18 {deserialization, empty tree} {
     set result
 } ok
 
+test tree-5.2.19 {deserialization, not a list} {
+    tree mytree
+    catch {mytree deserialize "\{"} result
+    mytree destroy
+    set result
+} {unmatched open brace in list}
+
 ############################################################
 
 test tree-5.3.1 {tree assignment} {
@@ -3044,6 +3772,20 @@ test tree-5.3.2 {tree assignment} {
     btree  destroy
     set result
 } {node/%0/unknown ok}
+
+test tree-5.3.3 {tree assignment, bogus cmd} {
+    tree mytree
+    catch {mytree = "\{"} result
+    mytree destroy
+    set result
+} "invalid command name \"\{\""
+
+test tree-5.3.4 {tree assignment, unknown command} {
+    tree mytree
+    catch {mytree = ::bogus} result
+    mytree destroy
+    set result
+} {invalid command name "::bogus"}
 
 ############################################################
 
@@ -3071,6 +3813,20 @@ test tree-5.4.2 {reverse tree assignment} {
     btree  destroy
     set result
 } {node/%0/unknown ok}
+
+test tree-5.4.3 {reverse tree assignment, bogus cmd} {
+    tree mytree
+    catch {mytree --> "\{"} result
+    mytree destroy
+    set result
+} "invalid command name \"\{\""
+
+test tree-5.4.4 {reverse tree assignment, unknown command} {
+    tree mytree
+    catch {mytree --> ::bogus} result
+    mytree destroy
+    set result
+} {invalid command name "::bogus"}
 
 ############################################################
 
@@ -3106,6 +3862,20 @@ test tree-5.5.4 {copy construction, tree} {
 
     set result
 } ok
+
+test tree-5.5.5 {copy construction, unknown command} {
+    catch {tree mytree = ::bogus} msg
+    catch {mytree destroy}        res
+    list $msg $res
+} {{invalid command name "::bogus"} {invalid command name "mytree"}}
+
+test tree-5.5.6 {copy construction, bad value} {
+    set serial {root 6 {} %0 0 {} %3 3 {} %4 3 {} %1 0 {} %2 0 {}}
+
+    catch {tree mytree deserialize $serial} msg
+    catch {mytree destroy}                  res
+    list $msg $res
+} {{error in serialization: no root specified.} {invalid command name "mytree"}}
 
 ############################################################
 
@@ -3198,6 +3968,21 @@ test tree-6.10 {attribute search} {
     mytree destroy
     set result
 } {}
+
+test tree-6.11 {attribute search, duplicates} {
+    gentree mytree
+    set result [mytree attr volume -nodes {0 3 0}]
+    mytree destroy
+    set result
+} {0 30 0 30}
+
+test tree-6.12 {attribute search, duplicates beyond tree size} {
+    gentree mytree
+    set result [mytree attr volume -nodes {0 3 0 5 0 5 0 5 0 5 0 5}]
+    mytree destroy
+    set result
+} {0 30 0 30 5 50 0 30 5 50 0 30 5 50 0 30 5 50 0 30 5 50}
+
 
 ############################################################
 ::tcltest::cleanupTests

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.35 2005/05/11 04:19:01 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.36 2005/07/26 03:43:08 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require struct::list
@@ -136,8 +136,22 @@ proc ::struct::tree::tree {args} {
     # is present.
     if {$src != {}} {
 	switch -exact -- $srctype {
-	    tree   {_= $name $src}
-	    serial {_deserialize $name $src}
+	    tree   {
+		set code [catch {_= $name $src} msg]
+		if {$code} {
+		    namespace delete $name
+		    interp alias {} $name {}
+		    return -code $code -errorinfo $::errorInfo -errorcode $::errorCode $msg
+		}
+	    }
+	    serial {
+		set code [catch {_deserialize $name $src} msg]
+		if {$code} {
+		    namespace delete $name
+		    interp alias {} $name {}
+		    return -code $code -errorinfo $::errorInfo -errorcode $::errorCode $msg
+		}
+	    }
 	    default {
 		return -code error \
 			"Internal error, illegal srctype \"$srctype\""
@@ -909,12 +923,11 @@ proc ::struct::tree::_insert {name parentNode index args} {
     variable ${name}::rootname
 
     # Make sure the index is numeric
-    if { ![string is integer $index] } {
-	# If the index is not numeric, make it numeric by lsearch'ing for
-	# the value at index, then incrementing index (because "end" means
-	# just past the end for inserts)
-	set val [lindex $children($parentNode) $index]
-	set index [expr {[lsearch -exact $children($parentNode) $val] + 1}]
+
+    if {[string equal $index "end"]} {
+	set index [llength $children($parentNode)]
+    } elseif {[regexp {^end-([0-9]+)$} $index -> n]} {
+	set index [expr {[llength $children($parentNode)] - $n}]
     }
 
     foreach node $args {
@@ -1008,12 +1021,11 @@ proc ::struct::tree::_move {name parentNode index node args} {
     variable ${name}::rootname
 
     # Make sure the index is numeric
-    if { ![string is integer $index] } {
-	# If the index is not numeric, make it numeric by lsearch'ing for
-	# the value at index, then incrementing index (because "end" means
-	# just past the end for inserts)
-	set val [lindex $children($parentNode) $index]
-	set index [expr {[lsearch -exact $children($parentNode) $val] + 1}]
+
+    if {[string equal $index "end"]} {
+	set index [llength $children($parentNode)]
+    } elseif {[regexp {^end-([0-9]+)$} $index -> n]} {
+	set index [expr {[llength $children($parentNode)] - $n}]
     }
 
     # Validate all nodes to move before trying to move any.
@@ -1209,7 +1221,7 @@ proc ::struct::tree::_rename {name node newname} {
 	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
     if {[_exists $name $newname]} {
-	return -code error "unable to rename node to \"$newname\", \
+	return -code error "unable to rename node to \"$newname\",\
 		node of that name already present in the tree \"$name\""
     }
 
@@ -1294,7 +1306,7 @@ proc ::struct::tree::_serialize {name args} {
 
 proc ::struct::tree::_set {name node key args} {
     if {[llength $args] > 1} {
-	return -code error "wrong # args: should be \"$name set [list $node] key\
+	return -code error "wrong # args: should be \"$name set node key\
 		?value?\""
     }
     if {![_exists $name $node]} {
@@ -1419,7 +1431,7 @@ proc ::struct::tree::_size {name args} {
     variable ${name}::rootname
     if {[llength $args] > 1} {
 	return -code error \
-		"wrong # args, should be \"[list $name] size ?node?\""
+		"wrong # args: should be \"[list $name] size ?node?\""
     } elseif {[llength $args] == 1} {
 	set node [lindex $args 0]
 
@@ -1478,6 +1490,11 @@ proc ::struct::tree::_size {name args} {
 #	node		Name of the node added to the tree.
 
 proc ::struct::tree::_splice {name parentNode from {to end} args} {
+
+    if { ![_exists $name $parentNode] } {
+	return -code error "node \"$parentNode\" does not exist in tree \"$name\""
+    }
+
     if { [llength $args] == 0 } {
 	# No node name given; generate a unique node name
 	set node [GenerateUniqueNodeName $name]
@@ -1491,6 +1508,17 @@ proc ::struct::tree::_splice {name parentNode from {to end} args} {
 
     variable ${name}::children
     variable ${name}::parent
+
+    if {[string equal $from "end"]} {
+	set from [expr {[llength $children($parentNode)] - 1}]
+    } elseif {[regexp {^end-([0-9]+)$} $from -> n]} {
+	set from [expr {[llength $children($parentNode)] - 1 - $n}]
+    }
+    if {[string equal $to "end"]} {
+	set to [expr {[llength $children($parentNode)] - 1}]
+    } elseif {[regexp {^end-([0-9]+)$} $to -> n]} {
+	set to   [expr {[llength $children($parentNode)] - 1 - $n}]
+    }
 
     # Save the list of children that are moving
     set moveChildren [lrange $children($parentNode) $from $to]
@@ -1666,7 +1694,7 @@ proc ::struct::tree::_unset {name node key} {
 #	None.
 
 proc ::struct::tree::_walk {name node args} {
-    set usage "$name walk $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"
+    set usage "$name walk node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? loopvar script"
 
     if {[llength $args] > 7 || [llength $args] < 2} {
 	return -code error "wrong # args: should be \"$usage\""
@@ -1692,7 +1720,7 @@ proc ::struct::tree::_walk {name node args} {
 
     # Make sure we have a script to run, otherwise what's the point?
     if { [string equal $script ""] } {
-	return -code error "no script specified, or empty: should be \"$usage\""
+	return -code error "no script specified, or empty"
     }
 
     # Do the walk
@@ -1824,7 +1852,7 @@ proc ::struct::tree::_walk {name node args} {
 }
 
 proc ::struct::tree::_walkproc {name node args} {
-    set usage "$name walkproc $node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"
+    set usage "$name walkproc node ?-type {bfs|dfs}? ?-order {pre|post|in|both}? ?--? cmdprefix"
 
     if {[llength $args] > 6 || [llength $args] < 1} {
 	return -code error "wrong # args: should be \"$usage\""
@@ -1841,7 +1869,7 @@ proc ::struct::tree::_walkproc {name node args} {
 
     # Make sure we have a script to run, otherwise what's the point?
     if { ![llength $script] } {
-	return -code error "no script specified, or empty: should be \"$usage\""
+	return -code error "no script specified, or empty"
     }
 
     # Do the walk
@@ -1984,14 +2012,14 @@ proc ::struct::tree::WalkOptions {theargs n usage} {
 	switch -exact -- $flag {
 	    "-type" {
 		if {[llength $theargs] < 2} {
-		    return -code error "value for \"$flag\" missing: should be \"$usage\""
+		    return -code error "value for \"$flag\" missing"
 		}
 		set type [string tolower [lindex $theargs 1]]
 		set theargs [lrange $theargs 2 end]
 	    }
 	    "-order" {
 		if {[llength $theargs] < 2} {
-		    return -code error "value for \"$flag\" missing: should be \"$usage\""
+		    return -code error "value for \"$flag\" missing"
 		}
 		set order [string tolower [lindex $theargs 1]]
 		set theargs [lrange $theargs 2 end]
@@ -2010,7 +2038,7 @@ proc ::struct::tree::WalkOptions {theargs n usage} {
 	return -code error "wrong # args: should be \"$usage\""
     }
     if {[llength $theargs] != $n} {
-	return -code error "unknown option \"$flag\": should be \"$usage\""
+	return -code error "unknown option \"$flag\""
     }
 
     # Validate that the given type is good
@@ -2019,7 +2047,7 @@ proc ::struct::tree::WalkOptions {theargs n usage} {
 	    set type $type
 	}
 	default {
-	    return -code error "invalid search type \"$type\": should be dfs, or bfs"
+	    return -code error "bad search type \"$type\": must be bfs or dfs"
 	}
     }
 
@@ -2029,8 +2057,8 @@ proc ::struct::tree::WalkOptions {theargs n usage} {
 	    set order $order
 	}
 	default {
-	    return -code error "invalid search order \"$order\":\
-		    should be pre, post, both, or in"
+	    return -code error "bad search order \"$order\":\
+		    must be both, in, pre, or post"
 	}
     }
 
