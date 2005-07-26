@@ -1,3 +1,14 @@
+2005-07-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* config/config.guess: Updated to newer versions.
+	* config/config.sub:
+
+	* all.tcl: Small correction in wrongNumArgs for when the argument
+	  list is not empty (Added a space).
+
+	* sak.tcl: Rewrite of critcl invokation on Windows, allow usage of
+	  critcl starpack, and for starkits a plain tclsh as interpreter.
+
 2005-07-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/pluginmgr:  New module for the management of plugins.
