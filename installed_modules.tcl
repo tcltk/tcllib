@@ -49,7 +49,7 @@ foreach {m pkg doc exa} {
     jpeg        _tcl  _man  _null
     ldap        _tcl  _man _exa
     log		_tcl  _man  _null
-    math	 _tci _man  _null
+    math	 _tci _man _exa
     md4		_tcl  _man  _null
     md5		_tcl  _man  _null
     md5crypt	_tcl  _man _null
