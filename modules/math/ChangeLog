@@ -1,3 +1,10 @@
+
+2005-07-26  Stephane Arnold
+	* Changed in many places : '[pi $precision]' 
+	  to '[pi $precision 1]' in which $precision is treated
+	  as binary digit length (instead of decimals)
+	  since the internal representation of the mantissa is binary
+	
 2005-07-01  Stephane Arnold <sarnold75@users.sourceforge.net>
 	* bigfloat.man,bigfloat.test,bigfloat.tcl : updated
 	  copyright 2005
