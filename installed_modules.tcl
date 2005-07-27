@@ -58,13 +58,14 @@ foreach {m pkg doc exa} {
     ncgi	_tcl  _man  _null
     nntp	_tcl  _man _exa
     ntp		_tcl  _man _exa
+    pluginmgr	_tcl  _man  _null
     png	        _tcl  _man  _null
     pop3	_tcl  _man  _null
     pop3d	_tcl  _man  _null
     profiler	_tcl  _man  _null
-    report	_tcl  _man  _null
     rc4         _tcl  _man  _null
     rcs         _tcl  _man  _null
+    report	_tcl  _man  _null
     ripemd      _tcl  _man  _null
     sasl        _tcl  _man  _null
     sha1	_tcl  _man  _null
