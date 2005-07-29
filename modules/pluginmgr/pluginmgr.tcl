@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pluginmgr.tcl,v 1.1 2005/07/08 03:43:58 andreas_kupries Exp $
+# RCS: @(#) $Id: pluginmgr.tcl,v 1.2 2005/07/29 00:49:03 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Description
