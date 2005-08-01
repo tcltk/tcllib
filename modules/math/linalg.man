@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::linearalgebra n 1.0]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
-[copyright {2004 Ed Hume<hume@hume.com>}]
+[copyright {2004 Ed Hume <http://www.hume.com/contact.us.htm>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Linear Algebra}]
 
