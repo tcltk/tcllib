@@ -1012,6 +1012,12 @@ proc ::math::bigfloat::fromstr {args} {
     if {[llength $tab]>2} {error "syntax error in number : $string"}
     if {[llength $tab]==2} {
         set exp [lindex $tab 1]
+        # now exp can look like +099 so you need to handle octal numbers
+        # too bad...
+        # find the sign (if any?)
+        set found [regexp {^[\+\-]?} $exp expsign]
+        # trim the number with left-side 0's
+        set exp $expsign[string trimleft [string range $exp $found end] 0]
         set number [lindex $tab 0]
     } else {
         set exp 0
