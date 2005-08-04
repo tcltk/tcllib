@@ -13,19 +13,23 @@
 # if or when the proposed draft becomes accepted.
 #
 # Support added for RFC1886 - DNS Extensions to support IP version 6
-#
 # Support added for RFC2782 - DNS RR for specifying the location of services
+# Support added for RFC1995 - Incremental Zone Transfer in DNS
 #
 # TODO:
 #  - When using tcp we should make better use of the open connection and
 #    send multiple queries along the same connection.
+#
+#  - We must switch to using TCP for truncated UDP packets.
+#
+#  - Read RFC 2136 - dynamic updating of DNS
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.28 2005/05/21 00:05:49 patthoyts Exp $
+# $Id: dns.tcl,v 1.29 2005/08/04 15:31:59 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -35,7 +39,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.2.1
-    variable rcsid {$Id: dns.tcl,v 1.28 2005/05/21 00:05:49 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.29 2005/08/04 15:31:59 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -68,7 +72,8 @@ namespace eval ::dns {
     array set types { 
         A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
         NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
-        SPF 16 AAAA 28 SRV 33 AXFR 252  MAILB 253  MAILA 254  * 255
+        SPF 16 AAAA 28 SRV 33 IXFR 251 AXFR 252  MAILB 253  MAILA 254
+        * 255
     } 
 
     variable classes
@@ -191,6 +196,7 @@ proc ::dns::resolve {query args} {
     # Setup token/state defaults.
     set state(id)          $id
     set state(query)       $query
+    set state(qdata)       ""
     set state(opcode)      0;                   # 0 = query, 1 = inverse query.
     set state(-type)       A;                   # DNS record type (A address)
     set state(-class)      IN;                  # IN (internet address space)
@@ -228,6 +234,7 @@ proc ::dns::resolve {query args} {
             -re*  { set state(-recurse) [Pop args 1] }
             -inv* { set state(opcode) 1 }
             -status {set state(opcode) 2}
+            -data { set state(qdata) [Pop args 1] }
             default {
                 set opts [join [lsort [array names state -*]] ", "]
                 return -code error "bad option [lindex $args 0]: \
@@ -358,8 +365,8 @@ proc ::dns::cname {token} {
 # Description:
 #   Return the decoded answer records. This can be used for more complex
 #   queries where the answer isn't supported byb cname/address/name.
-proc ::dns::result {token} {
-    array set reply [Decode $token]
+proc ::dns::result {token args} {
+    array set reply [eval [linsert $args 0 Decode $token]]
     return $reply(AN)
 }
 
@@ -456,7 +463,8 @@ proc ::dns::dump {args} {
         set type [lindex $args 0]
         set token [lindex $args 1]
     } else {
-        error "wrong # args: should be \"dump ?option? methodName\""
+        return -code error "wrong # args:\
+            should be \"dump ?option? methodName\""
     }
 
     # FRINK: nocheck
@@ -516,31 +524,33 @@ proc ::dns::BuildMessage {token} {
 
     set qdcount 0
     set qsection {}
+    set nscount 0
+    set nsdata {}
 
     # In theory we can send multiple queries. In practice, named doesn't
     # appear to like that much. If it did work we'd do this:
     #  foreach domain [linsert $options(search) 0 {}] ...
 
-    set qname [string trim $state(query) .]
-    
-    # break up the name into length tagged 'labels'
-    foreach part [split $qname .] {
-        set label [binary format c [string length $part]]
-        append qsection $label $part
-    }
-    # append the root label and the type flag and query class.
-    append qsection [binary format cSS 0 \
-            $types($state(-type))\
-            $classes($state(-class))]
+
+    # Pack the query: QNAME QTYPE QCLASS
+    set qsection [PackName $state(query)]
+    append qsection [binary format SS \
+                         $types($state(-type))\
+                         $classes($state(-class))]
     incr qdcount
+
+    if {[string length $state(qdata)] > 0} {
+        set nsdata [eval [linsert $state(qdata) 0 PackRecord]]
+        incr nscount
+    }
 
     switch -exact -- $state(opcode) {
         0 {
             # QUERY
             set state(request) [binary format SSSSSS $state(id) \
                 [expr {($state(opcode) << 11) | ($state(-recurse) << 8)}] \
-                $qdcount 0 0 0]
-            append state(request) $qsection
+                                    $qdcount 0 $nscount 0]
+            append state(request) $qsection $nsdata
         }
         1 {
             # IQUERY            
@@ -570,6 +580,84 @@ proc ::dns::BuildMessage {token} {
     }
 
     return
+}
+
+# Pack a human readable dns name into a DNS resource record format.
+proc ::dns::PackName {name} {
+    set data ""
+    foreach part [split [string trim $name .] .] {
+        set len [string length $part]
+        append data [binary format ca$len $len $part]
+    }
+    append data \x00
+    return $data
+}
+
+# Pack a character string - byte length prefixed
+proc ::dns::PackString {text} {
+    set len [string length $text]
+    set data [binary format ca$len $len $text]
+    return $data
+}
+
+# Pack up a single DNS resource record. See RFC1035: 3.2 for the format
+# of each type.
+# eg: PackRecord name wiki.tcl.tk type MX class IN rdata {10 mail.example.com}
+#
+proc ::dns::PackRecord {args} {
+    variable types
+    variable classes
+    array set rr {name "" type A class IN ttl 0 rdlength 0 rdata ""}
+    array set rr $args
+    set data [PackName $rr(name)]
+
+    switch -exact -- $rr(type) {
+        CNAME - MB - MD - MF - MG - MR - NS - PTR {
+            set rr(rdata) [PackName $rr(rdata)] 
+        }
+        HINFO { 
+            array set r {CPU {} OS {}}
+            array set r $rr(rdata)
+            set rr(rdata) [PackString $r(CPU)]
+            append rr(rdata) [PackString $r(OS)]
+        }
+        MINFO {
+            array set r {RMAILBX {} EMAILBX {}}
+            array set r $rr(rdata)
+            set rr(rdata) [PackString $r(RMAILBX)]
+            append rr(rdata) [PackString $r(EMAILBX)]
+        }
+        MX {
+            foreach {pref exch} $rr(rdata) break
+            set rr(rdata) [binary format S $pref]
+            append rr(rdata) [PackName $exch]
+        }
+        TXT {
+            set str $rr(rdata)
+            set len [string length [set str $rr(rdata)]]
+            set rr(rdata) ""
+            for {set n 0} {$n < $len} {incr n} {
+                set s [string range $str $n [incr n 253]]
+                append rr(rdata) [PackString $s]
+            }
+        }          
+        NULL {}
+        SOA {
+            array set r {MNAME {} RNAME {}
+                SERIAL 0 REFRESH 0 RETRY 0 EXPIRE 0 MINIMUM 0}
+            array set r $rr(rdata)
+            set rr(rdata) [PackName $r(MNAME)]
+            append rr(rdata) [PackName $r(RNAME)]
+            append rr(rdata) [binary format IIIII $r(SERIAL) \
+                                  $r(REFRESH) $r(RETRY) $r(EXPIRE) $r(MINIMUM)]
+        }
+    }
+
+    # append the root label and the type flag and query class.
+    append data [binary format SSIS $types($rr(type)) \
+                     $classes($rr(class)) $rr(ttl) [string length $rr(rdata)]]
+    append data $rr(rdata)
+    return $data
 }
 
 # -------------------------------------------------------------------------
@@ -826,7 +914,24 @@ proc ::dns::Decode {token args} {
     variable $token
     upvar 0 $token state
 
-    binary scan $state(reply) SSSSSSc* mid hdr nQD nAN nNS nAR data
+    array set opts {-rdata 0 -query 0}
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -exact -- $option {
+            -rdata { set opts(-rdata) 1 }
+            -query { set opts(-query) 1 }
+            default {
+                return -code error "bad option \"$option\":\
+                    must be -rdata"
+            }
+        }
+        Pop args
+    }
+
+    if {$opts(-query)} {
+        binary scan $state(request) SSSSSSc* mid hdr nQD nAN nNS nAR data
+    } else {
+        binary scan $state(reply) SSSSSSc* mid hdr nQD nAN nNS nAR data
+    }
 
     set fResponse      [expr {($hdr & 0x8000) >> 15}]
     set fOpcode        [expr {($hdr & 0x7800) >> 11}]
@@ -857,11 +962,11 @@ proc ::dns::Decode {token args} {
     set r {}
     set QD [ReadQuestion $nQD $state(reply) ndx]
     lappend r QD $QD
-    set AN [ReadAnswer $nAN $state(reply) ndx]
+    set AN [ReadAnswer $nAN $state(reply) ndx $opts(-rdata)]
     lappend r AN $AN
-    set NS [ReadAnswer $nNS $state(reply) ndx]
+    set NS [ReadAnswer $nNS $state(reply) ndx $opts(-rdata)]
     lappend r NS $NS
-    set AR [ReadAnswer $nAR $state(reply) ndx]
+    set AR [ReadAnswer $nAR $state(reply) ndx $opts(-rdata)]
     lappend r AR $AR
     return $r
 }
@@ -949,7 +1054,7 @@ proc ::dns::ReadQuestion {nitems data indexvar} {
 
 # Read an answer section from a DNS message. 
 #
-proc ::dns::ReadAnswer {nitems data indexvar} {
+proc ::dns::ReadAnswer {nitems data indexvar {raw 0}} {
     variable types
     variable classes
     upvar $indexvar index
@@ -974,48 +1079,50 @@ proc ::dns::ReadAnswer {nitems data indexvar} {
         incr index 10
         set rdata [string range $data $index [expr {$index + $rdlength - 1}]]
 
-        switch -- $type {
-            A {
-                set rdata [join [Expand $rdata] .]
-            }
-            AAAA {
-                set rdata [ip::contract [ip::ToString $rdata]]
-            }
-            NS - CNAME - PTR {
-                set rdata [ReadName data $index off] 
-            }
-            MX {
-                binary scan $rdata S preference
-                set exchange [ReadName data [expr {$index + 2}] off]
-                set rdata [list $preference $exchange]
-            }
-            SRV {
-                set x $index
-                set rdata [list priority [ReadUShort data $x off]]
-                incr x $off
-                lappend rdata weight [ReadUShort data $x off]
-                incr x $off
-                lappend rdata port [ReadUShort data $x off]
-                incr x $off
-                lappend rdata target [ReadName data $x off]
-                incr x $off
-            }
-            SOA {
-                set x $index
-                set rdata [list MNAME [ReadName data $x off]]
-                incr x $off 
-                lappend rdata RNAME [ReadName data $x off]
-                incr x $off
-                lappend rdata SERIAL [ReadULong data $x off]
-                incr x $off
-                lappend rdata REFRESH [ReadLong data $x off]
-                incr x $off
-                lappend rdata RETRY [ReadLong data $x off]
-                incr x $off
-                lappend rdata EXPIRE [ReadLong data $x off]
-                incr x $off
-                lappend rdata MINIMUM [ReadULong data $x off]
-                incr x $off
+        if {! $raw} {
+            switch -- $type {
+                A {
+                    set rdata [join [Expand $rdata] .]
+                }
+                AAAA {
+                    set rdata [ip::contract [ip::ToString $rdata]]
+                }
+                NS - CNAME - PTR {
+                    set rdata [ReadName data $index off] 
+                }
+                MX {
+                    binary scan $rdata S preference
+                    set exchange [ReadName data [expr {$index + 2}] off]
+                    set rdata [list $preference $exchange]
+                }
+                SRV {
+                    set x $index
+                    set rdata [list priority [ReadUShort data $x off]]
+                    incr x $off
+                    lappend rdata weight [ReadUShort data $x off]
+                    incr x $off
+                    lappend rdata port [ReadUShort data $x off]
+                    incr x $off
+                    lappend rdata target [ReadName data $x off]
+                    incr x $off
+                }
+                SOA {
+                    set x $index
+                    set rdata [list MNAME [ReadName data $x off]]
+                    incr x $off 
+                    lappend rdata RNAME [ReadName data $x off]
+                    incr x $off
+                    lappend rdata SERIAL [ReadULong data $x off]
+                    incr x $off
+                    lappend rdata REFRESH [ReadLong data $x off]
+                    incr x $off
+                    lappend rdata RETRY [ReadLong data $x off]
+                    incr x $off
+                    lappend rdata EXPIRE [ReadLong data $x off]
+                    incr x $off
+                    lappend rdata MINIMUM [ReadULong data $x off]
+                    incr x $off
+                }
             }
         }
 
@@ -1036,7 +1143,7 @@ proc ::dns::ReadLong {datavar index usedvar} {
     upvar $usedvar used
     set r {}
     set used 0
-    if {[binary scan [string range $data $index end] I r]} {
+    if {[binary scan $data @${index}I r]} {
         set used 4
     }
     return $r
@@ -1047,10 +1154,11 @@ proc ::dns::ReadULong {datavar index usedvar} {
     upvar $usedvar used
     set r {}
     set used 0
-    if {[binary scan [string range $data $index end] cccc b1 b2 b3 b4]} {
+    if {[binary scan $data @${index}cccc b1 b2 b3 b4]} {
         set used 4
         # This gets us an unsigned value.
-        set r [expr {$b4 + ($b3 << 8) + ($b2 << 16) + ($b1 << 24)}] 
+        set r [expr {($b4 & 0xFF) + (($b3 & 0xFF) << 8) 
+                     + (($b2 & 0xFF) << 16) + ($b1 << 24)}] 
     }
     return $r
 }
