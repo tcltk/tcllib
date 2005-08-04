@@ -1,7 +1,8 @@
-2005-08-03  Stephane Arnold <sarnold75@users.sourceforge.net>
+2005-08-04  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat : Fixed a bug in [fromstr] when a number 
 	  with an exponent beginning by 0 was given (like 1.1e+099)
+	* bigfloat : Added a [fromdouble] new proc.
 
 
 2005-08-01  Arjen Markus  <arjenmarkus@users.sourceforge.net>
