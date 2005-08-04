@@ -206,6 +206,11 @@ localhost
     RFC 2782, February 2000,
     ([uri http://www.ietf.org/rfc/rfc2782.txt])
 
+[enum]
+    Ohta, M. "Incremental Zone Transfer in DNS",
+    RFC 1995, August 1996,
+    ([uri http://www.ietf.org/rfc/rfc1995.txt])
+
 [list_end]
 
 [see_also resolver(5)]
