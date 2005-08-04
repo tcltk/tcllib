@@ -1015,8 +1015,9 @@ proc ::math::bigfloat::fromstr {args} {
         # now exp can look like +099 so you need to handle octal numbers
         # too bad...
         # find the sign (if any?)
-        set found [regexp {^[\+\-]?} $exp expsign]
+        regexp {^[\+\-]?} $exp expsign
         # trim the number with left-side 0's
+        set found [string length $expsign]
         set exp $expsign[string trimleft [string range $exp $found end] 0]
         set number [lindex $tab 0]
     } else {
@@ -1079,6 +1080,28 @@ proc ::math::bigfloat::_fromstr {number exp} {
     set delta [::math::bignum::div [::math::bignum::lshift $one \
             $diff] $fivePow]
     return [normalize [list F $number [expr {-$binaryExp}] [intIncr $delta]]]
+}
+
+
+################################################################################
+# fromdouble :
+# like fromstr, but for a double scalar value
+# arguments :
+# double - the number to convert to a BigFloat
+# exp (optional) - the total number of digits
+################################################################################
+proc ::math::bigfloat::fromdouble {double {exp {}}} {
+    set mantissa [lindex [split $double e] 0]
+    set precision [string length [string map {. ""} $mantissa]]
+    if { $exp != {} && [incr exp]>$precision } {
+        return [fromstr $double [expr {$exp-$precision}]]
+    } else {
+        #set old $tcl_precision
+        #set tcl_precision 17 ;# To guarantee the whole mantissa is used!
+        set value [fromstr "$double"]
+        #set tcl_precision $old
+        return $value
+    }
 }
 
 ################################################################################
@@ -1983,8 +2006,8 @@ namespace eval ::math::bigfloat {
     foreach function {
         add mul sub div mod pow
         iszero compare equal
-        fromstr tostr todouble int2float
-        isInt isFloat
+        fromstr tostr fromdouble todouble
+        int2float isInt isFloat
         exp log sqrt round ceil floor
         sin cos tan cotan asin acos atan
         cosh sinh tanh abs opp

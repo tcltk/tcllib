@@ -129,6 +129,18 @@ proc testSuite {} {
     # fromstr problem with octal exponents
     ################################################################################
     fassert fromstr {todouble [fromstr 1.0e+099]} 1.0e+099
+    fassert fromstr {todouble [fromstr 1.0e99]} 1.0e99 
+    fassert fromstr {todouble [fromstr 1.0e-99]} 1.0e-99
+    fassert fromstr {todouble [fromstr 1.0e-099]} 1.0e-99
+    
+    
+    ################################################################################
+    # fromdouble with precision
+    ################################################################################
+    assert fromdouble {tostr [ceil [fromdouble 1.0e99 100]]} 1[zero 99]
+    # more to come...
+    fassert fromdouble {compare [fromdouble [expr {atan(1.0)*4}]] [pi $::tcl_precision]} 0
+    
     
     ################################################################################
     # abs()
