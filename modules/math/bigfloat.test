@@ -138,9 +138,13 @@ proc testSuite {} {
     # fromdouble with precision
     ################################################################################
     assert fromdouble {tostr [ceil [fromdouble 1.0e99 100]]} 1[zero 99]
+    assert fromdouble {tostr [fromdouble 1.11 3]} 1.11
+    assert fromdouble {tostr [fromdouble +1.11 3]} 1.11
+    assert fromdouble {tostr [fromdouble -1.11 3]} -1.11
+    assert fromdouble {tostr [fromdouble +01.11 3]} 1.11
+    assert fromdouble {tostr [fromdouble -01.11 3]} -1.11
     # more to come...
     fassert fromdouble {compare [fromdouble [expr {atan(1.0)*4}]] [pi $::tcl_precision]} 0
-    
     
     ################################################################################
     # abs()

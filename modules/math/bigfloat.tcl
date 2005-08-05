@@ -991,6 +991,8 @@ proc ::math::bigfloat::fromstr {args} {
         error "second argument has to be a positive integer"
     }
     # eliminate the sign problem
+    # added on 05/08/2005
+    set string [string trimleft $string +]
     if {[string index $string 0]=="-"} {
         set signe 1
         set string2 [string range $string 1 end]
@@ -1092,6 +1094,8 @@ proc ::math::bigfloat::_fromstr {number exp} {
 ################################################################################
 proc ::math::bigfloat::fromdouble {double {exp {}}} {
     set mantissa [lindex [split $double e] 0]
+    # line added by SArnold on 05/08/2005
+    set mantissa [string trimleft [string map {+ "" - ""} $mantissa] 0]
     set precision [string length [string map {. ""} $mantissa]]
     if { $exp != {} && [incr exp]>$precision } {
         return [fromstr $double [expr {$exp-$precision}]]
