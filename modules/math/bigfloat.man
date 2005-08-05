@@ -31,7 +31,7 @@ convert BigFloats and BigInts from the internal representation to a string, and 
 [section "INTRODUCTION"]
 [list_begin definitions]
 
-[call [cmd fromstr] [arg string] ?[arg trailingZeros]?]
+[call [cmd fromstr] [arg string] [opt [arg trailingZeros]]]
 Converts [emph string] into a BigFloat, or a BigInt. Its precision
 is at least the number of digits provided by [emph string].
 If the [arg string] contains only digits and eventually a minus sign, it is considered as
@@ -83,10 +83,12 @@ There is an issue with number equal to zero
 (see section [sectref PRECISION]) : even if the precision about 0 is
 more than one digit, it will always be displayed as the '[emph 0]' string.
 
-[call [cmd fromdouble] [arg double] ?[arg decimals]?]
-Converts a double (a simple floating-point value) to a BigFloat, with exactly [arg decimals]
-digits.
-Without the [arg decimals] argument, it behaves like [emph fromstr].
+[call [cmd fromdouble] [arg double] [opt [arg decimals]]]
+
+Converts a double (a simple floating-point value) to a BigFloat, with
+exactly [arg decimals] digits.  Without the [arg decimals] argument,
+it behaves like [emph fromstr].
+
 [example_begin]
 tostr [lb]fromstr 1.111 4[rb]
 # returns : 1.111000 (3 zeroes)
@@ -104,7 +106,7 @@ Returns 1 if [emph number] is a BigInt, 0 otherwise.
 [call [cmd isFloat] [arg number]]
 Returns 1 if [emph number] is a BigFloat, 0 otherwise.
 
-[call [cmd int2float] [arg integer] ?[arg decimals]?]
+[call [cmd int2float] [arg integer] [opt [arg decimals]]]
 Converts a BigInt to a BigFloat with [emph decimals] trailing zeroes.
 When converting back to string, one decimal is lost.
 That is why the default, and minimal, number of [emph decimals] is 1.

@@ -1,9 +1,14 @@
+2005-08-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bigfloat.man: Replaced a number of ?...? occurences to markup
+	  optional arguments with the more correct [opt ...].
+
 2005-08-04  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat : Fixed a bug in [fromstr] when a number 
 	  with an exponent beginning by 0 was given (like 1.1e+099)
-	* bigfloat : Added a [fromdouble] new proc.
 
+	* bigfloat : Added a [fromdouble] new proc.
 
 2005-08-01  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
@@ -11,12 +16,14 @@
           (anti-spam measure)
 
 2005-07-26  Stephane Arnold
+
 	* Changed in many places : '[pi $precision]' 
 	  to '[pi $precision 1]' in which $precision is treated
 	  as binary digit length (instead of decimals)
 	  since the internal representation of the mantissa is binary
 	
 2005-07-01  Stephane Arnold <sarnold75@users.sourceforge.net>
+
 	* bigfloat.man,bigfloat.test,bigfloat.tcl : updated
 	  copyright 2005
 	* bigfloat.man : put the correct package version (1.2)
