@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::optimize n 0.2]
+[manpage_begin math::optimize n 1.0]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Optimisation routines}]
 [require Tcl 8.2]
-[require math::optimize [opt 0.2]]
+[require math::optimize [opt 1.0]]
 [description]
 [para]
 This package implements several optimisation algorithms:
@@ -142,7 +142,7 @@ print a message on the standard output giving the abscissa and ordinate
 at each function evaluation, together with an indication of what type
 of interpolation was chosen.  Default is 0 (no trace).
 
-[call [cmd ::math::optimize::solveLinearProgram] [arg constraints] [arg objective]]
+[call [cmd ::math::optimize::solveLinearProgram] [arg objective] [arg constraints]]
 Solve a [emph "linear program"] in standard form using a straightforward
 implementation of the Simplex algorithm. (In the explanation below: The
 linear program has N constraints and M variables).
@@ -151,11 +151,19 @@ The procedure returns a list of M values, the values for which the
 objective function is maximal or a single keyword if the linear program
 is not feasible or unbounded (either "unfeasible" or "unbounded")
 [nl]
+[arg objective] - The M coefficients of the objective function
+[nl]
 [arg constraints] - Matrix of coefficients plus maximum values that
 implement the linear constraints. It is expected to be a list of N lists
 of M+1 numbers each, M coefficients and the maximum value.
+
+[call [cmd ::math::optimize::linearProgramMaximum] [arg objective] [arg result]]
+Convenience function to return the maximum for the solution found by the
+solveLinearProgram procedure.
 [nl]
 [arg objective] - The M coefficients of the objective function
+[nl]
+[arg result] - The result as returned by solveLinearProgram
 [list_end]
 
 [section NOTES]
@@ -219,9 +227,9 @@ This problem can be solved as follows:
 [example {
 
    set solution [::math::optimize::solveLinearProgram \
+        { 3.0   2.0 } \
       { { 1.0   1.0   1.0 }
-        { 2.0   5.0  10.0 } } \
-        { 3.0   2.0 }]
+        { 2.0   5.0  10.0 } } ]
 }]
 [para]
 Note, that a constraint like:
