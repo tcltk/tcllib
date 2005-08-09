@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: optimize.tcl,v 1.7 2005/05/04 13:28:49 arjenmarkus Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.8 2005/08/09 07:37:18 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@
 #    Namespace for the commands
 #
 namespace eval ::math::optimize {
-   namespace export minimum  maximum solveLinearProgram
+   namespace export minimum  maximum solveLinearProgram linearProgramMaximum
    namespace export min_bound_1d min_unbound_1d
 
    # Possible extension: minimumExpr, maximumExpr
@@ -592,40 +592,370 @@ proc ::math::optimize::min_unbound_1d { f x1 x2 args } {
 		      min_bound_1d $f $a $c -guess $b -fguess $fb]]
 }
 
+# solveLinearProgram
+#    Solve a linear program in standard form
 #
-# Announce the package
+# Arguments:
+#    objective     Vector defining the objective function
+#    constraints   Matrix of constraints (as a list of lists)
 #
-package provide math::optimize 0.2
-
-if { 0 } {
+# Return value:
+#    Computed values for the coordinates or "unbounded" or "infeasible"
 #
-# Some simple tests
-#
-   namespace import ::math::optimize::*
-   proc f1 { x } { expr {$x*$x} }
-   proc f2 { x } { expr {cos($x)} }
-   proc f3 { x } { expr {sin($x)} }
-   proc f4 { x } { expr {$x*(1.0-$x)} }
+proc ::math::optimize::solveLinearProgram { objective constraints } {
+    #
+    # Check the arguments first and then put them in a more convenient
+    # form
+    #
 
-   puts "Minimize f(x) = x*x:"
-   puts "Between 0 and 1:  [minimum 0.0 1.0  f1] (expected: 0)"
-   puts "Between -1 and 3: [minimum -1.0 3.0 f1] (expected: 0)"
-   puts "Between  1 and 3: [minimum 1.0 3.0  f1] (expected: 1)"
+    foreach {nconst nvars matrix} \
+        [SimplexPrepareMatrix $objective $constraints] {break}
 
-   puts "Minimize f(x) = cos(x):"
-   puts "Between 0 and 1:  [minimum 0.0 1.0  f2] (expected: 1)"
-   puts "Between -1 and 3: [minimum -1.0 3.0 f2] (expected: 3)"
-   puts "Between  1 and 6: [minimum 1.0 6.0  f2] (expected: pi)"
+    set solution [SimplexSolve $nconst nvars $matrix]
 
-   puts "Minimize f(x) = sin(x):"
-   puts "Between 0 and 1:   [minimum  0.0 1.0  f3 ] (expected: 0)"
-   puts "Between -1 and 3:  [minimum -1.0 3.0  f3 ] (expected: -1)"
-   puts "Between  1 and 6:  [minimum  1.0 6.0  f3 ] (expected: 1.5pi)"
-   puts "Between  0 and 60: [minimum  0.0 60.0 f3 ] (expected: ???)"
-   puts "Between  0 and 6:  [minimum  0.0 6.0  f3 1.0e-7] (expected: 1.5pi)"
-
-   puts "Maximize f(x) = x*(1-x):"
-   puts "Between 0 and 1:  [maximum 0.0 1.0  f4 ] (expected: 0.5)"
-   puts "Between -1 and 3: [maximum -1.0 3.0 f4 ] (expected: 0.5)"
-   puts "Between  1 and 3: [maximum 1.0 3.0  f4 ] (expected: 1)"
+    if { [llength $solution] > 1 } {
+        return [lrange $solution 0 [expr {$nvars-1}]]
+    } else {
+        return $solution
+    }
 }
+
+# linearProgramMaximum --
+#    Compute the value attained at the optimum
+#
+# Arguments:
+#    objective     The coefficients of the objective function
+#    result        The coordinate values as obtained by solving the program
+#
+# Return value:
+#    Value at the maximum point
+#
+proc ::math::optimize::linearProgramMaximum {objective result} {
+
+    set value    0.0
+
+    foreach coeff $objective coord $result {
+        set value [expr {$value+$coeff*$coord}]
+    }
+
+    return $value
+}
+
+# SimplexPrintMatrix
+#    Debugging routine: print the matrix in easy to read form
+#
+# Arguments:
+#    matrix        Matrix to be printed
+#
+# Return value:
+#    None
+#
+# Note:
+#    The tableau should be transposed ...
+#
+proc ::math::optimize::SimplexPrintMatrix {matrix} {
+    puts "\nBasis:\t[join [lindex $matrix 0] \t]"
+    foreach col [lrange $matrix 1 end] {
+        puts "      \t[join $col \t]"
+    }
+}
+
+# SimplexPrepareMatrix
+#    Prepare the standard tableau from all program data
+#
+# Arguments:
+#    objective     Vector defining the objective function
+#    constraints   Matrix of constraints (as a list of lists)
+#
+# Return value:
+#    List of values as a standard tableau and two values
+#    for the sizes
+#
+proc ::math::optimize::SimplexPrepareMatrix {objective constraints} {
+
+    #
+    # Check the arguments first
+    #
+    set nconst [llength $constraints]
+    set ncols {}
+    foreach row $constraints {
+        if { $ncols == {} } {
+            set ncols [llength $row]
+        } else {
+            if { $ncols != [llength $row] } {
+                return -code error -errorcode ARGS "Incorrectly formed constraints matrix"
+            }
+        }
+    }
+
+    set nvars [expr {$ncols-1}]
+
+    if { [llength $objective] != $nvars } {
+        return -code error -errorcode ARGS "Incorrect length for objective vector"
+    }
+
+    #
+    # Set up the tableau:
+    # Easiest manipulations if we store the columns first
+    # So:
+    # - First column is the list of variable indices in the basis
+    # - Second column is the list of maximum values
+    # - "nvars" columns that follow: the coefficients for the actual
+    #   variables
+    # - last "nconst" columns: the slack variables
+    #
+    set matrix   [list]
+    set lastrow  [concat $objective [list 0.0]]
+
+    set newcol   [list]
+    for {set idx 0} {$idx < $nconst} {incr idx} {
+        lappend newcol [expr {$nvars+$idx}]
+    }
+    lappend newcol "?"
+    lappend matrix $newcol
+
+    set zvector [list]
+    foreach row $constraints {
+        lappend zvector [lindex $row end]
+    }
+    lappend zvector 0.0
+    lappend matrix $zvector
+
+    for {set idx 0} {$idx < $nvars} {incr idx} {
+        set newcol [list]
+        foreach row $constraints {
+            lappend newcol [expr {double([lindex $row $idx])}]
+        }
+        lappend newcol [expr {-double([lindex $lastrow $idx])}]
+         lappend matrix $newcol
+    }
+
+    #
+    # Add the columns for the slack variables
+    #
+    set zeros {}
+    for {set idx 0} {$idx <= $nconst} {incr idx} {
+        lappend zeros 0.0
+    }
+    for {set idx 0} {$idx < $nconst} {incr idx} {
+        lappend matrix [lreplace $zeros $idx $idx 1.0]
+    }
+
+    return [list $nconst $nvars $matrix]
+}
+
+# SimplexSolve --
+#    Solve the given linear program using the simplex method
+#
+# Arguments:
+#    nconst        Number of constraints
+#    nvars         Number of actual variables
+#    tableau       Standard tableau (as a list of columns)
+#
+# Return value:
+#    List of values for the actual variables
+#
+proc ::math::optimize::SimplexSolve {nconst nvars tableau} {
+    set end 0
+    while { !$end } {
+
+        #
+        # Find the new variable to put in the basis
+        #
+        set nextcol [SimplexFindNextColumn $tableau]
+        if { $nextcol == -1 } {
+            set end 1
+            continue
+        }
+
+        #
+        # Now determine which one should leave
+        # TODO: is a lack of a proper row indeed an
+        #       indication of the infeasibility?
+        #
+        set nextrow [SimplexFindNextRow $tableau $nextcol]
+        if { $nextrow == -1 } {
+            return "infeasible"
+        }
+
+        #
+        # Make the vector for sweeping through the tableau
+        #
+        set vector [SimplexMakeVector $tableau $nextcol $nextrow]
+
+        #
+        # Sweep through the tableau
+        #
+        set tableau [SimplexNewTableau $tableau $nextcol $nextrow $vector]
+    }
+
+    #
+    # Now we can return the result
+    #
+    SimplexResult $tableau
+}
+
+# SimplexResult --
+#    Reconstruct the result vector
+#
+# Arguments:
+#    tableau       Standard tableau (as a list of columns)
+#
+# Return value:
+#    Vector of values representing the maximum point
+#
+proc ::math::optimize::SimplexResult {tableau} {
+    set result {}
+
+    set firstcol  [lindex $tableau 0]
+    set secondcol [lindex $tableau 1]
+    set result    {}
+
+    set nvars     [expr {[llength $tableau]-2}]
+    for {set i 0} {$i < $nvars } { incr i } {
+        lappend result 0.0
+    }
+
+    set idx 0
+    foreach col [lrange $firstcol 0 end-1] {
+        set result [lreplace $result $col $col [lindex $secondcol $idx]]
+        incr idx
+    }
+
+    return $result
+}
+
+# SimplexFindNextColumn --
+#    Find the next column - the one with the largest negative
+#    coefficient
+#
+# Arguments:
+#    tableau       Standard tableau (as a list of columns)
+#
+# Return value:
+#    Index of the column
+#
+proc ::math::optimize::SimplexFindNextColumn {tableau} {
+    set idx        0
+    set minidx    -1
+    set mincoeff   0.0
+
+    foreach col [lrange $tableau 2 end] {
+        set coeff [lindex $col end]
+        if { $coeff < 0.0 } {
+            if { $coeff < $mincoeff } {
+                set minidx $idx
+               set mincoeff $coeff
+            }
+        }
+        incr idx
+    }
+
+    return $minidx
+}
+
+# SimplexFindNextRow --
+#    Find the next row - the one with the largest negative
+#    coefficient
+#
+# Arguments:
+#    tableau       Standard tableau (as a list of columns)
+#    nextcol       Index of the variable that will replace this one
+#
+# Return value:
+#    Index of the row
+#
+proc ::math::optimize::SimplexFindNextRow {tableau nextcol} {
+    set idx        0
+    set minidx    -1
+    set mincoeff   {}
+
+    set bvalues [lrange [lindex $tableau 1] 0 end-1]
+    set yvalues [lrange [lindex $tableau [expr {2+$nextcol}]] 0 end-1]
+
+    foreach rowcoeff $bvalues divcoeff $yvalues {
+        if { $divcoeff > 0.0 } {
+            set coeff [expr {$rowcoeff/$divcoeff}]
+
+            if { $mincoeff == {} || $coeff < $mincoeff } {
+                set minidx $idx
+                set mincoeff $coeff
+            }
+        }
+        incr idx
+    }
+
+    return $minidx
+}
+
+# SimplexMakeVector --
+#    Make the "sweep" vector
+#
+# Arguments:
+#    tableau       Standard tableau (as a list of columns)
+#    nextcol       Index of the variable that will replace this one
+#    nextrow       Index of the variable in the base that will be replaced
+#
+# Return value:
+#    Vector to be used to update the coefficients of the tableau
+#
+proc ::math::optimize::SimplexMakeVector {tableau nextcol nextrow} {
+
+    set idx      0
+    set vector   {}
+    set column   [lindex $tableau [expr {2+$nextcol}]]
+    set divcoeff [lindex $column $nextrow]
+
+    foreach colcoeff $column {
+        if { $idx != $nextrow } {
+            set coeff [expr {-$colcoeff/$divcoeff}]
+        } else {
+            set coeff [expr {1.0/$divcoeff-1.0}]
+        }
+        lappend vector $coeff
+        incr idx
+    }
+
+    return $vector
+}
+
+# SimplexNewTableau --
+#    Sweep through the tableau and create the new one
+#
+# Arguments:
+#    tableau       Standard tableau (as a list of columns)
+#    nextcol       Index of the variable that will replace this one
+#    nextrow       Index of the variable in the base that will be replaced
+#    vector        Vector to sweep with
+#
+# Return value:
+#    New tableau
+#
+proc ::math::optimize::SimplexNewTableau {tableau nextcol nextrow vector} {
+
+    #
+    # The first column: replace the nextrow-th element
+    # The second column: replace the value at the nextrow-th element
+    # For all the others: the same receipe
+    #
+    set firstcol   [lreplace [lindex $tableau 0] $nextrow $nextrow $nextcol]
+    set newtableau [list $firstcol]
+
+    #
+    # The rest of the matrix
+    #
+    foreach column [lrange $tableau 1 end] {
+        set yval   [lindex $column $nextrow]
+        set newcol {}
+        foreach c $column vcoeff $vector {
+            set newval [expr {$c+$yval*$vcoeff}]
+            lappend newcol $newval
+        }
+        lappend newtableau $newcol
+    }
+
+    return $newtableau
+}
+
+# Now we can announce our presence
+package provide math::optimize 1.0
