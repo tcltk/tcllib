@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.7 2004/09/22 11:05:52 arjenmarkus Exp $
+# $Id: optimize.test,v 1.8 2005/08/09 07:37:18 arjenmarkus Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004 by Kevin B. Kenny
@@ -403,100 +403,94 @@ test linmin-4.3 {bad arg} \
     -returnCodes 1 \
     -result "unknown option \"-bad\", should be -trace"
 
+#
+# Test the solveLinearProgram procedure
+#
+
+set ::symm_constraints {
+       { 1.0   2.0  1.0 }
+       { 2.0   1.0  1.0 } }
+
+test linprog-1.0 "Symmetric constraints, case 1" \
+     -body {
+	set result [solveLinearProgram {1.0 1.0} $::symm_constraints]
+	set ok 1
+	if { ! [within_range [lindex $result 0]  0.333300 0.333360] ||
+	     ! [within_range [lindex $result 1]  0.333300 0.333360] } {
+	   set ok 0
+	}
+	set ok
+    } \
+    -result 1
+
+test linprog-1.1 "Symmetric constraints, case 2" \
+     -body {
+	set result [solveLinearProgram {1.0 0.0} $::symm_constraints]
+	set ok 1
+	if { ! [within_range [lindex $result 0]  0.49900 0.50100] ||
+	     ! [within_range [lindex $result 1] -0.00100 0.00100] } {
+	    set ok 0
+	}
+	set ok
+    } \
+    -result 1
+
+test linprog-1.2 "Symmetric constraints, case 3" \
+    -body {
+	set result [solveLinearProgram {0.0 1.0} $::symm_constraints]
+	set ok 1
+	if { ! [within_range [lindex $result 1]  0.499900 0.500100] ||
+	     ! [within_range [lindex $result 0] -0.000100 0.000100] } {
+	      set ok 0
+	}
+	set ok
+    } \
+    -result 1
+
+test linprog-1.3 "Symmetric constraints, case 4" \
+    -body {
+	set result [solveLinearProgram {3.0 4.0} $::symm_constraints]
+	set ok 1
+	if { ! [within_range [lindex $result 0]  0.333300 0.333360] ||
+	     ! [within_range [lindex $result 1]  0.333300 0.333360] } {
+	      set ok 0
+	}
+	set ok
+    } \
+    -result 1
+
+#
+# TODO: Current algorithm makes no difference between infeasible
+#       and unbounded
+#
+test linprog-2.1 "Unbounded program" \
+    -body {
+	set result [solveLinearProgram {3.0 4.0} {{1.0 -2.0 1.0} {-2.0 1.0 1.0}} ]
+    } \
+    -result "infeasible"
+
+test linprog-3.1 "Simple 3D program" \
+   -body {
+	set result [solveLinearProgram \
+	   {1.0 1.0 1.0} \
+	   {{1.0  1.0  2.0  1.0}
+	    {1.0  2.0  1.0  1.0}
+	    {2.0  1.0  1.0  1.0}}]
+	set ok 1
+	if { ! [within_range [lindex $result 0]  0.249900 0.250100] ||
+	     ! [within_range [lindex $result 1]  0.249900 0.250100] ||
+	     ! [within_range [lindex $result 2]  0.249900 0.250100] } {
+	      set ok 0
+	}
+	set ok
+   } \
+   -result 1
+
 
 ::tcltest::cleanupTests
 
 # Local Variables:
 # mode: tcl
 # End:
-
-
-#
-# Test the solveLinearProgram procedure
-# - not implemented yet
-#
-if { 0 } {
-set symm_constraints {
-       { 1.0   2.0  1.0 }
-       { 2.0   1.0  1.0 } }
-
-test "LinearProg-1.0" "Symmetric constraints, case 1" {
-   set result [solveLinearProgram $::symm_constraints {1.0 1.0}]
-   set ok 1
-   if { ! [within_range [lindex $result 0]  0.333300 0.333360] ||
-        ! [within_range [lindex $result 1]  0.333300 0.333360] } {
-         set ok 0
-   }
-   set ok
-} 1
-
-test "LinearProg-1.1" "Symmetric constraints, case 2" {
-   set result [solveLinearProgram $::symm_constraints {1.0 0.0}]
-   set ok 1
-   if { ! [within_range [lindex $result 0]  0.999900 1.000100] ||
-        ! [within_range [lindex $result 1] -0.000100 0.000100] } {
-         set ok 0
-   }
-   set ok
-} 1
-
-test "LinearProg-1.2" "Symmetric constraints, case 3" {
-   set result [solveLinearProgram $::symm_constraints {0.0 1.0}]
-   set ok 1
-   if { ! [within_range [lindex $result 1]  0.999900 1.000100] ||
-        ! [within_range [lindex $result 0] -0.000100 0.000100] } {
-         set ok 0
-   }
-   set ok
-} 1
-
-test "LinearProg-1.3" "Symmetric constraints, case 4" {
-   set result [solveLinearProgram $::symm_constraints {3.0 4.0}]
-   set ok 1
-   if { ! [within_range [lindex $result 0]  0.333300 0.333360] ||
-        ! [within_range [lindex $result 1]  0.333300 0.333360] } {
-         set ok 0
-   }
-   set ok
-} 1
-
-test "LinearProg-2.1" "Unbounded program" {
-   set result [solveLinearProgram {{1.0 -2.0 1.0} {-2.0 1.0 1.0}} {3.0 4.0}]
-} "unbounded"
-
-test "LinearProg-2.2" "Infeasible program" {
-   set result [solveLinearProgram {{1.0  0.0 2.0} {1.0 1.0 1.0}} {1.0 1.0}]
-} "infeasible"
-
-test "LinearProg-3.1" "Simple 3D program" {
-   set result [solveLinearProgram \
-      {{1.0  1.0  2.0  1.0}
-       {1.0  2.0  1.0  1.0}
-       {2.0  1.0  1.0  1.0}} {1.0 1.0 1.0}]
-   set ok 1
-   if { ! [within_range [lindex $result 0]  0.249900 0.250100] ||
-        ! [within_range [lindex $result 1]  0.249900 0.250100] ||
-        ! [within_range [lindex $result 2]  0.249900 0.250100] } {
-         set ok 0
-   }
-   set ok
-} 1
-
-test "LinearProg-3.2" "Redundant constraints" {
-   set result [solveLinearProgram \
-      {{1.0  0.0 10.0}
-       {0.0  1.0 10.0}
-       {-1.0 -2.0 -1.0}
-       {-1.0 -1.0 -1.0}} {1.0 1.0}]
-   set ok 1
-   # Expected answer?
-   #if { ! [within_range [lindex $result 0]  0.249900 0.250100] ||
-   #     ! [within_range [lindex $result 1]  0.249900 0.250100] } {
-   #      set ok 0
-   #}
-   set ok
-} 1
-
-} ;# End of if 0
 
 } ;# End of optimizetest namespace
