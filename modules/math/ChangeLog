@@ -1,3 +1,10 @@
+2005-08-09  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Added the linear programming routines that were 
+          described in the man page, but not actually there
+        * Updated the test file and man page for this
+        * Updated the pkgIndex.tcl file (optimize now at 1.0)
+
 2005-08-05  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat.tcl : Fixed a bug in [fromstr] when a number 
