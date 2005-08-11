@@ -33,6 +33,8 @@ namespace eval ::snit:: {
     # stack trace.
     # NOTE: Not Yet Implemented
     variable prettyStackTrace 1
+
+    variable hulltypes {frame toplevel ttk::frame}
 }
 
 #-----------------------------------------------------------------------
@@ -899,15 +901,17 @@ proc ::snit::Comp.statement.widgetclass {name} {
 # not for snit::types or snit::widgetadaptors.
 proc ::snit::Comp.statement.hulltype {name} {
     variable compile
+    variable hulltypes
 
     # First, hulltype can only be set for true widgets
     if {"widget" != $compile(which)} {
         error "hulltype cannot be set for snit::$compile(which)s"
     }
 
-    # Next, it must be either "frame" or "toplevel"
-    if {"frame" != $name && "toplevel" != $name} {
-        error "invalid hulltype \"$name\", should be \"frame\" or \"toplevel\""
+    # Next, it must be one of the valid hulltypes (frame, toplevel, ...)
+    if {[lsearch -exact $hulltypes $name] == -1} {
+        error "invalid hulltype \"$name\", should be one of\
+		[join $hulltypes {, }]"
     }
 
     if {"" != $compile(hulltype)} {
