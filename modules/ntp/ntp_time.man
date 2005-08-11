@@ -1,4 +1,4 @@
-[manpage_begin ntp_time n 1.1]
+[manpage_begin ntp_time n 1.2]
 [copyright {2002, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Network Time Facilities}]
 [titledesc {Tcl Time Service Client}]
@@ -34,6 +34,11 @@ Get the time from an SNTP server. This accepts exactly the same
 arguments as [cmd ::time::gettime] except that the default port is 
 [const 123]. The result is a token as per [cmd ::time::gettime] and
 should be handled in the same way.
+[nl]
+Note that it is unlikely that any SNTP server will reply using tcp so
+you will require the [package tcludp] or the [package ceptcl]
+package. If a suitable package can be loaded then the udp protocol
+will be used by default.
 
 [call [cmd ::time::configure] [opt [arg "options"]]]
 
@@ -95,9 +100,21 @@ Get the current value for the named configuration option.
 }]
 
 [example {
-% set tok [::time::getsntp ntp.blueyonder.co.uk]
+% set tok [::time::getsntp pool.ntp.org]
 % set t [::time::unixtime $tok]
 % ::time::cleanup $tok
+}]
+
+[example {
+proc on_time {token} {
+   if {[time::status $token] eq "ok"} {
+      puts [clock format [time::unixtime $token]]
+   } else {
+      puts [time::error $token]
+   }
+   time::cleanup $token
+}
+time::getsntp -command on_time pool.ntp.org
 }]
 
 [see_also ntp]

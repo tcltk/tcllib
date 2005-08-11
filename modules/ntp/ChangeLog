@@ -1,3 +1,9 @@
+2005-08-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl: SNTP wasn't working (raised by Donal Fellows). 
+	Added support for ceptcl in addition to tcludp. Incremented
+	version.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
