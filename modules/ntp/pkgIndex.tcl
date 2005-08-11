@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded time 1.1 [list source [file join $dir time.tcl]]
+package ifneeded time 1.2 [list source [file join $dir time.tcl]]
