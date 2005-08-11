@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.14 2004/08/19 09:09:34 patthoyts Exp $
+# $Id: time.tcl,v 1.15 2005/08/11 21:48:27 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
-    variable version 1.1
-    variable rcsid {$Id: time.tcl,v 1.14 2004/08/19 09:09:34 patthoyts Exp $}
+    variable version 1.2
+    variable rcsid {$Id: time.tcl,v 1.15 2005/08/11 21:48:27 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -31,6 +31,10 @@ namespace eval ::time {
         }
         if {![catch {package require udp}]} {
             set options(-protocol) udp
+        } else {
+            if {![catch {package require ceptcl}]} {
+                set options(protocol) udp
+            }
         }
         log::lvSuppressLE emergency 0
         log::lvSuppressLE $options(-loglevel) 1
@@ -174,17 +178,35 @@ proc ::time::QueryTime {token} {
     variable $token
     upvar 0 $token State
 
-    if {$State(-protocol) == "udp"} {
-        set State(sock) [udp_open]
-        udp_conf $State(sock) $State(-timeserver) $State(-port)
-    } else {
-        if {[catch {
-            set State(sock) [socket $State(-timeserver) $State(-port)]
-        } sockerror]} {
+    if {[string equal $State(-protocol) "udp"]} {
+        if {[llength [package provide ceptcl]] == 0 \
+                && [llength [package provide udp]] == 0} {
             set State(status) error
-            set State(error) $sockerror
+            set State(error) "udp support is not available, \
+                either ceptcl or tcludp required"
             return $token
         }
+    }
+
+    if {[catch {
+        if {[string equal $State(-protocol) "udp"]} {
+            if {[llength [package provide ceptcl]] > 0} {
+                # using ceptcl
+                set State(sock) [cep -type datagram \
+                                     $State(-timeserver) $State(-port)]
+                fconfigure $State(sock) -blocking 0
+            } else {
+                # using tcludp
+                set State(sock) [udp_open]
+                udp_conf $State(sock) $State(-timeserver) $State(-port)
+            }
+        } else {
+            set State(sock) [socket $State(-timeserver) $State(-port)]
+        }
+    } sockerr]} {
+        set State(status) error
+        set State(error) $sockerr
+        return $token
     }
 
     # setup the timeout
@@ -196,8 +218,10 @@ proc ::time::QueryTime {token} {
     set State(status) connect
     fconfigure $State(sock) -translation binary -buffering none
 
-    if {$State(-protocol) == "udp"} {
-        puts -nonewline $State(sock) "abcd"
+    # SNTP wants a 48 byte request while TIME doesn't care and is happy
+    # to accept any old rubbish.
+    if {[string equal $State(-protocol) "udp"]} {
+        puts -nonewline $State(sock) \x0b[string repeat \0 47]
     }
 
     fileevent $State(sock) readable \
