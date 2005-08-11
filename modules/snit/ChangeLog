@@ -1,3 +1,8 @@
+2005-08-10  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* snit.tcl (::snit::Comp.statement.hulltype): make hulltype one of
+	$::snit::hulltypes, allow ttk::frame
+
 2005-06-07  Will Duquette  <will@wjduquette.com>
 
 	* snit.test (bug-2.1, bug-2.2): Added the "tk" constraint, so that
