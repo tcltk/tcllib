@@ -1,4 +1,32 @@
+2005-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree/*.[ch]: Cleaned code up, per Tcl styleguide.
+
+	* tree/tn.c (tn_not{leaf,node}): Fixed buggy node unlink when list
+	  contained only one node. Was a no-op, keeping a reference to
+	  deallocated memory, and writing to it when the list was expanded
+	  and then reduced again, causing memory smashes.
+
 2005-07-25  Andreas Kupries <andreask@activestate.com>
+
+	* tree.tcl: Moved tcl implementation into "tree_tcl.tcl". This
+	  file now contains management code looking for and selecting from
+	  the available implementations.
+	* tree_tcl.tcl (**NEW**): Contains the tcl implementation of
+	  struct::tree, moved out of "tree.tcl".
+	* tree_c.tcl (**NEW**): Contains the toplevel parts of the critcl
+	  implementation of struct::tree.
+	* tree/*.[ch] (**NEW**): Contains the bulk of the critcl
+	  implementation of struct::tree.
+	* tree.test: Moved actual tests into "tree.testsuite". This file
+	  now contains the generic helper commands and management code
+	  loading, activating and iterating over all available
+	  implementations.	
+	* tree.testsuite (**NEW**): Contains the actual tests, moved out
+	  of "tree.test". The tests were updated to take the cosmetic
+	  differences between tcl and critcl implementations into account.
+	* ../package_version.tcl: Added the critcl implementation of
+	  struct::tree to the list of files to compile for tcllibc.
 
 	* struct_tree.man: Added clarifications regarding acceptable
 	  arguments.

@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: da_accept.test,v 1.1 2004/04/09 21:11:50 andreas_kupries Exp $
+# RCS: @(#) $Id: da_accept.test,v 1.2 2005/08/16 06:06:29 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Regular expression for C comments (Extended notation, using the 'not' operator).

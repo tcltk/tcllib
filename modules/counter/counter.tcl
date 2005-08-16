@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.tcl,v 1.20 2005/04/12 02:35:14 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.tcl,v 1.21 2005/08/16 06:06:27 andreas_kupries Exp $
 
 package require Tcl 8.2
 

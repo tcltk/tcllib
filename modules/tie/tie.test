@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie.test,v 1.4 2005/01/29 05:39:02 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.test,v 1.5 2005/08/16 06:06:30 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for tie."

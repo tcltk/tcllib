@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: rtcore.tcl,v 1.3 2005/02/18 06:38:32 andreas_kupries Exp $
+# RCS: @(#) $Id: rtcore.tcl,v 1.4 2005/08/16 06:06:28 andreas_kupries Exp $
 
 #####
 #

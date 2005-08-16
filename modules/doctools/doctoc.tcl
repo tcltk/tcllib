@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.8 2005/04/14 06:07:31 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.9 2005/08/16 06:06:27 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander

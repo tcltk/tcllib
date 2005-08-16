@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: changelog.tcl,v 1.3 2004/10/03 23:06:56 andreas_kupries Exp $
+# RCS: @(#) $Id: changelog.tcl,v 1.4 2005/08/16 06:06:27 andreas_kupries Exp $
 
 
 # FUTURE -- Expand pre-parsed log (nested lists) into flat structures

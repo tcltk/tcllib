@@ -5,7 +5,7 @@
 #
 # Released under the tcllib license.
 #
-# $Id: urn-scheme.tcl,v 1.9 2004/09/23 03:52:42 andreas_kupries Exp $
+# $Id: urn-scheme.tcl,v 1.10 2005/08/16 06:06:30 andreas_kupries Exp $
 # -------------------------------------------------------------------------
 
 package require uri      1.1.2

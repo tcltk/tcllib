@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: idx.nroff,v 1.4 2004/08/10 07:01:32 andreas_kupries Exp $
+# $Id: idx.nroff,v 1.5 2005/08/16 06:06:28 andreas_kupries Exp $
 #
 # Engine to convert a docidx document into nroff.
 #
