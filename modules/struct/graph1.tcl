@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph1.tcl,v 1.2 2004/09/22 04:47:43 andreas_kupries Exp $
+# RCS: @(#) $Id: graph1.tcl,v 1.3 2005/08/16 06:06:30 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble

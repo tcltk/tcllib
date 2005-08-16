@@ -1,4 +1,4 @@
-# $Id: package_rpm.txt,v 1.1 2005/04/23 05:32:01 andreas_kupries Exp $
+# $Id: package_rpm.txt,v 1.2 2005/08/16 06:06:26 andreas_kupries Exp $
 
 %define version @PACKAGE_VERSION@
 %define directory /usr
