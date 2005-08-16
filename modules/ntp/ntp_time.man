@@ -3,7 +3,7 @@
 [moddesc   {Network Time Facilities}]
 [titledesc {Tcl Time Service Client}]
 [require Tcl 8.0]
-[require time [opt 1.1]]
+[require time [opt 1.2]]
 [description]
 [para]
 
