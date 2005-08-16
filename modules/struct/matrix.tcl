@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.19 2005/05/11 04:19:01 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.20 2005/08/16 06:06:30 andreas_kupries Exp $
 
 package require Tcl 8.2
 

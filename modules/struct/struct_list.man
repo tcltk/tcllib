@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.12 2005/02/24 05:33:26 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.13 2005/08/16 06:06:30 andreas_kupries Exp $}]
 [manpage_begin struct::list n 1.4]
 [copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003-2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]

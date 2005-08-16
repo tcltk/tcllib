@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.10 2004/10/03 23:06:58 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.11 2005/08/16 06:06:30 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
 package require log  ; # tcllib | Logging package
