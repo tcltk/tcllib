@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.14 2004/06/02 04:39:30 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.15 2005/08/16 06:06:30 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

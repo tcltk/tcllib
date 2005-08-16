@@ -76,28 +76,13 @@
 #
 #
 #   $Log: des.tcl,v $
-#   Revision 1.9  2004/10/03 23:06:56  andreas_kupries
-#   Mainly updated docs to latest round of changes.
+#   Revision 1.10  2005/08/16 06:06:27  andreas_kupries
+#   Polishing the C code.
 #
-#   Get package index.
+#   Moved some general code out of the testsuite into the
+#   controller.
 #
-#   Import treeql work by Colin.
-#
-#   Testsuite fix in cmdline.
-#
-#   TreeQL doc fixup, new files for TreeQL ideas.
-#
-#   Struct::Tree doc fixup (examples, structure, node creation).
-#
-#   Tar file doc extension, added keywords and descriptions.
-#
-#   Updated version numbres according to the changes made.
-#
-#   Added README for the new release.
-#
-#   Version sync and move of K for 8.5 code, fogotten earlier.
-#
-#   First doctools documentation.
+#   Import of SNTP fixes by Pat Thoyts.
 #
 #   Revision 1.6  2003/05/07 21:51:30  patthoyts
 #   	* des.tcl, des.man, pkgIndex.tcl: Hiked the version to 0.8.1

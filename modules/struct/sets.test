@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.7 2004/08/10 07:01:33 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.8 2005/08/16 06:06:30 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

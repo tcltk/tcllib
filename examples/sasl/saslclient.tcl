@@ -4,7 +4,7 @@
 # the STARTTLS feature if available to switch to a secure link before 
 # negotiating authentication using SASL.
 #
-# $Id: saslclient.tcl,v 1.1 2005/04/23 03:58:11 andreas_kupries Exp $
+# $Id: saslclient.tcl,v 1.2 2005/08/16 06:06:27 andreas_kupries Exp $
 
 source [file join [file dirname [info script]] sasl.tcl]
 
