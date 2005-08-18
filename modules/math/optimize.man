@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::optimize n 1.0]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
-[copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
+[copyright {2004,2005 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Optimisation routines}]
 [require Tcl 8.2]
@@ -17,6 +17,10 @@ Minimize or maximize a function over a given interval
 [bullet]
 Solve a linear program (maximize a linear function subject to linear
 constraints)
+
+[bullet]
+Minimize a function of several variables given an initial guess for the
+location of the minimum.
 
 [list_end]
 
@@ -164,6 +168,74 @@ solveLinearProgram procedure.
 [arg objective] - The M coefficients of the objective function
 [nl]
 [arg result] - The result as returned by solveLinearProgram
+
+
+[call [cmd ::math::optimize::nelderMead] [arg objective] [arg xVector] [opt "[option -scale] [arg xScaleVector]"] [opt "[option -ftol] [arg epsilon]"] [opt "[option -maxiter] [arg count]"] [opt "[opt -trace] [arg flag]"]]
+
+Minimizes, in unconstrained fashion, a function of several variable over all
+of space.  The function to evaluate, [arg objective], must be a single Tcl
+To it will be appended as many elements as appear in the initial guess at
+the location of the minimum, passed in as a Tcl list, [arg xVector].
+[nl]
+[arg xScaleVector] is an initial guess at the problem scale; the first 
+function evaluations will be made by varying the co-ordinates in [arg xVector] 
+by the amounts in [arg xScaleVector].  If [arg xScaleVector] is not supplied,
+the co-ordinates will be varied by a factor of 0.001 (if the co-ordinate
+is non-zero) or a constant 0.0001 (if the co-ordinate is zero).
+[nl]
+[arg epsilon] is the desired relative error in the value of the function
+evaluated at the minimum. The default is 1.0e-7, which usually gives three
+significant digits of accuracy in the values of the x's.
+[nl]pp
+[arg count] is a limit on the number of trips through the main loop of
+the optimizer.  The number of function evaluations may be several times
+this number.  If the optimizer fails to find a minimum to within [arg ftol]
+in [arg maxiter] iterations, it returns its current best guess and an
+error status. Default is to allow 500 iterations.
+[nl]
+[arg flag] is a flag that, if true, causes a line to be written to the
+standard output for each evaluation of the objective function, giving
+the arguments presented to the function and the value returned. Default is 
+false.
+
+[nl]
+The [cmd nelderMead] procedure returns a list of alternating keywords and
+values suitable for use with [cmd {array set}]. The meaning of the keywords is:
+
+[nl]
+[arg x] is the approximate location of the minimum.
+[nl]
+[arg y] is the value of the function at [arg x].
+[nl]
+[arg yvec] is a vector of the best N+1 function values achieved, where
+N is the dimension of [arg x]
+[nl]
+[arg vertices] is a list of vectors giving the function arguments
+corresponding to the values in [arg yvec].
+[nl]
+[arg nIter] is the number of iterations required to achieve convergence or
+fail.
+[nl]
+[arg status] is 'ok' if the operation succeeded, or 'too-many-iterations'
+if the maximum iteration count was exceeded.
+[nl]
+[cmd nelderMead] minimizes the given function using the downhill
+simplex method of Nelder and Mead.  This method is quite slow - much
+faster methods for minimization are known - but has the advantage of being
+extremely robust in the face of problems where the minimum lies in
+a valley of complex topology.
+[nl]
+[cmd nelderMead] can occasionally find itself "stuck" at a point where
+it can make no further progress; it is recommended that the caller
+run it at least a second time, passing as the initial guess the
+result found by the previous call.  The second run is usually very
+fast.
+[nl]
+[cmd nelderMead] can be used in some cases for constrained optimization.
+To do this, add a large value to the objective function if the parameters
+are outside the feasible region.  To work effectively in this mode,
+[cmd nelderMead] requires that the initial guess be feasible and
+usually requires that the feasible region be convex.
 [list_end]
 
 [section NOTES]

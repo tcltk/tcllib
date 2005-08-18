@@ -6,12 +6,12 @@
 #	or expression.
 #
 # Copyright (c) 2004, by Arjen Markus.
-# Copyright (c) 2004, by Kevin B. Kenny.  All rights reserved.
+# Copyright (c) 2004, 2005 by Kevin B. Kenny.  All rights reserved.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: optimize.tcl,v 1.8 2005/08/09 07:37:18 arjenmarkus Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.9 2005/08/18 03:55:01 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -592,6 +592,317 @@ proc ::math::optimize::min_unbound_1d { f x1 x2 args } {
 		      min_bound_1d $f $a $c -guess $b -fguess $fb]]
 }
 
+#----------------------------------------------------------------------
+#
+# nelderMead --
+#
+#	Attempt to minimize/maximize a function using the downhill
+#	simplex method of Nelder and Mead.
+#
+# Usage:
+#	nelderMead f x ?-keyword value?
+#
+# Parameters:
+#	f - The function to minimize.  The function must be an incomplete
+#	    Tcl command, to which will be appended N parameters.
+#	x - The starting guess for the minimum; a vector of N parameters
+#	    to be passed to the function f.
+#
+# Options:
+#	-scale xscale
+#		Initial guess as to the problem scale.  If '-scale' is
+#		supplied, then the parameters will be varied by the
+#	        specified amounts.  The '-scale' parameter must of the
+#		same dimension as the 'x' vector, and all elements must
+#		be nonzero.  Default is 0.0001 times the 'x' vector,
+#		or 0.0001 for zero elements in the 'x' vector.
+#
+#	-ftol epsilon
+#		Requested tolerance in the function value; nelderMead
+#		returns if N+1 consecutive iterates all differ by less
+#		than the -ftol value.  Default is 1.0e-7
+#
+#	-maxiter N
+#		Maximum number of iterations to attempt.  Default is
+#		500.
+#
+#	-trace flag
+#		If '-trace 1' is supplied, nelderMead writes a record
+#		of function evaluations to the standard output as it
+#		goes.  Default is 0.
+#
+#----------------------------------------------------------------------
+
+proc ::math::optimize::nelderMead { f startx args } {
+    array set params {
+	-ftol 1.e-7
+	-maxiter 500
+	-scale {}
+	-trace 0
+    }
+
+    # Check arguments
+
+    if { ( [llength $args] % 2 ) != 0 } {
+        return -code error -errorcode [list nelderMead wrongNumArgs] \
+            "wrong \# args, should be\
+                 \"[lreplace [info level 0] 1 end \
+                         f x1 x2 ?-option value?...]\""
+    }
+    foreach { key value } $args {
+        if { ![info exists params($key)] } {
+            return -code error -errorcode [list nelderMead badoption $key] \
+                "unknown option \"$key\",\
+                     should be -ftol, -maxiter, -scale or -trace"
+        }
+        set params($key) $value
+    }
+    
+    # Construct the initial simplex
+
+    set vertices [list $startx]
+    if { [llength $params(-scale)] == 0 } {
+	set i 0
+	foreach x0 $startx {
+	    if { $x0 == 0 } {
+		set x1 0.0001
+	    } else {
+		set x1 [expr {1.0001 * $x0}]
+	    }
+	    lappend vertices [lreplace $startx $i $i $x1]
+	    incr i
+	}
+    } elseif { [llength $params(-scale)] != [llength $startx] } {
+	return -code error -errorcode [list nelderMead badOption -scale] \
+	    "-scale vector must be of same size as starting x vector"
+    } else {
+	set i 0
+	foreach x0 $startx s $params(-scale) {
+	    lappend vertices [lreplace $startx $i $i [expr { $x0 + $s }]]
+	    incr i
+	}
+    }
+
+    # Evaluate at the initial points
+
+    set n [llength $startx]
+    foreach x $vertices {
+	set cmd $f
+	foreach xx $x {
+	    lappend cmd $xx
+	}
+	set y [uplevel 1 $cmd]
+	if {$params(-trace)} {
+	    puts "nelderMead: evaluating initial point: x=[list $x] y=$y"
+	}
+	lappend yvec $y
+    }
+
+
+    # Loop adjusting the simplex in the 'vertices' array.
+
+    set nIter 0
+    while { 1 } {
+
+	# Find the highest, next highest, and lowest value in y,
+	# and save the indices.
+
+	set iBot 0
+	set yBot [lindex $yvec 0]
+	set iTop -1
+	set yTop [lindex $yvec 0]
+	set iNext -1
+	set i 0
+	foreach y $yvec {
+	    if { $y <= $yBot } {
+		set yBot $y
+		set iBot $i
+	    }
+	    if { $iTop < 0 || $y >= $yTop } {
+		set iNext $iTop
+		set yNext $yTop
+		set iTop $i
+		set yTop $y
+	    } elseif { $iNext < 0 || $y >= $yNext } {
+		set iNext $i
+		set yNext $y
+	    }
+	    incr i
+	}
+
+	# Return if the relative error is within an acceptable range
+
+	set rerror [expr { 2. * abs( $yTop - $yBot )
+			   / ( abs( $yTop ) + abs( $yBot ) ) }]
+	if { $rerror < $params(-ftol) } {
+	    set status ok
+	    break
+	}
+
+	# Count iterations
+
+	if { [incr nIter] > $params(-maxiter) } {
+	    set status too-many-iterations
+	    break
+	}
+	incr nIter
+
+	# Find the centroid of the face opposite the vertex that
+	# maximizes the function value.
+
+	set centroid {}
+	for { set i 0 } { $i < $n } { incr i } {
+	    lappend centroid 0.0
+	}
+	set i 0
+	foreach v $vertices {
+	    if { $i != $iTop } {
+		set newCentroid {}
+		foreach x0 $centroid x1 $v {
+		    lappend newCentroid [expr { $x0 + $x1 }]
+		}
+		set centroid $newCentroid
+	    }
+	    incr i
+	}
+	set newCentroid {}
+	foreach x $centroid {
+	    lappend newCentroid [expr { $x / $n }]
+	}
+	set centroid $newCentroid
+
+	# The first trial point is a reflection of the high point
+	# around the centroid
+
+	set trial {}
+	foreach x0 [lindex $vertices $iTop] x1 $centroid {
+	    lappend trial [expr {$x1 + ($x1 - $x0)}]
+	}
+	set cmd $f
+	foreach xx $trial {
+	    lappend cmd $xx
+	} 
+	set yTrial [uplevel 1 $cmd]
+	if { $params(-trace) } {
+	    puts "nelderMead: trying reflection: x=[list $trial] y=$yTrial"
+	}
+
+	# If that reflection yields a new minimum, replace the high point,
+	# and additionally try dilating in the same direction.
+
+	if { $yTrial < $yBot } {
+	    set trial2 {}
+	    foreach x0 $centroid x1 $trial {
+		lappend trial2 [expr { $x1 + ($x1 - $x0) }]
+	    }
+	    set cmd $f
+	    foreach xx $trial2 {
+		lappend cmd $xx
+	    }
+	    set yTrial2 [uplevel 1 $cmd]
+	    if { $params(-trace) } {
+		puts "nelderMead: trying dilated reflection:\
+                      x=[list $trial2] y=$y"
+	    }
+	    if { $yTrial2 < $yBot } {
+
+		# Additional dilation yields a new minimum
+
+		lset vertices $iTop $trial2
+		lset yvec $iTop $yTrial2
+	    } else {
+
+		# Additional dilation failed, but we can still use
+		# the first trial point.
+
+		lset vertices $iTop $trial
+		lset yvec $iTop $yTrial
+
+	    }
+	} elseif { $yTrial < $yNext } {
+
+	    # The reflected point isn't a new minimum, but it's
+	    # better than the second-highest.  Replace the old high
+	    # point and try again.
+
+	    lset vertices $iTop $trial
+	    lset yvec $iTop $yTrial
+
+	} else {
+
+	    # The reflected point is worse than the second-highest point.
+	    # If it's better than the highest, keep it... but in any case,
+	    # we want to try contracting the simplex, because a further
+	    # reflection will simply bring us back to the starting point.
+
+	    if { $yTrial < $yTop } {
+		lset vertices $iTop $trial
+		lset yvec $iTop $yTrial
+		set yTop $yTrial
+	    }
+	    set trial {}
+	    foreach x0 [lindex $vertices $iTop] x1 $centroid {
+		lappend trial [expr { ( $x0 + $x1 ) / 2. }]
+	    }
+	    set cmd $f
+	    foreach xx $trial {
+		lappend cmd $xx
+	    }
+	    set yTrial [uplevel 1 $cmd]
+	    if { $params(-trace) } {
+		puts "nelderMead: contracting from high point:\
+                      x=[list $trial] y=$y"
+	    }
+	    if { $yTrial < $yTop } {
+
+		# Contraction gave an improvement, so continue with
+		# the smaller simplex
+
+		lset vertices $iTop $trial
+		lset yvec $iTop $yTrial
+
+	    } else {
+
+		# Contraction gave no improvement either; we seem to
+		# be in a valley of peculiar topology.  Contract the
+		# simplex about the low point and try again.
+
+		set newVertices {}
+		set newYvec {}
+		set i 0
+		foreach v $vertices y $yvec {
+		    if { $i == $iBot } {
+			lappend newVertices $v
+			lappend newYvec $y
+		    } else {
+			set newv {}
+			foreach x0 $v x1 [lindex $vertices $iBot] {
+			    lappend newv [expr { ($x0 + $x1) / 2. }]
+			}
+			lappend newVertices $newv
+			set cmd $f
+			foreach xx $newv {
+			    lappend cmd $xx
+			}
+			lappend newYvec [uplevel 1 $cmd]
+			if { $params(-trace) } {
+			    puts "nelderMead: contracting about low point:\
+                                  x=[list $newv] y=$y"
+			}
+		    }
+		    incr i
+		}
+		set vertices $newVertices
+		set yvec $newYvec
+	    }
+
+	}
+
+    }
+    return [list y $yBot x [lindex $vertices $iBot] vertices $vertices yvec $yvec nIter $nIter status $status]
+
+}
+
 # solveLinearProgram
 #    Solve a linear program in standard form
 #
@@ -959,3 +1270,36 @@ proc ::math::optimize::SimplexNewTableau {tableau nextcol nextrow vector} {
 
 # Now we can announce our presence
 package provide math::optimize 1.0
+
+if { ![info exists ::argv0] || [string compare $::argv0 [info script]] } {
+    return
+}
+
+namespace import math::optimize::min_bound_1d
+namespace import math::optimize::maximum
+namespace import math::optimize::nelderMead
+
+proc f {x y} {
+    set xx [expr { $x - 3.1415926535897932 / 2. }]
+    set v1 [expr { 0.3 * exp( -$xx*$xx / 2. ) }]
+    set d [expr { 10. * $y - sin(9. * $x) }]
+    set v2 [expr { exp(-10.*$d*$d)}]
+    set rv [expr { -$v1 - $v2 }]
+    return $rv
+}
+
+proc g {a b} {
+    set x1 [expr {0.1 - $a + $b}]
+    set x2 [expr {$a + $b - 1.}]
+    set x3 [expr {3.-8.*$a+8.*$a*$a-8.*$b+8.*$b*$b}]
+    set x4 [expr {$a/10. + $b/10. + $x1*$x1/3. + $x2*$x2 - $x2 * exp(1-$x3*$x3)}]
+    return $x4
+}
+
+if { ![package vsatisfies [package provide Tcl] 8.5] } {
+    set tcl_precision 17
+}
+puts "f"
+puts [math::optimize::nelderMead f {1. 0.} -scale {0.1 0.01} -trace 1]
+puts "g"
+puts [math::optimize::nelderMead g {0. 0.} -scale {1. 1.} -trace 1]
