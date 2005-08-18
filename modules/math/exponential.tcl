@@ -344,7 +344,7 @@ proc ::math::special::exponential_Ci {x} {
 # some tests --
 #    Reproduce tables 5.1, 5.2 from Abramowitz & Stegun,
 
-if { 0 } {
+if { [info exists ::argv0] && ![string compare $::argv0 [info script]] } {
 namespace eval ::math::special {
 for { set i 0.01 } { $i < 0.505 } { set i [expr { $i + 0.01 }] } {
     set ei [exponential_Ei $i]
@@ -429,6 +429,6 @@ for { set oox 0.10 } { $oox > 0.005 } { set oox [expr { $oox - 0.01 }] } {
     puts $line
 }
 puts {}
-puts [exponential_Ei 0.0]
+catch {exponential_Ei 0.0} result; puts $result
 }
 }
