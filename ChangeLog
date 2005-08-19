@@ -1,3 +1,7 @@
+2005-08-17  Bob Techentin <techentin@users.sourceforge.net>
+	* installed_modules.tcl:  Added units library.
+	* modules/units:
+
 2005-07-26  Stephane Arnold <sarnold75@users.sourceforge.net>
 	* install_modules.tcl : registered math example
 
