@@ -1,3 +1,9 @@
+2005-08-18  Bob Techentin <techentin@users.sourceforge.net>
+
+	Removed units.mdl, the Rational Rose UML model for
+	the library behavior, which doesn't belong in the
+	distributed library.
+
 2005-08-17  Bob Techentin <techentin@users.sourceforge.net>
 
 	Released units version 1.2
