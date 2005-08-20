@@ -13,7 +13,7 @@
 #
 #-----------------------------------------------------------------------
 
-package provide snit 1.1
+package provide snit 2.0
 
 #-----------------------------------------------------------------------
 # Namespace
@@ -199,67 +199,11 @@ set ::snit::typeTemplate {
 # This is the nominal type proc.  It supports typemethods and
 # delegated typemethods.
 set ::snit::nominalTypeProc {
-    # Type dispatcher function.  Note: This function lives
-    # in the parent of the %TYPE% namespace!  All accesses to 
-    # %TYPE% variables and methods must be qualified!
-    proc %TYPE% {{method ""} args} {
-        # First, if there's no method, and no args, and there's a create
-        # method, and this isn't a widget, then method is "create" and 
-        # "args" is %AUTO%.
-        if {$method eq "" && [llength $args] == 0} {
-            ::variable %TYPE%::Snit_info
-
-            if {$Snit_info(hasinstances) && !$Snit_info(isWidget)} {
-                set method create
-                lappend args %AUTO%
-            } else {
-                error "wrong \# args: should be \"%TYPE% method args\""
-            }
-        }
-
-        # Next, retrieve the command.
-	variable %TYPE%::Snit_typemethodCache
-        while 1 {
-            if {[catch {set Snit_typemethodCache($method)} commandRec]} {
-                set commandRec [::snit::RT.CacheTypemethodCommand %TYPE% $method]
-
-                if {[llength $commandRec] == 0} {
-                    return -code error  "\"%TYPE% $method\" is not defined"
-                }
-            }
-
-            # If we've got a real command, break.
-            if {[lindex $commandRec 0] == 0} {
-                break
-            }
-
-            # Otherwise, we need to look up again...if we can.
-            if {[llength $args] == 0} {
-                return -code error \
-                 "wrong number args: should be \"%TYPE% $method method args\""
-            }
-
-            lappend method [lindex $args 0]
-            set args [lrange $args 1 end]
-        }
-
-        set command [lindex $commandRec 1]
-
-        # Pass along the return code unchanged.
-        set retval [catch {uplevel 1 $command $args} result]
-
-        if {$retval} {
-            if {$retval == 1} {
-                global errorInfo
-                global errorCode
-                return -code error -errorinfo $errorInfo \
-                    -errorcode $errorCode $result
-            } else {
-                return -code $retval $result
-            }
-        }
-
-        return $result
+    # WHD: Code for creating the type ensemble
+    namespace eval %TYPE% {
+        namespace ensemble create \
+            -unknown [list ::snit::RT.UnknownTypemethod %TYPE% ""] \
+            -prefixes 0
     }
 }
 
@@ -306,86 +250,6 @@ set ::snit::simpleTypeProc {
         return $result
     }
 }
-
-#-----------------------------------------------------------------------
-# Instance procs
-#
-# The following must be substituted into these proc bodies:
-#
-# %SELFNS%       The instance namespace
-# %WIN%          The original instance name
-# %TYPE%         The fully-qualified type name
-#
-
-# Nominal instance proc body: supports method caching and delegation.
-#
-# proc $instanceName {method args} ....
-set ::snit::nominalInstanceProc {
-    set self [set %SELFNS%::Snit_instance]
-
-    while {1} {
-        if {[catch {set %SELFNS%::Snit_methodCache($method)} commandRec]} {
-            set commandRec [snit::RT.CacheMethodCommand %TYPE% %SELFNS% %WIN% $self $method]
-                
-            if {[llength $commandRec] == 0} {
-                return -code error \
-                    "\"$self $method\" is not defined"
-            }
-        }
-
-        # If we've got a real command, break.
-        if {[lindex $commandRec 0] == 0} {
-            break
-        }
-
-        # Otherwise, we need to look up again...if we can.
-        if {[llength $args] == 0} {
-            return -code error \
-                "wrong number args: should be \"$self $method method args\""
-        }
-
-        lappend method [lindex $args 0]
-        set args [lrange $args 1 end]
-    }
-
-    set command [lindex $commandRec 1]
-
-    # Pass along the return code unchanged.
-    set retval [catch {uplevel 1 $command $args} result]
-
-    if {$retval} {
-        if {$retval == 1} {
-            global errorInfo
-            global errorCode
-            return -code error -errorinfo $errorInfo \
-                -errorcode $errorCode $result
-        } else {
-            return -code $retval $result
-        }
-    }
-
-    return $result
-}
-
-# Simplified method proc body: No delegation allowed; no support for
-# upvar or exotic return codes or hierarchical methods.  Designed for 
-# max speed for simple types.
-#
-# proc $instanceName {method args} ....
-
-set ::snit::simpleInstanceProc {
-    set self [set %SELFNS%::Snit_instance]
-
-    if {[lsearch -exact ${%TYPE%::Snit_methods} $method] == -1} {
-	set optlist [join ${%TYPE%::Snit_methods} ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$method\": must be $optlist"
-    }
-
-    eval [linsert $args 0 \
-              %TYPE%::Snit_method$method %TYPE% %SELFNS% %WIN% $self] 
-}
-
 
 #=======================================================================
 # Snit Type Definition
@@ -443,7 +307,7 @@ namespace eval ::snit:: {
     # -hastypemethods        The -hastypemethods pragma
     # -hasinfo               The -hasinfo pragma
     # -hasinstances          The -hasinstances pragma
-    # -simpledispatch        The -simpledispatch pragma
+    # -simpledispatch        The -simpledispatch pragma WHD: OBSOLETE
     # -canreplace            The -canreplace pragma
     variable compile
 
@@ -578,7 +442,6 @@ proc ::snit::Comp.Compile {which type body} {
     set compile(-hastypemethods) yes
     set compile(-hasinfo) yes
     set compile(-hasinstances) yes
-    set compile(-simpledispatch) no
     set compile(-canreplace) no
 
     set isWidget [string match widget* $which]
@@ -603,14 +466,6 @@ proc ::snit::Comp.Compile {which type body} {
     
     if {!$compile(-hastypemethods) && !$compile(-hasinstances)} {
         error "$which $type has neither typemethods nor instances"
-    }
-
-    if {$compile(-simpledispatch) && $compile(delegatesmethods)} {
-        error "$which $type requests -simpledispatch but delegates methods."
-    }
-
-    if {$compile(-simpledispatch) && $compile(hashierarchic)} {
-        error "$which $type requests -simpledispatch but defines hierarchical methods."
     }
 
     # If there are typemethods, define the standard typemethods and
@@ -638,49 +493,22 @@ proc ::snit::Comp.Compile {which type body} {
     # Add standard methods/typemethods that only make sense if the
     # type has instances.
     if {$compile(-hasinstances)} {
-        # If we're using simple dispatch, remember that.
-        if {$compile(-simpledispatch)} {
-            append compile(defs) "\nset %TYPE%::Snit_info(simpledispatch) 1\n"
-        }
-
         # Add the info method unless the pragma forbids it.
         if {$compile(-hasinfo)} {
-            if {!$compile(-simpledispatch)} {
-                Comp.statement.delegate method info \
-                    using {::snit::RT.method.info %t %n %w %s}
-            } else {
-                Comp.statement.method info {args} {
-                    eval [linsert $args 0 \
-                              ::snit::RT.method.info $type $selfns $win $self]
-                }
-            }
+            Comp.statement.delegate method info \
+                using {::snit::RT.method.info %t %n %w %s}
         }
         
         # Add the option handling stuff if there are any options.
         if {$compile(hasoptions)} {
             Comp.statement.variable options
 
-            if {!$compile(-simpledispatch)} {
-                Comp.statement.delegate method cget \
-                    using {::snit::RT.method.cget %t %n %w %s}
-                Comp.statement.delegate method configurelist \
-                    using {::snit::RT.method.configurelist %t %n %w %s}
-                Comp.statement.delegate method configure \
-                    using {::snit::RT.method.configure %t %n %w %s}
-            } else {
-                Comp.statement.method cget {args} {
-                    eval [linsert $args 0 \
-                              ::snit::RT.method.cget $type $selfns $win $self]
-                }
-                Comp.statement.method configurelist {args} {
-                    eval [linsert $args 0 \
-                              ::snit::RT.method.configurelist $type $selfns $win $self]
-                }
-                Comp.statement.method configure {args} {
-                    eval [linsert $args 0 \
-                              ::snit::RT.method.configure $type $selfns $win $self]
-                }
-            }
+            Comp.statement.delegate method cget \
+                using {::snit::RT.method.cget %t %n %w %s}
+            Comp.statement.delegate method configurelist \
+                using {::snit::RT.method.configurelist %t %n %w %s}
+            Comp.statement.delegate method configure \
+                using {::snit::RT.method.configure %t %n %w %s}
         }
 
         # Add a default constructor, if they haven't already defined one.
@@ -697,15 +525,8 @@ proc ::snit::Comp.Compile {which type body} {
         }
         
         if {!$isWidget} {
-            if {!$compile(-simpledispatch)} {
-                Comp.statement.delegate method destroy \
-                    using {::snit::RT.method.destroy %t %n %w %s}
-            } else {
-                Comp.statement.method destroy {args} {
-                    eval [linsert $args 0 \
-                              ::snit::RT.method.destroy $type $selfns $win $self]
-                }
-            }
+            Comp.statement.delegate method destroy \
+                using {::snit::RT.method.destroy %t %n %w %s}
 
             Comp.statement.delegate typemethod create \
                 using {::snit::RT.type.typemethod.create %t}
@@ -714,16 +535,9 @@ proc ::snit::Comp.Compile {which type body} {
                 using {::snit::RT.widget.typemethod.create %t}
         }
 
-        # Save the list of method names, for -simpledispatch; otherwise,
-        # save the method info. 
-        if {$compile(-simpledispatch)} {
-            append compile(defs) \
-                "\nset %TYPE%::Snit_methods [list $compile(localmethods)]\n"
-        } else {
-            append compile(defs) \
-                "\narray set %TYPE%::Snit_methodInfo [list [array get methodInfo]]\n"
-        }
-
+        # Save the method info. 
+        append compile(defs) \
+            "\narray set %TYPE%::Snit_methodInfo [list [array get methodInfo]]\n"
     } else {
         append compile(defs) "\nset %TYPE%::Snit_info(hasinstances) 0\n"
     }
@@ -965,11 +779,11 @@ proc ::snit::Comp.statement.option {optionDef args} {
         error "$errRoot, badly named option \"$option\""
     }
 
-    if {[Contains $option $compile(delegatedoptions)]} {
+    if {$option in $compile(delegatedoptions)} {
         error "$errRoot, cannot define \"$option\" locally, it has been delegated"
     }
 
-    if {![Contains $option $compile(localoptions)]} {
+    if {!($option in $compile(localoptions))} {
         # Remember that we've seen this one.
         set compile(hasoptions) yes
         lappend compile(localoptions) $option
@@ -1730,11 +1544,11 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
         }
     }
 
-    if {[Contains $option $compile(localoptions)]} {
+    if {$option in $compile(localoptions)} {
         error "$errRoot, \"$option\" has been defined locally"
     }
 
-    if {[Contains $option $compile(delegatedoptions)]} {
+    if {$option in $compile(delegatedoptions)} {
         error "$errRoot, \"$option\" is multiply delegated"
     }
 
@@ -1965,18 +1779,9 @@ proc ::snit::CheckArgs {which arglist} {
     variable reservedArgs
     
     foreach name $reservedArgs {
-        if {[Contains $name $arglist]} {
+        if {$name in $arglist} {
             error "$which's arglist may not contain \"$name\" explicitly"
         }
-    }
-}
-
-# Returns 1 if a value is in a list, and 0 otherwise.
-proc ::snit::Contains {value list} {
-    if {[lsearch -exact $list $value] != -1} {
-        return 1
-    } else {
-        return 0
     }
 }
 
@@ -1985,20 +1790,6 @@ proc ::snit::Capitalize {text} {
     set first [string index $text 0]
     set rest [string range $text 1 end]
     return "[string toupper $first]$rest"
-}
-
-# Converts an arbitrary white-space-delimited string into a list
-# by splitting on white-space and deleting empty tokens.
-
-proc ::snit::Listify {str} {
-    set result {}
-    foreach token [split [string trim $str]] {
-        if {[string length $token] > 0} {
-            lappend result $token
-        }
-    }
-
-    return $result
 }
 
 
@@ -2069,6 +1860,7 @@ proc ::snit::RT.type.typemethod.create {type name args} {
         
         set theInfo $errorInfo
         set theCode $errorCode
+
         ::snit::RT.DestroyObject $type $selfns $name
         error "Error in constructor: $result" $theInfo $theCode
     }
@@ -2199,16 +1991,15 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
     }
 
     # NEXT, install the new proc
-    if {!$Snit_info(simpledispatch)} {
-        set instanceProc $::snit::nominalInstanceProc
-    } else {
-        set instanceProc $::snit::simpleInstanceProc
-    }
+    # WHD: Snit 2.0 code
 
-    proc $procname {method args} \
-        [string map \
-             [list %SELFNS% $selfns %WIN% $instance %TYPE% $type] \
-             $instanceProc]
+    set unknownCmd [list ::snit::RT.UnknownMethod $type $selfns $instance ""]
+    set createCmd [list namespace ensemble create \
+                       -command $procname \
+                       -unknown $unknownCmd \
+                       -prefixes 0]
+
+    namespace eval $selfns $createCmd
 
     # NEXT, add the trace.
     trace add command $procname {rename delete} \
@@ -2476,39 +2267,51 @@ proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
     # Clear the typemethod cache.
     # TBD: can we unset just the elements related to
     # this component?
-    unset -nocomplain -- ${type}::Snit_typemethodCache
+
+    # WHD: Namespace 2.0 code
+    namespace ensemble configure $type -map {}
 }
 
-# Generates and caches the command for a typemethod.
+# WHD: Snit 2.0 code
+#
+# RT.UnknownTypemethod type eId eCmd method args
 #
 # type		The type
-# method	The name of the typemethod to call.
+# eId           The ensemble command ID; "" for the instance itself.
+# eCmd          The ensemble command name.
+# method	The unknown method name.
+# args          The additional arguments, if any.
 #
-# The return value is one of the following lists:
-#
-#    {}              There's no such method.
-#    {1}             The method has submethods; look again.
-#    {0 <command>}   Here's the command to execute.
+# This proc looks up the method relative to the specified ensemble.
+# If no method is found, it assumes that the "create" method is
+# desired, and that the "method" is the instance name.  In this case,
+# it returns the "create" typemethod command with the instance name
+# appended; this will cause the instance to be created without updating
+# the -map.  If the method is found, the method's command is created and
+# added to the -map; the function returns the empty list.
 
-proc snit::RT.CacheTypemethodCommand {type method} {
+proc snit::RT.UnknownTypemethod {type eId eCmd method args} {
     upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
     upvar ${type}::Snit_typecomponents  Snit_typecomponents
-    upvar ${type}::Snit_typemethodCache Snit_typemethodCache
     upvar ${type}::Snit_info            Snit_info
     
     # FIRST, get the pattern data and the typecomponent name.
     set implicitCreate 0
     set instanceName ""
 
-    set starredMethod [lreplace $method end end *]
-    set methodTail [lindex $method end]
+    set fullMethod $eId
+    lappend fullMethod $method
+    set starredMethod [concat $eId *]
+    set methodTail $method
 
-    if {[info exists Snit_typemethodInfo($method)]} {
-        set key $method
+    if {[info exists Snit_typemethodInfo($fullMethod)]} {
+        set key $fullMethod
     } elseif {[info exists Snit_typemethodInfo($starredMethod)]} {
         if {[lsearch -exact $Snit_info(excepttypemethods) $methodTail] == -1} {
             set key $starredMethod
         } else {
+            # WHD: The method is explicitly not delegated, so this is an error.
+            # Or should we treat it as an instance name?
             return [list ]
         }
     } elseif {$Snit_info(hasinstances)} {
@@ -2539,16 +2342,38 @@ proc snit::RT.CacheTypemethodCommand {type method} {
     foreach {flag pattern compName} $Snit_typemethodInfo($key) {}
 
     if {$flag == 1} {
-        return [list 1]
+        # FIRST, define the ensemble command.
+        lappend eId $method
+
+        set newCmd ${type}::Snit_ten[llength $eId]_[join $eId _]
+
+        set unknownCmd [list ::snit::RT.UnknownTypemethod \
+                            $type $eId]
+
+        set createCmd [list namespace ensemble create \
+                           -command $newCmd \
+                           -unknown $unknownCmd \
+                           -prefixes 0]
+
+        namespace eval $type $createCmd
+        
+        # NEXT, add the method to the current ensemble
+        set map [namespace ensemble configure $eCmd -map]
+
+        dict append map $method $newCmd
+
+        namespace ensemble configure $eCmd -map $map
+
+        return [list ]
     }
 
     # NEXT, build the substitution list
     set subList [list \
                      %% % \
                      %t $type \
-                     %M $method \
-                     %m [lindex $method end] \
-                     %j [join $method _]]
+                     %M $fullMethod \
+                     %m [lindex $fullMethod end] \
+                     %j [join $fullMethod _]]
     
     if {$compName ne ""} {
         if {![info exists Snit_typecomponents($compName)]} {
@@ -2569,13 +2394,27 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         # create.  Don't cache, as we usually won't do this one
         # again.
         lappend command $instanceName
-    } else {
-        set Snit_typemethodCache($method) [list 0 $command]
+        return $command
     }
 
-    return [list 0 $command]
-}
 
+    # NEXT, if the actual command name isn't fully qualified,
+    # assume it's global.
+    set cmd [lindex $command 0]
+
+    if {[string index $cmd 0] ne ":"} {
+        set command [lreplace $command 0 0 "::$cmd"]
+    }
+
+    # NEXT, update the ensemble map.
+    set map [namespace ensemble configure $eCmd -map]
+
+    dict append map $method $command
+
+    namespace ensemble configure $eCmd -map $map
+
+    return [list ]
+}
 
 #-----------------------------------------------------------------------
 # Component Management and Method Caching
@@ -2622,34 +2461,43 @@ proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
     RT.ClearInstanceCaches $selfns
 }
 
-# Generates and caches the command for a method.
+# WHD: Snit 2.0 code
 #
-# type:		The instance's type
-# selfns:	The instance's private namespace
-# win:          The instance's original name (a Tk widget name, for
-#               snit::widgets.
-# self:         The instance's current name.
-# method:	The name of the method to call.
+# RT.UnknownMethod type selfns win eId eCmd method args
 #
-# The return value is one of the following lists:
+# type       The type or widget command.
+# selfns     The instance namespace.
+# win        The original instance name.
+# eId        The ensemble command ID; "" for the instance itself.
+# eCmd       The real ensemble command name
+# method     The unknown method name
+# args       The additional arguments, if any.
 #
-#    {}              There's no such method.
-#    {1}             The method has submethods; look again.
-#    {0 <command>}   Here's the command to execute.
+# This proc looks up the method relative to the specific ensemble.
+# If no method is found, it returns an empty list; this will result in
+# the parent ensemble throwing an error.
+# If the method is found, the ensemble's -map is extended with the 
+# correct command, and the empty list is returned; this caches the
+# method's command.  If the method is found, and it is also an
+# ensemble, the ensemble command is created with an empty map.
 
-proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
+proc ::snit::RT.UnknownMethod {type selfns win eId eCmd method args} {
     variable ${type}::Snit_info
     variable ${type}::Snit_methodInfo
     variable ${type}::Snit_typecomponents
     variable ${selfns}::Snit_components
-    variable ${selfns}::Snit_methodCache
+
+    # FIRST, get the "self" value
+    set self [set ${selfns}::Snit_instance]
 
     # FIRST, get the pattern data and the component name.
-    set starredMethod [lreplace $method end end *]
-    set methodTail [lindex $method end]
+    set fullMethod $eId
+    lappend fullMethod $method
+    set starredMethod [concat $eId *]
+    set methodTail $method
 
-    if {[info exists Snit_methodInfo($method)]} {
-        set key $method
+    if {[info exists Snit_methodInfo($fullMethod)]} {
+        set key $fullMethod
     } elseif {[info exists Snit_methodInfo($starredMethod)] &&
               [lsearch -exact $Snit_info(exceptmethods) $methodTail] == -1} {
         set key $starredMethod
@@ -2660,16 +2508,38 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
     foreach {flag pattern compName} $Snit_methodInfo($key) {}
 
     if {$flag == 1} {
-        return [list 1]
+        # FIRST, define the ensemble command.
+        lappend eId $method
+
+        set newCmd ${type}::Snit_en[llength $eId]_[join $eId _]
+
+        set unknownCmd [list ::snit::RT.UnknownMethod \
+                            $type $selfns $win $eId]
+
+        set createCmd [list namespace ensemble create \
+                           -command $newCmd \
+                           -unknown $unknownCmd \
+                           -prefixes 0]
+
+        namespace eval $selfns $createCmd
+        
+        # NEXT, add the method to the current ensemble
+        set map [namespace ensemble configure $eCmd -map]
+
+        dict append map $method $newCmd
+
+        namespace ensemble configure $eCmd -map $map
+
+        return [list ]
     }
 
     # NEXT, build the substitution list
     set subList [list \
                      %% % \
                      %t $type \
-                     %M $method \
-                     %m [lindex $method end] \
-                     %j [join $method _] \
+                     %M $fullMethod \
+                     %m [lindex $fullMethod end] \
+                     %j [join $fullMethod _] \
                      %n [list $selfns] \
                      %w [list $win] \
                      %s [list $self]]
@@ -2680,13 +2550,13 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
         } elseif {[info exists Snit_typecomponents($compName)]} {
             set compCmd $Snit_typecomponents($compName)
         } else {
-            error "$type $self delegates method \"$method\" to undefined component \"$compName\""
+            error "$type $self delegates method \"$fullMethod\" to undefined component \"$compName\""
         }
-        
+
         lappend subList %c [list $compCmd]
     }
 
-    # Note: The cached command will executed faster if it's
+    # Note: The cached command will execute faster if it's
     # already a list.
     set command {}
 
@@ -2694,44 +2564,31 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
         lappend command [string map $subList $subpattern]
     }
 
-    set commandRec [list 0 $command]
+    # NEXT, if the actual command name isn't fully qualified,
+    # assume it's global.
 
-    set Snit_methodCache($method) $commandRec
-        
-    return $commandRec
-}
+    set cmd [lindex $command 0]
 
-
-# Looks up a method's command.
-#
-# type:		The instance's type
-# selfns:	The instance's private namespace
-# win:          The instance's original name (a Tk widget name, for
-#               snit::widgets.
-# self:         The instance's current name.
-# method:	The name of the method to call.
-# errPrefix:    Prefix for any error method
-proc ::snit::RT.LookupMethodCommand {type selfns win self method errPrefix} {
-    set commandRec [snit::RT.CacheMethodCommand \
-                        $type $selfns $win $self \
-                        $method]
-
-
-    if {[llength $commandRec] == 0} {
-        return -code error \
-            "$errPrefix, \"$self $method\" is not defined"
-    } elseif {[lindex $commandRec 0] == 1} {
-        return -code error \
-            "$errPrefix, wrong number args: should be \"$self\" $method method args"
+    if {[string index $cmd 0] ne ":"} {
+        set command [lreplace $command 0 0 "::$cmd"]
     }
 
-    return  [lindex $commandRec 1]
-}
+    # NEXT, update the ensemble map.
+    set map [namespace ensemble configure $eCmd -map]
 
+    dict append map $method $command
+
+    namespace ensemble configure $eCmd -map $map
+
+    return [list ]
+}
 
 # Clears all instance command caches
 proc ::snit::RT.ClearInstanceCaches {selfns} {
-    unset -nocomplain -- ${selfns}::Snit_methodCache
+    # WHD: clear ensemble -map
+    set self [set ${selfns}::Snit_instance]
+    namespace ensemble configure $self -map {}
+
     unset -nocomplain -- ${selfns}::Snit_cgetCache
     unset -nocomplain -- ${selfns}::Snit_configureCache
     unset -nocomplain -- ${selfns}::Snit_validateCache
@@ -3108,11 +2965,11 @@ proc ::snit::RT.typemethod.destroy {type} {
         }
     }
 
-    # NEXT, destroy the type's data.
-    namespace delete $type
-
     # NEXT, get rid of the type command.
     rename $type ""
+
+    # NEXT, destroy the type's data.
+    namespace delete $type
 }
 
 
@@ -3162,12 +3019,11 @@ proc ::snit::RT.CacheCgetCommand {type selfns win self option} {
             if {$Snit_optionInfo(cget-$option) eq ""} {
                 set command [list set ${selfns}::options($option)]
             } else {
-                set command [snit::RT.LookupMethodCommand \
-                                 $type $selfns $win $self \
-                                 $Snit_optionInfo(cget-$option) \
-                                 "can't cget $option"]
-
-                lappend command $option
+                # WHD: Snit 2.0 code -- simpler, no slower.
+                set command [list \
+                                 $self \
+                                 {expand}$Snit_optionInfo(cget-$option) \
+                                 $option]
             }
 
             set Snit_cgetCache($option) $command
@@ -3266,12 +3122,12 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
 
             # If it has a validate method, cache that for later.
             if {$Snit_optionInfo(validate-$option) ne ""} {
-                set command [snit::RT.LookupMethodCommand \
-                                 $type $selfns $win $self \
-                                 $Snit_optionInfo(validate-$option) \
-                                 "can't validate $option"]
+                # WHD: Snit 2.0 code -- simpler, no slower.
+                set command [list \
+                                 $self \
+                                 {expand}$Snit_optionInfo(validate-$option) \
+                                 $option]
 
-                lappend command $option
                 set Snit_validateCache($option) $command
             } else {
                 set Snit_validateCache($option) ""
@@ -3279,16 +3135,14 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
             
             # If it has a configure method defined,
             # cache it; otherwise, just set the value.
-
             if {$Snit_optionInfo(configure-$option) eq ""} {
                 set command [list set ${selfns}::options($option)]
             } else {
-                set command [snit::RT.LookupMethodCommand \
-                                 $type $selfns $win $self \
-                                 $Snit_optionInfo(configure-$option) \
-                                 "can't configure $option"]
-
-                lappend command $option
+                # WHD: Snit 2.0 code -- simpler, no slower.
+                set command [list \
+                                 $self \
+                                 {expand}$Snit_optionInfo(configure-$option) \
+                                 $option]
             }
 
             set Snit_configureCache($option) $command
@@ -3487,7 +3341,6 @@ proc ::snit::RT.typemethod.info.typevars {type {pattern *}} {
 
 proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
     variable ${type}::Snit_typemethodInfo
-    variable ${type}::Snit_typemethodCache
 
     # FIRST, get the explicit names, skipping prefixes.
     set result {}
@@ -3499,6 +3352,7 @@ proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
     }
 
     # NEXT, add any from the cache that aren't explicit.
+    # WHD: fixed up to use newstyle method cache/list of subcommands.
     if {[info exists Snit_typemethodInfo(*)]} {
         # First, remove "*" from the list.
         set ndx [lsearch -exact $result "*"]
@@ -3506,7 +3360,12 @@ proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
             set result [lreplace $result $ndx $ndx]
         }
 
-        foreach name [array names Snit_typemethodCache -glob $pattern] {
+        # Next, get the type's -map
+        array set typemethodCache [namespace ensemble configure $type -map]
+
+        # Next, get matching names from the cache that we don't already
+        # know about.
+        foreach name [array names typemethodCache -glob $pattern] {
             if {[lsearch -exact $result $name] == -1} {
                 lappend result $name
             }
@@ -3612,7 +3471,6 @@ proc ::snit::RT.method.info.typemethods {type selfns win self {pattern *}} {
 
 proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
     variable ${type}::Snit_methodInfo
-    variable ${selfns}::Snit_methodCache
 
     # FIRST, get the explicit names, skipping prefixes.
     set result {}
@@ -3624,6 +3482,7 @@ proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
     }
 
     # NEXT, add any from the cache that aren't explicit.
+    # WHD: Fixed up to use newstyle method cache/list of subcommands.
     if {[info exists Snit_methodInfo(*)]} {
         # First, remove "*" from the list.
         set ndx [lsearch -exact $result "*"]
@@ -3631,7 +3490,14 @@ proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
             set result [lreplace $result $ndx $ndx]
         }
 
-        foreach name [array names Snit_methodCache -glob $pattern] {
+        # Next, get the instance's -map
+        set self [set ${selfns}::Snit_instance]
+
+        array set methodCache [namespace ensemble configure $self -map]
+
+        # Next, get matching names from the cache that we don't already
+        # know about.
+        foreach name [array names methodCache -glob $pattern] {
             if {[lsearch -exact $result $name] == -1} {
                 lappend result $name
             }

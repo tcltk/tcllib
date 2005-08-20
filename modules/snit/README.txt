@@ -12,6 +12,71 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
+Changes in V2.0
+--------------------------------------------------------------------
+
+* Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
+  ([dict] and [namespace ensemble]) to improve Snit's run-time
+  efficiency.  Otherwise, it's intended to be feature-equivalent
+  with V1.1.  When running with Tcl/Tk 8.5, both V2.0 and V1.1 are
+  available; when running with Tcl/Tk 8.4, only V1.1 is available.
+
+  Snit 1.x is implemented in snit.tcl; Snit 2.x in snit2.tcl.
+
+* There are three incompatibilities between V2.0 and V1.1:
+
+  * Implicit naming of objects now only works if you set 
+    
+        pragma -hastypemethods 0
+
+    in the type definition.  Otherwise, 
+
+        set obj [mytype]
+
+    will fail; you must use 
+
+        set obj [mytype %AUTO%]
+
+* In Snit 1.x and earlier, hierarchical methods and type methods
+  could be called in two ways:
+
+    snit::type mytype {
+        method {foo bar} {} { puts "Foobar!"}
+    }  
+
+    set obj [mytype %AUTO%]
+    $obj foo bar     ;# This is the first way
+    $obj {foo bar}   ;# This is the second way
+
+  In Snit 2.0, the second way no longer works.
+
+  It's possible that this incompatibility might be removed in
+  the future.
+
+* In Snit 1.x and earlier, [$obj info methods] and 
+  [$obj info typemethods] returned a complete list of all known
+  hierarchical methods.  In the example just above, for example,
+  the list returned by [$obj info methods] would include 
+  "foo bar".  In Snit 2.0, only the first word of a hierarchical
+  method name is returned, [$obj info methods] would include 
+  "foo" but not "foo bar".
+
+  Again, it's possibly that this incompatibility might be removed 
+  in the future.
+
+Changes in V1.1
+--------------------------------------------------------------------
+
+* It's now explicitly an error to call an object's "destroy" method
+  in the object's constructor.  (If you need to do it, just throw
+  an error; construction will fail and the object will be cleaned
+  up.
+
+* The Tile "ttk::frame" widget is now a valid hulltype for 
+  snit::widgets.  Any widget with a -class option can be used
+  as a hulltype; lappend the widget name (e.g., labelframe) to
+  snit::hulltypes to enable its use as a hulltype.
+
 Changes in V1.0
 --------------------------------------------------------------------
 
