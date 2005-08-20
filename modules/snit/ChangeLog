@@ -1,3 +1,12 @@
+2005-08-20  Will Duquette <will@wjduquette.com>
+
+	* snit.tcl: It's now an error to call an object's "destroy" method
+	in the object's constructor.
+	* snit2.tcl: Snit 2.0, implemented with "namespace ensemble".
+	* snit.test: Now uses the "-body" style of Tcltests throughout.
+	Also, tests Snit 1.x (snit.tcl) when run with Tcl/Tk 8.4, and
+	tests Snit 2.x when run with Tcl/Tk 8.5.
+
 2005-08-10  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* snit.tcl (::snit::Comp.statement.hulltype): make hulltype one of

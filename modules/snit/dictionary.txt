@@ -39,9 +39,6 @@ Snit_typecomponents     Array(typecomponent name) = command_name
                         Used whenever we need to retrieve the 
                         typecomponent's command.
 
-Snit_typeMethodCache    Array(typemethod name) = cached command
-                        Used in typemethod dispatch.
-
 Snit_methodInfo         Array(method name) = {<flag> ?<pattern> <compName>?}
                         where <flag> is 1 if the method has submethods
                         (in which case the other fields
@@ -108,9 +105,6 @@ Snit_components         Array(component name) = command_name
 
 Consider consolidating the following arrays into a single array, since
 they are all cleared at the same time.
-
-Snit_methodCache        Array(method name) = cached command
-                        Used during method dispatch.
 
 Snit_cgetCache          Array(option name) = cached command.
                         Used by $self cget.
