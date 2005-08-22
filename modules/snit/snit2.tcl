@@ -30,7 +30,11 @@ namespace eval ::snit:: {
     variable reservedArgs {type selfns win self}
 
     # Widget classes which can be hulls (must have -class)
-    variable hulltypes {frame toplevel ttk::frame}
+    variable hulltypes {
+	toplevel tk::toplevel
+	frame tk::frame ttk::frame
+	labelframe tk::labelframe ttk::labelframe
+    }
 }
 
 #-----------------------------------------------------------------------
@@ -719,7 +723,7 @@ proc ::snit::Comp.statement.hulltype {name} {
     }
 
     # Next, it must be one of the valid hulltypes (frame, toplevel, ...)
-    if {[lsearch -exact $hulltypes $name] == -1} {
+    if {[lsearch -exact $hulltypes [string trimleft $name :]] == -1} {
         error "invalid hulltype \"$name\", should be one of\
 		[join $hulltypes {, }]"
     }
