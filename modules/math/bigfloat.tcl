@@ -1003,7 +1003,7 @@ proc ::math::bigfloat::fromstr {args} {
     # integer case (not a floating-point number)
     if {[string is digit $string2]} {
         if {$trailingZeros!=0} {
-            error "second argument not treated with an integer"
+            error "second argument not allowed with an integer"
         }
         return [::math::bignum::fromstr $string]
     }
@@ -1033,8 +1033,8 @@ proc ::math::bigfloat::fromstr {args} {
         set number [lindex $tab 0]
         set fin [lindex $tab 1]
         incr exp -[string length $fin]
+        append number $fin
     }
-    append number $fin
     # this is necessary to ensure we can call fromstr (recursively) with
     # the mantissa ($number)
     if {![string is digit $number]} {
@@ -1064,7 +1064,8 @@ proc ::math::bigfloat::_fromstr {number exp} {
         set number [::math::bignum::lshift $number 4]
         set exponent [tenPow $exp]
         set number [::math::bignum::mul $number $exponent]
-        return [normalize [list F $number -4 [intIncr [::math::bignum::lshift $exponent 4]]]]
+        return [normalize [list F $number -4 [::math::bignum::lshift $exponent 4]]]
+        #return [normalize [list F $number -4 [intIncr [::math::bignum::lshift $exponent 4]]]]
     }
     # now exp is negative or null
     # the closest power of 2 to the 'exp'th power of ten, but greater than it
