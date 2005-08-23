@@ -38,8 +38,7 @@ If the [arg string] contains only digits and eventually a minus sign, it is cons
 an integer.
 [nl]
 [arg trailingZeros] - the number of zeros to append at the end of the floating-point number
-to get more precision from the [emph string]. When applied on an integer, it multiplies
-the [emph string] integer by 10 at the [emph trailingZeros]th power.
+to get more precision from the [emph string]. When applied on an integer, it throws an error.
 
 [call [cmd fromstr] -base [arg radix] [arg string]]
 Converts [emph string] representing an integer in the base [emph radix], to a BigInt.
@@ -56,10 +55,12 @@ set octalNumber [lb]fromstr -base 8 377[rb]
 [example_end]
 [nl]
 The [emph string]'s last digit is considered by the procedure to be true at +/-1.
-For example, 0.1 is a number between 0.0 and 0.2. 0.10 is between 0.09 and 0.11, and so on.
-So, when you mean 1.0, you may have to write 1.000000 to get enough precision.
-If you encounter problems with precision, I recommend you read the section devoted
-to precision in this manual page.
+For instance, the Pi constant is irrational, so as you feed in the string "3.1415"
+it may be considered as a number in the interval [lb]3.1414 , 3.1416[rb].
+This is why we call such mathematics [emph "interval computations"].
+For example, 0.1 belongs to the interval [lb]0.0, 0.2[rb],
+and 1.00 to the interval [lb]0.99,1.01[rb].So, when you mean 1.0, you may have to write 1.000000 to get enough precision.
+If you encounter problems with precision, I recommend you read [sectref PRECISION].
 [nl]
 For example :
 [example_begin]
@@ -219,11 +220,11 @@ after calling add, sub, mul or div?
 When you set a number from the string representation, say
 [example_begin]
 set a [lb]fromstr 1.230[rb]
-# 'a' is internally 1.230 +/-d*10^-3
-# 'd' is a number in the [rb]1,2[rb] range
+# $a is internally 1.230 +/- d.10^-3
+# 'd' is a number in the [lb]1,2[lb] range
 set a [lb]fromstr 1.000[rb]
 # 'a' has a relative uncertainty in the range : [rb]0.1%,0.2%[rb]
-# because 1*10^-3/1.000=0.1*10^-2=0.1%, and 2*10^-3/1.000=0.2%
+# because 1*10^-3/1.000=0.1%, and 2*10^-3/1.000=0.2%
 [example_end]
 The uncertainty of the sum, or the difference, of two numbers, is the sum of the uncertainty
 of each number.
@@ -241,7 +242,19 @@ convert them to BigFloats.
 For multiplication and division, the relative uncertainties of the product
 or the quotient, is the sum of the relative uncertainties of the operands.
 [para]
-
+Take care about the fact that if a number contains 0 in its uncertainty interval,
+it is always considered as if it was 0.
+[example_begin]
+set num [lb]fromstr 4.00[rb]
+set denom [lb]fromstr 0.1[rb];# $denom is 0, because [lb]0.0,0.2[rb] contains 0
+puts [lb]tostr $denom[rb];# prints "0" on the screen
+set quotient [lb]div $num $denom[rb];# throws an error : divide by zero
+set oppn [lb]opp $num[rb]
+set oppd [lb]opp $denom[rb]
+puts [lb]compare $num $oppn[rb];#prints 1
+puts [lb]compare $denom $oppd[rb];#prints 0 !
+[example_end]
+[para]
 For most analysis functions (cosinus, square root, logarithm, etc.), determining the precision
 of the result is difficult.
 It seems however that in many cases, the loss of precision in the result
