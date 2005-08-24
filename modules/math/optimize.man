@@ -174,14 +174,14 @@ solveLinearProgram procedure.
 
 Minimizes, in unconstrained fashion, a function of several variable over all
 of space.  The function to evaluate, [arg objective], must be a single Tcl
-To it will be appended as many elements as appear in the initial guess at
+command. To it will be appended as many elements as appear in the initial guess at
 the location of the minimum, passed in as a Tcl list, [arg xVector].
 [nl]
 [arg xScaleVector] is an initial guess at the problem scale; the first 
 function evaluations will be made by varying the co-ordinates in [arg xVector] 
 by the amounts in [arg xScaleVector].  If [arg xScaleVector] is not supplied,
-the co-ordinates will be varied by a factor of 0.001 (if the co-ordinate
-is non-zero) or a constant 0.0001 (if the co-ordinate is zero).
+the co-ordinates will be varied by a factor of 1.0001 (if the co-ordinate
+is non-zero) or by a constant 0.0001 (if the co-ordinate is zero).
 [nl]
 [arg epsilon] is the desired relative error in the value of the function
 evaluated at the minimum. The default is 1.0e-7, which usually gives three
