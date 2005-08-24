@@ -1,3 +1,7 @@
+2005-08-24  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * optimize.man: Corrected a few typos
+
 2005-08-23  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat.tcl : Fixed a small bug in [fromstr].
