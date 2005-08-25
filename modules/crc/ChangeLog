@@ -1,3 +1,10 @@
+2005-08-25  Andreas Kupries <andreask@activestate.com>
+
+	* crc32.tcl (::crc::Crc32Final): Restrict result of Trf to 32bit
+	  range, or the [format] at the end of crc32 will blow this up
+	  into a 64bit number. This is an additional fix for [Tcllib SF
+	  Bug 1042420].
+
 2005-03-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* cksum.tcl:      Refactored to use a context for better support of
