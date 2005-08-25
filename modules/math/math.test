@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.11 2004/02/14 05:59:20 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.12 2005/08/25 21:16:13 kennykb Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -151,9 +151,25 @@ test math-7.3 {simple math::cov} {
     math::cov 2 1
 } 100.0
 test math-7.4 {math::cov} {
-    catch { math::cov 0 2 1 0 } msg
-    set msg
-} "divide by zero"
+    if {![catch { 
+	math::cov 0 2 1 0
+    } msg]} {
+	if { $msg == Infinity } {
+	    set result ok
+	} else {
+	    set result "result of cov was [list $msg],\
+	                should be Infinity"
+	}
+    } else {
+	if { [lrange $::errorCode 0 1] eq {ARITH DIVZERO} } {
+	    set result ok
+	} else {
+	    set result "error from cov was [list $::errorCode],\
+                        should be {ARITH DIVZERO *}"
+	}
+    }
+    set result
+} ok
 test math-7.5 {math::cov with negative numbers} {
     math::cov 100 100 100 -100
 } 200.0
