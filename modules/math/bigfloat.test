@@ -66,7 +66,8 @@ proc assert {name code result} {
 interp alias {} zero {} string repeat 0
 # S.ARNOLD 08/01/2005
 # trying to set the precision of the comparisons to 15 digits
-set tcl_precision 15
+set old_precision $::tcl_precision
+set ::tcl_precision 15
 proc Zero {x} {
     global tcl_precision
     set x [expr {abs($x)}]
@@ -632,3 +633,7 @@ rename fassert ""
 rename Zero ""
 
 tcltest::cleanupTests
+
+set ::tcl_precision $old_precision
+
+

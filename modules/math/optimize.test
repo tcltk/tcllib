@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.9 2005/08/18 03:55:01 kennykb Exp $
+# $Id: optimize.test,v 1.10 2005/08/25 19:00:32 techentin Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004, 2005 by Kevin B. Kenny
@@ -31,13 +31,14 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 source [file join [file dirname [info script]] optimize.tcl]
 
-if {![package vsatisfies [package present Tcl] 8.5]} {
-    set ::tcl_precision 17
-}
-
 namespace eval optimizetest {
 
 namespace import ::math::optimize::*
+
+if {![package vsatisfies [package present Tcl] 8.5]} {
+    set old_precision $::tcl_precision
+    set ::tcl_precision 17
+}
 
 # Service procedure to develop the error message for "wrong # args"
 
@@ -595,8 +596,15 @@ test nelderMead-2.4 "Nelder-Mead - simplex contracts about the minimum" \
 
 ::tcltest::cleanupTests
 
+#  Restore precision
+if {![package vsatisfies [package present Tcl] 8.5]} {
+    set ::tcl_precision $old_precision
+}
+
 # Local Variables:
 # mode: tcl
 # End:
 
 } ;# End of optimizetest namespace
+
+
