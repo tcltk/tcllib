@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.18 2005/03/12 21:11:01 patthoyts Exp $
+# $Id: crc32.tcl,v 1.19 2005/08/25 20:47:00 andreas_kupries Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.3
@@ -163,6 +163,7 @@ proc ::crc::Crc32Final {token} {
     if {[info exists state(trf)]} {
         close $state(trf)
         binary scan $state(trfwrite) i sum
+        set sum [expr {$sum & 0xFFFFFFFF}]
     } else {
         set sum [expr {($state(sum) ^ 0xFFFFFFFF) & 0xFFFFFFFF}]
     }
@@ -345,7 +346,7 @@ proc ::crc::crc32 {args} {
             close $opts(-channel)
         }
     }
-    
+
     return [format $opts(-format) $r]
 }
 
