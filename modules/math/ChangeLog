@@ -1,3 +1,9 @@
+2005-08-25  Kevin Kenny  <kennykb@acm.org>
+
+	* combinatorics.test (combinatorics-2.7,3.10): Revised a few test cases
+	* math.test (math-7.4):			       to handle Infinity
+	as well as "overflow" and "division by zero" as an error result.
+	
 2005-08-24  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * optimize.man: Corrected a few typos
