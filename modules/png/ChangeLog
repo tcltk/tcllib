@@ -1,3 +1,10 @@
+2005-08-25  Andreas Kupries <andreask@activestate.com>
+
+	* png.tcl (::png::validate): Added forced truncation to 32bit when
+	* png.tcl (::png::imageInfo): reformatting a read negative crc to
+	  unsigned. Otherwise this is becomes a 64bit unsigned, causing
+	  bogus crc checksum failures. This fixes [Tcllib SF Bug 1042420].
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
