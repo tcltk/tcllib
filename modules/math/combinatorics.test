@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.7 2004/06/19 15:54:04 kennykb Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.8 2005/08/25 21:16:13 kennykb Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -152,9 +152,25 @@ test combinatorics-2.6 { math::factorial, evaluate at pole } {
 } {{argument to math::factorial must be greater than -1.0} {ARITH DOMAIN {argument to math::factorial must be greater than -1.0}}}
 
 test combinatorics-2.7 { math::factorial, exponent overflow } {
-    catch { math::factorial 171 } msg
-    list $msg $::errorCode
-} {{floating-point value too large to represent} {ARITH OVERFLOW {floating-point value too large to represent}}}
+    if {![catch { 
+	math::factorial 171 
+    } msg]} {
+	if { $msg == Infinity } {
+	    set result ok
+	} else {
+	    set result "result of factorial was [list $msg],\
+	                should be Infinity"
+	}
+    } else {
+	if { [lrange $::errorCode 0 1] eq {ARITH OVERFLOW} } {
+	    set result ok
+	} else {
+	    set result "error from factorial was [list $::errorCode],\
+                        should be {ARITH IOVERFLOW *}"
+	}
+    }
+    set result
+} ok
 
 test combinatorics-2.8 { math::factorial, "" arg } {
     catch { math::factorial "" } msg
@@ -222,9 +238,25 @@ test combinatorics-3.9 {math::choose negative fraction } {
 } {{second argument to math::choose must be non-negative, or both must be integers} {ARITH DOMAIN {second argument to math::choose must be non-negative, or both must be integers}}}
 
 test combinatorics-3.10 { math::choose big args } {
-    catch { math::choose 1500 750 } msg
-    list $msg $::errorCode
-} {{floating-point value too large to represent} {ARITH OVERFLOW {floating-point value too large to represent}}}
+    if {![catch { 
+	math::choose 1500 750
+    } msg]} {
+	if { $msg == Infinity } {
+	    set result ok
+	} else {
+	    set result "result of choose was [list $msg],\
+	                should be Infinity"
+	}
+    } else {
+	if { [lrange $::errorCode 0 1] eq {ARITH OVERFLOW} } {
+	    set result ok
+	} else {
+	    set result "error from choose was [list $::errorCode],\
+                        should be {ARITH IOVERFLOW *}"
+	}
+    }
+    set result
+} ok
 
 test combinatorics-4.1 { math::Beta, wrong num args } {
     catch { math::Beta } msg
