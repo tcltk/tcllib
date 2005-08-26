@@ -1,3 +1,9 @@
+2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
+
+	* Feature Request 1261101 : automatically convert
+	  the strings "0" and "1" to bignums
+	* modified files : bignum.man,bignum.tcl,bignum.test
+
 2005-08-25  Kevin Kenny  <kennykb@acm.org>
 
 	* combinatorics.test (combinatorics-2.7,3.10): Revised a few test cases
