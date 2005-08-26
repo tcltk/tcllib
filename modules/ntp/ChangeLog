@@ -1,3 +1,10 @@
+2005-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl:  Deal with Andreas Kupries comment in bug #899211.
+	Keep trying to read data until the amount expected for the protocol
+	in use is received.
+	* time.test: Added some real remote using tests (with constraint).
+
 2005-08-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.tcl: SNTP wasn't working (raised by Donal Fellows). 
