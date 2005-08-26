@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.16 2005/08/26 01:08:27 patthoyts Exp $
+# $Id: time.tcl,v 1.17 2005/08/26 17:58:59 andreas_kupries Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.2
-    variable rcsid {$Id: time.tcl,v 1.16 2005/08/26 01:08:27 patthoyts Exp $}
+    variable rcsid {$Id: time.tcl,v 1.17 2005/08/26 17:58:59 andreas_kupries Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -262,13 +262,13 @@ proc ::time::unixtime {{token {}}} {
         if {[binary scan $State(data) I r] < 1} {
             return -code error "Unable to scan data"
         }
-        return [expr {int($r - $epoch(unix))}]
+        return [expr {int($r - $epoch(unix))&0xffffffff}]
     } elseif {[string length $State(data)] > 47} {
         # SNTP TIME
         if {[binary scan $State(data) c40II -> sec frac] < 1} {
             return -code error "Failed to decode result"
         }
-        return [expr {int($sec - $epoch(unix))}]
+        return [expr {int($sec - $epoch(unix))&0xffffffff}]
     } else {
         return -code error "error: data format not recognised"
     }
