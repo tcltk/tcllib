@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.15 2005/08/11 21:48:27 patthoyts Exp $
+# $Id: time.tcl,v 1.16 2005/08/26 01:08:27 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.2
-    variable rcsid {$Id: time.tcl,v 1.15 2005/08/11 21:48:27 patthoyts Exp $}
+    variable rcsid {$Id: time.tcl,v 1.16 2005/08/26 01:08:27 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -129,10 +129,20 @@ proc ::time::SetOrGet {option {cget 0}} {
 # -------------------------------------------------------------------------
 
 proc ::time::getsntp {args} {
-    return [eval [linsert $args 0 [namespace origin gettime] -port 123]]
+    set token [eval [linsert $args 0 CommonSetup -port 123]]
+    upvar #0 $token State
+    set State(rfc) 2030
+    return [QueryTime $token]
 }
 
 proc ::time::gettime {args} {
+    set token [eval [linsert $args 0 CommonSetup -port 37]]
+    upvar #0 $token State
+    set State(rfc) 868
+    return [QueryTime $token]
+}
+
+proc ::time::CommonSetup {args} {
     variable options
     variable uid
     set token [namespace current]::[incr uid]
@@ -142,7 +152,7 @@ proc ::time::gettime {args} {
     array set State [array get options]
     set State(status) unconnected
     set State(data) {}
-
+    
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -port     { set State(-port) [Pop args 1] }
@@ -152,26 +162,28 @@ proc ::time::gettime {args} {
             --        { Pop args ; break }
             default {
                 set err [join [lsort [array names State -*]] ", "]
-                return -code error "bad option \"$option\": must be $err"
+                return -code error "bad option \"$option\":\
+                    must be $err."
             }
         }
         Pop args
     }
-    
+
     set len [llength $args]
     if {$len < 1 || $len > 2} {
         if {[catch {info level -1} arg0]} {
             set arg0 [info level 0]
         }
         return -code error "wrong # args: should be\
-              \"$arg0 ?options? timeserver ?port?\""
+              \"[lindex $arg0 0] ?options? timeserver ?port?\""
     }
+
     set State(-timeserver) [lindex $args 0]
     if {$len == 2} {
         set State(-port) [lindex $args 1]
     }
 
-    return [QueryTime $token]
+    return $token
 }
 
 proc ::time::QueryTime {token} {
@@ -219,9 +231,11 @@ proc ::time::QueryTime {token} {
     fconfigure $State(sock) -translation binary -buffering none
 
     # SNTP wants a 48 byte request while TIME doesn't care and is happy
-    # to accept any old rubbish.
+    # to accept any old rubbish. If protocol is TCP then merely connecting
+    # is sufficient to elicit a response.
     if {[string equal $State(-protocol) "udp"]} {
-        puts -nonewline $State(sock) \x0b[string repeat \0 47]
+        set len [expr {($State(rfc) == 2030) ? 47 : 3}]
+        puts -nonewline $State(sock) \x0b[string repeat \0 $len]
     }
 
     fileevent $State(sock) readable \
@@ -317,9 +331,11 @@ proc ::time::ClientReadEvent {token} {
     upvar 0 $token State
 
     append State(data) [read $State(sock)]
-    if {[string length $State(data)] < 4} {return}
+    set expected [expr {($State(rfc) == 868) ? 4 : 48}]
+    if {[string length $State(data)] < $expected} { return }
 
     #FIX ME: acquire peer data?
+
     set State(status) ok
     Finish $token
     return
