@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: time.test,v 1.8 2005/08/26 01:08:27 patthoyts Exp $
+# RCS: @(#) $Id: time.test,v 1.9 2005/08/26 17:43:09 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -46,6 +46,8 @@ proc createServerProcess {} {
         # This proc is called to handle client connections. We only need to
         # return the time in TIME epoch and then close the channel.
         proc ::srv {chan args} {
+            fconfigure $chan -translation binary -buffering none -eofchar {}
+
             if {[catch {
                 set r [binary format I [expr {int([clock seconds] + 2208988800)}]]
                 puts "connect on $chan from [fconfigure $chan -peername]"
