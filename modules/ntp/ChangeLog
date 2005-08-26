@@ -1,5 +1,11 @@
 2005-08-26  Andreas Kupries <andreask@activestate.com>
 
+	* time.tcl (::time::unixtime): Fixed the 64bit problems reported
+	  in [Tcllib SF Bug 899211] by forcefully restricting results to
+	  32bit (Masking with 0xffffffff).
+
+2005-08-26  Andreas Kupries <andreask@activestate.com>
+
 	* time.test (createServerProcess): Ensure that the actual socket
 	  is set to binary transport, not the listening socket. On 64bit
 	  machines this can cause the fake server to send more than 4
