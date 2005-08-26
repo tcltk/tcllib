@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.19 2005/08/25 20:47:00 andreas_kupries Exp $
+# $Id: crc32.tcl,v 1.20 2005/08/26 16:58:42 andreas_kupries Exp $
 
 namespace eval ::crc {
     variable crc32_version 1.3
@@ -87,7 +87,9 @@ namespace eval ::crc {
     # calculate the sign bit for the current platform.
     variable signbit
     if {![info exists signbit]} {
-        for {set v 1} {$v != 0} {set signbit $v; set v [expr {$v<<1}]} {}
+	variable v
+        for {set v 1} {int($v) != 0} {set signbit $v; set v [expr {$v<<1}]} {}
+        unset v
     }
     
     variable uid ; if {![info exists uid]} {set uid 0}

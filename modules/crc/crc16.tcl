@@ -39,7 +39,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.11 2004/01/25 07:29:21 andreas_kupries Exp $
+# $Id: crc16.tcl,v 1.12 2005/08/26 16:58:42 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -65,7 +65,9 @@ namespace eval ::crc {
     # calculate the sign bit for the current platform.
     variable signbit
     if {![info exists signbit]} {
-        for {set v 1} {$v != 0} {set signbit $v; set v [expr {$v<<1}]} {}
+	variable v
+        for {set v 1} {int($v) != 0} {set signbit $v; set v [expr {$v<<1}]} {}
+        unset v
     }
 }
 
