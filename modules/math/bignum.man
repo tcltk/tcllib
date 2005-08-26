@@ -24,6 +24,9 @@ convert bignums from the internal representation to a string in
 the desired radix and vice versa.
 
 [list_end]
+But the two constants "0" and "1" are automatically converted to
+the internal representation, in order to easily compare a number to zero,
+or increment a big number.
 [para]
 
 The bignum interface is opaque, so
@@ -31,6 +34,7 @@ operations on bignums that are not returned by procedures
 in this package (but created by hand) may lead to unspecified behaviours.
 It's safe to treat bignums as pure values, so there is no need
 to free a bignum, or to duplicate it via a special operation.
+
 
 [section "EXAMPLES"]
 This section shows some simple example. This library being just
@@ -56,7 +60,8 @@ this man page for information about individual procedures.
 
     # Factorial example
     proc fact n {
-        set z [lb]::math::bignum::fromstr 1[rb]
+        # fromstr is not needed for 0 and 1
+        set z 1
         for {set i 2} {$i <= $n} {incr i} {
             set z [lb]::math::bignum::mul $z [lb]::math::bignum::fromstr $i[rb][rb]
         }
@@ -76,7 +81,8 @@ the string is interpreted in hex if prefixed with
 in binary if it's pefixed with [emph bx], as a number in
 radix 10 otherwise. If instead the [emph radix] argument
 is specified in the range 2-36, the [emph string] is interpreted
-in the given radix.
+in the given radix. Please note that this conversion is
+not needed for two constants : [emph 0] and [emph 1]. (see the example)
 
 [call [cmd ::math::bignum::tostr] [arg bignum] ?[arg radix]?]
 Convert [emph bignum] into a string representing the number
