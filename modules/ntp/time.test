@@ -2,23 +2,38 @@
 #
 # Exercise the tcllib time package.
 #
-# $Id: time.test,v 1.7 2004/08/19 09:09:34 patthoyts Exp $
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: time.test,v 1.8 2005/08/26 01:08:27 patthoyts Exp $
 
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import -force ::tcltest::*
 }
 
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
 package forget time
-catch {namespace delete time}
+catch {namespace delete ::time}
 if {[catch {source [file join [file dirname [info script]] time.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
 }
 
-#puts "- tcltest [package present tcltest]"
-puts "- time    [package present time]"
+# -------------------------------------------------------------------------
+# Constraints
+#
+testConstraint remote 0; #  set true to use the remote tests.
+testConstraint udp [llength [concat [package provide udp]\
+                                 [package provide ceptcl]]]
 
+puts "- time    [package present time]"
 
 # -------------------------------------------------------------------------
 
@@ -107,6 +122,36 @@ test time-1.5 {time::cleanup} {
         time::cleanup $token
     } m] $m
 } {0 {}}
+
+
+# -------------------------------------------------------------------------
+
+test time-2.0 {check for real: RFC 868} {remote} {
+    set ::time::TestReady 0
+    list [catch {
+        set tok [time::gettime -protocol tcp -timeout 5000 ntp2a.mcc.ac.uk]
+        time::wait $tok
+        list [time::status $tok] [time::cleanup $tok]
+    } err] $err
+} {0 {ok {}}}
+
+test time-2.1 {check for real: RFC 868} {remote udp} {
+    set ::time::TestReady 0
+    list [catch {
+        set tok [time::gettime -protocol udp -timeout 5000 ntp2a.mcc.ac.uk]
+        time::wait $tok
+        list [time::status $tok] [time::cleanup $tok]
+    } err] $err
+} {0 {ok {}}}
+
+test time-2.2 {check for real: RFC 2030} {remote udp} {
+    set ::time::TestReady 0
+    list [catch {
+        set tok [time::getsntp -timeout 5000 ntp2a.mcc.ac.uk]
+        time::wait $tok
+        list [time::status $tok] [time::cleanup $tok]
+    } err] $err
+} {0 {ok {}}}
 
 # -------------------------------------------------------------------------
 file delete -force $::testScript
