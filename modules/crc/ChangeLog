@@ -1,3 +1,11 @@
+2005-08-26  Andreas Kupries <andreask@activestate.com>
+
+	* crc16.tcl: Accepted Don Porter's patch attached to [Tcllib SF
+	* crc32.tcl: Bug 1274120], fixing the creative-writing problem for
+	  variable v and restricting the value to 32bit ints. Additionally
+	  added an [unset v] after the initialization, as the variable is
+	  not needed beyond that part of the code.
+
 2005-08-25  Andreas Kupries <andreask@activestate.com>
 
 	* crc32.tcl (::crc::Crc32Final): Restrict result of Trf to 32bit
