@@ -194,6 +194,7 @@ proc ::math::bignum::abscmp {a b} {
 #  0 if a == b
 #
 proc ::math::bignum::cmp {a b} { ; # same sign case
+    _treat a b
     if {[::math::bignum::sign $a] == [::math::bignum::sign $b]} {
 	if {[::math::bignum::sign $a] == 0} {
 	    ::math::bignum::abscmp $a $b
@@ -208,6 +209,7 @@ proc ::math::bignum::cmp {a b} { ; # same sign case
 
 # Return true if 'z' is zero.
 proc ::math::bignum::iszero z {
+    _treat z
     expr {[llength $z] == 3 && [lindex $z 2] == 0}
 }
 
@@ -262,6 +264,7 @@ proc ::math::bignum::rawSub {a b} {
 # Higher level addition, care about sign and call rawAdd or rawSub
 # as needed.
 proc ::math::bignum::add {a b} {
+    _treat a b
     # Same sign case
     if {[::math::bignum::sign $a] == [::math::bignum::sign $b]} {
 	set r [::math::bignum::rawAdd $a $b]
@@ -291,6 +294,7 @@ proc ::math::bignum::add {a b} {
 # Higher level subtraction, care about sign and call rawAdd or rawSub
 # as needed.
 proc ::math::bignum::sub {a b} {
+    _treat a b
     # Different sign case
     if {[::math::bignum::sign $a] != [::math::bignum::sign $b]} {
 	set r [::math::bignum::rawAdd $a $b]
@@ -324,6 +328,7 @@ set ::math::bignum::karatsubaThreshold 32
 # Multiplication. Calls Karatsuba that calls Base multiplication under
 # a given threshold.
 proc ::math::bignum::mul {a b} {
+    _treat a b
     set r [::math::bignum::kmul $a $b]
     # The sign is the xor between the two signs
     ::math::bignum::setsign r [expr {[::math::bignum::sign $a]^[::math::bignum::sign $b]}]
@@ -440,6 +445,7 @@ proc ::math::bignum::rshiftBits {z n} {
 
 # Left shift 'z' of 'n' bits.
 proc ::math::bignum::lshift {z n} {
+    _treat z
     set atoms [expr {$n / $::math::bignum::atombits}]
     set bits [expr {$n & ($::math::bignum::atombits-1)}]
     ::math::bignum::lshiftBits [math::bignum::lshiftAtoms $z $atoms] $bits
@@ -447,6 +453,7 @@ proc ::math::bignum::lshift {z n} {
 
 # Right shift 'z' of 'n' bits.
 proc ::math::bignum::rshift {z n} {
+    _treat z
     set atoms [expr {$n / $::math::bignum::atombits}]
     set bits [expr {$n & ($::math::bignum::atombits-1)}]
     ::math::bignum::rshiftBits [math::bignum::rshiftAtoms $z $atoms] $bits
@@ -490,7 +497,7 @@ proc ::math::bignum::bitand {a b} {
     # equivalent to adding leading zeros to a regular big-endian
     # representation. The two numbers are extended to the same length,
     # then the operation is applied to the absolute value.
-
+    _treat a b
     while {[llength $a] < [llength $b]} {lappend a 0}
     while {[llength $b] < [llength $a]} {lappend b 0}
     set r [::math::bignum::zero [expr {[llength $a]-1}]]
@@ -507,7 +514,7 @@ proc ::math::bignum::bitxor {a b} {
     # equivalent to adding leading zeros to a regular big-endian
     # representation. The two numbers are extended to the same length,
     # then the operation is applied to the absolute value.
-
+    _treat a b
     while {[llength $a] < [llength $b]} {lappend a 0}
     while {[llength $b] < [llength $a]} {lappend b 0}
     set r [::math::bignum::zero [expr {[llength $a]-1}]]
@@ -524,7 +531,7 @@ proc ::math::bignum::bitor {a b} {
     # equivalent to adding leading zeros to a regular big-endian
     # representation. The two numbers are extended to the same length,
     # then the operation is applied to the absolute value.
-
+    _treat a b
     while {[llength $a] < [llength $b]} {lappend a 0}
     while {[llength $b] < [llength $a]} {lappend b 0}
     set r [::math::bignum::zero [expr {[llength $a]-1}]]
@@ -619,6 +626,7 @@ proc ::math::bignum::rawDivByAtom {n d} {
 #
 # The remainder sign is always the same as the divident.
 proc ::math::bignum::divqr {n d} {
+    _treat n d
     if {[::math::bignum::iszero $d]} {
 	error "Division by zero"
     }
@@ -640,6 +648,7 @@ proc ::math::bignum::rem {n d} {
 
 # Modular reduction. Returns N modulo M
 proc ::math::bignum::mod {n m} {
+    _treat n m
     set r [lindex [::math::bignum::divqr $n $m] 1]
     if {[::math::bignum::sign $m] != [::math::bignum::sign $r]} {
 	set r [::math::bignum::add $r $m]
@@ -661,6 +670,7 @@ proc ::math::bignum::iseven n {
 
 # Returns b^e
 proc ::math::bignum::pow {b e} {
+    _treat b e
     if {[::math::bignum::iszero $e]} {return [list bignum 0 1]}
     # The power is negative is the base is negative and the exponent is odd
     set sign [expr {[::math::bignum::sign $b] && [::math::bignum::isodd $e]}]
@@ -682,6 +692,7 @@ proc ::math::bignum::pow {b e} {
 
 # Returns b^e mod m
 proc ::math::bignum::powm {b e m} {
+    _treat b e m
     if {[::math::bignum::iszero $e]} {return [list bignum 0 1]}
     # The power is negative is the base is negative and the exponent is odd
     set sign [expr {[::math::bignum::sign $b] && [::math::bignum::isodd $e]}]
@@ -823,6 +834,25 @@ proc ::math::bignum::fromstr {str {base 0}} {
 	::math::bignum::setsign z $sign
     }
     return $z
+}
+
+#
+# Pre-treatment of some constants : 0 and 1
+#
+proc ::math::bignum::_treat {args} {
+    foreach arg $args {
+        upvar $arg num
+        if {[llength $num]<2} {
+            if {[string equal $num 0]} {
+                # set to the bignum 0
+                set num {bignum 0 0}
+            } elseif {[string equal $num 1]} {
+                # set to the bignum 1
+                set num {bignum 0 1}
+            }
+        }
+    }
+    return
 }
 
 namespace eval bignum {

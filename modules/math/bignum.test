@@ -167,6 +167,25 @@ test "Plus-3.2" "Add two very large numbers" -body {
    ::math::bignum::tostr $c
 } -result "3[string repeat 0 200]3"
 
+test "Plus-3.3" "Add zero to a large number" -body {
+    set a [::math::bignum::fromstr "1[string repeat 0 200]1"]
+    set b 0
+    
+    set c [::math::bignum::add $a $b]
+    
+    ::math::bignum::tostr $c
+} -result "1[string repeat 0 200]1"
+
+test "Plus-3.4" "Add one to a large number" -body {
+    set a [::math::bignum::fromstr "1[string repeat 9 200]"]
+    set b 1
+    
+    set c [::math::bignum::add $a $b]
+    
+    ::math::bignum::tostr $c
+} -result "2[string repeat 0 200]"
+
+
 test "Minus-3.2" "Subtract two smallish numbers" -body {
    set a [::math::bignum::fromstr "100000"]
    set b [::math::bignum::fromstr "100001"]
@@ -184,6 +203,15 @@ test "Minus-3.3" "Subtract two big numbers" -body {
 
    ::math::bignum::tostr $c
 } -result "-1000000001"
+
+test "Minus-3.4" "Subtract one from a big number" -body {
+    set a [::math::bignum::fromstr "1[string repeat 0 50]"]
+    set b 1
+    
+    set c [::math::bignum::sub $a $b]
+    
+    ::math::bignum::tostr $c
+} -result [string repeat 9 50]
 
 test "Compare-4.0" "Compare a set of two numbers" -body {
    set okay 1
@@ -259,6 +287,31 @@ test "Compare-4.1" "Compare a set of two numbers (inverse result)" -body {
    return $okay
 } -result 1
 
+test "Compare-4.2" "Compare a set of numbers against 0 and 1" -body {
+    set okay 1
+    foreach {astring opzero opone} {
+        -1                       lt lt
+        1                        gt eq
+        -10000000                lt lt
+        10000000                 gt gt
+        0                        eq lt
+        2                        gt gt
+    } {
+        set a [::math::bignum::fromstr $astring]
+        foreach b {0 1} op [list $opzero $opone] {
+            #
+            # None should be true
+            #
+            if  {! [::math::bignum::$op $a $b] } {
+                set okay "False: $astring $op $b - should be true"
+                break
+            }
+        }
+    }
+    return $okay
+} -result 1
+
+
 test "Mult-5.0" "Multiply two small numbers" -body {
    set a [::math::bignum::fromstr 10]
    set b [::math::bignum::fromstr 1000]
@@ -267,6 +320,31 @@ test "Mult-5.0" "Multiply two small numbers" -body {
 
    ::math::bignum::tostr $c
 } -result "10000"
+
+test "Mult-5.0a" "Multiply small numbers by 0" -body {
+    set okay 1
+    foreach a {1 0 -1 100000 -10000 100000000000 -100000000000} {
+        set n [::math::bignum::fromstr $a]
+        if {! [::math::bignum::iszero [::math::bignum::mul $n 0]]} {
+            set okay "Multiplying $a by 0 does not give 0"
+            return
+        }
+    }
+    set okay
+} -result 1
+
+test "Mult-5.0b" "Multiply small numbers by 1" -body {
+    set okay 1
+    foreach a {1 0 -1 100000 -10000 100000000000 -100000000000} {
+        set n [::math::bignum::fromstr $a]
+        if {! [::math::bignum::eq [::math::bignum::mul $n 1] $n]} {
+            set okay "Multiplying $a by 1 does not give $a"
+            return
+        }
+    }
+    set okay
+} -result 1
+
 
 test "Mult-5.1" "Multiply two small negative numbers" -body {
    set a [::math::bignum::fromstr -10]
@@ -305,6 +383,45 @@ test "Mult-5.4" "Katsabura multiplication with two very large numbers of opposit
 } -result "-2[string repeat 0 3000]"
 
 # Div
+test "Div-6.1" "Divide 0 by any number" -body {
+    set okay 1
+    foreach n {1 -1 2 -2 10 -10 1000000000 -100000000} {
+        set a [::math::bignum::fromstr $n]
+        if {! [::math::bignum::iszero [::math::bignum::div 0 $a]]} {
+            set okay "Zero divided by $n does not give zero"
+            break
+        }
+    }
+    set okay
+} -result 1
+
+
+test "Div-6.2" "Divide small numbers by 1" -body {
+    set okay 1
+    foreach n {0 1 -1 2 -2 10 -10 1000000000 -100000000} {
+        set a [::math::bignum::fromstr $n]
+        if {! [::math::bignum::eq [::math::bignum::div $a 1] $a]} {
+            set okay "$n divided by 1 does not give $n"
+            break
+        }
+    }
+    set okay
+} -result 1
+
+test "Div-6.3" "Divide big numbers by 2" -body {
+    set okay 1
+    set two [::math::bignum::fromstr 2]
+    foreach p {2 5 10 50 100} {
+        set n 1[string repeat 0 $p]
+        set a [::math::bignum::fromstr $n]
+        set q 5[string repeat 0 [expr {$p-1}]]
+        if {! [string equal [::math::bignum::tostr [::math::bignum::div $a $two]] $q]} {
+            set okay "$n divided by 2 does not give $q"
+            break
+        }
+    }
+    set okay
+} -result 1
 
 test "Pow-7.1" "Exponentiate large numbers" -body {
    set a [::math::bignum::fromstr "1[string repeat 0 10]"]
@@ -336,7 +453,7 @@ foreach {n a b zand zor zxor} {
     set zand [::math::bignum::fromstr $zand]
     set zor  [::math::bignum::fromstr $zor]
     set zxor [::math::bignum::fromstr $zxor]
- 
+    
     test "Bitand-8.$n" "BitAnd large numbers" -body {
 	::math::bignum::bitand $a $b
     } -result $zand
@@ -350,6 +467,29 @@ foreach {n a b zand zor zxor} {
     } -result $zxor
 }
 
+test "Mod-11.1" "Modulo and remainder for small numbers" -body {
+    set okay 1
+    foreach {n d m r} {
+         100 -3 -2  1
+        -100 -3 -1 -1
+        -100  3  2 -1
+         100  3  1  1
+    }  {
+        set a [::math::bignum::fromstr $n]
+        set b [::math::bignum::fromstr $d]
+        set modulo [::math::bignum::tostr [::math::bignum::mod $a $b]]
+        set remainder [::math::bignum::tostr [::math::bignum::rem $a $b]]
+        if {! [string equal $modulo $m]} {
+            set okay "$n modulo $d does not give $m"
+            break
+        }
+        if {! [string equal $remainder $r]} {
+            set okay "the remainder of $n/$d is not given as $r"
+            break
+        }
+    }
+    return $okay
+} -result 1
 
 
 #
