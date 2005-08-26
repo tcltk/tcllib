@@ -1,3 +1,11 @@
+2005-08-26  Andreas Kupries <andreask@activestate.com>
+
+	* uuencode.test: Deconfused the testsuite's belief of which
+	  accelerators is in use. Removed superfluous output, and added a
+	  flag variable for actual use of Trf, not only presence. Changed
+	  definition of test 1.4 to use this flag. This is for [Tcllib SF
+	  Bug 1273537].
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* base64.man: Cleaned the doc up a bit. Especially highlighted the
