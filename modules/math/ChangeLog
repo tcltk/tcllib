@@ -3,6 +3,8 @@
 	* Feature Request 1261101 : automatically convert
 	  the strings "0" and "1" to bignums
 	* modified files : bignum.man,bignum.tcl,bignum.test
+	* Bug 1273403 : fixed in bigfloat.test (all tests shared
+	  the same version number)
 
 2005-08-25  Kevin Kenny  <kennykb@acm.org>
 
