@@ -30,7 +30,11 @@ namespace eval ::snit:: {
     variable reservedArgs {type selfns win self}
 
     # Widget classes which can be hulls (must have -class)
-    variable hulltypes {frame toplevel ttk::frame labelframe ttk::labelframe}
+    variable hulltypes {
+	toplevel tk::toplevel
+	frame tk::frame ttk::frame
+	labelframe tk::labelframe ttk::labelframe
+    }
 }
 
 #-----------------------------------------------------------------------

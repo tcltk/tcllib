@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 1.0]
+[manpage_begin snit n 2.0]
 [copyright {2003-2005, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
-[require Tcl 8.4]
-[require snit [opt 1.0]]
+[require Tcl 8.5]
+[require snit [opt 2.0]]
 [description]
 [para]
 
@@ -26,6 +26,16 @@ This man page is intended to be a reference only; see the accompanying
 [cmd snitfaq] for a gentler, more tutorial introduction to Snit
 concepts.
 
+[section {SNIT VERSIONS}]
+
+This man page covers both Snit 2.0 and Snit 1.1.  The primary
+difference between the two versions is simply that Snit 2.0 contains
+speed optimizations based on new features of Tcl 8.5; Snit 1.1
+supports both Tcl 8.4 and Tcl 8.5.  There are a few minor
+inconsistencies; they are flagged in the body of the man page with the
+label "Snit 1.x Incompatibility"; they are also discussed in the [cmd snitfaq].
+
+[para]
 
 [section REFERENCE]
 
@@ -58,13 +68,13 @@ contain the following definitions:
 Defines a type variable with the specified [arg name], and optionally
 the specified [arg value].  Type variables are shared by all instances
 of the type.  If the [const -array] option is included, then 
-[arg value] should be a list of keyword/value pairs; it will be
-assigned to the variable in the manner of [cmd "array set"].
+[arg value] should be a dictionary; it will be
+assigned to the variable using [cmd "array set"].
 
 [call [cmd typemethod] [arg name] [arg arglist] [arg body]]
 
 Defines a type method, a subcommand of the new type command,
- with the specified name, argument list, and
+with the specified name, argument list, and
 body.  The [arg arglist] is a normal Tcl argument list and may contain
 default arguments and the [var args] argument; however, it may not
 contain the argument names [var type], [var self], [var selfns], or
@@ -81,19 +91,29 @@ of every type method.
 
 If the [arg name] consists of two or more tokens, Snit handles it specially:
 
-[example {    typemethod {a b} {} { ... }
+[example {    typemethod {a b} {arg} { puts "Got $arg" }
 }]
 
-The following two calls to this type method are equivalent:
+This statement implicitly defines a type method called [const a] which
+has a subcommand [const b].  [const b] is called like this:
 
-[example {    $type {a b}
-    $type a b
+[example {    $type a b "Hello, world!"
 }]
 
-In other words, [const a] becomes a subcommand of [var \$type], and
-[const b] becomes a subcommand of [const a].  This makes it possible
-to define a hierarchical command structure; see [cmd method], below,
+[const a] may have any number of subcommands.  This makes it possible
+to define a hierarchical command structure; see [cmd method], below, 
 for more examples.
+
+[nl]
+
+[emph {Snit 1.x Incompatibility:}] In Snit 1.x, the following
+following two calls to this type method are equivalent:
+
+[example {    $type a b "Hello, world!"
+    $type {a b} "Hello, world!"
+}]
+
+In Snit 2.0, the second form is invalid.
 
 [call [cmd typeconstructor] [arg body]]
 
@@ -118,8 +138,8 @@ A type may define at most one type constructor.
 Defines an instance variable, a private variable associated with each
 instance of this type, and optionally its initial value.  
 If the [const -array] option is included, then 
-[arg value] should be a list of keyword/value pairs; it will be
-assigned to the variable in the manner of [cmd "array set"].
+[arg value] should be a dictionary; it will be
+assigned to the variable using [cmd "array set"].
 
 [call [cmd method] [arg name] [arg arglist] [arg body]]
 
@@ -158,15 +178,14 @@ If the [arg name] consists of two or more tokens, Snit handles it specially:
 [example {    method {a b} {} { ... }
 }]
 
-The following two calls to this type method are equivalent:
+This statement implicitly defines a method called [const a] which
+has a subcommand [const b].  [const b] is called like this:
 
-[example {    $self {a b}
-    $self a b
+[example {    $self a b "Hello, world!"
 }]
 
-In other words, [const a] becomes a subcommand of [var \$self], and
-[const b] becomes a subcommand of [const a].  This makes it possible
-to define a hierarchical command structure.  For example,
+[const a] may have any number of subcommands.  This makes it possible
+to define a hierarchical command structure:
 
 [example {% snit::type dog {
     method {tail wag}   {} {return "Wag, wag"}
@@ -185,7 +204,18 @@ Droop, droop
 What we've done is implicitly defined a "tail" method with subcommands
 "wag" and "droop".  Consequently, it's an error to define "tail"
 explicitly.
-       
+
+[nl]
+
+[emph {Snit 1.x Incompatibility:}] In Snit 1.x, the following
+following two calls to this method are equivalent:
+
+[example {    $self a b "Hello, world!"
+    $self {a b} "Hello, world!"
+}]
+
+In Snit 2.0, the second form is invalid.
+
 [call [cmd option] [arg namespec] [opt [arg defaultValue]]]
 [call [cmd option] [arg namespec] [opt [arg options...]]]
 
@@ -245,7 +275,7 @@ will be "" otherwise.
 [lst_item "[const -readonly] [arg flag]"]
 
 The [arg flag] can be any Boolean value recognized by Tcl.  
-If [arg flag] is true, then the option is readonly--it can only
+If [arg flag] is true, then the option is read-only--it can only
 be set using [method configure] or [method configurelist] 
 at creation time, i.e., in the type's constructor.
 
@@ -528,25 +558,28 @@ Defines a delegated option; the [arg namespec] is defined as for the
 When the [method configure], [method configurelist], or [method cget]
 instance method is used to set or retrieve the option's value, the
 equivalent [method configure] or [method cget] command will be applied
-to the component as though these [cmd onconfigure] and [cmd oncget]
-handlers were defined, where [arg name] is the option name from the
-[arg namespec]:
+to the component as though the option was defined with the following
+[const -configuremethod] and [const -cgetmethod]:
 
-[example {    onconfigure name {value} {
-        $comp configure name $value
+[example {    method ConfigureMethod {option value} {
+        $comp configure $option $value
     }
 
-    oncget name {
-        return [$comp cget name]
+    method CgetMethod {option} {
+        return [$comp cget $option]
     }
 }]
+
+Note that delegated options never appear in the [var options] array.
+
+[nl]
 
 If the [const as] clause is specified, then the [arg target] option
 name is used in place of [arg name].
 
 [nl]
 
-The form [cmd "delegate option *"] delegates all unknown method names to the
+The form [cmd "delegate option *"] delegates all unknown options to the
 specified [arg comp]onent.  The [const except] clause can be used to
 specify a list of [arg exceptions], i.e., option names that will not
 be so delegated.
@@ -558,7 +591,9 @@ the [method configure] and [method cget] instance methods.
 
 [nl]
 
-Note that an option cannot be both locally defined and delegated.
+An option cannot be both locally defined and delegated.
+
+TBD: Continue from here.
 
 [call [cmd component] [arg comp] \
      [opt "[const -public] [arg method]"] \
@@ -935,7 +970,14 @@ information.
 [call [cmd hulltype] [arg type]]
 
 Determines the kind of widget used as the [cmd snit::widget]'s hull.
-The [arg type] may be [const frame] (the default) or [const toplevel].
+The [arg type] may be [const frame] (the default), [const toplevel],
+[const labelframe]; the qualified equivalents of these, 
+[const tk::frame], [const tk::toplevel], and [const tk::labelframe];
+or, if available, the equivalent Tile widgets:
+[const ttk::frame], [const ttk::toplevel], and 
+[const ttk::labelframe].  In practice, any widget that supports the
+[const -class] option can be used as a hull widget by 
+[cmd lappend]'ing its name to the variable [var snit::hulltypes].
 
 [list_end]
        
@@ -1044,9 +1086,11 @@ the type definition includes [cmd "delegate typemethod *"] or the
 
 [nl]
 
-Furthermore, Snit type commands can be called with no arguments at
+Furthermore, if the [const -hastypemethods] pragma is false, then
+Snit type commands can be called with no arguments at
 all; in this case, the type command creates an instance with an
-automatically generated name.  In other words, provided that the type
+automatically generated name.  In other words, provided that the 
+[const -hastypemethods] pragma is false and the type
 has instances, the following commands are equivalent:
 
 [example {snit::type dog { ... }
@@ -1057,6 +1101,11 @@ set mydog [dog]
 }]
 
 This doesn't work for Snit widgets, for obvious reasons.
+
+[nl]
+
+[emph "Snit 1.x Incompatibility:"] In Snit 1.x, the above behavior is
+available whether [const -hastypemethods] is true (the default) or false.
 
 [list_end]
 
@@ -1127,7 +1176,14 @@ pattern; only names that match the pattern are returned.
 
 [call [cmd {$type}] [method {info typemethods}] [opt [arg pattern]]]
 
-Returns a list of the names of the type's type methods.  If the type
+Returns a list of the names of the  type's type methods.  
+If the type has hierarchical 
+type methods, whether locally-defined or delegated, only the first
+word of each will be included in the list.
+
+[nl]
+
+If the type
 definition includes [cmd "delegate typemethod *"], the list will
 include only the names of those implicitly delegated type methods 
 that have been called at least once and are still in the type method cache.
@@ -1149,6 +1205,10 @@ for [cmd snit::widget]s, it will be a list of Tk widget names.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
+[nl]
+
+[emph "Snit 1.x Incompatibility:"]  In Snit 1.x, the full multi-word
+names of hierarchical type methods are included in the return value.
 
 [call [cmd {$type}] [method destroy]]
 
@@ -1268,7 +1328,14 @@ pattern; only names that match the pattern are returned.
 
 [call [cmd {$object}] [method {info typemethods}] [opt [arg pattern]]]
 
-Returns a list of the names of the instance's type's type methods.  If the type
+Returns a list of the names of the  type's type methods.  
+If the type has hierarchical 
+type methods, whether locally-defined or delegated, only the first
+word of each will be included in the list.
+
+[nl]
+
+If the type
 definition includes [cmd "delegate typemethod *"], the list will
 include only the names of those implicitly delegated type methods 
 that have been called at least once and are still in the type method cache.
@@ -1278,6 +1345,10 @@ that have been called at least once and are still in the type method cache.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
+[nl]
+
+[emph "Snit 1.x Incompatibility:"]  In Snit 1.x, the full multi-word
+names of hierarchical type methods are included in the return value.
 
 [call [cmd {$object}] [method {info options}] [opt [arg pattern]]]
 
@@ -1301,7 +1372,13 @@ to another.
 
 [call [cmd {$object}] [method {info methods}] [opt [arg pattern]]]
 
-Returns a list of the names of the instance's methods.  If the type
+Returns a list of the names of the instance's methods.
+If the type has hierarchical methods, whether locally-defined or 
+delegated, only the first word of each will be included in the list.
+
+[nl]
+
+If the type
 definition includes [cmd "delegate method *"], the list will
 include only the names of those implicitly delegated methods that have
 been called at least once and are still in the method cache.
@@ -1311,6 +1388,10 @@ been called at least once and are still in the method cache.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
+[nl]
+
+[emph "Snit 1.x Incompatibility:"]  In Snit 1.x, the full multi-word
+names of hierarchical type methods are included in the return value.
 
 [list_end]
 
@@ -1379,7 +1460,6 @@ to be called when [cmd {$button}] is pressed:
 Given an instance variable name, returns the fully qualified name.
 Use this if you're passing the variable to some other object, e.g., as
 a [option -textvariable] to a Tk label widget.
-
 
 [call [cmd mytypevar] [arg name]]
 
@@ -1744,15 +1824,15 @@ definition.
 
 [para]
 
-Note that only [cmd frame] and [cmd toplevel] widgets allow the user
-to change the widget class name, which is why they are the only allowable
-hull types for [cmd snit::widget]s.
+Any widget can be used as the [cmd hulltype] provided that it supports
+the [const -class] option for changing its widget class name.  See
+the discussion of the [cmd hulltype] command, above.
 
 [para]
 
 The widget class of a [cmd snit::widgetadaptor] is just the widget
 class of its hull widget; this cannot be changed unless the hull
-widget is a [cmd frame] or [cmd toplevel], in which case it will
+widget supports [const -class], in which case it will
 usually make more sense to use [cmd snit::widget] rather than
 [cmd snit::widgetadaptor].
 
@@ -2153,8 +2233,6 @@ This leaves the global namespace open for application authors.
 
 [section CAVEATS]
 
-Please understand that while Snit is well-tested and fairly stable,
-it is still evolving (we have not yet reached Snit 1.0).
 If you have problems, find bugs, or new ideas you are hereby cordially
 invited to submit a report of your problem, bug, or idea at the
 SourceForge trackers for tcllib, which can be found at
@@ -2180,8 +2258,9 @@ The wisest course is simply not to do this.
 [list_begin bullet]
 [bullet]
 
-Error stack traces returned by Snit are extremely ugly and typically
-contain far too much information about Snit internals.
+Error stack traces returned by Snit 1.x are extremely ugly and typically
+contain far too much information about Snit internals.  The error
+messages are much improved in Snit 2.0.
 
 [bullet]
 
@@ -2236,9 +2315,9 @@ William H. Duquette.  However, much credit belongs to the following
 people for using Snit and providing me with valuable feedback: Rolf
 Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
 Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, 
-Andreas Kupries, Marty Backe, Andy Goth, Jeff Hobbs, and Brian
-Griffin.  If I've forgotten anyone, my apologies; let me know and
-I'll add your name to the list.
+Andreas Kupries, Marty Backe, Andy Goth, Jeff Hobbs, Brian
+Griffin, Donal Fellows, and Miguel Sofer.  If I've forgotten anyone, 
+my apologies; let me know and I'll add your name to the list.
 
 [keywords class {object oriented} object C++]
 [keywords Snit type {Incr Tcl} BWidget]

@@ -12,10 +12,12 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Changes in V2.0
+Changes in V2.0/V1.1
 --------------------------------------------------------------------
 
-* Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
+* V2.0 and V1.1 are being developed in parallel.
+
+  Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
   ([dict] and [namespace ensemble]) to improve Snit's run-time
   efficiency.  Otherwise, it's intended to be feature-equivalent
   with V1.1.  When running with Tcl/Tk 8.5, both V2.0 and V1.1 are
@@ -50,9 +52,6 @@ Changes in V2.0
 
   In Snit 2.0, the second way no longer works.
 
-  It's possible that this incompatibility might be removed in
-  the future.
-
 * In Snit 1.x and earlier, [$obj info methods] and 
   [$obj info typemethods] returned a complete list of all known
   hierarchical methods.  In the example just above, for example,
@@ -61,12 +60,6 @@ Changes in V2.0
   method name is returned, [$obj info methods] would include 
   "foo" but not "foo bar".
 
-  Again, it's possibly that this incompatibility might be removed 
-  in the future.
-
-Changes in V1.1
---------------------------------------------------------------------
-
 * It's now explicitly an error to call an object's "destroy" method
   in the object's constructor.  (If you need to do it, just throw
   an error; construction will fail and the object will be cleaned
@@ -74,8 +67,11 @@ Changes in V1.1
 
 * The Tile "ttk::frame" widget is now a valid hulltype for 
   snit::widgets.  Any widget with a -class option can be used
-  as a hulltype; lappend the widget name (e.g., labelframe) to
+  as a hulltype; lappend the widget name to
   snit::hulltypes to enable its use as a hulltype.
+
+* The TK labelframe widget and the Tile ttk::labelframe widget are
+  now valid hulltypes for snit::widgets.
 
 Changes in V1.0
 --------------------------------------------------------------------

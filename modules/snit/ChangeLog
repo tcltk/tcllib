@@ -1,3 +1,11 @@
+2005-08-27  Will Duquette  <will@wjduquette.com>
+
+	* snit.man: Updated for Snit 2.0/1.1
+	* snit.tcl: Added the new hulltypes to snit.tcl (somehow they 
+        didn't get in).
+	* snit.test: Added a test that verifies the list of valid 
+	hulltypes.
+
 2005-08-22  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* snit.tcl, snit2.tcl: allow labelframe and ttk::labelframe as
