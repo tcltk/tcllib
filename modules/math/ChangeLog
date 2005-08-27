@@ -1,5 +1,11 @@
 2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
 
+	* bigfloat.tcl : many optimizations around the fromstr
+          command and all kind of constants (mainly integer)
+	* bigfloat.test : updated test labels to more significant labels
+
+2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
+
 	* Feature Request 1261101 : automatically convert
 	  the strings "0" and "1" to bignums
 	* modified files : bignum.man,bignum.tcl,bignum.test
