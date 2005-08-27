@@ -67,6 +67,14 @@ namespace eval ::math::bigfloat {
     set five [::math::bignum::fromstr 5]
     variable one
     set one [::math::bignum::fromstr 1]
+    variable two
+    set two [::math::bignum::fromstr 2]
+    variable three
+    set three [::math::bignum::fromstr 3]
+    variable four
+    set four [::math::bignum::fromstr 4]
+    variable zero
+    set zero [::math::bignum::fromstr 0]
 }
 
 
@@ -132,14 +140,16 @@ proc ::math::bigfloat::acos {x} {
     if {[compare $x [fromstr 0.7071]]>0} {
         # x > sqrt(2)/2 : trying to make _asin converge quickly 
         # creating 0 and 1 with the same precision as the entry
-        set zero [list F [fromstr 0] -$precision $::math::bigfloat::one]
-        set one [list F [::math::bignum::lshift $::math::bigfloat::one $precision] \
-                -$precision $::math::bigfloat::one]
+        variable one
+        variable zero
+        set fzero [list F $zero -$precision $one]
+        set fone [list F [::math::bignum::lshift 1 $precision] \
+                -$precision $one]
         # acos(1.0)=0.0
-        if {[equal $one $x]} {
-            return $zero
+        if {[equal $fone $x]} {
+            return $fzero
         }
-        if {[compare $one $x]<0} {
+        if {[compare $fone $x]<0} {
             # the behavior assumed because acos(x) is not defined
             # when |x|>1
             error "acos on a number greater than 1"
@@ -147,7 +157,7 @@ proc ::math::bigfloat::acos {x} {
         # acos(x) = asin(sqrt(1 - x^2))
         # since 1 - cos(x)^2 = sin(x)^2
         # x> sqrt(2)/2 so x^2 > 1/2 so 1-x^2<1/2
-        set x [sqrt [sub $one [mul $x $x]]]
+        set x [sqrt [sub $fone [mul $x $x]]]
         # the parameter named x is smaller than sqrt(2)/2
         return [_asin $x]
     }
@@ -252,7 +262,9 @@ proc ::math::bigfloat::asin {x} {
     set precision [expr {-$exp}]
     # when x=0, return 0 at the same precision as the input was
     if {[iszero $x]} {
-        return [list F [fromstr 0] -$precision $::math::bigfloat::one]
+        variable one
+        variable zero
+        return [list F $zero -$precision $one]
     }
     # asin(-x)=-asin(x)
     if {[::math::bignum::sign $entier]} {
@@ -265,16 +277,17 @@ proc ::math::bigfloat::asin {x} {
     # to 1/sqrt(2)~0.7071
     # the comparison is : if x>0.7071 then ...
     if {[compare $x [fromstr 0.7071]]>0} {
-        set one [list F [::math::bignum::lshift $::math::bigfloat::one $precision] \
-                -$precision $::math::bigfloat::one]
+        variable one
+        set fone [list F [::math::bignum::lshift 1 $precision] \
+                -$precision $one]
         # asin(1)=Pi/2 (with the same precision as the entry has)
-        if {[equal $one $x]} {
+        if {[equal $fone $x]} {
             return $piOverTwo
         }
-        if {[compare $x $one]>0} {
+        if {[compare $x $fone]>0} {
             error "asin on a number greater than 1"
         }
-        set x [sqrt [sub $one [mul $x $x]]]
+        set x [sqrt [sub $fone [mul $x $x]]]
         return [sub $piOverTwo [_asin $x]]
     }
     return [normalize [_asin $x]]
@@ -302,10 +315,12 @@ proc ::math::bigfloat::_asin {x} {
     set dt [intMulShift $mantissa $delta [expr {$precision-1}]]
     # these three are required to compute the fractions implicated into
     # the development (of Taylor, see former)
-    set num [fromstr 1]
+    variable one
+    set num $one
     # two will be used into the loop
-    set two [fromstr 2]
-    set i [fromstr 3]
+    variable two
+    variable three
+    set i $three
     set denom $two
     set delta [::math::bignum::add [::math::bignum::mul $delta $square] \
             [::math::bignum::mul $dt $mantissa]]
@@ -340,6 +355,10 @@ proc ::math::bigfloat::_asin {x} {
 proc ::math::bigfloat::atan {x} {
     checkFloat x
     variable one
+    variable two
+    variable three
+    variable four
+    variable zero
     foreach {dummy mantissa exp delta} $x {break}
     if {$exp>=0} {
         error "not enough precision to compute atan"
@@ -347,7 +366,7 @@ proc ::math::bigfloat::atan {x} {
     set precision [expr {-$exp}]
     # atan(0)=0
     if {[iszero $x]} {
-        return [list F [fromstr 0] -$precision $one]
+        return [list F $zero -$precision $one]
     }
     # atan(-x)=-atan(x)
     if {[::math::bignum::sign $mantissa]} {
@@ -356,7 +375,7 @@ proc ::math::bigfloat::atan {x} {
     # now x is strictly positive
     # at this moment, we are trying to limit |x| to a fair acceptable number
     # to ensure that Taylor development will converge quickly
-    set float1 [list F [::math::bignum::lshift $one $precision] -$precision $one]
+    set float1 [list F [::math::bignum::lshift 1 $precision] -$precision $one]
     if {[compare $float1 $x]<0} {
         # compare x to 2.4142
         if {[compare $x [fromstr 2.4142]]<0} {
@@ -364,13 +383,13 @@ proc ::math::bigfloat::atan {x} {
             # as 1<x<2.4142 : (x-1)/(x+1)=1-2/(x+1) belongs to
             # the range :  ]0,1-2/3.414[
             # that equals  ]0,0.414[
-            set pi_sur_quatre [div [pi $precision 1] [fromstr 4]]
+            set pi_sur_quatre [div [pi $precision 1] $four]
             return [add $pi_sur_quatre [atan \
                     [div [sub $x $float1] [add $x $float1]]]]
         }
         # atan(x)=Pi/2-atan(1/x)
         # 1/x < 1/2.414 so the argument is lower than 0.414
-        set pi_sur_deux [div [pi $precision 1] [fromstr 2]]
+        set pi_sur_deux [div [pi $precision 1] $two]
         return [sub $pi_sur_deux [atan [div $float1 $x]]]
     }
     if {[compare $x [fromstr 0.4142]]>0} {
@@ -378,7 +397,7 @@ proc ::math::bigfloat::atan {x} {
         # x>0.420 so (x-1)/(x+1)=1 - 2/(x+1) > 1-2/1.414
         #                                    > -0.414
         # x<1 so (x-1)/(x+1)<0
-        set pi_sur_quatre [div [pi $precision 1] [fromstr 4]]
+        set pi_sur_quatre [div [pi $precision 1] $four]
         return [add $pi_sur_quatre [atan \
                 [div [sub $x $float1] [add $x $float1]]]]
     }
@@ -411,26 +430,25 @@ proc ::math::bigfloat::atan {x} {
     set delta_square [::math::bignum::lshift $delta 1]
     set square [intMulShift $mantissa $mantissa $precision]
     # the (2n+1) divider
-    set divider [fromstr 3]
-    set two [fromstr 2]
+    set divider $three
     # computing precisely the uncertainty
-    set delta [intIncr [::math::bignum::rshift [::math::bignum::add \
+    set delta [::math::bignum::add 1 [::math::bignum::rshift [::math::bignum::add \
             [::math::bignum::mul $delta_square $mantissa] \
             [::math::bignum::mul $delta $square]] $precision]]
     # temp contains (-1)^n*x^(2n+1)
     set temp [opp [intMulShift $mantissa $square $precision]]
     set t [::math::bignum::div $temp $divider]
-    set dt [intIncr [::math::bignum::div $delta $divider]]
+    set dt [::math::bignum::add 1 [::math::bignum::div $delta $divider]]
     while {![::math::bignum::iszero $t]} {
         set result [::math::bignum::add $result $t]
         set delta_fin [::math::bignum::add $delta_fin $dt]
         set divider [::math::bignum::add $divider $two]
-        set delta [intIncr [::math::bignum::rshift [::math::bignum::add \
+        set delta [::math::bignum::add 1 [::math::bignum::rshift [::math::bignum::add \
                 [::math::bignum::mul $delta_square [abs $temp]] \
                 [::math::bignum::mul $delta $square]] $precision]]
         set temp [opp [intMulShift $temp $square $precision]]
         set t [::math::bignum::div $temp $divider]
-        set dt [intIncr [::math::bignum::div $delta $divider]]
+        set dt [::math::bignum::add [::math::bignum::div $delta $divider] $one]
     }
     # we have to normalize because the uncertainty might be greater than 99
     # moreover it is the most often case
@@ -456,15 +474,17 @@ proc ::math::bigfloat::_atanfract {integer precision} {
     # n(2log(5)-log(2)+2)>(precision-1)*log(2)+1+log(5)
     set n [expr {int((($precision-1)*log(2)+1+log(5))/(2*log(5)-log(2)+2)+1)}]
     incr precision $n
-    set one [::math::bignum::lshift $::math::bigfloat::one $precision]
+    set one [::math::bignum::lshift 1 $precision]
     # first term of the development : 1/integer
     set a [::math::bignum::div $one $integer]
     # 's' will contain the result
     set s $a
     # integer^2
     set square [::math::bignum::mul $integer $integer]
-    set denom [fromstr 3]
-    set denomIncr [fromstr 2]
+    variable two
+    variable three
+    set denom $three
+    set denomIncr $two
     # $t is (-1)^n*x^(2n+1)
     set t [opp [::math::bignum::div $a $square]]
     set u [::math::bignum::div $t $denom]
@@ -490,7 +510,8 @@ proc ::math::bigfloat::ceil {number} {
     set number [normalize $number]
     if {[iszero $number]} {
         # returns the BigInt 0
-        return [::math::bignum::fromstr 0]
+        variable zero
+        return $zero
     }
     foreach {dummy integer exp delta} $number {break}
     if {$exp>=0} {
@@ -506,7 +527,7 @@ proc ::math::bigfloat::ceil {number} {
     }
     # fractional part
     if {![equal [::math::bignum::lshift $try [expr {-$exp}]] $integer]} {
-        return [::math::bignum::add $try $::math::bigfloat::one]
+        return [::math::bignum::add 1 $try]
     }
     return $try
 }
@@ -607,7 +628,7 @@ proc ::math::bigfloat::_cos2 {x precision delta} {
     if {[::math::bignum::cmp $x $pis4]>=0} {
         # cos(Pi/2-x)=sin(x)
         set x [::math::bignum::sub $pis2 $x]
-        set delta [intIncr $delta]
+        set delta [::math::bignum::add 1 $delta]
         return [_sin $x $precision $delta]
     }
     return [_cos $x $precision $delta]
@@ -621,8 +642,10 @@ proc ::math::bigfloat::_cos2 {x precision delta} {
 # 3. the uncertainty (doubt range)
 ################################################################################
 proc ::math::bigfloat::_cos {x precision delta} {
+    variable zero
     variable one
-    set float1 [::math::bignum::lshift $::math::bigfloat::one $precision]
+    variable two
+    set float1 [::math::bignum::lshift $one $precision]
     # Taylor development follows :
     # cos(x)=1-x^2/2 + x^4/4! ... + (-1)^(2n)*x^(2n)/2n!
     set s $float1
@@ -632,10 +655,9 @@ proc ::math::bigfloat::_cos {x precision delta} {
     # x=x^2 (because in this Taylor development, there are only even powers of x)
     set x [intMulShift $x $x $precision]
     set denom1 $one
-    set two [fromstr 2]
     set denom2 $two
     set t [opp [::math::bignum::rshift $x 1]]
-    set delta [fromstr 0]
+    set delta $zero
     set dt $d
     while {![::math::bignum::iszero $t]} {
         set s [::math::bignum::add $s $t]
@@ -667,7 +689,7 @@ proc ::math::bigfloat::deg2rad {x} {
         error "number too loose to convert to radians"
     }
     set pi [pi $xLen 1]
-    return [div [mul $x $pi] [fromstr 180]]
+    return [div [mul $x $pi] [::math::bignum::fromstr 180]]
 }
 
 
@@ -749,14 +771,13 @@ proc ::math::bigfloat::div {a b} {
     set delta [::math::bignum::div [::math::bignum::mul $deltaB \
             [abs $integerA]] [abs $integerB]]
     set delta [::math::bignum::div [::math::bignum::add\
-            [::math::bignum::add $delta $one]\
+            [::math::bignum::add 1 $delta]\
             $deltaA] [abs $integerB]]
     set quotient [::math::bignum::div $integerA $integerB]
     if {[::math::bignum::sign $integerB]+[::math::bignum::sign $integerA]==1} {
-        set quotient [::math::bignum::sub $quotient $one]
+        set quotient [::math::bignum::sub $quotient 1]
     }
-    return [normalize [list F $quotient $exp [::math::bignum::add $delta\
-            $one]]]
+    return [normalize [list F $quotient $exp [::math::bignum::add $delta 1]]]
 }
 
 
@@ -786,7 +807,7 @@ proc ::math::bigfloat::divFloatByInt {a b} {
     set integer [::math::bignum::div $integer $b]
     # the uncertainty is always evaluated to the ceil value
     # and as an absolute value
-    set delta [::math::bignum::add [::math::bignum::div $delta [abs $b]] $one]
+    set delta [::math::bignum::add 1 [::math::bignum::div $delta [abs $b]]]
     return [normalize [list F $integer $exp $delta]]
 }
 
@@ -872,7 +893,7 @@ proc ::math::bigfloat::exp {x} {
     }
     set new_exp [tostr $new_exp]
     set exp [expr {$new_exp-$precision}]
-    set delta [intIncr $delta]
+    set delta [::math::bignum::add 1 $delta]
     return [normalize [list F [::math::bignum::rshift $integer 8] $exp $delta]]
 }
 
@@ -888,18 +909,17 @@ proc ::math::bigfloat::exp {x} {
 #                  2. the doubt limit, or uncertainty
 ################################################################################
 proc ::math::bigfloat::_exp {integer precision delta} {
-    variable one
-    set oneShifted [::math::bignum::lshift $one $precision]
+    set oneShifted [::math::bignum::lshift 1 $precision]
     if {[::math::bignum::iszero $integer]} {
         # exp(0)=1
         return [list $oneShifted $delta]
     }
     set s [::math::bignum::add $oneShifted $integer]
-    set two [fromstr 2]
-    set d [intIncr [::math::bignum::div $delta $two]]
+    variable two
+    set d [::math::bignum::add 1 [::math::bignum::div $delta $two]]
     set delta [::math::bignum::add $delta $delta]
     # dt = uncertainty on x^2
-    set dt [intIncr [intMulShift $d $integer $precision]]
+    set dt [::math::bignum::add 1 [intMulShift $d $integer $precision]]
     # t= x^2/2
     set t [intMulShift $integer $integer $precision]
     set t [::math::bignum::div $t $two]
@@ -909,9 +929,9 @@ proc ::math::bigfloat::_exp {integer precision delta} {
         set s [::math::bignum::add $s $t]
         set delta [::math::bignum::add $delta $dt]
         # we do not have to keep trace of the factorial, we just iterate divisions
-        set denom [intIncr $denom]
+        set denom [::math::bignum::add 1 $denom]
         # add delta
-        set d [intIncr [::math::bignum::div $d $denom]]
+        set d [::math::bignum::add 1 [::math::bignum::div $d $denom]]
         set dt [::math::bignum::add $dt $d]
         # get x^n from x^(n-1)
         set t [intMulShift $integer $t $precision]
@@ -935,12 +955,12 @@ proc ::math::bigfloat::floatRShift {float {n 1}} {
 # returns : the floor value as a BigInt
 ################################################################################
 proc ::math::bigfloat::floor {number} {
-    variable one
+    variable zero
     checkFloat number
     set number [normalize $number]
     if {[::math::bignum::iszero $number]} {
         # returns the BigInt 0
-        return [::math::bignum::fromstr 0]
+        return $zero
     }
     foreach {dummy integer exp delta} $number {break}
     if {$exp>=0} {
@@ -957,7 +977,7 @@ proc ::math::bigfloat::floor {number} {
     }
     # floor(-n.xxxx)=-(n+1) when xxxx!=0
     if {![equal [::math::bignum::lshift $try [expr {-$exp}]] $integer]} {
-        set try [::math::bignum::add $try $one]
+        set try [::math::bignum::add 1 $try]
     }
     ::math::bignum::setsign try $sign
     return $try
@@ -1065,7 +1085,6 @@ proc ::math::bigfloat::_fromstr {number exp} {
         set exponent [tenPow $exp]
         set number [::math::bignum::mul $number $exponent]
         return [normalize [list F $number -4 [::math::bignum::lshift $exponent 4]]]
-        #return [normalize [list F $number -4 [intIncr [::math::bignum::lshift $exponent 4]]]]
     }
     # now exp is negative or null
     # the closest power of 2 to the 'exp'th power of ten, but greater than it
@@ -1080,9 +1099,9 @@ proc ::math::bigfloat::_fromstr {number exp} {
     set fivePow [::math::bignum::pow $five [::math::bignum::fromstr [expr {-$exp}]]]
     set number [::math::bignum::div [::math::bignum::lshift $number \
             $diff] $fivePow]
-    set delta [::math::bignum::div [::math::bignum::lshift $one \
+    set delta [::math::bignum::div [::math::bignum::lshift 1 \
             $diff] $fivePow]
-    return [normalize [list F $number [expr {-$binaryExp}] [intIncr $delta]]]
+    return [normalize [list F $number [expr {-$binaryExp}] [::math::bignum::add $delta 1]]]
 }
 
 
@@ -1101,20 +1120,11 @@ proc ::math::bigfloat::fromdouble {double {exp {}}} {
     if { $exp != {} && [incr exp]>$precision } {
         return [fromstr $double [expr {$exp-$precision}]]
     } else {
-        #set old $tcl_precision
-        #set tcl_precision 17 ;# To guarantee the whole mantissa is used!
-        set value [fromstr "$double"]
-        #set tcl_precision $old
-        return $value
+        # tests have failed
+        return [fromstr $double]
     }
 }
 
-################################################################################
-# increment an integer (BigInt)
-################################################################################
-proc ::math::bigfloat::intIncr {n} {
-    return [::math::bignum::add $n $::math::bigfloat::one]
-}
 
 ################################################################################
 # converts a BigInt into a BigFloat with a given decimal precision
@@ -1204,7 +1214,7 @@ proc ::math::bigfloat::log {x} {
     }
     set precision [::math::bignum::bits $integer]
     # uncertainty of the logarithm
-    set delta [intIncr [_logOnePlusEpsilon $delta $integer $precision]]
+    set delta [::math::bignum::add 1 [_logOnePlusEpsilon $delta $integer $precision]]
     # we got : x = 1xxxxxx (binary number with 'precision' bits) * 2^exp
     # we need : x = 0.1xxxxxx(binary) *2^(exp+precision)
     incr exp $precision
@@ -1215,8 +1225,8 @@ proc ::math::bigfloat::log {x} {
     # as x<1 log(x)<0 but 'integer' (result of '_log') is the absolute value
     # that is why
     set integer [::math::bignum::sub \
-            [::math::bignum::mul [_log2 $precision] [fromstr $exp]] $integer]
-    set delta [::math::bignum::add $delta [abs [fromstr $exp]]]
+            [::math::bignum::mul [_log2 $precision] [::math::bignum::fromstr $exp]] $integer]
+    set delta [::math::bignum::add $delta [abs [::math::bignum::fromstr $exp]]]
     return [normalize [list F $integer -$precision $delta]]
 }
 
@@ -1240,7 +1250,8 @@ proc ::math::bigfloat::_logOnePlusEpsilon {epsNum epsDenom precision} {
     }
     set s [::math::bignum::lshift $epsNum $precision]
     set s [::math::bignum::div $s $epsDenom]
-    set divider [fromstr 2]
+    variable two
+    set divider $two
     set t [::math::bignum::div [::math::bignum::mul $s $epsNum] $epsDenom]
     set u [::math::bignum::div $t $divider]
     # when u (the current term of the development) is zero, we have reached our goal
@@ -1248,7 +1259,7 @@ proc ::math::bigfloat::_logOnePlusEpsilon {epsNum epsDenom precision} {
     while {![::math::bignum::iszero $u]} {
         set s [::math::bignum::add $s $u]
         # divider = order of the term = 'n'
-        set divider [intIncr $divider]
+        set divider [::math::bignum::add 1 $divider]
         # t = (epsilon)^n
         set t [::math::bignum::div [::math::bignum::mul $t $epsNum] $epsDenom]
         # u = t/n = (epsilon)^n/n and is the nth term of the Taylor development
@@ -1268,29 +1279,31 @@ proc ::math::bigfloat::_log {integer} {
     set n [expr {int(log($precision+2*log($precision)))}]
     set integer [::math::bignum::lshift $integer $n]
     incr precision $n
-    set delta [fromstr 3]
-    set un [::math::bignum::lshift $::math::bigfloat::one $precision]
+    variable three
+    set delta $three
+    set un [::math::bignum::lshift 1 $precision]
     # 1-epsilon=integer
     set integer [::math::bignum::sub $un $integer]
     set s $integer
     # t=x^2
     set t [intMulShift $integer $integer $precision]
-    set denom [fromstr 2]
+    variable two
+    set denom $two
     # u=x^2/2 (second term)
     set u [::math::bignum::div $t $denom]
     while {![::math::bignum::iszero $u]} {
         # while the current term is not zero, it has not converged
         set s [::math::bignum::add $s $u]
-        set delta [intIncr $delta]
+        set delta [::math::bignum::add 1 $delta]
         # t=x^n
         set t [intMulShift $t $integer $precision]
         # denom = n (the order of the current development term)
-        set denom [intIncr $denom]
+        set denom [::math::bignum::add 1 $denom]
         # u = x^n/n (the nth term of Taylor development)
         set u [::math::bignum::div $t $denom]
     }
     # shift right to restore the precision
-    set delta [intIncr [::math::bignum::rshift $delta $n]]
+    set delta [::math::bignum::add 1 [::math::bignum::rshift $delta $n]]
     return [list [::math::bignum::rshift $s $n] $delta]
 }
 
@@ -1317,18 +1330,18 @@ proc ::math::bigfloat::__log {num denom precision} {
     # now set the variable n to the precision increment i.e. pk
     set n [expr {int(log(2)*log($precision/log(5)))+1}]
     incr precision $n
-    set one $::math::bigfloat::one
     # log(num/denom)=log(1-(denom-num)/denom)
-    set num [fromstr [expr {$denom-$num}]]
-    set denom [fromstr $denom]
+    set num [::math::bignum::fromstr [expr {$denom-$num}]]
+    set denom [::math::bignum::fromstr $denom]
     set s [::math::bignum::div [::math::bignum::lshift $num $precision] $denom]
     set t [::math::bignum::div [::math::bignum::mul $s $num] $denom]
-    set d [fromstr 2]
+    variable two
+    set d $two
     set u [::math::bignum::div $t $d]
     while {![::math::bignum::iszero $u]} {
         set s [::math::bignum::add $s $u]
         set t [::math::bignum::div [::math::bignum::mul $t $num] $denom]
-        set d [::math::bignum::add $d $one]
+        set d [::math::bignum::add 1 $d]
         set u [::math::bignum::div $t $d]
     }
     return [::math::bignum::rshift $s $n]
@@ -1343,7 +1356,8 @@ proc ::math::bigfloat::__logbis {precision} {
     # ln(2)=3*ln(1-4/5)+ln(1-125/128)
     set a [__log 125 128 $precision]
     set b [__log 4 5 $precision]
-    set r [::math::bignum::add [::math::bignum::mul $b [fromstr 3]] $a]
+    variable three
+    set r [::math::bignum::add [::math::bignum::mul $b $three] $a]
     set ::math::bigfloat::Log2 [::math::bignum::rshift $r $increment]
     # formerly (when BigFloats were stored in ten radix) we had to compute log(10)
     # ln(10)=10.ln(1-4/5)+3*ln(1-125/128)
@@ -1451,8 +1465,7 @@ proc ::math::bigfloat::normalize {number} {
     if {$l>8} {
         incr l -8
         # always round upper the uncertainty
-        set delta [::math::bignum::add [::math::bignum::rshift $delta $l]\
-                $::math::bigfloat::one]
+        set delta [::math::bignum::add 1 [::math::bignum::rshift $delta $l]]
         set integer [::math::bignum::rshift $integer $l]
         incr exp $l
     }
@@ -1493,7 +1506,8 @@ proc ::math::bigfloat::pi {precision {binary 0}} {
         # convert decimal digit length into bit length
         set precision [expr {int(ceil($precision*log(10)/log(2)))}]
     }
-    return [list F [_pi $precision] -$precision $::math::bigfloat::one]
+    variable one
+    return [list F [_pi $precision] -$precision $one]
 }
 
 
@@ -1520,11 +1534,12 @@ proc ::math::bigfloat::__pi {precision} {
     # for safety and for the better precision, we do so ...
     incr precision $safetyLimit
     # formula found in the litterature
-    set a [::math::bignum::mul [_atanfract [fromstr 18] $precision] [fromstr 48]]
+    set a [::math::bignum::mul [_atanfract [::math::bignum::fromstr 18] $precision] \
+            [::math::bignum::fromstr 48]]
     set a [::math::bignum::add $a [::math::bignum::mul \
-            [_atanfract [fromstr 57] $precision] [fromstr 32]]]
+            [_atanfract [::math::bignum::fromstr 57] $precision] [::math::bignum::fromstr 32]]]
     set a [::math::bignum::sub $a [::math::bignum::mul \
-            [_atanfract [fromstr 239] $precision] [fromstr 20]]]
+            [_atanfract [::math::bignum::fromstr 239] $precision] [::math::bignum::fromstr 20]]]
     return [::math::bignum::rshift $a $safetyLimit]
 }
 
@@ -1536,7 +1551,7 @@ proc ::math::bigfloat::_round {integer precision} {
     set shift [expr {[::math::bignum::bits $integer]-$precision}]
     set result [::math::bignum::rshift $integer $shift]
     if {[::math::bignum::testbit $integer [expr {$shift-1}]]} {
-        set result [::math::bignum::add $result $::math::bigfloat::one]
+        set result [::math::bignum::add 1 $result]
     }
     return $result
 }
@@ -1582,7 +1597,7 @@ proc ::math::bigfloat::rad2deg {x} {
         error "number too loose to convert to degrees"
     }
     set pi [pi $xLen 1]
-    return [div [mul $x [fromstr 180]] $pi]
+    return [div [mul $x [::math::bignum::fromstr 180]] $pi]
 }
 
 ################################################################################
@@ -1595,7 +1610,8 @@ proc ::math::bigfloat::round {number} {
     foreach {dummy integer exp delta} $number {break}
     if {[::math::bignum::iszero $integer]} {
         # returns the BigInt 0
-        return [::math::bignum::fromstr 0]
+        variable zero
+        return $zero
     }
     if {$exp>=0} {
         error "not enough precision to round (in round)"
@@ -1615,7 +1631,7 @@ proc ::math::bigfloat::round {number} {
         error "not enough precision to round (in round)"
     }
     if {$way} {
-        set try [::math::bignum::add $try $::math::bigfloat::one]
+        set try [::math::bignum::add 1 $try]
     }
     # ... restore the sign now
     ::math::bignum::setsign try $sign
@@ -1628,8 +1644,8 @@ proc ::math::bigfloat::round {number} {
 proc ::math::bigfloat::roundshift {integer n} {
     set exp [tenPow $n]
     foreach {result remainder} [::math::bignum::divqr $integer $exp] {}
-    if {[::math::bignum::cmp $exp [::math::bignum::mul $remainder [fromstr 2]]]<=0} {
-        return [::math::bignum::add $result $::math::bigfloat::one]
+    if {[::math::bignum::cmp $exp [::math::bignum::lshift $remainder 1]]<=0} {
+        return [::math::bignum::add 1 $result]
     }
     return $result
 }
@@ -1661,7 +1677,8 @@ proc ::math::bigfloat::sin {x} {
     # sin(2kPi+x)=sin(x)
     foreach {n integer} [divPiQuarter $integer $precision] {break}
     set delta [::math::bignum::add $delta $n]
-    set d [::math::bignum::mod $n [fromstr 4]]
+    variable four
+    set d [::math::bignum::mod $n $four]
     # maintenant integer>=0
     # sin(2Pi-x)=-sin(x)
     # sin(Pi-x)=sin(x)
@@ -1688,7 +1705,7 @@ proc ::math::bigfloat::_sin2 {x precision delta} {
     set pis4 [::math::bignum::rshift $pi 2]
     if {[::math::bignum::cmp $x $pis4]>=0} {
         # sin(Pi/2-x)=cos(x)
-        set delta [intIncr $delta]
+        set delta [::math::bignum::add 1 $delta]
         set x [::math::bignum::sub $pis2 $x]
         return [_cos $x $precision $delta]
     }
@@ -1705,10 +1722,11 @@ proc ::math::bigfloat::_sin {x precision delta} {
     set dt [::math::bignum::rshift [::math::bignum::add \
             [::math::bignum::mul $x $delta] [::math::bignum::mul $s $double]] $precision]
     set t [intMulShift $s $x $precision]
-    set two [fromstr 2]
+    variable two
     set denom2 $two
-    set denom3 [fromstr 3]
-    set t [opp [::math::bignum::div $t [fromstr 6]]]
+    variable three
+    set denom3 $three
+    set t [opp [::math::bignum::div $t [::math::bignum::fromstr 6]]]
     while {![::math::bignum::iszero $t]} {
         set s [::math::bignum::add $s $t]
         set delta [::math::bignum::add $delta $dt]
@@ -1733,7 +1751,8 @@ proc ::math::bigfloat::sqrt {x} {
     foreach {dummy integer exp delta} $x {break}
     # si x=0, retourner 0
     if {[iszero $x]} {
-        return [list F [fromstr 0] $exp $one]
+        variable zero
+        return [list F $zero $exp $one]
     }
     # we cannot get sqrt(x) if x<0
     if {[lindex $integer 0]<0} {
@@ -1762,7 +1781,7 @@ proc ::math::bigfloat::sqrt {x} {
     set integer [::math::bignum::sqrt $integer]
     # delta has to be multiplied by the square root
     set delta [::math::bignum::rshift [::math::bignum::mul $delta $integer] $precision]
-    set delta [::math::bignum::add $delta $one]
+    set delta [::math::bignum::add 1 $delta]
     return [normalize [list F $integer [expr {$exp/2}] $delta]]
 }
 
@@ -1776,7 +1795,7 @@ proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
     variable one
     set l [::math::bignum::bits $integer]
     set x [::math::bignum::div [::math::bignum::lshift $delta $l] $integer]
-    set two [fromstr 2]
+    variable two
     set fact $two
     # eps/2
     set result [::math::bignum::div $x $two]
@@ -1784,8 +1803,9 @@ proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
     set temp [::math::bignum::div [::math::bignum::mul $result $delta] $integer]
     set temp [::math::bignum::div [::math::bignum::div $temp $two] $fact]
     set result [::math::bignum::add $result $temp]
-    set numerator [fromstr 3]
-    set fact [::math::bignum::add $fact $one]
+    variable three
+    set numerator $three
+    set fact [::math::bignum::add 1 $fact]
     # (eps^3)*3/(3!*2^2)
     set temp [::math::bignum::div [::math::bignum::mul $temp $delta] $integer]
     set temp [::math::bignum::div [::math::bignum::mul $temp $numerator] $two]
@@ -1793,7 +1813,7 @@ proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
     while {![::math::bignum::iszero $temp]} {
         set result [::math::bignum::add $result $temp]
         set numerator [::math::bignum::add $numerator $two]
-        set fact [::math::bignum::add $fact $one]
+        set fact [::math::bignum::add 1 $fact]
         # u_n+1= u_n*(2n+1)/2n*eps
         set temp [::math::bignum::div [::math::bignum::mul $temp $delta] $integer]
         set temp [::math::bignum::div [::math::bignum::mul $temp $numerator] $two]
@@ -1830,7 +1850,8 @@ proc ::math::bigfloat::tan {x} {
 # returns a power of ten
 ################################################################################
 proc ::math::bigfloat::tenPow {n} {
-    return [::math::bignum::pow $::math::bigfloat::ten [::math::bignum::fromstr $n]]
+    variable ten
+    return [::math::bignum::pow $ten [::math::bignum::fromstr $n]]
 }
 
 
@@ -1865,7 +1886,7 @@ proc ::math::bigfloat::todouble {x} {
             incr lenDiff -1
             set zeroHead 1
         }
-        set integer [tostr [roundshift [fromstr $integer] $lenDiff]]
+        set integer [tostr [roundshift [::math::bignum::fromstr $integer] $lenDiff]]
         if {$zeroHead} {
             set integer 0$integer
         }
