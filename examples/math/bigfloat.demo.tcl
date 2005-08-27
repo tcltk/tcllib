@@ -195,6 +195,7 @@ proc init {} {
     addButtonOne int2float
     addButton del
     addButton swap
+    addButton dup
     addButton help
     addButton save
     addButton exit
@@ -264,7 +265,10 @@ proc _swap {} {
     lset ::stack end-1 $last
 }
 
-
+# duplicate the last value
+proc _dup {} {
+    lappend ::stack [lindex $::stack end]
+}
 
 
 
