@@ -59,7 +59,7 @@ namespace import ::math::bigfloat::*
 package require tcltest
 proc assert {name version code result} {
     #puts -nonewline .
-    tcltest::test bigfloat-$name-$version "eval : '$code'" {uplevel 1 $code} $result
+    tcltest::test bigfloat-$name-$version "Some integer computations related to command $name" {uplevel 1 $code} $result
     return
 }
 
@@ -79,7 +79,7 @@ proc fassert {name version code result} {
     #puts -nonewline .
     set tested [uplevel 1 $code]
     if {[Zero $tested]} {
-        tcltest::test bigfloat-$name-$version "eval : '$code'" {return [Zero $result]} 1
+        tcltest::test bigfloat-$name-$version "Some floating-point computations related to command $name" {return [Zero $result]} 1
         return
     }
     set resultat [Zero [expr {($tested-$result)/((abs($tested)>1)?($tested):1.0)}]]
