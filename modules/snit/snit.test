@@ -5709,6 +5709,13 @@ test hulltype-1.5 {hulltype can only be defined once} -constraints {
     error
 } -result {too many hulltype statements}
 
+test hulltype-2.1 {list of valid hulltypes} -constraints {
+    tk
+} -body {
+    lsort $::snit::hulltypes
+} -result {frame labelframe tk::frame tk::labelframe tk::toplevel toplevel ttk::frame ttk::labelframe}
+
+
 #-----------------------------------------------------------------------
 # expose statement
 
