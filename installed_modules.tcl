@@ -17,6 +17,7 @@ set excluded [list \
 set     modules [list]
 array set guide {}
 foreach {m pkg doc exa} {
+    aes         _tcl  _man  _null
     asn		_tcl  _man  _null
     base64	_tcl  _man  _null
     bee		_tcl  _man  _null
