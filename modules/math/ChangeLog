@@ -1,8 +1,12 @@
-2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
+2005-08-28  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat.tcl : many optimizations around the fromstr
           command and all kind of constants (mainly integer)
 	* bigfloat.test : updated test labels to more significant labels
+	* Bug #1272836 : the math round() function has changed 
+	  in Tcl 8.5a4 (intentionally) - now the round tests 
+	  do no more rely upon this function.
+
 
 2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
 
