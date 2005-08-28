@@ -2,8 +2,8 @@
 [copyright {2005, Thorsten Schloermann}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Perform AES encryption of (hexadecimal) data}]
-[require Tcl 8.4]
-[require aes 0.3]
+[require Tcl 8.2]
+[require aes [opt 0.3]]
 [description]
 [para]
 
