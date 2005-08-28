@@ -1,0 +1,50 @@
+[manpage_begin aes n 0.3]
+[copyright {2005, Thorsten Schloermann}]
+[moddesc {Advanced Encryption Standard (AES)}]
+[titledesc {Perform AES encryption of (hexadecimal) data}]
+[require Tcl 8.4]
+[require aes 0.3]
+[description]
+[para]
+
+This is a Tcl implementation of the Advanced Encryption Standard (AES).
+
+[para]
+
+
+[section COMMANDS]
+
+[list_begin definitions]
+[call [cmd ::aes::start] [arg mode] [arg key] [arg text]]
+
+[list_end]
+
+[subsection ARGUMENTS]
+
+[list_begin definitions]
+
+[lst_item] [emph mode]: begins with 'e' (for encryption) or 'd' (for decryption), followed by
+					the keylength of 128, 192 or 256 bit. 
+[lst_item] [emph key]: the hexadecimal key of the desired keylength (see mode)
+[lst_item] [emph text]: the textblock of 128 bit length in hexadecimal representation
+
+[list_end]
+
+
+[section EXAMPLES]
+[para]
+
+[example {
+% ::aes::start e128 $key $plaintext
+% ::aes::start d256 $key $ciphertext
+% ::aes::start e128 00000000000000000000000000000000 00000000000000000000000000000000
+}]
+
+
+
+[see_also des(n) md5(n) sha1(n) ]
+[section AUTHORS]
+Thorsten Schloermann
+
+[keywords DES encryption {data integrity} security]
+[manpage_end]
