@@ -2,6 +2,10 @@
 % \iffalse
 %<*driver>
 \documentclass{tclldoc}
+\newenvironment{ttdescription}{%
+  \description
+  \def\makelabel##1{\hspace\labelsep\normalfont\ttfamily ##1}%
+}{\enddescription}
 \begin{document}
 \DocInput{tcldocstrip.dtx}
 \end{document}
@@ -10,7 +14,7 @@
 % 
 % \title{The \textsf{docstrip} \Tcllogo\ package}
 % \author{Lars Hellstr\"om}
-% \date{10 January 2005}
+% \date{25 August 2005}
 % \maketitle
 % 
 % \begin{abstract}
@@ -23,6 +27,8 @@
 % 
 % \changes{1.0}{2004/09/17}{Changing namespace to \texttt{docstrip} and 
 %   also all command names. (LH)}
+% 
+% \tableofcontents
 % 
 % 
 % \section{Usage}
@@ -112,6 +118,7 @@
 % 
 % The options are
 % \begin{quote}
+%   |-annotate| \word{lines}\\
 %   |-metaprefix| \word{string}\\
 %   |-onerror| \begin{regblock}|throw|\regalt |puts|\regalt
 %     |ignore|\end{regblock}\\
@@ -161,20 +168,39 @@
 % 
 % \section{Headers}
 % 
-% The package headers are nothing unusual. \Tcllogo~8.4 is required 
-% because |info script| with an argument is used by the |sourcefrom| 
-% command, and there are also some uses of the |eq| operator in |if| 
-% expressions.
+% The package headers are nothing unusual, although the code below also 
+% contains code for a \texttt{pkgIndex.tcl} file. \Tcllogo~8.4 is 
+% required because |info script| with an argument is used by the 
+% |sourcefrom| command, and there are also some uses of the |eq| 
+% operator in |if| expressions.
+% \changes{1.1}{2005/02/26}{Added \texttt{pkgIndex.tcl} source. 
+%   (LH, after suggestion by AK)}
+% The public commands in both packages are exported. This is 
+% meaningful mostly for the \textsf{docstrip::util} package, which 
+% imports |extract| from \textsf{docstrip}.
+% \changes{1.2}{2005/06/20}{Added namespace export code. (LH)}
+% 
 % \begin{tcl}
+%<idx>if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+%<pkg>package require Tcl 8.4
+%<pkg>package provide docstrip 1.2
+%<idx>package ifneeded docstrip 1.2\
+%<idx>  [list source [file join $dir docstrip.tcl]]
 %<*pkg>
-package require Tcl 8.4
-package provide docstrip 1.0
-namespace eval docstrip {}
+namespace eval docstrip {
+   namespace export extract sourcefrom
+}
 %</pkg>
+%<utilpkg>package require Tcl 8.4
+%<utilpkg>package require docstrip 1.2
+%<utilpkg>package provide docstrip::util 1.2
+%<idx>package ifneeded docstrip::util 1.2\
+%<idx>  [list source [file join $dir docstrip.tcl]]
 %<*utilpkg>
-package require Tcl 8.4
-package provide docstrip::util 1.0
-namespace eval docstrip::util {}
+namespace eval docstrip::util {
+   namespace import [namespace parent]::extract
+   namespace export ddt2man guard patch thefile 
+}
 %</utilpkg>
 % \end{tcl}
 % \setnamespace{docstrip}
@@ -205,29 +231,33 @@ tcltest::testConstraint docstripSourcesAvailable [expr {[
 % Finally the header for the \textsf{doctools} manpages.
 % \begin{tcl}
 %<*man,utilman>
-%<man>[manpage_begin docstrip n 1.0]
-%<utilman>[manpage_begin docstrip_util n 1.0]
+%<man>[manpage_begin docstrip n 1.2]
+%<utilman>[manpage_begin docstrip_util n 1.2]
 [copyright "2003-2005 Lars Hellstr\u00F6m\
-  <Lars dot Hellstrom at math dot umu dot se>"]
+  <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
 %<man>[titledesc {Docstrip style source code extraction}]
 %<utilman>[titledesc {Docstrip-related utilities}]
 [require Tcl 8.4]
-%<man>[require docstrip [opt 1.0]]
-%<utilman>[require docstrip::util [opt 1.0]]
+%<man>[require docstrip [opt 1.2]]
+%<utilman>[require docstrip::util [opt 1.2]]
 [description]
 %</man,utilman>
 % \end{tcl}
 % 
 % 
-% \section{Manpage source}
+% \section{The docstrip package}
 % 
-% The main package manpage is in four sections: introduction, 
+% Here follows the source both for the actual package and its manpage, 
+% the latter of which is in four sections: introduction, 
 % description of the format of files to be processed by 
 % \textsc{docstrip}, description of commands, and basic remarks on 
 % overall document structure. Since command descriptions and 
 % implementations appear in the same sections of the \texttt{.dtx} 
 % file, a big batch of manpage source has to appear first.
+% 
+% 
+% \subsection{Manpage introduction}
 % 
 % The introduction is indended for \Tcllogo\ programmers who have not
 % previously encountered \textsc{docstrip}---hence it is probably a 
@@ -274,7 +304,7 @@ consumers would not allow any comments. The etymology of "docstrip"
 is that this [emph doc]umentation was [emph strip]ped away (although 
 "code extraction" might be a better description, as it has always 
 been a matter of copying selected pieces of the master source rather 
-than transforming it). 
+than deleting text from it). 
 The [package docstrip] Tcl package contains a reimplementation of 
 the basic extraction functionality from the [syscmd docstrip] 
 program, and thus makes it possible for a Tcl interpreter to read 
@@ -299,6 +329,15 @@ want to know more about it may consult the following sources.
   Addison-Wesley, 2004; ISBN 0-201-36299-6.
 [list_end]
 
+%    \end{macrocode}
+% 
+% \subsection{File format}
+% 
+% In order to keep some kind of document structure in this file, it is 
+% best that the manpage sections are present also in the \LaTeX\ table 
+% of contents.
+% 
+%    \begin{macrocode}
 
 [section {File format}]
 
@@ -312,6 +351,7 @@ do not begin with a percent character) and [emph {comment lines}]
 [example {
 %</man>
 %    \end{macrocode}
+% 
 % At this point, let's do a little trick: use this example also as the 
 % first test. This is just a matter of putting groups of lines in the 
 % right modules.
@@ -459,8 +499,8 @@ sets $res to the result of
 % \end{tcl}
 %    \begin{macrocode}
 
-In guard lines without any '*', '/', '+', or '-' modifier after 
-the '%<', the guard applies only to the CODE following the '>' on that 
+In guard lines without a '*', '/', '+', or '-' modifier after the 
+'%<', the guard applies only to the CODE following the '>' on that 
 single line. A '+' modifier is equivalent to no modifier. A '-' 
 modifier is like the case with no modifier, but the expression is 
 implicitly negated, i.e., the CODE of a '%<-' guard line is only 
@@ -593,7 +633,7 @@ The package defines two commands.
 %    \end{macrocode}
 % 
 % 
-% \section{Code extraction}
+% \subsection{Code extraction}
 % \label{Sec:Extract}
 % 
 % \begin{proc}{extract}
@@ -614,11 +654,13 @@ The package defines two commands.
 %     equivalents of \textsc{docstrip} parameters. (LH)}
 %   The options are
 %   \begin{quote}
+%     |-annotate| \word{lines}\\
 %     |-metaprefix| \word{string}\\
 %     |-onerror| \begin{regblock}|throw|\regalt |puts|\regalt
 %       |ignore|\end{regblock}\\
 %     |-trimlines| \word{boolean}
 %   \end{quote}
+%   \changes{1.2}{2005/06/16}{Added \texttt{-annotate} option. (LH)}
 %   
 %   The \describeopt[docstrip]{extract}{-metaprefix}|-metaprefix| value 
 %   is the string to use for the \textsc{docstrip} parameter 
@@ -628,6 +670,33 @@ The package defines two commands.
 %   away before it is processed. For compatibility with 
 %   \textsc{docstrip} (which due to a quirk in the low-level input 
 %   routines of \TeX\ cannot help doing this), this is by default on.
+%   
+%   The \describeopt[docstrip]{extract}{-annotate}|-annotate| option 
+%   modifies the output format, so that each extracted line is followed 
+%   by \word{lines} lines of annotation information. These extra lines 
+%   have the following format
+%   \begin{quote}
+%     \word{type} \word{offprefix} \word{onprefix}\\
+%     \meta{lineno}\\
+%     \meta{current stack}
+%   \end{quote}
+%   If \word{lines} is |0| then none of the above lines is included. If 
+%   \word{lines} is |1| then only the first line is included. If 
+%   \word{lines} is |2| then the first two lines are included. Finally 
+%   if \word{lines} is |3| then all three lines are included. The 
+%   behaviour for other values of \word{lines} is unspecified. The 
+%   default value is |0|.
+%   
+%   A first annotation line is a list of three elements. The first 
+%   element is a ``line type'', the second element is the prefix string 
+%   that was removed from the line (an empty string if nothing was 
+%   removed), and the third element is the prefix that was added to the 
+%   line (either the |-metaprefix| value or an empty string). The line 
+%   type is one of: |V|~(verbatim), |M|~(metacomment), |+|~(plus or no 
+%   modifier guard line), |-|~(minus modifier guard line), and 
+%   |.|~(normal line). The second annotation line is simply the current 
+%   input line number. The third annotation line is the current block 
+%   guard stack---a list of guard expression strings.
 %   
 %   The \describeopt[docstrip]{extract}{-onerror}|-onerror| option 
 %   specifies what should happen when an error in the \word{text} being 
@@ -654,6 +723,18 @@ The package defines two commands.
   expression terminals which should evaluate to true. 
   The available options are:
   [list_begin opt]
+  [opt_def -annotate [arg lines]]
+    Requests the specified number of lines of annotation to follow 
+    each extracted line in the result. Defaults to 0. Annotation lines 
+    are mostly useful when the extracted lines are to undergo some 
+    further transformation. A first annotation line is a list of three 
+    elements: line type, prefix removed in extraction, and prefix 
+    inserted in extraction. The line type is one of: 'V' (verbatim), 
+    'M' (metacomment), '+' (+ or no modifier guard line), '-' (- 
+    modifier guard line), '.' (normal line). A second annotation line 
+    is the source line number. A third annotation line is the current 
+    stack of block guards. Requesting more than three lines of 
+    annotation is currently not supported.
   [opt_def -metaprefix [arg string]]
     The string by which the '%%' prefix of a metacomment line will 
     be replaced. Defaults to '%%'. For Tcl code this would typically 
@@ -689,6 +770,7 @@ The package defines two commands.
 %<*pkg>
 proc docstrip::extract {text terminals args} {
    array set O {
+      -annotate 0
       -metaprefix %%
       -onerror throw
       -trimlines 1
@@ -715,26 +797,32 @@ proc docstrip::extract {text terminals args} {
    set verbatim 0
 %   \end{tcl}
 %   |lineno| is the input line number counter, for use in error 
-%   messages. 
+%   messages. The first line in the file has number |1|.
 %   \begin{tcl}
-   set lineno 1
+   set lineno 0
 %   \end{tcl}
 %   Here starts the main loop over lines in the \word{text}. It 
 %   constitutes the majority of the procedure and is split in two 
 %   parts. The smaller part handles lines in verbatim mode (unusual), 
 %   the large part handles lines in normal mode (with comment lines, 
-%   code lines, guard lines, and so on).
+%   code lines, guard lines, and so on). |continue| is being used in 
+%   this loop to skip generation of annotation lines, for those branches 
+%   that do not contribute a line to the output in the first place.
 %   \begin{tcl}
    foreach line [split $text \n] {
+      incr lineno
       if {$O(-trimlines)} then {
          set line [string trimright $line " "]
       }
       if {$verbatim} then {
          if {$line eq $endverbline} then {
             set verbatim 0
-         } elseif {!$offlevel} then {
-            append stripped $line \n
+            continue
+         } elseif {$offlevel} then {
+            continue
          }
+         append stripped $line \n
+         if {$O(-annotate)>=1} then {append stripped {V "" ""} \n}
       } else {
 %   \end{tcl}
 %   Here starts the processing of lines in non-verbatim mode.
@@ -743,63 +831,74 @@ proc docstrip::extract {text terminals args} {
             if {!$offlevel} then {
                append stripped $O(-metaprefix)\
                  [string range $line 2 end] \n
+               if {$O(-annotate)>=1} then {
+                  append stripped [list M %% $O(-metaprefix)] \n
+               }
             }
          } %<<* {
             set endverbline "%[string range $line 3 end]"
             set verbatim 1
+            continue
          } %<* {
-            if {[
+%   \end{tcl}
+%   This is the case of an ordinary guard line, which accounts for most 
+%   of the complexities in the file format. Here one can also encounter 
+%   a number of conditions which constitute errors in the data being 
+%   processed. The first of these is the 
+%   \describestring[error situation]{BADGUARD}|BADGUARD| 
+%   \word{situation}: the line looks like a guard line, but there is no 
+%   |>| terminating the guard expression.
+%   \begin{tcl}
+            if {![
                regexp -- {^%<([*/+-]?)([^>]*)>(.*)$} $line ""\
                  modifier expression line
             ]} then {
+               extract,error BADGUARD\
+                 "Malformed guard \"\n$line\n\""
+                 "Malformed guard on line $lineno"
+               continue
+            }
 %   \end{tcl}
 %   At this point, an ordinary guard line has successfully been split 
 %   into parts. First the expression is evaluated, by converting it 
 %   to an |expr| expression.
 %   \begin{tcl}
-               regsub -all -- {\\|\{|\}|\$|\[|\]| |;} $expression\
-                 {\\&} E
-               regsub -all -- {,} $E {|} E
-               regsub -all -- {[^()|&!]+} $E {[info exists T(&)]} E
-               if {[catch {expr $E} val]} then {
+            regsub -all -- {\\|\{|\}|\$|\[|\]| |;} $expression\
+              {\\&} E
+            regsub -all -- {,} $E {|} E
+            regsub -all -- {[^()|&!]+} $E {[info exists T(&)]} E
+            if {[catch {expr $E} val]} then {
+               extract,error EXPRERR\
+                 "Error in expression <$expression> ignored"\
+                 "docstrip: $val"
+               set val -1
+            }
 %   \end{tcl}
-%   Apparently the expression was malformed. That is an 
+%   If |$E| isn't a valid |expr| expression, then the original guard 
+%   expression must have been malformed. That is an 
 %   \describestring[error situation]{EXPRERR}|EXPRERR| \word{situation}.
 %   \changes{1.0}{2004/09/29}{Catching errors in expressions. (LH)}
-%   \begin{tcl}
-                  switch -- [string tolower $O(-onerror)] "puts" {
-                     puts stderr "docstrip: Error in expression\
-                       <$expression> ignored on line $lineno."
-                  } "ignore" {} default {
-                     error $val "" [list DOCSTRIP EXPRERR $lineno]
-                  }
-                  set val -1
-               }
-%   \end{tcl}
+%   
 %   With the expression evaluated, the processing of a guard line
 %   now branches according to its type.
 %   \begin{tcl}
-               switch -exact -- $modifier * {
-                  lappend block_stack $expression
-                  if {$offlevel || !$val} then {incr offlevel}
-               } / {
-                  if {![llength $block_stack]} then {
+            switch -exact -- $modifier * {
+               lappend block_stack $expression
+               if {$offlevel || !$val} then {incr offlevel}
+               continue
+            } / {
+               if {![llength $block_stack]} then {
 %   \end{tcl}
 %   In this case there was no open block for this guard to end. That 
 %   is a \describestring[error situation]{SPURIOUS}|SPURIOUS| 
 %   \word{situation}.
 %   \begin{tcl}
-                     switch -- [string tolower $O(-onerror)] "puts" {
-                        puts stderr "docstrip: Spurious end\
-                          block </$expression> ignored on line\
-                          $lineno."
-                     } "ignore" {} default {
-                        error "Spurious end block </$expression>." ""\
-                          [list DOCSTRIP SPURIOUS $lineno]
-                     }
-                  } else {
-                     if {[string compare $expression\
-                       [lindex $block_stack end]]} then {
+                  extract,error SPURIOUS\
+                    "Spurious end block </$expression> ignored"\
+                    "Spurious end block </$expression>"
+               } else {
+                  if {[string compare $expression\
+                    [lindex $block_stack end]]} then {
 %   \end{tcl}
 %   In this case the expression of the block being closed does not match 
 %   the expression on the block on top of the stack. That is a 
@@ -807,55 +906,38 @@ proc docstrip::extract {text terminals args} {
 %   \word{situation}. \textsc{docstrip} by default raises an error and 
 %   recovers by treating this situation as a typo.
 %   \begin{tcl}
-                        switch -- [string tolower $O(-onerror)] "puts" {
-                           puts stderr "docstrip:\
-                             Found </$expression> instead of\
-                             </[lindex $block_stack end]> on line\
-                             $lineno."
-                        } "ignore" {} default {
-                           error "Found </$expression> instead of\
-                             </[lindex $block_stack end]>." ""\
-                             [list DOCSTRIP MISMATCH $lineno]
-                        }
-                     }
+                     extract,error MISMATCH\
+                       "Found </$expression> instead of\
+                       </[lindex $block_stack end]>"
+                  }
 %   \end{tcl}
 %   All that error processing makes it easy to lose track, but the 
 %   following two lines are what does the real work for an end of block 
 %   guard: pop a block off the stack and decrement the |offlevel|.
 %   \begin{tcl}
-                     if {$offlevel} then {incr offlevel -1}
-                     set block_stack [lreplace $block_stack end end]
-                  }
+                  if {$offlevel} then {incr offlevel -1}
+                  set block_stack [lreplace $block_stack end end]
+               }
+               continue
 %   \end{tcl}
 %   These last cases of the |switch| handle |-|, |+|, and ``no 
 %   modifier'' lines.
 %   \begin{tcl}
-               } - {
-                  if {!$offlevel && !$val} then {
-                     append stripped $line \n
-                  }
-               } default {
-                  if {!$offlevel && $val} then {
-                     append stripped $line \n
-                  }
+            } - {
+               if {$offlevel || $val} then {continue}
+               append stripped $line \n
+               if {$O(-annotate)>=1} then {
+                  append stripped [list - %<-${expression}> ""] \n
                }
-            } else {
-%   \end{tcl}
-%   In this case the line looks like a guard line, but there is no |>| 
-%   terminating the guard expression. This is a 
-%   \describestring[error situation]{BADGUARD}|BADGUARD| 
-%   \word{situation}.
-%   \begin{tcl}
-               switch -- [string tolower $O(-onerror)] "puts" {
-                  puts stderr "docstrip: Malformed guard\
-                    on line $lineno:"
-                  puts stderr $line
-               } "ignore" {} default {
-                  error "Malformed guard on line $lineno." ""\
-                    [list DOCSTRIP BADGUARD $lineno]
+            } default {
+               if {$offlevel || !$val} then {continue}
+               append stripped $line \n
+               if {$O(-annotate)>=1} then {
+                  append stripped\
+                    [list + %<${modifier}${expression}> ""] \n
                }
             }
-         } %* {}\
+         } %* {continue}\
 %   \end{tcl}
 %   Back to the outer |switch|. With comment lines, nothing is done. 
 %   A line being the exact string |\endinput| terminates the stripping.
@@ -867,16 +949,97 @@ proc docstrip::extract {text terminals args} {
 %   Other lines are code lines. These are included or not, depending on 
 %   the |offlevel|.
 %   \begin{tcl}
-            if {!$offlevel} then {append stripped $line \n}
+            if {$offlevel} then {continue}
+            append stripped $line \n
+            if {$O(-annotate)>=1} then {append stripped {. "" ""} \n}
          }
       }
-      incr lineno
+%   \end{tcl}
+%   Finally there is the code for annotation lines two and above.
+%   \begin{tcl}
+      if {$O(-annotate)>=2} then {append stripped $lineno \n}
+      if {$O(-annotate)>=3} then {append stripped $block_stack \n}
    }
    return $stripped
 }
-%</pkg>
 %   \end{tcl}
+% 
+%   \begin{proc}{extract,error}
+%     Since the |extract| procedure can detect many different 
+%     errors which should all go through roughtly the same handling, 
+%     the common parts of that have been factored out into this 
+%     |extract,error| procedure. It accesses the variable |lineno| and 
+%     array element |O(-onerror)| in the local context of its caller 
+%     to determine the current line number and error reporting mode. 
+%     Apart from that, the call syntax is
+%     \begin{quote}
+%       |docstrip::extract,error| \word{situation} \word{message} 
+%       \word{error message}\regopt
+%     \end{quote}
+%     where \word{situation} is what would be used to identify the
+%     error in |errorCode| (if |-onerror| is |throw|), \word{message} 
+%     is the message that would be written to |stderr| (if |-onerror| 
+%     is |puts|), and \word{error message} is the error message to use 
+%     (if |-onerror| is |throw|). The default for \word{error message} 
+%     is the \word{message}. Neither \word{message} nor \word{error 
+%     message} should end with a period, as such punctuation may be 
+%     provided by |extract,error|.
+%     \changes{1.1}{2005/02/27}{Procedure factored out from 
+%       \texttt{extract}, as suggested by AK. (LH)}
+%     \begin{tcl}
+proc docstrip::extract,error {situation message {errmessage ""}} {
+   upvar 1 O(-onerror) onerror lineno lineno
+   switch -- [string tolower $onerror] "puts" {
+      puts stderr "docstrip: $message on line $lineno."
+   } "ignore" {} default {
+      if {$errmessage ne ""} then {
+         error $errmessage "" [list DOCSTRIP $situation $lineno]
+      } else {
+         error $message "" [list DOCSTRIP $situation $lineno]
+      }
+   }
+}
+%</pkg>
+%     \end{tcl}
+%   \end{proc}
 % \end{proc}
+% 
+% The following tests annotation. It is mostly the same code as in the 
+% verbatim mode test.
+% \begin{tcl}
+%<*test>
+tcltest::test docstrip-1.5 {annotation} -body {
+   set text [join {
+      {begin}
+      {%<*myblock>}
+      {some stupid()}
+      {%<foo>   #computer<program>}
+      {%<<QQQ-98765}
+      {% These three lines are copied verbatim (including percents}
+      {%% even if -metaprefix is something different than %%).}
+      {%</myblock>}
+      {%QQQ-98765}
+      {   using*strange@programming<language>}
+      {%</myblock>}
+      {%%end}
+   } \n]
+   docstrip::extract $text {myblock foo} -metaprefix {# } -annotate 3
+} -result [
+   join {
+      {begin} {. "" ""} 1 {}
+      {some stupid()} {. "" ""} 3 myblock
+      {   #computer<program>} {+ %<foo> {}} 4 myblock
+      {% These three lines are copied verbatim (including percents}
+        {V "" ""} 6 myblock
+      {%% even if -metaprefix is something different than %%).}
+        {V "" ""} 7 myblock
+      {%</myblock>} {V "" ""} 8 myblock
+      {   using*strange@programming<language>} {. "" ""} 10 myblock
+      {# end} {M %% {# }} 12 {}
+      ""
+   } \n
+]
+% \end{tcl}
 % 
 % The following is a test of the |extract| procedure, which compares its 
 % output to the \textsc{docstrip} program output. If need be, and \LaTeX\ 
@@ -884,7 +1047,6 @@ proc docstrip::extract {text terminals args} {
 % version of \texttt{docstrip.tcl} using the |extract| command of 
 % an older version.
 % \begin{tcl}
-%<*test>
 tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
    docstripSourcesAvailable
 } -body {
@@ -905,10 +1067,10 @@ tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
 }
 %</test>
 % \end{tcl}
+%
 % 
 % 
-% 
-% \section{Code sourcing}
+% \subsection{Code sourcing}
 % 
 % \begin{proc}{sourcefrom}
 %   This procedure behaves as a docstripping |source| command: it reads 
@@ -1017,10 +1179,12 @@ tcltest::test docstrip-2.2 {soucefrom} -setup {
 % 
 % 
 % 
-% \section{More manpage source}
+% \subsection{Manpage section on document structure}
 % 
 % This completes the package code, but there are more things which
 % should be said on the manpage.
+% 
+% 
 %    \begin{macrocode}
 %<*man>
 [list_end]
@@ -1060,12 +1224,14 @@ or some variation thereof. The trick is that the file gets read twice.
 With normal LaTeX reading rules, the first two lines are comments and 
 therefore ignored. The third line is the document preamble, the fourth
 line begins the document body, and the sixth line ends the document, 
-so LaTeX stops there. First the \DocInput command on the fifth line 
-is processed however, and that does two things: it changes the
-interpretation of '%' from "comment" to "ignored", and it inputs the 
-file specified in the argument (which is normally the name of the file
-the command is in). It is this second time that the file is being 
-read that the comments and code in it are typeset.
+so LaTeX stops there -- non-comments below that point in the file are 
+never subjected to the normal LaTeX reading rules. Before that, 
+however, the \DocInput command on the fifth line is processed, and 
+that does two things: it changes the interpretation of '%' from 
+"comment" to "ignored", and it inputs the file specified in the 
+argument (which is normally the name of the file the command is in). 
+It is this second time that the file is being read that the comments 
+and code in it are typeset.
 [para]
 
 The function of the \iffalse ... \fi is to skip lines two to seven 
@@ -1088,6 +1254,7 @@ found in the references above.
 % 
 % \section{The docstrip utilities package}
 % 
+% \setnamespace{docstrip::util}
 %    \begin{macrocode}
 %<*utilman>
 
@@ -1100,7 +1267,10 @@ the main package to avoid overhead for end-users.
 [section Commands]
 
 [list_begin definitions]
+%</utilman>
 %    \end{macrocode}
+% 
+% 
 % 
 % \subsection{Doctools support}
 % 
@@ -1120,7 +1290,7 @@ the main package to avoid overhead for end-users.
 % by the procedure below, as part of adding suitable markup to the code 
 % lines.
 % 
-% \begin{proc}[util]{ddt2man}
+% \begin{proc}{ddt2man}
 %   This procedure takes a string in the \texttt{.ddt} format sketched 
 %   above and returns the corresponding text with \textsf{doctools} 
 %   \texttt{.man} markup. The syntax is
@@ -1129,6 +1299,7 @@ the main package to avoid overhead for end-users.
 %   \end{quote}
 %   
 %    \begin{macrocode}
+%<*utilman>
 [call [cmd docstrip::util::ddt2man] [arg text]]
   The [cmd ddt2man] command reformats [arg text] from the general 
   [syscmd docstrip] format to [package doctools] [file .man] format 
@@ -1281,9 +1452,690 @@ proc docstrip::util::ddt2man {text} {
 %   develop into a test, if the need seems significant.
 % \end{proc}
 % 
+% 
+% \subsection{Guard information}
+% 
+% \begin{proc}{guards}
+%   The |guards| command looks through a piece of master source code 
+%   and gathers information about the guards occurring therein. The 
+%   syntax is
+%   \begin{quote}
+%     |docstrip::util::guards| \word{subcommand} \word{text}
+%   \end{quote}
+%   where the \word{subcommand} is one of the following:
+%   \begin{ttdescription}
+%     \item[names]
+%       Return the list of expression terminals occuring in the 
+%       \word{text}, in no particular order.
+%     \item[counts]
+%       Return a dictionary which for each expression terminal 
+%       occuring in the \word{text} gives the number of times it 
+%       occurs.
+%     \item[expressions]
+%       Return the list of expressions occuring in the \word{text}, 
+%       in no particular order.
+%     \item[exprcounts]
+%       Return a dictionary which for each guard expression occuring 
+%       in the \word{text} gives the number of times it occurs.
+%     \item[exprmods]
+%       Return a dictionary which for each guard expression occuring 
+%       in the \word{text} gives a string of the modifiers of these 
+%       guards (where space is used for no modifier). This is the raw 
+%       format of the information collected by this procedure.
+%     \item[exprerr]
+%       Return the list of syntactically incorrect expressions occuring 
+%       in the \word{text}, in no particular order.
+%     \item[rotten]
+%       Return a dictionary which maps line numbers with bad guards to 
+%       their contents.
+%   \end{ttdescription}
+%   \changes{1.1}{2005/03/02}{Command added. (LH, extending a 
+%     suggestion of AK)}
+%   \changes{1.2}{2005/08/23}{Changed name of \texttt{badguards} 
+%     subcommand to \texttt{rotten}. (LH)}
+%   \changes{1.2}{2005/08/26}{Changed name of \texttt{guard} 
+%     procedure to \texttt{guards}. (LH)}
+%   \begin{tcl}
+%<*utilman>
+[call [cmd docstrip::util::guards] [arg subcmd] [arg text]]
+  The [cmd guards] command returns information (mostly of a 
+  statistical nature) about the ordinary docstrip guards that occur 
+  in the [arg text]. The [arg subcmd] selects what is returned.
+  
+  [list_begin definitions]
+  [lst_item counts]
+    List the guard expression terminals with counts. The format of 
+    the return value is a dictionary which maps the terminal name to 
+    the number of occurencies of it in the file.
+  [lst_item exprcount]
+    List the guard expressions with counts. The format of the return 
+    value is a dictionary which maps the expression to the number of 
+    occurencies of it in the file.
+  [lst_item exprerr]
+    List the syntactically incorrect guard expressions (e.g. 
+    parentheses do not match, or a terminal is missing). The return 
+    value is a list, with the elements in no particular order.
+  [lst_item expressions]
+    List the guard expressions. The return value is a list, with the 
+    elements in no particular order.
+  [lst_item exprmods]
+    List the guard expressions with modifiers. The format of the return 
+    value is a dictionary where each index is a guard expression and 
+    each entry is a string with one character for every guard line that 
+    has this expression. The characters in the entry specify what 
+    modifier was used in that line: +, -, *, /, or (for guard without 
+    modifier:) space. This is the most primitive form of the 
+    information gathered by [cmd guards].
+  [lst_item names]
+    List the guard expression terminals. The return value is a list, 
+    with the elements in no particular order.
+  [lst_item rotten]
+    List the malformed guard lines (this does not include lines where 
+    only the expression is malformed, though). The format of the return 
+    value is a dictionary which maps line numbers to their contents.
+  [list_end]
+%</utilman>
+%   \end{tcl}
+%   
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::guards {subcmd text} {
+%   \end{tcl}
+%   The first part is a cut-down |extract|. It collects data in the |E| 
+%   array, which is indexed by expression. The |badL| variable is used 
+%   for the data returned by the |rotten| subcommand.
+%   \begin{tcl}
+   set verbatim 0
+   set lineno 1
+   set badL {}
+   foreach line [split $text \n] {
+      if {$verbatim} then {
+         if {$line eq $endverbline} then {set verbatim 0}
+      } else {
+         switch -glob -- $line %<<* {
+            set endverbline "%[string range $line 3 end]"
+            set verbatim 1
+         } %<* {
+            if {![
+               regexp -- {^%<([*/+-]?)([^>]*)>(.*)$} $line ""\
+                 modifier expression line
+            ]} then {
+               lappend badL $lineno $line
+            } else {
+               if {$modifier eq ""} then {set modifier " "}
+               append E($expression) $modifier
+            }
+         }
+      }
+      incr lineno
+   }
+   if {$subcmd eq "rotten"} then {return $badL}
+%   \end{tcl}
+%   The second part processes the |E| array contents to produce the 
+%   various subcommand results.
+%   \begin{tcl}
+   switch -- $subcmd "exprmods" {
+      return [array get E]
+   } "expressions" {
+      return [array names E]
+   } "exprerr" {
+      set res {}
+      foreach expr [array names E] {
+         regsub -all {[^()!,|&]+} $expr 0 e
+         regsub -all {,} $e {|} e
+         if {[catch {expr $e}]} then {lappend res $expr}
+      }
+      return $res
+   }
+   foreach name [array names E] {
+      set E($name) [string length $E($name)]
+   }
+   if {$subcmd eq "exprcounts"} then {return [array get E]}
+   foreach expr [array names E] {
+      foreach term [split $expr "()!,|&"] {
+         if {$term eq ""} then {continue}
+         if {![info exists T($term)]} then {set T($term) 0}
+         incr T($term) $E($expr)
+      }
+   }
+   switch -- $subcmd "counts" {
+      return [array get T]
+   } "names" {
+      return [array names T]
+   } default {
+      error "Unknown subcommand '$subcmd', must be one of:\
+        counts, exprcounts, expressions, exprmods, names, rotten"
+   }
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% 
+% 
+% \subsection{Backporting assistance}
+% 
+% It is (sadly) not entirely uncommon that the Literate Programmer finds 
+% him- or herself with generated files that have been modified, even if 
+% they carry prominent notices saying ``Don't do that! Change the 
+% \emph{source} instead!''. When such changes are to the worse there is 
+% little problem, because erasing them is just a matter of regenerating 
+% the files in question, but often enough they instead contain useful 
+% improvements of the code that one would like to keep. This requires 
+% porting them back into the master source file, which in theory may 
+% seem like a minor copy-and-paste task, but in practice often gets 
+% frustrating because of the amount of navigating between the sites of 
+% different changes that one must perform.
+% 
+% Ordinarily such backporting would be handled using patch files, and 
+% that is what will be done also in this case, but the fact that the 
+% file in which the modifications were made does not look like the 
+% source file means traditional patching tools are not immediately 
+% useful. The procedures defined below provides for 
+% \textsc{docstrip}-aware patching.
+% 
+% 
+% 
+% \begin{proc}{patch}
+%   The |patch| procedure applies a list of diff hunks to a 
+%   \textsc{docstrip} style master source file. 
+%   \changes{1.2}{2005/06/20}{Procedure added. (LH)}
+%   The syntax is
+%   \begin{quote}
+%     |docstrip::util::patch| \word{source var.} \word{terminals} 
+%     \word{fromtext} \word{diff}
+%     \begin{regblock}[\regstar]\word{option} \word{value}\end{regblock}
+%   \end{quote}
+%   The \word{source var.} is the name in the calling context 
+%   of a variable which contains the list of lines in the source 
+%   to patch; patching thus means modifying this list. \word{diff} is 
+%   the difference hunks to apply, and the \word{fromtext} is the text 
+%   that diff is meant to modify. \word{terminals} is the list of 
+%   terminals one should use to |extract| \word{fromtext} (or a part 
+%   thereof) from the source. The return value is a sort of annotated 
+%   diff file, where each hunk carries a comment on how it was applied. 
+%   Hunks with empty comments (usually meaning ``hunk applied in full, 
+%   no problems were observed'') are omitted from this report.
+%   
+%   The \word{option} \word{value} pairs may be used to further control 
+%   what happens. Currently the following options are interpreted:
+%   \begin{ttdescription}
+%     \item[-matching]
+%       How is the \word{diff} matched against the \word{fromtext}? 
+%       (Hunks that don't match are ignored.) The default is |exact|, 
+%       which means each line must match. The alternatives are |none| 
+%       (in which case no check is made, i.e., line numbers are silently 
+%       assumed to be correct), |nonspace| (only non-whitespace 
+%       characters are compared), and |anyspace| (any sequence of 
+%       whitespace characters compare as a single space).
+%     \item[-metaprefix]
+%       Same as for |docstrip::extract|.
+%     \item[-trimlines]
+%       Same as for |docstrip::extract|.
+%   \end{ttdescription}
+%   
+%   The \word{diff} is a list of ``parsed differences'', the format of 
+%   which is explained in Section~\ref{Sec:Tcldiff}.
+%   
+%   The way this procedure operates is that it first establishes a 
+%   correspondence between lines in the source and lines in the 
+%   \word{fromtext}. The first part of this correspondence is determined 
+%   by the source and \word{terminals}, and is complicated but univocal. 
+%   The second part of this correspondence is given by a matching of 
+%   extracted lines to \word{fromtext} lines, and this is typically 
+%   simple but not necessarily unique, which means the user need to be 
+%   aware of the heuristic used: the lines of the \word{fromtext} are 
+%   read in sequence, and whenever one matching the line after that in 
+%   the extracted text with which the most recent correspondence is 
+%   found, then these two are considered to correspond to each other. 
+%   This should work well with the generated files one typically finds, 
+%   which consist of long intervals of lines corresponding exactly to 
+%   extracted texts, surrounded by some pre- and postambles. With files 
+%   generated from several source files it may be necessary to add some 
+%   metacomment line to disambigue the pieces, but that is often not a 
+%   problem.
+%   
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::patch {sourcevar termL fromtext diff args} {
+   upvar 1 $sourcevar SL
+   array set O {-trimlines 1 -matching exact}
+   array set O $args
+%   \end{tcl}
+%   The first step is to construct the array |lift| that maps 
+%   \word{fromtext} line numbers to source line numbers. This array 
+%   actually contains a bit more than just the line numbers; the 
+%   complete entry format is
+%   \begin{quote}
+%     \word{SL index} \word{source-prefix} \word{extract-prefix}
+%   \end{quote}
+%   where \word{SL index} is an index into the source \emph{list} of 
+%   lines (thus starting at zero rather than one), \word{source-prefix} 
+%   is the source line prefix (usually an empty string) that was removed 
+%   as part of the extraction process, and \word{extract-prefix} is the 
+%   prefix that was inserted as part of the extraction process (usually 
+%   an empty string).
+%   
+%   In order to gather the above information, |extract| is run in the two 
+%   lines of annotation format, which means the interpretation of an |EL| 
+%   element depends heavily on its index modulo $3$. Setting the last 
+%   element to a newline (it would otherwise had been an empty string, 
+%   since |extract| places a newline after every line) is a sneaky way 
+%   of preventing the |ptr| ``pointer'' into |EL| from going past the 
+%   end of that list.
+%   \begin{tcl}
+   set cmd [list extract [join $SL \n]  $termL -annotate 2]
+   foreach opt {-metaprefix -trimlines} {
+      if {[info exists O($opt)]} then {lappend cmd $opt $O($opt)}
+   }
+   set EL [split [eval $cmd] \n]
+   lset EL end \n
+   set ptr 0
+   set lineno 1
+   set FL [list {}]
+   foreach line [split $fromtext \n] {
+      lappend FL $line
+      if {$O(-trimlines)} then {set line [string trimright $line " "]}
+      if {$line eq [lindex $EL $ptr]} then {
+         set lift($lineno) [lindex $EL [incr ptr]]
+         lset lift($lineno) 0 [expr { [lindex $EL [incr ptr]] - 1 }]
+         incr ptr
+      }
+      incr lineno
+   }
+%   \end{tcl}
+%   The |FL| variable constructed above is a list of \word{fromtext} 
+%   lines, with list index equal to line number. It is used below when 
+%   matching the differences.
+%   
+%   If at this point the |lift| array is empty, then no patching can be 
+%   done. An error is thrown which suggests that the user checks the 
+%   input given.
+%   \begin{tcl}
+   if {![array size lift]} then {
+      return -code error "The extract did not match any part of the\
+        fromtext. Check the list of terminals and the options"
+   }
+%   \end{tcl}
+%   
+%   The second step consists of extending the \word{diff} to a 
+%   ``replace-list'', so that the hunk format becomes
+%   \begin{quote}
+%     \word{start1} \word{end1} \word{start2} \word{end2} 
+%     \word{lines} \word{replaces}
+%   \end{quote}
+%   where the \word{replaces} is a list of lists on the form
+%   \begin{quote}
+%     \word{start1} \word{end1} \word{line}\regstar
+%   \end{quote}
+%   i.e., the same format as for arguments two and up of |lreplace|. (In 
+%   particular, \(\mathit{end1} = \mathit{start1}-1\) when only 
+%   inserting and there are no \word{line}s when only removing.) These 
+%   extended hunks are placed in the variable |RL| sorted in descending 
+%   order after \word{start1}, and the replaces within each hunk are 
+%   sorted in that order too.
+%   
+%   This is also where the procedure begins constructing its report, 
+%   which is another extension of the hunk format. Here the syntax is
+%   \begin{quote}
+%     \word{start1} \word{end1} \word{start2} \word{end2} 
+%     \word{lines} \word{comment}
+%   \end{quote}
+%   where the \word{comment} is a description of what was done with 
+%   this hunk.
+%   \begin{tcl}
+   set RL [list]
+   set log [list]
+   foreach hunk [lsort -decreasing -integer -index 0 $diff] {
+      set replL [list]
+      set l1 [lindex $hunk 0]
+      set repl {0 -1}
+      set matches 1
+      foreach {type line} [lindex $hunk 4] {
+         switch -glob -- $type {[0-]} {
+            switch -- $O(-matching) "exact" {
+               if {[lindex $FL $l1] ne $line} then {set matches 0}
+            } "nonspace" {
+               if {[regsub -all -- {\s} $line {}] ne\
+                 [regsub -all -- {\s} [lindex $FL $l1] {}]} then {
+                  set matches 0
+               }
+            } "anyspace" {
+               if {[regsub -all -- {\s+} $line { }] ne\
+                 [regsub -all -- {\s+} [lindex $FL $l1] { }]} then {
+                  set matches 0
+               }
+            }
+         }
+         switch -- $type synch {
+            if {[llength $repl]>2 ||\
+              [lindex $repl 1]-[lindex $repl 0]>=0} then {
+               lappend replL $repl
+            }
+            set repl [list $l1 [expr {$l1-1}]]
+         } + {
+            lappend repl $line
+         } - {
+            lset repl 1 $l1
+            incr l1
+         } 0 {
+            if {[llength $repl]>2 ||\
+              [lindex $repl 1]-[lindex $repl 0]>=0} then {
+               lappend replL $repl
+               set repl {0 -1}
+            }
+            lset repl 1 $l1
+            incr l1
+            lset repl 0 $l1
+         }
+      }
+      if {[llength $repl]>2 || [lindex $repl 1]-[lindex $repl 0]>=0}\
+      then {lappend replL $repl}
+      if {$matches} then {
+         lappend hunk [lsort -decreasing -integer -index 0 $replL]
+         lappend RL $hunk
+      } else {
+         lappend hunk "(-- did not match fromtext --)"
+         lappend log $hunk
+      }
+   }
+%   \end{tcl}
+%   The difference granularity is now the one that will be used in the 
+%   insertion of new lines. The reason for extending hunks rather than 
+%   using something else is to use the original data when reporting 
+%   problems.
+%   
+%   The third step is to actually apply the changes to |SL|, translating 
+%   line numbers as one goes along. Differences are processed 
+%   back-to-front, because that means first file line numbers are valid, 
+%   and those are the ones that can be translated to source line numbers.
+%   
+%   \begin{tcl}
+   foreach hunk $RL {
+      set applied 0
+      set misapplied 0
+%   \end{tcl}
+%   For the purpose of generating a report, count is kept of how many 
+%   lines of each hunk could be applied or could not be applied. That 
+%   a hunk could not be applied (|applied| is zero) is often normal 
+%   (the changed material was not generated from this source file), 
+%   but if both counters are positive at the same time then one should 
+%   take a bit more notice.
+%   \begin{tcl}
+      foreach repl [lindex $hunk 5] {
+         unset -nocomplain from to
+%   \end{tcl}
+%   A |repl| is processed by replacing the item range |$from|--|$to| 
+%   of lines to remove by the lines to insert, but for that the entire 
+%   range of source lines must be continuous. The |for| loop below 
+%   sets |from| and |to| to the endpoints of the first range of lines 
+%   to replace because of this |repl|, and removes any subsequent 
+%   ranges immediately.
+%   \begin{tcl}
+         for {set n [lindex $repl 1]} {$n>=[lindex $repl 0]}\
+           {incr n -1} {
+            if {![info exists lift($n)]} then {
+               incr misapplied
+               continue
+            } elseif {![info exists from]} then {
+               set to [lindex $lift($n) 0]
+               set from $to
+            } elseif {[lindex $lift($n) 0] == $from-1} then {
+               set from [lindex $lift($n) 0]
+            } else {
+               set SL [lreplace $SL $from $to]
+               set to [lindex $lift($n) 0]
+               set from $to
+            }
+            incr applied
+            set n0 $n
+         }
+%   \end{tcl}
+%   For the replacement with lines to insert, it is necessary to 
+%   figure out the source and extracted line prefixes. These are taken 
+%   from the |from| line of the source, which is the line \emph{after} 
+%   the new lines if this is a pure insertion.
+%   \begin{tcl}
+         if {[info exists from]} then {
+            set sprefix [lindex $lift($n0) 1]
+            set eprefix [lindex $lift($n0) 2]
+         } elseif {[info exists lift([lindex $repl 0])]} then {
+            foreach {from sprefix eprefix} $lift([lindex $repl 0])\ 
+              break
+            set to [expr {$from-1}]
+         } else {
+            incr misapplied [llength [lrange $repl 2 end]]
+            continue
+         }
+         set eplen [string length $eprefix]
+         set epend [expr {$eplen-1}]
+%   \end{tcl}
+%   Actually replacing the lines is pretty straightforward, but the 
+%   |lreplace| command doing this is built dynamically.
+%   \begin{tcl}
+         set cmd [list lreplace $SL $from $to]
+         foreach line [lrange $repl 2 end] {
+            if {$eprefix eq [string range $line 0 $epend]} then {
+               lappend cmd "$sprefix[string range $line $eplen end]"
+            } else {
+               lappend cmd $line
+            }
+            incr applied
+         }
+         set SL [eval $cmd]
+      }
+%   \end{tcl}
+%   Only hunks with misapplied lines get included in the log.
+%   \begin{tcl}
+      if {$misapplied>0} then {
+         if {$applied>0} then {
+            lset hunk 5 "(-- was partially applied --)"
+         } else {
+            lset hunk 5 "(not applied)"
+         }
+         lappend log $hunk
+      }
+   }
+%   \end{tcl}
+%   Finally the log is formatted for return.
+%   \begin{tcl}
+   set res ""
+   foreach hunk [lsort -index 0 -integer $log] {
+      foreach {start1 end1 start2 end2 lines msg} $hunk break
+      append res [format "@@ -%d,%d +%d,%d @@ %s\n"\
+        $start1 [expr {$end1-$start1+1}]\
+        $start2 [expr {$end2-$start2+1}] $msg]
+      foreach {type line} $lines {
+         switch -- $type 0 {
+            append res " " $line \n
+         } - - + {
+            append res $type $line \n
+         }
+      }
+   }
+   return $res
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% 
+% 
+% 
+% \subsection{Reading files}
+% 
+% \begin{proc}{thefile}
+%   When experimenting with docstripping, it is often convenient to have 
+%   an easy command for reading the contents of a file. The |thefile| 
+%   command (named vaugely in the tradition of such \LaTeX\ commands as 
+%   |\thepage|) returns the contents of the file whose name it is given. 
+%   \changes{1.2}{2005/06/19}{Procedure added. (LH)}
+%   More precisely, the syntax is
+%   \begin{quote}
+%     |docstrip::util::thefile| \word{file name} 
+%     \begin{regblock}[\regstar]\word{option} \word{value}\end{regblock}
+%   \end{quote}
+%   where the \word{option} \word{value} pairs are handed to |fconfigure| 
+%   to configure the file before reading it.
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::thefile {fname args} {
+   set F [open $fname r]
+   if {[llength $args]} then {
+      eval [linsert $args 0 fconfigure $F]
+   }
+   set res [read $F]
+   close $F
+   return $res
+}
+%</utilpkg>
+%   \end{tcl}
+%   The code is thus very straightforward---what remains is to make a 
+%   manpage entry for it.
+%   \begin{tcl}
+%<*utilman>
+[call [cmd docstrip::util::thefile] [arg filename] [
+  opt "[arg option] [arg value] ..."
+]
+  The [cmd thefile] command opens the file [arg filename], reads it to 
+  end, closes it, and returns the contents. The option-value pairs are 
+  passed on to [cmd fconfigure] to configure the open file channel 
+  before anything is read from it.
+%</utilman>
+%   \end{tcl}
+% \end{proc}
+% 
+% 
 % \begin{tcl}
 %<utilman>[list_end]
 % \end{tcl}
+% 
+% 
+% \section{The diff format}
+% \label{Sec:Tcldiff}
+% 
+% The difference format used by |docstrip::util::patch| is a 
+% \Tcllogo-list format into which the common diff formats can be parsed. 
+% Each hunk is a five element list
+% \begin{quote}
+%   \word{start1} \word{end1} \word{start2} \word{end2} \word{lines}
+% \end{quote}
+% where the start and end elements are integers, specifying the line 
+% numbers of the first and last lines in the hunk respectively. 1 
+% elements pertain to the first file and 2 elements to the second file. 
+% The number of the first line in a file is |1|.
+% 
+% The \word{lines} is a list of the form
+% \begin{quote}
+%   \begin{regblock}[\regplus]\word{type} \word{text}\end{regblock}
+% \end{quote}
+% where each \word{text} is an actual line of text (minus newline) and 
+% the \word{type} specifies the type of this line. |+| means a line that 
+% is in the second file but not the first, |-| means a line that is in 
+% the first file but not the second, and |0| means a line that is in 
+% both files. The format is thus most similar to the \texttt{--unified} 
+% diff format, but the difference is not too great to the other formats 
+% either. The \word{type} may also be |synch|, which is used as a 
+% placeholder for any number of ``invisible'' lines (neither in the 
+% first or second file, but perhaps present in the source) at that 
+% point. The \word{text} of |synch| lines is ignored.
+% 
+% As an example of what it looks like, a difference between the two 
+% files
+%\begin{verbatim}
+%foo
+%bar baz
+%end
+%\end{verbatim}
+% and 
+%\begin{verbatim}
+%foo
+%bar
+%baz
+%end
+%\end{verbatim}
+% is
+% \begin{quote}
+%   |1 3 1 4 {0 foo - {bar baz} + bar + baz 0 end}|
+% \end{quote}
+% An alternative is
+% \begin{quote}
+%   |2 2 2 3 {+ bar - {bar baz} + baz}|
+% \end{quote}
+% since \texttt{+} lines ``commute'' with \texttt{-} lines. 
+% 
+% \begin{proc}{import_unidiff}
+%   The |import_unidiff| procedure imports a standard diff in unified 
+%   format to the format described above. The call syntax is
+%   \begin{quote}
+%     |docstrip::util::import_unidiff| \word{diff-text} 
+%     \word{warning-var}\regopt
+%   \end{quote}
+%   where the \word{diff-text} is the actual text of the diff file to 
+%   convert, and the \word{warning-var} is the name of a variable in 
+%   the calling context to which warnings about failings to parse the 
+%   input \word{diff-text} will be appended. The return format is a 
+%   list as described above.
+%   
+%   In the implementation, the hunk-to-be is kept in the five 
+%   variables |start1|, |end1|, |start2|, |end2|, and |lines|. 
+%   Whether |end2| is an integer is used as a signal for whether there 
+%   is a hunk to append. Malformed hunk headers will cause that hunk 
+%   to be ignored.
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::import_unidiff {text {warnvar ""}} {
+   if {$warnvar ne ""} then {upvar 1 $warnvar warning}
+   set inheader 1
+   set res [list]
+   set lines [list]
+   set end2 "not an integer"
+   foreach line [split $text \n] {
+      if {$inheader && [regexp {^(---|\+\+\+)} $line]}\
+      then {continue}
+      switch -glob -- $line { *} {
+         lappend lines 0 [string range $line 1 end]
+      } {+*} {
+         lappend lines + [string range $line 1 end]
+      } {-*} {
+         lappend lines - [string range $line 1 end]
+      } @@* {
+         if {[string is integer $end2]} then {
+            lappend res [list $start1 $end1 $start2 $end2 $lines]
+         }
+         set len2 [set len1 ,1]
+         if {[
+            regexp {^@@ -([0-9]+)(,[0-9]+)? \+([0-9]+)(,[0-9]+)? @@}\
+              $line -> start1 len1 start2 len2
+         ] && [scan "$start1 $len1,1" {%d ,%d} start1 len1]==2 &&\
+              [scan "$start2 $len2,1" {%d ,%d} start2 len2]==2
+         } then {
+            set end1 [expr {$start1+$len1-1}]
+            set end2 [expr {$start2+$len2-1}]
+            set inheader 0
+         } else {
+            set end2 "not an integer"
+            append warning "Could not parse hunk header:  " $line \n
+         }
+         set lines [list]
+      } "" {
+%   \end{tcl}
+%   Empty lines are ignored (there will typically be one at the end of 
+%   the |foreach| loop).
+%   \begin{tcl}
+      } default {
+         append warning "Could not parse line:  " $line \n
+      }
+   }
+   if {[string is integer $end2]} then {
+      lappend res [list $start1 $end1 $start2 $end2 $lines]
+   }
+   return $res
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
 % 
 % 
 % \section{Closing material}
