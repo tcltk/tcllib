@@ -225,17 +225,19 @@ proc testSuite {} {
     ################################################################################
     # round
     ################################################################################
-    proc roundTest {version x} {
-        assert round $version {tostr [round [fromstr $x]]} [expr {round($x)}]
+    proc roundTest {version x rounded} {
+        assert round $version {tostr [round [fromstr $x]]} $rounded
     }
-    roundTest 2.6a 0.10
-    roundTest 2.6b 0.0
-    roundTest 2.6c 0.50
-    roundTest 2.6d 0.40
-    roundTest 2.6e 1.0
-    roundTest 2.6d -0.40
-    roundTest 2.6e -0.50
-    roundTest 2.6f -1.0
+    roundTest 2.6a 0.10 0
+    roundTest 2.6b 0.0 0
+    roundTest 2.6c 0.50 1
+    roundTest 2.6d 0.40 0
+    roundTest 2.6e 1.0 1
+    roundTest 2.6d -0.40 0
+    roundTest 2.6e -0.50 -1
+    roundTest 2.6f -1.0 -1
+    roundTest 2.6g -1.50 -2
+    roundTest 2.6h 1.50 2
     
     # cleanup
     rename roundTest ""
