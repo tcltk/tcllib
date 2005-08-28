@@ -1,17 +1,16 @@
-[manpage_begin docstrip_util n 1.0]
+[manpage_begin docstrip_util n 1.2]
 [copyright "2003-2005 Lars Hellstr\u00F6m\
-  <Lars dot Hellstrom at math dot umu dot se>"]
+  <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
 [titledesc {Docstrip-related utilities}]
 [require Tcl 8.4]
-[require docstrip::util [opt 1.0]]
+[require docstrip::util [opt 1.2]]
 [description]
 
 The [package docstrip::util] package is meant for collecting various
 utility procedures that may be useful for developers who make use of
 the [package docstrip] package in some projects. It is separate from
 the main package to avoid overhead for end-users.
-
 
 [section Commands]
 
@@ -86,6 +85,50 @@ the main package to avoid overhead for end-users.
   markup are given the suffix [file .ddt], hence the "ddt" in
   [cmd ddt2man].
 
+[call [cmd docstrip::util::guards] [arg subcmd] [arg text]]
+  The [cmd guards] command returns information (mostly of a
+  statistical nature) about the ordinary docstrip guards that occur
+  in the [arg text]. The [arg subcmd] selects what is returned.
+
+  [list_begin definitions]
+  [lst_item counts]
+    List the guard expression terminals with counts. The format of
+    the return value is a dictionary which maps the terminal name to
+    the number of occurencies of it in the file.
+  [lst_item exprcount]
+    List the guard expressions with counts. The format of the return
+    value is a dictionary which maps the expression to the number of
+    occurencies of it in the file.
+  [lst_item exprerr]
+    List the syntactically incorrect guard expressions (e.g.
+    parentheses do not match, or a terminal is missing). The return
+    value is a list, with the elements in no particular order.
+  [lst_item expressions]
+    List the guard expressions. The return value is a list, with the
+    elements in no particular order.
+  [lst_item exprmods]
+    List the guard expressions with modifiers. The format of the return
+    value is a dictionary where each index is a guard expression and
+    each entry is a string with one character for every guard line that
+    has this expression. The characters in the entry specify what
+    modifier was used in that line: +, -, *, /, or (for guard without
+    modifier:) space. This is the most primitive form of the
+    information gathered by [cmd guards].
+  [lst_item names]
+    List the guard expression terminals. The return value is a list,
+    with the elements in no particular order.
+  [lst_item rotten]
+    List the malformed guard lines (this does not include lines where
+    only the expression is malformed, though). The format of the return
+    value is a dictionary which maps line numbers to their contents.
+  [list_end]
+[call [cmd docstrip::util::thefile] [arg filename] [
+  opt "[arg option] [arg value] ..."
+]
+  The [cmd thefile] command opens the file [arg filename], reads it to
+  end, closes it, and returns the contents. The option-value pairs are
+  passed on to [cmd fconfigure] to configure the open file channel
+  before anything is read from it.
 [list_end]
 
 [see_also docstrip doctools doctools_fmt]
