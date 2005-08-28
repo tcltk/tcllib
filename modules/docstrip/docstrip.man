@@ -1,10 +1,10 @@
-[manpage_begin docstrip n 1.0]
+[manpage_begin docstrip n 1.2]
 [copyright "2003-2005 Lars Hellstr\u00F6m\
-  <Lars dot Hellstrom at math dot umu dot se>"]
+  <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
 [titledesc {Docstrip style source code extraction}]
 [require Tcl 8.4]
-[require docstrip [opt 1.0]]
+[require docstrip [opt 1.2]]
 [description]
 
 [syscmd Docstrip] is a tool created to support a brand of Literate
@@ -46,7 +46,7 @@ consumers would not allow any comments. The etymology of "docstrip"
 is that this [emph doc]umentation was [emph strip]ped away (although
 "code extraction" might be a better description, as it has always
 been a matter of copying selected pieces of the master source rather
-than transforming it).
+than deleting text from it).
 The [package docstrip] Tcl package contains a reimplementation of
 the basic extraction functionality from the [syscmd docstrip]
 program, and thus makes it possible for a Tcl interpreter to read
@@ -199,8 +199,8 @@ sets $res to the result of
    } \n
 }]
 
-In guard lines without any '*', '/', '+', or '-' modifier after
-the '%<', the guard applies only to the CODE following the '>' on that
+In guard lines without a '*', '/', '+', or '-' modifier after the
+'%<', the guard applies only to the CODE following the '>' on that
 single line. A '+' modifier is equivalent to no modifier. A '-'
 modifier is like the case with no modifier, but the expression is
 implicitly negated, i.e., the CODE of a '%<-' guard line is only
@@ -310,6 +310,18 @@ The package defines two commands.
   expression terminals which should evaluate to true.
   The available options are:
   [list_begin opt]
+  [opt_def -annotate [arg lines]]
+    Requests the specified number of lines of annotation to follow
+    each extracted line in the result. Defaults to 0. Annotation lines
+    are mostly useful when the extracted lines are to undergo some
+    further transformation. A first annotation line is a list of three
+    elements: line type, prefix removed in extraction, and prefix
+    inserted in extraction. The line type is one of: 'V' (verbatim),
+    'M' (metacomment), '+' (+ or no modifier guard line), '-' (-
+    modifier guard line), '.' (normal line). A second annotation line
+    is the source line number. A third annotation line is the current
+    stack of block guards. Requesting more than three lines of
+    annotation is currently not supported.
   [opt_def -metaprefix [arg string]]
     The string by which the '%%' prefix of a metacomment line will
     be replaced. Defaults to '%%'. For Tcl code this would typically
@@ -353,7 +365,6 @@ The package defines two commands.
   options have their default values.
 [list_end]
 
-
 [section {Document structure}]
 
 The file format (as described above) determines whether a master
@@ -388,12 +399,14 @@ or some variation thereof. The trick is that the file gets read twice.
 With normal LaTeX reading rules, the first two lines are comments and
 therefore ignored. The third line is the document preamble, the fourth
 line begins the document body, and the sixth line ends the document,
-so LaTeX stops there. First the \DocInput command on the fifth line
-is processed however, and that does two things: it changes the
-interpretation of '%' from "comment" to "ignored", and it inputs the
-file specified in the argument (which is normally the name of the file
-the command is in). It is this second time that the file is being
-read that the comments and code in it are typeset.
+so LaTeX stops there -- non-comments below that point in the file are
+never subjected to the normal LaTeX reading rules. Before that,
+however, the \DocInput command on the fifth line is processed, and
+that does two things: it changes the interpretation of '%' from
+"comment" to "ignored", and it inputs the file specified in the
+argument (which is normally the name of the file the command is in).
+It is this second time that the file is being read that the comments
+and code in it are typeset.
 [para]
 
 The function of the \iffalse ... \fi is to skip lines two to seven
