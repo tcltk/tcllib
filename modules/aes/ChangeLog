@@ -1,0 +1,5 @@
+2005-08-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* aes.tcl:   Initial import of a Tcl implementation of
+	* aes.test:  the Advanced Encryption Standard contributed
+	* aes.man:   by Thorsten Schloermann
