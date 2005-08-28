@@ -1,32 +1,69 @@
-#!/usr/bin/tclsh
+# aes.tcl - Copyright (c) 2005 Thorsten Schloermann
 #
-# 
-# Tcl-script for AES en-/description
+# A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
-# Feb/Mar 2005 by Thorsten Schloermann
+# Briefly, AES is a block cipher with a block size of 128 bits and a variable
+# key size of 128, 192 or 256 bits.
+# The algorithm works on each block as a 4x4 state array. There are 4 steps
+# in each round:
+#   SubBytes   a non-linear substitution step using a predefined S-box
+#   ShiftRows  cyclic transposition of rows in the state matrix
+#   MixColumns transformation upon columns in the state matrix
+#   AddRoundKey apply key data
 #
-# 
-#
-#
-# usage: 
-# 
-# ::aes::start <mode> <key> <(plain|cipher)text>
-#
-# <mode>: "d" for decryption, "e" for encryption, followed by 
-#                  the keylength of 128, 196 or 256, eg. "e128"
-#
-# <key>: hexadecimal representation of the key according to the keylength
-#
-# <(plain/cipher)text>: the plain- or ciphertext (in hexadecimal representation)
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
 #
 
-package require Tcl 8.4
+package require Tcl 8.2
 
-package provide aes 0.3
+namespace eval ::aes {
+    variable version 0.3
+    variable rcsid {$Id: aes.tcl,v 1.2 2005/08/28 23:38:09 patthoyts Exp $}
 
-namespace eval ::aes {}
+    # constants
 
-
+    # S-box
+    variable sbox {
+        0x63 0x7c 0x77 0x7b 0xf2 0x6b 0x6f 0xc5 0x30 0x01 0x67 0x2b 0xfe 0xd7 0xab 0x76
+        0xca 0x82 0xc9 0x7d 0xfa 0x59 0x47 0xf0 0xad 0xd4 0xa2 0xaf 0x9c 0xa4 0x72 0xc0
+        0xb7 0xfd 0x93 0x26 0x36 0x3f 0xf7 0xcc 0x34 0xa5 0xe5 0xf1 0x71 0xd8 0x31 0x15
+        0x04 0xc7 0x23 0xc3 0x18 0x96 0x05 0x9a 0x07 0x12 0x80 0xe2 0xeb 0x27 0xb2 0x75
+        0x09 0x83 0x2c 0x1a 0x1b 0x6e 0x5a 0xa0 0x52 0x3b 0xd6 0xb3 0x29 0xe3 0x2f 0x84
+        0x53 0xd1 0x00 0xed 0x20 0xfc 0xb1 0x5b 0x6a 0xcb 0xbe 0x39 0x4a 0x4c 0x58 0xcf
+        0xd0 0xef 0xaa 0xfb 0x43 0x4d 0x33 0x85 0x45 0xf9 0x02 0x7f 0x50 0x3c 0x9f 0xa8
+        0x51 0xa3 0x40 0x8f 0x92 0x9d 0x38 0xf5 0xbc 0xb6 0xda 0x21 0x10 0xff 0xf3 0xd2
+        0xcd 0x0c 0x13 0xec 0x5f 0x97 0x44 0x17 0xc4 0xa7 0x7e 0x3d 0x64 0x5d 0x19 0x73
+        0x60 0x81 0x4f 0xdc 0x22 0x2a 0x90 0x88 0x46 0xee 0xb8 0x14 0xde 0x5e 0x0b 0xdb
+        0xe0 0x32 0x3a 0x0a 0x49 0x06 0x24 0x5c 0xc2 0xd3 0xac 0x62 0x91 0x95 0xe4 0x79
+        0xe7 0xc8 0x37 0x6d 0x8d 0xd5 0x4e 0xa9 0x6c 0x56 0xf4 0xea 0x65 0x7a 0xae 0x08
+        0xba 0x78 0x25 0x2e 0x1c 0xa6 0xb4 0xc6 0xe8 0xdd 0x74 0x1f 0x4b 0xbd 0x8b 0x8a
+        0x70 0x3e 0xb5 0x66 0x48 0x03 0xf6 0x0e 0x61 0x35 0x57 0xb9 0x86 0xc1 0x1d 0x9e
+        0xe1 0xf8 0x98 0x11 0x69 0xd9 0x8e 0x94 0x9b 0x1e 0x87 0xe9 0xce 0x55 0x28 0xdf
+        0x8c 0xa1 0x89 0x0d 0xbf 0xe6 0x42 0x68 0x41 0x99 0x2d 0x0f 0xb0 0x54 0xbb 0x16
+    }
+    # inverse S-box
+    variable xobs {
+        0x52 0x09 0x6a 0xd5 0x30 0x36 0xa5 0x38 0xbf 0x40 0xa3 0x9e 0x81 0xf3 0xd7 0xfb
+        0x7c 0xe3 0x39 0x82 0x9b 0x2f 0xff 0x87 0x34 0x8e 0x43 0x44 0xc4 0xde 0xe9 0xcb
+        0x54 0x7b 0x94 0x32 0xa6 0xc2 0x23 0x3d 0xee 0x4c 0x95 0x0b 0x42 0xfa 0xc3 0x4e
+        0x08 0x2e 0xa1 0x66 0x28 0xd9 0x24 0xb2 0x76 0x5b 0xa2 0x49 0x6d 0x8b 0xd1 0x25
+        0x72 0xf8 0xf6 0x64 0x86 0x68 0x98 0x16 0xd4 0xa4 0x5c 0xcc 0x5d 0x65 0xb6 0x92
+        0x6c 0x70 0x48 0x50 0xfd 0xed 0xb9 0xda 0x5e 0x15 0x46 0x57 0xa7 0x8d 0x9d 0x84
+        0x90 0xd8 0xab 0x00 0x8c 0xbc 0xd3 0x0a 0xf7 0xe4 0x58 0x05 0xb8 0xb3 0x45 0x06
+        0xd0 0x2c 0x1e 0x8f 0xca 0x3f 0x0f 0x02 0xc1 0xaf 0xbd 0x03 0x01 0x13 0x8a 0x6b
+        0x3a 0x91 0x11 0x41 0x4f 0x67 0xdc 0xea 0x97 0xf2 0xcf 0xce 0xf0 0xb4 0xe6 0x73
+        0x96 0xac 0x74 0x22 0xe7 0xad 0x35 0x85 0xe2 0xf9 0x37 0xe8 0x1c 0x75 0xdf 0x6e
+        0x47 0xf1 0x1a 0x71 0x1d 0x29 0xc5 0x89 0x6f 0xb7 0x62 0x0e 0xaa 0x18 0xbe 0x1b
+        0xfc 0x56 0x3e 0x4b 0xc6 0xd2 0x79 0x20 0x9a 0xdb 0xc0 0xfe 0x78 0xcd 0x5a 0xf4
+        0x1f 0xdd 0xa8 0x33 0x88 0x07 0xc7 0x31 0xb1 0x12 0x10 0x59 0x27 0x80 0xec 0x5f
+        0x60 0x51 0x7f 0xa9 0x19 0xb5 0x4a 0x0d 0x2d 0xe5 0x7a 0x9f 0x93 0xc9 0x9c 0xef
+        0xa0 0xe0 0x3b 0x4d 0xae 0x2a 0xf5 0xb0 0xc8 0xeb 0xbb 0x3c 0x83 0x53 0x99 0x61
+        0x17 0x2b 0x04 0x7e 0xba 0x77 0xd6 0x26 0xe1 0x69 0x14 0x63 0x55 0x21 0x0c 0x7d
+    }
+}
 
 #-------------------------------#
 # ::aes::init                   #
@@ -36,95 +73,72 @@ namespace eval ::aes {}
 #-------------------------------#
 
 proc ::aes::init {m key text} {
-
-	variable state
-	variable keyArray
-	variable Nk
-	variable Nb
-	variable Nr
-	variable sbox
-	upvar $m mode 
-
-	# the first char is the mode (e or d), the other 3 chars define the keylength 
-	set bit [string range $mode 1 3]
-	set mode [string index $mode 0]
-	
-	
-	# put plain-/chiphertext bytewise into a list
-	set i 0
-	while {$i<[string length $text]} {
-    	set cc [string range $text $i [expr $i+1]]
-    	set hex [format "0x$cc"]
-    	lappend textlist $hex
-    	incr i 2
-	}
-
-	
-	# put the textlist into an array
-	for {set j 0} {$j < 4} {incr j} {
-    	for {set i 0} {$i < 4} {incr i} {
-		set state($i,$j) [lindex $textlist [expr $i + ($j * 4)]]
-    	}
-	}
-	unset textlist
-
-
-
-	# Nk: columns of the key-array
-	# Nr: number of rounds (depends on key-length)
-
-	switch -- $bit {
-    	"128" {set Nk 4; set Nr 10}
-    	"192" {set Nk 6; set Nr 12}
-    	"256" {set Nk 8; set Nr 14}
-    	default {puts "error"}
+    variable state
+    variable keyArray
+    variable Nk
+    variable Nb
+    variable Nr
+    upvar $m mode 
     
-	}
-	
-	# Nb: columns of the text-block, is always 4 in AES
-	set Nb 4 
+    # the first char is the mode (e or d), the other 3 chars define the keylength 
+    set bit [string range $mode 1 3]
+    set mode [string index $mode 0]
+    
+    # put plain-/ciphertext bytewise into a list
+    set i 0
+    while {$i<[string length $text]} {
+        set cc [string range $text $i [expr $i+1]]
+        set hex [format "0x$cc"]
+        lappend textlist $hex
+        incr i 2
+    }
 
-	
-	# now put the key bytewise into an array
-	# if the keylength is smaller than desired, it will be padded with 0s
-	set i 0
-	set m 0
-	set hexDigits [expr $bit / 4]
-	while {$i < $hexDigits} {
-    	set l 0
-    	while {$l < 4} {
-		set value [string range $key $i [expr $i+1]]
-		if {[string length $value] == 0} {
-	    	append value 00
-		} elseif {[string length $value] == 1} {
-	    	append value 0
-		} 
-		set keyArray($l,$m) [format "0x$value"]
-	
-		incr i 2
-		incr l
-    	}
-    	incr m
-	}
+    
+    # put the textlist into an array
+    for {set j 0} {$j < 4} {incr j} {
+        for {set i 0} {$i < 4} {incr i} {
+            set state($i,$j) [lindex $textlist [expr {$i + ($j * 4)}]]
+        }
+    }
+    unset textlist
 
-	# the S-box
-	set sbox {0x63 0x7c 0x77 0x7b 0xf2 0x6b 0x6f 0xc5 0x30 0x01 0x67 0x2b 0xfe 0xd7 0xab 0x76
-			  0xca 0x82 0xc9 0x7d 0xfa 0x59 0x47 0xf0 0xad 0xd4 0xa2 0xaf 0x9c 0xa4 0x72 0xc0
-          	  0xb7 0xfd 0x93 0x26 0x36 0x3f 0xf7 0xcc 0x34 0xa5 0xe5 0xf1 0x71 0xd8 0x31 0x15
-          	  0x04 0xc7 0x23 0xc3 0x18 0x96 0x05 0x9a 0x07 0x12 0x80 0xe2 0xeb 0x27 0xb2 0x75
-          	  0x09 0x83 0x2c 0x1a 0x1b 0x6e 0x5a 0xa0 0x52 0x3b 0xd6 0xb3 0x29 0xe3 0x2f 0x84
-          	  0x53 0xd1 0x00 0xed 0x20 0xfC 0xb1 0x5b 0x6a 0xcb 0xbe 0x39 0x4a 0x4c 0x58 0xcf
-          	  0xd0 0xef 0xaa 0xfb 0x43 0x4d 0x33 0x85 0x45 0xf9 0x02 0x7f 0x50 0x3c 0x9f 0xa8
-          	  0x51 0xa3 0x40 0x8f 0x92 0x9d 0x38 0xf5 0xbc 0xb6 0xda 0x21 0x10 0xff 0xf3 0xd2
-          	  0xcd 0x0c 0x13 0xec 0x5f 0x97 0x44 0x17 0xc4 0xa7 0x7e 0x3d 0x64 0x5d 0x19 0x73
-          	  0x60 0x81 0x4f 0xdc 0x22 0x2a 0x90 0x88 0x46 0xee 0xb8 0x14 0xde 0x5e 0x0b 0xdb
-          	  0xe0 0x32 0x3a 0x0a 0x49 0x06 0x24 0x5c 0xc2 0xd3 0xac 0x62 0x91 0x95 0xe4 0x79
-          	  0xe7 0xc8 0x37 0x6d 0x8d 0xd5 0x4e 0xa9 0x6c 0x56 0xf4 0xea 0x65 0x7a 0xae 0x08
-          	  0xba 0x78 0x25 0x2e 0x1c 0xa6 0xb4 0xc6 0xe8 0xdd 0x74 0x1f 0x4b 0xbd 0x8b 0x8a
-          	  0x70 0x3e 0xb5 0x66 0x48 0x03 0xf6 0x0e 0x61 0x35 0x57 0xb9 0x86 0xc1 0x1d 0x9e
-          	  0xe1 0xf8 0x98 0x11 0x69 0xd9 0x8e 0x94 0x9b 0x1e 0x87 0xe9 0xce 0x55 0x28 0xdf
-          	  0x8c 0xa1 0x89 0x0d 0xbf 0xe6 0x42 0x68 0x41 0x99 0x2d 0x0f 0xb0 0x54 0xbb 0x16}
-		  
+    # Nk: columns of the key-array
+    # Nr: number of rounds (depends on key-length)
+
+    switch -- $bit {
+        "128" {set Nk 4; set Nr 10}
+        "192" {set Nk 6; set Nr 12}
+        "256" {set Nk 8; set Nr 14}
+        default {
+            return -code error "invalid key size \"$bit\":\
+                must be one of 128,192 or 256."
+        }
+    }
+    
+    # Nb: columns of the text-block, is always 4 in AES
+    set Nb 4 
+    
+    # now put the key bytewise into an array
+    # if the keylength is smaller than desired, it will be padded with 0s
+    set i 0
+    set m 0
+    set hexDigits [expr {$bit / 4}]
+    while {$i < $hexDigits} {
+        set l 0
+        while {$l < 4} {
+            set value [string range $key $i [expr {$i+1}]]
+            if {[string length $value] == 0} {
+                append value 00
+            } elseif {[string length $value] == 1} {
+                append value 0
+            } 
+            set keyArray($l,$m) [format "0x$value"]
+            
+            incr i 2
+            incr l
+        }
+        incr m
+    }
 }
 
 #-----------------------------------------------#
@@ -134,8 +148,7 @@ proc ::aes::init {m key text} {
 # and returns the byte substituted by the sbox  #
 #-----------------------------------------------#
 
-proc ::aes::SubFunc byte {
-    
+proc ::aes::SubFunc {byte} {
     variable sbox    
     return [lindex $sbox $byte]
 }
@@ -146,25 +159,10 @@ proc ::aes::SubFunc byte {
 # the inverse of SubFunc          #
 #---------------------------------#
 
-proc ::aes::InvSubFunc byte {
-    
-    # one could use an inverse representation of the sbox here
-    # but this is a different approach: it searches the list for
-    # the desired byte an returns the list index
-
-    variable sbox
-    set i 0
-    foreach value $sbox {
-	
-	if {$byte == $value} {break}
-	incr i
-    }
-
-    set result [format "%#x" $i]
-    return $result
+proc ::aes::InvSubFunc {byte} {
+    variable xobs
+    return [lindex $xobs $byte]
 }
-	    
-
 
 #-----------------------------------#
 # ::aes::GFMult*                    #
@@ -173,74 +171,58 @@ proc ::aes::InvSubFunc byte {
 # multiplication in a Galois-field  #
 #-----------------------------------#
 
-
 proc ::aes::GFMult2 {number} {
 
-	# this is a tabular representation of xtime (multiplication by 2)
-	# it is used instead of calculation to prevent timing attacks
-	set xtime {0x00 0x02 0x04 0x06 0x08 0x0a 0x0c 0x0e 0x10 0x12 0x14 0x16 0x18 0x1a 0x1c 0x1e
-			   0x20 0x22 0x24 0x26 0x28 0x2a 0x2c 0x2e 0x30 0x32 0x34 0x36 0x38 0x3a 0x3c 0x3e 
-			   0x40 0x42 0x44 0x46 0x48 0x4a 0x4c 0x4e 0x50 0x52 0x54 0x56 0x58 0x5a 0x5c 0x5e
-			   0x60 0x62 0x64 0x66 0x68 0x6a 0x6c 0x6e 0x70 0x72 0x74 0x76 0x78 0x7a 0x7c 0x7e 
-			   0x80 0x82 0x84 0x86 0x88 0x8a 0x8c 0x8e 0x90 0x92 0x94 0x96 0x98 0x9a 0x9c 0x9e 
-			   0xa0 0xa2 0xa4 0xa6 0xa8 0xaa 0xac 0xae 0xb0 0xb2 0xb4 0xb6 0xb8 0xba 0xbc 0xbe 
-			   0xc0 0xc2 0xc4 0xc6 0xc8 0xca 0xcc 0xce 0xd0 0xd2 0xd4 0xd6 0xd8 0xda 0xdc 0xde 
-			   0xe0 0xe2 0xe4 0xe6 0xe8 0xea 0xec 0xee 0xf0 0xf2 0xf4 0xf6 0xf8 0xfa 0xfc 0xfe 
-			   0x1b 0x19 0x1f 0x1d 0x13 0x11 0x17 0x15 0x0b 0x09 0x0f 0x0d 0x03 0x01 0x07 0x05 
-			   0x3b 0x39 0x3f 0x3d 0x33 0x31 0x37 0x35 0x2b 0x29 0x2f 0x2d 0x23 0x21 0x27 0x25 
-			   0x5b 0x59 0x5f 0x5d 0x53 0x51 0x57 0x55 0x4b 0x49 0x4f 0x4d 0x43 0x41 0x47 0x45 
-			   0x7b 0x79 0x7f 0x7d 0x73 0x71 0x77 0x75 0x6b 0x69 0x6f 0x6d 0x63 0x61 0x67 0x65 
-			   0x9b 0x99 0x9f 0x9d 0x93 0x91 0x97 0x95 0x8b 0x89 0x8f 0x8d 0x83 0x81 0x87 0x85 
-			   0xbb 0xb9 0xbf 0xbd 0xb3 0xb1 0xb7 0xb5 0xab 0xa9 0xaf 0xad 0xa3 0xa1 0xa7 0xa5 
-			   0xdb 0xd9 0xdf 0xdd 0xd3 0xd1 0xd7 0xd5 0xcb 0xc9 0xcf 0xcd 0xc3 0xc1 0xc7 0xc5 
-			   0xfb 0xf9 0xff 0xfd 0xf3 0xf1 0xf7 0xf5 0xeb 0xe9 0xef 0xed 0xe3 0xe1 0xe7 0xe5}
+    # this is a tabular representation of xtime (multiplication by 2)
+    # it is used instead of calculation to prevent timing attacks
+    set xtime {0x00 0x02 0x04 0x06 0x08 0x0a 0x0c 0x0e 0x10 0x12 0x14 0x16 0x18 0x1a 0x1c 0x1e
+               0x20 0x22 0x24 0x26 0x28 0x2a 0x2c 0x2e 0x30 0x32 0x34 0x36 0x38 0x3a 0x3c 0x3e 
+               0x40 0x42 0x44 0x46 0x48 0x4a 0x4c 0x4e 0x50 0x52 0x54 0x56 0x58 0x5a 0x5c 0x5e
+               0x60 0x62 0x64 0x66 0x68 0x6a 0x6c 0x6e 0x70 0x72 0x74 0x76 0x78 0x7a 0x7c 0x7e 
+               0x80 0x82 0x84 0x86 0x88 0x8a 0x8c 0x8e 0x90 0x92 0x94 0x96 0x98 0x9a 0x9c 0x9e 
+               0xa0 0xa2 0xa4 0xa6 0xa8 0xaa 0xac 0xae 0xb0 0xb2 0xb4 0xb6 0xb8 0xba 0xbc 0xbe 
+               0xc0 0xc2 0xc4 0xc6 0xc8 0xca 0xcc 0xce 0xd0 0xd2 0xd4 0xd6 0xd8 0xda 0xdc 0xde 
+               0xe0 0xe2 0xe4 0xe6 0xe8 0xea 0xec 0xee 0xf0 0xf2 0xf4 0xf6 0xf8 0xfa 0xfc 0xfe 
+               0x1b 0x19 0x1f 0x1d 0x13 0x11 0x17 0x15 0x0b 0x09 0x0f 0x0d 0x03 0x01 0x07 0x05 
+               0x3b 0x39 0x3f 0x3d 0x33 0x31 0x37 0x35 0x2b 0x29 0x2f 0x2d 0x23 0x21 0x27 0x25 
+               0x5b 0x59 0x5f 0x5d 0x53 0x51 0x57 0x55 0x4b 0x49 0x4f 0x4d 0x43 0x41 0x47 0x45 
+               0x7b 0x79 0x7f 0x7d 0x73 0x71 0x77 0x75 0x6b 0x69 0x6f 0x6d 0x63 0x61 0x67 0x65 
+               0x9b 0x99 0x9f 0x9d 0x93 0x91 0x97 0x95 0x8b 0x89 0x8f 0x8d 0x83 0x81 0x87 0x85 
+               0xbb 0xb9 0xbf 0xbd 0xb3 0xb1 0xb7 0xb5 0xab 0xa9 0xaf 0xad 0xa3 0xa1 0xa7 0xa5 
+               0xdb 0xd9 0xdf 0xdd 0xd3 0xd1 0xd7 0xd5 0xcb 0xc9 0xcf 0xcd 0xc3 0xc1 0xc7 0xc5 
+               0xfb 0xf9 0xff 0xfd 0xf3 0xf1 0xf7 0xf5 0xeb 0xe9 0xef 0xed 0xe3 0xe1 0xe7 0xe5}
 
-
-	return [lindex $xtime $number]
-
-    
+    return [lindex $xtime $number]
 }
 
 proc ::aes::GFMult3 {number} {
-
     # multliply by 2 (via GFMult2) and add the number again on the result (via XOR)
-    return [expr $number ^ [GFMult2 $number]]
+    return [expr {$number ^ [GFMult2 $number]}]
 }
 
 proc ::aes::GFMult09 {number} {
-
     # 09 is: (02*02*02) + 01
-    
-    return [expr [GFMult2 [GFMult2 [GFMult2 $number]]] ^ $number]
-
-
+    return [expr {[GFMult2 [GFMult2 [GFMult2 $number]]] ^ $number}]
 }
 
 proc ::aes::GFMult0b {number} {
-
     # 0b is: (02*02*02) + 02 + 01
-
-    return [expr [GFMult2 [GFMult2 [GFMult2 $number]]] ^ [GFMult2 $number] ^ $number]
+    #return [expr [GFMult2 [GFMult2 [GFMult2 $number]]] ^ [GFMult2 $number] ^ $number]
+    #set g0 [GFMult2 $number]
+    return [expr {[GFMult09 $number] ^ [GFMult2 $number]}]
 }
 
 proc ::aes::GFMult0d {number} {
-
     # 0d is: (02*02*02) + (02*02) + 01
-    
     set temp [GFMult2 [GFMult2 $number]]
-    return [expr [GFMult2 $temp] ^ ($temp ^ $number)]
+    return [expr {[GFMult2 $temp] ^ ($temp ^ $number)}]
 }
 
 proc ::aes::GFMult0e {number} {
-
     # 0e is: (02*02*02) + (02*02) + 02
-    
     set temp [GFMult2 [GFMult2 $number]]
-    return [expr [GFMult2 $temp] ^ ($temp ^ [GFMult2 $number])]
-
+    return [expr {[GFMult2 $temp] ^ ($temp ^ [GFMult2 $number])}]
 }
-
-
 
 #------------------------------------------#
 # ::aes::KeyExpansion                      #
@@ -249,58 +231,58 @@ proc ::aes::GFMult0e {number} {
 # to get a round key for each round of aes #
 #------------------------------------------#
 
-
 proc ::aes::KeyExpansion keyList {
 
-	variable expKey
-	variable Nk
-	variable Nr 
-	variable Nb 
-	
-	# setting up the round constants
-	set RC [list 0x00 0x01 0x02 0x04 0x08 0x10 0x20 0x40 0x80 0x1b 0x36 0x6c 0xd8 0xab 0x4d]
+    variable expKey
+    variable Nk
+    variable Nr 
+    variable Nb 
+    
+    # setting up the round constants
+    set RC [list 0x00 0x01 0x02 0x04 0x08 0x10 0x20 0x40 0x80 0x1b 0x36 0x6c 0xd8 0xab 0x4d]
 
     array set key $keyList  ;# put the passed keyList back to an array
     
-    set Ne [expr $Nb * ($Nr + 1)];# number of columns the expKey will have totally
+    set Ne [expr {$Nb * ($Nr + 1)}];# number of columns the expKey will have totally
 
     # the following cascaded for-construct copies the initial key
     # to the first columns of the expanded key
 
     for {set j 0} {$j < $Nk} {incr j} {
-		for {set i 0} {$i < 4} {incr i} {
-	    	set expKey($i,$j) $key($i,$j)
-		}
+        for {set i 0} {$i < 4} {incr i} {
+            set expKey($i,$j) $key($i,$j)
+        }
     }
     
     # next follows the expansion of the initial key
     #
     for {set j $Nk} {$j < $Ne} {incr j} {
-	if {[expr $j % $Nk] == 0} {
-
-	    set temp [expr $expKey(0,[expr $j - $Nk]) ^ [SubFunc $expKey(1,[expr $j - 1])]]
-	    set expKey(0,$j) [expr $temp ^ [lindex $RC [expr $j / $Nk]]]
-	    for {set i 1} {$i < 4} {incr i} {
-		set expKey($i,$j) [expr $expKey($i,[expr $j - $Nk]) ^ \
-				     [SubFunc $expKey([expr ($i + 1) % 4],[expr $j - 1])]]
-	    }		  
-
-	} elseif {$Nk == 8 && [expr $j % $Nk] == 4} {
-	    for {set i 0} {$i < 4} {incr i} {
-		set expKey($i,$j) [expr $expKey($i,[expr $j - $Nk]) ^ \
-				       [SubFunc $expKey($i,[expr $j - 1])]]
-	    }
-
-	} else {
-	    for {set i 0} {$i < 4} {incr i} {
-		set expKey($i,$j) [expr $expKey($i,[expr $j - $Nk]) ^ \
-					    $expKey($i,[expr $j - 1])]
-	    }
-	    
-	}
+        if {($j % $Nk) == 0} {
+            set jNk [expr {$j - $Nk}]
+            set jm1 [expr {$j - 1}]
+            set k0 $expKey(0,$jNk)
+            set k2 $expKey(1,$jm1)
+            set temp [expr {$k0 ^ [SubFunc $k2]}]
+            set expKey(0,$j) [expr {$temp ^ [lindex $RC [expr {$j / $Nk}]]}]
+            for {set i 1} {$i < 4} {incr i} {
+                set ki0 $expKey($i,$jNk)
+                set ki1 $expKey([expr {($i + 1) % 4}],$jm1)
+                set expKey($i,$j) [expr {$ki0 ^ [SubFunc $ki1]}]
+            }
+        } elseif {$Nk == 8 && ($j % $Nk) == 4} {
+            for {set i 0} {$i < 4} {incr i} {
+                set k0 $expKey($i,[expr {$j - $Nk}])
+                set k1 $expKey($i,[expr {$j - 1}])
+                set expKey($i,$j) [expr {$k0 ^ [SubFunc $k1]}]
+            }
+        } else {
+            for {set i 0} {$i < 4} {incr i} {
+                set k0 $expKey($i,[expr {$j - $Nk}])
+                set k1 $expKey($i,[expr {$j - 1}])
+                set expKey($i,$j) [expr {$k0 ^ $k1}]
+            }
+        }
     }
-    
-
 }
 
 #----------------------------------------------#
@@ -311,25 +293,20 @@ proc ::aes::KeyExpansion keyList {
 #----------------------------------------------#
 
 proc ::aes::AddRoundKey {round} {
-
     variable state
     variable expKey
     
-
     for {set j 0} {$j < 4} {incr j} {
-		for {set i 0} {$i < 4} {incr i} {
-
-	    	set roundKeyIndex [expr ($round * 4) + $j] ;# where to find roundKey in expKey
-	    	set result [expr $state($i,$j) ^ $expKey($i,$roundKeyIndex)]
-	    
-	    	# make the result hexadecimal
-	    	set state($i,$j) [format "%#x" $result]
-		}
+        for {set i 0} {$i < 4} {incr i} {
+            
+            set roundKeyIndex [expr {($round * 4) + $j}] ;# where to find roundKey in expKey
+            set result [expr {$state($i,$j) ^ $expKey($i,$roundKeyIndex)}]
+            
+            # make the result hexadecimal
+            set state($i,$j) [format "%#x" $result]
+        }
     }
-
-
 }
-
 
 #-----------------------------------------#
 # ::aes::SubBytes                         #
@@ -339,17 +316,13 @@ proc ::aes::AddRoundKey {round} {
 #-----------------------------------------#
 
 proc ::aes::SubBytes {} {
-
     variable state
-
-	for {set j 0} {$j < 4} {incr j} {
-		for {set i 0} {$i < 4} {incr i} {
-
-	    	set state($i,$j) [SubFunc $state($i,$j)]
-
-		}
+    
+    for {set j 0} {$j < 4} {incr j} {
+        for {set i 0} {$i < 4} {incr i} {
+            set state($i,$j) [SubFunc $state($i,$j)]
+        }
     }
-
 }
 
 #-----------------------------------------#
@@ -359,17 +332,13 @@ proc ::aes::SubBytes {} {
 #-----------------------------------------#
 
 proc ::aes::InvSubBytes {} {
-        
     variable state
-
+    
     for {set j 0} {$j < 4} {incr j} {
-	for {set i 0} {$i < 4} {incr i} {
-
-	    set state($i,$j) [InvSubFunc $state($i,$j)]
-
-	}
+        for {set i 0} {$i < 4} {incr i} {
+            set state($i,$j) [InvSubFunc $state($i,$j)]
+        }
     }
-
 }
 
 #-------------------------------------------#
@@ -380,17 +349,16 @@ proc ::aes::InvSubBytes {} {
 #-------------------------------------------#
 
 proc ::aes::ShiftRows {} {
-
     variable state
     
     for {set i 1} {$i < 4} {incr i} {
-		for {set k 0} {$k < $i} {incr k} {
-	    	set temp $state($i,0)
-	    	for {set j 0} {$j < 3} {incr j} {
-				set state($i,$j) $state($i,[expr $j + 1])
-	    	}	
-	    	set state($i,3) $temp
-		}
+        for {set k 0} {$k < $i} {incr k} {
+            set temp $state($i,0)
+            for {set j 0} {$j < 3} {incr j} {
+                set state($i,$j) $state($i,[expr {$j + 1}])
+            }    
+            set state($i,3) $temp
+        }
     }
 }
 
@@ -406,13 +374,13 @@ proc ::aes::InvShiftRows {} {
     variable state
 
     for {set i 1} {$i < 4} {incr i} {
-		for {set k 0} {$k < $i} {incr k} {
-	    	set temp $state($i,3)
-	    	for {set j 3} {$j > 0} {incr j -1} {
-				set state($i,$j) $state($i,[expr $j - 1])
-	    	}
-	    	set state($i,0) $temp
-		}
+        for {set k 0} {$k < $i} {incr k} {
+            set temp $state($i,3)
+            for {set j 3} {$j > 0} {incr j -1} {
+                set state($i,$j) $state($i,[expr {$j - 1}])
+            }
+            set state($i,0) $temp
+        }
     }
 }
 
@@ -424,40 +392,34 @@ proc ::aes::InvShiftRows {} {
 #-------------------------------------------#
 
 proc ::aes::MixColumns {} {
-
     variable state
 
-    #copy state into a temp array
-    for {set i 0} {$i < 4} {incr i} {
-	for {set j 0} {$j < 4} {incr j} {
-	    set tempState($i,$j) $state($i,$j)
-	}
-    }
-
-    #calculate the new state (with matrix multiplication)
+    # copy state into a temp array
+    array set tempState [array get state]
+    
+    # calculate the new state (with matrix multiplication)
     for {set j 0} {$j < 4} {incr j} {
-	
-	set state(0,$j) [expr [GFMult2 $tempState(0,$j)] ^ \
-			     [GFMult3 $tempState(1,$j)] ^ \
-			     $tempState(2,$j) ^ \
-			     $tempState(3,$j)]
-
-	set state(1,$j) [expr $tempState(0,$j) ^ \
-			     [GFMult2 $tempState(1,$j)] ^ \
-			     [GFMult3 $tempState(2,$j)] ^ \
-			     $tempState(3,$j)]
-
-	set state(2,$j) [expr $tempState(0,$j) ^ \
-			     $tempState(1,$j) ^ \
-			     [GFMult2 $tempState(2,$j)] ^ \
-			     [GFMult3 $tempState(3,$j)]]
-
-	set state(3,$j) [expr [GFMult3 $tempState(0,$j)] ^ \
-			     $tempState(1,$j) ^ \
-			     $tempState(2,$j) ^ \
-			     [GFMult2 $tempState(3,$j)]]
+        
+        set state(0,$j) [expr {[GFMult2 $tempState(0,$j)] ^ \
+                                   [GFMult3 $tempState(1,$j)] ^ \
+                                   $tempState(2,$j) ^ \
+                                   $tempState(3,$j)}]
+        
+        set state(1,$j) [expr {$tempState(0,$j) ^ \
+                                   [GFMult2 $tempState(1,$j)] ^ \
+                                   [GFMult3 $tempState(2,$j)] ^ \
+                                   $tempState(3,$j)}]
+        
+        set state(2,$j) [expr {$tempState(0,$j) ^ \
+                                   $tempState(1,$j) ^ \
+                                   [GFMult2 $tempState(2,$j)] ^ \
+                                   [GFMult3 $tempState(3,$j)]}]
+        
+        set state(3,$j) [expr {[GFMult3 $tempState(0,$j)] ^ \
+                                   $tempState(1,$j) ^ \
+                                   $tempState(2,$j) ^ \
+                                   [GFMult2 $tempState(3,$j)]}]
     }
-
 }
 
 #-------------------------------------------#
@@ -467,40 +429,34 @@ proc ::aes::MixColumns {} {
 #-------------------------------------------#
 
 proc ::aes::InvMixColumns {} {
-
     variable state
-
-    #copy state into a temp array
-    for {set i 0} {$i < 4} {incr i} {
-	for {set j 0} {$j < 4} {incr j} {
-	    set tempState($i,$j) $state($i,$j)
-	}
-    }
-
-    #calculate the new state (with matrix multiplication)
-    for {set j 0} {$j < 4} {incr j} {
-	
-	set state(0,$j) [expr [GFMult0e $tempState(0,$j)] ^ \
-			     [GFMult0b $tempState(1,$j)] ^ \
-			     [GFMult0d $tempState(2,$j)] ^ \
-			     [GFMult09 $tempState(3,$j)]]
-
-	set state(1,$j) [expr [GFMult09 $tempState(0,$j)] ^ \
-			     [GFMult0e $tempState(1,$j)] ^ \
-			     [GFMult0b $tempState(2,$j)] ^ \
-			     [GFMult0d $tempState(3,$j)]]
-
-	set state(2,$j) [expr [GFMult0d $tempState(0,$j)] ^ \
-			     [GFMult09 $tempState(1,$j)] ^ \
-			     [GFMult0e $tempState(2,$j)] ^ \
-			     [GFMult0b $tempState(3,$j)]]
-
-	set state(3,$j) [expr [GFMult0b $tempState(0,$j)] ^ \
-			     [GFMult0d $tempState(1,$j)] ^ \
-			     [GFMult09 $tempState(2,$j)] ^ \
-			     [GFMult0e $tempState(3,$j)]]
-    }
     
+    # copy state into a temp array
+    array set tempState [array get state]
+    
+    # calculate the new state (with matrix multiplication)
+    for {set j 0} {$j < 4} {incr j} {
+        
+        set state(0,$j) [expr {[GFMult0e $tempState(0,$j)] ^ \
+                                   [GFMult0b $tempState(1,$j)] ^ \
+                                   [GFMult0d $tempState(2,$j)] ^ \
+                                   [GFMult09 $tempState(3,$j)]}]
+        
+        set state(1,$j) [expr {[GFMult09 $tempState(0,$j)] ^ \
+                                   [GFMult0e $tempState(1,$j)] ^ \
+                                   [GFMult0b $tempState(2,$j)] ^ \
+                                   [GFMult0d $tempState(3,$j)]}]
+                         
+        set state(2,$j) [expr {[GFMult0d $tempState(0,$j)] ^ \
+                                   [GFMult09 $tempState(1,$j)] ^ \
+                                   [GFMult0e $tempState(2,$j)] ^ \
+                                   [GFMult0b $tempState(3,$j)]}]
+        
+        set state(3,$j) [expr {[GFMult0b $tempState(0,$j)] ^ \
+                                   [GFMult0d $tempState(1,$j)] ^ \
+                                   [GFMult09 $tempState(2,$j)] ^ \
+                                   [GFMult0e $tempState(3,$j)]}]
+    }
 } 
     
 
@@ -513,91 +469,97 @@ proc ::aes::InvMixColumns {} {
 #----------------------------------------#
 
 proc ::aes::start {mode key text} {
-	
-	variable keyArray
-	variable Nr
-	variable state
-	
-	init mode $key $text
-
-	KeyExpansion [array get keyArray];# needs to convert the array to a list for passing
-
-
-	switch -- $mode {
-
-   		e {
-
-			#
-			# encryption
-			#	
-
-	
-			AddRoundKey 0 ;# initial round 
-
-
-			for {set i 1} {$i < $Nr} {incr i} {
-    			SubBytes
-    			ShiftRows
-    			MixColumns
-    			AddRoundKey $i
-			}
-	
-			#final round
-	
-	
-			SubBytes
-			ShiftRows
-			AddRoundKey $Nr
-	
-			
-			# put final state into string and return it
-			for {set j 0} {$j < 4} {incr j} {
-	    		for {set i 0} {$i < 4} {incr i} {
-					lappend cipherlist  [format "%#04x" $state($i,$j)]
-    			}
-			}
-	
-			foreach value $cipherlist {
-    			append ciphertext [format "%02x" $value]
-			}
-			return $ciphertext
-		}
-
-    	d {
-
-			#
-			# decryption
-			#
-		
-			#final round first
-
-			AddRoundKey $Nr
-			InvShiftRows
-			InvSubBytes
-
-			# now backwards through the rounds
-			for {set i [expr $Nr - 1]} {$i > 0} {incr i -1} {
     
-	    		AddRoundKey $i
-	    		InvMixColumns
-	    		InvShiftRows
-	    		InvSubBytes
-
-			}
-
-			AddRoundKey 0 
-
-			# put final state into string and return it 
-			for {set j 0} {$j < 4} {incr j} {
-	    		for {set i 0} {$i < 4} {incr i} {
-					append plaintext  [format "%02x" $state($i,$j)]
-	    		}
-			}
-			return $plaintext
-	
-		}
-	}
+    variable keyArray
+    variable Nr
+    variable state
     
+    init mode $key $text
+
+    KeyExpansion [array get keyArray];# needs to convert the array to a list for passing
+
+
+    switch -- $mode {
+
+           e {
+
+            #
+            # encryption
+            #    
+
+    
+            AddRoundKey 0 ;# initial round 
+
+
+            for {set i 1} {$i < $Nr} {incr i} {
+                SubBytes
+                ShiftRows
+                MixColumns
+                AddRoundKey $i
+            }
+    
+            #final round
+    
+    
+            SubBytes
+            ShiftRows
+            AddRoundKey $Nr
+    
+            
+            # put final state into string and return it
+            for {set j 0} {$j < 4} {incr j} {
+                for {set i 0} {$i < 4} {incr i} {
+                    lappend cipherlist  [format "%#04x" $state($i,$j)]
+                }
+            }
+    
+            foreach value $cipherlist {
+                append ciphertext [format "%02x" $value]
+            }
+            return $ciphertext
+        }
+
+        d {
+
+            #
+            # decryption
+            #
+        
+            #final round first
+
+            AddRoundKey $Nr
+            InvShiftRows
+            InvSubBytes
+
+            # now backwards through the rounds
+            for {set i [expr $Nr - 1]} {$i > 0} {incr i -1} {
+    
+                AddRoundKey $i
+                InvMixColumns
+                InvShiftRows
+                InvSubBytes
+
+            }
+
+            AddRoundKey 0 
+
+            # put final state into string and return it 
+            for {set j 0} {$j < 4} {incr j} {
+                for {set i 0} {$i < 4} {incr i} {
+                    append plaintext  [format "%02x" $state($i,$j)]
+                }
+            }
+            return $plaintext
+        }
+    }
 }
 
+# -------------------------------------------------------------------------
 
+package provide aes $::aes::version
+
+# -------------------------------------------------------------------------
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:

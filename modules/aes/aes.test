@@ -1,5 +1,4 @@
-# tests for the tcl-implemention of aes
-# by Thorsten Schloermann
+# aes.test - Copyright (c) 2005 Thorsten Schloermann
 #
 # the test-values are taken from:
 #     http://csrc.nist.gov/CryptoToolkit/aes/rijndael/rijndael-vals.zip
@@ -10,15 +9,37 @@
 #
 # Monte Carlo Tests with 4 Million cycles through the algorithm will need too much time
 #
+# $Id: aes.test,v 1.2 2005/08/28 23:38:09 patthoyts Exp $
 
-
-
+# -------------------------------------------------------------------------
+# Initialize the test package
+#
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
 }
 
-package require aes
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget aes
+catch {namespace delete ::aes}
+if {[catch {source [file join [file dirname [info script]] aes.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Report version in test
+#
+puts "- aes [package present aes] (pure Tcl)"
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
 
 # data for variable key KAT
 
@@ -221,4 +242,28 @@ foreach i [lsort [array names vtext]] {
     } $vt_out256($i)
 }
 
+foreach i [lsort [array names vt_out256]] {
+    test aes-7.$i {aes decryption vt 256 bit} {
+        string toupper [::aes::start d256 $vt_key256 $vt_out256($i)]
+    } $vtext($i)
+}
+
+proc C {} {
+    variable vt_key256
+    variable vtext
+    set crypt [::aes::start e256 $vt_key256 $vtext(1)]
+}
+proc D {} {
+    variable vt_key256
+    variable vt_out256
+    set plain [::aes::start d256 $vt_key256 $vt_out256(1)]
+}
+puts "- encrypt 256 timing [time {C} 100]"
+puts "- decrypt 256 timing [time {D} 100]"
+
 ::tcltest::cleanupTests
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
