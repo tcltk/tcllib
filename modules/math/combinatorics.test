@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.8 2005/08/25 21:16:13 kennykb Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.9 2005/08/29 20:28:00 kennykb Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -155,7 +155,7 @@ test combinatorics-2.7 { math::factorial, exponent overflow } {
     if {![catch { 
 	math::factorial 171 
     } msg]} {
-	if { $msg == Infinity } {
+	if { $msg eq {Infinity} || $msg eq {Inf} } {
 	    set result ok
 	} else {
 	    set result "result of factorial was [list $msg],\
@@ -241,7 +241,7 @@ test combinatorics-3.10 { math::choose big args } {
     if {![catch { 
 	math::choose 1500 750
     } msg]} {
-	if { $msg == Infinity } {
+	if { $msg eq {Infinity} || $msg eq {Inf} } {
 	    set result ok
 	} else {
 	    set result "result of choose was [list $msg],\
