@@ -1,3 +1,10 @@
+2005-08-29  Kevin Kenny  <kennykb@acm.org>
+
+	* combinatorics.test (combinatorics-2.7,3.10): Revised a few test cases
+	* math.test (math-7.4):			       to handle Infinity
+	in the interim (pre-TIP#237) 8.5 configuration as well as
+	kennykb-numerics-branch.
+	
 2005-08-29  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * Fixed bug #1272910: due to the different rounding

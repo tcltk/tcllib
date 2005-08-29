@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.27 2005/08/16 06:06:26 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.28 2005/08/29 20:27:59 kennykb Exp $
 
 catch {wm withdraw .}
 
@@ -176,6 +176,10 @@ foreach module $modules {
 	    append msg "\"[lindex $argList $missingIndex]\" to "
 	    append msg "\"$functionName\""
         } else {
+	    if {[package vcompare [package provide Tcl] 8.5] >= 0 
+		&& [string match args [lindex $argList end]]} {
+		set argList [lreplace $argList end end ...]
+	    }
 	    if {$argList != {}} {set argList " $argList"}
 	    set msg "wrong # args: should be \"$functionName$argList\""
         }
