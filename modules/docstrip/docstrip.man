@@ -365,6 +365,7 @@ The package defines two commands.
   options have their default values.
 [list_end]
 
+
 [section {Document structure}]
 
 The file format (as described above) determines whether a master

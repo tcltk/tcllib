@@ -12,6 +12,7 @@ utility procedures that may be useful for developers who make use of
 the [package docstrip] package in some projects. It is separate from
 the main package to avoid overhead for end-users.
 
+
 [section Commands]
 
 [list_begin definitions]
