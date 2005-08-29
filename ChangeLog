@@ -1,3 +1,7 @@
+2005-08-29  Kevin Kenny  <kennykb@acm.org>
+
+	* all.tcl (tcltest::wrongNumArgs): Revised to handle 8.5 error message.
+	
 2005-08-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/aes:            NEW MODULE: aes

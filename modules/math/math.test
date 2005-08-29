@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.12 2005/08/25 21:16:13 kennykb Exp $
+# RCS: @(#) $Id: math.test,v 1.13 2005/08/29 20:28:00 kennykb Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -154,7 +154,7 @@ test math-7.4 {math::cov} {
     if {![catch { 
 	math::cov 0 2 1 0
     } msg]} {
-	if { $msg == Infinity } {
+	if { $msg eq {Infinity} || $msg eq {Inf} } {
 	    set result ok
 	} else {
 	    set result "result of cov was [list $msg],\
