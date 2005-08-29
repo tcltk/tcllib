@@ -1,3 +1,10 @@
+2005-08-29  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * Fixed bug #1272910: due to the different rounding
+          of 0.5 in Tcl 8.5, the Quantiles-1.0 test failed.
+          Using different levels steers the test away from
+          this odd edge case.
+
 2005-08-29  Stephane Arnold <sarnold75@users.sourceforge.net>
 	* bigfloat.tcl : added comments to make code easier to understand
 
@@ -9,7 +16,6 @@
 	* Bug #1272836 : the math round() function has changed 
 	  in Tcl 8.5a4 (intentionally) - now the round tests 
 	  do no more rely upon this function.
-
 
 2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
 
