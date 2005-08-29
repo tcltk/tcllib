@@ -1,3 +1,6 @@
+2005-08-29  Stephane Arnold <sarnold75@users.sourceforge.net>
+	* bigfloat.tcl : added comments to make code easier to understand
+
 2005-08-28  Stephane Arnold <sarnold75@users.sourceforge.net>
 
 	* bigfloat.tcl : many optimizations around the fromstr
