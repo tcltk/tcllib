@@ -60,11 +60,9 @@ namespace eval ::math::bigfloat {
     # Pi with arb. precision
     variable Pi
     variable _pi0
-    # ten
-    variable ten
-    set ten [::math::bignum::fromstr 10]
-    variable five
-    set five [::math::bignum::fromstr 5]
+    # some constants (bignums) : {0 1 2 3 4 5 10}
+    variable zero
+    set zero [::math::bignum::fromstr 0]
     variable one
     set one [::math::bignum::fromstr 1]
     variable two
@@ -73,8 +71,10 @@ namespace eval ::math::bigfloat {
     set three [::math::bignum::fromstr 3]
     variable four
     set four [::math::bignum::fromstr 4]
-    variable zero
-    set zero [::math::bignum::fromstr 0]
+    variable five
+    set five [::math::bignum::fromstr 5]
+    variable ten
+    set ten [::math::bignum::fromstr 10]
 }
 
 
@@ -82,20 +82,34 @@ namespace eval ::math::bigfloat {
 
 ################################################################################
 # procedures that handle floating-point numbers
-# they are sorted by name (after eventually removing the underscores)
+# these procedures are sorted by name (after eventually removing the underscores)
+# 
 # BigFloats are internally represented as a list :
 # {"F" Mantissa Exponent Delta} where "F" is a character which determins
 # the datatype, Mantissa and Delta are two Big integers and Exponent a raw integer.
 #
-# The BigFloat value equals to (Mantissa +/- Delta)*10^Exponent
-# When calling fromstr, the Delta parameter is always set to 1.
-# When you perform some computations, the Delta parameter (uncertainty) may increase.
-# It is kept at 2 decimal digits at most with the normalize procedure.
+# The BigFloat value equals to (Mantissa +/- Delta)*2^Exponent
+# So the internal representation is binary, but trying to get as close as possible to
+# the decimal one.
+# When calling fromstr, the Delta parameter is set to the value of the last decimal digit.
+# Example : 1.50 belongs to [1.49,1.51], but internally Delta is probably not equal to 1,
+# because of the binary representation.
+# 
+# So Mantissa and Delta are not limited in size, but in practice Delta is kept under
+# 2^32 by the 'normalize' procedure, to avoid a never-ended growth of memory used.
+# Indeed, when you perform some computations, the Delta parameter (which represent
+# the uncertainty on the value of the Mantissa) may increase.
+# Exponent, as a classic integer, is limited to the interval [-2147483648,2147483647]
+
 # Retrieving the parameters of a BigFloat is often done with that command :
 # foreach {dummy int exp delta} $bigfloat {break}
 # (dummy is not used, it is just used to get the "F" marker).
 # The isInt, isFloat, checkNumber and checkFloat procedures are used
 # to check data types
+#
+# Taylor development are often used to compute the analysis functions (like exp(),log()...)
+# To learn how it is done in practice, take a look at ::math::bigfloat::_asin
+# 
 ################################################################################
 
 
@@ -108,9 +122,8 @@ proc ::math::bigfloat::abs {number} {
         # set sign to positive for a BigInt
         return [::math::bignum::abs $number]
     }
-    # set sign to positive for a BigFloat
-    set mantissa [::math::bignum::abs [lindex $number 1]]
-    lset number 1 $mantissa
+    # set sign to positive for a BigFloat into the Mantissa (index 1)
+    lset number 1 [::math::bignum::abs [lindex $number 1]]
     return $number
 }
 
@@ -125,8 +138,10 @@ proc ::math::bigfloat::acos {x} {
     set precision [expr {($exp<0)?(-$exp):1}]
     # acos(0.0)=Pi/2
     # 26/07/2005 : changed precision from decimal to binary
+    # with the second parameter of pi command
     set piOverTwo [floatRShift [pi $precision 1]]
     if {[iszero $x]} {
+        # $x is too close to zero -> acos(0)=PI/2
         return $piOverTwo
     }
     # acos(-x)= Pi/2 + asin(x)
@@ -145,7 +160,7 @@ proc ::math::bigfloat::acos {x} {
         set fzero [list F $zero -$precision $one]
         set fone [list F [::math::bignum::lshift 1 $precision] \
                 -$precision $one]
-        # acos(1.0)=0.0
+        # when $x is close to 1 (acos(1.0)=0.0)
         if {[equal $fone $x]} {
             return $fzero
         }
@@ -187,9 +202,12 @@ proc ::math::bigfloat::add {a b} {
     # retrieving parameters from A and B
     foreach {dummy integerA expA deltaA} $a {break}
     foreach {dummy integerB expB deltaB} $b {break}
-    # when a number has more precision than the other (for example,
-    # when A=0.001 and B=2.01, we need to put the other at the decimal level
+    # when we add two numbers which have different digit numbers (after the dot)
+    # for example : 1.0 and 0.00001
+    # We promote the one with the less number of digits (1.0) to the same level as
+    # the other : so 1.00000. 
     # that is why we shift left the number which has the greater exponent
+    # But we do not forget the Delta parameter, which is lshift'ed too.
     if {$expA>$expB} {
         set diff [expr {$expA-$expB}]
         set integerA [::math::bignum::lshift $integerA $diff]
@@ -287,6 +305,7 @@ proc ::math::bigfloat::asin {x} {
         if {[compare $x $fone]>0} {
             error "asin on a number greater than 1"
         }
+        # asin(x)=Pi/2-asin(sqrt(1-x^2))
         set x [sqrt [sub $fone [mul $x $x]]]
         return [sub $piOverTwo [_asin $x]]
     }
@@ -299,6 +318,11 @@ proc ::math::bigfloat::asin {x} {
 proc ::math::bigfloat::_asin {x} {
     # Taylor development
     # asin(x)=x + 1/2 x^3/3 + 3/2.4 x^5/5 + 3.5/2.4.6 x^7/7 + ...
+    # into this iterative form :
+    # asin(x)=x * (1 + 1/2*x^2*(1/3 + 3/4*x^2*(...*(1/(2n+1) + (2n-1)/2n*x^2)...)))
+    # we show how is really computed the development : 
+    # we don't need to set a var with x^n or a product of integers
+    # all we need is : x^2, 2n-1, 2n, 2n+1 and a few variables
     foreach {dummy mantissa exp delta} $x {break}
     set precision [expr {-$exp}]
     if {$precision+1<[::math::bignum::bits $mantissa]} {
@@ -311,7 +335,7 @@ proc ::math::bigfloat::_asin {x} {
     # will contain the uncertainty of the result
     # square is the square of the mantissa
     set square [intMulShift $mantissa $mantissa $precision]
-    # dt is the uncertainty
+    # dt is the uncertainty of Mantissa
     set dt [intMulShift $mantissa $delta [expr {$precision-1}]]
     # these three are required to compute the fractions implicated into
     # the development (of Taylor, see former)
@@ -322,21 +346,36 @@ proc ::math::bigfloat::_asin {x} {
     variable three
     set i $three
     set denom $two
+    # the nth factor equals : $num/$denom* $mantissa/$i
     set delta [::math::bignum::add [::math::bignum::mul $delta $square] \
             [::math::bignum::mul $dt $mantissa]]
-            set delta [::math::bignum::rshift [::math::bignum::div \
-                    [::math::bignum::mul $delta $num] $denom] $precision]
+    set delta [::math::bignum::rshift [::math::bignum::div \
+            [::math::bignum::mul $delta $num] $denom] $precision]
+    # we do not mul. the Mantissa by $num right now because it is 1 !
+    # but we have Mantissa=$x
+    # and we want Mantissa*$x^2 * $num / $denom / $i
     set mantissa [intMulShift $mantissa $square $precision]
     set mantissa [::math::bignum::div $mantissa $denom]
+    # do not forget the modified Taylor development :
+    # asin(x)=x * (1 + 1/2*x^2*(1/3 + 3/4*x^2*(...*(1/(2n+1) + (2n-1)/2n*x^2)...)))
+    # all we need is : x^2, 2n-1, 2n, 2n+1 and a few variables
+    # $num=2n-1 $denom=2n $square=x^2 and $i=2n+1
     set mantissa_temp [::math::bignum::div $mantissa $i]
     set delta_temp [::math::bignum::div $delta $i]
+    # when the Mantissa increment is smaller than the Delta increment,
+    # we would not get much precision by continuing the development
     while {[::math::bignum::cmp $mantissa_temp $delta_temp]>0} {
+        # Mantissa = Mantissa * $num/$denom * $square
+        # Add Mantissa/$i, which is stored in $mantissa_temp, to the result
         set result [::math::bignum::add $result $mantissa_temp]
         set delta_final [::math::bignum::add $delta_final $delta_temp]
         # here we have $two instead of [fromstr 2] (optimization)
+        # num=num+2,i=i+2,denom=denom+2
+        # because num=2n-1 denom=2n and i=2n+1
         set num [::math::bignum::add $num $two]
         set i [::math::bignum::add $i $two]
         set denom [::math::bignum::add $denom $two]
+        # computes precisly the future Delta parameter
         set delta [::math::bignum::add [::math::bignum::mul $delta $square] \
                 [::math::bignum::mul $dt $mantissa]]
                 set delta [::math::bignum::rshift [::math::bignum::div \
@@ -389,8 +428,8 @@ proc ::math::bigfloat::atan {x} {
         }
         # atan(x)=Pi/2-atan(1/x)
         # 1/x < 1/2.414 so the argument is lower than 0.414
-        set pi_sur_deux [div [pi $precision 1] $two]
-        return [sub $pi_sur_deux [atan [div $float1 $x]]]
+        set pi_over_two [div [pi $precision 1] $two]
+        return [sub $pi_over_two [atan [div $float1 $x]]]
     }
     if {[compare $x [fromstr 0.4142]]>0} {
         # atan(x)=Pi/4 + atan((x-1)/(x+1))
@@ -424,6 +463,7 @@ proc ::math::bigfloat::atan {x} {
     # end of adding precision increment
     # now computing Taylor development :
     # atan(x)=x - x^3/3 + x^5/5 - x^7/7 ... + (-1)^n*x^(2n+1)/(2n+1)
+    # atan(x)=x * (1 - x^2 * (1/3 - x^2 * (1/5 - x^2 * (...* 1/(2n+1)...))))
     set result $mantissa
     set delta_fin $delta
     # we store the square of the integer (mantissa)
