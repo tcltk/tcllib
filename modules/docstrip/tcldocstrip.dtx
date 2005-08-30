@@ -1994,9 +1994,7 @@ proc docstrip::util::thefile {fname args} {
 %   manpage entry for it.
 %   \begin{tcl}
 %<*utilman>
-[call [cmd docstrip::util::thefile] [arg filename] [
-  opt "[arg option] [arg value] ..."
-]
+[call [cmd docstrip::util::thefile] [arg filename] [opt "[arg option] [arg value] ..."]]
   The [cmd thefile] command opens the file [arg filename], reads it to 
   end, closes it, and returns the contents. The option-value pairs are 
   passed on to [cmd fconfigure] to configure the open file channel 
