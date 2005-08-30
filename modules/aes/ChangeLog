@@ -1,3 +1,8 @@
+2005-08-30  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: **New file**. Added the missing package index
+	  without which the package cannot be used.
+
 2005-08-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* aes.tcl:   Added a number of performance improvements
@@ -7,4 +12,4 @@
 
 	* aes.tcl:   Initial import of a Tcl implementation of
 	* aes.test:  the Advanced Encryption Standard contributed
-	* aes.man:   by Thorsten Schloermann
+	* aes.man:   by Thorsten Schloermann <fattobi@users.sourceforge.net>
