@@ -1,9 +1,14 @@
+2005-08-30  Andreas Kupries <andreask@activestate.com>
+
+	* bignum.tcl: Fixed code exporting the bignum commands, it was
+	  done in the wrong namespace. This fixes [Tcllib SF Bug 1276680].
+
 2005-08-29  Kevin Kenny  <kennykb@acm.org>
 
 	* combinatorics.test (combinatorics-2.7,3.10): Revised a few test cases
 	* math.test (math-7.4):			       to handle Infinity
-	in the interim (pre-TIP#237) 8.5 configuration as well as
-	kennykb-numerics-branch.
+	  in the interim (pre-TIP#237) 8.5 configuration as well as
+	  kennykb-numerics-branch.
 	
 2005-08-29  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
@@ -13,6 +18,7 @@
           this odd edge case.
 
 2005-08-29  Stephane Arnold <sarnold75@users.sourceforge.net>
+
 	* bigfloat.tcl : added comments to make code easier to understand
 
 2005-08-28  Stephane Arnold <sarnold75@users.sourceforge.net>
