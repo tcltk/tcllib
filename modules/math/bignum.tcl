@@ -855,7 +855,7 @@ proc ::math::bignum::_treat {args} {
     return
 }
 
-namespace eval bignum {
+namespace eval ::math::bignum {
     namespace export *
 }
 
