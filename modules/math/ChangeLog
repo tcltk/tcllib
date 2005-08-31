@@ -1,3 +1,9 @@
+2005-08-31  Stephane Arnold <sarnold75@users.sourceforge.net>
+	* bigfloat.tcl : added many comments and fixed some minor bugs
+	  (possibly following to inexact last digits)
+	* bigfloat.test : fixed a bug that causes the version number
+	  of some tests to be replaced by 1.0 or by the string "version"
+
 2005-08-30  Andreas Kupries <andreask@activestate.com>
 
 	* bignum.tcl: Fixed code exporting the bignum commands, it was
