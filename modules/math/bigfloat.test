@@ -58,7 +58,7 @@ namespace import ::math::bigfloat::*
 
 package require tcltest
 proc assert {name version code result} {
-    #puts -nonewline .
+    #puts -nonewline $version,
     tcltest::test bigfloat-$name-$version "Some integer computations related to command $name" {uplevel 1 $code} $result
     return
 }
@@ -76,14 +76,14 @@ proc Zero {x} {
 }
 
 proc fassert {name version code result} {
-    #puts -nonewline .
+    #puts -nonewline $version,
     set tested [uplevel 1 $code]
     if {[Zero $tested]} {
         tcltest::test bigfloat-$name-$version "Some floating-point computations related to command $name" {return [Zero $result]} 1
         return
     }
     set resultat [Zero [expr {($tested-$result)/((abs($tested)>1)?($tested):1.0)}]]
-    tcltest::test bigfloat-$name-1.0 "eval : '$code' compare '$tested' and '$result'" {return $resultat} 1
+    tcltest::test bigfloat-$name-$version "Some floating-point computations related to command $name" {return $resultat} 1
     return
 }
 # preprocessing is done
@@ -428,7 +428,7 @@ proc testSuite {} {
     # divide a BigFloat by an integer
     ################################################################################
     proc divTest {version x y} {
-        fassert div version {todouble [div [fromstr $x] [fromstr $y]]} \
+        fassert div $version {todouble [div [fromstr $x] [fromstr $y]]} \
             [expr {double(round(1000*$x/$y))/1000.0}]
     }
     set subversion 0
