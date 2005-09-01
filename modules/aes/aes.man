@@ -70,14 +70,16 @@ with ECB mode but is important for CBC mode.
 
 [call [cmd "::aes::Encrypt"] [arg "Key"] [arg "data"]]
 
-Use a prepared key acquired by caling [cmd Init] to encrypt the
+Use a prepared key acquired by calling [cmd Init] to encrypt the
 provided data. The data argument should be a binary array that is a
 multiple of the AES block size of 16 bytes. The result is a binary
 array the same size as the input of encrypted data.
 
 [call [cmd "::aes::Decrypt"] [arg "Key"] [arg "data"]]
 
-Decipher data using the key.
+Decipher data using the key. Note that the same key may be used to
+encrypt and decrypt data provided that the initialization vector is
+reset appropriately for CBC mode.
 
 [call [cmd "::aes::Reset"] [arg "Key"] [arg "iv"]]
 
