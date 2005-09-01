@@ -1,50 +1,128 @@
-[manpage_begin aes n 0.3]
+[manpage_begin aes n 1.0.0]
 [copyright {2005, Thorsten Schloermann}]
 [moddesc {Advanced Encryption Standard (AES)}]
-[titledesc {Perform AES encryption of (hexadecimal) data}]
+[titledesc {Implementation of the AES block cipher}]
 [require Tcl 8.2]
-[require aes [opt 0.3]]
+[require aes [opt 1.0.0]]
 [description]
 [para]
 
-This is a Tcl implementation of the Advanced Encryption Standard (AES).
+This is an implementation in Tcl of the Advanced Encryption Standard
+(AES) as published by the U.S. National Institute of Standards and
+Technology [lb]1[rb]. AES is a 128-bit block cipher with a variable
+key size of 128, 192 or 256 bits. This implementation supports ECB and
+CBC modes.
 
-[para]
-
-
-[section COMMANDS]
-
-[list_begin definitions]
-[call [cmd ::aes::start] [arg mode] [arg key] [arg text]]
-
-[list_end]
-
-[subsection ARGUMENTS]
+[section {COMMANDS}]
 
 [list_begin definitions]
 
-[lst_item] [emph mode]: begins with 'e' (for encryption) or 'd' (for decryption), followed by
-					the keylength of 128, 192 or 256 bit. 
-[lst_item] [emph key]: the hexadecimal key of the desired keylength (see mode)
-[lst_item] [emph text]: the textblock of 128 bit length in hexadecimal representation
+[call [cmd "::aes::aes"] \
+        [opt [arg "-mode [lb]ecb|cbc[rb]"]] \
+        [opt [arg "-dir [lb]encrypt|decrypt[rb]"]] \
+        [arg "-key keydata"] \
+        [opt [arg "-iv vector"]] \
+        [opt [arg "-hex"]] \
+        [opt [arg "-out channel"]] \
+        [opt [arg "-chunksize size"]] \
+        [lb] [arg "-in channel"] | \
+        [arg "data"] [rb]]
+
+Perform the [package aes] algorithm on either the data provided
+by the argument or on the data read from the [arg "-in"] channel. If
+an [arg "-out"] channel is given then the result will be written to
+this channel.
+
+[nl]
+
+The [arg -key] option must be given. This parameter takes a binary
+string of either 16, 24 or 32 bytes in length and is used to generate the 
+key schedule.
+
+[nl]
+
+The [arg -mode] and [arg -dir] options are optional and default to cbc
+mode and encrypt respectively. The initialization vector [arg -iv]
+takes a 16 byte binary argument. This defaults to all zeros.
+
+[nl]
+
+AES is a 128-bit block cipher. This means that the data must be
+provided in units that are a multiple of 16 bytes.
+
+[list_end]
+
+[section "PROGRAMMING INTERFACE"]
+
+Internal state is maintained in an opaque structure that is returned
+from the [cmd Init] function. In ECB mode the state is not affected by
+the input but for CBC mode some input dependent state is maintained
+and may be reset by calling the [cmd Reset] function with a new
+initialization vector value.
+
+[list_begin definitions]
+
+[call [cmd "::aes::Init"] [arg "mode"] [arg "keydata"] [arg "iv"]]
+
+Construct a new AES key schedule using the specified key data and the
+given initialization vector. The initialization vector is not used
+with ECB mode but is important for CBC mode.
+
+[call [cmd "::aes::Encrypt"] [arg "Key"] [arg "data"]]
+
+Use a prepared key acquired by caling [cmd Init] to encrypt the
+provided data. The data argument should be a binary array that is a
+multiple of the AES block size of 16 bytes. The result is a binary
+array the same size as the input of encrypted data.
+
+[call [cmd "::aes::Decrypt"] [arg "Key"] [arg "data"]]
+
+Decipher data using the key.
+
+[call [cmd "::aes::Reset"] [arg "Key"] [arg "iv"]]
+
+Reset the initialization vector. This permits the programmer to re-use
+a key and avoid the cost of re-generating the key schedule where the
+same key data is being used multiple times.
+
+[call [cmd "::aes::Final"] [arg "Key"]]
+
+This should be called to clean up resources associated with [arg Key].
+Once this function has been called the key may not be used again.
 
 [list_end]
 
 
-[section EXAMPLES]
-[para]
+[section "EXAMPLES"]
 
 [example {
-% ::aes::start e128 $key $plaintext
-% ::aes::start d256 $key $ciphertext
-% ::aes::start e128 00000000000000000000000000000000 00000000000000000000000000000000
+% set nil_block [string repeat \\0 16]
+% aes::aes -hex -mode cbc -dir encrypt -key $nil_block $nil_block
+66e94bd4ef8a2c3b884cfa59ca342b2e
 }]
 
+[example {
+ set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
+ append ciphertext [aes::Encrypt $Key $plaintext]
+ append ciphertext [aes::Encrypt $Key $additional_plaintext]
+ aes::Final $Key
+}]
 
+[section "REFERENCES"]
 
-[see_also des(n) md5(n) sha1(n) ]
+[list_begin enum]
+
+[enum]
+    "Advanced Encryption Standard",
+    Federal Information Processing Standards Publication 197, 2001
+
+[list_end]
+
+[see_also des(n) md5(n) sha1(n) blowfish(n)]
+
 [section AUTHORS]
 Thorsten Schloermann
+Pat Thoyts
 
-[keywords DES encryption {data integrity} security]
+[keywords aes {block cipher} security encryption {data integrity}]
 [manpage_end]
