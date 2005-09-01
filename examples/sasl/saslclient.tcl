@@ -4,13 +4,27 @@
 # the STARTTLS feature if available to switch to a secure link before 
 # negotiating authentication using SASL.
 #
-# $Id: saslclient.tcl,v 1.2 2005/08/16 06:06:27 andreas_kupries Exp $
+# $Id: saslclient.tcl,v 1.3 2005/09/01 12:52:34 patthoyts Exp $
 
 source [file join [file dirname [info script]] sasl.tcl]
 
 package require SASL
 package require base64
 catch {package require SASL::NTLM}
+
+variable user
+array set user {username "" password ""}
+if {[info exists env(http_proxy_user)]} {
+    set user(username) $env(http_proxy_user)
+} else {
+    if {[info exists env(USERNAME)]} {
+        set user(username) $env(USERNAME)
+    }
+}
+if {[info exists env(http_proxy_pass)]} {
+    set user(password) $env(http_proxy_pass)
+}
+
 
 # SASLCallback --
 #
@@ -28,26 +42,17 @@ catch {package require SASL::NTLM}
 #
 proc SASLCallback {clientblob chan context command args} {
     global env
+    variable user
     upvar #0 $context ctx
     switch -exact -- $command {
         login { 
             return "";# means use the authentication id
         }
         username {
-            if {[info exists env(USERDOMAIN)] \
-                    && $env(USERDOMAIN) eq "RENISHAW" \
-                    && $ctx(mech) ne "NTLM" } {
-                return "$env(USERDOMAIN)\\$env(USERNAME)"
-            } else {
-                return "$env(USERNAME)"
-            }
+            return $user(username)
         }
         password { 
-            if {[info exists env(http_proxy_pass)]} {
-                return "$env(http_proxy_pass)"
-            } else {
-                return "$env(PASSWORD)"
-            }
+            return $user(password)
         }
         realm {
             if {$ctx(mech) eq "NTLM"} {
@@ -130,11 +135,15 @@ proc Callback {chan eof line} {
             if {![catch {set dec [base64::decode $challenge]}]} {
                 set challenge $dec
             }
+
+            set mech [set [subst $ctx](mech)]
             #puts "> $challenge"
+            if {$mech eq "NTLM"} {puts ">CHA [SASL::NTLM::Debug $challenge]"}
             set code [catch {SASL::step $ctx $challenge} err]
             if {! $code} {
                 set rsp [SASL::response $ctx]
-                #puts "< $rsp"
+                # puts "< $rsp"
+                if {$mech eq "NTLM"} {puts "<RSP [SASL::NTLM::Debug $rsp]"}
                 Write $chan [join [base64::encode $rsp] {}]
             } else {
                 puts stderr "sasl error: $err"
@@ -181,9 +190,14 @@ proc Read {chan callback} {
 #
 #	Open an SMTP session to test out the SASL implementation.
 #
-proc connect { server port } {
+proc connect { server port {username {}} {passwd {}}} {
     variable mechs ; set mechs {}
     variable tls  ; set tls 0
+
+    variable user
+    if {$username ne {}} {set user(username) $username}
+    if {$passwd ne {}} {set user(password) $passwd}
+
     puts "Connect to $server:$port"
     set sock [socket $server $port]
     fconfigure $sock -buffering line -blocking 1 -translation {auto crlf}
