@@ -1,28 +1,32 @@
-# aes.tcl - Copyright (c) 2005 Thorsten Schloermann
+# aes.tcl - 
+#
+# Copyright (c) 2005 Thorsten Schloermann
+# Copyright (c) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
-# Briefly, AES is a block cipher with a block size of 128 bits and a variable
+# AES is a block cipher with a block size of 128 bits and a variable
 # key size of 128, 192 or 256 bits.
 # The algorithm works on each block as a 4x4 state array. There are 4 steps
 # in each round:
-#   SubBytes   a non-linear substitution step using a predefined S-box
-#   ShiftRows  cyclic transposition of rows in the state matrix
-#   MixColumns transformation upon columns in the state matrix
-#   AddRoundKey apply key data
+#   SubBytes    a non-linear substitution step using a predefined S-box
+#   ShiftRows   cyclic transposition of rows in the state matrix
+#   MixColumns  transformation upon columns in the state matrix
+#   AddRoundKey application of round specific sub-key
 #
 # -------------------------------------------------------------------------
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
 
 package require Tcl 8.2
 
 namespace eval ::aes {
     variable version 1.0.0
-    variable rcsid {$Id: aes.tcl,v 1.3 2005/09/01 09:27:29 patthoyts Exp $}
+    variable rcsid {$Id: aes.tcl,v 1.4 2005/09/01 12:36:05 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
+
+    namespace export {aes}
 
     # constants
 
@@ -66,10 +70,16 @@ namespace eval ::aes {
     }
 }
 
-# 3.4: State - initialise our AES state and calculate the key schedule
-#   Nk: columns of the key-array
-#   Nr: number of rounds (depends on key-length)
-#   Nb: columns of the text-block, is always 4 in AES
+# aes::Init --
+#
+#	Initialise our AES state and calculate the key schedule. An initialization
+#	vector is maintained in the state for modes that require one. The key must
+#	be binary data of the correct size and the IV must be 16 bytes.
+#
+#	Nk: columns of the key-array
+#	Nr: number of rounds (depends on key-length)
+#	Nb: columns of the text-block, is always 4 in AES
+#
 proc ::aes::Init {mode key iv} {
     switch -exact -- $mode {
         ecb - cbc { }
@@ -101,18 +111,28 @@ proc ::aes::Init {mode key iv} {
     return $Key
 }
 
-# Reset the key schedule with the given initialization vector
+# aes::Reset --
+#
+#	Reset the initialization vector for the specified key. This permits the
+#	key to be reused for encryption or decryption without the expense of
+#	re-calculating the key schedule.
+#
 proc ::aes::Reset {Key iv} {
     upvar #0 $Key state
     set state(I) $iv
     return
 }
     
-# Clean up the state array
+# aes::Final --
+#
+#	Clean up the key state
+#
 proc ::aes::Final {Key} {
-    variable $Key
+    # FRINK: nocheck
     unset $Key
 }
+
+# -------------------------------------------------------------------------
 
 # 5.1 Cipher:  Encipher a single block of 128 bits.
 proc ::aes::EncryptBlock {Key block} {
@@ -377,6 +397,11 @@ proc ::aes::GFMult0e {number} {
 
 # -------------------------------------------------------------------------
 
+# aes::Encrypt --
+#
+#	Encrypt a blocks of plain text and returns blocks of cipher text.
+#	The input data must be a multiple of the block size (16).
+#
 proc ::aes::Encrypt {Key data} {
     set len [string length $data]
     if {($len % 16) != 0} {
@@ -391,6 +416,11 @@ proc ::aes::Encrypt {Key data} {
     return $result
 }
 
+# aes::DecryptBlock --
+#
+#	Decrypt a blocks of cipher text and returns blocks of plain text.
+#	The input data must be a multiple of the block size (16).
+#
 proc ::aes::Decrypt {Key data} {
     set len [string length $data]
     if {($len % 16) != 0} {
@@ -417,7 +447,7 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     }
 
     set data [read $in $chunksize]
-    # pad message?
+    # FIX ME: we should ony pad after eof
     set data [Pad $data 16]
     
     if {$out == {}} {
@@ -461,10 +491,9 @@ proc ::aes::Pop {varname {nth 0}} {
     return $r
 }
 
-if {[package provide Trf] != {}} {
-    proc ::aes::Hex {data} { return [string tolower [::hex -mode encode -- $data]] }
-} else {
-    proc ::aes::Hex {data} { binary scan $data H* r;  return $r }
+proc ::aes::Hex {data} {
+    binary scan $data H* r
+    return $r 
 }
 
 proc ::aes::aes {args} {
@@ -504,8 +533,7 @@ proc ::aes::aes {args} {
                 should be \"aes ?options...? -key keydata plaintext\""
         }
 
-        set data [lindex $args 0]
-        
+        set data [Pad [lindex $args 0] 16]
         set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
         if {[string equal $opts(-dir) "encrypt"]} {
             set r [Encrypt $Key $data]
