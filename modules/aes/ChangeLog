@@ -1,3 +1,11 @@
+2005-09-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* aes.tcl:      Re-written to support CBC mode AES and to allow for
+	* aes.test:     the tcllib-style programming API (as per blowfish, RC4 and
+	* aes.man:      the hash implementations). Converted from an array based
+	* pkgIndex.tcl: implementation to a list based implementation and
+	                gained a 4x speedup. Set to 1.0.0 for now the API is fixed.
+	
 2005-08-30  Andreas Kupries <andreask@activestate.com>
 
 	* pkgIndex.tcl: **New file**. Added the missing package index
