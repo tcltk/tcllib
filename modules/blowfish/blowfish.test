@@ -1,6 +1,6 @@
 # blowfish.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: blowfish.test,v 1.3 2004/12/21 12:38:11 patthoyts Exp $
+# $Id: blowfish.test,v 1.4 2005/09/04 17:09:46 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -20,20 +20,40 @@ if {[catch {source [file join [file dirname [info script]] blowfish.tcl]} msg]} 
 }
 
 # -------------------------------------------------------------------------
-# Setup any constraints
+# Handle multiple implementation testing
 #
+array set preserve [array get ::blowfish::accel]
+
+proc implementations {} {
+    variable ::blowfish::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::blowfish::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::blowfish::accel
+    array set accel [array get ::preserve]
+}
+
+# -------------------------------------------------------------------------
+# Report versions
+#
+if {[::blowfish::LoadAccelerator trf]} {
+    puts "- blowfish [package present blowfish] (Trf based)"
+}
+puts "- blowfish [package present blowfish] (pure Tcl)"
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
-
-if {[info command ::blowfish::blowfishc] != {}} {
-    puts "- blowfish [package present blowfish] (critcl)"
-} elseif { $::blowfish::usetrf } {
-    puts "- blowfish [package present blowfish] (Trfcrypt)"
-} else {
-    puts "- blowfish [package present blowfish] (pure Tcl)"
-}
 
 # -------------------------------------------------------------------------
 
@@ -85,33 +105,22 @@ set vectors {
 }
 
 set n 0
-foreach {key plain cipher} $vectors {
-    test blowfish-2.$n "blowfish ecb test vector $n" {
-	list [catch {
-            ::blowfish::Hex \
-                [::blowfish::blowfish -mode ecb -dir enc \
-                     -key [binary format H* $key] \
-                     [binary format H* $plain]]
-        } msg] $msg
-    } [list 0 $cipher]
-    incr n
-}
-
-if {$::blowfish::usetrf} {
-    set n 0
+foreach impl [implementations] {
+    select_implementation $impl
     foreach {key plain cipher} $vectors {
-        test blowfish-3.$n "blowfish (pure Tcl) ecb test vector $n" {
+        test blowfish-$impl-2.$n "blowfish ecb test vector $n (impl $impl)" {
             list [catch {
-                ::blowfish::Hex \
-                    [::blowfish::blowfish_tcl -mode ecb -dir enc \
-                         -key [binary format H* $key] \
-                         [binary format H* $plain]]
+                string toupper \
+                    [::blowfish::Hex \
+                         [::blowfish::blowfish -mode ecb -dir enc \
+                              -key [binary format H* $key] \
+                              [binary format H* $plain]]]
             } msg] $msg
         } [list 0 $cipher]
         incr n
     }
+    reset_implementation
 }
-    
 
 set vectors {
     F9AD597C49DB005E F0
@@ -141,100 +150,82 @@ set vectors {
 }
 
 set plain [binary format H* FEDCBA9876543210]
-set n 0
-foreach {cipher key} $vectors {
-    test blowfish-4.$n "blowfish ecb test variable length key" {
-	list [catch {
-            ::blowfish::Hex \
-                [::blowfish::blowfish \
-                     -mode ecb \
-                     -dir enc \
-                     -key [binary format H* $key] \
-                     $plain]
-        } msg] $msg
-    } [list 0 $cipher]
-    incr n
-}
-
-if {$::blowfish::usetrf} {
+foreach impl [implementations] {
+    select_implementation $impl
     set n 0
     foreach {cipher key} $vectors {
-        test blowfish-5.$n "blowfish (pure Tcl) ecb test variable length key" {
+        test blowfish-$impl-4.$n "blowfish ecb test variable length key (impl $impl)" {
             list [catch {
-                ::blowfish::Hex \
-                    [::blowfish::blowfish_tcl \
-                         -mode ecb \
-                         -dir enc \
-                         -key [binary format H* $key] \
-                         $plain]
+                string toupper \
+                    [::blowfish::Hex \
+                         [::blowfish::blowfish \
+                              -mode ecb \
+                              -dir enc \
+                              -key [binary format H* $key] \
+                              $plain]]
             } msg] $msg
         } [list 0 $cipher]
         incr n
     }
+    reset_implementation
 }
-
 
 set key [binary format H* 0123456789ABCDEFF0E1D2C3B4A59687]
 set iv  [binary format H* FEDCBA9876543210]
 set plain [binary format H* \
                37363534333231204E6F77206973207468652074696D6520666F722000000000]
 
-test blowfish-6.1 "blowfish cbc mode" {
-    list [catch {
-        ::blowfish::Hex \
-            [::blowfish::blowfish \
-                 -dir enc \
-                 -mode cbc \
-                 -iv $iv \
-                 -key $key \
-                 $plain]
-    } msg] $msg
-} [list 0 \
-       6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC]
-
-if {$::blowfish::usetrf} {
-    test blowfish-6.2 "blowfish (pure Tcl) cbc mode" {
+foreach impl [implementations] {
+    select_implementation $impl
+    test blowfish-$impl-6.1 "blowfish cbc mode (impl $impl)" {
         list [catch {
-            ::blowfish::Hex \
-                [::blowfish::blowfish_tcl \
-                     -dir enc \
-                     -mode cbc \
-                     -iv $iv \
-                     -key $key \
-                     $plain]
+            string toupper \
+                [::blowfish::Hex \
+                     [::blowfish::blowfish \
+                          -dir enc \
+                          -mode cbc \
+                          -iv $iv \
+                          -key $key \
+                          $plain]]
         } msg] $msg
     } [list 0 \
            6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC]
+    reset_implementation
 }
 
 #cfb E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3
 #ofb E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA
 
+foreach impl [implementations] {
+    select_implementation $impl
 
-test blowfish-7.1 {test reset of initialization vector on cbc mode} {
-    list [catch {
-        set iv  [string repeat \x00 8]
-        set pt  "01234567abcdefgh01234567"
-        set tok [blowfish::Init cbc secret $iv]
-        set ct1 [blowfish::Encrypt $tok $pt]
-        blowfish::Reset $tok $iv
-        set ct2 [blowfish::Encrypt $tok $pt]
-        blowfish::Final $tok
-        string equal $ct1 $ct2
-    } msg] $msg
-} {0 1}
+    test blowfish-7.1 {test reset of initialization vector on cbc mode} {
+        list [catch {
+            set iv  [string repeat \x00 8]
+            set pt  "01234567abcdefgh01234567"
+            set tok [blowfish::Init cbc secret $iv]
+            set ct1 [blowfish::Encrypt $tok $pt]
+            blowfish::Reset $tok $iv
+            set ct2 [blowfish::Encrypt $tok $pt]
+            blowfish::Final $tok
+            string equal $ct1 $ct2
+        } msg] $msg
+    } {0 1}
+    
+    test blowfish-7.2 {test reset of initialization vector on cbc mode} {
+        list [catch {
+            set pt  "01234567abcdefgh01234567"
+            set tok [blowfish::Init cbc secret [string repeat \x00 8]]
+            set ct1 [blowfish::Encrypt $tok $pt]
+            blowfish::Reset $tok [string repeat \x01 8]
+            set ct2 [blowfish::Encrypt $tok $pt]
+            blowfish::Final $tok
+            string equal $ct1 $ct2
+        } msg] $msg
+    } {0 0}
 
-test blowfish-7.2 {test reset of initialization vector on cbc mode} {
-    list [catch {
-        set pt  "01234567abcdefgh01234567"
-        set tok [blowfish::Init cbc secret [string repeat \x00 8]]
-        set ct1 [blowfish::Encrypt $tok $pt]
-        blowfish::Reset $tok [string repeat \x01 8]
-        set ct2 [blowfish::Encrypt $tok $pt]
-        blowfish::Final $tok
-        string equal $ct1 $ct2
-    } msg] $msg
-} {0 0}
+    reset_implementation
+}
 
 # -------------------------------------------------------------------------
 

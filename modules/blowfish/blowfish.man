@@ -8,7 +8,7 @@
 [para]
 
 This package is an implementation in Tcl of the Blowfish algorithm
-developed by Brice Schneier [lb]1[rb]. Blowfish is a 64-bit block cipher
+developed by Bruce Schneier [lb]1[rb]. Blowfish is a 64-bit block cipher
 designed to operate quickly on 32 bit architectures and accepting a
 variable key length. This implementation supports ECB and CBC mode
 blowfish encryption.
@@ -35,11 +35,10 @@ this channel.
 [nl]
 
 The [arg -key] option must be given. This parameter takes a binary
-string of variable length and is used to generate the 
-[package blowfish] key schedule. You should be aware that creating a key
+string of variable length and is used to generate the [package blowfish]
+key schedule. You should be aware that creating a key
 schedule is quite an expensive operation in blowfish so it is worth
 reusing the key where possible. See [cmd Reset].
-API.
 
 [nl]
 
@@ -58,15 +57,35 @@ provided in units that are a multiple of 8 bytes.
 
 [list_begin definitions]
 
-[call [cmd "::blowfish::Init"] [arg "mode"] [arg "key"] [arg "iv"]]
+[call [cmd "::blowfish::Init"] [arg "mode"] [arg "keydata"] [arg "iv"]]
 
-[call [cmd "::blowfish::Encrypt"] [arg "token"] [arg "data"]]
+Construct a new blowfish key schedule using the specified key data and
+the given initialization vector. The initialization vector is not used
+with ECB mode but is important for CBC mode.
 
-[call [cmd "::blowfish::Decrypt"] [arg "token"] [arg "data"]]
+[call [cmd "::blowfish::Encrypt"] [arg "Key"] [arg "data"]]
 
-[call [cmd "::blowfish::Reset"] [arg "token"] [arg "iv"]]
+Use a prepared key acquired by calling [cmd Init] to encrypt the
+provided data. The data argument should be a binary array that is a
+multiple of the block size of 8 bytes. The result is a binary
+array the same size as the input of encrypted data.
 
-[call [cmd "::blowfish::Final"] [arg "token"]]
+[call [cmd "::blowfish::Decrypt"] [arg "Key"] [arg "data"]]
+
+Decipher data using the key. Note that the same key may be used to
+encrypt and decrypt data provided that the initialization vector is
+reset appropriately for CBC mode.
+
+[call [cmd "::blowfish::Reset"] [arg "Key"] [arg "iv"]]
+
+Reset the initialization vector. This permits the programmer to re-use
+a key and avoid the cost of re-generating the key schedule where the
+same key data is being used multiple times.
+
+[call [cmd "::blowfish::Final"] [arg "Key"]]
+
+This should be called to clean up resources associated with [arg Key].
+Once this function has been called the key may not be used again.
 
 [list_end]
 
