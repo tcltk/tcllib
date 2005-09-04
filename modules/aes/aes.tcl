@@ -23,7 +23,7 @@ package require Tcl 8.2
 
 namespace eval ::aes {
     variable version 1.0.0
-    variable rcsid {$Id: aes.tcl,v 1.4 2005/09/01 12:36:05 patthoyts Exp $}
+    variable rcsid {$Id: aes.tcl,v 1.5 2005/09/04 17:15:56 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 
     namespace export {aes}
@@ -566,7 +566,7 @@ proc ::aes::aes {args} {
         fileevent $opts(-in) readable \
             [list [namespace origin Chunk] \
                  $Key $opts(-in) $opts(-out) $opts(-chunksize)]
-        if {[info command ::tkwait] != {}} {
+        if {[info commands ::tkwait] != {}} {
             tkwait variable [subst $Key](reading)
         } else {
             vwait [subst $Key](reading)
