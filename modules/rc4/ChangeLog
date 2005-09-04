@@ -1,3 +1,8 @@
+2005-09-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* rc4.tcl:  Frink error suppression.
+	* rc4.man:  Added documentation for the programming api.
+
 2005-02-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* rc4.tcl: Ensure all implementations available are tested. Added
