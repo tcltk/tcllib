@@ -1,3 +1,8 @@
+2005-09-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* aes.tcl:      Frink warning suppression
+	* aes.man:      Added a description of cipher modes of operation.
+
 2005-09-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* aes.tcl:      Re-written to support CBC mode AES and to allow for
