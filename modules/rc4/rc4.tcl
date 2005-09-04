@@ -9,13 +9,13 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 #
-# $Id: rc4.tcl,v 1.4 2005/02/20 01:56:20 patthoyts Exp $
+# $Id: rc4.tcl,v 1.5 2005/09/04 17:19:59 patthoyts Exp $
 
 package require Tcl 8.2
 
 namespace eval ::rc4 {
     variable version 1.0.1
-    variable rcsid {$Id: rc4.tcl,v 1.4 2005/02/20 01:56:20 patthoyts Exp $}
+    variable rcsid {$Id: rc4.tcl,v 1.5 2005/09/04 17:19:59 patthoyts Exp $}
 
     namespace export rc4
 
@@ -33,7 +33,7 @@ namespace eval ::rc4 {
     if {[catch {package require tcllibc}]} {
         catch {package require rc4c}
     }
-    if {[info command ::rc4::rc4c] != {}} {
+    if {[info commands ::rc4::rc4c] != {}} {
         interp alias {} ::rc4::RC4Init {} ::rc4::rc4c_init
         interp alias {} ::rc4::RC4     {} ::rc4::rc4c
     } elseif {[package vcompare [package provide Tcl] 8.4] < 0} {
@@ -80,8 +80,6 @@ proc ::rc4::RC4Init_Array {keystr} {
 # RC4 - process the data using the array based state
 #
 proc ::rc4::RC4_Array {Key datastr} {
-    # FRINK: nocheck
-    variable $Key
     upvar #0 $Key state
     set res {}
 
@@ -142,8 +140,6 @@ proc ::rc4::RC4Init_List {keystr} {
 # RC4 - process the data using the list-based state.
 #
 proc ::rc4::RC4_List {Key datastr} {
-    # FRINK: nocheck
-    variable $Key
     upvar #0 $Key State
     set res {}
 
@@ -169,8 +165,10 @@ proc ::rc4::RC4_List {Key datastr} {
     return [binary format c* $res]
 }
 
-# Using this compat function for < 8.4 is 2x slower than using arrays.
+# PRAGMA: nocheck
 proc ::rc4::K {x y} {set x}
+
+# Using this compat function for < 8.4 is 2x slower than using arrays.
 if {[package vcompare [package provide Tcl] 8.4] < 0} {
     proc ::rc4::lset {var index arg} {
         upvar 1 $var list
@@ -179,8 +177,6 @@ if {[package vcompare [package provide Tcl] 8.4] < 0} {
 }
 
 proc ::rc4::RC4Final {Key} {
-    # FRINK: nocheck
-    variable $Key
     upvar #0 $Key state
     catch {unset state}
     return {}
