@@ -17,18 +17,16 @@
 # -------------------------------------------------------------------------
 #
 
-package require Tcl 8.4
+package require Tcl 8.2
 
 namespace eval blowfish {
     variable version 1.0.0
-    variable rcsid {$Id: blowfish.tcl,v 1.3 2004/12/21 12:20:06 patthoyts Exp $}
+    variable rcsid {$Id: blowfish.tcl,v 1.4 2005/09/04 17:09:46 patthoyts Exp $}
+    variable uid ; if {![info exists uid]} { set uid 0 }
+    variable accel
+    array set accel {trf 0}
 
-    variable usetrf
-
-    variable uid
-    if {![info exists uid]} {
-        set uid 0
-    }
+    namespace export blowfish
 
     variable ORIG_P {
         0x243F6A88 0x85A308D3 0x13198A2E 0x03707344
@@ -298,65 +296,38 @@ namespace eval blowfish {
     }
 }
 
-proc ::blowfish::F {S x} {
-    set d [expr {$x & 0xff}]
-    set c [expr {($x >> 8) & 0xff}]
-    set b [expr {($x >> 16) & 0xff}]
-    set a [expr {($x >> 24) & 0xff}]
-    set S0a [lindex $S $a]
-    set S1b [lindex $S [expr {256 + $b}]]
-    set S2c [lindex $S [expr {512 + $c}]]
-    set S3d [lindex $S [expr {768 + $d}]]
-    set y [expr {($S0a + $S1b) & 0xffffffff}]
-    set y [expr {$y ^ $S2c}]
-    set y [expr {($y + $S3d) & 0xffffffff}]
-    return $y
-}
-
 proc ::blowfish::intEncrypt {P S xl xr} {
     for {set i 0} {$i < 16} {incr i} {
-        set Pi [lindex $P $i]
-        set xl [expr {$xl ^ $Pi}]
-        set f  [F $S $xl]
-        set xr [expr {$f ^ $xr}]
-        set temp $xl
-        set xl $xr
-        set xr $temp
+        set xl [expr {$xl ^ [lindex $P $i]}]
+
+        set S0a [lindex $S [expr { ($xl >> 24) & 0xff}]]
+        set S1b [lindex $S [expr {(($xl >> 16) & 0xff) + 256}]]
+        set S2c [lindex $S [expr {(($xl >>  8) & 0xff) + 512}]]
+        set S3d [lindex $S [expr { ($xl        & 0xff) + 768}]]
+        set xr [expr {(((($S0a + $S1b) ^ $S2c) + $S3d) & 0xffffffff) ^ $xr}]
+
+        set temp $xl ; set xl $xr ; set xr $temp
     }
 
-    set temp $xl
-    set xl $xr
-    set xr $temp
-    
-    set Pn [lindex $P 16]
-    set Pnpp [lindex $P 17]
-    set xr [expr {$xr ^ $Pn}]
-    set xl [expr {$xl ^ $Pnpp}]
-    
-    return [list $xl $xr]
+    set temp $xl ; set xl $xr ; set xr $temp
+    return [list [expr {$xl ^ [lindex $P 17]}] [expr {$xr ^ [lindex $P 16]}]]
 }
 
 proc ::blowfish::intDecrypt {P S xl xr} {
     for {set i 17} {$i > 1} {incr i -1} {
-        set Pi [lindex $P $i]
-        set xl [expr {$xl ^$Pi}]
-        set f  [F $S $xl]
-        set xr [expr {$f ^ $xr}]
-        set temp $xl
-        set xl $xr
-        set xr $temp
+        set xl [expr {$xl ^ [lindex $P $i]}]
+
+        set S0a [lindex $S [expr { ($xl >> 24) & 0xff}]]
+        set S1b [lindex $S [expr {(($xl >> 16) & 0xff) + 256}]]
+        set S2c [lindex $S [expr {(($xl >>  8) & 0xff) + 512}]]
+        set S3d [lindex $S [expr { ($xl        & 0xff) + 768}]]
+        set xr [expr {(((($S0a + $S1b) ^ $S2c) + $S3d) & 0xffffffff) ^ $xr}]
+
+        set temp $xl ; set xl $xr ; set xr $temp
     }
     
-    set temp $xl
-    set xl $xr
-    set xr $temp
-    set xr $temp
-    set P1 [lindex $P 1]
-    set P0 [lindex $P 0]
-    set xr [expr {$xr ^ $P1}]
-    set xl [expr {$xl ^ $P0}]
-    #set xl [expr {$xl ^ $P0}]
-    return [list $xl $xr]
+    set temp $xl ; set xl $xr ; set xr $temp
+    return [list [expr {$xl ^ [lindex $P 0]}] [expr {$xr ^ [lindex $P 1]}]]
 }
 
 proc ::blowfish::Init {mode key iv} {
@@ -374,9 +345,7 @@ proc ::blowfish::Init {mode key iv} {
     for {set i 0} {$i < 18} {incr i} {
         set data 0
         for {set k 0} {$k < 4} {incr k} {
-            set kj [lindex $kc $j]
-            set kj [expr {($kj + 0x100) % 0x100}]
-            set data [expr {(($data << 8) | $kj) & 0xffffffff}]
+            set data [expr {(($data << 8) | ([lindex $kc $j] & 0xff)) & 0xffffffff}]
             if {[incr j] >= $kl} {
                 set j 0
             }
@@ -388,11 +357,11 @@ proc ::blowfish::Init {mode key iv} {
     set datal 0
     set datar 0
     
-    for {set i 0} {$i < 18} {incr i 2} {
+    for {set i 0} {$i < 18} {incr i} {
         set ed [intEncrypt $P $S $datal $datar]
         set datal [lindex $ed 0]
         set datar [lindex $ed 1]
-        set P [lreplace $P $i [expr {$i + 1}] $datal $datar]
+        set P [lreplace $P $i [incr i] $datal $datar]
     }
     
     for {set i 0} {$i < 4} {incr i} {
@@ -400,10 +369,8 @@ proc ::blowfish::Init {mode key iv} {
             set ed [intEncrypt $P $S $datal $datar]
             set datal [lindex $ed 0]
             set datar [lindex $ed 1]
-            set S [lreplace $S \
-                       [expr {$i * 256 + $j}] \
-                       [expr {$i * 256 + $j + 1}] \
-                       $datal $datar]
+            set t [expr {$i * 256 + $j}]
+            set S [lreplace $S $t [incr t] $datal $datar]
         }
     }
 
@@ -421,6 +388,7 @@ proc ::blowfish::Reset {token iv} {
 }
 
 proc ::blowfish::Final {token} {
+    # PRAGMA: nocheck
     variable $token
     unset $token
 }
@@ -430,29 +398,29 @@ proc ::blowfish::EncryptBlock {token block} {
     if {[binary scan $block II xl xr] != 2} {
         error "block must be 8 bytes"
     }
-    set xl [expr {($xl + 0x100000000) % 0x100000000}]
-    set xr [expr {($xr + 0x100000000) % 0x100000000}]
+    set xl [expr {$xl & 0xffffffff}]
+    set xr [expr {$xr & 0xffffffff}]
     set d  [intEncrypt $state(P) $state(S) $xl $xr]
     return [binary format I2 $d]
 }
 
-proc ::blowfish::Encrypt {token data} {
-    upvar #0 $token state
+proc ::blowfish::Encrypt {Key data} {
+    upvar #0 $Key state
     set P $state(P)
     set S $state(S)
     set cbc_mode [string equal "cbc" $state(M)]
 
     if {[binary scan $state(I) II s0 s1] != 2} {
-        return -code error "initialization vector must be 8 bytes"
+        return -code error "invalid initialization vector: must be 8 bytes"
     }
 
     set len [string length $data]
     if {($len % 8) != 0} {
-        return -code error "block size invalid"
+        return -code error "invalid block size: blocks must be 8 bytes"
     }
 
-    set s0 [expr {($s0 + 0x100000000) % 0x100000000}]
-    set s1 [expr {($s1 + 0x100000000) % 0x100000000}]
+    set s0 [expr {$s0 & 0xffffffff}]
+    set s1 [expr {$s1 & 0xffffffff}]
     
     set result ""
     for {set i 0} {$i < $len} {incr i 8} {
@@ -460,8 +428,8 @@ proc ::blowfish::Encrypt {token data} {
             return -code error "oops"
         }
         if {$cbc_mode} {
-            set xl [expr {(($xl + 0x100000000) % 0x100000000) ^ $s0}]
-            set xr [expr {(($xr + 0x100000000) % 0x100000000) ^ $s1}]
+            set xl [expr {($xl & 0xffffffff) ^ $s0}]
+            set xr [expr {($xr & 0xffffffff) ^ $s1}]
         }
         set d  [intEncrypt $P $S $xl $xr]
         if {$cbc_mode} {
@@ -476,13 +444,13 @@ proc ::blowfish::Encrypt {token data} {
     return $result
 }
 
-proc ::blowfish::DecryptBlock {token block} {
-    upvar #0 $token state
+proc ::blowfish::DecryptBlock {Key block} {
+    upvar #0 $Key state
     if {[binary scan $block II xl xr] != 2} {
-        error "block must be 8 bytes"
+        return -code error "invalid block size: block must be 8 bytes"
     }
-    set xl [expr {($xl + 0x100000000) % 0x100000000}]
-    set xr [expr {($xr + 0x100000000) % 0x100000000}]
+    set xl [expr {$xl & 0xffffffff}]
+    set xr [expr {$xr & 0xffffffff}]
     set d  [intDecrypt $state(P) $state(S) $xl $xr]
     return [binary format I2 $d]
 }
@@ -502,16 +470,16 @@ proc ::blowfish::Decrypt {token data} {
         return -code error "block size invalid"
     }
 
-    set s0 [expr {($s0 + 0x100000000) % 0x100000000}]
-    set s1 [expr {($s1 + 0x100000000) % 0x100000000}]
+    set s0 [expr {$s0 & 0xffffffff}]
+    set s1 [expr {$s1 & 0xffffffff}]
 
     set result ""
     for {set i 0} {$i < $len} {incr i 8} {
         if {[binary scan $data @[set i]II xl xr] != 2} {
             error "oops"
         }
-        set xl [expr {($xl + 0x100000000) % 0x100000000}]
-        set xr [expr {($xr + 0x100000000) % 0x100000000}]
+        set xl [expr {$xl & 0xffffffff}]
+        set xr [expr {$xr & 0xffffffff}]
         set d  [intDecrypt $P $S $xl $xr]
         if {$cbc_mode} {
             set d0 [lindex $d 0]
@@ -535,7 +503,7 @@ proc ::blowfish::Decrypt {token data} {
 # -------------------------------------------------------------------------
 # Fileevent handler for chunked file reading.
 #
-proc ::blowfish::Chunk {token in {out {}} {chunksize 4096}} {
+proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096}} {
     upvar #0 $token state
     
     if {[eof $in]} {
@@ -544,36 +512,50 @@ proc ::blowfish::Chunk {token in {out {}} {chunksize 4096}} {
     }
 
     set data [read $in $chunksize]
-    # pad message?
-    set len [string length $data]
-    if {($len % 8) != 0} {
-        set pad [expr {7 - ($len % 8)}]
-            append data [string range [string repeat \0 8] 0 $pad]
-    }
+    # FIX ME: we should ony pad after eof
+    set data [Pad $data 8]
     
     if {$out == {}} {
-        append state(output) [$state(cmd) $token $data]
+        append state(output) [$state(cmd) $Key $data]
     } else {
-        puts -nonewline $out [$state(cmd) $token $data]
+        puts -nonewline $out [$state(cmd) $Key $data]
     }
 }
 
 # -------------------------------------------------------------------------
 
-if {[package provide Trf] != {}} {
-    interp alias {} ::blowfish::Hex {} ::hex -mode encode --
-} else {
-    proc ::blowfish::Hex {data} {
-        set result {}
-        binary scan $data c* r
-        foreach c $r {
-            append result [format "%02X" [expr {$c & 0xff}]]
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::blowfish::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        trf {
+            if {![catch {package require Trfcrypt}]} {
+                set block [string repeat \0 8]
+                set r [expr {![catch {::blowfish -dir enc -mode ecb -key $block $block} msg]}]
+            }
         }
-        return $result
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
     }
+    set accel($name) $r
 }
 
 # -------------------------------------------------------------------------
+
+proc ::blowfish::Hex {data} {
+    binary scan $data H* r
+    return $r
+}
 
 proc ::blowfish::SetOneOf {lst item} {                
     set ndx [lsearch -glob $lst "${item}*"]
@@ -584,11 +566,22 @@ proc ::blowfish::SetOneOf {lst item} {
     return [lindex $lst $ndx]
 }
 
-proc ::blowfish::Check64Bit {what thing} {
-    if {[string length $thing] != 8} {
-        return -code error "invalid value for $what: must be 8 bytes long"
+proc ::blowfish::CheckSize {what size thing} {
+    if {[string length $thing] != $size} {
+        return -code error "invalid value for $what: must be $size bytes long"
     }
     return $thing
+}
+
+proc ::blowfish::Pad {data blocksize {fill \0}} {
+    set len [string length $data]
+    if {$len == 0} {
+        set data [string repeat $fill $blocksize]
+    } elseif {($len % $blocksize) != 0} {
+        set pad [expr {$blocksize - ($len % $blocksize)}]
+        append data [string repeat $fill $pad]
+    }
+    return $data
 }
 
 # Description:
@@ -601,8 +594,9 @@ proc ::blowfish::Pop {varname {nth 0}} {
     return $r
 }
 
-proc ::blowfish::blowfish_tcl {args} {
-    array set opts {-dir enc -mode cbc -key {} -in {} -out {}}
+proc ::blowfish::blowfish {args} {
+    variable accel
+    array set opts {-dir enc -mode cbc -key {} -in {} -out {} -hex 0}
     set opts(-chunksize) 4096
     set opts(-iv) [string repeat \0 8]
     set modes {ecb cbc}
@@ -611,11 +605,12 @@ proc ::blowfish::blowfish_tcl {args} {
         switch -exact -- $option {
             -mode       { set opts(-mode) [SetOneOf $modes [Pop args 1]] }
             -dir        { set opts(-dir) [SetOneOf $dirs [Pop args 1]] }
+            -iv         { set opts(-iv)  [CheckSize -iv 8 [Pop args 1]] }
             -key        { set opts(-key) [Pop args 1] }
-            -iv         { set opts(-iv)  [Check64Bit -iv [Pop args 1]] }
             -in         { set opts(-in) [Pop args 1] }
             -out        { set opts(-out) [Pop args 1] }
             -chunksize  { set opts(-chunksize) [Pop args 1] }
+            -hex        { set opts(-hex) 1 }
             --          { Pop args; break }
             default {
                 set err [join [lsort [array names opts]] ", "]
@@ -627,42 +622,45 @@ proc ::blowfish::blowfish_tcl {args} {
     }
     
     if {$opts(-key) == {}} {
-        # FIX ME: more opts.
-        return -code error "wrong # args:\
-            should be \"blowfish .......\""
+        return -code error "no key provided: the -key option is required"
     }
     
     set r {}
     if {$opts(-in) == {}} {
+
         if {[llength $args] != 1} {
-            return -code error "wrong # args:\
-               should be \"blowfish ......\""
+            return -code error "wrong \# args:\
+                should be \"blowfish ?options...? -key keydata plaintext\""
         }
 
-        # pad message?
-        set data [lindex $args 0]
-        set len [string length $data]
-        if {($len % 8) != 0} {
-            set pad [expr {7 - ($len % 8)}]
-            append data [string range [string repeat \0 8] 0 $pad]
-        }
-
-        set token [Init $opts(-mode) $opts(-key) $opts(-iv)]
-        if {[string equal $opts(-dir) "encrypt"]} {
-            set r [Encrypt $token $data]
+        set data [Pad [lindex $args 0] 8]
+        if {$accel(trf)} {
+            set r [::blowfish -dir $opts(-dir) -mode $opts(-mode) \
+                       -key $opts(-key) -iv $opts(-iv) $data]
         } else {
-            set r [Decrypt $token $data]
+            set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
+            if {[string equal $opts(-dir) "encrypt"]} {
+                set r [Encrypt $Key $data]
+            } else {
+                set r [Decrypt $Key $data]
+            }
+            Final $Key
         }
+
         if {$opts(-out) != {}} {
             puts -nonewline $opts(-out) $r
             set r {}
         }
-        Final $token
         
     } else {
+
+        if {[llength $args] != 0} {
+            return -code error "wrong \# args:\
+                should be \"blowfish ?options...? -key keydata -in channel\""
+        }
         
-        set token [Init $opts(-mode) $opts(-key) $opts(-iv)]
-        upvar $token state
+        set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
+        upvar $Key state
         set state(reading) 1
         if {[string equal $opts(-dir) "encrypt"]} {
             set state(cmd) Encrypt
@@ -672,32 +670,31 @@ proc ::blowfish::blowfish_tcl {args} {
         set state(output) ""
         fileevent $opts(-in) readable \
             [list [namespace origin Chunk] \
-                 $token $opts(-in) $opts(-out) $opts(-chunksize)]
-        if {[info command ::tkwait] != {}} {
-            tkwait variaable [subst $token](reading)
+                 $Key $opts(-in) $opts(-out) $opts(-chunksize)]
+        if {[info commands ::tkwait] != {}} {
+            tkwait variable [subst $Key](reading)
         } else {
-            vwait [subst $token](reading)
+            vwait [subst $Key](reading)
         }
         if {$opts(-out) == {}} {
             set r $state(output)
         }
-        Final $token
+        Final $Key
+
+    }
+
+    if {$opts(-hex)} {
+        set r [Hex $r]
     }
     return $r
 }
 
-# If we can use the Trfcrypt C implementation.
-if {![info exists ::blowfish::usetrf]} {
-    if {![catch {package require Trfcrypt}] && [info command ::blowfish] != {}} {
-        set ::blowfish::usetrf 1
-        interp alias {} ::blowfish::blowfish {} ::blowfish
-    } else {
-        set ::blowfish::usetrf 0
-        interp alias {} ::blowfish::blowfish {} ::blowfish::blowfish_tcl
-    }
-}
-
 # -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help.
+namespace eval ::blowfish {
+    variable e; foreach e {trf} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide blowfish $::blowfish::version
 
