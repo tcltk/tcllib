@@ -1,9 +1,9 @@
-[manpage_begin aes n 1.0.0]
+[manpage_begin aes n 1.0]
 [copyright {2005, Thorsten Schloermann}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Implementation of the AES block cipher}]
 [require Tcl 8.2]
-[require aes [opt 1.0.0]]
+[require aes [opt 1.0]]
 [description]
 [para]
 
@@ -43,7 +43,8 @@ key schedule.
 
 The [arg -mode] and [arg -dir] options are optional and default to cbc
 mode and encrypt respectively. The initialization vector [arg -iv]
-takes a 16 byte binary argument. This defaults to all zeros.
+takes a 16 byte binary argument which defaults to all zeros.
+See [sectref "MODES OF OPERATION"] for more about modes.
 
 [nl]
 
@@ -94,6 +95,29 @@ Once this function has been called the key may not be used again.
 
 [list_end]
 
+[section "MODES OF OPERATION"]
+
+[section "MODES OF OPERATION"]
+
+[list_begin definitions]
+[lst_item "Electronic Code Book (ECB)"]
+ECB is the basic mode of all block ciphers. Each block is encrypted
+independently and so identical plain text will produce identical
+output when encrypted with the same key. Any encryption errors will
+only affect a single block however this is vulnerable to known
+plaintext attacks.
+
+[lst_item "Cipher Block Chaining (CBC)"]
+
+CBC mode uses the output of the last block encryption to affect the
+current block. An initialization vector of the same size as the cipher
+block size is used to handle the first block. The initialization
+vector should be chosen randomly and transmitted as the first block of
+the output. Errors in encryption affect the current block and the next
+block after which the cipher will correct itself. CBC is the most
+commonly used mode in software encryption.
+
+[list_end]
 
 [section "EXAMPLES"]
 
@@ -117,6 +141,7 @@ Once this function has been called the key may not be used again.
 [enum]
     "Advanced Encryption Standard",
     Federal Information Processing Standards Publication 197, 2001
+    ([uri http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf])
 
 [list_end]
 
