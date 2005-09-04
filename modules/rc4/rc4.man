@@ -8,7 +8,15 @@
 [para]
 
 This package is an implementation in Tcl of the RC4 stream cipher 
-developed by Ron Rivest of RSA Data Security Inc.
+developed by Ron Rivest of RSA Data Security Inc. The cipher was a
+trade secret of RSA but was reverse-engineered and published to the
+internet in 1994. It is used in a number of network protocols for
+securing communications.
+
+[para]
+
+RC4 is a symmetric cipher where encryption and decryption use the same
+key.
 
 [section {COMMANDS}]
 
@@ -43,9 +51,48 @@ Only one of [arg "-infile"], [arg "-in"] or [arg "string"] should be given.
 
 [list_end]
 
-[comment { FIX ME: Talk about the Transfer method and do the API funcs. }]
+[section "PROGRAMMING INTERFACE"]
 
-[see_also des]
+[list_begin definitions]
 
-[keywords rc4 {stream cipher} security]
+[call [cmd "::rc4::RC4Init"] [arg "keydata"]]
+
+Initialize a new RC4 key. The [arg keydata] is any amount of binary
+data and is used to initialize the cipher internal state. 
+
+[call [cmd "::rc4::RC4"] [arg "Key"] [arg "data"]]
+
+Encrypt or decrypt the input data using the key obtained by calling
+[cmd RC4Init].
+
+[call [cmd "::rc4::RC4Final"] [arg "Key"]]
+
+This should be called to clean up resources associated with 
+[arg Key]. Once this function has been called the key is destroyed.
+
+[list_end]
+
+[section "EXAMPLES"]
+
+[example {
+% set keydata [binary format H* 0123456789abcdef]
+% rc4::rc4 -hex -key $keydata HelloWorld
+3cf1ae8b7f1c670b612f
+% rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
+HelloWorld
+}]
+
+[example {
+ set Key [rc4::RC4Init "key data"]
+ append ciphertext [rc4::RC4 $Key $plaintext]
+ append ciphertext [rc4::RC4 $Key $additional_plaintext]
+ rc4::RC4Final $Key
+}]
+
+[see_also des(n) aes(n) blowfish(n)]
+
+[section "AUTHORS"]
+Pat Thoyts
+
+[keywords rc4 {stream cipher} security encryption {data integrity}]
 [manpage_end]
