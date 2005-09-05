@@ -54,11 +54,19 @@ proc ::uuid::generate_tcl {} {
     md5::MD5Update $tok [array get ::tcl_platform]
     
     # More spatial information -- better than hostname.
-    catch {
-        set s [socket -server void -myaddr [info hostname] 0]
-        K [fconfigure $s -sockname] [close $s]
-    } r
-    md5::MD5Update $tok $r
+    # bug 1150714: opening a server socket may raise a warning messagebox
+    #   with WinXP firewall, using ipconfig will return all IP addresses
+    #   including ipv6 ones if available. ipconfig is OK on win98+
+    if {[string equal $tcl_platform(platform) "windows"]} {
+        catch {exec ipconfig} config
+        md5::MD5Update $tok $config
+    } else {
+        catch {
+            set s [socket -server void -myaddr [info hostname] 0]
+            K [fconfigure $s -sockname] [close $s]
+        } r
+        md5::MD5Update $tok $r
+    }
 
     if {[package provide Tk] != {}} {
         md5::MD5Update $tok [winfo pointerxy .]
