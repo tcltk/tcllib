@@ -1,7 +1,8 @@
+[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin blowfish n 1.0.0]
-[moddesc   {Blowfish Block Cipher}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
-[titledesc {Blowfish Block Cipher}]
+[moddesc   {Blowfish Block Cipher}]
+[titledesc {Implementation of the Blowfish block cipher}]
 [require Tcl 8.4]
 [require blowfish [opt 1.0.0]]
 [description]
@@ -44,7 +45,9 @@ reusing the key where possible. See [cmd Reset].
 
 The [arg -mode] and [arg -dir] options are optional and default to cbc
 mode and encrypt respectively. The initialization vector [arg -iv]
-takes an 8 byte binary argument. This defaults to 8 zeros.
+takes an 8 byte binary argument which defaults to 8 zeros.
+See [sectref "MODES OF OPERATION"] for more about available modes and
+their uses.
 
 [nl]
 
@@ -62,6 +65,7 @@ provided in units that are a multiple of 8 bytes.
 Construct a new blowfish key schedule using the specified key data and
 the given initialization vector. The initialization vector is not used
 with ECB mode but is important for CBC mode.
+See [sectref "MODES OF OPERATION"] for details about cipher modes.
 
 [call [cmd "::blowfish::Encrypt"] [arg "Key"] [arg "data"]]
 
@@ -90,11 +94,41 @@ Once this function has been called the key may not be used again.
 [list_end]
 
 
+[section "MODES OF OPERATION"]
+
+[list_begin definitions]
+
+[lst_item "Electronic Code Book (ECB)"]
+ECB is the basic mode of all block ciphers. Each block is encrypted
+independently and so identical plain text will produce identical
+output when encrypted with the same key. Any encryption errors will
+only affect a single block however this is vulnerable to known
+plaintext attacks.
+
+[lst_item "Cipher Block Chaining (CBC)"]
+
+CBC mode uses the output of the last block encryption to affect the
+current block. An initialization vector of the same size as the cipher
+block size is used to handle the first block. The initialization
+vector should be chosen randomly and transmitted as the first block of
+the output. Errors in encryption affect the current block and the next
+block after which the cipher will correct itself. CBC is the most
+commonly used mode in software encryption.
+
+[list_end]
+
 [section "EXAMPLES"]
 
 [example {
-% blowfish::blowfish -hex -key secret "hello, world!!!!"
-b7611eabdfc1f73b48708411d67d5e5c
+% blowfish::blowfish -hex -mode ecb -dir encrypt -key secret01 "hello, world!"
+d0d8f27e7a374b9e2dbd9938dd04195a
+}]
+
+[example {
+ set Key [blowfish::Init cbc $eight_bytes_key_data $eight_byte_iv]
+ append ciphertext [blowfish::Encrypt $Key $plaintext]
+ append ciphertext [blowfish::Encrypt $Key $additional_plaintext]
+ blowfish::Final $Key
 }]
 
 [section "REFERENCES"]
@@ -108,6 +142,9 @@ b7611eabdfc1f73b48708411d67d5e5c
 [list_end]
 
 [see_also des 3des rc4]
+
+[section AUTHORS]
+Frank Pilhofer, Pat Thoyts
 
 [keywords blowfish {block cipher} security encryption cryptography]
 [manpage_end]
