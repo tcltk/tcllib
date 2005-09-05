@@ -1,0 +1,25 @@
+# timing.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# $Id: des.timing,v 1.1 2005/09/05 07:59:24 patthoyts Exp $
+
+package forget des
+catch {namespace delete ::DES}
+if {[catch {source [file join [file dirname [info script]] des.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+}
+
+puts "- des [package present des]"
+
+ 
+set k [binary format H* FEDCBA9876543210]
+set i [binary format H* 0000000000000000]
+set p [binary format H* 0123456789ABCDEF0123456789ABCDEF]]
+set c [binary format H* ED39D950FA74BCC4ED39D950FA74BCC4]
+
+puts "des enc [time {DES::des -mode encode -key $k $p} 200]"
+puts "des dec [time {DES::des -mode encode -key $k $c} 200]"
+
+#set key [DES::Init ecb $k $i]
+#puts "des core enc [time {DES::Encrypt $key $p} 500]"
+#puts "des core dec [time {DES::Decrypt $key $c} 500]"
+#DES::Final $key

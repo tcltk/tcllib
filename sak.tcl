@@ -907,6 +907,26 @@ proc validate_versions_mod {m} {
     return
 }
 
+proc timing_mod {m} {
+    global distribution
+    set files [glob -nocomplain [file join $distribution modules $m *.timing]]
+    foreach file $files {
+        interp create slave
+        slave eval [list source $file]
+        interp delete slave
+    }
+    
+    return
+}
+
+proc timing_all {} {
+    global distribution
+    foreach m [modules] {
+	timing_mod $m
+    }
+    return
+}
+
 proc validate_testsuite_mod {m} {
     global distribution
     if {[llength [glob -nocomplain [file join $distribution modules $m *.test]]] == 0} {
@@ -975,6 +995,17 @@ proc validate_doc_markup {} {
     return
 }
 
+proc timing_mod {m} {
+    global distribution
+    set files [glob -nocomplain [file join $distribution modules $m *.timing]]
+    foreach file $files {
+        interp create slave
+        slave eval [list source $file]
+        interp delete slave
+    }
+    
+    return
+}
 
 proc run-frink {args} {
     global distribution
@@ -992,7 +1023,7 @@ proc run-frink {args} {
 	puts "$f..."
 	puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-	catch {exec frink 2> $tmp -H $f}
+	catch {exec frink 2> $tmp -HJ $f}
 	set data [get_input $tmp]
 	if {[string length $data] > 0} {
 	    puts $data
@@ -1400,6 +1431,8 @@ proc __help {} {
 
         critcl ?module?  - Build a critcl module [default is @@].
 
+        timing ?module?  - Run timing scripts (*.timing).
+
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
@@ -1785,6 +1818,47 @@ proc critcl_module {pkg} {
         eval exec $critcl -force -libdir [list $target] -pkg [list $pkg] $files 
     } r
     puts $r
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc __timing {} {
+    global argv
+    if {[llength $argv] == 0} {
+	_timing_all
+    } else {
+	if {![checkmod]} {return}
+	foreach m $argv {
+	    _timing_module $m
+	}
+    }
+    return
+}
+
+proc _timing_module {m} {
+    global package_name package_version
+
+    puts "Timing $package_name $package_version development -- $m"
+    puts "======================================================"
+    timing_mod $m
+    puts "------------------------------------------------------"
+    puts ""
+    return
+}
+
+proc _timing_all {} {
+    global package_name package_version distribution
+
+    foreach m [modules] {
+        if {[llength [glob -nocomplain [file join $distribution modules $m *.timing]]] > 0} {
+            puts "Timing $package_name $package_version development -- $m"
+            puts "======================================================"
+            timing_mod $m
+            puts "------------------------------------------------------"
+            puts ""
+        }
+    }
     return
 }
 
