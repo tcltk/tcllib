@@ -1,7 +1,8 @@
+[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin rc4 n 1.0.1]
-[moddesc   {RC4 Stream Cipher}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
-[titledesc {RC4 Stream Cipher}]
+[moddesc   {RC4 Stream Cipher}]
+[titledesc {Impementation of the RC4 stream cipher}]
 [require Tcl 8.2]
 [require rc4 [opt 1.0.1]]
 [description]
@@ -11,12 +12,8 @@ This package is an implementation in Tcl of the RC4 stream cipher
 developed by Ron Rivest of RSA Data Security Inc. The cipher was a
 trade secret of RSA but was reverse-engineered and published to the
 internet in 1994. It is used in a number of network protocols for
-securing communications.
-
-[para]
-
-RC4 is a symmetric cipher where encryption and decryption use the same
-key.
+securing communications. To evade trademark restrictions this cipher
+is sometimes known as ARCFOUR.
 
 [section {COMMANDS}]
 
@@ -94,5 +91,5 @@ HelloWorld
 [section "AUTHORS"]
 Pat Thoyts
 
-[keywords rc4 {stream cipher} security encryption {data integrity}]
+[keywords rc4 arcfour, {stream cipher} security encryption {data integrity}]
 [manpage_end]
