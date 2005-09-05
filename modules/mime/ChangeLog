@@ -1,3 +1,8 @@
+2005-09-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl (::smtp::auth_CRAM-MD5): Fix for bug #1242629 - qmail
+	doesn't like a multi-line response.
+
 2005-03-08  Andreas Kupries <andreask@activestate.com>
 
 	* mime.tcl (::mime::copymessageaux): Removed usage of the command

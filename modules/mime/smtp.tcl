@@ -904,7 +904,8 @@ proc ::smtp::auth_CRAM-MD5 {token} {
     if {$response(code) == 334} {
         set challenge [base64::decode $response(diagnostic)]
         set reply [hmac_hex $options(-password) $challenge]
-        set reply [base64::encode \
+        # bug 1242629: qmail doesn't like multi-line response.
+        set reply [base64::encode -maxlen 0 \
                        "$options(-username) [string tolower $reply]"]
         set result [smtp::talk $token 300 $reply]
         array set response $result
