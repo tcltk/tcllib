@@ -1,0 +1,41 @@
+# timing.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# $Id: aes.timing,v 1.1 2005/09/05 07:59:24 patthoyts Exp $
+
+package forget aes
+catch {namespace delete ::aes}
+if {[catch {source [file join [file dirname [info script]] aes.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+}
+
+puts "- aes [package present aes]"
+
+set k [binary format H* 000102030405060708090a0b0c0d0e0f]
+set i [binary format H* 00000000000000000000000000000000]
+set p [binary format H* 00112233445566778899aabbccddeeff]
+set c [binary format H* 69c4e0d86a7b0430d8cdb78070b4c55a]
+
+puts "AES-128 enc [time {aes::aes -mode ecb -dir enc -key $k -iv $i $p} 200]"
+puts "AES-128 dec [time {aes::aes -mode ecb -dir dec -key $k -iv $i $c} 200]"
+
+set k [binary format H* 000102030405060708090a0b0c0d0e0f1011121314151617]
+set c [binary format H* dda97ca4864cdfe06eaf70a0ec0d7191]
+
+puts "AES-192 enc [time {aes::aes -mode ecb -dir enc -key $k -iv $i $p} 200]"
+puts "AES-192 dec [time {aes::aes -mode ecb -dir dec -key $k -iv $i $c} 200]"
+
+set k [binary format H* 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f]
+set c [binary format H* 8ea2b7ca516745bfeafc49904b496089]
+
+puts "AES-256 enc [time {aes::aes -mode ecb -dir enc -key $k -iv $i $p} 200]"
+puts "AES-256 dec [time {aes::aes -mode ecb -dir dec -key $k -iv $i $c} 200]"
+
+set k [binary format H* 000102030405060708090a0b0c0d0e0f]
+set i [binary format H* 00000000000000000000000000000000]
+set p [binary format H* 00112233445566778899aabbccddeeff]
+set c [binary format H* 69c4e0d86a7b0430d8cdb78070b4c55a]
+
+set key [aes::Init ecb $k $i]
+puts "AES-128 core enc [time {aes::Encrypt $key $p} 500]"
+puts "AES-128 core dec [time {aes::Decrypt $key $c} 500]"
+aes::Final $key

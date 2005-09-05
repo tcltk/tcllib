@@ -1,0 +1,24 @@
+# timing.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# $Id: blowfish.timing,v 1.1 2005/09/05 07:59:24 patthoyts Exp $
+
+package forget blowfish
+catch {namespace delete ::blowfish}
+if {[catch {source [file join [file dirname [info script]] blowfish.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+}
+
+puts "- blowfish [package present blowfish]"
+
+set k [binary format H* 000102030405060]
+set i [binary format H* 000000000000000]
+set p [binary format H* 00112233445566778899aabbccddeeff]
+set c [binary format H* 69c4e0d86a7b0430d8cdb78070b4c55a]
+
+puts "blowfish enc [time {blowfish::blowfish -mode ecb -dir enc -key $k -iv $i $p} 100]"
+puts "blowfish dec [time {blowfish::blowfish -mode ecb -dir dec -key $k -iv $i $c} 100]"
+
+set key [blowfish::Init ecb $k $i]
+puts "blowfish core enc [time {blowfish::Encrypt $key $p} 1000]"
+puts "blowfish core dec [time {blowfish::Decrypt $key $c} 1000]"
+blowfish::Final $key
