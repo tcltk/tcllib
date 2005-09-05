@@ -76,6 +76,9 @@
 #
 #
 #   $Log: des.tcl,v $
+#   Revision 1.11  2005/09/05 07:54:43  patthoyts
+#   Fixed typo
+#
 #   Revision 1.10  2005/08/16 06:06:27  andreas_kupries
 #   Polishing the C code.
 #
@@ -602,7 +605,7 @@ proc ::DES::des {args} {
             default {
                 set err [join [lsort [array names opts]] ", -"]
                 return -code error "bad option [lindex $args 0]:\
-                       must be one of -$options"
+                       must be one of -$err"
             }
         }
         Pop args
