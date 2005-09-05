@@ -1,3 +1,8 @@
+2005-09-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ini.tcl:       Fix for bug #1280529 - collision with global
+	* inifile.test:  variable names. Added tests for these.
+
 2005-31-03 Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* ini.tcl: fixed bug where ini files were corrupted when

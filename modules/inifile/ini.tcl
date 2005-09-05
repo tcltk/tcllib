@@ -7,13 +7,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.7 2005/04/01 05:49:55 afaupell Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.8 2005/09/05 09:23:42 patthoyts Exp $
 
 package provide inifile 0.1
 
 namespace eval ini {
-    set nexthandle 0
-    set commentchar \;
+    variable nexthandle; if {![info exists nexthandle]} {set nexthandle 0}
+    variable commentchar; if {![info exists commentchar]} {set commentchar \;}
 }
 
 proc ::ini::open {ini {mode r+}} {
@@ -28,9 +28,9 @@ proc ::ini::open {ini {mode r+}} {
     fconfigure $tmp -translation crlf
 
     namespace eval ::ini::$fh {
-        array set data     {}
-        array set comments {}
-        array set sections {}
+        variable data;     array set data     {}
+        variable comments; array set comments {}
+        variable sections; array set sections {}
     }
     ::set ::ini::${fh}::channel $tmp
     ::set ::ini::${fh}::file    [_normalize $ini]
