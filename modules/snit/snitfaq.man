@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snitfaq n 1.0]
+[manpage_begin snitfaq n 2.0]
 [copyright {2003-2005, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc   {Snit Frequently Asked Questions}]
@@ -15,13 +15,14 @@ frequently asked.  Rather, these are the questions I think a newcomer
 to Snit should be asking.  This file is not a complete reference to
 Snit, however; that information is in the [cmd snit] man page.
 
-
 [subsection {What is Snit?}]
 
 Snit is a framework for defining abstract data types and megawidgets
-in pure Tcl.  The name "Snit" original stood for "Snit's Not Incr Tcl", 
+in pure Tcl.  The name "Snit" stands for "Snit's Not Incr Tcl", 
 signifying that Snit takes a different approach to defining objects 
-than does Incr Tcl, the best known object framework for Tcl.
+than does Incr Tcl, the best known object framework for Tcl.  Had
+I realized that Snit would become at all popular, I'd probably have
+chosen something else.
 
 [para]
 
@@ -59,7 +60,9 @@ building your application.
 
 [subsection {What version of Tcl does Snit require?}]
 
-Snit requires version Tcl 8.4 or later.
+Snit 1.1 requires Tcl 8.4 or later; Snit 2.0 requires Tcl 8.5 or
+later.  See [sectref {SNIT VERSIONS}] for the differences between Snit
+1.1 and Snit 2.0.
 
 [subsection {Where can I download Snit?}]
 
@@ -145,6 +148,184 @@ can be delegated to the component types automatically.
 
 [list_end]
 
+[section {SNIT VERSIONS}]
+
+[subsection {Which version of Snit should I use?}]
+
+The current Snit distribution includes two versions, Snit 1.1 and Snit
+2.0.  The reason that both are included is that Snit 2.0 takes
+advantage of a number of new features of Tcl 8.5 to improve run-time
+efficiency; as a side-effect, the ugliness of Snit's error messages
+and stack traces has been reduced considerably.  The cost of using
+Snit 2.0, of course, is that you must target Tcl 8.5.
+
+[para]
+
+Snit 1.1, on the other hand, lacks Snit 2.0's optimizations, but
+requires only Tcl 8.4 and later.
+
+[para]
+
+In short, if you're targetting Tcl 8.4 you should use Snit 1.1.  If
+you can afford to target Tcl 8.5, you should definitely use Snit 2.0.
+If you will be targetting both, you can use Snit 1.1 exclusively, or
+(if your code is unaffected by the minor incompatibilities between the
+two versions) you can use Snit 1.1 for Tcl 8.4 and Snit 2.0 for Tcl
+8.5.
+
+[subsection {How do I select the version of Snit I want to use?}]
+
+To always use Snit 1.1 (or a later version of Snit 1.x), invoke Snit
+as follows:
+
+[example {package require Snit 1.1
+}]
+
+To always use Snit 2.0 (or a later version of Snit 2.x), say this
+instead:
+
+[example {package require Snit 2.0
+}]
+
+Note that if you request Snit 2.0 explicitly, your application will
+halt with Tcl 8.4, since Snit 2.0 is unavailable for Tcl 8.4.
+
+[para]
+
+If you wish your application to always use the latest available
+version of Snit, don't specify a version number:
+
+[example {package require Snit
+}]
+
+Tcl will find and load the latest version that's available relative to
+the version of Tcl being used.  In this case, be careful to avoid
+using any incompatible features.
+
+[subsection {How are Snit 1.1 and Snit 2.0 incompatible?}]
+
+To the extent possible, Snit 2.0 is intended to be a drop-in
+replacement for Snit 1.1. Unfortunately, some incompatibilities were
+inevitable because Snit 2.0 uses Tcl 8.5's new 
+[cmd "namespace ensemble"] mechanism to implement subcommand dispatch.
+This approach is much faster than the mechanism used in Snit 1.1, and
+also results in much better error messages; however, it also places
+new constraints on the implementation.
+
+[para]
+
+There are three specific incompatibilities between Snit 1.1 and Snit 2.0.
+
+[para]
+
+[list_begin bullet]
+[bullet]
+
+Snit 1.1 supports implicit naming of objects.  Suppose you define a
+new [cmd snit::type] called [cmd dog].  You can create instances of
+[cmd dog] in three ways:
+
+[example {dog spot               ;# Explicit naming
+set obj1 [dog %AUTO%]  ;# Automatic naming
+set obj2 [dog]         ;# Implicit naming
+}]
+
+In Snit 2.0, type commands are defined using the [cmd "namespace ensemble"]
+mechanism; and [cmd "namespace ensemble"] doesn't allow an ensemble command
+to be called without a subcommand.  In short, using 
+[cmd "namespace ensemble"] there's no way to support implicit naming.
+
+[nl]
+
+All is not lost, however.  If the type has no type methods, then the
+type command is a simple command rather than an ensemble, and 
+[cmd "namespace ensemble"] is not used.  In this case, implicit naming
+is still possible.
+
+[nl]
+
+In short, you can have implicit naming if you're willing to do without
+type methods (including the standard type methods, like 
+[cmd "\$type info"]).  To do so, use the [const -hastypemethods] pragma:
+
+[example {pragma -hastypemethods 0}]
+
+[bullet]
+Hierarchical methods and type methods are implemented differently in
+Snit 2.0.  
+
+[nl]
+
+A hierarchical method is an instance method which has
+subcommands; these subcommands are themselves methods.  The Tk text
+widget's [cmd tag] command and its subcommands are examples of 
+hierarchical methods.  You can implement such subcommands in Snit
+simply by including multiple words in the method names:
+
+[example {method {tag configure} {tag args} { ... }
+
+method {tag cget} {tag option} {...}
+}]
+
+Here we've implicitly defined a [cmd tag] method which has two
+subcommands, [cmd configure] and [cmd cget].
+
+[nl]
+
+In Snit 1.1, hierarchical methods could be called in two ways:
+
+[example {$obj tag cget -myoption      ;# The good way
+$obj {tag cget} -myoption    ;# The weird way
+}]
+
+In the second call, we see that a hierarchical method or type method
+is simply one whose name contains multiple words.
+
+[nl]
+
+In Snit 2.0 this is no longer the case, and the "weird" way of calling
+hierarchical methods and type methods no longer works.
+
+[bullet]
+The third incompatibility derives from the second.  In Snit 1.1,
+hierarchical methods were also simply methods whose name contains
+multiple words.  As a result, [cmd "\$obj info methods"] returned the
+full names of all hierarchical methods.  In the example above, 
+the list returned by [cmd "\$obj info methods"] would include
+[cmd "tag configure"] and [cmd "tag cget"] but not [cmd "tag"], since
+[cmd "tag"] is defined only implicitly.
+
+[nl]
+
+In Snit 2.0, hierarchical methods and type methods are no longer
+simply ones whose
+name contains multiple words; in the above example, the list returned
+by [cmd "\$obj info methods"] would include [cmd "tag"] but not
+[cmd "tag configure"] or [cmd "tag cget"].
+
+[list_end]
+
+[subsection {Are there other differences between Snit 1.x and Snit 2.0?}]
+
+Yes.
+
+[list_begin bullet]
+[bullet]
+Method dispatch is considerably faster.
+
+[bullet]
+Many error messages and stack traces are cleaner.
+
+[bullet]
+The [const -simpledispatch] pragma is obsolete, and ignored if
+present. In Snit 1.x, [const -simpledispatch] substitutes a faster
+mechanism for method dispatch, at the cost of losing certain features.
+Snit 2.0 method dispatch is faster still in all cases, so 
+[const -simpledispatch] is no longer needed.
+
+[list_end]
+
+
 [section OBJECTS]
 
 [subsection {What is an object?}]
@@ -209,7 +390,7 @@ In Snit, object subcommands are generally called
 
 [subsection {What kinds of abstract data types does Snit provide?}]
 
-Snit allows you to define three kinds of abstract data types:
+Snit allows you to define three kinds of abstract data type:
 
 [para]
 
@@ -229,7 +410,7 @@ Snit allows you to define three kinds of abstract data types:
 [subsection {What is a snit::type?}]
 
 A [cmd snit::type] is a non-GUI abstract data type, e.g., a stack or a
-queue.  [cmd snit::types] are defined using the [cmd snit::type]
+queue.  [cmd snit::type]s are defined using the [cmd snit::type]
 command.  For example, if you were designing a kennel management
 system for a dog breeder, you'd need a dog type.
 
@@ -376,7 +557,7 @@ use the [const %AUTO%] keyword as the requested name:
 }]
 [para]
 
-The "%AUTO%" keyword can be embedded in a longer string:
+The [const %AUTO%] keyword can be embedded in a longer string:
 
 [para]
 [example {% set d [dog obj_%AUTO%]
@@ -605,7 +786,48 @@ barking at them:
 
 Not really, so long as you avoid the standard instance method names:
 [method configure], [method configurelist], [method cget],
-[method destroy], and [method info].
+[method destroy], and [method info].  Also, method names consisting of 
+multiple words define hierarchical methods.
+
+[subsection {What is a hierarchical method?}]
+
+An object's methods are subcommands of the object's instance command.
+Hierarchical methods allow an object's methods to have subcommands of
+their own; and these can in turn have subcommands, and so on.  This
+allows the programmer to define a tree-shaped command structure, such
+as is used by many of the Tk widgets--the subcommands of the 
+Tk [cmd text] widget's [cmd tag] method are hierarchical methods.
+
+[subsection {How do I define a hierarchical method?}]
+
+Define methods whose names consist of multiple words.  These words
+define the hierarchy implicitly.  For example, the following code
+defines a [cmd tag] method with subcommands [cmd cget] and 
+[cmd configure]:
+
+[example {snit::widget mytext {
+    method {tag configure} {tag args} { ... }
+
+    method {tag cget} {tag option} {...}
+}
+}]
+
+Note that there is no explicit definition for the [cmd tag] method;
+it is implicit in the definition of [cmd "tag configure"] and
+[cmd "tag cget"].  If you tried to define [cmd tag] explicitly in this
+example, you'd get an error.
+
+[subsection {How do I call hierarchical methods?}]
+
+As subcommands of subcommands.
+
+[example {% mytext .text
+.text
+% .text tag configure redtext -foreground red -background black
+% .text tag cget redtext -foreground
+red
+%
+}]
 
 [subsection {How do I make an instance method private?}]
 
@@ -836,7 +1058,17 @@ There's a safer way to do it, and it looks like this:
 The command [cmd mymethod] takes any number of arguments, and can be
 used like [cmd list] to build up a callback command; the only
 difference is that [cmd mymethod] returns a 
-form of the command that won't change even if the instance's name changes.
+form of the command that won't change even if the instance's name
+changes.
+
+[para]
+
+On the other hand, you might prefer to allow a widgetadaptor to 
+override a method such that your renamed widget will call the
+widgetadaptor's method instead of its own.  In this case, 
+using [cmd "\[list \$self bark\]"] will do what you want...but
+this is a technique which should be used only in carefully controlled
+circumstances.
 
 [subsection {How do I delegate instance methods to a component?}]
 
@@ -882,6 +1114,13 @@ time by specifying the [const -array] option:
 }]
 [para]
 
+[subsection {What happens if I don't initialize an instance variable?}]
+
+Variables do not really exist until they are given values.  If you 
+do not initialize a variable when you define it, then you must be
+sure to assign a value to it (in the constructor, say, or in some
+method) before you reference it.
+
 [subsection {Are there any limitations on instance variable names?}]
 
 Just a few.
@@ -909,6 +1148,57 @@ it can be used in any instance code (instance methods, the
 constructor, and the destructor) without declaration.  This differs
 from normal Tcl practice, in which all non-local variables in a proc
 need to be declared.
+
+[para]
+
+There is a speed penalty to having all instance variables implicitly
+available in all instance code.  Even though your code need not 
+declare the variables explicitly, Snit must still declare them,
+and that takes time.  If you have ten instance variables, a method
+that uses none of them must still pay the declaration penalty for 
+all ten.  In most cases, the additional runtime cost is negligible.
+If extreme cases, you might wish to avoid it; there are two methods
+for doing so.
+
+[para]
+
+The first is to define a single instance variable, an array, and store
+all of your instance data in the array.  This way, you're only paying
+the declaration penalty for one variable--and you probably need the
+variable most of the time anyway.  This method breaks down if your
+instance variables include multiple arrays; in Tcl 8.5, however,
+the [cmd dict] command might come to your rescue.
+
+[para]
+
+The second method is to declare your instance variables explicitly
+in your instance code, while [emph not] including them in the type
+definition:
+
+[example {snit::type dog {
+    constructor {} {
+        variable mood
+
+        set mood happy
+    }
+
+    method setmood {newMood} {
+        variable mood
+
+        set mood $newMood
+    }
+
+    method getmood {} {
+        variable mood
+
+        return $mood
+    }
+}
+}]
+
+This allows you to ensure that only the required variables are
+included in each method, at the cost of longer code and run-time
+errors when you forget to declare a variable you need.
 
 [subsection {How do I pass an instance variable's name to another object?}]
 
@@ -1028,8 +1318,8 @@ set at creation time.
 }]
 [para]
 
-So ::spot is a pedigreed beagle; ::fido is a typical mutt, but his
-owners evidently take care of him, because he's had his shots.
+So [cmd ::spot] is a pedigreed beagle; [cmd ::fido] is a typical mutt,
+but his owners evidently take care of him, because he's had his shots.
 
 [para]
 
@@ -1081,6 +1371,23 @@ Arctic Boar Hound
 }]
 [para]
 
+In Tcl 8.5, the [cmd {expand}] keyword can be used with 
+[method configure] in this case:
+
+[para]
+[example {% set features [list -color dun -breed "Arctic Boar Hound"]
+-color dun -breed {Arctic Boar Hound}
+% fido configure {expand}$features
+% fido cget -color
+dun
+% fido cget -breed
+Arctic Boar Hound
+%
+}]
+[para]
+
+The results are the same.
+
 [subsection {How should an instance method access an option value?}]
 
 There are two ways an instance method can set and retrieve an option's
@@ -1127,7 +1434,10 @@ less typing and is the usual way to do it.  But if you use
 [const -configuremethod] or [const -cgetmethod] (described in the following
 answers), you might wish to use the [method configure] and 
 [method cget] methods anyway, just so that any special processing you've
-implemented is sure to get done.
+implemented is sure to get done.  Also, if the option is delegated to
+a component then [method configure] and [method cget] are the only way
+to access it without accessing the component directly.  See 
+[sectref "DELEGATION"] for more information.
 
 [subsection {How can I make an option read-only?}]
 
@@ -1138,7 +1448,9 @@ Define the option with [const "-readonly yes"].
 Suppose you've got an option that determines how
 instances of your type are constructed; it must be set at creation
 time, after which it's constant.  For example, a dog never changes its
-breed; it might or might not have had its shots.
+breed; it might or might not have had its shots, and if not can have
+them at a later time.  [const -breed] should be read-only, but
+[const -shots] should not be.
 
 [para]
 [example {% snit::type dog {
@@ -1311,6 +1623,13 @@ Array-valued type variables are also defined using the
 }]
 [para]
 
+[subsection {What happens if I don't initialize a type variable?}]
+
+Variables do not really exist until they are given values.  If you 
+do not initialize a variable when you define it, then you must be
+sure to assign a value to it (in the type constructor, say)
+before you reference it.
+
 [subsection {Are there any limitations on type variable names?}]
 
 Type variable names have the same restrictions as 
@@ -1322,6 +1641,12 @@ No. Once you've defined a type variable in the type definition, it can
 be used in [sectref {INSTANCE METHODS}] or [sectref {TYPE METHODS}] without
 declaration.  This differs from normal Tcl practice, in which all
 non-local variables in a proc need to be declared.
+
+[para]
+
+Type variables are subject to the same speed/readability tradeoffs
+as instance variables; see
+[sectref {Do I need to declare my instance variables in my methods?}] 
 
 [subsection {How do I pass a type variable's name to another object?}]
 
@@ -1442,8 +1767,6 @@ foreach dog [dog pedigreedDogs] { ... }
 [subsection {Are there any limitations on type method names?}]
 
 Not really, so long as you avoid the standard type method names:
-
-[para]
 [method create], [method destroy], and [method info].
 
 
@@ -1512,7 +1835,13 @@ pack .btn
 
 Alternatively, from a method or type method you can use the 
 [cmd mytypemethod] command, just as you would use [cmd mymethod]
-to define a callback command for an [sectref {INSTANCE METHOD}].
+to define a callback command for [sectref {INSTANCE METHODS}].
+
+[subsection {Can type methods be hierarchical?}]
+
+Yes, you can define hierarchical type methods in just the same way as
+you can define hierarchical instance methods.  See
+[sectref {INSTANCE METHODS}] for more.
 
 [section PROCS]
 
@@ -1918,7 +2247,7 @@ object was created.
 
 [subsection {Are there any limitations on component names?}]
 
-Yes.  [cmd snit::widget] and [cmd snit::widgetadaptor] have a special
+Yes.  [cmd snit::widget] and [cmd snit::widgetadaptor] objects have a special
 component called the [var hull] component; thus, the name [var hull]
 should be used for no other purpose.
 
@@ -1995,7 +2324,7 @@ For example:
 
     constructor {args} {
         # set mytail [tail %AUTO% -partof $self]
-        install mytail using tail %AUTO% -partof $self]
+        install mytail using tail %AUTO% -partof $self
         $self configurelist $args
     }
 }
@@ -2235,9 +2564,7 @@ which the [cmd dog] object can delegate its [cmd wag] method and its
 [example {snit::type dog {
     variable mytail
 
-    option -taillength \
-        -configuremethod SetTailOption \
-        -cgetmethod      GetTailOption
+    option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
     
 
     method SetTailOption {option value} {
@@ -2572,6 +2899,49 @@ set of delegated options.  Similarly, dogs can neither
 [method fly] nor [method climb],
 so we exclude those [cmd animal] methods as shown.
 
+[subsection {Can a hierarchical method be delegated?}]
+
+Yes; just specify multiple words in the delegated method's name:
+
+[para]
+[example {snit::type tail {
+    method wag {} {return "Wag, wag"}
+    method droop {} {return "Droop, droop"}
+}
+
+
+snit::type dog {
+    delegate method {tail wag} to mytail
+    delegate method {tail droop} to mytail
+
+    # ...
+
+    constructor {args} {
+        install mytail using tail %AUTO%
+        $self configurelist $args
+    }
+
+    # ...
+}
+}]
+[para]
+
+Unrecognized hierarchical methods can also be delegated; the following
+code delegates all subcommands of the "tail" method to the "mytail"
+component:
+
+[para]
+[example {snit::type dog {
+    delegate method {tail *} to mytail
+
+    # ...
+}
+}]
+[para]
+
+
+
+
 [section WIDGETS]
 
 [subsection {What is a snit::widget?}]
@@ -2623,9 +2993,9 @@ destroy method; use the Tk [cmd destroy] command instead.
 Every instance of a [cmd snit::widget] has one predefined component
 called its [var hull] component.
 
-The hull is a Tk [cmd frame] or [cmd toplevel] widget; any other
+The hull is usually a Tk [cmd frame] or [cmd toplevel] widget; any other
 widgets created as part of the [cmd snit::widget] will usually be
-contained within this frame.
+contained within the hull.
 
 [bullet]
 
@@ -2633,8 +3003,6 @@ contained within this frame.
 [sectref {THE TK OPTION DATABASE}].
 
 [list_end]
-
-
 
 [subsection {What is a hull component?}]
 
@@ -2649,10 +3017,8 @@ behaves like a standard Tk widget.
 
 [para]
 
-For [cmd snit::widget]s the hull component must be a Tk [cmd frame] or
-[cmd toplevel] widget; any other widgets created as part of
-the [cmd snit::widget] will be contained within this frame or
-toplevel.
+For [cmd snit::widget]s the hull component must be a Tk widget that
+defines the [const -class] option.
 
 [para]
 
@@ -2660,13 +3026,12 @@ toplevel.
 that any kind of widget can be used as the hull component; see
 [sectref {WIDGET ADAPTORS}].
 
-
-
 [subsection {How can I set the hull type for a snit::widget?}]
 
 A [cmd snit::widget]'s hull component will usually be a Tk [cmd frame]
-widget; however, it may also be a [cmd toplevel] widget.  You can
-explicitly choose one or the other by including the [cmd hulltype]
+widget; however, it may be any Tk widget that defines the 
+[const -class] option.  You can
+explicitly choose the hull type you prefer by including the [cmd hulltype]
 command in the widget definition:
 
 [para]
@@ -2679,6 +3044,27 @@ command in the widget definition:
 [para]
 
 If no [cmd hulltype] command appears, the hull will be a [cmd frame].
+
+[para]
+
+By default, Snit recognizes the following hull types: the Tk widgets
+[cmd frame], [cmd labelframe], [cmd toplevel], and the Tile widgets
+[cmd ttk::frame], [cmd ttk::labelframe], and [cmd ttk::toplevel].  To
+enable the use of some other kind of widget as the hull type, you can
+[cmd lappend] the widget command to the variable [var snit::hulltypes] (always
+provided the widget defines the [const -class] option.  For example,
+suppose Tk gets a new widget type called a [cmd prettyframe]:
+
+[para]
+[example {lappend snit::hulltypes prettyframe
+
+snit::widget mywidget {
+    hulltype prettyframe
+
+    # ...
+}
+}]
+[para]
 
 
 
@@ -3391,9 +3777,8 @@ then we create a single instance with the desired name--
 
 This method has two drawbacks.  First, it leaves the type command
 floating about.  More seriously, your shiny new ensemble
-command will have [method cget], [method configure], [method info],
-and [method destroy] subcommands that you probably have no use for.
-But read on.
+command will have [method info] and [method destroy] subcommands that
+you probably have no use for.  But read on.
 
 [subsection {How can I create an ensemble command using a snit::type?}]
 
@@ -3556,11 +3941,11 @@ the old behavior, set the [const -canreplace] pragma to [const yes]:
 
 [subsection {How can I make my simple type run faster?}]
 
-Set the [const -simpledispatch] pragma to [const yes].
+In Snit 1.x, you can set the [const -simpledispatch] pragma to [const yes].
 
 [para]
 
-Snit method dispatch is both flexible and fast, but the flexibility
+Snit 1.x method dispatch is both flexible and fast, but the flexibility
 comes with a price.  If your type doesn't require the flexibility, the 
 [const -simpledispatch] pragma allows you to substitute a simpler
 dispatch mechanism that runs quite a bit faster.  The limitations
@@ -3575,6 +3960,10 @@ caller's scope is two levels up rather than one.
 ([cmd cget], [cmd configure], and [cmd configurelist]) are very
 slightly slower.
 [list_end]
+
+In Snit 2.0, the [const -simpledispatch] macro is obsolete, and
+ignored; all Snit 2.0 method dispatch is faster than Snit 1.x's 
+[const -simpledispatch].
 
 [section {MACROS}]
 
