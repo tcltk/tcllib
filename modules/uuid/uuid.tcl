@@ -57,7 +57,7 @@ proc ::uuid::generate_tcl {} {
     # bug 1150714: opening a server socket may raise a warning messagebox
     #   with WinXP firewall, using ipconfig will return all IP addresses
     #   including ipv6 ones if available. ipconfig is OK on win98+
-    if {[string equal $tcl_platform(platform) "windows"]} {
+    if {[string equal $::tcl_platform(platform) "windows"]} {
         catch {exec ipconfig} config
         md5::MD5Update $tok $config
     } else {
