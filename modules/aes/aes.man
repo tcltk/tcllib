@@ -1,5 +1,6 @@
+[comment {-*- tcl -*- doctools manpage}]
 [manpage_begin aes n 1.0]
-[copyright {2005, Thorsten Schloermann}]
+[copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Implementation of the AES block cipher}]
 [require Tcl 8.2]
@@ -44,7 +45,8 @@ key schedule.
 The [arg -mode] and [arg -dir] options are optional and default to cbc
 mode and encrypt respectively. The initialization vector [arg -iv]
 takes a 16 byte binary argument which defaults to all zeros.
-See [sectref "MODES OF OPERATION"] for more about modes.
+See [sectref "MODES OF OPERATION"] for more about available modes and
+their uses.
 
 [nl]
 
@@ -68,6 +70,7 @@ initialization vector value.
 Construct a new AES key schedule using the specified key data and the
 given initialization vector. The initialization vector is not used
 with ECB mode but is important for CBC mode.
+See [sectref "MODES OF OPERATION"] for details about cipher modes.
 
 [call [cmd "::aes::Encrypt"] [arg "Key"] [arg "data"]]
 
@@ -97,9 +100,8 @@ Once this function has been called the key may not be used again.
 
 [section "MODES OF OPERATION"]
 
-[section "MODES OF OPERATION"]
-
 [list_begin definitions]
+
 [lst_item "Electronic Code Book (ECB)"]
 ECB is the basic mode of all block ciphers. Each block is encrypted
 independently and so identical plain text will produce identical
@@ -128,10 +130,10 @@ commonly used mode in software encryption.
 }]
 
 [example {
- set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
- append ciphertext [aes::Encrypt $Key $plaintext]
- append ciphertext [aes::Encrypt $Key $additional_plaintext]
- aes::Final $Key
+set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
+append ciphertext [aes::Encrypt $Key $plaintext]
+append ciphertext [aes::Encrypt $Key $additional_plaintext]
+aes::Final $Key
 }]
 
 [section "REFERENCES"]
@@ -148,8 +150,7 @@ commonly used mode in software encryption.
 [see_also des(n) md5(n) sha1(n) blowfish(n)]
 
 [section AUTHORS]
-Thorsten Schloermann
-Pat Thoyts
+Thorsten Schloermann, Pat Thoyts
 
 [keywords aes {block cipher} security encryption {data integrity}]
 [manpage_end]
