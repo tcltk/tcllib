@@ -127,6 +127,41 @@ test inifile-1.14 {ini:::exists} {
     set res
 } {1}
 
+# Tests for bug #1281136 --
+set N 0
+foreach name {nexthandle commentchar} {
+    test inifile-2.$N {bug 1281136 - collision with global variable names} {
+        set script {list [catch {
+            array set ::%var {}
+            source %file
+        } err] $err}
+        regsub {%file} $script $inifile script
+        regsub {%var} $script $name script
+        interp create slave0
+        set r [slave0 eval $script]
+        interp delete slave0
+        set r
+    } {0 {}}
+    incr N
+}
+foreach name {data comments sections} {
+    test inifile-2.$N {bug 1281136 - collision with global variable names} {
+        set script {list [catch {
+            ::set ::%var 0
+            source %file
+            set res [ini::open %testini r]
+            ini::close $res
+        } err] $err}
+        foreach {s v} [list %file $inifile %var $name %testini $testini] {
+            regsub $s $script $v script
+        }
+        interp create slave0
+        set r [slave0 eval $script]
+        interp delete slave0
+        set r
+    } {0 {}}
+    incr N
+}
 
 #---------------------------------------------------------------------
 # Clean up
