@@ -536,36 +536,38 @@ proc ::math::bigfloat::_atanfract {integer precision} {
     # n(2log(5)-log(2)+2)>(precision-1)*log(2)+1+log(5)
     set n [expr {int((($precision-1)*log(2)+1+log(5))/(2*log(5)-log(2)+2)+1)}]
     incr precision $n
-    set one [::math::bignum::lshift 1 $precision]
     # first term of the development : 1/integer
-    set a [::math::bignum::div $one $integer]
+    set a [::math::bignum::div [::math::bignum::lshift 1 $precision] $integer]
     # 's' will contain the result
     set s $a
     # Taylor development : x - x^3/3 + x^5/5 - ... + (-1)^(n+1)*x^(2n-1)/(2n-1)
-    # equals x (1 - x^2 * (1/3 + x^2 * (... * (1/(2n-3) + (-1)^(n+1) * x^2 / (2n-1))...))) 
-    # all we need to store is : 2n-1 ($denom), x^2 ($square) and two results :
+    # equals x (1 - x^2 * (1/3 + x^2 * (... * (1/(2n-3) + (-1)^(n+1) * x^2 / (2n-1))...)))
+    # all we need to store is : 2n-1 ($denom), x^(2n+1) and x^2 ($square) and two results :
     # - the nth term => $u
     # - the nth term * (2n-1) => $t
     # + of course, the result $s
-    set square [::math::bignum::mul $integer $integer]
+    set square [::math::bignum::div [::math::bignum::lshift 1 $precision] [::math::bignum::mul $integer $integer]]
     variable two
     variable three
     set denom $three
     # $t is (-1)^n*x^(2n+1)
-    set t [opp [::math::bignum::div $a $square]]
+    set t [opp [intMulShift $a $square $precision]]
     set u [::math::bignum::div $t $denom]
     # we break the loop when the current term of the development is null
     while {![::math::bignum::iszero $u]} {
         set s [::math::bignum::add $s $u]
         # denominator= (2n+1)
         set denom [::math::bignum::add $denom $two]
-        set t [opp [::math::bignum::div $t $square]]
+        # div $t by x^2
+        set t [opp [intMulShift $t $square $precision]]
         set u [::math::bignum::div $t $denom]
     }
     # go back to the initial precision
     return [::math::bignum::rshift $s $n]
 }
 
+
+    
 ################################################################################
 # returns the integer part of a BigFloat, as a BigInt
 # the result is the same one you would have
