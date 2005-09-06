@@ -1,3 +1,6 @@
+2005-09-06  Stephane Arnold <sarnold75@users.sourceforge.net>
+	* bigfloat.tcl : new and faster algorithm to compute Pi
+
 2005-08-31  Stephane Arnold <sarnold75@users.sourceforge.net>
 	* bigfloat.tcl : added many comments and fixed some minor bugs
 	  (possibly following to inexact last digits)
