@@ -507,6 +507,7 @@ proc ::math::bigfloat::atan {x} {
     return [normalize [list F $result [expr {$exp-$n}] $delta_end]]
 }
 
+
 ################################################################################
 # compute atan(1/integer) at a given precision
 # this proc is only used to compute Pi
@@ -524,7 +525,7 @@ proc ::math::bigfloat::_atanfract {integer precision} {
     # Remember : we compute atan2(1,$integer) with $precision bits
     # $integer has no Delta parameter as it is a BigInt, of course, so
     # theorically we could compute *any* number of digits.
-    # 
+    #
     # if we add an increment to the precision, say n:
     # (1/5)^(2n-1)/(2n-1)     has to be lower than (1/2)^(precision+n-1)
     # Calculus :
@@ -546,12 +547,12 @@ proc ::math::bigfloat::_atanfract {integer precision} {
     # - the nth term => $u
     # - the nth term * (2n-1) => $t
     # + of course, the result $s
-    set square [::math::bignum::div [::math::bignum::lshift 1 $precision] [::math::bignum::mul $integer $integer]]
+    set square [::math::bignum::mul $integer $integer]
     variable two
     variable three
     set denom $three
     # $t is (-1)^n*x^(2n+1)
-    set t [opp [intMulShift $a $square $precision]]
+    set t [opp [::math::bignum::div $a $square]]
     set u [::math::bignum::div $t $denom]
     # we break the loop when the current term of the development is null
     while {![::math::bignum::iszero $u]} {
@@ -559,13 +560,12 @@ proc ::math::bigfloat::_atanfract {integer precision} {
         # denominator= (2n+1)
         set denom [::math::bignum::add $denom $two]
         # div $t by x^2
-        set t [opp [intMulShift $t $square $precision]]
+        set t [opp [::math::bignum::div $t $square]]
         set u [::math::bignum::div $t $denom]
     }
     # go back to the initial precision
     return [::math::bignum::rshift $s $n]
 }
-
 
     
 ################################################################################
