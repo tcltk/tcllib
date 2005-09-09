@@ -1,3 +1,7 @@
+2005-09-09  Stephane Arnold <sarnold75@users.sourceforge.net>
+	* bigfloat.tcl : went back to the old algorithm to compute Pi
+	  after having done much benchmarks
+
 2005-09-06  Stephane Arnold <sarnold75@users.sourceforge.net>
 	* bigfloat.tcl : new and faster algorithm to compute Pi
 
