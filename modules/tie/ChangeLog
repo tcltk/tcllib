@@ -1,3 +1,8 @@
+2005-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ../examples/tie/metakit.tcl: Added an example backend for tieing
+	  arrays to a metakit database.
+
 2005-03-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tie.man (unsetv): Fixed a small documentation error. The
