@@ -12,10 +12,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
+package require Tcl 8.2
 
 namespace eval ::SASL {
     variable version 1.0.0
-    variable rcsid {$Id: sasl.tcl,v 1.3 2005/02/11 02:47:58 patthoyts Exp $}
+    variable rcsid {$Id: sasl.tcl,v 1.4 2005/09/19 12:12:39 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -98,7 +99,7 @@ proc ::SASL::configure {context args} {
                 foreach m $mechanisms {
                     if {[string equal [lindex $m 1] $mech]} {
                         set ctx(mech) $mech
-                        if {$ctx(type) eq "server"} {
+                        if {[string equal $ctx(type) "server"]} {
                             set ctx(proc) [lindex $m 3]
                         } else {
                             set ctx(proc) [lindex $m 2]
@@ -106,7 +107,7 @@ proc ::SASL::configure {context args} {
                         break
                     }
                 }
-                if {$ctx(proc) eq {}} {
+                if {[string equal $ctx(proc) {}]} {
                     return -code error "mechanism \"$mech\" not available:\
                         must be one of those given by \[sasl::mechanisms\]"
                 }
@@ -118,7 +119,7 @@ proc ::SASL::configure {context args} {
                 set type [Pop args 1]
                 if {[lsearch -exact {server client} $type] != -1} {
                     set ctx(type) $type
-                    if {$ctx(mech) ne ""} {
+                    if {![string equal $ctx(mech) ""]} {
                         configure $context -mechanism $ctx(mech)
                     }
                 } else {
@@ -380,7 +381,9 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
             set tok {0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\-\|\~\!\#\$\%\&\*\+\.\^\_\`}
             set sqot {(?:\'(?:\\.|[^\'\\])*\')}
             set dqot {(?:\"(?:\\.|[^\"\\])*\")}
-            array set params [regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 }]
+            set parameters {}
+            regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 } parameters
+            array set params $parameters
             
             if {![info exists digest_md5_noncecount]} {
                 set digest_md5_noncecount 0
