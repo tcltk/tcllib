@@ -1,3 +1,7 @@
+2005-09-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sasl.tcl: Fixed 8.4isms and specified requirement to Tcl 8.2
+
 2005-04-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* saslclient.tcl: Moved example out of the module into a new
