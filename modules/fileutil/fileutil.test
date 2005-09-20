@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.32 2005/08/16 06:06:28 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.33 2005/09/20 06:51:58 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -751,6 +751,7 @@ test tempdir-1.2 {return the correct directorary for temporary files} {unix} {
     catch {unset ::env(TMPDIR)}
     catch {unset ::env(TEMPDIR)}
     catch {unset ::env(TMP)}
+    catch {unset ::env(TEMP)}
     ::fileutil::tempdir
 } {/tmp}
 
