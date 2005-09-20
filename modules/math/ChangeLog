@@ -1,11 +1,35 @@
+2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bessel.test:   Fixed a number of typos in the abort messages.
+	* bigfloat.test: Indented abort messages for better visibility
+	* bignum.test:   in the log.
+	* calculus.test: Declared 8.4 dependency of bignum/bigfloat in
+	* constants.test: package index, code, and testsuite.
+	* elliptic.test: Removed 8.4isms from testsuites for packages
+	* fourier.test:  allowing use with Tcl 8.2+
+	* interpolate.test: 
+	* linalg.test: 
+	* math.test: 
+	* optimize.test: 
+	* polynomials.test: 
+	* qcomplex.test: 
+	* special.test: 
+	* statistics.test: 
+	* bigfloat.tcl: 
+	* bignum.tcl: 
+	* pkgIndex.tcl: 
+
 2005-09-09  Stephane Arnold <sarnold75@users.sourceforge.net>
+
 	* bigfloat.tcl : went back to the old algorithm to compute Pi
 	  after having done much benchmarks
 
 2005-09-06  Stephane Arnold <sarnold75@users.sourceforge.net>
+
 	* bigfloat.tcl : new and faster algorithm to compute Pi
 
 2005-08-31  Stephane Arnold <sarnold75@users.sourceforge.net>
+
 	* bigfloat.tcl : added many comments and fixed some minor bugs
 	  (possibly following to inexact last digits)
 	* bigfloat.test : fixed a bug that causes the version number

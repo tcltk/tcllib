@@ -1,3 +1,10 @@
+2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* filetypes.test (fumagic.filetype-1.2): Modified test result to
+	* mimetypes.test (fumagic.mimetype-1.2): make it independent of
+	  the exact channel handle listed in the error message. Has
+	  changed with Tcl 8.5.
+
 2005-03-16  Andreas Kupries <andreask@activestate.com>
 
 	* Fixed typos in the manpage headers.

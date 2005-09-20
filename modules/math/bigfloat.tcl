@@ -45,6 +45,7 @@
 #
 ########################################################################
 
+package require Tcl 8.4
 package require math::bignum
 
 # this line helps when I want to source this file again and again
