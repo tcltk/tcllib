@@ -13,8 +13,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     # Ensure that 2.1 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "Aborting tests for math::statistics."
-	puts "Requiring tcltest 2.1, have [package present tcltest]"
+	puts "    Aborting tests for math::statistics."
+	puts "    Requiring tcltest 2.1, have [package present tcltest]"
 	return
     }
 }

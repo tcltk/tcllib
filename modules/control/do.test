@@ -2,7 +2,7 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.8 2004/02/14 05:59:20 andreas_kupries Exp $
+# RCS: @(#) $Id: do.test,v 1.9 2005/09/20 05:59:51 andreas_kupries Exp $
 #
 
 package forget control
@@ -223,6 +223,19 @@ test do-2.2 {wrong no of arguments} {
 "do {incr x} foo"}}
 
 # ----------------------------------------
+
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    # 8.4 and lower
+    set do23res {1 {wrong # args: should be "do body args"
+    while executing
+"do"}}
+} else {
+    # 8.5 and higher
+    set do23res {1 {wrong # args: should be "do body ..."
+    while executing
+"do"}}
+}
+
 test do-2.3 {wrong no of arguments} {} {
     set res [catch do]
     if {[string match \
@@ -234,9 +247,7 @@ test do-2.3 {wrong no of arguments} {} {
 "do"}
     }
     list $res $::errorInfo
-} {1 {wrong # args: should be "do body args"
-    while executing
-"do"}}
+} $do23res
 
 # ----------------------------------------
 test do-2.4 {one-shot do with error} {
