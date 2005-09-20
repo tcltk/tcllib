@@ -12,8 +12,8 @@ package ifneeded math::constants         1.0   [list source [file join $dir cons
 package ifneeded math::polynomials       1.0   [list source [file join $dir polynomials.tcl]]
 package ifneeded math::rationalfunctions 1.0   [list source [file join $dir rational_funcs.tcl]]
 package ifneeded math::fourier           1.0   [list source [file join $dir fourier.tcl]]
-package ifneeded math::linearalgebra     1.0   [list source [file join $dir linalg.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+package ifneeded math::linearalgebra     1.0   [list source [file join $dir linalg.tcl]]
 package ifneeded math::bignum            3.0   [list source [file join $dir bignum.tcl]]
 package ifneeded math::bigfloat          1.2   [list source [file join $dir bigfloat.tcl]]

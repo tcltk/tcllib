@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # linalg.test --
 #    Tests for the linear algebra package
 #
@@ -10,6 +11,12 @@
 #    - solveGaussBand, solveTriangularBand
 #    - mkHilbert and so on
 #    - matmul
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "    Aborting tests for math::bignum."
+    puts "    Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest 2.1
