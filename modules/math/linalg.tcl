@@ -22,6 +22,8 @@
 #      \ a31 a32 a33 /
 #
 
+package require Tcl 8.4
+
 namespace eval ::math::linearalgebra {
     # Define the namespace
     namespace export dim shape conforming symmetric

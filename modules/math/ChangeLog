@@ -1,5 +1,9 @@
 2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* pkgIndex.tcl: Declared 8.4 dependency of linalg package in
+	* linalg.tcl:   package index, code, and testsuite.
+	* linalg.test:
+
 	* bessel.test:   Fixed a number of typos in the abort messages.
 	* bigfloat.test: Indented abort messages for better visibility
 	* bignum.test:   in the log.
