@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.9 2005/08/29 20:28:00 kennykb Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.10 2005/09/20 05:59:51 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -155,14 +155,14 @@ test combinatorics-2.7 { math::factorial, exponent overflow } {
     if {![catch { 
 	math::factorial 171 
     } msg]} {
-	if { $msg eq {Infinity} || $msg eq {Inf} } {
+	if { [string equal $msg Infinity] || [string equal $msg Inf] } {
 	    set result ok
 	} else {
 	    set result "result of factorial was [list $msg],\
 	                should be Infinity"
 	}
     } else {
-	if { [lrange $::errorCode 0 1] eq {ARITH OVERFLOW} } {
+	if { [string equal [lrange $::errorCode 0 1] {ARITH OVERFLOW}] } {
 	    set result ok
 	} else {
 	    set result "error from factorial was [list $::errorCode],\
@@ -241,14 +241,14 @@ test combinatorics-3.10 { math::choose big args } {
     if {![catch { 
 	math::choose 1500 750
     } msg]} {
-	if { $msg eq {Infinity} || $msg eq {Inf} } {
+	if { [string equal $msg Infinity] || [string equal $msg Inf] } {
 	    set result ok
 	} else {
 	    set result "result of choose was [list $msg],\
 	                should be Infinity"
 	}
     } else {
-	if { [lrange $::errorCode 0 1] eq {ARITH OVERFLOW} } {
+	if { [string equal [lrange $::errorCode 0 1] {ARITH OVERFLOW}] } {
 	    set result ok
 	} else {
 	    set result "error from choose was [list $::errorCode],\

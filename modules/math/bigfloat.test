@@ -45,6 +45,14 @@
 #
 ########################################################################
 
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "    Aborting tests for math::bigfloat."
+    puts "    Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
+
+package require tcltest
+
 package forget math::bigfloat
 catch { namespace delete ::math::bigfloat }
 
@@ -55,8 +63,6 @@ catch {source [file join [file dirname [info script]] bignum.tcl]}
 source [file join [file dirname [info script]] bigfloat.tcl]
 namespace import ::math::bigfloat::*
 
-
-package require tcltest
 proc assert {name version code result} {
     #puts -nonewline $version,
     tcltest::test bigfloat-$name-$version "Some integer computations related to command $name" {uplevel 1 $code} $result

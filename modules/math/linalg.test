@@ -16,8 +16,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 } else {
     if {![package vsatisfies [package present tcltest] 2.0]} {
-        puts "Aborting tests for math::linearalgebra"
-        puts "Requiring tcltest 2.1, have [package present tcltest]"
+        puts "    Aborting tests for math::linearalgebra"
+        puts "    Requiring tcltest 2.1, have [package present tcltest]"
         return
     }
 }

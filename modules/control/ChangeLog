@@ -1,3 +1,9 @@
+2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* do.test (test do-2.3): Made the expected error stack conditional
+	  on the version of Tcl executing the testsuite. Tcl 8.5 is now
+	  generating a stack different from 8.4 or below.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
