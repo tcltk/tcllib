@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: bessel.test,v 1.8 2004/09/22 11:05:52 arjenmarkus Exp $
+# $Id: bessel.test,v 1.9 2005/09/20 05:59:51 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -18,8 +18,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     # Ensure that 2.1 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "Aborting tests for math::statistics."
-	puts "Requiring tcltest 2.1, have [package present tcltest]"
+	puts "    Aborting tests for bessel in math::special."
+	puts "    Requiring tcltest 2.1, have [package present tcltest]"
 	return
     }
 }

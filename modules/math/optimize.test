@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.10 2005/08/25 19:00:32 techentin Exp $
+# $Id: optimize.test,v 1.11 2005/09/20 05:59:51 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004, 2005 by Kevin B. Kenny
@@ -23,8 +23,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     # Ensure that 2.1 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "Aborting tests for math::statistics."
-	puts "Requiring tcltest 2.1, have [package present tcltest]"
+	puts "    Aborting tests for math::optimize."
+	puts "    Requiring tcltest 2.1, have [package present tcltest]"
 	return
     }
 }

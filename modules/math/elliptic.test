@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.5 2004/09/22 11:05:52 arjenmarkus Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.6 2005/09/20 05:59:51 andreas_kupries Exp $
 
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
@@ -17,8 +17,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     # Ensure that 2.1 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "Aborting tests for math::statistics."
-	puts "Requiring tcltest 2.1, have [package present tcltest]"
+	puts "    Aborting tests for elliptic in math::special."
+	puts "    Requiring tcltest 2.1, have [package present tcltest]"
 	return
     }
 }
