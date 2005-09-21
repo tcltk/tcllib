@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie.test,v 1.5 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.test,v 1.6 2005/09/21 05:05:22 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for tie."
@@ -438,7 +438,7 @@ b 5 c 3 d 6}
 test tie-7.1 {untie, wrong#args} {
     catch {tie::untie} msg
     set msg
-} {wrong # args: should be "tie::untie avar args"}
+} [tcltest::tooManyArgs tie::untie {avar args}]
 
 test tie-7.2 {untie, wrong#args} {
     catch {tie::untie a b c} msg
@@ -469,7 +469,7 @@ test tie-7.4 {untie, bad token, for other array} {
 test tie-8.0 {tie::info, wrong#args, not enough} {
     catch {tie::info} msg
     set msg
-} {wrong # args: should be "tie::info cmd args"}
+} [tcltest::wrongNumArgs tie::info {cmd args} 0]
 
 test tie-8.1 {tie::info ties, wrong#args, not enough} {
     catch {tie::info ties} msg

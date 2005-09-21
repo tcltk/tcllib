@@ -1,3 +1,8 @@
+2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.tcl (H_capa): Replaced 8.4isms (operator eq) with usage of
+	  'string equal'. The module is for 8.3+.
+
 2005-07-07  Reinhard Max  <max@suse.de>
 
 	* pop3d.test: Using wildcards in some expected results so that

@@ -24,10 +24,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: interpolate.tcl,v 1.4 2004/09/22 11:05:52 arjenmarkus Exp $
+# RCS: @(#) $Id: interpolate.tcl,v 1.5 2005/09/21 05:05:22 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
+package require Tcl 8.4
 package require struct
 
 # ::math::interpolate --

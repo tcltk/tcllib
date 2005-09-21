@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_state.test,v 1.3 2005/08/16 06:06:29 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_state.test,v 1.4 2005/09/21 05:05:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -12,7 +12,7 @@ test fa-state-1.0 {state, error} {
     catch {a state} res
     a destroy
     set res
-} {wrong # args: should be "::grammar::fa::Snit_methodstate type selfns win self cmd s args"}
+} [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
 test fa-state-1.1 {state, error} {
@@ -20,7 +20,7 @@ test fa-state-1.1 {state, error} {
     catch {a state add} res
     a destroy
     set res
-} {wrong # args: should be "::grammar::fa::Snit_methodstate type selfns win self cmd s args"}
+} [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
 test fa-state-1.2 {state, error} {
@@ -46,7 +46,7 @@ test fa-state-1.4 {state, error} {
     catch {a state exists} res
     a destroy
     set res
-} {wrong # args: should be "::grammar::fa::Snit_methodstate type selfns win self cmd s args"}
+} [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
 test fa-state-1.5 {state, error} {
@@ -62,7 +62,7 @@ test fa-state-1.6 {state, error} {
     catch {a state delete} res
     a destroy
     set res
-} {wrong # args: should be "::grammar::fa::Snit_methodstate type selfns win self cmd s args"}
+} [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
 test fa-state-1.7 {state, error} {
@@ -78,7 +78,7 @@ test fa-state-1.8 {state, error} {
     catch {a state rename} res
     a destroy
     set res
-} {wrong # args: should be "::grammar::fa::Snit_methodstate type selfns win self cmd s args"}
+} [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 0]
 
 
 test fa-state-1.9 {state, error} {

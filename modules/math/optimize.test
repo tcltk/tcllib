@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.11 2005/09/20 05:59:51 andreas_kupries Exp $
+# $Id: optimize.test,v 1.12 2005/09/21 05:05:22 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004, 2005 by Kevin B. Kenny
@@ -15,6 +15,12 @@
 #    By evaluating the tests in a different namespace than global,
 #    we assure that the namespace issue (Bug #...) is checked.
 #
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "    Aborting tests for math::bignum."
+    puts "    Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest 2.1

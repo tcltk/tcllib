@@ -5,7 +5,7 @@
 [moddesc   {Tcl Math Library}]
 [titledesc {Interpolation routines}]
 
-[require Tcl [opt 8.3]]
+[require Tcl [opt 8.4]]
 [require struct]
 [require math::interpolate [opt 0.2]]
 
