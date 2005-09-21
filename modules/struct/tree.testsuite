@@ -7,7 +7,17 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.testsuite,v 1.1 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.testsuite,v 1.2 2005/09/21 05:05:22 andreas_kupries Exp $
+
+if {[package vsatisfies [package provide tcltest] 2.0]} {
+    # tcltest2.0+ has an API to specify a test constraint
+    ::tcltest::testConstraint tree_critcl \
+	[string equal $impl critcl]
+} else {
+    # In tcltest1.0, a global variable needs to be set directly.
+    set ::tcltest::testConstraints(tree_critcl) \
+	[string equal $impl critcl]
+}
 
 ############################################################
 # I. Tree object construction and destruction ...
@@ -1088,12 +1098,19 @@ test tree-${impl}-3.9.18 {extended node names with spaces check} {
     set msg
 } [list ":\n\t " 1 1 0 [list root ":\n\t " yummy] data root foo]
 
-test tree-${impl}-3.9.19 {insert fails for a bad index} {
+test tree-${impl}-3.9.19a {insert fails for a bad index} {!tcl8.5plus||tree_critcl} {
     tree mytree
     catch {mytree insert root foo new-node} msg
     mytree destroy
     set msg
 } {bad index "foo": must be integer or end?-integer?}
+
+test tree-${impl}-3.9.19b {insert fails for a bad index} {tcl8.5plus&&!tree_critcl} {
+    tree mytree
+    catch {mytree insert root foo new-node} msg
+    mytree destroy
+    set msg
+} {bad index "foo": must be integer?[+-]integer? or end?[+-]integer?}
 
 test tree-${impl}-3.9.20 {insert insert nodes in correct location} {
     tree mytree
@@ -1264,13 +1281,21 @@ test tree-${impl}-3.11.13 {move node down one} {
     set result
 } {{IT::EM 0} {IT::EM 2} {IT::EM 1} {IT::EM 3}}
 
-test tree-${impl}-3.11.14 {move fails for a bad index} {
+test tree-${impl}-3.11.14a {move fails for a bad index} {!tcl8.5plus||tree_critcl} {
     tree mytree
     mytree insert root end node-to-move
     catch {mytree move root foo node-to-move} msg
     mytree destroy
     set msg
 } {bad index "foo": must be integer or end?-integer?}
+
+test tree-${impl}-3.11.14b {move fails for a bad index} {tcl8.5plus&&!tree_critcl} {
+    tree mytree
+    mytree insert root end node-to-move
+    catch {mytree move root foo node-to-move} msg
+    mytree destroy
+    set msg
+} {bad index "foo": must be integer?[+-]integer? or end?[+-]integer?}
 
 test tree-${impl}-3.11.15 {move correctly moves a node} {
     tree mytree
@@ -2133,12 +2158,19 @@ test tree-${impl}-3.18.8 {descendants, filter result not boolean} {
 
 ############################################################
 
-test tree-${impl}-3.19.1 {nodes, wrong # args} {
+test tree-${impl}-3.19.1a {nodes, wrong # args} {tcl8.4plus} {
     tree mytree
     catch {mytree nodes {IT::EM 0} foo} result
     mytree destroy
     set result
 } [tmWrong nodes {} 0]
+
+test tree-${impl}-3.19.1b {nodes, wrong # args} {!tcl8.4plus} {
+    tree mytree
+    catch {mytree nodes {IT::EM 0} foo} result
+    mytree destroy
+    set result
+} [tmTooMany nodes {node}]
 
 test tree-${impl}-3.19.2 {nodes of initial tree} {
     tree mytree
@@ -2167,12 +2199,19 @@ test tree-${impl}-3.19.3 {nodes} {
 
 ############################################################
 
-test tree-${impl}-3.20.1 {leaves, wrong # args} {
+test tree-${impl}-3.20.1a {leaves, wrong # args} {tcl8.4plus} {
     tree mytree
     catch {mytree leaves {IT::EM 0} foo} result
     mytree destroy
     set result
 } [tmWrong leaves {} 0]
+
+test tree-${impl}-3.20.1b {leaves, wrong # args} {!tcl8.4plus} {
+    tree mytree
+    catch {mytree leaves {IT::EM 0} foo} result
+    mytree destroy
+    set result
+} [tmTooMany leaves {node}]
 
 test tree-${impl}-3.20.2 {leaves of initial tree} {
     tree mytree
@@ -3194,38 +3233,9 @@ foreach {n type order log} {
     } $log
 }
 
-if {[package vcompare [package provide Tcl] 8.3] < 0} {
-    set t4417estack {fubar
-    while executing
-"error fubar"
-    ("WalkCall" body line 4)
-    invoked from within
-"WalkCall $avar $nvar $name $node "enter" $script"
-    (procedure "::struct::tree::_walk" line 148)
-    invoked from within
-"::struct::tree::_walk ::mytree root {a n} {
-	    if {[string equal $n "b"]} {
-		lappend t .
-		error fubar
-	    }
-	    lappend t $a $n
-	}"
-    ("_walk" body line 1)
-    invoked from within
-"mytree walk root {a n} {
-	    if {[string equal $n "b"]} {
-		lappend t .
-		error fubar
-	    }
-	    lappend t $a $n
-	}"
-    (procedure "foo" line 7)
-    invoked from within
-"foo"}
-} else {
-    switch -exact -- $impl {
-	tcl {
-	    set t4417estack {fubar
+switch -exact -- $impl {
+    tcl {
+	set t4617estack {fubar
     while executing
 "error fubar"
     (procedure "pwalkererr" line 4)
@@ -3244,8 +3254,8 @@ if {[package vcompare [package provide Tcl] 8.3] < 0} {
     invoked from within
 "foo"}
 }
-critcl {
-    set t4417estack {fubar
+    critcl {
+    set t4617estack {fubar
     while executing
 "error fubar"
     (procedure "pwalkererr" line 4)
@@ -3256,7 +3266,6 @@ critcl {
     (procedure "foo" line 7)
     invoked from within
 "foo"}
-}
 }
 }
 
@@ -3275,7 +3284,7 @@ test tree-${impl}-4.6.17 {error in walk} {
     catch {lappend t [foo]} result
     mytree destroy
     list $t $result $::errorInfo
-} [list {== enter root enter 0 enter a .} fubar $t4417estack]
+} [list {== enter root enter 0 enter a .} fubar $t4617estack]
 
 foreach {n type order log} {
     0 dfs pre  {== enter root enter 0 enter a .}

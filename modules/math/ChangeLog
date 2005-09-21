@@ -1,3 +1,16 @@
+2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl:  Declared 8.4 dependency of packages
+	* optimize.man:  math::optimize, math::calculus, and
+	* optimize.tcl:  math::interpolate in package index, code, and
+	* optimize.test: testsuite.
+	* interpolate.man:
+	* interpolate.tcl:
+	* interpolate.test:
+	* calculus.man:
+	* calculus.tcl:
+	* calculus.test:
+
 2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Declared 8.4 dependency of linalg package in

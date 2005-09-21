@@ -1,3 +1,8 @@
+2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie.test: Made results of tie-7.1 and -7.2 version-dependent,
+	  using the proper tcltest commands from all.tcl.
+
 2005-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ../examples/tie/metakit.tcl: Added an example backend for tieing
