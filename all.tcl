@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.28 2005/08/29 20:27:59 kennykb Exp $
+# RCS: @(#) $Id: all.tcl,v 1.29 2005/09/21 05:05:21 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -134,7 +134,7 @@ foreach module $modules {
     set ::tcltest::testsDirectory [file join $root modules $module]
 
     if { ![file isdirectory $::tcltest::testsDirectory] } {
-    puts stdout "unknown module $module"
+	puts stdout "unknown module $module"
     }
 
     set auto_path $old_apath
@@ -147,106 +147,110 @@ foreach module $modules {
     interp alias $c pSet {} set
     # import the auto_path from the parent interp, so "package require" works
     $c eval {
-    set ::argv0 [pSet ::argv0]
-    set ::tcllibModule [pSet module]
-    set auto_path [pSet auto_path]
+	set ::argv0 [pSet ::argv0]
+	set ::tcllibModule [pSet module]
+	set auto_path [pSet auto_path]
 
-    # The next command allows the execution of 'tk' constrained
-    # tests, if Tk is present (for example when this code is run
-    # run by 'wish').
-    catch {
-        package require Tk
-        wm withdraw .
-    }
+	# The next command allows the execution of 'tk' constrained
+	# tests, if Tk is present (for example when this code is run
+	# run by 'wish').
+	catch {
+	    package require Tk
+	    wm withdraw .
+	}
 
-    package require tcltest
-    namespace import ::tcltest::*
-    set ::tcltest::testSingleFile false
-    set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
-    #set ::tcltest::verbose ps
+	package require tcltest
+	namespace import ::tcltest::*
+	set ::tcltest::testSingleFile false
+	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
+	#set ::tcltest::verbose ps
 
-    # Add a function to construct a proper error message for
-    # 'wrong#args' situations. The format of the messages changed
-    # for 8.4
+	# Add a function to construct a proper error message for
+	# 'wrong#args' situations. The format of the messages changed
+	# for 8.4
 
-    proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-        # if oldstyle errors:
-        if {[package vcompare [package provide Tcl] 8.4] < 0} {
-	    set msg "no value given for parameter "
-	    append msg "\"[lindex $argList $missingIndex]\" to "
-	    append msg "\"$functionName\""
-        } else {
-	    if {[package vcompare [package provide Tcl] 8.5] >= 0 
-		&& [string match args [lindex $argList end]]} {
-		set argList [lreplace $argList end end ...]
+	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
+	    # if oldstyle errors:
+	    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+		set msg "no value given for parameter "
+		append msg "\"[lindex $argList $missingIndex]\" to "
+		append msg "\"$functionName\""
+	    } else {
+		if {[package vcompare [package provide Tcl] 8.5] >= 0 
+		    && [string match args [lindex $argList end]]} {
+		    set argList [lreplace $argList end end ...]
+		}
+		if {$argList != {}} {set argList " $argList"}
+		set msg "wrong # args: should be \"$functionName$argList\""
 	    }
-	    if {$argList != {}} {set argList " $argList"}
-	    set msg "wrong # args: should be \"$functionName$argList\""
-        }
-        return $msg
-    }
+	    return $msg
+	}
 
-    proc ::tcltest::tooManyArgs {functionName argList} {
-        # if oldstyle errors:
-        if {[package vcompare [package provide Tcl] 8.4] < 0} {
-        set msg "called \"$functionName\" with too many arguments"
-        } else {
-            # create a different message for functions with no args
-            if {[llength $argList]} {
-            set msg "wrong # args: should be \"$functionName $argList\""
-            } else {
-            set msg "wrong # args: should be \"$functionName\""
-            }
-        }
-        return $msg
-    }
+	proc ::tcltest::tooManyArgs {functionName argList} {
+	    # if oldstyle errors:
+	    if {[package vcompare [package provide Tcl] 8.4] < 0} {
+		set msg "called \"$functionName\" with too many arguments"
+	    } else {
+		# create a different message for functions with no args
+		if {[llength $argList]} {
+		    if {[package vcompare [package provide Tcl] 8.5] >= 0 
+			&& [string match args [lindex $argList end]]} {
+			set argList [lreplace $argList end end ...]
+		    }
+		    set msg "wrong # args: should be \"$functionName $argList\""
+		} else {
+		    set msg "wrong # args: should be \"$functionName\""
+		}
+	    }
+	    return $msg
+	}
 
-    # This constraint restricts certain tests to run on tcl 8.3+, and tcl8.4+
-    if {[package vsatisfies [package provide tcltest] 2.0]} {
-        # tcltest2.0+ has an API to specify a test constraint
-        ::tcltest::testConstraint tcl8.3only \
-            [expr {![package vsatisfies [package provide Tcl] 8.4]}]
-        ::tcltest::testConstraint tcl8.3plus \
-            [expr {[package vsatisfies [package provide Tcl] 8.3]}]
-        ::tcltest::testConstraint tcl8.4plus \
-            [expr {[package vsatisfies [package provide Tcl] 8.4]}]
-        ::tcltest::testConstraint tcl8.5plus \
-            [expr {[package vsatisfies [package provide Tcl] 8.5]}]
+	# This constraint restricts certain tests to run on tcl 8.3+, and tcl8.4+
+	if {[package vsatisfies [package provide tcltest] 2.0]} {
+	    # tcltest2.0+ has an API to specify a test constraint
+	    ::tcltest::testConstraint tcl8.3only \
+		[expr {![package vsatisfies [package provide Tcl] 8.4]}]
+	    ::tcltest::testConstraint tcl8.3plus \
+		[expr {[package vsatisfies [package provide Tcl] 8.3]}]
+	    ::tcltest::testConstraint tcl8.4plus \
+		[expr {[package vsatisfies [package provide Tcl] 8.4]}]
+	    ::tcltest::testConstraint tcl8.5plus \
+		[expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
-        proc ::tcltest::queryConstraint {c} {
-        return [testConstraint $c]
-        }
-    } else {
-        # In tcltest1.0, a global variable needs to be set directly.
-        set ::tcltest::testConstraints(tcl8.3only) \
-            [expr {![package vsatisfies [package provide Tcl] 8.4]}]
-        set ::tcltest::testConstraints(tcl8.3plus) \
-            [expr {[package vsatisfies [package provide Tcl] 8.3]}]
-        set ::tcltest::testConstraints(tcl8.4plus) \
-            [expr {[package vsatisfies [package provide Tcl] 8.4]}]
-        set ::tcltest::testConstraints(tcl8.5plus) \
-            [expr {[package vsatisfies [package provide Tcl] 8.5]}]
-
-        proc ::tcltest::queryConstraint {c} {
-        if {![info exists ::tcltest::testConstraints($c)]} {
-            # Not existing constraints are not set.
-            return 0
-        }
-        return $::tcltest::testConstraints($c)
-        }
-    }
+	    proc ::tcltest::queryConstraint {c} {
+		return [testConstraint $c]
+	    }
+	} else {
+	    # In tcltest1.0, a global variable needs to be set directly.
+	    set ::tcltest::testConstraints(tcl8.3only) \
+		[expr {![package vsatisfies [package provide Tcl] 8.4]}]
+	    set ::tcltest::testConstraints(tcl8.3plus) \
+		[expr {[package vsatisfies [package provide Tcl] 8.3]}]
+	    set ::tcltest::testConstraints(tcl8.4plus) \
+		[expr {[package vsatisfies [package provide Tcl] 8.4]}]
+	    set ::tcltest::testConstraints(tcl8.5plus) \
+		[expr {[package vsatisfies [package provide Tcl] 8.5]}]
+	    
+	    proc ::tcltest::queryConstraint {c} {
+		if {![info exists ::tcltest::testConstraints($c)]} {
+		    # Not existing constraints are not set.
+		    return 0
+		}
+		return $::tcltest::testConstraints($c)
+	    }
+	}
     }
     interp alias $c ::tcltest::cleanupTestsHook {} \
         ::tcltest::cleanupTestsHook $c
     # source each of the specified tests
     foreach file [lsort [::tcltest::getMatchingFiles]] {
-    set tail [file tail $file]
-    puts stdout [string map [list "$root/" ""] $file]
-    $c eval {
-        if {[catch {source [pSet file]} msg]} {
-        puts stdout $errorInfo
-        }
-    }
+	set tail [file tail $file]
+	puts stdout [string map [list "$root/" ""] $file]
+	$c eval {
+	    if {[catch {source [pSet file]} msg]} {
+		puts stdout $errorInfo
+	    }
+	}
     }
     interp delete $c
     puts stdout ""

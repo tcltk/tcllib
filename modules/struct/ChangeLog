@@ -1,3 +1,12 @@
+2005-09-20  Andreas Kupries  <akupries@shaw.ca>
+
+	* tree.testsuite: Added test constraint 'tree_critcl'. Fixed a
+	  number of tests whose results are version dependent, using the
+	  new contraint, tcl8.4plus, and tcl8.5plus.
+
+	* tree.tcl (LoadAccel): Restricted use of critcl implementation to
+	  Tcl 8.4+.
+
 2005-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree/*.[ch]: Cleaned code up, per Tcl styleguide.

@@ -1,3 +1,11 @@
+2005-09-20  Andreas Kupries  <akupries@shaw.ca>
+
+	* tests/fa_final.test: Fixed problems of testsuite with
+	* tests/fa_next.test:  Tcl 8.5, caused by changes to the
+	* tests/fa_start.test: proc error messages.
+	* tests/fa_state.test: 
+	* tests/fa_symbol.test: 
+
 2004-11-22  Andreas Kupries <andreask@activestate.com>
 
 	* pkgIndex.tcl: Fixed usage of wrong file for package 'dacceptor'.
