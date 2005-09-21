@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.19 2005/07/07 17:17:24 rmax Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.20 2005/09/21 05:05:22 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -590,7 +590,10 @@ proc ::pop3d::H_capa {name sock cmd line} {
 
     Respond2Client $name $sock +OK "Capability list follows"
     foreach {capability state} $capabilities {
-	if {$state eq "both" || $state eq $cstate(state)} {
+	if {
+	    [string equal $state "both"] ||
+	    [string equal $state $cstate(state)]
+	} {
 	    puts $sock $capability
 	}
     }

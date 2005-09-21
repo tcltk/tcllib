@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.37 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.38 2005/09/21 05:05:22 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require struct::list
@@ -33,6 +33,8 @@ proc ::struct::tree::LoadAccel {key} {
     set r 0
     switch -exact -- $key {
 	critcl {
+	    # Critcl implementation of tree requires Tcl 8.4.
+	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
 	    set r [llength [info commands ::struct::tree_critcl]]
 	}
