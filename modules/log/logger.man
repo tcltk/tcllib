@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.14 2005/03/04 16:44:13 mic42 Exp $}]
+[comment {$Id: logger.man,v 1.15 2005/09/23 16:49:44 mic42 Exp $}]
 [manpage_begin logger n 0.6]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -215,6 +215,39 @@ of doing things, or at least provide for a cleaner implementation.
 [para]
 
 The service "object orientation" is done with namespaces.
+
+[section {Logprocs and Callstack}]
+
+The logger package takes extra care to keep the logproc out of the call stack.
+This enables logprocs to execute code in the callers scope by using uplevel or
+linking to local variables by using upvar. This may fire traces with all usual
+side effects.
+
+[example {
+     # Print caller and current vars in the calling proc
+     proc log_local_var {txt} {
+          set caller [info level -1]
+          set vars [uplevel 1 info vars]
+          foreach var [lsort $vars] {
+             if {[uplevel 1 [list array exists $var]] == 1} {
+             	lappend val $var <Array>
+             } else {
+             	lappend val $var [uplevel 1 [list set $var]]
+             }
+          }
+          puts "$txt"
+          puts "Caller: $caller"
+          puts "Variables in callers scope:"
+          foreach {var value} $val {
+          	puts "$var = $value"
+          }
+     }
+     
+     # install as logproc
+     ${log}::logproc debug log_local_var
+     }
+]
+
 
 [keywords logger log service {log level}]
 [manpage_end]
