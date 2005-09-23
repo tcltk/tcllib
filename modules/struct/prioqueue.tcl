@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: prioqueue.tcl,v 1.8 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.tcl,v 1.9 2005/09/23 16:17:26 mic42 Exp $
 
 package require Tcl 8.2
 
@@ -23,21 +23,21 @@ namespace eval ::struct::prioqueue {
 
     # commands is the list of subcommands recognized by the queue
     variable commands [list \
-	    "clear" \
-	    "destroy"   \
-	    "get"   \
-	    "peek"  \
-	    "put"   \
-	    "size"  \
-	    "peekpriority" \
-	    ]
+        "clear" \
+        "destroy"   \
+        "get"   \
+        "peek"  \
+        "put"   \
+        "size"  \
+        "peekpriority" \
+        ]
 
     variable sortopt [list \
-	    "-integer" \
-	    "-real" \
-	    "-ascii" \
-	    "-dictionary" \
-	    ]
+        "-integer" \
+        "-real" \
+        "-ascii" \
+        "-dictionary" \
+        ]
 
     # this is a simple design decision, that integer and real
     # are sorted decreasing (-1), and -ascii and -dictionary are sorted -increasing (1)
@@ -48,7 +48,7 @@ namespace eval ::struct::prioqueue {
         "-1" \
         "1" \
         "1" \
-	    ]
+        ]
 
 
 
@@ -115,16 +115,16 @@ proc ::struct::prioqueue::prioqueue {args} {
     }
 
     if { ![string equal [info commands ::$name] ""] } {
-	error "command \"$name\" already exists, unable to create prioqueue"
+    error "command \"$name\" already exists, unable to create prioqueue"
     }
 
     # Initialize the queue as empty
     set queues($name) [list ]
     switch -exact -- $sorting {
-	-integer { set queues_sorting($name) 0}
-	-real    { set queues_sorting($name) 1}
-	-ascii   { set queues_sorting($name) 2}
-	-dictionary { set queues_sorting($name) 3}
+    -integer { set queues_sorting($name) 0}
+    -real    { set queues_sorting($name) 1}
+    -ascii   { set queues_sorting($name) 2}
+    -dictionary { set queues_sorting($name) 3}
     }
 
     # Create the command to manipulate the queue
@@ -150,15 +150,15 @@ proc ::struct::prioqueue::prioqueue {args} {
 proc ::struct::prioqueue::QueueProc {name {cmd ""} args} {
     # Do minimal args checks here
     if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
+    error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
 
     # Split the args into command and args components
     if { [string equal [info commands ::struct::prioqueue::_$cmd] ""] } {
-	variable commands
-	set optlist [join $commands ", "]
-	set optlist [linsert $optlist "end-1" "or"]
-	error "bad option \"$cmd\": must be $optlist"
+    variable commands
+    set optlist [join $commands ", "]
+    set optlist [linsert $optlist "end-1" "or"]
+    error "bad option \"$cmd\": must be $optlist"
     }
     return [eval [linsert $args 0 ::struct::prioqueue::_$cmd $name]]
 }
@@ -215,18 +215,18 @@ proc ::struct::prioqueue::_destroy {name} {
 proc ::struct::prioqueue::_get {name {count 1}} {
     variable queues
     if { $count < 1 } {
-	error "invalid item count $count"
+    error "invalid item count $count"
     }
 
     if { $count > [llength $queues($name)] } {
-	error "insufficient items in prioqueue to fill request"
+    error "insufficient items in prioqueue to fill request"
     }
 
     if { $count == 1 } {
-	# Handle this as a special case, so single item gets aren't listified
-	set item [lindex [lindex $queues($name) 0] 1]
-	set queues($name) [lreplace [K $queues($name) [set queues($name) ""]] 0 0]
-	return $item
+    # Handle this as a special case, so single item gets aren't listified
+    set item [lindex [lindex $queues($name) 0] 1]
+    set queues($name) [lreplace [K $queues($name) [set queues($name) ""]] 0 0]
+    return $item
     }
 
     # Otherwise, return a list of items
@@ -256,16 +256,16 @@ proc ::struct::prioqueue::_get {name {count 1}} {
 proc ::struct::prioqueue::_peek {name {count 1}} {
     variable queues
     if { $count < 1 } {
-	error "invalid item count $count"
+    error "invalid item count $count"
     }
 
     if { $count > [llength $queues($name)] } {
-	error "insufficient items in prioqueue to fill request"
+    error "insufficient items in prioqueue to fill request"
     }
 
     if { $count == 1 } {
-	# Handle this as a special case, so single item pops aren't listified
-	return [lindex [lindex $queues($name) 0] 1]
+    # Handle this as a special case, so single item pops aren't listified
+    return [lindex [lindex $queues($name) 0] 1]
     }
 
     # Otherwise, return a list of items
@@ -291,16 +291,16 @@ proc ::struct::prioqueue::_peek {name {count 1}} {
 proc ::struct::prioqueue::_peekpriority {name {count 1}} {
     variable queues
     if { $count < 1 } {
-	error "invalid item count $count"
+    error "invalid item count $count"
     }
 
     if { $count > [llength $queues($name)] } {
-	error "insufficient items in prioqueue to fill request"
+    error "insufficient items in prioqueue to fill request"
     }
 
     if { $count == 1 } {
-	# Handle this as a special case, so single item pops aren't listified
-	return [lindex [lindex $queues($name) 0] 0]
+    # Handle this as a special case, so single item pops aren't listified
+    return [lindex [lindex $queues($name) 0] 0]
     }
 
     # Otherwise, return a list of items
@@ -330,28 +330,28 @@ proc ::struct::prioqueue::_put {name args} {
     variable sortdir
 
     if { [llength $args] == 0 || [llength $args] % 2} {
-	error "wrong # args: should be \"$name put item prio ?item prio ...?\""
+    error "wrong # args: should be \"$name put item prio ?item prio ...?\""
     }
 
     # check for prio type before adding
     switch -exact -- $queues_sorting($name) {
         0    {
-	    foreach {item prio} $args {
-		if {![string is integer -strict $prio]} {
-		    error "priority \"$prio\" is not an integer type value"
-		}
-	    }
-	}
+        foreach {item prio} $args {
+        if {![string is integer -strict $prio]} {
+            error "priority \"$prio\" is not an integer type value"
+        }
+        }
+    }
         1    {
-	    foreach {item prio} $args {
-		if {![string is double -strict $prio]} {
-		    error "priority \"$prio\" is not a real type value"
-		}
-	    }
-	}
+        foreach {item prio} $args {
+        if {![string is double -strict $prio]} {
+            error "priority \"$prio\" is not a real type value"
+        }
+        }
+    }
         default {
-	    #no restrictions for -ascii and -dictionary
-	}
+        #no restrictions for -ascii and -dictionary
+    }
     }
 
     # sort by priorities
@@ -417,6 +417,7 @@ proc ::struct::prioqueue::__linsertsorted {list newElement sortopt sortdir} {
            } elseif {$test > 0 } {
                 # search lower section
                 set upper $pivot
+                set bound $upper
                 set pos -1
            } else {
                 # search upper section
@@ -482,4 +483,4 @@ namespace eval ::struct {
     namespace import -force prioqueue::prioqueue
     namespace export prioqueue
 }
-package provide struct::prioqueue 1.3
+package provide struct::prioqueue 1.3.1
