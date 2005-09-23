@@ -9,7 +9,7 @@
 # Copyright (c) 2002 Michael Schlenker
 # All rights reserved.
 #
-# RCS: @(#) $Id: prioqueue.test,v 1.5 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.test,v 1.6 2005/09/23 16:17:26 mic42 Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -478,5 +478,16 @@ test prioqueue-9.4 {stable ordering if inserting} {
     set result
 } [list a c b]
 
+test prioqueue-10.1 {test inserting} {
+    prioqueue -integer myprioqueue
+    myprioqueue put 1 1
+    myprioqueue put 2 5
+    myprioqueue put 3 7
+    myprioqueue put 4 6
+    myprioqueue put 5 0
+    set result [myprioqueue get 5]
+    myprioqueue destroy
+    set result
+} [list 3 4 2 1 5]
 
 ::tcltest::cleanupTests

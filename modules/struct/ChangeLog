@@ -1,3 +1,10 @@
+2005-09-23  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* prioqueue.tcl : Fixed a bug in binary sort algorithm.
+	  prioqueue.test: Thanks to Krzysztof Ska&#322;ecki <krys@dacsystem.pl>
+          and Tomasz Kosiak <tk@dacsystem.pl> for spotting it.
+          [Tcllib SF Patch 1300795]
+
 2005-09-20  Andreas Kupries  <akupries@shaw.ca>
 
 	* tree.testsuite: Added test constraint 'tree_critcl'. Fixed a
