@@ -6,4 +6,7 @@ if {[package vsatisfies [package provide Tcl] 8.5]} {
 if {[package vsatisfies [package provide Tcl] 8.4]} {
     package ifneeded snit 1.1 \
         [list source [file join $dir snit.tcl]]
+} elseif {[package vsatisfies [package provide Tcl] 8.3]} {
+    package ifneeded snit 1.1 \
+        [list source [file join $dir snit83.tcl]]
 }
