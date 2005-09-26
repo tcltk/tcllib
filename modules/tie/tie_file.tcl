@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.3 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.4 2005/09/26 23:04:39 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -161,6 +161,8 @@ snit::type ::tie::std::file {
 	# Use a safe interp for the evaluation of the journal file.
 	# (Empty safe for the hidden commands and the aliases we insert).
 
+	# Called for !cvalid, implies cache does not exist
+
 	set ip [interp create -safe]
 	foreach c [$ip eval {info commands}] {
 	    if {$c eq "rename"} continue
@@ -172,7 +174,6 @@ snit::type ::tie::std::file {
 	interp alias $ip unset {} $self Unset
 	interp alias $ip array {} $self Array
 
-	unset     cache
 	array set cache {}
 	set       count 0
 
@@ -250,6 +251,7 @@ snit::type ::tie::std::file {
     }
 
     method Invalidate {} {
+	if {!$cvalid} return
 	set cvalid 0
 	unset cache
 	return
