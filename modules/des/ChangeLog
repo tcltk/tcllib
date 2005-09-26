@@ -1,3 +1,11 @@
+2005-09-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* des.tcl:       Imported TclDES to provide a more complete
+	* des.test: 	 implementation of DES and 3DES which supports
+	* des.man:       ECB,CBC,OFB and CFB modes. Tcllib des is now
+	* tcldes.tcl:    a compatability wrapper which continues to
+	* tcldesjr.tcl:  support the previous API and a new one.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
