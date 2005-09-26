@@ -31,7 +31,7 @@ concepts.
 This man page covers both Snit 2.0 and Snit 1.1.  The primary
 difference between the two versions is simply that Snit 2.0 contains
 speed optimizations based on new features of Tcl 8.5; Snit 1.1
-supports both Tcl 8.4 and Tcl 8.5.  There are a few minor
+supports all of Tcl 8.3, 8.4 and Tcl 8.5.  There are a few minor
 inconsistencies; they are flagged in the body of the man page with the
 label "Snit 1.x Incompatibility"; they are also discussed in the [cmd snitfaq].
 

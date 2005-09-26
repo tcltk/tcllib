@@ -1,3 +1,16 @@
+2005-09-26  Andreas Kupries <andreask@activestate.com>
+
+	* snit.test: Adapted the testsuite to handle the 8.3 backport.
+
+	* snit83.tcl:           Integrated Kenneth Green's backport of
+	* snit_tcl83_utils.tcl: Snit to Tcl 8.3 into the code base.
+	
+	* snit.tcl: Checking the list result of [info commands ] now using
+	  [llength] instead of string comparisons.
+
+	* snit2.tcl: Checking the list result of [info commands ] now using
+	  [llength] instead of string comparisons.
+
 2005-09-05  Will Duquette  <will@wjduquette.com>
 
 	* snitfaq.man: Updated for Snit 2.0/1.1.
