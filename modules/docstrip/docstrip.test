@@ -183,11 +183,11 @@ tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
 } -body {
    # First read in the ready-stripped file, but gobble the preamble and
    # postamble, as those are a bit messy to reproduce.
-   set F [open docstrip.tcl r]
+   set F [open [file join [testsDirectory] docstrip.tcl] r]
    regsub -all -- {(^|\n)#[^\n]*} [read $F] {} stripped
    close $F
    # Then read the master source and strip it manually.
-   set F [open tcldocstrip.dtx r]
+   set F [open [file join [testsDirectory] tcldocstrip.dtx] r]
    set source [read $F]
    close $F
    set stripped2 [docstrip::extract $source pkg -metaprefix ##]

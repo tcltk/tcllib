@@ -1,3 +1,10 @@
+2005-09-26  Andreas Kupries <andreask@activestate.com>
+
+	* tcldocstrip.dtx: Fixed the testsuite bug regarding access to
+	  files in the module under test.
+
+	* docstrip.test: Regenerated.
+
 2005-08-30  Andreas Kupries <andreask@activestate.com>
 
 	* tcldocstrip.dtx:
