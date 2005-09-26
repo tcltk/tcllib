@@ -14,7 +14,9 @@ Technology (NIST) [lb]1[rb]. This implementation also supports triple
 DES (3DES) extension to DES. DES is a 64-bit block cipher that uses a
 56-bit key. 3DES uses a 168-bit key. DES has now officially been
 superceeded by AES but is in common use in many protocols.
-[nl]
+
+[para]
+
 The tcllib implementation of DES and 3DES uses an implementation by
 Mac Cody and is available as a separate download from [lb]2[rb]. For
 anyone concerned about the details of exporting this code please see
