@@ -1,3 +1,8 @@
+2005-09-26  Andreas Kupries <andreask@activestate.com>
+
+	* tie_file.tcl: Fixed bug in cache invalidation. nothing to do
+	  if the cache is already invalidated.
+
 2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tie.test: Made results of tie-7.1 and -7.2 version-dependent,
