@@ -60,7 +60,7 @@ building your application.
 
 [subsection {What version of Tcl does Snit require?}]
 
-Snit 1.1 requires Tcl 8.4 or later; Snit 2.0 requires Tcl 8.5 or
+Snit 1.1 requires Tcl 8.3 or later; Snit 2.0 requires Tcl 8.5 or
 later.  See [sectref {SNIT VERSIONS}] for the differences between Snit
 1.1 and Snit 2.0.
 
@@ -162,11 +162,11 @@ Snit 2.0, of course, is that you must target Tcl 8.5.
 [para]
 
 Snit 1.1, on the other hand, lacks Snit 2.0's optimizations, but
-requires only Tcl 8.4 and later.
+requires only Tcl 8.3 and later.
 
 [para]
 
-In short, if you're targetting Tcl 8.4 you should use Snit 1.1.  If
+In short, if you're targetting Tcl 8.3 or 8.4 you should use Snit 1.1.  If
 you can afford to target Tcl 8.5, you should definitely use Snit 2.0.
 If you will be targetting both, you can use Snit 1.1 exclusively, or
 (if your code is unaffected by the minor incompatibilities between the
