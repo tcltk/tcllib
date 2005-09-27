@@ -90,8 +90,9 @@ foreach {m pkg doc exa} {
 }
 
 # And a list of applications.
-set     apps [list \
-	dtplite \
+set     apps [list  \
+	dtplite     \
+	tcldocstrip \
 ]
 
 # --------------------------------------------------------------
