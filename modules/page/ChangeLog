@@ -1,5 +1,7 @@
 2005-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* plugins/config_peg.tcl: Fixed version inconsistency.
+
 	* gen_peg_canon.tcl: Fixed frink warnings.
 	* analysis_peg_emodes.tcl (compute): Fixed inconsistency in return
 	  values.
