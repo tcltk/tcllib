@@ -1,3 +1,10 @@
+2005-09-28  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Removed the check for ncgi v1 being loaded before
+	  javascript. This type of check has been done traditionally in
+	  the implementation itself. Only checks for Tcl versions should
+	  be done in the index.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
