@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.6 2005/09/20 05:59:51 andreas_kupries Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.7 2005/09/28 04:51:22 andreas_kupries Exp $
 
 
 if {[lsearch [namespace children] ::tcltest] == -1} {

@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: toc.nroff,v 1.5 2005/08/16 06:06:28 andreas_kupries Exp $
+# $Id: toc.nroff,v 1.6 2005/09/28 04:51:19 andreas_kupries Exp $
 #
 # Engine to convert a doctoc document into nroff.
 #
