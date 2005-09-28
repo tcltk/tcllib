@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.38 2005/09/21 05:05:22 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.39 2005/09/28 04:51:24 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require struct::list

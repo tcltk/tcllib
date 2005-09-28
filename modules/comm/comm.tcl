@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.15 2005/08/16 06:06:27 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.16 2005/09/28 04:51:19 andreas_kupries Exp $
 
 package require Tcl 8.2
 

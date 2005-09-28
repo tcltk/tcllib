@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.14 2005/09/20 05:59:51 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.15 2005/09/28 04:51:22 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree1.tcl,v 1.2 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: tree1.tcl,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
 
 package require Tcl 8.2
 
