@@ -1,3 +1,7 @@
+2005-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Fixed version inconsistency.
+
 2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.tcl (H_capa): Replaced 8.4isms (operator eq) with usage of
