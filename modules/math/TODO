@@ -1,5 +1,11 @@
 This file records outstanding actions for the math module
 
+dd. 28 september 2005, Arjen Markus
+
+optimize.tcl: linear programming algorithm ignores certain
+              constraints (of type x > 0). Needs to be 
+              fixed
+
 dd. 22 june 2004, Arjen Markus
 
 interpolate.man: add examples
