@@ -1,3 +1,8 @@
+2005-09-28  Andreas Kupries <andreask@activestate.com>
+
+	* units.tcl: Fixed version discrepancy between index/docs and
+	  implementation.
+
 2005-08-18  Bob Techentin <techentin@users.sourceforge.net>
 
 	Removed units.mdl, the Rational Rose UML model for
