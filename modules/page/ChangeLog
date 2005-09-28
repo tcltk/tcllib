@@ -1,3 +1,9 @@
+2005-09-28  Andreas Kupries <andreask@activestate.com>
+
+	* NOTES.txt: Renamed from NOTES. This file had the same name as a
+	  directory, causing the Windows and OS X filesystem to trip badly
+	  as they considered both identical.
+
 2005-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* plugins/config_peg.tcl: Fixed version inconsistency.
