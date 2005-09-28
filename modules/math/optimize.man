@@ -30,9 +30,6 @@ been paid to the accuracy of the calculations. Instead, the
 algorithms have been used in a straightforward manner.
 [para]
 This document describes the procedures and explains their usage.
-[para]
-[emph Note:] The linear programming algorithm is described but not yet
-operational.
 
 [section "PROCEDURES"]
 [para]
@@ -177,8 +174,8 @@ of space.  The function to evaluate, [arg objective], must be a single Tcl
 command. To it will be appended as many elements as appear in the initial guess at
 the location of the minimum, passed in as a Tcl list, [arg xVector].
 [nl]
-[arg xScaleVector] is an initial guess at the problem scale; the first 
-function evaluations will be made by varying the co-ordinates in [arg xVector] 
+[arg xScaleVector] is an initial guess at the problem scale; the first
+function evaluations will be made by varying the co-ordinates in [arg xVector]
 by the amounts in [arg xScaleVector].  If [arg xScaleVector] is not supplied,
 the co-ordinates will be varied by a factor of 1.0001 (if the co-ordinate
 is non-zero) or by a constant 0.0001 (if the co-ordinate is zero).
@@ -195,7 +192,7 @@ error status. Default is to allow 500 iterations.
 [nl]
 [arg flag] is a flag that, if true, causes a line to be written to the
 standard output for each evaluation of the objective function, giving
-the arguments presented to the function and the value returned. Default is 
+the arguments presented to the function and the value returned. Default is
 false.
 
 [nl]
