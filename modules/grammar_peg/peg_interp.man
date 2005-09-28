@@ -1,0 +1,94 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin grammar::peg::interp n 0.1]
+[copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[moddesc   {Grammar operations and usage}]
+[titledesc {Interpreter for parsing expression grammars}]
+[require Tcl 8.4]
+[require grammar::mengine     [opt 0.1]]
+[require grammar::peg::interp [opt 0.1]]
+[description]
+[keywords grammar expression {push down automaton}]
+[keywords state {parsing expression} {parsing expression grammar}]
+[keywords {context-free languages} parsing transducer LL(k)]
+[keywords TDPL {top-down parsing languages} {recursive descent}]
+[keywords {virtual machine} matching]
+[para]
+
+This package provides commands for the controlled matching of a
+character stream via a parsing expression grammar and the creation
+of an abstract syntax tree for the stream and partials.
+
+[para]
+
+It is built on top of the virtual machine provided by the package
+[package grammar::mengine] and directly interprets the parsing
+expression grammar given to it.
+
+In other words, the grammar is [emph not] pre-compiled but used as is.
+
+[para]
+
+The grammar to be interpreted is taken from a container object
+following the interface specified by the package
+[package grammar::peg::container]. Only the relevant parts
+are copied into the state of this package.
+
+[para]
+
+It should be noted that the package provides exactly one instance
+of the interpreter, and interpreting a second grammar requires
+the user to either abort or complete a running interpretation, or
+to put them into different Tcl interpreters.
+
+[para]
+
+Also of note is that the implementation assumes a pull-type
+handling of the input. In other words, the interpreter pulls
+characters from the input stream as it needs them. For usage
+in a push environment, i.e. where the environment pushes new
+characters as they come we have to put the engine into its
+own thread.
+
+
+[section {THE INTERPRETER API}]
+
+The package exports the following API
+
+[list_begin definitions]
+
+[call [cmd ::grammar::peg::interp::setup] [arg peg]]
+
+This command (re)initializes the interpreter. It returns the
+empty string. This command has to be invoked first, before any
+matching run.
+
+[nl]
+
+Its argument [arg peg] is the handle of an object containing the
+parsing expression grammar to interpret. This grammar has to be
+valid, or an error will be thrown.
+
+
+[call [cmd ::grammar::peg::interp::parse] [arg nextcmd] [arg errorvar] [arg astvar]]
+
+This command interprets the loaded grammar and tries to
+match it against the stream of characters represented by
+the command prefix [arg nextcmd]. Its result is a boolean
+value indicating whether the matching process was successful
+([const true]), or not ([const false]). In case of a match failure
+error information will be stored into the variable referenced by
+[arg errorvar]. The variable referenced by [arg astvar] will
+always contain the generated abstract syntax tree, however in the
+case of an error it will be only partial and possibly malformed.
+
+[nl]
+
+The abstract syntax tree is represented by a nested list, as
+described in section [sectref {ABSTRACT SYNTAX TREE}] of
+package [package grammar::mengine].
+
+[list_end]
+[para]
+
+
+[manpage_end]

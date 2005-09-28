@@ -1,0 +1,8 @@
+2005-05-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* peg_interp.tcl: Restructured the loops for * and + a bit.
+
+2005-04-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module: Container for parsing expression grammars (PEGs),
+	  and an interpreter for them, using the matcher engine.

@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: optimize.tcl,v 1.10 2005/09/21 05:05:22 andreas_kupries Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.11 2005/09/28 04:51:22 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 

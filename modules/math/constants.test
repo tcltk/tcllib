@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: constants.test,v 1.5 2005/09/20 05:59:51 andreas_kupries Exp $
+# RCS: @(#) $Id: constants.test,v 1.6 2005/09/28 04:51:22 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest 2.1

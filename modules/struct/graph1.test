@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph1.test,v 1.3 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: graph1.test,v 1.4 2005/09/28 04:51:24 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
