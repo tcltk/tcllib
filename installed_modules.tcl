@@ -61,7 +61,7 @@ foreach {m pkg doc exa} {
     ncgi	_tcl  _man  _null
     nntp	_tcl  _man _exa
     ntp		_tcl  _man _exa
-    page        _tcl  _man  _null
+    page         _tcr _man  _null
     pluginmgr	_tcl  _man  _null
     png	        _tcl  _man  _null
     pop3	_tcl  _man  _null

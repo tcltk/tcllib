@@ -17,6 +17,15 @@ proc _tcl {module libdir} {
     return
 }
 
+proc _tcr {module libdir} {
+    global distribution
+    xcopy \
+	    [file join $distribution modules $module] \
+	    [file join $libdir $module] \
+	    1 *.tcl
+    return
+}
+
 proc _doc {module libdir} {
     global distribution
 
