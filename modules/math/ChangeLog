@@ -1,3 +1,8 @@
+2005-09-28  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+ 
+        * optimize.man:  Removed note on linear programming. It is
+                         working now (not fully, perhaps though)
+
 2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl:  Declared 8.4 dependency of packages
