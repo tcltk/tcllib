@@ -1,3 +1,11 @@
+2005-09-28  Andreas Kupries <andreask@activestate.com>
+
+	* installed_modules.tcl: Using _tcr to install page and its
+	  plugins.
+
+	* install_action.tcl (_tcr): New install action, recursive install
+	  of all .tcl files in the module.
+
 2005-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules: New module:      grammar_me.
