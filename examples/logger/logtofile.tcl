@@ -6,7 +6,7 @@
 #
 # (c) 2005 Michael Schlenker <mic42@users.sourceforge.net>
 #
-# $Id: logtofile.tcl,v 1.1 2005/09/23 16:56:57 mic42 Exp $
+# $Id: logtofile.tcl,v 1.2 2005/09/28 03:46:37 andreas_kupries Exp $
 #
 #
 
