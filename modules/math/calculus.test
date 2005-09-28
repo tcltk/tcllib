@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.9 2005/09/21 05:05:22 andreas_kupries Exp $
+# RCS: @(#) $Id: calculus.test,v 1.10 2005/09/28 04:51:22 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "    Aborting tests for math::bignum."

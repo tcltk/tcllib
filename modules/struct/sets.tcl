@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.8 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.9 2005/09/28 04:51:24 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 

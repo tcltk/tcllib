@@ -40,6 +40,8 @@ foreach {m pkg doc exa} {
     ftpd	_tcl  _man _exa
     fumagic	_tcl  _man  _null
     grammar_fa  _tcl  _man  _null
+    grammar_me  _tcl  _man  _null
+    grammar_peg _tcl  _man  _null
     html	_tcl  _man  _null
     htmlparse	_tcl  _man  _null
     http	_tcl  _man  _null
@@ -59,6 +61,7 @@ foreach {m pkg doc exa} {
     ncgi	_tcl  _man  _null
     nntp	_tcl  _man _exa
     ntp		_tcl  _man _exa
+    page        _tcl  _man  _null
     pluginmgr	_tcl  _man  _null
     png	        _tcl  _man  _null
     pop3	_tcl  _man  _null
@@ -93,6 +96,7 @@ foreach {m pkg doc exa} {
 set     apps [list  \
 	dtplite     \
 	tcldocstrip \
+	page        \
 ]
 
 # --------------------------------------------------------------

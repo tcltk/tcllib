@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.31 2005/08/16 06:06:30 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.32 2005/09/28 04:51:23 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline

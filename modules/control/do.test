@@ -2,7 +2,7 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.9 2005/09/20 05:59:51 andreas_kupries Exp $
+# RCS: @(#) $Id: do.test,v 1.10 2005/09/28 04:51:19 andreas_kupries Exp $
 #
 
 package forget control

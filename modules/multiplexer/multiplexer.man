@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment { $Id: multiplexer.man,v 1.7 2005/08/16 06:06:30 andreas_kupries Exp $ }]
+[comment { $Id: multiplexer.man,v 1.8 2005/09/28 04:51:22 andreas_kupries Exp $ }]
 [manpage_begin multiplexer n 0.2]
 [moddesc   {One-to-many communication with sockets.}]
 [titledesc {One-to-many communication with sockets.}]

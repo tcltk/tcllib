@@ -1,0 +1,34 @@
+2005-09-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_vm.man:      Removed the hardwired generation of error
+	* me_tcl.man:     messages and made them explicit arguments of the
+	* me_tcl.tcl:     instructions which can generate errors. More
+	* me_tcl.test:    work for a generator, but ensures that
+	* me_cpucore.man: user-strings are not contaminated by Tcl code
+	* me_cpucore.tcl: (character representation).
+
+2005-09-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_tcl.tcl: Fixed bug uncovered by the testuite.
+
+	* me_tcl.test: Completed the testsuite.
+
+2005-08-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_tcl.man: Added more accessor commands, to be able to inspect
+	  the full state of the ME vm when running the testsuite.
+
+	* me_tcl.tcl: Implemented the newly specified accessor commands.
+
+	* me_tcl.test: **New file** Skeleton framework for the testsuite
+	  of the ME vm.
+
+	* me_util.tcl: Added argument sanity checking.
+
+	* me_util.test: **New file** Added a testsuite for the commands
+	  doing the conversions between AST representations.
+
+2005-04-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module: Virtual machine for parsing, various
+	  implementations, utilities.

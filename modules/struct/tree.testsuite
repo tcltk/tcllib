@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.testsuite,v 1.2 2005/09/21 05:05:22 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.testsuite,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
 
 if {[package vsatisfies [package provide tcltest] 2.0]} {
     # tcltest2.0+ has an API to specify a test constraint

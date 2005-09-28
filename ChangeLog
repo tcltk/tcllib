@@ -1,3 +1,10 @@
+2005-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules: New module:      grammar_me.
+	* installed_modules: New module:      grammar_peg.
+	* installed_modules: New module:      page.
+	* installed_modules: New application: page.
+
 2005-09-26  Andreas Kupries <andreask@activestate.com>
 
 	* installed_modules.tcl: Added the 'tcldocstrip' application to
