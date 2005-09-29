@@ -1,5 +1,12 @@
 2005-09-29  Andreas Kupries <andreask@activestate.com>
 
+	* README-1.8.txt: New file. Readme file for the upcoming release.
+
+	* sak.tcl (pkg-compare): Modified the core of the 'rstatus'
+	  functionality to sort by module, then package, and show the
+	  module name before the packages. Easier for use in new release
+	  README file.
+
 	* installed_modules.tcl: log module changed to use _msg for
 	  installation.
 
