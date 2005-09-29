@@ -51,7 +51,7 @@ foreach {m pkg doc exa} {
     javascript	_tcl  _man  _null
     jpeg        _tcl  _man  _null
     ldap        _tcl  _man _exa
-    log		_tcl  _man  _null
+    log		 _msg _man  _null
     math	 _tci _man _exa
     md4		_tcl  _man  _null
     md5		_tcl  _man  _null
