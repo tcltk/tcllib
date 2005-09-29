@@ -1,3 +1,15 @@
+2005-09-29  Andreas Kupries <andreask@activestate.com>
+
+	* installed_modules.tcl: log module changed to use _msg for
+	  installation.
+
+	* install_action.tcl (_msg): New action for modules having a
+	  message catalogs in a msgs subdirectory.
+
+	* installer.tcl (xcopy): Fixed bug in the interaction of recursion
+	  and pattern argument. It is for files, but affected directories
+	  as well, causing page to ignore its plugin directory.
+
 2005-09-28  Andreas Kupries <andreask@activestate.com>
 
 	* installed_modules.tcl: Using _tcr to install page and its
