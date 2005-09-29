@@ -37,6 +37,17 @@ proc _doc {module libdir} {
     return
 }
 
+proc _msg {module libdir} {
+    global distribution
+
+    _tcl $module $libdir
+    xcopy \
+	    [file join $distribution modules $module msgs] \
+	    [file join $libdir $module msgs] \
+	    1
+    return
+}
+
 proc _tex {module libdir} {
     global distribution
 
