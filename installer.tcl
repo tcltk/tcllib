@@ -90,20 +90,50 @@ proc xcopyfile {src dest} {
 
 proc xcopy {src dest recurse {pattern *}} {
     run file mkdir $dest
-    foreach file [glob [file join $src $pattern]] {
-        set base [file tail $file]
-	set sub  [file join $dest $base]
 
-	if {0 == [string compare CVS $base]} {continue}
+    if {[string equal $pattern *] || !$recurse} {
+	foreach file [glob [file join $src $pattern]] {
+	    set base [file tail $file]
+	    set sub  [file join $dest $base]
 
-        if {[file isdirectory $file]} then {
-	    if {$recurse} {
-		run file mkdir  $sub
-		xcopy $file $sub $recurse $pattern
+	    if {0 == [string compare CVS $base]} {continue}
+
+	    if {[file isdirectory $file]} then {
+		if {$recurse} {
+		    run file mkdir  $sub
+		    xcopy $file $sub $recurse $pattern
+
+		    # If the directory is empty after the recursion remove it again.
+		    if {![llength [glob -nocomplain [file join $sub *]]]} {
+			file delete $sub
+		    }
+		}
+	    } else {
+		xcopyfile $file $sub
 	    }
-        } else {
-            xcopyfile $file $sub
-        }
+	}
+    } else {
+	foreach file [glob [file join $src *]] {
+	    set base [file tail $file]
+	    set sub  [file join $dest $base]
+
+	    if {[string equal CVS $base]} {continue}
+
+	    if {[file isdirectory $file]} then {
+		if {$recurse} {
+		    run file mkdir $sub
+		    xcopy $file $sub $recurse $pattern
+
+		    # If the directory is empty after the recursion remove it again.
+		    if {![llength [glob -nocomplain [file join $sub *]]]} {
+			file delete $sub
+		    }
+		}
+	    } else {
+		if {![string match $pattern $base]} {continue}
+		xcopyfile $file $sub
+	    }
+	}
     }
 }
 
