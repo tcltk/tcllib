@@ -1,9 +1,9 @@
-[manpage_begin tcllib_ip n 1.0.0]
+[manpage_begin tcllib_ip n 1.1.0]
 [copyright {2004, Pat Thoyts}]
 [moddesc   {Domain Name Service}]
 [titledesc {IPv4 and IPv6 address manipulation}]
 [require Tcl 8.2]
-[require ip [opt 1.0.0]]
+[require ip [opt 1.1.0]]
 [description]
 [para]
 

@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {return}
-package ifneeded csv 0.5.1 [list source [file join $dir csv.tcl]]
+package ifneeded csv 0.5.2 [list source [file join $dir csv.tcl]]

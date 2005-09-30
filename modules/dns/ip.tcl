@@ -9,13 +9,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.6 2005/05/06 00:54:10 patthoyts Exp $
+# $Id: ip.tcl,v 1.7 2005/09/30 05:36:39 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
-    variable version 1.0.0
-    variable rcsid {$Id: ip.tcl,v 1.6 2005/05/06 00:54:10 patthoyts Exp $}
+    variable version 1.1.0
+    variable rcsid {$Id: ip.tcl,v 1.7 2005/09/30 05:36:39 andreas_kupries Exp $}
 
     namespace export is version normalize equal type contract mask
     #catch {namespace ensemble create}
