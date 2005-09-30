@@ -1,9 +1,9 @@
-[manpage_begin ncgi n 1.2.3]
+[manpage_begin ncgi n 1.3]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {CGI Support}]
 [titledesc {Procedures to manipulate CGI values.}]
 [require Tcl 8.2]
-[require ncgi [opt 1.2.3]]
+[require ncgi [opt 1.3]]
 [description]
 [para]
 
@@ -60,6 +60,11 @@ characters with a %xx sequence, where xx is the character code in hex.
 
 Returns 1 if the CGI variable [arg name] is not present or has the
 empty string as its value.
+
+
+[call [cmd ::ncgi::exists] [arg name]]
+
+Returns 1 if the CGI variable [arg name] is not present.
 
 
 [call [cmd ::ncgi::encode] [arg string]]
@@ -152,6 +157,13 @@ values that describe the content.
 
 This returns all the query data as a name, value list.  In the case of
 multipart/form-data, the values are structured as described in
+
+[cmd ::ncgi::multipart].
+
+
+[call [cmd ::ncgi::names]]
+
+This returns all names found in the query data, as a list.
 
 [cmd ::ncgi::multipart].
 

@@ -27,7 +27,7 @@
 package require Tcl 8.2
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.2.3
+package provide ncgi 1.3
 
 namespace eval ::ncgi {
 
@@ -95,7 +95,7 @@ namespace eval ::ncgi {
     # pkgIndex.tcl
 
     namespace export reset urlStub query type decode encode
-    namespace export nvlist parse input value valueList
+    namespace export nvlist parse input value valueList names
     namespace export setValue setValueList setDefaultValue setDefaultValueList
     namespace export empty import importAll importFile redirect header
     namespace export parseMimeValue multipart cookie setCookie
@@ -286,6 +286,28 @@ proc ::ncgi::encode {string} {
     return [subst -nocommand $string]
 }
 
+# ::ncgi::names
+#
+#	This parses the query data and returns a list of the names found therein.
+#
+# 	Note: If you use ncgi::setValue or ncgi::setDefaultValue, this
+#	names procedure doesn't see the effect of that.
+#
+# Arguments:
+#	none
+#
+# Results:
+#	A list of names
+
+proc ::ncgi::names {} {
+    array set names {}
+    foreach {name val} [nvlist] {
+        if {![string equal $name "anonymous"]} {
+            set names($name) 1
+        }
+    }
+    return [array names names]
+}
 
 # ::ncgi::nvlist
 #
@@ -566,6 +588,21 @@ proc ::ncgi::setDefaultValueList {key valuelist} {
     } else {
 	return ""
     }
+}
+
+# ::ncgi::empty --
+#
+#	Return true if the CGI variable doesn't exist.
+#
+# Arguments:
+#	name	Name of the CGI variable
+#
+# Results:
+#	1 if the variable doesn't exist
+
+proc ::ncgi::exists {var} {
+    variable value
+    return [info exists value($var)]
 }
 
 # ::ncgi::empty --
