@@ -2,16 +2,16 @@
 #
 #	Tcl implementations of CSV reader and writer
 #
-# Copyright (c) 2001 by Jeffrey Hobbs
-# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001      by Jeffrey Hobbs
+# Copyright (c) 2001-2005 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.21 2005/09/30 05:36:38 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.22 2005/09/30 23:03:20 andreas_kupries Exp $
 
 package require Tcl 8.3
-package provide csv 0.5.2
+package provide csv 0.6
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queue report 
@@ -65,6 +65,25 @@ proc ::csv::joinlist {values {sepChar ,}} {
 	append out "[join $record $sepChar]\n"
     }
     return $out
+}
+
+# ::csv::joinmatrix --
+#
+#	Takes a matrix object following the API specified for the
+#	struct::matrix package. Each row of the matrix is converted
+#	into a single CSV formatted record in the final string, the
+#	records being separated by newlines.
+#
+# Arguments:
+#	matrix		Matrix object command.
+#	sepChar		The separator character, defaults to comma
+#
+# Results:
+#	A string containing the values in CSV format, the records
+#	separated by newlines.
+
+proc ::csv::joinmatrix {matrix {sepChar ,}} {
+    return [joinlist [$matrix get rect 0 0 end end] $sepChar]
 }
 
 # ::csv::read2matrix --
