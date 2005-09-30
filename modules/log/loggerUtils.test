@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2005 by Aamer Aahkter
 #
-# $Id: loggerUtils.test,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerUtils.test,v 1.2 2005/09/30 18:05:57 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {
     puts "    Aborting tests for logger::utils."
@@ -15,10 +15,10 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {
 }
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
+    package require tcltest 2.2
     namespace import ::tcltest::*
 } else {
-    # Ensure that 2.1 or higher present.
+    # Ensure that 2.2 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.2]} {
 	puts "    Aborting tests for logger::utils."
