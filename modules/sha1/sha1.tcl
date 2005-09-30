@@ -21,13 +21,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.17 2005/09/30 22:07:17 andreas_kupries Exp $
+# $Id: sha1.tcl,v 1.18 2005/09/30 22:50:40 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
-    variable version 2.0.1
-    variable rcsid {$Id: sha1.tcl,v 1.17 2005/09/30 22:07:17 andreas_kupries Exp $}
+    variable version 2.0.2
+    variable rcsid {$Id: sha1.tcl,v 1.18 2005/09/30 22:50:40 patthoyts Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
@@ -261,7 +261,7 @@ proc ::sha1::HMACFinal {token} {
 #  This is the core SHA1 algorithm. It is a lot like the MD4 algorithm but
 #  includes an extra round and a set of constant modifiers throughout.
 #
-proc ::sha1::SHA1Transform {token msg} {
+set ::sha1::SHA1Transform_body {
     upvar #0 $token state
 
     # FIPS 180-1: 7a: Process Message in 16-Word Blocks
@@ -297,48 +297,40 @@ proc ::sha1::SHA1Transform {token msg} {
 
         # Round 1: ft(B,C,D) = (B & C) | (~B & D) ( 0 <= t <= 19)
         for {set t 0} {$t < 20} {incr t} {
-            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
-                                ($D ^ ($B & ($C ^ $D))) \
-                                + $E + [lindex $W $t] + 0x5a827999)}]
+            set TEMP [F1 $A $B $C $D $E [lindex $W $t]]
             set E $D
             set D $C
-            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
+            set C [rotl32 $B 30]
             set B $A
             set A $TEMP
         }
 
         # Round 2: ft(B,C,D) = (B ^ C ^ D) ( 20 <= t <= 39)
         for {} {$t < 40} {incr t} {
-            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
-                                ($B ^ $C ^ $D) \
-                                + $E + [lindex $W $t] + 0x6ed9eba1)}]
+            set TEMP [F2 $A $B $C $D $E [lindex $W $t]]
             set E $D
             set D $C
-            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
+            set C [rotl32 $B 30]
             set B $A
             set A $TEMP
         }
 
         # Round 3: ft(B,C,D) = ((B & C) | (B & D) | (C & D)) ( 40 <= t <= 59)
         for {} {$t < 60} {incr t} {
-            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
-                                (($B & $C) | ($D & ($B | $C))) \
-                                + $E + [lindex $W $t] + 0x8f1bbcdc)}]
+            set TEMP [F3 $A $B $C $D $E [lindex $W $t]]
             set E $D
             set D $C
-            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
+            set C [rotl32 $B 30]
             set B $A
             set A $TEMP
          }
 
         # Round 4: ft(B,C,D) = (B ^ C ^ D) ( 60 <= t <= 79)
         for {} {$t < 80} {incr t} {
-            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
-                                ($B ^ $C ^ $D) \
-                                + $E + [lindex $W $t] + 0xca62c1d6)}]
+            set TEMP [F4 $A $B $C $D $E [lindex $W $t]]
             set E $D
             set D $C
-            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
+            set C [rotl32 $B 30]
             set B $A
             set A $TEMP
         }
@@ -355,6 +347,131 @@ proc ::sha1::SHA1Transform {token msg} {
 
     return
 }
+
+proc ::sha1::F1 {A B C D E W} {
+    expr {(((($A << 5) & 0xffffffff) | (($A >> 27) & 0x1f)) \
+               + ($D ^ ($B & ($C ^ $D))) + $E + $W + 0x5a827999) & 0xffffffff}
+}
+
+proc ::sha1::F2 {A B C D E W} {
+    expr {(((($A << 5) & 0xffffffff) | (($A >> 27) & 0x1f)) \
+               + ($B ^ $C ^ $D) + $E + $W + 0x6ed9eba1) & 0xffffffff}
+}
+
+proc ::sha1::F3 {A B C D E W} {
+    expr {(((($A << 5) & 0xffffffff)| (($A >> 27) & 0x1f)) \
+               + (($B & $C) | ($D & ($B | $C))) + $E + $W + 0x8f1bbcdc) & 0xffffffff}
+}
+
+proc ::sha1::F4 {A B C D E W} {
+    expr {(((($A << 5) & 0xffffffff)| (($A >> 27) & 0x1f)) \
+               + ($B ^ $C ^ $D) + $E + $W + 0xca62c1d6) & 0xffffffff}
+}
+
+proc ::sha1::rotl32 {v n} {
+    return [expr {((($v << $n) \
+                        | (($v >> (32 - $n)) \
+                               & (0x7FFFFFFF >> (31 - $n))))) \
+                      & 0xFFFFFFFF}]
+}
+
+
+# -------------------------------------------------------------------------
+# 
+# In order to get this code to go as fast as possible while leaving
+# the main code readable we can substitute the above function bodies
+# into the transform procedure. This inlines the code for us an avoids
+# a procedure call overhead within the loops.
+#
+# We can do some minor tweaking to improve speed on Tcl < 8.5 where we
+# know our arithmetic is limited to 64 bits. On > 8.5 we may have 
+# unconstrained integer arithmetic and must avoid letting it run away.
+#
+
+regsub -all -line \
+    {\[F1 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body \
+    {[expr {(rotl32($A,5) + ($D ^ ($B \& ($C ^ $D))) + $E + \1 + 0x5a827999) \& 0xffffffff}]} \
+    ::sha1::SHA1Transform_body_tmp
+
+regsub -all -line \
+    {\[F2 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body_tmp \
+    {[expr {(rotl32($A,5) + ($B ^ $C ^ $D) + $E + \1 + 0x6ed9eba1) \& 0xffffffff}]} \
+    ::sha1::SHA1Transform_body_tmp
+
+regsub -all -line \
+    {\[F3 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body_tmp \
+    {[expr {(rotl32($A,5) + (($B \& $C) | ($D \& ($B | $C))) + $E + \1 + 0x8f1bbcdc) \& 0xffffffff}]} \
+    ::sha1::SHA1Transform_body_tmp
+
+regsub -all -line \
+    {\[F4 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body_tmp \
+    {[expr {(rotl32($A,5) + ($B ^ $C ^ $D) + $E + \1 + 0xca62c1d6) \& 0xffffffff}]} \
+    ::sha1::SHA1Transform_body_tmp
+
+regsub -all -line \
+    {rotl32\(\$A,5\)} \
+    $::sha1::SHA1Transform_body_tmp \
+    {((($A << 5) \& 0xffffffff) | (($A >> 27) \& 0x1f))} \
+    ::sha1::SHA1Transform_body_tmp
+
+regsub -all -line \
+    {\[rotl32 \$B 30\]} \
+    $::sha1::SHA1Transform_body_tmp \
+    {[expr {int(($B << 30) | (($B >> 2) \& 0x3fffffff))}]} \
+    ::sha1::SHA1Transform_body_tmp
+#
+# Version 2 avoids a few truncations to 32 bits in non-essential places.
+#
+regsub -all -line \
+    {\[F1 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body \
+    {[expr {rotl32($A,5) + ($D ^ ($B \& ($C ^ $D))) + $E + \1 + 0x5a827999}]} \
+    ::sha1::SHA1Transform_body_tmp2
+
+regsub -all -line \
+    {\[F2 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body_tmp2 \
+    {[expr {rotl32($A,5) + ($B ^ $C ^ $D) + $E + \1 + 0x6ed9eba1}]} \
+    ::sha1::SHA1Transform_body_tmp2
+
+regsub -all -line \
+    {\[F3 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body_tmp2 \
+    {[expr {rotl32($A,5) + (($B \& $C) | ($D \& ($B | $C))) + $E + \1 + 0x8f1bbcdc}]} \
+    ::sha1::SHA1Transform_body_tmp2
+
+regsub -all -line \
+    {\[F4 \$A \$B \$C \$D \$E (\[.*?\])\]} \
+    $::sha1::SHA1Transform_body_tmp2 \
+    {[expr {rotl32($A,5) + ($B ^ $C ^ $D) + $E + \1 + 0xca62c1d6}]} \
+    ::sha1::SHA1Transform_body_tmp2
+
+regsub -all -line \
+    {rotl32\(\$A,5\)} \
+    $::sha1::SHA1Transform_body_tmp2 \
+    {(($A << 5) | (($A >> 27) \& 0x1f))} \
+    ::sha1::SHA1Transform_body_tmp2
+
+regsub -all -line \
+    {\[rotl32 \$B 30\]} \
+    $::sha1::SHA1Transform_body_tmp2 \
+    {[expr {($B << 30) | (($B >> 2) \& 0x3fffffff)}]} \
+    ::sha1::SHA1Transform_body_tmp2
+
+if {[package vsatisfies [package provide Tcl] 8.5]} {
+    proc ::sha1::SHA1Transform {token msg} $::sha1::SHA1Transform_body_tmp
+} else {
+    proc ::sha1::SHA1Transform {token msg} $::sha1::SHA1Transform_body_tmp2
+}
+
+unset ::sha1::SHA1Transform_body_tmp
+unset ::sha1::SHA1Transform_body_tmp2
+
+# -------------------------------------------------------------------------
 
 proc ::sha1::byte {n v} {expr {((0xFF << (8 * $n)) & $v) >> (8 * $n)}}
 proc ::sha1::bytes {v} { 
