@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin html n 1.2.3]
+[manpage_begin html n 1.2.4]
 [moddesc   {HTML Generation}]
 [titledesc {Procedures to generate HTML structures}]
 [require Tcl 8.2]
-[require html [opt 1.2.3]]
+[require html [opt 1.2.4]]
 [description]
 [para]
 

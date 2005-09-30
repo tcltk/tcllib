@@ -1,10 +1,10 @@
-[manpage_begin comm n 4.2.1]
+[manpage_begin comm n 4.2.2]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.2.1]]
+[require comm [opt 4.2.2]]
 [description]
 
 [para]

@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded htmlparse 1.1 [list source [file join $dir htmlparse.tcl]]
+package ifneeded htmlparse 1.1.1 [list source [file join $dir htmlparse.tcl]]

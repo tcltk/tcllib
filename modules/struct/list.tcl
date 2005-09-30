@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.19 2005/05/23 20:32:06 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.20 2005/09/30 05:36:39 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -1742,4 +1742,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.4
+package provide struct::list 1.5

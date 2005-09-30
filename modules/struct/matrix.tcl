@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.21 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.22 2005/09/30 05:36:39 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -2784,4 +2784,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 2.0
+package provide struct::matrix 2.0.1

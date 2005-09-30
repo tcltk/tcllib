@@ -163,4 +163,4 @@ snit::type ::grammar::fa::dacceptor {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa::dacceptor 0.1
+package provide grammar::fa::dacceptor 0.1.1

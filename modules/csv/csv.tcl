@@ -8,10 +8,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.20 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.21 2005/09/30 05:36:38 andreas_kupries Exp $
 
 package require Tcl 8.3
-package provide csv 0.5.1
+package provide csv 0.5.2
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queue report 

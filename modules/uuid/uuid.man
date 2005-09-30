@@ -1,9 +1,9 @@
-[manpage_begin uuid n 1.0.0]
+[manpage_begin uuid n 1.0.1]
 [moddesc {uuid}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {UUID generation and comparison}]
 [require Tcl 8.2]
-[require uuid [opt 1.0.0]]
+[require uuid [opt 1.0.1]]
 [description]
 [para]
 
