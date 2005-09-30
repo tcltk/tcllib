@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded cmdline 1.2.3 [list source [file join $dir cmdline.tcl]]
+package ifneeded cmdline 1.2.4 [list source [file join $dir cmdline.tcl]]

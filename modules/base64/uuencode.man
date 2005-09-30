@@ -1,9 +1,9 @@
-[manpage_begin uuencode n 1.1.2]
+[manpage_begin uuencode n 1.1.3]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {UU-encode/decode binary data}]
 [require Tcl 8]
-[require uuencode [opt 1.1.2]]
+[require uuencode [opt 1.1.3]]
 [description]
 [para]
 

@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded counter 2.0.3 [list source [file join $dir counter.tcl]]
+package ifneeded counter 2.0.4 [list source [file join $dir counter.tcl]]

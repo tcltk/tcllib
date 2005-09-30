@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.7]
+[manpage_begin fileutil n 1.8]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [require Tcl 8]
-[require fileutil [opt 1.7]]
+[require fileutil [opt 1.8]]
 [description]
 [para]
 

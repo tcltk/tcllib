@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.25 2005/08/29 20:27:59 kennykb Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.26 2005/09/30 05:36:38 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace
@@ -321,4 +321,4 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide base64 2.3.1
+package provide base64 2.3.2
