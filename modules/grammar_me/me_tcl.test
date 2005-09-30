@@ -8,7 +8,13 @@
 # Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_tcl.test,v 1.1 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: me_tcl.test,v 1.2 2005/09/30 20:06:22 andreas_kupries Exp $
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "    Aborting tests for grammar::me::tcl."
+    puts "    Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest 2.1

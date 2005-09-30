@@ -1,3 +1,10 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* me_cpu.tcl: Fixed namespace typo.
+
+	* me_tcl.test:   Added forgotten check to tests, the packages cannot
+	* me_utils.test: run against Tcl 8.3 and below.
+
 2005-09-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* me_vm.man:      Removed the hardwired generation of error
