@@ -31,8 +31,8 @@ foreach {m pkg doc exa} {
     crc		_tcl  _man  _null
     csv		_tcl  _man _exa
     des		_tcl  _man  _null
-    dns		_tcl  _man _exa
-    docstrip	 _tcl _man  _null
+    dns		 _msg _man _exa
+    docstrip	_tcl  _man  _null
     doctools	 _doc _man _exa
     exif	_tcl  _man  _null
     fileutil	_tcl  _man  _null
