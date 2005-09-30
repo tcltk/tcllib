@@ -1,9 +1,9 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::queue n 1.3]
+[manpage_begin struct::queue n 1.4]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
 [require Tcl 8.2]
-[require struct::queue [opt 1.3]]
+[require struct::queue [opt 1.4]]
 [description]
 
 The [cmd ::struct::queue] command creates a new queue object with an
@@ -58,6 +58,13 @@ one [arg item] is given, they will be added in the order they are
 listed.
 
 
+[call [arg queueName] [cmd unget] [arg item]]
+
+Put the [arg item] into the queue, at the front, i.e. before any other
+items already in the queue. This makes this operation the complement
+to the method [method get].
+
+
 [call [arg queueName] [cmd size]]
 
 Return the number of items in the queue.
@@ -65,5 +72,6 @@ Return the number of items in the queue.
 
 [list_end]
 
-[keywords stack matrix tree graph]
+[keywords stack matrix tree graph set list prioqueue record skiplist]
+[keywords pool]
 [manpage_end]

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue.tcl,v 1.12 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.tcl,v 1.13 2005/09/30 23:48:41 andreas_kupries Exp $
 
 namespace eval ::struct {}
 namespace eval ::struct::queue {
@@ -239,6 +239,27 @@ proc ::struct::queue::_put {name args} {
     return
 }
 
+# ::struct::queue::_unget --
+#
+#	Put an item into a queue. At the _front_!
+#
+# Arguments:
+#	name	name of the queue object
+#	item	item to put at the front of the queue
+#
+# Results:
+#	None.
+
+proc ::struct::queue::_unget {name item} {
+    variable queues
+    if {![llength $queues($name)]} {
+	set queues($name) [list $item]
+    } else {
+	set queues($name) [linsert $queues($name) 0 $item]
+    }
+    return
+}
+
 # ::struct::queue::_size --
 #
 #	Return the number of objects on a queue.
@@ -262,4 +283,4 @@ namespace eval ::struct {
     namespace import -force queue::queue
     namespace export queue
 }
-package provide struct::queue 1.3
+package provide struct::queue 1.4
