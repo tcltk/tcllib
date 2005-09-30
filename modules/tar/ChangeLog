@@ -1,3 +1,9 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* tar.tcl: qualified all [open] calls with :: to ensure usag of
+	  the builtin. Apparently mitigates conflict between this package
+	  and the vfs::tar module.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
