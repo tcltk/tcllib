@@ -145,6 +145,8 @@ md5             md5             1.4.3           1.4.4           B, TS, D
 mime            smtp            1.4             1.4.1           B
                 mime            1.4             1.4.1           B
 ------          -------         -----------     -----------     -------------------------------
+ncgi		ncgi		1.2.3		1.3		EF
+------          -------         -----------     -----------     -------------------------------
 ntp             time            1.1             1.2             B, TS, EF (ceptcl)
 ------          -------         -----------     -----------     -------------------------------
 png             png             0.1             0.1.1           B
@@ -192,7 +194,7 @@ Unchanged Modules/Packages
 
 base64 (yencode), bee, calendar, crc (sum), dns (spf, resolv),
 doctools (doctools::cvs, doctools::changelog), exif,
-ftp (ftp::geturl), ftpd, ident, irc, log, md5crypt, multiplexer, ncgi,
+ftp (ftp::geturl), ftpd, ident, irc, log, md5crypt, multiplexer,
 nntp, pop3d (pop3d::dbox, pop3d::udb), report, soundex,
 stooop (stooop, switched), tar, textutil (textutil::expander),
 tie (tie::std::array, tie::std::rarray, tie::std::dsource,

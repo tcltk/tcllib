@@ -1,3 +1,11 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Applied fix for [SF Tcllib Bug 756939], and
+	* ncgi.tcl:     accepted [SF Tcllib RFE 842066]. Added new
+	* ncgi.man:     commands 'ncgi::names' and 'ncgi::exists'.
+	* ncgi.test:    Extended the documentation and testsuite. Bumped
+	                version to 1.3
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
