@@ -17,4 +17,5 @@ critcl      rc4c         rc4/rc4c.tcl
 critcl      sha1c        sha1/sha1c.tcl
 critcl      uuid         uuid/uuid.tcl
 critcl      struct_treec struct/tree_c.tcl
+critcl      ipMorec      dns/ipMoreC.tcl
 critcl_notes {Note: you can ignore warnings for tcllibc.tcl, base64c.tcl and crcc.tcl.}
