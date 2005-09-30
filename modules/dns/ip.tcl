@@ -9,13 +9,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.7 2005/09/30 05:36:39 andreas_kupries Exp $
+# $Id: ip.tcl,v 1.8 2005/09/30 18:03:58 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
     variable version 1.1.0
-    variable rcsid {$Id: ip.tcl,v 1.7 2005/09/30 05:36:39 andreas_kupries Exp $}
+    variable rcsid {$Id: ip.tcl,v 1.8 2005/09/30 18:03:58 andreas_kupries Exp $}
 
     namespace export is version normalize equal type contract mask
     #catch {namespace ensemble create}
@@ -349,6 +349,11 @@ proc ::ip::ToString {bin {Ip4inIp6 0}} {
             argument is neither an IPv4 nor an IPv6 address"
     }
 }
+
+# -------------------------------------------------------------------------
+# Load extended command set.
+
+source [file join [file dirname [info script]] ipMore.tcl]
 
 # -------------------------------------------------------------------------
 

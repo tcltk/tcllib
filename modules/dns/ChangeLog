@@ -1,3 +1,11 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* ipMore.test:  Integrated Aamer Akhter's extended
+	* ipMore.tcl:   conversion and manipulation commands
+	* ipMoreC.tcl:  for ip-addresses and -masks. See the
+	* msmgs/en.msg: [SF Tcllib Patch 1260196]. Extended the
+	* ip.man:       documentation, testsuite, critcl setup.
+
 2005-05-21  Pat Thoyts  <pat@zsplat.freeserve.co.uk>
 
 	* dns.tcl: Added support for ceptcl as well as tcludp for udp
