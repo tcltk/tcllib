@@ -1,6 +1,7 @@
 2005-09-30  Andreas Kupries <andreask@activestate.com>
 
-	* me_cpu.tcl: Fixed namespace typo.
+	* me_cpucore.tcl: Fixed more typos.
+	* me_cpucore.tcl: Fixed namespace typo.
 
 	* me_tcl.test:   Added forgotten check to tests, the packages cannot
 	* me_utils.test: run against Tcl 8.3 and below.
