@@ -1,3 +1,11 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Added command 'csv::joinmatrix', which converts a
+	* csv.man:      matrix object into CSV records, one record per
+	* csv.tcl:      row. Inspired by [SF Tcllib RFE 1204345] which
+	                brought the conversion up, but went a round-about
+			way via a report object.
+
 2005-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.test: Testsuite package requirements fixed to ensure use of
