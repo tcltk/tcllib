@@ -1,3 +1,8 @@
+2005-09-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sha1.tcl: Refactored to permit implementation selection based
+	upon the current interpreter version to try and maximise the speed.
+
 2005-09-30  Andreas Kupries <andreask@activestate.com>
 
 	* sha1.tcl: Applied [SF Tcllib Patch 1301707] to keep the size of
