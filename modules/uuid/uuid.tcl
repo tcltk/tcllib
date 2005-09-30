@@ -12,7 +12,7 @@
 #        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
-    variable version 1.0.0
+    variable version 1.0.1
 
     namespace export uuid
 

@@ -12,11 +12,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: javascript.tcl,v 1.4 2004/01/15 06:36:13 andreas_kupries Exp $
+# RCS: @(#) $Id: javascript.tcl,v 1.5 2005/09/30 05:36:39 andreas_kupries Exp $
 
 package require Tcl 8
 package require ncgi 1
-package provide javascript 1.0.1
+package provide javascript 1.0.2
 
 
 namespace eval ::javascript {

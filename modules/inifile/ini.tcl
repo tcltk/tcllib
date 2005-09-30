@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.8 2005/09/05 09:23:42 patthoyts Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.9 2005/09/30 05:36:39 andreas_kupries Exp $
 
-package provide inifile 0.1
+package provide inifile 0.1.1
 
 namespace eval ini {
     variable nexthandle; if {![info exists nexthandle]} {set nexthandle 0}

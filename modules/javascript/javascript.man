@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin javascript n 1.0.1]
+[manpage_begin javascript n 1.0.2]
 [moddesc   {HTML and Java Script Generation}]
 [titledesc {Procedures to generate HTML and Java Script structures.}]
 [require Tcl 8]
-[require javascript [opt 1.0.1]]
+[require javascript [opt 1.0.2]]
 [description]
 [para]
 

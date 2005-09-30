@@ -1,8 +1,8 @@
-[manpage_begin uri n 1.1.4]
+[manpage_begin uri n 1.1.5]
 [moddesc   {Tcl Uniform Resource Identifier Management}]
 [titledesc {URI utilities}]
 [require Tcl 8.2]
-[require uri [opt 1.1.4]]
+[require uri [opt 1.1.5]]
 [description]
 
 This package contains two parts. First it provides regular expressions
