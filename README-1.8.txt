@@ -171,7 +171,7 @@ snit            snit            0.97            1.1             D, P, B, TS, I
 ------          -------         -----------     -----------     -------------------------------
 struct          - tree          2.0             2.1             D, EF (ext. api, critcl)
                 - graph         2.0             2.0.1           B
-                - queue         1.3             1.3             B
+                - queue         1.3             1.4             B, EF
                 - prioqueue     1.3             1.3.1           B
                 - list          1.4             1.5             D, TS, EF, B
                 - matrix        2.0             2.0.1           B
