@@ -1,3 +1,8 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* sha1.tcl: Applied [SF Tcllib Patch 1301707] to keep the size of
+	  generated numbers within the bounds of 32 bits.
+
 2005-02-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sha256.tcl: Speeded up the digest calculation.
