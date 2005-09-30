@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.18 2004/02/10 06:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.19 2005/09/30 22:23:24 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -708,6 +708,28 @@ test ncgi-16.6 {ncgi::importFile -- bad input} {
     ncgi::importFile -client the_file_name
 
 } {}
+
+
+test ncgi-17.1 {ncgi::names} {
+    ncgi::reset "name=hello+world&name2=%7ewelch"
+    ncgi::names
+} {name name2}
+
+test ncgi-17.2 {ncgi::names} {
+    ncgi::reset  "name=&name2"	application/x-www-urlencoded
+    ncgi::names
+} {name}
+
+test ncgi-17.3 {ncgi::names} {
+    ncgi::reset  "name=&name2"	application/x-www-form-urlencoded
+    ncgi::names
+} {name}
+
+test ncgi-17.4 {ncgi::names} {
+    ncgi::reset  "name=&name2"	application/xyzzy
+    set code [catch ncgi::names err]
+    list $code $err
+} {1 {Unknown Content-Type: application/xyzzy}}
 
 
 
