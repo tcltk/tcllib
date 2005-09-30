@@ -257,24 +257,24 @@ proc ::grammar::me::cpu::core::new {code} {
     return $state
 }
 
-proc ::grammar::mengine::cpu::lc {state loc} {
+proc ::grammar::mengine::cpu::core::lc {state loc} {
     return [lrange [lindex $state 4 $loc] 2 3]
 }
 
-proc ::grammar::mengine::cpu::tok {state from {to {}}} {
+proc ::grammar::mengine::cpu::core::tok {state from {to {}}} {
     if {$to == {}} {set to $from}
     return [lrange [lindex $state 4] $from $to]
 }
 
-proc ::grammar::mengine::cpu::sv {state} {
+proc ::grammar::mengine::cpu::core::sv {state} {
     return [lindex $state 8]
 }
 
-proc ::grammar::mengine::cpu::ok {state} {
+proc ::grammar::mengine::cpu::core::ok {state} {
     return [lindex $state 7]
 }
 
-proc ::grammar::mengine::cpu::error {state} {
+proc ::grammar::mengine::cpu::core::error {state} {
     set er [lindex $state 9]
     if {[llength $er]} {
 	foreach {l m} $er break
@@ -289,25 +289,25 @@ proc ::grammar::mengine::cpu::error {state} {
     return $er
 }
 
-proc ::grammar::mengine::cpu::ast {state} {
+proc ::grammar::mengine::cpu::core::ast {state} {
     return [lindex $state 11 end]
 }
 
-proc ::grammar::mengine::cpu::halted {state} {
+proc ::grammar::mengine::cpu::core::halted {state} {
     return [lindex $state 2]
 }
 
-proc ::grammar::mengine::cpu::code {state} {
+proc ::grammar::mengine::cpu::core::code {state} {
     return [lindex $state 0]
 }
 
-proc ::grammar::mengine::cpu::eof {statevar} {
+proc ::grammar::mengine::cpu::core::eof {statevar} {
     upvar 1 $statevar state
     lset state 3 1
     return
 }
 
-proc ::grammar::mengine::cpu::put {statevar tok lex line col} {
+proc ::grammar::mengine::cpu::core::put {statevar tok lex line col} {
     upvar 1 $statevar state
     if {[lindex $state 3]} {
 	return -code error "Cannot add input data after eof"
@@ -318,7 +318,7 @@ proc ::grammar::mengine::cpu::put {statevar tok lex line col} {
     return
 }
 
-proc ::grammar::mengine::cpu::run {statevar {n -1}} {
+proc ::grammar::mengine::cpu::core::run {statevar {n -1}} {
     # Execution loop. Should be instrumented for statistics about
     # dynamic instruction frequency. I.e. which instructions are
     # executed the most => put them at the front of the if/switch for
@@ -785,7 +785,7 @@ namespace eval grammar::me::cpu::core {
 # ### ### ### ######### ######### #########
 ## Helper commands.
 
-proc ::grammar::mengine::cpu::K {x y} {set x}
+proc ::grammar::mengine::cpu::core::K {x y} {set x}
 
 proc ::grammar::me::cpu::core::Str {str} {
     upvar 1 pool pool poolh poolh
@@ -819,7 +819,7 @@ proc ::grammar::me::cpu::core::Tok {str} {
     }
 }
 
-proc ::grammar::mengine::cpu::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
+proc ::grammar::mengine::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
     variable anum
 
     # Basic validation of structure ...
