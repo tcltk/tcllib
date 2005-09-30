@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.4 2004/09/10 23:02:53 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.5 2005/09/30 20:08:02 andreas_kupries Exp $
 
 package provide tar 0.1
 
@@ -58,7 +58,7 @@ proc ::tar::readHeader {data} {
 }
 
 proc ::tar::contents {file} {
-    set fh [open $file]
+    set fh [::open $file]
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
@@ -70,7 +70,7 @@ proc ::tar::contents {file} {
 }
 
 proc ::tar::stat {tar {file {}}} {
-    set fh [open $tar]
+    set fh [::open $tar]
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
@@ -87,7 +87,7 @@ proc ::tar::stat {tar {file {}}} {
 }
 
 proc ::tar::get {tar file} {
-    set fh [open $tar]
+    set fh [::open $tar]
     fconfigure $fh -encoding binary -translation lf -eofchar {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
@@ -119,7 +119,7 @@ proc ::tar::untar {tar args} {
     }
     
     set ret {}
-    set fh [open $tar]
+    set fh [::open $tar]
     fconfigure $fh -encoding binary -translation lf -eofchar {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
@@ -137,7 +137,7 @@ proc ::tar::untar {tar args} {
             lappend ret [file dirname $name] {}
         }
         if {[string match {[0346]} $header(type)]} {
-            set new [open $name w+]
+            set new [::open $name w+]
             fconfigure $new -encoding binary -translation lf -eofchar {}
             fcopy $fh $new -size $header(size)
             close $new
@@ -234,7 +234,7 @@ proc ::tar::writefile {in out dereference} {
      puts -nonewline $out [createHeader $in $dereference]
      set size 0
      if {[file type $in] == "file" || ($dereference && [file type $in] == "link")} {
-         set in [open $in]
+         set in [::open $in]
          fconfigure $in -encoding binary -translation lf -eofchar {}
          set size [fcopy $in $out]
          close $in
@@ -246,7 +246,7 @@ proc ::tar::create {tar files args} {
     set dereference 0
     parseOpts {dereference 0} $args
     
-    set fh [open $tar w+]
+    set fh [::open $tar w+]
     fconfigure $fh -encoding binary -translation lf -eofchar {}
 
     foreach x [recurseDirs $files $dereference] {
@@ -262,7 +262,7 @@ proc ::tar::add {tar files args} {
     set dereference 0
     parseOpts {dereference 0} $args
     
-    set fh [open $tar r+]
+    set fh [::open $tar r+]
     fconfigure $fh -encoding binary -translation lf -eofchar {}
     seek $fh -1024 end
 
