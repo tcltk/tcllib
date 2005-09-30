@@ -13,7 +13,7 @@ package ifneeded struct            2.1   [list source [file join $dir struct.tcl
 package ifneeded struct            1.4   [list source [file join $dir struct1.tcl]]
 
 package ifneeded struct::graph     2.0.1 [list source [file join $dir graph.tcl]]
-package ifneeded struct::queue     1.3   [list source [file join $dir queue.tcl]]
+package ifneeded struct::queue     1.4   [list source [file join $dir queue.tcl]]
 package ifneeded struct::stack     1.3   [list source [file join $dir stack.tcl]]
 package ifneeded struct::tree      2.1   [list source [file join $dir tree.tcl]]
 package ifneeded struct::matrix    2.0.1 [list source [file join $dir matrix.tcl]]

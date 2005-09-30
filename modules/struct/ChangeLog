@@ -1,3 +1,10 @@
+2005-09-30  Andreas Kupries <andreask@activestate.com>
+
+	* queue.test: Extended API with new method 'unget'. Updated
+	* queue.man:  documentation and testsuite. Version bumped to
+	* queue.tcl:  1.4. This implements [SF Tcllib RFE 1229352].
+	* pkgIndex.tcl:
+
 2005-09-23  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* prioqueue.tcl : Fixed a bug in binary sort algorithm.

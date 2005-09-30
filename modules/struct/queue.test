@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.test,v 1.11 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.test,v 1.12 2005/09/30 23:48:41 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -48,7 +48,7 @@ test queue-0.3 {queue errors} {
     catch {myqueue foo} msg
     myqueue destroy
     set msg
-} "bad option \"foo\": must be clear, destroy, get, peek, put, or size"
+} "bad option \"foo\": must be clear, destroy, get, peek, put, size, or unget"
 test queue-0.4 {queue errors} {
     catch {queue set} msg
     set msg
@@ -228,8 +228,6 @@ test queue-6.10 {get operation} {
     set msg
 } {insufficient items in queue to fill request}
 
-
-
 test queue-7.1 {clear operation} {
     queue myqueue
     myqueue put a
@@ -241,5 +239,38 @@ test queue-7.1 {clear operation} {
     myqueue destroy
     set result
 } [list [list a b c] 0]
+
+
+
+test queue-8.1 {unget operation, not enough arguments} {
+    queue myqueue
+    catch {myqueue unget} msg
+    myqueue destroy
+    set msg
+} [tcltest::wrongNumArgs ::struct::queue::_unget {name item} 1]
+
+test queue-8.2 {unget operation, too many arguments} {
+    queue myqueue
+    catch {myqueue unget a b} msg
+    myqueue destroy
+    set msg
+} [tcltest::tooManyArgs ::struct::queue::_unget {name item}]
+
+test queue-8.3 {unget, empty queue} {
+    queue myqueue
+    myqueue unget foo
+    set res [myqueue peek [myqueue size]]
+    myqueue destroy
+    set res
+} {foo}
+
+test queue-8.3 {unget, nonempty queue} {
+    queue myqueue
+    myqueue put a b c
+    myqueue unget foo
+    set res [myqueue peek [myqueue size]]
+    myqueue destroy
+    set res
+} {foo a b c}
 
 ::tcltest::cleanupTests
