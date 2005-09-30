@@ -3,51 +3,52 @@ New in Tcllib 1.8
                         		Tcllib 1.8
 Module          Package 		New Version     Comments
 ------          ------- 		-----------     -------------------------------
-aes		aes                           1.0.0	AES Encryption
-bibtex		bibtex                          0.5	Processing of BibTeX bibliographies
-blowfish	blowfish                      1.0.0	Blowfish Encryption
+aes		aes                     1.0.0      	AES Encryption
+bibtex		bibtex                  0.5        	Processing of BibTeX bibliographies
+blowfish	blowfish                1.0.0      	Blowfish Encryption
 ------          ------- 		-----------     -------------------------------
-des		tclDES                        1.0.0	DES encryption
-		tclDESjr                      1.0.0
+des		tclDES                  1.0.0      	DES encryption
+		tclDESjr                1.0.0
 ------          ------- 		-----------     -------------------------------
-docstrip	docstrip                        1.2	Literate programming tools
-		docstrip::util                  1.2
+docstrip	docstrip                1.2        	Literate programming tools
+		docstrip::util          1.2
 ------          ------- 		-----------     -------------------------------
-fumagic		fileutil::magic::filetype       1.0	File types basic on magic numbers.
-		fileutil::magic::mimetype       1.0
+fumagic		fileutil::magic::filetype 1.0      	File types basic on magic numbers.
+		fileutil::magic::mimetype 1.0
 ------          ------- 		-----------     -------------------------------
-grammar_me	grammar::me::cpu                0.1	Match Engine. Foundation for
-		grammar::me::cpu::core          0.1	parsers.
-		grammar::me::tcl                0.1
-		grammar::me::util               0.1
+grammar_me	grammar::me::cpu        0.1        	Match Engine. Foundation for
+		grammar::me::cpu::core  0.1        	parsers.
+		grammar::me::tcl        0.1
+		grammar::me::util       0.1
 ------          ------- 		-----------     -------------------------------
-grammar_peg	grammar::peg                    0.1	Container for Parsing Expression
-		grammar::peg::interp            0.1	Grammars, PEG interpreter.
+grammar_peg	grammar::peg            0.1        	Container for Parsing Expression
+		grammar::peg::interp    0.1        	Grammars, PEG interpreter.
 ------          ------- 		-----------     -------------------------------
-log		logger::appender                1.2	Utilities for logger.
-		logger::utils                   1.2
+log		logger::appender        1.2        	Utilities for logger.
+		logger::utils           1.2
 ------          ------- 		-----------     -------------------------------
-math		math::bigfloat                  1.2	Arbitrary-precision floating point.
-		math::linearalgebra             1.0	Matrix & vector processing.
+math		math::bigfloat          1.2        	Arbitrary-precision floating point.
+		math::linearalgebra     1.0        	Matrix & vector processing.
 ------          ------- 		-----------     -------------------------------
-page		page::analysis::*               0.1	Parser generator packages. Plugin
-		page::config::peg               0.1	based. Can be used for arbitrary
-		page::gen::*                    0.1	text processing as well because
-		page::parse::*                  0.1	of that.
-		page::pluginmgr                 0.1
-		page::reader::*                 0.1
-		page::transform::*              0.1
-		page::util::*                   0.1
-		page::writer::*                 0.1
+page		page::analysis::*       0.1        	Parser generator packages. Plugin
+		page::config::peg       0.1        	based. Can be used for arbitrary
+		page::gen::*            0.1        	text processing as well because
+		page::parse::*          0.1        	of that.
+		page::pluginmgr         0.1
+		page::reader::*         0.1
+		page::transform::*      0.1
+		page::util::*           0.1
+		page::writer::*         0.1
 ------          ------- 		-----------     -------------------------------
-pluginmgr	pluginmgr                       0.1	Generic plugin management.
-rcs		rcs                             0.1	Processing of RCS patches.
-sha		sha256                        1.0.1	Extended SHA hash
+pluginmgr	pluginmgr               0.1        	Generic plugin management.
+rcs		rcs                     0.1        	Processing of RCS patches.
+sha		sha256                  1.0.1      	Extended SHA hash
 ------          ------- 		-----------     -------------------------------
-sasl		SASL                          1.0.0	Simple Authentication & Security Layer
-		SASL::NTLM                    1.0.0
+sasl		SASL                    1.0.0      	Simple Authentication & Security Layer
+		SASL::NTLM              1.0.0
 ------          ------- 		-----------     -------------------------------
-units		units                           2.1	Unit conversions.
+snit		snit                    2.0		Snit for Tcl 8.5
+units		units                   2.1		Unit conversions.
 ------          ------- 		-----------     -------------------------------
 
 
@@ -56,7 +57,8 @@ Changes from Tcllib 1.7 to 1.8
 
 Legend
         API:    ** incompatible ** API changes. > Implies change of major version.
-        EF :    Extended functionality, API.    > Implies change of minor verson.
+        EF :    Extended functionality, API.    \ Implies change of minor verson.
+	I  :	Major rewrite, but no API change/
         B  :    Bug fixes.                     \
         D  :    Documentation updates.          > Implies change of patchlevel.
         EX :    New examples.                   >
@@ -66,67 +68,58 @@ Legend
                                 Tcllib 1.7      Tcllib 1.8
 Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     -------------------------------
-asn		asn             0.1             0.4     	=== Classify changes.
+asn		asn             0.1             0.4     	EF, B, TS, D
 ------          -------         -----------     -----------     -------------------------------
-base64		uuencode        1.1.2           1.1.2   	<<< MISMATCH. Version ==, ChangeLog ++
-		base64          2.3.1           2.3.1   	<<< MISMATCH. Version ==, ChangeLog ++
-		yencode         1.1.1           1.1.1   	<<< MISMATCH. Version ==, ChangeLog ++
+base64		uuencode        1.1.2           1.1.2   **p	TS
+		base64          2.3.1           2.3.1   **p	D
 ------          -------         -----------     -----------     -------------------------------
-cmdline		cmdline         1.2.3           1.2.3   	<<< MISMATCH. Version ==, ChangeLog ++
+cmdline		cmdline         1.2.3           1.2.3   **p	B, TS
 ------          -------         -----------     -----------     -------------------------------
-comm		comm            4.2.1           4.2.1   	<<< MISMATCH. Version ==, ChangeLog ++
+comm		comm            4.2.1           4.2.1   **p	D
 ------          -------         -----------     -----------     -------------------------------
-control		control         0.1.2           0.1.2   	<<< MISMATCH. Version ==, ChangeLog ++
+control		control         0.1.2           0.1.2   **p	TS
 ------          -------         -----------     -----------     -------------------------------
-counter		counter         2.0.3           2.0.3   	<<< MISMATCH. Version ==, ChangeLog ++
+counter		counter         2.0.3           2.0.3   **p	B
 ------          -------         -----------     -----------     -------------------------------
-crc		sum             1.1.0           1.1.0   	<<< MISMATCH. Version ==, ChangeLog ++
-		crc32           1.2             1.3     	=== Classify changes.
-		crc16           1.1             1.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		cksum           1.0.1           1.1.0   	=== Classify changes.
+crc		crc32           1.2             1.3     	TS, B, I
+		crc16           1.1             1.1     **p	B
+		cksum           1.0.1           1.1.0   	D, TS, I
 ------          -------         -----------     -----------     -------------------------------
-csv		csv             0.5.1           0.5.1   	<<< MISMATCH. Version ==, ChangeLog ++
+csv		csv             0.5.1           0.5.1   **p	TS
 ------          -------         -----------     -----------     -------------------------------
-des		des             0.8.2           --      	=== Classify changes.
-		des             --              1.0.0   	=== Classify changes.
+des		des             0.8.2           1.0.0   	** API **, Import tclDES(jr), s.a.
 ------          -------         -----------     -----------     -------------------------------
-dns		spf             1.1.0           1.1.0   	<<< MISMATCH. Version ==, ChangeLog ++
-		ip              1.0.0           1.0.0   	<<< MISMATCH. Version ==, ChangeLog ++
-		dns             1.2.0           1.2.1   	=== Classify changes.
-		resolv          1.0.3           1.0.3   	<<< MISMATCH. Version ==, ChangeLog ++
+dns		ip              1.0.0           1.0.0   **min	EF, D
+		dns             1.2.0           1.2.1   **min	B, D, EF
 ------          -------         -----------     -----------     -------------------------------
-doctools	doctools        1.1             1.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		- idx           0.2             0.2     	<<< MISMATCH. Version ==, ChangeLog ++
-		- toc           0.2             0.2     	<<< MISMATCH. Version ==, ChangeLog ++
-		- cvs           0.1.1           0.1.1   	<<< MISMATCH. Version ==, ChangeLog ++
-		- changelog     0.1.1           0.1.1   	<<< MISMATCH. Version ==, ChangeLog ++
+doctools	doctools        1.1             1.1     **min	EF, B, TS
+		- idx           0.2             0.2     **p	B, TS
+		- toc           0.2             0.2     **p	B, TS
 ------          -------         -----------     -----------     -------------------------------
-fileutil	fileutil        1.7             1.7     	<<< MISMATCH. Version ==, ChangeLog ++
+fileutil	fileutil        1.7             1.7     **min	D, B, TS, EF
 ------          -------         -----------     -----------     -------------------------------
-ftp		ftp             2.4.1           2.4.1   	<<< MISMATCH. Version ==, ChangeLog ++
-		ftp::geturl     0.2             0.2     	<<< MISMATCH. Version ==, ChangeLog ++
+ftp		ftp             2.4.1           2.4.1   **p	B
 ------          -------         -----------     -----------     -------------------------------
-grammar_fa	grammar::fa     0.1		0.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		- op            0.1		0.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		- dexec         0.1		0.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		- dacceptor     0.1		0.1     	<<< MISMATCH. Version ==, ChangeLog ++
+grammar_fa	grammar::fa     0.1		0.1     **p	TS
+		- op            0.1		0.1     **p	TS
+		- dexec         0.1		0.1     **p	TS
+		- dacceptor     0.1		0.1     **p	TS
 ------          -------         -----------     -----------     -------------------------------
-html		html            1.2.3           1.2.3   	<<< MISMATCH. Version ==, ChangeLog ++
+html		html            1.2.3           1.2.3   **p	B, TS
 ------          -------         -----------     -----------     -------------------------------
-htmlparse	htmlparse       1.1             1.1     	<<< MISMATCH. Version ==, ChangeLog ++
+htmlparse	htmlparse       1.1             1.1     **p	B, TS
 ------          -------         -----------     -----------     -------------------------------
-http		autoproxy       1.2.0           1.2.1   	=== Classify changes.
+http		autoproxy       1.2.0           1.2.1   	B
 ------          -------         -----------     -----------     -------------------------------
-inifile		inifile         0.1             0.1     	<<< MISMATCH. Version ==, ChangeLog ++
+inifile		inifile         0.1             0.1     **p	B, TS
 ------          -------         -----------     -----------     -------------------------------
-javascript	javascript      1.0.1           1.0.1   	<<< MISMATCH. Version ==, ChangeLog ++
+javascript	javascript      1.0.1           1.0.1   **p	B
 ------          -------         -----------     -----------     -------------------------------
-jpeg		jpeg            0.1             0.2     	=== Classify changes.
+jpeg		jpeg            0.1             0.2     	** API **
 ------          -------         -----------     -----------     -------------------------------
-ldap		ldap            1.2             1.2.1   	=== Classify changes.
+ldap		ldap            1.2             1.2.1   	B
 ------          -------         -----------     -----------     -------------------------------
-log		logger          0.5             0.6.1   	=== Classify changes.
-		log             1.2             1.2     	<<< MISMATCH. Version ==, ChangeLog ++
+log		logger          0.5             0.6.1   	B, TS, D, EF
 ------          -------         -----------     -----------     -------------------------------
 math		math                1.2.2       1.2.2   	<<< MISMATCH. Version ==, ChangeLog ++
 		- statistics        0.1.2       0.1.3   	=== Classify changes.
@@ -144,89 +137,68 @@ math		math                1.2.2       1.2.2   	<<< MISMATCH. Version ==, ChangeL
 		- constants         1.0         1.0     	<<< MISMATCH. Version ==, ChangeLog ++
 		- polynomials       1.0         1.0     	<<< MISMATCH. Version ==, ChangeLog ++
 ------          -------         -----------     -----------     -------------------------------
-md4		md4             1.0.2           1.0.3   	=== Classify changes.
+md4		md4             1.0.2           1.0.3   	B, TS
 ------          -------         -----------     -----------     -------------------------------
-md5		md5             --              1.4.3   	=== Classify changes.
-		md5             2.0.1           2.0.4   	=== Classify changes.
+md5		md5             --              1.4.3   **v	B, TS	--determine 1.7 version--
+		md5             2.0.1           2.0.4   	B, TS
 ------          -------         -----------     -----------     -------------------------------
-mime		smtp            1.4             1.4     	<<< MISMATCH. Version ==, ChangeLog ++
-		mime            1.4             1.4     	<<< MISMATCH. Version ==, ChangeLog ++
+mime		smtp            1.4             1.4     **p	B
+		mime            1.4             1.4     **p	B
 ------          -------         -----------     -----------     -------------------------------
-ntp		time            1.1             1.2     	=== Classify changes.
+ntp		time            1.1             1.2     	B, TS, EF (ceptcl)
 ------          -------         -----------     -----------     -------------------------------
-png		png             0.1             0.1     	<<< MISMATCH. Version ==, ChangeLog ++
+png		png             0.1             0.1     **p	B
 ------          -------         -----------     -----------     -------------------------------
-pop3		pop3            1.6.2           1.6.2   	<<< MISMATCH. Version ==, ChangeLog ++
+pop3		pop3            1.6.2           1.6.2   **p	B/TS
 ------          -------         -----------     -----------     -------------------------------
-pop3d		pop3d::udb      1.1             1.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		pop3d           1.0.3           1.1.0   	=== Classify changes.
-		pop3d::dbox     1.0.2           1.0.2   	<<< MISMATCH. Version ==, ChangeLog ++
+pop3d		pop3d           1.0.3           1.1.0   	B, TS, EF
+------		-------         -----------     -----------     -------------------------------
+profiler	profiler        0.2.2           0.2.3   	B
 ------          -------         -----------     -----------     -------------------------------
-profiler	profiler        0.2.2           0.2.3   	=== Classify changes.
+rc4		rc4             1.0.0           1.0.1   	D, B, TS
 ------          -------         -----------     -----------     -------------------------------
-rc4		rc4             1.0.0           1.0.1   	=== Classify changes.
+ripemd		ripemd128       1.0.0           1.0.3   	TS, D, B
+		ripemd160       1.0.0           1.0.3   	TS, D, B
 ------          -------         -----------     -----------     -------------------------------
-ripemd		ripemd160       1.0.0           1.0.3   	=== Classify changes.
-		ripemd128       1.0.0           1.0.3   	=== Classify changes.
+sha		sha1            1.0.3           1.1.0   	TS, B, EF (cryptkit)
+		sha1            --              2.0.1   	TS, B, EF (cryptkit)	**v
 ------          -------         -----------     -----------     -------------------------------
-sha		sha1            1.0.3           1.1.0   	=== Classify changes.
-		sha1            --              2.0.1   	=== Classify changes.
+smtpd		smtpd           1.3.0		1.4.0   	B
 ------          -------         -----------     -----------     -------------------------------
-smtpd		smtpd           1.3.0		1.4.0   	=== Classify changes.
+snit		snit            0.97            1.1     	D, P, B, TS, I
 ------          -------         -----------     -----------     -------------------------------
-snit		snit            0.97            --      	=== Classify changes.
-		snit            --              1.1     	=== Classify changes.
-		snit            --              2.0     	=== Classify changes.
+struct		- tree          --              1.2.1   **v	=== Classify changes.
+		- tree          2.0             2.0     **min	D, EF (ext. api, critcl)
+		- graph         --              1.2.1   **v	=== Classify changes.
+		- graph         2.0             2.0     **p	B
+		- queue         1.3             1.3     	B
+		- prioqueue     1.3             1.3.1   	B
+		- list          1.4             1.4     **min	D, TS, EF, B
+		- matrix        --              1.2.1   **v	=== Classify changes.
+		- matrix        2.0             2.0     **v	B
+		- stack         1.3             1.3     	B
 ------          -------         -----------     -----------     -------------------------------
-struct		struct          --              1.4     	=== Classify changes.
-		struct          2.1             2.1     	=== Classify changes.
-		- record        1.2.1           1.2.1   	<<< MISMATCH. Version ==, ChangeLog ++
-		- tree          --              1.2.1   	=== Classify changes.
-		- tree          2.0             2.0     	=== Classify changes.
-		- graph         --              1.2.1   	=== Classify changes.
-		- graph         2.0             2.0     	=== Classify changes.
-		- skiplist      1.3             1.3     	<<< MISMATCH. Version ==, ChangeLog ++
-		- set           2.1             2.1     	<<< MISMATCH. Version ==, ChangeLog ++
-		- queue         1.3             1.3     	<<< MISMATCH. Version ==, ChangeLog ++
-		- prioqueue     1.3             1.3.1   	=== Classify changes.
-		- pool          1.2.1           1.2.1   	<<< MISMATCH. Version ==, ChangeLog ++
-		- list          1.4             1.4     	<<< MISMATCH. Version ==, ChangeLog ++
-		- matrix        --              1.2.1   	=== Classify changes.
-		- matrix        2.0             2.0     	=== Classify changes.
-		- stack         1.3             1.3     	<<< MISMATCH. Version ==, ChangeLog ++
+textutil	textutil        0.6.2		0.6.2   **min	B, EF
+------		-------         -----------     -----------     -------------------------------
+tie		tie             1.0		1.0     **p	D, EX, TS
+		- std::file     1.0             1.0     **p	B
 ------          -------         -----------     -----------     -------------------------------
-textutil	textutil        0.6.2		0.6.2   	<<< MISMATCH. Version ==, ChangeLog ++
-------          - expander      1.3		1.3     	<<< MISMATCH. Version ==, ChangeLog ++
-		-------         -----------     -----------     -------------------------------
-tie		tie             1.0		1.0     	<<< MISMATCH. Version ==, ChangeLog ++
-		- std::array    1.0             1.0     	<<< MISMATCH. Version ==, ChangeLog ++
-		- std::file     1.0             1.0     	<<< MISMATCH. Version ==, ChangeLog ++
-		- std::rarray   1.0             1.0     	<<< MISMATCH. Version ==, ChangeLog ++
-		- std::dsource  1.0             1.0     	<<< MISMATCH. Version ==, ChangeLog ++
-		- std::log      1.0             1.0     	<<< MISMATCH. Version ==, ChangeLog ++
+treeql		treeql          1.2             1.3     	B, D, TS, EF
 ------          -------         -----------     -----------     -------------------------------
-treeql		treeql          1.2             1.3     	=== Classify changes.
+uri		uri             1.1.4           1.1.4   **p	B
 ------          -------         -----------     -----------     -------------------------------
-uri		uri             1.1.4           1.1.4   	<<< MISMATCH. Version ==, ChangeLog ++
-		uri::urn        1.0.2           1.0.2   	<<< MISMATCH. Version ==, ChangeLog ++
-------          -------         -----------     -----------     -------------------------------
-uuid		uuid            1.0.0		1.0.0   	<<< MISMATCH. Version ==, ChangeLog ++
+uuid		uuid            1.0.0		1.0.0   **p	B
 ------          -------         -----------     -----------     -------------------------------
 
 Unchanged Modules/Packages
 ==========================
-   bee         bee                             0.1      0.1     
-   calendar    calendar                        0.2      0.2     
-   exif        exif                            1.1.2    1.1.2   
-   ftpd        ftpd                            1.2.2    1.2.2   
-   ident       ident                           0.42     0.42    
-   irc         irc                             0.5      0.5     
-   md5crypt    md5crypt                        1.0.0    1.0.0   
-   multiplexer multiplexer                     0.2      0.2     
-   ncgi        ncgi                            1.2.3    1.2.3   
-   nntp        nntp                            0.2.1    0.2.1   
-   report      report                          0.3.1    0.3.1   
-   soundex     soundex                         1.0      1.0     
-   stooop      stooop                          4.4.1    4.4.1   
-               switched                        2.2      2.2     
-   tar         tar                             0.1      0.1     
+
+base64 (yencode), bee, calendar, crc (sum), dns (spf, resolv),
+doctools (doctools::cvs, doctools::changelog), exif,
+ftp (ftp::geturl), ftpd, ident, irc, log, md5crypt, multiplexer, ncgi,
+nntp, pop3d (pop3d::dbox, pop3d::udb), report, soundex,
+stooop (stooop, switched), tar, textutil (textutil::expander),
+tie (tie::std::array, tie::std::rarray, tie::std::dsource,
+tie::std::log), uri (uri::urn), struct (struct, struct::record,
+struct::skiplist, struct::set, struct::pool)
+	
