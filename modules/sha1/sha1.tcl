@@ -21,13 +21,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.16 2005/02/24 03:25:50 patthoyts Exp $
+# $Id: sha1.tcl,v 1.17 2005/09/30 22:07:17 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable version 2.0.1
-    variable rcsid {$Id: sha1.tcl,v 1.16 2005/02/24 03:25:50 patthoyts Exp $}
+    variable rcsid {$Id: sha1.tcl,v 1.17 2005/09/30 22:07:17 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
@@ -280,7 +280,7 @@ proc ::sha1::SHA1Transform {token msg} {
         for {set t 16} {$t < 80} {incr t} {
             set x [expr {[lindex $W [incr t3]] ^ [lindex $W [incr t8]] ^ \
                              [lindex $W [incr t14]] ^ [lindex $W [incr t16]]}]
-            lappend W [expr {($x << 1) | (($x >> 31) & 1)}]
+            lappend W [expr {int(($x << 1) | (($x >> 31) & 1))}]
         }
         
         # FIPS 180-1: 7c: Copy hash state.
@@ -297,48 +297,48 @@ proc ::sha1::SHA1Transform {token msg} {
 
         # Round 1: ft(B,C,D) = (B & C) | (~B & D) ( 0 <= t <= 19)
         for {set t 0} {$t < 20} {incr t} {
-            set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
+            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($D ^ ($B & ($C ^ $D))) \
-                                + $E + [lindex $W $t] + 0x5a827999}]
+                                + $E + [lindex $W $t] + 0x5a827999)}]
             set E $D
             set D $C
-            set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
+            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
             set B $A
             set A $TEMP
         }
 
         # Round 2: ft(B,C,D) = (B ^ C ^ D) ( 20 <= t <= 39)
         for {} {$t < 40} {incr t} {
-            set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
+            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($B ^ $C ^ $D) \
-                                + $E + [lindex $W $t] + 0x6ed9eba1}]
+                                + $E + [lindex $W $t] + 0x6ed9eba1)}]
             set E $D
             set D $C
-            set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
+            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
             set B $A
             set A $TEMP
         }
 
         # Round 3: ft(B,C,D) = ((B & C) | (B & D) | (C & D)) ( 40 <= t <= 59)
         for {} {$t < 60} {incr t} {
-            set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
+            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
                                 (($B & $C) | ($D & ($B | $C))) \
-                                + $E + [lindex $W $t] + 0x8f1bbcdc}]
+                                + $E + [lindex $W $t] + 0x8f1bbcdc)}]
             set E $D
             set D $C
-            set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
+            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
             set B $A
             set A $TEMP
          }
 
         # Round 4: ft(B,C,D) = (B ^ C ^ D) ( 60 <= t <= 79)
         for {} {$t < 80} {incr t} {
-            set TEMP [expr {(($A << 5) | (($A >> 27) & 0x1f)) + \
+            set TEMP [expr {int((($A << 5) | (($A >> 27) & 0x1f)) + \
                                 ($B ^ $C ^ $D) \
-                                + $E + [lindex $W $t] + 0xca62c1d6}]
+                                + $E + [lindex $W $t] + 0xca62c1d6)}]
             set E $D
             set D $C
-            set C [expr {($B << 30) | (($B >> 2) & 0x3fffffff)}]
+            set C [expr {int(($B << 30) | (($B >> 2) & 0x3fffffff))}]
             set B $A
             set A $TEMP
         }
