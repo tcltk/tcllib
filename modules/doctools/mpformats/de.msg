@@ -26,6 +26,7 @@ mcset de cmd_list         "Dieser Befehl darf nur in Befehls-Listen benutzt werd
 mcset de opt_list         "Dieser Befehl darf nur in Options-Listen benutzt werden"
 mcset de tkoption_list    "Dieser Befehl darf nur in TkOptions-Listen benutzt werden"
 mcset de depr_strong      "Misbilligter Befehl \"%s\".\n\tBitte verwenden sie \[emph\] oder eine passende semantische Auszeichnung."
+mcset de sectambig        "Kapitelueberschrift \"%s\" ist nicht eindeutig, Referenzen koennen falsch sein."
 
 mcset de end/open/toc  "\[toc_end\] fehlt."
 mcset de toc/plaintext "Normaler Text ist (mit Ausnahme von reinem Leerraum) nicht erlaubt."
