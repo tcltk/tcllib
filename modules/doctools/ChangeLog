@@ -1,3 +1,11 @@
+2005-10-03  Andreas Kupries <andreask@activestate.com>
+
+	* checker.tcl:      Added code checking for ambiguities in section
+	* mpformats/c.msg:  and subsection titles. It causes warnings.
+	* mpformats/en.msg: Extended the message catalogs with strings for
+	* mpformats/de.msg: the new warning.
+	* mpformats/fr.msg:
+
 2005-06-17  Andreas Kupries <andreask@activestate.com>
 
 	* mpformats/_common.tcl (c_sectionId): Converting quotes into

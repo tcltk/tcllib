@@ -197,6 +197,7 @@ set    SectionList {}   ;# order of definition.
 #	Format section name as an XML ID.
 #
 proc c_sectionId {name} {
+    # Identical to '__sid' in checker.tcl
     regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
     regsub -all {"} $id _ id
     return $id
