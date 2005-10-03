@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.12 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.13 2005/10/03 17:52:22 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -299,4 +299,4 @@ namespace eval ::struct {
     namespace import -force stack::stack
     namespace export stack
 }
-package provide struct::stack 1.3
+package provide struct::stack 1.3.1
