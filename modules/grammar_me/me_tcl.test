@@ -8,7 +8,7 @@
 # Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_tcl.test,v 1.2 2005/09/30 20:06:22 andreas_kupries Exp $
+# RCS: @(#) $Id: me_tcl.test,v 1.3 2005/10/03 21:21:22 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "    Aborting tests for grammar::me::tcl."
@@ -64,7 +64,7 @@ proc ME_state {} {
 
     lappend res [list cache [dictsort [grammar::me::tcl nc]]]
     lappend res [list next_ [grammar::me::tcl next]]
-    lappend res [list ord__ [grammar::me::tcl ord]]
+    lappend res [list ord__ [dictsort [grammar::me::tcl ord]]]
 
     return $res
 }
@@ -438,7 +438,7 @@ ast__ {}
 input {{T1 1 1 1}}
 cache {}
 next_ next_count
-ord__ {A 1 T1 0 B 2}}
+ord__ {A 1 B 2 T1 0}}
 
 test mevmtcl-ict_match_tokrange-3.1 {Token range, map order compare, outside up} \
     -setup {
@@ -457,7 +457,7 @@ ast__ {}
 input {{T1 1 1 1}}
 cache {}
 next_ next_count
-ord__ {T1 3 A 1 B 2}}
+ord__ {A 1 B 2 T1 3}}
 
 test mevmtcl-ict_match_tokrange-3.2 {Token range, map order compare, in range} \
     -setup {
@@ -476,7 +476,7 @@ ast__ {}
 input {{T1 1 1 1}}
 cache {}
 next_ next_count
-ord__ {T1 2 A 1 B 3}}
+ord__ {A 1 B 3 T1 2}}
 
 test mevmtcl-ict_match_tokrange-3.3 {Token range, map order compare, in range, low edge} \
     -setup {
@@ -495,7 +495,7 @@ ast__ {}
 input {{T1 1 1 1}}
 cache {}
 next_ next_count
-ord__ {A 1 T1 0 B 2}}
+ord__ {A 1 B 2 T1 0}}
 
 test mevmtcl-ict_match_tokrange-3.4 {Token range, map order compare, in range, upper edge} \
     -setup {
@@ -514,7 +514,7 @@ ast__ {}
 input {{T1 1 1 1}}
 cache {}
 next_ next_count
-ord__ {T1 2 A 0 B 1}}
+ord__ {A 0 B 1 T1 2}}
 
 
 # ### ### ### ######### ######### #########
@@ -536,7 +536,17 @@ test mevmtcl-ict_match_tokclass-1.1 {Call with too many arguments} \
 	grammar::me::tcl::ict_match_tokclass a b c
     } -result {wrong # args: should be "grammar::me::tcl::ict_match_tokclass code msg"}
 
-test mevmtcl-ict_match_tokclass-1.2 {Call with bad code} \
+test mevmtcl-ict_match_tokclass-1.2a {Call with bad code} \
+    -constraints tcl8.5plus \
+    -returnCodes error \
+    -setup {
+	grammar::me::tcl::init fake
+    } -body {
+	grammar::me::tcl::ict_match_tokclass gargle foo
+    } -result {bad class "gargle": must be alnum, alpha, ascii, control, boolean, digit, double, false, graph, integer, lower, print, punct, space, true, upper, wideinteger, wordchar, or xdigit}
+
+test mevmtcl-ict_match_tokclass-1.2b {Call with bad code} \
+    -constraints {!tcl8.5plus} \
     -returnCodes error \
     -setup {
 	grammar::me::tcl::init fake
