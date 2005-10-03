@@ -1,10 +1,10 @@
-[manpage_begin comm n 4.2.2]
+[manpage_begin comm n 4.3]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.2.2]]
+[require comm [opt 4.3]]
 [description]
 
 [para]
@@ -146,7 +146,7 @@ The default configuration parameters for a new channel are:
 
 [para]
 [example {
-    "-port 0 -local 1 -listen 0"
+    "-port 0 -local 1 -listen 0 -silent 0"
 }]
 [para]
 
@@ -154,7 +154,7 @@ The default channel [cmd ::comm::comm] is created with:
 
 [para]
 [example {
-    "::comm::comm new ::comm::comm -port 0 -local 1 -listen 1"
+    "::comm::comm new ::comm::comm -port 0 -local 1 -listen 1 -silent 0"
 }]
 
 [subsection {CHANNEL CONFIGURATION}]
@@ -184,6 +184,7 @@ elsewhere in this manual page):
 [lst_item "[option -listen] [opt [arg 0|1]]"]
 [lst_item "[option -local]  [opt [arg 0|1]]"]
 [lst_item "[option -port]   [opt [arg port]]"]
+[lst_item "[option -silent] [opt [arg 0|1]]"]
 [list_end]
 
 [para]
@@ -229,6 +230,13 @@ As a special case, if the channel is configured with
 will use an id of [const 0] for itself.  Such a channel is only good
 for outgoing connections (although once a connection is established,
 it can carry send traffic in both directions).
+
+
+As another special case, if the channel is configured with
+
+[option {-silent 0}], then the listening side will ignore connection
+attempts where the protocol negotiation phase failed, instead of
+throwing an error.
 
 [subsection {REMOTE INTERPRETERS}]
 [para]
@@ -665,6 +673,12 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[lst_item 4.3]
+
+Bugfixes, and introduces -silent to allow the user to force the
+server/listening side to silently ignore connection attempts where the
+protocol negotiation failed.
 
 [lst_item 4.2]
 
