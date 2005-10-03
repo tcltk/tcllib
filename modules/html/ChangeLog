@@ -1,3 +1,13 @@
+2005-10-03  Andreas Kupries <andreask@activestate.com>
+
+	* html.tcl (::html::html_entities): Accepted the [SF Tcllib Patch
+	* html.tcl (::html::nl2br):         1294733], creating two small
+	* html.man:                         commands for the conversion of
+	* html.test:                        special characters to their
+	                                    entities, and line-endings to
+	                                    <br>. Extended documentation
+	                                    and testsuite.
+
 2005-01-19  Andreas Kupries <andreask@activestate.com>
 
 	* html.tcl (::html::font): Fixed [Tcllib SF Bug 1105010], reported
