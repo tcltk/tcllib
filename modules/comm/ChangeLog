@@ -1,3 +1,11 @@
+2005-10-03  Andreas Kupries <andreask@activestate.com>
+
+	* comm.tcl: Accepted [SF Tcllib Bug 1006282], which is actually an
+	* comm.man: RFE. Comm channels are extended with an option which
+	            allows the user to force the server side to silently
+		    ignore connection attempts where the protocol
+		    negotiation with the other side failed.
+
 2005-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm_wire.man: Added documentation for the wire protocol run by

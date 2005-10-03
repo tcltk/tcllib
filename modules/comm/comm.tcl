@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.17 2005/09/30 05:36:38 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.18 2005/10/03 22:59:45 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -46,6 +46,7 @@ namespace eval ::comm {
 	    acceptVers		{3 2}
 	    defVers		2
 	    defaultEncoding	"utf-8"
+	    defaultSilent   0
 	}
 	set comm(lastport) [expr {[pid] % 32768 + 9999}]
 	# fast check for acceptable versions
@@ -64,6 +65,8 @@ namespace eval ::comm {
     # comm()
     #	$ch,port		listening port (our id)
     #	$ch,socket		listening socket
+    #   $ch,silent      boolean to indicate whether to throw error on
+    #                   protocol negotiation failure
     #	$ch,local		boolean to indicate if port is local
     #	$ch,serial		next serial number for commands
     #
@@ -247,6 +250,7 @@ proc ::comm::comm_cmd_destroy {chan} {
     comm_cmd_abort $chan
     catch {unset comm($chan,port)}
     catch {unset comm($chan,local)}
+    catch {unset comm($chan,silent)}
     catch {unset comm($chan,socket)}
     unset comm($chan,serial)
     set pos [lsearch -exact $comm(chans) $chan]
@@ -331,6 +335,7 @@ proc ::comm::comm_cmd_new {chan ch args} {
     set comm($chan,listen) 0
     set comm($chan,socket) ""
     set comm($chan,local)  1
+    set comm($chan,silent) $comm(defaultSilent)
     set comm($chan,encoding) $comm(defaultEncoding)
 
     if {[llength $args] > 0} {
@@ -488,6 +493,7 @@ proc ::comm::commConfVars {v t} {
 ::comm::commConfVars chan ro
 ::comm::commConfVars serial ro
 ::comm::commConfVars encoding enc
+::comm::commConfVars silent b
 
 # ::comm::commConfigure --
 #
@@ -580,6 +586,14 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	# FRINK: nocheck
 	if {[info exists $var] && [set $var] != $comm($chan,$var)} {
 	    incr force
+	    # FRINK: nocheck
+	    set comm($chan,$var) [set $var]
+	}
+    }
+
+    foreach var {silent} {
+	# FRINK: nocheck
+	if {[info exists $var] && [set $var] != $comm($chan,$var)} {
 	    # FRINK: nocheck
 	    set comm($chan,$var) [set $var]
 	}
@@ -746,6 +760,8 @@ proc ::comm::commIncoming {chan fid addr remport} {
     }
     if {![info exists vers]} {
 	close $fid
+	if {[info exists comm($chan,silent)] && 
+	    [string is true -strict $comm($chan,silent)]} then return
 	error "Unknown offered protocols \"$protoline\" from $addr/$remport"
     }
 
@@ -1142,4 +1158,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.2.2
+package provide comm 4.3
