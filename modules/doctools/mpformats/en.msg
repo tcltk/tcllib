@@ -26,6 +26,7 @@ mcset en cmd_list         "Command restricted to usage in command lists"
 mcset en opt_list         "Command restricted to usage in option lists"
 mcset en tkoption_list    "Command restricted to usage in tkoption lists"
 mcset en depr_strong      "Deprecated command \"%s\".\n\tPlease consider appropriate semantic markup or \[emph\] instead."
+mcset en sectambig        "(Sub)Section title \"%s\" causes ambiguous section references."
 
 mcset en end/open/toc  "\[toc_end\] missing."
 mcset en toc/plaintext "Plain text beyond whitespace is not allowed."

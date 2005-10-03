@@ -169,6 +169,7 @@ proc ck_initialize {} {
     global state   ; set state manpage_begin
     global lstctx  ; set lstctx [list]
     global lstitem ; set lstitem 0
+    global sect    ; catch {unset sect} ; set sect() . ; unset sect()
     return
 }
 proc ck_complete {} {
@@ -261,16 +262,43 @@ proc description {} {
     Go body
     fmt_description
 }
+
+global sect
+proc __sid {name} {
+    # Identical to 'c_sectionId' in mpformats/_common.tcl
+    regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
+    regsub -all {"} $id _ id
+    return $id
+}
+
 proc section {name} {
+    global sect
+
     Enter section
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
+
+    set sid [__sid $name]
+    if {[info exists sect($sid)]} {
+	Warn sectambig $name
+    }
+    set sect($sid) .
+
     fmt_section $name
 }
 proc subsection {name} {
+    global sect
+
     Enter subsection
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
+
+    set sid [__sid $name]
+    if {[info exists sect($sid)]} {
+	Warn sectambig $name
+    }
+    set sect($sid) .
+
     fmt_subsection $name
 }
 proc para {} {
