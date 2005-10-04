@@ -1,0 +1,305 @@
+#---------------------------------------------------------------------
+# TITLE:
+#       romannumeral
+#
+# AUTHOR:
+#       Kenneth Green, 28 Sep 2005
+#
+# DESCRIPTION:
+#       tcltest test cases for romannumeral.tcl
+
+# Note:
+#    Assumes Tcl 8.3
+#    The tests assume tcltest 2.2
+
+#-----------------------------------------------------------------------
+
+puts "Testing library: [set ::className roman]"
+
+#=====================================================================
+# S u p p o r t   F u n c t i o n s
+#=====================================================================
+
+#---------------------------------------------------------------------
+# endTests --
+#
+# Convenience function for prematurely ending the test run. Used
+# during test development **ONLY**
+#---------------------------------------------------------------------
+proc endTests {} {
+    cleanup
+    ::tcltest::cleanupTests
+    exit
+}
+
+#---------------------------------------------------------------------
+# cleanup --
+#
+# cleanup before each test
+#---------------------------------------------------------------------
+proc cleanup {} {
+    global errorInfo
+
+}
+
+#-----------------------------------------------------------------------
+# checkForPackage --
+#
+# Check if the specified package is loaded. If it is, check that
+# it is the right version. If not, attempt to load the right version.
+#
+# Returns: 1 if all ok, 0 if there was a problem
+
+proc checkForPackage { pkgname version classname } {
+
+    if {[lsearch [namespace children] ::$pkgname] == -1} {
+        # Not loaded yet so try to load it
+
+        if [catch {package require $pkgname $version} errMsg] {
+            puts "Aborting tests for $classname."
+            puts "Failed to load $pkgname $version\nReported error: $errMsg"
+            return 0
+        } else {
+            namespace import ::${pkgname}::*
+        }
+    } else {
+        # Ensure that the currently loaded version is ok
+
+        if {![package vsatisfies [package present $pkgname] $version]} {
+            puts "Aborting tests for $classname."
+            puts "Requiring $pkgname $version, have [package present $pkgname]"
+            return 0
+        }
+    }
+
+    # If we got here then all is OK
+    return 1
+}
+
+#-----------------------------------------------------------------------
+# prepareTclTest --
+#
+# Load the tcltest package, initialize some constraints.
+#
+# Returns: 1 if all ok, 0 if there was a problem
+
+proc prepareTclTest { classname } {
+
+    # - Tcl version
+    #
+    if {![package vsatisfies [package provide Tcl] 8.3]} {
+        puts "Aborting tests for $classname."
+        puts "Requiring Tcl 8.3, have [package present Tcl]"
+        return 0
+    }
+    puts "Using pkg: Tcl     [package present Tcl]"
+
+    # tcltest version
+    #
+    if { ![checkForPackage tcltest 2.2 $classname] } {
+        return 0
+    }
+
+    #---------------------------------------------------------------------
+    # Initialize some standard tcltest constraints.
+
+    #
+    #if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
+    #    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+    #}
+
+    ::tcltest::testConstraint tk [info exists tk_version]
+
+    puts "Constraints"
+    puts "  tk      = [::tcltest::testConstraint tk]"
+
+    # If we got here all is OK
+    return 1
+}
+
+#=====================================================================
+# I n i t i a l i s a t i o n
+#=====================================================================
+
+# Load the class file
+
+if [catch {source [file join [file dirname [info script]] romannumerals.tcl]} errMsg] {
+    puts "Aborting tests for ${::className}.\nError: $errMsg"
+    exit -1
+}
+
+prepareTclTest $className
+
+# Initialize any additional tcltest constraints here
+# (eg ::tcltest::testConstraint myConstraint 1)
+
+
+#::tcltest::configure -verbose {body start pass error}
+
+
+#=====================================================================
+# T e s t   C a s e s
+#=====================================================================
+
+#-----------------------------------------------------------------------
+# toroman
+test ToRoman-1.1 {good input} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch { list \
+                    [::math::roman::toroman 0]    \
+                    [::math::roman::toroman 1]    \
+                    [::math::roman::toroman 2]    \
+                    [::math::roman::toroman 3]    \
+                    [::math::roman::toroman 4]    \
+                    [::math::roman::toroman 5]    \
+                    [::math::roman::toroman 6]    \
+                    [::math::roman::toroman 7]    \
+                    [::math::roman::toroman 8]    \
+                    [::math::roman::toroman 9]    \
+                    [::math::roman::toroman 10]   \
+                    [::math::roman::toroman 13]   \
+                    [::math::roman::toroman 100]  \
+                    [::math::roman::toroman 250]  \
+                    [::math::roman::toroman 333]  \
+                    [::math::roman::toroman 1001] \
+                    [::math::roman::toroman 1963] \
+                } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 {{} I II III IV V VI VII VIII IX X XIII C CCL CCCXXXIII MI MCMLXIII}}
+
+#-----------------------------------------------------------------------
+# tointeger
+test ToInteger-2.1 {good input} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch { list \
+                    [::math::roman::tointeger ""]    \
+                    [::math::roman::tointeger I]    \
+                    [::math::roman::tointeger ii]    \
+                    [::math::roman::tointeger IiI]    \
+                    [::math::roman::tointeger iv]    \
+                    [::math::roman::tointeger V]    \
+                    [::math::roman::tointeger vI]    \
+                    [::math::roman::tointeger vIi]    \
+                    [::math::roman::tointeger ViiI]    \
+                    [::math::roman::tointeger ix]    \
+                    [::math::roman::tointeger X]   \
+                    [::math::roman::tointeger XiII]   \
+                    [::math::roman::tointeger C]  \
+                    [::math::roman::tointeger CCD]  \
+                    [::math::roman::tointeger CCCXXXIII]  \
+                    [::math::roman::tointeger MI] \
+                    [::math::roman::tointeger MCMXXXVI] \
+                } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 {0 1 2 3 4 5 6 7 8 9 10 13 100 500 333 1001 1936}}
+
+#-----------------------------------------------------------------------
+# combined
+test Combined-3.1 {good input} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch {
+        for { set i 0 } { $i < 11666 } { incr i } {
+            set r [::math::roman::toroman    $i]
+            set j [::math::roman::tointeger  $r]
+            if { $i != $j } {
+                error "Mismatch i ($i) -> r ($r) -> j ($j)"
+            }
+        }
+    } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 {}}
+
+#-----------------------------------------------------------------------
+# sort
+test Sort-4.1 {good input} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch {
+        set l {X III IV I V}
+        ::math::roman::sort $l \
+    } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 {I III IV V X}}
+
+#-----------------------------------------------------------------------
+# expr
+test Expr-5.1 {plus} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch {
+    set x 23
+    set xr [::math::roman::toroman $x]
+    set y 77
+    set yr [::math::roman::toroman $y]
+    set xr+yr [::math::roman::expr $xr + $yr]
+    expr [::math::roman::tointeger ${xr+yr}] == [expr $x + $y]
+    } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 1}
+
+test Expr-5.2 {minus} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch {
+    set x 23
+    set xr [::math::roman::toroman $x]
+    set y 77
+    set yr [::math::roman::toroman $y]
+    set yr-xr [::math::roman::expr $yr - $xr]
+    expr [::math::roman::tointeger ${yr-xr}] == [expr $y - $x]
+    } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 1}
+
+test Expr-5.3 {times} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch {
+    set x 23
+    set xr [::math::roman::toroman $x]
+    set y 77
+    set yr [::math::roman::toroman $y]
+    set xr*yr [::math::roman::expr $xr * $yr]
+    expr $x * $y
+    expr [::math::roman::tointeger ${xr*yr}] == [expr $x * $y]
+    } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 1}
+
+test Expr-5.4 {divide} -constraints {
+} -setup {
+    cleanup
+} -body {
+    list [catch {
+    set x 23
+    set xr [::math::roman::toroman $x]
+    set y 77
+    set yr [::math::roman::toroman $y]
+    set yr/xr [::math::roman::expr $yr / $xr]
+    expr [::math::roman::tointeger ${yr/xr}] == [expr $y / $x]
+    } errMsg] [set errMsg]
+} -cleanup {
+    cleanup
+} -result {0 1}
+
+#---------------------------------------------------------------------
+# Clean up
+cleanup
+::tcltest::cleanupTests
