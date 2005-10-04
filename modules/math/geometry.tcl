@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: geometry.tcl,v 1.7 2004/10/04 09:50:37 arjenmarkus Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.8 2005/10/04 17:31:23 andreas_kupries Exp $
 
 namespace eval ::math::geometry {
 }
@@ -1090,4 +1090,4 @@ proc ::math::geometry::areaPolygon {polygon} {
     expr {0.5*abs($area)}
 }
 
-package provide math::geometry 1.0.2
+package provide math::geometry 1.0.3

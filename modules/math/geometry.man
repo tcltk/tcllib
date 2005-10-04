@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.0.1]
+[manpage_begin math::geometry n 1.0.3]
 [copyright {2004 by Ideogramic ApS and other parties}]
-[moddesc   {Math}]
+[moddesc   {Tcl Math Library}]
 [titledesc {Geometrical computations}]
 
 [require Tcl [opt 8.3]]
-[require math::geometry [opt 1.0.1]]
+[require math::geometry [opt 1.0.3]]
 
 [description]
 [para]
