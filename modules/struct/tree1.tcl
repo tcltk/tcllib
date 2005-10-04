@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree1.tcl,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree1.tcl,v 1.4 2005/10/04 05:19:28 hobbs Exp $
 
 package require Tcl 8.2
 
@@ -1457,8 +1457,7 @@ proc ::struct::tree::Serialize {name node tvar avar} {
 
     # Store attribute data
     if {[info exists attribute($node)]} {
-	upvar ${name}:: attribute($node) data
-	set attr($node) [array get data]
+	set attr($node) [array get ${name}::$attribute($node)]
     } else {
 	set attr($node) {}
     }
