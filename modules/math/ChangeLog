@@ -1,5 +1,6 @@
 2005-10-04  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
+        * Added roman numerals package by Kenneth Green
         * geometry.man:  Completed the description of the 
                          current procedures
 
