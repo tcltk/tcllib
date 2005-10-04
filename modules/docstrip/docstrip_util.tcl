@@ -292,9 +292,15 @@ proc docstrip::util::patch {sourcevar termL fromtext diff args} {
 proc docstrip::util::thefile {fname args} {
    set F [open $fname r]
    if {[llength $args]} then {
-      eval [linsert $args 0 fconfigure $F]
+      if {[set code [
+         catch {eval [linsert $args 0 fconfigure $F]} res
+      ]]} then {
+         close $F
+         return -code $code -errorinfo $::errorInfo -errorcode\
+           $::errorCode
+      }
    }
-   set res [read $F]
+   catch {read $F} res
    close $F
    return $res
 }

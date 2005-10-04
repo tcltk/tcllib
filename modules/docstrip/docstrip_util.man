@@ -123,7 +123,9 @@ the main package to avoid overhead for end-users.
     only the expression is malformed, though). The format of the return
     value is a dictionary which maps line numbers to their contents.
   [list_end]
-[call [cmd docstrip::util::thefile] [arg filename] [opt "[arg option] [arg value] ..."]]
+[call [cmd docstrip::util::thefile] [arg filename] [
+  opt "[arg option] [arg value] ..."
+]]
   The [cmd thefile] command opens the file [arg filename], reads it to
   end, closes it, and returns the contents. The option-value pairs are
   passed on to [cmd fconfigure] to configure the open file channel
