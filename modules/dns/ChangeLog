@@ -1,3 +1,9 @@
+2005-10-04  Andreas Kupries <andreask@activestate.com>
+
+	* ipMoreC.tcl: disabling the new critcl parts of ip for the
+	  platforms it is known to not work for. A better solution will be
+	  worked on after the release.
+
 2005-09-30  Andreas Kupries <andreask@activestate.com>
 
 	* ipMore.test:  Integrated Aamer Akhter's extended
