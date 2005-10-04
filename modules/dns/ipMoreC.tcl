@@ -1,3 +1,12 @@
+
+if {
+    [string equal $::tcl_platform(platform) windows] ||
+    ([string equal $::tcl_platform(os)      SunOS] &&
+     [string equal $::tcl_platform(osVersion) 5.6])
+} {
+    return
+}
+
 package require critcl;
 
 namespace eval ::ip {
