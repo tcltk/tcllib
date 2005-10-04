@@ -29,6 +29,7 @@ log             logger::appender        1.2             Utilities for logger.
 ------          -------                 -----------     -------------------------------
 math            math::bigfloat          1.2             Arbitrary-precision floating point.
                 math::linearalgebra     1.0             Matrix & vector processing.
+		math::roman             1.0             Handling of roman numerals.
 ------          -------                 -----------     -------------------------------
 page            page::analysis::*       0.1             Parser generator packages. Plugin
                 page::config::peg       0.1             based. Can be used for arbitrary
@@ -133,7 +134,7 @@ math            math                1.2.2       1.2.2                   <<< MISM
                 - optimize          --          1.0                     === Classify changes.
                 - bignum            3.0         3.0                     <<< MISMATCH. Version ==
                 - calculus          0.6         0.6                     <<< MISMATCH. Version ==
-                - geometry          1.0.2       1.0.2                   <<< MISMATCH. Version ==
+                - geometry          1.0.2       1.0.3                   === Classify changes.
                 - constants         1.0         1.0                     <<< MISMATCH. Version ==
                 - polynomials       1.0         1.0                     <<< MISMATCH. Version ==
 ------          -------         -----------     -----------     -------------------------------
@@ -169,7 +170,8 @@ smtpd           smtpd           1.3.0           1.4.0           B
 ------          -------         -----------     -----------     -------------------------------
 snit            snit            0.97            1.1             D, P, B, TS, I
 ------          -------         -----------     -----------     -------------------------------
-struct          - tree          2.0             2.1             D, EF (ext. api, critcl)
+struct          - tree          1.2.1           1.2.2           B
+                - tree          2.0             2.1             D, EF (ext. api, critcl)
                 - graph         2.0             2.0.1           B
                 - queue         1.3             1.4             B, EF
                 - prioqueue     1.3             1.3.1           B
@@ -198,6 +200,6 @@ ftp (ftp::geturl), ftpd, ident, irc, log, md5crypt, multiplexer,
 nntp, pop3d (pop3d::dbox, pop3d::udb), report, soundex,
 stooop (stooop, switched), tar, textutil (textutil::expander),
 tie (tie::std::array, tie::std::rarray, tie::std::dsource,
-tie::std::log), uri (uri::urn), struct (struct, struct::graph,
-struct::matrix, struct::pool, struct::record, struct::skiplist,
-struct::set, struct::tree)
+tie::std::log), uri (uri::urn), struct (struct, struct::graph v1,
+struct::matrix v1, struct::pool, struct::record, struct::skiplist,
+struct::set)
