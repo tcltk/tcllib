@@ -1,3 +1,15 @@
+2005-10-04  Andreas Kupries <andreask@activestate.com>
+
+	* tcldocstrip.dtx:    Applied changes made by Lars to fix
+	* tcldocstrip.ins:    a number of bugs he found. I am doing
+	* tcldocstrip.stitch: it in his stead as he currently has
+	  trouble with the SF CVS. Also fixed a syntax error in the
+	  documentation.
+
+	* Regenerated the other files. One new file,
+	  "docstrip_util.test". All tests pass, regular and from within
+	  the test harness.
+
 2005-09-26  Andreas Kupries <andreask@activestate.com>
 
 	* tcldocstrip.dtx: Fixed the testsuite bug regarding access to

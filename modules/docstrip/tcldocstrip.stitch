@@ -10,9 +10,10 @@ options -metaprefix \# -preamble {In other words:
 the true source is the file from which this one was generated.
 }
 
-stitch docstrip.tcl      pkg
-stitch docstrip.test     test
-stitch docstrip_util.tcl utilpkg
+stitch docstrip.tcl       pkg
+stitch docstrip.test      test
+stitch docstrip_util.tcl  utilpkg
+stitch docstrip_util.test utiltest
 
 options -nopreamble -nopostamble
 stitch docstrip.man      man
