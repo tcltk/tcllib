@@ -25,5 +25,5 @@ package ifneeded struct::prioqueue 1.3.1 [list source [file join $dir prioqueue.
 package ifneeded struct::skiplist  1.3   [list source [file join $dir skiplist.tcl]]
 
 package ifneeded struct::graph     1.2.1 [list source [file join $dir graph1.tcl]]
-package ifneeded struct::tree      1.2.1 [list source [file join $dir tree1.tcl]]
+package ifneeded struct::tree      1.2.2 [list source [file join $dir tree1.tcl]]
 package ifneeded struct::matrix    1.2.1 [list source [file join $dir matrix1.tcl]]
