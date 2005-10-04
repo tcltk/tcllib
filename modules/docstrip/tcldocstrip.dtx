@@ -140,7 +140,7 @@
 % the \textsf{docstrip} package in some projects. It is separate from 
 % the main package to avoid overhead for end-users.
 % 
-% Currently the only command in this package is the |ddt2man| command. 
+% The first command in this package is the |ddt2man| command. 
 % It provides an alternative to \LaTeX\ markup for programmers who 
 % think \LaTeX\ is too heavy (e.g.\ installation-wise) and prefer a 
 % pure-\Tcllogo\ documentation setup, namely to use 
@@ -164,6 +164,35 @@
 % should use the suffix \texttt{.ddt} to distinguish them from 
 % \texttt{.dtx} files which have \LaTeX\ markup in the comments.
 % 
+% \describestring[proc][docstrip::util]{guards}
+% The |guards| commands compiles information about the docstrip guards 
+% occurring in a file. It has the subcommands |names|, |counts|, 
+% |expressions|, |exprcounts|, and |exprmods| which returns 
+% information about correct guards in various degrees of detail. The 
+% |exprerr| subcommand lists syntactically incorrect guard expressions, 
+% and the |rotten| subcommand lists the malformed guard lines.
+% 
+% \describestring[proc][docstrip::util]{thefile}
+% The |thefile| command is a conveniency for reading the contents of 
+% a file, since all other \texttt{docstrip::util} commands expect to 
+% be handed the text of \texttt{.dtx} or \texttt{.ddt} files as 
+% strings (or some other in-memory data structure). It takes as 
+% primary argument the name of the file to read, and does like 
+% |docstrip::sourcefrom| accept additional option--value pairs for 
+% configuring the file channel before reading from it.
+% 
+% \describestring[proc][docstrip::util]{patch}
+% The |patch| command is a still slightly experimental utility for 
+% applying patches against extracted files to the master sources 
+% proper; it works by translating extracted file line numbers to 
+% master source file numbers and applies differences at the translated 
+% positions. Currently the text being patched is kept in memory as a 
+% list of lines, but this may change if this feature is more closely 
+% integrated with the \Tcllogo lib diff file utilies offered by the 
+% \textsf{rcs} package. |patch| also has a companion command 
+% \describestring[proc][docstrip::util]{import_unidiff}
+% |import_unidiff| that translates patches to the format understood by 
+% the |patch| command.
 % 
 % 
 % \section{Headers}
@@ -195,7 +224,7 @@ namespace eval docstrip {
 %<utilpkg>package require docstrip 1.2
 %<utilpkg>package provide docstrip::util 1.2
 %<idx>package ifneeded docstrip::util 1.2\
-%<idx>  [list source [file join $dir docstrip.tcl]]
+%<idx>  [list source [file join $dir docstrip_util.tcl]]
 %<*utilpkg>
 namespace eval docstrip::util {
    namespace import [namespace parent]::extract
@@ -208,24 +237,33 @@ namespace eval docstrip::util {
 % The test initialisation is nothing strange either. The route is taken 
 % to explicitly |source| the \texttt{docstrip.tcl} file in the same 
 % directory as the \texttt{docstrip.test} being run.
+% \changes{1.2}{2005/09/18}{Introduced the 
+%    \texttt{docstrip\_sources\_dir} variable as the directory in 
+%    which to search for \texttt{docstrip.tcl}, 
+%    \texttt{docstrip\_util.tcl}, and \texttt{tcldocstrip.dtx}. 
+%    Using \texttt{file normalize} to compute it. (LH)}
 % \begin{tcl}
-%<*test>
+%<*test,utiltest>
 package require tcltest
-source [file join [pwd] [file dirname [info script]] docstrip.tcl]
-puts "** Tcl docstrip package (v [package provide docstrip]) **"
+set docstrip_sources_dir [file dirname [file normalize [info script]]]
+source [file join $docstrip_sources_dir docstrip.tcl]
+puts "** Has Tcl docstrip package (v [package provide docstrip]) **"
+%<*utiltest>
+source [file join $docstrip_sources_dir docstrip_util.tcl]
+puts "** Has Tcl docstrip::util package\
+  (v [package provide docstrip::util]) **"
+%</utiltest>
 % \end{tcl}
 % One of the tests require that \texttt{tcldocstrip.dtx} (this file) and 
 % \texttt{docstrip.tcl} are both present. A \textsf{tcltest} constraint 
 % is declared for this purpose.
 % \begin{tcl}
 tcltest::testConstraint docstripSourcesAvailable [expr {[
-   file exists\
-     [file join [pwd] [file dirname [info script]] docstrip.tcl]
+   file exists [file join $docstrip_sources_dir docstrip.tcl]
 ] && [
-   file exists\
-     [file join [pwd] [file dirname [info script]] tcldocstrip.dtx]
+   file exists [file join $docstrip_sources_dir tcldocstrip.dtx]
 ]}]
-%</test>
+%</test,utiltest>
 % \end{tcl}
 % 
 % Finally the header for the \textsf{doctools} manpages.
@@ -429,10 +467,11 @@ Comma and vertical bar both denote 'or'. Ampersand denotes 'and'.
 Exclamation mark denotes 'not'. A TERMINAL can be any nonempty string 
 of characters not containing '>', '&', '|', comma, '(', or ')', 
 although the [syscmd docstrip] manual is a bit restrictive and only 
-guarantees proper operation for strings of letters. The second 
-argument of [cmd docstrip::extract] is the list of those TERMINALs 
-that should count as having the value 'true'; all other TERMINALs 
-count as being 'false' when guard expressions are evaluated.
+guarantees proper operation for strings of letters (although even 
+the LaTeX core sources make heavy use also of digits in TERMINALs). 
+The second argument of [cmd docstrip::extract] is the list of those 
+TERMINALs that should count as having the value 'true'; all other 
+TERMINALs count as being 'false' when guard expressions are evaluated.
 [para]
 
 In the case of a '%<*[emph EXPRESSION]>' guard, the lines guarded are 
@@ -1052,11 +1091,11 @@ tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
 } -body {
    # First read in the ready-stripped file, but gobble the preamble and
    # postamble, as those are a bit messy to reproduce.
-   set F [open [file join [testsDirectory] docstrip.tcl] r]
+   set F [open [file join $docstrip_sources_dir docstrip.tcl] r]
    regsub -all -- {(^|\n)#[^\n]*} [read $F] {} stripped
    close $F
    # Then read the master source and strip it manually.
-   set F [open [file join [testsDirectory] tcldocstrip.dtx] r]
+   set F [open [file join $docstrip_sources_dir tcldocstrip.dtx] r]
    set source [read $F]
    close $F
    set stripped2 [docstrip::extract $source pkg -metaprefix ##]
@@ -1126,11 +1165,16 @@ proc docstrip::sourcefrom {name terminals args} {
 %   \end{tcl}
 % \end{proc}
 % 
-% Testing the above procedure requires an external file.
+% Testing the above procedure requires an external file. The business 
+% with |info script| is to check that this is getting set and reset 
+% correctly. The business with the |baz| variable tests that the file 
+% contents are being evaluated in the context calling |sourcefrom|.
+% \changes{1.2}{2005/10/02}{Moddified test to make it work when 
+%    tmpdir is not the current directory. (LH)}
 % \begin{tcl}
 %<*test>
 tcltest::test docstrip-2.2 {soucefrom} -setup {
-   tcltest::makeFile [join {
+   set dtxname [tcltest::makeFile [join {
       {% Just a minor test file.}
       {puts A}
       {%<*bar>}
@@ -1142,7 +1186,7 @@ tcltest::test docstrip-2.2 {soucefrom} -setup {
       {%<-foo>return}
       {%</bar>}
       {puts $baz}
-      {puts [info script]}
+      {puts [file tail [info script]]}
       {%<*!foo>}
       {puts C}
       "%% Tricky comment; guess what comes next\\"
@@ -1151,29 +1195,33 @@ tcltest::test docstrip-2.2 {soucefrom} -setup {
 % \end{tcl}
 % What the above construction does depends on the truth value of |foo|. 
 % When true, the \Module{!foo} block is skipped in its entirety, and 
-% thus the next command after |puts [info script]| is |incr baz|. 
-% However when |foo| is false the block will be included. 
+% thus the next command after |puts [file tail [info script]]| is 
+% |incr baz|. However when |foo| is false the block will be included. 
 % The metacomment line gets a prefix |#| and will therefore become 
 % a comment when the code is evaluated. The backslash escapes the 
 % subsequent newline, and thus the |incr baz| will only be part of 
 % a \Tcllogo\ comment.
 % \begin{tcl}
       {puts "baz=$baz"}
-   } \n] test.dtx
+   } \n] te27st01.dtx]
 } -body {
    set baz 0
-   docstrip::sourcefrom test.dtx {foo bar}
-   docstrip::sourcefrom test.dtx {}
-   docstrip::sourcefrom test.dtx {bar}
+   puts [info script]
+   docstrip::sourcefrom $dtxname {foo bar}
+   puts [info script]
+   docstrip::sourcefrom $dtxname {}
+   docstrip::sourcefrom $dtxname {bar}
    puts $baz
 } -cleanup {
-   tcltest::removeFile test.dtx
-} -output [join {
-   {A} {B} {1} {1} {test.dtx} {baz=2}
-   {A} {2} {test.dtx} {C} {baz=2}
-   {A} {B}
+   tcltest::removeFile $dtxname
+} -output [join [list\
+   [info script]\
+   {A} {B} {1} {1} {te27st01.dtx} {baz=2}\
+   [info script]\
+   {A} {2} {te27st01.dtx} {C} {baz=2}\
+   {A} {B}\
    {2} ""
-} \n]
+] \n]
 %</test>
 % \end{tcl}
 % 
@@ -1977,14 +2025,21 @@ proc docstrip::util::patch {sourcevar termL fromtext diff args} {
 %   \end{quote}
 %   where the \word{option} \word{value} pairs are handed to |fconfigure| 
 %   to configure the file before reading it.
+%   \changes{1.2}{2005/09/07}{Added error handling. (LH)}
 %   \begin{tcl}
 %<*utilpkg>
 proc docstrip::util::thefile {fname args} {
    set F [open $fname r]
    if {[llength $args]} then {
-      eval [linsert $args 0 fconfigure $F]
+      if {[set code [
+         catch {eval [linsert $args 0 fconfigure $F]} res
+      ]]} then {
+         close $F
+         return -code $code -errorinfo $::errorInfo -errorcode\
+           $::errorCode
+      }
    }
-   set res [read $F]
+   catch {read $F} res
    close $F
    return $res
 }
@@ -1994,7 +2049,9 @@ proc docstrip::util::thefile {fname args} {
 %   manpage entry for it.
 %   \begin{tcl}
 %<*utilman>
-[call [cmd docstrip::util::thefile] [arg filename] [opt "[arg option] [arg value] ..."]]
+[call [cmd docstrip::util::thefile] [arg filename] [
+  opt "[arg option] [arg value] ..."
+]]
   The [cmd thefile] command opens the file [arg filename], reads it to 
   end, closes it, and returns the contents. The option-value pairs are 
   passed on to [cmd fconfigure] to configure the open file channel 
@@ -2003,6 +2060,70 @@ proc docstrip::util::thefile {fname args} {
 %   \end{tcl}
 % \end{proc}
 % 
+% Better provide some tests too\dots
+% \begin{tcl}
+%<*utiltest>
+tcltest::test docstrip::util::thefile-1.1 {thefile without args}\
+  -setup {
+   set Fname [tcltest::makeFile [
+      join {
+         {% Just a minor test file.}
+         {puts A}
+         {%<*bar>}
+         {puts B}
+         {%<*foo>}
+         {puts [info exists baz]}
+      } \n
+   ] test.txt]
+} -body {
+   docstrip::util::thefile $Fname
+} -cleanup {
+   tcltest::removeFile $Fname
+} -result [join {
+   {% Just a minor test file.}
+   {puts A}
+   {%<*bar>}
+   {puts B}
+   {%<*foo>}
+   {puts [info exists baz]} ""
+} \n]
+% \end{tcl}
+% This one tests that an error in the number of arguments is caught 
+% correctly.
+% \begin{tcl}
+tcltest::test docstrip::util::thefile-1.2 {thefile with wrong no. args}\
+  -setup {
+   set Fname [tcltest::makeFile [
+      join {
+         {% Just a minor test file (contents irrelevant).}
+         {puts A}
+         {%<*bar>}
+         {puts B}
+         {%<*foo>}
+         {puts [info exists baz]}
+      } \n
+   ] test.txt]
+} -body {
+   docstrip::util::thefile $Fname -translation binary -buffering
+} -cleanup {
+   tcltest::removeFile $Fname
+} -returnCodes error
+% \end{tcl}
+% This one tests configuring (of encoding).
+% \begin{tcl}
+tcltest::test docstrip::util::thefile-1.3 {thefile with args} -setup {
+   set Fname [tcltest::makeFile "Dummy content to overwrite" test.xxx]
+   set F [open $Fname w]
+   fconfigure $F -translation binary
+   puts -nonewline $F [encoding convertto utf-8 \u00E5\u00E4\u00F6]
+   close $F
+} -body {
+   docstrip::util::thefile $Fname -encoding utf-8
+} -cleanup {
+   tcltest::removeFile $Fname
+} -result \u00E5\u00E4\u00F6
+%</utiltest>
+% \end{tcl}
 % 
 % \begin{tcl}
 %<utilman>[list_end]
@@ -2142,7 +2263,7 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
 % explicit cleanup.
 % 
 % \begin{tcl}
-%<test>tcltest::cleanupTests
+%<test,utiltest>tcltest::cleanupTests
 % \end{tcl}
 % 
 % The manpages require an explicit ending, and can do with some 

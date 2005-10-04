@@ -14,14 +14,13 @@
 ## the true source is the file from which this one was generated.
 ##
 package require tcltest
-source [file join [pwd] [file dirname [info script]] docstrip.tcl]
-puts "** Tcl docstrip package (v [package provide docstrip]) **"
+set docstrip_sources_dir [file dirname [file normalize [info script]]]
+source [file join $docstrip_sources_dir docstrip.tcl]
+puts "** Has Tcl docstrip package (v [package provide docstrip]) **"
 tcltest::testConstraint docstripSourcesAvailable [expr {[
-   file exists\
-     [file join [pwd] [file dirname [info script]] docstrip.tcl]
+   file exists [file join $docstrip_sources_dir docstrip.tcl]
 ] && [
-   file exists\
-     [file join [pwd] [file dirname [info script]] tcldocstrip.dtx]
+   file exists [file join $docstrip_sources_dir tcldocstrip.dtx]
 ]}]
 tcltest::test docstrip-1.1 {code/comment line distinction} -body {
    docstrip::extract [join {
@@ -183,11 +182,11 @@ tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
 } -body {
    # First read in the ready-stripped file, but gobble the preamble and
    # postamble, as those are a bit messy to reproduce.
-   set F [open [file join [testsDirectory] docstrip.tcl] r]
+   set F [open [file join $docstrip_sources_dir docstrip.tcl] r]
    regsub -all -- {(^|\n)#[^\n]*} [read $F] {} stripped
    close $F
    # Then read the master source and strip it manually.
-   set F [open [file join [testsDirectory] tcldocstrip.dtx] r]
+   set F [open [file join $docstrip_sources_dir tcldocstrip.dtx] r]
    set source [read $F]
    close $F
    set stripped2 [docstrip::extract $source pkg -metaprefix ##]
@@ -197,7 +196,7 @@ tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
    }
 }
 tcltest::test docstrip-2.2 {soucefrom} -setup {
-   tcltest::makeFile [join {
+   set dtxname [tcltest::makeFile [join {
       {% Just a minor test file.}
       {puts A}
       {%<*bar>}
@@ -209,28 +208,32 @@ tcltest::test docstrip-2.2 {soucefrom} -setup {
       {%<-foo>return}
       {%</bar>}
       {puts $baz}
-      {puts [info script]}
+      {puts [file tail [info script]]}
       {%<*!foo>}
       {puts C}
       "%% Tricky comment; guess what comes next\\"
       {%</!foo>}
       {incr baz}
       {puts "baz=$baz"}
-   } \n] test.dtx
+   } \n] te27st01.dtx]
 } -body {
    set baz 0
-   docstrip::sourcefrom test.dtx {foo bar}
-   docstrip::sourcefrom test.dtx {}
-   docstrip::sourcefrom test.dtx {bar}
+   puts [info script]
+   docstrip::sourcefrom $dtxname {foo bar}
+   puts [info script]
+   docstrip::sourcefrom $dtxname {}
+   docstrip::sourcefrom $dtxname {bar}
    puts $baz
 } -cleanup {
-   tcltest::removeFile test.dtx
-} -output [join {
-   {A} {B} {1} {1} {test.dtx} {baz=2}
-   {A} {2} {test.dtx} {C} {baz=2}
-   {A} {B}
+   tcltest::removeFile $dtxname
+} -output [join [list\
+   [info script]\
+   {A} {B} {1} {1} {te27st01.dtx} {baz=2}\
+   [info script]\
+   {A} {2} {te27st01.dtx} {C} {baz=2}\
+   {A} {B}\
    {2} ""
-} \n]
+] \n]
 tcltest::cleanupTests
 ## 
 ## 
