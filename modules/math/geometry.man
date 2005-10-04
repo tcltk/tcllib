@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.0.2]
+[manpage_begin math::geometry n 1.0.1]
 [copyright {2004 by Ideogramic ApS and other parties}]
-[moddesc   {Tcl Math Library}]
+[moddesc   {Math}]
 [titledesc {Geometrical computations}]
 
 [require Tcl [opt 8.3]]
-[require math::geometry [opt 1.0.2]]
+[require math::geometry [opt 1.0.1]]
 
 [description]
 [para]
@@ -62,6 +62,17 @@ the points are regarded without any ordering.
 The package defines the following public procedures:
 
 [list_begin definitions]
+
+[call [cmd ::math::geometry::angle] [arg line]]
+
+Calculate the angle from the positive x-axis to a given line
+(in two dimensions only).
+
+[list_begin arg]
+[arg_def list line] Coordinates of the line
+[list_end]
+
+[nl]
 
 [call [cmd ::math::geometry::calculateDistanceToLine] [arg P] [arg line]]
 
@@ -158,12 +169,166 @@ polygon)
 
 [nl]
 
+[call [cmd ::math::geometry::movePointInDirection] [arg P] [arg direction] [arg dist]]
+
+Move a point over a given distance in a given direction and return the
+new coordinates (in two dimensions only).
+
+[list_begin arg]
+[arg_def list P] Coordinates of the point to be moved
+[arg_def double direction] Direction (in degrees; 0 is to the right, 90
+upwards)
+[arg_def list dist] Distance over which to move the point
 [list_end]
 
-Other functions: Pro Memorie
+[nl]
 
+[call [cmd ::math::geometry::lineSegmentsIntersect] [arg linesegment1] [arg linesegment2]]
 
+Check if two line segments intersect or coincide. Returns 1 if that is
+the case, 0 otherwise (in two dimensions only).
 
+[list_begin arg]
+[arg_def list linesegment1] First line segment
+[arg_def list linesegment2] Second line segment
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::findLineSegmentIntersection] [arg linesegment1] [arg linesegment2]]
+
+Find the intersection point of two line segments. Return the coordinates
+or the keywords "coincident" or "none" if the line segments coincide or
+have no points in common (in two dimensions only).
+
+[list_begin arg]
+[arg_def list linesegment1] First line segment
+[arg_def list linesegment2] Second line segment
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::findLineIntersection] [arg line1] [arg line2]]
+
+Find the intersection point of two (infinite) lines. Return the coordinates
+or the keywords "coincident" or "none" if the lines coincide or
+have no points in common (in two dimensions only).
+
+[list_begin arg]
+[arg_def list line1] First line
+[arg_def list line2] Second line
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::polylinesIntersect] [arg polyline1] [arg polyline2]]
+
+Check if two polylines intersect or not (in two dimensions only).
+
+[list_begin arg]
+[arg_def list polyline1] First polyline
+[arg_def list polyline2] Second polyline
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::polylinesBoundingIntersect] [arg polyline1] [arg polyline2] [arg granularity]]
+
+Check whether two polylines intersect, but reduce
+the correctness of the result to the given granularity.
+Use this for faster, but weaker, intersection checking.
+[nl]
+How it works:
+[nl]
+Each polyline is split into a number of smaller polylines,
+consisting of granularity points each. If a pair of those smaller
+lines' bounding boxes intersect, then this procedure returns 1,
+otherwise it returns 0.
+
+[list_begin arg]
+[arg_def list polyline1] First polyline
+[arg_def list polyline2] Second polyline
+[arg_def int granularity] Number of points in each part (<=1 means check
+every edge)
+
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::intervalsOverlap] [arg y1] [arg y2] [arg y3] [arg y4] [arg strict]]
+
+Check if two intervals overlap.
+
+[list_begin arg]
+[arg_def double y1,y2] Begin and end of first interval
+[arg_def double y3,y4] Begin and end of second interval
+[arg_def logical strict] Check for strict or non-strict overlap
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::rectanglesOverlap] [arg P1] [arg P2] [arg Q1] [arg Q2] [arg strict]]
+
+Check if two rectangles overlap.
+
+[list_begin arg]
+[arg_def list P1] upper-left corner of the first rectangle
+[arg_def list P2] lower-right corner of the first rectangle
+[arg_def list Q1] upper-left corner of the second rectangle
+[arg_def list Q2] lower-right corner of the second rectangle
+[arg_def list strict] choosing strict or non-strict interpretation
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::bbox] [arg polyline]]
+
+Calculate the bounding box of a polyline. Returns a list of four
+coordinates: the upper-left and the lower-right corner of the box.
+
+[list_begin arg]
+[arg_def list polyline] The polyline to be examined
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::pointInsidePolygon] [arg P] [arg polyline]]
+
+Determine if a point is completely inside a polygon. If the point
+touches the polygon, then the point is not completely inside the
+polygon.
+
+[list_begin arg]
+[arg_def list P] Coordinates of the point
+[arg_def list polyline] The polyline to be examined
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::rectangleInsidePolygon] [arg P1] [arg P2] [arg polyline]]
+
+Determine if a rectangle is completely inside a polygon. If polygon
+touches the rectangle, then the rectangle is not complete inside the
+polygon.
+
+[list_begin arg]
+[arg_def list P1] Upper-left corner of the rectangle
+[arg_def list P2] Lower-right corner of the rectangle
+[nl]
+[arg_def list polygon] The polygon in question
+[list_end]
+
+[nl]
+
+[call [cmd ::math::geometry::areaPolygon] [arg polygon]]
+
+Calculate the area of a polygon.
+
+[list_begin arg]
+[arg_def list polygon] The polygon in question
+[list_end]
+
+[list_end]
 
 [keywords math "plane geometry" "point" "line" "distance" "angle"]
 
