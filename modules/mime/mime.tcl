@@ -3251,6 +3251,16 @@ proc ::mime::addr_x400 {mbox key} {
 #	Returns the string value of the 'property' for the date/time that was
 #       specified in 'value'.
 
+namespace eval ::mime {
+        variable WDAYS_SHORT  [list Sun Mon Tue Wed Thu Fri Sat]
+        variable WDAYS_LONG   [list Sunday Monday Tuesday Wednesday Thursday \
+                                    Friday Saturday]
+
+        variable MONTHS_SHORT [list Jan Feb Mar Apr May Jun \
+                                    Jul Aug Sep Oct Nov Dec]
+        variable MONTHS_LONG  [list January February March April May June July \
+                                    August Sepember October November December]
+}
 proc ::mime::parsedatetime {value property} {
     if {![string compare $value -now]} {
         set clock [clock seconds]
@@ -3264,11 +3274,13 @@ proc ::mime::parsedatetime {value property} {
         }
 
         lmonth {
-            return [clock format $clock -format %B]
+            variable MONTHS_LONG
+            return [lindex $MONTHS_LONG [clock format $clock -format %e]]
         }
 
         lweekday {
-            return [clock format $clock -format %A]
+            variable WDAYS_LONG
+            return [lindex $WDAYS_LONG [clock format $clock -format %w]]
         }
 
         mday {
@@ -3284,11 +3296,12 @@ proc ::mime::parsedatetime {value property} {
         }
 
         month {
-            return [clock format $clock -format %b]
+            variable MONTHS_SHORT
+            return [lindex $MONTHS_SHORT [clock format $clock -format %e]]
         }
 
         proper {
-            set gmt [clock format $clock -format "%d %b %Y %H:%M:%S" \
+            set gmt [clock format $clock -format "%Y-%m-%d %H:%M:%S" \
                            -gmt true]
             if {[set diff [expr {($clock-[clock scan $gmt])/60}]] < 0} {
                 set s -
@@ -3298,8 +3311,13 @@ proc ::mime::parsedatetime {value property} {
             }
             set zone [format %s%02d%02d $s [expr {$diff/60}] [expr {$diff%60}]]
 
+            variable WDAYS_SHORT
+            set wday [lindex $WDAYS_SHORT [clock format $clock -format %w]]
+            variable MONTHS_SHORT
+            set mon [lindex $MONTHS_SHORT [clock format $clock -format %e]]
+
             return [clock format $clock \
-                          -format "%a, %d %b %Y %H:%M:%S $zone"]
+                          -format "$wday, %d $mon %Y %H:%M:%S $zone"]
         }
 
         rclock {
@@ -3319,7 +3337,8 @@ proc ::mime::parsedatetime {value property} {
         }
 
         weekday {
-            return [clock format $clock -format %a]
+            variable WDAYS_SHORT
+            return [lindex $WDAYS_SHORT [clock format $clock -format %w]]
         }
 
         yday {
