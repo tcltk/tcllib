@@ -1,3 +1,7 @@
+2005-10-03  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* tree1.tcl (::struct::tree::Serialize): fix serialize of attributes
+
 2005-09-30  Andreas Kupries <andreask@activestate.com>
 
 	* queue.test: Extended API with new method 'unget'. Updated
