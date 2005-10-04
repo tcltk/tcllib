@@ -143,10 +143,11 @@ Comma and vertical bar both denote 'or'. Ampersand denotes 'and'.
 Exclamation mark denotes 'not'. A TERMINAL can be any nonempty string
 of characters not containing '>', '&', '|', comma, '(', or ')',
 although the [syscmd docstrip] manual is a bit restrictive and only
-guarantees proper operation for strings of letters. The second
-argument of [cmd docstrip::extract] is the list of those TERMINALs
-that should count as having the value 'true'; all other TERMINALs
-count as being 'false' when guard expressions are evaluated.
+guarantees proper operation for strings of letters (although even
+the LaTeX core sources make heavy use also of digits in TERMINALs).
+The second argument of [cmd docstrip::extract] is the list of those
+TERMINALs that should count as having the value 'true'; all other
+TERMINALs count as being 'false' when guard expressions are evaluated.
 [para]
 
 In the case of a '%<*[emph EXPRESSION]>' guard, the lines guarded are
