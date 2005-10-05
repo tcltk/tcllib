@@ -11,9 +11,9 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.4;                # tcl minimum version
-package require SASL;                   # tcllib 1.7
-package require tclDES;                 # TclDES 0.7
+package require Tcl 8.2;                # tcl minimum version
+package require SASL 1.0;               # tcllib 1.7
+package require des 1.0;                # tcllib 1.8
 package require md4;                    # tcllib 1.4
 
 #package require log;                   # tcllib 1.4
@@ -22,7 +22,7 @@ package require md4;                    # tcllib 1.4
 namespace eval ::SASL {
     namespace eval NTLM {
         variable version 1.0.0
-        variable rcsid {$Id: ntlm.tcl,v 1.4 2005/05/24 15:32:23 patthoyts Exp $}
+        variable rcsid {$Id: ntlm.tcl,v 1.5 2005/10/05 15:22:10 patthoyts Exp $}
     }
 }
 
@@ -77,6 +77,25 @@ proc ::SASL::NTLM::CreateGreeting {domainname hostname} {
                  $d_len $d_len $d_off \
                  $h_len $h_len 32]
     append msg $host $domain
+    return $msg
+}
+
+# Create a NTLM server challenge. This is sent by a server in response to
+# a client type 1 message. The content of the type 2 message is variable
+# and depends upon the flags set by the client and server choices.
+#
+proc ::SASL::NTLM::CreateChallenge {domainname} {
+    SASL::md5_init
+    set target  [encoding convertto ascii $domainname]
+    set t_len   [string length $target]
+    set nonce   [string range [binary format h* [SASL::CreateNonce]] 0 7]
+    set pad     [string repeat \0 8]
+    set context [string repeat \0 8]
+    set msg [binary format a8issii \
+                 "NTLMSSP\x00" 2 \
+                 $t_len $t_len 48 \
+                 [expr {0x01028100}]]
+    append msg $nonce $pad $context $pad $target
     return $msg
 }
 
@@ -139,7 +158,7 @@ proc ::SASL::NTLM::Decode {msg} {
             binary scan $msg @${doff}a${dlen} domain
             #log::log debug "NTLM($type) [decodeflags $flags]\n \
             #    '$host' '$domain'"
-            return [list type $type flags $flags domain $domain host $host]
+            return [list type $type flags [format 0x%08x $flags] domain $domain host $host]
         }
         2 {
             binary scan $msg @12ssiia8a8 dlen dlen2 doff flags nonce pad
@@ -147,9 +166,9 @@ proc ::SASL::NTLM::Decode {msg} {
             set domain [encoding convertfrom unicode $domain]
             binary scan $nonce H* nonce_h
             binary scan $pad   H* pad_h
-            #log::log debug "NTLM($type) [decodeflags $flags]\n \
+            #puts stderr "NTLM($type) [decodeflags $flags]\n \
             #    '$domain' '$nonce_h' '$pad_h'"
-            return [list type $type flags $flags domain $domain nonce $nonce]
+            return [list type $type flags [format 0x%08x $flags] domain $domain nonce $nonce]
         }
         3 {
             binary scan $msg @12ssississississiii \
@@ -170,7 +189,7 @@ proc ::SASL::NTLM::Decode {msg} {
             #log::log debug "NTLM($type) [decodeflags $flags]\n \
             #    mlen:$mlen '$domain' '$host' '$user'"
             #log::log debug "  LM '$lmdata_h'\n  NT '$ntdata_h'"
-            return [list type $type flags $flags domain $domain \
+            return [list type $type flags [format 0x%08x $flags] domain $domain \
                         host $host user $user lmhash $lmdata nthash $ntdata]
         }
     }
@@ -199,17 +218,13 @@ proc ::SASL::NTLM::LMhash {password nonce} {
     set hash ""
     set password [string range [string toupper $password][string repeat \0 14] 0 13]
     foreach key [CreateDesKeys $password] {
-        set keyset [des::keyset create $key]
-        append hash [des::block $keyset $magic 1 0]
-        des::keyset destroy $keyset
+        append hash [DES::des -dir encrypt -weak -mode ecb -key $key $magic]
     }
 
     append hash [string repeat \0 5]
     set res ""
     foreach key [CreateDesKeys $hash] {
-        set keyset [des::keyset create $key]
-        append res [des::block $keyset $nonce 1 0]
-        des::keyset destroy $keyset
+        append res [DES::des -dir encrypt -weak -mode ecb -key $key $nonce]
     }
 
     return $res
@@ -222,9 +237,7 @@ proc ::SASL::NTLM::NThash {password nonce} {
 
     set res ""
     foreach key [CreateDesKeys $hash] {
-        set keyset [des::keyset create $key]
-        append res [des::block $keyset $nonce 1 0]
-        des::keyset destroy $keyset
+        append res [DES::des -dir encrypt -weak -mode ecb -key $key $nonce]
     }
 
     return $res
@@ -276,7 +289,7 @@ proc ::SASL::NTLM::CreateDesKeys2 {key} {
 
 # Register this SASL mechanism with the Tcllib SASL package.
 #
-if {[package provide SASL] ne ""} {
+if {[llength [package provide SASL]] != 0} {
     ::SASL::register NTLM 50 ::SASL::NTLM::NTLM
 }
 
