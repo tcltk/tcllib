@@ -1777,6 +1777,19 @@ proc __critcl {} {
         set critcl [auto_execok critcl]
     }
 
+    set flags ""
+    while {[string match -* [set option [lindex $argv 0]]]} {
+        # -debug and -clean only work with critcl >= v04
+        switch -exact -- $option {
+            -keep  { append flags " -keep" }
+            -debug { append flags " -debug" }
+            -clean { append flags " -clean" }
+            -- { set argv [lreplace $argv 0 0]; break }
+            default { break }
+        }
+        set argv [lreplace $argv 0 0]
+    }
+
     if {$critcl != {}} {
         if {[llength $argv] == 0} {
             puts stderr "[string repeat - 72]"
@@ -1786,11 +1799,11 @@ proc __critcl {} {
 	    }
 	    puts stderr "[string repeat - 72]"
 
-            critcl_module $critcldefault
+            critcl_module $critcldefault $flags
         } else {
             foreach m $argv {
                 if {[info exists critclmodules($m)]} {
-                    critcl_module $m
+                    critcl_module $m $flags
                 } else {
                     puts "warning: $m is not a critcl module"
                 }
@@ -1816,7 +1829,7 @@ proc __critcl-modules {} {
     return
 }
 
-proc critcl_module {pkg} {
+proc critcl_module {pkg {extra ""}} {
     global critcl distribution critclmodules critcldefault
     if {$pkg == $critcldefault} {
 	set files {}
@@ -1836,8 +1849,8 @@ proc critcl_module {pkg} {
     }
     set target [file join $distribution modules]
     catch {
-        puts "$critcl -force -libdir [list $target] -pkg [list $pkg] $files"
-        eval exec $critcl -force -libdir [list $target] -pkg [list $pkg] $files 
+        puts "$critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files"
+        eval exec $critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files 
     } r
     puts $r
     return
