@@ -23,6 +23,13 @@
    documentation and/or software.
  */
 
+#ifndef md4_h_INCLUDE
+#define md4_h_INCLUDE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* PROTOTYPES should be set to one if and only if the compiler supports
      function argument prototyping.
    The following makes PROTOTYPES default to 0 if it has not already
@@ -31,6 +38,7 @@
 #ifndef PROTOTYPES
 #define PROTOTYPES 1
 #endif
+
 
 /* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;
@@ -64,3 +72,8 @@ void MD4Update PROTO_LIST
   ((MD4_CTX *, unsigned char *, unsigned int));
 void MD4Final PROTO_LIST ((unsigned char [16], MD4_CTX *));
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _md4_h_INCLUDE */
