@@ -1,3 +1,9 @@
+2005-10-05  Andreas Kupries <andreask@activestate.com>
+
+	* ripemd128.test: Added test cases demonstrating how ripemd/Trf is
+	* ripemd160.test: mishandling input of specific lengths (multiples
+	  of 64 bytes).
+
 2005-02-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ripemd128.tcl:   Arranged to run all available implementations in
