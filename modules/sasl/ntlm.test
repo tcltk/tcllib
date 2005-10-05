@@ -1,0 +1,101 @@
+# sasl.test - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+#
+# Tests for the Tcllib SASL package
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: ntlm.test,v 1.1 2005/10/05 15:22:10 patthoyts Exp $
+
+# -------------------------------------------------------------------------
+# Initialise the test package
+#
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+#
+package forget SASL
+catch {namespace delete ::SASL}
+if {[catch {source [file join [file dirname [info script]] sasl.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+if {[catch {source [file join [file dirname [info script]] ntlm.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
+package require base64
+
+puts "- SASL::NTLM [package present SASL::NTLM]"
+
+# -------------------------------------------------------------------------
+# Tests
+# -------------------------------------------------------------------------
+
+proc NTLMCallback {context command args} {
+    upvar #0 $context ctx
+    switch -exact -- $command {
+        login    { return "" }
+        username { return "user" }
+        password { return "SecREt01" }
+        realm    { return DOMAIN }
+        hostname { return WORKSTATION }
+        default {
+            return -code error "oops: client needs to write $command"
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+
+#
+# Sample NTLM messages from
+# http://davenport.sf.net/ntlm.html: NTLM HTTP Authentication
+#
+variable Chk; array set Chk {}
+set Chk(1) TlRMTVNTUAABAAAABzIAAAYABgArAAAACwALACAAAABXT1JLU1RBVElPTkRPTUFJTg==
+set Chk(2) [join {TlRMTVNTUAACAAAADAAMADAAAAABAoEAASNFZ4mrze8
+    AAAAAAAAAAGIAYgA8AAAARABPAE0AQQBJAE4AAgAMAEQATwBNAEEASQBOAAEADABTA
+    EUAUgBWAEUAUgAEABQAZABvAG0AYQBpAG4ALgBjAG8AbQADACIAcwBlAHIAdgBlAHI
+    ALgBkAG8AbQBhAGkAbgAuAGMAbwBtAAAAAAA=}]
+set Chk(3) [join {TlRMTVNTUAADAAAAGAAYAGoAAAAYABgAggAAAAwADABAAAAACAAI
+    AEwAAAAWABYAVAAAAJoAAAABAgAAAAAAAEQATwBNAEEASQBOAHUAcwBlAHIAVwBPAF
+    IASwBTAFQAQQBUAEkATwBOAMM3zVy9RPyXgqZnr21CfG3mfCDC0+d8ViWpjBwx6BhH
+    Rmspst9GgPOZWPuMITqcxg==} {}]
+
+test SASL-NTLM-1.0 {NTLM client challenge} {
+    list [catch {
+        set ctx [SASL::new -mechanism NTLM -callback NTLMCallback]
+        SASL::step $ctx ""
+        set response [SASL::response $ctx]
+        SASL::cleanup $ctx
+        base64::encode -maxlen 0 $response
+    } res] $res
+} [list 0 $Chk(1)]
+
+test SASL-NTLM-1.1 {NTLM client response} {
+    list [catch {
+        set ctx [SASL::new -mechanism NTLM -callback NTLMCallback]
+        SASL::step $ctx ""
+        SASL::step $ctx [base64::decode $Chk(2)]
+        set response [SASL::response $ctx]
+        SASL::cleanup $ctx
+        base64::encode -maxlen 0 $response
+    } res] $res
+} [list 0 $Chk(3)]
+
+# -------------------------------------------------------------------------
+
+unset Chk
+::tcltest::cleanupTests
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
