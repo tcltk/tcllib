@@ -11,7 +11,7 @@
 #  tclsh sak.tcl critcl
 # generates a tcllibc module.
 #
-# $Id: rc4c.tcl,v 1.1 2004/07/04 01:22:46 patthoyts Exp $
+# $Id: rc4c.tcl,v 1.2 2005/10/05 00:18:39 patthoyts Exp $
 
 package require critcl
 package provide rc4c 1.0.0
@@ -79,8 +79,10 @@ namespace eval ::rc4 {
         static Tcl_ObjType rc4_type = {
             "rc4c", rc4_free_rep, rc4_dup_rep, rc4_string_rep, rc4_from_any
         };
-
-        inline void swap (unsigned char *lhs, unsigned char *rhs) {
+#ifdef __GNUC__
+        inline
+#endif
+        void swap (unsigned char *lhs, unsigned char *rhs) {
             unsigned char t = *lhs;
             *lhs = *rhs;
             *rhs = t;
