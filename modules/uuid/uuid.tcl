@@ -103,12 +103,12 @@ if {[string equal $tcl_platform(platform) "windows"]
 
             hLib = LoadLibrary(_T("rpcrt4.dll"));
             if (hLib)
-                lpfnUuidCreate = (LPFNUUIDCREATE)GetProcAddress(hLib,
-                                                                "UuidCreate");
+                lpfnUuidCreate = (LPFNUUIDCREATE)
+                    GetProcAddress(hLib, "UuidCreate");
             if (lpfnUuidCreate) {
+                Tcl_Obj *obj;
                 lpfnUuidCreate(&uuid);
-                Tcl_Obj *obj = Tcl_NewByteArrayObj((cu_char *)&uuid,
-                                                   sizeof(uuid));
+                obj = Tcl_NewByteArrayObj((cu_char *)&uuid, sizeof(uuid));
                 Tcl_SetObjResult(interp, obj);
             } else {
                 Tcl_SetResult(interp, "error: failed to create a guid",

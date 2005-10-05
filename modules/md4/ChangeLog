@@ -1,3 +1,8 @@
+2005-10-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md4c.tcl:     Fix to permit compilation with msvc
+	* md4.h:        
+
 2005-02-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md4.tcl:      Arranged to run all available implementations in

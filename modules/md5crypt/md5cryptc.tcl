@@ -28,8 +28,10 @@ critcl::cheaders ../md5/md5.h
 
 namespace eval ::md5crypt {
     critcl::ccode {
-        #include "md5.h"
-        
+#include "md5.h"
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
         static unsigned char itoa64[] =
             "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         
