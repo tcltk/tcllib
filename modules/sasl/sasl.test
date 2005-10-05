@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sasl.test,v 1.1 2005/02/19 19:53:08 patthoyts Exp $
+# RCS: @(#) $Id: sasl.test,v 1.2 2005/10/05 15:22:10 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -46,7 +46,7 @@ proc SASLCallback {clientblob context command args} {
     }
 }
 
-test SASL-PLAIN-1.1 {} {
+test SASL-PLAIN-1.0 {} {
     list [catch {
         set ctx [SASL::new -mechanism PLAIN \
                      -callback [list SASLCallback 0]]
@@ -59,7 +59,7 @@ test SASL-PLAIN-1.1 {} {
 
 # -------------------------------------------------------------------------
 
-test SASL-LOGIN-1.1 {} {
+test SASL-LOGIN-2.0 {} {
     list [catch {
         set ctx [SASL::new -mechanism LOGIN \
                      -callback [list SASLCallback 0]]
@@ -74,7 +74,7 @@ test SASL-LOGIN-1.1 {} {
 
 # -------------------------------------------------------------------------
 
-test SASL-CRAMMD5-1.1 {} {
+test SASL-CRAMMD5-3.0 {} {
     list [catch {
         set ctx [SASL::new -mechanism CRAM-MD5 \
                      -callback [list SASLCallback 0]]
@@ -85,7 +85,7 @@ test SASL-CRAMMD5-1.1 {} {
     } res] $res
 } [list 0 [list tester c7e3043702b782d70716bd1e21d6e2f7]]
 
-test SASL-CRAMMD5-1.2 {} {
+test SASL-CRAMMD5-3.1 {} {
     list [catch {
         set ctx [SASL::new -mechanism CRAM-MD5 \
                      -callback [list SASLCallback 0]]
@@ -100,7 +100,7 @@ test SASL-CRAMMD5-1.2 {} {
 
 # -------------------------------------------------------------------------
 
-test SASL-DIGESTMD5-1.1 {} {
+test SASL-DIGESTMD5-4.0 {} {
     list [catch {
         set ctx [SASL::new -mechanism DIGEST-MD5 \
                      -callback [list SASLCallback 0]]
