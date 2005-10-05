@@ -1,3 +1,7 @@
+2005-10-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5cryptc.tcl: Fix for building with msvc.
+
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
