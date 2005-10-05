@@ -13,6 +13,8 @@
 
 namespace eval uuid {
     variable version 1.0.1
+    variable accel
+    array set accel {critcl 0}
 
     namespace export uuid
 
@@ -24,15 +26,6 @@ namespace eval uuid {
     if {[package vcompare [package provide Tcl] 8.4] < 0} {
         package require struct::list
         interp alias {} ::uuid::lset {} ::struct::list::lset
-    }
-
-    # Under windows we can use a critcl extension to call the Win32 API.
-    interp alias {} ::uuid::generate {} ::uuid::generate_tcl
-    if {[string equal $::tcl_platform(platform) "windows"]} {
-        catch {package require tcllibc}
-        if {[info command ::uuid::generate_c] != {}} {
-            interp alias {} ::uuid::generate {} ::uuid::generate_c
-        }
     }
 
     proc K {a b} {set a}
@@ -144,6 +137,16 @@ proc ::uuid::equal {left right} {
     return [string equal $l $r]
 }
 
+# Call our generate uuid implementation
+proc ::uuid::generate {} {
+    variable accel
+    if {$accel(critcl)} {
+        return [generate_c]
+    } else {
+        return [generate_tcl]
+    }
+}
+
 # uuid generate -> string rep of a new uuid
 # uuid equal uuid1 uuid2
 #
@@ -171,6 +174,38 @@ proc uuid::uuid {cmd args} {
 }
 
 # -------------------------------------------------------------------------
+
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::uuid::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        critcl {
+            if {![catch {package require tcllibc}]} {
+                set r [expr {[info command ::uuid::generate_c] != {}}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
+    }
+    set accel($name) $r
+}
+
+# -------------------------------------------------------------------------
+
+# Try and load a compiled extension to help.
+namespace eval ::uuid {
+    foreach e {critcl} { if {[LoadAccelerator $e]} { break } }
+}
 
 package provide uuid $::uuid::version
 
