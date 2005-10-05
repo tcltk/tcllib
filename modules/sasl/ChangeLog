@@ -1,3 +1,8 @@
+2005-10-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ntlm.tcl:  Use tcllib 1.8 des module. Added NTLM tests. Fix to
+	* ntlm.test: work with tcl 8.2.
+
 2005-09-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sasl.tcl: Fixed 8.4isms and specified requirement to Tcl 8.2
