@@ -1,5 +1,6 @@
 2005-10-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* uuid.test:  Ensure we test all implementations.
 	* uuid.tcl:   Updated critcl code to work with msvc.
 
 2005-09-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
