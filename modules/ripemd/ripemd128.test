@@ -1,6 +1,6 @@
 # ripemd128.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd128.test,v 1.7 2005/02/24 03:25:50 patthoyts Exp $
+# $Id: ripemd128.test,v 1.8 2005/10/05 17:07:34 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -78,6 +78,12 @@ set vectors {
 }
 lappend vectors \
     9 [string repeat 1234567890 8] {3f45ef194732c2dbb2c4a2c769795fa3}
+
+lappend vectors \
+    20 [binary format H* 3627140572635041beaf9c8dfaebd8c9363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636] {4eb9e2f034b961f464647021b99291ef} \
+    21 [binary format H* 3627140572635041beaf9c8dfaebd8c93636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636] {aaabc4b1b3479d49f0ad1c69f19c1405} \
+    22 [binary format H* 3627140572635041beaf9c8dfaebd8c936363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636] {c36ba14a9db833269732dda3edb63e27} \
+
 
 foreach impl [implementations] {
     select_implementation $impl
