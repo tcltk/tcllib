@@ -1,9 +1,9 @@
-[manpage_begin math n 4.2]
+[manpage_begin math n 1.2.3]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Tcl Math Library}]
 [require Tcl 8.2]
-[require math [opt 1.2.2]]
+[require math [opt 1.2.3]]
 [description]
 [para]
 

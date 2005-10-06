@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::rationalfunctions n 1.0]
+[manpage_begin math::rationalfunctions n 1.0.1]
 [copyright {2005 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Math}]
 [titledesc {Polynomial functions}]
 
 [require Tcl [opt 8.4]]
-[require math::rationalfunctions [opt 1.0]]
+[require math::rationalfunctions [opt 1.0.1]]
 
 [description]
 [para]

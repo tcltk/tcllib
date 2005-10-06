@@ -7,7 +7,7 @@
 # version 0.1.2: border case in stdev taken care of
 # version 0.1.3: moved initialisation of CDF to first call, november 2004
 
-package provide math::statistics 0.1.3
+package provide math::statistics 0.2
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables

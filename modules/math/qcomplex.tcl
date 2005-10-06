@@ -175,4 +175,4 @@ proc ::math::complexnumbers::tostring {z1} {
 #
 # Announce our presence
 #
-package provide math::complexnumbers 1.0
+package provide math::complexnumbers 1.0.1

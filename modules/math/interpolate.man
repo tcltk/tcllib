@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::interpolate n 0.2]
+[manpage_begin math::interpolate n 1.0.1]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
@@ -7,7 +7,7 @@
 
 [require Tcl [opt 8.4]]
 [require struct]
-[require math::interpolate [opt 0.2]]
+[require math::interpolate [opt 1.0.1]]
 
 [description]
 [para]
