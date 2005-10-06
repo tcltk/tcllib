@@ -1,3 +1,9 @@
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
 2005-10-03  Andreas Kupries <andreask@activestate.com>
 
 	* comm.tcl: Accepted [SF Tcllib Bug 1006282], which is actually an
