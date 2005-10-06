@@ -6,13 +6,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: constants.tcl,v 1.7 2005/06/07 14:21:18 kennykb Exp $
+# RCS: @(#) $Id: constants.tcl,v 1.8 2005/10/06 05:16:37 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
 package require Tcl 8.2
 
-package provide math::constants 1.0
+package provide math::constants 1.0.1
 
 # namespace constants
 #    Create a convenient namespace for the constants

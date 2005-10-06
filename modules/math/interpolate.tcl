@@ -24,7 +24,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: interpolate.tcl,v 1.6 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: interpolate.tcl,v 1.7 2005/10/06 05:16:37 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -650,4 +650,4 @@ proc ::math::interpolate::interp-cubic-splines {coeffs x} {
 #
 # Announce our presence
 #
-package provide math::interpolate 1.0
+package provide math::interpolate 1.0.1

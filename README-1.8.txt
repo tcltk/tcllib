@@ -122,21 +122,19 @@ ldap            ldap            1.2             1.2.1           B
 ------          -------         -----------     -----------     -------------------------------
 log             logger          0.5             0.6.1           B, TS, D, EF
 ------          -------         -----------     -----------     -------------------------------
-math            math                1.2.2       1.2.2                   <<< MISMATCH. Version ==
-                - statistics        0.1.2       0.1.3                   === Classify changes.
-                - rationalfunctions 1.0         1.0                     <<< MISMATCH. Version ==
-                - complexnumbers    1.0         1.0                     <<< MISMATCH. Version ==
-                - fourier           1.0         1.0                     <<< MISMATCH. Version ==
-                - interpolate       1.0         1.0                     <<< MISMATCH. Version ==
-                - fuzzy             0.2         0.2                     <<< MISMATCH. Version ==
-                - special           0.1         0.1                     <<< MISMATCH. Version ==
-                - optimize          0.2         --                      === Classify changes.
-                - optimize          --          1.0                     === Classify changes.
-                - bignum            3.0         3.0                     <<< MISMATCH. Version ==
-                - calculus          0.6         0.6                     <<< MISMATCH. Version ==
-                - geometry          1.0.2       1.0.3                   === Classify changes.
-                - constants         1.0         1.0                     <<< MISMATCH. Version ==
-                - polynomials       1.0         1.0                     <<< MISMATCH. Version ==
+math            math                1.2.2       1.2.3           B, TS
+                - bignum            3.0         3.1             B, D, TS, EF
+                - calculus          0.6         0.6.1           B, TS
+                - complexnumbers    1.0         1.0.1           TS
+                - constants         1.0         1.0.1           B, TS
+                - fourier           1.0         1.0.1           TS
+                - geometry          1.0.2       1.0.3           D
+                - interpolate       1.0         1.0.1           B, TS
+                - optimize          0.2         1.0             B, D, TS, EF
+                - polynomials       1.0         1.0.1           TS
+                - rationalfunctions 1.0         1.0.1           B
+                - special           0.1         0.2             B, TS, EF
+                - statistics        0.1.2       0.2             B, TS, EF
 ------          -------         -----------     -----------     -------------------------------
 md4             md4             1.0.2           1.0.3           B, TS
 ------          -------         -----------     -----------     -------------------------------
@@ -195,10 +193,10 @@ Unchanged Modules/Packages
 ==========================
 
 base64 (yencode), bee, calendar, crc (sum), dns (spf, resolv),
-doctools (doctools::cvs, doctools::changelog), exif,
-ftp (ftp::geturl), ftpd, ident, irc, log, md5crypt, multiplexer,
-nntp, pop3d (pop3d::dbox, pop3d::udb), report, soundex,
-stooop (stooop, switched), tar, textutil (textutil::expander),
+doctools (doctools::cvs, doctools::changelog), exif, ftp (ftp::geturl),
+ftpd, ident, irc, log, math (math::fuzzy), md5crypt, multiplexer,
+nntp, pop3d (pop3d::dbox, pop3d::udb), report, soundex, stooop
+(stooop, switched), tar, textutil (textutil::expander),
 tie (tie::std::array, tie::std::rarray, tie::std::dsource,
 tie::std::log), uri (uri::urn), struct (struct, struct::graph v1,
 struct::matrix v1, struct::pool, struct::record, struct::skiplist,
