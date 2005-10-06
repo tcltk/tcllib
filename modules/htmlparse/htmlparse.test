@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.16 2005/01/11 19:30:43 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.17 2005/10/06 20:58:38 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -21,31 +21,54 @@ package forget htmlparse
 package forget struct::tree
 package forget struct::queue
 package forget struct::stack
+package forget struct::list
 package forget cmdline
 
 catch {namespace delete ::htmlparse}
-catch {namespace delete ::struct::tree}
+## catch {namespace delete ::struct::tree} ##
 catch {namespace delete ::struct::queue}
 catch {namespace delete ::struct::stack}
+catch {namespace delete ::struct::list}
 catch {namespace delete ::cmdline}
 
-if {[catch {source [file join [file dirname [info script]] htmlparse.tcl]} msg]} {
+# We do not delete struct::tree, as it might come from a
+# tcllibc. Beyond that this testsuite does not care which tree
+# implementation is in use. We simply test them all.
+
+
+set moddir  [file dirname [file dirname [file join [pwd] [info script]]]]
+set tcllibc [file join $moddir tcllibc pkgIndex.tcl]
+
+if {[file exists $tcllibc]} {
+    # Fake load of specific package index, so that the following
+    # require will not search through the package paths.
+    set dir [file dirname $tcllibc]
+    source $tcllibc
+    unset dir
+    package require tcllibc
+}
+
+if {[catch {source [file join $moddir htmlparse htmlparse.tcl]} msg]} {
     puts "skipped [file tail [info script]] (htmlparse.tcl): $msg"
     return
 }
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] struct tree.tcl]} msg]} {
+if {[catch {source [file join $moddir struct tree.tcl]} msg]} {
     puts "skipped [file tail [info script]] (struct/tree.tcl): $msg"
     return
 }
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] struct queue.tcl]} msg]} {
+if {[catch {source [file join $moddir struct list.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (struct/list.tcl): $msg"
+    return
+}
+if {[catch {source [file join $moddir struct queue.tcl]} msg]} {
     puts "skipped [file tail [info script]] (struct/queue.tcl): $msg"
     return
 }
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] struct stack.tcl]} msg]} {
+if {[catch {source [file join $moddir struct stack.tcl]} msg]} {
     puts "skipped [file tail [info script]] (struct/stack.tcl): $msg"
     return
 }
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] cmdline cmdline.tcl]} msg]} {
+if {[catch {source [file join $moddir cmdline cmdline.tcl]} msg]} {
     puts "skipped [file tail [info script]] (cmdline/cmdline.tcl): $msg"
     return
 }
@@ -54,17 +77,30 @@ package require htmlparse
 package require struct::tree
 package require struct::queue
 package require struct::stack
+package require struct::list
 package require cmdline
 
 puts "- htmlparse [package present htmlparse]"
-puts "  - struct::tree  [package present struct::tree]"
+puts "  - cmdline       [package present cmdline]"
 puts "  - struct::queue [package present struct::queue]"
 puts "  - struct::stack [package present struct::stack]"
-puts "  - cmdline       [package present cmdline]"
+
+struct::tree::SwitchTo {}
+foreach e [struct::tree::KnownImpl] {
+    if {[::struct::tree::LoadAccel $e]} {
+	puts "  - struct::tree  [package provide struct::tree] (using $e)"
+	switch -exact -- $e {
+	    critcl {
+		puts "  - tcllibc       [package present tcllibc]"
+	    }
+	    tcl {
+		puts "  - struct::list  [package present struct::list]"
+	    }
+	}
+    }
+}
 
 # -------------------------------------------------------------------------
-
-
 
 set html1 {<html><head><title>foo</title><meta name="..."></head><body><h2>Header<p>burble</body></html>}
 set html2 {<html><head><title>foo</title><meta name="..."></head><body><h2>Header<p>burble</b}
@@ -72,6 +108,16 @@ set html3 {<html><head><title>foo</title><meta name="..."></head><body><h2>Heade
 
 # Simple remembering callback ...
 proc cb {args} {global tags ; lappend tags $args}
+
+proc tlist {t n} {
+    set tt [list]
+    foreach c [$t children $n] {
+	lappend tt [$t get $c synth]
+    }
+    $t set $n -key synth [list [$t get $n type] $tt]
+}
+
+# -------------------------------------------------------------------------
 
 test htmlparse-1.0 {basic errors} {
     catch {htmlparse::parse} msg
@@ -289,53 +335,6 @@ test htmlparse-4.7 {numeric, hexidecimal entities; out-of-range} {
 test htmlparse-4.8 {numeric character references, leading zeros} {
     ::htmlparse::mapEscapes {Ampersand: &#038;.}
 } {Ampersand: &.}
-
-proc tlist {t n} {
-    set tt [list]
-    foreach c [$t children $n] {
-	lappend tt [$t get $c synth]
-    }
-    $t set $n -key synth [list [$t get $n type] $tt]
-}
-
-test htmlparse-5.0 {conversion to tree} {
-    struct::tree t
-    ::htmlparse::2tree $html3 t
-
-    set tx [list]
-    t walk root n {
-	lappend tx [list [t depth $n] [t get $n type]]
-    }
-    t destroy
-    set tx
-} {{0 root} {1 hmstart} {2 html} {3 head} {4 title} {5 PCDATA} {4 meta} {3 body} {4 h2} {5 PCDATA} {5 p} {6 b} {7 PCDATA} {5 p} {6 form} {7 input}}
-
-test htmlparse-5.1 {conversion to tree} {
-    struct::tree t
-    ::htmlparse::2tree $html3 t
-    ::htmlparse::removeVisualFluff t
-
-    set tx [list]
-    t walk root n {
-	lappend tx [list [t depth $n] [t get $n type]]
-    }
-    t destroy
-    set tx
-} {{0 root} {1 head} {2 title} {3 PCDATA} {1 body} {2 h2} {3 PCDATA} {3 p} {4 PCDATA} {3 p} {4 form} {5 input}}
-
-test htmlparse-5.2 {conversion to tree} {
-    struct::tree t
-    ::htmlparse::2tree $html3      t
-    ::htmlparse::removeVisualFluff t
-    ::htmlparse::removeFormDefs    t
-
-    set tx [list]
-    t walk root n {
-	lappend tx [list [t depth $n] [t get $n type]]
-    }
-    t destroy
-    set tx
-} {{0 root} {1 head} {2 title} {3 PCDATA} {1 body} {2 h2} {3 PCDATA} {3 p} {4 PCDATA} {3 p}}
 
 # Bug #861277
 test htmlparse-6.1 {Backslashes in content} {
@@ -575,6 +574,42 @@ test htmlparse-9.3 {handle empty tags, text coming before} {
     [list a     /  {} {}] \
     [list b     /  {} {}] \
     [list html  /  {} {}] ]
+
+# -------------------------------------------------------------------------
+# In this section we run all the tests depending on a struct::tree,
+# and thus have to test all the available implementations.
+
+
+set tests [file join [file dirname [info script]] htmlparse.tree_testsuite]
+
+catch {memory validate on}
+
+foreach impl [struct::tree::Implementations] {
+    struct::tree::SwitchTo $impl
+
+    # The global variable 'impl' is part of the public API the
+    # testsuit (in htmlparse_tree.testsuite) can expect from the
+    # environment.
+
+    namespace import -force struct::tree
+
+    set usec [time {source $tests} 1]
+
+    puts "$impl:\t$usec"
+}
+
+catch {memory validate off}
+
+unset usec
+unset tests
+
+puts ""
+
+# Reset system to fully inactive state.
+
+struct::tree::SwitchTo {}
+
+# -------------------------------------------------------------------------
 
 # Take a look at the cache.
 #parray ::htmlparse::splitdata
