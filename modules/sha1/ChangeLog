@@ -1,3 +1,9 @@
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
 2005-09-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sha1.tcl: Refactored to permit implementation selection based

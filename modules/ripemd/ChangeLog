@@ -1,3 +1,9 @@
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
 2005-10-05  Andreas Kupries <andreask@activestate.com>
 
 	* ripemd128.test: Added test cases demonstrating how ripemd/Trf is
