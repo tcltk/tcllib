@@ -324,7 +324,7 @@ proc ::math::fourier::highpass {cutoff in_data} {
 #
 # Announce the package
 #
-package provide math::fourier 1.0
+package provide math::fourier 1.0.1
 
 # test --
 #

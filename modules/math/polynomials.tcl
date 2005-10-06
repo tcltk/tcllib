@@ -491,7 +491,7 @@ proc ::math::polynomials::DivRemPolyn {polyn1 polyn2} {
 #
 # Announce our presence
 #
-package provide math::polynomials 1.0
+package provide math::polynomials 1.0.1
 
 # some tests --
 #

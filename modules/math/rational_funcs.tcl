@@ -300,7 +300,7 @@ proc ::math::rationalfunctions::divRatio {ratio1 ratio2} {
 #
 # Announce our presence
 #
-package provide math::rationalfunctions 1.0
+package provide math::rationalfunctions 1.0.1
 
 # some tests --
 #
