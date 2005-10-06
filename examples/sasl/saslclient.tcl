@@ -4,9 +4,7 @@
 # the STARTTLS feature if available to switch to a secure link before 
 # negotiating authentication using SASL.
 #
-# $Id: saslclient.tcl,v 1.3 2005/09/01 12:52:34 patthoyts Exp $
-
-source [file join [file dirname [info script]] sasl.tcl]
+# $Id: saslclient.tcl,v 1.4 2005/10/06 14:48:02 patthoyts Exp $
 
 package require SASL
 package require base64
