@@ -1,3 +1,9 @@
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
 2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test (tempdir-1.2): Added code to remove the env
