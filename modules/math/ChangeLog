@@ -1,3 +1,30 @@
+2005-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Updated all version numbers to be in sync with the
+	* bignum.man:   changes made to the various packages in this module.
+	* bignum.tcl:
+	* calculus.man:
+	* calculus.tcl:
+	* combinatorics.man:
+	* constants.man:
+	* constants.tcl:
+	* fourier.man:
+	* fourier.tcl:
+	* interpolate.man:
+	* interpolate.tcl:
+	* math.man:
+	* math.tcl:
+	* polynomials.man:
+	* polynomials.tcl:
+	* qcomplex.man:
+	* qcomplex.tcl:
+	* rational_funcs.man:
+	* rational_funcs.tcl:
+	* special.man:
+	* special.tcl:
+	* statistics.man:
+	* statistics.tcl:
+
 2005-10-04  Andreas Kupries <andreask@activestate.com>
 
 	* geometry.man: Fixed bad reversals of geometry version
