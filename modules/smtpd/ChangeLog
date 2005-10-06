@@ -1,3 +1,9 @@
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
 2005-06-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtpd.tcl: bug #1224575 - as per RFC2821:3.7 we must accept null
