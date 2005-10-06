@@ -1,6 +1,25 @@
+2005-10-06  Andreas Kupries <andreask@activestate.com>
+
+	* tree/m.c (m_WALK): Fixed [SF Tcllib Bug 1313173]. This was
+	  refcounting bug for the objects containing the names of the loop
+	  variables. We have to declare that we are holding a reference,
+	  otherwise the object can be reused when compiling the loop body
+	  for the first iteration. This may also release the objects too
+	  early, causing crashes.
+
+	* tree/walk.c (t_walkdfs*): Fixed behavioural difference between
+	  the two implementations of a tree walker. The dfs code has to
+	  save a copy of the child array during the walk to handle the
+	  possibility of a child node being moved by the loop body.
+
+	  Note: This area, modifying a tree during walks, has no test
+	  cases at all and is in need of them. At least to describe the
+	  exact behaviour we have now.
+
 2005-10-03  Jeff Hobbs  <jeffh@ActiveState.com>
 
-	* tree1.tcl (::struct::tree::Serialize): fix serialize of attributes
+	* tree1.tcl (::struct::tree::Serialize): fix serialize of
+	  attributes.
 
 2005-09-30  Andreas Kupries <andreask@activestate.com>
 
