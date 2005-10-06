@@ -269,7 +269,7 @@ t_walkdfspre (Tcl_Interp* interp, TN* tdn, t_walk_function f,
      * continue - next node
      * return	- abort walking
      * prune /5 - skip children, otherwise ok.
-   */
+     */
 
     int res;
 
@@ -284,18 +284,33 @@ t_walkdfspre (Tcl_Interp* interp, TN* tdn, t_walk_function f,
     }
 
     if (tdn->nchildren) {
+	/* We make a copy of the child array. This emulates the behaviour of
+	 * the Tcl implementation, which will walk to a child of this node,
+	 * even if the loop body/procedure moved it to a different node before
+	 * it was reached by the loop here. If the node it the child is moved
+	 * to was already visited nothing else will happen. Ortherwise the
+	 * child will be visited multiple times.
+	 */
+
 	int i;
-	for (i = 0; i < tdn->nchildren; i++) {
-	    res = t_walkdfspre (interp, tdn->child [i], f, cs, avn, nvn, action);
+	int  nc = tdn->nchildren;
+	TN** nv = NALLOC (nc,TN*);
+	memcpy (nv, tdn->child, nc*sizeof(TN*));
+
+	for (i = 0; i < nc; i++) {
+	    res = t_walkdfspre (interp, nv [i], f, cs, avn, nvn, action);
 
 	    /* prune, continue cannot occur, were transformed into ok
 	     * by the child.
 	     */
 
 	    if (res != TCL_OK) {
+		ckfree ((char*) nv);
 		return res;
 	    }
 	}
+
+	ckfree ((char*) nv);
     }
 
     return TCL_OK;
@@ -311,16 +326,32 @@ t_walkdfspost (Tcl_Interp* interp, TN* tdn, t_walk_function f,
     /* Parent after children, action is 'leave'. */
 
     if (tdn->nchildren) {
+	/* We make a copy of the child array. This emulates the behaviour of
+	 * the Tcl implementation, which will walk to a child of this node,
+	 * even if the loop body/procedure moved it to a different node before
+	 * it was reached by the loop here. If the node it the child is moved
+	 * to was already visited nothing else will happen. Ortherwise the
+	 * child will be visited multiple times.
+	 */
+
 	int i;
-	for (i = 0; i < tdn->nchildren; i++) {
-	    res = t_walkdfspost (interp, tdn->child [i], f, cs, avn, nvn, action);
+
+	int  nc = tdn->nchildren;
+	TN** nv = NALLOC (nc,TN*);
+	memcpy (nv, tdn->child, nc*sizeof(TN*));
+
+	for (i = 0; i < nc; i++) {
+	    res = t_walkdfspost (interp, nv [i], f, cs, avn, nvn, action);
 
 	    if ((res == TCL_ERROR) ||
 		(res == TCL_BREAK) ||
 		(res == TCL_RETURN)) {
+		ckfree ((char*) nv);
 		return res;
 	    }
 	}
+
+	ckfree ((char*) nv);
     }
 
     res = (*f) (interp, tdn, cs, avn, nvn, action);
@@ -352,7 +383,7 @@ t_walkdfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
      * continue - next node
      * return	- abort walking
      * prune /5 - skip children, otherwise ok.
-   */
+     */
 
     int res;
 
@@ -367,17 +398,24 @@ t_walkdfsboth (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 
 	if (tdn->nchildren) {
 	    int i;
-	    for (i = 0; i < tdn->nchildren; i++) {
-		res = t_walkdfsboth (interp, tdn->child [i], f, cs, avn, nvn, enter, leave);
+	    int  nc = tdn->nchildren;
+	    TN** nv = NALLOC (nc,TN*);
+	    memcpy (nv, tdn->child, nc*sizeof(TN*));
+
+	    for (i = 0; i < nc; i++) {
+		res = t_walkdfsboth (interp, nv [i], f, cs, avn, nvn, enter, leave);
 
 		/* prune, continue cannot occur, were transformed into ok
 		 * by the child.
 		 */
 
 		if (res != TCL_OK) {
+		    ckfree ((char*) nv);
 		    return res;
 		}
 	    }
+
+	    ckfree ((char*) nv);
 	}
     }
 
@@ -441,12 +479,16 @@ t_walkdfsin (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 
     } else {
 	int i;
+	int  nc = tdn->nchildren;
+	TN** nv = NALLOC (nc,TN*);
+	memcpy (nv, tdn->child, nc*sizeof(TN*));
 
 	res = t_walkdfsin (interp, tdn->child [0], f, cs, avn, nvn, action);
 
 	if ((res == TCL_ERROR) ||
 	    (res == TCL_BREAK) ||
 	    (res == TCL_RETURN)) {
+	    ckfree ((char*) nv);
 	    return res;
 	}
 
@@ -455,9 +497,11 @@ t_walkdfsin (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	if ((res == TCL_ERROR) ||
 	    (res == TCL_BREAK) ||
 	    (res == TCL_RETURN)) {
+	    ckfree ((char*) nv);
 	    return res;
 	} else if (res == 5) {
 	    /* Illegal pruning */
+	    ckfree ((char*) nv);
 
 	    Tcl_ResetResult (interp);
 	    Tcl_AppendResult (interp,
@@ -465,15 +509,18 @@ t_walkdfsin (Tcl_Interp* interp, TN* tdn, t_walk_function f,
 	    return TCL_ERROR;
 	}
 
-	for (i = 1; i < tdn->nchildren; i++) {
-	    res = t_walkdfsin (interp, tdn->child [i], f, cs, avn, nvn, action);
+	for (i = 1; i < nc; i++) {
+	    res = t_walkdfsin (interp, nv [i], f, cs, avn, nvn, action);
 
 	    if ((res == TCL_ERROR) ||
 		(res == TCL_BREAK) ||
 		(res == TCL_RETURN)) {
+		ckfree ((char*) nv);
 		return res;
 	    }
 	}
+
+	ckfree ((char*) nv);
     }
 
     return TCL_OK;
