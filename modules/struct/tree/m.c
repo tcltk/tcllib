@@ -2395,7 +2395,7 @@ m_UNSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 int
 m_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int type, order, rem;
+    int type, order, rem, res;
     Tcl_Obj*  avarname;
     Tcl_Obj*  nvarname;
     int	      lvc;
@@ -2440,9 +2440,14 @@ m_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     } else if (lvc == 2) {
 	avarname = lvv [0];
 	nvarname = lvv [1];
+
+	Tcl_IncrRefCount (avarname);
+	Tcl_IncrRefCount (nvarname);
     } else {
 	avarname = NULL;
 	nvarname = lvv [0];
+
+	Tcl_IncrRefCount (nvarname);
     }
 
     if (!strlen (Tcl_GetString (objv [rem+1]))) {
@@ -2452,9 +2457,17 @@ m_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    return t_walk (interp, tn, type, order,
+    res = t_walk (interp, tn, type, order,
 		   t_walk_invokescript,
 		   objv [rem+1], avarname, nvarname);
+
+    if (avarname) {
+	Tcl_IncrRefCount (avarname);
+    }
+    if (nvarname) {
+	Tcl_IncrRefCount (nvarname);
+    }
+    return res;
 }
 
 /*
@@ -2509,7 +2522,7 @@ m_WALKPROC (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    /* Remainder is 'script' */
+    /* Remainder is 'cmd' */
 
     if (!strlen (Tcl_GetString (objv [rem]))) {
 	Tcl_AppendResult (interp,
