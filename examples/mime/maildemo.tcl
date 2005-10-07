@@ -7,7 +7,7 @@
 # server (if it presents this option) and we will use SSL communications
 # if available.
 #
-# $Id: maildemo.tcl,v 1.1 2005/06/16 00:36:08 patthoyts Exp $
+# $Id: maildemo.tcl,v 1.2 2005/10/07 00:30:13 patthoyts Exp $
 
 package require mime
 package require smtp
@@ -29,18 +29,14 @@ set DEFUSER tcllib-demo@[info host]
 set USERNAME $tcl_platform(user)
 set PASSWORD ""
 
-# Try and lift authentication details from the environment. This looks for
-# some Windows NT-suitable details like the NT domain.
+# Try and lift authentication details from the environment.
 if {[info exists env(USERNAME)]} {
     set USERNAME $env(USERNAME)
-    if {[info exists env(USERDOMAIN)]} {
-        set USERNAME $env(USERDOMAIN)\\$USERNAME
-    }
 }
 
-# We can get the password from http_proxy - maybe.
-if {[info exists env(http_proxy_passwd)]} {
-    set PASSWORD $env(http_proxy_passwd)
+# We can get the password from http_proxy_pass - maybe.
+if {[info exists env(http_proxy_pass)]} {
+    set PASSWORD $env(http_proxy_pass)
 }
 
 set defmsg "This is a default tcllib demo mail message."
