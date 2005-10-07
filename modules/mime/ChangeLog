@@ -1,3 +1,8 @@
+2005-10-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl: Use the SASL module for authentication. Checked this
+	against sendmail+cyrussasl and Microsoft SMTPd (for NTLM).
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
