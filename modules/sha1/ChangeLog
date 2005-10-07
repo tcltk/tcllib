@@ -1,6 +1,8 @@
 2005-10-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* sha1.h:  Added byte-order check to resolve bug #1315688.
+	* sha1.c:    Fixed the byte order issue a better way and sorted
+	* sha1c.tcl: another problem on OpenBSD concerning headers.
+	* sha1.h:    Added byte-order check to resolve bug #1315688.
 
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
