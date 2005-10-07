@@ -2,7 +2,7 @@
 #
 # Wrapper for the Secure Hashing Algorithm (SHA1)
 #
-# $Id: sha1c.tcl,v 1.2 2005/02/21 13:24:18 patthoyts Exp $
+# $Id: sha1c.tcl,v 1.3 2005/10/07 14:38:56 patthoyts Exp $
 
 package require critcl;                 # needs critcl
 package provide sha1c 2.0.0;            # 
@@ -10,12 +10,18 @@ package provide sha1c 2.0.0;            #
 critcl::cheaders sha1.h;                # NetBSD SHA1 implementation
 critcl::csources sha1.c;                # NetBSD SHA1 implementation
 
+if {$tcl_platform(byteOrder) eq "littleEndian"} {
+    set byteOrder 1234
+} else {
+    set byteOrder 4321
+}
+critcl::cheaders -DTCL_BYTE_ORDER=$byteOrder
+
 namespace eval ::sha1 {
 
     critcl::ccode {
         #include "sha1.h"
-        #include <malloc.h>
-        #include <memory.h>
+        #include <stdlib.h>
         #include <assert.h>
         
         static
