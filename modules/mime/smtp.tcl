@@ -1,6 +1,7 @@
 # smtp.tcl - SMTP client
 #
-# (c) 1999-2000 Marshall T. Rose
+# Copyright (c) 1999-2000 Marshall T. Rose
+# Copyright (c) 2003-2005 Pat Thoyts
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -8,7 +9,11 @@
 
 package require Tcl 8.3
 package require mime 1.4.1
-package provide smtp 1.4.1
+
+catch {
+    package require SASL 1.0;           # tcllib 1.8
+    package require SASL::NTLM 1.0;     # tcllib 1.8
+}
 
 #
 # state variables:
@@ -27,6 +32,7 @@ package provide smtp 1.4.1
 
 
 namespace eval ::smtp {
+    variable version 1.4.2
     variable trf 1
     variable smtp
     array set smtp { uid 0 }
@@ -766,6 +772,7 @@ proc ::smtp::initialize_ehlo {token} {
         # have a username -- lets try to authenticate.
         #
         if {![info exists state(auth)]
+            && [llength [package provide SASL]] != 0
             && [set andx [lsearch -glob $response(args) "AUTH*"]] >= 0 
             && [string length $options(-username)] > 0 } {
             
@@ -776,29 +783,27 @@ proc ::smtp::initialize_ehlo {token} {
             # This may still work else we'll get an unauthorised error later.
 
             set mechs [string range [lindex $response(args) $andx] 5 end]
-            foreach mech [list DIGEST-MD5 CRAM-MD5 LOGIN PLAIN] {
+            foreach mech [SASL::mechanisms] {
                 if {[lsearch -exact $mechs $mech] == -1} { continue }
-                if {[info command [namespace current]::auth_$mech] != {}} {
-                    if {[catch {
-                        auth_$mech $token
-                    } msg]} {
-                        if {$options(-debug)} {
-                            puts stderr "AUTH $mech failed: $msg "
-                            flush stderr
-                        }
+                if {[catch {
+                    Authenticate $token $mech
+                } msg]} {
+                    if {$options(-debug)} {
+                        puts stderr "AUTH $mech failed: $msg "
+                        flush stderr
                     }
-                    if {[info exists state(auth)] && $state(auth)} {
-                        if {$state(auth) == 1} {
-                            break
-                        } else {
-                            # After successful AUTH we are supposed to redo
-                            # our connection for mechanisms that setup a new
-                            # security layer -- these should set state(auth) 
-                            # greater than 1
-                            fileevent $state(sd) readable \
-                                [list ::smtp::readable $token]
-                            return [initialize_ehlo $token]
-                        }
+                }
+                if {[info exists state(auth)] && $state(auth)} {
+                    if {$state(auth) == 1} {
+                        break
+                    } else {
+                        # After successful AUTH we are supposed to redo
+                        # our connection for mechanisms that setup a new
+                        # security layer -- these should set state(auth) 
+                        # greater than 1
+                        fileevent $state(sd) readable \
+                            [list ::smtp::readable $token]
+                        return [initialize_ehlo $token]
                     }
                 }
             }
@@ -813,64 +818,49 @@ proc ::smtp::initialize_ehlo {token} {
     return {}
 }
 
-# ::smtp::auth_LOGIN --
-#
-#	Perform LOGIN authentication to the SMTP server.
-#
-# Results:
-#	Negiotiates user authentication. If successful returns the result
-#       otherwise an error is thrown
-
-proc ::smtp::auth_LOGIN {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+proc ::smtp::SASLCallback {token context command args} {
+    upvar #0 $token state
+    upvar #0 $context ctx
     array set options $state(options)
-    
-    package require base64
-    set user [base64::encode $options(-username)]
-    set pass [base64::encode $options(-password)]
-
-    set state(auth) 0
-    set result [smtp::talk $token 300 "AUTH LOGIN"]
-    array set response $result
-
-    if {$response(code) == 334} {
-        set result [smtp::talk $token 300 $user]
-        array set response $result
-    }
-    if {$response(code) == 334} {
-        set result [smtp::talk $token 300 $pass]
-        array set response $result
-    }
-    if {$response(code) == 235} {
-        set state(auth) 1
-        return $result
-    } else {
-        return -code 7 $result
+    switch -exact -- $command {
+        login    { return "" }
+        username { return $options(-username) }
+        password { return $options(-password) }
+        hostname { return [info host] }
+        realm    { 
+            if {[string equal $ctx(mech) "NTLM"] \
+                    && [info exists ::env(USERDOMAIN)]} {
+                return $::env(USERDOMAIN)
+            } else {
+                return ""
+            }
+        }
+        default  { 
+            return -code error "error: unsupported SASL information requested"
+        }
     }
 }
 
-# ::smtp::auth_PLAIN
-#
-# 	Implement PLAIN SASL mechanism (RFC2595).
-#
-# Results:
-#	Negiotiates user authentication. If successful returns the result
-#       otherwise an error is thrown
-
-proc ::smtp::auth_PLAIN {token} {
-    # FRINK: nocheck
-    variable $token
+proc ::smtp::Authenticate {token mechanism} {
     upvar 0 $token state
-    array set options $state(options)
-    
     package require base64
-    set id [base64::encode "\x00$options(-username)\x00$options(-password)"]
+    set ctx [SASL::new -mechanism $mechanism \
+                 -callback [list [namespace origin SASLCallback] $token]]
 
     set state(auth) 0
-    set result [smtp::talk $token 300 "AUTH PLAIN $id"]
+    set result [smtp::talk $token 300 "AUTH $mechanism"]
     array set response $result
+
+    while {$response(code) == 334} {
+        # The NTLM initial response is not base64 encoded so handle it.
+        if {[catch {base64::decode $response(diagnostic)} challenge]} {
+            set challenge $response(diagnostic)
+        }
+        SASL::step $ctx $challenge
+        set result [smtp::talk $token 300 \
+                        [base64::encode -maxlen 0 [SASL::response $ctx]]]
+        array set response $result
+    }
     
     if {$response(code) == 235} {
         set state(auth) 1
@@ -878,165 +868,6 @@ proc ::smtp::auth_PLAIN {token} {
     } else {
         return -code 7 $result
     }
-}
-
-# ::smtp::auth_CRAM-MD5
-#
-# 	Implement CRAM-MD5 SASL mechanism (RFC2195).
-#
-# Results:
-#	Negiotiates user authentication. If successful returns the result
-#       otherwise an error is thrown
-
-proc ::smtp::auth_CRAM-MD5 {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
-    array set options $state(options)
-    
-    package require base64
-    md5_init
-
-    set state(auth) 0
-    set result [smtp::talk $token 300 "AUTH CRAM-MD5"]
-    array set response $result
-
-    if {$response(code) == 334} {
-        set challenge [base64::decode $response(diagnostic)]
-        set reply [hmac_hex $options(-password) $challenge]
-        # bug 1242629: qmail doesn't like multi-line response.
-        set reply [base64::encode -maxlen 0 \
-                       "$options(-username) [string tolower $reply]"]
-        set result [smtp::talk $token 300 $reply]
-        array set response $result
-    }
-
-    if {$response(code) == 235} {
-        set state(auth) 1
-        return $result
-    } else {
-        return -code 7 $result
-    }
-}
-
-# ::smtp::auth_DIGEST-MD5
-#
-# 	Implement DIGEST-MD5 SASL mechanism (RFC2831).
-#
-# Results:
-#	Negiotiates user authentication. If successful returns the result
-#       otherwise an error is thrown
-
-proc ::smtp::auth_DIGEST-MD5 {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
-    array set options $state(options)
-    
-    package require base64
-    md5_init
-
-    set state(auth) 0
-    set result [smtp::talk $token 300 "AUTH DIGEST-MD5"]
-    array set response $result
-
-    if {$response(code) == 334} {
-        set challenge [base64::decode $response(diagnostic)]
-        
-        # RFC 2831 2.1
-        # Char categories as per spec...
-        # Build up a regexp for splitting the challenge into key value pairs.
-        set sep "\\\]\\\[\\\\()<>@,;:\\\"\\\?=\\\{\\\} \t"
-        set tok {0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\-\|\~\!\#\$\%\&\*\+\.\^\_\`}
-        set sqot {(?:\'(?:\\.|[^\'\\])*\')}
-        set dqot {(?:\"(?:\\.|[^\"\\])*\")}
-        array set params [regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 }]
-
-        if {![info exists options(noncecount)]} {set options(noncecount) 0}
-        set nonce $params(nonce)
-        set cnonce [CreateNonce]
-        set noncecount [format %08u [incr options(noncecount)]]
-        set qop auth
-        # If realm not specified - use the servers fqdn
-        if {[info exists params(realm)]} {
-            set realm $params(realm)
-        } else {
-            set realm [lindex [fconfigure $state(sd) -peername] 1]
-        }
-        set uri "smtp/$realm"
-
-        set A1 [md5_bin "$options(-username):$realm:$options(-password)"]
-        set A2 "AUTHENTICATE:$uri"
-        if {![string equal $qop "auth"]} {
-            append A2 :[string repeat 0 32]
-        }
-        
-        set A1h [md5_hex "${A1}:$nonce:$cnonce"]
-        set A2h [md5_hex $A2]
-        set R  [md5_hex $A1h:$nonce:$noncecount:$cnonce:$qop:$A2h]
-
-        set reply "username=\"$options(-username)\",realm=\"$realm\",nonce=\"$nonce\",nc=\"$noncecount\",cnonce=\"$cnonce\",digest-uri=\"$uri\",response=\"$R\",qop=$qop"
-        if {$options(-debug)} {
-            puts stderr "<*- $challenge"
-            puts stderr "-*> $reply"
-            flush stderr
-        }
-
-        # The server will provide a base64 encoded string for use with
-        # subsequest authentication now. At this time we dont use this value.
-        set result [smtp::talk $token 300 [join [base64::encode $reply] {}]]
-        array set response $result
-        if {$response(code) == 334} {
-            #set authresp [base64::decode $response(diagnostic)]
-            #if {$options(-debug)} { puts stderr "-*> $authresp" }
-            set result [smtp::talk $token 300 {}]
-            array set response $result
-        }
-    }
-
-    if {$response(code) == 235} {
-        set state(auth) 1
-        return $result
-    } else {
-        return -code 7 $result
-    }
-}
-
-proc ::smtp::md5_init {} {
-    # Deal with either version of md5. We'd like version 2 but someone
-    # may have already loaded version 1.
-    set md5major [lindex [split [package require md5] .] 0]
-    if {$md5major < 2} {
-        # md5 v1, no options, and returns a hex string ready for
-        # us.
-        proc ::smtp::md5_hex {data} { return [::md5::md5 $data] }
-        proc ::smtp::md5_bin {data} { return [binary format H* [::md5::md5 $data]] }
-        proc ::smtp::hmac_hex {pass data} { return [::md5::hmac $pass $data] }
-    } else {
-        # md5 v2 requires -hex to return hash as hex-encoded
-        # non-binary string.
-        proc ::smtp::md5_hex {data} { return [string tolower [::md5::md5 -hex $data]] }
-        proc ::smtp::md5_bin {data} { return [::md5::md5 $data] }
-        proc ::smtp::hmac_hex {pass data} { return [::md5::hmac -hex -key $pass $data] }
-    }
-}
-
-# Get 16 random bytes for a nonce value. If we can use /dev/random, do so
-# otherwise we hash some values.
-#
-proc ::smtp::CreateNonce {} {
-    set bytes {}
-    if {[file readable /dev/random]} {
-        catch {
-            set f [open /dev/random r]
-            fconfigure $f -translation binary -buffering none
-            set bytes [read $f 16]
-        }
-    }
-    if {[string length $bytes] < 1} {
-        set bytes [md5_bin [clock seconds]:[pid]:[expr {rand()}]]
-    }
-    return [binary scan $bytes h* r; set r]
 }
 
 # ::smtp::finalize --
@@ -1648,3 +1479,12 @@ proc ::smtp::boolean {value} {
         }
     }
 }
+
+# -------------------------------------------------------------------------
+
+package provide smtp $::smtp::version
+
+# -------------------------------------------------------------------------
+# Local variables:
+# indent-tabs-mode: nil
+# End:
