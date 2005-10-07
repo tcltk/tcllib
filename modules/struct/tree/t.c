@@ -340,8 +340,14 @@ t_deserialize (T* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	    ASSERT_BOUNDS (ATTR(i),   listc);
 	    ASSERT_BOUNDS (j,	      nodes);
 
-	    if (j == root)
+	    if (j == root) {
+		/* We don't append the node, this has already been covered,
+		 * but we have to process the attributes.
+		 */
+
+		tn_set_attr (nv [j], interp, listv [ATTR(i)]);
 		continue;
+	    }
 
 	    ASSERT_BOUNDS (parent[j], nodes);
 
