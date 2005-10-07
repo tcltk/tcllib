@@ -1,13 +1,18 @@
-2005-10-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
-
-	* smtp.tcl: Use the SASL module for authentication. Checked this
-	against sendmail+cyrussasl and Microsoft SMTPd (for NTLM).
-
-2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+2005-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
 	* 
+
+2005-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Synchronized version numbers to the 
+	* smtp.man:    implementation.
+
+2005-10-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl: Use the SASL module for authentication. Checked this
+	  against sendmail+cyrussasl and Microsoft SMTPd (for NTLM).
 
 2005-10-04  Andreas Kupries <andreask@activestate.com>
 
