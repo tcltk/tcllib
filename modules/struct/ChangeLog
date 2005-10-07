@@ -1,8 +1,13 @@
-2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+2005-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
 	* 
+
+2005-10-07  Andreas Kupries <andreask@activestate.com>
+
+	* tree/t.c (t_deserialize): Fixed bug which caused us to drop the
+	  attributes of the new root node when setting up the new tree.
 
 2005-10-06  Andreas Kupries <andreask@activestate.com>
 
