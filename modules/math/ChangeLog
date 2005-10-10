@@ -1,3 +1,7 @@
+2005-10-10  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * fixed one bug regarding cov in misc.tcl
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

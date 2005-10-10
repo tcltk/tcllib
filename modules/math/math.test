@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.15 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.16 2005/10/10 14:02:47 arjenmarkus Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -176,6 +176,12 @@ test math-7.5 {math::cov with negative numbers} {
 test math-7.6 {math::cov with floating point numbers} {
     string range [ math::cov 100 110 100 100.0 ] 0 0
 } 4
+test math-7.7 {math::cov with zero mean} {
+    # Throw an error
+    catch { 
+       math::cov 1 1 -2
+    } msg
+} 1
 
 test math-8.1 {math::stats, wrong num of args} {
      catch { math::stats } msg
