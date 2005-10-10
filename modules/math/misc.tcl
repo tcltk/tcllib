@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: misc.tcl,v 1.5 2004/07/05 03:39:47 kennykb Exp $
+# RCS: @(#) $Id: misc.tcl,v 1.6 2005/10/10 14:02:47 arjenmarkus Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 namespace eval ::math {
@@ -38,7 +38,11 @@ proc ::math::cov {val1 val2 args} {
      }
      set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
      set sigma [ expr { sqrt($sigma_sq) } ]
-     set cov [ expr { ($sigma/$mean)*100 } ]
+     if { $mean != 0.0 } { 
+        set cov [ expr { ($sigma/$mean)*100 } ]
+     } else {
+        return -code error -errorinfo "Cov undefined for data with zero mean" -errorcode {ARITH DOMAIN}
+     }
      set cov
 }
 
