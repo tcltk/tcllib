@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerUtils.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -58,7 +58,7 @@ namespace eval ::logger::utils {
 }
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -132,7 +132,7 @@ proc ::logger::utils::createFormatCmd {text args} {
     regsub -all -- \
 	{%d} \
 	$text \
-	{[clock format [clock seconds] -format {%G/%m/%d %H:%M:%S}]} \
+	{[clock format [clock seconds] -format {%Y/%m/%d %H:%M:%S}]} \
 	text
 
     if {[info exist opt(-category)]} {
@@ -163,7 +163,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -289,7 +289,7 @@ proc ::logger::utils::createLogProc {args} {
 	regsub -all -- \
 	    {%d} \
 	    $text \
-	    {[clock format [clock seconds] -format {%G/%m/%d %H:%M:%S}]} \
+	    {[clock format [clock seconds] -format {%Y/%m/%d %H:%M:%S}]} \
 	    text
 
     }
@@ -311,7 +311,7 @@ proc ::logger::utils::createLogProc {args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -449,7 +449,7 @@ proc ::logger::utils::applyAppender {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
