@@ -1,3 +1,8 @@
+2005-10-11  Pat Thoyts <patthoyts@users.sourceforge.net>
+
+	* loggerUtils.tcl: Avoid use of %G in time formats. (not
+	                   widely supported in C libraries)
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
