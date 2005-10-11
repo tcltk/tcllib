@@ -1,3 +1,8 @@
+2005-10-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* ntlm.tcl: bug #1323295 - NTLM requires little endian unicode
+	strings. Fixed generation on big-endian systems (eg: sparc).
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
