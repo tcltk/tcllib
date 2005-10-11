@@ -22,7 +22,7 @@ package require md4;                    # tcllib 1.4
 namespace eval ::SASL {
     namespace eval NTLM {
         variable version 1.0.0
-        variable rcsid {$Id: ntlm.tcl,v 1.5 2005/10/05 15:22:10 patthoyts Exp $}
+        variable rcsid {$Id: ntlm.tcl,v 1.6 2005/10/11 19:50:37 patthoyts Exp $}
     }
 }
 
@@ -106,9 +106,9 @@ proc ::SASL::NTLM::CreateResponse {domainname hostname username passwd nonce} {
     set lm_resp [LMhash $passwd $nonce]
     set nt_resp [NThash $passwd $nonce]
 
-    set domain [encoding convertto unicode [string toupper $domainname]]
-    set host   [encoding convertto unicode [string toupper $hostname]]
-    set user   [encoding convertto unicode $username]
+    set domain [to_unicode_le [string toupper $domainname]]
+    set host   [to_unicode_le [string toupper $hostname]]
+    set user   [to_unicode_le $username]
 
     set l_len [string length $lm_resp]; # LM response length
     set n_len [string length $nt_resp]; # NT response length
@@ -163,7 +163,7 @@ proc ::SASL::NTLM::Decode {msg} {
         2 {
             binary scan $msg @12ssiia8a8 dlen dlen2 doff flags nonce pad
             set domain {}; binary scan $msg @${doff}a${dlen} domain
-            set domain [encoding convertfrom unicode $domain]
+            set domain [from_unicode_le $domain]
             binary scan $nonce H* nonce_h
             binary scan $pad   H* pad_h
             #puts stderr "NTLM($type) [decodeflags $flags]\n \
@@ -179,9 +179,9 @@ proc ::SASL::NTLM::Decode {msg} {
             set domain {}; binary scan $msg @${doff}a${dlen} domain
             set user {};   binary scan $msg @${uoff}a${ulen} user
             set host {};   binary scan $msg @${hoff}a${hlen} host
-            set domain [encoding convertfrom unicode $domain]
-            set user   [encoding convertfrom unicode $user]
-            set host   [encoding convertfrom unicode $host]
+            set domain [from_unicode_le $domain]
+            set user   [from_unicode_le $user]
+            set host   [from_unicode_le $host]
             binary scan $msg @${ntoff}a${ntlen} ntdata
             binary scan $msg @${lmoff}a${lmlen} lmdata
             binary scan $ntdata H* ntdata_h
@@ -213,6 +213,33 @@ proc ::SASL::NTLM::decodeflags {value} {
     return $r
 }
 
+# Convert a string to unicode in little endian byte order.
+proc ::SASL::NTLM::to_unicode_le {str} {
+    set result [encoding convertto unicode $str]
+    if {[string equal $::tcl_platform(byteOrder) "bigEndian"]} {
+        set r {} ; set n 0
+        while {[binary scan $result @${n}cc a b] == 2} {
+            append r [binary format cc $b $a]
+            incr n 2
+        }
+        set result $r
+    }
+    return $result
+}
+
+# Convert a little-endian unicode string to utf-8.
+proc ::SASL::NTLM::from_unicode_le {str} {
+    if {[string equal $::tcl_platform(byteOrder) "bigEndian"]} {
+        set r {} ; set n 0
+        while {[binary scan $str @${n}cc a b] == 2} {
+            append r [binary format cc $b $a]
+            incr n 2
+        }
+        set str $r
+    }
+    return [encoding convertfrom unicode $str]
+}
+
 proc ::SASL::NTLM::LMhash {password nonce} {
     set magic "\x4b\x47\x53\x21\x40\x23\x24\x25"
     set hash ""
@@ -231,7 +258,7 @@ proc ::SASL::NTLM::LMhash {password nonce} {
 }
 
 proc ::SASL::NTLM::NThash {password nonce} {
-    set pass [encoding convertto unicode $password]
+    set pass [to_unicode_le $password]
     set hash [md4::md4 $pass]
     append hash [string repeat \x00 5]
 
