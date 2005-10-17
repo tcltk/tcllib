@@ -16,13 +16,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.15 2005/10/16 23:04:19 patthoyts Exp $
+# $Id: md5x.tcl,v 1.16 2005/10/17 19:39:52 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
     variable version 2.0.4
-    variable rcsid {$Id: md5x.tcl,v 1.15 2005/10/16 23:04:19 patthoyts Exp $}
+    variable rcsid {$Id: md5x.tcl,v 1.16 2005/10/17 19:39:52 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
@@ -400,7 +400,7 @@ proc ::md5::<<< {v n} {
                       & 0xFFFFFFFF}]
 }
 
-# Convert our <<< pseuodo-operator into a procedure call.
+# Convert our <<< pseudo-operator into a procedure call.
 regsub -all -line \
     {\[expr {(\$[ABCD]) \+ \(\((.*)\)\s+<<<\s+(\d+)\)}\]} \
     $::md5::MD5Hash_body \
