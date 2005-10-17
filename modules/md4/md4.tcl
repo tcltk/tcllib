@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.16 2005/02/24 03:25:49 patthoyts Exp $
+# $Id: md4.tcl,v 1.17 2005/10/17 19:39:52 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
 
 namespace eval ::md4 {
     variable version 1.0.3
-    variable rcsid {$Id: md4.tcl,v 1.16 2005/02/24 03:25:49 patthoyts Exp $}
+    variable rcsid {$Id: md4.tcl,v 1.17 2005/10/17 19:39:52 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0}
 
@@ -304,7 +304,7 @@ proc ::md4::<<< {v n} {
                       & 0xFFFFFFFF}]
 }
 
-# Convert our <<< pseuodo-operator into a procedure call.
+# Convert our <<< pseudo-operator into a procedure call.
 regsub -all -line \
     {\[expr {(.*) <<< (\d+)}\]} \
     $::md4::MD4Hash_body \

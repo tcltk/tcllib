@@ -113,7 +113,7 @@
 	* Released and tagged Tcllib 1.6 ========================
 	* 
 
-2004-02-01  Johannes-Heinrich Vogeler <vogeler@sourceforge.net>
+2004-02-01  Johannes-Heinrich Vogeler <vogeler@users.sourceforge.net>
 
         * fixed bug 860753 (plain justification does not work with
           hyphenation). Modified ::textutil::adjust::Justification
@@ -214,7 +214,7 @@
         * textutil.tcl: Changed patchlevel in provide to match the
           ifneeded in pkgIndex.tcl.
 
-2002-08-11  vogeler <vogeler@users.sourceforge.net>
+2002-08-11  Johannes-Heinrich Vogeler <vogeler@users.sourceforge.net>
 
         * adjust.tcl: added hyphenation (TeX). Hyphenation has been
           tested  for german, english, italian and spanish

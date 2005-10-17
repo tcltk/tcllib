@@ -23,14 +23,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ripemd128.tcl,v 1.8 2005/02/24 03:25:50 patthoyts Exp $
+# $Id: ripemd128.tcl,v 1.9 2005/10/17 19:39:52 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::ripemd {
     namespace eval ripemd128 {
         variable version 1.0.3
-        variable rcsid {$Id: ripemd128.tcl,v 1.8 2005/02/24 03:25:50 patthoyts Exp $}
+        variable rcsid {$Id: ripemd128.tcl,v 1.9 2005/10/17 19:39:52 andreas_kupries Exp $}
         variable accel
         array set accel {trf 0}
 
@@ -449,7 +449,7 @@ proc ::ripemd::ripemd128::<<< {v n} {
                       & 0xFFFFFFFF}]
 }
 
-# Convert our <<< pseuodo-operator into a procedure call.
+# Convert our <<< pseudo-operator into a procedure call.
 regsub -all -line \
     {\[expr {(.*) <<< (\d+)}\]} \
     $::ripemd::ripemd128::RIPEMD128Hash_body \
