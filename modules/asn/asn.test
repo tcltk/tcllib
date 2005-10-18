@@ -5,7 +5,13 @@
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.5 2005/02/15 17:50:21 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.6 2005/10/18 23:21:42 andreas_kupries Exp $
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    puts "    Aborting tests for math::bignum."
+    puts "    Requiring Tcl 8.4, have [package present Tcl]"
+    return
+}
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
