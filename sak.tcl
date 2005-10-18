@@ -1500,16 +1500,18 @@ proc __help {} {
 	                   the timing command, but more structured
 	                   input and output.
 
-	        Options: -throwerrors 0|1
-	                 -match   pattern
-	                 -rmatch  pattern
-	                 -iters   integer
-	                 -threads integer
-	                 -o       path
-	                 -norm    column
-	                 -format  text|csv|raw
-	                 -verbose
-	                 -debug
+                Options: -throwerrors 0|1  Propagate errors if set.
+                         -match   pattern  Exclude benchmarks not matching the
+                                           glob pattern.
+                         -rmatch  pattern  S.a, but a regexp pattern.
+                         -iters   integer  Max #iterations for all benchmarks.
+                         -threads integer  #Threads to use for threaded shells.
+                         -o       path     File to write the results too.
+                         -format  text|csv|raw Format to use for the results.
+                         -norm    column   Normalize results using the specified
+                                           column as reference.
+                         -verbose          Informational output during the run.
+                         -debug            Internal output during the run.
 
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
@@ -1518,46 +1520,46 @@ proc __help {} {
                                   problems. For all modules if none
                                   specified.
 
-	test ?module...?        - Run testsuite for listed modules.
-	                          For all modules if none specified.
+        test ?module...?        - Run testsuite for listed modules.
+                                  For all modules if none specified.
 
         docstrip/users             - List modules using docstrip
         docstrip/regen ?module...? - Regenerate the sources of all
                                      or the listed modules from their
                                      docstrip sources.
 
-	/Documentation
-	/===========================================================
+        /Documentation
+        /===========================================================
 
-	nroff ?module...?    - Generate manpages
-	html  ?module...?    - Generate HTML pages
-	tmml  ?module...?    - Generate TMML
-	text  ?module...?    - Generate plain text
-	list  ?module...?    - Generate a list of manpages
-	wiki  ?module...?    - Generate wiki markup
-	latex ?module...?    - Generate LaTeX pages
-	dvi   ?module...?    - See latex, + conversion to dvi
-	ps    ?module...?    - See dvi,   + conversion to PostScript
+        nroff ?module...?    - Generate manpages
+        html  ?module...?    - Generate HTML pages
+        tmml  ?module...?    - Generate TMML
+        text  ?module...?    - Generate plain text
+        list  ?module...?    - Generate a list of manpages
+        wiki  ?module...?    - Generate wiki markup
+        latex ?module...?    - Generate LaTeX pages
+        dvi   ?module...?    - See latex, + conversion to dvi
+        ps    ?module...?    - See dvi,   + conversion to PostScript
 
-	desc  ?module...?    - Module/Package descriptions
-	desc/2 ?module...?   - Module/Package descriptions, alternate format.
+        desc  ?module...?    - Module/Package descriptions
+        desc/2 ?module...?   - Module/Package descriptions, alternate format.
 
-	/Release engineering
-	/===========================================================
+        /Release engineering
+        /===========================================================
 
-	gendist  - Generate distribution from CVS snapshot
+        gendist  - Generate distribution from CVS snapshot
 
-	rpmspec  - Generate a RPM spec file for the bundle.
+        rpmspec  - Generate a RPM spec file for the bundle.
         gentip55 - Generate a TIP55-style DESCRIPTION.txt file.
         yml      - Generate a YAML description file.
 
-	release name sf-user-id
-	         - Marks the current state of all files as a new
-	           release. This updates all ChangeLog's, and
-	           regenerates the contents of PACKAGES
+        release name sf-user-id
+                 - Marks the current state of all files as a new
+                   release. This updates all ChangeLog's, and
+                   regenerates the contents of PACKAGES
 
-	rstatus  - Determines the status of the code base with regard
-	           to the last release.
+        rstatus  - Determines the status of the code base with regard
+                   to the last release.
     }]
 }
 
