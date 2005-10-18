@@ -1,3 +1,9 @@
+2005-10-18  Andreas Kupries <andreask@activestate.com>
+
+	* base64.bench:   Basic benchmarks for base64, uuencode,
+	* uuencode.bench: and yencode. Encode/decode of strings
+	* yencode.bench:  only.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
