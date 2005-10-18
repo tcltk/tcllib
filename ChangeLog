@@ -1,3 +1,11 @@
+2005-10-18  Andreas Kupries <andreask@activestate.com>
+
+	* sak.tcl: More benchmarking functionality, showing benchmark data
+	  after the fact, implicit merging, and changing interp
+	  information around. Now we need only some functionality to show
+	  the data graphically, and possibly compute statistical
+	  information.
+
 2005-10-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: New module "bench". Benchmarking support
