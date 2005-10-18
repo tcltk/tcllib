@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.1 2005/10/18 05:23:37 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.2 2005/10/18 20:20:47 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -335,6 +335,53 @@ proc ::bench::norm {data col} {
     foreach key [array names DATA *,$refip] {
 	if {![string is double -strict $DATA($key)]} continue
 	set DATA($key) 1
+    }
+
+    return [array get DATA]
+}
+
+# ::bench::edit --
+#
+#	Change the 'path' of an interp to a user-defined value.
+#
+# Arguments:
+#	Data to edit
+#	Index of column to change
+#	The value replacing the current path
+#
+# Results:
+#	The changed data set.
+
+proc ::bench::edit {data col new} {
+
+    if {![string is integer -strict $col]} {
+	return -code error "Ref.column: Expected integer, but got \"$col\""
+    }
+    if {$col < 1} {
+	return -code error "Ref.column out of bounds"
+    }
+
+    array set DATA $data
+    set ipkeys [array names DATA interp:*]
+
+    if {$col > [llength $ipkeys]} {
+	return -code error "Ref.column out of bounds"
+    }
+    incr col -1
+    set refip [lindex [split [lindex [lsort -dict $ipkeys] $col] :] 1]
+
+    if {[string equal $new $refip]} {
+	# No change, quick return
+	return $data
+    }
+
+    set DATA(interp:$new) $DATA(interp:$refip)
+    unset                  DATA(interp:$refip)
+
+    foreach key [array names DATA *,$refip] {
+	foreach {desc ip} [split $key ,] break
+	set DATA($desc,$new) $DATA($key)
+	unset                 DATA($key)
     }
 
     return [array get DATA]
