@@ -61,6 +61,14 @@ foreach {len k c} [list \
     } -post {
 	aes::Final $key
     }
+
+    bench -desc "AES-${len} ECB keyschedule" -body {
+	aes::Final [aes::Init ecb $k $i]
+    }
+
+    bench -desc "AES-${len} CBC keyschedule" -body {
+	aes::Final [aes::Init cbc $k $i]
+    }
 }
 
 # ### ### ### ######### ######### ######### ###########################
