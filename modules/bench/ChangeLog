@@ -1,3 +1,13 @@
+2005-10-18  Andreas Kupries <andreask@activestate.com>
+
+	* bench_read.tcl: New file. Command and package to read benchmark
+	  data in the text, csv, or raw formats.
+
+	* bench.tcl (::bench::edit): New command. Changes specified
+	  interpreter path to user specified value. Needed if we wish to
+	  merge data coming from the same interpreter, for different
+	  revisions of the package under test.
+
 2005-10-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Package derived from the original code added to Tcllib.
