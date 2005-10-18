@@ -1,3 +1,7 @@
+2005-10-18  Andreas Kupries <andreask@activestate.com>
+
+	* blowfish.bench: Extended with benchmarks for the keyschedule.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

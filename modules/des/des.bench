@@ -33,15 +33,15 @@ set c [binary format H* ED39D950FA74BCC4ED39D950FA74BCC4]
 # ### ### ### ######### ######### ######### ###########################
 ## Benchmarks.
 
-bench -desc "DES ECB encryption" -body {
+bench -desc "DES 1des ECB encryption" -body {
     DES::des -mode ecb -dir enc -key $k -iv $i $p
 }
 
-bench -desc "DES ECB decryption" -body {
+bench -desc "DES 1des ECB decryption" -body {
     DES::des -mode ecb -dir dec -key $k -iv $i $c
 }
 
-bench -desc "DES ECB encryption core" -pre {
+bench -desc "DES 1des ECB encryption core" -pre {
     set key [DES::Init ecb $k $i]
 } -body {
     DES::Encrypt $key $p
@@ -49,12 +49,20 @@ bench -desc "DES ECB encryption core" -pre {
     DES::Final $key
 }
 
-bench -desc "DES ECB decryption core" -pre {
+bench -desc "DES 1des ECB decryption core" -pre {
     set key [DES::Init ecb $k $i]
 } -body {
     DES::Decrypt $key $c
 } -post {
     DES::Final $key
+}
+
+bench -desc "DES 1des ECB keyschedule" -body {
+    DES::Final [DES::Init ecb $k $i]
+}
+
+bench -desc "DES 1des CBC keyschedule" -body {
+    DES::Final [DES::Init cbc $k $i]
 }
 
 if {[llength [package provide tclDES]] != 0} {
@@ -82,6 +90,14 @@ if {[llength [package provide tclDES]] != 0} {
 	DES::Decrypt $key $c
     } -post {
 	DES::Final $key
+    }
+
+    bench -desc "DES 3des ECB keyschedule" -body {
+	DES::Final [DES::Init ecb $k $i]
+    }
+
+    bench -desc "DES 3des CBC keyschedule" -body {
+	DES::Final [DES::Init cbc $k $i]
     }
 }
 
