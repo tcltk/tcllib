@@ -935,6 +935,68 @@ proc validate_testsuite_mod {m} {
     return
 }
 
+proc bench_mod {mlist paths flags norm format verbose output} {
+    global distribution env tcl_platform
+
+    getpackage logger logger/logger.tcl
+    getpackage bench  bench/bench.tcl
+
+    ::logger::setlevel $verbose
+
+    if {![llength $paths]} {
+	set paths [split $env(PATH) \
+		[expr {($tcl_platform(platform) == "windows") ? ";" : ":"}]]
+    }
+
+    set interps [bench::versions \
+	    [bench::locate tclsh* $paths]]
+
+    if {![llength $interps]} {
+	puts "No interpreters found"
+	return
+    }
+
+    if {[llength $flags]} {
+	set cmd [linsert $flags 0 bench::run]
+    } else {
+	set cmd [list bench::run]
+    }
+
+    array set DATA {}
+
+    foreach m $mlist {
+	set files [glob -nocomplain [file join $distribution modules $m *.bench]]
+	if {![llength $files]} {
+	    bench::log::info "No benchmark files found for module \"$m\""
+	    continue
+	}
+
+	set run $cmd
+	lappend run $interps $files
+	array set DATA [eval $run]
+    }
+
+    set data [array get DATA]
+    if {$norm != {}} {
+	set data [bench::norm $data $norm]
+    }
+    set data [bench::out::$format $data]
+
+    if {$output == {}} {
+	puts $data
+    } else {
+	set    output [open $output w]
+	puts  $output $data
+	close $output
+    }
+    return
+}
+
+proc bench_all {flags norm format verbose output} {
+    bench_mod [modules] $flags $norm $format $verbose $output
+    return
+}
+
 proc validate_testsuites {} {
     foreach m [modules] {
 	validate_testsuite_mod $m
@@ -1433,6 +1495,22 @@ proc __help {} {
 
         timing ?module?  - Run timing scripts (*.timing).
 
+        bench ?opt? ?module..?
+	                 - Run benchmark scripts (*.bench). Similar to
+	                   the timing command, but more structured
+	                   input and output.
+
+	        Options: -throwerrors 0|1
+	                 -match   pattern
+	                 -rmatch  pattern
+	                 -iters   integer
+	                 -threads integer
+	                 -o       path
+	                 -norm    column
+	                 -format  text|csv|raw
+	                 -verbose
+	                 -debug
+
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
@@ -1894,6 +1972,102 @@ proc _timing_all {} {
             puts ""
         }
     }
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc __bench {} {
+    global argv
+
+    # I. Process command line arguments for the
+    #    benchmark commands - Validation, possible
+    #    translation ...
+
+    set flags   {}
+    set norm    {}
+    set format  text
+    set verbose critical
+    set output  {}
+    set paths   {}
+
+    while {[string match -* [set option [lindex $argv 0]]]} {
+	set val [lindex $argv 1]
+        switch -exact -- $option {
+	    -throwerrors {lappend flags -errors $val}
+	    -match -
+	    -rmatch -
+	    -iters -
+	    -threads {lappend flags $option $val}
+	    -o       {set output $val}
+	    -norm    {set norm $val}
+	    -path    {lappend paths $val}
+	    -format  {
+		switch -exact -- $val {
+		    raw - csv - text {}
+		    default {
+			return -error "Bad format \"$val\", expected text, csv, or raw"
+		    }
+		}
+		set format $val
+	    }
+	    -verbose {
+		set verbose info
+		set argv [lrange $argv 1 end]
+		continue
+	    }
+	    -debug {
+		set verbose debug
+		set argv [lrange $argv 1 end]
+		continue
+	    }
+            -- {
+		set argv [lrange $argv 1 end]
+		break
+	    }
+            default { break }
+        }
+        set argv [lrange $argv 2 end]
+    }
+
+    switch -exact -- $format {
+	raw {}
+	csv {
+	    getpackage csv             csv/csv.tcl
+	    getpackage bench::out::csv bench/bench_wcsv.tcl
+	}
+	text {
+	    getpackage report           report/report.tcl
+	    getpackage struct::matrix   struct/matrix.tcl
+	    getpackage bench::out::text bench/bench_wtext.tcl
+	}
+    }
+
+    # Choose between benchmarking everything, or
+    # only selected modules.
+
+    if {[llength $argv] == 0} {
+	_bench_all $paths $flags $norm $format $verbose $output
+    } else {
+	if {![checkmod]} {return}
+	_bench_module $argv $paths $flags $norm $format $verbose $output
+    }
+    return
+}
+
+proc _bench_module {mlist paths flags norm format verbose output} {
+    global package_name package_version
+
+    puts "Benchmarking $package_name $package_version development"
+    puts "======================================================"
+    bench_mod $mlist $paths $flags $norm $format $verbose $output
+    puts "------------------------------------------------------"
+    puts ""
+    return
+}
+
+proc _bench_all {paths flags norm format verbose output} {
+    _bench_module [modules] $paths $flags $norm $format $verbose $output
     return
 }
 
