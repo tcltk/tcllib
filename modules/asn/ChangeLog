@@ -1,3 +1,10 @@
+2005-10-18  Andreas Kupries <andreask@activestate.com>
+
+	* asn.test:     Package requires 8.4, this was not caught
+	* pkgIndex.tcl: properly in index, nor in testsuite.
+
+	* asn.bench: New file, benchmarks, only basics for now.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
