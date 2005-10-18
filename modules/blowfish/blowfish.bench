@@ -53,6 +53,14 @@ bench -desc "BLOWFISH ECB decryption core" -pre {
     blowfish::Final $key
 }
 
+bench -desc "BLOWFISH ECB keyschedule" -body {
+    blowfish::Final [blowfish::Init ecb $k $i]
+}
+
+bench -desc "BLOWFISH CBC keyschedule" -body {
+    blowfish::Final [blowfish::Init cbc $k $i]
+}
+
 
 # ### ### ### ######### ######### ######### ###########################
 ## Complete
