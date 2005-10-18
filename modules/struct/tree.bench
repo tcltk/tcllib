@@ -6,10 +6,16 @@
 #
 # (c) 2003 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
-package require  struct
-namespace import struct::*
+return
 
-bench -desc "tree create" -body {set t [tree]} -post {$t destroy}
+package require  struct::tree
+namespace import struct::tree
+
+bench -desc "tree create" -body {
+    set t [tree]
+} -post {
+    $t destroy
+}
 
 proc foo {} {proc foo {} {$::t destroy}}
 bench -desc "tree destroy 0" -pre {set t [tree]} -body {foo} -iter 1
