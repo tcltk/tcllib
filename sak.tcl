@@ -986,6 +986,7 @@ proc bench_mod {mlist paths flags norm format verbose output} {
 	puts $data
     } else {
 	set    output [open $output w]
+	puts  $output "# -*- tcl -*- bench/$format"
 	puts  $output $data
 	close $output
     }
