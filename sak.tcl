@@ -976,10 +976,24 @@ proc bench_mod {mlist paths flags norm format verbose output} {
 	array set DATA [eval $run]
     }
 
-    set data [array get DATA]
+    _bench_write $output [array get DATA] $norm $format
+    return
+}
+
+proc bench_all {flags norm format verbose output} {
+    bench_mod [modules] $flags $norm $format $verbose $output
+    return
+}
+
+
+proc _bench_write {output data norm format} {
     if {$norm != {}} {
+	getpackage logger logger/logger.tcl
+	getpackage bench  bench/bench.tcl
+
 	set data [bench::norm $data $norm]
     }
+
     set data [bench::out::$format $data]
 
     if {$output == {}} {
@@ -990,12 +1004,6 @@ proc bench_mod {mlist paths flags norm format verbose output} {
 	puts  $output $data
 	close $output
     }
-    return
-}
-
-proc bench_all {flags norm format verbose output} {
-    bench_mod [modules] $flags $norm $format $verbose $output
-    return
 }
 
 proc validate_testsuites {} {
@@ -1514,6 +1522,22 @@ proc __help {} {
                          -verbose          Informational output during the run.
                          -debug            Internal output during the run.
 
+	bench/show ?-o path? ?-format f? ?-norm col? file...
+
+                         Reads the files, merges the data, then
+                         writes the result back in the specified
+                         format, to the specified file, possibly
+                         normalizing to a column. Without a file
+                         the result is written to stdout.
+
+	bench/edit ?-o path? ?-format f? file col newvalue
+
+	                 Reads the file, changes the interpreter
+	                 path in the column to a new value. For
+	                 merging of data from the same interpreter,
+	                 but possibly different versions of the
+	                 benchmarked package, like Tcllib.
+
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
@@ -1979,6 +2003,118 @@ proc _timing_all {} {
 }
 
 # -------------------------------------------------------------------------
+
+proc __bench/edit {} {
+    global argv argv0
+
+    set format text
+    set output {}
+
+    while {[string match -* [set option [lindex $argv 0]]]} {
+	set val [lindex $argv 1]
+        switch -exact -- $option {
+	    -format {
+		switch -exact -- $val {
+		    raw - csv - text {}
+		    default {
+			return -error "Bad format \"$val\", expected text, csv, or raw"
+		    }
+		}
+		set format $val
+	    }
+	    -o    {set output $val}
+            -- {
+		set argv [lrange $argv 1 end]
+		break
+	    }
+            default { break }
+        }
+        set argv [lrange $argv 2 end]
+    }
+
+    switch -exact -- $format {
+	raw {}
+	csv {
+	    getpackage csv             csv/csv.tcl
+	    getpackage bench::out::csv bench/bench_wcsv.tcl
+	}
+	text {
+	    getpackage report           report/report.tcl
+	    getpackage struct::matrix   struct/matrix.tcl
+	    getpackage bench::out::text bench/bench_wtext.tcl
+	}
+    }
+
+    getpackage bench::in bench/bench_read.tcl
+    getpackage bench     bench/bench.tcl
+
+    if {[llength $argv] != 3} {
+	puts "Usage: $argv0 benchdata column newvalue"
+    }
+
+    foreach {in col new} $argv break
+    array set DATA [bench::in::read $in]
+
+    _bench_write $output \
+	[bench::edit [array get DATA] $col $new] \
+	{} $format
+    return
+}
+
+proc __bench/show {} {
+    global argv
+
+    set format text
+    set output {}
+    set norm   {}
+
+    while {[string match -* [set option [lindex $argv 0]]]} {
+	set val [lindex $argv 1]
+        switch -exact -- $option {
+	    -format {
+		switch -exact -- $val {
+		    raw - csv - text {}
+		    default {
+			return -error "Bad format \"$val\", expected text, csv, or raw"
+		    }
+		}
+		set format $val
+	    }
+	    -o    {set output $val}
+	    -norm {set norm $val}
+            -- {
+		set argv [lrange $argv 1 end]
+		break
+	    }
+            default { break }
+        }
+        set argv [lrange $argv 2 end]
+    }
+
+    switch -exact -- $format {
+	raw {}
+	csv {
+	    getpackage csv             csv/csv.tcl
+	    getpackage bench::out::csv bench/bench_wcsv.tcl
+	}
+	text {
+	    getpackage report           report/report.tcl
+	    getpackage struct::matrix   struct/matrix.tcl
+	    getpackage bench::out::text bench/bench_wtext.tcl
+	}
+    }
+
+    getpackage bench::in bench/bench_read.tcl
+
+    array set DATA {}
+
+    foreach path $argv {
+	array set DATA [bench::in::read $path]
+    }
+
+    _bench_write $output [array get DATA] $norm $format
+    return
+}
 
 proc __bench {} {
     global argv
