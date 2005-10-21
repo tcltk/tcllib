@@ -1,3 +1,10 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* interpolate.test: Reduced requirement for struct down to
+	* interpolate.tcl:  struct::matrix, as that is the only structure
+	  used by this package. This means that we are loading 272 KB less
+	  (344 KB - 72 KB). Also fixed the testsuite header code.
+
 2005-10-10  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * fixed one bug regarding cov in misc.tcl
