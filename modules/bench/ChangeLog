@@ -1,3 +1,8 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* bench.tcl (::bench::del): New command. Removal of a column from
+	  benchmark data.
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* bench_read.tcl: New file. Command and package to read benchmark

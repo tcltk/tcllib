@@ -935,7 +935,7 @@ proc validate_testsuite_mod {m} {
     return
 }
 
-proc bench_mod {mlist paths flags norm format verbose output} {
+proc bench_mod {mlist paths interp flags norm format verbose output} {
     global distribution env tcl_platform
 
     getpackage logger logger/logger.tcl
@@ -943,13 +943,17 @@ proc bench_mod {mlist paths flags norm format verbose output} {
 
     ::logger::setlevel $verbose
 
-    if {![llength $paths]} {
+    set pattern tclsh*
+    if {$interp != {}} {
+	set pattern [file tail $interp]
+	set paths [list [file dirname $interp]]
+    } elseif {![llength $paths]} {
 	set paths [split $env(PATH) \
 		[expr {($tcl_platform(platform) == "windows") ? ";" : ":"}]]
     }
 
     set interps [bench::versions \
-	    [bench::locate tclsh* $paths]]
+	    [bench::locate $pattern $paths]]
 
     if {![llength $interps]} {
 	puts "No interpreters found"
@@ -1538,6 +1542,12 @@ proc __help {} {
 	                 but possibly different versions of the
 	                 benchmarked package, like Tcllib.
 
+	bench/del ?-o path? ?-format f? file col...
+
+	                 Reads the file and removes the specified
+                         columns. To delete unnecessary data in merged
+                         results.
+
         validate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
@@ -2053,11 +2063,72 @@ proc __bench/edit {} {
     }
 
     foreach {in col new} $argv break
-    array set DATA [bench::in::read $in]
 
     _bench_write $output \
-	[bench::edit [array get DATA] $col $new] \
+	[bench::edit \
+	     [bench::in::read $in] \
+	     $col $new] \
 	{} $format
+    return
+}
+
+proc __bench/del {} {
+    global argv argv0
+
+    set format text
+    set output {}
+
+    while {[string match -* [set option [lindex $argv 0]]]} {
+	set val [lindex $argv 1]
+        switch -exact -- $option {
+	    -format {
+		switch -exact -- $val {
+		    raw - csv - text {}
+		    default {
+			return -error "Bad format \"$val\", expected text, csv, or raw"
+		    }
+		}
+		set format $val
+	    }
+	    -o    {set output $val}
+            -- {
+		set argv [lrange $argv 1 end]
+		break
+	    }
+            default { break }
+        }
+        set argv [lrange $argv 2 end]
+    }
+
+    switch -exact -- $format {
+	raw {}
+	csv {
+	    getpackage csv             csv/csv.tcl
+	    getpackage bench::out::csv bench/bench_wcsv.tcl
+	}
+	text {
+	    getpackage report           report/report.tcl
+	    getpackage struct::matrix   struct/matrix.tcl
+	    getpackage bench::out::text bench/bench_wtext.tcl
+	}
+    }
+
+    getpackage bench::in bench/bench_read.tcl
+    getpackage bench     bench/bench.tcl
+
+    if {[llength $argv] < 2} {
+	puts "Usage: $argv0 benchdata column..."
+    }
+
+    set in [lindex $argv 0]
+
+    set data [bench::in::read $in]
+
+    foreach c [lrange $argv 1 end] {
+	set data [bench::del $data $c]
+    }
+
+    _bench_write $output $data {} $format
     return
 }
 
@@ -2129,6 +2200,7 @@ proc __bench {} {
     set verbose critical
     set output  {}
     set paths   {}
+    set interp  {}
 
     while {[string match -* [set option [lindex $argv 0]]]} {
 	set val [lindex $argv 1]
@@ -2141,6 +2213,7 @@ proc __bench {} {
 	    -o       {set output $val}
 	    -norm    {set norm $val}
 	    -path    {lappend paths $val}
+	    -interp  {set interp $val}
 	    -format  {
 		switch -exact -- $val {
 		    raw - csv - text {}
@@ -2186,27 +2259,27 @@ proc __bench {} {
     # only selected modules.
 
     if {[llength $argv] == 0} {
-	_bench_all $paths $flags $norm $format $verbose $output
+	_bench_all $paths $interp $flags $norm $format $verbose $output
     } else {
 	if {![checkmod]} {return}
-	_bench_module $argv $paths $flags $norm $format $verbose $output
+	_bench_module $argv $paths $interp $flags $norm $format $verbose $output
     }
     return
 }
 
-proc _bench_module {mlist paths flags norm format verbose output} {
+proc _bench_module {mlist paths interp flags norm format verbose output} {
     global package_name package_version
 
     puts "Benchmarking $package_name $package_version development"
     puts "======================================================"
-    bench_mod $mlist $paths $flags $norm $format $verbose $output
+    bench_mod $mlist $paths $interp $flags $norm $format $verbose $output
     puts "------------------------------------------------------"
     puts ""
     return
 }
 
-proc _bench_all {paths flags norm format verbose output} {
-    _bench_module [modules] $paths $flags $norm $format $verbose $output
+proc _bench_all {paths flags interp norm format verbose output} {
+    _bench_module [modules] $paths $interp $flags $norm $format $verbose $output
     return
 }
 
