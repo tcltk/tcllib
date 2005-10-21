@@ -1,3 +1,23 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Moved the selection of the implementation out of
+	  the package declaration into the runtime.
+
+	* treeql.tcl: Renamed to treeql85.tcl. Also a new file containing
+	  the selection of the implementation, basic dependency, and
+	  commong provide command.
+
+	* treeql85.tcl: New file. Was originally named
+	  'treeql.tcl'. Contains the Tcl 8.5 specific implementation of
+	  the package.
+
+	* treeql.test: Expanded to use all implementations of struct::tree
+	  which are available.
+
+	* treeql.testsuite: New file, now contains tests which depend on
+	  the implementation of struct::tree. For this package these are
+	  all.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
