@@ -1,3 +1,9 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* sak.tcl: Extended benchmark facility. New command for removal of
+	  columns from results. New option to explicitly specify a single
+	  interpreter to use.
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* sak.tcl: More benchmarking functionality, showing benchmark data
