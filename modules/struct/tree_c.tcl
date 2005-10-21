@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree_c.tcl,v 1.2 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree_c.tcl,v 1.3 2005/10/21 23:13:42 andreas_kupries Exp $
 
 package require critcl
 package require Tcl 8.2
@@ -167,7 +167,7 @@ namespace eval ::struct {
         case T_ASSIGN:
         case T_AS:
         case T_IS:
-          if (ms_assign (interp, td, src) != TCL_OK) {
+          if (tms_assign (interp, td, src) != TCL_OK) {
             t_delete (td);
             Tcl_DecrRefCount (fqn);
             return TCL_ERROR;
@@ -187,7 +187,7 @@ namespace eval ::struct {
       }
 
       td->cmd = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-                                      ms_objcmd, (ClientData) td,
+                                      tms_objcmd, (ClientData) td,
                                       TDdeleteCmd);
 
       Tcl_SetObjResult (interp, fqn);
