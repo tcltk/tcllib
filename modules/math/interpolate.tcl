@@ -24,12 +24,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: interpolate.tcl,v 1.7 2005/10/06 05:16:37 andreas_kupries Exp $
+# RCS: @(#) $Id: interpolate.tcl,v 1.8 2005/10/21 20:11:21 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
 package require Tcl 8.4
-package require struct
+package require struct::matrix
 
 # ::math::interpolate --
 #   Namespace holding the procedures and variables
