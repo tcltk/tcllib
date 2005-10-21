@@ -14,7 +14,6 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
 } else {
     # Ensure that 2.1 or higher present.
-
     if {![package vsatisfies [package present tcltest] 2.1]} {
 	puts "    Aborting tests for math::interpolate."
 	puts "    Requiring tcltest 2.1, have [package present tcltest]"
@@ -22,11 +21,33 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     }
 }
 
-source [file join [file dirname [info script]] math.tcl]
-source [file join [file dirname [info script]] interpolate.tcl]
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
 
-package require math
-package require struct
+package forget math::interpolate
+package forget struct::matrix
+
+catch {namespace delete ::math::interpolate}
+catch {namespace delete ::struct::matrix}
+
+set moddir  [file dirname [file dirname [file join [pwd] [info script]]]]
+
+if {[catch {source [file join $moddir struct matrix.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
+    return
+}
+if {[catch {source [file join $moddir math interpolate.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
+    return
+}
+
+package require struct::matrix
+package require math::interpolate
+
+puts "- math::interpolate [package present math::interpolate]"
+puts "  - struct::matrix  [package present struct::matrix]"
+
+# -------------------------------------------------------------------------
 
 #
 # Minimisation via steepest-descent
@@ -50,6 +71,8 @@ proc matchNumbers {expected actual} {
 }
 
 customMatch numbers matchNumbers
+
+# -------------------------------------------------------------------------
 
 #
 # Test cases: interpolation in tables
@@ -327,7 +350,7 @@ test "cubic-splines-2.5" "X too large" \
 
 
 
-
+# -------------------------------------------------------------------------
 ::tcltest::cleanupTests
 
 # Local Variables:
