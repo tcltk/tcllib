@@ -2,7 +2,7 @@
 #
 # Provide a set of tests to excercise the urn-scheme package.
 #
-# @(#)$Id: urn.test,v 1.5 2004/08/03 09:25:10 patthoyts Exp $
+# @(#)$Id: urn.test,v 1.6 2005/10/21 20:15:46 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Initialise the test package
@@ -38,7 +38,8 @@ if {[catch {source [file join [file dirname [info script]] urn-scheme.tcl]} msg]
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-package require struct
+package require uri
+package require uri::urn
 puts "- uri::urn [package present uri::urn]"
 puts "- uri [package present uri]"
 
