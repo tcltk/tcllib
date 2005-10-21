@@ -5,10 +5,10 @@
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.6 2005/10/18 23:21:42 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.7 2005/10/21 20:12:48 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "    Aborting tests for math::bignum."
+    puts "    Aborting tests for asn."
     puts "    Requiring Tcl 8.4, have [package present Tcl]"
     return
 }
@@ -29,7 +29,7 @@ if {[catch {source [file join [file dirname [info script]] asn.tcl]} msg]} {
     return
 }
 
-package require struct
+package require asn
 puts "- asn [package present asn]"
 
 # -------------------------------------------------------------------------

@@ -1,3 +1,7 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* asn.test: Fixed typos, new and old.
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* asn.test:     Package requires 8.4, this was not caught
