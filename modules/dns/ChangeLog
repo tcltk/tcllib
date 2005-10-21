@@ -1,3 +1,8 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* ipMore.tcl: Style cleanup. We need only one $Id expansion at
+	  the top of the file, not for every command in it.
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* ipMore.tcl (::ip::maskToInt): Fixed [SF Tcllib Bug 1323146],
