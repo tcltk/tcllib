@@ -4,7 +4,7 @@
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: bee.test,v 1.5 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: bee.test,v 1.6 2005/10/21 20:12:48 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for bee."
@@ -27,7 +27,7 @@ if {[catch {source [file join [file dirname [info script]] bee.tcl]} msg]} {
     return
 }
 
-package require struct
+package require bee
 puts "- bee [package present bee]"
 
 # encoder ............................................................
