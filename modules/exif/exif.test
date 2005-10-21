@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: exif.test,v 1.1 2004/09/29 22:17:53 andreas_kupries Exp $
+# RCS: @(#) $Id: exif.test,v 1.2 2005/10/21 20:12:48 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -26,7 +26,7 @@ if {[catch {source [file join [file dirname [info script]] exif.tcl]} msg]} {
     return
 }
 
-package require struct
+package require exif
 puts "- exif [package present exif]"
 
 namespace import ::exif::exif

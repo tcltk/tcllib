@@ -1,3 +1,7 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* bee.test: Fixed typo.
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* bee.bench: New file, benchmarks, only basics for now.
