@@ -14,7 +14,7 @@
 /*
  *---------------------------------------------------------------------------
  *
- * ms_getchildren --
+ * tms_getchildren --
  *
  *	Retrieval of the children for a node, either only direct children or
  *	all, possibly filtering.
@@ -29,9 +29,9 @@
  */
 
 int
-ms_getchildren (TN* n, int all,
-		int cmdc, Tcl_Obj** cmdv,
-		Tcl_Obj* tree, Tcl_Interp* interp)
+tms_getchildren (TN* n, int all,
+		 int cmdc, Tcl_Obj** cmdv,
+		 Tcl_Obj* tree, Tcl_Interp* interp)
 {
     int	      res;
     int	      listc = 0;
@@ -69,7 +69,7 @@ ms_getchildren (TN* n, int all,
 /*
  *---------------------------------------------------------------------------
  *
- * ms_assign --
+ * tms_assign --
  *
  *	Copies the argument tree over into this one. Uses direct
  *	access to internal data structures for matching tree objects, and
@@ -85,7 +85,7 @@ ms_getchildren (TN* n, int all,
  */
 
 int
-ms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
+tms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
 {
     Tcl_CmdInfo srcCmd;
 
@@ -97,7 +97,7 @@ ms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
 	return TCL_ERROR;
     }
 
-    if (srcCmd.objProc == ms_objcmd) {
+    if (srcCmd.objProc == tms_objcmd) {
 	/* The source tree object is managed by this code also. We can
 	 * retrieve and copy the data directly.
 	 */
@@ -150,7 +150,7 @@ ms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
 /*
  *---------------------------------------------------------------------------
  *
- * ms_set --
+ * tms_set --
  *
  *	Copies this tree over into the argument tree. Uses direct access to
  *	internal data structures for matching tree objects, and goes through a
@@ -166,7 +166,7 @@ ms_assign (Tcl_Interp* interp, T* t, Tcl_Obj* srccmd)
  */
 
 int
-ms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
+tms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
 {
     Tcl_CmdInfo dstCmd;
 
@@ -178,7 +178,7 @@ ms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
 	return TCL_ERROR;
     }
 
-    if (dstCmd.objProc == ms_objcmd) {
+    if (dstCmd.objProc == tms_objcmd) {
 	/* The destination tree object is managed by this code also We can
 	 * retrieve and copy the data directly.
 	 */
@@ -199,7 +199,7 @@ ms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
 
 	/* Phase 1: Obtain our serialization */
 
-	ser = ms_serialize (t->root);
+	ser = tms_serialize (t->root);
 
 	/* Phase 2: Copy into destination by invoking its deserialization
 	 * method
@@ -231,7 +231,7 @@ ms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
 /*
  *---------------------------------------------------------------------------
  *
- * ms_serialize --
+ * tms_serialize --
  *
  *	Generates Tcl value from tree, serialized tree data.
  *
@@ -245,7 +245,7 @@ ms_set (Tcl_Interp* interp, T* t, Tcl_Obj* dstcmd)
  */
 
 Tcl_Obj*
-ms_serialize (TN* n)
+tms_serialize (TN* n)
 {
     Tcl_Obj*  ser;
     int	      end;
@@ -273,7 +273,7 @@ ms_serialize (TN* n)
 /*
  *---------------------------------------------------------------------------
  *
- * ms_objcmd --
+ * tms_objcmd --
  *
  *	Implementation of tree objects, the main dispatcher function.
  *
@@ -287,31 +287,31 @@ ms_serialize (TN* n)
  */
 
 int
-ms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    T*  t = (T*) cd;
+    T*	t = (T*) cd;
     int m;
 
     static CONST char* methods [] = {
-	"-->",         "=",           "ancestors", "append",   "attr",
-	"children",    "cut",         "delete",    "depth",    "descendants",
-	"deserialize", "destroy",     "exists",    "get",      "getall",
-	"height",      "index",       "insert",    "isleaf",   "keyexists",
-	"keys",        "lappend",     "leaves",    "move",     "next",
-	"nodes",       "numchildren", "parent",    "previous", "rename",
-	"rootname",    "serialize",   "set",       "size",     "splice",
-	"swap",        "unset",       "walk",      "walkproc",
+	"-->",	       "=",	      "ancestors", "append",   "attr",
+	"children",    "cut",	      "delete",	   "depth",    "descendants",
+	"deserialize", "destroy",     "exists",	   "get",      "getall",
+	"height",      "index",	      "insert",	   "isleaf",   "keyexists",
+	"keys",	       "lappend",     "leaves",	   "move",     "next",
+	"nodes",       "numchildren", "parent",	   "previous", "rename",
+	"rootname",    "serialize",   "set",	   "size",     "splice",
+	"swap",	       "unset",	      "walk",	   "walkproc",
 	NULL
     };
     enum methods {
-	M_TSET,        M_TASSIGN,     M_ANCESTORS, M_APPEND,   M_ATTR,
-	M_CHILDREN,    M_CUT,         M_DELETE,    M_DEPTH,    M_DESCENDANTS,
-	M_DESERIALIZE, M_DESTROY,     M_EXISTS,    M_GET,      M_GETALL,
-	M_HEIGHT,      M_INDEX,       M_INSERT,    M_ISLEAF,   M_KEYEXISTS,
-	M_KEYS,        M_LAPPEND,     M_LEAVES,    M_MOVE,     M_NEXT,
-	M_NODES,       M_NUMCHILDREN, M_PARENT,    M_PREVIOUS, M_RENAME,
-	M_ROOTNAME,    M_SERIALIZE,   M_SET,       M_SIZE,     M_SPLICE,
-	M_SWAP,        M_UNSET,       M_WALK,      M_WALKPROC
+	M_TSET,	       M_TASSIGN,     M_ANCESTORS, M_APPEND,   M_ATTR,
+	M_CHILDREN,    M_CUT,	      M_DELETE,	   M_DEPTH,    M_DESCENDANTS,
+	M_DESERIALIZE, M_DESTROY,     M_EXISTS,	   M_GET,      M_GETALL,
+	M_HEIGHT,      M_INDEX,	      M_INSERT,	   M_ISLEAF,   M_KEYEXISTS,
+	M_KEYS,	       M_LAPPEND,     M_LEAVES,	   M_MOVE,     M_NEXT,
+	M_NODES,       M_NUMCHILDREN, M_PARENT,	   M_PREVIOUS, M_RENAME,
+	M_ROOTNAME,    M_SERIALIZE,   M_SET,	   M_SIZE,     M_SPLICE,
+	M_SWAP,	       M_UNSET,	      M_WALK,	   M_WALKPROC
     };
 
     if (objc < 2) {
@@ -327,45 +327,45 @@ ms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      */
 
     switch (m) {
-    case M_TASSIGN:	return m_TASSIGN     (t, interp, objc, objv);
-    case M_TSET:	return m_TSET	     (t, interp, objc, objv);
-    case M_ANCESTORS:	return m_ANCESTORS   (t, interp, objc, objv);
-    case M_APPEND:	return m_APPEND	     (t, interp, objc, objv);
-    case M_ATTR:	return m_ATTR	     (t, interp, objc, objv);
-    case M_CHILDREN:	return m_CHILDREN    (t, interp, objc, objv);
-    case M_CUT:		return m_CUT	     (t, interp, objc, objv);
-    case M_DELETE:	return m_DELETE	     (t, interp, objc, objv);
-    case M_DEPTH:	return m_DEPTH	     (t, interp, objc, objv);
-    case M_DESCENDANTS: return m_DESCENDANTS (t, interp, objc, objv);
-    case M_DESERIALIZE: return m_DESERIALIZE (t, interp, objc, objv);
-    case M_DESTROY:	return m_DESTROY     (t, interp, objc, objv);
-    case M_EXISTS:	return m_EXISTS	     (t, interp, objc, objv);
-    case M_GET:		return m_GET	     (t, interp, objc, objv);
-    case M_GETALL:	return m_GETALL	     (t, interp, objc, objv);
-    case M_HEIGHT:	return m_HEIGHT	     (t, interp, objc, objv);
-    case M_INDEX:	return m_INDEX	     (t, interp, objc, objv);
-    case M_INSERT:	return m_INSERT	     (t, interp, objc, objv);
-    case M_ISLEAF:	return m_ISLEAF	     (t, interp, objc, objv);
-    case M_KEYEXISTS:	return m_KEYEXISTS   (t, interp, objc, objv);
-    case M_KEYS:	return m_KEYS	     (t, interp, objc, objv);
-    case M_LAPPEND:	return m_LAPPEND     (t, interp, objc, objv);
-    case M_LEAVES:	return m_LEAVES	     (t, interp, objc, objv);
-    case M_MOVE:	return m_MOVE	     (t, interp, objc, objv);
-    case M_NEXT:	return m_NEXT	     (t, interp, objc, objv);
-    case M_NODES:	return m_NODES	     (t, interp, objc, objv);
-    case M_NUMCHILDREN: return m_NUMCHILDREN (t, interp, objc, objv);
-    case M_PARENT:	return m_PARENT	     (t, interp, objc, objv);
-    case M_PREVIOUS:	return m_PREVIOUS    (t, interp, objc, objv);
-    case M_RENAME:	return m_RENAME	     (t, interp, objc, objv);
-    case M_ROOTNAME:	return m_ROOTNAME    (t, interp, objc, objv);
-    case M_SERIALIZE:	return m_SERIALIZE   (t, interp, objc, objv);
-    case M_SET:		return m_SET	     (t, interp, objc, objv);
-    case M_SIZE:	return m_SIZE	     (t, interp, objc, objv);
-    case M_SPLICE:	return m_SPLICE	     (t, interp, objc, objv);
-    case M_SWAP:	return m_SWAP	     (t, interp, objc, objv);
-    case M_UNSET:	return m_UNSET	     (t, interp, objc, objv);
-    case M_WALK:	return m_WALK	     (t, interp, objc, objv);
-    case M_WALKPROC:	return m_WALKPROC    (t, interp, objc, objv);
+    case M_TASSIGN:	return tm_TASSIGN     (t, interp, objc, objv);
+    case M_TSET:	return tm_TSET	      (t, interp, objc, objv);
+    case M_ANCESTORS:	return tm_ANCESTORS   (t, interp, objc, objv);
+    case M_APPEND:	return tm_APPEND      (t, interp, objc, objv);
+    case M_ATTR:	return tm_ATTR	      (t, interp, objc, objv);
+    case M_CHILDREN:	return tm_CHILDREN    (t, interp, objc, objv);
+    case M_CUT:		return tm_CUT	      (t, interp, objc, objv);
+    case M_DELETE:	return tm_DELETE      (t, interp, objc, objv);
+    case M_DEPTH:	return tm_DEPTH	      (t, interp, objc, objv);
+    case M_DESCENDANTS: return tm_DESCENDANTS (t, interp, objc, objv);
+    case M_DESERIALIZE: return tm_DESERIALIZE (t, interp, objc, objv);
+    case M_DESTROY:	return tm_DESTROY     (t, interp, objc, objv);
+    case M_EXISTS:	return tm_EXISTS      (t, interp, objc, objv);
+    case M_GET:		return tm_GET	      (t, interp, objc, objv);
+    case M_GETALL:	return tm_GETALL      (t, interp, objc, objv);
+    case M_HEIGHT:	return tm_HEIGHT      (t, interp, objc, objv);
+    case M_INDEX:	return tm_INDEX	      (t, interp, objc, objv);
+    case M_INSERT:	return tm_INSERT      (t, interp, objc, objv);
+    case M_ISLEAF:	return tm_ISLEAF      (t, interp, objc, objv);
+    case M_KEYEXISTS:	return tm_KEYEXISTS   (t, interp, objc, objv);
+    case M_KEYS:	return tm_KEYS	      (t, interp, objc, objv);
+    case M_LAPPEND:	return tm_LAPPEND     (t, interp, objc, objv);
+    case M_LEAVES:	return tm_LEAVES      (t, interp, objc, objv);
+    case M_MOVE:	return tm_MOVE	      (t, interp, objc, objv);
+    case M_NEXT:	return tm_NEXT	      (t, interp, objc, objv);
+    case M_NODES:	return tm_NODES	      (t, interp, objc, objv);
+    case M_NUMCHILDREN: return tm_NUMCHILDREN (t, interp, objc, objv);
+    case M_PARENT:	return tm_PARENT      (t, interp, objc, objv);
+    case M_PREVIOUS:	return tm_PREVIOUS    (t, interp, objc, objv);
+    case M_RENAME:	return tm_RENAME      (t, interp, objc, objv);
+    case M_ROOTNAME:	return tm_ROOTNAME    (t, interp, objc, objv);
+    case M_SERIALIZE:	return tm_SERIALIZE   (t, interp, objc, objv);
+    case M_SET:		return tm_SET	      (t, interp, objc, objv);
+    case M_SIZE:	return tm_SIZE	      (t, interp, objc, objv);
+    case M_SPLICE:	return tm_SPLICE      (t, interp, objc, objv);
+    case M_SWAP:	return tm_SWAP	      (t, interp, objc, objv);
+    case M_UNSET:	return tm_UNSET	      (t, interp, objc, objv);
+    case M_WALK:	return tm_WALK	      (t, interp, objc, objv);
+    case M_WALKPROC:	return tm_WALKPROC    (t, interp, objc, objv);
     }
     /* Not coming to this place */
 }
