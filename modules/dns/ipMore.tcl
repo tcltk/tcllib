@@ -1,9 +1,9 @@
 #temporary home until this gets cleaned up for export to tcllib ip module
+# $Id: ipMore.tcl,v 1.3 2005/10/21 19:31:09 andreas_kupries Exp $
 
 
 ##Library Header
 #
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -100,7 +100,6 @@ interp alias {} ::ip::IpHostFromPrefix    {} ::ip::ipHostFromPrefix
 
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -151,7 +150,6 @@ proc ip::prefixToNativeTcl {prefix} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -227,7 +225,6 @@ proc ::ip::nativeToPrefix {nativeList args} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -279,7 +276,6 @@ proc ::ip::intToString {int args} {
 
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -320,7 +316,6 @@ proc ::ip::toInteger {ip} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -361,7 +356,6 @@ proc ::ip::toHex {ip} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -408,7 +402,6 @@ proc ::ip::maskToInt {mask} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -475,7 +468,6 @@ proc ::ip::broadcastAddress {prefix args} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -560,7 +552,6 @@ proc ::ip::maskToLength {mask args} {
 
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -611,7 +602,6 @@ proc ::ip::lengthToMask {masklen args} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -673,7 +663,6 @@ proc ::ip::nextNet {prefix mask args} {
 
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -734,7 +723,6 @@ proc ::ip::isOverlap {ip args} {
 #optimized overlap, that accepts native format
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -831,7 +819,6 @@ proc ::ip::isOverlapNativeTcl {args} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -873,7 +860,6 @@ proc ::ip::ipToLayer2Multicast { ipaddr } {
 
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -1000,7 +986,6 @@ proc ::ip::ipHostFromPrefix { prefix args } {
 
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -1077,7 +1062,6 @@ proc ::ip::reduceToAggregates { prefixList } {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
@@ -1150,7 +1134,6 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
 }
 
 ##Procedure Header
-# $Id: ipMore.tcl,v 1.2 2005/10/18 17:51:56 andreas_kupries Exp $
 # Copyright (c) 2004 Cisco Systems, Inc.
 #
 # Name:
