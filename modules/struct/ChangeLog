@@ -1,3 +1,14 @@
+2005-10-21  Andreas Kupries <andreask@activestate.com>
+
+	* tree.bench: Made this benchmark suite operational. Incomplete,
+	  but already giving good results.
+
+	* tree_c.tcl: Gave the method functions and their support a
+	* tree/m.c:   better prefixes (m_ -> tm_, ms_ -> tms_), to
+	* tree/m.h:   make them more unique, tree specific. This is
+	* tree/ms.c:  needed to avoid conflicts with future critcl
+	* tree/ms.h:  code for graph and other structures.
+
 2005-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

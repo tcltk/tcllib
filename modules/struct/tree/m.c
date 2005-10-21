@@ -23,7 +23,7 @@ static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
 /*
  *---------------------------------------------------------------------------
  *
- * m_TASSIGN --
+ * tm_TASSIGN --
  *
  *	Copies the argument tree over into this tree object. Uses direct
  *	access to internal data structures for matching tree objects, and
@@ -39,7 +39,7 @@ static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
  */
 
 int
-m_TASSIGN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_TASSIGN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree =	source
      *	       [0]  [1] [2]
@@ -50,13 +50,13 @@ m_TASSIGN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    return ms_assign (interp, t, objv [2]);
+    return tms_assign (interp, t, objv [2]);
 }
 
 /*
  *---------------------------------------------------------------------------
  *
- * m_TSET --
+ * tm_TSET --
  *
  *	Copies this tree over into the argument tree. Uses direct access to
  *	internal data structures for matching tree objects, and goes through a
@@ -72,7 +72,7 @@ m_TASSIGN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_TSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_TSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree --> dest(ination)
      *	       [0]  [1] [2]
@@ -83,13 +83,13 @@ m_TSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    return ms_set (interp, t, objv [2]);
+    return tms_set (interp, t, objv [2]);
 }
 
 /*
  *---------------------------------------------------------------------------
  *
- * m_ANCESTORS --
+ * tm_ANCESTORS --
  *
  *	Returns a list containing the ancestors of the named node.
  *
@@ -103,7 +103,7 @@ m_TSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_ANCESTORS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_ANCESTORS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree ancestors node
      *	       [0]  [1]	      [2]
@@ -151,7 +151,7 @@ m_ANCESTORS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_APPEND --
+ * tm_APPEND --
  *
  *	Appends a value to an attribute of the named node.
  *	May create the attribute.
@@ -166,7 +166,7 @@ m_ANCESTORS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_APPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_APPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree append node key value
      *	       [0]  [1]	   [2]	[3] [4]
@@ -220,7 +220,7 @@ m_APPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_ATTR --
+ * tm_ATTR --
  *
  *	Returns a dictionary mapping from nodes to attribute values, for a
  *	named attribute.
@@ -235,7 +235,7 @@ m_APPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_ATTR (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_ATTR (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree attr key ?-query  queryarg?
      *       :		      -nodes  nodelist
@@ -458,7 +458,7 @@ m_ATTR (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_CHILDREN --
+ * tm_CHILDREN --
  *
  *	Returns a list of all direct or indirect descendants of the named
  *	node, possibly run through a Tcl command prefix for filtering.
@@ -474,7 +474,7 @@ m_ATTR (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_CHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_CHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree children ?-all? node ?filter cmdpfx?
      * 3       tree children  node
@@ -543,18 +543,18 @@ m_CHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    return ms_getchildren (tn, all,
-			   cmdc, cmdv,
-			   objv [0], interp);
+    return tms_getchildren (tn, all,
+			    cmdc, cmdv,
+			    objv [0], interp);
 }
 
 /*
  *---------------------------------------------------------------------------
  *
- * m_CUT --
+ * tm_CUT --
  *
  *	Deletes the named nodes, but not its children. They are put into the
- *	place where the deleted node was. Complementary to m_SPLICE.
+ *	place where the deleted node was. Complementary to tm_SPLICE.
  *
  * Results:
  *	A standard Tcl result code.
@@ -566,7 +566,7 @@ m_CHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_CUT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_CUT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree cut	  node
      *	       [0]  [1]	  [2]
@@ -603,7 +603,7 @@ m_CUT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_DELETE --
+ * tm_DELETE --
  *
  *	Deletes the named node and its children.
  *
@@ -617,7 +617,7 @@ m_CUT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_DELETE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_DELETE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree delete node
      *	       [0]  [1]	   [2]
@@ -651,7 +651,7 @@ m_DELETE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_DEPTH --
+ * tm_DEPTH --
  *
  *	Returns a non-negative integer number describing the distance between
  *	the named node and the root of the tree. A depth of 0 implies that
@@ -667,7 +667,7 @@ m_DELETE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_DEPTH (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_DEPTH (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree depth node
      *	       [0]  [1]	  [2]
@@ -693,7 +693,7 @@ m_DEPTH (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_DESCENDANTS --
+ * tm_DESCENDANTS --
  *
  *	Returns a list of all descendants of the named node, possibly run
  *	through a Tcl command prefix for filtering.
@@ -709,7 +709,7 @@ m_DEPTH (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_DESCENDANTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_DESCENDANTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree descendants node ?filter cmdprefix?
      *	       [0]  [1]		[2]  [3]     [4]
@@ -743,15 +743,15 @@ m_DESCENDANTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	return TCL_ERROR;
     }
 
-    return ms_getchildren (tn, 1 /* all */,
-			   cmdc, cmdv,
-			   objv [0], interp);
+    return tms_getchildren (tn, 1 /* all */,
+			    cmdc, cmdv,
+			    objv [0], interp);
 }
 
 /*
  *---------------------------------------------------------------------------
  *
- * m_DESERIALIZE --
+ * tm_DESERIALIZE --
  *
  *	Parses a Tcl value containing a serialized tree and copies it over
  *	he existing tree.
@@ -766,7 +766,7 @@ m_DESCENDANTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_DESERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_DESERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree deserialize serial
      *	       [0]  [1]		[2]
@@ -785,7 +785,7 @@ m_DESERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_DESTROY --
+ * tm_DESTROY --
  *
  *	Destroys the whole tree object.
  *
@@ -799,7 +799,7 @@ m_DESERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_DESTROY (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_DESTROY (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree destroy
      *	       [0]  [1]
@@ -817,7 +817,7 @@ m_DESTROY (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_EXISTS --
+ * tm_EXISTS --
  *
  *	Returns a boolean value signaling whether the named node exists in
  *	the tree. True implies existence, and false non-existence.
@@ -832,7 +832,7 @@ m_DESTROY (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_EXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_EXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree exists node
      *	       [0]  [1]	   [2]
@@ -855,7 +855,7 @@ m_EXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_GET --
+ * tm_GET --
  *
  *	Returns the value of the named attribute at the given node.
  *
@@ -869,7 +869,7 @@ m_EXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_GET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_GET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree get node key
      *	       [0]  [1] [2]  [3]
@@ -917,7 +917,7 @@ m_GET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_GETALL --
+ * tm_GETALL --
  *
  *	Returns a dictionary containing all attributes and their values of
  *	the specified node.
@@ -932,7 +932,7 @@ m_GET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_GETALL (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_GETALL (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree getall node ?pattern?
      *	       [0]  [1]	   [2]	[3]
@@ -1023,7 +1023,7 @@ m_GETALL (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_HEIGHT --
+ * tm_HEIGHT --
  *
  *	Returns a non-negative integer number describing the distance between
  *	the given node and its farthest child. A value of 0 implies that the
@@ -1039,7 +1039,7 @@ m_GETALL (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_HEIGHT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_HEIGHT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree height node
      *	       [0]  [1]	  [2]
@@ -1065,7 +1065,7 @@ m_HEIGHT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_INDEX --
+ * tm_INDEX --
  *
  *	Returns a non-negative integer number describing the location of the
  *	specified node within its parent's list of children. An index of 0
@@ -1081,7 +1081,7 @@ m_HEIGHT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_INDEX (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_INDEX (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree index node
      *	       [0]  [1]	  [2]
@@ -1112,7 +1112,7 @@ m_INDEX (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_INSERT --
+ * tm_INSERT --
  *
  *	Creates/inserts/moves a node to specific location in its (new) parent.
  *
@@ -1126,7 +1126,7 @@ m_INDEX (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_INSERT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_INSERT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree insert parent index ?name...?
      *	       [0]  [1]	  [2]	  [3]	[4+]
@@ -1235,7 +1235,7 @@ m_INSERT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_ISLEAF --
+ * tm_ISLEAF --
  *
  *	Returns a boolean value signaling whether the given node is a leaf or
  *	not. True implies that the node is a leaf.
@@ -1250,7 +1250,7 @@ m_INSERT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_ISLEAF (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_ISLEAF (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree isleaf node
      *	       [0]  [1]	  [2]
@@ -1276,7 +1276,7 @@ m_ISLEAF (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_KEYEXISTS --
+ * tm_KEYEXISTS --
  *
  *	Returns a boolean value signaling whether the given node has the
  *	named attribute or not. True implies that the attribute exists.
@@ -1291,7 +1291,7 @@ m_ISLEAF (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_KEYEXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_KEYEXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree keyexists node [key]
      *	       [0]  [1]	      [2]  [3]
@@ -1327,7 +1327,7 @@ m_KEYEXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_KEYS --
+ * tm_KEYS --
  *
  *	Returns a list containing all attribute names matching the pattern
  *	for the attributes of the specified node.
@@ -1342,7 +1342,7 @@ m_KEYEXISTS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_KEYS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_KEYS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree keys node ?pattern?
      *	       [0]  [1]	 [2]  [3]
@@ -1426,7 +1426,7 @@ m_KEYS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_LAPPEND --
+ * tm_LAPPEND --
  *
  *	Appends a value as list element to an attribute of the named node.
  *	May create the attribute.
@@ -1441,7 +1441,7 @@ m_KEYS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_LAPPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_LAPPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree lappend node key value
      *	       [0]  [1]	    [2]	 [3] [4]
@@ -1497,7 +1497,7 @@ m_LAPPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_LEAVES --
+ * tm_LEAVES --
  *
  *	Returns a list containing all leaf nodes of the tree.
  *
@@ -1511,7 +1511,7 @@ m_LAPPEND (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_LEAVES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_LEAVES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree leaves
      *	       [0]  [1]
@@ -1553,7 +1553,7 @@ m_LEAVES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_MOVE --
+ * tm_MOVE --
  *
  *	Moves the specified node to a (new) parent.
  *
@@ -1567,7 +1567,7 @@ m_LEAVES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_MOVE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_MOVE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree move parent index node ?node...?
      *	       [0]  [1]	 [2]	[3]   [4]   [5+]
@@ -1654,7 +1654,7 @@ m_MOVE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_NEXT --
+ * tm_NEXT --
  *
  *	Returns the name of node which is the right sibling of the given node.
  *	The empty string is delivered if the node has no right sibling.
@@ -1669,7 +1669,7 @@ m_MOVE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_NEXT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_NEXT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree next node
      *	       [0]  [1]	 [2]
@@ -1700,7 +1700,7 @@ m_NEXT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_NODES --
+ * tm_NODES --
  *
  *	Returns a list containing all nodes of the tree.
  *
@@ -1714,7 +1714,7 @@ m_NEXT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_NODES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_NODES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree nodes
      *	       [0]  [1]
@@ -1755,7 +1755,7 @@ m_NODES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_NUMCHILDREN --
+ * tm_NUMCHILDREN --
  *
  *	Returns a non-negative integer number, the number of direct children
  *	of the specified node. Zero children implies that the node is a leaf.
@@ -1770,7 +1770,7 @@ m_NODES (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_NUMCHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_NUMCHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree numchildren node
      *	       [0]  [1]	  [2]
@@ -1795,7 +1795,7 @@ m_NUMCHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_PARENT --
+ * tm_PARENT --
  *
  *	Returns the name of the parent node for the specified node. Delivers
  *	an empty string if the node is the root of the tree.
@@ -1810,7 +1810,7 @@ m_NUMCHILDREN (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_PARENT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_PARENT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree parent node
      *	       [0]  [1]	   [2]
@@ -1839,7 +1839,7 @@ m_PARENT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_PREVIOUS --
+ * tm_PREVIOUS --
  *
  *	Returns the name of node which is the left sibling of the given node.
  *	The empty string is delivered if the node has no left sibling.
@@ -1854,7 +1854,7 @@ m_PARENT (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_PREVIOUS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_PREVIOUS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree previous node
      *	       [0]  [1]	     [2]
@@ -1884,7 +1884,7 @@ m_PREVIOUS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_RENAME --
+ * tm_RENAME --
  *
  *	Gives the specified node a new name.
  *
@@ -1898,7 +1898,7 @@ m_PREVIOUS (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_RENAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_RENAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree rename node newname
      *	       [0]  [1]	   [2]	[3]
@@ -1956,7 +1956,7 @@ m_RENAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_ROOTNAME --
+ * tm_ROOTNAME --
  *
  *	Returns the name of the root node.
  *
@@ -1970,7 +1970,7 @@ m_RENAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_ROOTNAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_ROOTNAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree rootname
      *	       [0]  [1]
@@ -1990,7 +1990,7 @@ m_ROOTNAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_SERIALIZE --
+ * tm_SERIALIZE --
  *
  *	Returns a Tcl value serializing the tree from the optional named node
  *	on downward.
@@ -2005,7 +2005,7 @@ m_ROOTNAME (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_SERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_SERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree serialize ?node?
      *	       [0]  [1]	       [2]
@@ -2027,14 +2027,14 @@ m_SERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	}
     }
 
-    Tcl_SetObjResult (interp, ms_serialize (tn));
+    Tcl_SetObjResult (interp, tms_serialize (tn));
     return TCL_OK;
 }
 
 /*
  *---------------------------------------------------------------------------
  *
- * m_SET --
+ * tm_SET --
  *
  *	Adds an attribute and its value to a named node. May replace an
  *	existing value.
@@ -2049,7 +2049,7 @@ m_SERIALIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_SET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_SET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree set node key ?value?
      *	       [0]  [1] [2]  [3]  [4]
@@ -2060,7 +2060,7 @@ m_SET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     CONST char*	   key;
 
     if (objc == 4) {
-	return m_GET (t, interp, objc, objv);
+	return tm_GET (t, interp, objc, objv);
     }
     if (objc != 5) {
 	Tcl_WrongNumArgs (interp, 2, objv, "node key ?value?");
@@ -2095,7 +2095,7 @@ m_SET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_SIZE --
+ * tm_SIZE --
  *
  *	Returns the number of descendants of a named optional node. Defaults
  *	to #descendants of root.
@@ -2110,7 +2110,7 @@ m_SET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_SIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_SIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree size ?node?
      *	       [0]  [1]	  [2]
@@ -2147,10 +2147,10 @@ m_SIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_SPLICE --
+ * tm_SPLICE --
  *
  *	Replaces a series of nodes in a parent with o new node, and makes the
- *	replaced nodes the children of the new one. Complementary to m_CUT.
+ *	replaced nodes the children of the new one. Complementary to tm_CUT.
  *
  * Results:
  *	A standard Tcl result code.
@@ -2162,7 +2162,7 @@ m_SIZE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_SPLICE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_SPLICE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree splice parent from ?to ?node??
      *	       [0]  [1]	  [2]	  [3]  [4] [5]
@@ -2243,7 +2243,7 @@ m_SPLICE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_SWAP --
+ * tm_SWAP --
  *
  *	Swap the names of two nodes.
  *
@@ -2257,7 +2257,7 @@ m_SPLICE (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_SWAP (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_SWAP (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree swap a   b
      *	       [0]  [1]	 [2] [3]
@@ -2328,7 +2328,7 @@ m_SWAP (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_UNSET --
+ * tm_UNSET --
  *
  *	Removes an attribute and its value from a named node.
  *
@@ -2342,7 +2342,7 @@ m_SWAP (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_UNSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_UNSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: tree unset node key
      *	       [0]  [1]	  [2]  [3]
@@ -2378,7 +2378,7 @@ m_UNSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_WALK --
+ * tm_WALK --
  *
  *	Walks over the tree as per the options and invokes a Tcl script per
  *	node.
@@ -2393,7 +2393,7 @@ m_UNSET (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     int type, order, rem, res;
     Tcl_Obj*  avarname;
@@ -2473,7 +2473,7 @@ m_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 /*
  *---------------------------------------------------------------------------
  *
- * m_WALKPROC --
+ * tm_WALKPROC --
  *
  *	Walks over the tree as per the options and invokes a named Tcl command
  *	prefix per node.
@@ -2488,7 +2488,7 @@ m_WALK (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-m_WALKPROC (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+tm_WALKPROC (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     int       type, order, rem, i, res;
     TN*	      tn;
