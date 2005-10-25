@@ -16,6 +16,9 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {
 # ### ### ### ######### ######### ######### ###########################
 ## Setting up the environment ...
 
+set moddir [file dirname [file dirname [info script]]]
+lappend auto_path $moddir
+
 package forget rc4
 catch {namespace delete ::rc4}
 source [file join [file dirname [info script]] rc4.tcl]

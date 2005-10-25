@@ -1,3 +1,7 @@
+2005-10-24  Andreas Kupries <andreask@activestate.com>
+
+	* md4.bench: New file. Basic benchmarks for MD4 hashes.
+
 2005-10-17  Andreas Kupries <andreask@activestate.com>
 
 	* md4.tcl: Trivial comment typo fix.

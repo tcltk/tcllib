@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # Tcl Benchmark File
 #
-# This file contains a number of benchmarks for the 'base64' module.
+# This file contains a number of benchmarks for the 'md5' module.
 # This allow developers to monitor/gauge/track package performance.
 #
 # (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
@@ -15,45 +15,31 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {
 
 # ### ### ### ######### ######### ######### ###########################
 ## Setting up the environment ...
+## Here we are testing version 1.
 
 set moddir [file dirname [file dirname [info script]]]
 lappend auto_path $moddir
 
-package forget base64
-catch {namespace delete ::base64}
-source [file join [file dirname [info script]] base64.tcl]
+package forget md5
+catch {namespace delete ::md5}
+source [file join [file dirname [info script]] md5.tcl]
+
+set key "01234567abcdefgh01234567abcdefgh01234567abcdefgh01234567abcdefgh=="
 
 # ### ### ### ######### ######### ######### ###########################
 ## Benchmarks.
 
-
-foreach n {10 100 1000 10000} {
-    bench -desc "BASE64 encode ${n}X" -pre {
-	set str [string repeat X $n]
+foreach n {1 10 100 1000 10000} {
+    bench -desc "MD5 md5_ v1 $n" -pre {
+	set str [string repeat " " $n]
     } -body {
-	base64::encode $str
-    } -post {
-	unset str
+	md5::md5 $str
     }
 
-    bench -desc "BASE64 decode ${n}X" -pre {
-	set str [base64::encode [string repeat X $n]]
+    bench -desc "MD5 hmac v1 $n" -pre {
+	set str [string repeat " " $n]
     } -body {
-	base64::decode $str
-    } -post {
-	unset str
-    }
-}
-
-foreach wrap {1 10 60 100} {
-    foreach n {10 100 1000 10000} {
-	bench -desc "BASE64 encode ${n}X -wrap $wrap" -pre {
-	    set str [string repeat X $n]
-	} -body {
-	    base64::encode -wrap $wrap $str
-	} -post {
-	    unset str
-	}
+	md5::hmac $key $str
     }
 }
 
