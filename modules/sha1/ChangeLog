@@ -1,3 +1,8 @@
+2005-10-24  Andreas Kupries <andreask@activestate.com>
+
+	* sha1.bench: New file. Basic benchmarks for SHA hashes.
+	* sha256.bench:
+
 2005-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
