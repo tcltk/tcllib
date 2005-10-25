@@ -33,11 +33,13 @@ set key aaaaaaaaa
 ## Benchmarks.
 
 foreach n {1 10 100 1000 10000} {
+    # Extremely expensive. Limit #iterations to keep total runtime acceptable.
+
     bench -desc "MD5Crypt $n" -pre {
 	set str [string repeat " " $n]
     } -body {
 	md5crypt::md5crypt $key $str
-    }
+    } -iters 10
 }
 
 # ### ### ### ######### ######### ######### ###########################
