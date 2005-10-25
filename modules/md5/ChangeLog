@@ -1,3 +1,8 @@
+2005-10-24  Andreas Kupries <andreask@activestate.com>
+
+	* md5v1.bench: New file. Basic benchmarks for MD5 hashes.
+	* md5v2.bench:
+
 2005-10-17  Andreas Kupries <andreask@activestate.com>
 
 	* md5x.tcl: Trivial comment typo fix.
