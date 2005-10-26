@@ -114,7 +114,7 @@ proc ::math::complexnumbers::exp {z1} {
 }
 proc ::math::complexnumbers::cos {z1} {
     foreach {c d} $z1 {break}
-    return [list [expr {cos($c)*cosh($d)}] [expr {sin($c)*sinh($d)}]]
+    return [list [expr {cos($c)*cosh($d)}] [expr {-sin($c)*sinh($d)}]]
 }
 proc ::math::complexnumbers::sin {z1} {
     foreach {c d} $z1 {break}

@@ -1,5 +1,10 @@
 This file records outstanding actions for the math module
 
+dd. 26 october 2005, Arjen Markus
+
+qcomplex.test: extend the tests for cos/sin .. to include
+               non-real results. 
+
 dd. 28 september 2005, Arjen Markus
 
 optimize.tcl: linear programming algorithm ignores certain
