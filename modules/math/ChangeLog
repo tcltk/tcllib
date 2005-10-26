@@ -1,3 +1,8 @@
+2005-10-26  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * qcomplex.tcl: error in the computation of the complex 
+                        cosine. Found by Oscar Andreas Lopez.
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* interpolate.test: Reduced requirement for struct down to
