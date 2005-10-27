@@ -115,6 +115,15 @@ proc makeAttr {n} {
 #        for the three preceding classes can affect the modifiers
 #        negatively.
 
+# **Note **
+# At least the critcl implementation caches some of the structural
+# information when computed (depth, height, size), and invalidates it
+# after changes to the tree structure. The */redo benchmarks use a
+# small operation (swap of two independent nodes) to perturb the cache
+# and force recomputation of the data every time. The comparison to
+# the equivalent non-redo benchmark gives us a best-to-worst estimate
+# of the effect the cache has.
+
 # ### ### ### ######### ######### ######### ###########################
 ## [Ns]
 
@@ -275,10 +284,45 @@ foreach n {1 10 100 1000 10000} {
 }
 
 foreach n {1 10 100 1000 10000} {
-    bench -desc "\[Ne\] tree size $n" -pre {
-	set p [makeChainN $n]
+    # root size is trivial
+    bench -desc "\[Ne\] tree size root $n" -pre {
+	makeChainN $n
     } -body {
 	t size root
+    } -post {
+	t destroy
+    } -post {
+	t destroy
+    }
+
+    # non-root size requires descendants
+    bench -desc "\[Ne\] tree size any $n" -pre {
+	makeChainN $n
+    } -body {
+	t size 0
+    } -post {
+	t destroy
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ne\] tree size/redo root $n" -pre {
+	makeChainN $n
+	t insert root end a b
+    } -body {
+	t swap a b ; t size root
+    } -post {
+	t destroy
+    } -post {
+	t destroy
+    }
+
+    # non-root size requires descendants
+    bench -desc "\[Ne\] tree size/redo any $n" -pre {
+	makeChainN $n
+	t insert root end a b
+    } -body {
+	t swap a b ; t size 0
     } -post {
 	t destroy
     } -post {
@@ -297,6 +341,15 @@ foreach n {1 10 100 1000 10000} {
 	set p [makeChainN $n]
     } -body {
 	t depth $p
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ne\] tree depth/redo $n" -pre {
+	set p [makeChainN $n]
+	t insert root end a b
+    } -body {
+	t swap a b ; t depth $p
     } -post {
 	t destroy
     }
