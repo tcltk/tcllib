@@ -51,6 +51,24 @@ proc makeN {n} {
     return
 }
 
+proc makeChainN {n} {
+    tree t
+    set p root
+    for {set i 0} {$i < $n} {incr i} {
+	set p [t insert $p end $i]
+    }
+    return $p
+}
+
+proc makeAttr {n} {
+    tree t
+    for {set i 0} {$i < $n} {incr i} {
+	t set root $i .
+    }
+    return
+}
+
+
 # ### ### ### ######### ######### ######### ###########################
 ## Benchmarks.
 
@@ -163,11 +181,71 @@ bench -desc "\[Ns\] tree index" -pre {
     t destroy
 }
 
+bench -desc "\[Ns\] tree rootname" -pre {
+    tree t
+} -body {
+    t rootname
+} -post {
+    t destroy
+}
+
 foreach n {1 10 100 1000 10000} {
     bench -desc "\[Ns\] tree numchildren $n" -pre {
 	makeN $n
     } -body {
 	t numchildren root
+    } -post {
+	t destroy
+    }
+}
+
+foreach n {1 10 100 1000 10000} {
+    bench -desc "\[Ns\] tree getall $n" -pre {
+	makeAttr $n
+    } -body {
+	t getall root
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ns\] tree keys $n" -pre {
+	makeAttr $n
+    } -body {
+	t keys root
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ns\] tree set $n" -pre {
+	makeAttr $n
+    } -body {
+	t set root attr test
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ns\] tree get $n" -pre {
+	makeAttr $n
+	t set root attr .
+    } -body {
+	t get root attr
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ns\] tree keyexists miss $n" -pre {
+	makeAttr $n
+    } -body {
+	t keyexists root attr
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ns\] tree keyexists has $n" -pre {
+	makeAttr $n
+	t set root attr .
+    } -body {
+	t keyexists root attr
     } -post {
 	t destroy
     }
@@ -196,6 +274,71 @@ foreach n {1 10 100 1000 10000} {
     }
 }
 
+foreach n {1 10 100 1000 10000} {
+    bench -desc "\[Ne\] tree size $n" -pre {
+	set p [makeChainN $n]
+    } -body {
+	t size root
+    } -post {
+	t destroy
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ne\] tree ancestors $n" -pre {
+	set p [makeChainN $n]
+    } -body {
+	t ancestors $p
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ne\] tree depth $n" -pre {
+	set p [makeChainN $n]
+    } -body {
+	t depth $p
+    } -post {
+	t destroy
+    }
+}
+
+foreach n {1 10 100 1000} {
+    bench -desc "\[Ne\] tree descendants $n" -pre {
+       makeChainN $n
+    } -body {
+	t descendants root
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ne\] tree children -all $n" -pre {
+	makeN $n
+    } -body {
+	t children -all root
+    } -post {
+	t destroy
+    }
+}
+
+foreach n {1 10 100} {
+    bench -desc "\[Ne\] tree height $n" -pre {
+       makeChainN $n
+    } -body {
+	t height root
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Ne\] tree height/redo $n" -pre {
+       makeChainN $n
+	t insert root end a b
+    } -body {
+	t swap a b ; t height root
+    } -post {
+	t destroy
+    }
+}
+
 # ### ### ### ######### ######### ######### ###########################
 ## [Tr]
 
@@ -217,11 +360,57 @@ foreach n {1 10 100 1000 10000} {
     }
 }
 
+foreach n {1 10 100 1000} {
+    bench -desc "\[Tr\] tree serialize flat $n" -pre {
+	makeN $n
+    } -body {
+	t serialize
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Tr\] tree deserialize flat $n" -pre {
+	makeN $n
+	set v [t serialize]
+    } -body {
+	t deserialize $v
+    } -post {
+	t destroy
+    }
+}
+
+foreach n {1 10 100} {
+    bench -desc "\[Tr\] tree serialize deep $n" -pre {
+	makeChainN $n
+    } -body {
+	t serialize
+    } -post {
+	t destroy
+    }
+
+    bench -desc "\[Tr\] tree deserialize deep $n" -pre {
+	makeChainN $n
+	set v [t serialize]
+    } -body {
+	t deserialize $v
+    } -post {
+	t destroy
+    }
+}
+
 # ### ### ### ######### ######### ######### ###########################
 ## [Mo]
 
 bench -desc "\[Mo\] tree create/destroy" -body {
     [tree] destroy
+}
+
+bench -desc "\[Mo\] tree swap" -pre {
+    tree t ; t insert root end 0 1
+} -body {
+    t swap 0 1
+} -post {
+    t destroy
 }
 
 foreach n {1 10 100 1000} {
@@ -289,14 +478,14 @@ return
 # ### ### ### ######### ######### ######### ###########################
 ## Notes ...
 
-# :=, -->, =, serialize, deserialize
-# ancestors, depth, descendants, height, index, size
-# attr - filtered attr over nodes
-# set, get, getall, keys, keyexists, append, lappend, unset - attributes on single node ...
-# rootname
-# walkproc
-
-# modifiers - cut, delete, move, rename, splice, swap (insert)
+# :=, -->, =
+#
+# attr - filtered attr over all nodes
+#
+# walk, walkproc
+#
+# attr modifiers - append, lappend, unset
+# modifiers      - cut, delete, move, rename, splice, swap (insert)
 
 # Notes on optimizations we can do.
 #
@@ -304,9 +493,3 @@ return
 # C   - Cache results, like child lists (Tcl_Obj's!)
 #       Maybe use Tcl_Obj/List for child arrays instead
 #       of N* ? Effect on modification performance ?
-
-proc tupchain {n} {
-    set t [tree] ; set p root
-    for {set i $n} {$i < $n} {incr i} {set p [$t insert $p 0]}
-    return
-}
