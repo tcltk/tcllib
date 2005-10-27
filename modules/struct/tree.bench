@@ -320,7 +320,7 @@ foreach n {1 10 100 1000} {
     }
 }
 
-foreach n {1 10 100} {
+foreach n {1 10 100 1000} {
     bench -desc "\[Ne\] tree height $n" -pre {
        makeChainN $n
     } -body {
@@ -379,7 +379,7 @@ foreach n {1 10 100 1000} {
     }
 }
 
-foreach n {1 10 100} {
+foreach n {1 10 100 1000} {
     bench -desc "\[Tr\] tree serialize deep $n" -pre {
 	makeChainN $n
     } -body {
