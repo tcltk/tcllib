@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.3 2005/10/21 23:41:13 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.4 2005/10/27 23:07:41 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -324,7 +324,12 @@ proc ::bench::norm {data col} {
 	set v $DATA($key)
 	if {![string is double -strict $v]}                  continue
 
-	if {![info exists DATA($desc,$refip)]}               continue
+	if {![info exists DATA($desc,$refip)]} {
+	    # We cannot normalize, we do not keep the time value.
+	    # The row will be shown, empty.
+	    set DATA($key) ""
+	    continue
+	}
 	set vref $DATA($desc,$refip)
 
 	if {![string is double -strict $vref]} continue
