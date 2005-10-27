@@ -1,10 +1,23 @@
 2005-10-27  Andreas Kupries <andreask@activestate.com>
 
+	* tree.bench: Extended the benchmarks for "height" and "serialize"
+	  to demonstrate that the height limitation is gone.
+
+	* tree_tcl.tcl: Fixed the limitation of the methods "height" and
+	  "serialize" when run on deep trees. Moved to an iterative
+	  solution using the core algorithm of "descendants". Factored
+	  this code into an internal command used throughout. Rewrote
+	  method "children -all" to use this command as well.
+
+	  Impact: The limitation are gone, however the performance of
+	  "height" and "serialize" has become 2 to 3 times worse.
+
 	* tree.bench: Substantially extended the benchmarks, covering
 	  basically everything except tree walks, modifiers, and
-	  tree-global attribute search. Had to restrict tests for height,
-	  serialize, running into problems with deep trees. Recursive
-	  implementation fails for interp recursion limit.
+	  tree-global attribute search. Had to restrict tests for
+	  "height", "serialize", running into problems with deep
+	  trees. Recursive implementation fails for interp recursion
+	  limit.
 
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
