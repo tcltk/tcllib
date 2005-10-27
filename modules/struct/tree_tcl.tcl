@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree_tcl.tcl,v 1.2 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree_tcl.tcl,v 1.3 2005/10/27 21:41:10 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require struct::list
@@ -667,6 +667,21 @@ proc ::struct::tree::_descendants {name node args} {
 	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
 
+    set result [DescendantsCore $name $node]
+
+    if {[llength $cmd]} {
+	lappend cmd $name
+	set result [uplevel 1 [list ::struct::list filter $result $cmd]]
+    }
+
+    return $result
+}
+
+proc ::struct::tree::DescendantsCore {name node} {
+    # CORE for listing of node descendants.
+    # No checks ...
+    # No filtering ...
+
     variable ${name}::children
 
     set result  $children($node)
@@ -677,11 +692,6 @@ proc ::struct::tree::_descendants {name node args} {
 	    lappend result $c
 	    lappend pending $c
 	}
-    }
-
-    if {[llength $cmd]} {
-	lappend cmd $name
-	set result [uplevel 1 [list ::struct::list filter $result $cmd]]
     }
 
     return $result
@@ -790,22 +800,42 @@ proc ::struct::tree::_height {name node} {
     }
 
     variable ${name}::children
+    variable ${name}::parent
 
     if {[llength $children($node)] == 0} {
 	# No children, is a leaf, height is 0.
 	return 0
     }
 
-    # Compute the height for all children, select the
-    # maximum, at last add one more for ourselves.
+    # New implementation. We iteratively compute the height for each
+    # node under the specified one, from the bottom up. The previous
+    # implementation, using recursion will fail if the encountered
+    # subtree has a height greater than the currently set recursion
+    # limit.
 
-    set height 0
-    foreach c $children($node) {
-	set ch [_height $name $c]
-	if {$ch > $height} {set height $ch}
+    array set h {}
+
+    # NOTE: Check out if a for loop doing direct access, i.e. without
+    #       list reversal, is faster.
+
+    foreach n [struct::list reverse [DescendantsCore $name $node]] {
+	# Height of leafs
+	if {![llength $children($n)]} {set h($n) 0}
+
+	# Height of our parent is max of our and previous height.
+	set p $parent($n)
+	if {![info exists h($p)] || ($h($n) >= $h($p))} {
+	    set h($p) [expr {$h($n) + 1}]
+	}
     }
-    incr height
-    return $height
+
+    # NOTE: Check out how much we gain by caching the result.
+    #       For all nodes we have this computed. Use cache here
+    #       as well to cut the inspection of descendants down.
+    #       This may degenerate into a recursive solution again
+    #       however.
+
+    return $h($node)
 }
 
 # ::struct::tree::_keys --
@@ -1285,8 +1315,7 @@ proc ::struct::tree::_serialize {name args} {
     }
 
     set                   tree [list]
-    lappend               tree $node {}
-    Serialize $name $node tree 0
+    Serialize $name $node tree
     return               $tree
 }
 
@@ -2263,11 +2292,11 @@ proc ::struct::tree::GenAttributeStorage {name node} {
 # Results:
 #	None
 
-proc ::struct::tree::Serialize {name node tvar rootidx} {
+proc ::struct::tree::Serialize {name node tvar} {
     upvar 1 $tvar tree
 
-    variable ${name}::children
     variable ${name}::attribute
+    variable ${name}::parent
 
     # 'node' is the root of the tree to serialize. The precondition
     # for the call is that this node is already stored in the list
@@ -2278,7 +2307,10 @@ proc ::struct::tree::Serialize {name node tvar rootidx} {
     # has to do this.
 
 
-    # Store attribute data
+    array set r {}
+    set loc($node) 0
+
+    lappend tree $node {}
     if {[info exists attribute($node)]} {
 	upvar ${name}::$attribute($node) data
 	lappend tree [array get data]
@@ -2287,15 +2319,19 @@ proc ::struct::tree::Serialize {name node tvar rootidx} {
 	lappend tree {}
     }
 
-    # Build tree structure, by adding the children to the list, all
-    # referring back to their parent by index. Their own children are
-    # added through recursive calls.
+    foreach n [DescendantsCore $name $node] {
+	set loc($n) [llength $tree]
+	lappend tree $n $loc($parent($n))
 
-    foreach c $children($node) {
-	set cidx [llength $tree]
-	lappend tree $c $rootidx
-	Serialize $name $c tree $cidx
+	if {[info exists attribute($n)]} {
+	    upvar ${name}::$attribute($n) data
+	    lappend tree [array get data]
+	} else {
+	    # Encode nodes without attributes.
+	    lappend tree {}
+	}
     }
+
     return $tree
 }
 
