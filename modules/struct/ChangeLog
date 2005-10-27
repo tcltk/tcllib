@@ -1,5 +1,9 @@
 2005-10-27  Andreas Kupries <andreask@activestate.com>
 
+	* tree.bench: Added more benchmarks perturbing structure,
+	  invalidating caches, to capture true cost of computing results
+	  of various methods.
+
 	* tree_tcl.tcl: Reworked the core algorithm used by the method
 	  "descendants". Avoiding the shifting of a list speeds it up
 	  around 6 times and the factor is going higher as lists grow
