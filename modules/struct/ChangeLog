@@ -1,5 +1,12 @@
 2005-10-27  Andreas Kupries <andreask@activestate.com>
 
+	* tree_tcl.tcl: Reworked the core algorithm used by the method
+	  "descendants". Avoiding the shifting of a list speeds it up
+	  around 6 times and the factor is going higher as lists grow
+	  larger. This makes the dependent methods (height, serialize,
+	  children -all) about 2 times faster than they were with the
+	  recursive implementation.
+
 	* tree.bench: Extended the benchmarks for "height" and "serialize"
 	  to demonstrate that the height limitation is gone.
 
