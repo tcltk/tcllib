@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree_tcl.tcl,v 1.3 2005/10/27 21:41:10 andreas_kupries Exp $
+# RCS: @(#) $Id: tree_tcl.tcl,v 1.4 2005/10/27 21:56:04 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require struct::list
@@ -488,17 +488,11 @@ proc ::struct::tree::_children {name args} {
 	return -code error "node \"$node\" does not exist in tree \"$name\""
     }
 
-    variable ${name}::children
-    set result $children($node)
     if {$all} {
-	set pending $result
-	while {[llength $pending]} {
-	    set n [::struct::list shift pending]
-	    foreach c $children($n) {
-		lappend result $c
-		lappend pending $c
-	    }
-	}
+	set result [DescendantsCore $name $node]
+    } else {
+	variable ${name}::children
+	set result $children($node)
     }
 
     if {[llength $cmd]} {
@@ -684,13 +678,23 @@ proc ::struct::tree::DescendantsCore {name node} {
 
     variable ${name}::children
 
+    # New implementation. Instead of keeping a second, and explicit,
+    # list of pending nodes to shift through (= copying of array data
+    # around), we reuse the result list for that, using a counter and
+    # direct access to list elements to keep track of what nodes have
+    # not been handled yet. This eliminates a whole lot of array
+    # copying within the list implementation in the Tcl core. The
+    # result is unchanged, i.e. the nodes are in the same order as
+    # before.
+
     set result  $children($node)
-    set pending $result
-    while {[llength $pending]} {
-	set n [::struct::list shift pending]
+    set at      0
+
+    while {$at < [llength $result]} {
+	set n [lindex $result $at]
+	incr at
 	foreach c $children($n) {
 	    lappend result $c
-	    lappend pending $c
 	}
     }
 
