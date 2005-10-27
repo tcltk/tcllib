@@ -1,3 +1,8 @@
+2005-10-27  Andreas Kupries <andreask@activestate.com>
+
+	* sak.tcl (bench_mod): Modified default interp to use in
+	  benchmarks from PATH to the interp executing SAK.
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* sak.tcl: Extended benchmark facility. New command for removal of
