@@ -948,8 +948,15 @@ proc bench_mod {mlist paths interp flags norm format verbose output} {
 	set pattern [file tail $interp]
 	set paths [list [file dirname $interp]]
     } elseif {![llength $paths]} {
-	set paths [split $env(PATH) \
-		[expr {($tcl_platform(platform) == "windows") ? ";" : ":"}]]
+	# Using the environment PATH is not a good default for
+	# SAK. Use the interpreter running SAK as the default.
+	if 0 {
+	    set paths [split $env(PATH) \
+			   [expr {($tcl_platform(platform) == "windows") ? ";" : ":"}]]
+	}
+	set interp [info nameofexecutable]
+	set pattern [file tail $interp]
+	set paths [list [file dirname $interp]]
     }
 
     set interps [bench::versions \
