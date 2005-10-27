@@ -1,3 +1,10 @@
+2005-10-27  Andreas Kupries <andreask@activestate.com>
+
+	* bench.tcl (::bench::norm): Fixed bug leaving time data in
+	  non-reference column when the reference is empty. To the unwary
+	  the result looks like factors, which have ridiculous values. Now
+	  the row is shown, but empty.
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* bench.tcl (::bench::del): New command. Removal of a column from
