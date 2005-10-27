@@ -1,3 +1,11 @@
+2005-10-27  Andreas Kupries <andreask@activestate.com>
+
+	* tree.bench: Substantially extended the benchmarks, covering
+	  basically everything except tree walks, modifiers, and
+	  tree-global attribute search. Had to restrict tests for height,
+	  serialize, running into problems with deep trees. Recursive
+	  implementation fails for interp recursion limit.
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* tree.bench: Made this benchmark suite operational. Incomplete,
