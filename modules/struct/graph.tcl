@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.26 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.27 2005/11/02 18:02:13 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -2266,7 +2266,7 @@ proc ::struct::graph::_serialize {name args} {
 	foreach {src dst} $arcNodes($a) break
 	# Arc information
 
-	set     arc $a
+	set     arc [list $a]
 	lappend arc [lindex $np($dst) 0]
 	if {[info exists arcAttr($a)]} {
 	    upvar ${name}::$arcAttr($a) data

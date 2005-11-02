@@ -1,3 +1,10 @@
+2005-11-02  Andreas Kupries <andreask@activestate.com>
+
+	* graph.tcl (::struct::graph::_serialize): Fixed bug mishandling
+	  the serialization of arcs with spaces in their names. Thanks to
+	  Spyros Potamianos <spotam@users.sourceforge.net> for bug report
+	  and fix. [SF Tcllib Bug 1345967]
+
 2005-10-27  Andreas Kupries <andreask@activestate.com>
 
 	* tree.bench: Added more benchmarks perturbing structure,
