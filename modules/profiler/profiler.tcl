@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: profiler.tcl,v 1.27 2005/03/30 22:45:11 ericm Exp $
+# RCS: @(#) $Id: profiler.tcl,v 1.28 2005/11/02 13:57:31 davidw Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
 package provide profiler 0.2.3
@@ -325,6 +325,67 @@ proc ::profiler::init {} {
     return
 }
 
+# ::profiler::printname --
+#
+#	Returns a string with some human readable information about
+#	the command name that was passed to this procedure.
+
+proc ::profiler::printname {name} {
+    variable callCount
+    variable compileTime
+    variable totalRuntime
+    variable descendantTime
+    variable descendants
+    variable statTime
+    variable callers
+
+    set result ""
+
+    set avgRuntime 0
+    set sigmaRuntime 0
+    set covRuntime 0
+    set avgDesTime 0
+    if { $callCount($name) > 0 } {
+	foreach {m s c} [eval ::profiler::stats $statTime($name)] { break }
+	set avgRuntime   $m
+	set sigmaRuntime $s
+	set covRuntime   $c
+	set avgDesTime \
+	    [expr {$descendantTime($name)/$callCount($name)}]
+    }
+
+    append result "Profiling information for $name\n"
+    append result "[string repeat = 60]\n"
+    append result "            Total calls:  $callCount($name)\n"
+    if { !$callCount($name) } {
+	append result "\n"
+	return $result
+    }
+    append result "    Caller distribution:\n"
+    set i [expr {[string length $name] + 1}]
+    foreach index [lsort [array names callers $name,*]] {
+	append result "  [string range $index $i end]:  $callers($index)\n"
+    }
+    append result "           Compile time:  $compileTime($name)\n"
+    append result "          Total runtime:  $totalRuntime($name)\n"
+    append result "        Average runtime:  $avgRuntime\n"
+    append result "          Runtime StDev:  $sigmaRuntime\n"
+    append result "         Runtime cov(%):  $covRuntime\n"
+    append result "  Total descendant time:  $descendantTime($name)\n"
+    append result "Average descendant time:  $avgDesTime\n"
+    append result "Descendants:\n"
+    if { !$descendantTime($name) } {
+	append result "  none\n"
+    }
+    foreach index [lsort [array names descendants $name,*]] {
+	append result "  [string range $index $i end]: \
+		    $descendants($index)\n"
+    }
+    append result "\n"
+    return $result
+}
+
+
 # ::profiler::print --
 #
 #	Print information about a proc.
@@ -337,59 +398,36 @@ proc ::profiler::init {} {
 
 proc ::profiler::print {{pattern *}} {
     variable callCount
+
+    set result ""
+    foreach name [lsort [array names callCount $pattern]] {
+	append result [printname $name]
+    }
+    return $result
+}
+
+# ::profiler::printsorted --
+#
+#	This proc takes a key and a pattern as arguments, and produces
+#	human readable results for the procs that match the pattern,
+#	sorted by the key.
+
+proc ::profiler::printsorted {key {pattern *}} {
+    variable callCount
     variable compileTime
     variable totalRuntime
     variable descendantTime
     variable descendants
     variable statTime
     variable callers
-    
-    set result ""
-    foreach name [lsort [array names callCount $pattern]] {
-	set avgRuntime 0
-	set sigmaRuntime 0
-	set covRuntime 0
-	set avgDesTime 0
-	if { $callCount($name) > 0 } {
-	    foreach {m s c} [eval ::profiler::stats $statTime($name)] { break }
-	    set avgRuntime   $m
-	    set sigmaRuntime $s
-	    set covRuntime   $c
-	    set avgDesTime \
-		    [expr {$descendantTime($name)/$callCount($name)}]
-	}
 
-	append result "Profiling information for $name\n"
-	append result "[string repeat = 60]\n"
-	append result "            Total calls:  $callCount($name)\n"
-	if { !$callCount($name) } {
-	    append result "\n"
-	    continue
-	}
-	append result "    Caller distribution:\n"
-	set i [expr {[string length $name] + 1}]
-	foreach index [lsort [array names callers $name,*]] {
-	    append result "  [string range $index $i end]:  $callers($index)\n"
-	}
-	append result "           Compile time:  $compileTime($name)\n"
-	append result "          Total runtime:  $totalRuntime($name)\n"
-	append result "        Average runtime:  $avgRuntime\n"
-	append result "          Runtime StDev:  $sigmaRuntime\n"
-	append result "         Runtime cov(%):  $covRuntime\n"
-	append result "  Total descendant time:  $descendantTime($name)\n"
-	append result "Average descendant time:  $avgDesTime\n"
-	append result "Descendants:\n"
-	if { !$descendantTime($name) } {
-	    append result "  none\n"
-	}
-	foreach index [lsort [array names descendants $name,*]] {
-	    append result "  [string range $index $i end]: \
-		    $descendants($index)\n"
-	}
-	append result "\n"
+    set data [sortFunctions $key]
+    foreach {k v} $data {
+	append result [printname [lindex $k 0]]
     }
     return $result
 }
+
 
 # ::profiler::dump --
 #
