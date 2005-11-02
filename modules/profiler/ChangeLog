@@ -1,3 +1,8 @@
+2005-11-02  David N. Welton  <davidw@dedasys.com>
+
+	* profiler.tcl (::profiler::printsorted): Added a printsorted proc
+	in order to print stuff out sorted with different keys.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
