@@ -1,3 +1,9 @@
+2005-11-02  Andreas Kupries <andreask@activestate.com>
+
+	* sak.tcl (ppackages): Added hack to exclude the package @@ from
+	  the tap file. This is defined in template code in
+	  page/gen_peg_cpkg.tcl, i.e. a variable.
+
 2005-10-27  Andreas Kupries <andreask@activestate.com>
 
 	* sak.tcl (bench_mod): Modified default interp to use in
