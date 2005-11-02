@@ -247,6 +247,15 @@ proc ppackages {args} {
 
 	    foreach {n v} $line break
 
+	    # HACK ...
+	    # Module 'page', package 'page::gen::peg::cpkg'.
+	    # Has a provide statement inside a template codeblock.
+	    # Name is placeholder @@. Ignore this specific name.
+	    # Better would be to use general static Tcl parsing
+	    # to find that the string is a variable value.
+
+	    if {[string equal $n @@]} continue
+
 	    if {[regexp {^[0-9]+(\.[0-9]+)*$} $v]} {
 		lappend p($n) $v
 		set p($n) [lsort -uniq -dict $p($n)]
