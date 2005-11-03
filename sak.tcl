@@ -916,26 +916,6 @@ proc validate_versions_mod {m} {
     return
 }
 
-proc timing_mod {m} {
-    global distribution
-    set files [glob -nocomplain [file join $distribution modules $m *.timing]]
-    foreach file $files {
-        interp create slave
-        slave eval [list source $file]
-        interp delete slave
-    }
-    
-    return
-}
-
-proc timing_all {} {
-    global distribution
-    foreach m [modules] {
-	timing_mod $m
-    }
-    return
-}
-
 proc validate_testsuite_mod {m} {
     global distribution
     if {[llength [glob -nocomplain [file join $distribution modules $m *.test]]] == 0} {
@@ -1083,18 +1063,6 @@ proc validate_doc_markup_mod {m} {
 
 proc validate_doc_markup {} {
     gendoc null null
-    return
-}
-
-proc timing_mod {m} {
-    global distribution
-    set files [glob -nocomplain [file join $distribution modules $m *.timing]]
-    foreach file $files {
-        interp create slave
-        slave eval [list source $file]
-        interp delete slave
-    }
-    
     return
 }
 
@@ -1522,12 +1490,8 @@ proc __help {} {
 
         critcl ?module?  - Build a critcl module [default is @@].
 
-        timing ?module?  - Run timing scripts (*.timing).
-
         bench ?opt? ?module..?
-	                 - Run benchmark scripts (*.bench). Similar to
-	                   the timing command, but more structured
-	                   input and output.
+	                 - Run benchmark scripts (*.bench).
 
                 Options: -throwerrors 0|1  Propagate errors if set.
                          -match   pattern  Exclude benchmarks not matching the
@@ -1984,47 +1948,6 @@ proc critcl_module {pkg {extra ""}} {
         eval exec $critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files 
     } r
     puts $r
-    return
-}
-
-# -------------------------------------------------------------------------
-
-proc __timing {} {
-    global argv
-    if {[llength $argv] == 0} {
-	_timing_all
-    } else {
-	if {![checkmod]} {return}
-	foreach m $argv {
-	    _timing_module $m
-	}
-    }
-    return
-}
-
-proc _timing_module {m} {
-    global package_name package_version
-
-    puts "Timing $package_name $package_version development -- $m"
-    puts "======================================================"
-    timing_mod $m
-    puts "------------------------------------------------------"
-    puts ""
-    return
-}
-
-proc _timing_all {} {
-    global package_name package_version distribution
-
-    foreach m [modules] {
-        if {[llength [glob -nocomplain [file join $distribution modules $m *.timing]]] > 0} {
-            puts "Timing $package_name $package_version development -- $m"
-            puts "======================================================"
-            timing_mod $m
-            puts "------------------------------------------------------"
-            puts ""
-        }
-    }
     return
 }
 
