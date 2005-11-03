@@ -1,3 +1,14 @@
+2005-11-02  Andreas Kupries  <akupries@shaw.ca>
+
+	* sak.tcl: Removed all functionality related to execution of
+	  .timing files. They are superceded by the benchmarks provided
+	  through .bench files.
+
+	* modules/aes/aes.timing: Removed, superceded by .bench files.
+	* modules/des/des.timing:
+	* modules/rc4/rc4.timing:
+	* modules/blowfish/blowfish.timing
+
 2005-11-02  Andreas Kupries <andreask@activestate.com>
 
 	* sak.tcl (ppackages): Added hack to exclude the package @@ from
