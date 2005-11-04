@@ -1,3 +1,7 @@
+2005-11-04  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * roman.test: removed extraneous messages
+
 2005-10-26  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * qcomplex.tcl: error in the computation of the complex 
