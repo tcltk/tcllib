@@ -1,3 +1,12 @@
+2005-11-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl: Applied patch by Benjamin Riefenstahl fixing bugs in
+	  his patch for [SF Tcllib Bug 1276561], see 2005-10-04 entry.
+
+	  * (MONTHS_SHORT, MONTHS_LONG): Add a dummy entry at index 0. 
+	  * (parsedatetime): For month index, use "%m" + scan instead of
+	    wrong "%e".
+
 2005-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
