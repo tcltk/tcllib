@@ -3256,9 +3256,13 @@ namespace eval ::mime {
         variable WDAYS_LONG   [list Sunday Monday Tuesday Wednesday Thursday \
                                     Friday Saturday]
 
-        variable MONTHS_SHORT [list Jan Feb Mar Apr May Jun \
+        # Counting months starts at 1, so just insert a dummy element
+        # at index 0.
+        variable MONTHS_SHORT [list "" \
+                                    Jan Feb Mar Apr May Jun \
                                     Jul Aug Sep Oct Nov Dec]
-        variable MONTHS_LONG  [list January February March April May June July \
+        variable MONTHS_LONG  [list "" \
+                                    January February March April May June July \
                                     August Sepember October November December]
 }
 proc ::mime::parsedatetime {value property} {
@@ -3275,7 +3279,8 @@ proc ::mime::parsedatetime {value property} {
 
         lmonth {
             variable MONTHS_LONG
-            return [lindex $MONTHS_LONG [clock format $clock -format %e]]
+            return [lindex $MONTHS_LONG \
+                            [scan [clock format $clock -format %m] %d]]
         }
 
         lweekday {
@@ -3297,7 +3302,8 @@ proc ::mime::parsedatetime {value property} {
 
         month {
             variable MONTHS_SHORT
-            return [lindex $MONTHS_SHORT [clock format $clock -format %e]]
+            return [lindex $MONTHS_SHORT \
+                            [scan [clock format $clock -format %m] %d]]
         }
 
         proper {
@@ -3314,7 +3320,8 @@ proc ::mime::parsedatetime {value property} {
             variable WDAYS_SHORT
             set wday [lindex $WDAYS_SHORT [clock format $clock -format %w]]
             variable MONTHS_SHORT
-            set mon [lindex $MONTHS_SHORT [clock format $clock -format %e]]
+            set mon [lindex $MONTHS_SHORT \
+                             [scan [clock format $clock -format %m] %d]]
 
             return [clock format $clock \
                           -format "$wday, %d $mon %Y %H:%M:%S $zone"]
