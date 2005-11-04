@@ -14,8 +14,6 @@
 
 #-----------------------------------------------------------------------
 
-puts "Testing library: [set ::className roman]"
-
 #=====================================================================
 # S u p p o r t   F u n c t i o n s
 #=====================================================================
@@ -92,7 +90,6 @@ proc prepareTclTest { classname } {
         puts "Requiring Tcl 8.3, have [package present Tcl]"
         return 0
     }
-    puts "Using pkg: Tcl     [package present Tcl]"
 
     # tcltest version
     #
@@ -109,9 +106,6 @@ proc prepareTclTest { classname } {
     #}
 
     ::tcltest::testConstraint tk [info exists tk_version]
-
-    puts "Constraints"
-    puts "  tk      = [::tcltest::testConstraint tk]"
 
     # If we got here all is OK
     return 1
