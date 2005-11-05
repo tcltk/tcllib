@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.5 2005/09/30 20:08:02 andreas_kupries Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.6 2005/11/05 04:50:58 afaupell Exp $
 
 package provide tar 0.1
 
@@ -273,4 +273,35 @@ proc ::tar::add {tar files args} {
 
     close $fh
     return $tar
+}
+
+proc ::tar::remove {tar files} {
+    set n 0
+    while {[file exists $tar$n.tmp]} {incr n}
+    set tfh [::open $tar$n.tmp w]
+    set fh [::open $tar r]
+    
+    fconfigure $fh  -encoding binary -translation lf -eofchar {}
+    fconfigure $tfh -encoding binary -translation lf -eofchar {}
+    
+    while {![eof $fh]} {
+        array set header [readHeader [read $fh 512]]
+        if {$header(name) == ""} {
+            puts -nonewline $tfh [string repeat \x00 1024]
+            break
+        }
+        set name $header(prefix)$header(name)
+        set len [expr {$header(size) + [pad $header(size)]}]
+        if {[lsearch $files $name] > -1} {
+            seek $fh $len current
+        } else {
+            seek $fh -512 current
+            fcopy $fh $tfh -size [expr {$len + 512}]
+        }
+    }
+    
+    close $fh
+    close $tfh
+    
+    file rename -force $tar$n.tmp $tar
 }
