@@ -3226,6 +3226,7 @@ proc ::mime::addr_x400 {mbox key} {
 #
 #       property     range
 #       ========     =====
+#       clock        raw result of "clock scan"
 #       hour         0 .. 23
 #       lmonth       January, February, ..., December
 #       lweekday     Sunday, Monday, ... Saturday
@@ -3268,11 +3269,27 @@ namespace eval ::mime {
 proc ::mime::parsedatetime {value property} {
     if {![string compare $value -now]} {
         set clock [clock seconds]
+    } elseif {[regexp {^(.*) ([+-])([0-9][0-9])([0-9][0-9])$} $value \
+                 -> value zone_sign zone_hour zone_min]} {
+        set clock [clock scan $value -gmt 1]
+        if {[info exists zone_min]} {
+            set zone_min [scan $zone_min %d]
+            set zone_hour [scan $zone_hour %d]
+            set zone [expr {60*($zone_min+60*$zone_hour)}]
+            if {[string equal $zone_sign "+"]} {
+                set zone -$zone
+            }
+            incr clock $zone
+        }
     } else {
         set clock [clock scan $value]
     }
 
     switch -- $property {
+        clock {
+            return $clock
+        }
+
         hour {
             set value [clock format $clock -format %H]
         }
