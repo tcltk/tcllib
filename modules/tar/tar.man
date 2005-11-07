@@ -64,11 +64,12 @@ Appends [arg files] to the end of the existing [arg tarball]
 [opt_def -dereference]
 [list_end]
 [nl]
-[list_end]
 
 [call [cmd ::tar::remove] [arg tarball] [arg files]]
 
 Removes [arg files] from the [arg tarball]
+
+[list_end]
 
 
 [keywords tar {tape archive} archive]
