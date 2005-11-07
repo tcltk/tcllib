@@ -1,6 +1,12 @@
+2005-11-07  Andreas Kupries <andreask@activestate.com>
+
+	* tar.man: Fixed error, incorrect placement of [call] markup
+	  outside of list.
+
 2005-11-04  Aaron Faupell  <afaupell@users.sourceforge.net>
 
-	* added tar::remove command and documentation for it
+	* tar.man: added tar::remove command and documentation for it
+	* tar.tcl:
 
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
