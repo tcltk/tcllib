@@ -66,12 +66,9 @@ testConstraint bug8.5a3 [expr {![string equal [info patchlevel] "8.5a3"]}]
 if {[package vsatisfies [package present Tcl] 8.5]} {
     set snitVersion 2
     set snitFile snit2.tcl
-} elseif {[package vsatisfies [package present Tcl] 8.4]} {
-    set snitVersion 1
-    set snitFile snit.tcl
 } else {
     set snitVersion 1
-    set snitFile snit83.tcl
+    set snitFile snit.tcl
 }
 
 # Marks tests which are only for Snit 1
