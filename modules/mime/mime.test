@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.20 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.21 2005/11/07 19:50:49 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -379,5 +379,24 @@ test mime-8.0 {Test chunk handling of copymessage and helpers} {
     unset data newdata token f in mi
     set res
 } 0
+
+set ::env(TZ) "UTC0"
+set epoch [clock scan 2000-01-01]
+foreach {n stamp date} {
+    1     86340 {Sat, 01 Jan 2000 23:59:00 +0000}
+    2   5176620 {Tue, 29 Feb 2000 21:57:00 +0000}
+    3  31610520 {Sun, 31 Dec 2000 20:42:00 +0000}
+    4  31708740 {Mon, 01 Jan 2001 23:59:00 +0000}
+    5  68248620 {Thu, 28 Feb 2002 21:57:00 +0000}
+    6 126218520 {Wed, 31 Dec 2003 20:42:00 +0000}
+} {
+    test mime-9.$n "Test formatting dates (RFC 822)" {
+        # To verify that clock scan gets the expected value.
+        set stamp_test [expr {[mime::parsedatetime $date clock] - $epoch}]
+        # Parse and re-format should get us the original.
+        set parsed_test [mime::parsedatetime $date proper]
+        list $stamp_test $parsed_test
+    } [list $stamp $date]
+}
 
 ::tcltest::cleanupTests
