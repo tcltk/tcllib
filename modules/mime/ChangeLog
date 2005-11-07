@@ -1,3 +1,9 @@
+2005-11-06  Benjamin Riefenstahl  <b.riefenstahl@turtle-trading.net>
+
+	* mime.tcl (parsedatetime): Add support for timezones with format
+	  +NNNN or -NNNN.  Add support for property "clock".
+	* mime.test (mime-9.x): Add testing of parsedatetime.=20
+
 2005-11-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl: Applied patch by Benjamin Riefenstahl fixing bugs in
