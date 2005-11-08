@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.6 2005/11/05 04:50:58 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.7 2005/11/08 17:42:40 afaupell Exp $
 
-package provide tar 0.1
+package provide tar 0.2
 
 namespace eval ::tar {}
 
@@ -280,10 +280,10 @@ proc ::tar::remove {tar files} {
     while {[file exists $tar$n.tmp]} {incr n}
     set tfh [::open $tar$n.tmp w]
     set fh [::open $tar r]
-    
+
     fconfigure $fh  -encoding binary -translation lf -eofchar {}
     fconfigure $tfh -encoding binary -translation lf -eofchar {}
-    
+
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} {
@@ -299,9 +299,9 @@ proc ::tar::remove {tar files} {
             fcopy $fh $tfh -size [expr {$len + 512}]
         }
     }
-    
+
     close $fh
     close $tfh
-    
+
     file rename -force $tar$n.tmp $tar
 }
