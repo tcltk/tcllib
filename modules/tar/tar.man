@@ -3,7 +3,7 @@
 [moddesc   {Tar file handling}]
 [titledesc {Tar file creation, extraction & manipulation}]
 [require Tcl 8.4]
-[require tar [opt 0.1]]
+[require tar [opt 0.2]]
 [description]
 
 
