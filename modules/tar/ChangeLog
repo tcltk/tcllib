@@ -1,6 +1,12 @@
+2005-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Corrected buggy commit, synchronized version
+	* tar.man:      numbers across all relevant files.
+
 2005-11-08  Aaron Faupell  <afaupell@users.sourceforge.net>
 
-	* bumped version to 0.2 because of new feature tar::remove
+	* tar.tcl: bumped version to 0.2 because of new feature
+	* tar.man: tar::remove
 
 2005-11-07  Andreas Kupries <andreask@activestate.com>
 
