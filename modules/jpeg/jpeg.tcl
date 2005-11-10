@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.9 2005/04/02 02:57:46 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.10 2005/11/10 07:45:23 afaupell Exp $
 
 package provide jpeg 0.2
 
@@ -68,7 +68,7 @@ proc ::jpeg::imageInfo {file} {
 # return an images dimensions by reading the Start Of Frame marker
 proc ::jpeg::dimensions {file} {
     set fh [openJFIF $file]
-    set sof [lsearch -inline [markers $fh] "c0 *"]
+    set sof [lsearch -inline [markers $fh] {c[0-3] *}]
     seek $fh [lindex $sof 1] start
     binary scan [read $fh 5] cSS precision height width
     close $fh
@@ -91,7 +91,7 @@ proc ::jpeg::getComments {file} {
 proc ::jpeg::addComment {file comment args} {
     set fh [openJFIF $file r+]
     # find the SoF and save all data after it
-    set sof [lsearch -inline [markers $fh] "c0 *"]
+    set sof [lsearch -inline [markers $fh] {c[0-3] *}]
     seek $fh [expr {[lindex $sof 1] - 4}] start
     set data2 [read $fh]
     # seek back to the SoF and write comment(s) segment
@@ -441,17 +441,17 @@ proc ::jpeg::MakerNoteNikon {offset byteOrder data} {
 
 proc ::jpeg::debug {file} {
     set fh [openJFIF $file]
-    
+
     puts "marker: d8 length: 0"
     puts "  SOI (Start Of Image)"
-    
+
     foreach marker [markers $fh] {
         seek $fh [lindex $marker 1] 
         puts "marker: [lindex $marker 0] length: [lindex $marker 2]"
         switch -glob -- [lindex $marker 0] {
-            c0 {
+            c[0-3] {
                 binary scan [read $fh 6] cSSc precision height width color
-                puts "  SOF (Start Of Frame)"
+                puts "  SOF (Start Of Frame) [string map {c0 "Baseline" c1 "Non-baseline" c2 "Progressive" c3 "Lossless"} [lindex $marker 0]]"
                 puts "    Image dimensions: $width $height"
                 puts "    Precision: $precision"
                 puts "    Color Components: $color"
