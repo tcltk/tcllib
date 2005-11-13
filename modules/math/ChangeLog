@@ -1,3 +1,10 @@
+2005-11-13  Stephane Arnold <sarnold75@users.sourceforge.net>
+
+        * bigfloat2.tcl,bigfloat2.test : two files
+          forming the math::bigfloat package for Tcl 8.5
+        * pkgIndex.tcl : updated to handle the different Tcl versions
+          Tcl 8.4 still has math::bigfloat 1.2
+
 2005-11-04  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * roman.test: removed extraneous messages
