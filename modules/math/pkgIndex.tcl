@@ -19,4 +19,9 @@ package ifneeded math::calculus          0.6.1 [list source [file join $dir calc
 package ifneeded math::interpolate       1.0.1 [list source [file join $dir interpolate.tcl]]
 package ifneeded math::linearalgebra     1.0   [list source [file join $dir linalg.tcl]]
 package ifneeded math::bignum            3.1   [list source [file join $dir bignum.tcl]]
+
+if {[package vsatisfies [package provide Tcl] 8.5]} {
+    package ifneeded math::bigfloat 2.0 \
+        [list source [file join $dir bigfloat2.tcl]]
+}
 package ifneeded math::bigfloat          1.2   [list source [file join $dir bigfloat.tcl]]
