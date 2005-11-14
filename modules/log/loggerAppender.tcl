@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerAppender.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -71,7 +71,7 @@ namespace eval ::logger::appender {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -174,7 +174,7 @@ proc ::logger::appender::console {args} {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -280,8 +280,120 @@ proc ::logger::appender::colorConsole {args} {
     return $procText
 }
 
+##Procedure Header
+# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
+# Copyright (c) 2005 Cisco Systems, Inc.
+#
+# Name:
+#       ::logger::appender::fileAppend
+#
+# Purpose:
+#
+#
+# Synopsis:
+#       ::logger::appender::fileAppend -level <level> -service <service> -outputChannel <channel> [options]
+#
+# Arguments:
+#       -level <level>
+#            name of level to fill in as 'priority' in log proc
+#       -service <service>
+#            name of service to fill in as 'category' in log proc
+#       -appenderArgs <appenderArgs>
+#            any additional args in list form
+#       -conversionPattern <conversionPattern>
+#            log pattern to use (see genLogProc)
+#       -procName <procName>
+#            explicitly set the proc name
+#       -procNameVar <procNameVar>
+#            name of variable to set in the calling context
+#            variable has name of proc
+#       -outputChannel <channel>
+#            name of output channel (eg stdout, file handle)
+#
+#
+# Return Values:
+#       a runnable command
+#
+# Description:
+#
+#
+# Examples:
+#
+#
+# Notes:
+#       1.
+#
+# End of Procedure Header
+
+
+proc ::logger::appender::fileAppend {args} {
+    set usage {console
+	?-level level?
+	?-service service?
+	?-outputChannel channel?
+	?-appenderArgs appenderArgs?
+    }
+    set bargs $args
+    set conversionPattern {\[%d\] \[%c\] \[%M\] \[%p\] %m}
+    while {[llength $args] > 1} {
+	set opt [lindex $args 0]
+	set args [lrange $args 1 end]
+	switch  -exact -- $opt {
+	    -level { set level [lindex $args 0]
+		set args [lrange $args 1 end]
+	    }
+	    -service { set service [lindex $args 0]
+		set args [lrange $args 1 end]
+	    }
+	    -appenderArgs {
+		set appenderArgs [lindex $args 0]
+		set args [lrange $args 1 end]
+		set args [concat $args $appenderArgs]
+	    }
+	    -conversionPattern {
+		set conversionPattern [lindex $args 0]
+		set args [lrange $args 1 end]
+	    }
+	    -procName {
+		set procName [lindex $args 0]
+		set args [lrange $args 1 end]
+	    }
+	    -procNameVar {
+		set procNameVar [lindex $args 0]
+		set args [lrange $args 1 end]
+	    }
+	    -outputChannel {
+		set outputChannel [lindex $args 0]
+		set args [lrange $args 1 end]
+	    }
+	    default {
+		return -code error [msgcat::mc "Unknown argument: \"%s\" :\nUsage:\
+  	                 %s" $opt $usage]
+	    }
+	}
+    }
+    if {![info exist procName]} {
+	set procName [genProcName $bargs]
+    }
+    if {[info exist procNameVar]} {
+	upvar $procNameVar myProcNameVar
+    }
+    set procText \
+	[ ::logger::utils::createLogProc \
+	      -procName $procName \
+	      -conversionPattern $conversionPattern \
+	      -category $service \
+	      -outputChannel $outputChannel \
+	      -priority $level ]
+    set myProcNameVar $procName
+    return $procText
+}
+  	 
+
+
+
 ##Internal Procedure Header
-# $Id: loggerAppender.tcl,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $
+# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -328,7 +440,7 @@ proc ::logger::appender::genProcName {args} {
 }
 
 
-package provide logger::appender 1.2
+package provide logger::appender 1.3
 
 # ;;; Local Variables: ***
 # ;;; mode: tcl ***
