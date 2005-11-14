@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
+# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -58,7 +58,7 @@ namespace eval ::logger::utils {
 }
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
+# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -163,7 +163,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
+# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -184,6 +184,8 @@ proc ::logger::utils::createFormatCmd {text args} {
 #            the category (service)
 #       -priority <priority>
 #            the priority (level)
+#       -outputChannel <channel>
+#            channel to output on (default stdout)
 #
 #
 # Return Values:
@@ -294,9 +296,14 @@ proc ::logger::utils::createLogProc {args} {
 
     }
 
+    if {[info exist opt(-outputChannel)]} {
+	set outputChannel $opt(-outputChannel)
+    } else {
+	set outputChannel stdout
+    }
+
     set formatText $text
     set outputCommand puts
-    set outputChannel stdout
 
     set procText {
 	proc $opt(-procName) {text} {
@@ -311,7 +318,7 @@ proc ::logger::utils::createLogProc {args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
+# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -376,7 +383,7 @@ proc ::logger::utils::createLogProc {args} {
 
 
 proc ::logger::utils::applyAppender {args} {
-    set usage {logger::applyAppender
+    set usage {logger::utils::applyAppender
 	-appender appender
 	?-instance?
 	?-levels levels?
@@ -449,7 +456,7 @@ proc ::logger::utils::applyAppender {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.2 2005/10/11 19:49:26 patthoyts Exp $
+# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -480,7 +487,7 @@ proc ::logger::utils::applyAppender {args} {
 #       to autocreate appenders for newly created logger instances
 #
 # Examples:
-#	logger::applyAppender -appender console
+#	logger::utils::applyAppender -appender console
 #	set log [logger::init applyAppender-3]
 #	${log}::error "this is error"
 #
@@ -523,12 +530,13 @@ proc ::logger::utils::autoApplyAppender {command command-string log op args} {
     if {![info exist appender]} {
 	return -code error [msgcat::mc "need to specify -appender"]
     }
-    applyAppender -appender $appender -serviceCmd $log -levels $levels
+    logger::utils::applyAppender -appender $appender -serviceCmd $log \
+	-levels $levels -appenderArgs $appenderArgs
     return $log
 }
 
 
-package provide logger::utils 1.2
+package provide logger::utils 1.3
 
 # ;;; Local Variables: ***
 # ;;; mode: tcl ***
