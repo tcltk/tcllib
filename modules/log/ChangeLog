@@ -1,3 +1,8 @@
+2005-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* loggerAppender.man: Fixed small typo in the appender
+	  documentation, a reference to the wrong package.
+
 2005-10-11  Pat Thoyts <patthoyts@users.sourceforge.net>
 
 	* loggerUtils.tcl: Avoid use of %G in time formats. (not

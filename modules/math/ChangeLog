@@ -1,3 +1,8 @@
+2005-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Reworked the extended package index a bit to keep
+	  the general existing structure.
+
 2005-11-13  Stephane Arnold <sarnold75@users.sourceforge.net>
 
         * bigfloat2.tcl,bigfloat2.test : two files
