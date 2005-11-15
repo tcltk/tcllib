@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: loggerAppender.man,v 1.1 2005/09/28 21:14:31 andreas_kupries Exp $}]
-[manpage_begin logger::utils n 1.2]
+[comment {$Id: loggerAppender.man,v 1.2 2005/11/15 03:52:17 andreas_kupries Exp $}]
+[manpage_begin logger::appender n 1.2]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
 [titledesc {Collection of predefined appenders for logger}]
