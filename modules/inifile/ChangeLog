@@ -1,3 +1,8 @@
+2005-17-11 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* ini.tcl: fixed bug causing empty ini files when opening
+	with w modes introduced on 2005-31-03
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
