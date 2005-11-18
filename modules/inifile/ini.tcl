@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.9 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.10 2005/11/18 03:33:24 afaupell Exp $
 
-package provide inifile 0.1.1
+package provide inifile 0.1.2
 
 namespace eval ini {
     variable nexthandle; if {![info exists nexthandle]} {set nexthandle 0}
@@ -63,7 +63,7 @@ proc ::ini::commit {fh} {
         ::close $channel
         ::set channel [::open $file w]
         ::set char $::ini::commentchar
-        seek $channel 0 start
+        #seek $channel 0 start
         foreach sec [array names sections] {
             if { [info exists comments($sec)] } {
                 puts $channel "$char [join $comments($sec) "\n$char "]\n"
@@ -80,7 +80,7 @@ proc ::ini::commit {fh} {
         }
         catch { unset char sec key }
         close $channel
-        ::set channel [::open $file $mode]
+        ::set channel [::open $file r+]
     }
     return
 }
