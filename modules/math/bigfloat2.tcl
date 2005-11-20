@@ -2,6 +2,7 @@
 # BigFloat for Tcl
 # Copyright (C) 2003-2005  ARNOLD Stephane
 # It is published with the terms of tcllib's BSD-style license.
+# See the file named license.terms.
 ########################################################################
 
 package require Tcl 8.5
@@ -661,7 +662,6 @@ proc ::math::bigfloat::_cos {x precision delta} {
     set denom1 1
     set denom2 2
     set t [expr {-($x>>1)}]
-    set delta 1
     set dt $d
     while {$t!=0} {
         incr s $t
