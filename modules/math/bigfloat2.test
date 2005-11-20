@@ -202,6 +202,11 @@ proc testSuite {} {
     roundTest 2.6f -1.0 -1
     roundTest 2.6g -1.50 -2
     roundTest 2.6h 1.50 2
+    roundTest 2.6i 0.49 0
+    roundTest 2.6j -0.49 0
+    roundTest 2.6k 1.49 1
+    roundTest 2.6l -1.49 -1
+    
     
     # cleanup
     rename roundTest ""
