@@ -1,89 +1,99 @@
-[manpage_begin math::bigfloat n 1.2]
-[copyright {2004-2005 Stephane Arnold <stephanearnold at yahoo dot fr>}]
+[manpage_begin math::bigfloat n 2.0]
+[copyright {2004-2005, by Stephane Arnold <stephanearnold at yahoo dot fr>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Arbitrary precision floating-point numbers}]
 
-[require Tcl [opt 8.4]]
-[require math::bignum [opt 3.0]]
-[require math::bigfloat [opt 1.2]]
+[require Tcl 8.5]
+[require math::bigfloat [opt 2.0]]
 
 [description]
 
 The bigfloat package provides arbitrary precision floating-point math
-capabilities to the Tcl language.
+capabilities to the Tcl language. It is designed to work with Tcl 8.5,
+but for Tcl 8.4 is provided an earlier version of this package.
+See [sectref "WHAT ABOUT TCL 8.4 ?"] for more explanations.
 By convention, we will talk about the numbers treated in this library as :
 [list_begin bullet]
-[bullet]BigFloat for floating-point numbers of arbitrary length
-[bullet]BigInt for arbitrary length signed integers (a.k.a. bignums)
+[bullet]BigFloat for floating-point numbers of arbitrary length.
+[bullet]integers for arbitrary length signed integers, just as basic integers since Tcl 8.5.
 [list_end]
+Each BigFloat is an interval, namely [lb][emph "m-d, m+d"][rb],
+where [emph m] is the mantissa and [emph d] the uncertainty, representing the
+limitation of that number's precision.
+This is why we call such mathematics [emph "interval computations"].
+
 BigFloats are internally represented at Tcl lists: this
 package provides a set of procedures operating against
 the internal representation in order to :
 [list_begin bullet]
 [bullet]
-perform math operations on either BigFloats or BigInts.
+perform math operations on BigFloats and (optionnaly) with integers.
 
 [bullet]
-convert BigFloats and BigInts from the internal representation to a string, and vice versa.
+convert BigFloats from their internal representations to strings, and vice versa.
 
 [list_end]
 
 [section "INTRODUCTION"]
 [list_begin definitions]
 
-[call [cmd fromstr] [arg string] [opt [arg trailingZeros]]]
-Converts [emph string] into a BigFloat, or a BigInt. Its precision
-is at least the number of digits provided by [emph string].
-If the [arg string] contains only digits and eventually a minus sign, it is considered as
-an integer.
+[call [cmd fromstr] [arg number] [opt [arg trailingZeros]]]
+Converts [emph number] into a BigFloat. Its precision
+is at least the number of digits provided by [emph number].
+If the [arg number] contains only digits and eventually a minus sign, it is considered as
+an integer. Subsequently, no conversion is done at all.
 [nl]
 [arg trailingZeros] - the number of zeros to append at the end of the floating-point number
-to get more precision from the [emph string]. When applied on an integer, it throws an error.
+to get more precision. It cannot be applied to an integer.
 
-[call [cmd fromstr] -base [arg radix] [arg string]]
-Converts [emph string] representing an integer in the base [emph radix], to a BigInt.
 [example_begin]
+# x and y are BigFloats : the first string contained a dot, and the second an e sign
 set x [lb]fromstr -1.000000[rb]
 set y [lb]fromstr 2000e30[rb]
-# x and y are BigFloats : the first string contained a dot, and the second an e sign
-set m [lb]fromstr 1000[rb]
-set n [lb]fromstr -39[rb]
-# m and n are BigInts because the original string contained neither a dot nor an e sign
-# negative BigInts are supported
-set octalNumber [lb]fromstr -base 8 377[rb]
-# the result is 377 in octal, so it is equal to 255
+# let's see how we get integers
+set t 20000000000000
+# the old way (package 1.2) is still supported for backwards compatibility :
+set m [lb]fromstr 10000000000[rb]
+# but we do not need fromstr for integers anymore
+set n -39
+# t, m and n are integers
 [example_end]
 [nl]
-The [emph string]'s last digit is considered by the procedure to be true at +/-1.
-For instance, the Pi constant is irrational, so as you feed in the string "3.1415"
-it may be considered as a number in the interval [lb]3.1414 , 3.1416[rb].
-This is why we call such mathematics [emph "interval computations"].
-For example, 0.1 belongs to the interval [lb]0.0, 0.2[rb],
-and 1.00 to the interval [lb]0.99,1.01[rb].So, when you mean 1.0, you may have to write 1.000000 to get enough precision.
-If you encounter problems with precision, I recommend you read [sectref PRECISION].
+The [emph number]'s last digit is considered by the procedure to be true at +/-1,
+For example, 1.00 is the interval [lb]0.99, 1.01[rb],
+and 0.43 the interval [lb]0.42, 0.44[rb].
+The Pi constant may be approximated by the number "3.1415".
+This string could be considered as the interval [lb]3.1414 , 3.1416[rb] by [cmd fromstr].
+So, when you mean 1.0 as a double, you may have to write 1.000000 to get enough precision.
+To learn more about this subject, see [sectref PRECISION].
 [nl]
 For example :
 [example_begin]
 set x [lb]fromstr 1.0000000000[rb]
 # the next line does the same, but smarter
 set y [lb]fromstr 1. 10[rb]
-# the next line set a BigInt equal to 1
-set n [lb]fromstr 1[rb]
-# the next line raises an error : a single argument is required
-# for strings to BigInts conversions
-set n [lb]fromstr 1 10[rb]
-# the next line is correct
-set n [lb]fromstr 1[lb]string repeat 0 10[rb][rb]
 [example_end]
 
 
 [call [cmd tostr] [arg number]]
-Returns a string form of a BigFloat, in which all digits are exacts,
-or the string form of a BigInt if [emph number] is not a BigFloat.
+Returns a string form of a BigFloat, in which all digits are exacts.
+[emph number] may be an integer, causing the command to return exactly the input argument.
+[example_begin]
+# the following prints '1.0000' because the last '1' is uncertain
+puts [lb]tostr [lb]fromstr 1.00001[rb][rb]
+[example_end]
 There is an issue with number equal to zero
-(see section [sectref PRECISION]) : even if the precision about 0 is
+(see [sectref PRECISION]) : even if the precision about 0 is
 more than one digit, it will always be displayed as the '[emph 0]' string.
-
+A number belonging to an interval in which 0 is contained behaves always like that.
+This example show numbers that are considered as '0':
+[example_begin]
+fromstr 0.1 ; # interval [lb]0, 0.2[rb]
+fromstr 0.000001 ; # interval [lb]0, 0.000002[rb]
+fromstr -0.000001 ; # interval [lb]-0.000002, 0[rb]
+fromstr 0.0 ; # interval [lb]-0.1, 0.1[rb]
+fromstr 0. 10; # interval [lb]-1.e-10, 1.e-10[rb]
+[example_end]
 [call [cmd fromdouble] [arg double] [opt [arg decimals]]]
 
 Converts a double (a simple floating-point value) to a BigFloat, with
@@ -92,7 +102,7 @@ it behaves like [emph fromstr].
 
 [example_begin]
 tostr [lb]fromstr 1.111 4[rb]
-# returns : 1.111000 (3 zeroes)
+# returns : 1.111000 (3 zeros)
 tostr [lb]fromdouble 1.111 4[rb]
 # returns : 1.111
 [example_end]
@@ -102,15 +112,22 @@ Returns a double, that may be used in [emph expr],
 from a BigFloat.
 
 [call [cmd isInt] [arg number]]
-Returns 1 if [emph number] is a BigInt, 0 otherwise.
+Returns 1 if [emph number] is an integer, 0 otherwise.
 
 [call [cmd isFloat] [arg number]]
 Returns 1 if [emph number] is a BigFloat, 0 otherwise.
 
 [call [cmd int2float] [arg integer] [opt [arg decimals]]]
-Converts a BigInt to a BigFloat with [emph decimals] trailing zeroes.
-When converting back to string, one decimal is lost.
-That is why the default, and minimal, number of [emph decimals] is 1.
+Converts an integer to a BigFloat with [emph decimals] trailing zeros.
+The default, and minimal, number of [emph decimals] is 1.
+When converting back to string, one decimal is lost:
+[example_begin]
+set n 10
+set x [lb]int2float $n[rb]; # like fromstr 10.0
+puts [lb]tostr $x[rb]; # prints "10."
+set x [lb]int2float $n 3[rb]; # like fromstr 10.000
+puts [lb]tostr $x[rb]; # prints "10.00"
+[example_end]
 
 
 [list_end]
@@ -122,14 +139,15 @@ That is why the default, and minimal, number of [emph decimals] is 1.
 [call [cmd sub] [arg x] [arg y]]
 [call [cmd mul] [arg x] [arg y]]
 Return the sum, difference and product of [emph x] by [emph y].
-[arg x] - may be either a BigFloat or a BigInt
-[arg y] - may be either a BigFloat or a BigInt
+[arg x] - may be either a BigFloat or an integer
+[arg y] - may be either a BigFloat or an integer
+When both are integers, these commands do not much more than [cmd expr].
 
 [call [cmd div] [arg x] [arg y]]
 [call [cmd mod] [arg x] [arg y]]
 Return the quotient and the rest of [emph x] divided by [emph y].
-Each argument ([emph x] and [emph y]) can be either a BigFloat or a BigInt,
-but you cannot divide a BigInt by a BigFloat
+Each argument ([emph x] and [emph y]) can be either a BigFloat or an integer,
+but you cannot divide an integer by a BigFloat
 Divide by zero throws an error.
 
 [call [cmd abs] [arg x]]
@@ -140,8 +158,8 @@ Returns the opposite of [emph x]
 
 [call [cmd pow] [arg x] [arg n]]
 Returns [emph x] taken to the [emph n]th power.
-It only works if [emph n] is a BigInt.
-[emph x] might be a BigFloat or a BigInt.
+It only works if [emph n] is an integer.
+[emph x] might be a BigFloat or an integer.
 
 
 [list_end]
@@ -153,7 +171,7 @@ It only works if [emph n] is a BigInt.
 Returns 1 if [emph x] is :
 [list_begin bullet]
 [bullet]a BigFloat close enough to zero to raise "divide by zero".
-[bullet]a BigInt equal to 0.
+[bullet]the integer 0.
 [list_end]
 [call  [cmd equal] [arg x] [arg y]]
 
@@ -164,7 +182,8 @@ Returns 1 if [emph x] and [emph y] are equal, 0 elsewhere.
 Returns 0 if both BigFloat arguments are equal,
 1 if [emph x] is greater than [emph y],
 and -1 if [emph x] is lower than [emph y].
-You might compare two BigFloats or two BigInts, but not a BigInt to a BigFloat.
+You would not be able to compare an integer to a BigFloat :
+the operands should be both BigFloats, or both integers.
 
 [list_end]
 
@@ -191,7 +210,7 @@ cosine, hyperbolic sine, hyperbolic tangent, of a BigFloat named [emph x].
 
 [call [cmd pi] [arg n]]
 Returns a BigFloat representing the Pi constant with [emph n] digits after the dot.
-[emph n] may be either a simple string, or a BigInt.
+[emph n] is a positive integer.
 
 [call [cmd rad2deg] [arg radians]]
 [call [cmd deg2rad] [arg degrees]]
@@ -211,20 +230,37 @@ Convert an angle from radians to degrees, and [emph "vice versa"].
 
 The above functions return the [emph x] BigFloat,
 rounded like with the same mathematical function in [emph expr],
-but returns a BigInt.
+and returns it as an integer.
 
 [list_end]
 [section PRECISION]
+How do conversions work with precision ?
+[list_begin bullet]
+[bullet] When a BigFloat is converted from string, the internal representation
+holds its uncertainty as 1 at the level of the last digit.
+[bullet] During computations, the uncertainty of each result
+is internally computed the closest to the reality, thus saving the memory used.
+[bullet] When converting back to string, the digits that are printed
+are not subject to uncertainty. However, some rounding is done, as not doing so
+causes severe problems.
+[list_end]
+Uncertainties are kept in the internal representation of the number ; it is likely to use
+[emph tostr] only for outputting data (on the screen or in a file),
+and never call [emph fromstr] with the result of [emph tostr].
+It is better to always keep operands in their internal representation.
+[para]
+
 Now you may ask this question : What precision am I going to get
 after calling add, sub, mul or div?
-When you set a number from the string representation, say
+First you set a number from the string representation and you are put into uncertainty:
 [example_begin]
 set a [lb]fromstr 1.230[rb]
-# $a is internally 1.230 +/- d.10^-3
-# 'd' is a number in the [lb]1,2[lb] range
+# $a is internally contained in the interval [lb]1.230 - d*10^-3, 1.230 + d*10^-3[rb]
+# with d as close as possible to 1,
+# so $a belongs to [lb]1.229, 1.231[rb] in practice
 set a [lb]fromstr 1.000[rb]
-# 'a' has a relative uncertainty in the range : [rb]0.1%,0.2%[rb]
-# because 1*10^-3/1.000=0.1%, and 2*10^-3/1.000=0.2%
+# $a belongs to [lb]0.999, 1.001[rb]
+# $a has a relative uncertainty of 0.1% : 0.001(the uncertainty)/1.000(the medium value)
 [example_end]
 The uncertainty of the sum, or the difference, of two numbers, is the sum of the uncertainty
 of each number.
@@ -232,12 +268,21 @@ of each number.
 set a [lb]fromstr 1.230[rb]
 set b [lb]fromstr 2.340[rb]
 puts [lb]tostr [lb]add $a $b[rb][rb]
-# the result is : 3.57 and the last digit of the sum is known with an uncertainty in the
-# range [lb]2*10^-3,4*10^-3[lb]
+# the result is : 3.57 and the last digit of the sum is known with an uncertainty of 2*10^-3
 [example_end]
-But when operating a BigInt to a BigFloat (add, substract,etc.), the relative uncertainty
-of the result is unchanged. So it is likely to keep integers as BigInt and not to
-convert them to BigFloats.
+But when, for example, we add or substract an integer to a BigFloat, the relative uncertainty
+of the result is unchanged. So it is desirable not to convert integers to BigFloats:
+[example_begin]
+set a [lb]fromstr 0.999999999[rb]
+# now something dangerous
+# b has only 3 digits
+set b [lb]fromstr 2.00[rb]
+# the result has less than 3 digits
+mul $a $b
+# if we are clever, we would keep the same precision in the result as in $a
+puts [lb]tostr [lb]mul $a 2[rb][rb]
+# that's it!
+[example_end]
 [para]
 For multiplication and division, the relative uncertainties of the product
 or the quotient, is the sum of the relative uncertainties of the operands.
@@ -246,14 +291,28 @@ Take care about the fact that if a number contains 0 in its uncertainty interval
 it is always considered as if it was 0.
 [example_begin]
 set num [lb]fromstr 4.00[rb]
-set denom [lb]fromstr 0.1[rb];# $denom is 0, because [lb]0.0,0.2[rb] contains 0
+set denom [lb]fromstr 0.01[rb]
 puts [lb]tostr $denom[rb];# prints "0" on the screen
 set quotient [lb]div $num $denom[rb];# throws an error : divide by zero
+# computing opposites of $num and $denom
 set oppn [lb]opp $num[rb]
 set oppd [lb]opp $denom[rb]
-puts [lb]compare $num $oppn[rb];#prints 1
-puts [lb]compare $denom $oppd[rb];#prints 0 !
+puts [lb]compare $num $oppn[rb];#prints 1 as $num>0 and $oppn<0
+puts [lb]compare $denom $oppd[rb];#prints 0 ! Suprise?
+# No! 0 compared to (-)0 gives an equality...
+#
+# Effects of the precision of a number considered equal to zero
+# To the cos function
+puts [lb]tostr [lb]cos [lb]fromstr 0. 10[rb][rb][rb]; # -> 1.000000000
+puts [lb]tostr [lb]cos [lb]fromstr 0. 5[rb][rb][rb]; # -> 1.0000
+# please note, in the following, that leading zeros do not matter!
+puts [lb]tostr [lb]cos [lb]fromstr 0e-10[rb][rb][rb]; # -> 1.000000000
+puts [lb]tostr [lb]cos [lb]fromstr 1e-10[rb][rb][rb]; # -> 1.000000000
 [example_end]
+[para]
+Although BigFloats may be printed as "0", each of their internal representations
+may be different. Of course, this is also true for any BigFloat :
+you can see it by looking at their values without calling [cmd tostr].
 [para]
 For most analysis functions (cosinus, square root, logarithm, etc.), determining the precision
 of the result is difficult.
@@ -263,35 +322,49 @@ There are some exceptions : for example,
 [example_begin]
 tostr [lb]exp [lb]fromstr 100.0 10[rb][rb]
 # returns : 2.688117142e+43 which has only 10 digits of precision, although the entry
-# has 13 digits of precision.
+# has 14 digits of precision.
 [example_end]
-[para]
 
-How do conversions work with precision ?
-[list_begin bullet]
-[bullet] When a number is converted from string, the internal representation keep the uncertainty
-as 1 to the exponent of the last digit.
-[bullet] During computations, the uncertainty of each result is kept on two digits, eventually shifted and rounded when it is more than two digits long.
-[bullet] When converting back to string, the digits that are printed are all digits except the two last digits,
-because the last digits are subject to uncertainty.
-[list_end]
-Uncertainties are kept in the internal representation of the number ; it is likely to use
-[emph tostr] only for outputting data (on the screen or in a file),
-and never call [emph fromstr] with the result of [emph tostr].
-It is better to always keep operands in their internal representation.
 
+[section "WHAT ABOUT TCL 8.4 ?"]
+If your setup do not provide Tcl 8.5 but supports 8.4, the package can still be loaded,
+switching back to [emph math::bigfloat] 1.2. Indeed, an important function introduced in Tcl 8.5
+is used - the ability to handle bignums with classic [cmd expr] calls.
+Before 8.5, this ability was provided by several packages,
+including the pure-Tcl [emph math::bignum] package that [emph math::bigfloat] 1.2 works with.
+In this case, all you need to know, is that arguments to the commands explained here,
+are expected to be in their internal representation.
+So even with integers, you will need to call [cmd fromstr]
+and [cmd tostr] in order to convert them between string and internal representations.
+[example_begin]
+#
+# with Tcl 8.5
+# ============
+set a [lb]pi 20[rb]
+# round returns an integer
+puts [lb]round [lb]mul $a 10000000000[rb][rb]
+#
+# the same with Tcl 8.4
+# =====================
+set a [lb]pi 20[rb]
+set b [lb]fromstr 10000000000[rb]
+# round returns a bignum, to print it, it needs a conversion (tostr)
+puts [lb]tostr [lb]round [lb]mul $a $b[rb][rb][rb]
+[example_end]
 [section "NAMESPACES AND OTHER PACKAGES"]
-You might import public commands with the following :
+We have not yet discussed about namespaces
+because we assumed that you had imported public commands into the global namespace,
+like this:
 [example_begin]
 namespace import ::math::bigfloat::*
 [example_end]
-If you matter much about avoiding names conflicts, I considere it should be resolved by the following :
+If you matter much about avoiding names conflicts,
+I considere it should be resolved by the following :
 [example_begin]
-# the math::bignum package is required by the following statement
 package require math::bigfloat
-proc bigfloat {subcmd args} {
-    uplevel 1 [lb]concat ::math::bigfloat::$subcmd $args[rb]
-}
+# namespace ensembles are not available in Tcl 8.4 
+namespace eval ::math::bigfloat {namespace ensemble create -command ::bigfloat}
+# from now, the bigfloat command takes as subcommands all original math::bigfloat::* commands
 set a [lb]bigfloat sub [lb]bigfloat fromstr 2.000[rb] [lb]bigfloat fromstr 0.530[rb][rb]
 puts [lb]bigfloat tostr $a[rb]
 [example_end]
@@ -300,13 +373,12 @@ Guess what happens when you are doing some astronomy. Here is an example :
 [example_begin]
 # convert acurrate angles with a millisecond-rated accuracy
 proc degree-angle {degrees minutes seconds milliseconds} {
-    set result [lb]fromstr 0[rb]
-    set div [lb]fromstr 1[rb]
+    set result 0
+    set div 1
     foreach factor {1 1000 60 60} var [lb]list $milliseconds $seconds $minutes $degrees[rb] {
         # we convert each entry var into milliseconds
-        set factor [lb]fromstr $factor[rb]
-        set div [lb]mul $div $factor[rb]
-        set result [lb]add $result [lb]mul [lb]fromstr $var[rb] $div[rb][rb]
+        set div [lb]expr {$div*$factor}[rb]
+        incr result [lb]expr {$var*$div}[rb]
     }
     return [lb]div [lb]int2float $result[rb] $div[rb]
 }
@@ -322,6 +394,6 @@ set cosProduct [lb]mul [lb]cos $angle1[rb] [lb]cos $angle2[rb][rb]
 set angle3 [lb]asin [lb]add [lb]mul $sinProduct [lb]cos $opposite3[rb][rb] $cosProduct[rb][rb]
 puts "angle3 : [lb]tostr [lb]rad2deg $angle3[rb][rb]"
 [example_end]
-[keywords tcl multiprecision math floating-point]
+[keywords tcl multiprecision math floating-point interval computations]
 
 [manpage_end]
