@@ -1,3 +1,13 @@
+2005-11-13  Stephane Arnold <sarnold75@users.sourceforge.net>
+
+        * bigfloat2.tcl : bug fix in trigonometry, functions may have
+          return a number more precise than the input
+        * bignum.tcl : a little performance enhancement by avoiding
+          the use of [upvar] in [_treat]
+        * bigfloat2.test : minor changes
+        * bigfloat.man : rewriting 40% of the documentation that
+          now covers both 1.2 and 2.0 versions
+
 2005-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Reworked the extended package index a bit to keep
