@@ -141,7 +141,7 @@ puts [lb]tostr $x[rb]; # prints "10.00"
 Return the sum, difference and product of [emph x] by [emph y].
 [arg x] - may be either a BigFloat or an integer
 [arg y] - may be either a BigFloat or an integer
-When both are integers, these commands do not much more than [cmd expr].
+When both are integers, these commands behave like [cmd expr].
 
 [call [cmd div] [arg x] [arg y]]
 [call [cmd mod] [arg x] [arg y]]
@@ -312,9 +312,13 @@ puts [lb]tostr [lb]cos [lb]fromstr 1e-10[rb][rb][rb]; # -> 1.000000000
 [para]
 Although BigFloats may be printed as "0", each of their internal representations
 may be different. Of course, this is also true for any BigFloat :
-you can see it by looking at their values without calling [cmd tostr].
+you can see it by looking at their values like in this short example:
+[example_begin]
+puts [lb]fromstr 0.0001[rb]
+puts [lb]fromstr 0.00010[rb]
+[example_end]
 [para]
-For most analysis functions (cosinus, square root, logarithm, etc.), determining the precision
+For most analysis functions (cosine, square root, logarithm, etc.), determining the precision
 of the result is difficult.
 It seems however that in many cases, the loss of precision in the result
 is of one or two digits.
@@ -329,9 +333,9 @@ tostr [lb]exp [lb]fromstr 100.0 10[rb][rb]
 [section "WHAT ABOUT TCL 8.4 ?"]
 If your setup do not provide Tcl 8.5 but supports 8.4, the package can still be loaded,
 switching back to [emph math::bigfloat] 1.2. Indeed, an important function introduced in Tcl 8.5
-is used - the ability to handle bignums with classic [cmd expr] calls.
+is required - the ability to handle bignums, that we can do with [cmd expr].
 Before 8.5, this ability was provided by several packages,
-including the pure-Tcl [emph math::bignum] package that [emph math::bigfloat] 1.2 works with.
+including the pure-Tcl [emph math::bignum] package provided by [emph tcllib].
 In this case, all you need to know, is that arguments to the commands explained here,
 are expected to be in their internal representation.
 So even with integers, you will need to call [cmd fromstr]
@@ -341,14 +345,17 @@ and [cmd tostr] in order to convert them between string and internal representat
 # with Tcl 8.5
 # ============
 set a [lb]pi 20[rb]
-# round returns an integer
+# round returns an integer and 'everything is a string' applies to integers
+# whatever big they are
 puts [lb]round [lb]mul $a 10000000000[rb][rb]
 #
 # the same with Tcl 8.4
 # =====================
 set a [lb]pi 20[rb]
+# bignums (arbitrary length integers) need a conversion hook
 set b [lb]fromstr 10000000000[rb]
-# round returns a bignum, to print it, it needs a conversion (tostr)
+# round returns a bignum:
+# before printing it, we need to convert it with 'tostr'
 puts [lb]tostr [lb]round [lb]mul $a $b[rb][rb][rb]
 [example_end]
 [section "NAMESPACES AND OTHER PACKAGES"]
@@ -362,7 +369,7 @@ If you matter much about avoiding names conflicts,
 I considere it should be resolved by the following :
 [example_begin]
 package require math::bigfloat
-# namespace ensembles are not available in Tcl 8.4 
+# beware: namespace ensembles are not available in Tcl 8.4 
 namespace eval ::math::bigfloat {namespace ensemble create -command ::bigfloat}
 # from now, the bigfloat command takes as subcommands all original math::bigfloat::* commands
 set a [lb]bigfloat sub [lb]bigfloat fromstr 2.000[rb] [lb]bigfloat fromstr 0.530[rb][rb]
