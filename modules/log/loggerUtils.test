@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2005 by Aamer Aahkter
 #
-# $Id: loggerUtils.test,v 1.3 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerUtils.test,v 1.4 2005/12/02 22:12:11 mic42 Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {
     puts "    Aborting tests for logger::utils."
@@ -21,9 +21,9 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     # Ensure that 2.2 or higher present.
 
     if {![package vsatisfies [package present tcltest] 2.2]} {
-	puts "    Aborting tests for logger::utils."
-	puts "    Requiring tcltest 2.2, have [package present tcltest]"
-	return
+    puts "    Aborting tests for logger::utils."
+    puts "    Requiring tcltest 2.2, have [package present tcltest]"
+    return
     }
 }
 
@@ -57,7 +57,7 @@ puts "  - logger::appender [package present logger::appender]"
 
 ::tcltest::loadTestedCommands
 
-logger::setlevel critical
+logger::setlevel debug
 
 namespace eval ::loggerExtension::test {
 
@@ -71,175 +71,175 @@ namespace eval ::loggerExtension::test {
 
 
     ::tcltest::test createFormatCmd-1 {
-	check for %d
+    check for %d
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createFormatCmd %d]
-	set b [subst $a]
-	regexp {\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d} $b
+    set a [logger::utils::createFormatCmd %d]
+    set b [subst $a]
+    regexp {\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d} $b
     } -result {1}
 
     ::tcltest::test createFormatCmd-2 {
-	check for %P
+    check for %P
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createFormatCmd %P]
-	set b [subst $a]
+    set a [logger::utils::createFormatCmd %P]
+    set b [subst $a]
     } -returnCodes {
         ok
     } -result [pid]
 
     ::tcltest::test createFormatCmd-3 {
-	check for %H
+    check for %H
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createFormatCmd %H]
-	set b [subst $a]
+    set a [logger::utils::createFormatCmd %H]
+    set b [subst $a]
     } -returnCodes {
         ok
     } -result [info hostname]
 
     ::tcltest::test createFormatCmd-4 {
-	check for %c
+    check for %c
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createFormatCmd %c -category test::cat ] 
-	set b [subst $a]
+    set a [logger::utils::createFormatCmd %c -category test::cat ] 
+    set b [subst $a]
     } -returnCodes {
         ok
     } -result test::cat
 
     ::tcltest::test createFormatCmd-5 {
-	check for %C
+    check for %C
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createFormatCmd %C -category test::cat ] 
-	set b [subst $a]
+    set a [logger::utils::createFormatCmd %C -category test::cat ] 
+    set b [subst $a]
     } -returnCodes {
         ok
     } -result test
 
     ::tcltest::test createFormatCmd-6 {
-	check for %p
+    check for %p
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createFormatCmd %p -category test::cat -priority error] 
-	set b [subst $a]
+    set a [logger::utils::createFormatCmd %p -category test::cat -priority error] 
+    set b [subst $a]
     } -returnCodes {
         ok
     } -result error
 
 
     ::tcltest::test createLogProc-1 {
-	create a proc and test it
+    create a proc and test it
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	set a [logger::utils::createLogProc \
-		   -category catTest \
-		   -priority critical \
-		   -procName ::bobo \
-		   -conversionPattern {\[%d\] \[%c\] \[%M\] \[%p\] %m}]
-	eval $a
-	::bobo test
+    set a [logger::utils::createLogProc \
+           -category catTest \
+           -priority critical \
+           -procName ::bobo \
+           -conversionPattern {\[%d\] \[%c\] \[%M\] \[%p\] %m}]
+    eval $a
+    ::bobo test
     } -returnCodes {ls
 
-	ok
+    ok
     }  -match regexp \
-	-output {\[[\d:\/ ]+\] \[catTest\] \[namespace\] \[critical\] test}
+    -output {\[[\d:\/ ]+\] \[catTest\] \[namespace\] \[critical\] test}
 
     ::tcltest::test applyAppender-1 {
-	apply an appender 
+    apply an appender 
     } -setup {
     } -constraints {
     } -cleanup {
-	${log}::delete
-	unset log
+    ${log}::delete
+    unset log
     } -body {
-	set log [logger::init testLog]
-	logger::utils::applyAppender -appender console -serviceCmd $log
-	${log}::error "this is error"
+    set log [logger::init testLog]
+    logger::utils::applyAppender -appender console -serviceCmd $log
+    ${log}::error "this is error"
     } -returnCodes {
         ok
     }  -match regexp \
-	-output {\[[\d:\/ ]+\] \[testLog\] \[namespace\] \[error\] this is error}
+    -output {\[[\d:\/ ]+\] \[testLog\] \[namespace\] \[error\] this is error}
 
     ::tcltest::test applyAppender-2 {
-	apply an appender, to 2 loggers
+    apply an appender, to 2 loggers
     } -setup {
     } -constraints {
     } -cleanup {
-	${log1}::delete
-	${log2}::delete
-	unset log1
-	unset log2
+    ${log1}::delete
+    ${log2}::delete
+    unset log1
+    unset log2
     } -body {
-	set log1 [logger::init testLog1]
-	set log2 [logger::init testLog2]
-	logger::utils::applyAppender -appender console -serviceCmd [list $log1 $log2]
-	${log1}::error "this is error1"
-	${log2}::error "this is error2"
+    set log1 [logger::init testLog1]
+    set log2 [logger::init testLog2]
+    logger::utils::applyAppender -appender console -serviceCmd [list $log1 $log2]
+    ${log1}::error "this is error1"
+    ${log2}::error "this is error2"
     } -returnCodes {
         ok
     }  -match regexp \
-	-output {\[[\d:\/ ]+\] \[testLog1\] \[namespace\] \[error\] this is error1\n\[[\d:\/ ]+\] \[testLog2\] \[namespace\] \[error\] this is error2}
+    -output {\[[\d:\/ ]+\] \[testLog1\] \[namespace\] \[error\] this is error1\n\[[\d:\/ ]+\] \[testLog2\] \[namespace\] \[error\] this is error2}
 
 
     ::tcltest::test applyAppender-3 {
-	auto apply
+    auto apply
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	logger::utils::applyAppender -appender console
-	set log [logger::init applyAppender-3]
-	${log}::error "this is error"
+    logger::utils::applyAppender -appender console
+    set log [logger::init applyAppender-3]
+    ${log}::error "this is error"
     } -returnCodes {
         ok
     } -match regexp \
-	-output {\[[\d:\/ ]+\] \[applyAppender-3\] \[namespace\] \[error\] this is error}
+    -output {\[[\d:\/ ]+\] \[applyAppender-3\] \[namespace\] \[error\] this is error}
 
     ::tcltest::test applyAppender-4 {
-	auto apply
+    auto apply
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	logger::utils::applyAppender -appender colorConsole
-	set log [logger::init applyAppender-4]
-	${log}::error "this is error"
+    logger::utils::applyAppender -appender colorConsole
+    set log [logger::init applyAppender-4]
+    ${log}::error "this is error"
     } -returnCodes {
         ok
     } -match regexp \
-	-output {\[[\d:\/ ]+\] \[applyAppender-4\] \[namespace\] \[error\] this is error}
+    -output {\[[\d:\/ ]+\] \[applyAppender-4\] \[namespace\] \[error\] this is error}
 
     ::tcltest::test applyAppender-5 {
-	auto apply fileAppend
+    auto apply fileAppend
     } -setup {
     } -constraints {
     } -cleanup {
     } -body {
-	logger::utils::applyAppender \
-	    -appender fileAppend -appenderArgs {-outputChannel stderr}
-	set log [logger::init applyAppender-5]
-	${log}::error "this is error"
+    logger::utils::applyAppender \
+        -appender fileAppend -appenderArgs {-outputChannel stderr}
+    set log [logger::init applyAppender-5]
+    ${log}::error "this is error"
     } -returnCodes {
-	ok
+    ok
     } -match regexp \
-	-errorOutput {\[[\d:\/ ]+\] \[applyAppender-5\] \[namespace\] \[error\] this is error}
+    -errorOutput {\[[\d:\/ ]+\] \[applyAppender-5\] \[namespace\] \[error\] this is error}
     
 
 }
