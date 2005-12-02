@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.15 2005/09/23 16:49:44 mic42 Exp $}]
+[comment {$Id: logger.man,v 1.16 2005/12/02 22:12:11 mic42 Exp $}]
 [manpage_begin logger n 0.6]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -51,6 +51,9 @@ course, also be possible to then seperately configure [term bar].
 If a logger service is initialized and the parent does not yet exist, the
 parent is also created. 
 
+The new logger service is initialized with the default loglevel set 
+with [cmd logger::setlevel].
+
 [call [cmd logger::import] [opt [option -all] ] [opt [option -force]] [opt "[option -prefix] [arg prefix]" ] [opt "[option -namespace] [arg namespace]" ] [arg service] ]
 
 Import the logger service commands into the current namespace. Without the [option -all] option
@@ -84,7 +87,8 @@ those listed above.
 [call [cmd logger::setlevel] [arg level]]
 
 Globally enable logging at and "above" the given level. Levels are those
-listed above.
+listed above. This command changes the default loglevel for new loggers
+created with [cmd logger::init].
 
 [call [cmd logger::levels]]
 
