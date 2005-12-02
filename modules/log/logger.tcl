@@ -13,7 +13,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.6.1
+package provide logger 0.6.2
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -24,6 +24,9 @@ namespace eval ::logger {
 
     # The log 'levels'.
     variable levels [list debug info notice warn error critical]
+    
+    # The default global log level used for new logging services
+    variable enabled "debug"
 }
 
 # ::logger::_nsExists --
@@ -91,6 +94,7 @@ proc ::logger::walk { start code } {
 proc ::logger::init {service} {
     variable levels
     variable services
+    variable enabled
         
     # We create a 'tree' namespace to house all the services, so
     # they are in a 'safe' namespace sandbox, and won't overwrite
@@ -98,7 +102,8 @@ proc ::logger::init {service} {
     namespace eval tree::${service} {
         variable service
         variable levels
-        variable oldname 
+        variable oldname
+        variable enabled
     }
 
     lappend services $service
@@ -106,13 +111,9 @@ proc ::logger::init {service} {
     set [namespace current]::tree::${service}::service $service
     set [namespace current]::tree::${service}::levels $levels
     set [namespace current]::tree::${service}::oldname $service
+    set [namespace current]::tree::${service}::enabled $enabled
     
     namespace eval tree::${service} {
-    # Defaults to 'debug' level - show everything.  I don't
-    # want people to wonder where there debug messages are
-    # going.  They can turn it off themselves.
-    variable enabled "debug"
-
     # Callback to use when the service in question is shut down.
     variable delcallback [namespace current]::no-op
 
@@ -614,6 +615,12 @@ proc ::logger::disable {lv} {
 
 proc ::logger::setlevel {lv} {
     variable services
+    variable enabled
+    variable levels
+    if {[lsearch -exact $levels $lv] == -1} {
+        return -code error "Invalid level '$lv' - levels are $levels"
+    } 
+    set enabled $lv    
     if {[catch {
         foreach sv $services {
         ::logger::tree::${sv}::setlevel $lv
