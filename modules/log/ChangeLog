@@ -1,3 +1,16 @@
+2005-12-02  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* logger.tcl:        Fixed bug [SF Tcllib 1329642]. There
+	* logger.man:        is now a new global enabled state.
+	* logger.test:       This needed a fix to the loggerUtils
+	* pkgIndex.tcl:      testsuit, to set a working default log
+	  loggerUtils.test:  level (debug instead of critical).
+
+	**** Potential Incompatibility ****
+	New top level logger instances now start with the loglevel set 
+	by logger::setlevel instead of debug. The default is still
+	set to debug.
+
 2005-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* loggerAppender.man: Fixed small typo in the appender
