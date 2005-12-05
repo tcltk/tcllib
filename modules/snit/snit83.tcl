@@ -49,7 +49,7 @@ namespace eval ::snit:: {
     }
 }
 
-source [file dirname [info script]]/snit_tcl83_utils.tcl
+source [file join [file dirname [info script]] snit_tcl83_utils.tcl]
 
 #-----------------------------------------------------------------------
 # Snit Type Implementation template
