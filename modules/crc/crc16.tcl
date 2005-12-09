@@ -39,7 +39,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.13 2005/09/30 05:36:38 andreas_kupries Exp $
+# $Id: crc16.tcl,v 1.14 2005/12/09 18:27:16 andreas_kupries Exp $
+
+# @mdgen EXCLUDE: crcc.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 

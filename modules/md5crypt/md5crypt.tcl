@@ -9,6 +9,8 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
+# @mdgen EXCLUDE: md5cryptc.tcl
+
 package require Tcl 8.2;                # tcl minimum version
 package require md5 2;                  # tcllib 1.5
 
@@ -19,7 +21,7 @@ if {[catch {package require tcllibc}]} {
 
 namespace eval md5crypt {
     variable version 1.0.0
-    variable rcsid {$Id: md5crypt.tcl,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $}
+    variable rcsid {$Id: md5crypt.tcl,v 1.4 2005/12/09 18:27:17 andreas_kupries Exp $}
     variable itoa64 \
         {./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
 

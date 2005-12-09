@@ -21,13 +21,15 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.18 2005/09/30 22:50:40 patthoyts Exp $
+# $Id: sha1.tcl,v 1.19 2005/12/09 18:27:17 andreas_kupries Exp $
+
+# @mdgen EXCLUDE: sha1c.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable version 2.0.2
-    variable rcsid {$Id: sha1.tcl,v 1.18 2005/09/30 22:50:40 patthoyts Exp $}
+    variable rcsid {$Id: sha1.tcl,v 1.19 2005/12/09 18:27:17 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
