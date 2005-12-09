@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.4 2005/10/27 23:07:41 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.5 2005/12/09 18:27:15 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -21,6 +21,8 @@ package require report
 
 namespace eval ::bench      {}
 namespace eval ::bench::out {}
+
+# @mdgen OWNER: libbench.tcl
 
 # ### ### ### ######### ######### ######### ###########################
 ## Public API - Benchmark execution
