@@ -9,13 +9,15 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 #
-# $Id: rc4.tcl,v 1.5 2005/09/04 17:19:59 patthoyts Exp $
+# $Id: rc4.tcl,v 1.6 2005/12/09 18:27:17 andreas_kupries Exp $
 
 package require Tcl 8.2
 
+# @mdgen EXCLUDE: rc4c.tcl
+
 namespace eval ::rc4 {
     variable version 1.0.1
-    variable rcsid {$Id: rc4.tcl,v 1.5 2005/09/04 17:19:59 patthoyts Exp $}
+    variable rcsid {$Id: rc4.tcl,v 1.6 2005/12/09 18:27:17 andreas_kupries Exp $}
 
     namespace export rc4
 

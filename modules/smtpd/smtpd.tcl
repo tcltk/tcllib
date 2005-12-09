@@ -15,8 +15,10 @@ package require Tcl 8.3;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
+# @mdgen EXCLUDE: clients/mail-test.tcl
+
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.19 2005/06/21 13:42:23 patthoyts Exp $}
+    variable rcsid {$Id: smtpd.tcl,v 1.20 2005/12/09 18:27:17 andreas_kupries Exp $}
     variable version 1.4.0
     variable stopped
 
