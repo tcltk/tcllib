@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::magic::mime n 1.7]
+[manpage_begin fileutil::magic::mimetype n 1.0]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing mime-type recognition}]
 [require Tcl 8.4]
-[require fileutil::magic::mime [opt 1.0]]
+[require fileutil::magic::mimetype [opt 1.0]]
 [description]
 [para]
 
