@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::magic::file n 1.7]
+[manpage_begin fileutil::magic::filetype n 1.0]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing file-type recognition}]
 [require Tcl 8.4]
-[require fileutil::magic::file [opt 1.0]]
+[require fileutil::magic::filetype [opt 1.0]]
 [description]
 [para]
 
