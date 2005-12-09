@@ -7,10 +7,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: docidx.tcl,v 1.11 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.tcl,v 1.12 2005/12/09 18:27:16 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
+
+# @mdgen OWNER: api_idx.tcl
+# @mdgen OWNER: checker_idx.tcl
 
 namespace eval ::doctools {}
 namespace eval ::doctools::idx {

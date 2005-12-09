@@ -7,10 +7,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.16 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.17 2005/12/09 18:27:16 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
+
+# @mdgen OWNER: api.tcl
+# @mdgen OWNER: checker.tcl
 
 namespace eval ::doctools {
     # Data storage in the doctools module
