@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.10 2005/11/10 07:45:23 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.11 2005/12/15 16:47:32 afaupell Exp $
 
 package provide jpeg 0.2
 
@@ -125,6 +125,7 @@ proc ::jpeg::removeComments {file} {
     append data [read $fh]
     close $fh
     set fh [open $file w]
+    fconfigure $fh -encoding binary -translation binary -eofchar {}
     puts -nonewline $fh $data
     close $fh
 }
@@ -301,6 +302,7 @@ proc ::jpeg::removeExif {file} {
     append data [read $fh]
     close $fh
     set fh [open $file w]
+    fconfigure $fh -encoding binary -translation binary -eofchar {}
     puts -nonewline $fh "\xFF\xD8"
     if {[lindex $markers 0 0] != "e0"} {
         puts -nonewline $fh [binary format a2Sa5cccSScc "\xFF\xE0" 16 "JFIF\x00" 1 2 1 72 72 0 0]
