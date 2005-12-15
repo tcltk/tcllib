@@ -1,3 +1,8 @@
+2005-12-15  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* jpeg.tcl fixed bug in removeComments and removeExif
+	where file was opened and not configured as binary
+
 2005-11-10  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* Added support for non-baseline and progressive files by
