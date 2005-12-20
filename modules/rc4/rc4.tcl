@@ -9,41 +9,21 @@
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
 #
-# $Id: rc4.tcl,v 1.6 2005/12/09 18:27:17 andreas_kupries Exp $
+# $Id: rc4.tcl,v 1.7 2005/12/20 16:19:38 patthoyts Exp $
 
 package require Tcl 8.2
 
 # @mdgen EXCLUDE: rc4c.tcl
 
 namespace eval ::rc4 {
-    variable version 1.0.1
-    variable rcsid {$Id: rc4.tcl,v 1.6 2005/12/09 18:27:17 andreas_kupries Exp $}
+    variable version 1.1.0
+    variable rcsid {$Id: rc4.tcl,v 1.7 2005/12/20 16:19:38 patthoyts Exp $}
 
     namespace export rc4
 
     variable uid
     if {![info exists uid]} {
         set uid 0
-    }
-
-    # Using a list to hold the keystream state is a lot faster than using
-    # an array. However, for Tcl < 8.4 we don't have the lset command.
-    # Using a compatability lset is slower than using arrays.
-    # Obviously, a compiled C version is fastest of all.
-    # So lets pick the fastest method we can find...
-    #
-    if {[catch {package require tcllibc}]} {
-        catch {package require rc4c}
-    }
-    if {[info commands ::rc4::rc4c] != {}} {
-        interp alias {} ::rc4::RC4Init {} ::rc4::rc4c_init
-        interp alias {} ::rc4::RC4     {} ::rc4::rc4c
-    } elseif {[package vcompare [package provide Tcl] 8.4] < 0} {
-        interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_Array
-        interp alias {} ::rc4::RC4     {} ::rc4::RC4_Array
-    } else {
-        interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_List
-        interp alias {} ::rc4::RC4     {} ::rc4::RC4_List
     }
 }
 
@@ -282,26 +262,46 @@ proc ::rc4::Pop {varname {nth 0}} {
 # -------------------------------------------------------------------------
 # Fileevent handler for chunked file hashing.
 #
-proc ::rc4::Chunk {Key in {out {}} {chunksize 4096}} {
-    # FRINK: nocheck
-    variable $Key
-    upvar #0 $Key state
+proc ::rc4::Chunk {State} {
+    upvar #0 $State state
     
-    if {[eof $in]} {
-        fileevent $in readable {}
+    if {[eof $state(-in)]} {
+        fileevent $state(-in) readable {}
         set state(reading) 0
     }
-    if {$out == {}} {
-        append state(output) [RC4 $Key [read $in $chunksize]]
+    set data [read $state(-in) $state(-chunksize)]
+    if {[llength $state(-out)] == 0} {
+        append state(output) [RC4 $state(Key) $data]
     } else {
-        puts -nonewline $out [RC4 $Key [read $in $chunksize]]
+        puts -nonewline $state(-out) [RC4 $state(Key) $data]
     }
+    if {!$state(reading) && [llength $state(-command)] != 0} {
+        Cleanup $State; # cleanup and call users command 
+    }
+}
+
+
+proc ::rc4::Cleanup {State} {
+    upvar #0 $State state
+    set cmd $state(-command)
+    set res $state(output)
+    # If we opened the channel then we should close it too.
+    if {[string length $state(-infile)] > 0} {
+        close $state(-in)
+    }
+    RC4Final $state(Key)
+    unset state
+    if {[llength $cmd] != 0} {
+        eval $cmd [list $res]
+    }
+    return $res
 }
 
 # -------------------------------------------------------------------------
 
 proc ::rc4::rc4 {args} {
-    array set opts {-hex 0 -infile {} -in {} -out {} -chunksize 4096 -key {}}
+    array set opts {-hex 0 -infile {} -in {} -out {} -chunksize 4096
+        -key {} -command {}}
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -exact -- $option {
             -key        { set opts(-key) [Pop args 1] }
@@ -310,6 +310,7 @@ proc ::rc4::rc4 {args} {
             -in         { set opts(-in) [Pop args 1] }
             -out        { set opts(-out) [Pop args 1] }
             -chunksize  { set opts(-chunksize) [Pop args 1] }
+            -command    { set opts(-command) [Pop args 1] }
             default {
                 if {[llength $args] == 1} { break }
                 if {[string compare $option "--"] == 0} { Pop args; break }
@@ -335,12 +336,15 @@ proc ::rc4::rc4 {args} {
     if {$opts(-in) == {}} {
         if {[llength $args] != 1} {
             return -code error "wrong # args:\
-            should be \"rc4 ?-hex? -key key -in channel | string\""
+                should be \"rc4 ?-hex? -key key -in channel | string\""
         }
 
         set Key [RC4Init $opts(-key)]
         set r [RC4 $Key [lindex $args 0]]
-        if {$opts(-out) != {}} {
+        if {[llength $opts(-command)] != 0} {
+            eval $opts(-command) [list $r]
+            set r {}
+        } elseif {$opts(-out) != {}} {
             puts -nonewline $opts(-out) $r
             set r {}
         }
@@ -348,24 +352,19 @@ proc ::rc4::rc4 {args} {
 
     } else {
 
-        set Key [RC4Init $opts(-key)]
-        # FRINK: nocheck
-        variable $Key
-        upvar #0 $Key state
+        variable uid
+        set State [namespace current]::state[incr uid]
+        upvar #0 $State state
+        array set state [array get opts]
+        set state(Key) [RC4Init $opts(-key)]
         set state(reading) 1
         set state(output) ""
-        fileevent $opts(-in) readable \
-            [list [namespace origin Chunk] \
-                 $Key $opts(-in) $opts(-out) $opts(-chunksize)]
-        vwait [subst $Key](reading)
-        if {$opts(-out) == {}} {
-            set r $state(output)
-        }
-        RC4Final $Key
-
-        # If we opened the channel then we should close it too.
-        if {$opts(-infile) != {}} {
-            close $opts(-in)
+        fileevent $opts(-in) readable [list [namespace origin Chunk] $State]
+        if {[llength $opts(-command)] != 0} {
+            return {}
+        } else {
+            vwait [set State](reading)
+            set r [Cleanup $State]
         }
     }
 
@@ -376,6 +375,48 @@ proc ::rc4::rc4 {args} {
 }
 
 # -------------------------------------------------------------------------
+
+proc ::rc4::SelectImplementation {impl} {
+    switch -exact -- $impl {
+        critcl {
+            interp alias {} ::rc4::RC4Init {} ::rc4::rc4c_init
+            interp alias {} ::rc4::RC4     {} ::rc4::rc4c
+        }
+        array {
+            interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_Array
+            interp alias {} ::rc4::RC4     {} ::rc4::RC4_Array
+        }
+        list {
+            interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_List
+            interp alias {} ::rc4::RC4     {} ::rc4::RC4_List
+        }
+        default {
+            return -code error "invalid implementation \"$impl\":\
+                must be one of \"critcl\", \"array\" or \"list\""
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+
+# Using a list to hold the keystream state is a lot faster than using
+# an array. However, for Tcl < 8.4 we don't have the lset command.
+# Using a compatability lset is slower than using arrays.
+# Obviously, a compiled C version is fastest of all.
+# So lets pick the fastest method we can find...
+#
+namespace eval ::rc4 {
+    if {[catch {package require tcllibc}]} {
+        catch {package require rc4c}
+    }
+    if {[info commands ::rc4::rc4c] != {}} {
+        SelectImplementation critcl
+    } elseif {[package vcompare [package provide Tcl] 8.4] < 0} {
+        SelectImplementation array
+    } else {
+        SelectImplementation list
+    }
+}
 
 package provide rc4 $::rc4::version
 
