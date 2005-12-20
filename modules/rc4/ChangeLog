@@ -1,3 +1,10 @@
+2005-12-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* rc4.tcl:   Dealt with bug #1386101 (rc4 critcl + channels broken)
+	* rc4.test:  Also implemented a -command option. Added tests for
+	* rc4.man:   both and update man page for -command.
+	* pkgIndex.tcl: Incremented version to 1.1.0
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* rc4.bench: Extended with benchmarks for the keyschedule.

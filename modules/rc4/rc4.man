@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin rc4 n 1.0.1]
+[manpage_begin rc4 n 1.1.0]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {RC4 Stream Cipher}]
 [titledesc {Impementation of the RC4 stream cipher}]
 [require Tcl 8.2]
-[require rc4 [opt 1.0.1]]
+[require rc4 [opt 1.1.0]]
 [description]
 [para]
 
@@ -20,11 +20,12 @@ is sometimes known as ARCFOUR.
 [list_begin definitions]
 
 [call [cmd "::rc4::rc4"] \
-        [opt "[arg -hex]"] \
-        [arg "-key keyvalue" ] \
-        [opt [arg "-out channel"]] \
-        [lb] [arg "-in channel"] | \
-        [arg "-infile filename"] | [arg "string"] [rb]]
+     [opt "[arg -hex]"] \
+     [arg "-key keyvalue" ] \
+     [opt [arg "-command lst"]] \
+     [opt [arg "-out channel"]] \
+     [lb] [arg "-in channel"] | \
+     [arg "-infile filename"] | [arg "string"] [rb]]
 
 Perform the RC4 algorithm on either the data provided by the argument
 or on the data read from the [arg "-in"] channel. If an [arg "-out"]
@@ -41,6 +42,14 @@ and processed and the file is closed. If the [arg "-in"] argument is
 given then data is read from the channel until the end of file. The
 channel is not closed. If the [arg "-out"] argument is given then the
 processing result is written to this channel.
+
+[nl]
+
+If [arg "-command"] is provided then the rc4 command does not return
+anything. Instead the command provided is called with the rc4 result data
+appended as the final parameter. This is most useful when reading from Tcl
+channels as a fileevent is setup on the channel and the data processed in
+chunks
 
 [nl]
 
@@ -84,6 +93,13 @@ HelloWorld
  append ciphertext [rc4::RC4 $Key $plaintext]
  append ciphertext [rc4::RC4 $Key $additional_plaintext]
  rc4::RC4Final $Key
+}]
+
+[example {
+ proc ::Finish {myState data} {
+     DoStuffWith $myState $data
+ }
+ rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
 }]
 
 [see_also des(n) aes(n) blowfish(n)]
