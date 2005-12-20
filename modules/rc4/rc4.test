@@ -1,6 +1,6 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: rc4.test,v 1.6 2005/02/20 01:56:20 patthoyts Exp $
+# $Id: rc4.test,v 1.7 2005/12/20 16:19:38 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -94,7 +94,7 @@ lappend tests \
                12 12 9a 28 4d ea cc 4c de fe 58 be 71 37 54 1c 04 71 26 c8\
                d4 9e 27 55 ab 18 1a b7 e9 40 b0 c0" {}]]
 
-if {[llength [info command ::rc4::rc4c]] != 0} {
+if {[llength [info commands ::rc4::rc4c]] != 0} {
     set n 0
     foreach {key input output} $tests {
         test rc4-critcl-2.$n {rc4 test vectors (critcl based)} {
@@ -105,9 +105,8 @@ if {[llength [info command ::rc4::rc4c]] != 0} {
 }
 
 puts "- rc4 [package present rc4] (pure Tcl - array based)"
+::rc4::SelectImplementation array
 set n 0
-interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_Array
-interp alias {} ::rc4::RC4     {} ::rc4::RC4_Array
 foreach {key input output} $tests {
     test rc4-array-2.$n {rc4 test vectors (pure tcl array based)} {
         list [catch {::rc4::rc4 -key $key $input} msg] $msg
@@ -116,9 +115,8 @@ foreach {key input output} $tests {
 }
 
 puts "- rc4 [package present rc4] (pure Tcl - list based)"
+::rc4::SelectImplementation list
 set n 0
-interp alias {} ::rc4::RC4Init {} ::rc4::RC4Init_List
-interp alias {} ::rc4::RC4     {} ::rc4::RC4_List
 foreach {key input output} $tests {
     test rc4-list-2.$n {rc4 test vectors (pure tcl list based)} {
         list [catch {::rc4::rc4 -key $key $input} msg] $msg
@@ -151,8 +149,122 @@ test rc4-3.5 {rc4 check hyphen handling} {
 } {0 b046}
 
 
+set path [makeFile {} rc4test.data]
+
+test rc4-4.0 {check file reading} {
+    list [catch {
+        set f [open $path w]
+        fconfigure $f -translation lf -eofchar {} -encoding binary
+        puts -nonewline $f "\0\1\2"
+        close $f
+        rc4::rc4 -hex -key 01234567 -infile $path
+    } msg] $msg
+} {0 91d4f1}
+
+test rc4-4.1 {check channel reading} {
+    list [catch {
+        set f [open $path r]
+        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set r [rc4::rc4 -hex -key 01234567 -in $f]
+        close $f
+        set r
+    } msg] $msg
+} {0 91d4f1}
+
+test rc4-4.2 {check channel output} {
+    list [catch {
+        set f [open $path w+]
+        fconfigure $f -translation lf -eofchar {} -encoding binary
+        set r [rc4::rc4 -hex -key 01234567 -out $f "abcdef"]
+        seek $f 0
+        set s [rc4::Hex [read $f]]
+        close $f
+        list $r $s
+    } msg] $msg
+} {0 {{} f0b7907b2341}}
+
+set path2 [makeFile {} rc4test2.data]
+
+test rc4-4.3 {check channel input and output} {
+    list [catch {
+        set f [open $path w+]
+        fconfigure $f -translation lf -eofchar {} -encoding binary
+        puts -nonewline $f "abcdef"
+        seek $f 0
+        set g [open $path2 w+]
+        fconfigure $g -translation lf -eofchar {} -encoding binary
+        set r [rc4::rc4 -hex -key 01234567 -in $f -out $g]
+        close $f
+        seek $g 0
+        set s [rc4::Hex [read $g]]
+        close $g
+        list $r $s
+    } msg] $msg
+} {0 {{} f0b7907b2341}}
+
+proc ::rc4::TestCommandProc {junk data} {
+    if {[string compare $junk "JuNk"] != 0} {
+        set ::rc4::_test magicfailure
+    } else {
+        set ::rc4::_test [Hex $data]
+    }
+}
+
+test rc4-5.0 {check -command option} {
+    set ::rc4::_test unset
+    list [catch {
+        set r [rc4::rc4 -key 01234567 \
+                   -command [list ::rc4::TestCommandProc JuNk] "abcdef"]
+        list $r $::rc4::_test
+    } msg] $msg
+} {0 {{} f0b7907b2341}}
+
+test rc4-5.1 {check -command option (-hex should be ignored)} {
+    set ::rc4::_test unset
+    list [catch {
+        set r [rc4::rc4 -hex -key 01234567 \
+                   -command [list ::rc4::TestCommandProc JuNk] "abcdef"]
+        list $r $::rc4::_test
+    } msg] $msg
+} {0 {{} f0b7907b2341}}
+
+test rc4-5.2 {check -command option with channel input} {
+    set ::rc4::_test unset
+    list [catch {
+        set f [open $path w+]
+        fconfigure $f -translation lf -eofchar {} -encoding binary        
+        puts -nonewline $f "abcdef"
+        seek $f 0
+        set id [after 1000 {set ::rc4::_test timeout}]
+        set r [rc4::rc4 -key 01234567 -in $f \
+                   -command [list ::rc4::TestCommandProc JuNk]]
+        vwait ::rc4::_test
+        after cancel $id
+        close $f
+        list $r $::rc4::_test
+    } msg] $msg
+} {0 {{} f0b7907b2341}}
+
+test rc4-5.3 {check -command option with file input} {
+    set ::rc4::_test unset
+    list [catch {
+        set f [open $path w]
+        fconfigure $f -translation lf -eofchar {} -encoding binary        
+        puts -nonewline $f "abcdef"
+        close $f
+        set id [after 1000 {set ::rc4::_test timeout}]
+        set r [rc4::rc4 -key 01234567 -infile $path \
+                   -command [list ::rc4::TestCommandProc JuNk]]
+        vwait ::rc4::_test
+        after cancel $id
+        list $r $::rc4::_test
+    } msg] $msg
+} {0 {{} f0b7907b2341}}
+
 # -------------------------------------------------------------------------
 
+catch {unset ::rc4::_test}
+rename ::rc4::TestCommandProc {}
 ::tcltest::cleanupTests
 
 # Local variables:
