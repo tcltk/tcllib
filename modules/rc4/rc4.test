@@ -1,6 +1,6 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: rc4.test,v 1.7 2005/12/20 16:19:38 patthoyts Exp $
+# $Id: rc4.test,v 1.8 2005/12/21 08:43:53 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 # Initialize the test package
@@ -149,7 +149,7 @@ test rc4-3.5 {rc4 check hyphen handling} {
 } {0 b046}
 
 
-set path [makeFile {} rc4test.data]
+set path [lindex [makeFile {} rc4test.data] end]
 
 test rc4-4.0 {check file reading} {
     list [catch {
@@ -183,7 +183,7 @@ test rc4-4.2 {check channel output} {
     } msg] $msg
 } {0 {{} f0b7907b2341}}
 
-set path2 [makeFile {} rc4test2.data]
+set path2 [lindex [makeFile {} rc4test2.data] end];# compat for tcltest 1.0
 
 test rc4-4.3 {check channel input and output} {
     list [catch {
