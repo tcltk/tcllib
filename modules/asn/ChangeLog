@@ -1,3 +1,9 @@
+2005-02-09  Michael Schlenker <mic42@users.sourceforge.net>
+	
+	* asn.tcl: 	Applied patch from Tcllib Bug #1391776 to 
+			create better (shorter) encodings for OIDs.
+	  pkgIndex.tcl: Version number increased to 0.4.1
+	
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* asn.test: Fixed typos, new and old.

@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.7 2005/02/15 17:50:21 mic42 Exp $
+#   $Id: asn.tcl,v 1.8 2005/12/30 16:24:13 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -528,20 +528,24 @@ proc ::asn::asnObjectIdentifier {oid} {
               set octets [binary format c [expr {[lindex $oid 0]*40+[lindex $oid 1]}]]
               foreach identifier [lrange $oid 2 end] {
                   set d 128
-                  set subidentifier [list]
-                  # find the largest divisor
-                  while {($identifier / $d) >= 128} { set d [expr {$d * 128}] }
-                  # and construct the subidentifiers
-                  set remainder $identifier
-                  while {$d >= 128} {
-                       set coefficient [expr {($remainder / $d) | 0x80}]
-                       set remainder [expr {$remainder % $d}]
-                       set d [expr {$d / 128}]
-                       lappend subidentifier $coefficient
+                  if {$identifier < 128} {
+                    set subidentifier [list $identifier]
+                  } else {  
+                    set subidentifier [list]
+                    # find the largest divisor
+                    
+                    while {($identifier / $d) >= 128} { set d [expr {$d * 128}] }
+                    # and construct the subidentifiers
+                    set remainder $identifier
+                    while {$d >= 128} {
+                        set coefficient [expr {($remainder / $d) | 0x80}]
+                        set remainder [expr {$remainder % $d}]
+                        set d [expr {$d / 128}]
+                        lappend subidentifier $coefficient
+                    }
+                    lappend subidentifier $remainder
                   }
-                  lappend subidentifier $remainder
                   append octets [binary format c* $subidentifier]
-                  puts [string length $octets]
               }
               return [binary format H2a*a* 06 [asnLength [string length $octets]] $octets]
         }
@@ -1174,4 +1178,4 @@ proc asn::asnGetNull {data_var} {
 
 
 #-----------------------------------------------------------------------------
-package provide asn 0.4
+package provide asn 0.4.1
