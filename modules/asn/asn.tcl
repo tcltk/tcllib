@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
-#   Copyright (C) 2004,2005 Michael Schlenker (mic42@users.sourceforge.net)
+#   Copyright (C) 2004-2006 Michael Schlenker (mic42@users.sourceforge.net)
 #-----------------------------------------------------------------------------
 #   
 #   A partial ASN decoder/encoder implementation in plain Tcl. 
@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.8 2005/12/30 16:24:13 mic42 Exp $
+#   $Id: asn.tcl,v 1.9 2006/01/05 17:11:28 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -641,7 +641,7 @@ proc ::asn::asnGetByte {data_var byte_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnPeekByte {data_var byte_var} {
-    upvar $data_var data $byte_var $byte
+    upvar $data_var data $byte_var byte
     
     binary scan [string index $data 0] c byte
     set byte [expr {($byte + 0x100) % 0x100}]  
@@ -1178,4 +1178,5 @@ proc asn::asnGetNull {data_var} {
 
 
 #-----------------------------------------------------------------------------
-package provide asn 0.4.1
+package provide asn 0.4.2
+

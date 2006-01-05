@@ -1,4 +1,11 @@
-2005-02-09  Michael Schlenker <mic42@users.sourceforge.net>
+2006-01-05  Michael Schlenker <mic42@users.sourceforge.net>
+	
+	* asn.tcl: 	Fixed Tcllib Bug #1393804. Stupid typo.
+	  asn.test:	Added some tests for asnPeekByte, 
+	                asnGetByte, asnGetBytes.
+	  pkgIndex.tcl: Version increased to 0.4.2           
+
+2005-12-30  Michael Schlenker <mic42@users.sourceforge.net>
 	
 	* asn.tcl: 	Applied patch from Tcllib Bug #1391776 to 
 			create better (shorter) encodings for OIDs.

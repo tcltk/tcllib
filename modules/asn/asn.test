@@ -2,10 +2,10 @@
 # asn.test:  tests for the asn BER encoding/decoding module.
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
-# Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.7 2005/10/21 20:12:48 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.8 2006/01/05 17:11:28 mic42 Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "    Aborting tests for asn."
@@ -380,6 +380,32 @@ foreach {n i len hex} {
     set int
     }  $i  ; # {}
 }
+
+test asn-13.0 {peekByte} {
+    set data \x0d\x0a
+    asn::asnPeekByte data byte
+    list $byte [string length $data]
+} {13 2}
+
+test asn-14.0 {getByte} {
+    set data \x0d\x0a
+    asn::asnGetByte data byte
+    list $byte [string length $data]
+} {13 1}
+
+test asn-15.0 {getBytes} {
+    set data \x0d\x0d\x0d\x0d\x0a
+    asn::asnGetBytes data 4 bytes
+    list [string length $data] [string length $bytes]
+} [list 1 4]
+
+test asn-15.1 {getBytes} {
+    set data \x0d\x0d\x0d\x0d\x0a
+    asn::asnGetBytes data 4 bytes
+    set expectedbytes \x0d\x0d\x0d\x0d
+    set expecteddata \x0a
+    list [expr {$data == $expecteddata}] [expr {$bytes == $expectedbytes}]
+} [list 1 1]
 
 # -------------------------------------------------------------------------
 ::tcltest::cleanupTests
