@@ -1,3 +1,12 @@
+2006-01-10  Andreas Kupries <andreask@activestate.com>
+
+	* dacceptor.test: Fixed [SF Tcllib Bug 1316040]. Uncluttering test
+	* dexec.test:     output.
+	* fa.test:
+	* faop.test:
+	* tests/da_accept.test:
+	* tests/de_exec.test:
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

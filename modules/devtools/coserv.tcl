@@ -23,13 +23,13 @@ if {[catch {source $::coserv::commsrc} msg]} {
 
 package require comm
 puts "- comm [package present comm]"
-puts "Main       @ [::comm::comm self]"
+#puts "Main       @ [::comm::comm self]"
 
 # ### ### ### ######### ######### #########
 ## Core of all sub processes.
 
 set ::coserv::subcode [::tcltest::makeFile {
-    puts "Subshell is \"[info nameofexecutable]\""
+    #puts "Subshell is \"[info nameofexecutable]\""
     catch {wm withdraw .}
 
     # ### ### ### ######### ######### #########
@@ -60,7 +60,7 @@ set ::coserv::subcode [::tcltest::makeFile {
 ## Command used by sub processes to signal that they are ready.
 
 proc ::coserv::ready {cookie id} {
-    puts "Sub server @ $id\t\[$cookie\]"
+    #puts "Sub server @ $id\t\[$cookie\]"
     set ::coserv::go $id
     return
 }
@@ -78,7 +78,7 @@ proc ::coserv::start {cookie} {
     exec [info nameofexecutable] $subcode \
 	    $commsrc [::comm::comm self] $cookie &
 
-    puts "Waiting for sub server to boot"
+    #puts "Waiting for sub server to boot"
     vwait ::coserv::go
 
     # We return the id of the server
@@ -95,7 +95,7 @@ proc ::coserv::task {id script} {
 }
 
 proc ::coserv::shutdown {id} {
-    puts "Sub server @ $id\tShutting down ..."
+    #puts "Sub server @ $id\tShutting down ..."
     task $id exit
 }
 

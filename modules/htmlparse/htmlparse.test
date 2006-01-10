@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.17 2005/10/06 20:58:38 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.18 2006/01/10 23:05:19 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -595,7 +595,7 @@ foreach impl [struct::tree::Implementations] {
 
     set usec [time {source $tests} 1]
 
-    puts "$impl:\t$usec"
+    #puts "$impl:\t$usec"
 }
 
 catch {memory validate off}
