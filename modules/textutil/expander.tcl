@@ -449,6 +449,16 @@ proc ::textutil::expander::Op_cpush {name cname} {
     set [Var output-[Get level]] {}
     # FRINK: nocheck
     set [Var name-[Get level]] $cname
+
+    # The first level is init'd elsewhere (Op_expand)
+    if {[set [Var level]] < 2} return
+
+    # Initialize the location information, inherit from the outer
+    # context.
+
+    LocInit $cname
+    catch {LocSet $cname [LocGet $name]}
+    return    
 }
 
 #---------------------------------------------------------------------
