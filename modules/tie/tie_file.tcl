@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.5 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.6 2006/01/10 21:44:45 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -214,6 +214,7 @@ snit::type ::tie::std::file {
 	    close $new
 	    file rename -force ${path}.new $path
 	    set chan [open ${path} {RDWR EXCL APPEND}]
+	    fconfigure $chan -buffering none -encoding utf-8
 	} else {
 	    # Copy compacted journal over the existing one.
 	    file rename -force ${path}.new $path
