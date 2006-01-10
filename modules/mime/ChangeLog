@@ -1,5 +1,11 @@
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
+	* performance.tcl: Removed the unstructured benchmarks.
+	* mime.bench: New file, contains structured benchmarks for the
+	  module. This fixes [SF Tcllib Bug 1373935].
+
+2006-01-10  Andreas Kupries <andreask@activestate.com>
+
 	* mime.tcl: Ensured that all accesses to the variable 'major'
 	  operate on a global variable. Fix for [SF Tcllib Bug 1394840],
 	  reported by George Orwell <orwellian@users.sourceforge.net>.
