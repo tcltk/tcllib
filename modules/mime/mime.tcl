@@ -22,7 +22,7 @@ if {[catch {package require Trf  2.0}]} {
     # that appears to work with this code here.
 
     package require base64 2.0
-    set major [lindex [split [package require md5] .] 0]
+    set ::major [lindex [split [package require md5] .] 0]
 
     # Create these commands in the mime namespace so that they
     # won't collide with things at the global namespace level
@@ -48,7 +48,7 @@ if {[catch {package require Trf  2.0}]} {
 	}
     }
 
-    unset major
+    unset ::major
 }        
 
 #
