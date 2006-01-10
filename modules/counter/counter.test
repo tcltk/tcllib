@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.test,v 1.7 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.test,v 1.8 2006/01/10 23:05:18 andreas_kupries Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
@@ -29,16 +29,20 @@ test counter-1.1 {counter::init} {
     catch {counter::init} err
 } {1}
 
-set x 0
-puts "incr scaler [time {incr x} 100]"
-set a(x) 0
-puts "incr array [time {incr a(x)} 100]"
-set a(x) 0
-set a(n) 0
-puts "rawcount [time {
+if 0 {
+    set x 0
+    puts "incr scaler [time {incr x} 100]"
+
+    set a(x) 0
+    puts "incr array [time {incr a(x)} 100]"
+
+    set a(x) 0
+    set a(n) 0
+    puts "rawcount [time {
     set a(x) [expr {$a(x) + 2.4}]
     incr a(n)
 } 100]"
+}
 
 test counter-simple {counter::count} {
     counter::init simple
@@ -47,7 +51,7 @@ test counter-simple {counter::count} {
     counter::count simple
     counter::get simple
 } {3}
-puts "simple [time {counter::count simple} 100]"
+#puts "simple [time {counter::count simple} 100]"
 
 test counter-avg {counter::count} {
     counter::init avg
@@ -79,7 +83,7 @@ test counter-lastn {averge over lastn} {
     counter::count lastn 0.4
     counter::get lastn -avgn
 } {5.0}
-puts "lastn [time {counter::count lastn 2.4} 100]"
+#puts "lastn [time {counter::count lastn 2.4} 100]"
 
 test counter-lastn {lifetime average} {
     counter::init lastn -lastn 4
@@ -91,7 +95,7 @@ test counter-lastn {lifetime average} {
     counter::count lastn 0.4
     counter::get lastn -avg
 } {4.25}
-puts "lastn [time {counter::count lastn 2.4} 100]"
+#puts "lastn [time {counter::count lastn 2.4} 100]"
 
 test counter-hist {basic histogram} {
     counter::init hist -hist 10
@@ -115,7 +119,7 @@ test counter-hist {histogram average} {
     counter::count hist 53.3
     counter::get hist -avg
 } {22.6857142857}
-puts "hist [time {counter::count hist 2.4} 100]"
+#puts "hist [time {counter::count hist 2.4} 100]"
 
 test counter-hist2x {counter::count} {
     counter::init hist -hist2x 10
@@ -131,7 +135,7 @@ test counter-hist2x {counter::count} {
     counter::count hist 478
     counter::get hist -hist
 } {0 1 1 1 2 2 3 4 5 1 6 1}
-puts "hist2x [time {counter::count hist 50} 100]"
+#puts "hist2x [time {counter::count hist 50} 100]"
 
 test counter-hist10x {counter::count} {
     counter::init hist -hist10x 10
@@ -171,7 +175,7 @@ test counter-histlog {counter::count} {
 
 test counter-timehist {counter::count} {load-dependent} {
     counter::init hits -timehist 4
-    catch {puts stderr "Pausing during timehist tests"}
+    catch {#puts stderr "Pausing during timehist tests"}
     counter::count hits 2
     # We need to reach in and find out what bucket was used
     array set info [counter::get hits -all]
@@ -187,7 +191,7 @@ test counter-timehist {counter::count} {load-dependent} {
 	}
     }
 
-    puts "timehist [time {counter::count hits} 100]"
+    #puts "timehist [time {counter::count hits} 100]"
 
     set result
 } {0 2 1 4 2 8}

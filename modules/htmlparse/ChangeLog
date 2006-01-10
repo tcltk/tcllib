@@ -1,3 +1,8 @@
+2006-01-10  Andreas Kupries <andreask@activestate.com>
+
+	* htmlparse.test: Fixed [SF Tcllib Bug 1316049]. Uncluttering test
+	  output.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

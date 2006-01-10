@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3d.tcl,v 1.21 2005/09/28 04:51:23 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.tcl,v 1.22 2006/01/10 23:05:19 andreas_kupries Exp $
 
 package require md5  ; # tcllib | APOP
 package require mime ; # tcllib | storage callback
@@ -194,7 +194,7 @@ proc ::pop3d::_up {name} {
 
     set cmd $sockCmd
     lappend cmd -server [list ::pop3d::HandleNewConnection $name] $port
-    puts $cmd
+    #puts $cmd
     set s [eval $cmd]
     set trueport [lindex [fconfigure $s -sockname] 2]
 

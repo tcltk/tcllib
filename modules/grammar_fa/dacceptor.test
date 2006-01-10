@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: dacceptor.test,v 1.4 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: dacceptor.test,v 1.5 2006/01/10 23:05:19 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for grammar::fa::dacceptor."
@@ -73,7 +73,8 @@ set class ::grammar::fa::dacceptor
 # -------------------------------------------------------------------------
 
 foreach f [lsort [glob -nocomplain -dir [file join [file dirname [info script]] tests] da_*.test]] {
-    puts   \ \ \ \ [file tail $f]\ \t[expr {double([lindex [time {source $f} 1] 0])/1000000}]\ seconds
+    #puts   \ \ \ \ [file tail $f]\ \t[expr {double([lindex [time {source $f} 1] 0])/1000000}]\ seconds
+    source $f
 }
 
 # -------------------------------------------------------------------------

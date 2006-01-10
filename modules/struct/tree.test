@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.41 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.42 2006/01/10 23:05:20 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -227,7 +227,7 @@ proc validate_serial {t serial {rootname {}}} {
 ## implementation. As a mini-benchmark we time how
 ## long each run takes.
 
-puts "\ntree impl. performance"
+#puts "\ntree impl. performance"
 
 set usec  0
 set tests [file join [file dirname [info script]] tree.testsuite]
@@ -275,7 +275,7 @@ foreach impl [struct::tree::Implementations] {
 
     set usec [time {source $tests} 1]
 
-    puts "$impl:\t$usec"
+    #puts "$impl:\t$usec"
 }
 
 catch {memory validate off}
