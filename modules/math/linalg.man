@@ -385,6 +385,16 @@ Compute the angle between two vectors (in radians)
 [list_end]
 
 [nl]
+[call [cmd ::math::linearalgebra::crossproduc5] [arg vect1] [arg vect2]]
+
+Compute the cross product of two (three-dimensional) vectors 
+
+[list_begin arg]
+[arg_def list vect1] First vector
+[arg_def list vect2] Second vector
+[list_end]
+
+[nl]
 [call [cmd ::math::linearalgebra::matmul] [arg mv1] [arg mv2]]
 
 Multiply a vector/matrix with another vector/matrix. The result is

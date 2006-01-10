@@ -1,3 +1,9 @@
+2006-01-10  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+        * linalg.tcl: Fixed bug in procedure angle
+                      Added a procedure crossproduct
+        * linalg.man: Added documentation on crossproduct
+
 2005-11-13  Stephane Arnold <sarnold75@users.sourceforge.net>
 
         * bigfloat2.tcl : bug fix in trigonometry, functions may have
