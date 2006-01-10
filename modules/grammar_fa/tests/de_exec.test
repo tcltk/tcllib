@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: de_exec.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: de_exec.test,v 1.4 2006/01/10 23:05:19 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Regular expression for C comments (Extended notation, using the 'not' operator).
@@ -18,7 +18,7 @@
 # 0 -/-> 1 -*-> 2 -*-> 3 -/-> 4
 #               \<-any-/
 
-puts -nonewline "    RE compile, " ; flush stdout
+#puts -nonewline "    RE compile, " ; flush stdout
 
 grammar::fa ccomments fromRegex {. {S /}
                                    {S *}
@@ -30,10 +30,10 @@ grammar::fa ccomments fromRegex {. {S /}
 				   {S /}
 			       } {/ * any}
 
-puts -nonewline {FA, } ; flush stdout
+#puts -nonewline {FA, } ; flush stdout
 
-ccomments determinize ; puts -nonewline {deterministic, } ; flush stdout
-ccomments minimize    ; puts minimal                      ; flush stdout
+ccomments determinize ; #puts -nonewline {deterministic, } ; flush stdout
+ccomments minimize    ; #puts minimal                      ; flush stdout
 
 
 # -------------------------------------------------------------------------

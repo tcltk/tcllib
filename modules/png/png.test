@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.5 2004/09/22 17:35:38 afaupell Exp $
+# RCS: @(#) $Id: png.test,v 1.6 2006/01/10 23:05:19 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -269,7 +269,7 @@ array set exptime {
 foreach f [lsort [glob -directory [file join [file dirname [info script]] testimages] cm*.png]] {
     set root [file rootname [file tail $f]]
 
-    puts [clock format $exptime($root) -gmt 1]
+    #puts [clock format $exptime($root) -gmt 1]
 
     test png-gettimestamp-$root {retrieve timestamp} {
 	::png::getTimestamp $f
