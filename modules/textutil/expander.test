@@ -142,6 +142,7 @@ test expander-2.8 {two-stage cpush, cappend, cpop} {} {
     exp cpush FOO
     exp cappend "Goodbye "
     exp cpush BAR
+    exp where
     exp cappend "Cruel "
     exp cappend [exp cpop BAR]
     exp cappend "World!"
