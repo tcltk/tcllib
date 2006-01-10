@@ -6,7 +6,7 @@
 # This is a tie for remote array ties, actually using separate
 # processes. This is based on the package "comm", also in Tcllib.
 #
-# RCS: @(#) $Id: tie_rarray_comm.test,v 1.5 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_rarray_comm.test,v 1.6 2006/01/10 21:44:45 andreas_kupries Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "Aborting tests for snit."
@@ -118,23 +118,23 @@ set path(spawn) [makeFile {
 } spawn]
 
 proc slaveat {id} {
-    puts "Slave @ $id"
+    #puts "Slave @ $id"
     proc slave {} [list return $id]
     set ::go .
 }
 
-puts "self @ [::comm::comm self]"
+#puts "self @ [::comm::comm self]"
 
 exec [info nameofexecutable] $path(spawn) $comm_code [::comm::comm self] &
 
-puts "Waiting for spawned comm system to boot"
+#puts "Waiting for spawned comm system to boot"
 # Wait for the slave to initialize itself.
 vwait ::go
 
 interp alias {} csend  {} comm::comm send [slave]
 interp alias {} csenda {} comm::comm send -async [slave]
 
-puts "Running tests"
+#puts "Running tests"
 #::comm::comm debug 1
 # ------------------------------------------------------------------------
 
