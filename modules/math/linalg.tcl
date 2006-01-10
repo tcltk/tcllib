@@ -33,7 +33,7 @@ namespace eval ::math::linearalgebra {
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
     namespace export scale scale_vect scale_mat matmul
-    namespace export rotate angle choleski
+    namespace export rotate crossproduct angle choleski
     namespace export getrow getcol getelem setrow setcol setelem
     namespace export mkVector mkMatrix mkIdentity mkDiagonal
     namespace export mkHilbert mkDingdong mkBorder mkFrank
@@ -133,6 +133,27 @@ proc ::math::linearalgebra::conforming { type obj1 obj2 } {
     return $result
 }
 
+# crossproduct --
+#     Return the "cross product" of two 3D vectors 
+# Arguments:
+#     vect1      First vector
+#     vect2      Second vector
+# Result:
+#     Cross product 
+#
+proc ::math::linearalgebra::crossproduct { vect1 vect2 } {
+
+    if { [llength $vect1] == 3 && [llength $vect2] == 3 } { 
+        foreach {v11 v12 v13} $vect1 {v21 v22 v23} $vect2 {break}
+        return [list \
+            [expr {$v12*$v23 - $v13*$v22}] \
+            [expr {$v13*$v21 - $v11*$v23}] \
+            [expr {$v11*$v22 - $v12*$v21}] ]
+    } else {
+        return -code error "Cross-product only defined for 3D vectors"
+    }
+}
+
 # angle --
 #     Return the "angle" between two vectors (in radians)
 # Arguments:
@@ -144,11 +165,11 @@ proc ::math::linearalgebra::conforming { type obj1 obj2 } {
 proc ::math::linearalgebra::angle { vect1 vect2 } {
 
     set dp [dotproduct $vect1 $vect2]
-    set n1 [norm_2 $vect1]
-    set n2 [norm_2 $vect2]
+    set n1 [norm_two $vect1]
+    set n2 [norm_two $vect2]
 
     if { $n1 == 0.0 || $n2 == 0.0 } {
-       return -code error "Angle not defined for null vector"
+        return -code error "Angle not defined for null vector"
     }
 
     return [expr {acos($dp/$n1/$n2)}]
