@@ -1,3 +1,9 @@
+2006-01-10  Andreas Kupries <andreask@activestate.com>
+
+	* mime.tcl: Ensured that all accesses to the variable 'major'
+	  operate on a global variable. Fix for [SF Tcllib Bug 1394840],
+	  reported by George Orwell <orwellian@users.sourceforge.net>.
+
 2005-11-06  Benjamin Riefenstahl  <b.riefenstahl@turtle-trading.net>
 
 	* mime.tcl (parsedatetime): Add support for timezones with format
