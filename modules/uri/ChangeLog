@@ -1,3 +1,10 @@
+2006-01-10  Andreas Kupries <andreask@activestate.com>
+
+	* uri.man: Added information about url constituents to the
+	  documentation of uri::split. For the schemes we know them
+	  for. This fixes [SF Tcllib Bug 1335320] by Kristoffer Lawson
+	  <setok@users.sourceforge.net>.
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* urn.test: Fixed typo.
