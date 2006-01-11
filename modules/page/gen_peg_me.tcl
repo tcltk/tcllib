@@ -29,6 +29,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+# @mdgen NODEP: page::plugin
+
 package require page::plugin ; # S.a. pseudo-package.
 
 package require textutil

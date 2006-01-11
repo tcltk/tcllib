@@ -24,6 +24,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+# @mdgen NODEP: page::plugin
+
 package require page::plugin ; # S.a. pseudo-package.
 package require page::analysis::peg::reachable
 package require page::analysis::peg::realizable
