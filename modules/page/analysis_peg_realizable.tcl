@@ -29,6 +29,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+# @mdgen NODEP: page::plugin
+
 package require page::plugin     ; # S.a. pseudo-package.
 package require page::util::flow ; # Dataflow walking.
 package require page::util::peg  ; # General utilities.
