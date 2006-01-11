@@ -1,5 +1,8 @@
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
+	* pool.test: New file. Structured tests.
+	* pooltest.tcl: Removed unstructured tests.
+
 	* tree.test: Fixed [SF Tcllib Bug 1316061]. Uncluttering test
 	  output.
 
