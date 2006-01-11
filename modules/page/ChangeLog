@@ -1,5 +1,13 @@
 2006-01-11  Andreas Kupries <andreask@activestate.com>
 
+	* util_norm_peg.tcl:           Inserted pragmas for the MDgen
+	* util_norm_lemon.tcl:         application hinting that the
+	* gen_peg_me.tcl:              pseudo-package 'page::plugin'
+	* analysis_peg_emodes.tcl:     is not a true dependency.
+	* analysis_peg_minimize.tcl:
+	* analysis_peg_realizable.tcl:
+	* analysis_peg_reachable.tcl:
+
 	* analysis_peg_minimize.tcl: Changed bad reference to 'useful' to
 	  the correct string, 'realizable'.
 

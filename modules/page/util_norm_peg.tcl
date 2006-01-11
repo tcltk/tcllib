@@ -25,6 +25,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+# @mdgen NODEP: page::plugin
+
 package require page::plugin ; # S.a. pseudo-package.
 package require treeql
 package require page::util::quote
