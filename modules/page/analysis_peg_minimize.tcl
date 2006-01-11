@@ -26,7 +26,7 @@
 
 package require page::plugin ; # S.a. pseudo-package.
 package require page::analysis::peg::reachable
-package require page::analysis::peg::useful
+package require page::analysis::peg::realizable
 
 namespace eval ::page::analysis::peg {}
 
@@ -35,8 +35,8 @@ namespace eval ::page::analysis::peg {}
 
 proc ::page::analysis::peg::minimize {t} {
     page_info {[PEG Minimization]}
-    page_log_info ..Reachability ; ::page::analysis::peg::reachable::remove!
-    page_log_info ..Usefulness   ; ::page::analysis::peg::useful::remove!
+    page_log_info ..Reachability  ; ::page::analysis::peg::reachable::remove!
+    page_log_info ..Realizability ; ::page::analysis::peg::realizable::remove!
 
     page_log_info Ok
     return
