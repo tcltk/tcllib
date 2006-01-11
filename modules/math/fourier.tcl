@@ -279,7 +279,7 @@ proc ::math::fourier::Slow_DFT {dataL rootL} {
 #     Filtered transform
 #
 proc ::math::fourier::lowpass {cutoff in_data} {
-    package require complexnumbers
+    package require math::complexnumbers
 
     set res    [list]
     set cutoff [list $cutoff 0.0]
@@ -305,7 +305,7 @@ proc ::math::fourier::lowpass {cutoff in_data} {
 #     Filtered transform (high-pass)
 #
 proc ::math::fourier::highpass {cutoff in_data} {
-    package require complexnumbers
+    package require math::complexnumbers
 
     set res    [list]
     set cutoff [list $cutoff 0.0]
