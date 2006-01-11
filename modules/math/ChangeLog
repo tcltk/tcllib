@@ -1,3 +1,9 @@
+2006-01-11  Andreas Kupries <andreask@activestate.com>
+
+	* fourier.tcl (::math::fourier::lowpass):  Changed package
+	* fourier.tcl (::math::fourier::highpass): reference
+	  "complexnumbers" to the correct "math::complexnumbers".
+
 2006-01-10  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * linalg.tcl: Fixed bug in procedure angle
