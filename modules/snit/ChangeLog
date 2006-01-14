@@ -1,3 +1,18 @@
+2006-01-14  Will Duquette  <will@wjduquette.com>
+
+	* snit2.tcl (::snit::RT.UnknownMethod):  When creating a new
+	  submethod ensemble, creates it in the ${selfns} namespace
+	  instead of in the ${type} namespace (fix courtesy of
+	  Anton Kovalenko).  Previously, multiple objects of a type that
+	  defines a submethod ensemble would share a single ensemble,
+	  with confusing results.
+	* snit.test: Added test hmethod-1.6, to test for the above error.
+	  As expected, there was no error in snit 1.1, but the test failed
+	  in snit 2.0 until the above change was made.
+	* snit.test: "if 0"'d out some tests that make use of
+	  tcltest::tooManyArgs and tcltest::wrongNumArgs, two commands 
+	  that aren't available to me.
+
 2005-12-05  Andreas Kupries <andreask@activestate.com>
 
 	* snit83.tcl: Replaced the direct use of / path separator with a

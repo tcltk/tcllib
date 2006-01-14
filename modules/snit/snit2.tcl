@@ -2515,7 +2515,9 @@ proc ::snit::RT.UnknownMethod {type selfns win eId eCmd method args} {
         # FIRST, define the ensemble command.
         lappend eId $method
 
-        set newCmd ${type}::Snit_en[llength $eId]_[join $eId _]
+        # Fix provided by Anton Kovalenko; previously this call erroneously
+        # used ${type} rather than ${selfns}.
+        set newCmd ${selfns}::Snit_en[llength $eId]_[join $eId _]
 
         set unknownCmd [list ::snit::RT.UnknownMethod \
                             $type $selfns $win $eId]
