@@ -2405,16 +2405,16 @@ This is the safest thing to do:
 }]
 [para]
 
-If the component type isn't a [cmd snit::type] you can base the
-component's object name on the type's name in some way:
+If the component type isn't a [cmd snit::type] you can create
+the component in the object's instance namespace:
 
 [para]
 [example {
-     install mytail using tail $self.mytail
+    install mytail using tail ${selfns}::mytail
 }]
 [para]
 
-This isn't as safe, but should usually work out okay.
+Make sure you pick a unique name within the instance namespace.
 
 [subsection {Must I destroy the components I own?}]
 
@@ -2462,7 +2462,7 @@ public.  You can do it like this:
 
 [para]
 [example {snit::widget combobox {
-     expose listbox -public listbox
+     component listbox -public listbox
 
      constructor {args} {
          install listbox using listbox $win.listbox ....
