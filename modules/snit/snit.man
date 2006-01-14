@@ -2316,8 +2316,10 @@ people for using Snit and providing me with valuable feedback: Rolf
 Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
 Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, 
 Andreas Kupries, Marty Backe, Andy Goth, Jeff Hobbs, Brian
-Griffin, Donal Fellows, and Miguel Sofer.  If I've forgotten anyone, 
-my apologies; let me know and I'll add your name to the list.
+Griffin, Donal Fellows, Miguel Sofer, Kenneth Green, 
+and Anton Kovalenko.  
+If I've forgotten anyone, my apologies; let me know and I'll add 
+your name to the list.
 
 [keywords class {object oriented} object C++]
 [keywords Snit type {Incr Tcl} BWidget]
