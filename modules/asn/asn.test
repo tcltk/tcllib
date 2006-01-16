@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.8 2006/01/05 17:11:28 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.9 2006/01/16 21:08:44 mic42 Exp $
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     puts "    Aborting tests for asn."
@@ -28,6 +28,15 @@ if {[catch {source [file join [file dirname [info script]] asn.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
 }
+
+if {![llength [info commands tcltest::wrongNumArgs]]} {
+	proc tcltest::wrongNumArgs {name value rest} {
+		return "wrong # args: should be \"[string trimright "$name $value"]\""
+	}
+	proc tcltest::tooManyArgs {name value} {
+		return [wrongNumArgs $name $value 0]
+	}	
+}	
 
 package require asn
 puts "- asn [package present asn]"
@@ -407,5 +416,350 @@ test asn-15.1 {getBytes} {
     list [expr {$data == $expecteddata}] [expr {$bytes == $expectedbytes}]
 } [list 1 1]
 
-# -------------------------------------------------------------------------
+# 16 ----------- string encoder/decoder invalid arguments
+array set stringtag {
+NumericString 0x12
+PrintableString 0x13
+IA5String 0x16
+BMPString 0x1e
+UTF8String 0x0c
+}
+set i 0
+foreach strtype {NumericString PrintableString IA5String BMPString UTF8String} {
+	incr i
+	test asn-16.$i $strtype {
+		catch "asn::asn$strtype" result
+		set result
+	} [tcltest::wrongNumArgs asn::asn$strtype string 0]
+	incr i
+	test asn-16.$i $strtype {
+		catch "asn::asn$strtype a b" result
+		set result
+	} [tcltest::tooManyArgs "asn::asn$strtype" string]
+	incr i
+	test asn-16.$i get$strtype {
+		catch "asn::asnGet$strtype foo" result
+		set result
+	} [tcltest::wrongNumArgs "asn::asnGet$strtype" "data_var print_var" 0]	
+	incr i
+	test asn-16.$i get$strtype {
+		catch "asn::asnGet$strtype foo bar baz" result
+		set result
+	} [tcltest::tooManyArgs "asn::asnGet$strtype" "data_var print_var"]	
+	incr i
+	test asn-16.$i "get$strtype parse sequence" {
+		set data "\x30\x03abc"
+		catch "asn::asnGet$strtype data print" result
+		set result
+	} "Expected [regsub String $strtype " String"] ($stringtag($strtype)), but got 30"	
+}
+incr i
+# 17 ------------------- invalid string values
+
+
+test asn-17.1 {numeric string with non-numbers} {
+	catch {asn::asnNumericString this-is-not-a-number} result
+	set result
+} "Illegal character in Numeric String."
+
+test asn-17.2 {numeric string with hexadecimals} {
+	catch {asn::asnNumericString 09AB} result
+	set result
+} "Illegal character in Numeric String."
+
+test asn-17.3 {numeric string with spaces - spaces are legal} {
+	catch {asn::asnNumericString " 093"}
+} 0 ;# TCL_OK
+
+test asn-17.4 {numeric string with minus sign} {
+	catch {asn::asnNumericString "-15"}  result
+	set result
+} "Illegal character in Numeric String."
+	
+test asn-17.5 {numeric string with tab (illegal)} {
+	catch {asn::asnNumericString "\t093"} result
+	set result
+} "Illegal character in Numeric String."
+
+#According to ITU-T X.680 37.4
+set printablechars {[-A-Za-z0-9 '()+,./=?:]}
+
+set i 5
+
+for {set j 1} {$j<128} {incr j;incr i} {
+	set data [format %c $j]
+	if {[regexp "^$printablechars+\$" $data]} {
+		test asn-17.$i "printable string valid char [format %02x $j]" {
+			catch {asn::asnPrintableString $data}
+		} 0
+	} else {
+		test asn-17.$i "printable string invalid char [format %02x $j]" {
+			catch {asn::asnPrintableString $data} result
+			set result
+		} "Illegal character in PrintableString."
+    }
+}
+
+test asn-17.134 {IA5String with Latin-1 char} {
+	catch {asn::asnIA5String "\xD0"} result
+	set result
+} "Illegal character in IA5String"
+
+test asn-17.135 {IA5String with Cyrillic chars} {
+	catch {asn::asnIA5String "\u0420\u0443\u0441\u0441\u043a\u0438\u0439"} result
+	set result
+} "Illegal character in IA5String"
+
+# 18 - correct encoding of string values
+
+test asn-18.1 {encode numeric string} {
+	catch {asn::asnNumericString 123} result
+	set result
+} "\x12\003123"
+
+test asn-18.2 {encode numeric strin with space} {
+	catch {asn::asnNumericString "1 2 3"} result
+	set result
+} "\x12\0051 2 3"	
+
+test asn-18.3 {encode printable string} {
+	catch {asn::asnPrintableString "printable string"} result
+	set result
+} "\x13\x10printable string"
+
+test asn-18.4 {encode IA5 string} {
+	catch {asn::asnIA5String "vitus@45.free.net"} result
+	set result
+} "\x16\x11vitus@45.free.net"	
+
+test asn-18.5 {encode bmp string US-ASCII} {
+	catch {asn::asnBMPString "US-ASCII"} result
+	set result
+} "\x1e\x10\0U\0S\0-\0A\0S\0C\0I\0I"	
+
+test asn-18.6 {encode UTF8 string US-ASCII} {
+	catch {asn::asnUTF8String "US-ASCII"} result
+	set result
+} "\x0c\x08US-ASCII"	
+
+test asn-18.6 {encode bmp string latin-1} {
+	catch {asn::asnBMPString "gar\xC7on"} result
+	set result
+} "\x1e\x0c\0g\0a\0r\0\xc7\0o\0n"
+
+test asn-18.7 {encode utf-8 string latin-1} {
+	catch {asn::asnUTF8String "gar\xC7on"} result
+	set result
+} "\x0c\x07gar\xc3\x87on"
+
+test asn-18.8 {encode bmp string cyrillic} {
+	catch {asn::asnBMPString "\u0440\u0443\u0441\u0441\u043a\u0438\u0439"} result
+	set result
+} "\x1e\x0e\x04\x40\x04\x43\x04\x41\x04\x41\x04\x3a\x04\x38\x04\x39"
+
+test asn-18.9 {encode UTF8 string cyrillic} {
+	catch {asn::asnUTF8String "\u0440\u0443\u0441\u0441\u043a\u0438\u0439"} result
+	set result
+} "\x0c\x0e\xd1\x80\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb8\xd0\xb9"
+
+test asn-18.10 {decode numeric string} {
+	set data "\x12\003123"
+	asn::asnGetNumericString data print
+	set print
+} 123
+
+test asn-18.11 {decode printable string} {
+	set data "\x13\x10printable string"
+	asn::asnGetPrintableString data print
+	set print
+} "printable string"
+
+test asn-18.12 {decode IA5 string} {
+	set data "\x16\x11vitus@45.free.net"
+	asn::asnGetIA5String data print
+	set print
+} "vitus@45.free.net"
+
+test asn-18.13 {decode BMP string US-ASCII} {
+	set data "\x1e\x10\0U\0S\0-\0A\0S\0C\0I\0I"
+	asn::asnGetBMPString data print
+	set print
+} "US-ASCII"
+
+test asn-18.14 {decode UTF8 string US-ASCII} {
+	set data "\x0c\x08US-ASCII"
+	asn::asnGetUTF8String data print
+	set print
+} "US-ASCII"
+
+test asn-18.15 {decode BMP string latin-1} {
+	set data "\x1e\x0c\0g\0a\0r\0\xc7\0o\0n"
+	asn::asnGetBMPString data print
+	set print
+} "gar\xC7on"
+
+test asn-18.16 {decode UTF8 string latin-1} {
+	set data "\x0c\x07gar\xc3\x87on"
+	asn::asnGetUTF8String data print
+	set print
+} "gar\xC7on"
+
+test asn-18.17 {decode BMP string cyrillic} {
+	set data "\x1e\x0e\x04\x40\x04\x43\x04\x41\x04\x41\x04\x3a\x04\x38\x04\x39"
+	asn::asnGetBMPString data print
+	set print
+} "\u0440\u0443\u0441\u0441\u043a\u0438\u0439"
+
+test asn-18.18 {decode UTF8 string cyrillic} {
+	set data "\x0c\x0e\xd1\x80\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb8\xd0\xb9"
+	asn::asnGetUTF8String data print
+	set print
+} "\u0440\u0443\u0441\u0441\u043a\u0438\u0439"	
+
+# 19 ------- multitype getString
+set i 0
+foreach {type encoded str} {
+
+NumericString "\x12\003123" 123
+PrintableString  "\x13\x10printable string" "printable string"
+IA5String "\x16\x11vitus@45.free.net" "vitus@45.free.net"
+BMPString "\x1e\x10\0U\0S\0-\0A\0S\0C\0I\0I" US-ASCII
+UTF8String "\x0c\x08US-ASCII" US-ASCII
+BMPString "\x1e\x0c\0g\0a\0r\0\xc7\0o\0n" "gar\xc7on"
+UTF8String "\x0c\x07gar\xc3\x87on" "gar\xc7on"
+BMPString "\x1e\x0e\x04\x40\x04\x43\x04\x41\x04\x41\x04\x3a\x04\x38\x04\x39"
+"\u0440\u0443\u0441\u0441\u043a\u0438\u0439"
+UTF8String "\x0c\x0e\xd1\x80\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb8\xd0\xb9"
+"\u0440\u0443\u0441\u0441\u043a\u0438\u0439"} {
+incr i
+	test asn-19.$i "getString - decode $type" {
+		set data $encoded
+		asn::asnGetString data print
+		set print
+	} $str
+	incr i
+	test asn-19.$i "getString - decode $type and get its type" {
+		set data $encoded
+		asn::asnGetString data print gotType
+		list $data $print $gotType
+	} [list {} $str $type]
+}
+
+# 20 ----- multitype String encoding
+
+test asn-20.1 {Set default type to something wrong} {
+	catch {asn::defaultStringType foo} result
+	set result
+} "Invalid default string type. Should be one of BMP, UTF8"	
+
+test asn-20.2 {Set default value to string type which cannot hold any char} {
+	catch {asn::defaultStringType IA5} result
+	set result
+} "Invalid default string type. Should be one of BMP, UTF8"	
+
+
+test asn-20.3 {Set default type to UTF8} {
+	asn::defaultStringType UTF8
+} ""
+
+test asn-20.4 {Get default string type} {
+	asn::defaultStringType 
+} UTF8	
+
+test asn-20.5 {String - encode numeric value} {
+	asn::asnString 123
+} "\x12\003123"
+
+test asn-20.6 {String - encode printable value} {
+	asn::asnString "printable string"
+} "\x13\x10printable string"
+
+test asn-20.7 {String - encode ASCII value} {
+	asn::asnString vitus@45.free.net
+} "\x16\x11vitus@45.free.net" 
+
+test asn-20.8 {String - encode Latin-1 value} {
+	asn::asnString "gar\xc7on"
+} "\x0c\x07gar\xc3\x87on"
+
+test asn-20.9 {String - encode Cyrillic value} {
+	asn::asnString "\u0440\u0443\u0441\u0441\u043a\u0438\u0439"
+} "\x0c\x0e\xd1\x80\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb8\xd0\xb9"
+
+test asn-20.10 {Set default string type to BMP} {
+	asn::defaultStringType BMP
+	asn::defaultStringType
+} BMP
+
+test asn-20.11 {String - encode numeric value} {
+	asn::asnString 123
+} "\x12\003123"
+
+test asn-20.12 {String - encode printable value} {
+	asn::asnString "printable string"
+} "\x13\x10printable string"
+
+test asn-20.13 {String - encode ASCII value} {
+	asn::asnString vitus@45.free.net
+} "\x16\x11vitus@45.free.net" 
+
+
+test asn-20.14 {String - encode Latin-1 value} {
+	asn::asnString "gar\xc7on"
+} "\x1e\x0c\0g\0a\0r\0\xc7\0o\0n" 
+
+test asn-20.15 {String - encode Cyrillic value} {
+	asn::asnString "\u0440\u0443\u0441\u0441\u043a\u0438\u0439"
+} "\x1e\x0e\x04\x40\x04\x43\x04\x41\x04\x41\x04\x3a\x04\x38\x04\x39" 
+
+# 21 --------- Object identifier
+#
+# Converts binary encoded structure into hexadecimal dump
+# which is more readable in test results
+# Allows cut'n'paste both encoded and parsed OID from dumpasn1.cfg
+#
+proc bytes2hex {string} {
+	foreach b [split $string ""] {
+		lappend l [format %02X [scan $b %c]]
+	}
+	return [join $l " "]
+}	
+
+test asn-21.1 {ObjectIdentifier start with 0} {
+	bytes2hex [asn::asnObjectIdentifier {0 2 262 1 10}]	
+} "06 05 02 82 06 01 0A"
+
+
+test asn-21.2 {ObjectIdentifier start with 1} {
+	bytes2hex [asn::asnObjectIdentifier {1 2 840 10045 2 1}]
+} "06 07 2A 86 48 CE 3D 02 01"
+
+test asn-21.3 {ObjectIdentifer field > 65536} {
+	bytes2hex [asn::asnObjectIdentifier {1 2 840 113533 7 66 3}]
+} "06 09 2A 86 48 86 F6 7D 07 42 03"	
+
+test asn-21.4 {ObjectIdentifer 2.23.42.9.37} {
+	bytes2hex [asn::asnObjectIdentifier {2 23 42 9 37}]
+} "06 04 67 2A 09 25"	
+
+test asn-21.5 {GetObjectIdentifier 0.2.262.1.10} {
+	set data "\x06\x05\x02\x82\x06\x01\x0A"
+	asn::asnGetObjectIdentifier data print
+	set print
+} {0 2 262 1 10}
+
+test asn-21.6 {GetObjectIdentifier 1 2 840 10045 2 1} {
+	set data "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01"
+	asn::asnGetObjectIdentifier data print
+	set print
+} {1 2 840 10045 2 1}
+
+test asn-21.7 {GetObjectIdentifier 1 2 840 113533 7 66 3} {
+	set data "\x06\x09\x2A\x86\x48\x86\xF6\x7D\x07\x42\x03"
+	asn::asnGetObjectIdentifier data print
+	set print
+} {1 2 840 113533 7 66 3}
+
+# 22 --- Octet String
+
 ::tcltest::cleanupTests
