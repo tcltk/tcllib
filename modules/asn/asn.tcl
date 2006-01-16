@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.9 2006/01/05 17:11:28 mic42 Exp $
+#   $Id: asn.tcl,v 1.10 2006/01/16 21:08:44 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -54,6 +54,8 @@ namespace eval asn {
         asnSet \
         asnApplicationConstr \
         asnApplication \
+	asnContext\
+	asnContextConstr\
         asnChoice \
         asnChoiceConstr \
         asnInteger \
@@ -61,11 +63,13 @@ namespace eval asn {
         asnBoolean \
         asnOctetString \
         asnUTCTime \
+	asnNumericString \
         asnPrintableString \
+        asnIA5String\
+	asnBMPString\
+	asnUTF8String\
         asnBitString \
-        asnObjectIdentifer \
-        asnNumericString \
-        asnIA5String
+        asnObjectIdentifer 
         
     # Decoder commands
     namespace export \
@@ -76,8 +80,11 @@ namespace eval asn {
         asnGetSequence \
         asnGetSet \
         asnGetApplication \
+	asnGetNumericString \
         asnGetPrintableString \
         asnGetIA5String \
+	asnGetBMPString \
+	asnGetUTF8String \
         asnGetObjectIdentifier \
         asnGetBoolean \
         asnGetUTCTime \
@@ -236,6 +243,32 @@ proc ::asn::asnApplication {appNumber data} {
 }
 
 #-----------------------------------------------------------------------------
+# asnContextConstr
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnContextConstr {contextNumber args} {
+    # Packs the arguments into a constructed value with application tag.
+
+    set out ""
+    foreach part $args {
+        append out $part
+    }
+    set code [expr {0x0A0 + $contextNumber}]
+    set len  [string length $out]
+    return [binary format ca*a$len $code [asnLength $len] $out]
+}
+
+#-----------------------------------------------------------------------------
+# asnContext
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnContext {contextNumber data} {
+    # Packs the arguments into a constructed value with application tag.
+    set code [expr {0x080 + $contextNumber}]
+    set len  [string length $out]
+    return [binary format ca*a$len $code [asnLength $len] $out]
+}
+#-----------------------------------------------------------------------------
 # asnChoice
 #-----------------------------------------------------------------------------
 
@@ -363,7 +396,9 @@ proc ::asn::asnBigInteger {bignum} {
                 incr len
             }
         }
-        set exp [math::bignum::pow [math::bignum::fromstr 256] [math::bignum::fromstr $len]]
+        set exp [math::bignum::pow \
+		    [math::bignum::fromstr 256] \
+		    [math::bignum::fromstr $len]]
         set bignum [math::bignum::add $bignum $exp]
         set hex [math::bignum::tostr $bignum 16]
     } else {
@@ -450,10 +485,14 @@ proc ::asn::asnUTCTime {UTCtimestring} {
 #-----------------------------------------------------------------------------
 # asnPrintableString : Encode a printable string
 #-----------------------------------------------------------------------------
+namespace eval asn {
+    variable nonPrintableChars {[^ A-Za-z0-9'()+,.:/?=-]}
+}	
 proc ::asn::asnPrintableString {string} {
     # the printable string tag is 0x13
+    variable nonPrintableChars
     # it is basically a restricted ascii string
-    if {[regexp {[^A-Za-z0-9'()+,.:/?=-]} $string ]} {
+    if {[regexp $nonPrintableChars $string ]} {
         return -code error "Illegal character in PrintableString."
     }
     
@@ -467,7 +506,10 @@ proc ::asn::asnPrintableString {string} {
 #-----------------------------------------------------------------------------
 proc ::asn::asnIA5String {string} {
     # the IA5 string tag is 0x16
-    
+    # check for extended charachers
+    if {[string length $string]!=[string bytelength $string]} {
+	return -code error "Illegal character in IA5String"
+    }
     set ascii [encoding convertto ascii $string]
     return [asnEncodeString 16 $ascii]
 }
@@ -475,17 +517,38 @@ proc ::asn::asnIA5String {string} {
 #-----------------------------------------------------------------------------
 # asnNumericString : Encode a Numeric String type
 #-----------------------------------------------------------------------------
-
+namespace eval asn {
+    variable nonNumericChars {[^0-9 ]}
+}
 proc ::asn::asnNumericString {string} {
-    # the Numeric String type has tag 0x1c
-    
-    if {[regexp {[^0-9 ]} $string]} {
+    # the Numeric String type has tag 0x12
+    variable nonNumericChars
+    if {[regexp $nonNumericChars $string]} {
         return -code error "Illegal character in Numeric String."
     }
     
-    return [asnEncodeString 1c $string]
+    return [asnEncodeString 12 $string]
 }
-
+#----------------------------------------------------------------------
+# asnBMPString: Encode a Tcl string as Basic Multinligval (UCS2) string
+#-----------------------------------------------------------------------
+proc asn::asnBMPString  {string} {
+    if {$::tcl_platform(byteOrder) eq "littleEndian"} {
+	set bytes ""
+	foreach {lo hi} [split [encoding convertto unicode $string] ""] {
+	    append bytes $hi $lo
+	}	
+    } else {
+	set bytes [encoding convertto unicode $string]
+    }
+    return [asnEncodeString 1e $bytes]
+}	
+#---------------------------------------------------------------------------
+# asnUTF8String: encode tcl string as UTF8 String
+#----------------------------------------------------------------------------
+proc asn::asnUTF8String {string} {
+    return [asnEncodeString 0c [encoding convertto utf-8 $string]]
+}
 #-----------------------------------------------------------------------------
 # asnEncodeString : Encode an RestrictedCharacter String
 #-----------------------------------------------------------------------------
@@ -507,7 +570,8 @@ proc ::asn::asnObjectIdentifier {oid} {
     # basic check that it is valid
     foreach identifier $oid {
         if {$identifier < 0} {
-            return -code error "Malformed OID. Identifiers must be positive Integers."
+            return -code error \
+		"Malformed OID. Identifiers must be positive Integers."
         }
     }
     
@@ -515,17 +579,20 @@ proc ::asn::asnObjectIdentifier {oid} {
             return -code error "First subidentifier must be 0,1 or 2"
     }
     if {[lindex $oid 1] > 39} {
-            return -code error "Second subidentifier must be between 0 and 39"
+            return -code error \
+		"Second subidentifier must be between 0 and 39"
     }
     
     # handle the special cases directly
     switch [llength $oid] {
-        2  {  return [binary format H2H2c 06 01 [expr {[lindex $oid 0]*40+[lindex $oid 1]}]] }
+        2  {  return [binary format H2H2c 06 01 \
+		[expr {[lindex $oid 0]*40+[lindex $oid 1]}]] }
         default {
               # This can probably be written much shorter. 
               # Just a first try that works...
               #
-              set octets [binary format c [expr {[lindex $oid 0]*40+[lindex $oid 1]}]]
+              set octets [binary format c \
+		[expr {[lindex $oid 0]*40+[lindex $oid 1]}]]
               foreach identifier [lrange $oid 2 end] {
                   set d 128
                   if {$identifier < 128} {
@@ -534,7 +601,9 @@ proc ::asn::asnObjectIdentifier {oid} {
                     set subidentifier [list]
                     # find the largest divisor
                     
-                    while {($identifier / $d) >= 128} { set d [expr {$d * 128}] }
+                    while {($identifier / $d) >= 128} { 
+			set d [expr {$d * 128}] 
+		    }
                     # and construct the subidentifiers
                     set remainder $identifier
                     while {$d >= 128} {
@@ -547,7 +616,8 @@ proc ::asn::asnObjectIdentifier {oid} {
                   }
                   append octets [binary format c* $subidentifier]
               }
-              return [binary format H2a*a* 06 [asnLength [string length $octets]] $octets]
+              return [binary format H2a*a* 06 \
+		      [asnLength [string length $octets]] $octets]
         }
     }
 
@@ -599,7 +669,8 @@ proc ::asn::asnGetResponse {sock data_var} {
                 3 { binary scan \x00$lengthBytes I length }
                 4 { binary scan $lengthBytes     I length }
                 default {
-                    return -code error "length information too long ($len_length)"
+                    return -code error \
+			"length information too long ($len_length)"
                 }
             }
         }
@@ -686,7 +757,8 @@ proc ::asn::asnGetLength {data_var length_var} {
         set len_length [expr {$length & 0x7f}]
         
         if {[string length $data] < $len_length} {
-            return -code error "length information invalid, not enough octets left" 
+            return -code error \
+		"length information invalid, not enough octets left" 
         }
         
         asnGetBytes data $len_length lengthBytes
@@ -715,12 +787,15 @@ proc ::asn::asnGetLength {data_var length_var} {
                 set hexlen [string trimleft $hexstr 0] 
                 # check if it fits into a 64-bit signed integer
                 if {[string length $hexlen] > 16} {
-                    return -code {ARITH IOVERFLOW 
-                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
-                } elseif {[string length $hexlen] == 16 && ([string index $hexlen 0] & 0x8)} { 
+                    return -code error -errorcode {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} \
+			    "Length value to large"
+                } elseif {  [string length $hexlen] == 16 \
+			&& ([string index $hexlen 0] & 0x8)} { 
                     # check most significant bit, if set we need bignum
-                    return -code {ARITH IOVERFLOW 
-                            {Length value too large for normal use, try asnGetBigLength}} "Length value to large"
+                    return -code error -errorcode {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} \
+			    "Length value to large"
                 } else {
                     scan $hexstr "%lx" length
                 }
@@ -760,14 +835,16 @@ proc ::asn::asnGetBigLength {data_var biglength_var} {
         set len_length [expr {$length & 0x7f}]
         
         if {[string length $data] < $len_length} {
-            return -code error "length information invalid, not enough octets left" 
+            return -code error \
+		"length information invalid, not enough octets left" 
         }
         
         asnGetBytes data $len_length lengthBytes
         binary scan $lengthBytes H* hexlen
         set length [math::bignum::fromstr $hexlen 16]
     }
-    ::log::log debug "asnGetBigLength -> length = [math::bignum::tostr $length]"
+    ::log::log debug \
+	"asnGetBigLength -> length = [math::bignum::tostr $length]"
     return
 }
 
@@ -855,7 +932,9 @@ proc ::asn::asnGetBigInteger {data_var bignum_var} {
     binary scan $integerBytes H* hex
     set bignum [math::bignum::fromstr $hex 16]
     set bits [math::bignum::bits $bignum]
-    set exp [math::bignum::pow [math::bignum::fromstr 2] [math::bignum::fromstr $bits]]
+    set exp [math::bignum::pow \
+		[math::bignum::fromstr 2] \
+		[math::bignum::fromstr $bits]]
     set big [math::bignum::sub $bignum $exp]
     set bignum $big
     
@@ -962,7 +1041,7 @@ proc ::asn::asnGetSet {data_var set_var} {
 # asnGetApplication
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetApplication {data_var appNumber_var} {
+proc ::asn::asnGetApplication {data_var appNumber_var {contet_var {}}} {
     upvar $data_var data $appNumber_var appNumber
 
     asnGetByte   data tag
@@ -973,6 +1052,10 @@ proc ::asn::asnGetApplication {data_var appNumber_var} {
             [format "Expected Application (0x60), but got %02x" $tag]
     }    
     set appNumber [expr {$tag & 0x1F}]
+	if {[string length content_var]} {
+		upvar $content_var content
+		asnGetBytes data $length content
+	}	
     return
 }
 
@@ -1104,7 +1187,7 @@ proc asn::asnGetObjectIdentifier {data_var oid_var} {
 #
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetContext {data_var contextNumber_var} {
+proc ::asn::asnGetContext {data_var contextNumber_var {content_var {}}} {
     upvar $data_var data $contextNumber_var contextNumber
 
     asnGetByte   data tag
@@ -1115,6 +1198,27 @@ proc ::asn::asnGetContext {data_var contextNumber_var} {
             [format "Expected Context (0xa0), but got %02x" $tag]
     }    
     set contextNumber [expr {$tag & 0x1F}]
+	if {[string length content_var]} {
+		upvar $content_var content
+		asnGetBytes data $length content
+	}	
+    return
+}
+#-----------------------------------------------------------------------------
+# asnGetNumericString: Decode a Numeric String from the data
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetNumericString {data_var print_var} {
+    upvar $data_var data $print_var print
+
+    asnGetByte data tag
+    if {$tag != 0x12} {
+        return -code error \
+            [format "Expected Numeric String (0x12), but got %02x" $tag]  
+    }
+    asnGetLength data length 
+    asnGetBytes data $length string
+    set print [encoding convertfrom ascii $string]
     return
 }
 
@@ -1140,25 +1244,65 @@ proc ::asn::asnGetPrintableString {data_var print_var} {
 # asnGetIA5String: Decode a IA5(ASCII) String from the data
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetIA5String {data_var string_var} {
-    upvar $data_var data $string_var print
+proc ::asn::asnGetIA5String {data_var print_var} {
+    upvar $data_var data $print_var print
 
     asnGetByte data tag
     if {$tag != 0x16} {
         return -code error \
-            [format "Expected IA5String (0x16), but got %02x" $tag]  
+            [format "Expected IA5 String (0x16), but got %02x" $tag]  
     }
     asnGetLength data length 
     asnGetBytes data $length string
-    set string [encoding convertfrom ascii $string]
+    set print [encoding convertfrom ascii $string]
     return
 }
-
+#------------------------------------------------------------------------
+# asnGetBMPString: Decode Basic Multiningval (UCS2 string) from data
+#------------------------------------------------------------------------
+proc asn::asnGetBMPString {data_var print_var} {
+	upvar $data_var data $print_var print
+    asnGetByte data tag
+    if {$tag != 0x1e} {
+        return -code error \
+            [format "Expected BMP String (0x1e), but got %02x" $tag]  
+    }
+    asnGetLength data length 
+	asnGetBytes data $length string
+	if {$::tcl_platform(byteOrder) eq "littleEndian"} {
+		set str2 ""
+		foreach {hi lo} [split $string ""] {
+			append str2 $lo $hi
+		}
+	} else {
+		set str2 $string
+	}
+	set print [encoding convertfrom unicode $str2]
+	return
+}	
+#------------------------------------------------------------------------
+# asnGetUTF8String: Decode UTF8 string from data
+#------------------------------------------------------------------------
+proc asn::asnGetUTF8String {data_var print_var} {
+	upvar $data_var data $print_var print
+    asnGetByte data tag
+    if {$tag != 0x0c} {
+        return -code error \
+            [format "Expected UTF8 String (0x0c), but got %02x" $tag]  
+    }
+    asnGetLength data length 
+	asnGetBytes data $length string
+	#there should be some error checking to see if input is
+	#properly-formatted utf8
+	set print [encoding convertfrom utf-8 $string]
+	
+	return
+}	
 #-----------------------------------------------------------------------------
 # asnGetNull: decode a NULL value
 #-----------------------------------------------------------------------------
 
-proc asn::asnGetNull {data_var} {
+proc ::asn::asnGetNull {data_var} {
     upvar $data_var data 
 
     asnGetByte data tag
@@ -1175,8 +1319,78 @@ proc asn::asnGetNull {data_var} {
     return
 }
 
+#----------------------------------------------------------------------------
+# MultiType string routines
+#----------------------------------------------------------------------------
 
+namespace eval asn {
+	variable stringTypes
+	array set stringTypes {
+		12 NumericString 
+		13 PrintableString 
+		16 IA5String 
+		1e BMPString 
+		0c UTF8String 
+		14 T61String
+		15 VideotexString
+		1a VisibleString
+		1b GeneralString
+		1c UniversalString
+	}	
+	variable defaultStringType UTF8
+}	
+#---------------------------------------------------------------------------
+# asnGetString - get readable string automatically detecting its type
+#---------------------------------------------------------------------------
+proc ::asn::asnGetString {data_var print_var {type_var {}}} {
+	variable stringTypes
+	upvar $data_var data $print_var print
+	asnPeekByte data tag
+	set tag [format %02x $tag]
+	if {![info exists stringTypes($tag)]} {
+		return -code error "Expected one of string types, but got $tag"
+	}
+	asnGet$stringTypes($tag) data print
+	if {[string length $type_var]} {
+		upvar $type_var type
+		set type $stringTypes($tag)
+	}	
+}
+#---------------------------------------------------------------------
+# defaultStringType - set or query default type for unrestricted strings
+#---------------------------------------------------------------------
+proc ::asn::defaultStringType {{type {}}} {
+	variable defaultStringType
+	if {![string length $type]} {
+		return $defaultStringType
+	}
+	if {$type ne "BMP" && $type ne "UTF8"} {
+		return -code error "Invalid default string type. Should be one of BMP, UTF8"
+	}
+	set defaultStringType $type
+	return
+}	
+
+#---------------------------------------------------------------------------
+# asnString - encode readable string into most restricted type possible
+#---------------------------------------------------------------------------
+
+proc ::asn::asnString {string} {
+	variable nonPrintableChars
+	variable nonNumericChars
+	if {[string length $string]!=[string bytelength $string]} {
+	# There are non-ascii character
+		variable defaultStringType
+		return [asn${defaultStringType}String $string]
+	} elseif {![regexp $nonNumericChars $string]} {
+		return [asnNumericString $string]
+	} elseif {![regexp $nonPrintableChars $string]} {
+		return [asnPrintableString $string]
+	} else {
+		return [asnIA5String $string]
+	}	
+}
 
 #-----------------------------------------------------------------------------
-package provide asn 0.4.2
+package provide asn 0.5
 
