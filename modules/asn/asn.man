@@ -43,18 +43,17 @@ and should be read by any implementor.
 Takes zero or more encoded values, packs them into an ASN sequence and
 returns its encoded binary form.
 
+
 [call [cmd ::asn::asnSet] [arg evalue]...]
 
 Takes zero or more encoded values, packs them into an ASN set and
 returns its encoded binary form.
 
 
-
 [call [cmd ::asn::asnApplicationConstr] [arg appNumber] [arg evalue]...]
 
 Takes zero or more encoded values, packs them into an ASN application
 construct and returns its encoded binary form.
-
 
 
 [call [cmd ::asn::asnApplication] [arg appNumber] [arg data]]
@@ -68,10 +67,12 @@ application construct and returns its encoded binary form.
 Takes zero or more encoded values, packs them into an ASN choice
 construct and returns its encoded binary form.
 
+
 [call [cmd ::asn::asnChoiceConstr] [arg appNumber] [arg evalue]...]
 
 Takes zero or more encoded values, packs them into an ASN choice
 construct and returns its encoded binary form.
+
 
 [call [cmd ::asn::asnInteger] [arg number]]
 
@@ -95,47 +96,57 @@ Returns the encoded form of the specified boolean value
 
 Returns the encoded form of the specified [arg string].
 
+
 [call [cmd ::asn::asnNumericString] [arg string]]
 
-Returns the [arg string] encoded as ASN.1 NumericString. If string contains
-charachers, other than decimal numbers and space, raises an error.
+Returns the [arg string] encoded as ASN.1 NumericString. Raises an
+error if the [arg string] contains characters other than decimal
+numbers and space.
+
 
 [call [cmd ::asn::asnPrintableString] [arg string]] 
 
-Returns the [arg string] encoding as ASN.1 PrintableString. If string
-contains characters, which are not allowed in Printable String datatype,
-rases an error (allowed characters are A-Z a-z 0-9 space, apostrophe,
-colon, parentheses, plus, minus, comma, period, forward slash, question
-mark and equals sign).
+Returns the [arg string] encoding as ASN.1 PrintableString. Raises an
+error if the [arg string] contains characters which are not allowed by
+the Printable String datatype. The allowed characters are A-Z, a-z,
+0-9, space, apostrophe, colon, parentheses, plus, minus, comma,
+period, forward slash, question mark, and the equals sign.
+
 
 [call [cmd ::asn::asnIA5String] [arg string]]
 
-Returns the [arg string] encoded as ASN.1 IA5String. If string contains
-any charachers out of US-ASCII range, raises an error.
+Returns the [arg string] encoded as ASN.1 IA5String. Raises an error
+if the [arg string] contains any characters outside of the US-ASCII
+range.
+
 
 [call [cmd ::asn::asnBMPString] [arg string]]
 
 Returns the [arg string] encoded as ASN.1 Basic Multilingual Plane
-string. (which is essentialy big-endian UCS2). 
+string (Which is essentialy big-endian UCS2).
+
 
 [call [cmd ::asn::asnUTF8String] [arg string]]
 
 Returns the [arg string] encoded as UTF8 String. Note that some legacy
 applications such as Windows CryptoAPI do not like UTF8 strings. Use
-BMPStrings if not sure.
+BMPStrings if you are not sure.
+
 
 [call [cmd ::asn::asnString] [arg string]]
 
-Returns an encoded form of [arg string], choosing most restricted ASN.1
-string type possible. If string contains non-ASCII charachters, there is
-more than one string type which can be used. See [cmd ::asn::defaultStringType]
+Returns an encoded form of [arg string], choosing the most restricted
+ASN.1 string type possible. If the string contains non-ASCII
+characters, then there is more than one string type which can be
+used. See [cmd ::asn::defaultStringType].
 
-[call [cmd ::asn::defaultStringType] [arg ?type?]]
 
-Selects string type to use for encoding of non-ASCII strings. When
-called without argument, returns current default. If argument [arg type]
-is supplied, it should be either UTF8 or BMP to choose UTF8String or
-BMPString respecitively.
+[call [cmd ::asn::defaultStringType] [opt [arg type]]]
+
+Selects the string type to use for the encoding of non-ASCII
+strings. Returns current default when called without argument. If the
+argument [arg type] is supplied, it should be either [const UTF8] or
+[const BMP] to choose UTF8String or BMPString respectively.
 
 [list_end]
 [para]
@@ -197,59 +208,79 @@ by [arg string_var]. Additionally removes all bytes associated with
 the value from the data for further processing by the following
 decoder commands.
 
-[call [cmd ::asn::asnGetString] [arg data_var] [arg string_var] [arg ?type_var?]]
 
-Decodes user-readable string. It is convinience function, which is able
-to automatically distinguish all supported ASN.1 string types and
-convert value appropriately. See [cmd ::asn::asnGetPrintableString],
-[cmd ::asnGetIA5String] etc below for type-specific conversions.
+[call [cmd ::asn::asnGetString] [arg data_var] [arg string_var] [opt [arg type_var]]]
 
-If optional third argument is supplied, stores type of found string in
-the variable, which name it contains.
+Decodes a user-readable string. This is a convenience function which
+is able to automatically distinguish all supported ASN.1 string types
+and convert the input value appropriately.
 
-If unsupported string type is encountered, function throws an error
-"Invalid command name asnGetSomeUnsupportedString". You can create
-appropriate function in your application if neccessary.
+See [cmd ::asn::asnGetPrintableString], [cmd ::asnGetIA5String], etc.
+below for the type-specific conversion commands.
+
+[nl]
+
+If the optional third argument [arg type_var] is supplied, then the
+type of the incoming string is stored in the variable named by it.
+
+[nl]
+
+The function throws the error
+
+"Invalid command name asnGetSome[var UnsupportedString]" if the
+unsupported string type [var Unsupported] is encountered. You can
+create the appropriate function
+
+"asn::asnGetSome[var UnsupportedString]" in your application if
+neccessary.
+
 
 [call [cmd ::asn::asnGetNumericString] [arg data_var] [arg string_var]]
 
-Assumes that a numeric string value is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variable named 
-by [arg string_var]. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands.
+Assumes that a numeric string value is at the front of the data stored
+in the variable named [arg data_var], and stores it into the variable
+named by [arg string_var]. Additionally removes all bytes associated
+with the value from the data for further processing by the following
+decoder commands.
+
 
 [call [cmd ::asn::asnGetPrintableString] [arg data_var] [arg string_var]]
 
-Assumes that a printable string value is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variable named 
-by [arg string_var]. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands.
+Assumes that a printable string value is at the front of the data
+stored in the variable named [arg data_var], and stores it into the
+variable named by [arg string_var]. Additionally removes all bytes
+associated with the value from the data for further processing by the
+following decoder commands.
+
 
 [call [cmd ::asn::asnGetIA5String] [arg data_var] [arg string_var]]
 
-Assumes that a IA5 (ASCII) string value is at the front of the data stored 
-in the variable named [arg data_var], and stores it into the variable named 
-by [arg string_var]. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands.
+Assumes that a IA5 (ASCII) string value is at the front of the data
+stored in the variable named [arg data_var], and stores it into the
+variable named by [arg string_var]. Additionally removes all bytes
+associated with the value from the data for further processing by the
+following decoder commands.
+
 
 [call [cmd ::asn::asnGetBMPString] [arg data_var] [arg string_var]]
 
-Assumes that a BMP (two-byte unicode) string value is at the front of the data stored 
-in the variable named [arg data_var], and stores it into the variable named 
-by [arg string_var], converting into proper Tcl string. Additionally removes all bytes associated with the
+Assumes that a BMP (two-byte unicode) string value is at the front of
+the data stored in the variable named [arg data_var], and stores it
+into the variable named by [arg string_var], converting it into a
+proper Tcl string. Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
+
 
 [call [cmd ::asn::asnGetUTF8String] [arg data_var] [arg string_var]]
 
-Assumes that a UTF8 string value is at the front of the data stored 
-in the variable named [arg data_var], and stores it into the variable named 
-by [arg string_var], converting into proper Tcl string. Additionally removes all bytes associated with the
-value from the data for further processing by the following decoder
-commands.
+Assumes that a UTF8 string value is at the front of the data stored in
+the variable named [arg data_var], and stores it into the variable
+named by [arg string_var], converting it into a proper Tcl string.
+Additionally removes all bytes associated with the value from the data
+for further processing by the following decoder commands.
+
+
 [call [cmd ::asn::asnGetUTCTime] [arg data_var] [arg utc_var]]
 
 Assumes that a UTC time value is at the front of the data stored in the
@@ -260,6 +291,7 @@ Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
+
 [call [cmd ::asn::asnGetBitString] [arg data_var] [arg bits_var]]
 
 Assumes that a bit string value is at the front of the data stored in the
@@ -268,6 +300,7 @@ by [arg bits_var] as a string containing only 0 and 1.
 Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
+
 
 [call [cmd ::asn::asnGetObjectIdentifier] [arg data_var] [arg oid_var]]
 
@@ -278,6 +311,7 @@ Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
+
 [call [cmd ::asn::asnGetBoolean] [arg data_var] [arg bool_var]]
 
 Assumes that a boolean value is at the front of the data stored in the
@@ -286,11 +320,13 @@ by [arg bool_var]. Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
+
 [call [cmd ::asn::asnGetNull] [arg data_var]]
 
 Assumes that a NULL value is at the front of the data stored in the
 variable named [arg data_var] and removes the bytes used to encode it
 from the data.
+
 
 [call [cmd ::asn::asnGetSequence] [arg data_var] [arg sequence_var]]
 
@@ -299,7 +335,6 @@ variable named [arg data_var], and stores it into the variable named
 by [arg sequence_var]. Additionally removes all bytes associated with
 the value from the data for further processing by the following
 decoder commands.
-
 
 [nl]
 
@@ -323,8 +358,7 @@ decoded according to the definition of the set, using the decoder
 commands here.
 
 
-
-[call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var] [arg ?content_var?]]
+[call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var] [opt [arg content_var]]]
 
 Assumes that an ASN application construct is at the front of the data
 stored in the variable named [arg data_var], and stores its id into
@@ -332,17 +366,18 @@ the variable named by [arg appNumber_var]. Additionally removes all
 bytes associated with the value from the data for further processing
 by the following decoder commands.
 
-If [arg content_var] is specified, places all data, associated with
-command into this variable in the binary form which can be processed
-using decoder command here.
+If a [arg content_var] is specified, then the command places all data
+associated with it into the named variable, in the binary form which
+can be processed using the decoder commands of this package.
 
 [nl]
 
-Otherwise it is the responsibility of the caller to decode the remainder of the
-application construct based on the id retrieved by this command, using
-the decoder commands here.
+Otherwise it is the responsibility of the caller to decode the
+remainder of the application construct based on the id retrieved by
+this command, using the decoder commands of this package.
 
-[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] [arg ?content_var?]]
+
+[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] [opt [arg content_var]]]
 
 Assumes that an ASN context tag construct is at the front of the data
 stored in the variable named [arg data_var], and stores its id into
@@ -350,15 +385,15 @@ the variable named by [arg contextNumber_var]. Additionally removes all
 bytes associated with the value from the data for further processing
 by the following decoder commands.
 
-If [arg content_var] is specified, places all data, associated with
-command into this variable in the binary form which can be processed
-using decoder commands here.
+If a [arg content_var] is specified, then the command places all data
+associated with it into the named variable, in the binary form which
+can be processed using the decoder commands of this package.
 
 [nl]
 
-Otherwise it is the responsibility of the caller to decode the remainder of the
-construct based on the id retrieved by this command, using
-the decoder commands here.
+Otherwise it is the responsibility of the caller to decode the
+remainder of the construct based on the id retrieved by this command,
+using the decoder commands of this package.
 
 [list_end]
 [para]
