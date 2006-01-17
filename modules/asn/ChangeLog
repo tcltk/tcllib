@@ -1,3 +1,8 @@
+2006-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.man: Reworked the documentation of the new commands a bit,
+	  and fixed some typos in words and use of the doctools commands.
+
 2006-01-16  Michael Schlenker <mic42@users.sourceforge.net>
 	
 	* asn.tcl:	Added new decoders for BMPString
