@@ -19,6 +19,12 @@ The following commands are available:
 
 [list_begin definitions]
 
+[call [cmd ::csv::iscomplete] [arg data]]
+
+A predicate checking if the argument [arg data] is a complete csv
+record. The result is a boolean flag indicating the completeness of
+the data. The result is true if the data is complete.
+
 [call [cmd ::csv::join] [arg values] "{[arg sepChar] ,}"]
 
 Takes a list of values and returns a string in CSV format containing
