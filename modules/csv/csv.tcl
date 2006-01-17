@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.22 2005/09/30 23:03:20 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.23 2006/01/17 03:51:51 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.6
@@ -84,6 +84,21 @@ proc ::csv::joinlist {values {sepChar ,}} {
 
 proc ::csv::joinmatrix {matrix {sepChar ,}} {
     return [joinlist [$matrix get rect 0 0 end end] $sepChar]
+}
+
+# ::csv::iscomplete --
+#
+#	A predicate checking if the argument is a complete csv record.
+#
+# Arguments
+#	data	The (partial) csv record to check.
+#
+# Results:
+#	A boolean flag indicating the completeness of the data. The
+#	result is true if the data is complete.
+
+proc ::csv::iscomplete {data} {
+    expr {1 - [regexp -all \" $data] % 2}
 }
 
 # ::csv::read2matrix --
@@ -166,10 +181,23 @@ proc ::csv::read2matrix {args} {
 	}
     }
 
+    set data ""
     while {![eof $chan]} {
 	if {[gets $chan line] < 0} {continue}
-	if {$line == {}} {continue}
-	Split2matrix $alternate $m $line $sepChar $expand
+
+	# Why skip empty lines? They may be in data. Except if the
+	# buffer is empty, i.e. we are between records.
+	if {$line == {} && $data == {}} {continue}
+
+       append data $line
+       if {![iscomplete $data]} {
+           # Odd number of quotes - must have embedded newline
+           append data \n
+           continue
+       }
+
+       Split2matrix $alternate $m $data $sepChar $expand
+       set data ""
     }
     return
 }
@@ -231,10 +259,23 @@ proc ::csv::read2queue {args} {
 	}
     }
 
+    set data ""
     while {![eof $chan]} {
 	if {[gets $chan line] < 0} {continue}
-	if {$line == {}} {continue}
+
+	# Why skip empty lines? They may be in data. Except if the
+	# buffer is empty, i.e. we are between records.
+	if {$line == {} && $data == {}} {continue}
+
+	append data $line
+	if {![iscomplete $data]} {
+	    # Odd number of quotes - must have embedded newline
+	    append data \n
+	    continue
+	}
+
 	$q put [Split $alternate $line $sepChar]
+	set data ""
     }
     return
 }
