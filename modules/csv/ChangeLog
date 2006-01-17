@@ -3,7 +3,7 @@
 	* csv.man: New command 'iscomplete' to detect partial csv
 	* csv.tcl: records. Used to enable the read2* commands to handle
 	  multi-line csv records. Code provided by Jeff Hobbs, via [SF
-	  Tcllib Patch 1407811].
+	  Tcllib Patch 1407811]. See also the [Tcllib FR 733407].
 
 2005-10-24  Andreas Kupries <andreask@activestate.com>
 
