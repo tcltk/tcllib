@@ -1,3 +1,10 @@
+2006-01-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.tree_testsuite: Made the helper command reordering the
+	* htmlparse.tcl:            tree a bit less agressive. See [SF
+	  Tcllib Patch 953854]. Advice by Ramon Ribo. Updated the
+	  testsuite as well.
+
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* htmlparse.test: Fixed [SF Tcllib Bug 1316049]. Uncluttering test

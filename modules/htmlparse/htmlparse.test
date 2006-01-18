@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.18 2006/01/10 23:05:19 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.19 2006/01/18 06:10:59 andreas_kupries Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -603,7 +603,7 @@ catch {memory validate off}
 unset usec
 unset tests
 
-puts ""
+#puts ""
 
 # Reset system to fully inactive state.
 
