@@ -1,3 +1,10 @@
+2006-01-18  Andreas Kupries <andreask@activestate.com>
+
+	* fileutil.man: Fixed a typo, clarified usage of the filtercmd for
+	  find (Boolean result), added an example for that as well. This
+	  fixes the [SF Tcllib Bug 1409083] submitted by Glenn Jackman
+	  <glennjnn@users.sourceforge.net>.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
