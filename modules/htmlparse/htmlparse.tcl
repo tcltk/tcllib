@@ -868,15 +868,15 @@ proc ::htmlparse::RemoveFormDefs {tree node} {
 proc ::htmlparse::Reorder {tree node} {
     switch -exact -- [set tp [$tree get $node type]] {
 	h1 - h2 - h3 - h4 - h5 - h6 - p - li {
-	    # Look for right siblings until the next node with the
-	    # same type (or end of level) and move these below this
+	    # Look for right siblings until the next node with a
+	    # similar type (or end of level) and move these below this
 	    # node.
 
 	    while {1} {
 		set sibling [$tree next $node]
 		if {
-		    $sibling == {} ||
-		    (![string compare $tp [$tree get $sibling type]])
+		    ($sibling == {}) ||
+		    ([lsearch -exact {h1 h2 h3 h4 h5 h6 p li} [$tree get $sibling type]] != -1)
 		} {
 		    break
 		}
