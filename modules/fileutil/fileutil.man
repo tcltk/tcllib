@@ -44,8 +44,8 @@ to start searching from and a command to use to evaluate interest in
 each file. The path defaults to [file .], i.e. the current
 directory. The command defaults to the empty string, which means that
 all files are of interest. The command takes care [emph not] to
-loose itself in infinite loops upon encountering circular link
-structures.  The result of the command is a list containing the paths
+lose itself in infinite loops upon encountering circular link
+structures. The result of the command is a list containing the paths
 to the interesting files.
 
 [nl]
@@ -55,6 +55,21 @@ and one argument is added to it, the name of the file or directory
 find is currently looking at. Note that this name is [emph not] fully
 qualified. It has to be joined it with the result of [cmd pwd] to get
 an absolute filename.
+
+[nl]
+
+The result of [arg filtercmd] is a boolean value that indicates if the
+current file should be included in the list of interesting files.
+
+[nl]
+Example:
+[nl]
+[example {
+    # find .tcl files
+    package require fileutil
+    proc is_tcl {name} {return [string match *.tcl $name]}
+    set tcl_files [fileutil::find . is_tcl]
+}]
 
 
 [call [cmd ::fileutil::findByPattern] [arg basedir] \
