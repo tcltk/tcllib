@@ -1,3 +1,14 @@
+2006-01-18  Andreas Kupries  <akupries@shaw.ca>
+
+	* testutilities.tcl: New file for boilerplate code and common
+	  commands used by most to all testsuites in Tcllib.
+
+2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.8 ========================
+	* 
+
 2004-10-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dialog.tcl: More log output for better tracing of the
@@ -14,6 +25,24 @@
 	* coserv.tcl: New sub process mgmt based on "comm".
 	* dialog.tcl: New code for programmed dialogs based on
 	  "coserv.tcl".
+
+2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.7 ========================
+	* 
+
+2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6.1 ========================
+	* 
+
+2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.6 ========================
+	* 
 
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
