@@ -8,16 +8,18 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d_dbox.test,v 1.7 2005/09/28 04:51:23 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_dbox.test,v 1.8 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {![package vsatisfies [package provide Tcl] 8.3]} {
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 if {[catch {source [file join [file dirname [file dirname [info script]]] mime mime.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"

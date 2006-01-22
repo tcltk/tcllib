@@ -1,10 +1,20 @@
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -*- tcl -*-
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
+
 set dirname [file dirname [info script]]
 source      [file join $dirname uri.tcl]
 package require uri
+
+# -------------------------------------------------------------------------
 
 test uri-rfc2396-1.1 {uri::resolve} {knownBug sf-tcllib-bug-581781} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g:h]

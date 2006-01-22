@@ -6,23 +6,22 @@
 #    The tests assume tcltest 2.1, in order to compare
 #    floating-point results
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    # Ensure that 2.1 or higher present.
+# -------------------------------------------------------------------------
 
-    if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "    Aborting tests for math::statistics."
-	puts "    Requiring tcltest 2.1, have [package present tcltest]"
-	return
-    }
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 source [file join [file dirname [info script]] statistics.tcl]
 
 puts "math::statistics [package present math::statistics]"
 
+# -------------------------------------------------------------------------
 
 set ::data_uniform  [list 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
 set ::data_missing  [list 1.0 1.0 1.0 {} 1.0 {} {} 1.0 1.0 1.0 1.0 1.0 1.0]

@@ -8,12 +8,18 @@
 # Copyright (c) 2002-2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.17 2005/02/10 00:16:08 patthoyts Exp $
+# RCS: @(#) $Id: pop3.test,v 1.18 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 package forget pop3
 catch {namespace delete ::pop3}
@@ -25,6 +31,7 @@ if {[catch {source [file join $::tcltest::testsDirectory pop3.tcl]} msg]} {
 puts "- tcltest [package present tcltest]"
 puts "- pop3    [package present pop3]"
 
+# -------------------------------------------------------------------------
 # Server processes. Programmed dialogs, server side.
 
 source [file join [file dirname [file dirname [info script]]] devtools coserv.tcl]

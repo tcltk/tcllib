@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -42,7 +42,7 @@
 #
 # End of Header
 
-package require Tcl 8.2
+package require Tcl 8.4
 package require logger
 package require logger::appender
 package require msgcat
@@ -58,7 +58,7 @@ namespace eval ::logger::utils {
 }
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -163,7 +163,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -318,7 +318,7 @@ proc ::logger::utils::createLogProc {args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -456,7 +456,7 @@ proc ::logger::utils::applyAppender {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.3 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:

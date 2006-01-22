@@ -1,3 +1,4 @@
+# -*- tcl -*-
 ########################################################################
 # BigFloat for Tcl
 # Copyright (C) 2003-2005  ARNOLD Stephane
@@ -5,13 +6,16 @@
 # See the "license.terms" provided with tcllib.
 ########################################################################
 
-if {![package vsatisfies [package provide Tcl] 8.5]} {
-    puts "    Aborting tests for math::bigfloat."
-    puts "    Requiring Tcl 8.5, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-package require tcltest
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 package forget math::bigfloat
 catch { namespace delete ::math::bigfloat }
@@ -21,6 +25,8 @@ catch { namespace delete ::math::bigfloat }
 # and not some later version that may be installed.
 source [file join [file dirname [info script]] bigfloat2.tcl]
 namespace import ::math::bigfloat::*
+
+# -------------------------------------------------------------------------
 
 proc assert {name version code result} {
     tcltest::test bigfloat-$name-$version "Some integer computations related to command $name" {uplevel 1 $code} $result

@@ -7,29 +7,31 @@
 # Copyright (c) 2000 by Ross Palmer Mohn.
 # All rights reserved.
 #
-# RCS: @(#) $Id: typedCmdline.test,v 1.6 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.test,v 1.7 2006/01/22 00:27:21 andreas_kupries Exp $
 
-package require tcltest
-namespace import -force ::tcltest::*
+# -------------------------------------------------------------------------
 
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+
+package forget cmdline
+catch {namespace delete cmdline}
 set cmdLineFile [file join [file dirname [info script]] cmdline.tcl]
-source $cmdLineFile
+if {[catch {source $cmdLineFile} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
 set argv0 "argv0"
 
-# ---------------------------------------------------
-
-# Takes a dictionary, returns a list containing the same dictionary,
-# however the keys are sorted alphabetically. This allows for a true
-# comparison of dictionary results.
-
-proc dictsort {dict} {
-    array set a $dict
-    set out [list]
-    foreach key [lsort [array names a]] {
-	lappend out $key $a($key)
-    }
-    return $out
-}
+puts "- cmdline [package present cmdline]"
 
 # ---------------------------------------------------
 
@@ -114,7 +116,7 @@ test cmdline-6.13 {cmdline::typedGetopt, integer options} {
     list [cmdline::typedGetopt argList {a.arg foo.integer b} opt arg] $argList $opt $arg
 } {1 {} foo 123}
 
-if {[::tcltest::queryConstraint tcl8.5plus]} {
+if {[::tcltest::testConstraint tcl8.5plus]} {
     test cmdline-6.14 {cmdline::typedGetopt, integer options} {
 	catch {unset opt}
 	catch {unset arg}

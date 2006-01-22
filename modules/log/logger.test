@@ -7,15 +7,23 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.22 2005/12/02 22:12:11 mic42 Exp $
+# $Id: logger.test,v 1.23 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 set auto_path "[file dirname [info script]] $auto_path"
 package require logger 
+
+# -------------------------------------------------------------------------
 
 test logger-1.0 {init basic} {
     set log [logger::init global]

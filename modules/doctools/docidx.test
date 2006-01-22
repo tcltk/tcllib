@@ -8,12 +8,16 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: docidx.test,v 1.8 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.test,v 1.9 2006/01/22 00:27:22 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and not one installed somewhere else.
@@ -25,13 +29,13 @@ package forget textutil::expander
 catch {namespace delete ::doctools::idx}
 catch {namespace delete ::textutil::expander}
 
-if {[catch {source [file join [file dirname [info script]] docidx.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+if {[catch {source [file join [file dirname [file dirname [file join [pwd] [info script]]]] textutil expander.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (textutil/expander.tcl): $msg"
     return
 }
 
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] textutil expander.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (textutil/expander.tcl): $msg"
+if {[catch {source [file join [file dirname [info script]] docidx.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
     return
 }
 

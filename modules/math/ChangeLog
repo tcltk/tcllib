@@ -1,3 +1,26 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bessel.test: Hooked into the new common test support code.
+	* bigfloat.test:
+	* bigfloat2.test:
+	* bignum.test: 
+	* calculus.test: 
+	* combinatorics.test: 
+	* constants.test: 
+	* elliptic.test: 
+	* fourier.test: 
+	* fuzzy.test: 
+	* geometry.test: 
+	* interpolate.test: 
+	* linalg.test: 
+	* math.test: 
+	* optimize.test: 
+	* polynomials.test: 
+	* qcomplex.test: 
+	* roman.test: 
+	* special.test: 
+	* statistics.test: 
+
 2006-01-11  Andreas Kupries <andreask@activestate.com>
 
 	* fourier.tcl (::math::fourier::lowpass):  Changed package

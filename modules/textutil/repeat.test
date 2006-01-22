@@ -6,10 +6,16 @@
 # generates output for errors.  No output means no errors were found.
 #
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
     source [file join [file dirname [info script]] textutil.tcl]

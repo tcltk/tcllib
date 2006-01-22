@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sasl.test: Hooked into the new common test support code.
+
 2005-10-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ntlm.tcl: bug #1323295 - NTLM requires little endian unicode

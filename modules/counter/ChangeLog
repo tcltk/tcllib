@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* counter.test: Hooked into the new common test support code.
+
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* counter.test: Fixed [SF Tcllib Bug 1316036]. Uncluttering test

@@ -3,22 +3,16 @@
 #    Test cases for the ::math::bignum package
 #
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "    Aborting tests for math::bignum."
-    puts "    Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    if {![package vsatisfies [package present tcltest] 2.0]} {
-        puts "    Aborting tests for math::bignum."
-        puts "    Requiring tcltest 2.1, have [package present tcltest]"
-        return
-    }
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 package forget math::bignum
 catch {namespace delete ::math::bignum}
@@ -27,6 +21,8 @@ if {[catch {source [file join [file dirname [info script]] bignum.tcl]}]} {
     puts "skipped [file tail [info script]]: $msg"
     return
 }
+
+# -------------------------------------------------------------------------
 
 proc matchBignums { expected actual } {
    set match 1
@@ -50,6 +46,8 @@ if { $::math::bignum::atombits != 16 } {
    # The maximum value for the atoms is 2**16-1 = 65535
    #
 }
+
+# -------------------------------------------------------------------------
 
 #
 # Tests: fromstr/tostr (use the internal representation directly)

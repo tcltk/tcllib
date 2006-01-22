@@ -6,70 +6,66 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.18 2004/05/03 20:19:27 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.19 2006/01/22 00:27:25 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
+
 set dirname [file dirname [info script]]
 source      [file join $dirname uri.tcl]
 package require uri
 
 puts "uri [package present uri]"
 
-# Take a key-value list and return list sorted by key, 
-# but with corresponding values staying with their key
-proc kvsort args {
-    array set arr $args
-    set result {}
-    foreach key [lsort [array names arr]] {
-	lappend result $key $arr($key)
-    }
-    return $result
-}
-
 # -------------------------------------------------------------------------
 # Split tests
 
 test uri-1.1 {uri::split - http w/- query} {
-    eval kvsort [uri::split http://test.net/path/path2?query]
+    dictsort [uri::split http://test.net/path/path2?query]
 } {host test.net path path/path2 port {} pwd {} query query scheme http user {}}
 
 test uri-1.2 {uri::split - https w/- query} {
-    eval kvsort [uri::split https://test.net/path/path2?query]
+    dictsort [uri::split https://test.net/path/path2?query]
 } {host test.net path path/path2 port {} pwd {} query query scheme https user {}}
 
 test uri-1.3 {uri::split - http w/- port} {
-    eval kvsort [uri::split http://test.net:8080]
+    dictsort [uri::split http://test.net:8080]
 } {host test.net path {} port 8080 pwd {} query {} scheme http user {}}
 
 test uri-1.4 {uri::split - https w/- port} {
-    eval kvsort [uri::split https://test.net:8888]
+    dictsort [uri::split https://test.net:8888]
 } {host test.net path {} port 8888 pwd {} query {} scheme https user {}}
 
 test uri-1.5 {uri::split - ftp} {
-    eval kvsort [uri::split ftp://ftp.test.net/path/to/resource]
+    dictsort [uri::split ftp://ftp.test.net/path/to/resource]
 } {host ftp.test.net path path/to/resource port {} pwd {} scheme ftp type {} user {}}
 
 test uri-1.6 {uri::split - ftp with userinfo} {
-    eval kvsort [uri::split {ftp://user:passwd@localhost/a/b/c.d}]
+    dictsort [uri::split {ftp://user:passwd@localhost/a/b/c.d}]
 } {host localhost path a/b/c.d port {} pwd passwd scheme ftp type {} user user}
 
 test uri-1.7 {uri::split - ftp with type} {
-    eval kvsort [uri::split {ftp://localhost/a/b/c.d;type=i}]
+    dictsort [uri::split {ftp://localhost/a/b/c.d;type=i}]
 } {host localhost path a/b/c.d port {} pwd {} scheme ftp type i user {}}
 
 test uri-1.8 {uri::split - ftp with port} {
-    eval kvsort [uri::split {ftp://localhost:21/a/b/c.d}]
+    dictsort [uri::split {ftp://localhost:21/a/b/c.d}]
 } {host localhost path a/b/c.d port 21 pwd {} scheme ftp type {} user {}}
 
 test uri-1.9 {uri::split - news with message-id} {
-    eval kvsort [uri::split {news:87lm40t3v7.fsf@dedasys.com}]
+    dictsort [uri::split {news:87lm40t3v7.fsf@dedasys.com}]
 } {message-id 87lm40t3v7.fsf@dedasys.com scheme news}
 
 test uri-1.10 {uri::split - news with newsgroup-name} {
-    eval kvsort [uri::split {news:comp.lang.tcl}]
+    dictsort [uri::split {news:comp.lang.tcl}]
 } {newsgroup-name comp.lang.tcl scheme news}
 
 # -------------------------------------------------------------------------
@@ -425,7 +421,7 @@ test uri-8.0 {uri::split bug #676976, ill. char in scheme} {
 # -------------------------------------------------------------------------
 
 test uri-9.0 {uri::split bug #936064, user information} {
-    eval kvsort [uri::split http://foo:bar@baz.com:80/bla/]
+    dictsort [uri::split http://foo:bar@baz.com:80/bla/]
 } {host baz.com path bla/ port 80 pwd bar query {} scheme http user foo}
 
 # -------------------------------------------------------------------------

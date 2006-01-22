@@ -9,26 +9,18 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.10 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: calculus.test,v 1.11 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "    Aborting tests for math::bignum."
-    puts "    Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    # Ensure that 2.1 or higher present.
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-    if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "    Aborting tests for math::calculus."
-	puts "    Requiring tcltest 2.1, have [package present tcltest]"
-	return
-    }
-}
+testsNeedTcl     8.4
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 source [file join [pwd] [file dirname [info script]] misc.tcl]
 source [file join [pwd] [file dirname [info script]] interpolate.tcl]
@@ -36,8 +28,12 @@ source [file join [pwd] [file dirname [info script]] calculus.tcl]
 
 package require math::calculus 0.6
 
+# -------------------------------------------------------------------------
+
 package require log
 log::lvSuppress notice
+
+# -------------------------------------------------------------------------
 
 namespace eval ::math::calculus::test {
 
