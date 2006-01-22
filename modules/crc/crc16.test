@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc16.test,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: crc16.test,v 1.5 2006/01/22 23:53:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,26 +17,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-#
-package forget crc16
-catch {namespace delete ::crc}
-if {[catch {source [file join [file dirname [info script]] crc16.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal crc16.tcl crc16 ::crc
 }
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
-# -------------------------------------------------------------------------
-
-package require crc16
-puts "- crc16 [package present crc16]"
 
 # -------------------------------------------------------------------------
 

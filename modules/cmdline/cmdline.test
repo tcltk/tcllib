@@ -8,7 +8,7 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.12 2006/01/22 00:27:21 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.13 2006/01/22 23:53:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,23 +19,16 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-
-package forget cmdline
-catch {namespace delete cmdline}
-set cmdLineFile [file join [file dirname [info script]] cmdline.tcl]
-if {[catch {source $cmdLineFile} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal cmdline.tcl cmdline
 }
 
+# -------------------------------------------------------------------------
+
+set cmdLineFile [localPath cmdline.tcl]
 set argv0 "argv0"
 
-puts "- cmdline [package present cmdline]"
-
 # ---------------------------------------------------
-
 # cmdline::getopt
 
 test cmdline-1.1 {cmdline::getopt} {
