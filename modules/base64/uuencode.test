@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: uuencode.test,v 1.11 2006/01/22 00:27:21 andreas_kupries Exp $
+# RCS: @(#) $Id: uuencode.test,v 1.12 2006/01/22 23:53:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,32 +17,20 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget uuencode
-catch {namespace delete ::uuencode}
-if {[catch {source [file join [file dirname [info script]] uuencode.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal uuencode.tcl uuencode
 }
 
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 set trf 0
 if {[info command ::uuencode::CEncode] != {}} {
-    puts "- uuencode [package provide uuencode] (critcl based)"
+    puts "> critcl based"
 } elseif {[package provide Trf] != {}} {
-    puts "- uuencode [package provide uuencode] (Trf based)"
+    puts "> Trf based"
     set trf 1
 } else {
-    puts "- uuencode [package provide uuencode] (pure tcl)"
+    puts "> pure tcl"
 }
 
 package require log
@@ -94,8 +82,6 @@ test uuencode-1.5 {uudecode string} {
     set result
 } [list [list data.dat 644 "The cat sat on the mat."]]
 
-
-
 test uuencode-1.6 {encode dash-string} {
     catch {::uuencode::encode -BC} result
     set result
@@ -105,8 +91,6 @@ test uuencode-1.7 {decode dash-string} {
     catch {::uuencode::decode "-4)#"} result
     set result
 } "5BC"
-
-
 
 # -------------------------------------------------------------------------
 

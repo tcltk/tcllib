@@ -4,7 +4,7 @@
 # Copyright (c) 2005 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: bibtex.test,v 1.5 2006/01/22 00:27:21 andreas_kupries Exp $
+# RCS: @(#) $Id: bibtex.test,v 1.6 2006/01/22 23:53:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,18 +15,9 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget bibtex
-catch {namespace delete ::bibtex}
-if {[catch {source [file join [file dirname [info script]] bibtex.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal bibtex.tcl bibtex
 }
-
-package require bibtex
-puts "- bibtex [package present bibtex]"
 
 # -------------------------------------------------------------------------
 

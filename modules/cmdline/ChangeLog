@@ -1,3 +1,8 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.test: More boilerplate simplified via use of test support.
+	* typedCmdline.test:
+
 2006-01-21  Andreas Kupries  <akupries@shaw.ca>
 
 	* typedCmdline.test: Replaced usage of the made-up command

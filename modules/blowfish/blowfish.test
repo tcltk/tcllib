@@ -1,6 +1,6 @@
 # blowfish.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: blowfish.test,v 1.5 2006/01/22 00:27:21 andreas_kupries Exp $
+# $Id: blowfish.test,v 1.6 2006/01/22 23:53:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -11,13 +11,8 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget blowfish
-catch {namespace delete ::blowfish}
-if {[catch {source [file join [file dirname [info script]] blowfish.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+testing {
+    useLocal blowfish.tcl blowfish
 }
 
 # -------------------------------------------------------------------------
@@ -48,9 +43,9 @@ proc reset_implementation {} {
 # Report versions
 #
 if {[::blowfish::LoadAccelerator trf]} {
-    puts "- blowfish [package present blowfish] (Trf based)"
+    puts "> Trf based"
 }
-puts "- blowfish [package present blowfish] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
