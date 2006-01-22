@@ -1,3 +1,8 @@
+2006-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.test: Removed some 8.4'isms out of the csv testsuite, the
+	  package under test works for 8.3+.
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.test: Hooked into the new common test support code.
