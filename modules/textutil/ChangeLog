@@ -1,3 +1,14 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.test: Hooked into the new common test support code.
+	* adjust_hyph.test:
+	* expander.test:
+	* repeat.test:
+	* split.test:
+	* tabify.test:
+	* textutil.test:
+	* trim.test:
+
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* expander.tcl (::textutil::expander::Op_cpush): Applied the patch

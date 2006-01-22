@@ -5,15 +5,16 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# RCS: @(#) $Id: sha256.test,v 1.1 2005/02/22 10:15:24 patthoyts Exp $
+# RCS: @(#) $Id: sha256.test,v 1.2 2006/01/22 00:27:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialize the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.

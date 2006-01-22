@@ -1,3 +1,4 @@
+# -*- tcl -*-
 #---------------------------------------------------------------------
 # TITLE:
 #       romannumeral
@@ -11,6 +12,15 @@
 # Note:
 #    Assumes Tcl 8.3
 #    The tests assume tcltest 2.2
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 2.2
 
 #-----------------------------------------------------------------------
 
@@ -122,7 +132,7 @@ if [catch {source [file join [file dirname [info script]] romannumerals.tcl]} er
     exit -1
 }
 
-prepareTclTest $className
+prepareTclTest math::roman
 
 # Initialize any additional tcltest constraints here
 # (eg ::tcltest::testConstraint myConstraint 1)

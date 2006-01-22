@@ -1,23 +1,25 @@
+# -*- tcl -*-
 # fourier.test --
 #    Test cases for the Fourier transforms in the
 #    ::math::fourier package
 #
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    if {![package vsatisfies [package present tcltest] 2.0]} {
-        puts "    Aborting tests for math::fourier."
-        puts "    Requiring tcltest 2.1, have [package present tcltest]"
-        return
-    }
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 source [file join [file dirname [info script]] fourier.tcl]
 
-
 namespace import ::math::fourier::*
+
+# -------------------------------------------------------------------------
 
 proc matchComplex {expected actual} {
     set match 1
@@ -34,6 +36,8 @@ proc matchComplex {expected actual} {
 }
 
 customMatch numbers matchComplex
+
+# -------------------------------------------------------------------------
 
 test "dft-1.0" "Four numbers" \
    -match numbers -body {

@@ -7,12 +7,18 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: log.test,v 1.5 2004/03/25 07:23:59 andreas_kupries Exp $
+# RCS: @(#) $Id: log.test,v 1.6 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
@@ -20,6 +26,8 @@ if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
 
 package require log
 puts "log [package present log]"
+
+# -------------------------------------------------------------------------
 
 test log-1.0 {levels} {
     ::log::levels

@@ -1,3 +1,13 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* loggerUtils.tcl: The utilities require Tcl 8.4, they use
+	* loggerUtils.man: 'trace'-APIs not yet present before 8.4.
+	* pkgIndex.tcl:
+ 
+	* log.test: Hooked into the new common test support code.
+	* logger.test:
+	* loggerUtils.test:
+
 2005-12-02  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* logger.tcl:        Fixed bug [SF Tcllib 1329642]. There

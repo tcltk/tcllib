@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # This file contains the tests for the cmdline.tcl file.
 #
 # This file contains a collection of tests for one or more of the Tcl
@@ -7,29 +8,31 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.11 2004/11/08 21:48:55 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.12 2006/01/22 00:27:21 andreas_kupries Exp $
 
-package require tcltest
-namespace import -force ::tcltest::*
+# -------------------------------------------------------------------------
 
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
+# Ensure we test _this_ local copy and one installed somewhere else.
+
+package forget cmdline
+catch {namespace delete cmdline}
 set cmdLineFile [file join [file dirname [info script]] cmdline.tcl]
-source $cmdLineFile
+if {[catch {source $cmdLineFile} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
+    return
+}
+
 set argv0 "argv0"
 
-# ---------------------------------------------------
-
-# Takes a dictionary, returns a list containing the same dictionary,
-# however the keys are sorted alphabetically. This allows for a true
-# comparison of dictionary results.
-
-proc dictsort {dict} {
-    array set a $dict
-    set out [list]
-    foreach key [lsort [array names a]] {
-	lappend out $key $a($key)
-    }
-    return $out
-}
+puts "- cmdline [package present cmdline]"
 
 # ---------------------------------------------------
 
@@ -507,5 +510,3 @@ test cmdline-7.15 {cmdline::getKnownOptions, usage string in errors} {
 
 tcltest::cleanupTests
 return
-
-

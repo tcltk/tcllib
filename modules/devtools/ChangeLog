@@ -1,4 +1,10 @@
-2006-01-18  Andreas Kupries  <akupries@shaw.ca>
+2006-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Moved the definitions of the common
+	  constraints out of the toplevel "all.tcl" into the test support
+	  code.
+
+2006-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: New file for boilerplate code and common
 	  commands used by most to all testsuites in Tcllib.

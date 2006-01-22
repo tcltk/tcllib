@@ -78,11 +78,35 @@ if {![package vsatisfies [package provide tcltest] 2.0]} {
     # variable in the package's namespace. We create a command doing
     # this and emulating the public API.
 
-    proc ::tcltest::testConstraint {c val} {
-	set ::tcltest::testConstraints($c) $val
+    proc ::tcltest::testConstraint {c args} {
+	variable testConstraints
+        if {[llength $args] < 1} {
+            if {[info exists testConstraints($c)]} {
+                return $testConstraints($c)
+            } else {
+                return {}
+            }
+        } else {
+            set testConstraints($c) [lindex $args 0]
+        }
 	return
     }
 }
+
+# ### ### ### ######### ######### #########
+## Define a set of standard constraints
+
+::tcltest::testConstraint tcl8.3only \
+	[expr {![package vsatisfies [package provide Tcl] 8.4]}]
+
+::tcltest::testConstraint tcl8.3plus \
+	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
+
+::tcltest::testConstraint tcl8.4plus \
+	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
+
+::tcltest::testConstraint tcl8.5plus \
+	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
 # ### ### ### ######### ######### #########
 ## Cross-version code for the generation of the error messages created

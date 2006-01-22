@@ -7,12 +7,16 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.19 2006/01/18 06:10:59 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.20 2006/01/22 00:27:22 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3 ; # htmlparse itself is 8.2+, however struct::* need 8.3+
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.

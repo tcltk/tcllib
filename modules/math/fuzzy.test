@@ -6,15 +6,23 @@
 #
 #    version 0.2: imporved and extended implementation, march 2002
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 package require  math::fuzzy
 puts "math::fuzzy [package present math::fuzzy]"
 
 namespace import ::math::fuzzy::*
+
+# -------------------------------------------------------------------------
 
 #
 # Test: tolerance has sane value

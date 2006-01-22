@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* stooop.test: Hooked into the new common test support code.
+
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* switched.tcl: Fixed bug, missing dependency on package

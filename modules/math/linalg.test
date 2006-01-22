@@ -12,22 +12,16 @@
 #    - mkHilbert and so on
 #    - matmul
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "    Aborting tests for math::bignum."
-    puts "    Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    if {![package vsatisfies [package present tcltest] 2.0]} {
-        puts "    Aborting tests for math::linearalgebra"
-        puts "    Requiring tcltest 2.1, have [package present tcltest]"
-        return
-    }
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 #
 # TODO: conflict about "scale"?

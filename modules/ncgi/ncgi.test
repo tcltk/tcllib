@@ -7,13 +7,18 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.19 2005/09/30 22:23:24 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.20 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import -force ::tcltest::*
-}
+# -------------------------------------------------------------------------
 
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
@@ -32,6 +37,7 @@ if {[catch {source $ncgiFile} msg]} {
 }
 puts "- ncgi [package present ncgi]"
 
+# -------------------------------------------------------------------------
 
 test ncgi-1.1 {ncgi::reset} {
     ncgi::reset

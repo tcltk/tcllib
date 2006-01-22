@@ -8,16 +8,18 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.14 2005/07/07 17:17:24 rmax Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.15 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {![package vsatisfies [package provide Tcl] 8.3]} {
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 if {[catch {source [file join [file dirname [file dirname [info script]]] md5 md5x.tcl]} msg]} {
     puts "skipped [file tail [info script]] (md5x): $msg"
@@ -53,6 +55,7 @@ puts "- dbox  [package present pop3d::dbox]"
 puts "- mime  [package present mime]"
 puts "- md5   [package present md5]"
 
+# -------------------------------------------------------------------------
 # Server processes. Programmed dialogs, server side.
 
 source [file join [file dirname [file dirname [info script]]] devtools coserv.tcl]
@@ -307,17 +310,6 @@ test pop3-srv-3.1 {basic up & down} {
 # First some helper commands to for the mgmt of a subprocess
 # (Which will be the client), to create a server in a specific
 # initial state, and to perform specific queries of the state.
-
-proc dictsort {kv} {
-    set tmp [list]
-    foreach {k v} $kv {lappend tmp [list $k $v]}
-    set kv [list]
-    foreach item [lsort -index 0 $tmp] {
-	foreach {k v} $item break
-	lappend kv $k $v
-    }
-    return $kv
-}
 
 proc ppcstate {state} {
     if {$state == {}} {return $state}

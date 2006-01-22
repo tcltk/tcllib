@@ -1,4 +1,11 @@
-2005-11-02  Andreas Kupries  <akupries@shaw.ca>
+2006-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* all.tcl: Removed the definitions of the common test constraints,
+	  and the emulations of the 'wrongNumArgs' and 'tooManyArgs'
+	  commands. These have all moved into the new common test support
+	  code found in "devtools".
+
+2005-11-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Removed all functionality related to execution of
 	  .timing files. They are superceded by the benchmarks provided
