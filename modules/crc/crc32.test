@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32.test,v 1.9 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: crc32.test,v 1.10 2006/01/22 23:53:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,31 +17,19 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget crc32
-catch {namespace delete ::crc}
-if {[catch {source [file join [file dirname [info script]] crc32.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal crc32.tcl crc32 ::crc
 }
 
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 if {[::crc::LoadAccelerator critcl]} {
-    puts "- crc32 [package provide crc32] (critcl based)"
+    puts "> critcl based"
 }
 if {[::crc::LoadAccelerator trf]} {
-    puts "- crc32 [package provide crc32] (Trf based)"
+    puts "> Trf based"
 }
-puts "- crc32 [package provide crc32] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing

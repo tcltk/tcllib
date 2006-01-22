@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.10 2006/01/22 00:27:21 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.11 2006/01/22 23:53:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -16,19 +16,9 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-
-package forget asn
-catch {namespace delete ::asn}
-
-if {[catch {source [file join [file dirname [info script]] asn.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal asn.tcl asn
 }
-
-package require asn
-puts "- asn [package present asn]"
 
 # -------------------------------------------------------------------------
 
