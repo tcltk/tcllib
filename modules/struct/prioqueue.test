@@ -9,12 +9,16 @@
 # Copyright (c) 2002 Michael Schlenker
 # All rights reserved.
 #
-# RCS: @(#) $Id: prioqueue.test,v 1.6 2005/09/23 16:17:26 mic42 Exp $
+# RCS: @(#) $Id: prioqueue.test,v 1.7 2006/01/22 00:27:24 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.

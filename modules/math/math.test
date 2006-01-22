@@ -7,19 +7,25 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.16 2005/10/10 14:02:47 arjenmarkus Exp $
+# RCS: @(#) $Id: math.test,v 1.17 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 source [file join [file dirname [info script]] math.tcl]
 package require math
 
 puts "math [package present math]"
 
-
+# -------------------------------------------------------------------------
 
 test math-1.1 {math::min, wrong num args} {
     catch {math::min} msg
@@ -150,6 +156,7 @@ test math-7.2 {simple math::cov} {
 test math-7.3 {simple math::cov} {
     math::cov 2 1
 } 100.0
+
 test math-7.4 {math::cov} {
     if {![catch { 
 	math::cov 0 2 1 0
@@ -161,11 +168,11 @@ test math-7.4 {math::cov} {
 	                should be Infinity"
 	}
     } else {
-	if { [string equal [lrange $::errorCode 0 1] {ARITH DIVZERO}] } {
+	if { [string equal [lrange $::errorCode 0 1] {ARITH DOMAIN}] } {
 	    set result ok
 	} else {
 	    set result "error from cov was [list $::errorCode],\
-                        should be {ARITH DIVZERO *}"
+                        should be {ARITH DOMAIN *}"
 	}
     }
     set result

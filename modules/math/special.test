@@ -5,25 +5,22 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: special.test,v 1.8 2005/09/28 04:51:22 andreas_kupries Exp $
+# $Id: special.test,v 1.9 2006/01/22 00:27:23 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
 #
 
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    # Ensure that 2.1 or higher present.
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-    if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "    Aborting tests for math::special."
-	puts "    Requiring tcltest 2.1, have [package present tcltest]"
-	return
-    }
-}
+testsNeedTcl     8.2
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 source [file join [file dirname [info script]] math.tcl]
 source [file join [file dirname [info script]] special.tcl]

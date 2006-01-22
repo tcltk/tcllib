@@ -1,19 +1,18 @@
+# -*- tcl -*-
 # polynomials.test --
 #    Test cases for the ::math::polynomials package
 #
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    # Ensure that 2.1 or higher present.
+# -------------------------------------------------------------------------
 
-    if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "    Aborting tests for math::polynomials."
-	puts "    Requiring tcltest 2.1, have [package present tcltest]"
-	return
-    }
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 package require math::polynomials
 

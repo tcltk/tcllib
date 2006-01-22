@@ -1,3 +1,9 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit.test: Hooked into the new common test support
+	  code. Reactivated the tests based on the commands wrongNumArgs
+	  and tooManyArgs. Coming out of the new test support code.
+
 2006-01-14  Will Duquette  <will@wjduquette.com>
 
 	* snit2.tcl (::snit::RT.UnknownMethod):  When creating a new

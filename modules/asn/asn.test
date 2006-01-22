@@ -5,18 +5,16 @@
 # Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.9 2006/01/16 21:08:44 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.10 2006/01/22 00:27:21 andreas_kupries Exp $
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "    Aborting tests for asn."
-    puts "    Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.
@@ -28,15 +26,6 @@ if {[catch {source [file join [file dirname [info script]] asn.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return
 }
-
-if {![llength [info commands tcltest::wrongNumArgs]]} {
-	proc tcltest::wrongNumArgs {name value rest} {
-		return "wrong # args: should be \"[string trimright "$name $value"]\""
-	}
-	proc tcltest::tooManyArgs {name value} {
-		return [wrongNumArgs $name $value 0]
-	}	
-}	
 
 package require asn
 puts "- asn [package present asn]"
@@ -418,18 +407,18 @@ test asn-15.1 {getBytes} {
 
 # 16 ----------- string encoder/decoder invalid arguments
 array set stringtag {
-NumericString 0x12
-PrintableString 0x13
-IA5String 0x16
-BMPString 0x1e
-UTF8String 0x0c
+    NumericString   0x12
+    PrintableString 0x13
+    IA5String       0x16
+    BMPString       0x1e
+    UTF8String      0x0c
 }
 set i 0
 foreach strtype {NumericString PrintableString IA5String BMPString UTF8String} {
 	incr i
 	test asn-16.$i $strtype {
-		catch "asn::asn$strtype" result
-		set result
+	    catch {asn::asn$strtype} result
+	    set result
 	} [tcltest::wrongNumArgs asn::asn$strtype string 0]
 	incr i
 	test asn-16.$i $strtype {

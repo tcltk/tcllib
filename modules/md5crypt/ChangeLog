@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5crypt.test: Hooked into the new common test support code.
+
 2005-10-24  Andreas Kupries <andreask@activestate.com>
 
 	* md5crypt.bench: New file. Basic benchmarks for MD5 password

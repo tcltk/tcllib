@@ -3,12 +3,16 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.6 2006/01/10 23:05:19 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.7 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.
@@ -34,25 +38,10 @@ puts "- png   [package present png]"
 puts "- crc32 [package present crc32]"
 catch {puts "- Trf [package present Trf]"}
 
-#----------------------------------------------------------------------
-
-# Takes a dictionary, returns a list containing the same dictionary,
-# however the keys are sorted alphabetically. This allows for a true
-# comparison of dictionary results.
-
-proc dictsort {dict} {
-    array set a $dict
-    set out [list]
-    foreach key [lsort [array names a]] {
-	lappend out $key $a($key)
-    }
-    return $out
-}
-
 # -------------------------------------------------------------------------
 # Validation
 
-foreach f [glob -directory [file join [file dirname [info script]] testimages] *.png] {
+foreach f [glob [file join [file dirname [info script]] testimages *.png]] {
     set root [file rootname [file tail $f]]
 
     # All files have a valid signature, except for two.
@@ -75,7 +64,7 @@ foreach f [glob -directory [file join [file dirname [info script]] testimages] *
 
 # Validation II, the bad files ...
 
-foreach f [glob -directory [file join [file dirname [info script]] testimages] x*.png] {
+foreach f [glob [file join [file dirname [info script]] testimages x*.png]] {
     set root [file rootname [file tail $f]]
 
     test png-validate-$root {full validation} {
@@ -244,7 +233,7 @@ array set expected {
     z09n2c08 {color 2 compression 0 depth 8 filter 0 height 32 interlace 0 width 32}
 }
 
-foreach f [lsort [glob -directory [file join [file dirname [info script]] testimages] *.png]] {
+foreach f [lsort [glob [file join [file dirname [info script]] testimages *.png]]] {
     set root [file rootname [file tail $f]]
 
     # Files beginning with x are invalid, and thus not usable in these
@@ -266,7 +255,7 @@ array set exptime {
     cm9n0g04 946684799
 }
 
-foreach f [lsort [glob -directory [file join [file dirname [info script]] testimages] cm*.png]] {
+foreach f [lsort [glob [file join [file dirname [info script]] testimages cm*.png]]] {
     set root [file rootname [file tail $f]]
 
     #puts [clock format $exptime($root) -gmt 1]

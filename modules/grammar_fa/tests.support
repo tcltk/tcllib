@@ -1,4 +1,4 @@
-
+# -*- tcl -*-
 # -------------------------------------------------------------------------
 # Helper for tests: Validation of serializations.
 
@@ -90,20 +90,6 @@ proc validate_serial {value fa} {
 	}
     }
     return ok
-}
-
-# -------------------------------------------------------------------------
-# Takes a dictionary, returns a list containing the same dictionary,
-# however the keys are sorted alphabetically. This allows for a true
-# comparison of dictionary results.
-
-proc dictsort {dict} {
-    array set a $dict
-    set out [list]
-    foreach key [lsort [array names a]] {
-	lappend out $key $a($key)
-    }
-    return $out
 }
 
 # -------------------------------------------------------------------------

@@ -8,16 +8,18 @@
 # Copyright (c) 2005      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: mimetypes.test,v 1.5 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: mimetypes.test,v 1.6 2006/01/22 00:27:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialise the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    set auto_path [linsert $auto_path 0 .]
-    package require tcltest
-    namespace import ::tcltest::*
-}
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 proc makeBinaryFile {data f} {
     set path [makeFile {} $f]

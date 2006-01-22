@@ -1,3 +1,11 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cksum.test: Hooked into the new common test support code.
+	* crc16.test:
+	* crc32.test:
+	* crc32bugs.test:
+	* sum.test:
+
 2005-10-24  Andreas Kupries <andreask@activestate.com>
 
 	* cksum.bench: New files. Basic benchmark tests

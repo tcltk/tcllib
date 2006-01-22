@@ -1,3 +1,8 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_tcl.test: Hooked into the new common test support code.
+	* me_util.test:
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

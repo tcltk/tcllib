@@ -1,3 +1,20 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.test: Hooked into the new common test support code.
+	* graph1.test:
+	* list.test:
+	* matrix.test:
+	* matrix1.test:
+	* pool.test:
+	* prioqueue.test:
+	* queue.test:
+	* record.test:
+	* sets.test:
+	* skiplist.test:
+	* stack.test:
+	* tree.test:
+	* tree1.test:
+
 2006-01-10  Andreas Kupries <andreask@activestate.com>
 
 	* pool.test: New file. Structured tests.

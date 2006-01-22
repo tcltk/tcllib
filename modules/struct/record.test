@@ -8,12 +8,15 @@
 # loosely immitates a 'C' structure. Invoke this test suite
 # by: tclsh record.test
 #
-#------------------------------------------------------------
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import -force ::tcltest::*
-}
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.

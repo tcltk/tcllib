@@ -14,39 +14,24 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# $Id: des.test,v 1.3 2005/09/26 09:16:59 patthoyts Exp $
+# $Id: des.test,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialize the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.
 #
 # If we are passed the commandline '-constraints no3des' then we will load
 # the tcldesjr implementation which only supports DES and not 3DES.
-#
-if {![package vsatisfies [package provide tcltest] 2.0]} {
-    proc testConstraint {name args} {
-        variable ::tcltest::testConstraints
-        if {[llength $args] < 1} {
-            if {[info exists testConstraints($name)]} {
-                return $testConstraints($name)
-            } else {
-                return {}
-            }
-        } else {
-            set testConstraints($name) [lindex $args 0]
-        }
-    }
-}
 
-
-variable _impl [expr {[testConstraint no3des] ? "tcldesjr.tcl" : "tcldes.tcl"}]
+variable _impl [expr {[tcltest::testConstraint no3des] ? "tcldesjr.tcl" : "tcldes.tcl"}]
 
 package forget tclDES
 catch {namespace delete ::des}
@@ -65,7 +50,7 @@ if {[catch {source [file join [file dirname [info script]] des.tcl]} msg]} {
 # Setup any constraints
 #
 
-testConstraint 3des [expr {[llength [package provide tclDES]] != 0}]
+tcltest::testConstraint 3des [expr {[llength [package provide tclDES]] != 0}]
 
 # -------------------------------------------------------------------------
 # Report version in test

@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # eliptic.test --
 #    Test cases for the ::math::special package (Elliptic integrals)
 #
@@ -7,26 +8,25 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.7 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.8 2006/01/22 00:27:23 andreas_kupries Exp $
 
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.1
-    namespace import ::tcltest::*
-} else {
-    # Ensure that 2.1 or higher present.
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-    if {![package vsatisfies [package present tcltest] 2.1]} {
-	puts "    Aborting tests for elliptic in math::special."
-	puts "    Requiring tcltest 2.1, have [package present tcltest]"
-	return
-    }
-}
+testsNeedTcl     8.2
+testsNeedTcltest 2.1
+
+# -------------------------------------------------------------------------
 
 source [file join [file dirname [info script]] "math.tcl"]
 source [file join [file dirname [info script]] "special.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
 package require math::constants
+
+# -------------------------------------------------------------------------
 
 # As the values were given with four digits, an absolute
 # error is most appropriate
@@ -45,6 +45,7 @@ proc matchNumbers {expected actual} {
 
 ::tcltest::customMatch numbers matchNumbers
 
+# -------------------------------------------------------------------------
 
 test "Elliptic-1.0" "Complete elliptic integral of the first kind" \
     -match numbers -body {

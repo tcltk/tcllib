@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bee.test: Hooked into the new common test support code.
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* bee.test: Fixed typo.

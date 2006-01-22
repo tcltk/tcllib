@@ -8,16 +8,18 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.35 2005/10/16 23:00:53 patthoyts Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.36 2006/01/22 00:27:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialise the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    set auto_path [linsert $auto_path 0 .]
-    package require tcltest
-    namespace import ::tcltest::*
-}
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 proc makeBinaryFile {data f} {
     set path [makeFile {} $f]

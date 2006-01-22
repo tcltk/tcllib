@@ -1,3 +1,9 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* docidx.test: Hooked into the new common test support code.
+	* doctoc.test:
+	* doctools.test:
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

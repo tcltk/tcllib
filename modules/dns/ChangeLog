@@ -1,3 +1,12 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ipMore.tcl: 
+
+	* dns.test: Hooked into the new common test support code.
+	* ip.test:
+	* ipMore.test:
+	* spf.test
+
 2005-10-21  Andreas Kupries <andreask@activestate.com>
 
 	* ipMore.tcl: Style cleanup. We need only one $Id expansion at
