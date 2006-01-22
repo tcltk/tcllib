@@ -9,7 +9,7 @@
 #
 # Monte Carlo Tests with 4 Million cycles through the algorithm will need too much time
 #
-# $Id: aes.test,v 1.4 2006/01/22 00:27:21 andreas_kupries Exp $
+# $Id: aes.test,v 1.5 2006/01/22 23:53:26 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,26 +20,10 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget aes
-catch {namespace delete ::aes}
-if {[catch {source [file join [file dirname [info script]] aes.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+testing {
+    useLocal aes.tcl aes
 }
 
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Report version in test
-#
-puts "- aes [package present aes] (pure Tcl)"
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 # data for variable key KAT

@@ -1,3 +1,7 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.test: More boilerplate simplified via use of test support.
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.test: Hooked into the new common test support code.

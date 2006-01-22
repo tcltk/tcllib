@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.11 2006/01/22 00:27:21 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.test,v 1.12 2006/01/22 23:53:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,26 +18,19 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+testing {
+    useLocal base64.tcl base64
+}
+
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
-}
-
-package forget base64
-catch {namespace delete base64}
-if {[catch {source [file join [file dirname [info script]] base64.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
 
 if {[catch {package present Trf}]} {
-    puts "- base64 [package present base64] (pure Tcl)"
+    puts "> pure Tcl"
 } else {
-    puts "- base64 [package present base64] (Trf based)"
+    puts "> Trf based"
 }
 
+# -------------------------------------------------------------------------
 
 test base64-1.1 {base64::encode} {
     base64::encode "this is a test\n"

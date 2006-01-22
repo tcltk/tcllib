@@ -1,3 +1,11 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cksum.test:  More boilerplate simplified via use of test support.
+	* crc16.test:
+	* crc32.test:
+	* crc32bugs.test:
+	* sum.test:
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cksum.test: Hooked into the new common test support code.
