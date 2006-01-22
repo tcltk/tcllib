@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.15 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.16 2006/01/22 20:27:05 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.4 ; # csv itself is 8.3+, however struct::* need 8.4+
+testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
@@ -29,18 +29,18 @@ catch {namespace delete ::csv}
 catch {namespace delete ::struct::queue}
 catch {namespace delete ::struct::matrix}
 
-if {[catch {source [file join [file dirname [info script]] csv.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] struct queue.tcl]} msg]} {
+if {[catch {source [file join [file dirname [file dirname [file join [pwd] [info script]]]] struct queue.tcl]} msg]} {
     puts "skipped [file tail [info script]] (struct/queue.tcl): $msg"
     return
 }
 
-if {[catch {source [file join [file dirname [file dirname [file normalize [info script]]]] struct matrix.tcl]} msg]} {
+if {[catch {source [file join [file dirname [file dirname [file join [pwd] [info script]]]] struct matrix.tcl]} msg]} {
     puts "skipped [file tail [info script]] (struct/matrix.tcl): $msg"
+    return
+}
+
+if {[catch {source [file join [file dirname [info script]] csv.tcl]} msg]} {
+    puts "skipped [file tail [info script]]: $msg"
     return
 }
 

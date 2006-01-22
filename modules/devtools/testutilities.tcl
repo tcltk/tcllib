@@ -2,6 +2,13 @@
 # Testsuite utilities / boilerplate
 # Copyright (c) 2006, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
+namespace eval ::tcllib::testutils {
+    set version 1.0
+    set self    [file dirname [file join [pwd] [info script]]]
+    set tcllib  [file dirname $self]
+    set tag     ""
+}
+
 # ### ### ### ######### ######### #########
 ## Commands for common functions and boilerplate actions required by
 ## many testsuites of Tcllib modules and packages in a central place
@@ -169,6 +176,90 @@ if {[package vsatisfies [package provide Tcl] 8.5]} {
 }
 
 # ### ### ### ######### ######### #########
+## Commands to load files from various locations within the local
+## Tcllib, and the loading of local Tcllib packages. None of them goes
+## through the auto-loader, nor the regular package management, to
+## avoid contamination of the testsuite by packages and code outside
+## of the Tcllib under test.
+
+proc localPath {fname} {
+    return [file join $::tcltest::testsDirectory $fname]
+}
+
+proc tcllibPath {fname} {
+    return [file join $::tcllib::testutils::tcllib $fname]
+}
+
+proc useLocalFile {fname} {
+    return [uplevel 1 [list source [localPath $fname]]]
+}
+
+proc useTcllibFile {fname} {
+    return [uplevel 1 [list source [tcllibPath $fname]]]
+}
+
+proc use {fname pname args} {
+    set nsname ::$pname
+    if {[llength $args]} {set nsname [lindex $args 0]}
+
+    package forget $pname
+    catch {namespace delete $nsname}
+
+    if {[catch {
+	uplevel 1 [list useTcllibFile $fname]
+    } msg]} {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    Error in [file tail $fname]: $msg"
+	return -code error ""
+    }
+
+    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    return
+}
+
+proc useLocal {fname pname args} {
+    set nsname ::$pname
+    if {[llength $args]} {set nsname [lindex $args 0]}
+
+    package forget $pname
+    catch {namespace delete $nsname}
+
+    if {[catch {
+	uplevel 1 [list useLocalFile $fname]
+    } msg]} {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    Error in [file tail $fname]: $msg"
+	return -code error ""
+    }
+
+    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    return
+}
+
+proc support {script args} {
+    set ::tcllib::testutils::tag "-"
+    if {[catch {
+	uplevel 1 $script
+    } msg]} {
+	return -code return
+    }
+    if {[llength $args]} {
+	if {[catch {
+	    uplevel 1 $args
+	}]} {
+	    return -code return
+	}
+    }
+    return
+}
+
+proc testing {script} {
+    set ::tcllib::testutils::tag "*"
+    uplevel 1 $script
+    return
+}
+
+# ### ### ### ######### ######### #########
 ## General utilities
 
 # - dictsort -
@@ -198,3 +289,6 @@ proc dictsort {dict} {
 ##
 
 # ### ### ### ######### ######### #########
+package provide tcllib::testutils $::tcllib::testutils::version
+puts "- tcllib::testutils [package present tcllib::testutils]"
+return
