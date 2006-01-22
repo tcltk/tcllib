@@ -1,3 +1,4 @@
+# -*- tcl -*-
 ########################################################################
 # BigFloat for Tcl
 # Copyright (C) 2003-2005  ARNOLD Stephane
@@ -45,13 +46,14 @@
 #
 ########################################################################
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "    Aborting tests for math::bigfloat."
-    puts "    Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-package require tcltest
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 package forget math::bigfloat
 catch { namespace delete ::math::bigfloat }

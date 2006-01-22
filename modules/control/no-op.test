@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # Tests for [control::no-op].
 #
 # This file contains a collection of tests for the command [control::no-op]
@@ -5,7 +6,18 @@
 # file into Tcl runs the tests and generates output for errors.  No output
 # means no errors were found.
 #
-# RCS: @(#) $Id: no-op.test,v 1.2 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: no-op.test,v 1.3 2006/01/22 00:27:21 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 package forget control
 catch {namespace delete control}
@@ -16,9 +28,7 @@ catch {namespace delete control}
 source [file join [file dirname [info script]] control.tcl]
 namespace import ::control::no-op
 
-package require tcltest
-# Use of -force because [namespace import] is braindead.
-namespace import -force ::tcltest::test ::tcltest::cleanupTests
+# -------------------------------------------------------------------------
 
 test no-op-0.0 {no-op return value} {
     no-op

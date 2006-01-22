@@ -2,8 +2,19 @@
 #
 #         Tests for [control::do]
 # 
-# RCS: @(#) $Id: do.test,v 1.10 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: do.test,v 1.11 2006/01/22 00:27:21 andreas_kupries Exp $
 #
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 package forget control
 catch {namespace delete control}
@@ -13,9 +24,6 @@ catch {namespace delete control}
 # and not some later version that may be installed.
 source [file join [file dirname [info script]] control.tcl]
 namespace import ::control::do
-
-package require tcltest
-namespace import -force tcltest::test ::tcltest::cleanupTests
 
 # ----------------------------------------
 test {do-1.0} {do ... while} {

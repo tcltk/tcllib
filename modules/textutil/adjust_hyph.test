@@ -9,10 +9,14 @@
 # reside in the same directory as adjust_hyph.tcl               #
 ##################################################################
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 source [file join $::tcltest::testsDirectory adjust.tcl];
 

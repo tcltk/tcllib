@@ -7,12 +7,18 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.21 2005/11/07 19:50:49 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.22 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 # This code loads md5x, i.e. md5 v2. Proper testing should do one run
 # using md5 v1, aka md5.tcl as well.
@@ -33,11 +39,10 @@ if {[catch {source [file join [file dirname [info script]] mime.tcl]} msg]} {
 
 namespace import mime::*
 
-puts "tcltest [package present tcltest]"
 puts "mime    [package present mime]"
 puts "- md5 [package present md5]"
 
-
+# -------------------------------------------------------------------------
 
 test mime-1.1 {initialize with no args} {
     catch {initialize} res

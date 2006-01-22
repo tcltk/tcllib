@@ -4,16 +4,14 @@
 # Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "Aborting tests for treeql."
-    puts "Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.
@@ -43,10 +41,6 @@ if {[file exists $tcllibc]} {
 }
 
 set moddir [file dirname [file dirname [file normalize [info script]]]]
-if {[catch {source [file join $moddir treeql treeql.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
-    return
-}
 if {[catch {source [file join $moddir struct tree.tcl]} msg]} {
     puts "skipped [file tail [info script]] (struct/tree.tcl): $msg"
     return
@@ -61,6 +55,10 @@ if {[catch {source [file join $moddir struct sets.tcl]} msg]} {
 }
 if {[catch {source [file join $moddir snit snit.tcl]} msg]} {
     puts "skipped [file tail [info script]] (snit.tcl): $msg"
+    return
+}
+if {[catch {source [file join $moddir treeql treeql.tcl]} msg]} {
+    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
     return
 }
 
@@ -109,7 +107,7 @@ foreach impl [struct::tree::Implementations] {
 
     set usec [time {source $tests} 1]
 
-    puts "$impl:\t$usec"
+    #puts "$impl:\t$usec"
 }
 
 catch {memory validate off}
@@ -117,7 +115,7 @@ catch {memory validate off}
 unset usec
 unset tests
 
-puts ""
+#puts ""
 
 # Reset system to fully inactive state.
 

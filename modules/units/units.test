@@ -13,20 +13,16 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.2 2005/08/21 01:12:25 andreas_kupries Exp $"
+#  "$Id: units.test,v 1.3 2006/01/22 00:27:25 andreas_kupries Exp $"
 #
 #----------------------------------------------------------------
 
-if {![package vsatisfies [package provide Tcl] 8.1]} {
-    puts "Aborting tests for units."
-    puts "Requiring Tcl 8.1, have [package present Tcl]"
-    return
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+testsNeedTcl     8.1
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.
@@ -39,9 +35,6 @@ if {[catch {source [file join [file dirname [info script]] units.tcl]} msg]} {
 }
 
 puts "- units [package present units]"
-
-
-
 
 #-----------------------------------------------------------
 #

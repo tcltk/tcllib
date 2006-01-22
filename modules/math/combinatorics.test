@@ -7,17 +7,25 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.11 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.12 2006/01/22 00:27:23 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 source [file join [file dirname [info script]] math.tcl]
 source [file join [file dirname [info script]] combinatorics.tcl]
 
 package require math
+
+# -------------------------------------------------------------------------
 
 # Fake [lset] for Tcl releases that don't have it.  We need only
 # lset into a flat list.
@@ -30,7 +38,7 @@ if { [string compare lset [info commands lset]] } {
     }
 }
 
-
+# -------------------------------------------------------------------------
 
 test combinatorics-1.1 { math::ln_Gamma, wrong num args } {
     catch { math::ln_Gamma } msg

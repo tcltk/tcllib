@@ -1,3 +1,8 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ripemd128.test: Hooked into the new common test support code.
+	* ripemd160.test:
+
 2005-10-24  Andreas Kupries <andreask@activestate.com>
 
 	* ripemd128.bench: New file. Basic benchmarks for RIPEMD hashes.

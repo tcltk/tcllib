@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* aes.test: Hooked into the new common test support code.
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* aes.bench: Extended with benchmarks for the keyschedule.

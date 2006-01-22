@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* inifile.test: Hooked into the new common test support code.
+
 2005-17-11 Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* ini.tcl: fixed bug causing empty ini files when opening

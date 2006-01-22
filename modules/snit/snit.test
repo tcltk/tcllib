@@ -1,4 +1,4 @@
-# -*-Tcl-*-
+# -*- tcl -*-
 #---------------------------------------------------------------------
 # TITLE:
 #	snit.test
@@ -26,27 +26,14 @@
 #  " ne " -> "!string equal"
 #-----------------------------------------------------------------------
 
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 2.2
+
 #---------------------------------------------------------------------
-# Load the tcltest package, initialize some constraints.
-
-if {![package vsatisfies [package provide Tcl] 8.3]} {
-    puts "Aborting tests for snit."
-    puts "Requiring Tcl 8.3, have [package present Tcl]"
-    return
-}
-
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest 2.2
-    namespace import ::tcltest::*
-} else {
-    # Ensure that 2.2 or higher present.
-
-    if {![package vsatisfies [package present tcltest] 2.2]} {
-	puts "Aborting tests for snit."
-	puts "Requiring tcltest 2.2, have [package present tcltest]"
-	return
-    }
-}
 
 if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
@@ -54,7 +41,7 @@ if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
 
 # WHD: Work around bugs in 8.5a3
 
-testConstraint bug8.5a3 [expr {![string equal [info patchlevel] "8.5a3"]}]
+tcltest::testConstraint bug8.5a3 [expr {![string equal [info patchlevel] "8.5a3"]}]
 
 # Determine which Snit version to load.  If Tcl 8.5, use 2.x.
 # Otherwise, use 1.x. (Different variants depending on 8.3 vs 8.4)
@@ -67,20 +54,22 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 }
 
 # Marks tests which are only for Snit 1
-testConstraint snit1 [expr {$snitVersion == 1}]
+tcltest::testConstraint snit1 [expr {$snitVersion == 1}]
 
 # Marks tests which are only for Snit 2
-testConstraint snit2 [expr {$snitVersion == 2}]
+tcltest::testConstraint snit2 [expr {$snitVersion == 2}]
 
 # Marks tests which are only for Tk.
-testConstraint tk [info exists tk_version]
+tcltest::testConstraint tk [info exists tk_version]
 
 # If Tk is available, require BWidget
-if {$::tcltest::testConstraints(tk) && 
-    ![catch {package require BWidget} result]} {
-    testConstraint bwidget 1
+if {
+    [tcltest::testConstraint tk] && 
+    ![catch {package require BWidget}]
+} {
+    tcltest::testConstraint bwidget 1
 } else {
-    testConstraint bwidget 0
+    tcltest::testConstraint bwidget 0
 }
 
 
@@ -1437,22 +1426,20 @@ test method-1.8 {type methods must be qualified} -body {
 } -result {invalid command name "hello"}
 
 # Case 1
-if 0 { # TBD
-    test method-1.9 {too few arguments} -constraints {
-        snit1
-    } -body {
-        type dog { 
-            method bark {volume} { }
-        }
-        
-        dog create spot
-        spot bark
-    } -cleanup {
-        dog destroy
-    } -returnCodes {
-        error
-    } -result [tcltest::wrongNumArgs ::dog::Snit_methodbark {type selfns win self volume} 4]
-}
+test method-1.9 {too few arguments} -constraints {
+    snit1
+} -body {
+    type dog { 
+	method bark {volume} { }
+    }
+    
+    dog create spot
+    spot bark
+} -cleanup {
+    dog destroy
+} -returnCodes {
+    error
+} -result [tcltest::wrongNumArgs ::dog::Snit_methodbark {type selfns win self volume} 4]
 
 # Case 2
 test method-1.9 {too few arguments} -constraints {
@@ -1471,21 +1458,19 @@ test method-1.9 {too few arguments} -constraints {
 } -result {wrong # args: should be "spot bark volume"}
 
 # Case 1
-if 0 { # TBD
-    test method-1.10 {too many arguments} -constraints {
-        snit1
-    } -body {
-        type dog { 
-            method bark {volume} { }
-        }
+test method-1.10 {too many arguments} -constraints {
+    snit1
+} -body {
+    type dog { 
+	method bark {volume} { }
+    }
 
-        dog create spot
+    dog create spot
 
-        spot bark really loud
-    } -returnCodes {
-        error
-    } -result [tcltest::tooManyArgs ::dog::Snit_methodbark {type selfns win self volume}]
-}
+    spot bark really loud
+} -returnCodes {
+    error
+} -result [tcltest::tooManyArgs ::dog::Snit_methodbark {type selfns win self volume}]
 
 # Case 2
 test method-1.10 {too many arguments} -constraints {
@@ -3005,17 +2990,15 @@ test constructor-1.6 {default constructor configures options} -body {
     dog destroy
 } -result {golden retriever}
 
-if 0 { # TBD
-    test constructor-1.7 {default constructor takes no args if no options} -body {
-        type dog {
-            variable color
-        }
-        
-        dog spot -color golden
-    } -returnCodes {
-        error
-    } -result "Error in constructor: [tcltest::tooManyArgs ::dog::Snit_constructor {type selfns win self}]"
-}
+test constructor-1.7 {default constructor takes no args if no options} -body {
+    type dog {
+	variable color
+    }
+    
+    dog spot -color golden
+} -returnCodes {
+    error
+} -result "Error in constructor: [tcltest::tooManyArgs ::dog::Snit_constructor {type selfns win self}]"
 
 #-----------------------------------------------------------------------
 # destroy
@@ -5036,21 +5019,19 @@ test installhull-1.4 {
 # Instance Introspection
 
 # Case 1
-if 0 { # TBD
-    test iinfo-1.1 {object info too few args} -constraints {
-        snit1
-    } -body {
-        type dog { }
-        
-        dog create spot
-        
-        spot info
-    } -returnCodes {
-        error
-    } -cleanup {
-        dog destroy
-    } -result [tcltest::wrongNumArgs ::snit::RT.method.info {type selfns win self command args} 4]
-}
+test iinfo-1.1 {object info too few args} -constraints {
+    snit1
+} -body {
+    type dog { }
+    
+    dog create spot
+    
+    spot info
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.method.info {type selfns win self command args} 4]
 
 # Case 2
 test iinfo-1.1 {object info too few args} -constraints {
@@ -5067,19 +5048,17 @@ test iinfo-1.1 {object info too few args} -constraints {
     dog destroy
 } -result {wrong # args: should be "spot info command ..."}
 
-if 0 { # TBD
-    test iinfo-1.2 {object info too many args} -body {
-        type dog { }
+test iinfo-1.2 {object info too many args} -body {
+    type dog { }
 
-        dog create spot
-        
-        spot info type foo
-    } -returnCodes {
-        error
-    } -cleanup {
-        dog destroy
-    } -result [tcltest::tooManyArgs ::snit::RT.method.info.type {type selfns win self}]
-}
+    dog create spot
+    
+    spot info type foo
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.method.info.type {type selfns win self}]
 
 test iinfo-2.1 {object info type} -body {
     type dog { }
@@ -5405,19 +5384,17 @@ test iinfo-8.5 {info methods, with hierarchical methods} -body {
 # Type Introspection
 
 # Case 1
-if 0 { # TBD
-    test tinfo-1.1 {type info too few args} -constraints {
-        snit1
-    } -body {
-        type dog { }
-        
-        dog info
-    } -returnCodes {
-        error
-    } -cleanup {
-        dog destroy
-    } -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info {type command args} 1]
-}
+test tinfo-1.1 {type info too few args} -constraints {
+    snit1
+} -body {
+    type dog { }
+    
+    dog info
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info {type command args} 1]
 
 # Case 2
 test tinfo-1.1 {type info too few args} -constraints {
@@ -5432,17 +5409,15 @@ test tinfo-1.1 {type info too few args} -constraints {
     dog destroy
 } -result {wrong # args: should be "dog info command ..."}
 
-if 0 { # TBD
-    test tinfo-1.2 {type info too many args} -body {
-        type dog { }
-        
-        dog info instances foo bar
-    } -returnCodes {
-        error
-    } -cleanup {
-        dog destroy
-    } -result [tcltest::tooManyArgs ::snit::RT.typemethod.info.instances {type ?pattern?}]
-}
+test tinfo-1.2 {type info too many args} -body {
+    type dog { }
+    
+    dog info instances foo bar
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.typemethod.info.instances {type ?pattern?}]
 
 test tinfo-2.1 {type info typevars} -body {
     type dog { 
@@ -5779,15 +5754,13 @@ test hulltype-2.1 {list of valid hulltypes} -constraints {
 #-----------------------------------------------------------------------
 # expose statement
 
-if 0 { # TBD
-    test expose-1.1 {can't expose nothing} -body {
-        type dog { 
-            expose
-        }
-    } -returnCodes {
-        error
-    } -result [tcltest::wrongNumArgs ::snit::Comp.statement.expose {component ?as? ?methodname?} 0]
-}
+test expose-1.1 {can't expose nothing} -body {
+    type dog { 
+	expose
+    }
+} -returnCodes {
+    error
+} -result [tcltest::wrongNumArgs ::snit::Comp.statement.expose {component ?as? ?methodname?} 0]
     
 test expose-1.2 {expose a component that's never installed} -body {
     type dog { 
@@ -7559,21 +7532,19 @@ test hastypemethods-1.1 {-hastypemethods no, $type foo creates instance.} -body 
     namespace delete ::dog
 } -result {::spot} 
 
-if 0 { # TBD
-    test hastypemethods-1.2 {-hastypemethods no, $type create foo fails.} -body {
-        type dog {
-            pragma -hastypemethods no
-            variable foo
-        }
-        
-        dog create spot
-    } -returnCodes {
-        error
-    } -cleanup {
-        rename ::dog ""
-        namespace delete ::dog
-    } -result "Error in constructor: [tcltest::tooManyArgs ::dog::Snit_constructor {type selfns win self}]"
-}
+test hastypemethods-1.2 {-hastypemethods no, $type create foo fails.} -body {
+    type dog {
+	pragma -hastypemethods no
+	variable foo
+    }
+    
+    dog create spot
+} -returnCodes {
+    error
+} -cleanup {
+    rename ::dog ""
+    namespace delete ::dog
+} -result "Error in constructor: [tcltest::tooManyArgs ::dog::Snit_constructor {type selfns win self}]"
 
 test hastypemethods-1.3 {-hastypemethods no, $type info fails.} -body {
     type dog {

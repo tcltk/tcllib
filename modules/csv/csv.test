@@ -7,15 +7,16 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.14 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.15 2006/01/22 00:27:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialise the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4 ; # csv itself is 8.3+, however struct::* need 8.4+
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and not one installed somewhere else.

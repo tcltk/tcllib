@@ -1,5 +1,5 @@
 #temporary home until this gets cleaned up for export to tcllib ip module
-# $Id: ipMore.tcl,v 1.3 2005/10/21 19:31:09 andreas_kupries Exp $
+# $Id: ipMore.tcl,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
 
 
 ##Library Header
@@ -138,7 +138,7 @@ proc ip::prefixToNativeTcl {prefix} {
     set plist {}
     foreach p $prefix {
 	set newPrefix [ip::toHex [ip::prefix $p]]
-	if {[set mask [ip::mask $p]] eq ""} {
+	if {[string equal [set mask [ip::mask $p]] ""]} {
 	    set newMask 0xffffffff
 	} else {
 	    set newMask [format "0x%08x" [ip::maskToInt $mask]]
@@ -211,7 +211,7 @@ proc ::ip::nativeToPrefix {nativeList args} {
     if {[llength [lindex $nativeList 0]]==1} {set pList 0; set nativeList [list $nativeList]}
     foreach native $nativeList {
 	lassign $native ip mask
-	if {$mask eq ""} {set mask 32}
+	if {[string equal $mask ""]} {set mask 32}
 	set pString ""
 	append pString [ip::ToString [binary format I [expr {$ip}]]]
 	append pString  "/"
@@ -398,7 +398,7 @@ proc ::ip::maskToInt {mask} {
         binary scan [Normalize4 $mask] I maskInt
     }
     set maskInt [expr {$maskInt & 0xFFFFFFFF}]
-    return [expr wide([format "0x%08x" $maskInt])]
+    return [format %u $maskInt]
 }
 
 ##Procedure Header
@@ -1040,7 +1040,7 @@ proc ::ip::reduceToAggregates { prefixList } {
 	    set overLap [ip::isOverlapNative [lindex $current 0] [lindex $current 1] $remaining]
 	    if {$overLap} {
 		#there was a overlap find out which prefix has a the smaller mask, and keep that one
-		if {[lindex $current 1] > [lindex [lindex $remaining [expr {$overLap -1}] 1]]} {
+		if {[lindex $current 1] > [lindex [lindex $remaining [expr {$overLap -1}]] 1]} {
 		    #current has more restrictive mask, throw that prefix away
 		    # keep other prefix
 		    lappend nonOverLapping [lindex $remaining [expr {$overLap -1}]]
@@ -1117,7 +1117,7 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
 	set dotConv 1
     }
     #sort so that most specific prefix is in the front
-    if {[llength [lindex $prefixList 0 1]]} {
+    if {[llength [lindex [lindex $prefixList 0] 1]]} {
 	set prefixList [lsort -decreasing -integer -index 1 $prefixList]
     } else {
 	set prefixList [list $prefixList]
@@ -1170,17 +1170,36 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
 # End of Header
 #            ip address in <ipprefix> format, dotted form, or integer form
 
-proc ip::cmpDotIP {ipaddr1 ipaddr2} {
-    # convert dotted to decimal
-    set ipInt1 [::ip::toHex $ipaddr1]
-    set ipInt2 [::ip::toHex $ipaddr2]
-    #ipMore::log::debug "$ipInt1 $ipInt2"
-    if { $ipInt1 < $ipInt2}  {
-	return -1
-    } elseif {$ipInt1 >$ipInt2 } {
-	return 1
-    } else {
+if {![package vsatisfies [package provide Tcl] 8.4]} {
+    # 8.3+
+    proc ip::cmpDotIP {ipaddr1 ipaddr2} {
+	# convert dotted to list of integers
+	set ipaddr1 [split $ipaddr1 .]
+	set ipaddr2 [split $ipaddr2 .]
+	foreach a $ipaddr1 b $ipaddr2 {
+	    #ipMore::log::debug "$ipInt1 $ipInt2"
+	    if { $a < $b}  {
+		return -1
+	    } elseif {$a >$b} {
+		return 1
+	    }
+	}
 	return 0
+    }
+} else {
+    # 8.4+
+    proc ip::cmpDotIP {ipaddr1 ipaddr2} {
+	# convert dotted to decimal
+	set ipInt1 [::ip::toHex $ipaddr1]
+	set ipInt2 [::ip::toHex $ipaddr2]
+	#ipMore::log::debug "$ipInt1 $ipInt2"
+	if { $ipInt1 < $ipInt2}  {
+	    return -1
+	} elseif {$ipInt1 >$ipInt2 } {
+	    return 1
+	} else {
+	    return 0
+	}
     }
 }
 

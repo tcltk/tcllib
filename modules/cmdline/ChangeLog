@@ -1,3 +1,13 @@
+2006-01-21  Andreas Kupries  <akupries@shaw.ca>
+
+	* typedCmdline.test: Replaced usage of the made-up command
+	  'queryConstraint' with 'testConstraint'.
+
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* typedCmdline.test: Hooked into the new common test support
+	* cmdline.test:      code.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

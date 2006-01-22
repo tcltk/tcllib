@@ -10,20 +10,32 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.test,v 1.8 2006/01/10 23:05:18 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.test,v 1.9 2006/01/22 00:27:22 andreas_kupries Exp $
 
-package require tcltest
-namespace import -force ::tcltest::*
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 catch {namespace delete counter}
+
+set myFile [file join [file dirname [info script]] counter.tcl]
+source $myFile
+package require counter 2.0
+
+# -------------------------------------------------------------------------
 
 proc Stamp {tag} {
     puts stderr "[clock format [clock seconds]] [clock clicks -milliseconds] $tag"
 }
 
-set myFile [file join [file dirname [info script]] counter.tcl]
-source $myFile
-package require counter 2.0
+# -------------------------------------------------------------------------
 
 test counter-1.1 {counter::init} {
     catch {counter::init} err

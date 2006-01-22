@@ -4,12 +4,16 @@
 # Copyright (c) 2006 Andreas Kupries
 # All rights reserved.
 #
-# RCS: @(#) $Id: pool.test,v 1.1 2006/01/11 01:16:54 andreas_kupries Exp $
+# RCS: @(#) $Id: pool.test,v 1.2 2006/01/22 00:27:24 andreas_kupries Exp $
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.

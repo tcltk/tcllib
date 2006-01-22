@@ -1,3 +1,9 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* yencode.test: Hooked into the new common test support code.
+	* uuencode.test:
+	* base64.test:
+
 2005-10-18  Andreas Kupries <andreask@activestate.com>
 
 	* base64.bench:   Basic benchmarks for base64, uuencode,

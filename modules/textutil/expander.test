@@ -9,14 +9,14 @@
 # DESCRIPTION:
 #	Test cases for expander.tcl.  Uses the ::tcltest:: harness.
 
+# -------------------------------------------------------------------------
 
-#---------------------------------------------------------------------
-# Load the tcltest package
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 #---------------------------------------------------------------------
 # Load the expander package

@@ -3,18 +3,18 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie_array.test,v 1.4 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_array.test,v 1.5 2006/01/22 00:27:25 andreas_kupries Exp $
 
-if {![package vsatisfies [package provide Tcl] 8.4]} {
-    puts "Aborting tests for snit."
-    puts "Requiring Tcl 8.4, have [package present Tcl]"
-    return
-}
+# -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
     set auto_path [linsert $auto_path 0 [file dirname [info script]]]
@@ -50,18 +50,6 @@ puts "- tie           [package present tie]"
 puts "- snit          [package present snit]"
 
 # -------------------------------------------------------------------------
-# Takes a dictionary, returns a list containing the same dictionary,
-# however the keys are sorted alphabetically. This allows for a true
-# comparison of dictionary results.
-
-proc dictsort {dict} {
-    array set a $dict
-    set out [list]
-    foreach key [lsort [array names a]] {
-	lappend out $key $a($key)
-    }
-    return $out
-}
 
 proc group {dict} {
     set res {}
@@ -76,7 +64,7 @@ proc ignore {dict args} {
 }
 
 # -------------------------------------------------------------------------
-# Creation of array daat sources
+# Creation of array data sources
 # Errors: Undefined variable, scalar, local variable
 
 test tie-array-1.0 {array creation, wrong#args} {

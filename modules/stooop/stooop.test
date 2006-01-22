@@ -1,14 +1,19 @@
+# -*- tcl -*-
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.6 2004/01/15 06:36:14 andreas_kupries Exp $
+# $Id: stooop.test,v 1.7 2006/01/22 00:27:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-if {[lsearch [namespace children] ::tcltest] < 0} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.3
+testsNeedTcltest 1.0
+
+# -------------------------------------------------------------------------
 
 set source [file join [file dirname [info script]] stooop.tcl]
 
@@ -20,7 +25,6 @@ if {[catch {source [file join [file dirname [info script]] stooop.tcl]} msg]} {
 }
 
 # -------------------------------------------------------------------------
-
 
 set dumpArraysCode {
     proc dumpArrays {args} {
@@ -34,6 +38,8 @@ set dumpArraysCode {
         return $list
     }
 }
+
+# -------------------------------------------------------------------------
 
 test stooop-0 {
     check that the empty named array feature works

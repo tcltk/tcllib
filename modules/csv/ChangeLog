@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.test: Hooked into the new common test support code.
+
 2006-01-16  Andreas Kupries  <akupries@shaw.ca>
 
 	* csv.man: New command 'iscomplete' to detect partial csv

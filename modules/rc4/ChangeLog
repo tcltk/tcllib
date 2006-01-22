@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rc4.test: Hooked into the new common test support code.
+
 2005-12-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* rc4.tcl:   Dealt with bug #1386101 (rc4 critcl + channels broken)

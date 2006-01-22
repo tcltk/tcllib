@@ -6,21 +6,22 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sum.test,v 1.5 2004/01/15 06:36:12 andreas_kupries Exp $
+# RCS: @(#) $Id: sum.test,v 1.6 2006/01/22 00:27:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialize the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
 # -------------------------------------------------------------------------
 # Ensure we test _this_ local copy and one installed somewhere else.
 #
 package forget sum
-#catch {namespace delete ::csv}
+catch {namespace delete ::crc}
 if {[catch {source [file join [file dirname [info script]] sum.tcl]} msg]} {
     puts "skipped [file tail [info script]]: $msg"
     return

@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Hooked into the new common test support code.
+
 2006-01-18  Andreas Kupries <andreask@activestate.com>
 
 	* fileutil.man: Fixed a typo, clarified usage of the filtercmd for

@@ -1,3 +1,8 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5.test: Hooked into the new common test support code.
+	* md5x.test:
+
 2005-10-24  Andreas Kupries <andreask@activestate.com>
 
 	* md5v1.bench: New file. Basic benchmarks for MD5 hashes.

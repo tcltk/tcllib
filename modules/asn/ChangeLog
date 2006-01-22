@@ -1,3 +1,7 @@
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.test: Hooked into the new common test support code.
+
 2006-01-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.man: Reworked the documentation of the new commands a bit,
