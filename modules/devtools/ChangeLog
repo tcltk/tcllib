@@ -1,3 +1,10 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Added commands for the loading of files and
+	  packages from the Tcllib under test. This will reduce the amount
+	  of boilerplate in a .test file spent on getting the package
+	  under test, its supporting packages, and other helper files.
+
 2006-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Moved the definitions of the common
