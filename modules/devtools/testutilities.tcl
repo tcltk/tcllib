@@ -236,26 +236,23 @@ proc useLocal {fname pname args} {
     return
 }
 
-proc support {script args} {
+proc support {script} {
     set ::tcllib::testutils::tag "-"
     if {[catch {
 	uplevel 1 $script
     } msg]} {
 	return -code return
     }
-    if {[llength $args]} {
-	if {[catch {
-	    uplevel 1 $args
-	}]} {
-	    return -code return
-	}
-    }
     return
 }
 
 proc testing {script} {
     set ::tcllib::testutils::tag "*"
-    uplevel 1 $script
+    if {[catch {
+	uplevel 1 $script
+    } msg]} {
+	return -code return
+    }
     return
 }
 
