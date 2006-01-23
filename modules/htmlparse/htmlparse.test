@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.20 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.21 2006/01/23 08:18:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,88 +18,29 @@ source [file join \
 testsNeedTcl     8.3 ; # htmlparse itself is 8.2+, however struct::* need 8.3+
 testsNeedTcltest 1.0
 
+support {
+    if {[useTcllibC]} {
+	useKeep struct/tree.tcl struct::tree
+    } else {
+	use struct/tree.tcl     struct::tree
+    }
+    use struct/queue.tcl    struct::queue
+    use struct/stack.tcl    struct::stack
+    use struct/list.tcl     struct::list
+    use cmdline/cmdline.tcl cmdline
+}
+testing {
+    useLocal htmlparse.tcl htmlparse
+}
+
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget htmlparse
-package forget struct::tree
-package forget struct::queue
-package forget struct::stack
-package forget struct::list
-package forget cmdline
-
-catch {namespace delete ::htmlparse}
-## catch {namespace delete ::struct::tree} ##
-catch {namespace delete ::struct::queue}
-catch {namespace delete ::struct::stack}
-catch {namespace delete ::struct::list}
-catch {namespace delete ::cmdline}
-
-# We do not delete struct::tree, as it might come from a
-# tcllibc. Beyond that this testsuite does not care which tree
-# implementation is in use. We simply test them all.
-
-
-set moddir  [file dirname [file dirname [file join [pwd] [info script]]]]
-set tcllibc [file join $moddir tcllibc pkgIndex.tcl]
-
-if {[file exists $tcllibc]} {
-    # Fake load of specific package index, so that the following
-    # require will not search through the package paths.
-    set dir [file dirname $tcllibc]
-    source $tcllibc
-    unset dir
-    package require tcllibc
-}
-
-if {[catch {source [file join $moddir htmlparse htmlparse.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (htmlparse.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct tree.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/tree.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct list.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/list.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct queue.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/queue.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct stack.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/stack.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir cmdline cmdline.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (cmdline/cmdline.tcl): $msg"
-    return
-}
-
-package require htmlparse
-package require struct::tree
-package require struct::queue
-package require struct::stack
-package require struct::list
-package require cmdline
-
-puts "- htmlparse [package present htmlparse]"
-puts "  - cmdline       [package present cmdline]"
-puts "  - struct::queue [package present struct::queue]"
-puts "  - struct::stack [package present struct::stack]"
 
 struct::tree::SwitchTo {}
 foreach e [struct::tree::KnownImpl] {
     if {[::struct::tree::LoadAccel $e]} {
-	puts "  - struct::tree  [package provide struct::tree] (using $e)"
 	switch -exact -- $e {
-	    critcl {
-		puts "  - tcllibc       [package present tcllibc]"
-	    }
-	    tcl {
-		puts "  - struct::list  [package present struct::list]"
-	    }
+	    critcl {puts "> tree : tcllibc based"}
+	    tcl    {puts "> tree : pure Tcl"}
 	}
     }
 }
@@ -403,8 +344,6 @@ test htmlparse-6.8 {Substitutions from braces in content} {
     htmlparse::mapEscapes {&#123;abcde&#125;}
 } {{abcde}}
 
-
-
 # Tcllib SF Bug 861287 - Processing of comments.
 test htmlparse-7.1 {html comments} {
     set tags [list]
@@ -436,7 +375,6 @@ test htmlparse-7.3 {html comments} {
     [list pre   /  {} {}] \
     [list html  /  {} {}] ]
 
-
 test htmlparse-7.4 {html comments} {
     set tags [list]
     htmlparse::parse -cmd cb -vroot html "<pre>&<!-- a comment -- ></pre>"
@@ -466,7 +404,6 @@ test htmlparse-7.6 {html comments} {
     [list pre   {} {} &] \
     [list pre   /  {} {}] \
     [list html  /  {} {}] ]
-
 
 test htmlparse-8.1 {html comments} {
     set tags [list]
@@ -498,7 +435,6 @@ test htmlparse-8.3 {html comments} {
     [list pre   /  {} {}] \
     [list html  /  {} {}] ]
 
-
 test htmlparse-8.4 {html comments} {
     set tags [list]
     htmlparse::parse -cmd cb -vroot html "<pre>&<-- no comment -- ></pre>"
@@ -528,8 +464,6 @@ test htmlparse-8.6 {html comments} {
     [list pre   {} {} &]  \
     [list pre   /  {} {}] \
     [list html  /  {} {}] ]
-
-
 
 test htmlparse-9.0 {handle empty tags} {
     set tags [list]
@@ -582,7 +516,6 @@ test htmlparse-9.3 {handle empty tags, text coming before} {
 # -------------------------------------------------------------------------
 # In this section we run all the tests depending on a struct::tree,
 # and thus have to test all the available implementations.
-
 
 set tests [file join [file dirname [info script]] htmlparse.tree_testsuite]
 

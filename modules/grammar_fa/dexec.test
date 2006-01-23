@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: dexec.test,v 1.6 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: dexec.test,v 1.7 2006/01/23 08:18:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -14,57 +14,21 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
+support {
+    use      snit/snit.tcl   snit ; # 1.1 always, even when Tcl 8.5 runs the testsuite.
+    use      struct/sets.tcl struct::set
+    use      struct/list.tcl struct::list
+
+    useLocal fa.tcl   grammar::fa
+    useLocal faop.tcl grammar::fa::op
+
+    useLocalFile tests.support
+}
+testing {
+    useLocal dexec.tcl grammar::fa::dexec
+}
+
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-# We also ensure to use local copies of the prerquisite packages.
-
-package forget grammar::fa::dexec ; catch {namespace delete ::grammar::fa::dexec}
-package forget grammar::fa::op    ; catch {namespace delete ::grammar::fa::op}
-package forget grammar::fa        ; catch {namespace delete ::grammar::fa}
-package forget snit               ; catch {namespace delete ::snit}
-package forget struct::set        ; catch {namespace delete ::struct::set}
-package forget struct::list       ; catch {namespace delete ::struct::list}
-
-if {[catch {source [file join [file dirname [file dirname [info script]]] struct list.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (list.tcl): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [file dirname [info script]]] struct sets.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (sets.tcl): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [file dirname [info script]]] snit snit.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (snit.tcl): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] fa.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (fa.tcl): $msg"
-    puts $::errorInfo
-    return
-}
-if {[catch {source [file join [file dirname [info script]] faop.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (faop.tcl): $msg"
-    puts $::errorInfo
-    return
-}
-if {[catch {source [file join [file dirname [info script]] dexec.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (dexec.tcl): $msg"
-    puts $::errorInfo
-    return
-}
-if {[catch {source [file join [file dirname [info script]] tests.support]} msg]} {
-    puts "skipped [file tail [info script]] (tests.support): $msg"
-    puts $::errorInfo
-    return
-}
-
-package require grammar::fa
-puts "- grammar::fa::dexec [package present grammar::fa::dexec]"
-puts "  - grammar::fa::op [package present grammar::fa::op]"
-puts "  - grammar::fa     [package present grammar::fa]"
-puts "  - struct::set     [package present struct::set]"
-puts "  - struct::list    [package present struct::list]"
-puts "  - snit            [package present snit]"
 
 set class ::grammar::fa::dexec
 

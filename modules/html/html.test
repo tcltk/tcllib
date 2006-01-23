@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.17 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: html.test,v 1.18 2006/01/23 08:18:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,11 +20,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-set myFile [file join [file dirname [info script]] html.tcl]
-source $myFile
-package require html 1.2
+testing {
+    useLocal html.tcl html
+}
 
 # -------------------------------------------------------------------------
 
