@@ -1,3 +1,11 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* filestypes.test: More boilerplate simplified via use of test support.
+	* mimetypes.test:
+
+	* filetypes.tcl: Added proper set up of the package namespace,
+	* mimetypes.tcl: paranoid code, 'rtcore' should have done it already.
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* filetypes.test: Hooked into the new common test support code.

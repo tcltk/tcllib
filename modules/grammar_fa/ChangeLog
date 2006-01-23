@@ -1,3 +1,17 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dacceptor.test: More boilerplate simplified via use of test support.
+	* dexec.test:
+	* fa.test:
+	* faop.test:
+
+	* tests/faop_trim.test:  Replaced old 'queryconstraint' with proper
+	* tests/fa_serial.test: 'testConstraint' call.
+	* tests/fa_is_useful.test: 
+	* tests/fa_is_deterministic.test: 
+	* tests/da_cons.test: 
+	* tests/de_cons.test: 
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.test: Hooked into the new common test support code.

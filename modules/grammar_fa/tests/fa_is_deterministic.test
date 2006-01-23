@@ -3,11 +3,11 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_is_deterministic.test,v 1.5 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_is_deterministic.test,v 1.6 2006/01/23 08:18:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-if {![::tcltest::queryConstraint runtotal]} {
+if {![::tcltest::testConstraint runtotal]} {
     ::tcltest::cleanupTests
     return
 }
