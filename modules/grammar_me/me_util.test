@@ -7,7 +7,7 @@
 # Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_util.test,v 1.3 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: me_util.test,v 1.4 2006/01/23 08:18:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,33 +18,12 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
-# ### ### ### ######### ######### #########
-## Ensure we test _this_ local copy and one installed somewhere else.
-
-package forget grammar::me::util
-package forget struct::tree
-
-catch {namespace delete ::grammar::me::util}
-
-# We do not delete struct::tree, as it might come from a
-# tcllibc. Beyond that this testsuite does not care which tree
-# implementation is in use. In the future it might try to use all
-# available implementations, as additional testing of them instead of
-# the AST code.
-
-set moddir [file dirname [file dirname [file join [pwd] [info script]]]]
-
-if {[catch {source [file join $moddir grammar_me me_util.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+support {
+    use struct/tree.tcl struct::tree
 }
-if {[catch {source [file join $moddir struct tree.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (tree.tcl): $msg"
-    return
+testing {
+    useLocal me_util.tcl grammar::me::util
 }
-
-puts "- grammar::me::util [package provide grammar::me::util]"
-puts "  - struct::tree [package provide struct::tree]"
 
 # ### ### ### ######### ######### #########
 ## Pre-requisites. An AST value and various serializations of plain

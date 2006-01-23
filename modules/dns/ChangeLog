@@ -1,6 +1,11 @@
-2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* ipMore.tcl: 
+	* dns.test: More boilerplate simplified via use of test support.
+	* ip.test:
+	* ipMore.test:
+	* spf.test:
+
+2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dns.test: Hooked into the new common test support code.
 	* ip.test:

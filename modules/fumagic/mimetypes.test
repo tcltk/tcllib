@@ -8,7 +8,7 @@
 # Copyright (c) 2005      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: mimetypes.test,v 1.6 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: mimetypes.test,v 1.7 2006/01/23 08:18:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,6 +18,14 @@ source [file join \
 
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
+
+catch {namespace delete ::fileutil::magic}
+support {
+    useLocal rtcore.tcl fileutil::magic::rt
+}
+testing {
+    useLocal mimetypes.tcl fileutil::magic::mimetype
+}
 
 # -------------------------------------------------------------------------
 
@@ -34,41 +42,8 @@ proc makeBinaryFile {data f} {
 }
 
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-# All helper packages have to come from the local directory tree as well.
-#
-package forget fileutil::magic::mimetype
-package forget fileutil::magic::rt
-
-catch {namespace delete ::fileutil::magic}
-catch {namespace delete ::fileutil::magic::rt}
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
-}
-
-if {[catch {source [file join [file dirname [info script]] rtcore.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (rtcore.tcl): $msg"
-    return
-}
-
-if {[catch {source [file join [file dirname [info script]] mimetypes.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-
-# -------------------------------------------------------------------------
 # Now the package specific tests....
-# -------------------------------------------------------------------------
 
-puts "- tcltest [package present tcltest]"
-puts "- fileutil::magic::mimetype [package present fileutil::magic::mimetype]"
-puts "  - fileutil::magic::rt     [package present fileutil::magic::rt]"
-
-# -------------------------------------------------------------------------
 set dir $::tcltest::temporaryDirectory
 
 catch {removeDirectory fileTypeTest} ; # start with a clean structure!

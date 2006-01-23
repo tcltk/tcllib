@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: filetypes.tcl,v 1.3 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: filetypes.tcl,v 1.4 2006/01/23 08:18:15 andreas_kupries Exp $
 
 #####
 #
@@ -30,6 +30,8 @@ package require fileutil::magic::rt    ; # We need the runtime core.
 
 # ### ### ### ######### ######### #########
 ## Implementation
+
+namespace eval ::fileutil::magic {}
 
 proc ::fileutil::magic::filetype {file} {
     if {![file exists $file]} {
