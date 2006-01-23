@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: docidx.test,v 1.9 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.test,v 1.10 2006/01/23 08:18:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,31 +19,12 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-#
-
-package forget doctools::idx
-package forget textutil::expander
-
-catch {namespace delete ::doctools::idx}
-catch {namespace delete ::textutil::expander}
-
-if {[catch {source [file join [file dirname [file dirname [file join [pwd] [info script]]]] textutil expander.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (textutil/expander.tcl): $msg"
-    return
+support {
+    use textutil/expander.tcl textutil::expander
 }
-
-if {[catch {source [file join [file dirname [info script]] docidx.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal docidx.tcl doctools::idx
 }
-
-package require doctools::idx
-package require textutil::expander
-
-puts "doctools::idx        [package present doctools::idx]"
-puts "- textutil::expander [package present textutil::expander]"
 
 # -------------------------------------------------------------------------
 

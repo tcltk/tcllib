@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: mimetypes.tcl,v 1.5 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: mimetypes.tcl,v 1.6 2006/01/23 08:18:15 andreas_kupries Exp $
 
 #####
 #
@@ -30,6 +30,8 @@ package require fileutil::magic::rt    ; # We need the runtime core.
 
 # ### ### ### ######### ######### #########
 ## Implementation
+
+namespace eval ::fileutil::magic {}
 
 proc ::fileutil::magic::mimetype {file} {
     if {![file exists $file]} {

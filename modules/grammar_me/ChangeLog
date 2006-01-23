@@ -1,3 +1,8 @@
+2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_tcl.test: More boilerplate simplified via use of test support.
+	* me_util.test:
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* me_tcl.test: Hooked into the new common test support code.

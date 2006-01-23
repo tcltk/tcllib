@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: dns.test,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
+# RCS: @(#) $Id: dns.test,v 1.5 2006/01/23 08:18:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,27 +17,8 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget dns
-catch {namespace delete ::dns}
-if {[catch {source [file join [file dirname [info script]] dns.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-
-# -------------------------------------------------------------------------
-# Helpers
-# -------------------------------------------------------------------------
-
-proc ::OrderedArrayGet {arrayName} {
-    upvar $arrayName a
-    set result {}
-    foreach name [lsort [array names a]] {
-        lappend result $name $a($name)
-    }
-    return $result
+testing {
+    useLocal dns.tcl dns
 }
 
 # -------------------------------------------------------------------------
@@ -67,7 +48,7 @@ foreach {ndx url check} $urls {
     test dns-1.$ndx [list uri::split $url] {
         if {![catch {uri::split $url} result]} {
             if {![catch {array set URL $result} result]} {
-                set result [OrderedArrayGet URL]
+                set result [dictsort [array get URL]]
             }
         }
         set result
@@ -84,8 +65,6 @@ foreach {ndx url check} $urls {
 
 
 # -------------------------------------------------------------------------
-
-rename ::OrderedArrayGet {}
 ::tcltest::cleanupTests
 
 # Local Variables:
