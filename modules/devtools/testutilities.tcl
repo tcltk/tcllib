@@ -217,6 +217,32 @@ proc use {fname pname args} {
     return
 }
 
+proc useKeep {fname pname args} {
+    set nsname ::$pname
+    if {[llength $args]} {set nsname [lindex $args 0]}
+
+    package forget $pname
+
+    # Keep = Keep the existing namespace of the package.
+    #      = Do not delete it. This is required if the
+    #        namespace contains commands created by a
+    #        binary package, like 'tcllibc'. They cannot
+    #        be re-created.
+    ##
+    ## catch {namespace delete $nsname}
+
+    if {[catch {
+	uplevel 1 [list useTcllibFile $fname]
+    } msg]} {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    Error in [file tail $fname]: $msg"
+	return -code error ""
+    }
+
+    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    return
+}
+
 proc useLocal {fname pname args} {
     set nsname ::$pname
     if {[llength $args]} {set nsname [lindex $args 0]}
@@ -254,6 +280,20 @@ proc testing {script} {
 	return -code return
     }
     return
+}
+
+proc useTcllibC {} {
+    set index [tcllibPath tcllibc/pkgIndex.tcl]
+    if {![file exists $index]} {return 0}
+
+    set ::dir [file dirname $tcllibc]
+    uplevel #0 [list source $index]
+    unset ::dir
+
+    package require tcllibc
+
+    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
+    return 1    
 }
 
 # ### ### ### ######### ######### #########

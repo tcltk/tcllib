@@ -5,6 +5,9 @@
 	  of boilerplate in a .test file spent on getting the package
 	  under test, its supporting packages, and other helper files.
 
+	  Added helpers for dealing with loading "tcllibc" package and
+	  packages using it.
+
 2006-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Moved the definitions of the common
