@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: qcomplex.test,v 1.8 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: qcomplex.test,v 1.9 2006/01/24 05:10:01 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -24,12 +24,15 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 2.1
 
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal qcomplex.tcl math::complexnumbers
+}
+
 # -------------------------------------------------------------------------
 
-source [file join [file dirname [info script]] math.tcl]
-source [file join [file dirname [info script]] qcomplex.tcl]
-
-package require math
 namespace import -force ::math::complexnumbers::*
 
 proc matchNumbers { expected actual } {
@@ -44,6 +47,8 @@ proc matchNumbers { expected actual } {
 }
 
 customMatch numbers matchNumbers
+
+# -------------------------------------------------------------------------
 
 #
 # Test cases: arithmetical operations

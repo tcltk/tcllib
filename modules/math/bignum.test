@@ -12,14 +12,11 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
-
-package forget math::bignum
-catch {namespace delete ::math::bignum}
-
-if {[catch {source [file join [file dirname [info script]] bignum.tcl]}]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal bignum.tcl math::bignum
 }
 
 # -------------------------------------------------------------------------

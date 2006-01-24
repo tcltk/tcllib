@@ -53,17 +53,19 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
+support {
+    useLocal math.tcl   math
+    useLocal bignum.tcl math::bignum
+}
+testing {
+    useLocal bigfloat.tcl math::bigfloat
+}
+
 # -------------------------------------------------------------------------
 
-package forget math::bigfloat
-catch { namespace delete ::math::bigfloat }
-
-# Direct loading of provide script -- support testing even
-# when not installed.  And be sure we test the local copy
-# and not some later version that may be installed.
-catch {source [file join [file dirname [info script]] bignum.tcl]}
-source [file join [file dirname [info script]] bigfloat.tcl]
 namespace import ::math::bigfloat::*
+
+# -------------------------------------------------------------------------
 
 proc assert {name version code result} {
     #puts -nonewline $version,

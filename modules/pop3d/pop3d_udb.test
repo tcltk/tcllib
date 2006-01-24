@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d_udb.test,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_udb.test,v 1.5 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,16 +19,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-package forget pop3d::udb
-catch {namespace delete ::pop3d::udb}
-if {[catch {source [file join [file dirname [info script]] pop3d_udb.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal pop3d_udb.tcl pop3d::udb
 }
-
-puts "- pop3d::udb [package present pop3d::udb]"
 
 # ----------------------------------------------------------------------
 

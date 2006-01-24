@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.15 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.16 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,49 +19,25 @@ source [file join \
 testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-if {[catch {source [file join [file dirname [file dirname [info script]]] md5 md5x.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (md5x): $msg"
-    return
+support {
+    use          comm/comm.tcl  comm
+    use          md5/md5x.tcl   md5
+    use          mime/mime.tcl  mime
+    useLocal     pop3d_udb.tcl  pop3d::udb
+    useLocalKeep pop3d_dbox.tcl pop3d::dbox
 }
-if {[catch {source [file join [file dirname [file dirname [info script]]] mime mime.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (mime): $msg"
-    return
+testing {
+    useLocalKeep pop3d.tcl pop3d
 }
-
-package forget pop3d
-catch {namespace delete ::pop3d}
-if {[catch {source [file join [file dirname [info script]] pop3d.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (pop3d): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] pop3d_udb.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (udb): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] pop3d_dbox.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (dbox): $msg"
-    return
-}
-
-package require pop3d
-package require pop3d::udb
-package require pop3d::dbox
-
-puts "- pop3d [package present pop3d]"
-puts "- udb   [package present pop3d::udb]"
-puts "- dbox  [package present pop3d::dbox]"
-puts "- mime  [package present mime]"
-puts "- md5   [package present md5]"
 
 # -------------------------------------------------------------------------
 # Server processes. Programmed dialogs, server side.
 
-source [file join [file dirname [file dirname [info script]]] devtools coserv.tcl]
-source [file join [file dirname [file dirname [info script]]] devtools dialog.tcl]
+useTcllibFile devtools/coserv.tcl
+useTcllibFile devtools/dialog.tcl
 dialog::setup client {Pop3 Fake Client}
 
+# -------------------------------------------------------------------------
 
 proc bgerror {message} {
     global errorCode errorInfo

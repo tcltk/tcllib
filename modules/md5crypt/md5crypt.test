@@ -7,7 +7,7 @@
 #
 # Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# RCS: @(#) $Id: md5crypt.test,v 1.6 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: md5crypt.test,v 1.7 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,38 +18,28 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget md5crypt
-catch {namespace delete ::md5crypt}
-if {[catch {source [file join [file dirname [info script]] md5crypt.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal md5crypt.tcl md5crypt
 }
 
 # -------------------------------------------------------------------------
 # Setup any constraints
-#
+
 # Set this true if we have the critcl version.
-if {[package vsatisfies [package provide tcltest] 2.0]} {
-    ::tcltest::testConstraint md5crypt_c \
-        [expr {[info command ::md5crypt::md5crypt_c] != {}}]
+
+::tcltest::testConstraint md5crypt_c \
+        [llength [info command ::md5crypt::md5crypt_c]]
+
+# -------------------------------------------------------------------------
+
+if {[llength [info command ::md5crypt::md5crypt_c]]} {
+    puts "> critcl based"
 } else {
-    set ::tcltest::testConstraints(md5crypt_c) \
-        [expr {[info command ::md5crypt::md5crypt_c] != {}}]
+    puts "> pure Tcl"
 }
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
-# -------------------------------------------------------------------------
-
-if {[info command ::md5crypt::md5crypt_c] != {}} {
-    puts "- md5crypt [package present md5crypt] (critcl based)"
-} else {
-    puts "- md5crypt [package present md5crypt] (pure Tcl)"
-}
-
 # -------------------------------------------------------------------------
 
 test md5crypt-1.0 {md5crypt basic usage} {

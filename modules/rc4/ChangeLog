@@ -1,3 +1,7 @@
+2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rc4.test: More boilerplate simplified via use of test support.
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* rc4.test: Hooked into the new common test support code.

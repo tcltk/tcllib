@@ -1,6 +1,6 @@
 # ripemd160.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd160.test,v 1.7 2006/01/22 00:27:24 andreas_kupries Exp $
+# $Id: ripemd160.test,v 1.8 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -11,33 +11,21 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget ripemd160
-catch {namespace delete ::ripemd::ripemd160}
-if {[catch {source [file join [file dirname [info script]] ripemd160.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal ripemd160.tcl ripemd160 ::ripemd::ripemd160
 }
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
-package require ripemd160
-
 if {[ripemd::ripemd160::LoadAccelerator cryptkit]} {
-    puts "- ripemd160 [package present ripemd160] (cryptkit based)"
+    puts "> cryptkit based"
 }
 if {[::ripemd::ripemd160::LoadAccelerator trf]} {
-    puts "- ripemd160 [package present ripemd160] (Trf based)"
+    puts "> Trf based"
 }
-puts "- ripemd160 [package present ripemd160] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing

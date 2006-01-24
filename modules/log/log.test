@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: log.test,v 1.6 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: log.test,v 1.7 2006/01/24 05:10:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,14 +18,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+testing {
+    useLocal log.tcl log
 }
-
-package require log
-puts "log [package present log]"
 
 # -------------------------------------------------------------------------
 

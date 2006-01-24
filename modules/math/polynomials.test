@@ -12,9 +12,14 @@ source [file join \
 testsNeedTcl     8.3
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal polynomials.tcl math::polynomials
+}
 
-package require math::polynomials
+# -------------------------------------------------------------------------
 
 proc matchNumbers {expected actual} {
    set match 1
@@ -28,6 +33,8 @@ proc matchNumbers {expected actual} {
 }
 
 customMatch numbers matchNumbers
+
+# -------------------------------------------------------------------------
 
 test "Polynomial-1.0" "Create polynomial (degree 3)" \
    -match numbers -body {

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.17 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.18 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,12 +18,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-source [file join [file dirname [info script]] math.tcl]
-package require math
-
-puts "math [package present math]"
+testing {
+    useLocal math.tcl math
+}
 
 # -------------------------------------------------------------------------
 

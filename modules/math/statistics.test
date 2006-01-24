@@ -15,11 +15,12 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
-
-source [file join [file dirname [info script]] statistics.tcl]
-
-puts "math::statistics [package present math::statistics]"
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal statistics.tcl math::statistics
+}
 
 # -------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.13 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: md5x.test,v 1.14 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,34 +19,22 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget md5
-catch {namespace delete ::md5}
-if {[catch {source [file join [file dirname [info script]] md5x.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal md5x.tcl md5
 }
 
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 if {[::md5::LoadAccelerator critcl]} {
-    puts "- md5 [package present md5] (critcl based)"
+    puts "> critcl based"
 }
 if {[::md5::LoadAccelerator cryptkit]} {
-    puts "- md5 [package present md5] (cryptkit based)"
+    puts "> cryptkit based"
 }
 if {[::md5::LoadAccelerator trf]} {
-    puts "- md5 [package present md5] (Trf based)"
+    puts "> Trf based"
 }
-puts "- md5 [package present md5] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing
