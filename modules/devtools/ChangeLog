@@ -1,3 +1,9 @@
+2006-01-23  Andreas Kupries  <akupries@shaw.ca>
+
+	* testutilities.tcl: Added variants of the use commands which keep
+	  the relevant namespace. Sometimes necessary to prevent
+	  destruction of support code loaded first.
+
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Added commands for the loading of files and
