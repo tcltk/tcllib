@@ -262,11 +262,38 @@ proc useLocal {fname pname args} {
     return
 }
 
+proc useLocalKeep {fname pname args} {
+    set nsname ::$pname
+    if {[llength $args]} {set nsname [lindex $args 0]}
+
+    package forget $pname
+
+    # Keep = Keep the existing namespace of the package.
+    #      = Do not delete it. This is required if the
+    #        namespace contains commands created by a
+    #        binary package, like 'tcllibc'. They cannot
+    #        be re-created.
+    ##
+    ## catch {namespace delete $nsname}
+
+    if {[catch {
+	uplevel 1 [list useLocalFile $fname]
+    } msg]} {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    Error in [file tail $fname]: $msg"
+	return -code error ""
+    }
+
+    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    return
+}
+
 proc support {script} {
     set ::tcllib::testutils::tag "-"
     if {[catch {
 	uplevel 1 $script
     } msg]} {
+	#puts |$msg|-
 	return -code return
     }
     return
@@ -277,6 +304,7 @@ proc testing {script} {
     if {[catch {
 	uplevel 1 $script
     } msg]} {
+	#puts |$msg|*
 	return -code return
     }
     return
