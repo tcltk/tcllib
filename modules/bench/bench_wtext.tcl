@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_wtext.tcl,v 1.1 2005/10/18 05:23:37 andreas_kupries Exp $
+# RCS: @(#) $Id: bench_wtext.tcl,v 1.2 2006/01/24 23:59:54 mic42 Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -53,7 +53,8 @@ proc ::bench::out::text {data} {
     set iplist {}
     set vlen 0
     foreach key [lsort -dict $ipkeys] {
-	set ip [lindex [split $key :] 1]
+	set idx [expr {[string first : $key]+1}]
+	set ip [string range $key $idx end]
 	lappend iplist $ip
 	incr n
 	set l [string length $DATA($key)]
@@ -163,4 +164,4 @@ proc ::bench::out::PADR {max str} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::text 0.1
+package provide bench::out::text 0.1.1
