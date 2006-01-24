@@ -13,9 +13,14 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal fourier.tcl math::fourier
+}
 
-source [file join [file dirname [info script]] fourier.tcl]
+# -------------------------------------------------------------------------
 
 namespace import ::math::fourier::*
 

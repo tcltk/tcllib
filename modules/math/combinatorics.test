@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.12 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.13 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,12 +18,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-source [file join [file dirname [info script]] math.tcl]
-source [file join [file dirname [info script]] combinatorics.tcl]
-
-package require math
+testing {
+    useLocal math.tcl math
+}
 
 # -------------------------------------------------------------------------
 

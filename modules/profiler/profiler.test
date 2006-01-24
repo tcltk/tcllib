@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.17 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.test,v 1.18 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,20 +17,9 @@ source [file join \
 testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget profiler
-catch {namespace delete ::profiler}
-if {[catch {source [file join [file dirname [info script]] profiler.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal profiler.tcl profiler
 }
-
-# Set the auto_path for the child interps.
-set auto_path [concat [file dirname [info script]] $auto_path]
-
-puts "- profiler [package provide profiler]"
 
 # -------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.22 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.23 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,29 +18,18 @@ source [file join \
 testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
+support {
+    # This code loads md5x, i.e. md5 v2. Proper testing should do one
+    # run using md5 v1, aka md5.tcl as well.
+    use md5/md5x.tcl md5
+}
+testing {
+    useLocal mime.tcl mime
+}
+
 # -------------------------------------------------------------------------
 
-# This code loads md5x, i.e. md5 v2. Proper testing should do one run
-# using md5 v1, aka md5.tcl as well.
-
-package forget md5
-catch {namespace delete md5}
-if {[catch {source [file join [file dirname [file dirname [info script]]] md5 md5x.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (md5x.tcl): $msg"
-    return
-}
-
-package forget mime
-catch {namespace delete mime}
-if {[catch {source [file join [file dirname [info script]] mime.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (mime.tcl): $msg"
-    return
-}
-
 namespace import mime::*
-
-puts "mime    [package present mime]"
-puts "- md5 [package present md5]"
 
 # -------------------------------------------------------------------------
 

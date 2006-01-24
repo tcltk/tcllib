@@ -15,10 +15,14 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal fuzzy.tcl math::fuzzy
+}
 
-package require  math::fuzzy
-puts "math::fuzzy [package present math::fuzzy]"
+# -------------------------------------------------------------------------
 
 namespace import ::math::fuzzy::*
 

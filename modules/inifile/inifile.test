@@ -10,29 +10,16 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-#---------------------------------------------------------------------
-# Load the tcltest package
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+testing {
+    useLocal ini.tcl inifile
 }
 
 #---------------------------------------------------------------------
-# Load the inifile package.
 
-set inifile [file join [file dirname [info script]] ini.tcl]
-set     sub_ap $auto_path
-lappend sub_ap [file dirname [file dirname [info script]]]
-
-if {[catch {source $inifile} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-puts "- inifile [package present inifile]"
+set inifile [localPath ini.tcl]
+set testini [localPath test.ini]
 
 #---------------------------------------------------------------------
-
-set testini [file join [file dirname [info script]] test.ini]
 
 test inifile-1.1 {ini::open} {
     set res [ini::open $testini r]

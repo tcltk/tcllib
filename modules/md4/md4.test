@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.13 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: md4.test,v 1.14 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -11,33 +11,19 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget md4
-catch {namespace delete ::md4}
-if {[catch {source [file join [file dirname [info script]] md4.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal md4.tcl md4
 }
 
-package require md4
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 if {[::md4::LoadAccelerator critcl]} {
-    puts "- md4 [package provide md4] (using critcl)"
+    puts "> using critcl"
 }
 if {[::md4::LoadAccelerator cryptkit]} {
-    puts "- md4 [package provide md4] (using cryptkit)"
+    puts "> using cryptkit"
 }
-puts "- md4 [package provide md4] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing

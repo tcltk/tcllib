@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.20 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.21 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,24 +18,15 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+testing {
+    useLocal ncgi.tcl ncgi
+}
+
 # -------------------------------------------------------------------------
 
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
-}
-
-package forget ncgi
-catch {namespace delete ncgi}
-
-set ncgiFile [file join [file dirname [info script]] ncgi.tcl]
 set     sub_ap $auto_path
-lappend sub_ap [file dirname [file dirname [info script]]]
-
-if {[catch {source $ncgiFile} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-puts "- ncgi [package present ncgi]"
+lappend sub_ap $::tcltest::testsDirectory
+set ncgiFile   [localPath ncgi.tcl]
 
 # -------------------------------------------------------------------------
 

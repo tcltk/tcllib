@@ -5,7 +5,7 @@
 # Copyright (c) 2005 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: rcs.test,v 1.5 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: rcs.test,v 1.6 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -16,17 +16,9 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget rcs
-catch {namespace delete ::rcs}
-if {[catch {source [file join [file dirname [info script]] rcs.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal rcs.tcl rcs
 }
-
-puts "- rcs [package present rcs]"
 
 # -------------------------------------------------------------------------
 # Standard data for the tests (2 texts, and one patch for transforming

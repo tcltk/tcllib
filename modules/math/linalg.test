@@ -21,12 +21,15 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal linalg.tcl math::linearalgebra
+}
+
 # -------------------------------------------------------------------------
 
-#
-# TODO: conflict about "scale"?
-#
-source [file join [file dirname [info script]] "linalg.tcl"]
 namespace import -force ::math::linearalgebra::*
 
 set old_precision $::tcl_precision
