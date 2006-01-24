@@ -12,31 +12,13 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-
-package forget math::interpolate
-package forget struct::matrix
-
-catch {namespace delete ::math::interpolate}
-catch {namespace delete ::struct::matrix}
-
-set moddir  [file dirname [file dirname [file join [pwd] [info script]]]]
-
-if {[catch {source [file join $moddir struct matrix.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
-    return
+support {
+    use      struct/matrix.tcl struct::matrix
+    useLocal math.tcl          math
 }
-if {[catch {source [file join $moddir math interpolate.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
-    return
+testing {
+    useLocal interpolate.tcl math::interpolate
 }
-
-package require struct::matrix
-package require math::interpolate
-
-puts "- math::interpolate [package present math::interpolate]"
-puts "  - struct::matrix  [package present struct::matrix]"
 
 # -------------------------------------------------------------------------
 

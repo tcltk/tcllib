@@ -4,7 +4,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.8 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.test,v 1.9 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,12 +15,12 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-source [file join [file dirname [info script]] geometry.tcl]
-package require math::geometry
-
-puts "math::geometry [package present math::geometry]"
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal geometry.tcl math::geometry
+}
 
 # -------------------------------------------------------------------------
 

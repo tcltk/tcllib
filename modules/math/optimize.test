@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.14 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: optimize.test,v 1.15 2006/01/24 05:10:01 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004, 2005 by Kevin B. Kenny
@@ -25,9 +25,14 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal optimize.tcl math::optimize
+}
 
-source [file join [file dirname [info script]] optimize.tcl]
+# -------------------------------------------------------------------------
 
 namespace eval optimizetest {
 
@@ -36,26 +41,6 @@ namespace import ::math::optimize::*
 if {![package vsatisfies [package present Tcl] 8.5]} {
     set old_precision $::tcl_precision
     set ::tcl_precision 17
-}
-
-# Service procedure to develop the error message for "wrong # args"
-
-proc wrongNumArgs {name arglist count} {
-    # Use [package provide Tcl] instead of this buggy mess.
-    #    set ver [info patchlevel]
-    #    strip "a1", etc. designations
-    #    regsub {(a|b)[1-9]$} $ver {} ver
-    set ver [package provide Tcl]
-    if {[package vcompare $ver 8.4] < 0} {
-	set arg [lindex $arglist $count]
-	set msg "no value given for parameter \"$arg\" to \"$name\""
-    } elseif {[package vcompare $ver 8.5] < 0} {
-	set msg "wrong # args: should be \"$name $arglist\""
-    } else {
-	set arglist [lreplace $arglist end end ...]
-	set msg "wrong # args: should be \"$name $arglist\""
-    }
-    return $msg
 }
 
 #
@@ -238,7 +223,7 @@ test linmin-2.1 {wrong \# args} \
 	min_bound_1d f
     } \
     -returnCodes 1 \
-    -result [wrongNumArgs min_bound_1d {f x1 x2 args} 1]
+    -result [tcltest::wrongNumArgs min_bound_1d {f x1 x2 args} 1]
 
 test linmin-2.2 {wrong \# args} \
     -body {
@@ -391,7 +376,7 @@ test linmin-4.1 {wrong \# args} \
 	min_unbound_1d f
     } \
     -returnCodes 1 \
-    -result [wrongNumArgs min_unbound_1d {f x1 x2 args} 1]
+    -result [tcltest::wrongNumArgs min_unbound_1d {f x1 x2 args} 1]
 
 test linmin-4.2 {wrong \# args} \
     -body {

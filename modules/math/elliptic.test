@@ -8,7 +8,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.8 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.9 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,12 +19,15 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
-
-source [file join [file dirname [info script]] "math.tcl"]
-source [file join [file dirname [info script]] "special.tcl"]
-source [file join [file dirname [info script]] "elliptic.tcl"]
-package require math::constants
+support {
+    useLocal math.tcl        math
+    useLocal constants.tcl   math::constants
+    useLocal statistics.tcl  math::statistics
+    useLocal polynomials.tcl math::polynomials
+}
+testing {
+    useLocal special.tcl math::special
+}
 
 # -------------------------------------------------------------------------
 

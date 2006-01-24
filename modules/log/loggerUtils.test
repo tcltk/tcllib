@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2005 by Aamer Aahkter
 #
-# $Id: loggerUtils.test,v 1.5 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: loggerUtils.test,v 1.6 2006/01/24 05:10:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,39 +17,19 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 2.2
 
+support {
+    useLocal logger.tcl         logger
+    useLocal loggerAppender.tcl logger::appender
+}
+testing {
+    useLocal loggerUtils.tcl logger::utils
+}
+
 # -------------------------------------------------------------------------
 
-package forget logger::utils
-package forget logger::appender
-package forget logger
-
-catch {namespace delete ::logger}
-
-set moddir [file dirname [file dirname [file join [pwd] [info script]]]]
-
-if {[catch {source [file join $moddir log logger.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (logger.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir log loggerAppender.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (loggerAppender.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir log loggerUtils.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (loggerUtils.tcl): $msg"
-    return
-}
-
-package require logger::utils
-
-puts "- logger::utils [package present logger::utils]"
-puts "  - logger           [package present logger]"
-puts "  - logger::appender [package present logger::appender]"
-
-
-::tcltest::loadTestedCommands
-
 logger::setlevel debug
+
+# -------------------------------------------------------------------------
 
 namespace eval ::loggerExtension::test {
 
