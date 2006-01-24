@@ -1,3 +1,9 @@
+2006-01-25  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* bench_wcsv.tcl : Fixed bug when trying to format benchs on windows.
+	* bench_wtext.tcl: The interpreter path was truncated due to a misuse of
+	split and lindex, where string first was appropriate.
+
 2005-10-27  Andreas Kupries <andreask@activestate.com>
 
 	* bench.tcl (::bench::norm): Fixed bug leaving time data in

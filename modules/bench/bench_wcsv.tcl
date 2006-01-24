@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_wcsv.tcl,v 1.1 2005/10/18 05:23:37 andreas_kupries Exp $
+# RCS: @(#) $Id: bench_wcsv.tcl,v 1.2 2006/01/24 23:59:54 mic42 Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -55,7 +55,8 @@ proc ::bench::out::csv {data} {
     set n 1
     set iplist {}
     foreach key [lsort -dict $ipkeys] {
-	set ip [lindex [split $key :] 1]
+	set idx [expr {[string first : $key]+1}]
+	set ip [string range $key $idx end]	    
 	lappend CSV [csv::join [list $n $DATA($key) $ip]]
 	set DATA($key) $n
 	incr n
@@ -98,4 +99,4 @@ proc ::bench::out::csv {data} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::csv 0.1
+package provide bench::out::csv 0.1.1
