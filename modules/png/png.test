@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.7 2006/01/22 00:27:23 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.8 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -14,29 +14,13 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget png
-package forget crc32
-
-catch {namespace delete ::png}
-catch {namespace delete ::crc}
-
-if {[catch {source [file join [file dirname [file dirname [info script]]] crc crc32.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (crc32): $msg"
-    return
+# Trf / tcllibc
+support {
+    use crc/crc32.tcl crc32 ::crc
 }
-if {[catch {source [file join [file dirname [info script]] png.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (png): $msg"
-    return
+testing {
+    useLocal png.tcl png
 }
-
-package require crc32
-package require png
-puts "- png   [package present png]"
-puts "- crc32 [package present crc32]"
-catch {puts "- Trf [package present Trf]"}
 
 # -------------------------------------------------------------------------
 # Validation

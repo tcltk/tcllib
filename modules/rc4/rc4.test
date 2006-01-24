@@ -1,6 +1,6 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: rc4.test,v 1.9 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: rc4.test,v 1.10 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -11,27 +11,18 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget rc4
-catch {namespace delete ::rc4}
-if {[catch {source [file join [file dirname [info script]] rc4.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
+testing {
+    useLocal rc4.tcl rc4
 }
 
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 if {[info command ::rc4::rc4c] != {}} {
-    puts "- rc4 [package present rc4] (critcl)"
+    puts "> critcl"
 }
 
+# -------------------------------------------------------------------------
+# Now the package specific tests....
 # -------------------------------------------------------------------------
 
 test rc4-1.0 {rc4 basic command options} {
@@ -105,7 +96,7 @@ if {[llength [info commands ::rc4::rc4c]] != 0} {
     }
 }
 
-puts "- rc4 [package present rc4] (pure Tcl - array based)"
+puts "> pure Tcl - array based"
 ::rc4::SelectImplementation array
 set n 0
 foreach {key input output} $tests {
@@ -115,7 +106,7 @@ foreach {key input output} $tests {
     incr n
 }
 
-puts "- rc4 [package present rc4] (pure Tcl - list based)"
+puts "> pure Tcl - list based"
 ::rc4::SelectImplementation list
 set n 0
 foreach {key input output} $tests {

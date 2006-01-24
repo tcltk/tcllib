@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.6 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: multiplexer.test,v 1.7 2006/01/24 05:10:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,25 +18,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-#---------------------------------------------------------------------
-# Load the multiplexer package.
-
-set plexfile [file join [file dirname [info script]] multiplexer.tcl]
-set     sub_ap $auto_path
-lappend sub_ap [file dirname [file dirname [info script]]]
-
-if {[catch {source $plexfile} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal multiplexer.tcl multiplexer
 }
-puts "- multiplexer [package present multiplexer]"
 
 # -------------------------------------------------------------------------
-# Setup any constraints
-
-# -------------------------------------------------------------------------
-
-
 
 test multiplexer-1.0 {create multiplexer} {
     set mp [multiplexer::create]

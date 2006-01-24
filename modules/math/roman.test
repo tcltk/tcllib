@@ -22,124 +22,33 @@ source [file join \
 testsNeedTcl     8.3
 testsNeedTcltest 2.2
 
-#-----------------------------------------------------------------------
+support {
+    useLocal math.tcl math
+}
+testing {
+    useLocal romannumerals.tcl math::roman
+}
 
 #=====================================================================
 # S u p p o r t   F u n c t i o n s
 #=====================================================================
 
 #---------------------------------------------------------------------
-# endTests --
-#
-# Convenience function for prematurely ending the test run. Used
-# during test development **ONLY**
-#---------------------------------------------------------------------
-proc endTests {} {
-    cleanup
-    ::tcltest::cleanupTests
-    exit
-}
-
-#---------------------------------------------------------------------
 # cleanup --
 #
 # cleanup before each test
 #---------------------------------------------------------------------
+
 proc cleanup {} {
     global errorInfo
 
-}
-
-#-----------------------------------------------------------------------
-# checkForPackage --
-#
-# Check if the specified package is loaded. If it is, check that
-# it is the right version. If not, attempt to load the right version.
-#
-# Returns: 1 if all ok, 0 if there was a problem
-
-proc checkForPackage { pkgname version classname } {
-
-    if {[lsearch [namespace children] ::$pkgname] == -1} {
-        # Not loaded yet so try to load it
-
-        if [catch {package require $pkgname $version} errMsg] {
-            puts "Aborting tests for $classname."
-            puts "Failed to load $pkgname $version\nReported error: $errMsg"
-            return 0
-        } else {
-            namespace import ::${pkgname}::*
-        }
-    } else {
-        # Ensure that the currently loaded version is ok
-
-        if {![package vsatisfies [package present $pkgname] $version]} {
-            puts "Aborting tests for $classname."
-            puts "Requiring $pkgname $version, have [package present $pkgname]"
-            return 0
-        }
-    }
-
-    # If we got here then all is OK
-    return 1
-}
-
-#-----------------------------------------------------------------------
-# prepareTclTest --
-#
-# Load the tcltest package, initialize some constraints.
-#
-# Returns: 1 if all ok, 0 if there was a problem
-
-proc prepareTclTest { classname } {
-
-    # - Tcl version
-    #
-    if {![package vsatisfies [package provide Tcl] 8.3]} {
-        puts "Aborting tests for $classname."
-        puts "Requiring Tcl 8.3, have [package present Tcl]"
-        return 0
-    }
-
-    # tcltest version
-    #
-    if { ![checkForPackage tcltest 2.2 $classname] } {
-        return 0
-    }
-
-    #---------------------------------------------------------------------
-    # Initialize some standard tcltest constraints.
-
-    #
-    #if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    #    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
-    #}
-
-    ::tcltest::testConstraint tk [info exists tk_version]
-
-    # If we got here all is OK
-    return 1
 }
 
 #=====================================================================
 # I n i t i a l i s a t i o n
 #=====================================================================
 
-# Load the class file
-
-if [catch {source [file join [file dirname [info script]] romannumerals.tcl]} errMsg] {
-    puts "Aborting tests for ${::className}.\nError: $errMsg"
-    exit -1
-}
-
-prepareTclTest math::roman
-
-# Initialize any additional tcltest constraints here
-# (eg ::tcltest::testConstraint myConstraint 1)
-
-
-#::tcltest::configure -verbose {body start pass error}
-
+::tcltest::testConstraint tk [info exists tk_version]
 
 #=====================================================================
 # T e s t   C a s e s
@@ -147,6 +56,7 @@ prepareTclTest math::roman
 
 #-----------------------------------------------------------------------
 # toroman
+
 test ToRoman-1.1 {good input} -constraints {
 } -setup {
     cleanup
@@ -176,6 +86,7 @@ test ToRoman-1.1 {good input} -constraints {
 
 #-----------------------------------------------------------------------
 # tointeger
+
 test ToInteger-2.1 {good input} -constraints {
 } -setup {
     cleanup
@@ -205,6 +116,7 @@ test ToInteger-2.1 {good input} -constraints {
 
 #-----------------------------------------------------------------------
 # combined
+
 test Combined-3.1 {good input} -constraints {
 } -setup {
     cleanup
@@ -224,6 +136,7 @@ test Combined-3.1 {good input} -constraints {
 
 #-----------------------------------------------------------------------
 # sort
+
 test Sort-4.1 {good input} -constraints {
 } -setup {
     cleanup
@@ -238,6 +151,7 @@ test Sort-4.1 {good input} -constraints {
 
 #-----------------------------------------------------------------------
 # expr
+
 test Expr-5.1 {plus} -constraints {
 } -setup {
     cleanup

@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: bessel.test,v 1.11 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: bessel.test,v 1.12 2006/01/24 05:10:00 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -20,13 +20,14 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 2.1
 
-# -------------------------------------------------------------------------
-
-source [file join [file dirname [info script]] math.tcl]
-source [file join [file dirname [info script]] special.tcl]
-source [file join [file dirname [info script]] bessel.tcl]
-
-package require math
+support {
+    useLocal math.tcl       math
+    useLocal constants.tcl  math::constants
+    useLocal statistics.tcl math::statistics
+}
+testing {
+    useLocal special.tcl math::special
+}
 
 # -------------------------------------------------------------------------
 

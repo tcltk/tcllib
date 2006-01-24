@@ -1,3 +1,9 @@
+2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* log.test: More boilerplate simplified via use of test support.
+	* logger.test:
+	* loggerUtils.test:
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* loggerUtils.tcl: The utilities require Tcl 8.4, they use
