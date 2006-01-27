@@ -1,3 +1,14 @@
+2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.test: More boilerplate simplified via use of test support.
+	* adjust_hyph.test:
+	* expander.test:
+	* repeat.test:
+	* split.test:
+	* tabify.test:
+	* textutil.test:
+	* trim.test:
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* adjust.test: Hooked into the new common test support code.

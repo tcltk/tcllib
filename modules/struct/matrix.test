@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.17 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.18 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,18 +19,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::matrix
-catch {namespace delete ::struct::matrix}
-if {[catch {source [file join [file dirname [info script]] matrix.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal matrix.tcl struct::matrix
 }
 
-package require struct::matrix
-puts "- struct::matrix [package present struct::matrix]"
+# -------------------------------------------------------------------------
 
 namespace import struct::matrix
 

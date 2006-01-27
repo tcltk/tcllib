@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1.test,v 1.10 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: sha1.test,v 1.11 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,34 +19,24 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget sha1
-catch {namespace delete ::sha1}
-if {[catch {source [file join [file dirname [info script]] sha1.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal sha1.tcl sha1
 }
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
 
 if {[::sha1::LoadAccelerator critcl]} {
-    puts "- sha1 [package present sha1] (critcl based)"
+    puts "> critcl based"
 }
 if {[::sha1::LoadAccelerator cryptkit]} {
-    puts "- sha1 [package present sha1] (cryptkit based)"
+    puts "> cryptkit based"
 }
 if {[::sha1::LoadAccelerator trf]} {
-    puts "- sha1 [package present sha1] (Trf based)"
+    puts "> Trf based"
 }
-puts "- sha1 [package present sha1] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing

@@ -15,13 +15,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-if { [ lsearch [ namespace children ] "::textutil" ] == -1 } then {
-    source [file join [file dirname [info script]] textutil.tcl]
+testing {
+    useLocal textutil.tcl textutil
 }
 
-###################################################
+# -------------------------------------------------------------------------
 
 test trim-0.1 {trim string on left} {
     set str [ ::textutil::trimleft "\t\t hello, world \t " ]

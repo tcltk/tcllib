@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree1.test,v 1.4 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree1.test,v 1.5 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,18 +18,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::tree
-catch {namespace delete ::struct::tree}
-if {[catch {source [file join [file dirname [info script]] tree1.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal tree1.tcl struct::tree
 }
 
-package require struct::tree 1
-puts "- struct::tree [package present struct::tree]"
+# -------------------------------------------------------------------------
 
 namespace import struct::tree
 
