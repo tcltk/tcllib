@@ -6,33 +6,24 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ntlm.test,v 1.1 2005/10/05 15:22:10 patthoyts Exp $
+# RCS: @(#) $Id: ntlm.test,v 1.2 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
-# Initialise the test package
-#
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
-}
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget SASL
-catch {namespace delete ::SASL}
-if {[catch {source [file join [file dirname [info script]] sasl.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] ntlm.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-package require base64
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
-puts "- SASL::NTLM [package present SASL::NTLM]"
+support {
+    use      base64/base64.tcl base64
+    useLocal sasl.tcl          SASL
+}
+testing {
+    useLocal ntlm.tcl SASL::NTLM
+}
 
 # -------------------------------------------------------------------------
 # Tests

@@ -18,11 +18,8 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-#---------------------------------------------------------------------
-# Load the expander package
-
-if { [ lsearch [ namespace children ] "::textutil::expander" ] == -1 } then {
-    source [file join [file dirname [info script]] expander.tcl]
+testing {
+    useLocal expander.tcl textutil::expander
 }
 
 #---------------------------------------------------------------------

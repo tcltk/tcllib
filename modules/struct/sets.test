@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.10 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.11 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,20 +17,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::set
-catch {namespace delete ::struct::set}
-if {[catch {source [file join [file dirname [info script]] sets.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal sets.tcl struct::set
 }
 
-package require struct::set
-puts "- struct::set [package present struct::set]"
-
-#----------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 set sempty {}
 set smultiples {a b c a d f a f c h j}
@@ -42,7 +33,6 @@ set se {c d e f g h}     ; # b + c
 set sf {a b c d e f g h} ; # a + b
 
 interp alias {} setop {} ::struct::set::set
-
 
 #----------------------------------------------------------------------
 

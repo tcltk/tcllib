@@ -13,76 +13,28 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
+support {
+    use struct/list.tcl struct::list
+    use struct/sets.tcl struct::set
+    if {[useTcllibC]} {
+	useKeep struct/tree.tcl struct::tree
+    } else {
+	use     struct/tree.tcl struct::tree
+    }
+    use snit/snit.tcl   snit
+}
+testing {
+    useLocal treeql.tcl treeql
+}
+
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget treeql 1.0
-package forget struct::tree
-package forget struct::list
-package forget struct::set
-package forget snit
-
-catch {namespace delete ::treeql}
-## catch {namespace delete ::struct::tree} ##
-catch {namespace delete ::struct::list}
-catch {namespace delete ::struct::set}
-catch {namespace delete ::snit}
-
-set moddir  [file dirname [file dirname [file join [pwd] [info script]]]]
-set tcllibc [file join $moddir tcllibc pkgIndex.tcl]
-
-if {[file exists $tcllibc]} {
-    # Fake load of specific package index, so that the following
-    # require will not search through the package paths.
-    set dir [file dirname $tcllibc]
-    source $tcllibc
-    unset dir
-    package require tcllibc
-}
-
-set moddir [file dirname [file dirname [file normalize [info script]]]]
-if {[catch {source [file join $moddir struct tree.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/tree.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct list.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/list.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct sets.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (struct/set.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir snit snit.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (snit.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir treeql treeql.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (treeql.tcl): $msg"
-    return
-}
-
-package require treeql
-package require struct::tree
-package require struct::list
-package require struct::set
-package require snit
-
-package require struct::tree
-puts "- treeql [package present treeql]"
-puts "  - snit         [package present snit]"
-puts "  - struct::list [package present struct::list]"
-puts "  - struct::set  [package present struct::set]"
 
 struct::tree::SwitchTo {}
 foreach e [struct::tree::KnownImpl] {
     if {[::struct::tree::LoadAccel $e]} {
-	puts "  - struct::tree [package provide struct::tree] (using $e)"
 	switch -exact -- $e {
-	    critcl {
-		puts "  - tcllibc      [package present tcllibc]"
-	    }
-	    tcl {}
+	    critcl {puts "> tree : tcllibc based"}
+	    tcl    {puts "> tree : pure Tcl"}
 	}
     }
 }

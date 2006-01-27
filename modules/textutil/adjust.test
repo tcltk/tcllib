@@ -15,14 +15,8 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget textutil
-catch {namespace delete ::textutil}
-if {[catch {source [file join [file dirname [info script]] textutil.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal textutil.tcl textutil
 }
 
 # -------------------------------------------------------------------------

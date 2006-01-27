@@ -16,9 +16,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
+testing {
+    useLocal textutil.tcl textutil
+}
 
-source [file join $::tcltest::testsDirectory adjust.tcl];
+# -------------------------------------------------------------------------
 
 ##########
 # German #

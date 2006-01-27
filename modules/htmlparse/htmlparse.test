@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.21 2006/01/23 08:18:16 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.22 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,14 +19,14 @@ testsNeedTcl     8.3 ; # htmlparse itself is 8.2+, however struct::* need 8.3+
 testsNeedTcltest 1.0
 
 support {
+    use struct/list.tcl     struct::list
     if {[useTcllibC]} {
 	useKeep struct/tree.tcl struct::tree
     } else {
-	use struct/tree.tcl     struct::tree
+	use     struct/tree.tcl struct::tree
     }
     use struct/queue.tcl    struct::queue
     use struct/stack.tcl    struct::stack
-    use struct/list.tcl     struct::list
     use cmdline/cmdline.tcl cmdline
 }
 testing {

@@ -5,7 +5,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# RCS: @(#) $Id: sha256.test,v 1.2 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: sha256.test,v 1.3 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -16,26 +16,13 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget sha256
-catch {namespace delete ::sha2}
-if {[catch {source [file join [file dirname [info script]] sha256.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal sha256.tcl sha256 ::sha2
 }
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
-
-puts "- sha256 [package present sha256] (pure Tcl)"
-
 
 test sha256-1.0 {sha256 usage} {
     catch {::sha2::sha256} result

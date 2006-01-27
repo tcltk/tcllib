@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.test,v 1.13 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.test,v 1.14 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,18 +19,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::queue
-catch {namespace delete ::struct::queue}
-if {[catch {source [file join [file dirname [info script]] queue.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal queue.tcl struct::queue
 }
 
-package require struct::queue
-puts "- struct::queue [package present struct::queue]"
+# -------------------------------------------------------------------------
 
 namespace import struct::queue
 
