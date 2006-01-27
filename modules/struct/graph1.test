@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph1.test,v 1.5 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: graph1.test,v 1.6 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,22 +19,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-catch {puts "-- cgraph [package present cgraph]"}
-
-package forget struct::graph
-catch {namespace delete ::struct::graph}
-
-if {[catch {source [file join [file dirname [info script]] graph1.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (graph1.tcl): $msg"
-    return
+testing {
+    useLocal graph1.tcl struct::graph
 }
 
-package require struct::graph 1
-
-puts "- struct::graph [package present struct::graph]"
-catch {puts "  - cgraph [package present cgraph]"}
+# -------------------------------------------------------------------------
 
 namespace import ::struct::graph::graph
 

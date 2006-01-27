@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie.test,v 1.8 2006/01/22 00:27:25 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.test,v 1.9 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -14,45 +14,14 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+support {
+    use snit/snit.tcl       snit
+    use cmdline/cmdline.tcl cmdline
 }
-
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-# We also ensure to use local copies of the prerequisite packages.
-
-package forget tie
-package forget snit
-package forget cmdline
-
-catch {namespace delete tie}
-catch {namespace delete snit}
-catch {namespace delete cmdline}
-
-if {[catch {source [file join [file dirname [info script]] .. cmdline cmdline.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (cmdline.tcl): $msg"
-    return
+testing {
+    useLocal tie.tcl         tie
+    useLocal tie_dsource.tcl tie::std::dsource
 }
-if {[catch {source [file join [file dirname [info script]] .. snit snit.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (snit.tcl): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] tie.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (tie.tcl): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] tie_dsource.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (tie_dsource.tcl): $msg"
-    return
-}
-
-puts "tie       [package present tie]"
-puts "- dsource [package present tie::std::dsource]"
-puts "- snit    [package present snit]"
-puts "- cmdline [package present cmdline]"
 
 # -------------------------------------------------------------------------
 

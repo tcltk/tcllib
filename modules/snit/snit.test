@@ -34,14 +34,20 @@ testsNeedTcl     8.3
 testsNeedTcltest 2.2
 
 #---------------------------------------------------------------------
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
-}
+# Set up a number of constraints. This also determines which
+# implementation of snit is loaded and tested.
 
 # WHD: Work around bugs in 8.5a3
-
 tcltest::testConstraint bug8.5a3 [expr {![string equal [info patchlevel] "8.5a3"]}]
+
+# Marks tests which are only for Tk.
+tcltest::testConstraint tk [info exists tk_version]
+
+# If Tk is available, require BWidget
+tcltest::testConstraint bwidget [expr {
+    [tcltest::testConstraint tk] && 
+    ![catch {package require BWidget}]
+}]
 
 # Determine which Snit version to load.  If Tcl 8.5, use 2.x.
 # Otherwise, use 1.x. (Different variants depending on 8.3 vs 8.4)
@@ -59,34 +65,14 @@ tcltest::testConstraint snit1 [expr {$snitVersion == 1}]
 # Marks tests which are only for Snit 2
 tcltest::testConstraint snit2 [expr {$snitVersion == 2}]
 
-# Marks tests which are only for Tk.
-tcltest::testConstraint tk [info exists tk_version]
-
-# If Tk is available, require BWidget
-if {
-    [tcltest::testConstraint tk] && 
-    ![catch {package require BWidget}]
-} {
-    tcltest::testConstraint bwidget 1
-} else {
-    tcltest::testConstraint bwidget 0
-}
-
-
 #---------------------------------------------------------------------
 # Load the snit package.
 
-package forget snit
-catch {namespace delete snit}
-if {[catch {source [file join [file dirname [info script]] $snitFile]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal $snitFile snit
 }
 
-puts "- Tcl  [package present Tcl]"
-puts "- snit [package present snit]"
-
-testConstraint snit1 [expr {[package present snit] < 2.0}]
+#---------------------------------------------------------------------
 
 namespace import ::snit::*
 

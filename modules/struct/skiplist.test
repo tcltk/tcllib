@@ -18,18 +18,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::skiplist
-catch {namespace delete ::struct::skiplist}
-if {[catch {source [file join [file dirname [info script]] skiplist.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal skiplist.tcl struct::skiplist
 }
-
-package require struct::skiplist
-puts "- struct::skiplist [package present struct::skiplist]"
 
 #----------------------------------------------------------------------
 

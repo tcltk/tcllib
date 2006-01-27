@@ -2,7 +2,7 @@
 #
 # Provide a set of tests to excercise the urn-scheme package.
 #
-# @(#)$Id: urn.test,v 1.7 2006/01/22 00:27:25 andreas_kupries Exp $
+# @(#)$Id: urn.test,v 1.8 2006/01/27 03:39:58 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -13,36 +13,12 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget uri::urn
-package forget uri
-catch {
-    namespace delete ::uri::urn
-    namespace delete ::uri
+support {
+    useLocal uri.tcl uri
 }
-if {[catch {source [file join [file dirname [info script]] uri.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal urn-scheme.tcl uri::urn
 }
-if {[catch {source [file join [file dirname [info script]] urn-scheme.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
-
-# -------------------------------------------------------------------------
-# Setup any constraints
-#
-
-# -------------------------------------------------------------------------
-# Now the package specific tests....
-# -------------------------------------------------------------------------
-
-package require uri
-package require uri::urn
-puts "- uri::urn [package present uri::urn]"
-puts "- uri [package present uri]"
 
 # -------------------------------------------------------------------------
 # Tests to check for valid urn sections.

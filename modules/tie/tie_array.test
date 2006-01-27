@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie_array.test,v 1.5 2006/01/22 00:27:25 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_array.test,v 1.6 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -14,40 +14,13 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+support {
+    use      snit/snit.tcl snit
+    useLocal tie.tcl       tie
 }
-
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-# We also ensure to use local copies of the prerequisite packages.
-
-package forget tie::std::array
-package forget tie
-package forget snit
-
-catch {namespace delete tie::std::array}
-catch {namespace delete tie}
-catch {namespace delete snit}
-
-if {[catch {source [file join [file dirname [info script]] .. snit snit.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (snit.tcl): $msg"
-    return
+testing {
+    useLocal tie_array.tcl tie::std::array
 }
-if {[catch {source [file join [file dirname [info script]] tie_array.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (tie_array.tcl): $msg"
-    return
-}
-if {[catch {source [file join [file dirname [info script]] tie.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (tie.tcl): $msg"
-    return
-}
-
-puts "tie::std::array [package present tie::std::array]"
-puts "- tie           [package present tie]"
-puts "- snit          [package present snit]"
 
 # -------------------------------------------------------------------------
 

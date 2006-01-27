@@ -4,7 +4,7 @@
 # Copyright (c) 2006 Andreas Kupries
 # All rights reserved.
 #
-# RCS: @(#) $Id: pool.test,v 1.2 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: pool.test,v 1.3 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,18 +15,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::pool
-catch {namespace delete ::struct::pool}
-if {[catch {source [file join [file dirname [info script]] pool.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal pool.tcl struct::pool
 }
 
-package require struct::pool
-puts "- struct::pool [package present struct::pool]"
+# -------------------------------------------------------------------------
 
 namespace import struct::pool
 
