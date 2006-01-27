@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.20 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.21 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,20 +17,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::list
-catch {namespace delete ::struct::list}
-if {[catch {source [file join [file dirname [info script]] list.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal list.tcl struct::list
 }
 
-package require struct::list
-puts "- struct::list [package present struct::list]"
-
-#----------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 # Fake [lset] for Tcl releases that don't have it.  We need only
 # lset into a flat list.

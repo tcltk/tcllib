@@ -1,6 +1,6 @@
 # uuid.test:  tests for the uuid package                       -*- tcl -*-
 #
-# $Id: uuid.test,v 1.4 2006/01/22 00:27:25 andreas_kupries Exp $
+# $Id: uuid.test,v 1.5 2006/01/27 03:39:58 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -11,14 +11,8 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget uuid
-catch {namespace delete ::uuid}
-if {[catch {source [file join [file dirname [info script]] uuid.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal uuid.tcl uuid
 }
 
 # -------------------------------------------------------------------------
@@ -55,9 +49,9 @@ proc reset_implementation {} {
 # -------------------------------------------------------------------------
 
 if {[::uuid::LoadAccelerator critcl]} {
-    puts "- uuid [package present uuid] (critcl based)"
+    puts "> critcl based"
 }
-puts "- uuid [package present uuid] (pure Tcl)"
+puts "> pure Tcl"
 
 # -------------------------------------------------------------------------
 

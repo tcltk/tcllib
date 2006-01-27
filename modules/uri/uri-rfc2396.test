@@ -8,11 +8,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-set dirname [file dirname [info script]]
-source      [file join $dirname uri.tcl]
-package require uri
+testing {
+    useLocal uri.tcl uri
+}
 
 # -------------------------------------------------------------------------
 

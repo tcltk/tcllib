@@ -1,3 +1,9 @@
+2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri-rfc2396.test: More boilerplate simplified via use of test support.
+	* uri.test:
+	* urn.test:
+
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri-rfc2396.test: Hooked into the new common test support code.

@@ -9,7 +9,7 @@
 # Copyright (c) 2002 Michael Schlenker
 # All rights reserved.
 #
-# RCS: @(#) $Id: prioqueue.test,v 1.7 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.test,v 1.8 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,18 +20,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::prioqueue
-catch {namespace delete ::struct::prioqueue}
-if {[catch {source [file join [file dirname [info script]] prioqueue.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal prioqueue.tcl struct::prioqueue
 }
 
-package require struct::prioqueue
-puts "- struct::prioqueue [package present struct::prioqueue]"
+# -------------------------------------------------------------------------
 
 namespace import -force struct::prioqueue
 

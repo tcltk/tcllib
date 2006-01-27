@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.19 2006/01/22 00:27:25 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.20 2006/01/27 03:39:58 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,13 +17,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-set dirname [file dirname [info script]]
-source      [file join $dirname uri.tcl]
-package require uri
-
-puts "uri [package present uri]"
+testing {
+    useLocal uri.tcl uri
+}
 
 # -------------------------------------------------------------------------
 # Split tests

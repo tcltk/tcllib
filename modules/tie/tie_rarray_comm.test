@@ -6,7 +6,7 @@
 # This is a tie for remote array ties, actually using separate
 # processes. This is based on the package "comm", also in Tcllib.
 #
-# RCS: @(#) $Id: tie_rarray_comm.test,v 1.7 2006/01/22 00:27:25 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_rarray_comm.test,v 1.8 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,60 +17,23 @@ source [file join \
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-
-if { [lsearch $auto_path [file dirname [info script]]] == -1 } {
-    set auto_path [linsert $auto_path 0 [file dirname [info script]]]
+support {
+    use      comm/comm.tcl       comm
+    use      snit/snit.tcl       snit
+    use      cmdline/cmdline.tcl cmdline
+    useLocal tie.tcl             tie
+}
+testing {
+    useLocal tie_rarray.tcl tie::std::rarray
 }
 
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and not one installed somewhere else.
-# We also ensure to use local copies of the prerequisite packages.
 
-package forget tie::std::rarray
-package forget tie
-package forget comm
-package forget snit
-package forget cmdline
-
-catch {namespace delete tie::std::rarray}
-catch {namespace delete tie}
-catch {namespace delete comm}
-catch {namespace delete snit}
-catch {namespace delete cmdline}
-
-set tie_ra_code  [file join [file dirname [info script]] tie_rarray.tcl]
-set tie_code     [file join [file dirname [info script]] tie.tcl]
-set comm_code    [file join [file dirname [info script]] .. comm comm.tcl]
-set snit_code    [file join [file dirname [info script]] .. snit snit.tcl]
-set cmdline_code [file join [file dirname [info script]] .. cmdline cmdline.tcl]
-
-if {[catch {source $cmdline_code} msg]} {
-    puts "skipped [file tail [info script]] (cmdline.tcl): $msg"
-    return
-}
-if {[catch {source $snit_code} msg]} {
-    puts "skipped [file tail [info script]] (snit.tcl): $msg"
-    return
-}
-if {[catch {source $tie_ra_code} msg]} {
-    puts "skipped [file tail [info script]] (tie_rarray.tcl): $msg"
-    return
-}
-if {[catch {source $tie_code} msg]} {
-    puts "skipped [file tail [info script]] (tie.tcl): $msg"
-    return
-}
-if {[catch {source $comm_code} msg]} {
-    puts "skipped [file tail [info script]] (comm.tcl): $msg"
-    return
-}
-
-puts "tie::std::rarray [package present tie::std::rarray]"
-puts "- tie            [package present tie]"
-puts "- snit           [package present snit]"
-puts "- comm           [package present comm]"
-puts "- cmdline        [package present cmdline]"
+set comm_code    [tcllibPath comm/comm.tcl]
+set cmdline_code [tcllibPath cmdline/cmdline.tcl]
+set snit_code    [tcllibPath snit/snit.tcl]
+set tie_code     [localPath  tie.tcl]
+set tie_ra_code  [localPath  tie_rarray.tcl]
 
 # -------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.43 2006/01/22 00:27:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.44 2006/01/27 03:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,49 +18,25 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocal list.tcl struct::list
+}
+testing {
+    if {[useTcllibC]} {
+	useLocalKeep tree.tcl struct::tree
+    } else {
+	useLocal     tree.tcl struct::tree
+    }
+}
+
 # -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget struct::tree
-package forget struct::list
-package forget tcllibc
-
-catch {namespace delete ::struct::tree}
-catch {namespace delete ::struct::list}
-catch {rename ::struct::tree {}}
-
-set moddir  [file dirname [file dirname [file join [pwd] [info script]]]]
-set tcllibc [file join $moddir tcllibc pkgIndex.tcl]
-
-if {[file exists $tcllibc]} {
-    # Fake load of specific package index, so that the following
-    # require will not search through the package paths.
-    set dir [file dirname $tcllibc]
-    source $tcllibc
-    unset dir
-    package require tcllibc
-}
-if {[catch {source [file join $moddir struct list.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (list.tcl): $msg"
-    return
-}
-if {[catch {source [file join $moddir struct tree.tcl]} msg]} {
-    puts "skipped [file tail [info script]] (tree.tcl): $msg"
-    return
-}
 
 struct::tree::SwitchTo {}
-
 foreach e [struct::tree::KnownImpl] {
     if {[::struct::tree::LoadAccel $e]} {
-	puts "- struct::tree [package provide struct::tree] (using $e)"
 	switch -exact -- $e {
-	    critcl {
-		puts "  - tcllibc      [package present tcllibc]"
-	    }
-	    tcl {
-		puts "  - struct::list [package present struct::list]"
-	    }
+	    critcl {puts "> tcllibc based"}
+	    tcl    {puts "> pure Tcl"}
 	}
     }
 }
@@ -273,8 +249,6 @@ catch {memory validate off}
 
 unset usec
 unset tests
-
-puts ""
 
 # Reset system to fully inactive state.
 

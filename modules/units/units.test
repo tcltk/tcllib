@@ -13,7 +13,7 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.3 2006/01/22 00:27:25 andreas_kupries Exp $"
+#  "$Id: units.test,v 1.4 2006/01/27 03:39:58 andreas_kupries Exp $"
 #
 #----------------------------------------------------------------
 
@@ -24,22 +24,10 @@ source [file join \
 testsNeedTcl     8.1
 testsNeedTcltest 1.0
 
-# -------------------------------------------------------------------------
-# Ensure we test _this_ local copy and one installed somewhere else.
-#
-package forget units
-catch {namespace delete ::units}
-if {[catch {source [file join [file dirname [info script]] units.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
+testing {
+    useLocal units.tcl units
 }
 
-puts "- units [package present units]"
-
-#-----------------------------------------------------------
-#
-# Check that commands exist
-#
 #-----------------------------------------------------------
 
 test units-1.1 {new command exists} {
@@ -524,4 +512,3 @@ test units-10.1 {leading zero is not octal} {
 #-----------------------------------------------------------
 
 ::tcltest::cleanupTests
-
