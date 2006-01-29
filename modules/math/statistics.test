@@ -94,29 +94,29 @@ test "BasicStats-1.3" "Basic statistics - linear data - mean" -match tolerant -b
   set value [::math::statistics::mean $::data_linear]
 } -result 5.5
 
-test "BasicStats-1.3" "Basic statistics - linear data - min" -match tolerant  -body {
+test "BasicStats-1.4" "Basic statistics - linear data - min" -match tolerant  -body {
   set value [::math::statistics::min $::data_linear]
 } -result 1.0
 
-test "BasicStats-1.4" "Basic statistics - linear data - max" -match tolerant  -body {
+test "BasicStats-1.5" "Basic statistics - linear data - max" -match tolerant  -body {
   set value [::math::statistics::max $::data_linear]
 } -result 10.0
 
-test "BasicStats-1.5" "Basic statistics - linear data - number" -match tolerant  -body {
+test "BasicStats-1.6" "Basic statistics - linear data - number" -match tolerant  -body {
   set value [::math::statistics::number $::data_linear]
 } -result 10
 
-test "BasicStats-1.6" "Basic statistics - missing data - number" -match tolerant  -body {
+test "BasicStats-1.7" "Basic statistics - missing data - number" -match tolerant  -body {
   set value [::math::statistics::number $::data_missing2]
 } -result 10
 
-test "BasicStats-1.7" "Basic statistics - missing data - stdev" -match almostzero -body {
+test "BasicStats-1.8" "Basic statistics - missing data - stdev" -match almostzero -body {
   set value1 [::math::statistics::stdev  $::data_linear]
   set value2 [::math::statistics::stdev  $::data_missing2]
   expr {abs($value1-$value2)}
 } -result 0.001 ;# Zero is impossible
 
-test "BasicStats-1.8" "Basic statistics - missing data - var" -match almostzero -body {
+test "BasicStats-1.9" "Basic statistics - missing data - var" -match almostzero -body {
   set value1 [::math::statistics::stdev  $::data_linear]
   set value2 [::math::statistics::var    $::data_missing2]
   expr {$value1*$value1-$value2}
@@ -330,15 +330,15 @@ test "Samplescount-1.0" "Single sublist" -match matchList -body {
    set data [::math::statistics::samplescount x [list $::data_list]]
 } -result {10}
 
-test "Samplescount-1.0" "List of singleton sublist" -match matchList -body {
+test "Samplescount-1.1" "List of singleton sublist" -match matchList -body {
    set data [::math::statistics::samplescount x $::data_list]
 } -result {1 1 1 1 1 1 1 1 1 1}
 
-test "Samplescount-1.1" "Pairs sublist" -match matchList -body {
+test "Samplescount-1.2" "Pairs sublist" -match matchList -body {
    set data [::math::statistics::samplescount x $::data_pairs]
 } -result {2 2 2 2 2}
 
-test "Samplescount-1.2" "Select uneven sublist" -match matchList -body {
+test "Samplescount-1.3" "Select uneven sublist" -match matchList -body {
    set data [::math::statistics::samplescount x $::data_pairs {$x%2}]
 } -result {1 1 1 1 1}
 
