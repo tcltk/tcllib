@@ -92,7 +92,7 @@ test symmetric-1.1 "symmetric matrix" -body {
     symmetric { {1 2 3} {2 1 4} {3 4 1}}
 } -result 1
 
-test symmetric-1.1 "non-square matrix" -body {
+test symmetric-1.2 "non-square matrix" -body {
     symmetric { {1 2 3} {2 1 4}}
 } -result 0
 
@@ -384,7 +384,7 @@ test svd-1.0 "singular value decomposition - 2x2" -match numbers -body {
  {0.70710678118654746  0.70710678118654757}}
 }
 
-test svd-1.0 "singular value decomposition - 10x10" -match numbers -body {
+test svd-1.1 "singular value decomposition - 10x10" -match numbers -body {
     set M [mkDingdong 10]
     show [lindex [determineSVD $M] 1] %6.4f
 } -result {1.5708 1.5708 1.5708 1.5708 1.5708 1.5707 1.5695 1.5521 1.3935 0.6505}
