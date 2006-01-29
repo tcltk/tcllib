@@ -1,3 +1,8 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* log.test:    Fixed cleanup of temp. files used by testsuite.
+	* logger.test: Fixed usage of duplicate test names.
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* log.test: More boilerplate simplified via use of test support.
