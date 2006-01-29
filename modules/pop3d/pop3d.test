@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.16 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.17 2006/01/29 02:09:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,11 +20,13 @@ testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
 support {
-    use          comm/comm.tcl  comm
-    use          md5/md5x.tcl   md5
-    use          mime/mime.tcl  mime
-    useLocal     pop3d_udb.tcl  pop3d::udb
-    useLocalKeep pop3d_dbox.tcl pop3d::dbox
+    use           comm/comm.tcl  comm
+    useTcllibFile devtools/coserv.tcl
+    useTcllibFile devtools/dialog.tcl
+    use           md5/md5x.tcl   md5
+    use           mime/mime.tcl  mime
+    useLocal      pop3d_udb.tcl  pop3d::udb
+    useLocalKeep  pop3d_dbox.tcl pop3d::dbox
 }
 testing {
     useLocalKeep pop3d.tcl pop3d
@@ -33,8 +35,6 @@ testing {
 # -------------------------------------------------------------------------
 # Server processes. Programmed dialogs, server side.
 
-useTcllibFile devtools/coserv.tcl
-useTcllibFile devtools/dialog.tcl
 dialog::setup client {Pop3 Fake Client}
 
 # -------------------------------------------------------------------------
@@ -301,7 +301,6 @@ proc ppcstate {state} {
     return [dictsort [array get tmp]]
 }
 
-makeDirectory __dbox__
 proc newfsrv {} {
     global srv udb dbox
     newsrv
@@ -309,14 +308,14 @@ proc newfsrv {} {
 	    -auth    [set udb  [::pop3d::udb::new]] \
 	    -storage [set dbox [::pop3d::dbox::new]]
 
-    $dbox base __dbox__
-
-    $dbox add         usr0
+    makeDirectory __dbox__
+    $dbox base    __dbox__
+    $dbox add          usr0
     $udb  add ak smash usr0
 
-    makeFile {} [file join __dbox__ usr0 10]
-    makeFile {} [file join __dbox__ usr0 20]
-    makeFile {} [file join __dbox__ usr0 30]
+    foreach f {10 20 30} {
+	makeFile {} [file join __dbox__ usr0 $f]
+    }
 
     $dbox add          usr1
     $udb  add jh wooof usr1
@@ -329,6 +328,14 @@ proc delfsrv {} {
     $udb  destroy
     foreach m [$dbox list] {$dbox remove $m}
     $dbox destroy
+
+    foreach f {10 20 30} {
+	set f [file join __dbox__ usr0 $f]
+	if {![file exists $f]} continue
+	removeFile {} $f
+    }
+
+    removeDirectory __dbox__
     return
 }
 

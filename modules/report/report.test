@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: report.test,v 1.9 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: report.test,v 1.10 2006/01/29 02:09:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1019,13 +1019,6 @@ true numeric}    15      47    31.91}
 
 # And now all of above again, for printing into a channel.
 
-tcltest::makeFile {} dummy
-tcltest::makeFile {} rep1
-tcltest::makeFile {} rep2
-tcltest::makeFile {} rep3
-tcltest::makeFile {} rep4
-tcltest::makeFile {} rep5
-
 test report-28.0 {formatting errors} {
     report           myreport 5
     catch {myreport printmatrix2channel} result
@@ -1047,11 +1040,12 @@ test report-28.2 {formatting errors} {
     ::struct::matrix mymatrix
     mymatrix      add columns 3
 
-    set f [open dummy w]
+    set f [open [makeFile {} dummy] w]
     catch {myreport printmatrix2channel mymatrix $f} result
     mymatrix destroy
     myreport destroy
     close $f
+    removeFile dummy
     set result
 } {report/matrix mismatch in number of columns}
 
@@ -1059,11 +1053,12 @@ test report-28.3 {formatting errors} {
     report myreport 5
     ::struct::matrix mymatrix
     mymatrix add columns 8
-    set f [open dummy w]
+    set f [open [makeFile {} dummy] w]
     catch {myreport printmatrix2channel mymatrix $f} result
     mymatrix destroy
     myreport destroy
     close $f
+    removeFile dummy
     set result
 } {report/matrix mismatch in number of columns}
 
@@ -1074,11 +1069,12 @@ test report-28.4 {formatting errors} {
     ::struct::matrix mymatrix
     mymatrix add columns 5
     mymatrix add rows 6
-    set f [open dummy w]
+    set f [open [makeFile {} dummy] w]
     catch {myreport printmatrix2channel mymatrix $f} result
     mymatrix destroy
     myreport destroy
     close $f
+    removeFile dummy
     set result
 } {matrix too small, top and bottom captions overlap}
 
@@ -1092,14 +1088,16 @@ test report-28.5 {formatting} {
     mymatrix add row {004 {IF if true numeric}        12      33    36.36}
     mymatrix add row {005 {IF elseif true numeric}    15      47    31.91}
 
-    set f [open rep1 w]
+    set f [open [makeFile {} rep1] w]
     report myreport 5 ; # style plain
     myreport printmatrix2channel mymatrix $f
     myreport destroy
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep1
+    set res [viewFile rep1]
+    removeFile rep1
+    set res
 } {000VERSIONS:             2:8.4a31:8.4a31:8.4a3%
 001CATCH return ok       7      13     53.85   
 002CATCH return error    68     91     74.73   
@@ -1118,14 +1116,16 @@ test report-28.6 {formatting} {
     mymatrix add row {004 {IF if true numeric}        12      33    36.36}
     mymatrix add row {005 {IF elseif true numeric}    15      47    31.91}
 
-    set f [open rep2 w]
+    set f [open [makeFile {} rep2] w]
     report myreport 5 style simpletable
     myreport printmatrix2channel mymatrix $f
     myreport destroy
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep2
+    set res [viewFile rep2]
+    removeFile rep2
+    set res
 } {+---+----------------------+-------+-------+--------+
 |000|VERSIONS:             |2:8.4a3|1:8.4a3|1:8.4a3%|
 |001|CATCH return ok       |7      |13     |53.85   |
@@ -1146,14 +1146,16 @@ test report-28.7 {formatting} {
     mymatrix add row {004 {IF if true numeric}        12      33    36.36}
     mymatrix add row {005 {IF elseif true numeric}    15      47    31.91}
 
-    set f [open rep3 w]
+    set f [open [makeFile {} rep3] w]
     report myreport 5 style captionedtable 1
     myreport printmatrix2channel mymatrix $f
     myreport destroy
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep3
+    set res [viewFile rep3]
+    removeFile rep3
+    set res
 } {+---+----------------------+-------+-------+--------+
 |000|VERSIONS:             |2:8.4a3|1:8.4a3|1:8.4a3%|
 +---+----------------------+-------+-------+--------+
@@ -1174,7 +1176,7 @@ test report-28.8 {formatting} {
     mymatrix add row {004 {IF if true numeric}        12      33    36.36}
     mymatrix add row {005 {IF elseif true numeric}    15      47    31.91}
 
-    set f [open rep4 w]
+    set f [open [makeFile {} rep4] w]
     report myreport 5 ; # plain
     myreport top       set  {-+ -/ + -/ + -/ + -/ + -/ +-}
     myreport topdata   set {{ |}   |    |    |    |   {| }}
@@ -1202,7 +1204,9 @@ test report-28.8 {formatting} {
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep4
+    set res [viewFile rep4]
+    removeFile rep4
+    set res
 } {-+-/-/-/+-/-/-/-/-/-/-/-/-/-/-/-/+-/-/-/-/-+-/-/-/-/-+-/-/-/-+-
  | 000  |              VERSIONS: | 2:8.4a3 | 1:8.4a3 | .4a3% | 
 =+*=*=*=+*=*=*=*=*=*=*=*=*=*=*=*=+*=*=*=*=*+*=*=*=*=*+*=*=*=*+=
@@ -1224,14 +1228,16 @@ test report-28.9 {formatting, rowheight > 1} {
     mymatrix add row {005 {IF elseif
 true numeric}    15      47    31.91}
 
-    set f [open rep5 w]
+    set f [open [makeFile {} rep5] w]
     report myreport 5 style captionedtable 1
     myreport printmatrix2channel mymatrix $f
     myreport destroy
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep5
+    set res [viewFile rep5]
+    removeFile rep5
+    set res
 } {+---+-------------------+-------+-------+--------+
 |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
 +---+-------------------+-------+-------+--------+
@@ -1257,14 +1263,16 @@ test report-28.10 {formatting, rowheight > 1} {
     mymatrix add row {005 {IF elseif
 true numeric}    15      47    31.91}
 
-    set f [open rep5 w]
+    set f [open [makeFile {} rep5] w]
     report myreport 5 style captionedtable 2
     myreport printmatrix2channel mymatrix $f
     myreport destroy
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep5
+    set res [viewFile rep5]
+    removeFile rep5
+    set res
 } {+---+-------------------+-------+-------+--------+
 |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
 |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
@@ -1291,14 +1299,16 @@ true numeric}    15      47    31.91}
     mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
     mymatrix add row {000 VERSIONS:              2:8.4a3 1:8.4a3 1:8.4a3%}
 
-    set f [open rep5 w]
+    set f [open [makeFile {} rep5] w]
     report myreport 5 style bdcaptionedtable 2
     myreport printmatrix2channel mymatrix $f
     myreport destroy
     mymatrix destroy
     close $f
 
-    ::tcltest::viewFile rep5
+    set res [viewFile rep5]
+    removeFile rep5
+    set res
 } {+---+-------------------+-------+-------+--------+
 |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
 +---+-------------------+-------+-------+--------+

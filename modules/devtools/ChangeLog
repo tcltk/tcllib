@@ -1,4 +1,11 @@
-2006-01-23  Andreas Kupries  <akupries@shaw.ca>
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* coserv.tcl: Fixed usage of temp. files by comm server.
+
+	* coserv.tcl: Fixed output for a better fit with the other test
+	* dialog.tcl: support.
+
+2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Added variants of the use commands which keep
 	  the relevant namespace. Sometimes necessary to prevent
