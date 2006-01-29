@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.18 2006/01/23 08:18:16 andreas_kupries Exp $
+# RCS: @(#) $Id: html.test,v 1.19 2006/01/29 08:33:59 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ test html-8.3 {html::author} {
 } {<!-- one "one val" & -->
 }
 
-test html-2.1 {html::tagParams} {
+test html-9.0 {html::tagParams} {
     html::init {
 	body.bgcolor	red
 	font.face	times
@@ -447,16 +447,16 @@ test html-24.1 {html::submit} {
     catch {html::submit}
 } {1}
 
-test html-24.1 {html::submit} {
+test html-24.2 {html::submit} {
     catch {html::submit wrong num args}
 } {1}
 
-test html-24.1 {html::submit} {
+test html-24.3 {html::submit} {
     html::submit "Push Me"
 } {<input type="submit" name="submit" value="Push Me">
 }
 
-test html-24.2 {html::submit} {
+test html-24.4 {html::submit} {
     html::submit "Push Me" push
 } {<input type="submit" name="push" value="Push Me">
 }
@@ -482,7 +482,7 @@ test html-25.4 {html::varEmpty} {
     html::varEmpty x
 } 1
 
-test html-25.3 {html::varEmpty} {
+test html-25.5 {html::varEmpty} {
     if {[info exist x]} {
 	unset x
     }
@@ -496,10 +496,10 @@ test html-26.1 {html::refresh} {
 test html-26.2 {html::refresh} {
     catch {html::refresh wrong num args}
 } 1
-test html-26.2 {html::refresh} {
+test html-26.3 {html::refresh} {
     html::refresh 4
 } {}
-test html-26.3 {html::refresh} {
+test html-26.4 {html::refresh} {
     html::init
     html::refresh 4
     html::head title
@@ -509,7 +509,7 @@ test html-26.3 {html::refresh} {
 
 </head>
 }
-test html-26.4 {html::refresh} {
+test html-26.5 {html::refresh} {
     html::init
     html::refresh 9 http://www.scriptics.com
     html::head title
