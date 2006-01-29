@@ -2,7 +2,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.7 2006/01/22 00:27:24 andreas_kupries Exp $
+# $Id: stooop.test,v 1.8 2006/01/29 08:34:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -8629,6 +8629,7 @@ test stooop-91 {
         set ::result {}
     }]
     interp delete $interpreter
+    removeDirectory 91
     set result
 } {}
 
