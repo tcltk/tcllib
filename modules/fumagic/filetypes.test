@@ -8,7 +8,7 @@
 # Copyright (c) 2005      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: filetypes.test,v 1.6 2006/01/23 08:18:15 andreas_kupries Exp $
+# RCS: @(#) $Id: filetypes.test,v 1.7 2006/01/29 05:58:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,241 +21,166 @@ testsNeedTcltest 1.0
 
 catch {namespace delete ::fileutil::magic}
 support {
-    useLocal rtcore.tcl fileutil::magic::rt
+    useLocalFile fumagic.testsupport
+    useLocal     rtcore.tcl fileutil::magic::rt
 }
 testing {
     useLocal filetypes.tcl fileutil::magic::filetype
 }
 
 # -------------------------------------------------------------------------
-
-proc makeBinaryFile {data f} {
-    set path [makeFile {} $f]
-    # Tcltest 1.0 returns list of all paths generated so far.
-    if {[llength $path]} {set path [lindex $path end]}
-
-    set ch [open $path w]
-    fconfigure $ch -translation binary
-    puts -nonewline $ch $data
-    close $ch
-    return $path
-}
-
-# -------------------------------------------------------------------------
 # Now the package specific tests....
 
-set dir $::tcltest::temporaryDirectory
-
-catch {removeDirectory fileTypeTest} ; # start with a clean structure!
-makeDirectory fileTypeTest
-# Can't use for tcl < 8.3
-#fileutil::touch [file join $dir fileTypeTest emptyFile]
-set _f [open [file join $dir fileTypeTest emptyFile] a] ; close $_f
-
-makeBinaryFile "\u0000" [file join $dir fileTypeTest binaryFile]
-
-set elfData "\x7F"
-append elfData "ELF"
-append elfData "\x01\x01\x01\x00\x00"
-makeBinaryFile $elfData [file join $dir fileTypeTest elfFile]
-
-set bzipData "BZh91AY&SY"
-append bzipData "\x01\x01\x01\x00\x00"
-makeBinaryFile $bzipData [file join $dir fileTypeTest bzipFile]
-
-set gzipData "\x1f\x8b"
-append gzipData "\x01\x01\x01\x00\x00"
-makeBinaryFile $gzipData [set f [file join $dir fileTypeTest gzipFile]]
-set fh [open $f w] ; fconfigure $fh -encoding binary ; puts -nonewline $fh $gzipData ; close $fh
-
-set jpgData "\xFF\xD8\xFF\xE0\x00\x10JFIF"
-append jpgData "\x00\x01\x02\x01\x01\x2c"
-makeBinaryFile $jpgData [file join $dir fileTypeTest jpegFile]
-
-set gifData "GIF89a\x2b\x00\x40\x00\xf7\xff\x00"
-makeBinaryFile $gifData [file join $dir fileTypeTest gifFile]
-
-set pngData "\x89PNG"
-append pngData "\x00\x01\x02\x01\x01\x2c"
-makeBinaryFile $pngData [set f [file join $dir fileTypeTest pngFile]]
-set fh [open $f w] ; fconfigure $fh -encoding binary ; puts -nonewline $fh $pngData ; close $fh
-
-set tiffData "MM\x00\*"
-append tiffData "\x00\x01\x02\x01\x01\x2c"
-makeBinaryFile $tiffData [file join $dir fileTypeTest tiffFile]
-
-set psData "%!PS-"
-append psData "ADOBO-123 EPSF-1.4"
-makeFile $psData [file join $dir fileTypeTest psFile]
-
-set pdfData "%PDF-"
-append pdfData "1.2 \x00\x01\x02\x01\x01\x2c"
-makeBinaryFile $pdfData [file join $dir fileTypeTest pdfFile]
-
-set epsData $psData
-makeFile $psData [file join $dir fileTypeTest epsFile]
-
-set igwdData "IGWD"
-append igwdData "\x00\x01\x02\x01\x01\x2c"
-makeBinaryFile $igwdData [file join $dir fileTypeTest igwdFile]
-
-makeFile "simple text" [file join $dir fileTypeTest textFile]
-makeFile "#!/bin/tclsh" [file join $dir fileTypeTest scriptFile]
-makeFile "<html></html>" [file join $dir fileTypeTest htmlFile]
-
-set xmlData {<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<foobar></foobar>
-}
-
-set xmlDataWithDTD {<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<!DOCTYPE foobar SYSTEM bogus.dtd>
-<foobar></foobar>
-}
-
-makeFile $xmlData [file join $dir fileTypeTest xmlFile]
-makeFile $xmlDataWithDTD [file join $dir fileTypeTest xmlWithDTDFile]
-
-set pgpData {-----BEGIN PGP MESSAGE-----
-Version: PGP 6.5.8
-
-abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
-}
-
-makeFile $pgpData [file join $dir fileTypeTest pgpFile]
-
-
+set path [makeFile {} bogus]
+removeFile bogus
 
 test fumagic.filetype-1.1 {test file non-existance} {
-    set f [file join $dir fileTypeTest bogus]
-    set res [catch {fileutil::magic::filetype $f} msg]
+    set res [catch {fileutil::magic::filetype $path} msg]
     list $res $msg
-} [list 1 "file not found: \"[file join $dir fileTypeTest bogus]\""]
+} [list 1 "file not found: \"$path\""]
 
 test fumagic.filetype-1.2 {test file directory} {
-    set f [file join $dir fileTypeTest]
+    set f [makeDirectory fileTypeTest]
     set res [catch {fileutil::magic::filetype $f} msg]
     regsub {file[0-9]+} $msg {fileXXX} msg
+    removeDirectory fileTypeTest
     list $res $msg
 } {1 {error reading "fileXXX": illegal operation on a directory}}
 
 test fumagic.filetype-1.3 {test file empty} {
-    set f [file join $dir fileTypeTest emptyFile]
+    set f [makeEmptyFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeEmptyFile
     list $res $msg
 } {0 {}}
 
 test fumagic.filetype-1.4 {test simple binary} {
-    set f [file join $dir fileTypeTest binaryFile]
+    set f [makeBinFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeBinFile
     list $res $msg
 } {0 {}}
 
 test fumagic.filetype-1.5 {test elf executable} {
-    set f [file join $dir fileTypeTest elfFile]
+    set f [makeElfFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeElfFile
     list $res $msg
 } {0 {ELF 32-bit LSB AT&T WE32100 - invalid byte order, relocatable, \(\) \(SYSV\)}}
 
 test fumagic.filetype-1.6 {test simple text} {
-    set f [file join $dir fileTypeTest textFile]
+    set f [makeTextFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeTextFile
     list $res $msg
 } {0 {}}
 
 test fumagic.filetype-1.7 {test script file} {
-    set f [file join $dir fileTypeTest scriptFile]
+    set f [makeScriptFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeScriptFile
     list $res $msg
 } {0 {a /bin/tclsh script text executable}}
 
 test fumagic.filetype-1.8 {test html text} {
-    set f [file join $dir fileTypeTest htmlFile]
+    set f [makeHtmlFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeHtmlFile
     list $res $msg
 } {0 {HTML document text}}
 
 # 1.9/.10 possibly broken output.
 test fumagic.filetype-1.9 {test xml text} {
-    set f [file join $dir fileTypeTest xmlFile]
+    set f [makeXmlFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeXmlFile
     list $res $msg
 } {0 {XML document text \"	XML XML %.3s document text broken XML document text}}
 
 test fumagic.filetype-1.10 {test xml with dtd text} {
-    set f [file join $dir fileTypeTest xmlWithDTDFile]
+    set f [makeXmlDTDFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeXmlDTDFile
     list $res $msg
 } {0 {XML document text \"	XML XML %.3s document text broken XML document text}}
 
 test fumagic.filetype-1.11 {test PGP message} {
-    set f [file join $dir fileTypeTest pgpFile]
+    set f [makePGPFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removePGPFile
     list $res $msg
 } {0 {PGP armored data message}}
 
 test fumagic.filetype-1.12 {test binary graphic jpeg} {
-    set f [file join $dir fileTypeTest jpegFile]
+    set f [makeJpegFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeJpegFile
     list $res $msg
 } {0 {JPEG image data , JFIF standard  1. %02d , thumbnail 2x 2}}
 
 test fumagic.filetype-1.13 {test binary graphic gif} {
-    set f [file join $dir fileTypeTest gifFile]
+    set f [makeGifFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeGifFile
     list $res $msg
 } {0 {GIF image data , version 89a,}}
 
 test fumagic.filetype-1.14 {test binary graphic png} {
-    set f [file join $dir fileTypeTest pngFile]
+    set f [makePngFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removePngFile
     list $res $msg
 } {0 {PNG image data, CORRUPTED, PNG image data, CORRUPTED}}
 
 test fumagic.filetype-1.15 {test binary graphic tiff} {
-    set f [file join $dir fileTypeTest tiffFile]
+    set f [makeTiffFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeTiffFile
     list $res $msg
 } {0 {TIFF image data, big-endian}}
 
 # 1.16 output possibly broken, missing substs.
 test fumagic.filetype-1.16 {test binary pdf} {
-    set f [file join $dir fileTypeTest pdfFile]
+    set f [makePdfFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removePdfFile
     list $res $msg
 } {0 {PDF document , version %c .%c}}
 
 test fumagic.filetype-1.17 {test text ps} {
-    set f [file join $dir fileTypeTest psFile]
+    set f [makePSFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removePSFile
     list $res $msg
 } {0 {PostScript document text}}
 
 test fumagic.filetype-1.18 {test text eps} {
-    set f [file join $dir fileTypeTest epsFile]
+    set f [makeEPSFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeEPSFile
     list $res $msg
 } {0 {PostScript document text}}
 
 test fumagic.filetype-1.19 {test binary gravity_wave_data_frame} {
-    set f [file join $dir fileTypeTest igwdFile]
+    set f [makeIgwdFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeIgwdFile
     list $res $msg
 } {0 {}}
 
 test fumagic.filetype-1.20 {test binary compressed bzip} {
-    set f [file join $dir fileTypeTest bzipFile]
+    set f [makeBzipFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeBzipFile
     list $res $msg
 } {0 {bzip2 compressed data bzip compressed data , version: %c , compression block size 900k}}
 
 test fumagic.filetype-1.21 {test binary compressed gzip} {
-    set f [file join $dir fileTypeTest gzipFile]
+    set f [makeGzipFile]
     set res [catch {fileutil::magic::filetype $f} msg]
+    removeGzipFile
     list $res $msg
 } {0 {gzip compressed data , unknown method , ASCII , from MS-DOS}}
-
 
 ::tcltest::cleanupTests
 return

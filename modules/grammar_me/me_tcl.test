@@ -8,7 +8,7 @@
 # Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_tcl.test,v 1.5 2006/01/23 08:18:16 andreas_kupries Exp $
+# RCS: @(#) $Id: me_tcl.test,v 1.6 2006/01/29 05:58:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -842,7 +842,7 @@ test mevmtcl-icl_rewind-1.1 {Call with too many arguments} \
     } -result {wrong # args: should be "grammar::me::tcl::icl_rewind oldloc"}
 
 
-test mevmtcl-icl_get-2.0 {Rewind travels back} \
+test mevmtcl-icl_rewind-2.0 {Rewind travels back} \
     -setup {
 	grammar::me::tcl::init next_count
 	nc_init
@@ -854,7 +854,7 @@ test mevmtcl-icl_get-2.0 {Rewind travels back} \
 	grammar::me::tcl::icl_get
     } -result 1
 
-test mevmtcl-icl_get-2.1 {Rewind is not sanity checked} \
+test mevmtcl-icl_rewind-2.1 {Rewind is not sanity checked} \
     -setup {
 	grammar::me::tcl::init fake
     } -body {
@@ -862,7 +862,7 @@ test mevmtcl-icl_get-2.1 {Rewind is not sanity checked} \
 	grammar::me::tcl::icl_get
     } -result -4
 
-test mevmtcl-icl_get-2.0 {Rewind is not sanity checked} \
+test mevmtcl-icl_rewind-2.2 {Rewind is not sanity checked} \
     -setup {
 	grammar::me::tcl::init fake
     } -body {

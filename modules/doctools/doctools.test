@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.13 2006/01/23 08:18:15 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.14 2006/01/29 05:58:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -202,7 +202,7 @@ foreach {na nb option default newvalue} {
     } $newvalue ; # {}
 }
 
-test doctools-6.13 {configure full retrieval} {
+test doctools-6.15 {configure full retrieval} {
     new mydoctools -file foo -module bar -format latex -deprecated 1 -copyright gnarf
     catch {mydoctools configure} result
     mydoctools destroy
