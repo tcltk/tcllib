@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.18 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.19 2006/01/29 00:10:32 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1828,49 +1828,49 @@ test matrix-9.13 {operation on linked matrix} {
     set result
 } {{1 2 3 {}} {a b c d}}
 
-test 10.1 {search errors} {
+test matrix-10.1 {search errors} {
     matrix mymatrix
     catch {mymatrix search} msg
     mymatrix destroy
     set msg
 } {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
-test 10.2 {search errors} {
+test matrix-10.2 {search errors} {
     matrix mymatrix
     catch {mymatrix search 1} msg
     mymatrix destroy
     set msg
 } {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
-test 10.3 {search errors} {
+test matrix-10.3 {search errors} {
     matrix mymatrix
     catch {mymatrix search 1 2 3 4 5} msg
     mymatrix destroy
     set msg
 } {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
-test 10.4 {search errors} {
+test matrix-10.4 {search errors} {
     matrix mymatrix
     catch {mymatrix search 1 2 3 4 5 6 7 8} msg
     mymatrix destroy
     set msg
 } {wrong # args: should be "::mymatrix search ?option...? (all|row row|column col|rect c r c r) pattern"}
 
-test 10.5 {search errors} {
+test matrix-10.5 {search errors} {
     matrix mymatrix
     catch {mymatrix search -foo 2 3 4} msg
     mymatrix destroy
     set msg
 } {invalid option "-foo": should be -nocase, -exact, -glob, or -regexp}
 
-test 10.6 {search errors} {
+test matrix-10.6 {search errors} {
     matrix mymatrix
     catch {mymatrix search -exact foo 3 4} msg
     mymatrix destroy
     set msg
 } {invalid range spec "foo": should be all, column, row, or rect}
 
-test 10.7 {search errors} {
+test matrix-10.7 {search errors} {
     matrix mymatrix
     mymatrix add columns 5
     mymatrix add row {1  2  3 4 5}
@@ -1883,7 +1883,7 @@ test 10.7 {search errors} {
     set msg
 } {Invalid cell indices, wrong ordering}
 
-test 10.8 {search errors} {
+test matrix-10.8 {search errors} {
     matrix mymatrix
     mymatrix add columns 5
     mymatrix add row {1  2  3 4 5}

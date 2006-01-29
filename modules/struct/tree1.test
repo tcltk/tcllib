@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree1.test,v 1.5 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: tree1.test,v 1.6 2006/01/29 00:10:32 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -530,7 +530,7 @@ test tree-11.2 {depth of root is 0} {
     mytree destroy
     set result
 } 0
-test tree-11.2 {depth is computed correctly} {
+test tree-11.3 {depth is computed correctly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 1}
@@ -799,14 +799,14 @@ test tree-13.3 {swap gives error when trying to swap non existant node} {
     mytree destroy
     set msg
 } "node \"IT::EM 1\" does not exist in tree \"::mytree\""
-test tree-13.3 {swap gives error when trying to swap node with self} {
+test tree-13.4 {swap gives error when trying to swap node with self} {
     tree mytree
     mytree insert root end {IT::EM 0}
     catch {mytree swap {IT::EM 0} {IT::EM 0}} msg
     mytree destroy
     set msg
 } "cannot swap node \"IT::EM 0\" with itself"
-test tree-13.4 {swap swaps node relationships correctly} {
+test tree-13.5 {swap swaps node relationships correctly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 0.1}
@@ -820,7 +820,7 @@ test tree-13.4 {swap swaps node relationships correctly} {
     set t
 } [list enter ::mytree root      enter ::mytree {IT::EM 0.1}   enter ::mytree {IT::EM 0} \
 	enter ::mytree {IT::EM 0.1.1} enter ::mytree {IT::EM 0.1.2} enter ::mytree {IT::EM 0.2}]
-test tree-13.5 {swap swaps node relationships correctly} {
+test tree-13.6 {swap swaps node relationships correctly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 0.1}
@@ -834,7 +834,7 @@ test tree-13.5 {swap swaps node relationships correctly} {
     set t
 } [list enter ::mytree root enter ::mytree {IT::EM 0.1.1} enter ::mytree {IT::EM 0.1} \
 	enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 0.1.2} enter ::mytree {IT::EM 0.2}]
-test tree-13.6 {swap swaps node relationships correctly} {
+test tree-13.7 {swap swaps node relationships correctly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert root end {IT::EM 1}
@@ -847,7 +847,7 @@ test tree-13.6 {swap swaps node relationships correctly} {
     set t
 } [list enter ::mytree root enter ::mytree {IT::EM 1} enter ::mytree {IT::EM 0.1} \
 	enter ::mytree {IT::EM 0} enter ::mytree {IT::EM 1.1}]
-test tree-13.7 {swap swaps node relationships correctly} {
+test tree-13.8 {swap swaps node relationships correctly} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree insert {IT::EM 0} end {IT::EM 0.1}
@@ -875,7 +875,7 @@ test tree-14.2 {get gives error on bogus key} {
     mytree destroy
     set msg
 } "invalid key \"bogus\" for node \"IT::EM 0\""
-test tree-14.2 {get uses data as default key} {
+test tree-14.3 {get uses data as default key} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree set {IT::EM 0} foobar
@@ -883,7 +883,7 @@ test tree-14.2 {get uses data as default key} {
     mytree destroy
     set result
 } "foobar"
-test tree-14.3 {get respects -key flag} {
+test tree-14.4 {get respects -key flag} {
     tree mytree
     mytree insert root end {IT::EM 0}
     mytree set {IT::EM 0} -key boom foobar
