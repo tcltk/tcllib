@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.21 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.22 2006/01/29 00:10:32 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ test list-lcs-2.11 {longestCommonSubsequence, insert inside 2} {
     list [catch {lcs {a b} {a a b}} msg] $msg
 } {0 {{0 1} {0 2}}}
 
-test list-lcs-2.13 {longestCommonSubsequence, insert after 2} {
+test list-lcs-2.12 {longestCommonSubsequence, insert after 2} {
     list [catch {lcs {a b} {a b a}} msg] $msg
 } {0 {{0 1} {0 1}}}
 
@@ -207,7 +207,7 @@ test list-lcs2-2.11 {longestCommonSubsequence2, insert inside 2} {
     list [catch {lcs2 {a b} {a a b}} msg] $msg
 } {0 {{0 1} {0 2}}}
 
-test list-lcs2-2.13 {longestCommonSubsequence2, insert after 2} {
+test list-lcs2-2.12 {longestCommonSubsequence2, insert after 2} {
     list [catch {lcs2 {a b} {a b a}} msg] $msg
 } {0 {{0 1} {0 1}}}
 

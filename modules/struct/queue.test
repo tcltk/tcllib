@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.test,v 1.14 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.test,v 1.15 2006/01/29 00:10:32 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -261,7 +261,7 @@ test queue-8.3 {unget, empty queue} {
     set res
 } {foo}
 
-test queue-8.3 {unget, nonempty queue} {
+test queue-8.4 {unget, nonempty queue} {
     queue myqueue
     myqueue put a b c
     myqueue unget foo
