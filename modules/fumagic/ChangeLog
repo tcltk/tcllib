@@ -1,3 +1,10 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* filetypes.test: Fixed usage of temp. files by the testsuites.
+	* mimetypes.test:
+
+	* fumagic.testsupport: New file, common definitions for the testsuite.
+
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* filestypes.test: More boilerplate simplified via use of test support.

@@ -1,3 +1,10 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/fa_symbols_at.test: Fixed use of duplicate test names.
+	* tests/fa_symbol.test: 
+	* tests/faop_remeps.test: 
+	* tests/faop_reverse.test: 
+
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.test: More boilerplate simplified via use of test support.

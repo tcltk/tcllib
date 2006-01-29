@@ -1,3 +1,7 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5x.test: Fixed usage of duplicate test names.
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* md5.test: More boilerplate simplified via use of test support.

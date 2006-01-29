@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_reverse.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_reverse.test,v 1.4 2006/01/29 05:58:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ foreach {n code result} {
 	set res
     } ok
 
-    test faop-reverse-3.$key {reverse, as method} {
+    test faop-reverse-4.$key {reverse, as method} {
 	grammar::fa a
 	gen $code
 	a reverse
@@ -78,7 +78,7 @@ foreach {n code result} {
 	set res
     } ok
 
-    test faop-reverse-4.$key {double reverse is identity, for method} {
+    test faop-reverse-5.$key {double reverse is identity, for method} {
 	grammar::fa a
 	gen $code
 	set res [a serialize]
