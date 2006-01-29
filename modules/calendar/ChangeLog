@@ -1,3 +1,9 @@
+2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* gregorian.test: Hooked into the new common test support
+	  code. Also removed some gratuitous output cluttering the log,
+	  see [SF Tcllib Bug 1316032].
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
