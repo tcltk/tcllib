@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.19 2006/01/29 00:10:32 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.20 2006/01/29 00:25:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,6 +19,9 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocalFile matrix.testsupport
+}
 testing {
     useLocal matrix.tcl struct::matrix
 }
@@ -28,126 +31,6 @@ testing {
 namespace import struct::matrix
 
 #----------------------------------------------------------------------
-
-# Simple "report object" to test the format methods.
-
-proc tclformat {cmd matrix {chan stdout}} {
-    switch -exact -- $cmd {
-	printmatrix {
-	    set r [$matrix rows]
-	    set c [$matrix rows]
-	    set     out [list "# $matrix $c x $r"]
-	    lappend out "matrix $matrix"
-	    lappend out "$matrix add rows    $r"
-	    lappend out "$matrix add columns $c"
-	    lappend out "$matrix set rect 0 0 [list [$matrix get rect 0 0 end end]]"
-	    return [join $out \n]
-	}
-	printmatrix2channel {
-	    set r [$matrix rows]
-	    set c [$matrix rows]
-	    puts $chan "# $matrix $c x $r"
-	    puts $chan "matrix $matrix"
-	    puts $chan "$matrix add rows    $r"
-	    puts $chan "$matrix add columns $c"
-	    puts $chan "$matrix set rect 0 0 [list [$matrix get rect 0 0 end end]]"
-	    return ""
-	}
-	default {
-	    return -code error "Unknown method $cmd"
-	}
-    }
-}
-
-# Retrieve the contents of an array as a list, with sorted keys, to
-# test the linking between matrices and array variables.
-
-proc aget {avar} {
-    upvar 1 $avar a
-    set out [list]
-    foreach key [lsort [array names a]] {
-	lappend out $key $a($key)
-    }
-    return $out
-}
-
-# Validate a serialization against the matrix it
-# was generated from.
-
-proc validate_serial {m serial {rect {}}} {
-    # Need a list with length 3.
-
-    if {[llength $serial] != 3} {
-	return serial/wrong#elements
-    }
-
-    foreach {r c d} $serial break
-
-    # Check dimensions against source
-
-    if {$rect == {}} {
-	set ro [$m rows]
-	set co [$m columns]
-
-	set ctl 0 ; set cbr $co ; incr cbr -1
-	set rtl 0 ; set rbr $ro ; incr rbr -1
-    } else {
-	foreach {ctl rtl cbr rbr} $rect break
-	set ro [expr {$rbr - $rtl + 1}]
-	set co [expr {$cbr - $ctl + 1}]
-    }
-    if {$r != $ro} {
-	return dim/row-mismatch
-    }
-    if {$c != $co} {
-	return dim/column-mismatch
-    }
-
-    # Check cell data size against dimensions.
-
-    if {[llength $d] > $r} {
-	return data/rows/to-many
-    }
-    foreach rv $d {
-	if {[llength $rv] > $c} {
-	    return data/columns/to-many
-	}
-    }
-
-    # Check cell data against matrix itself,
-    # possibly offset to the chosen rectangle.
-
-    set r $rtl
-    foreach rv $d {
-	set c $ctl
-	foreach cv $rv {
-	    if {![string equal [$m get cell $c $r] $cv]} {
-		return data/cell/$c/$r/content-mismatch
-	    }
-	    incr c
-	}
-	while {$c < $cbr} {
-	    # Empty cell to the right, check that they are truly empty
-	    if {[$m get cell $c $r] != {}} {
-		return data/cell/$c/$r/not-empty/missing-from-serial
-	    }
-	    incr c
-	}
-	incr r
-    }
-    while {$r < $rbr} {
-	# Empty row at the bottom, check that they are truly empty
-	for {set c $ctl} {$c < $cbr} {incr c} {
-	    if {[$m get cell $c $r] != {}} {
-		return data/cell/$c/$r/not-empty/missing-from-serial
-	    }
-	}
-	incr r
-    }
-
-    return ok
-}
-
 # Serialized matrix for some tests.
 
 set matdata {{2 0 f j} {c g b a} {a 02 01 3}}
@@ -1669,7 +1552,7 @@ test matrix-9.4 {linking, initial transfer} {
     mymatrix add column {5 6}
     mymatrix add row {7 8 9}
     mymatrix link a
-    set result [aget a]
+    set result [dictsort [array get a]]
     mymatrix destroy
     set result
 } {0,0 1 0,1 3 0,2 7 1,0 2 1,1 4 1,2 8 2,0 5 2,1 6 2,2 9}
@@ -1684,7 +1567,7 @@ test matrix-9.5 {linking, initial transfer} {
     mymatrix add column {5 6}
     mymatrix add row {7 8 9}
     mymatrix link -transpose a
-    set result [aget a]
+    set result [dictsort [array get a]]
     mymatrix destroy
     set result
 } {0,0 1 0,1 2 0,2 5 1,0 3 1,1 4 1,2 6 2,0 7 2,1 8 2,2 9}
@@ -1734,7 +1617,7 @@ test matrix-9.8 {linking, trace and unlink} {
     set result [list [mymatrix get rect 0 0 end end]]
     mymatrix unlink a
     set a(1,0) 2
-    lappend result [aget a]
+    lappend result [dictsort [array get a]]
     mymatrix destroy
     set result
 } {{{1 foo 5} {3 4 6} {7 8 9}} {0,0 1 0,1 3 0,2 7 1,0 2 1,1 4 1,2 8 2,0 5 2,1 6 2,2 9}}
@@ -1788,7 +1671,7 @@ test matrix-9.12 {unset in linked array} {
     mymatrix link a
 
     set     result [list]
-    lappend result [aget a]
+    lappend result [dictsort [array get a]]
     unset a(0,0)
     lappend result [mymatrix get rect 0 0 end end]
 
@@ -1808,9 +1691,9 @@ test matrix-9.12a {unset in linked array} {
     mymatrix link b
 
     set     result [list]
-    lappend result [aget a]
+    lappend result [dictsort [array get a]]
     unset a(0,0)
-    lappend result [aget b]
+    lappend result [dictsort [array get b]]
 
     mymatrix destroy
     set result
