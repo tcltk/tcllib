@@ -1,3 +1,8 @@
+2006-01-28  Andreas Kupries  <akupries@shaw.ca>
+
+	* uri.test: Fixed use of duplicate test names. Also fixed creation
+	  and cleanup of temp. files by the testsuite.
+
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri-rfc2396.test: More boilerplate simplified via use of test support.

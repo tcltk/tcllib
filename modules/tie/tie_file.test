@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie_file.test,v 1.7 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.test,v 1.8 2006/01/29 00:48:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -69,12 +69,15 @@ test tie-file-1.5 {file creation, ok args, unreadable file} {unixOnly} {
 test tie-file-1.6 {file creation, ok args, uncreateable file} {unixOnly} {
     set d [makeDirectory jtest]
     set f [makeFile {}   jtest/journal]
-    removeFile jtest/journal
+
+    # Delete the created file, we want the tie code to try to generate
+    # it (and expect it to fail).
+    file delete $f
+
     file attributes $d -permissions ugo-w
 
     catch {tie::std::file x $f} msg
 
-    removeFile      jtest/journal
     removeDirectory jtest
     string map [list $f @] $msg
 } {Error in constructor: couldn't open "@": permission denied}

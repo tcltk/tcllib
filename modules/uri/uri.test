@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.20 2006/01/27 03:39:58 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.21 2006/01/29 00:48:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -181,7 +181,6 @@ test uri-3.10 {uri::resolve - two queries,
 # -------------------------------------------------------------------------
 
 test uri-4.1 {uri::geturl} {
-    removeFile __testdata
     set data [info commands]
     set file [makeFile {} __testdata]
     set f [open $file w]
@@ -189,6 +188,7 @@ test uri-4.1 {uri::geturl} {
     close $f
 
     set token [uri::geturl file://$file]
+    removeFile __testdata
     string compare $data [set [subst $token](data)]
 } 0
 
@@ -250,7 +250,7 @@ test uri-5.14-0 {uri::canonicalize trailing ..} {
     uri::canonicalize http://www.example.com/foo/bar/..
 } {http://www.example.com/foo/}
 
-test uri-5.14-0 {uri::canonicalize trailing ..} {
+test uri-5.15-0 {uri::canonicalize trailing ..} {
     uri::canonicalize http://www.example.com/..
 } {http://www.example.com/}
 
