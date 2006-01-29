@@ -1,5 +1,9 @@
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* matrix1.test: Replaced [aget] with usage of the standard
+	* matrix.test:  [dictsort]. Moved helper commands out of the
+	  testsuites proper into a supporting file.
+
 	* graph1.test: Fixed duplicate usage of test names.
 	* list.test:   
 	* matrix.test: 
