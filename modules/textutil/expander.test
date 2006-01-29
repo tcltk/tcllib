@@ -191,25 +191,25 @@ test expander-3.3 {expand a string consisting of a macro} {} {
     exp expand {[howdy]}
 } {Howdy}
 
-test expander-3.3 {expand a string beginning with a macro} {} {
+test expander-3.4 {expand a string beginning with a macro} {} {
     catch {::textutil::expander exp}
     exp reset
     exp expand {[howdy], world!}
 } {Howdy, world!}
 
-test expander-3.4 {expand a string ending with a macro} {} {
+test expander-3.5 {expand a string ending with a macro} {} {
     catch {::textutil::expander exp}
     exp reset
     exp expand {Well, [howdy]}
 } {Well, Howdy}
 
-test expander-3.5 {expand a string with macro in middle} {} {
+test expander-3.6 {expand a string with macro in middle} {} {
     catch {::textutil::expander exp}
     exp reset
     exp expand {Well, [howdy]!}
 } {Well, Howdy!}
 
-test expander-3.6 {expand macro with changed default brackets} {} {
+test expander-3.7 {expand macro with changed default brackets} {} {
     catch {::textutil::expander exp}
     exp reset
     exp lb "<<<"
@@ -217,13 +217,13 @@ test expander-3.6 {expand macro with changed default brackets} {} {
     exp expand {Well, <<<howdy>>>!}
 } {Well, Howdy!}
 
-test expander-3.7 {expand macro with changed user brackets} {} {
+test expander-3.8 {expand macro with changed user brackets} {} {
     catch {::textutil::expander exp}
     exp reset
     exp expand {Well, <<<howdy>>>!} {<<< >>>}
 } {Well, Howdy!}
 
-test expander-3.8 {expand macro with changed user brackets} {} {
+test expander-3.9 {expand macro with changed user brackets} {} {
     catch {::textutil::expander exp}
     exp reset
     set a [exp expand {[howdy]}]
@@ -231,7 +231,7 @@ test expander-3.8 {expand macro with changed user brackets} {} {
     list $a $b
 } {Howdy {Well, Howdy!}}
 
-test expander-3.9 {macros change brackets} {} {
+test expander-3.10 {macros change brackets} {} {
     catch {::textutil::expander exp}
     exp reset
     string trim [exp expand {
@@ -247,19 +247,19 @@ test expander-3.9 {macros change brackets} {} {
         
         Well, Howdy!}
 
-test expander-3.10 {brackets are restored correctly} {} {
+test expander-3.11 {brackets are restored correctly} {} {
     catch {::textutil::expander exp}
     exp reset
     list [exp expand {<howdy>} "< >"] [exp expand {[howdy]}]
 } {Howdy Howdy}
 
-test expander-3.11 {nested expansion: one expander} {} {
+test expander-3.12 {nested expansion: one expander} {} {
     catch {::textutil::expander exp}
     exp reset
     exp expand {[howdy] [exp expand {*[howdy]*}] [howdy]}
 } {Howdy *Howdy* Howdy}
 
-test expander-3.12 {nested expansion: two expanders} {} {
+test expander-3.13 {nested expansion: two expanders} {} {
     catch {::textutil::expander exp}
     catch {::textutil::expander exp2}
     exp reset
