@@ -2,51 +2,54 @@
 #
 # calendar.test --
 #
-#		Tests for [calendar::CommonCalendar] and 
+#		Tests for [calendar::CommonCalendar] and
 #	[calendar::GregorianCalendar]
 #
-# RCS: @(#) $Id: gregorian.test,v 1.4 2004/06/19 15:54:04 kennykb Exp $
+# RCS: @(#) $Id: gregorian.test,v 1.5 2006/01/29 09:04:27 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
-package forget calendar
-catch { namespace delete calendar }
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
-# Direct loading of provide script -- support testing even
-# when not installed.  And be sure we test the local copy
-# and not some later version that may be installed.
-source [file join [file dirname [info script]] gregorian.tcl]
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
 
-package require tcltest
-namespace import -force tcltest::test ::tcltest::cleanupTests
-
+testing {
+    useLocal calendar.tcl calendar
+}
 
 #----------------------------------------------------------------------
 #
 # TEST CASES
 #
 #----------------------------------------------------------------------
-
 # Unix epoch
 
 array set gregChange {
-    ERA CE
-    YEAR 1752
-    MONTH 9
+    ERA          CE
+    YEAR         1752
+    MONTH        9
     DAY_OF_MONTH 14
 }
-set gregChangeJ [calendar::GregorianCalendar::EYMDToJulianDay gregChange]
-puts "Gregorian calendar was adopted in England on Julian Day $gregChangeJ"
 
 array set gregUnixEpoch {
-	ERA CE 
-	YEAR 1970 
-	MONTH 1 
-	DAY_OF_MONTH 1
+    ERA          CE
+    YEAR         1970
+    MONTH        1
+    DAY_OF_MONTH 1
 }
-set unixEpoch [calendar::GregorianCalendar::EYMDToJulianDay gregUnixEpoch]
-puts "Posix epoch is Julian day $unixEpoch"
 
+set gregChangeJ [calendar::GregorianCalendar::EYMDToJulianDay gregChange]
+set unixEpoch   [calendar::GregorianCalendar::EYMDToJulianDay gregUnixEpoch]
+
+if 0 {
+    puts "Gregorian calendar was adopted in England on Julian Day $gregChangeJ"
+    puts "Posix epoch is Julian day $unixEpoch"
+}
+
+#----------------------------------------------------------------------
 # Procedure that tests EYMDToJulianDay, EYDToJulianDay, JulianDayToEYD,
 # and JulianDayToEYMD
 
@@ -54,7 +57,7 @@ proc testCal { month day year } {
 
     global unixEpoch
 
-    # Convert the requested date to seconds from the Posix epoch 
+    # Convert the requested date to seconds from the Posix epoch
 
     set seconds [clock scan $month/$day/$year -gmt true]
 
@@ -95,7 +98,7 @@ proc testCal { month day year } {
                should be [expr $days + $unixEpoch]"
     }
 
-    
+
 }
 
 # Procedure that tests EFYWDToJulianDay and JulianDayToEFYWD.  Inputs are
@@ -208,11 +211,13 @@ proc testWeekFromEndOfMonth { y m d } {
     return
 }
 
+#----------------------------------------------------------------------
+
 test calendar-1.1 {Julian Day converting to/from Gregorian year-month-day} {
-    
+
     set n 0
     for { set year 1902 } { $year < 2038 } { incr year } {
-	
+
 	# Test the first and last day of each month.  Test 28 February
 	# always, 29 February of leap years.
 
@@ -259,14 +264,14 @@ test calendar-2.1 {ISO date conversions} {
     testISO 2001 1 1 2001 1 1
     testISO 2001 1 7 2001 1 7
     testISO 2001 2 1 2001 1 8
-    
+
     testISO 2001 52 1 2001 12 24
     testISO 2001 52 7 2001 12 30
     testISO 2002 1 1 2001 12 31
     testISO 2002 1 2 2002 1 1
     testISO 2002 1 7 2002 1 6
     testISO 2002 2 1 2002 1 7
-    
+
     testISO 2002 52 1 2002 12 23
     testISO 2002 52 7 2002 12 29
     testISO 2003 1 1 2002 12 30
@@ -274,7 +279,7 @@ test calendar-2.1 {ISO date conversions} {
     testISO 2003 1 3 2003 1 1
     testISO 2003 1 7 2003 1 5
     testISO 2003 2 1 2003 1 6
-    
+
     testISO 2003 52 1 2003 12 22
     testISO 2003 52 7 2003 12 28
     testISO 2004 1 1 2003 12 29
@@ -282,7 +287,7 @@ test calendar-2.1 {ISO date conversions} {
     testISO 2004 1 4 2004 1 1
     testISO 2004 1 7 2004 1 4
     testISO 2004 2 1 2004 1 5
-    
+
     testISO 2004 52 1 2004 12 20
     testISO 2004 52 7 2004 12 26
     testISO 2004 53 1 2004 12 27
@@ -292,14 +297,14 @@ test calendar-2.1 {ISO date conversions} {
     testISO 2005 1 1 2005 1 3
     testISO 2005 1 7 2005 1 9
     testISO 2005 2 1 2005 1 10
-    
+
     testISO 2005 52 1 2005 12 26
     testISO 2005 52 6 2005 12 31
     testISO 2005 52 7 2006 1 1
     testISO 2006 1 1 2006 1 2
     testISO 2006 1 7 2006 1 8
     testISO 2006 2 1 2006 1 9
-    
+
     testISO 2009 52 1 2009 12 21
     testISO 2009 52 7 2009 12 27
     testISO 2009 53 1 2009 12 28
@@ -394,6 +399,7 @@ test calendar-3.2 {Day-of-week from end of month} {
     concat
 } {}
 
+#----------------------------------------------------------------------
 cleanupTests
 
 # Local Variables:
