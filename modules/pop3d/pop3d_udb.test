@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d_udb.test,v 1.5 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d_udb.test,v 1.6 2006/01/29 02:09:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ test pop3-udb-3.2 {removing entries} {
 } {user specification missing}
 
 
-test pop3-udb-3.0 {renaming entries} {
+test pop3-udb-4.0 {renaming entries} {
     set udb [::pop3d::udb::new]
     $udb add bar blurb ****
     set res [list [$udb who]]
@@ -132,28 +132,28 @@ test pop3-udb-3.0 {renaming entries} {
     set res
 } {bar booze}
 
-test pop3-udb-3.1 {renaming entries} {
+test pop3-udb-4.1 {renaming entries} {
     set udb [::pop3d::udb::new]
     catch {$udb rename {} {}} res
     $udb destroy
     set res
 } {user specification missing}
 
-test pop3-udb-3.2 {renaming entries} {
+test pop3-udb-4.2 {renaming entries} {
     set udb [::pop3d::udb::new]
     catch {$udb rename bar {}} res
     $udb destroy
     set res
 } {user specification missing}
 
-test pop3-udb-3.3 {renaming entries} {
+test pop3-udb-4.3 {renaming entries} {
     set udb [::pop3d::udb::new]
     catch {$udb rename bar floss} res
     $udb destroy
     set res
 } {user "bar" not known}
 
-test pop3-udb-3.4 {renaming entries} {
+test pop3-udb-4.4 {renaming entries} {
     set udb [::pop3d::udb::new]
     $udb add bar blurb ****
     $udb add booze blurb ****
@@ -163,7 +163,7 @@ test pop3-udb-3.4 {renaming entries} {
 } {user "booze" is known}
 
 
-test pop3-udb-4.0 {searching for entries} {
+test pop3-udb-5.0 {searching for entries} {
     set udb [::pop3d::udb::new]
     $udb add bar blurb ****
     set res [$udb lookup bar]
@@ -171,7 +171,7 @@ test pop3-udb-4.0 {searching for entries} {
     set res
 } {blurb ****}
 
-test pop3-udb-4.1 {searching for entries} {
+test pop3-udb-5.1 {searching for entries} {
     set udb [::pop3d::udb::new]
     catch {$udb lookup bar} res
     $udb destroy
@@ -179,7 +179,7 @@ test pop3-udb-4.1 {searching for entries} {
 } {user "bar" not known}
 
 
-test pop3-udb-5.0 {existence of entries} {
+test pop3-udb-6.0 {existence of entries} {
     set udb [::pop3d::udb::new]
     $udb add bar blurb ****
     set res [$udb exists bar]
@@ -187,7 +187,7 @@ test pop3-udb-5.0 {existence of entries} {
     set res
 } 1
 
-test pop3-udb-5.1 {existence of entries} {
+test pop3-udb-6.1 {existence of entries} {
     set udb [::pop3d::udb::new]
     set res [$udb exists bar]
     $udb destroy
@@ -196,16 +196,19 @@ test pop3-udb-5.1 {existence of entries} {
 
 # = who = already tested as part of add/remove
 
-makeFile {} __UDB__
-makeFile {} __UDB__.old
 
-test pop3-udb-6.0 {save database} {
+test pop3-udb-7.0 {save database} {
+    makeFile {} __UDB__
+    makeFile {} __UDB__.old
     set udb [::pop3d::udb::new]
     $udb add bar blurb ****
     $udb add booze Xblurb ***X
     $udb save __UDB__
     $udb destroy
-    viewFile __UDB__
+    set res [viewFile __UDB__]
+    removeFile __UDB__
+    removeFile __UDB__.old
+    set res
 } {# -*- tcl -*-
 # ----------- user authentication database -
 
@@ -213,7 +216,15 @@ test pop3-udb-6.0 {save database} {
 	add booze Xblurb ***X
 }
 
-test pop3-udb-6.1 {read database} {
+test pop3-udb-7.1 {read database} {
+    makeFile {} __UDB__
+    makeFile {} __UDB__.old
+    set udb [::pop3d::udb::new]
+    $udb add bar blurb ****
+    $udb add booze Xblurb ***X
+    $udb save __UDB__
+    $udb destroy
+
     set udb [::pop3d::udb::new]
     $udb read __UDB__
     set res [list [lsort [$udb who]]]
@@ -221,6 +232,9 @@ test pop3-udb-6.1 {read database} {
 	lappend res [$udb lookup $u]
     }
     $udb destroy
+
+    removeFile __UDB__
+    removeFile __UDB__.old
     set res
 } {{bar booze} {blurb ****} {Xblurb ***X}}
 
