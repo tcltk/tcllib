@@ -21,15 +21,15 @@ test textutil-1.0 {blank -1} {
     textutil::blank -1
 } {}
 
-test textutil-1.0 {blank 0} {
+test textutil-1.1 {blank 0} {
     textutil::blank 0
 } {}
 
-test textutil-1.0 {blank 1} {
+test textutil-1.2 {blank 1} {
     textutil::blank 1
 } { }
 
-test textutil-1.0 {blank 10} {
+test textutil-1.3 {blank 10} {
     textutil::blank 10
 } {          }
 
