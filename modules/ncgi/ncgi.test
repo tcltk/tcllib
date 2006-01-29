@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.21 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.22 2006/01/29 08:33:59 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -82,6 +82,7 @@ test ncgi-2.4 {ncgi::query POST} {
     puts $f "name=value"
     flush $f
     gets $f line
+    removeFile test1
     set line
 } "name=value"
 
@@ -240,7 +241,7 @@ test ncgi-10.4 {ncgi::importAll} {
     list $name1 $name2
 } {{val ue} value2}
 
-test ncgi-10.4 {ncgi::importAll} {
+test ncgi-10.5 {ncgi::importAll} {
     ncgi::reset "name1=val+ue&name2=value2"
     catch {unset name1}
     catch {unset name2}
@@ -267,7 +268,10 @@ test ncgi-11.1 {ncgi::redirect} {
 	}
     } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+set res
 } "Content-Type: text/html\nLocation: $URL\n\nPlease go to <a href=\"$URL\">$URL</a>\n"
 
 set URL /elsewhere/foo.html
@@ -289,7 +293,10 @@ test ncgi-11.2 {ncgi::redirect} {
 	}
     } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nLocation: $URL2\nSet-Cookie: CookieName=12345 ;\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 set URL foo.html
@@ -310,7 +317,10 @@ test ncgi-11.3 {ncgi::redirect} {
 	}
     } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 set URL foo.html
@@ -331,7 +341,10 @@ test ncgi-11.4 {ncgi::redirect} {
 	}
     } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 set URL foo.html
@@ -352,7 +365,10 @@ test ncgi-11.5 {ncgi::redirect} {
 	}
     } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 set URL foo.html
@@ -374,7 +390,10 @@ test ncgi-11.6 {ncgi::redirect} {
 	}
     } $sub_ap $ncgiFile $URL] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 test ncgi-12.1 {ncgi::header} {
@@ -388,7 +407,10 @@ test ncgi-12.1 {ncgi::header} {
 	}
     } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\n\n"
 
 test ncgi-12.2 {ncgi::header} {
@@ -402,7 +424,10 @@ test ncgi-12.2 {ncgi::header} {
 	}
     } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/plain\n\n"
 
 test ncgi-12.3 {ncgi::header} {
@@ -416,7 +441,10 @@ test ncgi-12.3 {ncgi::header} {
 	}
     } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nX-Comment: This is a test\n\n"
 
 test ncgi-12.4 {ncgi::header} {
@@ -431,7 +459,10 @@ test ncgi-12.4 {ncgi::header} {
 	}
     } $sub_ap $ncgiFile] test1
     set f [open "|[list $::tcltest::tcltest test1]" r+]
-    read $f
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
 } "Content-Type: text/html\nSet-Cookie: Name=The+Value ;\n\n"
 
 test ncgi-13.1 {ncgi::parseMimeValue} {
