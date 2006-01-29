@@ -45,7 +45,7 @@ tcltest::testConstraint tk [info exists tk_version]
 
 # If Tk is available, require BWidget
 tcltest::testConstraint bwidget [expr {
-    [tcltest::testConstraint tk] && 
+    [tcltest::testConstraint tk] &&
     ![catch {package require BWidget}]
 }]
 
@@ -148,7 +148,7 @@ test Expand-1.1 {template, no arguments} -body {
 } -result {My %TEMPLATE%}
 
 test Expand-1.2 {template, no matching arguments} -body {
-    snit::Expand "My %TEMPLATE%" %FOO% foo 
+    snit::Expand "My %TEMPLATE%" %FOO% foo
 } -result {My %TEMPLATE%}
 
 test Expand-1.3 {template with matching arguments} -body {
@@ -156,7 +156,7 @@ test Expand-1.3 {template with matching arguments} -body {
 } -result {bar foo bar}
 
 test Expand-1.4 {template with odd number of arguments} -body {
-    snit::Expand "%FOO% %BAR% %FOO%" %FOO% 
+    snit::Expand "%FOO% %BAR% %FOO%" %FOO%
 } -result {char map list unbalanced} -returnCodes error
 
 test Mappend-1.1 {template, no arguments} -body {
@@ -168,24 +168,24 @@ test Mappend-1.1 {template, no arguments} -body {
 
 test Mappend-1.2 {template, no matching arguments} -body {
     set text "Prefix: "
-    snit::Mappend text "My %TEMPLATE%" %FOO% foo 
+    snit::Mappend text "My %TEMPLATE%" %FOO% foo
 } -cleanup {
     unset text
-} -result {Prefix: My %TEMPLATE%} 
+} -result {Prefix: My %TEMPLATE%}
 
 test Mappend-1.3 {template with matching arguments} -body {
     set text "Prefix: "
     snit::Mappend text "%FOO% %BAR% %FOO%" %FOO% bar %BAR% foo
 } -cleanup {
     unset text
-} -result {Prefix: bar foo bar} 
+} -result {Prefix: bar foo bar}
 
 test Mappend-1.4 {template with odd number of arguments} -body {
     set text "Prefix: "
-    snit::Mappend text "%FOO% %BAR% %FOO%" %FOO% 
+    snit::Mappend text "%FOO% %BAR% %FOO%" %FOO%
 } -cleanup {
     unset text
-} -returnCodes error -result {char map list unbalanced} 
+} -returnCodes error -result {char map list unbalanced}
 
 test RT.UniqueName-1.1 {no name collision} -body {
     set counter 0
@@ -214,7 +214,7 @@ test RT.UniqueName-1.2 {name collision} -body {
     unset counter
     rename ::mytype1 ""
     rename ::mytype2 ""
-} -result {::mytype3} 
+} -result {::mytype3}
 
 test RT.UniqueName-1.3 {nested type name} -body {
     set counter 0
@@ -232,7 +232,7 @@ test RT.UniqueInstanceNamespace-1.1 {no name collision} -setup {
 } -cleanup {
     unset counter
     namespace delete ::mytype::
-} -result {::mytype::Snit_inst1} 
+} -result {::mytype::Snit_inst1}
 
 test RT.UniqueInstanceNamespace-1.2 {name collision} -setup {
     namespace eval ::mytype:: {}
@@ -240,7 +240,7 @@ test RT.UniqueInstanceNamespace-1.2 {name collision} -setup {
     namespace eval ::mytype::Snit_inst2:: {}
 } -body {
     set counter 0
-    
+
     # Should skip to 3.
     snit::RT.UniqueInstanceNamespace counter ::mytype
 } -cleanup {
@@ -256,7 +256,7 @@ test Contains-1.1 {contains element} -constraints {
     snit::Contains baz $mylist
 } -cleanup {
     unset mylist
-} -result {1} 
+} -result {1}
 
 test Contains-1.2 {does not contain element} -constraints {
     snit1
@@ -266,7 +266,7 @@ test Contains-1.2 {does not contain element} -constraints {
     snit::Contains quux $mylist
 } -cleanup {
     unset mylist
-} -result {0} 
+} -result {0}
 
 #-----------------------------------------------------------------------
 # type compilation
@@ -336,13 +336,13 @@ test type-1.2 {typemethods can be defined} -body {
 } -result {1 2}
 
 test type-1.3 {upvar works in typemethods} -body {
-    type dog { 
+    type dog {
         typemethod goodname {varname} {
             upvar $varname myvar
             set myvar spot
         }
     }
-    
+
     set thename fido
     dog goodname thename
     set thename
@@ -352,24 +352,24 @@ test type-1.3 {upvar works in typemethods} -body {
 } -result {spot}
 
 test type-1.4 {typemethod args can't include type} -body {
-    type dog { 
+    type dog {
         typemethod foo {a type b} { }
     }
 } -returnCodes error -result {typemethod foo's arglist may not contain "type" explicitly}
 
 test type-1.5 {typemethod args can't include self} -body {
-    type dog { 
+    type dog {
         typemethod foo {a self b} { }
     }
 } -returnCodes error -result {typemethod foo's arglist may not contain "self" explicitly}
 
 test type-1.6 {typemethod args can span multiple lines} -body {
     # This case caused an error at definition time in 0.9 because the
-    # arguments were included in a comment in the compile script, and 
+    # arguments were included in a comment in the compile script, and
     # the subsequent lines weren't commented.
-    type dog { 
+    type dog {
         typemethod foo {
-            a 
+            a
             b
         } { }
     }
@@ -426,12 +426,12 @@ test typeconstructor-1.3 {type proc is destroyed on error} -body {
 } -result {0 {}}
 
 #-----------------------------------------------------------------------
-# Type components 
+# Type components
 
 test typecomponent-1.1 {typecomponent defines typevariable} -body {
     type dog {
         typecomponent mycomp
-            
+
         typemethod test {} {
             return $mycomp
         }
@@ -490,7 +490,7 @@ test typecomponent-1.4 {typecomponent -inherit yes} -body {
 #-----------------------------------------------------------------------
 # hierarchical type methods
 
-test htypemethod1.1 {hierarchical method, two tokens} -body {
+test htypemethod-1.1 {hierarchical method, two tokens} -body {
     type dog {
         typemethod {wag tail} {} {
             return "wags tail"
@@ -502,7 +502,7 @@ test htypemethod1.1 {hierarchical method, two tokens} -body {
     dog destroy
 } -result {wags tail}
 
-test htypemethod1.2 {hierarchical method, three tokens} -body {
+test htypemethod-1.2 {hierarchical method, three tokens} -body {
     type dog {
         typemethod {wag tail proudly} {} {
             return "wags tail proudly"
@@ -514,7 +514,7 @@ test htypemethod1.2 {hierarchical method, three tokens} -body {
     dog destroy
 } -result {wags tail proudly}
 
-test htypemethod1.3 {hierarchical method, four tokens} -body {
+test htypemethod-1.3 {hierarchical method, four tokens} -body {
     type dog {
         typemethod {wag tail really high} {} {
             return "wags tail really high"
@@ -526,7 +526,7 @@ test htypemethod1.3 {hierarchical method, four tokens} -body {
     dog destroy
 } -result {wags tail really high}
 
-test htypemethod1.4 {redefinition is OK} -body {
+test htypemethod-1.4 {redefinition is OK} -body {
     type dog {
         typemethod {wag tail} {} {
             return "wags tail"
@@ -542,7 +542,7 @@ test htypemethod1.4 {redefinition is OK} -body {
 } -result {wags tail briskly}
 
 # Case 1
-test htypemethod1.5 {proper error on missing submethod} -constraints {
+test htypemethod-1.5 {proper error on missing submethod} -constraints {
     snit1
 } -body {
     cleanup
@@ -559,7 +559,7 @@ test htypemethod1.5 {proper error on missing submethod} -constraints {
 } -result {wrong number args: should be "::dog wag method args"}
 
 # Case 2
-test htypemethod1.5 {proper error on missing submethod} -constraints {
+test htypemethod-1.6 {proper error on missing submethod} -constraints {
     snit2
 } -body {
     cleanup
@@ -576,7 +576,7 @@ test htypemethod1.5 {proper error on missing submethod} -constraints {
 } -result {wrong # args: should be "dog wag subcommand ?argument ...?"}
 
 
-test htypemethod2.1 {prefix/method collision, level 1, order 1} -body {
+test htypemethod-2.1 {prefix/method collision, level 1, order 1} -body {
     type dog {
         typemethod wag {} {}
         typemethod {wag tail} {} {}
@@ -585,7 +585,7 @@ test htypemethod2.1 {prefix/method collision, level 1, order 1} -body {
     error
 } -result {Error in "typemethod {wag tail}...", "wag" has no submethods.}
 
-test htypemethod2.2 {prefix/method collision, level 1, order 2} -body {
+test htypemethod-2.2 {prefix/method collision, level 1, order 2} -body {
     type dog {
         typemethod {wag tail} {} {}
         typemethod wag {} {}
@@ -594,7 +594,7 @@ test htypemethod2.2 {prefix/method collision, level 1, order 2} -body {
     error
 } -result {Error in "typemethod wag...", "wag" has submethods.}
 
-test htypemethod2.3 {prefix/method collision, level 2, order 1} -body {
+test htypemethod-2.3 {prefix/method collision, level 2, order 1} -body {
     type dog {
         typemethod {wag tail} {} {}
         typemethod {wag tail proudly} {} {}
@@ -603,7 +603,7 @@ test htypemethod2.3 {prefix/method collision, level 2, order 1} -body {
     error
 } -result {Error in "typemethod {wag tail proudly}...", "wag tail" has no submethods.}
 
-test htypemethod2.4 {prefix/method collision, level 2, order 2} -body {
+test htypemethod-2.4 {prefix/method collision, level 2, order 2} -body {
     type dog {
         typemethod {wag tail proudly} {} {}
         typemethod {wag tail} {} {}
@@ -638,7 +638,7 @@ test dtypemethod-1.2 {delegating to existing typecomponent} -body {
 
     dog length foo
 } -cleanup {
-    dog destroy 
+    dog destroy
 } -result {3}
 
 # Case 1
@@ -659,7 +659,7 @@ test dtypemethod-1.3 {delegating to existing typecomponent with error} -constrai
 } -result {wrong # args: should be "string length string"}
 
 # Case 2
-test dtypemethod-1.3 {delegating to existing typecomponent with error} -constraints {
+test dtypemethod-1.4 {delegating to existing typecomponent with error} -constraints {
     snit2
 } -body {
     type dog {
@@ -675,7 +675,7 @@ test dtypemethod-1.3 {delegating to existing typecomponent with error} -constrai
     error
 } -result {wrong # args: should be "dog length string"}
 
-test dtypemethod-1.4 {delegating unknown typemethods to existing typecomponent} -body {
+test dtypemethod-1.5 {delegating unknown typemethods to existing typecomponent} -body {
     type dog {
         delegate typemethod * to string
 
@@ -689,7 +689,7 @@ test dtypemethod-1.4 {delegating unknown typemethods to existing typecomponent} 
     dog destroy
 } -result {3}
 
-test dtypemethod-1.5 {delegating unknown typemethod to existing typecomponent with error} -body {
+test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
         delegate typemethod * to stringhandler
 
@@ -703,7 +703,7 @@ test dtypemethod-1.5 {delegating unknown typemethod to existing typecomponent wi
     error
 } -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
-test dtypemethod-1.6 {can't delegate local typemethod: order 1} -body {
+test dtypemethod-1.7 {can't delegate local typemethod: order 1} -body {
     type dog {
         typemethod foo {} {}
         delegate typemethod foo to bar
@@ -712,7 +712,7 @@ test dtypemethod-1.6 {can't delegate local typemethod: order 1} -body {
     error
 } -result {Error in "delegate typemethod foo...", "foo" has been defined locally.}
 
-test dtypemethod-1.7 {can't delegate local typemethod: order 2} -body {
+test dtypemethod-1.8 {can't delegate local typemethod: order 2} -body {
     type dog {
         delegate typemethod foo to bar
         typemethod foo {} {}
@@ -722,7 +722,7 @@ test dtypemethod-1.7 {can't delegate local typemethod: order 2} -body {
 } -result {Error in "typemethod foo...", "foo" has been delegated}
 
 # Case 1
-test dtypemethod-1.8 {excepted methods are caught properly} -constraints {
+test dtypemethod-1.9 {excepted methods are caught properly} -constraints {
     snit1
 } -body {
     type dog {
@@ -736,14 +736,14 @@ test dtypemethod-1.8 {excepted methods are caught properly} -constraints {
     catch {dog length foo} a
     catch {dog match foo}  b
     catch {dog index foo}  c
-    
+
     list $a $b $c
 } -cleanup {
     dog destroy
 } -result {3 {"::dog match" is not defined} {"::dog index" is not defined}}
 
 # Case 2
-test dtypemethod-1.8 {excepted methods are caught properly} -constraints {
+test dtypemethod-1.10 {excepted methods are caught properly} -constraints {
     snit2
 } -body {
     type dog {
@@ -757,13 +757,13 @@ test dtypemethod-1.8 {excepted methods are caught properly} -constraints {
     catch {dog length foo} a
     catch {dog match foo}  b
     catch {dog index foo}  c
-    
+
     list $a $b $c
 } -cleanup {
     dog destroy
 } -result {3 {unknown subcommand "match": must be length} {unknown subcommand "index": must be length}}
 
-test dtypemethod-1.9 {as clause can include arguments} -body {
+test dtypemethod-1.11 {as clause can include arguments} -body {
     proc tail {a b} {
         return "<$a $b>"
     }
@@ -797,8 +797,8 @@ test dtypemethod-2.1 {'using "%c %m"' gets normal behavior} -body {
 } -result {3}
 
 test dtypemethod-2.2 {All relevant 'using' conversions are converted} -body {
-    proc echo {args} { 
-        return $args 
+    proc echo {args} {
+        return $args
     }
 
     type dog {
@@ -855,7 +855,7 @@ test dtypemethod-3.1 {typecomponent names can be changed dynamically} -body {
     set a [dog length foo]
     dog switchit
     set b [dog length foo]
-    
+
     list $a $b
 } -cleanup {
     dog destroy
@@ -998,7 +998,7 @@ test dtypemethod-4.7 {except with multiple tokens} -constraints {
 } -result {wags {"::dog tail droop" is not defined}}
 
 # Case 2
-test dtypemethod-4.7 {except with multiple tokens} -constraints {
+test dtypemethod-4.8 {except with multiple tokens} -constraints {
     snit2
 } -body {
     type tail {
@@ -1021,7 +1021,7 @@ test dtypemethod-4.7 {except with multiple tokens} -constraints {
     tail destroy
 } -result {wags {unknown subcommand "droop": namespace ::dog does not export any commands}}
 
-test dtypemethod-4.8 {"*" in the wrong spot} -body {
+test dtypemethod-4.9 {"*" in the wrong spot} -body {
     type dog {
         delegate typemethod {tail * wag} to tail
     }
@@ -1078,7 +1078,7 @@ test creation-1.1 {type instance names get qualified} -body {
 
 test creation-1.2 {type instance names can be generated} -body {
     type dog { }
-    
+
     dog create my%AUTO%
 } -cleanup {
     dog destroy
@@ -1093,7 +1093,7 @@ test creation-1.3 {"create" method is optional} -body {
 } -result {::fido}
 
 test creation-1.4 {constructor arg can't be type} -body {
-    type dog { 
+    type dog {
         constructor {type} { }
     }
 } -returnCodes {
@@ -1101,7 +1101,7 @@ test creation-1.4 {constructor arg can't be type} -body {
 } -result {constructor's arglist may not contain "type" explicitly}
 
 test creation-1.5 {constructor arg can't be self} -body {
-    type dog { 
+    type dog {
         constructor {self} { }
     }
 } -returnCodes {
@@ -1110,7 +1110,7 @@ test creation-1.5 {constructor arg can't be self} -body {
 
 test creation-1.6 {weird names are OK} -body {
     # I.e., names with non-identifier characters
-    type confused-dog { 
+    type confused-dog {
         method meow {} {
             return "$self meows."
         }
@@ -1137,7 +1137,7 @@ test creation-1.7 {If -hasinstances yes, [$type] == [$type create %AUTO%]} -cons
 } -result {::dog1}
 
 # Case 2
-test creation-1.7 {If -hasinstances yes, [$type] == [$type create %AUTO%]} -constraints {
+test creation-1.8 {If -hasinstances yes, [$type] == [$type create %AUTO%]} -constraints {
     snit2
 } -body {
     type dog {
@@ -1154,8 +1154,8 @@ test creation-1.7 {If -hasinstances yes, [$type] == [$type create %AUTO%]} -cons
 } -result {::dog1}
 
 # Case 1
-test creation-1.8 {If -hasinstances no, [$type] != [$type create %AUTO%]} -constraints {
-    snit1 
+test creation-1.9 {If -hasinstances no, [$type] != [$type create %AUTO%]} -constraints {
+    snit1
 } -body {
     type dog {
         pragma -hasinstances no
@@ -1169,8 +1169,8 @@ test creation-1.8 {If -hasinstances no, [$type] != [$type create %AUTO%]} -const
 } -result {wrong # args: should be "::dog method args"}
 
 # Case 2
-test creation-1.8 {If -hasinstances no, [$type] != [$type create %AUTO%]} -constraints {
-    snit2 
+test creation-1.10 {If -hasinstances no, [$type] != [$type create %AUTO%]} -constraints {
+    snit2
 } -body {
     type dog {
         pragma -hasinstances no
@@ -1184,7 +1184,7 @@ test creation-1.8 {If -hasinstances no, [$type] != [$type create %AUTO%]} -const
 } -result {wrong # args: should be "dog subcommand ?argument ...?"}
 
 # Case 1
-test creation-1.9 {If widget, [$type] != [$type create %AUTO%]} -constraints {
+test creation-1.11 {If widget, [$type] != [$type create %AUTO%]} -constraints {
     snit1 tk
 } -body {
     widget dog {
@@ -1199,7 +1199,7 @@ test creation-1.9 {If widget, [$type] != [$type create %AUTO%]} -constraints {
 } -result {wrong # args: should be "::dog method args"}
 
 # Case 2
-test creation-1.9 {If widget, [$type] != [$type create %AUTO%]} -constraints {
+test creation-1.12 {If widget, [$type] != [$type create %AUTO%]} -constraints {
     snit2 tk
 } -body {
     widget dog {
@@ -1213,7 +1213,7 @@ test creation-1.9 {If widget, [$type] != [$type create %AUTO%]} -constraints {
     error
 } -result {wrong # args: should be "dog subcommand ?argument ...?"}
 
-test creation-1.10 {If -hastypemethods yes, [$type] == [$type create %AUTO%]} -constraints {
+test creation-1.13 {If -hastypemethods yes, [$type] == [$type create %AUTO%]} -constraints {
     snit1
 } -body {
     type dog {
@@ -1225,7 +1225,7 @@ test creation-1.10 {If -hastypemethods yes, [$type] == [$type create %AUTO%]} -c
     dog destroy
 } -result {::dog1}
 
-test creation-1.11 {If -hastypemethods yes, [$type] != [$type create %AUTO%]} -constraints {
+test creation-1.14 {If -hastypemethods yes, [$type] != [$type create %AUTO%]} -constraints {
     snit2
 } -body {
     type dog {
@@ -1258,11 +1258,11 @@ test creation-2.1 {Can't call "destroy" in constructor} -body {
 
 test proc-1.1 {proc args can span multiple lines} -body {
     # This case caused an error at definition time in 0.9 because the
-    # arguments were included in a comment in the compile script, and 
+    # arguments were included in a comment in the compile script, and
     # the subsequent lines weren't commented.
-    type dog { 
+    type dog {
         proc foo {
-            a  
+            a
             b
         } { }
     }
@@ -1323,13 +1323,13 @@ test method-1.3 {instances can call one another} -body {
 } -result {::spot chases ::fido; ::fido barks. ::spot barks.}
 
 test method-1.4 {upvar works in methods} -body {
-    type dog { 
+    type dog {
         method goodname {varname} {
             upvar $varname myvar
             set myvar spot
         }
     }
-    
+
     dog create fido
     set thename fido
     fido goodname thename
@@ -1354,7 +1354,7 @@ test method-1.5 {unknown methods get an error} -constraints {
 } -result {"::spot chase" is not defined}
 
 # Case 2
-test method-1.5 {unknown methods get an error} -constraints {
+test method-1.6 {unknown methods get an error} -constraints {
     snit2
 } -body {
     type dog { }
@@ -1368,7 +1368,7 @@ test method-1.5 {unknown methods get an error} -constraints {
     error
 } -result {unknown subcommand "chase": namespace ::dog::Snit_inst1 does not export any commands}
 
-test method-1.6 {info type method returns the object's type} -body {
+test method-1.7 {info type method returns the object's type} -body {
     type dog { }
 
     dog create spot
@@ -1377,8 +1377,8 @@ test method-1.6 {info type method returns the object's type} -body {
     dog destroy
 } -result {::dog}
 
-test method-1.7 {instance method can call type method} -body {
-    type dog { 
+test method-1.8 {instance method can call type method} -body {
+    type dog {
         typemethod hello {} {
             return "Hello"
         }
@@ -1386,15 +1386,15 @@ test method-1.7 {instance method can call type method} -body {
             return "[$type hello], World!"
         }
     }
-    
+
     dog create spot
     spot helloworld
 } -cleanup {
     dog destroy
 } -result {Hello, World!}
 
-test method-1.8 {type methods must be qualified} -body {
-    type dog { 
+test method-1.9 {type methods must be qualified} -body {
+    type dog {
         typemethod hello {} {
             return "Hello"
         }
@@ -1402,23 +1402,23 @@ test method-1.8 {type methods must be qualified} -body {
             return "[hello], World!"
         }
     }
-    
+
     dog create spot
     spot helloworld
 } -cleanup {
-    dog destroy 
+    dog destroy
 } -returnCodes {
     error
 } -result {invalid command name "hello"}
 
 # Case 1
-test method-1.9 {too few arguments} -constraints {
+test method-1.10 {too few arguments} -constraints {
     snit1
 } -body {
-    type dog { 
+    type dog {
 	method bark {volume} { }
     }
-    
+
     dog create spot
     spot bark
 } -cleanup {
@@ -1428,10 +1428,10 @@ test method-1.9 {too few arguments} -constraints {
 } -result [tcltest::wrongNumArgs ::dog::Snit_methodbark {type selfns win self volume} 4]
 
 # Case 2
-test method-1.9 {too few arguments} -constraints {
+test method-1.11 {too few arguments} -constraints {
     snit2
 } -body {
-    type dog { 
+    type dog {
         method bark {volume} { }
     }
 
@@ -1444,10 +1444,10 @@ test method-1.9 {too few arguments} -constraints {
 } -result {wrong # args: should be "spot bark volume"}
 
 # Case 1
-test method-1.10 {too many arguments} -constraints {
+test method-1.12 {too many arguments} -constraints {
     snit1
 } -body {
-    type dog { 
+    type dog {
 	method bark {volume} { }
     }
 
@@ -1459,10 +1459,10 @@ test method-1.10 {too many arguments} -constraints {
 } -result [tcltest::tooManyArgs ::dog::Snit_methodbark {type selfns win self volume}]
 
 # Case 2
-test method-1.10 {too many arguments} -constraints {
+test method-1.13 {too many arguments} -constraints {
     snit2
 } -body {
-    type dog { 
+    type dog {
         method bark {volume} { }
     }
 
@@ -1475,29 +1475,29 @@ test method-1.10 {too many arguments} -constraints {
     error
 } -result {wrong # args: should be "spot bark volume"}
 
-test method-1.11 {method args can't include type} -body {
-    type dog { 
+test method-1.14 {method args can't include type} -body {
+    type dog {
         method foo {a type b} { }
     }
 } -returnCodes {
     error
 } -result {method foo's arglist may not contain "type" explicitly}
 
-test method-1.12 {method args can't include self} -body {
-    type dog { 
+test method-1.15 {method args can't include self} -body {
+    type dog {
         method foo {a self b} { }
     }
 } -returnCodes {
     error
 } -result {method foo's arglist may not contain "self" explicitly}
 
-test method-1.13 {method args can span multiple lines} -body {
+test method-1.16 {method args can span multiple lines} -body {
     # This case caused an error at definition time in 0.9 because the
-    # arguments were included in a comment in the compile script, and 
+    # arguments were included in a comment in the compile script, and
     # the subsequent lines weren't commented.
-    type dog { 
+    type dog {
         method foo {
-                    a  
+                    a
                     b
                 } { }
     }
@@ -1580,7 +1580,7 @@ test hmethod-1.5 {proper error on missing submethod} -constraints {
 } -result {wrong number args: should be "::spot wag method args"}
 
 # Case 2
-test hmethod-1.5 {proper error on missing submethod} -constraints {
+test hmethod-1.6 {proper error on missing submethod} -constraints {
     snit2
 } -body {
     type dog {
@@ -1595,14 +1595,14 @@ test hmethod-1.5 {proper error on missing submethod} -constraints {
     error
 } -result {wrong # args: should be "spot wag subcommand ?argument ...?"}
 
-test hmethod-1.6 {submethods called in proper objects} -body {
+test hmethod-1.7 {submethods called in proper objects} -body {
     # NOTE: This test was added in response to a bug report by
     # Anton Kovalenko.  In Snit 2.0, submethod ensembles were
     # created in the type namespace.  If a type defines a submethod
     # ensemble, then all objects of that type would end up sharing
     # a single ensemble.  Ensembles are created lazily, so in this
     # test, the first call to "fido this tail wag" and "spot this tail wag"
-    # will yield the correct result, but the second call to 
+    # will yield the correct result, but the second call to
     # "fido this tail wag" will yield the same as the call to
     # "spot this tail wag", because spot's submethod ensemble has
     # displaced fido's.  Until the bug is fixed, that is.
@@ -1683,7 +1683,7 @@ test hmethod-2.4 {prefix/method collision} -body {
 # mymethod and renaming
 
 test rename-1.1 {mymethod uses name of instance name variable} -body {
-    type dog { 
+    type dog {
         method mymethod {} {
             list [mymethod] [mymethod "A B"] [mymethod A B]
         }
@@ -1696,7 +1696,7 @@ test rename-1.1 {mymethod uses name of instance name variable} -body {
 } -result {{::snit::RT.CallInstance ::dog::Snit_inst1} {::snit::RT.CallInstance ::dog::Snit_inst1 {A B}} {::snit::RT.CallInstance ::dog::Snit_inst1 A B}}
 
 test rename-1.2 {instances can be renamed} -body {
-    type dog { 
+    type dog {
         method names {} {
             list [mymethod] $selfns $win $self
         }
@@ -1713,7 +1713,7 @@ test rename-1.2 {instances can be renamed} -body {
 } -result {{::snit::RT.CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::fido {::snit::RT.CallInstance ::dog::Snit_inst1} ::dog::Snit_inst1 ::fido ::spot}
 
 test rename-1.3 {rename to "" deletes an instance} -constraints {
-    bug8.5a3 
+    bug8.5a3
 } -body {
     type dog { }
 
@@ -1740,7 +1740,7 @@ test rename-1.4 {rename to "" deletes an instance even after a rename} -constrai
 test rename-1.5 {creating an object twice destroys the first instance} -constraints {
     bug8.5a3
 } -body {
-    type dog { 
+    type dog {
         # Can't even test this normally.
         pragma -canreplace yes
     }
@@ -1795,7 +1795,7 @@ test mymethod-1.1 {run mymethod handler} -body {
 } -result {::bar::fubar snarf}
 
 #-----------------------------------------------------------------------
-# myproc 
+# myproc
 
 test myproc-1.1 {myproc qualifies proc names} -body {
     type dog {
@@ -1877,7 +1877,7 @@ test mytypemethod-1.1 {mytypemethod qualifies typemethods} -body {
             return [mytypemethod this x y]
         }
     }
-    
+
     list [dog a] [dog b] [dog c] [dog d]
 } -cleanup {
     dog destroy
@@ -1889,7 +1889,7 @@ test mytypemethod-1.1 {mytypemethod qualifies typemethods} -body {
 test typevariable-1.1 {typevarname qualifies typevariables} -body {
     # Note: typevarname is DEPRECATED.  Real code should use
     # mytypevar instead.
-    type dog { 
+    type dog {
         method tvname {name} {
             typevarname $name
         }
@@ -1902,7 +1902,7 @@ test typevariable-1.1 {typevarname qualifies typevariables} -body {
 } -result {::dog::myvar}
 
 test typevariable-1.2 {undefined typevariables are OK} -body {
-    type dog { 
+    type dog {
         method tset {value} {
             typevariable theValue
 
@@ -1926,7 +1926,7 @@ test typevariable-1.2 {undefined typevariables are OK} -body {
 } -result {Howdy Howdy Howdy}
 
 test typevariable-1.3 {predefined typevariables are OK} -body {
-    type dog { 
+    type dog {
         typevariable greeting Hello
 
         method tget {} {
@@ -1943,7 +1943,7 @@ test typevariable-1.3 {predefined typevariables are OK} -body {
 } -result {Hello Hello Hello}
 
 test typevariable-1.4 {typevariables can be arrays} -body {
-    type dog { 
+    type dog {
         typevariable greetings
 
         method fill {} {
@@ -1960,7 +1960,7 @@ test typevariable-1.4 {typevariables can be arrays} -body {
 } -result {Hi Howdy}
 
 test typevariable-1.5 {typevariables can used in typemethods} -body {
-    type dog { 
+    type dog {
         typevariable greetings Howdy
 
         typemethod greet {} {
@@ -1974,7 +1974,7 @@ test typevariable-1.5 {typevariables can used in typemethods} -body {
 } -result {Howdy}
 
 test typevariable-1.6 {typevariables can used in procs} -body {
-    type dog { 
+    type dog {
         typevariable greetings Howdy
 
         method greet {} {
@@ -1993,7 +1993,7 @@ test typevariable-1.6 {typevariables can used in procs} -body {
 } -result {Howdy}
 
 test typevariable-1.7 {mytypevar qualifies typevariables} -body {
-    type dog { 
+    type dog {
         method tvname {name} {
             mytypevar $name
         }
@@ -2006,7 +2006,7 @@ test typevariable-1.7 {mytypevar qualifies typevariables} -body {
 } -result {::dog::myvar}
 
 test typevariable-1.8 {typevariable with too many initializers throws an error} -body {
-    type dog { 
+    type dog {
         typevariable color dark brown
     }
 } -returnCodes {
@@ -2014,7 +2014,7 @@ test typevariable-1.8 {typevariable with too many initializers throws an error} 
 } -result {Error in "typevariable color...", too many initializers}
 
 test typevariable-1.9 {typevariable with too many initializers throws an error} -body {
-    type dog { 
+    type dog {
         typevariable color -array dark brown
     }
 
@@ -2024,7 +2024,7 @@ test typevariable-1.9 {typevariable with too many initializers throws an error} 
 } -result {Error in "typevariable color...", too many initializers}
 
 test typevariable-1.10 {typevariable can initialize array variables} -body {
-    type dog { 
+    type dog {
         typevariable data -array {
             family jones
             color brown
@@ -2044,7 +2044,7 @@ test typevariable-1.10 {typevariable can initialize array variables} -body {
 # instance variable
 
 test ivariable-1.1 {myvar qualifies instance variables} -body {
-    type dog { 
+    type dog {
         method vname {name} {
             myvar $name
         }
@@ -2057,7 +2057,7 @@ test ivariable-1.1 {myvar qualifies instance variables} -body {
 } -result {::dog::Snit_inst1::somevar}
 
 test ivariable-1.2 {undefined instance variables are OK} -body {
-    type dog { 
+    type dog {
         method setgreeting {value} {
             variable greeting
 
@@ -2083,7 +2083,7 @@ test ivariable-1.2 {undefined instance variables are OK} -body {
 } -result {Hey Howdy Hey}
 
 test ivariable-1.3 {instance variables are destroyed automatically} -body {
-    type dog { 
+    type dog {
         constructor {args} {
             variable greeting
 
@@ -2101,7 +2101,7 @@ test ivariable-1.3 {instance variables are destroyed automatically} -body {
 } -result {Hi 0}
 
 test ivariable-1.4 {defined instance variables need not be declared} -body {
-    type dog { 
+    type dog {
         variable greetings
 
         method put {} {
@@ -2121,7 +2121,7 @@ test ivariable-1.4 {defined instance variables need not be declared} -body {
 } -result {Howdy}
 
 test ivariable-1.5 {instance variables can be arrays} -body {
-    type dog { 
+    type dog {
         variable greetings
 
         method fill {} {
@@ -2142,7 +2142,7 @@ test ivariable-1.5 {instance variables can be arrays} -body {
 } -result {Hi Howdy}
 
 test ivariable-1.6 {instance variables can be initialized in the definition} -body {
-    type dog { 
+    type dog {
         variable greetings {Hi Howdy}
         variable empty {}
 
@@ -2158,7 +2158,7 @@ test ivariable-1.6 {instance variables can be initialized in the definition} -bo
 } -result {{Hi Howdy} {}}
 
 test ivariable-1.7 {variable is illegal when selfns is undefined} -body {
-    type dog { 
+    type dog {
         method caller {} {
             callee
         }
@@ -2177,7 +2177,7 @@ test ivariable-1.7 {variable is illegal when selfns is undefined} -body {
 } -result {can't read "selfns": no such variable}
 
 test ivariable-1.8 {myvar is illegal when selfns is undefined} -body {
-    type dog { 
+    type dog {
         method caller {} {
             callee
         }
@@ -2196,7 +2196,7 @@ test ivariable-1.8 {myvar is illegal when selfns is undefined} -body {
 } -result {can't read "selfns": no such variable}
 
 test ivariable-1.9 {procs which define selfns see instance variables} -body {
-    type dog { 
+    type dog {
         variable greeting Howdy
 
         method caller {} {
@@ -2220,7 +2220,7 @@ test ivariable-1.10 {in methods, variable works with fully qualified names} -bod
         set somevar somevalue
     }
 
-    type dog { 
+    type dog {
         method get {} {
             variable ::somenamespace::somevar
             return $somevar
@@ -2235,7 +2235,7 @@ test ivariable-1.10 {in methods, variable works with fully qualified names} -bod
 } -result {somevalue}
 
 test ivariable-1.11 {variable with too many initializers throws an error} -body {
-    type dog { 
+    type dog {
         variable color dark brown
     }
 } -returnCodes {
@@ -2243,7 +2243,7 @@ test ivariable-1.11 {variable with too many initializers throws an error} -body 
 } -result {Error in "variable color...", too many initializers}
 
 test ivariable-1.12 {variable with too many initializers throws an error} -body {
-    type dog { 
+    type dog {
         variable color -array dark brown
     }
 } -returnCodes {
@@ -2251,7 +2251,7 @@ test ivariable-1.12 {variable with too many initializers throws an error} -body 
 } -result {Error in "variable color...", too many initializers}
 
 test ivariable-1.13 {variable can initialize array variables} -body {
-    type dog { 
+    type dog {
         variable data -array {
             family jones
             color brown
@@ -2529,7 +2529,7 @@ test option-2.4 {configure -unknownopt} -body {
 test option-2.5 {configure returns info, unknown options} -constraints {
     tk
 } -body {
-    widgetadaptor myframe { 
+    widgetadaptor myframe {
         option -foo a
         delegate option -width to hull
         delegate option * to hull
@@ -2554,7 +2554,7 @@ test option-2.5 {configure returns info, unknown options} -constraints {
 test option-2.6 {configure -opt unknown to implicit component} -constraints {
     tk
 } -body {
-    widgetadaptor myframe { 
+    widgetadaptor myframe {
         delegate option * to hull
         constructor {args} {
             installhull [frame $self]
@@ -2728,7 +2728,7 @@ test option-4.6 {delegated option name may not contain spaces} -body {
 test option-5.1 {local widget options read from option database} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         option -foo a
         option -bar b
 
@@ -2752,7 +2752,7 @@ test option-5.1 {local widget options read from option database} -constraints {
 test option-5.2 {local option database values available in constructor} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         option -bar b
         variable saveit
 
@@ -2805,7 +2805,7 @@ test option-6.2 {if no options, no options methods} -body {
 # onconfigure
 
 test onconfigure-1.1 {invalid onconfigure methods are caught} -body {
-    type dog { 
+    type dog {
         onconfigure -color {value} { }
     }
 } -returnCodes {
@@ -2813,9 +2813,9 @@ test onconfigure-1.1 {invalid onconfigure methods are caught} -body {
 } -result {onconfigure -color: option "-color" unknown}
 
 test onconfigure-1.2 {onconfigure methods take one argument} -body {
-    type dog { 
+    type dog {
         option -color golden
-        
+
         onconfigure -color {value badarg} { }
     }
 } -returnCodes {
@@ -2823,10 +2823,10 @@ test onconfigure-1.2 {onconfigure methods take one argument} -body {
 } -result {onconfigure -color handler should have one argument, got "value badarg"}
 
 test onconfigure-1.3 {onconfigure methods work} -body {
-    type dog { 
+    type dog {
         option -color golden
-        
-        onconfigure -color {value} { 
+
+        onconfigure -color {value} {
             set options(-color) "*$value*"
         }
     }
@@ -2839,7 +2839,7 @@ test onconfigure-1.3 {onconfigure methods work} -body {
 } -result {*brown*}
 
 test onconfigure-1.4 {onconfigure arg can't be type} -body {
-    type dog { 
+    type dog {
         option -color
         onconfigure -color {type} { }
     }
@@ -2848,7 +2848,7 @@ test onconfigure-1.4 {onconfigure arg can't be type} -body {
 } -result {onconfigure -color's arglist may not contain "type" explicitly}
 
 test onconfigure-1.5 {onconfigure arg can't be self} -body {
-    type dog { 
+    type dog {
         option -color
         onconfigure -color {self} { }
     }
@@ -2870,10 +2870,10 @@ test oncget-1.1 {invalid oncget methods are caught} -body {
 test oncget-1.2 {oncget methods work} -body {
     cleanup
 
-    type dog { 
+    type dog {
         option -color golden
-        
-        oncget -color { 
+
+        oncget -color {
             return "*$options(-color)*"
         }
     }
@@ -2980,7 +2980,7 @@ test constructor-1.7 {default constructor takes no args if no options} -body {
     type dog {
 	variable color
     }
-    
+
     dog spot -color golden
 } -returnCodes {
     error
@@ -2990,10 +2990,10 @@ test constructor-1.7 {default constructor takes no args if no options} -body {
 # destroy
 
 test destroy-1.1 {destroy cleans up the instance} -body {
-    type dog { 
+    type dog {
         option -color golden
     }
-    
+
     set a [namespace children ::dog::]
     dog create spot
     set b [namespace children ::dog::]
@@ -3007,9 +3007,9 @@ test destroy-1.1 {destroy cleans up the instance} -body {
 test destroy-1.2 {incomplete objects are destroyed} -body {
     array unset ::dog::snit_ivars
 
-    type dog { 
+    type dog {
         option -color golden
-        
+
         constructor {args} {
             $self configurelist $args
 
@@ -3018,7 +3018,7 @@ test destroy-1.2 {incomplete objects are destroyed} -body {
             }
         }
     }
-    
+
     catch {dog create spot -color red} result
     set names [array names ::dog::snit_ivars]
     list $result $names [info commands ::dog::spot]
@@ -3027,9 +3027,9 @@ test destroy-1.2 {incomplete objects are destroyed} -body {
 } -result {{Error in constructor: No Red Dogs!} {} {}}
 
 test destroy-1.3 {user-defined destructors are called} -body {
-    type dog { 
+    type dog {
         typevariable flag ""
-        
+
         constructor {args} {
             set flag "created $self"
         }
@@ -3042,7 +3042,7 @@ test destroy-1.3 {user-defined destructors are called} -body {
             return $flag
         }
     }
-    
+
     dog create spot
     set a [dog getflag]
     spot destroy
@@ -3180,7 +3180,7 @@ test dmethod-1.3 {delegating to existing component with error} -constraints {
 } -result {wrong # args: should be "string length string"}
 
 # Case 2
-test dmethod-1.3 {delegating to existing component with error} -constraints {
+test dmethod-1.4 {delegating to existing component with error} -constraints {
     snit2
 } -body {
     type dog {
@@ -3199,7 +3199,7 @@ test dmethod-1.3 {delegating to existing component with error} -constraints {
     error
 } -result {wrong # args: should be "spot length string"}
 
-test dmethod-1.4 {delegating unknown methods to existing component} -body {
+test dmethod-1.5 {delegating unknown methods to existing component} -body {
     type dog {
         constructor {args} {
             set string string
@@ -3214,7 +3214,7 @@ test dmethod-1.4 {delegating unknown methods to existing component} -body {
     dog destroy
 } -result {3}
 
-test dmethod-1.5 {delegating unknown method to existing component with error} -body {
+test dmethod-1.6 {delegating unknown method to existing component with error} -body {
     type dog {
         constructor {args} {
             set stringhandler string
@@ -3231,7 +3231,7 @@ test dmethod-1.5 {delegating unknown method to existing component with error} -b
     dog destroy
 } -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
-test dmethod-1.6 {can't delegate local method: order 1} -body {
+test dmethod-1.7 {can't delegate local method: order 1} -body {
     type cat {
         method foo {} {}
         delegate method foo to hull
@@ -3240,7 +3240,7 @@ test dmethod-1.6 {can't delegate local method: order 1} -body {
     error
 } -result {Error in "delegate method foo...", "foo" has been defined locally.}
 
-test dmethod-1.7 {can't delegate local method: order 2} -body {
+test dmethod-1.8 {can't delegate local method: order 2} -body {
     type cat {
         delegate method foo to hull
         method foo {} {}
@@ -3250,7 +3250,7 @@ test dmethod-1.7 {can't delegate local method: order 2} -body {
 } -result {Error in "method foo...", "foo" has been delegated}
 
 # Case 1
-test dmethod-1.8 {excepted methods are caught properly} -constraints {
+test dmethod-1.9 {excepted methods are caught properly} -constraints {
     snit1
 } -body {
     type tail {
@@ -3273,7 +3273,7 @@ test dmethod-1.8 {excepted methods are caught properly} -constraints {
     catch {fifi flaunt} a
     catch {fifi wag}    b
     catch {fifi tuck}   c
-    
+
     list $a $b $c
 } -cleanup {
     cat destroy
@@ -3281,7 +3281,7 @@ test dmethod-1.8 {excepted methods are caught properly} -constraints {
 } -result {flaunted {"::fifi wag" is not defined} {"::fifi tuck" is not defined}}
 
 # Case 2
-test dmethod-1.8 {excepted methods are caught properly} -constraints {
+test dmethod-1.10 {excepted methods are caught properly} -constraints {
     snit2
 } -body {
     type tail {
@@ -3304,14 +3304,14 @@ test dmethod-1.8 {excepted methods are caught properly} -constraints {
     catch {fifi flaunt} a
     catch {fifi wag}    b
     catch {fifi tuck}   c
-    
+
     list $a $b $c
 } -cleanup {
     cat destroy
     tail destroy
 } -result {flaunted {unknown subcommand "wag": must be flaunt} {unknown subcommand "tuck": must be flaunt}}
 
-test dmethod-1.9 {as clause can include arguments} -body {
+test dmethod-1.11 {as clause can include arguments} -body {
     type tail {
         method wag {adverb}    {return "wagged $adverb"}
     }
@@ -3425,7 +3425,7 @@ test dmethod-3.1 {component names can be changed dynamically} -body {
     set a [fido wag]
     fido switchit
     set b [fido wag]
-    
+
     list $a $b
 } -cleanup {
     dog destroy
@@ -3578,7 +3578,7 @@ test dmethod-4.7 {except with multiple tokens} -constraints {
 } -result {wags {"::spot tail droop" is not defined}}
 
 # Case 2
-test dmethod-4.7 {except with multiple tokens} -constraints {
+test dmethod-4.8 {except with multiple tokens} -constraints {
     snit2
 } -body {
     type tail {
@@ -3603,7 +3603,7 @@ test dmethod-4.7 {except with multiple tokens} -constraints {
     tail destroy
 } -result {wags {unknown subcommand "droop": namespace ::dog::Snit_inst1 does not export any commands}}
 
-test dmethod-4.8 {"*" in the wrong spot} -body {
+test dmethod-4.9 {"*" in the wrong spot} -body {
     type dog {
         delegate method {tail * wag} to tail
     }
@@ -3718,7 +3718,7 @@ test doption-1.4 {delegating unknown options to existing component} -body {
     type dog {
         constructor {args} {
             set catthing ::hershey
-            
+
             # Note: must do this after components are defined; this
             # may be a problem.
             $self configurelist $args
@@ -3737,7 +3737,7 @@ test doption-1.4 {delegating unknown options to existing component} -body {
 test doption-1.5 {can't oncget for delegated option} -body {
     type dog {
         delegate option -color to catthing
-        
+
         oncget -color { }
     }
 } -returnCodes {
@@ -3769,7 +3769,7 @@ test doption-1.7 {delegating unknown options to existing component: error} -body
 
         delegate option * to catthing
     }
-    
+
     dog create spot -colour blue
 } -returnCodes {
     error
@@ -3816,7 +3816,7 @@ test doption-1.10 {excepted options are caught properly on cget} -body {
     catch {fifi cget -a} a
     catch {fifi cget -b} b
     catch {fifi cget -c} c
-    
+
     list $a $b $c
 } -cleanup {
     cat destroy
@@ -3843,7 +3843,7 @@ test doption-1.11 {excepted options are caught properly on configurelist} -body 
     catch {fifi configurelist {-a 1}} a
     catch {fifi configurelist {-b 1}} b
     catch {fifi configurelist {-c 1}} c
-    
+
     list $a $b $c
 } -cleanup {
     cat destroy
@@ -3870,7 +3870,7 @@ test doption-1.12 {excepted options are caught properly on configure, 1} -body {
     catch {fifi configure -a 1} a
     catch {fifi configure -b 1} b
     catch {fifi configure -c 1} c
-    
+
     list $a $b $c
 } -cleanup {
     cat destroy
@@ -3897,7 +3897,7 @@ test doption-1.13 {excepted options are caught properly on configure, 2} -body {
     catch {fifi configure -a} a
     catch {fifi configure -b} b
     catch {fifi configure -c} c
-    
+
     list $a $b $c
 } -cleanup {
     cat destroy
@@ -3942,7 +3942,7 @@ test from-1.1 {getting default values} -body {
             $self configure -bar  [from args -bar]
         }
     }
-    
+
     dog create spot
     list [spot cget -foo] [spot cget -bar]
 } -cleanup {
@@ -3961,9 +3961,9 @@ test from-1.2 {getting non-default values} -body {
             $self configure -args $args
         }
     }
-    
+
     dog create spot -foo quux -baz frobnitz -bar frobozz
-    list [spot cget -foo] [spot cget -bar] [spot cget -args] 
+    list [spot cget -foo] [spot cget -bar] [spot cget -args]
 } -cleanup {
     dog destroy
 } -result {quux frobozz {-baz frobnitz}}
@@ -3983,7 +3983,7 @@ test widgetadaptor-1.1 {creating a widget: hull hijacking} -constraints {
         delegate method * to hull
         delegate option * to hull
     }
-    
+
     mylabel create .label -text "My Label"
 
     set a [.label cget -text]
@@ -4004,7 +4004,7 @@ test widgetadaptor-1.2 {destroying a widget with destroy} -constraints {
             installhull [label $self]
         }
     }
-    
+
     mylabel create .label
     set a [namespace children ::mylabel]
     destroy .label
@@ -4023,7 +4023,7 @@ test widgetadaptor-1.3 {destroying two widgets of the same type with destroy} -c
             installhull [label $self]
         }
     }
-    
+
     mylabel create .lab1
     mylabel create .lab2
     set a [namespace children ::mylabel]
@@ -4063,7 +4063,7 @@ test widgetadaptor-1.5 {destroying two widgets of the same type with rename} -co
             installhull [label $self]
         }
     }
-    
+
     mylabel create .lab1
     mylabel create .lab2
     set a [namespace children ::mylabel]
@@ -4083,7 +4083,7 @@ test widgetadaptor-1.6 {create/destroy twice, with destroy} -constraints {
             installhull [label $self]
         }
     }
-    
+
     mylabel create .lab1
     set a [namespace children ::mylabel]
     destroy .lab1
@@ -4106,7 +4106,7 @@ test widgetadaptor-1.7 {create/destroy twice, with rename} -constraints {
             installhull [label $self]
         }
     }
-    
+
     mylabel create .lab1
     set a [namespace children ::mylabel]
     rename .lab1 ""
@@ -4130,7 +4130,7 @@ test widgetadaptor-1.8 {"create" is optional} -constraints {
         }
         method howdy {} {return "Howdy!"}
     }
-    
+
     mylabel .label
     set a [.label howdy]
 
@@ -4152,7 +4152,7 @@ test widgetadaptor-1.9 {"create" is optional, but must be a valid name} -constra
         }
         method howdy {} {return "Howdy!"}
     }
-    
+
     catch {mylabel foo} result
     tkbide
     set result
@@ -4161,7 +4161,7 @@ test widgetadaptor-1.9 {"create" is optional, but must be a valid name} -constra
 } -result {"::mylabel foo" is not defined}
 
 # Case 2
-test widgetadaptor-1.9 {"create" is optional, but must be a valid name} -constraints {
+test widgetadaptor-1.10 {"create" is optional, but must be a valid name} -constraints {
     snit2
     tk
 } -body {
@@ -4171,7 +4171,7 @@ test widgetadaptor-1.9 {"create" is optional, but must be a valid name} -constra
         }
         method howdy {} {return "Howdy!"}
     }
-    
+
     catch {mylabel foo} result
     tkbide
     set result
@@ -4179,12 +4179,12 @@ test widgetadaptor-1.9 {"create" is optional, but must be a valid name} -constra
     mylabel destroy
 } -result {unknown subcommand "foo": namespace ::mylabel does not export any commands}
 
-test widgetadaptor-1.10 {user-defined destructors are called} -constraints {
+test widgetadaptor-1.11 {user-defined destructors are called} -constraints {
     tk
 } -body {
-    widgetadaptor mylabel { 
+    widgetadaptor mylabel {
         typevariable flag ""
-        
+
         constructor {args} {
             installhull [label $self]
             set flag "created $self"
@@ -4198,7 +4198,7 @@ test widgetadaptor-1.10 {user-defined destructors are called} -constraints {
             return $flag
         }
     }
-    
+
     mylabel .label
     set a [mylabel getflag]
     destroy .label
@@ -4209,16 +4209,16 @@ test widgetadaptor-1.10 {user-defined destructors are called} -constraints {
 } -result {{created .label} {destroyed .label}}
 
 # Case 1
-test widgetadaptor-1.11 {destroy method not defined for widget types} -constraints {
+test widgetadaptor-1.12 {destroy method not defined for widget types} -constraints {
     snit1
     tk
 } -body {
-    widgetadaptor mylabel { 
+    widgetadaptor mylabel {
         constructor {args} {
             installhull [label $self]
         }
     }
-    
+
     mylabel .label
     catch {.label destroy} result
     destroy .label
@@ -4229,16 +4229,16 @@ test widgetadaptor-1.11 {destroy method not defined for widget types} -constrain
 } -result {".label destroy" is not defined}
 
 # Case 2
-test widgetadaptor-1.11 {destroy method not defined for widget types} -constraints {
+test widgetadaptor-1.13 {destroy method not defined for widget types} -constraints {
     snit2
     tk
 } -body {
-    widgetadaptor mylabel { 
+    widgetadaptor mylabel {
         constructor {args} {
             installhull [label $self]
         }
     }
-    
+
     mylabel .label
     catch {.label destroy} result
     destroy .label
@@ -4248,10 +4248,10 @@ test widgetadaptor-1.11 {destroy method not defined for widget types} -constrain
     mylabel destroy
 } -result {unknown subcommand "destroy": namespace ::mylabel::Snit_inst1 does not export any commands}
 
-test widgetadaptor-1.12 {hull can be repeatedly renamed} -constraints {
+test widgetadaptor-1.14 {hull can be repeatedly renamed} -constraints {
     tk
 } -body {
-    widgetadaptor basetype { 
+    widgetadaptor basetype {
         constructor {args} {
             installhull [label $self]
         }
@@ -4265,7 +4265,7 @@ test widgetadaptor-1.12 {hull can be repeatedly renamed} -constraints {
         }
     }
 
-    widgetadaptor w2 { 
+    widgetadaptor w2 {
         constructor {args} {
             installhull [w1 $self]
         }
@@ -4281,7 +4281,7 @@ test widgetadaptor-1.12 {hull can be repeatedly renamed} -constraints {
     basetype destroy
 } -result {.foo}
 
-test widgetadaptor-1.13 {widget names can be generated} -constraints {
+test widgetadaptor-1.15 {widget names can be generated} -constraints {
     tk
 } -body {
     widgetadaptor unique {
@@ -4298,7 +4298,7 @@ test widgetadaptor-1.13 {widget names can be generated} -constraints {
     unique destroy
 } -result {.unique1}
 
-test widgetadaptor-1.14 {snit::widgetadaptor as hull} -constraints {
+test widgetadaptor-1.16 {snit::widgetadaptor as hull} -constraints {
     tk
 } -body {
     widgetadaptor mylabel {
@@ -4343,7 +4343,7 @@ test widgetadaptor-1.14 {snit::widgetadaptor as hull} -constraints {
     list $a $b $c $d $e $f $g
 } -result {{method2: method1} {Some Text} {More Text} ::mylabel2::Snit_inst1 ::mylabel::Snit_inst1 {} {}}
 
-test widgetadaptor-1.15 {snit::widgetadaptor as hull; use rename} -constraints {
+test widgetadaptor-1.17 {snit::widgetadaptor as hull; use rename} -constraints {
     tk bug8.5a3
 } -body {
     widgetadaptor mylabel {
@@ -4388,8 +4388,8 @@ test widgetadaptor-1.15 {snit::widgetadaptor as hull; use rename} -constraints {
     list $a $b $c $d $e $f $g
 } -result {{method2: method1} {Some Text} {More Text} ::mylabel2::Snit_inst1 ::mylabel::Snit_inst1 {} {}}
 
-test widgetadaptor-1.16 {BWidget Label as hull} -constraints {
-    bwidget 
+test widgetadaptor-1.18 {BWidget Label as hull} -constraints {
+    bwidget
 } -body {
     widgetadaptor mylabel {
         constructor {args} {
@@ -4417,7 +4417,7 @@ test widgetadaptor-1.16 {BWidget Label as hull} -constraints {
     list $a $b $c $d
 } -result {{Some Text} {More Text} ::mylabel::Snit_inst1 {}}
 
-test widgetadaptor-1.17 {error in widgetadaptor constructor} -constraints {
+test widgetadaptor-1.19 {error in widgetadaptor constructor} -constraints {
     tk
 } -body {
     widgetadaptor mylabel {
@@ -4425,7 +4425,7 @@ test widgetadaptor-1.17 {error in widgetadaptor constructor} -constraints {
             error "Simulated Error"
         }
     }
-    
+
     mylabel .lab
 } -returnCodes {
     error
@@ -4450,7 +4450,7 @@ test widget-1.1 {creating a widget} -constraints {
         delegate method * to hull
         delegate option * to hull
     }
-    
+
     myframe create .frm -background green
 
     set a [.frm cget -background]
@@ -4469,7 +4469,7 @@ test widget-2.1 {can't redefine hull} -constraints {
     widget myframe {
         method resethull {} { set hull "" }
     }
-    
+
     myframe .frm
 
     .frm resethull
@@ -4704,8 +4704,8 @@ test install-1.9 {ok if no options are delegated to component} -constraints {
 } -result {ok}
 
 test install-2.1 {
-    delegate option * for a non-shadowed option.  The text widget's 
-    -foreground and -font options should be set according to what's 
+    delegate option * for a non-shadowed option.  The text widget's
+    -foreground and -font options should be set according to what's
     in the option database on the widgetclass.
 } -constraints {
     tk
@@ -4773,7 +4773,7 @@ test install-2.2 {
 
 test install-2.3 {
     Delegate option * for a creation option.  Because the text widget's
-    -foreground is set explicitly by the constructor, that always 
+    -foreground is set explicitly by the constructor, that always
     overrides the option database.
 } -constraints {
     tk
@@ -4841,17 +4841,17 @@ test install-2.4 {
 # created by some third party; in this form no querying of the option
 # database is needed, because we haven't taken responsibility for creating
 # it.  But in the other form (installhull using) installhull actually
-# creates the widget, and takes responsibility for querying the 
+# creates the widget, and takes responsibility for querying the
 # option database as needed.
 #
 # NOTE: "installhull using" is always used to create a widget's hull frame.
 #
-# That options passed into installhull override those from the 
+# That options passed into installhull override those from the
 # option database.
 
 test installhull-1.1 {
-    options delegated to a widget's hull frame with the same name are 
-    initialized from the option database.  Note that there's no 
+    options delegated to a widget's hull frame with the same name are
+    initialized from the option database.  Note that there's no
     explicit code in Snit to do this; it happens because we set the
     -class when the widget was created.  In fact, it happens whether
     we delegate the option name or not.
@@ -4882,7 +4882,7 @@ test installhull-1.1 {
 } -result {red 123}
 
 test installhull-1.2 {
-    Options delegated to a widget's hull frame with a different name are 
+    Options delegated to a widget's hull frame with a different name are
     initialized from the option database.
 } -constraints {
     tk
@@ -4905,8 +4905,8 @@ test installhull-1.2 {
 } -result {red}
 
 test installhull-1.3 {
-    options delegated to a widgetadaptor's hull frame with the same name are 
-    initialized from the option database.  Note that there's no 
+    options delegated to a widgetadaptor's hull frame with the same name are
+    initialized from the option database.  Note that there's no
     explicit code in Snit to do this; there's no way to change the
     adapted hull widget's -class, so the widget is simply being
     initialized normally.
@@ -4941,7 +4941,7 @@ test installhull-1.3 {
 } -result {red 123}
 
 test installhull-1.4 {
-    Options delegated to a widget's hull frame with a different name are 
+    Options delegated to a widget's hull frame with a different name are
     initialized from the option database.
 } -constraints {
     tk
@@ -4967,7 +4967,7 @@ test installhull-1.4 {
     myframe destroy
 } -result {red}
 
-test installhull-1.4 {
+test installhull-1.5 {
     Option values read from the option database are overridden by options
     explicitly passed, even if delegated under a different name.
 } -constraints {
@@ -5009,9 +5009,9 @@ test iinfo-1.1 {object info too few args} -constraints {
     snit1
 } -body {
     type dog { }
-    
+
     dog create spot
-    
+
     spot info
 } -returnCodes {
     error
@@ -5020,7 +5020,7 @@ test iinfo-1.1 {object info too few args} -constraints {
 } -result [tcltest::wrongNumArgs ::snit::RT.method.info {type selfns win self command args} 4]
 
 # Case 2
-test iinfo-1.1 {object info too few args} -constraints {
+test iinfo-1.2 {object info too few args} -constraints {
     snit2
 } -body {
     type dog { }
@@ -5034,11 +5034,11 @@ test iinfo-1.1 {object info too few args} -constraints {
     dog destroy
 } -result {wrong # args: should be "spot info command ..."}
 
-test iinfo-1.2 {object info too many args} -body {
+test iinfo-1.3 {object info too many args} -body {
     type dog { }
 
     dog create spot
-    
+
     spot info type foo
 } -returnCodes {
     error
@@ -5056,7 +5056,7 @@ test iinfo-2.1 {object info type} -body {
 } -result {::dog}
 
 test iinfo-3.1 {object info typevars} -body {
-    type dog { 
+    type dog {
         typevariable thisvar 1
 
         constructor {args} {
@@ -5071,7 +5071,7 @@ test iinfo-3.1 {object info typevars} -body {
 } -result {::dog::thatvar ::dog::thisvar}
 
 test iinfo-3.2 {object info typevars with pattern} -body {
-    type dog { 
+    type dog {
         typevariable thisvar 1
 
         constructor {args} {
@@ -5086,7 +5086,7 @@ test iinfo-3.2 {object info typevars with pattern} -body {
 } -result {::dog::thisvar}
 
 test iinfo-4.1 {object info vars} -body {
-    type dog { 
+    type dog {
         variable hisvar 1
 
         constructor {args} {
@@ -5102,7 +5102,7 @@ test iinfo-4.1 {object info vars} -body {
 } -result {::dog::Snit_inst1::hervar ::dog::Snit_inst1::hisvar}
 
 test iinfo-4.2 {object info vars with pattern} -body {
-    type dog { 
+    type dog {
         variable hisvar 1
 
         constructor {args} {
@@ -5136,7 +5136,7 @@ test iinfo-6.1 {info options with no options} -body {
 } -result {0}
 
 test iinfo-6.2 {info options with only local options} -body {
-    type dog { 
+    type dog {
         option -foo a
         option -bar b
     }
@@ -5148,7 +5148,7 @@ test iinfo-6.2 {info options with only local options} -body {
 } -result {-bar -foo}
 
 test iinfo-6.3 {info options with local and delegated options} -body {
-    type dog { 
+    type dog {
         option -foo a
         option -bar b
         delegate option -quux to sibling
@@ -5163,7 +5163,7 @@ test iinfo-6.3 {info options with local and delegated options} -body {
 test iinfo-6.4 {info options with unknown delegated options} -constraints {
     tk
 } -body {
-    widgetadaptor myframe { 
+    widgetadaptor myframe {
         option -foo a
         delegate option * to hull
         constructor {args} {
@@ -5183,7 +5183,7 @@ test iinfo-6.4 {info options with unknown delegated options} -constraints {
 test iinfo-6.5 {info options with exceptions} -constraints {
     tk
 } -body {
-    widgetadaptor myframe { 
+    widgetadaptor myframe {
         option -foo a
         delegate option * to hull except -background
         constructor {args} {
@@ -5203,7 +5203,7 @@ test iinfo-6.5 {info options with exceptions} -constraints {
 test iinfo-6.6 {info options with pattern} -constraints {
     tk
 } -body {
-    widgetadaptor myframe { 
+    widgetadaptor myframe {
         option -foo a
         delegate option * to hull
         constructor {args} {
@@ -5241,7 +5241,7 @@ test iinfo-7.2 {info typemethods, with pattern} -body {
 } -result {info}
 
 test iinfo-7.3 {info typemethods, with explicit typemethods} -body {
-    type dog { 
+    type dog {
         typemethod foo {} {}
         delegate typemethod bar to comp
     }
@@ -5254,7 +5254,7 @@ test iinfo-7.3 {info typemethods, with explicit typemethods} -body {
 } -result {bar create destroy foo info}
 
 test iinfo-7.4 {info typemethods, with implicit typemethods} -body {
-    type dog { 
+    type dog {
         delegate typemethod * to comp
 
         typeconstructor {
@@ -5279,9 +5279,9 @@ test iinfo-7.4 {info typemethods, with implicit typemethods} -body {
 } -result {{create destroy info} {create destroy info is length} length}
 
 test iinfo-7.5 {info typemethods, with hierarchical typemethods} -body {
-    type dog { 
+    type dog {
         delegate typemethod {comp foo} to comp
-        
+
         typemethod {comp bar} {} {}
     }
 
@@ -5314,7 +5314,7 @@ test iinfo-8.2 {info methods, with pattern} -body {
 } -result {info}
 
 test iinfo-8.3 {info methods, with explicit methods} -body {
-    type dog { 
+    type dog {
         method foo {} {}
         delegate method bar to comp
     }
@@ -5327,7 +5327,7 @@ test iinfo-8.3 {info methods, with explicit methods} -body {
 } -result {bar destroy foo info}
 
 test iinfo-8.4 {info methods, with implicit methods} -body {
-    type dog { 
+    type dog {
         delegate method * to comp
 
         constructor {args} {
@@ -5352,9 +5352,9 @@ test iinfo-8.4 {info methods, with implicit methods} -body {
 } -result {{destroy info} {destroy info is length} length}
 
 test iinfo-8.5 {info methods, with hierarchical methods} -body {
-    type dog { 
+    type dog {
         delegate method {comp foo} to comp
-        
+
         method {comp bar} {} {}
     }
 
@@ -5374,7 +5374,7 @@ test tinfo-1.1 {type info too few args} -constraints {
     snit1
 } -body {
     type dog { }
-    
+
     dog info
 } -returnCodes {
     error
@@ -5383,7 +5383,7 @@ test tinfo-1.1 {type info too few args} -constraints {
 } -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info {type command args} 1]
 
 # Case 2
-test tinfo-1.1 {type info too few args} -constraints {
+test tinfo-1.2 {type info too few args} -constraints {
     snit2
 } -body {
     type dog { }
@@ -5395,9 +5395,9 @@ test tinfo-1.1 {type info too few args} -constraints {
     dog destroy
 } -result {wrong # args: should be "dog info command ..."}
 
-test tinfo-1.2 {type info too many args} -body {
+test tinfo-1.3 {type info too many args} -body {
     type dog { }
-    
+
     dog info instances foo bar
 } -returnCodes {
     error
@@ -5406,7 +5406,7 @@ test tinfo-1.2 {type info too many args} -body {
 } -result [tcltest::tooManyArgs ::snit::RT.typemethod.info.instances {type ?pattern?}]
 
 test tinfo-2.1 {type info typevars} -body {
-    type dog { 
+    type dog {
         typevariable thisvar 1
 
         constructor {args} {
@@ -5434,7 +5434,7 @@ test tinfo-3.1 {type info instances} -body {
 test tinfo-3.2 {widget info instances} -constraints {
     tk
 } -body {
-    widgetadaptor mylabel { 
+    widgetadaptor mylabel {
         constructor {args} {
             installhull [label $self]
         }
@@ -5480,7 +5480,7 @@ test tinfo-3.4 {type info instances with pattern} -body {
 } -result {::fido}
 
 test tinfo-4.1 {type info typevars with pattern} -body {
-    type dog { 
+    type dog {
         typevariable thisvar 1
 
         constructor {args} {
@@ -5511,7 +5511,7 @@ test tinfo-5.2 {type info typemethods, with pattern} -body {
 } -result {info}
 
 test tinfo-5.3 {type info typemethods, with explicit typemethods} -body {
-    type dog { 
+    type dog {
         typemethod foo {} {}
         delegate typemethod bar to comp
     }
@@ -5522,7 +5522,7 @@ test tinfo-5.3 {type info typemethods, with explicit typemethods} -body {
 } -result {bar create destroy foo info}
 
 test tinfo-5.4 {type info typemethods, with implicit typemethods} -body {
-    type dog { 
+    type dog {
         delegate typemethod * to comp
 
         typeconstructor {
@@ -5545,9 +5545,9 @@ test tinfo-5.4 {type info typemethods, with implicit typemethods} -body {
 } -result {{create destroy info} {create destroy info is length} length}
 
 test tinfo-5.5 {info typemethods, with hierarchical typemethods} -body {
-    type dog { 
+    type dog {
         delegate typemethod {comp foo} to comp
-        
+
         typemethod {comp bar} {} {}
     }
 
@@ -5561,7 +5561,7 @@ test tinfo-5.5 {info typemethods, with hierarchical typemethods} -body {
 # Setting the widget class explicitly
 
 test widgetclass-1.1 {can't set widgetclass for snit::types} -body {
-    type dog { 
+    type dog {
         widgetclass Dog
     }
 } -returnCodes {
@@ -5571,7 +5571,7 @@ test widgetclass-1.1 {can't set widgetclass for snit::types} -body {
 test widgetclass-1.2 {can't set widgetclass for snit::widgetadaptors} -constraints {
     tk
 } -body {
-    widgetadaptor dog { 
+    widgetadaptor dog {
         widgetclass Dog
     }
 } -returnCodes {
@@ -5581,7 +5581,7 @@ test widgetclass-1.2 {can't set widgetclass for snit::widgetadaptors} -constrain
 test widgetclass-1.3 {widgetclass must begin with uppercase letter} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         widgetclass dog
     }
 } -returnCodes {
@@ -5591,7 +5591,7 @@ test widgetclass-1.3 {widgetclass must begin with uppercase letter} -constraints
 test widgetclass-1.4 {widgetclass can only be defined once} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         widgetclass Dog
         widgetclass Dog
     }
@@ -5602,10 +5602,10 @@ test widgetclass-1.4 {widgetclass can only be defined once} -constraints {
 test widgetclass-1.5 {widgetclass set successfully} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         widgetclass DogWidget
     }
-    
+
     # The test passes if no error is thrown.
     list ok
 } -cleanup {
@@ -5615,9 +5615,9 @@ test widgetclass-1.5 {widgetclass set successfully} -constraints {
 test widgetclass-1.6 {implicit widgetclass applied to hull} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         typeconstructor {
-            option add *Dog.background green 
+            option add *Dog.background green
         }
 
         method background {} {
@@ -5626,11 +5626,11 @@ test widgetclass-1.6 {implicit widgetclass applied to hull} -constraints {
     }
 
     dog .dog
-    
+
     set bg [.dog background]
 
     destroy .dog
-    
+
     set bg
 } -cleanup {
     dog destroy
@@ -5639,11 +5639,11 @@ test widgetclass-1.6 {implicit widgetclass applied to hull} -constraints {
 test widgetclass-1.7 {explicit widgetclass applied to hull} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         widgetclass DogWidget
 
         typeconstructor {
-            option add *DogWidget.background green 
+            option add *DogWidget.background green
         }
 
         method background {} {
@@ -5652,11 +5652,11 @@ test widgetclass-1.7 {explicit widgetclass applied to hull} -constraints {
     }
 
     dog .dog
-    
+
     set bg [.dog background]
 
     destroy .dog
-    
+
     set bg
 } -cleanup {
     dog destroy
@@ -5666,7 +5666,7 @@ test widgetclass-1.7 {explicit widgetclass applied to hull} -constraints {
 # hulltype statement
 
 test hulltype-1.1 {can't set hulltype for snit::types} -body {
-    type dog { 
+    type dog {
         hulltype Dog
     }
 } -returnCodes {
@@ -5676,7 +5676,7 @@ test hulltype-1.1 {can't set hulltype for snit::types} -body {
 test hulltype-1.2 {can't set hulltype for snit::widgetadaptors} -constraints {
     tk
 } -body {
-    widgetadaptor dog { 
+    widgetadaptor dog {
         hulltype Dog
     }
 } -returnCodes {
@@ -5686,7 +5686,7 @@ test hulltype-1.2 {can't set hulltype for snit::widgetadaptors} -constraints {
 test hulltype-1.3 {hulltype can be frame} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         delegate option * to hull
         hulltype frame
     }
@@ -5704,7 +5704,7 @@ test hulltype-1.3 {hulltype can be frame} -constraints {
 test hulltype-1.4 {hulltype can be toplevel} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         delegate option * to hull
         hulltype toplevel
     }
@@ -5722,7 +5722,7 @@ test hulltype-1.4 {hulltype can be toplevel} -constraints {
 test hulltype-1.5 {hulltype can only be defined once} -constraints {
     tk
 } -body {
-    widget dog { 
+    widget dog {
         hulltype frame
         hulltype toplevel
     }
@@ -5741,20 +5741,20 @@ test hulltype-2.1 {list of valid hulltypes} -constraints {
 # expose statement
 
 test expose-1.1 {can't expose nothing} -body {
-    type dog { 
+    type dog {
 	expose
     }
 } -returnCodes {
     error
 } -result [tcltest::wrongNumArgs ::snit::Comp.statement.expose {component ?as? ?methodname?} 0]
-    
+
 test expose-1.2 {expose a component that's never installed} -body {
-    type dog { 
+    type dog {
         expose tail
     }
 
     dog fido
-    
+
     fido tail wag
 } -returnCodes {
     error
@@ -5765,7 +5765,7 @@ test expose-1.2 {expose a component that's never installed} -body {
 test expose-1.3 {exposed method returns component command} -body {
     type tail {  }
 
-    type dog { 
+    type dog {
         expose tail
 
         constructor {} {
@@ -5778,7 +5778,7 @@ test expose-1.3 {exposed method returns component command} -body {
     }
 
     dog fido
-    
+
     fido tail
 } -cleanup {
     dog destroy
@@ -5791,7 +5791,7 @@ test expose-1.4 {exposed method calls component methods} -body {
         method droop {}     {return "droop"}
     }
 
-    type dog { 
+    type dog {
         expose tail
 
         constructor {} {
@@ -5804,7 +5804,7 @@ test expose-1.4 {exposed method calls component methods} -body {
     }
 
     dog fido
-    
+
     list [fido tail wag] [fido tail wag abc] [fido tail wag abc def] \
         [fido tail droop]
 } -cleanup {
@@ -5929,14 +5929,14 @@ test error-1.6 {oncget errors propagate properly} -body {
 test etypemethod-1.1 {external typemethods can be called as expected} -body {
     type dog { }
     typemethod dog foo {a} {return "+$a+"}
-    
+
     dog foo bar
 } -cleanup {
     dog destroy
 } -result {+bar+}
 
 test etypemethod-1.2 {external typemethods can use typevariables} -body {
-    type dog { 
+    type dog {
         typevariable somevar "Howdy"
     }
     typemethod dog getvar {} {return $somevar}
@@ -5947,15 +5947,15 @@ test etypemethod-1.2 {external typemethods can use typevariables} -body {
 } -result {Howdy}
 
 test etypemethod-1.3 {typemethods can be redefined dynamically} -body {
-    type dog { 
+    type dog {
         typemethod foo {} { return "foo" }
     }
     set a [dog foo]
-    
+
     typemethod dog foo {} { return "bar"}
-        
+
     set b [dog foo]
-        
+
     list $a $b
 } -cleanup {
     dog destroy
@@ -6015,7 +6015,7 @@ test etypemethod-2.4 {redefinition is OK} -body {
 } -result {wags tail briskly}
 
 test etypemethod-3.1 {prefix/method collision} -body {
-    type dog { 
+    type dog {
         typemethod wag {} {}
     }
 
@@ -6068,7 +6068,7 @@ test etypemethod-3.4 {prefix/method collision} -body {
 test emethod-1.1 {external methods can be called as expected} -body {
     type dog { }
     method dog bark {a} {return "+$a+"}
-    
+
     dog spot
     spot bark woof
 } -cleanup {
@@ -6076,7 +6076,7 @@ test emethod-1.1 {external methods can be called as expected} -body {
 } -result {+woof+}
 
 test emethod-1.2 {external methods can use typevariables} -body {
-    type dog { 
+    type dog {
         typevariable somevar "Hello"
     }
     method dog getvar {} {return $somevar}
@@ -6088,7 +6088,7 @@ test emethod-1.2 {external methods can use typevariables} -body {
 } -result {Hello}
 
 test emethod-1.3 {external methods can use variables} -body {
-    type dog { 
+    type dog {
         variable somevar "Greetings"
     }
     method dog getvar {} {return $somevar}
@@ -6100,25 +6100,25 @@ test emethod-1.3 {external methods can use variables} -body {
 } -result {Greetings}
 
 test emethod-1.4 {methods can be redefined dynamically} -body {
-    type dog { 
+    type dog {
         method bark {} { return "woof" }
     }
 
     dog spot
 
     set a [spot bark]
-    
+
     method dog bark {} { return "arf"}
-        
+
     set b [spot bark]
-        
+
     list $a $b
 } -cleanup {
     dog destroy
 } -result {woof arf}
 
 test emethod-1.5 {delegated methods can't be redefined} -body {
-    type dog { 
+    type dog {
         delegate method bark to someotherdog
     }
 
@@ -6187,7 +6187,7 @@ test emethod-2.4 {redefinition is OK} -body {
 } -result {::spot wags tail briskly.}
 
 test emethod-3.1 {prefix/method collision} -body {
-    type dog { 
+    type dog {
         method wag {} {}
     }
 
@@ -6472,7 +6472,7 @@ test typevar_var-1.5 {can't delegate options to typecomponents} -body {
     error
 } -result {Error in "delegate option -opt...", "comp" is already a typevariable}
 
-test typevar_var-1.5 {can't delegate typemethods to instance components} -body {
+test typevar_var-1.6 {can't delegate typemethods to instance components} -body {
     type dog {
         component comp
 
@@ -6482,7 +6482,7 @@ test typevar_var-1.5 {can't delegate typemethods to instance components} -body {
     error
 } -result {Error in "delegate typemethod foo...", "comp" is already an instance variable}
 
-test typevar_var-1.6 {can delegate methods to typecomponents} -body {
+test typevar_var-1.7 {can delegate methods to typecomponents} -body {
     proc echo {args} {return [join $args "|"]}
 
     type dog {
@@ -6721,7 +6721,7 @@ test optionsyntax-3.9 {option -readonly can't be empty} -body {
 #-----------------------------------------------------------------------
 # 'delegate option' Syntax tests.
 #
-# This set of tests verifies that the 'delegation option' statement is 
+# This set of tests verifies that the 'delegation option' statement is
 # interpreted properly, and that the type's optionInfo
 # array is initialized properly.
 #
@@ -6858,7 +6858,7 @@ test delegatedoptionsyntax-2.1 {implicit resource and class} -body {
     dog destroy
 } -result {foo Foo}
 
-test optionsyntax-2.2 {explicit resource, default class} -body {
+test delegatedoptionsyntax-2.2 {explicit resource, default class} -body {
     type dog {
         delegate option {-foo ffoo} to comp
     }
@@ -6870,7 +6870,7 @@ test optionsyntax-2.2 {explicit resource, default class} -body {
     dog destroy
 } -result {ffoo Ffoo}
 
-test optionsyntax-2.3 {explicit resource and class} -body {
+test delegatedoptionsyntax-2.3 {explicit resource and class} -body {
     type dog {
         delegate option {-foo ffoo FFoo} to comp
     }
@@ -6882,7 +6882,7 @@ test optionsyntax-2.3 {explicit resource and class} -body {
     dog destroy
 } -result {ffoo FFoo}
 
-test optionsyntax-2.4 {* doesn't get resource and class} -body {
+test delegatedoptionsyntax-2.4 {* doesn't get resource and class} -body {
     type dog {
         delegate option * to comp
     }
@@ -6910,9 +6910,9 @@ test cgetcache-1.1 {Instance rename invalidates cache} -body {
 
     # Cache the cget command.
     fido cget -foo
-        
+
     rename fido spot
-        
+
     spot cget -foo
 } -cleanup {
     dog destroy
@@ -6968,7 +6968,7 @@ test cgetcache-1.3 {Invalid -cgetmethod causes error} -constraints {
 } -result {can't cget -foo, "::fido bogus" is not defined}
 
 # case 2
-test cgetcache-1.3 {Invalid -cgetmethod causes error} -constraints {
+test cgetcache-1.4 {Invalid -cgetmethod causes error} -constraints {
     snit2
 } -body {
     type dog {
@@ -6984,7 +6984,7 @@ test cgetcache-1.3 {Invalid -cgetmethod causes error} -constraints {
     dog destroy
 } -result {unknown subcommand "bogus": must be cget, or configurelist}
 
-test cgetcache-1.4 {hierarchical -cgetmethod} -body {
+test cgetcache-1.5 {hierarchical -cgetmethod} -body {
     type dog {
         option -foo -default bar -cgetmethod {Get Opt}
 
@@ -7016,12 +7016,12 @@ test configurecache-1.1 {Instance rename invalidates cache} -body {
         }
     }
 
-    # Set the option on creation; this will cache the 
+    # Set the option on creation; this will cache the
     # configure command.
     dog fido -foo quux
 
     rename fido spot
-    
+
     spot configure -foo baz
     spot cget -foo
 } -cleanup {
@@ -7079,7 +7079,7 @@ test configurecache-1.3 {Invalid -configuremethod causes error} -constraints {
 } -result {can't configure -foo, "::fido bogus" is not defined}
 
 # Case 2
-test configurecache-1.3 {Invalid -configuremethod causes error} -constraints {
+test configurecache-1.4 {Invalid -configuremethod causes error} -constraints {
     snit2
 } -body {
     type dog {
@@ -7094,7 +7094,7 @@ test configurecache-1.3 {Invalid -configuremethod causes error} -constraints {
     dog destroy
 } -result {unknown subcommand "bogus": must be configure, or configurelist}
 
-test configurecache-1.4 {hierarchical -configuremethod} -body {
+test configurecache-1.5 {hierarchical -configuremethod} -body {
     type dog {
         option -foo -default bar -configuremethod {Set Opt}
 
@@ -7135,7 +7135,7 @@ test validatemethod-1.1 {Validate method is called} -body {
     fido getflag
 } -cleanup {
     dog destroy
-} -result {1} 
+} -result {1}
 
 test validatemethod-1.2 {Validate method gets correct arguments} -body {
     type dog {
@@ -7154,7 +7154,7 @@ test validatemethod-1.2 {Validate method gets correct arguments} -body {
     dog fido -color brown
 } -cleanup {
     dog destroy
-} -result {::fido} 
+} -result {::fido}
 
 # Case 1
 test validatemethod-1.3 {Invalid -validatemethod causes error} -constraints {
@@ -7173,7 +7173,7 @@ test validatemethod-1.3 {Invalid -validatemethod causes error} -constraints {
 } -result {can't validate -foo, "::fido bogus" is not defined}
 
 # Case 2
-test validatemethod-1.3 {Invalid -validatemethod causes error} -constraints {
+test validatemethod-1.4 {Invalid -validatemethod causes error} -constraints {
     snit2
 } -body {
     type dog {
@@ -7188,7 +7188,7 @@ test validatemethod-1.3 {Invalid -validatemethod causes error} -constraints {
     dog destroy
 } -result {unknown subcommand "bogus": must be configure, or configurelist}
 
-test validatemethod-1.4 {hierarchical -validatemethod} -body {
+test validatemethod-1.5 {hierarchical -validatemethod} -body {
     type dog {
         option -foo -default bar -validatemethod {Val Opt}
 
@@ -7221,7 +7221,7 @@ test optionreadonly-1.1 {Readonly options can be set at creation time} -body {
     fido cget -color
 } -cleanup {
     dog destroy
-} -result {brown} 
+} -result {brown}
 
 test optionreadonly-1.2 {Readonly options can't be set after creation} -body {
     type dog {
@@ -7237,7 +7237,7 @@ test optionreadonly-1.2 {Readonly options can't be set after creation} -body {
     error
 } -cleanup {
     dog destroy
-} -result {option -color can only be set at instance creation} 
+} -result {option -color can only be set at instance creation}
 
 test optionreadonly-1.3 {Readonly options can't be set after creation} -body {
     type dog {
@@ -7253,7 +7253,7 @@ test optionreadonly-1.3 {Readonly options can't be set after creation} -body {
     error
 } -cleanup {
     dog destroy
-} -result {option -color can only be set at instance creation} 
+} -result {option -color can only be set at instance creation}
 
 #-----------------------------------------------------------------------
 # Pragma -hastypeinfo
@@ -7266,7 +7266,7 @@ test hastypeinfo-1.1 {$type info is defined by default} -body {
     dog info typevars
 } -cleanup {
     dog destroy
-} -result {::dog::foo} 
+} -result {::dog::foo}
 
 # Case 1
 test hastypeinfo-1.2 {$type info can be disabled} -constraints {
@@ -7285,7 +7285,7 @@ test hastypeinfo-1.2 {$type info can be disabled} -constraints {
 } -result {"::dog info" is not defined}
 
 # Case 2
-test hastypeinfo-1.2 {$type info can be disabled} -constraints {
+test hastypeinfo-1.3 {$type info can be disabled} -constraints {
     snit2
 } -body {
     type dog {
@@ -7305,7 +7305,7 @@ test hastypeinfo-1.2 {$type info can be disabled} -constraints {
 # Pragma -hastypedestroy
 
 test hastypedestroy-1.1 {$type destroy is defined by default} -body {
-    type dog { 
+    type dog {
         typevariable foo
     }
 
@@ -7314,7 +7314,7 @@ test hastypedestroy-1.1 {$type destroy is defined by default} -body {
     ::dog info typevars
 } -returnCodes {
     error
-} -result {invalid command name "::dog"} 
+} -result {invalid command name "::dog"}
 
 # Case 1
 test hastypedestroy-1.2 {$type destroy can be disabled} -constraints {
@@ -7334,7 +7334,7 @@ test hastypedestroy-1.2 {$type destroy can be disabled} -constraints {
 } -result {"::dog destroy" is not defined}
 
 # Case 2
-test hastypedestroy-1.2 {$type destroy can be disabled} -constraints {
+test hastypedestroy-1.3 {$type destroy can be disabled} -constraints {
     snit2
 } -body {
     type dog {
@@ -7354,23 +7354,23 @@ test hastypedestroy-1.2 {$type destroy can be disabled} -constraints {
 # Pragma -hasinstances
 
 test hasinstances-1.1 {-hasinstances is true by default} -body {
-    type dog { 
+    type dog {
         method bark {} {
             return "Woof"
         }
     }
-    
+
     dog fido
     fido bark
 } -cleanup {
     dog destroy
-} -result {Woof} 
+} -result {Woof}
 
 # Case 1
 test hasinstances-1.2 {'-hasinstances no' disables explicit object creation} -constraints {
     snit1
 } -body {
-    type dog { 
+    type dog {
         pragma -hasinstances no
     }
 
@@ -7382,10 +7382,10 @@ test hasinstances-1.2 {'-hasinstances no' disables explicit object creation} -co
 } -result {"::dog create" is not defined}
 
 # Case 2
-test hasinstances-1.2 {'-hasinstances no' disables explicit object creation} -constraints {
+test hasinstances-1.3 {'-hasinstances no' disables explicit object creation} -constraints {
     snit2
 } -body {
-    type dog { 
+    type dog {
         pragma -hasinstances no
     }
 
@@ -7397,10 +7397,10 @@ test hasinstances-1.2 {'-hasinstances no' disables explicit object creation} -co
 } -result {unknown subcommand "create": namespace ::dog does not export any commands}
 
 # Case 1
-test hasinstances-1.3 {'-hasinstances no' disables implicit object creation} -constraints {
+test hasinstances-1.4 {'-hasinstances no' disables implicit object creation} -constraints {
     snit1
 } -body {
-    type dog { 
+    type dog {
         pragma -hasinstances no
     }
 
@@ -7410,10 +7410,10 @@ test hasinstances-1.3 {'-hasinstances no' disables implicit object creation} -co
 } -result {"::dog fido" is not defined}
 
 # Case 2
-test hasinstances-1.3 {'-hasinstances no' disables implicit object creation} -constraints {
+test hasinstances-1.5 {'-hasinstances no' disables implicit object creation} -constraints {
     snit2
 } -body {
-    type dog { 
+    type dog {
         pragma -hasinstances no
     }
 
@@ -7426,7 +7426,7 @@ test hasinstances-1.3 {'-hasinstances no' disables implicit object creation} -co
 # pragma -canreplace
 
 test canreplace-1.1 {By default, "-canreplace no"} -body {
-    type dog { 
+    type dog {
         # ...
     }
 
@@ -7436,12 +7436,12 @@ test canreplace-1.1 {By default, "-canreplace no"} -body {
     error
 } -cleanup {
     dog destroy
-} -result {command "::fido" already exists} 
+} -result {command "::fido" already exists}
 
 test canreplace-1.2 {Can replace commands when "-canreplace yes"} -constraints {
-    bug8.5a3 
+    bug8.5a3
 } -body {
-    type dog { 
+    type dog {
         pragma -canreplace yes
     }
 
@@ -7449,7 +7449,7 @@ test canreplace-1.2 {Can replace commands when "-canreplace yes"} -constraints {
     dog fido
 } -cleanup {
     dog destroy
-} -result {::fido} 
+} -result {::fido}
 
 #-----------------------------------------------------------------------
 # pragma -hasinfo
@@ -7463,7 +7463,7 @@ test hasinfo-1.1 {$obj info is defined by default} -body {
     spot info vars
 } -cleanup {
     dog destroy
-} -result {::dog::Snit_inst1::foo} 
+} -result {::dog::Snit_inst1::foo}
 
 # Case 1
 test hasinfo-1.2 {$obj info can be disabled} -constraints {
@@ -7483,7 +7483,7 @@ test hasinfo-1.2 {$obj info can be disabled} -constraints {
 } -result {"::spot info" is not defined}
 
 # Case 2
-test hasinfo-1.2 {$obj info can be disabled} -constraints {
+test hasinfo-1.3 {$obj info can be disabled} -constraints {
     snit2
 } -body {
     type dog {
@@ -7516,14 +7516,14 @@ test hastypemethods-1.1 {-hastypemethods no, $type foo creates instance.} -body 
     spot destroy
     rename ::dog ""
     namespace delete ::dog
-} -result {::spot} 
+} -result {::spot}
 
 test hastypemethods-1.2 {-hastypemethods no, $type create foo fails.} -body {
     type dog {
 	pragma -hastypemethods no
 	variable foo
     }
-    
+
     dog create spot
 } -returnCodes {
     error
@@ -7544,7 +7544,7 @@ test hastypemethods-1.3 {-hastypemethods no, $type info fails.} -body {
 } -cleanup {
     rename ::dog ""
     namespace delete ::dog
-} -result {command "::info" already exists} 
+} -result {command "::info" already exists}
 
 test hastypemethods-1.4 {-hastypemethods no, [$widget] fails.} -constraints {
     tk
@@ -7560,17 +7560,17 @@ test hastypemethods-1.4 {-hastypemethods no, [$widget] fails.} -constraints {
 } -cleanup {
     rename ::dog ""
     namespace delete ::dog
-} -result {wrong # args: should be "::dog name args"} 
+} -result {wrong # args: should be "::dog name args"}
 
 test hastypemethods-1.5 {-hastypemethods no, -hasinstances no fails.} -body {
     type dog {
         pragma -hastypemethods no
         pragma -hasinstances no
         variable foo
-    } 
+    }
 } -returnCodes {
     error
-} -result {type ::dog has neither typemethods nor instances} 
+} -result {type ::dog has neither typemethods nor instances}
 
 #-----------------------------------------------------------------------
 # -simpledispatch yes
@@ -7580,39 +7580,39 @@ test simpledispatch-1.1 {not allowed with method delegation.} -constraints {
 } -body {
     type dog {
         pragma -simpledispatch yes
-        
+
         delegate method foo to bar
     }
 } -returnCodes {
     error
-} -result {type ::dog requests -simpledispatch but delegates methods.} 
+} -result {type ::dog requests -simpledispatch but delegates methods.}
 
 test simpledispatch-1.2 {normal methods work with simpledispatch.} -constraints {
     snit1
 } -body {
     type dog {
         pragma -simpledispatch yes
-        
+
         method barks {how} {
             return "$self barks $how."
         }
     }
-    
+
     dog spot
     spot barks loudly
 } -cleanup {
     dog destroy
-} -result {::spot barks loudly.} 
+} -result {::spot barks loudly.}
 
 test simpledispatch-1.3 {option methods work with simpledispatch.} -constraints {
     snit1
 } -body {
     type dog {
         pragma -simpledispatch yes
-        
+
         option -breed mutt
     }
-    
+
     dog spot
     set a [spot cget -breed]
     spot configure -breed collie
@@ -7623,33 +7623,33 @@ test simpledispatch-1.3 {option methods work with simpledispatch.} -constraints 
     list $a $b $c
 } -cleanup {
     dog destroy
-} -result {mutt collie sheltie} 
+} -result {mutt collie sheltie}
 
 test simpledispatch-1.4 {info method works with simpledispatch.} -constraints {
     snit1
 } -body {
     type dog {
         pragma -simpledispatch yes
-        
+
         option -breed mutt
     }
-    
+
     dog spot
-    
+
     spot info options
 } -cleanup {
     dog destroy
-} -result {-breed} 
+} -result {-breed}
 
 test simpledispatch-1.5 {destroy method works with simpledispatch.} -constraints {
     snit1
 } -body {
     type dog {
         pragma -simpledispatch yes
-        
+
         option -breed mutt
     }
-    
+
     dog spot
     set a [info commands ::spot]
     spot destroy
@@ -7657,19 +7657,19 @@ test simpledispatch-1.5 {destroy method works with simpledispatch.} -constraints
     list $a $b
 } -cleanup {
     dog destroy
-} -result {::spot {}} 
+} -result {::spot {}}
 
 test simpledispatch-1.6 {no hierarchical methods with simpledispatch.} -constraints {
     snit1
 } -body {
     type dog {
         pragma -simpledispatch yes
-        
+
         method {wag tail} {} {}
     }
 } -returnCodes {
     error
-} -result {type ::dog requests -simpledispatch but defines hierarchical methods.} 
+} -result {type ::dog requests -simpledispatch but defines hierarchical methods.}
 
 #-----------------------------------------------------------------------
 # Exotic return codes
@@ -7720,11 +7720,11 @@ test bug-1.1 {Bug 1161779: destructor can't precede constructor} -body {
         destructor {
             # No content
         }
-        
+
         constructor {args} {
             $self configurelist $args
         }
-        
+
     }
 } -cleanup {
     rename ::dummy ""
@@ -7735,17 +7735,17 @@ test bug-2.1 {Bug 1106375: Widget Error on failed object's construction} -constr
 } -body {
     ::snit::widgetadaptor mylabel {
         delegate method * to hull
-        delegate option * to hull 
-        
+        delegate option * to hull
+
         constructor {args} {
-            installhull using label 
+            installhull using label
             error "simulated error"
         }
     }
-    
+
     catch {mylabel .lab} result
     list [info commands .lab] $result
-    
+
 } -cleanup {
     ::mylabel destroy
 } -result {{} {Error in constructor: simulated error}}
@@ -7755,13 +7755,13 @@ test bug-2.2 {Bug 1106375: Widget Error on failed object's construction} -constr
 } -body {
     ::snit::widget myframe {
         delegate method * to hull
-        delegate option * to hull 
-        
+        delegate option * to hull
+
         constructor {args} {
             error "simulated error"
         }
     }
-    
+
     catch {myframe .frm} result
     list [info commands .frm] $result
  } -cleanup {

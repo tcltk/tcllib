@@ -1,6 +1,6 @@
 # rc4.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: rc4.test,v 1.10 2006/01/24 05:10:01 andreas_kupries Exp $
+# $Id: rc4.test,v 1.11 2006/01/29 08:15:09 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -140,56 +140,62 @@ test rc4-3.5 {rc4 check hyphen handling} {
     list [catch {rc4::rc4 -hex -key - -- --} msg] $msg
 } {0 b046}
 
-
-set path [lindex [makeFile {} rc4test.data] end]
-
 test rc4-4.0 {check file reading} {
     list [catch {
-        set f [open $path w]
+        set f [open [set path [makeFile {} rc4test.data]] w]
         fconfigure $f -translation lf -eofchar {} -encoding binary
         puts -nonewline $f "\0\1\2"
         close $f
-        rc4::rc4 -hex -key 01234567 -infile $path
+        set res [rc4::rc4 -hex -key 01234567 -infile $path]
+        removeFile rc4test.data
+        set res
     } msg] $msg
 } {0 91d4f1}
 
 test rc4-4.1 {check channel reading} {
     list [catch {
+        set f [open [set path [makeFile {} rc4test.data]] w]
+        fconfigure $f -translation lf -eofchar {} -encoding binary
+        puts -nonewline $f "\0\1\2"
+        close $f
+
         set f [open $path r]
         fconfigure $f -translation lf -eofchar {} -encoding binary
         set r [rc4::rc4 -hex -key 01234567 -in $f]
         close $f
+        removeFile rc4test.data
         set r
     } msg] $msg
 } {0 91d4f1}
 
 test rc4-4.2 {check channel output} {
     list [catch {
-        set f [open $path w+]
+        set f [open [makeFile {} rc4test.data] w+]
         fconfigure $f -translation lf -eofchar {} -encoding binary
         set r [rc4::rc4 -hex -key 01234567 -out $f "abcdef"]
         seek $f 0
         set s [rc4::Hex [read $f]]
         close $f
+        removeFile rc4test.data
         list $r $s
     } msg] $msg
 } {0 {{} f0b7907b2341}}
 
-set path2 [lindex [makeFile {} rc4test2.data] end];# compat for tcltest 1.0
-
 test rc4-4.3 {check channel input and output} {
     list [catch {
-        set f [open $path w+]
+        set f [open [makeFile {} rc4test.data] w+]
         fconfigure $f -translation lf -eofchar {} -encoding binary
         puts -nonewline $f "abcdef"
         seek $f 0
-        set g [open $path2 w+]
+        set g [open [makeFile {} rc4test2.data] w+]
         fconfigure $g -translation lf -eofchar {} -encoding binary
         set r [rc4::rc4 -hex -key 01234567 -in $f -out $g]
         close $f
         seek $g 0
         set s [rc4::Hex [read $g]]
         close $g
+        removeFile rc4test.data
+        removeFile rc4test2.data
         list $r $s
     } msg] $msg
 } {0 {{} f0b7907b2341}}
@@ -223,7 +229,7 @@ test rc4-5.1 {check -command option (-hex should be ignored)} {
 test rc4-5.2 {check -command option with channel input} {
     set ::rc4::_test unset
     list [catch {
-        set f [open $path w+]
+        set f [open [makeFile {} rc4test.data] w+]
         fconfigure $f -translation lf -eofchar {} -encoding binary        
         puts -nonewline $f "abcdef"
         seek $f 0
@@ -233,6 +239,7 @@ test rc4-5.2 {check -command option with channel input} {
         vwait ::rc4::_test
         after cancel $id
         close $f
+        removeFile rc4test.data
         list $r $::rc4::_test
     } msg] $msg
 } {0 {{} f0b7907b2341}}
@@ -240,7 +247,7 @@ test rc4-5.2 {check -command option with channel input} {
 test rc4-5.3 {check -command option with file input} {
     set ::rc4::_test unset
     list [catch {
-        set f [open $path w]
+        set f [open [set path [makeFile {} rc4test.data]] w]
         fconfigure $f -translation lf -eofchar {} -encoding binary        
         puts -nonewline $f "abcdef"
         close $f
@@ -249,6 +256,7 @@ test rc4-5.3 {check -command option with file input} {
                    -command [list ::rc4::TestCommandProc JuNk]]
         vwait ::rc4::_test
         after cancel $id
+        removeFile rc4test.data
         list $r $::rc4::_test
     } msg] $msg
 } {0 {{} f0b7907b2341}}

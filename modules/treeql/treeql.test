@@ -43,7 +43,7 @@ foreach e [struct::tree::KnownImpl] {
 # We now run the tests. As they depend on a struct::tree, we have to
 # test all the available implementations.
 
-set tests [file join [file dirname [info script]] treeql.testsuite]
+set tests [localPath treeql.testsuite]
 
 puts ""
 catch {memory validate on}
