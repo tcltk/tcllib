@@ -2,6 +2,8 @@
 # Dialog - Dialog Demon (Server, or Client)
 # Copyright (c) 2004, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
+puts "- dialog (coserv-based)"
+
 # ### ### ### ######### ######### #########
 ## Commands on top of a plain comm server.
 ## Assumes that the comm server environment

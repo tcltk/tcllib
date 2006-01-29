@@ -7,6 +7,9 @@
 ## via 'comm'. They assume that the 'tcltest' environment is present
 ## without having to load it explicitly. We do load 'comm' explicitly.
 
+## Can assume that tcltest is present, and its commands imported into
+## the global namespace.
+
 # ### ### ### ######### ######### #########
 ## Load "comm" into the master.
 
@@ -22,7 +25,8 @@ if {[catch {source $::coserv::commsrc} msg]} {
 }
 
 package require comm
-puts "- comm [package present comm]"
+
+puts "- coserv (comm server)"
 #puts "Main       @ [::comm::comm self]"
 
 # ### ### ### ######### ######### #########
@@ -95,8 +99,11 @@ proc ::coserv::task {id script} {
 }
 
 proc ::coserv::shutdown {id} {
+    variable subcode
     #puts "Sub server @ $id\tShutting down ..."
     task $id exit
+    tcltest::removeFile $subcode
+    return
 }
 
 # ### ### ### ######### ######### #########

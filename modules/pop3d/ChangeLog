@@ -1,3 +1,9 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: .... Fixed usage of temp. files by testsuite. Fixed
+	* pop3d_dbox.test: use of duplicate test names.
+	* pop3d_udb.test: 
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: More boilerplate simplified via use of test support.
