@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.22 2006/01/29 08:33:59 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.23 2006/01/29 09:09:14 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -27,6 +27,8 @@ testing {
 set     sub_ap $auto_path
 lappend sub_ap $::tcltest::testsDirectory
 set ncgiFile   [localPath ncgi.tcl]
+
+set oldenv [array get env]
 
 # -------------------------------------------------------------------------
 
@@ -759,6 +761,12 @@ test ncgi-17.4 {ncgi::names} {
     list $code $err
 } {1 {Unknown Content-Type: application/xyzzy}}
 
+# -------------------------------------------------------------------------
+# Restore "env" array to the state it had at the beginning of the testsuite.
 
+array unset env *
+array set   env $oldenv
+
+# -------------------------------------------------------------------------
 
 ::tcltest::cleanupTests
