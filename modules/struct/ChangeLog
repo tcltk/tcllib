@@ -1,3 +1,12 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph1.test: Fixed duplicate usage of test names.
+	* list.test:   
+	* matrix.test: 
+	* matrix1.test: 
+	* stack.test: 
+	* tree1.test: 
+
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.test: More boilerplate simplified via use of test support.
