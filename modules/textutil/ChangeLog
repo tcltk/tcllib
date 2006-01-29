@@ -1,3 +1,8 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* expander.test: Fixed duplicate usage of test names.
+	* textutil.test: 
+
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* adjust.test: More boilerplate simplified via use of test support.
