@@ -53,7 +53,7 @@ proc testsNeedTcltest {version} {
 	if {![catch {
 	    package require tcltest $version
 	}]} {
-	    namespace import ::tcltest::*
+	    namespace import -force ::tcltest::*
 	    return
 	}
     } elseif {[package vcompare [package present tcltest] $version] >= 0} {
@@ -98,6 +98,11 @@ if {![package vsatisfies [package provide tcltest] 2.0]} {
         }
 	return
     }
+
+    namespace eval ::tcltest {
+	namespace export testConstraint
+    }
+    namespace import -force ::tcltest::*
 }
 
 # ### ### ### ######### ######### #########
@@ -174,6 +179,63 @@ if {[package vsatisfies [package provide Tcl] 8.5]} {
 	return $msg
     }
 }
+
+namespace eval ::tcltest {
+    namespace export wrongNumArgs tooManyArgs
+}
+namespace import -force ::tcltest::*
+
+# ### ### ### ######### ######### #########
+## tclTest::makeFile result API changed for 2.0
+
+if {![package vsatisfies [package provide tcltest] 2.0]} {
+
+    # The 'makeFile' in Tcltest 1.0 returns a list of all the paths
+    # generated so far, whereas the 'makeFile' in 2.0+ returns only
+    # the path of the newly generated file. We standardize on the more
+    # useful behaviour of 2.0+. If 1.x is present we have to create an
+    # emulation layer to get the wanted result.
+
+    # The same change applies to 'makeDirectory'
+
+    rename ::tcltest::makeFile ::tcltest::makeFile_1
+    proc   ::tcltest::makeFile {data f} {
+	return [lindex [makeFile_1 $data $f] end]
+    }
+
+    rename ::tcltest::makeDirectory ::tcltest::makeDirectory_1
+    proc   ::tcltest::makeDirectory {f} {
+	return [lindex [makeDirectory_1 $f] end]
+    }
+
+    namespace eval ::tcltest {
+	namespace export makeFile makeDirectory
+    }
+    namespace import -force ::tcltest::*
+}
+
+# ### ### ### ######### ######### #########
+## Extended functionality, creation of binary temp. files.
+## Also creation of paths for temp. files
+
+proc ::tcltest::makeBinaryFile {data f} {
+    set path [makeFile {} $f]
+    set ch   [open $path w]
+    fconfigure $ch -translation binary
+    puts -nonewline $ch $data
+    close $ch
+    return $path
+}
+
+proc ::tcltest::tempPath {path} {
+    variable temporaryDirectory
+    return [file join $temporaryDirectory $path]
+}
+
+namespace eval ::tcltest {
+    namespace export makeBinaryFile tempPath
+}
+namespace import -force ::tcltest::*
 
 # ### ### ### ######### ######### #########
 ## Commands to load files from various locations within the local
@@ -348,6 +410,14 @@ proc dictsort {dict} {
 	lappend out $key $a($key)
     }
     return $out
+}
+
+# ### ### ### ######### ######### #########
+## Putting strings together, if they cannot be expressed easily as one
+## string due to quoting problems.
+
+proc cat {args} {
+    return [join $args ""]
 }
 
 # ### ### ### ######### ######### #########
