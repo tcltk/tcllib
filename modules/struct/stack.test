@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.test,v 1.14 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.test,v 1.15 2006/01/29 00:10:32 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -270,7 +270,7 @@ test stack-8.4 {rotate operation} {
     mystack destroy
     set result
 } [list g f e d c b a h]
-test stack-8.4 {rotate operation} {
+test stack-8.5 {rotate operation} {
     stack mystack
     mystack push a b c d e f g h
     mystack rotate 8 -1
@@ -278,14 +278,13 @@ test stack-8.4 {rotate operation} {
     mystack destroy
     set result
 } [list a h g f e d c b]
-
-test stack-8.5 {rotate operation} {
+test stack-8.6 {rotate operation} {
     stack mystack
     catch {mystack rotate 8 -1} msg
     mystack destroy
     set msg
 } {insufficient items on stack to fill request}
-test stack-8.6 {rotate operation} {
+test stack-8.7 {rotate operation} {
     stack mystack
     mystack push a b c d
     catch {mystack rotate 8 -1} msg
