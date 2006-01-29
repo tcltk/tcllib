@@ -1,3 +1,8 @@
+2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit.test: Fixed use of duplicate test names. Whitespace police
+	  as well.
+
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snit.test: More boilerplate simplified via use of test support.
