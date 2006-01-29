@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.12 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: calculus.test,v 1.13 2006/01/29 08:54:23 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ test "NewtonRaphson-2.1" "Result should be nearly 0.56714" {
    }
 } 1
 
-test "NewtonRaphson-2.1" "Result should be nearly 0.56714" {
+test "NewtonRaphson-2.2" "Result should be nearly 0.56714" {
    set result [newtonRaphson func2 deriv2 -0.5]
    if { abs($result-0.56714) < 0.0001 } {
       set answer 1
