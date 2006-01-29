@@ -1,5 +1,12 @@
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* testutilities.tcl: Force re-import of tcltest commands after
+	  changes made by the support system. Added code forcing a useful
+	  result value of makeFile/makeDirectory even for Tcltest 1.x
+	  (path created instead of list of all paths). Command for the
+	  creation of a binary temp. file, and a command to return the
+	  path of temp files without us having to create them.
+
 	* coserv.tcl: Fixed usage of temp. files by comm server.
 
 	* coserv.tcl: Fixed output for a better fit with the other test
