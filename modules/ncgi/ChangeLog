@@ -1,6 +1,7 @@
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* ncgi.test: Fixed use and cleanup of temp. files
+	* ncgi.test: Fixed use and cleanup of temp. files. Also fixed
+	  warning about changes to the env array.
 
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
