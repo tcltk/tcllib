@@ -1,3 +1,7 @@
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Fixed use and cleanup of temp.files.
+
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: More boilerplate simplified via use of test support.

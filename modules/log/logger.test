@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.24 2006/01/24 05:10:00 andreas_kupries Exp $
+# $Id: logger.test,v 1.25 2006/01/29 05:58:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -346,7 +346,7 @@ test logger-7.3 {currentloglevel, enable incremental} {
     set results
 } {debug debug}
 
-test logger-7.3 {currentloglevel, disable incremental} {
+test logger-7.4 {currentloglevel, disable incremental} {
     set results ""
     set log [logger::init global]
     ${log}::enable debug
@@ -359,7 +359,7 @@ test logger-7.3 {currentloglevel, disable incremental} {
     set results
 } {debug none none}
 
-test logger-7.4 {currentloglevel, disable incremental} {
+test logger-7.5 {currentloglevel, disable incremental} {
     set results ""
     set log [logger::init global]
     ${log}::enable debug
@@ -916,7 +916,7 @@ test logger-13.7 {test for correct servicename, Bug 1102131} {
     set ::INFO
 } [list global global global::child global::child global::child::child global::child::child] 
 
-test logger-13.7 {test for logproc interations with childs} {
+test logger-13.8 {test for logproc interations with childs} {
     set l1 [logger::init global]
     set l2 [logger::init global::child]
     set l3 [logger::init global::child::child]
