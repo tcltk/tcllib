@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.23 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.24 2006/01/29 08:15:09 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -342,18 +342,18 @@ foreach {bug n encoded expected} {
     } $expected ; # {}
 }
 
-test mime-7.1 {Test reversemapencoding+mapencoding with preferred name} {
+test mime-8.1 {Test reversemapencoding+mapencoding with preferred name} {
     set charset [mime::reversemapencoding "US-ASCII"]
     mime::mapencoding $charset
 } {US-ASCII}
 
-test mime-7.2 {Test reversemapencoding+mapencoding with alias} {
+test mime-8.2 {Test reversemapencoding+mapencoding with alias} {
     set charset [mime::reversemapencoding "UTF8"]
     mime::mapencoding $charset
 } {UTF-8}
 
 
-test mime-8.0 {Test chunk handling of copymessage and helpers} {
+test mime-9.0 {Test chunk handling of copymessage and helpers} {
     set in [makeFile [set data [string repeat [string repeat "123456789 " 10]\n 350]] input.txt]
     set mi [makeFile {} mime.txt]
 
@@ -384,7 +384,7 @@ foreach {n stamp date} {
     5  68248620 {Thu, 28 Feb 2002 21:57:00 +0000}
     6 126218520 {Wed, 31 Dec 2003 20:42:00 +0000}
 } {
-    test mime-9.$n "Test formatting dates (RFC 822)" {
+    test mime-10.$n "Test formatting dates (RFC 822)" {
         # To verify that clock scan gets the expected value.
         set stamp_test [expr {[mime::parsedatetime $date clock] - $epoch}]
         # Parse and re-format should get us the original.

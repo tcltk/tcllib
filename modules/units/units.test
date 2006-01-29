@@ -13,7 +13,7 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.4 2006/01/27 03:39:58 andreas_kupries Exp $"
+#  "$Id: units.test,v 1.5 2006/01/29 08:15:10 andreas_kupries Exp $"
 #
 #----------------------------------------------------------------
 
@@ -212,15 +212,15 @@ test units-4.6 {convert value with prefixed numerator and denominator units} {
     units::convert 1.0kilometer/kilosecond meter/second
 } {1.0}
 
-test units-4.6 {convert value with multiple prefixed denominator units} {
+test units-4.7 {convert value with multiple prefixed denominator units} {
     units::convert 1.0meter/kilosecond-milligram meter/second-gram
 } {1.0}
 
-test units-4.7 {convert value to prefixed target units} {
+test units-4.8 {convert value to prefixed target units} {
     units::convert 1.0second millisecond
 } {1000.0}
 
-test units-4.8 {convert value to prefixed denominator target units} {
+test units-4.9 {convert value to prefixed denominator target units} {
     units::convert 1.0meter/second meter/kilosecond
 } {1000.0}
 
@@ -478,19 +478,19 @@ test units-9.2 {non-SI astronomicalUnit} {
     ::units::convert 1.0astronomicalUnit kilometer
 } {149597900.0}
 
-test units-9.1 {non-SI atmosphere} {
+test units-9.3 {non-SI atmosphere} {
     ::units::convert 1.0atmosphere kilopascal
 } {101.325}
 
-test units-9.1 {non-SI bar} {
+test units-9.4 {non-SI bar} {
     ::units::convert 1.0bar kilopascal
 } {100.0}
 
-test units-9.1 {non-SI calorie} {
+test units-9.5 {non-SI calorie} {
     ::units::convert 1.0calorie joule
 } {4.1868}
 
-test units-9.1 {non-SI curie} {
+test units-9.6 {non-SI curie} {
     ::units::convert 1.0millicurie becquerel
 } {37000000.0}
 
