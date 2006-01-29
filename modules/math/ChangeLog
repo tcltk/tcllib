@@ -1,3 +1,10 @@
+2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bigfloat.test: Fixed use of duplicate test names.
+	* calculus.test: 
+	* linalg.test: 
+	* statistics.test: 
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bessel.test: More boilerplate simplified via use of test support.
