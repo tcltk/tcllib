@@ -2,7 +2,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.8 2006/01/29 08:34:00 andreas_kupries Exp $
+# $Id: stooop.test,v 1.9 2006/01/31 04:16:31 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -13,16 +13,13 @@ source [file join \
 testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
+testing {
+    useLocal stooop.tcl stooop
+}
+
 # -------------------------------------------------------------------------
 
-set source [file join [file dirname [info script]] stooop.tcl]
-
-package forget stooop
-catch {namespace delete ::stooop}
-if {[catch {source [file join [file dirname [info script]] stooop.tcl]} msg]} {
-    puts "skipped [file tail [info script]]: $msg"
-    return
-}
+set source [localPath stooop.tcl]
 
 # -------------------------------------------------------------------------
 
@@ -38,6 +35,10 @@ set dumpArraysCode {
         return $list
     }
 }
+
+# -------------------------------------------------------------------------
+
+set oldenv [array get env]
 
 # -------------------------------------------------------------------------
 
@@ -9395,6 +9396,13 @@ test stooop-102 {
     {b::(1,o) = 1 2}\
 ]
 
+# -------------------------------------------------------------------------
+# Restore "env" array to the state it had at the beginning of the testsuite.
+
+array unset env *
+array set   env $oldenv
+
+# -------------------------------------------------------------------------
 
 cleanupTests
 return
