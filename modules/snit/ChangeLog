@@ -1,3 +1,8 @@
+2006-01-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit.tcl: Fixed [SF Tcllib Bug 1414589], prevent the package
+	  activation code from stomping on the global variable 'dir'.
+
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snit.test: Fixed use of duplicate test names. Whitespace police
