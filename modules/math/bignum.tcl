@@ -490,9 +490,9 @@ proc ::math::bignum::clearbit {bignumvar n} {
 
 # Test the bit 'n' of 'z'. Returns true if the bit is set.
 proc ::math::bignum::testbit {z n} {
-    set atom [expr {$n / $::math::bignum::atombits}]
-    if {$atom >= [llength $z]} {return 0}
+    set  atom [expr {$n / $::math::bignum::atombits}]
     incr atom 2
+    if {$atom >= [llength $z]} {return 0}
     set mask [expr {1 << ($n & ($::math::bignum::atombits-1))}]
     expr {([lindex $z $atom] & $mask) != 0}
 }
