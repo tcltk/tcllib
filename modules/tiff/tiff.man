@@ -118,22 +118,19 @@ Deletes the specified entries from the image named by [opt image] (default 0), o
 
 Throws an error if [arg file] is not a TIFF image.
 
-[call [cmd ::jpeg::getImage] [arg file] [opt image]]
+[call [cmd ::tiff::getImage] [arg file] [opt image]]
 
 Returns the name of a Tk image containing the image at index [opt image] from [arg file]
 Throws an error if [arg file] is not a TIFF image, or if image is an unsupported format.
 Supported formats are uncompressed 24 bit RGB and uncompressed 8 bit palette.
 
-[call [cmd ::jpeg::writeImage] [arg image] [arg file] [opt entry]]
+[call [cmd ::tiff::writeImage] [arg image] [arg file] [opt entry]]
 
 Writes the contents of the Tk image [arg image] to a tiff file [arg file]. Files are
 written in the 24 bit uncompressed format, with big endian byte order. Additional entries
 to be added to the image may be specified, in the same format as [cmd tiff::addEntry]
 
-[call [cmd ::jpeg::debug] [arg file]]
-
-
-[call [cmd ::jpeg::debug] [arg file]]
+[call [cmd ::tiff::debug] [arg file]]
 
 Prints everything we know about the given file in a nice format.
 
