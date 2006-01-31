@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.11 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.12 2006/01/31 04:57:35 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -392,11 +392,11 @@ test set-10.1 {include} {
     set msg
 } [tcltest::wrongNumArgs {::struct::set::Sinclude} {Avar element} 1]
 
-test set-10.2 {include} {
+test set-10.2 {include, non-existing variable} {
     catch {unset A}
-    catch {setop include A B} msg
-    set msg
-} {can't read "A": no such variable}
+    setop include A B
+    set A
+} {B}
 
 test set-10.3 {include} {
     catch {unset A} ; set A $sa

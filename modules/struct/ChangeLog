@@ -1,3 +1,11 @@
+2006-01-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sets.tcl: Fixed [SF Tcllib Bug 1414051], brought implementation
+	  of 'include' into sync with documentation. Behaving like
+	  'lappend' means that we have to create the variable if it does
+	  not exist. Thanks to michael Schlenker <mic42@users.sf.net>.
+	* sets.test: Corrected the testsuite as well.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* matrix1.test: Replaced [aget] with usage of the standard
