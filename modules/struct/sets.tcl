@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.9 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.10 2006/01/31 04:57:35 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -329,7 +329,7 @@ proc ::struct::set::Cleanup {A} {
 proc ::struct::set::Sinclude {Avar element} {
     # Avar = Avar + {element}
     upvar 1 $Avar A
-    if {![Scontains $A $element]} {
+    if {![info exists A] || ![Scontains $A $element]} {
 	lappend A $element
     }
     return
