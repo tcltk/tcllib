@@ -1,3 +1,10 @@
+2006-01-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bignum.tcl (testbit): Fixed [SF Tcllib Bug 1085562]. Thanks to
+	  aubinroy <aroy@users.sf.net> for the report, bugfix, and his
+	  patience while waiting for us to apply the fix.
+	* bignum.test: Extended the testsuite.
+
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bigfloat.test: Fixed use of duplicate test names.
