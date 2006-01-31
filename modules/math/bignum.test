@@ -493,9 +493,41 @@ test "Mod-11.1" "Modulo and remainder for small numbers" -body {
 } -result 1
 
 
+# Bit operations (Test bit)
+
+test testbit-1.0 {test with bit in range of used bits} -setup {
+    set z [::math::bignum::fromstr 3220]
+    ::math::bignum::setbit z 24
+} -body {
+    ::math::bignum::testbit $z 23
+} -cleanup {
+    unset z
+} -result 0
+
+test testbit-1.1 {test with bit beyond range of used bits} -setup {
+    set z [::math::bignum::fromstr 3220]
+} -body {
+    ::math::bignum::testbit $z 23
+} -cleanup {
+    unset z
+} -result 0
+
+test testbit-1.2 {test with bit in range of used bits} -setup {
+    set z [::math::bignum::fromstr 3220]
+    ::math::bignum::setbit z 24
+} -body {
+    ::math::bignum::testbit $z 24
+} -cleanup {
+    unset z
+} -result 1
+
+# -------------------------------------------------------------------------
+
 #
 # TODO: all the other operations and functions
 #
+
+# -------------------------------------------------------------------------
 
 # End of test cases
 tcltest::cleanupTests
