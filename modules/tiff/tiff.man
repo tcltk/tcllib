@@ -11,7 +11,7 @@ This package provides commands to query, modify, read, and write TIFF images.
 TIFF stands for [term {Tagged Image File Format}] and is a standard
 for lossless storage of photographical images and associated metadata.
 It is specified at [uri http://partners.adobe.com/public/developer/tiff/index.html].
-[nl]
+[para]
 Multiple images may be stored in a single TIFF file. The [opt image] options to the functions
 in this package are for accessing images other than the first. Data in a TIFF image is
 stored as a series of tags having a numerical value, which are represented in a 4 digit
