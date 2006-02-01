@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tiff.tcl,v 1.1 2006/01/28 21:10:40 afaupell Exp $
+# RCS: @(#) $Id: tiff.tcl,v 1.2 2006/02/01 04:27:01 afaupell Exp $
 
 package provide tiff 0.1
 
@@ -48,7 +48,7 @@ proc ::tiff::byteOrder {file} {
     return $byteOrder
 }
 
-proc ::tiff::numImages {fh} {
+proc ::tiff::numImages {file} {
     variable byteOrder
     set fh [openTIFF $file]
     set images [llength [_ifds $fh]]
@@ -310,12 +310,22 @@ proc ::tiff::_copyData {fh new var} {
 # returns a list of offsets of all the IFDs
 proc ::tiff::_ifds {fh} {
     variable byteOrder
-    set ret {}
+
+    # number of entries in this ifd
     _scan $byteOrder [read $fh 2] s num
-    while {$num > 0} {
+    # subract 2 to account for reading the number
+    set ret [list [expr {[tell $fh] - 2}]]
+    # skip the entries, 12 bytes each
+    seek $fh [expr {$num * 12}] current
+    # 4 byte offset to next ifd after entries
+    _scan $byteOrder [read $fh 4] i next
+
+    while {$next > 0} {
+        seek $fh $next start
+        _scan $byteOrder [read $fh 2] s num
         lappend ret [expr {[tell $fh] - 2}]
         seek $fh [expr {$num * 12}] current
-        _scan $byteOrder [read $fh 4] i num
+        _scan $byteOrder [read $fh 4] i next
     }
     return $ret
 }

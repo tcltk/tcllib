@@ -1,5 +1,9 @@
 2006-1-31 Aaron Faupell <afaupell@users.sourceforge.net>
 
+	* tiff.tcl: typo in numImages, fix in _ifds
+
+2006-1-31 Aaron Faupell <afaupell@users.sourceforge.net>
+
 	* Typos in man page
 
 2005-1-28 Aaron Faupell <afaupell@users.sourceforge.net>
