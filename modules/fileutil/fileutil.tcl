@@ -4,12 +4,12 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2002      by Phil Ehrens <phil@slug.org> (fileType)
-# Copyright (c) 2005      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.53 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.54 2006/02/10 03:31:21 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -19,7 +19,9 @@ namespace eval ::fileutil {
     namespace export \
 	    grep find findByPattern cat touch foreachLine \
 	    jail stripPwd stripN stripPath tempdir tempfile \
-	    install fileType
+	    install fileType writeFile appendToFile \
+	    insertIntoFile removeFromFile replaceInFile \
+	    updateInPlace
 }
 
 # ::fileutil::grep --
@@ -568,32 +570,658 @@ proc fileutil::jail {jail filename} {
 # ::fileutil::cat --
 #
 #	Tcl implementation of the UNIX "cat" command.  Returns the contents
-#	of the specified file.
+#	of the specified files.
 #
 # Arguments:
-#	args	name of the files to read.
+#	args	names of the files to read, interspersed with options
+#		to set encodings, translations, or eofchar.
 #
 # Results:
-#	data		data read from the file.
+#	data	data read from the file.
 
 proc ::fileutil::cat {args} {
-    foreach filename $args {
-	# Don't bother catching errors, just let them propagate up
-	set fd [open $filename r]
-	# Use the [file size] command to get the size, which preallocates memory,
-	# rather than trying to grow it as the read progresses.
-	set size [file size $filename]
-	if {$size} {
-	    append data [read $fd $size]
-	} else {
-	    # if the file has zero bytes it is either empty, or something 
-	    # where [file size] reports 0 but the file actually has data (like
-	    # the files in the /proc filesystem on Linux)
-	    append data [read $fd]
-	}
-	close $fd
+    # Syntax: (?options? file)+
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    if {![llength $args]} {
+	# Argument processing stopped with arguments missing.
+	return -code error \
+		"wrong#args: should be\
+		[lindex [info level 0] 0] ?-eofchar|-translation|-encoding arg?+ file ..."
     }
+
+    # We go through the arguments using foreach and keeping track of
+    # the index we are at. We do not shift the arguments out to the
+    # left. That is inherently quadratic, copying everything down.
+
+    set opts {}
+    set mode maybeopt
+    set channels {}
+
+    foreach a $args {
+	if {[string equal $mode optarg]} {
+	    lappend opts $a
+	    set mode maybeopt
+	    continue
+	} elseif {[string equal $mode maybeopt]} {
+	    if {[string match -* $a]} {
+		switch -exact -- $a {
+		    -encoding -
+		    -translation -
+		    -eofchar {
+			lappend opts $a
+			set mode optarg
+			continue
+		    }
+		    -- {
+			set mode file
+			continue
+		    }
+		    default {
+			return -code error \
+				"Bad option \"$a\",\
+				expected one of\
+				-encoding, -eofchar,\
+				or -translation"
+		    }
+		}
+	    }
+	    # Not an option, but a file. Change mode and fall through.
+	    set mode file
+	}
+	# Process file arguments
+
+	if {[string equal $a -]} {
+	    # Stdin reference is special.
+
+	    # Test that the current options are all ok.
+	    # For stdin we have to avoid closing it.
+
+	    set old [fconfigure stdin]
+	    set fail [catch {
+		SetOptions stdin $opts
+	    } msg] ; # {}
+	    SetOptions stdin $old
+
+	    if {$fail} {
+		return -code error $msg
+	    }
+
+	    lappend channels [list $a $opts 0]
+	} else {
+	    if {![file exists $a]} {
+		return -code error "Cannot read file \"$a\", does not exist"
+	    } elseif {![file isfile $a]} {
+		return -code error "Cannot read file \"$a\", is not a file"
+	    } elseif {![file readable $a]} {
+		return -code error "Cannot read file \"$a\", read access is denied"
+	    }
+
+	    # Test that the current options are all ok.
+	    set c [open $a r]
+	    set fail [catch {
+		SetOptions $c $opts
+	    } msg] ; # {}
+	    close $c
+	    if {$fail} {
+		return -code error $msg
+	    }
+
+	    lappend channels [list $a $opts [file size $a]]
+	}
+
+	# We may have more options and files coming after.
+	set mode maybeopt
+    }
+
+    if {![string equal $mode maybeopt]} {
+	# Argument processing stopped with arguments missing.
+	return -code error \
+		"wrong#args: should be\
+		[lindex [info level 0] 0] ?-eofchar|-translation|-encoding arg?+ file ..."
+    }
+
+    set data ""
+    foreach c $channels {
+	foreach {fname opts size} $c break
+
+	if {[string equal $fname -]} {
+	    set old [fconfigure stdin]
+	    SetOptions stdin $opts
+	    append data [read stdin]
+	    SetOptions stdin $old
+	    continue
+	}
+
+	set c [open $fname r]
+	SetOptions $c $opts
+
+	if {$size > 0} {
+	    # Used the [file size] command to get the size, which
+	    # preallocates memory, rather than trying to grow it as
+	    # the read progresses.
+	    append data [read $c $size]
+	} else {
+	    # if the file has zero bytes it is either empty, or
+	    # something where [file size] reports 0 but the file
+	    # actually has data (like the files in the /proc
+	    # filesystem on Linux).
+	    append data [read $c]
+	}
+	close $c
+    }
+
     return $data
+}
+
+# ::fileutil::writeFile --
+#
+#	Write the specified data into the named file,
+#	creating it if necessary.
+#
+# Arguments:
+#	options...	Options and arguments.
+#	filename	Path to the file to write.
+#	data		The data to write into the file
+#
+# Results:
+#	None.
+
+proc ::fileutil::writeFile {args} {
+    # Syntax: ?options? file data
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    Spec Writable $args opts fname data
+
+    # Now perform the requested operation.
+
+    file mkdir [file dirname $fname]
+    set              c [open $fname w]
+    SetOptions      $c $opts
+    puts -nonewline $c $data
+    close           $c
+    return
+}
+
+# ::fileutil::appendToFile --
+#
+#	Append the specified data at the end of the named file,
+#	creating it if necessary.
+#
+# Arguments:
+#	options...	Options and arguments.
+#	filename	Path to the file to extend.
+#	data		The data to extend the file with.
+#
+# Results:
+#	None.
+
+proc ::fileutil::appendToFile {args} {
+    # Syntax: ?options? file data
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    Spec Writable $args opts fname data
+
+    # Now perform the requested operation.
+
+    file mkdir [file dirname $fname]
+    set              c [open $fname a]
+    SetOptions      $c $opts
+    set at    [tell $c]
+    puts -nonewline $c $data
+    close           $c
+    return $at
+}
+
+# ::fileutil::insertIntoFile --
+#
+#	Insert the specified data into the named file,
+#	creating it if necessary, at the given locaton.
+#
+# Arguments:
+#	options...	Options and arguments.
+#	filename	Path to the file to extend.
+#	data		The data to extend the file with.
+#
+# Results:
+#	None.
+
+proc ::fileutil::insertIntoFile {args} {
+
+    # Syntax: ?options? file at data
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    Spec ReadWritable $args opts fname at data
+
+    set max [file size $fname]
+    CheckLocation $at $max insertion
+
+    if {[string length $data] == 0} {
+	# Another degenerate case, inserting nothing.
+	# Leave the file well enough alone.
+	return
+    }
+
+    foreach {c o t} [Open2 $fname $opts] break
+
+    # The degenerate cases of both appending and insertion at the
+    # beginning of the file allow more optimized implementations of
+    # the operation.
+
+    if {$at == 0} {
+	puts -nonewline    $o $data
+	fcopy           $c $o
+    } elseif {$at == $max} {
+	fcopy           $c $o
+	puts -nonewline    $o $data
+    } else {
+	fcopy           $c $o -size $at
+	puts -nonewline    $o $data
+	fcopy           $c $o
+    }
+
+    Close2 $fname $t $c $o
+    return
+}
+
+# ::fileutil::removeFromFile --
+#
+#	Remove n characters from the named file,
+#	starting at the given locaton.
+#
+# Arguments:
+#	options...	Options and arguments.
+#	filename	Path to the file to extend.
+#	at		Location to start the removal from.
+#	n		Number of characters to remove.
+#
+# Results:
+#	None.
+
+proc ::fileutil::removeFromFile {args} {
+
+    # Syntax: ?options? file at n
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    Spec ReadWritable $args opts fname at n
+
+    set max [file size $fname]
+    CheckLocation    $at $max removal
+    CheckLength   $n $at $max removal
+
+    if {$n == 0} {
+	# Another degenerate case, removing nothing.
+	# Leave the file well enough alone.
+	return
+    }
+
+    foreach {c o t} [Open2 $fname $opts] break
+
+    # The degenerate cases of both removal from the beginning or end
+    # of the file allow more optimized implementations of the
+    # operation.
+
+    if {$at == 0} {
+	seek  $c    $n current
+	fcopy $c $o
+    } elseif {($at + $n) == $max} {
+	fcopy $c $o -size $at
+	# Nothing further to copy.
+    } else {
+	fcopy $c $o -size $at
+	seek  $c    $n current
+	fcopy $c $o
+    }
+
+    Close2 $fname $t $c $o
+    return
+}
+
+# ::fileutil::replaceInFile --
+#
+#	Remove n characters from the named file,
+#	starting at the given locaton, and replace
+#	it with the given data.
+#
+# Arguments:
+#	options...	Options and arguments.
+#	filename	Path to the file to extend.
+#	at		Location to start the removal from.
+#	n		Number of characters to remove.
+#	data		The replacement data.
+#
+# Results:
+#	None.
+
+proc ::fileutil::replaceInFile {args} {
+
+    # Syntax: ?options? file at n data
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    Spec ReadWritable $args opts fname at n data
+
+    set max [file size $fname]
+    CheckLocation    $at $max replacement
+    CheckLength   $n $at $max replacement
+
+    if {
+	($n == 0) &&
+	([string length $data] == 0)
+    } {
+	# Another degenerate case, replacing nothing with
+	# nothing. Leave the file well enough alone.
+	return
+    }
+
+    foreach {c o t} [Open2 $fname $opts] break
+
+    # Check for degenerate cases and handle them separately,
+    # i.e. strip the no-op parts out of the general implementation.
+
+    if {$at == 0} {
+	if {$n == 0} {
+	    # Insertion instead of replacement.
+
+	    puts -nonewline    $o $data
+	    fcopy           $c $o
+
+	} elseif {[string length $data] == 0} {
+	    # Removal instead of replacement.
+
+	    seek  $c    $n current
+	    fcopy $c $o
+
+	} else {
+	    # General replacement at front.
+
+	    seek         $c    $n current
+	    puts -nonewline $o $data
+	    fcopy        $c $o
+	}
+    } elseif {($at + $n) == $max} {
+	if {$n == 0} {
+	    # Appending instead of replacement
+
+	    fcopy           $c $o
+	    puts -nonewline    $o $data
+
+	} elseif {[string length $data] == 0} {
+	    # Truncating instead of replacement
+
+	    fcopy $c $o -size $at
+	    # Nothing further to copy.
+
+	} else {
+	    # General replacement at end
+
+	    fcopy        $c $o -size $at
+	    puts -nonewline $o $data
+	}
+    } else {
+	if {$n == 0} {
+	    # General insertion.
+
+	    fcopy           $c $o -size $at
+	    puts -nonewline    $o $data
+	    fcopy           $c $o
+
+	} elseif {[string length $data] == 0} {
+	    # General removal.
+
+	    fcopy $c $o -size $at
+	    seek  $c    $n current
+	    fcopy $c $o
+
+	} else {
+	    # General replacement.
+
+	    fcopy        $c $o -size $at
+	    seek         $c    $n current
+	    puts -nonewline $o $data
+	    fcopy        $c $o
+	}
+    }
+
+    Close2 $fname $t $c $o
+    return
+}
+
+# ::fileutil::updateInPlace --
+#
+#	Run command prefix on the contents of the
+#	file and replace them with the result of
+#	the command.
+#
+# Arguments:
+#	options...	Options and arguments.
+#	filename	Path to the file to extend.
+#	cmd		Command prefix to run.
+#
+# Results:
+#	None.
+
+proc ::fileutil::updateInPlace {args} {
+    # Syntax: ?options? file cmd
+    # options = -encoding    ENC
+    #         | -translation TRA
+    #         | -eofchar     ECH
+    #         | --
+
+    Spec ReadWritable $args opts fname cmd
+
+    # readFile/cat inlined ...
+
+    set             c [open $fname r]
+    SetOptions     $c $opts
+    set data [read $c]
+    close          $c
+
+    # Transformation. Abort and do not modify the target file if an
+    # error was raised during this step.
+
+    lappend cmd $data
+    set code [catch {uplevel 1 $cmd} res]
+    if {$code} {
+	return -code $code $res
+    }
+
+    # writeFile inlined, with careful preservation of old contents
+    # until we are sure that the write was ok.
+
+    if {[catch {
+	file rename -force $fname ${fname}.bak
+
+	set              o [open $fname w]
+	SetOptions      $o $opts
+	puts -nonewline $o $res
+	close           $o
+
+	file delete -force ${fname}.bak
+    } msg]} {
+	if {[file exists ${fname}.bak]} {
+	    catch {
+		file rename -force ${fname}.bak $fname
+	    }
+	    return -code error $msg
+	}
+    }
+    return
+}
+
+proc ::fileutil::Writable {fname mv} {
+    upvar 1 $mv msg
+    if {[file exists $fname]} {
+	if {![file isfile $fname]} {
+	    set msg "Cannot use file \"$fname\", is not a file"
+	    return 0
+	} elseif {![file writable $fname]} {
+	    set msg "Cannot use file \"$fname\", write access is denied"
+	    return 0
+	}
+    }
+    return 1
+}
+
+proc ::fileutil::ReadWritable {fname mv} {
+    upvar 1 $mv msg
+    if {![file exists $fname]} {
+	set msg "Cannot use file \"$fname\", does not exist"
+	return 0
+    } elseif {![file isfile $fname]} {
+	set msg "Cannot use file \"$fname\", is not a file"
+	return 0
+    } elseif {![file writable $fname]} {
+	set msg "Cannot use file \"$fname\", write access is denied"
+	return 0
+    } elseif {![file readable $fname]} {
+	set msg "Cannot use file \"$fname\", read access is denied"
+	return 0
+    }
+    return 1
+}
+
+proc ::fileutil::Spec {check alist ov fv args} {
+    upvar 1 $ov opts $fv fname
+
+    set  n [llength $args] ; # Num more args
+    incr n                 ; # Count path as well
+
+    set opts {}
+    set mode maybeopt
+
+    set at 0
+    foreach a $alist {
+	if {[string equal $mode optarg]} {
+	    lappend opts $a
+	    set mode maybeopt
+	    incr at
+	    continue
+	} elseif {[string equal $mode maybeopt]} {
+	    if {[string match -* $a]} {
+		switch -exact -- $a {
+		    -encoding -
+		    -translation -
+		    -eofchar {
+			lappend opts $a
+			set mode optarg
+			incr at
+			continue
+		    }
+		    -- {
+			# Stop processing.
+			incr at
+			break
+		    }
+		    default {
+			return -code error \
+				"Bad option \"$a\",\
+				expected one of\
+				-encoding, -eofchar,\
+				or -translation"
+		    }
+		}
+	    }
+	    # Not an option, but a file.
+	    # Stop processing.
+	    break
+	}
+    }
+
+    if {([llength $alist] - $at) != $n} {
+	# Argument processing stopped with arguments missing, or too
+	# many
+	return -code error \
+		"wrong#args: should be\
+		[lindex [info level 1] 0] ?-eofchar|-translation|-encoding arg? file $args"
+    }
+
+    set fname [lindex $alist $at]
+    incr at
+    foreach \
+	    var $args \
+	    val [lrange $alist $at end] {
+	upvar 1 $var A
+	set A $val
+    }
+
+    # Check given path ...
+
+    if {![eval [linsert $check end $a msg]]} {
+	return -code error $msg
+    }
+
+    return
+}
+
+proc ::fileutil::Open2 {fname opts} {
+    set c [open $fname r]
+    set t [tempfile]
+    set o [open $t     w]
+
+    SetOptions $c $opts
+    SetOptions $o $opts
+
+    return [list $c $o $t]
+}
+
+proc ::fileutil::Close2 {f temp in out} {
+    close $in
+    close $out
+
+    file copy   -force $f ${f}.bak
+    file rename -force $temp $f
+    file delete -force ${f}.bak
+    return
+}
+
+proc ::fileutil::SetOptions {c opts} {
+    if {![llength $opts]} return
+    eval [linsert $opts 0 fconfigure $c]
+    return
+}
+
+proc ::fileutil::CheckLocation {at max label} {
+    if {![string is integer -strict $at]} {
+	return -code error \
+		"Expected integer but got \"$at\""
+    } elseif {$at < 0} {
+	return -code error \
+		"Bad $label point $at, before start of data"
+    } elseif {$at > $max} {
+	return -code error \
+		"Bad $label point $at, behind end of data"
+    }
+}
+
+proc ::fileutil::CheckLength {n at max label} {
+    if {![string is integer -strict $n]} {
+	return -code error \
+		"Expected integer but got \"$n\""
+    } elseif {$n < 0} {
+	return -code error \
+		"Bad $label size $n"
+    } elseif {($at + $n) > $max} {
+	return -code error \
+		"Bad $label size $n, going behind end of data"
+    }
 }
 
 # ::fileutil::foreachLine --
