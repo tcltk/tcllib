@@ -1,3 +1,44 @@
+2006-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.man: Updated the documentation to cover all the new
+	  commands.
+
+	* fileutil.test: Extended testsuite to cover the command
+	  'updateInPlace'.
+
+	* fileutil.tcl: Fixed bug in implementation of 'updateInPlace', we
+	  wrote the unchanged input back instead of the transformation
+	  result.
+
+2006-02-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Extended the testsuite to cover the commands
+	  'appendToFile', 'insertIntoFile', 'removeFromFile', and
+	  'replaceInFile'.
+
+	* fileutil.tcl: Added argument validation to the commands
+	  'appendToFile', 'insertIntoFile', 'removeFromFile', and
+	  'replaceInFile'. Modified their implementation to use shorter
+	  implementations for the degenerate cases.
+
+2006-02-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Extended testsuite to cover the command
+	  'writeFile'.
+
+	* fileutil.tcl: Fixed problems in common option processor and
+	  supporting commands.
+
+2006-02-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Added commands 'writeFile', 'appendToFile',
+	  'insertIntoFile', 'removeFromFile', 'replaceInFile', and
+	  'updateInPlace'. Extended 'cat' with option processing for
+	  -encoding, ...
+
+	* fileutil.test: Extended testsuite of 'cat', and made
+	  this part self-contained with regard to temp files.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Fixed use and cleanup of temp.files.

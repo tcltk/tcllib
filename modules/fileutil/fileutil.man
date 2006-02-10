@@ -12,12 +12,120 @@ This package provides implementations of standard unix utilities.
 [list_begin definitions]
 
 
-[call [cmd ::fileutil::cat] [arg files]]
+[call [cmd ::fileutil::cat] ([opt [arg options]] [arg file])...]
 
 A tcl implementation of the UNIX [syscmd cat] command.  Returns the
-contents of the specified file(s). The arguments are files to read.
-If there are problems reading any of the files, an error will occur,
-and no data will be returned.
+contents of the specified file(s). The arguments are files to read,
+with interspersed options configuring the process. If there are
+problems reading any of the files, an error will occur, and no data
+will be returned.
+
+[nl]
+
+The options accepted are [option -encoding], [option -translation],
+[option -eofchar], and [option --]. With the exception of the last all
+options take a single value as argument, as specified by the tcl
+builtin command [cmd fconfigure]. The [option --] has to be used to
+terminate option processing before a file if that file's name begins
+with a dash.
+
+[nl]
+
+Each file can have its own set of options coming before it, and for
+anything not specified directly the defaults are inherited from the
+options of the previous file. The first file inherits the system
+default for unspecified options.
+
+
+[call [cmd ::fileutil::writeFile] [opt [arg options]] [arg file] [arg data]]
+
+The command replaces the current contents of the specified [arg file]
+with [arg data], with the process configured by the options. The
+command accepts the same options as [cmd ::fileutil::cat]. The
+specification of a non-existent file is legal and causes the command
+to create the file (and all required but missing directories).
+
+
+[call [cmd ::fileutil::appendToFile] [opt [arg options]] [arg file] [arg data]]
+
+This command is like [cmd ::fileutil::writeFile], except that the
+previous contents of [arg file] are not replaced, but appended to. The
+command accepts the same options as [cmd ::fileutil::cat]
+
+
+[call [cmd ::fileutil::insertIntoFile] [opt [arg options]] [arg file] [arg at] [arg data]]
+
+This comment is similar to [cmd ::fileutil::appendToFile], except that
+the new data is not appended at the end, but inserted at a specified
+location within the file. In further contrast this command has to be
+given the path to an existing file. It will not create a missing file,
+but throw an error instead.
+
+[nl]
+
+The specified location [arg at] has to be an integer number in the
+range [const 0] ... [lb]file size [arg file][rb]. [const 0] will cause
+insertion of the new data before the first character of the existing
+content, whereas [lb]file size [arg file][rb] causes insertion after
+the last character of the existing content, i.e. appending.
+
+[nl]
+
+The command accepts the same options as [cmd ::fileutil::cat].
+
+
+[call [cmd ::fileutil::removeFromFile] [opt [arg options]] [arg file] [arg at] [arg n]]
+
+This command is the complement to [cmd ::fileutil::insertIntoFile], removing [arg n] characters from the [arg file], starting at location [arg at].
+
+The specified location [arg at] has to be an integer number in the
+range [const 0] ... [lb]file size [arg file][rb] - [arg n]. [const 0]
+will cause the removal of the new data to start with the first
+character of the existing content,
+
+whereas [lb]file size [arg file][rb] - [arg n] causes the removal of
+the tail of the existing content, i.e. the truncation of the file.
+
+[nl]
+
+The command accepts the same options as [cmd ::fileutil::cat].
+
+
+[call [cmd ::fileutil::replaceInFile] [opt [arg options]] [arg file] [arg at] [arg n] [arg data]]
+
+This command is a combination of [cmd ::fileutil::removeFromFile] and
+[cmd ::fileutil::insertIntoFile]. It first removes the part of the
+contents specified by the arguments [arg at] and [arg n], and then
+inserts [arg data] at the given location, effectively replacing the
+removed by content with [arg data].
+
+All constraints imposed on [arg at] and [arg n] by
+[cmd ::fileutil::removeFromFile] and [cmd ::fileutil::insertIntoFile]
+are obeyed.
+
+[nl]
+
+The command accepts the same options as [cmd ::fileutil::cat].
+
+
+[call [cmd ::fileutil::updateInPlace] [opt [arg options]] [arg file] [arg cmd]]
+
+This command can be seen as the generic core functionality of
+[cmd ::fileutil::replaceInFile].
+
+It first reads the contents of the specified [arg file], then runs the
+command prefix [arg cmd] with that data appended to it, and at last
+writes the result of that invokation back as the new contents of the
+file.
+
+[nl]
+
+If the executed command throws an error the [arg file] is not changed.
+
+[nl]
+
+The command accepts the same options as [cmd ::fileutil::cat].
+
 
 [call [cmd ::fileutil::fileType] [arg filename]]
 
