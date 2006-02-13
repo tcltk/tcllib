@@ -171,18 +171,18 @@ test "Plus-3.2" "Add two very large numbers" -body {
 test "Plus-3.3" "Add zero to a large number" -body {
     set a [::math::bignum::fromstr "1[string repeat 0 200]1"]
     set b 0
-    
+
     set c [::math::bignum::add $a $b]
-    
+
     ::math::bignum::tostr $c
 } -result "1[string repeat 0 200]1"
 
 test "Plus-3.4" "Add one to a large number" -body {
     set a [::math::bignum::fromstr "1[string repeat 9 200]"]
     set b 1
-    
+
     set c [::math::bignum::add $a $b]
-    
+
     ::math::bignum::tostr $c
 } -result "2[string repeat 0 200]"
 
@@ -208,9 +208,9 @@ test "Minus-3.3" "Subtract two big numbers" -body {
 test "Minus-3.4" "Subtract one from a big number" -body {
     set a [::math::bignum::fromstr "1[string repeat 0 50]"]
     set b 1
-    
+
     set c [::math::bignum::sub $a $b]
-    
+
     ::math::bignum::tostr $c
 } -result [string repeat 9 50]
 
@@ -440,13 +440,68 @@ test "Pow-7.1" "Exponentiate large numbers" -body {
    return $okay
 } -result 1
 
+# Left and right shifts
+
+set c 0
+foreach {z n} {
+   1             1
+   2             1
+   4             1
+  -1             1
+  -2             1
+  -4             1
+   1             2
+   2             2
+   4             2
+  -1             2
+  -2             2
+  -4             2
+   1000001       1
+   2000001       1
+   4000001       1
+  -1000001       1
+  -2000001       1
+  -4000001       1
+   10000000001   1
+   20000000001   1
+   40000000001   1
+  -10000000001   1
+  -20000000001   1
+  -40000000001   1
+   10000000001  11
+   20000000001  11
+   40000000001  11
+  -10000000001  11
+  -20000000001  11
+  -40000000001  11
+   10000000001  21
+   20000000001  21
+   40000000001  21
+  -10000000001  21
+  -20000000001  21
+  -40000000001  21
+} {
+    incr c
+    test "Lshift-8.$c" "Lshift large numbers" -body {
+        set x [::math::bignum::lshift [::math::bignum::fromstr $z] $n]
+        set y [expr {$z << $n}]
+        ::math::bignum::cmp $x [::math::bignum::fromstr $y]
+    } -result 0
+
+    test "Rshift-8.$c" "Rshift large numbers" -body {
+        set x [::math::bignum::rshift [::math::bignum::fromstr $z] $n]
+        set y [expr {$z >> $n}]
+        ::math::bignum::cmp $x [::math::bignum::fromstr $y]
+    } -result 0
+}
+
 
 # Bit operations (And, Or, Xor)
 
 foreach {n a b zand zor zxor} {
     0  0 0  0 0 0
     1  1 2  0 3 3
-    2  1 3  1 3 2  
+    2  1 3  1 3 2
     3  2 3  2 3 1
 } {
     set a    [::math::bignum::fromstr $a]
@@ -454,7 +509,7 @@ foreach {n a b zand zor zxor} {
     set zand [::math::bignum::fromstr $zand]
     set zor  [::math::bignum::fromstr $zor]
     set zxor [::math::bignum::fromstr $zxor]
-    
+
     test "Bitand-8.$n" "BitAnd large numbers" -body {
 	::math::bignum::bitand $a $b
     } -result $zand
