@@ -1,3 +1,8 @@
+2006-02-13  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* bignum.tcl (rshift): Fixed [SF Tcllib Bug 1098051]. (Solution
+	  provided by Lars Hellstrom. Added tests for both rshift and lshift)
+
 2006-01-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bignum.tcl (testbit): Fixed [SF Tcllib Bug 1085562]. Thanks to
@@ -8,55 +13,55 @@
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bigfloat.test: Fixed use of duplicate test names.
-	* calculus.test: 
-	* linalg.test: 
-	* statistics.test: 
+	* calculus.test:
+	* linalg.test:
+	* statistics.test:
 
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bessel.test: More boilerplate simplified via use of test support.
 	* bigfloat.test:
 	* bigfloat2.test:
-	* bignum.test: 
-	* calculus.test: 
-	* combinatorics.test: 
-	* constants.test: 
-	* elliptic.test: 
-	* fourier.test: 
-	* fuzzy.test: 
-	* geometry.test: 
-	* interpolate.test: 
-	* linalg.test: 
-	* math.test: 
-	* optimize.test: 
-	* polynomials.test: 
-	* qcomplex.test: 
-	* roman.test: 
-	* special.test: 
-	* statistics.test: 
+	* bignum.test:
+	* calculus.test:
+	* combinatorics.test:
+	* constants.test:
+	* elliptic.test:
+	* fourier.test:
+	* fuzzy.test:
+	* geometry.test:
+	* interpolate.test:
+	* linalg.test:
+	* math.test:
+	* optimize.test:
+	* polynomials.test:
+	* qcomplex.test:
+	* roman.test:
+	* special.test:
+	* statistics.test:
 
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bessel.test: Hooked into the new common test support code.
 	* bigfloat.test:
 	* bigfloat2.test:
-	* bignum.test: 
-	* calculus.test: 
-	* combinatorics.test: 
-	* constants.test: 
-	* elliptic.test: 
-	* fourier.test: 
-	* fuzzy.test: 
-	* geometry.test: 
-	* interpolate.test: 
-	* linalg.test: 
-	* math.test: 
-	* optimize.test: 
-	* polynomials.test: 
-	* qcomplex.test: 
-	* roman.test: 
-	* special.test: 
-	* statistics.test: 
+	* bignum.test:
+	* calculus.test:
+	* combinatorics.test:
+	* constants.test:
+	* elliptic.test:
+	* fourier.test:
+	* fuzzy.test:
+	* geometry.test:
+	* interpolate.test:
+	* linalg.test:
+	* math.test:
+	* optimize.test:
+	* polynomials.test:
+	* qcomplex.test:
+	* roman.test:
+	* special.test:
+	* statistics.test:
 
 2006-01-11  Andreas Kupries <andreask@activestate.com>
 
@@ -98,7 +103,7 @@
 
 2005-10-26  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-        * qcomplex.tcl: error in the computation of the complex 
+        * qcomplex.tcl: error in the computation of the complex
                         cosine. Found by Oscar Andreas Lopez.
 
 2005-10-21  Andreas Kupries <andreask@activestate.com>
@@ -116,7 +121,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -156,11 +161,11 @@
 2005-10-04  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
         * Added roman numerals package by Kenneth Green
-        * geometry.man:  Completed the description of the 
+        * geometry.man:  Completed the description of the
                          current procedures
 
 2005-09-28  Arjen Markus  <arjenmarkus@users.sourceforge.net>
- 
+
         * optimize.man:  Removed note on linear programming. It is
                          working now (not fully, perhaps though)
 
@@ -190,17 +195,17 @@
 	* constants.test: package index, code, and testsuite.
 	* elliptic.test: Removed 8.4isms from testsuites for packages
 	* fourier.test:  allowing use with Tcl 8.2+
-	* interpolate.test: 
-	* linalg.test: 
-	* math.test: 
-	* optimize.test: 
-	* polynomials.test: 
-	* qcomplex.test: 
-	* special.test: 
-	* statistics.test: 
-	* bigfloat.tcl: 
-	* bignum.tcl: 
-	* pkgIndex.tcl: 
+	* interpolate.test:
+	* linalg.test:
+	* math.test:
+	* optimize.test:
+	* polynomials.test:
+	* qcomplex.test:
+	* special.test:
+	* statistics.test:
+	* bigfloat.tcl:
+	* bignum.tcl:
+	* pkgIndex.tcl:
 
 2005-09-09  Stephane Arnold <sarnold75@users.sourceforge.net>
 
@@ -246,8 +251,8 @@
 	* bigfloat.tcl : many optimizations around the fromstr
           command and all kind of constants (mainly integer)
 	* bigfloat.test : updated test labels to more significant labels
-	* Bug #1272836 : the math round() function has changed 
-	  in Tcl 8.5a4 (intentionally) - now the round tests 
+	* Bug #1272836 : the math round() function has changed
+	  in Tcl 8.5a4 (intentionally) - now the round tests
 	  do no more rely upon this function.
 
 2005-08-26  Stephane Arnold <sarnold75@users.sourceforge.net>
@@ -285,14 +290,14 @@
 	
 2005-08-09  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-        * Added the linear programming routines that were 
+        * Added the linear programming routines that were
           described in the man page, but not actually there
         * Updated the test file and man page for this
         * Updated the pkgIndex.tcl file (optimize now at 1.0)
 
 2005-08-05  Stephane Arnold <sarnold75@users.sourceforge.net>
 
-	* bigfloat.tcl : Fixed a bug in [fromstr] when a number 
+	* bigfloat.tcl : Fixed a bug in [fromstr] when a number
 	  began with '+' ; another bug, in [fromdouble], when
 	  a number began with '+' or '-'.
 	* bigfloat.test : Added tests for fromdouble.
@@ -304,7 +309,7 @@
 
 2005-08-04  Stephane Arnold <sarnold75@users.sourceforge.net>
 
-	* bigfloat : Fixed a bug in [fromstr] when a number 
+	* bigfloat : Fixed a bug in [fromstr] when a number
 	  with an exponent beginning by 0 was given (like 1.1e+099)
 
 	* bigfloat : Added a [fromdouble] new proc.
@@ -316,7 +321,7 @@
 
 2005-07-26  Stephane Arnold
 
-	* Changed in many places : '[pi $precision]' 
+	* Changed in many places : '[pi $precision]'
 	  to '[pi $precision 1]' in which $precision is treated
 	  as binary digit length (instead of decimals)
 	  since the internal representation of the mantissa is binary
@@ -348,7 +353,7 @@
 
 2005-06-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
-        * statistics.tcl/test/man: 
+        * statistics.tcl/test/man:
           Added several methods: 2x2 tables and two quality
           control charts
 
@@ -358,7 +363,7 @@
 
 2005-06-07  Kevin Kenny <kennykb@acm.org>
 
-	* constants.tcl: Corrected ::math::constants::find_huge 
+	* constants.tcl: Corrected ::math::constants::find_huge
 	                 and ::math::constants::find_tiny to not go
 			 into an infinite loop when overflow is not an error.
 	
@@ -416,7 +421,7 @@
         * Added modified Gram-Schmidt method to the linear algebra package
 
 2004-12-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
-    
+
         * Fixed bug in rungeKuttaStep (calculus.tcl) found by Mark Stucky.
           (Also moved the empty lines upward to better reflect the steps)
 
@@ -446,14 +451,14 @@
 
 2004-11-01  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-        * Moved initialisation of CDF in statistics module to 
+        * Moved initialisation of CDF in statistics module to
           first call
 
 2004-10-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-10-02  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 

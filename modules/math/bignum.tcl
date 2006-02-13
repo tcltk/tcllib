@@ -462,7 +462,34 @@ proc ::math::bignum::rshift {z n} {
     set z [_treat $z]
     set atoms [expr {$n / $::math::bignum::atombits}]
     set bits [expr {$n & ($::math::bignum::atombits-1)}]
-    ::math::bignum::rshiftBits [math::bignum::rshiftAtoms $z $atoms] $bits
+  # ::math::bignum::rshiftBits [math::bignum::rshiftAtoms $z $atoms] $bits
+
+    #
+    # Correct for "arithmetic shift" - signed integers
+    #
+    set corr 0
+    if { [::math::bignum::sign $z] == 1 } {
+        for {set j [expr {$atoms+1}]} {$j >= 2} {incr j -1} {
+            set t [lindex $z $j]
+            if { $t != 0 } {
+                set corr 1
+            }
+        }
+        if { $corr == 0 } {
+            set t [lindex $z [expr {$atoms+2}]]
+            if { ( $t & ~($::math::bignum::atommask<<($bits)) ) != 0 } {
+                set corr 1
+            }
+        }
+    }
+
+    set newz [::math::bignum::rshiftBits [math::bignum::rshiftAtoms $z $atoms] $bits]
+    if { $corr } {
+        set newz [::math::bignum::sub $newz 1]
+    }
+    return $newz
+
+
 }
 
 ############################## Bit oriented ops ################################
@@ -873,4 +900,4 @@ namespace eval ::math::bignum {
 
 # Announce the package
 
-package provide math::bignum 3.1
+package provide math::bignum 3.1.1
