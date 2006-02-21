@@ -323,6 +323,18 @@ test matmul-1.3 "multiply vector - vector" -match numbers -body {
     matmul $v1 $v2
 } -result {{4 5 6} {8 10 12} {12 15 18}}
 
+test matmul-1.4 "multiply row vector - column vector" -match numbers -body {
+    set v1 [transpose {1 2 3}]
+    set v2 {4 5 6}
+    matmul $v1 $v2
+} -result 32
+
+test matmul-1.5 "multiply column vector - row vector" -match numbers -body {
+    set v1 {1 2 3}
+    set v2 [transpose {4 5 6}]
+    matmul $v1 $v2
+} -result {{4 5 6} {8 10 12} {12 15 18}}
+
 test solve-1.1 "solveGauss - 2x2 matrix" -match numbers -body {
     set b {{2 3} {-2 3}}
     set M {{2 3} {-2 3}}
