@@ -32,8 +32,8 @@ namespace eval ::math::linearalgebra {
     namespace export axpy axpy_vect axpy_mat
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
-    namespace export scale scale_vect scale_mat matmul
-    namespace export rotate crossproduct angle choleski
+    namespace export scale scale_vect scale_mat matmul transpose
+    namespace export rotate angle choleski
     namespace export getrow getcol getelem setrow setcol setelem
     namespace export mkVector mkMatrix mkIdentity mkDiagonal
     namespace export mkHilbert mkDingdong mkBorder mkFrank
@@ -134,16 +134,16 @@ proc ::math::linearalgebra::conforming { type obj1 obj2 } {
 }
 
 # crossproduct --
-#     Return the "cross product" of two 3D vectors 
+#     Return the "cross product" of two 3D vectors
 # Arguments:
 #     vect1      First vector
 #     vect2      Second vector
 # Result:
-#     Cross product 
+#     Cross product
 #
 proc ::math::linearalgebra::crossproduct { vect1 vect2 } {
 
-    if { [llength $vect1] == 3 && [llength $vect2] == 3 } { 
+    if { [llength $vect1] == 3 && [llength $vect2] == 3 } {
         foreach {v11 v12 v13} $vect1 {v21 v22 v23} $vect2 {break}
         return [list \
             [expr {$v12*$v23 - $v13*$v22}] \
@@ -602,6 +602,32 @@ proc ::math::linearalgebra::transpose { matrix } {
    return $transpose
 }
 
+# MorV --
+#     Identify if the object is a row/column vector or a matrix
+# Arguments:
+#     obj        Object to be examined
+# Result:
+#     The letter R, C or M depending on the shape
+#     (just to make it all work fine: S for scalar)
+# Note:
+#     Private procedure to fix a bug in matmul
+#
+proc ::math::linearalgebra::MorV { obj } {
+    if { [llength $obj] > 1 } {
+        if { [llength [lindex $obj 0]] > 1 } {
+            return "M"
+        } else {
+            return "C"
+        }
+    } else {
+        if { [llength [lindex $obj 0]] > 1 } {
+            return "R"
+        } else {
+            return "S"
+        }
+    }
+}
+
 # matmul --
 #     Multiply a vector/matrix with another vector/matrix
 # Arguments:
@@ -610,7 +636,7 @@ proc ::math::linearalgebra::transpose { matrix } {
 # Result:
 #     The result of x*y
 #
-proc ::math::linearalgebra::matmul { mv1 mv2 } {
+proc ::math::linearalgebra::matmul_org { mv1 mv2 } {
     if { [llength [lindex $mv1 0]] > 1 } {
         if { [llength [lindex $mv2 0]] > 1 } {
             return [matmul_mm $mv1 $mv2]
@@ -623,6 +649,41 @@ proc ::math::linearalgebra::matmul { mv1 mv2 } {
         } else {
             return [matmul_vv $mv1 $mv2]
         }
+    }
+}
+
+proc ::math::linearalgebra::matmul { mv1 mv2 } {
+    switch -exact -- "[MorV $mv1][MorV $mv2]" {
+    "MM" {
+         return [matmul_mm $mv1 $mv2]
+    }
+    "MC" {
+         return [matmul_mv $mv1 $mv2]
+    }
+    "MR" {
+         return -code error "Can not multiply a matrix with a row vector - wrong order"
+    }
+    "RM" {
+         return [matmul_vm [transpose $mv1] $mv2]
+    }
+    "RC" {
+         return [dotproduct [transpose $mv1] $mv2]
+    }
+    "RR" {
+         return -code error "Can not multiply a matrix with a row vector - wrong order"
+    }
+    "CM" {
+         return [matmul_vm $mv1 $mv2]
+    }
+    "CR" {
+         return [matmul_vv $mv1 [transpose $mv2]]
+    }
+    "CC" {
+         return [matmul_vv $mv1 $mv2]
+    }
+    default {
+         return -code error "Can not use a scalar object"
+    }
     }
 }
 
