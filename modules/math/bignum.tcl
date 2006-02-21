@@ -462,7 +462,6 @@ proc ::math::bignum::rshift {z n} {
     set z [_treat $z]
     set atoms [expr {$n / $::math::bignum::atombits}]
     set bits [expr {$n & ($::math::bignum::atombits-1)}]
-  # ::math::bignum::rshiftBits [math::bignum::rshiftAtoms $z $atoms] $bits
 
     #
     # Correct for "arithmetic shift" - signed integers
@@ -488,8 +487,6 @@ proc ::math::bignum::rshift {z n} {
         set newz [::math::bignum::sub $newz 1]
     }
     return $newz
-
-
 }
 
 ############################## Bit oriented ops ################################

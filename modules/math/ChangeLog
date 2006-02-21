@@ -1,3 +1,11 @@
+2006-02-21  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+	* linalg.tcl (matmul): Fixed [SF Tcllib Bug xxxxxxx]. The bug
+	  concerns the possibility of using row vectors. Because I
+	  did not think they were possible/practical, I regarded all
+	  vectors as column vectors or row vectors whenever suitable.
+	  Row vectors are however practical, so I needed to add these
+	  cases, at least for [matmul].
+
 2006-02-13  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* bignum.tcl (rshift): Fixed [SF Tcllib Bug 1098051]. (Solution
