@@ -1,4 +1,10 @@
+2006-03-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Resynchronized the ifneeded/provide version
+	  information for math::bignum.
+
 2006-02-21  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
 	* linalg.tcl (matmul): Fixed [SF Tcllib Bug xxxxxxx]. The bug
 	  concerns the possibility of using row vectors. Because I
 	  did not think they were possible/practical, I regarded all
