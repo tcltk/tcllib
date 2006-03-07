@@ -11,6 +11,43 @@ This package provides implementations of standard unix utilities.
 
 [list_begin definitions]
 
+[call [cmd ::fileutil::test] [arg path] [arg codes] [opt [arg msgvar]] [opt [arg label]]]
+
+A command for the testing of several properties of a [arg path]. The
+properties to test for are specified in [arg codes], either as a list
+of keywords describing the properties, or as a string where each
+letter is a shorthand for a property to test. The recognized keywords,
+shorthands, and associated properties are shown in the list below. The
+tests are executed in the order given to the command.
+
+[nl]
+
+The result of the command is a boolean value. It will be true if and
+only if the [arg path] passes all the specified tests.
+
+In the case of the [arg path] not passing one or more test the first
+failing test will leave a message in the variable referenced by
+
+[arg msgvar], if such is specified. The message will be prefixed with
+[arg label], if it is specified.
+
+[emph Note] that the variabled referenced by [arg msgvar] is not touched at
+all if all the tests pass.
+
+[nl]
+[list_begin definitions]
+[lst_item "[emph r]ead"]
+[cmd {file readable}]
+[lst_item "[emph w]rite"]
+[cmd {file writable}]
+[lst_item "[emph e]xists"]
+[cmd {file exists}]
+[lst_item "[emph f]ile"]
+[cmd {file isfile}]
+[lst_item "[emph d]ir"]
+[cmd {file isdirectory}]
+[list_end]
+
 
 [call [cmd ::fileutil::cat] ([opt [arg options]] [arg file])...]
 
