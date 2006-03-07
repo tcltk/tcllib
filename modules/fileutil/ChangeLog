@@ -1,5 +1,9 @@
 2006-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* fileutil.tcl:  Extended the tempdir command to allow the user 
+	* fileutil.man:  to set a directory to use, exclusively. Updated
+	* fileutil.test: both documentation and testsuite.
+
 	* fileutil.tcl:  Added a 'test' command for the quick testing of
 	* fileutil.man:  several properties of a given path. Extended
 	* fileutil.test: both documentation and testsuite.

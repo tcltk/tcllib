@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.40 2006/03/07 06:51:04 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.41 2006/03/07 07:40:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2238,6 +2238,8 @@ test install-3.1 {install a directory, set permissions} {unix tcl8.3plus} {
     set res
 } {006660066600666}
 
+# -------------------------------------------------------------------------
+
 test tempdir-1.1 {return the correct directorary for temporary files} {unix} {
     set ::env(TMPDIR) [pwd] ;# Most high-priority source, and existing directory!
     set result [::fileutil::tempdir]
@@ -2277,6 +2279,52 @@ test tempfile-1.3 {generate 100 unique temporary filenames} {
     }
     set i
 } {100}
+
+# -------------------------------------------------------------------------
+# Set an exclusive directory to search. This cannot be unset, hence
+# the location of these tests after the regular tempdir/tempfile
+# tests.
+
+set xpath [makeDirectory x]
+removeDirectory x
+
+test tempdir-1.3 {tempdir, user-specified, bad} {
+    catch {::fileutil::tempdir x y} msg
+    set msg
+} {wrong#args: should be "::fileutil::tempdir ?path?"}
+
+test tempdir-1.4 {tempdir, user-specified, bad} {
+    set path [makeDirectory x]
+    removeDirectory x
+    ::fileutil::tempdir $path
+
+    catch {::fileutil::tempdir} msg
+    set msg
+} {Unable to determine a proper directory for temporary files}
+
+test tempdir-1.5 {tempdir, user-specified, ok} {
+    set path [makeDirectory x]
+    ::fileutil::tempdir $path
+
+    set res [::fileutil::tempdir]
+    removeDirectory x
+    set res
+} $xpath
+
+test tempfile-1.4 {temp file in user specified directory} {
+    set path [makeDirectory x]
+    ::fileutil::tempdir $path
+
+    set          filename [::fileutil::tempfile TEST]
+    file delete $filename
+
+    removeDirectory x
+    string match $path/TEST* $filename
+} 1
+
+unset xpath
+
+# -------------------------------------------------------------------------
 
 test jail-1.0 {jail error} {
     catch {::fileutil::jail} res
