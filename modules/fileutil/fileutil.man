@@ -5,6 +5,7 @@
 [require Tcl 8]
 [require fileutil [opt 1.8]]
 [description]
+[keywords {file utilities} touch grep type {temp file} test cat]
 [para]
 
 This package provides implementations of standard unix utilities.
@@ -347,6 +348,11 @@ algorithm we use to find the correct directory is as follows:
 [list_begin enum]
 
 [enum]
+The directory set by an invokation of [cmd ::fileutil::tempdir] with
+an argument. If this is present it is tried exclusively and none of
+the following item are tried.
+
+[enum]
 The directory named in the TMPDIR environment variable.
 
 [enum]
@@ -378,7 +384,15 @@ tried in that order.
 [list_end]
 [nl]
 
-The algorithm utilized is that used in the Python standard library.
+The algorithm utilized is mainly that used in the Python standard
+library. The exception is the first item, the ability to have the
+search overridden by a user-specified directory.
+
+[call [cmd ::fileutil::tempdir] [arg path]]
+
+In this mode the command sets the [arg path] as the first and only
+directory to try as a temp. directory. See the previous item for the
+use of the set directory. The command returns the empty string.
 
 
 [call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
@@ -394,10 +408,6 @@ command.
 The code was taken from [uri http://wiki.tcl.tk/772], attributed to
 Igor Volobouev and anon.
 
-
-
 [list_end]
 
-
-[keywords {file utilities} touch grep type {temp file}]
 [manpage_end]

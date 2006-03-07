@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.55 2006/03/07 06:51:04 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.56 2006/03/07 07:40:36 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -1643,7 +1643,12 @@ proc ::fileutil::fileType {filename} {
 #            * On all other platforms, the directories `/tmp',
 #              `/var/tmp', and `/usr/tmp', in that order.
 #
-#        5. As a last resort, the current working directory.
+#       5. As a last resort, the current working directory.
+#
+#	The code here also does
+#
+#	0. The directory set by invoking tempdir with an argument.
+#	   If this is present it is used exclusively.
 #
 # Arguments:
 #	None.
@@ -1654,31 +1659,47 @@ proc ::fileutil::fileType {filename} {
 # Results:
 #	The directory for temporary files.
 
-proc ::fileutil::tempdir {} {
+proc ::fileutil::tempdir {args} {
+    if {[llength $args] > 1} {
+	return -code error {wrong#args: should be "::fileutil::tempdir ?path?"}
+    } elseif {[llength $args] == 1} {
+	variable tempdir    [lindex $args 0]
+	variable tempdirSet 1
+	return
+    }
     return [Normalize [TempDir]]
 }
 
 proc ::fileutil::TempDir {} {
     global tcl_platform env
+    variable tempdir
+    variable tempdirSet
+
     set attempdirs [list]
 
-    foreach tmp {TMPDIR TEMP TMP} {
-	if { [info exists env($tmp)] } {
-	    lappend attempdirs $env($tmp)
+    if {$tempdirSet} {
+	lappend attempdirs $tempdir
+    } else {
+	foreach tmp {TMPDIR TEMP TMP} {
+	    if { [info exists env($tmp)] } {
+		lappend attempdirs $env($tmp)
+	    }
 	}
-    }
 
-    switch $tcl_platform(platform) {
-	windows {
-	    lappend attempdirs "C:\\TEMP" "C:\\TMP" "\\TEMP" "\\TMP"
+	switch $tcl_platform(platform) {
+	    windows {
+		lappend attempdirs "C:\\TEMP" "C:\\TMP" "\\TEMP" "\\TMP"
+	    }
+	    macintosh {
+		set tmpdir $env(TRASH_FOLDER)  ;# a better place?
+	    }
+	    default {
+		lappend attempdirs [file join / tmp] \
+			[file join / var tmp] [file join / usr tmp]
+	    }
 	}
-	macintosh {
-	    set tmpdir $env(TRASH_FOLDER)  ;# a better place?
-	}
-	default {
-	    lappend attempdirs [file join / tmp] \
-		[file join / var tmp] [file join / usr tmp]
-	}
+
+	lappend attempdirs [pwd]
     }
 
     foreach tmp $attempdirs {
@@ -1687,8 +1708,13 @@ proc ::fileutil::TempDir {} {
 	}
     }
 
-    # If nothing else worked...
-    return [pwd]
+    # Fail if nothing worked.
+    return -code error "Unable to determine a proper directory for temporary files"
+}
+
+namespace eval ::fileutil {
+    variable tempdir    {}
+    variable tempdirSet 0
 }
 
 # ::fileutil::tempfile --
