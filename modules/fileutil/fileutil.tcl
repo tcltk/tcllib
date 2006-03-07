@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.54 2006/02/10 03:31:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.55 2006/03/07 06:51:04 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -21,7 +21,7 @@ namespace eval ::fileutil {
 	    jail stripPwd stripN stripPath tempdir tempfile \
 	    install fileType writeFile appendToFile \
 	    insertIntoFile removeFromFile replaceInFile \
-	    updateInPlace
+	    updateInPlace test
 }
 
 # ::fileutil::grep --
@@ -565,6 +565,63 @@ proc fileutil::jail {jail filename} {
 	return [eval [linsert [LexNormalize $filename] 0 \
 		file join [pwd] $jail]]
     }
+}
+
+
+# ::fileutil::test --
+#
+#	Simple API to testing various properties of
+#	a path (read, write, file/dir, existence)
+#
+# Arguments:
+#	path	path to test
+#	codes	names of the properties to test
+#	msgvar	Name of variable to leave an error
+#		message in. Optional.
+#	label	Label for error message, optional
+#
+# Results:
+#	ok	boolean flag, set if the path passes
+#		all tests.
+
+namespace eval ::fileutil {
+    variable  test
+    array set test {
+	read   {readable    {Read access is denied}}
+	write  {writable    {Write access is denied}}
+	exists {exists      {Does not exist}}
+	file   {isfile      {Is not a file}}
+	dir    {isdirectory {Is not a directory}}
+    }
+}
+
+proc ::fileutil::test {path codes {msgvar {}} {label {}}} {
+    variable test
+
+    if {[string equal $msgvar ""]} {
+	set msg ""
+    } else {
+	upvar 1 $msgvar msg
+    }
+
+    if {![string equal $label ""]} {append label { }}
+
+    if {![regexp {^(read|write|exists|file|dir)} $codes]} {
+	# Translate single characters into proper codes
+	set codes [string map {
+	    r read w write e exists f file d dir
+	} [split $codes {}]]
+    }
+
+    foreach c $codes {
+	foreach {cmd text} $test($c) break
+	if {![file $cmd $path]} {
+	    set msg "$label\"$path\": $text"
+	    return 0
+	}
+    }
+
+    return 1
 }
 
 # ::fileutil::cat --
@@ -1287,7 +1344,9 @@ proc ::fileutil::foreachLine {var filename cmd} {
 #	Both of "-r" and "-t" cannot be specified.
 
 if {[package vsatisfies [package provide Tcl] 8.3]} {
-    namespace eval ::fileutil { namespace export touch }
+    namespace eval ::fileutil {
+	namespace export touch
+    }
 
     proc ::fileutil::touch {args} {
         # Don't bother catching errors, just let them propagate up
