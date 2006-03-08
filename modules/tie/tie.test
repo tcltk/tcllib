@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie.test,v 1.9 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.test,v 1.10 2006/03/08 04:55:58 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -473,11 +473,12 @@ test tie-8.6 {tie::info, multiple ties} {
 
 test tie-8.7 {tie::info types, standard} {
     join [group [dictsort [tie::info types]]] \n
-} {array {package require tie::std::array   ; ::tie::std::array}
+} {array {package require tie::std::array    ; ::tie::std::array}
 dsource ::tie::std::dsource
-file {package require tie::std::file    ; ::tie::std::file}
-log {package require tie::std::log     ; ::tie::std::log}
-remotearray {package require tie::std::rarray  ; ::tie::std::rarray}}
+file {package require tie::std::file     ; ::tie::std::file}
+growfile {package require tie::std::growfile ; ::tie::std::growfile}
+log {package require tie::std::log      ; ::tie::std::log}
+remotearray {package require tie::std::rarray   ; ::tie::std::rarray}}
 
 
 test tie-8.8 {tie::info type, wrong#args} {
@@ -536,7 +537,7 @@ test tie-9.6 {register, chained definition} {
     tie::register cmdc as cmda
     tie::register cmda as b
 
-    list [tie::info type b] [dictsort [ignore [tie::info types] array file log dsource remotearray c]]
+    list [tie::info type b] [dictsort [ignore [tie::info types] array file growfile log dsource remotearray c]]
 } {cmdc {b cmdc cmda cmdc}}
 
 test tie-9.7 {register, broken chain} {
@@ -547,7 +548,7 @@ test tie-9.7 {register, broken chain} {
     tie::register cmdy as x
     tie::register cmdz as cmdy
 
-    list [tie::info type x] [dictsort [ignore [tie::info types] array file log dsource remotearray c cmda b]]
+    list [tie::info type x] [dictsort [ignore [tie::info types] array file growfile log dsource remotearray c cmda b]]
 } {cmdy {cmdy cmdz x cmdy}}
 
 # -------------------------------------------------------------------------

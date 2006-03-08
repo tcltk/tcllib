@@ -65,8 +65,10 @@ to access.
 
 The [arg dstype] can be one of [const log], [const array],
 
-[const remotearray], [const file], or [const dsource]; in addition,
-the programmer can register additional data source types.
+[const remotearray], [const file], [const growfile], or
+
+[const dsource]; in addition, the programmer can register additional
+data source types.
 
 Each [arg dstype] is followed by one or more arguments that identify
 the [term {data source}] to which the array is to be tied.
@@ -299,6 +301,25 @@ compacted, i.e. superfluous operations are removed, if the operations
 log stored in it contains either at least one operation clearing the
 whole array, or at least 1.5 times more operations than entries in the
 loaded array.
+
+
+[lst_item [const growfile]]
+
+This [term {data source}] is like [const file] in terms of the storage
+medium for the array data, and how it is configured. In constrast to
+the former it however assumes and ensures that the tied array will
+never shrink. I.e. the creation of new array entries, and the
+modification of existing entries is allowed, but the deletion of
+entries is not, and causes the data source to throw errors.
+
+[nl]
+
+This restriction allows us to simplify both file format and access to
+the file radically. For one, the file is read only once and the
+internal cache cannot be invalidated. Second, writing data is reduced
+to a simple append, and no compaction step is necessary. The format of
+the contents is the string representation of a dictionary which can be
+incrementally extended forever at the end.
 
 
 [lst_item [const dsource]]

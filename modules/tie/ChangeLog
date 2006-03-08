@@ -1,3 +1,11 @@
+2006-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie_growfile.test: Created a new standard data source, the
+	* tie_growfile.tcl:  ever-growing file, for never-shrinking
+	* pkgIndex.tcl:      arrays. Updated package index, documentation,
+	* tie.man:           extended the testsuite.
+	* tie.tcl:
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tie_file.test: ...... Fixed creation and cleanup of temp. files
