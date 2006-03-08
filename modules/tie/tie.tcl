@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie.tcl,v 1.4 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.tcl,v 1.5 2006/03/08 04:55:58 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -492,11 +492,12 @@ proc ::tie::Dictsort {dict} {
 # ### ### ### ######### ######### #########
 ## Standard DS classes
 
-::tie::register {package require tie::std::log     ; ::tie::std::log}     as log
-::tie::register {package require tie::std::dsource ; ::tie::std::dsource} as dsource
-::tie::register {package require tie::std::array   ; ::tie::std::array}   as array
-::tie::register {package require tie::std::rarray  ; ::tie::std::rarray}  as remotearray
-::tie::register {package require tie::std::file    ; ::tie::std::file}    as file
+::tie::register {package require tie::std::log      ; ::tie::std::log}      as log
+::tie::register {package require tie::std::dsource  ; ::tie::std::dsource}  as dsource
+::tie::register {package require tie::std::array    ; ::tie::std::array}    as array
+::tie::register {package require tie::std::rarray   ; ::tie::std::rarray}   as remotearray
+::tie::register {package require tie::std::file     ; ::tie::std::file}     as file
+::tie::register {package require tie::std::growfile ; ::tie::std::growfile} as growfile
 
 # ### ### ### ######### ######### #########
 ## Ready to go
