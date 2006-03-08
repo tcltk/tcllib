@@ -47,4 +47,11 @@ receiving_client.tcl
 	and receiver start to report the changes made by the sender to
 	its array and broadcast to server and then the receiver.
 
+transceiver.tcl
 
+	A combination of both sending_client.tcl and
+	receiving_client.tcl. Exports the local array to the server,
+	and imports the server array to the local one. Performs
+	changes both local and on the server, showing that both
+	changes get distributed to both partners, independent where
+	the change was made.
