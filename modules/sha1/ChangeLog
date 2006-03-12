@@ -1,3 +1,11 @@
+2006-03-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sha1v1.test: Copies of sha1.{tcl,test} for the v1 line.
+	* sha1v1.tcl:  This duplication allows us to get rid of the package
+	  index hackery for v1, enables the clean conversion of the code
+	  in this directory into Tcl Modules, and allows proper separate
+	  development of the two major versions in the future.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sha256.test: Fixed use of duplicate test names.
