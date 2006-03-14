@@ -34,8 +34,18 @@ proc nr_include {file}      {return "\n.so $file"}
 proc nr_bolds   {}          {return \n.BS}
 proc nr_bolde   {}          {return \n.BE}
 
-proc nr_section    {name}   {return "\n.SH \"$name\""}
-proc nr_subsection {name}   {return "\n.SS \"$name\""}
+proc nr_section {name} {
+    if {![regexp {[ 	]} $name]} {
+	return "\n.SH $name"
+    }
+    return "\n.SH \"$name\""
+}
+proc nr_subsection {name}   {
+    if {![regexp {[ 	]} $name]} {
+	return "\n.SS $name"
+    }
+    return "\n.SS \"$name\""
+}
 
 
 ################################################################
