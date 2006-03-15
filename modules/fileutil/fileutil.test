@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.41 2006/03/07 07:40:36 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.42 2006/03/15 15:08:52 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -271,6 +271,9 @@ test cat-1.5.2 {cat, bad arguments} {
     set msg
 } {Bad option "-bogus", expected one of -encoding, -eofchar, or -translation}
 
+set xpath [makeFile {} {cat [2]}]
+removeFile {cat [2]}
+
 test cat-1.5.3 {cat, bad arguments, unreadable file} {unixOnly} {
     set path [makeFile {} {cat [2]}]
     file attributes $path -permissions 0000
@@ -280,7 +283,7 @@ test cat-1.5.3 {cat, bad arguments, unreadable file} {unixOnly} {
     file attributes $path -permissions 0600
     removeFile {cat [2]}
     set msg
-} {Cannot read file "/home/aku/Projects/Tcllib/Work/futilExtend/cat [2]", read access is denied}
+} "Cannot read file \"$xpath\", read access is denied"
 
 test cat-1.5.4 {cat, bad arguments, non-existing file} {unixOnly} {
     set path [makeFile {} {cat [2]}]
@@ -289,7 +292,7 @@ test cat-1.5.4 {cat, bad arguments, non-existing file} {unixOnly} {
     catch {fileutil::cat $path} msg
 
     set msg
-} {Cannot read file "/home/aku/Projects/Tcllib/Work/futilExtend/cat [2]", does not exist}
+} "Cannot read file \"$xpath\", does not exist"
 
 test cat-1.5.5 {cat, bad arguments, directory} {unixOnly} {
     set path [makeDirectory {cat [2]}]
@@ -298,7 +301,7 @@ test cat-1.5.5 {cat, bad arguments, directory} {unixOnly} {
 
     removeDirectory {cat [2]}
     set msg
-} {Cannot read file "/home/aku/Projects/Tcllib/Work/futilExtend/cat [2]", is not a file}
+} "Cannot read file \"$xpath\", is not a file"
 
 
 test writefile-1.0 {writeFile, unwriteable file} {unixOnly} {
