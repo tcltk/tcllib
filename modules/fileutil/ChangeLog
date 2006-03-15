@@ -1,3 +1,8 @@
+2006-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Removed some hardcoded paths into my
+	  system. Thanks to Michael Schlenker for catching this.
+
 2006-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl:  Extended the tempdir command to allow the user 
