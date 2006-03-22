@@ -1,3 +1,8 @@
+2006-03-22  Michael Schlenker <mic42@users.sourceforge.net>
+	
+	* asn.tcl:	Removed dependency on the log package to fix
+	  Tcllib Bug [1408807]. Package version raised to 0.5.1.
+
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.test: Fixed use of duplicate test names.
