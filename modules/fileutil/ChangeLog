@@ -1,3 +1,10 @@
+2006-03-22  Andreas Kupries  <akupries@shaw.ca>
+
+	* traverse.tcl: New file. Object based directory traversal,
+	* pkgIndex.tcl: incremental at the core, i.e. can be event-
+	  driven. Iterative algorithm, no trouble with deep directory
+	  structures anymore. Not documented yet, no testsuite yet.
+
 2006-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Removed some hardcoded paths into my
