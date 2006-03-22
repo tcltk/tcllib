@@ -38,11 +38,9 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.10 2006/01/16 21:08:44 mic42 Exp $
+#   $Id: asn.tcl,v 1.11 2006/03/22 18:56:08 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
-
-package require log
 
 # needed for using wide()
 package require Tcl 8.4
@@ -644,8 +642,6 @@ proc ::asn::asnGetResponse {sock data_var} {
         binary scan $len1 c num
         set length [expr {($num + 0x100) % 0x100}]
 
-        ::log::log debug "asnGetResponse length=$length"
-
         if {$length  >= 0x080} {
         # The byte the read is not the length, but a prefix, and
         # the lower nibble tells us how many bytes follow.
@@ -702,7 +698,6 @@ proc ::asn::asnGetByte {data_var byte_var} {
     set byte [expr {($byte + 0x100) % 0x100}]  
     set data [string range $data 1 end]
 
-    ::log::log debug "asnGetByte $byte"
     return
 }
 
@@ -717,7 +712,6 @@ proc ::asn::asnPeekByte {data_var byte_var} {
     binary scan [string index $data 0] c byte
     set byte [expr {($byte + 0x100) % 0x100}]  
 
-    ::log::log debug "asnPeekByte $byte"
     return
 }
 
@@ -733,7 +727,6 @@ proc ::asn::asnGetBytes {data_var length bytes_var} {
     incr length
     set data [string range $data $length end]
 
-    ::log::loghex debug asnGetBytes $bytes
     return
 }
 
@@ -802,7 +795,6 @@ proc ::asn::asnGetLength {data_var length_var} {
             }
         }
     }
-    ::log::log debug "asnGetLength -> length = $length"
     return
 }
 
@@ -843,8 +835,6 @@ proc ::asn::asnGetBigLength {data_var biglength_var} {
         binary scan $lengthBytes H* hexlen
         set length [math::bignum::fromstr $hexlen 16]
     }
-    ::log::log debug \
-	"asnGetBigLength -> length = [math::bignum::tostr $length]"
     return
 }
 
@@ -869,7 +859,6 @@ proc ::asn::asnGetInteger {data_var int_var} {
 
     set int ?
 
-    ::log::log debug "asnGetInteger len=$len"
     switch $len {
         1 { binary scan $integerBytes     c int }
         2 { binary scan $integerBytes     S int }
@@ -901,7 +890,6 @@ proc ::asn::asnGetInteger {data_var int_var} {
             return -code error "length information too long"
         }
     }
-    ::log::log debug "asnGetInteger int=$int"
     return
 }
 
@@ -963,7 +951,6 @@ proc ::asn::asnGetEnumeration {data_var enum_var} {
     asnGetBytes  data $len integerBytes
     set enum ?
 
-    ::log::log debug "asnGetEnumeration  len=$len"
     switch $len {
         1 { binary scan $integerBytes     c enum }
         2 { binary scan $integerBytes     S enum }
@@ -973,7 +960,6 @@ proc ::asn::asnGetEnumeration {data_var enum_var} {
             return -code error "length information too long"
         }
     }
-    ::log::log debug "asnGetEnumeration enum=$enum"
     return
 }
 
@@ -1392,5 +1378,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.5
+package provide asn 0.5.1
 
