@@ -1,4 +1,9 @@
-2006-03-22  Andreas Kupries  <akupries@shaw.ca>
+2006-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* traverse.tcl: Bug fixes. Added the missing declaration of the
+	  dev/inode cache, and moved the restoration of the old working
+	  directory in the 8.3 glob -directory emulation to their proper
+	  place.
 
 	* traverse.tcl: New file. Object based directory traversal,
 	* pkgIndex.tcl: incremental at the core, i.e. can be event-
