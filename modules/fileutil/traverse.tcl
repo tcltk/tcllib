@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.1 2006/03/22 08:16:13 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.2 2006/03/23 04:56:46 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit    ; # OO core
@@ -142,9 +142,10 @@ snit::type ::fileutil::traverse {
 	return
     }
 
-    variable _base    {}
-    variable _pending {}
-    variable _prefix  {}
+    variable _base          {} ; # Base directory (or file) to start the traversal from
+    variable _pending       {} ; # Stack of paths waiting for processing (TOP at end)
+    variable _prefix        {} ; # Stack of basepaths to  join with glob results (TOP at end)
+    variable _inodes -array {} ; # Set of dev/inode's already visited.
 
     method next {fvar} {
 	upvar 1 $fvar currentfile
@@ -273,9 +274,9 @@ if {[string equal $::tcl_platform(platform) windows]} {
 	    set code [catch {
 		cd $path
 		set files [glob -nocomplain *]
-	    } msg]
+	    } msg] ; # {}
+	    catch {cd $oldwd}
 	    if {$code} {
-		catch {cd $oldwd}
 		return -code $code -errorinfo $::errorInfo -errorcode $::errorCode
 	    }
 	    return $files
@@ -343,9 +344,9 @@ if {[string equal $::tcl_platform(platform) windows]} {
 	    set code [catch {
 		cd $path
 		set temp [glob -nocomplain * .*]
-	    } msg]
+	    } msg] ; # {}
+	    catch {cd $oldwd}
 	    if {$code} {
-		catch {cd $oldwd}
 		return -code $code -errorinfo $::errorInfo -errorcode $::errorCode
 	    }
 
