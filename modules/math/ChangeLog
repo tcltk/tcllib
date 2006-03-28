@@ -1,3 +1,13 @@
+2006-03-28  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* calculus.tcl (integral2D and integral3D): Fixed a bug concerning
+	  intervals that do not start at 0.0
+	* calculus.tcl (integral2D and integral3D): Added accurate versions
+	  for integration over rectangles and blocks (exact for polynomials
+	  of degree 3 or less).
+	* statistics.tcl (test-normal): Added implementation of normality test
+	  by Torsten Reincke (as it appeared on the Wiki)
+
 2006-03-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Resynchronized the ifneeded/provide version

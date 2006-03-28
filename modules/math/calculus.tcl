@@ -3,16 +3,16 @@
 #    as the integration of a one-dimensional function and the
 #    solution of a system of first-order differential equations.
 #
-# Copyright (c) 2002, 2003, 2004 by Arjen Markus.
+# Copyright (c) 2002, 2003, 2004, 2006 by Arjen Markus.
 # Copyright (c) 2004 by Kevin B. Kenny.  All rights reserved.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: calculus.tcl,v 1.11 2005/10/06 05:16:37 andreas_kupries Exp $
+# RCS: @(#) $Id: calculus.tcl,v 1.12 2006/03/28 19:40:36 arjenmarkus Exp $
 
 package require Tcl 8.4
 package require math::interpolate
-package provide math::calculus 0.6.1
+package provide math::calculus 0.7
 
 # math::calculus --
 #    Namespace for the commands
@@ -28,6 +28,8 @@ namespace eval ::math::calculus {
 	eulerStep heunStep rungeKuttaStep           \
 	boundaryValueSecondOrder solveTriDiagonal   \
 	newtonRaphson newtonRaphsonParameters
+    namespace export \
+        integral2D_2accurate integral3D_accurate
 
     namespace export romberg romberg_infinity
     namespace export romberg_sqrtSingLower romberg_sqrtSingUpper
@@ -131,9 +133,9 @@ proc ::math::calculus::integral2D { xinterval yinterval func } {
    set result   0.0
    set dxdy      [expr {$xdelta*$ydelta}]
    for { set j 0 } { $j < $ynumber } { incr j } {
-      set y [expr {$hydelta+double($j)*$ydelta}]
+      set y [expr {$ybegin+$hydelta+double($j)*$ydelta}]
       for { set i 0 } { $i < $xnumber } { incr i } {
-         set x           [expr {$hxdelta+double($i)*$xdelta}]
+         set x           [expr {$xbegin+$hxdelta+double($i)*$xdelta}]
          set func_value  [uplevel 1 $func $x $y]
          set result      [expr {$result+$func_value}]
       }
@@ -169,11 +171,11 @@ proc ::math::calculus::integral3D { xinterval yinterval zinterval func } {
    set result   0.0
    set dxdydz    [expr {$xdelta*$ydelta*$zdelta}]
    for { set k 0 } { $k < $znumber } { incr k } {
-      set z [expr {$hzdelta+double($k)*$zdelta}]
+      set z [expr {$zbegin+$hzdelta+double($k)*$zdelta}]
       for { set j 0 } { $j < $ynumber } { incr j } {
-         set y [expr {$hydelta+double($j)*$ydelta}]
+         set y [expr {$ybegin+$hydelta+double($j)*$ydelta}]
          for { set i 0 } { $i < $xnumber } { incr i } {
-            set x           [expr {$hxdelta+double($i)*$xdelta}]
+            set x           [expr {$xbegin+$hxdelta+double($i)*$xdelta}]
             set func_value  [uplevel 1 $func $x $y $z]
             set result      [expr {$result+$func_value}]
          }
@@ -181,6 +183,110 @@ proc ::math::calculus::integral3D { xinterval yinterval zinterval func } {
    }
 
    return [expr {$result*$dxdydz}]
+}
+
+# integral2D_accurate --
+#    Integrate a given function of two variables over a block,
+#    using a four-point quadrature formula
+#
+# Arguments:
+#    xinterval   Start, stop and number of steps of the "x" interval
+#    yinterval   Start, stop and number of steps of the "y" interval
+#    func        Function of the two variables to be integrated
+# Return value:
+#    Computed integral
+#
+proc ::math::calculus::integral2D_accurate { xinterval yinterval func } {
+
+    foreach { xbegin xend xnumber } $xinterval { break }
+    foreach { ybegin yend ynumber } $yinterval { break }
+
+    set alpha     [expr {sqrt(2.0/3.0)}]
+    set minalpha  [expr {-$alpha}]
+    set dpoints   [list $alpha 0.0 $minalpha 0.0 0.0 $alpha 0.0 $minalpha]
+
+    set xdelta    [expr {($xend-$xbegin)/double($xnumber)}]
+    set ydelta    [expr {($yend-$ybegin)/double($ynumber)}]
+    set hxdelta   [expr {$xdelta/2.0}]
+    set hydelta   [expr {$ydelta/2.0}]
+    set result   0.0
+    set dxdy      [expr {0.25*$xdelta*$ydelta}]
+
+    for { set j 0 } { $j < $ynumber } { incr j } {
+        set y [expr {$ybegin+$hydelta+double($j)*$ydelta}]
+        for { set i 0 } { $i < $xnumber } { incr i } {
+            set x [expr {$xbegin+$hxdelta+double($i)*$xdelta}]
+
+            foreach {dx dy} $dpoints {
+                set x1          [expr {$x+$dx}]
+                set y1          [expr {$y+$dy}]
+                set func_value  [uplevel 1 $func $x1 $y1]
+                set result      [expr {$result+$func_value}]
+            }
+        }
+    }
+
+    return [expr {$result*$dxdy}]
+}
+
+# integral3D_accurate --
+#    Integrate a given function of three variables over a block,
+#    using an 8-point quadrature formula
+#
+# Arguments:
+#    xinterval   Start, stop and number of steps of the "x" interval
+#    yinterval   Start, stop and number of steps of the "y" interval
+#    zinterval   Start, stop and number of steps of the "z" interval
+#    func        Function of the three variables to be integrated
+# Return value:
+#    Computed integral
+#
+proc ::math::calculus::integral3D_accurate { xinterval yinterval zinterval func } {
+
+    foreach { xbegin xend xnumber } $xinterval { break }
+    foreach { ybegin yend ynumber } $yinterval { break }
+    foreach { zbegin zend znumber } $zinterval { break }
+
+    set alpha     [expr {1.0/3.0}]
+    set minalpha  [expr {-$alpha}]
+
+    set dpoints   [list $alpha    $alpha    $alpha    \
+                        $alpha    $alpha    $minalpha \
+                        $alpha    $minalpha $alpha    \
+                        $alpha    $minalpha $minalpha \
+                        $minalpha $alpha    $alpha    \
+                        $minalpha $alpha    $minalpha \
+                        $minalpha $minalpha $alpha    \
+                        $minalpha $minalpha $minalpha ]
+
+    set xdelta    [expr {($xend-$xbegin)/double($xnumber)}]
+    set ydelta    [expr {($yend-$ybegin)/double($ynumber)}]
+    set zdelta    [expr {($zend-$zbegin)/double($znumber)}]
+    set hxdelta   [expr {$xdelta/2.0}]
+    set hydelta   [expr {$ydelta/2.0}]
+    set hzdelta   [expr {$zdelta/2.0}]
+    set result    0.0
+    set dxdydz    [expr {0.125*$xdelta*$ydelta*$zdelta}]
+
+    for { set k 0 } { $k < $znumber } { incr k } {
+        set z [expr {$zbegin+$hzdelta+double($k)*$zdelta}]
+        for { set j 0 } { $j < $ynumber } { incr j } {
+            set y [expr {$ybegin+$hydelta+double($j)*$ydelta}]
+            for { set i 0 } { $i < $xnumber } { incr i } {
+                set x [expr {$xbegin+$hxdelta+double($i)*$xdelta}]
+
+                foreach {dx dy dz} $dpoints {
+                    set x1 [expr {$x+$dx}]
+                    set y1 [expr {$y+$dy}]
+                    set z1 [expr {$z+$dz}]
+                    set func_value  [uplevel 1 $func $x1 $y1 $z1]
+                    set result      [expr {$result+$func_value}]
+                }
+            }
+        }
+    }
+
+    return [expr {$result*$dxdydz}]
 }
 
 # eulerStep --
