@@ -149,6 +149,27 @@ the given distribution.
 [arg confidence] - Confidence level (0.95 or 0.99 for instance)
 [nl]
 
+[call [cmd ::math::statistics::test-normal] [arg data] [arg confidence]]
+Test whether the given data follow a normal distribution
+with a certain level of confidence.
+Returns 1 if the data are normally distributed within the level of
+confidence, returns 0 if not. The underlying test is the Lilliefors
+test.
+[nl]
+[arg data] - List of raw data values
+[nl]
+[arg confidence] - Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
+[nl]
+
+[call [cmd ::math::statistics::lillieforsFit] [arg data]
+Returns the goodness of fit to a normal distribution according to
+Lilliefors. The higher the number, the more likely the data are indeed
+normally distributed. The test requires at least [strong five] data
+points.
+[nl]
+[arg data] - List of raw data values
+[nl]
+
 [call [cmd ::math::statistics::quantiles] [arg data] [arg confidence]]
 Return the quantiles for a given set of data
 [nl]
