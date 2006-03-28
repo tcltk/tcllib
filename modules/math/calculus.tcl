@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: calculus.tcl,v 1.12 2006/03/28 19:40:36 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.tcl,v 1.13 2006/03/28 20:36:00 arjenmarkus Exp $
 
 package require Tcl 8.4
 package require math::interpolate
@@ -247,7 +247,7 @@ proc ::math::calculus::integral3D_accurate { xinterval yinterval zinterval func 
     foreach { ybegin yend ynumber } $yinterval { break }
     foreach { zbegin zend znumber } $zinterval { break }
 
-    set alpha     [expr {1.0/3.0}]
+    set alpha     [expr {sqrt(1.0/3.0)}]
     set minalpha  [expr {-$alpha}]
 
     set dpoints   [list $alpha    $alpha    $alpha    \

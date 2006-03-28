@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.14 2006/03/28 19:40:36 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.test,v 1.15 2006/03/28 20:36:00 arjenmarkus Exp $
 
 # -------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ test "Integral2D-2.0" "Integrals of 2D functions - accurate" -match numbers -bod
         lappend  result [::math::calculus::integral3D_accurate {-1 1 1} {-1 1 1} {-1 1 1} $f]
     }
     return $result
-} -result {8.0 0.0 0.0 0.0 0.888888889 0.888888889 0.888888889}
+} -result {8.0 0.0 0.0 0.0 2.666666667 2.666666667 2.666666667}
 
 
 #
