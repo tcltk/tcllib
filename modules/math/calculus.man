@@ -1,9 +1,9 @@
-[manpage_begin math::calculus n 0.6.1]
+[manpage_begin math::calculus n 0.7]
 [copyright {2002,2003,2004 Arjen Markus}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Integration and ordinary differential equations}]
 [require Tcl 8.4]
-[require math::calculus 0.6.1]
+[require math::calculus 0.7]
 [description]
 [para]
 This package implements several simple mathematical algorithms:
@@ -63,25 +63,27 @@ use the variable "x" as the only variable (the "integrate")
 [nl]
 
 [call [cmd ::math::calculus::integral2D] [arg xinterval] [arg yinterval] [arg func]]
-The command [cmd integral2D] calculates the integral of
-a function of two variables over the rectangle given by the
+[call [cmd ::math::calculus::integral2D_accurate] [arg xinterval] [arg yinterval] [arg func]]
+The commands [cmd integral2D] and [cmd integral2D_accurate] calculate the
+integral of a function of two variables over the rectangle given by the
 first two arguments, each a list of three items, the start and
 stop interval for the variable and the number of steps.
 [nl]
-The currently implemented integration is simple: the function is
-evaluated at the centre of each rectangle and the content of
-this block is added to the integral. In future this will be
-replaced by a bilinear interpolation.
+The command [cmd integral2D] evaluates the function at the centre of
+each rectangle, whereas the command [cmd integral2D_accurate] uses a
+four-point quadrature formula. This results in an exact integration of
+polynomials of third degree or less.
 [nl]
 The function must take two arguments and return the function
 value.
 
 
 [call [cmd ::math::calculus::integral3D] [arg xinterval] [arg yinterval] [arg zinterval] [arg func]]
-The command [cmd Integral3D] is the three-dimensional
-equivalent of [cmd integral2D]. The function taking three
-arguments is integrated over the block in 3D space given by three
-intervals.
+[call [cmd ::math::calculus::integral3D_accurate] [arg xinterval] [arg yinterval] [arg zinterval] [arg func]]
+The commands [cmd integral3D] and [cmd integral3D_accurate] are the
+three-dimensional equivalent of [cmd integral2D] and [cmd integral3D_accurate].
+The function [strong func] takes three arguments and is integrated over the block in
+3D space given by three intervals.
 
 
 [call [cmd ::math::calculus::eulerStep] [arg t] [arg tstep] [arg xvec] [arg func]]

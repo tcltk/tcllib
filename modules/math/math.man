@@ -8,8 +8,56 @@
 [para]
 
 The [package math] package provides utility math functions.
+[para]
+Besides a set of basic commands, available via the package [strong math],
+there are more specialised packages:
 
-[section COMMANDS]
+[list_begin bullet]
+[bullet]
+math::bigfloat - Arbitrary-precision floating-point arithmetic
+[bullet]
+math::bignum - Arbitrary-precision integer arithmetic
+[bullet]
+math::calculus - Integration of functions, solving ordinary differential
+equations
+[bullet]
+math::complexnumbers - Complex number arithmetic
+[bullet]
+math::combinatorics - Procedures for various combinatorial functions
+(for instance the Gamma function and "k out of n")
+[bullet]
+math::constants - A set of well-known mathematical constants, such as
+Pi, E, and the golden ratio
+[bullet]
+math::fourier - Discrete Fourier transforms
+[bullet]
+math::fuzzy - Fuzzy comparisons of floating-point numbers
+[bullet]
+math::geometry - 2D geometrical computations
+[bullet]
+math::interpolate - Various interpolation methods
+[bullet]
+math::linearalgebra - Linear algebra package
+[bullet]
+math::optimize - Optimization methods
+[bullet]
+math::polynomials - Polynomial arithmetic (includes families of
+classical polynomials)
+[bullet]
+math::rationalfunctions - Arithmetic of rational functions
+[bullet]
+math::roman - Manipulation (including arithmetic) of Roman numerals
+[bullet]
+math::romberg - Robust integration methods for functions of one
+variable, using Romberg integration
+[bullet]
+math::special - Approximations of special functions from
+mathematical physics
+[bullet]
+math::statistics - Statistical operations and tests
+[list_end]
+
+[section "BASIC COMMANDS"]
 
 [list_begin definitions]
 

@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.13 2006/01/29 08:54:23 andreas_kupries Exp $
+# RCS: @(#) $Id: calculus.test,v 1.14 2006/03/28 19:40:36 arjenmarkus Exp $
 
 # -------------------------------------------------------------------------
 
@@ -43,6 +43,19 @@ namespace import ::math::calculus::*
 
 set prec $::tcl_precision
 set ::tcl_precision 17
+
+proc matchNumbers {expected actual} {
+    set match 1
+    foreach a $actual e $expected {
+        if {abs($a-$e) > 0.1e-4} {
+            set match 0
+            break
+        }
+    }
+    return $match
+}
+
+customMatch numbers matchNumbers
 
 #
 # Simple test functions - exact result predictable!
@@ -94,10 +107,79 @@ test "Integral2D-1.2" "Integral of linear 2D function" {
    integral2D { 0 100 10 } { 0 50 1 } linear_func2d
 } 250000.0
 
-#
-# Note:
-# Test cases for integral3D are missing!
-#
+
+proc const_func3d { x y z } {
+   return 1
+}
+proc linear_func3d { x y z } {
+   return $x
+}
+
+test "Integral3D-1.0" "Integral of constant 2D function" {
+   integral3D { 0 100 10 } { 0 50 1 } { 0 50 1 } const_func3d
+} 250000.0
+test "Integral3D-1.1" "Integral of constant 2D function (different step)" {
+   integral3D { 0 100 1 } { 0 50 1 } { 0 50 1 } const_func3d
+} 250000.0
+test "Integral3D-1.2" "Integral of linear 2D function" {
+   integral3D { 0 100 10 } { 0 50 1 } { 0 50 1 } linear_func3d
+} 12500000.0
+
+proc f2d_1 {x y} {
+    return 1
+}
+proc f2d_x {x y} {
+    return $x
+}
+proc f2d_y {x y} {
+    return $y
+}
+proc f2d_x2 {x y} {
+    return [expr {$x*$x}]
+}
+proc f2d_y2 {x y} {
+    return [expr {$y*$y}]
+}
+
+test "Integral2D-2.0" "Integrals of 2D functions - accurate" -match numbers -body {
+    set result {}
+    foreach f {f2d_1 f2d_x f2d_y f2d_x2 f2d_y2} {
+        lappend  result [::math::calculus::integral2D_accurate {-1 1 1} {-1 1 1} $f]
+    }
+    return $result
+} -result {4.0 0.0 0.0 1.333333333 1.333333333}
+
+
+proc f3d_1 {x y z} {
+    return 1
+}
+proc f3d_x {x y z} {
+    return $x
+}
+proc f3d_y {x y z} {
+    return $y
+}
+proc f3d_z {x y z} {
+    return $z
+}
+proc f3d_x2 {x y z} {
+    return [expr {$x*$x}]
+}
+proc f3d_y2 {x y z} {
+    return [expr {$y*$y}]
+}
+proc f3d_z2 {x y z} {
+    return [expr {$z*$z}]
+}
+
+test "Integral2D-2.0" "Integrals of 2D functions - accurate" -match numbers -body {
+    set result {}
+    foreach f {f3d_1 f3d_x f3d_y f3d_z f3d_x2 f3d_y2 f3d_z2} {
+        lappend  result [::math::calculus::integral3D_accurate {-1 1 1} {-1 1 1} {-1 1 1} $f]
+    }
+    return $result
+} -result {8.0 0.0 0.0 0.0 0.888888889 0.888888889 0.888888889}
+
 
 #
 # Test cases: yet to be brought into the tcltest form!
