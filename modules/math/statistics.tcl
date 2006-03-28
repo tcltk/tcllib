@@ -6,8 +6,10 @@
 # version 0.1.1: added linear regression, june 2004
 # version 0.1.2: border case in stdev taken care of
 # version 0.1.3: moved initialisation of CDF to first call, november 2004
+# version 0.3:   added test for normality (as implemented by Torsten Reincke), march 2006
+#                (also fixed an error in the export list)
 
-package provide math::statistics 0.2
+package provide math::statistics 0.3
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
@@ -18,7 +20,8 @@ namespace eval ::math::statistics {
     # Safer: change to short procedures
     #
     namespace export mean min max number var stdev basic-stats corr \
-	    histogram interval-mean-stdev test-mean quantiles \
+	    histogram interval-mean-stdev t-test-mean quantiles \
+	    test-normal lillieforsFit \
 	    autocorr crosscorr filter map samplescount median \
 	    test-2x2 print-2x2 control-xbar test_xbar \
 	    control-Rchart test-Rchart
@@ -247,19 +250,166 @@ proc ::math::statistics::corr { data1 data2 } {
     return $corr_coeff
 }
 
-# test-normal --
-#    Test whether the data are distributed according to the normal
-#    distribution with a certain level of confidence
+# lillieforsFit --
+#     Calculate the goodness of fit according to Lilliefors
+#     (goodness of fit to a normal distribution)
 #
 # Arguments:
-#    data         List of raw data values
-#    confidence   Confidence level (0.95 or 0.99 for instance)
+#     values          List of values to be tested for normality
 #
 # Result:
-#    1 if the test shows a normal distribution, 0 otherwise
+#     Value of the statistic D
 #
-proc ::math::statistics::test-normal { data confidence } {
-    ...
+proc ::math::statistics::lillieforsFit {values} {
+    #
+    # calculate the goodness of fit according to Lilliefors
+    # (goodness of fit to a normal distribution)
+    #
+    # values -> list of values to be tested for normality
+    # (these values are sampled counts)
+    #
+
+    # calculate standard deviation and mean of the sample:
+    set n [llength $values]
+    if { $n < 5 } {
+        return -code error "Insufficient number of data (at least five required)"
+    }
+    set sd   [stdev $values]
+    set mean [mean $values]
+
+    # sort the sample for further processing:
+    set values [lsort -real $values]
+
+    # standardize the sample data (Z-scores):
+    foreach x $values {
+        lappend stdData [expr {($x - $mean)/double($sd)}]
+    }
+
+    # compute the value of the distribution function at every sampled point:
+    foreach x $stdData {
+        lappend expData [pnorm $x]
+    }
+
+    # compute D+:
+    set i 0
+    foreach x $expData {
+        incr i
+        lappend dplus [expr {$i/double($n)-$x}]
+    }
+    set dplus [lindex [lsort -real $dplus] end]
+
+    # compute D-:
+    set i 0
+    foreach x $expData {
+        incr i
+        lappend dminus [expr {$x-($i-1)/double($n)}]
+    }
+    set dminus [lindex [lsort -real $dminus] end]
+
+    # Calculate the test statistic D
+    # by finding the maximal vertical difference
+    # between the sample and the expectation:
+    #
+    set D [expr {$dplus > $dminus ? $dplus : $dminus}]
+
+    # We now use the modified statistic Z,
+    # because D is only reliable
+    # if the p-value is smaller than 0.1
+    return [expr {$D * (sqrt($n) - 0.01 + 0.831/sqrt($n))}]
+}
+
+# pnorm --
+#     Calculate the cumulative distribution function (cdf)
+#     for the standard normal distribution like in the statistical
+#     software 'R' (mean=0 and sd=1)
+#
+# Arguments:
+#     x               Value fro which the cdf should be calculated
+#
+# Result:
+#     Value of the statistic D
+#
+proc ::math::statistics::pnorm {x} {
+    #
+    # cumulative distribution function (cdf)
+    # for the standard normal distribution like in the statistical software 'R'
+    # (mean=0 and sd=1)
+    #
+    # x -> value for which the cdf should be calculated
+    #
+    set sum [expr {double($x)}]
+    set oldSum 0.0
+    set i 1
+    set denom 1.0
+    while {$sum != $oldSum} {
+            set oldSum $sum
+            incr i 2
+            set denom [expr {$denom*$i}]
+            #puts "$i - $denom"
+            set sum [expr {$oldSum + pow($x,$i)/$denom}]
+    }
+    return [expr {0.5 + $sum * exp(-0.5 * $x*$x - 0.91893853320467274178)}]
+}
+
+# pnorm_quicker --
+#     Calculate the cumulative distribution function (cdf)
+#     for the standard normal distribution - quicker alternative
+#     (less accurate)
+#
+# Arguments:
+#     x               Value for which the cdf should be calculated
+#
+# Result:
+#     Value of the statistic D
+#
+proc ::math::statistics::pnorm_quicker {x} {
+
+    set n [expr {abs($x)}]
+    set n [expr {1.0 + $n*(0.04986735 + $n*(0.02114101 + $n*(0.00327763 \
+            + $n*(0.0000380036 + $n*(0.0000488906 + $n*0.000005383)))))}]
+    set n [expr {1.0/pow($n,16)}]
+    #
+    if {$x >= 0} {
+        return [expr {1 - $n/2.0}]
+    } else {
+        return [expr {$n/2.0}]
+    }
+}
+
+# test-normal --
+#     Test for normality (using method Lilliefors)
+#
+# Arguments:
+#     data            Values that need to be tested
+#     confidence      ...
+#
+# Result:
+#     1 if of the statistic D
+#
+proc ::math::statistics::test-normal {data confidence} {
+    set D [lillieforsFit $data]
+
+    set Dcrit --
+    if { abs($confidence-0.80) < 0.0001 } {
+        set Dcrit 0.741
+    }
+    if { abs($confidence-0.85) < 0.0001 } {
+        set Dcrit 0.775
+    }
+    if { abs($confidence-0.90) < 0.0001 } {
+        set Dcrit 0.819
+    }
+    if { abs($confidence-0.95) < 0.0001 } {
+        set Dcrit 0.895
+    }
+    if { abs($confidence-0.99) < 0.0001 } {
+        set Dcrit 1.035
+    }
+    if { $Dcrit != "--" } {
+        return [expr {$D > $Dcrit ? 1 : 0 }]
+    } else {
+        return -code error "Confidence level must be one of: 0.80, 0.85, 0.90, 0.95 or 0.99"
+    }
 }
 
 # t-test-mean --

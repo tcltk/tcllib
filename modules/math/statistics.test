@@ -386,5 +386,27 @@ test "test-Rchart-1.0" "Test Rchart procedure" -match exact -body {
     set result  [::math::statistics::test-Rchart $limits $newdata]
 } -result {0 2}
 
+#
+# Testing for normal distribution
+#
+test "Testnormal-1.0" "Determine normality statistic for birth weight data" -match tolerant -body {
+    ::math::statistics::lillieforsFit {72 112 111 107 119  92 126  80 81 84 115
+                                       118 128 128 123 116 125 126 122 126 127 86
+                                       142 132  87 123 133 106 103 118 114 94}
+} -result 0.82827415657
+
+test "Testnormal-1.0" "Test birthweight data for normality - 80%" -match tolerant -body {
+    ::math::statistics::test-normal {72 112 111 107 119  92 126  80 81 84 115
+                                     118 128 128 123 116 125 126 122 126 127 86
+                                     142 132  87 123 133 106 103 118 114 94} 0.80
+} -result 1
+
+test "Testnormal-1.0" "Test birthweight data for normality - 95%" -match tolerant -body {
+    ::math::statistics::test-normal {72 112 111 107 119  92 126  80 81 84 115
+                                     118 128 128 123 116 125 126 122 126 127 86
+                                     142 132  87 123 133 106 103 118 114 94} 0.95
+} -result 0
+
+
 # End of test cases
 ::tcltest::cleanupTests
