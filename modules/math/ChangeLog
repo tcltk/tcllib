@@ -1,5 +1,8 @@
 2006-03-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* math.man: Added a bit of markup to the package list for better
+	  cross-referencing.
+
 	* statistics.man: Fixed unclosed bracket.
 
 2006-03-28  Arjen Markus  <arjenmarkus@users.sourceforge.net>
