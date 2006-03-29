@@ -14,47 +14,47 @@ there are more specialised packages:
 
 [list_begin bullet]
 [bullet]
-math::bigfloat - Arbitrary-precision floating-point arithmetic
+[package math::bigfloat] - Arbitrary-precision floating-point arithmetic
 [bullet]
-math::bignum - Arbitrary-precision integer arithmetic
+[package math::bignum] - Arbitrary-precision integer arithmetic
 [bullet]
-math::calculus - Integration of functions, solving ordinary differential
+[package math::calculus] - Integration of functions, solving ordinary differential
 equations
 [bullet]
-math::complexnumbers - Complex number arithmetic
+[package math::complexnumbers] - Complex number arithmetic
 [bullet]
-math::combinatorics - Procedures for various combinatorial functions
+[package math::combinatorics] - Procedures for various combinatorial functions
 (for instance the Gamma function and "k out of n")
 [bullet]
-math::constants - A set of well-known mathematical constants, such as
+[package math::constants] - A set of well-known mathematical constants, such as
 Pi, E, and the golden ratio
 [bullet]
-math::fourier - Discrete Fourier transforms
+[package math::fourier] - Discrete Fourier transforms
 [bullet]
-math::fuzzy - Fuzzy comparisons of floating-point numbers
+[package math::fuzzy] - Fuzzy comparisons of floating-point numbers
 [bullet]
-math::geometry - 2D geometrical computations
+[package math::geometry] - 2D geometrical computations
 [bullet]
-math::interpolate - Various interpolation methods
+[package math::interpolate] - Various interpolation methods
 [bullet]
-math::linearalgebra - Linear algebra package
+[package math::linearalgebra] - Linear algebra package
 [bullet]
-math::optimize - Optimization methods
+[package math::optimize] - Optimization methods
 [bullet]
-math::polynomials - Polynomial arithmetic (includes families of
+[package math::polynomials] - Polynomial arithmetic (includes families of
 classical polynomials)
 [bullet]
-math::rationalfunctions - Arithmetic of rational functions
+[package math::rationalfunctions] - Arithmetic of rational functions
 [bullet]
-math::roman - Manipulation (including arithmetic) of Roman numerals
+[package math::roman] - Manipulation (including arithmetic) of Roman numerals
 [bullet]
-math::romberg - Robust integration methods for functions of one
+[package math::romberg] - Robust integration methods for functions of one
 variable, using Romberg integration
 [bullet]
-math::special - Approximations of special functions from
+[package math::special] - Approximations of special functions from
 mathematical physics
 [bullet]
-math::statistics - Statistical operations and tests
+[package math::statistics] - Statistical operations and tests
 [list_end]
 
 [section "BASIC COMMANDS"]
