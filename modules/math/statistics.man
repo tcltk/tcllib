@@ -161,7 +161,7 @@ test.
 [arg confidence] - Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
 [nl]
 
-[call [cmd ::math::statistics::lillieforsFit] [arg data]
+[call [cmd ::math::statistics::lillieforsFit] [arg data]]
 Returns the goodness of fit to a normal distribution according to
 Lilliefors. The higher the number, the more likely the data are indeed
 normally distributed. The test requires at least [strong five] data
