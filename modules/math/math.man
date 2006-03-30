@@ -14,20 +14,24 @@ there are more specialised packages:
 
 [list_begin bullet]
 [bullet]
-[package math::bigfloat] - Arbitrary-precision floating-point arithmetic
+[package math::bigfloat] - Arbitrary-precision floating-point
+arithmetic
 [bullet]
 [package math::bignum] - Arbitrary-precision integer arithmetic
 [bullet]
-[package math::calculus] - Integration of functions, solving ordinary differential
-equations
+[package math::calculus::romberg] - Robust integration methods for
+functions of one variable, using Romberg integration
+[bullet]
+[package math::calculus] - Integration of functions, solving ordinary
+differential equations
+[bullet]
+[package math::combinatorics] - Procedures for various combinatorial
+functions (for instance the Gamma function and "k out of n")
 [bullet]
 [package math::complexnumbers] - Complex number arithmetic
 [bullet]
-[package math::combinatorics] - Procedures for various combinatorial functions
-(for instance the Gamma function and "k out of n")
-[bullet]
-[package math::constants] - A set of well-known mathematical constants, such as
-Pi, E, and the golden ratio
+[package math::constants] - A set of well-known mathematical
+constants, such as Pi, E, and the golden ratio
 [bullet]
 [package math::fourier] - Discrete Fourier transforms
 [bullet]
@@ -41,15 +45,13 @@ Pi, E, and the golden ratio
 [bullet]
 [package math::optimize] - Optimization methods
 [bullet]
-[package math::polynomials] - Polynomial arithmetic (includes families of
-classical polynomials)
+[package math::polynomials] - Polynomial arithmetic (includes families
+of classical polynomials)
 [bullet]
 [package math::rationalfunctions] - Arithmetic of rational functions
 [bullet]
-[package math::roman] - Manipulation (including arithmetic) of Roman numerals
-[bullet]
-[package math::romberg] - Robust integration methods for functions of one
-variable, using Romberg integration
+[package math::roman] - Manipulation (including arithmetic) of Roman
+numerals
 [bullet]
 [package math::special] - Approximations of special functions from
 mathematical physics
