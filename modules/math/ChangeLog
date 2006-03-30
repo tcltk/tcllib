@@ -1,3 +1,8 @@
+2006-03-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* math.man: Fixed name of romberg package, resorted the list,
+	  slight reformatting of items with regard to right margin.
+
 2006-03-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* math.man: Added a bit of markup to the package list for better

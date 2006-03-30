@@ -355,7 +355,9 @@ proc support {script} {
     if {[catch {
 	uplevel 1 $script
     } msg]} {
-	#puts |$msg|-
+	set prefix "SETUP Error (Support): "
+	puts $prefix[join [split $::errorInfo \n] "\n$prefix"]
+
 	return -code return
     }
     return
@@ -366,7 +368,9 @@ proc testing {script} {
     if {[catch {
 	uplevel 1 $script
     } msg]} {
-	#puts |$msg|*
+	set prefix "SETUP Error (Testing): "
+	puts $prefix[join [split $::errorInfo \n] "\n$prefix"]
+
 	return -code return
     }
     return
