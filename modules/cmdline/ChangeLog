@@ -1,3 +1,15 @@
+2006-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.tcl: Added the contents of typedCmdline.tcl to this file
+	  (appended). It was loaded anyway, always, its procedures used
+	  the same namespace, a separation does not make much sense. It
+	  also makes deployment of the package as Tcl Module trivial,
+	  i.e. this squashes the need to use some virtual filesystem to
+	  keep everything together.
+
+	* typedCmdline.tcl: File removed. Contents appended to
+	  cmdline.tcl, s.a.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.test:      Fixed use and cleanup of temp. files.
