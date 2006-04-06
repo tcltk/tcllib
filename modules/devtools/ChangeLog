@@ -1,3 +1,9 @@
+2006-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Added set of commands for the easy assembly
+	  of complex results. Mainly a shorthand for 'lappend', using a
+	  common variable.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Force re-import of tcltest commands after
