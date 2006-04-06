@@ -3,7 +3,7 @@
 # Copyright (c) 2006, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 namespace eval ::tcllib::testutils {
-    set version 1.0
+    set version 1.1
     set self    [file dirname [file join [pwd] [info script]]]
     set tcllib  [file dirname $self]
     set tag     ""
@@ -422,6 +422,36 @@ proc dictsort {dict} {
 
 proc cat {args} {
     return [join $args ""]
+}
+
+# ### ### ### ######### ######### #########
+## Mini-logging facility, can also be viewed as an accumulator for
+## complex results.
+#
+# res!      : clear accumulator.
+# res+      : add arguments to accumulator.
+# res?      : query contents of accumulator.
+# res?lines : query accumulator and format as
+#             multiple lines, one per list element.
+
+proc res! {} {
+    variable result {}
+    return
+}
+
+proc res+ {args} {
+    variable result
+    lappend  result $args
+    return
+}
+
+proc res? {} {
+    variable result
+    return  $result
+}
+
+proc res?lines {} {
+    return [join [res?] \n]
 }
 
 # ### ### ### ######### ######### #########
