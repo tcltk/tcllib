@@ -8,14 +8,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: time.tcl,v 1.17 2005/08/26 17:58:59 andreas_kupries Exp $
+# $Id: time.tcl,v 1.18 2006/04/20 10:18:26 patthoyts Exp $
 
 package require Tcl 8.0;                # tcl minimum version
 package require log;                    # tcllib 1.3
 
 namespace eval ::time {
     variable version 1.2
-    variable rcsid {$Id: time.tcl,v 1.17 2005/08/26 17:58:59 andreas_kupries Exp $}
+    variable rcsid {$Id: time.tcl,v 1.18 2006/04/20 10:18:26 patthoyts Exp $}
 
     namespace export configure gettime server cleanup
 
@@ -33,7 +33,7 @@ namespace eval ::time {
             set options(-protocol) udp
         } else {
             if {![catch {package require ceptcl}]} {
-                set options(protocol) udp
+                set options(-protocol) udp
             }
         }
         log::lvSuppressLE emergency 0

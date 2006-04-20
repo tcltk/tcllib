@@ -1,3 +1,7 @@
+2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* time.tcl: bug #1409219: added missing hyphen.
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* time.test: More boilerplate simplified via use of test support.
