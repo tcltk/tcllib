@@ -1,5 +1,8 @@
 2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* sasl.tcl:   Applied patch for #1412021 from Sergei Golovan to
+	* sasl.test:  make sure the service is set. Added test.
+	
 	* all:        Incremented SASL version to 1.1.0
 	* sasl.tcl:   Fixed the common mechanisms to all do the right
 	* sasl.test:  thing when handed an empty challenge. The client
