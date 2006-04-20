@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ntlm.test,v 1.2 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: ntlm.test,v 1.3 2006/04/20 10:14:11 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -76,6 +76,8 @@ test SASL-NTLM-1.1 {NTLM client response} {
         SASL::step $ctx ""
         SASL::step $ctx [base64::decode $Chk(2)]
         set response [SASL::response $ctx]
+        #puts "C: [SASL::NTLM::Decode [base64::decode $Chk(3)]]"
+        #puts "R: [SASL::NTLM::Decode $response]"
         SASL::cleanup $ctx
         base64::encode -maxlen 0 $response
     } res] $res
