@@ -1,3 +1,9 @@
+2006-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.man:  Extended documentation.
+	* fileutil.test: Extended testsuite for x/exec.
+	* fileutil.tcl:  Added x/exec'utable flag to the 'test' command.
+
 2006-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* traverse.tcl: Bug fixes. Added the missing declaration of the

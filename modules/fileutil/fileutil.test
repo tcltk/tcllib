@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.42 2006/03/15 15:08:52 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.43 2006/04/20 05:21:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1339,6 +1339,17 @@ proc makereadable {path enable} {
     return
 }
 
+proc makeexecutable {path enable} {
+    global tcl_platform
+    if {[string equal $tcl_platform(platform) windows]} {
+	return -code error "Can't do that on Windows"
+    } else {
+	set mode [expr {$enable ? "u+x" : "ugo-x"}]
+	file attributes $path -permissions $mode
+    }
+    return
+}
+
 set xpath [makeFile {} x]
 removeFile x
 
@@ -1577,6 +1588,58 @@ test test-5.0.4 {test !dir, no label} {
     set res
 } [list 0 "\"$xpath\": Is not a directory"]
 
+test test-6.0.0 {test exec} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 1
+
+    set x PRE
+    set res [list [fileutil::test $path exec x TEST] $x]
+    removeFile x
+    set res
+} {1 PRE}
+
+test test-6.0.1 {test exec, no variable} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 1
+
+    set x PRE
+    set res [list [fileutil::test $path exec] $x]
+    removeFile x
+    set res
+} {1 PRE}
+
+test test-6.0.2 {test !exec} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 0
+
+    set x PRE
+    set res [list [fileutil::test $path exec x TEST] $x]
+    removeFile x
+    set res
+} [list 0 "TEST \"$xpath\": Is not executable"]
+
+test test-6.0.3 {test !exec, no variable} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 0
+
+    set x PRE
+    set res [list [fileutil::test $path exec] $x]
+    removeFile x
+    set res
+} {0 PRE}
+
+test test-6.0.4 {test !exec, no label} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 0
+
+    set x PRE
+    set res [list [fileutil::test $path exec x] $x]
+    removeFile x
+    set res
+} [list 0 "\"$xpath\": Is not executable"]
+
+
+
 test test-1.1.0 {test read} {unixOnly} {
     set path [makeFile {} x]
     makereadable $path 1
@@ -1811,6 +1874,56 @@ test test-5.1.4 {test !dir, no label} {
     removeFile x
     set res
 } [list 0 "\"$xpath\": Is not a directory"]
+
+test test-6.1.0 {test exec} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 1
+
+    set x PRE
+    set res [list [fileutil::test $path x x TEST] $x]
+    removeFile x
+    set res
+} {1 PRE}
+
+test test-6.1.1 {test exec, no variable} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 1
+
+    set x PRE
+    set res [list [fileutil::test $path x] $x]
+    removeFile x
+    set res
+} {1 PRE}
+
+test test-6.1.2 {test !exec} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 0
+
+    set x PRE
+    set res [list [fileutil::test $path x x TEST] $x]
+    removeFile x
+    set res
+} [list 0 "TEST \"$xpath\": Is not executable"]
+
+test test-6.1.3 {test !exec, no variable} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 0
+
+    set x PRE
+    set res [list [fileutil::test $path x] $x]
+    removeFile x
+    set res
+} {0 PRE}
+
+test test-6.1.4 {test !exec, no label} {unixOnly} {
+    set path [makeFile {} x]
+    makeexecutable $path 0
+
+    set x PRE
+    set res [list [fileutil::test $path x x] $x]
+    removeFile x
+    set res
+} [list 0 "\"$xpath\": Is not executable"]
 
 unset xpath
 

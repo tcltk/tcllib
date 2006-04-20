@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.56 2006/03/07 07:40:36 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.57 2006/04/20 05:21:28 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -589,6 +589,7 @@ namespace eval ::fileutil {
     array set test {
 	read   {readable    {Read access is denied}}
 	write  {writable    {Write access is denied}}
+	exec   {executable  {Is not executable}}
 	exists {exists      {Does not exist}}
 	file   {isfile      {Is not a file}}
 	dir    {isdirectory {Is not a directory}}
@@ -606,10 +607,10 @@ proc ::fileutil::test {path codes {msgvar {}} {label {}}} {
 
     if {![string equal $label ""]} {append label { }}
 
-    if {![regexp {^(read|write|exists|file|dir)} $codes]} {
+    if {![regexp {^(read|write|exec|exists|file|dir)} $codes]} {
 	# Translate single characters into proper codes
 	set codes [string map {
-	    r read w write e exists f file d dir
+	    r read w write e exists x exec f file d dir
 	} [split $codes {}]]
     }
 
