@@ -16,7 +16,7 @@ package require Tcl 8.2
 
 namespace eval ::SASL {
     variable version 1.1.0
-    variable rcsid {$Id: sasl.tcl,v 1.5 2006/04/20 02:16:15 patthoyts Exp $}
+    variable rcsid {$Id: sasl.tcl,v 1.6 2006/04/20 10:14:11 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -76,7 +76,7 @@ proc ::SASL::new {args} {
     set context [namespace current]::[uid]
     variable $context
     upvar #0 $context ctx
-    array set ctx [list mech {} callback {} proc {} service {} server {} \
+    array set ctx [list mech {} callback {} proc {} service smtp server {} \
                        step 0 response "" valid false type client]
     eval [linsert $args 0 [namespace origin configure] $context]
     return $context
@@ -413,7 +413,7 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
                 set realm [eval $ctx(callback) [list $context realm]]
             }
             
-            set uri "smtp/$realm"
+            set uri "$ctx(service)/$realm"
             
             set A1 [md5_bin "$username:$realm:$password"]
             set A2 "AUTHENTICATE:$uri"
