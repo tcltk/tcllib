@@ -15,8 +15,8 @@
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.0.0
-    variable rcsid {$Id: sasl.tcl,v 1.4 2005/09/19 12:12:39 patthoyts Exp $}
+    variable version 1.1.0
+    variable rcsid {$Id: sasl.tcl,v 1.5 2006/04/20 02:16:15 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -192,6 +192,10 @@ proc ::SASL::CRAM-MD5:client {context challenge args} {
     if {$ctx(step) != 0} {
         return -code error "unexpected state: CRAM-MD5 has only 1 step"
     }
+    if {[string length $challenge] == 0} {
+        set ctx(response) ""
+        return 1
+    }
     set password [eval $ctx(callback) [list $context password]]
     set username [eval $ctx(callback) [list $context username]]
     set reply [hmac_hex $password $challenge]
@@ -284,6 +288,10 @@ proc ::SASL::PLAIN:server {context clientrsp args} {
 #
 proc ::SASL::LOGIN:client {context challenge args} {
     upvar #0 $context ctx
+    if {$ctx(step) == 0 && [string length $challenge] == 0} {
+        set ctx(response) ""
+        return 1
+    }
     incr ctx(step)
     switch -exact -- $ctx(step) {
         1 {
@@ -370,6 +378,10 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
     variable digest_md5_noncecount
     upvar #0 $context ctx
     md5_init
+    if {$ctx(step) == 0 && [string length $challenge] == 0} {
+        set ctx(response) ""
+        return 1
+    }
     incr ctx(step)
     set result 0
     switch -exact -- $ctx(step) {

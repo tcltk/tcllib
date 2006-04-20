@@ -1,7 +1,12 @@
 2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* all:        Incremented SASL version to 1.1.0
+	* sasl.tcl:   Fixed the common mechanisms to all do the right
+	* sasl.test:  thing when handed an empty challenge. The client
+	              should always begin with SASL::step $ctx "" to see
+	              if there is anything to send in the initial round.
 	* gtoken.tcl: Support the X-GOOGLE-TOKEN SASL mechanism. Done
-	              as separate package due to additional dependencies
+	* sasl.man:   as separate package due to additional dependencies
 	              (http and tls required)
 
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>

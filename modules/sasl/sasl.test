@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sasl.test,v 1.4 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: sasl.test,v 1.5 2006/04/20 02:16:15 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -52,18 +52,35 @@ test SASL-PLAIN-1.0 {} {
 
 # -------------------------------------------------------------------------
 
-test SASL-LOGIN-2.0 {} {
+test SASL-LOGIN-2.0 {Check basic LOGIN operation} {
     list [catch {
+        set r {}
         set ctx [SASL::new -mechanism LOGIN \
                      -callback [list SASLCallback 0]]
         SASL::step $ctx "VXNlcm5hbWU6"
-        set r1 [SASL::response $ctx]
+        lappend r [SASL::response $ctx]
         SASL::step $ctx "UGFzc3dvcmQ6"
-        set r2 [SASL::response $ctx]
+        lappend r [SASL::response $ctx]
         SASL::cleanup $ctx
-        list $r1 $r2
+        set r
     } res] $res
 } [list 0 [list tester secret]]
+
+test SASL-LOGIN-2.1 {Check initial NULL challenge is ignored.} {
+    list [catch {
+        set r {}
+        set ctx [SASL::new -mechanism LOGIN \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx ""
+        lappend r [SASL::response $ctx]
+        SASL::step $ctx "VXNlcm5hbWU6"
+        lappend r [SASL::response $ctx]
+        SASL::step $ctx "UGFzc3dvcmQ6"
+        lappend r [SASL::response $ctx]
+        SASL::cleanup $ctx
+        set r
+    } res] $res
+} [list 0 [list {} tester secret]]
 
 # -------------------------------------------------------------------------
 
@@ -89,11 +106,37 @@ test SASL-CRAMMD5-3.1 {} {
         SASL::cleanup $ctx
         list $r1 $r2
     } res] $res
+} {0 {{} {}}}
+
+test SASL-CRAMMD5-3.2 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism CRAM-MD5 \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx "<1234.987654321@tcllib.sourceforge.net>"
+        set r [SASL::response $ctx]
+        SASL::step $ctx ""
+        set r2 [SASL::response $ctx]
+        SASL::cleanup $ctx
+        list $r $r2
+    } res] $res
+} [list 1 "unexpected state: CRAM-MD5 has only 1 step"]
+
+test SASL-CRAMMD5-3.3 {} {
+    list [catch {
+        set ctx [SASL::new -mechanism CRAM-MD5 \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx "<1234.987654321@tcllib.sourceforge.net>"
+        set r1 [SASL::response $ctx]
+        SASL::step $ctx ""
+        set r2 [SASL::response $ctx]
+        SASL::cleanup $ctx
+        list $r1 $r2
+    } res] $res
 } [list 1 "unexpected state: CRAM-MD5 has only 1 step"]
 
 # -------------------------------------------------------------------------
 
-test SASL-DIGESTMD5-4.0 {} {
+test SASL-DIGESTMD5-4.0 {Basic check of DIGEST-MD5 operation} {
     list [catch {
         set ctx [SASL::new -mechanism DIGEST-MD5 \
                      -callback [list SASLCallback 0]]
@@ -113,6 +156,26 @@ test SASL-DIGESTMD5-4.0 {} {
     } res] $res
 } [list 0 0]
 
+test SASL-DIGESTMD5-4.1 {Check initial empty challenge is accepted.} {
+    list [catch {
+        set ctx [SASL::new -mechanism DIGEST-MD5 \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx ""
+        SASL::step $ctx "nonce=\"0123456789\",realm=\"tcllib.sourceforge.net\""
+        set r [split [SASL::response $ctx] ,]
+        SASL::cleanup $ctx
+        foreach thing $r { 
+            set x [split $thing =]
+            set R([lindex $x 0]) [lindex [lindex $x 1] 0]
+        }
+        set A1 [SASL::md5_bin "tester:tcllib.sourceforge.net:secret"]
+        set A2 "AUTHENTICATE:smtp/tcllib.sourceforge.net"
+        set A3 [SASL::md5_hex "$A1:$R(nonce):$R(cnonce)"]
+        set A4 [SASL::md5_hex $A2]
+        set r [SASL::md5_hex "$A3:0123456789:$R(nc):$R(cnonce):auth:$A4"]
+        string compare $r $R(response)
+    } res] $res
+} [list 0 0]
 
 # -------------------------------------------------------------------------
 
