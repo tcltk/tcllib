@@ -1,3 +1,10 @@
+2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.tcl: Added a tls_socket procedure that can use
+	                 registered as the protocol handler for https
+	                 with the core http package and will do the right
+	                 thing when a proxy is in use.
+
 2005-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
