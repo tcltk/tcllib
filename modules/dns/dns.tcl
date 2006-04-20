@@ -29,7 +29,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.30 2005/09/30 05:36:38 andreas_kupries Exp $
+# $Id: dns.tcl,v 1.31 2006/04/20 15:26:19 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -39,7 +39,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.3.0
-    variable rcsid {$Id: dns.tcl,v 1.30 2005/09/30 05:36:38 andreas_kupries Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.31 2006/04/20 15:26:19 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -1106,6 +1106,9 @@ proc ::dns::ReadAnswer {nitems data indexvar {raw 0}} {
                     lappend rdata target [ReadName data $x off]
                     incr x $off
                 }
+                TXT {
+                    set rdata [ReadString data $index $rdlength]
+                }
                 SOA {
                     set x $index
                     set rdata [list MNAME [ReadName data $x off]]
@@ -1209,6 +1212,26 @@ proc ::dns::ReadName {datavar index usedvar} {
     }
     set used [expr {$index - $startindex}]
     return [join $r .]
+}
+
+proc ::dns::ReadString {datavar index length} {
+    upvar $datavar data
+    set startindex $index
+
+    set r {}
+    set max [expr {$index + $length}]
+
+    while {$index < $max} {
+        binary scan [string range $data $index end] c len
+        set len [expr {$len & 0xFF}]
+        incr index
+
+        if {$len != 0} {
+            append r [string range $data $index [expr {$index + $len - 1}]]
+            incr index $len
+        }
+    }
+    return $r
 }
 
 # -------------------------------------------------------------------------
