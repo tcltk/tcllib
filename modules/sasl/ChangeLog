@@ -1,3 +1,9 @@
+2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* gtoken.tcl: Support the X-GOOGLE-TOKEN SASL mechanism. Done
+	              as separate package due to additional dependencies
+	              (http and tls required)
+
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sasl.test: More boilerplate simplified via use of test support.

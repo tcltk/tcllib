@@ -212,6 +212,17 @@ in common use for authenticating users in a Windows network
 environment. NTLM uses DES encryption and MD4 digests of the users
 password to authenticate a connection. Certain weaknesses have been
 found in NTLM and thus there are a number of versions of the protocol.
+As this mechanism has additional dependencies it is made available as
+a separate sub-package. To enable this mechanism your application must 
+load the SASL::NTLM package.
+
+[lst_item "X-GOOGLE-TOKEN"]
+
+This is a proprietary protocol developed by Google and used for 
+authenticating users for the Google Talk service. This mechanism makes
+a pair of HTTP requests over a SSL channel and so this mechanism 
+depends upon the availability of the tls and http packages. To enable
+this mechanism your application must load the SASL::XGoogleToken package.
 
 [list_end]
 
