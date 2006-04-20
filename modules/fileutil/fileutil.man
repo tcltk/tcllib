@@ -43,6 +43,8 @@ all if all the tests pass.
 [cmd {file writable}]
 [lst_item "[emph e]xists"]
 [cmd {file exists}]
+[lst_item "e[emph x]ec"]
+[cmd {file executable}]
 [lst_item "[emph f]ile"]
 [cmd {file isfile}]
 [lst_item "[emph d]ir"]
