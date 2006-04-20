@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin SASL n 1.0.0]
+[manpage_begin SASL n 1.1.0]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Simple Authentication and Security Layer (SASL)}]
 [titledesc {Implementation of SASL mechanisms for Tcl}]
 [require Tcl 8.2]
-[require SASL [opt 1.0]]
+[require SASL [opt 1.1]]
 [description]
 [para]
 
@@ -47,7 +47,8 @@ This is the core procedure for useing the SASL framework. The
 server challenge string and the response is calculated and stored in
 the context. Each mechanism may require one or more steps. For some
 steps there may be no server challenge required in which case an empty
-string should be provided for this parameter.
+string should be provided for this parameter. All mechanisms should accept
+an initial empty challenge.
 
 [call [cmd "::SASL::response"] [arg "context"]]
 
