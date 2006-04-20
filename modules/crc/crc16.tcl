@@ -39,7 +39,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.14 2005/12/09 18:27:16 andreas_kupries Exp $
+# $Id: crc16.tcl,v 1.15 2006/04/20 10:19:51 patthoyts Exp $
 
 # @mdgen EXCLUDE: crcc.tcl
 
@@ -195,14 +195,14 @@ proc ::crc::CRC16 {s {seed 0}} {
 # -------------------------------------------------------------------------
 # Specialisation of the general crc procedure to perform the CCITT telecoms
 # flavour of the CRC16 checksum
-proc ::crc::CRC-CCITT {s {seed 0}} {
+proc ::crc::CRC-CCITT {s {seed 0} {xor 0}} {
     variable table
     if {![info exists table(ccitt)]} {
         variable polynomial
         set table(ccitt) [Crc_table 16 $polynomial(ccitt) 0]
     }
 
-    return [Crc $s 16 [namespace current]::table(ccitt) $seed 0 0]
+    return [Crc $s 16 [namespace current]::table(ccitt) $seed $xor 0]
 }
 
 # -------------------------------------------------------------------------
