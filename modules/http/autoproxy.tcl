@@ -16,14 +16,14 @@
 #   set tok [http::geturl http://wiki.tcl.tk/]
 #   http::data $tok
 #
-# @(#)$Id: autoproxy.tcl,v 1.4 2005/02/17 15:14:25 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.5 2006/04/20 15:02:10 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.4 2005/02/17 15:14:25 patthoyts Exp $}
+    variable rcsid {$Id: autoproxy.tcl,v 1.5 2006/04/20 15:02:10 patthoyts Exp $}
     variable version 1.2.1
     variable options
 
@@ -325,6 +325,59 @@ proc ::autoproxy::filter {host} {
         }
     }
     return [list $options(proxy_host) $options(proxy_port)]
+}
+
+# autoproxy::tls_socket --
+#
+#	This can be used to handle TLS connections indenpendantly of
+#	proxy presence. It can only be used with the Tcl http package
+#	and to use it you must do:
+#	   http::register https 443 ::autoproxy::tls_socket
+#	After that you can use the http::geturl command to access
+#	secure web pages and any proxy details will be handled for you.
+#
+proc ::autoproxy::tls_socket {args} {
+    variable options
+
+    # Look into the http package for the actual target. The function
+    # is unfortunately not passed these as parameters.
+    upvar host host port port
+
+    if {[string length $options(proxy_host)] > 0} {
+        set s [::socket $options(proxy_host) $options(proxy_port)]
+        fconfigure $s -blocking 1 -buffering line -translation crlf
+        puts $s "CONNECT $host:$port HTTP/1.1"
+        puts $s "Host: $host"
+        puts $s "User-Agent: [http::config -useragent]"
+        puts $s "Proxy-Connection: keep-alive"
+        puts $s "Connection: keep-alive"
+        if {[string length $options(basic)] > 0} {
+            puts $s [join $options(basic) ": "]
+        }
+        puts $s ""
+
+        set block ""
+        while {[gets $s r] > 0} {
+            lappend block $r
+        }
+        set result [lindex $block 0]
+        set code [lindex [split $result { }] 1]
+
+        if {$code >= 200 && $code < 300} {
+            fconfigure $s -blocking 1 -buffering none -translation binary
+            tls::import $s
+            # Record the certificate details in the request array.
+            tls::handshake $s
+            upvar state state
+            set state(tls_status) [tls::status $s]
+        } else {
+            close $s
+            return -code error $result
+        }
+    } else {
+        set s [eval [linsert $args ::tls::socket]]
+    }
+    return $s
 }
 
 # -------------------------------------------------------------------------
