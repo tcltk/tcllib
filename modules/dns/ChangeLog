@@ -1,3 +1,9 @@
+2006-04-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Fixed bug #1158037. We were using the query id to
+	locate the DNS state token but this restricts us to 65535 queries
+	as the value is packed into a short.
+
 2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Applied patch from #1453327 by Segei Golovan to improve
