@@ -16,75 +16,75 @@ testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
 testing {
-    useLocal textutil.tcl textutil
+    useLocal     trim.tcl     textutil::trim
 }
 
 # -------------------------------------------------------------------------
 
 test trim-0.1 {trim string on left} {
-    set str [ ::textutil::trimleft "\t\t hello, world \t " ]
+    set str [::textutil::trim::trimleft "\t\t hello, world \t " ]
     set str
 } "hello, world \t "
 
 test trim-0.2 {trim string on right} {
-    set str [ ::textutil::trimright "\t\t hello, world \t " ]
+    set str [::textutil::trim::trimright "\t\t hello, world \t " ]
     set str 
 } "\t\t hello, world"
 
 test trim-0.3 {trim string on both side} {
-    set str [ ::textutil::trim "\t\t hello, world \t " ]
+    set str [::textutil::trim::trim "\t\t hello, world \t " ]
     set str 
 } "hello, world"
 
 test trim-0.4 {trim string with embedded spaces and tabs on both side} {
-    set str [ ::textutil::trim "\t\t hello,    \t\t  world \t " ]
+    set str [::textutil::trim::trim "\t\t hello,    \t\t  world \t " ]
     set str 
 } "hello,    \t\t  world"
 
 test trim-1.1 {trim text on left} {
-    set str [ ::textutil::trimleft "\t\t hello, \t\n \tworld \t " ]
+    set str [::textutil::trim::trimleft "\t\t hello, \t\n \tworld \t " ]
     set str
 } "hello, \t
 world \t "
 
 test trim-1.2 {trim text on right} {
-    set str [ ::textutil::trimright "\t\t hello, \t\n \tworld \t " ]
+    set str [::textutil::trim::trimright "\t\t hello, \t\n \tworld \t " ]
     set str 
 } "\t\t hello,
  \tworld"
 
 test trim-1.3 {trim string on both side} {
-    set str [ ::textutil::trim "\t\t hello, \t\n \tworld \t " ]
+    set str [::textutil::trim::trim "\t\t hello, \t\n \tworld \t " ]
     set str 
 } "hello,
 world"
 
 test trim-1.4 {trim string with embedded spaces and tabs on both side} {
-    set str [ ::textutil::trim "\t\t hello\t \t, \t\n \tthe\t  \t world \t " ]
+    set str [::textutil::trim::trim "\t\t hello\t \t, \t\n \tthe\t  \t world \t " ]
     set str 
 } "hello\t \t,
 the\t  \t world"
 
 test trim-2.1 {trim text on left with regexp} {
-    set str [ ::textutil::trimleft "\t\t hello, \t\n \tworld \t " "\[ \thwdo\]+" ]
+    set str [::textutil::trim::trimleft "\t\t hello, \t\n \tworld \t " "\[ \thwdo\]+" ]
     set str
 } "ello, \t
 rld \t "
 
 test trim-2.2 {trim text on right} {
-    set str [ ::textutil::trimright "\t\t hello, \t\n \tworld \t " "\[ \thwdo\]+" ]
+    set str [::textutil::trim::trimright "\t\t hello, \t\n \tworld \t " "\[ \thwdo\]+" ]
     set str 
 } "\t\t hello,
  \tworl"
 
 test trim-2.3 {trim string on both side} {
-    set str [ ::textutil::trim "\t\t hello, \t\n \tworld \t " "\[ \thwdo\]+" ]
+    set str [::textutil::trim::trim "\t\t hello, \t\n \tworld \t " "\[ \thwdo\]+" ]
     set str 
 } "ello,
 rl"
 
 test trim-2.4 {trim string with embedded spaces and tabs on both side} {
-    set str [ ::textutil::trim "\t\t hello\t \t, \t\n \tthe\t  \t world \t " "\[ \thwdo\]+" ]
+    set str [::textutil::trim::trim "\t\t hello\t \t, \t\n \tthe\t  \t world \t " "\[ \thwdo\]+" ]
     set str 
 } "ello\t \t,
 the\t  \t worl"
@@ -111,7 +111,7 @@ set myparray "\t \tproc myparray {a pattern} {
 \t\t}\t\t"
 
 test trim-3.1 {trim block of Tcl code} {
-    set code [ ::textutil::trim $myparray ]
+    set code [::textutil::trim::trim $myparray ]
     set code
 } "proc myparray {a pattern} {
 # print nicely an associated array sorted by element
@@ -133,7 +133,7 @@ puts stdout \[format \"%-*s = %s\" \$maxl \$nameString \$array(\$name)\]
 }"
 
 test trim-3.2 {trim block of Tcl code with regexp} {
-    set code [ ::textutil::trim $myparray "\[\] \t{}pu\]+" ]
+    set code [::textutil::trim::trim $myparray "\[\] \t{}pu\]+" ]
     set code
 } "roc myparray {a pattern
 # print nicely an associated array sorted by element
@@ -155,7 +155,7 @@ ts stdout \[format \"%-*s = %s\" \$maxl \$nameString \$array(\$name)
 "
 
 test trim-3.3 {trim block of commented Tcl code with regexp} {
-    set code [ ::textutil::trim $myparray "(\[ \t\]+)|(\[ \t;\]*#.*)" ]
+    set code [::textutil::trim::trim $myparray "(\[ \t\]+)|(\[ \t;\]*#.*)" ]
     set code
 } "proc myparray {a pattern} {
 

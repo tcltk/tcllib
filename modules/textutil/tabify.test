@@ -15,34 +15,37 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocal     repeat.tcl   textutil::repeat
+}
 testing {
-    useLocal textutil.tcl textutil
+    useLocal     tabify.tcl   textutil::tabify
 }
 
 # -------------------------------------------------------------------------
 
 test tabify-0.1 {tabify string} {
-    ::textutil::tabify "        hello,        world        "
+    ::textutil::tabify::tabify "        hello,        world        "
 } "\thello,\tworld\t"
 
 test tabify-0.2 {tabify string with 4 chars} {
-    ::textutil::tabify "        hello,        world        " 4
+    ::textutil::tabify::tabify "        hello,        world        " 4
 } "\t\thello,\t\tworld\t\t"
 
 test tabify-0.3 {tabify string with 5 chars} {
-    ::textutil::tabify "        hello,        world        " 5
+    ::textutil::tabify::tabify "        hello,        world        " 5
 } "\t   hello,\t   world\t   "
 
 test tabify-1.1 {untabify string} {
-    ::textutil::untabify "\thello,\tworld\t"
+    ::textutil::tabify::untabify "\thello,\tworld\t"
 } "        hello,        world        "
 
 test tabify-1.2 {untabify string with 4 chars} {
-    ::textutil::untabify "\t\thello,\t\tworld\t\t" 4
+    ::textutil::tabify::untabify "\t\thello,\t\tworld\t\t" 4
 } "        hello,        world        "
 
 test tabify-1.3 {untabify string with 5 chars} {
-    ::textutil::untabify "\t   hello,\t   world\t   " 5
+    ::textutil::tabify::untabify "\t   hello,\t   world\t   " 5
 } "        hello,        world        "
 
 #
@@ -54,39 +57,39 @@ test tabify-1.3 {untabify string with 5 chars} {
 # to a tab
 #
 test tabify-2.1 {version 2: tabify, tab size 3} {
-    ::textutil::tabify2 "hello    world" 3
+    ::textutil::tabify::tabify2 "hello    world" 3
     #                    ---|||---|||--
 } "hello \tworld"
 
 test tabify-2.2 {version 2: tabify, tab size 3, more spaces than needed} {
-    ::textutil::tabify2 "hello      world" 3
+    ::textutil::tabify::tabify2 "hello      world" 3
 } "hello \t  world"
 
 test tabify-2.3 {version 2: tabify, tab size 3, less spaces than needed} {
-    ::textutil::tabify2 "hello   world" 3
+    ::textutil::tabify::tabify2 "hello   world" 3
 } "hello   world"
 
 test tabify-2.4 {version 2: tabify, tab size 8} {
-    ::textutil::tabify2 "hello   world"
+    ::textutil::tabify::tabify2 "hello   world"
 } "hello\tworld"
 
 test tabify-2.5 {version 2: tabify, tab size 8, more spaces than needed} {
-    ::textutil::tabify2 "hello     world"
+    ::textutil::tabify::tabify2 "hello     world"
 } "hello\t  world"
 
 test tabify-2.6 {version 2: tabify, tab size 8, less spaces than needed} {
-    ::textutil::tabify2 "hello  world"
+    ::textutil::tabify::tabify2 "hello  world"
 } "hello  world"
 
 #
 # tests 2.7 & 2.8: 'end of line' (\n or not) of last line is preserved
 #
 test tabify-2.7 {version 2: tabify, tab size 8, multi line} {
-    ::textutil::tabify2 "line 1  \n        line 2\nline 3  \n        line 4"
+    ::textutil::tabify::tabify2 "line 1  \n        line 2\nline 3  \n        line 4"
 } "line 1\t\n\tline 2\nline 3\t\n\tline 4"
 
 test tabify-2.8 {version 2: tabify, tab size 8, multi line} {
-    ::textutil::tabify2 "line 1  \n        line 2\nline 3  \n        line 4\n"
+    ::textutil::tabify::tabify2 "line 1  \n        line 2\nline 3  \n        line 4\n"
 } "line 1\t\n\tline 2\nline 3\t\n\tline 4\n"
 
 # Test handling of existing tabs ... 2.9 as test and 2.10 the
@@ -94,13 +97,13 @@ test tabify-2.8 {version 2: tabify, tab size 8, multi line} {
 # instead of a tab, to see that my understanding is basically correct.
 
 test tabify-2.9 {version 2: handling of existing tabs} {
-    ::textutil::tabify2 "hello\tworld   bye"
+    ::textutil::tabify::tabify2 "hello\tworld   bye"
     #                    hello...world   bye
     #                    --------||||||||---
 } "hello\tworld\tbye"
 
 test tabify-2.10 {version 2: handling of existing tabs} {
-    ::textutil::tabify2 "hello   world   bye"
+    ::textutil::tabify::tabify2 "hello   world   bye"
 } "hello\tworld\tbye"
 
 
@@ -108,11 +111,11 @@ test tabify-2.10 {version 2: handling of existing tabs} {
 # untabify
 #
 test tabify-3.1 {version 2: untabify, tab size 3} {
-    ::textutil::untabify2 "hello \tworld" 3
+    ::textutil::tabify::untabify2 "hello \tworld" 3
 } "hello    world"
 
 test tabify-3.2 {version 2: untabify, tab size 3, tab to single space} {
-    ::textutil::untabify2 "hello\t\tworld" 3
+    ::textutil::tabify::untabify2 "hello\t\tworld" 3
 } "hello    world"
 
 #
@@ -120,15 +123,15 @@ test tabify-3.2 {version 2: untabify, tab size 3, tab to single space} {
 # appropriate 'Spaces' strings (in 3.5 'Spaces(6)' is needed)
 #
 test tabify-3.3 {version 2: untabify, tab size 8} {
-    ::textutil::untabify2 "hello\tworld"
+    ::textutil::tabify::untabify2 "hello\tworld"
 } "hello   world"
 
 test tabify-3.4 {version 2: untabify, tab size 8, mix of tab and spaces} {
-    ::textutil::untabify2 "hello  \tworld"
+    ::textutil::tabify::untabify2 "hello  \tworld"
 } "hello   world"
 
 test tabify-3.5 {version 2: untabify, tab size 8, requires 'long' space string} {
-    ::textutil::untabify2 "hello\tmy\tworld"
+    ::textutil::tabify::untabify2 "hello\tmy\tworld"
 } "hello   my      world"
 
 
@@ -136,18 +139,18 @@ test tabify-3.5 {version 2: untabify, tab size 8, requires 'long' space string} 
 # tests 3.6 & 3.7: 'end of line' (\n or not) of last line is preserved
 #
 test tabify-3.6 {version 2: untabify, tab size 8, multi line} {
-    ::textutil::untabify2 "line 1\t\n\tline 2\nline 3\t\n\tline 4"
+    ::textutil::tabify::untabify2 "line 1\t\n\tline 2\nline 3\t\n\tline 4"
 } "line 1  \n        line 2\nline 3  \n        line 4"
 
 test tabify-3.7 {version 2: untabify, tab size 8, multi line} {
-    ::textutil::untabify2 "line 1\t\n\tline 2\nline 3\t\n\tline 4\n"
+    ::textutil::tabify::untabify2 "line 1\t\n\tline 2\nline 3\t\n\tline 4\n"
 } "line 1  \n        line 2\nline 3  \n        line 4\n"
 
 #
 # Edge cases: test for empty string
 #
-test tabify-4.1 {tabify empty string}   	{ textutil::tabify "" } ""
-test tabify-4.2 {untabify empty string}  	{ textutil::untabify ""} ""
-test tabify-4.3 {tabify2 empty string}   	{ textutil::tabify2 "" } ""
-test tabify-4.4 {untabify2 empty string}	{ textutil::untabify2 ""} ""
+test tabify-4.1 {tabify empty string}    { ::textutil::tabify::tabify    "" } ""
+test tabify-4.2 {untabify empty string}  { ::textutil::tabify::untabify  "" } ""
+test tabify-4.3 {tabify2 empty string}   { ::textutil::tabify::tabify2   "" } ""
+test tabify-4.4 {untabify2 empty string} { ::textutil::tabify::untabify2 "" } ""
 

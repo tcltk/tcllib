@@ -1,20 +1,24 @@
-namespace eval ::textutil {
+# split.tcl --
+#
+#	Various ways of splitting a string.
+#
+# Copyright (c) 2000      by Ajuba Solutions.
+# Copyright (c) 2000      by Eric Melski <ericm@ajubasolutions.com>
+# Copyright (c) 2001      by Reinhard Max <max@suse.de>
+# Copyright (c) 2003      by Pat Thoyts <patthoyts@users.sourceforge.net>
+# Copyright (c) 2001-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+# RCS: @(#) $Id: split.tcl,v 1.7 2006/04/21 04:42:28 andreas_kupries Exp $
 
-    namespace eval split {
+# ### ### ### ######### ######### #########
+## Requirements
 
-	namespace export splitx splitn
+package require Tcl 8.2
 
-	# This will be redefined later. We need it just to let
-	# a chance for the next import subcommand to work
-	#
-	proc splitx [list str [list regexp "\[\t \r\n\]+"]] {}
-	proc splitn {str {len 1}} {}
-    }
-
-    namespace import -force split::splitx split::splitn
-    namespace export splitx splitn
-
-}
+namespace eval ::textutil::split {}
 
 ########################################################################
 # This one was written by Bob Techentin (RWT in Tcl'ers Wiki):
@@ -75,8 +79,7 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
         return $list
     }
 
-} else {
-    
+} else {    
     # For tcl <= 8.2 we do not have regexp -start...
     proc ::textutil::split::splitx [list str [list regexp "\[\t \r\n\]+"]] {
 
@@ -150,3 +153,15 @@ proc ::textutil::split::splitn {str {len 1}} {
 
     return $result
 }
+
+# ### ### ### ######### ######### #########
+## Data structures
+
+namespace eval ::textutil::split {
+    namespace export splitx splitn
+}
+
+# ### ### ### ######### ######### #########
+## Ready
+
+package provide textutil::split 0.7

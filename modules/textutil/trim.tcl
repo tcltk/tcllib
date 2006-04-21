@@ -1,29 +1,25 @@
-namespace eval ::textutil {
-	
-    namespace eval trim {
-    
-	variable StrU "\[ \t\]+"
-	variable StrR "(${StrU})\$"
-	variable StrL "^(${StrU})"
+# trim.tcl --
+#
+#	Various ways of trimming a string.
+#
+# Copyright (c) 2000      by Ajuba Solutions.
+# Copyright (c) 2000      by Eric Melski <ericm@ajubasolutions.com>
+# Copyright (c) 2001-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+# RCS: @(#) $Id: trim.tcl,v 1.5 2006/04/21 04:42:28 andreas_kupries Exp $
 
-	namespace export trim trimright trimleft \
-		trimPrefix trimEmptyHeading
+# ### ### ### ######### ######### #########
+## Requirements
 
-	# This will be redefined later. We need it just to let
-	# a chance for the next import subcommand to work
-	#
-	proc trimleft  { text { trim "[ \t]+" } } { }
-	proc trimright { text { trim "[ \t]+" } } { }
-	proc trim      { text { trim "[ \t]+" } } { }
+package require Tcl 8.2
 
-	proc trimPrefix {text prefix} {}
-	proc trimEmptyHeading {text} {}
-    }
+namespace eval ::textutil::trim {}
 
-    namespace import -force trim::trim trim::trimleft trim::trimright trim::trimPrefix trim::trimEmptyHeading
-    namespace export trim trimleft trimright trimPrefix trimEmptyHeading
-}
-
+# ### ### ### ######### ######### #########
+## API implementation
 
 proc ::textutil::trim::trimleft {text {trim "[ \t]+"}} {
     regsub -line -all -- [MakeStr $trim left] $text {} text
@@ -41,25 +37,6 @@ proc ::textutil::trim::trim {text {trim "[ \t]+"}} {
     return $text
 }
 
-proc ::textutil::trim::MakeStr { string pos }  {
-    variable StrU
-    variable StrR
-    variable StrL
-
-    if { "$string" != "$StrU" } {
-        set StrU $string
-        set StrR "(${StrU})\$"
-        set StrL "^(${StrU})"
-    }
-    if { "$pos" == "left" } {
-        return $StrL
-    }
-    if { "$pos" == "right" } {
-        return $StrR
-    }
-
-    return -code error "Panic, illegal position key \"$pos\""
-}
 
 
 # @c Strips <a prefix> from <a text>, if found at its start.
@@ -92,3 +69,44 @@ proc ::textutil::trim::trimEmptyHeading {text} {
     regsub -- "^(\[ \t\]*\n)*" $text {} text
     return $text
 }
+
+# ### ### ### ######### ######### #########
+## Helper commands. Internal
+
+proc ::textutil::trim::MakeStr { string pos }  {
+    variable StrU
+    variable StrR
+    variable StrL
+
+    if { "$string" != "$StrU" } {
+        set StrU $string
+        set StrR "(${StrU})\$"
+        set StrL "^(${StrU})"
+    }
+    if { "$pos" == "left" } {
+        return $StrL
+    }
+    if { "$pos" == "right" } {
+        return $StrR
+    }
+
+    return -code error "Panic, illegal position key \"$pos\""
+}
+
+# ### ### ### ######### ######### #########
+## Data structures
+
+namespace eval ::textutil::trim {	    
+    variable StrU "\[ \t\]+"
+    variable StrR "(${StrU})\$"
+    variable StrL "^(${StrU})"
+
+    namespace export \
+	    trim trimright trimleft \
+	    trimPrefix trimEmptyHeading
+}
+
+# ### ### ### ######### ######### #########
+## Ready
+
+package provide textutil::trim 0.7

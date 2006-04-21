@@ -15,8 +15,12 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocal     repeat.tcl   textutil::repeat
+    useLocal     string.tcl   textutil::string
+}
 testing {
-    useLocal textutil.tcl textutil
+    useLocal     adjust.tcl   textutil::adjust
 }
 
 # -------------------------------------------------------------------------
@@ -52,49 +56,49 @@ Cause tramp like us, baby we were born to run."
 ###################################################
 
 test adjust-0.1 {adjust string on left} {
-    ::textutil::adjust $string
+    ::textutil::adjust::adjust $string
 } \
 "hello, world"
 
 test adjust-0.2 {adjust string on rigth} {
-    ::textutil::adjust $string -justify right
+    ::textutil::adjust::adjust $string -justify right
 } \
 "                                                            hello, world"
 
 test adjust-0.3 {adjust string on center} {
-    ::textutil::adjust $string -justify center
+    ::textutil::adjust::adjust $string -justify center
 } \
 "                              hello, world"
 
 test adjust-0.4 {adjust string with plain justification} {
-    ::textutil::adjust $string -justify plain -full no
+    ::textutil::adjust::adjust $string -justify plain -full no
 } \
 "hello, world"
 
 test adjust-0.5 {adjust string on left with full line} {
-    ::textutil::adjust $string -full yes
+    ::textutil::adjust::adjust $string -full yes
 } \
 "hello,        world                                                     "
 
 test adjust-0.6 {adjust string on right with full line} {
-    ::textutil::adjust $string -justify right -full yes
+    ::textutil::adjust::adjust $string -justify right -full yes
 } \
 "                                             hello,        world        "
 
 test adjust-0.7 {adjust string on center with full line} {
-    ::textutil::adjust $string -justify center -full 1
+    ::textutil::adjust::adjust $string -justify center -full 1
 } \
 "                       hello,        world                              "
 
 test adjust-0.8 {adjust string with plain justification and full line} {
-    ::textutil::adjust $string -justify plain -full YES
+    ::textutil::adjust::adjust $string -justify plain -full YES
 } \
 "hello,        world                                                     "
 
 ##############################
 
 test adjust-1.1 {adjust multi lines on left} {
-    ::textutil::adjust $text -full no
+    ::textutil::adjust::adjust $text -full no
 } \
 "Hello, world! This is the end, my friend. You're just another brick in
 the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
@@ -103,7 +107,7 @@ don't let me be misunderstood. Cause tramp like us, baby we were born to
 run."
 
 test adjust-1.2 {adjust multi lines on right} {
-    ::textutil::adjust $text -justify right
+    ::textutil::adjust::adjust $text -justify right
 } \
 "  Hello, world! This is the end, my friend. You're just another brick in
 the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
@@ -112,7 +116,7 @@ don't let me be misunderstood. Cause tramp like us, baby we were born to
                                                                     run."
 
 test adjust-1.3 {adjust multi lines on center} {
-    ::textutil::adjust $text -justify center -full yes
+    ::textutil::adjust::adjust $text -justify center -full yes
 } \
 "Hello, world!             This is the end,    my    friend.  You're just
  another   brick   in   the   wall.    Michele, ma belle, sont des mots 
@@ -121,7 +125,7 @@ water, and fire in the sky.      Oh Lord, don't let me be misunderstood.
              Cause tramp like us, baby we were born to run.             "
 
 test adjust-1.4 {adjust multi lines with plain justification} {
-    ::textutil::adjust $text -justify plain -full yes
+    ::textutil::adjust::adjust $text -justify plain -full yes
 } \
 "Hello, world!             This is the end,    my    friend.  You're just
 another     brick   in   the   wall.    Michele, ma belle, sont des mots
@@ -130,7 +134,7 @@ water, and fire in the sky.      Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run.                          "
 
 test adjust-1.5 {adjust multi lines with plain justification} {
-    ::textutil::adjust $text -justify plain
+    ::textutil::adjust::adjust $text -justify plain
 } \
 "Hello, world! This  is the end,  my friend. You're just another brick in
 the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
@@ -141,7 +145,7 @@ run."
 ##############################
 
 test adjust-2.1 {adjust multi lines on left with specified length} {
-    ::textutil::adjust $text -justify left -length 62
+    ::textutil::adjust::adjust $text -justify left -length 62
 } \
 "Hello, world! This is the end, my friend. You're just another
 brick in the wall. Michele, ma belle, sont des mots qui vont
@@ -150,7 +154,7 @@ and fire in the sky. Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run."
 
 test adjust-2.2 {adjust multi lines on right with specified length} {
-    ::textutil::adjust $text -justify right -length 62
+    ::textutil::adjust::adjust $text -justify right -length 62
 } \
 " Hello, world! This is the end, my friend. You're just another
   brick in the wall. Michele, ma belle, sont des mots qui vont
@@ -159,7 +163,7 @@ test adjust-2.2 {adjust multi lines on right with specified length} {
                 Cause tramp like us, baby we were born to run."
 
 test adjust-2.3 {adjust multi lines on center with specified length} {
-    ::textutil::adjust $text -justify center -length 62 -full yes
+    ::textutil::adjust::adjust $text -justify center -length 62 -full yes
 } \
 " Hello, world!             This is the end,    my    friend.  
  You're just    another   brick   in   the   wall.    Michele,
@@ -169,7 +173,7 @@ bien ensembles.     Smoke on the water, and fire in the sky.
                    baby we were born to run.                  "
 
 test adjust-2.4 {adjust multi lines with plain justification} {
-    ::textutil::adjust $text -justify plain -length 62 -full yes
+    ::textutil::adjust::adjust $text -justify plain -length 62 -full yes
 } \
 "Hello, world!               This is the end,    my    friend. 
 You're just     another   brick   in   the   wall.    Michele,
@@ -179,7 +183,7 @@ Oh Lord, don't let me be misunderstood.   Cause tramp like us,
 baby we were born to run.                                     "
 
 test adjust-2.5 {adjust multi lines with plain justification} {
-    ::textutil::adjust $text -justify plain -length 62
+    ::textutil::adjust::adjust $text -justify plain -length 62
 } \
 "Hello, world! This  is the end, my friend. You're just another
 brick  in the wall. Michele,  ma belle, sont des mots qui vont
@@ -188,7 +192,7 @@ and fire  in the sky.  Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run."
 
 test adjust-2.6 {adjust multi lines with plain justification and long word} {
-    ::textutil::adjust $text2 -justify plain -length 31 -strictlength 1
+    ::textutil::adjust::adjust $text2 -justify plain -length 31 -strictlength 1
 } \
 "Hello, world! This  is the end,
 my friend. You're  just another
@@ -204,7 +208,7 @@ misunderstood. Cause tramp like
 us, baby  we were born  to run."
 
 test adjust-2.7 {adjust multi lines with plain justification and strictlength} {
-    ::textutil::adjust $text2 -justify plain -length 31 -strictlength 1
+    ::textutil::adjust::adjust $text2 -justify plain -length 31 -strictlength 1
 } \
 "Hello, world! This  is the end,
 my friend. You're  just another
@@ -220,7 +224,7 @@ misunderstood. Cause tramp like
 us, baby  we were born  to run."
 
 test adjust-2.8 {adjust multi lines with left justification and strictlength} {
-    ::textutil::adjust $text2 -justify left -length 31 -strictlength 1
+    ::textutil::adjust::adjust $text2 -justify left -length 31 -strictlength 1
 } \
 "Hello, world! This is the end,
 my friend. You're just another
@@ -245,7 +249,7 @@ unset text2
 # Indentation
 
 test indent-1.0 {indent spaces, no skip} {
-    ::textutil::indent {foo
+    ::textutil::adjust::indent {foo
 bar
 
 bob} {    }
@@ -255,7 +259,7 @@ bob} {    }
     bob}
 
 test indent-1.1 {indent spaces, negative skip} {
-    ::textutil::indent {foo
+    ::textutil::adjust::indent {foo
 bar
 
 bob} {    } -4
@@ -265,7 +269,7 @@ bob} {    } -4
     bob}
 
 test indent-1.2 {indent spaces, skip one} {
-    ::textutil::indent {foo
+    ::textutil::adjust::indent {foo
 bar
 
 bob} {    } 1
@@ -275,7 +279,7 @@ bob} {    } 1
     bob}
 
 test indent-1.3 {indent spaces, skip three} {
-    ::textutil::indent {foo
+    ::textutil::adjust::indent {foo
 bar
 
 bob} {    } 3
@@ -285,7 +289,7 @@ bar
     bob}
 
 test indent-1.4 {indent spaces, skip all} {
-    ::textutil::indent {foo
+    ::textutil::adjust::indent {foo
 bar
 
 bob} {    } 5
@@ -295,7 +299,7 @@ bar
 bob}
 
 test indent-1.5 {indent spaces, skip all, on border} {
-    ::textutil::indent {foo
+    ::textutil::adjust::indent {foo
 bar
 
 bob} {    } 4
@@ -305,7 +309,7 @@ bar
 bob}
 
 test indent-1.6 {indent text with leading spaces} {
-    ::textutil::indent {  foo
+    ::textutil::adjust::indent {  foo
   bar
 
   bob} {    } 0
@@ -315,7 +319,7 @@ test indent-1.6 {indent text with leading spaces} {
       bob}
 
 test indent-1.7 {indent text with leading spaces, removal of traling spaces} {
-    ::textutil::indent {  foo  
+    ::textutil::adjust::indent {  foo  
   bar    
 
   bob   } {    } 0
@@ -325,7 +329,7 @@ test indent-1.7 {indent text with leading spaces, removal of traling spaces} {
       bob}
 
 test undent-1.0 {undent, empty line, completely empty} {
-    ::textutil::undent {    foo
+    ::textutil::adjust::undent {    foo
     bar
 
     bob}
@@ -335,7 +339,7 @@ bar
 bob}
 
 test undent-1.1 {undent, empty line, whitespace} {
-    ::textutil::undent {    foo
+    ::textutil::adjust::undent {    foo
     bar
     	
     bob}
@@ -345,7 +349,7 @@ bar
 bob}
 
 test undent-1.2 {undent, ignore common non-whitespace prefix} {
-    ::textutil::undent {    foo
+    ::textutil::adjust::undent {    foo
     foobar
     foobob}
 } {foo
@@ -353,7 +357,7 @@ foobar
 foobob}
 
 test undent-1.3 {undent, ignore common non-whitespace part of prefix} {
-    ::textutil::undent {    foo 
+    ::textutil::adjust::undent {    foo 
     foo bar
     foo bob}
 } {foo 

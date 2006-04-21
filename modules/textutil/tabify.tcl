@@ -53,40 +53,20 @@
 # ----------------------------------------------------------------------------
 #
 
-namespace eval ::textutil {
+# ### ### ### ######### ######### #########
+## Requirements
 
-    namespace eval tabify {
-	variable StrRepeat [ namespace parent ]::strRepeat
-	variable TabLen  8
-	variable TabStr  [ $StrRepeat " " $TabLen ]
+package require Tcl 8.2
+package require textutil::repeat
 
-	namespace export tabify untabify tabify2 untabify2
+namespace eval ::textutil::tabify {}
 
-	# This will be redefined later. We need it just to let
-	# a chance for the next import subcommand to work
-	#
-	proc tabify    { string { num 8 } } { }
-	proc untabify  { string { num 8 } } { }
-	proc tabify2   { string { num 8 } } { }
-	proc untabify2 { string { num 8 } } { }
+# ### ### ### ######### ######### #########
+## API implementation
 
-	# The proc 'untabify2' uses the following variables for efficiency.
-	# Since a tab can be replaced by one up to 'tab size' spaces, it is handy
-	# to have the appropriate 'space strings' available. This is the use of
-	# the array 'Spaces', where 'Spaces(n)' contains just 'n' spaces.
-	# The variable 'TabLen2' remembers the biggest tab size used.
-
-	variable  TabLen2 0
-	variable  Spaces
-	array set Spaces {0 ""}
-    }
-
-    namespace import -force tabify::tabify tabify::untabify \
-	    tabify::tabify2 tabify::untabify2
-    namespace export tabify untabify tabify2 untabify2
+namespace eval ::textutil::tabify {
+    namespace import -force ::textutil::repeat::strRepeat
 }
-
-########################################################################
 
 proc ::textutil::tabify::tabify { string { num 8 } } {
     return [string map [list [MakeTabStr $num] \t] $string]
@@ -97,13 +77,12 @@ proc ::textutil::tabify::untabify { string { num 8 } } {
 }
 
 proc ::textutil::tabify::MakeTabStr { num } {
-    variable StrRepeat
     variable TabStr
     variable TabLen
 
     if { $TabLen != $num } then {
 	set TabLen $num
-	set TabStr [ $StrRepeat " " $num ]
+	set TabStr [strRepeat " " $num]
     }
 
     return $TabStr
@@ -200,11 +179,10 @@ proc ::textutil::tabify::tabifyLine { line num } {
 proc ::textutil::tabify::checkArr { num } {
     variable TabLen2
     variable Spaces
-    variable StrRepeat
 
     if { $num > $TabLen2 } {
 	for { set i [expr {$TabLen2 + 1}] } { $i <= $num } { incr i } {
-	    set Spaces($i) [$StrRepeat " " $i]
+	    set Spaces($i) [strRepeat " " $i]
 	}
 	set TabLen2 $num
     }
@@ -282,3 +260,30 @@ proc ::textutil::tabify::untabify2 { string { num 8 } } {
 
     return [join $outLst \n]
 }
+
+
+
+# ### ### ### ######### ######### #########
+## Data structures
+
+namespace eval ::textutil::tabify {
+    variable TabLen  8
+    variable TabStr  [strRepeat " " $TabLen]
+
+    namespace export tabify untabify tabify2 untabify2
+    
+    # The proc 'untabify2' uses the following variables for efficiency.
+    # Since a tab can be replaced by one up to 'tab size' spaces, it is handy
+    # to have the appropriate 'space strings' available. This is the use of
+    # the array 'Spaces', where 'Spaces(n)' contains just 'n' spaces.
+    # The variable 'TabLen2' remembers the biggest tab size used.
+
+    variable  TabLen2 0
+    variable  Spaces
+    array set Spaces {0 ""}
+}
+
+# ### ### ### ######### ######### #########
+## Ready
+
+package provide textutil::tabify 0.7
