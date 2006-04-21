@@ -15,6 +15,18 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocal     string.tcl   textutil::string
+    useLocal     repeat.tcl   textutil::repeat
+    useLocal     adjust.tcl   textutil::adjust
+    useLocal     split.tcl    textutil::split
+    useLocal     tabify.tcl   textutil::tabify
+    useLocal     trim.tcl     textutil::trim
+}
+testing {
+    useLocalKeep textutil.tcl textutil
+}
+
 # -------------------------------------------------------------------------
 
 test textutil-1.0 {blank -1} {
