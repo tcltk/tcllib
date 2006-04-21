@@ -1,174 +1,79 @@
+# textutil.tcl --
+#
+#	Utilities for manipulating strings, words, single lines,
+#	paragraphs, ...
+#
+# Copyright (c) 2000      by Ajuba Solutions.
+# Copyright (c) 2000      by Eric Melski <ericm@ajubasolutions.com>
+# Copyright (c) 2002      by Joe English <jenglish@users.sourceforge.net>
+# Copyright (c) 2001-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+# RCS: @(#) $Id: textutil.tcl,v 1.16 2006/04/21 04:42:28 andreas_kupries Exp $
+
+# ### ### ### ######### ######### #########
+## Requirements
+
 package require Tcl 8.2
 
+namespace eval ::textutil {}
+
+# ### ### ### ######### ######### #########
+## API implementation
+## All through sub-packages imported here.
+
+package require textutil::string
+package require textutil::repeat
+package require textutil::adjust
+package require textutil::split
+package require textutil::tabify
+package require textutil::trim
+
 namespace eval ::textutil {
-    namespace export strRepeat
-    
-    variable HaveStrRepeat [ expr {![ catch { string repeat a 1 } ]} ]
+    # Import the miscellaneous string command for public export
 
-    if {0} {
-	# Problems with the deactivated code:
-	# - Linear in 'num'.
-	# - Tests for 'string repeat' in every call!
-	#   (Ok, just the variable, still a test every call)
-	# - Fails for 'num == 0' because of undefined 'str'.
+    namespace import -force string::chop string::tail
+    namespace import -force string::cap string::uncap
+    namespace import -force string::longestCommonPrefix
+    namespace import -force string::longestCommonPrefixList
 
-	proc StrRepeat { char num } {
-	    variable HaveStrRepeat
-	    if { $HaveStrRepeat == 0 } then {
-		for { set i 0 } { $i < $num } { incr i } {
-		    append str $char
-		}
-	    } else {
-		set str [ string repeat $char $num ]
-	    }
-	    return $str
-	}
-    }
+    # Import the repeat commands for public export
 
-}
+    namespace import -force repeat::strRepeat repeat::blank
 
-if {$::textutil::HaveStrRepeat} {
-    proc ::textutil::strRepeat {char num} {
-	return [string repeat $char $num]
-    }
+    # Import the adjust commands for public export
 
-    proc ::textutil::blank {n} {
-	return [string repeat " " $n]
-    }
+    namespace import -force adjust::adjust adjust::indent adjust::undent
 
-} else {
-    proc ::textutil::strRepeat {char num} {
-	if {$num <= 0} {
-	    # No replication required
-	    return ""
-	} elseif {$num == 1} {
-	    # Quick exit for recursion
-	    return $char
-	} elseif {$num == 2} {
-	    # Another quick exit for recursion
-	    return $char$char
-	} elseif {0 == ($num % 2)} {
-	    # Halving the problem results in O (log n) complexity.
-	    set result [strRepeat $char [expr {$num / 2}]]
-	    return "$result$result"
-	} else {
-	    # Uneven length, reduce problem by one
-	    return "$char[strRepeat $char [incr num -1]]"
-	}
-    }
+    # Import the split commands for public export
 
-    proc ::textutil::blank {n} {
-	return [strRepeat " " $n]
-    }
+    namespace import -force split::splitx split::splitn
+
+    # Import the trim commands for public export
+
+    namespace import -force trim::trim trim::trimleft trim::trimright
+    namespace import -force trim::trimPrefix trim::trimEmptyHeading
+
+    # Import the tabify commands for public export
+
+    namespace import -force tabify::tabify tabify::untabify
+    namespace import -force tabify::tabify2 tabify::untabify2
+
+    # Re-export all the imported commands
+
+    namespace export chop tail cap uncap
+    namespace export longestCommonPrefix longestCommonPrefixList
+    namespace export strRepeat blank
+    namespace export adjust indent undent
+    namespace export splitx splitn
+    namespace export trim trimleft trimright trimPrefix trimEmptyHeading
+    namespace export tabify untabify tabify2 untabify2
 }
 
 
-# @c Removes the last character from the given <a string>.
-#
-# @a string: The string to manipulate.
-#
-# @r The <a string> without its last character.
-#
-# @i chopping
+# ### ### ### ######### ######### #########
+## Ready
 
-proc ::textutil::chop {string} {
-    return [string range $string 0 [expr {[string length $string]-2}]]
-}
-
-
-
-# @c Removes the first character from the given <a string>.
-# @c Convenience procedure.
-#
-# @a string: string to manipulate.
-#
-# @r The <a string> without its first character.
-#
-# @i tail
-
-proc ::textutil::tail {string} {
-    return [string range $string 1 end]
-}
-
-
-
-# @c Capitalizes first character of the given <a string>.
-# @c Complementary procedure to <p ::textutil::uncap>.
-#
-# @a string: string to manipulate.
-#
-# @r The <a string> with its first character capitalized.
-#
-# @i capitalize
-
-proc ::textutil::cap {string} {
-    return [string toupper [string index $string 0]][string range $string 1 end]
-}
-
-# @c unCapitalizes first character of the given <a string>.
-# @c Complementary procedure to <p ::textutil::cap>.
-#
-# @a string: string to manipulate.
-#
-# @r The <a string> with its first character uncapitalized.
-#
-# @i uncapitalize
-
-proc ::textutil::uncap {string} {
-    return [string tolower [string index $string 0]][string range $string 1 end]
-}
-
-
-# Compute the longest string which is common to all strings given to
-# the command, and at the beginning of said strings, i.e. a prefix. If
-# only one argument is specified it is treated as a list of the
-# strings to look at. If more than one argument is specified these
-# arguments are the strings to be looked at. If only one string is
-# given, in either form, the string is returned, as it is its own
-# longest common prefix.
-
-proc ::textutil::longestCommonPrefix {args} {
-    return [longestCommonPrefixList $args]
-}
-
-proc ::textutil::longestCommonPrefixList {list} {
-    if {[llength $list] == 0} {
-	return ""
-    } elseif {[llength $list] == 1} {
-	return [lindex $list 0]
-    }
-
-    set list [lsort  $list]
-    set min  [lindex $list 0]
-    set max  [lindex $list end]
-
-    # Min and max are the two strings which are most different. If
-    # they have a common prefix, it will also be the common prefix for
-    # all of them.
-
-    # Fast bailouts for common cases.
-
-    set n [string length $min]
-    if {$n == 0}                         {return ""}
-    if {0 == [string compare $min $max]} {return $min}
-
-    set prefix ""
-    for {set i 0} {$i < $n} {incr i} {
-	if {0 == [string compare [set x [string range $min 0 $i]] [string range $max 0 $i]]} {
-	    set prefix $x
-	    continue
-	}
-	break
-    }
-    return $prefix
-}
-
-
-
-source [ file join [ file dirname [ info script ] ] adjust.tcl ]
-source [ file join [ file dirname [ info script ] ] split.tcl ]
-source [ file join [ file dirname [ info script ] ] tabify.tcl ]
-source [ file join [ file dirname [ info script ] ] trim.tcl ]
-
-# Do the [package provide] last, in case there is an error in the code above.
 package provide textutil 0.7

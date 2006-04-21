@@ -1,3 +1,32 @@
+2006-04-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.tcl: Reformatted (indentation), removed superfluous
+	  semicolons, braced expressions without.
+
+	* string.tcl:   Moved the remainder of the textutil commands
+	* pkgIndex.tcl: into their sub-package. The main package is
+	                now only a bundle requiring the sub-packages,
+			importing their commands and then re-exporting
+			them.
+
+2006-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.tcl:   Converted each of the subordinate files into its
+	* repeat.tcl:   own package, moved 'repeat' implementation into a
+	* split.tcl:    new file and its own package. The visible API is
+	* tabify.tcl:   unchanged, only the internal structure has changed,
+	* textutil.tcl: and how the main package loads the subordinate
+	* trim.tcl:     functionality.
+	* pkgIndex.tcl: Extended for the additional packages.
+
+	* adjust.test:      All testsuites adapted to properly load all
+	* adjust_hyph.test: needed packages, and changed to use the sub-
+	* repeat.test:      package APIs during testing, instead of the
+	* split.test:       commands exported by the bundle package.
+	* tabify.test:
+	* texttutil.test:
+	* trim.test:
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.test: Fixed duplicate usage of test names.

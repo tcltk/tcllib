@@ -16,8 +16,12 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocal     string.tcl   textutil::string
+    useLocal     repeat.tcl   textutil::repeat
+}
 testing {
-    useLocal textutil.tcl textutil
+    useLocal     adjust.tcl   textutil::adjust
 }
 
 # -------------------------------------------------------------------------
@@ -35,7 +39,7 @@ zum Doktor der Rechte über das Thema 'Die Böllerschüsse im Völkerrecht'"
 
     # Setup hyphenation patterns, then perform adjustment
     textutil::adjust::readPatterns [file join $::tcltest::testsDirectory "dehypht.tex"]
-    textutil::adjust $str -hyphenate 1 -length $wid
+    textutil::adjust::adjust $str -hyphenate 1 -length $wid
 } {Kurz berichtet:
 Theodor Holzkopf
 (Name frei er-
@@ -61,7 +65,7 @@ test adjust-tex-1.1 {Italian hyphenation} {
         (Indro Montanelli)"
     set wid 20;
     textutil::adjust::readPatterns [file join $::tcltest::testsDirectory "ithyph.tex"]
-    textutil::adjust $str -hyphenate 1 -length $wid
+    textutil::adjust::adjust $str -hyphenate 1 -length $wid
 } {Non sappiamo con
 precisione quando a
 Roma furono institu-
@@ -89,7 +93,7 @@ test adjust-tex-1.2 {Spanish hyphenation} {
         cambios a la carta magna (Periodico La Razon, Bolivia)"
     set wid 20;
     textutil::adjust::readPatterns [file join $::tcltest::testsDirectory "eshyph_vo.tex"]
-    textutil::adjust $str -hyphenate 1 -length $wid
+    textutil::adjust::adjust $str -hyphenate 1 -length $wid
 } {El panorama politico
 estará convulsionado
 porque los
@@ -118,7 +122,7 @@ string ein test string ein test string ein test
 string ein test string g ein test string
 }
     textutil::adjust::readPatterns [file join $::tcltest::testsDirectory "dehypht.tex"]
-    textutil::adjust $str -length 76 -hyphenate 1 -strictlength 1 -justify plain
+    textutil::adjust::adjust $str -length 76 -hyphenate 1 -strictlength 1 -justify plain
 } {ein  test strin  ein test string  ein test string  ein test string  ein test
 string  ein test string  ein test string ein test string ein test string ein
 test string  ein test string ein test string ein test string ein test string
