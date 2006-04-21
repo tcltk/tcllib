@@ -29,7 +29,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.31 2006/04/20 15:26:19 patthoyts Exp $
+# $Id: dns.tcl,v 1.32 2006/04/21 14:23:15 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -39,7 +39,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.3.0
-    variable rcsid {$Id: dns.tcl,v 1.31 2006/04/20 15:26:19 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.32 2006/04/21 14:23:15 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -840,7 +840,12 @@ proc ::dns::TcpEvent {token} {
             if {[string length $state(reply)] >= $state(size)} {
                 binary scan $result S id
                 set id [expr {$id & 0xFFFF}]
-                Receive [namespace current]::$id
+                if {$id != [expr {$state(id) & 0xFFFF}]} {
+                    ${log}::error "received packed with incorrect id"
+                }
+                # bug #1158037 - doing this causes problems > 65535 requests!
+                #Receive [namespace current]::$id
+                Receive $token
             } else {
                 ${log}::debug "Incomplete tcp read:\
                    [string length $state(reply)] should be $state(size)"
@@ -873,7 +878,12 @@ proc ::dns::UdpEvent {token} {
 
     binary scan $payload S id
     set id [expr {$id & 0xFFFF}]
-    Receive [namespace current]::$id
+    if {$id != [expr {$state(id) & 0xFFFF}]} {
+        ${log}::error "received packed with incorrect id"
+    }
+    # bug #1158037 - doing this causes problems > 65535 requests!
+    #Receive [namespace current]::$id
+    Receive $token
 }
     
 # -------------------------------------------------------------------------
