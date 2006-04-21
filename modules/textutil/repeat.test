@@ -16,47 +16,47 @@ testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
 testing {
-    useLocal textutil.tcl textutil
+    useLocal     repeat.tcl   textutil::repeat
 }
 
 # -------------------------------------------------------------------------
 
 test rep-0.1 {repeat < 0} {
-    set str [::textutil::strRepeat . -1]
+    set str [::textutil::repeat::strRepeat . -1]
     set str
 } ""
 
 test rep-0.2 {repeat 0} {
-    set str [::textutil::strRepeat . 0]
+    set str [::textutil::repeat::strRepeat . 0]
     set str 
 } ""
 
 test rep-0.3 {repeat 1} {
-    set str [::textutil::strRepeat . 1]
+    set str [::textutil::repeat::strRepeat . 1]
     set str 
 } "."
 
 test rep-0.4 {repeat 2} {
-    set str [::textutil::strRepeat . 2]
+    set str [::textutil::repeat::strRepeat . 2]
     set str 
 } ".."
 
 test rep-0.5 {repeat 3} {
-    set str [::textutil::strRepeat . 3]
+    set str [::textutil::repeat::strRepeat . 3]
     set str 
 } "..."
 
 test rep-0.6 {repeat 5} {
-    set str [::textutil::strRepeat . 5]
+    set str [::textutil::repeat::strRepeat . 5]
     set str 
 } "....."
 
 test rep-0.7 {repeat 10} {
-    set str [::textutil::strRepeat . 10]
+    set str [::textutil::repeat::strRepeat . 10]
     set str 
 } ".........."
 
 test rep-0.8 {repeat 100} {
-    set str [::textutil::strRepeat . 100]
+    set str [::textutil::repeat::strRepeat . 100]
     set str 
 } "...................................................................................................."
