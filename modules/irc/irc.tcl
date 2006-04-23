@@ -5,12 +5,13 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.25 2005/09/28 04:51:22 andreas_kupries Exp $
+# $Id: irc.tcl,v 1.26 2006/04/23 22:35:57 patthoyts Exp $
 
-package provide irc 0.5
 package require Tcl 8.3
 
 namespace eval ::irc {
+    variable version 0.6
+
     # counter used to differentiate connections
     variable conn 0
     variable config
@@ -295,6 +296,11 @@ proc ::irc::connection { args } {
 	    return [fconfigure $sock -sockname]
 	}
 
+        proc cmd-socket { } {
+            variable sock
+            return $sock
+        }
+        
 	proc cmd-disconnect { } {
 	    variable sock
 	    if { $sock == "" } { return -1 }
@@ -507,3 +513,9 @@ proc ::irc::connection { args } {
     incr conn
     return $returncommand
 }
+
+# -------------------------------------------------------------------------
+
+package provide irc $::irc::version
+
+# -------------------------------------------------------------------------
