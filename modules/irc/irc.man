@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin irc n 0.5]
+[manpage_begin irc n 0.6]
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
 [require Tcl]
-[require irc [opt 0.5]]
+[require irc [opt 0.6]]
 [description]
 
 This package provides low-level commands to deal with the IRC protocol
@@ -124,6 +124,10 @@ of the local end of the connection, if currently connected.
 Returns a 3 element list consisting of the ip address, the hostname, and the port
 of the remote end of the connection, if currently connected.
 
+
+[call [arg net] [method socket]]
+
+Return the Tcl channel for the socket used by the connection.
 
 [call [arg net] [method user] [arg username] [arg localhostname] [arg localdomainname] [arg userinfo]]
 
