@@ -16,14 +16,18 @@
 #   set tok [http::geturl http://wiki.tcl.tk/]
 #   http::data $tok
 #
-# @(#)$Id: autoproxy.tcl,v 1.5 2006/04/20 15:02:10 patthoyts Exp $
+# To support https add:
+#   package require tls
+#   http::register https 443 ::autoproxy::tls_socket
+#
+# @(#)$Id: autoproxy.tcl,v 1.6 2006/04/24 22:31:13 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.5 2006/04/20 15:02:10 patthoyts Exp $}
+    variable rcsid {$Id: autoproxy.tcl,v 1.6 2006/04/24 22:31:13 patthoyts Exp $}
     variable version 1.2.1
     variable options
 
@@ -119,16 +123,18 @@ proc ::autoproxy::configure {args} {
 #  A better solution will be to arrange for the http package to request the
 #  authorisation key on receiving an authorisation reqest.
 #
-proc ::autoproxy::init {} {
+proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
     global tcl_platform
     global env
     variable winregkey
     variable options
-    set no_proxy {}
-    set httpproxy {}
 
     # Look for standard environment variables.
-    if {[info exists env(http_proxy)]} {
+    if {[string length $httpproxy] > 0} {
+        
+        # nothing to do
+
+    } elseif {[info exists env(http_proxy)]} {
         set httpproxy $env(http_proxy)
         if {[info exists env(no_proxy)]} {
             set no_proxy $env(no_proxy)
@@ -166,7 +172,7 @@ proc ::autoproxy::init {} {
     }
     
     # If we found something ...
-    if {$httpproxy != {}} {
+    if {[string length $httpproxy] > 0} {
         # The http_proxy is supposed to be a URL - lets make sure.
         if {![regexp {\w://.*} $httpproxy]} {
             set httpproxy "http://$httpproxy"
