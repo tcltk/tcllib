@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sasl.test,v 1.6 2006/04/20 10:14:11 patthoyts Exp $
+# RCS: @(#) $Id: sasl.test,v 1.7 2006/04/26 09:05:11 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -38,6 +38,49 @@ proc SASLCallback {clientblob context command args} {
         }
     }
 }
+
+# -------------------------------------------------------------------------
+
+test SASL-1.0 {Check mechanisms preference sorting} {
+    list [catch {
+        set M $::SASL::mechanisms
+        set ::SASL::mechanisms {}
+        SASL::register TEST-1 10 client server
+        SASL::register TEST-3 100 client
+        SASL::register TEST-2 50 client
+        set r [SASL::mechanisms]
+        set ::SASL::mechanisms $M
+        set r
+    } res] $res
+} [list 0 [list TEST-3 TEST-2 TEST-1]]
+
+test SASL-1.1 {Check mechanisms type parameter} {
+    list [catch {
+        set M $::SASL::mechanisms
+        set ::SASL::mechanisms {}
+        SASL::register TEST-1 10 client server
+        SASL::register TEST-3 100 client
+        SASL::register TEST-2 50 client
+        set r [list [SASL::mechanisms client] [SASL::mechanisms server]]
+        set ::SASL::mechanisms $M
+        set r
+    } res] $res
+} [list 0 [list [list TEST-3 TEST-2 TEST-1] [list TEST-1]]]
+
+test SASL-1.2 {Check mechanisms preference minimum} {
+    list [catch {
+        set M $::SASL::mechanisms
+        set ::SASL::mechanisms {}
+        SASL::register TEST-1 10 client server
+        SASL::register TEST-3 100 client
+        SASL::register TEST-2 50 client
+        set r [list [SASL::mechanisms client 50] [SASL::mechanisms client 80]]
+        set ::SASL::mechanisms $M
+        set r
+    } res] $res
+} [list 0 [list [list TEST-3 TEST-2] [list TEST-3]]]
+
+# -------------------------------------------------------------------------
 
 test SASL-PLAIN-1.0 {} {
     list [catch {
@@ -197,7 +240,6 @@ test SASL-DIGESTMD5-4.2 "bug #1412021: ensure service used correctly" {
         string compare $r $R(response)
     } res] $res
 } [list 0 0]
-
 
 # -------------------------------------------------------------------------
 
