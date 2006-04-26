@@ -12,11 +12,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
+
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.1.0
-    variable rcsid {$Id: sasl.tcl,v 1.6 2006/04/20 10:14:11 patthoyts Exp $}
+    variable version 1.2.0
+    variable rcsid {$Id: sasl.tcl,v 1.7 2006/04/26 09:05:11 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -27,40 +28,94 @@ namespace eval ::SASL {
     }
 }
 
-# -------------------------------------------------------------------------
-
-proc ::SASL::mechanisms {} {
+# SASL::mechanisms --
+#
+#	Return a list of available SASL mechanisms. By default only the
+#	client implementations are given but if type is set to server then
+#	the list of available server mechanisms is returned.
+#	No mechanism with a preference value less than 'minimum' will be
+#	returned.
+#	The list is sorted by the security preference with the most secure
+#	mechanisms given first.
+#
+proc ::SASL::mechanisms {{type client} {minimum 0}} {
     variable mechanisms
     set r [list]
     foreach mech $mechanisms {
-        lappend r [lindex $mech 1]
+        if {[lindex $mech 0] < $minimum} { continue }
+        switch -exact -- $type {
+            client {
+                if {[string length [lindex $mech 2]] > 0} {
+                    lappend r [lindex $mech 1]
+                }
+            }
+            server {
+                if {[string length [lindex $mech 3]] > 0} {
+                    lappend r [lindex $mech 1]
+                }
+            }
+            default {
+                return -code error "invalid type \"$type\":\
+                    must be either client or server"
+            }
+        }
     }
     return $r
 }
 
+# SASL::register --
+#
+#	Register a new SASL mechanism with a security preference. Higher
+#	preference values are chosen before lower valued mechanisms.
+#	If no server implementation is available then an empty string 
+#	should be provided for the serverproc parameter.
+#
 proc ::SASL::register {mechanism preference clientproc {serverproc {}}} {
     variable mechanisms
-    lappend mechanisms [list $preference $mechanism $clientproc $serverproc]
+    set ndx [lsearch -regexp $mechanisms $mechanism]
+    set mech [list $preference $mechanism $clientproc $serverproc]
+    if {$ndx == -1} {
+        lappend mechanisms $mech
+    } else {
+        set mechanisms [lreplace $mechanisms $ndx $ndx $mech]
+    }
     set mechanisms [lsort -index 0 -decreasing -integer $mechanisms]
     return
 }
 
+# SASL::uid --
+#
+#	Return a unique integer.
+#
 proc ::SASL::uid {} {
     variable uid
     return [incr uid]
 }
 
+# SASL::response --
+#
+#	Get the reponse string from the SASL state.
+#
 proc ::SASL::response {context} {
     upvar #0 $context ctx
     return $ctx(response)
 }
 
+# SASL::reset --
+#
+#	Reset the SASL state. This permits the same instance to be reused
+#	for a new round of authentication.
+#
 proc ::SASL::reset {context} {
     upvar #0 $context ctx
-    array set ctx [list step 0 response "" valid false]
+    array set ctx [list step 0 response "" valid false count 0]
     return $context
 }
 
+# SASL::cleanup --
+#
+#	Free any resources used with the SASL state.
+#
 proc ::SASL::cleanup {context} {
     if {[info exists $context]} {
         unset $context
@@ -68,20 +123,23 @@ proc ::SASL::cleanup {context} {
     return
 }
 
-# sasl::client_new --
+# SASL::new --
 #
-#	Create a new client connection context.
+#	Create a new SASL instance. 
 #
 proc ::SASL::new {args} {
     set context [namespace current]::[uid]
-    variable $context
     upvar #0 $context ctx
     array set ctx [list mech {} callback {} proc {} service smtp server {} \
-                       step 0 response "" valid false type client]
+                       step 0 response "" valid false type client count 0]
     eval [linsert $args 0 [namespace origin configure] $context]
     return $context
 }
 
+# SASL::configure --
+#
+#	Configure the SASL state.
+#
 proc ::SASL::configure {context args} {
     variable mechanisms
     upvar #0 $context ctx
@@ -140,6 +198,7 @@ proc ::SASL::configure {context args} {
 
 proc ::SASL::step {context challenge args} {
     upvar #0 $context ctx
+    incr ctx(count)
     return [eval [linsert $args 0 $ctx(proc) $context $challenge]]
 }
 
@@ -263,7 +322,8 @@ proc ::SASL::PLAIN:server {context clientrsp args} {
         return 1
     } else {
         foreach {authzid authid pass} [split $clientrsp \0] break
-        set check  [eval $ctx(callback) [list $context password $authid]]
+        set realm [eval $ctx(callback) [list $context realm]]
+        set check [eval $ctx(callback) [list $context password $authid $realm]]
         if {[string equal $pass $check]} {
             return 0
         } else {
@@ -324,7 +384,9 @@ proc ::SASL::LOGIN:server {context clientrsp args} {
             return 1
         }
         3 {
-            set pass [eval $ctx(callback) [list $context password $user $ctx(realm)]]
+            set user $ctx(username)
+            set realm [eval $ctx(callback) [list $context realm]]
+            set pass [eval $ctx(callback) [list $context password $user $realm]]
             if {[string equal $clientrsp $pass]} {
                 return 0
             } else {
@@ -349,7 +411,9 @@ proc ::SASL::LOGIN:server {context clientrsp args} {
 # 
 proc ::SASL::ANONYMOUS:client {context challenge args} {
     upvar #0 $context ctx
-    set ctx(response) [lindex $args 0]
+    set user  [eval $ctx(callback) [list $context username]]
+    set realm [eval $ctx(callback) [list $context realm]]
+    set ctx(response) $user@$realm
     return 0
 }
 
@@ -357,6 +421,9 @@ proc ::SASL::ANONYMOUS:server {context clientrsp args} {
     upvar #0 $context ctx
     set ctx(response) ""
     if {[string length $clientrsp] < 1} {
+        if {$ctx(count) > 2} {
+            return -code error "authentication failed"
+        }
         return 1
     } else {
         set ctx(trace) $clientrsp
@@ -386,16 +453,7 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
     set result 0
     switch -exact -- $ctx(step) {
         1 {
-            # RFC 2831 2.1
-            # Char categories as per spec...
-            # Build up a regexp for splitting the challenge into key value pairs.
-            set sep "\\\]\\\[\\\\()<>@,;:\\\"\\\?=\\\{\\\} \t"
-            set tok {0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\-\|\~\!\#\$\%\&\*\+\.\^\_\`}
-            set sqot {(?:\'(?:\\.|[^\'\\])*\')}
-            set dqot {(?:\"(?:\\.|[^\"\\])*\")}
-            set parameters {}
-            regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 } parameters
-            array set params $parameters
+            array set params [DigestParameters $challenge]
             
             if {![info exists digest_md5_noncecount]} {
                 set digest_md5_noncecount 0
@@ -414,16 +472,8 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
             }
             
             set uri "$ctx(service)/$realm"
-            
-            set A1 [md5_bin "$username:$realm:$password"]
-            set A2 "AUTHENTICATE:$uri"
-            if {![string equal $qop "auth"]} {
-                append A2 :[string repeat 0 32]
-            }
-            
-            set A1h [md5_hex "${A1}:$nonce:$cnonce"]
-            set A2h [md5_hex $A2]
-            set R   [md5_hex $A1h:$nonce:$noncecount:$cnonce:$qop:$A2h]
+            set R [DigestResponse $username $realm $password $uri \
+                       $qop $nonce $noncecount $cnonce]
             
             set ctx(response) "username=\"$username\",realm=\"$realm\",nonce=\"$nonce\",nc=\"$noncecount\",cnonce=\"$cnonce\",digest-uri=\"$uri\",response=\"$R\",qop=$qop"
             set result 1
@@ -438,6 +488,89 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
         }
     }
     return $result
+}
+
+proc ::SASL::DIGEST-MD5:server {context challenge args} {
+    variable digest_md5_noncecount
+    upvar #0 $context ctx
+    md5_init
+    incr ctx(step)
+    set result 0
+    switch -exact -- $ctx(step) {
+        1 {
+            set realm [eval $ctx(callback) [list $context realm]]
+            set ctx(nonce) [CreateNonce]
+            set ctx(response) "realm=\"$realm\",nonce=\"$ctx(nonce)\",qop=\"auth\",charset=utf-8,algorithm=md5-sess"
+            set result 1
+        }
+        2 {
+            array set params [DigestParameters $challenge]
+            set realm [eval $ctx(callback) [list $context realm]]
+            set password [eval $ctx(callback)\
+                              [list $context password $params(username) $realm]]
+            set uri "$ctx(service)/$realm"
+            set R [DigestResponse $params(username) $realm $password \
+                       $uri auth $ctx(nonce) $params(nc) $params(cnonce)]
+            if {[string equal $R $params(response)]} {
+                set R2 [DigestResponse $params(username) $realm $password \
+                        $uri auth $ctx(nonce) $params(nc) $params(cnonce)]
+                set ctx(response) "rspauth=$R2"
+                set ctx(nc) $params(nc)
+                set result 1
+            } else {
+                return -code error "authentication failed"
+            }
+        }
+        3 {
+            set ctx(response) ""
+            set result 0
+        }
+        default {
+            return -code error "invalid state"
+        }
+    }
+    return $result
+}
+
+# RFC 2831 2.1
+# Char categories as per spec...
+# Build up a regexp for splitting the challenge into key value pairs.
+proc ::SASL::DigestParameters {challenge} {
+    set sep "\\\]\\\[\\\\()<>@,;:\\\"\\\?=\\\{\\\} \t"
+    set tok {0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\-\|\~\!\#\$\%\&\*\+\.\^\_\`}
+    set sqot {(?:\'(?:\\.|[^\'\\])*\')}
+    set dqot {(?:\"(?:\\.|[^\"\\])*\")}
+    set parameters {}
+    regsub -all "(\[${tok}\]+)=(${dqot}|(?:\[${tok}\]+))(?:\[${sep}\]+|$)" $challenge {\1 \2 } parameters
+    return $parameters
+}
+
+# RFC 2831 2.1.2.1
+#
+proc ::SASL::DigestResponse {user realm pass uri qop nonce noncecount cnonce} {
+    set A1 [md5_bin "$user:$realm:$pass"]
+    set A2 "AUTHENTICATE:$uri"
+    if {![string equal $qop "auth"]} {
+        append A2 :[string repeat 0 32]
+    }
+    set A1h [md5_hex "${A1}:$nonce:$cnonce"]
+    set A2h [md5_hex $A2]
+    set R   [md5_hex $A1h:$nonce:$noncecount:$cnonce:$qop:$A2h]
+    return $R
+}
+
+# RFC 2831 2.1.2.2
+#
+proc ::SASL::DigestResponse2 {user realm pass uri qop nonce noncecount cnonce} {
+    set A1 [md5_bin "$user:$realm:$pass"]
+    set A2 ":$uri"
+    if {![string equal $qop "auth"]} {
+        append A2 :[string repeat 0 32]
+    }
+    set A1h [md5_hex "${A1}:$nonce:$cnonce"]
+    set A2h [md5_hex $A2]
+    set R   [md5_hex $A1h:$nonce:$noncecount:$cnonce:$qop:$A2h]
+    return $R
 }
 
 # Get 16 random bytes for a nonce value. If we can use /dev/random, do so
@@ -459,13 +592,9 @@ proc ::SASL::CreateNonce {} {
     return [binary scan $bytes h* r; set r]
 }
 
-::SASL::register DIGEST-MD5 40 ::SASL::DIGEST-MD5:client
+::SASL::register DIGEST-MD5 40 \
+    ::SASL::DIGEST-MD5:client ::SASL::DIGEST-MD5:server
 
-# -------------------------------------------------------------------------
-#
-# Local variables:
-# indent-tabs-mode: nil
-# End:
 # -------------------------------------------------------------------------
 
 package provide SASL $::SASL::version

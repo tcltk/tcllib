@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin SASL n 1.1.0]
-[copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
+[manpage_begin SASL n 1.2.0]
+[copyright {2005-2006, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Simple Authentication and Security Layer (SASL)}]
 [titledesc {Implementation of SASL mechanisms for Tcl}]
 [require Tcl 8.2]
-[require SASL [opt 1.1]]
+[require SASL [opt 1.2]]
 [description]
 [para]
 
@@ -42,7 +42,7 @@ further details.
 
 [call [cmd "::SASL::step"] [arg "context"] [arg "challenge"] [opt [arg "..."]]]
 
-This is the core procedure for useing the SASL framework. The 
+This is the core procedure for using the SASL framework. The 
 [cmd step] procedure should be called until it returns 0. Each step takes a
 server challenge string and the response is calculated and stored in
 the context. Each mechanism may require one or more steps. For some
@@ -64,11 +64,22 @@ permits the token to be reused.
 Release all resources associated with the SASL context. The context
 token may not be used again after this procedure has been called.
 
-[call [cmd "::SASL::mechanisms"]]
+[call [cmd "::SASL::mechanisms"] [opt [arg "type"]] [opt [arg "minimum"]]]
 
 Returns a list of all the available SASL mechanisms. The list is
 sorted by the mechanism preference value (see [cmd register]) with the
-preferred mechanisms and the head of the list.
+preferred mechanisms and the head of the list. Any mechanism with a 
+preference value less than the[arg minimum] (which defaults to 0) is removed
+from the returned list. This permits a security threshold to be set. Mechanisms
+with a preference less that 25 transmit authentication are particularly
+susceptible to eavesdropping and should not be provided unless a secure
+channel is in use (eg: tls).
+[nl]
+The [arg type] parameter
+may be one of [arg client] or [arg server] and defaults to [arg client].
+Only mechanisms that have an implementation matching the [arg type] are 
+returned (this permits servers to correctly declare support only for 
+mechanisms that actually provide a server implementation).
 
 [call [cmd "::SASL::register"] [arg "mechanism"] [arg "preference"] \
   [arg "clientproc"] [opt [arg "serverproc"]]]
@@ -77,7 +88,8 @@ New mechanisms can be added to the package by registering the
 mechanism name and the implementing procedures. The server procedure
 is optional. The preference value is an integer that is used to order
 the list returned by the [cmd mechanisms] command. Higher values
-indicate a preferred mechanism.
+indicate a preferred mechanism. If the mechanism is already registered
+then the recorded values are updated.
 
 [list_end]
 
@@ -152,12 +164,15 @@ authorization and authentication identities within SASL.
 
 The callback procedure should return the password that matches the
 authentication identity as used within the current realm.
+[nl]
+For server mechanisms the password callback should always be called with 
+the authentication identity and the realm as the first two parameters.
 
 [lst_item "realm"]
 
 Some SASL mechanisms use realms to partition authentication identities.
 The realm string is protocol dependent and is often the current DNS
-domain or in NTLM the Windows domain name.
+domain or in the case of the NTLM mechanism it is the Windows NT domain name.
 
 [lst_item "hostname"]
 
@@ -221,9 +236,11 @@ load the SASL::NTLM package.
 
 This is a proprietary protocol developed by Google and used for 
 authenticating users for the Google Talk service. This mechanism makes
-a pair of HTTP requests over a SSL channel and so this mechanism 
+a pair of HTTP requests over an SSL channel and so this mechanism 
 depends upon the availability of the tls and http packages. To enable
 this mechanism your application must load the SASL::XGoogleToken package.
+In addition you are recommended to make use of the autoproxy package to 
+handle HTTP proxies reasonably transparently.
 
 [list_end]
 
@@ -239,7 +256,7 @@ response should be provided as the command argument so that the SASL
 mechanism can take approriate action.
 
 [example {
-proc Callback {context command args} {
+proc ClientCallback {context command args} {
     switch -exact -- $command {
         login    { return "" }
         username { return $::tcl_platform(user) }
@@ -251,7 +268,7 @@ proc Callback {context command args} {
 }
 
 proc Demo {{mech PLAIN}} {
-    set ctx [SASL::new -mechanism $mech -callback Callback]
+    set ctx [SASL::new -mechanism $mech -callback ClientCallback]
     set challenge ""
     while {1} {
         set more_steps [SASL::step $ctx challenge]
