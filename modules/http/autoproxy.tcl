@@ -20,14 +20,14 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.6 2006/04/24 22:31:13 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.7 2006/04/26 00:18:41 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.6 2006/04/24 22:31:13 patthoyts Exp $}
+    variable rcsid {$Id: autoproxy.tcl,v 1.7 2006/04/26 00:18:41 patthoyts Exp $}
     variable version 1.2.1
     variable options
 
@@ -346,7 +346,7 @@ proc ::autoproxy::tls_socket {args} {
     variable options
 
     # Look into the http package for the actual target. The function
-    # is unfortunately not passed these as parameters.
+    # has unfortunately not passed these as parameters.
     upvar host host port port
 
     if {[string length $options(proxy_host)] > 0} {
@@ -381,7 +381,7 @@ proc ::autoproxy::tls_socket {args} {
             return -code error $result
         }
     } else {
-        set s [eval [linsert $args ::tls::socket]]
+        set s [eval [linsert $args 0 ::tls::socket]]
     }
     return $s
 }
