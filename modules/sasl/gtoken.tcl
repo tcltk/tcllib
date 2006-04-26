@@ -18,10 +18,12 @@ package require tls
 namespace eval ::SASL {
     namespace eval XGoogleToken {
         variable version 1.0.0
-        variable rcsid {$Id: gtoken.tcl,v 1.1 2006/04/20 01:03:30 patthoyts Exp $}
+        variable rcsid {$Id: gtoken.tcl,v 1.2 2006/04/26 09:05:11 patthoyts Exp $}
         variable URLa https://www.google.com/accounts/ClientAuth
         variable URLb https://www.google.com/accounts/IssueAuthToken
 
+        # Should use autoproxy and register autoproxy::tls_socket
+        # Leave to application author?
         if {![info exists ::http::urlTypes(https)]} {
             http::register https 443 tls::socket
         }
