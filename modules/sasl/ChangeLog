@@ -1,3 +1,14 @@
+2006-04-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* all:        Incremented version to 1.2.0
+	* sasl.man:   Updated documentation.
+	* sasl.tcl:   Implemented DIGEST-MD5 server. Enhanced the mechanisms
+	              command so we can obtain either client or server
+	              mechanisms. Added a threshold value to the mechanisms
+		      command to set minimum security. Changed register to
+	              uniquely register mechanisms to permit re-sourcing
+		      the script.
+	
 2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sasl.tcl:   Applied patch for #1412021 from Sergei Golovan to
