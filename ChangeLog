@@ -1,3 +1,8 @@
+2006-04-26  Andreas Kupries <andreask@activestate.com>
+
+	* sak.tcl (gd-gen-tap): modified to strip non-version characters
+	  out of version numbers.
+
 2006-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* all.tcl: Removed the definitions of the common test constraints,
