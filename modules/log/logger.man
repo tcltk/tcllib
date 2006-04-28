@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.16 2005/12/02 22:12:11 mic42 Exp $}]
-[manpage_begin logger n 0.6]
+[comment {$Id: logger.man,v 1.17 2006/04/28 06:07:20 andreas_kupries Exp $}]
+[manpage_begin logger n 0.6.3]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8.2]
-[require logger [opt 0.6]]
+[require logger [opt 0.6.3]]
 [description]
 
 [para]
@@ -68,6 +68,14 @@ prepended to their names.
 If the [option -namespace] option is given, the commands are imported into the given namespace. If the
 namespace does not exist, it is created. If a namespace without a leading :: is given, it is interpreted as
 a child namespace to the current namespace.
+
+[call [cmd logger::initNamespace] [arg ns] [opt [arg level]]]
+
+Convenience command for setting up a namespace for logging. Creates a
+logger service named after the namespace [arg ns] (a :: prefix is
+stripped), imports all the log commands into the namespace, and sets
+the default logging level, either to the specified [arg level], or the
+default level, "warn".
 
 [call [cmd logger::services]]
 

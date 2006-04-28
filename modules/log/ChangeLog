@@ -1,3 +1,9 @@
+2006-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* logger.tcl:   Added a convenience command to fully initialize
+	* logger.man:   a namespace for logging (create service, import
+	* pkgIndex.tcl: commands, set default logging level)
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* log.test:    Fixed cleanup of temp. files used by testsuite.
