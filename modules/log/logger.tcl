@@ -2,8 +2,9 @@
 #
 #   Tcl implementation of a general logging facility.
 #
-# Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>
-# Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2003      by David N. Welton <davidw@dedasys.com>
+# Copyright (c) 2004-2005 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2006      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file license.terms.
 
@@ -13,7 +14,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.6.2
+package provide logger 0.6.3
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -783,3 +784,26 @@ proc ::logger::import {args} {
     }
 }
 
+# ::logger::initNamespace --
+#
+#   Creates a logger for the specified namespace and makes the log
+#   commands available to said namespace as well. Allows the initial
+#   setting of a default log level.
+#
+# Arguments:
+#   ns    - Namespace to initialize, is also the service name, modulo a ::-prefix
+#   level - Initial log level, optional, defaults to 'warn'.
+#
+# Side Effects:
+#   creates aliases in the target namespace
+#
+# Results:
+#   none
+
+proc ::logger::initNamespace {ns {level warn}} {
+    set service [string trimleft $ns :]
+    namespace eval $ns [list ::logger::init $service]
+    namespace eval $ns [list ::logger::import -force -all -namespace log $service]
+    namespace eval $ns [list log::setlevel $level]
+    return
+}
