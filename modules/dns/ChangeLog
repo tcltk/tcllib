@@ -1,3 +1,9 @@
+2006-05-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* dns.tcl: Extended the nameservers command to work on Win9x
+	systems and we now make use of this to initially configure a
+	default nameserver. Some minor additional cleanup.
+
 2006-04-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Fixed bug #1158037. We were using the query id to

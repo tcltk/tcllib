@@ -29,7 +29,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.33 2006/04/21 14:29:42 patthoyts Exp $
+# $Id: dns.tcl,v 1.34 2006/05/05 08:02:20 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -39,7 +39,7 @@ package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
     variable version 1.3.1
-    variable rcsid {$Id: dns.tcl,v 1.33 2006/04/21 14:29:42 patthoyts Exp $}
+    variable rcsid {$Id: dns.tcl,v 1.34 2006/05/05 08:02:20 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -73,7 +73,7 @@ namespace eval ::dns {
         A 1  NS 2  MD 3  MF 4  CNAME 5  SOA 6  MB 7  MG 8  MR 9 
         NULL 10  WKS 11  PTR 12  HINFO 13  MINFO 14  MX 15  TXT 16
         SPF 16 AAAA 28 SRV 33 IXFR 251 AXFR 252  MAILB 253  MAILA 254
-        * 255
+        ANY 255 * 255
     } 
 
     variable classes
@@ -376,9 +376,7 @@ proc ::dns::result {token args} {
 #  Get the status of the request.
 #
 proc ::dns::status {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     return $state(status)
 }
 
@@ -386,9 +384,7 @@ proc ::dns::status {token} {
 #  Get the error message. Empty if no error.
 #
 proc ::dns::error {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     if {[info exists state(error)]} {
 	return $state(error)
     }
@@ -399,9 +395,7 @@ proc ::dns::error {token} {
 #  Get the error code. This is 0 for a successful transaction.
 #
 proc ::dns::errorcode {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     set flags [Flags $token]
     set ndx [lsearch -exact $flags errorcode]
     incr ndx
@@ -412,9 +406,7 @@ proc ::dns::errorcode {token} {
 #  Reset a connection with optional reason.
 #
 proc ::dns::reset {token {why reset} {errormsg {}}} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     set state(status) $why
     if {[string length $errormsg] > 0 && ![info exists state(error)]} {
         set state(error) $errormsg
@@ -427,9 +419,7 @@ proc ::dns::reset {token {why reset} {errormsg {}}} {
 #  Wait for a request to complete and return the status.
 #
 proc ::dns::wait {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
 
     if {$state(status) == "connect"} {
         vwait [subst $token](status)
@@ -442,10 +432,10 @@ proc ::dns::wait {token} {
 #  Remove any state associated with this token.
 #
 proc ::dns::cleanup {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
+    upvar #0 $token state
     if {[info exists state]} {
+        catch {close $state(sock)}
+        catch {after cancel $state(after)}
         unset state
     }
 }
@@ -1246,34 +1236,40 @@ proc ::dns::ReadString {datavar index length} {
 
 # -------------------------------------------------------------------------
 
-# Experimental support for finding the nameservers
+# Support for finding the local nameservers
 #
 # For unix we can just parse the /etc/resolv.conf if it exists.
-# Of couse, some unices use /etc/resolver and other things (NIS for instance)
+# Of course, some unices use /etc/resolver and other things (NIS for instance)
 # On Windows, we can examine the Internet Explorer settings from the registry.
 #
 switch -exact $::tcl_platform(platform) {
     windows {
         proc ::dns::nameservers {} {
             package require registry
-            set base {HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip}
-            set param "$base\\Parameters"
+            set base {HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services}
+            set param "$base\\Tcpip\\Parameters"
             set interfaces "$param\\Interfaces"
             set nameservers {}
-            AppendRegistryValue $param NameServer nameservers
-            AppendRegistryValue $param DhcpNameServer nameservers
-            foreach i [registry keys $interfaces] {
-                AppendRegistryValue "$interfaces\\$i" NameServer nameservers
-                AppendRegistryValue "$interfaces\\$i" DhcpNameServer nameservers
+            if {[string equal $::tcl_platform(os) "Windows NT"]} {
+                AppendRegistryValue $param NameServer nameservers
+                AppendRegistryValue $param DhcpNameServer nameservers
+                foreach i [registry keys $interfaces] {
+                    AppendRegistryValue "$interfaces\\$i" NameServer nameservers
+                    AppendRegistryValue "$interfaces\\$i" DhcpNameServer nameservers
+                }
+            } else {
+                set param "$base\\VxD\\MSTCP"
+                AppendRegistryValue $param NameServer nameservers
             }
-            
             return $nameservers
         }
         proc ::dns::AppendRegistryValue {key val listName} {
             upvar $listName lst
             if {![catch {registry get $key $val} v]} {
-                if {[lsearch -exact $lst $v] == -1} {
-                    set lst [concat $lst $v]
+                foreach ns [split $v ", "] {
+                    if {[lsearch -exact $lst $ns] == -1} {
+                        lappend lst $ns
+                    }
                 }
             }
         }
@@ -1290,6 +1286,9 @@ switch -exact $::tcl_platform(platform) {
                     }
                 }
                 close $f
+            }
+            if {[llength $nameservers] < 1} {
+                lappend nameservers 127.0.0.1
             }
             return $nameservers
         }
@@ -1396,6 +1395,8 @@ proc ::uri::JoinDns {args} {
 }
 
 # -------------------------------------------------------------------------
+
+catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
 package provide dns $dns::version
 
