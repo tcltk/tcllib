@@ -138,6 +138,16 @@ returned.
 [call [cmd ::dns::cleanup] [arg token]]
   Remove all state variables associated with the request.
 
+
+[nl]
+[call [cmd ::dns::nameservers]]
+
+Attempts to return a list of the nameservers currently configured
+for the users system. On a unix machine this parses the
+/etc/resolv.conf file for nameservers (if it exists) and on Windows
+systems we examine certain parts of the registry. If no nameserver can
+be found then the loopback address (127.0.0.1) is used as a default.
+  
 [list_end]
 
 [comment { -----------------------------------------------------------  }]
