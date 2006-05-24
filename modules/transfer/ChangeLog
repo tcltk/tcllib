@@ -1,5 +1,11 @@
 2006-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* tqueue.tcl: Second package, management of a queue of
+	* tqueue.man: transfer requests, executed in fifo order.
+	* pkgIndex.tcl:
+
+	* copyops.man: Fixed markup of option arguments.
+
 	* coopyops.tcl: The first of a series of packages for the
 	* copyops.man:  transfer of data across channel. Most basic
 	* pkgIndex.tcl: commands.
