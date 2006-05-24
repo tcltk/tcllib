@@ -1,3 +1,7 @@
+2006-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules.tcl: New module 'transfer'.
+
 2006-04-26  Andreas Kupries <andreask@activestate.com>
 
 	* sak.tcl (gd-gen-tap): modified to strip non-version characters

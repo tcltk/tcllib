@@ -81,8 +81,9 @@ foreach {m pkg doc exa} {
     struct	_tcl  _man _exa
     tar         _tcl  _man  _null
     textutil	 _tex _man  _null
-    tie		 _tcl _man  _null
-    treeql	 _tcl _man  _null
+    tie		_tcl  _man  _null
+    transfer    _tcl  _man  _null
+    treeql	_tcl  _man  _null
     units      	_tcl  _man  _null
     uri		_tcl  _man  _null
     uuid	_tcl  _man  _null
