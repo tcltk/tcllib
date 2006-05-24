@@ -20,7 +20,7 @@ facilities simpler than the builtin.
 [list_begin definitions]
 
 [call [cmd transfer::copy::do] [const chan]|[const string] [arg data] \
-	[arg outchannel] [opt options...]]
+	[arg outchannel] [opt [arg options]...]]
 
 This command transfers the information in [arg data] to the
 [arg outchannel], according to the [arg options]. The type of the
@@ -46,14 +46,14 @@ to be transfered.
 
 
 [call [cmd transfer::copy::chan] [arg channel] [arg outchannel] \
-	[opt options...]]
+	[opt [arg options]...]]
 
 This command is a shorter and more direct form for the command
 [cmd {transfer::copy::do chan}].
 
 
 [call [cmd transfer::copy::string] [arg string] [arg outchannel] \
-	[opt options...]]
+	[opt [arg options]...]]
 
 This command is a shorter and more direct form for the command
 [cmd {transfer::copy::do string}].
