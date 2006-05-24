@@ -1,0 +1,5 @@
+2006-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* coopyops.tcl: The first of a series of packages for the
+	* copyops.man:  transfer of data across channel. Most basic
+	* pkgIndex.tcl: commands.
