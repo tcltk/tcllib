@@ -4,3 +4,5 @@ package ifneeded transfer::copy::queue       0.1 [list source [file join $dir tq
 package ifneeded transfer::data::source      0.1 [list source [file join $dir dsource.tcl]]
 package ifneeded transfer::data::destination 0.1 [list source [file join $dir ddest.tcl]]
 package ifneeded transfer::connect           0.1 [list source [file join $dir connect.tcl]]
+package ifneeded transfer::transmitter       0.1 [list source [file join $dir transmitter.tcl]]
+package ifneeded transfer::receiver          0.1 [list source [file join $dir receiver.tcl]]
