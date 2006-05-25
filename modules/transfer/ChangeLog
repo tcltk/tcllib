@@ -1,5 +1,11 @@
 2006-05-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* transmitter.tcl: Compound objects, pulling connection setup and
+	* transmitter.man: data sources, data destination resp. together.
+	* receiver.tcl:
+	* receiver.man:
+	* pkgIndex.tcl:
+
 	* connect.tcl:  Connection setup, active, or passively waiting
 	* connect.man:  on the partner.
 	* pkgIndex.tcl:
