@@ -1,3 +1,13 @@
+2006-05-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ddest.tcl:    Management of a destination, encapsulation
+	* ddest.man:    of all information needed to describe the
+	* pkgIndex.tcl: transfer destination.
+
+	* dsource.tcl:  Management of a source, encapsulation
+	* dsource.man:  of all information needed to describe the
+	* pkgIndex.tcl: transfer source.
+
 2006-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tqueue.tcl: Second package, management of a queue of
