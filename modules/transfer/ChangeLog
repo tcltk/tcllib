@@ -1,5 +1,9 @@
 2006-05-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* connect.tcl:  Connection setup, active, or passively waiting
+	* connect.man:  on the partner.
+	* pkgIndex.tcl:
+
 	* ddest.tcl:    Management of a destination, encapsulation
 	* ddest.man:    of all information needed to describe the
 	* pkgIndex.tcl: transfer destination.
