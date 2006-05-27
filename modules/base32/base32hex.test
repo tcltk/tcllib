@@ -1,0 +1,69 @@
+# -*- tcl -*- Tests for "base32"
+# This testsuite is in the public domain.
+#__________________________________________
+# RCS: @(#) $Id: base32hex.test,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 2.1
+
+support {
+    useLocal     base32core.tcl base32::core
+}
+testing {
+    if {[useTcllibC]} {
+	useLocalKeep base32hex.tcl  base32::hex
+    } else {
+	useLocal     base32hex.tcl  base32::hex
+    }
+}
+
+# -------------------------------------------------------------------------
+
+base32::hex::SwitchTo {}
+foreach e [base32::hex::KnownImplementations] {
+    if {[::base32::hex::LoadAccelerator $e]} {
+        switch -exact -- $e {
+            critcl {puts "> tcllibc based"}
+            tcl    {puts "> pure Tcl"}
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+
+set usec  0
+set tests [file join [file dirname [info script]] base32hex.testsuite]
+
+catch {memory validate on}
+
+foreach impl [base32::hex::Implementations] {
+    base32::hex::SwitchTo $impl
+
+    # The global variable 'impl' is part of the public
+    # API the testsuite (in base32.testsuite) can expect
+    # from the environment.
+
+    set usec [time {source $tests} 1]
+
+    #puts "$impl:\t$usec"
+}
+
+catch {memory validate off}
+
+unset usec
+unset tests
+
+# Reset system to fully inactive state.
+
+base32::hex::SwitchTo {}
+
+# -------------------------------------------------------------------------
+
+::tcltest::cleanupTests
+return
