@@ -1,3 +1,7 @@
+2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bench_read.tcl: Fixed typo "-error" --> "-code error".
+
 2006-01-25  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* bench_wcsv.tcl : Fixed bug when trying to format benchs on windows.
