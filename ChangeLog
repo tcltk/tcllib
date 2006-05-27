@@ -1,3 +1,7 @@
+2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules.tcl: New module 'base32'.
+
 2006-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: New module 'transfer'.
