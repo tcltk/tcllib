@@ -380,7 +380,7 @@ proc useTcllibC {} {
     set index [tcllibPath tcllibc/pkgIndex.tcl]
     if {![file exists $index]} {return 0}
 
-    set ::dir [file dirname $tcllibc]
+    set ::dir [file dirname $index]
     uplevel #0 [list source $index]
     unset ::dir
 
