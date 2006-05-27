@@ -1,3 +1,8 @@
+2006-05-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* copyops.tcl (options): Fixed typo, missing brace after argument
+	  with default value.
+
 2006-05-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* transmitter.tcl: Compound objects, pulling connection setup and
