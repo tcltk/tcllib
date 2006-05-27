@@ -20,6 +20,7 @@ foreach {m pkg doc exa} {
     aes         _tcl  _man  _null
     asn		_tcl  _man  _null
     base64	_tcl  _man  _null
+    base32	_tcl  _man  _null
     bee		_tcl  _man  _null
     bench	_tcl  _null _null
     bibtex	_tcl  _man  _null

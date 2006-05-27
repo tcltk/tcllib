@@ -1,4 +1,21 @@
 2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* New module 'base32'.
+	* base32.bench:     base32 standard encoding, extended hex
+	* base32.man:       encoding. Tcl implementation, Critcl
+	* base32.tcl:       implementation. Switch management.
+	* base32.test:      Support package for Tcl implementation.
+	* base32.testsuite: Documentation. Benchmarks. Testsuites.
+	* base32_c.tcl: 
+	* base32_tcl.tcl: 
+	* base32core.man: 
+	* base32core.tcl: 
+	* base32hex.bench: 
+	* base32hex.man: 
+	* base32hex.tcl: 
+	* base32hex.test: 
+	* base32hex.testsuite: 
+	* base32hex_c.tcl: 
+	* base32hex_tcl.tcl: 
+	* pkgIndex.tcl: 
 
+	* New module 'base32'.
