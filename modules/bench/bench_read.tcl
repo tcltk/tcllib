@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_read.tcl,v 1.1 2005/10/18 20:20:47 andreas_kupries Exp $
+# RCS: @(#) $Id: bench_read.tcl,v 1.2 2006/05/27 20:19:17 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -37,7 +37,7 @@ proc ::bench::in::read {file} {
     set head [gets $f]
 
     if {![string match "# -\\*- tcl -\\*- bench/*" $head]} {
-	return -error "Bad file format, not a benchmark file"
+	return -code error "Bad file format, not a benchmark file"
     } else {
 	regexp {bench/(.*)$} $head -> format
 
@@ -46,7 +46,7 @@ proc ::bench::in::read {file} {
 		set res [RD$format $f]
 	    }
 	    default {
-		return -error "Bad format \"$val\", expected text, csv, or raw"
+		return -code error "Bad format \"$val\", expected text, csv, or raw"
 	    }
 	}
     }
