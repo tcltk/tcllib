@@ -60,7 +60,7 @@ proc ::transfer::copy::string {string out args} {
     return
 }
 
-proc ::transfer::copy::options {chan alist optv {defaults {}} {
+proc ::transfer::copy::options {chan alist optv {defaults {}}} {
     upvar 1 $optv settings
 
     # Prepare defaults, hardwired, output channel, and caller
