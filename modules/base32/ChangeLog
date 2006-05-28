@@ -1,5 +1,12 @@
 2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* base32_c.tcl (critcl_decode):    Simplified the decoder.
+	* base32hex_c.tcl (critcl_decode): Use ByteArray, avoids
+	  complex UniChar -> Utf8 conversion on our part. Also moves
+	  the handling of padding out of the decoder loop.
+
+2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* base32.bench:     base32 standard encoding, extended hex
 	* base32.man:       encoding. Tcl implementation, Critcl
 	* base32.tcl:       implementation. Switch management.
