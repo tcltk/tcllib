@@ -4,7 +4,7 @@
 #
 # Public domain
 #
-# RCS: @(#) $Id: base32_c.tcl,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
+# RCS: @(#) $Id: base32_c.tcl,v 1.2 2006/05/28 04:29:09 andreas_kupries Exp $
 
 package require critcl
 package require Tcl 8.4
@@ -218,38 +218,32 @@ namespace eval ::base32 {
 	  }
 	}
 
-	if (pad == 0) {
-	  at += Tcl_UniCharToUtf (0xff&((x[0]<<3) | (x[1]>>2))            , at);
-	  at += Tcl_UniCharToUtf (0xff&((x[1]<<6) | (x[2]<<1) | (x[3]>>4)), at);
-	  at += Tcl_UniCharToUtf (0xff&((x[3]<<4) | (x[4]>>1))            , at);
-	  at += Tcl_UniCharToUtf (0xff&((x[4]<<7) | (x[5]<<2) | (x[6]>>3)), at);
-	  at += Tcl_UniCharToUtf (0xff&((x[6]<<5) | x[7])                 , at);
-	} else if (pad == 1) {
-	  at += Tcl_UniCharToUtf (0xff&((x[0]<<3) | (x[1]>>2))            , at);
-	  at += Tcl_UniCharToUtf (0xff&((x[1]<<6) | (x[2]<<1) | (x[3]>>4)), at);
-	  at += Tcl_UniCharToUtf (0xff&((x[3]<<4) | (x[4]>>1))            , at);
-	  at += Tcl_UniCharToUtf (0xff&((x[4]<<7) | (x[5]<<2) | (x[6]>>3)), at);
-	} else if (pad == 3) {
-	  at += Tcl_UniCharToUtf (0xff&((x[0]<<3) | (x[1]>>2))            , at);
-	  at += Tcl_UniCharToUtf (0xff&((x[1]<<6) | (x[2]<<1) | (x[3]>>4)), at);
-	  at += Tcl_UniCharToUtf (0xff&((x[3]<<4) | (x[4]>>1))            , at);
-	} else if (pad == 4) {
-	  at += Tcl_UniCharToUtf (0xff&((x[0]<<3) | (x[1]>>2))            , at);
-	  at += Tcl_UniCharToUtf (0xff&((x[1]<<6) | (x[2]<<1) | (x[3]>>4)), at);
-	} else if (pad == 6) {
-	  at += Tcl_UniCharToUtf (0xff&((x[0]<<3) | (x[1]>>2))            , at);
-	}
+	*(at++) = (x[0]<<3) | (x[1]>>2)            ;
+	*(at++) = (x[1]<<6) | (x[2]<<1) | (x[3]>>4);
+	*(at++) = (x[3]<<4) | (x[4]>>1)            ;
+	*(at++) = (x[4]<<7) | (x[5]<<2) | (x[6]>>3);
+	*(at++) = (x[6]<<5) | x[7]                 ;
       }
 
-      if (pad && (pad != 6) && (pad != 4) && (pad != 3) && (pad != 1)) {
+      if (pad) {
+	if (pad == 1) {
+	  at -= 1;
+	} else if (pad == 3) {
+	  at -= 2;
+	} else if (pad == 4) {
+	  at -= 3;
+	} else if (pad == 6) {
+	  at -= 4;
+	} else {
 	  char     msg [100];
 	  sprintf (msg,"Invalid padding of length %d",pad);
 	  Tcl_Free ((char*) out);
 	  Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
 	  return TCL_ERROR;
+	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewStringObj (out, at-out));
+      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out));
       Tcl_Free ((char*) out);
       return TCL_OK;
     }
