@@ -118,7 +118,7 @@ proc ::transfer::copy::options {chan alist optv {defaults {}}} {
 
     return
 }
-
+return
 # ### ### ### ######### ######### #########
 ## Implementation. Transfer from a channel.
 
