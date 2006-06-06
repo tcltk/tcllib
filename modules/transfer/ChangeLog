@@ -1,3 +1,11 @@
+2006-06-06  Andreas Kupries <andreask@activestate.com>
+
+	* transmitter.tcl: Fixed index/provide version mismatches.
+	* receiver.tcl: 
+	* dsource.tcl: 
+	* ddest.tcl: 
+	* connect.tcl: 
+
 2006-05-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* copyops.tcl (options): Fixed typo, missing brace after argument
