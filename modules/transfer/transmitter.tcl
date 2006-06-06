@@ -126,4 +126,4 @@ snit::type ::transfer::transmitter {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::transmitter 1.0
+package provide transfer::transmitter 0.1
