@@ -6,6 +6,7 @@
 
 # ### ### ### ######### ######### #########
 ## Requisites
+# @mdgen NODEP: grammar::fa
 
 package require grammar::fa  ; # Tcllib | FA containers
 package require struct::list ; # Tcllib | Extended list operations.
