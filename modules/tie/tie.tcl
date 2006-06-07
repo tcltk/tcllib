@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie.tcl,v 1.5 2006/03/08 04:55:58 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.tcl,v 1.6 2006/06/07 22:36:56 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -491,6 +491,12 @@ proc ::tie::Dictsort {dict} {
 
 # ### ### ### ######### ######### #########
 ## Standard DS classes
+# @mdgen NODEP: tie::std::log
+# @mdgen NODEP: tie::std::dsource
+# @mdgen NODEP: tie::std::array
+# @mdgen NODEP: tie::std::rarray
+# @mdgen NODEP: tie::std::file
+# @mdgen NODEP: tie::std::growfile
 
 ::tie::register {package require tie::std::log      ; ::tie::std::log}      as log
 ::tie::register {package require tie::std::dsource  ; ::tie::std::dsource}  as dsource
