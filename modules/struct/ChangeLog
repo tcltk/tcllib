@@ -1,3 +1,10 @@
+2006-06-13  Andreas Kupries <andreask@activestate.com>
+
+	* list.tcl:        Added two commands requested by Sarnold75,
+	* list.test:       see [SF Tcllib RFE 1484791], variants of
+	* struct_list.man: map and filter. Implemented, documented,
+	* pkgIndex.tcl:    and tested.
+
 2006-01-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sets.tcl: Fixed [SF Tcllib Bug 1414051], brought implementation

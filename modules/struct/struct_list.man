@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.15 2005/09/30 05:36:39 andreas_kupries Exp $}]
-[manpage_begin struct::list n 1.5]
+[comment {$Id: struct_list.man,v 1.16 2006/06/13 19:07:29 andreas_kupries Exp $}]
+[manpage_begin struct::list n 1.6]
 [copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
-[copyright {2003-2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating lists}]
 [require Tcl 8.0]
-[require struct::list [opt 1.5]]
+[require struct::list [opt 1.6]]
 [description]
 
 [para]
@@ -296,6 +296,38 @@ subcommand.
 }]
 
 
+[call [cmd ::struct::list] [method mapfor] [arg var] [arg sequence] [arg script]]
+
+The subcommand takes a [arg sequence] to operate on and a tcl [arg script],
+applies the script to each element of the sequence and returns a sequence
+consisting of the results of that application.
+
+[nl]
+
+The script will be evaluated as is, and has access to the current list element
+through the specified iteration variable [arg var]. The evaluation takes place
+in the context of the caller of the subcommand.
+
+[nl]
+
+[example {
+    tclsh> # squaring all elements in a list
+
+    tclsh> ::struct::list mapfor x {1 2 3 4 5} {
+	expr {$x * $x}
+    }
+    1 4 9 16 25
+
+    tclsh> # Retrieving the second column from a matrix
+    tclsh> # given as list of lists.
+
+    tclsh> ::struct::list mapfor x {{a b c} {1 2 3} {d f g}} {
+	lindex $x 1
+    }
+    b 2 f
+}]
+
+
 [call [cmd ::struct::list] [method filter] [arg sequence] [arg cmdprefix]]
 
 The subcommand takes a [arg sequence] to operate on and a command
@@ -329,6 +361,33 @@ subcommand.
 [emph Note:] The [method filter] is a specialized application of
 [method fold] where the result is extended with the current item or
 not, depending o nthe result of the test.
+
+
+[call [cmd ::struct::list] [method filterfor] [arg var] [arg sequence] [arg expr]]
+
+The subcommand takes a [arg sequence] to operate on and a tcl expression
+([arg expr]) specifying a condition, applies the conditionto each element
+of the sequence and returns a sequence consisting of all elements of the
+[arg sequence] for which the expression returned [const true].
+
+In other words, this command filters out all elements of the input
+[arg sequence] which fail the test the condition [arg expr] represents, and
+returns the remaining elements.
+
+[nl]
+
+The expression will be evaluated as is, and has access to the current list
+element through the specified iteration variable [arg var]. The evaluation
+takes place in the context of the caller of the subcommand.
+
+[nl]
+
+[example {
+    tclsh> # removing all odd numbers from the input
+
+    tclsh> ::struct::list filterfor x {1 2 3 4 5} {expr {($x % 2) == 0}}
+    2 4
+}]
 
 
 [call [cmd ::struct::list] [method split] [arg sequence] [arg cmdprefix] [opt "[arg passVar] [arg failVar]"]]
