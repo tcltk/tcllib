@@ -976,7 +976,7 @@ proc bench_mod {mlist paths interp flags norm format verbose output} {
     foreach m $mlist {
 	set files [glob -nocomplain [file join $distribution modules $m *.bench]]
 	if {![llength $files]} {
-	    bench::log::info "No benchmark files found for module \"$m\""
+	    bench::log::warn "No benchmark files found for module \"$m\""
 	    continue
 	}
 
@@ -2145,7 +2145,7 @@ proc __bench {} {
     set flags   {}
     set norm    {}
     set format  text
-    set verbose critical
+    set verbose warn
     set output  {}
     set paths   {}
     set interp  {}

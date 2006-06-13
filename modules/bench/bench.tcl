@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.5 2005/12/09 18:27:15 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.6 2006/06/13 23:20:30 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -105,7 +105,7 @@ proc ::bench::run {args} {
     foreach {ip ver} $interps {
 	log::info "Benchmark $ver $ip"
 
-	set DATA(interp:${ip}) $ver
+	set DATA([list interp ${ip}]) $ver
 
 	set cmd [list $ip [file join $self libbench.tcl] \
 		-match   $match   \
@@ -152,8 +152,8 @@ proc ::bench::run {args} {
 	catch {unset tmp(__THREADED)}
 
 	foreach desc [array names tmp] {
-	    set DATA(desc:${desc}) {}
-	    set DATA($desc,$ip) $tmp($desc)
+	    set DATA([list desc $desc]) {}
+	    set DATA([list usec $desc $ip]) $tmp($desc)
 	}
 
 	unset tmp
@@ -167,17 +167,17 @@ proc ::bench::run {args} {
 
     # Benchmark data ... Structure, dict (key -> value)
     #
-    # Key       || Value
-    # ========= ++ =========================================
-    # interp:IP -> Version. Shell IP was used to run benchmarks. IP is
-    #              the path to the shell.
+    # Key          || Value
+    # ============ ++ =========================================
+    # interp IP    -> Version. Shell IP was used to run benchmarks. IP is
+    #                 the path to the shell.
     #
-    # desc:DESC -> "". DESC is description of an executed benchmark.
+    # desc DESC    -> "". DESC is description of an executed benchmark.
     #
-    # DESC,IP   -> Result. Result of benchmark DESC when run by the
-    #              shell IP. Usually time in microseconds, but can be
-    #              a special code as well (ERR, BAD_RES).
-    # ========= ++ =========================================
+    # usec DESC IP -> Result. Result of benchmark DESC when run by the
+    #                 shell IP. Usually time in microseconds, but can be
+    #                 a special code as well (ERR, BAD_RES).
+    # ============ ++ =========================================
 
     return [array get DATA]
 }
@@ -308,17 +308,17 @@ proc ::bench::norm {data col} {
     }
 
     array set DATA $data
-    set ipkeys [array names DATA interp:*]
+    set ipkeys [array names DATA interp*]
 
     if {$col > [llength $ipkeys]} {
 	return -code error "Ref.column out of bounds"
     }
     incr col -1
-    set refip [lindex [split [lindex [lsort -dict $ipkeys] $col] :] 1]
+    set refip [lindex [lindex [lsort -dict $ipkeys] $col] 1]
 
     foreach key [array names DATA] {
-	if {[string match "desc:*"   $key]} continue
-	if {[string match "interp:*" $key]} continue
+	if {[string match "desc*"   $key]} continue
+	if {[string match "interp*" $key]} continue
 
 	foreach {desc ip} [split $key ,] break
 	if {[string equal $ip $refip]}                       continue
@@ -326,20 +326,20 @@ proc ::bench::norm {data col} {
 	set v $DATA($key)
 	if {![string is double -strict $v]}                  continue
 
-	if {![info exists DATA($desc,$refip)]} {
+	if {![info exists DATA([list usec $desc $refip])]} {
 	    # We cannot normalize, we do not keep the time value.
 	    # The row will be shown, empty.
 	    set DATA($key) ""
 	    continue
 	}
-	set vref $DATA($desc,$refip)
+	set vref $DATA([list usec $desc $refip])
 
 	if {![string is double -strict $vref]} continue
 
 	set DATA($key) [expr {$v/double($vref)}]
     }
 
-    foreach key [array names DATA *,$refip] {
+    foreach key [array names DATA *$refip] {
 	if {![string is double -strict $DATA($key)]} continue
 	set DATA($key) 1
     }
@@ -369,26 +369,28 @@ proc ::bench::edit {data col new} {
     }
 
     array set DATA $data
-    set ipkeys [array names DATA interp:*]
+    set ipkeys [array names DATA interp*]
 
     if {$col > [llength $ipkeys]} {
 	return -code error "Ref.column out of bounds"
     }
     incr col -1
-    set refip [lindex [split [lindex [lsort -dict $ipkeys] $col] :] 1]
+    set refip [lindex [lindex [lsort -dict $ipkeys] $col] 1]
 
     if {[string equal $new $refip]} {
 	# No change, quick return
 	return $data
     }
 
-    set DATA(interp:$new) $DATA(interp:$refip)
-    unset                  DATA(interp:$refip)
+    set refkey [list interp $refip]
+    set DATA([list interp $new]) $DATA($refkey)
+    unset                         DATA($refkey)
 
-    foreach key [array names DATA *,$refip] {
-	foreach {desc ip} [split $key ,] break
-	set DATA($desc,$new) $DATA($key)
-	unset                 DATA($key)
+    foreach key [array names DATA *$refip] {
+	if {[lindex $key 0] ne "usec"} continue
+	foreach {__ desc ip} $key break
+	set DATA([list usec $desc $new]) $DATA($key)
+	unset                             DATA($key)
     }
 
     return [array get DATA]
@@ -415,18 +417,19 @@ proc ::bench::del {data col} {
     }
 
     array set DATA $data
-    set ipkeys [array names DATA interp:*]
+    set ipkeys [array names DATA interp*]
 
     if {$col > [llength $ipkeys]} {
 	return -code error "Ref.column out of bounds"
     }
     incr col -1
-    set refip [lindex [split [lindex [lsort -dict $ipkeys] $col] :] 1]
+    set refip [lindex [lindex [lsort -dict $ipkeys] $col] 1]
 
-    unset DATA(interp:$refip)
+    unset DATA([list interp $refip])
 
     # Do not use 'array unset'. Keep 8.2 clean.
-    foreach key [array names DATA *,$refip] {
+    foreach key [array names DATA *$refip] {
+	if {[lindex $key 0] ne "usec"} continue
 	unset DATA($key)
     }
 

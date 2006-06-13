@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_wtext.tcl,v 1.2 2006/01/24 23:59:54 mic42 Exp $
+# RCS: @(#) $Id: bench_wtext.tcl,v 1.3 2006/06/13 23:20:30 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -48,14 +48,12 @@ proc ::bench::out::text {data} {
     # --- --- ----
     # Table 1: Interpreter information.
 
-    set ipkeys [array names DATA interp:*]
+    set ipkeys [array names DATA interp*]
     set n 1
     set iplist {}
     set vlen 0
     foreach key [lsort -dict $ipkeys] {
-	set idx [expr {[string first : $key]+1}]
-	set ip [string range $key $idx end]
-	lappend iplist $ip
+	lappend iplist [lindex $key 1]
 	incr n
 	set l [string length $DATA($key)]
 	if {$l > $vlen} {set vlen $l}
@@ -64,8 +62,8 @@ proc ::bench::out::text {data} {
 
     set dlist {}
     set n 1
-    foreach key [lsort -dict [array names DATA desc:*]] {
-	lappend dlist [lindex [split $key :] 1]
+    foreach key [lsort -dict [array names DATA desc*]] {
+	lappend dlist [lindex $key 1]
 	incr n
     }
     set didlen [string length $n]
@@ -73,7 +71,7 @@ proc ::bench::out::text {data} {
     set n 1
     set record [list "" INTERP]
     foreach ip $iplist {
-	set v $DATA(interp:$ip)
+	set v $DATA([list interp $ip])
 	lappend LINES " [PADL $idlen $n]: [PADR $vlen $v] $ip"
 	lappend record $n
 	incr n
@@ -95,7 +93,7 @@ proc ::bench::out::text {data} {
 
 	foreach ip $iplist {
 	    if {[catch {
-		set val $DATA($desc,$ip)
+		set val $DATA([list usec $desc $ip])
 	    }]} {
 		set val {}
 	    }

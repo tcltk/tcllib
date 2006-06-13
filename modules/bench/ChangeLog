@@ -1,3 +1,10 @@
+2006-06-13  Andreas Kupries <andreask@activestate.com>
+
+	* bench_read.tcl:  Rewrite the internal raw representation, use
+	* bench.tcl:       lists as array keys, easier to handle, no
+	* bench_wcsv.tcl:  splitting, and quoting is done automatically
+	* bench_wtext.tcl: by Tcl itself. See [Tcllib SF Bug 1414159].
+
 2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bench_read.tcl: Fixed typo "-error" --> "-code error".
