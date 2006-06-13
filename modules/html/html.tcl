@@ -420,6 +420,16 @@ proc ::html::head {title} {
 	    append html "\t$line\n"
 	}
     }
+    ::if {[info exists page(css)]} {
+	::foreach style $page(css) {
+	    append html "\t$style\n"
+	}
+    }
+    ::if {[info exists page(js)]} {
+	::foreach script $page(js) {
+	    append html "\t$script\n"
+	}
+    }
     append html "[closeTag]\n"
 }
 
@@ -1440,4 +1450,36 @@ namespace eval ::html {
 	XHTML11  {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">}
 	XHTMLB   {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">}
     }
+}
+
+# ::html::css
+#	Create the text/css tag and tuck it away for usage
+#
+# Arguments:
+#	href	The location of the css file to include the filename and path
+#
+# Results:
+#	HTML for the  section
+
+proc ::html::css {href} {
+    variable page
+    set page(css) \
+	"<link rel=\"stylesheet\" type=\"text/css\" href=\"[quoteFormValue $href]\">\n"
+    return
+}
+
+# ::html::js
+#   Create the text/javascript tag and tuck it away for usage
+#
+# Arguments:
+#	href	The location of the javascript file to include the filename and path
+#
+# Results:
+#	HTML for the  section
+
+proc ::html::js {href} {
+    variable page
+    set page(js) \
+	"<script language=\"javascript\" type=\"text/javascript\" src=\"[quoteFormValue $href]\"></script>\n"
+    return
 }
