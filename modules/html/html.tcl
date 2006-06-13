@@ -1406,3 +1406,38 @@ proc ::html::nl2br {s} {
     return [string map [list \n\r <br> \n <br> \r <br>] $s]
 }
 
+# ::html::doctype
+#	Create the DOCTYPE tag and tuck it away for usage
+#
+# Arguments:
+#	arg	The DOCTYPE you want to declare
+#
+# Results:
+#	HTML for the doctype section
+
+proc ::html::doctype {arg} {
+    variable doctypes
+    set code [string toupper $arg]
+    if {![info exists doctypes($code)]} {
+	return -code error "Unknown doctype \"$arg\""
+    }
+    return $doctypes($code)
+}
+
+namespace eval ::html {
+    variable  doctypes
+    array set doctypes {
+	HTML32   {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">}
+	HTML40   {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">}
+	HTML40T  {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">}
+	HTML40F  {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN" "http://www.w3.org/TR/REC-html40/frameset.dtd">}
+	HTML401  {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">}
+	HTML401T {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">}
+	HTML401F {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">}
+	XHTML10S {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">}
+	XHTML10T {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">}
+	XHTML10F {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">}
+	XHTML11  {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">}
+	XHTMLB   {<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">}
+    }
+}
