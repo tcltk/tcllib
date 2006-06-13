@@ -1,3 +1,9 @@
+2006-06-13  Andreas Kupries <andreask@activestate.com>
+
+	* html.tcl (::html::doctype): New command, implements [SF Tcllib
+	  RFE 1494660], proposed by <robert_hicks@users.sourceforge.net>.
+	  Changed the implementation to be table-driven.
+
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* html.test: Fixed use of duplicate test names.
