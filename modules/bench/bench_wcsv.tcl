@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_wcsv.tcl,v 1.2 2006/01/24 23:59:54 mic42 Exp $
+# RCS: @(#) $Id: bench_wcsv.tcl,v 1.3 2006/06/13 23:20:30 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -46,7 +46,7 @@ proc ::bench::out::csv {data} {
     # --- --- ----
     # #interpreters used
 
-    set ipkeys [array names DATA interp:*]
+    set ipkeys [array names DATA interp*]
     lappend CSV [csv::join [list [llength $ipkeys]]]
 
     # --- --- ----
@@ -55,8 +55,7 @@ proc ::bench::out::csv {data} {
     set n 1
     set iplist {}
     foreach key [lsort -dict $ipkeys] {
-	set idx [expr {[string first : $key]+1}]
-	set ip [string range $key $idx end]	    
+	set ip [lindex $key 1]
 	lappend CSV [csv::join [list $n $DATA($key) $ip]]
 	set DATA($key) $n
 	incr n
@@ -67,8 +66,8 @@ proc ::bench::out::csv {data} {
     # Table 2: Benchmark information
 
     set dlist {}
-    foreach key [lsort -dict [array names DATA desc:*]] {
-	lappend dlist [lindex [split $key :] 1]
+    foreach key [lsort -dict [array names DATA desc*]] {
+	lappend dlist [lindex $key 1]
     }
 
     set n 1
@@ -78,7 +77,7 @@ proc ::bench::out::csv {data} {
 	lappend record $desc
 	foreach ip $iplist {
 	    if {[catch {
-		lappend record $DATA($desc,$ip)
+		lappend record $DATA([list usec $desc $ip])
 	    }]} {
 		lappend record {}
 	    }
