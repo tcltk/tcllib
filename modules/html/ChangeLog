@@ -1,5 +1,8 @@
 2006-06-13  Andreas Kupries <andreask@activestate.com>
 
+	* html.tcl (::html::css, ::html::js): New commands, implementing
+	  [SF Tcllib RFE 970878]. Reworked the internals to be cleaner.
+
 	* html.tcl (::html::doctype): New command, implements [SF Tcllib
 	  RFE 1494660], proposed by <robert_hicks@users.sourceforge.net>.
 	  Changed the implementation to be table-driven.
