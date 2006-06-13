@@ -293,7 +293,7 @@ proc ::math::statistics::plot-histogram { canvas counts limits {tag xyplot} } {
 #
 # Simple test code
 #
-if { [file tail [info script]] == [file tail $::argv0] } {
+if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]) } {
 
     set xdata {1 2 3 4 5 10 20 6 7 8 1 3 4 5 6 7}
     set ydata {2 3 4 5 6 10 20 7 8 1 3 4 5 6 7 1}
