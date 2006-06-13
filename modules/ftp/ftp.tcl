@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.39 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.40 2006/06/13 18:33:28 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -281,7 +281,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             if { $VERBOSE } {
                 DisplayMsg $s "C: 421 Service not available, closing control connection." control
             }
-            if {$ftp(State) ne "quit_sent"} {
+            if {![string equal $ftp(State) "quit_sent"]} {
 		set ftp(Error) "Service not available!"
 	    }
             CloseDataConn $s
