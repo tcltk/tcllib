@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_read.tcl,v 1.2 2006/05/27 20:19:17 andreas_kupries Exp $
+# RCS: @(#) $Id: bench_read.tcl,v 1.3 2006/06/13 23:20:30 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -79,7 +79,7 @@ proc ::bench::in::RDcsv {chan} {
     for {set i 0} {$i < $nip} {incr i} {
 	foreach {__ ver ip} [csv::split [gets $chan]] break
 
-	set DATA(interp:$ip) $ver
+	set DATA([list interp $ip]) $ver
 	lappend iplist $ip
     }
 
@@ -91,10 +91,10 @@ proc ::bench::in::RDcsv {chan} {
 	set line [csv::split $line]
 	set desc [lindex $line 1]
 
-	set DATA(desc:$desc) {}
+	set DATA([list desc $desc]) {}
 	foreach val [lrange $line 2 end] ip $iplist {
 	    if {$val == {}} continue
-	    set DATA($desc,$ip) $val
+	    set DATA([list usec $desc $ip]) $val
 	}
     }
 
@@ -121,7 +121,7 @@ proc ::bench::in::RDtext {chan} {
 	}
 
 	regexp {[^:]+: ([^ ]+) (.*)$} $line -> ver ip
-	set DATA(interp:$ip) $ver
+	set DATA([list interp $ip]) $ver
 	lappend iplist $ip
     }
 
@@ -143,10 +143,10 @@ proc ::bench::in::RDtext {chan} {
 	set line [csv::split [string trim $line |] |]
 	set desc [lindex $line 1]
 
-	set DATA(desc:$desc) {}
+	set DATA([list desc $desc]) {}
 	foreach val [lrange $line 2 end] ip $iplist {
 	    if {$val == {}} continue
-	    set DATA($desc,$ip) $val
+	    set DATA([list usec $desc $ip]) $val
 	}
     }
 
