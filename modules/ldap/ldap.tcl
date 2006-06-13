@@ -34,53 +34,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#
-#   $Log: ldap.tcl,v $
-#   Revision 1.7  2005/07/20 11:58:17  mic42
-#      * ldap.tcl: Applied fix for bug 1239915. Thanks to Pierre David for the patch.
-#      * pkgIndex.tcl: Version raised to 1.2.1
-#
-#   Revision 1.6  2005/03/16 18:21:51  andreas_kupries
-#
-#       * ldap.tcl (ldap::asnGetInteger): Fixed [SF Tcllib Bug 1164663], a
-#         copy/paste bug in the definition of this procedure. It belongs
-#         into the ldap namespace, not the asn namespace.
-#
-#   Revision 1.5  2005/02/16 03:54:24  andreas_kupries
-#   Reformatting for indentation, trimmed trailing whitespace.
-#
-#   ldap merge, manual help required.
-#
-#   Import of fixes for ldap by Michael Schlenker, cross-ported
-#   from the asn fixes.
-#
-#   Import of asn fixes by Michael Schlenker.
-#
-#   More fixes and 8.5 feature removal for the compiler
-#   packages.
-#
-#   Revision 1.4  2005/02/15 19:05:16  mic42
-#   Fixed various issues with signed/unsigned values in the ldap module by crossporting from the asn module
-#
-#   Revision 1.3  2004/09/24 06:54:24  andreas_kupries
-#   Scattered small fixes, mostly adding braces to unbraced
-#   expressions.
-#
-#   Fixed problem with mismatched package names for the packages
-#   implementing the standard types.
-#
-#   Revision 1.1  2004/04/27 19:45:35  andreas_kupries
-#
-#       * installed_modules.tcl: Added new module.
-#       * examples/ldap:
-#       * modules/ldap: New module: LDAP client. Provided to us by Joechen
-#         Loewer <loewerj@web.de>.
-#
-#       * Added doctools documentation.
-#
-#   Revision 1.1  2000/03/23  17:40:22  17:40:22  jolo (Jochen Loewer)
-#   Initial revision
-#
+#   $Id: ldap.tcl,v 1.8 2006/06/13 07:59:26 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -88,7 +42,7 @@
 #-----------------------------------------------------------------------------
 
 package require Tcl 8.4
-package provide ldap 1.2.1
+package provide ldap 1.3
 
 
 namespace eval ldap {
@@ -100,7 +54,8 @@ namespace eval ldap {
                       modify                 \
                       add                    \
                       delete                 \
-                      modifyDN
+                      modifyDN		     \
+		      info
 
     variable SSLCertifiedAuthoritiesFile
     variable doDebug
@@ -152,6 +107,91 @@ namespace eval ldap {
 
 
 #-----------------------------------------------------------------------------
+#    info
+#
+#-----------------------------------------------------------------------------
+
+proc ldap::info {args} {
+   set cmd [lindex $args 0]
+   set cmds {connections ip bound tls}
+   if {[llength $args] == 0} {
+   	return -code error \
+		"Usage info connections|ip handle|bound handle|tls handle"    
+   }
+   if {[lsearch -exact $cmds $cmd] == -1} {
+   	return -code error \
+		"Invalid subcommand \"$cmd\", valid commands are\
+		[join [lrange $cmds 0 end-1] ,] and [lindex $cmds end]" 
+   }
+   eval [linsert [lrange $args 1 end] 0 ldap::info_$cmd]    
+}
+
+#-----------------------------------------------------------------------------
+#    get the ip address of the server we connected to
+# 
+#-----------------------------------------------------------------------------
+proc ldap::info_ip {args} {
+   if {[llength $args] != 1} {
+   	return -code error \
+	       "Wrong # of arguments. Usage: ldap::info ip handle"
+   }
+   upvar #0 [lindex $args 0] conn
+   if {![::info exists conn(sock)]} {
+   	return -code error \
+		"\"[lindex $args 0]\" is not a ldap connection handle"
+   }
+   return [lindex [fconfigure $conn(sock) -peername] 0]
+}
+
+#-----------------------------------------------------------------------------
+#   get the list of open ldap connections
+#
+#-----------------------------------------------------------------------------
+proc ldap::info_connections {args} {
+   if {[llength $args] != 0} {
+   	return -code error \
+	       "Wrong # of arguments. Usage: ldap::info connections"   
+   }
+   return [info variables ::ldap::ldap*]
+}
+
+#-----------------------------------------------------------------------------
+#   check if the connection is bound
+#
+#-----------------------------------------------------------------------------
+proc ldap::info_bound {args} {
+   if {[llength $args] != 1} {
+   	return -code error \
+	       "Wrong # of arguments. Usage: ldap::info bound handle"
+   }
+   upvar #0 [lindex $args 0] conn
+   if {![::info exists conn(bound)]} {
+   	return -code error \
+		"\"[lindex $args 0]\" is not a ldap connection handle"
+   }
+   return $conn(bound)
+}
+
+#-----------------------------------------------------------------------------
+#   check if the connection uses tls
+#
+#-----------------------------------------------------------------------------
+
+proc ldap::info_tls {args} {
+   if {[llength $args] != 1} {
+   	return -code error \
+	       "Wrong # of arguments. Usage: ldap::info tls handle"
+   }
+   upvar #0 [lindex $args 0] conn
+   if {![::info exists conn(tls)]} {
+   	return -code error \
+		"\"[lindex $args 0]\" is not a ldap connection handle"
+   }
+   return $conn(tls)
+}
+
+
+#-----------------------------------------------------------------------------
 #    connect
 #
 #-----------------------------------------------------------------------------
@@ -171,6 +211,8 @@ proc ldap::connect { host {port 389} } {
 
     set conn(sock)      $sock
     set conn(messageId) 0
+    set conn(tls)       0
+    set conn(bound)     ''
 
     return ::ldap::ldap$sock
 }
@@ -226,6 +268,8 @@ proc ldap::secure_connect { host {port 636} } {
 
     set conn(sock)      $sock
     set conn(messageId) 0
+    set conn(tls)       1
+    set conn(bound)     ''
 
     return ::ldap::ldap$sock
 }
@@ -279,6 +323,7 @@ proc ldap::bind { handle {name ""} {password ""} } {
     if {$resultCode != 0} {
         return -code error "LDAP error $ldap::resultCode2String($resultCode) '$matchedDN': $errorMessage"
     }
+    set conn(bound) 1
 }
 
 
@@ -302,6 +347,7 @@ proc ldap::unbind { handle } {
     debugData unbindRequest $request
     puts -nonewline $conn(sock) $request
     flush $conn(sock)
+    set bound 0
 }
 
 
