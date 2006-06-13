@@ -1,3 +1,9 @@
+2006-06-13  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* pdf_stat.tcl: check for existence of argv0 - child interpreters
+	* plotstat.tcl: ditto
+	* statistics.tcl: ditto
+
 2006-03-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* math.man: Fixed name of romberg package, resorted the list,
