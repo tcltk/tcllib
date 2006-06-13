@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ldap n 1.2]
+[manpage_begin ldap n 1.3]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2006 Michael Schlenker <mic42@users.sourceforge.net>}]
