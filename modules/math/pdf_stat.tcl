@@ -682,7 +682,7 @@ proc ::math::statistics::histogram-uniform { min max limits number } {
 #
 # Simple numerical tests
 #
-if { [file tail [info script]] == [file tail $::argv0] } {
+if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]) } {
 
     #
     # Apparent accuracy: at least one digit more than the ones in the

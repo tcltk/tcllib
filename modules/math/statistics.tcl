@@ -1303,7 +1303,7 @@ namespace eval ::math::statistics {
 #
 # Simple test code
 #
-if { [file tail [info script]] == [file tail $::argv0] } {
+if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]) } {
 
     console show
     puts [interp aliases]
