@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.20 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.21 2006/06/13 19:07:29 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -23,30 +23,32 @@ namespace eval ::struct::list {
 
     if {0} {
 	# Possibly in the future.
-	namespace export LlongestCommonSubsequence
-	namespace export LlongestCommonSubsequence2
+	namespace export Lassign
+	namespace export LdbJoin
+	namespace export LdbJoinOuter
+	namespace export Lequal
+	namespace export Lfilter
+	namespace export Lfilterfor
+	namespace export Lfirstperm
+	namespace export Lflatten
+	namespace export Lfold
+	namespace export Lforeachperm
+	namespace export Liota
 	namespace export LlcsInvert
 	namespace export LlcsInvert2
 	namespace export LlcsInvertMerge
 	namespace export LlcsInvertMerge2
-	namespace export Lreverse
-	namespace export Lassign
-	namespace export Lflatten
+	namespace export LlongestCommonSubsequence
+	namespace export LlongestCommonSubsequence2
 	namespace export Lmap
-	namespace export Lfilter
-	namespace export Lfold
-	namespace export Liota
-	namespace export Lequal
-	namespace export Lrepeatn
-	namespace export Lrepeat
-	namespace export Lshift
-	namespace export LdbJoin
-	namespace export LdbJoinOuter
-	namespace export Lswap
-	namespace export Lpermutations
-	namespace export Lfirstperm
+	namespace export Lmapfor
 	namespace export Lnextperm
-	namespace export Lforeachperm
+	namespace export Lpermutations
+	namespace export Lrepeat
+	namespace export Lrepeatn
+	namespace export Lreverse
+	namespace export Lshift
+	namespace export Lswap
     }
 }
 
@@ -721,6 +723,33 @@ proc ::struct::list::Lmap {sequence cmdprefix} {
     return $res
 }
 
+# ::struct::list::Lmapfor --
+#
+#	Apply a script to each element of a list and return concatenated results.
+#
+# Parameters:
+#	sequence	List to operate on
+#	script		The script to run on the elements.
+#
+# Results:
+#	List containing the result of running script on the elements of the
+#	sequence.
+#
+# Side effects:
+#       None of its own, but the script can perform arbitry actions.
+
+proc ::struct::list::Lmapfor {var sequence script} {
+    # Shortcut when nothing is to be done.
+    if {[::llength $sequence] == 0} {return $sequence}
+    upvar 1 $var item
+
+    set res [::list]
+    foreach item $sequence {
+	lappend res [uplevel 1 $script]
+    }
+    return $res
+}
+
 # ::struct::list::Lfilter --
 #
 #	Apply command to each element of a list and return elements passing the test.
@@ -744,6 +773,34 @@ proc ::struct::list::Lfilter {sequence cmdprefix} {
 proc ::struct::list::FTest {cmdprefix result item} {
     set pass [uplevel 1 [::linsert $cmdprefix end $item]]
     if {$pass} {::lappend result $item}
+    return $result
+}
+
+# ::struct::list::Lfilterfor --
+#
+#	Apply expr condition to each element of a list and return elements passing the test.
+#
+# Parameters:
+#	sequence	List to operate on
+#	expr		Test to perform on the elements.
+#
+# Results:
+#	List containing the elements of the input passing the test expression.
+#
+# Side effects:
+#       None of its own, but the command prefix can perform arbitrary actions.
+
+proc ::struct::list::Lfilterfor {var sequence expr} {
+    # Shortcut when nothing is to be done.
+    if {[::llength $sequence] == 0} {return $sequence}
+
+    upvar 1 $var item
+    set result {}
+    foreach item $sequence {
+	if {[uplevel 1 [::list ::expr $expr]]} {
+	    lappend result $item
+	}
+    }
     return $result
 }
 
@@ -1742,4 +1799,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.5
+package provide struct::list 1.6

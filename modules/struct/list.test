@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.22 2006/01/29 00:10:32 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.23 2006/06/13 19:07:29 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -432,6 +432,31 @@ test map-4.5 {map command} {
     map {{a b c} {1 2 3} {d f g}} {projection 1}
 } {b 2 f}
 
+
+#----------------------------------------------------------------------
+
+interp alias {} mapfor {} ::struct::list::list mapfor
+
+test mapfor-4.1 {mapfor command} {
+    mapfor x {a b c d} { set x $x$x }
+} {aa bb cc dd}
+
+test mapfor-4.2 {mapfor command} {
+    mapfor x {1 2 3 4 5} {expr {$x + $x}}
+} {2 4 6 8 10}
+
+test mapfor-4.3 {mapfor command} {
+    mapfor x {1 2 3 4 5} {expr {$x * $x}}
+} {1 4 9 16 25}
+
+test mapfor-4.4 {mapfor command} {
+    mapfor x {} {expr {$x * $x}}
+} {}
+
+test mapfor-4.5 {mapfor command} {
+    mapfor x {{a b c} {1 2 3} {d f g}} {lindex $x 1}
+} {b 2 f}
+
 #----------------------------------------------------------------------
 
 interp alias {} fold {} ::struct::list::list fold
@@ -476,6 +501,26 @@ test filter-4.3 {filter command} {
 
 test filter-4.4 {filter command} {
     filter {2 4 6} even
+} {2 4 6}
+
+#----------------------------------------------------------------------
+
+interp alias {} filterfor {} ::struct::list::list filterfor
+
+test filterfor-4.1 {filterfor command} {
+    filterfor i {1 2 3 4 5 6 7 8} {($i % 2) == 0}
+} {2 4 6 8}
+
+test filterfor-4.2 {filterfor command} {
+    filterfor i {} {($i % 2) == 0}
+} {}
+
+test filterfor-4.3 {filterfor command} {
+    filterfor i {3 5 7} {($i % 2) == 0}
+} {}
+
+test filterfor-4.4 {filterfor command} {
+    filterfor i {2 4 6} {($i % 2) == 0}
 } {2 4 6}
 
 #----------------------------------------------------------------------
