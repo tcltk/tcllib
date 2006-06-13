@@ -1,0 +1,93 @@
+# ldap.test - Copyright (C) 2006 Michael Schlenker <mic42@user.sourceforge.net>
+#
+# Tests for the Tcllib ldap package
+#
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+# RCS: @(#) $Id: ldap.test,v 1.1 2006/06/13 07:59:26 mic42 Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 2.0
+
+testing {
+    useLocal ldap.tcl ldap
+}
+
+proc printerror {script} {
+    uplevel 1 "if \{\[set code \[catch \{$script\} _msg\]\] == 1\} \{ puts -nonewline stderr \$_msg ; return -code error \} \{set \$_msg\}"     
+}
+
+# -------------------------------------------------------------------------
+# Tests
+# -------------------------------------------------------------------------
+
+test ldap-1.0 {check info subcommand, no subcommand
+} -body {
+    printerror {ldap::info}
+} -returnCodes {error} \
+  -errorOutput {Usage info connections|ip handle|bound handle|tls handle}
+
+test ldap-1.1 {check info subcommand, wrong subcommand 
+} -body {
+   printerror {ldap::info foo}
+} -returnCodes {error} \
+  -errorOutput {Invalid subcommand "foo", valid commands are connections,ip,bound and tls}
+
+test ldap-2.0 {check info ip subcommand error handling
+} -body {
+   printerror {ldap::info ip}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info ip handle}
+
+test ldap-2.1 {check info ip subcommand error handling
+} -body {
+   printerror {ldap::info ip foobar}
+} -returnCodes {error} \
+  -errorOutput {"foobar" is not a ldap connection handle}
+
+test ldap-3.0 {check info connections subcommand error handling
+} -body {
+   printerror {ldap::info connections foo}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info connections}
+
+test ldap-4.0 {check info bound subcommand error handling
+} -body {
+   printerror {ldap::info bound}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info bound handle}
+
+test ldap-4.1 {check info bound subcommand error handling
+} -body {
+   printerror {ldap::info bound foobar}
+} -returnCodes {error} \
+  -errorOutput {"foobar" is not a ldap connection handle}
+
+test ldap-5.0 {check info tls subcommand error handling
+} -body {
+   printerror {ldap::info tls}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info tls handle}
+
+test ldap-4.1 {check info tls subcommand error handling
+} -body {
+   printerror {ldap::info tls foobar}
+} -returnCodes {error} \
+  -errorOutput {"foobar" is not a ldap connection handle}
+
+
+# -------------------------------------------------------------------------
+::tcltest::cleanupTests
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:
