@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.23 2006/01/17 03:51:51 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.24 2006/06/15 22:00:12 andreas_kupries Exp $
 
 package require Tcl 8.3
 package provide csv 0.6
@@ -29,14 +29,14 @@ namespace eval ::csv {
 # Results:
 #	A string containing the values in CSV format.
 
-proc ::csv::join {values {sepChar ,}} {
+proc ::csv::join {values {sepChar ,} {delChar \"}} {
     set out ""
     set sep {}
     foreach val $values {
-	if {[string match "*\[\"$sepChar\]*" $val]} {
-	    append out $sep\"[string map [list \" \"\"] $val]\"
+	if {[string match "*\[${delChar}$sepChar\]*" $val]} {
+	    append out $sep${delChar}[string map [list $delChar ${delChar}${delChar}] $val]${delChar}
 	} else {
-	    append out $sep$val
+	    append out $sep${val}
 	}
 	set sep $sepChar
     }
@@ -58,11 +58,11 @@ proc ::csv::join {values {sepChar ,}} {
 #	A string containing the values in CSV format, the records
 #	separated by newlines.
 
-proc ::csv::joinlist {values {sepChar ,}} {
+proc ::csv::joinlist {values {sepChar ,} {delChar \"}} {
     set out ""
     foreach record $values {
 	# note that this is ::csv::join
-	append out "[join $record $sepChar]\n"
+	append out "[join $record $sepChar $delChar]\n"
     }
     return $out
 }
@@ -82,8 +82,8 @@ proc ::csv::joinlist {values {sepChar ,}} {
 #	A string containing the values in CSV format, the records
 #	separated by newlines.
 
-proc ::csv::joinmatrix {matrix {sepChar ,}} {
-    return [joinlist [$matrix get rect 0 0 end end] $sepChar]
+proc ::csv::joinmatrix {matrix {sepChar ,} {delChar \"}} {
+    return [joinlist [$matrix get rect 0 0 end end] $sepChar $delChar]
 }
 
 # ::csv::iscomplete --
@@ -335,13 +335,17 @@ proc ::csv::report {cmd matrix args} {
 proc ::csv::split {args} {
     # Argument syntax:
     #
-    #1)            line
-    #2)            line sepChar
-    #2) -alternate line
-    #3) -alternate line sepChar
+    # (1)            line
+    # (2)            line sepChar
+    # (2) -alternate line
+    # (3) -alternate line sepChar
+
+    # (3)            line sepChar delChar
+    # (4) -alternate line sepChar delChar
 
     set alternate 0
     set sepChar   ,
+    set delChar   \"
 
     switch -exact -- [llength $args] {
 	1 {
@@ -359,33 +363,53 @@ proc ::csv::split {args} {
 	}
 	3 {
 	    foreach {a b c} $args break
+	    if {[string equal $a "-alternate"]} {
+	        set alternate 1
+		set line    $b
+		set sepChar $c
+	    } else {
+		set line    $a
+		set sepChar $b
+		set delChar $c
+            }
+	}
+	4 {
+	    foreach {a b c d} $args break
 	    if {![string equal $a "-alternate"]} {
-		return -code error "wrong#args: Should be ?-alternate? line ?separator?"
+		return -code error "wrong#args: Should be ?-alternate? line ?separator? ?delimiter?"
 	    }
 	    set alternate 1
 	    set line    $b
 	    set sepChar $c
+	    set delChar $d
 	}
 	0 -
 	default {
-	    return -code error "wrong#args: Should be ?-alternate? line ?separator?"
+	    return -code error "wrong#args: Should be ?-alternate? line ?separator? ?delimiter?"
 	}
     }
 
     if {[string length $sepChar] < 1} {
-	return -code error "illegal separator character \"$sepChar\", is empty"
+	return -code error "illegal separator character ${delChar}$sepChar${delChar}, is empty"
     } elseif {[string length $sepChar] > 1} {
-	return -code error "illegal separator character \"$sepChar\", is a string"
+	return -code error "illegal separator character ${delChar}$sepChar${delChar}, is a string"
     }
 
-    return [Split $alternate $line $sepChar]
+    if {[string length $delChar] < 1} {
+	return -code error "illegal separator character \"$delChar\", is empty"
+    } elseif {[string length $delChar] > 1} {
+	return -code error "illegal separator character \"$delChar\", is a string"
+    }
+
+    return [Split $alternate $line $sepChar $delChar]
 }
 
-proc ::csv::Split {alternate line sepChar} {
+proc ::csv::Split {alternate line sepChar {delChar \"}} {
     # Protect the sepchar from special interpretation by
     # the regex calls below.
 
     set sepRE \\$sepChar
+    set delRE \\$delChar
 
     if {$alternate} {
 	# The alternate syntax requires a different parser.
@@ -400,7 +424,7 @@ proc ::csv::Split {alternate line sepChar} {
 	## puts 1->>$line<<
 	set line [string map [list \
 		$sepChar \0$sepChar\0 \
-		\" \0\"\0 \
+		$delChar \0${delChar}\0 \
 		] $line]
 
 	## puts 2->>$line<<
@@ -420,7 +444,7 @@ proc ::csv::Split {alternate line sepChar} {
 	    ## puts "\t*= $state\t>>$token<<"
 	    switch -exact -- $state {
 		base {
-		    if {[string equal $token "\""]} {
+		    if {[string equal $token "${delChar}"]} {
 			set state qvalue
 			continue
 		    }
@@ -432,7 +456,7 @@ proc ::csv::Split {alternate line sepChar} {
 		    append val $token
 		}
 		qvalue {
-		    if {[string equal $token "\""]} {
+		    if {[string equal $token "${delChar}"]} {
 			# May end value, may be a doubled "
 			set state endordouble
 			continue
@@ -440,9 +464,9 @@ proc ::csv::Split {alternate line sepChar} {
 		    append val $token
 		}
 		endordouble {
-		    if {[string equal $token "\""]} {
+		    if {[string equal $token "${delChar}"]} {
 			# Doubled ", append to current value
-			append val \"
+			append val ${delChar} 
 			set state qvalue
 			continue
 		    }
@@ -472,15 +496,15 @@ proc ::csv::Split {alternate line sepChar} {
 	## puts 5->>$res<<
 	return $res
     } else {
-	regsub -- "$sepRE\"\"$" $line $sepChar\0\"\"\0 line
-	regsub -- "^\"\"$sepRE" $line \0\"\"\0$sepChar line
-	regsub -all -- {(^\"|\"$)} $line \0 line
+	regsub -- "$sepRE${delRE}${delRE}$" $line $sepChar\0${delChar}${delChar}\0 line
+	regsub -- "^${delRE}${delRE}$sepRE" $line \0${delChar}${delChar}\0$sepChar line
+	regsub -all -- {(^${delChar}|${delChar}$)} $line \0 line
 
 	set line [string map [list \
-		$sepChar\"\"\" $sepChar\0\" \
-		\"\"\"$sepChar \"\0$sepChar \
-		\"\"           \" \
-		\"             \0 \
+		$sepChar${delChar}${delChar}${delChar} $sepChar\0${delChar} \
+		${delChar}${delChar}${delChar}$sepChar ${delChar}\0$sepChar \
+		${delChar}${delChar}           ${delChar} \
+		${delChar}             \0 \
 		] $line]
 
 	set end 0
@@ -699,14 +723,14 @@ proc ::csv::split2queue {args} {
 # Results:
 #	None.
 
-proc ::csv::writematrix {m chan {sepChar ,}} {
+proc ::csv::writematrix {m chan {sepChar ,} {delChar \"}} {
     set n [$m rows]
     for {set r 0} {$r < $n} {incr r} {
-	puts $chan [join [$m get row $r] $sepChar]
+	puts $chan [join [$m get row $r] $sepChar $delChar]
     }
 
     # Memory intensive alternative:
-    # puts $chan [joinlist [m get rect 0 0 end end] $sepChar]
+    # puts $chan [joinlist [m get rect 0 0 end end] $sepChar $delChar]
     return
 }
 
@@ -723,13 +747,13 @@ proc ::csv::writematrix {m chan {sepChar ,}} {
 # Results:
 #	None.
 
-proc ::csv::writequeue {q chan {sepChar ,}} {
+proc ::csv::writequeue {q chan {sepChar ,} {delChar \"}} {
     while {[$q size] > 0} {
-	puts $chan [join [$q get] $sepChar]
+	puts $chan [join [$q get] $sepChar $delChar]
     }
 
     # Memory intensive alternative:
-    # puts $chan [joinlist [$q get [$q size]] $sepChar]
+    # puts $chan [joinlist [$q get [$q size]] $sepChar $delChar]
     return
 }
 

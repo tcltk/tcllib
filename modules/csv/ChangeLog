@@ -1,3 +1,10 @@
+2006-06-15  Andreas Kupries <andreask@activestate.com>
+
+	* csv.tcl:  Extended cvsv processing to allow different
+	* csv.test: quoting chars beyond double-quote. Patch origin at [SF
+	* csv.man:  Tcllib Patch 1469593]. Needed small fix in
+	  join. Extended testsuite, documentation.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.test: Fixed use and cleanup of temp. files.
