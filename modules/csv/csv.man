@@ -25,30 +25,33 @@ A predicate checking if the argument [arg data] is a complete csv
 record. The result is a boolean flag indicating the completeness of
 the data. The result is true if the data is complete.
 
-[call [cmd ::csv::join] [arg values] "{[arg sepChar] ,}"]
+[call [cmd ::csv::join] [arg values] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
 
 Takes a list of values and returns a string in CSV format containing
 these values. The separator character can be defined by the caller,
-but this is optional. The default is ",".
+but this is optional. The default is ",". The quoting character can
+be defined by the caller, but this is optional. The default is '"'.
 
-[call [cmd ::csv::joinlist] [arg values] "{[arg sepChar] ,}"]
+[call [cmd ::csv::joinlist] [arg values] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
 
 Takes a list of lists of values and returns a string in CSV format
 containing these values. The separator character can be defined by the
-caller, but this is optional. The default is ",". Each element of the
-outer list is considered a record, these are separated by newlines in
-the result. The elements of each record are formatted as usual (via
-[cmd ::csv::join]).
+caller, but this is optional. The default is ",". The quoting character
+can be defined by the caller, but this is optional. The default is '"'.
+Each element of the outer list is considered a record, these are
+separated by newlines in the result. The elements of each record are
+formatted as usual (via [cmd ::csv::join]).
 
-[call [cmd ::csv::joinmatrix] [arg matrix] "{[arg sepChar] ,}"]
+[call [cmd ::csv::joinmatrix] [arg matrix] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
 
 Takes a [arg matrix] object following the API specified for the
 struct::matrix package and returns a string in CSV format containing
 these values. The separator character can be defined by the caller,
-but this is optional. The default is ",". Each row of the matrix is
-considered a record, these are separated by newlines in the
-result. The elements of each record are formatted as usual (via
-[cmd ::csv::join]).
+but this is optional. The default is ",". The quoting character
+can be defined by the caller, but this is optional. The default is
+'"'. Each row of the matrix is considered a record, these are
+separated by newlines in the result. The elements of each record are
+formatted as usual (via [cmd ::csv::join]).
 
 [call [cmd ::csv::read2matrix] [opt [option -alternate]] [arg "chan m"] "{[arg sepChar] ,} {[arg expand] none}"]
 
@@ -74,12 +77,13 @@ expected to be either [method printmatrix] or
 [method printmatrix2channel]. The channel argument, [arg chan], has
 to be present for the latter and must not be present for the first.
 
-[call [cmd ::csv::split] [opt [option -alternate]] [arg line] "{[arg sepChar] ,}"]
+[call [cmd ::csv::split] [opt [option -alternate]] [arg line] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
 
 converts a [arg line] in CSV format into a list of the values
 contained in the line. The character used to separate the values from
 each other can be defined by the caller, via [arg sepChar], but this
-is optional. The default is ",".
+is optional. The default is ",". The quoting character can be defined
+by the caller, but this is optional. The default is '"'.
 
 [nl]
 
@@ -127,12 +131,12 @@ all columns of the longest line encountered so far.
 The same as [cmd ::csv::split], but appending the resulting list as a
 single item to the queue [arg q], using the method [cmd put].
 
-[call [cmd ::csv::writematrix] [arg "m chan"] "{[arg sepChar] ,}"]
+[call [cmd ::csv::writematrix] [arg "m chan"] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
 
 A wrapper around [cmd ::csv::join] taking all rows in the matrix
 [arg m] and writing them CSV formatted into the channel [arg chan].
 
-[call [cmd ::csv::writequeue] [arg "q chan"] "{[arg sepChar] ,}"]
+[call [cmd ::csv::writequeue] [arg "q chan"] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
 
 A wrapper around [cmd ::csv::join] taking all items in the queue
 [arg q] (assumes that they are lists) and writing them CSV formatted
