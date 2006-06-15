@@ -6,17 +6,13 @@
 
 # ### ### ### ######### ######### #########
 ## Requisites
-# @mdgen NODEP: grammar::fa
 
-package require grammar::fa  ; # Tcllib | FA containers
-package require struct::list ; # Tcllib | Extended list operations.
-package require struct::set  ; # Tcllib | Extended set operations.
+package require struct::list ; # Extended list operations.
+package require struct::set  ; # Extended set operations.
 
 # ### ### ### ######### ######### #########
 ## Implementation
 
-namespace eval ::grammar {}
-namespace eval ::grammar::fa {}
 namespace eval ::grammar::fa::op {
 
     # ### ### ### ######### ######### #########
@@ -47,7 +43,9 @@ namespace eval ::grammar::fa::op {
 	    concatenate fromRegex
 
     # ### ### ### ######### ######### #########
-    ## Internal data structures. None so far.
+    ## Internal data structures.
+
+    variable cons {}
 
     # ### ### ### ######### ######### #########
 }
@@ -277,7 +275,6 @@ proc ::grammar::fa::op::trim {fa {what !reachable|!useful}} {
 # --- --- --- --------- --------- ---------
 
 proc ::grammar::fa::op::determinize {fa {mapvar {}} {idstart 0}} {
-
     # We do the operation in several stages instead of jumping
     # directly in the subset construction. Basically we try the less
     # expensive operations first to see if they are enough. It does
@@ -330,7 +327,7 @@ proc ::grammar::fa::op::determinize {fa {mapvar {}} {idstart 0}} {
     array set subsets {}
     set id      $idstart
     set pending {}
-    set dfa [grammar::fa %AUTO%]
+    set dfa [[cons] %AUTO%]
     # FUTURE : $dfa symbol set [$fa symbols]
     foreach sym [$fa symbols] {$dfa symbol add $sym}
 
@@ -763,7 +760,7 @@ proc ::grammar::fa::op::fromRegex {fa regex {over {}}} {
 	return
     }
 
-    set tmp [::grammar::fa %AUTO%]
+    set tmp [[cons] %AUTO%]
 
     if {![llength $over]} {
 	set over [lsort -uniq [RESymbols $regex]]
@@ -848,7 +845,7 @@ proc ::grammar::fa::op::Regex {fa regex idvar} {
 	    set a $id ; incr id ; $fa state add $a
 	    set b $id ; incr id ; $fa state add $b
 
-	    set tmp [grammar::fa %AUTO%]
+	    set tmp [[cons] %AUTO%]
 	    foreach sym [$fa symbols] {$tmp symbol add $sym}
 	    struct::list assign [Regex $tmp [lindex $regex 1] id] s f
 	    $tmp start add $s
@@ -881,14 +878,14 @@ proc ::grammar::fa::op::Regex {fa regex idvar} {
 		set a $id ; incr id ; $fa state add $a
 		set b $id ; incr id ; $fa state add $b
 
-		set tmp [grammar::fa %AUTO%]
+		set tmp [[cons] %AUTO%]
 		foreach sym [$fa symbols] {$tmp symbol add $sym}
 		set idsub 0
 		struct::list assign [Regex $tmp [lindex $regex 1] idsub] s f
 		$tmp start add $s
 		$tmp final add $f
 
-		set beta [grammar::fa %AUTO%]
+		set beta [[cons] %AUTO%]
 		foreach sub [lrange $regex 2 end] {
 		    foreach sym [$fa symbols] {$beta symbol add $sym}
 		    struct::list assign [Regex $beta $sub idsub] s f
@@ -993,22 +990,22 @@ proc ::grammar::fa::op::CrossPrepare {fa fb label} {
     set tmp $fb
     set bnew [struct::set difference $totals [$fb symbols]]
     if {[llength $bnew]} {
-	set tmp [grammar::fa %AUTO% = $fb]
+	set tmp [[cons] %AUTO% = $fb]
 	foreach sym $bnew {
 	    $tmp symbol add $sym
 	}    
     }
     if {![$fb is epsilon-free]} {
-	if {$tmp eq $fb} {set tmp [grammar::fa %AUTO% = $fb]}
+	if {$tmp eq $fb} {set tmp [[cons] %AUTO% = $fb]}
 	remove_eps $tmp
 	trim       $tmp
     }
     if {![$fb is complete]} {
-	if {$tmp eq $fb} {set tmp [grammar::fa %AUTO% = $fb]}
+	if {$tmp eq $fb} {set tmp [[cons] %AUTO% = $fb]}
 	complete $tmp
     }
 
-    set res [grammar::fa %AUTO%]
+    set res [[cons] %AUTO%]
     foreach sym $totals {
 	$res symbol add $sym
     } 
@@ -1062,7 +1059,7 @@ proc ::grammar::fa::op::DoCross {fa fb res id seed smapvar} {
 
 # --- --- --- --------- --------- ---------
 
-proc MergePrepare {fa fb label mapvar} {
+proc ::grammar::fa::op::MergePrepare {fa fb label mapvar} {
     upvar 1 $mapvar map
 
     set starta [$fa startstates]
@@ -1091,7 +1088,7 @@ proc MergePrepare {fa fb label mapvar} {
 	# prevent interference between the two.
 
 	set map {}
-	set tmp [grammar::fa %AUTO% = $fb]
+	set tmp [[cons] %AUTO% = $fb]
 	set id 0
 	foreach s $dup {
 	    # The renaming process has to ensure that the new name is
@@ -1148,6 +1145,19 @@ proc ::grammar::fa::op::FindNewState {fa prefix} {
     set n 0
     while {[$fa state exists ${prefix}.$n]} {incr n}
     return ${prefix}.$n
+}
+
+# ### ### ### ######### ######### #########
+
+proc ::grammar::fa::op::constructor {cmd} {
+    variable cons $cmd
+    return
+}
+
+proc ::grammar::fa::op::cons {} {
+    variable cons
+    if {$cons ne ""} {return $cons}
+    return -code errror "No constructor for FA container was established."
 }
 
 # ### ### ### ######### ######### #########

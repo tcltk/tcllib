@@ -1,3 +1,14 @@
+2006-06-15  Andreas Kupries <andreask@activestate.com>
+
+	* fa.tcl:         Reworked the internal of the container and
+	* faop.tcl:       operations packages to break their circularity.
+	* fa.test:        The user of the operations packages now has to
+	* faop.test:      specify a command to construct containers. The
+	* dexec.test:     uses the ops package and sets its own class
+	* dacceptor.text: command as constructor.
+	* fa.man:
+	* faop.man:
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/fa_symbols_at.test: Fixed use of duplicate test names.
