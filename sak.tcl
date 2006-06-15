@@ -96,7 +96,6 @@ proc modtclfiles {modules} {
     return $mfiles
 }
 
-
 proc modules {} {
     global distribution
     set fl [list]
@@ -115,6 +114,17 @@ proc modules {} {
 
 proc modules_mod {m} {
     return [expr {[lsearch -exact [modules] $m] >= 0}]
+}
+
+proc dealias {modules} {
+    set _ {}
+    foreach m $modules {
+	if {[file exists $m]} {
+	    set m [file tail $m]
+	}
+	lappend _ $m
+    }
+    return $_
 }
 
 proc load_modinfo {} {
@@ -393,7 +403,8 @@ proc gendoc {fmt ext args} {
 
     getpackage doctools doctools/doctools.tcl
 
-    foreach m $args {
+    set modules [dealias $args]
+    foreach m $modules {
 	::doctools::new dt \
 		-format $fmt \
 		-module $m
@@ -1798,6 +1809,8 @@ proc __test {} {
 	set modules [modules]
     }
 
+    set modules [dealias $modules]
+
     puts "Shell is \"[info nameofexecutable]\""
 
     exec [info nameofexecutable] \
@@ -1810,7 +1823,7 @@ proc __test {} {
 proc checkmod {} {
     global argv
     set fail 0
-    foreach m $argv {
+    foreach m [dealias $argv] {
 	if {![modules_mod $m]} {
 	    puts "  Bogus module: $m"
 	    set fail 1
@@ -1905,7 +1918,7 @@ proc __critcl {} {
 
             critcl_module $critcldefault $flags
         } else {
-            foreach m $argv {
+            foreach m [dealias $argv] {
                 if {[info exists critclmodules($m)]} {
                     critcl_module $m $flags
                 } else {
@@ -2210,7 +2223,7 @@ proc __bench {} {
 	_bench_all $paths $interp $flags $norm $format $verbose $output
     } else {
 	if {![checkmod]} {return}
-	_bench_module $argv $paths $interp $flags $norm $format $verbose $output
+	_bench_module [dealias $argv] $paths $interp $flags $norm $format $verbose $output
     }
     return
 }
@@ -2239,7 +2252,7 @@ proc __validate_v {} {
 	_validate_all_v
     } else {
 	if {![checkmod]} {return}
-	foreach m $argv {
+	foreach m [dealias $argv] {
 	    _validate_module_v $m
 	}
     }
@@ -2603,7 +2616,7 @@ proc __desc  {} {
     puts {Descriptions...}
     if {[llength $argv] == 0} {set argv [modules]}
 
-    foreach m [lsort $argv] {
+    foreach m [lsort [dealias $argv]] {
 	array set _ {}
 	set pkg {}
 	foreach {p vlist} [ppackages $m] {
@@ -2646,7 +2659,7 @@ proc __desc/2  {} {
     puts {Descriptions...}
     if {[llength $argv] == 0} {set argv [modules]}
 
-    foreach m [lsort $argv] {
+    foreach m [lsort [dealias $argv]] {
 	struct::matrix m
 	m add columns 3
 
@@ -2702,7 +2715,7 @@ proc __docstrip/regen {} {
     global argv ; if {![checkmod]} return
     if {[llength $argv] == 0} {set argv [modules]}
 
-    foreach m [lsort $argv] {
+    foreach m [lsort [dealias $argv]] {
 	if {[docstripUser $m]} {
 	    docstripRegen $m
 	}
