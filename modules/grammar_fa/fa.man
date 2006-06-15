@@ -7,6 +7,7 @@
 [require snit]
 [require struct::list]
 [require struct::set]
+[require grammar::fa::op [opt 0.1.1]]
 [require grammar::fa [opt 0.1.1]]
 [description]
 [keywords grammar automaton {finite automaton}]
@@ -20,12 +21,12 @@ This package provides a container class for
 It allows the incremental definition of the automaton, its
 manipulation and querying of the definition.
 
-The package neither provides complex operations on the automaton, nor
-has it the ability to execute a definition for a stream of
-symbols.
+While the package provides complex operations on the automaton
+(via package [package grammar::fa::op]), it does not have the
+ability to execute a definition for a stream of symbols.
 
-Use the packages [package grammar::fa::op],
-[package grammar::fa::dacceptor], and
+Use the packages
+[package grammar::fa::dacceptor] and
 [package grammar::fa::dexec] for that.
 
 Another package related to this is [package grammar::fa::compiler]. It

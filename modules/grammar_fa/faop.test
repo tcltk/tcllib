@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop.test,v 1.8 2006/01/23 08:18:15 andreas_kupries Exp $
+# RCS: @(#) $Id: faop.test,v 1.9 2006/06/15 18:06:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,12 +18,14 @@ support {
     use      snit/snit.tcl   snit ; # 1.1 always, even when Tcl 8.5 runs the testsuite.
     use      struct/sets.tcl struct::set
     use      struct/list.tcl struct::list
-    useLocal fa.tcl          grammar::fa
 
     useLocalFile tests.support
 }
 testing {
-    useLocal faop.tcl grammar::fa::op
+    useLocal     faop.tcl grammar::fa::op
+}
+support {
+    useLocalKeep fa.tcl   grammar::fa
 }
 
 # -------------------------------------------------------------------------
