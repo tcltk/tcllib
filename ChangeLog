@@ -1,3 +1,10 @@
+2006-06-15  Andreas Kupries <andreask@activestate.com>
+
+	* sak.tcl: Extended to allow the specification of a module M as
+	  either M or modules/M. The latter is a path relative to the
+	  topdir and enables the entering of modules through
+	  tab-completion in the shell.
+
 2006-05-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installed_modules.tcl: New module 'base32'.
