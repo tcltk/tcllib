@@ -12,9 +12,10 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require snit         ; # Tcllib | OO system used
-package require struct::list ; # Tcllib | Extended list operations.
-package require struct::set  ; # Tcllib | Extended set operations.
+package require grammar::fa::op ; # Heavy FA operations.
+package require snit            ; # OO system in use
+package require struct::list    ; # Extended list operations.
+package require struct::set     ; # Extended set operations.
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -73,82 +74,46 @@ snit::type ::grammar::fa {
     method clear {} {}
 
     # ### ### ### ######### ######### #########
-    ## Instance API. FA operations. Defering to the operations package.
+    ## Instance API. Complex FA operations.
+    ## The heavy lifting is done by the operations package.
 
-    method reverse {} {
-	package require grammar::fa::op
-	op::reverse $self
-    }
-
-    method complete {{sink {}}} {
-	package require grammar::fa::op
-	op::complete $self $sink
-    }
-
-    method remove_eps {} {
-	package require grammar::fa::op
-	op::remove_eps $self
-    }
-
-    method trim {{what !reachable|!useful}} {
-	package require grammar::fa::op
-	op::trim $self $what
-    }
+    method reverse    {}                          {op::reverse    $self}
+    method complete   {{sink {}}}                 {op::complete   $self $sink}
+    method remove_eps {}                          {op::remove_eps $self}
+    method trim       {{what !reachable|!useful}} {op::trim       $self $what}
+    method complement {}                          {op::complement $self}
+    method kleene     {}                          {op::kleene     $self}
+    method optional   {}                          {op::optional   $self}
+    method fromRegex  {regex {over {}}}           {op::fromRegex  $self $regex $over}
 
     method determinize {{mapvar {}}} {
 	if {$mapvar ne ""} {upvar 1 $mapvar map}
-	package require grammar::fa::op
 	op::determinize $self map
     }
 
     method minimize {{mapvar {}}} {
 	if {$mapvar ne ""} {upvar 1 $mapvar map}
-	package require grammar::fa::op
 	op::minimize $self map
-    }
-
-    method complement {} {
-	package require grammar::fa::op
-	op::complement $self
-    }
-
-    method kleene {} {
-	package require grammar::fa::op
-	op::kleene $self
-    }
-
-    method optional {} {
-	package require grammar::fa::op
-	op::optional $self
     }
 
     method union {fa {mapvar {}}} {
 	if {$mapvar ne ""} {upvar 1 $mapvar map}
-	package require grammar::fa::op
 	op::union $self $fa map
     }
 
     method intersect {fa {mapvar {}}} {
 	if {$mapvar ne ""} {upvar 1 $mapvar map}
-	package require grammar::fa::op
 	op::intersect $self $fa map
     }
 
     method difference {fa {mapvar {}}} {
 	if {$mapvar ne ""} {upvar 1 $mapvar map}
-	package require grammar::fa::op
 	op::difference $self $fa map
     }
 
     method concatenate {fa {mapvar {}}} {
 	if {$mapvar ne ""} {upvar 1 $mapvar map}
-	package require grammar::fa::op
 	op::concatenate $self $fa map
-    }
-
-    method fromRegex {regex {over {}}} {
-	package require grammar::fa::op
-	op::fromRegex $self $regex $over
     }
 
     # ### ### ### ######### ######### #########
@@ -160,7 +125,7 @@ snit::type ::grammar::fa {
     ## - Final    : Defined for states which are "final" ("accept" input).
     ## - Transinv : Inverse transitions. Per state the set of (state,sym)'s
     ##              which have transitions into the state. Defined only for
-    ##              states which have inbound transitions. 
+    ##              states which have inbound transitions.
     ##
     ## Transinv is maintained to make state deletion easier: Direct
     ## access to the states and transitions which are inbound, for
@@ -224,9 +189,9 @@ snit::type ::grammar::fa {
 	}
 
 	array set order    {} ; set nondete     {}
-	array set start    {} ; set scount      0 
+	array set start    {} ; set scount      0
 	array set final    {} ; set reach       {}
-	array set symbol   {} ; set reachvalid  0 
+	array set symbol   {} ; set reachvalid  0
 	array set transym  {} ; set useful      {}
 	array set transinv {} ; set usefulvalid 0
 	array set nondets  {}
@@ -986,9 +951,9 @@ snit::type ::grammar::fa {
 
     method clear {} {
 	array unset order    ; set nondete     {}
-	array unset start    ; set scount      0 
+	array unset start    ; set scount      0
 	array unset final    ; set reach       {}
-	array unset symbol   ; set reachvalid  0 
+	array unset symbol   ; set reachvalid  0
 	array unset transym  ; set useful      {}
 	array unset transinv ; set usefulvalid 0
 	array unset nondets
@@ -1280,6 +1245,12 @@ snit::type ::grammar::fa {
 
     # ### ### ### ######### ######### #########
 }
+
+# ### ### ### ######### ######### #########
+## Initialization. Specify the container constructor command to use by
+## the operations package.
+
+::grammar::fa::op::constructor ::grammar::fa
 
 # ### ### ### ######### ######### #########
 ## Package Management
