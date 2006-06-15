@@ -54,6 +54,21 @@ are both.
 
 [list_begin definitions]
 
+[call [cmd ::grammar::fa::op::constructor] [arg cmd]]
+
+This command has to be called by the user of the package before any other
+operations is performed, to establish a command which can be used to
+construct a FA container object. If this is not done several operations
+will fail as they are unable to construct internal and transient containers
+to hold state and/or partial results.
+
+[nl]
+
+Any container class using this package for complex operations should set
+its own class command as the constructor. See package [package grammar::fa]
+for an example.
+
+
 [call [cmd ::grammar::fa::op::reverse] [arg fa]]
 
 Reverses the [arg fa]. This is done by reversing the direction of all
