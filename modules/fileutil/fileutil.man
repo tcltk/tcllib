@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.8]
+[manpage_begin fileutil n 1.8.1]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [require Tcl 8]
-[require fileutil [opt 1.8]]
+[require fileutil [opt 1.8.1]]
 [description]
 [keywords {file utilities} touch grep type {temp file} test cat]
 [para]
@@ -410,6 +410,40 @@ command.
 The code was taken from [uri http://wiki.tcl.tk/772], attributed to
 Igor Volobouev and anon.
 
-[list_end]
 
+
+[call [cmd ::fileutil::relative] [arg base] [arg dst]]
+
+This command takes two directory paths, both either absolute or relative
+and computes the path of [arg dst] relative to [arg base]. This relative
+path is returned as the result of the command. As implied in the previous
+sentence, the command is not able to compute this relationship between the
+arguments if one of the paths is absolute and the other relative.
+
+[nl]
+
+[emph Note:] The processing done by this command is purely lexical.
+Symbolic links are [emph not] taken into account.
+
+
+[call [cmd ::fileutil::relativeUrl] [arg base] [arg dst]]
+
+This command takes two file paths, both either absolute or relative
+and computes the path of [arg dst] relative to [arg base], as seen
+from inside of the [arg base]. This is the algorithm how a browser
+resolves a relative link found in the currently shown file.
+
+[nl]
+
+The computed relative path is returned as the result of the command.
+As implied in the previous sentence, the command is not able to compute
+this relationship between the arguments if one of the paths is absolute
+and the other relative.
+
+[nl]
+
+[emph Note:] The processing done by this command is purely lexical.
+Symbolic links are [emph not] taken into account.
+
+[list_end]
 [manpage_end]

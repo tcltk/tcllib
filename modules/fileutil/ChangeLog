@@ -1,3 +1,10 @@
+2006-06-16  Andreas Kupries <andreask@activestate.com>
+
+	* fileutil.tcl:  Added commands to compute paths relative to some
+	* fileutil.man:  base. Extended testsuite, documentation.
+	* fileutil.test: 
+	* pkgIndex.tcl: 
+
 2006-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man:  Extended documentation.
