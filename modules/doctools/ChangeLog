@@ -1,3 +1,10 @@
+2006-06-16  Andreas Kupries <andreask@activestate.com>
+
+	* ../../apps/dtplite: Still found a xref link bug in the -merge
+	  code path. The per-module toc had the wrong links. Added code to
+	  generate and set a proper file mapping for these tocs. Removed
+	  MapLink and switched to the new command "fileutil::relativeUrl".
+
 2006-03-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_nroff.tcl: Do not double-quote (sub)section titles if
