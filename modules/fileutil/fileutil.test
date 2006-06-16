@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.43 2006/04/20 05:21:28 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.44 2006/06/16 19:33:53 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2661,6 +2661,103 @@ if {![string equal $::tcl_platform(platform) windows]} {
     removeFile gorp.file
     removeDirectory dir.file
     removeDirectory dir2.file
+}
+
+# -------------------------------------------------------------------------
+# Computation of paths relative to a base.
+
+
+test fu-relative-1.0 {fileutil::relative, wrong#args} {
+    catch {fileutil::relative} msg
+    set msg
+} {wrong # args: should be "fileutil::relative base dst"}
+
+test fu-relative-1.1 {fileutil::relative, wrong#args} {
+    catch {fileutil::relative a} msg
+    set msg
+} {wrong # args: should be "fileutil::relative base dst"}
+
+test fu-relative-1.2 {fileutil::relative, wrong#args} {
+    catch {fileutil::relative a b c} msg
+    set msg
+} {wrong # args: should be "fileutil::relative base dst"}
+
+foreach {n base dst result} {
+    0  /base         /base/destination    destination
+    1  /base         /destination         ../destination
+    2   base          base/destination    destination
+    3   base          destination         ../destination
+    4  /sub/base     /sub/sub/destination ../sub/destination
+    5  /sub/sub/base /sub/destination     ../../destination
+    6   sub/base      sub/sub/destination ../sub/destination
+    7   sub/sub/base  sub/destination     ../../destination
+    8  /base         /base                .
+    9   base          base                .
+    10 /base/sub     /base/sub            .
+    11  base/sub      base/sub            .
+    12 /base/sub     /base                ..
+    13  base/sub      base                ..
+} {
+    test fu-relative-2.$n {fileutil::relative} {
+	fileutil::relative $base $dst
+    } $result
+}
+
+foreach {n base dst ra rb} {
+    0 /base          base/destination absolute relative
+    1  base         /destination      relative absolute
+} {
+    test fu-relative-3.$n {fileutil::relative, bad mix} {
+	catch {fileutil::relative $base $dst} msg
+	set msg
+    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb"
+}
+
+
+test fu-relativeurl-1.0 {fileutil::relativeUrl, wrong#args} {
+    catch {fileutil::relativeUrl} msg
+    set msg
+} {wrong # args: should be "fileutil::relativeUrl base dst"}
+
+test fu-relativeurl-1.1 {fileutil::relativeUrl, wrong#args} {
+    catch {fileutil::relativeUrl a} msg
+    set msg
+} {wrong # args: should be "fileutil::relativeUrl base dst"}
+
+test fu-relativeurl-1.2 {fileutil::relativeUrl, wrong#args} {
+    catch {fileutil::relativeUrl a b c} msg
+    set msg
+} {wrong # args: should be "fileutil::relativeUrl base dst"}
+
+foreach {n base dst result} {
+    0  /base/file.html         /base/destination/xx.html    destination/xx.html
+    1  /base/file.html         /destination/xx.html         ../destination/xx.html
+    2   base/file.html          base/destination/xx.html    destination/xx.html
+    3   base/file.html          destination/xx.html         ../destination/xx.html
+    4  /sub/base/file.html     /sub/sub/destination/xx.html ../sub/destination/xx.html
+    5  /sub/sub/base/file.html /sub/destination/xx.html     ../../destination/xx.html
+    6   sub/base/file.html      sub/sub/destination/xx.html ../sub/destination/xx.html
+    7   sub/sub/base/file.html  sub/destination/xx.html     ../../destination/xx.html
+    8  /base/file.html         /base/xx.html                xx.html
+    9   base/file.html          base/xx.html                xx.html
+    10 /base/sub/file.html     /base/sub/xx.html            xx.html
+    11  base/sub/file.html      base/sub/xx.html            xx.html
+    12 /base/sub/file.html     /base/xx.html                ../xx.html
+    13  base/sub/file.html      base/xx.html                ../xx.html
+} {
+    test fu-relativeurl-2.$n {fileutil::relativeUrl} {
+	fileutil::relativeUrl $base $dst
+    } $result
+}
+
+foreach {n base dst ra rb} {
+    0 /base/file.html          base/destination/xx.html absolute relative
+    1  base/file.html         /destination/xx.html      relative absolute
+} {
+    test fu-relativeurl-3.$n {fileutil::relativeUrl, bad mix} {
+	catch {fileutil::relativeUrl $base $dst} msg
+	set msg
+    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb"
 }
 
 
