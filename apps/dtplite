@@ -701,7 +701,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     StyleMakeLocal     $module
 
     set localtoc [TocGet $module $module/toc]
-    TocWrite $module/toc index [TocGenerate $localtoc]
+    TocWrite $module/toc index [TocGenerate $localtoc] [TocMap $localtoc]
     TocWrite toc         index [TocGenerate [TocMergeSaved $localtoc]]
     IdxWrite index       toc   [IdxGenerate {} [IdxGetSaved index]]
 
@@ -782,6 +782,20 @@ proc ::dtplite::TocGet {desc {f toc}} {
     return [list $desc [list $f $res]]
 }
 
+proc ::dtplite::TocMap {toc {base {}}} {
+    if {$base == {}} {
+	set base  [lindex [lindex $toc 1] 0]
+    }
+    set items [lindex [lindex $toc 1] 1]
+
+    set res {}
+    foreach i $items {
+	foreach {f label desc} $i break
+	lappend res $f [fileutil::relativeUrl $base $f]
+    }
+    return $res
+}
+
 proc ::dtplite::TocItem {f meta} {
     array set md $meta
     set desc    $md(desc)
@@ -848,7 +862,7 @@ proc ::dtplite::TocGenerate {data} {
     return [join $lines \n]
 }
 
-proc ::dtplite::TocWrite {ftoc findex text} {
+proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
     variable format
 
     set ft [Output $ftoc]
@@ -861,6 +875,8 @@ proc ::dtplite::TocWrite {ftoc findex text} {
     NavbuttonPop
     FooterSetup  toc
     StyleSetup   toc $ftoc
+
+    foreach {k v} $map {toc map $k $v}
 
     Write [At $ft] [toc format $text]
     toc destroy
@@ -1002,39 +1018,6 @@ proc ::dtplite::IsDoctools {f} {
 }
 
 # ### ### ### ######### ######### #########
-## Handling the map of files (symbolic -> actual)
-## - Computing proper relative locations.
-
-proc ::dtplite::MapLink {dst src} {
-    # Ensure that the link to file 'dst' is properly done relative to
-    # the file 'src'.
-
-    set save $dst
-    set src [file split $src]
-    set dst [file split $dst]
-
-    while {[string equal [lindex $dst 0] [lindex $src 0]]} {
-	set dst [lrange $dst 1 end]
-	set src [lrange $src 1 end]
-	if {![llength $dst]} {break}
-    }
-
-    set ul [llength $dst]
-    set hl [llength $src]
-
-    if {$ul == 0} {
-	set dst [lindex [file split $save] end]
-    } else {
-	while {$hl > 1} {
-	    set dst [linsert $dst 0 ..]
-	    incr hl -1
-	}
-	set dst [eval file join $dst]
-    }
-    return $dst
-}
-
-# ### ### ### ######### ######### #########
 ## Handling a style sheet
 ## - Decoupling output from input location.
 ## - Generate HTML to insert into a generated document.
@@ -1057,7 +1040,7 @@ proc ::dtplite::StyleSetup {o {f {}}} {
     if {![in [$o parameters] meta]} return
 
     if {![string equal $f ""]} {
-	set dst [MapLink $style $f]
+	set dst [fileutil::relativeUrl $f $style]
     } else {
 	set dst $style
     }
@@ -1156,7 +1139,7 @@ proc ::dtplite::XrefSetupKwid {o} {
 
 proc ::dtplite::NavbuttonPush {label file ref} {
     variable nav
-    set nav [linsert $nav 0 [list $label [MapLink $file $ref]]]
+    set nav [linsert $nav 0 [list $label [fileutil::relativeUrl $ref $file]]]
     return
 }
 
