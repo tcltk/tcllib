@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.57 2006/04/20 05:21:28 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.58 2006/06/16 19:33:53 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.8
+package provide fileutil 1.8.1
 
 namespace eval ::fileutil {
     namespace export \
@@ -1944,5 +1944,92 @@ if {[package vcompare [package provide Tcl] 8.4] < 0} {
 } else {
     proc ::fileutil::Normalize {sp} {
 	file normalize $sp
+    }
+}
+
+# ::fileutil::relative --
+#
+#	Taking two _directory_ paths, a base and a destination, computes the path
+#	of the destination relative to the base.
+#
+# Arguments:
+#	base	The path to make the destination relative to.
+#	dst	The destination path
+#
+# Results:
+#	The path of the destination, relative to the base.
+
+proc ::fileutil::relative {base dst} {
+    # Ensure that the link to directory 'dst' is properly done relative to
+    # the directory 'base'.
+
+    if {![string equal [file pathtype $base] [file pathtype $dst]]} {
+	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst]"
+    }
+
+    set save $dst
+    set base [file split $base]
+    set dst  [file split $dst]
+
+    while {[string equal [lindex $dst 0] [lindex $base 0]]} {
+	set dst  [lrange $dst  1 end]
+	set base [lrange $base 1 end]
+	if {![llength $dst]} {break}
+    }
+
+    set dstlen [llength $dst]
+    set baselen [llength $base]
+
+    if {($dstlen == 0) && ($baselen == 0)} {
+	# Cases:
+	# (a) base == dst
+
+	set dst .
+    } else {
+	# Cases:
+	# (b) base is: base/sub = sub
+	#     dst  is: base     = {}
+
+	# (c) base is: base     = {}
+	#     dst  is: base/sub = sub
+
+	while {$baselen > 0} {
+	    set dst [linsert $dst 0 ..]
+	    incr baselen -1
+	}
+	set dst [eval file join $dst]
+    }
+
+    return $dst
+}
+
+# ::fileutil::relativeUrl --
+#
+#	Taking two _file_ paths, a base and a destination, computes the path
+#	of the destination relative to the base, from the inside of the base.
+#
+#	This is how a browser resolves relative links in a file, hence the
+#	url in the command name.
+#
+# Arguments:
+#	base	The file path to make the destination relative to.
+#	dst	The destination file path
+#
+# Results:
+#	The path of the destination file, relative to the base file.
+
+proc ::fileutil::relativeUrl {base dst} {
+    # Like 'relative', but for links from _inside_ a file to a
+    # different file.
+
+    set basedir [file dirname $base]
+    set dstdir  [file dirname $dst]
+
+    set dstdir  [relative $basedir $dstdir]
+
+    if {[string equal $dstdir "."]} {
+	return [file tail $dst]
+    } else {
+	return [file join $dstdir [file tail $dst]]
     }
 }
