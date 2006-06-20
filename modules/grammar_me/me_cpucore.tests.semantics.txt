@@ -1,0 +1,49 @@
+{ict_advance, no input, no eof -- suspend&wait}
+{} 0
+0 1 {{0 0} x {}}
+{}                                           
+
+{ict_advance, no input, at eof -- fail}
+{} 1
+0 1 {{0 0} x {}}
+{pc 2 at 0 er {0 x}}
+
+{ict_advance, has input, no eof -- consume}
+{{NUM 1 0 0}} 1
+0 1 {{0 0} x {}}
+{pc 2 at 0 cc NUM ok 1}
+
+{ict_advance, has input, at eof -- consume}
+{{NUM 1 0 0}} 1
+0 1 {{0 0} x {}}
+{pc 2 at 0 cc NUM ok 1}
+
+{icf_halt -- stop engine}
+{} 0
+0 2 {{14 14 14} {} {}}
+{pc 1 ht 1}
+
+{icf_halt -- stopped engine, no instruction advance}
+{} 0
+1 2 {{14 14 14} {} {}}
+{}
+
+{iok_ok -- always match}
+{} 0
+0 1 {8 {} {}}
+{pc 1 ok 1}
+
+{iok_fail -- never match}
+{} 0
+1 1 {{8 9} {} {}}
+{pc 2 ok 0}
+
+{iok_negate -- match negation}
+{} 0
+1 1 {{8 10} {} {}}
+{pc 2 ok 0}
+
+{iok_negate -- match negation}
+{} 0
+1 1 {{9 10} {} {}}
+{pc 2 ok 1}
