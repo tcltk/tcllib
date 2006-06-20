@@ -1,5 +1,9 @@
 2006-06-20  Andreas Kupries <andreask@activestate.com>
 
+	* me_cpucore.tests.semantics.txt: Extended coverage of testsuite,
+	* me_cpucore.testsuite:           more bugfixes.
+	* me_cpucore.tcl:
+
 	* me_cpucore.tcl: Bug fixes, additional state accessor commands,
 	  more argument checking, extended error messages from validator
 	  used by disassembler and state creation.
