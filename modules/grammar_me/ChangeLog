@@ -1,3 +1,16 @@
+2006-06-20  Andreas Kupries <andreask@activestate.com>
+
+	* me_cpucore.tcl: Bug fixes, additional state accessor commands,
+	  more argument checking, extended error messages from validator
+	  used by disassembler and state creation.
+
+	* me_cpucore.test:                  Added testsuite for the cpu,
+	* me_cpucore.testsuite:             already semi-prepared for when
+	* me_cpucore.tests.asm-map.txt:     we get a C impl. of the ME cpu.
+	* me_cpucore.tests.badasm-map.txt:  Largely table-driven.
+	* me_cpucore.tests.badmach-map.txt: Incomplete.
+	* me_cpucore.tests.semantics.txt:
+
 2006-06-15  Andreas Kupries <andreask@activestate.com>
 
         * me_util.test: Split tests into separate file and added handling
