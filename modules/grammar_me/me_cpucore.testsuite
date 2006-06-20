@@ -398,7 +398,7 @@ foreach {description input eof stepsSetup steps code expectedDelta} $semantics {
 	puts $expectedDelta
     }
 
-    test me-cpucore-run-${impl}-2.$n run -setup {
+    test me-cpucore-run-${impl}-2.$n "run $description" -setup {
 	set state [grammar::me::cpu::core::new $code]
 	foreach token $input {
 	    eval [linsert $token 0 grammar::me::cpu::core::put state]
