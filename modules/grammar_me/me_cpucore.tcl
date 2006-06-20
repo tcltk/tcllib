@@ -468,6 +468,7 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 
 	# Get current instruction ...
 
+	if 0 {puts .$pc:\t$iname([lindex $asm $pc])}
 	if 0 {puts -nonewline .$pc:\t$iname([lindex $asm $pc])}
 
 	set insn [lindex $asm $pc] ; incr pc
@@ -487,7 +488,7 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 	    set b [lindex $asm $pc] ; incr pc
 	    set c [lindex $asm $pc] ; incr pc
 	    if 0 {puts \t<$a|$b|$c>}
-	} ;#else {puts ""}
+	} ;# else {puts ""}
 
 	# Dispatch to implementation of the instruction ...
 
@@ -535,8 +536,16 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 
 	# ict_match_token <a:token> <b:message>
 	if {$insn == 1} {
-	    set xch [lindex $pool $a]
-	    set ok  [expr {$xch eq $ct}]
+	    if {[llength $tokmap]} {
+		if {!$tmunpacked} {
+		    array set tm $tokmap
+		    set tmunpacked 1
+		}
+		set ok [expr {$a == $tm($ct)}]
+	    } else {
+		set xch [lindex $pool $a]
+		set ok  [expr {$xch eq $ct}]
+	    }
 	    if {!$ok} {
 		set er [list $cl [list $b]]
 	    } else {
@@ -572,8 +581,8 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 
 	# ict_match_tokclass <a:code> <b:message>
 	if {$insn == 3} {
-	    set code [lindex $tclass $a]
-	    set ok   [string is $code -strict $ct]
+	    set strcode [lindex $tclass $a]
+	    set ok   [string is $strcode -strict $ct]
 	    if {!$ok} {
 		set er [list $cl [list $b]]
 	    } else {
@@ -765,7 +774,7 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 	    continue
 	}
 
-	# isv_terminal
+	# isv_terminal (implied ias_push)
 	if {$insn == 23} {
 	    set sv [list {} $cl $cl]
 	    lappend as $sv
@@ -867,36 +876,36 @@ namespace eval grammar::me::cpu::core {
 
     foreach {z insn x notes} {
 	0  ict_advance            1	{-- TESTED}
-	1  ict_match_token        2	{-- }
-	2  ict_match_tokrange     3	{-- }
-	3  ict_match_tokclass     2	{-- }
+	1  ict_match_token        2	{-- TESTED}
+	2  ict_match_tokrange     3	{-- TESTED}
+	3  ict_match_tokclass     2	{-- TESTED}
 	4  inc_restore            2	{-- }
 	5  inc_save               1	{-- }
-	6  icf_ntcall             1	{-- }
-	7  icf_ntreturn           0	{-- }
+	6  icf_ntcall             1	{-- TESTED}
+	7  icf_ntreturn           0	{-- TESTED}
 	8  iok_ok                 0	{-- TESTED}
 	9  iok_fail               0	{-- TESTED}
 	10 iok_negate             0	{-- TESTED}
-	11 icf_jalways            1	{-- }
-	12 icf_jok                1	{-- }
-	13 icf_jfail              1	{-- }
+	11 icf_jalways            1	{-- TESTED}
+	12 icf_jok                1	{-- TESTED}
+	13 icf_jfail              1	{-- TESTED}
 	14 icf_halt               0	{-- TESTED}
-	15 icl_push               0	{-- }
-	16 icl_rewind             0	{-- }
-	17 icl_pop                0	{-- }
-	18 ier_push               0	{-- }
-	19 ier_clear              0	{-- }
+	15 icl_push               0	{-- TESTED}
+	16 icl_rewind             0	{-- TESTED}
+	17 icl_pop                0	{-- TESTED}
+	18 ier_push               0	{-- TESTED}
+	19 ier_clear              0	{-- TESTED, partial}
 	20 ier_nonterminal        1	{-- }
 	21 ier_merge              0	{-- }
-	22 isv_clear              0	{-- }
-	23 isv_terminal           0	{-- }
-	24 isv_nonterminal_leaf   1	{-- }
-	25 isv_nonterminal_range  1	{-- }
+	22 isv_clear              0	{-- TESTED}
+	23 isv_terminal           0	{-- TESTED}
+	24 isv_nonterminal_leaf   1	{-- TESTED}
+	25 isv_nonterminal_range  1	{-- TESTED}
 	26 isv_nonterminal_reduce 1	{-- }
-	27 ias_push               0	{-- }
-	28 ias_mark               0	{-- }
-	29 ias_mrewind            0	{-- }
-	30 ias_mpop               0	{-- }
+	27 ias_push               0	{-- TESTED}
+	28 ias_mark               0	{-- TESTED}
+	29 ias_mrewind            0	{-- TESTED}
+	30 ias_mpop               0	{-- TESTED}
     } {
 	lappend anum $x
 	set iname($z) $insn
