@@ -41,6 +41,16 @@ namespace eval grammar::me::cpu::core {
 	eof    ::grammar::me::cpu::core::eof
 	put    ::grammar::me::cpu::core::put
 	run    ::grammar::me::cpu::core::run
+	pc     ::grammar::me::cpu::core::pc
+	iseof  ::grammar::me::cpu::core::iseof
+	at     ::grammar::me::cpu::core::at
+	cc     ::grammar::me::cpu::core::cc
+	lstk   ::grammar::me::cpu::core::lstk
+	astk   ::grammar::me::cpu::core::astk
+	mstk   ::grammar::me::cpu::core::mstk
+	estk   ::grammar::me::cpu::core::estk
+	rstk   ::grammar::me::cpu::core::rstk
+	nc     ::grammar::me::cpu::core::nc
     }
 }
 
@@ -50,6 +60,7 @@ namespace eval grammar::me::cpu::core {
 proc ::grammar::me::cpu::core::disasm {code} {
     variable iname
     variable tclass
+    variable anum
 
     Validate $code ord dst jmp
 
@@ -65,7 +76,6 @@ proc ::grammar::me::cpu::core::disasm {code} {
     }
 
     set result {}
-
     foreach {asm pool tokmap} $code break
 
     set pc    0
@@ -153,9 +163,12 @@ proc ::grammar::me::cpu::core::asm {code} {
     set off 0
     foreach insn $code {
 	foreach {label name} $insn break
+	if {![info exists iname($name)]} {
+	    return -code error "Bad instruction \"$insn\", unknown command \"$name\""
+	}
 	set an [lindex $anum $iname($name)]
 	if {[llength $insn] != ($an+2)} {
-	    return -code error "Bad instruction \"$insn\", expected $an arguments"    
+	    return -code error "Bad instruction \"$insn\", expected $an argument[expr {$an == 1 ? "" : "s"}]"
 	}
 	if {$label ne ""} {
 	    set jmp($label) $off
@@ -179,7 +192,7 @@ proc ::grammar::me::cpu::core::asm {code} {
 	lappend asm $iname($name)
 
 	# Encode arguments ...
-	switch -exact- $name {
+	switch -exact -- $name {
 	    ict_advance            -
 	    inc_save               -
 	    ier_nonterminal        -
@@ -198,19 +211,31 @@ proc ::grammar::me::cpu::core::asm {code} {
 		lappend asm [Str [lindex $insn 4]]
 	    }
 	    ict_match_tokclass {
-		lappend asm $tccode([lindex $insn 2])
+		set ccode [lindex $insn 2]
+		if {![info exists tccode($ccode)]} {
+		    return -code error "Bad instruction \"$insn\", unknown class code \"$ccode\""
+		}
+		lappend asm $tccode($ccode)
 		lappend asm [Str [lindex $insn 3]]
 
 	    }
 	    inc_restore {
-		lappend asm $jmp([lindex $insn 2])
+		set jmpto [lindex $insn 2]
+		if {![info exists jmp($jmpto)]} {
+		    return -code error "Bad instruction \"$insn\", unknown branch destination \"$jmpto\""
+		}
+		lappend asm $jmp($jmpto)
 		lappend asm [Str [lindex $insn 3]]
 	    }
 	    icf_ntcall  -
 	    icf_jalways -
 	    icf_jok     -
 	    icf_jfail   {
-		lappend asm $jmp([lindex $insn 2])
+		set jmpto [lindex $insn 2]
+		if {![info exists jmp($jmpto)]} {
+		    return -code error "Bad instruction \"$insn\", unknown branch destination \"$jmpto\""
+		}
+		lappend asm $jmp($jmpto)
 	    }
 	}
     }
@@ -231,7 +256,7 @@ proc ::grammar::me::cpu::core::new {code} {
     lappend state 0     ; # [_2] halt  - bool  - Flag, set (internal) when machine was halted (icf_halt).
     lappend state 0     ; # [_3] eof   - bool  - Flag, set (external) when where will be no more input.
     lappend state {}    ; # [_4] tc    - list  - Terminal cache, pending and processed tokens.
-    lappend state 0     ; # [_5] cl    - int   - Current Location
+    lappend state -1    ; # [_5] cl    - int   - Current Location
     lappend state {}    ; # [_6] ct    - token - Current Character
     lappend state 0     ; # [_7] ok    - bool  - Match Status
     lappend state {}    ; # [_8] sv    - any   - Semantic Value
@@ -243,6 +268,10 @@ proc ::grammar::me::cpu::core::new {code} {
     lappend state {}    ; # [14] rs    - list  - Return Stack
     lappend state {}    ; # [15] nc    - dict  - Nonterminal Cache (backtracking)
     # ### ### ### ######### ######### #########
+
+    # tc    = list(token)
+    # token = list(str lexeme line col)
+
 
     # (-) See manpage of this package for the representation.
 
@@ -257,13 +286,52 @@ proc ::grammar::me::cpu::core::new {code} {
     return $state
 }
 
-proc ::grammar::me::cpu::core::lc {state loc} {
-    return [lrange [lindex $state 4 $loc] 2 3]
+proc ::grammar::me::cpu::core::ntok {state} {
+    return [llength [lindex $state 4]]
 }
 
-proc ::grammar::me::cpu::core::tok {state from {to {}}} {
-    if {$to == {}} {set to $from}
-    return [lrange [lindex $state 4] $from $to]
+proc ::grammar::me::cpu::core::lc {state loc} {
+    set tc  [lindex $state 4]
+    set loc [INDEX $tc $loc "Illegal location"]
+    return [lrange [lindex $tc $loc] 2 3]
+    # result = list(line col)
+}
+
+proc ::grammar::me::cpu::core::tok {state args} {
+    if {[llength $args] > 2} {
+	return -code error {wrong # args: should be "grammar::me::cpu::core::tok state ?from ?to??"}
+    }
+    set tc [lindex $state 4]
+    if {[llength $args] == 0} {
+	return $tc
+    } elseif {[llength $args] == 1} {
+	set at [INDEX $tc [lindex $args 0] "Illegal location"]
+	return [lrange $tc $at $at]
+    } else {
+	set from [INDEX $tc [lindex $args 0] "Illegal start location"]
+	set to   [INDEX $tc [lindex $args 1] "Illegal end location"]
+	if {$from > $to} {
+	    return -code error "Illegal empty location range $from .. $to"
+	}
+	return [lrange $tc $from $to]
+    }
+    # result = list(token), token = list(str lex line col)
+}
+
+proc ::grammar::me::cpu::core::pc {state} {
+    return [lindex $state 1]
+}
+
+proc ::grammar::me::cpu::core::iseof {state} {
+    return [lindex $state 3]
+}
+
+proc ::grammar::me::cpu::core::at {state} {
+    return [lindex $state 5]
+}
+
+proc ::grammar::me::cpu::core::cc {state} {
+    return [lindex $state 6]
 }
 
 proc ::grammar::me::cpu::core::sv {state} {
@@ -279,14 +347,38 @@ proc ::grammar::me::cpu::core::error {state} {
     if {[llength $er]} {
 	foreach {l m} $er break
 
-	set pool [lindex $state 0 1]
+	set pool [lindex $state 0 1] ; # state ->/0 code ->/1 pool
 	set mx   {}
 	foreach id $m {
 	    lappend mx [lindex $pool $id]
 	}
-	set er [list $l mx]
+	set er [list $l $mx]
     }
     return $er
+}
+
+proc ::grammar::me::cpu::core::lstk {state} {
+    return [lindex $state 10]
+}
+
+proc ::grammar::me::cpu::core::astk {state} {
+    return [lindex $state 11]
+}
+
+proc ::grammar::me::cpu::core::mstk {state} {
+    return [lindex $state 12]
+}
+
+proc ::grammar::me::cpu::core::estk {state} {
+    return [lindex $state 13]
+}
+
+proc ::grammar::me::cpu::core::rstk {state} {
+    return [lindex $state 14]
+}
+
+proc ::grammar::me::cpu::core::nc {state} {
+    return [lindex $state 15]
 }
 
 proc ::grammar::me::cpu::core::ast {state} {
@@ -318,7 +410,7 @@ proc ::grammar::me::cpu::core::put {statevar tok lex line col} {
     return
 }
 
-proc ::grammar::me::cpu::core::run {statevar {n -1}} {
+proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
     # Execution loop. Should be instrumented for statistics about
     # dynamic instruction frequency. I.e. which instructions are
     # executed the most => put them at the front of the if/switch for
@@ -332,9 +424,16 @@ proc ::grammar::me::cpu::core::run {statevar {n -1}} {
     variable anum
     variable tclass
     upvar 1 $statevar state
+    variable iname ; # For debug output
 
     # Do nothing for a stopped machine (halt flag set).
     if {[lindex $state 2]} {return $state}
+
+    # Fail if there are no instruction to execute
+    if {![llength [lindex $state 0 0]]} {
+	# No instructions to execute
+	return -code error "No instructions to execute"
+    }
 
     # Unpack state into locally accessible variables
     #        0    1  2    3   4  5  6  7  8  9  10 11 12 13 14 15 16 17 18  19  20
@@ -343,6 +442,12 @@ proc ::grammar::me::cpu::core::run {statevar {n -1}} {
     # Unpack match program for easy access as well.
     #        0   1    2
     foreach {asm pool tokmap} $code break
+
+    if 0 {
+	puts ________________________
+	puts [join [disasm $code] \n]
+	puts ________________________
+    }
 
     # Ensure that the unpacked information is not shared
     unset state
@@ -358,10 +463,12 @@ proc ::grammar::me::cpu::core::run {statevar {n -1}} {
     while {1} {
 	# Stop execution if the specified number of instructions have
 	# been executed. Ignore if infinity was specified.
-	if {$n == 0} break
-	if {$n > 0} {incr n -1}
+	if {$steps == 0} break
+	if {$steps > 0} {incr steps -1}
 
 	# Get current instruction ...
+
+	if 0 {puts -nonewline .$pc:\t$iname([lindex $asm $pc])}
 
 	set insn [lindex $asm $pc] ; incr pc
 
@@ -370,46 +477,59 @@ proc ::grammar::me::cpu::core::run {statevar {n -1}} {
 	set an [lindex $anum $insn]
 	if {$an == 1} {
 	    set a [lindex $asm $pc] ; incr pc
+	    if 0 {puts \t<$a>}
 	} elseif {$an == 2} {
 	    set a [lindex $asm $pc] ; incr pc
 	    set b [lindex $asm $pc] ; incr pc
+	    if 0 {puts \t<$a|$b>}
 	} elseif {$an == 3} {
 	    set a [lindex $asm $pc] ; incr pc
 	    set b [lindex $asm $pc] ; incr pc
 	    set c [lindex $asm $pc] ; incr pc
-	}
+	    if 0 {puts \t<$a|$b|$c>}
+	} ;#else {puts ""}
 
 	# Dispatch to implementation of the instruction ...
 
 	# Separate if commands are used for easier ordering of the
 	# dispatch. The order of the branches should be frequency
-	# coded to have the most-used instructions first.
+	# coded to have the most frequently used instructions first.
 
 	# ict_advance <a:message>
 	if {$insn == 0} {
+	    if 0 {puts \t\[$cl|[llength $tc]|$eof\]}
 	    incr cl
 	    if {$cl < [llength $tc]} {
+		if 0 {puts \tConsume}
+
 		set ct [lindex $tc $cl 0]
 		set ok 1
 		set er {}
 	    } elseif {$eof} {
+		if 0 {puts \tFail<Eof>}
+
 		# We have no input, and there won't be more coming in
 		# either. Fail the advance. We do _not_ stop the match
 		# loop, the program has to complete. The failure might
-		# be no such, revealed during backtracking.
+		# be no such, revealed during backtracking. The current
+		# location is not rewound automatically, this is the
+		# responsibility of any backtracking.
 
 		set er  [list $cl [list $a]]
 		set ok  0
 	    } else {
+		if 0 {puts \tSuspend&Wait}
+
 		# We have no input, stop matching and wait for
 		# more. We reset the machine into a state
 		# which will restart this instruction when
 		# execution resumes.
 
 		incr cl -1
-		incr pc -1
+		incr pc -2 ; # code and message argument
 		break
 	    }
+	    if 0 {puts .Next}
 	    continue
 	}
 
@@ -598,7 +718,7 @@ proc ::grammar::me::cpu::core::run {statevar {n -1}} {
 		set  pos [lindex $ls end]
 		incr pos
 		set eloc [lindex $er 0]
-		if {$eloc == pos} {
+		if {$eloc == $pos} {
 		    set er [list $eloc [list $a]]
 		}
 	    }
@@ -714,6 +834,8 @@ proc ::grammar::me::cpu::core::run {statevar {n -1}} {
     # Repack a modified cache dictionary, then repack and store the
     # updated state value.
 
+    if 0 {puts .Repackage\ state}
+
     if {$ncmodified} {set nc [array get ncc]}
     set state [list $code $pc $halt $eof $tc $cl $ct $ok $sv $er $ls $as $ms $es $rs $nc]
     return
@@ -743,38 +865,38 @@ namespace eval grammar::me::cpu::core {
     # Mapping between instruction codes and names.
     variable iname
 
-    foreach {z insn x} {
-	0  ict_advance            1
-	1  ict_match_token        2
-	2  ict_match_tokrange     3
-	3  ict_match_tokclass     2
-	4  inc_restore            2
-	5  inc_save               1
-	6  icf_ntcall             1
-	7  icf_ntreturn           0
-	8  iok_ok                 0
-	9  iok_fail               0
-	10 iok_negate             0
-	11 icf_jalways            1
-	12 icf_jok                1
-	13 icf_jfail              1
-	14 icf_halt               0
-	15 icl_push               0
-	16 icl_rewind             0
-	17 icl_pop                0
-	18 ier_push               0
-	19 ier_clear              0
-	20 ier_nonterminal        1
-	21 ier_merge              0
-	22 isv_clear              0
-	23 isv_terminal           0
-	24 isv_nonterminal_leaf   1
-	25 isv_nonterminal_range  1
-	26 isv_nonterminal_reduce 1
-	27 ias_push               0
-	28 ias_mark               0
-	29 ias_mrewind            0
-	30 ias_mpop               0
+    foreach {z insn x notes} {
+	0  ict_advance            1	{-- TESTED}
+	1  ict_match_token        2	{-- }
+	2  ict_match_tokrange     3	{-- }
+	3  ict_match_tokclass     2	{-- }
+	4  inc_restore            2	{-- }
+	5  inc_save               1	{-- }
+	6  icf_ntcall             1	{-- }
+	7  icf_ntreturn           0	{-- }
+	8  iok_ok                 0	{-- TESTED}
+	9  iok_fail               0	{-- TESTED}
+	10 iok_negate             0	{-- TESTED}
+	11 icf_jalways            1	{-- }
+	12 icf_jok                1	{-- }
+	13 icf_jfail              1	{-- }
+	14 icf_halt               0	{-- TESTED}
+	15 icl_push               0	{-- }
+	16 icl_rewind             0	{-- }
+	17 icl_pop                0	{-- }
+	18 ier_push               0	{-- }
+	19 ier_clear              0	{-- }
+	20 ier_nonterminal        1	{-- }
+	21 ier_merge              0	{-- }
+	22 isv_clear              0	{-- }
+	23 isv_terminal           0	{-- }
+	24 isv_nonterminal_leaf   1	{-- }
+	25 isv_nonterminal_range  1	{-- }
+	26 isv_nonterminal_reduce 1	{-- }
+	27 ias_push               0	{-- }
+	28 ias_mark               0	{-- }
+	29 ias_mrewind            0	{-- }
+	30 ias_mpop               0	{-- }
     } {
 	lappend anum $x
 	set iname($z) $insn
@@ -783,7 +905,23 @@ namespace eval grammar::me::cpu::core {
 }
 
 # ### ### ### ######### ######### #########
-## Helper commands.
+## Helper commands ((Dis)Assembler, runtime).
+
+proc ::grammar::me::cpu::core::INDEX {list i label} {
+    if {$i eq "end"} {
+	set i [expr {[llength $list] - 1}]
+    } elseif {[regexp {^end-([0-9]+)$} $i -> n]} {
+	set i [expr {[llength $list] - $n -1}]
+    }
+    if {
+	![string is integer -strict $i] ||
+	($i < 0) ||
+	($i >= [llength $list])
+    } {
+	return -code error "$label $i"
+    }
+    return $i
+}
 
 proc ::grammar::me::cpu::core::K {x y} {set x}
 
@@ -815,16 +953,17 @@ proc ::grammar::me::cpu::core::Tok {str} {
 	    return -code error "Bad assembly, mixing plain and ranked tokens"
 	}
 	set plain 1
-	return [uplevel 1 [list String $str]]
+	return [uplevel 1 [list Str $str]]
     }
 }
 
 proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
     variable anum
+    variable iname
 
     # Basic validation of structure ...
 
-    if {![llength $code] == 3} {
+    if {[llength $code] != 3} {
 	return -code error "Bad length"
     }
 
@@ -836,7 +975,7 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 
     array set ord {}
     if {[llength $tokmap] > 0} {
-	foreach {tok rank} {
+	foreach {tok rank} $tokmap {
 	    if {[info exists ord($rank)]} {
 		return -code error "Bad tokmap, non-total ordering for $tok and $ord($rank), at rank $rank"
 	    }
@@ -866,7 +1005,7 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
     }
 
     if {$pc > $pcend} {
-	return -code error "Bad program, last instruction is truncated"
+	return -code error "Bad program, last instruction $insn ($iname($insn)) is truncated"
     }
 
     # Validation of ME instruction arguments (pool references, branch
@@ -877,6 +1016,7 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
     }
     array set jmp {}
 
+    set pc 0
     while {$pc < $pcend} {
 	set base $pc
 	set insn [lindex $asm $pc] ; incr pc
@@ -897,22 +1037,22 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 	    0 - 5 - 20 - 24 - 25 - 26 -
 	    a/string {
 		if {($a < 0) || ($a >= $poolend)} {
-		    return -code "Invalid string reference $a for instruction $insn at $base"
+		    return -code error "Invalid string reference $a for instruction $insn ($iname($insn)) at $base"
 		}
 	    }
 	    1 {
 		# a/tok b/string
 		if {![llength $tokmap]} {
 		    if {($a < 0) || ($a >= $poolend)} {
-			return -code "Invalid string reference $a for instruction $insn at $base"
+			return -code error "Invalid string reference $a for instruction $insn ($iname($insn)) at $base"
 		    }
 		} else {
 		    if {![info exists ord($a)]} {
-			return -code error "Invalid token rank $a for instruction $insn at $base"
+			return -code error "Invalid token rank $a for instruction $insn ($iname($insn)) at $base"
 		    }
 		}
 		if {($b < 0) || ($b >= $poolend)} {
-		    return -code "Invalid string reference $b for instruction $insn at $base"
+		    return -code error "Invalid string reference $b for instruction $insn ($iname($insn)) at $base"
 		}
 	    }
 	    2 {
@@ -921,56 +1061,62 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 		if {![llength $tokmap]} {
 		    # a = b = string references.
 		    if {($a < 0) || ($a >= $poolend)} {
-			return -code "Invalid string reference $a for instruction $insn at $base"
+			return -code error "Invalid string reference $a for instruction $insn ($iname($insn)) at $base"
 		    }
 		    if {($b < 0) || ($b >= $poolend)} {
-			return -code "Invalid string reference $b for instruction $insn at $base"
+			return -code error "Invalid string reference $b for instruction $insn ($iname($insn)) at $base"
+		    }
+		    if {$a == $b} {
+			return -code error "Invalid single-token range for instruction $insn ($iname($insn)) at $base"
+		    }
+		    if {[string compare [lindex $pool $a] [lindex $pool $b]] > 0} {
+			return -code error "Invalid empty range for instruction $insn ($iname($insn)) at $base"
 		    }
 		} else {
 		    # tokmap defined: a = b = order rank.
 		    if {![info exists ord($a)]} {
-			return -code error "Invalid token rank $a for instruction $insn at $base"
+			return -code error "Invalid token rank $a for instruction $insn ($iname($insn)) at $base"
 		    }
 		    if {![info exists ord($b)]} {
-			return -code error "Invalid token rank $b for instruction $insn at $base"
+			return -code error "Invalid token rank $b for instruction $insn ($iname($insn)) at $base"
 		    }
 		    if {$a == $b} {
-			return -code error "Invalid single-token range for instruction $insn at $base"
+			return -code error "Invalid single-token range for instruction $insn ($iname($insn)) at $base"
 		    }
 		    if {$a > $b} {
-			return -code error "Invalid empty range for instruction $insn at $base"
+			return -code error "Invalid empty range for instruction $insn ($iname($insn)) at $base"
 		    }
 		}
 		if {($c < 0) || ($c >= $poolend)} {
-		    return -code "Invalid string reference $c for instruction $insn at $base"
+		    return -code error "Invalid string reference $c for instruction $insn ($iname($insn)) at $base"
 		}
 	    }
 	    3 {
 		# a/class(0-5) b/string
 		if {($a < 0) || ($a > 5)} {
-		    return -code "Invalid token-class $a for instruction $insn at $base"
+		    return -code error "Invalid token-class $a for instruction $insn ($iname($insn)) at $base"
 		}
 		if {($b < 0) || ($b >= $poolend)} {
-		    return -code "Invalid string reference $b for instruction $insn at $base"
+		    return -code error "Invalid string reference $b for instruction $insn ($iname($insn)) at $base"
 		}
 	    }
 	    4 {
 		# a/branch b/string
 		if {![info exists target($a)]} {
-		    return -code "Invalid branch target $a for instruction $insn at $base"
+		    return -code error "Invalid branch target $a for instruction $insn ($iname($insn)) at $base"
 		} else {
 		    set jmp($a) .
 		}
 		if {($b < 0) || ($b >= $poolend)} {
-		    return -code "Invalid string reference $b for instruction $insn at $base"
+		    return -code error "Invalid string reference $b for instruction $insn ($iname($insn)) at $base"
 		}
 	    }
 	    6 - 11 - 12 - 13 -
 	    a/branch {
 		if {![info exists target($a)]} {
-		    return -code "Invalid branch target $a for instruction $insn at $base"
+		    return -code error "Invalid branch target $a for instruction $insn ($iname($insn)) at $base"
 		} else {
-		    set jmp($a) .
+		    set jmp($base) $a
 		}
 	    }
 	    default {}
@@ -983,11 +1129,11 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 
     if {$ovar ne ""} {
 	upvar 1 $ovar o
-	array set o $ord
+	array set o [array get ord]
     }
     if {$tvar ne ""} {
 	upvar 1 $tvar t
-	array set t $target
+	array set t [array get target]
     }
     return
 }
