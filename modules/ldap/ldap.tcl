@@ -34,7 +34,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.8 2006/06/13 07:59:26 mic42 Exp $
+#   $Id: ldap.tcl,v 1.9 2006/06/21 09:33:05 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -42,7 +42,7 @@
 #-----------------------------------------------------------------------------
 
 package require Tcl 8.4
-package provide ldap 1.3
+package provide ldap 1.4
 
 
 namespace eval ldap {
@@ -463,7 +463,7 @@ proc ldap::buildUpFilter { filter } {
 #               dn1 { attr1 val1 attr2 val2 ... } dn2 { a1 v1 } ....
 #
 #-----------------------------------------------------------------------------
-proc ldap::search { handle baseObject filterString attributes } {
+proc ldap::search { handle baseObject filterString attributes args} {
 
     upvar $handle conn
 
@@ -472,6 +472,19 @@ proc ldap::search { handle baseObject filterString attributes } {
     set sizeLimit    0
     set timeLimit    0
     set attrsOnly    0
+
+    foreach {key value} $args {
+        switch -- $key {
+            -scope {
+                switch -- $value {
+                   base { set scope 0 }
+                   one - onelevel { set scope 1 }
+                   sub - subtree { set scope 2 }
+                   default { set scope $value }
+                }
+            }
+        }
+    }
 
     #----------------------------------------------------------
     #   marshal filter and attributes parameter
