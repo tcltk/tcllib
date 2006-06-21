@@ -1,3 +1,9 @@
+2006-06-20  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * ldap.tcl    : Applied patch from [SF Tcllib RFE 1082061].
+	* ldap.man    : ldap needs Tcl 8.4, raised the level
+	* pkgIndex.tcl: in the docs. Version now 1.4.
+	
 2006-06-13  Michael Schlenker <mic42@users.sourceforge.net>
 
         * ldap.tcl    : Added ldap::info command for introspection.
