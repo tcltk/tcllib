@@ -5,7 +5,7 @@
 [copyright {2006 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
-[require Tcl 8.4444]
+[require Tcl 8.4]
 [require ldap [opt 1.4]]
 [description]
 [para]
@@ -75,14 +75,15 @@ This command asks the ldap server to release the last bind done for
 the connection refered to by the token in [arg handle].
 
 
-[call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [opt -scope base | subtree | onelevel]]
+[call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [opt "[option -scope] [arg scope]"]]
 
 This command performs a LDAP search below the [arg baseObject] tree
 using a complex LDAP search expression [arg filterString] and returns
 the specified [arg attributes] of all matching objects (DNs). If the
 list of [arg attributes] was empty all attributes are returned. The
 command blocks until it has received all results. The default scope used
-is subtree, but can be overriden with the [opt -scope] option.
+is subtree, but can be overriden with the [option -scope] option, valid scopes are
+[const base], [const subtree] or [const onelevel].
 
 [nl]
 An example of a search expression is
