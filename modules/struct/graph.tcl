@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph.tcl,v 1.27 2005/11/02 18:02:13 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.28 2006/06/25 21:26:01 andreas_kupries Exp $
 
 # Create the namespace before determining cgraph vs. tcl
 # Otherwise the loading 'struct.tcl' may get into trouble
@@ -822,6 +822,120 @@ proc ::struct::graph::__arc_target {name arc} {
 
     variable ${name}::arcNodes
     return [lindex $arcNodes($arc) 1]
+}
+
+# ::struct::graph::__arc_move-target --
+#
+#	Change the destination node of the specified arc.
+#	The arc is rotated around its origin to a different
+#	node.
+#
+# Arguments:
+#	name		name of the graph object.
+#	arc		arc to change.
+#	newtarget	new destination/target of the arc.
+#
+# Results:
+#	None
+
+proc ::struct::graph::__arc_move-target {name arc newtarget} {
+    if { ![__arc_exists $name $arc] } {
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+    if { ![__node_exists $name $newtarget] } {
+	return -code error "node \"$newtarget\" does not exist in graph \"$name\""
+    }
+
+    variable ${name}::arcNodes
+    variable ${name}::inArcs
+
+    set oldtarget [lindex $arcNodes($arc) 1]
+    if {[string equal $oldtarget $newtarget]} return
+
+    set arcNodes($arc) [lreplace $arcNodes($arc) 1 1 $newtarget]
+
+    lappend inArcs($newtarget) $arc
+    ldelete inArcs($oldtarget) [lsearch -exact $inArcs($oldtarget) $arc]
+    return
+}
+
+# ::struct::graph::__arc_move-source --
+#
+#	Change the origin node of the specified arc.
+#	The arc is rotated around its destination to a different
+#	node.
+#
+# Arguments:
+#	name		name of the graph object.
+#	arc		arc to change.
+#	newsource	new origin/source of the arc.
+#
+# Results:
+#	None
+
+proc ::struct::graph::__arc_move-source {name arc newsource} {
+    if { ![__arc_exists $name $arc] } {
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+    if { ![__node_exists $name $newsource] } {
+	return -code error "node \"$newsource\" does not exist in graph \"$name\""
+    }
+
+    variable ${name}::arcNodes
+    variable ${name}::outArcs
+
+    set oldsource [lindex $arcNodes($arc) 0]
+    if {[string equal $oldsource $newsource]} return
+
+    set arcNodes($arc) [lreplace $arcNodes($arc) 0 0 $newsource]
+
+    lappend outArcs($newsource) $arc
+    ldelete outArcs($oldsource) [lsearch -exact $outArcs($oldsource) $arc]
+    return
+}
+
+# ::struct::graph::__arc_move --
+#
+#	Changes both origin and destination node of the specified arc.
+#
+# Arguments:
+#	name		name of the graph object.
+#	arc		arc to change.
+#	newsource	new origin/source of the arc.
+#	newtarget	new destination/target of the arc.
+#
+# Results:
+#	None
+
+proc ::struct::graph::__arc_move {name arc newsource newtarget} {
+    if { ![__arc_exists $name $arc] } {
+	return -code error "arc \"$arc\" does not exist in graph \"$name\""
+    }
+    if { ![__node_exists $name $newsource] } {
+	return -code error "node \"$newsource\" does not exist in graph \"$name\""
+    }
+    if { ![__node_exists $name $newtarget] } {
+	return -code error "node \"$newtarget\" does not exist in graph \"$name\""
+    }
+
+    variable ${name}::arcNodes
+    variable ${name}::outArcs
+    variable ${name}::inArcs
+
+    set oldsource [lindex $arcNodes($arc) 0]
+    if {![string equal $oldsource $newsource]} {
+	set arcNodes($arc) [lreplace $arcNodes($arc) 0 0 $newsource]
+	lappend outArcs($newsource) $arc
+	ldelete outArcs($oldsource) [lsearch -exact $outArcs($oldsource) $arc]
+    }
+
+    set oldtarget [lindex $arcNodes($arc) 1]
+    if {![string equal $oldtarget $newtarget]} {
+	set arcNodes($arc) [lreplace $arcNodes($arc) 1 1 $newtarget]
+	lappend inArcs($newtarget) $arc
+	ldelete inArcs($oldtarget) [lsearch -exact $inArcs($oldtarget) $arc]
+    }
+    return
 }
 
 # ::struct::graph::__arc_unset --
@@ -2866,4 +2980,4 @@ namespace eval ::struct {
     namespace import -force graph::graph
     namespace export graph
 }
-package provide struct::graph 2.0.1
+package provide struct::graph 2.1
