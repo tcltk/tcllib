@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.22 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.23 2006/06/25 21:26:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -186,7 +186,7 @@ test graph-0.5 {graph errors} {
     catch {mygraph arc foo} msg
     mygraph destroy
     set msg
-} "bad option \"foo\": must be append, attr, delete, exists, get, getall, insert, keyexists, keys, lappend, rename, set, source, target, or unset"
+} "bad option \"foo\": must be append, attr, delete, exists, get, getall, insert, keyexists, keys, lappend, move, move-source, move-target, rename, set, source, target, or unset"
 
 test graph-0.6 {graph errors} {
     graph mygraph
@@ -3005,6 +3005,240 @@ test graph-49.10 {attribute search} {
     mygraph destroy
     set result
 } {}
+
+# ---------------------------------------------------  
+
+test graph-50.0 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+
+test graph-50.1 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move a} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+
+test graph-50.2 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move a b} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+
+test graph-50.3 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move a b c d} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+
+test graph-50.4 {arc movement} {
+    graph mygraph
+    mygraph node insert b c
+    catch {mygraph arc move a b c} res
+    mygraph destroy
+    set res
+} {arc "a" does not exist in graph "::mygraph"}
+
+test graph-50.5 {arc movement} {
+    graph mygraph
+    mygraph node insert b
+    mygraph node insert d
+    mygraph arc  insert b d a
+    catch {mygraph arc move a b c} res
+    mygraph destroy
+    set res
+} {node "c" does not exist in graph "::mygraph"}
+
+test graph-50.6 {arc movement} {
+    graph mygraph
+    mygraph node insert c
+    mygraph node insert d
+    mygraph arc  insert c d a
+    catch {mygraph arc move a b c} res
+    mygraph destroy
+    set res
+} {node "b" does not exist in graph "::mygraph"}
+
+test graph-50.7 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph node insert 2
+    mygraph node insert 3
+    mygraph arc  insert 0 1 a
+    mygraph arc  move a 2 3
+    set res [list [mygraph arc source a] [mygraph arc target a]]
+    mygraph destroy
+    set res
+} {2 3}
+
+test graph-50.8 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph node insert 2
+    mygraph node insert 3
+    mygraph arc  insert 0 1 a
+    mygraph arc  move a 0 1
+    set res [list [mygraph arc source a] [mygraph arc target a]]
+    mygraph destroy
+    set res
+} {0 1}
+
+test graph-50.9 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph node insert 2
+    mygraph node insert 3
+    mygraph arc  insert 0 1 a
+    mygraph arc  move a 0 3
+    set res [list [mygraph arc source a] [mygraph arc target a]]
+    mygraph destroy
+    set res
+} {0 3}
+
+test graph-50.10 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph node insert 2
+    mygraph node insert 3
+    mygraph arc  insert 0 1 a
+    mygraph arc  move a 2 1
+    set res [list [mygraph arc source a] [mygraph arc target a]]
+    mygraph destroy
+    set res
+} {2 1}
+
+test graph-51.0 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move-target} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move-target name arc newtarget"}
+
+test graph-51.1 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move-target a} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move-target name arc newtarget"}
+
+test graph-51.2 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move-target a b c} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move-target name arc newtarget"}
+
+test graph-51.3 {arc movement} {
+    graph mygraph
+    mygraph node insert b c
+    catch {mygraph arc move-target a b} res
+    mygraph destroy
+    set res
+} {arc "a" does not exist in graph "::mygraph"}
+
+test graph-51.4 {arc movement} {
+    graph mygraph
+    mygraph node insert b
+    mygraph node insert d
+    mygraph arc  insert b d a
+    catch {mygraph arc move-target a c} res
+    mygraph destroy
+    set res
+} {node "c" does not exist in graph "::mygraph"}
+
+test graph-51.5 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph node insert 3
+    mygraph arc  insert 0 1 a
+    mygraph arc  move-target a 3
+    set res [mygraph arc target a]
+    mygraph destroy
+    set res
+} 3
+
+test graph-51.6 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph arc  insert 0 1 a
+    mygraph arc  move-target a 1
+    set res [mygraph arc target a]
+    mygraph destroy
+    set res
+} 1
+
+test graph-52.0 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move-source} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move-source name arc newsource"}
+
+test graph-52.1 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move-source a} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move-source name arc newsource"}
+
+test graph-52.2 {arc movement} {
+    graph mygraph
+    catch {mygraph arc move-source a b c} res
+    mygraph destroy
+    set res
+} {wrong # args: should be "::struct::graph::__arc_move-source name arc newsource"}
+
+test graph-52.3 {arc movement} {
+    graph mygraph
+    mygraph node insert b c
+    catch {mygraph arc move-source a b} res
+    mygraph destroy
+    set res
+} {arc "a" does not exist in graph "::mygraph"}
+
+test graph-52.4 {arc movement} {
+    graph mygraph
+    mygraph node insert b
+    mygraph node insert d
+    mygraph arc  insert b d a
+    catch {mygraph arc move-source a c} res
+    mygraph destroy
+    set res
+} {node "c" does not exist in graph "::mygraph"}
+
+test graph-52.5 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph node insert 2
+    mygraph arc  insert 0 1 a
+    mygraph arc  move-source a 2
+    set res [mygraph arc source a]
+    mygraph destroy
+    set res
+} 2
+
+test graph-52.6 {arc movement} {
+    graph mygraph
+    mygraph node insert 0
+    mygraph node insert 1
+    mygraph arc  insert 0 1 a
+    mygraph arc  move-source a 0
+    set res [mygraph arc source a]
+    mygraph destroy
+    set res
+} 0
 
 # ---------------------------------------------------  
 ::tcltest::cleanupTests

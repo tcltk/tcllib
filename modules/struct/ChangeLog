@@ -1,3 +1,15 @@
+2006-06-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.tcl : Added three new arc commands, 'move', 'move-target',
+	  and 'move-source'. They change the nodes an arc is attached to,
+	  without changing the identity of the arc itself. This makes
+	  certain graph operations easier, as there is no need to save the
+	  attributes of a node, delete it, create in the new location,
+	  then recreate the attribute data.
+	* pkgIndex.tcl: Bumped version number for this.
+	* graph.man: Added documentation for them.
+	* graph.test: Extended the testsuite to cover them as well.
+
 2006-06-13  Andreas Kupries <andreask@activestate.com>
 
 	* list.tcl:        Added two commands requested by Sarnold75,
