@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded html 1.3 [list source [file join $dir html.tcl]]
+package ifneeded html 1.3.1 [list source [file join $dir html.tcl]]

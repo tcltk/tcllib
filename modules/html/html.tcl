@@ -6,6 +6,7 @@
 #	that initialize form elements based on current CGI values.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
+# Copyright (c) 2006 Michael Schlenker <mic42@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -14,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.3
+package provide html 1.3.1
 
 namespace eval ::html {
 
@@ -157,13 +158,13 @@ proc ::html::foreach {vars vals args} {
     append script "\}\n"
 
     # Create a temporary variable in the stack frame above this one,
-    # and use it to store the incremental resutls of the multiple loop
+    # and use it to store the incremental results of the multiple loop
     # iterations.  Remove the temporary variable when we're done so there's
     # no trace of this loop left in that stack frame.
 
-    upvar $resultVar tmp
+    upvar 1 $resultVar tmp
     ::set tmp ""
-    uplevel $script
+    uplevel 1 $script
     ::set result $tmp
     unset tmp
     return $result
@@ -212,9 +213,9 @@ proc ::html::for {start test next body} {
     # iterations.  Remove the temporary variable when we're done so there's
     # no trace of this loop left in that stack frame.
 
-    upvar $resultVar tmp
+    upvar 1 $resultVar tmp
     ::set tmp ""
-    uplevel $script
+    uplevel 1 $script
     ::set result $tmp
     unset tmp
     return $result
@@ -261,9 +262,9 @@ proc ::html::while {test body} {
     # iterations.  Remove the temporary variable when we're done so there's
     # no trace of this loop left in that stack frame.
 
-    upvar $resultVar tmp
+    upvar 1 $resultVar tmp
     ::set tmp ""
-    uplevel $script
+    uplevel 1 $script
     ::set result $tmp
     unset tmp
     return $result
@@ -347,7 +348,7 @@ proc ::html::set {var val} {
     # The variable must be set in the stack frame above this one.
 
     ::set cmd [list set $var $val]
-    uplevel $cmd
+    uplevel 1 $cmd
     return ""
 }
 
@@ -369,7 +370,7 @@ proc ::html::set {var val} {
 proc ::html::eval {args} {
 
     # The args must be evaluated in the stack frame above this one.
-    ::eval [linsert $args 0 uplevel]
+    ::eval [linsert $args 0 uplevel 1]
     return ""
 }
 
@@ -484,7 +485,7 @@ proc ::html::meta {args} {
     variable page
     ::set html ""
     ::foreach {name value} $args {
-	append html "<meta name=\"$name\" value=\"[quoteFormValue $value]\">"
+	append html "<meta name=\"$name\" content=\"[quoteFormValue $value]\">"
     }
     lappend page(meta) $html
     return ""
