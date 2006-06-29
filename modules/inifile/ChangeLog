@@ -1,3 +1,10 @@
+2006-06-29 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* ini.tcl: added default value option for value command, and added
+	commentchar command. change in comment behavior
+	* ini.man: clarifications for open, commit, and comment commands; added
+	commentchar command
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* inifile.test: More boilerplate simplified via use of test support.
