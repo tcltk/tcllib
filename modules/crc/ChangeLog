@@ -1,3 +1,7 @@
+2006-06-29  Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* cksum.tcl: fixed typo koin->join
+
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cksum.test:  More boilerplate simplified via use of test support.
