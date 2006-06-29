@@ -8,7 +8,7 @@
 # Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_cpucore.test,v 1.2 2006/06/29 06:29:05 andreas_kupries Exp $
+# RCS: @(#) $Id: me_cpu.test,v 1.1 2006/06/29 06:29:05 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,42 +20,43 @@ testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
 support {
-    use fileutil/fileutil.tcl fileutil
+    use          fileutil/fileutil.tcl fileutil
+    useLocal     me_cpucore.tcl        grammar::me::cpu::core
 }
 testing {
-    useLocal me_cpucore.tcl grammar::me::cpu::core
+    useLocalKeep me_cpu.tcl            grammar::me::cpu
 }
 
 # -------------------------------------------------------------------------
 
-proc cpustate {state} {
+proc cpustate {cpu} {
     set     vstate {}
-    lappend vstate cd [::grammar::me::cpu::core::code   $state]
-    lappend vstate pc [::grammar::me::cpu::core::pc     $state]
-    lappend vstate ht [::grammar::me::cpu::core::halted $state]
-    lappend vstate eo [::grammar::me::cpu::core::iseof  $state]
-    lappend vstate tc [::grammar::me::cpu::core::tok    $state]
-    lappend vstate at [::grammar::me::cpu::core::at     $state]
-    lappend vstate cc [::grammar::me::cpu::core::cc     $state]
-    lappend vstate ok [::grammar::me::cpu::core::ok     $state]
-    lappend vstate sv [::grammar::me::cpu::core::sv     $state]
-    lappend vstate er [::grammar::me::cpu::core::error  $state]
-    lappend vstate ls [::grammar::me::cpu::core::lstk   $state]
-    lappend vstate as [::grammar::me::cpu::core::astk   $state]
-    lappend vstate ms [::grammar::me::cpu::core::mstk   $state]
-    lappend vstate es [::grammar::me::cpu::core::estk   $state]
-    lappend vstate rs [::grammar::me::cpu::core::rstk   $state]
-    lappend vstate nc [::grammar::me::cpu::core::nc     $state]
+    lappend vstate cd [$cpu code  ]
+    lappend vstate pc [$cpu pc    ]
+    lappend vstate ht [$cpu halted]
+    lappend vstate eo [$cpu iseof ]
+    lappend vstate tc [$cpu tok   ]
+    lappend vstate at [$cpu at    ]
+    lappend vstate cc [$cpu cc    ]
+    lappend vstate ok [$cpu ok    ]
+    lappend vstate sv [$cpu sv    ]
+    lappend vstate er [$cpu error ]
+    lappend vstate ls [$cpu lstk  ]
+    lappend vstate as [$cpu astk  ]
+    lappend vstate ms [$cpu mstk  ]
+    lappend vstate es [$cpu estk  ]
+    lappend vstate rs [$cpu rstk  ]
+    lappend vstate nc [$cpu nc    ]
     return $vstate
 }
 
 proc cpudelta {prev now} {
     array set _ {}
-    foreach {k v} [cpustate $prev] {
+    foreach {k v} $prev {
 	set _($k) $v
     }
     set res {}
-    foreach {k v} [cpustate $now] {
+    foreach {k v} $now {
 	if {[info exists _($k)] && ($_($k) eq $v)} continue
 	lappend res $k $v
     }
@@ -98,10 +99,6 @@ set asm_table [string trimright \
 		   [fileutil::cat \
 			[localPath me_cpucore.tests.asm-map.txt]]]
 
-set badasm_table [string trimright \
-		      [fileutil::cat \
-			   [localPath me_cpucore.tests.badasm-map.txt]]]
-
 set badmach_table [string trimright \
 		       [fileutil::cat \
 			    [localPath me_cpucore.tests.badmach-map.txt]]]
@@ -114,7 +111,7 @@ set semantics [string trimright \
 # In this section we run all the tests depending on a grammar::me::cpu::core,
 # and thus have to test all the available implementations.
 
-set tests [file join [file dirname [info script]] me_cpucore.testsuite]
+set tests [file join [file dirname [info script]] me_cpu.testsuite]
 
 catch {memory validate on}
 

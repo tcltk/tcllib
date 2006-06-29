@@ -1,3 +1,29 @@
+2006-06-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* grammar_me/me_cpucore.tests.semantics.txt: Extended to cover the
+	  remaining untested instructions. This completes the behavioural
+	  tests.
+
+	* grammar_me/me_cpucore.man: Added documentation for the new
+	* grammar_me/me_cpucore.tcl: accessor commands. Fixed problems
+	* grammar_me/me_cpucore.test: uncovered by the last tests.
+
+	* grammar_me/me_cpu.man: Lifted all changes to the cpucore into
+	* grammar_me/me_cpu.tcl: the cpu object (extended acessors, 
+	* grammar_me/me_cpu.test: documentation, etc.). Created testsuite
+	* grammar_me/me_cpu.testsuite: using the core testsuite as
+	  template, and sharing the instruction descriptions with it.
+
+	* grammar_me/gasm.tcl:     New package for the assembly of a ME
+	* grammar_me/pkgIndex.tcl: program, using a graph as internal
+	  structure. Bumped the versions of the cpu::core and cpu packages
+	  as well.
+
+2006-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_cpucore.tcl (asm): Extended the assembler to detect and
+	  ignore comment pseudo instructions.
+
 2006-06-20  Andreas Kupries <andreask@activestate.com>
 
 	* me_cpucore.tests.semantics.txt: Extended coverage of testsuite,
