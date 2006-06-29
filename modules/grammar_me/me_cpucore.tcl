@@ -1,4 +1,5 @@
 # -*- tcl -*-
+# (C) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # ### ### ### ######### ######### #########
 ## Package description
 
@@ -9,7 +10,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-namespace eval grammar::me::cpu::core {}
+namespace eval ::grammar::me::cpu::core {}
 
 # ### ### ### ######### ######### #########
 ## Implementation, API. Ensemble command.
@@ -32,25 +33,25 @@ namespace eval grammar::me::cpu::core {
 	new    ::grammar::me::cpu::core::new
 	lc     ::grammar::me::cpu::core::lc
 	tok    ::grammar::me::cpu::core::tok
-	sv     ::grammar::me::cpu::core::sv
-	ok     ::grammar::me::cpu::core::ok
-	error  ::grammar::me::cpu::core::error
-	ast    ::grammar::me::cpu::core::ast
-	halted ::grammar::me::cpu::core::halted
-	code   ::grammar::me::cpu::core::code
-	eof    ::grammar::me::cpu::core::eof
-	put    ::grammar::me::cpu::core::put
-	run    ::grammar::me::cpu::core::run
 	pc     ::grammar::me::cpu::core::pc
 	iseof  ::grammar::me::cpu::core::iseof
 	at     ::grammar::me::cpu::core::at
 	cc     ::grammar::me::cpu::core::cc
+	sv     ::grammar::me::cpu::core::sv
+	ok     ::grammar::me::cpu::core::ok
+	error  ::grammar::me::cpu::core::error
 	lstk   ::grammar::me::cpu::core::lstk
 	astk   ::grammar::me::cpu::core::astk
 	mstk   ::grammar::me::cpu::core::mstk
 	estk   ::grammar::me::cpu::core::estk
 	rstk   ::grammar::me::cpu::core::rstk
 	nc     ::grammar::me::cpu::core::nc
+	ast    ::grammar::me::cpu::core::ast
+	halted ::grammar::me::cpu::core::halted
+	code   ::grammar::me::cpu::core::code
+	eof    ::grammar::me::cpu::core::eof
+	put    ::grammar::me::cpu::core::put
+	run    ::grammar::me::cpu::core::run
     }
 }
 
@@ -163,15 +164,17 @@ proc ::grammar::me::cpu::core::asm {code} {
     set off 0
     foreach insn $code {
 	foreach {label name} $insn break
+	# Ignore embedded comments, except for labels
+	if {$label ne ""} {
+	    set jmp($label) $off
+	}
+	if {$name eq ".C"} continue
 	if {![info exists iname($name)]} {
 	    return -code error "Bad instruction \"$insn\", unknown command \"$name\""
 	}
 	set an [lindex $anum $iname($name)]
 	if {[llength $insn] != ($an+2)} {
 	    return -code error "Bad instruction \"$insn\", expected $an argument[expr {$an == 1 ? "" : "s"}]"
-	}
-	if {$label ne ""} {
-	    set jmp($label) $off
 	}
 	incr off
 	incr off [lindex $anum $iname($name)]
@@ -186,6 +189,8 @@ proc ::grammar::me::cpu::core::asm {code} {
 
     foreach insn $code {
 	foreach {label name} $insn break
+	# Ignore embedded comments
+	if {$name eq ".C"} continue
 	set an [lindex $anum $iname($name)]
 
 	# Instruction code to assembly ...
@@ -731,6 +736,7 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 		    set er [list $eloc [list $a]]
 		}
 	    }
+	    continue
 	}
 
 	# ier_merge
@@ -738,16 +744,14 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 	    set old [lindex $es end]
 	    set es  [lrange $es 0 end-1]
 
-	    # We have either old or current error data, keep
-	    # it.
+	    # We have either old or current error data, keep it.
 
 	    if {![llength $er]} {
 		# No current data, keep old
 		set er $old
 	    } elseif {[llength $old]} {
-		# If one of the errors is further on in the
-		# input choose that as the information to
-		# propagate.
+		# If one of the errors is further on in the input
+		# choose that as the information to propagate.
 
 		foreach {loe msgse} $er  break
 		foreach {lon msgsn} $old break
@@ -755,8 +759,7 @@ proc ::grammar::me::cpu::core::run {statevar {steps -1}} {
 		if {$lon > $loe} {
 		    set er $old
 		} elseif {$loe == $lon} {
-		    # Equal locations, merge the message
-		    # lists.
+		    # Equal locations, merge the message lists.
 
 		    foreach m $msgsn {lappend msgse $m}
 		    set er [list $loe [lsort -uniq $msgse]]
@@ -879,8 +882,8 @@ namespace eval grammar::me::cpu::core {
 	1  ict_match_token        2	{-- TESTED}
 	2  ict_match_tokrange     3	{-- TESTED}
 	3  ict_match_tokclass     2	{-- TESTED}
-	4  inc_restore            2	{-- }
-	5  inc_save               1	{-- }
+	4  inc_restore            2	{-- TESTED}
+	5  inc_save               1	{-- TESTED}
 	6  icf_ntcall             1	{-- TESTED}
 	7  icf_ntreturn           0	{-- TESTED}
 	8  iok_ok                 0	{-- TESTED}
@@ -894,14 +897,14 @@ namespace eval grammar::me::cpu::core {
 	16 icl_rewind             0	{-- TESTED}
 	17 icl_pop                0	{-- TESTED}
 	18 ier_push               0	{-- TESTED}
-	19 ier_clear              0	{-- TESTED, partial}
-	20 ier_nonterminal        1	{-- }
-	21 ier_merge              0	{-- }
+	19 ier_clear              0	{-- TESTED}
+	20 ier_nonterminal        1	{-- TESTED}
+	21 ier_merge              0	{-- TESTED}
 	22 isv_clear              0	{-- TESTED}
 	23 isv_terminal           0	{-- TESTED}
 	24 isv_nonterminal_leaf   1	{-- TESTED}
 	25 isv_nonterminal_range  1	{-- TESTED}
-	26 isv_nonterminal_reduce 1	{-- }
+	26 isv_nonterminal_reduce 1	{-- TESTED}
 	27 ias_push               0	{-- TESTED}
 	28 ias_mark               0	{-- TESTED}
 	29 ias_mrewind            0	{-- TESTED}
@@ -1150,4 +1153,4 @@ proc ::grammar::me::cpu::core::Validate {code {ovar {}} {tvar {}} {jvar {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide grammar::me::cpu::core 0.1
+package provide grammar::me::cpu::core 0.2

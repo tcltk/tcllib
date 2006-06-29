@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::me::cpu n 0.1]
-[copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin grammar::me::cpu n 0.2]
+[copyright {2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Virtual machine implementation II for parsing token streams}]
 [require Tcl 8.4]
-[require grammar::me::cpu [opt 0.1]]
+[require grammar::me::cpu [opt 0.2]]
 [description]
 [keywords {virtual machine} parsing grammar]
 [para]
@@ -105,11 +105,12 @@ it is not possible to convert offsets which refer to locations before
 the beginning of the stream.
 
 
-[call [cmd meName] [method tok] [arg from] [opt [arg to]]]
+[call [arg meName] [method tok] [opt "[arg from] [opt [arg to]]"]]
 
 This method returns a Tcl list containing the part of the input stream
 between the locations [arg from] and [arg to] (both inclusive). If
 [arg to] is not specified it will default to the value of [arg from].
+If [arg from] is not specified either the whole input stream is returned.
 
 [nl]
 
@@ -121,7 +122,31 @@ This command places the same restrictions on its location arguments as
 the method [method lc].
 
 
-[call [cmd meName] [method sv]]
+[call [arg meName] [method pc] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the current value of the stored program counter.
+
+
+[call [arg meName] [method iseof] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the current value of the stored eof flag.
+
+
+[call [arg meName] [method at] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the current location in the input stream.
+
+
+[call [arg meName] [method cc] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the current token.
+
+
+[call [arg meName] [method sv]]
 
 This command returns the current semantic value [term SV] stored in
 the machine. This is an abstract syntax tree as specified in the
@@ -136,6 +161,42 @@ This method returns the current match status [term OK].
 [call [arg meName] [method error]]
 
 This method returns the current error status [term ER].
+
+
+[call [arg meName] [method lstk] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the location stack.
+
+
+[call [arg meName] [method astk] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the AST stack.
+
+
+[call [arg meName] [method mstk] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the AST marker stack.
+
+
+[call [arg meName] [method estk] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the error stack.
+
+
+[call [arg meName] [method rstk] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the subroutine return stack.
+
+
+[call [arg meName] [method nc] [arg state]]
+
+This method takes the state value of a ME virtual machine and returns
+the nonterminal match cache as a dictionary.
 
 
 [call [arg meName] [method ast]]
