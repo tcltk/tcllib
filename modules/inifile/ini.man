@@ -3,7 +3,7 @@
 [moddesc   {Parsing of Windows INI files}]
 [titledesc {Parsing of Windows INI files}]
 [require Tcl 8.2]
-[require inifile [opt 0.1.1]]
+[require inifile [opt 0.2]]
 [description]
 
 This package provides an interface for easy manipulation of Windows INI files.
@@ -15,7 +15,8 @@ This package provides an interface for easy manipulation of Windows INI files.
 [call [cmd ::ini::open] [arg file] [opt [arg mode]]]
 
 Opens an INI file and returns a handle that is used by other commands.
-Mode has the same types as the [const open] command. The default mode is [const r+].
+Mode has the same types as the [const open] command, with the exception
+that mode [const a] is not supported. The default mode is [const r+].
 
 [call [cmd ::ini::close] [arg ini]]
 
@@ -26,19 +27,16 @@ Close the specified handle. If any changes were made and not written by
 
 Writes the file and all changes to disk. The sections are written in
 arbitrary order. The keys in a section are written in alphabetical
-order.
-
+order. If the ini was opened in read only mode an error will be thrown.
 
 [call [cmd ::ini::revert] [arg ini]]
 
 Rolls all changes made to the inifile object back to the last
 committed state.
 
-
 [call [cmd ::ini::filename] [arg ini]]
 
 Returns the name of the file the [arg ini] object is associated with.
-
 
 [call [cmd ::ini::sections] [arg ini]]
 
@@ -58,9 +56,11 @@ Returns a list of key value pairs that exist in the section and file specified.
 Returns a boolean value indicating the existance of the specified section as a
 whole or the specified key within that section.
 
-[call [cmd ::ini::value] [arg ini] [arg section] [arg key]]
+[call [cmd ::ini::value] [arg ini] [arg section] [arg key] [opt [arg default]]]
 
-Returns the value of the named key from the specified section.
+Returns the value of the named key and section. If specified,
+the default value will be returned if the key does not exist. If the key does
+not exist and no default is specified an error will be thrown.
 
 [call [cmd ::ini::set] [arg ini] [arg section] [arg key] [arg value]]
 
@@ -71,11 +71,20 @@ exist then a new one is created.
 
 Removes the key or the entire section and all its keys.
 
+[call [cmd ::ini::comment] [arg ini] [arg section] [opt [arg key]] [opt [arg text]]]
 
-[call [cmd ::ini::comment] [arg ini] [arg section] [opt [arg key]] [opt [arg text]...]]
+Reads and modifies comments for sections and keys. To write a section comment use an
+empty string for the [arg key]. To remove all comments use an empty string for [arg text].
+[arg text] may consist of a list of lines or one single line. Any embedded newlines in
+[arg text] are properly handled.  Comments may be written to nonexistant
+sections or keys and will not return an error. Reading a comment from a nonexistant
+section or key will return an empty string.
 
-Reads and modifies comments for sections and keys.
+[call [cmd ::ini::commentchar] [opt char]]
 
+Reads and sets the comment character. Lines that begin with this character are treated as
+comments. When comments are written out each line is preceded by this character. The default
+is [const \;].
 
 [list_end]
 
