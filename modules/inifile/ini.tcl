@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.10 2005/11/18 03:33:24 afaupell Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.11 2006/06/29 23:08:17 afaupell Exp $
 
-package provide inifile 0.1.2
+package provide inifile 0.2
 
 namespace eval ini {
     variable nexthandle; if {![info exists nexthandle]} {set nexthandle 0}
@@ -170,6 +170,16 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
     }
 }
 
+# get and set the ini comment character
+
+proc commentchar { {new {}} } {
+    if {$new != ""} {
+        if {[string length $new] > 1} { error "comment char must be a single character" }
+        ::set ::ini::commentchar $new
+    }
+    return $::ini::commentchar
+}
+
 # return all section names
 
 proc ::ini::sections {fh} {
@@ -217,8 +227,11 @@ proc ::ini::get {fh sec} {
 # return the value of a key
 # error if key or section is nonexistant
 
-proc ::ini::value {fh sec key} {
+proc ::ini::value {fh sec key {default {}}} {
     _valid_ns $fh
+    if {$default != "" && ![info exists ::ini::${fh}::sections($sec)]} {
+        return $default
+    }
     _exists $fh $sec $key
     return [::set ::ini::${fh}::data($sec\000$key)]
 }
@@ -253,22 +266,24 @@ proc ::ini::delete {fh sec {key {}}} {
 # read and set comments for sections and keys
 # may comment nonexistant sections and keys
 
-proc ::ini::comment {fh sec {key {}} args} {
+proc ::ini::comment {fh sec key args} {
     _valid_ns $fh
     upvar 0 ::ini::${fh}::comments comments
-    if { $key == "" && [llength $args] == 0 } {
-        if { $key == "" } {
-            if { ![info exists comments($sec)] } { return {} }
-            return $comments($sec)
-        }
-        if { ![info exists comments($sec\000$key)] } { return {} }
-        return $comments($sec\000$key)
+    ::set r $sec
+    if { $key != "" } { append r \000$key }
+    if { [llength $args] == 0 } {
+        if { ![info exists comments($r)] } { return {} }
+        return $comments($r)
     }
-    if { $key == "" } {
-        eval [linsert $args 0 lappend comments($sec)]
-    } else {
-        eval [linsert $args 0 lappend comments($sec\000$key)]
+    if { [llength $args] == 1 && [lindex $args 0] == "" } {
+        unset -nocomplain comments($r)
+        return {}
     }
+    # take care of any embedded newlines
+    for {::set i 0} {$i < [llength $args]} {incr i} {
+        ::set args [eval [list lreplace $args $i $i] [split [lindex $args $i] \n]]
+    }
+    eval [list lappend comments($r)] $args
 }
 
 # return the physical filename for the handle

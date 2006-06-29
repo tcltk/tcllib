@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if { ![package vsatisfies [package provide Tcl] 8.2] } { return }
-package ifneeded inifile 0.1.2 [list source [file join $dir ini.tcl]]
+package ifneeded inifile 0.2 [list source [file join $dir ini.tcl]]
