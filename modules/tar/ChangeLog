@@ -1,3 +1,7 @@
+2006-29-06  Aaron Faupell  <afaupell@users.sourceforge.net>
+
+	* tar.tcl: fixed bug in parseOpts
+
 2005-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Corrected buggy commit, synchronized version

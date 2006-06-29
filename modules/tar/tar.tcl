@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.7 2005/11/08 17:42:40 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.8 2006/06/29 23:16:30 afaupell Exp $
 
 package provide tar 0.2
 
@@ -23,7 +23,7 @@ proc ::tar::parseOpts {acc opts} {
         set name [string trimleft [lindex $opts $i] -]
         if {![info exists flags($name)]} {return -code error "unknown option \"$name\""}
         if {$flags($name) > 0} {
-            set flags [lrange $opts [expr {$i + 1}] [expr {$i + $flags($name)}]]
+            set $name [lrange $opts [expr {$i + 1}] [expr {$i + $flags($name)}]]
             incr i $flags($name)
         } else {
             set $name 1
