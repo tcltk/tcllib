@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: cksum.tcl,v 1.7 2005/03/12 21:11:01 patthoyts Exp $
+# $Id: cksum.tcl,v 1.8 2006/06/29 23:29:32 afaupell Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -149,7 +149,7 @@ proc ::crc::cksum {args} {
             default {
                 if {[llength $args] == 1} { break }
                 if {[string compare $option "--"] == 0} { Pop args ; break }
-                set err [koin [lsort [array names opts -*]] ", "]
+                set err [join [lsort [array names opts -*]] ", "]
                 return -code error "bad option \"option\": must be $err"
             }
         }
