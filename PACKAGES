@@ -50,7 +50,7 @@ grammar::peg::interp            0.1
 html                            1.3
 htmlparse                       1.1.1
 ident                           0.42
-inifile                         0.2
+inifile                         0.1.1
 ip                              1.1.0
 irc                             0.5
 javascript                      1.0.2
@@ -173,7 +173,6 @@ tie::std::dsource               1.0
 tie::std::file                  1.0.1
 tie::std::log                   1.0
 tie::std::rarray                1.0
-tiff				1.0
 time                            1.2
 treeql                          1.3
 units                           2.1
