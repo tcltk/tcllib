@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.17 2005/12/09 18:27:16 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.18 2006/06/30 18:53:45 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -1117,6 +1117,7 @@ proc ::doctools::Source {ip path file} {
 
 
 proc ::doctools::Locate {p} {
+    # @mdgen NODEP: doctools::__undefined__
     catch {package require doctools::__undefined__}
 
     #puts stderr "auto_path = [join $::auto_path \n]"

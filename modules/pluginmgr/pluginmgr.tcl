@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pluginmgr.tcl,v 1.4 2005/09/28 04:51:23 andreas_kupries Exp $
+# RCS: @(#) $Id: pluginmgr.tcl,v 1.5 2006/06/30 18:53:45 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Description
@@ -127,6 +127,7 @@ snit::type ::pluginmgr {
 		. \\. \ *  {(.*)} \
 		] $options(-pattern)]
 
+	# @mdgen NODEP: bogus-package
 	$sip eval {catch {package require bogus-package}}
 	foreach p [$sip eval {package names}] {
 	    if {![regexp $pattern $p -> plugin]} continue
