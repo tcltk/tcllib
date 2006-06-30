@@ -1,0 +1,66 @@
+[manpage_begin nmea n 0.1]
+[copyright {2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
+[moddesc   {NMEA protocol implementation}]
+[titledesc {}]
+[require Tcl 8.2]
+[require nmea [opt 0.1]]
+[description]
+[para]
+
+This package provides commands to read NMEA standard data from COM ports or files.
+The sentences are optionally checksummed and then passed on to user defined procs
+for handling. To use a handler, create a proc with the NMEA sentence name in the
+::nmea namespace. For example to process GPS fix data use "proc ::nmea::GPGSA". The
+proc must take one argument, which is a list of the data values.
+
+[section COMMANDS]
+[list_begin definitions]
+
+[call [cmd ::nmea::open_port] [arg port] [opt speed]]
+Open the specified COM port and read NMEA sentences when available. Port speed is set to
+4800bps by default or to [arg speed].
+
+[call [cmd ::nmea::open_file] [arg file] [arg rate]]
+Open file [arg file] and read NMEA sentences, one per line, at the rate by [rate] in milliseconds.
+The file format may omit the leading [const \$] and/or the checksum. If rate is <= 0 then lines
+will only be processed when a call to [cmd do_line] is made. The rate may be adjusted by setting
+::nmea::nmea(rate).
+
+[call [cmd ::nmea::configure_port] [arg settings]]
+Changes the current port settings. [arg settings] has the same format as fconfigure -mode.
+
+[call [cmd ::nmea::close_port]]
+Close the open port
+
+[call [cmd ::nmea::close_file]]
+Close the open file
+
+[call [cmd ::nmea::do_line]]
+If there is a currently open file, this command will read and process a single line from it.
+
+[call [cmd ::nmea::log [arg file]]]
+Starts or stops file logging. If a file name is specified then all NMEA output will be logged
+to the file in append mode. If file is an empty string then any logging will be stopped.
+
+[call [cmd ::nmea::checksum] [arg data]]
+Returns the checksum of the supplied data
+
+[call [cmd ::nmea::write] [arg sentence] [arg data]]
+If there is a currently open port, this command will write the specified sentence and data in
+proper NMEA checksummed format.
+
+[list_end]
+
+[section VARIABLES]
+[list_begin definitions]
+
+::nmea::checksum
+A boolean value which determines whether incoming sentences are validated or not.
+
+::nmea::rate
+When reading from a file this sets the rate that lines are processed in milliseconds.
+
+[list_end]
+
+[keywords nmea]
+[manpage_end]
