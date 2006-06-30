@@ -501,6 +501,7 @@ proc ::snit::Comp.Init {} {
 	$compiler eval {
             # Load package information
             # TBD: see if this can be moved outside.
+	    # @mdgen NODEP: ::snit::__does_not_exist__
             catch {package require ::snit::__does_not_exist__}
 
             # Protect some Tcl commands our type definitions
