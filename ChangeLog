@@ -1,3 +1,8 @@
+2006-06-30  Andreas Kupries <andreask@activestate.com>
+
+	* installed_modules.tcl: Changed to a declarative style (more
+	  amenable to automated processing).
+
 2006-06-15  Andreas Kupries <andreask@activestate.com>
 
 	* sak.tcl: Extended to allow the specification of a module M as
