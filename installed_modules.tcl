@@ -76,6 +76,7 @@ Module  md5crypt    _tcl  _man _null
 Module  mime        _tcl  _man _exa
 Module  multiplexer _tcl  _man  _null
 Module  ncgi        _tcl  _man  _null
+Module  nmea        _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
 Module  page         _tcr _man  _null

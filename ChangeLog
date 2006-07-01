@@ -1,3 +1,11 @@
+2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* installed_modules.tcl: Registered new module 'nmea'.
+
+	* PACKAGES: Moved.
+	* support/releases/PACKAGES: New location of PACKAGES.
+	* sak.tcl: Updated to the new location of PACKAGES.
+
 2006-06-30  Andreas Kupries <andreask@activestate.com>
 
 	* installed_modules.tcl: Changed to a declarative style (more
