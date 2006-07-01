@@ -25,8 +25,8 @@ proc critcl_main  {name files} {}
 proc critcl_notes {text} {}
 
 source [file join $distribution package_version.tcl]   ; # Get version information.
-source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
-source [file join $distribution install_action.tcl]    ; # Get code to perform install actions.
+source [file join $distribution support installation modules.tcl] ; # Get list of installed modules.
+source [file join $distribution support installation actions.tcl] ; # Get code to perform install actions.
 
 set package_nv ${package_name}-${package_version}
 set package_name_cap [string toupper [string index $package_name 0]][string range $package_name 1 end]
