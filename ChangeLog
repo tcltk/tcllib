@@ -1,5 +1,11 @@
 2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* main.tcl:                      Moved, and new location
+	* support/installation/main.tcl: of the file.
+
+	* sak.tcl: Updated to the new location (has to be copied to the
+	  topdir now, when generating the starkit/pack distribution).
+
 	* man.macros:                      Moved, and new location
 	* support/installation/man.macros: of the file.
 
