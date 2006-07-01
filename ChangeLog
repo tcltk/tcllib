@@ -1,5 +1,11 @@
 2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* README.developer:  New files to introduce new developers
+	* README.releasemgr: and release managers to Tcllib, the tools
+	  available to support and ease their tasks, the procedures we
+	  have in place, etc. For now they are more or less placeholders,
+	  to be fleshed out with actual content over time.
+
 	* installed_modules.tcl: Registered new module 'nmea'.
 
 	* PACKAGES: Moved.
