@@ -8,8 +8,10 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+package require fileutil
 package require pluginmgr           ; # Generic plugin management framework
-namespace eval ::page::pluginmgr {} ; # Namespace holding our code and data
+
+namespace eval ::page::pluginmgr {}
 
 # ### ### ### ######### ######### #########
 ## API (Public, exported)
@@ -335,8 +337,10 @@ proc ::page::pluginmgr::InitializeReaderIp {p ip} {
 	package provide page::plugin         1.0
 	package provide page::plugin::reader 1.0
     }
-    interp alias $ip puts {} puts
-    interp alias $ip open {} ::page::pluginmgr::AliasOpen $ip
+    interp alias $ip puts  {} puts
+    interp alias $ip open  {} ::page::pluginmgr::AliasOpen $ip
+    interp alias $ip write {} ::page::pluginmgr::WriteFile $ip
+    return
 }
 
 proc ::page::pluginmgr::InitializeWriter {} {
@@ -362,8 +366,10 @@ proc ::page::pluginmgr::InitializeWriterIp {p ip} {
 	package provide page::plugin         1.0
 	package provide page::plugin::writer 1.0
     }
-    interp alias $ip puts {} puts
-    interp alias $ip open {} ::page::pluginmgr::AliasOpen $ip
+    interp alias $ip puts  {} puts
+    interp alias $ip open  {} ::page::pluginmgr::AliasOpen $ip
+    interp alias $ip write {} ::page::pluginmgr::WriteFile $ip
+    return
 }
 
 proc ::page::pluginmgr::InitializeTransform {} {
@@ -390,8 +396,10 @@ proc ::page::pluginmgr::InitializeTransformIp {p ip} {
 	package provide page::plugin            1.0
 	package provide page::plugin::transform 1.0
     }
-    interp alias $ip puts {} puts
-    interp alias $ip open {} ::page::pluginmgr::AliasOpen $ip
+    interp alias $ip puts  {} puts
+    interp alias $ip open  {} ::page::pluginmgr::AliasOpen $ip
+    interp alias $ip write {} ::page::pluginmgr::WriteFile $ip
+    return
 }
 
 proc ::page::pluginmgr::InitializeConfig {} {
@@ -456,6 +464,7 @@ proc ::page::pluginmgr::WriteLocation {loc} {
 	}
     }
     puts -nonewline stderr $text
+    return
 }
 
 proc ::page::pluginmgr::AliasOpen {slave file {acc {}} {perm {}}} {
@@ -510,6 +519,15 @@ proc ::page::pluginmgr::AliasOpen {slave file {acc {}} {perm {}}} {
 }
 
 proc ::page::pluginmgr::Nop {args} {}
+
+proc ::page::pluginmgr::WriteFile {slave file text} {
+    if {[file pathtype $file] ne "relative"} {
+	set file [file join [pwd] [file tail $fail]]
+    }
+    file mkdir [file dirname $file]
+    fileutil::writeFile      $file $text
+    return
+}
 
 # ### ### ### ######### ######### #########
 ## Initialization
