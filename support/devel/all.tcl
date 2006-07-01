@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.31 2006/01/22 00:27:21 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.1 2006/07/01 03:32:56 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -77,7 +77,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 }
 
 set ::tcltest::testSingleFile false
-set ::tcltest::testsDirectory [file dirname [info script]]
+set ::tcltest::testsDirectory [file dirname \
+	[file dirname [file dirname [info script]]]]
 set root $::tcltest::testsDirectory
 
 # We need to ensure that the testsDirectory is absolute
