@@ -1,5 +1,24 @@
 2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* package_rpm.tcl:                  Moved, and new location
+	* support/releases/package_rpm.tcl: of the file.
+
+	* package_yml.tcl:                  Moved, and new location
+	* support/releases/package_yml.tcl: of the file.
+
+	* package_tip55.tcl:                  Moved, and new location
+	* support/releases/package_tip55.tcl: of the file.
+
+	* sak.tcl:       Updated to the new location of
+	* installer.tcl: package_rpm.tcl, package_tip55.tcl,
+	                 package_yml.tcl
+
+	* package_version.tcl:              Moved, and new location
+	* support/installation/version.tcl: of the file.
+
+	* sak.tcl:       Updated to the new location of
+	* installer.tcl: package_version.tcl
+	
 	* install_action.tcl:               Moved, and new location
 	* support/installation/actions.tcl: of the file.
 

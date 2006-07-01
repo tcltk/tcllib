@@ -24,7 +24,7 @@ proc critcl       {name files} {}
 proc critcl_main  {name files} {}
 proc critcl_notes {text} {}
 
-source [file join $distribution package_version.tcl]   ; # Get version information.
+source [file join $distribution support installation version.tcl] ; # Get version information.
 source [file join $distribution support installation modules.tcl] ; # Get list of installed modules.
 source [file join $distribution support installation actions.tcl] ; # Get code to perform install actions.
 
