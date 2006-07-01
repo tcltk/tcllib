@@ -1,3 +1,22 @@
+2006-06-30  Andreas Kupries  <akupries@shaw.ca>
+
+	* compiler_peg_mecpu.tcl: New packages generating ME
+	* gen_peg_mecpu.tcl:      instructions for the CPU(core).
+	* gen_peg_mecpu.template: And page plugins using them.
+	* plugins/pkgIndex.tcl:
+	* plugins/transform_mecpu.tcl:
+	* plugins/writer_mecpu.tcl:
+	* pkgIndex.tcl:
+
+	* pluginmgr.tcl: Extended the page plugin environment with
+	  commands allowing a plugin to write files. Intended for the
+	  debugging of plugins, i.e. the dumping of internal state. The
+	  destination for such files however are restricted to the current
+	  working directory and its sub-directories. Currently only the
+	  MEcpu compiler package has code to use this, to write the
+	  intermediary graphs and some statistics (Disabled through
+	  comments however).
+
 2006-01-11  Andreas Kupries <andreask@activestate.com>
 
 	* util_norm_peg.tcl:           Inserted pragmas for the MDgen
