@@ -494,6 +494,8 @@ proc gd-gen-archives {} {
 
     set sdx [auto_execok sdx]
     if {$sdx != {}} {
+	file copy -force [file join ${package_nv} support installation main.tcl] \
+		[file join ${package_nv} main.tcl]
 	file rename ${package_nv} ${package_name}.vfs
 
 	puts "    Starkit         (${package_nv}.kit)..."
