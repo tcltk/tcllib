@@ -22,6 +22,7 @@ package ifneeded page::reader::treeser 0.1 [list source [file join $dir plugins/
 
 package ifneeded page::writer::null     0.1 [list source [file join $dir plugins/writer_null.tcl]]
 package ifneeded page::writer::me       0.1 [list source [file join $dir plugins/writer_me.tcl]]
+package ifneeded page::writer::mecpu    0.1 [list source [file join $dir plugins/writer_mecpu.tcl]]
 package ifneeded page::writer::tree     0.1 [list source [file join $dir plugins/writer_tree.tcl]]
 package ifneeded page::writer::tpc      0.1 [list source [file join $dir plugins/writer_tpc.tcl]]
 package ifneeded page::writer::hb       0.1 [list source [file join $dir plugins/writer_hb.tcl]]
@@ -36,6 +37,8 @@ package ifneeded page::transform::reachable  0.1 \
 	[list source [file join $dir plugins/transform_reachable.tcl]]
 package ifneeded page::transform::realizable 0.1 \
 	[list source [file join $dir plugins/transform_realizable.tcl]]
+package ifneeded page::transform::mecpu 0.1 \
+	[list source [file join $dir plugins/transform_mecpu.tcl]]
 
 # -- PAGE packages --
 # -- --- Parsing and normalization packages used by the reader plugins.
@@ -59,6 +62,7 @@ package ifneeded page::gen::peg::hb    0.1 [list source [file join $dir gen_peg_
 package ifneeded page::gen::peg::ser   0.1 [list source [file join $dir gen_peg_ser.tcl]]
 package ifneeded page::gen::peg::canon 0.1 [list source [file join $dir gen_peg_canon.tcl]]
 package ifneeded page::gen::peg::me    0.1 [list source [file join $dir gen_peg_me.tcl]]
+package ifneeded page::gen::peg::mecpu 0.1 [list source [file join $dir gen_peg_mecpu.tcl]]
 
 # -- Transformation Helper Packages --
 
@@ -66,6 +70,7 @@ package ifneeded page::analysis::peg::minimize   0.1 [list source [file join $di
 package ifneeded page::analysis::peg::reachable  0.1 [list source [file join $dir analysis_peg_reachable.tcl]]
 package ifneeded page::analysis::peg::realizable 0.1 [list source [file join $dir analysis_peg_realizable.tcl]]
 package ifneeded page::analysis::peg::emodes     0.1 [list source [file join $dir analysis_peg_emodes.tcl]]
+package ifneeded page::compiler::peg::mecpu      0.1 [list source [file join $dir compiler_peg_mecpu.tcl]]
 
 # -- Various other utilities --
 
