@@ -33,7 +33,7 @@ proc critcl_notes {text} {
     return
 }
 
-source [file join $distribution package_version.tcl] ; # Get version information.
+source [file join $distribution support installation version.tcl] ; # Get version information.
 
 set package_nv ${package_name}-${package_version}
 
@@ -756,7 +756,7 @@ proc getpdesc  {} {
 proc gd-gen-rpmspec {} {
     global package_version package_name distribution
 
-    set in  [file join $distribution package_rpm.txt]
+    set in  [file join $distribution support releases package_rpm.txt]
     set out [file join $distribution ${package_name}.spec]
 
     write_out $out [string map \
@@ -773,7 +773,7 @@ proc gd-gen-yml {} {
 
     global package_version package_name distribution
 
-    set in  [file join $distribution package_yml.txt]
+    set in  [file join $distribution support releases package_yml.txt]
     set out [file join $distribution ${package_name}.yml]
 
     write_out $out [string map \
@@ -803,7 +803,7 @@ proc gd-tip55 {} {
     global package_version package_name distribution contributors
     contributors
 
-    set in  [file join $distribution package_tip55.txt]
+    set in  [file join $distribution support releases package_tip55.txt]
     set out [file join $distribution DESCRIPTION.txt]
 
     set md [string map \

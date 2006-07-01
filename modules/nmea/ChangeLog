@@ -1,3 +1,7 @@
+2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* nmea.man: Fixed syntax errors in the documentation.
+
 2006-06-30 Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* New module for handling NMEA protocol
