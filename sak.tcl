@@ -1819,7 +1819,7 @@ proc __test {} {
     puts "Shell is \"[info nameofexecutable]\""
 
     exec [info nameofexecutable] \
-	    [file join $distribution all.tcl] \
+	    [file join $distribution support devel all.tcl] \
 	    -modules $modules \
 	    >@ stdout 2>@ stderr
     return
