@@ -1,5 +1,12 @@
 2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* all.tcl:               Moved, and new location
+	* support/devel/all.tcl: of the file. Also updated to handle the
+	  new location of the distribution relative to all.tcl, to
+	  properly find the testsuites.
+
+	* sak.tcl: Updated to the new location of all.tcl
+
 	* package_rpm.tcl:                  Moved, and new location
 	* support/releases/package_rpm.tcl: of the file.
 
