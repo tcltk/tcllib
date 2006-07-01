@@ -129,8 +129,8 @@ proc dealias {modules} {
 
 proc load_modinfo {} {
     global distribution modules guide
-    source [file join $distribution installed_modules.tcl] ; # Get list of installed modules.
-    source [file join $distribution install_action.tcl]    ; # Get installer support code.
+    source [file join $distribution support installation modules.tcl] ; # Get list of installed modules.
+    source [file join $distribution support installation actions.tcl] ; # Get installer support code.
     proc load_modinfo {} {}
     return
 }

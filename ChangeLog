@@ -1,5 +1,14 @@
 2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* install_action.tcl:               Moved, and new location
+	* support/installation/actions.tcl: of the file.
+
+	* installed_modules.tcl:            Moved, and new location
+	* support/installation/modules.tcl: of the file.
+
+	* sak.tcl:       Updated to the new location of
+	* installer.tcl: install_action.tcl, installed_modules.tcl.
+
 	* README.developer:  New files to introduce new developers
 	* README.releasemgr: and release managers to Tcllib, the tools
 	  available to support and ease their tasks, the procedures we
