@@ -1158,10 +1158,15 @@ proc write_out {f text} {
     close $of
 }
 
+proc location_PACKAGES {} {
+    global distribution
+    return [file join $distribution support releases PACKAGES]
+}
+
 proc gd-gen-packages {} {
     global package_version distribution
 
-    set P [file join $distribution PACKAGES]
+    set P [location_PACKAGES]
     file copy -force $P $P.LAST
     set f [open $P w]
     puts $f "@@ RELEASE $package_version"
@@ -1668,7 +1673,7 @@ proc __rstatus {} {
 	}
 	close $f
     }
-    pkg-compare [file join $distribution PACKAGES]
+    pkg-compare [location_PACKAGES]
     return
 }
 
