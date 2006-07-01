@@ -21,7 +21,7 @@ Open the specified COM port and read NMEA sentences when available. Port speed i
 4800bps by default or to [arg speed].
 
 [call [cmd ::nmea::open_file] [arg file] [arg rate]]
-Open file [arg file] and read NMEA sentences, one per line, at the rate by [rate] in milliseconds.
+Open file [arg file] and read NMEA sentences, one per line, at the rate by [arg rate] in milliseconds.
 The file format may omit the leading [const \$] and/or the checksum. If rate is <= 0 then lines
 will only be processed when a call to [cmd do_line] is made. The rate may be adjusted by setting
 ::nmea::nmea(rate).
@@ -38,7 +38,7 @@ Close the open file
 [call [cmd ::nmea::do_line]]
 If there is a currently open file, this command will read and process a single line from it.
 
-[call [cmd ::nmea::log [arg file]]]
+[call [cmd ::nmea::log] [arg file]]]
 Starts or stops file logging. If a file name is specified then all NMEA output will be logged
 to the file in append mode. If file is an empty string then any logging will be stopped.
 
@@ -54,10 +54,10 @@ proper NMEA checksummed format.
 [section VARIABLES]
 [list_begin definitions]
 
-::nmea::checksum
+[lst_item ::nmea::checksum]
 A boolean value which determines whether incoming sentences are validated or not.
 
-::nmea::rate
+[lst_item ::nmea::rate]
 When reading from a file this sets the rate that lines are processed in milliseconds.
 
 [list_end]
