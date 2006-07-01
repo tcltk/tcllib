@@ -235,7 +235,8 @@ proc doinstall {} {
     }
 
     if {$config(doc,nroff)} {
-	set config(man.macros) [string trim [get_input [file join $distribution man.macros]]]
+	set config(man.macros) [string trim [get_input \
+		[file join $distribution support installation man.macros]]]
     }
     if {$config(pkg)}       {
 	xinstall   pkg $config(pkg,path)
