@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded ncgi 1.3 [list source [file join $dir ncgi.tcl]]
+package ifneeded ncgi 1.3.1 [list source [file join $dir ncgi.tcl]]
