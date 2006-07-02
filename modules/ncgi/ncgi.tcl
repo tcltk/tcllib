@@ -27,7 +27,7 @@
 package require Tcl 8.2
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.3
+package provide ncgi 1.3.1
 
 namespace eval ::ncgi {
 
@@ -327,9 +327,9 @@ proc ::ncgi::nvlist {} {
     set type  [type]
     switch -glob -- $type {
 	"" -
-	text/xml -
-	application/x-www-form-urlencoded -
-	application/x-www-urlencoded {
+	text/xml* -
+	application/x-www-form-urlencoded* -
+	application/x-www-urlencoded* {
 	    set result {}
 
 	    # Any whitespace at the beginning or end of urlencoded data is not
