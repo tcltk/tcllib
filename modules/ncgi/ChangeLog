@@ -1,3 +1,8 @@
+2006-07-02  Michael Schlenker <mic42@users.sourceforge.net>
+        
+	* ncgi.tcl: Fixed [SF Tcllib Bug 547274]. We could further
+	  enhance the value parsing in case a parameter is specified.
+
 2006-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ncgi.test: Fixed use and cleanup of temp. files. Also fixed
