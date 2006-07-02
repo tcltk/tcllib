@@ -27,7 +27,7 @@
 package require Tcl 8.2
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.3.1
+package provide ncgi 1.3.2
 
 namespace eval ::ncgi {
 
@@ -340,10 +340,33 @@ proc ::ncgi::nvlist {} {
 	    foreach {x} [split [string trim $query] &] {
 		# Turns out you might not get an = sign,
 		# especially with <isindex> forms.
-		if {![regexp -- (.*)=(.*) $x dummy varname val]} {
+
+		set pos [string first = $x]
+		set len [string length $x]
+
+		if { $pos>=0 } {
+		    if { $pos == 0 } { # if the = is at the beginning ...
+		        if { $len>1 } { 
+                            # ... and there is something to the right ...
+		            set varname anonymous
+		            set val [string range $x 1 end]]
+		        } else { 
+                            # ... otherwise, all we have is an =
+		            set varname anonymous
+		            set val ""
+		        }
+		    } elseif { $pos==[expr {$len-1}] } { 
+                        # if the = is at the end ...
+		        set varname [string range $x 0 [expr {$pos-1}]]
+			set val ""
+		    } else {
+		        set varname [string range $x 0 [expr {$pos-1}]]
+		        set val [string range $x [expr {$pos+1}] end]
+		    }
+		} else { # no = was found ...
 		    set varname anonymous
 		    set val $x
-		}
+		}		
 		lappend result [decode $varname] [decode $val]
 	    }
 	    return $result
