@@ -1,3 +1,8 @@
+2006-07-02  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* html.tcl : fixed [SF Tcllib Bug 1230699] and updated the tests.
+	  html.test: Removed unused variables leftover from use in tclhttpd.
+	  
 2006-06-28  Michael Schlenker <mic42@users.sourceforge.net>
         
 	* html.tcl (::html::meta): fixed [SF Tcllib Bug 1494597] and
