@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.20 2006/06/28 23:58:51 mic42 Exp $
+# RCS: @(#) $Id: html.test,v 1.21 2006/07/02 20:01:15 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -308,8 +308,18 @@ test html-13.6 {html::textInput} {
     html::init
     ncgi::reset 
     ncgi::parse
-    html::textInput email default@foo.com size=80
-} {<input type="text" name="email" value="default@foo.com" size=80>
+    html::textInput email default@foo.com size="80"
+} {<input type="text" name="email" value="default@foo.com" size="80">
+}
+
+test html-13.7 {html::textInput} {
+    html::init {
+	input.size	30
+    }
+    ncgi::reset
+    ncgi::parse
+    html::textInput email default@foo.com size="80"
+} {<input type="text" name="email" value="default@foo.com" size="80">
 }
 
 test html-14.1 {html::textInputRow} {
