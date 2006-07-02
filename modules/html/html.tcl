@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.3.1
+package provide html 1.3.2
 
 namespace eval ::html {
 
@@ -702,10 +702,9 @@ proc ::html::quoteFormValue {value} {
 #	The html fragment
 
 proc ::html::textInput {name {value {}} args} {
-    variable defaults
     ::set html "<input type=\"text\" "
     append html [formValue $name $value]
-    append html [default input.size]
+    append html [default input.size $args]
     ::if {[llength $args] != 0} then {
 	append html " " [join $args]
     }
@@ -726,7 +725,6 @@ proc ::html::textInput {name {value {}} args} {
 #	The html fragment
 
 proc ::html::textInputRow {label name {value {}} args} {
-    variable defaults
     ::set html [row $label [::eval [linsert $args 0 html::textInput $name $value]]]
     return $html
 }
@@ -743,7 +741,6 @@ proc ::html::textInputRow {label name {value {}} args} {
 #	The html fragment
 
 proc ::html::passwordInputRow {label {name password}} {
-    variable defaults
     ::set html [row $label [passwordInput $name]]
     return $html
 }
@@ -794,7 +791,6 @@ proc ::html::checkbox {name value} {
 
 
 proc ::html::checkValue {name {value 1}} {
-    variable page
     ::foreach v [ncgi::valueList $name] {
 	::if {[string compare $value $v] == 0} {
 	    return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
@@ -867,8 +863,6 @@ proc ::html::checkSet {key sep list} {
 #	The html fragment
 
 proc ::html::select {name param choices {current {}}} {
-    variable page
-
     ::set def [ncgi::valueList $name $current]
     ::set html "<select name=\"$name\"[string trimright  " $param"]>\n"
     ::foreach {label v} $choices {
@@ -1247,7 +1241,6 @@ proc ::html::mailto {email {subject {}}} {
 #	HTML
 
 proc ::html::font {args} {
-    variable defaults
 
     # e.g., font.face, font.size, font.color
     ::set param [tagParam font [join $args]]
@@ -1273,7 +1266,6 @@ proc ::html::font {args} {
 #	html
 
 proc ::html::minorMenu {list {sep { | }}} {
-    global page
     ::set s ""
     ::set html ""
     regsub -- {index.h?tml$} [ncgi::urlStub] {} this
@@ -1307,7 +1299,6 @@ proc ::html::minorMenu {list {sep { | }}} {
 #    or a <ol><li><a...><\li>.....<\ol> fragment
 
 proc ::html::minorList {list {ordered 0}} {
-    global page
     ::set s ""
     ::set html ""
     ::if { $ordered } {
