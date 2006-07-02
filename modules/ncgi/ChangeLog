@@ -1,4 +1,9 @@
 2006-07-02  Michael Schlenker <mic42@users.sourceforge.net>
+	* ncgi.tcl: Applied patch from [SF Tcllib Bug 532774] to
+	  speed up parsing of large values using string functions
+	  instead of regexp.
+	  
+2006-07-02  Michael Schlenker <mic42@users.sourceforge.net>
         
 	* ncgi.tcl: Fixed [SF Tcllib Bug 547274]. We could further
 	  enhance the value parsing in case a parameter is specified.
