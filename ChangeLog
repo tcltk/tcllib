@@ -1,5 +1,16 @@
 2006-07-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* sak.tcl: Removed __help. Replaced with implementation found in
+	  the support tree. See below.
+
+	* support/devel/sak/help/cmd.tcl: New. Implementation of 'help'
+	* support/devel/sak/help/help.tcl: New. Support package for 'help'.
+	* support/devel/sak/help/help.txt: New. Help for 'help'.
+	* support/devel/sak/help/pkgIndex.tcl: New. Index for support package.
+	* support/devel/sak/help/topic.txt: New. Topic definition for 'help'.
+	* support/devel/sak/old/help.txt: New. Help for old commands.
+	* support/devel/sak/old/topic.txt: New. Topic def. for old commands.
+
 	* sak.tcl: Added code to locate command implementations in the
 	  support tree. This allows us to factor the commands out of the
 	  main script, making the internal structure of sak clearer
