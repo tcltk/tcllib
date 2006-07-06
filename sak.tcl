@@ -2732,20 +2732,45 @@ proc __docstrip/regen {} {
 }
 
 # --------------------------------------------------------------
+## Make sak specific packages visible.
 
-set cmd [lindex $argv 0]
-if {[llength [info procs __$cmd]] == 0} {
-    puts stderr "unknown command $cmd"
-    set fl {}
-    foreach p [lsort [info procs __*]] {
-	lappend fl [string range $p 2 end]
-    }
-    puts stderr "use: [join $fl ", "]"
-    exit 1
-}
+lappend auto_path [file join $distribution support devel sak]
 
+# --------------------------------------------------------------
+## Dispatcher to the sak commands.
+
+set  cmd  [lindex $argv 0]
 set  argv [lrange $argv 1 end]
 incr argc -1
+
+# Prefer a command implementation found in the support tree.
+# Then see if the command is implemented here, in this file.
+# At last fail and report possible commands.
+
+set base  [file dirname [info script]]
+set sbase [file join $base support devel sak]
+set cbase [file join $sbase $cmd]
+set cmdf  [file join $cbase cmd.tcl]
+
+if {[file exists $cmdf] && [file readable $cmdf]} {
+    source $cmdf
+    exit 0
+}
+
+if {[llength [info procs __$cmd]] == 0} {
+    puts stderr "$argv0 : Illegal command \"$cmd\""
+    set fl {}
+    foreach p [info procs __*] {
+	lappend fl [string range $p 2 end]
+    }
+    foreach p [glob -nocomplain -directory $sbase */cmd.tcl] {
+	lappend fl [lindex [file split $p] end-1]
+    }
+
+    regsub -all . $argv0 { } blank
+    puts stderr "$blank : Should have been [linsert [join [lsort -uniq $fl] ", "] end-1 or]"
+    exit 1
+}
 
 __$cmd
 exit 0
