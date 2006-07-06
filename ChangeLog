@@ -1,3 +1,10 @@
+2006-07-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Added code to locate command implementations in the
+	  support tree. This allows us to factor the commands out of the
+	  main script, making the internal structure of sak clearer
+	  (through the use of packages).
+
 2006-06-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* main.tcl:                      Moved, and new location
