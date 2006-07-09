@@ -1,3 +1,18 @@
+2006-07-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Removed __nroff and all other documentation commands.
+	* support/devel/sak/old/help.txt: Replaced with a single command
+	  with an implementation found in the support tree. See below.
+
+	* support/devel/sak/doc/cmd.tcl: New. Implementation of 'doc'.
+	* support/devel/sak/doc/doc.tcl: New. Support package for 'doc'.
+	* support/devel/sak/doc/pkgIndex.tcl: New. Index for support package.
+	* support/devel/sak/doc/help.txt: New. Help for 'doc'.
+	* support/devel/sak/doc/topic.txt: New. Topic definition for 'help'.
+
+	* support/devel/sak/util/util.tcl: New. General support package,
+	* support/devel/sak/util/pkgIndex.tcl: and index for it.
+
 2006-07-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Removed __help. Replaced with implementation found in
