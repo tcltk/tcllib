@@ -387,71 +387,6 @@ proc xPackage {cmd args} {
 
 proc sep {} {puts ~~~~~~~~~~~~~~~~~~~~~~~~}
 
-proc gendoc {fmt ext args} {
-    global distribution
-    global tcl_platform
-
-    set null   0
-    set hidden 0
-    if {![string compare $fmt null]} {set null   1}
-    if {![string compare $fmt desc]} {set hidden 1}
-    if {[llength $args] == 0} {set args [modules]}
-
-    if {!$null} {
-	file mkdir [file join doc $fmt]
-    }
-
-    getpackage doctools doctools/doctools.tcl
-
-    set modules [dealias $args]
-    foreach m $modules {
-	::doctools::new dt \
-		-format $fmt \
-		-module $m
-
-	set fl [glob -nocomplain [file join $distribution modules $m *.man]]
-
-	if {[llength $fl] == 0} {
-	    dt destroy
-	    continue
-	}
-
-	foreach f $fl {
-	    if {!$null} {
-                set target [file join doc $fmt \
-                                [file rootname [file tail $f]].$ext]
-                if {[file exists $target] 
-                    && [file mtime $target] > [file mtime $f]} {
-                    continue
-                }
-	    }
-	    if {!$hidden} {puts "Gen ($fmt): $f"}
-
-	    dt configure -file $f
-	    if {$null} {
-		dt configure -deprecated 1
-	    }
-
-	    if {[catch {
-		set data [dt format [get_input $f]]
-	    } msg]} {
-		puts $msg
-		continue
-	    }
-
-	    set warnings [dt warnings]
-	    if {[llength $warnings] > 0} {
-		puts stderr [join $warnings \n]
-	    }
-
-	    if {!$null} {
-		write_out $target $data
-	    }
-	}
-	dt destroy
-    }
-}
-
 proc gd-cleanup {} {
     global package_nv
 
@@ -739,7 +674,8 @@ proc gd-gen-tap {} {
 proc getpdesc  {} {
     global argv ; if {![checkmod]} return
 
-    eval gendoc desc l $argv
+    package require sak::doc
+    sak::doc::Gen desc l $argv
     
     array set _ {}
     foreach file [glob -nocomplain doc/desc/*.l] {
@@ -1079,12 +1015,14 @@ proc validate_doc_existence {} {
 
 
 proc validate_doc_markup_mod {m} {
-    gendoc null null $m
+    package require sak::doc
+    sak::doc::Gen null null [list $m]
     return
 }
 
 proc validate_doc_markup {} {
-    gendoc null null
+    package require sak::doc
+    sak::doc::Gen null null [modules]
     return
 }
 
@@ -1702,18 +1640,8 @@ proc __test {} {
 
 proc checkmod {} {
     global argv
-    set fail 0
-    foreach m [dealias $argv] {
-	if {![modules_mod $m]} {
-	    puts "  Bogus module: $m"
-	    set fail 1
-	}
-    }
-    if {$fail} {
-	puts "  Stop."
-	return 0
-    }
-    return 1
+    package require sak::util
+    return [sak::util::checkModules argv]
 }
 
 # -------------------------------------------------------------------------
@@ -2434,54 +2362,6 @@ proc __approve {} {
 
 # --------------------------------------------------------------
 # Documentation
-
-proc __html  {} {global argv ; if {![checkmod]} return ; eval gendoc html  html $argv}
-proc __nroff {} {global argv ; if {![checkmod]} return ; eval gendoc nroff n    $argv}
-proc __tmml  {} {global argv ; if {![checkmod]} return ; eval gendoc tmml  tmml $argv}
-proc __text  {} {global argv ; if {![checkmod]} return ; eval gendoc text  txt  $argv}
-proc __wiki  {} {global argv ; if {![checkmod]} return ; eval gendoc wiki  wiki $argv}
-proc __latex {} {global argv ; if {![checkmod]} return ; eval gendoc latex tex  $argv}
-proc __dvi   {} {
-    global argv ; if {![checkmod]} return
-    __latex
-    file mkdir [file join doc dvi]
-    cd         [file join doc dvi]
-    foreach f [glob -nocomplain ../latex/*.tex] {
-	puts "Gen (dvi): $f"
-	exec latex $f 1>@ stdout 2>@ stderr
-    }
-    cd ../..
-}
-proc __ps   {} {
-    global argv ; if {![checkmod]} return
-    __dvi
-    file mkdir [file join doc ps]
-    cd         [file join doc ps]
-    foreach f [glob -nocomplain ../dvi/*.dvi] {
-	puts "Gen (dvi): $f"
-	exec dvips -o [file rootname [file tail $f]].ps $f 1>@ stdout 2>@ stderr
-    }
-    cd ../..
-}
-
-proc __list  {} {
-    global argv ; if {![checkmod]} return
-    eval gendoc list l $argv
-    
-    set FILES [glob -nocomplain doc/list/*.l]
-    set LIST [open [file join doc list manpages.tcl] w]
-
-    foreach file $FILES {
-        set f [open $file r]
-        puts $LIST [read $f]
-        close $f
-    }
-    close $LIST
-
-    eval file delete -force $FILES
-
-    return
-}
 
 proc __desc  {} {
     global argv ; if {![checkmod]} return
