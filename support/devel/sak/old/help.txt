@@ -86,16 +86,6 @@
         /Documentation
         /===========================================================
 
-        nroff ?module...?    - Generate manpages
-        html  ?module...?    - Generate HTML pages
-        tmml  ?module...?    - Generate TMML
-        text  ?module...?    - Generate plain text
-        list  ?module...?    - Generate a list of manpages
-        wiki  ?module...?    - Generate wiki markup
-        latex ?module...?    - Generate LaTeX pages
-        dvi   ?module...?    - See latex, + conversion to dvi
-        ps    ?module...?    - See dvi,   + conversion to PostScript
-
         desc  ?module...?    - Module/Package descriptions
         desc/2 ?module...?   - Module/Package descriptions, alternate format.
 
