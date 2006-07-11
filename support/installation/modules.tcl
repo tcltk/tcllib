@@ -97,6 +97,7 @@ Module  soundex     _tcl  _man  _null
 Module  stooop      _tcl  _man  _null
 Module  struct      _tcl  _man _exa
 Module  tar         _tcl  _man  _null
+Module  term        _tcl _man  _exa
 Module  textutil    _tex _man  _null
 Module  tie         _tcl _man  _null
 Module  tiff        _tcl _man  _null
