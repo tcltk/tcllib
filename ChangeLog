@@ -1,3 +1,8 @@
+2006-07-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+	
+	* New module "term". Terminal control.
+	* support/installation/modules.tcl: Registered 'term'.
+
 2006-07-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Removed __nroff and all other documentation commands.
