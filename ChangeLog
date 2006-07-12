@@ -1,3 +1,8 @@
+2006-07-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/installation/modules.tcl: Fixed registration of 'term',
+	  needs recursive install.
+
 2006-07-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* New module "term". Terminal control.
