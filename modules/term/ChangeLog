@@ -1,3 +1,9 @@
+2006-07-18  Andreas Kupries  <andreask@activestate.com>
+
+	* term.man: Added some documentation.
+	* send.man: 
+	* ansi_send.man: 
+
 2006-07-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 	
 	* New module "term". Terminal control.
