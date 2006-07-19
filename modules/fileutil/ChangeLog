@@ -1,3 +1,9 @@
+2006-07-19  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (fileutil::jail): Fixed [Tcllib SF Bug 1525172], by
+	* fileutil.test:                 Ramon Ribo. Accepted the provided
+	                                 solution. Extended the testsuite.
+
 2006-06-16  Andreas Kupries <andreask@activestate.com>
 
 	* fileutil.tcl:  Added commands to compute paths relative to some
