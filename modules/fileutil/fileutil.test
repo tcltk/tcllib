@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.44 2006/06/16 19:33:53 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.45 2006/07/19 16:22:26 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2465,9 +2465,17 @@ test jail-2.1 {jail absolute outside} {
     ::fileutil::jail /var/www /a/b/c
 } /var/www/a/b/c
 
+test jail-2.1.1 {jail absolute outside, spaces} {
+    ::fileutil::jail /var/www {/a/b/c d}
+} {/var/www/a/b/c d}
+
 test jail-2.2 {jail absolute inside} {
     ::fileutil::jail /var/www /var/www/a/b/c
 } /var/www/a/b/c
+
+test jail-2.2.1 {jail absolute inside} {
+    ::fileutil::jail /var/www {/var/www/a/b/c d}
+} {/var/www/a/b/c d}
 
 test jail-2.3 {try to escape from jail} {
     ::fileutil::jail /var/www ../../etc/passwd
@@ -2476,6 +2484,14 @@ test jail-2.3 {try to escape from jail} {
 test jail-2.4 {jail is relative itself} {
     ::fileutil::jail a b
 } [file join $dir a b]
+
+test jail-2.4.1 {jail is relative itself, spaces in path} {
+    ::fileutil::jail a {b c}
+} [file join $dir a {b c}]
+
+test jail-2.4.2 {jail is relative itself, spaces in path} {
+    ::fileutil::jail {a b} {c d}
+} [file join $dir {a b} {c d}]
 
 
 
