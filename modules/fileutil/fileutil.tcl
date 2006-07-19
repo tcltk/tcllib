@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.58 2006/06/16 19:33:53 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.59 2006/07/19 16:22:26 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -562,7 +562,7 @@ proc fileutil::jail {jail filename} {
 	# implicitly. Normalize it lexically! to prevent escapes, then
 	# put the jail in front, use PWD to ensure absoluteness.
 
-	return [eval [linsert [LexNormalize $filename] 0 \
+	return [eval [linsert [file split [LexNormalize $filename]] 0 \
 		file join [pwd] $jail]]
     }
 }
