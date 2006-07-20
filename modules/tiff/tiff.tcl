@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tiff.tcl,v 1.2 2006/02/01 04:27:01 afaupell Exp $
+# RCS: @(#) $Id: tiff.tcl,v 1.3 2006/07/20 07:09:58 afaupell Exp $
 
 package provide tiff 0.1
 
@@ -48,6 +48,32 @@ proc ::tiff::byteOrder {file} {
     return $byteOrder
 }
 
+proc ::tiff::nametotag {names} {
+    variable tiff_sgat
+    set out {}
+    foreach x $names {
+        set y [lindex $x 0]
+        if {[info exists tiff_sgat($y)]} {
+            set y $tiff_sgat($y)
+        } elseif {![string match {[0-9a-f][0-9a-f][0-9a-f][0-9a-f]} $x]} {
+            error "unknown tag $y"
+        }
+        lappend out [lreplace $x 0 0 $y]
+    }
+    return $out
+}
+
+proc ::tiff::tagtoname {tags} {
+    variable tiff_tags
+    set out {}
+    foreach x $tags {
+        set y [lindex $x 0]
+        if {[info exists tiff_tags($y)]} { set y $tiff_tags($y) }
+        lappend out [lreplace $x 0 0 $y]
+    }
+    return $out
+}
+
 proc ::tiff::numImages {file} {
     variable byteOrder
     set fh [openTIFF $file]
@@ -61,7 +87,9 @@ proc ::tiff::dimensions {file {image 0}} {
 }
 
 proc ::tiff::imageInfo {file {image 0}} {
-    return [getEntry $file {0100 0101 0102 0103 0106 010e 0112 011a 011b 0128 0132 013b 013c} $image]
+    return [getEntry $file {ImageWidth ImageLength BitsPerSample Compression \
+          PhotometricInterpretation ImageDescription Orientation XResolution \
+          YResolution ResolutionUnit DateTime Artist HostComputer} $image]
 }
 
 proc ::tiff::entries {file {image 0}} {
@@ -69,8 +97,8 @@ proc ::tiff::entries {file {image 0}} {
     set fh [openTIFF $file]
     set ret {}
     if {[set ifd [lindex [_ifds $fh] $image]] != ""} {
-        seek $fh $ifd 
-        foreach e [_entries $fh] {
+        seek $fh $ifd
+        foreach e [tagtoname [_entries $fh]] {
             lappend ret [lindex $e 0]
         }
     }
@@ -86,9 +114,9 @@ proc ::tiff::getEntry {file entry {image 0}} {
         seek $fh $ifd 
         set ent [_entries $fh]
         foreach e $entry {
-            if {[set x [lsearch -inline $ent "$e *"]] != ""} {
+            if {[set x [lsearch -inline $ent "[nametotag $e] *"]] != ""} {
                 seek $fh [lindex $x 1]
-                eval lappend ret [_getEntry $fh]
+                lappend ret $e [lindex [_getEntry $fh] 1]
             } else {
                 lappend ret $e {}
             }
@@ -107,15 +135,15 @@ proc ::tiff::addEntry {file entry {image 0}} {
         seek $fh [lindex $ifds $i]
         _readifd $fh ifd
         if {$i == $image || $image == "all"} {
-            foreach {tag format value} $entry {
-                set ifd($tag) [_unformat $byteOrder $tag $format $value]
+            foreach e [nametotag $entry] {
+                set ifd($tag) [eval _unformat $byteOrder $e]
             }
         }
         _copyData $fh $new ifd
     }
     close $fh
     close $new
-    #file rename -force $file.tmp $file
+    file rename -force $file.tmp $file
 }
 
 proc ::tiff::deleteEntry {file entry {image 0}} {
@@ -127,13 +155,13 @@ proc ::tiff::deleteEntry {file entry {image 0}} {
         seek $fh [lindex $ifds $i]
         _readifd $fh ifd
         if {$i == $image || $image == "all"} {
-            foreach x $entry { unset -nocomplain ifd($x) }
+            foreach e [nametotag $entry] { unset -nocomplain ifd($e) }
         }
         _copyData $fh $new ifd
     }
     close $fh
     close $new
-    #file rename -force $file.tmp $file
+    file rename -force $file.tmp $file
 }
 
 proc ::tiff::writeImage {image file {entry {}}} {
@@ -177,16 +205,13 @@ proc ::tiff::writeImage {image file {entry {}}} {
     set ifd(0111) [_unformat $byteOrder 0111 4 $offsets]
     
     _writeifd $fh ifd
-    
-    set x 0
-    set y 0
-    for {} {$y < $h} {incr y} {
-        for {} {$x < $w} {incr x} {
+
+    for {set y 0} {$y < $h} {incr y} {
+        for {set x 0} {$x < $w} {incr x} {
             foreach {r g b} [$image get $x $y] {
                 puts -nonewline $fh [_unscan $byteOrder ccc [expr {$r & 0xFF}] [expr {$g & 0xFF}] [expr {$b & 0xFF}]]
             }
         }
-        set x 0
     }
     
     close $fh
@@ -596,14 +621,16 @@ array set ::tiff::tiff_tags {
     02bc XMP
     800d ImageID
     87ac ImageLayer
-    
+
     8649 Photoshop
     8769 ExifIFD
     8773 ICCProfile
 }
 
-foreach {x y} [array get tiff_tags] {
-    set tiff_sgat($y) $x
+if {![info exists ::tiff::tiff_sgat]} {
+    foreach {x y} [array get ::tiff::tiff_tags] {
+        set ::tiff::tiff_sgat($y) $x
+    }
 }
 
 array set ::tiff::data_types {

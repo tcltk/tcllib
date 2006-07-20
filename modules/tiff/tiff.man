@@ -1,5 +1,5 @@
 [manpage_begin tiff n 0.1]
-[copyright {2005, Aaron Faupell <afaupell@users.sourceforge.net>}]
+[copyright {2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {TIFF image manipulation}]
 [titledesc {TIFF reading, writing, and querying and manipulation of meta data}]
 [require Tcl 8.2]
@@ -14,8 +14,8 @@ It is specified at [uri http://partners.adobe.com/public/developer/tiff/index.ht
 [para]
 Multiple images may be stored in a single TIFF file. The [opt image] options to the functions
 in this package are for accessing images other than the first. Data in a TIFF image is
-stored as a series of tags having a numerical value, which are represented in a 4 digit
-hexadecimal format by this package. For a reference on defined tags and their meanings see
+stored as a series of tags having a numerical value, which are represented in either a 4 digit
+hexadecimal format or a string name. For a reference on defined tags and their meanings see
 [uri http://www.awaresystems.be/imaging/tiff/tifftags.html]
 
 [section COMMANDS]
@@ -49,7 +49,7 @@ Throws an error if [arg file] is not a TIFF image.
 
 Returns a dictionary with keys [const ImageWidth], [const ImageLength],
 [const BitsPerSample], [const Compression], [const PhotometricInterpretation],
-[const ImageDescription], [const Orientation], [const XResoultion],
+[const ImageDescription], [const Orientation], [const XResolution],
 [const YResolution], [const ResolutionUnit], [const DateTime], [const Artist],
 and [const HostComputer]. The values are the associated properties of
 the TIFF [opt image] in [arg file]. Values may be empty if the associated tag is not
@@ -63,6 +63,9 @@ present in the file.
     XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
     Artist {} HostComputer {}
 }]
+
+There is nothing special about these tags, this is simply a convience procedure which calls
+[cmd getEntry] with common entries.
 
 Throws an error if [arg file] is not a TIFF image.
 
@@ -135,6 +138,11 @@ to be added to the image may be specified, in the same format as [cmd tiff::addE
 Prints everything we know about the given file in a nice format.
 
 [list_end]
+
+[section VARIABLES]
+
+The mapping of 4 digit tag names to string names uses the array ::tiff::tiff_tags. The reverse
+mapping uses the array ::tiff::tiff_sgat.
 
 [section LIMITATIONS]
 
