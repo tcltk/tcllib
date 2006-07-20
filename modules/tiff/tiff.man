@@ -133,6 +133,17 @@ Writes the contents of the Tk image [arg image] to a tiff file [arg file]. Files
 written in the 24 bit uncompressed format, with big endian byte order. Additional entries
 to be added to the image may be specified, in the same format as [cmd tiff::addEntry]
 
+[call [cmd ::tiff::nametotag] [arg names]]
+
+Returns a list with [arg names] translated from string to 4 digit format. 4 digit names
+in the input are passed through unchanged. Strings without a defined tag name will throw
+an error.
+
+[call [cmd ::tiff::tagtoname] [arg tags]]
+
+Returns a list with [arg tags] translated from 4 digit to string format. If a tag does
+not have a defined name it is passed through unchanged.
+
 [call [cmd ::tiff::debug] [arg file]]
 
 Prints everything we know about the given file in a nice format.
