@@ -1,3 +1,11 @@
+2006-7-20 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* tiff.tcl: added nametotag and tagtoname, some other
+	small changes. Didnt increment version since module
+	hasnt yet appeared in a release
+	* tiff.man: Added variables section and documented
+	new procedures
+
 2006-02-01  Andreas Kupries <andreask@activestate.com>
 
 	* tiff.man: Fixed bad syntax in manpage.
