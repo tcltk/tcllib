@@ -1,3 +1,8 @@
+2006-07-21  Andreas Kupries <andreask@activestate.com>
+
+	* send.man:      Renamed to term_send.man, to avoid
+	* term_send.man: clashing with Tk's 'send' manpage.
+
 2006-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ansi_cattr.man: More documentation.
