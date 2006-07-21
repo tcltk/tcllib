@@ -1,3 +1,13 @@
+2006-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ansi_cattr.man: More documentation.
+	* ansi_cctrl.man:
+	* ansi_cmacros.man:
+	* ansi_code.man:
+	* ansi_send.man: Tweaked
+	* ansi/code/ctrl.tcl: Fixed argument bug
+	* ansi/code/macros.tcl: Fixed argument bug.
+
 2006-07-18  Andreas Kupries  <andreask@activestate.com>
 
 	* term.man: Added some documentation.
