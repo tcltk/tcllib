@@ -14,7 +14,7 @@ namespace eval ::term::ansi::code::macros {}
 # ### ### ### ######### ######### #########
 ## API. Symbolic names.
 
-proc ::term::ansi::code::macros::import {{ns ctrl} args} {
+proc ::term::ansi::code::macros::import {{ns macros} args} {
     if {![llength $args]} {set args *}
     set args ::term::ansi::code::macros::[join $args " ::term::ansi::code::macros::"]
     uplevel 1 [list namespace eval ${ns} [linsert $args 0 namespace import]]
@@ -47,7 +47,8 @@ proc ::term::ansi::code::macros::menu {menu} {
 	}
 	set len [string length $xlabel]
 	if {$len > $max} {set max $len}
-	set _($label) " [string replace $xlabel $pos $pos [cd::sda_bgcyan][string index $xlabel $pos][cd::sda_reset]]"
+	set _($label) " [string replace $xlabel $pos $pos \
+		[cd::sda_fgred][cd::sda_bold][string index $xlabel $pos][cd::sda_reset]]"
     }
 
     append ms [cd::tlc][textutil::repeat::strRepeat [cd::hl] $max][cd::trc]\n
@@ -58,7 +59,7 @@ proc ::term::ansi::code::macros::menu {menu} {
 }
 
 proc ::term::ansi::code::macros::frame {string} {
-    set lines [split [textutil::tabify::tabify2 $string] \n]
+    set lines [split [textutil::tabify::untabify2 $string] \n]
     set max 0
     foreach l $lines {
 	if {[set len [string length $l]] > $max} {set max $len}

@@ -161,57 +161,49 @@ attributes, as provided by the package [package term::ansi::code::attr]. For
 convenience this package also provides additional commands each setting a single
 specific attribute.
 
-[call [cmd ::term::ansi::send::sda_fgblack]]   Black   text.
-[call [cmd ::term::ansi::send::sda_fgred]]     Red     text.
-[call [cmd ::term::ansi::send::sda_fggreen]]   Green   text.
-[call [cmd ::term::ansi::send::sda_fgyellow]]  Yellow  text.
-[call [cmd ::term::ansi::send::sda_fgblue]]    Blue    text.
-[call [cmd ::term::ansi::send::sda_fgmagenta]] Magenta text.
-[call [cmd ::term::ansi::send::sda_fgcyan]]    Cyan    text.
-[call [cmd ::term::ansi::send::sda_fgwhite]]   White   text.
-[call [cmd ::term::ansi::send::sda_fgdefault]] Default (Black) text.
-
-[call [cmd ::term::ansi::send::sda_bgblack]]   Black   background.
-[call [cmd ::term::ansi::send::sda_bgred]]     Red     background.
-[call [cmd ::term::ansi::send::sda_bggreen]]   Green   background.
-[call [cmd ::term::ansi::send::sda_bgyellow]]  Yellow  background.
-[call [cmd ::term::ansi::send::sda_bgblue]]    Blue    background.
-[call [cmd ::term::ansi::send::sda_bgmagenta]] Magenta background.
-[call [cmd ::term::ansi::send::sda_bgcyan]]    Cyan    background.
-[call [cmd ::term::ansi::send::sda_bgwhite]]   White   background.
-[call [cmd ::term::ansi::send::sda_bgdefault]] Default (Transparent) background.
-
-[call [cmd ::term::ansi::send::sda_bold]]      Bold  on.
-[call [cmd ::term::ansi::send::sda_dim]]       Dim	on.
-[call [cmd ::term::ansi::send::sda_italic]]    Italics     on. 
-[call [cmd ::term::ansi::send::sda_underline]] Underscore   on.
-[call [cmd ::term::ansi::send::sda_blink]]     Blink	on.
-[call [cmd ::term::ansi::send::sda_revers]]    Reverse     on. 
-[call [cmd ::term::ansi::send::sda_hidden]]    Hidden	on.
-[call [cmd ::term::ansi::send::sda_strike]]    StrikeThrough	on.
-
-[call [cmd ::term::ansi::send::sda_nobold]]      Bold  off.
-[call [cmd ::term::ansi::send::sda_noitalic]]    Italics      off.
-[call [cmd ::term::ansi::send::sda_nounderline]] Underscore   off.
+[call [cmd ::term::ansi::send::sda_fgblack]]     Set text color to [emph Black].
+[call [cmd ::term::ansi::send::sda_fgred]]       Set text color to [emph Red].
+[call [cmd ::term::ansi::send::sda_fggreen]]     Set text color to [emph Green].
+[call [cmd ::term::ansi::send::sda_fgyellow]]    Set text color to [emph Yellow].
+[call [cmd ::term::ansi::send::sda_fgblue]]      Set text color to [emph Blue].
+[call [cmd ::term::ansi::send::sda_fgmagenta]]   Set text color to [emph Magenta].
+[call [cmd ::term::ansi::send::sda_fgcyan]]      Set text color to [emph Cyan].
+[call [cmd ::term::ansi::send::sda_fgwhite]]     Set text color to [emph White].
+[call [cmd ::term::ansi::send::sda_fgdefault]]   Set default text color ([emph Black]).
+[call [cmd ::term::ansi::send::sda_bgblack]]     Set background to [emph Black].
+[call [cmd ::term::ansi::send::sda_bgred]]       Set background to [emph Red].
+[call [cmd ::term::ansi::send::sda_bggreen]]     Set background to [emph Green].
+[call [cmd ::term::ansi::send::sda_bgyellow]]    Set background to [emph Yellow].
+[call [cmd ::term::ansi::send::sda_bgblue]]      Set background to [emph Blue].
+[call [cmd ::term::ansi::send::sda_bgmagenta]]   Set background to [emph Magenta].
+[call [cmd ::term::ansi::send::sda_bgcyan]]      Set background to [emph Cyan].
+[call [cmd ::term::ansi::send::sda_bgwhite]]     Set background to [emph White].
+[call [cmd ::term::ansi::send::sda_bgdefault]]   Set default background (Transparent).
+[call [cmd ::term::ansi::send::sda_bold]]        Bold on.
+[call [cmd ::term::ansi::send::sda_dim]]         Dim on.
+[call [cmd ::term::ansi::send::sda_italic]]      Italics on.
+[call [cmd ::term::ansi::send::sda_underline]]   Underscore on.
+[call [cmd ::term::ansi::send::sda_blink]]       Blink on.
+[call [cmd ::term::ansi::send::sda_revers]]      Reverse on.
+[call [cmd ::term::ansi::send::sda_hidden]]      Hidden on.
+[call [cmd ::term::ansi::send::sda_strike]]      Strike-through on.
+[call [cmd ::term::ansi::send::sda_nobold]]      Bold off.
+[call [cmd ::term::ansi::send::sda_noitalic]]    Italics off.
+[call [cmd ::term::ansi::send::sda_nounderline]] Underscore off.
 [call [cmd ::term::ansi::send::sda_noblink]]     Blink off.
-[call [cmd ::term::ansi::send::sda_norevers]]    Reverse    off.  
+[call [cmd ::term::ansi::send::sda_norevers]]    Reverse off.
 [call [cmd ::term::ansi::send::sda_nohidden]]    Hidden off.
-[call [cmd ::term::ansi::send::sda_nostrike]]    StrikeThrough off.
-
-[call [cmd ::term::ansi::send::sda_reset]]
-
-Reset all attributes to their defaults.
+[call [cmd ::term::ansi::send::sda_nostrike]]    Strike-through off.
+[call [cmd ::term::ansi::send::sda_reset]]       Reset all attributes to their default values.
 
 [call [cmd ::term::ansi::send::fcp] [arg row] [arg col]]
 
 Force Cursor Position (aka Go To).
 
-[call [cmd ::term::ansi::send::cu] [opt [arg n]]]
-[call [cmd ::term::ansi::send::cd] [opt [arg n]]]
-[call [cmd ::term::ansi::send::cf] [opt [arg n]]]
-[call [cmd ::term::ansi::send::cb] [opt [arg n]]]
-
-Cursor Up, Down, Forward, Backward. [arg n] defaults to 1.
+[call [cmd ::term::ansi::send::cu] [opt [arg n]]] Cursor Up. [arg n] defaults to 1.
+[call [cmd ::term::ansi::send::cd] [opt [arg n]]] Cursor Down. [arg n] defaults to 1.
+[call [cmd ::term::ansi::send::cf] [opt [arg n]]] Cursor Forward. [arg n] defaults to 1.
+[call [cmd ::term::ansi::send::cb] [opt [arg n]]] Cursor Backward. [arg n] defaults to 1.
 
 [call [cmd ::term::ansi::send::ss] [opt "[arg s] [arg e]"]]
 
@@ -227,54 +219,24 @@ Set Key Definition.
 Set the terminal title.
 
 [call [cmd ::term::ansi::send::gron]]
+
+Switch to character/box graphics. I.e. switch to the alternate font.
+
 [call [cmd ::term::ansi::send::groff]]
 
-Switch to and from character/box graphics. I.e. switch between default
-and alternate font.
+Switch to regular characters. I.e. switch to the default font.
 
-[call [cmd ::term::ansi::send::tlc]]
-
-Character graphics, Top    Left  Corner.
-
-[call [cmd ::term::ansi::send::trc]]
-
-Character graphics, Top    Right Corner.
-
-[call [cmd ::term::ansi::send::brc]]
-
-Character graphics, Bottom Right Corner
-
-[call [cmd ::term::ansi::send::blc]]
-
-Character graphics, Bottom Left  Corner
-
-[call [cmd ::term::ansi::send::ltj]]
-
-Character graphics,  Left   T Junction
-
-[call [cmd ::term::ansi::send::ttj]]
-
-Character graphics,  Top    T Junction
-
-[call [cmd ::term::ansi::send::rtj]]
-
-Character graphics,  Right  T Junction
-
-[call [cmd ::term::ansi::send::btj]]
-
-Character graphics,  Bottom T Junction
-
-[call [cmd ::term::ansi::send::fwj]]
-
-Character graphics,  Four-Way Junction
-
-[call [cmd ::term::ansi::send::hl]]
-
-Character graphics,  Horizontal Line
-
-[call [cmd ::term::ansi::send::vl]]
-
-Character graphics,  Vertical   Line
+[call [cmd ::term::ansi::send::tlc]] Character graphics, Top Left Corner.
+[call [cmd ::term::ansi::send::trc]] Character graphics, Top Right Corner.
+[call [cmd ::term::ansi::send::brc]] Character graphics, Bottom Right Corner.
+[call [cmd ::term::ansi::send::blc]] Character graphics, Bottom Left Corner.
+[call [cmd ::term::ansi::send::ltj]] Character graphics, Left T Junction.
+[call [cmd ::term::ansi::send::ttj]] Character graphics, Top T Junction.
+[call [cmd ::term::ansi::send::rtj]] Character graphics, Right T Junction.
+[call [cmd ::term::ansi::send::btj]] Character graphics, Bottom T Junction.
+[call [cmd ::term::ansi::send::fwj]] Character graphics, Four-Way Junction.
+[call [cmd ::term::ansi::send::hl]]  Character graphics, Horizontal Line.
+[call [cmd ::term::ansi::send::vl]]  Character graphics, Vertical Line.
 
 [call [cmd ::term::ansi::send::groptim] [arg str]]
 
