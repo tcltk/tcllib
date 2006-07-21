@@ -37,7 +37,7 @@ snit::type ::transfer::data::source {
     ## Implementation
 
     method type {} {
-	return $type
+	return $xtype
     }
 
     method data {} {
@@ -45,7 +45,7 @@ snit::type ::transfer::data::source {
 	    undefined {
 		return -code error "Data source is undefined"
 	    }
-	    string - channel {
+	    string - chan {
 		return $value
 	    }
 	    variable {
@@ -71,7 +71,7 @@ snit::type ::transfer::data::source {
 		    upvar \#0 $value thevalue
 		    return [string length $thevalue]
 		}
-		channel - file {
+		chan - file {
 		    # Nothing, -1 passes through
 		    # We do not use [file size] for a file, as a
 		    # user-specified encoding may distort the
@@ -97,7 +97,7 @@ snit::type ::transfer::data::source {
 		    return 0
 		}
 	    }
-	    channel {
+	    chan {
 		# Additional check of option ?
 	    }
 	    file {
@@ -109,7 +109,7 @@ snit::type ::transfer::data::source {
 
     method transmit {sock blocksize done} {
 	::transfer::copy::do \
-	    [$self type] [$self data] \
+	    [$self type] [$self data] $sock \
 	    -size      [$self size] \
 	    -blocksize $blocksize \
 	    -command   $done
@@ -121,14 +121,14 @@ snit::type ::transfer::data::source {
 
     onconfigure -string {newvalue} {
 	set etype string
-	set type  string
+	set xtype string
 	set value $newvalue
 	return
     }
 
     onconfigure -variable {newvalue} {
 	set etype variable
-	set type  string
+	set xtype string
 
 	if {![uplevel \#0 {info exists $newvalue}]} {
 	    return -code error "Bad variable \"$newvalue\", does not exist"
@@ -142,8 +142,8 @@ snit::type ::transfer::data::source {
 	if {![llength [file channels $newvalue]]} {
 	    return -code error "Bad channel handle \"$newvalue\", does not exist"
 	}
-	set etype channel
-	set type  channel
+	set etype chan
+	set xtype chan
 	set value $newvalue
 	return
     }
@@ -159,7 +159,7 @@ snit::type ::transfer::data::source {
 	    return -code error "File \"$newvalue\" not a file"
 	}
 	set etype file
-	set type  channel
+	set xtype chan
 	set value $newvalue
 	return
     }
@@ -168,7 +168,7 @@ snit::type ::transfer::data::source {
     ## Data structures
 
     variable etype undefined
-    variable type  undefined
+    variable xtype undefined
     variable value
 
     ##

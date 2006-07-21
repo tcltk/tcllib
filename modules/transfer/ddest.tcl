@@ -32,13 +32,13 @@ snit::type ::transfer::data::destination {
     ## Implementation
 
     method put {chunk} {
-	if {$type eq "file"} {
+	if {$xtype eq "file"} {
 	    set value [open $value w]
-	    set type  channel
+	    set xtype  channel
 	    set close 1
 	}
 
-	switch -exact -- $type {
+	switch -exact -- $xtype {
 	    variable {
 		upvar \#0 $value var
 		append var $chunk
@@ -51,7 +51,7 @@ snit::type ::transfer::data::destination {
     }
 
     method done {} {
-	switch -exact -- $type {
+	switch -exact -- $xtype {
 	    file - variable {}
 	    channel {
 		if {$close} {close $value}
@@ -61,7 +61,7 @@ snit::type ::transfer::data::destination {
 
     method valid {mv} {
 	upvar 1 $mv message
-	switch -exact -- $etype {
+	switch -exact -- $xtype {
 	    undefined {
 		set message "Data destination is undefined"
 		return 0
@@ -75,20 +75,20 @@ snit::type ::transfer::data::destination {
 	set ntransfered 0
 	set old [fconfigure $sock -blocking]
 	fconfigure $sock -blocking 0
-	fileevent readable $sock \
+	fileevent $sock readable \
 		[mymethod Read $sock $old $done]
 	return
     }
 
     method Read {sock oldblock done} {
 	set chunk [read $sock]
-	if {[set l [string length $data]]} {
+	if {[set l [string length $chunk]]} {
 	    $self put $chunk
 	    incr ntransfered $l
 	}
 	if {[eof $sock]} {
 	    $self done
-	    fileevent readable $sock {}
+	    fileevent  $sock readable {}
 	    fconfigure $sock -blocking $oldblock
 
 	    lappend done $ntransfered
@@ -102,7 +102,7 @@ snit::type ::transfer::data::destination {
 
     onconfigure -variable {newvalue} {
 	set etype variable
-	set type  string
+	set xtype string
 
 	if {![uplevel \#0 {info exists $newvalue}]} {
 	    return -code error "Bad variable \"$newvalue\", does not exist"
@@ -116,22 +116,31 @@ snit::type ::transfer::data::destination {
 	if {![llength [file channels $newvalue]]} {
 	    return -code error "Bad channel handle \"$newvalue\", does not exist"
 	}
-	set type  channel
+	set etype channel
+	set xtype channel
 	set value $newvalue
 	return
     }
 
     onconfigure -file {newvalue} {
 	if {![file exists $newvalue]} {
-	    return -code error "File \"$newvalue\" does not exist"
+	    set d [file dirname $newvalue]
+	    if {![file writable $d]} {
+		return -code error "File \"$newvalue\" not creatable"
+	    }
+	    if {![file isdirectory $d]} {
+		return -code error "File \"$newvalue\" not creatable"
+	    }
+	} else {
+	    if {![file writable $newvalue]} {
+		return -code error "File \"$newvalue\" not writable"
+	    }
+	    if {![file isfile $newvalue]} {
+		return -code error "File \"$newvalue\" not a file"
+	    }
 	}
-	if {![file writable $newvalue]} {
-	    return -code error "File \"$newvalue\" not writable"
-	}
-	if {![file isfile $newvalue]} {
-	    return -code error "File \"$newvalue\" not a file"
-	}
-	set type  file
+	set etype channel
+	set xtype file
 	set value $newvalue
 	return
     }
@@ -139,7 +148,8 @@ snit::type ::transfer::data::destination {
     # ### ### ### ######### ######### #########
     ## Data structures
 
-    variable type  undefined
+    variable etype  undefined
+    variable xtype  undefined
     variable value
     variable close 0
 

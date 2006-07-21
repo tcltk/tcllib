@@ -196,7 +196,7 @@ proc ::transfer::copy::HandlerChan {
 	} else {
 	    Run command $transfered \
 		    "Transfer aborted, not\
-		    enough input"]
+		    enough input"
 	}
 	return
     }
