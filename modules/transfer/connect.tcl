@@ -46,7 +46,7 @@ snit::type ::transfer::connect {
 	    uplevel \#0 $command
 	    return
 	} else {
-	    set server [socket -server [mymethod Start] \
+	    set server [socket -server [mymethod Start $command] \
 			    $options(-port)]
 
 	    return [lindex [fconfigure $server -sockname] 2]
@@ -54,7 +54,7 @@ snit::type ::transfer::connect {
 	return
     }
 
-    method Start {sock peerhost peerport} {
+    method Start {command sock peerhost peerport} {
 	close $server
 	$self Setup $sock
 
@@ -65,6 +65,7 @@ snit::type ::transfer::connect {
 
     method Setup {sock} {
 	foreach o {-translation -encoding -eofchar} {
+	    if {$options($o) eq ""} continue
 	    fconfigure $sock $o $options($o)
 	}
 	return

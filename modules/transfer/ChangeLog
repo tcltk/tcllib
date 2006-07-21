@@ -1,3 +1,22 @@
+2006-07-21  Andreas Kupries <andreask@activestate.com>
+
+	* copyops.tcl (::transfer::copy::HandlerChan): Removed superfluous
+	  closing bracket.
+
+	* connect.tcl: Prevent configuration for empty
+	  options. Propagation of callback command into the accept hook.
+
+	* dsource.tcl: instance variable 'type' conflicts with method
+	  argument 'type', fixed. Type 'channel' renamed to 'chan' for
+	  better match to copyops.
+
+	* ddest.tcl: instance variable 'type' conflicts with method
+	  argument 'type', fixed. Various syntax errors (argument swap),
+	  validation of -file fixed.
+
+	* receiver.tcl:    Added missing argument to callback.
+	* transmitter.tcl: Added missing argument to callback.
+
 2006-06-06  Andreas Kupries <andreask@activestate.com>
 
 	* transmitter.tcl: Fixed index/provide version mismatches.

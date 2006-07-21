@@ -84,7 +84,8 @@ snit::type ::transfer::transmitter {
     # ### ### ### ######### ######### #########
     ## Internal helper commands.
 
-    method Begin {sock} {
+    method Begin {__ sock} {
+	# __ <=> conn
 	$source transmit $sock \
 		$options(-blocksize) \
 		[mymethod Done $sock]

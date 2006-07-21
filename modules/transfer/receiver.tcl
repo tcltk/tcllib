@@ -81,7 +81,8 @@ snit::type ::transfer::receiver {
     # ### ### ### ######### ######### #########
     ## Internal helper commands.
 
-    method Begin {sock} {
+    method Begin {__ sock} {
+	# __ == conn
 	$dest receive $sock \
 		[mymethod Done $sock]
 	return
