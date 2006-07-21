@@ -142,7 +142,7 @@ proc ::term::ansi::code::ctrl::INIT {} {
 
     # Scroll Screen (entire display, or between rows start end, inclusive).
 
-    DEFC ss {s e} {
+    DEFC ss {args} {
 	if {[llength $args] == 0} {return [escb r]}
 	if {[llength $args] == 2} {foreach {s e} $args break ; return [escb ${s};${e}r]}
 	return -code error "wrong\#args"
