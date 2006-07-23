@@ -1,3 +1,13 @@
+2006-07-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ansi/ctrlunix.tcl: New file, package. Control operations, unix
+	* ansi_ctrlu.man:    specific, dependent on external commands
+	  (stty, tput). Documentation.
+	* pkgIndex.tcl: New package registered.
+
+	* ansi_cctrl.man:   Fixed typos.
+	* ansi_cmacros.man:
+
 2006-07-21  Andreas Kupries <andreask@activestate.com>
 
 	* send.man:      Renamed to term_send.man, to avoid
