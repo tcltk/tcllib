@@ -1,5 +1,21 @@
 2006-07-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* receive.tcl: New file, package. Basic receiver functionality
+	* receive.man: (getting chars, event listener). Documentation.
+
+	* bind.tcl:      New file, package. Recognition of character
+	* term_bind.man: sequences in the input, execution of
+	  actions. Dispatcher. A 'bind' for character sequences.
+
+	* pkgIndex.tcl: New packages registered.
+
+	* ../../examples/term/menu2: Example for receive and bind.
+
+	* ansi_code.man: Typos.
+	* ansi_send.man:
+	* term.man:
+	* term_send.man:
+
 	* ansi/ctrlunix.tcl: New file, package. Control operations, unix
 	* ansi_ctrlu.man:    specific, dependent on external commands
 	  (stty, tput). Documentation.
