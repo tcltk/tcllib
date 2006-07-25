@@ -43,9 +43,20 @@ below:
 [call [arg object] [method map] [arg str] [arg cmd]]
 
 This method adds an additional mapping from the string [arg str] to
-the action [arg cmd] to the dispatcher.  The mapping will take effect
+the action [arg cmd] to the dispatcher. The mapping will take effect
 immediately should the processor be in a prefix of [arg str], or at
-the next reset operation.
+the next reset operation. The action is a command prefix and will be
+invoked with one argument appended to it, the character sequence
+causing the invokation. It is executed in the global namespace.
+
+
+[call [arg object] [method default] [arg cmd]]
+
+This method defines a default action [arg cmd] which will be invoked
+whenever an unknown character sequence is encountered. The command
+prefix is handled in the same as the regular action defined via
+method [method map].
+
 
 [call [arg object] [method listen] [opt [arg chan]]]
 
@@ -57,10 +68,22 @@ been received, or EOF was reached.
 
 If not specified [arg chan] defaults to [const stdin].
 
+
+[call [arg object] [method unlisten] [opt [arg chan]]]
+
+This methods removes the filevent listener for the channel with handle
+[arg chan].
+
+[nl]
+
+If not specified [arg chan] defaults to [const stdin].
+
+
 [call [arg object] [method reset]]
 
 This method resets the character processor
 to the beginning of the tree.
+
 
 [call [arg object] [method next] [arg char]]
 
@@ -68,11 +91,13 @@ This method causes the character processor to process the character
 [arg c]. This may simply advance the internal state, or invoke an
 associated action for a recognized sequence.
 
+
 [call [arg object] [method process] [arg str]]
 
 This method causes the character processor to process the character
 sequence [arg str], advancing the internal state and invoking action
 as necessary. This is a callback for [method listen].
+
 
 [call [arg object] [method eof]]
 
