@@ -25,6 +25,11 @@ snit::type ::term::receive::bind {
 	return
     }
 
+    method default {cmd} {
+	set default $cmd
+	return
+    }
+
     # ### ### ### ######### ######### #########
     ##
 
@@ -34,10 +39,16 @@ snit::type ::term::receive::bind {
 	return
     }
 
+    method unlisten {{chan stdin}} {
+	::term::receive::unlisten $chan
+	return
+    }
+
     # ### ### ### ######### ######### #########
     ##
 
-    variable state {}
+    variable default {}
+    variable state   {}
 
     method reset {} {
 	set state {}
@@ -53,13 +64,19 @@ snit::type ::term::receive::bind {
     method eof {} {Eof ; return}
 
     proc Next {c} {
-	upvar 1 dfa dfa state state
+	upvar 1 dfa dfa state state default default
 	set key [list $state $c]
 
 	#puts -nonewline stderr "('$state' x '$c')"
 
 	if {![info exists dfa($key)]} {
 	    # Unknown sequence. Reset. Restart.
+	    # Run it through the default action.
+
+	    if {$default ne ""} {
+		uplevel #0 [linsert $default end $state$c]
+	    }
+
 	    #puts stderr =\ RESET
 	    set state {}
 	} else {
@@ -73,7 +90,7 @@ snit::type ::term::receive::bind {
 		# Action, then reset.
 		set state {}
 		#puts stderr " run ($detail)"
-		uplevel #0 $detail
+		uplevel #0 [linsert $detail end $state$c]
 	    } else {
 		return -code error \
 			"Internal error. Bad DFA."
