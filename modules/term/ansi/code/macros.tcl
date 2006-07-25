@@ -5,9 +5,9 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require  textutil::repeat
-package require  textutil::tabify
-package require  term::ansi::code::ctrl
+package require textutil::repeat
+package require textutil::tabify
+package require term::ansi::code::ctrl
 
 namespace eval ::term::ansi::code::macros {}
 
