@@ -435,13 +435,13 @@ The type itself can have [sectref {TYPE METHODS}],
 [sectref PROCS]. 
 
 
-[subsection {What is a snit::widget?}]
+[subsection {What is a snit::widget?, the short story}]
 
 A [cmd snit::widget] is a Tk megawidget built using Snit; it is very
 similar to a [cmd snit::type].  See [sectref WIDGETS].
 
 
-[subsection {What is a snit::widgetadaptor?}]
+[subsection {What is a snit::widgetadaptor?, the short story}]
 
 A [cmd snit::widgetadaptor] uses Snit to wrap an existing widget type
 (e.g., a Tk label), modifying its interface to a lesser or greater
