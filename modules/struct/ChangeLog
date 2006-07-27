@@ -1,3 +1,14 @@
+2006-07-27  Andreas Kupries  <andreask@activestate.com>
+
+	* tree/t.c (t_newnodename): Fixed bug [SF TCllib Bug 1528614],
+	* tree/tn.c (tn_new):       reported by Helmut Giese
+	* tree.testsuite:           <hgiese@users.sourceforge.net>.
+	  Auto-generation of node names was able to generate
+	  duplicates. Now it checks new handles for existence. Also added
+	  a check to the function doing actual node creation to check
+	  again, and panic on duplicates. Extended testsuite with variant
+	  of Helmut's example.
+
 2006-06-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.tcl : Added three new arc commands, 'move', 'move-target',
