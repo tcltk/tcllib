@@ -1616,28 +1616,6 @@ proc pkg-compare {oldplist} {
     return
 }
 
-
-
-proc __test {} {
-    global argv distribution
-    # Run testsuite
-
-    set modules $argv
-    if {[llength $modules] == 0} {
-	set modules [modules]
-    }
-
-    set modules [dealias $modules]
-
-    puts "Shell is \"[info nameofexecutable]\""
-
-    exec [info nameofexecutable] \
-	    [file join $distribution support devel all.tcl] \
-	    -modules $modules \
-	    >@ stdout 2>@ stderr
-    return
-}
-
 proc checkmod {} {
     global argv
     package require sak::util
