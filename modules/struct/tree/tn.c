@@ -22,6 +22,10 @@ tn_new (TPtr t, CONST char* name)
     Tcl_IncrRefCount (n->name);
     tn_shimmer (n->name, n);
 
+    if (Tcl_FindHashEntry (&t->node, name) != NULL) {
+	Tcl_Panic ("struct::tree(c) tn_new - tried to use duplicate name for new node");
+    }
+
     n->he = Tcl_CreateHashEntry(&t->node, name, &new);
     Tcl_SetHashValue (n->he, (ClientData) n);
 

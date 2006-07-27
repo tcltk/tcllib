@@ -380,8 +380,18 @@ t_assign (T* dst, T* src)
 CONST char*
 t_newnodename (T* t)
 {
-    t->counter ++;
-    sprintf (t->handle, "node%d", t->counter);
+    int ok;
+    Tcl_HashEntry* he;
+
+    do {
+	t->counter ++;
+	sprintf (t->handle, "node%d", t->counter);
+
+	/* Check that there is no node using that name already */
+	he = Tcl_FindHashEntry (&t->node, t->handle);
+	ok = (he == NULL);
+    } while (!ok);
+
     return t->handle;
 }
 
