@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.testsuite,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.testsuite,v 1.4 2006/07/27 20:41:45 andreas_kupries Exp $
 
 if {[package vsatisfies [package provide tcltest] 2.0]} {
     # tcltest2.0+ has an API to specify a test constraint
@@ -3838,3 +3838,16 @@ test tree-${impl}-6.12 {attribute search, duplicates beyond tree size} {
     mytree destroy
     set result
 } {0 30 0 30 5 50 0 30 5 50 0 30 5 50 0 30 5 50 0 30 5 50}
+
+############################################################
+
+# deserialization, and the creation of new nodes with automatic names.
+
+test tree-${impl}-7.0 {deserialization & automatic node names} {
+    tree mytree
+    mytree deserialize {root {} {} node1 0 {}}
+    mytree insert root end
+    set result [lsort [mytree nodes]]
+    mytree destroy
+    set result
+} {node1 node2 root}
