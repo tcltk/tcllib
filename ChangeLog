@@ -1,3 +1,13 @@
+2006-07-27  Andreas Kupries  <andreask@activestate.com>
+
+	* sak.tcl: Removed __test. Replaced with a single command
+	* support/devel/sak/test:  with an implementation found in
+	  the support tree. See below.
+
+	* support/devel/sak/test/cmd.tcl:   New. Implementation of 'test'.
+	* support/devel/sak/test/help.txt:  New. Help for 'test'.
+	* support/devel/sak/test/topic.txt: New. Topic definition for 'test'.
+
 2006-07-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/modules.tcl: Fixed registration of 'term',

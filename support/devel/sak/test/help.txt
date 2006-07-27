@@ -1,0 +1,8 @@
+
+    test -- Execute testsuites
+
+    sak test ?MODULE ...?
+
+        Run the testsuites of the specified modules, using the shell
+        running SAK for the testsuites as well. If no modules are
+        specified the testsuites of all modules are run.
