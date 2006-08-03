@@ -34,7 +34,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.9 2006/06/21 09:33:05 mic42 Exp $
+#   $Id: ldap.tcl,v 1.10 2006/08/03 14:30:28 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -42,7 +42,7 @@
 #-----------------------------------------------------------------------------
 
 package require Tcl 8.4
-package provide ldap 1.4
+package provide ldap 1.4.1
 
 
 namespace eval ldap {
@@ -347,7 +347,7 @@ proc ldap::unbind { handle } {
     debugData unbindRequest $request
     puts -nonewline $conn(sock) $request
     flush $conn(sock)
-    set bound 0
+    set conn(bound) 0
 }
 
 
