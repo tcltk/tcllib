@@ -4,7 +4,18 @@
 	compiler and run-time library are implemented in main1.tcl and
 	main1_83.tcl, respectively; the Snit 2.x compiler and run-time
 	are in main2.tcl.  Both loaders load validate.tcl, which contains
-	the new validation types.  This scheme is documented in modules.txt.
+	the new validation types.  This scheme is documented in
+	modules.txt.
+
+	* Bumped the Snit 1.x version number to Snit 1.2, since 
+	Snit 1.1 has been a robust, stable release.
+
+	* snit83.tcl: Removed; obsolete
+	* snit84.tcl: Removed; obsolete
+
+	* snit.test: Added tests for Snit validation types.  These tests 
+	pass for Snit 2.x and for Snit 1.2 with Tcl 8.4.  They *should*
+	pass for Snit 1.2 with Tcl 8.3, but I've been unable to test that.
 	
 
 2006-08-05  Will Duquette <will@wjduquette.com>
