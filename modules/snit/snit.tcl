@@ -31,6 +31,7 @@ if {[package vsatisfies [package provide Tcl] 8.4]} {
     source [file join $::snit::library main1.tcl]
 } else {
     source [file join $::snit::library main1_83.tcl]
+    source [file join $::snit::library snit_tcl83_utils.tcl]
 }
 
 # Load the library of Snit validation types.
