@@ -7713,6 +7713,756 @@ test break-1.3 {Methods called via mymethod "return -code break"} -body {
 } -result {3}
 
 #-----------------------------------------------------------------------
+# snit::boolean
+
+test boolean-1.1 {boolean: valid} -body {
+    snit::boolean validate 1
+    snit::boolean validate 0
+    snit::boolean validate true
+    snit::boolean validate false
+    snit::boolean validate yes
+    snit::boolean validate no
+    snit::boolean validate on
+    snit::boolean validate off
+} -result {}
+
+test boolean-1.2 {boolean: invalid} -body {
+    snit::boolean validate quux
+} -returnCodes {
+    error
+} -result {invalid boolean "quux", should be one of: 1, 0, true, false, yes, no, on, off}
+
+test boolean-1.1 {boolean subtype: valid} -body {
+    snit::boolean subtype
+    subtype validate 1
+    subtype validate 0
+    subtype validate true
+    subtype validate false
+    subtype validate yes
+    subtype validate no
+    subtype validate on
+    subtype validate off
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test boolean-2.2 {boolean subtype: invalid} -body {
+    snit::boolean subtype
+    subtype validate quux
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid boolean "quux", should be one of: 1, 0, true, false, yes, no, on, off}
+
+#-----------------------------------------------------------------------
+# snit::double
+
+test double-1.1 {double: invalid -min} -body {
+    snit::double obj -min abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -min: "abc"}
+
+test double-1.2 {double: invalid -max} -body {
+    snit::double obj -max abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -max: "abc"}
+
+test double-1.3 {double: invalid, max < min} -body {
+    snit::double obj -min 5 -max 0
+} -returnCodes {
+    error
+} -result {Error in constructor: -max < -min}
+
+test double-2.1 {double type: valid} -body {
+    snit::double validate 1.5
+} -result {}
+
+test double-2.2 {double type: invalid} -body {
+    snit::double validate abc
+} -returnCodes {
+    error
+} -result {invalid value "abc", expected double}
+
+test double-3.1 {double subtype: valid, no range} -body {
+    snit::double subtype
+    subtype validate 1.5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test double-3.2 {double subtype: valid, min but no max} -body {
+    snit::double subtype -min 0.5
+    subtype validate 1
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test double-3.3 {double subtype: valid, min and max} -body {
+    snit::double subtype -min 0.5 -max 10.5
+    subtype validate 1.5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test double-4.1 {double subtype: not a number} -body {
+    snit::double subtype
+    subtype validate quux
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "quux", expected double}
+
+test double-4.2 {double subtype: less than min, no max} -body {
+    snit::double subtype -min 0.5
+    subtype validate -1
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "-1", expected double no less than 0.5}
+
+test double-4.3 {double subtype: less than min, with max} -body {
+    snit::double subtype -min 0.5 -max 5.5
+    subtype validate -1
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "-1", expected double in range 0.5, 5.5}
+
+#-----------------------------------------------------------------------
+# snit::enum
+
+test enum-1.1 {enum: valid} -body {
+    snit::enum validate foo
+} -result {}
+
+test enum-2.1 {enum subtype: missing -values} -body {
+    snit::enum subtype
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -values: ""}
+
+test enum-3.1 {enum subtype: valid} -body {
+    snit::enum subtype -values {foo bar baz}
+    subtype validate foo
+    subtype validate bar
+    subtype validate baz
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test enum-3.2 {enum subtype: invalid} -body {
+    snit::enum subtype -values {foo bar baz}
+    subtype validate quux
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "quux", should be one of: foo, bar, baz}
+
+
+#-----------------------------------------------------------------------
+# snit::fpixels
+
+test fpixels-1.1 {no suffix} -constraints tk -body {
+    snit::fpixels validate 5
+} -result {}
+
+test fpixels-1.2 {suffix} -constraints tk -body {
+    snit::fpixels validate 5i
+} -result {}
+
+test fpixels-1.3 {decimal} -constraints tk -body {
+    snit::fpixels validate 5.5
+} -result {}
+
+test fpixels-1.4 {invalid} -constraints tk -body {
+    snit::fpixels validate 5.5abc
+} -returnCodes {
+    error
+} -result {invalid value "5.5abc", expected fpixels}
+
+test fpixels-2.1 {bad -min} -constraints tk -body {
+    snit::fpixels subtype -min abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -min: "abc"}
+
+test fpixels-2.2 {bad -max} -constraints tk -body {
+    snit::fpixels subtype -max abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -max: "abc"}
+
+test fpixels-2.3 {-min > -max} -constraints tk -body {
+    snit::fpixels subtype -min 10 -max 5
+} -returnCodes {
+    error
+} -result {Error in constructor: -max < -min}
+
+test fpixels-3.1 {subtype, no suffix} -constraints tk -body {
+    snit::fpixels subtype
+    subtype validate 5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.2 {suffix} -constraints tk -body {
+    snit::fpixels subtype
+    subtype validate 5i
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.3 {decimal} -constraints tk -body {
+    snit::fpixels subtype
+    subtype validate 5.5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.4 {invalid} -constraints tk -body {
+    snit::fpixels subtype
+    subtype validate 5.5abc
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "5.5abc", expected fpixels}
+
+
+test fpixels-3.5 {subtype -min} -constraints tk -body {
+    snit::fpixels subtype -min 5
+    subtype validate 10
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.6 {min of min, max} -constraints tk -body {
+    snit::fpixels subtype -min 5 -max 20
+    subtype validate 5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.7 {max of min, max} -constraints tk -body {
+    snit::fpixels subtype -min 5 -max 20
+    subtype validate 20
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.8 {middle of min, max} -constraints tk -body {
+    snit::fpixels subtype -min 5 -max 20
+    subtype validate 15
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test fpixels-3.9 {invalid, < min} -constraints tk -body {
+    snit::fpixels subtype -min 5
+    subtype validate 4
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "4", expected fpixels no less than 5}
+
+test fpixels-3.10 {invalid, > max} -constraints tk -body {
+    snit::fpixels subtype -min 5 -max 20
+    subtype validate 21
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "21", expected fpixels in range 5, 20}
+
+test fpixels-3.11 {invalid, > max, range with suffix} -constraints tk -body {
+    snit::fpixels subtype -min 5i -max 10i
+    subtype validate 11i
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "11i", expected fpixels in range 5i, 10i}
+
+#-----------------------------------------------------------------------
+# snit::integer
+
+test integer-1.1 {integer: invalid -min} -body {
+    snit::integer obj -min abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -min: "abc"}
+
+test integer-1.2 {integer: invalid -max} -body {
+    snit::integer obj -max abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -max: "abc"}
+
+test integer-1.3 {integer: invalid, max < min} -body {
+    snit::integer obj -min 5 -max 0
+} -returnCodes {
+    error
+} -result {Error in constructor: -max < -min}
+
+test integer-2.1 {integer type: valid} -body {
+    snit::integer validate 1
+} -result {}
+
+test integer-2.2 {integer type: invalid} -body {
+    snit::integer validate abc
+} -returnCodes {
+    error
+} -result {invalid value "abc", expected integer}
+
+test integer-3.1 {integer subtype: valid, no range} -body {
+    snit::integer subtype
+    subtype validate 1
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test integer-3.2 {integer subtype: valid, min but no max} -body {
+    snit::integer subtype -min 0
+    subtype validate 1
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test integer-3.3 {integer subtype: valid, min and max} -body {
+    snit::integer subtype -min 0 -max 10
+    subtype validate 1
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test integer-4.1 {integer subtype: not a number} -body {
+    snit::integer subtype
+    subtype validate quux
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "quux", expected integer}
+
+test integer-4.2 {integer subtype: less than min, no max} -body {
+    snit::integer subtype -min 0
+    subtype validate -1
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "-1", expected integer no less than 0}
+
+test integer-4.3 {integer subtype: less than min, with max} -body {
+    snit::integer subtype -min 0 -max 5
+    subtype validate -1
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "-1", expected integer in range 0, 5}
+
+#-----------------------------------------------------------------------
+# snit::listtype
+
+test listtype-1.1 {listtype, length 0; valid} -body {
+    snit::listtype validate ""
+} -result {}
+
+test listtype-1.2 {listtype, length 1; valid} -body {
+    snit::listtype validate a
+} -result {}
+
+test listtype-1.3 {listtype, length 2; valid} -body {
+    snit::listtype validate {a b}
+} -result {}
+
+test listtype-2.1 {listtype subtype, length 0; valid} -body {
+    snit::listtype subtype
+    subtype validate ""
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-2.2 {listtype, length 1; valid} -body {
+    snit::listtype subtype
+    subtype validate a
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-2.3 {listtype, length 2; valid} -body {
+    snit::listtype subtype
+    subtype validate {a b}
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-2.4 {listtype, invalid -minlen} -body {
+    snit::listtype subtype -minlen abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -minlen: "abc"}
+
+test listtype-2.5 {listtype, negative -minlen} -body {
+    snit::listtype subtype -minlen -1
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -minlen: "-1"}
+
+test listtype-2.6 {listtype, invalid -maxlen} -body {
+    snit::listtype subtype -maxlen abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -maxlen: "abc"}
+
+test listtype-2.7 {listtype, -maxlen < -minlen} -body {
+    snit::listtype subtype -minlen 10 -maxlen 9
+} -returnCodes {
+    error
+} -result {Error in constructor: -maxlen < -minlen}
+
+test listtype-3.1 {-minlen 2, length 2; valid} -body {
+    snit::listtype subtype -minlen 2 
+    subtype validate {a b}
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-3.2 {-minlen 2, length 3; valid} -body {
+    snit::listtype subtype -minlen 2 
+    subtype validate {a b c}
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-3.3 {-minlen 2, length 1; invalid} -body {
+    snit::listtype subtype -minlen 2 
+    subtype validate a
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {value has too few elements; at least 2 expected}
+
+test listtype-3.4 {range 1 to 3, length 1; valid} -body {
+    snit::listtype subtype -minlen 1 -maxlen 3
+    subtype validate a
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-3.5 {range 1 to 3, length 3; valid} -body {
+    snit::listtype subtype -minlen 1 -maxlen 3
+    subtype validate {a b c}
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-3.6 {range 1 to 3, length 0; invalid} -body {
+    snit::listtype subtype -minlen 1 -maxlen 3
+    subtype validate {}
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {value has too few elements; at least 1 expected}
+
+test listtype-3.7 {range 1 to 3, length 4; invalid} -body {
+    snit::listtype subtype -minlen 1 -maxlen 3
+    subtype validate {a b c d}
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {value has too many elements; no more than 3 expected}
+
+test listtype-4.1 {boolean list, valid} -body {
+    snit::listtype subtype -type snit::boolean
+    subtype validate {yes 1 true}
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test listtype-4.2 {boolean list, invalid} -body {
+    snit::listtype subtype -type snit::boolean
+    subtype validate {yes 1 abc no}
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid boolean "abc", should be one of: 1, 0, true, false, yes, no, on, off}
+
+#-----------------------------------------------------------------------
+# snit::pixels
+
+test pixels-1.1 {no suffix} -constraints tk -body {
+    snit::pixels validate 5
+} -result {}
+
+test pixels-1.2 {suffix} -constraints tk -body {
+    snit::pixels validate 5i
+} -result {}
+
+test pixels-1.3 {decimal} -constraints tk -body {
+    snit::pixels validate 5.5
+} -result {}
+
+test pixels-1.4 {invalid} -constraints tk -body {
+    snit::pixels validate 5.5abc
+} -returnCodes {
+    error
+} -result {invalid value "5.5abc", expected pixels}
+
+test pixels-2.1 {bad -min} -constraints tk -body {
+    snit::pixels subtype -min abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -min: "abc"}
+
+test pixels-2.2 {bad -max} -constraints tk -body {
+    snit::pixels subtype -max abc
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -max: "abc"}
+
+test pixels-2.3 {-min > -max} -constraints tk -body {
+    snit::pixels subtype -min 10 -max 5
+} -returnCodes {
+    error
+} -result {Error in constructor: -max < -min}
+
+test pixels-3.1 {subtype, no suffix} -constraints tk -body {
+    snit::pixels subtype
+    subtype validate 5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.2 {suffix} -constraints tk -body {
+    snit::pixels subtype
+    subtype validate 5i
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.3 {decimal} -constraints tk -body {
+    snit::pixels subtype
+    subtype validate 5.5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.4 {invalid} -constraints tk -body {
+    snit::pixels subtype
+    subtype validate 5.5abc
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "5.5abc", expected pixels}
+
+
+test pixels-3.5 {subtype -min} -constraints tk -body {
+    snit::pixels subtype -min 5
+    subtype validate 10
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.6 {min of min, max} -constraints tk -body {
+    snit::pixels subtype -min 5 -max 20
+    subtype validate 5
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.7 {max of min, max} -constraints tk -body {
+    snit::pixels subtype -min 5 -max 20
+    subtype validate 20
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.8 {middle of min, max} -constraints tk -body {
+    snit::pixels subtype -min 5 -max 20
+    subtype validate 15
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test pixels-3.9 {invalid, < min} -constraints tk -body {
+    snit::pixels subtype -min 5
+    subtype validate 4
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "4", expected pixels no less than 5}
+
+test pixels-3.10 {invalid, > max} -constraints tk -body {
+    snit::pixels subtype -min 5 -max 20
+    subtype validate 21
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "21", expected pixels in range 5, 20}
+
+test pixels-3.11 {invalid, > max, range with suffix} -constraints tk -body {
+    snit::pixels subtype -min 5i -max 10i
+    subtype validate 11i
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "11i", expected pixels in range 5i, 10i}
+
+#-----------------------------------------------------------------------
+# snit::stringtype
+
+test stringtype-1.1 {stringtype, valid string} -body {
+    snit::stringtype validate ""
+} -result {}
+
+test stringtype-2.1 {stringtype subtype: invalid -regexp} -body {
+    snit::stringtype subtype -regexp "\[A-Z"
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -regexp: "[A-Z"}
+
+test stringtype-2.2 {stringtype subtype: invalid -minlen} -body {
+    snit::stringtype subtype -minlen foo
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -minlen: "foo"}
+
+test stringtype-2.3 {stringtype subtype: invalid -maxlen} -body {
+    snit::stringtype subtype -maxlen foo
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -maxlen: "foo"}
+
+test stringtype-2.4 {stringtype subtype: -maxlen < -minlen} -body {
+    snit::stringtype subtype -maxlen 1 -minlen 5
+} -returnCodes {
+    error
+} -result {Error in constructor: -maxlen < -minlen}
+
+test stringtype-2.5 {stringtype subtype: -minlen < 0} -body {
+    snit::stringtype subtype -minlen -1
+} -returnCodes {
+    error
+} -result {Error in constructor: invalid -minlen: "-1"}
+
+test stringtype-2.6 {stringtype subtype: -maxlen < 0} -body {
+    snit::stringtype subtype -maxlen -1
+} -returnCodes {
+    error
+} -result {Error in constructor: -maxlen < -minlen}
+
+test stringtype-3.1 {stringtype subtype: -glob, valid} -body {
+    snit::stringtype subtype -glob "*FOO*"
+    subtype validate 1FOO2
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test stringtype-3.2 {stringtype subtype: -glob, case-insensitive} -body {
+    snit::stringtype subtype -nocase yes -glob "*FOO*"
+    subtype validate 1foo2
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test stringtype-3.3 {stringtype subtype: -glob invalid, case-sensitive} -body {
+    snit::stringtype subtype -glob "*FOO*"
+    subtype validate 1foo2
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "1foo2"}
+
+test stringtype-5.4 {stringtype subtype: -glob invalid, case-insensitive} -body {
+    snit::stringtype subtype -nocase yes -glob "*FOO*"
+    subtype validate bar
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "bar"}
+
+test stringtype-5.5 {stringtype subtype: -regexp valid, case-sensitive} -body {
+    snit::stringtype subtype -regexp {^[A-Z]+$}
+    subtype validate FOO
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test stringtype-5.6 {stringtype subtype: -regexp valid, case-insensitive} -body {
+    snit::stringtype subtype -nocase yes -regexp {^[A-Z]+$}
+    subtype validate foo
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test stringtype-5.7 {stringtype subtype: -regexp invalid, case-sensitive} -body {
+    snit::stringtype subtype -regexp {^[A-Z]+$}
+    subtype validate foo
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "foo"}
+
+test stringtype-5.8 {stringtype subtype: -regexp invalid, case-insensitive} -body {
+    snit::stringtype subtype -nocase yes -regexp {^[A-Z]+$}
+    subtype validate foo1
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value "foo1"}
+
+#-----------------------------------------------------------------------
+# snit::window
+
+test window-1.1 {window: valid} -constraints tk -body {
+    snit::window validate .
+} -result {}
+
+test window-1.2 {window: invalid} -constraints tk -body {
+    snit::window validate .nonesuch
+} -returnCodes {
+    error
+} -result {invalid value ".nonesuch", value is not a window}
+
+test window-2.1 {window subtype: valid} -constraints tk -body {
+    snit::window subtype
+    subtype validate .
+} -cleanup {
+    subtype destroy
+} -result {}
+
+test window-2.2 {window subtype: invalid} -constraints tk -body {
+    snit::window subtype
+    subtype validate .nonesuch
+} -returnCodes {
+    error
+} -cleanup {
+    subtype destroy
+} -result {invalid value ".nonesuch", value is not a window}
+
+#-----------------------------------------------------------------------
 # Bug Fixes
 
 test bug-1.1 {Bug 1161779: destructor can't precede constructor} -body {
