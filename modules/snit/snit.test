@@ -10,10 +10,10 @@
 #	Test cases for snit.tcl.  Uses the ::tcltest:: harness.
 #
 #       If Tcl is 8.5, Snit 2.0 is loaded.
-#       If Tcl is 8.4, Snit 1.1 is loaded.
-#       If Tcl is 8.3, Snit 1.1 is loaded. (Kenneth Green's backport).
+#       If Tcl is 8.4, Snit 1.2 is loaded.
+#       If Tcl is 8.3, Snit 1.2 is loaded. (Kenneth Green's backport).
 #
-#    Tests back-ported to Tcl 8.3 for snit 1.1 backport by kmg
+#    Tests back-ported to Tcl 8.3 for snit 1.2 backport by kmg
 #    Backport of test made general by Andreas Kupries.
 #
 #    The tests assume tcltest 2.2

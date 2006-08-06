@@ -1,3 +1,12 @@
+2006-08-06  Will Duquette <will@wjduquette.com>
+	* Major reorganization of the code modules.  snit.tcl and
+	snit2.tcl are now just short loader scripts.  The Snit 1.x
+	compiler and run-time library are implemented in main1.tcl and
+	main1_83.tcl, respectively; the Snit 2.x compiler and run-time
+	are in main2.tcl.  Both loaders load validate.tcl, which contains
+	the new validation types.  This scheme is documented in modules.txt.
+	
+
 2006-08-05  Will Duquette <will@wjduquette.com>
 	* validate.tcl: New module; defines a number of "validation
 	types".  These will be used with the forthcoming "-type"
