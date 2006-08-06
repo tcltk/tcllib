@@ -9,41 +9,7 @@
 #    Temporary file; validation function for future option
 #    validation.
 #
-# TYPE SPECIFICATION SYNTAX
-#
-#    <typename> ?<option>...?
-#
-# STANDARD OPTIONS
-#
-#    -list {?minlen? ?maxlen?}
-#        A list of items of the specified type.  minlen defaults to 0,
-#        maxlen defaults to INF
-#
 # TYPE SPECIFICATIONS
-#
-#    boolean ?-list ...?
-#        Values are any booleans understood by Tcl, e.g., 1, 0, yes, no,
-#        true, false, on, off.
-#
-#        Example:   boolean
-#
-#    command ?-list ...? -prefix {<command> ?<arg>...?}
-#        <command> and its args are used as a command prefix, to which the
-#        value is appended.  The command is expected to throw an error
-#        if the value is invalid, and return nothing or anything otherwise.
-#
-#    double ?-list...? ?-range {<min> ?<max>?}
-#        The value must be a floating-point number; optionally it 
-#        must be greater than or equal to min, and less than or equal to max.
-#
-#        Example:  double                       Any number
-#                  double -range 0.5            0.5 <= value
-#                  double -range {0.0 1.0}      0.0 <= value <= 1.0
-#    
-#    enum ?-list ...? -values {<value> ...}
-#        The value must belong to the list of <value>s.
-#
-#        Example:   enum -values {red white blue}
 #
 #    fpixels ?-list...? ?-range {<min> ?<max>?}
 #        The value must be a Tk pixel value with an optional unit suffix.
@@ -55,14 +21,6 @@
 #                  fpixels -range 0.5        0.5 <= value
 #                  fpixels -range {0 5.5i}   0 <= value <= 5.5i
 #
-#    int ?-list...? ?-range {<min> ?<max>?}
-#        The value must be an integer; optionally it must be greater than
-#        or equal to min, and less than or equal to max.
-#
-#        Example:  int                       Any integer
-#                  int -range 0              0 <= value
-#                  int -range {0 5}          0 <= value <= 5
-#    
 #    pixels ?-list...? ?-range {<min> ?<max>?}
 #        The value must be a Tk pixel value with an optional unit suffix.
 #        Optionally it must be greater than or equal to min, and less than 
@@ -88,766 +46,700 @@
 
 namespace eval ::snit:: { 
     namespace export \
-        validate     \
-        valcompile
+        boolean \
+        double \
+        enum \
+        fpixels \
+        integer \
+        listtype \
+        pixels \
+        stringtype \
+        window
+}
 
+#-----------------------------------------------------------------------
+# snit::boolean
 
-    # Name the compiler for each validation type.
-    variable valcompilers
+snit::type ::snit::boolean {
+    #-------------------------------------------------------------------
+    # Type Methods
 
-    array set ::snit::valcompilers {
-        boolean ::snit::CompileTypespecBoolean
-        command ::snit::CompileTypespecCommand
-        double  ::snit::CompileTypespecDouble
-        enum    ::snit::CompileTypespecEnum
-        fpixels ::snit::CompileTypespecFpixels
-        int     ::snit::CompileTypespecInt
-        pixels  ::snit::CompileTypespecPixels
-        string  ::snit::CompileTypespecString
-        window  ::snit::CompileTypespecWindow
+    typemethod validate {value} {
+        if {![string is boolean -strict $value]} {
+            return -code error \
+   "invalid boolean \"$value\", should be one of: 1, 0, true, false, yes, no, on, off"
+
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    # None needed; no options
+
+    #-------------------------------------------------------------------
+    # Public Methods
+
+    method validate {value} {
+        $type validate $value
     }
 }
 
-# validate typespec value
-#
-# typespec       A type specification
-# value          The value to validate.
-#
-# Verifies that the value is a valid member of the type defined by the
-# typespec.  If the value is invalid, validate throws an appropriate
-# error message; otherwise, it does nothing.
+#-----------------------------------------------------------------------
+# snit::double
 
-proc ::snit::validate {typespec value} {
-    # FIRST, compile the typespec into a command prefix
-    set cmd [valcompile $typespec]
+snit::type ::snit::double {
+    #-------------------------------------------------------------------
+    # Options
 
-    # NEXT, append the value to be validated.
-    lappend cmd $value
+    # -min value
+    #
+    # Minimum value
 
-    # NEXT, execute it!
-    uplevel \#0 $cmd
+    option -min -default "" -readonly 1
 
-    return
+    # -max value
+    #
+    # Maximum value
+
+    option -max -default "" -readonly 1
+
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    typemethod validate {value} {
+        if {![string is double -strict $value]} {
+            return -code error \
+                "invalid value \"$value\", expected double"
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    constructor {args} {
+        # FIRST, get the options
+        $self configurelist $args
+
+        if {"" != $options(-min) && 
+            ![string is double -strict $options(-min)]} {
+            return -code error \
+                "invalid -min: \"$options(-min)\""
+        }
+
+        if {"" != $options(-max) && 
+            ![string is double -strict $options(-max)]} {
+            return -code error \
+                "invalid -max: \"$options(-max)\""
+        }
+
+        if {"" != $options(-min) &&
+            "" != $options(-max) && 
+            $options(-max) < $options(-min)} {
+            return -code error "-max < -min"
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Public Methods
+
+    method validate {value} {
+        $type validate $value
+
+        if {("" != $options(-min) && $value < $options(-min))       ||
+            ("" != $options(-max) && $value > $options(-max))} {
+
+            set msg "invalid value \"$value\", expected double"
+
+            if {"" != $options(-min) && "" != $options(-max)} {
+                append msg " in range $options(-min), $options(-max)"
+            } elseif {"" != $options(-min)} {
+                append msg " no less than $options(-min)"
+            }
+        
+            return -code error $msg
+        }
+
+        return
+    }
 }
 
-# valcompile typespec
-#
-# typespec       A type specification
-#
-# Given a type specification, returns a command prefix to which values
-# to be validated can be appended.  Throws an error if the type
-# specification is invalid.
+#-----------------------------------------------------------------------
+# snit::enum
 
-proc ::snit::valcompile {typespec} {
-    variable valcompilers
+snit::type ::snit::enum {
+    #-------------------------------------------------------------------
+    # Options
 
-    # FIRST, get the type name from the type spec
-    set typeName [lindex $typespec 0]
-    set allArgs [lrange $typespec 1 end]
+    # -values list
+    #
+    # Valid values for this type
 
-    # NEXT, is it a known type?
-    if {![info exists valcompilers($typeName)]} {
-        return -code error \
-            "unrecognized data type: \"$typeName\""
+    option -values -default {} -readonly 1
+
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    typemethod validate {value} {
+        # No -values specified; it's always valid
+        return
     }
 
-    # NEXT, extract standard options from the beginning of the type 
-    # spec.  Leave the rest of the arguments alone.
-    set typeArgs {}
+    #-------------------------------------------------------------------
+    # Constructor
 
-    array set std {
-        -list    0
-        listMin  0
-        listMax  ""
+    constructor {args} {
+        $self configurelist $args
+
+        if {[llength $options(-values)] == 0} {
+            return -code error \
+                "invalid -values: \"\""
+        }
     }
 
-    while {[llength $allArgs] > 0} {
-        set opt [NextArg allArgs]
+    #-------------------------------------------------------------------
+    # Public Methods
 
-        switch -exact -- $opt {
-            -list {
-                # -list ?{listMin ?listMax?}?
-                set std(-list) 1
+    method validate {value} {
+        if {[lsearch -exact $options(-values) $value] == -1} {
+            return -code error \
+    "invalid value \"$value\", should be one of: [join $options(-values) {, }]"
+        }
+    }
+}
 
-                # NEXT, if the next argument is an option, we're
-                # done here.
-                set arg [lindex $allArgs 0]
+#-----------------------------------------------------------------------
+# snit::fpixels
 
-                if {[string match {-*} $arg]} {
-                    continue
-                }
+snit::type ::snit::fpixels {
+    #-------------------------------------------------------------------
+    # Options
 
-                # NEXT, the next argument is the list bounds.  Validate it.
-                set arglen [llength $arg]
+    # -min value
+    #
+    # Minimum value
 
-                if {$arglen < 1} {
-                    continue
-                }
+    option -min -default "" -readonly 1
 
-                if {$arglen > 2} {
-                    error "invalid -list bounds"
-                }
+    # -max value
+    #
+    # Maximum value
 
-                set std(listMin) [lindex $arg 0]
+    option -max -default "" -readonly 1
 
-                if {![string is integer -strict $std(listMin)] ||
-                    $std(listMin) < 0} {
-                    error "invalid -list bounds"
-                }
+    #-------------------------------------------------------------------
+    # Instance variables
 
-                if {$arglen == 2} {
-                    set std(listMax) [lindex $arg 1]
+    variable min ""  ;# -min, no suffix
+    variable max ""  ;# -max, no suffix
 
-                    if {![string is integer -strict $std(listMax)] ||
-                        $std(listMax) < $std(listMin)} {
-                        error "invalid -list bounds"
-                    }
-                }
+    #-------------------------------------------------------------------
+    # Type Methods
 
-                NextArg allArgs
+    typemethod validate {value} {
+        if {[catch {winfo fpixels . $value} dummy]} {
+            return -code error \
+                "invalid value \"$value\", expected fpixels"
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    constructor {args} {
+        # FIRST, get the options
+        $self configurelist $args
+
+        if {"" != $options(-min) && 
+            [catch {winfo fpixels . $options(-min)} min]} {
+            return -code error \
+                "invalid -min: \"$options(-min)\""
+        }
+
+        if {"" != $options(-max) && 
+            [catch {winfo fpixels . $options(-max)} max]} {
+            return -code error \
+                "invalid -max: \"$options(-max)\""
+        }
+
+        if {"" != $min &&
+            "" != $max && 
+            $max < $min} {
+            return -code error "-max < -min"
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Public Methods
+
+    method validate {value} {
+        $type validate $value
+        
+        set val [winfo fpixels . $value]
+
+        if {("" != $min && $val < $min) ||
+            ("" != $max && $val > $max)} {
+
+            set msg "invalid value \"$value\", expected fpixels"
+
+            if {"" != $min && "" != $max} {
+                append msg " in range $options(-min), $options(-max)"
+            } elseif {"" != $min} {
+                append msg " no less than $options(-min)"
+            }
+        
+            return -code error $msg
+        }
+
+        return
+    }
+}
+
+#-----------------------------------------------------------------------
+# snit::integer
+
+snit::type ::snit::integer {
+    #-------------------------------------------------------------------
+    # Options
+
+    # -min value
+    #
+    # Minimum value
+
+    option -min -default "" -readonly 1
+
+    # -max value
+    #
+    # Maximum value
+
+    option -max -default "" -readonly 1
+
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    typemethod validate {value} {
+        if {![string is integer -strict $value]} {
+            return -code error \
+                "invalid value \"$value\", expected integer"
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    constructor {args} {
+        # FIRST, get the options
+        $self configurelist $args
+
+        if {"" != $options(-min) && 
+            ![string is integer -strict $options(-min)]} {
+            return -code error \
+                "invalid -min: \"$options(-min)\""
+        }
+
+        if {"" != $options(-max) && 
+            ![string is integer -strict $options(-max)]} {
+            return -code error \
+                "invalid -max: \"$options(-max)\""
+        }
+
+        if {"" != $options(-min) &&
+            "" != $options(-max) && 
+            $options(-max) < $options(-min)} {
+            return -code error "-max < -min"
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Public Methods
+
+    method validate {value} {
+        $type validate $value
+
+        if {("" != $options(-min) && $value < $options(-min))       ||
+            ("" != $options(-max) && $value > $options(-max))} {
+
+            set msg "invalid value \"$value\", expected integer"
+
+            if {"" != $options(-min) && "" != $options(-max)} {
+                append msg " in range $options(-min), $options(-max)"
+            } elseif {"" != $options(-min)} {
+                append msg " no less than $options(-min)"
+            }
+        
+            return -code error $msg
+        }
+
+        return
+    }
+}
+
+#-----------------------------------------------------------------------
+# snit::list
+
+snit::type ::snit::listtype {
+    #-------------------------------------------------------------------
+    # Options
+
+    # -type type
+    #
+    # Specifies a value type
+
+    option -type -readonly 1
+
+    # -minlen len
+    #
+    # Minimum list length
+
+    option -minlen -readonly 1 -default 0
+
+    # -maxlen len
+    #
+    # Maximum list length
+
+    option -maxlen -readonly 1
+
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    typemethod validate {value} {
+        if {[catch {llength $value} result]} {
+            return -code error \
+                "invalid value \"$value\", expected list"
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+    
+    constructor {args} {
+        # FIRST, get the options
+        $self configurelist $args
+
+        if {"" != $options(-minlen) && 
+            (![string is integer -strict $options(-minlen)] ||
+             $options(-minlen) < 0)} {
+            return -code error \
+                "invalid -minlen: \"$options(-minlen)\""
+        }
+
+        if {"" == $options(-minlen)} {
+            set options(-minlen) 0
+        }
+
+        if {"" != $options(-maxlen) && 
+            ![string is integer -strict $options(-maxlen)]} {
+            return -code error \
+                "invalid -maxlen: \"$options(-maxlen)\""
+        }
+
+        if {"" != $options(-maxlen) && 
+            $options(-maxlen) < $options(-minlen)} {
+            return -code error "-maxlen < -minlen"
+        }
+    }
+
+
+    #-------------------------------------------------------------------
+    # Methods
+
+    method validate {value} {
+        $type validate $value
+
+        set len [llength $value]
+
+        if {$len < $options(-minlen)} {
+            return -code error \
+              "value has too few elements; at least $options(-minlen) expected"
+        } elseif {"" != $options(-maxlen)} {
+            if {$len > $options(-maxlen)} {
+                return -code error \
+         "value has too many elements; no more than $options(-maxlen) expected"
+            }
+        }
+
+        # NEXT, check each value
+        if {"" != $options(-type)} {
+            foreach item $value {
+                set cmd $options(-type)
+                lappend cmd validate $item
+                uplevel \#0 $cmd
+            }
+        }
+    }
+}
+
+#-----------------------------------------------------------------------
+# snit::pixels
+
+snit::type ::snit::pixels {
+    #-------------------------------------------------------------------
+    # Options
+
+    # -min value
+    #
+    # Minimum value
+
+    option -min -default "" -readonly 1
+
+    # -max value
+    #
+    # Maximum value
+
+    option -max -default "" -readonly 1
+
+    #-------------------------------------------------------------------
+    # Instance variables
+
+    variable min ""  ;# -min, no suffix
+    variable max ""  ;# -max, no suffix
+
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    typemethod validate {value} {
+        if {[catch {winfo pixels . $value} dummy]} {
+            return -code error \
+                "invalid value \"$value\", expected pixels"
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    constructor {args} {
+        # FIRST, get the options
+        $self configurelist $args
+
+        if {"" != $options(-min) && 
+            [catch {winfo pixels . $options(-min)} min]} {
+            return -code error \
+                "invalid -min: \"$options(-min)\""
+        }
+
+        if {"" != $options(-max) && 
+            [catch {winfo pixels . $options(-max)} max]} {
+            return -code error \
+                "invalid -max: \"$options(-max)\""
+        }
+
+        if {"" != $min &&
+            "" != $max && 
+            $max < $min} {
+            return -code error "-max < -min"
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Public Methods
+
+    method validate {value} {
+        $type validate $value
+        
+        set val [winfo pixels . $value]
+
+        if {("" != $min && $val < $min) ||
+            ("" != $max && $val > $max)} {
+
+            set msg "invalid value \"$value\", expected pixels"
+
+            if {"" != $min && "" != $max} {
+                append msg " in range $options(-min), $options(-max)"
+            } elseif {"" != $min} {
+                append msg " no less than $options(-min)"
+            }
+        
+            return -code error $msg
+        }
+
+        return
+    }
+}
+
+#-----------------------------------------------------------------------
+# snit::stringtype
+
+snit::type ::snit::stringtype {
+    #-------------------------------------------------------------------
+    # Options
+
+    # -minlen len
+    #
+    # Minimum list length
+
+    option -minlen -readonly 1 -default 0
+
+    # -maxlen len
+    #
+    # Maximum list length
+
+    option -maxlen -readonly 1
+
+    # -nocase 0|1
+    #
+    # globs and regexps are case-insensitive if -nocase 1.
+
+    option -nocase -readonly 1 -default 0
+
+    # -glob pattern
+    #
+    # Glob-match pattern, or ""
+
+    option -glob -readonly 1
+
+    # -regexp regexp
+    #
+    # Regular expression to match
+    
+    option -regexp -readonly 1
+    
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    typemethod validate {value} {
+        # By default, any string (hence, any Tcl value) is valid.
+        return
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+    
+    constructor {args} {
+        # FIRST, get the options
+        $self configurelist $args
+
+        # NEXT, validate -minlen and -maxlen
+        if {"" != $options(-minlen) && 
+            (![string is integer -strict $options(-minlen)] ||
+             $options(-minlen) < 0)} {
+            return -code error \
+                "invalid -minlen: \"$options(-minlen)\""
+        }
+
+        if {"" == $options(-minlen)} {
+            set options(-minlen) 0
+        }
+
+        if {"" != $options(-maxlen) && 
+            ![string is integer -strict $options(-maxlen)]} {
+            return -code error \
+                "invalid -maxlen: \"$options(-maxlen)\""
+        }
+
+        if {"" != $options(-maxlen) && 
+            $options(-maxlen) < $options(-minlen)} {
+            return -code error "-maxlen < -minlen"
+        }
+
+        # NEXT, validate -nocase
+        if {[catch {snit::boolean validate $options(-nocase)} result]} {
+            return -code error "invalid -nocase: $result"
+        }
+
+        # Validate the glob
+        if {"" != $options(-glob) && 
+            [catch {string match $options(-glob) ""} dummy]} {
+            return -code error \
+                "invalid -glob: \"$options(-glob)\""
+        }
+
+        # Validate the regexp
+        if {"" != $options(-regexp) && 
+            [catch {regexp $options(-regexp) ""} dummy]} {
+            return -code error \
+                "invalid -regexp: \"$options(-regexp)\""
+        }
+    }
+
+
+    #-------------------------------------------------------------------
+    # Methods
+
+    method validate {value} {
+        # Usually we'd call [$type validate $value] here, but
+        # as it's a no-op, don't bother.
+
+        # FIRST, validate the length.
+        set len [string length $value]
+
+        if {$len < $options(-minlen)} {
+            return -code error \
+              "too short: at least $options(-minlen) characters expected"
+        } elseif {"" != $options(-maxlen)} {
+            if {$len > $options(-maxlen)} {
+                return -code error \
+         "too long: no more than $options(-maxlen) characters expected"
+            }
+        }
+
+        # NEXT, check the glob match, with or without case.
+        if {"" != $options(-glob)} {
+            if {$options(-nocase)} {
+                set result [string match -nocase $options(-glob) $value]
+            } else {
+                set result [string match $options(-glob) $value]
             }
             
-            default {
-                lappend typeArgs $opt
-            }
-        }
-    }
-
-    # NEXT, compile the remainder of the typespec.
-    set validator [$valcompilers($typeName) $typeArgs]
-
-    # NEXT, if it's a list compile it as a list.
-    if {$std(-list)} {
-        set validator [list \
-                           ::snit::TypespecList \
-                           $std(listMin) \
-                           $std(listMax) \
-                           $validator]
-    }
-
-    # NEXT, return the compiled validator
-    return $validator
-}
-
-proc ::snit::NextArg {listvar} {
-    upvar $listvar theList
-
-    set arg [lindex $theList 0]
-    set theList [lrange $theList 1 end]
-
-    return $arg
-}
-
-#-----------------------------------------------------------------------
-# <type> -list ?{minlen ?maxlen?}?
-
-# TypespecList minlen maxlen validator value
-#
-# minlen      Minimum list length, or 0.
-# maxlen      Maximum list length, or "".
-# validator   A command to validate the list elements.
-# value       The value to validate.
-
-proc ::snit::TypespecList {minlen maxlen validator value} {
-    # FIRST, It's a list; check the bounds
-    set valueLen [llength $value]
-
-    if {$valueLen < $minlen} {
-        return -code error \
-            "value has too few elements; at least $minlen expected"
-    } elseif {$maxlen ne ""} {
-        if {$valueLen > $maxlen} {
-            return -code error \
-                "value has too many elements; no more than $maxlen expected"
-        }
-    }
-
-    # NEXT, check each value
-    foreach item $value {
-        set cmd $validator
-        lappend cmd $item
-        uplevel \#0 $cmd
-    }
-}
-
-#-----------------------------------------------------------------------
-# boolean ?-list ...?
-
-# CompileTypespecBoolean typeArgs
-#
-# typeArgs      Type arguments (should be empty)
-#
-# Compiles a boolean validator
-
-proc snit::CompileTypespecBoolean {typeArgs} {
-    if {[llength $typeArgs] != 0} {
-        return -code error \
-            "unexpected typespec option: \"[lindex $typeArgs 0]\""
-    }
-
-    return [list ::snit::TypespecBoolean]
-}
-
-# TypespecBoolean value
-#
-# value     The value to be validated.
-#
-# Validates boolean values.  
-
-proc ::snit::TypespecBoolean {value} {
-    if {![string is boolean -strict $value]} {
-        return -code error \
-            "invalid boolean \"$value\", should be one of: 1, 0, true, false, yes, no, on, off"
-    }
-
-    return
-}
-
-#-----------------------------------------------------------------------
-#    command ?-list ...? -prefix {<command> ?<arg>...?}
-
-# CompileTypespecCommand typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles a command typespec
-
-proc ::snit::CompileTypespecCommand {typeArgs} {
-    set prefix ""
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -prefix {
-                set prefix [NextArg typeArgs]
-            }
-
-            default {
+            if {!$result} {
                 return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
+                    "invalid value \"$value\""
             }
-        }
-    }
-
-    if {[llength $prefix] == 0} {
-        return -code error \
-            "invalid -prefix: \"\""
-    }
-
-    return [list ::snit::TypespecCommand $prefix]
-}
-
-# TypespecCommand prefix value
-#
-# prefix   The command prefix
-# value    The value to be validated.
-#
-# Validates values using a passed in command prefix
-
-proc ::snit::TypespecCommand {prefix value} {
-    lappend prefix $value
-
-    if {[catch {uplevel \#0 $prefix} result]} {
-        return -code error $result
-    }
-
-    return
-}
-
-#-----------------------------------------------------------------------
-# double ?-list...? -range ?{min ?max?}?
-
-# CompileTypespecDouble typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles a double typespec
-
-proc ::snit::CompileTypespecDouble {typeArgs} {
-    set range ""
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -range {
-                set range [NextArg typeArgs]
-            }
-
-            default {
-                return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
-            }
-        }
-    }
-
-
-    set min [lindex $range 0]
-    set max [lindex $range 1]
-
-    if {[llength $range] > 2 ||
-        ($min ne "" && ![string is double -strict $min]) ||
-        ($max ne "" && ![string is double -strict $max]) ||
-        ($min ne "" && $max ne "" && $max < $min)} {
-        return -code error \
-            "invalid -range: \"$range\""
-    }
-
-    
-
-    return [list ::snit::TypespecDouble $min $max]
-    
-}
-
-# TypespecDouble min max value
-#
-# min        The minimum value, or ""
-# max        The maximum value, or ""
-# value      The value to validate
-#
-# Validates a double value, and optionally checks its range.
-
-proc ::snit::TypespecDouble {min max value} {
-    if {![string is double -strict $value] ||
-        ($min ne "" && $value < $min)       ||
-        ($max ne "" && $value > $max)} {
-
-        set msg "invalid value \"$value\", expected double"
-
-        if {$min ne "" && $max ne ""} {
-            append msg " in range $min, $max"
-        } elseif {$min ne ""} {
-            append msg " no less than $min"
         }
         
-        return -code error $msg
+        # NEXT, check regexp match with or without case
+        if {"" != $options(-regexp)} {
+            if {$options(-nocase)} {
+                set result [regexp -nocase -- $options(-regexp) $value]
+            } else {
+                set result [regexp -- $options(-regexp) $value]
+            }
+            
+            if {!$result} {
+                return -code error \
+                    "invalid value \"$value\""
+            }
+        }
     }
-
-    return
 }
 
 #-----------------------------------------------------------------------
-# enum ?-list ...? -values {<value>....}
+# snit::window
 
-# CompileTypespecEnum typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles an enum typespec
+snit::type ::snit::window {
+    #-------------------------------------------------------------------
+    # Type Methods
 
-proc ::snit::CompileTypespecEnum {typeArgs} {
-    set values ""
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -values {
-                set values [NextArg typeArgs]
-            }
-
-            default {
-                return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
-            }
-        }
-    }
-
-    if {[llength $values] == 0} {
-        return -code error \
-            "invalid -values: \"\""
-    }
-
-    return [list ::snit::TypespecEnum $values]
-}
-
-# TypespecEnum values value
-#
-# typeArgs  Type arguments (unused)
-# value     The value to be validated.
-#
-# Validates values using an enumerated list
-
-proc ::snit::TypespecEnum {values value} {
-    if {[lsearch -exact $values $value] == -1} {
-        return -code error \
-            "invalid value \"$value\", should be one of: [join $values {, }]"
-    }
-
-    return
-}
-
-#-----------------------------------------------------------------------
-# fpixels ?-list...? ?-range {<min> ?<max>?}
-
-# CompileTypespecFpixels typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles a pixel typespec
-
-proc ::snit::CompileTypespecFpixels {typeArgs} {
-    set range ""
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -range {
-                set range [NextArg typeArgs]
-            }
-
-            default {
-                return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
-            }
-        }
-    }
-
-    set min [lindex $range 0]
-    set max [lindex $range 1]
-
-    if {[llength $range] > 2 ||
-        ($min ne "" && [catch {winfo fpixels . $min} min]) ||
-        ($max ne "" && [catch {winfo fpixels . $max} max]) ||
-        ($min ne "" && $max ne "" && $max < $min)} {
-        return -code error \
-            "invalid -range: \"$range\""
-    }
-
-    return [list ::snit::TypespecFpixels $min $max]
-}
-
-# TypespecFpixels min max value
-#
-# min        The minimum value, or ""
-# max        The maximum value, or ""
-# value      The value to validate
-#
-# Validates a pixel value, and optionally checks its range.
-
-proc ::snit::TypespecFpixels {min max value} {
-    if {[catch {winfo fpixels . $value} dummy] ||
-        ($min ne "" && $value < $min)       ||
-        ($max ne "" && $value > $max)} {
-
-        set msg "invalid value \"$value\", expected fpixels"
-
-        if {$min ne "" && $max ne ""} {
-            append msg " in range $min, $max"
-        } elseif {$min ne ""} {
-            append msg " no less than $min"
-        }
-        
-        return -code error $msg
-    }
-
-    return
-}
-
-#-----------------------------------------------------------------------
-# int ?-list...? ?-range {<min> ?<max>?}
-
-# CompileTypespecInt typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles an int typespec
-
-proc ::snit::CompileTypespecInt {typeArgs} {
-    set range ""
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -range {
-                set range [NextArg typeArgs]
-            }
-
-            default {
-                return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
-            }
-        }
-    }
-
-
-    set min [lindex $range 0]
-    set max [lindex $range 1]
-
-    if {[llength $range] > 2 ||
-        ($min ne "" && ![string is integer -strict $min]) ||
-        ($max ne "" && ![string is integer -strict $max]) ||
-        ($min ne "" && $max ne "" && $max < $min)} {
-        return -code error \
-            "invalid -range: \"$range\""
-    }
-
-    return [list ::snit::TypespecInt $min $max]
-}
-
-# TypespecInt min max value
-#
-# min        The minimum value, or ""
-# max        The maximum value, or ""
-# value      The value to validate
-#
-# Validates an integer value, and optionally checks its range.
-
-proc ::snit::TypespecInt {min max value} {
-    if {![string is integer -strict $value] ||
-        ($min ne "" && $value < $min)       ||
-        ($max ne "" && $value > $max)} {
-
-        set msg "invalid value \"$value\", expected integer"
-
-        if {$min ne "" && $max ne ""} {
-            append msg " in range $min, $max"
-        } elseif {$min ne ""} {
-            append msg " no less than $min"
-        }
-        
-        return -code error $msg
-    }
-
-    return
-}
-
-#-----------------------------------------------------------------------
-# pixels ?-list...? ?-range {<min> ?<max>?}
-
-# CompileTypespecPixels typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles a pixel typespec
-
-proc ::snit::CompileTypespecPixels {typeArgs} {
-    set range ""
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -range {
-                set range [NextArg typeArgs]
-            }
-
-            default {
-                return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
-            }
-        }
-    }
-
-    set min [lindex $range 0]
-    set max [lindex $range 1]
-
-    if {[llength $range] > 2 ||
-        ($min ne "" && [catch {winfo pixels . $min} min]) ||
-        ($max ne "" && [catch {winfo pixels . $max} max]) ||
-        ($min ne "" && $max ne "" && $max < $min)} {
-        return -code error \
-            "invalid -range: \"$range\""
-    }
-
-    return [list ::snit::TypespecPixels $min $max]
-}
-
-# TypespecPixels min max value
-#
-# min        The minimum value, or ""
-# max        The maximum value, or ""
-# value      The value to validate
-#
-# Validates a pixel value, and optionally checks its range.
-
-proc ::snit::TypespecPixels {min max value} {
-    if {[catch {winfo pixels . $value} dummy] ||
-        ($min ne "" && $value < $min)       ||
-        ($max ne "" && $value > $max)} {
-
-        set msg "invalid value \"$value\", expected pixels"
-
-        if {$min ne "" && $max ne ""} {
-            append msg " in range $min, $max"
-        } elseif {$min ne ""} {
-            append msg " no less than $min"
-        }
-        
-        return -code error $msg
-    }
-
-    return
-}
-
-#-----------------------------------------------------------------------
-# string ?-list...? ?-nocase? ?-length {minlen ?maxlen?}? 
-#        ?-glob <pattern>? ?-regexp <regexp>?
-#       
-# CompileTypespecString typeArgs
-#
-# typeArgs  Type arguments
-#
-# Compiles a string typespec
-
-proc ::snit::CompileTypespecString {typeArgs} {
-    set nocase 0
-    set length {}
-    set glob {}
-    set regexp {}
-
-    while {[llength $typeArgs] > 0} {
-        set opt [NextArg typeArgs]
-
-        switch -exact -- $opt {
-            -nocase {
-                set nocase 1
-            }
-
-            -length {
-                set length [NextArg typeArgs]
-            }
-
-            -glob {
-                set glob [NextArg typeArgs]
-            }
-
-            -regexp {
-                set regexp [NextArg typeArgs]
-            }
-
-            default {
-                return -code error \
-                    "unexpected typespec option: \"[list $opt]\""
-                
-            }
-        }
-    }
-
-    # Validate the length bounds
-    set minlen [lindex $length 0]
-    set maxlen [lindex $length 1]
-
-    if {[llength $length] > 2 ||
-        ($minlen ne "" && ![string is integer -strict $minlen]) ||
-        ($maxlen ne "" && ![string is integer -strict $maxlen]) ||
-        ($minlen ne "" && $maxlen ne "" && $maxlen < $minlen)} {
-        return -code error \
-            "invalid -length: \"$length\""
-    }
-
-    if {$minlen eq ""} {
-        set minlen 0
-    }
-
-    # Validate the glob
-    if {$glob ne "" && [catch {string match $glob ""} dummy]} {
-        return -code error \
-            "invalid -glob: \"$glob\""
-    }
-
-    # Validate the regexp
-    if {$regexp ne "" && [catch {regexp $regexp ""} dummy]} {
-        return -code error \
-            "invalid -regexp: \"$regexp\""
-    }
-
-    
-    return [list ::snit::TypespecString $minlen $maxlen $nocase $glob $regexp]
-}
-
-# TypespecString minlen maxlen nocase glob regexp value
-#
-# minlen    Minimum string length, or 0
-# maxlen    Maximum string length, or ""
-# nocase    1 if case-insensitive, 0 otherwise
-# glob      The glob pattern, or ""
-# regexp    The regular expression, or ""
-# value     The value to be validated
-#
-# Validates a string, checking that it matches the constraints
-
-proc ::snit::TypespecString {minlen maxlen nocase glob regexp value} {
-    # FIRST, Check the length
-    set len [string length $value]
-
-    if {$len < $minlen} {
-        return -code error \
-            "too short: at least $minlen characters expected"
-    } elseif {$maxlen ne ""} {
-        if {$len > $maxlen} {
+    typemethod validate {value} {
+        if {![winfo exists $value]} {
             return -code error \
-                "too long: no more than $maxlen characters expected"
+                "invalid value \"$value\", value is not a window"
         }
+
+        return
     }
 
-    # NEXT, check glob match with or without case
-    if {$glob ne ""} {
-        if {$nocase} {
-            set result [string match -nocase $glob $value]
-        } else {
-            set result [string match $glob $value]
-        }
+    #-------------------------------------------------------------------
+    # Constructor
 
-        if {!$result} {
-            return -code error \
-                "invalid value \"$value\""
-        }
-    }
+    # None needed; no options
 
-    # NEXT, check regexp match with or without case
-    if {$regexp ne ""} {
-        if {$nocase} {
-            set result [regexp -nocase -- $regexp $value]
-        } else {
-            set result [regexp -- $regexp $value]
-        }
+    #-------------------------------------------------------------------
+    # Public Methods
 
-        if {!$result} {
-            return -code error \
-                "invalid value \"$value\""
-        }
+    method validate {value} {
+        $type validate $value
     }
 }
-
-#-----------------------------------------------------------------------
-# window ?-list ...?
-
-# CompileTypespecWindow typeArgs
-#
-# typeArgs      Type arguments (should be empty)
-#
-# Compiles a window validator
-
-proc snit::CompileTypespecWindow {typeArgs} {
-    if {[llength $typeArgs] != 0} {
-        return -code error \
-            "unexpected typespec option: \"[lindex $typeArgs 0]\""
-    }
-
-    return [list ::snit::TypespecWindow]
-}
-
-# TypespecWindow value
-#
-# value     The value to be validated.
-#
-# Validates Tk window names as belonging to existing windows.
-
-proc ::snit::TypespecWindow {value} {
-    if {![winfo exists $value]} {
-        return -code error \
-            "invalid value \"$value\", value is not a window"
-    }
-}
-
 

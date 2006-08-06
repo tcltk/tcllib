@@ -1,3 +1,9 @@
+2006-08-05  Will Duquette <will@wjduquette.com>
+	* validate.tcl: New module; defines a number of "validation
+	types".  These will be used with the forthcoming "-type"
+	option-definition option to add robust validation for snit::type
+	and snit::widget options.
+	
 2006-07-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snitfaq.man: Finally fixed the two ambigous section titles.
