@@ -12,20 +12,21 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Changes in V2.0/V1.1
+Differences Between Snit 2.0 and Snit 1.x
 --------------------------------------------------------------------
 
-* V2.0 and V1.1 are being developed in parallel.
+* V2.0 and V1.x are being developed in parallel.
 
   Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
   ([dict] and [namespace ensemble]) to improve Snit's run-time
   efficiency.  Otherwise, it's intended to be feature-equivalent
-  with V1.1.  When running with Tcl/Tk 8.5, both V2.0 and V1.1 are
-  available; when running with Tcl/Tk 8.4, only V1.1 is available.
+  with V1.x.  When running with Tcl/Tk 8.5, both V2.0 and V1.x are
+  available; when running with Tcl/Tk 8.3 or Tcl/Tk 8.4, only 
+  V1.x is available.
 
-  Snit 1.x is implemented in snit.tcl; Snit 2.x in snit2.tcl.
+  Snit 1.x is implemented in snit.tcl; Snit 2.0 in snit2.tcl.
 
-* There are three incompatibilities between V2.0 and V1.1:
+* There are three incompatibilities between V2.0 and V1.x:
 
   * Implicit naming of objects now only works if you set 
     
@@ -59,6 +60,17 @@ Changes in V2.0/V1.1
   "foo bar".  In Snit 2.0, only the first word of a hierarchical
   method name is returned, [$obj info methods] would include 
   "foo" but not "foo bar".
+
+Changes in V1.2
+--------------------------------------------------------------------
+
+* Defined a family of validation types.  Validation types are used
+  to validate data values; for example, snit::integer and its
+  subtypes can validate a variety of classes of integer value, e.g.,
+  integers between 3 and 9 or integers greater than 0.
+
+Changes in V1.1
+--------------------------------------------------------------------
 
 * It's now explicitly an error to call an object's "destroy" method
   in the object's constructor.  (If you need to do it, just throw
